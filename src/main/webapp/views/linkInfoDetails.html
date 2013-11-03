@@ -2,26 +2,30 @@
 	<div class='info' ng-switch="linkCategory">
 
 		<div ng-switch-when="UnknownLinkInfoBox">
-            <dl ng-repeat="target in targetinfo">
-                <dt>
+            <div class="alert alert-info text-center">
+                Unknown Links
+            </div>
+            <ul class="unstyled">
+                <li ng-repeat="target in targetinfo">
                     <img ng-src="/images/icons/{{sourceinfo[0].serviceType | icons}}.png" width="20" height="10" /> {{sourceinfo[0].applicationName}}
                     <i class="icon-arrow-right"></i>
                     <img ng-src="/images/icons/{{target.serviceType | icons}}.png" width="20" height="10" /> {{target.applicationName}}
-                    <a class="btn btn-mini" href ng-click="showDetailInformation(target.applicationName)" title="show details">
+                    <a class="btn btn-mini" href ng-click="showDetailInformation(target.applicationName)" title="Show Link Information">
                         <i class="icon-tasks"></i>
                     </a>
                     <a class="btn btn-mini" href ng-click="passingTransactionMap(sourceinfo[0].serviceType, sourceinfo[0].applicationName, target.serviceType, target.applicationName)" title="filter transaction">
-                    	<i class="icon-filter"></i>
+                        <i class="icon-filter"></i>
                     </a>
-                </dt>
-                <dd>
-                    <ul class="unstyled">
-                        <li>request count : {{rawdata[target.applicationName].count}} /
-                            <span ng-style="rawdata[target.applicationName].error && 'color:#FF0000'">{{rawdata[target.applicationName].error}}</span>
-                        </li>
-                    </ul>
-                </dd>
-            </dl>
+                    <br>
+                    <div class="summaryCharts_{{target.sequence}}">
+                        <svg style='height:120px' />
+                    </div>
+                    <!--<ul>-->
+                        <!--<li>Request Count : {{rawdata[target.applicationName].count | number}}</li>-->
+                        <!--<li ng-class="rawdata[target.applicationName].error && 'text-error'">Error Count : {{rawdata[target.applicationName].error | number}}</li>-->
+                    <!--</ul>-->
+                </li>
+            </ul>
 		</div>
 
 		<div ng-switch-when="LinkInfoBox" class="alert alert-info text-center">

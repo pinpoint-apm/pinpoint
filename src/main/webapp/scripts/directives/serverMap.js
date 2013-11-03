@@ -555,7 +555,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                                     "text": 0,
                                     "error": 0,
                                     "slow": 0,
-                                    "rawdata": [],
+                                    "rawdata": {},
                                     "histogram": {}
                                 };
                             }

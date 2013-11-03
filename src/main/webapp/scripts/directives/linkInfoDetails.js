@@ -16,7 +16,8 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (co
             var htQuery;
 
             // define private variables of methods;
-            var reset, showDetailInformation, getLinkStatisticsData, renderStatisticsTimeSeriesHistogram, renderStatisticsSummary, showApplicationStatistics;
+            var reset, showDetailInformation, getLinkStatisticsData, renderStatisticsTimeSeriesHistogram,
+                renderStatisticsSummary, showApplicationStatistics, parseHistogramForD3;
 
             /**
              * reset
@@ -47,8 +48,13 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (co
              * @param data
              */
             showDetailInformation = function (data) {
+                console.log('data', data);
                 if (data.rawdata) {
                     scope.linkCategory = 'UnknownLinkInfoBox';
+                    for (var key in data.targetinfo) {
+                        console.log('data.rawdata.$$hashKey', data.targetinfo[key]);
+                        renderStatisticsSummary('.linkInfoDetails .summaryCharts_' + data.targetinfo[key].sequence + ' svg', parseHistogramForD3(data.rawdata[data.targetinfo[key].applicationName].histogram));
+                    }
                 } else {
                     scope.linkCategory = 'LinkInfoBox';
                     showApplicationStatistics(
@@ -57,7 +63,8 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (co
                         data.sourceinfo.serviceTypeCode,
                         data.sourceinfo.applicationName,
                         data.targetinfo.serviceTypeCode,
-                        data.targetinfo.applicationName
+                        data.targetinfo.applicationName,
+                        data.histogram
                     );
                 }
 
@@ -139,13 +146,13 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (co
              * render statics summary
              * @param data
              */
-            renderStatisticsSummary = function (data) {
+            renderStatisticsSummary = function (querySelector, data) {
                 nv.addGraph(function () {
                     var chart = nv.models.discreteBarChart().x(function (d) {
                         return d.label;
                     }).y(function (d) {
-                        return d.value;
-                    }).staggerLabels(false).tooltips(false).showValues(true);
+                            return d.value;
+                        }).staggerLabels(false).tooltips(false).showValues(true);
 
                     chart.xAxis.tickFormat(function (d) {
                         if (angular.isNumber(d)) {
@@ -164,7 +171,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (co
 
                     chart.color(config.myColors);
 
-                    d3.select('.linkInfoDetails .infoBarChart svg')
+                    d3.select(querySelector)
                         .datum(data)
                         .transition()
                         .duration(0)
@@ -184,8 +191,9 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (co
              * @param srcApplicationName
              * @param destServiceType
              * @param destApplicationName
+             * @param histogram
              */
-            showApplicationStatistics = function (begin, end, srcServiceType, srcApplicationName, destServiceType, destApplicationName) {
+            showApplicationStatistics = function (begin, end, srcServiceType, srcApplicationName, destServiceType, destApplicationName, histogram) {
                 var params = {
                     "from": begin,
                     "to": end,
@@ -195,13 +203,32 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (co
                     "destApplicationName": destApplicationName
                 };
 
+                scope.showLinkInfoChart = true;
+                scope.showLinkInfoBarChart = true;
+                renderStatisticsSummary('.linkInfoDetails .infoBarChart svg', parseHistogramForD3(histogram));
                 getLinkStatisticsData(params, function (query, result) {
-                    scope.showLinkInfoChart = true;
-                    scope.showLinkInfoBarChart = true;
-                    scope.$digest();
                     renderStatisticsTimeSeriesHistogram(result.timeseriesHistogram);
-                    renderStatisticsSummary(result.histogramSummary);
                 });
+            };
+
+            /**
+             * parse histogram for d3.js
+             * @param histogram
+             */
+            parseHistogramForD3 = function (histogram) {
+                var histogramSummary = [
+                    {
+                        "key": "Responsetime Histogram",
+                        "values": []
+                    }
+                ];
+                for (var key in histogram) {
+                    histogramSummary[0].values.push({
+                        "label": key,
+                        "value": histogram[key]
+                    });
+                }
+                return histogramSummary;
             };
 
             /**
