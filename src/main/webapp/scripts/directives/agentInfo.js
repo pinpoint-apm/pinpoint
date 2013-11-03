@@ -4,7 +4,7 @@ pinpointApp.constant('agentInfoConfig', {
     agentStatUrl: '/getAgentStat.pinpoint'
 });
 
-pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$routeParams', '$http', '$timeout', function (cfg, $routeParams, $http, $timeout) {
+pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'ProgressBar', function (cfg, $timeout, Alerts, ProgressBar) {
     return {
         restrict: 'EA',
         replace: true,
@@ -12,12 +12,14 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$routeParams', '$http',
         link: function postLink(scope, element, attrs) {
 
             // define private variables
-            var oNavbarDao;
+            var oNavbarDao, oAlert, oProgressBar;
 
             // define private variables of methods
             var getSampleRate, getAgentStat, showAgentStat, d3MakeGcCharts;
 
             // initialize
+            oAlert = new Alerts(element);
+            oProgressBar = new ProgressBar(element);
             scope.agentInfoTemplate = 'views/agentInfoReady.html';
 
             // TODO this is dummy
@@ -45,8 +47,10 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$routeParams', '$http',
                     { key: 'Agent Version', val: agent.version }
                 ];
 
-                showAgentStat(agent.agentId, oNavbarDao.getQueryStartTime(), oNavbarDao.getQueryEndTime(), oNavbarDao.getPeriod());
-                scope.$apply();
+                $timeout(function () {
+                    showAgentStat(agent.agentId, oNavbarDao.getQueryStartTime(), oNavbarDao.getQueryEndTime(), oNavbarDao.getPeriod());
+                    scope.$apply();
+                });
             });
 
             /**
@@ -67,7 +71,7 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$routeParams', '$http',
              jvmMemoryPoolsPSPermGenUsage
              jvmMemoryPoolsPSSurvivorSpaceUsage
              */
-            d3MakeGcCharts = function (agentStat, cb) {
+            d3MakeGcCharts = function (agentStat) {
                 var total = { id: 'total', title: 'Total (Heap + PermGen)', span: 'span12', line: [
                     { id: 'jvmMemoryTotalUsed', key: 'used', values: [] },
                     { id: 'jvmMemoryTotalMax', key: 'max', values: [] },
@@ -199,6 +203,8 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$routeParams', '$http',
                         cb(result);
                     },
                     error: function (xhr, status, error) {
+                        oProgressBar.stopLoading();
+                        oAlert.showError('There is some error.');
                         console.log("ERROR", status, error);
                     }
                 });
@@ -211,20 +217,23 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$routeParams', '$http',
              * @param to
              */
             showAgentStat = function (agentId, from, to, period) {
+                oProgressBar.startLoading();
                 var query = {
                     agentId: agentId,
                     from: from,
                     to: to,
                     sampleRate: getSampleRate(period)
                 };
-
+                oProgressBar.setLoading(40);
                 getAgentStat(query, function (result) {
                     scope.agentStat = result;
                     if (result.type) {
                         scope.info.push({key: 'JVM GC Type', val: result.type});
                     }
-                    d3MakeGcCharts(result, function () {
-                    });
+                    oProgressBar.setLoading(80);
+                    d3MakeGcCharts(result);
+                    oProgressBar.setLoading(100);
+                    oProgressBar.stopLoading();
                     scope.$digest();
                 });
             };

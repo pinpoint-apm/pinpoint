@@ -1,4 +1,9 @@
-<div class="container">
+<div class="container" style="min-height:100%;position:relative;">
+    <div ng-include=" 'error' "></div>
+    <div ng-include=" 'warning' "></div>
+    <div ng-include=" 'info' "></div>
+    <div ng-include=" 'loading' "></div>
+
     <div class="row">
         <div class="span12">
             <h3><i class="icon-zoom-in"></i>Inspector</h3>
@@ -6,7 +11,7 @@
     </div>
     <div class="row">
         <div class="span12">
-            <h5 style="color:#0088cc;">Informations</h5>
+            <h5 style="color:#0088cc;">Information</h5>
             <table class="table table-striped table-condensed" style="font-size:12px;">
                 <tbody>
                 <tr ng-repeat="i in info">

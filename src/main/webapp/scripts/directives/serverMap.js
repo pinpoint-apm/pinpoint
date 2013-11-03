@@ -54,11 +54,11 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
             oServerMap = null;
             SERVERMAP_METHOD_CACHE = {};
             htLastMapData = {
-                applicationMapData : {
-                    linkDataArray : [],
-                    nodeDataArray : []
+                applicationMapData: {
+                    linkDataArray: [],
+                    nodeDataArray: []
                 },
-                lastFetchedTimestamp : []
+                lastFetchedTimestamp: []
             };
             oAlert = new Alerts(element);
             oProgressBar = new ProgressBar(element);
@@ -203,7 +203,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
              */
             findExistingLinkFromLastMapData = function (link, newKey) {
                 for (var key in htLastMapData.applicationMapData.linkDataArray) {
-                    console.log(htLastMapData.applicationMapData.linkDataArray[key].from , newKey[link.from] , htLastMapData.applicationMapData.linkDataArray[key].to , newKey[link.to]);
+                    console.log(htLastMapData.applicationMapData.linkDataArray[key].from, newKey[link.from], htLastMapData.applicationMapData.linkDataArray[key].to, newKey[link.to]);
                     if (htLastMapData.applicationMapData.linkDataArray[key].from === newKey[link.from] && htLastMapData.applicationMapData.linkDataArray[key].to === newKey[link.to]) {
                         return key;
                     }
@@ -677,12 +677,12 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
             setLinkOption = function (data, linkRouting, linkCurve) {
                 var links = data.applicationMapData.linkDataArray;
                 links.forEach(function (link) {
-                	// 재귀 호출인 경우에는 avoidsnodes사용을 강제함.
-                	if (link.from == link.to) {
-                		link.routing = "AvoidsNodes";
-                	} else {
-                		link.routing = linkRouting;
-                	}
+                    // 재귀 호출인 경우에는 avoidsnodes사용을 강제함.
+                    if (link.from === link.to) {
+                        link.routing = "AvoidsNodes";
+                    } else {
+                        link.routing = linkRouting;
+                    }
                     link.curve = linkCurve;
                 });
             };
