@@ -47,15 +47,15 @@ public class ScatterChartController {
     @Autowired
     private FilterBuilder filterBuilder;
 
-	@RequestMapping(value = "/selectedScatter", method = RequestMethod.GET)
-	public String selectedScatter(Model model, HttpServletResponse response) {
-		return "selectedScatter";
-	}
-
-	@RequestMapping(value = "/selectedScatterList", method = RequestMethod.GET)
-	public String selectedScatterList(Model model, HttpServletResponse response) {
-		return "selectedScatterList";
-	}
+//	@RequestMapping(value = "/selectedScatter", method = RequestMethod.GET)
+//	public String selectedScatter(Model model, HttpServletResponse response) {
+//		return "selectedScatter";
+//	}
+//
+//	@RequestMapping(value = "/selectedScatterList", method = RequestMethod.GET)
+//	public String selectedScatterList(Model model, HttpServletResponse response) {
+//		return "selectedScatterList";
+//	}
 
 	@RequestMapping(value = "/scatterpopup", method = RequestMethod.GET)
 	public String scatterPopup(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("to") long to, @RequestParam("period") long period, @RequestParam("usePeriod") boolean usePeriod, @RequestParam(value = "filter", required = false) String filterText) {
@@ -164,43 +164,43 @@ public class ScatterChartController {
 		return getScatterData(model, response, applicationName, from, to, limit, filterText, jsonpCallback, version);
 	}
 
-	/**
-	 * scatter 실시간 갱신에서는 to 시간을 지정하지 않는다. server time을 사용하고 조회된 시간 범위를 반환해준다.
-	 * UI에서는 반환된 조회 범위를 참조해서 다음 쿼리를 요청한다.
-	 * 
-	 * @param model
-	 * @param response
-	 * @param applicationName
-	 * @param from
-	 * @param limit
-	 * @return
-	 */
-	@RequestMapping(value = "/getRealtimeScatterData", method = RequestMethod.GET)
-	public String getRealtimeScatterData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("limit") int limit) {
-		StopWatch watch = new StopWatch();
-		watch.start("selectScatterData");
-
-		long to = TimeUtils.getDelayLastTime();
-
-		// TODO need filter??
-		List<Dot> scatterData = scatter.selectScatterData(applicationName, from, to, limit);
-		watch.stop();
-
-		logger.info("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());
-
-		model.addAttribute("scatter", scatterData);
-		model.addAttribute("queryFrom", from);
-
-		if (scatterData.size() >= limit) {
-			model.addAttribute("queryTo", scatterData.get(scatterData.size() - 1).getTimestamp());
-		} else {
-			model.addAttribute("queryTo", to);
-		}
-
-		model.addAttribute("limit", limit);
-
-		return "scatterRealtime";
-	}
+//	/**
+//	 * scatter 실시간 갱신에서는 to 시간을 지정하지 않는다. server time을 사용하고 조회된 시간 범위를 반환해준다.
+//	 * UI에서는 반환된 조회 범위를 참조해서 다음 쿼리를 요청한다.
+//	 * 
+//	 * @param model
+//	 * @param response
+//	 * @param applicationName
+//	 * @param from
+//	 * @param limit
+//	 * @return
+//	 */
+//	@RequestMapping(value = "/getRealtimeScatterData", method = RequestMethod.GET)
+//	public String getRealtimeScatterData(Model model, HttpServletResponse response, @RequestParam("application") String applicationName, @RequestParam("from") long from, @RequestParam("limit") int limit) {
+//		StopWatch watch = new StopWatch();
+//		watch.start("selectScatterData");
+//
+//		long to = TimeUtils.getDelayLastTime();
+//
+//		// TODO need filter??
+//		List<Dot> scatterData = scatter.selectScatterData(applicationName, from, to, limit);
+//		watch.stop();
+//
+//		logger.info("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());
+//
+//		model.addAttribute("scatter", scatterData);
+//		model.addAttribute("queryFrom", from);
+//
+//		if (scatterData.size() >= limit) {
+//			model.addAttribute("queryTo", scatterData.get(scatterData.size() - 1).getTimestamp());
+//		} else {
+//			model.addAttribute("queryTo", to);
+//		}
+//
+//		model.addAttribute("limit", limit);
+//
+//		return "scatterRealtime";
+//	}
 
 	/**
 	 * scatter에서 점 여러개를 선택했을 때 점에 대한 정보를 조회한다.

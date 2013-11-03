@@ -6,8 +6,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.nhn.pinpoint.web.filter.FilterBuilder;
-import com.nhn.pinpoint.web.service.SpanResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +17,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
-import com.nhn.pinpoint.web.calltree.server.ServerCallTree;
 import com.nhn.pinpoint.web.calltree.span.SpanAlign;
 import com.nhn.pinpoint.web.filter.Filter;
+import com.nhn.pinpoint.web.filter.FilterBuilder;
 import com.nhn.pinpoint.web.service.FlowChartService;
 import com.nhn.pinpoint.web.service.RecordSetService;
+import com.nhn.pinpoint.web.service.SpanResult;
 import com.nhn.pinpoint.web.service.SpanService;
 import com.nhn.pinpoint.web.util.TimeUtils;
 import com.nhn.pinpoint.web.vo.BusinessTransactions;
@@ -171,8 +170,6 @@ public class BusinessTransactionController {
                 mv.setViewName("transactionInfoJson");
             }
         }
-
         return mv;
     }
-
 }

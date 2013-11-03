@@ -1,13 +1,9 @@
 package com.nhn.pinpoint.web.controller;
 
-import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.nhn.pinpoint.common.util.DateUtils;
-import com.nhn.pinpoint.web.filter.FilterBuilder;
-import com.nhn.pinpoint.web.vo.LimitedScanResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +14,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.util.DateUtils;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
 import com.nhn.pinpoint.web.filter.Filter;
+import com.nhn.pinpoint.web.filter.FilterBuilder;
 import com.nhn.pinpoint.web.service.ApplicationMapService;
 import com.nhn.pinpoint.web.service.FlowChartService;
 import com.nhn.pinpoint.web.util.TimeUtils;
+import com.nhn.pinpoint.web.vo.LimitedScanResult;
 import com.nhn.pinpoint.web.vo.LinkStatistics;
 import com.nhn.pinpoint.web.vo.TransactionId;
 
@@ -94,27 +93,6 @@ public class ApplicationMapController {
 		return getServerMapData(model, response, applicationName, serviceType, from, to);
 	}
 
-	@RequestMapping(value = "/filtermap", method = RequestMethod.GET)
-	public String filtermap(Model model,
-							HttpServletResponse response,
-							@RequestParam("application") String applicationName, 
-							@RequestParam("serviceType") short serviceType,
-							@RequestParam("from") long from,
-							@RequestParam("to") long to, 
-							@RequestParam(value = "filter", required = false) String filterText) {
-		
-		model.addAttribute("applicationName", applicationName);
-		model.addAttribute("serviceType", serviceType);
-		model.addAttribute("from", from);
-		model.addAttribute("to", to);
-		model.addAttribute("fromDate", new Date(from));
-		model.addAttribute("toDate", new Date(to));
-		model.addAttribute("filterText", filterText);
-		model.addAttribute("filter", filterBuilder.build(filterText));
-
-		return "applicationmap.filtered.view";
-	}
-
 	/**
 	 * 필터가 적용된 서버맵의 FROM ~ TO기간의 데이터 조회
 	 * 
@@ -153,9 +131,11 @@ public class ApplicationMapController {
 
 		model.addAttribute("nodes", map.getNodes());
 		model.addAttribute("links", map.getLinks());
-//		model.addAttribute("timeseriesResponses", map.getTimeseriesResponses());
+		
+		// FIXME linkstatistics detail에 보여주는 timeseries값을 서버맵에서 제공할 예정.
+		// model.addAttribute("timeseriesResponses", map.getTimeseriesResponses());
 
-		return "applicationmap.filtered2";
+		return "applicationmap.filtered";
 	}
 	
 	/**
