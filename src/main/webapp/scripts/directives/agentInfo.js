@@ -13,10 +13,10 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$routeParams', '$http',
 
             // define private variables
             var oNavbarDao;
-            
+
             // define private variables of methods
             var getSampleRate, getAgentStat, showAgentStat, d3MakeGcCharts;
-            
+
             // initialize
             scope.agentInfoTemplate = 'views/agentInfoReady.html';
 
@@ -30,9 +30,10 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$routeParams', '$http',
             /**
              * scope event of agentInfo.initialize
              */
-            scope.$on('agentInfo.initialize', function (event, oNavbarDao, agent) {
+            scope.$on('agentInfo.initialize', function (event, navbarDao, agent) {
                 scope.agentInfoTemplate = 'views/agentInfoMain.html';
                 scope.agent = agent;
+                oNavbarDao = navbarDao;
 
                 scope.info = [
                     { key: 'Agent Id', val: agent.agentId },
@@ -60,31 +61,31 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$routeParams', '$http',
             };
 
             /**
-            jvmMemoryPoolsCodeCacheUsage
-            jvmMemoryPoolsPSEdenSpaceUsage
-            jvmMemoryPoolsPSOldGenUsage
-            jvmMemoryPoolsPSPermGenUsage
-            jvmMemoryPoolsPSSurvivorSpaceUsage
-            */
+             jvmMemoryPoolsCodeCacheUsage
+             jvmMemoryPoolsPSEdenSpaceUsage
+             jvmMemoryPoolsPSOldGenUsage
+             jvmMemoryPoolsPSPermGenUsage
+             jvmMemoryPoolsPSSurvivorSpaceUsage
+             */
             d3MakeGcCharts = function (agentStat, cb) {
                 var total = { id: 'total', title: 'Total (Heap + PermGen)', span: 'span12', line: [
                     { id: 'jvmMemoryTotalUsed', key: 'used', values: [] },
                     { id: 'jvmMemoryTotalMax', key: 'max', values: [] },
                     { id: 'gc', key: 'GC', values: [], bar: true }
                 ]};
-                
+
                 var heap = { id: 'heap', title: 'Heap', span: 'span12', line: [
                     { id: 'jvmMemoryHeapUsed', key: 'used', values: [] },
                     { id: 'jvmMemoryHeapMax', key: 'max', values: [] },
                     { id: 'gc', key: 'GC', values: [], bar: true }
                 ]};
-                
+
                 var nonheap = { id: 'nonheap', title: 'PermGen', span: 'span12', line: [
                     { id: 'jvmMemoryNonHeapUsed', key: 'used', values: [] },
                     { id: 'jvmMemoryNonHeapMax', key: 'max', values: [] },
                     { id: 'gc', key: 'GC', values: [], bar: true }
                 ]};
-                
+
                 var result = [ heap, nonheap ];
                 scope.memoryGroup = result;
 
@@ -98,35 +99,35 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$routeParams', '$http',
                         if (line.bar) {
                             // bar chart
                             var key;
-                            if ('serial' == agentStat.type) {
+                            if ('serial' === agentStat.type) {
                                 key = 'jvmGcMarkSweepCompact';
-                            } else if ('parallel' == agentStat.type) {
+                            } else if ('parallel' === agentStat.type) {
                                 key = 'jvmGcPSMarkSweep';
-                            } else if ('cms' == agentStat.type) {
+                            } else if ('cms' === agentStat.type) {
                                 key = 'jvmGcCms';
-                            } else if ('g1' == agentStat.type) {
+                            } else if ('g1' === agentStat.type) {
                                 key = 'jvmGcG1OldGeneration';
                             }
                             if (key) {
-                                var pointsTime = agentStat.charts[key+'Time'].points;
-                                var pointsCount = agentStat.charts[key+'Count'].points;
+                                var pointsTime = agentStat.charts[key + 'Time'].points;
+                                var pointsCount = agentStat.charts[key + 'Count'].points;
 
-                                if (pointsTime.length != pointsCount.length) {
+                                if (pointsTime.length !== pointsCount.length) {
                                     console.log('assertion error', 'time.length != count.length');
                                     return;
                                 }
 
-                                for (var i = pointsCount.length-1; i >= 0; --i) {
+                                for (var i = pointsCount.length - 1; i >= 0; --i) {
                                     var timestamp = pointsTime[i][POINTS_TIMESTAMP];
                                     var currTime = pointsTime[i][POINTS_MAX];
                                     var currCount = pointsCount[i][POINTS_MAX];
                                     var prevTime = line.prevTime;
                                     var prevCount = line.prevCount;
 
-                                    if (! line.prevTime || ! line.prevCount) {
+                                    if (!line.prevTime || !line.prevCount) {
                                         line.values.push({x: timestamp, y: 0});
                                         line.prevTime = currTime;
-                                        line.prevCount = currCount;    
+                                        line.prevCount = currCount;
                                     } else {
                                         if ((currCount - prevCount > 0) && (currTime - prevTime > 0)) {
                                             line.values.push({x: timestamp, y: currTime - prevTime});
@@ -141,9 +142,9 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$routeParams', '$http',
                         } else {
                             // line chart
                             var points = agentStat.charts[line.id].points;
-                            for (var i = points.length-1; i >= 0; --i) {
-                                line.values.push({x: points[i][POINTS_TIMESTAMP], y: points[i][POINTS_MAX]});
-                            };
+                            for (var j = points.length - 1; j >= 0; --j) {
+                                line.values.push({x: points[j][POINTS_TIMESTAMP], y: points[j][POINTS_MAX]});
+                            }
                         }
                     });
 
@@ -202,7 +203,7 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$routeParams', '$http',
                     }
                 });
             };
-            
+
             /**
              * show agent stat
              * @param agentId
@@ -216,13 +217,14 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$routeParams', '$http',
                     to: to,
                     sampleRate: getSampleRate(period)
                 };
-                
+
                 getAgentStat(query, function (result) {
                     scope.agentStat = result;
                     if (result.type) {
-                        scope.info.push({key:'JVM GC Type', val:result.type});
+                        scope.info.push({key: 'JVM GC Type', val: result.type});
                     }
-                    d3MakeGcCharts(result, function() { });
+                    d3MakeGcCharts(result, function () {
+                    });
                     scope.$digest();
                 });
             };
