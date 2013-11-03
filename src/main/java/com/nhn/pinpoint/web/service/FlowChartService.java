@@ -29,5 +29,7 @@ public interface FlowChartService {
 
 	public LinkStatistics linkStatisticsDetail(long from, long to, List<TransactionId> traceIdSet, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType, Filter filter);
 
-	public ApplicationMap selectApplicationMap(List<TransactionId> traceIdList, long from, long to, Filter filter);
+	public ApplicationMap selectApplicationMap(List<TransactionId> traceIdList, /*long from, long to,*/ Filter filter);
+	
+	public ApplicationMap selectApplicationMap(TransactionId transactionId);
 }

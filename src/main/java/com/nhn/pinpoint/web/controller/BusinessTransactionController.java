@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
 import com.nhn.pinpoint.web.calltree.server.ServerCallTree;
 import com.nhn.pinpoint.web.calltree.span.SpanAlign;
 import com.nhn.pinpoint.web.filter.Filter;
@@ -135,10 +136,16 @@ public class BusinessTransactionController {
 
             mv.addObject("traceId", traceId);
 
-            // call tree
-            ServerCallTree callTree = this.flow.selectServerCallTree(traceId);
-            mv.addObject("nodes", callTree.getNodes());
-            mv.addObject("links", callTree.getLinks());
+			// call tree
+			ApplicationMap map = flow.selectApplicationMap(traceId);
+			mv.addObject("nodes", map.getNodes());
+			mv.addObject("links", map.getLinks());
+            
+			// TODO ServerCallTree대신에 application map사용.
+			// application map을 사용하면 instance별로 보여줄 수 없지만 두 개 맵 코드를 유지하는 것보다는 나을 듯. 
+			// ServerCallTree callTree = flow.selectServerCallTree(traceId);
+			// mv.addObject("nodes", callTree.getNodes());
+			// mv.addObject("links", callTree.getLinks());
 
             // call stacks
             RecordSet recordSet = this.recordSetService.createRecordSet(spanAligns, focusTimestamp);

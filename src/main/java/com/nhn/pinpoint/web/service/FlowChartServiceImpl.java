@@ -317,12 +317,19 @@ public class FlowChartServiceImpl implements FlowChartService {
 		}
 		return statistics;
 	}
+
+	@Override
+	public ApplicationMap selectApplicationMap(TransactionId transactionId) {
+		List<TransactionId> transactionIdList = new ArrayList<TransactionId>();
+		transactionIdList.add(transactionId);
+		return selectApplicationMap(transactionIdList, Filter.NONE);
+	}
 	
 	/**
 	 * filtered application map
 	 */
 	@Override
-	public ApplicationMap selectApplicationMap(List<TransactionId> transactionIdList, long from, long to, Filter filter) {
+	public ApplicationMap selectApplicationMap(List<TransactionId> transactionIdList, /*long from, long to,*/ Filter filter) {
 		StopWatch watch = new StopWatch();
 		watch.start();
 
@@ -485,7 +492,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 		
 		// mark agent info
 		for (TransactionFlowStatistics stat  : statisticsData) {
-			fillAdditionalInfo(stat, from, to);
+			fillAdditionalInfo(stat/*, from, to*/);
 		}
 		
 		ApplicationMap map = new ApplicationMap(statisticsData).build();
@@ -515,7 +522,7 @@ public class FlowChartServiceImpl implements FlowChartService {
         return transactionIdList;
     }
 
-    private void fillAdditionalInfo(TransactionFlowStatistics stat, long from, long to) {
+    private void fillAdditionalInfo(TransactionFlowStatistics stat/*, long from, long to*/) {
 		if (stat.getToServiceType().isTerminal() || stat.getToServiceType().isUnknown()) {
 			return;
 		}

@@ -141,7 +141,7 @@ public class ApplicationMapController {
 		LimitedScanResult<List<TransactionId>> limitedScanResult = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
 		Filter filter = filterBuilder.build(filterText);
 		
-		ApplicationMap map = flow.selectApplicationMap(limitedScanResult.getScanData(), from, to, filter);
+		ApplicationMap map = flow.selectApplicationMap(limitedScanResult.getScanData(), /*from, to,*/ filter);
 		
 		model.addAttribute("from", from);
 		model.addAttribute("to", to);
