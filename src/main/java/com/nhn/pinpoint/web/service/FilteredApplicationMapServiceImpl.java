@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -25,13 +24,9 @@ import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
 import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatisticsUtils;
 import com.nhn.pinpoint.web.dao.AgentInfoDao;
 import com.nhn.pinpoint.web.dao.ApplicationIndexDao;
-import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCalleeDao;
-import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCallerDao;
 import com.nhn.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.nhn.pinpoint.web.dao.TraceDao;
 import com.nhn.pinpoint.web.filter.Filter;
-import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.web.vo.BusinessTransactions;
 import com.nhn.pinpoint.web.vo.LimitedScanResult;
 import com.nhn.pinpoint.web.vo.LinkStatistics;
 import com.nhn.pinpoint.web.vo.TransactionId;
@@ -40,7 +35,7 @@ import com.nhn.pinpoint.web.vo.TransactionId;
  * @author netspider
  */
 @Service
-public class FlowChartServiceImpl implements FlowChartService {
+public class FilteredApplicationMapServiceImpl implements FilteredApplicationMapService {
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -54,20 +49,9 @@ public class FlowChartServiceImpl implements FlowChartService {
 	private ApplicationTraceIndexDao applicationTraceIndexDao;
 
 	@Autowired
-	private ApplicationMapStatisticsCalleeDao applicationMapStatisticsCalleeDao;
-
-	@Autowired
-	private ApplicationMapStatisticsCallerDao applicationMapStatisticsCallerDao;
-
-	@Autowired
 	private AgentInfoDao agentInfoDao;
 
 	private static final Object V = new Object();
-
-	@Override
-	public List<Application> selectAllApplicationNames() {
-		return applicationIndexDao.selectAllApplicationNames();
-	}
 
 	@Override
 	public LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, long from, long to, int limit) {
@@ -83,34 +67,7 @@ public class FlowChartServiceImpl implements FlowChartService {
 	}
 
 	@Override
-	public BusinessTransactions selectBusinessTransactions(List<TransactionId> traceIds, String applicationName, long from, long to, Filter filter) {
-		List<List<SpanBo>> traceList;
-
-		if (filter == Filter.NONE) {
-			traceList = this.traceDao.selectSpans(traceIds);
-		} else {
-			traceList = this.traceDao.selectAllSpans(traceIds);
-		}
-
-		BusinessTransactions businessTransactions = new BusinessTransactions();
-		for (List<SpanBo> trace : traceList) {
-			if (!filter.include(trace)) {
-				continue;
-			}
-
-			for (SpanBo spanBo : trace) {
-				// 해당 application으로 인입된 요청만 보여준다.
-				if (applicationName.equals(spanBo.getApplicationId())) {
-					businessTransactions.add(spanBo);
-				}
-			}
-		}
-
-		return businessTransactions;
-	}
-
-	@Override
-	public LinkStatistics linkStatisticsDetail(long from, long to, List<TransactionId> traceIdSet, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType, Filter filter) {
+	public LinkStatistics linkStatistics(long from, long to, List<TransactionId> traceIdSet, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType, Filter filter) {
 		StopWatch watch = new StopWatch();
 		watch.start();
 
@@ -153,51 +110,6 @@ public class FlowChartServiceImpl implements FlowChartService {
 		watch.stop();
 		logger.info("Fetch link statistics elapsed. {}ms", watch.getLastTaskTimeMillis());
 
-		return statistics;
-	}
-
-	@Override
-	public LinkStatistics linkStatistics(long from, long to, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType) {
-		List<Map<Long, Map<Short, Long>>> list;
-
-		if (ServiceType.findServiceType(srcServiceType) == ServiceType.CLIENT) {
-			logger.debug("Find 'client -> any' link statistics");
-			// client는 applicatinname + servicetype.client로 기록된다.
-			// 그래서 src, dest가 둘 다 dest로 같음.
-			list = applicationMapStatisticsCalleeDao.selectCalleeStatistics(destApplicationName, srcServiceType, destApplicationName, destServiceType, from, to);
-		} else if (ServiceType.findServiceType(destServiceType).isWas()) {
-			logger.debug("Find 'any -> was' link statistics");
-			// destination이 was인 경우에는 중간에 client event가 끼어있기 때문에 callee에서
-			// caller가
-			// 같은녀석을 찾아야 한다.
-			list = applicationMapStatisticsCallerDao.selectCallerStatistics(srcApplicationName, srcServiceType, destApplicationName, destServiceType, from, to);
-		} else {
-			logger.debug("Find 'was -> terminal' link statistics");
-			// 일반적으로 was -> terminal 간의 통계정보 조회.
-			list = applicationMapStatisticsCalleeDao.selectCalleeStatistics(srcApplicationName, srcServiceType, destApplicationName, destServiceType, from, to);
-		}
-
-		LinkStatistics statistics = new LinkStatistics(from, to);
-
-		// 조회가 안되는 histogram slot이 있으면 UI에 모두 보이지 않기 때문에 미리 정의된 slot을 모두 할당한다.
-		statistics.setDefaultHistogramSlotList(ServiceType.findServiceType(destServiceType).getHistogram().getHistogramSlotList());
-
-		logger.debug("Fetched statistics data=" + list);
-
-		for (Map<Long, Map<Short, Long>> map : list) {
-			for (Entry<Long, Map<Short, Long>> entry : map.entrySet()) {
-				long timestamp = entry.getKey();
-				Map<Short, Long> histogramMap = entry.getValue();
-
-				for (Entry<Short, Long> histogram : histogramMap.entrySet()) {
-					if (histogram.getKey() == -1) {
-						statistics.addSample(timestamp, histogram.getKey(), histogram.getValue(), true);
-					} else {
-						statistics.addSample(timestamp, histogram.getKey(), histogram.getValue(), false);
-					}
-				}
-			}
-		}
 		return statistics;
 	}
 

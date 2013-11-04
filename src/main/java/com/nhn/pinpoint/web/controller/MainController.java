@@ -12,7 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.nhn.pinpoint.web.service.FlowChartService;
+import com.nhn.pinpoint.web.service.CommonService;
 import com.nhn.pinpoint.web.vo.Application;
 
 /**
@@ -25,11 +25,11 @@ public class MainController {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
-	private FlowChartService flow;
+	private CommonService commonService;
 
 	@RequestMapping(value = "/applications", method = RequestMethod.GET)
 	public String flow(Model model, HttpServletResponse response) {
-		List<Application> applications = flow.selectAllApplicationNames();
+		List<Application> applications = commonService.selectAllApplicationNames();
 		model.addAttribute("applications", applications);
 
 		logger.debug("Applications, {}", applications);

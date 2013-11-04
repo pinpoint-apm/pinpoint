@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.nhn.pinpoint.common.bo.SpanBo;
-import com.nhn.pinpoint.web.service.FlowChartService;
+import com.nhn.pinpoint.web.service.FilteredApplicationMapService;
 import com.nhn.pinpoint.web.service.ScatterChartService;
 import com.nhn.pinpoint.web.util.TimeUtils;
 import com.nhn.pinpoint.web.vo.LimitedScanResult;
@@ -42,7 +42,7 @@ public class ScatterChartController {
 	private ScatterChartService scatter;
 	
 	@Autowired
-	private FlowChartService flow;
+	private FilteredApplicationMapService flow;
 
     @Autowired
     private FilterBuilder filterBuilder;

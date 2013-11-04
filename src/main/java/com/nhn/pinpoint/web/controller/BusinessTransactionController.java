@@ -20,8 +20,8 @@ import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
 import com.nhn.pinpoint.web.calltree.span.SpanAlign;
 import com.nhn.pinpoint.web.filter.Filter;
 import com.nhn.pinpoint.web.filter.FilterBuilder;
-import com.nhn.pinpoint.web.service.FlowChartService;
-import com.nhn.pinpoint.web.service.RecordSetService;
+import com.nhn.pinpoint.web.service.FilteredApplicationMapService;
+import com.nhn.pinpoint.web.service.TransactionInfoService;
 import com.nhn.pinpoint.web.service.SpanResult;
 import com.nhn.pinpoint.web.service.SpanService;
 import com.nhn.pinpoint.web.util.TimeUtils;
@@ -42,10 +42,10 @@ public class BusinessTransactionController {
 	private SpanService spanService;
 
 	@Autowired
-	private RecordSetService recordSetService;
+	private TransactionInfoService transactionInfoService;
 
 	@Autowired
-	private FlowChartService flow;
+	private FilteredApplicationMapService filteredApplicationMapService;
 
     @Autowired
     private FilterBuilder filterBuilder;
@@ -69,10 +69,10 @@ public class BusinessTransactionController {
 											@RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
 		
 		// TOOD 구조개선을 위해 server map조회 로직 분리함, 임시로 분리한 상태이고 개선이 필요하다.
-		LimitedScanResult<List<TransactionId>> traceIdList = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
+		LimitedScanResult<List<TransactionId>> traceIdList = filteredApplicationMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
 
 		Filter filter = filterBuilder.build(filterText);
-		BusinessTransactions selectBusinessTransactions = flow.selectBusinessTransactions(traceIdList.getScanData(), applicationName, from, to, filter);
+		BusinessTransactions selectBusinessTransactions = transactionInfoService.selectBusinessTransactions(traceIdList.getScanData(), applicationName, from, to, filter);
 
 		model.addAttribute("lastFetchedTimestamp", traceIdList.getLimitedTime());
 		model.addAttribute("rpcList", selectBusinessTransactions.getBusinessTransactionIterator());
@@ -136,12 +136,12 @@ public class BusinessTransactionController {
             mv.addObject("traceId", traceId);
 
 			// application map
-			ApplicationMap map = flow.selectApplicationMap(traceId);
+			ApplicationMap map = filteredApplicationMapService.selectApplicationMap(traceId);
 			mv.addObject("nodes", map.getNodes());
 			mv.addObject("links", map.getLinks());
 
             // call stacks
-            RecordSet recordSet = this.recordSetService.createRecordSet(spanAligns, focusTimestamp);
+            RecordSet recordSet = this.transactionInfoService.createRecordSet(spanAligns, focusTimestamp);
             mv.addObject("recordSet", recordSet);
 
             mv.addObject("applicationName", recordSet.getApplicationName());

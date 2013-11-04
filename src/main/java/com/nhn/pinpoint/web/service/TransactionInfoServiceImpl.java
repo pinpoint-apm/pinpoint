@@ -8,6 +8,7 @@ import com.nhn.pinpoint.web.util.Stack;
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.nhn.pinpoint.common.AnnotationKey;
@@ -18,6 +19,10 @@ import com.nhn.pinpoint.common.util.AnnotationUtils;
 import com.nhn.pinpoint.common.util.ApiDescription;
 import com.nhn.pinpoint.common.util.ApiDescriptionParser;
 import com.nhn.pinpoint.web.calltree.span.SpanAlign;
+import com.nhn.pinpoint.web.dao.TraceDao;
+import com.nhn.pinpoint.web.filter.Filter;
+import com.nhn.pinpoint.web.vo.BusinessTransactions;
+import com.nhn.pinpoint.web.vo.TransactionId;
 import com.nhn.pinpoint.web.vo.callstacks.Record;
 import com.nhn.pinpoint.web.vo.callstacks.RecordSet;
 
@@ -25,11 +30,39 @@ import com.nhn.pinpoint.web.vo.callstacks.RecordSet;
  *
  */
 @Service
-public class RecordSetServiceImpl implements RecordSetService {
+public class TransactionInfoServiceImpl implements TransactionInfoService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+	@Autowired
+	private TraceDao traceDao;
+    
+	@Override
+	public BusinessTransactions selectBusinessTransactions(List<TransactionId> traceIds, String applicationName, long from, long to, Filter filter) {
+		List<List<SpanBo>> traceList;
 
+		if (filter == Filter.NONE) {
+			traceList = this.traceDao.selectSpans(traceIds);
+		} else {
+			traceList = this.traceDao.selectAllSpans(traceIds);
+		}
+
+		BusinessTransactions businessTransactions = new BusinessTransactions();
+		for (List<SpanBo> trace : traceList) {
+			if (!filter.include(trace)) {
+				continue;
+			}
+
+			for (SpanBo spanBo : trace) {
+				// 해당 application으로 인입된 요청만 보여준다.
+				if (applicationName.equals(spanBo.getApplicationId())) {
+					businessTransactions.add(spanBo);
+				}
+			}
+		}
+
+		return businessTransactions;
+	}
 
     @Override
     public RecordSet createRecordSet(List<SpanAlign> spanAlignList, long focusTimestamp) {
@@ -449,7 +482,6 @@ public class RecordSetServiceImpl implements RecordSetService {
         private Record createParameterRecord(int depth, int parentId, String method, String argument) {
             return new Record(depth, getNextId(), parentId, false, method, argument, 0L, 0L, 0, null, null, null, null, false, false);
         }
-
     }
 
     private static String getDisplayArgument(SpanBo spanBo) {
