@@ -56,6 +56,7 @@ public class AgentStatController {
 			logger.info("getAgentStat(agentId={}, from={}, to={}) : {}ms", agentId, from, to, watch.getLastTaskTimeMillis());
 		}
 
+		// FIXME dummy
 		int nPoints = (int) (to - from) / 5000;
 		if (sampleRate == null) {
 			sampleRate = nPoints < 300 ? 1 : nPoints / 300;

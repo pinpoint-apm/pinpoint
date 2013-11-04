@@ -64,13 +64,6 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                 return points <= MAX_POINTS ? 1 : rate;
             };
 
-            /**
-             jvmMemoryPoolsCodeCacheUsage
-             jvmMemoryPoolsPSEdenSpaceUsage
-             jvmMemoryPoolsPSOldGenUsage
-             jvmMemoryPoolsPSPermGenUsage
-             jvmMemoryPoolsPSSurvivorSpaceUsage
-             */
             d3MakeGcCharts = function (agentStat) {
                 var total = { id: 'total', title: 'Total (Heap + PermGen)', span: 'span12', line: [
                     { id: 'jvmMemoryTotalUsed', key: 'used', values: [] },
@@ -102,44 +95,32 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                     each.line.forEach(function (line) {
                         if (line.bar) {
                             // bar chart
-                            var key;
-                            if ('serial' === agentStat.type) {
-                                key = 'jvmGcMarkSweepCompact';
-                            } else if ('parallel' === agentStat.type) {
-                                key = 'jvmGcPSMarkSweep';
-                            } else if ('cms' === agentStat.type) {
-                                key = 'jvmGcCms';
-                            } else if ('g1' === agentStat.type) {
-                                key = 'jvmGcG1OldGeneration';
+                            var pointsTime = agentStat.charts['jvmGcOldTime'].points;
+                            var pointsCount = agentStat.charts['jvmGcOldCount'].points;
+
+                            if (pointsTime.length !== pointsCount.length) {
+                                console.log('assertion error', 'time.length != count.length');
+                                return;
                             }
-                            if (key) {
-                                var pointsTime = agentStat.charts[key + 'Time'].points;
-                                var pointsCount = agentStat.charts[key + 'Count'].points;
 
-                                if (pointsTime.length !== pointsCount.length) {
-                                    console.log('assertion error', 'time.length != count.length');
-                                    return;
-                                }
+                            for (var i = pointsCount.length - 1; i >= 0; --i) {
+                                var timestamp = pointsTime[i][POINTS_TIMESTAMP];
+                                var currTime = pointsTime[i][POINTS_MAX];
+                                var currCount = pointsCount[i][POINTS_MAX];
+                                var prevTime = line.prevTime;
+                                var prevCount = line.prevCount;
 
-                                for (var i = pointsCount.length - 1; i >= 0; --i) {
-                                    var timestamp = pointsTime[i][POINTS_TIMESTAMP];
-                                    var currTime = pointsTime[i][POINTS_MAX];
-                                    var currCount = pointsCount[i][POINTS_MAX];
-                                    var prevTime = line.prevTime;
-                                    var prevCount = line.prevCount;
-
-                                    if (!line.prevTime || !line.prevCount) {
-                                        line.values.push({x: timestamp, y: 0});
+                                if (!line.prevTime || !line.prevCount) {
+                                    line.values.push({x: timestamp, y: 0});
+                                    line.prevTime = currTime;
+                                    line.prevCount = currCount;
+                                } else {
+                                    if ((currCount - prevCount > 0) && (currTime - prevTime > 0)) {
+                                        line.values.push({x: timestamp, y: currTime - prevTime});
                                         line.prevTime = currTime;
                                         line.prevCount = currCount;
                                     } else {
-                                        if ((currCount - prevCount > 0) && (currTime - prevTime > 0)) {
-                                            line.values.push({x: timestamp, y: currTime - prevTime});
-                                            line.prevTime = currTime;
-                                            line.prevCount = currCount;
-                                        } else {
-                                            line.values.push({x: timestamp, y: 0});
-                                        }
+                                        line.values.push({x: timestamp, y: 0});
                                     }
                                 }
                             }
