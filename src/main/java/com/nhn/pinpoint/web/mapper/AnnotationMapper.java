@@ -17,20 +17,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
+ * @author emeroad
  */
-public class AnnotationMapper implements RowMapper<Map<Integer, List<AnnotationBo>>> {
+public class AnnotationMapper implements RowMapper<Map<Long, List<AnnotationBo>>> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public Map<Integer, List<AnnotationBo>> mapRow(Result result, int rowNum) throws Exception {
+    public Map<Long, List<AnnotationBo>> mapRow(Result result, int rowNum) throws Exception {
         KeyValue[] keyList = result.raw();
-        Map<Integer, List<AnnotationBo>> annotationList = new HashMap<Integer, List<AnnotationBo>>();
+        Map<Long, List<AnnotationBo>> annotationList = new HashMap<Long, List<AnnotationBo>>();
 
         for (KeyValue kv : keyList) {
             final byte[] bytes = kv.getBuffer();
             Buffer buffer = new FixedBuffer(bytes, kv.getQualifierOffset());
-            int spanId = buffer.readInt();
+            long spanId = buffer.readLong();
             if (Bytes.equals(kv.getFamily(), HBaseTables.TRACES_CF_ANNOTATION)) {
                 int valueLength = kv.getValueLength();
                 if (valueLength == 0) {

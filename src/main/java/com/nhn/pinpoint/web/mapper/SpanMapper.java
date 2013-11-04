@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 /**
- *
+ * @author emeroad
  */
 @Component
 public class SpanMapper implements RowMapper<List<SpanBo>> {
@@ -92,7 +92,7 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
             }
         }
         if (annotationMapper != null) {
-            Map<Integer, List<AnnotationBo>> annotationMap = annotationMapper.mapRow(result, rowNum);
+            Map<Long, List<AnnotationBo>> annotationMap = annotationMapper.mapRow(result, rowNum);
             addAnnotation(spanList, annotationMap);
         }
 
@@ -101,7 +101,7 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
 
     }
 
-    private void addAnnotation(List<SpanBo> spanList, Map<Integer, List<AnnotationBo>> annotationMap) {
+    private void addAnnotation(List<SpanBo> spanList, Map<Long, List<AnnotationBo>> annotationMap) {
         for (SpanBo bo : spanList) {
             long spanID = bo.getSpanId();
             List<AnnotationBo> anoList = annotationMap.get(spanID);
