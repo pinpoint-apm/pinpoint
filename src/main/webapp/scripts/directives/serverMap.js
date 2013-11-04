@@ -30,7 +30,7 @@ pinpointApp.constant('serverMapConfig', {
     },
     FILTER_DELIMETER: "^",
     FILTER_ENTRY_DELIMETER: "|",
-    FILTER_FETCH_LIMIT: 3
+    FILTER_FETCH_LIMIT: 5
 });
 
 pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window', 'Alerts', 'ProgressBar', function (cfg, $rootScope, $window, Alerts, ProgressBar) {
