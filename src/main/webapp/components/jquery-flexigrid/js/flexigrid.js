@@ -306,7 +306,7 @@
 					$('th:visible div:eq(' + n + ')', this.hDiv).css('width', nw);
 					$('tr', this.bDiv).each(
 						function () {
-							var $tdDiv = $('td:visible div:eq(' + n + ')', this);
+							var $tdDiv = $('td:visible > div:eq(' + n + ')', this);
 							$tdDiv.css('width', nw);
 							g.addTitleToCell($tdDiv);
 						}
@@ -1208,7 +1208,6 @@
 //                g.cdpad += (isNaN(parseInt($(cdcol).css('borderRightWidth'), 10)) ? 0 : parseInt($(cdcol).css('borderRightWidth'), 10));
                 g.cdpad += (isNaN(parseInt($(cdcol).css('paddingLeft'), 10)) ? 0 : parseInt($(cdcol).css('paddingLeft'), 10));
                 g.cdpad += (isNaN(parseInt($(cdcol).css('paddingRight'), 10)) ? 0 : parseInt($(cdcol).css('paddingRight'), 10));
-                console.log('cddpas')
                 $(g.bDiv).before(g.cDrag);
                 var cdheight = $(g.bDiv).height();
                 var hdheight = $(g.hDiv).height();
