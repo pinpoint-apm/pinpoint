@@ -58,7 +58,7 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
                 spanBo.setTraceTransactionSequence(transactionId.getTransactionSequence());
                 spanBo.setCollectorAcceptTime(kv.getTimestamp());
 
-                spanBo.setSpanID(Bytes.toInt(kv.getBuffer(), kv.getQualifierOffset()));
+                spanBo.setSpanID(Bytes.toLong(kv.getBuffer(), kv.getQualifierOffset()));
                 spanBo.readValue(kv.getBuffer(), kv.getValueOffset());
                 if (logger.isDebugEnabled()) {
                     logger.debug("read span :{}", spanBo);
@@ -71,9 +71,9 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
                 spanEventBo.setTraceAgentStartTime(transactionId.getAgentStartTime());
                 spanEventBo.setTraceTransactionSequence(transactionId.getTransactionSequence());
 
-                int spanId = Bytes.toInt(kv.getBuffer(), kv.getQualifierOffset());
+                long spanId = Bytes.toLong(kv.getBuffer(), kv.getQualifierOffset());
                 // 앞의 spanid가 int이므로 4.
-                final int spanIdOffset = 4;
+                final int spanIdOffset = 8;
                 short sequence = Bytes.toShort(kv.getBuffer(), kv.getQualifierOffset() + spanIdOffset);
                 spanEventBo.setSpanId(spanId);
                 spanEventBo.setSequence(sequence);

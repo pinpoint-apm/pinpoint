@@ -92,11 +92,12 @@ public class SpanAligner2 {
     private Map<Long, List<SpanBo>> buildSpanMap(List<SpanBo> spans) {
         final Map<Long, List<SpanBo>> spanMap = new HashMap<Long, List<SpanBo>>();
         for (SpanBo span : spans) {
-            List<SpanBo> spanBoList = spanMap.get(span.getSpanId());
+            final long spanId = span.getSpanId();
+            List<SpanBo> spanBoList = spanMap.get(spanId);
             if (spanBoList == null) {
                 spanBoList = new ArrayList<SpanBo>();
                 spanBoList.add(span);
-                spanMap.put(span.getSpanId(), spanBoList);
+                spanMap.put(spanId, spanBoList);
             } else {
                 spanBoList.add(span);
             }
@@ -105,8 +106,7 @@ public class SpanAligner2 {
     }
 
     public List<SpanAlign> sort() {
-		List<SpanAlign> list = new ArrayList<SpanAlign>();
-		final List<SpanBo> rootList = spanIdMap.get(rootSpanId);
+		final List<SpanBo> rootList = spanIdMap.remove(rootSpanId);
 		if (rootList == null || rootList.size() == 0) {
 			throw new IllegalStateException("rootList span not found. rootSpanId=" + rootSpanId + ", map=" + spanIdMap.keySet());
 		}
@@ -114,6 +114,7 @@ public class SpanAligner2 {
             throw new IllegalStateException("duplicate rootList span found. rootSpanId=" + rootSpanId + ", map=" + spanIdMap.keySet());
         }
         SpanBo rootSpanBo = rootList.get(0);
+        final List<SpanAlign> list = new ArrayList<SpanAlign>();
         populate(rootSpanBo, 0, list);
 
 		return list;
