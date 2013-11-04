@@ -381,10 +381,8 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
             buffer.put(false);
         }
 
-        // 공간 절약을 위해서 flag는 무조껀 마지막에 넣어야 한다.
-        if (flag != 0) {
-            buffer.put(flag);
-        }
+        buffer.put(flag);
+
         return buffer.getBuffer();
     }
 
@@ -420,10 +418,8 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
             this.exceptionMessage = buffer.readPrefixedString();
         }
 
-        // flag는 무조껀 마지막에 넣어야 한다.
-        if (buffer.limit() == 2) {
-            this.flag = buffer.readShort();
-        }
+        this.flag = buffer.readShort();
+
         return buffer.getOffset();
     }
 
