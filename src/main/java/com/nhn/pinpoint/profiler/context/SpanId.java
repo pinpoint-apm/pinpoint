@@ -14,7 +14,7 @@ public class SpanId {
     public static long newSpanId() {
         long id = seed.nextLong();
         while (id == NULL) {
-            id = seed.nextInt();
+            id = seed.nextLong();
         }
         return id;
     }
