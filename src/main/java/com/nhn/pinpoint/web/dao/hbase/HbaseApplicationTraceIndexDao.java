@@ -105,8 +105,10 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             byte[] originalRow = traceIdRowKeyDistributor.getOriginalKey(row);
             long reverseStartTime = BytesUtils.bytesToLong(originalRow, PinpointConstants.APPLICATION_NAME_MAX_LEN);
             this.lastRowTimestamp = TimeUtils.recoveryCurrentTimeMillis(reverseStartTime);
-            
-            logger.debug("lastRowTimestamp {}", lastRowTimestamp);
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("lastRowTimestamp {}", DateUtils.longToDateStr(lastRowTimestamp));
+            }
         }
 
         private Long getLastRowTimestamp() {
@@ -130,7 +132,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 		scan.setId("ApplicationTraceIndexScan");
 
 		// json으로 변화해서 로그를 찍어서. 최초 변환 속도가 느림.
-		logger.debug("create scan:{}", scan);
+		logger.trace("create scan:{}", scan);
 		return scan;
 	}
 

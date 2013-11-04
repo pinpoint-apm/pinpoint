@@ -23,9 +23,9 @@ public class SpanAligner2 {
     public static final int START_TIME_MATCH = 2;
 
 
-    private static final Integer ROOT = -1;
-	private final Map<Integer, List<SpanBo>> spanIdMap;
-	private Integer rootSpanId = null;
+    private static final Long ROOT = -1L;
+	private final Map<Long, List<SpanBo>> spanIdMap;
+	private Long rootSpanId = null;
     private int matchType = FAIL_MATCH;
 
 	public SpanAligner2(List<SpanBo> spans, long collectorAcceptTime) {
@@ -33,7 +33,7 @@ public class SpanAligner2 {
         this.rootSpanId = findRootSpanId(spans, collectorAcceptTime);
     }
 
-    private int findRootSpanId(List<SpanBo> spans, long collectorAcceptTime) {
+    private long findRootSpanId(List<SpanBo> spans, long collectorAcceptTime) {
         final List<SpanBo> root = new ArrayList<SpanBo>();
         for (SpanBo span : spans) {
             if (span.getParentSpanId() == ROOT) {
@@ -89,8 +89,8 @@ public class SpanAligner2 {
         throw new IllegalStateException("startTime match not found startTime size:" + startMatchSize + " collectorAcceptTime:" + collectorAcceptTime);
     }
 
-    private Map<Integer, List<SpanBo>> buildSpanMap(List<SpanBo> spans) {
-        final Map<Integer, List<SpanBo>> spanMap = new HashMap<Integer, List<SpanBo>>();
+    private Map<Long, List<SpanBo>> buildSpanMap(List<SpanBo> spans) {
+        final Map<Long, List<SpanBo>> spanMap = new HashMap<Long, List<SpanBo>>();
         for (SpanBo span : spans) {
             List<SpanBo> spanBoList = spanMap.get(span.getSpanId());
             if (spanBoList == null) {
@@ -151,7 +151,7 @@ public class SpanAligner2 {
 			SpanAlign spanEventAlign = new SpanAlign(currentDepth, span, spanEventBo);
 			container.add(spanEventAlign);
 
-			final int nextSpanId = spanEventBo.getNextSpanId();
+			final long nextSpanId = spanEventBo.getNextSpanId();
             final List<SpanBo> nextSpanBoList = spanIdMap.remove(nextSpanId);
             if (nextSpanId != ROOT && nextSpanBoList != null) {
                 int childDepth = currentDepth + 1;

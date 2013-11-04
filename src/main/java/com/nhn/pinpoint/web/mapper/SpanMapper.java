@@ -45,7 +45,7 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
 
         KeyValue[] keyList = result.raw();
         List<SpanBo> spanList = new ArrayList<SpanBo>();
-        Map<Integer, SpanBo> spanMap = new HashMap<Integer, SpanBo>();
+        Map<Long, SpanBo> spanMap = new HashMap<Long, SpanBo>();
         List<SpanEventBo> spanEventBoList = new ArrayList<SpanEventBo>();
         for (KeyValue kv : keyList) {
             // family name "span"일때로만 한정.
@@ -103,7 +103,7 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
 
     private void addAnnotation(List<SpanBo> spanList, Map<Integer, List<AnnotationBo>> annotationMap) {
         for (SpanBo bo : spanList) {
-            int spanID = bo.getSpanId();
+            long spanID = bo.getSpanId();
             List<AnnotationBo> anoList = annotationMap.get(spanID);
             bo.setAnnotationBoList(anoList);
         }

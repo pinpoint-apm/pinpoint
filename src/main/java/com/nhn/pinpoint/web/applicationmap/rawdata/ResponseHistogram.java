@@ -51,7 +51,7 @@ public class ResponseHistogram implements Mergeable<ResponseHistogram>, JsonSeri
 
 		int histogramSlotIndex = histogram.getHistogramSlotIndex(slot);
 		if (histogramSlotIndex == -1) {
-			logger.warn("Can't find slot={} value={} id={} serviceType={}", slot, value, id, serviceType);
+			logger.debug("Can't find slot={} value={} id={} serviceType={}", slot, value, id, serviceType);
 			return;
 		}
 		values[histogramSlotIndex] += value;

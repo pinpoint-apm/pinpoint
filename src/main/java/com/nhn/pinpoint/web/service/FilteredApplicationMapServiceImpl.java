@@ -136,7 +136,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 
 		Set<TransactionFlowStatistics> statisticsData = new HashSet<TransactionFlowStatistics>();
 		Map<String, TransactionFlowStatistics> statisticsMap = new HashMap<String, TransactionFlowStatistics>();
-		Map<Integer, SpanBo> transactionSpanMap = new HashMap<Integer, SpanBo>();
+		Map<Long, SpanBo> transactionSpanMap = new HashMap<Long, SpanBo>();
 
 		// TimeseriesResponses tr = new TimeseriesResponses(from, to);
 
