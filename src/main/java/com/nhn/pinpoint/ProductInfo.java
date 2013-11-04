@@ -1,7 +1,7 @@
 package com.nhn.pinpoint;
 
 /**
- *
+ * @author emeroad
  */
 public final class ProductInfo {
     public static final String NAME = "pinpoint";

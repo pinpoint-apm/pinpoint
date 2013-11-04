@@ -4,6 +4,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * @author emeroad
+ */
 public class InterceptorRegistry {
 
     private static final LoggingInterceptor DUMMY = new LoggingInterceptor("com.nhn.pinpoint.profiler.interceptor.DUMMY");

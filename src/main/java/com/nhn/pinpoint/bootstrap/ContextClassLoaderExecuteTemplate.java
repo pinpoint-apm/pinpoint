@@ -4,6 +4,7 @@ import java.util.concurrent.Callable;
 
 /**
  * contextClassLoader에 별도의 classLoader를 세팅하고 실행하는 template
+ * @author emeroad
  */
 public class ContextClassLoaderExecuteTemplate<V> {
     private final ClassLoader classLoader;

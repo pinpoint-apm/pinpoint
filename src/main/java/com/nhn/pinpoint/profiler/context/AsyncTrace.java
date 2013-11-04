@@ -7,7 +7,7 @@ import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
 import java.util.TimerTask;
 
 /**
- *
+ * @author emeroad
  */
 public interface AsyncTrace {
     public static final int STATE_INIT = 0;

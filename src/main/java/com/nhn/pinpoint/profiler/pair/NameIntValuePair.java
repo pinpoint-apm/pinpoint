@@ -3,6 +3,7 @@ package com.nhn.pinpoint.profiler.pair;
 /**
  * classLoading구조에서 interceptor가 parent에 위치하면서 멀티 value access 데이터 전달이 필요할 경우의 공통 자료구조로 사용한다.
  * value가 int type일때 사용
+ * @author emeroad
  */
 public class NameIntValuePair<T> {
     private T name;

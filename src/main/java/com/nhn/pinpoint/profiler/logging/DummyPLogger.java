@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler.logging;
 
 /**
- *
+ * @author emeroad
  */
 public class DummyPLogger implements PLogger {
 

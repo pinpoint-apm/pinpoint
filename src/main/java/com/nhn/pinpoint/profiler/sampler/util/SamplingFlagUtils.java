@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler.sampler.util;
 
 /**
- *
+ * @author emeroad
  */
 public final class SamplingFlagUtils {
 

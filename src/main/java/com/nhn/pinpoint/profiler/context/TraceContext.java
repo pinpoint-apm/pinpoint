@@ -5,7 +5,7 @@ import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
 
 /**
- *
+ * @author emeroad
  */
 public interface TraceContext {
 

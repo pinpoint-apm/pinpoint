@@ -1,5 +1,8 @@
 package com.nhn.pinpoint.profiler.context;
 
+/**
+ * @author emeroad
+ */
 public enum Header {
 
 	HTTP_TRACE_ID("Pinpoint-TraceID"),

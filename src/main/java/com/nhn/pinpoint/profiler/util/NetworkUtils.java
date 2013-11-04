@@ -7,7 +7,7 @@ import java.util.Enumeration;
 import java.util.logging.Logger;
 
 /**
- *
+ * @author emeroad
  */
 public final class NetworkUtils {
 

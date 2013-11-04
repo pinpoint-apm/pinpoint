@@ -3,7 +3,7 @@ package com.nhn.pinpoint.profiler.logging;
 import java.util.Arrays;
 
 /**
- *
+ * @author emeroad
  */
 public class LoggingUtils {
 

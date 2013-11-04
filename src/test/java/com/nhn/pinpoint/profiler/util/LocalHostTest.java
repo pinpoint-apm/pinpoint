@@ -7,7 +7,7 @@ import java.net.UnknownHostException;
 import java.util.Enumeration;
 
 /**
- *
+ * @author emeroad
  */
 public class LocalHostTest {
 

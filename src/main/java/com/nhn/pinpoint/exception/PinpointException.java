@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.exception;
 
 /**
- *
+ * @author emeroad
  */
 public class PinpointException extends RuntimeException {
     public PinpointException() {

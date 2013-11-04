@@ -7,7 +7,7 @@ import java.lang.instrument.UnmodifiableClassException;
 import java.util.jar.JarFile;
 
 /**
- *
+ * @author emeroad
  */
 public class DummyInstrumentation implements Instrumentation {
     @Override

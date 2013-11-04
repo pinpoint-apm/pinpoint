@@ -12,7 +12,7 @@ import java.net.URLClassLoader;
 import java.util.concurrent.Callable;
 
 /**
- *
+ * @author emeroad
  */
 public class AgentClassLoader {
 

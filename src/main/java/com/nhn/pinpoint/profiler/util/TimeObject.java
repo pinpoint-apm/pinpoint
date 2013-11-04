@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler.util;
 
 /**
- *
+ * @author emeroad
  */
 public class TimeObject {
     private long cancelTime;

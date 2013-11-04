@@ -5,7 +5,7 @@ import com.nhn.pinpoint.common.ServiceType;
 import java.util.List;
 
 /**
- *
+ * @author emeroad
  */
 public interface DatabaseInfo {
     List<String> getHost();

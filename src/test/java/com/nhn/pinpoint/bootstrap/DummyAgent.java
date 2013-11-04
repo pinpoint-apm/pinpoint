@@ -10,7 +10,7 @@ import com.nhn.pinpoint.profiler.logging.PLoggerBinder;
 import java.lang.instrument.Instrumentation;
 
 /**
- *
+ * @author emeroad
  */
 public class DummyAgent implements Agent {
 

@@ -10,6 +10,9 @@ import java.util.logging.Logger;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.util.NumberUtils;
 
+/**
+ * @author emeroad
+ */
 public class ProfilerConfig {
 
 	private static final Logger logger = Logger.getLogger(ProfilerConfig.class.getName());

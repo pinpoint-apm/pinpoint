@@ -8,7 +8,7 @@ import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
 import java.util.List;
 
 /**
- *
+ * @author emeroad
  */
 public interface Trace {
 

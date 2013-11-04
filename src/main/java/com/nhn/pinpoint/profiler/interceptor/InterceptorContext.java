@@ -2,6 +2,9 @@ package com.nhn.pinpoint.profiler.interceptor;
 
 import java.util.Arrays;
 
+/**
+ * @author emeroad
+ */
 @Deprecated
 public class InterceptorContext {
 	private Object target;

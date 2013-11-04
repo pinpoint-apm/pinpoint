@@ -3,7 +3,7 @@ package com.nhn.pinpoint.profiler.logging;
 import java.util.logging.Logger;
 
 /**
- *
+ * @author emeroad
  */
 public final class PLoggerFactory {
 
