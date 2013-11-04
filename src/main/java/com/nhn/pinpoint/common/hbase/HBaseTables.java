@@ -76,9 +76,6 @@ public class HBaseTables {
     public static final String API_METADATA = "ApiMetaData";
     public static final byte[] API_METADATA_CF_API = Bytes.toBytes("Api");
 
-    public static final String APPLICATION_STATISTICS = "ApplicationStatistics";
-    public static final byte[] APPLICATION_STATISTICS_CF_COUNTER = Bytes.toBytes("C");
-    
 	public static final String APPLICATION_MAP_STATISTICS_CALLER = "ApplicationMapStatisticsCaller";
 	public static final byte[] APPLICATION_MAP_STATISTICS_CALLER_CF_COUNTER = Bytes.toBytes("C");
 
