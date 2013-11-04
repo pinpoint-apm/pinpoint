@@ -78,16 +78,22 @@ public class AgentStatMonitor {
 			// FIXME 설정에 따라 어떤 데이터를 수집할 지 선택할 수 있도록 해야한다. 여기서는 JVM 메모리 정보를 default로 수집.
 			this.monitorRegistry.registerJvmMemoryMonitor(new MonitorName(MetricMonitorValues.JVM_MEMORY));
 			this.monitorRegistry.registerJvmGcMonitor(new MonitorName(MetricMonitorValues.JVM_GC));
-			
-			this.agentStat = new TAgentStat();
 
+			// TAgentStat 객체를 준비한다.
+			this.agentStat = new TAgentStat();
+			this.agentStat.setAgentId(agentId);
+
+			// GarbageCollector 타입을 확인한다.
 			this.garbageCollector = new GarbageCollector();
 			this.garbageCollector.setType(monitorRegistry);
-			logger.info("found : {}", this.garbageCollector);
+			if (logger.isInfoEnabled()) {
+				logger.info("found : {}", this.garbageCollector);
+			}
 		}
 		
 		public void run() {
 			try {
+				agentStat.setTimestamp(System.currentTimeMillis());
 				garbageCollector.map(monitorRegistry, agentStat, agentId);
 				dataSender.send(agentStat);
 			} catch (Exception ex) {

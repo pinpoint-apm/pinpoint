@@ -7,8 +7,6 @@ import com.codahale.metrics.MetricRegistry;
 
 
 /**
- * FIXME 이대로 괜찮은가 -ㅁ-;
- * 
  * @author harebox
  */
 public class MetricMonitorValues {
@@ -47,9 +45,9 @@ public class MetricMonitorValues {
 	public static final String JVM_MEMORY_NONHEAP_COMMITTED = JVM_MEMORY + ".non-heap.committed";
 	public static final String JVM_MEMORY_NONHEAP_MAX = JVM_MEMORY + ".non-heap.max";
 	public static final String JVM_MEMORY_TOTAL_INIT = JVM_MEMORY + ".total.init";
-	public static final String JVM_MEMORY_TOTAL_USED = JVM_MEMORY + ".total.max";
+	public static final String JVM_MEMORY_TOTAL_USED = JVM_MEMORY + ".total.used";
 	public static final String JVM_MEMORY_TOTAL_COMMITTED = JVM_MEMORY + ".total.committed";
-	public static final String JVM_MEMORY_TOTAL_MAX = JVM_MEMORY + ".total.used";
+	public static final String JVM_MEMORY_TOTAL_MAX = JVM_MEMORY + ".total.max";
 	// Serial collector
 	public static final String JVM_MEMORY_POOLS_EDEN = JVM_MEMORY + ".pools.Eden-Space.usage";
 	public static final String JVM_MEMORY_POOLS_PERMGEN = JVM_MEMORY + ".pools.Perm-Gen.usage";

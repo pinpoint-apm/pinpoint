@@ -39,13 +39,7 @@ public class GarbageCollector {
             throw new NullPointerException("agentId must not be null");
         }
 
-        Object typeObject = null;
-		
-		if (agentStat.getSetField() != null) {
-			typeObject = agentStat.getFieldValue(agentStat.getSetField());
-		}
-		
-		type.map(registry, agentStat, typeObject, agentId);
+		type.map(registry, agentStat, agentId);
 	}
 	
 	public String toString() {
