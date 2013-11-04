@@ -36,7 +36,7 @@ struct TAnnotation {
 
 struct TSpanEvent {
 
-  7: optional i32 spanId
+  7: optional i64 spanId
   8: i16 sequence
 
   9: i32 startElapsed
@@ -49,7 +49,7 @@ struct TSpanEvent {
   14: optional list<TAnnotation> annotations
 
   15: optional i32 depth = -1
-  16: optional i32 nextSpanId = -1
+  16: optional i64 nextSpanId = -1
 
   20: optional string destinationId
 
@@ -69,8 +69,8 @@ struct TSpan {
   //6: i64 traceTransactionSequence;
   4: binary  transactionId;
 
-  7: i32 spanId
-  8: optional i32 parentSpanId = -1
+  7: i64 spanId
+  8: optional i64 parentSpanId = -1
 
   // span 이벤트의 시작시간.
   9: i64 startTime
@@ -110,7 +110,7 @@ struct TSpanChunk {
 //  7: i64 traceTransactionSequence;
     5: binary  transactionId;
 
-  8: i32 spanId
+  8: i64 spanId
 
   9: optional string endPoint
 

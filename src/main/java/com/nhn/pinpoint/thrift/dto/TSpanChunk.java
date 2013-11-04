@@ -40,7 +40,7 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
   private static final org.apache.thrift.protocol.TField AGENT_START_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("agentStartTime", org.apache.thrift.protocol.TType.I64, (short)3);
   private static final org.apache.thrift.protocol.TField SERVICE_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("serviceType", org.apache.thrift.protocol.TType.I16, (short)4);
   private static final org.apache.thrift.protocol.TField TRANSACTION_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("transactionId", org.apache.thrift.protocol.TType.STRING, (short)5);
-  private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I32, (short)8);
+  private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I64, (short)8);
   private static final org.apache.thrift.protocol.TField END_POINT_FIELD_DESC = new org.apache.thrift.protocol.TField("endPoint", org.apache.thrift.protocol.TType.STRING, (short)9);
   private static final org.apache.thrift.protocol.TField SPAN_EVENT_LIST_FIELD_DESC = new org.apache.thrift.protocol.TField("spanEventList", org.apache.thrift.protocol.TType.LIST, (short)10);
 
@@ -55,7 +55,7 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
   private long agentStartTime; // required
   private short serviceType; // required
   private ByteBuffer transactionId; // required
-  private int spanId; // required
+  private long spanId; // required
   private String endPoint; // optional
   private List<TSpanEvent> spanEventList; // required
 
@@ -158,7 +158,7 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
     tmpMap.put(_Fields.TRANSACTION_ID, new org.apache.thrift.meta_data.FieldMetaData("transactionId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING        , true)));
     tmpMap.put(_Fields.SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("spanId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.END_POINT, new org.apache.thrift.meta_data.FieldMetaData("endPoint", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.SPAN_EVENT_LIST, new org.apache.thrift.meta_data.FieldMetaData("spanEventList", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -177,7 +177,7 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
     long agentStartTime,
     short serviceType,
     ByteBuffer transactionId,
-    int spanId,
+    long spanId,
     List<TSpanEvent> spanEventList)
   {
     this();
@@ -364,11 +364,11 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
     }
   }
 
-  public int getSpanId() {
+  public long getSpanId() {
     return this.spanId;
   }
 
-  public void setSpanId(int spanId) {
+  public void setSpanId(long spanId) {
     this.spanId = spanId;
     setSpanIdIsSet(true);
   }
@@ -493,7 +493,7 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
       if (value == null) {
         unsetSpanId();
       } else {
-        setSpanId((Integer)value);
+        setSpanId((Long)value);
       }
       break;
 
@@ -534,7 +534,7 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
       return getTransactionId();
 
     case SPAN_ID:
-      return Integer.valueOf(getSpanId());
+      return Long.valueOf(getSpanId());
 
     case END_POINT:
       return getEndPoint();
@@ -913,8 +913,8 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
             }
             break;
           case 8: // SPAN_ID
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.spanId = iprot.readI32();
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.spanId = iprot.readI64();
               struct.setSpanIdIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
@@ -982,7 +982,7 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
         oprot.writeFieldEnd();
       }
       oprot.writeFieldBegin(SPAN_ID_FIELD_DESC);
-      oprot.writeI32(struct.spanId);
+      oprot.writeI64(struct.spanId);
       oprot.writeFieldEnd();
       if (struct.endPoint != null) {
         if (struct.isSetEndPoint()) {
@@ -1062,7 +1062,7 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
         oprot.writeBinary(struct.transactionId);
       }
       if (struct.isSetSpanId()) {
-        oprot.writeI32(struct.spanId);
+        oprot.writeI64(struct.spanId);
       }
       if (struct.isSetEndPoint()) {
         oprot.writeString(struct.endPoint);
@@ -1103,7 +1103,7 @@ public class TSpanChunk implements org.apache.thrift.TBase<TSpanChunk, TSpanChun
         struct.setTransactionIdIsSet(true);
       }
       if (incoming.get(5)) {
-        struct.spanId = iprot.readI32();
+        struct.spanId = iprot.readI64();
         struct.setSpanIdIsSet(true);
       }
       if (incoming.get(6)) {

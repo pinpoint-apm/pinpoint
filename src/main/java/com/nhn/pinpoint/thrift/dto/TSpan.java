@@ -39,8 +39,8 @@ public class TSpan implements org.apache.thrift.TBase<TSpan, TSpan._Fields>, jav
   private static final org.apache.thrift.protocol.TField APPLICATION_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("applicationName", org.apache.thrift.protocol.TType.STRING, (short)2);
   private static final org.apache.thrift.protocol.TField AGENT_START_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("agentStartTime", org.apache.thrift.protocol.TType.I64, (short)3);
   private static final org.apache.thrift.protocol.TField TRANSACTION_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("transactionId", org.apache.thrift.protocol.TType.STRING, (short)4);
-  private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I32, (short)7);
-  private static final org.apache.thrift.protocol.TField PARENT_SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("parentSpanId", org.apache.thrift.protocol.TType.I32, (short)8);
+  private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I64, (short)7);
+  private static final org.apache.thrift.protocol.TField PARENT_SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("parentSpanId", org.apache.thrift.protocol.TType.I64, (short)8);
   private static final org.apache.thrift.protocol.TField START_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("startTime", org.apache.thrift.protocol.TType.I64, (short)9);
   private static final org.apache.thrift.protocol.TField ELAPSED_FIELD_DESC = new org.apache.thrift.protocol.TField("elapsed", org.apache.thrift.protocol.TType.I32, (short)10);
   private static final org.apache.thrift.protocol.TField RPC_FIELD_DESC = new org.apache.thrift.protocol.TField("rpc", org.apache.thrift.protocol.TType.STRING, (short)11);
@@ -67,8 +67,8 @@ public class TSpan implements org.apache.thrift.TBase<TSpan, TSpan._Fields>, jav
   private String applicationName; // required
   private long agentStartTime; // required
   private ByteBuffer transactionId; // required
-  private int spanId; // required
-  private int parentSpanId; // optional
+  private long spanId; // required
+  private long parentSpanId; // optional
   private long startTime; // required
   private int elapsed; // optional
   private String rpc; // optional
@@ -228,9 +228,9 @@ public class TSpan implements org.apache.thrift.TBase<TSpan, TSpan._Fields>, jav
     tmpMap.put(_Fields.TRANSACTION_ID, new org.apache.thrift.meta_data.FieldMetaData("transactionId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING        , true)));
     tmpMap.put(_Fields.SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("spanId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.PARENT_SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("parentSpanId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.START_TIME, new org.apache.thrift.meta_data.FieldMetaData("startTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.ELAPSED, new org.apache.thrift.meta_data.FieldMetaData("elapsed", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
@@ -268,7 +268,7 @@ public class TSpan implements org.apache.thrift.TBase<TSpan, TSpan._Fields>, jav
   }
 
   public TSpan() {
-    this.parentSpanId = -1;
+    this.parentSpanId = -1L;
 
     this.elapsed = 0;
 
@@ -281,7 +281,7 @@ public class TSpan implements org.apache.thrift.TBase<TSpan, TSpan._Fields>, jav
     String applicationName,
     long agentStartTime,
     ByteBuffer transactionId,
-    int spanId,
+    long spanId,
     long startTime,
     short serviceType)
   {
@@ -371,7 +371,7 @@ public class TSpan implements org.apache.thrift.TBase<TSpan, TSpan._Fields>, jav
     this.transactionId = null;
     setSpanIdIsSet(false);
     this.spanId = 0;
-    this.parentSpanId = -1;
+    this.parentSpanId = -1L;
 
     setStartTimeIsSet(false);
     this.startTime = 0;
@@ -497,11 +497,11 @@ public class TSpan implements org.apache.thrift.TBase<TSpan, TSpan._Fields>, jav
     }
   }
 
-  public int getSpanId() {
+  public long getSpanId() {
     return this.spanId;
   }
 
-  public void setSpanId(int spanId) {
+  public void setSpanId(long spanId) {
     this.spanId = spanId;
     setSpanIdIsSet(true);
   }
@@ -519,11 +519,11 @@ public class TSpan implements org.apache.thrift.TBase<TSpan, TSpan._Fields>, jav
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SPANID_ISSET_ID, value);
   }
 
-  public int getParentSpanId() {
+  public long getParentSpanId() {
     return this.parentSpanId;
   }
 
-  public void setParentSpanId(int parentSpanId) {
+  public void setParentSpanId(long parentSpanId) {
     this.parentSpanId = parentSpanId;
     setParentSpanIdIsSet(true);
   }
@@ -947,7 +947,7 @@ public class TSpan implements org.apache.thrift.TBase<TSpan, TSpan._Fields>, jav
       if (value == null) {
         unsetSpanId();
       } else {
-        setSpanId((Integer)value);
+        setSpanId((Long)value);
       }
       break;
 
@@ -955,7 +955,7 @@ public class TSpan implements org.apache.thrift.TBase<TSpan, TSpan._Fields>, jav
       if (value == null) {
         unsetParentSpanId();
       } else {
-        setParentSpanId((Integer)value);
+        setParentSpanId((Long)value);
       }
       break;
 
@@ -1097,10 +1097,10 @@ public class TSpan implements org.apache.thrift.TBase<TSpan, TSpan._Fields>, jav
       return getTransactionId();
 
     case SPAN_ID:
-      return Integer.valueOf(getSpanId());
+      return Long.valueOf(getSpanId());
 
     case PARENT_SPAN_ID:
-      return Integer.valueOf(getParentSpanId());
+      return Long.valueOf(getParentSpanId());
 
     case START_TIME:
       return Long.valueOf(getStartTime());
@@ -1888,16 +1888,16 @@ public class TSpan implements org.apache.thrift.TBase<TSpan, TSpan._Fields>, jav
             }
             break;
           case 7: // SPAN_ID
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.spanId = iprot.readI32();
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.spanId = iprot.readI64();
               struct.setSpanIdIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
           case 8: // PARENT_SPAN_ID
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.parentSpanId = iprot.readI32();
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.parentSpanId = iprot.readI64();
               struct.setParentSpanIdIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
@@ -2078,11 +2078,11 @@ public class TSpan implements org.apache.thrift.TBase<TSpan, TSpan._Fields>, jav
         oprot.writeFieldEnd();
       }
       oprot.writeFieldBegin(SPAN_ID_FIELD_DESC);
-      oprot.writeI32(struct.spanId);
+      oprot.writeI64(struct.spanId);
       oprot.writeFieldEnd();
       if (struct.isSetParentSpanId()) {
         oprot.writeFieldBegin(PARENT_SPAN_ID_FIELD_DESC);
-        oprot.writeI32(struct.parentSpanId);
+        oprot.writeI64(struct.parentSpanId);
         oprot.writeFieldEnd();
       }
       oprot.writeFieldBegin(START_TIME_FIELD_DESC);
@@ -2281,10 +2281,10 @@ public class TSpan implements org.apache.thrift.TBase<TSpan, TSpan._Fields>, jav
         oprot.writeBinary(struct.transactionId);
       }
       if (struct.isSetSpanId()) {
-        oprot.writeI32(struct.spanId);
+        oprot.writeI64(struct.spanId);
       }
       if (struct.isSetParentSpanId()) {
-        oprot.writeI32(struct.parentSpanId);
+        oprot.writeI64(struct.parentSpanId);
       }
       if (struct.isSetStartTime()) {
         oprot.writeI64(struct.startTime);
@@ -2366,11 +2366,11 @@ public class TSpan implements org.apache.thrift.TBase<TSpan, TSpan._Fields>, jav
         struct.setTransactionIdIsSet(true);
       }
       if (incoming.get(4)) {
-        struct.spanId = iprot.readI32();
+        struct.spanId = iprot.readI64();
         struct.setSpanIdIsSet(true);
       }
       if (incoming.get(5)) {
-        struct.parentSpanId = iprot.readI32();
+        struct.parentSpanId = iprot.readI64();
         struct.setParentSpanIdIsSet(true);
       }
       if (incoming.get(6)) {

@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEvent._Fields>, java.io.Serializable, Cloneable, Comparable<TSpanEvent> {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("TSpanEvent");
 
-  private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I32, (short)7);
+  private static final org.apache.thrift.protocol.TField SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("spanId", org.apache.thrift.protocol.TType.I64, (short)7);
   private static final org.apache.thrift.protocol.TField SEQUENCE_FIELD_DESC = new org.apache.thrift.protocol.TField("sequence", org.apache.thrift.protocol.TType.I16, (short)8);
   private static final org.apache.thrift.protocol.TField START_ELAPSED_FIELD_DESC = new org.apache.thrift.protocol.TField("startElapsed", org.apache.thrift.protocol.TType.I32, (short)9);
   private static final org.apache.thrift.protocol.TField END_ELAPSED_FIELD_DESC = new org.apache.thrift.protocol.TField("endElapsed", org.apache.thrift.protocol.TType.I32, (short)10);
@@ -44,7 +44,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
   private static final org.apache.thrift.protocol.TField END_POINT_FIELD_DESC = new org.apache.thrift.protocol.TField("endPoint", org.apache.thrift.protocol.TType.STRING, (short)13);
   private static final org.apache.thrift.protocol.TField ANNOTATIONS_FIELD_DESC = new org.apache.thrift.protocol.TField("annotations", org.apache.thrift.protocol.TType.LIST, (short)14);
   private static final org.apache.thrift.protocol.TField DEPTH_FIELD_DESC = new org.apache.thrift.protocol.TField("depth", org.apache.thrift.protocol.TType.I32, (short)15);
-  private static final org.apache.thrift.protocol.TField NEXT_SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("nextSpanId", org.apache.thrift.protocol.TType.I32, (short)16);
+  private static final org.apache.thrift.protocol.TField NEXT_SPAN_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("nextSpanId", org.apache.thrift.protocol.TType.I64, (short)16);
   private static final org.apache.thrift.protocol.TField DESTINATION_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("destinationId", org.apache.thrift.protocol.TType.STRING, (short)20);
   private static final org.apache.thrift.protocol.TField API_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("apiId", org.apache.thrift.protocol.TType.I32, (short)25);
   private static final org.apache.thrift.protocol.TField EXCEPTION_INFO_FIELD_DESC = new org.apache.thrift.protocol.TField("exceptionInfo", org.apache.thrift.protocol.TType.STRUCT, (short)26);
@@ -55,7 +55,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     schemes.put(TupleScheme.class, new TSpanEventTupleSchemeFactory());
   }
 
-  private int spanId; // optional
+  private long spanId; // optional
   private short sequence; // required
   private int startElapsed; // required
   private int endElapsed; // optional
@@ -64,7 +64,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
   private String endPoint; // optional
   private List<TAnnotation> annotations; // optional
   private int depth; // optional
-  private int nextSpanId; // optional
+  private long nextSpanId; // optional
   private String destinationId; // optional
   private int apiId; // optional
   private TIntStringValue exceptionInfo; // optional
@@ -178,7 +178,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
     tmpMap.put(_Fields.SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("spanId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.SEQUENCE, new org.apache.thrift.meta_data.FieldMetaData("sequence", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I16)));
     tmpMap.put(_Fields.START_ELAPSED, new org.apache.thrift.meta_data.FieldMetaData("startElapsed", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -197,7 +197,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     tmpMap.put(_Fields.DEPTH, new org.apache.thrift.meta_data.FieldMetaData("depth", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.NEXT_SPAN_ID, new org.apache.thrift.meta_data.FieldMetaData("nextSpanId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.DESTINATION_ID, new org.apache.thrift.meta_data.FieldMetaData("destinationId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.API_ID, new org.apache.thrift.meta_data.FieldMetaData("apiId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
@@ -213,7 +213,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
 
     this.depth = -1;
 
-    this.nextSpanId = -1;
+    this.nextSpanId = -1L;
 
   }
 
@@ -286,7 +286,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     this.annotations = null;
     this.depth = -1;
 
-    this.nextSpanId = -1;
+    this.nextSpanId = -1L;
 
     this.destinationId = null;
     setApiIdIsSet(false);
@@ -294,11 +294,11 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     this.exceptionInfo = null;
   }
 
-  public int getSpanId() {
+  public long getSpanId() {
     return this.spanId;
   }
 
-  public void setSpanId(int spanId) {
+  public void setSpanId(long spanId) {
     this.spanId = spanId;
     setSpanIdIsSet(true);
   }
@@ -510,11 +510,11 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __DEPTH_ISSET_ID, value);
   }
 
-  public int getNextSpanId() {
+  public long getNextSpanId() {
     return this.nextSpanId;
   }
 
-  public void setNextSpanId(int nextSpanId) {
+  public void setNextSpanId(long nextSpanId) {
     this.nextSpanId = nextSpanId;
     setNextSpanIdIsSet(true);
   }
@@ -606,7 +606,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
       if (value == null) {
         unsetSpanId();
       } else {
-        setSpanId((Integer)value);
+        setSpanId((Long)value);
       }
       break;
 
@@ -678,7 +678,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
       if (value == null) {
         unsetNextSpanId();
       } else {
-        setNextSpanId((Integer)value);
+        setNextSpanId((Long)value);
       }
       break;
 
@@ -712,7 +712,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
   public Object getFieldValue(_Fields field) {
     switch (field) {
     case SPAN_ID:
-      return Integer.valueOf(getSpanId());
+      return Long.valueOf(getSpanId());
 
     case SEQUENCE:
       return Short.valueOf(getSequence());
@@ -739,7 +739,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
       return Integer.valueOf(getDepth());
 
     case NEXT_SPAN_ID:
-      return Integer.valueOf(getNextSpanId());
+      return Long.valueOf(getNextSpanId());
 
     case DESTINATION_ID:
       return getDestinationId();
@@ -1227,8 +1227,8 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
         }
         switch (schemeField.id) {
           case 7: // SPAN_ID
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.spanId = iprot.readI32();
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.spanId = iprot.readI64();
               struct.setSpanIdIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
@@ -1310,8 +1310,8 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
             }
             break;
           case 16: // NEXT_SPAN_ID
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.nextSpanId = iprot.readI32();
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.nextSpanId = iprot.readI64();
               struct.setNextSpanIdIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
@@ -1357,7 +1357,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
       oprot.writeStructBegin(STRUCT_DESC);
       if (struct.isSetSpanId()) {
         oprot.writeFieldBegin(SPAN_ID_FIELD_DESC);
-        oprot.writeI32(struct.spanId);
+        oprot.writeI64(struct.spanId);
         oprot.writeFieldEnd();
       }
       oprot.writeFieldBegin(SEQUENCE_FIELD_DESC);
@@ -1409,7 +1409,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
       }
       if (struct.isSetNextSpanId()) {
         oprot.writeFieldBegin(NEXT_SPAN_ID_FIELD_DESC);
-        oprot.writeI32(struct.nextSpanId);
+        oprot.writeI64(struct.nextSpanId);
         oprot.writeFieldEnd();
       }
       if (struct.destinationId != null) {
@@ -1490,7 +1490,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
       }
       oprot.writeBitSet(optionals, 13);
       if (struct.isSetSpanId()) {
-        oprot.writeI32(struct.spanId);
+        oprot.writeI64(struct.spanId);
       }
       if (struct.isSetSequence()) {
         oprot.writeI16(struct.sequence);
@@ -1523,7 +1523,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
         oprot.writeI32(struct.depth);
       }
       if (struct.isSetNextSpanId()) {
-        oprot.writeI32(struct.nextSpanId);
+        oprot.writeI64(struct.nextSpanId);
       }
       if (struct.isSetDestinationId()) {
         oprot.writeString(struct.destinationId);
@@ -1541,7 +1541,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
       TTupleProtocol iprot = (TTupleProtocol) prot;
       BitSet incoming = iprot.readBitSet(13);
       if (incoming.get(0)) {
-        struct.spanId = iprot.readI32();
+        struct.spanId = iprot.readI64();
         struct.setSpanIdIsSet(true);
       }
       if (incoming.get(1)) {
@@ -1587,7 +1587,7 @@ public class TSpanEvent implements org.apache.thrift.TBase<TSpanEvent, TSpanEven
         struct.setDepthIsSet(true);
       }
       if (incoming.get(9)) {
-        struct.nextSpanId = iprot.readI32();
+        struct.nextSpanId = iprot.readI64();
         struct.setNextSpanIdIsSet(true);
       }
       if (incoming.get(10)) {
