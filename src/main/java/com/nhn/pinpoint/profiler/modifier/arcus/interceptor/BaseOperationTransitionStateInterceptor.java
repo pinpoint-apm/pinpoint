@@ -24,7 +24,7 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.util.MetaObject;
 
 /**
- *
+ * @author emeroad
  */
 @Deprecated
 public class BaseOperationTransitionStateInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {

@@ -43,6 +43,9 @@ import com.nhn.pinpoint.profiler.modifier.tomcat.StandardHostValveInvokeModifier
 import com.nhn.pinpoint.profiler.modifier.tomcat.TomcatConnectorModifier;
 import com.nhn.pinpoint.profiler.modifier.tomcat.TomcatStandardServiceModifier;
 
+/**
+ * @author emeroad
+ */
 public class DefaultModifierRegistry implements ModifierRegistry {
 
 	// 왠간해서는 동시성 상황이 안나올것으로 보임. 사이즈를 크게 잡아서 체인을 가능한 뒤지지 않도록함.

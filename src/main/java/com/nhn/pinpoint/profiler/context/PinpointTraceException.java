@@ -3,7 +3,7 @@ package com.nhn.pinpoint.profiler.context;
 import com.nhn.pinpoint.exception.PinpointException;
 
 /**
- *
+ * @author emeroad
  */
 public class PinpointTraceException extends PinpointException {
 

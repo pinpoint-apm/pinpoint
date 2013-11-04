@@ -7,6 +7,9 @@ import com.nhn.pinpoint.profiler.util.MetaObject;
 import java.sql.Connection;
 import com.nhn.pinpoint.profiler.logging.PLogger;
 
+/**
+ * @author emeroad
+ */
 public class ConnectionCloseInterceptor implements SimpleAroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());

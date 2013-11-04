@@ -3,7 +3,7 @@ package com.nhn.pinpoint.profiler.modifier.arcus.interceptor;
 import com.nhn.pinpoint.profiler.interceptor.ParameterExtractor;
 
 /**
- *
+ * @author emeroad
  */
 public class IndexParameterExtractor implements ParameterExtractor {
 

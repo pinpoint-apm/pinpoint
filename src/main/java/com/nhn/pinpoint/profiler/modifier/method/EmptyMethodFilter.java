@@ -4,7 +4,7 @@ import com.nhn.pinpoint.profiler.interceptor.bci.MethodFilter;
 import javassist.CtMethod;
 
 /**
- *
+ * @author emeroad
  */
 public class EmptyMethodFilter implements MethodFilter {
     public static final MethodFilter FILTER = new EmptyMethodFilter();

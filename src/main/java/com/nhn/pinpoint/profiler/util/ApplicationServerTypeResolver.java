@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 
 /**
- *
+ * @author emeroad
  */
 public class ApplicationServerTypeResolver {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

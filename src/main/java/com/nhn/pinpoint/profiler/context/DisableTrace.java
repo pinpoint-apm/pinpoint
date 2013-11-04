@@ -7,7 +7,7 @@ import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
 
 
 /**
- *
+ * @author emeroad
  */
 public class DisableTrace  implements Trace {
 

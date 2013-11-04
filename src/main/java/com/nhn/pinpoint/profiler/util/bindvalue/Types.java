@@ -4,6 +4,9 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author emeroad
+ */
 public class Types {
 
     private static final Map<Integer, String> MAP;

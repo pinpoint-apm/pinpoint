@@ -3,7 +3,7 @@ package com.nhn.pinpoint.profiler.context;
 import com.nhn.pinpoint.profiler.sender.LoggingDataSender;
 
 /**
- *
+ * @author emeroad
  */
 public class MockTraceContextFactory {
     public TraceContext create() {

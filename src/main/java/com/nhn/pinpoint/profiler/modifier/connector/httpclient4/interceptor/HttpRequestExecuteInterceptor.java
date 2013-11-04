@@ -18,6 +18,7 @@ import org.apache.http.HttpRequest;
  *            final HttpContext context)
  *            throws IOException, ClientProtocolException {
  * </pre>
+ * @author emeroad
  */
 public class HttpRequestExecuteInterceptor extends AbstractHttpRequestExecute implements TargetClassLoader {
 

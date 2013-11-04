@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.net.URI;
 
 /**
- *
+ * @author emeroad
  */
 public class JDBCUrlParserTest {
 

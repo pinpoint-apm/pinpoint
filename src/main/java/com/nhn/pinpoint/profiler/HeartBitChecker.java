@@ -10,7 +10,7 @@ import java.util.concurrent.ThreadFactory;
 
 
 /**
- *
+ * @author emeroad
  */
 public class HeartBitChecker {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

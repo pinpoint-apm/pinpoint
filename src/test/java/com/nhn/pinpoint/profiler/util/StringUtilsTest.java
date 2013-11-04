@@ -1,9 +1,11 @@
 package com.nhn.pinpoint.profiler.util;
 
-import com.nhn.pinpoint.profiler.util.StringUtils;
 import junit.framework.Assert;
 import org.junit.Test;
 
+/**
+ * @author emeroad
+ */
 public class StringUtilsTest {
     @Test
     public void testDrop1() throws Exception {

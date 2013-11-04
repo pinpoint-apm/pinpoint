@@ -6,7 +6,7 @@ import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.util.DepthScope;
 
 /**
- *
+ * @author emeroad
  */
 public class ScopeDelegateStaticInterceptor implements StaticAroundInterceptor, TraceContextSupport {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());

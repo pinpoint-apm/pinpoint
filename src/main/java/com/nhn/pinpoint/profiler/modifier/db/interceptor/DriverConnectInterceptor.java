@@ -15,7 +15,7 @@ import com.nhn.pinpoint.profiler.util.MetaObject;
 import com.nhn.pinpoint.profiler.logging.PLogger;
 
 /**
- *
+ * @author emeroad
  */
 public class DriverConnectInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 

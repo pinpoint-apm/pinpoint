@@ -7,6 +7,7 @@ import com.nhn.pinpoint.thrift.dto.TSpanEvent;
  * Span represent RPC
  *
  * @author netspider
+ * @author emeroad
  */
 public class SpanEvent extends TSpanEvent {
 

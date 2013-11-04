@@ -13,7 +13,7 @@ import com.nhn.pinpoint.profiler.util.MetaObject;
 /**
  * 
  * @author netspider
- * 
+ * @author emeroad
  */
 public class AddOpInterceptor implements SimpleAroundInterceptor, TargetClassLoader {
 

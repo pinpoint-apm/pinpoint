@@ -4,7 +4,7 @@ import java.util.AbstractCollection;
 import java.util.Iterator;
 
 /**
- *
+ * @author emeroad
  */
 class UnsafeArrayCollection<E> extends AbstractCollection<E> {
 

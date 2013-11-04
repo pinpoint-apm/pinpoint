@@ -17,6 +17,9 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.sampler.util.SamplingFlagUtils;
 import com.nhn.pinpoint.profiler.util.NumberUtils;
 
+/**
+ * @author emeroad
+ */
 public class HttpServletInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());

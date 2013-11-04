@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- *
+ * @author emeroad
  */
 public class Slf4jLoggerBinder implements PLoggerBinder {
 

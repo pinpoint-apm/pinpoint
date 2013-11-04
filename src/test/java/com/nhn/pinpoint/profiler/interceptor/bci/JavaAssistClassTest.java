@@ -11,7 +11,9 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-
+/**
+ * @author emeroad
+ */
 public class JavaAssistClassTest {
     private Logger logger = LoggerFactory.getLogger(JavaAssistByteCodeInstrumentor.class.getName());
 

@@ -5,7 +5,9 @@ import javassist.bytecode.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * @author emeroad
+ */
 public final class JavaAssistUtils {
     private final static String EMTPY_ARRAY = "()";
     private static final String[] EMPTY_STRING_ARRAY = new String[0];

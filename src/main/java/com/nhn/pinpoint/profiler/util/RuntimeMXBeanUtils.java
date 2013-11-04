@@ -7,7 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * @author emeroad
  */
 public final class RuntimeMXBeanUtils {
     private static final RuntimeMXBean RUNTIME_MBEAN = ManagementFactory.getRuntimeMXBean();

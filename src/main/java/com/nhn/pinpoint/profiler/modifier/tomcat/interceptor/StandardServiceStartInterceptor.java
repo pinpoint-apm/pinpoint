@@ -7,7 +7,7 @@ import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.LifeCycleEventListener;
 
 /**
- *
+ * @author emeroad
  */
 public class StandardServiceStartInterceptor implements SimpleAroundInterceptor {
 

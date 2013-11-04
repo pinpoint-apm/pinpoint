@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.spi.LoggerFactoryBinder;
 
 /**
- *
+ * @author emeroad
  */
 public class OperationFutureModifier extends AbstractFutureModifier {
 

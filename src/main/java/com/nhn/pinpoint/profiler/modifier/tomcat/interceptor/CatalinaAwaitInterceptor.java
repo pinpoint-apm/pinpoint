@@ -7,7 +7,7 @@ import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.Agent;
 
 /**
- *
+ * @author emeroad
  */
 public class CatalinaAwaitInterceptor implements SimpleAroundInterceptor {
 

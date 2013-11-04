@@ -19,7 +19,7 @@ import com.nhn.pinpoint.profiler.sampler.util.SamplingFlagUtils;
 
 /**
  * @author netspider
- * 
+ * @author emeroad
  */
 public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 

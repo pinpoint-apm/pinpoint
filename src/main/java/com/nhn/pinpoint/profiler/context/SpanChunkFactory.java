@@ -6,7 +6,7 @@ import com.nhn.pinpoint.thrift.dto.TSpanEvent;
 import java.util.List;
 
 /**
- *
+ * @author emeroad
  */
 public class SpanChunkFactory {
 

@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler;
 
 /**
- *
+ * @author emeroad
  */
 public class AgentInformation {
     private final String agentId;

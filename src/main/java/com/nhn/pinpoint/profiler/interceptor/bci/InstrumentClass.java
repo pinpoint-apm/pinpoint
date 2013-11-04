@@ -4,6 +4,9 @@ import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 
 import java.util.List;
 
+/**
+ * @author emeroad
+ */
 public interface InstrumentClass {
 
     boolean isInterface();

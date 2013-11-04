@@ -15,6 +15,9 @@ import org.slf4j.LoggerFactory;
 
 import java.security.ProtectionDomain;
 
+/**
+ * @author emeroad
+ */
 public class OracleStatementWrapperModifier extends AbstractModifier {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

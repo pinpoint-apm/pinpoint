@@ -2,6 +2,9 @@ package com.nhn.pinpoint.profiler.interceptor.bci;
 
 import java.util.Formatter;
 
+/**
+ * @author emeroad
+ */
 public class CodeBuilder {
 
     private final StringBuilder codeBlock;

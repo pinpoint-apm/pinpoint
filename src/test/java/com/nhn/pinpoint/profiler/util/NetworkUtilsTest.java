@@ -7,7 +7,7 @@ import java.net.NetworkInterface;
 import java.util.logging.Logger;
 
 /**
- *
+ * @author emeroad
  */
 public class NetworkUtilsTest {
     private Logger logger = Logger.getLogger(this.getClass().getName());

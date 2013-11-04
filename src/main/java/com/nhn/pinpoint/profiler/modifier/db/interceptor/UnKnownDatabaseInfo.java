@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * @author emeroad
  */
 public class UnKnownDatabaseInfo {
     public static final DatabaseInfo INSTANCE;

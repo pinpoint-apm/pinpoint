@@ -22,6 +22,9 @@ import org.slf4j.LoggerFactory;
 import java.sql.*;
 import java.util.Properties;
 
+/**
+ * @author emeroad
+ */
 public class MySQLConnectionImplModifierTest {
 
     private final Logger logger = LoggerFactory.getLogger(MySQLConnectionImplModifierTest.class.getName());

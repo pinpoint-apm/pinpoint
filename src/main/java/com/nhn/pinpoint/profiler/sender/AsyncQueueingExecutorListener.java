@@ -3,7 +3,7 @@ package com.nhn.pinpoint.profiler.sender;
 import java.util.Collection;
 
 /**
- *
+ * @author emeroad
  */
 public interface AsyncQueueingExecutorListener<T> {
 

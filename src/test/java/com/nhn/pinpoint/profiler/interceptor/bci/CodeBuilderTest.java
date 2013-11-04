@@ -1,9 +1,11 @@
 package com.nhn.pinpoint.profiler.interceptor.bci;
 
-import com.nhn.pinpoint.profiler.interceptor.bci.CodeBuilder;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * @author emeroad
+ */
 public class CodeBuilderTest {
     @Test
     public void testCodeBuilder() throws Exception {

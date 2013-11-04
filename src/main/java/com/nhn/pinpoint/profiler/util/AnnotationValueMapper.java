@@ -4,6 +4,9 @@ package com.nhn.pinpoint.profiler.util;
 import com.nhn.pinpoint.thrift.dto.*;
 import org.apache.thrift.TBase;
 
+/**
+ * @author emeroad
+ */
 public final class AnnotationValueMapper {
 
     private AnnotationValueMapper() {

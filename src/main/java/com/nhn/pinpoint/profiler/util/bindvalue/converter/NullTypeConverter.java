@@ -1,6 +1,9 @@
 package com.nhn.pinpoint.profiler.util.bindvalue.converter;
 
-public class NullTypeConterver implements Converter {
+/**
+ * @author emeroad
+ */
+public class NullTypeConverter implements Converter {
 
     @Override
     public String convert(Object[] args) {

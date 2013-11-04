@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler.sampler;
 
 /**
- *
+ * @author emeroad
  */
 public class SamplerFactory {
     public Sampler createSampler(boolean sampling, int samplingRate) {

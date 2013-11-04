@@ -24,6 +24,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * @author emeroad
+ */
 public class DefaultTraceContext implements TraceContext {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

@@ -8,7 +8,7 @@ import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import org.apache.catalina.connector.Connector;
 
 /**
- *
+ * @author emeroad
  */
 public class ConnectorInitializeInterceptor implements SimpleAroundInterceptor, TargetClassLoader {
 

@@ -6,7 +6,7 @@ import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.util.DepthScope;
 
 /**
- *
+ * @author emeroad
  */
 public class ScopeDelegateSimpleInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 

@@ -5,7 +5,7 @@ import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.sender.DataSender;
 
 /**
- *
+ * @author emeroad
  */
 public class TimeBaseStorageFactory implements StorageFactory {
 

@@ -9,6 +9,9 @@ import java.math.BigInteger;
 import java.sql.Time;
 import java.sql.Timestamp;
 
+/**
+ * @author emeroad
+ */
 public class ObjectConverter implements Converter {
     @Override
     public String convert(Object[] args) {

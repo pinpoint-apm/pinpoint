@@ -1,13 +1,13 @@
 package com.nhn.pinpoint.profiler.util;
 
 /**
- *
+ * @author emeroad
  */
 import org.junit.Test;
 import org.junit.Assert;
 
 /**
- *
+ * @author emeroad
  */
 public class DepthScopeTest {
     @Test

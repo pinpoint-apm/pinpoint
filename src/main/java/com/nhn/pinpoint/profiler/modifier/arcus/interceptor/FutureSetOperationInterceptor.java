@@ -11,6 +11,7 @@ import com.nhn.pinpoint.profiler.util.MetaObject;
 
 /**
  * @author harebox
+ * @author emeroad
  */
 public class FutureSetOperationInterceptor implements SimpleAroundInterceptor, TargetClassLoader {
 

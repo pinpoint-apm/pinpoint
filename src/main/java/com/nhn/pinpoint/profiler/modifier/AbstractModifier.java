@@ -3,7 +3,9 @@ package com.nhn.pinpoint.profiler.modifier;
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 
-
+/**
+ * @author emeroad
+ */
 public abstract class AbstractModifier implements Modifier {
 
     protected final ByteCodeInstrumentor byteCodeInstrumentor;

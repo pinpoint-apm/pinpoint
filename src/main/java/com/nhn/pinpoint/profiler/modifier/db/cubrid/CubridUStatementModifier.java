@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 현재 사용하지 않고 있음. 일단 살려둠.
+ * @author emeroad
  */
 public class CubridUStatementModifier extends AbstractModifier {
 

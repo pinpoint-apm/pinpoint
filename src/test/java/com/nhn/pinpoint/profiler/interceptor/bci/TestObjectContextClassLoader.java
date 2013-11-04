@@ -3,6 +3,9 @@ package com.nhn.pinpoint.profiler.interceptor.bci;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author emeroad
+ */
 public class TestObjectContextClassLoader {
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 

@@ -3,12 +3,8 @@ package com.nhn.pinpoint.profiler.util.bindvalue;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.nhn.pinpoint.profiler.util.bindvalue.converter.ClassNameConverter;
-import com.nhn.pinpoint.profiler.util.bindvalue.converter.Converter;
-import com.nhn.pinpoint.profiler.util.bindvalue.converter.ObjectConverter;
-import com.nhn.pinpoint.profiler.util.bindvalue.converter.SimpleTypeConverter;
-import com.nhn.pinpoint.profiler.util.bindvalue.converter.BytesConverter;
-import com.nhn.pinpoint.profiler.util.bindvalue.converter.NullTypeConterver;
+import com.nhn.pinpoint.profiler.util.bindvalue.converter.*;
+import com.nhn.pinpoint.profiler.util.bindvalue.converter.NullTypeConverter;
 
 public class BindValueConverter {
     private static final BindValueConverter converter;
@@ -24,7 +20,7 @@ public class BindValueConverter {
         classNameType();
 
         // null argument 가 3개인것도 있음.
-        convertermap.put("setNull", new NullTypeConterver());
+        convertermap.put("setNull", new NullTypeConverter());
 
         BytesConverter bytesConverter = new BytesConverter();
         convertermap.put("setBytes", bytesConverter);

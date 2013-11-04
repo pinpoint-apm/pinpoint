@@ -15,6 +15,7 @@ import com.nhn.pinpoint.profiler.util.MetaObject;
  * protected int executeUpdate(String sql, boolean isBatch, boolean returnGeneratedKeys)
  *
  * @author netspider
+ * @author emeroad
  */
 public class StatementExecuteUpdateInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 

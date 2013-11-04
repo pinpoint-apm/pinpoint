@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author netspider
+ * @author emeroad
  */
 public final class DefaultTrace implements Trace {
 

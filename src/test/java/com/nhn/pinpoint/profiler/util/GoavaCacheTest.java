@@ -5,7 +5,7 @@ import com.google.common.cache.CacheBuilder;
 import org.junit.Test;
 
 /**
- *
+ * @author emeroad
  */
 public class GoavaCacheTest {
     @Test

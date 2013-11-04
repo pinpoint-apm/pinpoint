@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.security.ProtectionDomain;
 
 /**
- *
+ * @author emeroad
  */
 public class MySQLConnectionModifier extends AbstractModifier {
 

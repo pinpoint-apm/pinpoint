@@ -2,6 +2,9 @@ package com.nhn.pinpoint.profiler.context;
 
 import java.util.Random;
 
+/**
+ * @author emeroad
+ */
 public class SpanId {
 
     public static final long NULL = -1;

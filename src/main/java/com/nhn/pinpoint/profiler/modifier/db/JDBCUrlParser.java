@@ -16,7 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- *
+ * @author emeroad
  */
 public class JDBCUrlParser {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

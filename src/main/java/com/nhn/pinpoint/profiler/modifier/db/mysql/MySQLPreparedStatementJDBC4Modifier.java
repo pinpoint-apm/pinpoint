@@ -19,6 +19,9 @@ import java.security.ProtectionDomain;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * @author emeroad
+ */
 public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

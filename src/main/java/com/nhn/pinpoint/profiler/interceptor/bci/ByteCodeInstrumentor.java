@@ -4,6 +4,9 @@ import java.security.ProtectionDomain;
 
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 
+/**
+ * @author emeroad
+ */
 public interface ByteCodeInstrumentor {
 
 

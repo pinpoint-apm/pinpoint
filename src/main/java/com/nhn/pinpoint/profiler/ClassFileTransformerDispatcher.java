@@ -13,7 +13,7 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 
 /**
- *
+ * @author emeroad
  */
 public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 

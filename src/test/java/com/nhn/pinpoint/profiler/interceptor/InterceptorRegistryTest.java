@@ -11,6 +11,9 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+/**
+ * @author emeroad
+ */
 public class InterceptorRegistryTest {
 
     private final Logger logger = LoggerFactory.getLogger(InterceptorRegistryTest.class.getName());

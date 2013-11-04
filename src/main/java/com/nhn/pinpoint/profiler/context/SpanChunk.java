@@ -12,7 +12,7 @@ import org.apache.thrift.TBase;
 import com.nhn.pinpoint.profiler.DefaultAgent;
 
 /**
- *
+ * @author emeroad
  */
 public class SpanChunk extends TSpanChunk {
 

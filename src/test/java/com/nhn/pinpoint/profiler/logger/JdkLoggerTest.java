@@ -5,6 +5,9 @@ import org.junit.Test;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * @author emeroad
+ */
 public class JdkLoggerTest {
     @Test
     public void test() {

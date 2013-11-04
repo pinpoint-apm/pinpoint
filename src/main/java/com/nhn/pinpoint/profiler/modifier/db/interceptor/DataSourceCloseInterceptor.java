@@ -13,6 +13,7 @@ import com.nhn.pinpoint.profiler.util.DepthScope;
 
 /**
  * Datasource의 get을 추적해야 될것으로 예상됨.
+ * @author emeroad
  */
 public class DataSourceCloseInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 

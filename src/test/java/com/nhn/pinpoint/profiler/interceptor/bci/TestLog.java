@@ -4,7 +4,9 @@ package com.nhn.pinpoint.profiler.interceptor.bci;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * @author emeroad
+ */
 public class TestLog {
 
     private final Logger logger = LoggerFactory.getLogger(TestLog.class.getName());

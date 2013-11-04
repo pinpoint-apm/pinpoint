@@ -8,6 +8,7 @@ import com.nhn.pinpoint.thrift.dto.TIntStringValue;
 
 /**
  * @author netspider
+ * @author emeroad
  */
 public class Annotation extends TAnnotation {
 

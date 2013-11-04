@@ -1,11 +1,13 @@
 package com.nhn.pinpoint.profiler.interceptor;
 
-import com.nhn.pinpoint.profiler.interceptor.StaticAroundInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
+/**
+ * @author emeroad
+ */
 public class TestAfterInterceptor implements StaticAroundInterceptor {
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 

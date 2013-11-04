@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 
 /**
- *
+ * @author emeroad
  */
 public class EmptyAsyncQueueingExecutorListener implements AsyncQueueingExecutorListener<Object> {
 

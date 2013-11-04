@@ -20,6 +20,9 @@ import com.nhn.pinpoint.profiler.util.PreparedStatementUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author emeroad
+ */
 public class CubridPreparedStatementModifier extends AbstractModifier {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());

@@ -3,7 +3,7 @@ package com.nhn.pinpoint.profiler.interceptor.bci;
 import java.util.List;
 
 /**
- *
+ * @author emeroad
  */
 public class Method {
     private String methodName;

@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler.context;
 
 /**
- *
+ * @author emeroad
  */
 public class SpanEventStackFrame implements StackFrame {
     private SpanEvent spanEvent;

@@ -12,7 +12,7 @@ import net.spy.memcached.protocol.BaseOperationImpl;
 import com.nhn.pinpoint.profiler.util.MetaObject;
 
 /**
- *
+ * @author emeroad
  */
 public class BaseOperationCancelInterceptor implements SimpleAroundInterceptor {
 

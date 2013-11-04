@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * @author emeroad
+ */
 public class InstrumentTranslator implements Translator {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

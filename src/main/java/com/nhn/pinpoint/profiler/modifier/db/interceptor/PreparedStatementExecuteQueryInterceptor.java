@@ -18,6 +18,9 @@ import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.context.DatabaseInfo;
 import com.nhn.pinpoint.profiler.util.MetaObject;
 
+/**
+ * @author emeroad
+ */
 public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());

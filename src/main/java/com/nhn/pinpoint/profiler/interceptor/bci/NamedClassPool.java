@@ -3,7 +3,7 @@ package com.nhn.pinpoint.profiler.interceptor.bci;
 import javassist.ClassPool;
 
 /**
- *
+ * @author emeroad
  */
 public class NamedClassPool extends ClassPool {
     private final String name;

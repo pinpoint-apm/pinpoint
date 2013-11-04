@@ -14,7 +14,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Modify org.apache.catalina.core.StandardHostValve class
  *
- * @author cowboy93, netspider
+ * @author netspider
+ * @author emeroad
  */
 public class StandardHostValveInvokeModifier extends AbstractModifier {
 

@@ -25,7 +25,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 
 /**
- *
+ * @author emeroad
  */
 public abstract class AbstractHttpRequestExecute implements TraceContextSupport, ByteCodeMethodDescriptorSupport, SimpleAroundInterceptor {
 

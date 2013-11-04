@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler.util;
 
 /**
- *
+ * @author emeroad
  */
 public final class DepthScope {
 
@@ -34,7 +34,7 @@ public final class DepthScope {
         return depth.pop();
     }
 
-    private static class Depth {
+    private static final class Depth {
         private int depth = 0;
 
         public int push() {

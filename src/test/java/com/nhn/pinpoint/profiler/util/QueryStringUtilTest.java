@@ -1,9 +1,11 @@
 package com.nhn.pinpoint.profiler.util;
 
-import com.nhn.pinpoint.profiler.util.QueryStringUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * @author emeroad
+ */
 public class QueryStringUtilTest {
     @Test
     public void testRemoveAllMultiSpace() throws Exception {

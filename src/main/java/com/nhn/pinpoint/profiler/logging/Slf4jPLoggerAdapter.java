@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * @author emeroad
  */
 public class Slf4jPLoggerAdapter implements PLogger {
     public static final int BUFFER_SIZE = 512;

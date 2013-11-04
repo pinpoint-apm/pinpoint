@@ -1,10 +1,12 @@
 package com.nhn.pinpoint.profiler.sender;
 
-import com.nhn.pinpoint.profiler.logging.PLogger;
 import com.nhn.pinpoint.rpc.Future;
 import com.nhn.pinpoint.rpc.FutureListener;
 import org.slf4j.Logger;
 
+/**
+ * @author emeroad
+ */
 public class WriteFailFutureListener implements FutureListener {
 
     private final Logger logger;

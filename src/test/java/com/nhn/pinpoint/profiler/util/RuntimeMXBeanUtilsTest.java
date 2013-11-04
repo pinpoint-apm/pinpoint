@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Date;
 
 /**
- *
+ * @author emeroad
  */
 public class RuntimeMXBeanUtilsTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

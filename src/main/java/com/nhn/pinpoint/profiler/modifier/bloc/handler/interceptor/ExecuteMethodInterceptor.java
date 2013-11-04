@@ -15,6 +15,7 @@ import com.nhn.pinpoint.profiler.util.StringUtils;
 
 /**
  * @author netspider
+ * @author emeroad
  */
 public class ExecuteMethodInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
 

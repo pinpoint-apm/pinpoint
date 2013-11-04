@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- *
+ * @author emeroad
  */
 public class SimpleCache<T> {
     // 0인값은 존재 하지 않음을 나타냄.

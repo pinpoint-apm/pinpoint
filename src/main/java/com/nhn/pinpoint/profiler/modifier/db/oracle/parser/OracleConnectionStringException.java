@@ -3,7 +3,7 @@ package com.nhn.pinpoint.profiler.modifier.db.oracle.parser;
 import com.nhn.pinpoint.exception.PinpointException;
 
 /**
- *
+ * @author emeroad
  */
 public class OracleConnectionStringException extends PinpointException {
 

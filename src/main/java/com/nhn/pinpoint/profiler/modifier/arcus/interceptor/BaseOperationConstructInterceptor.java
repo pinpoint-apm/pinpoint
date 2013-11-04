@@ -12,7 +12,7 @@ import com.nhn.pinpoint.profiler.util.MetaObject;
 import com.nhn.pinpoint.profiler.util.TimeObject;
 
 /**
- *
+ * @author emeroad
  */
 @Deprecated
 public class BaseOperationConstructInterceptor implements SimpleAroundInterceptor, TraceContextSupport {

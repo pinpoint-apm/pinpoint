@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 
 
 /**
- * 
+ * @author emeroad
  */
 public abstract class AbstractFutureModifier extends AbstractModifier  {
 

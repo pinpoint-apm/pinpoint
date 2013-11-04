@@ -6,7 +6,7 @@ import com.nhn.pinpoint.profiler.context.DatabaseInfo;
 import java.util.List;
 
 /**
- *
+ * @author emeroad
  */
 public class DefaultDatabaseInfo implements DatabaseInfo {
 

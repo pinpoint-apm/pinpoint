@@ -17,6 +17,9 @@ import com.nhn.pinpoint.profiler.util.NetworkUtils;
 import com.nhn.pinpoint.profiler.util.NumberUtils;
 import com.nhn.pinpoint.profiler.util.StringUtils;
 
+/**
+ * @author emeroad
+ */
 public class StandardHostValveInvokeInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());

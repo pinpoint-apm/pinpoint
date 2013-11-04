@@ -5,6 +5,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author emeroad
+ */
 public class ArrayUtilsTest {
     private final Logger logger = LoggerFactory.getLogger(ArrayUtilsTest.class.getName());
     @Test

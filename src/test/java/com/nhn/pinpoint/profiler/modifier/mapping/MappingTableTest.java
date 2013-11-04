@@ -3,7 +3,7 @@ package com.nhn.pinpoint.profiler.modifier.mapping;
 import org.junit.Test;
 
 /**
- *
+ * @author emeroad
  */
 public class MappingTableTest {
     @Test

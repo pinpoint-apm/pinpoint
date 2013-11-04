@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- *
+ * @author emeroad
  */
 public class TcpDataSender implements EnhancedDataSender {
 

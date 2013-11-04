@@ -7,7 +7,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- *
+ * @author emeroad
  */
 public class RetryQueue {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

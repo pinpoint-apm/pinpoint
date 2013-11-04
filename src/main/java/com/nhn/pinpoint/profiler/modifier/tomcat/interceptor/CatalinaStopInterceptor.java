@@ -8,7 +8,7 @@ import com.nhn.pinpoint.profiler.util.StackTraceUtil;
 import com.nhn.pinpoint.profiler.LifeCycleEventListener;
 
 /**
- *
+ * @author emeroad
  */
 public class CatalinaStopInterceptor implements SimpleAroundInterceptor {
 

@@ -4,6 +4,9 @@ import com.nhn.pinpoint.profiler.logging.PLogger;
 import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 
 
+/**
+ * @author emeroad
+ */
 public class LifeCycleEventListener {
 
     private final static PLogger logger = PLoggerFactory.getLogger(LifeCycleEventListener.class.getName());

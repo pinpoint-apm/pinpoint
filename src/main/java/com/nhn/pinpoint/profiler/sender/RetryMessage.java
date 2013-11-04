@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler.sender;
 
 /**
- *
+ * @author emeroad
  */
 public class RetryMessage {
     private int retryCount;

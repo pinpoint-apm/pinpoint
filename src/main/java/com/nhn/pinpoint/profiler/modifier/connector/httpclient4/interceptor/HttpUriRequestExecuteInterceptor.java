@@ -17,6 +17,7 @@ import org.apache.http.client.methods.HttpUriRequest;
  * org.apache.http.impl.client.AbstractHttpClient.
  * public final HttpResponse execute(HttpUriRequest request) throws IOException, ClientProtocolException
  * </pre>
+ * @author emeroad
  */
 public class HttpUriRequestExecuteInterceptor extends AbstractHttpRequestExecute implements TargetClassLoader {
 

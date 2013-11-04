@@ -3,7 +3,7 @@ package com.nhn.pinpoint.profiler.sender;
 import org.apache.thrift.TBase;
 
 /**
- *
+ * @author emeroad
  */
 public interface EnhancedDataSender extends DataSender {
 

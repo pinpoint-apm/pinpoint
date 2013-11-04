@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+/**
+ * @author emeroad
+ */
 public class MethodRenameInterceptorTest {
     @Test
     public void methodRename() {

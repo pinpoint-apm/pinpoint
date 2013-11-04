@@ -1,5 +1,8 @@
 package com.nhn.pinpoint.profiler.interceptor;
 
+/**
+ * @author emeroad
+ */
 public class TestAroundInterceptor implements StaticAroundInterceptor {
 
     public TestBeforeInterceptor before = new TestBeforeInterceptor();

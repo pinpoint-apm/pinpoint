@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- *
+ * @author emeroad
  */
 public class LoggingDataSender implements EnhancedDataSender {
 

@@ -13,6 +13,9 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 
+/**
+ * @author emeroad
+ */
 public class UdpSocketTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());

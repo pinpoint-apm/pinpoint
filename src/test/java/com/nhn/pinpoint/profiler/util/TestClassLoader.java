@@ -18,6 +18,9 @@ import javassist.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author emeroad
+ */
 public class TestClassLoader extends Loader {
     private final Logger logger = LoggerFactory.getLogger(TestClassLoader.class.getName());
 

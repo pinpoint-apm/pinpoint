@@ -11,7 +11,7 @@ import com.nhn.pinpoint.profiler.interceptor.*;
 /**
  * 
  * @author netspider
- * 
+ * @author emeroad
  */
 public class MethodInterceptor implements SimpleAroundInterceptor, ServiceTypeSupport, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 

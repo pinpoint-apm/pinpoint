@@ -9,7 +9,9 @@ import java.security.ProtectionDomain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// TODO 추가 개발해야 될듯.
+/**
+ * @author emeroad
+ */
 public class MySQLResultSetModifier extends AbstractModifier {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

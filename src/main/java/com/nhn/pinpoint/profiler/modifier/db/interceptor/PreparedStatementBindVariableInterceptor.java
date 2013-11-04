@@ -12,6 +12,9 @@ import com.nhn.pinpoint.profiler.util.bindvalue.BindValueConverter;
 import java.util.Map;
 import com.nhn.pinpoint.profiler.logging.PLogger;
 
+/**
+ * @author emeroad
+ */
 public class PreparedStatementBindVariableInterceptor implements StaticAroundInterceptor, TraceContextSupport {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());

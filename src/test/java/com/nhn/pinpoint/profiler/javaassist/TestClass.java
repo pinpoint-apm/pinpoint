@@ -2,6 +2,9 @@ package com.nhn.pinpoint.profiler.javaassist;
 
 import java.util.List;
 
+/**
+ * @author emeroad
+ */
 public class TestClass<T> {
     private int a;
     private List<T> b;

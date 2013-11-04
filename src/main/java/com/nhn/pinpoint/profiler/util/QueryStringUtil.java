@@ -3,7 +3,13 @@ package com.nhn.pinpoint.profiler.util;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class QueryStringUtil {
+/**
+ * @author emeroad
+ */
+public final class QueryStringUtil {
+
+    private  QueryStringUtil() {
+    }
 
     public static String removeCarriageReturn(String query) {
 //		query.replaceAll(regex, replacement)

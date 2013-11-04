@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * @author emeroad
  */
 public class ArcusMethodFilter implements MethodFilter {
     private final static Object FIND = new Object();

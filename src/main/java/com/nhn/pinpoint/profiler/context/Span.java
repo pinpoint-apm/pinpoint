@@ -8,6 +8,7 @@ import com.nhn.pinpoint.thrift.dto.TSpan;
  * Span represent RPC
  *
  * @author netspider
+ * @author emeroad
  */
 public class Span extends TSpan {
     public Span() {

@@ -11,6 +11,9 @@ import com.nhn.pinpoint.profiler.util.InterceptorUtils;
 import com.nhn.pinpoint.profiler.util.MetaObject;
 import com.nhn.pinpoint.profiler.util.StringUtils;
 
+/**
+ * @author emeroad
+ */
 @Deprecated
 public class ConnectionCreateInterceptor implements StaticAroundInterceptor {
 

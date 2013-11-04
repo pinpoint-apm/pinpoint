@@ -16,6 +16,9 @@ import com.nhn.pinpoint.profiler.modifier.db.interceptor.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author emeroad
+ */
 public class MySQLConnectionImplModifier extends AbstractModifier {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

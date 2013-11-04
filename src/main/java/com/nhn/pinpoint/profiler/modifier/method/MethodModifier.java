@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 /**
  * 
  * @author netspider
+ * @author emeroad
  * 
  */
 public class MethodModifier extends AbstractModifier {

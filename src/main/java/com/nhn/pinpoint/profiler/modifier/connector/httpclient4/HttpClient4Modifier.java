@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
  * </pre>
  *
  * @author netspider
+ * @author emeroad
  */
 public class HttpClient4Modifier extends AbstractModifier {
 

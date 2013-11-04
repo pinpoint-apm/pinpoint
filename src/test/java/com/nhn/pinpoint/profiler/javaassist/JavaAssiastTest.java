@@ -14,7 +14,9 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.Arrays;
 
-
+/**
+ * @author emeroad
+ */
 public class JavaAssiastTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

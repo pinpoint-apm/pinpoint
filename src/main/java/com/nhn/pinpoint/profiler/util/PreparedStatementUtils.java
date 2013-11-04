@@ -10,6 +10,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+/**
+ * @author emeroad
+ */
 public class PreparedStatementUtils {
 
     private static final Pattern BIND_SETTER = Pattern.compile("set[A-Z]([a-zA-Z]+)");

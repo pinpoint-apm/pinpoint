@@ -2,6 +2,9 @@ package com.nhn.pinpoint.profiler.util.bindvalue.converter;
 
 import com.nhn.pinpoint.profiler.util.StringUtils;
 
+/**
+ * @author emeroad
+ */
 public class SimpleTypeConverter implements Converter {
     @Override
     public String convert(Object[] args) {

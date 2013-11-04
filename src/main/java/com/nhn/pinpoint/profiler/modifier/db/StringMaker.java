@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler.modifier.db;
 
 /**
- *
+ * @author emeroad
  */
 public class StringMaker {
 

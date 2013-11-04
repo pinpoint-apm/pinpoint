@@ -17,7 +17,7 @@ import com.nhn.pinpoint.profiler.context.TraceContext;
 import com.nhn.pinpoint.profiler.util.MetaObject;
 
 /**
- *
+ * @author emeroad
  */
 public class FutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
 

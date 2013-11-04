@@ -2,6 +2,9 @@ package com.nhn.pinpoint.profiler.context;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * @author emeroad
+ */
 public class ActiveThreadCounter {
     private AtomicInteger counter = new AtomicInteger(0);
 

@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler.util;
 
 /**
- *
+ * @author emeroad
  */
 public final class ApiUtils {
 

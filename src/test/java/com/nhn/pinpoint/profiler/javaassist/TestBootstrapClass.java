@@ -15,7 +15,7 @@ import java.net.URL;
 import java.security.ProtectionDomain;
 
 /**
- *
+ * @author emeroad
  */
 public class TestBootstrapClass {
 

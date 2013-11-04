@@ -5,7 +5,7 @@ import com.nhn.pinpoint.profiler.util.ApiUtils;
 import java.util.Arrays;
 
 /**
- *
+ * @author emeroad
  */
 public class DefaultMethodDescriptor implements MethodDescriptor {
     private String className;

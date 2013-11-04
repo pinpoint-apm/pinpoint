@@ -5,6 +5,9 @@ import org.junit.Test;
 import java.text.Format;
 import java.util.Formatter;
 
+/**
+ * @author emeroad
+ */
 public class FormatTest {
     @Test
     public void format() {

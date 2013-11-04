@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler.metadata;
 
 /**
- *
+ * @author emeroad
  */
 public class Result {
 

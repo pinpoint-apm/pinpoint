@@ -5,7 +5,7 @@ import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * @author emeroad
  */
 public class ImmediateFutureModifier extends AbstractFutureModifier {
 

@@ -9,6 +9,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
+/**
+ * @author emeroad
+ */
 public class JavaAssistUtilsTest {
     private final Logger logger = LoggerFactory.getLogger(JavaAssistUtilsTest.class.getName());
     private ClassPool pool;

@@ -12,6 +12,9 @@ import com.nhn.pinpoint.profiler.util.MetaObject;
 
 import java.sql.Connection;
 
+/**
+ * @author emeroad
+ */
 public class StatementCreateInterceptor implements SimpleAroundInterceptor, TraceContextSupport {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());

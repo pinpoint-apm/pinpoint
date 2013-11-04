@@ -12,6 +12,9 @@ import org.slf4j.LoggerFactory;
 
 import java.security.ProtectionDomain;
 
+/**
+ * @author emeroad
+ */
 public class DBCPPoolGuardConnectionWrapperModifier extends AbstractModifier {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

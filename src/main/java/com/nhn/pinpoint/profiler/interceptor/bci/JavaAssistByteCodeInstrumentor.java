@@ -18,6 +18,9 @@ import javassist.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author emeroad
+ */
 public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

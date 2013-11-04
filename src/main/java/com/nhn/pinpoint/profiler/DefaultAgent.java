@@ -36,6 +36,9 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
+/**
+ * @author emeroad
+ */
 public class DefaultAgent implements Agent {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
