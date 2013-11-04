@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.common.hbase.distributor;
 
 
+import com.nhn.pinpoint.common.util.MathUtils;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 
 import java.util.Arrays;
@@ -37,7 +38,7 @@ public class RangeOneByteSimpleHash implements RowKeyDistributorByHashPrefix.Has
 
     @Override
     public byte[] getHashPrefix(byte[] originalKey) {
-        long hash = Math.abs(hashBytes(originalKey));
+        long hash = MathUtils.fastAbs(hashBytes(originalKey));
         return new byte[] {(byte) (hash % mod)};
     }
 
