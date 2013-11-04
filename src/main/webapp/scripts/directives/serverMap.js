@@ -82,6 +82,9 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
              */
             showServerMap = function (applicationName, serviceType, to, period, filterText, mergeUnknowns, linkRouting, linkCurve) {
                 oProgressBar.startLoading();
+                oAlert.hideError();
+                oAlert.hideWarning();
+                oAlert.hideInfo();
                 if (oServerMap) {
                     oServerMap.clear();
                 }
@@ -102,7 +105,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                             scope.$emit('serverMap.allFetched');
                         } else {
                             htLastMapData.lastFetchedTimestamp = result.lastFetchedTimestamp - 1;
-                            scope.$emit('serverMap.fetched', htLastMapData.lastFetchedTimestamp, result.applicationMapData.nodeDataArray.length);
+                            scope.$emit('serverMap.fetched', htLastMapData.lastFetchedTimestamp);
                         }
                         serverMapCallback(query, mergeFilteredMapData(result), mergeUnknowns, linkRouting, linkCurve);
                     });

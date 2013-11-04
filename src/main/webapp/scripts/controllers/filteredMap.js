@@ -40,13 +40,8 @@ pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout'
     /**
      * scope event on serverMap.fetched
      */
-    $scope.$on('serverMap.fetched', function (event, lastFetchedTimestamp, nodeLength) {
-        if (nodeLength === 0) {
-            $scope.$emit('timeSlider.disableMore');
-            oTimeSliderDao.setInnerFrom(oTimeSliderDao.getFrom());
-        } else {
-            oTimeSliderDao.setInnerFrom(lastFetchedTimestamp);
-        }
+    $scope.$on('serverMap.fetched', function (event, lastFetchedTimestamp) {
+        oTimeSliderDao.setInnerFrom(lastFetchedTimestamp);
         $scope.$emit('timeSlider.setInnerFromTo', oTimeSliderDao);
     });
 

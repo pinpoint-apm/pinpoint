@@ -20,6 +20,11 @@ pinpointApp.factory('Alerts', ['$timeout', function ($timeout) {
                 this.getElement('.error .msg').text(msg);
             }.bind(this), 300);
         }.bind(this);
+        this.hideError = function () {
+            $timeout(function () {
+                this.getElement('.error').hide();
+            }.bind(this));
+        }.bind(this);
 
         this.showWarning = function (msg) {
             $timeout(function () {
@@ -27,12 +32,22 @@ pinpointApp.factory('Alerts', ['$timeout', function ($timeout) {
                 this.getElement('.warning .msg').text(msg);
             }.bind(this), 300);
         }.bind(this);
+        this.hideWarning = function () {
+            $timeout(function () {
+                this.getElement('.warning').hide();
+            }.bind(this));
+        }.bind(this);
 
         this.showInfo = function (msg) {
             $timeout(function () {
                 this.getElement('.info').show();
                 this.getElement('.info .msg').text(msg);
             }.bind(this), 300);
+        }.bind(this);
+        this.hideInfo = function () {
+            $timeout(function () {
+                this.getElement('.info').hide();
+            }.bind(this));
         }.bind(this);
 
         this.getElement = function (selector) {
