@@ -15,7 +15,7 @@ public class AnnotationBo {
     private static final int VERSION_SIZE = 1;
 
     private byte version = 0;
-    private int spanId;
+    private long spanId;
 
     private int key;
 
@@ -36,11 +36,11 @@ public class AnnotationBo {
         this.byteValue = transcoder.encode(value, this.valueType);
     }
 
-    public int getSpanId() {
+    public long getSpanId() {
         return spanId;
     }
 
-    public void setSpanId(int spanId) {
+    public void setSpanId(long spanId) {
         this.spanId = spanId;
     }
 

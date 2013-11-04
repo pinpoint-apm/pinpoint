@@ -64,7 +64,7 @@ public class AnnotationBoList {
     }
 
 
-    public void setSpanId(int spanId) {
+    public void setSpanId(long spanId) {
         for (AnnotationBo annotationBo : this.annotationBoList) {
             annotationBo.setSpanId(spanId);
         }
