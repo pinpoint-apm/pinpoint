@@ -6,6 +6,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author emeroad
+ */
 public class HeaderUtilsTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());

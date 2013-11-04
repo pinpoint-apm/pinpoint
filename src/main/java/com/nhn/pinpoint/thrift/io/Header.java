@@ -1,5 +1,8 @@
 package com.nhn.pinpoint.thrift.io;
 
+/**
+ * @author emeroad
+ */
 public class Header {
 
     public static final byte SIGNATURE = (byte) 0xef;

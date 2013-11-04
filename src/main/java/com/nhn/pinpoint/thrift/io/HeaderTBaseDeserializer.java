@@ -7,6 +7,9 @@ import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.transport.TMemoryInputTransport;
 
+/**
+ * copy->TBaseDeserializer
+ */
 public class HeaderTBaseDeserializer {
 
     private final TProtocol protocol_;

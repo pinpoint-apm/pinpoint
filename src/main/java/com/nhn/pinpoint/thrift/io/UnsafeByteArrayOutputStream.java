@@ -6,7 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 
 /**
- *
+ * @author emeroad
  */
 public class UnsafeByteArrayOutputStream extends OutputStream {
 

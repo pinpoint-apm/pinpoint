@@ -13,6 +13,7 @@ import java.io.UnsupportedEncodingException;
 /**
  * Generic utility for easily serializing objects into a byte array or Java
  * String.
+ * copy -> TBaseSerializer
  */
 public class SafeHeaderTBaseSerializer {
 

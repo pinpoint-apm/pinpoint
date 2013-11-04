@@ -3,6 +3,9 @@ package com.nhn.pinpoint.thrift.io;
 import java.net.DatagramPacket;
 import java.util.Arrays;
 
+/**
+ * @author emeroad
+ */
 public class PacketUtils {
 
     public static byte[] sliceData(DatagramPacket packet, int startOffset) {

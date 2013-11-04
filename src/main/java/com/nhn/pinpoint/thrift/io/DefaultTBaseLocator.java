@@ -4,6 +4,9 @@ import com.nhn.pinpoint.thrift.dto.*;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
+/**
+ * @author emeroad
+ */
 class DefaultTBaseLocator implements TBaseLocator {
 
     private static final short SPAN = 40;

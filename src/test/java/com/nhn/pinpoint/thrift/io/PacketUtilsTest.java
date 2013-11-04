@@ -7,6 +7,9 @@ import org.junit.Test;
 import java.net.DatagramPacket;
 import java.util.Arrays;
 
+/**
+ * @author emeroad
+ */
 public class PacketUtilsTest {
     @Test
     public void testSliceData1() throws Exception {

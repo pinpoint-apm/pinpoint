@@ -8,6 +8,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
+/**
+ * @author emeroad
+ */
 public class HeaderTBaseSerializerTest {
     private final Logger logger = LoggerFactory.getLogger(HeaderTBaseSerializerTest.class.getName());
 
