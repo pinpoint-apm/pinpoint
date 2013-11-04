@@ -32,8 +32,8 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
     private String traceAgentId;
     private long traceAgentStartTime;
     private long traceTransactionSequence;
-    private int spanId;
-    private int parentSpanId;
+    private long spanId;
+    private long parentSpanId;
 
     private long startTime;
     private int elapsed;
@@ -99,7 +99,7 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         setAnnotationList(span.getAnnotations());
     }
 
-    public SpanBo(String traceAgentId, long traceAgentStartTime, long traceTransactionSequence, long startTime, int elapsed, int spanId) {
+    public SpanBo(String traceAgentId, long traceAgentStartTime, long traceTransactionSequence, long startTime, int elapsed, long spanId) {
         if (traceAgentId == null) {
             throw new NullPointerException("traceAgentId must not be null");
         }
@@ -209,19 +209,19 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
     }
 
 
-    public int getSpanId() {
+    public long getSpanId() {
         return spanId;
     }
 
-    public void setSpanID(int spanId) {
+    public void setSpanID(long spanId) {
         this.spanId = spanId;
     }
 
-    public int getParentSpanId() {
+    public long getParentSpanId() {
         return parentSpanId;
     }
 
-    public void setParentSpanId(int parentSpanId) {
+    public void setParentSpanId(long parentSpanId) {
         this.parentSpanId = parentSpanId;
     }
 
@@ -315,7 +315,7 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
     }
 
     public boolean isRoot() {
-    	return -1 == parentSpanId;
+    	return -1L == parentSpanId;
     }
 
     public boolean hasException() {
@@ -400,7 +400,7 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         this.agentStartTime = buffer.readVarLong();
 
         // this.spanID = buffer.readLong();
-        this.parentSpanId = buffer.readInt();
+        this.parentSpanId = buffer.readLong();
 
         this.startTime = buffer.readVarLong();
         this.elapsed = buffer.readVarInt();

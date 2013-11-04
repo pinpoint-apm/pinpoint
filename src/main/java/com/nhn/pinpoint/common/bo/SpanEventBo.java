@@ -28,7 +28,7 @@ public class SpanEventBo implements Span {
 	private long traceAgentStartTime;
 	private long traceTransactionSequence;
 
-	private int spanId;
+	private long spanId;
 	private short sequence;
 
 	private int startElapsed;
@@ -44,7 +44,7 @@ public class SpanEventBo implements Span {
 	private List<AnnotationBo> annotationBoList;
 
 	private int depth = -1;
-	private int nextSpanId = -1;
+	private long nextSpanId = -1;
 
     private boolean hasException;
     private int exceptionId;
@@ -197,11 +197,11 @@ public class SpanEventBo implements Span {
 		this.traceTransactionSequence = traceTransactionSequence;
 	}
 
-	public void setSpanId(int spanId) {
+	public void setSpanId(long spanId) {
 		this.spanId = spanId;
 	}
 
-	public int getSpanId() {
+	public long getSpanId() {
 		return this.spanId;
 	}
 
@@ -282,11 +282,11 @@ public class SpanEventBo implements Span {
 		this.depth = depth;
 	}
 
-	public int getNextSpanId() {
+	public long getNextSpanId() {
 		return nextSpanId;
 	}
 
-	public void setNextSpanId(int nextSpanId) {
+	public void setNextSpanId(long nextSpanId) {
 		this.nextSpanId = nextSpanId;
 	}
 
@@ -396,7 +396,7 @@ public class SpanEventBo implements Span {
         this.apiId = buffer.readSVarInt();
 
 		this.depth = buffer.readSVarInt();
-		this.nextSpanId = buffer.readInt();
+		this.nextSpanId = buffer.readLong();
 
         this.hasException = buffer.readBoolean();
         if (hasException) {
