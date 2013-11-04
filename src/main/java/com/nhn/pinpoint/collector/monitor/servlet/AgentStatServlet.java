@@ -20,6 +20,7 @@ import com.nhn.pinpoint.collector.StatServer;
  * @author harebox
  * 
  */
+@Deprecated
 public class AgentStatServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 8843232240004199263L;
@@ -51,19 +52,19 @@ public class AgentStatServlet extends HttpServlet {
 
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws ServletException, IOException {
-		Map<String, String[]> params = req.getParameterMap();
-		
-		if (params.containsKey("agentId")) {
-			String agentId = params.get("agentId")[0];
-			String json = statServer.getStore().getInJson(agentId);
-			if (json != null) {
-				jsonpCallback(req, res, json);
-			} else {
-				jsonpCallback(req, res, "{\"error\": \"not found : " + agentId + "\"}");
-			}
-		} else {
-			jsonpCallback(req, res, statServer.getStore().getInJson());
-		}
+//		Map<String, String[]> params = req.getParameterMap();
+//		
+//		if (params.containsKey("agentId")) {
+//			String agentId = params.get("agentId")[0];
+//			String json = statServer.getStore().getInJson(agentId);
+//			if (json != null) {
+//				jsonpCallback(req, res, json);
+//			} else {
+//				jsonpCallback(req, res, "{\"error\": \"not found : " + agentId + "\"}");
+//			}
+//		} else {
+//			jsonpCallback(req, res, statServer.getStore().getInJson());
+//		}
 	}
 
 }

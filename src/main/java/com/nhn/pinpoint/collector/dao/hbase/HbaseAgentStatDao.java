@@ -6,19 +6,16 @@ import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENT_STAT_CF_STATISTICS
 import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENT_STAT_CF_STATISTICS_V1;
 
 import org.apache.hadoop.hbase.client.Put;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import com.nhn.pinpoint.collector.dao.AgentStatDao;
-import com.nhn.pinpoint.collector.monitor.AgentStatSupport;
-import com.nhn.pinpoint.thrift.dto.TAgentStat;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.util.RowKeyUtils;
 import com.nhn.pinpoint.common.util.TimeUtils;
+import com.nhn.pinpoint.thrift.dto.TAgentStat;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 
 /**
@@ -28,7 +25,6 @@ import com.sematext.hbase.wd.AbstractRowKeyDistributor;
  */
 @Repository
 public class HbaseAgentStatDao implements AgentStatDao {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
 	private HbaseOperations2 hbaseTemplate;
@@ -38,7 +34,7 @@ public class HbaseAgentStatDao implements AgentStatDao {
     private AbstractRowKeyDistributor rowKeyDistributor;
 
 	public void insert(final TAgentStat agentStat, final byte[] value) {
-		long timestamp = AgentStatSupport.getTimestamp(agentStat);
+		long timestamp = agentStat.getTimestamp();
 		byte[] key = getDistributedRowKey(agentStat, timestamp);
 
 		Put put = new Put(key);
@@ -49,7 +45,6 @@ public class HbaseAgentStatDao implements AgentStatDao {
 
 	/**
 	 * timestamp 기반의 row key를 만든다.
-	 * FIXME timestamp 제외
 	 */
 	private byte[] getRowKey(String agentId, long timestamp) {
 		if (agentId == null) {
@@ -63,7 +58,7 @@ public class HbaseAgentStatDao implements AgentStatDao {
 	 * row key를 bucket 단위로 분산시킨다.  
 	 */
     private byte[] getDistributedRowKey(TAgentStat agentStat, long timestamp) {
-        byte[] key = getRowKey(AgentStatSupport.getAgentId(agentStat), timestamp);
+        byte[] key = getRowKey(agentStat.getAgentId(), timestamp);
         return rowKeyDistributor.getDistributedKey(key);
     }
 

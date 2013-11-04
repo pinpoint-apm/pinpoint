@@ -39,18 +39,19 @@ public class DefaultAgentStatStore implements AgentStatStore {
 	public TAgentStat get(String agentId) {
 		return map.get(agentId);
 	}
-	
+
+	@Deprecated
 	public String getInJson(String agentId) {
 		String result = null;
-		try {
-			TAgentStat agentStat = map.get(agentId);
-			if (agentStat != null) {
-				Object typeObject = agentStat.getFieldValue(agentStat.getSetField());
-				result = jsonObjectMapper.writeValueAsString(typeObject);
-			}
-		} catch (Exception e) {
-			logger.error("failed to serialze the object to JSON : {}", e.getMessage());
-		}
+//		try {
+//			TAgentStat agentStat = map.get(agentId);
+//			if (agentStat != null) {
+//				Object typeObject = agentStat.getFieldValue(agentStat.getSetField());
+//				result = jsonObjectMapper.writeValueAsString(typeObject);
+//			}
+//		} catch (Exception e) {
+//			logger.error("failed to serialze the object to JSON : {}", e.getMessage());
+//		}
 		return result;
 	}
 	
