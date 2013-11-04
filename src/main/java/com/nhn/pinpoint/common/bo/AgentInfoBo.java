@@ -1,8 +1,5 @@
 package com.nhn.pinpoint.common.bo;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.map.ObjectMapper;
-
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
 import com.nhn.pinpoint.common.buffer.Buffer;
@@ -26,12 +23,6 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
 
     private long endTimeStamp;
     private int endStatus;
-
-// it's thread-safe. 공통 bean이 있지만 BO가 spring에 등록 안되어 있으므로 일단 만든다.
-//	@Autowired
-//	@Qualifier("jsonObjectMapper")
-	private ObjectMapper jsonObjectMapper = new ObjectMapper();
-
 
     public AgentInfoBo(TAgentInfo agentInfo) {
         this.hostname = agentInfo.getHostname();
@@ -190,16 +181,6 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
 		} else if (!agentId.equals(other.agentId))
 			return false;
 		return true;
-	}
-
-	@JsonIgnore
-	public String getJson() {
-		try {
-			return jsonObjectMapper.writeValueAsString(this);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "{}";
-		}
 	}
 
     @Override
