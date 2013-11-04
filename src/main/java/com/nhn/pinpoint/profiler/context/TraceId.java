@@ -7,7 +7,7 @@ public interface TraceId {
 
     TraceId getNextTraceId();
 
-    int getSpanId();
+    long getSpanId();
 
     String getTransactionId();
 
@@ -17,7 +17,7 @@ public interface TraceId {
 
     long getTransactionSequence();
 
-    int getParentSpanId();
+    long getParentSpanId();
 
     short getFlags();
 

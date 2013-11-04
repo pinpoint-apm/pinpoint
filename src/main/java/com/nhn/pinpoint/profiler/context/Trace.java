@@ -75,7 +75,7 @@ public interface Trace {
 
     void recordRemoteAddress(String remoteAddress);
 
-    void recordNextSpanId(int spanId);
+    void recordNextSpanId(long spanId);
 
     void recordParentApplication(String parentApplicationName, short parentApplicationType);
 
