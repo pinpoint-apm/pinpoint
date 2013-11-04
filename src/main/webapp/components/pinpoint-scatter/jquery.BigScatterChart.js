@@ -1349,13 +1349,11 @@ var BigScatterChart = $.Class({
         htOption.url = htDataSource.sUrl.call(this, this._nCallCount);
         htOption.data = htDataSource.htParam.call(this, this._nCallCount, this._htLastFechedParam, this._htLastFetchedData);
         htOption.success = function (htData) {
+            self._hideNoData();
             if (htData.scatter.length > 0) {
-                self._hideNoData();
                 self.addBubbleAndMoveAndDraw(htData.scatter, htData.scatter[htData.scatter.length - 1].x);
-                self._htLastFetchedData = htData;
-            } else {
-                self._htLastFetchedData = {};
             }
+            self._htLastFetchedData = htData;
             /* for testing
              else{
              console.log('--------------');
