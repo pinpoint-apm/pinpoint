@@ -8,7 +8,7 @@ import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
 
 /**
- *
+ * @author emeroad
  */
 public class ServerPipelineFactory implements ChannelPipelineFactory {
     private PinpointServerSocket serverSocket;

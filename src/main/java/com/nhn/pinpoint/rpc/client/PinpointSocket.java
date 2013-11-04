@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- *
+ * @author emeroad
  */
 public class PinpointSocket {
 

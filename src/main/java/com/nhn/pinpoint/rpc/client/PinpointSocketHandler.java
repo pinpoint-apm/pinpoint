@@ -12,7 +12,7 @@ import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
 
 /**
- *
+ * @author emeroad
  */
 public class PinpointSocketHandler extends SimpleChannelHandler implements SocketHandler {
 

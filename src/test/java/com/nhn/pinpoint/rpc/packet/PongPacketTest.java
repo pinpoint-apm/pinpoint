@@ -5,7 +5,7 @@ import org.jboss.netty.buffer.ChannelBuffer;
 import org.junit.Test;
 
 /**
- *
+ * @author emeroad
  */
 public class PongPacketTest {
     @Test

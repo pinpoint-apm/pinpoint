@@ -6,7 +6,7 @@ import org.junit.Test;
 import java.net.Socket;
 
 /**
- *
+ * @author emeroad
  */
 public class PinpointServerSocketTest {
     @Test

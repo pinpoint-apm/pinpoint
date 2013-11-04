@@ -7,7 +7,7 @@ import org.jboss.netty.util.ThreadNameDeterminer;
 import java.util.concurrent.TimeUnit;
 
 /**
- *
+ * @author emeroad
  */
 public class TimerFactory {
 

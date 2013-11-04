@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- *
+ * @author emeroad
  */
 public class StreamChannelManager {
 

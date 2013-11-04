@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.rpc.packet;
 
 /**
- *
+ * @author emeroad
  */
 public abstract class BasicPacket implements Packet {
 

@@ -4,7 +4,7 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 
 /**
- *
+ * @author emeroad
  */
 public class ChannelWriteFailListenableFuture<T> extends DefaultFuture<T> implements ChannelFutureListener {
 

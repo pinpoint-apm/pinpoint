@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.rpc;
 
 /**
- *
+ * @author emeroad
  */
 public class PinpointSocketException extends RuntimeException {
     public PinpointSocketException() {

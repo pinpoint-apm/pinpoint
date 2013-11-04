@@ -3,7 +3,7 @@ package com.nhn.pinpoint.rpc;
 import java.util.Random;
 
 /**
- *
+ * @author emeroad
  */
 public class TestByteUtils {
 

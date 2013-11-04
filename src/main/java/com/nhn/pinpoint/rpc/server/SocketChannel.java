@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.net.SocketAddress;
 
 /**
- *
+ * @author emeroad
  */
 public class SocketChannel {
 

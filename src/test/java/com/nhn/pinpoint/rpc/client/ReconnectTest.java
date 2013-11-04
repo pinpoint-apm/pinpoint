@@ -15,7 +15,7 @@ import java.io.IOException;
 
 
 /**
- *
+ * @author emeroad
  */
 //@Ignore
 public class ReconnectTest {

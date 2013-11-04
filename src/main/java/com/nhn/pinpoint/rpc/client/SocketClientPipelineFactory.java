@@ -11,7 +11,7 @@ import org.jboss.netty.handler.timeout.WriteTimeoutHandler;
 import java.util.concurrent.TimeUnit;
 
 /**
- *
+ * @author emeroad
  */
 public class SocketClientPipelineFactory implements ChannelPipelineFactory {
 

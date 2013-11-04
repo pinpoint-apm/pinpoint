@@ -3,7 +3,7 @@ package com.nhn.pinpoint.rpc.server;
 import org.jboss.netty.channel.Channel;
 
 /**
- *
+ * @author emeroad
  */
 public class ChannelContext {
 

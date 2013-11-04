@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.rpc.packet;
 
 /**
- *
+ * @author emeroad
  */
 public class PacketType {
     public static final short APPLICATION_SEND = 1;

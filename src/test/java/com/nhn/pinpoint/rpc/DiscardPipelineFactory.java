@@ -5,7 +5,7 @@ import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
 
 /**
- *
+ * @author emeroad
  */
 public class DiscardPipelineFactory implements ChannelPipelineFactory {
     @Override

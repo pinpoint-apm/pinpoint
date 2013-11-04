@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 /**
- *
+ * @author emeroad
  */
 public class RecordedStreamChannelMessageListener implements StreamChannelMessageListener {
 

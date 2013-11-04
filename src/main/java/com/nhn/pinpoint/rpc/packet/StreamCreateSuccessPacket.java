@@ -4,7 +4,7 @@ import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 
 /**
- *
+ * @author emeroad
  */
 public class StreamCreateSuccessPacket extends BasicStreamPacket {
 

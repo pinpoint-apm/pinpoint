@@ -5,7 +5,7 @@ import org.jboss.netty.channel.ChannelFutureListener;
 import org.slf4j.Logger;
 
 /**
- *
+ * @author emeroad
  */
 public class WriteFailFutureListener implements ChannelFutureListener {
 

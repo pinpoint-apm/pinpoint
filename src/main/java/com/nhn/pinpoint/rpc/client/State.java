@@ -3,7 +3,7 @@ package com.nhn.pinpoint.rpc.client;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- *
+ * @author emeroad
  */
 public class State {
 

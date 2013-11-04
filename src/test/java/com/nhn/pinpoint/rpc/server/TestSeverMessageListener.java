@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * @author emeroad
  */
 public class TestSeverMessageListener implements ServerMessageListener {
 

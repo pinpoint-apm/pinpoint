@@ -5,7 +5,7 @@ import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.rpc.packet.StreamPacket;
 
 /**
- *
+ * @author emeroad
  */
 public interface ServerMessageListener {
 

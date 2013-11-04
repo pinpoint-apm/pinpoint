@@ -8,7 +8,7 @@ import com.nhn.pinpoint.rpc.ResponseMessage;
 import java.net.SocketAddress;
 
 /**
- *
+ * @author emeroad
  */
 public class ReconnectStateSocketHandler implements SocketHandler {
 
