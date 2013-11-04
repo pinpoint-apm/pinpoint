@@ -1,9 +1,11 @@
 package com.nhn.pinpoint.profiler.sampler;
 
+import com.nhn.pinpoint.common.util.MathUtils;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- *
+ * @author emeroad
  */
 public class SamplingRateSampler implements Sampler {
 
@@ -21,7 +23,7 @@ public class SamplingRateSampler implements Sampler {
 
     @Override
     public boolean isSampling() {
-        int samplingCount = Math.abs(counter.getAndIncrement());
+        int samplingCount = MathUtils.fastAbs(counter.getAndIncrement());
         int isSampling = samplingCount % samplingRate;
         return isSampling == 0;
     }
