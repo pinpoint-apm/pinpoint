@@ -34,7 +34,6 @@ public class ApplicationMapController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-
     @Autowired
 	private ApplicationMapService applicationMapService;
 

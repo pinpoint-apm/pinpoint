@@ -1,8 +1,6 @@
 package com.nhn.pinpoint.web.service;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -16,13 +14,11 @@ import org.springframework.util.StopWatch;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
-import com.nhn.pinpoint.web.applicationmap.rawdata.ApplicationStatistics;
 import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
 import com.nhn.pinpoint.web.dao.AgentInfoDao;
 import com.nhn.pinpoint.web.dao.ApplicationIndexDao;
 import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCalleeDao;
 import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCallerDao;
-import com.nhn.pinpoint.web.dao.ApplicationStatisticsDao;
 import com.nhn.pinpoint.web.dao.HostApplicationMapDao;
 import com.nhn.pinpoint.web.vo.Application;
 
@@ -46,13 +42,10 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 
 	@Autowired
 	private ApplicationMapStatisticsCalleeDao applicationMapStatisticsCalleeDao;
-	
-	@Autowired
-	private ApplicationStatisticsDao applicationStatisticsDao;
 
 	@Autowired
 	private HostApplicationMapDao hostApplicationMapDao;
-	
+
 	private Set<AgentInfoBo> selectAgents(String applicationId) {
 		String[] agentIds = applicationIndexDao.selectAgentIds(applicationId);
 		Set<AgentInfoBo> agentSet = new HashSet<AgentInfoBo>();
@@ -110,7 +103,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 			logger.debug("     Find subCallee of " + stat.getTo());
 			Set<TransactionFlowStatistics> calleeSub = selectCallee(stat.getTo(), stat.getToServiceType().getCode(), from, to, calleeFoundApplications, callerFoundApplications);
 			logger.debug("     Found subCallee. count=" + calleeSub.size() + ", caller=" + stat.getTo());
-			
+
 			calleeSet.addAll(calleeSub);
 
 			// 찾아진 녀석들에 대한 caller도 찾는다.
@@ -194,16 +187,16 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		if (stat.getToServiceType().isTerminal() || stat.getToServiceType().isUnknown()) {
 			return;
 		}
-		
+
 		Set<AgentInfoBo> agentSet = selectAgents(stat.getTo());
-		
+
 		if (agentSet.isEmpty()) {
 			return;
 		}
 
 		// destination이 WAS이고 agent가 설치되어있으면 agentSet이 존재한다.
 		stat.addToAgentSet(agentSet);
-		
+
 		logger.debug("fill agent info. {}, {}", stat.getTo(), agentSet);
 	}
 
@@ -223,7 +216,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 
 		Set<TransactionFlowStatistics> callee = selectCallee(applicationName, serviceType, from, to, calleeFoundApplications, callerFoundApplications);
 		Set<TransactionFlowStatistics> caller = selectCaller(applicationName, serviceType, from, to, calleeFoundApplications, callerFoundApplications);
-		
+
 		Set<TransactionFlowStatistics> data = new HashSet<TransactionFlowStatistics>(callee.size() + caller.size());
 		data.addAll(callee);
 		data.addAll(caller);
@@ -232,39 +225,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 
 		watch.stop();
 		logger.info("Fetch applicationmap elapsed. {}ms", watch.getLastTaskTimeMillis());
-		
+
 		return map;
-	}
-
-	@Override
-	@Deprecated
-	public ApplicationStatistics selectApplicationStatistics(String applicationName, short serviceTypeCode, long from, long to) {
-		// TODO hmm.. client가 여러 종류 있을 수 있는데...
-		if (serviceTypeCode == ServiceType.UNKNOWN_CLOUD.getCode()) {
-			serviceTypeCode = ServiceType.HTTP_CLIENT.getCode();
-		}
-
-		logger.debug("fetch application statistics {}, {}", applicationName, ServiceType.findServiceType(serviceTypeCode));
-		ApplicationStatistics statistics = applicationStatisticsDao.selectApplicationStatistics(applicationName, serviceTypeCode, from, to);		
-		
-		List<Short> serviceTypeCodeList = new ArrayList<Short>();
-		if (ServiceType.findServiceType(serviceTypeCode).isWas()) {
-			serviceTypeCodeList.add(ServiceType.HTTP_CLIENT.getCode());
-
-			logger.debug("find applicationName {}", applicationName);
-			Application app = hostApplicationMapDao.findApplicationName(applicationName, from, to);
-			if (app != null) {
-				applicationName = app.getApplicationName();
-				logger.debug("   replace applicationName {} {}", applicationName, serviceTypeCode);
-			}
-		}
-		
-		for (short svcType : serviceTypeCodeList) {
-			logger.debug("fetch application statistics {}, {}", applicationName, ServiceType.findServiceType(svcType));
-			ApplicationStatistics stat = applicationStatisticsDao.selectApplicationStatistics(applicationName, svcType, from, to);
-			statistics.mergeWith(stat);
-		}
-
-		return statistics;
 	}
 }
