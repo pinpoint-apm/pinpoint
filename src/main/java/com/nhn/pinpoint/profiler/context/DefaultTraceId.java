@@ -9,15 +9,15 @@ public class DefaultTraceId implements TraceId {
 	private final long agentStartTime;
     private final long transactionSequence;
 
-	private final int parentSpanId;
-	private final int spanId;
+	private final long parentSpanId;
+	private final long spanId;
 	private final short flags;
 
     public DefaultTraceId(String agentId, long agentStartTime, long transactionId) {
         this(agentId, agentStartTime, transactionId, SpanId.NULL, SpanId.newSpanId(), (short) 0);
     }
 
-    public static DefaultTraceId parse(String transactionId, int parentSpanID, int spanID, short flags) {
+    public static DefaultTraceId parse(String transactionId, long parentSpanID, long spanID, short flags) {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }
@@ -30,7 +30,7 @@ public class DefaultTraceId implements TraceId {
 		return new DefaultTraceId(this.agentId, this.agentStartTime, transactionSequence, spanId, SpanId.nextSpanID(spanId, parentSpanId), flags);
 	}
 
-	public DefaultTraceId(String agentId, long agentStartTime, long transactionId, int parentSpanId, int spanId, short flags) {
+	public DefaultTraceId(String agentId, long agentStartTime, long transactionId, long parentSpanId, long spanId, short flags) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
@@ -60,11 +60,11 @@ public class DefaultTraceId implements TraceId {
     }
 
 
-	public int getParentSpanId() {
+	public long getParentSpanId() {
 		return parentSpanId;
 	}
 
-	public int getSpanId() {
+	public long getSpanId() {
 		return spanId;
 	}
 

@@ -30,7 +30,7 @@ public class Span extends TSpan {
         }
 
         this.setSpanId(traceId.getSpanId());
-        final int parentSpanId = traceId.getParentSpanId();
+        final long parentSpanId = traceId.getParentSpanId();
         if (traceId.getParentSpanId() != SpanId.NULL) {
             this.setParentSpanId(parentSpanId);
         }

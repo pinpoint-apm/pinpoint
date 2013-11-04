@@ -435,7 +435,7 @@ public final class DefaultTrace implements Trace {
     }
 
     @Override
-    public void recordNextSpanId(int nextSpanId) {
+    public void recordNextSpanId(long nextSpanId) {
         if (nextSpanId == -1) {
             return;
         }

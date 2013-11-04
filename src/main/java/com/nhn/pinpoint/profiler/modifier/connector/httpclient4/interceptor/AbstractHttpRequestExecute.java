@@ -79,8 +79,9 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
 
         if (httpRequest != null) {
             httpRequest.addHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
-            httpRequest.addHeader(Header.HTTP_SPAN_ID.toString(), Integer.toString(nextId.getSpanId()));
-            httpRequest.addHeader(Header.HTTP_PARENT_SPAN_ID.toString(), Integer.toString(nextId.getParentSpanId()));
+            httpRequest.addHeader(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
+
+            httpRequest.addHeader(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
 
             httpRequest.addHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
             httpRequest.addHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());

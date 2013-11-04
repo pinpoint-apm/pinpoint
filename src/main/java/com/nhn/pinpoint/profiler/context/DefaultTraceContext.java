@@ -249,7 +249,7 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     @Override
-    public TraceId createTraceId(final String transactionId, final int parentSpanID, final int spanID, final short flags) {
+    public TraceId createTraceId(final String transactionId, final long parentSpanID, final long spanID, final short flags) {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }

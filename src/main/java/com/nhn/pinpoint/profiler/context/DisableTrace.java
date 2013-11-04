@@ -5,7 +5,6 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.util.ParsingResult;
 import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
 
-import java.util.List;
 
 /**
  *
@@ -164,7 +163,7 @@ public class DisableTrace  implements Trace {
     }
 
     @Override
-    public void recordNextSpanId(int spanId) {
+    public void recordNextSpanId(long spanId) {
         throw new UnsupportedOperationException();
     }
 

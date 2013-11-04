@@ -86,7 +86,7 @@ public class SpanEventStackFrame implements StackFrame {
         this.spanEvent.setDestinationId(destinationId);
     }
 
-    public void setNextSpanId(int nextSpanId) {
+    public void setNextSpanId(long nextSpanId) {
         this.spanEvent.setNextSpanId(nextSpanId);
     }
 
