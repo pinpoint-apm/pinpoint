@@ -1,11 +1,10 @@
 package com.nhn.pinpoint.collector.handler;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.nhn.pinpoint.collector.dao.ApplicationMapStatisticsCalleeDao;
 import com.nhn.pinpoint.collector.dao.ApplicationMapStatisticsCallerDao;
-import com.nhn.pinpoint.collector.dao.ApplicationStatisticsDao;
-import org.springframework.stereotype.Service;
 
 /**
  * 
@@ -14,9 +13,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class StatisticsHandler {
-
-	@Autowired
-	private ApplicationStatisticsDao applicationMapStatisticsDao;
 
 	@Autowired
 	private ApplicationMapStatisticsCallerDao applicationMapStatisticsCallerDao;
@@ -30,9 +26,5 @@ public class StatisticsHandler {
 
 	public void updateCaller(String calleeApplicationName, short calleeServiceType, String callerApplicationName, short callerServiceType, String callerHost, int elapsed, boolean isError) {
 		applicationMapStatisticsCallerDao.update(calleeApplicationName, calleeServiceType, callerApplicationName, callerServiceType, callerHost, elapsed, isError);
-	}
-
-	public void updateApplication(String applicationName, short serviceType, String agentId, int elapsed, boolean isError) {
-		applicationMapStatisticsDao.update(applicationName, serviceType, agentId, elapsed, isError);
 	}
 }

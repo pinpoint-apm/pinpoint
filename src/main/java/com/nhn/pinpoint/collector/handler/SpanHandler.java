@@ -52,9 +52,6 @@ public class SpanHandler implements SimpleHandler {
 //			traceIndexDao.insert(span);
 			applicationTraceIndexDao.insert(span);
 
-			// application으로 들어오는 통계 정보 저장.
-			statisticsHandler.updateApplication(span.getApplicationName(), span.getServiceType(), span.getAgentId(), span.getElapsed(), span.getErr() > 0);
-
 			if (span.getParentSpanId() == -1) {
 				// TODO error가 있으면 getErr값이 0보다 큰가??
 //				statisticsHandler.updateCallee(span.getApplicationName(), span.getServiceType(), span.getApplicationName(), ServiceType.CLIENT.getCode(), span.getEndPoint(), span.getElapsed(), span.getErr() > 0);
@@ -94,9 +91,6 @@ public class SpanHandler implements SimpleHandler {
 					// if terminal update statistics
 					int elapsed = spanEvent.getEndElapsed();
 					boolean hasException = SpanEventUtils.hasException(spanEvent);
-
-					// application으로 들어오는 통계 정보 저장.
-					statisticsHandler.updateApplication(spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getEndPoint(), elapsed, hasException);
 
 					// 통계정보에 기반한 서버맵을 그리기 위한 정보 저장.
 					// 내가 호출한 정보 저장. (span이 호출한 spanevent)
