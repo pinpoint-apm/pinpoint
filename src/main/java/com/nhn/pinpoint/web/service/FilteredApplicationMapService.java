@@ -10,6 +10,7 @@ import com.nhn.pinpoint.web.vo.TransactionId;
 
 /**
  * @author netspider
+ * @author emeroad
  */
 public interface FilteredApplicationMapService {
 

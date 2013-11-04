@@ -19,7 +19,7 @@ import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.SpanUtils;
 
 /**
- *
+ * @author emeroad
  */
 @Repository
 @Deprecated

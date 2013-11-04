@@ -4,6 +4,7 @@ import java.util.List;
 
 /**
  * @author netspider
+ * @author emeroad
  */
 public class RecordSet {
 

@@ -3,7 +3,7 @@ package com.nhn.pinpoint.web.service;
 import com.nhn.pinpoint.web.calltree.span.SpanAlign;
 
 /**
- *
+ * @author emeroad
  */
 public class SpanDepth {
     private final SpanAlign spanAlign;

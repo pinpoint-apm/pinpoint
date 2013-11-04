@@ -29,7 +29,7 @@ import com.nhn.pinpoint.web.vo.scatter.Dot;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 
 /**
- *
+ * @author emeroad
  */
 @Repository
 public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {

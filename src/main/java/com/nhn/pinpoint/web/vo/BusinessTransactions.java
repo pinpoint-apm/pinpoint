@@ -7,6 +7,9 @@ import java.util.Map.Entry;
 
 import com.nhn.pinpoint.common.bo.SpanBo;
 
+/**
+ * @author emeroad
+ */
 public class BusinessTransactions {
 
 	private final Map<String, BusinessTransaction> transactions = new HashMap<String, BusinessTransaction>();

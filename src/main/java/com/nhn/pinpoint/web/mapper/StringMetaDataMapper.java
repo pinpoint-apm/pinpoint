@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * @author emeroad
  */
 @Component
 public class StringMetaDataMapper implements RowMapper<List<StringMetaDataBo>> {

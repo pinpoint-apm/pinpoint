@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * @author emeroad
  */
 @Repository
 public class HbaseAgentInfoDao implements AgentInfoDao {

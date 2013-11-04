@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.web.dao.hbase;
 
-import com.nhn.pinpoint.common.bo.ApiMetaDataBo;
 import com.nhn.pinpoint.common.bo.StringMetaDataBo;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
@@ -15,7 +14,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 /**
- *
+ * @author emeroad
  */
 @Repository
 public class HbaseStringMetaDataDao implements StringMetaDataDao {

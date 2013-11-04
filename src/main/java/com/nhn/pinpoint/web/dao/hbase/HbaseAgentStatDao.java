@@ -24,7 +24,7 @@ import com.nhn.pinpoint.web.dao.AgentStatDao;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 
 /**
- *
+ * @author emeroad
  */
 @Repository
 public class HbaseAgentStatDao implements AgentStatDao {

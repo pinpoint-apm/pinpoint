@@ -9,7 +9,7 @@ import com.nhn.pinpoint.web.vo.TransactionId;
 import com.nhn.pinpoint.common.bo.SpanBo;
 
 /**
- *
+ * @author emeroad
  */
 public interface TraceDao {
 

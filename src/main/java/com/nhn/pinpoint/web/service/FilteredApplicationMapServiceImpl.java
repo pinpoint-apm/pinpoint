@@ -33,6 +33,7 @@ import com.nhn.pinpoint.web.vo.TransactionId;
 
 /**
  * @author netspider
+ * @author emeroad
  */
 @Service
 public class FilteredApplicationMapServiceImpl implements FilteredApplicationMapService {

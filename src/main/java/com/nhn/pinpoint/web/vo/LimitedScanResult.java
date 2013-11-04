@@ -3,7 +3,7 @@ package com.nhn.pinpoint.web.vo;
 /**
  * 
  * @author netspider
- * 
+ * @author emeroad
  * @param <V>
  */
 public class LimitedScanResult<V> {

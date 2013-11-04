@@ -1,5 +1,8 @@
 package com.nhn.pinpoint.web.vo;
 
+/**
+ * @author emeroad
+ */
 public class Trace {
 
 	private final String traceId;

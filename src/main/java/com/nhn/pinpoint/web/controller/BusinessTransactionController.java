@@ -31,7 +31,7 @@ import com.nhn.pinpoint.web.vo.TransactionId;
 import com.nhn.pinpoint.web.vo.callstacks.RecordSet;
 
 /**
- *
+ * @author emeroad
  */
 @Controller
 public class BusinessTransactionController {

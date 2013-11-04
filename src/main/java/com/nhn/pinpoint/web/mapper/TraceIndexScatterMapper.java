@@ -16,7 +16,7 @@ import com.nhn.pinpoint.web.vo.scatter.Dot;
 import com.nhn.pinpoint.common.util.BytesUtils;
 
 /**
- *
+ * @author emeroad
  */
 @Component
 public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {

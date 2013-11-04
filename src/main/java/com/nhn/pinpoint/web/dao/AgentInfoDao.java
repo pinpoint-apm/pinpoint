@@ -5,7 +5,7 @@ import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import java.util.List;
 
 /**
- *
+ * @author emeroad
  */
 public interface AgentInfoDao {
     @Deprecated

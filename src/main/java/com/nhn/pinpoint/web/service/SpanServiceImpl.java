@@ -23,7 +23,7 @@ import com.nhn.pinpoint.common.util.OutputParameterParser;
 import com.nhn.pinpoint.common.util.SqlParser;
 
 /**
- *
+ * @author emeroad
  */
 @Service
 public class SpanServiceImpl implements SpanService {

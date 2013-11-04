@@ -6,6 +6,9 @@ import java.util.List;
 import com.nhn.pinpoint.common.bo.SpanBo;
 import com.nhn.pinpoint.common.util.TransactionIdUtils;
 
+/**
+ * @author emeroad
+ */
 public class BusinessTransaction {
 	private final List<Trace> traces = new ArrayList<Trace>();
 	private final String rpc;

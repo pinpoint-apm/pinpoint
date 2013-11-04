@@ -7,7 +7,7 @@ import com.nhn.pinpoint.common.bo.SpanBo;
 /**
  * 
  * @author netspider
- * 
+ * @author emeroad
  */
 public interface Filter {
 

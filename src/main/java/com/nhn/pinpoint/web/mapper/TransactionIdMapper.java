@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import com.nhn.pinpoint.web.vo.TransactionId;
 
 /**
- *
+ * @author emeroad
  */
 @Component
 public class TransactionIdMapper implements RowMapper<List<TransactionId>> {

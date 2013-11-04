@@ -19,6 +19,7 @@ import com.nhn.pinpoint.web.vo.scatter.Dot;
 
 /**
  * @author netspider
+ * @author emeroad
  */
 @Service
 public class ScatterChartServiceImpl implements ScatterChartService {

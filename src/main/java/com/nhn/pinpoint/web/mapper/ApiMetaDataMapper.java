@@ -18,7 +18,7 @@ import com.nhn.pinpoint.common.bo.ApiMetaDataBo;
 import com.nhn.pinpoint.common.buffer.Buffer;
 
 /**
- *
+ * @author emeroad
  */
 @Component
 public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {

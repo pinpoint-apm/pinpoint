@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import com.nhn.pinpoint.common.bo.SqlMetaDataBo;
 
 /**
- *
+ * @author emeroad
  */
 @Component
 public class SqlMetaDataMapper implements RowMapper<List<SqlMetaDataBo>> {

@@ -17,6 +17,7 @@ import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 
 /**
  * @author netspider
+ * @author emeroad
  */
 @Repository
 public class HbaseApplicationIndexDao implements ApplicationIndexDao {

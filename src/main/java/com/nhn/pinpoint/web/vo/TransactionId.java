@@ -4,6 +4,9 @@ import com.nhn.pinpoint.common.PinpointConstants;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.util.TransactionIdUtils;
 
+/**
+ * @author emeroad
+ */
 // FIXME Comparable 인터페이스 제거.
 public class TransactionId implements Comparable<TransactionId> {
     public static final int AGENT_NAME_MAX_LEN = PinpointConstants.AGENT_NAME_MAX_LEN;

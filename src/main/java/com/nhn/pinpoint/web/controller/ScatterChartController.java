@@ -32,6 +32,7 @@ import com.nhn.pinpoint.web.vo.scatter.Dot;
 /**
  * 
  * @author netspider
+ * @author emeroad
  */
 @Controller
 public class ScatterChartController {

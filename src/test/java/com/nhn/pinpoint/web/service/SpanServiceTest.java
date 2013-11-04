@@ -32,7 +32,7 @@ import com.nhn.pinpoint.common.hbase.HbaseTemplate2;
 import com.nhn.pinpoint.common.util.SpanUtils;
 
 /**
- *
+ * @author emeroad
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")

@@ -15,7 +15,7 @@ import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 
 /**
- *
+ * @author emeroad
  */
 @Repository
 public class HbaseApiMetaDataDao implements ApiMetaDataDao {

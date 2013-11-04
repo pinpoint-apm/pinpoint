@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 /**
  * 
  * @author netspider
- * 
+ * @author emeroad
  */
 public class SpanAligner2 {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

@@ -6,7 +6,7 @@ import com.nhn.pinpoint.web.calltree.span.SpanAligner2;
 import java.util.List;
 
 /**
- *
+ * @author emeroad
  */
 public class SpanResult {
     private int completeType;

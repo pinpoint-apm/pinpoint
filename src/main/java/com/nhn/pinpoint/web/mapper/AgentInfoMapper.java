@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * @author emeroad
  */
 @Component
 public class AgentInfoMapper implements RowMapper<List<AgentInfoBo>> {

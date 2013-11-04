@@ -8,7 +8,7 @@ import com.nhn.pinpoint.common.ServiceType;
 /**
  * 
  * @author netspider
- * 
+ * @author emeroad
  */
 public class TerminalStatistics {
 

@@ -8,7 +8,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- *
+ * @author emeroad
  */
 public class SpanIdMatcher {
     private List<SpanBo> nextSpanBoList;

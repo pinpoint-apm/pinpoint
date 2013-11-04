@@ -11,7 +11,7 @@ import java.util.Set;
 /**
  * 
  * @author netspider
- * 
+ * @author emeroad
  */
 public class TransactionMetadataQuery {
 

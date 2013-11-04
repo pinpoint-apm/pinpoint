@@ -3,7 +3,7 @@ package com.nhn.pinpoint.web.util;
 import java.util.LinkedList;
 
 /**
- *
+ * @author
  */
 public class Stack<T> {
 

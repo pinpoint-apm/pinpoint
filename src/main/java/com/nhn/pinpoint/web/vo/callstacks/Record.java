@@ -6,7 +6,7 @@ import com.nhn.pinpoint.common.ServiceType;
  * each stack
  * 
  * @author netspider
- * 
+ * @author emeroad
  */
 public class Record {
 	private final int tab;

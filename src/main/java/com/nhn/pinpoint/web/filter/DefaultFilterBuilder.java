@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 /**
  * 
  * @author netspider
- * 
+ * @author emeroad
  */
 @Component
 public class DefaultFilterBuilder implements FilterBuilder {
