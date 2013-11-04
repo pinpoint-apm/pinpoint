@@ -3,9 +3,12 @@ package com.nhn.pinpoint.profiler.util;
 /**
  *
  */
-public class ApiUtils {
+public final class ApiUtils {
 
     private final static String EMPTY_ARRAY = "()";
+
+    private ApiUtils() {
+    }
 
     public static String mergeParameterVariableNameDescription(String[] parameterType, String[] variableName) {
         if (parameterType == null && variableName == null) {

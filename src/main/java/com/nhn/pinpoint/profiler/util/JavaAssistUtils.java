@@ -6,11 +6,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class JavaAssistUtils {
+public final class JavaAssistUtils {
     private final static String EMTPY_ARRAY = "()";
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
     private static final Logger logger = LoggerFactory.getLogger(JavaAssistUtils.class);
+
+    private JavaAssistUtils() {
+    }
 
     /**
      * test(int, java.lang.String) 일경우

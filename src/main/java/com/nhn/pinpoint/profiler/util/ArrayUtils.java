@@ -1,7 +1,10 @@
 package com.nhn.pinpoint.profiler.util;
 
 
-public class ArrayUtils {
+public final class ArrayUtils {
+
+    private ArrayUtils() {
+    }
 
     public static String dropToString(byte[] bytes) {
         return dropToString(bytes, 32);

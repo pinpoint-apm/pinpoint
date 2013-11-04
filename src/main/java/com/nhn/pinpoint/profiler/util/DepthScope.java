@@ -3,7 +3,7 @@ package com.nhn.pinpoint.profiler.util;
 /**
  *
  */
-public class DepthScope {
+public final class DepthScope {
 
     public static final int ZERO = 0;
 

@@ -9,11 +9,14 @@ import java.util.logging.Logger;
 /**
  *
  */
-public class RuntimeMXBeanUtils {
+public final class RuntimeMXBeanUtils {
     private static final RuntimeMXBean RUNTIME_MBEAN = ManagementFactory.getRuntimeMXBean();
 
     private static long START_TIME = 0;
     private static int PID = 0;
+
+    private RuntimeMXBeanUtils() {
+    }
 
     public static int getPid() {
         if (PID == 0) {

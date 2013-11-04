@@ -4,7 +4,10 @@ package com.nhn.pinpoint.profiler.util;
 import com.nhn.pinpoint.thrift.dto.*;
 import org.apache.thrift.TBase;
 
-public class AnnotationValueMapper {
+public final class AnnotationValueMapper {
+
+    private AnnotationValueMapper() {
+    }
 
     public static void mappingValue(TAnnotation annotation, Object value) {
         if (value == null) {
