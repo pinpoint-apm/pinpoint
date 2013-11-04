@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.web.applicationmap;
 
+import org.codehaus.jackson.map.ObjectMapper;
+
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
@@ -19,6 +21,8 @@ public class ServerInstance implements Comparable<ServerInstance>, Mergeable<Ser
 	private final String id;
 	private final AgentInfoBo agentInfo;
 	private ResponseHistogram histogram;
+	
+	private ObjectMapper objectMapper = new ObjectMapper();
 
 	public ServerInstance(AgentInfoBo agentInfo, ResponseHistogram histogram) {
 		this.name = agentInfo.getAgentId();
@@ -54,11 +58,18 @@ public class ServerInstance implements Comparable<ServerInstance>, Mergeable<Ser
 
 	@Override
 	public String getJson() {
+		String agentInfoJson = "{}";
+		try {
+			agentInfoJson = objectMapper.writeValueAsString(agentInfo);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		StringBuilder sb = new StringBuilder();
 		sb.append("{");
 		sb.append("\"name\":\"").append(name).append("\",");
 		sb.append("\"serviceType\":\"").append(serviceType).append("\",");
-		sb.append("\"agentInfo\":").append((agentInfo == null) ? null : agentInfo.getJson()).append(",");
+		sb.append("\"agentInfo\":").append((agentInfo == null) ? null : agentInfoJson).append(",");
 		sb.append("\"histogram\":").append((histogram == null) ? null : histogram.getJson());
 		sb.append("}");
 		return sb.toString();

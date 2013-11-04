@@ -21,10 +21,18 @@
 		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
 		http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring-1.1.xsd">
 
+    <mvc:annotation-driven />
 	<tx:annotation-driven />
-
 	<context:component-scan base-package="com.nhn.pinpoint.web.controller" />
 
+    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+        <property name="messageConverters">
+            <list>
+                <bean class="com.nhn.pinpoint.web.util.MappingJsonpJacksonHttpMessageConverter" />
+                <!-- bean class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter" p:supportedMediaTypes="text/json" / -->
+            </list>
+        </property>
+    </bean>
 
 	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<property name="prefix" value="/WEB-INF/views/" />

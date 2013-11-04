@@ -64,9 +64,9 @@ pinpointApp.directive('agentList', [ 'agentListConfig', '$rootScope', function (
 
             findAgentByAgentId = function (agentId) {
                 for (var key in scope.agentGroup) {
-                    for (var innerKey in scope.agentGroup[key].agentList) {
-                        if (scope.agentGroup[key].agentList[innerKey].agentId === agentId) {
-                            return scope.agentGroup[key].agentList[innerKey];
+                    for (var innerKey in scope.agentGroup[key]) {
+                        if (scope.agentGroup[key][innerKey].agentId === agentId) {
+                            return scope.agentGroup[key][innerKey];
                         }
                     }
                 }

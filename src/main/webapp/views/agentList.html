@@ -6,7 +6,7 @@
         <li ng-repeat="(key, group) in agentGroup">
             <span class="nav-header">{{key}}</span>
             <ul class="nav">
-                <li ng-class="{active: currentAgent == agent}" ng-repeat="agent in group.agentList | filter:searchAgents">
+                <li ng-class="{active: currentAgent == agent}" ng-repeat="agent in group | filter:searchAgents">
                     <a href ng-click="select(agent)">{{agent.agentId}}</a>
                 </li>
             </ul>
