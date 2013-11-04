@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
  * application names list.
  *
  * @author netspider
+ * @author emeroad
  */
 @Repository
 public class HbaseApplicationIndexDao implements ApplicationIndexDao {

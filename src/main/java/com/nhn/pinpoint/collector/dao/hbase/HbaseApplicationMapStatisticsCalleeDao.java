@@ -25,6 +25,7 @@ import java.util.Map;
  * 나를 호출한 application 통계 갱신
  * 
  * @author netspider
+ * @author emeroad
  */
 @Repository
 public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapStatisticsCalleeDao {

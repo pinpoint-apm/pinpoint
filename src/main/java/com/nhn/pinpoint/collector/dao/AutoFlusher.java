@@ -15,7 +15,7 @@ import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 /**
  * 
  * @author netspider
- * 
+ * @author emeroad
  */
 public class AutoFlusher {
 

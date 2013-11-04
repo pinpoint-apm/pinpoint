@@ -22,6 +22,7 @@ import com.sematext.hbase.wd.AbstractRowKeyDistributor;
  * Agent 통계 정보를 저장하는 AgentStat 테이블에 접근하기 위한 DAO
  * 
  * @author harebox
+ * @author emeroad
  */
 @Repository
 public class HbaseAgentStatDao implements AgentStatDao {

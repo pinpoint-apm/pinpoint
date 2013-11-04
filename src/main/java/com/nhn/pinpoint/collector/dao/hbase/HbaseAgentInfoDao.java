@@ -16,7 +16,7 @@ import com.nhn.pinpoint.collector.dao.AgentInfoDao;
 import org.springframework.stereotype.Repository;
 
 /**
- *
+ * @author emeroad
  */
 @Repository
 public class HbaseAgentInfoDao implements AgentInfoDao {

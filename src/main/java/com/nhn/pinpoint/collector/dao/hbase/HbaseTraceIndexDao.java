@@ -15,6 +15,9 @@ import com.nhn.pinpoint.collector.dao.TraceIndexDao;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
+/**
+ * @author emeroad
+ */
 @Deprecated
 @Repository
 public class HbaseTraceIndexDao implements TraceIndexDao {

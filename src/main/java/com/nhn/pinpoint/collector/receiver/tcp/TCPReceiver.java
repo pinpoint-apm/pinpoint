@@ -28,6 +28,9 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+/**
+ * @author emeroad
+ */
 public class TCPReceiver {
 
 	private final Logger logger = LoggerFactory.getLogger(TCPReceiver.class);

@@ -4,7 +4,7 @@ import org.apache.thrift.TBase;
 import org.springframework.stereotype.Service;
 
 /**
- *
+ * @author emeroad
  */
 @Service
 public interface RequestResponseHandler {

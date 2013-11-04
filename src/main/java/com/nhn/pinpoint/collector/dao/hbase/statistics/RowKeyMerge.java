@@ -12,7 +12,7 @@ import java.util.*;
 import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_MAP_STATISTICS_CALLER_CF_COUNTER;
 
 /**
- *
+ * @author emeroad
  */
 @Component
 public class RowKeyMerge {

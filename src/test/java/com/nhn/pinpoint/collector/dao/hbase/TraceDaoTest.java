@@ -28,6 +28,9 @@ import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.RowKeyUtils;
 import com.nhn.pinpoint.common.util.SpanUtils;
 
+/**
+ * @author emeroad
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
 //@TestExecutionListeners({DependencyInjectionTestExecutionListener.class})
 @ContextConfiguration("classpath:applicationContext-test.xml")

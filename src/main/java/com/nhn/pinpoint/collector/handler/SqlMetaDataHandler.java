@@ -11,7 +11,7 @@ import com.nhn.pinpoint.collector.dao.SqlMetaDataDao;
 import org.springframework.stereotype.Service;
 
 /**
- *
+ * @author emeroad
  */
 @Service
 public class SqlMetaDataHandler implements RequestResponseHandler {

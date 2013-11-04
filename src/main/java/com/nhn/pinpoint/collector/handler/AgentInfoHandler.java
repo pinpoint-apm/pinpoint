@@ -11,6 +11,9 @@ import com.nhn.pinpoint.collector.dao.AgentInfoDao;
 import com.nhn.pinpoint.collector.dao.ApplicationIndexDao;
 import org.springframework.stereotype.Service;
 
+/**
+ * @author emeroad
+ */
 @Service("agentInfoHandler")
 public class AgentInfoHandler implements SimpleHandler {
 

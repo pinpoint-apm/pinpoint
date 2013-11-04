@@ -23,6 +23,7 @@ import org.springframework.stereotype.Repository;
 /**
  * 
  * @author netspider
+ * @author emeroad
  */
 @Repository
 public class HbaseHostApplicationMapDao implements HostApplicationMapDao {

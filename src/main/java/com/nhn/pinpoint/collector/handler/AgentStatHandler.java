@@ -12,6 +12,9 @@ import com.nhn.pinpoint.collector.dao.AgentStatDao;
 import com.nhn.pinpoint.thrift.io.Header;
 import com.nhn.pinpoint.thrift.io.PacketUtils;
 
+/**
+ * @author emeroad
+ */
 @Service("agentStatHandler")
 public class AgentStatHandler implements Handler {
 

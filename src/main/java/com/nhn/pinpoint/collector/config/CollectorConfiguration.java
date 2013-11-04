@@ -10,6 +10,9 @@ import org.springframework.util.Assert;
 import java.io.FileNotFoundException;
 import java.util.Properties;
 
+/**
+ * @author emeroad
+ */
 public class CollectorConfiguration implements InitializingBean {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

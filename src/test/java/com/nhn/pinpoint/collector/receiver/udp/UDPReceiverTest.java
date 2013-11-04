@@ -15,6 +15,9 @@ import org.springframework.context.support.GenericApplicationContext;
 
 import com.nhn.pinpoint.collector.spring.ApplicationContextUtils;
 
+/**
+ * @author emeroad
+ */
 public class UDPReceiverTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

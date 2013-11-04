@@ -19,7 +19,7 @@ import org.springframework.stereotype.Repository;
  * find applicationname by agentId
  * 
  * @author netspider
- * 
+ * @author emeroad
  */
 @Repository
 public class HbaseAgentIdApplicationIndexDao implements AgentIdApplicationIndexDao {

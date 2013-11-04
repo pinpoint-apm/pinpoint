@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.collector.mapper;
 
+import com.nhn.pinpoint.common.util.BytesUtils;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.springframework.data.hadoop.hbase.RowMapper;
@@ -19,7 +20,7 @@ public class ApplicationNameMapper implements RowMapper<String> {
 		int index = 0;
 
 		for (KeyValue kv : raw) {
-			ret[index++] = new String(kv.getQualifier(), "UTF-8");
+			ret[index++] = BytesUtils.toString(kv.getQualifier());
 		}
 
 		return ret[0];

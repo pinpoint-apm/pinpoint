@@ -17,7 +17,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 
 /**
- *
+ * @author emeroad
  */
 @Ignore
 public class NettyUdpReceiverTest {

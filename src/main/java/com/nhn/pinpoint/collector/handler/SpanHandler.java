@@ -16,6 +16,9 @@ import com.nhn.pinpoint.thrift.dto.TSpanEvent;
 import com.nhn.pinpoint.common.util.SpanEventUtils;
 import org.springframework.stereotype.Service;
 
+/**
+ * @author emeroad
+ */
 @Service
 public class SpanHandler implements SimpleHandler {
 

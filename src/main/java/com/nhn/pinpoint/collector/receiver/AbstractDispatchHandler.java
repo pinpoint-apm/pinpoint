@@ -9,6 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * @author emeroad
+ */
 public abstract class AbstractDispatchHandler implements DispatchHandler {
 
     protected Logger logger = LoggerFactory.getLogger(this.getClass());

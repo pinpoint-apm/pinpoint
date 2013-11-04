@@ -3,7 +3,7 @@ package com.nhn.pinpoint.collector.util;
 import java.net.DatagramPacket;
 
 /**
- *
+ * @author emeroad
  */
 public class DatagramPacketFactory implements ObjectPoolFactory<DatagramPacket> {
 

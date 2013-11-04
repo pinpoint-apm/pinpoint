@@ -29,6 +29,9 @@ import java.util.List;
 
 import static com.nhn.pinpoint.common.hbase.HBaseTables.*;
 
+/**
+ * @author emeroad
+ */
 @Repository
 public class HbaseTraceDao implements TracesDao {
 

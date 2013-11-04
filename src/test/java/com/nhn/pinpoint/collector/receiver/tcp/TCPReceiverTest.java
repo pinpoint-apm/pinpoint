@@ -4,7 +4,7 @@ import com.nhn.pinpoint.collector.receiver.UdpDispatchHandler;
 import org.junit.Test;
 
 /**
- *
+ * @author emeroad
  */
 public class TCPReceiverTest {
     @Test

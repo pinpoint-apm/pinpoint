@@ -4,7 +4,7 @@ import org.springframework.core.NamedThreadLocal;
 import org.springframework.stereotype.Component;
 
 /**
- *
+ * @author emeroad
  */
 @Component
 public class ThreadLocalAcceptedTimeService implements AcceptedTimeService {

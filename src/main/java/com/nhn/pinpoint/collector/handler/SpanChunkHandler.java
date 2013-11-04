@@ -15,7 +15,7 @@ import com.nhn.pinpoint.common.util.SpanEventUtils;
 import org.springframework.stereotype.Service;
 
 /**
- *
+ * @author emeroad
  */
 @Service
 public class SpanChunkHandler implements SimpleHandler {

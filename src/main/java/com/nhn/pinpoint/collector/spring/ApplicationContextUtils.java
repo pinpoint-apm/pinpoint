@@ -6,6 +6,9 @@ import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 
+/**
+ * @author emeroad
+ */
 @Deprecated
 public class ApplicationContextUtils {
 

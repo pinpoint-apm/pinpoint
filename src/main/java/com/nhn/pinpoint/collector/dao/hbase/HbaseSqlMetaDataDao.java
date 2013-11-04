@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 /**
- *
+ * @author emeroad
  */
 @Repository
 public class HbaseSqlMetaDataDao implements SqlMetaDataDao {

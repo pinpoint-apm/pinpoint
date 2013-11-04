@@ -5,7 +5,7 @@ import org.junit.Test;
 import java.io.InputStream;
 
 /**
- *
+ * @author emeroad
  */
 public class CollectorConfigurationTest {
     @Test

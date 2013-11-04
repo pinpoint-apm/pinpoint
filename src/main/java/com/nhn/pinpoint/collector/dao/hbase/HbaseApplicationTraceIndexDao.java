@@ -20,6 +20,7 @@ import org.springframework.stereotype.Repository;
  * find traceids by application name
  * 
  * @author netspider
+ * @author emeroad
  */
 @Repository
 public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {

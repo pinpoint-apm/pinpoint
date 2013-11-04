@@ -7,6 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+/**
+ * @author emeroad
+ */
 public class UdpDispatchHandler extends AbstractDispatchHandler {
 
     @Autowired()

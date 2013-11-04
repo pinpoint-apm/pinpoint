@@ -3,7 +3,7 @@ package com.nhn.pinpoint.collector.dao.hbase.statistics;
 import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
 
 /**
- *
+ * @author emeroad
  */
 public class CallRowKey implements RowKey {
     private String callApplicationName;

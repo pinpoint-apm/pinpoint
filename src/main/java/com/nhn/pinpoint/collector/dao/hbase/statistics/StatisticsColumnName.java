@@ -3,7 +3,7 @@ package com.nhn.pinpoint.collector.dao.hbase.statistics;
 import com.nhn.pinpoint.common.util.ApplicationStatisticsUtils;
 
 /**
- *
+ * @author emeroad
  */
 public class StatisticsColumnName implements ColumnName {
     private String agentId;
