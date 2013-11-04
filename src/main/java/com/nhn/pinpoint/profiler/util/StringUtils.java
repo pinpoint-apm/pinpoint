@@ -1,6 +1,9 @@
 package com.nhn.pinpoint.profiler.util;
 
-public class StringUtils {
+public final class StringUtils {
+
+    private StringUtils() {
+    }
 
     public static String defaultString(final String str, final String defaultStr) {
         return str == null ? defaultStr : str;

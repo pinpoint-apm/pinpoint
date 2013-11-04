@@ -6,7 +6,7 @@ import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class MetaObject<R> {
+public final class MetaObject<R> {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 

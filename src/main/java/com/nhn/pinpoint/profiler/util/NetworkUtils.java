@@ -9,9 +9,12 @@ import java.util.logging.Logger;
 /**
  *
  */
-public class NetworkUtils {
+public final class NetworkUtils {
 
-	public static String getHostName() {
+    private NetworkUtils() {
+    }
+
+    public static String getHostName() {
 		try {
 			return InetAddress.getLocalHost().getHostName();
 		} catch (Exception e) {

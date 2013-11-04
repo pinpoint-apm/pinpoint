@@ -4,8 +4,11 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 
-public class InterceptorUtils {
-	public static boolean isThrowable(Object result) {
+public final class InterceptorUtils {
+    private InterceptorUtils() {
+    }
+
+    public static boolean isThrowable(Object result) {
         return result instanceof Throwable;
     }
 

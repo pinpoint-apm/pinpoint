@@ -1,6 +1,9 @@
 package com.nhn.pinpoint.profiler.util;
 
-public class NumberUtils {
+public final class NumberUtils {
+    private NumberUtils() {
+    }
+
     public static long parseLong(String str, long defaultLong) {
         if (str == null) {
             return defaultLong;
