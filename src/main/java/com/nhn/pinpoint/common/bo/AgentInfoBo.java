@@ -7,7 +7,7 @@ import com.nhn.pinpoint.common.buffer.FixedBuffer;
 import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 
 /**
- *
+ * @author emeroad
  */
 public class AgentInfoBo implements Comparable<AgentInfoBo> {
     private String hostname;

@@ -14,7 +14,7 @@ import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.buffer.FixedBuffer;
 
 /**
- *
+ * @author emeroad
  */
 public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
 

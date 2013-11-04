@@ -9,7 +9,7 @@ import static com.nhn.pinpoint.common.PinpointConstants.AGENT_NAME_MAX_LEN;
 import static com.nhn.pinpoint.common.util.BytesUtils.LONG_BYTE_LENGTH;
 
 /**
- *
+ * @author emeroad
  */
 public class SqlMetaDataBo {
     private String agentId;

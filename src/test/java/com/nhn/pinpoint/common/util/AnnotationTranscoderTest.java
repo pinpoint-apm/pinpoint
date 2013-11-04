@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.Date;
 
 /**
- *
+ * @author emeroad
  */
 public class AnnotationTranscoderTest {
 

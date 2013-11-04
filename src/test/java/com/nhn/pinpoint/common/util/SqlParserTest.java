@@ -7,7 +7,7 @@ import org.junit.Test;
 import java.util.List;
 
 /**
- *
+ * @author emeroad
  */
 public class SqlParserTest {
     private SqlParser sqlParser = new SqlParser();

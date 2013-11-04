@@ -5,6 +5,7 @@ import java.util.Map;
 
 /**
  * @author netspider
+ * @author emeroad
  */
 public enum AnnotationKey {
     // 가변 인코딩을 사용하므로, 작은 숫자는 패킷에 전송 되는 데이터로 위주로 사용하고 내부 사용 코드는 숫자를 크게 잡아야 한다.

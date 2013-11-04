@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- *
+ * @author emeroad
  */
 public class AnnotationBoList {
     private List<AnnotationBo> annotationBoList;

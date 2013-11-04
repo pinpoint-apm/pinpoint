@@ -10,6 +10,7 @@ import java.io.IOException;
 
 /**
  * HTablePool 기반의 HTableInterfaceFactory.
+ * @author emeroad
  */
 public class PooledHTableFactory implements HTableInterfaceFactory, DisposableBean {
 

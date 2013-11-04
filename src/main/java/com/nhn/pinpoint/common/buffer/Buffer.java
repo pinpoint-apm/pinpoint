@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.common.buffer;
 
 /**
- *
+ * @author emeroad
  */
 public interface Buffer {
 

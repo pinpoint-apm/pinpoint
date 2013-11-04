@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
+ * @author emeroad
  */
 public class LimitRowMapperResultsExtractor<T> implements ResultsExtractor<List<T>> {
 

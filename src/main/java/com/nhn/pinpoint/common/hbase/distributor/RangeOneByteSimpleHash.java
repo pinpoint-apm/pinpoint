@@ -7,7 +7,7 @@ import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import java.util.Arrays;
 
 /**
- *
+ * @author emeroad
  */
 public class RangeOneByteSimpleHash implements RowKeyDistributorByHashPrefix.Hasher {
     private final int start;

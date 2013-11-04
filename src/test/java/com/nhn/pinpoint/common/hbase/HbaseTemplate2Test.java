@@ -18,7 +18,7 @@ import java.util.Properties;
 
 
 /**
- *
+ * @author emeroad
  */
 public class HbaseTemplate2Test {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

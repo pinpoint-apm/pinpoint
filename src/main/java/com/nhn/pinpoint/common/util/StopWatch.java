@@ -2,6 +2,7 @@ package com.nhn.pinpoint.common.util;
 
 /**
  * 단순한 stopwatch
+ * @author emeroad
  */
 public class StopWatch {
     private long start;

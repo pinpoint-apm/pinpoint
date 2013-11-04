@@ -5,7 +5,7 @@ import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.buffer.FixedBuffer;
 
 /**
- *
+ * @author emeroad
  */
 public final class TransactionIdUtils {
     // html 에서 표시되는 값이라. html 상에서 해석이 다르게 되는 문자열은 사용하면 안됨.

@@ -7,7 +7,7 @@ import static com.nhn.pinpoint.common.util.BytesUtils.LONG_BYTE_LENGTH;
 import org.apache.hadoop.hbase.util.Bytes;
 
 /**
- *
+ * @author emeroad
  */
 public class RowKeyUtils {
 

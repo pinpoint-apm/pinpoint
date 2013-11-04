@@ -6,7 +6,7 @@ import com.nhn.pinpoint.common.util.AnnotationTranscoder;
 import com.nhn.pinpoint.common.buffer.Buffer;
 
 /**
- *
+ * @author emeroad
  */
 public class AnnotationBo {
 

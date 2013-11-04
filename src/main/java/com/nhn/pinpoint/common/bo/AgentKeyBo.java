@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.common.bo;
 
 /**
- *
+ * @author emeroad
  */
 public class AgentKeyBo {
     private String agentId;

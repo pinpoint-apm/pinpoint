@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.common;
 
 /**
- *
+ * @author emeroad
  */
 public final class PinpointConstants {
 

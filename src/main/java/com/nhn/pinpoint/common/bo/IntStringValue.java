@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.common.bo;
 
 /**
- *
+ * @author emeroad
  */
 public class IntStringValue {
     private final int intValue;

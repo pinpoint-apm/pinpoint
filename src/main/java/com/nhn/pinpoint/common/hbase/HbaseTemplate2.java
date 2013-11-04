@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.concurrent.*;
 
 /**
- *
+ * @author emeroad
  */
 public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, InitializingBean, DisposableBean {
 

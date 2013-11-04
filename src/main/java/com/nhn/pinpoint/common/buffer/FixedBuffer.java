@@ -5,7 +5,7 @@ import com.nhn.pinpoint.common.util.BytesUtils;
 import java.io.UnsupportedEncodingException;
 
 /**
- *
+ * @author emeroad
  */
 public class FixedBuffer implements Buffer {
 

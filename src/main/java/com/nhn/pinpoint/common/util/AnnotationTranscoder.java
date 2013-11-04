@@ -11,6 +11,9 @@ import com.nhn.pinpoint.thrift.dto.TAnnotationValue;
 import com.nhn.pinpoint.thrift.dto.TIntStringStringValue;
 import com.nhn.pinpoint.thrift.dto.TIntStringValue;
 
+/**
+ * @author emeroad
+ */
 public class AnnotationTranscoder {
 
     static final byte CODE_STRING = 0;

@@ -3,6 +3,9 @@ package com.nhn.pinpoint.common;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author emeroad
+ */
 public enum ServiceType {
 
 	UNDEFINED((short) -1, "UNDEFINED", true, false, false, Histogram.NORMAL),

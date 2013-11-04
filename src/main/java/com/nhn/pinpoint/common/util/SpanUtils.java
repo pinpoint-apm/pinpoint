@@ -6,6 +6,9 @@ import com.nhn.pinpoint.thrift.dto.TSpan;
 import com.nhn.pinpoint.thrift.dto.TSpanChunk;
 import com.nhn.pinpoint.thrift.dto.TSpanEvent;
 
+/**
+ * @author emeroad
+ */
 public class SpanUtils {
     @Deprecated
 	public static byte[] getAgentIdTraceIndexRowKey(String agentId, long timestamp) {

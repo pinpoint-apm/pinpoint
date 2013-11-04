@@ -3,7 +3,7 @@ package com.nhn.pinpoint.common.util;
 import java.util.concurrent.*;
 
 /**
- *
+ * @author emeroad
  */
 public class ExecutorFactory {
 

@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.common.util;
 
 /**
- *
+ * @author emeroad
  */
 public class ApiDescription {
 

@@ -12,7 +12,7 @@ import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.buffer.FixedBuffer;
 
 /**
- *
+ * @author emeroad
  */
 public class SpanEventBo implements Span {
 	private static final int VERSION_SIZE = 1;

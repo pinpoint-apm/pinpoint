@@ -10,7 +10,7 @@ import org.springframework.data.hadoop.hbase.HbaseSystemException;
 import java.io.IOException;
 
 /**
- *
+ * @author emeroad
  */
 public class HBaseAdminTemplate {
 

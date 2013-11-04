@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.util.UUID;
 
 /**
- *
+ * @author emeroad
  */
 public class StringTraceHeaderParserTest {
 

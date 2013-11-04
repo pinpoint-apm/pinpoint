@@ -4,6 +4,9 @@ import java.util.List;
 
 import com.nhn.pinpoint.common.ServiceType;
 
+/**
+ * @author emeroad
+ */
 public interface Span {
 	ServiceType getServiceType();
 

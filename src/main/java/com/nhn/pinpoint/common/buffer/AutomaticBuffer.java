@@ -4,6 +4,7 @@ import com.nhn.pinpoint.common.util.BytesUtils;
 
 /**
  * 버퍼사이즈가 자동으로 확장되는 buffer
+ * @author emeroad
  */
 public class AutomaticBuffer extends FixedBuffer {
 

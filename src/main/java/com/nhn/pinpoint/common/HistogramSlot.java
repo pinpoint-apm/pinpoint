@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.common;
 
 /**
- *
+ * @author emeroad
  */
 public class HistogramSlot {
     private int slotTime;

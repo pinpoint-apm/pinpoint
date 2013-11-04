@@ -10,7 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * spring꺼가 package라서 그냥 복사해옴.
+ * Spring꺼가 package라서 그냥 복사해옴.
+ * copy->Spring
  * Adapter encapsulating the RowMapper callback.
  *
  * @author Costin Leau

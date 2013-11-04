@@ -2,7 +2,7 @@ package com.nhn.pinpoint.common.util;
 
 
 /**
- *
+ * @author emeroad
  */
 public class DefaultParsingResult implements ParsingResult {
     public static final char SEPARATOR = ',';

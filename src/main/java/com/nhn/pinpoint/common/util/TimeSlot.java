@@ -3,7 +3,7 @@ package com.nhn.pinpoint.common.util;
 /**
  * 
  * @author netspider
- * 
+ * @author emeroad
  */
 public class TimeSlot {
 	private static final int RESOLUTION =  60000; // 1min

@@ -12,6 +12,7 @@ import org.apache.hadoop.hbase.util.Bytes;
  * </pre>
  *
  * @author netspider
+ * @author emeroad
  */
 public class ApplicationMapStatisticsUtils {
 

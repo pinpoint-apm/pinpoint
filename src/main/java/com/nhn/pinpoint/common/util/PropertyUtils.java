@@ -3,6 +3,9 @@ package com.nhn.pinpoint.common.util;
 import java.io.*;
 import java.util.Properties;
 
+/**
+ * @author emeroad
+ */
 public class PropertyUtils {
 
     public static Properties readProperties(String propertyPath) throws IOException {

@@ -4,7 +4,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 /**
- *
+ * @author emeroad
  */
 public class TimeUtilsTest {
     @Test

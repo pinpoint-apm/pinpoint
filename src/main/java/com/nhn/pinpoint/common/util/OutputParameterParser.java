@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- *
+ * @author emeroad
  */
 public class OutputParameterParser {
 

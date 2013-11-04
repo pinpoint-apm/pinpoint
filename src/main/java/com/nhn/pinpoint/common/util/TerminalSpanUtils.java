@@ -14,7 +14,7 @@ import com.nhn.pinpoint.common.hbase.HBaseTables;
  * </pre>
  * 
  * @author netspider
- * 
+ * @author emeroad
  */
 @Deprecated
 public class TerminalSpanUtils {

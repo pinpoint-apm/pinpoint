@@ -8,7 +8,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Test;
 
 /**
- *
+ * @author emeroad
  */
 public class SpanUtilsTest {
     @Test

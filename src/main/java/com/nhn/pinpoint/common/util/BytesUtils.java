@@ -5,6 +5,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * @author emeroad
+ */
 public final class BytesUtils {
     public static final int SHORT_BYTE_LENGTH = 2;
     public static final int INT_BYTE_LENGTH = 4;

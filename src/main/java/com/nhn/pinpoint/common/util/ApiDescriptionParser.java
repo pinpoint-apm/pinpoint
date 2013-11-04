@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 /**
  * MethodDescriptor 과 비슷한데. 문자열을 기반으로 parsing하여 생성하므로 따로 만들었음.
+ * @author emeroad
  */
 public class ApiDescriptionParser {
     private static final String[] EMPTY_STRING_ARRAY = new String[0];

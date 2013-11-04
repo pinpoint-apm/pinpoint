@@ -6,7 +6,7 @@ import org.junit.Test;
 
 
 /**
- *
+ * @author emeroad
  */
 public class ApiDescriptionParserTest {
     private ApiDescriptionParser apiParser = new ApiDescriptionParser();

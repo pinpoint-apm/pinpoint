@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.common.util;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import com.nhn.pinpoint.common.AnnotationKey;
@@ -8,6 +7,9 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AnnotationBo;
 import com.nhn.pinpoint.common.bo.Span;
 
+/**
+ * @author emeroad
+ */
 public class AnnotationUtils {
 
     public static String findApiAnnotation(List<AnnotationBo> list) {

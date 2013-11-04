@@ -9,7 +9,7 @@ import org.springframework.data.hadoop.hbase.ResultsExtractor;
 import org.springframework.data.hadoop.hbase.RowMapper;
 
 /**
- *
+ * @author emeroad
  */
 public interface HbaseOperations2 extends HbaseOperations {
     /**
