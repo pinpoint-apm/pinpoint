@@ -132,7 +132,8 @@
                 this.option('sContainerId'),
                 {
                     initialContentAlignment: go.Spot.Center,
-                    maxSelectionCount: 1
+                    maxSelectionCount: 1,
+                    allowDelete: false
                 }
             );
         },
@@ -363,6 +364,7 @@
             // go.LinkingTool.ForwardsOnly;
             this._oDiagram.toolManager.draggingTool.doCancel();
             this._oDiagram.toolManager.draggingTool.doDeactivate();
+            this._oDiagram.toolManager.dragSelectingTool.isEnabled = false;
             this._oDiagram.initialContentAlignment = go.Spot.Center;
             this._oDiagram.layout = this.$(
                 go.LayeredDigraphLayout,
