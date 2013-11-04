@@ -1,7 +1,7 @@
 <div class="timeline" style="background-color:#E8E8E8;width:100%;height:100%;overflow:auto;font-size:11px;">
     <div ng-repeat="stack in timeline.callStack | timeline:key">
-        <div style="width:{{stack | timelineWidth:key:barRatio}}px; background-color:#69B2E9; margin-left:{{stack | timelineMarginLeft:key:barRatio:timeline.callStackStart}}px; margin-top:3px;">
-            <div style="width:200px;" title="{{stack | json}}">{{stack[key.service]}} ({{stack[key.end] - stack[key.begin]}}ms)</div>
+        <div style="width:{{stack | timelineWidth:key:barRatio}}px; background-color:#69B2E9; margin-left:{{stack | timelineMarginLeft:key:barRatio:timeline.callStackStart}}px; margin-top:3px;" title="{{stack | json}}">
+            <div style="width:200px;">{{stack[key.applicationName]}}/{{stack[key.apiType]}} ({{stack[key.end] - stack[key.begin]}}ms)</div>
         </div>
     </div>
 </div>
