@@ -1,10 +1,12 @@
 package com.nhn.pinpoint.collector.util;
 
+import com.nhn.pinpoint.common.util.MathUtils;
+
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- *
+ * @author emeroad
  */
 public class ConcurrentCounterMap<T> {
 
@@ -36,7 +38,7 @@ public class ConcurrentCounterMap<T> {
     }
 
     private Entry<T> getEntry() {
-        final int mod = Math.abs(entrySelector.getAndIncrement() % concurrencyLevel);
+        final int mod = MathUtils.fastAbs(entrySelector.getAndIncrement() % concurrencyLevel);
         return entryArray[mod];
     }
 
