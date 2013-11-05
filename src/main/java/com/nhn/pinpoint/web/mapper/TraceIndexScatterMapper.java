@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
 import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.buffer.FixedBuffer;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
+import com.nhn.pinpoint.common.util.SpanUtils;
 import com.nhn.pinpoint.common.util.TimeUtils;
 import com.nhn.pinpoint.web.vo.TransactionId;
 import com.nhn.pinpoint.web.vo.scatter.Dot;
@@ -53,7 +55,19 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
 
         final int qualifierOffset = kv.getQualifierOffset();
 
-        TransactionId transactionId = new TransactionId(buffer, qualifierOffset);
+//        TransactionId transactionId = new TransactionId(buffer, qualifierOffset);
+        TransactionId transactionId = parseVarTransactionId(buffer, qualifierOffset);
         return new Dot(transactionId, acceptedTime, elapsed, exceptionCode, agentId);
+    }
+
+    public static TransactionId parseVarTransactionId(byte[] bytes, int offset) {
+        if (bytes == null) {
+            throw new NullPointerException("bytes must not be null");
+        }
+        final Buffer buffer = new FixedBuffer(bytes, offset);
+        String agentId = buffer.readPrefixedString();
+        long agentStartTime = buffer.readSVarLong();
+        long transactionSequence = buffer.readVarLong();
+        return new TransactionId(agentId, agentStartTime, transactionSequence);
     }
 }
