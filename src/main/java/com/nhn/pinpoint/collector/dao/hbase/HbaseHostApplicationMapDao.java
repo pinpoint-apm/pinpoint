@@ -36,18 +36,19 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 	@Autowired
 	private AcceptedTimeService acceptedTimeService;
 
-	private final ConcurrentMap<String, Object> cache = new ConcurrentHashMap<String, Object>(1024);
-	private long lastUpdated = System.currentTimeMillis();
+	// FIXME 매핑정보 매번 저장하지 말고 30~50초 주기로 한 개만 저장되도록 변경.
+//	private final ConcurrentMap<String, Object> cache = new ConcurrentHashMap<String, Object>(1024);
+//	private long lastUpdated = System.currentTimeMillis();
 
 	@Override
 	public void insert(String host, String applicationName, short serviceType) {
-		String cacheKey = host + applicationName + serviceType;
-
-		// 매 번 넣을 필요 없음.
-		if (cache.containsKey(cacheKey)) {
-			logger.debug("Skip insert host-application map. host={}, applicationName={}, serviceType={}", host, applicationName, serviceType);
-			return;
-		}
+//		String cacheKey = host + applicationName + serviceType;
+//
+//		// 매 번 넣을 필요 없음.
+//		if (cache.containsKey(cacheKey)) {
+//			logger.debug("Skip insert host-application map. host={}, applicationName={}, serviceType={}", host, applicationName, serviceType);
+//			return;
+//		}
 
 		logger.debug("Insert host-application map. host={}, applicationName={}, serviceType={}", host, applicationName, serviceType);
 
@@ -61,11 +62,11 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
 		hbaseTemplate.put(HOST_APPLICATION_MAP, rowKey, HOST_APPLICATION_MAP_CF_MAP, columnName, value);
 
-		if (System.currentTimeMillis() - lastUpdated > 5000) {
-			cache.clear();
-		} else {
-			cache.put(cacheKey, 1);
-		}
-		lastUpdated = System.currentTimeMillis();
+//		if (System.currentTimeMillis() - lastUpdated > 5000) {
+//			cache.clear();
+//		} else {
+//			cache.put(cacheKey, 1);
+//		}
+//		lastUpdated = System.currentTimeMillis();
 	}
 }
