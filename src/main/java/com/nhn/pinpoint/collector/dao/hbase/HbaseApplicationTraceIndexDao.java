@@ -1,10 +1,13 @@
 package com.nhn.pinpoint.collector.dao.hbase;
 
+import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENT_NAME_MAX_LEN;
 import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_TRACE_INDEX;
 import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_TRACE_INDEX_CF_TRACE;
 
 import com.nhn.pinpoint.collector.dao.ApplicationTraceIndexDao;
 import com.nhn.pinpoint.collector.util.AcceptedTimeService;
+import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
+import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.thrift.dto.TSpan;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.client.Put;
@@ -37,19 +40,18 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
 	@Override
 	public void insert(final TSpan span) {
-		int elapsedTime = span.getElapsed();
 
-		byte[] value = new byte[8];
-		BytesUtils.writeInt(elapsedTime, value, 0);
-		BytesUtils.writeInt(span.getErr(), value, 4);
-
+        final Buffer buffer = new AutomaticBuffer(10 + AGENT_NAME_MAX_LEN);
+        buffer.putVar(span.getElapsed());
+        buffer.putSVar(span.getErr());
+        buffer.putPrefixedString(span.getAgentId());
+        final byte[] value = buffer.getBuffer();
 
         long acceptedTime = acceptedTimeService.getAcceptedTime();
-
-        byte[] distributedKey = crateRowKey(span, acceptedTime);
+        final byte[] distributedKey = crateRowKey(span, acceptedTime);
         Put put = new Put(distributedKey);
 
-		put.add(APPLICATION_TRACE_INDEX_CF_TRACE, SpanUtils.getTransactionId(span), acceptedTime, value);
+        put.add(APPLICATION_TRACE_INDEX_CF_TRACE, SpanUtils.getTransactionId(span), acceptedTime, value);
 
 		hbaseTemplate.put(APPLICATION_TRACE_INDEX, put);
 	}
