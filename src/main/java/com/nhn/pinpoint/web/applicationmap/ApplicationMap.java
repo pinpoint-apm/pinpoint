@@ -14,7 +14,7 @@ import com.nhn.pinpoint.web.applicationmap.rawdata.RawStatisticsData;
 import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
 import com.nhn.pinpoint.web.util.MergeableHashMap;
 import com.nhn.pinpoint.web.util.MergeableMap;
-import com.nhn.pinpoint.web.vo.TimeseriesResponses;
+import com.nhn.pinpoint.web.vo.TimeSeriesStore;
 
 /**
  * Application map
@@ -31,7 +31,7 @@ public class ApplicationMap {
 	private final MergeableMap<String, ApplicationRelation> relations = new MergeableHashMap<String, ApplicationRelation>();
 	private final Set<String> applicationNames = new HashSet<String>();
 
-	private TimeseriesResponses timeseriesResponse;
+	private TimeSeriesStore timeSeriesStore;
 	
 	public ApplicationMap(Set<TransactionFlowStatistics> rawData) {
 		this.rawData = new RawStatisticsData(rawData);
@@ -130,11 +130,11 @@ public class ApplicationMap {
 		relations.putOrMerge(relation.getId(), relation);
 	}
 
-	public TimeseriesResponses getTimeseriesResponse() {
-		return timeseriesResponse;
+	public TimeSeriesStore getTimeSeriesStore() {
+		return timeSeriesStore;
 	}
 
-	public void setTimeseriesResponse(TimeseriesResponses timeseriesResponse) {
-		this.timeseriesResponse = timeseriesResponse;
+	public void setTimeSeriesStore(TimeSeriesStore timeSeriesStore) {
+		this.timeSeriesStore = timeSeriesStore;
 	}
 }

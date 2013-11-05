@@ -36,7 +36,7 @@ import com.nhn.pinpoint.web.util.TimeWindowUtils;
  * @author netspider
  * 
  */
-public class TimeseriesResponses {
+public class TimeSeriesStoreImpl implements TimeSeriesStore {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -54,7 +54,25 @@ public class TimeseriesResponses {
 
 	private String json = null;
 
-	public TimeseriesResponses(long from, long to) {
+	private static final TimeSeriesStore EMPTY = new TimeSeriesStore() {
+		@Override
+		public String getJson() {
+			return "{}";
+		}
+		
+		@Override
+		public void add(String key, long timestamp, int responseTime, long count) {
+		}
+	};
+	
+	public static TimeSeriesStore getInstance(long from, long to) {
+		if (from == -1L || to == -1L) {
+			return TimeSeriesStoreImpl.EMPTY;
+		}
+		return new TimeSeriesStoreImpl(from, to);
+	}
+	
+	private TimeSeriesStoreImpl(long from, long to) {
 		this.from = from;
 		this.to = to;
 		windowSize = TimeWindowUtils.getWindowSize(from, to);
@@ -78,19 +96,19 @@ public class TimeseriesResponses {
 	public void add(String id, long timestamp, int responseTime, long count) {
 		logger.debug("add sample id={}, timestamp={} responseTime={}, count={}", id, timestamp, responseTime, count);
 		
-//		List<Long> list = values.get(id);
-//
-//		if (list == null) {
-//			list = makeDefaultValueList();
-//		}
-//
-//		int index = TimeWindowUtils.getWindowIndex(from, windowSize, timestamp);
-//
-//		long value = list.get(index) + count;
-//
-//		list.set(index, value);
-//		
-//		values.put(id, list);
+		List<Long> list = values.get(id);
+
+		if (list == null) {
+			list = makeDefaultValueList();
+		}
+
+		int index = TimeWindowUtils.getWindowIndex(from, windowSize, timestamp);
+
+		long value = list.get(index) + count;
+
+		list.set(index, value);
+		
+		values.put(id, list);
 	}
 
 	public String getJson() {

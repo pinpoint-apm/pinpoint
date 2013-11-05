@@ -30,7 +30,8 @@ import com.nhn.pinpoint.web.dao.TraceDao;
 import com.nhn.pinpoint.web.filter.Filter;
 import com.nhn.pinpoint.web.vo.LimitedScanResult;
 import com.nhn.pinpoint.web.vo.LinkStatistics;
-import com.nhn.pinpoint.web.vo.TimeseriesResponses;
+import com.nhn.pinpoint.web.vo.TimeSeriesStore;
+import com.nhn.pinpoint.web.vo.TimeSeriesStoreImpl;
 import com.nhn.pinpoint.web.vo.TransactionId;
 
 /**
@@ -143,7 +144,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 		Map<String, TransactionFlowStatistics> statisticsMap = new HashMap<String, TransactionFlowStatistics>();
 		Map<Long, SpanBo> transactionSpanMap = new HashMap<Long, SpanBo>();
 
-		TimeseriesResponses tr = new TimeseriesResponses(from, to);
+		TimeSeriesStore tr = TimeSeriesStoreImpl.getInstance(from, to);
 
 		/**
 		 * 통계정보로 변환한다.
@@ -260,7 +261,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 		}
 
 		ApplicationMap map = new ApplicationMap(statisticsData).build();
-		map.setTimeseriesResponse(tr);
+		map.setTimeSeriesStore(tr);
 
 		watch.stop();
 		logger.debug("Select filtered application map elapsed. {}ms", watch.getTotalTimeMillis());
