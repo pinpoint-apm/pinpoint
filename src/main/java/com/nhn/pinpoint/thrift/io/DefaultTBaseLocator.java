@@ -59,58 +59,35 @@ class DefaultTBaseLocator implements TBaseLocator {
         throw new TException("Unsupported type:" + type);
     }
 
-    private short typeLookup(TBase<?, ?> tbase) throws TException {
-        if (tbase instanceof TSpan) {
-            return SPAN;
-        }
-        if (tbase instanceof TSpanChunk) {
-            return SPANCHUNK;
-        }
-        if (tbase instanceof TAgentInfo) {
-            return AGENT_INFO;
-        }
-        if (tbase instanceof TAgentStat) {
-            return AGENT_STAT;
-        }
-        if (tbase instanceof TSqlMetaData) {
-            return SQLMETADATA;
-        }
-        if (tbase instanceof TApiMetaData) {
-            return APIMETADATA;
-        }
-        if (tbase instanceof TResult) {
-            return RESULT;
-        }
-        if (tbase instanceof TStringMetaData) {
-            return STRINGMETADATA;
-        }
-        throw new TException("Unsupported Type" + tbase.getClass());
-    }
-
     public Header headerLookup(TBase<?, ?> tbase) throws TException {
         if (tbase == null) {
             throw new IllegalArgumentException("tbase must not be null");
         }
-        short type = typeLookup(tbase);
-        switch (type) {
-            case SPAN:
-                return SPAN_HEADER;
-            case AGENT_INFO:
-                return AGENT_INFO_HEADER;
-            case AGENT_STAT:
-                return AGENT_STAT_HEADER;
-            case SPANCHUNK:
-                return SPANCHUNK_HEADER;
-            case SQLMETADATA:
-                return SQLMETADATA_HEADER;
-            case APIMETADATA:
-                return APIMETADATA_HEADER;
-            case RESULT:
-                return RESULT_HEADER;
-            case STRINGMETADATA:
-                return STRINGMETADATA_HEADER;
+        if (tbase instanceof TSpan) {
+            return SPAN_HEADER;
         }
-        throw new TException("Unsupported type:" + tbase.getClass());
+        if (tbase instanceof TSpanChunk) {
+            return SPANCHUNK_HEADER;
+        }
+        if (tbase instanceof TAgentInfo) {
+            return AGENT_INFO_HEADER;
+        }
+        if (tbase instanceof TAgentStat) {
+            return AGENT_STAT_HEADER;
+        }
+        if (tbase instanceof TSqlMetaData) {
+            return SQLMETADATA_HEADER;
+        }
+        if (tbase instanceof TApiMetaData) {
+            return APIMETADATA_HEADER;
+        }
+        if (tbase instanceof TResult) {
+            return RESULT_HEADER;
+        }
+        if (tbase instanceof TStringMetaData) {
+            return STRINGMETADATA_HEADER;
+        }
+        throw new TException("Unsupported Type" + tbase.getClass());
     }
 
     private static Header createHeader(short type) {
