@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.nhn.pinpoint.web.vo.LimitedScanResult;
+import com.nhn.pinpoint.web.vo.scatter.Dot;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
@@ -25,7 +26,6 @@ import com.nhn.pinpoint.common.util.SpanUtils;
 import com.nhn.pinpoint.common.util.TimeUtils;
 import com.nhn.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.nhn.pinpoint.web.vo.TransactionId;
-import com.nhn.pinpoint.web.vo.scatter.Dot;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 
 /**
@@ -150,7 +150,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
         List<List<Dot>> dotListList = hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, limit, traceIndexScatterMapper);
         List<Dot> mergeList = new ArrayList<Dot>(limit + 10);
-        for(List<Dot> dotList: dotListList) {
+        for(List<Dot> dotList : dotListList) {
             mergeList.addAll(dotList);
         }
         return mergeList;

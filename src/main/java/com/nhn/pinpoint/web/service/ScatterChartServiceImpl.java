@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import com.nhn.pinpoint.web.vo.scatter.Dot;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,6 @@ import com.nhn.pinpoint.web.dao.TraceDao;
 import com.nhn.pinpoint.web.filter.Filter;
 import com.nhn.pinpoint.web.vo.TransactionId;
 import com.nhn.pinpoint.web.vo.TransactionMetadataQuery;
-import com.nhn.pinpoint.web.vo.scatter.Dot;
 
 /**
  * @author netspider
@@ -49,7 +49,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 			for (SpanBo span : trace) {
 				if (applicationName.equals(span.getApplicationId())) {
                     TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
-                    list.add(new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode()));
+                    list.add(new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId()));
 				}
 			}
 		}

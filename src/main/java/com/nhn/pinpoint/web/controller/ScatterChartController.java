@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.nhn.pinpoint.common.util.DateUtils;
 import com.nhn.pinpoint.web.filter.Filter;
 import com.nhn.pinpoint.web.filter.FilterBuilder;
+import com.nhn.pinpoint.web.vo.scatter.Dot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,6 @@ import com.nhn.pinpoint.web.util.TimeUtils;
 import com.nhn.pinpoint.web.vo.LimitedScanResult;
 import com.nhn.pinpoint.web.vo.TransactionId;
 import com.nhn.pinpoint.web.vo.TransactionMetadataQuery;
-import com.nhn.pinpoint.web.vo.scatter.Dot;
 
 /**
  * 
@@ -103,7 +103,7 @@ public class ScatterChartController {
 				model.addAttribute("resultFrom", -1);
 				model.addAttribute("resultTo", -1);
 			} else {
-				model.addAttribute("resultFrom", scatterData.get(scatterData.size() - 1).getTimestamp());
+				model.addAttribute("resultFrom", scatterData.get(scatterData.size() - 1).getAcceptedTime());
 				model.addAttribute("resultTo", to);
 			}
 		} else {
