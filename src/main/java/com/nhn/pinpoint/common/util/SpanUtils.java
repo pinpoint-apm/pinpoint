@@ -2,9 +2,10 @@ package com.nhn.pinpoint.common.util;
 
 import static com.nhn.pinpoint.common.PinpointConstants.AGENT_NAME_MAX_LEN;
 
+import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
+import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.thrift.dto.TSpan;
 import com.nhn.pinpoint.thrift.dto.TSpanChunk;
-import com.nhn.pinpoint.thrift.dto.TSpanEvent;
 
 /**
  * @author emeroad
@@ -33,6 +34,24 @@ public class SpanUtils {
         }
         return RowKeyUtils.concatFixedByteAndLong(agentId, AGENT_NAME_MAX_LEN, TimeUtils.reverseCurrentTimeMillis(timestamp));
 	}
+
+    public static byte[] getVarTransactionId(TSpan span) {
+        if (span == null) {
+            throw new NullPointerException("span must not be null");
+        }
+        final byte[] transactionIdBytes = span.getTransactionId();
+        TransactionId transactionId = TransactionIdUtils.parseTransactionId(transactionIdBytes);
+        String agentId = transactionId.getAgentId();
+        if (agentId == null) {
+            agentId = span.getAgentId();
+        }
+
+        final Buffer buffer= new AutomaticBuffer(32);
+        buffer.putPrefixedString(agentId);
+        buffer.putSVar(transactionId.getAgentStartTime());
+        buffer.putVar(transactionId.getTransactionSequence());
+        return buffer.getBuffer();
+    }
 
 	public static byte[] getTransactionId(TSpan span) {
         if (span == null) {
