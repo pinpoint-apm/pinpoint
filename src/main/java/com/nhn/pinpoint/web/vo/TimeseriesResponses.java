@@ -78,19 +78,19 @@ public class TimeseriesResponses {
 	public void add(String id, long timestamp, int responseTime, long count) {
 		logger.debug("add sample id={}, timestamp={} responseTime={}, count={}", id, timestamp, responseTime, count);
 		
-		List<Long> list = values.get(id);
-
-		if (list == null) {
-			list = makeDefaultValueList();
-		}
-
-		int index = TimeWindowUtils.getWindowIndex(from, windowSize, timestamp);
-
-		long value = list.get(index) + count;
-
-		list.set(index, value);
-		
-		values.put(id, list);
+//		List<Long> list = values.get(id);
+//
+//		if (list == null) {
+//			list = makeDefaultValueList();
+//		}
+//
+//		int index = TimeWindowUtils.getWindowIndex(from, windowSize, timestamp);
+//
+//		long value = list.get(index) + count;
+//
+//		list.set(index, value);
+//		
+//		values.put(id, list);
 	}
 
 	public String getJson() {
