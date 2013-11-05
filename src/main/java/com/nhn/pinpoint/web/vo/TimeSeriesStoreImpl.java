@@ -66,10 +66,10 @@ public class TimeSeriesStoreImpl implements TimeSeriesStore {
 	};
 	
 	public static TimeSeriesStore getInstance(long from, long to) {
-		if (from == -1L || to == -1L) {
+//		if (from == -1L || to == -1L) {
 			return TimeSeriesStoreImpl.EMPTY;
-		}
-		return new TimeSeriesStoreImpl(from, to);
+//		}
+//		return new TimeSeriesStoreImpl(from, to);
 	}
 	
 	private TimeSeriesStoreImpl(long from, long to) {
@@ -93,10 +93,10 @@ public class TimeSeriesStoreImpl implements TimeSeriesStore {
 		return list;
 	}
 
-	public void add(String id, long timestamp, int responseTime, long count) {
-		logger.debug("add sample id={}, timestamp={} responseTime={}, count={}", id, timestamp, responseTime, count);
+	public void add(String key, long timestamp, int responseTime, long count) {
+		logger.debug("add sample key={}, timestamp={} responseTime={}, count={}", key, timestamp, responseTime, count);
 		
-		List<Long> list = values.get(id);
+		List<Long> list = values.get(key);
 
 		if (list == null) {
 			list = makeDefaultValueList();
@@ -108,7 +108,7 @@ public class TimeSeriesStoreImpl implements TimeSeriesStore {
 
 		list.set(index, value);
 		
-		values.put(id, list);
+		values.put(key, list);
 	}
 
 	public String getJson() {
