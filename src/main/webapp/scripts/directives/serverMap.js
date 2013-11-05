@@ -48,7 +48,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
             var showServerMap, getServerMapData, getFilteredServerMapData, reset, setNodeContextMenuPosition,
                 setLinkContextMenuPosition, setBackgroundContextMenuPosition, serverMapCallback, mergeUnknown,
                 setLinkOption, mergeFilteredMapData, findExistingNodeFromLastMapData, mergeNodeData,
-                findExistingLinkFromLastMapData, mergeLinkData;
+                findExistingLinkFromLastMapData, mergeLinkData, mergeTimeSeriesResponses;
 
             // initialize
             oServerMap = null;
@@ -58,7 +58,13 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                     linkDataArray: [],
                     nodeDataArray: []
                 },
-                lastFetchedTimestamp: []
+                lastFetchedTimestamp: [],
+                timeSeriesResponses: {
+                    values: {
+
+                    },
+                    time: []
+                }
             };
             oAlert = new Alerts(element);
             oProgressBar = new ProgressBar(element);
@@ -107,6 +113,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                             htLastMapData.lastFetchedTimestamp = result.lastFetchedTimestamp - 1;
                             scope.$emit('serverMap.fetched', htLastMapData.lastFetchedTimestamp);
                         }
+//                        mergeTimeSeriesResponses(result.timeSeriesResponses);
                         serverMapCallback(query, mergeFilteredMapData(result), mergeUnknowns, linkRouting, linkCurve);
                     });
                 } else {
@@ -115,6 +122,21 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                     });
                 }
             };
+
+            /**
+             * merge time series responses
+             * @param timeSeriesResponses
+             */
+//            mergeTimeSeriesResponses = function (timeSeriesResponses) {
+//                angular.forEach(timeSeriesResponses.values, function (val, key) {
+//                    if (angular.isUndefined(htLastMapData.timeSeriesResponses.values[key])) {
+//                        htLastMapData.timeSeriesResponses.values[key] = val;
+//                    } else {
+//                        htLastMapData.timeSeriesResponses.values[key] = _.union(val, htLastMapData.timeSeriesResponses.values[key]);
+//                    }
+//                });
+//                htLastMapData.timeSeriesResponses.time = _.union(timeSeriesResponses.time, htLastMapData.timeSeriesResponses.time);
+//            };
 
             /**
              * merge filtered map data
@@ -410,12 +432,11 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                     scope.$emit("serverMap.linkContextClicked", e, query, link, copiedData);
                     reset();
                     scope.link = link;
-                    scope.nodeCategory = link.category || '';
+//                    scope.nodeCategory = link.category || '';
                     scope.srcServiceType = link.sourceinfo.serviceType || '';
                     scope.srcApplicationName = link.sourceinfo.applicationName || '';
                     scope.destServiceType = link.targetinfo.serviceType || '';
                     scope.destApplicationName = link.targetinfo.applicationName || '';
-
 
                     if (!bUseLinkContextMenu || angular.isArray(link.targetinfo)) {
                         return;
