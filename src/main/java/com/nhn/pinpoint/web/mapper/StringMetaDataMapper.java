@@ -12,6 +12,7 @@ import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -26,7 +27,9 @@ public class StringMetaDataMapper implements RowMapper<List<StringMetaDataBo>> {
 
     @Override
     public List<StringMetaDataBo> mapRow(Result result, int rowNum) throws Exception {
-
+        if (result.isEmpty()) {
+            return Collections.emptyList();
+        }
         final byte[] rowKey = getOriginalKey(result.getRow());
 
         List<StringMetaDataBo> stringMetaDataList = new ArrayList<StringMetaDataBo>();

@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.web.mapper;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.nhn.pinpoint.common.buffer.FixedBuffer;
@@ -31,7 +32,9 @@ public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
 
     @Override
     public List<ApiMetaDataBo> mapRow(Result result, int rowNum) throws Exception {
-
+        if (result.isEmpty()) {
+            return Collections.emptyList();
+        }
         final byte[] rowKey = getOriginalKey(result.getRow());
 
         List<ApiMetaDataBo> apiMetaDataList = new ArrayList<ApiMetaDataBo>();

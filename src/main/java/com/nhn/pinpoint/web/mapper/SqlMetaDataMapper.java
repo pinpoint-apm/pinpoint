@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.web.mapper;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
@@ -26,7 +27,9 @@ public class SqlMetaDataMapper implements RowMapper<List<SqlMetaDataBo>> {
 
     @Override
     public List<SqlMetaDataBo> mapRow(Result result, int rowNum) throws Exception {
-
+        if (result.isEmpty()) {
+            return Collections.emptyList();
+        }
         final byte[] rowKey = getOriginalKey(result.getRow());
 
         List<SqlMetaDataBo> sqlMetaDataList = new ArrayList<SqlMetaDataBo>();
