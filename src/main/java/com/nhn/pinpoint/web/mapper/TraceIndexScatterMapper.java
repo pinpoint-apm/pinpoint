@@ -32,14 +32,14 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
 		KeyValue[] raw = result.raw();
 		List<Dot> list = new ArrayList<Dot>(raw.length);
 		for (KeyValue kv : raw) {
-            final Dot dot = readPoint(kv);
+            final Dot dot = createDot(kv);
             list.add(dot);
 		}
 
 		return list;
 	}
 
-    private Dot readPoint(KeyValue kv) {
+    private Dot createDot(KeyValue kv) {
         final byte[] buffer = kv.getBuffer();
 
         final int valueOffset = kv.getValueOffset();
