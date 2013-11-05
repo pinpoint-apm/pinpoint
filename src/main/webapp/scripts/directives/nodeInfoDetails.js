@@ -198,9 +198,10 @@ pinpointApp
                 /**
                  * scope event on nodeInfoDetails.initialize
                  */
-                scope.$on('nodeInfoDetails.initialize', function (event, e, query, node, mapData) {
+                scope.$on('nodeInfoDetails.initialize', function (event, e, query, node, mapData, navbarDao) {
                     reset();
                     scope.node = node;
+                    scope.oNavbarDao = navbarDao;
                     htServermapData = mapData;
                     if (!node.rawdata && node.category !== "USER" && node.category !== "UNKNOWN_GROUP") {
 //                        showApplicationStatisticsSummary(query.from, query.to, data.text, data.serviceTypeCode);

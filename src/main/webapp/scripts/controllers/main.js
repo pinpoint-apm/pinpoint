@@ -66,16 +66,16 @@ pinpointApp.controller('MainCtrl', [ '$scope', '$timeout', '$routeParams', '$loc
      * scope event on serverMap.nodeClicked
      */
     $scope.$on('serverMap.nodeClicked', function (event, e, query, node, data) {
-        $scope.$emit('nodeInfoDetails.initialize', e, query, node, data);
-        $scope.$emit('linkInfoDetails.reset', e, query, node, data);
+        $scope.$emit('nodeInfoDetails.initialize', e, query, node, data, oNavbarDao);
+        $scope.$emit('linkInfoDetails.reset', e, query, node, data, oNavbarDao);
     });
 
     /**
      * scope event on serverMap.linkClicked
      */
     $scope.$on('serverMap.linkClicked', function (event, e, query, link, data) {
-        $scope.$emit('nodeInfoDetails.reset', e, query, link, data);
-        $scope.$emit('linkInfoDetails.initialize', e, query, link, data);
+        $scope.$emit('nodeInfoDetails.reset', e, query, link, data, oNavbarDao);
+        $scope.$emit('linkInfoDetails.initialize', e, query, link, data, oNavbarDao);
     });
 
 } ]);
