@@ -444,20 +444,21 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                 };
 
                 try {
-                    var selectedNode = (function () {
-                        for (var i = 0; i < copiedData.applicationMapData.nodeDataArray.length; i++) {
-                            var e = copiedData.applicationMapData.nodeDataArray[i];
-                            if (e.text === query.applicationName && e.serviceTypeCode === query.serviceType) {
-                                return e;
-                            } else if (e.text === query.applicationName && angular.isUndefined(e.serviceTypeCode)) {
-                                return e;
-                            }
+                    var selectedNode = _.find(copiedData.applicationMapData.nodeDataArray, function (node) {
+                        if (node.text === query.applicationName && angular.isUndefined(query.serviceType)) {
+                            return true;
+                        } else if (node.text === query.applicationName && node.serviceTypeCode === query.serviceType) {
+                            return true;
+                        } else {
+                            return false;
                         }
-                    })();
-                    //oServerMap.highlightNodeByKey(selectedNode.key);
-                    options.nBoldKey = selectedNode.key;
-                    scope.$emit("serverMap.nodeClicked", null, query, selectedNode, copiedData);
+                    });
+                    if (selectedNode) {
+                        options.nBoldKey = selectedNode.key;
+                        scope.$emit("serverMap.nodeClicked", null, query, selectedNode, copiedData);
+                    }
                 } catch (e) {
+                    oAlert.showError('There is some error while selecting a node.');
                     console.log(e);
                 }
 
@@ -788,7 +789,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                 bUseBackgroundContextMenu = true;
                 bUseNodeContextMenu = bUseLinkContextMenu = false;
                 var query = {
-                    applicationName: mapData.agentId
+                    applicationName: mapData.applicationId
                 };
                 serverMapCallback(query, mapData, scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
             });
