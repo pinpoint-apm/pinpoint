@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.nhn.pinpoint.common.buffer.Buffer;
+import com.nhn.pinpoint.common.buffer.FixedBuffer;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.slf4j.Logger;
@@ -35,13 +37,24 @@ public class TransactionIdMapper implements RowMapper<List<TransactionId>> {
 			byte[] buffer = kv.getBuffer();
 			int qualifierOffset = kv.getQualifierOffset();
 			// key값만큼 1증가 시킴
-			TransactionId traceId = new TransactionId(buffer, qualifierOffset);
+			TransactionId traceId = parseVarTransactionId(buffer, qualifierOffset);
 			traceIdList.add(traceId);
 			
 			logger.debug("found traceId {}", traceId);
 		}
 		return traceIdList;
 	}
+
+    public static TransactionId parseVarTransactionId(byte[] bytes, int offset) {
+        if (bytes == null) {
+            throw new NullPointerException("bytes must not be null");
+        }
+        final Buffer buffer = new FixedBuffer(bytes, offset);
+        String agentId = buffer.readPrefixedString();
+        long agentStartTime = buffer.readSVarLong();
+        long transactionSequence = buffer.readVarLong();
+        return new TransactionId(agentId, agentStartTime, transactionSequence);
+    }
 
 
 }
