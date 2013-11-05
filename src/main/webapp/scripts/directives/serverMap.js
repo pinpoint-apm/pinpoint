@@ -785,7 +785,8 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
              */
             scope.$on('serverMap.initializeWithMapData', function (event, mapData) {
                 scope.bShowServerMapStatus = false;
-                bUseNodeContextMenu = bUseLinkContextMenu = bUseBackgroundContextMenu = true;
+                bUseBackgroundContextMenu = true;
+                bUseNodeContextMenu = bUseLinkContextMenu = false;
                 var query = {
                     applicationName: mapData.agentId
                 };
