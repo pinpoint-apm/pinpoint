@@ -48,11 +48,9 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (co
              * @param data
              */
             showDetailInformation = function (data) {
-                console.log('data', data);
                 if (data.rawdata) {
                     scope.linkCategory = 'UnknownLinkInfoBox';
                     for (var key in data.targetinfo) {
-                        console.log('data.rawdata.$$hashKey', data.targetinfo[key]);
                         renderStatisticsSummary('.linkInfoDetails .summaryCharts_' + data.targetinfo[key].sequence + ' svg', parseHistogramForD3(data.rawdata[data.targetinfo[key].applicationName].histogram));
                     }
                 } else {
