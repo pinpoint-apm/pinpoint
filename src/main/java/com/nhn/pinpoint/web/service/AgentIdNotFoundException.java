@@ -4,8 +4,8 @@ package com.nhn.pinpoint.web.service;
  * @author emeroad
  */
 public class AgentIdNotFoundException extends RuntimeException {
-	private static final long serialVersionUID = -2017517623014042821L;
-	private String agentId;
+
+    private String agentId;
     private long startTime;
 
     public AgentIdNotFoundException(String agentId, long startTime) {
