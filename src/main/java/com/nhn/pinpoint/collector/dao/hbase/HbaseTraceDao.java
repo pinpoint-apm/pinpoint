@@ -16,6 +16,7 @@ import com.nhn.pinpoint.common.util.SpanUtils;
 import com.nhn.pinpoint.collector.dao.TracesDao;
 import com.nhn.pinpoint.collector.util.AcceptedTimeService;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -62,7 +63,7 @@ public class HbaseTraceDao implements TracesDao {
         put.add(TRACES_CF_SPAN, spanId, acceptedTime, spanValue);
 
         List<TAnnotation> annotations = span.getAnnotations();
-        if (annotations != null && annotations.size() != 0) {
+        if (CollectionUtils.isNotEmpty(annotations)) {
             byte[] bytes = writeAnnotation(annotations);
             put.add(TRACES_CF_ANNOTATION, spanId, bytes);
         }
@@ -79,7 +80,7 @@ public class HbaseTraceDao implements TracesDao {
 
     private void addNestedSpanEvent(Put put, TSpan span) {
         List<TSpanEvent> spanEventBoList = span.getSpanEventList();
-        if (spanEventBoList == null || spanEventBoList.size() == 0) {
+        if (CollectionUtils.isEmpty(spanEventBoList)) {
             return;
         }
 

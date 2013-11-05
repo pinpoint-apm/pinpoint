@@ -51,7 +51,9 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         final byte[] distributedKey = crateRowKey(span, acceptedTime);
         Put put = new Put(distributedKey);
 
-        put.add(APPLICATION_TRACE_INDEX_CF_TRACE, SpanUtils.getTransactionId(span), acceptedTime, value);
+//        byte[] transactionId = SpanUtils.getTransactionId(span);
+        byte[] varTransactionId = SpanUtils.getVarTransactionId(span);
+        put.add(APPLICATION_TRACE_INDEX_CF_TRACE, varTransactionId, acceptedTime, value);
 
 		hbaseTemplate.put(APPLICATION_TRACE_INDEX, put);
 	}

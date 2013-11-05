@@ -49,7 +49,6 @@ public class SpanHandler implements SimpleHandler {
 			}
 
             traceDao.insert(span);
-//			traceIndexDao.insert(span);
 			applicationTraceIndexDao.insert(span);
 
 			if (span.getParentSpanId() == -1) {
