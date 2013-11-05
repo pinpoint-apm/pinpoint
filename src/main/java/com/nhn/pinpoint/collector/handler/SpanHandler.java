@@ -24,9 +24,6 @@ public class SpanHandler implements SimpleHandler {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-//	@Autowired
-//	private TraceIndexDao traceIndexDao;
-
 	@Autowired
 	private TracesDao traceDao;
 

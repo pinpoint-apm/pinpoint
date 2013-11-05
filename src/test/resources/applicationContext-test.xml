@@ -38,10 +38,6 @@
     </bean>
 
 
-    <bean id="testTraceIndex" class="com.nhn.pinpoint.collector.dao.hbase.HbaseTraceIndexDao">
-        <property name="tableName" value="TestTraceIndex"/>
-    </bean>
-
     <bean id="metricRegistry" class="com.codahale.metrics.MetricRegistry">
     </bean>
 
