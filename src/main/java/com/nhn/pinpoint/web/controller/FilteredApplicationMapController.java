@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.util.DateUtils;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
 import com.nhn.pinpoint.web.filter.Filter;
@@ -143,8 +144,21 @@ public class FilteredApplicationMapController {
 		Filter filter = filterBuilder.build(filterText);
 		LinkStatistics linkStatistics = filteredApplicationMapService.linkStatistics(from, to, traceIdSet.getScanData(), srcApplicationName, srcServiceType, destApplicationName, destServiceType, filter);
 		
-		model.addAttribute("lastFetchedTimestamp", traceIdSet.getLimitedTime());
+		model.addAttribute("from", from);
+		model.addAttribute("to", to);
+
+		model.addAttribute("srcApplicationName", srcApplicationName);
+		model.addAttribute("destApplicationName", destApplicationName);
+
+		model.addAttribute("srcApplicationType", ServiceType.findServiceType(srcServiceType));
+		model.addAttribute("destApplicationType", ServiceType.findServiceType(destServiceType));
+		
 		model.addAttribute("linkStatistics", linkStatistics);
+		model.addAttribute("histogramSummary", linkStatistics.getHistogramSummary().entrySet().iterator());
+		model.addAttribute("timeseriesSlotIndex", linkStatistics.getTimeseriesSlotIndex().entrySet().iterator());
+		model.addAttribute("timeseriesValue", linkStatistics.getTimeseriesValue());
+
+		model.addAttribute("lastFetchedTimestamp", traceIdSet.getLimitedTime());
 		
 		return "linkStatisticsDetail";
 	}
