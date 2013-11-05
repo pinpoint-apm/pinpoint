@@ -10,6 +10,9 @@ import org.springframework.stereotype.Component;
 public class ApplicationNameMapper implements RowMapper<String> {
 	@Override
 	public String mapRow(Result result, int rowNum) throws Exception {
+        if (result.isEmpty()) {
+            return null;
+        }
 		KeyValue[] raw = result.raw();
 
 		if (raw.length == 0) {
