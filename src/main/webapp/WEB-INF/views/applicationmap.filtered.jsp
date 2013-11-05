@@ -78,5 +78,5 @@
 			</c:forEach>   	
 		]
 	},
-	"timeseriesResponses" : ${timeseriesResponses.json}
+	"timeSeriesResponses" : ${timeseriesResponses.json}
 }
