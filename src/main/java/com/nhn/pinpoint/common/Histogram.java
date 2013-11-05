@@ -9,7 +9,8 @@ import java.util.List;
 public class Histogram {
 
     public static final HistogramSlot SLOW_SLOT = new HistogramSlot(0, ResponseCode.NORMAL);
-
+    public static final HistogramSlot ERROR_SLOT = new HistogramSlot(-1, ResponseCode.NORMAL);
+    
     public static final Histogram FAST;
     public static final Histogram NORMAL;
 
