@@ -113,12 +113,12 @@ public class ApplicationMapController {
 		model.addAttribute("destApplicationType", ServiceType.findServiceType(destServiceType));
 
 		model.addAttribute("linkStatistics", linkStatistics);
-		model.addAttribute("histogramSummary", linkStatistics.getHistogramSummary().entrySet().iterator());
+//		model.addAttribute("histogramSummary", linkStatistics.getHistogramSummary().entrySet().iterator());
 		model.addAttribute("timeseriesSlotIndex", linkStatistics.getTimeseriesSlotIndex().entrySet().iterator());
 		model.addAttribute("timeseriesValue", linkStatistics.getTimeseriesValue());
-
-		// FIXME lastFetchedTimestamp는 filtered에서만 사용되는 값으로 여기에서는 필요 없음. 일단 임시방편으로 -1로 세팅.
-		model.addAttribute("lastFetchedTimestamp", -1);
+		
+		model.addAttribute("resultFrom", from);
+		model.addAttribute("resultTo", to);
 		
 		return "linkStatistics";
 	}

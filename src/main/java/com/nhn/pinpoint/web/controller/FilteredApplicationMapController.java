@@ -154,11 +154,13 @@ public class FilteredApplicationMapController {
 		model.addAttribute("destApplicationType", ServiceType.findServiceType(destServiceType));
 		
 		model.addAttribute("linkStatistics", linkStatistics);
-		model.addAttribute("histogramSummary", linkStatistics.getHistogramSummary().entrySet().iterator());
+//		model.addAttribute("histogramSummary", linkStatistics.getHistogramSummary().entrySet().iterator());
 		model.addAttribute("timeseriesSlotIndex", linkStatistics.getTimeseriesSlotIndex().entrySet().iterator());
 		model.addAttribute("timeseriesValue", linkStatistics.getTimeseriesValue());
 
-		model.addAttribute("lastFetchedTimestamp", traceIdSet.getLimitedTime());
+		// model.addAttribute("lastFetchedTimestamp", traceIdSet.getLimitedTime());
+		model.addAttribute("resultFrom", traceIdSet.getLimitedTime());
+		model.addAttribute("resultTo", to);
 		
 		return "linkStatisticsDetail";
 	}

@@ -24,13 +24,13 @@ public class LinkStatistics {
 	private static final int SLOT_SLOW = Integer.MAX_VALUE - 1;
 	private static final int SLOT_ERROR = Integer.MAX_VALUE;
 
-	/**
-	 * <pre>
-	 * key = responseTimeslot
-	 * value = count
-	 * </pre>
-	 */
-	private final SortedMap<Integer, Long> histogramSummary = new TreeMap<Integer, Long>();;
+//	/**
+//	 * <pre>
+//	 * key = responseTimeslot
+//	 * value = count
+//	 * </pre>
+//	 */
+//	private final SortedMap<Integer, Long> histogramSummary = new TreeMap<Integer, Long>();;
 
 	/**
 	 * <pre>
@@ -77,15 +77,15 @@ public class LinkStatistics {
 			throw new IllegalStateException("Can't set slot list while containing the data.");
 		}
 
-		histogramSummary.clear();
+//		histogramSummary.clear();
 		timeseriesSlotIndex.clear();
 		timeseriesValueList.clear();
 
-		histogramSummary.put(SLOT_SLOW, 0L);
-		histogramSummary.put(SLOT_ERROR, 0L);
+//		histogramSummary.put(SLOT_SLOW, 0L);
+//		histogramSummary.put(SLOT_ERROR, 0L);
 
 		for (HistogramSlot slot : slotList) {
-			histogramSummary.put(slot.getSlotTime(), 0L);
+//			histogramSummary.put(slot.getSlotTime(), 0L);
 			timeseriesSlotIndex.put(slot.getSlotTime(), timeseriesSlotIndex.size());
 			timeseriesValueList.add(makeEmptyTimeseriesValueMap());
 		}
@@ -116,8 +116,8 @@ public class LinkStatistics {
 		}
 
 		// add summary
-		long value = histogramSummary.containsKey(responseTimeslot) ? histogramSummary.get(responseTimeslot) + callCount : callCount;
-		histogramSummary.put(responseTimeslot, value);
+//		long value = histogramSummary.containsKey(responseTimeslot) ? histogramSummary.get(responseTimeslot) + callCount : callCount;
+//		histogramSummary.put(responseTimeslot, value);
 
 		/**
 		 * <pre>
@@ -142,9 +142,9 @@ public class LinkStatistics {
 		}
 	}
 
-	public Map<Integer, Long> getHistogramSummary() {
-		return histogramSummary;
-	}
+//	public Map<Integer, Long> getHistogramSummary() {
+//		return histogramSummary;
+//	}
 
 	public long getSuccessCount() {
 		return successCount;
@@ -172,6 +172,6 @@ public class LinkStatistics {
 
 	@Override
 	public String toString() {
-		return "LinkStatistics [histogramSummary=" + histogramSummary + ", timeseriesValue=" + timeseriesValueList + ", timeseriesSlotIndex=" + timeseriesSlotIndex + ", from=" + from + ", to=" + to + ", successCount=" + successCount + ", failedCount=" + failedCount + "]";
+		return "LinkStatistics [timeseriesValue=" + timeseriesValueList + ", timeseriesSlotIndex=" + timeseriesSlotIndex + ", from=" + from + ", to=" + to + ", successCount=" + successCount + ", failedCount=" + failedCount + "]";
 	}
 }
