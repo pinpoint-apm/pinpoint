@@ -120,6 +120,6 @@ public class ApplicationMapController {
 		// FIXME lastFetchedTimestamp는 filtered에서만 사용되는 값으로 여기에서는 필요 없음. 일단 임시방편으로 -1로 세팅.
 		model.addAttribute("lastFetchedTimestamp", -1);
 		
-		return "linkStatisticsDetail";
+		return "linkStatistics";
 	}
 }
