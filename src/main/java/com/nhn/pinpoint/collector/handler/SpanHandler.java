@@ -2,6 +2,7 @@ package com.nhn.pinpoint.collector.handler;
 
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,40 +72,47 @@ public class SpanHandler implements SimpleHandler {
 				// statisticsHandler.updateCaller(span.getParentApplicationName(), span.getParentApplicationType(), span.getApplicationName(), span.getServiceType(), span.getEndPoint(), span.getElapsed(), span.getErr() > 0);
 			}
 
-			// host application map 저장.
-			// root span이 아닌 경우에만 profiler에서 acceptor host를 채워주게 되어있다.
-			if (span.getAcceptorHost() != null) {
-				hostApplicationMapDao.insert(span.getAcceptorHost(), span.getApplicationName(), span.getServiceType());
-			}
+            insertAcceptorHost(span);
 
-			List<TSpanEvent> spanEventList = span.getSpanEventList();
-			if (spanEventList != null) {
-				logger.debug("handle spanEvent size:{}", spanEventList.size());
-				// TODO 껀바이 껀인데. 나중에 뭔가 한번에 업데이트 치는걸로 변경해야 될듯.
-				for (TSpanEvent spanEvent : spanEventList) {
-					ServiceType serviceType = ServiceType.findServiceType(spanEvent.getServiceType());
-					if (!serviceType.isRecordStatistics()) {
-						continue;
-					}
-
-					// if terminal update statistics
-					int elapsed = spanEvent.getEndElapsed();
-					boolean hasException = SpanEventUtils.hasException(spanEvent);
-
-					// 통계정보에 기반한 서버맵을 그리기 위한 정보 저장.
-					// 내가 호출한 정보 저장. (span이 호출한 spanevent)
-					statisticsHandler.updateCallee(spanEvent.getDestinationId(), serviceType.getCode(), span.getApplicationName(), span.getServiceType(), spanEvent.getEndPoint(), elapsed, hasException);
-
-					// 나를 호출한 정보 저장 (spanevent를 호출한 span)
-					statisticsHandler.updateCaller(span.getApplicationName(), span.getServiceType(), spanEvent.getDestinationId(), spanEvent.getServiceType(), span.getEndPoint(), elapsed, hasException);
-
-					// TODO 이제 타입구분안해도 됨. 대산에 destinationAddress를 추가로 업데이트 쳐야
-					// 될듯하다.
-					// TODO host로 spanEvent.getEndPoint()를 사용하는 것 변경
-				}
-			}
+            insertStatistics(span);
 		} catch (Exception e) {
 			logger.warn("Span handle error. Caused:{}. Span:{}",e.getMessage(), tbase, e);
 		}
 	}
+
+    private void insertStatistics(TSpan span) {
+
+        final List<TSpanEvent> spanEventList = span.getSpanEventList();
+        if (CollectionUtils.isNotEmpty(spanEventList)) {
+            logger.debug("handle spanEvent size:{}", spanEventList.size());
+            // TODO 껀바이 껀인데. 나중에 뭔가 한번에 업데이트 치는걸로 변경해야 될듯.
+            for (TSpanEvent spanEvent : spanEventList) {
+                ServiceType serviceType = ServiceType.findServiceType(spanEvent.getServiceType());
+                if (!serviceType.isRecordStatistics()) {
+                    continue;
+                }
+
+                // if terminal update statistics
+                int elapsed = spanEvent.getEndElapsed();
+                boolean hasException = SpanEventUtils.hasException(spanEvent);
+
+                // 통계정보에 기반한 서버맵을 그리기 위한 정보 저장.
+                // 내가 호출한 정보 저장. (span이 호출한 spanevent)
+                statisticsHandler.updateCallee(spanEvent.getDestinationId(), serviceType.getCode(), span.getApplicationName(), span.getServiceType(), spanEvent.getEndPoint(), elapsed, hasException);
+
+                // 나를 호출한 정보 저장 (spanevent를 호출한 span)
+                statisticsHandler.updateCaller(span.getApplicationName(), span.getServiceType(), spanEvent.getDestinationId(), spanEvent.getServiceType(), span.getEndPoint(), elapsed, hasException);
+            }
+        }
+    }
+
+    private void insertAcceptorHost(TSpan span) {
+        // host application map 저장.
+        // root span이 아닌 경우에만 profiler에서 acceptor host를 채워주게 되어있다.
+        final String acceptorHost = span.getAcceptorHost();
+        if (acceptorHost == null) {
+            return;
+        }
+        hostApplicationMapDao.insert(acceptorHost, span.getApplicationName(), span.getServiceType());
+    }
 }
