@@ -386,16 +386,17 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                     return;
                 }
 
+                var copiedData = angular.copy(data);
                 if (mergeUnknowns) {
-                    mergeUnknown(query, data);
+                    mergeUnknown(query, copiedData);
                 }
 
-                setLinkOption(data, linkRouting, linkCurve);
+                setLinkOption(copiedData, linkRouting, linkCurve);
                 oProgressBar.setLoading(90);
 
                 var options = cfg.options;
                 options.fOnNodeContextClicked = function (e, node) {
-                    scope.$emit("serverMap.nodeContextClicked", e, query, node, data);
+                    scope.$emit("serverMap.nodeContextClicked", e, query, node, copiedData);
                     reset();
                     scope.node = node;
                     if (!bUseNodeContextMenu) {
@@ -406,7 +407,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                     }
                 };
                 options.fOnLinkContextClicked = function (e, link) {
-                    scope.$emit("serverMap.linkContextClicked", e, query, link, data);
+                    scope.$emit("serverMap.linkContextClicked", e, query, link, copiedData);
                     reset();
                     scope.link = link;
                     scope.nodeCategory = link.category || '';
@@ -422,11 +423,11 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                     setLinkContextMenuPosition(e.event.layerY, e.event.layerX);
                 };
                 options.fOnLinkClicked = function (e, link) {
-                    scope.$emit("serverMap.linkClicked", e, query, link, data);
+                    scope.$emit("serverMap.linkClicked", e, query, link, copiedData);
                     reset();
                 };
                 options.fOnNodeClicked = function (e, node) {
-                    scope.$emit("serverMap.nodeClicked", e, query, node, data);
+                    scope.$emit("serverMap.nodeClicked", e, query, node, copiedData);
                     reset();
                 };
                 options.fOnBackgroundClicked = function (e) {
@@ -444,8 +445,8 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
 
                 try {
                     var selectedNode = (function () {
-                        for (var i = 0; i < data.applicationMapData.nodeDataArray.length; i++) {
-                            var e = data.applicationMapData.nodeDataArray[i];
+                        for (var i = 0; i < copiedData.applicationMapData.nodeDataArray.length; i++) {
+                            var e = copiedData.applicationMapData.nodeDataArray[i];
                             if (e.text === query.applicationName && e.serviceTypeCode === query.serviceType) {
                                 return e;
                             } else if (e.text === query.applicationName && angular.isUndefined(e.serviceTypeCode)) {
@@ -455,7 +456,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                     })();
                     //oServerMap.highlightNodeByKey(selectedNode.key);
                     options.nBoldKey = selectedNode.key;
-                    scope.$emit("serverMap.nodeClicked", null, query, selectedNode, data);
+                    scope.$emit("serverMap.nodeClicked", null, query, selectedNode, copiedData);
                 } catch (e) {
                     console.log(e);
                 }
@@ -466,7 +467,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                 } else {
                     oServerMap.option(options);
                 }
-                oServerMap.load(data.applicationMapData);
+                oServerMap.load(copiedData.applicationMapData);
                 oProgressBar.stopLoading();
             };
 
