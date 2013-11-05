@@ -27,7 +27,7 @@ public class TimeWindowUtils {
 	}
 
 	public static int getWindowIndex(long from, int windowSize, long timestamp) {
-		return (int) (timestamp - from) / windowSize;
+		return (int) (timestamp - from) / windowSize - 1;
 	}
 
 	public static int getWindowSize(long from, long to) {

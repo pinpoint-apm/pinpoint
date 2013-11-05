@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.web.applicationmap;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;

@@ -76,6 +76,8 @@ public class TimeseriesResponses {
 	}
 
 	public void add(String id, long timestamp, int responseTime, long count) {
+		logger.debug("add sample id={}, timestamp={} responseTime={}, count={}", id, timestamp, responseTime, count);
+		
 		List<Long> list = values.get(id);
 
 		if (list == null) {

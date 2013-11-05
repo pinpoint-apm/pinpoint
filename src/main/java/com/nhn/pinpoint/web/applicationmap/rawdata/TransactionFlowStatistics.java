@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.web.applicationmap.rawdata;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -8,6 +7,7 @@ import java.util.Set;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
+import com.nhn.pinpoint.web.util.Mergeable;
 
 /**
  * DB에서 조회한 application호출 관계 정보.
@@ -15,19 +15,34 @@ import com.nhn.pinpoint.common.bo.AgentInfoBo;
  * @author netspider
  * 
  */
-public class TransactionFlowStatistics {
+public class TransactionFlowStatistics implements Mergeable<TransactionFlowStatistics> {
 
-	private String id;
-	private String from;
-	private ServiceType fromServiceType;
-	private String to;
-	private ServiceType toServiceType;
+	protected String id;
+	protected String from;
+	protected ServiceType fromServiceType;
+	protected String to;
+	protected ServiceType toServiceType;
 
-	// key = hostname
-	private Map<String, Host> toHostList;
+	/**
+	 * key = hostname
+	 */
+	protected Map<String, Host> toHostList;
 	
-	private Set<AgentInfoBo> toAgentSet;
+	protected Set<AgentInfoBo> toAgentSet;
 
+	public TransactionFlowStatistics(String from, short fromServiceType, String to, short toServiceType) {
+		this.from = from;
+		this.fromServiceType = ServiceType.findServiceType(fromServiceType);
+		this.to = to;
+		this.toServiceType = ServiceType.findServiceType(toServiceType);
+		this.toHostList = new HashMap<String, Host>();
+		this.id = TransactionFlowStatisticsUtils.makeId(this.from, this.fromServiceType, this.to, this.toServiceType);
+	}
+
+	public TransactionFlowStatistics(String from, ServiceType fromServiceType, String to, ServiceType toServiceType) {
+		this(from, fromServiceType.getCode(), to, toServiceType.getCode());
+	}
+	
 	public String getFromApplicationId() {
 		return from + fromServiceType;
 	}
@@ -57,19 +72,6 @@ public class TransactionFlowStatistics {
 			host.getHistogram().addSample(slot, value);
 			toHostList.put(hostname, host);
 		}
-	}
-
-	public TransactionFlowStatistics(String from, short fromServiceType, String to, short toServiceType) {
-		this.from = from;
-		this.fromServiceType = ServiceType.findServiceType(fromServiceType);
-		this.to = to;
-		this.toServiceType = ServiceType.findServiceType(toServiceType);
-		this.toHostList = new HashMap<String, Host>();
-		this.id = TransactionFlowStatisticsUtils.makeId(this.from, this.fromServiceType, this.to, this.toServiceType);
-	}
-
-	public TransactionFlowStatistics(String from, ServiceType fromServiceType, String to, ServiceType toServiceType) {
-		this(from, fromServiceType.getCode(), to, toServiceType.getCode());
 	}
 
 	public void makeId() {
@@ -118,18 +120,10 @@ public class TransactionFlowStatistics {
 
 	public Map<String, Host> getToHostList() {
 		return toHostList;
-//		if (toHostList == null) {
-//			return null;
-//		}
-//		return Collections.unmodifiableMap(toHostList);
 	}
 
 	public Set<AgentInfoBo> getToAgentSet() {
 		return toAgentSet;
-//		if (toAgentSet == null) {
-//			return null;
-//		}
-//		return Collections.unmodifiableSet(toAgentSet);
 	}
 
 	public void addToAgentSet(Set<AgentInfoBo> agentSet) {

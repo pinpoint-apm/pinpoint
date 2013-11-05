@@ -65,7 +65,7 @@ public class FilteredApplicationMapController {
 		LimitedScanResult<List<TransactionId>> limitedScanResult = filteredApplicationMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
 		Filter filter = filterBuilder.build(filterText);
 		
-		ApplicationMap map = filteredApplicationMapService.selectApplicationMap(limitedScanResult.getScanData(), /*from, to,*/ filter);
+		ApplicationMap map = filteredApplicationMapService.selectApplicationMap(limitedScanResult.getScanData(), from, to, filter);
 		
 		model.addAttribute("from", from);
 		model.addAttribute("to", to);
@@ -79,7 +79,7 @@ public class FilteredApplicationMapController {
 		model.addAttribute("links", map.getLinks());
 		
 		// FIXME linkstatistics detail에 보여주는 timeseries값을 서버맵에서 제공할 예정.
-		// model.addAttribute("timeseriesResponses", map.getTimeseriesResponses());
+		model.addAttribute("timeseriesResponses", map.getTimeseriesResponse());
 
 		return "applicationmap.filtered";
 	}

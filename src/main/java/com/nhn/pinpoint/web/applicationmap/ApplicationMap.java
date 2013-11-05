@@ -14,6 +14,7 @@ import com.nhn.pinpoint.web.applicationmap.rawdata.RawStatisticsData;
 import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
 import com.nhn.pinpoint.web.util.MergeableHashMap;
 import com.nhn.pinpoint.web.util.MergeableMap;
+import com.nhn.pinpoint.web.vo.TimeseriesResponses;
 
 /**
  * Application map
@@ -30,6 +31,8 @@ public class ApplicationMap {
 	private final MergeableMap<String, ApplicationRelation> relations = new MergeableHashMap<String, ApplicationRelation>();
 	private final Set<String> applicationNames = new HashSet<String>();
 
+	private TimeseriesResponses timeseriesResponse;
+	
 	public ApplicationMap(Set<TransactionFlowStatistics> rawData) {
 		this.rawData = new RawStatisticsData(rawData);
 		logger.debug("ApplicationMap rawdata={}", this.rawData);
@@ -59,7 +62,7 @@ public class ApplicationMap {
 			}
 		}
 		
-		// indexing application
+		// indexing application (UI의 서버맵을 그릴 때 key 정보가 필요한데 unique해야하고 link정보와 맞춰야 됨.)
 		indexingApplication();
 
 		// extract relation
@@ -125,5 +128,13 @@ public class ApplicationMap {
 
 	private void addRelation(ApplicationRelation relation) {
 		relations.putOrMerge(relation.getId(), relation);
+	}
+
+	public TimeseriesResponses getTimeseriesResponse() {
+		return timeseriesResponse;
+	}
+
+	public void setTimeseriesResponse(TimeseriesResponses timeseriesResponse) {
+		this.timeseriesResponse = timeseriesResponse;
 	}
 }

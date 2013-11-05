@@ -30,6 +30,7 @@ import com.nhn.pinpoint.web.dao.TraceDao;
 import com.nhn.pinpoint.web.filter.Filter;
 import com.nhn.pinpoint.web.vo.LimitedScanResult;
 import com.nhn.pinpoint.web.vo.LinkStatistics;
+import com.nhn.pinpoint.web.vo.TimeseriesResponses;
 import com.nhn.pinpoint.web.vo.TransactionId;
 
 /**
@@ -119,14 +120,15 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 	public ApplicationMap selectApplicationMap(TransactionId transactionId) {
 		List<TransactionId> transactionIdList = new ArrayList<TransactionId>();
 		transactionIdList.add(transactionId);
-		return selectApplicationMap(transactionIdList, Filter.NONE);
+		// FIXME from,to -1 땜방임. 
+		return selectApplicationMap(transactionIdList, -1L, -1L, Filter.NONE);
 	}
 
 	/**
 	 * filtered application map
 	 */
 	@Override
-	public ApplicationMap selectApplicationMap(List<TransactionId> transactionIdList, Filter filter) {
+	public ApplicationMap selectApplicationMap(List<TransactionId> transactionIdList, long from, long to, Filter filter) {
 		StopWatch watch = new StopWatch();
 		watch.start();
 
@@ -134,23 +136,22 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 		// 향후 tree base로 충돌구간을 점검하여 없앨 경우 여기서 filter를 치면 안됨.
 		Collection<TransactionId> filterdList = recursiveCallFilter(transactionIdList);
 
+		// FIXME 나중에 List<Span>을 순회하면서 실행할 process chain을 두는것도 괜찮을듯.
 		List<List<SpanBo>> transactionList = this.traceDao.selectAllSpans(filterdList);
 
 		Set<TransactionFlowStatistics> statisticsData = new HashSet<TransactionFlowStatistics>();
 		Map<String, TransactionFlowStatistics> statisticsMap = new HashMap<String, TransactionFlowStatistics>();
 		Map<Long, SpanBo> transactionSpanMap = new HashMap<Long, SpanBo>();
 
-//		TimeseriesResponses tr = new TimeseriesResponses(from, to);
+		TimeseriesResponses tr = new TimeseriesResponses(from, to);
 
-//		System.out.println("@transactionList.size=" + transactionList.size() + "\n");
-
-		// 통계정보로 변환한다.
+		/**
+		 * 통계정보로 변환한다.
+		 */
 		for (List<SpanBo> transaction : transactionList) {
 			if (!filter.include(transaction)) {
 				continue;
 			}
-
-//			System.out.println("@transaction.size=" + transaction.size() + "\n");
 
 			transactionSpanMap.clear();
 			for (SpanBo span : transaction) {
@@ -186,44 +187,17 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 				} else {
 					slot = destServiceType.getHistogram().findHistogramSlot(span.getElapsed()).getSlotTime();
 				}
-				
-//				histogram.addSample((short) slot, 1);
-//
-//				// host 정보 추가.
-//				stat.addToHost(span.getEndPoint());
-//
-//				// agent 정보추가.
-//				String agentId = span.getAgentId();
-//				AgentInfoBo agentInfo = null;
-//				if (agentInfoCache.containsKey(agentId)) {
-//					agentInfo = agentInfoCache.get(agentId);
-//				} else {
-//					List<AgentInfoBo> agentInfoList = agentInfoDao.getAgentInfo(agentId, span.getAgentStartTime());
-//					if (!agentInfoList.isEmpty()) {
-//						agentInfo = agentInfoList.get(0);
-//					}
-//					agentInfoCache.put(agentId, agentInfo);
-//				}
-//				stat.addToAgent(agentInfo);
 
 				stat.addSample(dest, destServiceType.getCode(), (short) slot, 1);
 
 				statisticsData.add(stat);
 				statisticsMap.put(statId, stat);
 
-//				// link timeseries statistics추가.
-//				tr.add(statId, span.getCollectorAcceptTime(), span.getElapsed(), 1L);
-//				// application timeseries statistics
-//				tr.add(span.getApplicationId(), span.getCollectorAcceptTime(), span.getElapsed(), 1L);
-
-//				System.out.println("\n----------------------------------");
-//				System.out.println("@src\t\t" + src);
-//				System.out.println("@srcType\t\t" + srcServiceType);
-//				System.out.println("@dest\t\t" + dest);
-//				System.out.println("@destType\t" + destServiceType);
-//				System.out.println("@span\t\t" + span);
-//				System.out.println("@stat\t\t" + stat);
-//				System.out.println("----------------------------------\n\n");
+				// link timeseries statistics추가.
+				tr.add(statId, span.getCollectorAcceptTime(), span.getElapsed(), 1L);
+				
+				// application timeseries statistics
+				tr.add(span.getApplicationId(), span.getCollectorAcceptTime(), span.getElapsed(), 1L);
 
 				/**
 				 * span event의 statistics추가.
@@ -262,45 +236,31 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 					} else {
 						slot2 = destServiceType.getHistogram().findHistogramSlot(spanEvent.getEndElapsed()).getSlotTime();
 					}
-					
-//					histogram2.addSample((short) slot2, 1);
-//
-//					// host 정보 추가.
-//					stat2.addToHost(spanEvent.getEndPoint());
 
-//					stat2.addSample((dest == null) ? spanEvent.getEndPoint() : dest, destServiceType.getCode(), (short) slot2, 1);
+					// FIXME 
+					// stat2.addSample((dest == null) ? spanEvent.getEndPoint() : dest, destServiceType.getCode(), (short) slot2, 1);
 					stat2.addSample(spanEvent.getEndPoint(), destServiceType.getCode(), (short) slot2, 1);
 
 					// agent 정보추가. destination의 agent정보 알 수 없음.
 					statisticsData.add(stat2);
 					statisticsMap.put(statId2, stat2);
 
-//					// link timeseries statistics추가.
-//					tr.add(statId2, span.getStartTime() + spanEvent.getStartElapsed(), spanEvent.getEndElapsed(), 1L);
+					// link timeseries statistics추가.
+					tr.add(statId2, span.getStartTime() + spanEvent.getStartElapsed(), spanEvent.getEndElapsed(), 1L);
 
-//					// application timeseries statistics
-//					tr.add(spanEvent.getDestinationId(), span.getCollectorAcceptTime(), span.getElapsed(), 1L);
-
-//					System.out.println("\n\t----------------------------------");
-//					System.out.println("\t@src\t\t" + src);
-//					System.out.println("\t@srcType\t\t" + srcServiceType);
-//					System.out.println("\t@dest\t\t" + dest);
-//					System.out.println("\t@destType\t\t" + destServiceType);
-//					System.out.println("\t@spanEv\t\t" + spanEvent);
-//					System.out.println("\t@stat\t\t" + stat2);
-//					System.out.println("\t----------------------------------\n\n");
+					// application timeseries statistics
+					tr.add(spanEvent.getDestinationId(), span.getCollectorAcceptTime(), span.getElapsed(), 1L);
 				}
 			}
 		}
 
 		// mark agent info
 		for (TransactionFlowStatistics stat : statisticsData) {
-			fillAdditionalInfo(stat/* , from, to */);
+			fillAdditionalInfo(stat);
 		}
 
 		ApplicationMap map = new ApplicationMap(statisticsData).build();
-
-//		map.setTimeseriesResponses(tr);
+		map.setTimeseriesResponse(tr);
 
 		watch.stop();
 		logger.debug("Select filtered application map elapsed. {}ms", watch.getTotalTimeMillis());

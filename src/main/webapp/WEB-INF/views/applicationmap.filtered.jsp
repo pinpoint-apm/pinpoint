@@ -77,5 +77,6 @@
 			} <c:if test="${!status.last}">,</c:if>
 			</c:forEach>   	
 		]
-	}
+	},
+	"timeseriesResponses" : ${timeseriesResponses.json}
 }
