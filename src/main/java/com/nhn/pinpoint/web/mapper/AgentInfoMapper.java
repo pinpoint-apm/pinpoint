@@ -13,6 +13,7 @@ import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -25,6 +26,9 @@ public class AgentInfoMapper implements RowMapper<List<AgentInfoBo>> {
 
     @Override
     public List<AgentInfoBo> mapRow(Result result, int rowNum) throws Exception {
+        if (result.isEmpty()) {
+            return Collections.emptyList();
+        }
         KeyValue[] raw = result.raw();
 
         List<AgentInfoBo> agentInfoBoList = new ArrayList<AgentInfoBo>(raw.length);

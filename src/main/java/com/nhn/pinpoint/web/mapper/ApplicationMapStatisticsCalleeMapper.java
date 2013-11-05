@@ -1,10 +1,7 @@
 package com.nhn.pinpoint.web.mapper;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
@@ -31,6 +28,9 @@ public class ApplicationMapStatisticsCalleeMapper implements RowMapper<Map<Strin
 
 	@Override
 	public Map<String, TransactionFlowStatistics> mapRow(Result result, int rowNum) throws Exception {
+        if (result.isEmpty()) {
+            return Collections.emptyMap();
+        }
 		KeyValue[] keyList = result.raw();
 
 		// key is destApplicationName.

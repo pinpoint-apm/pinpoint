@@ -24,6 +24,9 @@ public class HostApplicationMapper implements RowMapper<Application> {
 
 	@Override
 	public Application mapRow(Result result, int rowNum) throws Exception {
+        if (result.isEmpty()) {
+            return null;
+        }
 		byte[] value = result.value();
 
 		if (value.length != HBaseTables.APPLICATION_NAME_MAX_LEN + 2) {

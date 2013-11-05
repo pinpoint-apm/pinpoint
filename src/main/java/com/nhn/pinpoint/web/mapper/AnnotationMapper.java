@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.hadoop.hbase.RowMapper;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,9 @@ public class AnnotationMapper implements RowMapper<Map<Long, List<AnnotationBo>>
 
     @Override
     public Map<Long, List<AnnotationBo>> mapRow(Result result, int rowNum) throws Exception {
+        if (result.isEmpty()) {
+            return Collections.emptyMap();
+        }
         KeyValue[] keyList = result.raw();
         Map<Long, List<AnnotationBo>> annotationList = new HashMap<Long, List<AnnotationBo>>();
 

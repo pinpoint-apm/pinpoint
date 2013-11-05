@@ -22,7 +22,7 @@ public class AgentStatMapper implements RowMapper<List<TAgentStat>> {
 	private TProtocolFactory factory = new TCompactProtocol.Factory();
 	
 	public List<TAgentStat> mapRow(Result result, int rowNum) throws Exception {
-		if (result == null) {
+		if (result.isEmpty()) {
 			return Collections.emptyList();
 		}
 		

@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.web.mapper;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -82,6 +83,10 @@ public class ApplicationMapLinkStatisticsMapper implements RowMapper<Map<Long, M
 
 	@Override
 	public Map<Long, Map<Short, Long>> mapRow(Result result, int rowNum) throws Exception {
+        if (result.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
 		KeyValue[] keyList = result.raw();
 
 		/**

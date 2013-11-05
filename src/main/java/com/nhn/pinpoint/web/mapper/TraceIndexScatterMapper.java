@@ -23,12 +23,11 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
 
 	@Override
 	public List<Dot> mapRow(Result result, int rowNum) throws Exception {
-		if (result == null) {
-			return Collections.emptyList();
-		}
+        if(result.isEmpty()) {
+            return Collections.emptyList();
+        }
 
 		KeyValue[] raw = result.raw();
-
 		List<Dot> list = new ArrayList<Dot>(raw.length);
 
 		for (KeyValue kv : raw) {

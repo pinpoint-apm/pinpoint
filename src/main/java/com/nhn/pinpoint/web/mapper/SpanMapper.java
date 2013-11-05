@@ -36,11 +36,11 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
 
     @Override
     public List<SpanBo> mapRow(Result result, int rowNum) throws Exception {
-        byte[] rowKey = result.getRow();
-
-        if (rowKey == null) {
+        if (result.isEmpty()) {
             return Collections.emptyList();
         }
+
+        byte[] rowKey = result.getRow();
         final TransactionId transactionId = new TransactionId(rowKey, TransactionId.DISTRIBUTE_HASH_SIZE);
 
         KeyValue[] keyList = result.raw();
