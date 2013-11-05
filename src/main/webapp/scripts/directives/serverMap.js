@@ -785,11 +785,11 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
              */
             scope.$on('serverMap.initializeWithMapData', function (event, mapData) {
                 scope.bShowServerMapStatus = false;
-                bUseNodeContextMenu = bUseLinkContextMenu = bUseBackgroundContextMenu = false;
+                bUseNodeContextMenu = bUseLinkContextMenu = bUseBackgroundContextMenu = true;
                 var query = {
                     applicationName: mapData.agentId
                 };
-                serverMapCallback(query, mapData, false, scope.linkRouting, scope.linkCurve);
+                serverMapCallback(query, mapData, scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
             });
 
         }
