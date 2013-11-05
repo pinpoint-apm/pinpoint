@@ -27,8 +27,8 @@ public class Histogram {
     }
     // ** histogramSlot list는 항상 정렬된 list 이어야 한다.
     // 지금은 그냥 사람이 한다.
-    private List<HistogramSlot> histogramSlotList = new ArrayList<HistogramSlot>();
-    private int typeCode;
+    private final List<HistogramSlot> histogramSlotList = new ArrayList<HistogramSlot>(3);
+    private final int typeCode;
 
     // 내부에서 생성한 FAST, NORMAL등의 참조만 사용할것
     private Histogram(int typeCode) {

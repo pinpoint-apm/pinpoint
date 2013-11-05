@@ -5,9 +5,12 @@ import java.util.concurrent.*;
 /**
  * @author emeroad
  */
-public class ExecutorFactory {
+public final class ExecutorFactory {
 
     private static final ThreadFactory DEFAULT_THREAD_FACTORY = new PinpointThreadFactory("Pinpoint-defaultThreadFactory", true);
+
+    private ExecutorFactory() {
+    }
 
     public static ThreadPoolExecutor newFixedThreadPool(int nThreads, int workQueueMaxSize, ThreadFactory threadFactory) {
         return new ThreadPoolExecutor(nThreads, nThreads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(workQueueMaxSize), threadFactory);

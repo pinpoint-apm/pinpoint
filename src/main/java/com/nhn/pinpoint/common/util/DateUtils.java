@@ -6,9 +6,12 @@ import java.util.Date;
 /**
  * @author emeroad
  */
-public class DateUtils {
+public final class DateUtils {
 
     private static final String FORMAT = "yyyy-MM-dd HH:mm:ss SSS";
+
+    private DateUtils() {
+    }
 
     public static String longToDateStr(long date) {
         return longToDateStr(date, FORMAT);
