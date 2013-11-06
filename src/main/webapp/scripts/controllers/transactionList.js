@@ -12,7 +12,7 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
         var nFetchCount, nLastFetchedIndex, htTransactions, oTimeSliderDao;
 
         // define private variables of methods
-        var fetchStart, fetchNext, fetchAll, emitTransactionListToTable, getQuery, getTransactionList;
+        var fetchStart, fetchNext, fetchAll, emitTransactionListToTable, getQuery, getTransactionList, changeTransactionDetail;
 
         // initialize private variables;
         nFetchCount = 1;
@@ -130,6 +130,15 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
         };
 
         /**
+         * change transaction detail
+         * @param transaction
+         */
+        changeTransactionDetail = function (transaction) {
+            $scope.traceId = transaction.traceId;
+            $scope.focusTimestamp = transaction.collectorAcceptTime;
+        };
+
+        /**
          * initialization
          */
         $timeout(function () {
@@ -145,12 +154,11 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
                 });
             }, 500);
         });
-
         /**
          * scope event on transactionTable.applicationSelected
          */
         $scope.$on('transactionTable.applicationSelected', function (event, transaction) {
-            angular.element('#transactionDetail').attr('src', "#/transactionDetail/" + transaction.traceId + "/" + transaction.collectorAcceptTime);
+            changeTransactionDetail(transaction);
         });
 
         /**

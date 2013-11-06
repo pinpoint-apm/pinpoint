@@ -51,7 +51,7 @@ pinpointApp.directive('transactionTable', ['$window', function ($window) {
             };
 
             scope.traceByApplicationInNewWindow = function (transaction) {
-                $window.open('#/transactionDetail/' + transaction.traceId + '/' +transaction.collectorAcceptTime);
+                $window.open('#/transactionDetail/' + transaction.traceId + '/' + transaction.collectorAcceptTime);
             };
 
             /**
