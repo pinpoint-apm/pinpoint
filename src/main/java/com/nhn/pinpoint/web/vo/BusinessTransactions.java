@@ -18,7 +18,10 @@ public class BusinessTransactions {
 	private int totalCallCount;
 	
 	public void add(SpanBo span) {
-		totalCallCount++;
+        if (span == null) {
+            throw new NullPointerException("span must not be null");
+        }
+        totalCallCount++;
 		
 		String rpc = span.getRpc();
 		if (transactions.containsKey(rpc)) {

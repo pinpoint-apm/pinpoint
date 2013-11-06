@@ -18,8 +18,11 @@ public class LimitUtilsTest {
         int low = LimitUtils.checkRange(0);
         Assert.assertEquals(low, 0);
 
-        int negative = LimitUtils.checkRange(-1);
-        Assert.assertEquals(negative, 0);
+        try {
+            LimitUtils.checkRange(-1);
+            Assert.fail();
+        } catch (Exception e) {
+        }
 
     }
 }

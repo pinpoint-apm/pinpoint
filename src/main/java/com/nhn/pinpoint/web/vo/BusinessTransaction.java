@@ -20,7 +20,11 @@ public class BusinessTransaction {
 	private long minTime = 0;
 
 	public BusinessTransaction(SpanBo span) {
-		this.rpc = span.getRpc();
+        if (span == null) {
+            throw new NullPointerException("span must not be null");
+        }
+
+        this.rpc = span.getRpc();
 
 		long elapsed = span.getElapsed();
 		totalTime = maxTime = minTime = elapsed;
@@ -35,7 +39,11 @@ public class BusinessTransaction {
 	}
 
 	public void add(SpanBo span) {
-		long elapsed = span.getElapsed();
+        if (span == null) {
+            throw new NullPointerException("span must not be null");
+        }
+
+        long elapsed = span.getElapsed();
 
 		totalTime += elapsed;
 		if (maxTime < elapsed) {

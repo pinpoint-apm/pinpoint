@@ -5,21 +5,24 @@ package com.nhn.pinpoint.web.vo;
  */
 public class Trace {
 
-	private final String traceId;
+	private final String transactionId;
 	private final long executionTime;
 	private final long startTime;
 
 	private final int exceptionCode;
 
-	public Trace(String traceId, long executionTime, long startTime, int exceptionCode) {
-		this.traceId = traceId;
+	public Trace(String transactionId, long executionTime, long startTime, int exceptionCode) {
+        if (transactionId == null) {
+            throw new NullPointerException("transactionId must not be null");
+        }
+        this.transactionId = transactionId;
 		this.executionTime = executionTime;
 		this.startTime = startTime;
 		this.exceptionCode = exceptionCode;
 	}
 
-	public String getTraceId() {
-		return traceId;
+	public String getTransactionId() {
+		return transactionId;
 	}
 
 	public long getExecutionTime() {

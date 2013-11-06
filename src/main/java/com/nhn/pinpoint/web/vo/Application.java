@@ -12,7 +12,10 @@ public class Application {
 	private final ServiceType serviceType;
 
 	public Application(String applicationName, short serviceType) {
-		this.applicationName = applicationName;
+        if (applicationName == null) {
+            throw new NullPointerException("applicationName must not be null");
+        }
+        this.applicationName = applicationName;
 		this.serviceType = ServiceType.findServiceType(serviceType);
 	}
 
