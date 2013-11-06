@@ -3,7 +3,6 @@ package com.nhn.pinpoint.web.dao;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import com.nhn.pinpoint.web.vo.TransactionId;
 import com.nhn.pinpoint.common.bo.SpanBo;
@@ -23,6 +22,4 @@ public interface TraceDao {
 
     List<SpanBo> selectSpans(TransactionId transactionId);
     
-    @Deprecated
-    List<List<SpanBo>> selectSpansAndAnnotation(Set<TransactionId> transactionIdList);
 }

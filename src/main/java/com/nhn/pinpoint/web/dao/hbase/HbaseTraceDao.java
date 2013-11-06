@@ -3,7 +3,6 @@ package com.nhn.pinpoint.web.dao.hbase;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import com.nhn.pinpoint.web.vo.TransactionId;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
@@ -109,20 +108,4 @@ public class HbaseTraceDao implements TraceDao {
 		return template2.get(HBaseTables.TRACES, get, spanMapper);
 	}
 
-	@Override
-	public List<List<SpanBo>> selectSpansAndAnnotation(Set<TransactionId> transactionIdList) {
-        if (transactionIdList == null) {
-            throw new NullPointerException("transactionIdList must not be null");
-        }
-
-        final List<Get> gets = new ArrayList<Get>(transactionIdList.size());
-		for (TransactionId transactionId : transactionIdList) {
-            byte[] transactionIdBytes = this.rowKeyDistributor.getDistributedKey(transactionId.getBytes());
-			Get get = new Get(transactionIdBytes);
-			get.addFamily(HBaseTables.TRACES_CF_SPAN);
-			get.addFamily(HBaseTables.TRACES_CF_ANNOTATION);
-			gets.add(get);
-		}
-		return template2.get(HBaseTables.TRACES, gets, spanAnnotationMapper);
-	}
 }
