@@ -83,9 +83,8 @@ public class ScatterChartServiceImpl implements ScatterChartService {
         final List<TransactionId> transactionIdList = query.getTransactionIdList();
         final List<List<SpanBo>> selectedSpans = traceDao.selectSpans(transactionIdList);
 
-		List<SpanBo> result = new ArrayList<SpanBo>(query.size());
 
-		// 조회된 녀석들 중에서 UUID, starttime, responseTime이 같은것들만 골라냄.
+		final List<SpanBo> result = new ArrayList<SpanBo>(query.size());
         int index = 0;
         for (List<SpanBo> spans : selectedSpans) {
             if (spans.size() == 0) {
@@ -96,13 +95,15 @@ public class ScatterChartServiceImpl implements ScatterChartService {
                 result.add(spans.get(0));
             } else {
                 // 재귀일 경우 자신이 선택한 span이 어느 span인지를 선별해야 한다.
+                // 조회된 녀석들 중에서 transactionId, collectorAcceptor, responseTime이 같은것들만 선별.
                 for (SpanBo span : spans) {
+
                     // 정확히 인덱스에 맞는 필터링 조건을 찾아야 함.
-                    final TransactionMetadataQuery.QueryCondition queryCondition = query.getQueryConditionByIndex(index);
+                    final TransactionMetadataQuery.QueryCondition filterQueryCondition = query.getQueryConditionByIndex(index);
 
                     final TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
-                    final TransactionMetadataQuery.QueryCondition key = new TransactionMetadataQuery.QueryCondition(transactionId, span.getCollectorAcceptTime(), span.getElapsed());
-                    if (queryCondition.equals(key)) {
+                    final TransactionMetadataQuery.QueryCondition queryConditionKey = new TransactionMetadataQuery.QueryCondition(transactionId, span.getCollectorAcceptTime(), span.getElapsed());
+                    if (queryConditionKey.equals(filterQueryCondition)) {
                         result.add(span);
                     }
                 }
