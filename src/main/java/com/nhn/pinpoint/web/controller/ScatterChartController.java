@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.nhn.pinpoint.common.util.DateUtils;
-import com.nhn.pinpoint.common.util.LimitUtils;
+import com.nhn.pinpoint.web.util.LimitUtils;
 import com.nhn.pinpoint.web.filter.Filter;
 import com.nhn.pinpoint.web.filter.FilterBuilder;
 import com.nhn.pinpoint.web.vo.scatter.Dot;
