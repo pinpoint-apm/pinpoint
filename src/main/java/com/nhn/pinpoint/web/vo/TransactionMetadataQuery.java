@@ -1,12 +1,7 @@
 package com.nhn.pinpoint.web.vo;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 /**
  * 
@@ -15,35 +10,45 @@ import java.util.Set;
  */
 public class TransactionMetadataQuery {
 
-	private final Map<QueryCondition, Object> queryConditions;
+    private static final Object V = new Object();
+	private final LinkedHashMap<QueryCondition, Object> queryConditions;
+    private final List<QueryCondition> queryConditionList;
 
 	public TransactionMetadataQuery() {
-		queryConditions = new HashMap<TransactionMetadataQuery.QueryCondition, Object>();
+		this.queryConditions = new LinkedHashMap<QueryCondition, Object>();
+        this.queryConditionList = new ArrayList<QueryCondition>();
 	}
 
-	public void addQueryCondition(String unparsedTraceId, long time, int responseTime) {
-        TransactionId traceId = new TransactionId(unparsedTraceId);
-        QueryCondition condition = new QueryCondition(traceId, time, responseTime);
+	public void addQueryCondition(String transactionId, long collectorAcceptTime, int responseTime) {
+        if (transactionId == null) {
+            throw new NullPointerException("transactionId must not be null");
+        }
+        TransactionId traceId = new TransactionId(transactionId);
+        QueryCondition condition = new QueryCondition(traceId, collectorAcceptTime, responseTime);
 
 		if (queryConditions.containsKey(condition)) {
 			return;
 		}
 
-		queryConditions.put(condition, null);
+		queryConditions.put(condition, V);
+        queryConditionList.add(condition);
 	}
 
-	public boolean isExists(String traceAgentId, long traceAgentStartTime, long traceTransactionId, long time, int responseTime) {
-        TransactionId traceId = new TransactionId(traceAgentId, traceAgentStartTime, traceTransactionId);
-        QueryCondition queryCondition = new QueryCondition(traceId, time, responseTime);
+	public boolean isExists(String traceAgentId, long traceAgentStartTime, long traceTransactionId, long collectorAcceptTime, int responseTime) {
+        if (traceAgentId == null) {
+            throw new NullPointerException("traceAgentId must not be null");
+        }
+        final TransactionId traceId = new TransactionId(traceAgentId, traceAgentStartTime, traceTransactionId);
+        final QueryCondition queryCondition = new QueryCondition(traceId, collectorAcceptTime, responseTime);
         return queryConditions.containsKey(queryCondition);
 	}
 
-	public List<TransactionId> getTraceIds() {
-		Set<TransactionId> temp = new HashSet<TransactionId>(queryConditions.size());
+	public List<TransactionId> getTransactionIdList() {
+		final List<TransactionId> result = new ArrayList<TransactionId>(queryConditions.size());
 		for (Entry<QueryCondition, Object> entry : queryConditions.entrySet()) {
-			temp.add(entry.getKey().getTraceId());
+			result.add(entry.getKey().getTransactionId());
 		}
-		return new ArrayList<TransactionId>(temp);
+		return result;
 	}
 
 	public int size() {
@@ -55,63 +60,61 @@ public class TransactionMetadataQuery {
 		return queryConditions.toString();
 	}
 
-	public static class QueryCondition {
-		private final TransactionId traceId;
-		private final long time;
+    public QueryCondition getIndex(int index) {
+        return queryConditionList.get(index);
+    }
+
+    public static final class QueryCondition {
+		private final TransactionId transactionId;
+		private final long collectorAcceptorTime;
 		private final int responseTime;
 
-		public QueryCondition(TransactionId traceId, long time, int responseTime) {
-			this.traceId = traceId;
-			this.time = time;
+		public QueryCondition(TransactionId transactionId, long collectorAcceptorTime, int responseTime) {
+            if (transactionId == null) {
+                throw new NullPointerException("transactionId must not be null");
+            }
+            this.transactionId = transactionId;
+			this.collectorAcceptorTime = collectorAcceptorTime;
 			this.responseTime = responseTime;
 		}
 
-		public TransactionId getTraceId() {
-			return traceId;
+		public TransactionId getTransactionId() {
+			return transactionId;
 		}
 
-		public long getTime() {
-			return time;
+		public long getCollectorAcceptorTime() {
+			return collectorAcceptorTime;
 		}
 
 		public int getResponseTime() {
 			return responseTime;
 		}
 
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + responseTime;
-			result = prime * result + (int) (time ^ (time >>> 32));
-			result = prime * result + ((traceId == null) ? 0 : traceId.hashCode());
-			return result;
-		}
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
 
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			QueryCondition other = (QueryCondition) obj;
-			if (responseTime != other.responseTime)
-				return false;
-			if (time != other.time)
-				return false;
-			if (traceId == null) {
-				if (other.traceId != null)
-					return false;
-			} else if (!traceId.equals(other.traceId))
-				return false;
-			return true;
-		}
+            QueryCondition that = (QueryCondition) o;
 
-		@Override
+            if (collectorAcceptorTime != that.collectorAcceptorTime) return false;
+            if (responseTime != that.responseTime) return false;
+            if (!transactionId.equals(that.transactionId)) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = transactionId.hashCode();
+            result = 31 * result + (int) (collectorAcceptorTime ^ (collectorAcceptorTime >>> 32));
+            result = 31 * result + responseTime;
+            return result;
+        }
+
+        @Override
 		public String toString() {
-			return "QueryCondition [traceId=" + traceId + ", time=" + time + ", responseTime=" + responseTime + "]";
+			return "QueryCondition [transactionId=" + transactionId + ", collectorAcceptorTime=" + collectorAcceptorTime + ", responseTime=" + responseTime + "]";
 		}
 	}
 }

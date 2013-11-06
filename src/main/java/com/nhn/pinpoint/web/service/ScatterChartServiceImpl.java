@@ -2,11 +2,12 @@ package com.nhn.pinpoint.web.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import com.nhn.pinpoint.web.vo.scatter.Dot;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +25,9 @@ import com.nhn.pinpoint.web.vo.TransactionMetadataQuery;
 @Service
 public class ScatterChartServiceImpl implements ScatterChartService {
 
-	@Autowired
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
 	private ApplicationTraceIndexDao applicationTraceIndexDao;
 
 	@Autowired
@@ -75,23 +78,32 @@ public class ScatterChartServiceImpl implements ScatterChartService {
         if (query == null) {
             throw new NullPointerException("query must not be null");
         }
-
-        List<List<SpanBo>> selectedSpans = traceDao.selectSpans(query.getTraceIds());
+        final List<TransactionId> transactionIdList = query.getTransactionIdList();
+        List<List<SpanBo>> selectedSpans = traceDao.selectSpans(transactionIdList);
 
 		List<SpanBo> result = new ArrayList<SpanBo>(query.size());
 
 		// 조회된 녀석들 중에서 UUID, starttime, responseTime이 같은것들만 골라냄.
-		for (List<SpanBo> spans : selectedSpans) {
-			for (SpanBo span : spans) {
-				// check UUID and time
-				if (query.isExists(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence(), span.getCollectorAcceptTime(), span.getElapsed())) {
-					result.add(span);
-				}
-			}
+        // 레인지 체크
+        int index = 0;
+        for (List<SpanBo> spans : selectedSpans) {
+            if (spans.size() == 1) {
+                result.add(spans.get(0));
+            } else {
+                final TransactionMetadataQuery.QueryCondition queryCondition = query.getIndex(index);
+                for (SpanBo span : spans) {
+                    // check UUID and time
+                    final TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
+                    final TransactionMetadataQuery.QueryCondition key = new TransactionMetadataQuery.QueryCondition(transactionId, span.getCollectorAcceptTime(), span.getElapsed());
+                    if (queryCondition.equals(key)) {
+                        result.add(span);
+                    }
+                }
+            }
+            index++;
 		}
 
-		// TODO 일단 임시로...
-		Collections.sort(result, spanComparator);
+
 
 		return result;
 	}

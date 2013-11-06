@@ -6,7 +6,7 @@
 		<c:forEach items="${metadata}" var="span" varStatus="status">
 		{
 			"traceId" : "${span.transactionId}",
-			"collectorAcceptTime" : "${span.collectorAcceptTime}",
+			"collectorAcceptTime" : ${span.collectorAcceptTime},
 			"startTime" : ${span.startTime},
 			"elapsed" : ${span.elapsed},
 			"application" : "${span.rpc}",

@@ -82,7 +82,7 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
                     $scope.$emit('timeSlider.disableMore');
                     oTimeSliderDao.setInnerFrom(htTransactions.htXY.nXFrom);
                 } else {
-                    oTimeSliderDao.setInnerFrom(_.last(data.metadata).startTime);
+                    oTimeSliderDao.setInnerFrom(_.last(data.metadata).collectorAcceptTime);
                 }
                 emitTransactionListToTable(data);
 
@@ -111,7 +111,7 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
                     $scope.$emit('timeSlider.disableMore');
                     oTimeSliderDao.setInnerFrom(htTransactions.htXY.nXFrom);
                 } else {
-                    oTimeSliderDao.setInnerFrom(_.last(data.metadata).startTime);
+                    oTimeSliderDao.setInnerFrom(_.last(data.metadata).collectorAcceptTime);
                 }
                 emitTransactionListToTable(data);
 
