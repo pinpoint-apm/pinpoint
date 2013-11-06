@@ -41,7 +41,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
         link: function postLink(scope, element, attrs) {
 
             // define private variables
-            var serverMapCachedQuery, serverMapCachedData, bUseNodeContextMenu, bUseLinkContextMenu,
+            var serverMapCachedQuery, serverMapCachedData, bUseNodeContextMenu, bUseLinkContextMenu, htLastQuery,
                 bUseBackgroundContextMenu, oServerMap, SERVERMAP_METHOD_CACHE, oAlert, oProgressBar, htLastMapData;
 
             // define private variables of methods
@@ -66,6 +66,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                     time: []
                 }
             };
+            htLastQuery = {};
             oAlert = new Alerts(element);
             oProgressBar = new ProgressBar(element);
             scope.oNavbar = null;
@@ -96,7 +97,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                 }
                 oProgressBar.setLoading(10);
 
-                var query = {
+                htLastQuery = {
                     applicationName: applicationName,
                     serviceType: serviceType,
                     from: to - period,
@@ -106,7 +107,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                 };
 
                 if (filterText) {
-                    getFilteredServerMapData(query, function (query, result) {
+                    getFilteredServerMapData(htLastQuery, function (query, result) {
                         if (query.from === result.lastFetchedTimestamp) {
                             scope.$emit('serverMap.allFetched');
                         } else {
@@ -117,7 +118,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                         serverMapCallback(query, mergeFilteredMapData(result), mergeUnknowns, linkRouting, linkCurve);
                     });
                 } else {
-                    getServerMapData(query, function (query, result) {
+                    getServerMapData(htLastQuery, function (query, result) {
                         htLastMapData = result;
                         serverMapCallback(query, result, mergeUnknowns, linkRouting, linkCurve);
                     });
@@ -229,7 +230,6 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
              */
             findExistingLinkFromLastMapData = function (link, newKey) {
                 for (var key in htLastMapData.applicationMapData.linkDataArray) {
-                    console.log(htLastMapData.applicationMapData.linkDataArray[key].from, newKey[link.from], htLastMapData.applicationMapData.linkDataArray[key].to, newKey[link.to]);
                     if (htLastMapData.applicationMapData.linkDataArray[key].from === newKey[link.from] && htLastMapData.applicationMapData.linkDataArray[key].to === newKey[link.to]) {
                         return key;
                     }
@@ -751,15 +751,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
              */
             scope.toggleMergeUnknowns = function () {
                 scope.mergeUnknowns = (scope.mergeUnknowns) ? false : true;
-                var query = {
-                    applicationName: scope.oNavbarDao.getApplicationName(),
-                    serviceType:  scope.oNavbarDao.getServiceType(),
-                    from: scope.oNavbarDao.getQueryStartTime(),
-                    to: scope.oNavbarDao.getQueryEndTime(),
-                    period: scope.oNavbarDao.getQueryPeriod(),
-                    filter: scope.oNavbarDao.getFilter()
-                };
-                serverMapCallback(query, htLastMapData, scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
+                serverMapCallback(htLastQuery, htLastMapData, scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
                 reset();
             };
 
@@ -770,7 +762,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
             scope.toggleLinkLableTextType = function (type) {
                 scope.totalRequestCount = (type !== 'tps') ? true : false;
                 scope.tps = (type === 'tps') ? true : false;
-                showServerMap(scope.oNavbarDao.getApplicationName(), scope.oNavbarDao.getServiceType(), scope.oNavbarDao.getQueryEndTime(), scope.oNavbarDao.getQueryPeriod(), scope.oNavbarDao.getFilter(), scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
+                serverMapCallback(htLastQuery, htLastMapData, scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
                 reset();
             };
 
@@ -780,7 +772,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
              */
             scope.toggleLinkRouting = function (type) {
                 scope.linkRouting = cfg.options.htLinkType.sRouting = type;
-                showServerMap(scope.oNavbarDao.getApplicationName(), scope.oNavbarDao.getServiceType(), scope.oNavbarDao.getQueryEndTime(), scope.oNavbarDao.getQueryPeriod(), scope.oNavbarDao.getFilter(), scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
+                serverMapCallback(htLastQuery, htLastMapData, scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
                 reset();
             };
 
@@ -790,7 +782,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
              */
             scope.toggleLinkCurve = function (type) {
                 scope.linkCurve = cfg.options.htLinkType.sCurve = type;
-                showServerMap(scope.oNavbarDao.getApplicationName(), scope.oNavbarDao.getServiceType(), scope.oNavbarDao.getQueryEndTime(), scope.oNavbarDao.getQueryPeriod(), scope.oNavbarDao.getFilter(), scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
+                serverMapCallback(htLastQuery, htLastMapData, scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
                 reset();
             };
 
@@ -818,10 +810,11 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                 scope.bShowServerMapStatus = false;
                 bUseBackgroundContextMenu = true;
                 bUseNodeContextMenu = bUseLinkContextMenu = false;
-                var query = {
+                htLastQuery = {
                     applicationName: mapData.applicationId
                 };
-                serverMapCallback(query, mapData, scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
+                htLastMapData = mapData;
+                serverMapCallback(htLastQuery, htLastMapData, scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
             });
 
         }
