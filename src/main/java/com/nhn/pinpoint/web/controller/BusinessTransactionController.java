@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.nhn.pinpoint.common.util.LimitUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,8 +66,9 @@ public class BusinessTransactionController {
 											@RequestParam("application") String applicationName,
 											@RequestParam("from") long from, 
 											@RequestParam("to") long to,
-											@RequestParam(value = "filter", required = false) String filterText, 
-											@RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
+											@RequestParam(value = "filter", required = false) String filterText,
+											@RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
+        limit = LimitUtils.checkRange(limit);
 		
 		// TOOD 구조개선을 위해 server map조회 로직 분리함, 임시로 분리한 상태이고 개선이 필요하다.
 		LimitedScanResult<List<TransactionId>> traceIdList = filteredApplicationMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
@@ -94,8 +96,9 @@ public class BusinessTransactionController {
 											@RequestParam("application") String applicationName, 
 											@RequestParam("period") long period,
 											@RequestParam(value = "filter", required = false) String filterText,
-											@RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
-		long to = TimeUtils.getDelayLastTime();
+											@RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
+        limit = LimitUtils.checkRange(limit);
+        long to = TimeUtils.getDelayLastTime();
 		long from = to - period;
 		return getBusinessTransactionsData(model, response, applicationName, from, to, filterText, limit);
 	}

@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.nhn.pinpoint.common.util.LimitUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,8 +61,8 @@ public class FilteredApplicationMapController {
 											@RequestParam("from") long from,
 											@RequestParam("to") long to,
 											@RequestParam(value = "filter", required = false) String filterText,
-											@RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
-		
+											@RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
+
 		LimitedScanResult<List<TransactionId>> limitedScanResult = filteredApplicationMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
 		Filter filter = filterBuilder.build(filterText);
 		
@@ -138,8 +139,9 @@ public class FilteredApplicationMapController {
 											@RequestParam("destApplicationName") String destApplicationName,
 											@RequestParam("destServiceType") short destServiceType,
 											@RequestParam(value = "filter", required = false) String filterText,
-											@RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
-		
+											@RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
+        limit = LimitUtils.checkRange(limit);
+
 		LimitedScanResult<List<TransactionId>> traceIdSet = filteredApplicationMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
 		Filter filter = filterBuilder.build(filterText);
 		LinkStatistics linkStatistics = filteredApplicationMapService.linkStatistics(from, to, traceIdSet.getScanData(), srcApplicationName, srcServiceType, destApplicationName, destServiceType, filter);

@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.nhn.pinpoint.common.util.DateUtils;
+import com.nhn.pinpoint.common.util.LimitUtils;
 import com.nhn.pinpoint.web.filter.Filter;
 import com.nhn.pinpoint.web.filter.FilterBuilder;
 import com.nhn.pinpoint.web.vo.scatter.Dot;
@@ -85,10 +86,10 @@ public class ScatterChartController {
 								@RequestParam("from") long from, 
 								@RequestParam("to") long to,
 								@RequestParam("limit") int limit, 
-								@RequestParam(value = "filter", required = false) String filterText, 
+								@RequestParam(value = "filter", required = false) String filterText,
 								@RequestParam(value = "_callback", required = false) String jsonpCallback,
 								@RequestParam(value = "v", required = false, defaultValue = "1") int version) {
-
+        limit = LimitUtils.checkRange(limit);
 		logger.debug("fetch scatter data FROM={}, TO={}, LIMIT={}, FILTER={}", from, to, limit, filterText);
 		
 		StopWatch watch = new StopWatch();
@@ -160,10 +161,12 @@ public class ScatterChartController {
 									@RequestParam("application") String applicationName, 
 									@RequestParam("period") long period,
 									@RequestParam("limit") int limit,
-									@RequestParam(value = "filter", required = false) String filterText, 
+									@RequestParam(value = "filter", required = false) String filterText,
 									@RequestParam(value = "_callback", required = false) String jsonpCallback,
 									@RequestParam(value = "v", required = false, defaultValue = "1") int version) {
-		long to = TimeUtils.getDelayLastTime();
+        limit = LimitUtils.checkRange(limit);
+
+        long to = TimeUtils.getDelayLastTime();
 		long from = to - period;
 		// TODO version은 임시로 사용됨. template변경과 서버개발을 동시에 하려고..
 		return getScatterData(model, response, applicationName, from, to, limit, filterText, jsonpCallback, version);
