@@ -26,12 +26,12 @@ public class AnnotationBo {
     public AnnotationBo() {
     }
 
-    public AnnotationBo(TAnnotation ano) {
-        if (ano == null) {
-            throw new NullPointerException("ano must not be null");
+    public AnnotationBo(TAnnotation annotation) {
+        if (annotation == null) {
+            throw new NullPointerException("annotation must not be null");
         }
-        this.key = ano.getKey();
-        Object value = transcoder.getMappingValue(ano);
+        this.key = annotation.getKey();
+        Object value = transcoder.getMappingValue(annotation);
         this.valueType = transcoder.getTypeCode(value);
         this.byteValue = transcoder.encode(value, this.valueType);
     }
@@ -50,7 +50,7 @@ public class AnnotationBo {
 
     public void setVersion(int version) {
         if (version < 0 || version > 255) {
-            throw new IllegalArgumentException("out of range (0~255)");
+            throw new IllegalArgumentException("out of range (0~255) " + version);
         }
         // range 체크
         this.version = (byte) (version & 0xFF);

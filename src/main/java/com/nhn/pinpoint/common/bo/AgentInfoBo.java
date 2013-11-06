@@ -25,6 +25,9 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
     private int endStatus;
 
     public AgentInfoBo(TAgentInfo agentInfo) {
+        if (agentInfo == null) {
+            throw new NullPointerException("agentInfo must not be null");
+        }
         this.hostname = agentInfo.getHostname();
         this.ip = agentInfo.getIp();
         this.ports = agentInfo.getPorts();

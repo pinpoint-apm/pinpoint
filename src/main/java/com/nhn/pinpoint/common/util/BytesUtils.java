@@ -54,6 +54,9 @@ public final class BytesUtils {
         if (stringBytes == null) {
             throw new NullPointerException("stringBytes must not be null");
         }
+        if (offset < 0) {
+            throw new IllegalArgumentException("negative offset:" + offset);
+        }
         System.arraycopy(stringBytes, 0, buffer, offset, stringBytes.length);
     }
 
@@ -77,6 +80,9 @@ public final class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }
+        if (offset < 0) {
+            throw new IllegalArgumentException("negative offset:" + offset);
+        }
         if (buf.length < offset + LONG_BYTE_LENGTH) {
             throw new IllegalArgumentException("buf.length is too small. buf.length:" + buf.length + " offset:" + (offset + 8));
         }
@@ -96,6 +102,9 @@ public final class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }
+        if (offset < 0) {
+            throw new IllegalArgumentException("negative offset:" + offset);
+        }
         if (buf.length < offset + INT_BYTE_LENGTH) {
             throw new IllegalArgumentException("buf.length is too small. buf.length:" + buf.length + " offset:" + (offset + 4));
         }
@@ -111,6 +120,9 @@ public final class BytesUtils {
     public static short bytesToShort(final byte[] buf, final int offset) {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
+        }
+        if (offset < 0) {
+            throw new IllegalArgumentException("negative offset:" + offset);
         }
         if (buf.length < offset + SHORT_BYTE_LENGTH) {
             throw new IllegalArgumentException("buf.length is too small. buf.length:" + buf.length + " offset:" + (offset + 2));
@@ -175,6 +187,9 @@ public final class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }
+        if (offset < 0) {
+            throw new IllegalArgumentException("negative offset:" + offset);
+        }
         if (buf.length < offset + LONG_BYTE_LENGTH) {
             throw new IllegalArgumentException("buf.length is too small. buf.length:" + buf.length + " offset:" + (offset + 8));
         }
@@ -201,6 +216,9 @@ public final class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }
+        if (offset < 0) {
+            throw new IllegalArgumentException("negative offset:" + offset);
+        }
         if (buf.length < offset + SHORT_BYTE_LENGTH) {
             throw new IllegalArgumentException("buf.length is too small. buf.length:" + buf.length + " offset:" + (offset + 2));
         }
@@ -212,6 +230,9 @@ public final class BytesUtils {
     public static int writeInt(final int value, final byte[] buf, int offset) {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
+        }
+        if (offset < 0) {
+            throw new IllegalArgumentException("negative offset:" + offset);
         }
         if (buf.length < offset + INT_BYTE_LENGTH) {
             throw new IllegalArgumentException("buf.length is too small. buf.length:" + buf.length + " offset:" + (offset + 4));
@@ -231,6 +252,9 @@ public final class BytesUtils {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
         }
+        if (offset < 0) {
+            throw new IllegalArgumentException("negative offset:" + offset);
+        }
         while (true) {
             if ((value & ~0x7F) == 0) {
                 buf[offset++] = (byte)value;
@@ -245,6 +269,9 @@ public final class BytesUtils {
     public static int writeVar64(long value, final byte[] buf, int offset) {
         if (buf == null) {
             throw new NullPointerException("buf must not be null");
+        }
+        if (offset < 0) {
+            throw new IllegalArgumentException("negative offset:" + offset);
         }
         while (true) {
             if ((value & ~0x7FL) == 0) {
@@ -376,11 +403,13 @@ public final class BytesUtils {
     }
 
     public static byte[] merge(final byte[] b1, final byte[] b2) {
-        if (b1 == null || b2 == null) {
-            throw new IllegalArgumentException("b1, b2 is must not be null");
+        if (b1 == null) {
+            throw new NullPointerException("b1 must not be null");
         }
-
-        byte[] result = new byte[b1.length + b2.length];
+        if (b2 == null) {
+            throw new NullPointerException("b2 must not be null");
+        }
+        final byte[] result = new byte[b1.length + b2.length];
 
         System.arraycopy(b1, 0, result, 0, b1.length);
         System.arraycopy(b2, 0, result, b1.length, b2.length);
@@ -453,6 +482,9 @@ public final class BytesUtils {
     public static String toString(final byte [] bytes, final int offset, final int length) {
         if (bytes == null) {
             return null;
+        }
+        if (offset < 0) {
+            throw new IllegalArgumentException("negative offset:" + offset);
         }
         if (length == 0) {
             return "";

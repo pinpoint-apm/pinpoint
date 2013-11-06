@@ -24,6 +24,9 @@ public class StringMetaDataBo {
 
 
     public StringMetaDataBo(String agentId, long startTime, int stringId) {
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
         this.agentId = agentId;
         this.stringId = stringId;
         this.startTime = startTime;

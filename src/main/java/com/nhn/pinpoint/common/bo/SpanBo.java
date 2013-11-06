@@ -60,6 +60,9 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
     private String remoteAddr; // optional
 
     public SpanBo(TSpan span) {
+        if (span == null) {
+            throw new NullPointerException("span must not be null");
+        }
         this.agentId = span.getAgentId();
         this.applicationId = span.getApplicationName();
         this.agentStartTime = span.getAgentStartTime();

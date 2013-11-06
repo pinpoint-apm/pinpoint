@@ -57,7 +57,14 @@ public class SpanEventBo implements Span {
 	}
 
 	public SpanEventBo(TSpan tSpan, TSpanEvent tSpanEvent) {
-		this.agentId = tSpan.getAgentId();
+        if (tSpan == null) {
+            throw new NullPointerException("tSpan must not be null");
+        }
+        if (tSpanEvent == null) {
+            throw new NullPointerException("tSpanEvent must not be null");
+        }
+
+        this.agentId = tSpan.getAgentId();
         this.applicationId = tSpan.getApplicationName();
         this.agentStartTime = tSpan.getAgentStartTime();
 
@@ -103,7 +110,14 @@ public class SpanEventBo implements Span {
 	}
 
 	public SpanEventBo(TSpanChunk spanChunk, TSpanEvent spanEvent) {
-		this.agentId = spanChunk.getAgentId();
+        if (spanChunk == null) {
+            throw new NullPointerException("spanChunk must not be null");
+        }
+        if (spanEvent == null) {
+            throw new NullPointerException("spanEvent must not be null");
+        }
+
+        this.agentId = spanChunk.getAgentId();
         this.applicationId = spanChunk.getApplicationName();
         this.agentStartTime = spanChunk.getAgentStartTime();
 

@@ -24,6 +24,9 @@ public class SqlMetaDataBo {
 
 
     public SqlMetaDataBo(String agentId, long startTime, int hashCode) {
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
         this.agentId = agentId;
         this.hashCode = hashCode;
         this.startTime = startTime;

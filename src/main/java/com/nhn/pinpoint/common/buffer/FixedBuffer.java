@@ -36,6 +36,12 @@ public class FixedBuffer implements Buffer {
         if (buffer == null) {
             throw new NullPointerException("buffer must not be null");
         }
+        if (offset < 0) {
+            throw new IllegalArgumentException("negative offset:" + offset);
+        }
+        if (offset > buffer.length) {
+            throw new IllegalArgumentException("offset:" + offset + " > buffer.length:" + buffer.length);
+        }
         this.buffer = buffer;
         this.offset = offset;
     }
@@ -114,7 +120,6 @@ public class FixedBuffer implements Buffer {
     private void putVar64(long v) {
         this.offset = BytesUtils.writeVar64(v, buffer, offset);
     }
-
 
 
     @Override
