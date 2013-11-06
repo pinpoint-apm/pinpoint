@@ -25,7 +25,10 @@ public class ServerInstance implements Comparable<ServerInstance>, Mergeable<Ser
 	private ObjectMapper objectMapper = new ObjectMapper();
 
 	public ServerInstance(AgentInfoBo agentInfo, ResponseHistogram histogram) {
-		this.name = agentInfo.getAgentId();
+        if (agentInfo == null) {
+            throw new NullPointerException("agentInfo must not be null");
+        }
+        this.name = agentInfo.getAgentId();
 		this.serviceType = agentInfo.getServiceType();
 		this.id = name;// + serviceType;
 		this.agentInfo = agentInfo;
