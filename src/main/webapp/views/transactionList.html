@@ -4,5 +4,5 @@
 <!-- Add your site or application content here -->
 <div id="main-container" class="main-container">
     <transaction-table ng-style="table" class="ui-layout-north"></transaction-table>
-    <iframe class="ui-layout-center" ng-src="#/test/{{traceId | encodeURIComponent}}/{{focusTimestamp}}" style="border:none;padding:0;margin:0;width:100%;height:100%;"></iframe>
+    <iframe class="ui-layout-center" ng-src="{{transactionDetailUrl}}" style="border:none;padding:0;margin:0;width:100%;height:100%;"></iframe>
 </div>

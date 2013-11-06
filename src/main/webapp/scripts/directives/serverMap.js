@@ -33,7 +33,7 @@ pinpointApp.constant('serverMapConfig', {
     FILTER_FETCH_LIMIT: 5
 });
 
-pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window', 'Alerts', 'ProgressBar', function (cfg, $rootScope, $window, Alerts, ProgressBar) {
+pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window', 'Alerts', 'ProgressBar', 'encodeURIComponentFilter', function (cfg, $rootScope, $window, Alerts, ProgressBar, encodeURIComponentFilter) {
     return {
         restrict: 'EA',
         replace: true,
@@ -740,7 +740,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                     + destServiceType + cfg.FILTER_ENTRY_DELIMETER
                     + destApplicationName;
 
-                var url = '#/filteredMap/' + application + '/' + period + '/' + queryEndTime + '/' + newFilter;
+                var url = '#/filteredMap/' + application + '/' + period + '/' + queryEndTime + '/' + encodeURIComponentFilter(newFilter);
                 $window.open(url, "");
                 reset();
             };
