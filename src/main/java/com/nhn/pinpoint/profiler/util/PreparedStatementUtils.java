@@ -28,6 +28,10 @@ public class PreparedStatementUtils {
     }
 
     public static List<Method> findBindVariableSetMethod(BindVariableFilter filter) {
+        if (filter == null) {
+            throw new NullPointerException("filter must not be null");
+        }
+
         List<Method> temp = new ArrayList<Method>(bindMethod.size());
         for (Method method : bindMethod) {
             if (filter.filter(method)) {
