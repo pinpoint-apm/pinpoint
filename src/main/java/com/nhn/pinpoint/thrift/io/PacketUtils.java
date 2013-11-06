@@ -9,6 +9,9 @@ import java.util.Arrays;
 public class PacketUtils {
 
     public static byte[] sliceData(DatagramPacket packet, int startOffset) {
+        if (packet == null) {
+            throw new NullPointerException("packet must not be null");
+        }
         int packetLength = packet.getLength();
         int packetOffset = packet.getOffset();
         byte[] source = packet.getData();
@@ -16,6 +19,9 @@ public class PacketUtils {
     }
 
     public static byte[] sliceData(byte[] packet, int startOffset, int length) {
+        if (packet == null) {
+            throw new NullPointerException("packet must not be null");
+        }
         return Arrays.copyOfRange(packet, startOffset, length);
     }
 }
