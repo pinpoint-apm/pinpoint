@@ -5,8 +5,8 @@ pinpointApp.constant('TransactionListConfig', {
     MAX_FETCH_BLOCK_SIZE: 10
 });
 
-pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$rootScope', '$timeout', '$window', '$http', 'webStorage', 'TimeSliderDao',
-    function (cfg, $scope, $rootScope, $timeout, $window, $http, webStorage, TimeSliderDao) {
+pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$rootScope', '$timeout', '$window', '$http', 'webStorage', 'TimeSliderDao', 'encodeURIComponentFilter',
+    function (cfg, $scope, $rootScope, $timeout, $window, $http, webStorage, TimeSliderDao, encodeURIComponentFilter) {
 
         // define private variables
         var nFetchCount, nLastFetchedIndex, htTransactions, oTimeSliderDao;
@@ -20,6 +20,24 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
         htTransactions = webStorage.session.get($window.name);
         oTimeSliderDao = new TimeSliderDao();
         oTimeSliderDao.setTotal(htTransactions.aTraces.length);
+        $scope.transactionDetailUrl = '#/transactionDetail';
+
+        /**
+         * initialization
+         */
+        $timeout(function () {
+            fetchStart();
+            $timeout(function () {
+                $("#main-container").layout({
+                    north__minSize: 20,
+                    north__size: 200,
+//                north__spacing_closed: 20,
+//                north__togglerLength_closed: 100,
+//                north__togglerAlign_closed: "top",
+                    center__maskContents: true // IMPORTANT - enable iframe masking
+                });
+            }, 500);
+        });
 
         /**
          * emit transaction list to table
@@ -112,11 +130,6 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
          * @param cb
          */
         getTransactionList = function (query, cb) {
-//        $.post(cfg.applicationUrl, query.join(""),function (data) {
-//            cb(data);
-//        }).fail(function () {
-//            $window.alert("Failed to fetching the request information.");
-//        });
             $http
                 .post(cfg.applicationUrl + '?' + query.join(""))
                 .success(function (data, status) {
@@ -134,26 +147,12 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
          * @param transaction
          */
         changeTransactionDetail = function (transaction) {
-            $scope.traceId = transaction.traceId;
-            $scope.focusTimestamp = transaction.collectorAcceptTime;
+            $scope.transactionDetailUrl = '#/transactionDetail';
+            if (transaction.traceId && transaction.collectorAcceptTime) {
+                $scope.transactionDetailUrl += '/' + encodeURIComponentFilter(transaction.traceId) + '/' + transaction.collectorAcceptTime;
+            }
         };
 
-        /**
-         * initialization
-         */
-        $timeout(function () {
-            fetchStart();
-            $timeout(function () {
-                $("#main-container").layout({
-                    north__minSize: 20,
-                    north__size: 200,
-//                north__spacing_closed: 20,
-//                north__togglerLength_closed: 100,
-//                north__togglerAlign_closed: "top",
-                    center__maskContents: true // IMPORTANT - enable iframe masking
-                });
-            }, 500);
-        });
         /**
          * scope event on transactionTable.applicationSelected
          */
