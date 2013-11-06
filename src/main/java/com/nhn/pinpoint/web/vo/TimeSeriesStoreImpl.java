@@ -61,7 +61,7 @@ public class TimeSeriesStoreImpl implements TimeSeriesStore {
 		}
 		
 		@Override
-		public void add(String key, long timestamp, int responseTime, long count) {
+		public void add(String key, long timestamp, int responseTimeslot, long callCount, boolean isFailed) {
 		}
 	};
 	
@@ -93,8 +93,8 @@ public class TimeSeriesStoreImpl implements TimeSeriesStore {
 		return list;
 	}
 
-	public void add(String key, long timestamp, int responseTime, long count) {
-		logger.debug("add sample key={}, timestamp={} responseTime={}, count={}", key, timestamp, responseTime, count);
+	public void add(String key, long timestamp, int responseTimeslot, long callCount, boolean isFailed) {
+		logger.debug("add sample key={}, timestamp={} responseTimeSlot={}, count={}", key, timestamp, responseTimeslot, callCount, isFailed);
 		
 		List<Long> list = values.get(key);
 
@@ -104,7 +104,7 @@ public class TimeSeriesStoreImpl implements TimeSeriesStore {
 
 		int index = TimeWindowUtils.getWindowIndex(from, windowSize, timestamp);
 
-		long value = list.get(index) + count;
+		long value = list.get(index) + callCount;
 
 		list.set(index, value);
 		

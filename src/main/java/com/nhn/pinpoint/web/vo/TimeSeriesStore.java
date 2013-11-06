@@ -8,5 +8,5 @@ import com.nhn.pinpoint.web.util.JsonSerializable;
  * 
  */
 public interface TimeSeriesStore extends JsonSerializable {
-	void add(String key, long timestamp, int responseTime, long count);
+	void add(String key, long timestamp, int responseTimeslot, long callCount, boolean isFailed);
 }

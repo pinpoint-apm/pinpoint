@@ -2,7 +2,6 @@ package com.nhn.pinpoint.web.vo;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 

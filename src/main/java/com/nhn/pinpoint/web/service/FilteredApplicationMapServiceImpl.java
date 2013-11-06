@@ -32,6 +32,7 @@ import com.nhn.pinpoint.web.vo.LimitedScanResult;
 import com.nhn.pinpoint.web.vo.LinkStatistics;
 import com.nhn.pinpoint.web.vo.TimeSeriesStore;
 import com.nhn.pinpoint.web.vo.TimeSeriesStoreImpl;
+import com.nhn.pinpoint.web.vo.TimeSeriesStoreImpl2;
 import com.nhn.pinpoint.web.vo.TransactionId;
 
 /**
@@ -144,7 +145,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 		Map<String, TransactionFlowStatistics> statisticsMap = new HashMap<String, TransactionFlowStatistics>();
 		Map<Long, SpanBo> transactionSpanMap = new HashMap<Long, SpanBo>();
 
-		TimeSeriesStore tr = TimeSeriesStoreImpl.getInstance(from, to);
+		TimeSeriesStore tr = new TimeSeriesStoreImpl2(from, to);
 
 		/**
 		 * 통계정보로 변환한다.
@@ -195,10 +196,10 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 				statisticsMap.put(statId, stat);
 
 				// link timeseries statistics추가.
-				tr.add(statId, span.getCollectorAcceptTime(), span.getElapsed(), 1L);
+				tr.add(statId, span.getCollectorAcceptTime(), slot, 1L, span.hasException());
 				
 				// application timeseries statistics
-				tr.add(span.getApplicationId(), span.getCollectorAcceptTime(), span.getElapsed(), 1L);
+				tr.add(span.getApplicationId(), span.getCollectorAcceptTime(), slot, 1L, span.hasException());
 
 				/**
 				 * span event의 statistics추가.
@@ -247,10 +248,10 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 					statisticsMap.put(statId2, stat2);
 
 					// link timeseries statistics추가.
-					tr.add(statId2, span.getStartTime() + spanEvent.getStartElapsed(), spanEvent.getEndElapsed(), 1L);
+					tr.add(statId2, span.getStartTime() + spanEvent.getStartElapsed(), slot2, 1L, spanEvent.hasException());
 
 					// application timeseries statistics
-					tr.add(spanEvent.getDestinationId(), span.getCollectorAcceptTime(), span.getElapsed(), 1L);
+					tr.add(spanEvent.getDestinationId(), span.getCollectorAcceptTime(), slot2, 1L, spanEvent.hasException());
 				}
 			}
 		}
