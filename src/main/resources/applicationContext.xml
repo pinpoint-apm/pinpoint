@@ -30,7 +30,7 @@
     </bean>
 
     <import resource="classpath:applicationContext-hbase.xml" />
-    <import resource="classpath:applicationContext-cache.xml" />
+    <!--<import resource="classpath:applicationContext-cache.xml" />-->
 
     <bean id="spanMapper" class="com.nhn.pinpoint.web.mapper.SpanMapper"></bean>
     <bean id="annotationMapper" class="com.nhn.pinpoint.web.mapper.AnnotationMapper"></bean>

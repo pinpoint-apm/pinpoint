@@ -54,7 +54,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 
         final List<List<SpanBo>> traceList = traceDao.selectAllSpans(transactionIdList);
 
-		List<Dot> list = new ArrayList<Dot>();
+		final List<Dot> result = new ArrayList<Dot>();
 
 		for (List<SpanBo> trace : traceList) {
 			if (!filter.include(trace)) {
@@ -63,13 +63,14 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 
 			for (SpanBo span : trace) {
 				if (applicationName.equals(span.getApplicationId())) {
-                    TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
-                    list.add(new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId()));
+                    final TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
+                    final Dot dot = new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId());
+                    result.add(dot);
 				}
 			}
 		}
 
-		return list;
+		return result;
 	}
 
 	/**

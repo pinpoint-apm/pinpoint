@@ -125,7 +125,7 @@ public class BusinessTransactionController {
         try {
             // select spans
             final SpanResult spanResult = this.spanService.selectSpan(traceId, focusTimestamp);
-            List<SpanAlign> spanAligns = spanResult.getSpanAlign();
+            List<SpanAlign> spanAligns = spanResult.getSpanAlignList();
 
             if (spanAligns.isEmpty()) {
                 mv.addObject("errorCode", 9);

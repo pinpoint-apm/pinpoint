@@ -10,14 +10,14 @@ import java.util.List;
  */
 public class SpanResult {
     private int completeType;
-    private List<SpanAlign> spanAlign;
+    private List<SpanAlign> spanAlignList;
 
-    public SpanResult(int completeType, List<SpanAlign> spanAlign) {
-        if (spanAlign == null) {
-            throw new NullPointerException("spanAlign must not be null");
+    public SpanResult(int completeType, List<SpanAlign> spanAlignList) {
+        if (spanAlignList == null) {
+            throw new NullPointerException("spanAlignList must not be null");
         }
         this.completeType = completeType;
-        this.spanAlign = spanAlign;
+        this.spanAlignList = spanAlignList;
     }
 
 
@@ -26,8 +26,8 @@ public class SpanResult {
         return completeType;
     }
 
-    public List<SpanAlign> getSpanAlign() {
-        return spanAlign;
+    public List<SpanAlign> getSpanAlignList() {
+        return spanAlignList;
     }
 
     public String getCompleteTypeString() {

@@ -38,9 +38,12 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 	private TraceDao traceDao;
     
 	@Override
-	public BusinessTransactions selectBusinessTransactions(List<TransactionId> traceIds, String applicationName, long from, long to, Filter filter) {
-        if (traceIds == null) {
-            throw new NullPointerException("traceIds must not be null");
+	public BusinessTransactions selectBusinessTransactions(List<TransactionId> transactionIdList, String applicationName, long from, long to, Filter filter) {
+        if (transactionIdList == null) {
+            throw new NullPointerException("transactionIdList must not be null");
+        }
+        if (applicationName == null) {
+            throw new NullPointerException("applicationName must not be null");
         }
         if (filter == null) {
             throw new NullPointerException("filter must not be null");
@@ -49,9 +52,9 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         List<List<SpanBo>> traceList;
 
 		if (filter == Filter.NONE) {
-			traceList = this.traceDao.selectSpans(traceIds);
+			traceList = this.traceDao.selectSpans(transactionIdList);
 		} else {
-			traceList = this.traceDao.selectAllSpans(traceIds);
+			traceList = this.traceDao.selectAllSpans(transactionIdList);
 		}
 
 		BusinessTransactions businessTransactions = new BusinessTransactions();

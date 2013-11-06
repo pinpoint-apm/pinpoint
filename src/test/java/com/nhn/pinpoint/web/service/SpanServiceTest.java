@@ -109,7 +109,7 @@ public class SpanServiceTest {
         TransactionId traceId = new TransactionId(id.getAgentId(), id.getAgentStartTime(), id.getTransactionSequence());
         // selectedHint를 좀더 정확히 수정할것.
         SpanResult spanResult = spanService.selectSpan(traceId, System.currentTimeMillis());
-        List<SpanAlign> sort = spanResult.getSpanAlign();
+        List<SpanAlign> sort = spanResult.getSpanAlignList();
 		for (SpanAlign spanAlign : sort) {
 			logger.info("depth:{} {}", spanAlign.getDepth(), spanAlign.getSpanBo());
 		}
