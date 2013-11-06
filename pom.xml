@@ -513,6 +513,7 @@
             <groupId>com.nhn.pinpoint</groupId>
             <artifactId>pinpoint-collector</artifactId>
             <version>0.0.4-SNAPSHOT</version>
+            <type>war</type>
             <scope>test</scope>
         </dependency>
 		<dependency>
