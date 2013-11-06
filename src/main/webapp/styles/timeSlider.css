@@ -1,7 +1,7 @@
 .timeslider .timeslider_wrapper {
     position:absolute;
     top:-4px;
-    left:340px;
+    left:350px;
     right:20px;
 }
 .timeslider .jslider .jslider-value {
@@ -16,5 +16,7 @@
     cursor: auto;
 }
 .timeslider_more {
-    padding-top:2px;
+    position: absolute;;
+    top:2px;
+    left: 200px;
 }

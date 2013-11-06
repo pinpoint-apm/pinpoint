@@ -5,3 +5,8 @@
 .nodeInfoDetails .server-list li {
     line-height: 30px;
 }
+
+.nodeInfoDetails [class^="icon-"],
+.nodeInfoDetails [class*=" icon-"] {
+    margin-top: 0;
+}

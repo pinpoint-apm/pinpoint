@@ -20,6 +20,7 @@
 }
 .navbar-form {
     margin-bottom: 0;
+    margin-left: 25px;
 }
 .navbar-form .for-datetimepicker {
     width:470px;
@@ -43,4 +44,12 @@
 .navbar .select2-container .select2-choice {
     height: 28px;
     line-height: 28px;
+}
+.navbar .beta {
+    position: absolute;
+    left:158px;
+    top: 12px;
+    font-size: 12px;
+    color: rgb(216, 33, 33);
+    font-family: 'Tahoma', 'Trebuchet MS', 'Verdana';
 }
