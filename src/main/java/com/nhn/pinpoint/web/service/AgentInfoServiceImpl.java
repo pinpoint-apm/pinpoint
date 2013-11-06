@@ -25,7 +25,7 @@ import com.nhn.pinpoint.web.dao.ApplicationIndexDao;
 @Service
 public class AgentInfoServiceImpl implements AgentInfoService {
 	
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private ApplicationIndexDao applicationIndexDao;
@@ -39,9 +39,14 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 	 */
 	@Override
 	public SortedMap<String, List<AgentInfoBo>> getApplicationAgentList(String applicationName, long from, long to) {
-		String[] agentIdList = applicationIndexDao.selectAgentIds(applicationName);
+        if (applicationName == null) {
+            throw new NullPointerException("applicationName must not be null");
+        }
+        String[] agentIdList = applicationIndexDao.selectAgentIds(applicationName);
 
-		logger.debug("agentIdList={}", Arrays.toString(agentIdList));
+        if (logger.isDebugEnabled()) {
+		    logger.debug("agentIdList={}", Arrays.toString(agentIdList));
+        }
 		
 		if (agentIdList == null || agentIdList.length == 0) {
 			logger.debug("agentIdList is empty. applicationName={}, from={}", applicationName, from);

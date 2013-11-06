@@ -31,7 +31,7 @@ import com.nhn.pinpoint.web.vo.LinkStatistics;
 @Service
 public class ApplicationMapServiceImpl implements ApplicationMapService {
 
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private ApplicationIndexDao applicationIndexDao;
@@ -49,7 +49,11 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 	private HostApplicationMapDao hostApplicationMapDao;
 
 	private Set<AgentInfoBo> selectAgents(String applicationId) {
-		String[] agentIds = applicationIndexDao.selectAgentIds(applicationId);
+        if (applicationId == null) {
+            throw new NullPointerException("applicationId must not be null");
+        }
+
+        String[] agentIds = applicationIndexDao.selectAgentIds(applicationId);
 		Set<AgentInfoBo> agentSet = new HashSet<AgentInfoBo>();
 		for (String agentId : agentIds) {
 			// TODO 조회 시간대에 따라서 agent info row timestamp를 변경하여 조회해야하는지는 모르겠음.
@@ -208,7 +212,10 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 	 */
 	@Override
 	public ApplicationMap selectApplicationMap(String applicationName, short serviceType, long from, long to) {
-		logger.debug("SelectApplicationMap");
+        if (applicationName == null) {
+            throw new NullPointerException("applicationName must not be null");
+        }
+        logger.debug("SelectApplicationMap");
 
 		StopWatch watch = new StopWatch("applicationMapWatch");
 		watch.start();
@@ -234,7 +241,14 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 	
 	@Override
 	public LinkStatistics linkStatistics(long from, long to, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType) {
-		List<Map<Long, Map<Short, Long>>> list;
+        if (srcApplicationName == null) {
+            throw new NullPointerException("srcApplicationName must not be null");
+        }
+        if (destApplicationName == null) {
+            throw new NullPointerException("destApplicationName must not be null");
+        }
+
+        List<Map<Long, Map<Short, Long>>> list;
 
 		if (ServiceType.findServiceType(srcServiceType) == ServiceType.CLIENT) {
 			logger.debug("Find 'client -> any' link statistics");

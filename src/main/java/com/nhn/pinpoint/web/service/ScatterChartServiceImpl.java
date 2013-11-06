@@ -32,12 +32,22 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 
 	@Override
 	public List<Dot> selectScatterData(String applicationName, long from, long to, int limit) {
-		return applicationTraceIndexDao.scanTraceScatter2(applicationName, from, to, limit);
+        if (applicationName == null) {
+            throw new NullPointerException("applicationName must not be null");
+        }
+        return applicationTraceIndexDao.scanTraceScatter2(applicationName, from, to, limit);
 	}
 
 	@Override
 	public List<Dot> selectScatterData(Collection<TransactionId> traceIds, String applicationName, Filter filter) {
-		List<List<SpanBo>> traceList = traceDao.selectAllSpans(traceIds);
+        if (traceIds == null) {
+            throw new NullPointerException("traceIds must not be null");
+        }
+        if (applicationName == null) {
+            throw new NullPointerException("applicationName must not be null");
+        }
+
+        List<List<SpanBo>> traceList = traceDao.selectAllSpans(traceIds);
 
 		List<Dot> list = new ArrayList<Dot>();
 
@@ -62,7 +72,11 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 	 */
 	@Override
 	public List<SpanBo> selectTransactionMetadata(TransactionMetadataQuery query) {
-		List<List<SpanBo>> selectedSpans = traceDao.selectSpans(query.getTraceIds());
+        if (query == null) {
+            throw new NullPointerException("query must not be null");
+        }
+
+        List<List<SpanBo>> selectedSpans = traceDao.selectSpans(query.getTraceIds());
 
 		List<SpanBo> result = new ArrayList<SpanBo>(query.size());
 

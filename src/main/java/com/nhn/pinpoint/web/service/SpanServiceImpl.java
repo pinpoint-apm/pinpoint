@@ -47,8 +47,11 @@ public class SpanServiceImpl implements SpanService {
 
 	@Override
 	public SpanResult selectSpan(TransactionId transactionId, long selectedSpanHint) {
+        if (transactionId == null) {
+            throw new NullPointerException("transactionId must not be null");
+        }
 
-		List<SpanBo> spans = traceDao.selectSpanAndAnnotation(transactionId);
+        List<SpanBo> spans = traceDao.selectSpanAndAnnotation(transactionId);
 		if (spans == null || spans.isEmpty()) {
 			return new SpanResult(SpanAligner2.FAIL_MATCH, Collections.<SpanAlign>emptyList());
 		}
@@ -67,7 +70,7 @@ public class SpanServiceImpl implements SpanService {
 
 
     private void transitionAnnotation(List<SpanAlign> spans, AnnotationReplacementCallback annotationReplacementCallback) {
-		for (SpanAlign spanAlign : spans) {
+        for (SpanAlign spanAlign : spans) {
 			List<AnnotationBo> annotationBoList;
 			if (spanAlign.isSpan()) {
 				annotationBoList = spanAlign.getSpanBo().getAnnotationBoList();
@@ -377,7 +380,7 @@ public class SpanServiceImpl implements SpanService {
 	}
 
 
-    private static class AgentKey {
+    private static final class AgentKey {
 
         private final String agentId;
         private final long agentStartTime;

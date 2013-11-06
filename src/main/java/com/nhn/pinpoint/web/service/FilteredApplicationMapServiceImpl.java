@@ -59,11 +59,11 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 
 	@Override
 	public LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, long from, long to, int limit) {
-		if (applicationName == null) {
-			throw new NullPointerException("applicationName");
-		}
+        if (applicationName == null) {
+            throw new NullPointerException("applicationName must not be null");
+        }
 
-		if (logger.isTraceEnabled()) {
+        if (logger.isTraceEnabled()) {
 			logger.trace("scan(selectTraceIdsFromApplicationTraceIndex) {}, {}, {}", applicationName, from, to);
 		}
 
@@ -72,7 +72,17 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 
 	@Override
 	public LinkStatistics linkStatistics(long from, long to, List<TransactionId> traceIdSet, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType, Filter filter) {
-		StopWatch watch = new StopWatch();
+        if (srcApplicationName == null) {
+            throw new NullPointerException("srcApplicationName must not be null");
+        }
+        if (destApplicationName == null) {
+            throw new NullPointerException("destApplicationName must not be null");
+        }
+        if (filter == null) {
+            throw new NullPointerException("filter must not be null");
+        }
+
+        StopWatch watch = new StopWatch();
 		watch.start();
 
 		List<List<SpanBo>> transactionList = this.traceDao.selectAllSpans(traceIdSet);
@@ -119,7 +129,10 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 
 	@Override
 	public ApplicationMap selectApplicationMap(TransactionId transactionId) {
-		List<TransactionId> transactionIdList = new ArrayList<TransactionId>();
+        if (transactionId == null) {
+            throw new NullPointerException("transactionId must not be null");
+        }
+        List<TransactionId> transactionIdList = new ArrayList<TransactionId>();
 		transactionIdList.add(transactionId);
 		// FIXME from,to -1 땜방임. 
 		return selectApplicationMap(transactionIdList, -1L, -1L, Filter.NONE);
@@ -130,7 +143,14 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 	 */
 	@Override
 	public ApplicationMap selectApplicationMap(List<TransactionId> transactionIdList, long from, long to, Filter filter) {
-		StopWatch watch = new StopWatch();
+        if (transactionIdList == null) {
+            throw new NullPointerException("transactionIdList must not be null");
+        }
+        if (filter == null) {
+            throw new NullPointerException("filter must not be null");
+        }
+
+        StopWatch watch = new StopWatch();
 		watch.start();
 
 		// 개별 객체를 각각 보고 재귀 내용을 삭제함.
@@ -270,7 +290,11 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 	}
 
 	private Collection<TransactionId> recursiveCallFilter(List<TransactionId> transactionIdList) {
-		List<TransactionId> crashKey = new ArrayList<TransactionId>();
+        if (transactionIdList == null) {
+            throw new NullPointerException("transactionIdList must not be null");
+        }
+
+        List<TransactionId> crashKey = new ArrayList<TransactionId>();
 		Map<TransactionId, Object> filterMap = new LinkedHashMap<TransactionId, Object>(transactionIdList.size());
 		for (TransactionId transactionId : transactionIdList) {
 			Object old = filterMap.put(transactionId, V);

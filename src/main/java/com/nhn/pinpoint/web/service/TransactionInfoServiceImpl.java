@@ -39,7 +39,14 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
     
 	@Override
 	public BusinessTransactions selectBusinessTransactions(List<TransactionId> traceIds, String applicationName, long from, long to, Filter filter) {
-		List<List<SpanBo>> traceList;
+        if (traceIds == null) {
+            throw new NullPointerException("traceIds must not be null");
+        }
+        if (filter == null) {
+            throw new NullPointerException("filter must not be null");
+        }
+
+        List<List<SpanBo>> traceList;
 
 		if (filter == Filter.NONE) {
 			traceList = this.traceDao.selectSpans(traceIds);
@@ -66,6 +73,9 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
     @Override
     public RecordSet createRecordSet(List<SpanAlign> spanAlignList, long focusTimestamp) {
+        if (spanAlignList == null) {
+            throw new NullPointerException("spanAlignList must not be null");
+        }
 
         RecordSet recordSet = new RecordSet();
 

@@ -18,7 +18,10 @@ public class AgentStatServiceImpl implements AgentStatService {
 	private AgentStatDao agentStatDao;
 
 	public List<TAgentStat> selectAgentStatList(String agentId, long start, long end) {
-		return agentStatDao.scanAgentStatList(agentId, start, end);
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
+        return agentStatDao.scanAgentStatList(agentId, start, end);
 	}
 
 }
