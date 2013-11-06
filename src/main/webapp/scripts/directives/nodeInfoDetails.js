@@ -33,7 +33,9 @@ pinpointApp
                     scope.agents = null;
                     scope.showAgents = false;
                     scope.showNodeInfoBarChart = false;
-                    scope.$digest();
+                    if (!scope.$$phase) {
+                        scope.$digest();
+                    }
                 };
 
                 /**
@@ -54,7 +56,9 @@ pinpointApp
                     scope.isWas = node.isWas;
                     // scope.agents = data.agents;
                     // scope.showAgents = (scope.agents.length > 0) ? true : false;
-                    scope.$digest();
+                    if (!scope.$$phase) {
+                        scope.$digest();
+                    }
                 };
 
 //                var getApplicationStatisticsData = function (query, callback) {
@@ -83,7 +87,9 @@ pinpointApp
                  */
                 renderApplicationStatistics = function (data) {
                     scope.showNodeInfoBarChart = true;
-                    scope.$digest();
+                    if (!scope.$$phase) {
+                        scope.$digest();
+                    }
                     nv.addGraph(function () {
                         var chart = nv.models.discreteBarChart().x(function (d) {
                             return d.label;

@@ -31,7 +31,9 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (co
                 scope.sourceinfo = null;
                 scope.showLinkInfoChart = false;
                 scope.showLinkInfoBarChart = false;
-                scope.$digest();
+                if (!scope.$$phase) {
+                    scope.$digest();
+                }
             };
 
             /**
