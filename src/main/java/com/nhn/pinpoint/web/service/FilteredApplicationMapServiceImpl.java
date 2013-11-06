@@ -31,7 +31,6 @@ import com.nhn.pinpoint.web.filter.Filter;
 import com.nhn.pinpoint.web.vo.LimitedScanResult;
 import com.nhn.pinpoint.web.vo.LinkStatistics;
 import com.nhn.pinpoint.web.vo.TimeSeriesStore;
-import com.nhn.pinpoint.web.vo.TimeSeriesStoreImpl;
 import com.nhn.pinpoint.web.vo.TimeSeriesStoreImpl2;
 import com.nhn.pinpoint.web.vo.TransactionId;
 
