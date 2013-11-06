@@ -41,6 +41,10 @@ public final class DefaultTrace implements Trace {
         if (traceContext == null) {
             throw new NullPointerException("traceContext must not be null");
         }
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
+
         this.traceContext = traceContext;
         this.traceId = new DefaultTraceId(agentId, agentStartTime, transactionId);
 

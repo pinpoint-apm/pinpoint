@@ -19,17 +19,24 @@ public class SpanChunkFactory {
         this.agentInformation = agentInformation;
     }
 
-    public SpanChunk create(List<SpanEvent> flushData) {
-        final SpanChunk spanChunk = new SpanChunk(flushData);
+    public SpanChunk create(final List<SpanEvent> flushData) {
+        if (flushData == null) {
+            throw new NullPointerException("flushData must not be null");
+        }
         // TODO 반드시 1개 이상이라는 조건을 충족해야 된다.
-        final List<TSpanEvent> spanEventList = spanChunk.getSpanEventList();
-        final SpanEvent first = (SpanEvent) spanEventList.get(0);
+        if (flushData.size() > 0) {
+            throw new IllegalArgumentException("flushData.size() > 0 " + flushData.size());
+        }
+
+
+        final SpanEvent first = flushData.get(0);
         if (first == null) {
             throw new IllegalStateException("first spanEvent not found");
         }
         final Span parentSpan = first.getSpan();
-
         final String agentId = this.agentInformation.getAgentId();
+
+        final SpanChunk spanChunk = new SpanChunk(flushData);
         spanChunk.setAgentId(agentId);
         spanChunk.setApplicationName(this.agentInformation.getApplicationName());
         spanChunk.setAgentStartTime(this.agentInformation.getStartTime());

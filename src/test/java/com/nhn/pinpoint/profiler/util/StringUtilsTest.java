@@ -33,5 +33,16 @@ public class StringUtilsTest {
         String string = "abc";
         String drop = StringUtils.drop(string, 0);
         Assert.assertEquals("...(3)", drop);
+
+    }
+
+    @Test
+    public void testDropNegative() throws Exception {
+        String string = "abc";
+        try {
+            StringUtils.drop(string, -1);
+            Assert.fail();
+        } catch (Exception e) {
+        }
     }
 }

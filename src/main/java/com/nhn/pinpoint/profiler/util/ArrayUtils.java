@@ -16,14 +16,17 @@ public final class ArrayUtils {
         if (bytes == null) {
             return "null";
         }
+        if (limit < 0) {
+            throw new IllegalArgumentException("negative limit:" + limit);
+        }
         // TODO limit음수일 경우 예외처리 필요.
         // size 4인 배열의 경 3에서 멈춰야 하므로 -1
-        int iMax = bytes.length - 1;
-        int iLimit = limit - 1;
-        if (iMax > iLimit) {
-            iMax = iLimit;
+        int bytesMaxLength = bytes.length - 1;
+        final int maxLimit = limit - 1;
+        if (bytesMaxLength > maxLimit) {
+            bytesMaxLength = maxLimit;
         }
-        if (iMax == -1) {
+        if (bytesMaxLength == -1) {
             if (bytes.length == 0) {
                 return "[]";
             } else {
@@ -32,20 +35,16 @@ public final class ArrayUtils {
         }
 
 
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         sb.append('[');
         for (int i = 0; ; i++) {
             sb.append(bytes[i]);
-            if (i == iMax) {
-                if (iMax < iLimit) {
+            if (i == bytesMaxLength) {
+                if ((bytes.length - 1) <= maxLimit) {
                     return sb.append(']').toString();
                 } else {
-                    if (i > 0) {
-
-                    }
-                    sb.append(", ");
-                    sb.append("...(");
-                    sb.append(bytes.length);
+                    sb.append(", ...(");
+                    sb.append(bytes.length - (i+1));
                     sb.append(")]");
                     return sb.toString();
                 }

@@ -17,7 +17,7 @@ import java.util.Arrays;
 /**
  * @author emeroad
  */
-public class JavaAssiastTest {
+public class JavaAssistTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

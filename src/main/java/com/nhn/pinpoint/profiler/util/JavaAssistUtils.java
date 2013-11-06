@@ -131,6 +131,12 @@ public final class JavaAssistUtils {
 
 
     public CtMethod findAllMethod(CtClass ctClass, String methodName, String[] args) throws NotFoundException {
+        if (ctClass == null) {
+            throw new NullPointerException("ctClass must not be null");
+        }
+        if (methodName == null) {
+            throw new NullPointerException("methodName must not be null");
+        }
         CtClass[] params = getCtParameter(args, ctClass.getClassPool());
         String paramDescriptor = Descriptor.ofParameters(params);
         CtMethod[] methods = ctClass.getMethods();
@@ -143,12 +149,18 @@ public final class JavaAssistUtils {
     }
 
     public static boolean isStaticBehavior(CtBehavior behavior) {
+        if (behavior == null) {
+            throw new NullPointerException("behavior must not be null");
+        }
         int modifiers = behavior.getModifiers();
         return Modifier.isStatic(modifiers);
     }
 
 
     public static String[] getParameterVariableName(CtBehavior method) throws NotFoundException {
+        if (method == null) {
+            throw new NullPointerException("method must not be null");
+        }
         LocalVariableAttribute localVariableAttribute = lookupLocalVariableAttribute(method);
         if (localVariableAttribute == null) {
             return getParameterDefaultVariableName(method);
@@ -163,6 +175,9 @@ public final class JavaAssistUtils {
      * @return null일 경우 debug모드로 컴파일 되지 않아서 그럼.
      */
     public static LocalVariableAttribute lookupLocalVariableAttribute(CtBehavior method) {
+        if (method == null) {
+            throw new NullPointerException("method must not be null");
+        }
         MethodInfo methodInfo = method.getMethodInfo2();
         CodeAttribute codeAttribute = methodInfo.getCodeAttribute();
         AttributeInfo localVariableTable = codeAttribute.getAttribute(LocalVariableAttribute.tag);
@@ -236,6 +251,9 @@ public final class JavaAssistUtils {
 
 
     public static String[] getParameterDefaultVariableName(CtBehavior method) throws NotFoundException {
+        if (method == null) {
+            throw new NullPointerException("method must not be null");
+        }
         CtClass[] parameterTypes = method.getParameterTypes();
         String[] variableName = new String[parameterTypes.length];
         for (int i = 0; i < variableName.length; i++) {

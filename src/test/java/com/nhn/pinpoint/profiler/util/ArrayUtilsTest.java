@@ -10,24 +10,63 @@ import org.slf4j.LoggerFactory;
  */
 public class ArrayUtilsTest {
     private final Logger logger = LoggerFactory.getLogger(ArrayUtilsTest.class.getName());
+
     @Test
-    public void toStringTest() {
+    public void dropToStringSmall() {
         byte[] bytes = new byte[] {1, 2, 3, 4};
 
         String small = ArrayUtils.dropToString(bytes, 3);
-        logger.info(small);
-        Assert.assertEquals("[1, 2, 3, ...(4)]", small);
+        Assert.assertEquals("[1, 2, 3, ...(1)]", small);
+    }
+
+    @Test
+    public void dropToStringEqual() {
+        byte[] bytes = new byte[] {1, 2, 3, 4};
+
+        String equals = ArrayUtils.dropToString(bytes, 4);
+        Assert.assertEquals("[1, 2, 3, 4]", equals);
+
+    }
+
+    @Test
+    public void dropToStringLarge() {
+        byte[] bytes = new byte[] {1, 2, 3, 4};
 
         String large = ArrayUtils.dropToString(bytes, 11);
-        logger.info(large);
         Assert.assertEquals("[1, 2, 3, 4]", large);
 
+    }
+
+
+    @Test
+    public void dropToStringOneAndZero() {
+        byte[] bytes = new byte[] {1, 2, 3, 4};
+
         String one = ArrayUtils.dropToString(bytes, 1);
-        logger.info(one);
-        Assert.assertEquals("[1, ...(4)]", one);
+        Assert.assertEquals("[1, ...(3)]", one);
 
         String zero = ArrayUtils.dropToString(bytes, 0);
-        logger.info(zero);
         Assert.assertEquals("[...(4)]", zero);
+    }
+
+
+    @Test
+    public void dropToStringSingle() {
+        byte[] bytes = new byte[] {1};
+
+        String small = ArrayUtils.dropToString(bytes, 1);
+        logger.info(small);
+        Assert.assertEquals("[1]", small);
+    }
+
+    @Test
+    public void dropToStringNegative() {
+        byte[] bytes = new byte[] {1};
+
+        try {
+            ArrayUtils.dropToString(bytes, -1);
+            Assert.fail();
+        } catch (Exception e) {
+        }
     }
 }
