@@ -3,7 +3,7 @@ package com.nhn.pinpoint.common.util;
 /**
  * @author emeroad
  */
-public class TimeUtils {
+public final class TimeUtils {
 
     public static long reverseCurrentTimeMillis(long currentTimeMillis) {
         return Long.MAX_VALUE - currentTimeMillis;
