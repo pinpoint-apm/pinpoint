@@ -14,6 +14,9 @@ public class CallRowKey implements RowKey {
     private int hash;
 
     public CallRowKey(String callApplicationName, short callServiceType, long rowTimeSlot) {
+        if (callApplicationName == null) {
+            throw new NullPointerException("callApplicationName must not be null");
+        }
         this.callApplicationName = callApplicationName;
         this.callServiceType = callServiceType;
         this.rowTimeSlot = rowTimeSlot;
