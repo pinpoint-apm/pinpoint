@@ -49,6 +49,10 @@ public class ScatterChartController {
     @Autowired
     private FilterBuilder filterBuilder;
 
+    private static final String TRACEID = "I";
+    private static final String TIME = "T";
+    private static final String RESPONSE_TIME = "R";
+
 	@RequestMapping(value = "/scatterpopup", method = RequestMethod.GET)
 	public String scatterPopup(Model model,
 								HttpServletResponse response,
@@ -182,31 +186,32 @@ public class ScatterChartController {
 	 */
 	@RequestMapping(value = "/transactionmetadata", method = RequestMethod.POST)
 	public String transactionmetadata(Model model, HttpServletRequest request, HttpServletResponse response) {
-		String TRACEID = "I";
-		String TIME = "T";
-		String RESPONSE_TIME = "R";
 
-		TransactionMetadataQuery query = new TransactionMetadataQuery();
-
-		int index = 0;
-		while (true) {
-			String traceId = request.getParameter(TRACEID + index);
-			String time = request.getParameter(TIME + index);
-			String responseTime = request.getParameter(RESPONSE_TIME + index);
-
-			if (traceId == null || time == null || responseTime == null) {
-				break;
-			}
-
-			query.addQueryCondition(traceId, Long.parseLong(time), Integer.parseInt(responseTime));
-			index++;
-		}
-
-		if (query.size() > 0) {
+        TransactionMetadataQuery query = parseSelectTransaction(request);
+        if (query.size() > 0) {
 			List<SpanBo> metadata = scatter.selectTransactionMetadata(query);
 			model.addAttribute("metadata", metadata);
 		}
 
 		return "transactionmetadata";
 	}
+
+    private TransactionMetadataQuery parseSelectTransaction(HttpServletRequest request) {
+
+        final TransactionMetadataQuery query = new TransactionMetadataQuery();
+        int index = 0;
+        while (true) {
+            String traceId = request.getParameter(TRACEID + index);
+            String time = request.getParameter(TIME + index);
+            String responseTime = request.getParameter(RESPONSE_TIME + index);
+
+            if (traceId == null || time == null || responseTime == null) {
+                break;
+            }
+
+            query.addQueryCondition(traceId, Long.parseLong(time), Integer.parseInt(responseTime));
+            index++;
+        }
+        return query;
+    }
 }
