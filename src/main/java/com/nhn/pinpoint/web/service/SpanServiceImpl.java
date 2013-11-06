@@ -42,8 +42,8 @@ public class SpanServiceImpl implements SpanService {
     @Autowired
     private StringMetaDataDao stringMetaDataDao;
 
-	private SqlParser sqlParser = new SqlParser();
-	private OutputParameterParser outputParameterParser = new OutputParameterParser();
+	private final SqlParser sqlParser = new SqlParser();
+	private final OutputParameterParser outputParameterParser = new OutputParameterParser();
 
 	@Override
 	public SpanResult selectSpan(TransactionId transactionId, long selectedSpanHint) {

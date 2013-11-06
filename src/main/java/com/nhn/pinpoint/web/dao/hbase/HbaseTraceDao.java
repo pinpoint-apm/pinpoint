@@ -41,12 +41,20 @@ public class HbaseTraceDao implements TraceDao {
 
 	@Override
 	public List<SpanBo> selectSpan(TransactionId transactionId) {
-		byte[] traceIdBytes = rowKeyDistributor.getDistributedKey(transactionId.getBytes());
+        if (transactionId == null) {
+            throw new NullPointerException("transactionId must not be null");
+        }
+
+        byte[] traceIdBytes = rowKeyDistributor.getDistributedKey(transactionId.getBytes());
 		return template2.get(HBaseTables.TRACES, traceIdBytes, HBaseTables.TRACES_CF_SPAN, spanMapper);
 	}
 
 	public List<SpanBo> selectSpanAndAnnotation(TransactionId transactionId) {
-		byte[] traceIdBytes = rowKeyDistributor.getDistributedKey(transactionId.getBytes());
+        if (transactionId == null) {
+            throw new NullPointerException("transactionId must not be null");
+        }
+
+        final byte[] traceIdBytes = rowKeyDistributor.getDistributedKey(transactionId.getBytes());
 		Get get = new Get(traceIdBytes);
 		get.addFamily(HBaseTables.TRACES_CF_SPAN);
 		get.addFamily(HBaseTables.TRACES_CF_ANNOTATION);
@@ -57,31 +65,27 @@ public class HbaseTraceDao implements TraceDao {
 
 	@Override
 	public List<List<SpanBo>> selectSpans(List<TransactionId> transactionIdList) {
-		List<Get> gets = new ArrayList<Get>(transactionIdList.size());
+        if (transactionIdList == null) {
+            throw new NullPointerException("transactionIdList must not be null");
+        }
+
+        final List<Get> getList = new ArrayList<Get>(transactionIdList.size());
 		for (TransactionId traceId : transactionIdList) {
 			byte[] traceIdBytes = rowKeyDistributor.getDistributedKey(traceId.getBytes());
 			Get get = new Get(traceIdBytes);
 			get.addFamily(HBaseTables.TRACES_CF_SPAN);
-			gets.add(get);
+			getList.add(get);
 		}
-		return template2.get(HBaseTables.TRACES, gets, spanMapper);
+		return template2.get(HBaseTables.TRACES, getList, spanMapper);
 	}
 
 	@Override
-	public List<List<SpanBo>> selectSpans(Set<TransactionId> transactionIdList) {
-		List<Get> gets = new ArrayList<Get>(transactionIdList.size());
-		for (TransactionId transactionId : transactionIdList) {
-            byte[] transactionIdBytes = this.rowKeyDistributor.getDistributedKey(transactionId.getBytes());
-			Get get = new Get(transactionIdBytes);
-			get.addFamily(HBaseTables.TRACES_CF_SPAN);
-			gets.add(get);
-		}
-		return template2.get(HBaseTables.TRACES, gets, spanMapper);
-	}
-	
-	@Override
 	public List<List<SpanBo>> selectAllSpans(Collection<TransactionId> transactionIdList) {
-		List<Get> gets = new ArrayList<Get>(transactionIdList.size());
+        if (transactionIdList == null) {
+            throw new NullPointerException("transactionIdList must not be null");
+        }
+
+        final List<Get> gets = new ArrayList<Get>(transactionIdList.size());
 		for (TransactionId transactionId : transactionIdList) {
             byte[] transactionIdBytes = this.rowKeyDistributor.getDistributedKey(transactionId.getBytes());
             Get get = new Get(transactionIdBytes);
@@ -94,7 +98,11 @@ public class HbaseTraceDao implements TraceDao {
 
 	@Override
 	public List<SpanBo> selectSpans(TransactionId transactionId) {
-        byte[] transactionIdBytes = this.rowKeyDistributor.getDistributedKey(transactionId.getBytes());
+        if (transactionId == null) {
+            throw new NullPointerException("transactionId must not be null");
+        }
+
+        final byte[] transactionIdBytes = this.rowKeyDistributor.getDistributedKey(transactionId.getBytes());
         Get get = new Get(transactionIdBytes);
 		get.addFamily(HBaseTables.TRACES_CF_SPAN);
 		get.addFamily(HBaseTables.TRACES_CF_TERMINALSPAN);
@@ -103,7 +111,11 @@ public class HbaseTraceDao implements TraceDao {
 
 	@Override
 	public List<List<SpanBo>> selectSpansAndAnnotation(Set<TransactionId> transactionIdList) {
-		List<Get> gets = new ArrayList<Get>(transactionIdList.size());
+        if (transactionIdList == null) {
+            throw new NullPointerException("transactionIdList must not be null");
+        }
+
+        final List<Get> gets = new ArrayList<Get>(transactionIdList.size());
 		for (TransactionId transactionId : transactionIdList) {
             byte[] transactionIdBytes = this.rowKeyDistributor.getDistributedKey(transactionId.getBytes());
 			Get get = new Get(transactionIdBytes);
