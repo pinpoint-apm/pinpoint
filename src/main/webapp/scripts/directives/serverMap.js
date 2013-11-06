@@ -30,7 +30,7 @@ pinpointApp.constant('serverMapConfig', {
     },
     FILTER_DELIMETER: "^",
     FILTER_ENTRY_DELIMETER: "|",
-    FILTER_FETCH_LIMIT: 5
+    FILTER_FETCH_LIMIT: 5000
 });
 
 pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window', 'Alerts', 'ProgressBar', 'encodeURIComponentFilter', function (cfg, $rootScope, $window, Alerts, ProgressBar, encodeURIComponentFilter) {

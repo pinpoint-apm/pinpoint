@@ -7,7 +7,7 @@ pinpointApp.constant('scatterConfig', {
     },
     useIntervalForFetching: false,
     nFetchingInterval: 2000,
-    nFetchLimit: 3
+    nFetchLimit: 5000
 });
 
 // FIXME child window에서 접근할 수 있도록 global변수로 일단 빼둠. 나중에 리팩토링할 것.
