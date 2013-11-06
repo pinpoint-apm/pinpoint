@@ -33,6 +33,10 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
 
     @Override
     public List<SqlMetaDataBo> getSqlMetaData(String agentId, long time, int hashCode) {
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
+
         SqlMetaDataBo sqlMetaData = new SqlMetaDataBo(agentId, time, hashCode);
         byte[] sqlId = getDistributedKey(sqlMetaData.toRowKey());
 

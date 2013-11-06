@@ -59,6 +59,9 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
 	@Override
 	public LimitedScanResult<List<TransactionId>> scanTraceIndex(final String applicationName, long start, long end, int limit) {
+        if (applicationName == null) {
+            throw new NullPointerException("applicationName must not be null");
+        }
         if (limit < 0) {
             throw new IllegalArgumentException("negative limit:" + limit);
         }
@@ -142,6 +145,9 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
 	@Override
 	public List<Dot> scanTraceScatter(String applicationName, long start, long end, final int limit) {
+        if (applicationName == null) {
+            throw new NullPointerException("applicationName must not be null");
+        }
         if (limit < 0) {
             throw new IllegalArgumentException("negative limit:" + limit);
         }

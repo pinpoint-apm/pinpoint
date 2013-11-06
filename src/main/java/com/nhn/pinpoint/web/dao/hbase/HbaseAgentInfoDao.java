@@ -128,6 +128,10 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
     @Override
     @Deprecated
     public AgentInfoBo findAgentInfoBeforeStartTime(final String agentId, final long currentTime) {
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
+
         // TODO cache를 걸어야 될듯 하다.
         Scan scan = createScan(agentId, currentTime);
         AgentInfoBo agentInfoBo = hbaseOperations2.find(HBaseTables.AGENTINFO, scan, new ResultsExtractor<AgentInfoBo>() {

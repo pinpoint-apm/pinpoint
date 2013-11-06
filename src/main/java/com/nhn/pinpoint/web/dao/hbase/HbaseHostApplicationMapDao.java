@@ -23,6 +23,7 @@ import com.nhn.pinpoint.common.util.TimeUtils;
 /**
  * 
  * @author netspider
+ * @author emeroad
  * 
  */
 @Repository
@@ -40,6 +41,9 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
 	@Override
 	public Application findApplicationName(String host, long from, long to) {
+        if (host == null) {
+            throw new NullPointerException("host must not be null");
+        }
 		Scan scan = createScan(host, from, to);
 		List<Application> result = hbaseOperations2.find(HBaseTables.HOST_APPLICATION_MAP, scan, hostApplicationMapper);
 		if (result != null && result.size() > 0) {
@@ -50,7 +54,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 	}
 
 	private Scan createScan(String host, long from, long to) {
-		long startTime = TimeUtils.reverseCurrentTimeMillis(TimeSlot.getStatisticsRowSlot(from));
+        long startTime = TimeUtils.reverseCurrentTimeMillis(TimeSlot.getStatisticsRowSlot(from));
 		long endTime = TimeUtils.reverseCurrentTimeMillis(TimeSlot.getStatisticsRowSlot(to) + 1);
 
 		if (logger.isDebugEnabled()) {

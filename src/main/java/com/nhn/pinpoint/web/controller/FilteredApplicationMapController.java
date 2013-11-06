@@ -62,9 +62,10 @@ public class FilteredApplicationMapController {
 											@RequestParam("to") long to,
 											@RequestParam(value = "filter", required = false) String filterText,
 											@RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
+        limit = LimitUtils.checkRange(limit);
 
-		LimitedScanResult<List<TransactionId>> limitedScanResult = filteredApplicationMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
-		Filter filter = filterBuilder.build(filterText);
+        final LimitedScanResult<List<TransactionId>> limitedScanResult = filteredApplicationMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
+		final Filter filter = filterBuilder.build(filterText);
 		
 		ApplicationMap map = filteredApplicationMapService.selectApplicationMap(limitedScanResult.getScanData(), from, to, filter);
 		
@@ -104,6 +105,7 @@ public class FilteredApplicationMapController {
 			@RequestParam("period") long period,
 			@RequestParam(value = "filter", required = false) String filterText,
 			@RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
+        limit = LimitUtils.checkRange(limit);
 
 		long to = TimeUtils.getDelayLastTime();
 		long from = to - period;

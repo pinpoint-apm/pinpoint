@@ -26,6 +26,7 @@ import com.nhn.pinpoint.common.util.TimeSlot;
 /**
  * 
  * @author netspider
+ * @author emeroad
  * 
  */
 @Repository
@@ -79,7 +80,7 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
 	@Override
 	public List<Map<Long, Map<Short, Long>>> selectCalleeStatistics(String callerApplicationName, short callerServiceType, String calleeApplicationName, short calleeServiceType, long from, long to) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("selectCalleeStatistics. " + callerApplicationName + ", " + callerServiceType + ", " + calleeApplicationName + ", " + calleeServiceType + ", " + from + ", " + to);
+			logger.debug("selectCalleeStatistics. {}, {}, {}, {}, {}, {}", callerApplicationName, callerServiceType, calleeApplicationName, calleeServiceType, from, to);
 		}
 		Scan scan = createScan(callerApplicationName, callerServiceType, from, to);
 		RowMapper<Map<Long, Map<Short, Long>>> mapper = new ApplicationMapLinkStatisticsMapper(callerApplicationName, callerServiceType, calleeApplicationName, calleeServiceType);

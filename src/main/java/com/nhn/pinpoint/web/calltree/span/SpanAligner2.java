@@ -33,9 +33,13 @@ public class SpanAligner2 {
         this.rootSpanId = findRootSpanId(spans, collectorAcceptTime);
     }
 
-    private long findRootSpanId(List<SpanBo> spans, long collectorAcceptTime) {
+    private long findRootSpanId(List<SpanBo> spanList, long collectorAcceptTime) {
+        if (spanList == null) {
+            throw new NullPointerException("spanList must not be null");
+        }
+
         final List<SpanBo> root = new ArrayList<SpanBo>();
-        for (SpanBo span : spans) {
+        for (SpanBo span : spanList) {
             if (span.getParentSpanId() == ROOT) {
                 root.add(span);
             }
@@ -51,7 +55,7 @@ public class SpanAligner2 {
         }
         // 버그 rootspan이 2개 이상인 경우는 로직 버그이다. 아무거나 잡아서 데이터를 뿌려줘야 되나?
         if (rootSpanBoSize > 1) {
-            logger.warn("parentSpanId(-1) collision. size:{} root span:{} allSpan:{}", rootSpanBoSize, root, spans);
+            logger.warn("parentSpanId(-1) collision. size:{} root span:{} allSpan:{}", rootSpanBoSize, root, spanList);
             throw new IllegalStateException("parentSpanId(-1) collision. size:" + rootSpanBoSize);
         }
 
@@ -59,7 +63,7 @@ public class SpanAligner2 {
         // 차선책으로 자신이 조회한 span의 시작 시간을 기준으로 span을 조회한다.
         // span에서 데이터를 추출하는 것이기 때문에, 왠간하면 데이터는 존재함. hbase insert시 data insert를 실패할 경우 없을수 있음.
         final List<SpanBo> collectorAcceptTimeMatcher = new ArrayList<SpanBo>();
-        for(SpanBo span : spans) {
+        for(SpanBo span : spanList) {
             // collectorTime이 힌트로 들어온다.
             if (span.getCollectorAcceptTime() == collectorAcceptTime) {
                 collectorAcceptTimeMatcher.add(span);
@@ -81,11 +85,11 @@ public class SpanAligner2 {
             return spanBo.getSpanId();
         }
         if (startMatchSize > 1) {
-            logger.warn("collectorAcceptTime match collision. size:{} collectorAcceptTime:{} allSpan:{}", startMatchSize, collectorAcceptTime, spans);
+            logger.warn("collectorAcceptTime match collision. size:{} collectorAcceptTime:{} allSpan:{}", startMatchSize, collectorAcceptTime, spanList);
             throw new IllegalStateException("startTime match collision size:" + startMatchSize + " collectorAcceptTime:" + collectorAcceptTime);
         }
         // 여기서 다음상황으로 더 정확하게 매치가 가능한가? 마땅히 call stack을 랜더링 할수 있는 방법 없음
-        logger.warn("collectorAcceptTime match not found. size:{} collectorAcceptTime:{} allSpan:{}", startMatchSize, collectorAcceptTime, spans);
+        logger.warn("collectorAcceptTime match not found. size:{} collectorAcceptTime:{} allSpan:{}", startMatchSize, collectorAcceptTime, spanList);
         throw new IllegalStateException("startTime match not found startTime size:" + startMatchSize + " collectorAcceptTime:" + collectorAcceptTime);
     }
 

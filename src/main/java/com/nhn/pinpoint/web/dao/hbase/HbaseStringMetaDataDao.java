@@ -32,6 +32,10 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
 
     @Override
     public List<StringMetaDataBo> getStringMetaData(String agentId, long time, int stringId) {
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
+
         StringMetaDataBo stringMetaData = new StringMetaDataBo(agentId, time, stringId);
         byte[] rowKey = getDistributedKey(stringMetaData.toRowKey());
 
