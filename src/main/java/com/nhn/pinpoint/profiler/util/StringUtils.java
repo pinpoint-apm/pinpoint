@@ -24,6 +24,9 @@ public final class StringUtils {
         if (str == null) {
             return "null";
         }
+        if (length < 0) {
+            throw new IllegalArgumentException("negative length:" + length);
+        }
         if (str.length() > length) {
             StringBuilder buffer = new StringBuilder(length + 10);
             buffer.append(str.substring(0, length));
