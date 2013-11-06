@@ -38,7 +38,7 @@ public final class BytesUtils {
         }
         final byte[] stringBytes = toBytes(string);
         if (stringBytes.length > maxStringSize) {
-            throw new IllegalArgumentException("string is max " + stringBytes.length);
+            throw new IllegalArgumentException("string is max " + stringBytes.length + ", string='" + string + "'");
         }
         final byte[] buffer = new byte[LONG_LONG_BYTE_LENGTH + maxStringSize];
         writeBytes(buffer, 0, stringBytes);
