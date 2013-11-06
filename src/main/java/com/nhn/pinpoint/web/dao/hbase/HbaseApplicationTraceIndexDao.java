@@ -59,6 +59,9 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
 	@Override
 	public LimitedScanResult<List<TransactionId>> scanTraceIndex(final String applicationName, long start, long end, int limit) {
+        if (limit < 0) {
+            throw new IllegalArgumentException("negative limit:" + limit);
+        }
         logger.debug("scanTraceIndex");
 		Scan scan = createScan(applicationName, start, end);
 		
@@ -136,16 +139,13 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 		return scan;
 	}
 
-	@Override
-	public List<List<Dot>> scanTraceScatter(String applicationName, long start, long end) {
-        logger.debug("scanTraceScatter");
-		Scan scan = createScan(applicationName, start, end);
-        return hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, traceIndexScatterMapper);
-	}
 
 	@Override
-	public List<Dot> scanTraceScatter2(String applicationName, long start, long end, final int limit) {
-        logger.debug("scanTraceScatter2");
+	public List<Dot> scanTraceScatter(String applicationName, long start, long end, final int limit) {
+        if (limit < 0) {
+            throw new IllegalArgumentException("negative limit:" + limit);
+        }
+        logger.debug("scanTraceScatter");
         Scan scan = createScan(applicationName, start, end);
 
         List<List<Dot>> dotListList = hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, limit, traceIndexScatterMapper);

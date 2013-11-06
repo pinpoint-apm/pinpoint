@@ -14,13 +14,22 @@ public class SpanAlign {
 	private boolean hasChild = false;
 
 	public SpanAlign(int depth, SpanBo spanBo) {
-		this.depth = depth;
+        if (spanBo == null) {
+            throw new NullPointerException("spanBo must not be null");
+        }
+        this.depth = depth;
 		this.spanBo = spanBo;
 		this.span = true;
 	}
 	
 	public SpanAlign(int depth, SpanBo spanBo, SpanEventBo spanEventBo) {
-		this.depth = depth;
+        if (spanBo == null) {
+            throw new NullPointerException("spanBo must not be null");
+        }
+        if (spanEventBo == null) {
+            throw new NullPointerException("spanEventBo must not be null");
+        }
+        this.depth = depth;
 		this.spanBo = spanBo;
 		this.spanEventBo = spanEventBo;
 		this.span = false;

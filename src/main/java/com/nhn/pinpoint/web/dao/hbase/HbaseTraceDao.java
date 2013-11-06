@@ -70,8 +70,8 @@ public class HbaseTraceDao implements TraceDao {
 
         final List<Get> getList = new ArrayList<Get>(transactionIdList.size());
 		for (TransactionId traceId : transactionIdList) {
-			byte[] traceIdBytes = rowKeyDistributor.getDistributedKey(traceId.getBytes());
-			Get get = new Get(traceIdBytes);
+			final byte[] traceIdBytes = rowKeyDistributor.getDistributedKey(traceId.getBytes());
+			final Get get = new Get(traceIdBytes);
 			get.addFamily(HBaseTables.TRACES_CF_SPAN);
 			getList.add(get);
 		}
@@ -86,8 +86,8 @@ public class HbaseTraceDao implements TraceDao {
 
         final List<Get> gets = new ArrayList<Get>(transactionIdList.size());
 		for (TransactionId transactionId : transactionIdList) {
-            byte[] transactionIdBytes = this.rowKeyDistributor.getDistributedKey(transactionId.getBytes());
-            Get get = new Get(transactionIdBytes);
+            final byte[] transactionIdBytes = this.rowKeyDistributor.getDistributedKey(transactionId.getBytes());
+            final Get get = new Get(transactionIdBytes);
 			get.addFamily(HBaseTables.TRACES_CF_SPAN);
 			get.addFamily(HBaseTables.TRACES_CF_TERMINALSPAN);
 			gets.add(get);

@@ -49,7 +49,11 @@ public class HbaseAgentStatDao implements AgentStatDao {
 	}
 	
 	public List<TAgentStat> scanAgentStatList(String agentId, long start, long end) {
-		if (logger.isDebugEnabled()) {
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
+
+        if (logger.isDebugEnabled()) {
 			logger.debug("scanAgentStat : agentId={}, start={}, end={}", agentId, start, end);
 		}
 		

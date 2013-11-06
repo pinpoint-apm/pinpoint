@@ -37,7 +37,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
-        return applicationTraceIndexDao.scanTraceScatter2(applicationName, from, to, limit);
+        return applicationTraceIndexDao.scanTraceScatter(applicationName, from, to, limit);
 	}
 
 	@Override

@@ -42,7 +42,10 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
 
 	@Override
 	public String[] selectAgentIds(String applicationName) {
-		byte[] rowKey = Bytes.toBytes(applicationName);
+        if (applicationName == null) {
+            throw new NullPointerException("applicationName must not be null");
+        }
+        byte[] rowKey = Bytes.toBytes(applicationName);
 
 		Get get = new Get(rowKey);
 		get.addFamily(HBaseTables.APPLICATION_INDEX_CF_AGENTS);

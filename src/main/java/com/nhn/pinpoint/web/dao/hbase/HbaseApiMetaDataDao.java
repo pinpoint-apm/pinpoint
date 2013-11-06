@@ -33,6 +33,10 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
 
     @Override
     public List<ApiMetaDataBo> getApiMetaData(String agentId, long time, int apiId) {
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
+
         ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo(agentId, time, apiId);
         byte[] sqlId = getDistributedKey(apiMetaDataBo.toRowKey());
         Get get = new Get(sqlId);

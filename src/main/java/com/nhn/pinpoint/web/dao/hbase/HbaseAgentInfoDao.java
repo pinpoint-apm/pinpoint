@@ -43,7 +43,11 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
      */
     @Override
 	public List<AgentInfoBo> getAgentInfo(final String agentId, final long from, final long to) {
-    	logger.debug("get agentInfo with, agentId={}, from={}, to={}", agentId, from, to);
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
+
+        logger.debug("get agentInfo with, agentId={}, from={}, to={}", agentId, from, to);
     	
         Scan scan = new Scan();
         scan.setCaching(20);
