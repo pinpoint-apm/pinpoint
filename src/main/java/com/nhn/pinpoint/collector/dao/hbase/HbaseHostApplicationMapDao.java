@@ -3,12 +3,11 @@ package com.nhn.pinpoint.collector.dao.hbase;
 import static com.nhn.pinpoint.common.hbase.HBaseTables.HOST_APPLICATION_MAP;
 import static com.nhn.pinpoint.common.hbase.HBaseTables.HOST_APPLICATION_MAP_CF_MAP;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.nhn.pinpoint.collector.dao.HostApplicationMapDao;
 import com.nhn.pinpoint.collector.util.AcceptedTimeService;
+import com.nhn.pinpoint.collector.util.AtomicLongUpdateMap;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +37,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 	private AcceptedTimeService acceptedTimeService;
 
 	// FIXME 매핑정보 매번 저장하지 말고 30~50초 주기로 한 개만 저장되도록 변경.
-	private final ConcurrentMap<CacheKey, AtomicLong> cache = new ConcurrentHashMap<CacheKey, AtomicLong>(1024, 0.75f, 32);
+    private final AtomicLongUpdateMap<CacheKey> updater = new AtomicLongUpdateMap<CacheKey>();
 
 
 	@Override
@@ -46,36 +45,12 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         final long statisticsRowSlot = getSlotTime();
 
         final CacheKey cacheKey = new CacheKey(host, applicationName, serviceType);
-        final AtomicLong hitSlot = cache.get(cacheKey);
-        if (hitSlot == null ) {
-            final AtomicLong newTime = new AtomicLong(statisticsRowSlot);
-            final AtomicLong oldTime = cache.putIfAbsent(cacheKey, newTime);
-            if (oldTime == null) {
-                // 자신이 새롭게 넣는 주체이다.
-                insertHost(host, applicationName, serviceType, statisticsRowSlot);
-            } else {
-                // 이미 키가 존재한다.
-                boolean update = updateTime(statisticsRowSlot, oldTime);
-                if (update) {
-                    insertHost(host, applicationName, serviceType, statisticsRowSlot);
-                }
-            }
-        } else {
-            // 이미 키가 존재할 경우 update한다.
-            boolean update = updateTime(statisticsRowSlot, hitSlot);
-            if (update) {
-                insertHost(host, applicationName, serviceType, statisticsRowSlot);
-            }
+        final boolean update = updater.update(cacheKey, statisticsRowSlot);
+        if (update) {
+            insertHost(host, applicationName, serviceType, statisticsRowSlot);
         }
 	}
 
-    private boolean updateTime(final long newTime, final AtomicLong oldTime) {
-        final long oldLong = oldTime.get();
-        if (newTime > oldLong) {
-            return oldTime.compareAndSet(oldLong, newTime);
-        }
-        return false;
-    }
 
     private long getSlotTime() {
         final long acceptedTime = acceptedTimeService.getAcceptedTime();
@@ -101,10 +76,10 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         }
     }
 
-    private static class CacheKey {
-        private String host;
-        private String applicationName;
-        private short serviceType;
+    private static final class CacheKey {
+        private final String host;
+        private final String applicationName;
+        private final short serviceType;
 
         public CacheKey(String host, String applicationName, short serviceType) {
             if (host == null) {
