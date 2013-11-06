@@ -45,6 +45,7 @@ public class TcpDataSender implements EnhancedDataSender {
 
     public TcpDataSender(String host, int port) {
         pinpointSocketFactory = new PinpointSocketFactory();
+        pinpointSocketFactory.setTimeoutMillis(1000 * 5);
         writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", host, port);
         connect(host, port);
 
@@ -111,13 +112,13 @@ public class TcpDataSender implements EnhancedDataSender {
                 doSend(copy);
             } else if(dto instanceof RequestMarker) {
                 RequestMarker requestMarker = (RequestMarker) dto;
-                TBase<?, ?> tBase = requestMarker.getTBase();
+                final TBase<?, ?> tBase = requestMarker.getTBase();
                 int retry = requestMarker.getRetryCount();
                 byte[] copy = serialize(tBase);
                 if (copy == null) {
                     return;
                 }
-                doRequest(copy, retry);
+                doRequest(copy, retry, tBase);
             } else {
                 logger.error("sendPacket fail. invalid dto type:{}", dto.getClass());
                 return;
@@ -133,7 +134,7 @@ public class TcpDataSender implements EnhancedDataSender {
         write.setListener(writeFailFutureListener);
     }
 
-    private void doRequest(final byte[] requestPacket, final int retryCount) {
+    private void doRequest(final byte[] requestPacket, final int retryCount, final Object targetClass) {
         // 리팩토링 필요.
         final Future<ResponseMessage> response = this.socket.request(requestPacket);
         response.setListener(new FutureListener<ResponseMessage>() {
@@ -146,8 +147,8 @@ public class TcpDataSender implements EnhancedDataSender {
                         if (result.isSuccess()) {
                             logger.debug("result success");
                         } else {
-                            logger.warn("request fail. Caused:{}", result.getMessage());
-                            retryRequest(requestPacket, retryCount);
+                            logger.warn("request fail. clazz:{} Caused:{}", targetClass, result.getMessage());
+                            retryRequest(requestPacket, retryCount, targetClass.getClass().getSimpleName());
                         }
                     } else {
                         logger.warn("Invalid ResponseMessage. {}", response);
@@ -156,14 +157,14 @@ public class TcpDataSender implements EnhancedDataSender {
 //                        retryRequest(requestPacket);
                     }
                 } else {
-                    logger.warn("request fail. Caused:{}", future.getCause().getMessage(), future.getCause());
-                    retryRequest(requestPacket, retryCount);
+                    logger.warn("request fail. clazz:{} Caused:{}", targetClass, future.getCause().getMessage(), future.getCause());
+                    retryRequest(requestPacket, retryCount, targetClass.getClass().getSimpleName());
                 }
             }
         });
     }
 
-    private void retryRequest(byte[] requestPacket, int retryCount) {
+    private void retryRequest(byte[] requestPacket, int retryCount, final String className) {
         RetryMessage retryMessage = new RetryMessage(retryCount, requestPacket);
         retryQueue.add(retryMessage);
         if (fireTimeout()) {
@@ -178,7 +179,7 @@ public class TcpDataSender implements EnhancedDataSender {
                             return;
                         }
                         int fail = retryMessage.fail();
-                        doRequest(retryMessage.getBytes(), fail);
+                        doRequest(retryMessage.getBytes(), fail, className);
                     }
                 }
             }, 1000 * 10, TimeUnit.MILLISECONDS);
