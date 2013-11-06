@@ -92,9 +92,12 @@ public class ScatterChartServiceImpl implements ScatterChartService {
                 // 조회에 실패한 경우 span저장에 실패함.
                 // skip한다.
             } else if (spans.size() == 1) {
+                // 1개 뿐이 없는 유일 케이스.
                 result.add(spans.get(0));
             } else {
+                // 재귀일 경우 자신이 선택한 span이 어느 span인지를 선별해야 한다.
                 for (SpanBo span : spans) {
+                    // 정확히 인덱스에 맞는 필터링 조건을 찾아야 함.
                     final TransactionMetadataQuery.QueryCondition queryCondition = query.getQueryConditionByIndex(index);
 
                     final TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
