@@ -33,6 +33,7 @@
 				"terminal" : "${node.serviceType.terminal}",
 				"isWas" : ${node.serviceType.was},
 				"serverList" : {
+					<c:if test="${node.serviceType.desc != 'UNKNOWN_CLOUD'}">
 					<c:forEach items="${node.serverInstanceList}" var="serverInstance" varStatus="status5">
 						"${serverInstance.key}" : {
 							"name" : "${serverInstance.key}", 
@@ -46,6 +47,7 @@
 						}
 						<c:if test="${!status5.last}">,</c:if>
 					</c:forEach>
+					</c:if>
 				}
 			} <c:if test="${!status.last}">,</c:if>
 			</c:forEach>
