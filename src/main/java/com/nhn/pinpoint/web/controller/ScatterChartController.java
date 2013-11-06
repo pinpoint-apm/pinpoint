@@ -49,9 +49,9 @@ public class ScatterChartController {
     @Autowired
     private FilterBuilder filterBuilder;
 
-    private static final String TRACEID = "I";
-    private static final String TIME = "T";
-    private static final String RESPONSE_TIME = "R";
+    private static final String PREFIX_TRANSACTION_ID = "I";
+    private static final String PREFIX_TIME = "T";
+    private static final String PREFIX_RESPONSE_TIME = "R";
 
 	@RequestMapping(value = "/scatterpopup", method = RequestMethod.GET)
 	public String scatterPopup(Model model,
@@ -197,13 +197,12 @@ public class ScatterChartController {
 	}
 
     private TransactionMetadataQuery parseSelectTransaction(HttpServletRequest request) {
-
         final TransactionMetadataQuery query = new TransactionMetadataQuery();
         int index = 0;
         while (true) {
-            String traceId = request.getParameter(TRACEID + index);
-            String time = request.getParameter(TIME + index);
-            String responseTime = request.getParameter(RESPONSE_TIME + index);
+            final String traceId = request.getParameter(PREFIX_TRANSACTION_ID + index);
+            final String time = request.getParameter(PREFIX_TIME + index);
+            final String responseTime = request.getParameter(PREFIX_RESPONSE_TIME + index);
 
             if (traceId == null || time == null || responseTime == null) {
                 break;
@@ -212,6 +211,7 @@ public class ScatterChartController {
             query.addQueryCondition(traceId, Long.parseLong(time), Integer.parseInt(responseTime));
             index++;
         }
+        logger.debug("query:{}", query);
         return query;
     }
 }

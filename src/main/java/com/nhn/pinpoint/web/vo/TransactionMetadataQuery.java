@@ -10,12 +10,9 @@ import java.util.Map.Entry;
  */
 public class TransactionMetadataQuery {
 
-    private static final Object V = new Object();
-	private final LinkedHashMap<QueryCondition, Object> queryConditions;
     private final List<QueryCondition> queryConditionList;
 
 	public TransactionMetadataQuery() {
-		this.queryConditions = new LinkedHashMap<QueryCondition, Object>();
         this.queryConditionList = new ArrayList<QueryCondition>();
 	}
 
@@ -25,42 +22,31 @@ public class TransactionMetadataQuery {
         }
         TransactionId traceId = new TransactionId(transactionId);
         QueryCondition condition = new QueryCondition(traceId, collectorAcceptTime, responseTime);
-
-		if (queryConditions.containsKey(condition)) {
-			return;
-		}
-
-		queryConditions.put(condition, V);
         queryConditionList.add(condition);
 	}
 
-	public boolean isExists(String traceAgentId, long traceAgentStartTime, long traceTransactionId, long collectorAcceptTime, int responseTime) {
-        if (traceAgentId == null) {
-            throw new NullPointerException("traceAgentId must not be null");
-        }
-        final TransactionId traceId = new TransactionId(traceAgentId, traceAgentStartTime, traceTransactionId);
-        final QueryCondition queryCondition = new QueryCondition(traceId, collectorAcceptTime, responseTime);
-        return queryConditions.containsKey(queryCondition);
-	}
 
 	public List<TransactionId> getTransactionIdList() {
-		final List<TransactionId> result = new ArrayList<TransactionId>(queryConditions.size());
-		for (Entry<QueryCondition, Object> entry : queryConditions.entrySet()) {
-			result.add(entry.getKey().getTransactionId());
+		final List<TransactionId> result = new ArrayList<TransactionId>(queryConditionList.size());
+		for (QueryCondition queryCondition : queryConditionList) {
+			result.add(queryCondition.getTransactionId());
 		}
 		return result;
 	}
 
 	public int size() {
-		return queryConditions.size();
+		return queryConditionList.size();
 	}
 
-	@Override
-	public String toString() {
-		return queryConditions.toString();
-	}
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("TransactionMetadataQuery{");
+        sb.append("queryConditionList=").append(queryConditionList);
+        sb.append('}');
+        return sb.toString();
+    }
 
-    public QueryCondition getIndex(int index) {
+    public QueryCondition getQueryConditionByIndex(int index) {
         return queryConditionList.get(index);
     }
 

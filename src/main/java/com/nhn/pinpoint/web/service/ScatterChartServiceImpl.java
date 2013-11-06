@@ -2,7 +2,6 @@ package com.nhn.pinpoint.web.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 
 import com.nhn.pinpoint.web.vo.scatter.Dot;
@@ -42,15 +41,18 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 	}
 
 	@Override
-	public List<Dot> selectScatterData(Collection<TransactionId> traceIds, String applicationName, Filter filter) {
-        if (traceIds == null) {
-            throw new NullPointerException("traceIds must not be null");
+	public List<Dot> selectScatterData(Collection<TransactionId> transactionIdList, String applicationName, Filter filter) {
+        if (transactionIdList == null) {
+            throw new NullPointerException("transactionIdList must not be null");
         }
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
+        if (filter == null) {
+            throw new NullPointerException("filter must not be null");
+        }
 
-        List<List<SpanBo>> traceList = traceDao.selectAllSpans(traceIds);
+        final List<List<SpanBo>> traceList = traceDao.selectAllSpans(transactionIdList);
 
 		List<Dot> list = new ArrayList<Dot>();
 
@@ -74,25 +76,27 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 	 * scatter chart에서 선택한 점에 대한 정보를 조회 하는 메소드.
 	 */
 	@Override
-	public List<SpanBo> selectTransactionMetadata(TransactionMetadataQuery query) {
+	public List<SpanBo> selectTransactionMetadata(final TransactionMetadataQuery query) {
         if (query == null) {
             throw new NullPointerException("query must not be null");
         }
         final List<TransactionId> transactionIdList = query.getTransactionIdList();
-        List<List<SpanBo>> selectedSpans = traceDao.selectSpans(transactionIdList);
+        final List<List<SpanBo>> selectedSpans = traceDao.selectSpans(transactionIdList);
 
 		List<SpanBo> result = new ArrayList<SpanBo>(query.size());
 
 		// 조회된 녀석들 중에서 UUID, starttime, responseTime이 같은것들만 골라냄.
-        // 레인지 체크
         int index = 0;
         for (List<SpanBo> spans : selectedSpans) {
-            if (spans.size() == 1) {
+            if (spans.size() == 0) {
+                // 조회에 실패한 경우 span저장에 실패함.
+                // skip한다.
+            } else if (spans.size() == 1) {
                 result.add(spans.get(0));
             } else {
-                final TransactionMetadataQuery.QueryCondition queryCondition = query.getIndex(index);
                 for (SpanBo span : spans) {
-                    // check UUID and time
+                    final TransactionMetadataQuery.QueryCondition queryCondition = query.getQueryConditionByIndex(index);
+
                     final TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
                     final TransactionMetadataQuery.QueryCondition key = new TransactionMetadataQuery.QueryCondition(transactionId, span.getCollectorAcceptTime(), span.getElapsed());
                     if (queryCondition.equals(key)) {
@@ -103,23 +107,6 @@ public class ScatterChartServiceImpl implements ScatterChartService {
             index++;
 		}
 
-
-
 		return result;
 	}
-
-	private final Comparator<SpanBo> spanComparator = new Comparator<SpanBo>() {
-		@Override
-		public int compare(SpanBo o1, SpanBo o2) {
-			if (o1.getErrCode() != 0 && o2.getErrCode() != 0) {
-				return o2.getElapsed() - o1.getElapsed();
-			} else if (o1.getErrCode() != 0) {
-				return -1;
-			} else if (o2.getErrCode() != 0) {
-				return 1;
-			} else {
-				return o2.getElapsed() - o1.getElapsed();
-			}
-		}
-	};
 }
