@@ -55,16 +55,18 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
 
     @Override
 	public void update(String callerApplicationName, short callerServiceType, String calleeApplicationName, short calleeServiceType, String calleeHost, int elapsed, boolean isError) {
-		if (calleeApplicationName == null) {
-			throw new IllegalArgumentException("calleeApplicationName is null.");
-		}
+        if (calleeApplicationName == null) {
+            throw new NullPointerException("calleeApplicationName must not be null");
+        }
+        if (callerApplicationName == null) {
+            throw new NullPointerException("callerApplicationName must not be null");
+        }
 
-		if (callerApplicationName == null) {
-			throw new IllegalArgumentException("callerApplicationName is null.");
-		}
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("[UpdatingApplicationMapStatisticsCallee] " + callerApplicationName + " (" + ServiceType.findServiceType(callerServiceType) + ")[" + calleeHost + "] -> " + calleeApplicationName + " (" + ServiceType.findServiceType(calleeServiceType) + ")");
+			logger.debug("[UpdatingApplicationMapStatisticsCallee] {} ({})[{}] -> {} ({})",
+                    callerApplicationName, ServiceType.findServiceType(callerServiceType), calleeHost,
+                    calleeApplicationName, ServiceType.findServiceType(calleeServiceType));
 		}
 
         if (calleeHost == null) {
@@ -91,6 +93,12 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
 	}
 
     private void increment(byte[] rowKey, byte[] columnName, long increment) {
+        if (rowKey == null) {
+            throw new NullPointerException("rowKey must not be null");
+        }
+        if (columnName == null) {
+            throw new NullPointerException("columnName must not be null");
+        }
         hbaseTemplate.incrementColumnValue(APPLICATION_MAP_STATISTICS_CALLEE, rowKey, APPLICATION_MAP_STATISTICS_CALLEE_CF_COUNTER, columnName, increment);
     }
 
@@ -104,7 +112,9 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
         Map<RowInfo,ConcurrentCounterMap.LongAdder> remove = this.counter.remove();
         List<Increment> merge = rowKeyMerge.createBulkIncrement(remove);
         if (merge.size() != 0) {
-            logger.debug("flush {} Increment:{}", this.getClass().getSimpleName(), merge.size());
+            if (logger.isDebugEnabled()) {
+                logger.debug("flush {} Increment:{}", this.getClass().getSimpleName(), merge.size());
+            }
             hbaseTemplate.increment(APPLICATION_MAP_STATISTICS_CALLEE, merge);
         }
 

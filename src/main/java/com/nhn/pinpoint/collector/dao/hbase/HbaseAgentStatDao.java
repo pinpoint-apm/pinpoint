@@ -35,7 +35,10 @@ public class HbaseAgentStatDao implements AgentStatDao {
     private AbstractRowKeyDistributor rowKeyDistributor;
 
 	public void insert(final TAgentStat agentStat, final byte[] value) {
-		long timestamp = agentStat.getTimestamp();
+        if (agentStat == null) {
+            throw new NullPointerException("agentStat must not be null");
+        }
+        long timestamp = agentStat.getTimestamp();
 		byte[] key = getDistributedRowKey(agentStat, timestamp);
 
 		Put put = new Put(key);

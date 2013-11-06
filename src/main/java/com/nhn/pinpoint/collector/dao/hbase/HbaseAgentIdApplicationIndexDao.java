@@ -33,7 +33,14 @@ public class HbaseAgentIdApplicationIndexDao implements AgentIdApplicationIndexD
 
 	@Override
 	public void insert(String agentId, String applicationName) {
-		byte[] agentIdByte = Bytes.toBytes(agentId);
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
+        if (applicationName == null) {
+            throw new NullPointerException("applicationName must not be null");
+        }
+
+        byte[] agentIdByte = Bytes.toBytes(agentId);
 		byte[] appNameByte = Bytes.toBytes(applicationName);
 
 		Put put = new Put(agentIdByte);
@@ -44,7 +51,10 @@ public class HbaseAgentIdApplicationIndexDao implements AgentIdApplicationIndexD
 
 	@Override
 	public String selectApplicationName(String agentId) {
-		byte[] rowKey = Bytes.toBytes(agentId);
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
+        byte[] rowKey = Bytes.toBytes(agentId);
 		Get get = new Get(rowKey);
 		get.addFamily(AGENTID_APPLICATION_INDEX_CF_APPLICATION);
 

@@ -31,6 +31,9 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
 
     @Override
     public void insert(TStringMetaData stringMetaData) {
+        if (stringMetaData == null) {
+            throw new NullPointerException("stringMetaData must not be null");
+        }
         if (logger.isDebugEnabled()) {
             logger.debug("insert:{}", stringMetaData);
         }

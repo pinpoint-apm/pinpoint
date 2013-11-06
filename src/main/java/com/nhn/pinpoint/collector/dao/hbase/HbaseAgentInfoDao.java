@@ -28,7 +28,11 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
 	@Override
 	public void insert(TAgentInfo agentInfo) {
-		if (logger.isDebugEnabled()) {
+        if (agentInfo == null) {
+            throw new NullPointerException("agentInfo must not be null");
+        }
+
+        if (logger.isDebugEnabled()) {
 			logger.debug("insert agent info. {}", agentInfo);
 		}
 

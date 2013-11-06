@@ -50,6 +50,9 @@ public class HbaseTraceDao implements TracesDao {
 
     @Override
     public void insert(final TSpan span) {
+        if (span == null) {
+            throw new NullPointerException("span must not be null");
+        }
 
         SpanBo spanBo = new SpanBo(span);
         final byte[] rowKey = getDistributeRowKey(SpanUtils.getTransactionId(span));

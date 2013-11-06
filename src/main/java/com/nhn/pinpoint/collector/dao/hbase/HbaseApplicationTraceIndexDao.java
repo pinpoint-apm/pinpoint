@@ -40,6 +40,9 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
 	@Override
 	public void insert(final TSpan span) {
+        if (span == null) {
+            throw new NullPointerException("span must not be null");
+        }
 
         final Buffer buffer = new AutomaticBuffer(10 + AGENT_NAME_MAX_LEN);
         buffer.putVar(span.getElapsed());

@@ -42,6 +42,13 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
 	@Override
 	public void insert(String host, String applicationName, short serviceType) {
+        if (host == null) {
+            throw new NullPointerException("host must not be null");
+        }
+        if (applicationName == null) {
+            throw new NullPointerException("applicationName must not be null");
+        }
+
         final long statisticsRowSlot = getSlotTime();
 
         final CacheKey cacheKey = new CacheKey(host, applicationName, serviceType);
