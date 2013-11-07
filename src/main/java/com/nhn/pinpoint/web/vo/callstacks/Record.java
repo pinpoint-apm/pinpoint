@@ -1,5 +1,8 @@
 package com.nhn.pinpoint.web.vo.callstacks;
 
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+
 import com.nhn.pinpoint.common.ServiceType;
 
 /**
@@ -81,11 +84,13 @@ public class Record {
 	}
 
 	public String getTitle() {
-		return title;
+		// FIXME 예쁘게 고쳐주세요.
+		return StringEscapeUtils.escapeJavaScript(title);
+		//return title.replaceAll("\n", "\\n").replaceAll("\"", "\\\"");
 	}
 
 	public String getArguments() {
-		return arguments;
+		return StringEscapeUtils.escapeJavaScript(arguments);
 	}
 
 	public long getBegin() {
