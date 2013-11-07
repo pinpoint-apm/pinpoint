@@ -97,7 +97,7 @@ public class LinkStatistics {
 	}
 
 	public void addSample(long timestamp, int responseTimeslot, long callCount, boolean isFailed) {
-		logger.info("Add sample. timeslot=" + timestamp + ", responseTimeslot=" + responseTimeslot + ", callCount=" + callCount + ", failed=" + isFailed);
+		logger.debug("Add sample. timeslot=" + timestamp + ", responseTimeslot=" + responseTimeslot + ", callCount=" + callCount + ", failed=" + isFailed);
 
 		timestamp = TimeWindowUtils.refineTimestamp(from, to, timestamp);
 
