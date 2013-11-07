@@ -700,6 +700,14 @@
             </properties>
         </profile>
 
+        <!-- Test server -->
+        <profile>
+            <id>test</id>
+            <properties>
+                <env>test</env>
+            </properties>
+        </profile>
+        
         <!-- Development server -->
         <profile>
             <id>dev</id>
