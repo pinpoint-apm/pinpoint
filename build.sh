@@ -1,4 +1,4 @@
-VERSION="0.0.4-SNAPSHOT"
+VERSION="0.0.4"
 DEPLOY_DIR="../pinpoint-testbed/pinpoint-collector/webapps"
 FILENAME="pinpoint-collector-$VERSION.war"
 
@@ -17,7 +17,7 @@ else
 	echo "*********************"
 fi
 
-rm -fr $DEPLOY_DIR/pinpoint-collector-$VERSION
+rm -fr $DEPLOY_DIR/*
 rc=$?
 if [[ $rc != 0 ]] ; then
         echo "BUILD FAILED $rc"
