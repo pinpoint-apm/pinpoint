@@ -13,7 +13,8 @@ cp $HOME/pinpoint-testbed/agent/lib/pinpoint-profiler-$VERSION.jar $HOME/pinpoin
 cp $HOME/pinpoint-testbed/agent/lib/pinpoint-rpc-$VERSION.jar $HOME/pinpoint-testbed/agent-org/
 
 echo "Obfuscating"
-proguard.sh @proguard-$VERSION.conf
+RT_JAR="/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Home/lib/rt.jar"
+proguard.sh -libraryjars $RT_JAR @proguard-$VERSION.conf
 
 echo "Replace original"
 cp $HOME/pinpoint-bootstrap/target/pinpoint-bootstrap-$VERSION-obfuscated.jar $HOME/pinpoint-testbed/agent/pinpoint-bootstrap-$VERSION.jar
