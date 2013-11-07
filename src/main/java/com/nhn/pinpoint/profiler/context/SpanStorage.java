@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler.context;
 
 import com.nhn.pinpoint.profiler.sender.DataSender;
+import com.nhn.pinpoint.thrift.dto.TSpanEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,9 +9,9 @@ import java.util.List;
 /**
  * @author emeroad
  */
-public class SpanStorage implements Storage{
+public class SpanStorage implements Storage {
 
-    private List spanEventList = new ArrayList(10);
+    private List<TSpanEvent> spanEventList = new ArrayList<TSpanEvent>(10);
     private final DataSender dataSender;
 
     public SpanStorage(DataSender dataSender) {
@@ -25,8 +26,9 @@ public class SpanStorage implements Storage{
         if (spanEvent == null) {
             throw new NullPointerException("spanEvent must not be null");
         }
+        final List<TSpanEvent> spanEventList = this.spanEventList;
         if (spanEventList != null) {
-            this.spanEventList.add(spanEvent);
+            spanEventList.add(spanEvent);
         } else {
             throw new IllegalStateException("spanEventList is null");
         }

@@ -24,14 +24,14 @@ public class SpanChunkFactory {
             throw new NullPointerException("flushData must not be null");
         }
         // TODO 반드시 1개 이상이라는 조건을 충족해야 된다.
-        if (flushData.size() > 0) {
-            throw new IllegalArgumentException("flushData.size() > 0 " + flushData.size());
+        if (flushData.size() < 1) {
+            throw new IllegalArgumentException("flushData.size() < 1 size:" + flushData.size());
         }
 
 
         final SpanEvent first = flushData.get(0);
         if (first == null) {
-            throw new IllegalStateException("first spanEvent not found");
+            throw new IllegalStateException("first SpanEvent is null");
         }
         final Span parentSpan = first.getSpan();
         final String agentId = this.agentInformation.getAgentId();
