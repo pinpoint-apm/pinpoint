@@ -16,9 +16,9 @@ echo "Obfuscating"
 proguard.sh @proguard-$VERSION.conf
 
 echo "Replace original"
-cp $HOME/pinpoint-testbed/agent-obfuscated/pinpoint-bootstrap-$VERSION.jar $HOME/pinpoint-testbed/agent/
-cp $HOME/pinpoint-testbed/agent-obfuscated/pinpoint-profiler-$VERSION.jar $HOME/pinpoint-testbed/agent/lib
-cp $HOME/pinpoint-testbed/agent-obfuscated/pinpoint-rpc-$VERSION.jar $HOME/pinpoint-testbed/agent/lib
+cp $HOME/pinpoint-bootstrap/target/pinpoint-bootstrap-$VERSION-obfuscated.jar $HOME/pinpoint-testbed/agent/pinpoint-bootstrap-$VERSION.jar
+cp $HOME/pinpoint-profiler/target/pinpoint-profiler-$VERSION-obfuscated.jar $HOME/pinpoint-testbed/agent/lib/pinpoint-profiler-$VERSION.jar
+cp $HOME/pinpoint-rpc/target/pinpoint-rpc-$VERSION-obfuscated.jar $HOME/pinpoint-testbed/agent/lib/pinpoint-rpc-$VERSION.jar
 
 echo "Result is..."
 ls -al $HOME/pinpoint-testbed/agent-obfuscated
