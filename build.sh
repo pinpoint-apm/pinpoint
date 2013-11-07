@@ -7,7 +7,7 @@ rm $DEPLOY_DIR/$FILENAME
 #profile
 PROFILE=""
 if [ "$1" != "" ] ; then
-	$PROFILE="-P$1"
+	PROFILE="-P $1"
 	echo "*********************"
 	echo "USING PROFILE $1"
 	echo "*********************"
