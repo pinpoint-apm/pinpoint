@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.nhn.pinpoint</groupId>
     <artifactId>pinpoint-commons</artifactId>
-    <version>0.0.4-SNAPSHOT</version>
+    <version>0.0.4</version>
     <name>pinpoint-commons</name>
     <packaging>jar</packaging>
 
@@ -45,7 +45,7 @@
         <dependency>
             <groupId>com.nhn.pinpoint</groupId>
             <artifactId>pinpoint-thrift</artifactId>
-            <version>0.0.4-SNAPSHOT</version>
+            <version>0.0.4</version>
             <scope>provided</scope>
         </dependency>
         <!-- commons 의 경우 agent에서 사용할 경우도 있어 lib가 딸려 들어가면 문제가 될수 있어 optional로 함.-->
