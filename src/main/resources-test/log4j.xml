@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
+
+    <appender name="console" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.EnhancedPatternLayout">
+            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-35c{1.}:%-3L) %m%n" />
+            <!-- %L 옵션은 라인넘버가 출력되나 속도저하가 심하다. -->
+            <!--<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-30c{1}) %m%n" />-->
+        </layout>
+    </appender>
+
+    <appender name="dailyRollingFile" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="file" value="${pinpoint.log}/pinpoint.log" />
+        <param name="Append" value="true" />
+        <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+
+        <layout class="org.apache.log4j.EnhancedPatternLayout">
+            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-35c{1.}) %m%n" />
+            <!-- %L 옵션은 라인넘버가 출력되나 속도저하가 심하다. -->
+            <!--<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-30c{1}) %m%n" />-->
+        </layout>
+
+    </appender>
+
+
+    <logger name="com.nhn.pinpoint" additivity="false">
+        <level value="DEBUG" />
+        <appender-ref ref="console" />
+        <appender-ref ref="dailyRollingFile" />
+    </logger>
+
+
+
+    <root>
+        <level value="DEBUG" />
+        <appender-ref ref="console" />
+        <appender-ref ref="dailyRollingFile" />
+    </root>
+</log4j:configuration>

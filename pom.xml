@@ -400,6 +400,15 @@
                 <compiler-debug>true</compiler-debug>
             </properties>
         </profile>
+        
+        <!-- Test server -->
+        <profile>
+            <id>test</id>
+            <properties>
+                <env>test</env>
+                <compiler-debug>true</compiler-debug>
+            </properties>
+        </profile>
 
         <!-- Development server -->
         <profile>
