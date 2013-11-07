@@ -36,7 +36,7 @@ import com.nhn.pinpoint.web.util.TimeWindowUtils;
  * @author netspider
  * 
  */
-public class TimeSeriesStoreImpl implements TimeSeriesStore {
+public class TimeSeriesStoreImpl1 implements TimeSeriesStore {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -67,12 +67,12 @@ public class TimeSeriesStoreImpl implements TimeSeriesStore {
 	
 	public static TimeSeriesStore getInstance(long from, long to) {
 //		if (from == -1L || to == -1L) {
-			return TimeSeriesStoreImpl.EMPTY;
+			return TimeSeriesStoreImpl1.EMPTY;
 //		}
 //		return new TimeSeriesStoreImpl(from, to);
 	}
 	
-	private TimeSeriesStoreImpl(long from, long to) {
+	private TimeSeriesStoreImpl1(long from, long to) {
 		this.from = from;
 		this.to = to;
 		windowSize = TimeWindowUtils.getWindowSize(from, to);
