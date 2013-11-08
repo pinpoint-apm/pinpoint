@@ -24,10 +24,20 @@ public class PinpointBootStrap {
 
     public static final String BOOT_CLASS = "com.nhn.pinpoint.profiler.DefaultAgent";
 
+    public static final String BOOT_STRAP_LOAD_STATE = "com.nhn.pinpoint.bootstrap.load.state";
+    public static final String BOOT_STRAP_LOAD_STATE_LOADING = "LOADING";
+    public static final String BOOT_STRAP_LOAD_STATE_COMPLETE = "COMPLETE";
+    public static final String BOOT_STRAP_LOAD_STATE_ERROR = "ERROR";
 
     public static void premain(String agentArgs, Instrumentation instrumentation) {
         if (agentArgs != null) {
             logger.info(ProductInfo.CAMEL_NAME + " agentArgs:" + agentArgs);
+        }
+        final boolean duplicated = checkDuplicateLoadState();
+        if (duplicated) {
+            // 중복 케이스는 내가 처리하면 안됨. 아래와 같은 코드는 없어야 한다.
+            //loadStateChange(BOOT_STRAP_LOAD_STATE_ERROR);
+            return;
         }
 
         ClassPathResolver classPathResolver = new ClassPathResolver();
@@ -35,18 +45,22 @@ public class PinpointBootStrap {
         if (!agentJarNotFound) {
             // TODO 이거 변경해야 함.
             logger.severe("pinpoint-bootstrap-x.x.x.jar not found.");
+            loadStateChange(BOOT_STRAP_LOAD_STATE_ERROR);
             return;
         }
 
         if (!checkProfilerIdSize("pinpoint.agentId", PinpointConstants.AGENT_NAME_MAX_LEN)) {
+            loadStateChange(BOOT_STRAP_LOAD_STATE_ERROR);
             return;
         }
         if (!checkProfilerIdSize("pinpoint.applicationName", PinpointConstants.APPLICATION_NAME_MAX_LEN)) {
+            loadStateChange(BOOT_STRAP_LOAD_STATE_ERROR);
             return;
         }
 
         String configPath = getConfigPath(classPathResolver);
         if (configPath == null ) {
+            loadStateChange(BOOT_STRAP_LOAD_STATE_ERROR);
             // 설정파일을 못찾으므로 종료.
             return;
         }
@@ -65,10 +79,30 @@ public class PinpointBootStrap {
             logger.info("pinpoint agent start.");
             agentClassLoader.boot(agentArgs, instrumentation, profilerConfig);
             logger.info("pinpoint agent start success.");
+            loadStateChange(BOOT_STRAP_LOAD_STATE_COMPLETE);
         } catch (Exception e) {
             logger.log(Level.SEVERE, ProductInfo.CAMEL_NAME + " start fail. Caused:" + e.getMessage(), e);
+            // 위에서 리턴하는거에서 세는게 이
+            loadStateChange(BOOT_STRAP_LOAD_STATE_ERROR);
         }
 
+    }
+
+    private static void loadStateChange(String loadState) {
+        System.setProperty(BOOT_STRAP_LOAD_STATE, loadState);
+    }
+
+    private static boolean checkDuplicateLoadState() {
+        final String exist = System.getProperty(BOOT_STRAP_LOAD_STATE);
+        if (exist == null) {
+            loadStateChange(BOOT_STRAP_LOAD_STATE_LOADING);
+        } else {
+            if (logger.isLoggable(Level.SEVERE)) {
+                logger.severe("pinpoint-bootstrap already started. skip agent loading. loadState:" + exist);
+            }
+            return true;
+        }
+        return false;
     }
 
     private static boolean checkProfilerIdSize(String propertyName, int maxSize) {
