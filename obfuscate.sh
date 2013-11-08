@@ -1,5 +1,5 @@
 HOME="/Users/netspider/Documents/workspace_pinpoint"
-VERSION="0.0.4"
+VERSION="1.0.0-SNAPSHOT"
 
 echo "Remove previous"
 rm -fr $HOME/pinpoint-testbed/agent-obfuscated

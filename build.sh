@@ -1,4 +1,4 @@
-VERSION="0.0.4"
+VERSION="1.0.0-SNAPSHOT"
 DEPLOY_DIR="../pinpoint-testbed/agent"
 
 #profile
