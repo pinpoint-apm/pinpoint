@@ -3,7 +3,7 @@ package com.nhn.pinpoint.web.mapper;
 import com.nhn.pinpoint.common.bo.AnnotationBo;
 import com.nhn.pinpoint.common.bo.AnnotationBoList;
 import com.nhn.pinpoint.common.buffer.Buffer;
-import com.nhn.pinpoint.common.buffer.FixedBuffer;
+import com.nhn.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
@@ -33,7 +33,7 @@ public class AnnotationMapper implements RowMapper<Map<Long, List<AnnotationBo>>
 
         for (KeyValue kv : keyList) {
             final byte[] bytes = kv.getBuffer();
-            Buffer buffer = new FixedBuffer(bytes, kv.getQualifierOffset());
+            Buffer buffer = new OffsetFixedBuffer(bytes, kv.getQualifierOffset());
             long spanId = buffer.readLong();
             if (Bytes.equals(kv.getFamily(), HBaseTables.TRACES_CF_ANNOTATION)) {
                 int valueLength = kv.getValueLength();

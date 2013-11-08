@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
 import com.nhn.pinpoint.common.buffer.Buffer;
-import com.nhn.pinpoint.common.buffer.FixedBuffer;
+import com.nhn.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
-import com.nhn.pinpoint.common.util.SpanUtils;
 import com.nhn.pinpoint.common.util.TimeUtils;
 import com.nhn.pinpoint.web.vo.TransactionId;
 import com.nhn.pinpoint.web.vo.scatter.Dot;
@@ -45,7 +43,7 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
         final byte[] buffer = kv.getBuffer();
 
         final int valueOffset = kv.getValueOffset();
-        final Buffer valueBuffer = new FixedBuffer(buffer, valueOffset);
+        final Buffer valueBuffer = new OffsetFixedBuffer(buffer, valueOffset);
         int elapsed = valueBuffer.readVarInt();
         int exceptionCode = valueBuffer.readSVarInt();
         String agentId = valueBuffer.readPrefixedString();
@@ -64,7 +62,7 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
         if (bytes == null) {
             throw new NullPointerException("bytes must not be null");
         }
-        final Buffer buffer = new FixedBuffer(bytes, offset);
+        final Buffer buffer = new OffsetFixedBuffer(bytes, offset);
         String agentId = buffer.readPrefixedString();
         long agentStartTime = buffer.readSVarLong();
         long transactionSequence = buffer.readVarLong();

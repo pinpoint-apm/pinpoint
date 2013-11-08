@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.nhn.pinpoint.common.buffer.Buffer;
-import com.nhn.pinpoint.common.buffer.FixedBuffer;
+import com.nhn.pinpoint.common.buffer.OffsetFixedBuffer;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.slf4j.Logger;
@@ -49,7 +49,7 @@ public class TransactionIdMapper implements RowMapper<List<TransactionId>> {
         if (bytes == null) {
             throw new NullPointerException("bytes must not be null");
         }
-        final Buffer buffer = new FixedBuffer(bytes, offset);
+        final Buffer buffer = new OffsetFixedBuffer(bytes, offset);
         String agentId = buffer.readPrefixedString();
         long agentStartTime = buffer.readSVarLong();
         long transactionSequence = buffer.readVarLong();
