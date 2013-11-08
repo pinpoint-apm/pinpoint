@@ -20,7 +20,13 @@ public class DefaultDatabaseInfo implements DatabaseInfo {
     private String multipleHost;
 
 	public DefaultDatabaseInfo(ServiceType type, ServiceType executeQueryType, String realUrl, String normalizedUrl, List<String> host, String databaseId) {
-		this.type = type;
+        if (type == null) {
+            throw new NullPointerException("type must not be null");
+        }
+        if (executeQueryType == null) {
+            throw new NullPointerException("executeQueryType must not be null");
+        }
+        this.type = type;
         this.executeQueryType = executeQueryType;
 		this.realUrl = realUrl;
 		this.normalizedUrl = normalizedUrl;

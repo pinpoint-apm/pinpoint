@@ -1,6 +1,9 @@
 package com.nhn.pinpoint.profiler.modifier.db;
 
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.profiler.context.DatabaseInfo;
+import com.nhn.pinpoint.profiler.modifier.db.cubrid.CubridConnectionStringParser;
+import com.nhn.pinpoint.profiler.modifier.db.mysql.MySqlConnectionStringParser;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.parser.Description;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.parser.KeyValue;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.parser.OracleConnectionStringException;
@@ -12,26 +15,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author emeroad
  */
 public class JDBCUrlParser {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final ConcurrentMap<String, DefaultDatabaseInfo> cache = new ConcurrentHashMap<String, DefaultDatabaseInfo>();
+    private final ConcurrentMap<String, DatabaseInfo> cache = new ConcurrentHashMap<String, DatabaseInfo>();
 
 
-    public DefaultDatabaseInfo parse(String url) {
-        final DefaultDatabaseInfo hit = cache.get(url);
+    public DatabaseInfo parse(String url) {
+        final DatabaseInfo hit = cache.get(url);
         if (hit != null) {
             logger.debug("database url cache hit:{} {}", url, hit);
             return hit;
         }
 
-        final DefaultDatabaseInfo databaseInfo = doParse(url);
-        final DefaultDatabaseInfo old = cache.putIfAbsent(url, databaseInfo);
+        final DatabaseInfo databaseInfo = doParse(url);
+        final DatabaseInfo old = cache.putIfAbsent(url, databaseInfo);
         if (old != null) {
             return old;
         }
@@ -84,7 +85,7 @@ public class JDBCUrlParser {
 //        return null;
     }
 
-    private DefaultDatabaseInfo doParse(String url) {
+    private DatabaseInfo doParse(String url) {
         // jdbc 체크
         String lowCaseURL = url.toLowerCase().trim();
         if (!lowCaseURL.startsWith("jdbc:")) {
@@ -133,7 +134,7 @@ public class JDBCUrlParser {
 //    )
 
 
-    private DefaultDatabaseInfo parseOracle(String url) {
+    private DatabaseInfo parseOracle(String url) {
         StringMaker maker = new StringMaker(url);
         maker.after("jdbc:oracle:").after(":");
         String description = maker.after('@').value().trim();
@@ -144,7 +145,7 @@ public class JDBCUrlParser {
         }
     }
 
-    private DefaultDatabaseInfo parseNetConnectionUrl(String url) {
+    private DatabaseInfo parseNetConnectionUrl(String url) {
         try {
             // oracle new URL : rac용
             OracleNetConnectionDescriptorParser parser = new OracleNetConnectionDescriptorParser(url);
@@ -156,12 +157,12 @@ public class JDBCUrlParser {
             logger.warn("OracleConnectionString parse error. url:{} Caused:", new Object[]{url, ex.getMessage(), ex});
 
             // 에러찍고 그냥 unknownDataBase 생성
-            return createUnknownDataBase(url);
+            return createUnknownDataBase(ServiceType.ORACLE, ServiceType.ORACLE_EXECUTE_QUERY, url);
         } catch (Throwable ex) {
             // 나중에 좀더 정교하게 exception을 던지게 되면 OracleConnectionStringException 만 잡는것으로 바꿔야 될듯하다.
             logger.warn("OracleConnectionString parse error. url:{} Caused:", new Object[]{url, ex.getMessage(), ex});
             // 에러찍고 그냥 unknownDataBase 생성
-            return createUnknownDataBase(url);
+            return createUnknownDataBase(ServiceType.ORACLE, ServiceType.ORACLE_EXECUTE_QUERY, url);
         }
     }
 
@@ -179,7 +180,7 @@ public class JDBCUrlParser {
         return new DefaultDatabaseInfo(ServiceType.ORACLE, ServiceType.ORACLE_EXECUTE_QUERY, url, url, hostList, databaseId);
     }
 
-    private DefaultDatabaseInfo createOracleDatabaseInfo(KeyValue keyValue, String url) {
+    private DatabaseInfo createOracleDatabaseInfo(KeyValue keyValue, String url) {
 
         Description description = new Description(keyValue);
         List<String> jdbcHost = description.getJdbcHost();
@@ -189,101 +190,26 @@ public class JDBCUrlParser {
     }
 
 
-    private DefaultDatabaseInfo createUnknownDataBase(String url) {
+    public static DatabaseInfo createUnknownDataBase(String url) {
+        return createUnknownDataBase(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, url);
+    }
+
+    public static DatabaseInfo createUnknownDataBase(ServiceType type, ServiceType executeQueryType, String url) {
         List<String> list = new ArrayList<String>();
         list.add("error");
-        return new DefaultDatabaseInfo(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, url, url, list, "error");
+        return new DefaultDatabaseInfo(type, executeQueryType, url, url, list, "error");
     }
 
 
-    private DefaultDatabaseInfo parseMysql(String url) {
-        //            jdbc:mysql://10.98.133.22:3306/test_lucy_db
-        StringMaker maker = new StringMaker(url);
-        maker.after("jdbc:mysql:");
-        // 10.98.133.22:3306 replacation driver같은 경우 n개가 가능할듯.
-        // mm db? 의 경우도 고려해야 될듯하다.
-        String host = maker.after("//").before('/').value();
-        List<String> hostList = new ArrayList<String>(1);
-        hostList.add(host);
-//        String port = maker.next().after(':').before('/').value();
-
-        String databaseId = maker.next().afterLast('/').before('?').value();
-        String normalizedUrl = maker.clear().before('?').value();
-        return new DefaultDatabaseInfo(ServiceType.MYSQL, ServiceType.MYSQL_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
+    private DatabaseInfo parseMysql(String url) {
+        final ConnectionStringParser parser = new MySqlConnectionStringParser();
+        return parser.parse(url);
     }
     
-    /*
-	private DatabaseInfo parseCubrid(String url) {
-		// jdbc:cubrid:10.101.57.233:30102:pinpoint:::
-		StringMaker maker = new StringMaker(url);
-		maker.after("jdbc:cubrid:");
-		// 10.98.133.22:3306 replacation driver같은 경우 n개가 가능할듯.
-		// mm db? 의 경우도 고려해야 될듯하다.
-		String host = maker.after("//").before('/').value();
-		List<String> hostList = new ArrayList<String>(1);
-		hostList.add(host);
-		// String port = maker.next().after(':').before('/').value();
 
-		String databaseId = maker.next().afterLast('/').before('?').value();
-		String normalizedUrl = maker.clear().before('?').value();
-		
-		return new DatabaseInfo(ServiceType.CUBRID, ServiceType.CUBRID_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
-	}
-	*/
 	
-	private DefaultDatabaseInfo parseCubrid(String url) {
-		final String default_hostname = "localhost";
-		final int default_port = 30000;
-		final String default_user = "public";
-		final String default_password = "";
-
-		final String URL_PATTERN = "jdbc:cubrid(-oracle|-mysql)?:([a-zA-Z_0-9\\.-]*):([0-9]*):([^:]+):([^:]*):([^:]*):(\\?[a-zA-Z_0-9]+=[^&=?]+(&[a-zA-Z_0-9]+=[^&=?]+)*)?";
-
-		Pattern pattern = Pattern.compile(URL_PATTERN, Pattern.CASE_INSENSITIVE);
-		Matcher matcher = pattern.matcher(url);
-
-		if (!matcher.find()) {
-			return createUnknownDataBase(url);
-		}
-
-		String host = matcher.group(2);
-		String portString = matcher.group(3);
-		String db = matcher.group(4);
-		String user = matcher.group(5);
-		String pass = matcher.group(6);
-		String prop = matcher.group(7);
-		int port = default_port;
-
-		String resolvedUrl;
-
-		if (host == null || host.length() == 0) {
-			host = default_hostname;
-		}
-
-		if (portString == null || portString.length() == 0) {
-			port = default_port;
-		} else {
-			port = Integer.parseInt(portString);
-		}
-
-		if (user == null) {
-			user = default_user;
-		}
-		
-		if (pass == null) {
-			pass = default_password;
-		}
-
-		resolvedUrl = "jdbc:cubrid:" + host + ":" + port + ":" + db + ":" + user + ":********:";
-
-		StringMaker maker = new StringMaker(url);
-		String normalizedUrl = maker.clear().before('?').value();
-
-		List<String> hostList = new ArrayList<String>(1);
-		hostList.add(host);
-
-		// alt host는 제외.
-
-		return new DefaultDatabaseInfo(ServiceType.CUBRID, ServiceType.CUBRID_EXECUTE_QUERY, url, normalizedUrl, hostList, db);
+	private DatabaseInfo parseCubrid(String url) {
+        final ConnectionStringParser parser = new CubridConnectionStringParser();
+        return parser.parse(url);
 	}
 }
