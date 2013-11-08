@@ -20,9 +20,6 @@ public class AutomaticBuffer extends FixedBuffer {
         super(buffer);
     }
 
-    public AutomaticBuffer(final byte[] buffer, final int offset) {
-        super(buffer, offset);
-    }
 
     private void checkExpend(final int size) {
         int length = buffer.length;

@@ -13,21 +13,6 @@ public class FixedBufferTest {
 
 
     @Test
-    public void testFixedBuffer() throws Exception {
-        new FixedBuffer(new byte[10], 10);
-        try {
-            new FixedBuffer(new byte[10], 11);
-            Assert.fail();
-        } catch (Exception e) {
-        }
-        try {
-            new FixedBuffer(new byte[10], -1);
-            Assert.fail();
-        } catch (Exception e) {
-        }
-    }
-
-    @Test
     public void testPutPrefixedBytes() throws Exception {
         String test = "test";
         int expected = 3333;

@@ -5,13 +5,13 @@ import java.util.List;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
+import com.nhn.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.nhn.pinpoint.common.util.TransactionId;
 import com.nhn.pinpoint.common.util.TransactionIdUtils;
 import com.nhn.pinpoint.thrift.dto.TAnnotation;
 import com.nhn.pinpoint.thrift.dto.TIntStringValue;
 import com.nhn.pinpoint.thrift.dto.TSpan;
 import com.nhn.pinpoint.common.buffer.Buffer;
-import com.nhn.pinpoint.common.buffer.FixedBuffer;
 
 /**
  * @author emeroad
@@ -390,7 +390,7 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
     }
 
     public int readValue(byte[] bytes, int offset) {
-        final Buffer buffer = new FixedBuffer(bytes, offset);
+        final Buffer buffer = new OffsetFixedBuffer(bytes, offset);
 
         this.version = buffer.readByte();
 

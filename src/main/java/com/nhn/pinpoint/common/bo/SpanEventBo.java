@@ -5,11 +5,11 @@ import java.util.List;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
+import com.nhn.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.nhn.pinpoint.common.util.TransactionId;
 import com.nhn.pinpoint.common.util.TransactionIdUtils;
 import com.nhn.pinpoint.thrift.dto.*;
 import com.nhn.pinpoint.common.buffer.Buffer;
-import com.nhn.pinpoint.common.buffer.FixedBuffer;
 
 /**
  * @author emeroad
@@ -386,7 +386,7 @@ public class SpanEventBo implements Span {
 
 
 	public int readValue(byte[] bytes, int offset) {
-        final Buffer buffer = new FixedBuffer(bytes, offset);
+        final Buffer buffer = new OffsetFixedBuffer(bytes, offset);
 
 		this.version = buffer.readByte();
 

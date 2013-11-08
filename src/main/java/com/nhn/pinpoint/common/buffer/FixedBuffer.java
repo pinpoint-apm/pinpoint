@@ -16,11 +16,11 @@ public class FixedBuffer implements Buffer {
         this(32);
     }
 
-    public FixedBuffer(final int size) {
-        if (size < 0) {
-            throw new IllegalArgumentException("size:" + size);
+    public FixedBuffer(final int bufferSize) {
+        if (bufferSize < 0) {
+            throw new IllegalArgumentException("negative bufferSize:" + bufferSize);
         }
-        this.buffer = new byte[size];
+        this.buffer = new byte[bufferSize];
         this.offset = 0;
     }
 
@@ -32,19 +32,6 @@ public class FixedBuffer implements Buffer {
         this.offset = 0;
     }
 
-    public FixedBuffer(final byte[] buffer, final int offset) {
-        if (buffer == null) {
-            throw new NullPointerException("buffer must not be null");
-        }
-        if (offset < 0) {
-            throw new IllegalArgumentException("negative offset:" + offset);
-        }
-        if (offset > buffer.length) {
-            throw new IllegalArgumentException("offset:" + offset + " > buffer.length:" + buffer.length);
-        }
-        this.buffer = buffer;
-        this.offset = offset;
-    }
 
     @Override
     public void putPrefixedBytes(final byte[] bytes) {
