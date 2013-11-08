@@ -1,9 +1,7 @@
 package com.nhn.pinpoint.web.vo.callstacks;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-
 import com.nhn.pinpoint.common.ServiceType;
+import org.json.simple.JSONObject;
 
 /**
  * each stack
@@ -84,13 +82,15 @@ public class Record {
 	}
 
 	public String getTitle() {
-		// FIXME 예쁘게 고쳐주세요.
-		return StringEscapeUtils.escapeJavaScript(title);
-		//return title.replaceAll("\n", "\\n").replaceAll("\"", "\\\"");
+        // TODO 일단 이걸로 땜방.
+        // 나중에 json serializer로 대체하자.
+        return escapeJson(title);
 	}
 
 	public String getArguments() {
-		return StringEscapeUtils.escapeJavaScript(arguments);
+        // TODO 일단 이걸로 땜방.
+        // 나중에 json serializer로 대체하자.
+        return escapeJson(arguments);
 	}
 
 	public long getBegin() {
@@ -163,6 +163,10 @@ public class Record {
     
     public boolean getHasException() {
     	return hasException;
+    }
+
+    private String escapeJson(String string) {
+        return JSONObject.escape(string);
     }
 
     @Override

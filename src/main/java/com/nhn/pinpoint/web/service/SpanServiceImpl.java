@@ -133,7 +133,7 @@ public class SpanServiceImpl implements SpanService {
 						annotationBoList.add(sql);
 					} else {
 						logger.debug("sqlMetaDataBo:{}", sqlMetaDataBo);
-						String outputParams = sqlParam;
+						final String outputParams = sqlParam;
 						List<String> parsedOutputParams = outputParameterParser.parseOutputParameter(outputParams);
 						logger.debug("outputPrams:{}, parsedOutputPrams:{}", outputParams, parsedOutputParams);
 						String originalSql = sqlParser.combineOutputParams(sqlMetaDataBo.getSql(), parsedOutputParams);
