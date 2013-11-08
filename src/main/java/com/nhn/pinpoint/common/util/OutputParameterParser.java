@@ -17,10 +17,10 @@ public class OutputParameterParser {
             return Collections.emptyList();
         }
 
-        final LinkedList<String> result = new LinkedList<String>();
+        final List<String> result = new LinkedList<String>();
         StringBuilder params = new StringBuilder();
         for (int index = 0; index < outputParams.length(); index++) {
-            char ch = outputParams.charAt(index);
+            final char ch = outputParams.charAt(index);
             if (ch == SEPARATOR) {
                 if (lookAhead1(outputParams, index) == SEPARATOR) {
                     params.append(SEPARATOR);
