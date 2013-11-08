@@ -40,7 +40,6 @@ public class ConnectInterceptor implements SimpleAroundInterceptor, ByteCodeMeth
         // sampling 레이트를 추가로 확인하여 액션을 취하는 로직이 없으므로 그냥 currentTraceObject()를 호출한다.
 		Trace trace = traceContext.currentTraceObject();
 		if (trace == null) {
-			logger.warn("Trace object is null");
 			return;
 		}
 

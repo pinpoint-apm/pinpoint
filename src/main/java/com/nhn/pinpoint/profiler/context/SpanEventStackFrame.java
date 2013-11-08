@@ -4,7 +4,7 @@ package com.nhn.pinpoint.profiler.context;
  * @author emeroad
  */
 public class SpanEventStackFrame implements StackFrame {
-    private SpanEvent spanEvent;
+    private final SpanEvent spanEvent;
     private int stackId;
 
     public SpanEventStackFrame(SpanEvent spanEvent) {

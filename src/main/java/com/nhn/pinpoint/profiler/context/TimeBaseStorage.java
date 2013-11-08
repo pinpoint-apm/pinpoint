@@ -62,7 +62,6 @@ public class TimeBaseStorage implements Storage {
             // 1초가 지났다면.
             // 데이터가 flushCount이상일 경우 먼저 flush한다.
             List<SpanEvent> flushData = null;
-            boolean add;
             synchronized (this) {
                 addSpanEvent(spanEvent);
                 if (storage.size() >= bufferSize) {
@@ -79,15 +78,15 @@ public class TimeBaseStorage implements Storage {
     }
 
     private void addSpanEvent(SpanEvent spanEvent) {
+        final List<SpanEvent> storage = this.storage;
         if (storage == null) {
             if (logger.isErrorEnabled()) {
-                logger.error("storage is null. direct send");
+                logger.error("storage is null. discard spanEvent:{}", spanEvent);
             }
             // 이미 span이 와서 flush된 상황임.
             return;
         }
         storage.add(spanEvent);
-        return;
     }
 
     private boolean checkLimit(SpanEvent spanEvent) {
@@ -111,7 +110,9 @@ public class TimeBaseStorage implements Storage {
                 synchronized (this) {
                     this.storage = null;
                 }
-                logger.debug("discard spanEvent");
+                if (isDebug) {
+                    logger.debug("discard spanEvent");
+                }
                 dataSender.send(span);
 
             } else {

@@ -32,5 +32,9 @@ public class SpanChunkFactoryTest {
         spanEvents.add(new SpanEvent(new Span()));
         spanChunkFactory.create(spanEvents);
 
+        // three
+        spanEvents.add(new SpanEvent(new Span()));
+        spanChunkFactory.create(spanEvents);
+
     }
 }
