@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.regex.Pattern;
+
 /**
  * 
  * @author netspider
@@ -13,7 +15,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class DefaultFilterBuilder implements FilterBuilder {
 
-	private Logger logger = LoggerFactory.getLogger(DefaultFilterBuilder.class);
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private static final Pattern FILTER_ENTRY_DELIMETER = Pattern.compile(Filter.FILTER_ENTRY_DELIMETER);
+    private static final Pattern FILTER_DELIMETER = Pattern.compile(Filter.FILTER_DELIMETER);
 
     @Override
 	public Filter build(String filterText) {
@@ -23,22 +28,24 @@ public class DefaultFilterBuilder implements FilterBuilder {
 
 		logger.debug("build filter from string. {}", filterText);
 
-		String[] f = filterText.split(Filter.FILTER_DELIMETER);
+		final String[] parsedFilterString = FILTER_DELIMETER.split(filterText);
 
 		Filter filter;
-		if (f.length == 1) {
-			filter = makeSingleFilter(f[0]);
+		if (parsedFilterString.length == 1) {
+			filter = makeSingleFilter(parsedFilterString[0]);
 		} else {
-			filter = makeChainedFilter(f);
+			filter = makeChainedFilter(parsedFilterString);
 		}
 
-		// TODO: need cache filter?
 		return filter;
 	}
 
 	private Filter makeSingleFilter(String filterText) {
-		logger.debug("   make filter from string. {}", filterText);
-		String[] element = filterText.split(Filter.FILTER_ENTRY_DELIMETER);
+        if (filterText == null) {
+            throw new NullPointerException("filterText must not be null");
+        }
+        logger.debug("   make filter from string. {}", filterText);
+		final String[] element = FILTER_ENTRY_DELIMETER.split(filterText);
 		if (element.length == 4) {
 			return new FromToFilter(element[0], element[1], element[2], element[3]);
 		} else {
