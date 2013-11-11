@@ -82,15 +82,11 @@ public class Record {
 	}
 
 	public String getTitle() {
-        // TODO 일단 이걸로 땜방.
-        // 나중에 json serializer로 대체하자.
-        return escapeJson(title);
+        return title;
 	}
 
 	public String getArguments() {
-        // TODO 일단 이걸로 땜방.
-        // 나중에 json serializer로 대체하자.
-        return escapeJson(arguments);
+        return arguments;
 	}
 
 	public long getBegin() {
@@ -165,9 +161,6 @@ public class Record {
     	return hasException;
     }
 
-    private String escapeJson(String string) {
-        return JSONObject.escape(string);
-    }
 
     @Override
     public String toString() {

@@ -10,10 +10,17 @@
 	<uri>http://pinpoint.nhncorp.com/pinpoint</uri>
 
 	<function>
-		<description></description>
+		<description>long->Date</description>
 		<name>longToDateStr</name>
 		<function-class>com.nhn.pinpoint.common.util.DateUtils</function-class>
 		<function-signature>java.lang.String longToDateStr(long, java.lang.String)</function-signature>
 	</function>
+
+    <function>
+        <description>json->String</description>
+        <name>escapeJson</name>
+        <function-class>org.json.simple.JSONObject</function-class>
+        <function-signature>java.lang.String escape(java.lang.String)</function-signature>
+    </function>
 	
 </taglib>

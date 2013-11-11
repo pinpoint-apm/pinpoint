@@ -106,7 +106,7 @@ public class SpanServiceImpl implements SpanService {
                 final int hashCode = sqlValue.getIntValue();
                 final String sqlParam = sqlValue.getStringValue1();
 				final List<SqlMetaDataBo> sqlMetaDataList = sqlMetaDataDao.getSqlMetaData(agentKey.getAgentId(), agentKey.getAgentStartTime(), hashCode);
-				int size = sqlMetaDataList.size();
+				final int size = sqlMetaDataList.size();
 				if (size == 0) {
 					AnnotationBo api = new AnnotationBo();
 					api.setKey(AnnotationKey.SQL.getCode());
