@@ -16,17 +16,24 @@ import com.nhn.pinpoint.common.bo.SpanEventBo;
  */
 public class FromToFilter implements Filter {
 
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	final short fromServiceCode;
-	final String fromApplicationName;
-	final short toServiceCode;
-	final String toApplicationName;
+	private final ServiceType fromServiceCode;
+    private final String fromApplicationName;
+    private final ServiceType toServiceCode;
+    private final String toApplicationName;
 
 	public FromToFilter(String fromServiceType, String fromApplicationName, String toServiceType, String toApplicationName) {
-		this.fromServiceCode = ServiceType.parse(fromServiceType).getCode();
+        if (fromApplicationName == null) {
+            throw new NullPointerException("fromApplicationName must not be null");
+        }
+        if (toApplicationName == null) {
+            throw new NullPointerException("toApplicationName must not be null");
+        }
+
+        this.fromServiceCode = ServiceType.parse(fromServiceType);
 		this.fromApplicationName = fromApplicationName;
-		this.toServiceCode = ServiceType.parse(toServiceType).getCode();
+		this.toServiceCode = ServiceType.parse(toServiceType);
 		this.toApplicationName = toApplicationName;
 	}
 
@@ -39,16 +46,16 @@ public class FromToFilter implements Filter {
 	public boolean include(List<SpanBo> transaction) {
 		boolean include = false;
 
-		if (ServiceType.findServiceType(fromServiceCode) == ServiceType.CLIENT || ServiceType.findServiceType(fromServiceCode) == ServiceType.USER) {
+		if (fromServiceCode == ServiceType.CLIENT || fromServiceCode == ServiceType.USER) {
 			for (SpanBo span : transaction) {
-				if (span.isRoot() && toServiceCode == span.getServiceType().getCode() && toApplicationName.equals(span.getApplicationId())) {
+				if (span.isRoot() && toServiceCode == span.getServiceType() && toApplicationName.equals(span.getApplicationId())) {
 					include = true;
 					break;
 				}
 			}
-		} else if (ServiceType.findServiceType(toServiceCode).isUnknown()) {
+		} else if (toServiceCode.isUnknown()) {
 			for (SpanBo span : transaction) {
-				if (fromServiceCode == span.getServiceType().getCode() && fromApplicationName.equals(span.getApplicationId())) {
+                if (fromServiceCode == span.getServiceType() && fromApplicationName.equals(span.getApplicationId())) {
 					List<SpanEventBo> eventBoList = span.getSpanEventBoList();
 					if (eventBoList == null) {
 						continue;
@@ -65,21 +72,21 @@ public class FromToFilter implements Filter {
 					}
 				}
 			}
-		} else if (ServiceType.findServiceType(toServiceCode).isWas()) {
+		} else if (toServiceCode.isWas()) {
 			/**
 			 * destination이 was인 경우 src, dest의 span이 모두 존재하겠지... 그리고 circular
 			 * check. find src first. from, to와 같은 span이 두 개 이상 존재할 수 있다. 때문에
 			 * spanId == parentSpanId도 확인해야함.
 			 */
 			for (SpanBo srcSpan : transaction) {
-				if (fromServiceCode == srcSpan.getServiceType().getCode() && fromApplicationName.equals(srcSpan.getApplicationId())) {
+				if (fromServiceCode == srcSpan.getServiceType() && fromApplicationName.equals(srcSpan.getApplicationId())) {
 					// find dest of src.
 					for (SpanBo destSpan : transaction) {
 						if (destSpan.getParentSpanId() != srcSpan.getSpanId()) {
 							continue;
 						}
 
-						if (toServiceCode == destSpan.getServiceType().getCode() && toApplicationName.equals(destSpan.getApplicationId())) {
+						if (toServiceCode == destSpan.getServiceType() && toApplicationName.equals(destSpan.getApplicationId())) {
 							include = true;
 							break;
 						}
@@ -91,13 +98,13 @@ public class FromToFilter implements Filter {
 			}
 		} else {
 			for (SpanBo span : transaction) {
-				if (fromServiceCode == span.getServiceType().getCode() && fromApplicationName.equals(span.getApplicationId())) {
+				if (fromServiceCode == span.getServiceType() && fromApplicationName.equals(span.getApplicationId())) {
 					List<SpanEventBo> eventBoList = span.getSpanEventBoList();
 					if (eventBoList == null) {
 						continue;
 					}
 					for (SpanEventBo event : eventBoList) {
-						if (toServiceCode == event.getServiceType().getCode() && toApplicationName.equals(event.getDestinationId())) {
+						if (toServiceCode == event.getServiceType() && toApplicationName.equals(event.getDestinationId())) {
 							include = true;
 							break;
 						}
@@ -117,9 +124,9 @@ public class FromToFilter implements Filter {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(fromApplicationName).append(" (").append(ServiceType.findServiceType(fromServiceCode)).append(")");
+		sb.append(fromApplicationName).append(" (").append(fromServiceCode).append(")");
 		sb.append(" --&gt; ");
-		sb.append(toApplicationName).append(" (").append(ServiceType.findServiceType(toServiceCode)).append(")");
+		sb.append(toApplicationName).append(" (").append(toServiceCode).append(")");
 		return sb.toString();
 	}
 }
