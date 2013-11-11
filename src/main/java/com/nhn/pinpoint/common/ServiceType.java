@@ -1,6 +1,8 @@
 package com.nhn.pinpoint.common;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -79,14 +81,11 @@ public enum ServiceType {
         this.histogram = histogram;
     }
 
-    public static ServiceType parse(String desc) {
-        ServiceType[] values = ServiceType.values();
-        for (ServiceType type : values) {
-            if (type.desc.equals(desc)) {
-                return type;
-            }
+    public static List<ServiceType> findDesc(String desc) {
+        if (desc == null) {
+            throw new NullPointerException("desc must not be null");
         }
-        return UNKNOWN;
+        return STATISTICS_LOOKUP_TABLE.get(desc);
     }
 
     public boolean isInternalMethod() {
@@ -133,7 +132,7 @@ public enum ServiceType {
 	public boolean isWas() {
 		return code >= 1000 && code < 2000;
 	}
-    
+
     @Override
     public String toString() {
         return desc;
@@ -149,9 +148,27 @@ public enum ServiceType {
 
 
     private static final Map<Short, ServiceType> CODE_LOOKUP_TABLE = new HashMap<Short, ServiceType>();
+    private static final Map<String, List<ServiceType>> STATISTICS_LOOKUP_TABLE = new HashMap<String, List<ServiceType>>();
 
     static {
         initializeLookupTable();
+        initializeStatisticsLookupTable();
+    }
+
+    private static void initializeStatisticsLookupTable() {
+        ServiceType[] values = ServiceType.values();
+        for (ServiceType serviceType : values) {
+            if(serviceType.isRecordStatistics()) {
+                List<ServiceType> serviceTypeList = STATISTICS_LOOKUP_TABLE.get(serviceType.getDesc());
+                if (serviceTypeList == null) {
+                    serviceTypeList = new ArrayList<ServiceType>();
+                    serviceTypeList.add(serviceType);
+                    STATISTICS_LOOKUP_TABLE.put(serviceType.getDesc(), serviceTypeList);
+                } else {
+                    serviceTypeList.add(serviceType);
+                }
+            }
+        }
     }
 
     public static void initializeLookupTable() {
