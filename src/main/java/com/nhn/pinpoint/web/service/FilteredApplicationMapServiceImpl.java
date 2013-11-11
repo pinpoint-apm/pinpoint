@@ -180,8 +180,10 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 			}
 
 			for (SpanBo span : transaction) {
-				String src, dest;
-				ServiceType srcServiceType, destServiceType;
+				String src;
+                String dest;
+				ServiceType srcServiceType;
+                ServiceType destServiceType;
 				SpanBo parentSpan = transactionSpanMap.get(span.getParentSpanId());
 
 				if (span.isRoot() || parentSpan == null) {
