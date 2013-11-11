@@ -84,6 +84,7 @@ var BigScatterChart = $.Class({
                     jsonp: 'callback'
                 }
             },
+            'useTypeUlSort' : false,
             'sConfigImage': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAADFUlEQVR4XnWTbWgcVRSGnxmzs6ssbZC0/1TSTUPSaFOTaPdPStYfQURpQQRZSgMNUrMaC61Nt5sPjVVKI9pakBLRElFsaEsNCSSpIlGq1oprSxKzm4WWtDQtREsy1d2d/TzeGxIQpGd4Oee8L++5d+6dMY6+/wEApmkCUCgUsCyLYrEoKjAMQ2uG5ldCa6yGCSAimhxW+FrXmUyGXC7HzmBQZ91rXQ+/q/KQiPxvwHBl5cYXfL4NO7LZ7J/KJKVr13J1agqdde84TrGiwvfwxsqK7UUpDgv6AVNESKfTHtu+R82mGgKBQFlLyy6aAgHcLovGxkZUr/gmQ+uLto2d+ttyJEeGHPQefg/A1/3WO4uDZ87JxZ8uydj4tzI69o3Oq1jmTyv9YE/3ArAh0XeRqcgQpjokPeSaSLF0S+1mUqk0KC6eSDATixGfnSWTdRTvoHW1/XWzfT9ey5GXrFHA1Ket33H9+jL+SaawXC7i8Rg35q6fP3tmcPucynM3buJxu0k7GdyWhafqMWyvF8M0xNTX09raSnPzs6TSKVyWi3w+T2xm5vgvl36+EIvFjucK8IDHy9nzI7z6SojPE1+xdGuR/F8LlAD09/dTXl5O7eZaAEpKStjyZF1Lw9Nb55W5xbDW8NDQi4R393Fs4DT+rX5GvxvlxMmjDQZQD/BmR/i3YDCoV2fJtpmeniZXMDA9pTxzp4+659fBzevMunbzyeU8Hx7pbfgjNBAl0tVDONLFvgMdxZGRMblydVJ+V7gyGZdobF5+jdSIXG4WOfe4yKdl8kXoCQHqOzq72N/VibnyFd6trqo2qjZVcev2bdwPesHykv1sG08trzwP9gKnoo+S9Pdy4FB3xMTAJSb6Fkgmk5P6X5iYmGB8/MLSiY9PUp3YhX/fHljTBEt3GIg+QsbfqUwOTjpZKsqnwcFDnQC+ttfaf2gLvT4B1AL1Xx7ZKWODb4vMHJNToTrR3Bv7w4ttofbvgQrt02C10CTg64j0cHjvS/S0vyzv7nlOEh/tWDbvDfeyMtynPaswuH/U/6eOcp/4F3+xsCxH/WvuAAAAAElFTkSuQmCC'
         });
         this.option(htOption);
@@ -340,18 +341,21 @@ var BigScatterChart = $.Class({
         this._htwelTypeSpan = {};
         var htCheckBoxImage = this.option('htCheckBoxImage');
         _.each(htType, function (sVal, sKey) {
+            var style = {
+                'display': 'inline-block',
+                'margin': '0 0 0 20px',
+                'padding': '0 0 0 16px',
+                'line-height': '15px',
+                'color': htType[sKey],
+                'background-image': 'url(' + htCheckBoxImage.checked + ')',
+                'background-repeat': 'no-repeat'
+            };
+            if (this.option('useTypeUISort')) {
+                style.cursor = 'url(data:image/gif;base64,R0lGODlhDgAGAIABAAAAA////yH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4wLWMwNjEgNjQuMTQwOTQ5LCAyMDEwLzEyLzA3LTEwOjU3OjAxICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1LjEgTWFjaW50b3NoIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkQyMTA0RDZFQjEyNTExRTI5Q0M1REU5NjlFRThGRDZBIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkQyMTA0RDZGQjEyNTExRTI5Q0M1REU5NjlFRThGRDZBIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6RDIxMDRENkNCMTI1MTFFMjlDQzVERTk2OUVFOEZENkEiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6RDIxMDRENkRCMTI1MTFFMjlDQzVERTk2OUVFOEZENkEiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4B//79/Pv6+fj39vX08/Lx8O/u7ezr6uno5+bl5OPi4eDf3t3c29rZ2NfW1dTT0tHQz87NzMvKycjHxsXEw8LBwL++vby7urm4t7a1tLOysbCvrq2sq6qpqKempaSjoqGgn56dnJuamZiXlpWUk5KRkI+OjYyLiomIh4aFhIOCgYB/fn18e3p5eHd2dXRzcnFwb25tbGtqaWhnZmVkY2JhYF9eXVxbWllYV1ZVVFNSUVBPTk1MS0pJSEdGRURDQkFAPz49PDs6OTg3NjU0MzIxMC8uLSwrKikoJyYlJCMiISAfHh0cGxoZGBcWFRQTEhEQDw4NDAsKCQgHBgUEAwIBAAAh+QQBAAABACwAAAAADgAGAAACEUxgmWjA2pCbtNorH3QL9lAAADs=), move';
+            }
             this._welTypeUl.append(
                 this._htwelTypeLi[sKey] = $('<li>')
-                    .css({
-                        'display': 'inline-block',
-                        'margin': '0 0 0 20px',
-                        'padding': '0 0 0 16px',
-                        'line-height': '15px',
-                        'color': htType[sKey],
-                        'background-image': 'url(' + htCheckBoxImage.checked + ')',
-                        'background-repeat': 'no-repeat',
-                        'cursor': 'url(data:image/gif;base64,R0lGODlhDgAGAIABAAAAA////yH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4wLWMwNjEgNjQuMTQwOTQ5LCAyMDEwLzEyLzA3LTEwOjU3OjAxICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1LjEgTWFjaW50b3NoIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkQyMTA0RDZFQjEyNTExRTI5Q0M1REU5NjlFRThGRDZBIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkQyMTA0RDZGQjEyNTExRTI5Q0M1REU5NjlFRThGRDZBIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6RDIxMDRENkNCMTI1MTFFMjlDQzVERTk2OUVFOEZENkEiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6RDIxMDRENkRCMTI1MTFFMjlDQzVERTk2OUVFOEZENkEiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4B//79/Pv6+fj39vX08/Lx8O/u7ezr6uno5+bl5OPi4eDf3t3c29rZ2NfW1dTT0tHQz87NzMvKycjHxsXEw8LBwL++vby7urm4t7a1tLOysbCvrq2sq6qpqKempaSjoqGgn56dnJuamZiXlpWUk5KRkI+OjYyLiomIh4aFhIOCgYB/fn18e3p5eHd2dXRzcnFwb25tbGtqaWhnZmVkY2JhYF9eXVxbWllYV1ZVVFNSUVBPTk1MS0pJSEdGRURDQkFAPz49PDs6OTg3NjU0MzIxMC8uLSwrKikoJyYlJCMiISAfHh0cGxoZGBcWFRQTEhEQDw4NDAsKCQgHBgUEAwIBAAAh+QQBAAABACwAAAAADgAGAAACEUxgmWjA2pCbtNorH3QL9lAAADs=), move'
-                    })
+                    .css(style)
                     .text(sKey + ' : ')
                     .append(
                         this._htwelTypeSpan[sKey] = $('<span>')
@@ -370,47 +374,45 @@ var BigScatterChart = $.Class({
             this._awelChartCanvasInOrder.push(welChartCanvas);
         }, this);
         this._welTypeUl.mousedown(function (e) {
-            console.log('ul mousedown');
             e.stopPropagation();
             //e.preventDefault();
         });
-        this._welTypeUl.sortable({
-            axis: 'x',
-            containment: "document",
-            placeholder: sPrefix + 'placeholder',
-            start: function (event, ui) {
-                console.log('start');
-                $('.bigscatterchart-placeholder').append('<span>&nbsp;</span>');
-                ui.item.startIndex = ui.item.index();
-            },
-            stop: function (event, ui) {
-                console.log('stop');
-                var nZIndexForCanvas = self.option('nZIndexForCanvas');
-                var nStart = ui.item.startIndex,
-                    nStop = ui.item.index();
+        if (this.option('useTypeUlSort')) {
+            this._welTypeUl.sortable({
+                axis: 'x',
+                containment: "document",
+                placeholder: sPrefix + 'placeholder',
+                start: function (event, ui) {
+                    $('.bigscatterchart-placeholder').append('<span>&nbsp;</span>');
+                    ui.item.startIndex = ui.item.index();
+                },
+                stop: function (event, ui) {
+                    var nZIndexForCanvas = self.option('nZIndexForCanvas');
+                    var nStart = ui.item.startIndex,
+                        nStop = ui.item.index();
 
-                var welStart = self._awelChartCanvasInOrder[nStart];
-                self._awelChartCanvasInOrder.splice(nStart, 1);
-                self._awelChartCanvasInOrder.splice(nStop, 0, welStart);
+                    var welStart = self._awelChartCanvasInOrder[nStart];
+                    self._awelChartCanvasInOrder.splice(nStart, 1);
+                    self._awelChartCanvasInOrder.splice(nStop, 0, welStart);
 
-                for (var i = 0, nLen = self._awelChartCanvasInOrder.length; i < nLen; i++) {
-                    self._awelChartCanvasInOrder[i].css('z-index', nZIndexForCanvas + i);
+                    for (var i = 0, nLen = self._awelChartCanvasInOrder.length; i < nLen; i++) {
+                        self._awelChartCanvasInOrder[i].css('z-index', nZIndexForCanvas + i);
+                    }
+                },
+                activate: function (e, ui) {
+                },
+                deactivate: function (e, ui) {
+                },
+                create: function (e, ui) {
+                },
+                remove: function (e, ui) {
+                },
+                update: function (e, ui) {
+                },
+                sort: function (e, ui) {
                 }
-            },
-            activate: function (e, ui) {
-            },
-            deactivate: function (e, ui) {
-            },
-            create: function (e, ui) {
-            },
-            remove: function (e, ui) {
-            },
-            update: function (e, ui) {
-            },
-            sort: function (e, ui) {
-            }
-        });
-
+            });
+        }
         this._resetTypeCount();
 
         // title
@@ -523,7 +525,6 @@ var BigScatterChart = $.Class({
         var htCheckBoxImage = this.option('htCheckBoxImage');
         _.each(this._htwelTypeLi, function (welTypeLi, sKey) {
             welTypeLi.click(function (e) {
-                console.log('li click')
                 e.preventDefault();
                 self._htwelChartCanvas[sKey].toggle();
                 if (!welTypeLi.hasClass('unchecked')) {
@@ -533,8 +534,6 @@ var BigScatterChart = $.Class({
                     welTypeLi.removeClass('unchecked')
                     welTypeLi.css('background-image', 'url(' + htCheckBoxImage.checked + ')');
                 }
-                ;
-
             });
         }, this);
 
@@ -917,26 +916,28 @@ var BigScatterChart = $.Class({
             nDefaultRadius = this.option('nDefaultRadius');
 
         //this._oChartCtx.lineWidth = 1;
-        for (var i = 0, nLen = aBubbles.length; i < nLen && !this._bDestroied; i++) {
-            var x = this._parseXDataToXChart(this._checkXMinMax(aBubbles[i].x)),
-                y = this._parseYDataToYChart(this._checkYMinMax(aBubbles[i].y)),
-                r = this._parseZDataToZChart(aBubbles[i].r || nDefaultRadius),
-                a = aBubbles[i].y / this._nYMax * 0.7,
-                sThisType = aBubbles[i].type;
+        setTimeout(function () {
+            for (var i = 0, nLen = aBubbles.length; i < nLen && !this._bDestroied; i++) {
+                var x = this._parseXDataToXChart(this._checkXMinMax(aBubbles[i].x)),
+                    y = this._parseYDataToYChart(this._checkYMinMax(aBubbles[i].y)),
+                    r = this._parseZDataToZChart(aBubbles[i].r || nDefaultRadius),
+                    a = aBubbles[i].y / this._nYMax * 0.7,
+                    sThisType = aBubbles[i].type;
 
-            this._htBubbleCtx[sThisType].beginPath();
-            // this._htBubbleCtx[sThisType].globalAlpha = 0.8;
-            this._htBubbleCtx[sThisType].fillStyle = htTypeAndColor[sThisType];
-            this._htBubbleCtx[sThisType].strokeStyle = htTypeAndColor[sThisType];
-            this._htBubbleCtx[sThisType].arc(x, y, r, 0, Math.PI * 2, true);
-            this._htBubbleCtx[sThisType].globalAlpha = 0.3 + a;
-            //this._htBubbleCtx[sThisType].stroke();
-            this._htBubbleCtx[sThisType].fill();
+                this._htBubbleCtx[sThisType].beginPath();
+                // this._htBubbleCtx[sThisType].globalAlpha = 0.8;
+                this._htBubbleCtx[sThisType].fillStyle = htTypeAndColor[sThisType];
+                this._htBubbleCtx[sThisType].strokeStyle = htTypeAndColor[sThisType];
+                this._htBubbleCtx[sThisType].arc(x, y, r, 0, Math.PI * 2, true);
+                this._htBubbleCtx[sThisType].globalAlpha = 0.3 + a;
+                //this._htBubbleCtx[sThisType].stroke();
+                this._htBubbleCtx[sThisType].fill();
 
-            aBubbles[i].realx = x;
-            aBubbles[i].realy = y;
-            aBubbles[i].realz = r;
-        }
+                aBubbles[i].realx = x;
+                aBubbles[i].realy = y;
+                aBubbles[i].realz = r;
+            }
+        }.bind(this));
     },
 
     _checkXMinMax: function (nX) {
@@ -1098,7 +1099,7 @@ var BigScatterChart = $.Class({
 
         var aVisibleType = [];
         _.each(this._htwelTypeLi, function (welTypeLi, sKey) {
-            if (welTypeLi.css('text-decoration') == 'none') {
+            if (welTypeLi.hasClass('unchecked') === false) {
                 aVisibleType.push(sKey);
             }
         }, this);
