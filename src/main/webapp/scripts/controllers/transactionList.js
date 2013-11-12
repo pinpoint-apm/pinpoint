@@ -17,7 +17,8 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
         // initialize private variables;
         nFetchCount = 1;
         nLastFetchedIndex = 0;
-        htTransactions = webStorage.session.get($window.name);
+//        htTransactions = webStorage.session.get($window.name);
+        htTransactions = opener[$window.name];
         oTimeSliderDao = new TimeSliderDao();
         oTimeSliderDao.setTotal(htTransactions.aTraces.length);
         $scope.transactionDetailUrl = '#/transactionDetail';

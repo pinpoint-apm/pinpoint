@@ -178,7 +178,8 @@ pinpointApp.directive('scatter',
                             }
 
                             var token = 'transactionsFromScatter_' + _.random(100000, 999999);
-                            webStorage.session.add(token, transactions);
+//                            webStorage.session.add(token, transactions);
+                            window[token] = transactions;
 //                            window.open("/selectedScatter.pinpoint", token);
                             window.open("#/transactionList", token);
                         }
