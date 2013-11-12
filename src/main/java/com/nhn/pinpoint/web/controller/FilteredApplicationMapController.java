@@ -63,10 +63,10 @@ public class FilteredApplicationMapController {
 											@RequestParam(value = "filter", required = false) String filterText,
 											@RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
         limit = LimitUtils.checkRange(limit);
+        final Filter filter = filterBuilder.build(filterText);
 
         final LimitedScanResult<List<TransactionId>> limitedScanResult = filteredApplicationMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
-		final Filter filter = filterBuilder.build(filterText);
-		
+
 		ApplicationMap map = filteredApplicationMapService.selectApplicationMap(limitedScanResult.getScanData(), from, to, filter);
 		
 		model.addAttribute("from", from);
@@ -143,10 +143,10 @@ public class FilteredApplicationMapController {
 											@RequestParam(value = "filter", required = false) String filterText,
 											@RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
         limit = LimitUtils.checkRange(limit);
+        final Filter filter = filterBuilder.build(filterText);
 
-		LimitedScanResult<List<TransactionId>> traceIdSet = filteredApplicationMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
-		Filter filter = filterBuilder.build(filterText);
-		LinkStatistics linkStatistics = filteredApplicationMapService.linkStatistics(from, to, traceIdSet.getScanData(), srcApplicationName, srcServiceType, destApplicationName, destServiceType, filter);
+		LimitedScanResult<List<TransactionId>> transactionId = filteredApplicationMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
+		LinkStatistics linkStatistics = filteredApplicationMapService.linkStatistics(from, to, transactionId.getScanData(), srcApplicationName, srcServiceType, destApplicationName, destServiceType, filter);
 		
 		model.addAttribute("from", from);
 		model.addAttribute("to", to);
@@ -163,7 +163,7 @@ public class FilteredApplicationMapController {
 		model.addAttribute("timeseriesValue", linkStatistics.getTimeseriesValue());
 
 		// model.addAttribute("lastFetchedTimestamp", traceIdSet.getLimitedTime());
-		model.addAttribute("resultFrom", traceIdSet.getLimitedTime());
+		model.addAttribute("resultFrom", transactionId.getLimitedTime());
 		model.addAttribute("resultTo", to);
 		
 		return "linkStatisticsDetail";
