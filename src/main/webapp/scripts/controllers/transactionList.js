@@ -2,7 +2,7 @@
 
 pinpointApp.constant('TransactionListConfig', {
     applicationUrl: '/transactionmetadata.pinpoint',
-    MAX_FETCH_BLOCK_SIZE: 10
+    MAX_FETCH_BLOCK_SIZE: 200
 });
 
 pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$rootScope', '$timeout', '$window', '$http', 'webStorage', 'TimeSliderDao', 'encodeURIComponentFilter',
@@ -131,7 +131,7 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
          */
         getTransactionList = function (query, cb) {
             $http
-                .post(cfg.applicationUrl + '?' + query.join(""))
+                .post(cfg.applicationUrl, query.join(""))
                 .success(function (data, status) {
                     if (angular.isFunction(cb)) {
                         cb(data);
