@@ -7,7 +7,6 @@ import java.util.List;
 
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
-import com.nhn.pinpoint.profiler.interceptor.ScopeDelegateSimpleInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.ScopeDelegateStaticInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
@@ -44,14 +43,14 @@ public class CubridPreparedStatementModifier extends AbstractModifier {
 		try {
 			InstrumentClass preparedStatementClass = byteCodeInstrumentor.getClass(javassistClassName);
 
-            Interceptor executeInterceptor = new ScopeDelegateSimpleInterceptor(new PreparedStatementExecuteQueryInterceptor(), JDBCScope.SCOPE);
-            preparedStatementClass.addInterceptor("execute", null, executeInterceptor);
+            Interceptor executeInterceptor = new PreparedStatementExecuteQueryInterceptor();
+            preparedStatementClass.addScopeInterceptor("execute", null, executeInterceptor, JDBCScope.SCOPE);
 
-            Interceptor executeQueryInterceptor = new ScopeDelegateSimpleInterceptor(new PreparedStatementExecuteQueryInterceptor(), JDBCScope.SCOPE);
-            preparedStatementClass.addInterceptor("executeQuery", null, executeQueryInterceptor);
+            Interceptor executeQueryInterceptor = new PreparedStatementExecuteQueryInterceptor();
+            preparedStatementClass.addScopeInterceptor("executeQuery", null, executeQueryInterceptor, JDBCScope.SCOPE);
 
-            Interceptor executeUpdateInterceptor = new ScopeDelegateSimpleInterceptor(new PreparedStatementExecuteQueryInterceptor(), JDBCScope.SCOPE);
-            preparedStatementClass.addInterceptor("executeUpdate", null, executeUpdateInterceptor);
+            Interceptor executeUpdateInterceptor = new PreparedStatementExecuteQueryInterceptor();
+            preparedStatementClass.addScopeInterceptor("executeUpdate", null, executeUpdateInterceptor, JDBCScope.SCOPE);
 
 			preparedStatementClass.addTraceVariable("__databaseInfo", "__setDatabaseInfo", "__getDatabaseInfo", "java.lang.Object");
 			preparedStatementClass.addTraceVariable("__sql", "__setSql", "__getSql", "java.lang.Object");

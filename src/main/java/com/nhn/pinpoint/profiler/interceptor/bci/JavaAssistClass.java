@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.nhn.pinpoint.profiler.util.ApiUtils;
 import com.nhn.pinpoint.profiler.interceptor.*;
+import com.nhn.pinpoint.profiler.util.DepthScope;
 import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
 import javassist.*;
 import org.slf4j.Logger;
@@ -155,10 +156,49 @@ public class JavaAssistClass implements InstrumentClass {
 
     @Override
     public int addInterceptor(String methodName, String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException {
+        if (methodName == null) {
+            throw new NullPointerException("methodName must not be null");
+        }
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
         return addInterceptor0(methodName, args, interceptor, -1, Type.around, false);
+    }
+
+    @Override
+    public int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, DepthScope scope) throws InstrumentException, NotFoundInstrumentException {
+        if (methodName == null) {
+            throw new NullPointerException("methodName must not be null");
+        }
+        if (interceptor == null) {
+            throw new IllegalArgumentException("interceptor is null");
+        }
+        if (scope == null) {
+            throw new NullPointerException("scope must not be null");
+        }
+        interceptor = wrapScopeInterceptor(interceptor, scope);
+        return addInterceptor(methodName, args, interceptor);
+    }
+
+    private Interceptor wrapScopeInterceptor(Interceptor interceptor, DepthScope scope) {
+        final Logger interceptorLogger = LoggerFactory.getLogger(interceptor.getClass());
+
+        if (interceptor instanceof  SimpleAroundInterceptor) {
+            if (interceptorLogger.isDebugEnabled()) {
+                return new DebugScopeDelegateSimpleInterceptor((SimpleAroundInterceptor)interceptor, scope);
+            } else {
+                return new ScopeDelegateSimpleInterceptor((SimpleAroundInterceptor)interceptor, scope);
+            }
+        }
+        else if (interceptor instanceof StaticAroundInterceptor) {
+            if (interceptorLogger.isDebugEnabled()) {
+                return new DebugScopeDelegateStaticInterceptor((StaticAroundInterceptor)interceptor, scope);
+            } else {
+                return new ScopeDelegateStaticInterceptor((StaticAroundInterceptor)interceptor, scope);
+            }
+        }
+        throw new IllegalArgumentException("unknown Interceptor Type:" + interceptor.getClass());
+
     }
 
     @Override

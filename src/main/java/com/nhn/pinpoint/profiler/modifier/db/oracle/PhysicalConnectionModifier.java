@@ -3,12 +3,9 @@ package com.nhn.pinpoint.profiler.modifier.db.oracle;
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
-import com.nhn.pinpoint.profiler.interceptor.ScopeDelegateSimpleInterceptor;
-import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
-import com.nhn.pinpoint.profiler.interceptor.bci.Type;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.*;
 import org.slf4j.Logger;
@@ -52,27 +49,27 @@ public class PhysicalConnectionModifier extends AbstractModifier {
 //            mysqlConnection.addInterceptor("getInstance", params, createConnection);
 
 
-            Interceptor closeConnection = new ScopeDelegateSimpleInterceptor(new ConnectionCloseInterceptor(), JDBCScope.SCOPE);
-            oracleConnection.addInterceptor("close", null, closeConnection);
+            Interceptor closeConnection = new ConnectionCloseInterceptor();
+            oracleConnection.addScopeInterceptor("close", null, closeConnection, JDBCScope.SCOPE);
 
-            Interceptor createStatement = new ScopeDelegateSimpleInterceptor(new StatementCreateInterceptor(), JDBCScope.SCOPE);
-            oracleConnection.addInterceptor("createStatement", null, createStatement);
+            Interceptor createStatement = new StatementCreateInterceptor();
+            oracleConnection.addScopeInterceptor("createStatement", null, createStatement, JDBCScope.SCOPE);
 
-            Interceptor preparedStatement = new ScopeDelegateSimpleInterceptor(new PreparedStatementCreateInterceptor(), JDBCScope.SCOPE);
-            oracleConnection.addInterceptor("prepareStatement", new String[]{"java.lang.String"}, preparedStatement);
+            Interceptor preparedStatement = new PreparedStatementCreateInterceptor();
+            oracleConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String"}, preparedStatement, JDBCScope.SCOPE);
 
             final ProfilerConfig profilerConfig = agent.getProfilerConfig();
             if (profilerConfig.isJdbcProfileOracleSetAutoCommit()) {
-                Interceptor setAutocommit = new ScopeDelegateSimpleInterceptor(new TransactionSetAutoCommitInterceptor(), JDBCScope.SCOPE);
-                oracleConnection.addInterceptor("setAutoCommit", new String[]{"boolean"}, setAutocommit);
+                Interceptor setAutocommit = new TransactionSetAutoCommitInterceptor();
+                oracleConnection.addScopeInterceptor("setAutoCommit", new String[]{"boolean"}, setAutocommit, JDBCScope.SCOPE);
             }
             if (profilerConfig.isJdbcProfileOracleCommit()) {
-                Interceptor commit = new ScopeDelegateSimpleInterceptor(new TransactionCommitInterceptor(), JDBCScope.SCOPE);
-                oracleConnection.addInterceptor("commit", null, commit);
+                Interceptor commit = new TransactionCommitInterceptor();
+                oracleConnection.addScopeInterceptor("commit", null, commit, JDBCScope.SCOPE);
             }
             if (profilerConfig.isJdbcProfileOracleRollback()) {
-                Interceptor rollback = new ScopeDelegateSimpleInterceptor(new TransactionRollbackInterceptor(), JDBCScope.SCOPE);
-                oracleConnection.addInterceptor("rollback", null, rollback);
+                Interceptor rollback = new TransactionRollbackInterceptor();
+                oracleConnection.addScopeInterceptor("rollback", null, rollback, JDBCScope.SCOPE);
             }
 
             if (this.logger.isInfoEnabled()) {

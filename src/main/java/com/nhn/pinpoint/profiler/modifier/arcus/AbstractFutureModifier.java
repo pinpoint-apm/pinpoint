@@ -2,7 +2,6 @@ package com.nhn.pinpoint.profiler.modifier.arcus;
 
 import java.security.ProtectionDomain;
 
-import com.nhn.pinpoint.profiler.interceptor.ScopeDelegateSimpleInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
@@ -38,9 +37,8 @@ public abstract class AbstractFutureModifier extends AbstractModifier  {
             aClass.addInterceptor("setOperation", new String[]{"net.spy.memcached.ops.Operation"}, futureSetOperationInterceptor);
             
             SimpleAroundInterceptor futureGetInterceptor = (SimpleAroundInterceptor) byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.arcus.interceptor.FutureGetInterceptor");
-            ScopeDelegateSimpleInterceptor arcusScopeDelegateSimpleInterceptor = new ScopeDelegateSimpleInterceptor(futureGetInterceptor, ArcusScope.SCOPE);
 
-            aClass.addInterceptor("get", new String[]{Long.TYPE.toString(), "java.util.concurrent.TimeUnit"}, arcusScopeDelegateSimpleInterceptor);
+            aClass.addScopeInterceptor("get", new String[]{Long.TYPE.toString(), "java.util.concurrent.TimeUnit"}, futureGetInterceptor, ArcusScope.SCOPE);
             
             return aClass.toBytecode();
         } catch (Exception e) {

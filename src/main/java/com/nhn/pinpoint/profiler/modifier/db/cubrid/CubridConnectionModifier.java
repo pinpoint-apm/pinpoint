@@ -5,7 +5,6 @@ import java.security.ProtectionDomain;
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
-import com.nhn.pinpoint.profiler.interceptor.ScopeDelegateSimpleInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
@@ -39,27 +38,27 @@ public class CubridConnectionModifier extends AbstractModifier {
 
 			cubridConnection.addTraceVariable("__databaseInfo", "__setDatabaseInfo", "__getDatabaseInfo", "java.lang.Object");
 
-            Interceptor connectionCloseInterceptor = new ScopeDelegateSimpleInterceptor(new ConnectionCloseInterceptor(), JDBCScope.SCOPE);
-            cubridConnection.addInterceptor("close", null, connectionCloseInterceptor);
+            Interceptor connectionCloseInterceptor = new ConnectionCloseInterceptor();
+            cubridConnection.addScopeInterceptor("close", null, connectionCloseInterceptor, JDBCScope.SCOPE);
 
-            Interceptor statementCreateInterceptor = new ScopeDelegateSimpleInterceptor(new StatementCreateInterceptor(), JDBCScope.SCOPE);
-            cubridConnection.addInterceptor("createStatement", null, statementCreateInterceptor);
+            Interceptor statementCreateInterceptor = new StatementCreateInterceptor();
+            cubridConnection.addScopeInterceptor("createStatement", null, statementCreateInterceptor, JDBCScope.SCOPE);
 
-            Interceptor preparedStatementCreateInterceptor = new ScopeDelegateSimpleInterceptor(new PreparedStatementCreateInterceptor(), JDBCScope.SCOPE);
-            cubridConnection.addInterceptor("prepareStatement", new String[] { "java.lang.String" }, preparedStatementCreateInterceptor);
+            Interceptor preparedStatementCreateInterceptor = new PreparedStatementCreateInterceptor();
+            cubridConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String"}, preparedStatementCreateInterceptor, JDBCScope.SCOPE);
 
             final ProfilerConfig profilerConfig = agent.getProfilerConfig();
             if (profilerConfig.isJdbcProfileCubridSetAutoCommit()) {
-                Interceptor setAutoCommit = new ScopeDelegateSimpleInterceptor(new TransactionSetAutoCommitInterceptor(), JDBCScope.SCOPE);
-                cubridConnection.addInterceptor("setAutoCommit", new String[] { "boolean" }, setAutoCommit);
+                Interceptor setAutoCommit = new TransactionSetAutoCommitInterceptor();
+                cubridConnection.addScopeInterceptor("setAutoCommit", new String[]{"boolean"}, setAutoCommit, JDBCScope.SCOPE);
             }
             if (profilerConfig.isJdbcProfileCubridCommit()) {
-                Interceptor commit = new ScopeDelegateSimpleInterceptor(new TransactionCommitInterceptor(), JDBCScope.SCOPE);
-                cubridConnection.addInterceptor("commit", null, commit);
+                Interceptor commit = new TransactionCommitInterceptor();
+                cubridConnection.addScopeInterceptor("commit", null, commit, JDBCScope.SCOPE);
             }
             if (profilerConfig.isJdbcProfileCubridRollback()) {
-                Interceptor rollback = new ScopeDelegateSimpleInterceptor(new TransactionRollbackInterceptor(), JDBCScope.SCOPE);
-                cubridConnection.addInterceptor("rollback", null, rollback);
+                Interceptor rollback = new TransactionRollbackInterceptor();
+                cubridConnection.addScopeInterceptor("rollback", null, rollback, JDBCScope.SCOPE);
             }
 
             if (this.logger.isInfoEnabled()) {

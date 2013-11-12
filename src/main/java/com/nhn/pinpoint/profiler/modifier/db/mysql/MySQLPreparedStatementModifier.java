@@ -2,7 +2,6 @@ package com.nhn.pinpoint.profiler.modifier.db.mysql;
 
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
-import com.nhn.pinpoint.profiler.interceptor.ScopeDelegateSimpleInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.ScopeDelegateStaticInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
@@ -47,14 +46,14 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
         try {
             InstrumentClass preparedStatement = byteCodeInstrumentor.getClass(javassistClassName);
 
-            Interceptor execute = new ScopeDelegateSimpleInterceptor(new PreparedStatementExecuteQueryInterceptor(), JDBCScope.SCOPE);
-            preparedStatement.addInterceptor("execute", null, execute);
+            Interceptor execute = new PreparedStatementExecuteQueryInterceptor();
+            preparedStatement.addScopeInterceptor("execute", null, execute, JDBCScope.SCOPE);
 
-            Interceptor executeQuery = new ScopeDelegateSimpleInterceptor(new PreparedStatementExecuteQueryInterceptor(), JDBCScope.SCOPE);
-            preparedStatement.addInterceptor("executeQuery", null, executeQuery);
+            Interceptor executeQuery = new PreparedStatementExecuteQueryInterceptor();
+            preparedStatement.addScopeInterceptor("executeQuery", null, executeQuery, JDBCScope.SCOPE);
 
-            Interceptor executeUpdate = new ScopeDelegateSimpleInterceptor(new PreparedStatementExecuteQueryInterceptor(), JDBCScope.SCOPE);
-            preparedStatement.addInterceptor("executeUpdate", null, executeUpdate);
+            Interceptor executeUpdate = new PreparedStatementExecuteQueryInterceptor();
+            preparedStatement.addScopeInterceptor("executeUpdate", null, executeUpdate, JDBCScope.SCOPE);
 
             preparedStatement.addTraceVariable("__databaseInfo", "__setDatabaseInfo", "__getDatabaseInfo", "java.lang.Object");
             preparedStatement.addTraceVariable("__sql", "__setSql", "__getSql", "java.lang.Object");

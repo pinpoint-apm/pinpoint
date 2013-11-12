@@ -53,8 +53,7 @@ public class ArcusClientModifier extends AbstractModifier {
                         ((ParameterExtractorSupport)apiInterceptor).setParameterExtractor(new IndexParameterExtractor(index));
                     }
                 }
-                ScopeDelegateSimpleInterceptor arcusScopeDelegateSimpleInterceptor = new ScopeDelegateSimpleInterceptor(apiInterceptor, ArcusScope.SCOPE);
-                arcusClient.addInterceptor(method.getMethodName(), method.getMethodParams(), arcusScopeDelegateSimpleInterceptor, Type.around);
+                arcusClient.addScopeInterceptor(method.getMethodName(), method.getMethodParams(), apiInterceptor, ArcusScope.SCOPE);
 			}
 
 			return arcusClient.toBytecode();

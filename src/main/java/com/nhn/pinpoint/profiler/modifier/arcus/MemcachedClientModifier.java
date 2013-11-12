@@ -6,7 +6,6 @@ import java.util.List;
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.ParameterExtractorSupport;
-import com.nhn.pinpoint.profiler.interceptor.ScopeDelegateSimpleInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.*;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
@@ -59,8 +58,7 @@ public class MemcachedClientModifier extends AbstractModifier {
                         ((ParameterExtractorSupport)apiInterceptor).setParameterExtractor(new IndexParameterExtractor(index));
                     }
                 }
-                ScopeDelegateSimpleInterceptor arcusScopeDelegateSimpleInterceptor = new ScopeDelegateSimpleInterceptor(apiInterceptor, ArcusScope.SCOPE);
-				aClass.addInterceptor(method.getMethodName(), method.getMethodParams(), arcusScopeDelegateSimpleInterceptor, Type.around);
+				aClass.addScopeInterceptor(method.getMethodName(), method.getMethodParams(), apiInterceptor, ArcusScope.SCOPE);
 			}
 			return aClass.toBytecode();
 		} catch (Exception e) {

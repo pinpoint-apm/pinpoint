@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler.interceptor.bci;
 
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
+import com.nhn.pinpoint.profiler.util.DepthScope;
 
 import java.util.List;
 
@@ -25,6 +26,8 @@ public interface InstrumentClass {
 
 
 	int addInterceptor(String methodName, String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
+
+    int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, DepthScope scope) throws InstrumentException, NotFoundInstrumentException;
 
     int addInterceptor(String methodName, String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException;
 
