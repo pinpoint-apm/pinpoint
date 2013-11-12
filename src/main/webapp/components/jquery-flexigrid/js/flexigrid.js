@@ -780,7 +780,7 @@
 			addRowProp: function () {
 				$('tbody tr', g.bDiv).on('click', function (e) {
 					var obj = (e.target || e.srcElement);
-					if (obj.href || obj.type) return true;
+					if (obj.href || obj.type || !document.getSelection().isCollapsed) return true;
 					if (e.ctrlKey || e.metaKey) {
 						// mousedown already took care of this case
 						return;
