@@ -56,8 +56,9 @@ public class ApplicationMapStatisticsCalleeMapper implements RowMapper<Map<Strin
 			boolean isError = histogramSlot == (short) -1;
 
 			String id = callerApplicationName + callerServiceType + calleeApplicationName + calleeServiceType;
-			
-			logger.debug("    Fetched. {}[{}] -> {}[{}] ({})", callerApplicationName, ServiceType.findServiceType(callerServiceType), calleeApplicationName, ServiceType.findServiceType(calleeServiceType), requestCount);
+			if (logger.isDebugEnabled()) {
+			    logger.debug("    Fetched. {}[{}] -> {}[{}] ({})", callerApplicationName, ServiceType.findServiceType(callerServiceType), calleeApplicationName, ServiceType.findServiceType(calleeServiceType), requestCount);
+            }
 			
 			// hostname은 일단 따로 보관.
 //			if (callerHost != null) {
