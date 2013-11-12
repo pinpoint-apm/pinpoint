@@ -16,8 +16,6 @@ import com.nhn.pinpoint.common.bo.SpanEventBo;
  */
 public class FromToFilter implements Filter {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
 	private final List<ServiceType> fromServiceCode;
     private final String fromApplicationName;
     private final List<ServiceType> toServiceCode;
@@ -51,13 +49,11 @@ public class FromToFilter implements Filter {
 
 	@Override
 	public boolean include(List<SpanBo> transaction) {
-		boolean include = false;
 
 		if (includeServiceType(fromServiceCode, ServiceType.CLIENT) || includeServiceType(fromServiceCode, ServiceType.USER)) {
 			for (SpanBo span : transaction) {
 				if (span.isRoot() && includeServiceType(toServiceCode, span.getServiceType()) && toApplicationName.equals(span.getApplicationId())) {
-					include = true;
-					break;
+					return true;
 				}
 			}
 		} else if (includeUnknown(toServiceCode)) {
@@ -70,12 +66,8 @@ public class FromToFilter implements Filter {
 					for (SpanEventBo event : eventBoList) {
 						// client가 있는지만 확인.
 						if (event.getServiceType().isRpcClient() && toApplicationName.equals(event.getDestinationId())) {
-							include = true;
-							break;
+							return true;
 						}
-					}
-					if (include) {
-						break;
 					}
 				}
 			}
@@ -94,13 +86,10 @@ public class FromToFilter implements Filter {
 						}
 
 						if (includeServiceType(toServiceCode, destSpan.getServiceType()) && toApplicationName.equals(destSpan.getApplicationId())) {
-							include = true;
-							break;
+							return true;
 						}
 					}
-					if (include) {
-						break;
-					}
+
 				}
 			}
 		} else {
@@ -112,21 +101,16 @@ public class FromToFilter implements Filter {
 					}
 					for (SpanEventBo event : eventBoList) {
 						if (includeServiceType(toServiceCode, event.getServiceType()) && toApplicationName.equals(event.getDestinationId())) {
-							include = true;
-							break;
+							return true;
 						}
-					}
-					if (include) {
-						break;
 					}
 				}
 			}
 		}
 
-		logger.debug("filter result = {}", include);
-
-		return include;
+		return false;
 	}
+
 
     private boolean includeUnknown(List<ServiceType> serviceTypeList) {
         for (ServiceType serviceType : serviceTypeList) {
