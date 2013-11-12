@@ -57,7 +57,7 @@ public class ApplicationMapStatisticsCalleeMapper implements RowMapper<Map<Strin
 
 			String id = callerApplicationName + callerServiceType + calleeApplicationName + calleeServiceType;
 			
-			logger.debug("    Fetched. " + callerApplicationName + "[" + ServiceType.findServiceType(callerServiceType) + "] -> " + calleeApplicationName + "[" + ServiceType.findServiceType(calleeServiceType) + "] (" + requestCount + ")");
+			logger.debug("    Fetched. {}[{}] -> {}[{}] ({})", callerApplicationName, ServiceType.findServiceType(callerServiceType), calleeApplicationName, ServiceType.findServiceType(calleeServiceType), requestCount);
 			
 			// hostname은 일단 따로 보관.
 //			if (callerHost != null) {
