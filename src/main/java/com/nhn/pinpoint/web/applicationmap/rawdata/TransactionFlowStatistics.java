@@ -15,7 +15,7 @@ import com.nhn.pinpoint.web.util.Mergeable;
  * @author netspider
  * 
  */
-public class TransactionFlowStatistics implements Mergeable<TransactionFlowStatistics> {
+public class TransactionFlowStatistics implements Mergeable<String, TransactionFlowStatistics> {
 
 	protected String id;
 	protected String from;

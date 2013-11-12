@@ -9,7 +9,7 @@ import java.util.HashMap;
  * @param <K>
  * @param <V>
  */
-public class MergeableHashMap<K, V extends Mergeable<V>> extends HashMap<K, V> implements MergeableMap<K, V> {
+public class MergeableHashMap<K, V extends Mergeable<K, V>> extends HashMap<K, V> implements MergeableMap<K, V> {
 
 	private static final long serialVersionUID = -8474027588052874209L;
 

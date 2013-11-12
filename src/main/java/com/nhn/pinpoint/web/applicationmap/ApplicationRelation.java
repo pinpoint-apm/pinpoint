@@ -12,7 +12,7 @@ import com.nhn.pinpoint.web.util.Mergeable;
  * 
  * @author netspider
  */
-public class ApplicationRelation implements Mergeable<ApplicationRelation> {
+public class ApplicationRelation implements Mergeable<String, ApplicationRelation> {
 	protected final String id;
 
 	protected final Application from;

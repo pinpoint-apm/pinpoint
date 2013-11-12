@@ -16,7 +16,7 @@ import com.nhn.pinpoint.web.util.Mergeable;
  * @author netspider
  * 
  */
-public class ResponseHistogram implements Mergeable<ResponseHistogram>, JsonSerializable {
+public class ResponseHistogram implements Mergeable<String, ResponseHistogram>, JsonSerializable {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	

@@ -22,7 +22,7 @@ import com.nhn.pinpoint.web.util.MergeableTreeMap;
  * 
  * @author netspider
  */
-public class Application implements Comparable<Application>, Mergeable<Application>, JsonSerializable {
+public class Application implements Comparable<Application>, Mergeable<String, Application>, JsonSerializable {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

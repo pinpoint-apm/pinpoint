@@ -13,7 +13,7 @@ import com.nhn.pinpoint.web.util.Mergeable;
  * @author netspider
  * 
  */
-public class ServerInstance implements Comparable<ServerInstance>, Mergeable<ServerInstance>, JsonSerializable {
+public class ServerInstance implements Comparable<ServerInstance>, Mergeable<String, ServerInstance>, JsonSerializable {
 
 	private final String name;
 	private final ServiceType serviceType;

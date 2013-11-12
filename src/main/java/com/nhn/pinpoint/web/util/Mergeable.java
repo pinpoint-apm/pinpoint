@@ -8,7 +8,7 @@ import com.nhn.pinpoint.web.service.NodeId;
  * 
  * @param <T>
  */
-public interface Mergeable<T> {
-	public String getId();
+public interface Mergeable<I, T> {
+	public I getId();
 	public T mergeWith(T o);
 }

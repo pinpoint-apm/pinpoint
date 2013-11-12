@@ -8,7 +8,7 @@ import com.nhn.pinpoint.web.util.Mergeable;
  * @author netspider
  * 
  */
-public class Host implements Mergeable<Host> {
+public class Host implements Mergeable<String, Host> {
 	/**
 	 * UI에서 호스트를 구분하기 위한 목적으로 hostname, agentid, endpoint등 구분할 수 있는 아무거나 넣으면 됨.
 	 */

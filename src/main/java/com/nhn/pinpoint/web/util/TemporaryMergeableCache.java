@@ -11,7 +11,7 @@ import java.util.Map;
  * @param <K>
  * @param <V>
  */
-public class TemporaryMergeableCache<K, V extends Mergeable<V>> {
+public class TemporaryMergeableCache<K, V extends Mergeable<K, V>> {
 	private final Map<K, V> cache = new HashMap<K, V>();
 
 	public V get(K key) {

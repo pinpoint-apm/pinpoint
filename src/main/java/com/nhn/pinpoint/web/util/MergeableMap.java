@@ -9,6 +9,6 @@ import java.util.Map;
  * @param <K>
  * @param <V>
  */
-public interface MergeableMap<K, V extends Mergeable<V>> extends Map<K, V> {
+public interface MergeableMap<K, V extends Mergeable<K, V>> extends Map<K, V> {
 	public V putOrMerge(K key, V value);
 }

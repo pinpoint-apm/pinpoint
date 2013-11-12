@@ -9,7 +9,7 @@ import java.util.TreeMap;
  * @param <K>
  * @param <V>
  */
-public class MergeableTreeMap<K, V extends Mergeable<V>> extends TreeMap<K, V> implements MergeableMap<K, V> {
+public class MergeableTreeMap<K, V extends Mergeable<K, V>> extends TreeMap<K, V> implements MergeableMap<K, V> {
 
 	private static final long serialVersionUID = 8751127723531630287L;
 
