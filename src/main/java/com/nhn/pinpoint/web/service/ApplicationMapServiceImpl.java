@@ -74,13 +74,14 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 	 * @param callerFoundApplications
 	 * @return
 	 */
-	private Set<TransactionFlowStatistics> selectCallee(String callerApplicationName, short callerServiceType, long from, long to, Set<String> calleeFoundApplications, Set<String> callerFoundApplications) {
+	private Set<TransactionFlowStatistics> selectCallee(String callerApplicationName, short callerServiceType, long from, long to, Set<Node> calleeFoundApplications, Set<Node> callerFoundApplications) {
 		// 이미 조회된 구간이면 skip
-		if (calleeFoundApplications.contains(callerApplicationName + callerServiceType)) {
+        final Node key = new Node(callerApplicationName, ServiceType.findServiceType(callerServiceType));
+        if (calleeFoundApplications.contains(key)) {
 			logger.debug("ApplicationStatistics exists. Skip finding callee. {} {} ", callerApplicationName, callerServiceType);
 			return new HashSet<TransactionFlowStatistics>(0);
 		}
-		calleeFoundApplications.add(callerApplicationName + callerServiceType);
+		calleeFoundApplications.add(key);
         if (logger.isDebugEnabled()) {
 		    logger.debug("Find Callee. caller={}, serviceType={}", callerApplicationName, ServiceType.findServiceType(callerServiceType));
         }
@@ -135,13 +136,14 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 	 * @param to
 	 * @return
 	 */
-	private Set<TransactionFlowStatistics> selectCaller(String calleeApplicationName, short calleeServiceType, long from, long to, Set<String> calleeFoundApplications, Set<String> callerFoundApplications) {
+	private Set<TransactionFlowStatistics> selectCaller(String calleeApplicationName, short calleeServiceType, long from, long to, Set<Node> calleeFoundApplications, Set<Node> callerFoundApplications) {
 		// 이미 조회된 구간이면 skip
-		if (callerFoundApplications.contains(calleeApplicationName + calleeServiceType)) {
+        final Node key = new Node(calleeApplicationName, ServiceType.findServiceType(calleeServiceType));
+        if (callerFoundApplications.contains(key)) {
 			logger.debug("ApplicationStatistics exists. Skip finding caller. {} {}", calleeApplicationName, calleeServiceType);
 			return new HashSet<TransactionFlowStatistics>(0);
 		}
-		callerFoundApplications.add(calleeApplicationName + calleeServiceType);
+		callerFoundApplications.add(key);
         if (logger.isDebugEnabled()) {
 		    logger.debug("Find Caller. callee={}, serviceType={}" , calleeApplicationName, ServiceType.findServiceType(calleeServiceType));
         }
@@ -225,8 +227,8 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		watch.start();
 
 		// 무한 탐색을 방지하기 위한 용도.
-		final Set<String> callerFoundApplications = new HashSet<String>();
-		final Set<String> calleeFoundApplications = new HashSet<String>();
+		final Set<Node> callerFoundApplications = new HashSet<Node>();
+		final Set<Node> calleeFoundApplications = new HashSet<Node>();
 
 		Set<TransactionFlowStatistics> callee = selectCallee(applicationName, serviceType, from, to, calleeFoundApplications, callerFoundApplications);
 		Set<TransactionFlowStatistics> caller = selectCaller(applicationName, serviceType, from, to, calleeFoundApplications, callerFoundApplications);
