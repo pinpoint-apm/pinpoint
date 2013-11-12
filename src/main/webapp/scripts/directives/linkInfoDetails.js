@@ -112,6 +112,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (co
              */
             renderStatisticsTimeSeriesHistogram = function (data) {
                 nv.addGraph(function () {
+                    angular.element('.linkInfoDetails .infoChart svg').empty();
                     var chart = nv.models.multiBarChart().x(function (d) {
                         return d[0];
                     }).y(function (d) {
@@ -148,6 +149,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (co
              */
             renderStatisticsSummary = function (querySelector, data) {
                 nv.addGraph(function () {
+                    angular.element(querySelector).empty();
                     var chart = nv.models.discreteBarChart().x(function (d) {
                         return d.label;
                     }).y(function (d) {

@@ -91,6 +91,7 @@ pinpointApp
                         scope.$digest();
                     }
                     nv.addGraph(function () {
+                        angular.element('.nodeInfoDetails .infoBarChart svg').empty();
                         var chart = nv.models.discreteBarChart().x(function (d) {
                             return d.label;
                         }).y(function (d) {
