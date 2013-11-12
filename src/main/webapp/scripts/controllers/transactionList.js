@@ -131,7 +131,9 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
          */
         getTransactionList = function (query, cb) {
             $http
-                .post(cfg.applicationUrl, query.join(""))
+                .post(cfg.applicationUrl, query.join(""), {
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                })
                 .success(function (data, status) {
                     if (angular.isFunction(cb)) {
                         cb(data);
