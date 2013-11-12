@@ -2,7 +2,7 @@
 
 pinpointApp.constant('TransactionListConfig', {
     applicationUrl: '/transactionmetadata.pinpoint',
-    MAX_FETCH_BLOCK_SIZE: 200
+    MAX_FETCH_BLOCK_SIZE: 100
 });
 
 pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$rootScope', '$timeout', '$window', '$http', 'webStorage', 'TimeSliderDao', 'encodeURIComponentFilter',
