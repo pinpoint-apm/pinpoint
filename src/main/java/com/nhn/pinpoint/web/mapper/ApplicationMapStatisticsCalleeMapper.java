@@ -40,11 +40,12 @@ public class ApplicationMapStatisticsCalleeMapper implements RowMapper<Map<Strin
 //		Map<String, Set<String>> callerAppHostMap = new HashMap<String, Set<String>>();
 
 		for (KeyValue kv : keyList) {
-			byte[] qualifier = kv.getQualifier();
 
-			String callerApplicationName = ApplicationMapStatisticsUtils.getApplicationNameFromRowKey(kv.getRow());
-			short callerServiceType = ApplicationMapStatisticsUtils.getApplicationTypeFromRowKey(kv.getRow());
+            final byte[] row = kv.getRow();
+            String callerApplicationName = ApplicationMapStatisticsUtils.getApplicationNameFromRowKey(row);
+			short callerServiceType = ApplicationMapStatisticsUtils.getApplicationTypeFromRowKey(row);
 
+            final byte[] qualifier = kv.getQualifier();
 			String calleeApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);
 			short calleeServiceType = ApplicationMapStatisticsUtils.getDestServiceTypeFromColumnName(qualifier);
 			
