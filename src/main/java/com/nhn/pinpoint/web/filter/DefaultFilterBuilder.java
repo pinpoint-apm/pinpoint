@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.regex.Pattern;
 
 /**
@@ -30,31 +31,30 @@ public class DefaultFilterBuilder implements FilterBuilder {
 
 		final String[] parsedFilterString = FILTER_DELIMETER.split(filterText);
 
-		Filter filter;
 		if (parsedFilterString.length == 1) {
-			filter = makeSingleFilter(parsedFilterString[0]);
+			return makeSingleFilter(parsedFilterString[0]);
 		} else {
-			filter = makeChainedFilter(parsedFilterString);
+			return makeChainedFilter(parsedFilterString);
 		}
-
-		return filter;
 	}
 
 	private Filter makeSingleFilter(String filterText) {
         if (filterText == null) {
             throw new NullPointerException("filterText must not be null");
         }
-        logger.debug("   make filter from string. {}", filterText);
+        logger.debug("make filter from string. {}", filterText);
 		final String[] element = FILTER_ENTRY_DELIMETER.split(filterText);
 		if (element.length == 4) {
 			return new FromToFilter(element[0], element[1], element[2], element[3]);
 		} else {
-			return Filter.NONE;
+			throw new IllegalArgumentException("Invalid filterText:" + filterText);
 		}
 	}
 
 	private Filter makeChainedFilter(String[] filterTexts) {
-		logger.debug("   make chained filter.");
+        if (logger.isDebugEnabled()) {
+		    logger.debug("make chained filter. {}", Arrays.toString(filterTexts));
+        }
 		FilterChain chain = new FilterChain();
 		for (String s : filterTexts) {
 			chain.addFilter(makeSingleFilter(s));
