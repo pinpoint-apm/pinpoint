@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,22 +86,15 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
         StopWatch watch = new StopWatch();
 		watch.start();
 
-		List<List<SpanBo>> transactionList = this.traceDao.selectAllSpans(traceIdSet);
-		List<SpanBo> transaction = new ArrayList<SpanBo>();
-		for (List<SpanBo> t : transactionList) {
-			if (filter.include(t)) {
-				for (SpanBo span : t) {
-					transaction.add(span);
-				}
-			}
-		}
+		List<List<SpanBo>> originalList = this.traceDao.selectAllSpans(traceIdSet);
+        List<SpanBo> filteredTransactionList = filterList(originalList, filter);
 
 		LinkStatistics statistics = new LinkStatistics(from, to);
 
 		// TODO fromToFilter처럼. node의 타입에 따른 처리 필요함.
 
 		// scan transaction list
-		for (SpanBo span : transaction) {
+		for (SpanBo span : filteredTransactionList) {
 			if (srcApplicationName.equals(span.getApplicationId()) && srcServiceType == span.getServiceType().getCode()) {
 				List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
 				if (spanEventBoList == null) {
@@ -127,7 +121,27 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 		return statistics;
 	}
 
-	@Override
+    private List<SpanBo> filterList(List<List<SpanBo>> transactionList, Filter filter) {
+        final List<SpanBo> filteredResult = new ArrayList<SpanBo>();
+        for (List<SpanBo> transaction : transactionList) {
+            if (filter.include(transaction)) {
+                filteredResult.addAll(transaction);
+            }
+        }
+        return filteredResult;
+    }
+
+    private List<List<SpanBo>> filterList2(List<List<SpanBo>> transactionList, Filter filter) {
+        final List<List<SpanBo>> filteredResult = new ArrayList<List<SpanBo>>();
+        for (List<SpanBo> transaction : transactionList) {
+            if (filter.include(transaction)) {
+                filteredResult.add(transaction);
+            }
+        }
+        return filteredResult;
+    }
+
+    @Override
 	public ApplicationMap selectApplicationMap(TransactionId transactionId) {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
@@ -155,126 +169,58 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 
 		// 개별 객체를 각각 보고 재귀 내용을 삭제함.
 		// 향후 tree base로 충돌구간을 점검하여 없앨 경우 여기서 filter를 치면 안됨.
-		Collection<TransactionId> filterdList = recursiveCallFilter(transactionIdList);
-
+		final Collection<TransactionId> recursiveFilterList = recursiveCallFilter(transactionIdList);
 		// FIXME 나중에 List<Span>을 순회하면서 실행할 process chain을 두는것도 괜찮을듯.
-		List<List<SpanBo>> transactionList = this.traceDao.selectAllSpans(filterdList);
+		final List<List<SpanBo>> originalList = this.traceDao.selectAllSpans(recursiveFilterList);
+        final List<List<SpanBo>> filterList = filterList2(originalList, filter);
 
-		Set<TransactionFlowStatistics> statisticsData = new HashSet<TransactionFlowStatistics>();
-		Map<String, TransactionFlowStatistics> statisticsMap = new HashMap<String, TransactionFlowStatistics>();
-		Map<Long, SpanBo> transactionSpanMap = new HashMap<Long, SpanBo>();
+        Set<TransactionFlowStatistics> statisticsData = new HashSet<TransactionFlowStatistics>();
+		Map<NodeId, TransactionFlowStatistics> statisticsMap = new HashMap<NodeId, TransactionFlowStatistics>();
 
-		TimeSeriesStore tr = new TimeSeriesStoreImpl2(from, to);
 
+		final TimeSeriesStore timeSeriesStore = new TimeSeriesStoreImpl2(from, to);
 		/**
 		 * 통계정보로 변환한다.
 		 */
-		for (List<SpanBo> transaction : transactionList) {
-			if (!filter.include(transaction)) {
-				continue;
-			}
-
-			transactionSpanMap.clear();
+		for (List<SpanBo> transaction : filterList) {
+            final Map<Long, SpanBo> transactionSpanMap = new HashMap<Long, SpanBo>(transactionIdList.size());
 			for (SpanBo span : transaction) {
-				transactionSpanMap.put(span.getSpanId(), span);
-			}
+                final SpanBo old = transactionSpanMap.put(span.getSpanId(), span);
+                logger.warn("duplicated span found:{}", old);
+            }
 
 			for (SpanBo span : transaction) {
-				String src;
-                String dest;
-				ServiceType srcServiceType;
-                ServiceType destServiceType;
-				SpanBo parentSpan = transactionSpanMap.get(span.getParentSpanId());
-
-				if (span.isRoot() || parentSpan == null) {
-					src = span.getApplicationId();
-					srcServiceType = ServiceType.CLIENT;
-				} else {
-					src = parentSpan.getApplicationId();
-					srcServiceType = parentSpan.getServiceType();
-				}
-
-				dest = span.getApplicationId();
-				destServiceType = span.getServiceType();
-
-				if (!destServiceType.isRecordStatistics() || destServiceType.isRpcClient()) {
+                final Node srcNode = createNode(span, transactionSpanMap);
+                final Node destNode = new Node(span.getApplicationId(), span.getServiceType());
+                // TODO API의 의미가 link라고 하기는 좀 애매함. 변경필요.
+				if (destNode.isLink()) {
 					continue;
 				}
 
-				String statId = TransactionFlowStatisticsUtils.makeId(src, srcServiceType, dest, destServiceType);
-				TransactionFlowStatistics stat = (statisticsMap.containsKey(statId) ? statisticsMap.get(statId) : new TransactionFlowStatistics(src, srcServiceType, dest, destServiceType));
+                final ComplexNodeId statId = new ComplexNodeId(srcNode, destNode);
+				TransactionFlowStatistics stat;
+                if (statisticsMap.containsKey(statId))  {
+                    stat = statisticsMap.get(statId);
+                }
+                else {
+                    stat = new TransactionFlowStatistics(srcNode.getName(), srcNode.getServiceType(), destNode.getName(), destNode.getServiceType());
+                }
 
-				int slot;
-				if (span.hasException()) {
-					slot = Histogram.ERROR_SLOT.getSlotTime();
-				} else {
-					slot = destServiceType.getHistogram().findHistogramSlot(span.getElapsed()).getSlotTime();
-				}
+                final int slot = getHistogramSlot(span, destNode.getServiceType());
 
-				stat.addSample(dest, destServiceType.getCode(), (short) slot, 1);
+                stat.addSample(destNode.getName(), destNode.getServiceType().getCode(), (short) slot, 1);
 
 				statisticsData.add(stat);
 				statisticsMap.put(statId, stat);
 
 				// link timeseries statistics추가.
-				tr.add(statId, span.getCollectorAcceptTime(), slot, 1L, span.hasException());
+				timeSeriesStore.add(statId, span.getCollectorAcceptTime(), slot, 1L, span.hasException());
 				
 				// application timeseries statistics
-				tr.add(span.getApplicationId(), span.getCollectorAcceptTime(), slot, 1L, span.hasException());
+				timeSeriesStore.add(new SimpleNodeId(span.getApplicationId()), span.getCollectorAcceptTime(), slot, 1L, span.hasException());
 
-				/**
-				 * span event의 statistics추가.
-				 */
-				List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
-				if (spanEventBoList == null || spanEventBoList.isEmpty()) {
-					continue;
-				}
-				src = span.getApplicationId();
-				srcServiceType = span.getServiceType();
-
-				for (SpanEventBo spanEvent : spanEventBoList) {
-					dest = spanEvent.getDestinationId();
-					destServiceType = spanEvent.getServiceType();
-
-					if (!destServiceType.isRecordStatistics() /*|| destServiceType.isRpcClient()*/) {
-						continue;
-					}
-
-					// rpc client이면서 acceptor가 없으면 unknown으로 변환시킨다.
-					// 내가 아는 next spanid를 spanid로 가진 span이 있으면 acceptor가 존재하는 셈.
-					if (destServiceType.isRpcClient()) {
-						if (transactionSpanMap.containsKey(spanEvent.getNextSpanId())) {
-							continue;
-						} else {
-							destServiceType = ServiceType.UNKNOWN_CLOUD;
-						}
-					}
-
-					String statId2 = TransactionFlowStatisticsUtils.makeId(src, srcServiceType, dest, destServiceType);
-					TransactionFlowStatistics stat2 = (statisticsMap.containsKey(statId2) ? statisticsMap.get(statId2) : new TransactionFlowStatistics(src, srcServiceType, dest, destServiceType));
-
-					int slot2;
-					if (spanEvent.hasException()) {
-						slot2 = Histogram.ERROR_SLOT.getSlotTime();
-					} else {
-						slot2 = destServiceType.getHistogram().findHistogramSlot(spanEvent.getEndElapsed()).getSlotTime();
-					}
-
-					// FIXME 
-					// stat2.addSample((dest == null) ? spanEvent.getEndPoint() : dest, destServiceType.getCode(), (short) slot2, 1);
-					stat2.addSample(spanEvent.getEndPoint(), destServiceType.getCode(), (short) slot2, 1);
-
-					// agent 정보추가. destination의 agent정보 알 수 없음.
-					statisticsData.add(stat2);
-					statisticsMap.put(statId2, stat2);
-
-					// link timeseries statistics추가.
-					tr.add(statId2, span.getStartTime() + spanEvent.getStartElapsed(), slot2, 1L, spanEvent.hasException());
-
-					// application timeseries statistics
-					tr.add(spanEvent.getDestinationId(), span.getCollectorAcceptTime(), slot2, 1L, spanEvent.hasException());
-				}
-			}
+                addNodeFromSpanEvent(statisticsData, statisticsMap, timeSeriesStore, transactionSpanMap, span);
+            }
 		}
 
 		// mark agent info
@@ -283,7 +229,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 		}
 
 		ApplicationMap map = new ApplicationMap(statisticsData).build();
-		map.setTimeSeriesStore(tr);
+		map.setTimeSeriesStore(timeSeriesStore);
 
 		watch.stop();
 		logger.debug("Select filtered application map elapsed. {}ms", watch.getTotalTimeMillis());
@@ -291,7 +237,93 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 		return map;
 	}
 
-	private Collection<TransactionId> recursiveCallFilter(List<TransactionId> transactionIdList) {
+
+
+
+    private void addNodeFromSpanEvent(Set<TransactionFlowStatistics> statisticsData, Map<NodeId, TransactionFlowStatistics> statisticsMap, TimeSeriesStore timeSeriesStore, Map<Long, SpanBo> transactionSpanMap, SpanBo span) {
+        /**
+         * span event의 statistics추가.
+         */
+        final List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
+        if (CollectionUtils.isEmpty(spanEventBoList)) {
+            return;
+        }
+        final Node srcNode = new Node(span.getApplicationId(), span.getServiceType());
+
+        for (SpanEventBo spanEvent : spanEventBoList) {
+            final String dest = spanEvent.getDestinationId();
+            ServiceType destServiceType = spanEvent.getServiceType();
+
+            if (!destServiceType.isRecordStatistics() /*|| destServiceType.isRpcClient()*/) {
+                continue;
+            }
+
+            // rpc client이면서 acceptor가 없으면 unknown으로 변환시킨다.
+            // 내가 아는 next spanid를 spanid로 가진 span이 있으면 acceptor가 존재하는 셈.
+            if (destServiceType.isRpcClient()) {
+                if (transactionSpanMap.containsKey(spanEvent.getNextSpanId())) {
+                    continue;
+                } else {
+                    destServiceType = ServiceType.UNKNOWN_CLOUD;
+                }
+            }
+
+            final NodeId spanEventStatId = new ComplexNodeId(srcNode, new Node(dest, destServiceType));
+            TransactionFlowStatistics stat2;
+            if (statisticsMap.containsKey(spanEventStatId)) {
+                stat2 = statisticsMap.get(spanEventStatId);
+            } else {
+                stat2 = new TransactionFlowStatistics(srcNode.getName(), srcNode.getServiceType(), dest, destServiceType);
+            }
+
+            final int slot2 = getHistogramSlot(spanEvent, destServiceType);
+
+            // FIXME
+            // stat2.addSample((dest == null) ? spanEvent.getEndPoint() : dest, destServiceType.getCode(), (short) slot2, 1);
+            stat2.addSample(spanEvent.getEndPoint(), destServiceType.getCode(), (short) slot2, 1);
+
+            // agent 정보추가. destination의 agent정보 알 수 없음.
+            statisticsData.add(stat2);
+            statisticsMap.put(spanEventStatId, stat2);
+
+            // link timeseries statistics추가.
+            timeSeriesStore.add(spanEventStatId, span.getStartTime() + spanEvent.getStartElapsed(), slot2, 1L, spanEvent.hasException());
+
+            // application timeseries statistics
+            timeSeriesStore.add(new SimpleNodeId(spanEvent.getDestinationId()), span.getCollectorAcceptTime(), slot2, 1L, spanEvent.hasException());
+        }
+    }
+
+    private Node createNode(SpanBo span, Map<Long, SpanBo> transactionSpanMap) {
+        SpanBo parentSpan = transactionSpanMap.get(span.getParentSpanId());
+        if (span.isRoot() || parentSpan == null) {
+            String src = span.getApplicationId();
+            ServiceType srcServiceType = ServiceType.CLIENT;
+            return new Node(src, srcServiceType);
+        } else {
+            String src = parentSpan.getApplicationId();
+            ServiceType serviceType = parentSpan.getServiceType();
+            return new Node(src, serviceType);
+        }
+    }
+
+    private int getHistogramSlot(SpanEventBo spanEvent, ServiceType serviceType) {
+        return getHistogramSlot(spanEvent.hasException(), spanEvent.getEndElapsed(), serviceType);
+    }
+
+    private int getHistogramSlot(SpanBo span, ServiceType serviceType) {
+        return getHistogramSlot(span.hasException(), span.getElapsed(), serviceType);
+    }
+
+    private int getHistogramSlot(boolean hasException, int elapsedTime, ServiceType serviceType) {
+        if (hasException) {
+            return Histogram.ERROR_SLOT.getSlotTime();
+        } else {
+            return serviceType.getHistogram().findHistogramSlot(elapsedTime).getSlotTime();
+        }
+    }
+
+    private Collection<TransactionId> recursiveCallFilter(List<TransactionId> transactionIdList) {
         if (transactionIdList == null) {
             throw new NullPointerException("transactionIdList must not be null");
         }
@@ -335,4 +367,5 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 		}
 		return agentSet;
 	}
+
 }

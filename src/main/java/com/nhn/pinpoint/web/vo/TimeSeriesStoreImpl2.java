@@ -3,6 +3,7 @@ package com.nhn.pinpoint.web.vo;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.nhn.pinpoint.web.service.NodeId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +20,7 @@ public class TimeSeriesStoreImpl2 implements TimeSeriesStore {
 
 	private final long from;
 	private final long to;
-	private final Map<String, LinkStatistics> data = new HashMap<String, LinkStatistics>();
+	private final Map<NodeId, LinkStatistics> data = new HashMap<NodeId, LinkStatistics>();
 	private final boolean enabled;
 
 	public TimeSeriesStoreImpl2(long from, long to) {
@@ -33,7 +34,7 @@ public class TimeSeriesStoreImpl2 implements TimeSeriesStore {
 	}
 
 	@Override
-	public void add(String key, long timestamp, int responseTimeslot, long callCount, boolean isFailed) {
+	public void add(NodeId key, long timestamp, int responseTimeslot, long callCount, boolean isFailed) {
 		if (!enabled) {
 			logger.debug("store is not enabled.");
 			return;

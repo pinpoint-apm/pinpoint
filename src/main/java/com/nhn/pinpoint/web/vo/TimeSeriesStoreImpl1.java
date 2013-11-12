@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.nhn.pinpoint.web.service.NodeId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,7 @@ public class TimeSeriesStoreImpl1 implements TimeSeriesStore {
 	/**
 	 * key = id value = value list
 	 */
-	private final Map<String, List<Long>> values = new HashMap<String, List<Long>>();
+	private final Map<NodeId, List<Long>> values = new HashMap<NodeId, List<Long>>();
 
 	private final long from;
 	private final long to;
@@ -61,7 +62,7 @@ public class TimeSeriesStoreImpl1 implements TimeSeriesStore {
 		}
 		
 		@Override
-		public void add(String key, long timestamp, int responseTimeslot, long callCount, boolean isFailed) {
+		public void add(NodeId key, long timestamp, int responseTimeslot, long callCount, boolean isFailed) {
 		}
 	};
 	
@@ -93,7 +94,7 @@ public class TimeSeriesStoreImpl1 implements TimeSeriesStore {
 		return list;
 	}
 
-	public void add(String key, long timestamp, int responseTimeslot, long callCount, boolean isFailed) {
+	public void add(NodeId key, long timestamp, int responseTimeslot, long callCount, boolean isFailed) {
 		logger.debug("add sample key={}, timestamp={} responseTimeSlot={}, count={}", key, timestamp, responseTimeslot, callCount, isFailed);
 		
 		List<Long> list = values.get(key);
@@ -117,9 +118,9 @@ public class TimeSeriesStoreImpl1 implements TimeSeriesStore {
 		}
 		StringBuilder sb = new StringBuilder();
 		sb.append("{\"values\":{");
-		Iterator<Entry<String, List<Long>>> entryIterator = values.entrySet().iterator();
+		Iterator<Entry<NodeId, List<Long>>> entryIterator = values.entrySet().iterator();
 		while (entryIterator.hasNext()) {
-			Entry<String, List<Long>> entry = entryIterator.next();
+			Entry<NodeId, List<Long>> entry = entryIterator.next();
 			sb.append("\"").append(entry.getKey()).append("\":[");
 			Iterator<Long> valueIterator = entry.getValue().iterator();
 			while (valueIterator.hasNext()) {

@@ -130,7 +130,6 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 	 * @param calleeApplicationName
 	 * @param from
 	 * @param to
-	 * @param foundApplications
 	 * @return
 	 */
 	private Set<TransactionFlowStatistics> selectCaller(String calleeApplicationName, short calleeServiceType, long from, long to, Set<String> calleeFoundApplications, Set<String> callerFoundApplications) {
@@ -180,6 +179,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 			Application app = hostApplicationMapDao.findApplicationName(stat.getTo(), from, to);
 			if (app != null) {
 				logger.debug("Application info replaced. {} => {}", stat, app);
+
 				stat.setTo(app.getApplicationName());
 				stat.setToServiceType(app.getServiceType());
 				return true;

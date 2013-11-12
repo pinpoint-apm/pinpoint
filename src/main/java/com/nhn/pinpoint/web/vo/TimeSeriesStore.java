@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.web.vo;
 
+import com.nhn.pinpoint.web.service.NodeId;
 import com.nhn.pinpoint.web.util.JsonSerializable;
 
 /**
@@ -8,5 +9,5 @@ import com.nhn.pinpoint.web.util.JsonSerializable;
  * 
  */
 public interface TimeSeriesStore extends JsonSerializable {
-	void add(String key, long timestamp, int responseTimeslot, long callCount, boolean isFailed);
+	void add(NodeId key, long timestamp, int responseTimeslot, long callCount, boolean isFailed);
 }
