@@ -189,7 +189,7 @@
                     {
                         selectionAdorned: false,
 //                        selectionAdornmentTemplate: oSelectionAdornmentTemplate,
-                        click: self._onNodeClicked.bind(self),
+//                        click: self._onNodeClicked.bind(self),
                         contextClick: self._onNodeContextClicked.bind(self)
                     },
                     self.$(
@@ -254,7 +254,7 @@
                 option = {
                     selectionAdorned: false,
                     // selectionAdornmentTemplate: this._oDefaultAdornmentForLink,
-                    click: this._onLinkClicked.bind(this),
+//                    click: this._onLinkClicked.bind(this),
                     contextClick: this._onLinkContextClicked.bind(this),
                     layerName: "Foreground",
                     reshapable: false, // 연결선 reshape핸들 없애려고.
@@ -389,6 +389,14 @@
             var self = this;
             // whenever selection changes, run updateHighlights
             this._oDiagram.addDiagramListener("ChangedSelection", function (e) {
+                var selection = self._oDiagram.selection.first();
+                if (selection) {
+                    if (selection instanceof go.Node) {
+                        self._onNodeClicked(e, selection);
+                    } else if (selection instanceof go.Link) {
+                        self._onLinkClicked(e, selection);
+                    }
+                }
                 self._updateHightlights();
             });
             this._oDiagram.addDiagramListener("BackgroundSingleClicked", function (e) {
