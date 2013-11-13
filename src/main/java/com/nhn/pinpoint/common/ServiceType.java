@@ -15,7 +15,7 @@ public enum ServiceType {
     UNKNOWN((short) 0, "UNKNOWN", false, true, false, Histogram.NORMAL),
     UNKNOWN_CLOUD((short) 1, "UNKNOWN_CLOUD", false, true, false, Histogram.NORMAL),
     // TODO: 이 client와 아래 user를 구분해서 사용하도록 web과 agent를 수정해야함.
-    CLIENT((short) 2, "CLIENT", false, false, false, Histogram.NORMAL),
+    CLIENT((short) 2, "CLIENT", false, true, false, Histogram.NORMAL),
     UNKNOWN_GROUP((short) 3, "UNKNOWN_GROUP", false, true, false, Histogram.NORMAL),
     USER((short) 4, "USER", false, false, false, Histogram.NORMAL),
 
