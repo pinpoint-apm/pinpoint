@@ -185,7 +185,9 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
             final Map<Long, SpanBo> transactionSpanMap = new HashMap<Long, SpanBo>(transactionIdList.size());
 			for (SpanBo span : transaction) {
                 final SpanBo old = transactionSpanMap.put(span.getSpanId(), span);
-                logger.warn("duplicated span found:{}", old);
+                if (old != null) {
+                    logger.warn("duplicated span found:{}", old);
+                }
             }
 
 			for (SpanBo span : transaction) {
