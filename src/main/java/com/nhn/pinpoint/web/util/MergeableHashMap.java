@@ -14,12 +14,12 @@ public class MergeableHashMap<K, V extends Mergeable<K, V>> extends HashMap<K, V
 	private static final long serialVersionUID = -8474027588052874209L;
 
 	public V putOrMerge(K key, V value) {
-		V v = get(key);
-		if (v == null) {
-			put(key, v = value);
+		final V find = get(key);
+		if (find == null) {
+			put(key, value);
 		} else {
-			put(key, v.mergeWith(value));
+            find.mergeWith(value);
 		}
-		return v;
+		return find;
 	}
 }
