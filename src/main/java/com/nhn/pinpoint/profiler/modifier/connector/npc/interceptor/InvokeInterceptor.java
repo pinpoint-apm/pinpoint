@@ -34,9 +34,8 @@ public class InvokeInterceptor implements SimpleAroundInterceptor, ByteCodeMetho
 
 //		Trace trace = traceContext.currentRawTraceObject();
         // 이부분은 현재 remote 호출시 traceId를 넣지 않으므로 currentRawTraceObject()를 호출하지 않는다.
-        Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentTraceObject();
 		if (trace == null) {
-			logger.warn("Trace object is null");
 			return;
 		}
 
@@ -91,7 +90,7 @@ public class InvokeInterceptor implements SimpleAroundInterceptor, ByteCodeMetho
 			logger.afterInterceptor(target, args);
 		}
 
-		Trace trace = traceContext.currentTraceObject();
+		final Trace trace = traceContext.currentTraceObject();
 		if (trace == null) {
 			return;
 		}

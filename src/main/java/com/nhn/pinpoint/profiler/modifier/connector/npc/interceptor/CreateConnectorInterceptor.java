@@ -32,9 +32,8 @@ public class CreateConnectorInterceptor implements SimpleAroundInterceptor, Byte
 		}
         // Trace trace = traceContext.currentRawTraceObject();
         // sampling 레이트를 추가로 확인하여 액션을 취하는 로직이 없으므로 그냥 currentTraceObject()를 호출한다.
-		Trace trace = traceContext.currentTraceObject();
+		final Trace trace = traceContext.currentTraceObject();
 		if (trace == null) {
-			logger.warn("Trace object is null");
 			return;
 		}
 
@@ -63,7 +62,7 @@ public class CreateConnectorInterceptor implements SimpleAroundInterceptor, Byte
 			logger.afterInterceptor(target, args);
 		}
 
-		Trace trace = traceContext.currentTraceObject();
+		final Trace trace = traceContext.currentTraceObject();
 		if (trace == null) {
 			return;
 		}
