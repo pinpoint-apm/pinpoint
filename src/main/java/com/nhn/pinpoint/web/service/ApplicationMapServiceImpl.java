@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -237,7 +238,8 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		data.addAll(callee);
 		data.addAll(caller);
 
-		ApplicationMap map = new ApplicationMap(data).build();
+
+		ApplicationMap map = new ApplicationMapBuilder().build(data);
 
 		watch.stop();
 		logger.info("Fetch applicationmap elapsed. {}ms", watch.getLastTaskTimeMillis());

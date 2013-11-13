@@ -27,20 +27,6 @@ public class ApplicationRelation implements Mergeable<NodeId, ApplicationRelatio
 	protected final Application to;
 	private Map<String, Host> hostList;
 
-//	public ApplicationRelation(Application from, Application to, Map<String, Host> hostList) {
-//        if (from == null) {
-//            throw new NullPointerException("from must not be null");
-//        }
-//        if (to == null) {
-//            throw new NullPointerException("to must not be null");
-//        }
-//        ComplexNodeId fromId = from.getId();
-//        ComplexNodeId toId = to.getId();
-//        this.id = new ComplexNodeId(fromId.getSrc(), toId.getDest());
-//        this.from = from;
-//        this.to = to;
-//        this.hostList = hostList;
-//    }
 
     public ApplicationRelation(Application from, Application to, Map<String, Host> hostList) {
         if (from == null) {

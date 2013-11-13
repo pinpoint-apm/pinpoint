@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -230,7 +231,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 			fillAdditionalInfo(stat);
 		}
 
-		ApplicationMap map = new ApplicationMap(statisticsData).build();
+        ApplicationMap map = new ApplicationMapBuilder().build(statisticsData);
 		map.setTimeSeriesStore(timeSeriesStore);
 
 		watch.stop();

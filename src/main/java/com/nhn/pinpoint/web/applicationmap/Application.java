@@ -24,7 +24,6 @@ import com.nhn.pinpoint.web.util.MergeableTreeMap;
  * 
  * @author netspider
  */
-//public class Application implements Comparable<Application>, Mergeable<NodeId, Application>, JsonSerializable {
 public class Application implements Mergeable<NodeId, Application>, JsonSerializable {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -177,11 +176,6 @@ public class Application implements Mergeable<NodeId, Application>, JsonSerializ
 		sb.append(" }");
 		return sb.toString();
 	}
-
-//	@Override
-//	public int compareTo(Application server) {
-//		return id.compareTo(server.id);
-//	}
 
 	@Override
 	public String toString() {

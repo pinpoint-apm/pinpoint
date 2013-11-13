@@ -27,7 +27,6 @@ public class RawStatisticsData implements Iterable<TransactionFlowStatistics> {
 			if (stat.getToAgentSet() == null) {
 				continue;
 			}
-//			String key = stat.getTo() + stat.getToServiceType();
             NodeId key = stat.getToApplicationId();
             final Set<AgentInfoBo> agentInfoBos = agentMap.get(key);
             if (agentInfoBos != null) {
