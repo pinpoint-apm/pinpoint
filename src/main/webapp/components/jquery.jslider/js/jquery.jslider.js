@@ -177,7 +177,7 @@
                 '<i class="v"></i>' +
                 '</div>' +
 
-                '<div class="<%=className%>-pointer"></div>' +
+                '<div class="<%=className%>-pointer <%=className%>-pointer-from"></div>' +
                 '<div class="<%=className%>-pointer <%=className%>-pointer-to"></div>' +
 
                 '<div class="<%=className%>-label"><span><%=settings.from%></span></div>' +

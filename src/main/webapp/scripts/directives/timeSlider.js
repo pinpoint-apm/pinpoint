@@ -52,6 +52,8 @@ pinpointApp.directive('timeSlider', [ 'timeSliderConfig', '$timeout', function (
                             }
                         }
                     );
+                    element.find('.jslider-pointer-from').addClass('jslider-transition');
+                    element.find('.jslider-bg .v').addClass('jslider-transition');
                 });
                 checkDisableMore();
             };
