@@ -4,7 +4,7 @@
         <div class="alert alert-success">
             <div class="alert alert-info">
                 <h6 ng-show="oNavbarDao.getQueryStartTime() && oNavbarDao.getQueryEndTime()">{{oNavbarDao.getQueryStartTime() | date:'yyyy-MM-dd HH:mm:ss'}} ~ {{oNavbarDao.getQueryEndTime() | date:'yyyy-MM-dd HH:mm:ss'}}</h6>
-                <ul class="unstyled" ng-show="oNavbarDao.getFilter()" ng-bind-html-unsafe="oNavbarDao.getFilter() | filterToString">
+                <ul class="unstyled" ng-show="oNavbarDao.getFilter()" ng-bind-html="oNavbarDao.getFilter() | filterToString">
                 </ul>
             </div>
             <div class="controls controls-row">

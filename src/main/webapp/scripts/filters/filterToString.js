@@ -1,6 +1,6 @@
 'use strict';
 
-pinpointApp.filter('filterToString', function () {
+pinpointApp.filter('filterToString', [ '$sce', function ($sce) {
 
     var checkInputData = function (input) {
         return angular.isDefined(input) && angular.isString(input);
@@ -23,7 +23,6 @@ pinpointApp.filter('filterToString', function () {
     };
 
     return function (input) {
-
         if (checkInputData(input) === false) {
             return '';
         }
@@ -43,7 +42,6 @@ pinpointApp.filter('filterToString', function () {
 
             html += parseToHtml(splitedFilter);
         });
-
-        return html;
+        return $sce.trustAsHtml(html);
     };
-});
+}]);
