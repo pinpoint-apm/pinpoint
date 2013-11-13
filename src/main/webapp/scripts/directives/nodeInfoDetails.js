@@ -24,7 +24,7 @@ pinpointApp
                  */
                 reset = function () {
                     scope.showNodeInfoDetails = false;
-                    scope.nodeName = null;
+                    scope.nodeTitle = null;
                     scope.nodeCategory = null;
                     scope.nodeIcon = 'USER';
                     scope.unknownGroup = null;
@@ -45,7 +45,7 @@ pinpointApp
                  */
                 showDetailInformation = function (query, node) {
                     scope.showNodeInfoDetails = true;
-                    scope.nodeName = node.text;
+                    scope.nodeTitle = node.text;
                     scope.nodeCategory = node.category;
                     if (node.category !== 'UNKNOWN_GROUP') {
                         scope.nodeIcon = node.category; // do not be reset. because it will be like this '.../icons/.png 404 (Not Found)'

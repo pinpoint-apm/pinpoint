@@ -304,23 +304,6 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                 };
 
                 /**
-                 * scope period click
-                 * @param val
-                 */
-                scope.periodClick = function (val) {
-                    scope.period = val;
-                    broadcast();
-                };
-
-                /**
-                 * change period type to
-                 * @param periodType
-                 */
-                scope.changePeriodTypeTo = function (periodType) {
-                    scope.periodType = periodType;
-                };
-
-                /**
                  * search
                  */
                 scope.search = function () {
@@ -339,6 +322,15 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                  */
                 scope.$on('navbar.initializeWithStaticApplication', function (event, navbarDao) {
                     initializeWithStaticApplication(navbarDao);
+                });
+
+                /**
+                 * scope watch on period
+                 */
+                scope.$watch('period', function (newValue, oldValue) {
+                    if (newValue && oldValue) {
+                        broadcast();
+                    }
                 });
             }
         };

@@ -44,6 +44,9 @@ pinpointApp.controller('MainCtrl', [ '$scope', '$timeout', '$routeParams', '$loc
         var url = '/' + getFirstPathOfLocation() + '/' + oNavbarDao.getApplication() + '/' + oNavbarDao.getPeriod() + '/' + oNavbarDao.getQueryEndTime();
         if ($location.path() !== url) {
             $location.path(url);
+            if (!$scope.$$phase) {
+                $scope.$apply();
+            }
         }
     };
 
