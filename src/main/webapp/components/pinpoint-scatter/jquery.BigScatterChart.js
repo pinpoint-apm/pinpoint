@@ -82,6 +82,16 @@ var BigScatterChart = $.Class({
                 htOption: {
                     dataType: 'jsonp',
                     jsonp: 'callback'
+                },
+                index: {
+                    x: 0,
+                    y: 1,
+                    transactionId: 2,
+                    type: 3
+                },
+                type: {
+                    '0' : 'Failed',
+                    '1' : 'Success'
                 }
             },
             'useTypeUlSort' : false,
@@ -803,14 +813,16 @@ var BigScatterChart = $.Class({
 
     _countPerType: function (aBubbles) {
         var aBubbles = aBubbles,
-            htTypeCount = {};
-
+            htTypeCount = {},
+            htDataSource = this.option('htDataSource'),
+            htDataIndex = htDataSource.index,
+            htDataType = htDataSource.type;
         if (_.isArray(aBubbles) && aBubbles.length > 0) {
             for (var i = 0, nLen = aBubbles.length; i < nLen; i++) {
-                if (_.isNumber(htTypeCount[aBubbles[i].type]) === false) {
-                    htTypeCount[aBubbles[i].type] = 0;
+                if (_.isNumber(htTypeCount[htDataType[aBubbles[i][htDataIndex.type]]]) === false) {
+                    htTypeCount[htDataType[aBubbles[i][htDataIndex.type]]] = 0;
                 }
-                htTypeCount[aBubbles[i].type] += 1;
+                htTypeCount[htDataType[aBubbles[i][htDataIndex.type]]] += 1;
             }
         }
         _.each(htTypeCount, function (sVal, sKey) {
@@ -913,16 +925,19 @@ var BigScatterChart = $.Class({
             nPaddingRight = this.option('nPaddingRight'),
             nBubbleSize = this.option('nBubbleSize'),
             htTypeAndColor = this.option('htTypeAndColor'),
-            nDefaultRadius = this.option('nDefaultRadius');
+            nDefaultRadius = this.option('nDefaultRadius'),
+            htDataSource = this.option('htDataSource'),
+            htDataIndex = htDataSource.index,
+            htDataType = htDataSource.type;
 
         //this._oChartCtx.lineWidth = 1;
         setTimeout(function () {
             for (var i = 0, nLen = aBubbles.length; i < nLen && !this._bDestroied; i++) {
-                var x = this._parseXDataToXChart(this._checkXMinMax(aBubbles[i].x)),
-                    y = this._parseYDataToYChart(this._checkYMinMax(aBubbles[i].y)),
+                var x = this._parseXDataToXChart(this._checkXMinMax(aBubbles[i][htDataIndex.x])),
+                    y = this._parseYDataToYChart(this._checkYMinMax(aBubbles[i][htDataIndex.y])),
                     r = this._parseZDataToZChart(aBubbles[i].r || nDefaultRadius),
-                    a = aBubbles[i].y / this._nYMax * 0.7,
-                    sThisType = aBubbles[i].type;
+                    a = aBubbles[i][htDataIndex.y] / this._nYMax * 0.7,
+                    sThisType = htDataType[aBubbles[i][htDataIndex.type]];
 
                 this._htBubbleCtx[sThisType].beginPath();
                 // this._htBubbleCtx[sThisType].globalAlpha = 0.8;
@@ -1043,7 +1058,10 @@ var BigScatterChart = $.Class({
         // 워커를 사용하였지만, 전체 배열을 주고 받는 시간도 오래걸린다
         var aBubbles = this._aBubbles || [],
             aIndexToBeRemoved = [],
-            htType = this.option('htTypeAndColor');
+            htType = this.option('htTypeAndColor'),
+            htDataSource = this.option('htDataSource'),
+            htDataIndex = htDataSource.index,
+            htDataType = htDataSource.type;
 
         outerLoop:
             for (var i = 0, nLen = aBubbles.length; i < nLen; i++) {
@@ -1054,7 +1072,7 @@ var BigScatterChart = $.Class({
 
                 if (this._aBubbleStep[i].nXMin <= nX) {
                     for (var j = 0, nLen2 = aBubbles[i].length; j < nLen2; j++) {
-                        htTypeCountToBeRemoved[aBubbles[i][j].type] += 1;
+                        htTypeCountToBeRemoved[aBubbles[i][j][htDataType[htDataIndex.type]]] += 1;
                         if (aBubbles[i][j].x > nX || j === nLen2 - 1) {
                             aBubbles[i].splice(0, j + 1);
                             this._aBubbleStep[i].nXMin = nX;
@@ -1095,7 +1113,10 @@ var BigScatterChart = $.Class({
         var aBubbleStep = this._aBubbleStep,
             aBubbles = this._aBubbles,
             aData = [],
-            bStarted = false;
+            bStarted = false,
+            htDataSource = this.option('htDataSource'),
+            htDataIndex = htDataSource.index,
+            htDataType = htDataSource.type;
 
         var aVisibleType = [];
         _.each(this._htwelTypeLi, function (welTypeLi, sKey) {
@@ -1157,11 +1178,11 @@ var BigScatterChart = $.Class({
             // 	}
             // }else{
             for (var j = 0, nLen2 = aBubbleStep[i].nLength; j < nLen2; j++) {
-                if (aBubbles[i][j].x >= nXFrom && aBubbles[i][j].x <= nXTo
-                    && _.indexOf(aVisibleType, aBubbles[i][j].type) >= 0) {
+                if (aBubbles[i][j][htDataIndex.x] >= nXFrom && aBubbles[i][j][htDataIndex.x] <= nXTo
+                    && _.indexOf(aVisibleType, htDataType[aBubbles[i][j][htDataIndex.type]]) >= 0) {
 
-                    if (aBubbles[i][j].y >= nYFrom && aBubbles[i][j].y <= nYTo
-                        || nYTo === this._nYMax && nYTo < aBubbles[i][j].y) {
+                    if (aBubbles[i][j][htDataIndex.y] >= nYFrom && aBubbles[i][j][htDataIndex.y] <= nYTo
+                        || nYTo === this._nYMax && nYTo < aBubbles[i][j][htDataIndex.y]) {
                         aData.push(aBubbles[i][j]);
                     }
                 }
@@ -1354,7 +1375,7 @@ var BigScatterChart = $.Class({
         htOption.success = function (htData) {
             self._hideNoData();
             if (htData.scatter.length > 0) {
-                self.addBubbleAndMoveAndDraw(htData.scatter, htData.scatter[htData.scatter.length - 1].x);
+                self.addBubbleAndMoveAndDraw(htData.scatter, htData.resultFrom);
             }
             self._htLastFetchedData = htData;
             /* for testing

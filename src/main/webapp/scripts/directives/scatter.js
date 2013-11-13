@@ -92,7 +92,8 @@ pinpointApp.directive('scatter',
                                     'application': applicationName,
                                     'from': from,
                                     'to': to,
-                                    'limit': cfg.nFetchLimit
+                                    'limit': cfg.nFetchLimit,
+                                    'v': 2
                                 };
                             } else {
                                 htData = {
@@ -100,7 +101,8 @@ pinpointApp.directive('scatter',
                                     // array[0] 이 최근 값, array[len]이 오래된 이다.
                                     'from': from,
                                     'to': htLastFetchedData.resultFrom - 1,
-                                    'limit': cfg.nFetchLimit
+                                    'limit': cfg.nFetchLimit,
+                                    'v': 2
                                 };
                             }
                             if (filter) {
@@ -126,6 +128,16 @@ pinpointApp.directive('scatter',
                         htOption: {
                             dataType: 'jsonp',
                             jsonp: '_callback'
+                        },
+                        index: {
+                            x: 0,
+                            y: 1,
+                            transactionId: 2,
+                            type: 3
+                        },
+                        type: {
+                            '0' : 'Failed',
+                            '1' : 'Success'
                         }
                     };
                     oScatterChart.drawWithDataSource(htDataSource);
