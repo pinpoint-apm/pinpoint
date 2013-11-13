@@ -1199,7 +1199,9 @@ var BigScatterChart = $.Class({
     },
 
     _unbindAllEvents: function () {
-        this._welTypeUl.sortable('destroy');
+        if (this.option('useTypeUlSort')) {
+            this._welTypeUl.sortable('destroy');
+        }
         // this is for drag-selecting. it should be unbinded.
         jQuery(document).unbind('mousemove').unbind('mouseup');
     },
