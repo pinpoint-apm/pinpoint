@@ -114,10 +114,10 @@ public class ScatterChartController {
 		} else {
 			final LimitedScanResult<List<TransactionId>> limitedScanResult = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
 			final List<TransactionId> traceIdList = limitedScanResult.getScanData();
-			logger.trace("selected transactionId {}", traceIdList);
+			logger.trace("submitted transactionId count={}", traceIdList.size());
 			// TODO sorted만 하는가? tree기반으로 레인지 체크하도록 하고 삭제하도록 하자.
 			SortedSet<TransactionId> traceIdSet = new TreeSet<TransactionId>(traceIdList);
-			logger.debug("selectScatterData with {}", traceIdSet);
+			logger.debug("unified traceIdSet size={}", traceIdSet.size());
 
             Filter filter = filterBuilder.build(filterText);
             scatterData = scatter.selectScatterData(traceIdSet, applicationName, filter);
