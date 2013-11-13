@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.nhn.pinpoint.web.service.ComplexNodeId;
+import com.nhn.pinpoint.web.service.NodeId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,8 +29,8 @@ public class ApplicationMap {
 
 	private boolean built = false;
 	private final RawStatisticsData rawData;
-	private final MergeableMap<String, Application> applications = new MergeableHashMap<String, Application>();
-	private final MergeableMap<String, ApplicationRelation> relations = new MergeableHashMap<String, ApplicationRelation>();
+	private final MergeableMap<NodeId, Application> applications = new MergeableHashMap<NodeId, Application>();
+	private final MergeableMap<NodeId, ApplicationRelation> relations = new MergeableHashMap<NodeId, ApplicationRelation>();
 	private final Set<String> applicationNames = new HashSet<String>();
 
 	private TimeSeriesStore timeSeriesStore;
@@ -43,22 +45,31 @@ public class ApplicationMap {
 			return this;
 
 		// extract agent
-		Map<String, Set<AgentInfoBo>> agentMap = rawData.getAgentMap();
+		Map<NodeId, Set<AgentInfoBo>> agentMap = rawData.getAgentMap();
 		
 		// extract application and histogram
 		for (TransactionFlowStatistics stat : rawData) {
 			// FROM -> TO에서 FROM이 CLIENT가 아니면 FROM은 application
 			if (!stat.getFromServiceType().isRpcClient()) {
-				String id = stat.getFromApplicationId();
+//				String id = stat.getFromApplicationId();
+                NodeId id = stat.getFromApplicationId();
 				Set<AgentInfoBo> agentSet = agentMap.get(id);
 				// FIXME from은 tohostlist를 보관하지 않아서 없음. null로 입력. 그렇지 않으면 이상해짐 ㅡㅡ;
-				addApplication(new Application(id, stat.getFrom(), stat.getFromServiceType(), null, agentSet));
+                Application application = new Application(id, stat.getFrom(), stat.getFromServiceType(), null, agentSet);
+                logger.info("add Application:{}", application);
+                addApplication(application);
 			}
 			
 			// FROM -> TO에서 TO가 CLIENT가 아니면 TO는 application
 			if (!stat.getToServiceType().isRpcClient()) {
-				String id = stat.getToApplicationId();
-				addApplication(new Application(id, stat.getTo(), stat.getToServiceType(), stat.getToHostList(), null));
+//				String id = stat.getToApplicationId();
+                NodeId to = stat.getToApplicationId();
+                NodeId from = stat.getFromApplicationId();
+
+
+                Application application = new Application(to, stat.getTo(), stat.getToServiceType(), stat.getToHostList(), null);
+                logger.info("add Application:{}", application);
+                addApplication(application);
 			}
 		}
 		
@@ -67,8 +78,11 @@ public class ApplicationMap {
 
 		// extract relation
 		for (TransactionFlowStatistics stat : rawData) {
-			Application from = findApplication(stat.getFromApplicationId());
-			Application to = findApplication(stat.getToApplicationId());
+            NodeId fromApplicationId = stat.getFromApplicationId();
+            Application from = findApplication(fromApplicationId);
+            // TODO
+            NodeId toApplicationId = stat.getToApplicationId();
+            Application to = findApplication(toApplicationId);
 
 			// rpc client가 빠진경우임.
 			if (to == null) {
@@ -81,12 +95,13 @@ public class ApplicationMap {
 					addRelation(new ApplicationRelation(from, to, stat.getToHostList()));
 				}
 			} else {
+                logger.info("from:{}, to:{}", from, to);
 				addRelation(new ApplicationRelation(from, to, stat.getToHostList()));
 			}
 		}
 
 		// build application
-		for (Entry<String, Application> app : applications.entrySet()) {
+		for (Entry<NodeId, Application> app : applications.entrySet()) {
 			app.getValue().build();
 		}
 		
@@ -110,12 +125,12 @@ public class ApplicationMap {
 
 	private void indexingApplication() {
 		int index = 0;
-		for (Entry<String, Application> entry : applications.entrySet()) {
+		for (Entry<NodeId, Application> entry : applications.entrySet()) {
 			entry.getValue().setSequence(index++);
 		}
 	}
 
-	private Application findApplication(String applicationId) {
+	private Application findApplication(NodeId applicationId) {
 		return applications.get(applicationId);
 	}
 

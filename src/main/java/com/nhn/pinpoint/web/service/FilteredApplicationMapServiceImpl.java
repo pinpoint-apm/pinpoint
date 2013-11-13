@@ -216,7 +216,8 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 				timeSeriesStore.add(statId, span.getCollectorAcceptTime(), slot, 1L, span.hasException());
 				
 				// application timeseries statistics
-				timeSeriesStore.add(new SimpleNodeId(span.getApplicationId()), span.getCollectorAcceptTime(), slot, 1L, span.hasException());
+                NodeId key = new ComplexNodeId(Node.EMPTY, new Node(span.getApplicationId(), span.getServiceType()));
+				timeSeriesStore.add(key, span.getCollectorAcceptTime(), slot, 1L, span.hasException());
 
                 addNodeFromSpanEvent(statisticsData, statisticsMap, timeSeriesStore, transactionSpanMap, span);
             }
@@ -289,8 +290,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
             timeSeriesStore.add(spanEventStatId, span.getStartTime() + spanEvent.getStartElapsed(), slot2, 1L, spanEvent.hasException());
 
             // application timeseries statistics
-//            NodeId key = new ComplexNodeId(Node.EMPTY, new Node(spanEvent.getDestinationId()));
-            NodeId key = new SimpleNodeId(spanEvent.getDestinationId());
+            NodeId key = new ComplexNodeId(Node.EMPTY, new Node(spanEvent.getDestinationId(), spanEvent.getServiceType()));
             timeSeriesStore.add(key, span.getCollectorAcceptTime(), slot2, 1L, spanEvent.hasException());
         }
     }

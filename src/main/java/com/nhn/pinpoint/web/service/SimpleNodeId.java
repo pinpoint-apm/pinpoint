@@ -3,19 +3,18 @@ package com.nhn.pinpoint.web.service;
 /**
  * @author emeroad
  */
-@Deprecated
 public class SimpleNodeId implements NodeId {
-    private String key;
+    private final Node node;
 
-    public SimpleNodeId(String key) {
-        if (key == null) {
+    public SimpleNodeId(Node node) {
+        if (node == null) {
             throw new NullPointerException("key must not be null");
         }
-        this.key = key;
+        this.node = node;
     }
 
-    public String getKey() {
-        return key;
+    public Node getKey() {
+        return node;
     }
 
     @Override
@@ -25,20 +24,20 @@ public class SimpleNodeId implements NodeId {
 
         SimpleNodeId that = (SimpleNodeId) o;
 
-        if (!key.equals(that.key)) return false;
+        if (!node.equals(that.node)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return key.hashCode();
+        return node.hashCode();
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("SimpleNodeId{");
-        sb.append("key='").append(key).append('\'');
+        sb.append("node=").append(node);
         sb.append('}');
         return sb.toString();
     }

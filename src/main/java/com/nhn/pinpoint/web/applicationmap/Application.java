@@ -6,6 +6,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import com.nhn.pinpoint.web.service.ComplexNodeId;
+import com.nhn.pinpoint.web.service.NodeId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,12 +24,13 @@ import com.nhn.pinpoint.web.util.MergeableTreeMap;
  * 
  * @author netspider
  */
-public class Application implements Comparable<Application>, Mergeable<String, Application>, JsonSerializable {
-	
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+//public class Application implements Comparable<Application>, Mergeable<NodeId, Application>, JsonSerializable {
+public class Application implements Mergeable<NodeId, Application>, JsonSerializable {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	protected int sequence;
-	protected final String id;
+	protected final NodeId id;
 	protected final String applicationName;
 	protected final ServiceType serviceType;
 	protected final Map<String, MergeableMap<String, ServerInstance>> serverInstanceList = new TreeMap<String, MergeableMap<String, ServerInstance>>();
@@ -37,7 +40,7 @@ public class Application implements Comparable<Application>, Mergeable<String, A
 	
 	private boolean isBuilt = false;
 	
-	public Application(String id, String applicationName, ServiceType serviceType, Map<String, Host> serverList, Set<AgentInfoBo> agentSet) {
+	public Application(NodeId id, String applicationName, ServiceType serviceType, Map<String, Host> serverList, Set<AgentInfoBo> agentSet) {
 		logger.debug("create application id={}, applicationName={}, serviceType={}, serverList={}, agentSet={}", id, applicationName, serviceType, serverList, agentSet);
 		this.id = id;
 		this.applicationName = (serviceType == ServiceType.CLIENT) ? "CLIENT" : applicationName;
@@ -115,7 +118,7 @@ public class Application implements Comparable<Application>, Mergeable<String, A
 		}
 	}
 
-	public String getId() {
+	public NodeId getId() {
 		return this.id;
 	}
 
@@ -175,10 +178,10 @@ public class Application implements Comparable<Application>, Mergeable<String, A
 		return sb.toString();
 	}
 
-	@Override
-	public int compareTo(Application server) {
-		return id.compareTo(server.id);
-	}
+//	@Override
+//	public int compareTo(Application server) {
+//		return id.compareTo(server.id);
+//	}
 
 	@Override
 	public String toString() {

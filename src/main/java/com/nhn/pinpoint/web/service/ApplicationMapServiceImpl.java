@@ -182,7 +182,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		// rpc client의 목적지가 agent가 설치되어 application name이 존재한다면 replace.
 		if (stat.getToServiceType().isRpcClient()) {
 			logger.debug("Find applicationName {} {} {}", stat.getTo(), from, to);
-			Application app = hostApplicationMapDao.findApplicationName(stat.getTo(), from, to);
+			final Application app = hostApplicationMapDao.findApplicationName(stat.getTo(), from, to);
 			if (app != null) {
 				logger.debug("Application info replaced. {} => {}", stat, app);
 

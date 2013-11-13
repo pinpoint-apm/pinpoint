@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
+import com.nhn.pinpoint.web.service.NodeId;
 
 public class RawStatisticsData implements Iterable<TransactionFlowStatistics> {
 	private final Set<TransactionFlowStatistics> rawData;
@@ -20,17 +21,19 @@ public class RawStatisticsData implements Iterable<TransactionFlowStatistics> {
 		return rawData.iterator();
 	}
 
-	public Map<String, Set<AgentInfoBo>> getAgentMap() {
-		Map<String, Set<AgentInfoBo>> agentMap = new HashMap<String, Set<AgentInfoBo>>();
+	public Map<NodeId, Set<AgentInfoBo>> getAgentMap() {
+		final Map<NodeId, Set<AgentInfoBo>> agentMap = new HashMap<NodeId, Set<AgentInfoBo>>();
 		for (TransactionFlowStatistics stat : rawData) {
 			if (stat.getToAgentSet() == null) {
 				continue;
 			}
-			String key = stat.getTo() + stat.getToServiceType();
-			if (agentMap.containsKey(key)) {
+//			String key = stat.getTo() + stat.getToServiceType();
+            NodeId key = stat.getToApplicationId();
+            final Set<AgentInfoBo> agentInfoBos = agentMap.get(key);
+            if (agentInfoBos != null) {
 				Set<AgentInfoBo> toAgentSet = stat.getToAgentSet();
 				if (toAgentSet != null) {
-					agentMap.get(key).addAll(stat.getToAgentSet());
+					agentInfoBos.addAll(stat.getToAgentSet());
 				}
 			} else {
 				agentMap.put(key, stat.getToAgentSet());

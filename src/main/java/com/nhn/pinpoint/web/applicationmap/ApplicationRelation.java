@@ -5,34 +5,59 @@ import java.util.Map.Entry;
 
 import com.nhn.pinpoint.web.applicationmap.rawdata.Host;
 import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
+import com.nhn.pinpoint.web.service.ComplexNodeId;
+import com.nhn.pinpoint.web.service.Node;
+import com.nhn.pinpoint.web.service.NodeId;
+import com.nhn.pinpoint.web.service.SimpleNodeId;
 import com.nhn.pinpoint.web.util.Mergeable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * application map에서 application간의 관계를 담은 클래스
  * 
  * @author netspider
  */
-public class ApplicationRelation implements Mergeable<String, ApplicationRelation> {
-	protected final String id;
+public class ApplicationRelation implements Mergeable<NodeId, ApplicationRelation> {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    protected final NodeId id;
 
 	protected final Application from;
 	protected final Application to;
 	private Map<String, Host> hostList;
 
-	public ApplicationRelation(Application from, Application to, Map<String, Host> hostList) {
-		if (from == null) {
-			throw new NullPointerException("from must not be null");
-		}
-		if (to == null) {
-			throw new NullPointerException("to must not be null");
-		}
-		this.id = from.getId() + to.getId();
-		this.from = from;
-		this.to = to;
-		this.hostList = hostList;
-	}
+//	public ApplicationRelation(Application from, Application to, Map<String, Host> hostList) {
+//        if (from == null) {
+//            throw new NullPointerException("from must not be null");
+//        }
+//        if (to == null) {
+//            throw new NullPointerException("to must not be null");
+//        }
+//        ComplexNodeId fromId = from.getId();
+//        ComplexNodeId toId = to.getId();
+//        this.id = new ComplexNodeId(fromId.getSrc(), toId.getDest());
+//        this.from = from;
+//        this.to = to;
+//        this.hostList = hostList;
+//    }
 
-	public String getId() {
+    public ApplicationRelation(Application from, Application to, Map<String, Host> hostList) {
+        if (from == null) {
+            throw new NullPointerException("from must not be null");
+        }
+        if (to == null) {
+            throw new NullPointerException("to must not be null");
+        }
+        SimpleNodeId fromId = (SimpleNodeId) from.getId();
+        SimpleNodeId toId = (SimpleNodeId) to.getId();
+        this.id = new ComplexNodeId(fromId.getKey(), toId.getKey());
+        this.from = from;
+        this.to = to;
+        this.hostList = hostList;
+    }
+
+	public NodeId getId() {
 		return id;
 	}
 
@@ -79,6 +104,7 @@ public class ApplicationRelation implements Mergeable<String, ApplicationRelatio
 				}
 			}
 		} else {
+            logger.info("from:{}, to:{}, relationFrom:{}, relationTo:{}", from, to, relation.getFrom(), relation.getTo());
 			throw new IllegalArgumentException("Can't merge.");
 		}
 		return this;
