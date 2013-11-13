@@ -3,7 +3,8 @@ package com.nhn.pinpoint.web.service;
 /**
  * @author emeroad
  */
-public class SimpleNodeId implements NodeId{
+@Deprecated
+public class SimpleNodeId implements NodeId {
     private String key;
 
     public SimpleNodeId(String key) {

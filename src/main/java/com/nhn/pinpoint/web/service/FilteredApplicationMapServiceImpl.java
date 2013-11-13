@@ -23,7 +23,6 @@ import com.nhn.pinpoint.common.bo.SpanBo;
 import com.nhn.pinpoint.common.bo.SpanEventBo;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
 import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
-import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatisticsUtils;
 import com.nhn.pinpoint.web.dao.AgentInfoDao;
 import com.nhn.pinpoint.web.dao.ApplicationIndexDao;
 import com.nhn.pinpoint.web.dao.ApplicationTraceIndexDao;
@@ -42,7 +41,7 @@ import com.nhn.pinpoint.web.vo.TransactionId;
 @Service
 public class FilteredApplicationMapServiceImpl implements FilteredApplicationMapService {
 
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	private TraceDao traceDao;
@@ -290,7 +289,9 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
             timeSeriesStore.add(spanEventStatId, span.getStartTime() + spanEvent.getStartElapsed(), slot2, 1L, spanEvent.hasException());
 
             // application timeseries statistics
-            timeSeriesStore.add(new SimpleNodeId(spanEvent.getDestinationId()), span.getCollectorAcceptTime(), slot2, 1L, spanEvent.hasException());
+//            NodeId key = new ComplexNodeId(Node.EMPTY, new Node(spanEvent.getDestinationId()));
+            NodeId key = new SimpleNodeId(spanEvent.getDestinationId());
+            timeSeriesStore.add(key, span.getCollectorAcceptTime(), slot2, 1L, spanEvent.hasException());
         }
     }
 

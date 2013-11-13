@@ -6,8 +6,21 @@ import com.nhn.pinpoint.common.ServiceType;
  * @author emeroad
  */
 public class Node {
+
+    public static final Node EMPTY = new Node();
+
     private String name;
     private ServiceType serviceType;
+
+    public Node() {
+    }
+
+    public Node(String name) {
+        if (name == null) {
+            throw new NullPointerException("name must not be null");
+        }
+        this.name = name;
+    }
 
     public Node(String name, ServiceType serviceType) {
         if (name == null) {
@@ -55,7 +68,7 @@ public class Node {
 
         Node node = (Node) o;
 
-        if (!name.equals(node.name)) return false;
+        if (name != null ? !name.equals(node.name) : node.name != null) return false;
         if (serviceType != node.serviceType) return false;
 
         return true;
@@ -63,8 +76,8 @@ public class Node {
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + serviceType.hashCode();
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (serviceType != null ? serviceType.hashCode() : 0);
         return result;
     }
 

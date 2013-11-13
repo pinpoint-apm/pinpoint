@@ -5,10 +5,10 @@ import com.nhn.pinpoint.web.service.NodeId;
 /**
  * 
  * @author netspider
- * 
- * @param <T>
+ * @param <K>
+ * @param <V>
  */
-public interface Mergeable<I, T> {
-	public I getId();
-	public T mergeWith(T o);
+public interface Mergeable<K, V> {
+	public K getId();
+	public V mergeWith(V o);
 }

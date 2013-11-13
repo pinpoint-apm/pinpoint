@@ -17,18 +17,18 @@ import com.nhn.pinpoint.web.util.Mergeable;
  */
 public class TransactionFlowStatistics implements Mergeable<String, TransactionFlowStatistics> {
 
-	protected String id;
-	protected String from;
-	protected ServiceType fromServiceType;
-	protected String to;
-	protected ServiceType toServiceType;
+	private String id;
+    private String from;
+    private ServiceType fromServiceType;
+    private String to;
+    private ServiceType toServiceType;
 
 	/**
 	 * key = hostname
 	 */
-	protected Map<String, Host> toHostList;
-	
-	protected Set<AgentInfoBo> toAgentSet;
+    private Map<String, Host> toHostList;
+
+    private Set<AgentInfoBo> toAgentSet;
 
 	public TransactionFlowStatistics(String from, short fromServiceType, String to, short toServiceType) {
 		this.from = from;
