@@ -790,15 +790,19 @@ var BigScatterChart = $.Class({
     addBubbles: function (aBubbles, htTypeCount) {
         if (_.isArray(this._aBubbles) === false) return;
         this._aBubbles.push(aBubbles);
-        var htTypeCount = htTypeCount || this._countPerType(aBubbles);
+
+        var htTypeCount = htTypeCount || this._countPerType(aBubbles),
+            htDataSource = this.option('htDataSource'),
+            htDataIndex = htDataSource.index,
+            htDataType = htDataSource.type;
         var htBubble = {
             'nXMin': aBubbles[0].x,
-            'nXMax': aBubbles[aBubbles.length - 1].x,
+            'nXMax': aBubbles[aBubbles.length - 1][htDataIndex.x],
             'nYMin': (_.min(aBubbles, function (a) {
-                return a.y;
+                return a[htDataIndex.y];
             })).y,
             'nYMax': (_.max(aBubbles, function (a) {
-                return a.y;
+                return a[htDataIndex.y];
             })).y,
             'nLength': aBubbles.length,
             'htTypeCount': {}
@@ -840,13 +844,16 @@ var BigScatterChart = $.Class({
     },
 
     _recountAllPerType: function () {
-        var aBubbles = this._aBubbles;
+        var aBubbles = this._aBubbles,
+            htDataSource = this.option('htDataSource'),
+            htDataIndex = htDataSource.index,
+            htDataType = htDataSource.type;
 
         this._resetTypeCount();
 
         for (var i = 0, nLen = aBubbles.length; i < nLen; i++) {
             for (var j = 0, nLen2 = aBubbles[i].length; j < nLen2; j++) {
-                this._htTypeCount[aBubbles[i][j].type] += 1;
+                this._htTypeCount[htDataType[aBubbles[i][j][htDataIndex.type]]] += 1;
             }
         }
         return this._htTypeCount;
