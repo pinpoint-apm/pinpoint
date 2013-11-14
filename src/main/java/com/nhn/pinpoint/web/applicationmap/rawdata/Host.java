@@ -1,14 +1,13 @@
 package com.nhn.pinpoint.web.applicationmap.rawdata;
 
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.web.util.Mergeable;
 
 /**
  * 
  * @author netspider
- * 
+ * @author emeroad
  */
-public class Host implements Mergeable<String, Host> {
+public class Host {
 	/**
 	 * UI에서 호스트를 구분하기 위한 목적으로 hostname, agentid, endpoint등 구분할 수 있는 아무거나 넣으면 됨.
 	 */
@@ -34,13 +33,8 @@ public class Host implements Mergeable<String, Host> {
 		return histogram;
 	}
 
-	@Override
-	public String getId() {
-		return host;
-	}
 
-	@Override
-	public Host mergeWith(Host host) {
+	public Host add(Host host) {
 		this.histogram.mergeWith(host.getHistogram());
 		return this;
 	}

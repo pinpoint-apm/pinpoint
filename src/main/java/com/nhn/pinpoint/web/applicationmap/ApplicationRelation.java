@@ -4,9 +4,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.nhn.pinpoint.web.applicationmap.rawdata.Host;
+import com.nhn.pinpoint.web.applicationmap.rawdata.HostList;
 import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
 import com.nhn.pinpoint.web.service.ComplexNodeId;
-import com.nhn.pinpoint.web.service.Node;
 import com.nhn.pinpoint.web.service.NodeId;
 import com.nhn.pinpoint.web.service.SimpleNodeId;
 import com.nhn.pinpoint.web.util.Mergeable;
@@ -25,10 +25,10 @@ public class ApplicationRelation implements Mergeable<NodeId, ApplicationRelatio
 
 	protected final Application from;
 	protected final Application to;
-	private Map<String, Host> hostList;
+	private HostList hostList;
 
 
-    public ApplicationRelation(Application from, Application to, Map<String, Host> hostList) {
+    public ApplicationRelation(Application from, Application to, HostList hostList) {
         if (from == null) {
             throw new NullPointerException("from must not be null");
         }
@@ -55,24 +55,24 @@ public class ApplicationRelation implements Mergeable<NodeId, ApplicationRelatio
 		return to;
 	}
 
-	public Map<String, Host> getHostList() {
+	public HostList getHostList() {
 		return hostList;
 	}
 
-	public void setHostList(Map<String, Host> hostList) {
+	public void setHostList(HostList hostList) {
 		this.hostList = hostList;
 	}
 
 	public ResponseHistogram getHistogram() {
 		ResponseHistogram result = null;
 
-		for (Entry<String, Host> entry : hostList.entrySet()) {
+		for (Host host : hostList.getHostList()) {
 			if (result == null) {
 				// FIXME 뭔가 괴상한 방식이긴 하지만..
-				ResponseHistogram histogram = entry.getValue().getHistogram();
+				ResponseHistogram histogram = host.getHistogram();
 				result = new ResponseHistogram(histogram.getId(), histogram.getServiceType());
 			}
-			result.mergeWith(entry.getValue().getHistogram());
+			result.mergeWith(host.getHistogram());
 		}
 		return result;
 	}
@@ -82,12 +82,8 @@ public class ApplicationRelation implements Mergeable<NodeId, ApplicationRelatio
 		// TODO this.equals로 바꿔도 되지 않을까?
 		if (this.from.equals(relation.getFrom()) && this.to.equals(relation.getTo())) {
 			// TODO Mergable value map을 만들어야 하나...
-			for (Entry<String, Host> entry : relation.getHostList().entrySet()) {
-				if (this.hostList.containsKey(entry.getKey())) {
-					this.hostList.get(entry.getKey()).mergeWith(entry.getValue());
-				} else {
-					this.hostList.put(entry.getKey(), entry.getValue());
-				}
+			for (Host host : relation.getHostList().getHostList()) {
+                this.hostList.addHost(host);
 			}
 		} else {
             logger.info("from:{}, to:{}, relationFrom:{}, relationTo:{}", from, to, relation.getFrom(), relation.getTo());

@@ -1,8 +1,5 @@
 package com.nhn.pinpoint.web.applicationmap.rawdata;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import com.nhn.pinpoint.common.ServiceType;
@@ -17,7 +14,7 @@ import com.nhn.pinpoint.web.util.Mergeable;
  * DB에서 조회한 application호출 관계 정보.
  * 
  * @author netspider
- * 
+ * @author emeroad
  */
 public class TransactionFlowStatistics implements Mergeable<NodeId, TransactionFlowStatistics> {
 
@@ -30,7 +27,7 @@ public class TransactionFlowStatistics implements Mergeable<NodeId, TransactionF
 	/**
 	 * key = hostname
 	 */
-    private Map<String, Host> toHostList;
+    private HostList toHostList;
 
     private Set<AgentInfoBo> toAgentSet;
 
@@ -42,7 +39,7 @@ public class TransactionFlowStatistics implements Mergeable<NodeId, TransactionF
         final Node fromNode = new Node(from, ServiceType.findServiceType(fromServiceType));
         final Node toNode = new Node(to, ServiceType.findServiceType(toServiceType));
         this.nodeId = new ComplexNodeId(fromNode, toNode);
-        this.toHostList = new HashMap<String, Host>();
+        this.toHostList = new HostList();
 	}
 
 	public TransactionFlowStatistics(String from, ServiceType fromServiceType, String to, ServiceType toServiceType) {
@@ -54,7 +51,7 @@ public class TransactionFlowStatistics implements Mergeable<NodeId, TransactionF
             throw new NullPointerException("nodeId must not be null");
         }
         this.nodeId = nodeId;
-        this.toHostList = new HashMap<String, Host>();
+        this.toHostList = new HostList();
     }
 	
 	public NodeId getFromApplicationId() {
@@ -83,26 +80,15 @@ public class TransactionFlowStatistics implements Mergeable<NodeId, TransactionF
 		if (hostname == null || hostname.length() == 0) {
 			hostname = "UNKNOWNHOST";
 		}
-        final Host find = toHostList.get(hostname);
-        if (find != null) {
-            find.getHistogram().addSample(slot, value);
-		} else {
-			Host host = new Host(hostname, ServiceType.findServiceType(serviceTypeCode));
-			host.getHistogram().addSample(slot, value);
-			toHostList.put(hostname, host);
-		}
+        this.toHostList.addHost(hostname, serviceTypeCode, slot, value);
 	}
 
-//	public void makeId() {
-//		this.id = TransactionFlowStatisticsUtils.makeId(from, fromServiceType, to, toServiceType);
-//	}
 
 	public NodeId getId() {
 		return nodeId;
 	}
 
 	public String getFrom() {
-//		return from;
         return nodeId.getSrc().getName();
 	}
 
@@ -115,35 +101,26 @@ public class TransactionFlowStatistics implements Mergeable<NodeId, TransactionF
 	}
 
 	public ServiceType getToServiceType() {
-//		return toServiceType;
         return nodeId.getDest().getServiceType();
 	}
 
 	public void setFrom(String from) {
-//		this.from = from;
-//		makeId();
         nodeId.getSrc().setName(from);
 	}
 
 	public void setTo(String to) {
-//		this.to = to;
-//		makeId();
         nodeId.getDest().setName(to);
 	}
 
 	public void setFromServiceType(ServiceType fromServiceType) {
-//		this.fromServiceType = fromServiceType;
-//		makeId();
         nodeId.getSrc().setServiceType(fromServiceType);
 	}
 
 	public void setToServiceType(ServiceType toServiceType) {
-//		this.toServiceType = toServiceType;
-//		makeId();
         nodeId.getDest().setServiceType(toServiceType);
 	}
 
-	public Map<String, Host> getToHostList() {
+	public HostList getToHostList() {
 		return toHostList;
 	}
 
@@ -161,15 +138,8 @@ public class TransactionFlowStatistics implements Mergeable<NodeId, TransactionF
 
 	public TransactionFlowStatistics mergeWith(TransactionFlowStatistics applicationStatistics) {
 		if (this.equals(applicationStatistics)) {
-			for (Entry<String, Host> entry : applicationStatistics.getToHostList().entrySet()) {
-                final String key = entry.getKey();
-                final Host host = this.toHostList.get(key);
-                if (host != null) {
-					host.mergeWith(entry.getValue());
-				} else {
-					this.toHostList.put(key, entry.getValue());
-				}
-			}
+            final HostList target = applicationStatistics.getToHostList();
+            this.toHostList.addHostList(target);
 			return this;
 		} else {
 			throw new IllegalArgumentException("Can't merge with different link.");

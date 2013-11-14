@@ -2,11 +2,10 @@ package com.nhn.pinpoint.web.applicationmap;
 
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import com.nhn.pinpoint.web.service.ComplexNodeId;
+import com.nhn.pinpoint.web.applicationmap.rawdata.HostList;
 import com.nhn.pinpoint.web.service.NodeId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,27 +33,29 @@ public class Application implements Mergeable<NodeId, Application>, JsonSerializ
 	protected final ServiceType serviceType;
 	protected final Map<String, MergeableMap<String, ServerInstance>> serverInstanceList = new TreeMap<String, MergeableMap<String, ServerInstance>>();
 
-	private final Map<String, Host> serverList = new TreeMap<String, Host>();
+	private final HostList serverList = new HostList();
 	private final Set<AgentInfoBo> agentSet = new HashSet<AgentInfoBo>();
 	
 	private boolean isBuilt = false;
 	
-	public Application(NodeId id, String applicationName, ServiceType serviceType, Map<String, Host> serverList, Set<AgentInfoBo> agentSet) {
+	public Application(NodeId id, String applicationName, ServiceType serviceType, HostList serverList, Set<AgentInfoBo> agentSet) {
 		logger.debug("create application id={}, applicationName={}, serviceType={}, serverList={}, agentSet={}", id, applicationName, serviceType, serverList, agentSet);
 		this.id = id;
 		this.applicationName = (serviceType == ServiceType.CLIENT) ? "CLIENT" : applicationName;
 		this.serviceType = serviceType;
 		if (serverList != null) {
-			this.serverList.putAll(serverList);
+//			this.serverList.addHostList(serverList);
+            this.serverList.put(serverList);
+
 		}
 		if (agentSet != null) {
 			this.agentSet.addAll(agentSet);
 		}
 	}
 
-	public Application build() {
+	public void build() {
 		if (isBuilt) {
-			return this;
+			return;
 		}
 		if (!agentSet.isEmpty()) {
 			fillServerInstanceList(agentSet);
@@ -62,7 +63,6 @@ public class Application implements Mergeable<NodeId, Application>, JsonSerializ
 			fillServerInstanceList(serverList);
 		}
 		isBuilt = true;
-		return this;
 	}
 	
 	public Map<String, MergeableMap<String, ServerInstance>> getServerInstanceList() {
@@ -74,16 +74,15 @@ public class Application implements Mergeable<NodeId, Application>, JsonSerializ
 	 * 
 	 * @param hostHistogram
 	 */
-	private void fillServerInstanceList(final Map<String, Host> hostHistogram) {
+	private void fillServerInstanceList(final HostList hostHistogram) {
 		if (hostHistogram == null) {
 			return;
 		}
 		
-		for (Entry<String, Host> entry : hostHistogram.entrySet()) {
-			String instanceName = entry.getKey();
-			int pos = instanceName.indexOf(':');
-			String hostName = (pos > 0) ? instanceName.substring(0, pos) : instanceName;
-			ServiceType serviceType = entry.getValue().getServiceType();
+		for (Host host : hostHistogram.getHostList()) {
+			String instanceName = host.getHost();
+            String hostName = getHostName(instanceName);
+            ServiceType serviceType = host.getServiceType();
 			ServerInstance serverInstance = new ServerInstance(instanceName, serviceType, null);
 
 			MergeableMap<String, ServerInstance> serverInstanceMap = serverInstanceList.get(hostName);
@@ -97,8 +96,17 @@ public class Application implements Mergeable<NodeId, Application>, JsonSerializ
 			}
 		}
 	}
-	
-	private void fillServerInstanceList(final Set<AgentInfoBo> agentSet) {
+
+    private String getHostName(String instanceName) {
+        final int pos = instanceName.indexOf(':');
+        if (pos > 0) {
+            return instanceName.substring(0, pos);
+        } else {
+            return instanceName;
+        }
+    }
+
+    private void fillServerInstanceList(final Set<AgentInfoBo> agentSet) {
 		if (agentSet == null) {
 			return;
 		}
@@ -138,7 +146,8 @@ public class Application implements Mergeable<NodeId, Application>, JsonSerializ
 		logger.debug("merge application a={}, b={}", this.id, application.id);
 		
 		if (application.serverList != null) {
-			this.serverList.putAll(application.serverList);
+//			this.serverList.addHostList(application.serverList);
+            this.serverList.put(application.serverList);
 		}
 		if (application.agentSet != null) {
 			this.agentSet.addAll(application.agentSet);
