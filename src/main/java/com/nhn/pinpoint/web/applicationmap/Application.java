@@ -31,20 +31,26 @@ public class Application implements JsonSerializable {
 	private final Set<AgentInfoBo> agentSet = new HashSet<AgentInfoBo>();
 	
 
-	public Application(NodeId id, String applicationName, ServiceType serviceType, HostList serverList, Set<AgentInfoBo> agentSet) {
+	public Application(NodeId id, String applicationName, ServiceType serviceType, Set<AgentInfoBo> agentSet) {
 		logger.debug("create application id={}, applicationName={}, serviceType={}, serverList={}, agentSet={}", id, applicationName, serviceType, serverList, agentSet);
 		this.id = id;
 		this.applicationName = (serviceType == ServiceType.CLIENT) ? "CLIENT" : applicationName;
 		this.serviceType = serviceType;
-		if (serverList != null) {
-//			this.serverList.addHostList(serverList);
-            this.serverList.put(serverList);
 
-		}
-		if (agentSet != null) {
-			this.agentSet.addAll(agentSet);
-		}
+		this.agentSet.addAll(agentSet);
 	}
+
+    public Application(NodeId id, String applicationName, ServiceType serviceType, HostList serverList) {
+        logger.debug("create application id={}, applicationName={}, serviceType={}, serverList={}, agentSet={}", id, applicationName, serviceType, serverList, agentSet);
+        this.id = id;
+        this.applicationName = (serviceType == ServiceType.CLIENT) ? "CLIENT" : applicationName;
+        this.serviceType = serviceType;
+
+        // 이 put은 정확하지 않음.
+//		this.serverList.addHostList(serverList);
+        this.serverList.put(serverList);
+
+    }
 
 	void build() {
 		if (!agentSet.isEmpty()) {

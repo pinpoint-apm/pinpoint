@@ -85,7 +85,7 @@ public class ApplicationMapBuilder {
                 final NodeId id = stat.getFromApplicationId();
                 final Set<AgentInfoBo> agentSet = agentMap.get(id);
                 // FIXME from은 tohostlist를 보관하지 않아서 없음. null로 입력. 그렇지 않으면 이상해짐 ㅡㅡ;
-                Application application = new Application(id, stat.getFrom(), stat.getFromServiceType(), null, agentSet);
+                Application application = new Application(id, stat.getFrom(), stat.getFromServiceType(), agentSet);
                 result.add(application);
 
             }
@@ -94,7 +94,7 @@ public class ApplicationMapBuilder {
             if (!stat.getToServiceType().isRpcClient()) {
                 NodeId to = stat.getToApplicationId();
 
-                Application application = new Application(to, stat.getTo(), stat.getToServiceType(), stat.getToHostList(), null);
+                Application application = new Application(to, stat.getTo(), stat.getToServiceType(), stat.getToHostList());
                 result.add(application);
             }
         }
