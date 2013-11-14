@@ -38,7 +38,9 @@ public class Application implements JsonSerializable {
 		this.applicationName = (serviceType == ServiceType.CLIENT) ? "CLIENT" : applicationName;
 		this.serviceType = serviceType;
 
-		this.agentSet.addAll(agentSet);
+        if (agentSet != null) {
+		    this.agentSet.addAll(agentSet);
+        }
 	}
 
     public Application(NodeId id, String applicationName, ServiceType serviceType, HostList serverList) {
@@ -47,9 +49,11 @@ public class Application implements JsonSerializable {
         this.applicationName = (serviceType == ServiceType.CLIENT) ? "CLIENT" : applicationName;
         this.serviceType = serviceType;
 
-        // 이 put은 정확하지 않음.
-//		this.serverList.addHostList(serverList);
-        this.serverList.put(serverList);
+        if (serverList !=null) {
+            // 이 put은 정확하지 않음.
+ //		this.serverList.addHostList(serverList);
+            this.serverList.put(serverList);
+        }
 
     }
 

@@ -16,7 +16,7 @@ import com.nhn.pinpoint.web.vo.TimeSeriesStore;
  */
 public class ApplicationMap {
 
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ApplicationList applications = new ApplicationList();
     private final ApplicationRelationList relations = new ApplicationRelationList();
@@ -46,7 +46,7 @@ public class ApplicationMap {
 	}
 
     void addApplication(List<Application> applicationList) {
-        for(Application application : applicationList) {
+        for (Application application : applicationList) {
             this.addApplication(application);
         }
     }
