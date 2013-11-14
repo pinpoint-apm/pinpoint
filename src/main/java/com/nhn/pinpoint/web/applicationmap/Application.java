@@ -32,7 +32,7 @@ public class Application implements JsonSerializable {
 	
 
 	public Application(NodeId id, String applicationName, ServiceType serviceType, Set<AgentInfoBo> agentSet) {
-		logger.debug("create application id={}, applicationName={}, serviceType={}, serverList={}, agentSet={}", id, applicationName, serviceType, serverList, agentSet);
+		logger.debug("create application id={}, applicationName={}, serviceType={}, agentSet={}", id, applicationName, serviceType, agentSet);
 		this.id = id;
 		this.applicationName = (serviceType == ServiceType.CLIENT) ? "CLIENT" : applicationName;
 		this.serviceType = serviceType;
@@ -41,7 +41,7 @@ public class Application implements JsonSerializable {
 	}
 
     public Application(NodeId id, String applicationName, ServiceType serviceType, HostList serverList) {
-        logger.debug("create application id={}, applicationName={}, serviceType={}, serverList={}, agentSet={}", id, applicationName, serviceType, serverList, agentSet);
+        logger.debug("create application id={}, applicationName={}, serviceType={}, serverList={}", id, applicationName, serviceType, serverList);
         this.id = id;
         this.applicationName = (serviceType == ServiceType.CLIENT) ? "CLIENT" : applicationName;
         this.serviceType = serviceType;
