@@ -48,13 +48,11 @@ public class TransactionFlowStatistics {
 
 
 	public NodeId getFromApplicationId() {
-        Node node = new Node(this.from, this.fromServiceType);
-        return new SimpleNodeId(node);
+        return new SimpleNodeId(this.from, this.fromServiceType);
 	}
 	
 	public NodeId getToApplicationId() {
-        Node node = new Node(this.to, this.toServiceType);
-        return new SimpleNodeId(node);
+        return new SimpleNodeId(this.to, this.toServiceType);
 	}
 	
 	/**

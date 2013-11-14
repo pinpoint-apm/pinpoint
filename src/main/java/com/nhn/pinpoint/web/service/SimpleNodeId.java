@@ -1,44 +1,22 @@
 package com.nhn.pinpoint.web.service;
 
+import com.nhn.pinpoint.common.ServiceType;
+
 /**
  * @author emeroad
  */
-public class SimpleNodeId implements NodeId {
-    private final Node node;
+public class SimpleNodeId extends Node implements NodeId {
 
-    public SimpleNodeId(Node node) {
-        if (node == null) {
-            throw new NullPointerException("key must not be null");
-        }
-        this.node = node;
+    public SimpleNodeId(String name, ServiceType serviceType) {
+        super(name, serviceType);
     }
 
     public Node getKey() {
-        return node;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        SimpleNodeId that = (SimpleNodeId) o;
-
-        if (!node.equals(that.node)) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        return node.hashCode();
+        return this;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("SimpleNodeId{");
-        sb.append("node=").append(node);
-        sb.append('}');
-        return sb.toString();
+        return "SimpleNodeId:{" + super.toString() + "}";
     }
 }

@@ -32,7 +32,7 @@ public class ApplicationMapBuilder {
 
         // extract agent
         Map<NodeId, Set<AgentInfoBo>> agentMap = rawData.getAgentMap();
-        final List<Application> application = createApplication(rawData, nodeMap, agentMap);
+        final List<Application> application = createApplication(rawData, agentMap);
         nodeMap.addApplication(application);
 
 
@@ -76,14 +76,14 @@ public class ApplicationMapBuilder {
         return result;
     }
 
-    private List<Application> createApplication(RawStatisticsData rawData, ApplicationMap nodeMap, Map<NodeId, Set<AgentInfoBo>> agentMap) {
+    private List<Application> createApplication(RawStatisticsData rawData, Map<NodeId, Set<AgentInfoBo>> agentMap) {
         final List<Application> result = new ArrayList<Application>();
         // extract application and histogram
         for (TransactionFlowStatistics stat : rawData) {
             // FROM -> TO에서 FROM이 CLIENT가 아니면 FROM은 application
             if (!stat.getFromServiceType().isRpcClient()) {
-                NodeId id = stat.getFromApplicationId();
-                Set<AgentInfoBo> agentSet = agentMap.get(id);
+                final NodeId id = stat.getFromApplicationId();
+                final Set<AgentInfoBo> agentSet = agentMap.get(id);
                 // FIXME from은 tohostlist를 보관하지 않아서 없음. null로 입력. 그렇지 않으면 이상해짐 ㅡㅡ;
                 Application application = new Application(id, stat.getFrom(), stat.getFromServiceType(), null, agentSet);
                 result.add(application);
