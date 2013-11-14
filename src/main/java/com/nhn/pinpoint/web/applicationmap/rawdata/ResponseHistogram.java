@@ -16,11 +16,10 @@ import com.nhn.pinpoint.web.util.Mergeable;
  * @author netspider
  * 
  */
-public class ResponseHistogram implements Mergeable<String, ResponseHistogram>, JsonSerializable {
+public class ResponseHistogram implements JsonSerializable {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	private final String id;
 	private final ServiceType serviceType;
 	private final Histogram histogram;
 	private final long[] values;
@@ -29,8 +28,8 @@ public class ResponseHistogram implements Mergeable<String, ResponseHistogram>, 
 	private long errorCount;
 	private long slowCount;
 
-	public ResponseHistogram(String id, ServiceType serviceType) {
-		this.id = id;
+	public ResponseHistogram(ServiceType serviceType) {
+//		this.id = id;
 		this.serviceType = serviceType;
 		this.histogram = serviceType.getHistogram();
 		// TODO value에 저장하는 구조 추가 수정 필요.
@@ -51,7 +50,7 @@ public class ResponseHistogram implements Mergeable<String, ResponseHistogram>, 
 
 		int histogramSlotIndex = histogram.getHistogramSlotIndex(slot);
 		if (histogramSlotIndex == -1) {
-			logger.debug("Can't find slot={} value={} id={} serviceType={}", slot, value, id, serviceType);
+			logger.debug("Can't find slot={} value={} serviceType={}", slot, value, serviceType);
 			return;
 		}
 		values[histogramSlotIndex] += value;
@@ -77,8 +76,7 @@ public class ResponseHistogram implements Mergeable<String, ResponseHistogram>, 
 		return totalCount;
 	}
 
-	@Override
-	public ResponseHistogram mergeWith(ResponseHistogram histogram) {
+	public ResponseHistogram add(ResponseHistogram histogram) {
 		if (!this.equals(histogram)) {
 			throw new IllegalArgumentException("A=" + this + ", B=" + histogram);
 		}
@@ -126,13 +124,9 @@ public class ResponseHistogram implements Mergeable<String, ResponseHistogram>, 
 	 
 	@Override
 	public String toString() {
-		return "ResponseHistogram [id=" + id + ",serviceType=" + serviceType + ",json=" + getJson() + "]";
+		return "ResponseHistogram [serviceType=" + serviceType + ",json=" + getJson() + "]";
 	}
 
-	@Override
-	public String getId() {
-		return id;
-	}
 
 	@Override
 	public String getJson() {

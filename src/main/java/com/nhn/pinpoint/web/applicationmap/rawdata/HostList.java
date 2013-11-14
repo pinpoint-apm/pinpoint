@@ -24,7 +24,8 @@ public class HostList {
             histogram.addSample(slot, value);
         } else {
             final Host host = new Host(hostName, ServiceType.findServiceType(serviceTypeCode));
-            host.getHistogram().addSample(slot, value);
+            final ResponseHistogram histogram = host.getHistogram();
+            histogram.addSample(slot, value);
             hostMap.put(hostName, host);
         }
     }
@@ -36,10 +37,8 @@ public class HostList {
         final String hostName = host.getHost();
         final Host find = this.hostMap.get(hostName);
         if (find != null) {
-            find.add(host);
-//            final ResponseHistogram findHistogram = find.getHistogram();
-//            // TODO 고칠것.
-//            findHistogram.mergeWith(host.getHistogram());
+            final ResponseHistogram histogram = find.getHistogram();
+            histogram.add(host.getHistogram());
         } else {
             hostMap.put(hostName, host);
         }
@@ -51,25 +50,8 @@ public class HostList {
             throw new NullPointerException("host must not be null");
         }
         for (Host host : addHostList.hostMap.values()) {
-            final String hostName = host.getHost();
-            final Host find = this.hostMap.get(hostName);
-            if (find != null) {
-                find.add(host);
-            } else {
-                this.hostMap.put(hostName, host);
-            }
-
+            addHost(host);
         }
-
-//        for (Entry<String, Host> entry : applicationStatistics.getToHostList().entrySet()) {
-//            final String key = entry.getKey();
-//            final Host host = this.toHostList.get(key);
-//            if (host != null) {
-//                host.mergeWith(entry.getValue());
-//            } else {
-//                this.toHostList.put(key, entry.getValue());
-//            }
-//        }
     }
 
     public List<Host> getHostList() {

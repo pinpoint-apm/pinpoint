@@ -1,8 +1,5 @@
 package com.nhn.pinpoint.web.applicationmap;
 
-import java.util.Map;
-import java.util.Map.Entry;
-
 import com.nhn.pinpoint.web.applicationmap.rawdata.Host;
 import com.nhn.pinpoint.web.applicationmap.rawdata.HostList;
 import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
@@ -70,9 +67,9 @@ public class ApplicationRelation implements Mergeable<NodeId, ApplicationRelatio
 			if (result == null) {
 				// FIXME 뭔가 괴상한 방식이긴 하지만..
 				ResponseHistogram histogram = host.getHistogram();
-				result = new ResponseHistogram(histogram.getId(), histogram.getServiceType());
+				result = new ResponseHistogram(histogram.getServiceType());
 			}
-			result.mergeWith(host.getHistogram());
+			result.add(host.getHistogram());
 		}
 		return result;
 	}
@@ -82,9 +79,8 @@ public class ApplicationRelation implements Mergeable<NodeId, ApplicationRelatio
 		// TODO this.equals로 바꿔도 되지 않을까?
 		if (this.from.equals(relation.getFrom()) && this.to.equals(relation.getTo())) {
 			// TODO Mergable value map을 만들어야 하나...
-			for (Host host : relation.getHostList().getHostList()) {
-                this.hostList.addHost(host);
-			}
+            HostList relationHostList = relation.getHostList();
+            this.hostList.addHostList(relationHostList);
 		} else {
             logger.info("from:{}, to:{}, relationFrom:{}, relationTo:{}", from, to, relation.getFrom(), relation.getTo());
 			throw new IllegalArgumentException("Can't merge.");

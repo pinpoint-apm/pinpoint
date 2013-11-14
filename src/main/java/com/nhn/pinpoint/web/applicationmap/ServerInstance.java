@@ -87,7 +87,7 @@ public class ServerInstance implements Comparable<ServerInstance>, Mergeable<Str
 		if (this.histogram == null) {
 			this.histogram = serverInstance.getHistogram();
 		} else {
-			// this.histogram.mergeWith(serverInstance.getHistogram());
+			// this.histogram.add(serverInstance.getHistogram());
 		}
 		return this;
 	}

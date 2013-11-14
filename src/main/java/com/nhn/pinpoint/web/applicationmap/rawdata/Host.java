@@ -16,9 +16,15 @@ public class Host {
 	private final ResponseHistogram histogram;
 
 	public Host(String host, ServiceType serviceType) {
-		this.host = host;
+        if (host == null) {
+            throw new NullPointerException("host must not be null");
+        }
+        if (serviceType == null) {
+            throw new NullPointerException("serviceType must not be null");
+        }
+        this.host = host;
 		this.serviceType = serviceType;
-		this.histogram = new ResponseHistogram(host + serviceType, serviceType);
+		this.histogram = new ResponseHistogram(serviceType);
 	}
 
 	public String getHost() {
@@ -33,12 +39,6 @@ public class Host {
 		return histogram;
 	}
 
-
-	public Host add(Host host) {
-		this.histogram.mergeWith(host.getHistogram());
-		return this;
-	}
-
 	public String getJson() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{");
@@ -48,8 +48,13 @@ public class Host {
 		return sb.toString();
 	}
 
-	@Override
-	public String toString() {
-		return "Host [host=" + host + ", histogram=" + histogram + "]";
-	}
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Host{");
+        sb.append("host='").append(host).append('\'');
+        sb.append(", serviceType=").append(serviceType);
+        sb.append(", histogram=").append(histogram);
+        sb.append('}');
+        return sb.toString();
+    }
 }
