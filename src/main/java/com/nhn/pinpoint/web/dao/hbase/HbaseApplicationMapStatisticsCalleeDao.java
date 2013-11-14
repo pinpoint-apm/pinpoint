@@ -51,10 +51,12 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
 
 		for (Map<String, TransactionFlowStatistics> map : found) {
 			for (Entry<String, TransactionFlowStatistics> entry : map.entrySet()) {
-				if (result.containsKey(entry.getKey())) {
-					result.get(entry.getKey()).mergeWith(entry.getValue());
+                final String key = entry.getKey();
+                final TransactionFlowStatistics find = result.get(key);
+                if (find != null) {
+					find.add(entry.getValue());
 				} else {
-					result.put(entry.getKey(), entry.getValue());
+					result.put(key, entry.getValue());
 				}
 			}
 		}

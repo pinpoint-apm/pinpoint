@@ -4,11 +4,9 @@ import java.util.Set;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.web.service.ComplexNodeId;
 import com.nhn.pinpoint.web.service.Node;
 import com.nhn.pinpoint.web.service.NodeId;
 import com.nhn.pinpoint.web.service.SimpleNodeId;
-import com.nhn.pinpoint.web.util.Mergeable;
 
 /**
  * DB에서 조회한 application호출 관계 정보.
@@ -16,13 +14,12 @@ import com.nhn.pinpoint.web.util.Mergeable;
  * @author netspider
  * @author emeroad
  */
-public class TransactionFlowStatistics implements Mergeable<NodeId, TransactionFlowStatistics> {
+public class TransactionFlowStatistics {
 
-//    private String from;
-//    private ServiceType fromServiceType;
-//    private String to;
-//    private ServiceType toServiceType;
-    private ComplexNodeId nodeId;
+    private String from;
+    private ServiceType fromServiceType;
+    private String to;
+    private ServiceType toServiceType;
 
 	/**
 	 * key = hostname
@@ -32,13 +29,16 @@ public class TransactionFlowStatistics implements Mergeable<NodeId, TransactionF
     private Set<AgentInfoBo> toAgentSet;
 
 	public TransactionFlowStatistics(String from, short fromServiceType, String to, short toServiceType) {
-//		this.from = from;
-//		this.fromServiceType = ServiceType.findServiceType(fromServiceType);
-//		this.to = to;
-//		this.toServiceType = ServiceType.findServiceType(toServiceType);
-        final Node fromNode = new Node(from, ServiceType.findServiceType(fromServiceType));
-        final Node toNode = new Node(to, ServiceType.findServiceType(toServiceType));
-        this.nodeId = new ComplexNodeId(fromNode, toNode);
+        if (from == null) {
+            throw new NullPointerException("from must not be null");
+        }
+        if (to == null) {
+            throw new NullPointerException("to must not be null");
+        }
+        this.from = from;
+		this.fromServiceType = ServiceType.findServiceType(fromServiceType);
+		this.to = to;
+		this.toServiceType = ServiceType.findServiceType(toServiceType);
         this.toHostList = new HostList();
 	}
 
@@ -46,26 +46,15 @@ public class TransactionFlowStatistics implements Mergeable<NodeId, TransactionF
 		this(from, fromServiceType.getCode(), to, toServiceType.getCode());
 	}
 
-    public TransactionFlowStatistics(ComplexNodeId nodeId) {
-        if (nodeId == null) {
-            throw new NullPointerException("nodeId must not be null");
-        }
-        this.nodeId = nodeId;
-        this.toHostList = new HostList();
-    }
-	
+
 	public NodeId getFromApplicationId() {
-//		return from + fromServiceType;
-//        return new ComplexNodeId(nodeId.getSrc(), Node.EMPTY);
-        return new SimpleNodeId(nodeId.getSrc());
+        Node node = new Node(this.from, this.fromServiceType);
+        return new SimpleNodeId(node);
 	}
 	
 	public NodeId getToApplicationId() {
-//		return to + toServiceType;
-//        return nodeId.getDest();
-//        return new ComplexNodeId(Node.EMPTY, nodeId.getDest());
-//        return new ComplexNodeId(Node.EMPTY, nodeId.getDest());
-        return new SimpleNodeId(nodeId.getDest());
+        Node node = new Node(this.to, this.toServiceType);
+        return new SimpleNodeId(node);
 	}
 	
 	/**
@@ -84,40 +73,37 @@ public class TransactionFlowStatistics implements Mergeable<NodeId, TransactionF
 	}
 
 
-	public NodeId getId() {
-		return nodeId;
-	}
 
 	public String getFrom() {
-        return nodeId.getSrc().getName();
+        return from;
 	}
 
 	public String getTo() {
-		return nodeId.getDest().getName();
+		return to;
 	}
 
 	public ServiceType getFromServiceType() {
-		return nodeId.getSrc().getServiceType();
+		return fromServiceType;
 	}
 
 	public ServiceType getToServiceType() {
-        return nodeId.getDest().getServiceType();
+        return toServiceType;
 	}
 
 	public void setFrom(String from) {
-        nodeId.getSrc().setName(from);
+        this.from = from;
 	}
 
 	public void setTo(String to) {
-        nodeId.getDest().setName(to);
+        this.to = to;
 	}
 
 	public void setFromServiceType(ServiceType fromServiceType) {
-        nodeId.getSrc().setServiceType(fromServiceType);
+        this.fromServiceType = fromServiceType;
 	}
 
 	public void setToServiceType(ServiceType toServiceType) {
-        nodeId.getDest().setServiceType(toServiceType);
+        this.toServiceType = toServiceType;
 	}
 
 	public HostList getToHostList() {
@@ -136,7 +122,7 @@ public class TransactionFlowStatistics implements Mergeable<NodeId, TransactionF
 		}
 	}
 
-	public TransactionFlowStatistics mergeWith(TransactionFlowStatistics applicationStatistics) {
+	public TransactionFlowStatistics add(TransactionFlowStatistics applicationStatistics) {
 		if (this.equals(applicationStatistics)) {
             final HostList target = applicationStatistics.getToHostList();
             this.toHostList.addHostList(target);
@@ -149,7 +135,10 @@ public class TransactionFlowStatistics implements Mergeable<NodeId, TransactionF
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("TransactionFlowStatistics{");
-        sb.append("nodeId=").append(nodeId);
+        sb.append("from='").append(from).append('\'');
+        sb.append(", fromServiceType=").append(fromServiceType);
+        sb.append(", to='").append(to).append('\'');
+        sb.append(", toServiceType=").append(toServiceType);
         sb.append(", toHostList=").append(toHostList);
         sb.append('}');
         return sb.toString();
@@ -162,13 +151,20 @@ public class TransactionFlowStatistics implements Mergeable<NodeId, TransactionF
 
         TransactionFlowStatistics that = (TransactionFlowStatistics) o;
 
-        if (nodeId != null ? !nodeId.equals(that.nodeId) : that.nodeId != null) return false;
+        if (from != null ? !from.equals(that.from) : that.from != null) return false;
+        if (fromServiceType != that.fromServiceType) return false;
+        if (to != null ? !to.equals(that.to) : that.to != null) return false;
+        if (toServiceType != that.toServiceType) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return nodeId != null ? nodeId.hashCode() : 0;
+        int result = from != null ? from.hashCode() : 0;
+        result = 31 * result + (fromServiceType != null ? fromServiceType.hashCode() : 0);
+        result = 31 * result + (to != null ? to.hashCode() : 0);
+        result = 31 * result + (toServiceType != null ? toServiceType.hashCode() : 0);
+        return result;
     }
 }
