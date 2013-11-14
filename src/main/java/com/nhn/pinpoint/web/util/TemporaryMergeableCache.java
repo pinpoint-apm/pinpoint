@@ -19,15 +19,13 @@ public class TemporaryMergeableCache<K, V extends Mergeable<K, V>> {
 	}
 
 	public void add(K key, V value) {
-		if (cache.containsKey(key)) {
-			V v = cache.get(key);
-			if (v != null) {
-				replace(key, v.mergeWith(value));
-			} else {
-				replace(key, value);
-			}
+        final Map<K, V> cache = this.cache;
+
+        final V find = cache.get(key);
+        if (find != null) {
+            find.mergeWith(value);
 		} else {
-			replace(key, value);
+            cache.put(key, value);
 		}
 	}
 
