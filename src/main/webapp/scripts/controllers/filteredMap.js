@@ -35,14 +35,22 @@ pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout'
             $scope.$emit('serverMap.initialize', oNavbarDao);
             $scope.$emit('scatter.initialize', oNavbarDao);
         });
-    });
+    }, 100);
 
     /**
      * scope event on serverMap.fetched
      */
-    $scope.$on('serverMap.fetched', function (event, lastFetchedTimestamp) {
+    $scope.$on('serverMap.fetched', function (event, lastFetchedTimestamp, mapData) {
         oTimeSliderDao.setInnerFrom(lastFetchedTimestamp);
         $scope.$emit('timeSlider.setInnerFromTo', oTimeSliderDao);
+
+        // auto trying fetch
+        if (mapData.applicationMapData.nodeDataArray.length === 0 && mapData.applicationMapData.linkDataArray.length === 0) {
+            $timeout(function () {
+                console.log('auto trying fetch');
+                $scope.$emit('timeSlider.moreClicked');
+            }, 500)
+        }
     });
 
     /**

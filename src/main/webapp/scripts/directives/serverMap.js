@@ -60,9 +60,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                 },
                 lastFetchedTimestamp: [],
                 timeSeriesResponses: {
-                    values: {
-
-                    },
+                    values: {},
                     time: []
                 }
             };
@@ -112,7 +110,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                             scope.$emit('serverMap.allFetched');
                         } else {
                             htLastMapData.lastFetchedTimestamp = result.lastFetchedTimestamp - 1;
-                            scope.$emit('serverMap.fetched', htLastMapData.lastFetchedTimestamp);
+                            scope.$emit('serverMap.fetched', htLastMapData.lastFetchedTimestamp, result);
                         }
 //                        mergeTimeSeriesResponses(result.timeSeriesResponses);
                         serverMapCallback(query, mergeFilteredMapData(result), mergeUnknowns, linkRouting, linkCurve);
@@ -197,11 +195,6 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
              */
             mergeNodeData = function (nodeKey, node) {
                 for (var key in node.serverList) {
-//                    if (angular.isUndefined(htLastMapData.applicationMapData.nodeDataArray[nodeKey])) {
-//                        htLastMapData.applicationMapData.nodeDataArray[nodeKey] = {
-//                            serverList: []
-//                        };
-//                    }
                     if (htLastMapData.applicationMapData.nodeDataArray[nodeKey].serverList[key]) {
                         for (var innerKey in node.serverList[key].instanceList) {
                             if (htLastMapData.applicationMapData.nodeDataArray[nodeKey].serverList[key].instanceList[innerKey]) {
