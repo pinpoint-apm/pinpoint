@@ -14,14 +14,15 @@ import org.slf4j.LoggerFactory;
  * application map에서 application간의 관계를 담은 클래스
  * 
  * @author netspider
+ * @author emeroad
  */
 public class ApplicationRelation {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     protected final NodeId id;
 
-	protected final Application from;
-	protected final Application to;
+    private final Application from;
+    private final Application to;
 	private HostList hostList;
 
 

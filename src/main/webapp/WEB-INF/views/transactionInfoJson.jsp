@@ -95,7 +95,7 @@ ${record.hasException}
 							"status" : null,
 							"instanceList" : {
 								<c:forEach items="${serverInstance.value}" var="instance" varStatus="status6">
-								"${instance.key}" : ${instance.value.json}
+								"${instance.id}" : ${instance.json}
 									<c:if test="${!status6.last}">,</c:if>
 								</c:forEach>								
 							}

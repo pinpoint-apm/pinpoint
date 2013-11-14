@@ -11,9 +11,9 @@ import com.nhn.pinpoint.web.util.Mergeable;
 /**
  * 
  * @author netspider
- * 
+ * @author emeroad
  */
-public class ServerInstance implements Comparable<ServerInstance>, Mergeable<String, ServerInstance>, JsonSerializable {
+public class ServerInstance implements JsonSerializable {
 
 	private final String name;
 	private final ServiceType serviceType;
@@ -24,7 +24,7 @@ public class ServerInstance implements Comparable<ServerInstance>, Mergeable<Str
 	
 	private ObjectMapper objectMapper = new ObjectMapper();
 
-	public ServerInstance(AgentInfoBo agentInfo, ResponseHistogram histogram) {
+	public ServerInstance(AgentInfoBo agentInfo) {
         if (agentInfo == null) {
             throw new NullPointerException("agentInfo must not be null");
         }
@@ -32,15 +32,19 @@ public class ServerInstance implements Comparable<ServerInstance>, Mergeable<Str
 		this.serviceType = agentInfo.getServiceType();
 		this.id = name;// + serviceType;
 		this.agentInfo = agentInfo;
-		this.histogram = histogram;
 	}
 	
-	public ServerInstance(String name, ServiceType serviceType, ResponseHistogram histogram) {
-		this.name = name;
+	public ServerInstance(String name, ServiceType serviceType) {
+        if (name == null) {
+            throw new NullPointerException("name must not be null");
+        }
+        if (name == null) {
+            throw new NullPointerException("name must not be null");
+        }
+        this.name = name;
 		this.serviceType = serviceType;
 		this.id = name + serviceType;
 		this.agentInfo = null;
-		this.histogram = histogram;
 	}
 
 	public String getId() {
@@ -65,7 +69,7 @@ public class ServerInstance implements Comparable<ServerInstance>, Mergeable<Str
 		try {
 			agentInfoJson = objectMapper.writeValueAsString(agentInfo);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException("json create fail,", e);
 		}
 		
 		StringBuilder sb = new StringBuilder();
@@ -78,8 +82,7 @@ public class ServerInstance implements Comparable<ServerInstance>, Mergeable<Str
 		return sb.toString();
 	}
 
-	@Override
-	public ServerInstance mergeWith(ServerInstance serverInstance) {
+	public ServerInstance addHistogram(ServerInstance serverInstance) {
 		if (!this.id.equals(serverInstance.getId())) {
 			throw new IllegalArgumentException("Server instance id is not equal.");
 		}
@@ -122,8 +125,4 @@ public class ServerInstance implements Comparable<ServerInstance>, Mergeable<Str
 		return "ServerInstance [id=" + id + ", agentInfo=" + agentInfo + ", histogram=" + histogram + "]";
 	}
 
-	@Override
-	public int compareTo(ServerInstance serverInstance) {
-		return this.id.compareTo(serverInstance.id);
-	}
 }

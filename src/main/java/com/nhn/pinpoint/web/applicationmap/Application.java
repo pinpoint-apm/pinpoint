@@ -1,9 +1,6 @@
 package com.nhn.pinpoint.web.applicationmap;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 import com.nhn.pinpoint.web.applicationmap.rawdata.HostList;
 import com.nhn.pinpoint.web.service.NodeId;
@@ -12,32 +9,28 @@ import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.web.applicationmap.rawdata.Host;
 import com.nhn.pinpoint.web.util.JsonSerializable;
-import com.nhn.pinpoint.web.util.Mergeable;
-import com.nhn.pinpoint.web.util.MergeableMap;
-import com.nhn.pinpoint.web.util.MergeableTreeMap;
 
 /**
  * application map에서 application을 나타낸다.
  * 
  * @author netspider
+ * @author emeroad
  */
 public class Application implements JsonSerializable {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	protected int sequence;
-	protected final NodeId id;
-	protected final String applicationName;
-	protected final ServiceType serviceType;
-	protected final Map<String, MergeableMap<String, ServerInstance>> serverInstanceList = new TreeMap<String, MergeableMap<String, ServerInstance>>();
+	private int sequence;
+    private final NodeId id;
+    private final String applicationName;
+    private final ServiceType serviceType;
+    private final ServerInstanceList serverInstanceList = new ServerInstanceList();
 
 	private final HostList serverList = new HostList();
 	private final Set<AgentInfoBo> agentSet = new HashSet<AgentInfoBo>();
 	
-	private boolean isBuilt = false;
-	
+
 	public Application(NodeId id, String applicationName, ServiceType serviceType, HostList serverList, Set<AgentInfoBo> agentSet) {
 		logger.debug("create application id={}, applicationName={}, serviceType={}, serverList={}, agentSet={}", id, applicationName, serviceType, serverList, agentSet);
 		this.id = id;
@@ -53,77 +46,18 @@ public class Application implements JsonSerializable {
 		}
 	}
 
-	public void build() {
-		if (isBuilt) {
-			return;
-		}
+	void build() {
 		if (!agentSet.isEmpty()) {
-			fillServerInstanceList(agentSet);
+			serverInstanceList.fillServerInstanceList(agentSet);
 		} else {
-			fillServerInstanceList(serverList);
+            serverInstanceList.fillServerInstanceList(serverList);
 		}
-		isBuilt = true;
 	}
 	
-	public Map<String, MergeableMap<String, ServerInstance>> getServerInstanceList() {
-		return serverInstanceList;
+	public Map<String, List<ServerInstance>> getServerInstanceList() {
+		return serverInstanceList.getServerInstanceList();
 	}
 
-	/**
-	 * 어플리케이션에 속한 물리서버와 서버 인스턴스 정보를 채운다.
-	 * 
-	 * @param hostHistogram
-	 */
-	private void fillServerInstanceList(final HostList hostHistogram) {
-		if (hostHistogram == null) {
-			return;
-		}
-		
-		for (Host host : hostHistogram.getHostList()) {
-			String instanceName = host.getHost();
-            String hostName = getHostName(instanceName);
-            ServiceType serviceType = host.getServiceType();
-			ServerInstance serverInstance = new ServerInstance(instanceName, serviceType, null);
-
-			MergeableMap<String, ServerInstance> serverInstanceMap = serverInstanceList.get(hostName);
-			if (serverInstanceMap == null) {
-				MergeableMap<String, ServerInstance> value = new MergeableTreeMap<String, ServerInstance>();
-				value.put(serverInstance.getId(), serverInstance);
-				serverInstanceList.put(hostName, value);
-			} else {
-				MergeableMap<String, ServerInstance> map = serverInstanceList.get(hostName);
-				map.putOrMerge(serverInstance.getId(), serverInstance);
-			}
-		}
-	}
-
-    private String getHostName(String instanceName) {
-        final int pos = instanceName.indexOf(':');
-        if (pos > 0) {
-            return instanceName.substring(0, pos);
-        } else {
-            return instanceName;
-        }
-    }
-
-    private void fillServerInstanceList(final Set<AgentInfoBo> agentSet) {
-		if (agentSet == null) {
-			return;
-		}
-		for (AgentInfoBo agent : agentSet) {
-			String key = agent.getHostname();
-			MergeableMap<String, ServerInstance> serverInstanceMap = serverInstanceList.get(key);
-			ServerInstance serverInstance = new ServerInstance(agent, null);
-			if (serverInstanceMap == null) {
-				MergeableMap<String, ServerInstance> value = new MergeableTreeMap<String, ServerInstance>();
-				value.put(serverInstance.getId(), serverInstance);
-				serverInstanceList.put(key, value);
-			} else {
-				MergeableMap<String, ServerInstance> map = serverInstanceList.get(key);
-				map.putOrMerge(serverInstance.getId(), serverInstance);
-			}
-		}
-	}
 
 	public NodeId getId() {
 		return this.id;
