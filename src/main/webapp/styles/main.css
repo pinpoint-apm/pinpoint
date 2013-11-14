@@ -91,7 +91,7 @@ canvas {outline:none}
 
 /* info-details */
 .info-details {
-	border-top: 1px solid #ddd;
+    border-top: 1px solid #ddd;
 	border-left: 1px solid #ddd;
 	position: absolute;
 	top: 250px;

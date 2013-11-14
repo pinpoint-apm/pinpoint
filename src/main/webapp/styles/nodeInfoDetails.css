@@ -1,3 +1,6 @@
+.nodeInfoDetails {
+}
+
 .nodeInfoDetails .server-list,
 .nodeInfoDetails .server-list ul {
     list-style: none;
@@ -9,3 +12,15 @@
     font-size: 14px;
 }
 
+.nodeInfoDetails .info {
+    position: fixed;
+    width: 380px;
+}
+
+.nodeInfoDetails .alert {
+    line-height: 25px;
+}
+
+.nodeInfoDetails .contents {
+    padding-top: 48px;
+}

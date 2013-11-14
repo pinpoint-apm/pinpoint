@@ -5,58 +5,43 @@
             <div class="alert alert-info text-center">
                 Unknown Links
             </div>
-            <ul class="unstyled">
-                <li ng-repeat="target in targetinfo">
-                    <img ng-src="/images/icons/{{sourceinfo[0].serviceType | icons}}.png" width="20" height="10" /> {{sourceinfo[0].applicationName}}
-                    <i class="icon-arrow-right"></i>
-                    <img ng-src="/images/icons/{{target.serviceType | icons}}.png" width="20" height="10" /> {{target.applicationName}}
-                    <a class="btn btn-mini" href ng-click="showDetailInformation(target.applicationName)" title="Show Link Information">
-                        <i class="icon-tasks"></i>
-                    </a>
-                    <a class="btn btn-mini" href ng-click="passingTransactionMap(sourceinfo[0].serviceType, sourceinfo[0].applicationName, target.serviceType, target.applicationName)" title="filter transaction">
-                        <i class="icon-filter"></i>
-                    </a>
-                    <br>
-                    <div class="summaryCharts_{{target.sequence}}">
-                        <svg style='height:120px' />
-                    </div>
-                    <!--<ul>-->
-                        <!--<li>Request Count : {{rawdata[target.applicationName].count | number}}</li>-->
-                        <!--<li ng-class="rawdata[target.applicationName].error && 'text-error'">Error Count : {{rawdata[target.applicationName].error | number}}</li>-->
-                    <!--</ul>-->
-                </li>
-            </ul>
 		</div>
 
 		<div ng-switch-when="LinkInfoBox" class="alert alert-info text-center">
 			<img ng-src="/images/icons/{{sourceinfo.serviceType | icons}}.png" width="20" height="10" /> {{sourceinfo.applicationName}}
 			<i class="icon-arrow-right"></i>
 			<img ng-src="/images/icons/{{targetinfo.serviceType | icons}}.png" width="20" height="10" /> {{targetinfo.applicationName}}
-			<!--
-			<br/>
-			Total requests : ???<br/>
-			Failed : {{= error}}<br/>
-			Response statistics
-			<ul>
-				{{var lastKey=''}}
-				{{each(key, value) histogram}}
-				<li>&lt;= {{= key}}ms : {{= value}}</li>
-				{{eval lastKey=key}}
-				{{/each}}
-				<li>&nbsp;&nbsp;&gt; {{= lastKey}}ms : {{= slow}}</li>
-			</ul>
-			-->
 		</div>
 
 	</div>
 
-	<div class='infoBarChart' ng-show="showLinkInfoBarChart">
-		<h5>Response Summary</h5>
-		<svg style='height:150px' />
-	</div>
-	
-	<div class='infoChart' ng-show="showLinkInfoChart">
-		<h5>Load</h5>
-		<svg style='height:200px' />
-	</div>
+    <div class="contents">
+        <ul class="unstyled" ng-if="targetinfo">
+            <li ng-repeat="target in targetinfo">
+                <img ng-src="/images/icons/{{sourceinfo[0].serviceType | icons}}.png" width="20" height="10" /> {{sourceinfo[0].applicationName}}
+                <i class="icon-arrow-right"></i>
+                <img ng-src="/images/icons/{{target.serviceType | icons}}.png" width="20" height="10" /> {{target.applicationName}}
+                <a class="btn btn-mini" href ng-click="showDetailInformation(target.applicationName)" title="Show Link Information">
+                    <i class="icon-tasks"></i>
+                </a>
+                <a class="btn btn-mini" href ng-click="passingTransactionMap(sourceinfo[0].serviceType, sourceinfo[0].applicationName, target.serviceType, target.applicationName)" title="filter transaction">
+                    <i class="icon-filter"></i>
+                </a>
+                <br>
+                <div class="summaryCharts_{{target.sequence}}">
+                    <svg style='height:120px' />
+                </div>
+            </li>
+        </ul>
+
+        <div class='infoBarChart' ng-show="showLinkInfoBarChart">
+            <h5>Response Summary</h5>
+            <svg style='height:150px' />
+        </div>
+
+        <div class='infoChart' ng-show="showLinkInfoChart">
+            <h5>Load</h5>
+            <svg style='height:200px' />
+        </div>
+    </div>
 </div>
