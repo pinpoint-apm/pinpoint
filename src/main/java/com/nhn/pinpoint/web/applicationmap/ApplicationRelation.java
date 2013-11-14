@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author netspider
  */
-public class ApplicationRelation implements Mergeable<NodeId, ApplicationRelation> {
+public class ApplicationRelation {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     protected final NodeId id;
@@ -74,8 +74,7 @@ public class ApplicationRelation implements Mergeable<NodeId, ApplicationRelatio
 		return result;
 	}
 
-	@Override
-	public ApplicationRelation mergeWith(ApplicationRelation relation) {
+	public ApplicationRelation add(ApplicationRelation relation) {
 		// TODO this.equals로 바꿔도 되지 않을까?
 		if (this.from.equals(relation.getFrom()) && this.to.equals(relation.getTo())) {
 			// TODO Mergable value map을 만들어야 하나...

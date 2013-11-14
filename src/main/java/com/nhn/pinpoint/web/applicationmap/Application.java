@@ -23,7 +23,7 @@ import com.nhn.pinpoint.web.util.MergeableTreeMap;
  * 
  * @author netspider
  */
-public class Application implements Mergeable<NodeId, Application>, JsonSerializable {
+public class Application implements JsonSerializable {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -141,8 +141,7 @@ public class Application implements Mergeable<NodeId, Application>, JsonSerializ
 		return applicationName;
 	}
 
-	@Override
-	public Application mergeWith(Application application) {
+	public Application add(Application application) {
 		logger.debug("merge application a={}, b={}", this.id, application.id);
 		
 		if (application.serverList != null) {

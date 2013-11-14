@@ -1,32 +1,26 @@
 package com.nhn.pinpoint.web.applicationmap;
 
 import java.util.*;
-import java.util.Map.Entry;
 
-import com.nhn.pinpoint.web.service.ComplexNodeId;
 import com.nhn.pinpoint.web.service.NodeId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.web.applicationmap.rawdata.RawStatisticsData;
-import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
-import com.nhn.pinpoint.web.util.MergeableHashMap;
-import com.nhn.pinpoint.web.util.MergeableMap;
 import com.nhn.pinpoint.web.vo.TimeSeriesStore;
 
 /**
  * Application map
  * 
  * @author netspider
+ * @author emeroad
  */
 public class ApplicationMap {
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final ApplicationList applications = new ApplicationList();
+    private final ApplicationRelationList relations = new ApplicationRelationList();
 
-	private final MergeableMap<NodeId, Application> applications = new MergeableHashMap<NodeId, Application>();
-	private final MergeableMap<NodeId, ApplicationRelation> relations = new MergeableHashMap<NodeId, ApplicationRelation>();
 	private final Set<String> applicationNames = new HashSet<String>();
 
 	private TimeSeriesStore timeSeriesStore;
@@ -35,24 +29,20 @@ public class ApplicationMap {
 	}
 
 
-	public Collection<Application> getNodes() {
-
-		return this.applications.values();
+	public List<Application> getNodes() {
+		return this.applications.getNodeList();
 	}
 
-	public Collection<ApplicationRelation> getLinks() {
-		return this.relations.values();
+	public List<ApplicationRelation> getLinks() {
+		return this.relations.getLinks();
 	}
 
 	void indexingApplication() {
-		int index = 0;
-		for (Entry<NodeId, Application> entry : applications.entrySet()) {
-			entry.getValue().setSequence(index++);
-		}
+        this.applications.markSequence();
 	}
 
 	Application findApplication(NodeId applicationId) {
-		return applications.get(applicationId);
+        return this.applications.find(applicationId);
 	}
 
     void addApplication(List<Application> applicationList) {
@@ -65,18 +55,15 @@ public class ApplicationMap {
 		if (!application.getServiceType().isRpcClient()) {
 			applicationNames.add(application.getApplicationName());
 		}
-		applications.putOrMerge(application.getId(), application);
+        applications.addApplication(application);
 	}
 
     void addRelation(List<ApplicationRelation> relationList) {
         for (ApplicationRelation applicationRelation : relationList) {
-            addRelation(applicationRelation);
+            relations.addRelation(applicationRelation);
         }
     }
 
-	void addRelation(ApplicationRelation relation) {
-		relations.putOrMerge(relation.getId(), relation);
-	}
 
 	public TimeSeriesStore getTimeSeriesStore() {
 		return timeSeriesStore;
@@ -87,10 +74,7 @@ public class ApplicationMap {
 	}
 
     public void buildApplication() {
-        // build application
-        for (Map.Entry<NodeId, Application> app : applications.entrySet()) {
-            app.getValue().build();
-        }
+        this.applications.build();
     }
 
     public boolean containsApplicationName(String applicationName) {
