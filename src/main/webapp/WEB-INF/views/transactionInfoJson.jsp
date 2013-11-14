@@ -119,9 +119,9 @@ ${record.hasException}
 				"slow" : ${link.histogram.slowCount},
 				"histogram" : ${link.histogram.json},
 				"targetHosts" : {
-					<c:forEach items="${link.hostList}" var="host" varStatus="status2">
-						"${host.value.host}" : {
-							"histogram" : ${host.value.histogram.json}
+					<c:forEach items="${link.hostList.hostList}" var="host" varStatus="status2">
+						"${host.host}" : {
+							"histogram" : ${host.histogram.json}
 						}<c:if test="${!status2.last}">,</c:if>
 					</c:forEach>	
 				},
