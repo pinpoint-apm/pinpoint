@@ -47,9 +47,10 @@ pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout'
         // auto trying fetch
         if (mapData.applicationMapData.nodeDataArray.length === 0 && mapData.applicationMapData.linkDataArray.length === 0) {
             $timeout(function () {
-                console.log('auto trying fetch');
                 $scope.$emit('timeSlider.moreClicked');
-            }, 500)
+            }, 500);
+        } else {
+            $scope.$emit('timeSlider.enableMore');
         }
     });
 
@@ -59,6 +60,7 @@ pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout'
     $scope.$on('serverMap.allFetched', function (event) {
         oTimeSliderDao.setInnerFrom(oTimeSliderDao.getFrom());
         $scope.$emit('timeSlider.setInnerFromTo', oTimeSliderDao);
+        $scope.$emit('timeSlider.changeMoreToDone');
         $scope.$emit('timeSlider.disableMore');
     });
 
@@ -71,6 +73,7 @@ pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout'
         newNavbarDao.setQueryStartTime(oNavbarDao.getQueryStartTime());
         newNavbarDao.setQueryEndTime(oTimeSliderDao.getInnerFrom());
         newNavbarDao.autoCalcultateByQueryStartTimeAndQueryEndTime();
+        $scope.$emit('timeSlider.disableMore');
         $scope.$emit('serverMap.fetch', newNavbarDao.getQueryPeriod(), newNavbarDao.getQueryEndTime());
     });
 

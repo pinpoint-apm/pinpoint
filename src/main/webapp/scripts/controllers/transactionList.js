@@ -84,11 +84,14 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
             getTransactionList(getQuery(), function (data) {
                 if (data.metadata.length === 0) {
                     $scope.$emit('timeSlider.disableMore');
+                    $scope.$emit('timeSlider.changeMoreToDone');
                     return false;
                 } else if (data.metadata.length < cfg.MAX_FETCH_BLOCK_SIZE || oTimeSliderDao.getTotal() === data.metadata.length + oTimeSliderDao.getCount()) {
                     $scope.$emit('timeSlider.disableMore');
+                    $scope.$emit('timeSlider.changeMoreToDone');
                     oTimeSliderDao.setInnerFrom(htTransactions.htXY.nXFrom);
                 } else {
+                    $scope.$emit('timeSlider.enableMore');
                     oTimeSliderDao.setInnerFrom(_.last(data.metadata).collectorAcceptTime);
                 }
                 emitTransactionListToTable(data);
@@ -113,11 +116,14 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
             getTransactionList(getQuery(), function (data) {
                 if (data.metadata.length === 0) {
                     $scope.$emit('timeSlider.disableMore');
+                    $scope.$emit('timeSlider.changeMoreToDone');
                     return false;
                 } else if (data.metadata.length < cfg.MAX_FETCH_BLOCK_SIZE || oTimeSliderDao.getTotal() === data.metadata.length) {
                     $scope.$emit('timeSlider.disableMore');
+                    $scope.$emit('timeSlider.changeMoreToDone');
                     oTimeSliderDao.setInnerFrom(htTransactions.htXY.nXFrom);
                 } else {
+                    $scope.$emit('timeSlider.enableMore');
                     oTimeSliderDao.setInnerFrom(_.last(data.metadata).collectorAcceptTime);
                 }
                 emitTransactionListToTable(data);
@@ -173,6 +179,10 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
          * scope event on timeSlider.moreClicked
          */
         $scope.$on('timeSlider.moreClicked', function (event) {
-            fetchNext();
+            $scope.$emit('timeSlider.disableMore');
+            $timeout(function () {
+                fetchNext();
+            }, 1000);
+
         });
     }]);

@@ -22,6 +22,7 @@ pinpointApp.directive('timeSlider', [ 'timeSliderConfig', '$timeout', function (
             // initialize scope variables
             scope.oTimeSliderDao = null;
             scope.disableMore = false;
+            scope.done = false;
 
             /**
              * init slider
@@ -143,7 +144,7 @@ pinpointApp.directive('timeSlider', [ 'timeSliderConfig', '$timeout', function (
              * scope event on enable more
              */
             scope.$on('timeSlider.enableMore', function (event) {
-               scope.disableMore = false;
+                scope.disableMore = false;
             });
 
             /**
@@ -151,6 +152,20 @@ pinpointApp.directive('timeSlider', [ 'timeSliderConfig', '$timeout', function (
              */
             scope.$on('timeSlider.disableMore', function (event) {
                 scope.disableMore = true;
+            });
+
+            /**
+             * scope event on change more to done
+             */
+            scope.$on('timeSlider.changeMoreToDone', function (event) {
+                scope.done = true;
+            });
+
+            /**
+             * scope event on change done to more
+             */
+            scope.$on('timeSlider.changeDoneToMore', function (event) {
+                scope.done = false;
             });
         }
     };
