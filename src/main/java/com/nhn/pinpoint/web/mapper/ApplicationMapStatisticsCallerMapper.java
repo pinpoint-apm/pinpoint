@@ -32,18 +32,17 @@ public class ApplicationMapStatisticsCallerMapper implements RowMapper<Map<Strin
         }
 		KeyValue[] keyList = result.raw();
 
-		// key of map is destApplicationName.
 		Map<String, TransactionFlowStatistics> stat = new HashMap<String, TransactionFlowStatistics>();
 
-		// key of map is destApplicationName
-//		Map<String, Set<String>> calleeAppHostMap = new HashMap<String, Set<String>>();
 
 		for (KeyValue kv : keyList) {
-			byte[] qualifier = kv.getQualifier();
 
-			String calleeApplicationName = ApplicationMapStatisticsUtils.getApplicationNameFromRowKey(kv.getRow());
-			short calleeServiceType = ApplicationMapStatisticsUtils.getApplicationTypeFromRowKey(kv.getRow());
 
+            final byte[] row = kv.getRow();
+            String calleeApplicationName = ApplicationMapStatisticsUtils.getApplicationNameFromRowKey(row);
+			short calleeServiceType = ApplicationMapStatisticsUtils.getApplicationTypeFromRowKey(row);
+
+            final byte[] qualifier = kv.getQualifier();
 			String callerApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);
 			short callerServiceType = ApplicationMapStatisticsUtils.getDestServiceTypeFromColumnName(qualifier);
 
@@ -54,56 +53,25 @@ public class ApplicationMapStatisticsCallerMapper implements RowMapper<Map<Strin
 			String calleeHost = ApplicationMapStatisticsUtils.getHost(qualifier);
 			boolean isError = histogramSlot == (short) -1;
 			
-			String id = callerApplicationName + callerServiceType + calleeApplicationName + calleeServiceType;
 
-			logger.debug("    Fetched. " + callerApplicationName + "[" + ServiceType.findServiceType(callerServiceType) + "] -> " + calleeApplicationName + "[" + ServiceType.findServiceType(calleeServiceType) + "] (" + requestCount + ")");
-			
-			// hostname은 일단 따로 보관.
-//			if (calleeHost != null) {
-//				if (calleeAppHostMap.containsKey(id)) {
-//					calleeAppHostMap.get(id).add(calleeHost);
-//				} else {
-//					Set<String> set = new HashSet<String>();
-//					set.add(calleeHost);
-//					calleeAppHostMap.put(id, set);
-//				}
-//			}
+            if (logger.isDebugEnabled()) {
+			    logger.debug("    Fetched. {}[{}] -> {}[{}] ({})", callerApplicationName, ServiceType.findServiceType(callerServiceType), calleeApplicationName, ServiceType.findServiceType(calleeServiceType), requestCount);
+            }
 
-//			System.out.println("--------------------------------------------");
-//			System.out.println("CallerMapper");
-//			System.out.println("callerApplicationName:" + callerApplicationName);
-//			System.out.println("callerServiceType=" + ServiceType.findServiceType(callerServiceType));
-//			System.out.println("calleeApplicationName=" + calleeApplicationName);
-//			System.out.println("calleeServiceType=" + ServiceType.findServiceType(calleeServiceType));
-//			System.out.println("calleeHost:" + calleeHost);
-//			System.out.println("--------------------------------------------");
-			
+            final String id = callerApplicationName + callerServiceType + calleeApplicationName + calleeServiceType;
 			if (stat.containsKey(id)) {
 				TransactionFlowStatistics statistics = stat.get(id);
 				statistics.addSample(calleeHost, calleeServiceType, (isError) ? (short) -1 : histogramSlot, requestCount);
 
-//				if (isError) {
-//					statistics.getHistogram().addSample((short) -1, requestCount);
-//				} else {
-//					statistics.getHistogram().addSample(histogramSlot, requestCount);
-//				}
+
 			} else {
 				TransactionFlowStatistics statistics = new TransactionFlowStatistics(callerApplicationName, callerServiceType, calleeApplicationName, calleeServiceType);
 				statistics.addSample(calleeHost, calleeServiceType, (isError) ? (short) -1 : histogramSlot, requestCount);
 				
-//				if (isError) {
-//					statistics.getHistogram().addSample((short) -1, requestCount);
-//				} else {
-//					statistics.getHistogram().addSample(histogramSlot, requestCount);
-//				}
+
 				stat.put(id, statistics);
 			}
 		}
-
-		// statistics에 dest host정보 삽입.
-//		for (Entry<String, TransactionFlowStatistics> entry : stat.entrySet()) {
-//			entry.getValue().addToHosts(calleeAppHostMap.get(entry.getKey()));
-//		}
 
 		return stat;
 	}
