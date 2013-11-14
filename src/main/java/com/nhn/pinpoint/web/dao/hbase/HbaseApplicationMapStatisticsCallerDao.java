@@ -48,27 +48,31 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
 	@Override
 	public List<TransactionFlowStatistics> selectCaller(String calleeApplicationName, short calleeServiceType, long from, long to) {
 		Scan scan = createScan(calleeApplicationName, calleeServiceType, from, to);
-		List<List<TransactionFlowStatistics>> foundListList = hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLER, scan, applicationMapStatisticsCallerMapper);
+		final List<List<TransactionFlowStatistics>> foundListList = hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLER, scan, applicationMapStatisticsCallerMapper);
 
-		final Map<TransactionFlowStatisticsKey, TransactionFlowStatistics> result = new HashMap<TransactionFlowStatisticsKey, TransactionFlowStatistics>();
+        return merge(foundListList);
+	}
 
-		for (List<TransactionFlowStatistics> foundList : foundListList) {
-			for (TransactionFlowStatistics found : foundList) {
+    private List<TransactionFlowStatistics> merge(List<List<TransactionFlowStatistics>> foundListList) {
+        final Map<TransactionFlowStatisticsKey, TransactionFlowStatistics> result = new HashMap<TransactionFlowStatisticsKey, TransactionFlowStatistics>();
+
+        for (List<TransactionFlowStatistics> foundList : foundListList) {
+            for (TransactionFlowStatistics found : foundList) {
                 final TransactionFlowStatisticsKey key = new TransactionFlowStatisticsKey(found);
-                TransactionFlowStatistics find = result.get(key);
+                final TransactionFlowStatistics find = result.get(key);
                 if (find != null) {
                     find.add(found);
                 } else {
                     result.put(key, found);
                 }
-			}
-		}
+            }
+        }
 
-		return new ArrayList<TransactionFlowStatistics>(result.values());
-	}
+        return new ArrayList<TransactionFlowStatistics>(result.values());
+    }
 
 
-	/**
+    /**
 	 * 메인페이지 서버 맵에서 연결선을 선택했을 때 보여주는 통계정보.
 	 * 
 	 * @return <pre>

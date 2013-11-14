@@ -46,14 +46,18 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
 	@Override
 	public List<TransactionFlowStatistics> selectCallee(String callerApplicationName, short callerServiceType, long from, long to) {
 		Scan scan = createScan(callerApplicationName, callerServiceType, from, to);
-		List<List<TransactionFlowStatistics>> foundListList = hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLEE, scan, applicationMapStatisticsCalleeMapper);
+		final List<List<TransactionFlowStatistics>> foundListList = hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLEE, scan, applicationMapStatisticsCalleeMapper);
 
-		final Map<TransactionFlowStatisticsKey, TransactionFlowStatistics> result = new HashMap<TransactionFlowStatisticsKey, TransactionFlowStatistics>();
+        return merge(foundListList);
+	}
+
+    private List<TransactionFlowStatistics> merge(List<List<TransactionFlowStatistics>> foundListList) {
+        final Map<TransactionFlowStatisticsKey, TransactionFlowStatistics> result = new HashMap<TransactionFlowStatisticsKey, TransactionFlowStatistics>();
 
         for (List<TransactionFlowStatistics> foundList : foundListList) {
             for (TransactionFlowStatistics found : foundList) {
                 final TransactionFlowStatisticsKey key = new TransactionFlowStatisticsKey(found);
-                TransactionFlowStatistics find = result.get(key);
+                final TransactionFlowStatistics find = result.get(key);
                 if (find != null) {
                     find.add(found);
                 } else {
@@ -64,9 +68,9 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
 
 
         return new ArrayList<TransactionFlowStatistics>(result.values());
-	}
+    }
 
-	/**
+    /**
 	 * 메인페이지 서버 맵에서 연결선을 선택했을 때 보여주는 통계정보.
 	 * 
 	 * @return <pre>
