@@ -25,6 +25,7 @@ public class Application implements JsonSerializable {
     private final NodeId id;
     private final String applicationName;
     private final ServiceType serviceType;
+
     private final ServerInstanceList serverInstanceList = new ServerInstanceList();
 
 	private final HostList serverList = new HostList();

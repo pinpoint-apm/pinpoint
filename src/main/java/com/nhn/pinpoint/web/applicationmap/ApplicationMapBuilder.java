@@ -51,11 +51,11 @@ public class ApplicationMapBuilder {
     private List<ApplicationRelation> createLink(RawStatisticsData rawData, ApplicationMap nodeMap) {
         final List<ApplicationRelation> result = new ArrayList<ApplicationRelation>();
         // extract relation
-        for (TransactionFlowStatistics stat : rawData) {
-            NodeId fromApplicationId = stat.getFromApplicationId();
+        for (TransactionFlowStatistics stat : rawData.getRawData()) {
+            final NodeId fromApplicationId = stat.getFromApplicationId();
             Application from = nodeMap.findApplication(fromApplicationId);
             // TODO
-            NodeId toApplicationId = stat.getToApplicationId();
+            final NodeId toApplicationId = stat.getToApplicationId();
             Application to = nodeMap.findApplication(toApplicationId);
 
             // rpc client가 빠진경우임.
@@ -79,7 +79,7 @@ public class ApplicationMapBuilder {
     private List<Application> createApplication(RawStatisticsData rawData, Map<NodeId, Set<AgentInfoBo>> agentMap) {
         final List<Application> result = new ArrayList<Application>();
         // extract application and histogram
-        for (TransactionFlowStatistics stat : rawData) {
+        for (TransactionFlowStatistics stat : rawData.getRawData()) {
             // FROM -> TO에서 FROM이 CLIENT가 아니면 FROM은 application
             if (!stat.getFromServiceType().isRpcClient()) {
                 final NodeId id = stat.getFromApplicationId();
@@ -87,12 +87,11 @@ public class ApplicationMapBuilder {
                 // FIXME from은 tohostlist를 보관하지 않아서 없음. null로 입력. 그렇지 않으면 이상해짐 ㅡㅡ;
                 Application application = new Application(id, stat.getFrom(), stat.getFromServiceType(), agentSet);
                 result.add(application);
-
             }
 
             // FROM -> TO에서 TO가 CLIENT가 아니면 TO는 application
             if (!stat.getToServiceType().isRpcClient()) {
-                NodeId to = stat.getToApplicationId();
+                final NodeId to = stat.getToApplicationId();
 
                 Application application = new Application(to, stat.getTo(), stat.getToServiceType(), stat.getToHostList());
                 result.add(application);
