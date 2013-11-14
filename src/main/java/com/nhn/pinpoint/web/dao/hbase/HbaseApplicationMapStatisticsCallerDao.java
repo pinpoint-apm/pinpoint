@@ -2,11 +2,14 @@ package com.nhn.pinpoint.web.dao.hbase;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatisticsKey;
 import org.apache.hadoop.hbase.client.Scan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,30 +43,31 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
 
 	@Autowired
 	@Qualifier("applicationMapStatisticsCallerMapper")
-	private RowMapper<Map<String, TransactionFlowStatistics>> applicationMapStatisticsCallerMapper;
+	private RowMapper<List<TransactionFlowStatistics>> applicationMapStatisticsCallerMapper;
 
 	@Override
-	public Map<String, TransactionFlowStatistics> selectCaller(String calleeApplicationName, short calleeServiceType, long from, long to) {
+	public List<TransactionFlowStatistics> selectCaller(String calleeApplicationName, short calleeServiceType, long from, long to) {
 		Scan scan = createScan(calleeApplicationName, calleeServiceType, from, to);
-		List<Map<String, TransactionFlowStatistics>> found = hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLER, scan, applicationMapStatisticsCallerMapper);
+		List<List<TransactionFlowStatistics>> foundListList = hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLER, scan, applicationMapStatisticsCallerMapper);
 
-		Map<String, TransactionFlowStatistics> result = new HashMap<String, TransactionFlowStatistics>();
+		final Map<TransactionFlowStatisticsKey, TransactionFlowStatistics> result = new HashMap<TransactionFlowStatisticsKey, TransactionFlowStatistics>();
 
-		for (Map<String, TransactionFlowStatistics> map : found) {
-			for (Entry<String, TransactionFlowStatistics> entry : map.entrySet()) {
-                final String key = entry.getKey();
-                final TransactionFlowStatistics find = result.get(key);
+		for (List<TransactionFlowStatistics> foundList : foundListList) {
+			for (TransactionFlowStatistics found : foundList) {
+                final TransactionFlowStatisticsKey key = new TransactionFlowStatisticsKey(found);
+                TransactionFlowStatistics find = result.get(key);
                 if (find != null) {
-                    find.add(entry.getValue());
+                    find.add(found);
                 } else {
-                    result.put(key, entry.getValue());
+                    result.put(key, found);
                 }
 			}
 		}
 
-		return result;
+		return new ArrayList<TransactionFlowStatistics>(result.values());
 	}
-	
+
+
 	/**
 	 * 메인페이지 서버 맵에서 연결선을 선택했을 때 보여주는 통계정보.
 	 * 

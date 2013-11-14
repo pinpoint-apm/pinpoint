@@ -22,19 +22,22 @@ import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
  * 
  */
 @Component
-public class ApplicationMapStatisticsCalleeMapper implements RowMapper<Map<String, TransactionFlowStatistics>> {
+public class ApplicationMapStatisticsCalleeMapper implements RowMapper<List<TransactionFlowStatistics>> {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Override
-	public Map<String, TransactionFlowStatistics> mapRow(Result result, int rowNum) throws Exception {
+	public List<TransactionFlowStatistics> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
-            return Collections.emptyMap();
+            return Collections.emptyList();
         }
-		KeyValue[] keyList = result.raw();
+		final KeyValue[] keyList = result.raw();
 
 		// key is destApplicationName.
-		Map<String, TransactionFlowStatistics> stat = new HashMap<String, TransactionFlowStatistics>();
+		final List<TransactionFlowStatistics> stat = new ArrayList<TransactionFlowStatistics>(keyList.length + 10);
+
+		// key is destApplicationName
+//		Map<String, Set<String>> callerAppHostMap = new HashMap<String, Set<String>>();
 
 		for (KeyValue kv : keyList) {
 
@@ -59,16 +62,10 @@ public class ApplicationMapStatisticsCalleeMapper implements RowMapper<Map<Strin
             }
 			
             final String id = callerApplicationName + callerServiceType + calleeApplicationName + calleeServiceType;
-			if (stat.containsKey(id)) {
-				TransactionFlowStatistics statistics = stat.get(id);
-				statistics.addSample(calleeHost, calleeServiceType, (isError) ? (short) -1 : histogramSlot, requestCount);
-				
-			} else {
-				TransactionFlowStatistics statistics = new TransactionFlowStatistics(callerApplicationName, callerServiceType, calleeApplicationName, calleeServiceType);
-				
-				statistics.addSample(calleeHost, calleeServiceType, (isError) ? (short) -1 : histogramSlot, requestCount);
-				stat.put(id, statistics);
-			}
+            TransactionFlowStatistics statistics = new TransactionFlowStatistics(callerApplicationName, callerServiceType, calleeApplicationName, calleeServiceType);
+            statistics.addSample(calleeHost, calleeServiceType, (isError) ? (short) -1 : histogramSlot, requestCount);
+
+			stat.add(statistics);
 		}
 
 		// statistics에 dest host정보 삽입.

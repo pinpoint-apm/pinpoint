@@ -2,11 +2,12 @@ package com.nhn.pinpoint.web.dao.hbase;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
+import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatisticsKey;
 import org.apache.hadoop.hbase.client.Scan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,28 +41,29 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
 
 	@Autowired
 	@Qualifier("applicationMapStatisticsCalleeMapper")
-	private RowMapper<Map<String, TransactionFlowStatistics>> applicationMapStatisticsCalleeMapper;
+	private RowMapper<List<TransactionFlowStatistics>> applicationMapStatisticsCalleeMapper;
 
 	@Override
-	public Map<String, TransactionFlowStatistics> selectCallee(String callerApplicationName, short callerServiceType, long from, long to) {
+	public List<TransactionFlowStatistics> selectCallee(String callerApplicationName, short callerServiceType, long from, long to) {
 		Scan scan = createScan(callerApplicationName, callerServiceType, from, to);
-		List<Map<String, TransactionFlowStatistics>> found = hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLEE, scan, applicationMapStatisticsCalleeMapper);
+		List<List<TransactionFlowStatistics>> foundListList = hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLEE, scan, applicationMapStatisticsCalleeMapper);
 
-		Map<String, TransactionFlowStatistics> result = new HashMap<String, TransactionFlowStatistics>();
+		final Map<TransactionFlowStatisticsKey, TransactionFlowStatistics> result = new HashMap<TransactionFlowStatisticsKey, TransactionFlowStatistics>();
 
-		for (Map<String, TransactionFlowStatistics> map : found) {
-			for (Entry<String, TransactionFlowStatistics> entry : map.entrySet()) {
-                final String key = entry.getKey();
-                final TransactionFlowStatistics find = result.get(key);
+        for (List<TransactionFlowStatistics> foundList : foundListList) {
+            for (TransactionFlowStatistics found : foundList) {
+                final TransactionFlowStatisticsKey key = new TransactionFlowStatisticsKey(found);
+                TransactionFlowStatistics find = result.get(key);
                 if (find != null) {
-					find.add(entry.getValue());
-				} else {
-					result.put(key, entry.getValue());
-				}
-			}
-		}
+                    find.add(found);
+                } else {
+                    result.put(key, found);
+                }
+            }
+        }
 
-		return result;
+
+        return new ArrayList<TransactionFlowStatistics>(result.values());
 	}
 
 	/**

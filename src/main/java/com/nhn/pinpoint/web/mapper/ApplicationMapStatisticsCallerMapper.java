@@ -21,22 +21,21 @@ import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
  * 
  */
 @Component
-public class ApplicationMapStatisticsCallerMapper implements RowMapper<Map<String, TransactionFlowStatistics>> {
+public class ApplicationMapStatisticsCallerMapper implements RowMapper<List<TransactionFlowStatistics>> {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Override
-	public Map<String, TransactionFlowStatistics> mapRow(Result result, int rowNum) throws Exception {
+	public List<TransactionFlowStatistics> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
-            return Collections.emptyMap();
+            return Collections.emptyList();
         }
-		KeyValue[] keyList = result.raw();
+		final KeyValue[] keyList = result.raw();
 
-		Map<String, TransactionFlowStatistics> stat = new HashMap<String, TransactionFlowStatistics>();
+		final List<TransactionFlowStatistics> stat = new ArrayList<TransactionFlowStatistics>(keyList.length + 10);
 
 
 		for (KeyValue kv : keyList) {
-
 
             final byte[] row = kv.getRow();
             String calleeApplicationName = ApplicationMapStatisticsUtils.getApplicationNameFromRowKey(row);
@@ -53,24 +52,13 @@ public class ApplicationMapStatisticsCallerMapper implements RowMapper<Map<Strin
 			String calleeHost = ApplicationMapStatisticsUtils.getHost(qualifier);
 			boolean isError = histogramSlot == (short) -1;
 			
-
             if (logger.isDebugEnabled()) {
 			    logger.debug("    Fetched. {}[{}] -> {}[{}] ({})", callerApplicationName, ServiceType.findServiceType(callerServiceType), calleeApplicationName, ServiceType.findServiceType(calleeServiceType), requestCount);
             }
+            TransactionFlowStatistics statistics = new TransactionFlowStatistics(callerApplicationName, callerServiceType, calleeApplicationName, calleeServiceType);
+            statistics.addSample(calleeHost, calleeServiceType, (isError) ? (short) -1 : histogramSlot, requestCount);
 
-            final String id = callerApplicationName + callerServiceType + calleeApplicationName + calleeServiceType;
-			if (stat.containsKey(id)) {
-				TransactionFlowStatistics statistics = stat.get(id);
-				statistics.addSample(calleeHost, calleeServiceType, (isError) ? (short) -1 : histogramSlot, requestCount);
-
-
-			} else {
-				TransactionFlowStatistics statistics = new TransactionFlowStatistics(callerApplicationName, callerServiceType, calleeApplicationName, calleeServiceType);
-				statistics.addSample(calleeHost, calleeServiceType, (isError) ? (short) -1 : histogramSlot, requestCount);
-				
-
-				stat.put(id, statistics);
-			}
+            stat.add(statistics);
 		}
 
 		return stat;

@@ -11,7 +11,7 @@ import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
  * 
  */
 public interface ApplicationMapStatisticsCallerDao {
-	public Map<String, TransactionFlowStatistics> selectCaller(String calleeApplicationName, short calleeServiceType, long from, long to);
+	public List<TransactionFlowStatistics> selectCaller(String calleeApplicationName, short calleeServiceType, long from, long to);
 	
 	public List<Map<Long, Map<Short, Long>>> selectCallerStatistics(String callerApplicationName, short callerServiceType, String calleeApplicationName, short calleeServiceType, long from, long to);
 }

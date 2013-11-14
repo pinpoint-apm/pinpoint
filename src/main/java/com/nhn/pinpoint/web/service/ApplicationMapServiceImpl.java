@@ -89,27 +89,25 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 
 		final Set<TransactionFlowStatistics> calleeSet = new HashSet<TransactionFlowStatistics>();
 
-		Map<String, TransactionFlowStatistics> callee = applicationMapStatisticsCalleeDao.selectCallee(callerApplicationName, callerServiceType, from, to);
+		List<TransactionFlowStatistics> callee = applicationMapStatisticsCalleeDao.selectCallee(callerApplicationName, callerServiceType, from, to);
 
         if (logger.isDebugEnabled()) {
 		    logger.debug("     Found Callee. count={}, caller={}", callee.size(), callerApplicationName);
         }
 
-		for (Entry<String, TransactionFlowStatistics> entry : callee.entrySet()) {
-			boolean replaced = replaceApplicationInfo(entry.getValue(), from, to);
+		for (TransactionFlowStatistics stat : callee) {
+			boolean replaced = replaceApplicationInfo(stat, from, to);
 
 			// replaced된 녀석은 CLIENT이기 때문에 callee검색용도로만 사용하고 map에 추가하지 않는다.
 			if (!replaced) {
-				fillAdditionalInfo(entry.getValue(), from, to);
-				calleeSet.add(entry.getValue());
+				fillAdditionalInfo(stat, from, to);
+				calleeSet.add(stat);
 			}
 
 			// terminal, unknowncloud 인 경우에는 skip
-			if (entry.getValue().getToServiceType().isTerminal() || entry.getValue().getToServiceType().isUnknown()) {
+			if (stat.getToServiceType().isTerminal() || stat.getToServiceType().isUnknown()) {
 				continue;
 			}
-
-			TransactionFlowStatistics stat = entry.getValue();
 
 			logger.debug("     Find subCallee of {}", stat.getTo());
 			Set<TransactionFlowStatistics> calleeSub = selectCallee(stat.getTo(), stat.getToServiceType().getCode(), from, to, calleeFoundApplications, callerFoundApplications);
@@ -151,15 +149,13 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 
 		final Set<TransactionFlowStatistics> callerSet = new HashSet<TransactionFlowStatistics>();
 
-		Map<String, TransactionFlowStatistics> caller = applicationMapStatisticsCallerDao.selectCaller(calleeApplicationName, calleeServiceType, from, to);
+		final List<TransactionFlowStatistics> caller = applicationMapStatisticsCallerDao.selectCaller(calleeApplicationName, calleeServiceType, from, to);
 
 		logger.debug("     Found Caller. count={}, callee={}", caller.size(), calleeApplicationName);
 
-		for (Entry<String, TransactionFlowStatistics> entry : caller.entrySet()) {
-			fillAdditionalInfo(entry.getValue(), from, to);
-			callerSet.add(entry.getValue());
-
-			TransactionFlowStatistics stat = entry.getValue();
+		for (TransactionFlowStatistics stat : caller) {
+			fillAdditionalInfo(stat, from, to);
+			callerSet.add(stat);
 
 			// 나를 부른 application을 찾아야 하기 떄문에 to를 입력.
 			Set<TransactionFlowStatistics> callerSub = selectCaller(stat.getFrom(), stat.getFromServiceType().getCode(), from, to, calleeFoundApplications, callerFoundApplications);
