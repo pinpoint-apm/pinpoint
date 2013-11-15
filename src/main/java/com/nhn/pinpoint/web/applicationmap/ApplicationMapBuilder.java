@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.web.applicationmap;
 
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
+import com.nhn.pinpoint.web.applicationmap.rawdata.HostList;
 import com.nhn.pinpoint.web.applicationmap.rawdata.RawStatisticsData;
 import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
 import com.nhn.pinpoint.web.service.NodeId;
@@ -65,7 +66,8 @@ public class ApplicationMapBuilder {
             }
 
             // RPC client인 경우 dest application이 이미 있으면 삭제, 없으면 unknown cloud로 변경.
-            ApplicationRelation link = new ApplicationRelation(from, to, stat.getToHostList());
+            HostList toHostList = stat.getToHostList();
+            ApplicationRelation link = new ApplicationRelation(from, to, toHostList);
             if (to.getServiceType().isRpcClient()) {
                 if (!nodeMap.containsApplicationName(to.getApplicationName())) {
                     result.add(link);

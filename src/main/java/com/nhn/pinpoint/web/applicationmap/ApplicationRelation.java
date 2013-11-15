@@ -23,7 +23,7 @@ public class ApplicationRelation {
 
     private final Application from;
     private final Application to;
-	private HostList hostList;
+	private final HostList hostList;
 
 
     public ApplicationRelation(Application from, Application to, HostList hostList) {

@@ -40,7 +40,9 @@ public class HostList {
             final ResponseHistogram histogram = find.getHistogram();
             histogram.add(host.getHistogram());
         } else {
-            hostMap.put(hostName, host);
+            // WARN 이것도 copy해야 함.
+            Host copy = host.deepCopy();
+            hostMap.put(hostName, copy);
         }
 
     }

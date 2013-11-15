@@ -9,7 +9,10 @@ public class RawStatisticsData {
 	private final Set<TransactionFlowStatistics> rawData;
 
 	public RawStatisticsData(Set<TransactionFlowStatistics> rawData) {
-		this.rawData = Collections.unmodifiableSet(rawData);
+        if (rawData == null) {
+            throw new NullPointerException("rawData must not be null");
+        }
+        this.rawData = rawData;
 	}
 
     public Set<TransactionFlowStatistics> getRawData() {

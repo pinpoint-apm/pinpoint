@@ -120,11 +120,10 @@ public class TransactionFlowStatistics {
 		}
 	}
 
-	public TransactionFlowStatistics add(TransactionFlowStatistics applicationStatistics) {
+	public void add(TransactionFlowStatistics applicationStatistics) {
 		if (this.equals(applicationStatistics)) {
             final HostList target = applicationStatistics.getToHostList();
             this.toHostList.addHostList(target);
-			return this;
 		} else {
 			throw new IllegalArgumentException("Can't merge with different link.");
 		}
