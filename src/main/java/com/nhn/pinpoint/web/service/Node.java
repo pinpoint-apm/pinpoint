@@ -9,17 +9,12 @@ public class Node {
 
     public static final Node EMPTY = new Node();
 
-    private String name;
-    private ServiceType serviceType;
+    private final String name;
+    private final ServiceType serviceType;
 
-    public Node() {
-    }
-
-    public Node(String name) {
-        if (name == null) {
-            throw new NullPointerException("name must not be null");
-        }
-        this.name = name;
+    private Node() {
+        this.name = null;
+        this.serviceType = null;
     }
 
     public Node(String name, ServiceType serviceType) {
@@ -37,24 +32,11 @@ public class Node {
         return name;
     }
 
-    public void setName(String name) {
-        if (name == null) {
-            throw new NullPointerException("name must not be null");
-        }
-        this.name = name;
-    }
 
     public ServiceType getServiceType() {
         return serviceType;
     }
 
-    public void setServiceType(ServiceType serviceType) {
-        if (serviceType == null) {
-            throw new NullPointerException("serviceType must not be null");
-        }
-
-        this.serviceType = serviceType;
-    }
 
     public boolean isLink() {
         // record해야 되거나. rpc콜은 링크이다.

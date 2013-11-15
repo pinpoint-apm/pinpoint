@@ -4,7 +4,6 @@ import java.util.Set;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.web.service.Node;
 import com.nhn.pinpoint.web.service.NodeId;
 import com.nhn.pinpoint.web.service.SimpleNodeId;
 
