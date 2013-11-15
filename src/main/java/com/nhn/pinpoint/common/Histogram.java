@@ -63,7 +63,8 @@ public class Histogram {
      * @return
      */
     public int findHistogramSlotIndex(int elapsed) {
-        for(int i = 0; i < histogramSlotList.size(); i++) {
+        final int size = histogramSlotList.size();
+        for(int i = 0; i < size; i++) {
             HistogramSlot slot = histogramSlotList.get(i);
             if (elapsed <= slot.getSlotTime()) {
                 return i;
@@ -78,7 +79,8 @@ public class Histogram {
      * @return
      */
     public int getHistogramSlotIndex(int slotNumber) {
-        for(int i = 0; i < histogramSlotList.size(); i++) {
+        final int size = histogramSlotList.size();
+        for(int i = 0; i < size; i++) {
             HistogramSlot slot = histogramSlotList.get(i);
             if (slotNumber == slot.getSlotTime()) {
                 return i;
