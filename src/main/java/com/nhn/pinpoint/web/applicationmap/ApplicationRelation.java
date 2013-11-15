@@ -90,8 +90,11 @@ public class ApplicationRelation {
 		return result;
 	}
 
-	public ApplicationRelation add(ApplicationRelation relation) {
-		// TODO this.equals로 바꿔도 되지 않을까?
+	public void add(ApplicationRelation relation) {
+        if (relation == null) {
+            throw new NullPointerException("relation must not be null");
+        }
+        // TODO this.equals로 바꿔도 되지 않을까?
 		if (this.from.equals(relation.getFrom()) && this.to.equals(relation.getTo())) {
 			// TODO Mergable value map을 만들어야 하나...
             HostList relationHostList = relation.getHostList();
@@ -100,7 +103,6 @@ public class ApplicationRelation {
             logger.info("from:{}, to:{}, relationFrom:{}, relationTo:{}", from, to, relation.getFrom(), relation.getTo());
 			throw new IllegalArgumentException("Can't merge.");
 		}
-		return this;
 	}
 
     public ApplicationRelation deepCopy() {

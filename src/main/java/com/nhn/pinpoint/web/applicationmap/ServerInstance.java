@@ -82,7 +82,7 @@ public class ServerInstance implements JsonSerializable {
 		return sb.toString();
 	}
 
-	public ServerInstance addHistogram(ServerInstance serverInstance) {
+	public void addHistogram(ServerInstance serverInstance) {
 		if (!this.id.equals(serverInstance.getId())) {
 			throw new IllegalArgumentException("Server instance id is not equal.");
 		}
@@ -92,7 +92,6 @@ public class ServerInstance implements JsonSerializable {
 		} else {
 			// this.histogram.add(serverInstance.getHistogram());
 		}
-		return this;
 	}
 
 	@Override

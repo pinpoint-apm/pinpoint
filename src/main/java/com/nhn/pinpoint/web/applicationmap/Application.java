@@ -96,10 +96,11 @@ public class Application implements JsonSerializable {
 	}
 
 	public Application add(Application application) {
-		logger.debug("merge application a={}, b={}", this.id, application.id);
+        if (application == null) {
+            throw new NullPointerException("application must not be null");
+        }
+        logger.debug("merge application a={}, b={}", this.id, application.id);
 		
-
-        logger.debug("addApplication");
         // 리얼 application을 실제빌드할때 copy하여 만들기 때문에. add할때 데이터를 hostList를 add해도 된다.
         this.hostList.addHostList(application.hostList);
 //        this.hostList.put(application.hostList);
