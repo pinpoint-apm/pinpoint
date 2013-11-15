@@ -4,8 +4,8 @@ package com.nhn.pinpoint.web.service;
  * @author emeroad
  */
 public class ComplexNodeId implements NodeId {
-    private Node src;
-    private Node dest;
+    private final Node src;
+    private final Node dest;
 
     public ComplexNodeId(Node src, Node dest) {
         if (src == null) {
@@ -22,24 +22,9 @@ public class ComplexNodeId implements NodeId {
         return src;
     }
 
-    public void setSrc(Node src) {
-        if (src == null) {
-            throw new NullPointerException("src must not be null");
-        }
-
-        this.src = src;
-    }
 
     public Node getDest() {
         return dest;
-    }
-
-    public void setDest(Node dest) {
-        if (dest == null) {
-            throw new NullPointerException("dest must not be null");
-        }
-
-        this.dest = dest;
     }
 
     @Override
