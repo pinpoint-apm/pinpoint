@@ -27,22 +27,28 @@ public class TransactionFlowStatistics {
 
     private Set<AgentInfoBo> toAgentSet;
 
-	public TransactionFlowStatistics(String from, short fromServiceType, String to, short toServiceType) {
+	public TransactionFlowStatistics(String from, ServiceType fromServiceType, String to, ServiceType toServiceType) {
         if (from == null) {
             throw new NullPointerException("from must not be null");
+        }
+        if (fromServiceType == null) {
+            throw new NullPointerException("fromServiceType must not be null");
         }
         if (to == null) {
             throw new NullPointerException("to must not be null");
         }
+        if (toServiceType == null) {
+            throw new NullPointerException("toServiceType must not be null");
+        }
         this.from = from;
-		this.fromServiceType = ServiceType.findServiceType(fromServiceType);
+		this.fromServiceType = fromServiceType;
 		this.to = to;
-		this.toServiceType = ServiceType.findServiceType(toServiceType);
+		this.toServiceType = toServiceType;
         this.toHostList = new HostList();
 	}
 
-	public TransactionFlowStatistics(String from, ServiceType fromServiceType, String to, ServiceType toServiceType) {
-		this(from, fromServiceType.getCode(), to, toServiceType.getCode());
+	public TransactionFlowStatistics(String from, short fromServiceType, String to, short toServiceType) {
+		this(from, ServiceType.findServiceType(fromServiceType), to, ServiceType.findServiceType(toServiceType));
 	}
 
 

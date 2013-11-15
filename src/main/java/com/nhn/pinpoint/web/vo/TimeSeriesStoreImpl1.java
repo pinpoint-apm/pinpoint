@@ -37,6 +37,7 @@ import com.nhn.pinpoint.web.util.TimeWindowUtils;
  * @author netspider
  * 
  */
+@Deprecated
 public class TimeSeriesStoreImpl1 implements TimeSeriesStore {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());

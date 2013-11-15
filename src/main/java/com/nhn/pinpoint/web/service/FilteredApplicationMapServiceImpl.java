@@ -194,17 +194,14 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 			for (SpanBo span : transaction) {
                 final Node srcNode = createNode(span, transactionSpanMap);
                 final Node destNode = new Node(span.getApplicationId(), span.getServiceType());
-                // TODO API의 의미가 link라고 하기는 좀 애매함. 변경필요.
-				if (destNode.isLink()) {
+                // record해야 되거나. rpc콜은 링크이다.
+                if (!destNode.getServiceType().isRecordStatistics() || destNode.getServiceType().isRpcClient()) {
 					continue;
 				}
 
                 final ComplexNodeId statId = new ComplexNodeId(srcNode, destNode);
-				TransactionFlowStatistics stat;
-                if (statisticsMap.containsKey(statId))  {
-                    stat = statisticsMap.get(statId);
-                }
-                else {
+				TransactionFlowStatistics stat = statisticsMap.get(statId);
+                if (stat == null)  {
                     stat = new TransactionFlowStatistics(srcNode.getName(), srcNode.getServiceType(), destNode.getName(), destNode.getServiceType());
                 }
 
@@ -272,22 +269,20 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
             }
 
             final NodeId spanEventStatId = new ComplexNodeId(srcNode, new Node(dest, destServiceType));
-            TransactionFlowStatistics stat2;
-            if (statisticsMap.containsKey(spanEventStatId)) {
-                stat2 = statisticsMap.get(spanEventStatId);
-            } else {
-                stat2 = new TransactionFlowStatistics(srcNode.getName(), srcNode.getServiceType(), dest, destServiceType);
+            TransactionFlowStatistics statistics = statisticsMap.get(spanEventStatId);
+            if (statistics == null) {
+                statistics = new TransactionFlowStatistics(srcNode.getName(), srcNode.getServiceType(), dest, destServiceType);
             }
 
             final int slot2 = getHistogramSlot(spanEvent, destServiceType);
 
             // FIXME
             // stat2.addSample((dest == null) ? spanEvent.getEndPoint() : dest, destServiceType.getCode(), (short) slot2, 1);
-            stat2.addSample(spanEvent.getEndPoint(), destServiceType.getCode(), (short) slot2, 1);
+            statistics.addSample(spanEvent.getEndPoint(), destServiceType.getCode(), (short) slot2, 1);
 
             // agent 정보추가. destination의 agent정보 알 수 없음.
-            statisticsData.add(stat2);
-            statisticsMap.put(spanEventStatId, stat2);
+            statisticsData.add(statistics);
+            statisticsMap.put(spanEventStatId, statistics);
 
             // link timeseries statistics추가.
             timeSeriesStore.add(spanEventStatId, span.getStartTime() + spanEvent.getStartElapsed(), slot2, 1L, spanEvent.hasException());
@@ -299,7 +294,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
     }
 
     private Node createNode(SpanBo span, Map<Long, SpanBo> transactionSpanMap) {
-        SpanBo parentSpan = transactionSpanMap.get(span.getParentSpanId());
+        final SpanBo parentSpan = transactionSpanMap.get(span.getParentSpanId());
         if (span.isRoot() || parentSpan == null) {
             String src = span.getApplicationId();
             ServiceType srcServiceType = ServiceType.CLIENT;

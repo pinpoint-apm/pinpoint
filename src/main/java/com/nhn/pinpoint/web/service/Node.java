@@ -38,11 +38,6 @@ public class Node {
     }
 
 
-    public boolean isLink() {
-        // record해야 되거나. rpc콜은 링크이다.
-        return !serviceType.isRecordStatistics() || serviceType.isRpcClient();
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
