@@ -103,6 +103,9 @@ pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$sc
     };
 
     // events binding
+    $("#traceTabs li a").bind("click", function (e) {
+        e.preventDefault();
+    });
     $("#traceTabs li:nth-child(2) a").bind("click", function (e) {
         $scope.$emit('serverMap.initializeWithMapData', $scope.transactionDetail);
     });
