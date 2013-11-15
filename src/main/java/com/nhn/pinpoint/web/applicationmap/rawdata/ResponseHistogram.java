@@ -2,14 +2,13 @@ package com.nhn.pinpoint.web.applicationmap.rawdata;
 
 import java.util.List;
 
+import com.nhn.pinpoint.common.HistogramSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.common.Histogram;
 import com.nhn.pinpoint.common.HistogramSlot;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.util.JsonSerializable;
-import com.nhn.pinpoint.web.util.Mergeable;
 
 /**
  * 
@@ -21,7 +20,7 @@ public class ResponseHistogram implements JsonSerializable {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	private final ServiceType serviceType;
-	private final Histogram histogram;
+	private final HistogramSchema histogramSchema;
 	private final long[] values;
 
 	private long totalCount;
@@ -33,24 +32,23 @@ public class ResponseHistogram implements JsonSerializable {
             throw new NullPointerException("serviceType must not be null");
         }
 		this.serviceType = serviceType;
-		this.histogram = serviceType.getHistogram();
+		this.histogramSchema = serviceType.getHistogramSchema();
 		// TODO value에 저장하는 구조 추가 수정 필요.
-		int size = histogram.getHistogramSlotList().size();
-		this.values = new long[size];
+		this.values = histogramSchema.createNode();
 	}
 
 	// TODO slot번호를 이 클래스에서 추출해야 할 것 같긴 함.
 	public void addSample(short slot, long value) {
 		totalCount += value;
 		
-		if (slot == 0) { // 0 is slow slot
+		if (slot == HistogramSchema.SLOW_SLOT.getSlotTime()) { // 0 is slow slot
 			slowCount += value;
-		} else if (slot == -1) { // -1 is error
+		} else if (slot == HistogramSchema.ERROR_SLOT.getSlotTime()) { // -1 is error
 			errorCount += value;
 			return;
 		}
 
-		int histogramSlotIndex = histogram.getHistogramSlotIndex(slot);
+		final int histogramSlotIndex = histogramSchema.getHistogramSlotIndex(slot);
 		if (histogramSlotIndex == -1) {
 			logger.debug("Can't find slot={} value={} serviceType={}", slot, value, serviceType);
 			return;
@@ -83,10 +81,7 @@ public class ResponseHistogram implements JsonSerializable {
 			throw new IllegalArgumentException("A=" + this + ", B=" + histogram);
 		}
 
-		long[] otherValues = histogram.values;
-		for (int i = 0; i < values.length; i++) {
-			values[i] += otherValues[i];
-		}
+        addValues(histogram);
 
 		this.totalCount += histogram.totalCount;
 		this.errorCount += histogram.errorCount;
@@ -95,11 +90,19 @@ public class ResponseHistogram implements JsonSerializable {
 		return this;
 	}
 
-	@Override
+    private void addValues(ResponseHistogram histogram) {
+        final long[] otherValues = histogram.values;
+        final int length = values.length;
+        for (int i = 0; i < length; i++) {
+			this.values[i] += otherValues[i];
+		}
+    }
+
+    @Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((histogram == null) ? 0 : histogram.hashCode());
+		result = prime * result + ((histogramSchema == null) ? 0 : histogramSchema.hashCode());
 		result = prime * result + ((serviceType == null) ? 0 : serviceType.hashCode());
 		return result;
 	}
@@ -113,10 +116,10 @@ public class ResponseHistogram implements JsonSerializable {
 		if (getClass() != obj.getClass())
 			return false;
 		ResponseHistogram other = (ResponseHistogram) obj;
-		if (histogram == null) {
-			if (other.histogram != null)
+		if (histogramSchema == null) {
+			if (other.histogramSchema != null)
 				return false;
-		} else if (!histogram.equals(other.histogram))
+		} else if (!histogramSchema.equals(other.histogramSchema))
 			return false;
 		// if (serviceType != other.serviceType) {
 		// return false;
@@ -134,7 +137,7 @@ public class ResponseHistogram implements JsonSerializable {
 	public String getJson() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{ ");
-		List<HistogramSlot> histogramSlotList = histogram.getHistogramSlotList();
+		List<HistogramSlot> histogramSlotList = histogramSchema.getHistogramSlotList();
 		HistogramSlot histogramSlot = null;
 		for (int i = 0; i < histogramSlotList.size(); i++) {
 			histogramSlot = histogramSlotList.get(i);

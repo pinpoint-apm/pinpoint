@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -17,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
-import com.nhn.pinpoint.common.Histogram;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.common.bo.SpanBo;
@@ -321,9 +321,9 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 
     private int getHistogramSlot(boolean hasException, int elapsedTime, ServiceType serviceType) {
         if (hasException) {
-            return Histogram.ERROR_SLOT.getSlotTime();
+            return HistogramSchema.ERROR_SLOT.getSlotTime();
         } else {
-            return serviceType.getHistogram().findHistogramSlot(elapsedTime).getSlotTime();
+            return serviceType.getHistogramSchema().findHistogramSlot(elapsedTime).getSlotTime();
         }
     }
 

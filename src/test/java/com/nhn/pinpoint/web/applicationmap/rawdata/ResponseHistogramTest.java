@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.web.applicationmap.rawdata;
 
-import com.nhn.pinpoint.common.Histogram;
 import com.nhn.pinpoint.common.ServiceType;
 import org.junit.Assert;
 import org.junit.Test;

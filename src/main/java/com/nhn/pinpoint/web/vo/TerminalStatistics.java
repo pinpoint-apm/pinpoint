@@ -10,6 +10,7 @@ import com.nhn.pinpoint.common.ServiceType;
  * @author netspider
  * @author emeroad
  */
+@Deprecated
 public class TerminalStatistics {
 
 	private final String id;

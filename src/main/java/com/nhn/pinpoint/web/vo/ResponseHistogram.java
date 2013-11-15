@@ -2,7 +2,7 @@ package com.nhn.pinpoint.web.vo;
 
 import java.util.List;
 
-import com.nhn.pinpoint.common.Histogram;
+import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.HistogramSlot;
 import com.nhn.pinpoint.common.ServiceType;
 
@@ -11,22 +11,24 @@ import com.nhn.pinpoint.common.ServiceType;
  * @author netspider
  * @author emeroad
  */
+@Deprecated
 public class ResponseHistogram {
 
 	private final ServiceType serviceType;
-    private final Histogram histogram;
+    private final HistogramSchema histogramSchema;
     private final long[] values;
 
 	private long errorCount;
 	private long slowCount;
 
 	public ResponseHistogram(ServiceType serviceType) {
-		this.serviceType = serviceType;
-        this.histogram = serviceType.getHistogram();
+        if (serviceType == null) {
+            throw new NullPointerException("serviceType must not be null");
+        }
+        this.serviceType = serviceType;
+        this.histogramSchema = serviceType.getHistogramSchema();
         // TODO value에 저장하는 구조 추가 수정 필요.
-        int size = histogram.getHistogramSlotList().size();
-		values = new long[size ];
-
+        this.values =  this.histogramSchema.createNode();
 	}
 
 	public void addSample(short slot, long value) {
@@ -34,7 +36,7 @@ public class ResponseHistogram {
 			slowCount += value;
 		}
 
-        int histogramSlotIndex = histogram.getHistogramSlotIndex(slot);
+        int histogramSlotIndex = histogramSchema.getHistogramSlotIndex(slot);
         if (histogramSlotIndex == -1) {
             return;
         }
@@ -43,7 +45,7 @@ public class ResponseHistogram {
 
 	public void addSample(long elapsed) {
 
-        int histogramSlotIndex = histogram.findHistogramSlotIndex((int) elapsed);
+        int histogramSlotIndex = histogramSchema.findHistogramSlotIndex((int) elapsed);
         if (histogramSlotIndex == -1) {
             slowCount++;
             return;
@@ -80,6 +82,7 @@ public class ResponseHistogram {
 		return total;
 	}
 
+    @Deprecated
 	public void mergeWith(ResponseHistogram histogram) {
 		if (!this.equals(histogram)) {
 			throw new IllegalArgumentException();
@@ -98,7 +101,7 @@ public class ResponseHistogram {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((histogram == null) ? 0 : histogram.hashCode());
+		result = prime * result + ((histogramSchema == null) ? 0 : histogramSchema.hashCode());
 		result = prime * result + ((serviceType == null) ? 0 : serviceType.hashCode());
 		return result;
 	}
@@ -112,10 +115,10 @@ public class ResponseHistogram {
 		if (getClass() != obj.getClass())
 			return false;
 		ResponseHistogram other = (ResponseHistogram) obj;
-		if (histogram == null) {
-			if (other.histogram != null)
+		if (histogramSchema == null) {
+			if (other.histogramSchema != null)
 				return false;
-		} else if (!histogram.equals(other.histogram))
+		} else if (!histogramSchema.equals(other.histogramSchema))
 			return false;
 		if (serviceType != other.serviceType)
 			return false;
@@ -126,7 +129,7 @@ public class ResponseHistogram {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{ ");
-        List<HistogramSlot> histogramSlotList = histogram.getHistogramSlotList();
+        List<HistogramSlot> histogramSlotList = histogramSchema.getHistogramSlotList();
         for (int i = 0; i < histogramSlotList.size(); i++) {
             HistogramSlot histogramSlot = histogramSlotList.get(i);
             sb.append('"').append(histogramSlot.getSlotTime()).append('"').append(" : ").append(values[i]);

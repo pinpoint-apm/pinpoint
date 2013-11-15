@@ -7,6 +7,7 @@ import com.nhn.pinpoint.common.ServiceType;
  * @author netspider
  * 
  */
+@Deprecated
 public class ClientStatistics {
 
 	private final String id;
