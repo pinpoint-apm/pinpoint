@@ -1,8 +1,8 @@
 package com.nhn.pinpoint.common.util;
 
+import com.nhn.pinpoint.common.HistogramSchema;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import com.nhn.pinpoint.common.Histogram;
 import com.nhn.pinpoint.common.HistogramSlot;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
@@ -38,8 +38,8 @@ public class ApplicationStatisticsUtils {
     }
 
     private static short findResponseHistogramSlotNo(short serviceType, int elapsed) {
-		Histogram histogram = ServiceType.findServiceType(serviceType).getHistogram();
-		HistogramSlot histogramSlot = histogram.findHistogramSlot(elapsed);
+		HistogramSchema histogramSchema = ServiceType.findServiceType(serviceType).getHistogramSchema();
+		HistogramSlot histogramSlot = histogramSchema.findHistogramSlot(elapsed);
 		return (short) histogramSlot.getSlotTime();
 	}
 

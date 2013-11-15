@@ -6,21 +6,21 @@ import java.util.List;
 /**
  * @author emeroad
  */
-public class Histogram {
+public class HistogramSchema {
 
-    public static final HistogramSlot SLOW_SLOT = new HistogramSlot(0, ResponseCode.NORMAL);
-    public static final HistogramSlot ERROR_SLOT = new HistogramSlot(-1, ResponseCode.NORMAL);
+    public static final HistogramSlot SLOW_SLOT = new HistogramSlot(0, ResponseCode.SLOW);
+    public static final HistogramSlot ERROR_SLOT = new HistogramSlot(-1, ResponseCode.ERROR);
     
-    public static final Histogram FAST;
-    public static final Histogram NORMAL;
+    public static final HistogramSchema FAST;
+    public static final HistogramSchema NORMAL;
 
     static {
-        FAST = new Histogram(1);
+        FAST = new HistogramSchema(1);
         FAST.addHistogramSlot(new HistogramSlot(100, ResponseCode.NORMAL));
         FAST.addHistogramSlot(new HistogramSlot(300, ResponseCode.NORMAL));
         FAST.addHistogramSlot(new HistogramSlot(500, ResponseCode.WARN));
 
-        NORMAL = new Histogram(2);
+        NORMAL = new HistogramSchema(2);
         NORMAL.addHistogramSlot(new HistogramSlot(1000, ResponseCode.NORMAL));
         NORMAL.addHistogramSlot(new HistogramSlot(3000, ResponseCode.NORMAL));
         NORMAL.addHistogramSlot(new HistogramSlot(5000, ResponseCode.WARN));
@@ -31,7 +31,7 @@ public class Histogram {
     private final int typeCode;
 
     // 내부에서 생성한 FAST, NORMAL등의 참조만 사용할것
-    private Histogram(int typeCode) {
+    private HistogramSchema(int typeCode) {
     	this.typeCode = typeCode;
     }
 
@@ -42,6 +42,12 @@ public class Histogram {
     public List<HistogramSlot> getHistogramSlotList() {
         return histogramSlotList;
     }
+
+    public long[] createNode() {
+        final int size = this.histogramSlotList.size();
+        return new long[size];
+    }
+
 
     /**
      * elapsed 기준으로 가장 적합한 슬롯을 찾는다.
@@ -105,7 +111,7 @@ public class Histogram {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Histogram other = (Histogram) obj;
+		HistogramSchema other = (HistogramSchema) obj;
 		if (typeCode != other.typeCode)
 			return false;
 		return true;

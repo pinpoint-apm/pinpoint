@@ -10,56 +10,56 @@ import java.util.Map;
  */
 public enum ServiceType {
 
-	UNDEFINED((short) -1, "UNDEFINED", true, false, false, Histogram.NORMAL),
+	UNDEFINED((short) -1, "UNDEFINED", true, false, false, HistogramSchema.NORMAL),
 	
-    UNKNOWN((short) 0, "UNKNOWN", false, true, false, Histogram.NORMAL),
-    UNKNOWN_CLOUD((short) 1, "UNKNOWN_CLOUD", false, true, false, Histogram.NORMAL),
+    UNKNOWN((short) 0, "UNKNOWN", false, true, false, HistogramSchema.NORMAL),
+    UNKNOWN_CLOUD((short) 1, "UNKNOWN_CLOUD", false, true, false, HistogramSchema.NORMAL),
     // TODO: 이 client와 아래 user를 구분해서 사용하도록 web과 agent를 수정해야함.
-    CLIENT((short) 2, "CLIENT", false, true, false, Histogram.NORMAL),
-    UNKNOWN_GROUP((short) 3, "UNKNOWN_GROUP", false, true, false, Histogram.NORMAL),
-    USER((short) 4, "USER", false, false, false, Histogram.NORMAL),
+    CLIENT((short) 2, "CLIENT", false, true, false, HistogramSchema.NORMAL),
+    UNKNOWN_GROUP((short) 3, "UNKNOWN_GROUP", false, true, false, HistogramSchema.NORMAL),
+    USER((short) 4, "USER", false, false, false, HistogramSchema.NORMAL),
 
     // WAS류 1000번 부터 시작
-    TOMCAT((short) 1010, "TOMCAT", false, true, false, Histogram.NORMAL),
-    BLOC((short) 1020, "BLOC", false, true, false, Histogram.NORMAL),
+    TOMCAT((short) 1010, "TOMCAT", false, true, false, HistogramSchema.NORMAL),
+    BLOC((short) 1020, "BLOC", false, true, false, HistogramSchema.NORMAL),
     
     /**
      * xxx_EXECUTE_QUERY만 server map통계정보에 집계된다.
      */
     // DB 2000
-    UNKNOWN_DB((short) 2050, "UNKNOWN_DB", true, false, true, Histogram.NORMAL),
-    UNKNOWN_DB_EXECUTE_QUERY((short) 2051, "UNKNOWN_DB", true, true, true, Histogram.NORMAL),
+    UNKNOWN_DB((short) 2050, "UNKNOWN_DB", true, false, true, HistogramSchema.NORMAL),
+    UNKNOWN_DB_EXECUTE_QUERY((short) 2051, "UNKNOWN_DB", true, true, true, HistogramSchema.NORMAL),
 
-    MYSQL((short) 2100, "MYSQL", true, false, true, Histogram.NORMAL),
-    MYSQL_EXECUTE_QUERY((short) 2101, "MYSQL", true, true, true, Histogram.NORMAL),
+    MYSQL((short) 2100, "MYSQL", true, false, true, HistogramSchema.NORMAL),
+    MYSQL_EXECUTE_QUERY((short) 2101, "MYSQL", true, true, true, HistogramSchema.NORMAL),
 
-    MSSQL((short) 2200, "MSSQL", true, false, true, Histogram.NORMAL),
-    MSSQL_EXECUTE_QUERY((short) 2201, "MSSQL", true, true, true, Histogram.NORMAL),
+    MSSQL((short) 2200, "MSSQL", true, false, true, HistogramSchema.NORMAL),
+    MSSQL_EXECUTE_QUERY((short) 2201, "MSSQL", true, true, true, HistogramSchema.NORMAL),
 
-    ORACLE((short) 2300, "ORACLE", true, false, true, Histogram.NORMAL),
-    ORACLE_EXECUTE_QUERY((short) 2301, "ORACLE", true, true, true, Histogram.NORMAL),
+    ORACLE((short) 2300, "ORACLE", true, false, true, HistogramSchema.NORMAL),
+    ORACLE_EXECUTE_QUERY((short) 2301, "ORACLE", true, true, true, HistogramSchema.NORMAL),
 
-    CUBRID((short) 2400, "CUBRID", true, false, true, Histogram.NORMAL),
-    CUBRID_EXECUTE_QUERY((short) 2401, "CUBRID", true, true, true, Histogram.NORMAL),
+    CUBRID((short) 2400, "CUBRID", true, false, true, HistogramSchema.NORMAL),
+    CUBRID_EXECUTE_QUERY((short) 2401, "CUBRID", true, true, true, HistogramSchema.NORMAL),
 
     // TODO internal method를 여기에 넣기 애매하긴 하나.. 일단 그대로 둠.
-    INTERNAL_METHOD((short) 5000, "INTERNAL_METHOD", false, false, false, Histogram.NORMAL),
+    INTERNAL_METHOD((short) 5000, "INTERNAL_METHOD", false, false, false, HistogramSchema.NORMAL),
 
-    SPRING((short) 5050, "SPRING", false, false, false, Histogram.NORMAL),
-    SPRING_MVC((short) 5051, "SPRING", false, false, false, Histogram.NORMAL),
+    SPRING((short) 5050, "SPRING", false, false, false, HistogramSchema.NORMAL),
+    SPRING_MVC((short) 5051, "SPRING", false, false, false, HistogramSchema.NORMAL),
 
-    DBCP((short) 6050, "DBCP", false, false, false, Histogram.NORMAL),
+    DBCP((short) 6050, "DBCP", false, false, false, HistogramSchema.NORMAL),
 
     // memory cache  8000
-    MEMCACHED((short) 8050, "MEMCACHED", true, true, false, Histogram.FAST),
-    MEMCACHED_FUTURE_GET((short) 8051, "MEMCACHED", true, false, false, Histogram.FAST),
-    ARCUS((short) 8100, "ARCUS", true, true, true, Histogram.FAST),
-    ARCUS_FUTURE_GET((short) 8101, "ARCUS", true, false, true, Histogram.FAST),
+    MEMCACHED((short) 8050, "MEMCACHED", true, true, false, HistogramSchema.FAST),
+    MEMCACHED_FUTURE_GET((short) 8051, "MEMCACHED", true, false, false, HistogramSchema.FAST),
+    ARCUS((short) 8100, "ARCUS", true, true, true, HistogramSchema.FAST),
+    ARCUS_FUTURE_GET((short) 8101, "ARCUS", true, false, true, HistogramSchema.FAST),
 
     // connector류
-    HTTP_CLIENT((short) 9050, "HTTP_CLIENT", false, true, false, Histogram.NORMAL),
-    JDK_HTTPURLCONNECTOR((short) 9055, "JDK_HTTPCONNECTOR", false, true, false, Histogram.NORMAL),
-	NPC_CLIENT((short) 9060, "NPC_CLIENT", false, true, false, Histogram.NORMAL);
+    HTTP_CLIENT((short) 9050, "HTTP_CLIENT", false, true, false, HistogramSchema.NORMAL),
+    JDK_HTTPURLCONNECTOR((short) 9055, "JDK_HTTPCONNECTOR", false, true, false, HistogramSchema.NORMAL),
+	NPC_CLIENT((short) 9060, "NPC_CLIENT", false, true, false, HistogramSchema.NORMAL);
 
     private final short code;
     private final String desc;
@@ -70,15 +70,15 @@ public enum ServiceType {
     
     // DetinationId를 포함시켜 api를 출력하지 여부
     private final boolean includeDestinationId;
-    private final Histogram histogram;
+    private final HistogramSchema histogramSchema;
 
-    ServiceType(short code, String desc, boolean terminal, boolean recordStatistics, boolean includeDestinationId, Histogram histogram) {
+    ServiceType(short code, String desc, boolean terminal, boolean recordStatistics, boolean includeDestinationId, HistogramSchema histogramSchema) {
         this.code = code;
         this.desc = desc;
         this.terminal = terminal;
         this.recordStatistics = recordStatistics;
         this.includeDestinationId = includeDestinationId;
-        this.histogram = histogram;
+        this.histogramSchema = histogramSchema;
     }
 
     public static List<ServiceType> findDesc(String desc) {
@@ -125,8 +125,8 @@ public enum ServiceType {
         return includeDestinationId;
     }
 
-    public Histogram getHistogram() {
-        return histogram;
+    public HistogramSchema getHistogramSchema() {
+        return histogramSchema;
     }
 
 	public boolean isWas() {

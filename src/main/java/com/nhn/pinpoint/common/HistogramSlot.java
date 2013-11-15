@@ -4,13 +4,14 @@ package com.nhn.pinpoint.common;
  * @author emeroad
  */
 public class HistogramSlot {
-    private int slotTime;
-    private ResponseCode responseCode;
+    private final int slotTime;
+    private final ResponseCode responseCode;
 
-    public HistogramSlot() {
-    }
 
     public HistogramSlot(int slotTime, ResponseCode responseCode) {
+        if (responseCode == null) {
+            throw new NullPointerException("responseCode must not be null");
+        }
         this.slotTime = slotTime;
         this.responseCode = responseCode;
     }
@@ -20,16 +21,9 @@ public class HistogramSlot {
         return slotTime;
     }
 
-    public void setSlotTime(int slotTime) {
-        this.slotTime = slotTime;
-    }
 
     public ResponseCode getResponseCode() {
         return responseCode;
-    }
-
-    public void setResponseCode(ResponseCode responseCode) {
-        this.responseCode = responseCode;
     }
 
 }
