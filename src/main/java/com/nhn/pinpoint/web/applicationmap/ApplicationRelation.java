@@ -27,6 +27,11 @@ public class ApplicationRelation {
 
 
     public ApplicationRelation(Application from, Application to, HostList hostList) {
+        this(createKey(from, to), from, to, hostList);
+
+    }
+
+    private static ComplexNodeId createKey(Application from, Application to) {
         if (from == null) {
             throw new NullPointerException("from must not be null");
         }
@@ -35,7 +40,20 @@ public class ApplicationRelation {
         }
         SimpleNodeId fromId = (SimpleNodeId) from.getId();
         SimpleNodeId toId = (SimpleNodeId) to.getId();
-        this.id = new ComplexNodeId(fromId.getKey(), toId.getKey());
+        return new ComplexNodeId(fromId.getKey(), toId.getKey());
+    }
+
+    ApplicationRelation(NodeId id, Application from, Application to, HostList hostList) {
+        if (from == null) {
+            throw new NullPointerException("from must not be null");
+        }
+        if (to == null) {
+            throw new NullPointerException("to must not be null");
+        }
+        if (id == null) {
+            throw new NullPointerException("id must not be null");
+        }
+        this.id = id;
         this.from = from;
         this.to = to;
         this.hostList = hostList;
@@ -57,9 +75,6 @@ public class ApplicationRelation {
 		return hostList;
 	}
 
-	public void setHostList(HostList hostList) {
-		this.hostList = hostList;
-	}
 
 	public ResponseHistogram getHistogram() {
 		ResponseHistogram result = null;
@@ -87,6 +102,12 @@ public class ApplicationRelation {
 		}
 		return this;
 	}
+
+    public ApplicationRelation deepCopy() {
+        HostList copyHost = this.hostList.deepCopy();
+        ApplicationRelation copy = new ApplicationRelation(this.id, this.from, this.to, copyHost);
+        return copy;
+    }
 
 	@Override
 	public int hashCode() {

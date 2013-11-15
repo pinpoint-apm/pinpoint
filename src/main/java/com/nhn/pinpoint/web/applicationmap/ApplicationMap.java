@@ -47,21 +47,20 @@ public class ApplicationMap {
 
     void addApplication(List<Application> applicationList) {
         for (Application application : applicationList) {
-            this.addApplication(application);
+            this.addApplicationName(application);
         }
+        this.applications.buildApplication(applicationList);
     }
 
-	void addApplication(Application application) {
+	void addApplicationName(Application application) {
 		if (!application.getServiceType().isRpcClient()) {
 			applicationNames.add(application.getApplicationName());
 		}
-        applications.addApplication(application);
+
 	}
 
     void addRelation(List<ApplicationRelation> relationList) {
-        for (ApplicationRelation applicationRelation : relationList) {
-            relations.addRelation(applicationRelation);
-        }
+        relations.buildRelation(relationList);
     }
 
 

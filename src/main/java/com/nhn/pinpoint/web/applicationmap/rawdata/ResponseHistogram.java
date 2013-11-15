@@ -29,12 +29,14 @@ public class ResponseHistogram implements JsonSerializable {
 	private long slowCount;
 
 	public ResponseHistogram(ServiceType serviceType) {
-//		this.id = id;
+        if (serviceType == null) {
+            throw new NullPointerException("serviceType must not be null");
+        }
 		this.serviceType = serviceType;
 		this.histogram = serviceType.getHistogram();
 		// TODO value에 저장하는 구조 추가 수정 필요.
 		int size = histogram.getHistogramSlotList().size();
-		values = new long[size];
+		this.values = new long[size];
 	}
 
 	// TODO slot번호를 이 클래스에서 추출해야 할 것 같긴 함.

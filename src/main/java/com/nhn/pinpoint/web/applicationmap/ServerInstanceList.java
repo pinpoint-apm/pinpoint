@@ -4,8 +4,6 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.web.applicationmap.rawdata.Host;
 import com.nhn.pinpoint.web.applicationmap.rawdata.HostList;
-import com.nhn.pinpoint.web.util.MergeableMap;
-import com.nhn.pinpoint.web.util.MergeableTreeMap;
 
 import java.util.*;
 

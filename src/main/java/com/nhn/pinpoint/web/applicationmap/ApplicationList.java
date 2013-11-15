@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.web.applicationmap;
 
+import com.nhn.pinpoint.web.applicationmap.rawdata.HostList;
 import com.nhn.pinpoint.web.service.NodeId;
 
 import java.util.*;
@@ -29,15 +30,16 @@ public class ApplicationList {
         return this.nodeMap.get(applicationId);
     }
 
-    public void addApplication(Application application) {
-        if (application == null) {
-            throw new NullPointerException("application must not be null");
+    private void addApplication(Application source) {
+        if (source == null) {
+            throw new NullPointerException("source must not be null");
         }
-        final NodeId id = application.getId();
+        final NodeId id = source.getId();
         final Application find = nodeMap.get(id);
         if (find != null) {
-            find.add(application);
+            find.add(source);
         } else {
+            final Application application = source.deepCopy();
             nodeMap.put(id, application);
         }
     }
@@ -46,5 +48,13 @@ public class ApplicationList {
         for (Application application: nodeMap.values()) {
             application.build();
         }
+    }
+
+
+    public void buildApplication(List<Application> sourceList) {
+        for (Application source : sourceList) {
+            addApplication(source);
+        }
+
     }
 }

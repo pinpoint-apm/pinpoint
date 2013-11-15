@@ -73,4 +73,16 @@ public class HostList {
             }
         }
     }
+
+    public HostList deepCopy() {
+        final HostList copy = new HostList();
+//        copy.hostMap.
+        for (Map.Entry<String, Host> originalEntry : this.hostMap.entrySet()) {
+            String copyKey = originalEntry.getKey();
+            Host copyValue = originalEntry.getValue().deepCopy();
+            copy.hostMap.put(copyKey, copyValue);
+        }
+
+        return copy;
+    }
 }

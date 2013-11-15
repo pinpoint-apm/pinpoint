@@ -32,15 +32,16 @@ public class ApplicationMapBuilder {
 
         // extract agent
         Map<NodeId, Set<AgentInfoBo>> agentMap = rawData.getAgentMap();
-        final List<Application> application = createApplication(rawData, agentMap);
-        nodeMap.addApplication(application);
+        // 변경하면 안됨
+        final List<Application> sourceNode = createSourceApplication(rawData, agentMap);
+        nodeMap.addApplication(sourceNode);
 
 
         // indexing application (UI의 서버맵을 그릴 때 key 정보가 필요한데 unique해야하고 link정보와 맞춰야 됨.)
         nodeMap.indexingApplication();
-
-        List<ApplicationRelation> link = createLink(rawData, nodeMap);
-        nodeMap.addRelation(link);
+        // 변경하면 안됨.
+        List<ApplicationRelation> sourceLink = createSourceLink(rawData, nodeMap);
+        nodeMap.addRelation(sourceLink);
 
 
         nodeMap.buildApplication();
@@ -48,7 +49,7 @@ public class ApplicationMapBuilder {
         return nodeMap;
     }
 
-    private List<ApplicationRelation> createLink(RawStatisticsData rawData, ApplicationMap nodeMap) {
+    private List<ApplicationRelation> createSourceLink(RawStatisticsData rawData, ApplicationMap nodeMap) {
         final List<ApplicationRelation> result = new ArrayList<ApplicationRelation>();
         // extract relation
         for (TransactionFlowStatistics stat : rawData.getRawData()) {
@@ -76,7 +77,7 @@ public class ApplicationMapBuilder {
         return result;
     }
 
-    private List<Application> createApplication(RawStatisticsData rawData, Map<NodeId, Set<AgentInfoBo>> agentMap) {
+    private List<Application> createSourceApplication(RawStatisticsData rawData, Map<NodeId, Set<AgentInfoBo>> agentMap) {
         final List<Application> result = new ArrayList<Application>();
         // extract application and histogram
         for (TransactionFlowStatistics stat : rawData.getRawData()) {

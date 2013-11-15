@@ -39,6 +39,12 @@ public class Host {
 		return histogram;
 	}
 
+    public Host deepCopy() {
+        Host copy = new Host(this.host, this.serviceType);
+        copy.getHistogram().add(this.histogram);
+        return copy;
+    }
+
 	public String getJson() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{");

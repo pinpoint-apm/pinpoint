@@ -28,40 +28,49 @@ public class Application implements JsonSerializable {
 
     private final ServerInstanceList serverInstanceList = new ServerInstanceList();
 
-	private final HostList serverList = new HostList();
+	private final HostList hostList = new HostList();
 	private final Set<AgentInfoBo> agentSet = new HashSet<AgentInfoBo>();
 	
 
 	public Application(NodeId id, String applicationName, ServiceType serviceType, Set<AgentInfoBo> agentSet) {
-		logger.debug("create application id={}, applicationName={}, serviceType={}, agentSet={}", id, applicationName, serviceType, agentSet);
-		this.id = id;
-		this.applicationName = (serviceType == ServiceType.CLIENT) ? "CLIENT" : applicationName;
-		this.serviceType = serviceType;
-
-        if (agentSet != null) {
-		    this.agentSet.addAll(agentSet);
-        }
+        this(id, applicationName, serviceType, null, agentSet);
 	}
 
-    public Application(NodeId id, String applicationName, ServiceType serviceType, HostList serverList) {
-        logger.debug("create application id={}, applicationName={}, serviceType={}, serverList={}", id, applicationName, serviceType, serverList);
-        this.id = id;
-        this.applicationName = (serviceType == ServiceType.CLIENT) ? "CLIENT" : applicationName;
-        this.serviceType = serviceType;
-
-        if (serverList !=null) {
-            // 이 put은 정확하지 않음.
- //		this.serverList.addHostList(serverList);
-            this.serverList.put(serverList);
-        }
-
+    public Application(NodeId id, String applicationName, ServiceType serviceType, HostList hostList) {
+        this(id, applicationName, serviceType, hostList, null);
     }
 
-	void build() {
+    Application(NodeId id, String applicationName, ServiceType serviceType, HostList hostList, Set<AgentInfoBo> agentSet) {
+        logger.debug("create application id={}, applicationName={}, serviceType={}, agentSet={}", id, applicationName, serviceType, agentSet);
+        this.id = id;
+        this.applicationName = getApplicationName(applicationName, serviceType);
+        this.serviceType = serviceType;
+
+        if (hostList != null) {
+            // 이 put은 정확하지 않음.
+            //		this.hostList.addHostList(hostList);
+            logger.debug("createApplication");
+            this.hostList.put(hostList);
+        }
+
+        if (agentSet != null) {
+            this.agentSet.addAll(agentSet);
+        }
+    }
+
+    private String getApplicationName(String applicationName, ServiceType serviceType) {
+        if (serviceType == ServiceType.CLIENT) {
+            return "CLIENT";
+        } else {
+            return applicationName;
+        }
+    }
+
+    void build() {
 		if (!agentSet.isEmpty()) {
 			serverInstanceList.fillServerInstanceList(agentSet);
 		} else {
-            serverInstanceList.fillServerInstanceList(serverList);
+            serverInstanceList.fillServerInstanceList(hostList);
 		}
 	}
 	
@@ -89,10 +98,12 @@ public class Application implements JsonSerializable {
 	public Application add(Application application) {
 		logger.debug("merge application a={}, b={}", this.id, application.id);
 		
-		if (application.serverList != null) {
-//			this.serverList.addHostList(application.serverList);
-            this.serverList.put(application.serverList);
-		}
+
+        logger.debug("addApplication");
+        // 리얼 application을 실제빌드할때 copy하여 만들기 때문에. add할때 데이터를 hostList를 add해도 된다.
+        this.hostList.addHostList(application.hostList);
+//        this.hostList.put(application.hostList);
+
 		if (application.agentSet != null) {
 			this.agentSet.addAll(application.agentSet);
 		}
@@ -114,11 +125,18 @@ public class Application implements JsonSerializable {
 		return this;
 	}
 
+    public Application deepCopy() {
+        HostList copyHostList = hostList.deepCopy();
+        return new Application(this.id, this.applicationName, this.serviceType, copyHostList, agentSet);
+    }
+
 	public ServiceType getServiceType() {
 		return serviceType;
 	}
 
-	@Override
+
+
+    @Override
 	public String getJson() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{ ");
