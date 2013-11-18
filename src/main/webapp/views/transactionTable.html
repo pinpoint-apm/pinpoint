@@ -54,7 +54,7 @@
                         <div style='padding-right:5px;text-align:right;position:relative;'>
                             <a href ng-href="/transactionInfo.pinpoint?traceId={{transaction.traceId}}&focusTimestamp={{transaction.collectorAcceptTime}}"
                                target="_blank" style="position:absolute;top:0;left:0;width:15px;height:15px;"></a>
-                            {{transaction.index}}
+                            {{transaction.index | number}}
                         </div>
                     </td>
                     <td ng-click="traceByApplication(transaction)" style="cursor:pointer" sorttable_customkey="{{transaction.startTime}}">{{transaction.startTime | datejs:'%m/%d %H:%M:%S u'}}
