@@ -14,7 +14,7 @@ pinpointApp.constant('scatterConfig', {
 //var selectdTracesBox = {};
 
 pinpointApp.directive('scatter',
-    [ 'scatterConfig', '$rootScope', '$timeout', 'webStorage', 'WebSql', function (cfg, $rootScope, $timeout, webStorage, oWebSql) {
+    [ 'scatterConfig', '$rootScope', '$timeout', 'webStorage', 'TransactionDao', function (cfg, $rootScope, $timeout, webStorage, oTransactionDao) {
         return {
             template: '<div class="scatter"></div>',
             restrict: 'EA',
@@ -194,9 +194,7 @@ pinpointApp.directive('scatter',
 //                            window[token] = transactions;
 //                            window.open("/selectedScatter.pinpoint", token);
 
-                            oWebSql.query('INSERT INTO transactionList (name, data, add_date) VALUES (?, ?, datetime("now", "localtime"))', [token, JSON.stringify(transactions)], function () {
-
-                            });
+                            oTransactionDao.addData(token, transactions);
                             window.open("#/transactionList", token);
                         }
                     };

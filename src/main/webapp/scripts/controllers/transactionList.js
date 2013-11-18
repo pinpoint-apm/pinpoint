@@ -11,8 +11,8 @@ pinpointApp.constant('TransactionListConfig', {
     }
 });
 
-pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$rootScope', '$timeout', '$window', '$http', 'webStorage', 'TimeSliderVo', 'encodeURIComponentFilter', 'WebSql',
-    function (cfg, $scope, $rootScope, $timeout, $window, $http, webStorage, TimeSliderVo, encodeURIComponentFilter, oWebSql) {
+pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$rootScope', '$timeout', '$window', '$http', 'webStorage', 'TimeSliderVo', 'encodeURIComponentFilter', 'TransactionDao',
+    function (cfg, $scope, $rootScope, $timeout, $window, $http, webStorage, TimeSliderVo, encodeURIComponentFilter, oTransactionDao) {
 
         // define private variables
         var nFetchCount, nLastFetchedIndex, htTransactions, oTimeSliderVo;
@@ -32,8 +32,8 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
 
 //            htTransactions = webStorage.session.get($window.name);
 //        htTransactions = opener[$window.name];
-            oWebSql.select('SELECT data FROM transactionList WHERE name = ?',  [$window.name], function (results) {
-                htTransactions = JSON.parse(results.rows.item(0).data);
+            oTransactionDao.getDataByName($window.name, function (data) {
+                htTransactions = data;
                 console.log('htTransactions', htTransactions);
                 oTimeSliderVo = new TimeSliderVo();
                 oTimeSliderVo.setTotal(htTransactions.aTraces.length);
@@ -51,9 +51,7 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
                 }, 500);
             });
 
-
-
-        });
+        }, 100);
 
         /**
          * emit transaction list to table
