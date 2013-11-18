@@ -1,6 +1,6 @@
 'use strict';
 
-pinpointApp.factory('NavbarDao', function () {
+pinpointApp.factory('NavbarVo', function () {
     return function () {
         // define and initialize private variables;
         var self = this;

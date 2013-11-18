@@ -3,8 +3,8 @@
     <div class="servermap-status" ng-show="bShowServerMapStatus">
         <div class="alert alert-success">
             <div class="alert alert-info">
-                <h6 ng-show="oNavbarDao.getQueryStartTime() && oNavbarDao.getQueryEndTime()">{{oNavbarDao.getQueryStartTime() | date:'yyyy-MM-dd HH:mm:ss'}} ~ {{oNavbarDao.getQueryEndTime() | date:'yyyy-MM-dd HH:mm:ss'}}</h6>
-                <ul class="unstyled" ng-show="oNavbarDao.getFilter()" ng-bind-html="oNavbarDao.getFilter() | filterToString">
+                <h6 ng-show="oNavbarVo.getQueryStartTime() && oNavbarVo.getQueryEndTime()">{{oNavbarVo.getQueryStartTime() | date:'yyyy-MM-dd HH:mm:ss'}} ~ {{oNavbarVo.getQueryEndTime() | date:'yyyy-MM-dd HH:mm:ss'}}</h6>
+                <ul class="unstyled" ng-show="oNavbarVo.getFilter()" ng-bind-html="oNavbarVo.getFilter() | filterToString">
                 </ul>
             </div>
             <div class="controls controls-row">
@@ -25,7 +25,7 @@
         <!--<li><a href tabindex="-1" ng-click="passingTransactionList()"><i class="icon-map-marker"></i> Passing Transaction List</a></li>-->
         <!--<li class="divider"></li>-->
         <li><a href tabindex="-1" ng-click="passingTransactionResponseToScatterChart()"><i class="icon-list"></i> Transaction Scatter Chart</a></li>
-        <li><a tabindex="-1" ng-href="#/inspector/{{oNavbarDao.getApplication()}}/{{oNavbarDao.getPeriod()}}/{{oNavbarDao.getQueryEndTime()}}" target="_blank"><i class="icon-search"></i> Inspect Agents</a></li>
+        <li><a tabindex="-1" ng-href="#/inspector/{{oNavbarVo.getApplication()}}/{{oNavbarVo.getPeriod()}}/{{oNavbarVo.getQueryEndTime()}}" target="_blank"><i class="icon-search"></i> Inspect Agents</a></li>
     </ul>
 
     <ul ng-style="linkContextMenuStyle" class="linkContextMenu dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="z-index:10">

@@ -12,7 +12,7 @@ pinpointApp.directive('agentList', [ 'agentListConfig', '$rootScope', function (
         link: function postLink(scope, element, attrs) {
 
             // define private variables
-            var oNavbarDao;
+            var oNavbarVo;
 
             // define private variables of methods
             var getAgentGroup, showAgentGroup, findAgentByAgentId;
@@ -85,9 +85,9 @@ pinpointApp.directive('agentList', [ 'agentListConfig', '$rootScope', function (
             /**
              * scope event on agentList.initialize
              */
-            scope.$on('agentList.initialize', function (event, navbarDao) {
-                oNavbarDao = navbarDao;
-                showAgentGroup(oNavbarDao.getApplicationName(), oNavbarDao.getServiceType(), oNavbarDao.getQueryStartTime(), oNavbarDao.getQueryEndTime(), oNavbarDao.getAgentId());
+            scope.$on('agentList.initialize', function (event, navbarVo) {
+                oNavbarVo = navbarVo;
+                showAgentGroup(oNavbarVo.getApplicationName(), oNavbarVo.getServiceType(), oNavbarVo.getQueryStartTime(), oNavbarVo.getQueryEndTime(), oNavbarVo.getAgentId());
             });
         }
     };

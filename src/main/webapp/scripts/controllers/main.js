@@ -1,9 +1,9 @@
 'use strict';
 
-pinpointApp.controller('MainCtrl', [ '$scope', '$timeout', '$routeParams', '$location', 'NavbarDao', function ($scope, $timeout, $routeParams, $location, NavbarDao) {
+pinpointApp.controller('MainCtrl', [ '$scope', '$timeout', '$routeParams', '$location', 'NavbarVo', function ($scope, $timeout, $routeParams, $location, NavbarVo) {
 
     // define private variables
-    var oNavbarDao;
+    var oNavbarVo;
 
     // define private variables of methods
     var getFirstPathOfLocation, changeLocation;
@@ -12,20 +12,20 @@ pinpointApp.controller('MainCtrl', [ '$scope', '$timeout', '$routeParams', '$loc
      * initialize
      */
     $timeout(function () {
-        oNavbarDao = new NavbarDao();
+        oNavbarVo = new NavbarVo();
         if ($routeParams.application) {
-            oNavbarDao.setApplication($routeParams.application);
+            oNavbarVo.setApplication($routeParams.application);
         }
         if ($routeParams.period) {
-            oNavbarDao.setPeriod(Number($routeParams.period, 10));
+            oNavbarVo.setPeriod(Number($routeParams.period, 10));
         }
         if ($routeParams.queryEndTime) {
-            oNavbarDao.setQueryEndTime(Number($routeParams.queryEndTime, 10));
+            oNavbarVo.setQueryEndTime(Number($routeParams.queryEndTime, 10));
         }
-        oNavbarDao.autoCalculateByQueryEndTimeAndPeriod();
-        $scope.$emit('navbar.initialize', oNavbarDao);
-        $scope.$emit('scatter.initialize', oNavbarDao);
-        $scope.$emit('serverMap.initialize', oNavbarDao);
+        oNavbarVo.autoCalculateByQueryEndTimeAndPeriod();
+        $scope.$emit('navbar.initialize', oNavbarVo);
+        $scope.$emit('scatter.initialize', oNavbarVo);
+        $scope.$emit('serverMap.initialize', oNavbarVo);
     }, 100);
 
     /**
@@ -41,7 +41,7 @@ pinpointApp.controller('MainCtrl', [ '$scope', '$timeout', '$routeParams', '$loc
      * change location
      */
     changeLocation = function () {
-        var url = '/' + getFirstPathOfLocation() + '/' + oNavbarDao.getApplication() + '/' + oNavbarDao.getPeriod() + '/' + oNavbarDao.getQueryEndTime();
+        var url = '/' + getFirstPathOfLocation() + '/' + oNavbarVo.getApplication() + '/' + oNavbarVo.getPeriod() + '/' + oNavbarVo.getQueryEndTime();
         if ($location.path() !== url) {
             $location.path(url);
             if (!$scope.$$phase) {
@@ -53,9 +53,9 @@ pinpointApp.controller('MainCtrl', [ '$scope', '$timeout', '$routeParams', '$loc
     /**
      * scope event on navbar.changed
      */
-    $scope.$on('navbar.changed', function (event, navbarDao) {
-        oNavbarDao = navbarDao;
-        changeLocation(oNavbarDao);
+    $scope.$on('navbar.changed', function (event, navbarVo) {
+        oNavbarVo = navbarVo;
+        changeLocation(oNavbarVo);
     });
 
     /**
@@ -69,16 +69,16 @@ pinpointApp.controller('MainCtrl', [ '$scope', '$timeout', '$routeParams', '$loc
      * scope event on serverMap.nodeClicked
      */
     $scope.$on('serverMap.nodeClicked', function (event, e, query, node, data) {
-        $scope.$emit('nodeInfoDetails.initialize', e, query, node, data, oNavbarDao);
-        $scope.$emit('linkInfoDetails.reset', e, query, node, data, oNavbarDao);
+        $scope.$emit('nodeInfoDetails.initialize', e, query, node, data, oNavbarVo);
+        $scope.$emit('linkInfoDetails.reset', e, query, node, data, oNavbarVo);
     });
 
     /**
      * scope event on serverMap.linkClicked
      */
     $scope.$on('serverMap.linkClicked', function (event, e, query, link, data) {
-        $scope.$emit('nodeInfoDetails.reset', e, query, link, data, oNavbarDao);
-        $scope.$emit('linkInfoDetails.initialize', e, query, link, data, oNavbarDao);
+        $scope.$emit('nodeInfoDetails.reset', e, query, link, data, oNavbarVo);
+        $scope.$emit('linkInfoDetails.initialize', e, query, link, data, oNavbarVo);
     });
 
 } ]);

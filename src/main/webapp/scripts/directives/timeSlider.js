@@ -20,26 +20,26 @@ pinpointApp.directive('timeSlider', [ 'timeSliderConfig', '$timeout', function (
             $elSlider = element.find('.timeslider_input');
 
             // initialize scope variables
-            scope.oTimeSliderDao = null;
+            scope.oTimeSliderVo = null;
             scope.disableMore = false;
             scope.done = false;
 
             /**
              * init slider
-             * @param timeSliderDao
+             * @param timeSliderVo
              */
-            initSlider = function (timeSliderDao) {
-                scope.oTimeSliderDao = timeSliderDao;
+            initSlider = function (timeSliderVo) {
+                scope.oTimeSliderVo = timeSliderVo;
 
-                if (scope.oTimeSliderDao.getReady() === false) {
+                if (scope.oTimeSliderVo.getReady() === false) {
                     return;
                 }
 
                 $timeout(function () {
                     $elSlider.jslider(
                         {
-                            from: scope.oTimeSliderDao.getFrom(),
-                            to: scope.oTimeSliderDao.getTo(),
+                            from: scope.oTimeSliderVo.getFrom(),
+                            to: scope.oTimeSliderVo.getTo(),
                             scale: parseScaleAsTimeFormat(getScale()),
                             skin: "round_plastic",
                             calculate: function (value) {
@@ -60,8 +60,8 @@ pinpointApp.directive('timeSlider', [ 'timeSliderConfig', '$timeout', function (
             };
 
             checkDisableMore = function () {
-                if (scope.oTimeSliderDao.getCount() && scope.oTimeSliderDao.getTotal()) {
-                    if (scope.oTimeSliderDao.getCount() >= scope.oTimeSliderDao.getTotal()) {
+                if (scope.oTimeSliderVo.getCount() && scope.oTimeSliderVo.getTotal()) {
+                    if (scope.oTimeSliderVo.getCount() >= scope.oTimeSliderVo.getTotal()) {
                         scope.disableMore = true;
                     }
                 }
@@ -73,8 +73,8 @@ pinpointApp.directive('timeSlider', [ 'timeSliderConfig', '$timeout', function (
              */
             getScale = function () {
                 // gap이 최대 3일이라 가정하고, 전부 시:분 으로 표시한다.
-                var from =  scope.oTimeSliderDao.getFrom(),
-                    to = scope.oTimeSliderDao.getTo(),
+                var from =  scope.oTimeSliderVo.getFrom(),
+                    to = scope.oTimeSliderVo.getTo(),
                     gap = to - from,
                     unit = gap / (cfg.scaleCount - 1),
                     tempScale = [];
@@ -120,23 +120,23 @@ pinpointApp.directive('timeSlider', [ 'timeSliderConfig', '$timeout', function (
              * scope more
              */
             scope.more = function () {
-                scope.$emit('timeSlider.moreClicked', scope.oTimeSliderDao);
+                scope.$emit('timeSlider.moreClicked', scope.oTimeSliderVo);
             };
 
             /**
              * scope event on timeSlider.initialize
              */
-            scope.$on('timeSlider.initialize', function (event, timeSliderDao) {
-                initSlider(timeSliderDao);
+            scope.$on('timeSlider.initialize', function (event, timeSliderVo) {
+                initSlider(timeSliderVo);
                 checkDisableMore();
             });
 
             /**
              * scope event on setInnerFromTo
              */
-            scope.$on('timeSlider.setInnerFromTo', function (event, timeSliderDao) {
-                scope.oTimeSliderDao = timeSliderDao;
-                setInnerFromTo(timeSliderDao.getInnerFrom(), timeSliderDao.getInnerTo());
+            scope.$on('timeSlider.setInnerFromTo', function (event, timeSliderVo) {
+                scope.oTimeSliderVo = timeSliderVo;
+                setInnerFromTo(timeSliderVo.getInnerFrom(), timeSliderVo.getInnerTo());
                 checkDisableMore();
             });
 

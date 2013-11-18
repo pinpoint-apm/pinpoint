@@ -1,39 +1,39 @@
 'use strict';
 
-pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout', 'TimeSliderDao', 'NavbarDao', function ($scope, $routeParams, $timeout, TimeSliderDao, NavbarDao) {
+pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout', 'TimeSliderVo', 'NavbarVo', function ($scope, $routeParams, $timeout, TimeSliderVo, NavbarVo) {
 
     // define private variables
-    var oNavbarDao, oTimeSliderDao;
+    var oNavbarVo, oTimeSliderVo;
 
     /**
      * initialize
      */
     $timeout(function () {
-        oNavbarDao = new NavbarDao();
+        oNavbarVo = new NavbarVo();
         if ($routeParams.application) {
-            oNavbarDao.setApplication($routeParams.application);
+            oNavbarVo.setApplication($routeParams.application);
         }
         if ($routeParams.period) {
-            oNavbarDao.setPeriod(Number($routeParams.period, 10));
+            oNavbarVo.setPeriod(Number($routeParams.period, 10));
         }
         if ($routeParams.queryEndTime) {
-            oNavbarDao.setQueryEndTime(Number($routeParams.queryEndTime, 10));
+            oNavbarVo.setQueryEndTime(Number($routeParams.queryEndTime, 10));
         }
         if ($routeParams.filter) {
-            oNavbarDao.setFilter($routeParams.filter);
+            oNavbarVo.setFilter($routeParams.filter);
         }
-        oNavbarDao.autoCalculateByQueryEndTimeAndPeriod();
+        oNavbarVo.autoCalculateByQueryEndTimeAndPeriod();
 
-        oTimeSliderDao = new TimeSliderDao()
-            .setFrom(oNavbarDao.getQueryStartTime())
-            .setTo(oNavbarDao.getQueryEndTime())
-            .setInnerFrom(oNavbarDao.getQueryEndTime() - 1)
-            .setInnerTo(oNavbarDao.getQueryEndTime());
+        oTimeSliderVo = new TimeSliderVo()
+            .setFrom(oNavbarVo.getQueryStartTime())
+            .setTo(oNavbarVo.getQueryEndTime())
+            .setInnerFrom(oNavbarVo.getQueryEndTime() - 1)
+            .setInnerTo(oNavbarVo.getQueryEndTime());
 
         $timeout(function () {
-            $scope.$emit('timeSlider.initialize', oTimeSliderDao);
-            $scope.$emit('serverMap.initialize', oNavbarDao);
-            $scope.$emit('scatter.initialize', oNavbarDao);
+            $scope.$emit('timeSlider.initialize', oTimeSliderVo);
+            $scope.$emit('serverMap.initialize', oNavbarVo);
+            $scope.$emit('scatter.initialize', oNavbarVo);
         });
     }, 100);
 
@@ -41,8 +41,8 @@ pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout'
      * scope event on serverMap.fetched
      */
     $scope.$on('serverMap.fetched', function (event, lastFetchedTimestamp, mapData) {
-        oTimeSliderDao.setInnerFrom(lastFetchedTimestamp);
-        $scope.$emit('timeSlider.setInnerFromTo', oTimeSliderDao);
+        oTimeSliderVo.setInnerFrom(lastFetchedTimestamp);
+        $scope.$emit('timeSlider.setInnerFromTo', oTimeSliderVo);
 
         // auto trying fetch
         if (mapData.applicationMapData.nodeDataArray.length === 0 && mapData.applicationMapData.linkDataArray.length === 0) {
@@ -58,8 +58,8 @@ pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout'
      * scope event on serverMap. allFetched
      */
     $scope.$on('serverMap.allFetched', function (event) {
-        oTimeSliderDao.setInnerFrom(oTimeSliderDao.getFrom());
-        $scope.$emit('timeSlider.setInnerFromTo', oTimeSliderDao);
+        oTimeSliderVo.setInnerFrom(oTimeSliderVo.getFrom());
+        $scope.$emit('timeSlider.setInnerFromTo', oTimeSliderVo);
         $scope.$emit('timeSlider.changeMoreToDone');
         $scope.$emit('timeSlider.disableMore');
     });
@@ -68,13 +68,13 @@ pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout'
      * scope event of timeSlider.moreClicked
      */
     $scope.$on('timeSlider.moreClicked', function (event) {
-        var newNavbarDao = new NavbarDao();
-        newNavbarDao.setApplication(oNavbarDao.getApplication());
-        newNavbarDao.setQueryStartTime(oNavbarDao.getQueryStartTime());
-        newNavbarDao.setQueryEndTime(oTimeSliderDao.getInnerFrom());
-        newNavbarDao.autoCalcultateByQueryStartTimeAndQueryEndTime();
+        var newNavbarVo = new NavbarVo();
+        newNavbarVo.setApplication(oNavbarVo.getApplication());
+        newNavbarVo.setQueryStartTime(oNavbarVo.getQueryStartTime());
+        newNavbarVo.setQueryEndTime(oTimeSliderVo.getInnerFrom());
+        newNavbarVo.autoCalcultateByQueryStartTimeAndQueryEndTime();
         $scope.$emit('timeSlider.disableMore');
-        $scope.$emit('serverMap.fetch', newNavbarDao.getQueryPeriod(), newNavbarDao.getQueryEndTime());
+        $scope.$emit('serverMap.fetch', newNavbarVo.getQueryPeriod(), newNavbarVo.getQueryEndTime());
     });
 
     /**
@@ -88,8 +88,8 @@ pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout'
      * scope event on serverMap.nodeClicked
      */
     $scope.$on('serverMap.nodeClicked', function (event, e, query, node, data) {
-        $scope.$emit('nodeInfoDetails.initialize', e, query, node, data, oNavbarDao);
-        $scope.$emit('linkInfoDetails.reset', e, query, node, data, oNavbarDao);
+        $scope.$emit('nodeInfoDetails.initialize', e, query, node, data, oNavbarVo);
+        $scope.$emit('linkInfoDetails.reset', e, query, node, data, oNavbarVo);
     });
 
 
@@ -97,7 +97,7 @@ pinpointApp.controller('FilteredMapCtrl', [ '$scope', '$routeParams', '$timeout'
      * scope event on serverMap.linkClicked
      */
     $scope.$on('serverMap.linkClicked', function (event, e, query, link, data) {
-        $scope.$emit('nodeInfoDetails.reset', e, query, link, data, oNavbarDao);
-        $scope.$emit('linkInfoDetails.initialize', e, query, link, data, oNavbarDao);
+        $scope.$emit('nodeInfoDetails.reset', e, query, link, data, oNavbarVo);
+        $scope.$emit('linkInfoDetails.initialize', e, query, link, data, oNavbarVo);
     });
 }]);

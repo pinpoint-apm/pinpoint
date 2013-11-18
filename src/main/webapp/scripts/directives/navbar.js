@@ -16,7 +16,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
             link: function (scope, element, attrs) {
 
                 // define private variables
-                var $application, $fromPicker, $toPicker, oNavbarDao;
+                var $application, $fromPicker, $toPicker, oNavbarVo;
 
                 // define private variables of methods
                 var initialize, initializeDateTimePicker, initializeApplication, setDateTime, getQueryEndTimeFromServer,
@@ -31,10 +31,10 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
 
                 /**
                  * initialize
-                 * @param navbarDao
+                 * @param navbarVo
                  */
-                initialize = function (navbarDao) {
-                    oNavbarDao = navbarDao;
+                initialize = function (navbarVo) {
+                    oNavbarVo = navbarVo;
 
                     scope.periodType = getPeriodType();
                     scope.showNavbar = true;
@@ -47,10 +47,10 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                             value: ''
                         }
                     ];
-                    scope.application = oNavbarDao.getApplication() || '';
+                    scope.application = oNavbarVo.getApplication() || '';
                     scope.disableApplication = true;
-                    scope.period = oNavbarDao.getPeriod() || 20;
-                    scope.queryEndTime = oNavbarDao.getQueryEndTime() || '';
+                    scope.period = oNavbarVo.getPeriod() || 20;
+                    scope.queryEndTime = oNavbarVo.getQueryEndTime() || '';
 //                    $http.defaults.useXDomain = true;
 
                     initializeDateTimePicker();
@@ -59,20 +59,20 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
 
                 /**
                  * initialize with static application
-                 * @param navbarDao
+                 * @param navbarVo
                  */
-                initializeWithStaticApplication = function (navbarDao) {
-                    oNavbarDao = navbarDao;
+                initializeWithStaticApplication = function (navbarVo) {
+                    oNavbarVo = navbarVo;
 
                     scope.periodType = getPeriodType();
                     scope.showNavbar = true;
                     scope.showApplication = false;
                     scope.showStaticApplication = !scope.showApplication;
                     $application = element.find('.application');
-                    scope.application = oNavbarDao.getApplication() || '';
-                    scope.applicationName = oNavbarDao.getApplicationName() || '';
-                    scope.period = oNavbarDao.getPeriod() || 20;
-                    scope.queryEndTime = oNavbarDao.getQueryEndTime() || '';
+                    scope.application = oNavbarVo.getApplication() || '';
+                    scope.applicationName = oNavbarVo.getApplicationName() || '';
+                    scope.period = oNavbarVo.getPeriod() || 20;
+                    scope.queryEndTime = oNavbarVo.getQueryEndTime() || '';
 
                     initializeDateTimePicker();
                 };
@@ -98,7 +98,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                             }
                         }
                     });
-                    setDateTime($fromPicker, oNavbarDao.getQueryStartTime() || new Date().addMinutes(-20));
+                    setDateTime($fromPicker, oNavbarVo.getQueryStartTime() || new Date().addMinutes(-20));
 
                     $toPicker = element.find('#to-picker');
                     $toPicker.datetimepicker({
@@ -117,7 +117,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                             }
                         }
                     });
-                    setDateTime($toPicker, oNavbarDao.getQueryEndTime());
+                    setDateTime($toPicker, oNavbarVo.getQueryEndTime());
 
                     $fromPicker.datetimepicker('option', 'maxDate', $toPicker.datetimepicker('getDate'));
                     $toPicker.datetimepicker('option', 'minDate', $fromPicker.datetimepicker('getDate'));
@@ -132,7 +132,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                     if ($window.name && webStorage.session.get($window.name + cfg.periodTypePrefix)) {
                         periodType = webStorage.session.get($window.name + cfg.periodTypePrefix);
                     } else {
-                        periodType = oNavbarDao.getApplication() ? 'range' : 'last';
+                        periodType = oNavbarVo.getApplication() ? 'range' : 'last';
                     }
                     return periodType;
                 };
@@ -160,19 +160,19 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                     if (!scope.application) {
                         return;
                     }
-                    oNavbarDao.setApplication(scope.application);
+                    oNavbarVo.setApplication(scope.application);
 
                     if (scope.periodType === 'last' && scope.period) {
                         getQueryEndTimeFromServer(function (currentServerTime) {
-                            oNavbarDao.setPeriod(scope.period);
-                            oNavbarDao.setQueryEndTime(currentServerTime);
-                            oNavbarDao.autoCalculateByQueryEndTimeAndPeriod();
+                            oNavbarVo.setPeriod(scope.period);
+                            oNavbarVo.setQueryEndTime(currentServerTime);
+                            oNavbarVo.autoCalculateByQueryEndTimeAndPeriod();
                             emitAsChanged();
                         });
                     } else if (getQueryStartTime() && getQueryEndTime()) {
-                        oNavbarDao.setQueryStartTime(getQueryStartTime());
-                        oNavbarDao.setQueryEndTime(getQueryEndTime());
-                        oNavbarDao.autoCalcultateByQueryStartTimeAndQueryEndTime();
+                        oNavbarVo.setQueryStartTime(getQueryStartTime());
+                        oNavbarVo.setQueryEndTime(getQueryEndTime());
+                        oNavbarVo.autoCalcultateByQueryStartTimeAndQueryEndTime();
                         emitAsChanged();
                     }
                 };
@@ -182,7 +182,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                  */
                 emitAsChanged = function () {
                     setPeriodTypeAsCurrent();
-                    scope.$emit('navbar.changed', oNavbarDao);
+                    scope.$emit('navbar.changed', oNavbarVo);
                 };
 
                 /**
@@ -297,9 +297,9 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                         // 참고2 : http://jsfiddle.net/CDvGy/2/
                     });
 
-                    if (oNavbarDao.getApplication()) {
-                        $application.select2('val', oNavbarDao.getApplication());
-                        scope.application = oNavbarDao.getApplication();
+                    if (oNavbarVo.getApplication()) {
+                        $application.select2('val', oNavbarVo.getApplication());
+                        scope.application = oNavbarVo.getApplication();
                     }
                 };
 
@@ -313,15 +313,15 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                 /**
                  * scope event on navbar.initialize
                  */
-                scope.$on('navbar.initialize', function (event, navbarDao) {
-                    initialize(navbarDao);
+                scope.$on('navbar.initialize', function (event, navbarVo) {
+                    initialize(navbarVo);
                 });
 
                 /**
                  * scope event on navbar.initializeWithStaticApplication
                  */
-                scope.$on('navbar.initializeWithStaticApplication', function (event, navbarDao) {
-                    initializeWithStaticApplication(navbarDao);
+                scope.$on('navbar.initializeWithStaticApplication', function (event, navbarVo) {
+                    initializeWithStaticApplication(navbarVo);
                 });
 
                 /**

@@ -1,6 +1,6 @@
 'use strict';
 
-pinpointApp.factory('TimeSliderDao', function () {
+pinpointApp.factory('TimeSliderVo', function () {
     return function () {
         // define and initialize private variables;
         this._nFrom = false;
@@ -13,7 +13,7 @@ pinpointApp.factory('TimeSliderDao', function () {
         this.setFrom = function (from) {
             if (angular.isNumber(from)) {
                 if (angular.isNumber(this._nTo) && from >= this._nTo) {
-                    throw 'timeSliderDao:setFrom, It should be smaller than To value.';
+                    throw 'timeSliderVo:setFrom, It should be smaller than To value.';
                 }
                 this._nFrom = from;
             }
@@ -26,7 +26,7 @@ pinpointApp.factory('TimeSliderDao', function () {
         this.setTo = function (to) {
             if (angular.isNumber(to)) {
                 if (angular.isNumber(to) && this._nFrom >= to) {
-                    throw 'timeSliderDao:setTo, It should be bigger than From value.';
+                    throw 'timeSliderVo:setTo, It should be bigger than From value.';
                 }
                 this._nTo = to;
             }
@@ -39,7 +39,7 @@ pinpointApp.factory('TimeSliderDao', function () {
         this.setInnerFrom = function (innerFrom) {
             if (angular.isNumber(innerFrom)) {
                 if (angular.isNumber(this._nInnerTo) && innerFrom >= this._nInnerTo) {
-                    throw 'timeSliderDao:setInnerFrom, It should be smaller than InnerTo value.';
+                    throw 'timeSliderVo:setInnerFrom, It should be smaller than InnerTo value.';
                 }
                 this._nInnerFrom = innerFrom;
             }
@@ -52,7 +52,7 @@ pinpointApp.factory('TimeSliderDao', function () {
         this.setInnerTo = function (innerTo) {
             if (angular.isNumber(innerTo)) {
                 if (angular.isNumber(this._nInnerFrom) && this._nInnerFrom >= innerTo) {
-                    throw 'timeSliderDao:setInnerTo, It should be bigger than InnerFrom value.';
+                    throw 'timeSliderVo:setInnerTo, It should be bigger than InnerFrom value.';
                 }
                 this._nInnerTo = innerTo;
             }
@@ -65,7 +65,7 @@ pinpointApp.factory('TimeSliderDao', function () {
         this.setCount = function (count) {
             if (angular.isNumber(count)) {
                 if (angular.isNumber(this._nTotal) && count > this._nTotal) {
-                    throw 'timeSliderDao:setCount, It should be smaller than Total value.';
+                    throw 'timeSliderVo:setCount, It should be smaller than Total value.';
                 }
                 this._nCount = count;
             }
@@ -74,7 +74,7 @@ pinpointApp.factory('TimeSliderDao', function () {
         this.addCount = function (count) {
             if (angular.isNumber(count)) {
                 if (angular.isNumber(this._nTotal) && (count + this._nCount) > this._nTotal) {
-                    throw 'timeSliderDao:setCount, It should be smaller than Total value.';
+                    throw 'timeSliderVo:setCount, It should be smaller than Total value.';
                 }
                 this._nCount += count;
             }
@@ -87,7 +87,7 @@ pinpointApp.factory('TimeSliderDao', function () {
         this.setTotal = function (total) {
             if (angular.isNumber(total)) {
                 if (angular.isNumber(this._nCount) && this._nCount > total) {
-                    throw 'timeSliderDao:setTotal, It should be bigger than Count value.';
+                    throw 'timeSliderVo:setTotal, It should be bigger than Count value.';
                 }
                 this._nTotal = total;
             }

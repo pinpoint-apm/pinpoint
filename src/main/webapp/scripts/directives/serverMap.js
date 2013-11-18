@@ -719,14 +719,14 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
              * scope passing transaction map
              */
             scope.passingTransactionMap = function (srcSvcType, srcAppName, destSvcType, destAppName) {
-                var application = scope.oNavbarDao.getApplication(),
-                    period = scope.oNavbarDao.getPeriod(),
-                    queryEndTime = scope.oNavbarDao.getQueryEndTime(),
+                var application = scope.oNavbarVo.getApplication(),
+                    period = scope.oNavbarVo.getPeriod(),
+                    queryEndTime = scope.oNavbarVo.getQueryEndTime(),
                     srcServiceType = srcSvcType || scope.srcServiceType,
                     srcApplicationName = srcAppName || scope.srcApplicationName,
                     destServiceType = destSvcType || scope.destServiceType,
                     destApplicationName = destAppName || scope.destApplicationName,
-                    prevFilter = scope.oNavbarDao.getFilter();
+                    prevFilter = scope.oNavbarVo.getFilter();
 
                 var newFilter = ((prevFilter) ? prevFilter + cfg.FILTER_DELIMETER : "")
                     + srcServiceType + cfg.FILTER_ENTRY_DELIMETER
@@ -782,18 +782,18 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
             /**
              * scope event on serverMap.initialize
              */
-            scope.$on('serverMap.initialize', function (event, navbarDao) {
-                scope.oNavbarDao = navbarDao;
+            scope.$on('serverMap.initialize', function (event, navbarVo) {
+                scope.oNavbarVo = navbarVo;
                 scope.bShowServerMapStatus = true;
                 bUseNodeContextMenu = bUseLinkContextMenu = bUseBackgroundContextMenu = true;
-                showServerMap(navbarDao.getApplicationName(), navbarDao.getServiceType(), navbarDao.getQueryEndTime(), navbarDao.getQueryPeriod(), navbarDao.getFilter(), scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
+                showServerMap(navbarVo.getApplicationName(), navbarVo.getServiceType(), navbarVo.getQueryEndTime(), navbarVo.getQueryPeriod(), navbarVo.getFilter(), scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
             });
 
             /**
              * scope event on serverMap.fetch
              */
             scope.$on('serverMap.fetch', function (event, queryPeriod, queryEndTime) {
-                showServerMap(scope.oNavbarDao.getApplicationName(), scope.oNavbarDao.getServiceType(), queryEndTime, queryPeriod, scope.oNavbarDao.getFilter(), scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
+                showServerMap(scope.oNavbarVo.getApplicationName(), scope.oNavbarVo.getServiceType(), queryEndTime, queryPeriod, scope.oNavbarVo.getFilter(), scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
             });
 
             /**

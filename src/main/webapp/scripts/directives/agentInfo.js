@@ -12,7 +12,7 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
         link: function postLink(scope, element, attrs) {
 
             // define private variables
-            var oNavbarDao, oAlert, oProgressBar;
+            var oNavbarVo, oAlert, oProgressBar;
 
             // define private variables of methods
             var getSampleRate, getAgentStat, showAgentStat, d3MakeGcCharts;
@@ -32,10 +32,10 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
             /**
              * scope event of agentInfo.initialize
              */
-            scope.$on('agentInfo.initialize', function (event, navbarDao, agent) {
+            scope.$on('agentInfo.initialize', function (event, navbarVo, agent) {
                 scope.agentInfoTemplate = 'views/agentInfoMain.html';
                 scope.agent = agent;
-                oNavbarDao = navbarDao;
+                oNavbarVo = navbarVo;
 
                 scope.info = [
                     { key: 'Agent Id', val: agent.agentId },
@@ -48,7 +48,7 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                 ];
 
                 $timeout(function () {
-                    showAgentStat(agent.agentId, oNavbarDao.getQueryStartTime(), oNavbarDao.getQueryEndTime(), oNavbarDao.getPeriod());
+                    showAgentStat(agent.agentId, oNavbarVo.getQueryStartTime(), oNavbarVo.getQueryEndTime(), oNavbarVo.getPeriod());
                     scope.$apply();
                 });
             });

@@ -14,7 +14,7 @@ pinpointApp.constant('scatterConfig', {
 //var selectdTracesBox = {};
 
 pinpointApp.directive('scatter',
-    [ 'scatterConfig', '$rootScope', '$timeout', 'webStorage', function (cfg, $rootScope, $timeout, webStorage) {
+    [ 'scatterConfig', '$rootScope', '$timeout', 'webStorage', 'WebSql', function (cfg, $rootScope, $timeout, webStorage, oWebSql) {
         return {
             template: '<div class="scatter"></div>',
             restrict: 'EA',
@@ -22,14 +22,14 @@ pinpointApp.directive('scatter',
             link: function (scope, element, attrs) {
 
                 // define private variables
-                var oScatterChart, oNavbarDao;
+                var oScatterChart, oNavbarVo;
 
                 // define private variables of methods
                 var showScatter, makeScatter;
 
                 // initialize
                 oScatterChart = null;
-                oNavbarDao = null;
+                oNavbarVo = null;
 
                 /**
                  * show scatter
@@ -191,8 +191,12 @@ pinpointApp.directive('scatter',
 
                             var token = 'transactionsFromScatter_' + _.random(100000, 999999);
 //                            webStorage.session.add(token, transactions);
-                            window[token] = transactions;
+//                            window[token] = transactions;
 //                            window.open("/selectedScatter.pinpoint", token);
+
+                            oWebSql.query('INSERT INTO transactionList (name, data, add_date) VALUES (?, ?, datetime("now", "localtime"))', [token, JSON.stringify(transactions)], function () {
+
+                            });
                             window.open("#/transactionList", token);
                         }
                     };
@@ -210,16 +214,16 @@ pinpointApp.directive('scatter',
                 /**
                  * scope event on scatter.initialize
                  */
-                scope.$on('scatter.initialize', function (event, navbarDao) {
-                    oNavbarDao = navbarDao;
-                    makeScatter(oNavbarDao.getApplicationName(), oNavbarDao.getQueryStartTime(), oNavbarDao.getQueryEndTime(), oNavbarDao.getQueryPeriod(), oNavbarDao.getFilter());
+                scope.$on('scatter.initialize', function (event, navbarVo) {
+                    oNavbarVo = navbarVo;
+                    makeScatter(oNavbarVo.getApplicationName(), oNavbarVo.getQueryStartTime(), oNavbarVo.getQueryEndTime(), oNavbarVo.getQueryPeriod(), oNavbarVo.getFilter());
                 });
 
                 /**
                  * scope event on scatter.initializeWithNode
                  */
                 scope.$on('scatter.initializeWithNode', function (event, node) {
-                    makeScatter(node.applicationName || node.text, oNavbarDao.getQueryStartTime(), oNavbarDao.getQueryEndTime(), oNavbarDao.getQueryPeriod(), oNavbarDao.getFilter());
+                    makeScatter(node.applicationName || node.text, oNavbarVo.getQueryStartTime(), oNavbarVo.getQueryEndTime(), oNavbarVo.getQueryPeriod(), oNavbarVo.getFilter());
                 });
 
             }

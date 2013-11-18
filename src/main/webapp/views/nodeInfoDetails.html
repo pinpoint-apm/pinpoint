@@ -44,7 +44,7 @@
                         <li ng-repeat="instance in server.instanceList">
                             <i class="icon-hdd"></i>
                             {{instance.name}}
-                            <a class="btn btn-mini" ng-show="isWas" ng-href="#/inspector/{{node.text}}@{{node.serviceTypeCode}}/{{oNavbarDao.getPeriod()}}/{{oNavbarDao.getQueryEndTime()}}/{{instance.name}}" target="_blank" title="Inspect Agents" alt="Inspect Agents">Inspector</a>
+                            <a class="btn btn-mini" ng-show="isWas" ng-href="#/inspector/{{node.text}}@{{node.serviceTypeCode}}/{{oNavbarVo.getPeriod()}}/{{oNavbarVo.getQueryEndTime()}}/{{instance.name}}" target="_blank" title="Inspect Agents" alt="Inspect Agents">Inspector</a>
                             <a class="btn btn-mini" href="http://hubble.arcuscloud.nhncorp.com/" target="_blank" title="Arcus monitoring site" ng-show="nodeCategory == 'ARCUS'">Hubble</a>
                         </li>
                     </ul>

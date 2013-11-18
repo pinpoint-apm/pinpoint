@@ -11,39 +11,48 @@ pinpointApp.constant('TransactionListConfig', {
     }
 });
 
-pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$rootScope', '$timeout', '$window', '$http', 'webStorage', 'TimeSliderDao', 'encodeURIComponentFilter',
-    function (cfg, $scope, $rootScope, $timeout, $window, $http, webStorage, TimeSliderDao, encodeURIComponentFilter) {
+pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$rootScope', '$timeout', '$window', '$http', 'webStorage', 'TimeSliderVo', 'encodeURIComponentFilter', 'WebSql',
+    function (cfg, $scope, $rootScope, $timeout, $window, $http, webStorage, TimeSliderVo, encodeURIComponentFilter, oWebSql) {
 
         // define private variables
-        var nFetchCount, nLastFetchedIndex, htTransactions, oTimeSliderDao;
+        var nFetchCount, nLastFetchedIndex, htTransactions, oTimeSliderVo;
 
         // define private variables of methods
         var fetchStart, fetchNext, fetchAll, emitTransactionListToTable, getQuery, getTransactionList, changeTransactionDetail;
-
-        // initialize private variables;
-        nFetchCount = 1;
-        nLastFetchedIndex = 0;
-//        htTransactions = webStorage.session.get($window.name);
-        htTransactions = opener[$window.name];
-        oTimeSliderDao = new TimeSliderDao();
-        oTimeSliderDao.setTotal(htTransactions.aTraces.length);
-        $scope.transactionDetailUrl = '#/transactionDetail';
 
         /**
          * initialization
          */
         $timeout(function () {
-            fetchStart();
-            $timeout(function () {
-                $("#main-container").layout({
-                    north__minSize: 20,
-                    north__size: 200,
+
+            // initialize private variables;
+            nFetchCount = 1;
+            nLastFetchedIndex = 0;
+            $scope.transactionDetailUrl = '#/transactionDetail';
+
+//            htTransactions = webStorage.session.get($window.name);
+//        htTransactions = opener[$window.name];
+            oWebSql.select('SELECT data FROM transactionList WHERE name = ?',  [$window.name], function (results) {
+                htTransactions = JSON.parse(results.rows.item(0).data);
+                console.log('htTransactions', htTransactions);
+                oTimeSliderVo = new TimeSliderVo();
+                oTimeSliderVo.setTotal(htTransactions.aTraces.length);
+
+                fetchStart();
+                $timeout(function () {
+                    $("#main-container").layout({
+                        north__minSize: 20,
+                        north__size: 200,
 //                north__spacing_closed: 20,
 //                north__togglerLength_closed: 100,
 //                north__togglerAlign_closed: "top",
-                    center__maskContents: true // IMPORTANT - enable iframe masking
-                });
-            }, 500);
+                        center__maskContents: true // IMPORTANT - enable iframe masking
+                    });
+                }, 500);
+            });
+
+
+
         });
 
         /**
@@ -86,18 +95,18 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
                     $scope.$emit('timeSlider.disableMore');
                     $scope.$emit('timeSlider.changeMoreToDone');
                     return false;
-                } else if (data.metadata.length < cfg.MAX_FETCH_BLOCK_SIZE || oTimeSliderDao.getTotal() === data.metadata.length + oTimeSliderDao.getCount()) {
+                } else if (data.metadata.length < cfg.MAX_FETCH_BLOCK_SIZE || oTimeSliderVo.getTotal() === data.metadata.length + oTimeSliderVo.getCount()) {
                     $scope.$emit('timeSlider.disableMore');
                     $scope.$emit('timeSlider.changeMoreToDone');
-                    oTimeSliderDao.setInnerFrom(htTransactions.htXY.nXFrom);
+                    oTimeSliderVo.setInnerFrom(htTransactions.htXY.nXFrom);
                 } else {
                     $scope.$emit('timeSlider.enableMore');
-                    oTimeSliderDao.setInnerFrom(_.last(data.metadata).collectorAcceptTime);
+                    oTimeSliderVo.setInnerFrom(_.last(data.metadata).collectorAcceptTime);
                 }
                 emitTransactionListToTable(data);
 
-                oTimeSliderDao.addCount(data.metadata.length);
-                $scope.$emit('timeSlider.setInnerFromTo', oTimeSliderDao);
+                oTimeSliderVo.addCount(data.metadata.length);
+                $scope.$emit('timeSlider.setInnerFromTo', oTimeSliderVo);
             });
         };
 
@@ -118,22 +127,22 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
                     $scope.$emit('timeSlider.disableMore');
                     $scope.$emit('timeSlider.changeMoreToDone');
                     return false;
-                } else if (data.metadata.length < cfg.MAX_FETCH_BLOCK_SIZE || oTimeSliderDao.getTotal() === data.metadata.length) {
+                } else if (data.metadata.length < cfg.MAX_FETCH_BLOCK_SIZE || oTimeSliderVo.getTotal() === data.metadata.length) {
                     $scope.$emit('timeSlider.disableMore');
                     $scope.$emit('timeSlider.changeMoreToDone');
-                    oTimeSliderDao.setInnerFrom(htTransactions.htXY.nXFrom);
+                    oTimeSliderVo.setInnerFrom(htTransactions.htXY.nXFrom);
                 } else {
                     $scope.$emit('timeSlider.enableMore');
-                    oTimeSliderDao.setInnerFrom(_.last(data.metadata).collectorAcceptTime);
+                    oTimeSliderVo.setInnerFrom(_.last(data.metadata).collectorAcceptTime);
                 }
                 emitTransactionListToTable(data);
 
-                oTimeSliderDao.setFrom(htTransactions.htXY.nXFrom);
-                oTimeSliderDao.setTo(htTransactions.htXY.nXTo);
-                oTimeSliderDao.setInnerTo(htTransactions.htXY.nXTo);
-                oTimeSliderDao.setCount(data.metadata.length);
+                oTimeSliderVo.setFrom(htTransactions.htXY.nXFrom);
+                oTimeSliderVo.setTo(htTransactions.htXY.nXTo);
+                oTimeSliderVo.setInnerTo(htTransactions.htXY.nXTo);
+                oTimeSliderVo.setCount(data.metadata.length);
 
-                $scope.$emit('timeSlider.initialize', oTimeSliderDao);
+                $scope.$emit('timeSlider.initialize', oTimeSliderVo);
             });
         };
 

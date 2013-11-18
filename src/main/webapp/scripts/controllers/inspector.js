@@ -1,10 +1,10 @@
 'use strict';
 
-pinpointApp.controller('InspectorCtrl', [ '$scope', '$timeout', '$routeParams', '$location', 'NavbarDao',
-    function ($scope, $timeout, $routeParams, $location, NavbarDao) {
+pinpointApp.controller('InspectorCtrl', [ '$scope', '$timeout', '$routeParams', '$location', 'NavbarVo',
+    function ($scope, $timeout, $routeParams, $location, NavbarVo) {
 
         // define private variables
-        var oNavbarDao, oAgent;
+        var oNavbarVo, oAgent;
 
         // define private variables of methods
         var getFirstPathOfLocation, changeLocation, getLocation, isLocationChanged;
@@ -13,29 +13,29 @@ pinpointApp.controller('InspectorCtrl', [ '$scope', '$timeout', '$routeParams', 
          * initialize
          */
         $timeout(function () {
-            oNavbarDao = new NavbarDao();
+            oNavbarVo = new NavbarVo();
             if ($routeParams.application) {
-                oNavbarDao.setApplication($routeParams.application);
+                oNavbarVo.setApplication($routeParams.application);
             }
             if ($routeParams.period) {
-                oNavbarDao.setPeriod(Number($routeParams.period, 10));
+                oNavbarVo.setPeriod(Number($routeParams.period, 10));
             }
             if ($routeParams.queryEndTime) {
-                oNavbarDao.setQueryEndTime(Number($routeParams.queryEndTime, 10));
+                oNavbarVo.setQueryEndTime(Number($routeParams.queryEndTime, 10));
             }
             if ($routeParams.agentId) {
-                oNavbarDao.setAgentId($routeParams.agentId);
+                oNavbarVo.setAgentId($routeParams.agentId);
             }
-            oNavbarDao.autoCalculateByQueryEndTimeAndPeriod();
-            $scope.$emit('navbar.initializeWithStaticApplication', oNavbarDao);
-            $scope.$emit('agentList.initialize', oNavbarDao);
+            oNavbarVo.autoCalculateByQueryEndTimeAndPeriod();
+            $scope.$emit('navbar.initializeWithStaticApplication', oNavbarVo);
+            $scope.$emit('agentList.initialize', oNavbarVo);
         }, 100);
 
         /**
          * scope event on navbar.changed
          */
-        $scope.$on('navbar.changed', function (event, navbarDao) {
-            oNavbarDao = navbarDao;
+        $scope.$on('navbar.changed', function (event, navbarVo) {
+            oNavbarVo = navbarVo;
             changeLocation();
         });
 
@@ -44,13 +44,13 @@ pinpointApp.controller('InspectorCtrl', [ '$scope', '$timeout', '$routeParams', 
          */
         $scope.$on('agentList.agentChanged', function (event, agent) {
             oAgent = agent;
-            oNavbarDao.setAgentId(agent.agentId);
+            oNavbarVo.setAgentId(agent.agentId);
 
             if (isLocationChanged()) {
                 changeLocation();
             }
             if (oAgent) {
-                $scope.$emit('agentInfo.initialize', oNavbarDao, oAgent);
+                $scope.$emit('agentInfo.initialize', oNavbarVo, oAgent);
             }
         });
 
@@ -78,9 +78,9 @@ pinpointApp.controller('InspectorCtrl', [ '$scope', '$timeout', '$routeParams', 
          * @returns {string}
          */
         getLocation = function () {
-            var url = '/' + getFirstPathOfLocation() + '/' + oNavbarDao.getApplication() + '/' + oNavbarDao.getPeriod() + '/' + oNavbarDao.getQueryEndTime();
-            if (oNavbarDao.getAgentId()) {
-                url += '/' + oNavbarDao.getAgentId();
+            var url = '/' + getFirstPathOfLocation() + '/' + oNavbarVo.getApplication() + '/' + oNavbarVo.getPeriod() + '/' + oNavbarVo.getQueryEndTime();
+            if (oNavbarVo.getAgentId()) {
+                url += '/' + oNavbarVo.getAgentId();
             }
             return url;
         };
