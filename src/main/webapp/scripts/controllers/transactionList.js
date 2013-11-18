@@ -34,7 +34,6 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
 //        htTransactions = opener[$window.name];
             oTransactionDao.getDataByName($window.name, function (data) {
                 htTransactions = data;
-                console.log('htTransactions', htTransactions);
                 oTimeSliderVo = new TimeSliderVo();
                 oTimeSliderVo.setTotal(htTransactions.aTraces.length);
 

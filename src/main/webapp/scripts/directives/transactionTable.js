@@ -27,6 +27,12 @@ pinpointApp.directive('transactionTable', ['$window', function ($window) {
              * @param transactionList
              */
             appendTransactionList = function (transactionList) {
+                if (scope.transactionList.length > 0) {
+                    scope.transactionOrderBy = 'index';
+                    scope.transactionReverse = false;
+                    element.find('table tbody tr:last-child')[0].scrollIntoView(true);
+//                    $(".transaction-table_wrapper").animate({ scrollTop: element.find('table tbody tr:last-child').offset().top }, 500);
+                }
                 scope.transactionList = scope.transactionList.concat(transactionList);
                 resetIndexToTransactionList();
             };
@@ -61,15 +67,6 @@ pinpointApp.directive('transactionTable', ['$window', function ($window) {
             scope.traceBySequence = function (transaction) {
                 scope.currentTransaction = transaction;
                 scope.$emit('transactionTable.sequenceSelected', transaction);
-            };
-
-            /**
-             * scope trace remote addr
-             * @param transaction
-             */
-            scope.traceRemoteAddr = function (transaction) {
-                console.log('traceRemoteAddr', transaction);
-                alert('not implemented. ip정보 조회 페이지로 연결.');
             };
 
             /**
