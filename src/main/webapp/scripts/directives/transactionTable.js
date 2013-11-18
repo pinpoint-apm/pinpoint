@@ -28,7 +28,7 @@ pinpointApp.directive('transactionTable', ['$window', function ($window) {
              */
             appendTransactionList = function (transactionList) {
                 if (scope.transactionList.length > 0) {
-                    scope.transactionOrderBy = 'index';
+                    scope.transactionOrderBy = '';
                     scope.transactionReverse = false;
                     element.find('table tbody tr:last-child')[0].scrollIntoView(true);
 //                    $(".transaction-table_wrapper").animate({ scrollTop: element.find('table tbody tr:last-child').offset().top }, 500);
