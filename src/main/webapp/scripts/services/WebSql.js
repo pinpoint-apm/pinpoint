@@ -5,15 +5,18 @@ pinpointApp.service('WebSql', [ '$window', '$timeout', 'WebSqlMigrator', functio
     var oDb;
 
     $timeout(function () {
-        oDb = $window.openDatabase('pinpoint', '', 'PinPoint', 1024 * 1024 * 1024); // 1GB
+        try {
+            oDb = $window.openDatabase('pinpoint', '', 'PinPoint', 1024 * 1024 * 1024); // 1GB
 
-        oWebSqlMigrator.migration(1, function (oTx) {
-            oTx.executeSql('CREATE TABLE IF NOT EXISTS transactionData (ID INTEGER PRIMARY KEY ASC, name TEXT, data TEXT, add_date DATETIME)');
-        });
+            oWebSqlMigrator.migration(1, function (oTx) {
+                oTx.executeSql('CREATE TABLE IF NOT EXISTS transactionData (ID INTEGER PRIMARY KEY ASC, name TEXT, data TEXT, add_date DATETIME)');
+            });
 
-        oWebSqlMigrator.doIt(oDb);
+            oWebSqlMigrator.doIt(oDb);
+        } catch (e) {
+            console.log('Web Sql Database is not supported.');
+        }
     });
-
 
     this.getDb = function () {
         return oDb;

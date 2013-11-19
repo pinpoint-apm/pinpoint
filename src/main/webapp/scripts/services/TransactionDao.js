@@ -7,16 +7,21 @@ pinpointApp.service('TransactionDao', [ '$timeout', 'WebSql', function Transacti
      * initialize
      */
     $timeout(function () {
-        oWebSql.getDb().transaction(function (oTx) {
+        try {
+            oWebSql.getDb().transaction(function (oTx) {
 //            tx.executeSql('DROP TABLE IF EXISTS transactionData', [], function () {
 //                console.log('DROP ', arguments);
 //            });
 //            oTx.executeSql('CREATE TABLE IF NOT EXISTS transactionData (ID INTEGER PRIMARY KEY ASC, name TEXT, data TEXT, add_date DATETIME)', [], function () {
 //            });
-            oTx.executeSql('DELETE TABLE FROM transaction WHERE add_date < datetime("now", "-12 hours")', [], function () {
-                console.log('The data of transaction before 12 hours has been deleted.');
-            })
-        });
+                oTx.executeSql('DELETE TABLE FROM transaction WHERE add_date < datetime("now", "-12 hours")', [], function () {
+                    console.log('The data of transaction before 12 hours has been deleted.');
+                })
+            });
+        } catch (e) {
+            console.log('WebSql doen\'t work');
+        }
+
     });
 
     this.addData = function (name, data, cb) {
