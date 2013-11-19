@@ -4,7 +4,7 @@
     left: 0;
     padding: 0;
     margin: 0 12px 0 0;
-    width: 188px;
+    width: 238px;
     height: 100%;
     border: 0;
     border-right: 1px solid #ddd;
@@ -15,9 +15,13 @@
 }
 
 .main-spy {
-    margin-left: 200px;
+    margin-left: 250px;
     height: 100%;
     overflow: auto;
+}
+
+.agent-list .searchbox {
+    width: 225px;
 }
 
 .agent-list .nav li > a:hover,
@@ -31,12 +35,17 @@
 }
 .agent-list .nav-list .nav-header {
     padding-left: 10px;
+    padding-right: 10px;
 }
 
 .agent-list .nav-list li > a,
 .agent-list .nav-list .nav-header {
     margin: 0;
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    -o-text-overow: ellipsis;
 }
 
 .agent-list .nav-list li > a {

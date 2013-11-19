@@ -15,12 +15,15 @@
 .nodeInfoDetails .info {
     position: fixed;
     width: 380px;
+    padding: 10px;
+    background: #fff;
 }
 
 .nodeInfoDetails .alert {
     line-height: 25px;
+    margin-bottom: 0;
 }
 
 .nodeInfoDetails .contents {
-    padding-top: 48px;
+    padding: 65px 15px 30px;
 }

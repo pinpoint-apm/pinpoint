@@ -15,12 +15,15 @@
 .linkInfoDetails .info {
     position: fixed;
     width: 380px;
+    padding: 10px;
+    background: #fff;
 }
 
 .linkInfoDetails .alert {
     line-height: 25px;
+    margin-bottom: 0;
 }
 
 .linkInfoDetails .contents {
-    padding-top: 48px;
+    padding: 65px 15px 30px;
 }
