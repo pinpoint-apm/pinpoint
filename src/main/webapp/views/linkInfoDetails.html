@@ -21,15 +21,15 @@
                 <img ng-src="/images/icons/{{sourceinfo[0].serviceType | icons}}.png" width="20" height="10" /> {{sourceinfo[0].applicationName}}
                 <i class="icon-arrow-right"></i>
                 <img ng-src="/images/icons/{{target.serviceType | icons}}.png" width="20" height="10" /> {{target.applicationName}}
-                <a class="btn btn-mini" href ng-click="showDetailInformation(target.applicationName)" title="Show Link Information">
-                    <i class="icon-tasks"></i>
-                </a>
-                <a class="btn btn-mini" href ng-click="passingTransactionMap(sourceinfo[0].serviceType, sourceinfo[0].applicationName, target.serviceType, target.applicationName)" title="filter transaction">
-                    <i class="icon-filter"></i>
-                </a>
                 <br>
-                <div class="summaryCharts_{{target.sequence}}">
-                    <svg style='height:120px' />
+                <div class="summaryCharts_{{target.sequence}}" style="position: relative;">
+                    <svg style='height:120px;width:350px;' />
+                    <a class="btn btn-mini" href ng-click="showDetailInformation(target.applicationName)" title="Show Link Information" style="position: absolute;top: 20px; right:0;">
+                        <i class="icon-tasks"></i>
+                    </a>
+                    <a class="btn btn-mini" href ng-click="passingTransactionMap(sourceinfo[0].serviceType, sourceinfo[0].applicationName, target.serviceType, target.applicationName)" title="filter transaction"  style="position: absolute;top: 50px; right:0;">
+                        <i class="icon-filter"></i>
+                    </a>
                 </div>
             </li>
         </ul>
