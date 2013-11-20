@@ -17,6 +17,7 @@
     width: 380px;
     padding: 10px;
     background: #fff;
+    z-index: 1;
 }
 
 .linkInfoDetails .alert {
