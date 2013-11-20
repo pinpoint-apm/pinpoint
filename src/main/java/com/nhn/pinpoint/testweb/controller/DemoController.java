@@ -49,20 +49,6 @@ public class DemoController implements DisposableBean {
 	private CubridService cubridService;
 
 	/**
-	 * FULL SET
-	 * 
-	 * @return
-	 */
-	@RequestMapping(value = "/demo")
-	public String demo() {
-		callBackend1();
-		callBackend2();
-		memcached();
-		naver();
-		return "demo";
-	}
-
-	/**
 	 * FRONT -> BACKEND1 -> CUBRID & MYSQL
 	 * 
 	 * @return
