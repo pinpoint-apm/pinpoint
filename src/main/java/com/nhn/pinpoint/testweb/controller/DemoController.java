@@ -48,16 +48,69 @@ public class DemoController implements DisposableBean {
 	@Autowired
 	private CubridService cubridService;
 
+	/**
+	 * FULL SET
+	 * 
+	 * @return
+	 */
 	@RequestMapping(value = "/demo")
 	public String demo() {
 		callBackend1();
 		callBackend2();
+		memcached();
+		naver();
+		return "demo";
+	}
+
+	/**
+	 * FRONT -> BACKEND1 -> CUBRID & MYSQL
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/demo1")
+	public String demo1() {
+		callBackend1();
+		return "demo";
+	}
+
+	/**
+	 * FRONT -> BACKEND1 -> ARCUS & MYSQL
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/demo2")
+	public String demo2() {
+		callBackend2();
+		return "demo";
+	}
+
+	/**
+	 * FRONT -> MEMCACHED & NAVER
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/demo3")
+	public String demo3() {
+		memcached();
+		naver();
+		return "demo";
+	}
+
+	/**
+	 * BACKEND -> MYSQL
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/demo4")
+	public String demo4() {
+		mysql();
 		return "demo";
 	}
 
 	@RequestMapping(value = "/backend1")
 	public String backend1() {
 		arcus();
+		randomSlowMethod();
 		mysql();
 		return "demo";
 	}
@@ -65,6 +118,7 @@ public class DemoController implements DisposableBean {
 	@RequestMapping(value = "/backend2")
 	public String backend2() {
 		mysql();
+		randomSlowMethod();
 		cubrid();
 		return "demo";
 	}
@@ -118,6 +172,17 @@ public class DemoController implements DisposableBean {
 	private void naver() {
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
 		client.execute("http://www.naver.com/", new HashMap<String, Object>());
+	}
+
+	/**
+	 * sleep 100 ~ 1000ms
+	 */
+	private void randomSlowMethod() {
+		try {
+			Thread.sleep(((new Random().nextInt(900)) + 100) * 10L);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
