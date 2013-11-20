@@ -67,7 +67,7 @@ public class DemoController implements DisposableBean {
 	 * 
 	 * @return
 	 */
-	@RequestMapping(value = "/demo1")
+	@RequestMapping(value = "/netspider")
 	public String demo1() {
 		callBackend1();
 		return "demo";
@@ -78,7 +78,7 @@ public class DemoController implements DisposableBean {
 	 * 
 	 * @return
 	 */
-	@RequestMapping(value = "/demo2")
+	@RequestMapping(value = "/emeroad")
 	public String demo2() {
 		callBackend2();
 		return "demo";
@@ -89,7 +89,7 @@ public class DemoController implements DisposableBean {
 	 * 
 	 * @return
 	 */
-	@RequestMapping(value = "/demo3")
+	@RequestMapping(value = "/harebox")
 	public String demo3() {
 		memcached();
 		naver();
@@ -101,7 +101,7 @@ public class DemoController implements DisposableBean {
 	 * 
 	 * @return
 	 */
-	@RequestMapping(value = "/demo4")
+	@RequestMapping(value = "/denny")
 	public String demo4() {
 		mysql();
 		return "demo";
