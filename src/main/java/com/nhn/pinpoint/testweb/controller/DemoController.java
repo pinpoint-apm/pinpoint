@@ -90,13 +90,13 @@ public class DemoController implements DisposableBean {
 	@RequestMapping(value = "/denny")
 	public String demo4() {
 		mysql();
+		randomSlowMethod();
 		return "demo";
 	}
 
 	@RequestMapping(value = "/backend1")
 	public String backend1() {
 		arcus();
-		randomSlowMethod();
 		mysql();
 		return "demo";
 	}
@@ -104,7 +104,6 @@ public class DemoController implements DisposableBean {
 	@RequestMapping(value = "/backend2")
 	public String backend2() {
 		mysql();
-		randomSlowMethod();
 		cubrid();
 		return "demo";
 	}
