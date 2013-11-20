@@ -52,8 +52,6 @@ public class DemoController implements DisposableBean {
 	public String demo() {
 		callBackend1();
 		callBackend2();
-		memcached();
-		naver();
 		return "demo";
 	}
 
