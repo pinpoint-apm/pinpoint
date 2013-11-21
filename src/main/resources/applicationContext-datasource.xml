@@ -24,7 +24,7 @@
         <!--<property name="username" value="root"/>-->
         <!--<property name="password" value="skdnsnfl"/>-->
 
-        <property name="url" value="jdbc:mysql://10.25.149.61:3306/pinpoint?characterEncoding=UTF-8"/>
+        <property name="url" value="jdbc:mysql://10.25.149.61:3306/MySQL?characterEncoding=UTF-8"/>
         <property name="username" value="pinpoint"/>
         <property name="password" value="nhn!@#123"/>
 
