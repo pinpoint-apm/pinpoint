@@ -55,6 +55,7 @@ public class DemoController implements DisposableBean {
 	 */
 	@RequestMapping(value = "/netspider")
 	public String demo1() {
+		randomSlowMethod();
 		callBackend1();
 		return "demo";
 	}
