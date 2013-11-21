@@ -165,7 +165,7 @@ public class DemoController implements DisposableBean {
 	 */
 	private void randomSlowMethod() {
 		try {
-			Thread.sleep(((new Random().nextInt(900)) + 100) * 10L);
+			Thread.sleep(((new Random().nextInt(90)) + 10) * 10L);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
