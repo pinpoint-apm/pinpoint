@@ -728,6 +728,10 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                     destApplicationName = destAppName || scope.destApplicationName,
                     prevFilter = scope.oNavbarVo.getFilter();
 
+                if (srcApplicationName !== 'USER') {
+                    application = srcApplicationName + '@1010';
+                }
+
                 var newFilter = ((prevFilter) ? prevFilter + cfg.FILTER_DELIMETER : "")
                     + srcServiceType + cfg.FILTER_ENTRY_DELIMETER
                     + srcApplicationName + cfg.FILTER_ENTRY_DELIMETER
