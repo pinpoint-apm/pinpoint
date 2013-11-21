@@ -67,6 +67,7 @@ public class DemoController implements DisposableBean {
 	 */
 	@RequestMapping(value = "/emeroad")
 	public String demo2() {
+		randomSlowMethod();
 		callBackend2();
 		return "demo";
 	}
