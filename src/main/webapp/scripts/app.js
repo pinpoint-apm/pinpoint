@@ -34,6 +34,10 @@ pinpointApp.config(['$routeProvider', '$locationProvider', function ($routeProvi
     });
 }]);
 
-pinpointApp.run(function () {
-//    console.log('run');
-});
+pinpointApp.run([ '$timeout', function ($timeout) {
+    if (Modernizr.canvas === false) {
+        $timeout(function () {
+            $('#supported-browsers').modal();
+        });
+    }
+}]);
