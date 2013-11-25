@@ -33,3 +33,7 @@ pinpointApp.config(['$routeProvider', '$locationProvider', function ($routeProvi
         redirectTo: '/main'
     });
 }]);
+
+pinpointApp.run(function () {
+//    console.log('run');
+});

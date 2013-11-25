@@ -1,6 +1,6 @@
 'use strict';
 
-pinpointApp.controller('MainCtrl', [ '$scope', '$timeout', '$routeParams', '$location', 'NavbarVo', function ($scope, $timeout, $routeParams, $location, NavbarVo) {
+pinpointApp.controller('MainCtrl', [ '$scope', '$timeout', '$routeParams', 'location', 'NavbarVo', function ($scope, $timeout, $routeParams, location, NavbarVo) {
 
     // define private variables
     var oNavbarVo;
@@ -33,7 +33,7 @@ pinpointApp.controller('MainCtrl', [ '$scope', '$timeout', '$routeParams', '$loc
      * @returns {*|string}
      */
     getFirstPathOfLocation = function () {
-        var splitedPath = $location.path().split('/');
+        var splitedPath = location.path().split('/');
         return splitedPath[1] || 'main';
     };
 
@@ -42,11 +42,8 @@ pinpointApp.controller('MainCtrl', [ '$scope', '$timeout', '$routeParams', '$loc
      */
     changeLocation = function () {
         var url = '/' + getFirstPathOfLocation() + '/' + oNavbarVo.getApplication() + '/' + oNavbarVo.getPeriod() + '/' + oNavbarVo.getQueryEndTime();
-        if ($location.path() !== url) {
-            $location.path(url);
-            if (!$scope.$$phase) {
-                $scope.$apply();
-            }
+        if (location.path() !== url) {
+            location.skipReload().path(url).replace();
         }
     };
 
@@ -56,6 +53,8 @@ pinpointApp.controller('MainCtrl', [ '$scope', '$timeout', '$routeParams', '$loc
     $scope.$on('navbar.changed', function (event, navbarVo) {
         oNavbarVo = navbarVo;
         changeLocation(oNavbarVo);
+        $scope.$emit('scatter.initialize', oNavbarVo);
+        $scope.$emit('serverMap.initialize', oNavbarVo);
     });
 
     /**

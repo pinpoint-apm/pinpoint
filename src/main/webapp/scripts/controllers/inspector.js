@@ -1,7 +1,7 @@
 'use strict';
 
-pinpointApp.controller('InspectorCtrl', [ '$scope', '$timeout', '$routeParams', '$location', 'NavbarVo',
-    function ($scope, $timeout, $routeParams, $location, NavbarVo) {
+pinpointApp.controller('InspectorCtrl', [ '$scope', '$timeout', '$routeParams', 'location', 'NavbarVo',
+    function ($scope, $timeout, $routeParams, location, NavbarVo) {
 
         // define private variables
         var oNavbarVo, oAgent;
@@ -59,7 +59,7 @@ pinpointApp.controller('InspectorCtrl', [ '$scope', '$timeout', '$routeParams', 
          * @returns {*|string}
          */
         getFirstPathOfLocation = function () {
-            var splitedPath = $location.path().split('/');
+            var splitedPath = location.path().split('/');
             return splitedPath[1] || 'spy';
         };
 
@@ -69,7 +69,9 @@ pinpointApp.controller('InspectorCtrl', [ '$scope', '$timeout', '$routeParams', 
         changeLocation = function () {
             var url = getLocation();
             if (isLocationChanged()) {
-                $location.path(url);
+                location.skipReload().path(url).replace();
+                $scope.$emit('navbar.initializeWithStaticApplication', oNavbarVo);
+                $scope.$emit('agentList.initialize', oNavbarVo);
             }
         };
 
@@ -91,7 +93,7 @@ pinpointApp.controller('InspectorCtrl', [ '$scope', '$timeout', '$routeParams', 
          */
         isLocationChanged = function () {
             var url = getLocation();
-            if ($location.path() !== url) {
+            if (location.path() !== url) {
                 return true;
             }
             return false;
