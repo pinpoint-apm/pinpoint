@@ -275,6 +275,7 @@
                     // curve: go.Link.Bezier
                 },
                 htLinkTheme = this.option("htLinkTheme"),
+                sImageDir = this.option('sImageDir'),
                 htDefault = htLinkTheme.default;
 
             var getLinkTemplate = function (htOption) {
@@ -320,16 +321,34 @@
                             }
                         ),
                         self.$(
-                            go.TextBlock,  // the label
+                            go.Panel,
+                            go.Panel.Horizontal,
                             {
-                                textAlign: htOption.fontAlign,
-                                font: htOption.fontFamily,
-                                stroke: htOption.fontColor,
-                                margin: htOption.margin
+                                margin: 4
                             },
-                            new go.Binding("text", "text",  function (val) {
-                                return Number(val, 10).toLocaleString();
-                            })
+                            self.$(
+                                go.Picture,
+                                {
+                                    source: sImageDir + 'filter.png',
+                                    width: 10,
+                                    height: 10,
+                                    margin: 1,
+                                    imageStretch: go.GraphObject.Uniform
+                                },
+                                new go.Binding("visible", "isFiltered")
+                            ),
+                            self.$(
+                                go.TextBlock,  // the label
+                                {
+                                    textAlign: htOption.fontAlign,
+                                    font: htOption.fontFamily,
+                                    stroke: htOption.fontColor,
+                                    margin: htOption.margin
+                                },
+                                new go.Binding("text", "text",  function (val) {
+                                    return Number(val, 10).toLocaleString();
+                                })
+                            )
                         )
                     )
                 );

@@ -14,7 +14,7 @@ pinpointApp.config(['$routeProvider', '$locationProvider', function ($routeProvi
     }).when('/filteredMap/:application/:period/:queryEndTime/:filter', {
         templateUrl: 'views/filteredMap.html',
         controller: 'FilteredMapCtrl'
-    }).when('/inspector/:application/:period/:queryEndTime', {
+    }).when('/inspecator/:pplication/:period/:queryEndTime', {
         templateUrl: 'views/inspector.html',
         controller: 'InspectorCtrl'
     }).when('/inspector/:application/:period/:queryEndTime/:agentId', {
