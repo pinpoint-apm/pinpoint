@@ -176,7 +176,11 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
          */
         findNodeKeyByText = function (text, mapData) {
           var result = _.findWhere(mapData.applicationMapData.nodeDataArray, {text: text});
-          return result.key || false;
+          if (angular.isDefined(result)) {
+            return result.key;
+          } else {
+            return false;
+          }
         };
 
         /**
@@ -784,7 +788,9 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
             destApplicationName = destAppName || scope.destApplicationName,
             prevFilter = scope.oNavbarVo.getFilter();
 
-          if (srcApplicationName !== 'USER') {
+          if (srcApplicationName === 'USER' || srcApplicationName === 'CLIENT') {
+            application = destApplicationName + '@1010';
+          } else {
             application = srcApplicationName + '@1010';
           }
 

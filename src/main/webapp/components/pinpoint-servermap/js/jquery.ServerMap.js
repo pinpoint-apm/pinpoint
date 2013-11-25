@@ -333,6 +333,7 @@
                                     width: 10,
                                     height: 10,
                                     margin: 1,
+                                    visible: false,
                                     imageStretch: go.GraphObject.Uniform
                                 },
                                 new go.Binding("visible", "isFiltered")
