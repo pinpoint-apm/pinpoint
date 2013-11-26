@@ -311,7 +311,8 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
     }
 
     private int getHistogramSlot(SpanBo span, ServiceType serviceType) {
-        return getHistogramSlot(span.hasException(), span.getElapsed(), serviceType);
+        boolean allException = span.getErrCode() != 0;
+        return getHistogramSlot(allException, span.getElapsed(), serviceType);
     }
 
     private int getHistogramSlot(boolean hasException, int elapsedTime, ServiceType serviceType) {

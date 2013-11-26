@@ -103,8 +103,7 @@ public class ApplicationMapLinkStatisticsMapper implements RowMapper<Map<Long, M
 		Map<Long, Map<Short, Long>> resultStat = new HashMap<Long, Map<Short, Long>>();
 
 		for (KeyValue kv : keyList) {
-			byte[] qualifier = kv.getQualifier();
-
+			final byte[] qualifier = kv.getQualifier();
 			String foundApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);
 			short foundServiceType = ApplicationMapStatisticsUtils.getDestServiceTypeFromColumnName(qualifier);
 
