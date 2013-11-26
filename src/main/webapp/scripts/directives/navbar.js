@@ -324,14 +324,20 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                     initializeWithStaticApplication(navbarVo);
                 });
 
+                scope.setPeriod = function (period) {
+                    console.log('setPeriod', period);
+                    scope.period = period;
+                    broadcast();
+                };
+
                 /**
                  * scope watch on period
                  */
-                scope.$watch('period', function (newValue, oldValue) {
-                    if (newValue && oldValue) {
-                        broadcast();
-                    }
-                });
+//                scope.$watch('period', function (newValue, oldValue) {
+//                    if (newValue && oldValue) {
+//                        broadcast();
+//                    }
+//                });
             }
         };
     } ]);

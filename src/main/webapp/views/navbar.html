@@ -20,28 +20,28 @@
                                 <input type="radio" ng-click="periodType = 'range'"><i class="icon-th-list icon-white"></i>
                             </label>
                             <label class="btn" ng-class="{'btn-info': period == 5}">
-                                <input type="radio" ng-click="period = 5">Last 5m
+                                <input type="radio" ng-click="setPeriod(5)">Last 5m
                             </label>
                             <label class="btn" ng-class="{'btn-info': period == 20}">
-                                <input type="radio" ng-click="period = 20">20m
+                                <input type="radio" ng-click="setPeriod(20)">20m
                             </label>
                             <label class="btn" ng-class="{'btn-info': period == 60}">
-                                <input type="radio" ng-click="period = 60">1h
+                                <input type="radio" ng-click="setPeriod(60)">1h
                             </label>
                             <label class="btn" ng-class="{'btn-info': period == 180}">
-                                <input type="radio" ng-click="period = 180">3h
+                                <input type="radio" ng-click="setPeriod(180)">3h
                             </label>
                             <label class="btn" ng-class="{'btn-info': period == 360}">
-                                <input type="radio" ng-click="period = 360">6h
+                                <input type="radio" ng-click="setPeriod(360)">6h
                             </label>
                             <label class="btn" ng-class="{'btn-info': period == 740}">
-                                <input type="radio" ng-click="period = 740">12h
+                                <input type="radio" ng-click="setPeriod(740)">12h
                             </label>
                             <label class="btn" ng-class="{'btn-info': period == 1440}">
-                                <input type="radio" ng-click="period = 1440">1d
+                                <input type="radio" ng-click="setPeriod(1440)">1d
                             </label>
                             <label class="btn" ng-class="{'btn-info': period == 2880}">
-                                <input type="radio" ng-click="period = 2880">2d
+                                <input type="radio" ng-click="setPeriod(2880)">2d
                             </label>
                         </div>
                         <div ng-show="periodType == 'range'" class="datetimepicker input-prepend input-append date">
