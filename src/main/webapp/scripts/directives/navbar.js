@@ -325,7 +325,6 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                 });
 
                 scope.setPeriod = function (period) {
-                    console.log('setPeriod', period);
                     scope.period = period;
                     broadcast();
                 };
