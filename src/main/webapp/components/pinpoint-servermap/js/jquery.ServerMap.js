@@ -330,8 +330,8 @@
                                 go.Picture,
                                 {
                                     source: sImageDir + 'filter.png',
-                                    width: 10,
-                                    height: 10,
+                                    width: 14,
+                                    height: 14,
                                     margin: 1,
                                     visible: false,
                                     imageStretch: go.GraphObject.Uniform
