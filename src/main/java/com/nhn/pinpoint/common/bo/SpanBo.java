@@ -92,17 +92,16 @@ public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
         
         this.remoteAddr = span.getRemoteAddr();
         
-		if (span.isSetErr()) {
-			this.hasException = true;
-			// FIXME span.errCode는 span과 spanEvent의 에러를 모두 포함한 값.
-			// exceptionInfo는 span자체의 에러정보이기 때문에 errCode가 0이 아니더라도 exceptionInfo는 null일 수 있음.
-			final TIntStringValue exceptionInfo = span.getExceptionInfo();
-			if (exceptionInfo != null) {
-				this.exceptionId = exceptionInfo.getIntValue();
-				this.exceptionMessage = exceptionInfo.getStringValue();
-			}
-		}
-        
+
+        // FIXME span.errCode는 span과 spanEvent의 에러를 모두 포함한 값.
+        // exceptionInfo는 span자체의 에러정보이기 때문에 errCode가 0이 아니더라도 exceptionInfo는 null일 수 있음.
+        final TIntStringValue exceptionInfo = span.getExceptionInfo();
+        if (exceptionInfo != null) {
+            this.hasException = true;
+            this.exceptionId = exceptionInfo.getIntValue();
+            this.exceptionMessage = exceptionInfo.getStringValue();
+        }
+
         setAnnotationList(span.getAnnotations());
     }
 
