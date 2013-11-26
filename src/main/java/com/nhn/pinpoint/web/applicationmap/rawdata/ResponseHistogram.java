@@ -50,7 +50,7 @@ public class ResponseHistogram implements JsonSerializable {
 
 		final int histogramSlotIndex = histogramSchema.getHistogramSlotIndex(slot);
 		if (histogramSlotIndex == -1) {
-			logger.debug("Can't find slot={} value={} serviceType={}", slot, value, serviceType);
+			logger.trace("Can't find slot={} value={} serviceType={}", slot, value, serviceType);
 			return;
 		}
 		values[histogramSlotIndex] += value;
