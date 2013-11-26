@@ -334,6 +334,20 @@ public class HelloWorldController implements DisposableBean {
 		client.execute("http://localhost:" + port + "/arcus.pinpoint", new HashMap<String, Object>());
 		return "remotecombination";
 	}
+	
+	@RequestMapping(value = "/remoteerror")
+	public String remoteError(Model model) {
+		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+		client.execute("http://localhost:10080/rpcerror.pinpoint", new HashMap<String, Object>());
+		return "remotecombination";
+	}
+
+	@RequestMapping(value = "/rpcerror")
+	public String rpcError(Model model) {
+		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+		client.execute("UNKNOWN_URL", new HashMap<String, Object>());
+		return "remotecombination";
+	}
 
 	@RequestMapping(value = "/npc")
 	public String npc(Model model) {
