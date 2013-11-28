@@ -469,17 +469,18 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
     public ResultScanner createDistributeScanner(HTableInterface htable, Scan originalScan, AbstractRowKeyDistributor rowKeyDistributor) throws IOException {
 
         Scan[] scans = rowKeyDistributor.getDistributedScans(originalScan);
-        for(int i = 0; i < scans.length; i++) {
+        final int length = scans.length;
+        for(int i = 0; i < length; i++) {
             Scan scan = scans[i];
             scan.setId(originalScan.getId() + "-" + i);
             // caching만 넣으면 되나?
             scan.setCaching(originalScan.getCaching());
         }
 
-        ResultScanner[] scanner = new ResultScanner[scans.length];
+        ResultScanner[] scanner = new ResultScanner[length];
         boolean success = false;
         try {
-            for (int i = 0; i < scans.length; i++) {
+            for (int i = 0; i < length; i++) {
                 scanner[i] = htable.getScanner(scans[i]);
             }
             success = true;

@@ -230,7 +230,8 @@ public class SqlParser {
     }
 
     private int readLine(String sql, StringBuilder normalized, int index) {
-        for (; index < sql.length(); index++) {
+        final int length = sql.length();
+        for (; index < length; index++) {
             char ch = sql.charAt(index);
             normalized.append(ch);
             if (ch == '\n') {
