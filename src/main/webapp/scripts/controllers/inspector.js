@@ -60,7 +60,7 @@ pinpointApp.controller('InspectorCtrl', [ '$scope', '$timeout', '$routeParams', 
          */
         getFirstPathOfLocation = function () {
             var splitedPath = location.path().split('/');
-            return splitedPath[1] || 'spy';
+            return splitedPath[1] || 'inspector';
         };
 
         /**
@@ -69,7 +69,11 @@ pinpointApp.controller('InspectorCtrl', [ '$scope', '$timeout', '$routeParams', 
         changeLocation = function () {
             var url = getLocation();
             if (isLocationChanged()) {
-                location.skipReload().path(url).replace();
+                if (location.path() === '/inspector') {
+
+                } else {
+                    location.skipReload().path(url).replace();
+                }
                 $scope.$emit('navbar.initializeWithStaticApplication', oNavbarVo);
                 $scope.$emit('agentList.initialize', oNavbarVo);
             }

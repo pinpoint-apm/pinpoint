@@ -43,7 +43,11 @@ pinpointApp.controller('MainCtrl', [ '$scope', '$timeout', '$routeParams', 'loca
     changeLocation = function () {
         var url = '/' + getFirstPathOfLocation() + '/' + oNavbarVo.getApplication() + '/' + oNavbarVo.getPeriod() + '/' + oNavbarVo.getQueryEndTime();
         if (location.path() !== url) {
-            location.skipReload().path(url).replace();
+            if (location.path() === '/main') {
+                location.path(url).replace();
+            } else {
+                location.skipReload().path(url).replace();
+            }
         }
     };
 
