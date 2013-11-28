@@ -449,10 +449,13 @@ var BigScatterChart = $.Class({
             );
             // do after image loading
             setTimeout(function () {
-                var htTypeUlOffset = self._welTypeUl.offset(),
-                    htOverlayOffset = self._welOverlay.offset(),
-                    nLeftGap = htTypeUlOffset.left - htOverlayOffset.left;
-                self._welTitle.width(nLeftGap - 5)
+                try {
+                    var htTypeUlOffset = self._welTypeUl.offset(),
+                        htOverlayOffset = self._welOverlay.offset(),
+                        nLeftGap = htTypeUlOffset.left - htOverlayOffset.left;
+                    self._welTitle.width(nLeftGap - 5);
+                } catch (e) {
+                }
             }, 1000);
         }
 
@@ -1206,7 +1209,10 @@ var BigScatterChart = $.Class({
     },
 
     _hideNoData: function () {
-        this._welShowNoData.hide();
+        try {
+            this._welShowNoData.hide();
+        } catch (e) {
+        }
     },
 
     _showNoData: function () {

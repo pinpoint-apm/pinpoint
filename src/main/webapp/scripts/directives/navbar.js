@@ -24,6 +24,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                     initializeWithStaticApplication, getPeriodType, setPeriodTypeAsCurrent;
 
                 scope.showNavbar = false;
+                scope.periodDelay = false;
 
                 element.bind('selectstart', function (e) {
                     return false;
@@ -324,19 +325,21 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                     initializeWithStaticApplication(navbarVo);
                 });
 
+                /**
+                 * set period
+                 * @param period
+                 */
                 scope.setPeriod = function (period) {
+                    scope.periodDelay = true;
                     scope.period = period;
                     broadcast();
+                    $timeout(function () {
+                        scope.periodDelay = false;
+                        if (!scope.$$phase) {
+                            scope.$digest();
+                        }
+                    }, 1000);
                 };
-
-                /**
-                 * scope watch on period
-                 */
-//                scope.$watch('period', function (newValue, oldValue) {
-//                    if (newValue && oldValue) {
-//                        broadcast();
-//                    }
-//                });
             }
         };
     } ]);
