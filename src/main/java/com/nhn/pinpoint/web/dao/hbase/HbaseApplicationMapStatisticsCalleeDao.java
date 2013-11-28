@@ -48,6 +48,10 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
 		Scan scan = createScan(callerApplicationName, callerServiceType, from, to);
 		final List<List<TransactionFlowStatistics>> foundListList = hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLEE, scan, applicationMapStatisticsCalleeMapper);
 
+		if (foundListList.isEmpty()) {
+			logger.debug("There's no callee data. {}, {}, {}, {}", callerApplicationName, callerServiceType, from, to);
+		}
+		
         return merge(foundListList);
 	}
 

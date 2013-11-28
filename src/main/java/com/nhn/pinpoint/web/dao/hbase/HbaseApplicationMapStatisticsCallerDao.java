@@ -50,6 +50,10 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
 		Scan scan = createScan(calleeApplicationName, calleeServiceType, from, to);
 		final List<List<TransactionFlowStatistics>> foundListList = hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLER, scan, applicationMapStatisticsCallerMapper);
 
+		if (foundListList.isEmpty()) {
+			logger.debug("There's no caller data. {}, {}, {}, {}", calleeApplicationName, calleeServiceType, from, to);
+		}
+		
         return merge(foundListList);
 	}
 

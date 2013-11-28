@@ -58,7 +58,7 @@ public class ApplicationMapStatisticsCalleeMapper implements RowMapper<List<Tran
 
 
 			if (logger.isDebugEnabled()) {
-			    logger.debug("    Fetched. {}[{}] -> {}[{}] ({})", callerApplicationName, ServiceType.findServiceType(callerServiceType), calleeApplicationName, ServiceType.findServiceType(calleeServiceType), requestCount);
+			    logger.debug("    Fetched Callee. {}[{}] -> {}[{}] ({})", callerApplicationName, ServiceType.findServiceType(callerServiceType), calleeApplicationName, ServiceType.findServiceType(calleeServiceType), requestCount);
             }
 			
             final String id = callerApplicationName + callerServiceType + calleeApplicationName + calleeServiceType;

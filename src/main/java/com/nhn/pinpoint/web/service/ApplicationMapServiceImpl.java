@@ -84,7 +84,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		}
 		calleeFoundApplications.add(key);
         if (logger.isDebugEnabled()) {
-		    logger.debug("Find Callee. caller={}, serviceType={}", callerApplicationName, ServiceType.findServiceType(callerServiceType));
+		    logger.debug("Finding Callee. caller={}, serviceType={}", callerApplicationName, ServiceType.findServiceType(callerServiceType));
         }
 
 		final Set<TransactionFlowStatistics> calleeSet = new HashSet<TransactionFlowStatistics>();
@@ -92,7 +92,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		List<TransactionFlowStatistics> callee = applicationMapStatisticsCalleeDao.selectCallee(callerApplicationName, callerServiceType, from, to);
 
         if (logger.isDebugEnabled()) {
-		    logger.debug("     Found Callee. count={}, caller={}", callee.size(), callerApplicationName);
+		    logger.debug("Found Callee. count={}, caller={}", callee.size(), callerApplicationName);
         }
 
 		for (TransactionFlowStatistics stat : callee) {
@@ -144,14 +144,14 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		}
 		callerFoundApplications.add(key);
         if (logger.isDebugEnabled()) {
-		    logger.debug("Find Caller. callee={}, serviceType={}" , calleeApplicationName, ServiceType.findServiceType(calleeServiceType));
+		    logger.debug("Finding Caller. callee={}, serviceType={}" , calleeApplicationName, ServiceType.findServiceType(calleeServiceType));
         }
 
 		final Set<TransactionFlowStatistics> callerSet = new HashSet<TransactionFlowStatistics>();
 
 		final List<TransactionFlowStatistics> caller = applicationMapStatisticsCallerDao.selectCaller(calleeApplicationName, calleeServiceType, from, to);
 
-		logger.debug("     Found Caller. count={}, callee={}", caller.size(), calleeApplicationName);
+		logger.debug("Found Caller. count={}, callee={}", caller.size(), calleeApplicationName);
 
 		for (TransactionFlowStatistics stat : caller) {
 			fillAdditionalInfo(stat, from, to);
@@ -207,7 +207,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		// destination이 WAS이고 agent가 설치되어있으면 agentSet이 존재한다.
 		stat.addToAgentSet(agentSet);
 
-		logger.debug("fill agent info. {}, {}", stat.getTo(), agentSet);
+		logger.debug("Fill agent info. {}, {}", stat.getTo(), agentSet);
 	}
 
 	/**
@@ -228,12 +228,14 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		final Set<Node> calleeFoundApplications = new HashSet<Node>();
 
 		Set<TransactionFlowStatistics> callee = selectCallee(applicationName, serviceType, from, to, calleeFoundApplications, callerFoundApplications);
+		logger.debug("Result of finding callee {}", callee);
+		
 		Set<TransactionFlowStatistics> caller = selectCaller(applicationName, serviceType, from, to, calleeFoundApplications, callerFoundApplications);
+		logger.debug("Result of finding caller {}", caller);
 
 		Set<TransactionFlowStatistics> data = new HashSet<TransactionFlowStatistics>(callee.size() + caller.size());
 		data.addAll(callee);
 		data.addAll(caller);
-
 
 		ApplicationMap map = new ApplicationMapBuilder().build(data);
 
