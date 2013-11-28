@@ -13,6 +13,7 @@ public class WriteFailFutureListener implements FutureListener {
     private final String message;
     private final String host;
     private final String port;
+    private final boolean isWarn;
 
 
     public WriteFailFutureListener(Logger logger, String message, String host, int port) {
@@ -23,12 +24,15 @@ public class WriteFailFutureListener implements FutureListener {
         this.message = message;
         this.host = host;
         this.port = String.valueOf(port);
+        this.isWarn = logger.isWarnEnabled();
     }
 
     @Override
     public void onComplete(Future future) {
         if (!future.isSuccess()) {
-            logger.warn("{} {}/{}", message, host, port);
+            if (isWarn) {
+                logger.warn("{} {}/{}", message, host, port);
+            }
         }
     }
 }
