@@ -153,7 +153,11 @@ public class DemoController implements DisposableBean {
 	}
 
 	private void cubrid() {
-		cubridService.createStatement();
+		if (new Random().nextBoolean()) {
+			cubridService.createStatement();
+		} else {
+			cubridService.createErrorStatement();
+		}
 	}
 
 	private void naver() {
