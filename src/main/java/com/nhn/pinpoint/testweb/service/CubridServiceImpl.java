@@ -24,4 +24,9 @@ public class CubridServiceImpl implements CubridService {
 	public void createStatement() {
 		cubridDao.createStatement();
 	}
+	
+	@Override
+	public void createErrorStatement() {
+		cubridDao.createErrorStatement();
+	}
 }

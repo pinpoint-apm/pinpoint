@@ -9,4 +9,5 @@ public interface CubridService {
 
 	void createStatement();
 
+	void createErrorStatement();
 }

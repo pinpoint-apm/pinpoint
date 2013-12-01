@@ -7,4 +7,6 @@ public interface CubridDao {
     int selectOne();
 
     void createStatement();
+    
+    void createErrorStatement();
 }
