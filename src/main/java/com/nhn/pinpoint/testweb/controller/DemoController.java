@@ -153,10 +153,10 @@ public class DemoController implements DisposableBean {
 	}
 
 	private void cubrid() {
-		if (new Random().nextBoolean()) {
-			cubridService.createStatement();
-		} else {
+		if (new Random().nextInt(4) < 3) {
 			cubridService.createErrorStatement();
+		} else {
+			cubridService.createStatement();
 		}
 	}
 
