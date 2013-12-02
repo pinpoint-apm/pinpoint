@@ -353,7 +353,7 @@ class Inheritance{
 					return this.htOption[key] = value;
 				}
 				// get
-				if(typeof key === "string" && this.htOption[key]){
+				if(typeof key === "string" && typeof this.htOption[key] !== "undefined"){
 					return this.htOption[key];
 				}
 				// extend
