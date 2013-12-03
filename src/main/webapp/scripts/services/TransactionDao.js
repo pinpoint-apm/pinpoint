@@ -1,10 +1,9 @@
 'use strict';
 
 pinpointApp.service('TransactionDao', [ '$timeout', 'WebSql', 'IndexedDb', function Transactiondao ($timeout, oWebSql, oIndexedDb) {
-    // AngularJS will instantiate a singleton by calling "new" on this function
 
     /**
-     * initialize
+     * initialize, especially remove old transaction data
      */
     $timeout(function () {
         if (oIndexedDb.isAvailable()) {
@@ -23,6 +22,12 @@ pinpointApp.service('TransactionDao', [ '$timeout', 'WebSql', 'IndexedDb', funct
         }
     });
 
+    /**
+     * add data
+     * @param name
+     * @param data
+     * @param cb
+     */
     this.addData = function (name, data, cb) {
         if (oIndexedDb.isAvailable()) {
             oIndexedDb.addData('transactionData', {
@@ -36,6 +41,11 @@ pinpointApp.service('TransactionDao', [ '$timeout', 'WebSql', 'IndexedDb', funct
 
     };
 
+    /**
+     * get data by name
+     * @param name
+     * @param cb
+     */
     this.getDataByName = function (name, cb) {
         if (oIndexedDb.isAvailable()) {
             oIndexedDb.getData('transactionData', 'name', name, function (err, results) {

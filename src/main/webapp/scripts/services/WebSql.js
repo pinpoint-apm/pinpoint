@@ -1,9 +1,13 @@
 'use strict';
 
 pinpointApp.service('WebSql', [ '$window', '$timeout', 'WebSqlMigrator', function WebSql($window, $timeout, oWebSqlMigrator) {
-    // AngularJS will instantiate a singleton by calling "new" on this function
+
+    // define private variables
     var oDb;
 
+    /**
+     * initiailize
+     */
     $timeout(function () {
         if (this.isAvailable()) {
             try {
@@ -20,10 +24,20 @@ pinpointApp.service('WebSql', [ '$window', '$timeout', 'WebSqlMigrator', functio
         }
     }.bind(this));
 
+    /**
+     * get db
+     * @returns {*}
+     */
     this.getDb = function () {
         return oDb;
     };
 
+    /**
+     * wxecute sql
+     * @param query
+     * @param params
+     * @param cb
+     */
     this.executeSql = function (query, params, cb) {
         oDb.transaction(function (oTx) {
             oTx.executeSql(query, params, function (tx, results) {
@@ -34,6 +48,10 @@ pinpointApp.service('WebSql', [ '$window', '$timeout', 'WebSqlMigrator', functio
         });
     };
 
+    /**
+     * is available
+     * @returns {boolean}
+     */
     this.isAvailable = function () {
         return Modernizr.websqldatabase;
     };
