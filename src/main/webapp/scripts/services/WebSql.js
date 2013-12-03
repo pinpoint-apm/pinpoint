@@ -5,18 +5,20 @@ pinpointApp.service('WebSql', [ '$window', '$timeout', 'WebSqlMigrator', functio
     var oDb;
 
     $timeout(function () {
-        try {
-            oDb = $window.openDatabase('pinpoint', '', 'PinPoint', 1024 * 1024 * 1024); // 1GB
+        if (this.isAvailable()) {
+            try {
+                oDb = $window.openDatabase('pinpoint', '', 'PinPoint', 1024 * 1024 * 1024); // 1GB
 
-            oWebSqlMigrator.migration(1, function (oTx) {
-                oTx.executeSql('CREATE TABLE IF NOT EXISTS transactionData (ID INTEGER PRIMARY KEY ASC, name TEXT, data TEXT, add_date DATETIME)');
-            });
+                oWebSqlMigrator.migration(1, function (oTx) {
+                    oTx.executeSql('CREATE TABLE IF NOT EXISTS transactionData (ID INTEGER PRIMARY KEY ASC, name TEXT, data TEXT, add_date DATETIME)');
+                });
 
-            oWebSqlMigrator.doIt(oDb);
-        } catch (e) {
-            console.log('Web Sql Database is not supported.');
+                oWebSqlMigrator.doIt(oDb);
+            } catch (e) {
+                console.log('Web Sql Database is not supported.');
+            }
         }
-    });
+    }.bind(this));
 
     this.getDb = function () {
         return oDb;
@@ -28,8 +30,12 @@ pinpointApp.service('WebSql', [ '$window', '$timeout', 'WebSqlMigrator', functio
                 if (angular.isFunction(cb)) {
                     cb(results);
                 }
-            })
+            });
         });
+    };
+
+    this.isAvailable = function () {
+        return Modernizr.websqldatabase;
     };
 
 }]);
