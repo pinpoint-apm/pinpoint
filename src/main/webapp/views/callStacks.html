@@ -20,7 +20,7 @@
             	<i class="icon-fire" ng-show="stack[key.hasException]"></i>
 				{{stack[key.title]}}</td>
             <td class="arguments">{{stack[key.arguments]}}</td>
-            <td class="exectime"><span ng-show="stack[key.isMethod]">{{stack[key.begin] | datejs:'%H:%M:%S u'}}</span></td>
+            <td class="exectime"><span ng-show="stack[key.isMethod]">{{stack[key.begin] | date:'HH:mm:ss sss'}}</span></td>
             <td class="gap" style="text-align:right"><span ng-show="stack[key.isMethod]">{{stack[key.gap] | number}}</span></td>
             <td class="time" style="text-align:right"><span ng-show="stack[key.isMethod]">{{stack[key.elapsedTime]}}</span></td>
             <td class="bar"><div ng-show="stack[key.isMethod]" style="height:8px;background-color:#69B2E9;padding:0px;width:{{((stack[key.end] - stack[key.begin]) * barRatio) + 0.9}}px"></div></td>

@@ -57,7 +57,7 @@
                             {{transaction.index | number}}
                         </div>
                     </td>
-                    <td ng-click="traceByApplication(transaction)" style="cursor:pointer" sorttable_customkey="{{transaction.startTime}}">{{transaction.startTime | datejs:'%m/%d %H:%M:%S u'}}
+                    <td ng-click="traceByApplication(transaction)" style="cursor:pointer" sorttable_customkey="{{transaction.startTime}}">{{transaction.startTime | date:'MM/dd HH:mm:ss sss'}}
                     </td>
                     <td ng-click="traceByApplication(transaction)" style="cursor:pointer">
                         {{transaction.application}}
