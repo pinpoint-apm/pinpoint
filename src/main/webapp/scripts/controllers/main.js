@@ -48,6 +48,9 @@ pinpointApp.controller('MainCtrl', [ '$scope', '$timeout', '$routeParams', 'loca
             } else {
                 location.skipReload().path(url).replace();
             }
+            if (!$scope.$$phase) {
+                $scope.$apply();
+            }
         }
     };
 
