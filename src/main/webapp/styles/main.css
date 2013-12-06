@@ -124,3 +124,7 @@ canvas {outline:none}
 .servermap-status .controls .span2:first-child {
     margin-left: 0 !important;
 }
+
+.wait {
+    cursor: wait !important;
+}

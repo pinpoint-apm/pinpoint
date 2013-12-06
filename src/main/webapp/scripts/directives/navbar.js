@@ -350,6 +350,24 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                         }
                     }, 1000);
                 };
+
+                /**
+                 * get period class
+                 * @param period
+                 * @returns {string}
+                 */
+                scope.getPeriodClass = function (period) {
+                    var periodClass = '';
+                    if (scope.period === period) {
+                        periodClass += 'btn-info';
+                    }
+
+                    if (scope.periodDelay) {
+                        periodClass += ' wait';
+                    }
+
+                    return periodClass;
+                };
             }
         };
     } ]);

@@ -19,28 +19,28 @@
                             <label class="btn" ng-class="{'btn-success': periodType == 'last'}">
                                 <input type="radio" ng-click="periodType = 'range'"><i class="icon-th-list icon-white"></i>
                             </label>
-                            <label class="btn" ng-class="{'btn-info': period == 5}">
+                            <label class="btn" ng-class="getPeriodClass(5)">
                                 <input type="radio" ng-click="setPeriod(5)" ng-disabled="periodDelay">Last 5m
                             </label>
-                            <label class="btn" ng-class="{'btn-info': period == 20}">
+                            <label class="btn" ng-class="getPeriodClass(20)">
                                 <input type="radio" ng-click="setPeriod(20)" ng-disabled="periodDelay">20m
                             </label>
-                            <label class="btn" ng-class="{'btn-info': period == 60}">
+                            <label class="btn" ng-class="getPeriodClass(60)">
                                 <input type="radio" ng-click="setPeriod(60)" ng-disabled="periodDelay">1h
                             </label>
-                            <label class="btn" ng-class="{'btn-info': period == 180}">
+                            <label class="btn" ng-class="getPeriodClass(180)">
                                 <input type="radio" ng-click="setPeriod(180)" ng-disabled="periodDelay">3h
                             </label>
-                            <label class="btn" ng-class="{'btn-info': period == 360}">
+                            <label class="btn" ng-class="getPeriodClass(360)">
                                 <input type="radio" ng-click="setPeriod(360)" ng-disabled="periodDelay">6h
                             </label>
-                            <label class="btn" ng-class="{'btn-info': period == 740}">
+                            <label class="btn" ng-class="getPeriodClass(740)">
                                 <input type="radio" ng-click="setPeriod(740)" ng-disabled="periodDelay">12h
                             </label>
-                            <label class="btn" ng-class="{'btn-info': period == 1440}">
+                            <label class="btn" ng-class="getPeriodClass(1440)">
                                 <input type="radio" ng-click="setPeriod(1440)" ng-disabled="periodDelay">1d
                             </label>
-                            <label class="btn" ng-class="{'btn-info': period == 2880}">
+                            <label class="btn" ng-class="getPeriodClass(2880)">
                                 <input type="radio" ng-click="setPeriod(2880)" ng-disabled="periodDelay">2d
                             </label>
                         </div>
