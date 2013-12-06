@@ -29,6 +29,8 @@ public class DemoController implements DisposableBean {
 	 */
 	private static final String HTTP_URL_BACKEND_WEB1 = "http://dev-pinpoint-workload002.ncl:8080/backend1.pinpoint";
 
+	private static final String HTTP_URL_BACKEND_WEB11 = "http://dev-pinpoint-workload002.ncl:8080/backend11.pinpoint";
+
 	/**
 	 * dev-pinpoint-demo003.ncl
 	 */
@@ -110,9 +112,29 @@ public class DemoController implements DisposableBean {
 		return "demo";
 	}
 
+	@RequestMapping(value = "/threetier")
+	public String threetier() {
+		memcached();
+		callBackend11();
+		return "demo";
+	}
+
+	@RequestMapping(value = "/backend11")
+	public String backend11() {
+		arcus();
+		mysql();
+		callBackend2();
+		return "demo";
+	}
+
 	private void callBackend1() {
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
 		client.execute(HTTP_URL_BACKEND_WEB1, new HashMap<String, Object>());
+	}
+
+	private void callBackend11() {
+		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+		client.execute(HTTP_URL_BACKEND_WEB11, new HashMap<String, Object>());
 	}
 
 	private void callBackend2() {
