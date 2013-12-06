@@ -8,7 +8,7 @@ pinpointApp.directive('callStacks', [ function () {
         link: function postLink(scope, element, attrs) {
 
             // define private variables
-            var sLastAgent;
+            var sLastAgent, nLastExecTime;
 
             // define private variables of methods
             var initialize;
@@ -52,9 +52,15 @@ pinpointApp.directive('callStacks', [ function () {
                 }
                 if (angular.isDefined(stack[key.agent]) && stack[key.agent]) {
                     if (sLastAgent && sLastAgent !== stack[key.agent]) {
-                        trClass += ' agent-divider';
+                        if (stack[key.begin] - nLastExecTime > 500) {
+                            trClass += ' agent-divider-warn';
+                        } else {
+                            trClass += ' agent-divider-normal';
+                        }
+
                     }
                     sLastAgent = stack[key.agent];
+                    nLastExecTime = stack[key.begin];
                 }
                 return trClass;
             };

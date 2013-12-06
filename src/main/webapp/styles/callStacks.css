@@ -46,6 +46,9 @@
 .callStacks .bar {
     vertical-align: middle;
 }
-.callStacks .agent-divider {
-    border-top: 2px solid rgb(255, 145, 26);
+.callStacks .agent-divider-normal {
+    border-top: 2px dotted rgb(44, 160, 44);
+}
+.callStacks .agent-divider-warn {
+    border-top: 2px dotted rgb(214, 39, 40);
 }
