@@ -7,6 +7,9 @@ pinpointApp.directive('callStacks', [ function () {
         templateUrl: 'views/callStacks.html',
         link: function postLink(scope, element, attrs) {
 
+            // define private variables
+            var sLastAgent;
+
             // define private variables of methods
             var initialize;
 
@@ -26,6 +29,34 @@ pinpointApp.directive('callStacks', [ function () {
                     tableId : element,
                     height : "auto"
                 });
+            };
+
+            /**
+             * get tr class
+             * @param stack
+             * @param key
+             * @returns {string}
+             */
+            scope.getTrClass = function (stack, key, index) {
+                var trClass = '';
+                if (index === 0) {
+                    sLastAgent = false;
+                }
+                if (angular.isUndefined(key)) {
+                    return trClass;
+                }
+                if (angular.isDefined(stack[key.isFocused]) && stack[key.isFocused] === true) {
+                    trClass += 'info';
+                } else if (angular.isDefined(stack[key.hasException]) && stack[key.hasException] === true) {
+                    trClass += 'error';
+                }
+                if (angular.isDefined(stack[key.agent]) && stack[key.agent]) {
+                    if (sLastAgent && sLastAgent !== stack[key.agent]) {
+                        trClass += ' agent-divider';
+                    }
+                    sLastAgent = stack[key.agent];
+                }
+                return trClass;
             };
 
             /**

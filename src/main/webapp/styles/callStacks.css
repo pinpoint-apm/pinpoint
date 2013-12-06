@@ -46,3 +46,6 @@
 .callStacks .bar {
     vertical-align: middle;
 }
+.callStacks .agent-divider {
+    border-top: 2px solid rgb(255, 145, 26);
+}
