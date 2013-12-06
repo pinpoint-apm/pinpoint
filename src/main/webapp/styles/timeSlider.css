@@ -8,15 +8,17 @@
     top: 12px;
     z-index: 1;
 }
-.timeslider .jslider .jslider-value,
-.timeslider .jslider .jslider-value-to {
+.timeslider .jslider .jslider-value {
     visibility: hidden !important;
+}
+.timeslider .jslider:hover .jslider-value-from {
+    visibility: visible !important;
 }
 .timeslider .jslider .jslider-pointer {
     cursor: auto;
 }
 .timeslider_more {
-    position: absolute;;
+    position: absolute;
     top:2px;
     left: 200px;
 }
