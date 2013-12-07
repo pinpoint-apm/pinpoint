@@ -1,10 +1,17 @@
 'use strict';
 
-pinpointApp.directive('callStacks', [ function () {
+pinpointApp.constant('serverMapConfig', {
+    agentDividerWarningTime : 500
+});
+
+pinpointApp.directive('callStacks', [ 'serverMapConfig', function (cfg) {
     return {
         restrict: 'EA',
         replace: true,
         templateUrl: 'views/callStacks.html',
+        scope : {
+            namespace : '@' // string value
+        },
         link: function postLink(scope, element, attrs) {
 
             // define private variables
@@ -26,7 +33,7 @@ pinpointApp.directive('callStacks', [ function () {
                 scope.barRatio = 100 / (transactionDetail.callStack[0][scope.key.end] - transactionDetail.callStack[0][scope.key.begin]);
                 scope.$digest();
                 var oTreeGridTable = new TreeGridTable({
-                    tableId : element,
+                    tableId : element, // element should be a table of DOM, so it should be replace:true at the top
                     height : "auto"
                 });
             };
@@ -52,7 +59,7 @@ pinpointApp.directive('callStacks', [ function () {
                 }
                 if (angular.isDefined(stack[key.agent]) && stack[key.agent]) {
                     if (sLastAgent && sLastAgent !== stack[key.agent]) {
-                        if (stack[key.begin] - nLastExecTime > 500) {
+                        if (stack[key.begin] - nLastExecTime > cfg.agentDividerWarningTime) {
                             trClass += ' agent-divider-warn';
                         } else {
                             trClass += ' agent-divider-normal';
@@ -68,7 +75,7 @@ pinpointApp.directive('callStacks', [ function () {
             /**
              * scope event on callStacks.initialize
              */
-            scope.$on('callStacks.initialize', function (event, transactionDetail) {
+            scope.$on('callStacks.' + scope.namespace + '.initialize', function (event, transactionDetail) {
                 initialize(transactionDetail);
             });
         }

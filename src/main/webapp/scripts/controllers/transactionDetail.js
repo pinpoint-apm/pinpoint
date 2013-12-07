@@ -98,7 +98,7 @@ pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$sc
     showCallStacks = function () {
         if (bShowCallStacksOnce === false) {
             bShowCallStacksOnce = true;
-            $scope.$emit('callStacks.initialize', $scope.transactionDetail);
+            $scope.$broadcast('callStacks.forTransactionDetail.initialize', $scope.transactionDetail);
         }
     };
 
@@ -107,10 +107,10 @@ pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$sc
         e.preventDefault();
     });
     $("#traceTabs li:nth-child(2) a").bind("click", function (e) {
-        $scope.$emit('serverMap.initializeWithMapData', $scope.transactionDetail);
+        $scope.$broadcast('serverMap.initializeWithMapData', $scope.transactionDetail);
     });
     $("#traceTabs li:nth-child(3) a").bind("click", function (e) {
-        $scope.$emit('timeline.initialize', $scope.transactionDetail);
+        $scope.$broadcast('timeline.initialize', $scope.transactionDetail);
     });
 
 }]);
