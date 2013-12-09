@@ -2,6 +2,7 @@ package com.nhn.pinpoint.profiler;
 
 import com.nhn.pinpoint.bootstrap.ClassPathResolver;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import java.io.File;
 /**
  * @author emeroad
  */
+@Ignore
 public class ClassPathResolverTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
