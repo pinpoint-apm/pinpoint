@@ -257,12 +257,12 @@
                     <linkXref>true</linkXref>
                     <sourceEncoding>UTF-8</sourceEncoding>
                     <targetJdk>1.6</targetJdk>
-                    <rulesets>
-                        <ruleset>/rulesets/unusedcode.xml</ruleset>
-                        <ruleset>/rulesets/basic.xml</ruleset>
-                        <ruleset>/rulesets/imports.xml</ruleset>
-                        <ruleset>/rulesets/design.xml</ruleset>
-                    </rulesets>
+                    <!--<rulesets>-->
+                        <!--<ruleset>/rulesets/unusedcode.xml</ruleset>-->
+                        <!--<ruleset>/rulesets/basic.xml</ruleset>-->
+                        <!--<ruleset>/rulesets/imports.xml</ruleset>-->
+                        <!--<ruleset>/rulesets/design.xml</ruleset>-->
+                    <!--</rulesets>-->
                 </configuration>
             </plugin>
 
