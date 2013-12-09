@@ -158,12 +158,30 @@
 
         <plugins>
             <plugin>
+                <groupId>com.atlassian.maven.plugins</groupId>
+                <artifactId>maven-clover2-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <jdk>1.6</jdk>
+                    <generateXml>true</generateXml>
+                    <generateHtml>true</generateHtml>
+                    <generateHistorical>false</generateHistorical>
+                    <licenseLocation>clover.license</licenseLocation>
+                    <singleCloverDatabase>false</singleCloverDatabase>
+                    <includesTestSourceRoots>false</includesTestSourceRoots>
+                </configuration>
+            </plugin>
+
+
+            <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>2.6</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
