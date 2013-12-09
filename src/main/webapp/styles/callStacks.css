@@ -46,6 +46,17 @@
 .callStacks .bar {
     vertical-align: middle;
 }
+.callStacks .agent-divider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 100%;
+}
+
+.flexigrid div.bDiv td {
+    position: relative;
+}
 .callStacks .agent-divider-normal {
     border-top: 2px dotted rgb(44, 160, 44);
 }

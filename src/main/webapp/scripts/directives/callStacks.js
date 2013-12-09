@@ -1,10 +1,17 @@
 'use strict';
 
-pinpointApp.constant('serverMapConfig', {
-    agentDividerWarningTime : 500
+pinpointApp.constant('callStacksConfig', {
+    agentDividerWarningTime : 500,
+    agentDividerClasses : [
+        'btn-primary',
+        'btn-success',
+        'btn-info',
+        'btn-warning',
+        'btn-danger'
+    ]
 });
 
-pinpointApp.directive('callStacks', [ 'serverMapConfig', function (cfg) {
+pinpointApp.directive('callStacks', [ 'callStacksConfig', function (cfg) {
     return {
         restrict: 'EA',
         replace: true,
@@ -18,7 +25,7 @@ pinpointApp.directive('callStacks', [ 'serverMapConfig', function (cfg) {
             var sLastAgent, nLastExecTime;
 
             // define private variables of methods
-            var initialize;
+            var initialize, addAgentDividerClassToTransactionDetail;
 
             // initialize scope variables
             scope.transactionDetail = null;
@@ -31,6 +38,7 @@ pinpointApp.directive('callStacks', [ 'serverMapConfig', function (cfg) {
                 scope.transactionDetail = transactionDetail;
                 scope.key = transactionDetail.callStackIndex;
                 scope.barRatio = 100 / (transactionDetail.callStack[0][scope.key.end] - transactionDetail.callStack[0][scope.key.begin]);
+                addAgentDividerClassToTransactionDetail();
                 scope.$digest();
                 var oTreeGridTable = new TreeGridTable({
                     tableId : element, // element should be a table of DOM, so it should be replace:true at the top
@@ -70,6 +78,30 @@ pinpointApp.directive('callStacks', [ 'serverMapConfig', function (cfg) {
                     nLastExecTime = stack[key.begin];
                 }
                 return trClass;
+            };
+
+            /**
+             * add agent divider class to transactionDetail
+             */
+            addAgentDividerClassToTransactionDetail = function () {
+                if (!scope.transactionDetail || !scope.transactionDetail.callStack || !scope.key) {
+                    return;
+                }
+                var callStack = scope.transactionDetail.callStack,
+                    key = scope.key,
+                    htLastStack = callStack[0],
+                    nClassCount = 0;
+                angular.forEach(callStack, function (stack) {
+                    if (stack[key.agent] !== '' && htLastStack[key.agent] !== stack[key.agent]) {
+                        stack['agentDividerClass'] = cfg.agentDividerClasses[++nClassCount];
+                        htLastStack = stack;
+                        if (nClassCount === cfg.agentDividerClasses.length) {
+                            nClassCount = 0;
+                        }
+                    } else {
+                        stack['agentDividerClass'] = cfg.agentDividerClasses[nClassCount];
+                    }
+                });
             };
 
             /**

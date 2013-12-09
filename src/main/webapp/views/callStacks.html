@@ -16,9 +16,11 @@
     <tbody>
         <tr ng-repeat="stack in transactionDetail.callStack" data-tt-id="{{stack[key.id]}}" data-tt-parent-id="{{stack[key.parentId]}}" data-tt-branch="{{stack[key.hasChild]}}" ng-class="getTrClass(stack, key, $index)">
             <td class="method">
-            	<i class="icon-info-sign" ng-hide="stack[key.isMethod] || stack[key.hasException]"></i>
+                <i class="icon-info-sign" ng-hide="stack[key.isMethod] || stack[key.hasException]"></i>
             	<i class="icon-fire" ng-show="stack[key.hasException]"></i>
-				{{stack[key.title]}}</td>
+				{{stack[key.title]}}
+                <label class="agent-divider" ng-class="stack.agentDividerClass"></label>
+            </td>
             <td class="arguments">{{stack[key.arguments]}}</td>
             <td class="exectime"><span ng-show="stack[key.isMethod]">{{stack[key.begin] | date:'HH:mm:ss sss'}}</span></td>
             <td class="gap" style="text-align:right"><span ng-show="stack[key.isMethod]">{{stack[key.gap] | number}}</span></td>
