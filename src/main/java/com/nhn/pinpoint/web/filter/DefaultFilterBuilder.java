@@ -46,6 +46,8 @@ public class DefaultFilterBuilder implements FilterBuilder {
 		final String[] element = FILTER_ENTRY_DELIMETER.split(filterText);
 		if (element.length == 4) {
 			return new FromToFilter(element[0], element[1], element[2], element[3]);
+		} else if (element.length == 5) {
+			return new FromToResponseFilter(element[0], element[1], element[2], element[3], element[4]);
 		} else {
 			throw new IllegalArgumentException("Invalid filterText:" + filterText);
 		}
