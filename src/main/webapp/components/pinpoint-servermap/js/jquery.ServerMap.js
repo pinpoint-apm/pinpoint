@@ -458,6 +458,7 @@
          * @param {Hash Table} str
          */
         load: function (str) {
+            this._sLastModelData = str;
             this._oDiagram.model = go.Model.fromJson(str);
             this._oDiagram.undoManager.isEnabled = true;
 
@@ -748,9 +749,11 @@
          * refresh
          */
         refresh: function () {
-            while (this._oDiagram.undoManager.canUndo()) {
-                this._oDiagram.undoManager.undo();
-            }
+//            while (this._oDiagram.undoManager.canUndo()) {
+//                this._oDiagram.undoManager.undo();
+//            }
+//            this._oDiagram.zoomToFit();
+            this.load(this._sLastModelData);
         }
 
     });
