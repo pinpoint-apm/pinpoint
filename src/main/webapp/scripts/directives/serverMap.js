@@ -22,7 +22,9 @@ pinpointApp.constant('serverMapConfig', {
             "sRouting": "Normal", // Normal, Orthogonal, AvoidNodes
             "sCurve": "JumpGap" // Bezier, JumpOver, JumpGap
         }
-    }
+    },
+    FILTER_DELIMETER: "^",
+    FILTER_ENTRY_DELIMETER: "|"
 });
 
 pinpointApp.directive('serverMap', [ 'serverMapConfig', '$window', 'ServerMapDao', 'Alerts', 'ProgressBar', 'encodeURIComponentFilter',
