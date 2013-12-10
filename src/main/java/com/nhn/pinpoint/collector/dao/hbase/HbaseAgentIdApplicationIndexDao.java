@@ -22,6 +22,7 @@ import org.springframework.stereotype.Repository;
  * @author emeroad
  */
 @Repository
+@Deprecated
 public class HbaseAgentIdApplicationIndexDao implements AgentIdApplicationIndexDao {
 
 	@Autowired

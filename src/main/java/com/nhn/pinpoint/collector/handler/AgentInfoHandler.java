@@ -25,14 +25,15 @@ public class AgentInfoHandler implements SimpleHandler {
 	@Autowired
 	private ApplicationIndexDao applicationIndexDao;
 
-	@Autowired
-	private AgentIdApplicationIndexDao agentIdApplicationIndexDao;
+//	@Autowired
+//	private AgentIdApplicationIndexDao agentIdApplicationIndexDao;
 
 	public void handler(TBase<?, ?> tbase) {
 		if (!(tbase instanceof TAgentInfo)) {
 			logger.warn("invalid tbase:{}", tbase);
 			return;
 		}
+
 
 		try {
 			TAgentInfo agentInfo = (TAgentInfo) tbase;
@@ -46,7 +47,7 @@ public class AgentInfoHandler implements SimpleHandler {
 			applicationIndexDao.insert(agentInfo);
 
 			// agentid로 applicationname을 조회하기 위한 용도
-			agentIdApplicationIndexDao.insert(agentInfo.getAgentId(), agentInfo.getApplicationName());
+//			agentIdApplicationIndexDao.insert(agentInfo.getAgentId(), agentInfo.getApplicationName());
 		} catch (Exception e) {
 			logger.warn("AgentInfo handle error. Caused:{}", e.getMessage(), e);
 		}
