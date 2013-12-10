@@ -499,6 +499,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
                 try {
                     scanner.close();
                 } catch (Exception e) {
+                    logger.warn("Scanner.close() error Caused:{}", e.getMessage(), e);
                 }
             }
         }
@@ -513,7 +514,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
         });
     }
 
-    public List<Result> increment(String tableName, final List<Increment> incrementList) {
+    public List<Result> increment(final String tableName, final List<Increment> incrementList) {
         return execute(tableName, new TableCallback<List<Result>>() {
             @Override
             public List<Result> doInTable(HTableInterface htable) throws Throwable {
@@ -525,10 +526,11 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
                         Result result = htable.increment(increment);
                         resultList.add(result);
                     } catch (IOException e) {
+                        logger.warn("{} increment error Caused:{}", tableName, e.getMessage(), e);
                         lastException = e;
                     }
                 }
-                if(lastException != null) {
+                if (lastException != null) {
                     throw lastException;
                 }
                 return resultList;
