@@ -849,6 +849,16 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                 };
 
                 /**
+                 * refresh
+                 */
+                scope.refresh = function () {
+                    if (oServerMap) {
+                        oServerMap.refresh();
+                    }
+                    reset();
+                };
+
+                /**
                  * scope event on serverMap.initialize
                  */
                 scope.$on('serverMap.initialize', function (event, navbarVo) {

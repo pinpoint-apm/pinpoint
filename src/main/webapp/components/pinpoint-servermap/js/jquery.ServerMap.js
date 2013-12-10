@@ -42,7 +42,7 @@
                 "htNodeTheme": {
                     "default": {
                         "backgroundColor": "#ffffff",
-                        "borderColor" : "#adadad",
+                        "borderColor": "#adadad",
                         "fontColor": "#333333"
                     },
                     "bold": {
@@ -56,7 +56,7 @@
                 "htLinkTheme": {
                     "default": {
                         "backgroundColor": "#f9f9f9",
-                        "borderColor" : "#7d7d7d",
+                        "borderColor": "#7d7d7d",
                         "fontFamily": "10pt helvetica, arial, sans-serif",
                         "fontColor": "#5a5a5a",
                         "fontAlign": "center",
@@ -64,7 +64,7 @@
                     },
                     "good": {
                         "backgroundColor": "rgb(240, 1, 240)",
-                        "borderColor" : "#7d7d7d",
+                        "borderColor": "#7d7d7d",
                         "fontFamily": "10pt helvetica, arial, sans-serif",
                         "fontColor": "#919191",
                         "fontAlign": "center",
@@ -72,7 +72,7 @@
                     },
                     "bad": {
                         "backgroundColor": "#ffc9c9",
-                        "borderColor" : "#7d7d7d",
+                        "borderColor": "#7d7d7d",
                         "fontFamily": "10pt helvetica, arial, sans-serif",
                         "fontColor": "#d72f30",
                         "fontAlign": "center",
@@ -80,7 +80,7 @@
                     }
                 },
                 "htHighlightNode": {
-                    "self" : {
+                    "self": {
                         "backgroundColor": "#28a1f7",
                         "fontColor": "#ffffff"
                     },
@@ -94,7 +94,7 @@
                     }
                 },
                 "htHighlightLink": {
-                    "self" : {
+                    "self": {
                         "borderColor": "#28a1f7"
                     },
                     "from": {
@@ -104,12 +104,24 @@
                         "borderColor": "#f77128"
                     }
                 },
-                "fOnNodeClicked": function (eMouseEvent, htData) {},
-                "fOnNodeContextClicked": function (eMouseEvent, htData) {},
-                "fOnLinkClicked": function (eMouseEvent, htData) {},
-                "fOnLinkContextClicked": function (eMouseEvent, htData) {},
-                "fOnBackgroundClicked": function (eMouseEvent, htData) {},
-                "fOnBackgroundContextClicked": function (eMouseEvent, htData) {}
+                "htPadding": {
+                    "top": 10,
+                    "right": 10,
+                    "bottom": 10,
+                    "left": 10
+                },
+                "fOnNodeClicked": function (eMouseEvent, htData) {
+                },
+                "fOnNodeContextClicked": function (eMouseEvent, htData) {
+                },
+                "fOnLinkClicked": function (eMouseEvent, htData) {
+                },
+                "fOnLinkContextClicked": function (eMouseEvent, htData) {
+                },
+                "fOnBackgroundClicked": function (eMouseEvent, htData) {
+                },
+                "fOnBackgroundContextClicked": function (eMouseEvent, htData) {
+                }
             });
 
             this.option(htOption);
@@ -258,17 +270,17 @@
                     contextClick: this._onLinkContextClicked.bind(this),
                     layerName: "Foreground",
                     reshapable: false, // 연결선 reshape핸들 없애려고.
-                    
+
                     // fromSpot: go.Spot.RightSide,
                     // toSpot: go.Spot.LeftSide,
-                    
+
                     // routing: go.Link[htLinkType.sRouting],
                     // routing : go.Link.Normal,
                     // routing: go.Link.Orthogonal,
                     // routing: go.Link.AvoidsNodes,
-                    
+
                     corner: 10,
-                    
+
                     // curve: go.Link[htLinkType.sCurve],
                     // curve: go.Link.JumpOver
                     // curve: go.Link.JumpGap
@@ -283,8 +295,12 @@
                     go.Link,  // the whole link panel
                     // { routing: go.Link.Normal, curve: go.Link.Bezier, toShortLength: 2 },
                     option,
-                    new go.Binding("routing", "routing", function (val) { return go.Link[val]; }).makeTwoWay(),
-                    new go.Binding("curve", "curve", function (val) { return go.Link[val]; }).makeTwoWay(),
+                    new go.Binding("routing", "routing", function (val) {
+                        return go.Link[val];
+                    }).makeTwoWay(),
+                    new go.Binding("curve", "curve", function (val) {
+                        return go.Link[val];
+                    }).makeTwoWay(),
                     new go.Binding("curviness", "curviness").makeTwoWay(),
                     self.$(
                         go.Shape,  // the link shape
@@ -346,7 +362,7 @@
                                     stroke: htOption.fontColor,
                                     margin: htOption.margin
                                 },
-                                new go.Binding("text", "text",  function (val) {
+                                new go.Binding("text", "text", function (val) {
                                     return Number(val, 10).toLocaleString();
                                 })
                             )
@@ -371,6 +387,7 @@
          * @method _initDiagramEnvironment
          */
         _initDiagramEnvironment: function () {
+            var htPadding = this.option('htPadding');
             // have mouse wheel events zoom in and out instead of scroll up and
             // down
             this._oDiagram.toolManager.mouseWheelBehavior = go.ToolManager.WheelZoom;
@@ -386,6 +403,7 @@
             this._oDiagram.toolManager.draggingTool.doDeactivate();
             this._oDiagram.toolManager.dragSelectingTool.isEnabled = false;
             this._oDiagram.initialContentAlignment = go.Spot.Center;
+            this._oDiagram.padding = new go.Margin(htPadding.top, htPadding.right, htPadding.bottom, htPadding.left);
             this._oDiagram.layout = this.$(
                 go.LayeredDigraphLayout,
                 { // rdirection: 90,
@@ -481,7 +499,9 @@
          */
         _updateHightlights: function (selection) {
             selection = selection || this._oDiagram.selection.first();
-            if (selection === null) { return; }
+            if (selection === null) {
+                return;
+            }
 
             this._resetHighlights();
             selection.highlight = 'self';
@@ -556,8 +576,10 @@
             return false;
         },
 
-        _hightlightNode : function (node, nodeText, theme) {
-            if (node === null || nodeText === null) { return; }
+        _hightlightNode: function (node, nodeText, theme) {
+            if (node === null || nodeText === null) {
+                return;
+            }
             if (theme) {
                 node.fill = this.option('htHighlightNode')[theme].backgroundColor;
                 nodeText.stroke = this.option('htHighlightNode')[theme].fontColor;
@@ -567,8 +589,10 @@
             }
         },
 
-        _highlightLink : function (shape, theme) {
-            if (shape === null) { return; }
+        _highlightLink: function (shape, theme) {
+            if (shape === null) {
+                return;
+            }
             if (theme) {
                 shape.stroke = this.option('htHighlightLink')[theme].borderColor;
             } else {
@@ -717,6 +741,15 @@
                 fOnLinkContextClicked = this.option('fOnLinkContextClicked');
             if (_.isFunction(fOnLinkContextClicked)) {
                 fOnLinkContextClicked.call(this, e, htData);
+            }
+        },
+
+        /**
+         * refresh
+         */
+        refresh: function () {
+            while (this._oDiagram.undoManager.canUndo()) {
+                this._oDiagram.undoManager.undo();
             }
         }
 
