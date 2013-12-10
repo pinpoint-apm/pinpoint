@@ -1,11 +1,6 @@
 'use strict';
 
 pinpointApp.constant('serverMapConfig', {
-    serverMapDataUrl: '/getServerMapData.pinpoint',
-    filteredServerMapDataUrl: '/getFilteredServerMapData.pinpoint',
-    filtermapUrl: '/filtermap.pinpoint',
-    lastTransactionListUrl: '/lastTransactionList.pinpoint',
-    transactionListUrl: '/transactionList.pinpoint',
     options: {
         "sContainerId": 'servermap',
         "sImageDir": '/images/icons/',
@@ -27,14 +22,11 @@ pinpointApp.constant('serverMapConfig', {
             "sRouting": "Normal", // Normal, Orthogonal, AvoidNodes
             "sCurve": "JumpGap" // Bezier, JumpOver, JumpGap
         }
-    },
-    FILTER_DELIMETER: "^",
-    FILTER_ENTRY_DELIMETER: "|",
-    FILTER_FETCH_LIMIT: 5000
+    }
 });
 
-pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window', 'Alerts', 'ProgressBar', 'encodeURIComponentFilter',
-    function (cfg, $rootScope, $window, Alerts, ProgressBar, encodeURIComponentFilter) {
+pinpointApp.directive('serverMap', [ 'serverMapConfig', '$window', 'ServerMapDao', 'Alerts', 'ProgressBar', 'encodeURIComponentFilter',
+    function (cfg, $window, ServerMapDao, Alerts, ProgressBar, encodeURIComponentFilter) {
         return {
             restrict: 'EA',
             replace: true,
@@ -46,11 +38,9 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                     bUseBackgroundContextMenu, oServerMap, SERVERMAP_METHOD_CACHE, oAlert, oProgressBar, htLastMapData;
 
                 // define private variables of methods
-                var showServerMap, getServerMapData, getFilteredServerMapData, reset, setNodeContextMenuPosition,
+                var showServerMap, reset, setNodeContextMenuPosition,
                     setLinkContextMenuPosition, setBackgroundContextMenuPosition, serverMapCallback, mergeUnknown,
-                    setLinkOption, mergeFilteredMapData, findExistingNodeFromLastMapData, mergeNodeData,
-                    findExistingLinkFromLastMapData, mergeLinkData, mergeTimeSeriesResponses, addFilterProperty,
-                    findNodeKeyByText, parseFilterText;
+                    setLinkOption;
 
                 // initialize
                 oServerMap = null;
@@ -107,282 +97,32 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$rootScope', '$window',
                     };
 
                     if (filterText) {
-                        getFilteredServerMapData(htLastQuery, function (query, result) {
+                        ServerMapDao.getFilteredServerMapData(htLastQuery, function (err, query, result) {
+                            if (err) {
+                                oProgressBar.stopLoading();
+                                oAlert.showError('There is some error.');
+                            }
+                            oProgressBar.setLoading(50);
                             if (query.from === result.lastFetchedTimestamp) {
                                 scope.$emit('serverMap.allFetched');
                             } else {
                                 htLastMapData.lastFetchedTimestamp = result.lastFetchedTimestamp - 1;
                                 scope.$emit('serverMap.fetched', htLastMapData.lastFetchedTimestamp, result);
                             }
-//                        mergeTimeSeriesResponses(result.timeSeriesResponses);
-                            serverMapCallback(query, addFilterProperty(filterText, mergeFilteredMapData(result)), mergeUnknowns, linkRouting, linkCurve);
+//                        ServerMapDao.mergeTimeSeriesResponses(result.timeSeriesResponses);
+                            serverMapCallback(query, ServerMapDao.addFilterProperty(filterText, ServerMapDao.mergeFilteredMapData(htLastMapData, result)), mergeUnknowns, linkRouting, linkCurve);
                         });
                     } else {
-                        getServerMapData(htLastQuery, function (query, result) {
+                        ServerMapDao.getServerMapData(htLastQuery, function (err, query, result) {
+                            if (err) {
+                               oProgressBar.stopLoading();
+                               oAlert.showError('There is some error.');
+                            }
+                            oProgressBar.setLoading(50);
                             htLastMapData = result;
                             serverMapCallback(query, result, mergeUnknowns, linkRouting, linkCurve);
                         });
                     }
-                };
-
-                /**
-                 * add filter property
-                 * @param filterText
-                 * @param mapData
-                 * @returns {*}
-                 */
-                addFilterProperty = function (filterText, mapData) {
-                    var parsedFilters = parseFilterText(filterText, mapData);
-
-                    angular.forEach(mapData.applicationMapData.linkDataArray, function (val, key) {
-                        if (angular.isDefined(_.findWhere(parsedFilters, {fromKey: val.from, toKey: val.to}))) {
-                            val.isFiltered = true;
-                        } else {
-                            val.isFiltered = false;
-                        }
-                    });
-                    console.log('mapData', parsedFilters, mapData);
-                    return mapData;
-                };
-
-                /**
-                 * parse filter text
-                 * @param filterText
-                 * @param mapData
-                 * @returns {Array}
-                 */
-                parseFilterText = function (filterText, mapData) {
-                    var splitedFilter = filterText.split(cfg.FILTER_DELIMETER),
-                        aFilter = [];
-                    angular.forEach(splitedFilter, function (val, key) {
-                        var filter = val.split(cfg.FILTER_ENTRY_DELIMETER);
-                        aFilter.push({
-                            fromCategory: filter[0],
-                            fromText: filter[1],
-                            fromKey: findNodeKeyByText(filter[1], mapData),
-                            toCategory: filter[2],
-                            toText: filter[3],
-                            toKey: findNodeKeyByText(filter[3], mapData)
-                        });
-                    });
-                    return aFilter;
-                };
-
-                /**
-                 * find node key by text
-                 * @param text
-                 * @param mapData
-                 * @returns {*}
-                 */
-                findNodeKeyByText = function (text, mapData) {
-                    if (text === 'CLIENT') {
-                        text = 'USER';
-                    }
-                    var result = _.findWhere(mapData.applicationMapData.nodeDataArray, {text: text});
-                    if (angular.isDefined(result)) {
-                        return result.key;
-                    } else {
-                        return false;
-                    }
-                };
-
-                /**
-                 * merge time series responses
-                 * @param timeSeriesResponses
-                 */
-//            mergeTimeSeriesResponses = function (timeSeriesResponses) {
-//                angular.forEach(timeSeriesResponses.values, function (val, key) {
-//                    if (angular.isUndefined(htLastMapData.timeSeriesResponses.values[key])) {
-//                        htLastMapData.timeSeriesResponses.values[key] = val;
-//                    } else {
-//                        htLastMapData.timeSeriesResponses.values[key] = _.union(val, htLastMapData.timeSeriesResponses.values[key]);
-//                    }
-//                });
-//                htLastMapData.timeSeriesResponses.time = _.union(timeSeriesResponses.time, htLastMapData.timeSeriesResponses.time);
-//            };
-
-                /**
-                 * merge filtered map data
-                 * @param mapData
-                 * @returns {{applicationMapData: {linkDataArray: Array, nodeDataArray: Array}, lastFetchedTimestamp: Array}}
-                 */
-                mergeFilteredMapData = function (mapData) {
-                    if (htLastMapData.applicationMapData.linkDataArray.length === 0 && htLastMapData.applicationMapData.nodeDataArray.length === 0) {
-                        htLastMapData.applicationMapData.linkDataArray = mapData.applicationMapData.linkDataArray;
-                        htLastMapData.applicationMapData.nodeDataArray = mapData.applicationMapData.nodeDataArray;
-                    } else {
-                        var newKey = {};
-                        angular.forEach(mapData.applicationMapData.nodeDataArray, function (node, key) {
-                            var foundNodeKeyFromLastMapData = findExistingNodeFromLastMapData(node);
-                            if (foundNodeKeyFromLastMapData) {
-                                mergeNodeData(foundNodeKeyFromLastMapData - 1, node);
-                                newKey[node.key] = foundNodeKeyFromLastMapData;
-                            } else {
-                                node.key = node.id = newKey[node.key] = htLastMapData.applicationMapData.nodeDataArray.length + 1;
-                                htLastMapData.applicationMapData.nodeDataArray.push(node);
-                            }
-                        });
-                        angular.forEach(mapData.applicationMapData.linkDataArray, function (link, key) {
-                            var foundLinkKeyFromLastMapData = findExistingLinkFromLastMapData(link, newKey);
-                            if (foundLinkKeyFromLastMapData) {
-                                mergeLinkData(foundLinkKeyFromLastMapData, link);
-                            } else {
-                                link.from = newKey[link.from];
-                                link.to = newKey[link.to];
-                                link.id = [link.from, '-', link.to].join('');
-                                htLastMapData.applicationMapData.linkDataArray.push(link);
-                            }
-                        });
-                    }
-                    return htLastMapData;
-                };
-
-                /**
-                 * find existing node from last map data
-                 * @param node
-                 * @returns {*}
-                 */
-                findExistingNodeFromLastMapData = function (node) {
-                    for (var key in htLastMapData.applicationMapData.nodeDataArray) {
-                        if (htLastMapData.applicationMapData.nodeDataArray[key].text === node.text && htLastMapData.applicationMapData.nodeDataArray[key].serviceTypeCode === node.serviceTypeCode) {
-                            return htLastMapData.applicationMapData.nodeDataArray[key].key;
-                        }
-                    }
-                    return false;
-                };
-
-                /**
-                 * merge node data
-                 * @param nodeKey
-                 * @param node
-                 */
-                mergeNodeData = function (nodeKey, node) {
-                    for (var key in node.serverList) {
-                        if (htLastMapData.applicationMapData.nodeDataArray[nodeKey].serverList[key]) {
-                            for (var innerKey in node.serverList[key].instanceList) {
-                                if (htLastMapData.applicationMapData.nodeDataArray[nodeKey].serverList[key].instanceList[innerKey]) {
-                                    for (var insideKey in node.serverList[key].instanceList[innerKey].histogram) {
-                                        if (htLastMapData.applicationMapData.nodeDataArray[nodeKey].serverList[key].instanceList[innerKey].histogram[insideKey]) {
-                                            htLastMapData.applicationMapData.nodeDataArray[nodeKey].serverList[key].instanceList[innerKey].histogram[insideKey] += node.serverList[key].instanceList[innerKey].histogram[insideKey];
-                                        } else {
-                                            htLastMapData.applicationMapData.nodeDataArray[nodeKey].serverList[key].instanceList[innerKey].histogram[insideKey] = node.serverList[key].instanceList[innerKey].histogram[insideKey];
-                                        }
-                                    }
-                                } else {
-                                    htLastMapData.applicationMapData.nodeDataArray[nodeKey].serverList[key].instanceList[innerKey] = node.serverList[key].instanceList[innerKey];
-                                }
-                            }
-                        } else {
-                            htLastMapData.applicationMapData.nodeDataArray[nodeKey].serverList[key] = node.serverList[key];
-                        }
-                    }
-                };
-
-                /**
-                 * find existing link from last map data
-                 * @param link
-                 * @param newKey
-                 * @returns {*}
-                 */
-                findExistingLinkFromLastMapData = function (link, newKey) {
-                    for (var key in htLastMapData.applicationMapData.linkDataArray) {
-                        if (htLastMapData.applicationMapData.linkDataArray[key].from === newKey[link.from] && htLastMapData.applicationMapData.linkDataArray[key].to === newKey[link.to]) {
-                            return key;
-                        }
-                    }
-                    return false;
-                };
-
-                /**
-                 * merge link data
-                 * @param linkKey
-                 * @param link
-                 */
-                mergeLinkData = function (linkKey, link) {
-                    htLastMapData.applicationMapData.linkDataArray[linkKey].text += link.text;
-                    htLastMapData.applicationMapData.linkDataArray[linkKey].error += link.error;
-                    htLastMapData.applicationMapData.linkDataArray[linkKey].slow += link.slow;
-                    for (var key in link.histogram) {
-                        if (htLastMapData.applicationMapData.linkDataArray[linkKey].histogram[key]) {
-                            htLastMapData.applicationMapData.linkDataArray[linkKey].histogram[key] += link.histogram[key];
-                        } else {
-                            htLastMapData.applicationMapData.linkDataArray[linkKey].histogram[key] = link.histogram[key];
-                        }
-                    }
-                    for (var key in link.targetHosts) {
-                        if (htLastMapData.applicationMapData.linkDataArray[linkKey].targetHosts[key]) {
-                            for (var innerKey in link.targetHosts[key].histogram) {
-                                if (htLastMapData.applicationMapData.linkDataArray[linkKey].targetHosts[key].histogram[innerKey]) {
-                                    htLastMapData.applicationMapData.linkDataArray[linkKey].targetHosts[key].histogram[innerKey] += link.targetHosts[key].histogram[innerKey];
-                                } else {
-                                    htLastMapData.applicationMapData.linkDataArray[linkKey].targetHosts[key].histogram[innerKey] = link.targetHosts[key].histogram[innerKey];
-                                }
-                            }
-                        } else {
-                            htLastMapData.applicationMapData.linkDataArray[linkKey].targetHosts[key] = link.targetHosts[key];
-                        }
-                    }
-                };
-
-                /**
-                 * get server map data 2
-                 * @param query
-                 * @param callback
-                 */
-                getServerMapData = function (query, callback) {
-                    oProgressBar.setLoading(50);
-                    jQuery.ajax({
-                        type: 'GET',
-                        url: cfg.serverMapDataUrl,
-                        cache: false,
-                        dataType: 'json',
-                        data: {
-                            application: query.applicationName,
-                            serviceType: query.serviceType,
-                            from: query.from,
-                            to: query.to
-                        },
-                        success: function (result) {
-                            oProgressBar.setLoading(30);
-                            callback(query, result);
-                        },
-                        error: function (xhr, status, error) {
-                            console.log("ERROR", status, error);
-                            oProgressBar.stopLoading();
-                            oAlert.showError('There is some error.');
-                        }
-                    });
-                };
-
-                /**
-                 * get filtered server map data
-                 * @param query
-                 * @param callback
-                 */
-                getFilteredServerMapData = function (query, callback) {
-                    oProgressBar.setLoading(30);
-                    jQuery.ajax({
-                        type: 'GET',
-                        url: cfg.filteredServerMapDataUrl,
-                        cache: false,
-                        dataType: 'json',
-                        data: {
-                            application: query.applicationName,
-                            serviceType: query.serviceType,
-                            from: query.from,
-                            to: query.to,
-                            filter: query.filter,
-                            limit: cfg.FILTER_FETCH_LIMIT
-                        },
-                        success: function (result) {
-                            callback(query, result);
-                        },
-                        error: function (xhr, status, error) {
-                            console.log("ERROR", status, error);
-                            oProgressBar.stopLoading();
-                            oAlert.showError('There is some error.');
-                        }
-                    });
                 };
 
                 /**

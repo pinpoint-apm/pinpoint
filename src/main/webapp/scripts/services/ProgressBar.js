@@ -34,9 +34,6 @@ pinpointApp.factory('ProgressBar', [ '$timeout', function ($timeout) {
         }.bind(this);
 
         this.setLoading = function (p) {
-            if (p < this.nPercentage) {
-                return this;
-            }
             this.nPercentage = p;
             this.getProgressBar().width(p + '%');
             return this;
