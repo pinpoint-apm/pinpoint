@@ -33,7 +33,9 @@ public class HBaseTables {
     public static final byte[] AGENTINFO_CF_INFO = Bytes.toBytes("Info");
     public static final byte[] AGENTINFO_CF_INFO_IDENTIFIER = Bytes.toBytes("i");
 
+    @Deprecated
     public static final String AGENTID_APPLICATION_INDEX = "AgentIdApplicationIndex";
+    @Deprecated
     public static final byte[] AGENTID_APPLICATION_INDEX_CF_APPLICATION = Bytes.toBytes("Application");
 
 
