@@ -20,9 +20,7 @@ public class FromToResponseFilter implements Filter {
 	private final String toApplicationName;
 
 	private final long fromResponseTime;
-	private final CompareOperators fromCondition;
 	private final long toResponseTime;
-	private final CompareOperators toCondition;
 	private final boolean findError;
 
 	public FromToResponseFilter(String fromServiceType, String fromApplicationName, String toServiceType, String toApplicationName, String condition) {
@@ -51,26 +49,22 @@ public class FromToResponseFilter implements Filter {
 
 		// FIXME 뭔가 엉성하긴 하지만..
 		String[] conditions = condition.split(",");
-		if (conditions.length == 4) {
+		if (conditions.length == 2) {
 			fromResponseTime = Long.valueOf(conditions[0]);
-			fromCondition = CompareOperators.valueOf(conditions[1]);
 			toResponseTime = Long.valueOf(conditions[2]);
-			toCondition = CompareOperators.valueOf(conditions[3]);
 			findError = false;
 		} else {
 			// FIXME error와 response time을 함께 필터할 수 있으면 좋겠음.
 			// 필터를 별도로 두는게 나을지도 모르겠지만.
 			// 필터가 많아지면 span 스캔을 여러번 함. 한번 스캔에 모든 필터를 적용할 수 있는 구조가 되면 더 좋을 듯.
 			// 메모리 연산이라 성능차이가 크진 않겠지만..
-			if ("ERR".equals(condition)) {
+			if ("error".equals(condition)) {
 				findError = true;
 			} else {
 				throw new IllegalArgumentException("invalid conditions:" + condition);
 			}
 			fromResponseTime = 0;
-			fromCondition = CompareOperators.GT;
 			toResponseTime = Long.MAX_VALUE;
-			toCondition = CompareOperators.LT;
 		}
 	}
 
@@ -80,7 +74,7 @@ public class FromToResponseFilter implements Filter {
 	}
 
 	private boolean checkResponseCondition(long elapsed) {
-		return fromCondition.compare(elapsed, fromResponseTime) && toCondition.compare(elapsed, toResponseTime);
+		return (elapsed >= fromResponseTime) && (elapsed <= toResponseTime);
 	}
 
 	@Override
@@ -90,7 +84,8 @@ public class FromToResponseFilter implements Filter {
 			for (SpanBo span : transaction) {
 				if (span.isRoot() && includeServiceType(toServiceCode, span.getServiceType()) && toApplicationName.equals(span.getApplicationId())) {
 					if (findError) {
-						// FIXME getErrCode로 확인?? hasException으로 확인?? 어떤게 맞지?? 서버 맵 스펙하고 맞춰면 될 듯.
+						// FIXME getErrCode로 확인?? hasException으로 확인?? 어떤게 맞지??
+						// 서버 맵 스펙하고 맞춰면 될 듯.
 						return span.getErrCode() > 0;
 					} else {
 						return checkResponseCondition(span.getElapsed());
@@ -132,7 +127,8 @@ public class FromToResponseFilter implements Filter {
 
 						if (includeServiceType(toServiceCode, destSpan.getServiceType()) && toApplicationName.equals(destSpan.getApplicationId())) {
 							if (findError) {
-								// FIXME getErrCode로 확인?? hasException으로 확인?? 어떤게 맞지?? 서버 맵 스펙하고 맞춰면 될 듯.
+								// FIXME getErrCode로 확인?? hasException으로 확인??
+								// 어떤게 맞지?? 서버 맵 스펙하고 맞춰면 될 듯.
 								return destSpan.getErrCode() > 0;
 							} else {
 								return checkResponseCondition(destSpan.getElapsed());
