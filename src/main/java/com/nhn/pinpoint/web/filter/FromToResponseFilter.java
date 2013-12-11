@@ -14,6 +14,8 @@ import com.nhn.pinpoint.common.bo.SpanEventBo;
  */
 public class FromToResponseFilter implements Filter {
 
+	private static final String ERROR = "error";
+
 	private final List<ServiceType> fromServiceCode;
 	private final String fromApplicationName;
 	private final List<ServiceType> toServiceCode;
@@ -49,22 +51,26 @@ public class FromToResponseFilter implements Filter {
 
 		// FIXME 뭔가 엉성하긴 하지만..
 		String[] conditions = condition.split(",");
-		if (conditions.length == 2) {
-			fromResponseTime = Long.valueOf(conditions[0]);
-			toResponseTime = Long.valueOf(conditions[2]);
+		if (conditions.length == 2) { // from,to
 			findError = false;
-		} else {
-			// FIXME error와 response time을 함께 필터할 수 있으면 좋겠음.
-			// 필터를 별도로 두는게 나을지도 모르겠지만.
-			// 필터가 많아지면 span 스캔을 여러번 함. 한번 스캔에 모든 필터를 적용할 수 있는 구조가 되면 더 좋을 듯.
-			// 메모리 연산이라 성능차이가 크진 않겠지만..
-			if ("error".equals(condition)) {
-				findError = true;
-			} else {
+			fromResponseTime = Long.valueOf(conditions[0]);
+			toResponseTime = Long.valueOf(conditions[1]);
+		} else if (conditions.length == 3) { // error,from,to
+			findError = ERROR.equals(conditions[0]);
+			if (!findError) {
+				throw new IllegalArgumentException("invalid conditions:" + condition);
+			}
+			fromResponseTime = Long.valueOf(conditions[1]);
+			toResponseTime = Long.valueOf(conditions[2]);
+		} else if (conditions.length == 1) { // error only
+			findError = ERROR.equals(conditions[0]);
+			if (!findError) {
 				throw new IllegalArgumentException("invalid conditions:" + condition);
 			}
 			fromResponseTime = 0;
 			toResponseTime = Long.MAX_VALUE;
+		} else {
+			throw new IllegalArgumentException("invalid conditions:" + condition);
 		}
 	}
 
@@ -86,7 +92,7 @@ public class FromToResponseFilter implements Filter {
 					if (findError) {
 						// FIXME getErrCode로 확인?? hasException으로 확인?? 어떤게 맞지??
 						// 서버 맵 스펙하고 맞춰면 될 듯.
-						return span.getErrCode() > 0;
+						return span.getErrCode() > 0 && checkResponseCondition(span.getElapsed());
 					} else {
 						return checkResponseCondition(span.getElapsed());
 					}
@@ -103,7 +109,7 @@ public class FromToResponseFilter implements Filter {
 						// client가 있는지만 확인.
 						if (event.getServiceType().isRpcClient() && toApplicationName.equals(event.getDestinationId())) {
 							if (findError) {
-								return event.hasException();
+								return event.hasException() && checkResponseCondition(event.getEndElapsed());
 							} else {
 								return checkResponseCondition(event.getEndElapsed());
 							}
@@ -129,11 +135,10 @@ public class FromToResponseFilter implements Filter {
 							if (findError) {
 								// FIXME getErrCode로 확인?? hasException으로 확인??
 								// 어떤게 맞지?? 서버 맵 스펙하고 맞춰면 될 듯.
-								return destSpan.getErrCode() > 0;
+								return destSpan.getErrCode() > 0 && checkResponseCondition(destSpan.getElapsed());
 							} else {
 								return checkResponseCondition(destSpan.getElapsed());
 							}
-							// return true;
 						}
 					}
 				}
@@ -148,7 +153,7 @@ public class FromToResponseFilter implements Filter {
 					for (SpanEventBo event : eventBoList) {
 						if (includeServiceType(toServiceCode, event.getServiceType()) && toApplicationName.equals(event.getDestinationId())) {
 							if (findError) {
-								return event.hasException();
+								return event.hasException() && checkResponseCondition(event.getEndElapsed());
 							} else {
 								return checkResponseCondition(event.getEndElapsed());
 							}
