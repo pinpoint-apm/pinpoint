@@ -15,11 +15,21 @@ pinpointApp.filter('filterToString', [ '$sce', function ($sce) {
     };
 
     var checkFilter = function (filter) {
-        return angular.isArray(filter) && filter.length === 4;
+        return angular.isArray(filter) && filter.length >= 4;
     };
 
     var parseToHtml = function (filter) {
-        return "<li>" + filter[1] + "(" + filter[0] + ") <i class='icon-arrow-right'></i> " + filter[3] + "(" + filter[2] + ")</li>";
+        var html = "<li>" + filter[1] + "(" + filter[0] + ") <i class='icon-arrow-right'></i> " + filter[3] + "(" + filter[2] + ")";
+        if (filter[4]) {
+            if (filter[4] === 'error' || filter[4].indexOf(',9999999999') > 0) {
+                html += " [" + filter[4].replace(',9999999999', 'ms ~') + "]";
+            } else if (filter[4].indexOf(',') > 0) {
+                var splitValue = filter[4].split(',');
+                html += " [" + splitValue[0] + ' ~ ' + splitValue[1] + 'ms]';
+            }
+        }
+        html += "</li>";
+        return html;
     };
 
     return function (input) {

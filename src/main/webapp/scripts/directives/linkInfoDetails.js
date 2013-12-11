@@ -131,6 +131,11 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (co
 
                     chart.color(config.myColors);
 
+                    chart.multibar.dispatch.on('elementClick', function(e){
+//                        console.log('element: ' + e.value, data);
+//                        console.dir(e.point);
+                    });
+
                     d3.select('.linkInfoDetails .infoChart svg')
                         .datum(data)
                         .transition()
@@ -143,11 +148,14 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (co
                 });
             };
 
+
             /**
              * render statics summary
+             * @param querySelector
              * @param data
+             * @param clickEventName
              */
-            renderStatisticsSummary = function (querySelector, data) {
+            renderStatisticsSummary = function (querySelector, data, clickEventName) {
                 nv.addGraph(function () {
                     angular.element(querySelector).empty();
                     var chart = nv.models.discreteBarChart().x(function (d) {
@@ -172,6 +180,21 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (co
                     });
 
                     chart.color(config.myColors);
+
+                    chart.discretebar.dispatch.on('elementClick', function(e) {
+                        if (clickEventName) {
+                            var filterDataSet = {
+                                label: e.point.label,
+                                value: e.value,
+                                values: e.series.values,
+                                srcServiceType: scope.sourceinfo.serviceType,
+                                srcApplicationName: scope.sourceinfo.applicationName,
+                                destServiceType: scope.targetinfo.serviceType,
+                                destApplicationName: scope.targetinfo.applicationName
+                            };
+                            scope.$emit('linkInfoDetails.' + clickEventName + '.barClicked', filterDataSet);
+                        }
+                    });
 
                     d3.select(querySelector)
                         .datum(data)
@@ -207,7 +230,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (co
 
                 scope.showLinkInfoChart = true;
                 scope.showLinkInfoBarChart = true;
-                renderStatisticsSummary('.linkInfoDetails .infoBarChart svg', parseHistogramForD3(histogram));
+                renderStatisticsSummary('.linkInfoDetails .infoBarChart svg', parseHistogramForD3(histogram), 'ResponseSummary');
                 getLinkStatisticsData(params, function (query, result) {
                     renderStatisticsTimeSeriesHistogram(result.timeseriesHistogram);
                 });

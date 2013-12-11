@@ -28,3 +28,8 @@
 .linkInfoDetails .contents {
     padding: 65px 15px 30px;
 }
+
+.linkInfoDetails .infoBarChart svg g.nv-group rect,
+.linkInfoDetails .infoBarChart svg g.nv-group text {
+    cursor: pointer;
+}

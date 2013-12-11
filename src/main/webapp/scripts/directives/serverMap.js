@@ -22,13 +22,11 @@ pinpointApp.constant('serverMapConfig', {
             "sRouting": "Normal", // Normal, Orthogonal, AvoidNodes
             "sCurve": "JumpGap" // Bezier, JumpOver, JumpGap
         }
-    },
-    FILTER_DELIMETER: "^",
-    FILTER_ENTRY_DELIMETER: "|"
+    }
 });
 
-pinpointApp.directive('serverMap', [ 'serverMapConfig', '$window', 'ServerMapDao', 'Alerts', 'ProgressBar', 'encodeURIComponentFilter',
-    function (cfg, $window, ServerMapDao, Alerts, ProgressBar, encodeURIComponentFilter) {
+pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts', 'ProgressBar',
+    function (cfg, ServerMapDao, Alerts, ProgressBar) {
         return {
             restrict: 'EA',
             replace: true,
@@ -524,29 +522,18 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', '$window', 'ServerMapDao
                  * scope passing transaction map
                  */
                 scope.passingTransactionMap = function (srcSvcType, srcAppName, destSvcType, destAppName) {
-                    var application = scope.oNavbarVo.getApplication(),
-                        period = scope.oNavbarVo.getPeriod(),
-                        queryEndTime = scope.oNavbarVo.getQueryEndTime(),
-                        srcServiceType = srcSvcType || scope.srcServiceType,
+                    var srcServiceType = srcSvcType || scope.srcServiceType,
                         srcApplicationName = srcAppName || scope.srcApplicationName,
                         destServiceType = destSvcType || scope.destServiceType,
-                        destApplicationName = destAppName || scope.destApplicationName,
-                        prevFilter = scope.oNavbarVo.getFilter();
+                        destApplicationName = destAppName || scope.destApplicationName;
 
-                    if (srcApplicationName === 'USER' || srcApplicationName === 'CLIENT') {
-                        application = destApplicationName + '@1010';
-                    } else {
-                        application = srcApplicationName + '@1010';
-                    }
-
-                    var newFilter = ((prevFilter) ? prevFilter + cfg.FILTER_DELIMETER : "")
-                        + srcServiceType + cfg.FILTER_ENTRY_DELIMETER
-                        + srcApplicationName + cfg.FILTER_ENTRY_DELIMETER
-                        + destServiceType + cfg.FILTER_ENTRY_DELIMETER
-                        + destApplicationName;
-
-                    var url = '#/filteredMap/' + application + '/' + period + '/' + queryEndTime + '/' + encodeURIComponentFilter(newFilter);
-                    $window.open(url, "");
+                    var filterDataSet = {
+                        srcServiceType: srcServiceType,
+                        srcApplicationName: srcApplicationName,
+                        destServiceType: destServiceType,
+                        destApplicationName: destApplicationName
+                    };
+                    scope.$broadcast('serverMap.openFilteredMap', filterDataSet);
                     reset();
                 };
 
