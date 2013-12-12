@@ -11,7 +11,7 @@
     </appender>
 
     <appender name="dailyRollingFile" class="org.apache.log4j.DailyRollingFileAppender">
-        <param name="file" value="${pinpoint.log}/pinpoint.log" />
+        <param name="file" value="${pinpoint.log}/${pinpoint.agentId}-pinpoint.log" />
         <param name="Append" value="true" />
         <param name="DatePattern" value="'.'yyyy-MM-dd"/>
 
