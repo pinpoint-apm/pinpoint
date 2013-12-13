@@ -3,19 +3,19 @@
 
 		<div ng-switch-when="UNKNOWN_GROUP">
             <div class="alert alert-info text-center">
-                <img src="/images/icons/UNKNOWN_CLOUD.png" width="20" height="10" /> UNKNOWN GROUP
+                <img src="/images/icons/UNKNOWN_CLOUD.png" style="height:20px;" /> UNKNOWN GROUP
             </div>
 		</div>
 
 		<div ng-switch-when="USER">
             <div class="alert alert-info text-center">
-			    <img src="/images/icons/USER.png" width="20" height="10" /> USER
+			    <img src="/images/icons/USER.png" style="height:20px;" /> USER
             </div>
 		</div>
 
 		<div ng-switch-default>
             <div class="alert alert-info text-center">
-                <img ng-src="/images/icons/{{nodeIcon | icons}}.png" width="20" height="10"/> {{nodeTitle}}
+                <img ng-src="/images/icons/{{nodeIcon | icons}}.png" style="height:20px;" /> {{nodeTitle}}
             </div>
 		</div>
 	</div>
