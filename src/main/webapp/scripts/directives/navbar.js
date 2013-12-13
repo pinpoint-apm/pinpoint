@@ -283,8 +283,8 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                         if (chunk.length > 1) {
                             var img = $document.get(0).createElement("img");
                             img.src = "/images/icons/" + chunk[1] + ".png";
-                            img.width = 20;
-                            img.height = 20;
+                            img.style.width = "20px";
+                            img.style.height = "20px";
                             img.style.paddingRight = "3px";
                             return img.outerHTML + chunk[0];
                         } else {
