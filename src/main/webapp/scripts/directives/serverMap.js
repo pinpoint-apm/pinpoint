@@ -7,6 +7,7 @@ pinpointApp.constant('serverMapConfig', {
         "htIcons": {
             'APACHE': 'APACHE.png',
             'ARCUS': 'ARCUS.png',
+            'BLOC': 'BLOC.png',
             'CUBRID': 'CUBRID.png',
             'ETC': 'ETC.png',
             'MEMCACHED': 'MEMCACHED.png',
