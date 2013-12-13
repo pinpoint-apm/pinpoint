@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AutomaticBufferTest {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     @Test
@@ -123,6 +123,22 @@ public class AutomaticBufferTest {
         buffer.putPrefixedBytes(new byte[10]);
         buffer.put((byte)1);
 
+
+    }
+
+    @Test
+    public void testUdp() throws Exception {
+        // Signature:Header{signature=85, version=100, type=28704}
+        Buffer buffer = new AutomaticBuffer(10);
+        buffer.put((byte)85);
+        buffer.put((byte) 100);
+        buffer.put((short)28704);
+
+        Buffer read = new FixedBuffer(buffer.getBuffer());
+        logger.info("{}", (char)read.readByte());
+        logger.info("{}", (char)read.readByte());
+        logger.info("{}", (char)read.readByte());
+        logger.info("{}", (char)read.readByte());
 
     }
 
