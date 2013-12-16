@@ -25,6 +25,10 @@ pinpointApp.directive('agentChartGroup', [ 'agentChartGroupConfig', '$timeout', 
 
             scope.showChartGroup = false;
 
+            /**
+             * initialize
+             * @param query
+             */
             initialize = function (query) {
                 htChartCache = {
                     'Heap': false,
@@ -56,6 +60,12 @@ pinpointApp.directive('agentChartGroup', [ 'agentChartGroupConfig', '$timeout', 
                 element.tabs('paging');
             };
 
+            /**
+             * parse agent stat
+             * @param agentData
+             * @param agentStat
+             * @returns {*}
+             */
             parseAgentStat = function (agentData, agentStat) {
                 agentData.line.forEach(function (line) {
                     if (line.bar) {
@@ -100,8 +110,12 @@ pinpointApp.directive('agentChartGroup', [ 'agentChartGroupConfig', '$timeout', 
                 return agentData;
             };
 
+            /**
+             * show heap chart
+             * @param agentStat
+             */
             showHeapChart = function (agentStat) {
-                htChartCache['Heap'] = true;
+                htChartCache.Heap = true;
                 var heap = { id: 'heap', title: 'Heap', span: 'span12', line: [
                     { id: 'jvmMemoryHeapUsed', key: 'used', values: [] },
                     { id: 'jvmMemoryHeapMax', key: 'max', values: [] },
@@ -119,8 +133,12 @@ pinpointApp.directive('agentChartGroup', [ 'agentChartGroupConfig', '$timeout', 
                 scope.$broadcast('linePlusBarChart.initialize.Heap_' + scope.namespace, oLinePlusBarChartVo);
             };
 
+            /**
+             * show perm gen chart
+             * @param agentStat
+             */
             showPermGenChart = function (agentStat) {
-                htChartCache['PermGen'] = true;
+                htChartCache.PermGen = true;
                 var nonheap = { id: 'nonheap', title: 'PermGen', span: 'span12', line: [
                     { id: 'jvmMemoryNonHeapUsed', key: 'used', values: [] },
                     { id: 'jvmMemoryNonHeapMax', key: 'max', values: [] },
@@ -138,6 +156,9 @@ pinpointApp.directive('agentChartGroup', [ 'agentChartGroupConfig', '$timeout', 
                 scope.$broadcast('linePlusBarChart.initialize.PermGen_' + scope.namespace, oLinePlusBarChartVo);
             };
 
+            /**
+             * scope event on agentChartGroup.initialize.namespace
+             */
             scope.$on('agentChartGroup.initialize.' + scope.namespace, function (event, query) {
                 initialize(query);
             });

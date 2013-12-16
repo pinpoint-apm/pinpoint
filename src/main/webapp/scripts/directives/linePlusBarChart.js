@@ -10,14 +10,17 @@ pinpointApp.directive('linePlusBarChart', function () {
         },
         link: function postLink(scope, element, attrs) {
 
-
+            // define private variables of methods
             var initialize;
 
+            /**
+             * initialize
+             * @param oLinePlusBarChartVo
+             */
             initialize = function (oLinePlusBarChartVo) {
 
                 if (angular.isDefined(oLinePlusBarChartVo.height)) {
                     attrs.$set('height', oLinePlusBarChartVo.height);
-                    console.log('height', oLinePlusBarChartVo.height);
                 }
 
                 // draw a chart
@@ -54,6 +57,9 @@ pinpointApp.directive('linePlusBarChart', function () {
                 });
             };
 
+            /**
+             * scope event on linePlusBarChart.initialize.namespace
+             */
             scope.$on('linePlusBarChart.initialize.' + scope.namespace, function (event, oLinePlusBarChartVo) {
                 initialize(oLinePlusBarChartVo);
             });

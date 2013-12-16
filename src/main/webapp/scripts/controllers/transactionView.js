@@ -18,7 +18,7 @@ pinpointApp.controller('TransactionViewCtrl', [ 'TransactionViewConfig', '$scope
         $rootScope.wrapperStyle = {
             'padding-top': '240px'
         };
-        htHeapCache = {};
+
         oAlert = new Alerts($rootElement);
         oProgressBar = new ProgressBar($rootElement);
 
