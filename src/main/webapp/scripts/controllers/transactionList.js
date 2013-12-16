@@ -168,10 +168,12 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
          * @param transaction
          */
         changeTransactionDetail = function (transaction) {
-            $scope.transactionDetailUrl = '#/transactionDetail';
+            var transactionDetailUrl = 'index.html#/transactionDetail'; // the filename should be existing, if not it's doesn't work on ie and firefox
             if (transaction.traceId && transaction.collectorAcceptTime) {
-                $scope.transactionDetailUrl += '/' + encodeURIComponentFilter(transaction.traceId) + '/' + transaction.collectorAcceptTime;
+                transactionDetailUrl += '/' + encodeURIComponentFilter(transaction.traceId) + '/' + transaction.collectorAcceptTime;
+                $scope.transactionDetailUrl = transactionDetailUrl;
             }
+
         };
 
         /**
