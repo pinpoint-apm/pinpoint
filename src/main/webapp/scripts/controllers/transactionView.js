@@ -1,23 +1,24 @@
 'use strict';
-pinpointApp.constant('TransactionDetailConfig', {
+
+pinpointApp.constant('TransactionViewConfig', {
     applicationUrl: '/transactionInfo.pinpoint'
 });
 
-pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$scope', '$rootScope', '$routeParams', '$timeout', '$rootElement', 'Alerts', 'ProgressBar', 'TransactionDao', '$window', '$location',
-    function (cfg, $scope, $rootScope, $routeParams, $timeout, $rootElement, Alerts, ProgressBar, TransactionDao, $window, $location) {
+pinpointApp.controller('TransactionViewCtrl', [ 'TransactionViewConfig', '$scope', '$rootScope', '$rootElement', 'Alerts', 'ProgressBar', '$timeout', '$routeParams', 'TransactionDao', 'AgentDao',
+    function (cfg, $scope, $rootScope, $rootElement, Alerts, ProgressBar, $timeout, $routeParams, TransactionDao, AgentDao) {
 
         // define private variables
-        var oAlert, oProgressBar, bShowCallStacksOnce;
+        var oAlert, oProgressBar, htHeapCache;
 
         // define private variables of methods
-        var parseTransactionDetail, showCallStacks, parseCompleteStateToClass;
+        var parseTransactionDetail, parseCompleteStateToClass, showCallStacks, showServerMap, showHeapChart;
 
         // initialize
-        bShowCallStacksOnce = false;
         $rootScope.wrapperClass = 'no-navbar';
         $rootScope.wrapperStyle = {
-            'padding-top': '70px'
+            'padding-top': '240px'
         };
+        htHeapCache = {};
         oAlert = new Alerts($rootElement);
         oProgressBar = new ProgressBar($rootElement);
 
@@ -25,7 +26,7 @@ pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$sc
          * initialize
          */
         $timeout(function () {
-            if ($routeParams.traceId && $routeParams.focusTimestamp) {
+            if ($routeParams.agentId && $routeParams.traceId && $routeParams.focusTimestamp) {
                 oProgressBar.startLoading();
                 oProgressBar.setLoading(30);
                 TransactionDao.getTransactionDetail($routeParams.traceId, $routeParams.focusTimestamp, function (err, result) {
@@ -36,13 +37,15 @@ pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$sc
                     oProgressBar.setLoading(70);
                     parseTransactionDetail(result);
                     showCallStacks();
+                    showServerMap();
                     $timeout(function () {
                         oProgressBar.setLoading(100);
                         oProgressBar.stopLoading();
                     }, 100);
                 });
+                showHeapChart($routeParams.agentId, $routeParams.focusTimestamp);
             }
-        });
+        }, 100);
 
         /**
          * parse transaction detail
@@ -73,26 +76,30 @@ pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$sc
          * show call stacks
          */
         showCallStacks = function () {
-            if (bShowCallStacksOnce === false) {
-                bShowCallStacksOnce = true;
-                $scope.$broadcast('callStacks.initialize.forTransactionDetail', $scope.transactionDetail);
-            }
+            $scope.$broadcast('callStacks.initialize.forTransactionView', $scope.transactionDetail);
         };
 
-        $scope.openInNewWindow = function () {
-            $window.open($location.absUrl());
-        };
-
-        // events binding
-        $("#traceTabs li a").bind("click", function (e) {
-            e.preventDefault();
-        });
-        $("#traceTabs li:nth-child(2) a").bind("click", function (e) {
+        /**
+         * show server map
+         */
+        showServerMap = function () {
             $scope.$broadcast('serverMap.initializeWithMapData', $scope.transactionDetail);
-        });
-        $("#traceTabs li:nth-child(3) a").bind("click", function (e) {
-            $scope.$broadcast('timeline.initialize', $scope.transactionDetail);
-        });
+        };
+
+        /**
+         * show heap chart
+         */
+        showHeapChart = function (agentId, focusTimestamp) {
+            focusTimestamp = parseInt(focusTimestamp, 10);
+            var query = {
+                agentId: agentId,
+                from: focusTimestamp - (1000 * 60 * 10), // - 10 mins
+                to: focusTimestamp + (1000 * 60 * 10), // + 10 mins
+                sampleRate: AgentDao.getSampleRate(20)
+            };
+            $scope.$broadcast('agentChartGroup.initialize.forTransactionView', query);
+        };
+
 
     }
 ]);

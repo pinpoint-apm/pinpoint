@@ -107,7 +107,7 @@ pinpointApp.directive('callStacks', [ 'callStacksConfig', function (cfg) {
             /**
              * scope event on callStacks.initialize
              */
-            scope.$on('callStacks.' + scope.namespace + '.initialize', function (event, transactionDetail) {
+            scope.$on('callStacks.initialize.' + scope.namespace, function (event, transactionDetail) {
                 initialize(transactionDetail);
             });
         }

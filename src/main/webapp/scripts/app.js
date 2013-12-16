@@ -29,6 +29,9 @@ pinpointApp.config(['$routeProvider', '$locationProvider', function ($routeProvi
     }).when('/transactionDetail/:traceId/:focusTimestamp', {
         templateUrl: 'views/transactionDetail.html',
         controller: 'TransactionDetailCtrl'
+    }).when('/transactionView/:agentId/:traceId/:focusTimestamp', {
+        templateUrl: 'views/transactionView.html',
+        controller: 'TransactionViewCtrl'
     }).otherwise({
         redirectTo: '/main'
     });

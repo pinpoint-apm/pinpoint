@@ -56,8 +56,12 @@ pinpointApp.directive('transactionTable', ['$window', function ($window) {
                 scope.$emit('transactionTable.applicationSelected', transaction);
             };
 
-            scope.traceByApplicationInNewWindow = function (transaction) {
-                $window.open('#/transactionDetail/' + transaction.traceId + '/' + transaction.collectorAcceptTime);
+            /**
+             * open transaction view
+             * @param transaction
+             */
+            scope.openTransactionView = function (transaction) {
+                $window.open('#/transactionView/' + transaction.agentId + '/' + transaction.traceId + '/' + transaction.collectorAcceptTime);
             };
 
             /**

@@ -29,7 +29,10 @@
     <li class="active"><a href="#CallStacks" data-toggle="tab">Distributed Call Flow</a></li>
     <li><a href="#ServerMap" data-toggle="tab">Server Map</a></li>
     <li><a href="#Timeline" data-toggle="tab">RPC Timeline</a></li>
-    <li style="position: absolute; top: 6px; right: 10px;"><span class="label" ng-class="completeStateClass"><i class="icon-refresh icon-white"></i> {{transactionDetail.completeState}}</span></li>
+    <li style="position: absolute; top: 6px; right: 10px;">
+        <span class="label" ng-class="completeStateClass"><i class="icon-refresh icon-white"></i> {{transactionDetail.completeState}}</span>
+        <button ng-click="openInNewWindow();$event.stopPropagation()" class="btn btn-mini" target="_blank" title="New Window"><i class="icon-share"></i></button>
+    </li>
 </ul>
 
 <div class="tab-content" style="width:100%;height:100%;overflow:auto;">

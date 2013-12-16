@@ -61,7 +61,7 @@
                     </td>
                     <td ng-click="traceByApplication(transaction)" style="cursor:pointer">
                         {{transaction.application}}
-                        <a ng-click="traceByApplicationInNewWindow(transaction);$event.stopPropagation()" target="_blank"><i class="icon-share" style="margin-top:-1px;"></i></a>
+                        <a ng-click="openTransactionView(transaction);$event.stopPropagation()" target="_blank"><i class="icon-share" style="margin-top:-1px;"></i></a>
                     <td ng-click="traceByApplication(transaction)" style='cursor:pointer;padding-right:15px;text-align:right'>{{transaction.elapsed | number}}</td>
                     <td ng-click="traceByApplication(transaction)" style="cursor:pointer;text-align:center;">{{{true: 'true', false: ''}[transaction.exception == 1]}}</td>
                     <td ng-click="traceByApplication(transaction)" style="cursor:pointer">{{transaction.agentId}}</td>

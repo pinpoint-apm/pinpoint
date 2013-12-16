@@ -1,0 +1,35 @@
+<style type="text/css">
+    .app-title {
+        text-align:center;
+        line-height:30px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overow: ellipsis;
+    }
+</style>
+<div class="navbar navbar-fixed-top" style="height:30px;background-color:#252a3a;color:#ddd;font-size:11px;">
+    <div class="row-fluid">
+        <div class="span3 app-title">Application : {{transactionDetail.applicationName}}</div>
+        <div class="span3 app-title">TransactionId : {{transactionDetail.transactionId}}</div>
+        <div class="span3 app-title">AgentId : {{transactionDetail.agentId}}</div>
+        <div class="span3 app-title">ApplicationName : {{transactionDetail.applicationId}}</div>
+    </div>
+</div>
+
+<div style="position: absolute;top:30px;left:0;width:50%;height:210px;">
+    <agent-chart-group namespace="forTransactionView"></agent-chart-group>
+</div>
+
+<div style="position: absolute;top:30px;right:0;width:50%;height:210px;">
+    <server-map></server-map>
+</div>
+
+<div style="width:100%;height:100%;">
+    <call-stacks namespace="forTransactionView"></call-stacks>
+</div>
+
+<div ng-include=" 'error' "></div>
+<div ng-include=" 'warning' "></div>
+<div ng-include=" 'info' "></div>
+<div ng-include=" 'loading' "></div>
