@@ -19,6 +19,7 @@ import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
 import com.nhn.pinpoint.rpc.server.ServerMessageListener;
 import com.nhn.pinpoint.rpc.server.ServerStreamChannel;
 import com.nhn.pinpoint.rpc.server.SocketChannel;
+import com.nhn.pinpoint.thrift.io.L4Packet;
 import com.nhn.pinpoint.thrift.io.SafeHeaderTBaseSerializer;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -160,6 +161,14 @@ public class TCPReceiver {
             SocketAddress remoteAddress = socketChannel.getRemoteAddress();
             try {
                 TBase<?, ?> tBase = deserializer.deserialize(bytes);
+                if (tBase instanceof L4Packet) {
+                    // 동적으로 패스가 가능하도록 보완해야 될듯 하다.
+                    if (logger.isDebugEnabled()) {
+                        L4Packet packet = (L4Packet) tBase;
+                        logger.debug("tcp l4 packet {}", packet.getHeader());
+                    }
+                    return;
+                }
                 TBase result = dispatchHandler.dispatch(tBase, bytes, Header.HEADER_SIZE, bytes.length);
                 if (result != null) {
                     SafeHeaderTBaseSerializer serializer = new SafeHeaderTBaseSerializer();

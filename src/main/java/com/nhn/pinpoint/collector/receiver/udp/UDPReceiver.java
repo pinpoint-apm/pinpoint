@@ -13,6 +13,7 @@ import com.nhn.pinpoint.thrift.io.Header;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.nhn.pinpoint.common.util.ExecutorFactory;
 import com.nhn.pinpoint.rpc.util.CpuUtils;
+import com.nhn.pinpoint.thrift.io.L4Packet;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
@@ -122,6 +123,12 @@ public class UDPReceiver implements DataReceiver {
             DatagramPacket packet = read0();
             if (packet == null) {
                 continue;
+            }
+            if (packet.getLength() == 0) {
+                if (debugEnabled) {
+                    logger.debug("length is 0 ip:{}, port:{}", packet.getAddress(), packet.getPort());
+                }
+                return;
             }
             if (debugEnabled) {
                 logger.debug("pool getActiveCount:{}", worker.getActiveCount());
@@ -263,6 +270,14 @@ public class UDPReceiver implements DataReceiver {
             TBase<?, ?> tBase = null;
             try {
                 tBase = deserializer.deserialize(packet.getData());
+                if (tBase instanceof L4Packet) {
+                    // 동적으로 패스가 가능하도록 보완해야 될듯 하다.
+                    if (logger.isDebugEnabled()) {
+                        L4Packet packet = (L4Packet) tBase;
+                        logger.debug("udp l4 packet {}", packet.getHeader());
+                    }
+                    return;
+                }
                 // dispatch는 비지니스 로직 실행을 의미.
                 dispatchHandler.dispatch(tBase, packet.getData(), Header.HEADER_SIZE, packet.getLength());
             } catch (TException e) {
