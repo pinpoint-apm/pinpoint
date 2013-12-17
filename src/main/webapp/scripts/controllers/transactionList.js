@@ -28,7 +28,7 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
             // initialize private variables;
             nFetchCount = 1;
             nLastFetchedIndex = 0;
-            $scope.transactionDetailUrl = '#/transactionDetail';
+            $scope.transactionDetailUrl = 'index.html#/transactionDetail';
 
 //            htTransactions = webStorage.session.get($window.name);
 //        htTransactions = opener[$window.name];
