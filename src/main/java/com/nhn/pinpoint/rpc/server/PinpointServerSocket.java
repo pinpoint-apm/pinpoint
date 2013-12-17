@@ -22,6 +22,7 @@ import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -47,6 +48,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 
     private ServerMessageListener messageListener = SimpleLoggingServerMessageListener.LISTENER;
     private WriteFailFutureListener traceSendAckWriteFailFutureListener = new  WriteFailFutureListener(logger, "TraceSendAckPacket send fail.", "TraceSendAckPacket send() success.");
+    private InetAddress ignoreAddress;
 
     public PinpointServerSocket() {
         ServerBootstrap bootstrap = createBootStrap(1, WORKER_COUNT);
@@ -54,6 +56,10 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         addPipeline(bootstrap);
         this.bootstrap = bootstrap;
         this.pingTimer = TimerFactory.createHashedWheelTimer("PinpointServerSocket-PingTimer", 50, TimeUnit.MILLISECONDS, 512);
+    }
+
+    public void setIgnoreAddress(InetAddress ignoreAddress) {
+        this.ignoreAddress = ignoreAddress;
     }
 
     private void addPipeline(ServerBootstrap bootstrap) {
@@ -77,6 +83,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 
     private void setOptions(ServerBootstrap bootstrap) {
         // read write timeout이 있어야 되나? nio라서 없어도 되던가?
+        // write timeout은 별도 interceptor를 통해서 이루어 져야 함. write timeout은 있음.
 
         // tcp 세팅
         bootstrap.setOption("child.tcpNoDelay", true);
@@ -242,10 +249,29 @@ public class PinpointServerSocket extends SimpleChannelHandler {
                 logger.debug("client channelClosed. server shutdown. {}", channel);
             }
         } else {
-            logger.warn("Unexpected Client channelClosed {}", channel);
-
+            boolean check = checkIgnoreAddress(channel);
+            if (check) {
+                logger.warn("Unexpected Client channelClosed {}", channel);
+            } else {
+                logger.debug("Unexpected checkAddress channelClosed {}", channel);
+            }
         }
         channelContext.closeAllStreamChannel();
+    }
+
+    private boolean checkIgnoreAddress(Channel channel) {
+        if (ignoreAddress == null) {
+            return true;
+        }
+        final InetSocketAddress remoteAddress = (InetSocketAddress) channel.getRemoteAddress();
+        if (remoteAddress == null) {
+            return true;
+        }
+        InetAddress address = remoteAddress.getAddress();
+        if (ignoreAddress.equals(address)) {
+            return false;
+        }
+        return true;
     }
 
     private ChannelContext getChannelContext(Channel channel) {
