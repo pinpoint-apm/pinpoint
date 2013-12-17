@@ -17,6 +17,7 @@ public class HeaderTBaseDeserializer {
 
     private static final TBaseLocator DEFAULT_TBASE_LOCATOR = new DefaultTBaseLocator();
     private final TBaseLocator locator = DEFAULT_TBASE_LOCATOR;
+
     /**
      * Create a new TDeserializer that uses the TBinaryProtocol by default.
      */
@@ -24,6 +25,8 @@ public class HeaderTBaseDeserializer {
 //        this(new TBinaryProtocol.Factory());
         this(new TCompactProtocol.Factory());
     }
+
+
 
     /**
      * Create a new TDeserializer. It will use the TProtocol specified by the
@@ -45,29 +48,37 @@ public class HeaderTBaseDeserializer {
         try {
             trans_.reset(bytes);
             Header header = readHeader();
-            validate(header);
-            TBase<?, ?> base = locator.tBaseLookup(header.getType());
-            base.read(protocol_);
-            return base;
+            final int validate = validate(header);
+            if (validate == HeaderUtils.OK) {
+                TBase<?, ?> base = locator.tBaseLookup(header.getType());
+                base.read(protocol_);
+                return base;
+            }
+            if (validate == HeaderUtils.PASS_L4) {
+                return new L4Packet(header);
+            }
+            throw new IllegalStateException("invalid validate " + validate);
         } finally {
             trans_.clear();
             protocol_.reset();
         }
     }
 
-    private void validate(Header header) throws TException {
-        boolean accepted = HeaderUtils.validateSignature(header.getSignature());
-        if (!accepted) {
+    private int validate(Header header) throws TException {
+        final byte signature = header.getSignature();
+        final int result = HeaderUtils.validateSignature(signature);
+        if (result == HeaderUtils.FAIL) {
             throw new TException("Invalid Signature:" + header);
         }
+        return result;
     }
 
     private Header readHeader() throws TException {
-        byte signature = protocol_.readByte();
-        byte version = protocol_.readByte();
+        final byte signature = protocol_.readByte();
+        final byte version = protocol_.readByte();
         // 프로토콜 변경에 관계 없이 고정 사이즈의 데이터로 인코딩 하도록 변경.
-        byte type1 = protocol_.readByte();
-        byte type2 = protocol_.readByte();
+        final byte type1 = protocol_.readByte();
+        final byte type2 = protocol_.readByte();
         final short type = bytesToShort(type1, type2);
         return new Header(signature, version, type);
     }
@@ -76,38 +87,4 @@ public class HeaderTBaseDeserializer {
         return (short) (((byte1 & 0xff) << 8) | ((byte2 & 0xff)));
     }
 
-    /**
-     * Deserialize the Thrift object from a Java string, using a specified
-     * character set for decoding.
-     *
-     * @param base
-     *            The object to read into
-     * @param data
-     *            The string to read from
-     * @param charset
-     *            Valid JVM charset
-     */
-    // public void deserialize(TBase base, String data, String charset) throws
-    // TException {
-    // try {
-    // deserialize(base, data.getBytes(charset));
-    // } catch (UnsupportedEncodingException uex) {
-    // throw new TException("JVM DOES NOT SUPPORT ENCODING: " + charset);
-    // } finally {
-    // protocol_.reset();
-    // }
-    // }
-
-    /**
-     * Deserialize the Thrift object from a Java string, using the default JVM
-     * charset encoding.
-     *
-     * @param base
-     *            The object to read into
-     * @param data
-     *            The string to read from
-     */
-    // public void fromString(TBase base, String data) throws TException {
-    // deserialize(base, data.getBytes());
-    // }
 }
