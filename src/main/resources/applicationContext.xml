@@ -33,10 +33,10 @@
 
     </bean>
 
-    <util:properties id="pinpoint-collector.properties" location="classpath:pinpoint-collector.properties" />
+    <util:properties id="pinpoint_collector_properties" location="classpath:pinpoint-collector.properties" />
 
     <bean id="collectorConfiguration" class="com.nhn.pinpoint.collector.config.CollectorConfiguration">
-        <property name="properties" ref="pinpoint-collector.properties"/>
+        <property name="properties" ref="pinpoint_collector_properties"/>
     </bean>
 
     <import resource="classpath:applicationContext-hbase.xml"/>

@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.collector.receiver.tcp;
 
-import java.net.SocketAddress;
+import java.net.*;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -25,6 +25,7 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -45,6 +46,9 @@ public class TCPReceiver {
     private int threadSize = 256;
     private int workerQueueSize = 1024 * 5;
 
+    @Value("#{pinpoint_collector_properties['collector.l4.ip']}")
+    private String l4ip;
+
     private final ThreadPoolExecutor worker = ExecutorFactory.newFixedThreadPool(threadSize, workerQueueSize, THREAD_FACTORY);
 
     public TCPReceiver(DispatchHandler dispatchHandler, String bindAddress, int port) {
@@ -60,8 +64,21 @@ public class TCPReceiver {
         this.port = port;
 	}
 
+    private void setL4TcpChannel(PinpointServerSocket pinpointServerSocket) {
+        if (l4ip == null) {
+            return;
+        }
+        try {
+            InetAddress inetAddress = InetAddress.getByName(l4ip);
+            pinpointServerSocket.setIgnoreAddress(inetAddress);
+        } catch (UnknownHostException e) {
+            logger.warn("l4ip error {}", l4ip, e);
+        }
+    }
+
     @PostConstruct
 	public void start() {
+        setL4TcpChannel(pinpointServerSocket);
         // message handler를 붙일 경우 주의점
         // iothread에서 올라오는 이벤트 이기 때문에. queue에 넣던가. 별도 thread처리등을 해야 한다.
         this.pinpointServerSocket.setMessageListener(new ServerMessageListener() {
