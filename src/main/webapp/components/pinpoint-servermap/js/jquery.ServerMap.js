@@ -314,8 +314,9 @@
                     self.$(
                         go.Shape,  // the arrowhead
                         {
-                            toArrow: "standard",
-                            fill: '#2F4F4F', // toArrow : kite, standard, OpenTriangle
+                            name: "ARROW",
+                            toArrow: "standard",  // toArrow : kite, standard, OpenTriangle
+                            fill: htOption.borderColor,
                             stroke: null,
                             scale: 1.5
                         }
@@ -526,6 +527,7 @@
             while (allLinks.next()) {
                 this._highlightLink(allLinks.value.findObject("LINK"), allLinks.value.highlight);
                 this._highlightLink(allLinks.value.findObject("LINK2"), allLinks.value.highlight);
+                this._highlightLink(allLinks.value.findObject("ARROW"), allLinks.value.highlight, true);
             }
         },
 
@@ -577,6 +579,13 @@
             return false;
         },
 
+        /**
+         * highlight node
+         * @param node
+         * @param nodeText
+         * @param theme
+         * @private
+         */
         _hightlightNode: function (node, nodeText, theme) {
             if (node === null || nodeText === null) {
                 return;
@@ -590,14 +599,26 @@
             }
         },
 
-        _highlightLink: function (shape, theme) {
+        /**
+         * highlight link
+         * @param shape
+         * @param theme
+         * @private
+         */
+        _highlightLink: function (shape, theme, toFill) {
             if (shape === null) {
                 return;
             }
+            var color;
             if (theme) {
-                shape.stroke = this.option('htHighlightLink')[theme].borderColor;
+                color = this.option('htHighlightLink')[theme].borderColor;
             } else {
-                shape.stroke = this.option('htLinkTheme').default.borderColor;
+                color = this.option('htLinkTheme').default.borderColor;
+            }
+            if (toFill) {
+                shape.fill = color;
+            } else {
+                shape.stroke = color;
             }
         },
 
