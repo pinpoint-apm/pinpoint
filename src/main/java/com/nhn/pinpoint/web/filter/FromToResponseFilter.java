@@ -94,7 +94,7 @@ public class FromToResponseFilter implements Filter {
 						// 서버 맵 스펙하고 맞춰면 될 듯.
 						return span.getErrCode() > 0 && checkResponseCondition(span.getElapsed());
 					} else {
-						return checkResponseCondition(span.getElapsed());
+						return span.getErrCode() == 0 && checkResponseCondition(span.getElapsed());
 					}
 				}
 			}
@@ -111,7 +111,7 @@ public class FromToResponseFilter implements Filter {
 							if (findError) {
 								return event.hasException() && checkResponseCondition(event.getEndElapsed());
 							} else {
-								return checkResponseCondition(event.getEndElapsed());
+								return !event.hasException() && checkResponseCondition(event.getEndElapsed());
 							}
 						}
 					}
@@ -137,7 +137,7 @@ public class FromToResponseFilter implements Filter {
 								// 어떤게 맞지?? 서버 맵 스펙하고 맞춰면 될 듯.
 								return destSpan.getErrCode() > 0 && checkResponseCondition(destSpan.getElapsed());
 							} else {
-								return checkResponseCondition(destSpan.getElapsed());
+								return destSpan.getErrCode() == 0 && checkResponseCondition(destSpan.getElapsed());
 							}
 						}
 					}
@@ -155,7 +155,7 @@ public class FromToResponseFilter implements Filter {
 							if (findError) {
 								return event.hasException() && checkResponseCondition(event.getEndElapsed());
 							} else {
-								return checkResponseCondition(event.getEndElapsed());
+								return !event.hasException() && checkResponseCondition(event.getEndElapsed());
 							}
 						}
 					}
