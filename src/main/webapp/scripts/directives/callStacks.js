@@ -3,11 +3,11 @@
 pinpointApp.constant('callStacksConfig', {
     agentDividerWarningTime : 500,
     agentDividerClasses : [
-        'btn-primary',
-        'btn-success',
-        'btn-info',
-        'btn-warning',
-        'btn-danger'
+        'first',
+        'second',
+        'third',
+        'forth',
+        'fifth'
     ]
 });
 
@@ -41,7 +41,7 @@ pinpointApp.directive('callStacks', [ 'callStacksConfig', function (cfg) {
                 addAgentDividerClassToTransactionDetail();
                 scope.$digest();
                 var oTreeGridTable = new TreeGridTable({
-                    tableId : element, // element should be a table of DOM, so it should be replace:true at the top
+                    tableId : element.find('table'), // element should be a table of DOM, so it should be replace:true at the top
                     height : "auto"
                 });
             };

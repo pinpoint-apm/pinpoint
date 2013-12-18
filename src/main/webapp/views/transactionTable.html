@@ -20,7 +20,7 @@
                            ng-class="{true: 'icon-arrow-down', false: 'icon-arrow-up'}[transactionReverse]"></i></div>
                 </th>
                 <th>
-                    <div class="th-inner" ng-click="transactionOrder('elapsed')" style="cursor:pointer">Res. Time
+                    <div class="th-inner" ng-click="transactionOrder('elapsed')" style="cursor:pointer">Res. (ms)
                         <i ng-show="transactionOrderBy == 'elapsed'"
                            ng-class="{true: 'icon-arrow-down', false: 'icon-arrow-up'}[transactionReverse]"></i></div>
                 </th>
@@ -49,7 +49,7 @@
             </thead>
             <tbody style="overflow: auto;height:100%">
                 <tr ng-repeat="transaction in transactionList | orderBy:transactionOrderBy:transactionReverse"
-                    ng-class="{true: 'info', false: {'error': transaction.exception}}[transaction == currentTransaction]">
+                    ng-class="{true: 'success', false: {'error': transaction.exception}}[transaction == currentTransaction]">
                     <td>
                         <div style='padding-right:5px;text-align:right;position:relative;'>
                             <a href ng-href="/transactionInfo.pinpoint?traceId={{transaction.traceId}}&focusTimestamp={{transaction.collectorAcceptTime}}"
@@ -63,7 +63,7 @@
                         {{transaction.application}}
                         <a ng-click="openTransactionView(transaction);$event.stopPropagation()" target="_blank" title="Open Transaction View in New Window"><i class="icon-list-alt" style="margin-top:-1px;"></i></a>
                     <td ng-click="traceByApplication(transaction)" style='cursor:pointer;padding-right:15px;text-align:right'>{{transaction.elapsed | number}}</td>
-                    <td ng-click="traceByApplication(transaction)" style="cursor:pointer;text-align:center;">{{{true: 'true', false: ''}[transaction.exception == 1]}}</td>
+                    <td ng-click="traceByApplication(transaction)" style="cursor:pointer;text-align:center;"><i class="icon-fire" ng-show="transaction.exception == 1"></i></td>
                     <td ng-click="traceByApplication(transaction)" style="cursor:pointer">{{transaction.agentId}}</td>
                     <td ng-click="traceByApplication(transaction)" style="cursor:pointer">{{transaction.remoteAddr}}</td>
                     <td ng-click="traceByApplication(transaction)" style="cursor:pointer">{{transaction.traceId}}</td>
