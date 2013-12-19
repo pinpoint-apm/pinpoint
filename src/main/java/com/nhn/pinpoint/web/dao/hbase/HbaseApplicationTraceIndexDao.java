@@ -48,7 +48,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 	private RowMapper<List<Dot>> traceIndexScatterMapper;
 
     @Autowired
-    @Qualifier("traceIdRowKeyDistributor")
+    @Qualifier("applicationTraceIndexDistributor")
     private AbstractRowKeyDistributor traceIdRowKeyDistributor;
 
 	private int scanCacheSize = 256;
