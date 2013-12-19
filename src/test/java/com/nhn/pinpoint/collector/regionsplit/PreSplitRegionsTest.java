@@ -17,20 +17,43 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration("classpath:applicationContext-test.xml")
 public class PreSplitRegionsTest {
 
-	int traceRegionNumber = 32;
+    int metaDataNumber = 8;
+	int traceRegionNumber = 64;
 	int traceIndexRegionNumber = 32;
 	int agentStatRegionNumber = 32;
 
+    String metadata = "%s";
 	String tracesFormat = "create 'Traces', { NAME => 'S', TTL => 604800  }, { NAME => 'A', TTL => 604800  }, { NAME => 'T', TTL => 604800  }, %s";
 	String traceIndexFormat = "create 'ApplicationTraceIndex', { NAME => 'I', TTL => 604800  }, %s";
 	String agentStatFormat = "create 'AgentStat', { NAME => 'S', TTL => 604800  }, %s";
 
     @Autowired
-    @Qualifier("rowKeyDistributor")
+    @Qualifier("applicationTraceIndexDistributor")
     private AbstractRowKeyDistributor rowKeyDistributor;
 
-	@Test
-	public void traceRegions() {
+
+    @Test
+    public void metaData8() {
+        List<String> regions = new ArrayList<String>();
+
+        OneByteSimpleHash hash = new OneByteSimpleHash(metaDataNumber);
+        for (byte[] each : hash.getAllPossiblePrefixes()) {
+            byte onebyte = each[0];
+            if (onebyte == 0) {
+                continue;
+            }
+
+            String region = "\\x" +  Integer.toString((onebyte & 0xff) + 0x100, 16).substring(1);
+            for (int i = 0; i < 15; i++) {
+                region += "\\x00";
+            }
+            regions.add(region);
+        }
+
+        printCommand(metadata, regions);
+    }
+    @Test
+	public void traceRegions64() {
         List<String> regions = new ArrayList<String>();
 
         OneByteSimpleHash hash = new OneByteSimpleHash(traceRegionNumber);

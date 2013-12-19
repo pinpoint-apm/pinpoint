@@ -16,7 +16,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class HbaseApplicationTraceIndexDaoTest {
 
     @Autowired
-    @Qualifier("rowKeyDistributor")
+    @Qualifier("applicationTraceIndexDistributor")
     private RowKeyDistributorByHashPrefix distributorByHashPrefix;
 
     @Test

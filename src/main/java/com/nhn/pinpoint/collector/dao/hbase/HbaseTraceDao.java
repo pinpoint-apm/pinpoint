@@ -45,7 +45,7 @@ public class HbaseTraceDao implements TracesDao {
     private AcceptedTimeService acceptedTimeService;
 
     @Autowired
-    @Qualifier("rowKeyDistributor")
+    @Qualifier("traceDistributor")
     private AbstractRowKeyDistributor rowKeyDistributor;
 
     @Override

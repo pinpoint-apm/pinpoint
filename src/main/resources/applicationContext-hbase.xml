@@ -31,15 +31,27 @@
         <property name="poolSize" value="${hbase.hTablePoolSize}"></property>
     </bean>
 
-    <bean id="rowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
+    <bean id="applicationTraceIndexDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
         <constructor-arg>
-            <ref bean="hasher"></ref>
+            <ref bean="applicationTraceIndex"></ref>
         </constructor-arg>
     </bean>
 
-    <bean id="hasher" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix$OneByteSimpleHash">
+    <bean id="applicationTraceIndex" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix$OneByteSimpleHash">
         <constructor-arg>
             <value type="int">32</value>
+        </constructor-arg>
+    </bean>
+
+    <bean id="traceDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
+        <constructor-arg>
+            <ref bean="traceHasher"></ref>
+        </constructor-arg>
+    </bean>
+
+    <bean id="traceHasher" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix$OneByteSimpleHash">
+        <constructor-arg>
+            <value type="int">64</value>
         </constructor-arg>
     </bean>
 
@@ -64,6 +76,6 @@
     <bean id="metadataRangeHasher" class="com.nhn.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
         <constructor-arg type="int" value="0"/>
         <constructor-arg type="int" value="32"/>
-        <constructor-arg type="int" value="32"/>
+        <constructor-arg type="int" value="8"/>
     </bean>
 </beans>

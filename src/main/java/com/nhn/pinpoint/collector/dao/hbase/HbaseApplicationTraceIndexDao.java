@@ -14,7 +14,6 @@ import org.apache.hadoop.hbase.client.Put;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
-import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.util.SpanUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
@@ -35,7 +34,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     private AcceptedTimeService acceptedTimeService;
 
     @Autowired
-    @Qualifier("rowKeyDistributor")
+    @Qualifier("applicationTraceIndexDistributor")
     private AbstractRowKeyDistributor rowKeyDistributor;
 
 	@Override
