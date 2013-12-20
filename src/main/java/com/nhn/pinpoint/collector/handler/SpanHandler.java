@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * @author emeroad
+ * @author netspider
  */
 @Service
 public class SpanHandler implements SimpleHandler {
@@ -57,8 +58,8 @@ public class SpanHandler implements SimpleHandler {
 //				statisticsHandler.updateCallee(span.getApplicationName(), span.getServiceType(), span.getApplicationName(), ServiceType.CLIENT.getCode(), span.getEndPoint(), span.getElapsed(), span.getErr() > 0);
 //				statisticsHandler.updateCaller(span.getApplicationName(), ServiceType.CLIENT.getCode(), span.getApplicationName(), span.getServiceType(), span.getEndPoint(), span.getElapsed(), span.getErr() > 0);
 				// FIXME 테스트용. host값에 agentId를 입력.
-				statisticsHandler.updateCallee(span.getApplicationName(), span.getServiceType(), span.getApplicationName(), ServiceType.CLIENT.getCode(), span.getAgentId(), span.getElapsed(), span.getErr() > 0);
-				statisticsHandler.updateCaller(span.getApplicationName(), ServiceType.CLIENT.getCode(), span.getApplicationName(), span.getServiceType(), span.getAgentId(), span.getElapsed(), span.getErr() > 0);
+				statisticsHandler.updateCallee(span.getApplicationName(), span.getServiceType(), span.getApplicationName(), ServiceType.USER.getCode(), span.getAgentId(), span.getElapsed(), span.getErr() > 0);
+				statisticsHandler.updateCaller(span.getApplicationName(), ServiceType.USER.getCode(), span.getApplicationName(), span.getServiceType(), span.getAgentId(), span.getElapsed(), span.getErr() > 0);
 			}
 
 			// parentApplicationContext가 있으면 statistics정보를 저장한다.
