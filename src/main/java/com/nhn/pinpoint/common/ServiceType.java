@@ -7,17 +7,29 @@ import java.util.Map;
 
 /**
  * @author emeroad
+ * @author netspider
  */
 public enum ServiceType {
 
+	/**
+	 * 정의되지 않은 서비스 코드,
+	 */
 	UNDEFINED((short) -1, "UNDEFINED", true, false, false, HistogramSchema.NORMAL),
 	
-    UNKNOWN((short) 0, "UNKNOWN", false, true, false, HistogramSchema.NORMAL),
-    UNKNOWN_CLOUD((short) 1, "UNKNOWN_CLOUD", false, true, false, HistogramSchema.NORMAL),
-    // TODO: 이 client와 아래 user를 구분해서 사용하도록 web과 agent를 수정해야함.
-    CLIENT((short) 2, "CLIENT", false, true, false, HistogramSchema.NORMAL),
+	/**
+	 * agent가 설치되지 않은 피호출자.
+	 */
+    UNKNOWN((short) 1, "UNKNOWN", false, true, false, HistogramSchema.NORMAL),
+    
+    /**
+     * 사용자
+     */
+    USER((short) 2, "USER", false, true, false, HistogramSchema.NORMAL),
+    
+    /**
+     * UNKNOWN의 그룹, UI에서만 사용함.
+     */
     UNKNOWN_GROUP((short) 3, "UNKNOWN_GROUP", false, true, false, HistogramSchema.NORMAL),
-    USER((short) 4, "USER", false, false, false, HistogramSchema.NORMAL),
 
     // WAS류 1000번 부터 시작
     TOMCAT((short) 1010, "TOMCAT", false, true, false, HistogramSchema.NORMAL),
@@ -42,7 +54,7 @@ public enum ServiceType {
     CUBRID((short) 2400, "CUBRID", true, false, true, HistogramSchema.NORMAL),
     CUBRID_EXECUTE_QUERY((short) 2401, "CUBRID", true, true, true, HistogramSchema.NORMAL),
 
-    // TODO internal method를 여기에 넣기 애매하긴 하나.. 일단 그대로 둠.
+    // FIXME internal method를 여기에 넣기 애매하긴 하나.. 일단 그대로 둠.
     INTERNAL_METHOD((short) 5000, "INTERNAL_METHOD", false, false, false, HistogramSchema.NORMAL),
 
     SPRING((short) 5050, "SPRING", false, false, false, HistogramSchema.NORMAL),
@@ -105,8 +117,22 @@ public enum ServiceType {
         return recordStatistics;
     }
 
+	/**
+	 * agent가 설치되어있지 않은 피호출자인가?
+	 * 
+	 * @return
+	 */
     public boolean isUnknown() {
-        return this == ServiceType.UNKNOWN || this == ServiceType.UNKNOWN_CLOUD;
+        return this == ServiceType.UNKNOWN; // || this == ServiceType.UNKNOWN_CLOUD;
+    }
+    
+    /**
+     * 사용자 또는 알 수 없는 호출자인가?
+     * 
+     * @return
+     */
+    public boolean isUser() {
+    	return this == ServiceType.USER;
     }
 
     public short getCode() {
@@ -141,7 +167,8 @@ public enum ServiceType {
     public static ServiceType findServiceType(short code) {
         ServiceType serviceType = CODE_LOOKUP_TABLE.get(code);
         if (serviceType == null) {
-            return UNKNOWN;
+            return UNDEFINED;
+        	//return UNKNOWN;
         }
         return serviceType;
     }
