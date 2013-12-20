@@ -14,8 +14,8 @@ pinpointApp.constant('serverMapConfig', {
             'MYSQL': 'MYSQL.png',
             'QUEUE': 'QUEUE.png',
             'TOMCAT': 'TOMCAT.png',
-            'UNKNOWN_CLOUD': 'UNKNOWN_CLOUD.png',
-            'UNKNOWN_GROUP': 'UNKNOWN_CLOUD.png',
+            'UNKNOWN': 'UNKNOWN.png',
+            'UNKNOWN_GROUP': 'UNKNOWN.png',
             'USER': 'USER.png',
             'ORACLE': 'ORACLE.png'
         },
@@ -325,7 +325,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     var removeLinkIdSet = {};
 
                     nodes.forEach(function (node, nodeIndex) {
-                        if (node.category === "UNKNOWN_CLOUD") {
+                        if (node.category === "UNKNOWN") {
                             return;
                         }
 
@@ -336,7 +336,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         var unknownCount = 0;
                         links.forEach(function (link, linkIndex) {
                             if (link.from == node.key &&
-                                link.targetinfo.serviceType == "UNKNOWN_CLOUD" &&
+                                link.targetinfo.serviceType == "UNKNOWN" &&
                                 inboundCountMap[link.to] && inboundCountMap[link.to].sourceCount == 1) {
                                 unknownCount++;
                             }
@@ -347,7 +347,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
 
                         // for each children.
                         links.forEach(function (link, linkIndex) {
-                            if (link.targetinfo.serviceType != "UNKNOWN_CLOUD") {
+                            if (link.targetinfo.serviceType != "UNKNOWN") {
                                 return;
                             }
                             if (inboundCountMap[link.to] && inboundCountMap[link.to].sourceCount > 1) {

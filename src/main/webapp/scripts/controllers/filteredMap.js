@@ -51,7 +51,7 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filteredMapConfig', '$scope', '$rou
          */
         openFilteredMapWithFilterDataSet = function (filterDataSet) {
             var application = oNavbarVo.getApplication();
-            if (filterDataSet.srcApplicationName === 'USER' || filterDataSet.srcApplicationName === 'CLIENT') {
+            if (filterDataSet.srcApplicationName === 'USER') {
                 application = filterDataSet.destApplicationName + '@1010';
             } else {
                 application = filterDataSet.srcApplicationName + '@1010';

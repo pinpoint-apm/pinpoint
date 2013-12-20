@@ -133,7 +133,7 @@
 				"id" : "2-1",
 				"from" : 2,
 				"to" : 1,
-				"sourceinfo" : { "sequence" : 1,"applicationName" : "CLIENT","serviceType" : "CLIENT","serviceTypeCode" : "2" },
+				"sourceinfo" : { "sequence" : 1,"applicationName" : "USER","serviceType" : "USER","serviceTypeCode" : "2" },
 				"targetinfo" : { "sequence" : 0,"applicationName" : "FRONT-WEB","serviceType" : "TOMCAT","serviceTypeCode" : "1010" },
 				"text" : 3,
 				"error" : 0,

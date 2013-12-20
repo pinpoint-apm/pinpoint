@@ -264,7 +264,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
                 if (transactionSpanMap.containsKey(spanEvent.getNextSpanId())) {
                     continue;
                 } else {
-                    destServiceType = ServiceType.UNKNOWN_CLOUD;
+                    destServiceType = ServiceType.UNKNOWN; // ServiceType.UNKNOWN_CLOUD;
                 }
             }
 
@@ -297,7 +297,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
         final SpanBo parentSpan = transactionSpanMap.get(span.getParentSpanId());
         if (span.isRoot() || parentSpan == null) {
             String src = span.getApplicationId();
-            ServiceType srcServiceType = ServiceType.CLIENT;
+            ServiceType srcServiceType = ServiceType.USER; // ServiceType.CLIENT;
             return new Node(src, srcServiceType);
         } else {
             String src = parentSpan.getApplicationId();

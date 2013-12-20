@@ -10,7 +10,7 @@
 				"id" : ${status.count},
 				"key" : ${status.count},
 				<c:choose>
-					<c:when test="${node.applicationName == 'CLIENT'}">
+					<c:when test="${node.applicationName == 'USER'}">
 					"text" : "USER",
 					</c:when>
 					<c:otherwise>
@@ -18,7 +18,7 @@
 					</c:otherwise>
 				</c:choose>
 				<c:choose>
-					<c:when test="${node.serviceType.desc == 'CLIENT'}">
+					<c:when test="${node.serviceType.desc == 'USER'}">
 					"category" : "USER",
 					</c:when>
 					<c:otherwise>
@@ -26,7 +26,7 @@
 					</c:otherwise>
 				</c:choose>
 				<c:choose>
-					<c:when test="${node.serviceType.desc == 'CLIENT'}">"fig" : "Ellipse"</c:when>
+					<c:when test="${node.serviceType.desc == 'USER'}">"fig" : "Ellipse"</c:when>
 					<c:when test="${node.serviceType.desc == 'TOMCAT'}">"fig" : "RoundedRectangle"</c:when>
 					<c:otherwise>"fig" : "Rectangle"</c:otherwise>
 				</c:choose>,
@@ -34,7 +34,7 @@
 				"terminal" : "${node.serviceType.terminal}",
 				"isWas" : ${node.serviceType.was},
 				"serverList" : {
-					<c:if test="${node.serviceType.desc != 'UNKNOWN_CLOUD'}">
+					<c:if test="${node.serviceType.desc != 'UNKNOWN'}">
 					<c:forEach items="${node.serverInstanceList}" var="serverInstance" varStatus="status5">
 						"${serverInstance.key}" : {
 							"name" : "${serverInstance.key}", 

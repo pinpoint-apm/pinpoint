@@ -505,8 +505,8 @@
     				'MYSQL' : 'MYSQL.png',
     				'QUEUE' : 'QUEUE.png',
     				'TOMCAT' : 'TOMCAT.png',
-    				'UNKNOWN_CLOUD' : 'UNKNOWN_CLOUD.png',
-    				'UNKNOWN_GROUP' : 'UNKNOWN_CLOUD.png',
+    				'UNKNOWN' : 'UNKNOWN.png',
+    				'UNKNOWN_GROUP' : 'UNKNOWN.png',
     				'USER' : 'USER.png',
     				'ORACLE' : 'ORACLE.png'
     			},

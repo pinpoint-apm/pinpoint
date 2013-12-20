@@ -59,8 +59,8 @@ public class Application implements JsonSerializable {
     }
 
     private String getApplicationName(String applicationName, ServiceType serviceType) {
-        if (serviceType == ServiceType.CLIENT) {
-            return "CLIENT";
+        if (serviceType.isUser()) {
+            return "USER";
         } else {
             return applicationName;
         }

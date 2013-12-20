@@ -47,7 +47,7 @@ public class ApplicationMapLinkStatisticsMapper implements RowMapper<Map<Long, M
 				}
 				return true;
 			}
-		} else if (ServiceType.CLIENT == this.callerServiceType || ServiceType.USER == this.callerServiceType) {
+		} else if (this.callerServiceType.isUser()) {
 			logger.debug("check client to was");
 			// dest가 해당 was가 아니면 버림.
 			if (!this.calleeApplicationName.equals(foundApplicationName)) {

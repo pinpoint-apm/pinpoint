@@ -192,9 +192,9 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
      * @returns {*}
      */
     this.findNodeKeyByText = function (text, mapData) {
-        if (text === 'CLIENT') {
-            text = 'USER';
-        }
+        //if (text === 'CLIENT') {
+        //    text = 'USER';
+        //}
         var result = _.findWhere(mapData.applicationMapData.nodeDataArray, {text: text});
         if (angular.isDefined(result)) {
             return result.key;

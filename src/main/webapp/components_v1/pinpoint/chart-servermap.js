@@ -195,7 +195,7 @@ function filterPassingTransaction(
 			destApplicationName,
 			prevFilter) {
 	
-	if (srcServiceType == "CLIENT") {
+	if (srcServiceType == "USER"/* || srcServiceType == "CLIENT"*/) {
 		applicationName = srcApplicationName = destApplicationName;
 	}
 	
@@ -398,7 +398,7 @@ var serverMapCallback = function(query, data, ignoreCache) {
 		mergeUnknown(query, data);
 	}
 
-	replaceClientToUser(data);
+	// replaceClientToUser(data);
 
 	if (oServerMap == null) {
 		oServerMap = new ServerMap({
@@ -548,8 +548,7 @@ function showServerMap(applicationName, serviceType, from, to, period, usePeriod
 var replaceClientToUser = function(data) {
 	var nodes = data.applicationMapData.nodeDataArray;
 	nodes.forEach(function(node) {
-		if (node.category == "CLIENT") {
-			node.category = "USER";
+		if (node.category == "USER") {
 			node.text = "USER";
 		}
 	});
@@ -759,7 +758,7 @@ var nodeContextClickHandler = function(e, query, data, containerId) {
 	data.query = query;
 	var htOffset = $(containerId).offset();
 	var template;
-	if (data.category == "CLIENT") {
+	if (data.category == "USER") {
 		template = $('#ClientContextInfoBox');
 	} else if (data.category == "UNKNOWN_GROUP") {
 		template = $('#UnknownGroupContextInfoBox');

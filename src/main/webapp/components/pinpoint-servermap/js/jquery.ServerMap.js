@@ -36,6 +36,7 @@
                     'MYSQL': 'MYSQL.png',
                     'QUEUE': 'QUEUE.png',
                     'TOMCAT': 'TOMCAT.png',
+                    'UNKNOWN': 'UNKNOWN.png',
                     'UNKNOWN_CLOUD': 'UNKNOWN_CLOUD.png',
                     'USER': 'USER.png'
                 },
@@ -247,7 +248,7 @@
                 );
             };
 
-            this._oDiagram.nodeTemplate = getNodeTemplate("UNKNOWN_CLOUD.png");
+            this._oDiagram.nodeTemplate = getNodeTemplate("UNKNOWN.png");
 
             _.each(htIcons, function (sVal, sKey) {
                 this._oDiagram.nodeTemplateMap.add(sKey, getNodeTemplate(sVal));

@@ -11,7 +11,7 @@
 				"text" : "${node.applicationName}",
 				"category" : "${node.serviceType.desc}",
 				<c:choose>
-					<c:when test="${node.serviceType.desc == 'CLIENT'}">"fig" : "Ellipse"</c:when>
+					<c:when test="${node.serviceType.desc == 'USER'}">"fig" : "Ellipse"</c:when>
 					<c:when test="${node.serviceType.desc == 'TOMCAT'}">"fig" : "RoundedRectangle"</c:when>
 					<c:otherwise>"fig" : "Rectangle"</c:otherwise>
 				</c:choose>,

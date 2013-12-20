@@ -187,7 +187,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 				stat.setToServiceType(app.getServiceType());
 				return true;
 			} else {
-				stat.setToServiceType(ServiceType.UNKNOWN_CLOUD);
+				stat.setToServiceType(ServiceType.UNKNOWN /* ServiceType.UNKNOWN_CLOUD */);
 			}
 		}
 		return false;
@@ -256,7 +256,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 
         List<Map<Long, Map<Short, Long>>> list;
 
-		if (ServiceType.findServiceType(srcServiceType) == ServiceType.CLIENT) {
+		if (ServiceType.findServiceType(srcServiceType).isUser()) {
 			logger.debug("Find 'client -> any' link statistics");
 			// client는 applicatinname + servicetype.client로 기록된다.
 			// 그래서 src, dest가 둘 다 dest로 같음.

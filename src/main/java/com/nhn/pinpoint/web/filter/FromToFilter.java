@@ -46,8 +46,7 @@ public class FromToFilter implements Filter {
 
 	@Override
 	public boolean include(List<SpanBo> transaction) {
-
-		if (includeServiceType(fromServiceCode, ServiceType.CLIENT) || includeServiceType(fromServiceCode, ServiceType.USER)) {
+		if (includeServiceType(fromServiceCode, ServiceType.USER)) {
 			for (SpanBo span : transaction) {
 				if (span.isRoot() && includeServiceType(toServiceCode, span.getServiceType()) && toApplicationName.equals(span.getApplicationId())) {
 					return true;
