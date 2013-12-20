@@ -48,7 +48,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 
     private ServerMessageListener messageListener = SimpleLoggingServerMessageListener.LISTENER;
     private WriteFailFutureListener traceSendAckWriteFailFutureListener = new  WriteFailFutureListener(logger, "TraceSendAckPacket send fail.", "TraceSendAckPacket send() success.");
-    private InetAddress ignoreAddress;
+    private InetAddress[] ignoreAddressList;
 
     public PinpointServerSocket() {
         ServerBootstrap bootstrap = createBootStrap(1, WORKER_COUNT);
@@ -58,8 +58,11 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         this.pingTimer = TimerFactory.createHashedWheelTimer("PinpointServerSocket-PingTimer", 50, TimeUnit.MILLISECONDS, 512);
     }
 
-    public void setIgnoreAddress(InetAddress ignoreAddress) {
-        this.ignoreAddress = ignoreAddress;
+    public void setIgnoreAddressList(InetAddress[] ignoreAddressList) {
+        if (ignoreAddressList == null) {
+            throw new NullPointerException("ignoreAddressList must not be null");
+        }
+        this.ignoreAddressList = ignoreAddressList;
     }
 
     private void addPipeline(ServerBootstrap bootstrap) {
@@ -186,6 +189,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         } else if (packet instanceof StreamClosePacket) {
             logger.debug("StreamDestroy {}, streamId:{}", channel, packet.getChannelId());
             ServerStreamChannel streamChannel = context.getStreamChannel(packet.getChannelId());
+            // null이 나올수 있음.
             boolean close = streamChannel.close();
             if (close) {
                 messageListener.handleStream(packet, streamChannel);
@@ -253,14 +257,14 @@ public class PinpointServerSocket extends SimpleChannelHandler {
             if (check) {
                 logger.warn("Unexpected Client channelClosed {}", channel);
             } else {
-                logger.debug("Unexpected checkAddress channelClosed {}", channel);
+                logger.debug("checkAddress, Client channelClosed channelClosed {}", channel);
             }
         }
         channelContext.closeAllStreamChannel();
     }
 
     private boolean checkIgnoreAddress(Channel channel) {
-        if (ignoreAddress == null) {
+        if (ignoreAddressList == null) {
             return true;
         }
         final InetSocketAddress remoteAddress = (InetSocketAddress) channel.getRemoteAddress();
@@ -268,8 +272,10 @@ public class PinpointServerSocket extends SimpleChannelHandler {
             return true;
         }
         InetAddress address = remoteAddress.getAddress();
-        if (ignoreAddress.equals(address)) {
-            return false;
+        for (InetAddress ignore : ignoreAddressList) {
+            if (ignore.equals(address)) {
+                return false;
+            }
         }
         return true;
     }
