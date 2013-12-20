@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.collector.receiver.tcp;
 
 import java.net.*;
+import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -46,8 +47,8 @@ public class TCPReceiver {
     private int threadSize = 256;
     private int workerQueueSize = 1024 * 5;
 
-    @Value("#{pinpoint_collector_properties['collector.l4.ip']}")
-    private String l4ip;
+    @Value("#{(pinpoint_collector_properties['collector.l4.ip']).split(',')}")
+    private List<String> l4ipList;
 
     private final ThreadPoolExecutor worker = ExecutorFactory.newFixedThreadPool(threadSize, workerQueueSize, THREAD_FACTORY);
 
@@ -65,14 +66,18 @@ public class TCPReceiver {
 	}
 
     private void setL4TcpChannel(PinpointServerSocket pinpointServerSocket) {
-        if (l4ip == null) {
+        if (l4ipList == null) {
             return;
         }
         try {
-            InetAddress inetAddress = InetAddress.getByName(l4ip);
-            pinpointServerSocket.setIgnoreAddress(inetAddress);
+
+            InetAddress[] inetAddressList = new InetAddress[l4ipList.size()];
+            for (int i = 0; i< l4ipList.size(); i++) {
+                inetAddressList[i] = InetAddress.getByName(l4ipList.get(i));
+            }
+            pinpointServerSocket.setIgnoreAddressList(inetAddressList);
         } catch (UnknownHostException e) {
-            logger.warn("l4ip error {}", l4ip, e);
+            logger.warn("l4ipList error {}", l4ipList, e);
         }
     }
 
