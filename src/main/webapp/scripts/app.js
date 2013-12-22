@@ -32,6 +32,12 @@ pinpointApp.config(['$routeProvider', '$locationProvider', function ($routeProvi
     }).when('/transactionView/:agentId/:traceId/:focusTimestamp', {
         templateUrl: 'views/transactionView.html',
         controller: 'TransactionViewCtrl'
+    }).when('/scatterFullScreenMode/:application/:period/:queryEndTime', {
+        templateUrl: 'views/scatterFullScreenMode.html',
+        controller: 'ScatterFullScreenModeCtrl'
+    }).when('/scatterFullScreenMode/:application/:period/:queryEndTime/:filter', {
+        templateUrl: 'views/scatterFullScreenMode.html',
+        controller: 'ScatterFullScreenModeCtrl'
     }).otherwise({
         redirectTo: '/main'
     });

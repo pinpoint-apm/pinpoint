@@ -95,7 +95,11 @@ var BigScatterChart = $.Class({
                 }
             },
             'useTypeUlSort' : false,
-            'sConfigImage': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAADFUlEQVR4XnWTbWgcVRSGnxmzs6ssbZC0/1TSTUPSaFOTaPdPStYfQURpQQRZSgMNUrMaC61Nt5sPjVVKI9pakBLRElFsaEsNCSSpIlGq1oprSxKzm4WWtDQtREsy1d2d/TzeGxIQpGd4Oee8L++5d+6dMY6+/wEApmkCUCgUsCyLYrEoKjAMQ2uG5ldCa6yGCSAimhxW+FrXmUyGXC7HzmBQZ91rXQ+/q/KQiPxvwHBl5cYXfL4NO7LZ7J/KJKVr13J1agqdde84TrGiwvfwxsqK7UUpDgv6AVNESKfTHtu+R82mGgKBQFlLyy6aAgHcLovGxkZUr/gmQ+uLto2d+ttyJEeGHPQefg/A1/3WO4uDZ87JxZ8uydj4tzI69o3Oq1jmTyv9YE/3ArAh0XeRqcgQpjokPeSaSLF0S+1mUqk0KC6eSDATixGfnSWTdRTvoHW1/XWzfT9ey5GXrFHA1Ket33H9+jL+SaawXC7i8Rg35q6fP3tmcPucynM3buJxu0k7GdyWhafqMWyvF8M0xNTX09raSnPzs6TSKVyWi3w+T2xm5vgvl36+EIvFjucK8IDHy9nzI7z6SojPE1+xdGuR/F8LlAD09/dTXl5O7eZaAEpKStjyZF1Lw9Nb55W5xbDW8NDQi4R393Fs4DT+rX5GvxvlxMmjDQZQD/BmR/i3YDCoV2fJtpmeniZXMDA9pTxzp4+659fBzevMunbzyeU8Hx7pbfgjNBAl0tVDONLFvgMdxZGRMblydVJ+V7gyGZdobF5+jdSIXG4WOfe4yKdl8kXoCQHqOzq72N/VibnyFd6trqo2qjZVcev2bdwPesHykv1sG08trzwP9gKnoo+S9Pdy4FB3xMTAJSb6Fkgmk5P6X5iYmGB8/MLSiY9PUp3YhX/fHljTBEt3GIg+QsbfqUwOTjpZKsqnwcFDnQC+ttfaf2gLvT4B1AL1Xx7ZKWODb4vMHJNToTrR3Bv7w4ttofbvgQrt02C10CTg64j0cHjvS/S0vyzv7nlOEh/tWDbvDfeyMtynPaswuH/U/6eOcp/4F3+xsCxH/WvuAAAAAElFTkSuQmCC'
+            'sConfigImage': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAADFUlEQVR4XnWTbWgcVRSGnxmzs6ssbZC0/1TSTUPSaFOTaPdPStYfQURpQQRZSgMNUrMaC61Nt5sPjVVKI9pakBLRElFsaEsNCSSpIlGq1oprSxKzm4WWtDQtREsy1d2d/TzeGxIQpGd4Oee8L++5d+6dMY6+/wEApmkCUCgUsCyLYrEoKjAMQ2uG5ldCa6yGCSAimhxW+FrXmUyGXC7HzmBQZ91rXQ+/q/KQiPxvwHBl5cYXfL4NO7LZ7J/KJKVr13J1agqdde84TrGiwvfwxsqK7UUpDgv6AVNESKfTHtu+R82mGgKBQFlLyy6aAgHcLovGxkZUr/gmQ+uLto2d+ttyJEeGHPQefg/A1/3WO4uDZ87JxZ8uydj4tzI69o3Oq1jmTyv9YE/3ArAh0XeRqcgQpjokPeSaSLF0S+1mUqk0KC6eSDATixGfnSWTdRTvoHW1/XWzfT9ey5GXrFHA1Ket33H9+jL+SaawXC7i8Rg35q6fP3tmcPucynM3buJxu0k7GdyWhafqMWyvF8M0xNTX09raSnPzs6TSKVyWi3w+T2xm5vgvl36+EIvFjucK8IDHy9nzI7z6SojPE1+xdGuR/F8LlAD09/dTXl5O7eZaAEpKStjyZF1Lw9Nb55W5xbDW8NDQi4R393Fs4DT+rX5GvxvlxMmjDQZQD/BmR/i3YDCoV2fJtpmeniZXMDA9pTxzp4+659fBzevMunbzyeU8Hx7pbfgjNBAl0tVDONLFvgMdxZGRMblydVJ+V7gyGZdobF5+jdSIXG4WOfe4yKdl8kXoCQHqOzq72N/VibnyFd6trqo2qjZVcev2bdwPesHykv1sG08trzwP9gKnoo+S9Pdy4FB3xMTAJSb6Fkgmk5P6X5iYmGB8/MLSiY9PUp3YhX/fHljTBEt3GIg+QsbfqUwOTjpZKsqnwcFDnQC+ttfaf2gLvT4B1AL1Xx7ZKWODb4vMHJNToTrR3Bv7w4ttofbvgQrt02C10CTg64j0cHjvS/S0vyzv7nlOEh/tWDbvDfeyMtynPaswuH/U/6eOcp/4F3+xsCxH/WvuAAAAAElFTkSuQmCC',
+            'sDownloadImage' : 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6RUU3MjQyMUQ2QTlGMTFFM0IxRTY4MjI3MUU5MUUyMzMiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6RUU3MjQyMUU2QTlGMTFFM0IxRTY4MjI3MUU5MUUyMzMiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpFRTcyNDIxQjZBOUYxMUUzQjFFNjgyMjcxRTkxRTIzMyIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpFRTcyNDIxQzZBOUYxMUUzQjFFNjgyMjcxRTkxRTIzMyIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PlnySxAAAADPSURBVHjaxFLBDYMwDLQjMgEf4M8E4Y0YgzHaTTpGFuDfARAdoH3DiwmQSLmqRIZSpPLpSTH4krOjc9g5R0cQIDDzgozj2Ffrum6xOTcKtqolSUJCuNlR0UH8WTiZcpPGzEaB3xVWVXVO0/QhOeTgP1rKOU7/QdM0RZ7nd2OMwxc5eHkeixEm+71aKUVhGJLWmoZhoL7vaRxHX7xtW/ZzlHOTgDiKIirL8oTcWnuZ914dsyzbfXfoCuAmdV3z15ezBgRr8Nuc4ocRXhGeAgwAFHJVgfQ6KdUAAAAASUVORK5CYII=',
+            'sFullScreenImage' : 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QkMwOTc3QTg2QTlGMTFFMzk5MzhBOTM4OEFCMzg3MTciIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QkMwOTc3QTk2QTlGMTFFMzk5MzhBOTM4OEFCMzg3MTciPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpCQzA5NzdBNjZBOUYxMUUzOTkzOEE5Mzg4QUIzODcxNyIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpCQzA5NzdBNzZBOUYxMUUzOTkzOEE5Mzg4QUIzODcxNyIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PvZjiPIAAAE/SURBVHjanFKxaoRAEHXhbM4UopViGWzv0C5VUvsJqdP7A/6Dfb7DMmCVSuRCunClaKUYSKUQM2+zY1SsMjDuuDtv9u3ME9M0af+xAz6u687opmnENslxnFX1uq6FhhvDMKRluofvVeczuMr9vREmhMhRmRy/F3IukhOjM7Mh4B9VNkqQq67rR9u25VnbtsdxHPkZ6zcWRfFAN2qGYVzx3/e9X1XVC2LLsnzTNK8MQK5kCL4AwcqylPTiOH4m8C1igNI0fUIcBEGu3rwGRlFkK3qvRM9XtD+I9h3iLMvaXaDneRdF78T0cHPXdW+Iif6ZgavmALClB9q0nBRw3RyMAa0mWnJzGIbvJEneOeb9hRgEK0e2mjtG9kX+qeJH8hs163lkh2UlVWAruYIlp8ShzeNYqEQqaE9ym638R4ABADZiqF446UJLAAAAAElFTkSuQmCC',
+            'fFullScreenMode' : function () {
+            }
         });
         this.option(htOption);
 
@@ -354,7 +358,7 @@ var BigScatterChart = $.Class({
             var style = {
                 'display': 'inline-block',
                 'margin': '0 0 0 20px',
-                'padding': '0 0 0 16px',
+                'padding': '0 0 0 19px',
                 'line-height': '15px',
                 'color': htType[sKey],
                 'background-image': 'url(' + htCheckBoxImage.checked + ')',
@@ -473,13 +477,17 @@ var BigScatterChart = $.Class({
             $('#' + sYMin).val(self.option('nYMin'));
             $('#' + sYMax).val(self.option('nYMax'));
             if (e) e.preventDefault();
-        }
+        };
         var sConfigImage = this.option('sConfigImage');
         this._welContainer.append(this._welConfigButton = $('<img>')
-            .attr('src', sConfigImage)
+            .attr({
+                'src': sConfigImage,
+                'alt' : 'Open Config',
+                'title' : 'Open Config'
+            })
             .css({
                 'position': 'absolute',
-                'top': '6px',
+                'top': '8px',
                 'right': '5px',
                 'cursor': 'pointer',
                 'z-index': nZIndexForCanvas++
@@ -531,6 +539,64 @@ var BigScatterChart = $.Class({
         });
         this._welConfigCancel.click(fConfigToggle);
         this._welConfigLayer.appendTo(this._welContainer);
+
+        // download
+        var fDownloadToggle = function (e) {
+            var sImageUrl = self.getChartAsPNG();
+//            document.location.href = sImageUrl.replace("image/png", "image/octet-stream");
+            $(this).attr({
+                'href': sImageUrl,
+                'download': sTitle + '__' + new Date(self.option('nXMin')).toString("yyyyMMdd_HHmm") + '~' + new Date(self.option('nXMax')).toString("yyyyMMdd_HHmm") + '__response_scatter'
+            });
+//            if (e) e.preventDefault();
+        };
+        var sDownloadImage = this.option('sDownloadImage');
+        this._welContainer.append(this._welDownloadButton = $('<a>')
+            .attr({
+                'href': sDownloadImage,
+                'alt' : 'Download Scatter Chart',
+                'title' : 'Download Scatter Chart',
+                'download': sTitle
+            })
+            .css({
+                'position': 'absolute',
+                'top': '29px',
+                'right': '5px',
+                'cursor': 'pointer',
+                'z-index': nZIndexForCanvas++
+            })
+            .click(fDownloadToggle)
+        );
+        this._welDownloadButton.append(this._welDownloadButton = $('<img>')
+            .attr({
+                'src': sDownloadImage
+            })
+        );
+
+        // full screen
+        var fFullScreenToggle = function (e) {
+            var fFullScreenMode = self.option('fFullScreenMode');
+            if (typeof fFullScreenMode === 'function') {
+                fFullScreenMode.call(self);
+            }
+            if (e) e.preventDefault();
+        };
+        var sFullScreenImage = this.option('sFullScreenImage');
+        this._welContainer.append(this._welFullScreenButton = $('<img>')
+            .attr({
+                'src': sFullScreenImage,
+                'alt' : 'Full Screen Mode',
+                'title' : 'Full Screen Mode'
+            })
+            .css({
+                'position': 'absolute',
+                'top': '61px',
+                'right': '5px',
+                'cursor': 'pointer',
+                'z-index': nZIndexForCanvas++
+            })
+            .click(fFullScreenToggle)
+        );
     },
 
     _initEvents: function () {

@@ -111,17 +111,31 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                                 scope.$emit('serverMap.fetched', htLastMapData.lastFetchedTimestamp, result);
                             }
 //                        ServerMapDao.mergeTimeSeriesResponses(result.timeSeriesResponses);
-                            serverMapCallback(query, ServerMapDao.addFilterProperty(filterText, ServerMapDao.mergeFilteredMapData(htLastMapData, result)), mergeUnknowns, linkRouting, linkCurve);
+                            var serverMapData = ServerMapDao.addFilterProperty(filterText, ServerMapDao.mergeFilteredMapData(htLastMapData, result));
+                            if (mergeUnknowns) {
+                                var copiedData = angular.copy(serverMapData);
+                                ServerMapDao.mergeUnknown(query, copiedData);
+                                serverMapCallback(query, copiedData, linkRouting, linkCurve);
+                            } else {
+                                serverMapCallback(query, serverMapData, linkRouting, linkCurve);
+                            }
                         });
                     } else {
-                        ServerMapDao.getServerMapData(htLastQuery, function (err, query, result) {
+                        ServerMapDao.getServerMapData(htLastQuery, function (err, query, serverMapData) {
                             if (err) {
                                oProgressBar.stopLoading();
                                oAlert.showError('There is some error.');
                             }
                             oProgressBar.setLoading(50);
-                            htLastMapData = result;
-                            serverMapCallback(query, result, mergeUnknowns, linkRouting, linkCurve);
+                            htLastMapData = serverMapData;
+                            if (mergeUnknowns) {
+                                var copiedData = angular.copy(serverMapData);
+                                ServerMapDao.mergeUnknown(query, copiedData);
+                                serverMapCallback(query, copiedData, linkRouting, linkCurve);
+                            } else {
+                                serverMapCallback(query, serverMapData, linkRouting, linkCurve);
+                            }
+
                         });
                     }
                 };
@@ -191,24 +205,18 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 /**
                  * server map callback
                  * @param query
-                 * @param data
-                 * @param mergeUnknowns
+                 * @param copiedData
                  * @param linkRouting
                  * @param linkCurve
                  */
-                serverMapCallback = function (query, data, mergeUnknowns, linkRouting, linkCurve) {
+                serverMapCallback = function (query, copiedData, linkRouting, linkCurve) {
                     serverMapCachedQuery = angular.copy(query);
-                    serverMapCachedData = angular.copy(data);
+                    serverMapCachedData = angular.copy(copiedData);
                     oProgressBar.setLoading(80);
-                    if (data.applicationMapData.nodeDataArray.length === 0) {
+                    if (copiedData.applicationMapData.nodeDataArray.length === 0) {
                         oProgressBar.stopLoading();
                         oAlert.showInfo('There is no data.');
                         return;
-                    }
-
-                    var copiedData = angular.copy(data);
-                    if (mergeUnknowns) {
-                        mergeUnknown(query, copiedData);
                     }
 
                     setLinkOption(copiedData, linkRouting, linkCurve);
@@ -289,207 +297,6 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     }
                     oServerMap.load(copiedData.applicationMapData);
                     oProgressBar.stopLoading();
-                };
-
-                /**
-                 * merge unknown
-                 * @param query
-                 * @param data
-                 */
-                mergeUnknown = function (query, data) {
-                    SERVERMAP_METHOD_CACHE = {};
-                    var nodes = data.applicationMapData.nodeDataArray;
-                    var links = data.applicationMapData.linkDataArray;
-
-                    var inboundCountMap = {};
-                    nodes.forEach(function (node) {
-                        if (!inboundCountMap[node.key]) {
-                            inboundCountMap[node.key] = {
-                                "sourceCount": 0,
-                                "totalCallCount": 0
-                            };
-                        }
-
-                        links.forEach(function (link) {
-                            if (link.to === node.key) {
-                                inboundCountMap[node.key].sourceCount++;
-                                inboundCountMap[node.key].totalCallCount += link.text;
-                            }
-                        });
-                    });
-
-                    var newNodeList = [];
-                    var newLinkList = [];
-
-                    var removeNodeIdSet = {};
-                    var removeLinkIdSet = {};
-
-                    nodes.forEach(function (node, nodeIndex) {
-                        if (node.category === "UNKNOWN") {
-                            return;
-                        }
-
-                        var newNode;
-                        var newLink;
-                        var newNodeKey = "UNKNOWN_GROUP_" + node.key;
-
-                        var unknownCount = 0;
-                        links.forEach(function (link, linkIndex) {
-                            if (link.from == node.key &&
-                                link.targetinfo.serviceType == "UNKNOWN" &&
-                                inboundCountMap[link.to] && inboundCountMap[link.to].sourceCount == 1) {
-                                unknownCount++;
-                            }
-                        });
-                        if (unknownCount < 2) {
-                            return;
-                        }
-
-                        // for each children.
-                        links.forEach(function (link, linkIndex) {
-                            if (link.targetinfo.serviceType != "UNKNOWN") {
-                                return;
-                            }
-                            if (inboundCountMap[link.to] && inboundCountMap[link.to].sourceCount > 1) {
-                                return;
-                            }
-
-                            // branch out from current node.
-                            if (link.from == node.key) {
-                                if (!newNode) {
-                                    newNode = {
-                                        "id": newNodeKey,
-                                        "key": newNodeKey,
-                                        "textArr": [],
-                                        "text": "",
-                                        "hosts": [],
-                                        "category": "UNKNOWN_GROUP",
-                                        "terminal": "true",
-                                        "agents": [],
-                                        "fig": "Rectangle"
-                                    };
-                                }
-                                if (!newLink) {
-                                    newLink = {
-                                        "id": node.key + "-" + newNodeKey,
-                                        "from": node.key,
-                                        "to": newNodeKey,
-                                        "sourceinfo": [],
-                                        "targetinfo": [],
-                                        "text": 0,
-                                        "error": 0,
-                                        "slow": 0,
-                                        "rawdata": {},
-                                        "histogram": {}
-                                    };
-                                }
-
-                                // fill the new node/link informations.
-                                newNode.textArr.push({ 'count': link.text, 'applicationName': link.targetinfo.applicationName});
-
-                                newLink.text += link.text;
-                                newLink.error += link.error;
-                                newLink.slow += link.slow;
-                                newLink.sourceinfo.push(link.sourceinfo);
-                                newLink.targetinfo.push(link.targetinfo);
-
-                                var newRawData = {
-                                    "id": link.id,
-                                    "from": link.from,
-                                    "to": link.to,
-                                    "sourceinfo": link.sourceinfo,
-                                    "targetinfo": link.targetinfo,
-                                    "text": 0,
-                                    "count": link.text,
-                                    "error": link.error,
-                                    "slow": link.slow,
-                                    "histogram": link.histogram
-                                };
-                                newLink.rawdata[link.targetinfo.applicationName] = newRawData;
-
-                                /*
-                                 * group된 노드에서 개별 노드의 정보를 조회할 때 사용됨.
-                                 * onclick="SERVERMAP_METHOD_CACHE['{{=
-                                 * value.applicationName}}']();" 으로 호출함.
-                                 */
-                                SERVERMAP_METHOD_CACHE[link.targetinfo.applicationName] = function () {
-                                    linkClickHandler(null, query, newRawData);
-                                };
-
-                                $.each(link.histogram, function (key, value) {
-                                    if (newLink.histogram[key]) {
-                                        newLink.histogram[key] += value;
-                                    } else {
-                                        newLink.histogram[key] = value;
-                                    }
-                                });
-
-                                removeNodeIdSet[link.to] = null;
-                                removeLinkIdSet[link.id] = null;
-                            }
-                        });
-
-                        if (newNode) {
-                            newNode.textArr.sort(function (e1, e2) {
-                                return e2.count - e1.count;
-                            });
-
-                            var nodeCount = newNode.textArr.length - 1;
-                            $.each(newNode.textArr, function (i, e) {
-                                newNode.text += e.applicationName + " (" + e.count + ")" + (i < nodeCount ? "\n" : "");
-                            });
-
-//						console.log("newNode", newNode);
-                            newNodeList.push(newNode);
-                        }
-
-                        if (newLink) {
-                            if ((newLink.error / newLink.text * 100) > 10) {
-                                newLink.category = "bad";
-                            } else {
-                                newLink.category = "default";
-                            }
-
-                            // targetinfo 에러를 우선으로, 요청수 내림차순 정렬.
-                            newLink.targetinfo.sort(function (e1, e2) {
-                                var err1 = newLink.rawdata[e1.applicationName].error;
-                                var err2 = newLink.rawdata[e2.applicationName].error;
-
-                                if (err1 + err2 > 0) {
-                                    return err2 - err1;
-                                } else {
-                                    return newLink.rawdata[e2.applicationName].count - newLink.rawdata[e1.applicationName].count;
-                                }
-                            });
-
-//						console.log("newLink", newLink);
-                            newLinkList.push(newLink);
-                        }
-                    });
-
-                    newNodeList.forEach(function (newNode) {
-                        data.applicationMapData.nodeDataArray.push(newNode);
-                    });
-
-                    newLinkList.forEach(function (newLink) {
-                        data.applicationMapData.linkDataArray.push(newLink);
-                    });
-
-                    $.each(removeNodeIdSet, function (key, val) {
-                        nodes.forEach(function (node, i) {
-                            if (node.id == key) {
-                                nodes.splice(i, 1);
-                            }
-                        });
-                    });
-
-                    $.each(removeLinkIdSet, function (key, val) {
-                        links.forEach(function (link, i) {
-                            if (link.id === key) {
-                                links.splice(i, 1);
-                            }
-                        });
-                    });
                 };
 
                 /**
