@@ -27,11 +27,11 @@ div.jquery-drag-to-select.active {
 .bigscatterchart .config {
 	position: absolute;
 	padding : 10px 13px;
-	border : solid 2px #b7ddf2;
-	background : #ebf4fb;
+	/*border : solid 2px #b7ddf2;*/
+	/*background : #ebf4fb;*/
 	display : none;
 }
-.bigscatterchart .config h4 {
+.bigscatterchart .config h5 {
 	margin:0 0 10px 0;padding:0 0 10px 0;border-bottom:solid 1px #b7ddf2;text-align:center;
 }
 

@@ -508,7 +508,7 @@ var BigScatterChart = $.Class({
             .click(fConfigToggle)
             .appendTo(this._welContainer);
 
-        this._welConfigLayer = $('<div>')
+        this._welConfigLayer = $('<div class="dropdown-menu">')
             .addClass('config')
             .css({
                 'top': nMiddleOfHeight - nConfigLayerHeight / 2 + 'px',
@@ -517,13 +517,13 @@ var BigScatterChart = $.Class({
                 'height': nConfigLayerHeight + 'px',
                 'z-index': nZIndexForCanvas++
             })
-            .append('<h4>Setting</h4>')
+            .append('<h5>Setting</h5>')
             .append('<label for="' + sYMin + '" class="label">Min of Y axis</label>')
             .append('<input type="text" name="' + sYMin + '" id="' + sYMin + '" class="input"/>')
             .append('<label for="' + sYMax + '" class="label">Max of Y axis</label>')
             .append('<input type="text" name="' + sYMax + '" id="' + sYMax + '" class="input"/>')
-            .append(this._welConfigApply = $('<button type="button" class="button apply">Apply</button>'))
-            .append(this._welConfigCancel = $('<button type="button" class="button cancel">Cancel</button>'));
+            .append(this._welConfigApply = $('<button type="button" class="apply btn btn-small">Apply</button>'))
+            .append(this._welConfigCancel = $('<button type="button" class="cancel btn btn-small">Cancel</button>'));
 
         this._welConfigApply.click(function () {
             var nYMin = parseInt($('#' + sYMin).val(), 10),
