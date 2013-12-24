@@ -38,7 +38,7 @@ public class ConcurrentCounterMap<T> {
     }
 
     private Entry<T> getEntry() {
-        final int mod = MathUtils.fastAbs(entrySelector.getAndIncrement() % concurrencyLevel);
+        final int mod = MathUtils.fastAbs(entrySelector.getAndIncrement()) % concurrencyLevel;
         return entryArray[mod];
     }
 
