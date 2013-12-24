@@ -2,6 +2,7 @@
 exec hbase shell <<EOF
 
 flush 'AgentInfo'
+flush 'AgentStat'
 
 flush 'ApplicationIndex'
 
