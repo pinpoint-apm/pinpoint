@@ -39,6 +39,7 @@ pinpointApp.directive('callStacks', [ 'callStacksConfig', function (cfg) {
                 scope.transactionDetail = t;
                 scope.key = t.callStackIndex;
                 scope.barRatio = 100 / (t.callStack[0][scope.key.end] - t.callStack[0][scope.key.begin]);
+                scope.timelineRatio = 500 / (t.callStack[0][scope.key.end] - t.callStack[0][scope.key.begin]);
                 addAgentDividerClassToTransactionDetail();
                 scope.$digest();
 

@@ -116,7 +116,7 @@
 
 .callStacks > table {
     border-top: 1px solid #ccc;
-    min-width: 1400px;
+    min-width: 1700px;
 }
 .callStacks > table th,
 .callStacks > table td
