@@ -32,12 +32,12 @@ pinpointApp.directive('callStacks', [ 'callStacksConfig', function (cfg) {
 
             /**
              * initialize
-             * @param transactionDetail
+             * @param t transactionDetail
              */
-            initialize = function (transactionDetail) {
-                scope.transactionDetail = transactionDetail;
-                scope.key = transactionDetail.callStackIndex;
-                scope.barRatio = 100 / (transactionDetail.callStack[0][scope.key.end] - transactionDetail.callStack[0][scope.key.begin]);
+            initialize = function (t) {
+                scope.transactionDetail = t;
+                scope.key = t.callStackIndex;
+                scope.barRatio = 100 / (t.callStack[0][scope.key.end] - t.callStack[0][scope.key.begin]);
                 addAgentDividerClassToTransactionDetail();
                 scope.$digest();
                 var oTreeGridTable = new TreeGridTable({
