@@ -144,7 +144,7 @@
 	display: block;
 	border-left: 1px solid #eee;
 	border-top: 1px solid #fff;
-	border-bottom: 1px solid #ddd;
+	/*border-bottom: 1px solid #ddd;*/
 	width: 14px;
 	height: 14px;
 	background: url(images/uup.png) no-repeat center;
@@ -225,7 +225,7 @@
 	border-left: 1px solid #fff;
 	border-top: 1px solid #fff;
 	border-right: 1px solid #eee;
-	border-bottom: 1px solid #eee;
+	/*border-bottom: 1px solid #eee;*/
 }
 
 /* end toolbar*/
@@ -330,7 +330,7 @@
 	height: 1px;
 	overflow: hidden;
 	border-top: 1px solid #aaa;
-	border-bottom: 1px solid #aaa;
+	/*border-bottom: 1px solid #aaa;*/
 	background: none;
 }
 
@@ -411,7 +411,7 @@ div.colCopy {
 }
 
 .flexigrid div.bDiv td {
-	border-bottom: 1px solid #f7f7f7;
+	/*border-bottom: 1px solid #f7f7f7;*/
 	vertical-align: top;
 	white-space: nowrap;
 }
@@ -459,12 +459,12 @@ div.colCopy {
 
 .flexigrid tr.erow td {
 	/*background: #f7f7f7;*/
-	border-bottom: 1px solid #f7f7f7;
+	/*border-bottom: 1px solid #f7f7f7;*/
 }
 
 .flexigrid tr.erow td.sorted {
 	background: #e3e3e3;
-	border-bottom: 1px solid #e3e3e3;
+	/*border-bottom: 1px solid #e3e3e3;*/
 }
 
 .flexigrid tr.erow td.sorted div {
@@ -474,21 +474,21 @@ div.colCopy {
 .flexigrid div.bDiv tr:hover td,.flexigrid div.bDiv tr:hover td.sorted,.flexigrid div.bDiv tr.trOver td.sorted,.flexigrid div.bDiv tr.trOver td
 	{
 	background: #d9ebf5;
-	border-left: 1px solid #eef8ff;
-	border-bottom: 1px dotted #a8d8eb;
+	/*border-left: 1px solid #eef8ff;*/
+	/*border-bottom: 1px dotted #a8d8eb;*/
 }
 
 .flexigrid div.bDiv tr.trSelected:hover td,.flexigrid div.bDiv tr.trSelected:hover td.sorted,.flexigrid div.bDiv tr.trOver.trSelected td.sorted,.flexigrid div.bDiv tr.trOver.trSelected td,.flexigrid tr.trSelected td.sorted,.flexigrid tr.trSelected td
 	{
 	background: #d5effc url(images/hl.png) repeat-x top;
-	border-right: 1px solid #d2e3ec;
-	border-left: 1px solid #eef8ff;
-	border-bottom: 1px solid #a8d8eb;
+	/*border-right: 1px solid #d2e3ec;*/
+	/*border-left: 1px solid #eef8ff;*/
+	/*border-bottom: 1px solid #a8d8eb;*/
 }
 
 /* novstripe adjustments */
 .flexigrid.novstripe .bDiv table {
-	border-bottom: 1px solid #ccc;
+	/*border-bottom: 1px solid #ccc;*/
 	border-right: 1px solid #ccc;
 }
 

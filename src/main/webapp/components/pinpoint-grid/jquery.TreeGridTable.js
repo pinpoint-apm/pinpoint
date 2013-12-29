@@ -19,26 +19,37 @@
 		* @param {Hash Table} options
 		*/
 		$init : function(options){
+            var executeVendors;
 			this.option({
 				tableId : '',
 				height : 'auto',
 				intent : 15,
 				dblClickResize : true,
-				singleSelect : true
+				singleSelect : true,
+                executeVendors : true
 			});
 			this.option(options);
-				
-			this._executeVendors();
+
+            this._setTableElementByTableId();
+
+            executeVendors = this.option('executeVendors');
+            if (executeVendors === true) {
+                this._executeVendors();
+            } else if (executeVendors === 'flexigrid') {
+                this._executeFlexigridOnly();
+            } else if (executeVendors === 'treetable') {
+                this._executeTreeTableOnly();
+            }
+
 		},
-		
-		/**
-		 * internal constructor
-		 * 
-		 * @method _executeVendors
-		 */
-		_executeVendors : function(){
-			var self = this,
-				tableId = this.option('tableId');
+
+        /**
+         * set table element by table id
+         * @returns {boolean}
+         * @private
+         */
+        _setTableElementByTableId : function () {
+            var tableId = this.option('tableId');
 
             if (typeof tableId === 'string') {
                 this._table = $('#' + tableId);
@@ -47,15 +58,22 @@
             } else if (typeof tableId === 'function') {
                 this._table = tableId();
             }
-            if(typeof this._table !== 'object') {
+
+            if(typeof this._table !== 'object' || typeof this._table === 'undefined'
+                || typeof this._table.get(0) === 'undefined' || this._table.get(0).nodeName !== 'TABLE'){
+                console.error('Id of TreeGridTable is undefined.');
                 return false;
             }
+        },
+		
+		/**
+		 * internal constructor
+		 * 
+		 * @method _executeVendors
+		 */
+		_executeVendors : function(){
+			var self = this;
 
-			if(typeof this._table === 'undefined' || typeof this._table.get(0) === 'undefined' || this._table.get(0).nodeName !== 'TABLE'){
-				console.error('Id of TreeGridTable is undefined.');
-				return;
-			}
-			
 			this._table.flexigrid({
 				height: this.option('height'),
 				dblClickResize : this.option('dblClickResize'),
@@ -71,6 +89,7 @@
 				expandable : true,
 				clickableNodeNames : false,
 				indent : this.option('intent'),
+                initialState : 'expanded',
 				columnInnerElType : 'div',
 				onNodeExpanded : function(){
 					self._table.flexHeight();
@@ -79,10 +98,38 @@
 					self._table.flexHeight();
 				}
 			}, true);
-			this.expandAll();
+//			this.expandAll();
 			
 			this._table.flexHeight();
 		},
+
+        /**
+         * execute flexigrid only
+         * @private
+         */
+        _executeFlexigridOnly : function () {
+            this._table.flexigrid({
+                height: this.option('height'),
+                dblClickResize : this.option('dblClickResize'),
+                singleSelect : this.option('singleSelect')
+            });
+            this._table.flexHeight();
+        },
+
+        /**
+         * execute treetable only
+         * @private
+         */
+        _executeTreeTableOnly : function () {
+            this._table.treetable({
+                expandable : true,
+                clickableNodeNames : false,
+                initialState : 'collapsed',
+                indent : this.option('intent')
+            }, true);
+            this._table.treetable('expandNode', '1');
+//            this.expandAll();
+        },
 		
 		/**
 		 * expand all nodes

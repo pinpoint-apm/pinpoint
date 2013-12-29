@@ -1,9 +1,10 @@
 .callStacks {
     width: 100%;
     height: 100%;
-}
-.callStacks th {
-    text-align:center;
+    overflow: scroll;
+    font-size: 11px;
+    line-height: normal;
+    color: #000;
 }
 .callStacks td {
     font-family:consolas;
@@ -22,7 +23,6 @@
 .callStacks .arguments {
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
 }
 .callStacks .exectime {
     text-align: center;
@@ -58,7 +58,8 @@
     height: 100%;
 }
 
-.flexigrid div.bDiv td {
+.callStacks table td,
+.callStacks .flexigrid div.bDiv td {
     position: relative;
 }
 .callStacks .agent-divider-normal {
@@ -78,10 +79,6 @@
     bottom: 0;
     width: 100%;
     overflow: auto;
-}
-
-.callStacks .flexigrid tr td {
-    border-bottom: 0;
 }
 
 .callStacks label.first {
@@ -115,4 +112,41 @@
 .callStacks .flexigrid tr.trSelected td.sorted, .flexigrid tr.trSelected td
 {
     background: #B2DEF5;
+}
+
+.callStacks > table {
+    border-top: 1px solid #ccc;
+    min-width: 1400px;
+}
+.callStacks > table th,
+.callStacks > table td
+	/* common cell properties*/ {
+    text-align: left;
+    border-right: 1px solid #ddd;
+    border-left: 1px solid #fff;
+    overflow: hidden;
+    vertical-align: top !important;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.callStacks > table th {
+    font-weight: normal;
+    height: 13px;
+    cursor: default;
+    white-space: nowrap;
+    overflow: hidden;
+    background: #fafafa url(../components/jquery-flexigrid/css/images/fhbg.gif) repeat-x bottom;
+    padding: 5px;
+    border-left: 0px solid #fff;
+}
+.callStacks > table td {
+    padding: 5px;
+    text-overflow: ellipsis;
+    /*white-space:nowrap;*/
+    word-break: break-all;
+}
+
+.callStacks > table tr:hover td {
+    background: #d9ebf5;
 }

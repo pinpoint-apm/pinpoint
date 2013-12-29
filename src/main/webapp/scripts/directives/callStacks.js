@@ -8,7 +8,8 @@ pinpointApp.constant('callStacksConfig', {
         'third',
         'forth',
         'fifth'
-    ]
+    ],
+    minCallStackLengthForSimpleMode : 999
 });
 
 pinpointApp.directive('callStacks', [ 'callStacksConfig', function (cfg) {
@@ -40,10 +41,15 @@ pinpointApp.directive('callStacks', [ 'callStacksConfig', function (cfg) {
                 scope.barRatio = 100 / (t.callStack[0][scope.key.end] - t.callStack[0][scope.key.begin]);
                 addAgentDividerClassToTransactionDetail();
                 scope.$digest();
-                var oTreeGridTable = new TreeGridTable({
+
+                var options = {
                     tableId : element.find('table'), // element should be a table of DOM, so it should be replace:true at the top
                     height : "auto"
-                });
+                };
+                if (t.callStack && t.callStack.length > cfg.minCallStackLengthForSimpleMode) {
+                    options.executeVendors = 'treetable';
+                }
+                var oTreeGridTable = new TreeGridTable(options);
             };
 
             /**

@@ -8,6 +8,7 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
+    overflow: hidden;
 }
 body,input,textarea,select,button,table{font-family:'나눔고딕',NanumGothic,ng,'돋움',dotum,AppleGothic,avn55,sans-serif}
 canvas {outline:none}
