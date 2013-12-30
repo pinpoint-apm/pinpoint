@@ -8,10 +8,18 @@
             <!-- %L 옵션은 라인넘버가 출력되나 속도저하가 심하다. -->
 
             <!-- 아래가 운영용에 접합한 옵션이다.-->
-            <!--<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-35c{3}) %m%n" />-->
+            <!--<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-35c{1.}) %m%n" />-->
         </layout>
     </appender>
 
+    <appender name="stat-appender" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="file" value="${catalina.home}/logs/stat.log"/>
+        <param name="Append" value="true"/>
+        <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+        <layout class="org.apache.log4j.EnhancedPatternLayout">
+            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-35c{1.}) %m%n"/>
+        </layout>
+    </appender>
 
 
     <logger name="com.nhn.pinpoint" additivity="false">
@@ -39,8 +47,8 @@
         state 모니터링용 로거. 만약 개발시 로그 출력으로 불편하다면 log level을 WARN이상으로 할것
     -->
     <logger name="com.nhn.pinpoint.collector.StateReport" additivity="false">
-        <level value="WARN"/>
-        <appender-ref ref="console"/>
+        <level value="INFO"/>
+        <appender-ref ref="stat-appender"/>
     </logger>
 
     <root>

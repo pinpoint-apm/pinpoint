@@ -12,6 +12,14 @@
         </layout>
     </appender>
 
+    <appender name="stat-appender" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="file" value="${catalina.home}/logs/stat.log"/>
+        <param name="Append" value="true"/>
+        <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+        <layout class="org.apache.log4j.EnhancedPatternLayout">
+            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-35c{1.}) %m%n"/>
+        </layout>
+    </appender>
 
 
     <logger name="com.nhn.pinpoint" additivity="false">
@@ -35,7 +43,7 @@
     -->
     <logger name="com.nhn.pinpoint.collector.StateReport" additivity="false">
         <level value="INFO"/>
-        <appender-ref ref="console"/>
+        <appender-ref ref="stat-appender"/>
     </logger>
     <root>
         <level value="INFO"/>
