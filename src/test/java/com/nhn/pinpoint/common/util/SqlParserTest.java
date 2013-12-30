@@ -56,6 +56,9 @@ public class SqlParserTest {
         assertEqual("select * from table a = -1 and b=-50 and c=? and d='-11'",
                 "select * from table a = -0# and b=-1# and c=? and d='2$'", "1,50,-11");
 
+        assertEqual("select * from table a = +1 and b=+50 and c=? and d='+11'",
+                "select * from table a = +0# and b=+1# and c=? and d='2$'", "1,50,+11");
+
         assertEqual("select * from table a = 1/*test*/ and b=50/*test*/ and c=? and d='11'",
                 "select * from table a = 0#/*test*/ and b=1#/*test*/ and c=? and d='2$'", "1,50,11");
 
