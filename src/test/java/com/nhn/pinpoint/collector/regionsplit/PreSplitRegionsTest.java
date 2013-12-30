@@ -91,6 +91,7 @@ public class PreSplitRegionsTest {
 		List<String> regions = new ArrayList<String>();
 		
 		OneByteSimpleHash hash = new OneByteSimpleHash(traceIndexRegionNumber);
+        int index = 1;
 		for (byte[] each : hash.getAllPossiblePrefixes()) {
 			byte onebyte = each[0];
 			if (onebyte == 0) {
@@ -100,7 +101,10 @@ public class PreSplitRegionsTest {
 			for (int i = 0; i < 15; i++) {
 				region += "\\x00";
 			}
-			regions.add(region);
+            if (index % 2 == 0) {
+			    regions.add(region);
+            }
+            index++;
 		}
 		
 		printCommand(traceIndexFormat, regions);
