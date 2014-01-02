@@ -6,7 +6,6 @@ import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
 import com.nhn.pinpoint.web.service.ComplexNodeId;
 import com.nhn.pinpoint.web.service.NodeId;
 import com.nhn.pinpoint.web.service.SimpleNodeId;
-import com.nhn.pinpoint.web.util.Mergeable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,22 +15,22 @@ import org.slf4j.LoggerFactory;
  * @author netspider
  * @author emeroad
  */
-public class ApplicationRelation {
+public class Link {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     protected final NodeId id;
 
-    private final Application from;
-    private final Application to;
+    private final Node from;
+    private final Node to;
 	private final HostList hostList;
 
 
-    public ApplicationRelation(Application from, Application to, HostList hostList) {
+    public Link(Node from, Node to, HostList hostList) {
         this(createKey(from, to), from, to, hostList);
 
     }
 
-    private static ComplexNodeId createKey(Application from, Application to) {
+    private static ComplexNodeId createKey(Node from, Node to) {
         if (from == null) {
             throw new NullPointerException("from must not be null");
         }
@@ -43,7 +42,7 @@ public class ApplicationRelation {
         return new ComplexNodeId(fromId.getKey(), toId.getKey());
     }
 
-    ApplicationRelation(NodeId id, Application from, Application to, HostList hostList) {
+    Link(NodeId id, Node from, Node to, HostList hostList) {
         if (from == null) {
             throw new NullPointerException("from must not be null");
         }
@@ -63,11 +62,11 @@ public class ApplicationRelation {
 		return id;
 	}
 
-	public Application getFrom() {
+	public Node getFrom() {
 		return from;
 	}
 
-	public Application getTo() {
+	public Node getTo() {
 		return to;
 	}
 
@@ -90,7 +89,7 @@ public class ApplicationRelation {
 		return result;
 	}
 
-	public void add(ApplicationRelation relation) {
+	public void add(Link relation) {
         if (relation == null) {
             throw new NullPointerException("relation must not be null");
         }
@@ -105,9 +104,9 @@ public class ApplicationRelation {
 		}
 	}
 
-    public ApplicationRelation deepCopy() {
+    public Link deepCopy() {
         HostList copyHost = this.hostList.deepCopy();
-        ApplicationRelation copy = new ApplicationRelation(this.id, this.from, this.to, copyHost);
+        Link copy = new Link(this.id, this.from, this.to, copyHost);
         return copy;
     }
 
@@ -127,7 +126,7 @@ public class ApplicationRelation {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ApplicationRelation other = (ApplicationRelation) obj;
+		Link other = (Link) obj;
 		if (id == null) {
 			if (other.id != null)
 				return false;
@@ -138,7 +137,7 @@ public class ApplicationRelation {
 
 	@Override
 	public String toString() {
-		return "ApplicationRelation [id=" + id + ", from=" + from + ", to=" + to + ", hostList=" + hostList + "]";
+		return "Link [id=" + id + ", from=" + from + ", to=" + to + ", hostList=" + hostList + "]";
 	}
 
 }

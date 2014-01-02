@@ -34,14 +34,14 @@ public class ApplicationMapBuilder {
         // extract agent
         Map<NodeId, Set<AgentInfoBo>> agentMap = rawData.getAgentMap();
         // 변경하면 안됨
-        final List<Application> sourceNode = createSourceApplication(rawData, agentMap);
+        final List<Node> sourceNode = createSourceApplication(rawData, agentMap);
         nodeMap.addApplication(sourceNode);
 
 
         // indexing application (UI의 서버맵을 그릴 때 key 정보가 필요한데 unique해야하고 link정보와 맞춰야 됨.)
         nodeMap.indexingApplication();
         // 변경하면 안됨.
-        List<ApplicationRelation> sourceLink = createSourceLink(rawData, nodeMap);
+        List<Link> sourceLink = createSourceLink(rawData, nodeMap);
         nodeMap.addRelation(sourceLink);
 
 
@@ -50,15 +50,15 @@ public class ApplicationMapBuilder {
         return nodeMap;
     }
 
-    private List<ApplicationRelation> createSourceLink(RawStatisticsData rawData, ApplicationMap nodeMap) {
-        final List<ApplicationRelation> result = new ArrayList<ApplicationRelation>();
+    private List<Link> createSourceLink(RawStatisticsData rawData, ApplicationMap nodeMap) {
+        final List<Link> result = new ArrayList<Link>();
         // extract relation
         for (TransactionFlowStatistics stat : rawData.getRawData()) {
             final NodeId fromApplicationId = stat.getFromApplicationId();
-            Application from = nodeMap.findApplication(fromApplicationId);
+            Node from = nodeMap.findApplication(fromApplicationId);
             // TODO
             final NodeId toApplicationId = stat.getToApplicationId();
-            Application to = nodeMap.findApplication(toApplicationId);
+            Node to = nodeMap.findApplication(toApplicationId);
 
             // rpc client가 빠진경우임.
             if (to == null) {
@@ -67,7 +67,7 @@ public class ApplicationMapBuilder {
 
             // RPC client인 경우 dest application이 이미 있으면 삭제, 없으면 unknown cloud로 변경.
             HostList toHostList = stat.getToHostList();
-            ApplicationRelation link = new ApplicationRelation(from, to, toHostList);
+            Link link = new Link(from, to, toHostList);
             if (to.getServiceType().isRpcClient()) {
                 if (!nodeMap.containsApplicationName(to.getApplicationName())) {
                     result.add(link);
@@ -79,8 +79,8 @@ public class ApplicationMapBuilder {
         return result;
     }
 
-    private List<Application> createSourceApplication(RawStatisticsData rawData, Map<NodeId, Set<AgentInfoBo>> agentMap) {
-        final List<Application> result = new ArrayList<Application>();
+    private List<Node> createSourceApplication(RawStatisticsData rawData, Map<NodeId, Set<AgentInfoBo>> agentMap) {
+        final List<Node> result = new ArrayList<Node>();
         // extract application and histogram
         for (TransactionFlowStatistics stat : rawData.getRawData()) {
             // FROM -> TO에서 FROM이 CLIENT가 아니면 FROM은 application
@@ -88,16 +88,16 @@ public class ApplicationMapBuilder {
                 final NodeId id = stat.getFromApplicationId();
                 final Set<AgentInfoBo> agentSet = agentMap.get(id);
                 // FIXME from은 tohostlist를 보관하지 않아서 없음. null로 입력. 그렇지 않으면 이상해짐 ㅡㅡ;
-                Application application = new Application(id, stat.getFrom(), stat.getFromServiceType(), agentSet);
-                result.add(application);
+                Node node = new Node(id, stat.getFrom(), stat.getFromServiceType(), agentSet);
+                result.add(node);
             }
 
             // FROM -> TO에서 TO가 CLIENT가 아니면 TO는 application
             if (!stat.getToServiceType().isRpcClient()) {
                 final NodeId to = stat.getToApplicationId();
 
-                Application application = new Application(to, stat.getTo(), stat.getToServiceType(), stat.getToHostList());
-                result.add(application);
+                Node node = new Node(to, stat.getTo(), stat.getToServiceType(), stat.getToHostList());
+                result.add(node);
             }
         }
         return result;

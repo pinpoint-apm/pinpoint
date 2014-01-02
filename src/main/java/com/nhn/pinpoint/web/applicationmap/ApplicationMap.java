@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.nhn.pinpoint.web.vo.TimeSeriesStore;
 
 /**
- * Application map
+ * Node map
  * 
  * @author netspider
  * @author emeroad
@@ -18,8 +18,8 @@ public class ApplicationMap {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ApplicationList applications = new ApplicationList();
-    private final ApplicationRelationList relations = new ApplicationRelationList();
+    private final NodeList applications = new NodeList();
+    private final LinkList relations = new LinkList();
 
 	private final Set<String> applicationNames = new HashSet<String>();
 
@@ -29,11 +29,11 @@ public class ApplicationMap {
 	}
 
 
-	public List<Application> getNodes() {
+	public List<Node> getNodes() {
 		return this.applications.getNodeList();
 	}
 
-	public List<ApplicationRelation> getLinks() {
+	public List<Link> getLinks() {
 		return this.relations.getLinks();
 	}
 
@@ -41,25 +41,25 @@ public class ApplicationMap {
         this.applications.markSequence();
 	}
 
-	Application findApplication(NodeId applicationId) {
+	Node findApplication(NodeId applicationId) {
         return this.applications.find(applicationId);
 	}
 
-    void addApplication(List<Application> applicationList) {
-        for (Application application : applicationList) {
-            this.addApplicationName(application);
+    void addApplication(List<Node> nodeList) {
+        for (Node node : nodeList) {
+            this.addApplicationName(node);
         }
-        this.applications.buildApplication(applicationList);
+        this.applications.buildApplication(nodeList);
     }
 
-	void addApplicationName(Application application) {
-		if (!application.getServiceType().isRpcClient()) {
-			applicationNames.add(application.getApplicationName());
+	void addApplicationName(Node node) {
+		if (!node.getServiceType().isRpcClient()) {
+			applicationNames.add(node.getApplicationName());
 		}
 
 	}
 
-    void addRelation(List<ApplicationRelation> relationList) {
+    void addRelation(List<Link> relationList) {
         relations.buildRelation(relationList);
     }
 

@@ -12,12 +12,12 @@ import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.web.util.JsonSerializable;
 
 /**
- * application map에서 application을 나타낸다.
+ * node map에서 application을 나타낸다.
  * 
  * @author netspider
  * @author emeroad
  */
-public class Application implements JsonSerializable {
+public class Node implements JsonSerializable {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -32,16 +32,16 @@ public class Application implements JsonSerializable {
 	private final Set<AgentInfoBo> agentSet = new HashSet<AgentInfoBo>();
 	
 
-	public Application(NodeId id, String applicationName, ServiceType serviceType, Set<AgentInfoBo> agentSet) {
+	public Node(NodeId id, String applicationName, ServiceType serviceType, Set<AgentInfoBo> agentSet) {
         this(id, applicationName, serviceType, null, agentSet);
 	}
 
-    public Application(NodeId id, String applicationName, ServiceType serviceType, HostList hostList) {
+    public Node(NodeId id, String applicationName, ServiceType serviceType, HostList hostList) {
         this(id, applicationName, serviceType, hostList, null);
     }
 
-    Application(NodeId id, String applicationName, ServiceType serviceType, HostList hostList, Set<AgentInfoBo> agentSet) {
-        logger.debug("create application id={}, applicationName={}, serviceType={}, agentSet={}", id, applicationName, serviceType, agentSet);
+    Node(NodeId id, String applicationName, ServiceType serviceType, HostList hostList, Set<AgentInfoBo> agentSet) {
+        logger.debug("create node id={}, applicationName={}, serviceType={}, agentSet={}", id, applicationName, serviceType, agentSet);
         this.id = id;
         this.applicationName = getApplicationName(applicationName, serviceType);
         this.serviceType = serviceType;
@@ -95,24 +95,24 @@ public class Application implements JsonSerializable {
 		return applicationName;
 	}
 
-	public Application add(Application application) {
-        if (application == null) {
-            throw new NullPointerException("application must not be null");
+	public Node add(Node node) {
+        if (node == null) {
+            throw new NullPointerException("node must not be null");
         }
-        logger.debug("merge application a={}, b={}", this.id, application.id);
+        logger.debug("merge node a={}, b={}", this.id, node.id);
 		
         // 리얼 application을 실제빌드할때 copy하여 만들기 때문에. add할때 데이터를 hostList를 add해도 된다.
-        this.hostList.addHostList(application.hostList);
-//        this.hostList.put(application.hostList);
+        this.hostList.addHostList(node.hostList);
+//        this.hostList.put(node.hostList);
 
-		if (application.agentSet != null) {
-			this.agentSet.addAll(application.agentSet);
+		if (node.agentSet != null) {
+			this.agentSet.addAll(node.agentSet);
 		}
 		
 		// FIXME 여기를 주석처리하면 filter map에서 데이터가 제대로 보이지 않고.
 		// 주석 해제하면 통계 map에서 데이터가 맞지 않음.
 		// merge server instance list
-//		for (Entry<String, MergeableMap<String, ServerInstance>> entry : application.getServerInstanceList().entrySet()) {
+//		for (Entry<String, MergeableMap<String, ServerInstance>> entry : node.getServerInstanceList().entrySet()) {
 //			MergeableMap<String, ServerInstance> exists = serverInstanceList.get(entry.getKey());
 //			if (exists == null) {
 //				serverInstanceList.put(entry.getKey(), entry.getValue());
@@ -126,9 +126,9 @@ public class Application implements JsonSerializable {
 		return this;
 	}
 
-    public Application deepCopy() {
+    public Node deepCopy() {
         HostList copyHostList = hostList.deepCopy();
-        return new Application(this.id, this.applicationName, this.serviceType, copyHostList, agentSet);
+        return new Node(this.id, this.applicationName, this.serviceType, copyHostList, agentSet);
     }
 
 	public ServiceType getServiceType() {
@@ -151,6 +151,6 @@ public class Application implements JsonSerializable {
 
 	@Override
 	public String toString() {
-		return "Application [sequence=" + sequence + ", id=" + id + ", applicationName=" + applicationName + ", serviceType=" + serviceType + ", serverInstanceList=" + serverInstanceList + "]";
+		return "Node [sequence=" + sequence + ", id=" + id + ", applicationName=" + applicationName + ", serviceType=" + serviceType + ", serverInstanceList=" + serverInstanceList + "]";
 	}
 }
