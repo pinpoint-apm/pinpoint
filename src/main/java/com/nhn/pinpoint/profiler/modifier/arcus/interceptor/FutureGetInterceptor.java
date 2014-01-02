@@ -36,12 +36,12 @@ public class FutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMe
 			logger.beforeInterceptor(target, args);
 		}
 
-		Trace trace = traceContext.currentTraceObject();
+		final Trace trace = traceContext.currentTraceObject();
 		if (trace == null) {
             if (isDebug) {
-                logger.debug("TraceID not exist. start new trace.");
+                logger.debug("TraceID not exist.");
             }
-			trace = traceContext.newTraceObject();
+            return;
 		}
 		
 		trace.traceBlockBegin();
@@ -54,9 +54,11 @@ public class FutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMe
 			logger.afterInterceptor(target, args, result);
 		}
 
-		Trace trace = traceContext.currentTraceObject();
+		final Trace trace = traceContext.currentTraceObject();
 		if (trace == null) {
-			logger.debug("trace not found");
+            if (isDebug) {
+			    logger.debug("trace not found");
+            }
 			return;
 		}
 
