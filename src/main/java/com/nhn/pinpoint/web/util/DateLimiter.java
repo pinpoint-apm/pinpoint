@@ -1,10 +1,13 @@
 package com.nhn.pinpoint.web.util;
 
+import org.springframework.stereotype.Component;
+
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author emeroad
  */
+@Component
 public class DateLimiter implements Limiter {
 
     private final long limitDay;
@@ -26,10 +29,10 @@ public class DateLimiter implements Limiter {
     public void limit(long from, long to) {
         final long elapsedTime = to - from;
         if (elapsedTime < 0) {
-            throw new  IllegalArgumentException("to - from < 0 to:" + to + " from:" + from);
+            throw new  IllegalArgumentException("to - from < 0 from:" + from + " to:" + to);
         }
         if (limitDayMillis < elapsedTime) {
-            throw new IllegalArgumentException("limitDay");
+            throw new IllegalArgumentException("limitDay:"+ limitDay + " from:" + from + " to:" + to);
         }
     }
 }

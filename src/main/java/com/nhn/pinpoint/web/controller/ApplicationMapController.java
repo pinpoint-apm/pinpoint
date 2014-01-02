@@ -2,6 +2,7 @@ package com.nhn.pinpoint.web.controller;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.nhn.pinpoint.web.util.Limiter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,9 @@ public class ApplicationMapController {
     @Autowired
 	private ApplicationMapService applicationMapService;
 
+    @Autowired
+    private Limiter dateLimit;
+
 	/**
 	 * FROM ~ TO기간의 서버 맵 데이터 조회
 	 * 
@@ -47,7 +51,8 @@ public class ApplicationMapController {
 									@RequestParam("serviceType") short serviceType, 
 									@RequestParam("from") long from,
 									@RequestParam("to") long to) {
-		
+		this.dateLimit.limit(from, to);
+
 		ApplicationMap map = applicationMapService.selectApplicationMap(applicationName, serviceType, from, to);
 
 		model.addAttribute("nodes", map.getNodes());
