@@ -26,4 +26,22 @@ public class ConcurrentCounterMapTest {
         Assert.assertEquals(remove2.get("a").get(), 1L);
     }
 
+    @Test
+    public void testIntegerMax() throws Exception {
+        ConcurrentCounterMap<String> cache = new ConcurrentCounterMap<String>(16, Integer.MAX_VALUE);
+        cache.increment("a", 1L);
+        cache.increment("a", 2L);
+        cache.increment("b", 5L);
+
+    }
+
+    @Test
+    public void testIntegerMin() throws Exception {
+        ConcurrentCounterMap<String> cache = new ConcurrentCounterMap<String>(16, Integer.MIN_VALUE);
+        cache.increment("a", 1L);
+        cache.increment("a", 2L);
+        cache.increment("b", 5L);
+
+    }
+
 }

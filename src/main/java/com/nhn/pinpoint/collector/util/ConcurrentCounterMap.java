@@ -12,7 +12,7 @@ public class ConcurrentCounterMap<T> {
 
     private final int concurrencyLevel;
 
-    private final AtomicInteger entrySelector = new AtomicInteger(0);
+    private final AtomicInteger entrySelector;
 
     private final Entry<T>[] entryArray;
 
@@ -23,8 +23,13 @@ public class ConcurrentCounterMap<T> {
     }
 
     public ConcurrentCounterMap(int concurrencyLevel) {
+        this(concurrencyLevel, 0);
+    }
+
+    public ConcurrentCounterMap(int concurrencyLevel, int entrySelectorId) {
         this.concurrencyLevel = concurrencyLevel;
         this.entryArray = createEntry();
+        this.entrySelector = new AtomicInteger(entrySelectorId);
     }
 
     private Entry<T>[] createEntry() {
@@ -38,7 +43,8 @@ public class ConcurrentCounterMap<T> {
     }
 
     private Entry<T> getEntry() {
-        final int mod = MathUtils.fastAbs(entrySelector.getAndIncrement()) % concurrencyLevel;
+        final int selectKey = MathUtils.fastAbs(entrySelector.getAndIncrement());
+        final int mod = selectKey % concurrencyLevel;
         return entryArray[mod];
     }
 
