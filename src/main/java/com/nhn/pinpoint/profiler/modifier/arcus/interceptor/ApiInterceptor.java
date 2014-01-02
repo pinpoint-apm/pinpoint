@@ -36,7 +36,7 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDe
 			logger.beforeInterceptor(target, args);
 		}
 		
-		Trace trace = traceContext.currentTraceObject();
+		final Trace trace = traceContext.currentTraceObject();
 		if (trace == null) {
 			return;
 		}
@@ -51,11 +51,8 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDe
 			logger.afterInterceptor(target, args, result);
 		}
 
-		Trace trace = traceContext.currentTraceObject();
+		final Trace trace = traceContext.currentTraceObject();
 		if (trace == null) {
-            if (isDebug) {
-			    logger.debug("trace not found");
-            }
 			return;
 		}
 		try {
