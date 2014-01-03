@@ -110,6 +110,6 @@
 
     <root>
         <level value="INFO"/>
-        <appender-ref ref="nelo-async"/>
+        <!--<appender-ref ref="nelo-async"/>-->
     </root>
 </log4j:configuration>
