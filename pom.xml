@@ -52,7 +52,7 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
-            <version>2.0.0-cdh4.3.0</version>
+            <version>2.0.0-cdh4.5.0</version>
             <scope>compile</scope>
             <optional>true</optional>
             <exclusions>
@@ -178,7 +178,7 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-core</artifactId>
-            <version>2.0.0-mr1-cdh4.3.0</version>
+            <version>2.0.0-mr1-cdh4.5.0</version>
             <scope>compile</scope>
             <optional>true</optional>
             <exclusions>
@@ -260,7 +260,7 @@
         <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase</artifactId>
-            <version>0.94.6-cdh4.3.0</version>
+            <version>0.94.6-cdh4.5.0</version>
             <scope>compile</scope>
             <optional>true</optional>
             <exclusions>
