@@ -473,7 +473,7 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-hadoop</artifactId>
-            <version>1.0.1.RELEASE</version>
+            <version>1.0.2.RELEASE</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework</groupId>
