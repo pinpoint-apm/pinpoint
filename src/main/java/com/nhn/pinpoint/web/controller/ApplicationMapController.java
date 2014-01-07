@@ -104,7 +104,8 @@ public class ApplicationMapController {
 									@RequestParam("srcApplicationName") String srcApplicationName,
 									@RequestParam("srcServiceType") short srcServiceType,
 									@RequestParam("destApplicationName") String destApplicationName,
-									@RequestParam("destServiceType") short destServiceType) {
+									@RequestParam("destServiceType") short destServiceType,
+									@RequestParam(value="v", required=false, defaultValue="1") int v) {
 		
 		LinkStatistics linkStatistics = applicationMapService.linkStatistics(from, to, srcApplicationName, srcServiceType, destApplicationName, destServiceType);
 
@@ -125,6 +126,10 @@ public class ApplicationMapController {
 		model.addAttribute("resultFrom", from);
 		model.addAttribute("resultTo", to);
 		
-		return "linkStatistics";
+		if (v == 2) {
+			return "linkStatistics2";
+		} else {
+			return "linkStatistics";
+		}
 	}
 }
