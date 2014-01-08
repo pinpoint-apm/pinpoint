@@ -37,6 +37,7 @@ public class AutoFlusher {
     }
 
     private static final class Worker implements Runnable {
+    	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 		private final CachedStatisticsDao dao;
 
 		public Worker(CachedStatisticsDao dao) {
@@ -45,7 +46,11 @@ public class AutoFlusher {
 
 		@Override
 		public void run() {
-			dao.flushAll();
+			try {
+				dao.flushAll();
+			} catch (Throwable th) {
+				logger.error("AutoFlusherWorker failed.", th);
+			}
 		}
 	}
 
