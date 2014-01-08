@@ -5,7 +5,7 @@ pinpointApp.constant('linkInfoDetailsConfig', {
     myColors: ["#008000", "#4B72E3", "#A74EA7", "#BB5004", "#FF0000"]
 });
 
-pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (config) {
+pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartVo', function (config, HelixChartVo) {
     return {
         restrict: 'EA',
         replace: true,
@@ -81,9 +81,10 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (co
             /**
              * get link statistics data
              * @param query
+             * @param version
              * @param callback
              */
-            getLinkStatisticsData = function (query, callback) {
+            getLinkStatisticsData = function (query, version, callback) {
                 jQuery.ajax({
                     type: 'GET',
                     url: config.linkStatisticsUrl,
@@ -95,7 +96,8 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (co
                         srcServiceType: query.srcServiceType,
                         srcApplicationName: query.srcApplicationName,
                         destServiceType: query.destServiceType,
-                        destApplicationName: query.destApplicationName
+                        destApplicationName: query.destApplicationName,
+                        v: version
                     },
                     success: function (result) {
                         callback(query, result);
@@ -231,8 +233,35 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', function (co
                 scope.showLinkInfoChart = true;
                 scope.showLinkInfoBarChart = true;
                 renderStatisticsSummary('.linkInfoDetails .infoBarChart svg', parseHistogramForD3(histogram), 'ResponseSummary');
-                getLinkStatisticsData(params, function (query, result) {
+
+                getLinkStatisticsData(params, 1, function (query, result) {
                     renderStatisticsTimeSeriesHistogram(result.timeseriesHistogram);
+                });
+
+                getLinkStatisticsData(params, 2, function (query, result) {
+                    var oHelixChartVo = new HelixChartVo();
+                    oHelixChartVo
+                        .setType('stacked_line')
+                        .setGroup('loadForLinkInfoDetails')
+                        .setWidth(380)
+                        .setHeight(200)
+                        .setPadding([30, 90, 35, 50])
+                        .setMargin([0, 0, 20, 0])
+//                        .setXCount(30)
+//                        .setXInterval(5)
+//                        .setXTick('minutes')
+//                        .setXTickInterval(1)
+//                        .setXTickFormat('%H:%M')
+                        .setYTicks(5)
+                        .setLegend('1.0s,3.0s,5.0s,Slow,Failed')
+                        .setQueryValue('1.0s,3.0s,5.0s,Slow,Failed')
+//                        .setQueryInterval('5s')
+                        .setQueryFrom(htQuery.from)
+                        .setQueryTo(htQuery.to)
+                        .generateEverythingForChart()
+                        .setData(result.timeseriesHistogram);
+//                        .parseDataTimestampToDateInstance();
+                    scope.$broadcast('helixChart.initialize.loadForLinkInfoDetails', oHelixChartVo);
                 });
             };
 

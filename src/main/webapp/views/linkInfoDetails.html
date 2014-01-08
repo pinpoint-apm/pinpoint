@@ -7,10 +7,10 @@
             </div>
 		</div>
 
-		<div ng-switch-when="LinkInfoBox" class="alert alert-info text-center">
+		<div ng-switch-when="LinkInfoBox" class="alert alert-info text-center" style="padding-left:5px;padding-right:5px;">
 			<img ng-src="/images/icons/{{sourceinfo.serviceType | icons}}.png" style="height:20px;" /> {{sourceinfo.applicationName}}
 			<i class="icon-arrow-right"></i>
-			<img ng-src="/images/icons/{{targetinfo.serviceType | icons}}.png" style="height:20px;" /> {{targetinfo.applicationName}}
+			<img ng-src="/images/icons/{{targetinfo.serviceType | icons}}.png" style="height:20px;" /> {{targetinfo.applicationName.replace('.nhncorp.com','')}}
 		</div>
 
 	</div>
@@ -41,7 +41,8 @@
 
         <div class='infoChart' ng-show="showLinkInfoChart">
             <h5>Load</h5>
-            <svg style='height:200px' />
+            <svg style='height:150px' />
         </div>
+        <helix-chart namespace="loadForLinkInfoDetails" ng-if="showLinkInfoChart"></helix-chart>
     </div>
 </div>
