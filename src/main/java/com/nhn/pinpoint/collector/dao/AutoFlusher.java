@@ -49,7 +49,7 @@ public class AutoFlusher {
 			try {
 				dao.flushAll();
 			} catch (Throwable th) {
-				logger.error("AutoFlusherWorker failed.", th);
+				logger.error("AutoFlusherWorker failed. Caused:{}", th.getMessage(), th);
 			}
 		}
 	}
