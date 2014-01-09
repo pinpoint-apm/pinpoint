@@ -20,6 +20,7 @@
                 <prop key="hbase.zookeeper.quorum">${hbase.client.host}</prop>
                 <prop key="hbase.zookeeper.property.clientPort">${hbase.client.port}</prop>
                 <prop key="hbase.htable.threads.max">${hbase.htable.threads.max}</prop>
+                <prop key="hbase.ipc.client.tcpnodelay">true</prop>
             </props>
         </property>
     </bean>
