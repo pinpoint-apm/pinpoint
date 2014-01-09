@@ -262,6 +262,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
             // 내가 아는 next spanid를 spanid로 가진 span이 있으면 acceptor가 존재하는 셈.
             if (destServiceType.isRpcClient()) {
                 if (transactionSpanMap.containsKey(spanEvent.getNextSpanId())) {
+                    // TODO 여기를 고칠것.  rpc콜의 통계는 별도로 분리해서 생성해야 한다. 치환하면 안됨.
                     continue;
                 } else {
                     destServiceType = ServiceType.UNKNOWN; // ServiceType.UNKNOWN_CLOUD;
