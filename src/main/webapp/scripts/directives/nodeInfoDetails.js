@@ -24,10 +24,10 @@ pinpointApp
                  */
                 reset = function () {
                     scope.showNodeInfoDetails = false;
-                    scope.nodeTitle = null;
-                    scope.nodeCategory = null;
-                    scope.nodeIcon = 'USER';
-                    scope.unknownGroup = null;
+//                    scope.nodeTitle = null;
+//                    scope.nodeCategory = null;
+//                    scope.nodeIcon = 'USER';
+//                    scope.unknownGroup = null;
                     scope.hosts = null;
                     scope.showServers = false;
                     scope.agents = null;
@@ -45,12 +45,12 @@ pinpointApp
                  */
                 showDetailInformation = function (query, node) {
                     scope.showNodeInfoDetails = true;
-                    scope.nodeTitle = node.text;
-                    scope.nodeCategory = node.category;
-                    if (node.category !== 'UNKNOWN_GROUP') {
-                        scope.nodeIcon = node.category; // do not be reset. because it will be like this '.../icons/.png 404 (Not Found)'
-                    }
-                    scope.unknownGroup = node.textArr;
+//                    scope.nodeTitle = node.text;
+//                    scope.nodeCategory = node.category;
+//                    if (node.category !== 'UNKNOWN_GROUP') {
+//                        scope.nodeIcon = node.category; // do not be reset. because it will be like this '.../icons/.png 404 (Not Found)'
+//                    }
+//                    scope.unknownGroup = node.textArr;
                     scope.serverList = node.serverList;
                     scope.showServers = _.isEmpty(scope.serverList) ? false : true;
                     scope.isWas = node.isWas;
@@ -226,7 +226,7 @@ pinpointApp
                 /**
                  * scope event on nodeInfoDetails.reset
                  */
-                scope.$on('nodeInfoDetails.reset', function (event, e, query, link) {
+                scope.$on('nodeInfoDetails.reset', function (event) {
                     reset();
                 });
 

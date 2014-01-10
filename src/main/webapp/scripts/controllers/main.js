@@ -4,8 +4,8 @@ pinpointApp.constant('mainConfig', {
     FILTER_DELIMETER: "^",
     FILTER_ENTRY_DELIMETER: "|"
 });
-pinpointApp.controller('MainCtrl', [ 'mainConfig', '$scope', '$timeout', '$routeParams', 'location', 'NavbarVo', 'encodeURIComponentFilter', '$window',
-    function (cfg, $scope, $timeout, $routeParams, location, NavbarVo, encodeURIComponentFilter, $window) {
+pinpointApp.controller('MainCtrl', [ 'mainConfig', '$scope', '$timeout', '$routeParams', 'location', 'NavbarVo', 'encodeURIComponentFilter', '$window', 'SidebarTitleVo',
+    function (cfg, $scope, $timeout, $routeParams, location, NavbarVo, encodeURIComponentFilter, $window, SidebarTitleVo) {
 
         // define private variables
         var oNavbarVo;
@@ -13,8 +13,11 @@ pinpointApp.controller('MainCtrl', [ 'mainConfig', '$scope', '$timeout', '$route
         // define private variables of methods
         var getFirstPathOfLocation, changeLocation, openFilteredMapWithFilterDataSet, getStartValueForFilterByLabel;
 
+        // initialize scope variables
+        $scope.hasScatter = false;
+
         /**
-         * initialize
+         * bootstrap
          */
         $timeout(function () {
             oNavbarVo = new NavbarVo();
@@ -28,10 +31,10 @@ pinpointApp.controller('MainCtrl', [ 'mainConfig', '$scope', '$timeout', '$route
                 oNavbarVo.setQueryEndTime(Number($routeParams.queryEndTime, 10));
             }
             oNavbarVo.autoCalculateByQueryEndTimeAndPeriod();
-            $scope.$emit('navbar.initialize', oNavbarVo);
-            $scope.$emit('scatter.initialize', oNavbarVo);
-            $scope.$emit('serverMap.initialize', oNavbarVo);
-        }, 100);
+            $scope.$broadcast('navbar.initialize', oNavbarVo);
+            $scope.$broadcast('scatter.initialize', oNavbarVo);
+            $scope.$broadcast('serverMap.initialize', oNavbarVo);
+        }, 200);
 
         /**
          * get first path of loction
@@ -122,31 +125,63 @@ pinpointApp.controller('MainCtrl', [ 'mainConfig', '$scope', '$timeout', '$route
         $scope.$on('navbar.changed', function (event, navbarVo) {
             oNavbarVo = navbarVo;
             changeLocation(oNavbarVo);
-            $scope.$emit('scatter.initialize', oNavbarVo);
-            $scope.$emit('serverMap.initialize', oNavbarVo);
+            $scope.hasScatter = false;
+            $scope.$broadcast('sidebarTitle.empty.forMain');
+            $scope.$broadcast('nodeInfoDetails.reset');
+            $scope.$broadcast('linkInfoDetails.reset');
+            $scope.$broadcast('scatter.initialize', oNavbarVo);
+            $scope.$broadcast('serverMap.initialize', oNavbarVo);
+            $scope.$broadcast('sidebarTitle.empty.forMain');
         });
 
         /**
          * scope event on serverMap.passingTransactionResponseToScatterChart
          */
         $scope.$on('serverMap.passingTransactionResponseToScatterChart', function (event, node) {
-            $scope.$emit('scatter.initializeWithNode', node);
+            $scope.$broadcast('scatter.initializeWithNode', node);
         });
 
         /**
          * scope event on serverMap.nodeClicked
          */
         $scope.$on('serverMap.nodeClicked', function (event, e, query, node, data) {
-            $scope.$emit('nodeInfoDetails.initialize', e, query, node, data, oNavbarVo);
-            $scope.$emit('linkInfoDetails.reset', e, query, node, data, oNavbarVo);
+            var oSidebarTitleVo = new SidebarTitleVo;
+            oSidebarTitleVo
+                .setImageType(node.category)
+                .setTitle(node.text);
+
+            if (node.category === 'TOMCAT') {
+                $scope.hasScatter = true;
+                $scope.$broadcast('scatter.initializeWithNode', node);
+            } else {
+                $scope.hasScatter = false;
+            }
+
+            $scope.$broadcast('sidebarTitle.initialize.forMain', oSidebarTitleVo);
+            $scope.$broadcast('nodeInfoDetails.initialize', e, query, node, data, oNavbarVo);
+            $scope.$broadcast('linkInfoDetails.reset', e, query, node, data, oNavbarVo);
         });
 
         /**
          * scope event on serverMap.linkClicked
          */
         $scope.$on('serverMap.linkClicked', function (event, e, query, link, data) {
-            $scope.$emit('nodeInfoDetails.reset', e, query, link, data, oNavbarVo);
-            $scope.$emit('linkInfoDetails.initialize', e, query, link, data, oNavbarVo);
+            var oSidebarTitleVo = new SidebarTitleVo;
+            if (link.rawdata) {
+                oSidebarTitleVo
+                    .setImageType('UNKNOWN_GROUP')
+                    .setTitle('Unknown Links');
+            } else {
+                oSidebarTitleVo
+                    .setImageType(link.sourceinfo.serviceType)
+                    .setTitle(link.sourceinfo.applicationName)
+                    .setImageType2(link.targetinfo.serviceType)
+                    .setTitle2(link.targetinfo.applicationName);
+            }
+            $scope.hasScatter = false;
+            $scope.$broadcast('sidebarTitle.initialize.forMain', oSidebarTitleVo);
+            $scope.$broadcast('nodeInfoDetails.reset', e, query, link, data, oNavbarVo);
+            $scope.$broadcast('linkInfoDetails.initialize', e, query, link, data, oNavbarVo);
         });
 
         /**

@@ -19,6 +19,12 @@ pinpointApp.constant('scatterConfig', {
         sXLabel: '',
         sYLabel: '(ms)',
         sTitle: '',
+        'htGuideLine': {
+            'nLineWidth': 1,
+            'aLineDash': [1, 0],
+            'nGlobalAlpha': 1,
+            'sLineColor' : '#e3e3e3'
+        },
         htTypeAndColor: {
             // type name : color
             'Success': '#2ca02c',
@@ -202,7 +208,7 @@ pinpointApp.directive('scatter',
                         options.nHeight = h ? h : 250;
                         options.nXMin = start;
                         options.nXMax = end;
-                        options.sTitle = title;
+//                        options.sTitle = title;
                         options.fOnSelect = function (htPosition, htXY) {
                             var transactions = {
                                 htXY: htXY,

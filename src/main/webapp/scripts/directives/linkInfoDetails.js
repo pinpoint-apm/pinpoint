@@ -25,8 +25,8 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
             reset = function () {
                 scope.showLinkInfoDetails = false;
                 scope.linkCategory = null;
-                scope.rawdata = null;
-                scope.query = null;
+//                scope.rawdata = null;
+//                scope.query = null;
                 scope.targetinfo = null;
                 scope.sourceinfo = null;
                 scope.showLinkInfoChart = false;
@@ -68,8 +68,8 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     );
                 }
 
-                scope.rawdata = data.rawdata;
-                scope.query = data.query;
+//                scope.rawdata = data.rawdata;
+//                scope.query = data.query;
                 scope.targetinfo = data.targetinfo;
                 scope.sourceinfo = data.sourceinfo;
                 scope.showLinkInfoDetails = true;
@@ -288,7 +288,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
             /**
              * scope event on linkInfoDetails.reset
              */
-            scope.$on('linkInfoDetails.reset', function (event, e, query, node, data) {
+            scope.$on('linkInfoDetails.reset', function (event) {
                 reset();
             });
 

@@ -1,7 +1,7 @@
 'use strict';
 
 nv.dev = false;
-var pinpointApp = angular.module('pinpointApp', [ 'ngRoute', 'ngResource', 'webStorageModule' ]);
+var pinpointApp = angular.module('pinpointApp', [ 'ngRoute', 'ngResource', 'webStorageModule' , 'ui.bootstrap']);
 
 pinpointApp.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
     $locationProvider.html5Mode(false).hashPrefix(''); // 해쉬뱅을 사용 안할 수 있다.

@@ -99,7 +99,7 @@
 				}
 			}, true);
 //			this.expandAll();
-			
+
 			this._table.flexHeight();
 		},
 

@@ -26,7 +26,7 @@ var BigScatterChart = $.Class({
             'nPaddingRight': 40,
             'nPaddingBottom': 30,
             'nPaddingLeft': 50,
-            'sLineColor': '#000',
+            'sLineColor': '#3d3d3d',
             'htTypeAndColor': {
                 'Success': '#b6da54', // type name : color, also order
                 'Warning': '#fcc666',
@@ -38,7 +38,8 @@ var BigScatterChart = $.Class({
             'htGuideLine': {
                 'nLineWidth': 1,
                 'aLineDash': [2, 5],
-                'nGlobalAlpha': 0.2
+                'nGlobalAlpha': 0.2,
+                'sLineColor' : '#e3e3e3'
             },
             'sTitle': 'Big Scatter Chart by Denny',
             'htTitleStyle': {
@@ -759,6 +760,7 @@ var BigScatterChart = $.Class({
 
         this._oGuideCtx.lineWidth = htGuideLine.nLineWidth;
         this._oGuideCtx.globalAlpha = htGuideLine.nGlobalAlpha;
+        this._oGuideCtx.strokeStyle = htGuideLine.sLineColor;
         if (this._oGuideCtx.setLineDash !== undefined)   this._oGuideCtx.setLineDash(htGuideLine.aLineDash);
         if (this._oGuideCtx.mozDash !== undefined)       this._oGuideCtx.mozDash = htGuideLine.aLineDash;
 

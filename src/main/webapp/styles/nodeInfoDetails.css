@@ -1,4 +1,5 @@
 .nodeInfoDetails {
+    padding: 5px 15px 30px;
 }
 
 .nodeInfoDetails .server-list,
@@ -10,21 +11,4 @@
     margin-bottom: 5px;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 14px;
-}
-
-.nodeInfoDetails .info {
-    position: fixed;
-    width: 380px;
-    padding: 10px;
-    background: #fff;
-    z-index: 1;
-}
-
-.nodeInfoDetails .alert {
-    line-height: 25px;
-    margin-bottom: 0;
-}
-
-.nodeInfoDetails .contents {
-    padding: 65px 15px 30px;
 }

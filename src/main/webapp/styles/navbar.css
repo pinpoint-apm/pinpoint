@@ -1,3 +1,6 @@
+.navbar {
+    z-index: 1040;
+}
 .main-navbar {
     position: absolute;
     margin: -40px 0 0 0;

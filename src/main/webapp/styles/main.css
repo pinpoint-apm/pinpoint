@@ -56,8 +56,10 @@ canvas {outline:none}
   top: 0;
   right: 0;
   padding-left: 12px;
-  width: 410px;
+  padding-right: 10px;
+  width: 399px;
   height: 100%;
+  border-left: 1px solid #ddd;
 }
 .sidebar.smallsize {
   width: 0;
@@ -92,14 +94,15 @@ canvas {outline:none}
 
 /* info-details */
 .info-details {
-    border-top: 1px solid #ddd;
-	border-left: 1px solid #ddd;
-	position: absolute;
-	top: 250px;
+    position: absolute;
+	top: 60px;
 	bottom: 0;
 	left: 0;
 	right: 0;
 	overflow: auto;
+}
+.info-details.has-scatter {
+    top: 330px;
 }
 
 
