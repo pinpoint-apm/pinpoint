@@ -86,44 +86,7 @@ pinpointApp.directive('scatter',
                      * @param filter
                      */
                     showScatter = function (applicationName, from, to, period, filter) {
-                        if (oScatterChart) {
-//							oScatterChart.clear();
-                        }
-
-//                    selectdTracesBox = {};
-//						var fullscreenButton = $("#scatterChartContainer I.icon-fullscreen");
-//						fullscreenButton.data("applicationName", applicationName);
-//						fullscreenButton.data("from", from);
-//						fullscreenButton.data("to", to);
-//						fullscreenButton.data("period", period);
-//						fullscreenButton.data("usePeriod", usePeriod);
-//						fullscreenButton.data("filter", filter);
-
-//						var downloadButton = $("#scatterChartContainer A");
-
-//						var imageFileName = applicationName +
-//								"_" +
-//								new Date(from).toString("yyyyMMdd_HHmm") +
-//								"~" +
-//								new Date(to).toString("yyyyMMdd_HHmm") +
-//								"_response_scatter.png";
-//
-//						downloadButton.attr("download", imageFileName);
-//						downloadButton.unbind("click");
-//						downloadButton.bind("click", function() {
-//							var sImageUrl = oScatterChart.getChartAsPNG();
-//							$(this).attr('href', sImageUrl);
-//						});
-
-//						$("#scatterChartContainer SPAN").unbind("click");
-//						$("#scatterChartContainer SPAN").bind("click", function() {
-//							showRequests(applicationName, from, to, period, usePeriod, filter);
-//						});
-
-//						$("#scatterChartContainer").show();
-
                         var bDrawOnceAll = false;
-
                         var htDataSource = {
                             sUrl: function (nFetchIndex) {
                                 return cfg.get.scatterData;
@@ -235,11 +198,11 @@ pinpointApp.directive('scatter',
                             $window.open(url, "width=900, height=700, resizable=yes");
                         };
 
+                        if (oScatterChart !== null) {
+                            oScatterChart.destroy();
+                        }
+                        oScatterChart = new BigScatterChart(options);
                         $timeout(function () {
-                            if (oScatterChart !== null) {
-                                oScatterChart.destroy();
-                            }
-                            oScatterChart = new BigScatterChart(options);
                             showScatter(title, start, end, period, filter);
                         }, 100);
 

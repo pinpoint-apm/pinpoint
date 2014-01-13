@@ -1079,11 +1079,8 @@ var BigScatterChart = $.Class({
     },
 
     addBubbleAndMoveAndDraw: function (aBubbles, nXMax) {
-        var nPaddingTop = this.option('nPaddingTop'),
-            nPaddingLeft = this.option('nPaddingLeft'),
-            nPaddingBottom = this.option('nPaddingBottom'),
-            nPaddingRight = this.option('nPaddingRight'), r
-        nBubbleSize = this.option('nBubbleSize'),
+        var nPaddingLeft = this.option('nPaddingLeft'),
+            nBubbleSize = this.option('nBubbleSize'),
             nWidth = this.option('nWidth'),
             nHeight = this.option('nHeight');
 
@@ -1451,6 +1448,7 @@ var BigScatterChart = $.Class({
         var htDataSource = this.option('htDataSource');
 
         var htOption = htDataSource.htOption;
+        htOption.context = this;
         htOption.url = htDataSource.sUrl.call(this, this._nCallCount);
         htOption.data = htDataSource.htParam.call(this, this._nCallCount, this._htLastFechedParam, this._htLastFetchedData);
         htOption.success = function (htData) {
@@ -1472,13 +1470,13 @@ var BigScatterChart = $.Class({
              }
              ], self._nXMax + 1000)
              }*/
-            htDataSource = self.option('htDataSource'); // refresh
+//            htDataSource = self.option('htDataSource'); // refresh
             var nInterval = htDataSource.nFetch.call(self, self._htLastFechedParam, htData);
             if (nInterval > -1) {
                 setTimeout(function () {
                     self._drawWithDataSource();
                 }, nInterval);
-            } else if (self._aBubbles.length === 0) {
+            } else if (!self._aBubbles || self._aBubbles.length === 0) {
                 self._showNoData();
                 self._welShowNoData.text(self.option('sShowNoData'));
             }

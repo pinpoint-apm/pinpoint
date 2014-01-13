@@ -282,7 +282,6 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         });
                         if (selectedNode) {
                             options.nBoldKey = selectedNode.key;
-                            scope.$emit("serverMap.nodeClicked", null, query, selectedNode, copiedData);
                         }
                     } catch (e) {
                         oAlert.showError('There is some error while selecting a node.');
