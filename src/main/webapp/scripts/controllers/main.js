@@ -1,17 +1,13 @@
 'use strict';
 
-pinpointApp.constant('mainConfig', {
-    FILTER_DELIMETER: "^",
-    FILTER_ENTRY_DELIMETER: "|"
-});
-pinpointApp.controller('MainCtrl', [ 'mainConfig', '$scope', '$timeout', '$routeParams', 'location', 'NavbarVo', 'encodeURIComponentFilter', '$window', 'SidebarTitleVo',
-    function (cfg, $scope, $timeout, $routeParams, location, NavbarVo, encodeURIComponentFilter, $window, SidebarTitleVo) {
+pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$routeParams', 'location', 'NavbarVo', 'encodeURIComponentFilter', '$window', 'SidebarTitleVo', 'filteredMapUtil',
+    function (cfg, $scope, $timeout, $routeParams, location, NavbarVo, encodeURIComponentFilter, $window, SidebarTitleVo, filteredMapUtil) {
 
         // define private variables
         var oNavbarVo;
 
         // define private variables of methods
-        var getFirstPathOfLocation, changeLocation, openFilteredMapWithFilterDataSet, getStartValueForFilterByLabel;
+        var getFirstPathOfLocation, changeLocation, openFilteredMapWithFilterDataSet;
 
         // initialize scope variables
         $scope.hasScatter = false;
@@ -67,56 +63,9 @@ pinpointApp.controller('MainCtrl', [ 'mainConfig', '$scope', '$timeout', '$route
          * @param filterDataSet
          */
         openFilteredMapWithFilterDataSet = function (filterDataSet) {
-            var application = oNavbarVo.getApplication();
-            if (filterDataSet.srcApplicationName === 'USER') {
-                application = filterDataSet.destApplicationName + '@1010';
-            } else {
-                application = filterDataSet.srcApplicationName + '@1010';
-            }
-
-            var prevFilter = oNavbarVo.getFilter();
-            var newFilter = ((prevFilter) ? prevFilter + cfg.FILTER_DELIMETER : "")
-                + filterDataSet.srcServiceType + cfg.FILTER_ENTRY_DELIMETER
-                + filterDataSet.srcApplicationName + cfg.FILTER_ENTRY_DELIMETER
-                + filterDataSet.destServiceType + cfg.FILTER_ENTRY_DELIMETER
-                + filterDataSet.destApplicationName;
-
-            if (angular.isString(filterDataSet.label)) {
-                if (filterDataSet.label === 'error') {
-                    newFilter += cfg.FILTER_ENTRY_DELIMETER + filterDataSet.label;
-                } else if (filterDataSet.label.indexOf('+') > 0) {
-                    newFilter += cfg.FILTER_ENTRY_DELIMETER + parseInt(filterDataSet.label, 10) + ',9999999999';
-                } else {
-                    var startValue = getStartValueForFilterByLabel(filterDataSet.label, filterDataSet.values);
-                    newFilter += cfg.FILTER_ENTRY_DELIMETER + startValue + ',' + filterDataSet.label;
-                }
-
-            }
-            var url = '#/filteredMap/' + application + '/' + oNavbarVo.getPeriod() + '/' + oNavbarVo.getQueryEndTime() + '/' + encodeURIComponentFilter(newFilter);
+            var newFilter = filteredMapUtil.parseFilter(filterDataSet, oNavbarVo.getApplication(), oNavbarVo.getFilter()),
+                url = '#/filteredMap/' + oNavbarVo.getApplication() + '/' + oNavbarVo.getPeriod() + '/' + oNavbarVo.getQueryEndTime() + '/' + encodeURIComponentFilter(newFilter);
             $window.open(url, "");
-        };
-
-        /**
-         * get start value for filter by label
-         * @param label
-         * @param values
-         * @returns {number}
-         */
-        getStartValueForFilterByLabel = function (label, values) {
-            var labelKey = (function () {
-                    for (var key in values) {
-                        if (values[key].label === label) {
-                            return key;
-                        }
-                    }
-                    return false;
-                })(),
-                startValue = 0;
-
-            if (labelKey > 0) {
-                startValue = parseInt(values[labelKey - 1].label, 10);
-            }
-            return startValue;
         };
 
         /**

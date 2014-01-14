@@ -7,8 +7,9 @@
         <server-map></server-map>
     </div>
     <div class="sidebar" ng-class="sidebar">
-        <scatter></scatter>
-        <div class="info-details">
+        <sidebar-title namespace="forFilteredMap"></sidebar-title>
+        <scatter ng-show="hasScatter"></scatter>
+        <div class="info-details" ng-class="{'has-scatter': hasScatter}">
             <node-info-details></node-info-details>
             <link-info-details></link-info-details>
         </div>
