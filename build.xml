@@ -5,7 +5,7 @@
     <property environment="env"/>
 
     <!-- 버전은 맨날 변경해야 됨 -->
-    <property name="pinpoint.version" value="1.0.1"/>
+    <property name="pinpoint.version" value="1.0.2-SNAPSHOT"/>
 
     <property name="pinpoint.profiler.jar" value="pinpoint-profiler-${pinpoint.version}.jar"/>
 
