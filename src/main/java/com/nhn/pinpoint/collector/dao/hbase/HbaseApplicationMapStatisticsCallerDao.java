@@ -64,7 +64,7 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
         }
 
 		if (logger.isDebugEnabled()) {
-            logger.debug("[UpdatingApplicationMapStatisticsCaller] {} ({})[{}] -> {} ()",
+            logger.debug("[UpdatingApplicationMapStatisticsCaller] {} ({})[{}] <- {} ({})",
                     callerApplicationName, ServiceType.findServiceType(callerServiceType), callerHost,
                     calleeApplicationName, ServiceType.findServiceType(calleeServiceType));
 		}
