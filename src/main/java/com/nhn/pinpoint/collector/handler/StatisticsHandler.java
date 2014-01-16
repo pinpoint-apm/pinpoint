@@ -21,10 +21,10 @@ public class StatisticsHandler {
 	private ApplicationMapStatisticsCalleeDao applicationMapStatisticsCalleeDao;
 
 	public void updateCallee(String callerApplicationName, short callerServiceType, String calleeApplicationName, short calleeServiceType, String calleeHost, int elapsed, boolean isError) {
-		applicationMapStatisticsCalleeDao.update(callerApplicationName, callerServiceType, calleeApplicationName, calleeServiceType, calleeHost, elapsed, isError);
+		applicationMapStatisticsCalleeDao.update(calleeApplicationName, calleeServiceType, calleeHost, callerApplicationName, callerServiceType, elapsed, isError);
 	}
 
 	public void updateCaller(String calleeApplicationName, short calleeServiceType, String callerApplicationName, short callerServiceType, String callerHost, int elapsed, boolean isError) {
-		applicationMapStatisticsCallerDao.update(calleeApplicationName, calleeServiceType, callerApplicationName, callerServiceType, callerHost, elapsed, isError);
+		applicationMapStatisticsCallerDao.update(callerApplicationName, callerServiceType, callerHost, calleeApplicationName, calleeServiceType, elapsed, isError);
 	}
 }

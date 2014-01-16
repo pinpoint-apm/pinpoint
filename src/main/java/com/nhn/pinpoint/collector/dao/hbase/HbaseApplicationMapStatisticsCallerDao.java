@@ -5,6 +5,7 @@ import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_MAP_STATISTI
 
 import com.nhn.pinpoint.collector.dao.hbase.statistics.*;
 import com.nhn.pinpoint.collector.util.ConcurrentCounterMap;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hbase.client.Increment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +56,7 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
 
 
     @Override
-	public void update(String calleeApplicationName, short calleeServiceType, String callerApplicationName, short callerServiceType, String callerHost, int elapsed, boolean isError) {
+	public void update(String callerApplicationName, short callerServiceType, String callerHost, String calleeApplicationName, short calleeServiceType, int elapsed, boolean isError) {
         if (calleeApplicationName == null) {
             throw new NullPointerException("calleeApplicationName must not be null");
         }
@@ -64,23 +65,26 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
         }
 
 		if (logger.isDebugEnabled()) {
-            logger.debug("[UpdatingApplicationMapStatisticsCaller] {} ({})[{}] <- {} ({})",
-                    callerApplicationName, ServiceType.findServiceType(callerServiceType), callerHost,
-                    calleeApplicationName, ServiceType.findServiceType(calleeServiceType));
+            logger.trace("[UpdatingApplicationMapStatisticsCaller] callerApplicationName={}({}), callerHost={}, calleeApplicationName={}({})",
+                    callerApplicationName, ServiceType.findServiceType(callerServiceType), callerHost, calleeApplicationName, ServiceType.findServiceType(calleeServiceType));
+            logger.debug("[UpdatingApplicationMapStatisticsCaller] {} ({}) <- {} ({})[{}]",
+                    callerApplicationName, ServiceType.findServiceType(callerServiceType),
+                    calleeApplicationName, ServiceType.findServiceType(calleeServiceType), callerHost);
 		}
 
 		if (callerHost == null) {
 			// httpclient와 같은 경우는 endpoint가 없을수 있다.
-			callerHost = "";
+			callerHost = StringUtils.defaultString(callerHost);
 		}
 
-		// make row key. rowkey는 나.
-		long acceptedTime = acceptedTimeService.getAcceptedTime();
-		long rowTimeSlot = TimeSlot.getStatisticsRowSlot(acceptedTime);
-        RowKey callerRowKey = new CallRowKey(callerApplicationName, callerServiceType, rowTimeSlot);
 
-        short calleeSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(calleeServiceType, elapsed, isError);
-        ColumnName calleeColumnName = new CallColumnName(calleeServiceType, calleeApplicationName, callerHost, calleeSlotNumber);
+		// make row key. rowkey는 나.
+		final long acceptedTime = acceptedTimeService.getAcceptedTime();
+		final long rowTimeSlot = TimeSlot.getStatisticsRowSlot(acceptedTime);
+        final RowKey callerRowKey = new CallRowKey(callerApplicationName, callerServiceType, rowTimeSlot);
+
+        final short calleeSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(calleeServiceType, elapsed, isError);
+        final ColumnName calleeColumnName = new CallColumnName(calleeServiceType, calleeApplicationName, callerHost, calleeSlotNumber);
 
 		if (useBulk) {
             RowInfo rowInfo = new DefaultRowInfo(callerRowKey, calleeColumnName);
