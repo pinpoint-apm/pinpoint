@@ -6,5 +6,5 @@ package com.nhn.pinpoint.collector.dao;
  * @author emeroad
  */
 public interface ApplicationMapStatisticsCalleeDao extends CachedStatisticsDao {
-	void update(String callerApplicationName, short callerServiceType, String callerHost, String calleeApplicationName, short calleeServiceType, int elapsed, boolean isError);
+	void update(String calleeApplicationName, short calleeServiceType, String callerApplicationName, short callerServiceType, String callerHost, int elapsed, boolean isError);
 }

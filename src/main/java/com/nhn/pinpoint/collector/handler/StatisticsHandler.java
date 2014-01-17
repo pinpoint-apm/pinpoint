@@ -20,10 +20,10 @@ public class StatisticsHandler {
 	private ApplicationMapStatisticsCallerDao applicationMapStatisticsCallerDao;
 
 	public void updateCaller(String callerApplicationName, short callerServiceType, String calleeApplicationName, short calleeServiceType, String calleeHost, int elapsed, boolean isError) {
-		applicationMapStatisticsCallerDao.update(calleeApplicationName, calleeServiceType, calleeHost, callerApplicationName, callerServiceType, elapsed, isError);
+		applicationMapStatisticsCallerDao.update(calleeApplicationName, calleeServiceType, callerApplicationName, callerServiceType, calleeHost, elapsed, isError);
 	}
 
-	public void updateCallee(String calleeApplicationName, short calleeServiceType, String callerApplicationName, short callerServiceType, String callerHost, int elapsed, boolean isError) {
-		applicationMapStatisticsCalleeDao.update(callerApplicationName, callerServiceType, callerHost, calleeApplicationName, calleeServiceType, elapsed, isError);
+	public void updateCallee(String callerApplicationName, short callerServiceType, String calleeApplicationName, short calleeServiceType, String callerHost, int elapsed, boolean isError) {
+		applicationMapStatisticsCalleeDao.update(calleeApplicationName, calleeServiceType, callerApplicationName, callerServiceType, callerHost, elapsed, isError);
 	}
 }

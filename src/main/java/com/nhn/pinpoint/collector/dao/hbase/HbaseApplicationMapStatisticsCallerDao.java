@@ -55,22 +55,18 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
 	}
 
     @Override
-	public void update(String calleeApplicationName, short calleeServiceType, String calleeHost, String callerApplicationName, short callerServiceType, int elapsed, boolean isError) {
-        if (calleeApplicationName == null) {
-            throw new NullPointerException("calleeApplicationName must not be null");
-        }
+	public void update(String callerApplicationName, short callerServiceType, String calleeApplicationName, short calleeServiceType, String calleeHost, int elapsed, boolean isError) {
         if (callerApplicationName == null) {
             throw new NullPointerException("callerApplicationName must not be null");
         }
-
-        if (logger.isTraceEnabled()) {
-            logger.trace("[Caller] calleeApplicationName={}({}), calleeHost={}, callerApplicationName={}({})",
-                    calleeApplicationName, ServiceType.findServiceType(calleeServiceType), calleeHost, callerApplicationName, ServiceType.findServiceType(callerServiceType));
+        if (calleeApplicationName == null) {
+            throw new NullPointerException("calleeApplicationName must not be null");
         }
+
 		if (logger.isDebugEnabled()) {
 			logger.debug("[Caller] {} ({}) -> {} ({})[{}]",
-                    calleeApplicationName, ServiceType.findServiceType(calleeServiceType),
-                    callerApplicationName, ServiceType.findServiceType(callerServiceType), calleeHost);
+                    callerApplicationName, ServiceType.findServiceType(callerServiceType),
+                    calleeApplicationName, ServiceType.findServiceType(calleeServiceType), calleeHost);
 		}
 
         // httpclient와 같은 경우는 endpoint가 없을수 있다.
@@ -79,10 +75,10 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
         // make row key. rowkey는 나.
 		final long acceptedTime = acceptedTimeService.getAcceptedTime();
 		final long rowTimeSlot = TimeSlot.getStatisticsRowSlot(acceptedTime);
-        final RowKey calleeRowKey = new CallRowKey(calleeApplicationName, calleeServiceType, rowTimeSlot);
+        final RowKey calleeRowKey = new CallRowKey(callerApplicationName, callerServiceType, rowTimeSlot);
 
-        final short callerSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(callerServiceType, elapsed, isError);
-        final ColumnName callerColumnName = new CallColumnName(callerServiceType, callerApplicationName, calleeHost, callerSlotNumber);
+        final short callerSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(calleeServiceType, elapsed, isError);
+        final ColumnName callerColumnName = new CallColumnName(calleeServiceType, calleeApplicationName, calleeHost, callerSlotNumber);
 		if (useBulk) {
             RowInfo rowInfo = new DefaultRowInfo(calleeRowKey, callerColumnName);
             this.counter.increment(rowInfo, 1L);
