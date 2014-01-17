@@ -6,7 +6,7 @@ pinpointApp.constant('nodeInfoDetailsConfig', {
 });
 
 pinpointApp
-    .directive('nodeInfoDetails', [ 'nodeInfoDetailsConfig', function (config) {
+    .directive('nodeInfoDetails', [ 'nodeInfoDetailsConfig', '$filter', function (config, $filter) {
         return {
             restrict: 'EA',
             replace: true,
@@ -99,10 +99,24 @@ pinpointApp
                         }).staggerLabels(false).tooltips(false).showValues(true);
 
                         chart.xAxis.tickFormat(function (d) {
-                            if (angular.isNumber(d)) {
-                                return (d >= 1000) ? d / 1000 + "s" : d + "ms";
+                        	// FIXME d로 넘어오는 값의 타입이 string이고 angular.isNumber는 "1000"에 대해 false를 반환함.
+                        	// if (angular.isNumber(d)) {
+                        	if (/^\d+$/.test(d)) {
+                            	if (d >= 1000) {
+                            		return $filter('number')(d / 1000) + "s";
+                            	} else {
+                            		return $filter('number')(d) + "ms";
+                            	}
+                            } else if (d.charAt(d.length - 1) == '+') {
+                            	var v = d.substr(0, d.length - 1);
+                            	if (v >= 1000) {
+                            		return $filter('number')(v / 1000) + "s+";
+                            	} else {
+                            		return $filter('number')(v) + "ms+";
+                            	}
+                            } else {
+                            	return d;
                             }
-                            return d;
                         });
 
                         chart.yAxis.tickFormat(function (d) {
