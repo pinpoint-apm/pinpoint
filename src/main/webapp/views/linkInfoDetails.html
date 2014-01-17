@@ -2,9 +2,9 @@
 
     <ul class="unstyled" ng-if="linkCategory == 'UnknownLinkInfoBox'">
         <li ng-repeat="target in targetinfo">
-            <img ng-src="/images/icons/{{sourceinfo[0].serviceType | icons}}.png" style="height:20px;" /> {{sourceinfo[0].applicationName}}
+            <img ng-src="/images/icons/{{sourceinfo[0].serviceType | icons}}.png" style="height:14px;" /> {{sourceinfo[0].applicationName}}
             <i class="icon-arrow-right"></i>
-            <img ng-src="/images/icons/{{target.serviceType | icons}}.png" style="height:20px;" /> {{target.applicationName}}
+            <img ng-src="/images/icons/{{target.serviceType | icons}}.png" style="height:14px;" /> {{target.applicationName}}
             <br>
             <div class="summaryCharts_{{target.sequence}}" style="position: relative;">
                 <svg style='height:120px;width:350px;' />
