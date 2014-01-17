@@ -119,12 +119,16 @@ pinpointApp
                             }
                         });
 
-                        chart.yAxis.tickFormat(function (d) {
-                            return d;
+                        chart.yAxis.tickFormat(function (d, i) {
+                    		if (d >= 1000) {
+                    			return $filter('number')(Math.floor(d / 1000)) + "k";
+                    		} else {
+                    			return $filter('number')(d);
+                    		}
                         });
 
                         chart.valueFormat(function (d) {
-                            return d;
+                        	return $filter('number')(d);
                         });
 
                         chart.color(config.myColors);
