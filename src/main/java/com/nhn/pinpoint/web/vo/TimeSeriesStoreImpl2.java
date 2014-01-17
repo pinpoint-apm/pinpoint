@@ -36,7 +36,6 @@ public class TimeSeriesStoreImpl2 implements TimeSeriesStore {
 	@Override
 	public void add(NodeId key, long timestamp, int responseTimeslot, long callCount, boolean isFailed) {
 		if (!enabled) {
-			logger.debug("store is not enabled.");
 			return;
 		}
 		logger.debug("add sample key={}, timestamp={} responseTimeSlot={}, count={}", key, timestamp, responseTimeslot, callCount, isFailed);
@@ -54,6 +53,7 @@ public class TimeSeriesStoreImpl2 implements TimeSeriesStore {
 	@Override
 	public String getJson() {
 		if (!enabled) {
+			logger.debug("store is not enabled. there's no data.");
 			return EMPTY;
 		}
 		return "{}";
