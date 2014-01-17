@@ -129,7 +129,7 @@ public class ScatterChartController {
 				model.addAttribute("resultFrom", limitedScanResult.getLimitedTime());
 				model.addAttribute("resultTo", to);
                 if (logger.isDebugEnabled()) {
-                    logger.debug("getScatterData range scan(limited:{}) from ~ to:{} ~ {} limited:{} filterDataSize:{}",
+                    logger.debug("getScatterData range scan(limited:{}) from ~ to:{} ~ {}, limited:{}, filterDataSize:{}",
                             limit, DateUtils.longToDateStr(from), DateUtils.longToDateStr(to), DateUtils.longToDateStr(limitedScanResult.getLimitedTime()), traceIdList.size());
                 }
 			}
