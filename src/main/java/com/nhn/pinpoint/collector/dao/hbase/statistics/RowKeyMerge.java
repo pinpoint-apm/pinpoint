@@ -19,7 +19,7 @@ public class RowKeyMerge {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public  List<Increment> createBulkIncrement(Map<RowInfo, ConcurrentCounterMap.LongAdder> data) {
-        if (data.size() == 0) {
+        if (data.isEmpty()) {
             return Collections.emptyList();
         }
 
