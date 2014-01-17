@@ -14,6 +14,8 @@ import com.nhn.pinpoint.common.bo.SpanEventBo;
  */
 public class FromToResponseFilter implements Filter {
 
+	public static final String ID = "2";
+	
 	private static final String ERROR = "error";
 
 	private final List<ServiceType> fromServiceCode;
@@ -72,11 +74,6 @@ public class FromToResponseFilter implements Filter {
 		} else {
 			throw new IllegalArgumentException("invalid conditions:" + condition);
 		}
-	}
-
-	@Override
-	public boolean exclude(List<SpanBo> transaction) {
-		return false;
 	}
 
 	private boolean checkResponseCondition(long elapsed) {

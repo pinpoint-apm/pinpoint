@@ -23,16 +23,6 @@ public class FilterChain implements Filter {
 	}
 
 	@Override
-	public boolean exclude(List<SpanBo> transaction) {
-		for (Filter f : filterList) {
-			if (!f.exclude(transaction)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	@Override
 	public boolean include(List<SpanBo> transaction) {
 		for (Filter f : filterList) {
 			if (!f.include(transaction)) {

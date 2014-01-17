@@ -13,6 +13,7 @@ import com.nhn.pinpoint.common.bo.SpanEventBo;
  */
 public class FromToFilter implements Filter {
 
+	public static final String ID = "1";
 	private final List<ServiceType> fromServiceCode;
     private final String fromApplicationName;
     private final List<ServiceType> toServiceCode;
@@ -37,11 +38,6 @@ public class FromToFilter implements Filter {
             throw new IllegalArgumentException("toServiceCode not found. toServiceCode:" + toServiceType);
         }
 		this.toApplicationName = toApplicationName;
-	}
-
-	@Override
-	public boolean exclude(List<SpanBo> transaction) {
-		return false;
 	}
 
 	@Override
