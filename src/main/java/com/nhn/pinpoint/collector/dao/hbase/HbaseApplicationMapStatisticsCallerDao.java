@@ -64,18 +64,18 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
             throw new NullPointerException("callerApplicationName must not be null");
         }
 
-		if (logger.isDebugEnabled()) {
+        if (logger.isTraceEnabled()) {
             logger.trace("[UpdatingApplicationMapStatisticsCaller] callerApplicationName={}({}), callerHost={}, calleeApplicationName={}({})",
                     callerApplicationName, ServiceType.findServiceType(callerServiceType), callerHost, calleeApplicationName, ServiceType.findServiceType(calleeServiceType));
+        }
+        if (logger.isDebugEnabled()) {
             logger.debug("[UpdatingApplicationMapStatisticsCaller] {} ({}) <- {} ({})[{}]",
                     callerApplicationName, ServiceType.findServiceType(callerServiceType),
                     calleeApplicationName, ServiceType.findServiceType(calleeServiceType), callerHost);
 		}
 
-		if (callerHost == null) {
-			// httpclient와 같은 경우는 endpoint가 없을수 있다.
-			callerHost = StringUtils.defaultString(callerHost);
-		}
+		// httpclient와 같은 경우는 endpoint가 없을수 있다.
+		callerHost = StringUtils.defaultString(callerHost);
 
 
 		// make row key. rowkey는 나.

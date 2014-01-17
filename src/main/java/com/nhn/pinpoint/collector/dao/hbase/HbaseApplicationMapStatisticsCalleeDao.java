@@ -5,6 +5,7 @@ import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_MAP_STATISTI
 
 import com.nhn.pinpoint.collector.dao.hbase.statistics.*;
 import com.nhn.pinpoint.collector.util.ConcurrentCounterMap;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hbase.client.Increment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,20 +63,18 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
             throw new NullPointerException("callerApplicationName must not be null");
         }
 
-
-		if (logger.isDebugEnabled()) {
+        if (logger.isTraceEnabled()) {
             logger.trace("[UpdatingApplicationMapStatisticsCallee] calleeApplicationName={}({}), calleeHost={}, callerApplicationName={}({})",
                     calleeApplicationName, ServiceType.findServiceType(calleeServiceType), calleeHost, callerApplicationName, ServiceType.findServiceType(callerServiceType));
-
+        }
+		if (logger.isDebugEnabled()) {
 			logger.debug("[UpdatingApplicationMapStatisticsCallee] {} ({}) -> {} ({})[{}]",
                     calleeApplicationName, ServiceType.findServiceType(calleeServiceType),
                     callerApplicationName, ServiceType.findServiceType(callerServiceType), calleeHost);
 		}
 
-        if (calleeHost == null) {
-            // httpclient와 같은 경우는 endpoint가 없을수 있다.
-            calleeHost = "";
-        }
+        // httpclient와 같은 경우는 endpoint가 없을수 있다.
+        calleeHost = StringUtils.defaultString(calleeHost);
 
         // make row key. rowkey는 나.
 		final long acceptedTime = acceptedTimeService.getAcceptedTime();
