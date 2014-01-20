@@ -31,7 +31,6 @@ pinpointApp.directive('helixChart', [
 
                 scope.$on('helixChart.initialize.' + scope.namespace, function (event, oHelixChartVo) {
                     oHelixChartVo.setTarget(element.get(0));
-                    console.log('json', oHelixChartVo.toJSON());
                     initializeWithJSON(oHelixChartVo.toJSON());
                 });
 

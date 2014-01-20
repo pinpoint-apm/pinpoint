@@ -41,7 +41,9 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
              * @param applicationName
              */
             scope.showDetailInformation = function (applicationName) {
-                showDetailInformation(scope.rawdata[applicationName]);
+                var link = scope.rawdata[applicationName];
+                showDetailInformation(link);
+                scope.$emit('linkInfoDetail.showDetailInformationClicked', htQuery, link);
             };
 
             /**
@@ -68,7 +70,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     );
                 }
 
-//                scope.rawdata = data.rawdata;
+                scope.rawdata = data.rawdata;
 //                scope.query = data.query;
                 scope.targetinfo = data.targetinfo;
                 scope.sourceinfo = data.sourceinfo;
@@ -274,8 +276,8 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         .setLegend('1.0s,3.0s,5.0s,Slow,Failed')
                         .setQueryValue('1.0s,3.0s,5.0s,Slow,Failed')
 //                        .setQueryInterval('5s')
-                        .setQueryFrom(htQuery.from)
-                        .setQueryTo(htQuery.to)
+                        .setQueryFrom(begin)
+                        .setQueryTo(end)
                         .generateEverythingForChart()
                         .setData(result.timeseriesHistogram);
 //                        .parseDataTimestampToDateInstance();
@@ -313,7 +315,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
             /**
              * scope event on linkInfoDetails.linkClicked
              */
-            scope.$on('linkInfoDetails.initialize', function (event, e, query, link, data) {
+            scope.$on('linkInfoDetails.initialize', function (event, e, query, link) {
                 reset();
                 htQuery = query;
                 showDetailInformation(link);

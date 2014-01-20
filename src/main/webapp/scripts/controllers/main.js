@@ -99,7 +99,6 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
                 .setImageType(node.category)
                 .setTitle(node.text);
 
-            console.log('node', node);
             if (node.category === 'TOMCAT') {
                 $scope.hasScatter = true;
                 $scope.$broadcast('scatter.initializeWithNode', node);
@@ -113,7 +112,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
 
             $scope.$broadcast('sidebarTitle.initialize.forMain', oSidebarTitleVo);
             $scope.$broadcast('nodeInfoDetails.initialize', e, query, node, data, oNavbarVo);
-            $scope.$broadcast('linkInfoDetails.reset', e, query, node, data, oNavbarVo);
+            $scope.$broadcast('linkInfoDetails.reset');
         });
 
         /**
@@ -134,7 +133,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
             }
             $scope.hasScatter = false;
             $scope.$broadcast('sidebarTitle.initialize.forMain', oSidebarTitleVo);
-            $scope.$broadcast('nodeInfoDetails.reset', e, query, link, data, oNavbarVo);
+            $scope.$broadcast('nodeInfoDetails.reset');
             $scope.$broadcast('linkInfoDetails.initialize', e, query, link, data, oNavbarVo);
         });
 
@@ -150,6 +149,20 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
          */
         $scope.$on('linkInfoDetails.ResponseSummary.barClicked', function (event, filterDataSet) {
             openFilteredMapWithFilterDataSet(filterDataSet);
+        });
+
+        $scope.$on('linkInfoDetail.showDetailInformationClicked', function (event, query, link) {
+            $scope.hasScatter = false;
+            var oSidebarTitleVo = new SidebarTitleVo;
+            oSidebarTitleVo
+                .setImageType(link.sourceinfo.serviceType)
+                .setTitle(link.sourceinfo.applicationName)
+                .setImageType2(link.targetinfo.serviceType)
+                .setTitle2(link.targetinfo.applicationName);
+            $scope.$broadcast('sidebarTitle.initialize.forMain', oSidebarTitleVo);
+            $scope.$broadcast('nodeInfoDetails.reset');
+            $scope.$broadcast('linkInfoDetails.initialize', null, query, link);
+
         });
 
     } ]);
