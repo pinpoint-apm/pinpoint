@@ -8,7 +8,9 @@
     <packaging>jar</packaging>
 
     <properties>
-        <thrift.executable>${thrift.executable.property}</thrift.executable>
+        <thrift.executable.windows>${thrift.executable.property.windwos}</thrift.executable.windows>
+        <thrift.executable.linux>${thrift.executable.property.linux}</thrift.executable.linux>
+        <thrift.executable.mac>${thrift.executable.property.mac}</thrift.executable.mac>
         <slf4j.version>1.7.5</slf4j.version>
     </properties>
 
@@ -295,5 +297,28 @@
 
         </plugins>
     </reporting>
+
+    <profiles>
+        <profile>
+            <id>thrift-windows</id>
+            <properties>
+                <thrift.executable>${thrift.executable.windows}</thrift.executable>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>thrift-linux</id>
+            <properties>
+                <thrift.executable>${thrift.executable.linux}</thrift.executable>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>thrift-mac</id>
+            <properties>
+                <thrift.executable>${thrift.executable.mac}</thrift.executable>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>
