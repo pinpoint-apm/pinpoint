@@ -280,18 +280,18 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <version>5.0.5</version>
+                <version>3.0.1</version>
 
                 <configuration>
                     <linkXref>true</linkXref>
                     <sourceEncoding>UTF-8</sourceEncoding>
                     <targetJdk>1.6</targetJdk>
-                    <rulesets>
-                        <ruleset>/rulesets/unusedcode.xml</ruleset>
-                        <ruleset>/rulesets/basic.xml</ruleset>
-                        <ruleset>/rulesets/imports.xml</ruleset>
-                        <ruleset>/rulesets/design.xml</ruleset>
-                    </rulesets>
+                    <!--<rulesets>-->
+                        <!--<ruleset>/rulesets/unusedcode.xml</ruleset>-->
+                        <!--<ruleset>/rulesets/basic.xml</ruleset>-->
+                        <!--<ruleset>/rulesets/imports.xml</ruleset>-->
+                        <!--<ruleset>/rulesets/design.xml</ruleset>-->
+                    <!--</rulesets>-->
                 </configuration>
             </plugin>
 
