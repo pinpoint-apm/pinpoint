@@ -99,9 +99,14 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
                 .setImageType(node.category)
                 .setTitle(node.text);
 
+            console.log('node', node);
             if (node.category === 'TOMCAT') {
                 $scope.hasScatter = true;
                 $scope.$broadcast('scatter.initializeWithNode', node);
+            } else if (node.category === 'UNKNOWN_GROUP') {
+                oSidebarTitleVo
+                    .setTitle('Unknown Group');
+                $scope.hasScatter = false;
             } else {
                 $scope.hasScatter = false;
             }

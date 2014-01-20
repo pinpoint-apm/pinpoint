@@ -71,7 +71,7 @@ pinpointApp.factory('SidebarTitleVo', [ function () {
                 throw 'Title2 should be string in SidebarTitleVo';
             }
             return self;
-        }
+        };
         this.getTitle2 = function () {
             return self._sTitle2;
         };
