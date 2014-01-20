@@ -30,7 +30,7 @@
     <li><a href="#ServerMap" data-toggle="tab">Server Map</a></li>
     <li><a href="#Timeline" data-toggle="tab">RPC Timeline</a></li>
     <li style="position: absolute; top: 6px; right: 10px;">
-        <span class="label" ng-class="completeStateClass"><i class="icon-refresh icon-white"></i> {{transactionDetail.completeState}}</span>
+        <span class="label" ng-class="completeStateClass"><span class="glyphicon glyphicon-refresh"></span> {{transactionDetail.completeState}}</span>
         <button ng-click="openInNewWindow();$event.stopPropagation()" class="btn btn-default btn-xs" target="_blank" title="New Window"><i class="icon-share"></i></button>
     </li>
 </ul>
@@ -47,12 +47,12 @@
     </div>
 
     <div class="tab-pane" id="ServerMap">
-    	<span class="label label-important"><i class="icon-exclamation-sign icon-white"></i> Technical Preview</span>
+    	<span class="label label-important"><span class="glyphicon glyphicon-exclamation-sign icon-white"></span> Technical Preview</span>
         <server-map></server-map>
     </div>
 
     <div class="tab-pane" id="Timeline">
-    	<span class="label label-important"><i class="icon-exclamation-sign icon-white"></i> Technical Preview</span>
+    	<span class="label label-important"><span class="glyphicon glyphicon-exclamation-sign icon-white"></span> Technical Preview</span>
         <timeline></timeline>
     </div>
 

@@ -8,12 +8,12 @@
         -o-text-overow: ellipsis;
     }
 </style>
-<div class="navbar navbar-fixed-top" style="height:30px;background-color:#252a3a;color:#ddd;font-size:11px;">
-    <div class="row-fluid">
-        <div class="span3 app-title">Application : {{transactionDetail.applicationName}}</div>
-        <div class="span3 app-title">TransactionId : {{transactionDetail.transactionId}}</div>
-        <div class="span3 app-title">AgentId : {{transactionDetail.agentId}}</div>
-        <div class="span3 app-title">ApplicationName : {{transactionDetail.applicationId}}</div>
+<div class="navbar navbar-fixed-top" style="height:30px;min-height: 30px;background-color:#252a3a;color:#ddd;font-size:11px;">
+    <div class="row">
+        <div class="col-md-3 app-title">Application : {{transactionDetail.applicationName}}</div>
+        <div class="col-md-3 app-title">TransactionId : {{transactionDetail.transactionId}}</div>
+        <div class="col-md-3 app-title">AgentId : {{transactionDetail.agentId}}</div>
+        <div class="col-md-3 app-title">ApplicationName : {{transactionDetail.applicationId}}</div>
     </div>
 </div>
 

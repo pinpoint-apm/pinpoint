@@ -3,16 +3,16 @@
     <ul class="list-unstyled" ng-if="linkCategory == 'UnknownLinkInfoBox'">
         <li ng-repeat="target in targetinfo">
             <img ng-src="/images/icons/{{sourceinfo[0].serviceType | icons}}.png" style="height:14px;" /> {{sourceinfo[0].applicationName}}
-            <i class="icon-arrow-right"></i>
+            <span class="glyphicon glyphicon-arrow-right"></span>
             <img ng-src="/images/icons/{{target.serviceType | icons}}.png" style="height:14px;" /> {{target.applicationName}}
             <br>
             <div class="summaryCharts_{{target.sequence}}" style="position: relative;">
                 <svg style='height:120px;width:350px;' />
                 <a class="btn btn-default btn-xs" href ng-click="showDetailInformation(target.applicationName)" title="Show Link Information" style="position: absolute;top: 20px; right:0;">
-                    <i class="icon-tasks"></i>
+                    <span class="glyphicon glyphicon-tasks"></span>
                 </a>
                 <a class="btn btn-default btn-xs" href ng-click="passingTransactionMap(sourceinfo[0].serviceType, sourceinfo[0].applicationName, target.serviceType, target.applicationName)" title="filter transaction"  style="position: absolute;top: 50px; right:0;">
-                    <i class="icon-filter"></i>
+                    <span class="glyphicon glyphicon-filter"></span>
                 </a>
             </div>
         </li>

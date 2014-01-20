@@ -20,8 +20,8 @@
                 data-tt-parent-id="{{stack[key.parentId]}}" data-tt-branch="{{stack[key.hasChild]}}"
                 ng-class="getTrClass(stack, key, $index)">
                 <td class="method">
-                    <i class="icon-info-sign" ng-hide="stack[key.isMethod] || stack[key.hasException]"></i>
-                    <i class="icon-fire" ng-show="stack[key.hasException]"></i>
+                    <span class="glyphicon glyphicon-info-sign" ng-hide="stack[key.isMethod] || stack[key.hasException]"></span>
+                    <span class="glyphicon glyphicon-fire" ng-show="stack[key.hasException]"></span>
                     {{stack[key.title]}}
                     <label class="agent-divider" ng-class="stack.agentDividerClass"></label>
                 </td>

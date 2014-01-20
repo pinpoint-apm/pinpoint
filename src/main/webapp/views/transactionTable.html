@@ -5,44 +5,44 @@
             <thead>
             <tr>
                 <th>
-                    <div class="th-inner" ng-click="transactionOrder('index')" style="cursor:pointer"># <i
-                            ng-show="transactionOrderBy == 'index'"
-                            ng-class="{true: 'icon-arrow-down', false: 'icon-arrow-up'}[transactionReverse]"></i></div>
+                    <div class="th-inner" ng-click="transactionOrder('index')" style="cursor:pointer"># <span
+                            ng-show="transactionOrderBy == 'index'" class="glyphicon"
+                            ng-class="{true: 'glyphicon-arrow-down', false: 'glyphicon-arrow-up'}[transactionReverse]"></span></div>
                 </th>
                 <th>
-                    <div class="th-inner" ng-click="transactionOrder('startTime')" style="cursor:pointer">Time <i
-                            ng-show="transactionOrderBy == 'startTime'"
-                            ng-class="{true: 'icon-arrow-down', false: 'icon-arrow-up'}[transactionReverse]"></i></div>
+                    <div class="th-inner" ng-click="transactionOrder('startTime')" style="cursor:pointer">Time <span
+                            ng-show="transactionOrderBy == 'startTime'" class="glyphicon"
+                            ng-class="{true: 'glyphicon-arrow-down', false: 'glyphicon-arrow-up'}[transactionReverse]"></span></div>
                 </th>
                 <th>
                     <div class="th-inner" ng-click="transactionOrder('application')" style="cursor:pointer">Application
-                        <i ng-show="transactionOrderBy == 'application'"
-                           ng-class="{true: 'icon-arrow-down', false: 'icon-arrow-up'}[transactionReverse]"></i></div>
+                        <span ng-show="transactionOrderBy == 'application'"  class="glyphicon"
+                           ng-class="{true: 'glyphicon-arrow-down', false: 'glyphicon-arrow-up'}[transactionReverse]"></span></div>
                 </th>
                 <th>
                     <div class="th-inner" ng-click="transactionOrder('elapsed')" style="cursor:pointer">Res. (ms)
-                        <i ng-show="transactionOrderBy == 'elapsed'"
-                           ng-class="{true: 'icon-arrow-down', false: 'icon-arrow-up'}[transactionReverse]"></i></div>
+                        <span ng-show="transactionOrderBy == 'elapsed'" class="glyphicon"
+                           ng-class="{true: 'glyphicon-arrow-down', false: 'glyphicon-arrow-up'}[transactionReverse]"></span></div>
                 </th>
                 <th>
-                    <div class="th-inner" ng-click="transactionOrder('exception')" style="cursor:pointer">Exception <i
-                            ng-show="transactionOrderBy == 'exception'"
-                            ng-class="{true: 'icon-arrow-down', false: 'icon-arrow-up'}[transactionReverse]"></i></div>
+                    <div class="th-inner" ng-click="transactionOrder('exception')" style="cursor:pointer">Exception <span
+                            ng-show="transactionOrderBy == 'exception'" class="glyphicon"
+                            ng-class="{true: 'glyphicon-arrow-down', false: 'glyphicon-arrow-up'}[transactionReverse]"></span></div>
                 </th>
                 <th>
-                    <div class="th-inner" ng-click="transactionOrder('agentId')" style="cursor:pointer">AgentId <i
-                            ng-show="transactionOrderBy == 'agentId'"
-                            ng-class="{true: 'icon-arrow-down', false: 'icon-arrow-up'}[transactionReverse]"></i></div>
+                    <div class="th-inner" ng-click="transactionOrder('agentId')" style="cursor:pointer">AgentId <span
+                            ng-show="transactionOrderBy == 'agentId'" class="glyphicon"
+                            ng-class="{true: 'glyphicon-arrow-down', false: 'glyphicon-arrow-up'}[transactionReverse]"></span></div>
                 </th>
                 <th>
-                    <div class="th-inner" ng-click="transactionOrder('remoteAddr')" style="cursor:pointer">ClientIP <i
-                            ng-show="transactionOrderBy == 'remoteAddr'"
-                            ng-class="{true: 'icon-arrow-down', false: 'icon-arrow-up'}[transactionReverse]"></i></div>
+                    <div class="th-inner" ng-click="transactionOrder('remoteAddr')" style="cursor:pointer">ClientIP <span
+                            ng-show="transactionOrderBy == 'remoteAddr'" class="glyphicon"
+                            ng-class="{true: 'glyphicon-arrow-down', false: 'glyphicon-arrow-up'}[transactionReverse]"></span></div>
                 </th>
                 <th>
                     <div class="th-inner" ng-click="transactionOrder('transactionSequence')" style="cursor:pointer">
-                        TransactionId <i ng-show="transactionOrderBy == 'transactionSequence'"
-                                   ng-class="{true: 'icon-arrow-down', false: 'icon-arrow-up'}[transactionReverse]"></i>
+                        TransactionId <span ng-show="transactionOrderBy == 'transactionSequence'" class="glyphicon"
+                                   ng-class="{true: 'glyphicon-arrow-down', false: 'glyphicon-arrow-up'}[transactionReverse]"></span>
                     </div>
                 </th>
             </tr>
@@ -61,9 +61,9 @@
                     </td>
                     <td ng-click="traceByApplication(transaction)" style="cursor:pointer">
                         {{transaction.application}}
-                        <a ng-click="openTransactionView(transaction);$event.stopPropagation()" target="_blank" title="Open Transaction View in New Window"><i class="icon-list-alt" style="margin-top:-1px;"></i></a>
+                        <a ng-click="openTransactionView(transaction);$event.stopPropagation()" target="_blank" title="Open Transaction View in New Window"><span class="glyphicon glyphicon-list-alt"></span></a>
                     <td ng-click="traceByApplication(transaction)" style='cursor:pointer;padding-right:15px;text-align:right'>{{transaction.elapsed | number}}</td>
-                    <td ng-click="traceByApplication(transaction)" style="cursor:pointer;text-align:center;"><i class="icon-fire" ng-show="transaction.exception == 1"></i></td>
+                    <td ng-click="traceByApplication(transaction)" style="cursor:pointer;text-align:center;"><span class="glyphicon glyphicon-fire" ng-show="transaction.exception == 1"></span></td>
                     <td ng-click="traceByApplication(transaction)" style="cursor:pointer">{{transaction.agentId}}</td>
                     <td ng-click="traceByApplication(transaction)" style="cursor:pointer">{{transaction.remoteAddr}}</td>
                     <td ng-click="traceByApplication(transaction)" style="cursor:pointer">{{transaction.traceId}}</td>
