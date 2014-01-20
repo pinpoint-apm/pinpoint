@@ -668,6 +668,22 @@
             </plugin>
 
             <plugin>
+                <groupId>com.atlassian.maven.plugins</groupId>
+                <artifactId>maven-clover2-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <jdk>1.6</jdk>
+                    <generateXml>true</generateXml>
+                    <generateHtml>true</generateHtml>
+                    <generateHistorical>false</generateHistorical>
+                    <licenseLocation>clover.license</licenseLocation>
+                    <singleCloverDatabase>false</singleCloverDatabase>
+                    <includesTestSourceRoots>false</includesTestSourceRoots>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.tomcat.maven</groupId>
                 <artifactId>tomcat6-maven-plugin</artifactId>
                 <version>2.0</version>
@@ -706,7 +722,7 @@
                 <artifactId>findbugs-maven-plugin</artifactId>
                 <version>2.5.2</version>
                 <configuration>
-                    <!--<excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>-->
+                    <excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
                     <xmlOutput>true</xmlOutput>
                     <xmlOutputDirectory>${project.build.directory}/findbugs</xmlOutputDirectory>
                 </configuration>
@@ -715,18 +731,30 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <version>5.0.5</version>
+                <version>3.0.1</version>
 
                 <configuration>
                     <linkXref>true</linkXref>
                     <sourceEncoding>UTF-8</sourceEncoding>
                     <targetJdk>1.6</targetJdk>
-                    <rulesets>
-                        <ruleset>/rulesets/unusedcode.xml</ruleset>
-                        <ruleset>/rulesets/basic.xml</ruleset>
-                        <ruleset>/rulesets/imports.xml</ruleset>
-                        <ruleset>/rulesets/design.xml</ruleset>
-                    </rulesets>
+                    <!--<rulesets>-->
+                        <!--<ruleset>/rulesets/unusedcode.xml</ruleset>-->
+                        <!--<ruleset>/rulesets/basic.xml</ruleset>-->
+                        <!--<ruleset>/rulesets/imports.xml</ruleset>-->
+                        <!--<ruleset>/rulesets/design.xml</ruleset>-->
+                    <!--</rulesets>-->
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>com.atlassian.maven.plugins</groupId>
+                <artifactId>maven-clover2-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <includesTestSourceRoots>true</includesTestSourceRoots>
+                    <licenseLocation>clover.license</licenseLocation>
+                    <encoding>UTF-8</encoding>
+                    <jdk>1.6</jdk>
                 </configuration>
             </plugin>
 
