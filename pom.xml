@@ -308,6 +308,9 @@
 
         <profile>
             <id>thrift-linux</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <properties>
                 <thrift.executable>${thrift.executable.linux}</thrift.executable>
             </properties>
