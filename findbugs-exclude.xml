@@ -1,0 +1,13 @@
+<FindBugsFilter>
+    <!--
+        <Match> <Class name="com.foobar.ClassWithSomeBugsMatched" /> <Bug
+        code="DE,UrF,SIC" /> </Match>
+    -->
+    <!--<Match>-->
+        <!--<Class name="com.nhncorp.usf.core.result.RedirectResult" />-->
+        <!--<Bug pattern="DM_CONVERT_CASE" />-->
+    <!--</Match>-->
+    <!--
+        Match all XYZ violations. <Match> <Bug code="XYZ" /> </Match>
+    -->
+</FindBugsFilter>
