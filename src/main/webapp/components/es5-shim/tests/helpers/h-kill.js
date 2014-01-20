@@ -3,7 +3,7 @@
 var HLP = (function() {
     "use strict";
     var kill;
-    
+
     kill = function(_class, methods) {
         /*if(!Array.isArray(methods))
             return;*/
@@ -56,8 +56,9 @@ HLP.kill(Date.prototype, [
 ]);
 
 HLP.kill(Array.prototype, [
-    'forEach', 'some', 'every', 
-    'indexOf', 'lastIndexOf', 
-    'map', 'filter', 
+    'forEach', 'some', 'every',
+    'indexOf', 'lastIndexOf',
+    'map', 'filter',
     'reduce', 'reduceRight'
 ]);
+

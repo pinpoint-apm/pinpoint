@@ -15,12 +15,12 @@
         <h5>Servers</h5>
         <ul class="server-list">
             <li ng-repeat="(key, server) in serverList">
-                <i class="icon-home"></i>
+                <span class="glyphicon glyphicon-home"></span>
                 {{server.name.split(':')[0]}}
                 <a class="btn btn-mini" href="http://nsight.nhncorp.com/dashboard_server/{{server.name.split(':')[0].replace('.nhnsystem.com','')}}" target="_blank" title="System resource monitoring site">NSight</a>
                 <ul>
                     <li ng-repeat="instance in server.instanceList">
-                        <i class="icon-hdd"></i>
+                        <span class="glyphicon glyphicon-hdd"></span>
                         {{instance.name}}
                         <a class="btn btn-mini" ng-show="isWas" ng-href="#/inspector/{{node.text}}@{{node.serviceTypeCode}}/{{oNavbarVo.getPeriod()}}/{{oNavbarVo.getQueryEndTime()}}/{{instance.name}}" target="_blank" title="Inspect Agents" alt="Inspect Agents">Inspector</a>
                         <a class="btn btn-mini" href="http://hubble.arcuscloud.nhncorp.com/" target="_blank" title="Arcus monitoring site" ng-show="nodeCategory == 'ARCUS'">Hubble</a>

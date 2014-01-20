@@ -131,4 +131,5 @@ canvas {outline:none}
 
 .wait {
     cursor: wait !important;
+    pointer-events: auto !important;
 }

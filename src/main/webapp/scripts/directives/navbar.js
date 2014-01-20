@@ -18,7 +18,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                 // define private variables
                 var $application, $fromPicker, $toPicker, oNavbarVo;
 
-                // define private variables of methods
+                // define private variables of methodwas
                 var initialize, initializeDateTimePicker, initializeApplication, setDateTime, getQueryEndTimeFromServer,
                     broadcast, getApplicationList, getQueryStartTime, getQueryEndTime, parseApplicationList, emitAsChanged,
                     initializeWithStaticApplication, getPeriodType, setPeriodTypeAsCurrent, getDate;

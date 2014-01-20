@@ -2,7 +2,7 @@
     <div class="nav-container">
         <a href="/" class="navbar-brand"><img class="brand" src="/images/logo2.png" width="116" height="18"><div class="beta">beta</div></a>
 
-        <div class="nav-collapse collapse">
+        <div class="nav-collapse">
             <form class="navbar-form pull-left">
                 <ul class="nav navbar-nav">
                     <li style="margin-top:0px;">
@@ -15,48 +15,74 @@
                     </li>
                     <li class="divider-vertical"></li>
                     <li class="for-datetimepicker">
-                        <div  ng-show="periodType == 'last'" class="btn-group" style="margin-top:0px;">
-                            <label class="btn" ng-class="{'btn-success': periodType == 'last'}">
-                                <input type="radio" ng-click="periodType = 'range'"><i class="icon-th-list icon-white"></i>
-                            </label>
-                            <label class="btn" ng-class="getPeriodClass(5)">
-                                <input type="radio" ng-click="setPeriod(5)" ng-disabled="periodDelay">Last 5m
-                            </label>
-                            <label class="btn" ng-class="getPeriodClass(20)">
-                                <input type="radio" ng-click="setPeriod(20)" ng-disabled="periodDelay">20m
-                            </label>
-                            <label class="btn" ng-class="getPeriodClass(60)">
-                                <input type="radio" ng-click="setPeriod(60)" ng-disabled="periodDelay">1h
-                            </label>
-                            <label class="btn" ng-class="getPeriodClass(180)">
-                                <input type="radio" ng-click="setPeriod(180)" ng-disabled="periodDelay">3h
-                            </label>
-                            <label class="btn" ng-class="getPeriodClass(360)">
-                                <input type="radio" ng-click="setPeriod(360)" ng-disabled="periodDelay">6h
-                            </label>
-                            <label class="btn" ng-class="getPeriodClass(740)">
-                                <input type="radio" ng-click="setPeriod(740)" ng-disabled="periodDelay">12h
-                            </label>
-                            <label class="btn" ng-class="getPeriodClass(1440)">
-                                <input type="radio" ng-click="setPeriod(1440)" ng-disabled="periodDelay">1d
-                            </label>
-                            <label class="btn" ng-class="getPeriodClass(2880)">
-                                <input type="radio" ng-click="setPeriod(2880)" ng-disabled="periodDelay">2d
-                            </label>
+                        <div ng-show="periodType == 'last'" class="btn-group btn-group-sm" style="margin-top:0px;">
+                            <button type="button" class="btn btn-success" ng-click="periodType = 'range'"><span class="glyphicon glyphicon-th-list"></span></button>
+                            <button type="button" class="btn btn-default" ng-class="getPeriodClass(5)" ng-click="setPeriod(5)" ng-disabled="periodDelay">Last 5m</button>
+                            <button type="button" class="btn btn-default" ng-class="getPeriodClass(20)" ng-click="setPeriod(20)" ng-disabled="periodDelay">20m</button>
+                            <button type="button" class="btn btn-default" ng-class="getPeriodClass(60)" ng-click="setPeriod(60)" ng-disabled="periodDelay">1h</button>
+                            <button type="button" class="btn btn-default" ng-class="getPeriodClass(180)" ng-click="setPeriod(180)" ng-disabled="periodDelay">3h</button>
+                            <button type="button" class="btn btn-default" ng-class="getPeriodClass(360)" ng-click="setPeriod(360)" ng-disabled="periodDelay">6h</button>
+                            <button type="button" class="btn btn-default" ng-class="getPeriodClass(740)" ng-click="setPeriod(740)" ng-disabled="periodDelay">12h</button>
+                            <button type="button" class="btn btn-default" ng-class="getPeriodClass(1440)" ng-click="setPeriod(1440)" ng-disabled="periodDelay">1d</button>
+                            <button type="button" class="btn btn-default" ng-class="getPeriodClass(2880)" ng-click="setPeriod(2880)" ng-disabled="periodDelay">2d</button>
+                            <!--<label class="btn" ng-class="{'btn-success': periodType == 'last'}">-->
+                                <!--<input type="radio" ng-click="periodType = 'range'"><i class="icon-th-list icon-white"></i>-->
+                            <!--</label>-->
+                            <!--<label class="btn" ng-class="getPeriodClass(5)">-->
+                                <!--<input type="radio" ng-click="setPeriod(5)" ng-disabled="periodDelay">Last 5m-->
+                            <!--</label>-->
+                            <!--<label class="btn" ng-class="getPeriodClass(20)">-->
+                                <!--<input type="radio" ng-click="setPeriod(20)" ng-disabled="periodDelay">20m-->
+                            <!--</label>-->
+                            <!--<label class="btn" ng-class="getPeriodClass(60)">-->
+                                <!--<input type="radio" ng-click="setPeriod(60)" ng-disabled="periodDelay">1h-->
+                            <!--</label>-->
+                            <!--<label class="btn" ng-class="getPeriodClass(180)">-->
+                                <!--<input type="radio" ng-click="setPeriod(180)" ng-disabled="periodDelay">3h-->
+                            <!--</label>-->
+                            <!--<label class="btn" ng-class="getPeriodClass(360)">-->
+                                <!--<input type="radio" ng-click="setPeriod(360)" ng-disabled="periodDelay">6h-->
+                            <!--</label>-->
+                            <!--<label class="btn" ng-class="getPeriodClass(740)">-->
+                                <!--<input type="radio" ng-click="setPeriod(740)" ng-disabled="periodDelay">12h-->
+                            <!--</label>-->
+                            <!--<label class="btn" ng-class="getPeriodClass(1440)">-->
+                                <!--<input type="radio" ng-click="setPeriod(1440)" ng-disabled="periodDelay">1d-->
+                            <!--</label>-->
+                            <!--<label class="btn" ng-class="getPeriodClass(2880)">-->
+                                <!--<input type="radio" ng-click="setPeriod(2880)" ng-disabled="periodDelay">2d-->
+                            <!--</label>-->
                         </div>
-                        <div ng-show="periodType == 'range'" class="datetimepicker input-prepend input-append date">
-                            <button class="btn btn-success" ng-click="periodType = 'last'">
-                                <i class="icon-calendar icon-white"></i>
-                            </button>
-                            <input id="from-picker" type="text">
-                            <span class="add-on">
-                                <i class="icon-minus"></i>
+                        <div ng-show="periodType == 'range'" class="datetimepicker input-group input-group-sm date">
+                            <span class="input-group-btn">
+                                <button class="btn btn-success" ng-click="periodType = 'last'">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </button>
                             </span>
-                            <input id="to-picker" type="text">
-                            <button class="btn" ng-click="search()">
-                                <i class="icon-search"></i>
-                            </button>
+                            <input id="from-picker" type="text" class="form-control ">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-minus"></span>
+                            </span>
+                            <input id="to-picker" type="text" class="form-control">
+                            <span class="input-group-btn">
+                                <button class="btn" ng-click="search()">
+                                    <span class="glyphicon glyphicon-search"></span>
+                                </button>
+                            </span>
                         </div>
+                        <!--<div ng-show="periodType == 'range'" class="datetimepicker input-prepend input-append date">-->
+                            <!--<button class="btn btn-success" ng-click="periodType = 'last'">-->
+                                <!--<i class="icon-calendar icon-white"></i>-->
+                            <!--</button>-->
+                            <!--<input id="from-picker" type="text">-->
+                            <!--<span class="add-on">-->
+                                <!--<i class="icon-minus"></i>-->
+                            <!--</span>-->
+                            <!--<input id="to-picker" type="text">-->
+                            <!--<button class="btn" ng-click="search()">-->
+                                <!--<i class="icon-search"></i>-->
+                            <!--</button>-->
+                        <!--</div>-->
                     </li>
                 </ul>
             </form>

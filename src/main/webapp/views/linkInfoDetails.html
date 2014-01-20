@@ -1,6 +1,6 @@
 <div class="linkInfoDetails" ng-show="showLinkInfoDetails">
 
-    <ul class="unstyled" ng-if="linkCategory == 'UnknownLinkInfoBox'">
+    <ul class="list-unstyled" ng-if="linkCategory == 'UnknownLinkInfoBox'">
         <li ng-repeat="target in targetinfo">
             <img ng-src="/images/icons/{{sourceinfo[0].serviceType | icons}}.png" style="height:14px;" /> {{sourceinfo[0].applicationName}}
             <i class="icon-arrow-right"></i>
