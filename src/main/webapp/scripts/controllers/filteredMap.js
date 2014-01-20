@@ -111,6 +111,10 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
             if (node.category === 'TOMCAT') {
                 $scope.hasScatter = true;
                 $scope.$broadcast('scatter.initializeWithNode', node);
+            } else if (node.category === 'UNKNOWN_GROUP') {
+                oSidebarTitleVo
+                    .setTitle('Unknown Group');
+                $scope.hasScatter = false;
             } else {
                 $scope.hasScatter = false;
             }
@@ -155,5 +159,22 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
          */
         $scope.$on('linkInfoDetails.ResponseSummary.barClicked', function (event, filterDataSet) {
             openFilteredMapWithFilterDataSet(filterDataSet);
+        });
+
+        /**
+         * scope event on linkInfoDetail.showDetailInformationClicked
+         */
+        $scope.$on('linkInfoDetail.showDetailInformationClicked', function (event, query, link) {
+            $scope.hasScatter = false;
+            var oSidebarTitleVo = new SidebarTitleVo;
+            oSidebarTitleVo
+                .setImageType(link.sourceinfo.serviceType)
+                .setTitle(link.sourceinfo.applicationName)
+                .setImageType2(link.targetinfo.serviceType)
+                .setTitle2(link.targetinfo.applicationName);
+            $scope.$broadcast('sidebarTitle.initialize.forMain', oSidebarTitleVo);
+            $scope.$broadcast('nodeInfoDetails.reset');
+            $scope.$broadcast('linkInfoDetails.initialize', null, query, link);
+
         });
     }]);

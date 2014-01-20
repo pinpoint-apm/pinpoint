@@ -1,6 +1,6 @@
 'use strict';
 
-pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$routeParams', 'location', 'NavbarVo', 'encodeURIComponentFilter', '$window', 'SidebarTitleVo', 'filteredMapUtil',
+pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$interval', '$routeParams', 'location', 'NavbarVo', 'encodeURIComponentFilter', '$window', 'SidebarTitleVo', 'filteredMapUtil',
     function (cfg, $scope, $timeout, $routeParams, location, NavbarVo, encodeURIComponentFilter, $window, SidebarTitleVo, filteredMapUtil) {
 
         // define private variables
@@ -30,7 +30,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
             $scope.$broadcast('navbar.initialize', oNavbarVo);
             $scope.$broadcast('scatter.initialize', oNavbarVo);
             $scope.$broadcast('serverMap.initialize', oNavbarVo);
-        }, 200);
+        }, 300);
 
         /**
          * get first path of loction
@@ -151,6 +151,9 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
             openFilteredMapWithFilterDataSet(filterDataSet);
         });
 
+        /**
+         * scope event on linkInfoDetail.showDetailInformationClicked
+         */
         $scope.$on('linkInfoDetail.showDetailInformationClicked', function (event, query, link) {
             $scope.hasScatter = false;
             var oSidebarTitleVo = new SidebarTitleVo;

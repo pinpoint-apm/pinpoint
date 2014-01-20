@@ -26,7 +26,8 @@
 }
 
 .transaction-table_table th {
-    padding: 0 5px;
+    padding: 0 5px !important;
+    border-bottom: none !important;
 }
 
 .transaction-table_table .th-inner {

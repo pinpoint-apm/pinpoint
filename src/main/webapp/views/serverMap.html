@@ -4,7 +4,7 @@
         <div class="alert alert-info" style="min-height: 40px;">
             <h6 ng-show="oNavbarVo.getQueryStartTime() && oNavbarVo.getQueryEndTime()">{{oNavbarVo.getQueryStartTime() | date:'yyyy-MM-dd HH:mm:ss'}} ~ {{oNavbarVo.getQueryEndTime() | date:'yyyy-MM-dd HH:mm:ss'}}</h6>
             <!--<h6 ng-if="oNavbarVo.getFilter()">Base WAS : {{oNavbarVo.getApplicationName()}}</h6>-->
-            <ul class="unstyled" ng-if="oNavbarVo.getFilter()" ng-bind-html="oNavbarVo.getFilter() | filterToString">
+            <ul class="list-unstyled" ng-if="oNavbarVo.getFilter()" ng-bind-html="oNavbarVo.getFilter() | filterToString">
             </ul>
         </div>
     </div>
@@ -17,7 +17,7 @@
         <!--<li><a href tabindex="-1" ng-click="passingTransactionList()"><i class="icon-map-marker"></i> Passing Transaction List</a></li>-->
         <!--<li class="divider"></li>-->
         <li><a href tabindex="-1" ng-click="passingTransactionResponseToScatterChart()"><span class="glyphicon glyphicon-list"></span> Transaction Scatter Chart</a></li>
-        <li><a tabindex="-1" ng-href="#/inspector/{{oNavbarVo.getApplication()}}/{{oNavbarVo.getPeriod()}}/{{oNavbarVo.getQueryEndTime()}}" target="_blank"><i class="icon-search"></i> Inspect Agents</a></li>
+        <li><a tabindex="-1" ng-href="#/inspector/{{oNavbarVo.getApplication()}}/{{oNavbarVo.getPeriod()}}/{{oNavbarVo.getQueryEndTime()}}" target="_blank"><span class="glyphicon glyphicon-search"></span> Inspect Agents</a></li>
     </ul>
 
     <ul ng-style="linkContextMenuStyle" class="linkContextMenu dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="z-index:10">

@@ -133,3 +133,7 @@ canvas {outline:none}
     cursor: wait !important;
     pointer-events: auto !important;
 }
+
+.tooltip-inner {
+    word-break:break-all;
+}
