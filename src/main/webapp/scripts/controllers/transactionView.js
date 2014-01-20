@@ -16,7 +16,7 @@ pinpointApp.controller('TransactionViewCtrl', [ 'TransactionViewConfig', '$scope
         // initialize
         $rootScope.wrapperClass = 'no-navbar';
         $rootScope.wrapperStyle = {
-            'padding-top': '240px'
+            'padding-top': '30px'
         };
 
         oAlert = new Alerts($rootElement);
@@ -41,6 +41,15 @@ pinpointApp.controller('TransactionViewCtrl', [ 'TransactionViewConfig', '$scope
                     $timeout(function () {
                         oProgressBar.setLoading(100);
                         oProgressBar.stopLoading();
+
+                        $("#main-container").layout({
+                            north__minSize: 50,
+                            north__size: 210,
+//                north__spacing_closed: 20,
+//                north__togglerLength_closed: 100,
+//                north__togglerAlign_closed: "top",
+                            center__maskContents: true // IMPORTANT - enable iframe masking
+                        });
                     }, 100);
                 });
                 showHeapChart($routeParams.agentId, $routeParams.focusTimestamp);
