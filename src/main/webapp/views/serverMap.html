@@ -1,7 +1,7 @@
 <div class="servermap" style="width:100%;height:100%;position: relative;">
 	<div id="servermap" style="width:100%;height:100%;position: relative;"></div>
     <div class="servermap-status" ng-show="bShowServerMapStatus">
-        <div class="alert alert-info" style="min-height: 40px;">
+        <div class="alert alert-info" style="min-height: 60px;">
             <h6 ng-show="oNavbarVo.getQueryStartTime() && oNavbarVo.getQueryEndTime()">{{oNavbarVo.getQueryStartTime() | date:'yyyy-MM-dd HH:mm:ss'}} ~ {{oNavbarVo.getQueryEndTime() | date:'yyyy-MM-dd HH:mm:ss'}}</h6>
             <!--<h6 ng-if="oNavbarVo.getFilter()">Base WAS : {{oNavbarVo.getApplicationName()}}</h6>-->
             <ul class="list-unstyled" ng-if="oNavbarVo.getFilter()" ng-bind-html="oNavbarVo.getFilter() | filterToString">
