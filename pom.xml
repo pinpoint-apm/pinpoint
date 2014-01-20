@@ -320,7 +320,7 @@
                     <includesTestSourceRoots>true</includesTestSourceRoots>
                     <licenseLocation>clover.license</licenseLocation>
                     <encoding>UTF-8</encoding>
-                    <jdk>1.5</jdk>
+                    <jdk>1.6</jdk>
                 </configuration>
             </plugin>
 
