@@ -21,7 +21,7 @@
 }
 
 .agent-list .searchbox {
-    width: 225px;
+    width: 100%;
 }
 
 .agent-list .nav li > a:hover,
@@ -40,7 +40,6 @@
 
 .agent-list .nav-list li > a,
 .agent-list .nav-list .nav-header {
-    margin: 0;
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
     overflow: hidden;
     white-space: nowrap;

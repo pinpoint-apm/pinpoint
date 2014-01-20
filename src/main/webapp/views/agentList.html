@@ -4,10 +4,16 @@
     </div>
     <ul class="nav nav-list">
         <li ng-repeat="(key, group) in agentGroup">
-            <span class="nav-header">{{key}}</span>
-            <ul class="nav">
+            <h5 class="nav-header" tooltip="{{key}}" tooltip-placement="bottom">
+                <span class="glyphicon glyphicon-home"></span>
+                {{key}}
+            </h5>
+            <ul class="nav nav-pills nav-stacked">
                 <li ng-class="{active: currentAgent == agent}" ng-repeat="agent in group | filter:searchAgents.name">
-                    <a href ng-click="select(agent)">{{agent.agentId}}</a>
+                    <a href ng-click="select(agent)">
+                        <span class="glyphicon glyphicon-hdd"></span>
+                        {{agent.agentId}}
+                    </a>
                 </li>
             </ul>
         </li>
