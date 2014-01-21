@@ -217,6 +217,8 @@ pinpointApp.directive('scatter',
                      * @param filter
                      * @param w
                      * @param h
+                     * @todo 현재는 캐싱 처리만 해놓았다. 추후 scatter의 data를 pause/resume 기능을 넣어서 서버의 부하를 줄울 수 있다.
+                     * 코드 수정은 BigScatterChart.js 에서 pause/resume 메소드를 지원하고, 아래 메소드에서 가져다 쓰면 될 것 같다.
                      */
                     showScatter = function (title, start, end, period, filter, w, h) {
                         element.children().hide();
