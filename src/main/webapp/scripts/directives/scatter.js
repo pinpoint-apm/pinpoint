@@ -248,7 +248,6 @@ pinpointApp.directive('scatter',
                      * scope event on scatter.initializeWithNode
                      */
                     scope.$on('scatter.initializeWithNode', function (event, node) {
-                        console.log('scatter.initializeWithNode')
                         showScatter(node.applicationName || node.text, oNavbarVo.getQueryStartTime(),
                             oNavbarVo.getQueryEndTime(), oNavbarVo.getQueryPeriod(), oNavbarVo.getFilter());
                     });
