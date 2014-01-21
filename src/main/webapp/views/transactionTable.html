@@ -49,7 +49,7 @@
             </thead>
             <tbody style="overflow: auto;height:100%">
                 <tr ng-repeat="transaction in transactionList | orderBy:transactionOrderBy:transactionReverse"
-                    ng-class="{true: 'success', false: {'error': transaction.exception}}[transaction == currentTransaction]">
+                    ng-class="{true: 'success', false: {'danger': transaction.exception}}[transaction == currentTransaction]">
                     <td>
                         <div style='padding-right:5px;text-align:right;position:relative;'>
                             <a href ng-href="/transactionInfo.pinpoint?traceId={{transaction.traceId}}&focusTimestamp={{transaction.collectorAcceptTime}}"
