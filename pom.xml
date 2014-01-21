@@ -266,12 +266,6 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>com.nhncorp.maven</groupId>
-                <artifactId>maven-klocwork-plugin</artifactId>
-                <version>1.0.0</version>
-            </plugin>
-
         </plugins>
     </build>
 
