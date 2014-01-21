@@ -74,6 +74,9 @@ public class ClassPathResolver {
         }
         this.agentJarName = parseAgentJar(matcher);
         this.agentJarFullPath = parseAgentJarPath(classPath, agentJarName);
+        if (agentJarFullPath == null) {
+            return false;
+        }
         this.agentDirPath = parseAgentDirPath(agentJarFullPath);
         return true;
     }
@@ -125,14 +128,18 @@ public class ClassPathResolver {
             logger.warning(agentLibPath + " not Directory");
             return Collections.emptyList();
         }
-        File[] findJarList = findjar(libDir);
-        List<URL> jarURLList = new ArrayList<URL>(findJarList.length);
-        for (File file : findJarList) {
-            URL url = toURI(file);
-            if (url != null) {
-                jarURLList.add(url);
+        final List<URL> jarURLList =  new ArrayList<URL>();
+
+        final File[] findJarList = findjar(libDir);
+        if (findJarList != null) {
+            for (File file : findJarList) {
+                URL url = toURI(file);
+                if (url != null) {
+                    jarURLList.add(url);
+                }
             }
         }
+
         // agentDir 패스도 넣어야 xml을 찾을 때 해당 패스에서 찾음.
         URL agentDirUri = toURI(new File(agentLibPath));
         if (agentDirUri != null) {

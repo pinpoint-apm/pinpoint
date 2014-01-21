@@ -85,5 +85,17 @@ public class ClassPathResolverTest {
         boolean agentJar = classPathResolver.findAgentJar();
         Assert.assertFalse(agentJar);
     }
+
+    @Test
+    public void nullArray() {
+        String[] nullArray = null;
+        try {
+            for (String str : nullArray) {
+                logger.warn("null");
+            }
+            Assert.fail();
+        } catch (Exception e) {
+        }
+    }
 }
 
