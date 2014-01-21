@@ -266,6 +266,12 @@
                 </configuration>
             </plugin>
 
+            <plugin>
+                <groupId>com.nhncorp.maven</groupId>
+                <artifactId>maven-klocwork-plugin</artifactId>
+                <version>1.0.0</version>
+            </plugin>
+
         </plugins>
     </build>
 
@@ -315,4 +321,29 @@
 
         </plugins>
     </reporting>
+
+    <profiles>
+        <profile>
+            <id>klocwork</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.klocwork.ps</groupId>
+                        <artifactId>kwmaven</artifactId>
+                        <configuration>
+                            <buildspec_filename>${KWINJECT_OUT_PATH}</buildspec_filename>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
