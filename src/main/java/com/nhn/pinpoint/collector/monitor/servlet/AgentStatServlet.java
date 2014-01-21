@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.nhn.pinpoint.common.util.BytesUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.nhn.pinpoint.collector.StatServer;
@@ -27,8 +29,9 @@ public class AgentStatServlet extends HttpServlet {
 
 	@Autowired
 	private StatServer statServer;
-	
-	private final byte[] CALLBACK_CLOSE = new String(");").getBytes();
+
+	private static final byte[] CALLBACK_CLOSE = BytesUtils.toBytes(");");
+    private static final byte[] CALLBACK_START = BytesUtils.toBytes("(");
 
 	void jsonpCallback(HttpServletRequest req, HttpServletResponse res,
 			String json) throws IOException {
@@ -38,7 +41,9 @@ public class AgentStatServlet extends HttpServlet {
 			res.setContentType("text/javascript;charset=UTF-8");
 
 			ServletOutputStream out = res.getOutputStream();
-			out.write(new String(params.get("callback")[0] + "(").getBytes());
+            String callback = StringEscapeUtils.escapeHtml4(params.get("callback")[0]);
+            out.write(BytesUtils.toBytes(callback));
+            out.write(CALLBACK_START);
 			out.write(json.getBytes());
 			out.write(CALLBACK_CLOSE);
 			out.close();
