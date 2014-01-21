@@ -452,7 +452,11 @@ public class ProfilerConfig {
 	}
 
     private DumpType readDumpType(Properties prop, String propertyName, DumpType defaultDump) {
-        String value = prop.getProperty(propertyName).toUpperCase();
+        String propertyValue = prop.getProperty(propertyName);
+        if (propertyValue == null) {
+            propertyValue = defaultDump.name();
+        }
+        String value = propertyValue.toUpperCase();
         DumpType result;
         try {
             result = DumpType.valueOf(value);
