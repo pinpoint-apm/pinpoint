@@ -135,19 +135,32 @@ public class ResponseHistogram implements JsonSerializable {
 
 	@Override
 	public String getJson() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder(128);
 		sb.append("{ ");
 		List<HistogramSlot> histogramSlotList = histogramSchema.getHistogramSlotList();
 		HistogramSlot histogramSlot = null;
 		for (int i = 0; i < histogramSlotList.size(); i++) {
 			histogramSlot = histogramSlotList.get(i);
-			sb.append('"').append(histogramSlot.getSlotTime()).append('"').append(":").append(values[i]);
+			sb.append('"');
+            sb.append(histogramSlot.getSlotTime());
+            sb.append('"');
+            sb.append(":");
+            sb.append(values[i]);
 			if (i < histogramSlotList.size() - 1) {
 				sb.append(", ");
 			}
 		}
-		sb.append(",\"").append(histogramSlot.getSlotTime()).append("+\"").append(":").append(slowCount);
-		sb.append(",\"error\":").append(errorCount);
+		sb.append(",\"");
+        if (histogramSlot == null) {
+            // 이상한 상태값이므로 일단 명시적으로 에러가 발생하도록 수정한다.
+            throw new IllegalStateException("histogramSlot is null");
+        }
+        sb.append(histogramSlot.getSlotTime());
+        sb.append("+\"");
+        sb.append(":");
+        sb.append(slowCount);
+		sb.append(",\"error\":");
+        sb.append(errorCount);
 		sb.append(" }");
 
 		return sb.toString();
