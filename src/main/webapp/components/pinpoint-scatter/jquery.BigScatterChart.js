@@ -149,6 +149,8 @@ var BigScatterChart = $.Class({
         this._htTypeCount = {};
 
         this._bDestroied = false;
+
+        this._bPause = false;
     },
 
     _initElements: function () {
@@ -1448,6 +1450,10 @@ var BigScatterChart = $.Class({
         var self = this;
         var htDataSource = this.option('htDataSource');
 
+        if (this._bPause) {
+            return;
+        }
+
         var htOption = htDataSource.htOption;
         htOption.context = this;
         htOption.url = htDataSource.sUrl.call(this, this._nCallCount);
@@ -1507,5 +1513,14 @@ var BigScatterChart = $.Class({
         this.updateXYAxis();
         this.redrawBubbles();
 
+    },
+
+    pause: function () {
+        this._bPause = true;
+    },
+
+    resume: function () {
+        this._bPause = false;
+        this._drawWithDataSource();
     }
 });

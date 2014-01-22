@@ -71,7 +71,7 @@ pinpointApp.directive('scatter',
                     var oNavbarVo, htScatterSet;
 
                     // define private variables of methods
-                    var getDataSource, makeScatter, showScatter;
+                    var getDataSource, makeScatter, showScatter, pauseScatterAll;
 
                     // initialize
                     oNavbarVo = null;
@@ -222,8 +222,10 @@ pinpointApp.directive('scatter',
                      */
                     showScatter = function (title, start, end, period, filter, w, h) {
                         element.children().hide();
+                        pauseScatterAll();
                         if (angular.isDefined(htScatterSet[title])) {
                             htScatterSet[title].target.show();
+                            htScatterSet[title].scatter.resume();
                         } else {
                             var target = angular.element('<div class="scatter">');
                             var oScatter = makeScatter(target, title, start, end, period, filter, w, h);
@@ -233,6 +235,15 @@ pinpointApp.directive('scatter',
                             };
                             element.append(target);
                         }
+                    };
+
+                    /**
+                     * pause scatter all
+                     */
+                    pauseScatterAll = function () {
+                        angular.forEach(htScatterSet, function (scatterSet, key) {
+                            scatterSet.scatter.pause();
+                        });
                     };
 
                     /**
