@@ -107,6 +107,38 @@ public class BytesUtilsTest {
         byte[] buf = Bytes.add(Bytes.toBytes("testAgent"), Bytes.toBytes(11L));
         Assert.assertArrayEquals(testAgents, buf);
     }
+
+    @Test
+    public void testAddStringLong_NullError() throws Exception {
+        try {
+            BytesUtils.add((String)null, 11L);
+            Assert.fail();
+        } catch (Exception e) {
+        }
+    }
+
+    @Test
+    public void testToFixedLengthBytes() {
+        byte[] testValue = BytesUtils.toFixedLengthBytes("test", 10);
+        Assert.assertEquals(testValue.length, 10);
+        Assert.assertEquals(testValue[5], 0);
+
+        try {
+            BytesUtils.toFixedLengthBytes("test", 2);
+            Assert.fail();
+        } catch (Exception e) {
+        }
+
+        try {
+            BytesUtils.toFixedLengthBytes("test", -1);
+            Assert.fail();
+        } catch (Exception e) {
+        }
+
+        byte[] testValue2 = BytesUtils.toFixedLengthBytes(null, 10);
+        Assert.assertEquals(testValue2.length, 10);
+
+    }
     
 	@Test
 	public void testMerge() {

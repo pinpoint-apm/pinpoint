@@ -356,6 +356,9 @@ public final class BytesUtils {
     }
 
     public static byte[] add(final String prefix, final long postfix) {
+        if (prefix == null) {
+            throw new NullPointerException("prefix must not be null");
+        }
         byte[] agentByte = toBytes(prefix);
         return add(agentByte, postfix);
     }
@@ -418,7 +421,13 @@ public final class BytesUtils {
     }
 
     public static byte[] toFixedLengthBytes(final String str, final int length) {
-        byte[] b1 = toBytes(str);
+        if (length < 0) {
+            throw new IllegalArgumentException("negative length:" + length);
+        }
+        final byte[] b1 = toBytes(str);
+        if (b1 == null) {
+            return new byte[length];
+        }
 
         if (b1.length > length) {
             throw new IllegalArgumentException("String is longer then target length of bytes.");
