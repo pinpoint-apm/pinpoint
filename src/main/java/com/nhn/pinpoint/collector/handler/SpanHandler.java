@@ -68,8 +68,9 @@ public class SpanHandler implements SimpleHandler {
         int bugCheck = 0;
         if (span.getParentSpanId() == -1) {
             // FIXME 테스트용. host값에 agentId를 입력.
+            // user를 생성하는 부분
             statisticsHandler.updateCaller(span.getApplicationName(), span.getServiceType(), span.getApplicationName(), ServiceType.USER.getCode(), span.getAgentId(), span.getElapsed(), isError);
-            statisticsHandler.updateCallee(span.getApplicationName(), ServiceType.USER.getCode(), span.getApplicationName(), span.getServiceType(), span.getAgentId(), span.getElapsed(), isError);
+            statisticsHandler.updateCallee(span.getApplicationName(), span.getServiceType(), span.getApplicationName(), ServiceType.USER.getCode(), span.getAgentId(), span.getElapsed(), isError);
             bugCheck++;
         }
 
@@ -80,7 +81,7 @@ public class SpanHandler implements SimpleHandler {
             logger.debug("Received parent application name. {}", span.getParentApplicationName());
             // TODO 원래는 부모의 serviceType을 알아야 한다.
             // 여기에서는 그냥 부모는 모두 TOMCAT이라 가정하고 테스트.
-            statisticsHandler.updateCallee(span.getParentApplicationName(), span.getParentApplicationType(), span.getApplicationName(), span.getServiceType(), span.getAgentId(), span.getElapsed(), isError);
+            statisticsHandler.updateCallee(span.getApplicationName(), span.getServiceType(), span.getParentApplicationName(), span.getParentApplicationType(), span.getAgentId(), span.getElapsed(), isError);
             // statisticsHandler.updateCallee(span.getParentApplicationName(), span.getParentApplicationType(), span.getApplicationName(), span.getServiceType(), span.getEndPoint(), span.getElapsed(), span.getErr() > 0);
             bugCheck++;
         }
@@ -114,7 +115,7 @@ public class SpanHandler implements SimpleHandler {
             statisticsHandler.updateCaller(spanEvent.getDestinationId(), serviceType.getCode(), span.getApplicationName(), span.getServiceType(), spanEvent.getEndPoint(), elapsed, hasException);
 
             // 나를 호출한 정보 저장 (spanevent를 호출한 span)
-            statisticsHandler.updateCallee(span.getApplicationName(), span.getServiceType(), spanEvent.getDestinationId(), spanEvent.getServiceType(), span.getEndPoint(), elapsed, hasException);
+            statisticsHandler.updateCallee(spanEvent.getDestinationId(), spanEvent.getServiceType(), span.getApplicationName(), span.getServiceType(), span.getEndPoint(), elapsed, hasException);
         }
     }
 

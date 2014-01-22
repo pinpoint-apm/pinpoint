@@ -75,15 +75,15 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
         // make row key. rowkey는 나.
 		final long acceptedTime = acceptedTimeService.getAcceptedTime();
 		final long rowTimeSlot = TimeSlot.getStatisticsRowSlot(acceptedTime);
-        final RowKey calleeRowKey = new CallRowKey(callerApplicationName, callerServiceType, rowTimeSlot);
+        final RowKey callerRowKey = new CallRowKey(callerApplicationName, callerServiceType, rowTimeSlot);
 
         final short callerSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(calleeServiceType, elapsed, isError);
         final ColumnName callerColumnName = new CallColumnName(calleeServiceType, calleeApplicationName, calleeHost, callerSlotNumber);
 		if (useBulk) {
-            RowInfo rowInfo = new DefaultRowInfo(calleeRowKey, callerColumnName);
+            RowInfo rowInfo = new DefaultRowInfo(callerRowKey, callerColumnName);
             this.counter.increment(rowInfo, 1L);
 		} else {
-            final byte[] rowKey = calleeRowKey.getRowKey();
+            final byte[] rowKey = callerRowKey.getRowKey();
             // column name은 나를 호출한 app
             byte[] columnName = callerColumnName.getColumnName();
             increment(rowKey, columnName, 1L);
