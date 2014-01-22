@@ -14,6 +14,7 @@ public final class RuntimeMXBeanUtils {
 
     private static long START_TIME = 0;
     private static int PID = 0;
+    private static final Random RANDOM = new Random();
 
     private RuntimeMXBeanUtils() {
     }
@@ -40,7 +41,7 @@ public final class RuntimeMXBeanUtils {
         }
     }
     private static int getNegativeRandomValue() {
-        return - Math.abs(new Random().nextInt());
+        return - Math.abs(RANDOM.nextInt());
     }
 
     public static long getVmStartTime() {
