@@ -33,8 +33,7 @@ public class AgentStatServlet extends HttpServlet {
 	private static final byte[] CALLBACK_CLOSE = BytesUtils.toBytes(");");
     private static final byte[] CALLBACK_START = BytesUtils.toBytes("(");
 
-	void jsonpCallback(HttpServletRequest req, HttpServletResponse res,
-			String json) throws IOException {
+	void jsonpCallback(HttpServletRequest req, HttpServletResponse res, String json) throws IOException {
 		Map<String, String[]> params = req.getParameterMap();
 
 		if (params.containsKey("callback")) {
@@ -44,13 +43,13 @@ public class AgentStatServlet extends HttpServlet {
             String callback = StringEscapeUtils.escapeHtml4(params.get("callback")[0]);
             out.write(BytesUtils.toBytes(callback));
             out.write(CALLBACK_START);
-			out.write(json.getBytes());
+			out.write(BytesUtils.toBytes(json));
 			out.write(CALLBACK_CLOSE);
 			out.close();
 		} else {
 			res.setContentType("text/json;charset=UTF-8");
 			ServletOutputStream out = res.getOutputStream();
-			out.write(json.getBytes());
+			out.write(BytesUtils.toBytes(json));
 			out.close();
 		}
 	}
