@@ -128,6 +128,9 @@ public class DefaultAgent implements Agent {
 
 
     private AgentInformation createAgentInformation(ServiceType serverType) {
+        if (serverType == null) {
+            throw new NullPointerException("serverType must not be null");
+        }
         final String machineName = NetworkUtils.getHostName();
         final String agentId = getId("pinpoint.agentId", machineName, PinpointConstants.AGENT_NAME_MAX_LEN);
         final String applicationName = getId("pinpoint.applicationName", "UnknownApplicationName", PinpointConstants.APPLICATION_NAME_MAX_LEN);

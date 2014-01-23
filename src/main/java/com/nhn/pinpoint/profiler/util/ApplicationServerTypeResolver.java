@@ -54,6 +54,10 @@ public class ApplicationServerTypeResolver {
             } else if(defaultType == ServiceType.BLOC) {
                 resolveBloc(catalinaHome);
                 return true;
+            } else if(defaultType == ServiceType.STAND_ALONE) {
+                resolveStandAlone();
+                logger.info("applicationServerDefaultType:{}", defaultType);
+                return true;
             } else {
                 logger.warn("Invalid Default ApplicationServiceType:{} ", defaultType);
                 return false;
@@ -86,6 +90,12 @@ public class ApplicationServerTypeResolver {
     private void resolveBloc(String catalinaHome) {
         this.serverType = ServiceType.BLOC;
         this.serverLibPath = new String[] { catalinaHome + "/server/lib/catalina.jar", catalinaHome + "/common/lib/servlet-api.jar" };
+        logger.info("ApplicationServerType:{} lib:{}", serverType, serverLibPath);
+    }
+
+    private void resolveStandAlone() {
+        this.serverType = ServiceType.STAND_ALONE;
+        this.serverLibPath = new String[] {};
         logger.info("ApplicationServerType:{} lib:{}", serverType, serverLibPath);
     }
 
