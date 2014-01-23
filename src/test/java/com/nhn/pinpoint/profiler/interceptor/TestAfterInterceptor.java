@@ -8,7 +8,7 @@ import java.util.Arrays;
 /**
  * @author emeroad
  */
-public class TestAfterInterceptor implements StaticAroundInterceptor {
+public class TestAfterInterceptor implements StaticAroundInterceptor, TargetClassLoader {
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     public int call = 0;

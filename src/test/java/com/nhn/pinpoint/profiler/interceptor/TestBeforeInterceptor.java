@@ -9,8 +9,11 @@ import java.util.Arrays;
 /**
  * @author emeroad
  */
-public class TestBeforeInterceptor implements StaticAroundInterceptor {
-    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+public class TestBeforeInterceptor implements StaticAroundInterceptor, TargetClassLoader {
+    static{
+        System.out.println("load TestBeforeInterceptor cl:" + TestBeforeInterceptor.class.getClassLoader());
+    }
+        private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
         public int call = 0;
         public Object target;
