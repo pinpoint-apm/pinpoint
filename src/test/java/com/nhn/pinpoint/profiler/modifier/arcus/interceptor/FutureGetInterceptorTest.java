@@ -7,10 +7,13 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.nhn.pinpoint.rpc.server.SocketChannel;
 import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.internal.OperationFuture;
 import net.spy.memcached.ops.Operation;
@@ -29,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 public class FutureGetInterceptorTest extends BaseInterceptorTest {
 
-	static final Logger logger = LoggerFactory.getLogger(FutureGetInterceptorTest.class);
+	private final Logger logger = LoggerFactory.getLogger(FutureGetInterceptorTest.class);
 
 	FutureGetInterceptor interceptor = new FutureGetInterceptor();
 
@@ -51,8 +54,8 @@ public class FutureGetInterceptorTest extends BaseInterceptorTest {
 			when(operation.getException()).thenReturn(null);
 			when(operation.isCancelled()).thenReturn(false);
 			when(future.__getOperation()).thenReturn(operation);
-			
-			MemcachedNode node = new AsciiMemcachedNodeImpl(new InetSocketAddress(11211), null, 128, null, null, null, 1000L);
+
+            MemcachedNode node = getMockMemcachedNode();
 			when(operation.getHandlingNode()).thenReturn(node);
 			
 			interceptor.before(future, new Object[] { timeout, unit });
@@ -61,8 +64,17 @@ public class FutureGetInterceptorTest extends BaseInterceptorTest {
 			fail(e.getMessage());
 		}
 	}
-	
-	@Test
+
+    private MemcachedNode getMockMemcachedNode() throws IOException {
+        java.nio.channels.SocketChannel socketChannel = java.nio.channels.SocketChannel.open();
+        BlockingQueue<Operation> readQueue = new LinkedBlockingQueue<Operation>();
+        BlockingQueue<Operation> writeQueue = new LinkedBlockingQueue<Operation> ();
+        BlockingQueue<Operation> inputQueue = new LinkedBlockingQueue<Operation> ();
+
+        return new AsciiMemcachedNodeImpl(new InetSocketAddress(11211), socketChannel, 128, readQueue, writeQueue, inputQueue, 1000L);
+    }
+
+    @Test
 	public void testTimeoutException() {
 		Long timeout = 1000L;
 		TimeUnit unit = TimeUnit.MILLISECONDS;
@@ -76,7 +88,7 @@ public class FutureGetInterceptorTest extends BaseInterceptorTest {
 			when(operation.isCancelled()).thenReturn(true);
 			when(future.__getOperation()).thenReturn(operation);
 			
-			MemcachedNode node = new AsciiMemcachedNodeImpl(new InetSocketAddress(11211), null, 128, null, null, null, 1000L);
+			MemcachedNode node = getMockMemcachedNode();
 			when(operation.getHandlingNode()).thenReturn(node);
 			
 			interceptor.before(future, new Object[] { timeout, unit });
