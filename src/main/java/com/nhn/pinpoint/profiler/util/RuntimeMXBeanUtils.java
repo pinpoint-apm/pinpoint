@@ -40,8 +40,13 @@ public final class RuntimeMXBeanUtils {
             return getNegativeRandomValue();
         }
     }
+
     private static int getNegativeRandomValue() {
-        return - Math.abs(RANDOM.nextInt());
+        final int abs = Math.abs(RANDOM.nextInt());
+        if (abs == Integer.MIN_VALUE) {
+            return -1;
+        }
+        return abs;
     }
 
     public static long getVmStartTime() {
