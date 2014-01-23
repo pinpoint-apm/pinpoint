@@ -39,7 +39,7 @@ public class MSSQLConnectionModifier extends AbstractModifier {
                 this.logger.info("{} class is converted.", javassistClassName);
             }
 
-            return cc.toBytecode();
+            return null;
         } catch (Exception e) {
             if (logger.isWarnEnabled()) {
                 logger.warn(e.getMessage(), e);
