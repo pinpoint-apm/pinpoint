@@ -2,6 +2,7 @@ package com.nhn.pinpoint.profiler.monitor.codahale.gc;
 
 import static org.junit.Assert.*;
 
+import com.codahale.metrics.MetricRegistry;
 import org.junit.Test;
 
 import com.nhn.pinpoint.profiler.monitor.MonitorName;
@@ -10,7 +11,7 @@ import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
 public class GarbageCollectorTest {
 
 	GarbageCollector collector = new GarbageCollector();
-	MetricMonitorRegistry registry = new MetricMonitorRegistry();
+	MetricMonitorRegistry registry = new MetricMonitorRegistry(new MetricRegistry());
 	
 	@Test
 	public void test() {
