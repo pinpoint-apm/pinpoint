@@ -11,8 +11,12 @@ public final class ApiUtils {
     }
 
     public static String mergeParameterVariableNameDescription(String[] parameterType, String[] variableName) {
-        if (parameterType == null && variableName == null) {
-            return EMPTY_ARRAY;
+        if (parameterType == null ) {
+            if (variableName == null) {
+                return EMPTY_ARRAY;
+            } else {
+                throw new IllegalArgumentException("invalid null pair parameterType:" + parameterType + ", variableName:" + variableName);
+            }
         }
         if (parameterType.length != variableName.length) {
             throw new IllegalArgumentException("args size not equal");
