@@ -90,7 +90,11 @@ public class OracleNetConnectionDescriptorParser {
         // value 비교 reduce
         boolean nonTerminalValue = false;
         while(true) {
-            Token token = this.tokenizer.lookAheadToken();
+            final Token token = this.tokenizer.lookAheadToken();
+            if (token == null) {
+                // EOF하고는 다른 비정상적 종료인것으로 판단됨.
+                throw new OracleConnectionStringException("Syntax error. lookAheadToken is null");
+            }
             if (token.getType() == OracleNetConnectionDescriptorTokenizer.TYPE_KEY_START) {
                 nonTerminalValue = true;
                 KeyValue child = parseKeyValue();
