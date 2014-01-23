@@ -7,23 +7,22 @@ import org.junit.Test;
 
 import com.nhn.pinpoint.profiler.monitor.MonitorName;
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GarbageCollectorTest {
 
-	GarbageCollector collector = new GarbageCollector();
-	MetricMonitorRegistry registry = new MetricMonitorRegistry(new MetricRegistry());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private GarbageCollector collector = new GarbageCollector();
+	private MetricMonitorRegistry registry = new MetricMonitorRegistry();
 	
 	@Test
 	public void test() {
 		registry.registerJvmGcMonitor(new MonitorName("jvm.gc"));
 		registry.registerJvmMemoryMonitor(new MonitorName("jvm.memory"));
 		
-		try {
-			collector.setType(registry);
-			System.out.println(collector.getType());
-		} catch (Exception e) {
-			fail("should not be failed");
-		}
-	}
-
+        collector.setType(registry);
+        logger.debug("collector.getType():{}", collector.getType());
+    }
 }

@@ -70,16 +70,13 @@ public class AgentStatMonitor {
 		private GarbageCollector garbageCollector;
 
 		public CollectJob(DataSender dataSender) {
-			this.dataSender = dataSender;
+            if (dataSender == null) {
+                throw new NullPointerException("dataSender must not be null");
+            }
+            this.dataSender = dataSender;
+            this.monitorRegistry = createRegistry();
 
-			// FIXME 디폴트 레지스트리를 생성하여 사용한다. 다른데서 쓸 일이 있으면 외부에서 삽입하도록 하자.
-			this.monitorRegistry = new MetricMonitorRegistry();
-
-			// FIXME 설정에 따라 어떤 데이터를 수집할 지 선택할 수 있도록 해야한다. 여기서는 JVM 메모리 정보를 default로 수집.
-			this.monitorRegistry.registerJvmMemoryMonitor(new MonitorName(MetricMonitorValues.JVM_MEMORY));
-			this.monitorRegistry.registerJvmGcMonitor(new MonitorName(MetricMonitorValues.JVM_GC));
-
-			// TAgentStat 객체를 준비한다.
+            // TAgentStat 객체를 준비한다.
 			this.agentStat = new TAgentStat();
 			this.agentStat.setAgentId(agentId);
 
@@ -90,8 +87,18 @@ public class AgentStatMonitor {
 				logger.info("found : {}", this.garbageCollector);
 			}
 		}
-		
-		public void run() {
+
+        private MetricMonitorRegistry createRegistry() {
+            // FIXME 디폴트 레지스트리를 생성하여 사용한다. 다른데서 쓸 일이 있으면 외부에서 삽입하도록 하자.
+            final MetricMonitorRegistry monitorRegistry = new MetricMonitorRegistry();
+
+            // FIXME 설정에 따라 어떤 데이터를 수집할 지 선택할 수 있도록 해야한다. 여기서는 JVM 메모리 정보를 default로 수집.
+            monitorRegistry.registerJvmMemoryMonitor(new MonitorName(MetricMonitorValues.JVM_MEMORY));
+            monitorRegistry.registerJvmGcMonitor(new MonitorName(MetricMonitorValues.JVM_GC));
+            return monitorRegistry;
+        }
+
+        public void run() {
 			try {
 				agentStat.setTimestamp(System.currentTimeMillis());
 				garbageCollector.map(monitorRegistry, agentStat, agentId);
