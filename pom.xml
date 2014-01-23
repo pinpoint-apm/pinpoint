@@ -313,8 +313,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
-
+        <dependency>
+            <groupId>com.nhncorp.lucy</groupId>
+            <artifactId>lucy-core</artifactId>
+            <version>1.7.6</version>
+        </dependency>
         <dependency>
             <groupId>com.sematext.hbasewd</groupId>
             <artifactId>hbasewd</artifactId>
