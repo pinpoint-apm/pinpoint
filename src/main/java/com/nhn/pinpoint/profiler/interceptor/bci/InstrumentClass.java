@@ -3,6 +3,7 @@ package com.nhn.pinpoint.profiler.interceptor.bci;
 import com.nhn.pinpoint.profiler.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.util.DepthScope;
 
+import java.security.ProtectionDomain;
 import java.util.List;
 
 /**
@@ -11,6 +12,8 @@ import java.util.List;
 public interface InstrumentClass {
 
     boolean isInterface();
+
+    String getName();
 
 	boolean insertCodeBeforeMethod(String methodName, String[] args, String code);
 

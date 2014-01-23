@@ -35,6 +35,10 @@ public class JavaAssistClass implements InstrumentClass {
         return this.ctClass.isInterface();
     }
 
+    public String getName() {
+        return this.ctClass.getName();
+    }
+
     @Override
     public boolean insertCodeBeforeConstructor(String[] args, String code) {
         try {

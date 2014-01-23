@@ -28,7 +28,7 @@ public class JavaAssistClassTest {
 
         aClass.addInterceptor(methodName, null, interceptor);
 
-        Object testObject = aClass.toClass().newInstance();
+        Object testObject = createInstance(aClass);
         Method callA = testObject.getClass().getMethod(methodName);
         callA.invoke(testObject);
 
@@ -51,7 +51,7 @@ public class JavaAssistClassTest {
 
         aClass.addInterceptorCallByContextClassLoader(methodName, null, interceptor);
 
-        Object testObject = aClass.toClass().newInstance();
+        Object testObject = createInstance(aClass);
         Method callA = testObject.getClass().getMethod(methodName);
         callA.invoke(testObject);
 
@@ -80,7 +80,7 @@ public class JavaAssistClassTest {
         aClass.addInterceptor(callB, null, callbInterceptor);
 
 
-        Object testObject = aClass.toClass().newInstance();
+        Object testObject = createInstance(aClass);
         Method callAMethod = testObject.getClass().getMethod(callA);
         Object result = callAMethod.invoke(testObject);
 
@@ -106,7 +106,7 @@ public class JavaAssistClassTest {
     @Test
     public void nullDescriptor() {
         String nullDescriptor = Descriptor.ofParameters(null);
-        logger.info("Descript null:" + nullDescriptor);
+        logger.info("Descript null:{}", nullDescriptor);
     }
 
     @Test
@@ -117,7 +117,8 @@ public class JavaAssistClassTest {
         aClass.addDebugLogBeforeAfterMethod();
         aClass.addDebugLogBeforeAfterConstructor();
 
-        Object testObject = aClass.toClass().newInstance();
+
+        Object testObject = createInstance(aClass);
 
         Method test = testObject.getClass().getMethod("test", null);
         test.invoke(testObject);
@@ -128,6 +129,27 @@ public class JavaAssistClassTest {
         Constructor<? extends Object> constructor = testObject.getClass().getConstructor(null);
         Object o = constructor.newInstance();
 
+    }
+
+    private Object createInstance(InstrumentClass aClass) throws InstrumentException {
+        // ci서버에서 test가 2번이상 돌아갈 경우 이미 define된 class를 다시 define하려고 하여 문제가 발생할수 있음.
+        // 일단 임시 방편으로 다시 define하려고 할 경우. 실패후 그냥 현재 cl에서 class를 찾는 코드로 변경함.
+        // 좀더 장기적으로는 define할 class를 좀더 정확하게 지정하고 testclass도 지정할수 있도록 해야 될것으로 보임.
+        try {
+            Class<?> aClass1 = aClass.toClass();
+            return aClass1.newInstance();
+        } catch (InstantiationException e) {
+            throw new InstrumentException(e.getMessage(), e);
+        } catch (IllegalAccessException e) {
+            throw new InstrumentException(e.getMessage(), e);
+        } catch (InstrumentException linkageError) {
+            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+            try {
+                return contextClassLoader.loadClass(aClass.getName()).newInstance();
+            } catch (Throwable e) {
+                throw new InstrumentException(e.getMessage(), e);
+            }
+        }
     }
 
 }
