@@ -32,9 +32,10 @@ public enum ServiceType {
     UNKNOWN_GROUP((short) 3, "UNKNOWN_GROUP", false, true, false, HistogramSchema.NORMAL),
 
     // WAS류 1000번 부터 시작
+    STAND_ALONE((short) 1000, "STAND_ALONE", false, true, false, HistogramSchema.NORMAL),
     TOMCAT((short) 1010, "TOMCAT", false, true, false, HistogramSchema.NORMAL),
     BLOC((short) 1020, "BLOC", false, true, false, HistogramSchema.NORMAL),
-    
+
     /**
      * xxx_EXECUTE_QUERY만 server map통계정보에 집계된다.
      */
