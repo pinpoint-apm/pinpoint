@@ -17,6 +17,11 @@ public class ThreadLocalAcceptedTimeService implements AcceptedTimeService {
     }
 
     @Override
+    public void accept(long time) {
+        local.set(time);
+    }
+
+    @Override
     public long getAcceptedTime() {
         Long acceptedTime = local.get();
         if (acceptedTime == null) {

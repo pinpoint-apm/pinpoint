@@ -7,5 +7,7 @@ public interface AcceptedTimeService {
 
     public void accept();
 
+    public void accept(long time);
+
     public long getAcceptedTime();
 }
