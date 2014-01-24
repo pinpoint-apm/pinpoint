@@ -322,7 +322,11 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
                     String argument = getDisplayArgument(spanEventBo);
                     final int spanBoEventSequence = stack.getLast().getId();
-                    final int parentSequence = stack.getParent().getId();
+                    final SpanDepth parent = stack.getParent();
+                    if (parent == null) {
+                        throw new IllegalStateException("parent is null. stack:" + stack);
+                    }
+                    final int parentSequence = parent.getId();
                     logger.debug("spanBoEventSequence:{}, parentSequence:{}", spanBoEventSequence, parentSequence);
 
                     final String method = AnnotationUtils.findApiAnnotation(spanEventBo.getAnnotationBoList());
