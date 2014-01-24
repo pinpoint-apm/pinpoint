@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 import com.nhn.pinpoint.collector.dao.TracesDao;
+import com.nhn.pinpoint.collector.util.AcceptedTimeService;
 import com.nhn.pinpoint.common.util.TransactionIdUtils;
 import com.nhn.pinpoint.thrift.dto.TAnnotation;
 import com.nhn.pinpoint.thrift.dto.TAnnotationValue;
@@ -51,6 +52,10 @@ public class SpanServiceTest {
 
 	private TSpan root;
 	private List<TSpan> deleteSpans = new LinkedList<TSpan>();
+    private long spanAcceptTime = System.currentTimeMillis();
+
+    @Autowired
+    private AcceptedTimeService acceptedTimeService;
 
 	@Before
 	public void before() throws TException {
@@ -108,7 +113,7 @@ public class SpanServiceTest {
         com.nhn.pinpoint.common.util.TransactionId id = TransactionIdUtils.parseTransactionId(span.getTransactionId());
         TransactionId traceId = new TransactionId(id.getAgentId(), id.getAgentStartTime(), id.getTransactionSequence());
         // selectedHint를 좀더 정확히 수정할것.
-        SpanResult spanResult = spanService.selectSpan(traceId, System.currentTimeMillis());
+        SpanResult spanResult = spanService.selectSpan(traceId, spanAcceptTime);
         List<SpanAlign> sort = spanResult.getSpanAlignList();
 		for (SpanAlign spanAlign : sort) {
 			logger.info("depth:{} {}", spanAlign.getDepth(), spanAlign.getSpanBo());
@@ -117,6 +122,7 @@ public class SpanServiceTest {
 	}
 
 	private void insert(TSpan span) throws TException {
+        acceptedTimeService.accept(this.spanAcceptTime);
 		traceDao.insert(span);
 	}
 
@@ -125,7 +131,7 @@ public class SpanServiceTest {
 	private TSpan createRootSpan() {
 		// 별도 생성기로 뽑을것.
 		List<TAnnotation> ano = Collections.emptyList();
-		long time = System.currentTimeMillis();
+		long time = this.spanAcceptTime;
 		int andIncrement = id.getAndIncrement();
 
 		TSpan span = new TSpan();

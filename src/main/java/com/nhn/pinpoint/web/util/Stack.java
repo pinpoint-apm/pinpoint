@@ -33,5 +33,10 @@ public class Stack<T> {
         return stack.get(parent);
     }
 
-
+    @Override
+    public String toString() {
+        return "Stack{" +
+                "stack=" + stack +
+                '}';
+    }
 }
