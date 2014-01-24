@@ -52,6 +52,7 @@ public class HbaseAgentInfoDaoTest {
 		agentInfo.setApplicationName("testcaseApplication");
 		agentInfo.setHostname("testcaseHostName");
 		agentInfo.setPorts("9995");
+        agentInfo.setStartTimestamp(startTime);
 
 		return agentInfo;
 	}

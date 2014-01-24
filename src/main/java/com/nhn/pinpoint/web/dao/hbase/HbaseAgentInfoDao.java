@@ -137,7 +137,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         AgentInfoBo agentInfoBo = hbaseOperations2.find(HBaseTables.AGENTINFO, scan, new ResultsExtractor<AgentInfoBo>() {
             @Override
             public AgentInfoBo extractData(ResultScanner results) throws Exception {
-                for (Result next; (next = results.next()) != null; ) {
+                for (Result next : results) {
                     byte[] row = next.getRow();
                     long reverseStartTime = BytesUtils.bytesToLong(row, HBaseTables.AGENT_NAME_MAX_LEN);
                     long startTime = TimeUtils.recoveryCurrentTimeMillis(reverseStartTime);
