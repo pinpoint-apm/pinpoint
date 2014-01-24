@@ -249,11 +249,12 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                     final long elapsed = spanBo.getElapsed();
                     final int spanBoSequence = stack.getLast().getId();
                     int parentSequence;
-                    if (stack.getParent() == null) {
+                    final SpanDepth parent = stack.getParent();
+                    if (parent == null) {
                         // 자기 자신이 root인 경우
                         parentSequence = 0;
                     } else {
-                        parentSequence = stack.getParent().getId();
+                        parentSequence = parent.getId();
                     }
                     logger.debug("spanBoSequence:{}, parentSequence:{}", spanBoSequence, parentSequence);
 
