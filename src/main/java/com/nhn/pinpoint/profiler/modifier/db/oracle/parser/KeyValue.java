@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler.modifier.db.oracle.parser;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -29,6 +30,9 @@ public class KeyValue {
     }
 
     public List<KeyValue> getKeyValueList() {
+        if (keyValueList == null) {
+            return Collections.emptyList();
+        }
         return keyValueList;
     }
 
