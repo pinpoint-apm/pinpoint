@@ -87,6 +87,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         // 오류로 인해 foucs를 못찾을수 도있으므로, 없을 경우 별도 mark가 추가적으로 있어야 함.
         // TODO 잘못 될수 있는점 foucusTime은 실제로 2개 이상 나올수 잇음. 서버의 time을 사용하므로 오차로 인해 2개가 나올수도 있음.
         SpanBo focusTimeSpanBo = findFocusTimeSpanBo(spanAlignList, focusTimestamp);
+        // focusTimeSpanBO를 못찾을 경우에 대한 임시 패치를 하였으나 근본적으로 해결된게 아님.
         if (focusTimeSpanBo != null) {
             recordSet.setAgentId(focusTimeSpanBo.getAgentId());
             recordSet.setApplicationId(focusTimeSpanBo.getApplicationId());
@@ -108,10 +109,12 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         List<Record> recordList = spanAlignPopulate.populateSpanRecord(spanAlignList);
         logger.debug("RecordList:{}", recordList);
 
-        // focus 대상 record를 체크한다.
-        long beginTimeStamp = focusTimeSpanBo.getStartTime();
-        markFocusRecord(recordList, beginTimeStamp);
-        recordSet.setBeginTimestamp(beginTimeStamp);
+        if (focusTimeSpanBo != null) {
+            // focus 대상 record를 체크한다.
+            long beginTimeStamp = focusTimeSpanBo.getStartTime();
+            markFocusRecord(recordList, beginTimeStamp);
+            recordSet.setBeginTimestamp(beginTimeStamp);
+        }
 
         recordSet.setRecordList(recordList);
         return recordSet;
