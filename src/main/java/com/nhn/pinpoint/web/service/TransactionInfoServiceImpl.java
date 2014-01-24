@@ -90,10 +90,10 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         if (focusTimeSpanBo != null) {
             recordSet.setAgentId(focusTimeSpanBo.getAgentId());
             recordSet.setApplicationId(focusTimeSpanBo.getApplicationId());
-        }
 
-        String applicationName = getRpcArgument(focusTimeSpanBo);
-        recordSet.setApplicationName(applicationName);
+            final String applicationName = getRpcArgument(focusTimeSpanBo);
+            recordSet.setApplicationName(applicationName);
+        }
 
 
         // 기준이 되는 시작시간을 찾는다.
