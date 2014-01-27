@@ -17,6 +17,7 @@
         <target name="mvn.build.install">
             <exec executable="${maven.dir}/bin/mvn.bat">
                 <arg value="-Dmaven.test.skip=true"/>
+                <!-- 개발 환경에 맞게 수정해야 함. -->
                 <arg value="-Pthrift-windows"/>
                 <arg value="clean"/>
                 <arg value="install"/>
