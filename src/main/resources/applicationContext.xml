@@ -51,6 +51,7 @@
     		<beans:list>
     			<beans:ref bean="hbaseApplicationMapStatisticsCallerDao"/>
     			<beans:ref bean="hbaseApplicationMapStatisticsCalleeDao"/>
+                <beans:ref bean="hbaseApplicationMapStatisticsResponseTimeDao"/>
     		</beans:list>
     	</beans:property>
         <property name="flushPeriod" value="${statistics.flushPeriod}"/>
@@ -99,6 +100,20 @@
     </bean>
     
     <bean id="jsonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper">
+    </bean>
+
+    <bean id="hTable" class="com.nhn.pinpoint.common.hbase.HBaseTables"></bean>
+
+    <bean id="callerMerge" class="com.nhn.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
+        <constructor-arg value="#{hTable.APPLICATION_MAP_STATISTICS_CALLER_CF_COUNTER}"/>
+    </bean>
+
+    <bean id="calleeMerge" class="com.nhn.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
+        <constructor-arg value="#{hTable.APPLICATION_MAP_STATISTICS_CALLEE_CF_COUNTER}"/>
+    </bean>
+
+    <bean id="selfMerge" class="com.nhn.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
+        <constructor-arg value="#{hTable.APPLICATION_MAP_STATISTICS_SELF_CF_COUNTER}"/>
     </bean>
     
 </beans>

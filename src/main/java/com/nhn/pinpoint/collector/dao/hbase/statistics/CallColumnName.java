@@ -57,6 +57,10 @@ public class CallColumnName implements ColumnName {
         return true;
     }
 
+    /**
+     * hashCode수정시 주의할겻 hbasekey 캐쉬값이 있음.
+     * @return
+     */
     @Override
     public int hashCode() {
         if (hash != 0) {

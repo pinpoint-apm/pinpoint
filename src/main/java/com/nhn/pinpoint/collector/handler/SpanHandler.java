@@ -86,6 +86,12 @@ public class SpanHandler implements SimpleHandler {
             bugCheck++;
         }
 
+        // 자기 자신(Tomcat, BLOC)의 responseTime 레코딩
+        // 위의 calee 키와 충돌이 나는 성격이 있는것으로 보임. 이미 호출자에서 caller데이터를 레코딩하고 있는데 반대로 레코딩을 해야 되는 부분이 좀 이상함.
+        // 해당 데이터는 진정한 호출자 데이터가 아님. timeout이라던가 네트워크 오류로 인해서 데이터 자체는 틀릴수 있음.
+        //
+        statisticsHandler.updateResponseTime(span.getApplicationName(), span.getServiceType(), span.getAgentId(), span.getElapsed(), isError);
+
         if (bugCheck != 1) {
             logger.warn("ambiguous span found(bug). span:{}", span);
         }

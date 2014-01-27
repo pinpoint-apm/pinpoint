@@ -17,6 +17,7 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
 import com.nhn.pinpoint.common.util.TimeSlot;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -40,6 +41,7 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
 	private AcceptedTimeService acceptedTimeService;
 
     @Autowired
+    @Qualifier("calleeMerge")
     private RowKeyMerge rowKeyMerge;
 
 	private final boolean useBulk;

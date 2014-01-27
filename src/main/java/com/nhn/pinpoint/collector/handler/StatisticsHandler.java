@@ -2,6 +2,7 @@ package com.nhn.pinpoint.collector.handler;
 
 import com.nhn.pinpoint.collector.dao.ApplicationMapStatisticsCalleeDao;
 import com.nhn.pinpoint.collector.dao.ApplicationMapStatisticsCallerDao;
+import com.nhn.pinpoint.collector.dao.ApplicationMapStatisticsResponseTimeDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,9 @@ public class StatisticsHandler {
 
 	@Autowired
 	private ApplicationMapStatisticsCallerDao applicationMapStatisticsCallerDao;
+
+    @Autowired
+    private ApplicationMapStatisticsResponseTimeDao applicationMapStatisticsResponseTimeDao;
 
     /**
      * tomcat에서 mysql을 호출하였을 경우 아래와 같이 로그가 남는다. <br/>
@@ -54,4 +58,8 @@ public class StatisticsHandler {
 	public void updateCallee(String calleeApplicationName, short calleeServiceType, String callerApplicationName, short callerServiceType, String callerHost, int elapsed, boolean isError) {
 		applicationMapStatisticsCalleeDao.update(calleeApplicationName, calleeServiceType, callerApplicationName, callerServiceType, callerHost, elapsed, isError);
 	}
+
+    public void updateResponseTime(String applicationName, short serviceType, String agentId, int elapsed, boolean isError) {
+        applicationMapStatisticsResponseTimeDao.received(applicationName, serviceType, agentId, elapsed, isError);
+    }
 }

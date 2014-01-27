@@ -14,9 +14,16 @@ import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_MAP_STATISTI
 /**
  * @author emeroad
  */
-@Component
 public class RowKeyMerge {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final byte[] family;
+
+    public RowKeyMerge(byte[] family) {
+        if (family == null) {
+            throw new NullPointerException("family must not be null");
+        }
+        this.family = Arrays.copyOf(family, family.length);
+    }
 
     public  List<Increment> createBulkIncrement(Map<RowInfo, ConcurrentCounterMap.LongAdder> data) {
         if (data.isEmpty()) {
@@ -38,7 +45,7 @@ public class RowKeyMerge {
         RowKey rowKey = rowKeyEntry.getKey();
         final Increment increment = new Increment(rowKey.getRowKey());
         for(ColumnName columnName : rowKeyEntry.getValue()) {
-            increment.addColumn(APPLICATION_MAP_STATISTICS_CALLER_CF_COUNTER, columnName.getColumnName(), columnName.getCallCount());
+            increment.addColumn(family, columnName.getColumnName(), columnName.getCallCount());
         }
         logger.trace("create increment row:{}, column:{}", rowKey, rowKeyEntry.getValue());
         return increment;
