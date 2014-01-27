@@ -526,8 +526,8 @@ var BigScatterChart = $.Class({
             .append('<input type="text" name="' + sYMin + '" id="' + sYMin + '" class="input"/>')
             .append('<label for="' + sYMax + '" class="label">Max of Y axis</label>')
             .append('<input type="text" name="' + sYMax + '" id="' + sYMax + '" class="input"/>')
-            .append(this._welConfigApply = $('<button type="button" class="apply btn btn-small">Apply</button>'))
-            .append(this._welConfigCancel = $('<button type="button" class="cancel btn btn-small">Cancel</button>'));
+            .append(this._welConfigApply = $('<button type="button" class="apply btn btn-default btn-xs">Apply</button>'))
+            .append(this._welConfigCancel = $('<button type="button" class="cancel btn btn-default btn-xs">Cancel</button>'));
 
         this._welConfigApply.click(function () {
             var nYMin = parseInt($('#' + sYMin).val(), 10),
