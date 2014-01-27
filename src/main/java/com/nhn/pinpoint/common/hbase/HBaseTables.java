@@ -6,7 +6,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 /**
  * @author emeroad
  */
-public class HBaseTables {
+public final class HBaseTables {
 	
 	public static final int APPLICATION_NAME_MAX_LEN = PinpointConstants.APPLICATION_NAME_MAX_LEN;
     public static final int AGENT_NAME_MAX_LEN = PinpointConstants.AGENT_NAME_MAX_LEN;
@@ -53,7 +53,10 @@ public class HBaseTables {
 
 	public static final String APPLICATION_MAP_STATISTICS_CALLEE = "ApplicationMapStatisticsCallee";
 	public static final byte[] APPLICATION_MAP_STATISTICS_CALLEE_CF_COUNTER = Bytes.toBytes("C");
-	
+
+    public static final String APPLICATION_MAP_STATISTICS_SELF = "ApplicationMapStatisticsSelf";
+    public static final byte[] APPLICATION_MAP_STATISTICS_SELF_CF_COUNTER = Bytes.toBytes("C");
+
 	public static final String HOST_APPLICATION_MAP = "HostApplicationMap";
 	public static final byte[] HOST_APPLICATION_MAP_CF_MAP = Bytes.toBytes("M");
 

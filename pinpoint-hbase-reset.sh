@@ -46,6 +46,8 @@ create 'ApplicationTraceIndex', { NAME => 'I', TTL => 5184000  }, {SPLITS=>["\x0
 
 create 'ApplicationMapStatisticsCaller', { NAME => 'C', TTL => 5184000, VERSION => 1 }
 create 'ApplicationMapStatisticsCallee', { NAME => 'C', TTL => 5184000, VERSION => 1 }
+create 'ApplicationMapStatisticsSelf', { NAME => 'C', TTL => 5184000, VERSION => 1 }
+
 create 'ApplicationStatistics', { NAME => 'C', TTL => 5184000, VERSION => 1 }
 create 'HostApplicationMap', { NAME => 'M', TTL => 5184000, VERSION => 1 }
 
