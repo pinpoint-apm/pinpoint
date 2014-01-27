@@ -13,7 +13,7 @@ pinpointApp.constant('scatterConfig', {
         nWidth: 400,
         nHeight: 250,
         nXMin: 0, nXMax: 1000,
-        nYMin: 0, nYMax: 1000,
+        nYMin: 0, nYMax: 10000,
         nZMin: 0, nZMax: 5,
         nBubbleSize: 3,
         sXLabel: '',
