@@ -108,7 +108,7 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
                 .setImageType(node.category)
                 .setTitle(node.text);
 
-            if (node.category === 'TOMCAT') {
+            if (node.category === 'TOMCAT' || node.category === 'BLOC') {
                 $scope.hasScatter = true;
                 $scope.$broadcast('scatter.initializeWithNode', node);
             } else if (node.category === 'UNKNOWN_GROUP') {

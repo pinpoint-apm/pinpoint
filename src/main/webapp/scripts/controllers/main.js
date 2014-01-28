@@ -99,7 +99,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
                 .setImageType(node.category)
                 .setTitle(node.text);
 
-            if (node.category === 'TOMCAT') {
+            if (node.category === 'TOMCAT' || node.category === 'BLOC') {
                 $scope.hasScatter = true;
                 $scope.$broadcast('scatter.initializeWithNode', node);
             } else if (node.category === 'UNKNOWN_GROUP') {
