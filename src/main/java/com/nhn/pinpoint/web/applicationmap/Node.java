@@ -3,6 +3,7 @@ package com.nhn.pinpoint.web.applicationmap;
 import java.util.*;
 
 import com.nhn.pinpoint.web.applicationmap.rawdata.HostList;
+import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
 import com.nhn.pinpoint.web.service.NodeId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,8 @@ public class Node implements JsonSerializable {
 
 	private final HostList hostList = new HostList();
 	private final Set<AgentInfoBo> agentSet = new HashSet<AgentInfoBo>();
+
+    private ResponseHistogram responseHistogram;
 	
 
 	public Node(NodeId id, String applicationName, ServiceType serviceType, Set<AgentInfoBo> agentSet) {
@@ -41,6 +44,15 @@ public class Node implements JsonSerializable {
     }
 
     Node(NodeId id, String applicationName, ServiceType serviceType, HostList hostList, Set<AgentInfoBo> agentSet) {
+        if (id == null) {
+            throw new NullPointerException("id must not be null");
+        }
+        if (applicationName == null) {
+            throw new NullPointerException("applicationName must not be null");
+        }
+        if (serviceType == null) {
+            throw new NullPointerException("serviceType must not be null");
+        }
         logger.debug("create node id={}, applicationName={}, serviceType={}, agentSet={}", id, applicationName, serviceType, agentSet);
         this.id = id;
         this.applicationName = getApplicationName(applicationName, serviceType);

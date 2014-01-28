@@ -37,6 +37,10 @@ public class ResponseHistogram implements JsonSerializable {
 		this.values = histogramSchema.createNode();
 	}
 
+    public ResponseHistogram(short serviceType) {
+        this(ServiceType.findServiceType(serviceType));
+    }
+
 	// TODO slot번호를 이 클래스에서 추출해야 할 것 같긴 함.
 	public void addSample(short slot, long value) {
 		totalCount += value;
