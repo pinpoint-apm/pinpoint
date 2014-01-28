@@ -37,6 +37,7 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                     scope.agentInfoTemplate = 'views/agentInfoMain.html';
                     scope.agent = agent;
                     oNavbarVo = navbarVo;
+                    scope.memoryGroup = null;
 
                     scope.info = [
                         { key: 'Agent Id', val: agent.agentId },
@@ -182,13 +183,16 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                         scope.agentStat = result;
                         if (result.type) {
                             scope.info.push({key: 'JVM GC Type', val: result.type});
-                        }
-                        oProgressBar.setLoading(80);
-                        d3MakeGcCharts(result);
-                        $timeout(function () {
-                            oProgressBar.setLoading(100);
+                            oProgressBar.setLoading(80);
+                            d3MakeGcCharts(result);
+                            $timeout(function () {
+                                oProgressBar.setLoading(100);
+                                oProgressBar.stopLoading();
+                            }, 700);
+                        } else {
                             oProgressBar.stopLoading();
-                        }, 700);
+                        }
+
                         scope.$digest();
                     });
                 };
