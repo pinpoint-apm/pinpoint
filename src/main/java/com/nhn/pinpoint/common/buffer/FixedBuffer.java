@@ -250,6 +250,18 @@ public class FixedBuffer implements Buffer {
         return readString(size);
     }
 
+    @Override
+    public String read4PrefixedString() {
+        final int size = readInt();
+        if (size == -1) {
+            return null;
+        }
+        if (size == 0) {
+            return "";
+        }
+        return readString(size);
+    }
+
 
     private String readString(final int size) {
         final String s = newString(size);

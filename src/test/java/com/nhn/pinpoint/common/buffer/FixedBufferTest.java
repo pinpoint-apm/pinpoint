@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.common.buffer;
 
 import junit.framework.Assert;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +59,31 @@ public class FixedBufferTest {
 
     @Test
     public void testReadPrefixedString() throws Exception {
+
+    }
+
+    @Test
+    public void testRead4PrefixedString() throws Exception {
+        String value = "test";
+        byte[] length = Bytes.toBytes(value.length());
+        byte[] string = Bytes.toBytes(value);
+        byte[] result = Bytes.add(length, string);
+
+
+        Buffer buffer = new FixedBuffer(result);
+        String prefixedString = buffer.read4PrefixedString();
+        Assert.assertEquals(prefixedString, value);
+
+    }
+
+    @Test
+    public void testRead4PrefixedString_Null() throws Exception {
+        byte[] length = Bytes.toBytes(-1);
+
+
+        Buffer buffer = new FixedBuffer(length);
+        String prefixedString = buffer.read4PrefixedString();
+        Assert.assertEquals(prefixedString, null);
 
     }
 

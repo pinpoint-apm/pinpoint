@@ -90,6 +90,8 @@ public interface Buffer {
 
     String readPrefixedString();
 
+    String read4PrefixedString();
+
     byte[] getBuffer();
 
     byte[] getInternalBuffer();
