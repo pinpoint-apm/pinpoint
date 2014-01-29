@@ -57,6 +57,9 @@
     <bean id="jsonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper">
     </bean>
 
+
+    <bean id="hTable" class="com.nhn.pinpoint.common.hbase.HBaseTables"></bean>
+
     <bean id="callerMerge" class="com.nhn.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
         <constructor-arg value="#{hTable.APPLICATION_MAP_STATISTICS_CALLER_CF_COUNTER}"/>
     </bean>
