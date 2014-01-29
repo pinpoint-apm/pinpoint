@@ -31,16 +31,16 @@ public class ResponseHistogram {
         this.values =  this.histogramSchema.createNode();
 	}
 
-	public void addSample(short slot, long value) {
+	public void addSample(short slot, long count) {
 		if (slot == 0) { // 0 is slow slot
-			slowCount += value;
+			slowCount += count;
 		}
 
         int histogramSlotIndex = histogramSchema.getHistogramSlotIndex(slot);
         if (histogramSlotIndex == -1) {
             return;
         }
-        values[histogramSlotIndex] += value;
+        values[histogramSlotIndex] += count;
 	}
 
 	public void addSample(long elapsed) {

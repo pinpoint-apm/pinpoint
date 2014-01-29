@@ -25,4 +25,8 @@ public class RawResponseTime {
         this.timeSlot = timeSlot;
         this.histogram = new ResponseHistogram(applicationServiceType);
     }
+
+    public ResponseHistogram getHistogram() {
+        return histogram;
+    }
 }
