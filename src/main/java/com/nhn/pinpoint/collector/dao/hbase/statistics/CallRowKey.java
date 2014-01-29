@@ -1,14 +1,17 @@
 package com.nhn.pinpoint.collector.dao.hbase.statistics;
 
+import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
+import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
+import com.nhn.pinpoint.common.util.TimeUtils;
 
 /**
  * @author emeroad
  */
 public class CallRowKey implements RowKey {
-    private String callApplicationName;
-    private short callServiceType;
-    private long rowTimeSlot;
+    private final String callApplicationName;
+    private final short callServiceType;
+    private final long rowTimeSlot;
 
     // 주의 hash 값 캐시는 equals/hashCode 생성시 넣으면 안됨.
     private int hash;
@@ -22,6 +25,10 @@ public class CallRowKey implements RowKey {
         this.rowTimeSlot = rowTimeSlot;
     }
     public byte[] getRowKey() {
+        final Buffer buffer = new AutomaticBuffer();
+        buffer.putPrefixedString(callApplicationName);
+        buffer.put(callServiceType);
+        buffer.put(TimeUtils.reverseCurrentTimeMillis(rowTimeSlot));
         return ApplicationMapStatisticsUtils.makeRowKey(callApplicationName, callServiceType, rowTimeSlot);
     }
 

@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.collector.dao.hbase;
 
-import com.nhn.pinpoint.collector.dao.ApplicationMapStatisticsResponseTimeDao;
+import com.nhn.pinpoint.collector.dao.MapResponseTimeDao;
 import com.nhn.pinpoint.collector.dao.hbase.statistics.*;
 import com.nhn.pinpoint.collector.util.AcceptedTimeService;
 import com.nhn.pinpoint.collector.util.ConcurrentCounterMap;
@@ -27,7 +27,7 @@ import static com.nhn.pinpoint.common.hbase.HBaseTables.*;
  * @author emeroad
  */
 @Repository
-public class HbaseApplicationMapStatisticsResponseTimeDao implements ApplicationMapStatisticsResponseTimeDao {
+public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -45,11 +45,11 @@ public class HbaseApplicationMapStatisticsResponseTimeDao implements Application
 
     private final ConcurrentCounterMap<RowInfo> counter = new ConcurrentCounterMap<RowInfo>();
 
-	public HbaseApplicationMapStatisticsResponseTimeDao() {
+	public HbaseMapResponseTimeDao() {
         this(true);
 	}
 
-	public HbaseApplicationMapStatisticsResponseTimeDao(boolean useBulk) {
+	public HbaseMapResponseTimeDao(boolean useBulk) {
 		this.useBulk = useBulk;
 	}
 

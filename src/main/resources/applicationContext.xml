@@ -51,7 +51,7 @@
     		<beans:list>
     			<beans:ref bean="hbaseApplicationMapStatisticsCallerDao"/>
     			<beans:ref bean="hbaseApplicationMapStatisticsCalleeDao"/>
-                <beans:ref bean="hbaseApplicationMapStatisticsResponseTimeDao"/>
+                <beans:ref bean="hbaseMapResponseTimeDao"/>
     		</beans:list>
     	</beans:property>
         <property name="flushPeriod" value="${statistics.flushPeriod}"/>
