@@ -11,6 +11,6 @@ import java.util.Map;
  * 
  */
 public interface MapResponseDao {
-	public List<TransactionFlowStatistics> selectResponseTime(String applicationName, short applicationServiceType, long from, long to);
+	List<TransactionFlowStatistics> selectResponseTime(String applicationName, short applicationServiceType, long from, long to);
 
 }
