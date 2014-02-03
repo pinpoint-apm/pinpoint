@@ -8,22 +8,25 @@ import java.util.List;
  */
 public class HistogramSchema {
 
-    public static final HistogramSlot SLOW_SLOT = new HistogramSlot(0, ResponseCode.SLOW);
-    public static final HistogramSlot ERROR_SLOT = new HistogramSlot(-1, ResponseCode.ERROR);
+    public static final short SLOW_SLOT_TIME = 0;
+    public static final HistogramSlot SLOW_SLOT = new HistogramSlot(SLOW_SLOT_TIME, ResponseCode.SLOW);
+
+    public static final short ERROR_SLOT_TIME = -1;
+    public static final HistogramSlot ERROR_SLOT = new HistogramSlot(ERROR_SLOT_TIME, ResponseCode.ERROR);
     
     public static final HistogramSchema FAST;
     public static final HistogramSchema NORMAL;
 
     static {
         FAST = new HistogramSchema(1);
-        FAST.addHistogramSlot(new HistogramSlot(100, ResponseCode.NORMAL));
-        FAST.addHistogramSlot(new HistogramSlot(300, ResponseCode.NORMAL));
-        FAST.addHistogramSlot(new HistogramSlot(500, ResponseCode.WARN));
+        FAST.addHistogramSlot(new HistogramSlot((short)100, ResponseCode.NORMAL));
+        FAST.addHistogramSlot(new HistogramSlot((short)300, ResponseCode.NORMAL));
+        FAST.addHistogramSlot(new HistogramSlot((short)500, ResponseCode.WARN));
 
         NORMAL = new HistogramSchema(2);
-        NORMAL.addHistogramSlot(new HistogramSlot(1000, ResponseCode.NORMAL));
-        NORMAL.addHistogramSlot(new HistogramSlot(3000, ResponseCode.NORMAL));
-        NORMAL.addHistogramSlot(new HistogramSlot(5000, ResponseCode.WARN));
+        NORMAL.addHistogramSlot(new HistogramSlot((short)1000, ResponseCode.NORMAL));
+        NORMAL.addHistogramSlot(new HistogramSlot((short)3000, ResponseCode.NORMAL));
+        NORMAL.addHistogramSlot(new HistogramSlot((short)5000, ResponseCode.WARN));
     }
     // ** histogramSlot list는 항상 정렬된 list 이어야 한다.
     // 지금은 그냥 사람이 한다.
