@@ -161,11 +161,11 @@ public class LinkStatistics {
 		return timeseriesValueList;
 	}
 
-	public int getSlow() {
+	public short getSlow() {
 		return SLOT_SLOW;
 	}
 
-	public int getError() {
+	public short getError() {
 		return SLOT_ERROR;
 	}
 
