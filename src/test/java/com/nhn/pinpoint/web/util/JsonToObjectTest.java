@@ -20,7 +20,8 @@ public class JsonToObjectTest {
 		json.append("\"TAT\" : \"TO_APPLICATION_TYPE\",");
 		json.append("\"RF\" : 0,");
 		json.append("\"RT\" : 1000,");
-		json.append("\"IE\" : 1");
+		json.append("\"IE\" : 1,");
+		json.append("\"UP\" : \"/**\"");
 		json.append("}");
 
 		try {
@@ -36,12 +37,12 @@ public class JsonToObjectTest {
 			Assert.assertEquals(1000, readValue.get("RT"));
 			Assert.assertEquals(1, readValue.get("IE"));
 			
-			
 			Long rt = readValue.containsKey("RT") ? Long.valueOf(readValue.get("RT").toString()) : null;
 			
 			System.out.println(rt);
 		} catch (Exception e) {
 			e.printStackTrace();
+			Assert.fail(e.getMessage());
 		}
 	}
 	
