@@ -20,8 +20,8 @@ public class LinkStatistics {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private static final int SLOT_SLOW = Integer.MAX_VALUE - 1;
-	private static final int SLOT_ERROR = Integer.MAX_VALUE;
+	private static final short SLOT_SLOW = Short.MAX_VALUE - 1;
+	private static final short SLOT_ERROR = Short.MAX_VALUE;
 
 //	/**
 //	 * <pre>
@@ -38,7 +38,7 @@ public class LinkStatistics {
 	 * </pre>
 	 */
 	private final List<SortedMap<Long, Long>> timeseriesValueList = new ArrayList<SortedMap<Long, Long>>();
-	private final SortedMap<Integer, Integer> timeseriesSlotIndex = new TreeMap<Integer, Integer>();
+	private final SortedMap<Short, Integer> timeseriesSlotIndex = new TreeMap<Short, Integer>();
 
 	private final long from;
 	private final long to;
@@ -153,7 +153,7 @@ public class LinkStatistics {
 		return failedCount;
 	}
 
-	public SortedMap<Integer, Integer> getTimeseriesSlotIndex() {
+	public SortedMap<Short, Integer> getTimeseriesSlotIndex() {
 		return timeseriesSlotIndex;
 	}
 
