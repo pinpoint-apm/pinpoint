@@ -205,7 +205,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
                     stat = new TransactionFlowStatistics(srcNode.getName(), srcNode.getServiceType(), destNode.getName(), destNode.getServiceType());
                 }
 
-                final int slot = getHistogramSlot(span, destNode.getServiceType());
+                final short slot = getHistogramSlotTime(span, destNode.getServiceType());
 
                 stat.addSample(destNode.getName(), destNode.getServiceType().getCode(), (short) slot, 1);
 
@@ -275,7 +275,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
                 statistics = new TransactionFlowStatistics(srcNode.getName(), srcNode.getServiceType(), dest, destServiceType);
             }
 
-            final int slot2 = getHistogramSlot(spanEvent, destServiceType);
+            final int slot2 = getHistogramSlotTime(spanEvent, destServiceType);
 
             // FIXME
             // stat2.addSample((dest == null) ? spanEvent.getEndPoint() : dest, destServiceType.getCode(), (short) slot2, 1);
@@ -307,16 +307,16 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
         }
     }
 
-    private int getHistogramSlot(SpanEventBo spanEvent, ServiceType serviceType) {
-        return getHistogramSlot(spanEvent.hasException(), spanEvent.getEndElapsed(), serviceType);
+    private short getHistogramSlotTime(SpanEventBo spanEvent, ServiceType serviceType) {
+        return getHistogramSlotTime(spanEvent.hasException(), spanEvent.getEndElapsed(), serviceType);
     }
 
-    private int getHistogramSlot(SpanBo span, ServiceType serviceType) {
+    private short getHistogramSlotTime(SpanBo span, ServiceType serviceType) {
         boolean allException = span.getErrCode() != 0;
-        return getHistogramSlot(allException, span.getElapsed(), serviceType);
+        return getHistogramSlotTime(allException, span.getElapsed(), serviceType);
     }
 
-    private int getHistogramSlot(boolean hasException, int elapsedTime, ServiceType serviceType) {
+    private short getHistogramSlotTime(boolean hasException, int elapsedTime, ServiceType serviceType) {
         if (hasException) {
             return HistogramSchema.ERROR_SLOT.getSlotTime();
         } else {

@@ -37,24 +37,24 @@ public class ResponseHistogram implements JsonSerializable {
 		this.values = histogramSchema.createNode();
 	}
 
-    public ResponseHistogram(short serviceType) {
+    public ResponseHistogram(final short serviceType) {
         this(ServiceType.findServiceType(serviceType));
     }
 
 	// TODO slot번호를 이 클래스에서 추출해야 할 것 같긴 함.
-	public void addSample(short slot, long value) {
+	public void addSample(final short slotTime, final long value) {
 		totalCount += value;
 		
-		if (slot == HistogramSchema.SLOW_SLOT.getSlotTime()) { // 0 is slow slot
+		if (slotTime == HistogramSchema.SLOW_SLOT.getSlotTime()) { // 0 is slow slotTime
 			slowCount += value;
-		} else if (slot == HistogramSchema.ERROR_SLOT.getSlotTime()) { // -1 is error
+		} else if (slotTime == HistogramSchema.ERROR_SLOT.getSlotTime()) { // -1 is error
 			errorCount += value;
 			return;
 		}
 
-		final int histogramSlotIndex = histogramSchema.getHistogramSlotIndex(slot);
+		final int histogramSlotIndex = histogramSchema.getHistogramSlotIndex(slotTime);
 		if (histogramSlotIndex == -1) {
-			logger.trace("Can't find slot={} value={} serviceType={}", slot, value, serviceType);
+			logger.trace("Can't find slotTime={} value={} serviceType={}", slotTime, value, serviceType);
 			return;
 		}
 		values[histogramSlotIndex] += value;
