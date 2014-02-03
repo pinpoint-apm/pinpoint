@@ -7,22 +7,28 @@ import com.nhn.pinpoint.common.bo.SpanBo;
 import com.nhn.pinpoint.common.bo.SpanEventBo;
 
 /**
+ * FIXME 데모에 사용하려고 급조한 필터
  * 
  * @author netspider
  * 
  */
-public class FromToResponseFilter implements Filter {
+@Deprecated
+public class FromToResponseFilter1 implements Filter {
+
+	public static final String ID = "2";
+	
+	private static final String ERROR = "error";
 
 	private final List<ServiceType> fromServiceCode;
 	private final String fromApplicationName;
 	private final List<ServiceType> toServiceCode;
 	private final String toApplicationName;
 
-	private final Long fromResponseTime;
-	private final Long toResponseTime;
-	private final Boolean includeFailed;
+	private final long fromResponseTime;
+	private final long toResponseTime;
+	private final boolean findError;
 
-	public FromToResponseFilter(String fromServiceType, String fromApplicationName, String toServiceType, String toApplicationName, Long fromResponseTime, Long toResponseTime, Boolean includeFailed) {
+	public FromToResponseFilter1(String fromServiceType, String fromApplicationName, String toServiceType, String toApplicationName, String condition) {
 		if (fromApplicationName == null) {
 			throw new NullPointerException("fromApplicationName must not be null");
 		}
@@ -42,24 +48,37 @@ public class FromToResponseFilter implements Filter {
 		}
 		this.toApplicationName = toApplicationName;
 
-		this.fromResponseTime = fromResponseTime;
-		this.toResponseTime = toResponseTime;
-		this.includeFailed = includeFailed;
+		if (condition == null) {
+			throw new NullPointerException("compare condition must not be null");
+		}
+
+		// FIXME 뭔가 엉성하긴 하지만..
+		String[] conditions = condition.split(",");
+		if (conditions.length == 2) { // from,to
+			findError = false;
+			fromResponseTime = Long.valueOf(conditions[0]);
+			toResponseTime = Long.valueOf(conditions[1]);
+		} else if (conditions.length == 3) { // error,from,to
+			findError = ERROR.equals(conditions[0]);
+			if (!findError) {
+				throw new IllegalArgumentException("invalid conditions:" + condition);
+			}
+			fromResponseTime = Long.valueOf(conditions[1]);
+			toResponseTime = Long.valueOf(conditions[2]);
+		} else if (conditions.length == 1) { // error only
+			findError = ERROR.equals(conditions[0]);
+			if (!findError) {
+				throw new IllegalArgumentException("invalid conditions:" + condition);
+			}
+			fromResponseTime = 0;
+			toResponseTime = Long.MAX_VALUE;
+		} else {
+			throw new IllegalArgumentException("invalid conditions:" + condition);
+		}
 	}
 
-	private boolean checkResponseCondition(long elapsed, boolean hasError) {
-		boolean result = true;
-		if (fromResponseTime != null && toResponseTime != null) {
-			result &= (elapsed >= fromResponseTime) && (elapsed <= toResponseTime);
-		}
-		if (includeFailed != null) {
-			if (includeFailed) {
-				result &= hasError;
-			} else {
-				result &= !hasError;
-			}
-		}
-		return result;
+	private boolean checkResponseCondition(long elapsed) {
+		return (elapsed >= fromResponseTime) && (elapsed <= toResponseTime);
 	}
 
 	@Override
@@ -67,7 +86,13 @@ public class FromToResponseFilter implements Filter {
 		if (includeServiceType(fromServiceCode, ServiceType.USER)) {
 			for (SpanBo span : transaction) {
 				if (span.isRoot() && includeServiceType(toServiceCode, span.getServiceType()) && toApplicationName.equals(span.getApplicationId())) {
-					return checkResponseCondition(span.getElapsed(), span.getErrCode() > 0);
+					if (findError) {
+						// FIXME getErrCode로 확인?? hasException으로 확인?? 어떤게 맞지??
+						// 서버 맵 스펙하고 맞춰면 될 듯.
+						return span.getErrCode() > 0 && checkResponseCondition(span.getElapsed());
+					} else {
+						return span.getErrCode() == 0 && checkResponseCondition(span.getElapsed());
+					}
 				}
 			}
 		} else if (includeUnknown(toServiceCode)) {
@@ -80,7 +105,11 @@ public class FromToResponseFilter implements Filter {
 					for (SpanEventBo event : eventBoList) {
 						// client가 있는지만 확인.
 						if (event.getServiceType().isRpcClient() && toApplicationName.equals(event.getDestinationId())) {
-							return event.hasException() && checkResponseCondition(event.getEndElapsed(), event.hasException());
+							if (findError) {
+								return event.hasException() && checkResponseCondition(event.getEndElapsed());
+							} else {
+								return !event.hasException() && checkResponseCondition(event.getEndElapsed());
+							}
 						}
 					}
 				}
@@ -100,7 +129,13 @@ public class FromToResponseFilter implements Filter {
 						}
 
 						if (includeServiceType(toServiceCode, destSpan.getServiceType()) && toApplicationName.equals(destSpan.getApplicationId())) {
-							return destSpan.getErrCode() > 0 && checkResponseCondition(destSpan.getElapsed(), destSpan.getErrCode() > 0);
+							if (findError) {
+								// FIXME getErrCode로 확인?? hasException으로 확인??
+								// 어떤게 맞지?? 서버 맵 스펙하고 맞춰면 될 듯.
+								return destSpan.getErrCode() > 0 && checkResponseCondition(destSpan.getElapsed());
+							} else {
+								return destSpan.getErrCode() == 0 && checkResponseCondition(destSpan.getElapsed());
+							}
 						}
 					}
 				}
@@ -114,7 +149,11 @@ public class FromToResponseFilter implements Filter {
 					}
 					for (SpanEventBo event : eventBoList) {
 						if (includeServiceType(toServiceCode, event.getServiceType()) && toApplicationName.equals(event.getDestinationId())) {
-							return checkResponseCondition(event.getEndElapsed(), event.hasException());
+							if (findError) {
+								return event.hasException() && checkResponseCondition(event.getEndElapsed());
+							} else {
+								return !event.hasException() && checkResponseCondition(event.getEndElapsed());
+							}
 						}
 					}
 				}

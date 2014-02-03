@@ -13,7 +13,6 @@ import com.nhn.pinpoint.common.bo.SpanEventBo;
  */
 public class FromToFilter implements Filter {
 
-	public static final String ID = "1";
 	private final List<ServiceType> fromServiceCode;
     private final String fromApplicationName;
     private final List<ServiceType> toServiceCode;

@@ -1,11 +1,14 @@
 package com.nhn.pinpoint.web.filter;
 
 import org.apache.commons.lang.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -18,65 +21,136 @@ public class DefaultFilterBuilder implements FilterBuilder {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static final Pattern FILTER_ENTRY_DELIMETER = Pattern.compile(Filter.FILTER_ENTRY_DELIMETER);
-    private static final Pattern FILTER_DELIMETER = Pattern.compile(Filter.FILTER_DELIMETER);
+	private static final Pattern FILTER_ENTRY_DELIMETER = Pattern.compile(Filter.FILTER_ENTRY_DELIMETER);
+	private static final Pattern FILTER_DELIMETER = Pattern.compile(Filter.FILTER_DELIMETER);
 
-    @Override
+	// FIXME UI 개발 완료 후 리팩토링.
+	private static final String FROM_APPLICATION = "fa";
+	private static final String FROM_SERVICE_TYPE = "fst";
+	private static final String TO_APPLICATION = "ta";
+	private static final String TO_SERVICE_TYPE = "tst";
+	private static final String RESPONSE_FROM = "rf";
+	private static final String RESPONSE_TO = "rt";
+	private static final String INCLUDE_EXCEPTION = "ie";
+	private static final String REQUEST_URL_PATTERN = "url";
+
+	@Override
 	public Filter build(String filterText) {
 		if (StringUtils.isEmpty(filterText)) {
 			return Filter.NONE;
 		}
-
 		logger.debug("build filter from string. {}", filterText);
 
-		final String[] parsedFilterString = FILTER_DELIMETER.split(filterText);
-
-		if (parsedFilterString.length == 1) {
-			return makeSingleFilter(parsedFilterString[0]);
+		// FIXME 일단 임시로... UI 개발 완료 후 리팩토링.
+		if (filterText.startsWith("{")) {
+			return makeFilterFromJson(filterText);
 		} else {
-			return makeChainedFilter(parsedFilterString);
+			final String[] parsedFilterString = FILTER_DELIMETER.split(filterText);
+			if (parsedFilterString.length == 1) {
+				return makeSingleFilter(parsedFilterString[0]);
+			} else {
+				return makeChainedFilter(parsedFilterString);
+			}
 		}
 	}
 
+	// FIXME UI 개발 완료 후 리팩토링.
+	private Filter makeFilterFromJson(String jsonText) {
+		if (jsonText == null) {
+			throw new NullPointerException("jsonText must not be null");
+		}
+
+		FilterChain chain = new FilterChain();
+
+		ObjectMapper om = new ObjectMapper();
+
+		try {
+			Map<String, Object> value = om.readValue(jsonText, new TypeReference<Map<String, Object>>() {
+			});
+
+			String fromApplicationName = value.get(FROM_APPLICATION).toString();
+			String fromServiceType = value.get(FROM_SERVICE_TYPE).toString();
+
+			String toApplicationName = value.get(TO_APPLICATION).toString();
+			String toServiceType = value.get(TO_SERVICE_TYPE).toString();
+
+			if (StringUtils.isEmpty(fromApplicationName) || StringUtils.isEmpty(fromServiceType) || StringUtils.isEmpty(toApplicationName) || StringUtils.isEmpty(toServiceType)) {
+				throw new IllegalArgumentException("invalid json " + jsonText);
+			}
+
+			Long fromResponseTime = value.containsKey(RESPONSE_FROM) ? Long.valueOf(value.get(RESPONSE_FROM).toString()) : null;
+			Long toResponseTime = value.containsKey(RESPONSE_TO) ? Long.valueOf(value.get(RESPONSE_TO).toString()) : null;
+
+			if ((fromResponseTime == null && toResponseTime != null) || (fromResponseTime != null && toResponseTime == null)) {
+				throw new IllegalArgumentException("invalid json " + jsonText);
+			}
+
+			Boolean includeFailed = value.containsKey(INCLUDE_EXCEPTION) ? Boolean.valueOf(value.get(INCLUDE_EXCEPTION).toString()) : null;
+
+			chain.addFilter(new FromToResponseFilter(fromServiceType, fromApplicationName, toServiceType, toApplicationName, fromResponseTime, toResponseTime, includeFailed));
+
+			String urlPattern = value.get(REQUEST_URL_PATTERN).toString();
+			if (!StringUtils.isEmpty(urlPattern)) {
+				chain.addFilter(new URLPatternFilter(fromServiceType, fromApplicationName, toServiceType, toApplicationName, urlPattern));
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			return null;
+		}
+		return chain;
+	}
+
+	@Deprecated
 	private Filter makeSingleFilter(String filterText) {
 		if (filterText == null) {
 			throw new NullPointerException("filterText must not be null");
 		}
 		logger.debug("make filter from string. {}", filterText);
-		final String[] element = FILTER_ENTRY_DELIMETER.split(filterText);
-		final String requiredFilterId = element[0];
 
-		if (FromToFilter.ID.equals(requiredFilterId)) {
-			if (element.length == 5) {
-				return new FromToFilter(element[1], element[2], element[3], element[4]);
+		final String[] element = FILTER_ENTRY_DELIMETER.split(filterText);
+
+		// FIXME 이것은 js 수정되기 전에 임시로 사용되는 코드.
+		if (element.length == 4) {
+			return new FromToFilter(element[0], element[1], element[2], element[3]);
+		} else if (element.length == 5) {
+			String condition = element[4];
+			Boolean includeFailed = null;
+			long fromResponseTime;
+			long toResponseTime;
+
+			String[] conditions = condition.split(",");
+			if (conditions.length == 2) { // from,to
+				fromResponseTime = Long.valueOf(conditions[0]);
+				toResponseTime = Long.valueOf(conditions[1]);
+			} else if (conditions.length == 3) { // error,from,to
+				boolean findError = "error".equals(conditions[0]);
+				if (!findError) {
+					throw new IllegalArgumentException("invalid conditions:" + condition);
+				}
+				includeFailed = true;
+				fromResponseTime = Long.valueOf(conditions[1]);
+				toResponseTime = Long.valueOf(conditions[2]);
+			} else if (conditions.length == 1) { // error only
+				boolean findError = "error".equals(conditions[0]);
+				if (!findError) {
+					throw new IllegalArgumentException("invalid conditions:" + condition);
+				}
+				includeFailed = true;
+				fromResponseTime = 0;
+				toResponseTime = Long.MAX_VALUE;
+			} else {
+				throw new IllegalArgumentException("invalid conditions:" + condition);
 			}
-		} else if (FromToFilter.ID.equals(requiredFilterId)) {
-			if (element.length == 6) {
-				return new FromToResponseFilter(element[1], element[2], element[3], element[4], element[5]);
-			}
-		} else if (FromToFilter.ID.equals(requiredFilterId)) {
-			if (element.length == 6) {
-				return new URLPatternFilter(element[1], element[2], element[3], element[4], element[5]);
-			}
-		} else {
-			// FIXME 이것은 js 수정되기 전에 임시로 사용되는 코드.
-			if (element.length == 4) {
-				return new FromToFilter(element[0], element[1], element[2], element[3]);
-			} 
-			else if (element.length == 5) {
-				return new FromToResponseFilter(element[0], element[1], element[2], element[3], element[4]);
-			}
-			// FIXME 여기까지가 임시 코드, 아래 throw문만 남기고 제거하면 됨.
-			
-			throw new IllegalArgumentException("Invalid filterId:" + requiredFilterId);
+			return new FromToResponseFilter(element[0], element[1], element[2], element[3], fromResponseTime, toResponseTime, includeFailed);
 		}
 		throw new IllegalArgumentException("Invalid filterText:" + filterText);
 	}
 
+	@Deprecated
 	private Filter makeChainedFilter(String[] filterTexts) {
-        if (logger.isDebugEnabled()) {
-		    logger.debug("make chained filter. {}", Arrays.toString(filterTexts));
-        }
+		if (logger.isDebugEnabled()) {
+			logger.debug("make chained filter. {}", Arrays.toString(filterTexts));
+		}
 		FilterChain chain = new FilterChain();
 		for (String s : filterTexts) {
 			chain.addFilter(makeSingleFilter(s));

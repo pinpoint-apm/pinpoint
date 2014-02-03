@@ -14,8 +14,6 @@ import com.nhn.pinpoint.common.bo.SpanBo;
  */
 public class URLPatternFilter implements Filter {
 
-	public static final String ID = "3";
-
 	private final String urlPattern;
 	private final Filter fromToFilter;
 	private final AntPathMatcher matcher = new AntPathMatcher();
