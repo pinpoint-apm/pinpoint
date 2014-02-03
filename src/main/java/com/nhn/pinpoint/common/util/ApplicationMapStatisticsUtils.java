@@ -50,17 +50,17 @@ public class ApplicationMapStatisticsUtils {
         if (agentId == null) {
             agentId = "";
         }
-        byte[] slotNumber = Bytes.toBytes(columnSlotNumber);
-        byte[] agentIdBytes = Bytes.toBytes(agentId);
+        final byte[] slotNumber = Bytes.toBytes(columnSlotNumber);
+        final byte[] agentIdBytes = Bytes.toBytes(agentId);
 
         return BytesUtils.concat(slotNumber, agentIdBytes);
     }
 
 
     private static short findResponseHistogramSlotNo(short serviceType, int elapsed) {
-        HistogramSchema histogramSchema = ServiceType.findServiceType(serviceType).getHistogramSchema();
-        HistogramSlot histogramSlot = histogramSchema.findHistogramSlot(elapsed);
-        return (short) histogramSlot.getSlotTime();
+        final HistogramSchema histogramSchema = ServiceType.findServiceType(serviceType).getHistogramSchema();
+        final HistogramSlot histogramSlot = histogramSchema.findHistogramSlot(elapsed);
+        return histogramSlot.getSlotTime();
     }
 
     public static short getDestServiceTypeFromColumnName(byte[] bytes) {

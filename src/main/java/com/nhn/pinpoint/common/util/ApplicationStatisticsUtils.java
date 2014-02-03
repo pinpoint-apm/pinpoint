@@ -38,9 +38,9 @@ public class ApplicationStatisticsUtils {
     }
 
     private static short findResponseHistogramSlotNo(short serviceType, int elapsed) {
-		HistogramSchema histogramSchema = ServiceType.findServiceType(serviceType).getHistogramSchema();
-		HistogramSlot histogramSlot = histogramSchema.findHistogramSlot(elapsed);
-		return (short) histogramSlot.getSlotTime();
+		final HistogramSchema histogramSchema = ServiceType.findServiceType(serviceType).getHistogramSchema();
+		final HistogramSlot histogramSlot = histogramSchema.findHistogramSlot(elapsed);
+		return histogramSlot.getSlotTime();
 	}
 
 	/**
