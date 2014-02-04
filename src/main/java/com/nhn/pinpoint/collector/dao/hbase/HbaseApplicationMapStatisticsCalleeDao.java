@@ -115,7 +115,7 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
 
         Map<RowInfo, ConcurrentCounterMap.LongAdder> remove = this.counter.remove();
         List<Increment> merge = rowKeyMerge.createBulkIncrement(remove);
-        if (merge.size() != 0) {
+        if (!merge.isEmpty()) {
             if (logger.isDebugEnabled()) {
                 logger.debug("flush {} Increment:{}", this.getClass().getSimpleName(), merge.size());
             }

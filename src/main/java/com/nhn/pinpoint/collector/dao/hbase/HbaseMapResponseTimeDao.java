@@ -105,7 +105,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         // 일단 rowkey and column 별로 업데이트 치게 함. rowkey 별로 묶어서 보내야 될듯.
         Map<RowInfo,ConcurrentCounterMap.LongAdder> remove = this.counter.remove();
         List<Increment> merge = rowKeyMerge.createBulkIncrement(remove);
-        if (merge.size() != 0) {
+        if (!merge.isEmpty()) {
             if (logger.isDebugEnabled()) {
                 logger.debug("flush {} Increment:{}", this.getClass().getSimpleName(), merge.size());
             }
