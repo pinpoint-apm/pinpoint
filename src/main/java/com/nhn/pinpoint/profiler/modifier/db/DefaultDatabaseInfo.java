@@ -36,7 +36,7 @@ public class DefaultDatabaseInfo implements DatabaseInfo {
 	}
 
     private String merge(List<String> host) {
-        if (host.size() == 0) {
+        if (host.isEmpty()) {
             return "";
         }
         String single = host.get(0);

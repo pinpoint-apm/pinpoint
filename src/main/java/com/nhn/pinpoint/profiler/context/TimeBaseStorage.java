@@ -130,7 +130,7 @@ public class TimeBaseStorage implements Storage {
             spanEventList = storage;
             this.storage = null;
         }
-        if (spanEventList != null && spanEventList.size() != 0) {
+        if (spanEventList != null && !spanEventList.isEmpty()) {
             span.setSpanEventList((List) spanEventList);
         }
         dataSender.send(span);
