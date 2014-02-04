@@ -53,13 +53,13 @@ public class HistogramSchema {
 
 
     /**
-     * elapsed 기준으로 가장 적합한 슬롯을 찾는다.
-     * @param elapsed
+     * elapsedTime 기준으로 가장 적합한 슬롯을 찾는다.
+     * @param elapsedTime
      * @return
      */
-    public HistogramSlot findHistogramSlot(int elapsed) {
+    public HistogramSlot findHistogramSlot(int elapsedTime) {
         for (HistogramSlot slot : histogramSlotList) {
-            if (elapsed < slot.getSlotTime()) {
+            if (elapsedTime <= slot.getSlotTime()) {
                 return slot;
             }
         }
@@ -67,15 +67,15 @@ public class HistogramSchema {
     }
 
     /**
-     * elapsed 기준으로 가장 적합한 슬롯을 찾는다.
-     * @param elapsed
+     * elapsedTime 기준으로 가장 적합한 슬롯을 찾는다.
+     * @param elapsedTime
      * @return
      */
-    public int findHistogramSlotIndex(int elapsed) {
+    public int findHistogramSlotIndex(int elapsedTime) {
         final int size = histogramSlotList.size();
         for(int i = 0; i < size; i++) {
             HistogramSlot slot = histogramSlotList.get(i);
-            if (elapsed <= slot.getSlotTime()) {
+            if (elapsedTime <= slot.getSlotTime()) {
                 return i;
             }
         }
