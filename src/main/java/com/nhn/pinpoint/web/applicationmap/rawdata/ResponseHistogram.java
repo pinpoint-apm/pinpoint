@@ -42,22 +42,22 @@ public class ResponseHistogram implements JsonSerializable {
     }
 
 	// TODO slot번호를 이 클래스에서 추출해야 할 것 같긴 함.
-	public void addSample(final short slotTime, final long value) {
-		totalCount += value;
+	public void addSample(final short slotTime, final long count) {
+		totalCount += count;
 		
 		if (slotTime == HistogramSchema.SLOW_SLOT.getSlotTime()) { // 0 is slow slotTime
-			slowCount += value;
+			slowCount += count;
 		} else if (slotTime == HistogramSchema.ERROR_SLOT.getSlotTime()) { // -1 is error
-			errorCount += value;
+			errorCount += count;
 			return;
 		}
 
 		final int histogramSlotIndex = histogramSchema.getHistogramSlotIndex(slotTime);
 		if (histogramSlotIndex == -1) {
-			logger.trace("Can't find slotTime={} value={} serviceType={}", slotTime, value, serviceType);
+			logger.trace("Can't find slotTime={} count={} serviceType={}", slotTime, count, serviceType);
 			return;
 		}
-		values[histogramSlotIndex] += value;
+		values[histogramSlotIndex] += count;
 	}
 
 	public ServiceType getServiceType() {
@@ -80,18 +80,18 @@ public class ResponseHistogram implements JsonSerializable {
 		return totalCount;
 	}
 
-	public ResponseHistogram add(ResponseHistogram histogram) {
-		if (!this.equals(histogram)) {
-			throw new IllegalArgumentException("A=" + this + ", B=" + histogram);
-		}
-
+	public void add(ResponseHistogram histogram) {
+        if (histogram == null) {
+            throw new NullPointerException("histogram must not be null");
+        }
+        if (this.serviceType != histogram.serviceType) {
+            throw new IllegalArgumentException("this=" + this + ", histogram=" + histogram);
+        }
         addValues(histogram);
 
 		this.totalCount += histogram.totalCount;
 		this.errorCount += histogram.errorCount;
 		this.slowCount += histogram.slowCount;
-		
-		return this;
 	}
 
     private void addValues(ResponseHistogram histogram) {
@@ -113,6 +113,7 @@ public class ResponseHistogram implements JsonSerializable {
 
 	@Override
 	public boolean equals(Object obj) {
+        // TODO MAP에서 사용하지 않는다면 제거할것. equals를 직접 선언해서 사용하기 애매함.
 		if (this == obj)
 			return true;
 		if (obj == null)
