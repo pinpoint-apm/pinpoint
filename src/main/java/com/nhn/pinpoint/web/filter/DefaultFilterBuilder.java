@@ -1,15 +1,16 @@
 package com.nhn.pinpoint.web.filter;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
-import java.util.Map;
-import java.util.regex.Pattern;
 
 /**
  * 
@@ -42,7 +43,7 @@ public class DefaultFilterBuilder implements FilterBuilder {
 		logger.debug("build filter from string. {}", filterText);
 
 		// FIXME 일단 임시로... UI 개발 완료 후 리팩토링.
-		if (filterText.startsWith("{")) {
+		if (filterText.startsWith("[")) {
 			return makeFilterFromJson(filterText);
 		} else {
 			final String[] parsedFilterString = FILTER_DELIMETER.split(filterText);
@@ -65,33 +66,35 @@ public class DefaultFilterBuilder implements FilterBuilder {
 		ObjectMapper om = new ObjectMapper();
 
 		try {
-			Map<String, Object> value = om.readValue(jsonText, new TypeReference<Map<String, Object>>() {
+			List<Map<String, Object>> list = om.readValue(jsonText, new TypeReference<List<Map<String, Object>>>() {
 			});
 
-			String fromApplicationName = value.get(FROM_APPLICATION).toString();
-			String fromServiceType = value.get(FROM_SERVICE_TYPE).toString();
+			for (Map<String, Object> value : list) {
+				String fromApplicationName = value.get(FROM_APPLICATION).toString();
+				String fromServiceType = value.get(FROM_SERVICE_TYPE).toString();
 
-			String toApplicationName = value.get(TO_APPLICATION).toString();
-			String toServiceType = value.get(TO_SERVICE_TYPE).toString();
+				String toApplicationName = value.get(TO_APPLICATION).toString();
+				String toServiceType = value.get(TO_SERVICE_TYPE).toString();
 
-			if (StringUtils.isEmpty(fromApplicationName) || StringUtils.isEmpty(fromServiceType) || StringUtils.isEmpty(toApplicationName) || StringUtils.isEmpty(toServiceType)) {
-				throw new IllegalArgumentException("invalid json " + jsonText);
-			}
+				if (StringUtils.isEmpty(fromApplicationName) || StringUtils.isEmpty(fromServiceType) || StringUtils.isEmpty(toApplicationName) || StringUtils.isEmpty(toServiceType)) {
+					throw new IllegalArgumentException("invalid json " + jsonText);
+				}
 
-			Long fromResponseTime = value.containsKey(RESPONSE_FROM) ? Long.valueOf(value.get(RESPONSE_FROM).toString()) : null;
-			Long toResponseTime = value.containsKey(RESPONSE_TO) ? Long.valueOf(value.get(RESPONSE_TO).toString()) : null;
+				Long fromResponseTime = value.containsKey(RESPONSE_FROM) ? Long.valueOf(value.get(RESPONSE_FROM).toString()) : null;
+				Long toResponseTime = value.containsKey(RESPONSE_TO) ? Long.valueOf(value.get(RESPONSE_TO).toString()) : null;
 
-			if ((fromResponseTime == null && toResponseTime != null) || (fromResponseTime != null && toResponseTime == null)) {
-				throw new IllegalArgumentException("invalid json " + jsonText);
-			}
+				if ((fromResponseTime == null && toResponseTime != null) || (fromResponseTime != null && toResponseTime == null)) {
+					throw new IllegalArgumentException("invalid json " + jsonText);
+				}
 
-			Boolean includeFailed = value.containsKey(INCLUDE_EXCEPTION) ? Boolean.valueOf(value.get(INCLUDE_EXCEPTION).toString()) : null;
+				Boolean includeFailed = value.containsKey(INCLUDE_EXCEPTION) ? Boolean.valueOf(value.get(INCLUDE_EXCEPTION).toString()) : null;
 
-			chain.addFilter(new FromToResponseFilter(fromServiceType, fromApplicationName, toServiceType, toApplicationName, fromResponseTime, toResponseTime, includeFailed));
+				chain.addFilter(new FromToResponseFilter(fromServiceType, fromApplicationName, toServiceType, toApplicationName, fromResponseTime, toResponseTime, includeFailed));
 
-			String urlPattern = value.get(REQUEST_URL_PATTERN).toString();
-			if (!StringUtils.isEmpty(urlPattern)) {
-				chain.addFilter(new URLPatternFilter(fromServiceType, fromApplicationName, toServiceType, toApplicationName, urlPattern));
+				String urlPattern = value.get(REQUEST_URL_PATTERN).toString();
+				if (!StringUtils.isEmpty(urlPattern)) {
+					chain.addFilter(new URLPatternFilter(fromServiceType, fromApplicationName, toServiceType, toApplicationName, urlPattern));
+				}
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
