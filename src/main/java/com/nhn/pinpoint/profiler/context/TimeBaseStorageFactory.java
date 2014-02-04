@@ -34,8 +34,7 @@ public class TimeBaseStorageFactory implements StorageFactory {
 
     @Override
     public Storage createStorage() {
-        TimeBaseStorage timeBaseStorage = new TimeBaseStorage(this.dataSender, spanChunkFactory);
-        timeBaseStorage.setBufferSize(this.bufferSize);
+        TimeBaseStorage timeBaseStorage = new TimeBaseStorage(this.dataSender, spanChunkFactory, this.bufferSize);
         timeBaseStorage.setLimitTime(this.discardTimeLimit);
         timeBaseStorage.setDiscard(this.discardEnable);
         return timeBaseStorage;

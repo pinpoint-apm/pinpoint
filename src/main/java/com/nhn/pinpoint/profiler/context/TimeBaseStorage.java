@@ -15,18 +15,23 @@ public class TimeBaseStorage implements Storage {
     private static final boolean isDebug = logger.isDebugEnabled();
 
     private static final int RESERVE_BUFFER_SIZE = 2;
+    private static final int DEFAULT_BUFFER_SIZE = 20;
 
     private boolean discard = true;
 
     private boolean limit;
     private long limitTime = 1000;
-    private int bufferSize = 20;
+    private final int bufferSize;
 
-    private List<SpanEvent> storage = new ArrayList<SpanEvent>(bufferSize + RESERVE_BUFFER_SIZE);
+    private List<SpanEvent> storage ;
     private final DataSender dataSender;
     private final SpanChunkFactory spanChunkFactory;
 
     public TimeBaseStorage(DataSender dataSender, SpanChunkFactory spanChunkFactory) {
+        this(dataSender, spanChunkFactory, DEFAULT_BUFFER_SIZE);
+    }
+
+    public TimeBaseStorage(DataSender dataSender, SpanChunkFactory spanChunkFactory, int bufferSize) {
         if (dataSender == null) {
             throw new NullPointerException("dataSender must not be null");
         }
@@ -35,14 +40,12 @@ public class TimeBaseStorage implements Storage {
         }
         this.dataSender = dataSender;
         this.spanChunkFactory = spanChunkFactory;
+        this.bufferSize = bufferSize;
+        this.storage = new ArrayList<SpanEvent>(bufferSize + RESERVE_BUFFER_SIZE);
     }
 
     public void setDiscard(boolean discard) {
         this.discard = discard;
-    }
-
-    public void setBufferSize(int bufferSize) {
-        this.bufferSize = bufferSize;
     }
 
     public void setLimitTime(long limitTime) {
