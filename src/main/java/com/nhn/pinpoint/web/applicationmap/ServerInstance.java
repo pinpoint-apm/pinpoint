@@ -6,7 +6,6 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
 import com.nhn.pinpoint.web.util.JsonSerializable;
-import com.nhn.pinpoint.web.util.Mergeable;
 
 /**
  * 

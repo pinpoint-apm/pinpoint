@@ -3,8 +3,7 @@ package com.nhn.pinpoint.web.mapper;
 import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.buffer.FixedBuffer;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
-import com.nhn.pinpoint.common.util.BytesUtils;
-import com.nhn.pinpoint.web.util.TimeUtils;
+
 import com.nhn.pinpoint.web.vo.RawResponseTime;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
@@ -35,12 +34,16 @@ public class ResponseTimeMapper implements RowMapper<RawResponseTime> {
 
     void recordColumn(RawResponseTime rawResponseTime, byte[] row, byte[] value) {
         short slotNumber = Bytes.toShort(row);
+        // agentId도 데이터로 같이 엮어야 함.
         String agentId = Bytes.toString(row, 2, row.length - 2);
         long count = Bytes.toLong(value);
-        rawResponseTime.getHistogram().addSample(slotNumber, count);
+        rawResponseTime.getHistogram(agentId).addSample(slotNumber, count);
     }
 
     private RawResponseTime createRawResponseTime(Result result) {
+        if (result.isEmpty()) {
+            return null;
+        }
         final byte[] row = result.getRow();
 
         final Buffer rowBuffer = new FixedBuffer(row);

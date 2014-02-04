@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.nhn.pinpoint.common.HistogramSchema;
+import com.nhn.pinpoint.common.HistogramSlot;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -320,7 +321,9 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
         if (hasException) {
             return HistogramSchema.ERROR_SLOT.getSlotTime();
         } else {
-            return serviceType.getHistogramSchema().findHistogramSlot(elapsedTime).getSlotTime();
+            final HistogramSchema schema = serviceType.getHistogramSchema();
+            final HistogramSlot histogramSlot = schema.findHistogramSlot(elapsedTime);
+            return histogramSlot.getSlotTime();
         }
     }
 
