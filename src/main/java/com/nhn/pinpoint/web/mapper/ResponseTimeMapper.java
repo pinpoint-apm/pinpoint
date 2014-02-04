@@ -19,7 +19,8 @@ public class ResponseTimeMapper implements RowMapper<RawResponseTime> {
         if (result.isEmpty()) {
             return null;
         }
-        RawResponseTime rawResponseTime = createRawResponseTime(result);
+        final byte[] rowKey = result.getRow();
+        RawResponseTime rawResponseTime = createRawResponseTime(rowKey);
 
         for (KeyValue keyValue : result.raw()) {
             if (!Bytes.equals(keyValue.getFamily(), HBaseTables.APPLICATION_MAP_STATISTICS_SELF_CF_COUNTER)) {
@@ -40,13 +41,9 @@ public class ResponseTimeMapper implements RowMapper<RawResponseTime> {
         rawResponseTime.getHistogram(agentId).addSample(slotNumber, count);
     }
 
-    private RawResponseTime createRawResponseTime(Result result) {
-        if (result.isEmpty()) {
-            return null;
-        }
-        final byte[] row = result.getRow();
+    private RawResponseTime createRawResponseTime(byte[] rowKey) {
+        final Buffer rowBuffer = new FixedBuffer(rowKey);
 
-        final Buffer rowBuffer = new FixedBuffer(row);
         String applicationName = rowBuffer.readPrefixedString();
         short serviceType = rowBuffer.readShort();
         long time = com.nhn.pinpoint.common.util.TimeUtils.recoveryCurrentTimeMillis(rowBuffer.readLong());
