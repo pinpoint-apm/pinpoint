@@ -77,9 +77,9 @@ public class BusinessTransactionController {
 		BusinessTransactions selectBusinessTransactions = transactionInfoService.selectBusinessTransactions(traceIdList.getScanData(), applicationName, from, to, filter);
 
 		model.addAttribute("lastFetchedTimestamp", traceIdList.getLimitedTime());
-		model.addAttribute("rpcList", selectBusinessTransactions.getBusinessTransactionIterator());
-		model.addAttribute("requestList", selectBusinessTransactions.getBusinessTransactionIterator());
-		model.addAttribute("scatterList", selectBusinessTransactions.getBusinessTransactionIterator());
+		model.addAttribute("rpcList", selectBusinessTransactions.getBusinessTransaction());
+		model.addAttribute("requestList", selectBusinessTransactions.getBusinessTransaction());
+		model.addAttribute("scatterList", selectBusinessTransactions.getBusinessTransaction());
 		model.addAttribute("applicationName", applicationName);
 		model.addAttribute("from", new Date(from));
 		model.addAttribute("to", new Date(to));
