@@ -7,7 +7,7 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
         var oNavbarVo, oTimeSliderVo;
 
         // define private variables of methods
-        var openFilteredMapWithFilterDataSet;
+        var openFilteredMapWithFilterVo;
 
         /**
          * initialize
@@ -42,12 +42,11 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
         }, 100);
 
         /**
-         * open filtered map with filter data set
+         * open filtered map with filterVo
          * @param filterDataSet
          */
-        openFilteredMapWithFilterDataSet = function (filterDataSet) {
-            var newFilter = filteredMapUtil.parseFilter(filterDataSet, oNavbarVo.getApplication(), oNavbarVo.getFilter()),
-                url = '#/filteredMap/' + oNavbarVo.getApplication() + '/' + oNavbarVo.getPeriod() + '/' + oNavbarVo.getQueryEndTime() + '/' + encodeURIComponentFilter(newFilter);
+        openFilteredMapWithFilterVo = function (oServerMapFilterVo) {
+            var url = filteredMapUtil.getFilteredMapUrlWithFilterVo(oServerMapFilterVo, oNavbarVo);
             $window.open(url, "");
         };
 
@@ -150,15 +149,15 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
         /**
          * scope event on serverMap.openFilteredMap
          */
-        $scope.$on('serverMap.openFilteredMap', function (event, filterDataSet) {
-            openFilteredMapWithFilterDataSet(filterDataSet);
+        $scope.$on('serverMap.openFilteredMap', function (event, oServerMapFilterVo) {
+            openFilteredMapWithFilterVo(oServerMapFilterVo);
         });
 
         /**
          * scope event on linkInfoDetails.ResponseSummary.barClicked
          */
-        $scope.$on('linkInfoDetails.ResponseSummary.barClicked', function (event, filterDataSet) {
-            openFilteredMapWithFilterDataSet(filterDataSet);
+        $scope.$on('linkInfoDetails.ResponseSummary.barClicked', function (event, oServerMapFilterVo) {
+            openFilteredMapWithFilterVo(oServerMapFilterVo);
         });
 
         /**
