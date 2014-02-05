@@ -120,7 +120,7 @@ public class ApplicationMapController {
 
 		model.addAttribute("linkStatistics", linkStatistics);
 //		model.addAttribute("histogramSummary", linkStatistics.getHistogramSummary().entrySet().iterator());
-		model.addAttribute("timeseriesSlotIndex", linkStatistics.getTimeseriesSlotIndex().entrySet().iterator());
+		model.addAttribute("timeseriesSlotIndex", linkStatistics.getTimeseriesSlotIndex());
 		model.addAttribute("timeseriesValue", linkStatistics.getTimeseriesValue());
 		
 		model.addAttribute("resultFrom", from);
