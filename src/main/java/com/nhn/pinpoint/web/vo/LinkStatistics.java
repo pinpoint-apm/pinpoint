@@ -130,7 +130,8 @@ public class LinkStatistics {
 			SortedMap<Long, Long> map = timeseriesValueList.get(i);
 
 			// 다른 slot에도 같은 시간이 존재해야한다.
-			if (i == timeseriesSlotIndex.get(responseTimeslot)) {
+			// FIXME responseTimeSlot의 자료형을 short으로 변경할 것.
+			if (i == timeseriesSlotIndex.get((short) responseTimeslot)) {
 				long v = map.containsKey(timestamp) ? map.get(timestamp) + callCount : callCount;
 				map.put(timestamp, v);
 			} else {
