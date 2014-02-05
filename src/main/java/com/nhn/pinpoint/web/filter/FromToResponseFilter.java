@@ -80,7 +80,7 @@ public class FromToResponseFilter implements Filter {
 					for (SpanEventBo event : eventBoList) {
 						// client가 있는지만 확인.
 						if (event.getServiceType().isRpcClient() && toApplicationName.equals(event.getDestinationId())) {
-							return event.hasException() && checkResponseCondition(event.getEndElapsed(), event.hasException());
+							return checkResponseCondition(event.getEndElapsed(), event.hasException());
 						}
 					}
 				}
@@ -100,7 +100,7 @@ public class FromToResponseFilter implements Filter {
 						}
 
 						if (includeServiceType(toServiceCode, destSpan.getServiceType()) && toApplicationName.equals(destSpan.getApplicationId())) {
-							return destSpan.getErrCode() > 0 && checkResponseCondition(destSpan.getElapsed(), destSpan.getErrCode() > 0);
+							return checkResponseCondition(destSpan.getElapsed(), destSpan.getErrCode() > 0);
 						}
 					}
 				}
