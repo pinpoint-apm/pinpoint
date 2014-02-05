@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.web.vo;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -31,25 +32,8 @@ public class BusinessTransactions {
 		}
 	}
 
-	public Iterator<BusinessTransaction> getBusinessTransactionIterator() {
-		final Iterator<Entry<String, BusinessTransaction>> iterator = transactions.entrySet().iterator();
-
-		return new Iterator<BusinessTransaction>() {
-			@Override
-			public boolean hasNext() {
-				return iterator.hasNext();
-			}
-
-			@Override
-			public BusinessTransaction next() {
-				return iterator.next().getValue();
-			}
-
-			@Override
-			public void remove() {
-
-			}
-		};
+	public Collection<BusinessTransaction> getBusinessTransaction() {
+        return transactions.values();
 	}
 	
 	public int getTotalCallCount() {
