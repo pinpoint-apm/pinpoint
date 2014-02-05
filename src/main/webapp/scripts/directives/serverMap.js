@@ -364,13 +364,9 @@ reset();
                         .setToApplication(scope.destApplicationName)
                         .setToServiceType(scope.destServiceType)
                         .setResponseFrom(scope.responseTime.min)
-                        .setResponseTo(scope.responseTime.max);
-                    if (scope.includeFailed === false) {
-                        oServerMapFilterVo.setIncludeException(scope.includeFailed);
-                    }
-                    if (scope.urlPattern) {
-                        oServerMapFilterVo.setRequestUrlPattern(scope.urlPattern);
-                    }
+                        .setResponseTo(scope.responseTime.max)
+                        .setIncludeException(scope.includeFailed)
+                        .setRequestUrlPattern(scope.urlPattern);
                     scope.$broadcast('serverMap.openFilteredMap', oServerMapFilterVo);
                     reset();
                 };

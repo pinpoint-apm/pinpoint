@@ -7,7 +7,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
         var oNavbarVo;
 
         // define private variables of methods
-        var getFirstPathOfLocation, changeLocation, openFilteredMapWithFilterDataSet, openFilteredMapWithFilterVo;
+        var getFirstPathOfLocation, changeLocation, openFilteredMapWithFilterVo;
 
         // initialize scope variables
         $scope.hasScatter = false;
@@ -60,16 +60,9 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
         };
 
         /**
-         * open filtered map with filter data set
-         * @param filterDataSet
+         * open filtered map with filter Vo
+         * @param oServerMapFilterVo
          */
-        openFilteredMapWithFilterDataSet = function (filterDataSet) {
-            var newFilter = filteredMapUtil.parseFilter(filterDataSet, oNavbarVo.getApplication(), oNavbarVo.getFilter()),
-                url = '#/filteredMap/' + oNavbarVo.getApplication() + '/' + oNavbarVo.getPeriod() + '/' +
-                    oNavbarVo.getQueryEndTime() + '/' + encodeURIComponentFilter(newFilter);
-            $window.open(url, "");
-        };
-
         openFilteredMapWithFilterVo = function (oServerMapFilterVo) {
             var url = filteredMapUtil.getFilteredMapUrlWithFilterVo(oServerMapFilterVo, oNavbarVo);
             $window.open(url, "");
@@ -148,15 +141,14 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
          * scope event on serverMap.openFilteredMap
          */
         $scope.$on('serverMap.openFilteredMap', function (event, oServerMapFilterVo) {
-//            openFilteredMapWithFilterDataSet(filterDataSet);
             openFilteredMapWithFilterVo(oServerMapFilterVo);
         });
 
         /**
          * scope event on linkInfoDetails.ResponseSummary.barClicked
          */
-        $scope.$on('linkInfoDetails.ResponseSummary.barClicked', function (event, filterDataSet) {
-            openFilteredMapWithFilterDataSet(filterDataSet);
+        $scope.$on('linkInfoDetails.ResponseSummary.barClicked', function (event, oServerMapFilterVo) {
+            openFilteredMapWithFilterVo(oServerMapFilterVo);
         });
 
         /**

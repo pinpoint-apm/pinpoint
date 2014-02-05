@@ -1,6 +1,6 @@
 'use strict';
 
-pinpointApp.factory('ServerMapFilterVo', [ function () {
+pinpointApp.factory('ServerMapFilterVo', [  function () {
     return function () {
         var self = this;
 
@@ -8,10 +8,10 @@ pinpointApp.factory('ServerMapFilterVo', [ function () {
         this._sFromServiceType = null;
         this._sToApplication = null;
         this._sToServiceType = null;
-        this._sResponseFrom = null;
-        this._sResponseTo = null;
-        this._bIncludeException = null;
-        this._sRequestUrlPattern = null;
+        this._sResponseFrom = 0;
+        this._sResponseTo = 300000;
+        this._bIncludeException = false;
+        this._sRequestUrlPattern = false;
 
         this.setFromApplication = function (fromApplication) {
             if (angular.isString(fromApplication)) {
@@ -102,7 +102,7 @@ pinpointApp.factory('ServerMapFilterVo', [ function () {
             if (angular.isString(requestUrlPattern)) {
                 self._sRequestUrlPattern = requestUrlPattern;
             } else {
-                throw new Error('requestUrlPattern should be string in ServerMapFilterVo.');
+//                throw new Error('requestUrlPattern should be string in ServerMapFilterVo.');
             }
             return self;
         };
@@ -118,7 +118,7 @@ pinpointApp.factory('ServerMapFilterVo', [ function () {
                 tst: self._sToServiceType
             };
 
-            if (self._sResponseFrom != 0 && self._sResponseTo != 30000) {
+            if (!(self._sResponseFrom == 0 && self._sResponseTo === 'max')) {
                 filter.rf = self._sResponseFrom;
                 filter.rt = self._sResponseTo;
             }
