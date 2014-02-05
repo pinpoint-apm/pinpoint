@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.web.filter;
 
+import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,8 @@ public class DefaultFilterBuilder implements FilterBuilder {
 	private static final String RESPONSE_TO = "rt";
 	private static final String INCLUDE_EXCEPTION = "ie";
 	private static final String REQUEST_URL_PATTERN = "url";
+	
+	private final ObjectMapper om = new ObjectMapper();
 
 	@Override
 	public Filter build(String filterText) {
@@ -42,6 +45,12 @@ public class DefaultFilterBuilder implements FilterBuilder {
 		}
 		logger.debug("build filter from string. {}", filterText);
 
+		try {
+			filterText = URLDecoder.decode(filterText, "UTF-8");
+		} catch (Exception e) {
+			throw new IllegalArgumentException(e);
+		}
+		
 		// FIXME 일단 임시로... UI 개발 완료 후 리팩토링.
 		if (filterText.startsWith("[")) {
 			return makeFilterFromJson(filterText);
@@ -62,8 +71,6 @@ public class DefaultFilterBuilder implements FilterBuilder {
 		}
 
 		FilterChain chain = new FilterChain();
-
-		ObjectMapper om = new ObjectMapper();
 
 		try {
 			List<Map<String, Object>> list = om.readValue(jsonText, new TypeReference<List<Map<String, Object>>>() {
@@ -90,10 +97,12 @@ public class DefaultFilterBuilder implements FilterBuilder {
 				Boolean includeFailed = value.containsKey(INCLUDE_EXCEPTION) ? Boolean.valueOf(value.get(INCLUDE_EXCEPTION).toString()) : null;
 
 				chain.addFilter(new FromToResponseFilter(fromServiceType, fromApplicationName, toServiceType, toApplicationName, fromResponseTime, toResponseTime, includeFailed));
-
-				String urlPattern = value.get(REQUEST_URL_PATTERN).toString();
-				if (!StringUtils.isEmpty(urlPattern)) {
-					chain.addFilter(new URLPatternFilter(fromServiceType, fromApplicationName, toServiceType, toApplicationName, urlPattern));
+				
+				if (value.containsKey(REQUEST_URL_PATTERN)) {
+					String urlPattern = value.get(REQUEST_URL_PATTERN).toString();
+					if (!StringUtils.isEmpty(urlPattern)) {
+						chain.addFilter(new URLPatternFilter(fromServiceType, fromApplicationName, toServiceType, toApplicationName, urlPattern));
+					}
 				}
 			}
 		} catch (Exception e) {
