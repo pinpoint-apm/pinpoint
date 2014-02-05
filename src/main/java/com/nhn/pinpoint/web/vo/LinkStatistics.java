@@ -20,8 +20,8 @@ public class LinkStatistics {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private static final short SLOT_SLOW = Short.MAX_VALUE - 1;
-	private static final short SLOT_ERROR = Short.MAX_VALUE;
+	private static final Integer SLOT_SLOW = Integer.MAX_VALUE - 1;
+	private static final Integer SLOT_ERROR = (int)Integer.MAX_VALUE;
 
 //	/**
 //	 * <pre>
@@ -38,7 +38,7 @@ public class LinkStatistics {
 	 * </pre>
 	 */
 	private final List<SortedMap<Long, Long>> timeseriesValueList = new ArrayList<SortedMap<Long, Long>>();
-	private final SortedMap<Short, Integer> timeseriesSlotIndex = new TreeMap<Short, Integer>();
+	private final SortedMap<Integer, Integer> timeseriesSlotIndex = new TreeMap<Integer, Integer>();
 
 	private final long from;
 	private final long to;
@@ -85,7 +85,7 @@ public class LinkStatistics {
 
 		for (HistogramSlot slot : slotList) {
 //			histogramSummary.put(slot.getSlotTime(), 0L);
-			timeseriesSlotIndex.put(slot.getSlotTime(), timeseriesSlotIndex.size());
+			timeseriesSlotIndex.put((int)slot.getSlotTime(), timeseriesSlotIndex.size());
 			timeseriesValueList.add(makeEmptyTimeseriesValueMap());
 		}
 
@@ -97,7 +97,9 @@ public class LinkStatistics {
 	}
 
 	public void addSample(long timestamp, int responseTimeslot, long callCount, boolean isFailed) {
-		logger.debug("Add sample. timeslot=" + timestamp + ", responseTimeslot=" + responseTimeslot + ", callCount=" + callCount + ", failed=" + isFailed);
+        if (logger.isDebugEnabled()) {
+		    logger.debug("Add sample. timeslot={}, responseTimeslot={}, callCount={}, failed={}", timestamp, responseTimeslot, callCount, isFailed);
+        }
 
 		timestamp = TimeWindowUtils.refineTimestamp(from, to, timestamp);
 
@@ -131,7 +133,7 @@ public class LinkStatistics {
 
 			// 다른 slot에도 같은 시간이 존재해야한다.
 			// FIXME responseTimeSlot의 자료형을 short으로 변경할 것.
-			if (i == timeseriesSlotIndex.get((short) responseTimeslot)) {
+			if (i == timeseriesSlotIndex.get(responseTimeslot)) {
 				long v = map.containsKey(timestamp) ? map.get(timestamp) + callCount : callCount;
 				map.put(timestamp, v);
 			} else {
@@ -154,7 +156,7 @@ public class LinkStatistics {
 		return failedCount;
 	}
 
-	public SortedMap<Short, Integer> getTimeseriesSlotIndex() {
+	public SortedMap<Integer, Integer> getTimeseriesSlotIndex() {
 		return timeseriesSlotIndex;
 	}
 
@@ -162,11 +164,12 @@ public class LinkStatistics {
 		return timeseriesValueList;
 	}
 
-	public short getSlow() {
+
+	public int getSlow() {
 		return SLOT_SLOW;
 	}
 
-	public short getError() {
+	public int getError() {
 		return SLOT_ERROR;
 	}
 
