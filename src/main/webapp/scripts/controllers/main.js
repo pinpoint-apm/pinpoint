@@ -7,7 +7,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
         var oNavbarVo;
 
         // define private variables of methods
-        var getFirstPathOfLocation, changeLocation, openFilteredMapWithFilterDataSet;
+        var getFirstPathOfLocation, changeLocation, openFilteredMapWithFilterDataSet, openFilteredMapWithFilterVo;
 
         // initialize scope variables
         $scope.hasScatter = false;
@@ -45,7 +45,8 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
          * change location
          */
         changeLocation = function () {
-            var url = '/' + getFirstPathOfLocation() + '/' + oNavbarVo.getApplication() + '/' + oNavbarVo.getPeriod() + '/' + oNavbarVo.getQueryEndTime();
+            var url = '/' + getFirstPathOfLocation() + '/' + oNavbarVo.getApplication() + '/' + oNavbarVo.getPeriod() +
+                '/' + oNavbarVo.getQueryEndTime();
             if (location.path() !== url) {
                 if (location.path() === '/main') {
                     location.path(url).replace();
@@ -64,7 +65,13 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
          */
         openFilteredMapWithFilterDataSet = function (filterDataSet) {
             var newFilter = filteredMapUtil.parseFilter(filterDataSet, oNavbarVo.getApplication(), oNavbarVo.getFilter()),
-                url = '#/filteredMap/' + oNavbarVo.getApplication() + '/' + oNavbarVo.getPeriod() + '/' + oNavbarVo.getQueryEndTime() + '/' + encodeURIComponentFilter(newFilter);
+                url = '#/filteredMap/' + oNavbarVo.getApplication() + '/' + oNavbarVo.getPeriod() + '/' +
+                    oNavbarVo.getQueryEndTime() + '/' + encodeURIComponentFilter(newFilter);
+            $window.open(url, "");
+        };
+
+        openFilteredMapWithFilterVo = function (oServerMapFilterVo) {
+            var url = filteredMapUtil.getFilteredMapUrlWithFilterVo(oServerMapFilterVo, oNavbarVo);
             $window.open(url, "");
         };
 
@@ -140,8 +147,9 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
         /**
          * scope event on serverMap.openFilteredMap
          */
-        $scope.$on('serverMap.openFilteredMap', function (event, filterDataSet) {
-            openFilteredMapWithFilterDataSet(filterDataSet);
+        $scope.$on('serverMap.openFilteredMap', function (event, oServerMapFilterVo) {
+//            openFilteredMapWithFilterDataSet(filterDataSet);
+            openFilteredMapWithFilterVo(oServerMapFilterVo);
         });
 
         /**

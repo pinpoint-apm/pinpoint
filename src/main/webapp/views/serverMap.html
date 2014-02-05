@@ -1,61 +1,137 @@
 <div class="servermap" style="width:100%;height:100%;position: relative;">
-	<div id="servermap" style="width:100%;height:100%;position: relative;"></div>
+    <div id="servermap" style="width:100%;height:100%;position: relative;"></div>
     <div class="servermap-status" ng-show="bShowServerMapStatus">
         <div class="alert alert-info" style="min-height: 60px;">
-            <h6 ng-show="oNavbarVo.getQueryStartTime() && oNavbarVo.getQueryEndTime()">{{oNavbarVo.getQueryStartTime() | date:'yyyy-MM-dd HH:mm:ss'}} ~ {{oNavbarVo.getQueryEndTime() | date:'yyyy-MM-dd HH:mm:ss'}}</h6>
+            <h6 ng-show="oNavbarVo.getQueryStartTime() && oNavbarVo.getQueryEndTime()">{{oNavbarVo.getQueryStartTime() |
+                date:'yyyy-MM-dd HH:mm:ss'}} ~ {{oNavbarVo.getQueryEndTime() | date:'yyyy-MM-dd HH:mm:ss'}}</h6>
             <!--<h6 ng-if="oNavbarVo.getFilter()">Base WAS : {{oNavbarVo.getApplicationName()}}</h6>-->
-            <ul class="list-unstyled" ng-if="oNavbarVo.getFilter()" ng-bind-html="oNavbarVo.getFilter() | filterToString">
+            <ul class="list-unstyled" ng-if="oNavbarVo.getFilter()"
+                ng-bind-html="oNavbarVo.getFilter() | filterToString">
             </ul>
         </div>
     </div>
     <div ng-include=" 'error' "></div>
-	<div ng-include=" 'warning' "></div>
+    <div ng-include=" 'warning' "></div>
     <div ng-include=" 'info' "></div>
-	<div ng-include=" 'loading' "></div>
+    <div ng-include=" 'loading' "></div>
 
-    <ul ng-style="nodeContextMenuStyle" class="nodeContextMenu dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="z-index:10">
+    <ul ng-style="nodeContextMenuStyle" class="nodeContextMenu dropdown-menu" role="menu" aria-labelledby="dropdownMenu"
+        style="z-index:10">
         <!--<li><a href tabindex="-1" ng-click="passingTransactionList()"><i class="icon-map-marker"></i> Passing Transaction List</a></li>-->
         <!--<li class="divider"></li>-->
-        <li><a href tabindex="-1" ng-click="passingTransactionResponseToScatterChart()"><span class="glyphicon glyphicon-list"></span> Transaction Scatter Chart</a></li>
-        <li><a tabindex="-1" ng-href="#/inspector/{{oNavbarVo.getApplication()}}/{{oNavbarVo.getPeriod()}}/{{oNavbarVo.getQueryEndTime()}}" target="_blank"><span class="glyphicon glyphicon-search"></span> Inspect Agents</a></li>
+        <li><a href tabindex="-1" ng-click="passingTransactionResponseToScatterChart()"><span
+                class="glyphicon glyphicon-list"></span> Transaction Scatter Chart</a></li>
+        <li><a tabindex="-1"
+               ng-href="#/inspector/{{oNavbarVo.getApplication()}}/{{oNavbarVo.getPeriod()}}/{{oNavbarVo.getQueryEndTime()}}"
+               target="_blank"><span class="glyphicon glyphicon-search"></span> Inspect Agents</a></li>
     </ul>
 
-    <ul ng-style="linkContextMenuStyle" class="linkContextMenu dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="z-index:10">
-        <li><a href tabindex="-1" ng-click="passingTransactionMap()"><span class="glyphicon glyphicon-filter"></span> Filter Transaction</a></li>
-        <!--<li class="divider"></li>-->
+    <ul ng-style="linkContextMenuStyle" class="linkContextMenu dropdown-menu" role="menu" aria-labelledby="dropdownMenu"
+        style="z-index:10">
+        <!--<li><a href tabindex="-1" ng-click="openFilterWizard()"><span class="glyphicon glyphicon-filter"></span> Filter Transaction</a></li>-->
+        <li><a href tabindex="-1" ng-click="openFilterWizard()"><span class="glyphicon glyphicon-filter"></span> Filter
+            Transaction</a></li>
         <!--<li><a href tabindex="-1" ng-click="passingTransactionList()"><i class="icon-list"></i> Passing Transaction List</a></li>-->
     </ul>
 
-    <ul ng-style="backgroundContextMenuStyle" class="backgroundContextMenu dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="z-index:10">
+    <!-- Modal -->
+    <div class="modal fade bs-modal-lg" id="filterWizard" tabindex="-1" role="dialog" aria-labelledby="myFilterWizard"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <!--<h4 class="modal-title" id="myFilterWizard">Modal title</h4>-->
+                    <sidebar-title namespace="forServerMap"></sidebar-title>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" role="form">
+                        <div class="form-group">
+                            <label for="urlPattern" class="col-sm-2 control-label">URL Pattern</label>
+
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="urlPattern" placeholder="URL Pattern" ng-model="urlPattern">
+                            </div>
+                            <div class="col-sm-1 control-label">
+                                <span class="label label-info">ant-style</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Response Time</label>
+
+                            <div class="col-sm-9">
+                                <slider id="responseTime" floor="0" ceiling="30000" step="100" ng-model-low="responseTime.min" ng-model-high="responseTime.max" translate="responseTimeFormatting"></slider>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Include Failed</label>
+                            <div class="col-sm-9">
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-sm" ng-class="{true:'btn-default', false:'btn-success'}[includeFailed]" ng-click="includeFailed=false">Success + Failed</button>
+                                    <button type="button" class="btn btn-sm" ng-class="{true:'btn-success', false:'btn-default'}[includeFailed]" ng-click="includeFailed=true">Failed Only</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" ng-click="passingTransactionMap()">Filter</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ul ng-style="backgroundContextMenuStyle" class="backgroundContextMenu dropdown-menu" role="menu"
+        aria-labelledby="dropdownMenu" style="z-index:10">
         <li class="dropdown-submenu">
             <a tabindex="-1" href>Node Setting</a>
             <ul class="dropdown-menu">
-                <li><a href ng-click="toggleMergeUnknowns()"><span class="glyphicon glyphicon-ok" ng-class="{'icon-white': !mergeUnknowns}"></span> Merge Unknowns</a></li>
+                <li><a href ng-click="toggleMergeUnknowns()"><span class="glyphicon glyphicon-ok"
+                                                                   ng-class="{'icon-white': !mergeUnknowns}"></span>
+                    Merge Unknowns</a></li>
             </ul>
         </li>
         <li class="dropdown-submenu">
             <a tabindex="-1" href>Link Setting</a>
             <ul class="dropdown-menu">
-                <li><a href class="labelTextType" ng-click="toggleLinkLableTextType('totalRequestCount')"><span class="glyphicon glyphicon-ok" ng-class="{'icon-white': !totalRequestCount}"></span> Total Request Count</a></li>
-                <li><a href class="labelTextType" ng-click="toggleLinkLableTextType('tps')"><span class="glyphicon glyphicon-ok" ng-class="{'icon-white': !tps}"></span> TPS</a></li>
+                <li><a href class="labelTextType" ng-click="toggleLinkLableTextType('totalRequestCount')"><span
+                        class="glyphicon glyphicon-ok" ng-class="{'icon-white': !totalRequestCount}"></span> Total
+                    Request Count</a></li>
+                <li><a href class="labelTextType" ng-click="toggleLinkLableTextType('tps')"><span
+                        class="glyphicon glyphicon-ok" ng-class="{'icon-white': !tps}"></span> TPS</a></li>
             </ul>
         </li>
         <li class="divider"></li>
         <li class="dropdown-submenu">
             <a tabindex="-1" href>Link Routing</a>
             <ul class="dropdown-menu">
-                <li><a href ng-click="toggleLinkRouting('Normal')"><span class="glyphicon glyphicon-k" ng-class="{'icon-white': linkRouting != 'Normal'}"></span> Normal</a></li>
-                <li><a href ng-click="toggleLinkRouting('Orthogonal')"><span class="glyphicon glyphicon-k" ng-class="{'icon-white': linkRouting != 'Orthogonal'}"></span> Orthogonal</a></li>
-                <li><a href ng-click="toggleLinkRouting('AvoidsNodes')"><span class="glyphicon glyphicon-k" ng-class="{'icon-white': linkRouting != 'AvoidsNodes'}"></span> AvoidsNodes</a></li>
+                <li><a href ng-click="toggleLinkRouting('Normal')"><span class="glyphicon glyphicon-k"
+                                                                         ng-class="{'icon-white': linkRouting != 'Normal'}"></span>
+                    Normal</a></li>
+                <li><a href ng-click="toggleLinkRouting('Orthogonal')"><span class="glyphicon glyphicon-k"
+                                                                             ng-class="{'icon-white': linkRouting != 'Orthogonal'}"></span>
+                    Orthogonal</a></li>
+                <li><a href ng-click="toggleLinkRouting('AvoidsNodes')"><span class="glyphicon glyphicon-k"
+                                                                              ng-class="{'icon-white': linkRouting != 'AvoidsNodes'}"></span>
+                    AvoidsNodes</a></li>
             </ul>
         </li>
         <li class="dropdown-submenu">
             <a tabindex="-1" href>Link Curve</a>
             <ul class="dropdown-menu">
-                <li><a href ng-click="toggleLinkCurve('None')"><span class="glyphicon glyphicon-ok" ng-class="{'icon-white': linkCurve != 'None'}"></span> None</a></li>
-                <li><a href ng-click="toggleLinkCurve('JumpOver')"><span class="glyphicon glyphicon-ok" ng-class="{'icon-white': linkCurve != 'JumpOver'}"></span> JumpOver</a></li>
-                <li><a href ng-click="toggleLinkCurve('JumpGap')"><span class="glyphicon glyphicon-ok" ng-class="{'icon-white': linkCurve != 'JumpGap'}"></span> JumpGap</a></li>
-                <li><a href ng-click="toggleLinkCurve('Bezier')"><span class="glyphicon glyphicon-ok" ng-class="{'icon-white': linkCurve != 'Bezier'}"></span> Bezier</a></li>
+                <li><a href ng-click="toggleLinkCurve('None')"><span class="glyphicon glyphicon-ok"
+                                                                     ng-class="{'icon-white': linkCurve != 'None'}"></span>
+                    None</a></li>
+                <li><a href ng-click="toggleLinkCurve('JumpOver')"><span class="glyphicon glyphicon-ok"
+                                                                         ng-class="{'icon-white': linkCurve != 'JumpOver'}"></span>
+                    JumpOver</a></li>
+                <li><a href ng-click="toggleLinkCurve('JumpGap')"><span class="glyphicon glyphicon-ok"
+                                                                        ng-class="{'icon-white': linkCurve != 'JumpGap'}"></span>
+                    JumpGap</a></li>
+                <li><a href ng-click="toggleLinkCurve('Bezier')"><span class="glyphicon glyphicon-ok"
+                                                                       ng-class="{'icon-white': linkCurve != 'Bezier'}"></span>
+                    Bezier</a></li>
             </ul>
         </li>
         <li class="divider"></li>

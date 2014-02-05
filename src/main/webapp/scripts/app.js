@@ -1,9 +1,9 @@
 'use strict';
 
 nv.dev = false;
-var pinpointApp = angular.module('pinpointApp', [ 'ngRoute', 'ngResource', 'webStorageModule' , 'ui.bootstrap']);
+var pinpointApp = angular.module('pinpointApp', [ 'ngRoute', 'ngResource', 'ngSanitize', 'webStorageModule', 'ui.bootstrap', 'uiSlider']);
 
-pinpointApp.config(['$routeProvider', '$locationProvider', function ($routeProvider, $locationProvider) {
+pinpointApp.config(['$routeProvider', '$locationProvider', '$sceProvider', function ($routeProvider, $locationProvider, $sceProvider) {
     $locationProvider.html5Mode(false).hashPrefix(''); // 해쉬뱅을 사용 안할 수 있다.
     $routeProvider.when('/main', {
         templateUrl: 'views/ready.html',
@@ -41,6 +41,10 @@ pinpointApp.config(['$routeProvider', '$locationProvider', function ($routeProvi
     }).otherwise({
         redirectTo: '/main'
     });
+
+    // Completely disable SCE.  For demonstration purposes only!
+    // Do not use in new projects.
+//    $sceProvider.enabled(false);
 }]);
 
 pinpointApp.run([ '$timeout', function ($timeout) {

@@ -26,8 +26,8 @@ pinpointApp.constant('serverMapConfig', {
     }
 });
 
-pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts', 'ProgressBar',
-    function (cfg, ServerMapDao, Alerts, ProgressBar) {
+pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts', 'ProgressBar', 'SidebarTitleVo', '$filter', 'ServerMapFilterVo', 'encodeURIComponentFilter',
+    function (cfg, ServerMapDao, Alerts, ProgressBar, SidebarTitleVo, $filter, ServerMapFilterVo, encodeURIComponentFilter) {
         return {
             restrict: 'EA',
             replace: true,
@@ -36,16 +36,14 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
 
                 // define private variables
                 var serverMapCachedQuery, serverMapCachedData, bUseNodeContextMenu, bUseLinkContextMenu, htLastQuery,
-                    bUseBackgroundContextMenu, oServerMap, SERVERMAP_METHOD_CACHE, oAlert, oProgressBar, htLastMapData;
+                    bUseBackgroundContextMenu, oServerMap, oAlert, oProgressBar, htLastMapData;
 
                 // define private variables of methods
                 var showServerMap, reset, setNodeContextMenuPosition,
-                    setLinkContextMenuPosition, setBackgroundContextMenuPosition, serverMapCallback, mergeUnknown,
-                    setLinkOption;
+                    setLinkContextMenuPosition, setBackgroundContextMenuPosition, serverMapCallback, setLinkOption;
 
                 // initialize
                 oServerMap = null;
-                SERVERMAP_METHOD_CACHE = {};
                 htLastMapData = {
                     applicationMapData: {
                         linkDataArray: [],
@@ -94,7 +92,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         from: to - period,
                         to: to,
                         period: period,
-                        filter: filterText
+                        filter: encodeURIComponentFilter(filterText)
                     };
 
                     if (filterText) {
@@ -147,6 +145,13 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     scope.nodeContextMenuStyle = '';
                     scope.linkContextMenuStyle = '';
                     scope.backgroundContextMenuStyle = '';
+                    scope.filterWizardStyle = '';
+                    scope.responseTime = {
+                        min: 0,
+                        max: 30001
+                    };
+                    scope.includeFailed = false;
+                    $('#filterWizard').modal('hide');
                     if (!scope.$$phase) {
                         scope.$digest();
                     }
@@ -326,21 +331,47 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 };
 
                 /**
+                 * open filter wizard
+                 */
+                scope.openFilterWizard = function () {
+reset();
+                    var oSidebarTitleVo = new SidebarTitleVo;
+                    oSidebarTitleVo
+                        .setImageType(scope.srcServiceType)
+                        .setTitle(scope.srcApplicationName)
+                        .setImageType2(scope.destServiceType)
+                        .setTitle2(scope.destApplicationName);
+                    scope.$broadcast('sidebarTitle.initialize.forServerMap', oSidebarTitleVo);
+                    $('#filterWizard').modal('show');
+                };
+
+                scope.responseTimeFormatting = function (value) {
+                    if (value == 30000) {
+                        return '30,000+ ms';
+                    } else {
+                        return $filter('number')(value) + ' ms';
+                    }
+                };
+
+                /**
                  * scope passing transaction map
                  */
-                scope.passingTransactionMap = function (srcSvcType, srcAppName, destSvcType, destAppName) {
-                    var srcServiceType = srcSvcType || scope.srcServiceType,
-                        srcApplicationName = srcAppName || scope.srcApplicationName,
-                        destServiceType = destSvcType || scope.destServiceType,
-                        destApplicationName = destAppName || scope.destApplicationName;
-
-                    var filterDataSet = {
-                        srcServiceType: srcServiceType,
-                        srcApplicationName: srcApplicationName,
-                        destServiceType: destServiceType,
-                        destApplicationName: destApplicationName
-                    };
-                    scope.$broadcast('serverMap.openFilteredMap', filterDataSet);
+                scope.passingTransactionMap = function () {
+                    var oServerMapFilterVo = new ServerMapFilterVo();
+                    oServerMapFilterVo
+                        .setFromApplication(scope.srcApplicationName)
+                        .setFromServiceType(scope.srcServiceType)
+                        .setToApplication(scope.destApplicationName)
+                        .setToServiceType(scope.destServiceType)
+                        .setResponseFrom(scope.responseTime.min)
+                        .setResponseTo(scope.responseTime.max);
+                    if (scope.includeFailed === false) {
+                        oServerMapFilterVo.setIncludeException(scope.includeFailed);
+                    }
+                    if (scope.urlPattern) {
+                        oServerMapFilterVo.setRequestUrlPattern(scope.urlPattern);
+                    }
+                    scope.$broadcast('serverMap.openFilteredMap', oServerMapFilterVo);
                     reset();
                 };
 

@@ -1,7 +1,7 @@
 'use strict';
 
-pinpointApp.factory('filteredMapUtil', [ 'filterConfig',
-    function (cfg) {
+pinpointApp.factory('filteredMapUtil', [ 'filterConfig', 'encodeURIComponentFilter',
+    function (cfg, encodeURIComponentFilter) {
         // define private variables
         var self;
 
@@ -38,6 +38,19 @@ pinpointApp.factory('filteredMapUtil', [ 'filterConfig',
                 return newFilter;
             },
 
+            parseFilter2: function (filterDataSet, application, prevFilter) {
+                var newFilter = [];
+                if (prevFilter) {
+                    prevFilter = JSON.parse(prevFilter);
+                    if (angular.isArray(prevFilter)) {
+                        newFilter = prevFilter;
+                    }
+                }
+                newFilter.push(filterDataSet);
+
+                return newFilter;
+            },
+
             /**
              * get start value for filter by label
              * @param label
@@ -59,6 +72,13 @@ pinpointApp.factory('filteredMapUtil', [ 'filterConfig',
                     startValue = parseInt(values[labelKey - 1].label, 10);
                 }
                 return startValue;
+            },
+
+            getFilteredMapUrlWithFilterVo: function (oServerMapFilterVo, oNavbarVo) {
+                var newFilter = this.parseFilter2(oServerMapFilterVo.toJson(), oNavbarVo.getApplication(), oNavbarVo.getFilter()),
+                    url = '#/filteredMap/' + oNavbarVo.getApplication() + '/' + oNavbarVo.getPeriod() + '/' +
+                        oNavbarVo.getQueryEndTime() + '/' + JSON.stringify(newFilter);
+                return url;
             }
         }
     }

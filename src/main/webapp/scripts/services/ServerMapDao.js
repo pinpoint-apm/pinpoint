@@ -150,7 +150,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
      * @returns {*}
      */
     this.addFilterProperty = function (filterText, mapData) {
-        var parsedFilters = this.parseFilterText(filterText, mapData);
+        var parsedFilters = this.parseFilterText2(filterText, mapData);
 
         angular.forEach(mapData.applicationMapData.linkDataArray, function (val, key) {
             if (angular.isDefined(_.findWhere(parsedFilters, {fromKey: val.from, toKey: val.to}))) {
@@ -168,19 +168,36 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
      * @param mapData
      * @returns {Array}
      */
-    this.parseFilterText = function (filterText, mapData) {
-        var splitedFilter = filterText.split(cfg.FILTER_DELIMETER),
+//    this.parseFilterText = function (filterText, mapData) {
+//        var splitedFilter = filterText.split(cfg.FILTER_DELIMETER),
+//            aFilter = [];
+//        angular.forEach(splitedFilter, function (val, key) {
+//            var filter = val.split(cfg.FILTER_ENTRY_DELIMETER);
+//            aFilter.push({
+//                fromCategory: filter[0],
+//                fromText: filter[1],
+//                fromKey: this.findNodeKeyByText(filter[1], mapData),
+//                toCategory: filter[2],
+//                toText: filter[3],
+//                toKey: this.findNodeKeyByText(filter[3], mapData)
+//            });
+//        }, this);
+//        return aFilter;
+//    };
+
+    this.parseFilterText2 = function (filterText, mapData) {
+        var filters = JSON.parse(filterText),
             aFilter = [];
-        angular.forEach(splitedFilter, function (val, key) {
-            var filter = val.split(cfg.FILTER_ENTRY_DELIMETER);
+
+        angular.forEach(filters, function (filter) {
             aFilter.push({
-                fromCategory: filter[0],
-                fromText: filter[1],
-                fromKey: this.findNodeKeyByText(filter[1], mapData),
-                toCategory: filter[2],
-                toText: filter[3],
-                toKey: this.findNodeKeyByText(filter[3], mapData)
-            });
+                fromCategory: filter.fst,
+                fromText: filter.fa,
+                fromKey: this.findNodeKeyByText(filter.fa, mapData),
+                toCategory: filter.tst,
+                toText: filter.ta,
+                toKey: this.findNodeKeyByText(filter.ta, mapData)
+            })
         }, this);
         return aFilter;
     };
