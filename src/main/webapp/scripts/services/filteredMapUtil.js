@@ -77,7 +77,7 @@ pinpointApp.factory('filteredMapUtil', [ 'filterConfig', 'encodeURIComponentFilt
             getFilteredMapUrlWithFilterVo: function (oServerMapFilterVo, oNavbarVo) {
                 var newFilter = this.parseFilter2(oServerMapFilterVo.toJson(), oNavbarVo.getApplication(), oNavbarVo.getFilter()),
                     url = '#/filteredMap/' + oNavbarVo.getApplication() + '/' + oNavbarVo.getPeriod() + '/' +
-                        oNavbarVo.getQueryEndTime() + '/' + JSON.stringify(newFilter);
+                        oNavbarVo.getQueryEndTime() + '/' + encodeURIComponentFilter(JSON.stringify(newFilter));
                 return url;
             }
         }
