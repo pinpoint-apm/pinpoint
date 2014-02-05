@@ -88,7 +88,16 @@ public class DefaultFilterBuilder implements FilterBuilder {
 				}
 
 				Long fromResponseTime = value.containsKey(RESPONSE_FROM) ? Long.valueOf(value.get(RESPONSE_FROM).toString()) : null;
-				Long toResponseTime = value.containsKey(RESPONSE_TO) ? Long.valueOf(value.get(RESPONSE_TO).toString()) : null;
+				
+				Long toResponseTime = null;
+				if (value.containsKey(RESPONSE_TO)) {
+					String v = value.get(RESPONSE_TO).toString();
+					if ("max".equals(v)) {
+						toResponseTime = Long.MAX_VALUE;
+					} else {
+						toResponseTime = Long.valueOf(v);
+					}
+				}
 
 				if ((fromResponseTime == null && toResponseTime != null) || (fromResponseTime != null && toResponseTime == null)) {
 					throw new IllegalArgumentException("invalid json " + jsonText);
