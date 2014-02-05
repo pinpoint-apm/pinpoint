@@ -5,6 +5,7 @@ import com.nhn.pinpoint.common.ServiceType;
 /**
  * 
  * @author netspider
+ * @author emeroad
  * 
  */
 public class Application {
@@ -19,7 +20,7 @@ public class Application {
 		this.serviceType = ServiceType.findServiceType(serviceType);
 	}
 
-	public String getApplicationName() {
+    public String getApplicationName() {
 		return applicationName;
 	}
 
@@ -27,7 +28,31 @@ public class Application {
 		return serviceType;
 	}
 
-	@Override
+    public short getServiceTypeCode() {
+        return serviceType.getCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Application that = (Application) o;
+
+        if (!applicationName.equals(that.applicationName)) return false;
+        if (serviceType != that.serviceType) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = applicationName.hashCode();
+        result = 31 * result + serviceType.hashCode();
+        return result;
+    }
+
+    @Override
 	public String toString() {
 		return applicationName + "(" + serviceType + ")";
 	}

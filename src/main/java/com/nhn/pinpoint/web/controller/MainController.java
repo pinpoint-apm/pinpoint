@@ -28,17 +28,17 @@ public class MainController {
 	private CommonService commonService;
 
 	@RequestMapping(value = "/applications", method = RequestMethod.GET)
-	public String flow(Model model, HttpServletResponse response) {
+	public String flow(Model model) {
 		List<Application> applications = commonService.selectAllApplicationNames();
 		model.addAttribute("applications", applications);
 
-		logger.debug("Applications, {}", applications);
+		logger.debug("/applications, {}", applications);
 
 		return "applications";
 	}
 
 	@RequestMapping(value = "/serverTime", method = RequestMethod.GET)
-	public String getServerTime(Model model, HttpServletResponse response) {
+	public String getServerTime(Model model) {
 		model.addAttribute("currentServerTime", System.currentTimeMillis());
 		return "serverTime";
 	}

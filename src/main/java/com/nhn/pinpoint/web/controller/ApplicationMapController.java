@@ -3,6 +3,7 @@ package com.nhn.pinpoint.web.controller;
 import javax.servlet.http.HttpServletResponse;
 
 import com.nhn.pinpoint.web.util.Limiter;
+import com.nhn.pinpoint.web.vo.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,17 +107,18 @@ public class ApplicationMapController {
 									@RequestParam("destApplicationName") String destApplicationName,
 									@RequestParam("destServiceType") short destServiceType,
 									@RequestParam(value="v", required=false, defaultValue="1") int v) {
-		
+
+        final Application sourceApplication = new Application(srcApplicationName, srcServiceType);
+        final Application destinationApplication = new Application(srcApplicationName, srcServiceType);
+
 		LinkStatistics linkStatistics = applicationMapService.linkStatistics(from, to, srcApplicationName, srcServiceType, destApplicationName, destServiceType);
 
 		model.addAttribute("from", from);
 		model.addAttribute("to", to);
 
-		model.addAttribute("srcApplicationName", srcApplicationName);
-		model.addAttribute("destApplicationName", destApplicationName);
+		model.addAttribute("srcApplication", sourceApplication);
 
-		model.addAttribute("srcApplicationType", ServiceType.findServiceType(srcServiceType));
-		model.addAttribute("destApplicationType", ServiceType.findServiceType(destServiceType));
+        model.addAttribute("destApplication", destinationApplication);
 
 		model.addAttribute("linkStatistics", linkStatistics);
 //		model.addAttribute("histogramSummary", linkStatistics.getHistogramSummary().entrySet().iterator());
