@@ -3,8 +3,8 @@ package com.nhn.pinpoint.web.applicationmap;
 import java.util.*;
 
 import com.nhn.pinpoint.web.applicationmap.rawdata.HostList;
-import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
 import com.nhn.pinpoint.web.service.NodeId;
+import com.nhn.pinpoint.web.vo.ResponseHistogramSummary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +32,7 @@ public class Node implements JsonSerializable {
 	private final HostList hostList = new HostList();
 	private final Set<AgentInfoBo> agentSet = new HashSet<AgentInfoBo>();
 
-    private ResponseHistogram responseHistogram;
+    private ResponseHistogramSummary responseHistogramSummary;
 	
 
 	public Node(NodeId id, String applicationName, ServiceType serviceType, Set<AgentInfoBo> agentSet) {
@@ -147,7 +147,13 @@ public class Node implements JsonSerializable {
 		return serviceType;
 	}
 
+    public ResponseHistogramSummary getResponseHistogramSummary() {
+        return responseHistogramSummary;
+    }
 
+    public void setResponseHistogramSummary(ResponseHistogramSummary responseHistogramSummary) {
+        this.responseHistogramSummary = responseHistogramSummary;
+    }
 
     @Override
 	public String getJson() {

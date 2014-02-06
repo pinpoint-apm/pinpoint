@@ -1,12 +1,13 @@
 package com.nhn.pinpoint.web.service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
+import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
+import com.nhn.pinpoint.web.dao.*;
+import com.nhn.pinpoint.web.vo.RawResponseTime;
+import com.nhn.pinpoint.web.vo.ResponseHistogramSummary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +18,6 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
 import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
-import com.nhn.pinpoint.web.dao.AgentInfoDao;
-import com.nhn.pinpoint.web.dao.ApplicationIndexDao;
-import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCalleeDao;
-import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCallerDao;
-import com.nhn.pinpoint.web.dao.HostApplicationMapDao;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.LinkStatistics;
 
@@ -39,6 +35,9 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 
 	@Autowired
 	private AgentInfoDao agentInfoDao;
+
+    @Autowired
+    private MapResponseDao mapResponseDao;
 
 	@Autowired
 	private ApplicationMapStatisticsCallerDao applicationMapStatisticsCallerDao;
@@ -223,13 +222,12 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		StopWatch watch = new StopWatch("applicationMapWatch");
 		watch.start();
 
-		// 무한 탐색을 방지하기 위한 용도.
+        // 무한 탐색을 방지하기 위한 용도.
 		final Set<Node> callerFoundApplications = new HashSet<Node>();
 		final Set<Node> calleeFoundApplications = new HashSet<Node>();
-
 		Set<TransactionFlowStatistics> callee = selectCallee(applicationName, serviceType, from, to, calleeFoundApplications, callerFoundApplications);
 		logger.debug("Result of finding callee {}", callee);
-		
+
 		Set<TransactionFlowStatistics> caller = selectCaller(applicationName, serviceType, from, to, calleeFoundApplications, callerFoundApplications);
 		logger.debug("Result of finding caller {}", caller);
 
@@ -238,14 +236,41 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		data.addAll(caller);
 
 		ApplicationMap map = new ApplicationMapBuilder().build(data);
+        appendWasResponseTime(map, from, to);
 
 		watch.stop();
 		logger.info("Fetch applicationmap elapsed. {}ms", watch.getLastTaskTimeMillis());
 
 		return map;
 	}
-	
-	@Override
+
+    private void appendWasResponseTime(ApplicationMap map, long from, long to) {
+        List<com.nhn.pinpoint.web.applicationmap.Node> nodes = map.getNodes();
+        for (com.nhn.pinpoint.web.applicationmap.Node node : nodes) {
+            final boolean was = node.getServiceType().isWas();
+            if (!was) {
+                continue;
+            }
+            final Application application = new Application(node.getApplicationName(), node.getServiceType());
+            final List<RawResponseTime> responseHistogram = this.mapResponseDao.selectResponseTime(application, from, to);
+            ResponseHistogramSummary histogramSummary = createHistogramSummary(application, responseHistogram);
+            node.setResponseHistogramSummary(histogramSummary);
+        }
+
+    }
+
+    private ResponseHistogramSummary createHistogramSummary(Application application, List<RawResponseTime> responseHistogram) {
+        final ResponseHistogramSummary summary = new ResponseHistogramSummary(application);
+        for (RawResponseTime rawResponseTime : responseHistogram) {
+            final List<ResponseHistogram> responseHistogramList = rawResponseTime.getResponseHistogramList();
+            for (ResponseHistogram histogram : responseHistogramList) {
+                summary.addTotal(histogram);
+            }
+        }
+        return summary;
+    }
+
+    @Override
 	public LinkStatistics linkStatistics(long from, long to, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType) {
         if (srcApplicationName == null) {
             throw new NullPointerException("srcApplicationName must not be null");

@@ -32,6 +32,9 @@
 				"serviceTypeCode" : "${node.serviceType.code}",
 				"terminal" : "${node.serviceType.terminal}",
 				"isWas" : ${node.serviceType.was},
+                <c:if test="${node.serviceType.was}" >
+                    "histogram" : ${node.responseHistogramSummary.total.json},
+                </c:if>
 				"serverList" : {
 					<c:if test="${node.serviceType.desc != 'UNKNOWN'}">
 					<c:forEach items="${node.serverInstanceList}" var="serverInstance" varStatus="status5">

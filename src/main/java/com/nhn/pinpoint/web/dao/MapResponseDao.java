@@ -1,6 +1,8 @@
 package com.nhn.pinpoint.web.dao;
 
 import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
+import com.nhn.pinpoint.web.vo.Application;
+import com.nhn.pinpoint.web.vo.RawResponseTime;
 
 import java.util.List;
 import java.util.Map;
@@ -11,6 +13,6 @@ import java.util.Map;
  * 
  */
 public interface MapResponseDao {
-	List<TransactionFlowStatistics> selectResponseTime(String applicationName, short applicationServiceType, long from, long to);
+    List<RawResponseTime> selectResponseTime(Application application, long from, long to);
 
 }

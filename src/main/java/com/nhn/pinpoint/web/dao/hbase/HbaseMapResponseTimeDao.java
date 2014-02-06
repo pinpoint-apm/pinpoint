@@ -5,14 +5,14 @@ import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
 import com.nhn.pinpoint.common.util.TimeSlot;
 import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
-import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatisticsKey;
 import com.nhn.pinpoint.web.dao.MapResponseDao;
-import com.nhn.pinpoint.web.mapper.ApplicationMapLinkStatisticsMapper;
+import com.nhn.pinpoint.web.vo.Application;
+import com.nhn.pinpoint.web.vo.RawResponseTime;
 import org.apache.hadoop.hbase.client.Scan;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -21,103 +21,69 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- * 
  * @author netspider
  * @author emeroad
- * 
  */
 @Repository
 public class HbaseMapResponseTimeDao implements MapResponseDao {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	private int scanCacheSize = 40;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	private HbaseOperations2 hbaseOperations2;
+    private final String tableName = HBaseTables.APPLICATION_MAP_STATISTICS_SELF;
+
+    private int scanCacheSize = 40;
+
+    @Autowired
+    private RowMapper<RawResponseTime> responseTimeMapper;
+
+    @Autowired
+    private HbaseOperations2 hbaseOperations2;
 
 
     @Override
-    public List<TransactionFlowStatistics> selectResponseTime(String applicationName, short applicationServiceType, long from, long to) {
-        return Collections.emptyList();
-    }
-//	@Override
-//	public List<TransactionFlowStatistics> selectCallee(String callerApplicationName, short callerServiceType, long from, long to) {
-//		Scan scan = createScan(callerApplicationName, callerServiceType, from, to);
-//		final List<List<TransactionFlowStatistics>> foundListList = hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLEE, scan, applicationMapStatisticsCalleeMapper);
-//
-//		if (foundListList.isEmpty()) {
-//			logger.debug("There's no callee data. {}, {}, {}, {}", callerApplicationName, callerServiceType, from, to);
-//		}
-//
-//        return merge(foundListList);
-//	}
-//
-//    private List<TransactionFlowStatistics> merge(List<List<TransactionFlowStatistics>> foundListList) {
-//        final Map<TransactionFlowStatisticsKey, TransactionFlowStatistics> result = new HashMap<TransactionFlowStatisticsKey, TransactionFlowStatistics>();
-//
-//        for (List<TransactionFlowStatistics> foundList : foundListList) {
-//            for (TransactionFlowStatistics found : foundList) {
-//                final TransactionFlowStatisticsKey key = new TransactionFlowStatisticsKey(found);
-//                final TransactionFlowStatistics find = result.get(key);
-//                if (find != null) {
-//                    find.add(found);
-//                } else {
-//                    result.put(key, found);
-//                }
-//            }
-//        }
-//
-//
-//        return new ArrayList<TransactionFlowStatistics>(result.values());
-//    }
+    public List<RawResponseTime> selectResponseTime(Application application, long from, long to) {
+        if (application == null) {
+            throw new NullPointerException("application must not be null");
+        }
+        if (logger.isDebugEnabled()) {
+            logger.debug("selectResponseTime applicationName:{}, from:{}, to:{}", application, from, to);
+        }
+        Scan scan = createScan(application, from, to);
+        List<RawResponseTime> rawResponseTimeList = hbaseOperations2.find(tableName, scan, responseTimeMapper);
+        if (logger.isDebugEnabled()) {
+            logger.debug("row:{}", rawResponseTimeList.size());
+            for (RawResponseTime rawResponseTime : rawResponseTimeList) {
+                logger.debug("rawResponseTime:{}", rawResponseTime);
+            }
+        }
 
-    /**
-	 * 메인페이지 서버 맵에서 연결선을 선택했을 때 보여주는 통계정보.
-	 * 
-	 * @return <pre>
-	 * list [
-	 *     map {
-	 *         key = timestamp
-	 *         value = map {
-	 *             key = histogram slot
-	 *             value = count
-	 *         }
-	 *     }
-	 * ]
-	 * </pre>
-	 */
-//	@Override
-//	public List<Map<Long, Map<Short, Long>>> selectCalleeStatistics(String callerApplicationName, short callerServiceType, String calleeApplicationName, short calleeServiceType, long from, long to) {
-//		if (logger.isDebugEnabled()) {
-//			logger.debug("selectCalleeStatistics. {}, {}, {}, {}, {}, {}", callerApplicationName, callerServiceType, calleeApplicationName, calleeServiceType, from, to);
-//		}
-//		Scan scan = createScan(callerApplicationName, callerServiceType, from, to);
-//		RowMapper<Map<Long, Map<Short, Long>>> mapper = new ApplicationMapLinkStatisticsMapper(callerApplicationName, callerServiceType, calleeApplicationName, calleeServiceType);
-//		return hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLEE, scan, mapper);
-//	}
-//
-//	private Scan createScan(String applicationName, short serviceType, long from, long to) {
-//		long startTime = TimeSlot.getStatisticsRowSlot(from);
-//		// hbase의 scanner를 사용하여 검색시 endTime은 검색 대상에 포함되지 않기 때문에, +1을 해줘야 된다.
-//		long endTime = TimeSlot.getStatisticsRowSlot(to) + 1;
-//
-//		if (logger.isDebugEnabled()) {
-//			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss,SSS");
-//			logger.debug("scan startTime:{} endTime:{}", simpleDateFormat.format(new Date(startTime)), simpleDateFormat.format(new Date(endTime)));
-//		}
-//
-//		// timestamp가 reverse되었기 때문에 start, end를 바꿔서 조회.
-//		byte[] startKey = ApplicationMapStatisticsUtils.makeRowKey(applicationName, serviceType, endTime);
-//		byte[] endKey = ApplicationMapStatisticsUtils.makeRowKey(applicationName, serviceType, startTime);
-//
-//		Scan scan = new Scan();
-//		scan.setCaching(this.scanCacheSize);
-//		scan.setStartRow(startKey);
-//		scan.setStopRow(endKey);
-//		scan.addFamily(HBaseTables.APPLICATION_MAP_STATISTICS_CALLEE_CF_COUNTER);
-//		scan.setId("ApplicationStatisticsScan");
-//
-//		return scan;
-//	}
+        return rawResponseTimeList;
+    }
+
+    private Scan createScan(Application application, long from, long to) {
+        long startTime = TimeSlot.getStatisticsRowSlot(from);
+        // hbase의 scanner를 사용하여 검색시 endTime은 검색 대상에 포함되지 않기 때문에, +1을 해줘야 된다.
+        long endTime = TimeSlot.getStatisticsRowSlot(to) + 1;
+
+        if (logger.isDebugEnabled()) {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss,SSS");
+            logger.debug("scan startTime:{} endTime:{}", simpleDateFormat.format(new Date(startTime)), simpleDateFormat.format(new Date(endTime)));
+        }
+
+        // timestamp가 reverse되었기 때문에 start, end를 바꿔서 조회.
+
+        byte[] startKey = ApplicationMapStatisticsUtils.makeRowKey(application.getApplicationName(), application.getServiceTypeCode(), endTime);
+        byte[] endKey = ApplicationMapStatisticsUtils.makeRowKey(application.getApplicationName(), application.getServiceTypeCode(), startTime);
+
+        final Scan scan = new Scan();
+        scan.setCaching(this.scanCacheSize);
+        scan.setStartRow(startKey);
+        scan.setStopRow(endKey);
+        scan.addFamily(HBaseTables.APPLICATION_MAP_STATISTICS_SELF_CF_COUNTER);
+        scan.setId("ApplicationSelfScan");
+
+        return scan;
+    }
+
 
 }

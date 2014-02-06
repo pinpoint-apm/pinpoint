@@ -3,8 +3,7 @@ package com.nhn.pinpoint.web.vo;
 import com.nhn.pinpoint.web.applicationmap.rawdata.*;
 import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author emeroad
@@ -44,7 +43,17 @@ public class RawResponseTime {
         return newHistogram;
     }
 
-    public ResponseHistogram getTotalResponseHistogram() {
-        throw new UnsupportedOperationException();
+    public List<ResponseHistogram> getResponseHistogramList() {
+        return new ArrayList<ResponseHistogram>(responseHistogramMap.values());
+    }
+
+    @Override
+    public String toString() {
+        return "RawResponseTime{" +
+                "applicationName='" + applicationName + '\'' +
+                ", applicationServiceType=" + applicationServiceType +
+                ", timeSlot=" + timeSlot +
+                ", responseHistogramMap=" + responseHistogramMap +
+                '}';
     }
 }
