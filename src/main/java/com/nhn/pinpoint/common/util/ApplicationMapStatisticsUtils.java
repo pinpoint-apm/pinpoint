@@ -117,18 +117,25 @@ public class ApplicationMapStatisticsUtils {
     }
 
     public static String getApplicationNameFromRowKey(byte[] bytes) {
+        if (bytes == null) {
+            throw new NullPointerException("bytes must not be null");
+        }
         short applicationNameLength = BytesUtils.bytesToShort(bytes, 0);
-        byte[] temp = new byte[applicationNameLength];
-        System.arraycopy(bytes, 2, temp, 0, applicationNameLength);
-        return BytesUtils.toString(temp); //.trim();
+        return BytesUtils.toString(bytes, 2, applicationNameLength); //.trim();
     }
 
     public static short getApplicationTypeFromRowKey(byte[] bytes) {
+        if (bytes == null) {
+            throw new NullPointerException("bytes must not be null");
+        }
         short applicationNameLength = BytesUtils.bytesToShort(bytes, 0);
         return BytesUtils.bytesToShort(bytes, applicationNameLength + 2);
     }
 
     public static long getTimestampFromRowKey(byte[] bytes) {
+        if (bytes == null) {
+            throw new NullPointerException("bytes must not be null");
+        }
         short applicationNameLength = BytesUtils.bytesToShort(bytes, 0);
         return TimeUtils.recoveryCurrentTimeMillis(BytesUtils.bytesToLong(bytes, applicationNameLength + 4));
     }

@@ -80,17 +80,26 @@ public class ApplicationStatisticsUtils {
 	}
 
 	public static String getApplicationNameFromRowKey(byte[] bytes) {
-		short applicationNameLength = BytesUtils.bytesToShort(bytes, 0);
+        if (bytes == null) {
+            throw new NullPointerException("bytes must not be null");
+        }
+        short applicationNameLength = BytesUtils.bytesToShort(bytes, 0);
 		return BytesUtils.toString(bytes, 2, applicationNameLength); //.trim();
 	}
 
 	public static short getApplicationTypeFromRowKey(byte[] bytes) {
-		short applicationNameLength = BytesUtils.bytesToShort(bytes, 0);
+        if (bytes == null) {
+            throw new NullPointerException("bytes must not be null");
+        }
+        short applicationNameLength = BytesUtils.bytesToShort(bytes, 0);
 		return BytesUtils.bytesToShort(bytes, applicationNameLength + 2);
 	}
 	
 	public static long getTimestampFromRowKey(byte[] bytes) {
-		short applicationNameLength = BytesUtils.bytesToShort(bytes, 0);
+        if (bytes == null) {
+            throw new NullPointerException("bytes must not be null");
+        }
+        short applicationNameLength = BytesUtils.bytesToShort(bytes, 0);
 		return TimeUtils.recoveryCurrentTimeMillis(BytesUtils.bytesToLong(bytes, applicationNameLength + 4));
 	}
 }
