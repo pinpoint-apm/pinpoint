@@ -121,8 +121,8 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     } else {
                         ServerMapDao.getServerMapData(htLastQuery, function (err, query, serverMapData) {
                             if (err) {
-                               oProgressBar.stopLoading();
-                               oAlert.showError('There is some error.');
+                                oProgressBar.stopLoading();
+                                oAlert.showError('There is some error.');
                             }
                             oProgressBar.setLoading(50);
                             htLastMapData = serverMapData;
@@ -334,7 +334,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * open filter wizard
                  */
                 scope.openFilterWizard = function () {
-reset();
+                    reset();
                     var oSidebarTitleVo = new SidebarTitleVo;
                     oSidebarTitleVo
                         .setImageType(scope.srcServiceType)
