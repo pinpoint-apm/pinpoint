@@ -12,6 +12,8 @@ disable 'Traces'
 
 disable 'ApplicationMapStatisticsCaller'
 disable 'ApplicationMapStatisticsCallee'
+disable 'ApplicationMapStatisticsSelf'
+
 disable 'ApplicationStatistics'
 disable 'HostApplicationMap'
 
@@ -29,6 +31,8 @@ drop 'Traces'
 
 drop 'ApplicationMapStatisticsCaller'
 drop 'ApplicationMapStatisticsCallee'
+drop 'ApplicationMapStatisticsSelf'
+
 drop 'ApplicationStatistics'
 drop 'HostApplicationMap'
 
@@ -46,6 +50,8 @@ create 'ApplicationTraceIndex', { NAME => 'I', TTL => 5184000, COMPRESSION => 'S
 
 create 'ApplicationMapStatisticsCaller', { NAME => 'C', TTL => 5184000, VERSION => 1, COMPRESSION => 'SNAPPY' }
 create 'ApplicationMapStatisticsCallee', { NAME => 'C', TTL => 5184000, VERSION => 1, COMPRESSION => 'SNAPPY' }
+create 'ApplicationMapStatisticsSelf', { NAME => 'C', TTL => 5184000, VERSION => 1, COMPRESSION => 'SNAPPY' }
+
 create 'ApplicationStatistics', { NAME => 'C', TTL => 5184000, VERSION => 1, COMPRESSION => 'SNAPPY' }
 create 'HostApplicationMap', { NAME => 'M', TTL => 5184000, VERSION => 1, COMPRESSION => 'SNAPPY' }
 

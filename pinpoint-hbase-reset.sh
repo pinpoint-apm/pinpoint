@@ -12,6 +12,8 @@ disable 'Traces'
 
 disable 'ApplicationMapStatisticsCaller'
 disable 'ApplicationMapStatisticsCallee'
+disable 'ApplicationMapStatisticsSelf'
+
 disable 'ApplicationStatistics'
 disable 'HostApplicationMap'
 
@@ -29,6 +31,8 @@ drop 'Traces'
 
 drop 'ApplicationMapStatisticsCaller'
 drop 'ApplicationMapStatisticsCallee'
+drop 'ApplicationMapStatisticsSelf'
+
 drop 'ApplicationStatistics'
 drop 'HostApplicationMap'
 
