@@ -31,6 +31,14 @@ public class FilterChain implements Filter {
 		}
 		return true;
 	}
+	
+	public Filter get() {
+		if (filterList.size() == 1) {
+			return filterList.get(0);
+		} else {
+			return this;
+		}
+	}
 
 	@Override
 	public String toString() {

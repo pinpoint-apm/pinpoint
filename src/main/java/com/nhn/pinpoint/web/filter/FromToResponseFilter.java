@@ -22,6 +22,10 @@ public class FromToResponseFilter implements Filter {
 	private final Long toResponseTime;
 	private final Boolean includeFailed;
 
+	public FromToResponseFilter(FilterDescriptor filterDescriptor) {
+		this(filterDescriptor.getFromServiceType(), filterDescriptor.getFromApplicationName(), filterDescriptor.getToServiceType(), filterDescriptor.getToApplicationName(), filterDescriptor.getResponseFrom(), filterDescriptor.getResponseTo(), filterDescriptor.getIncludeException());
+	}
+
 	public FromToResponseFilter(String fromServiceType, String fromApplicationName, String toServiceType, String toApplicationName, Long fromResponseTime, Long toResponseTime, Boolean includeFailed) {
 		if (fromApplicationName == null) {
 			throw new NullPointerException("fromApplicationName must not be null");

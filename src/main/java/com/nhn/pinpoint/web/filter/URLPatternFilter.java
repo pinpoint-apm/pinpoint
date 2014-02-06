@@ -18,13 +18,10 @@ public class URLPatternFilter implements Filter {
 	private final Filter fromToFilter;
 	private final AntPathMatcher matcher = new AntPathMatcher();
 
-	/**
-	 * 
-	 * @param url
-	 * @param targetApplicationName
-	 *            user request url을 필터하려면 null을 입력. 특정 application을 요청하는 url을
-	 *            필터하려면 해당 application name을 입력
-	 */
+	public URLPatternFilter(FilterDescriptor filterDescriptor) {
+		this(filterDescriptor.getFromServiceType(), filterDescriptor.getFromApplicationName(), filterDescriptor.getToServiceType(), filterDescriptor.getToApplicationName(), filterDescriptor.getUrlPattern());
+	}
+	
 	public URLPatternFilter(String fromServiceType, String fromApplicationName, String toServiceType, String toApplicationName, String urlPattern) {
 		this.fromToFilter = new FromToFilter(fromServiceType, fromApplicationName, toServiceType, toApplicationName);
 		this.urlPattern = urlPattern;
