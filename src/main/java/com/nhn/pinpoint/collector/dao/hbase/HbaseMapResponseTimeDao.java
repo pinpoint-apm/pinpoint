@@ -21,7 +21,7 @@ import java.util.Map;
 import static com.nhn.pinpoint.common.hbase.HBaseTables.*;
 
 /**
- * 나를 호출한 application 통계 갱신
+ * was의 응답시간 데이터를 저장한다.
  * 
  * @author netspider
  * @author emeroad
@@ -100,7 +100,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
 	@Override
 	public void flushAll() {
 		if (!useBulk) {
-			throw new IllegalStateException();
+			throw new IllegalStateException("useBulk is " + useBulk);
 		}
         // 일단 rowkey and column 별로 업데이트 치게 함. rowkey 별로 묶어서 보내야 될듯.
         Map<RowInfo,ConcurrentCounterMap.LongAdder> remove = this.counter.remove();
