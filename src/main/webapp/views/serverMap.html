@@ -5,9 +5,9 @@
             <h6 ng-show="oNavbarVo.getQueryStartTime() && oNavbarVo.getQueryEndTime()">{{oNavbarVo.getQueryStartTime() |
                 date:'yyyy-MM-dd HH:mm:ss'}} ~ {{oNavbarVo.getQueryEndTime() | date:'yyyy-MM-dd HH:mm:ss'}}</h6>
             <!--<h6 ng-if="oNavbarVo.getFilter()">Base WAS : {{oNavbarVo.getApplicationName()}}</h6>-->
-            <ul class="list-unstyled" ng-if="oNavbarVo.getFilter()"
-                ng-bind-html="oNavbarVo.getFilter() | filterToString">
-            </ul>
+            <!--<ul class="list-unstyled" ng-if="oNavbarVo.getFilter()"-->
+                <!--ng-bind-html="oNavbarVo.getFilter() | filterToString">-->
+            <!--</ul>-->
         </div>
     </div>
     <div ng-include=" 'error' "></div>
