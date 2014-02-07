@@ -1,7 +1,7 @@
 'use strict';
 
 pinpointApp.factory('ServerMapFilterVo', [  function () {
-    return function () {
+    return function ServerMapFilterVo(dataSet) {
         var self = this;
 
         this._sFromApplication = null;
@@ -9,9 +9,9 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
         this._sToApplication = null;
         this._sToServiceType = null;
         this._sResponseFrom = 0;
-        this._sResponseTo = 300000;
+        this._sResponseTo = 30000;
         this._bIncludeException = false;
-        this._sRequestUrlPattern = false;
+        this._sRequestUrlPattern = '';
 
         this.setFromApplication = function (fromApplication) {
             if (angular.isString(fromApplication)) {
@@ -62,7 +62,9 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
         };
 
         this.setResponseFrom = function (responseFrom) {
-            if (angular.isString(responseFrom) || angular.isNumber(responseFrom)) {
+            if (angular.isString(responseFrom)) {
+                self._sResponseFrom = parseInt(responseFrom, 10);
+            } else if (angular.isNumber(responseFrom)) {
                 self._sResponseFrom = responseFrom;
             } else {
                 throw new Error('responseFrom should be string in ServerMapFilterVo.');
@@ -73,10 +75,11 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
             return self._sResponseFrom;
         };
 
-
         this.setResponseTo = function (responseTo) {
-            if (angular.isString(responseTo) || angular.isNumber(responseTo)) {
+            if (angular.isNumber(responseTo) || responseTo === 'max') {
                 self._sResponseTo = responseTo;
+            } else if (angular.isString(responseTo)) {
+                self._sResponseTo = parseInt(responseTo, 10);
             } else {
                 throw new Error('responseTo should be string in ServerMapFilterVo.');
             }
@@ -130,5 +133,29 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
             }
             return filter;
         };
+
+
+        /**
+         * initialize
+         */
+        if (dataSet && angular.isObject(dataSet)) {
+            this
+                .setFromApplication(dataSet.fa)
+                .setFromServiceType(dataSet.fst)
+                .setToApplication(dataSet.ta)
+                .setToServiceType(dataSet.tst);
+
+            if (angular.isNumber(dataSet.rf) && dataSet.rt) {
+                this
+                    .setResponseFrom(dataSet.rf)
+                    .setResponseTo(dataSet.rt);
+            }
+            if (dataSet.ie) {
+                this.setIncludeException(dataSet.ie)
+            }
+            if (dataSet.url) {
+                this.setRequestUrlPattern(dataSet.url);
+            }
+        }
     };
 }]);

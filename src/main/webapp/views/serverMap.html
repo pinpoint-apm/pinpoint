@@ -41,7 +41,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title" id="myFilterWizard">Filer Wizard</h4>
+                    <h4 class="modal-title" id="myFilterWizard">Filter Wizard</h4>
                 </div>
                 <div class="modal-body">
                     <form class="form-horizontal" role="form">
@@ -53,7 +53,7 @@
                             <label for="urlPattern" class="col-sm-2 control-label">URL Pattern</label>
 
                             <div class="col-sm-8">
-                                <input type="text" class="form-control" id="urlPattern" placeholder="URL Pattern" ng-model="urlPattern">
+                                <input type="text" class="form-control" id="urlPattern" placeholder="Request URL Pattern" ng-model="urlPattern">
                             </div>
                             <div class="col-sm-2" style="padding-top:7px">
                                 <span class="label label-info">ant-style</span>
@@ -63,7 +63,8 @@
                             <label class="col-sm-2 control-label" style="padding-top: 17px;">Response Time</label>
 
                             <div class="col-sm-8">
-                                <slider id="responseTime" floor="0" ceiling="30000" step="100" ng-model-low="responseTime.min" ng-model-high="responseTime.max" translate="responseTimeFormatting"></slider>
+                                <slider id="responseTime" floor="0" ceiling="30000" step="100" ng-model-low="responseTime.from" ng-model-high="responseTime.to" translate="responseTimeFormatting"></slider>
+                                {{responseTime.from}} ~ {{responseTime.to}}
                             </div>
                         </div>
                         <div class="form-group">

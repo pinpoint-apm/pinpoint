@@ -26,8 +26,8 @@ pinpointApp.constant('serverMapConfig', {
     }
 });
 
-pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts', 'ProgressBar', 'SidebarTitleVo', '$filter', 'ServerMapFilterVo', 'encodeURIComponentFilter',
-    function (cfg, ServerMapDao, Alerts, ProgressBar, SidebarTitleVo, $filter, ServerMapFilterVo, encodeURIComponentFilter) {
+pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts', 'ProgressBar', 'SidebarTitleVo', '$filter', 'ServerMapFilterVo', 'encodeURIComponentFilter', 'filteredMapUtil', '$timeout',
+    function (cfg, ServerMapDao, Alerts, ProgressBar, SidebarTitleVo, $filter, ServerMapFilterVo, encodeURIComponentFilter, filteredMapUtil, $timeout) {
         return {
             restrict: 'EA',
             replace: true,
@@ -58,7 +58,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 htLastQuery = {};
                 oAlert = new Alerts(element);
                 oProgressBar = new ProgressBar(element);
-                scope.oNavbar = null;
+                scope.oNavbarVo = null;
                 scope.mergeUnknowns = true;
                 scope.totalRequestCount = true;
                 scope.bShowServerMapStatus = false;
@@ -145,10 +145,10 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     scope.nodeContextMenuStyle = '';
                     scope.linkContextMenuStyle = '';
                     scope.backgroundContextMenuStyle = '';
-                    scope.filterWizardStyle = '';
+                    scope.urlPattern = '';
                     scope.responseTime = {
-                        min: 0,
-                        max: 30001
+                        from: 0,
+                        to: 30000
                     };
                     scope.includeFailed = false;
                     $('#filterWizard').modal('hide');
@@ -342,9 +342,37 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         .setImageType2(scope.destServiceType)
                         .setTitle2(scope.destApplicationName);
                     scope.$broadcast('sidebarTitle.initialize.forServerMap', oSidebarTitleVo);
-                    $('#filterWizard').modal('show');
+
+                    $('#filterWizard')
+                        .modal('show')
+                        .on('shown.bs.dropdown', function () {
+                            if (scope.oNavbarVo.getFilter()) {
+                                var result = filteredMapUtil.findFilterInNavbarVo(
+                                                scope.srcApplicationName,
+                                                scope.srcServiceType,
+                                                scope.destApplicationName,
+                                                scope.destServiceType,
+                                                scope.oNavbarVo);
+                                if (result) {
+                                    scope.urlPattern = result.oServerMapFilterVo.getRequestUrlPattern();
+                                    scope.responseTime = {
+                                        from: result.oServerMapFilterVo.getResponseFrom(),
+                                        to: result.oServerMapFilterVo.getResponseTo()
+                                    };
+                                    scope.includeFailed = result.oServerMapFilterVo.getIncludeException();
+                                    if (!scope.$$phase) {
+                                        scope.$digest();
+                                    }
+                                }
+                            }
+                        });
                 };
 
+                /**
+                 * response time formatting
+                 * @param value
+                 * @returns {string}
+                 */
                 scope.responseTimeFormatting = function (value) {
                     if (value == 30000) {
                         return '30,000+ ms';
@@ -363,8 +391,8 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         .setFromServiceType(scope.srcServiceType)
                         .setToApplication(scope.destApplicationName)
                         .setToServiceType(scope.destServiceType)
-                        .setResponseFrom(scope.responseTime.min)
-                        .setResponseTo(scope.responseTime.max)
+                        .setResponseFrom(scope.responseTime.from)
+                        .setResponseTo(scope.responseTime.to)
                         .setIncludeException(scope.includeFailed)
                         .setRequestUrlPattern(scope.urlPattern);
                     scope.$broadcast('serverMap.openFilteredMap', oServerMapFilterVo);

@@ -37,6 +37,9 @@ pinpointApp.factory('SidebarTitleVo', [ function () {
                 return false;
             }
         };
+        this.getImageType = function () {
+            return self._sImageType;
+        };
         this.getImage = function () {
             return self._sImage;
         };
@@ -60,6 +63,9 @@ pinpointApp.factory('SidebarTitleVo', [ function () {
                 throw 'ImageType2 should be string in SidebarTitleVo';
             }
             return self;
+        };
+        this.getImageType2 =function () {
+            return self._sImageType2;
         };
         this.getImage2 = function () {
             return self._sImage2;
