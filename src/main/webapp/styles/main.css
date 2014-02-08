@@ -65,33 +65,6 @@ canvas {outline:none}
   width: 0;
 }
 
-.onoff-ico {
-  display: inline-block;
-  width: 12px;
-  height: 54px;
-  background-repeat: no-repeat;
-  background-image: url('../images/onoff.png');
-  vertical-align: middle;
-}
-
-
-/* divider */
-.divider-open {
-  background-position: 0 0;  
-}
-.onoff-ico.divider-open:hover,
-.onoff-ico.divider-open:focus {
-  background-position: 0 -56px;
-}
-
-.divider-closed {
-  background-position: -12px 0;  
-}
-.onoff-ico.divider-closed:hover,
-.onoff-ico.divider-closed:focus {
-  background-position: -12px -56px;
-}
-
 /* info-details */
 .info-details {
     position: absolute;
@@ -103,6 +76,12 @@ canvas {outline:none}
 }
 .info-details.has-scatter {
     top: 330px;
+}
+.info-details.has-filter {
+    top: 160px;
+}
+.info-details.has-scatter.has-filter {
+    top: 440px;
 }
 
 .wait {

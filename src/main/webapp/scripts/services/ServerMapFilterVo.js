@@ -9,7 +9,7 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
         this._sToApplication = null;
         this._sToServiceType = null;
         this._sResponseFrom = 0;
-        this._sResponseTo = 30000;
+        this._sResponseTo = 'max';
         this._bIncludeException = false;
         this._sRequestUrlPattern = '';
 
@@ -76,10 +76,15 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
         };
 
         this.setResponseTo = function (responseTo) {
-            if (angular.isNumber(responseTo) || responseTo === 'max') {
-                self._sResponseTo = responseTo;
-            } else if (angular.isString(responseTo)) {
-                self._sResponseTo = parseInt(responseTo, 10);
+            if (responseTo === 'max') {
+                self._sResponseTo = 'max';
+            } else if (angular.isNumber(responseTo) || angular.isString(responseTo)){
+                responseTo = parseInt(responseTo, 10);
+                if (responseTo >= 30000) {
+                    self._sResponseTo = 'max';
+                } else {
+                    self._sResponseTo = responseTo;
+                }
             } else {
                 throw new Error('responseTo should be string in ServerMapFilterVo.');
             }

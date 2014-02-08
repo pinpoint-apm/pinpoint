@@ -69,6 +69,23 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
         };
 
         /**
+         * get info details class
+         * @returns {string}
+         */
+        $scope.getInfoDetailsClass = function () {
+            var infoDetailsClass = [];
+
+            if ($scope.hasScatter) {
+                infoDetailsClass.push('has-scatter');
+            }
+            if ($scope.hasFilter) {
+                infoDetailsClass.push('has-filter');
+            }
+
+            return infoDetailsClass.join(' ');
+        };
+
+        /**
          * scope event on navbar.changed
          */
         $scope.$on('navbar.changed', function (event, navbarVo) {
@@ -109,7 +126,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
             } else {
                 $scope.hasScatter = false;
             }
-
+            $scope.hasFilter = false;
             $scope.$broadcast('sidebarTitle.initialize.forMain', oSidebarTitleVo);
             $scope.$broadcast('nodeInfoDetails.initialize', e, query, node, data, oNavbarVo);
             $scope.$broadcast('linkInfoDetails.reset');
@@ -132,6 +149,19 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
                     .setTitle2(link.targetinfo.applicationName);
             }
             $scope.hasScatter = false;
+            var foundFilter = filteredMapUtil.findFilterInNavbarVo(
+                link.sourceinfo.applicationName,
+                link.sourceinfo.serviceType,
+                link.targetinfo.applicationName,
+                link.targetinfo.serviceType,
+                oNavbarVo
+            );
+            if (foundFilter) {
+                $scope.hasFilter = true;
+                $scope.$broadcast('filterInformation.initialize.forMain', foundFilter.oServerMapFilterVo);
+            } else {
+                $scope.hasFilter = false;
+            }
             $scope.$broadcast('sidebarTitle.initialize.forMain', oSidebarTitleVo);
             $scope.$broadcast('nodeInfoDetails.reset');
             $scope.$broadcast('linkInfoDetails.initialize', e, query, link, data, oNavbarVo);

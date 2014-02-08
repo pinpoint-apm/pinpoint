@@ -8,8 +8,9 @@
     </div>
     <div class="sidebar" ng-class="sidebar">
         <sidebar-title namespace="forFilteredMap"></sidebar-title>
+        <filter-information namespace="forFilteredMap" ng-show="hasFilter"></filter-information>
         <scatter ng-show="hasScatter"></scatter>
-        <div class="info-details" ng-class="{'has-scatter': hasScatter}">
+        <div class="info-details" ng-class="getInfoDetailsClass()">
             <node-info-details></node-info-details>
             <link-info-details></link-info-details>
         </div>

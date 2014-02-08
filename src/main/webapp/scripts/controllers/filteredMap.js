@@ -51,6 +51,23 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
         };
 
         /**
+         * get info details class
+         * @returns {string}
+         */
+        $scope.getInfoDetailsClass = function () {
+            var infoDetailsClass = [];
+
+            if ($scope.hasScatter) {
+                infoDetailsClass.push('has-scatter');
+            }
+            if ($scope.hasFilter) {
+                infoDetailsClass.push('has-filter');
+            }
+
+            return infoDetailsClass.join(' ');
+        };
+
+        /**
          * scope event on serverMap.fetched
          */
         $scope.$on('serverMap.fetched', function (event, lastFetchedTimestamp, mapData) {
@@ -117,7 +134,7 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
             } else {
                 $scope.hasScatter = false;
             }
-
+            $scope.hasFilter = false;
             $scope.$broadcast('sidebarTitle.initialize.forFilteredMap', oSidebarTitleVo);
             $scope.$broadcast('nodeInfoDetails.initialize', e, query, node, data, oNavbarVo);
             $scope.$broadcast('linkInfoDetails.reset', e, query, node, data, oNavbarVo);
@@ -140,8 +157,21 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
                     .setTitle2(link.targetinfo.applicationName);
             }
             $scope.hasScatter = false;
-            $scope.$broadcast('sidebarTitle.initialize.forMain', oSidebarTitleVo);
-            $scope.$broadcast('nodeInfoDetails.reset', e, query, link, data, oNavbarVo);
+            var foundFilter = filteredMapUtil.findFilterInNavbarVo(
+                link.sourceinfo.applicationName,
+                link.sourceinfo.serviceType,
+                link.targetinfo.applicationName,
+                link.targetinfo.serviceType,
+                oNavbarVo
+            );
+            if (foundFilter) {
+                $scope.hasFilter = true;
+                $scope.$broadcast('filterInformation.initialize.forFilteredMap', foundFilter.oServerMapFilterVo);
+            } else {
+                $scope.hasFilter = false;
+            }
+            $scope.$broadcast('sidebarTitle.initialize.forFilteredMap', oSidebarTitleVo);
+            $scope.$broadcast('nodeInfoDetails.reset');
             $scope.$broadcast('linkInfoDetails.initialize', e, query, link, data, oNavbarVo);
         });
 
@@ -171,7 +201,7 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
                 .setTitle(link.sourceinfo.applicationName)
                 .setImageType2(link.targetinfo.serviceType)
                 .setTitle2(link.targetinfo.applicationName);
-            $scope.$broadcast('sidebarTitle.initialize.forMain', oSidebarTitleVo);
+            $scope.$broadcast('sidebarTitle.initialize.forFilteredMap', oSidebarTitleVo);
             $scope.$broadcast('nodeInfoDetails.reset');
             $scope.$broadcast('linkInfoDetails.initialize', null, query, link);
 
