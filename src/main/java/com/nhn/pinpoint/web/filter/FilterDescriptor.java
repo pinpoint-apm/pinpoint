@@ -9,7 +9,7 @@ public class FilterDescriptor {
 	private String ta = null;
 	private String tst = null;
 	private Long rf = null;
-	private Long rt = null;
+	private String rt = null;
 	private Boolean ie = null;
 	private String url = null;
 
@@ -22,7 +22,7 @@ public class FilterDescriptor {
 	}
 
 	public boolean isValidFromToResponseTime() {
-		return !((rf == null && rt != null) || (rf != null && rt == null));
+		return !((rf == null && !StringUtils.isEmpty(rt)) || (rf != null && StringUtils.isEmpty(rt)));
 	}
 
 	public boolean isSetUrl() {
@@ -50,7 +50,11 @@ public class FilterDescriptor {
 	}
 
 	public Long getResponseTo() {
-		return rt;
+		if ("max".equals(rt)) {
+			return Long.MAX_VALUE;
+		} else {
+			return Long.valueOf(rt);
+		}
 	}
 
 	public Boolean getIncludeException() {
@@ -101,11 +105,11 @@ public class FilterDescriptor {
 		this.rf = rf;
 	}
 
-	public Long getRt() {
+	public String getRt() {
 		return rt;
 	}
 
-	public void setRt(Long rt) {
+	public void setRt(String rt) {
 		this.rt = rt;
 	}
 
