@@ -100,6 +100,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                             if (err) {
                                 oProgressBar.stopLoading();
                                 oAlert.showError('There is some error.');
+                                return false;
                             }
                             oProgressBar.setLoading(50);
                             if (query.from === result.lastFetchedTimestamp) {
@@ -123,6 +124,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                             if (err) {
                                 oProgressBar.stopLoading();
                                 oAlert.showError('There is some error.');
+                                return false;
                             }
                             oProgressBar.setLoading(50);
                             htLastMapData = serverMapData;
