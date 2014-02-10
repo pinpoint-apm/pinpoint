@@ -11,6 +11,7 @@ import com.nhn.pinpoint.common.util.DateUtils;
 import com.nhn.pinpoint.web.util.LimitUtils;
 import com.nhn.pinpoint.web.filter.Filter;
 import com.nhn.pinpoint.web.filter.FilterBuilder;
+import com.nhn.pinpoint.web.vo.Range;
 import com.nhn.pinpoint.web.vo.scatter.Dot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,8 +56,7 @@ public class ScatterChartController {
 
 	@RequestMapping(value = "/scatterpopup", method = RequestMethod.GET)
 	public String scatterPopup(Model model,
-								HttpServletResponse response,
-								@RequestParam("application") String applicationName, 
+								@RequestParam("application") String applicationName,
 								@RequestParam("from") long from, 
 								@RequestParam("to") long to, 
 								@RequestParam("period") long period, 
@@ -74,7 +74,6 @@ public class ScatterChartController {
 	/**
 	 * 
 	 * @param model
-	 * @param response
 	 * @param applicationName
 	 * @param from
 	 * @param to
@@ -85,8 +84,7 @@ public class ScatterChartController {
 	 */
 	@RequestMapping(value = "/getScatterData", method = RequestMethod.GET)
 	public String getScatterData(Model model,
-								HttpServletResponse response,
-								@RequestParam("application") String applicationName, 
+								@RequestParam("application") String applicationName,
 								@RequestParam("from") long from, 
 								@RequestParam("to") long to,
 								@RequestParam("limit") int limit, 
@@ -98,11 +96,12 @@ public class ScatterChartController {
 		
 		StopWatch watch = new StopWatch();
 		watch.start("selectScatterData");
-		
+
+        final Range range = new Range(from, to);
 		List<Dot> scatterData;
 		if (filterText == null) {
 			// FIXME ResultWithMark로 변경해야할지도?
-			scatterData = scatter.selectScatterData(applicationName, from, to, limit);
+			scatterData = scatter.selectScatterData(applicationName, range, limit);
 			
 			if (scatterData.isEmpty()) {
 				model.addAttribute("resultFrom", -1);
@@ -112,7 +111,7 @@ public class ScatterChartController {
 				model.addAttribute("resultTo", to);
 			}
 		} else {
-			final LimitedScanResult<List<TransactionId>> limitedScanResult = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
+			final LimitedScanResult<List<TransactionId>> limitedScanResult = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
 			final List<TransactionId> traceIdList = limitedScanResult.getScanData();
 			logger.trace("submitted transactionId count={}", traceIdList.size());
 			// TODO sorted만 하는가? tree기반으로 레인지 체크하도록 하고 삭제하도록 하자.
@@ -154,15 +153,13 @@ public class ScatterChartController {
 	 * NOW 버튼을 눌렀을 때 scatter 데이터 조회.
 	 * 
 	 * @param model
-	 * @param response
 	 * @param applicationName
 	 * @param limit
 	 * @return
 	 */
 	@RequestMapping(value = "/getLastScatterData", method = RequestMethod.GET)
 	public String getLastScatterData(Model model, 
-									HttpServletResponse response, 
-									@RequestParam("application") String applicationName, 
+									@RequestParam("application") String applicationName,
 									@RequestParam("period") long period,
 									@RequestParam("limit") int limit,
 									@RequestParam(value = "filter", required = false) String filterText,
@@ -173,7 +170,7 @@ public class ScatterChartController {
         long to = TimeUtils.getDelayLastTime();
 		long from = to - period;
 		// TODO version은 임시로 사용됨. template변경과 서버개발을 동시에 하려고..
-		return getScatterData(model, response, applicationName, from, to, limit, filterText, jsonpCallback, version);
+		return getScatterData(model, applicationName, from, to, limit, filterText, jsonpCallback, version);
 	}
 
 	/**

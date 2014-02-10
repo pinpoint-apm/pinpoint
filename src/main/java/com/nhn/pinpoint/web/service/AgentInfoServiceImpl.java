@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import com.nhn.pinpoint.web.vo.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 	 * 사용될 것임.
 	 */
 	@Override
-	public SortedMap<String, List<AgentInfoBo>> getApplicationAgentList(String applicationName, long from, long to) {
+	public SortedMap<String, List<AgentInfoBo>> getApplicationAgentList(String applicationName, Range range) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
@@ -49,7 +50,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         }
 		
 		if (agentIdList == null || agentIdList.length == 0) {
-			logger.debug("agentIdList is empty. applicationName={}, from={}", applicationName, from);
+			logger.debug("agentIdList is empty. applicationName={}, {}", applicationName, range);
 			return new TreeMap<String, List<AgentInfoBo>>();
 		}
 		
@@ -58,10 +59,10 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 		SortedMap<String, List<AgentInfoBo>> result = new TreeMap<String, List<AgentInfoBo>>();
 
 		for (String agentId : agentIdList) {
-			List<AgentInfoBo> agentInfoList = agentInfoDao.getAgentInfo(agentId, from, to);
+			List<AgentInfoBo> agentInfoList = agentInfoDao.getAgentInfo(agentId, range);
 
 			if (agentInfoList.isEmpty()) {
-				logger.debug("agentinfolist is empty. agentid={}, from={}", agentId, from);
+				logger.debug("agentinfolist is empty. agentid={}, {}", agentId, range);
 				continue;
 			}
 

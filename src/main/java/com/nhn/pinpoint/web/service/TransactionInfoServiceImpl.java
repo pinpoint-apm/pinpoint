@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.nhn.pinpoint.web.util.Stack;
+import com.nhn.pinpoint.web.vo.Range;
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 	private TraceDao traceDao;
     
 	@Override
-	public BusinessTransactions selectBusinessTransactions(List<TransactionId> transactionIdList, String applicationName, long from, long to, Filter filter) {
+	public BusinessTransactions selectBusinessTransactions(List<TransactionId> transactionIdList, String applicationName, Range range, Filter filter) {
         if (transactionIdList == null) {
             throw new NullPointerException("transactionIdList must not be null");
         }
@@ -48,6 +49,11 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         if (filter == null) {
             throw new NullPointerException("filter must not be null");
         }
+        if (range == null) {
+            // TODO 레인지를 사용하지 않네. 확인필요.
+            throw new NullPointerException("range must not be null");
+        }
+
 
         List<List<SpanBo>> traceList;
 

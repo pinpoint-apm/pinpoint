@@ -35,12 +35,12 @@
 
 
     <logger name="com.nhn.pinpoint" additivity="false">
-        <level value="INFO"/>
+        <level value="DEBUG"/>
         <appender-ref ref="console"/>
     </logger>
     
     <logger name="com.nhn.pinpoint.web.filter" additivity="false">
-        <level value="INFO"/>
+        <level value="DEBUG"/>
         <appender-ref ref="console"/>
     </logger>
     
@@ -109,7 +109,7 @@
     </logger>
 
     <root>
-        <level value="INFO"/>
+        <level value="DEBUG"/>
         <!--<appender-ref ref="nelo-async"/>-->
     </root>
 </log4j:configuration>

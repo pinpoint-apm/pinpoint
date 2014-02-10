@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.nhn.pinpoint.thrift.dto.TAgentStat;
+import com.nhn.pinpoint.web.vo.Range;
 import org.apache.hadoop.hbase.client.Scan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,25 +49,25 @@ public class HbaseAgentStatDao implements AgentStatDao {
 		this.scanCacheSize = scanCacheSize;
 	}
 	
-	public List<TAgentStat> scanAgentStatList(String agentId, long start, long end) {
+	public List<TAgentStat> scanAgentStatList(String agentId, Range range) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
 
         if (logger.isDebugEnabled()) {
-			logger.debug("scanAgentStat : agentId={}, start={}, end={}", agentId, start, end);
+			logger.debug("scanAgentStat : agentId={}, {}", agentId, range);
 		}
 		
-		if (end < start) {
-			logger.error("invalid parameter : agentId={}, start={}, end={}", agentId, start, end);
+		if (range.getTo() < range.getFrom()) {
+			logger.error("invalid parameter : agentId={}, {}", agentId, range);
 			return Collections.emptyList();
 		}
 		
-		Scan scan = createScan(agentId, start, end);
+		Scan scan = createScan(agentId, range);
 		
 		List<List<TAgentStat>> intermediate = hbaseOperations2.find(HBaseTables.AGENT_STAT, scan, rowKeyDistributor, agentStatMapper);
 		
-		int expectedSize = (int)((end - start) / 5000); // 5초간 데이터
+		int expectedSize = (int)((range.getTo() - range.getFrom()) / 5000); // 5초간 데이터
         List<TAgentStat> merged = new ArrayList<TAgentStat>(expectedSize);
         
         for(List<TAgentStat> each : intermediate) {
@@ -88,12 +89,12 @@ public class HbaseAgentStatDao implements AgentStatDao {
 		return RowKeyUtils.concatFixedByteAndLong(bAgentId, AGENT_NAME_MAX_LEN, TimeUtils.reverseCurrentTimeMillis(timestamp));
 	}
 
-	private Scan createScan(String agentId, long start, long end) {
+	private Scan createScan(String agentId, Range range) {
 		Scan scan = new Scan();
 		scan.setCaching(this.scanCacheSize);
 
-		byte[] startKey = getRowKey(agentId, start);
-		byte[] endKey = getRowKey(agentId, end);
+		byte[] startKey = getRowKey(agentId, range.getFrom());
+		byte[] endKey = getRowKey(agentId, range.getTo());
 
 		// key가 reverse되었기 떄문에 start, end가 뒤바뀌게 된다.
 		scan.setStartRow(endKey);

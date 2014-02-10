@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.nhn.pinpoint.web.vo.LimitedScanResult;
+import com.nhn.pinpoint.web.vo.Range;
 import com.nhn.pinpoint.web.vo.scatter.Dot;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
@@ -58,7 +59,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 	}
 
 	@Override
-	public LimitedScanResult<List<TransactionId>> scanTraceIndex(final String applicationName, long start, long end, int limit) {
+	public LimitedScanResult<List<TransactionId>> scanTraceIndex(final String applicationName, Range range, int limit) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
@@ -66,7 +67,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             throw new IllegalArgumentException("negative limit:" + limit);
         }
         logger.debug("scanTraceIndex");
-		Scan scan = createScan(applicationName, start, end);
+		Scan scan = createScan(applicationName, range);
 		
 		final LimitedScanResult<List<TransactionId>> limitedScanResult = new LimitedScanResult<List<TransactionId>>();
         LastRowAccessor lastRowAccessor = new LastRowAccessor();
@@ -87,9 +88,9 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             }
         } else {
             if (logger.isDebugEnabled()) {
-                logger.debug("scanner start lastTime:{}", DateUtils.longToDateStr(start));
+                logger.debug("scanner start lastTime:{}", DateUtils.longToDateStr(range.getFrom()));
             }
-            limitedScanResult.setLimitedTime(start);
+            limitedScanResult.setLimitedTime(range.getFrom());
         }
 
 
@@ -122,13 +123,13 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         }
     }
 
-	private Scan createScan(String applicationName, long start, long end) {
+	private Scan createScan(String applicationName, Range range) {
 		Scan scan = new Scan();
 		scan.setCaching(this.scanCacheSize);
 
 		byte[] bAgent = Bytes.toBytes(applicationName);
-		byte[] traceIndexStartKey = SpanUtils.getTraceIndexRowKey(bAgent, start);
-		byte[] traceIndexEndKey = SpanUtils.getTraceIndexRowKey(bAgent, end);
+		byte[] traceIndexStartKey = SpanUtils.getTraceIndexRowKey(bAgent, range.getFrom());
+		byte[] traceIndexEndKey = SpanUtils.getTraceIndexRowKey(bAgent, range.getTo());
 
 		// key가 reverse되었기 떄문에 start, end가 뒤바뀌게 된다.
 		scan.setStartRow(traceIndexEndKey);
@@ -144,7 +145,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
 
 	@Override
-	public List<Dot> scanTraceScatter(String applicationName, long start, long end, final int limit) {
+	public List<Dot> scanTraceScatter(String applicationName, Range range, final int limit) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
@@ -152,7 +153,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             throw new IllegalArgumentException("negative limit:" + limit);
         }
         logger.debug("scanTraceScatter");
-        Scan scan = createScan(applicationName, start, end);
+        Scan scan = createScan(applicationName, range);
 
         List<List<Dot>> dotListList = hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, limit, traceIndexScatterMapper);
         List<Dot> mergeList = new ArrayList<Dot>(limit + 10);

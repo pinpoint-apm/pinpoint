@@ -56,24 +56,24 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 	private static final Object V = new Object();
 
 	@Override
-	public LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, long from, long to, int limit) {
+	public LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, Range range, int limit) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
 
         if (logger.isTraceEnabled()) {
-			logger.trace("scan(selectTraceIdsFromApplicationTraceIndex) {}, {}, {}", applicationName, from, to);
+			logger.trace("scan(selectTraceIdsFromApplicationTraceIndex) {}, {}", applicationName, range);
 		}
 
-		return this.applicationTraceIndexDao.scanTraceIndex(applicationName, from, to, limit);
+		return this.applicationTraceIndexDao.scanTraceIndex(applicationName, range, limit);
 	}
 
 	@Override
-	public LinkStatistics linkStatistics(Range range, List<TransactionId> traceIdSet, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType, Filter filter) {
-        if (srcApplicationName == null) {
-            throw new NullPointerException("srcApplicationName must not be null");
+	public LinkStatistics linkStatistics(Range range, List<TransactionId> traceIdSet, Application sourceApplication, Application destinationApplication, Filter filter) {
+        if (sourceApplication == null) {
+            throw new NullPointerException("sourceApplication must not be null");
         }
-        if (destApplicationName == null) {
+        if (destinationApplication == null) {
             throw new NullPointerException("destApplicationName must not be null");
         }
         if (filter == null) {
@@ -92,7 +92,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 
 		// scan transaction list
 		for (SpanBo span : filteredTransactionList) {
-			if (srcApplicationName.equals(span.getApplicationId()) && srcServiceType == span.getServiceType().getCode()) {
+			if (sourceApplication.getName().equals(span.getApplicationId()) && sourceApplication.getServiceTypeCode() == span.getServiceType().getCode()) {
 				List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
 				if (spanEventBoList == null) {
 					continue;
@@ -100,7 +100,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 
 				// find dest elapsed time
 				for (SpanEventBo spanEventBo : spanEventBoList) {
-					if (destServiceType == spanEventBo.getServiceType().getCode() && destApplicationName.equals(spanEventBo.getDestinationId())) {
+					if (destinationApplication.getServiceTypeCode() == spanEventBo.getServiceType().getCode() && destinationApplication.getName().equals(spanEventBo.getDestinationId())) {
 						// find exception
 						boolean hasException = spanEventBo.hasException();
 						// add sample
@@ -145,15 +145,16 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
         }
         List<TransactionId> transactionIdList = new ArrayList<TransactionId>();
 		transactionIdList.add(transactionId);
-		// FIXME from,to -1 땜방임. 
-		return selectApplicationMap(transactionIdList, -1L, -1L, Filter.NONE);
+		// FIXME from,to -1 땜방임.
+        Range range = new Range(-1, -1);
+        return selectApplicationMap(transactionIdList, range, Filter.NONE);
 	}
 
 	/**
 	 * filtered application map
 	 */
 	@Override
-	public ApplicationMap selectApplicationMap(List<TransactionId> transactionIdList, long from, long to, Filter filter) {
+	public ApplicationMap selectApplicationMap(List<TransactionId> transactionIdList, Range range, Filter filter) {
         if (transactionIdList == null) {
             throw new NullPointerException("transactionIdList must not be null");
         }
@@ -175,7 +176,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 		Map<NodeId, TransactionFlowStatistics> statisticsMap = new HashMap<NodeId, TransactionFlowStatistics>();
 
 
-		final TimeSeriesStore timeSeriesStore = new TimeSeriesStoreImpl2(from, to);
+		final TimeSeriesStore timeSeriesStore = new TimeSeriesStoreImpl2(range);
 		/**
 		 * 통계정보로 변환한다.
 		 */

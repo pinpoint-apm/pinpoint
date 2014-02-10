@@ -3,7 +3,7 @@ package com.nhn.pinpoint.web.vo;
 /**
  * @author emeroad
  */
-public class Range {
+public final class Range {
     private final long from;
     private final long to;
 

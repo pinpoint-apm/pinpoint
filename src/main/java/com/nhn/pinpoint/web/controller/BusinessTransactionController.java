@@ -7,6 +7,8 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import com.nhn.pinpoint.web.util.LimitUtils;
+import com.nhn.pinpoint.web.vo.Range;
+import org.apache.hadoop.hbase.thrift.generated.Hbase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,12 +70,12 @@ public class BusinessTransactionController {
 											@RequestParam(value = "filter", required = false) String filterText,
 											@RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
         limit = LimitUtils.checkRange(limit);
-		
+		Range range = new Range(from, to);
 		// TOOD 구조개선을 위해 server map조회 로직 분리함, 임시로 분리한 상태이고 개선이 필요하다.
-		LimitedScanResult<List<TransactionId>> traceIdList = filteredApplicationMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
+		LimitedScanResult<List<TransactionId>> traceIdList = filteredApplicationMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
 
 		Filter filter = filterBuilder.build(filterText);
-		BusinessTransactions selectBusinessTransactions = transactionInfoService.selectBusinessTransactions(traceIdList.getScanData(), applicationName, from, to, filter);
+		BusinessTransactions selectBusinessTransactions = transactionInfoService.selectBusinessTransactions(traceIdList.getScanData(), applicationName, range, filter);
 
 		model.addAttribute("lastFetchedTimestamp", traceIdList.getLimitedTime());
 		model.addAttribute("rpcList", selectBusinessTransactions.getBusinessTransaction());

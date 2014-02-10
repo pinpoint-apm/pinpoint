@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.nhn.pinpoint.web.vo.Range;
 import com.nhn.pinpoint.web.vo.scatter.Dot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,11 +34,14 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 	private TraceDao traceDao;
 
 	@Override
-	public List<Dot> selectScatterData(String applicationName, long from, long to, int limit) {
+	public List<Dot> selectScatterData(String applicationName, Range range, int limit) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
-        return applicationTraceIndexDao.scanTraceScatter(applicationName, from, to, limit);
+        if (range == null) {
+            throw new NullPointerException("range must not be null");
+        }
+        return applicationTraceIndexDao.scanTraceScatter(applicationName, range, limit);
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.util.RowKeyUtils;
 import com.nhn.pinpoint.common.util.TimeUtils;
 import com.nhn.pinpoint.web.mapper.AgentInfoMapper;
+import com.nhn.pinpoint.web.vo.Range;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -42,17 +43,17 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
      * @return
      */
     @Override
-	public List<AgentInfoBo> getAgentInfo(final String agentId, final long from, final long to) {
+	public List<AgentInfoBo> getAgentInfo(final String agentId, final Range range) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
 
-        logger.debug("get agentInfo with, agentId={}, from={}, to={}", agentId, from, to);
+        logger.debug("get agentInfo with, agentId={}, {}", agentId, range);
     	
         Scan scan = new Scan();
         scan.setCaching(20);
         
-		long fromTime = TimeUtils.reverseCurrentTimeMillis(to);
+		long fromTime = TimeUtils.reverseCurrentTimeMillis(range.getTo());
 		long toTime = TimeUtils.reverseCurrentTimeMillis(1);
 
         byte[] agentIdBytes = Bytes.toBytes(agentId);
@@ -75,9 +76,9 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 					long startTime = TimeUtils.recoveryCurrentTimeMillis(reverseStartTime);
 					byte[] value = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_IDENTIFIER);
 					
-					logger.debug("found={}, from={}, to={}, start={}", found, from, to, startTime);
+					logger.debug("found={}, {}, start={}", found, range, startTime);
 					
-					if (found > 1 && startTime <= from) {
+					if (found > 1 && startTime <= range.getFrom()) {
 						logger.debug("stop finding agentinfo.");
 						break;
 					}

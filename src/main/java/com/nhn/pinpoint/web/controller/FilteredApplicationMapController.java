@@ -5,6 +5,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import com.nhn.pinpoint.web.util.LimitUtils;
+import com.nhn.pinpoint.web.vo.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,6 @@ public class FilteredApplicationMapController {
 	 * 필터가 적용된 서버맵의 FROM ~ TO기간의 데이터 조회
 	 * 
 	 * @param model
-	 * @param response
 	 * @param applicationName
 	 * @param serviceType
 	 * @param from
@@ -55,8 +55,7 @@ public class FilteredApplicationMapController {
 	 */
 	@RequestMapping(value = "/getFilteredServerMapData", method = RequestMethod.GET)
 	public String getFilteredServerMapData(Model model,
-											HttpServletResponse response,
-											@RequestParam("application") String applicationName, 
+											@RequestParam("application") String applicationName,
 											@RequestParam("serviceType") short serviceType,
 											@RequestParam("from") long from,
 											@RequestParam("to") long to,
@@ -64,10 +63,11 @@ public class FilteredApplicationMapController {
 											@RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
         limit = LimitUtils.checkRange(limit);
         final Filter filter = filterBuilder.build(filterText);
+        final Range range = new Range(from, to);
 
-        final LimitedScanResult<List<TransactionId>> limitedScanResult = filteredApplicationMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, from, to, limit);
+        final LimitedScanResult<List<TransactionId>> limitedScanResult = filteredApplicationMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
 
-		ApplicationMap map = filteredApplicationMapService.selectApplicationMap(limitedScanResult.getScanData(), from, to, filter);
+		ApplicationMap map = filteredApplicationMapService.selectApplicationMap(limitedScanResult.getScanData(), range, filter);
 		
 		model.addAttribute("from", from);
 		model.addAttribute("to", to);
@@ -90,7 +90,6 @@ public class FilteredApplicationMapController {
 	 * 필터가 적용된 서버맵의 Period before 부터 현재시간까지의 데이터 조회.
 	 * 
 	 * @param model
-	 * @param response
 	 * @param applicationName
 	 * @param serviceType
 	 * @param filterText
@@ -99,8 +98,7 @@ public class FilteredApplicationMapController {
 	 */
 	@RequestMapping(value = "/getLastFilteredServerMapData", method = RequestMethod.GET)
 	public String getLastFilteredServerMapData(Model model,
-			HttpServletResponse response,
-			@RequestParam("application") String applicationName, 
+			@RequestParam("application") String applicationName,
 			@RequestParam("serviceType") short serviceType,
 			@RequestParam("period") long period,
 			@RequestParam(value = "filter", required = false) String filterText,
@@ -109,7 +107,7 @@ public class FilteredApplicationMapController {
 
 		long to = TimeUtils.getDelayLastTime();
 		long from = to - period;
-		return getFilteredServerMapData(model, response, applicationName, serviceType, from, to, filterText, limit); 
+		return getFilteredServerMapData(model, applicationName, serviceType, from, to, filterText, limit);
 	}
 
 }

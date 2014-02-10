@@ -18,19 +18,20 @@ public class TimeSeriesStoreImpl2 implements TimeSeriesStore {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private final long from;
-	private final long to;
+	private final Range range;
 	private final Map<NodeId, LinkStatistics> data = new HashMap<NodeId, LinkStatistics>();
 	private final boolean enabled;
 
-	public TimeSeriesStoreImpl2(long from, long to) {
-		this.from = from;
-		this.to = to;
-		this.enabled = from == -1L || to == -1L;
+	public TimeSeriesStoreImpl2(Range range) {
+        if (range == null) {
+            throw new NullPointerException("range must not be null");
+        }
+        this.range = range;
+		this.enabled = range.getFrom() == -1L || range.getTo() == -1L;
 	}
 
 	private LinkStatistics makeNewLinkStatistics() {
-		return new LinkStatistics(new Range(from, to));
+		return new LinkStatistics(range);
 	}
 
 	@Override

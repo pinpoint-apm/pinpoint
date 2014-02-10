@@ -5,6 +5,7 @@ import java.util.SortedMap;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.nhn.pinpoint.web.vo.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,8 @@ public class AgentStatController {
 							@RequestParam(value = "_", required = false) String jsonpCallback) throws Exception {
 		StopWatch watch = new StopWatch();
 		watch.start("agentStatService.selectAgentStatList");
-		List<TAgentStat> agentStatList = agentStatService.selectAgentStatList(agentId, from, to);
+        Range range = new Range(from, to);
+		List<TAgentStat> agentStatList = agentStatService.selectAgentStatList(agentId, range);
 		watch.stop();
 		
 		if (logger.isInfoEnabled()) {
@@ -82,7 +84,8 @@ public class AgentStatController {
 											@RequestParam("from") long from,
 											@RequestParam("to") long to,
 											@RequestParam(value = "_", required = false) String jsonpCallback) {
-		SortedMap<String, List<AgentInfoBo>> applicationAgentList = agentInfoService.getApplicationAgentList(applicationName, from, to);
+        Range range = new Range(from, to);
+		SortedMap<String, List<AgentInfoBo>> applicationAgentList = agentInfoService.getApplicationAgentList(applicationName, range);
 		return applicationAgentList;
 	}
 }
