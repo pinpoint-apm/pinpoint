@@ -333,6 +333,20 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 };
 
                 /**
+                 * passing transaction list
+                 */
+                scope.passingTransactionList = function () {
+                    var oServerMapFilterVo = new ServerMapFilterVo();
+                    oServerMapFilterVo
+                        .setFromApplication(scope.srcApplicationName)
+                        .setFromServiceType(scope.srcServiceType)
+                        .setToApplication(scope.destApplicationName)
+                        .setToServiceType(scope.destServiceType);
+                    scope.$broadcast('serverMap.openFilteredMap', oServerMapFilterVo);
+                    reset();
+                };
+
+                /**
                  * open filter wizard
                  */
                 scope.openFilterWizard = function () {
