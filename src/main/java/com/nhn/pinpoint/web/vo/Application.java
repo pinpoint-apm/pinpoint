@@ -47,6 +47,19 @@ public final class Application {
         return code;
     }
 
+    public boolean equals(String thatName, ServiceType thatServiceType) {
+        if (thatName == null) {
+            throw new NullPointerException("thatName must not be null");
+        }
+        if (thatServiceType == null) {
+            throw new NullPointerException("thatServiceType must not be null");
+        }
+        if (!name.equals(thatName)) return false;
+        if (serviceType != thatServiceType) return false;
+
+        return true;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
