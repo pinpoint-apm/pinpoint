@@ -30,7 +30,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
             $scope.$broadcast('navbar.initialize', oNavbarVo);
             $scope.$broadcast('scatter.initialize', oNavbarVo);
             $scope.$broadcast('serverMap.initialize', oNavbarVo);
-        }, 300);
+        }, 500);
 
         /**
          * get first path of loction

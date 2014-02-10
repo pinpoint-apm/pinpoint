@@ -39,7 +39,7 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
                 $scope.$broadcast('serverMap.initialize', oNavbarVo);
                 $scope.$broadcast('scatter.initialize', oNavbarVo);
             });
-        }, 100);
+        }, 500);
 
         /**
          * open filtered map with filterVo
