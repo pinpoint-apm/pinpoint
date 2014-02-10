@@ -328,7 +328,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 
         List<Map<Long, Map<Short, Long>>> list;
 
-		if (ServiceType.findServiceType(sourceApplication.getServiceTypeCode()).isUser()) {
+		if (sourceApplication.getServiceType().isUser()){
 			logger.debug("Find 'client -> any' link statistics");
 			// client는 applicatinname + servicetype.client로 기록된다.
 			// 그래서 src, dest가 둘 다 dest로 같음.

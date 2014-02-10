@@ -55,14 +55,13 @@ public class BusinessTransactionController {
 	 * applicationname에서 from ~ to 시간대에 수행된 URL을 조회한다.
 	 * 
 	 * @param model
-	 * @param response
 	 * @param applicationName
 	 * @param from
 	 * @param to
 	 * @return
 	 */
 	@RequestMapping(value = "/transactionList", method = RequestMethod.GET)
-	public String getBusinessTransactionsData(Model model, HttpServletResponse response,
+	public String getBusinessTransactionsData(Model model,
 											@RequestParam("application") String applicationName,
 											@RequestParam("from") long from, 
 											@RequestParam("to") long to,
@@ -100,7 +99,7 @@ public class BusinessTransactionController {
         limit = LimitUtils.checkRange(limit);
         long to = TimeUtils.getDelayLastTime();
 		long from = to - period;
-		return getBusinessTransactionsData(model, response, applicationName, from, to, filterText, limit);
+		return getBusinessTransactionsData(model, applicationName, from, to, filterText, limit);
 	}
 
     /**
