@@ -9,6 +9,7 @@ import java.util.Map;
 
 import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatisticsKey;
 import com.nhn.pinpoint.web.vo.Application;
+import com.nhn.pinpoint.web.vo.Range;
 import org.apache.hadoop.hbase.client.Scan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,12 +46,12 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
 	private RowMapper<List<TransactionFlowStatistics>> applicationMapStatisticsCalleeMapper;
 
 	@Override
-	public List<TransactionFlowStatistics> selectCallee(Application callerApplication, long from, long to) {
-		Scan scan = createScan(callerApplication, from, to);
+	public List<TransactionFlowStatistics> selectCallee(Application callerApplication, Range range) {
+		Scan scan = createScan(callerApplication, range);
 		final List<List<TransactionFlowStatistics>> foundListList = hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLEE, scan, applicationMapStatisticsCalleeMapper);
 
 		if (foundListList.isEmpty()) {
-			logger.debug("There's no callee data. {}, {}, {}", callerApplication, from, to);
+			logger.debug("There's no callee data. {}, {}", callerApplication, range);
 		}
 		
         return merge(foundListList);
@@ -91,19 +92,19 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
 	 * </pre>
 	 */
 	@Override
-	public List<Map<Long, Map<Short, Long>>> selectCalleeStatistics(Application callerApplication, Application calleeApplication, long from, long to) {
+	public List<Map<Long, Map<Short, Long>>> selectCalleeStatistics(Application callerApplication, Application calleeApplication, Range range) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("selectCalleeStatistics. {}, {}, {}, {}", callerApplication, calleeApplication, from, to);
+			logger.debug("selectCalleeStatistics. {}, {}, {}", callerApplication, calleeApplication, range);
 		}
-		Scan scan = createScan(callerApplication, from, to);
+		Scan scan = createScan(callerApplication, range);
 		RowMapper<Map<Long, Map<Short, Long>>> mapper = new ApplicationMapLinkStatisticsMapper(callerApplication.getName(), callerApplication.getServiceTypeCode(), calleeApplication.getName(), calleeApplication.getServiceTypeCode());
 		return hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLEE, scan, mapper);
 	}
 
-	private Scan createScan(Application application, long from, long to) {
-		long startTime = TimeSlot.getStatisticsRowSlot(from);
+	private Scan createScan(Application application, Range range) {
+		long startTime = TimeSlot.getStatisticsRowSlot(range.getFrom());
 		// hbase의 scanner를 사용하여 검색시 endTime은 검색 대상에 포함되지 않기 때문에, +1을 해줘야 된다.
-		long endTime = TimeSlot.getStatisticsRowSlot(to) + 1;
+		long endTime = TimeSlot.getStatisticsRowSlot(range.getTo()) + 1;
 
 		if (logger.isDebugEnabled()) {
 			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss,SSS");

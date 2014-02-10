@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
 import com.nhn.pinpoint.web.vo.Application;
+import com.nhn.pinpoint.web.vo.Range;
 
 /**
  * 
@@ -12,7 +13,7 @@ import com.nhn.pinpoint.web.vo.Application;
  * 
  */
 public interface ApplicationMapStatisticsCalleeDao {
-	public List<TransactionFlowStatistics> selectCallee(Application callerApplication, long from, long to);
+	public List<TransactionFlowStatistics> selectCallee(Application callerApplication, Range range);
 
-	public List<Map<Long, Map<Short, Long>>> selectCalleeStatistics(Application callerApplication, Application calleeApplication, long from, long to);
+	public List<Map<Long, Map<Short, Long>>> selectCalleeStatistics(Application callerApplication, Application calleeApplication, Range range);
 }

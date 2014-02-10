@@ -12,6 +12,7 @@ import java.util.Set;
 import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.HistogramSlot;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
+import com.nhn.pinpoint.web.vo.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,11 +31,6 @@ import com.nhn.pinpoint.web.dao.ApplicationIndexDao;
 import com.nhn.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.nhn.pinpoint.web.dao.TraceDao;
 import com.nhn.pinpoint.web.filter.Filter;
-import com.nhn.pinpoint.web.vo.LimitedScanResult;
-import com.nhn.pinpoint.web.vo.LinkStatistics;
-import com.nhn.pinpoint.web.vo.TimeSeriesStore;
-import com.nhn.pinpoint.web.vo.TimeSeriesStoreImpl2;
-import com.nhn.pinpoint.web.vo.TransactionId;
 
 /**
  * @author netspider
@@ -73,7 +69,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 	}
 
 	@Override
-	public LinkStatistics linkStatistics(long from, long to, List<TransactionId> traceIdSet, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType, Filter filter) {
+	public LinkStatistics linkStatistics(Range range, List<TransactionId> traceIdSet, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType, Filter filter) {
         if (srcApplicationName == null) {
             throw new NullPointerException("srcApplicationName must not be null");
         }
@@ -90,7 +86,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 		List<List<SpanBo>> originalList = this.traceDao.selectAllSpans(traceIdSet);
         List<SpanBo> filteredTransactionList = filterList(originalList, filter);
 
-		LinkStatistics statistics = new LinkStatistics(from, to);
+		LinkStatistics statistics = new LinkStatistics(range);
 
 		// TODO fromToFilter처럼. node의 타입에 따른 처리 필요함.
 

@@ -4,6 +4,7 @@ import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
+import com.nhn.pinpoint.web.vo.Range;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -40,11 +41,11 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 	private RowMapper<Application> hostApplicationMapper;
 
 	@Override
-	public Application findApplicationName(String host, long from, long to) {
+	public Application findApplicationName(String host, Range range) {
         if (host == null) {
             throw new NullPointerException("host must not be null");
         }
-		Scan scan = createScan(host, from, to);
+		Scan scan = createScan(host, range);
 		List<Application> result = hbaseOperations2.find(HBaseTables.HOST_APPLICATION_MAP, scan, hostApplicationMapper);
 		if (result != null && result.size() > 0) {
 			return result.get(0);
@@ -53,9 +54,9 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 		}
 	}
 
-	private Scan createScan(String host, long from, long to) {
-        long startTime = TimeUtils.reverseCurrentTimeMillis(TimeSlot.getStatisticsRowSlot(from));
-		long endTime = TimeUtils.reverseCurrentTimeMillis(TimeSlot.getStatisticsRowSlot(to) + 1);
+	private Scan createScan(String host, Range range) {
+        long startTime = TimeUtils.reverseCurrentTimeMillis(TimeSlot.getStatisticsRowSlot(range.getFrom()));
+		long endTime = TimeUtils.reverseCurrentTimeMillis(TimeSlot.getStatisticsRowSlot(range.getTo()) + 1);
 
 		if (logger.isDebugEnabled()) {
 			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss,SSS");

@@ -30,7 +30,7 @@ public class TimeSeriesStoreImpl2 implements TimeSeriesStore {
 	}
 
 	private LinkStatistics makeNewLinkStatistics() {
-		return new LinkStatistics(from, to);
+		return new LinkStatistics(new Range(from, to));
 	}
 
 	@Override

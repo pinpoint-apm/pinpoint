@@ -6,6 +6,7 @@ import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
 import com.nhn.pinpoint.web.filter.Filter;
 import com.nhn.pinpoint.web.vo.LimitedScanResult;
 import com.nhn.pinpoint.web.vo.LinkStatistics;
+import com.nhn.pinpoint.web.vo.Range;
 import com.nhn.pinpoint.web.vo.TransactionId;
 
 /**
@@ -16,7 +17,7 @@ public interface FilteredApplicationMapService {
 
 	public LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, long from, long to, int limit);
 
-	public LinkStatistics linkStatistics(long from, long to, List<TransactionId> traceIdSet, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType, Filter filter);
+	public LinkStatistics linkStatistics(Range range, List<TransactionId> traceIdSet, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType, Filter filter);
 
 	public ApplicationMap selectApplicationMap(List<TransactionId> traceIdList, long from, long to, Filter filter);
 

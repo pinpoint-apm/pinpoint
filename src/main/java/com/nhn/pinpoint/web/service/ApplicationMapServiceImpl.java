@@ -7,8 +7,7 @@ import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.nhn.pinpoint.web.applicationmap.Link;
 import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
 import com.nhn.pinpoint.web.dao.*;
-import com.nhn.pinpoint.web.vo.RawResponseTime;
-import com.nhn.pinpoint.web.vo.ResponseHistogramSummary;
+import com.nhn.pinpoint.web.vo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +18,6 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
 import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
-import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.web.vo.LinkStatistics;
 
 /**
  * 
@@ -68,13 +65,12 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 	 * callerApplicationName이 호출한 callee를 모두 조회
 	 * 
 	 * @param callerApplication
-	 * @param from
-	 * @param to
+	 * @param range
 	 * @param calleeFoundApplications
 	 * @param callerFoundApplications
 	 * @return
 	 */
-	private Set<TransactionFlowStatistics> selectCallee(Application callerApplication, long from, long to, Set<Node> calleeFoundApplications, Set<Node> callerFoundApplications) {
+	private Set<TransactionFlowStatistics> selectCallee(Application callerApplication, Range range, Set<Node> calleeFoundApplications, Set<Node> callerFoundApplications) {
 		// 이미 조회된 구간이면 skip
         final Node key = new Node(callerApplication.getName(), callerApplication.getServiceType());
         if (calleeFoundApplications.contains(key)) {
@@ -88,18 +84,18 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 
 		final Set<TransactionFlowStatistics> calleeSet = new HashSet<TransactionFlowStatistics>();
 
-		List<TransactionFlowStatistics> callee = applicationMapStatisticsCalleeDao.selectCallee(callerApplication, from, to);
+		List<TransactionFlowStatistics> callee = applicationMapStatisticsCalleeDao.selectCallee(callerApplication, range);
 
         if (logger.isDebugEnabled()) {
 		    logger.debug("Found Callee. count={}, caller={}", callee.size(), callerApplication);
         }
 
 		for (TransactionFlowStatistics stat : callee) {
-			boolean replaced = replaceApplicationInfo(stat, from, to);
+			boolean replaced = replaceApplicationInfo(stat, range);
 
 			// replaced된 녀석은 CLIENT이기 때문에 callee검색용도로만 사용하고 map에 추가하지 않는다.
 			if (!replaced) {
-				fillAdditionalInfo(stat, from, to);
+				fillAdditionalInfo(stat, range);
 				calleeSet.add(stat);
 			}
 
@@ -110,7 +106,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 
 			logger.debug("     Find subCallee of {}", stat.getTo());
             final Application application = new Application(stat.getTo(), stat.getToServiceType());
-            Set<TransactionFlowStatistics> calleeSub = selectCallee(application, from, to, calleeFoundApplications, callerFoundApplications);
+            Set<TransactionFlowStatistics> calleeSub = selectCallee(application, range, calleeFoundApplications, callerFoundApplications);
 			logger.debug("     Found subCallee. count={}, caller={}", calleeSub.size(), stat.getTo());
 
 			calleeSet.addAll(calleeSub);
@@ -119,7 +115,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 			for (TransactionFlowStatistics eachCallee : calleeSub) {
 				logger.debug("     Find caller of {}", eachCallee.getFrom());
                 Application calleeApplication = new Application(eachCallee.getFrom(), eachCallee.getFromServiceType().getCode());
-				Set<TransactionFlowStatistics> callerSub = selectCaller(calleeApplication, from, to, calleeFoundApplications, callerFoundApplications);
+				Set<TransactionFlowStatistics> callerSub = selectCaller(calleeApplication, range, calleeFoundApplications, callerFoundApplications);
 				logger.debug("     Found subCaller. count={}, callee={}", callerSub.size(), eachCallee.getFrom());
 				calleeSet.addAll(callerSub);
 			}
@@ -132,11 +128,10 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 	 * callee applicationname을 호출한 caller 조회.
 	 * 
 	 * @param calleeApplication
-	 * @param from
-	 * @param to
+	 * @param range
 	 * @return
 	 */
-	private Set<TransactionFlowStatistics> selectCaller(Application calleeApplication, long from, long to, Set<Node> calleeFoundApplications, Set<Node> callerFoundApplications) {
+	private Set<TransactionFlowStatistics> selectCaller(Application calleeApplication, Range range, Set<Node> calleeFoundApplications, Set<Node> callerFoundApplications) {
 		// 이미 조회된 구간이면 skip
         final Node key = new Node(calleeApplication.getName(), calleeApplication.getServiceType());
         if (callerFoundApplications.contains(key)) {
@@ -150,17 +145,17 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 
 		final Set<TransactionFlowStatistics> callerSet = new HashSet<TransactionFlowStatistics>();
 
-		final List<TransactionFlowStatistics> caller = applicationMapStatisticsCallerDao.selectCaller(calleeApplication, from, to);
+		final List<TransactionFlowStatistics> caller = applicationMapStatisticsCallerDao.selectCaller(calleeApplication, range);
 
 		logger.debug("Found Caller. count={}, callee={}", caller.size(), calleeApplication);
 
 		for (TransactionFlowStatistics stat : caller) {
-			fillAdditionalInfo(stat, from, to);
+			fillAdditionalInfo(stat, range);
 			callerSet.add(stat);
 
 			// 나를 부른 application을 찾아야 하기 떄문에 to를 입력.
             Application application = new Application(stat.getFrom(), stat.getFromServiceType());
-            Set<TransactionFlowStatistics> callerSub = selectCaller(application, from, to, calleeFoundApplications, callerFoundApplications);
+            Set<TransactionFlowStatistics> callerSub = selectCaller(application, range, calleeFoundApplications, callerFoundApplications);
 			callerSet.addAll(callerSub);
 
 			// 찾아진 녀석들에 대한 callee도 찾는다.
@@ -170,7 +165,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 					continue;
 				}
                 Application eachCalleeApplication = new Application(eachCallee.getTo(), eachCallee.getToServiceType());
-				Set<TransactionFlowStatistics> calleeSub = selectCallee(eachCalleeApplication, from, to, calleeFoundApplications, callerFoundApplications);
+				Set<TransactionFlowStatistics> calleeSub = selectCallee(eachCalleeApplication, range, calleeFoundApplications, callerFoundApplications);
 				callerSet.addAll(calleeSub);
 			}
 		}
@@ -178,11 +173,11 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		return callerSet;
 	}
 
-	private boolean replaceApplicationInfo(TransactionFlowStatistics stat, long from, long to) {
+	private boolean replaceApplicationInfo(TransactionFlowStatistics stat, Range range) {
 		// rpc client의 목적지가 agent가 설치되어 application name이 존재한다면 replace.
 		if (stat.getToServiceType().isRpcClient()) {
-			logger.debug("Find applicationName {} {} {}", stat.getTo(), from, to);
-			final Application app = hostApplicationMapDao.findApplicationName(stat.getTo(), from, to);
+			logger.debug("Find applicationName {} {}", stat.getTo(), range);
+			final Application app = hostApplicationMapDao.findApplicationName(stat.getTo(), range);
 			if (app != null) {
 				logger.debug("Application info replaced. {} => {}", stat, app);
 
@@ -196,7 +191,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		return false;
 	}
 
-	private void fillAdditionalInfo(TransactionFlowStatistics stat, long from, long to) {
+	private void fillAdditionalInfo(TransactionFlowStatistics stat, Range range) {
 		if (stat.getToServiceType().isTerminal() || stat.getToServiceType().isUnknown()) {
 			return;
 		}
@@ -217,9 +212,12 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 	 * 메인화면에서 사용. 시간별로 TimeSlot을 조회하여 서버 맵을 그릴 때 사용한다.
 	 */
 	@Override
-	public ApplicationMap selectApplicationMap(Application sourceApplication, long from, long to) {
+	public ApplicationMap selectApplicationMap(Application sourceApplication, Range range) {
         if (sourceApplication == null) {
             throw new NullPointerException("sourceApplication must not be null");
+        }
+        if (range == null) {
+            throw new NullPointerException("range must not be null");
         }
         logger.debug("SelectApplicationMap");
 
@@ -229,10 +227,10 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
         // 무한 탐색을 방지하기 위한 용도.
 		final Set<Node> callerFoundApplications = new HashSet<Node>();
 		final Set<Node> calleeFoundApplications = new HashSet<Node>();
-		Set<TransactionFlowStatistics> callee = selectCallee(sourceApplication, from, to, calleeFoundApplications, callerFoundApplications);
+		Set<TransactionFlowStatistics> callee = selectCallee(sourceApplication, range, calleeFoundApplications, callerFoundApplications);
 		logger.debug("Result of finding callee {}", callee);
 
-		Set<TransactionFlowStatistics> caller = selectCaller(sourceApplication, from, to, calleeFoundApplications, callerFoundApplications);
+		Set<TransactionFlowStatistics> caller = selectCaller(sourceApplication, range, calleeFoundApplications, callerFoundApplications);
 		logger.debug("Result of finding caller {}", caller);
 
 		Set<TransactionFlowStatistics> data = new HashSet<TransactionFlowStatistics>(callee.size() + caller.size());
@@ -240,7 +238,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		data.addAll(caller);
 
 		ApplicationMap map = new ApplicationMapBuilder().build(data);
-        appendResponseTime(map, from, to);
+        appendResponseTime(map, range);
 
 		watch.stop();
 		logger.info("Fetch applicationmap elapsed. {}ms", watch.getLastTaskTimeMillis());
@@ -248,13 +246,13 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		return map;
 	}
 
-    private void appendResponseTime(ApplicationMap map, long from, long to) {
+    private void appendResponseTime(ApplicationMap map, Range range) {
         List<com.nhn.pinpoint.web.applicationmap.Node> nodes = map.getNodes();
         for (com.nhn.pinpoint.web.applicationmap.Node node : nodes) {
             if (node.getServiceType().isWas()) {
                 // was일 경우 자신의 response 히스토그램을 조회하여 채운다.
                 final Application application = new Application(node.getApplicationName(), node.getServiceType());
-                final List<RawResponseTime> responseHistogram = this.mapResponseDao.selectResponseTime(application, from, to);
+                final List<RawResponseTime> responseHistogram = this.mapResponseDao.selectResponseTime(application, range);
                 ResponseHistogramSummary histogramSummary = createHistogramSummary(application, responseHistogram);
                 node.setResponseHistogramSummary(histogramSummary);
             } else if(node.getServiceType().isTerminal() || node.getServiceType().isUnknown()) {
@@ -318,7 +316,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
     }
 
     @Override
-	public LinkStatistics linkStatistics(Application sourceApplication, Application destinationApplication, long from, long to) {
+	public LinkStatistics linkStatistics(Application sourceApplication, Application destinationApplication, Range range) {
         if (sourceApplication == null) {
             throw new NullPointerException("sourceApplication must not be null");
         }
@@ -333,20 +331,20 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 			// client는 applicatinname + servicetype.client로 기록된다.
 			// 그래서 src, dest가 둘 다 dest로 같음.
             Application userApplication = new Application(destinationApplication.getName(), sourceApplication.getServiceTypeCode());
-			list = applicationMapStatisticsCalleeDao.selectCalleeStatistics(userApplication, destinationApplication, from, to);
+			list = applicationMapStatisticsCalleeDao.selectCalleeStatistics(userApplication, destinationApplication, range);
 		} else if (destinationApplication.getServiceType().isWas()) {
 			logger.debug("Find 'any -> was' link statistics");
 			// destination이 was인 경우에는 중간에 client event가 끼어있기 때문에 callee에서
 			// caller가
 			// 같은녀석을 찾아야 한다.
-			list = applicationMapStatisticsCallerDao.selectCallerStatistics(sourceApplication, destinationApplication, from, to);
+			list = applicationMapStatisticsCallerDao.selectCallerStatistics(sourceApplication, destinationApplication, range);
 		} else {
 			logger.debug("Find 'was -> terminal' link statistics");
 			// 일반적으로 was -> terminal 간의 통계정보 조회.
-			list = applicationMapStatisticsCalleeDao.selectCalleeStatistics(sourceApplication, destinationApplication, from, to);
+			list = applicationMapStatisticsCalleeDao.selectCalleeStatistics(sourceApplication, destinationApplication, range);
 		}
 
-		LinkStatistics statistics = new LinkStatistics(from, to);
+		LinkStatistics statistics = new LinkStatistics(range);
 
 		// 조회가 안되는 histogram slot이 있으면 UI에 모두 보이지 않기 때문에 미리 정의된 slot을 모두 할당한다.
 		statistics.setDefaultHistogramSlotList(destinationApplication.getServiceType().getHistogramSchema().getHistogramSlotList());

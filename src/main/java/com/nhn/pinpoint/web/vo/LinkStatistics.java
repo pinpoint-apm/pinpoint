@@ -40,15 +40,16 @@ public class LinkStatistics {
 	private final List<SortedMap<Long, Long>> timeseriesValueList = new ArrayList<SortedMap<Long, Long>>();
 	private final SortedMap<Integer, Integer> timeseriesSlotIndex = new TreeMap<Integer, Integer>();
 
-	private final long from;
-	private final long to;
+    private final Range range;
 
 	private long successCount = 0;
 	private long failedCount = 0;
 
-	public LinkStatistics(long from, long to) {
-		this.from = from;
-		this.to = to;
+	public LinkStatistics(Range range) {
+        if (range == null) {
+            throw new NullPointerException("range must not be null");
+        }
+        this.range = range;
 	}
 
 	/**
@@ -58,8 +59,8 @@ public class LinkStatistics {
 	 */
 	private SortedMap<Long, Long> makeEmptyTimeseriesValueMap() {
 		SortedMap<Long, Long> map = new TreeMap<Long, Long>();
-		long windowSize = TimeWindowUtils.getWindowSize(from, to);
-		for (long time = from; time <= to; time += windowSize) {
+		long windowSize = TimeWindowUtils.getWindowSize(range.getFrom(), range.getTo());
+		for (long time = range.getFrom(); time <= range.getTo(); time += windowSize) {
 			map.put(time, 0L);
 		}
 		return map;
@@ -101,7 +102,7 @@ public class LinkStatistics {
 		    logger.debug("Add sample. timeslot={}, responseTimeslot={}, callCount={}, failed={}", timestamp, responseTimeslot, callCount, isFailed);
         }
 
-		timestamp = TimeWindowUtils.refineTimestamp(from, to, timestamp);
+		timestamp = TimeWindowUtils.refineTimestamp(range.getFrom(), range.getTo(), timestamp);
 
 		if (isFailed) {
 			failedCount += callCount;
@@ -175,6 +176,6 @@ public class LinkStatistics {
 
 	@Override
 	public String toString() {
-		return "LinkStatistics [timeseriesValue=" + timeseriesValueList + ", timeseriesSlotIndex=" + timeseriesSlotIndex + ", from=" + from + ", to=" + to + ", successCount=" + successCount + ", failedCount=" + failedCount + "]";
+		return "LinkStatistics [timeseriesValue=" + timeseriesValueList + ", timeseriesSlotIndex=" + timeseriesSlotIndex + ", range=" + range + ", successCount=" + successCount + ", failedCount=" + failedCount + "]";
 	}
 }

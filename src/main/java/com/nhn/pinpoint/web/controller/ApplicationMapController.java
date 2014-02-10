@@ -2,6 +2,7 @@ package com.nhn.pinpoint.web.controller;
 
 import com.nhn.pinpoint.web.util.Limiter;
 import com.nhn.pinpoint.web.vo.Application;
+import com.nhn.pinpoint.web.vo.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +51,8 @@ public class ApplicationMapController {
 		this.dateLimit.limit(from, to);
 
         Application application = new Application(applicationName, serviceType);
-        ApplicationMap map = applicationMapService.selectApplicationMap(application, from, to);
+        Range range = new Range(from, to);
+        ApplicationMap map = applicationMapService.selectApplicationMap(application, range);
 
 		model.addAttribute("nodes", map.getNodes());
 		model.addAttribute("links", map.getLinks());
@@ -102,8 +104,8 @@ public class ApplicationMapController {
 
         final Application sourceApplication = new Application(srcApplicationName, srcServiceType);
         final Application destinationApplication = new Application(destApplicationName, destServiceType);
-
-		LinkStatistics linkStatistics = applicationMapService.linkStatistics(sourceApplication, destinationApplication, from, to);
+        final Range range = new Range(from, to);
+		LinkStatistics linkStatistics = applicationMapService.linkStatistics(sourceApplication, destinationApplication, range);
 
 		model.addAttribute("from", from);
 		model.addAttribute("to", to);

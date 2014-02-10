@@ -6,6 +6,7 @@ import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
 import com.nhn.pinpoint.common.util.TimeSlot;
 import com.nhn.pinpoint.web.dao.MapResponseDao;
 import com.nhn.pinpoint.web.vo.Application;
+import com.nhn.pinpoint.web.vo.Range;
 import com.nhn.pinpoint.web.vo.RawResponseTime;
 import org.apache.hadoop.hbase.client.Scan;
 
@@ -40,14 +41,14 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
 
 
     @Override
-    public List<RawResponseTime> selectResponseTime(Application application, long from, long to) {
+    public List<RawResponseTime> selectResponseTime(Application application, Range range) {
         if (application == null) {
             throw new NullPointerException("application must not be null");
         }
         if (logger.isDebugEnabled()) {
-            logger.debug("selectResponseTime applicationName:{}, from:{}, to:{}", application, from, to);
+            logger.debug("selectResponseTime applicationName:{}, from:{}, to:{}", application, range);
         }
-        Scan scan = createScan(application, from, to);
+        Scan scan = createScan(application, range);
         List<RawResponseTime> rawResponseTimeList = hbaseOperations2.find(tableName, scan, responseTimeMapper);
         if (logger.isDebugEnabled()) {
             logger.debug("row:{}", rawResponseTimeList.size());
@@ -59,10 +60,10 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
         return rawResponseTimeList;
     }
 
-    private Scan createScan(Application application, long from, long to) {
-        long startTime = TimeSlot.getStatisticsRowSlot(from);
+    private Scan createScan(Application application, Range range) {
+        long startTime = TimeSlot.getStatisticsRowSlot(range.getFrom());
         // hbase의 scanner를 사용하여 검색시 endTime은 검색 대상에 포함되지 않기 때문에, +1을 해줘야 된다.
-        long endTime = TimeSlot.getStatisticsRowSlot(to) + 1;
+        long endTime = TimeSlot.getStatisticsRowSlot(range.getTo()) + 1;
 
         if (logger.isDebugEnabled()) {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss,SSS");

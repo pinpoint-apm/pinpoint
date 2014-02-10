@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.web.dao;
 
 import com.nhn.pinpoint.web.vo.Application;
+import com.nhn.pinpoint.web.vo.Range;
 
 
 /**
@@ -9,5 +10,5 @@ import com.nhn.pinpoint.web.vo.Application;
  * 
  */
 public interface HostApplicationMapDao {
-	public Application findApplicationName(String host, long from, long to);
+	public Application findApplicationName(String host, Range range);
 }
