@@ -8,7 +8,7 @@ import com.nhn.pinpoint.common.ServiceType;
  * @author emeroad
  * 
  */
-public class Application {
+public final class Application {
 	private final String name;
     private final ServiceType serviceType;
     // undefine일 경우 추적이 쉽도록 별도 데이터를 보관한다.

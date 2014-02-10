@@ -88,7 +88,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 
 		final Set<TransactionFlowStatistics> calleeSet = new HashSet<TransactionFlowStatistics>();
 
-		List<TransactionFlowStatistics> callee = applicationMapStatisticsCalleeDao.selectCallee(callerApplication.getName(), callerApplication.getServiceTypeCode(), from, to);
+		List<TransactionFlowStatistics> callee = applicationMapStatisticsCalleeDao.selectCallee(callerApplication, from, to);
 
         if (logger.isDebugEnabled()) {
 		    logger.debug("Found Callee. count={}, caller={}", callee.size(), callerApplication);
@@ -332,7 +332,8 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 			logger.debug("Find 'client -> any' link statistics");
 			// client는 applicatinname + servicetype.client로 기록된다.
 			// 그래서 src, dest가 둘 다 dest로 같음.
-			list = applicationMapStatisticsCalleeDao.selectCalleeStatistics(destinationApplication.getName(), sourceApplication.getServiceTypeCode(), destinationApplication.getName(), destinationApplication.getServiceTypeCode(), from, to);
+            Application userApplication = new Application(destinationApplication.getName(), sourceApplication.getServiceTypeCode());
+			list = applicationMapStatisticsCalleeDao.selectCalleeStatistics(userApplication, destinationApplication, from, to);
 		} else if (destinationApplication.getServiceType().isWas()) {
 			logger.debug("Find 'any -> was' link statistics");
 			// destination이 was인 경우에는 중간에 client event가 끼어있기 때문에 callee에서
@@ -342,7 +343,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		} else {
 			logger.debug("Find 'was -> terminal' link statistics");
 			// 일반적으로 was -> terminal 간의 통계정보 조회.
-			list = applicationMapStatisticsCalleeDao.selectCalleeStatistics(sourceApplication.getName(), sourceApplication.getServiceTypeCode(), destinationApplication.getName(), destinationApplication.getServiceTypeCode(), from, to);
+			list = applicationMapStatisticsCalleeDao.selectCalleeStatistics(sourceApplication, destinationApplication, from, to);
 		}
 
 		LinkStatistics statistics = new LinkStatistics(from, to);
