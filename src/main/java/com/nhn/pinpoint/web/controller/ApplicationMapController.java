@@ -104,7 +104,7 @@ public class ApplicationMapController {
 									@RequestParam(value="v", required=false, defaultValue="1") int v) {
 
         final Application sourceApplication = new Application(srcApplicationName, srcServiceType);
-        final Application destinationApplication = new Application(srcApplicationName, srcServiceType);
+        final Application destinationApplication = new Application(destApplicationName, destServiceType);
 
 		LinkStatistics linkStatistics = applicationMapService.linkStatistics(from, to, sourceApplication, destinationApplication);
 
