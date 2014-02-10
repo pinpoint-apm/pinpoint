@@ -29,8 +29,8 @@ public class Node implements JsonSerializable {
 
     private final ServerInstanceList serverInstanceList = new ServerInstanceList();
 
-	private final HostList hostList = new HostList();
-	private final Set<AgentInfoBo> agentSet = new HashSet<AgentInfoBo>();
+	private final HostList hostList;
+	private final Set<AgentInfoBo> agentSet;
 
     private ResponseHistogramSummary responseHistogramSummary;
 	
@@ -54,7 +54,8 @@ public class Node implements JsonSerializable {
         logger.debug("create node id={}, applicationName={}, serviceType={}, agentSet={}", id, application, agentSet);
         this.id = id;
         this.application = application;
-
+        this.hostList = new HostList();
+        this.agentSet = new HashSet<AgentInfoBo>();
 
         if (hostList != null) {
             // 이 put은 정확하지 않음.
@@ -66,6 +67,16 @@ public class Node implements JsonSerializable {
         if (agentSet != null) {
             this.agentSet.addAll(agentSet);
         }
+    }
+
+    public Node(Node copyNode) {
+        if (copyNode == null) {
+            throw new NullPointerException("copyNode must not be null");
+        }
+        this.id = copyNode.id;
+        this.application = copyNode.application;
+        this.hostList = new HostList(copyNode.hostList);
+        this.agentSet = new HashSet<AgentInfoBo>(copyNode.agentSet);
     }
 
     private String getApplicationName(Application application) {
@@ -137,7 +148,7 @@ public class Node implements JsonSerializable {
 	}
 
     public Node deepCopy() {
-        HostList copyHostList = hostList.deepCopy();
+        HostList copyHostList = new HostList(hostList);
         return new Node(this.id, this.application, copyHostList, agentSet);
     }
 

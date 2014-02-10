@@ -14,6 +14,22 @@ public class HostList {
 
     private final Map<String, Host> hostMap = new HashMap<String, Host>();
 
+    public HostList() {
+    }
+
+    public HostList(HostList copyHostList) {
+        if (copyHostList == null) {
+            throw new NullPointerException("copyHostList must not be null");
+        }
+
+        for (Map.Entry<String, Host> copyEntry : copyHostList.hostMap.entrySet()) {
+            String copyKey = copyEntry.getKey();
+            Host copyValue = new Host(copyEntry.getValue());
+            this.hostMap.put(copyKey, copyValue);
+        }
+    }
+
+
     public void addHost(String hostName, short serviceTypeCode, short slot, long value) {
         if (hostName == null) {
             throw new NullPointerException("host must not be null");
@@ -41,7 +57,7 @@ public class HostList {
             histogram.add(host.getHistogram());
         } else {
             // WARN 이것도 copy해야 함.
-            Host copy = host.deepCopy();
+            Host copy = new Host(host);
             hostMap.put(hostName, copy);
         }
 
@@ -76,15 +92,4 @@ public class HostList {
         }
     }
 
-    public HostList deepCopy() {
-        final HostList copy = new HostList();
-//        copy.hostMap.
-        for (Map.Entry<String, Host> originalEntry : this.hostMap.entrySet()) {
-            String copyKey = originalEntry.getKey();
-            Host copyValue = originalEntry.getValue().deepCopy();
-            copy.hostMap.put(copyKey, copyValue);
-        }
-
-        return copy;
-    }
 }

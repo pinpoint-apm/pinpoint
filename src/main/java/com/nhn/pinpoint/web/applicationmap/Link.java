@@ -105,7 +105,7 @@ public class Link {
 	}
 
     public Link deepCopy() {
-        HostList copyHost = this.hostList.deepCopy();
+        HostList copyHost = new HostList(this.hostList);
         Link copy = new Link(this.id, this.from, this.to, copyHost);
         return copy;
     }

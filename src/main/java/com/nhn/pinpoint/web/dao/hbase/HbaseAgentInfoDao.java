@@ -38,8 +38,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
     /**
      * agentId, startTime을 기반으로 유니크한 AgentInfo를 찾아낸다.
      * @param agentId
-     * @param from
-     * @param to
+     * @param range
      * @return
      */
     @Override

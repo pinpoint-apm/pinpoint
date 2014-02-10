@@ -27,7 +27,18 @@ public class Host {
 		this.histogram = new ResponseHistogram(serviceType);
 	}
 
-	public String getHost() {
+    public Host(Host copyHost) {
+        if (copyHost == null) {
+            throw new NullPointerException("copyHost must not be null");
+        }
+
+        this.host = copyHost.host;
+        this.serviceType = copyHost.serviceType;
+        this.histogram = new ResponseHistogram(serviceType);
+        this.histogram.add(copyHost.histogram);
+    }
+
+    public String getHost() {
 		return host;
 	}
 	
@@ -38,12 +49,6 @@ public class Host {
 	public ResponseHistogram getHistogram() {
 		return histogram;
 	}
-
-    public Host deepCopy() {
-        Host copy = new Host(this.host, this.serviceType);
-        copy.getHistogram().add(this.histogram);
-        return copy;
-    }
 
 	public String getJson() {
 		StringBuilder sb = new StringBuilder();

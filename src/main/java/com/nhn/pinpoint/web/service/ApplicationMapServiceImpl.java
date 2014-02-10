@@ -104,19 +104,17 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 				continue;
 			}
 
-			logger.debug("     Find subCallee of {}", stat.getTo());
-            final Application application = new Application(stat.getTo(), stat.getToServiceType());
-            Set<TransactionFlowStatistics> calleeSub = selectCallee(application, range, calleeFoundApplications, callerFoundApplications);
-			logger.debug("     Found subCallee. count={}, caller={}", calleeSub.size(), stat.getTo());
+			logger.debug("     Find subCallee of {}", stat.getToApplication());
+            Set<TransactionFlowStatistics> calleeSub = selectCallee(stat.getToApplication(), range, calleeFoundApplications, callerFoundApplications);
+			logger.debug("     Found subCallee. count={}, caller={}", calleeSub.size(), stat.getToApplication());
 
 			calleeSet.addAll(calleeSub);
 
 			// 찾아진 녀석들에 대한 caller도 찾는다.
 			for (TransactionFlowStatistics eachCallee : calleeSub) {
-				logger.debug("     Find caller of {}", eachCallee.getFrom());
-                Application calleeApplication = new Application(eachCallee.getFrom(), eachCallee.getFromServiceType().getCode());
-				Set<TransactionFlowStatistics> callerSub = selectCaller(calleeApplication, range, calleeFoundApplications, callerFoundApplications);
-				logger.debug("     Found subCaller. count={}, callee={}", callerSub.size(), eachCallee.getFrom());
+				logger.debug("     Find caller of {}", eachCallee.getFromApplication());
+				Set<TransactionFlowStatistics> callerSub = selectCaller(eachCallee.getFromApplication(), range, calleeFoundApplications, callerFoundApplications);
+				logger.debug("     Found subCaller. count={}, callee={}", callerSub.size(), eachCallee.getFromApplication());
 				calleeSet.addAll(callerSub);
 			}
 		}
@@ -154,8 +152,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 			callerSet.add(stat);
 
 			// 나를 부른 application을 찾아야 하기 떄문에 to를 입력.
-            Application application = new Application(stat.getFrom(), stat.getFromServiceType());
-            Set<TransactionFlowStatistics> callerSub = selectCaller(application, range, calleeFoundApplications, callerFoundApplications);
+            Set<TransactionFlowStatistics> callerSub = selectCaller(stat.getFromApplication(), range, calleeFoundApplications, callerFoundApplications);
 			callerSet.addAll(callerSub);
 
 			// 찾아진 녀석들에 대한 callee도 찾는다.
@@ -164,8 +161,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 				if (eachCallee.getToServiceType().isTerminal() || eachCallee.getToServiceType().isUnknown()) {
 					continue;
 				}
-                Application eachCalleeApplication = new Application(eachCallee.getTo(), eachCallee.getToServiceType());
-				Set<TransactionFlowStatistics> calleeSub = selectCallee(eachCalleeApplication, range, calleeFoundApplications, callerFoundApplications);
+				Set<TransactionFlowStatistics> calleeSub = selectCallee(eachCallee.getToApplication(), range, calleeFoundApplications, callerFoundApplications);
 				callerSet.addAll(calleeSub);
 			}
 		}
@@ -176,7 +172,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 	private boolean replaceApplicationInfo(TransactionFlowStatistics stat, Range range) {
 		// rpc client의 목적지가 agent가 설치되어 application name이 존재한다면 replace.
 		if (stat.getToServiceType().isRpcClient()) {
-			logger.debug("Find applicationName {} {}", stat.getTo(), range);
+			logger.debug("Find applicationName {} {}", stat.getToApplication(), range);
 			final Application app = hostApplicationMapDao.findApplicationName(stat.getTo(), range);
 			if (app != null) {
 				logger.debug("Application info replaced. {} => {}", stat, app);
@@ -184,7 +180,8 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
                 stat.setToApplication(new Application(app.getName(), app.getServiceType()));
 				return true;
 			} else {
-                stat.setToApplication(new Application(stat.getTo(), ServiceType.UNKNOWN));
+                Application unknown = new Application(stat.getTo(), ServiceType.UNKNOWN);
+                stat.setToApplication(unknown);
 			}
 		}
 		return false;
@@ -195,7 +192,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 			return;
 		}
 
-		Set<AgentInfoBo> agentSet = selectAgents(stat.getTo());
+		Set<AgentInfoBo> agentSet = selectAgents(stat.getToApplication().getName());
 
 		if (agentSet.isEmpty()) {
 			return;
@@ -204,7 +201,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		// destination이 WAS이고 agent가 설치되어있으면 agentSet이 존재한다.
 		stat.addToAgentSet(agentSet);
 
-		logger.debug("Fill agent info. {}, {}", stat.getTo(), agentSet);
+		logger.debug("Fill agent info. {}, {}", stat.getToApplication().getName(), agentSet);
 	}
 
 	/**

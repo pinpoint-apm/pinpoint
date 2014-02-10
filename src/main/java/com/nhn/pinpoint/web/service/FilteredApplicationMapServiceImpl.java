@@ -355,7 +355,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 		if (stat.getToServiceType().isTerminal() || stat.getToServiceType().isUnknown()) {
 			return;
 		}
-		Set<AgentInfoBo> agentSet = selectAgents(stat.getTo());
+		Set<AgentInfoBo> agentSet = selectAgents(stat.getToApplication().getName());
 		if (agentSet.isEmpty()) {
 			return;
 		}
