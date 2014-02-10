@@ -58,6 +58,16 @@ public class Link {
         this.hostList = hostList;
     }
 
+    public Link(Link copyLink) {
+        if (copyLink == null) {
+            throw new NullPointerException("copyLink must not be null");
+        }
+        this.id = copyLink.id;
+        this.from = copyLink.from;
+        this.to = copyLink.to;
+        this.hostList = new HostList(copyLink.hostList);
+    }
+
 	public NodeId getId() {
 		return id;
 	}
@@ -103,12 +113,6 @@ public class Link {
 			throw new IllegalArgumentException("Can't merge.");
 		}
 	}
-
-    public Link deepCopy() {
-        HostList copyHost = new HostList(this.hostList);
-        Link copy = new Link(this.id, this.from, this.to, copyHost);
-        return copy;
-    }
 
 	@Override
 	public int hashCode() {

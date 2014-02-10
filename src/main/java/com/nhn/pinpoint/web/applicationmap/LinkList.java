@@ -30,7 +30,7 @@ public class LinkList {
         if (find != null) {
             find.add(sourceLink);
         } else {
-            Link copy = sourceLink.deepCopy();
+            Link copy = new Link(sourceLink);
             this.linkMap.put(id, copy);
         }
     }

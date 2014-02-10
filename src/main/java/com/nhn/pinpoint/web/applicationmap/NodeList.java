@@ -38,7 +38,7 @@ public class NodeList {
         if (find != null) {
             find.add(source);
         } else {
-            final Node node = source.deepCopy();
+            final Node node = new Node(source);
             nodeMap.put(id, node);
         }
     }

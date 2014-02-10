@@ -147,11 +147,6 @@ public class Node implements JsonSerializable {
 		return this;
 	}
 
-    public Node deepCopy() {
-        HostList copyHostList = new HostList(hostList);
-        return new Node(this.id, this.application, copyHostList, agentSet);
-    }
-
 	public ServiceType getServiceType() {
 		return application.getServiceType();
 	}
