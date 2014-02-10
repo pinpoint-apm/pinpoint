@@ -3,8 +3,8 @@
 {
 	"resultFrom" : ${resultFrom}, 
 	"resultTo" : ${resultTo},
-	"srcApplicationName" : "${srcApplication.applicationName}",
-	"destApplicationName" : "${destApplication.applicationName}",
+	"srcApplicationName" : "${srcApplication.name}",
+	"destApplicationName" : "${destApplication.name}",
 	"srcApplicationType" : "${srcApplication.serviceType.desc}",
 	"destApplicationType" : "${destApplication.serviceType.desc}",
 	"srcApplicationTypeCode" : "${srcApplication.serviceTypeCode}",

@@ -4,7 +4,6 @@ import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
 import com.nhn.pinpoint.common.util.TimeSlot;
-import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
 import com.nhn.pinpoint.web.dao.MapResponseDao;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.RawResponseTime;
@@ -72,8 +71,8 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
 
         // timestamp가 reverse되었기 때문에 start, end를 바꿔서 조회.
 
-        byte[] startKey = ApplicationMapStatisticsUtils.makeRowKey(application.getApplicationName(), application.getServiceTypeCode(), endTime);
-        byte[] endKey = ApplicationMapStatisticsUtils.makeRowKey(application.getApplicationName(), application.getServiceTypeCode(), startTime);
+        byte[] startKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), endTime);
+        byte[] endKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), startTime);
 
         final Scan scan = new Scan();
         scan.setCaching(this.scanCacheSize);

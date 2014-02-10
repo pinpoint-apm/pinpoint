@@ -38,7 +38,6 @@ public class ApplicationMapController {
 	 * FROM ~ TO기간의 서버 맵 데이터 조회
 	 * 
 	 * @param model
-	 * @param response
 	 * @param applicationName
 	 * @param serviceType
 	 * @param from
@@ -47,14 +46,14 @@ public class ApplicationMapController {
 	 */
 	@RequestMapping(value = "/getServerMapData", method = RequestMethod.GET)
 	public String getServerMapData(Model model,
-									HttpServletResponse response,
-									@RequestParam("application") String applicationName, 
+									@RequestParam("application") String applicationName,
 									@RequestParam("serviceType") short serviceType, 
 									@RequestParam("from") long from,
 									@RequestParam("to") long to) {
 		this.dateLimit.limit(from, to);
 
-		ApplicationMap map = applicationMapService.selectApplicationMap(applicationName, serviceType, from, to);
+        Application application = new Application(applicationName, serviceType);
+        ApplicationMap map = applicationMapService.selectApplicationMap(application, from, to);
 
 		model.addAttribute("nodes", map.getNodes());
 		model.addAttribute("links", map.getLinks());
@@ -66,7 +65,6 @@ public class ApplicationMapController {
 	 * Period before 부터 현재시간까지의 서버맵 조회.
 	 * 
 	 * @param model
-	 * @param response
 	 * @param applicationName
 	 * @param serviceType
 	 * @param period
@@ -74,21 +72,19 @@ public class ApplicationMapController {
 	 */
 	@RequestMapping(value = "/getLastServerMapData", method = RequestMethod.GET)
 	public String getLastServerMapData(Model model,
-										HttpServletResponse response,
 										@RequestParam("application") String applicationName,
 										@RequestParam("serviceType") short serviceType,
 										@RequestParam("period") long period) {
 		
 		long to = TimeUtils.getDelayLastTime();
 		long from = to - period;
-		return getServerMapData(model, response, applicationName, serviceType, from, to);
+		return getServerMapData(model, applicationName, serviceType, from, to);
 	}
 
 	/**
 	 * 필터가 사용되지 않은 서버맵의 연결선을 통과하는 요청의 통계정보 조회
 	 * 
 	 * @param model
-	 * @param response
 	 * @param from
 	 * @param to
 	 * @param srcApplicationName
@@ -99,7 +95,6 @@ public class ApplicationMapController {
 	 */
 	@RequestMapping(value = "/linkStatistics", method = RequestMethod.GET)
 	public String getLinkStatistics(Model model,
-									HttpServletResponse response, 
 									@RequestParam("from") long from,
 									@RequestParam("to") long to,
 									@RequestParam("srcApplicationName") String srcApplicationName,
@@ -111,7 +106,7 @@ public class ApplicationMapController {
         final Application sourceApplication = new Application(srcApplicationName, srcServiceType);
         final Application destinationApplication = new Application(srcApplicationName, srcServiceType);
 
-		LinkStatistics linkStatistics = applicationMapService.linkStatistics(from, to, srcApplicationName, srcServiceType, destApplicationName, destServiceType);
+		LinkStatistics linkStatistics = applicationMapService.linkStatistics(from, to, sourceApplication, destinationApplication);
 
 		model.addAttribute("from", from);
 		model.addAttribute("to", to);

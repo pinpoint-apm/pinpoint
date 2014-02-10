@@ -8,7 +8,7 @@
 			{
 				"id" : ${status.count},
 				"key" : ${status.count},
-				"text" : "${node.applicationName}",
+				"text" : "${node.name}",
 				"category" : "${node.serviceType.desc}",
 				<c:choose>
 					<c:when test="${node.serviceType.desc == 'USER'}">"fig" : "Ellipse"</c:when>

@@ -67,32 +67,31 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 	/**
 	 * callerApplicationName이 호출한 callee를 모두 조회
 	 * 
-	 * @param callerApplicationName
-	 * @param callerServiceType
+	 * @param callerApplication
 	 * @param from
 	 * @param to
 	 * @param calleeFoundApplications
 	 * @param callerFoundApplications
 	 * @return
 	 */
-	private Set<TransactionFlowStatistics> selectCallee(String callerApplicationName, short callerServiceType, long from, long to, Set<Node> calleeFoundApplications, Set<Node> callerFoundApplications) {
+	private Set<TransactionFlowStatistics> selectCallee(Application callerApplication, long from, long to, Set<Node> calleeFoundApplications, Set<Node> callerFoundApplications) {
 		// 이미 조회된 구간이면 skip
-        final Node key = new Node(callerApplicationName, ServiceType.findServiceType(callerServiceType));
+        final Node key = new Node(callerApplication.getName(), callerApplication.getServiceType());
         if (calleeFoundApplications.contains(key)) {
-			logger.debug("ApplicationStatistics exists. Skip finding callee. {} {} ", callerApplicationName, callerServiceType);
+			logger.debug("ApplicationStatistics exists. Skip finding callee. {} ", callerApplication);
 			return new HashSet<TransactionFlowStatistics>(0);
 		}
 		calleeFoundApplications.add(key);
         if (logger.isDebugEnabled()) {
-		    logger.debug("Finding Callee. caller={}, serviceType={}", callerApplicationName, ServiceType.findServiceType(callerServiceType));
+		    logger.debug("Finding Callee. caller={}", callerApplication);
         }
 
 		final Set<TransactionFlowStatistics> calleeSet = new HashSet<TransactionFlowStatistics>();
 
-		List<TransactionFlowStatistics> callee = applicationMapStatisticsCalleeDao.selectCallee(callerApplicationName, callerServiceType, from, to);
+		List<TransactionFlowStatistics> callee = applicationMapStatisticsCalleeDao.selectCallee(callerApplication.getName(), callerApplication.getServiceTypeCode(), from, to);
 
         if (logger.isDebugEnabled()) {
-		    logger.debug("Found Callee. count={}, caller={}", callee.size(), callerApplicationName);
+		    logger.debug("Found Callee. count={}, caller={}", callee.size(), callerApplication);
         }
 
 		for (TransactionFlowStatistics stat : callee) {
@@ -110,7 +109,8 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 			}
 
 			logger.debug("     Find subCallee of {}", stat.getTo());
-			Set<TransactionFlowStatistics> calleeSub = selectCallee(stat.getTo(), stat.getToServiceType().getCode(), from, to, calleeFoundApplications, callerFoundApplications);
+            final Application application = new Application(stat.getTo(), stat.getToServiceType());
+            Set<TransactionFlowStatistics> calleeSub = selectCallee(application, from, to, calleeFoundApplications, callerFoundApplications);
 			logger.debug("     Found subCallee. count={}, caller={}", calleeSub.size(), stat.getTo());
 
 			calleeSet.addAll(calleeSub);
@@ -118,7 +118,8 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 			// 찾아진 녀석들에 대한 caller도 찾는다.
 			for (TransactionFlowStatistics eachCallee : calleeSub) {
 				logger.debug("     Find caller of {}", eachCallee.getFrom());
-				Set<TransactionFlowStatistics> callerSub = selectCaller(eachCallee.getFrom(), eachCallee.getFromServiceType().getCode(), from, to, calleeFoundApplications, callerFoundApplications);
+                Application calleeApplication = new Application(eachCallee.getFrom(), eachCallee.getFromServiceType().getCode());
+				Set<TransactionFlowStatistics> callerSub = selectCaller(calleeApplication, from, to, calleeFoundApplications, callerFoundApplications);
 				logger.debug("     Found subCaller. count={}, callee={}", callerSub.size(), eachCallee.getFrom());
 				calleeSet.addAll(callerSub);
 			}
@@ -130,35 +131,36 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 	/**
 	 * callee applicationname을 호출한 caller 조회.
 	 * 
-	 * @param calleeApplicationName
+	 * @param calleeApplication
 	 * @param from
 	 * @param to
 	 * @return
 	 */
-	private Set<TransactionFlowStatistics> selectCaller(String calleeApplicationName, short calleeServiceType, long from, long to, Set<Node> calleeFoundApplications, Set<Node> callerFoundApplications) {
+	private Set<TransactionFlowStatistics> selectCaller(Application calleeApplication, long from, long to, Set<Node> calleeFoundApplications, Set<Node> callerFoundApplications) {
 		// 이미 조회된 구간이면 skip
-        final Node key = new Node(calleeApplicationName, ServiceType.findServiceType(calleeServiceType));
+        final Node key = new Node(calleeApplication.getName(), calleeApplication.getServiceType());
         if (callerFoundApplications.contains(key)) {
-			logger.debug("ApplicationStatistics exists. Skip finding caller. {} {}", calleeApplicationName, calleeServiceType);
+			logger.debug("ApplicationStatistics exists. Skip finding caller. {}", calleeApplication);
 			return new HashSet<TransactionFlowStatistics>(0);
 		}
 		callerFoundApplications.add(key);
         if (logger.isDebugEnabled()) {
-		    logger.debug("Finding Caller. callee={}, serviceType={}" , calleeApplicationName, ServiceType.findServiceType(calleeServiceType));
+		    logger.debug("Finding Caller. callee={}", calleeApplication);
         }
 
 		final Set<TransactionFlowStatistics> callerSet = new HashSet<TransactionFlowStatistics>();
 
-		final List<TransactionFlowStatistics> caller = applicationMapStatisticsCallerDao.selectCaller(calleeApplicationName, calleeServiceType, from, to);
+		final List<TransactionFlowStatistics> caller = applicationMapStatisticsCallerDao.selectCaller(calleeApplication.getName(), calleeApplication.getServiceTypeCode(), from, to);
 
-		logger.debug("Found Caller. count={}, callee={}", caller.size(), calleeApplicationName);
+		logger.debug("Found Caller. count={}, callee={}", caller.size(), calleeApplication);
 
 		for (TransactionFlowStatistics stat : caller) {
 			fillAdditionalInfo(stat, from, to);
 			callerSet.add(stat);
 
 			// 나를 부른 application을 찾아야 하기 떄문에 to를 입력.
-			Set<TransactionFlowStatistics> callerSub = selectCaller(stat.getFrom(), stat.getFromServiceType().getCode(), from, to, calleeFoundApplications, callerFoundApplications);
+            Application application = new Application(stat.getFrom(), stat.getFromServiceType());
+            Set<TransactionFlowStatistics> callerSub = selectCaller(application, from, to, calleeFoundApplications, callerFoundApplications);
 			callerSet.addAll(callerSub);
 
 			// 찾아진 녀석들에 대한 callee도 찾는다.
@@ -167,7 +169,8 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 				if (eachCallee.getToServiceType().isTerminal() || eachCallee.getToServiceType().isUnknown()) {
 					continue;
 				}
-				Set<TransactionFlowStatistics> calleeSub = selectCallee(eachCallee.getTo(), eachCallee.getToServiceType().getCode(), from, to, calleeFoundApplications, callerFoundApplications);
+                Application eachCalleeApplication = new Application(eachCallee.getTo(), eachCallee.getToServiceType());
+				Set<TransactionFlowStatistics> calleeSub = selectCallee(eachCalleeApplication, from, to, calleeFoundApplications, callerFoundApplications);
 				callerSet.addAll(calleeSub);
 			}
 		}
@@ -183,7 +186,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 			if (app != null) {
 				logger.debug("Application info replaced. {} => {}", stat, app);
 
-				stat.setTo(app.getApplicationName());
+				stat.setTo(app.getName());
 				stat.setToServiceType(app.getServiceType());
 				return true;
 			} else {
@@ -214,9 +217,9 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 	 * 메인화면에서 사용. 시간별로 TimeSlot을 조회하여 서버 맵을 그릴 때 사용한다.
 	 */
 	@Override
-	public ApplicationMap selectApplicationMap(String applicationName, short serviceType, long from, long to) {
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+	public ApplicationMap selectApplicationMap(Application sourceApplication, long from, long to) {
+        if (sourceApplication == null) {
+            throw new NullPointerException("sourceApplication must not be null");
         }
         logger.debug("SelectApplicationMap");
 
@@ -226,10 +229,10 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
         // 무한 탐색을 방지하기 위한 용도.
 		final Set<Node> callerFoundApplications = new HashSet<Node>();
 		final Set<Node> calleeFoundApplications = new HashSet<Node>();
-		Set<TransactionFlowStatistics> callee = selectCallee(applicationName, serviceType, from, to, calleeFoundApplications, callerFoundApplications);
+		Set<TransactionFlowStatistics> callee = selectCallee(sourceApplication, from, to, calleeFoundApplications, callerFoundApplications);
 		logger.debug("Result of finding callee {}", callee);
 
-		Set<TransactionFlowStatistics> caller = selectCaller(applicationName, serviceType, from, to, calleeFoundApplications, callerFoundApplications);
+		Set<TransactionFlowStatistics> caller = selectCaller(sourceApplication, from, to, calleeFoundApplications, callerFoundApplications);
 		logger.debug("Result of finding caller {}", caller);
 
 		Set<TransactionFlowStatistics> data = new HashSet<TransactionFlowStatistics>(callee.size() + caller.size());
@@ -315,37 +318,37 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
     }
 
     @Override
-	public LinkStatistics linkStatistics(long from, long to, String srcApplicationName, short srcServiceType, String destApplicationName, short destServiceType) {
-        if (srcApplicationName == null) {
-            throw new NullPointerException("srcApplicationName must not be null");
+	public LinkStatistics linkStatistics(long from, long to, Application sourceApplication, Application destinationApplication) {
+        if (sourceApplication == null) {
+            throw new NullPointerException("sourceApplication must not be null");
         }
-        if (destApplicationName == null) {
-            throw new NullPointerException("destApplicationName must not be null");
+        if (destinationApplication == null) {
+            throw new NullPointerException("destinationApplication must not be null");
         }
 
         List<Map<Long, Map<Short, Long>>> list;
 
-		if (ServiceType.findServiceType(srcServiceType).isUser()) {
+		if (ServiceType.findServiceType(sourceApplication.getServiceTypeCode()).isUser()) {
 			logger.debug("Find 'client -> any' link statistics");
 			// client는 applicatinname + servicetype.client로 기록된다.
 			// 그래서 src, dest가 둘 다 dest로 같음.
-			list = applicationMapStatisticsCalleeDao.selectCalleeStatistics(destApplicationName, srcServiceType, destApplicationName, destServiceType, from, to);
-		} else if (ServiceType.findServiceType(destServiceType).isWas()) {
+			list = applicationMapStatisticsCalleeDao.selectCalleeStatistics(destinationApplication.getName(), sourceApplication.getServiceTypeCode(), destinationApplication.getName(), destinationApplication.getServiceTypeCode(), from, to);
+		} else if (destinationApplication.getServiceType().isWas()) {
 			logger.debug("Find 'any -> was' link statistics");
 			// destination이 was인 경우에는 중간에 client event가 끼어있기 때문에 callee에서
 			// caller가
 			// 같은녀석을 찾아야 한다.
-			list = applicationMapStatisticsCallerDao.selectCallerStatistics(srcApplicationName, srcServiceType, destApplicationName, destServiceType, from, to);
+			list = applicationMapStatisticsCallerDao.selectCallerStatistics(sourceApplication.getName(), sourceApplication.getServiceTypeCode(), destinationApplication.getName(), destinationApplication.getServiceTypeCode(), from, to);
 		} else {
 			logger.debug("Find 'was -> terminal' link statistics");
 			// 일반적으로 was -> terminal 간의 통계정보 조회.
-			list = applicationMapStatisticsCalleeDao.selectCalleeStatistics(srcApplicationName, srcServiceType, destApplicationName, destServiceType, from, to);
+			list = applicationMapStatisticsCalleeDao.selectCalleeStatistics(sourceApplication.getName(), sourceApplication.getServiceTypeCode(), destinationApplication.getName(), destinationApplication.getServiceTypeCode(), from, to);
 		}
 
 		LinkStatistics statistics = new LinkStatistics(from, to);
 
 		// 조회가 안되는 histogram slot이 있으면 UI에 모두 보이지 않기 때문에 미리 정의된 slot을 모두 할당한다.
-		statistics.setDefaultHistogramSlotList(ServiceType.findServiceType(destServiceType).getHistogramSchema().getHistogramSlotList());
+		statistics.setDefaultHistogramSlotList(destinationApplication.getServiceType().getHistogramSchema().getHistogramSlotList());
 
 		logger.debug("Fetched statistics data={}", list);
 

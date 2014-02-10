@@ -9,34 +9,34 @@ import com.nhn.pinpoint.common.ServiceType;
  * 
  */
 public class Application {
-	private final String applicationName;
+	private final String name;
     private final ServiceType serviceType;
     // undefine일 경우 추적이 쉽도록 별도 데이터를 보관한다.
     private final short code;
 
-    public Application(String applicationName, ServiceType serviceType) {
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+    public Application(String name, ServiceType serviceType) {
+        if (name == null) {
+            throw new NullPointerException("name must not be null");
         }
         if (serviceType == null) {
             throw new NullPointerException("serviceType must not be null");
         }
-        this.applicationName = applicationName;
+        this.name = name;
         this.serviceType = serviceType;
         this.code = serviceType.getCode();
     }
 
-	public Application(String applicationName, short serviceType) {
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+	public Application(String name, short serviceType) {
+        if (name == null) {
+            throw new NullPointerException("name must not be null");
         }
-        this.applicationName = applicationName;
+        this.name = name;
 		this.serviceType = ServiceType.findServiceType(serviceType);
         this.code = serviceType;
 	}
 
-    public String getApplicationName() {
-		return applicationName;
+    public String getName() {
+		return name;
 	}
 
 	public ServiceType getServiceType() {
@@ -54,7 +54,7 @@ public class Application {
 
         Application that = (Application) o;
 
-        if (!applicationName.equals(that.applicationName)) return false;
+        if (!name.equals(that.name)) return false;
         if (serviceType != that.serviceType) return false;
 
         return true;
@@ -62,13 +62,13 @@ public class Application {
 
     @Override
     public int hashCode() {
-        int result = applicationName.hashCode();
+        int result = name.hashCode();
         result = 31 * result + serviceType.hashCode();
         return result;
     }
 
     @Override
 	public String toString() {
-		return applicationName + "(" + serviceType + ":" + code + ")";
+		return name + "(" + serviceType + ":" + code + ")";
 	}
 }

@@ -4,7 +4,7 @@
 <%@ taglib prefix="pinpoint" uri="http://pinpoint.nhncorp.com/pinpoint" %>
 [
 	<c:forEach items="${applications}" var="application" varStatus="status">
-		{ "applicationName" : "${application.applicationName}", "serviceType" : "${application.serviceType}", "code" : "${application.serviceType.code}" } 
+		{ "applicationName" : "${application.name}", "serviceType" : "${application.serviceType}", "code" : "${application.serviceType.code}" }
 		<c:if test="${!status.last}">,</c:if>
 	</c:forEach>
 ]
