@@ -318,7 +318,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
     }
 
     @Override
-	public LinkStatistics linkStatistics(long from, long to, Application sourceApplication, Application destinationApplication) {
+	public LinkStatistics linkStatistics(Application sourceApplication, Application destinationApplication, long from, long to) {
         if (sourceApplication == null) {
             throw new NullPointerException("sourceApplication must not be null");
         }

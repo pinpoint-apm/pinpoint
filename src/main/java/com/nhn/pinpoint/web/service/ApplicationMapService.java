@@ -18,5 +18,5 @@ public interface ApplicationMapService {
 	 */
 	public ApplicationMap selectApplicationMap(Application sourceApplication, long from, long to);
 	
-	public LinkStatistics linkStatistics(long from, long to, Application sourceApplication, Application destinationApplication);
+	public LinkStatistics linkStatistics(Application sourceApplication, Application destinationApplication, long from, long to);
 }

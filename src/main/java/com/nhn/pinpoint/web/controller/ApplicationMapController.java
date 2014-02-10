@@ -1,7 +1,5 @@
 package com.nhn.pinpoint.web.controller;
 
-import javax.servlet.http.HttpServletResponse;
-
 import com.nhn.pinpoint.web.util.Limiter;
 import com.nhn.pinpoint.web.vo.Application;
 import org.slf4j.Logger;
@@ -13,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
 import com.nhn.pinpoint.web.service.ApplicationMapService;
 import com.nhn.pinpoint.web.util.TimeUtils;
@@ -106,7 +103,7 @@ public class ApplicationMapController {
         final Application sourceApplication = new Application(srcApplicationName, srcServiceType);
         final Application destinationApplication = new Application(destApplicationName, destServiceType);
 
-		LinkStatistics linkStatistics = applicationMapService.linkStatistics(from, to, sourceApplication, destinationApplication);
+		LinkStatistics linkStatistics = applicationMapService.linkStatistics(sourceApplication, destinationApplication, from, to);
 
 		model.addAttribute("from", from);
 		model.addAttribute("to", to);
