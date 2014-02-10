@@ -94,6 +94,21 @@ public class ResponseHistogram implements JsonSerializable {
 		this.slowCount += histogram.slowCount;
 	}
 
+    /**
+     * 같은 타입인지 체크하지 않음.
+     * @param histogram
+     */
+    public void addUncheckType(ResponseHistogram histogram) {
+        if (histogram == null) {
+            throw new NullPointerException("histogram must not be null");
+        }
+        addValues(histogram);
+
+        this.totalCount += histogram.totalCount;
+        this.errorCount += histogram.errorCount;
+        this.slowCount += histogram.slowCount;
+    }
+
     private void addValues(ResponseHistogram histogram) {
         final long[] otherValues = histogram.values;
         final int length = values.length;

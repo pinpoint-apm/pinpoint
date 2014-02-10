@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
+import com.nhn.pinpoint.web.applicationmap.Link;
 import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
 import com.nhn.pinpoint.web.dao.*;
 import com.nhn.pinpoint.web.vo.RawResponseTime;
@@ -236,7 +237,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		data.addAll(caller);
 
 		ApplicationMap map = new ApplicationMapBuilder().build(data);
-        appendWasResponseTime(map, from, to);
+        appendResponseTime(map, from, to);
 
 		watch.stop();
 		logger.info("Fetch applicationmap elapsed. {}ms", watch.getLastTaskTimeMillis());
@@ -244,17 +245,60 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		return map;
 	}
 
-    private void appendWasResponseTime(ApplicationMap map, long from, long to) {
+    private void appendResponseTime(ApplicationMap map, long from, long to) {
         List<com.nhn.pinpoint.web.applicationmap.Node> nodes = map.getNodes();
         for (com.nhn.pinpoint.web.applicationmap.Node node : nodes) {
-            final boolean was = node.getServiceType().isWas();
-            if (!was) {
-                continue;
+            if (node.getServiceType().isWas()) {
+                // was일 경우 자신의 response 히스토그램을 조회하여 채운다.
+                final Application application = new Application(node.getApplicationName(), node.getServiceType());
+                final List<RawResponseTime> responseHistogram = this.mapResponseDao.selectResponseTime(application, from, to);
+                ResponseHistogramSummary histogramSummary = createHistogramSummary(application, responseHistogram);
+                node.setResponseHistogramSummary(histogramSummary);
+            } else if(node.getServiceType().isTerminal() || node.getServiceType().isUnknown()) {
+                // 터미널 노드인경우, 자신을 가리키는 link값을 합하여 histogram을 생성한다.
+                Application nodeApplication = new Application(node.getApplicationName(), node.getServiceType());
+                final ResponseHistogramSummary summary = new ResponseHistogramSummary(nodeApplication);
+
+                List<Link> linkList = map.getLinks();
+                for (Link link : linkList) {
+                    com.nhn.pinpoint.web.applicationmap.Node toNode = link.getTo();
+                    String applicationName = toNode.getApplicationName();
+                    ServiceType serviceType = toNode.getServiceType();
+                    Application destination = new Application(applicationName, serviceType);
+                    // destnation이 자신을 가리킨다면 데이터를 머지함.
+                    if (nodeApplication.equals(destination)) {
+                        ResponseHistogram linkHistogram = link.getHistogram();
+//                        summary.addTotal(linkHistogram);
+                        summary.addLinkHistogram(linkHistogram);
+                    }
+                }
+                node.setResponseHistogramSummary(summary);
+            } else if(node.getServiceType().isUser()) {
+                // User노드인 경우 source 링크를 찾아 histogram을 생성한다.
+                Application nodeApplication = new Application(node.getApplicationName(), node.getServiceType());
+                final ResponseHistogramSummary summary = new ResponseHistogramSummary(nodeApplication);
+
+                List<Link> linkList = map.getLinks();
+                for (Link link : linkList) {
+                    com.nhn.pinpoint.web.applicationmap.Node fromNode = link.getFrom();
+                    String applicationName = fromNode.getApplicationName();
+                    ServiceType serviceType = fromNode.getServiceType();
+                    Application source = new Application(applicationName, serviceType);
+                    // destnation이 자신을 가리킨다면 데이터를 머지함.
+                    if (nodeApplication.equals(source)) {
+                        ResponseHistogram linkHistogram = link.getHistogram();
+//                        summary.addTotal(linkHistogram);
+                        summary.addLinkHistogram(linkHistogram);
+                    }
+                }
+                node.setResponseHistogramSummary(summary);
+            } else {
+                // 그냥 데미 데이터
+                Application nodeApplication = new Application(node.getApplicationName(), node.getServiceType());
+                ResponseHistogramSummary dummy = new ResponseHistogramSummary(nodeApplication);
+                node.setResponseHistogramSummary(dummy);
             }
-            final Application application = new Application(node.getApplicationName(), node.getServiceType());
-            final List<RawResponseTime> responseHistogram = this.mapResponseDao.selectResponseTime(application, from, to);
-            ResponseHistogramSummary histogramSummary = createHistogramSummary(application, responseHistogram);
-            node.setResponseHistogramSummary(histogramSummary);
+
         }
 
     }
