@@ -48,7 +48,13 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
 
 	@Override
 	public List<TransactionFlowStatistics> selectCaller(Application calleeApplication, Range range) {
-		Scan scan = createScan(calleeApplication, range);
+        if (calleeApplication == null) {
+            throw new NullPointerException("calleeApplication must not be null");
+        }
+        if (range == null) {
+            throw new NullPointerException("range must not be null");
+        }
+        Scan scan = createScan(calleeApplication, range);
 		final List<List<TransactionFlowStatistics>> foundListList = hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLER, scan, applicationMapStatisticsCallerMapper);
 
 		if (foundListList.isEmpty()) {

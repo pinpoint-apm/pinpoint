@@ -10,6 +10,7 @@ public final class Range {
     public Range(long from, long to) {
         this.from = from;
         this.to = to;
+        isValidate();
     }
 
     public long getFrom() {
@@ -20,6 +21,15 @@ public final class Range {
         return to;
     }
 
+    public long getRange() {
+        return to - from;
+    }
+
+    private void isValidate() {
+        if (this.to < this.from) {
+            throw new IllegalArgumentException("invalid range:" + this);
+        }
+    }
 
     @Override
     public boolean equals(Object o) {

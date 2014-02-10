@@ -53,21 +53,20 @@ public class HbaseAgentStatDao implements AgentStatDao {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
+        if (range == null) {
+            throw new NullPointerException("range must not be null");
+        }
 
         if (logger.isDebugEnabled()) {
 			logger.debug("scanAgentStat : agentId={}, {}", agentId, range);
 		}
 		
-		if (range.getTo() < range.getFrom()) {
-			logger.error("invalid parameter : agentId={}, {}", agentId, range);
-			return Collections.emptyList();
-		}
-		
+
 		Scan scan = createScan(agentId, range);
 		
 		List<List<TAgentStat>> intermediate = hbaseOperations2.find(HBaseTables.AGENT_STAT, scan, rowKeyDistributor, agentStatMapper);
 		
-		int expectedSize = (int)((range.getTo() - range.getFrom()) / 5000); // 5초간 데이터
+		int expectedSize = (int)(range.getRange() / 5000); // 5초간 데이터
         List<TAgentStat> merged = new ArrayList<TAgentStat>(expectedSize);
         
         for(List<TAgentStat> each : intermediate) {
