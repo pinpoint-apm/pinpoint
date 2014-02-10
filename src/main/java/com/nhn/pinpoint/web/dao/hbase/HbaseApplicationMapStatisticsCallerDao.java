@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import com.nhn.pinpoint.common.ServiceType;
+
 import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatisticsKey;
+import com.nhn.pinpoint.web.vo.Application;
 import org.apache.hadoop.hbase.client.Scan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,12 +46,12 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
 	private RowMapper<List<TransactionFlowStatistics>> applicationMapStatisticsCallerMapper;
 
 	@Override
-	public List<TransactionFlowStatistics> selectCaller(String calleeApplicationName, short calleeServiceType, long from, long to) {
-		Scan scan = createScan(calleeApplicationName, calleeServiceType, from, to);
+	public List<TransactionFlowStatistics> selectCaller(Application calleeApplication, long from, long to) {
+		Scan scan = createScan(calleeApplication, from, to);
 		final List<List<TransactionFlowStatistics>> foundListList = hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLER, scan, applicationMapStatisticsCallerMapper);
 
 		if (foundListList.isEmpty()) {
-			logger.debug("There's no caller data. {}, {}, {}, {}", calleeApplicationName, calleeServiceType, from, to);
+			logger.debug("There's no caller data. {}, {}, {}", calleeApplication, from, to);
 		}
 		
         return merge(foundListList);
@@ -92,16 +92,16 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
 	 * </pre>
 	 */
 	@Override
-	public List<Map<Long, Map<Short, Long>>> selectCallerStatistics(String callerApplicationName, short callerServiceType, String calleeApplicationName, short calleeServiceType, long from, long to) {
+	public List<Map<Long, Map<Short, Long>>> selectCallerStatistics(Application callerApplication, Application calleeApplication, long from, long to) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("selectCallerStatistics. {}, {}, {}, {}, {}, {}", callerApplicationName, callerServiceType, calleeApplicationName, calleeServiceType, from, to);
+			logger.debug("selectCallerStatistics. {}, {}, {}, {}", callerApplication, calleeApplication, from, to);
 		}
-		Scan scan = createScan(calleeApplicationName, calleeServiceType, from, to);
-		RowMapper<Map<Long, Map<Short, Long>>> mapper = new ApplicationMapLinkStatisticsMapper(callerApplicationName, callerServiceType, calleeApplicationName, calleeServiceType);
+		Scan scan = createScan(calleeApplication, from, to);
+		RowMapper<Map<Long, Map<Short, Long>>> mapper = new ApplicationMapLinkStatisticsMapper(callerApplication.getName(), callerApplication.getServiceTypeCode(), calleeApplication.getName(), calleeApplication.getServiceTypeCode());
 		return hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLER, scan, mapper);
 	}
 
-	private Scan createScan(String applicationName, short serviceType, long from, long to) {
+	private Scan createScan(Application application, long from, long to) {
 		long startTime = TimeSlot.getStatisticsRowSlot(from);
 		// hbase의 scanner를 사용하여 검색시 endTime은 검색 대상에 포함되지 않기 때문에, +1을 해줘야 된다.
 		long endTime = TimeSlot.getStatisticsRowSlot(to) + 1;
@@ -112,8 +112,8 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
 		}
 		
 		// timestamp가 reverse되었기 때문에 start, end를 바꿔서 조회.
-		byte[] startKey = ApplicationMapStatisticsUtils.makeRowKey(applicationName, serviceType, endTime);
-		byte[] endKey = ApplicationMapStatisticsUtils.makeRowKey(applicationName, serviceType, startTime);
+		byte[] startKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), endTime);
+		byte[] endKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), startTime);
 
 		Scan scan = new Scan();
 		scan.setCaching(this.scanCacheSize);

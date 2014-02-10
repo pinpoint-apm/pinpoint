@@ -150,7 +150,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 
 		final Set<TransactionFlowStatistics> callerSet = new HashSet<TransactionFlowStatistics>();
 
-		final List<TransactionFlowStatistics> caller = applicationMapStatisticsCallerDao.selectCaller(calleeApplication.getName(), calleeApplication.getServiceTypeCode(), from, to);
+		final List<TransactionFlowStatistics> caller = applicationMapStatisticsCallerDao.selectCaller(calleeApplication, from, to);
 
 		logger.debug("Found Caller. count={}, callee={}", caller.size(), calleeApplication);
 
@@ -339,7 +339,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 			// destination이 was인 경우에는 중간에 client event가 끼어있기 때문에 callee에서
 			// caller가
 			// 같은녀석을 찾아야 한다.
-			list = applicationMapStatisticsCallerDao.selectCallerStatistics(sourceApplication.getName(), sourceApplication.getServiceTypeCode(), destinationApplication.getName(), destinationApplication.getServiceTypeCode(), from, to);
+			list = applicationMapStatisticsCallerDao.selectCallerStatistics(sourceApplication, destinationApplication, from, to);
 		} else {
 			logger.debug("Find 'was -> terminal' link statistics");
 			// 일반적으로 was -> terminal 간의 통계정보 조회.
