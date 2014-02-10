@@ -202,7 +202,9 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
                 final ComplexNodeId statId = new ComplexNodeId(srcNode, destNode);
 				TransactionFlowStatistics stat = statisticsMap.get(statId);
                 if (stat == null)  {
-                    stat = new TransactionFlowStatistics(srcNode.getName(), srcNode.getServiceType(), destNode.getName(), destNode.getServiceType());
+                    Application source = new Application(srcNode.getName(), srcNode.getServiceType());
+                    Application dest = new Application(destNode.getName(), destNode.getServiceType());
+                    stat = new TransactionFlowStatistics(source, dest);
                 }
 
                 final short slot = getHistogramSlotTime(span, destNode.getServiceType());
@@ -272,7 +274,9 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
             final NodeId spanEventStatId = new ComplexNodeId(srcNode, new Node(dest, destServiceType));
             TransactionFlowStatistics statistics = statisticsMap.get(spanEventStatId);
             if (statistics == null) {
-                statistics = new TransactionFlowStatistics(srcNode.getName(), srcNode.getServiceType(), dest, destServiceType);
+                Application sourceApplication = new Application(srcNode.getName(), srcNode.getServiceType());
+                Application destApplication = new Application(dest, destServiceType);
+                statistics = new TransactionFlowStatistics(sourceApplication, destApplication);
             }
 
             final int slot2 = getHistogramSlotTime(spanEvent, destServiceType);

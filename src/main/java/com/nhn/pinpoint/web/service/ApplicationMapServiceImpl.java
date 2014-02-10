@@ -72,7 +72,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 	 */
 	private Set<TransactionFlowStatistics> selectCallee(Application callerApplication, Range range, Set<Node> calleeFoundApplications, Set<Node> callerFoundApplications) {
 		// 이미 조회된 구간이면 skip
-        final Node key = new Node(callerApplication.getName(), callerApplication.getServiceType());
+        final Node key = new Node(callerApplication);
         if (calleeFoundApplications.contains(key)) {
 			logger.debug("ApplicationStatistics exists. Skip finding callee. {} ", callerApplication);
 			return new HashSet<TransactionFlowStatistics>(0);
@@ -133,7 +133,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 	 */
 	private Set<TransactionFlowStatistics> selectCaller(Application calleeApplication, Range range, Set<Node> calleeFoundApplications, Set<Node> callerFoundApplications) {
 		// 이미 조회된 구간이면 skip
-        final Node key = new Node(calleeApplication.getName(), calleeApplication.getServiceType());
+        final Node key = new Node(calleeApplication);
         if (callerFoundApplications.contains(key)) {
 			logger.debug("ApplicationStatistics exists. Skip finding caller. {}", calleeApplication);
 			return new HashSet<TransactionFlowStatistics>(0);
@@ -181,11 +181,10 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 			if (app != null) {
 				logger.debug("Application info replaced. {} => {}", stat, app);
 
-				stat.setTo(app.getName());
-				stat.setToServiceType(app.getServiceType());
+                stat.setToApplication(new Application(app.getName(), app.getServiceType()));
 				return true;
 			} else {
-				stat.setToServiceType(ServiceType.UNKNOWN /* ServiceType.UNKNOWN_CLOUD */);
+                stat.setToApplication(new Application(stat.getTo(), ServiceType.UNKNOWN));
 			}
 		}
 		return false;

@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.web.service;
 
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.web.vo.Application;
 
 /**
  * @author emeroad
@@ -15,6 +16,14 @@ public class Node {
     private Node() {
         this.name = null;
         this.serviceType = null;
+    }
+
+    public Node(Application application) {
+        if (application == null) {
+            throw new NullPointerException("application must not be null");
+        }
+        this.name = application.getName();
+        this.serviceType = application.getServiceType();
     }
 
     public Node(String name, ServiceType serviceType) {

@@ -1,8 +1,8 @@
 package com.nhn.pinpoint.web.mapper;
 
 import java.util.*;
-import java.util.Map.Entry;
 
+import com.nhn.pinpoint.web.vo.Application;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -40,10 +40,12 @@ public class ApplicationMapStatisticsCallerMapper implements RowMapper<List<Tran
             final byte[] row = kv.getRow();
             String calleeApplicationName = ApplicationMapStatisticsUtils.getApplicationNameFromRowKey(row);
 			short calleeServiceType = ApplicationMapStatisticsUtils.getApplicationTypeFromRowKey(row);
+            Application calleeApplication = new Application(calleeApplicationName, calleeServiceType);
 
             final byte[] qualifier = kv.getQualifier();
 			String callerApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);
 			short callerServiceType = ApplicationMapStatisticsUtils.getDestServiceTypeFromColumnName(qualifier);
+            Application callerApplication = new Application(callerApplicationName, callerServiceType);
 
 			long requestCount = Bytes.toLong(kv.getValue());
 			short histogramSlot = ApplicationMapStatisticsUtils.getHistogramSlotFromColumnName(qualifier);
@@ -53,9 +55,10 @@ public class ApplicationMapStatisticsCallerMapper implements RowMapper<List<Tran
 			boolean isError = histogramSlot == (short) -1;
 			
             if (logger.isDebugEnabled()) {
-			    logger.debug("    Fetched Caller. {}[{}] -> {}[{}] ({})", callerApplicationName, ServiceType.findServiceType(callerServiceType), calleeApplicationName, ServiceType.findServiceType(calleeServiceType), requestCount);
+			    logger.debug("    Fetched Caller. {} -> {} ({})", callerApplication, calleeApplication, requestCount);
             }
-            TransactionFlowStatistics statistics = new TransactionFlowStatistics(callerApplicationName, callerServiceType, calleeApplicationName, calleeServiceType);
+
+            TransactionFlowStatistics statistics = new TransactionFlowStatistics(callerApplication, calleeApplication);
             statistics.addSample(calleeHost, calleeServiceType, (isError) ? (short) -1 : histogramSlot, requestCount);
 
             stat.add(statistics);

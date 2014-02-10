@@ -1,8 +1,8 @@
 package com.nhn.pinpoint.web.mapper;
 
 import java.util.*;
-import java.util.Map.Entry;
 
+import com.nhn.pinpoint.web.vo.Application;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -44,10 +44,12 @@ public class ApplicationMapStatisticsCalleeMapper implements RowMapper<List<Tran
             final byte[] row = kv.getRow();
             String callerApplicationName = ApplicationMapStatisticsUtils.getApplicationNameFromRowKey(row);
 			short callerServiceType = ApplicationMapStatisticsUtils.getApplicationTypeFromRowKey(row);
+            Application caller = new Application(callerApplicationName, callerServiceType);
 
             final byte[] qualifier = kv.getQualifier();
 			String calleeApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);
 			short calleeServiceType = ApplicationMapStatisticsUtils.getDestServiceTypeFromColumnName(qualifier);
+            Application callee = new Application(calleeApplicationName, calleeServiceType);
 			
 			long requestCount = Bytes.toLong(kv.getValue());
 			short histogramSlot = ApplicationMapStatisticsUtils.getHistogramSlotFromColumnName(qualifier);
@@ -61,8 +63,7 @@ public class ApplicationMapStatisticsCalleeMapper implements RowMapper<List<Tran
 			    logger.debug("    Fetched Callee. {}[{}] -> {}[{}] ({})", callerApplicationName, ServiceType.findServiceType(callerServiceType), calleeApplicationName, ServiceType.findServiceType(calleeServiceType), requestCount);
             }
 			
-            final String id = callerApplicationName + callerServiceType + calleeApplicationName + calleeServiceType;
-            TransactionFlowStatistics statistics = new TransactionFlowStatistics(callerApplicationName, callerServiceType, calleeApplicationName, calleeServiceType);
+            TransactionFlowStatistics statistics = new TransactionFlowStatistics(caller, callee);
             statistics.addSample(calleeHost, calleeServiceType, (isError) ? (short) -1 : histogramSlot, requestCount);
 
 			stat.add(statistics);

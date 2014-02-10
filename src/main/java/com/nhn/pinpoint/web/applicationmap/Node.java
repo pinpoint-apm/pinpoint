@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.nhn.pinpoint.web.applicationmap.rawdata.HostList;
 import com.nhn.pinpoint.web.service.NodeId;
+import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.ResponseHistogramSummary;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,8 +25,7 @@ public class Node implements JsonSerializable {
 
 	private int sequence;
     private final NodeId id;
-    private final String applicationName;
-    private final ServiceType serviceType;
+    private final Application application;
 
     private final ServerInstanceList serverInstanceList = new ServerInstanceList();
 
@@ -35,28 +35,26 @@ public class Node implements JsonSerializable {
     private ResponseHistogramSummary responseHistogramSummary;
 	
 
-	public Node(NodeId id, String applicationName, ServiceType serviceType, Set<AgentInfoBo> agentSet) {
-        this(id, applicationName, serviceType, null, agentSet);
+	public Node(NodeId id, Application application, Set<AgentInfoBo> agentSet) {
+        this(id, application, null, agentSet);
 	}
 
-    public Node(NodeId id, String applicationName, ServiceType serviceType, HostList hostList) {
-        this(id, applicationName, serviceType, hostList, null);
+    public Node(NodeId id, Application application, HostList hostList) {
+        this(id, application, hostList, null);
     }
 
-    Node(NodeId id, String applicationName, ServiceType serviceType, HostList hostList, Set<AgentInfoBo> agentSet) {
+    Node(NodeId id, Application application, HostList hostList, Set<AgentInfoBo> agentSet) {
         if (id == null) {
             throw new NullPointerException("id must not be null");
         }
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+        if (application == null) {
+            throw new NullPointerException("application must not be null");
         }
-        if (serviceType == null) {
-            throw new NullPointerException("serviceType must not be null");
-        }
-        logger.debug("create node id={}, applicationName={}, serviceType={}, agentSet={}", id, applicationName, serviceType, agentSet);
+
+        logger.debug("create node id={}, applicationName={}, serviceType={}, agentSet={}", id, application, agentSet);
         this.id = id;
-        this.applicationName = getApplicationName(applicationName, serviceType);
-        this.serviceType = serviceType;
+        this.application = application;
+
 
         if (hostList != null) {
             // 이 put은 정확하지 않음.
@@ -70,11 +68,11 @@ public class Node implements JsonSerializable {
         }
     }
 
-    private String getApplicationName(String applicationName, ServiceType serviceType) {
-        if (serviceType.isUser()) {
+    private String getApplicationName(Application application) {
+        if (application.getServiceType().isUser()) {
             return "USER";
         } else {
-            return applicationName;
+            return application.getName();
         }
     }
 
@@ -104,7 +102,7 @@ public class Node implements JsonSerializable {
 	}
 
 	public String getApplicationName() {
-		return applicationName;
+		return getApplicationName(application);
 	}
 
 	public Node add(Node node) {
@@ -140,11 +138,11 @@ public class Node implements JsonSerializable {
 
     public Node deepCopy() {
         HostList copyHostList = hostList.deepCopy();
-        return new Node(this.id, this.applicationName, this.serviceType, copyHostList, agentSet);
+        return new Node(this.id, this.application, copyHostList, agentSet);
     }
 
 	public ServiceType getServiceType() {
-		return serviceType;
+		return application.getServiceType();
 	}
 
     public ResponseHistogramSummary getResponseHistogramSummary() {
@@ -160,15 +158,15 @@ public class Node implements JsonSerializable {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{ ");
 		sb.append("\"sequence\" : ").append(sequence).append(",");
-		sb.append("\"applicationName\" : \"").append(applicationName).append("\",");
-		sb.append("\"serviceType\" : \"").append(serviceType).append("\",");
-		sb.append("\"serviceTypeCode\" : \"").append(serviceType.getCode()).append("\"");
+		sb.append("\"applicationName\" : \"").append(application.getName()).append("\",");
+		sb.append("\"serviceType\" : \"").append(application.getServiceType()).append("\",");
+		sb.append("\"serviceTypeCode\" : \"").append(application.getServiceTypeCode()).append("\"");
 		sb.append(" }");
 		return sb.toString();
 	}
 
 	@Override
 	public String toString() {
-		return "Node [sequence=" + sequence + ", id=" + id + ", applicationName=" + applicationName + ", serviceType=" + serviceType + ", serverInstanceList=" + serverInstanceList + "]";
+		return "Node [sequence=" + sequence + ", id=" + id + ", application=" + application + ", serverInstanceList=" + serverInstanceList + "]";
 	}
 }
