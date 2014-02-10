@@ -104,7 +104,7 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
 			logger.debug("selectCallerStatistics. {}, {}, {}", callerApplication, calleeApplication, range);
 		}
 		Scan scan = createScan(calleeApplication, range);
-		RowMapper<Map<Long, Map<Short, Long>>> mapper = new ApplicationMapLinkStatisticsMapper(callerApplication.getName(), callerApplication.getServiceTypeCode(), calleeApplication.getName(), calleeApplication.getServiceTypeCode());
+		RowMapper<Map<Long, Map<Short, Long>>> mapper = new ApplicationMapLinkStatisticsMapper(callerApplication, calleeApplication);
 		return hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLER, scan, mapper);
 	}
 

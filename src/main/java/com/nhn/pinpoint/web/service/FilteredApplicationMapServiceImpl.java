@@ -60,7 +60,9 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
-
+        if (range == null) {
+            throw new NullPointerException("range must not be null");
+        }
         if (logger.isTraceEnabled()) {
 			logger.trace("scan(selectTraceIdsFromApplicationTraceIndex) {}, {}", applicationName, range);
 		}
@@ -92,7 +94,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 
 		// scan transaction list
 		for (SpanBo span : filteredTransactionList) {
-			if (sourceApplication.getName().equals(span.getApplicationId()) && sourceApplication.getServiceTypeCode() == span.getServiceType().getCode()) {
+			if (sourceApplication.equals(span.getApplicationId(), span.getServiceType())) {
 				List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
 				if (spanEventBoList == null) {
 					continue;
@@ -100,7 +102,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 
 				// find dest elapsed time
 				for (SpanEventBo spanEventBo : spanEventBoList) {
-					if (destinationApplication.getServiceTypeCode() == spanEventBo.getServiceType().getCode() && destinationApplication.getName().equals(spanEventBo.getDestinationId())) {
+                    if (destinationApplication.equals(spanEventBo.getDestinationId(), spanEventBo.getServiceType())) {
 						// find exception
 						boolean hasException = spanEventBo.hasException();
 						// add sample
