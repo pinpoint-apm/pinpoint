@@ -50,7 +50,9 @@ public class FilterDescriptor {
 	}
 
 	public Long getResponseTo() {
-		if ("max".equals(rt)) {
+		if (rt == null) {
+			return null;
+		} else if ("max".equals(rt)) {
 			return Long.MAX_VALUE;
 		} else {
 			return Long.valueOf(rt);
