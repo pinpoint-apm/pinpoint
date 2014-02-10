@@ -181,7 +181,7 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                             return;
                         }
                         scope.agentStat = result;
-                        if (result.type) {
+                        if (angular.isDefined(result.type)) {
                             scope.info.push({key: 'JVM GC Type', val: result.type});
                             oProgressBar.setLoading(80);
                             d3MakeGcCharts(result);
