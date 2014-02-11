@@ -29,11 +29,11 @@ public class ResponseTimeMapperTest {
         responseTimeMapper.recordColumn(rawResponseTime, buffer.getBuffer(), Bytes.toBytes(1L));
 
         ResponseHistogram agentHistogram = rawResponseTime.getHistogram("agent");
-        long fastCount = agentHistogram.getValues()[0];
+        long fastCount = agentHistogram.getFastCount();
         Assert.assertEquals(fastCount, 1);
-        long normal = agentHistogram.getValues()[1];
+        long normal = agentHistogram.getNormalCount();
         Assert.assertEquals(normal, 0);
-        long slow = agentHistogram.getValues()[2];
+        long slow = agentHistogram.getSlowCount();
         Assert.assertEquals(slow, 0);
 
     }

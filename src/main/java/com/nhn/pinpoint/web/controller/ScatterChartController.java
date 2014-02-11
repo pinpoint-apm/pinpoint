@@ -97,7 +97,8 @@ public class ScatterChartController {
 		StopWatch watch = new StopWatch();
 		watch.start("selectScatterData");
 
-        final Range range = new Range(from, to);
+        // TODO 레인지 체크 확인 exception 발생, from값이 to 보다 더 큼.
+        final Range range = Range.createUncheckedRange(from, to);
 		List<Dot> scatterData;
 		if (filterText == null) {
 			// FIXME ResultWithMark로 변경해야할지도?

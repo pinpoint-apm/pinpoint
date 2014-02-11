@@ -13,6 +13,18 @@ public final class Range {
         isValidate();
     }
 
+    public Range(long from, long to, boolean check) {
+        this.from = from;
+        this.to = to;
+        if (check) {
+            isValidate();
+        }
+    }
+
+    public static Range createUncheckedRange(long from, long to) {
+        return new Range(from, to, false);
+    }
+
     public long getFrom() {
         return from;
     }

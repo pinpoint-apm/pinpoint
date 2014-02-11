@@ -116,7 +116,7 @@ ${record.hasException}
 				"targetinfo" : ${link.to.json},
 				"text" : ${link.histogram.totalCount},
 				"error" : ${link.histogram.errorCount},
-				"slow" : ${link.histogram.slowCount},
+				"slow" : ${link.histogram.verySlowCount},
 				"histogram" : ${link.histogram.json},
 				"targetHosts" : {
 					<c:forEach items="${link.hostList.hostList}" var="host" varStatus="status2">

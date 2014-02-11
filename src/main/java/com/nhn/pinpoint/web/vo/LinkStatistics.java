@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import com.nhn.pinpoint.common.HistogramSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +21,7 @@ public class LinkStatistics {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private static final Integer SLOT_SLOW = Integer.MAX_VALUE - 1;
+	private static final Integer SLOT_VERY_SLOW = Integer.MAX_VALUE - 1;
 	private static final Integer SLOT_ERROR = (int)Integer.MAX_VALUE;
 
 //	/**
@@ -70,9 +71,9 @@ public class LinkStatistics {
 	 * histogram slot을 설정하면 view에서 값이 없는 slot의 값을 0으로 보여줄 수 있다. 설정되지 않으면 key를
 	 * 몰라서 보여주지 못함. 입력된 값만 보이게 됨.
 	 * 
-	 * @param slotList
+	 * @param schema
 	 */
-	public void setDefaultHistogramSlotList(List<HistogramSlot> slotList) {
+	public void setDefaultHistogramSlotList(HistogramSchema schema) {
 		if (successCount > 0 || failedCount > 0) {
 			throw new IllegalStateException("Can't set slot list while containing the data.");
 		}
@@ -81,16 +82,19 @@ public class LinkStatistics {
 		timeseriesSlotIndex.clear();
 		timeseriesValueList.clear();
 
-//		histogramSummary.put(SLOT_SLOW, 0L);
+//		histogramSummary.put(SLOT_VERY_SLOW, 0L);
 //		histogramSummary.put(SLOT_ERROR, 0L);
 
-		for (HistogramSlot slot : slotList) {
-//			histogramSummary.put(slot.getSlotTime(), 0L);
-			timeseriesSlotIndex.put((int)slot.getSlotTime(), timeseriesSlotIndex.size());
-			timeseriesValueList.add(makeEmptyTimeseriesValueMap());
-		}
+        timeseriesSlotIndex.put((int)schema.getFastSlot().getSlotTime(), timeseriesSlotIndex.size());
+        timeseriesValueList.add(makeEmptyTimeseriesValueMap());
 
-		timeseriesSlotIndex.put(SLOT_SLOW, timeseriesSlotIndex.size());
+        timeseriesSlotIndex.put((int)schema.getNormalSlot().getSlotTime(), timeseriesSlotIndex.size());
+        timeseriesValueList.add(makeEmptyTimeseriesValueMap());
+
+        timeseriesSlotIndex.put((int)schema.getSlowSlot().getSlotTime(), timeseriesSlotIndex.size());
+        timeseriesValueList.add(makeEmptyTimeseriesValueMap());
+
+		timeseriesSlotIndex.put(SLOT_VERY_SLOW, timeseriesSlotIndex.size());
 		timeseriesSlotIndex.put(SLOT_ERROR, timeseriesSlotIndex.size());
 
 		timeseriesValueList.add(makeEmptyTimeseriesValueMap());
@@ -114,7 +118,7 @@ public class LinkStatistics {
 		if (responseTimeslot == -1) {
 			responseTimeslot = SLOT_ERROR;
 		} else if (responseTimeslot == 0) {
-			responseTimeslot = SLOT_SLOW;
+			responseTimeslot = SLOT_VERY_SLOW;
 		}
 
 		// add summary
@@ -166,8 +170,8 @@ public class LinkStatistics {
 	}
 
 
-	public int getSlow() {
-		return SLOT_SLOW;
+	public int getVerySlow() {
+		return SLOT_VERY_SLOW;
 	}
 
 	public int getError() {

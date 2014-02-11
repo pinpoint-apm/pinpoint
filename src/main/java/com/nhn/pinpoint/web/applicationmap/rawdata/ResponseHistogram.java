@@ -21,11 +21,16 @@ public class ResponseHistogram implements JsonSerializable {
 	
 	private final ServiceType serviceType;
 	private final HistogramSchema histogramSchema;
-	private final long[] values;
 
-	private long totalCount;
+    private long totalCount;
+
+    private long fastCount;
+    private long normalCount;
+    private long slowCount;
+    private long verySlowCount;
+
 	private long errorCount;
-	private long slowCount;
+
 
 	public ResponseHistogram(ServiceType serviceType) {
         if (serviceType == null) {
@@ -33,8 +38,6 @@ public class ResponseHistogram implements JsonSerializable {
         }
 		this.serviceType = serviceType;
 		this.histogramSchema = serviceType.getHistogramSchema();
-		// TODO value에 저장하는 구조 추가 수정 필요.
-		this.values = histogramSchema.createNode();
 	}
 
     public ResponseHistogram(final short serviceType) {
@@ -43,37 +46,54 @@ public class ResponseHistogram implements JsonSerializable {
 
 	// TODO slot번호를 이 클래스에서 추출해야 할 것 같긴 함.
 	public void addSample(final short slotTime, final long count) {
-		totalCount += count;
+		this.totalCount += count;
 		
-		if (slotTime == HistogramSchema.SLOW_SLOT.getSlotTime()) { // 0 is slow slotTime
-			slowCount += count;
-		} else if (slotTime == HistogramSchema.ERROR_SLOT.getSlotTime()) { // -1 is error
-			errorCount += count;
+		if (slotTime == histogramSchema.getVerySlowSlot().getSlotTime()) { // 0 is slow slotTime
+			this.verySlowCount += count;
+            return;
+		}
+        if (slotTime == histogramSchema.getErrorSlot().getSlotTime()) { // -1 is error
+			this.errorCount += count;
 			return;
 		}
-
-		final int histogramSlotIndex = histogramSchema.getHistogramSlotIndex(slotTime);
-		if (histogramSlotIndex == -1) {
-			logger.trace("Can't find slotTime={} count={} serviceType={}", slotTime, count, serviceType);
-			return;
-		}
-		values[histogramSlotIndex] += count;
+        if (slotTime <= histogramSchema.getFastSlot().getSlotTime()) {
+            this.fastCount += count;
+            return;
+        }
+        if (slotTime <= histogramSchema.getNormalSlot().getSlotTime()) {
+            this.normalCount += count;
+            return;
+        }
+        if (slotTime <= histogramSchema.getSlowSlot().getSlotTime()) {
+            this.slowCount += count;
+            return;
+        }
+        throw new IllegalArgumentException("slot not found slotTime:" + slotTime + " count:" + count);
 	}
 
 	public ServiceType getServiceType() {
 		return serviceType;
 	}
 
-	public long[] getValues() {
-		return values;
-	}
 
 	public long getErrorCount() {
 		return errorCount;
 	}
 
-	public long getSlowCount() {
-		return slowCount;
+    public long getFastCount() {
+        return fastCount;
+    }
+
+    public long getNormalCount() {
+        return normalCount;
+    }
+
+    public long getSlowCount() {
+        return slowCount;
+    }
+
+    public long getVerySlowCount() {
+		return verySlowCount;
 	}
 
 	public long getTotalCount() {
@@ -87,102 +107,88 @@ public class ResponseHistogram implements JsonSerializable {
         if (this.serviceType != histogram.serviceType) {
             throw new IllegalArgumentException("this=" + this + ", histogram=" + histogram);
         }
-        addValues(histogram);
-
-		this.totalCount += histogram.totalCount;
-		this.errorCount += histogram.errorCount;
-		this.slowCount += histogram.slowCount;
+        addUncheckType(histogram);
 	}
 
     /**
      * 같은 타입인지 체크하지 않음.
      * @param histogram
      */
-    public void addUncheckType(ResponseHistogram histogram) {
+    public void addUncheckType(final ResponseHistogram histogram) {
         if (histogram == null) {
             throw new NullPointerException("histogram must not be null");
         }
-        addValues(histogram);
+        this.fastCount += histogram.fastCount;
+        this.normalCount += histogram.normalCount;
+        this.slowCount += histogram.slowCount;
+        this.verySlowCount += histogram.verySlowCount;
+
+        this.errorCount += histogram.errorCount;
 
         this.totalCount += histogram.totalCount;
-        this.errorCount += histogram.errorCount;
-        this.slowCount += histogram.slowCount;
     }
 
-    private void addValues(ResponseHistogram histogram) {
-        final long[] otherValues = histogram.values;
-        final int length = values.length;
-        for (int i = 0; i < length; i++) {
-			this.values[i] += otherValues[i];
-		}
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ResponseHistogram histogram = (ResponseHistogram) o;
+
+        if (serviceType != histogram.serviceType) return false;
+
+        return true;
     }
 
     @Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((histogramSchema == null) ? 0 : histogramSchema.hashCode());
-		result = prime * result + ((serviceType == null) ? 0 : serviceType.hashCode());
-		return result;
-	}
+    public int hashCode() {
+        return serviceType.hashCode();
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-        // TODO MAP에서 사용하지 않는다면 제거할것. equals를 직접 선언해서 사용하기 애매함.
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ResponseHistogram other = (ResponseHistogram) obj;
-		if (histogramSchema == null) {
-			if (other.histogramSchema != null)
-				return false;
-		} else if (!histogramSchema.equals(other.histogramSchema))
-			return false;
-		// if (serviceType != other.serviceType) {
-		// return false;
-		// }
-		return true;
-	}
-	 
-	@Override
-	public String toString() {
-		return "ResponseHistogram [serviceType=" + serviceType + ",json=" + getJson() + "]";
-	}
+    @Override
+    public String toString() {
+        return "ResponseHistogram{" +
+                "serviceType=" + serviceType +
+                ", histogramSchema=" + histogramSchema +
+                ", totalCount=" + totalCount +
+                ", fastCount=" + fastCount +
+                ", normalCount=" + normalCount +
+                ", slowCount=" + slowCount +
+                ", verySlowCount=" + verySlowCount +
+                ", errorCount=" + errorCount +
+                '}';
+    }
 
-
-	@Override
+    @Override
 	public String getJson() {
 		final StringBuilder sb = new StringBuilder(128);
 		sb.append("{ ");
-		List<HistogramSlot> histogramSlotList = histogramSchema.getHistogramSlotList();
-		HistogramSlot histogramSlot = null;
-		for (int i = 0; i < histogramSlotList.size(); i++) {
-			histogramSlot = histogramSlotList.get(i);
-			sb.append('"');
-            sb.append(histogramSlot.getSlotTime());
-            sb.append('"');
-            sb.append(":");
-            sb.append(values[i]);
-			if (i < histogramSlotList.size() - 1) {
-				sb.append(", ");
-			}
-		}
-		sb.append(",\"");
-        if (histogramSlot == null) {
-            // 이상한 상태값이므로 일단 명시적으로 에러가 발생하도록 수정한다.
-            throw new IllegalStateException("histogramSlot is null");
-        }
-        sb.append(histogramSlot.getSlotTime());
-        sb.append("+\"");
-        sb.append(":");
-        sb.append(slowCount);
-		sb.append(",\"error\":");
-        sb.append(errorCount);
-		sb.append(" }");
+
+        appendSlotTimeAndCount(sb, histogramSchema.getFastSlot().getSlotTime(), fastCount);
+        sb.append(", ");
+        appendSlotTimeAndCount(sb, histogramSchema.getNormalSlot().getSlotTime(), normalCount);
+        sb.append(", ");
+        appendSlotTimeAndCount(sb, histogramSchema.getSlowSlot().getSlotTime(), slowCount);
+        sb.append(", ");
+        // very slow는 0값이라 slow 값을 사용해야 한다.
+        appendSlotTimeAndCount(sb, histogramSchema.getSlowSlot().getSlotTime() + "+", verySlowCount);
+        sb.append(", ");
+        appendSlotTimeAndCount(sb, "error", errorCount);
+        sb.append(" }");
 
 		return sb.toString();
 	}
+
+    private void appendSlotTimeAndCount(StringBuilder sb, short slotTime, long count) {
+        appendSlotTimeAndCount(sb, Short.toString(slotTime), count);
+    }
+
+    private void appendSlotTimeAndCount(StringBuilder sb, String slotTimeName, long count) {
+        sb.append('"');
+        sb.append(slotTimeName);
+        sb.append('"');
+        sb.append(":");
+        sb.append(count);
+    }
 }

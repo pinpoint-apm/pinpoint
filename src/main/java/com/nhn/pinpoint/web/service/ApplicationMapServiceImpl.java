@@ -3,6 +3,7 @@ package com.nhn.pinpoint.web.service;
 import java.util.*;
 import java.util.Map.Entry;
 
+import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.nhn.pinpoint.web.applicationmap.Link;
 import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
@@ -343,7 +344,8 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		LinkStatistics statistics = new LinkStatistics(range);
 
 		// 조회가 안되는 histogram slot이 있으면 UI에 모두 보이지 않기 때문에 미리 정의된 slot을 모두 할당한다.
-		statistics.setDefaultHistogramSlotList(destinationApplication.getServiceType().getHistogramSchema().getHistogramSlotList());
+        HistogramSchema histogramSchema = destinationApplication.getServiceType().getHistogramSchema();
+        statistics.setDefaultHistogramSlotList(histogramSchema);
 
 		logger.debug("Fetched statistics data={}", list);
 

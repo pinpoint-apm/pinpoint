@@ -110,12 +110,14 @@ public class TransactionFlowStatistics {
 	}
 
 	public void add(TransactionFlowStatistics applicationStatistics) {
-		if (this.equals(applicationStatistics)) {
-            final HostList target = applicationStatistics.getToHostList();
-            this.toHostList.addHostList(target);
-		} else {
-			throw new IllegalArgumentException("Can't merge with different link.");
+        if (applicationStatistics == null) {
+            throw new NullPointerException("applicationStatistics must not be null");
+        }
+        if (!this.equals(applicationStatistics)) {
+            throw new IllegalArgumentException("Can't merge with different link.");
 		}
+        final HostList target = applicationStatistics.getToHostList();
+        this.toHostList.addHostList(target);
 	}
 
     @Override

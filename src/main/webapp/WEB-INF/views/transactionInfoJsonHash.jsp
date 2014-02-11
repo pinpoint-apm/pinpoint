@@ -110,7 +110,7 @@
 				"to" : ${link.to.sequence + 1},
 				"text" : ${link.histogram.totalCount},
 				"error" : ${link.histogram.errorCount},
-				"slow" : ${link.histogram.slowCount},
+				"slow" : ${link.histogram.verySlowCount},
 				"histogram" : ${link.histogram}
 			}
 			<c:if test="${!status.last}">,</c:if>
