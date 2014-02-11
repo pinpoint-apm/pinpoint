@@ -17,7 +17,7 @@ pinpointApp
                 var htServermapData;
 
                 // define private variables of methods
-                var reset, showDetailInformation, renderApplicationStatistics, recalculateHistogram;
+                var reset, showDetailInformation, renderApplicationStatistics, parseHistogramForNvd3;
 
                 /**
                  * reset
@@ -219,6 +219,22 @@ pinpointApp
                 };
 
                 /**
+                 * parse histogram for nvd3
+                 * @param histogram
+                 * @returns {Array}
+                 */
+                parseHistogramForNvd3 = function (histogram) {
+                    var parsedHistogram = [];
+                    angular.forEach(histogram, function (val, key) {
+                        parsedHistogram.push({
+                            label: key,
+                            value: val
+                        })
+                    });
+                    return parsedHistogram;
+                };
+
+                /**
                  * scope event on nodeInfoDetails.initialize
                  */
                 scope.$on('nodeInfoDetails.initialize', function (event, e, query, node, mapData, navbarVo) {
@@ -231,7 +247,7 @@ pinpointApp
                         renderApplicationStatistics([
                             {
                                 'key': "Response Time Histogram",
-                                'values': recalculateHistogram(node.key, mapData.applicationMapData.linkDataArray)
+                                'values' : parseHistogramForNvd3(node.histogram)
                             }
                         ]);
                         //renderApplicationStatistics(histogramData);
