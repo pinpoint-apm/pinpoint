@@ -2,6 +2,7 @@ package com.nhn.pinpoint.web.mapper;
 
 import java.util.*;
 
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
 import com.nhn.pinpoint.web.vo.Application;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
@@ -11,9 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
-import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
-import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
 
 /**
  * 
@@ -21,18 +20,18 @@ import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
  * 
  */
 @Component
-public class ApplicationMapStatisticsCallerMapper implements RowMapper<List<TransactionFlowStatistics>> {
+public class ApplicationMapStatisticsCallerMapper implements RowMapper<List<LinkStatistics>> {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Override
-	public List<TransactionFlowStatistics> mapRow(Result result, int rowNum) throws Exception {
+	public List<LinkStatistics> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
 		final KeyValue[] keyList = result.raw();
 
-		final List<TransactionFlowStatistics> stat = new ArrayList<TransactionFlowStatistics>(keyList.length + 10);
+		final List<LinkStatistics> stat = new ArrayList<LinkStatistics>(keyList.length + 10);
 
 
 		for (KeyValue kv : keyList) {
@@ -55,10 +54,10 @@ public class ApplicationMapStatisticsCallerMapper implements RowMapper<List<Tran
 			boolean isError = histogramSlot == (short) -1;
 			
             if (logger.isDebugEnabled()) {
-			    logger.debug("    Fetched Caller. {} -> {} ({})", callerApplication, calleeApplication, requestCount);
+			    logger.debug("    Fetched Caller. {} -> {} host:{} (slot:{}/{})", callerApplication, calleeApplication, calleeHost, histogramSlot, requestCount);
             }
 
-            TransactionFlowStatistics statistics = new TransactionFlowStatistics(callerApplication, calleeApplication);
+            LinkStatistics statistics = new LinkStatistics(callerApplication, calleeApplication);
             statistics.addSample(calleeHost, calleeServiceType, (isError) ? (short) -1 : histogramSlot, requestCount);
 
             stat.add(statistics);

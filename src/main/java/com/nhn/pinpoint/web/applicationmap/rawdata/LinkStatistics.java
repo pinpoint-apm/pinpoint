@@ -14,7 +14,7 @@ import com.nhn.pinpoint.web.vo.Application;
  * @author netspider
  * @author emeroad
  */
-public class TransactionFlowStatistics {
+public class LinkStatistics {
 
     private Application fromApplication;
     private Application toApplication;
@@ -26,7 +26,7 @@ public class TransactionFlowStatistics {
 
     private Set<AgentInfoBo> toAgentSet;
 
-	public TransactionFlowStatistics(Application fromApplication, Application toApplication) {
+	public LinkStatistics(Application fromApplication, Application toApplication) {
         if (fromApplication == null) {
             throw new NullPointerException("fromAppliation must not be null");
         }
@@ -109,7 +109,7 @@ public class TransactionFlowStatistics {
 		}
 	}
 
-	public void add(TransactionFlowStatistics applicationStatistics) {
+	public void add(LinkStatistics applicationStatistics) {
         if (applicationStatistics == null) {
             throw new NullPointerException("applicationStatistics must not be null");
         }
@@ -122,7 +122,7 @@ public class TransactionFlowStatistics {
 
     @Override
     public String toString() {
-        return "TransactionFlowStatistics{" +
+        return "LinkStatistics{" +
                 "toHostList=" + toHostList +
                 ", fromApplication=" + fromApplication +
                 ", toApplication=" + toApplication +
@@ -134,7 +134,7 @@ public class TransactionFlowStatistics {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        TransactionFlowStatistics that = (TransactionFlowStatistics) o;
+        LinkStatistics that = (LinkStatistics) o;
 
         if (!fromApplication.equals(that.fromApplication)) return false;
         if (!toApplication.equals(that.toApplication)) return false;

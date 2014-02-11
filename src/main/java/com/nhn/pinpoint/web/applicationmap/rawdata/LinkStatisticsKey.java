@@ -1,21 +1,20 @@
 package com.nhn.pinpoint.web.applicationmap.rawdata;
 
-import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.vo.Application;
 
 /**
  * @author emeroad
  */
-public class TransactionFlowStatisticsKey {
+public class LinkStatisticsKey {
 
     private final Application fromApplication;
     private final Application toApplication;
 
-    public TransactionFlowStatisticsKey(TransactionFlowStatistics transactionFlowStatistics) {
-        this(transactionFlowStatistics.getFromApplication(), transactionFlowStatistics.getToApplication());
+    public LinkStatisticsKey(LinkStatistics linkStatistics) {
+        this(linkStatistics.getFromApplication(), linkStatistics.getToApplication());
     }
 
-    private TransactionFlowStatisticsKey(Application fromApplication, Application toApplication) {
+    private LinkStatisticsKey(Application fromApplication, Application toApplication) {
         if (fromApplication == null) {
             throw new NullPointerException("fromApplication must not be null");
         }
@@ -31,7 +30,7 @@ public class TransactionFlowStatisticsKey {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        TransactionFlowStatisticsKey that = (TransactionFlowStatisticsKey) o;
+        LinkStatisticsKey that = (LinkStatisticsKey) o;
 
         if (!fromApplication.equals(that.fromApplication)) return false;
         if (!toApplication.equals(that.toApplication)) return false;

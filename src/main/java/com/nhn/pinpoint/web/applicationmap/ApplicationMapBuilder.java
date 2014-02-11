@@ -2,8 +2,8 @@ package com.nhn.pinpoint.web.applicationmap;
 
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.web.applicationmap.rawdata.HostList;
-import com.nhn.pinpoint.web.applicationmap.rawdata.RawStatisticsData;
-import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsData;
 import com.nhn.pinpoint.web.service.NodeId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,26 +23,26 @@ public class ApplicationMapBuilder {
     public ApplicationMapBuilder() {
     }
 
-    public ApplicationMap build(Set<TransactionFlowStatistics> transactionFlowStatistics) {
-        if (transactionFlowStatistics == null) {
+    public ApplicationMap build(Set<LinkStatistics> linkStatistics) {
+        if (linkStatistics == null) {
             throw new NullPointerException("rawData must not be null");
         }
-        final RawStatisticsData rawData = new RawStatisticsData(transactionFlowStatistics);
+        final LinkStatisticsData linkStatisticsData = new LinkStatisticsData(linkStatistics);
 
         final ApplicationMap nodeMap = new ApplicationMap();
 
         // extract agent
-        Map<NodeId, Set<AgentInfoBo>> agentMap = rawData.getAgentMap();
+        Map<NodeId, Set<AgentInfoBo>> agentMap = linkStatisticsData.getAgentMap();
         // 변경하면 안됨
-        final List<Node> sourceNode = createSourceApplication(rawData, agentMap);
+        final List<Node> sourceNode = createSourceNode(linkStatisticsData, agentMap);
         nodeMap.addApplication(sourceNode);
 
 
         // indexing application (UI의 서버맵을 그릴 때 key 정보가 필요한데 unique해야하고 link정보와 맞춰야 됨.)
-        nodeMap.indexingApplication();
+        nodeMap.indexingNode();
         // 변경하면 안됨.
-        List<Link> sourceLink = createSourceLink(rawData, nodeMap);
-        nodeMap.addRelation(sourceLink);
+        List<Link> sourceLink = createSourceLink(linkStatisticsData, nodeMap);
+        nodeMap.addLink(sourceLink);
 
 
         nodeMap.buildApplication();
@@ -50,10 +50,10 @@ public class ApplicationMapBuilder {
         return nodeMap;
     }
 
-    private List<Link> createSourceLink(RawStatisticsData rawData, ApplicationMap nodeMap) {
+    private List<Link> createSourceLink(LinkStatisticsData rawData, ApplicationMap nodeMap) {
         final List<Link> result = new ArrayList<Link>();
         // extract relation
-        for (TransactionFlowStatistics stat : rawData.getRawData()) {
+        for (LinkStatistics stat : rawData.getLinkStatData()) {
             final NodeId fromApplicationId = stat.getFromApplicationId();
             Node from = nodeMap.findApplication(fromApplicationId);
             // TODO
@@ -79,10 +79,10 @@ public class ApplicationMapBuilder {
         return result;
     }
 
-    private List<Node> createSourceApplication(RawStatisticsData rawData, Map<NodeId, Set<AgentInfoBo>> agentMap) {
+    private List<Node> createSourceNode(LinkStatisticsData rawData, Map<NodeId, Set<AgentInfoBo>> agentMap) {
         final List<Node> result = new ArrayList<Node>();
         // extract application and histogram
-        for (TransactionFlowStatistics stat : rawData.getRawData()) {
+        for (LinkStatistics stat : rawData.getLinkStatData()) {
             // FROM -> TO에서 FROM이 CLIENT가 아니면 FROM은 application
             if (!stat.getFromServiceType().isRpcClient()) {
                 final NodeId id = stat.getFromApplicationId();

@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 
-import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatisticsKey;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsKey;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
 import org.apache.hadoop.hbase.client.Scan;
@@ -19,7 +20,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
 import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCallerDao;
 import com.nhn.pinpoint.web.mapper.ApplicationMapLinkStatisticsMapper;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
@@ -44,10 +44,10 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
 
 	@Autowired
 	@Qualifier("applicationMapStatisticsCallerMapper")
-	private RowMapper<List<TransactionFlowStatistics>> applicationMapStatisticsCallerMapper;
+	private RowMapper<List<LinkStatistics>> applicationMapStatisticsCallerMapper;
 
 	@Override
-	public List<TransactionFlowStatistics> selectCaller(Application calleeApplication, Range range) {
+	public List<LinkStatistics> selectCaller(Application calleeApplication, Range range) {
         if (calleeApplication == null) {
             throw new NullPointerException("calleeApplication must not be null");
         }
@@ -55,7 +55,7 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
             throw new NullPointerException("range must not be null");
         }
         Scan scan = createScan(calleeApplication, range);
-		final List<List<TransactionFlowStatistics>> foundListList = hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLER, scan, applicationMapStatisticsCallerMapper);
+		final List<List<LinkStatistics>> foundListList = hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLER, scan, applicationMapStatisticsCallerMapper);
 
 		if (foundListList.isEmpty()) {
 			logger.debug("There's no caller data. {}, {}", calleeApplication, range);
@@ -64,13 +64,13 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
         return merge(foundListList);
 	}
 
-    private List<TransactionFlowStatistics> merge(List<List<TransactionFlowStatistics>> foundListList) {
-        final Map<TransactionFlowStatisticsKey, TransactionFlowStatistics> result = new HashMap<TransactionFlowStatisticsKey, TransactionFlowStatistics>();
+    private List<LinkStatistics> merge(List<List<LinkStatistics>> foundListList) {
+        final Map<LinkStatisticsKey, LinkStatistics> result = new HashMap<LinkStatisticsKey, LinkStatistics>();
 
-        for (List<TransactionFlowStatistics> foundList : foundListList) {
-            for (TransactionFlowStatistics found : foundList) {
-                final TransactionFlowStatisticsKey key = new TransactionFlowStatisticsKey(found);
-                final TransactionFlowStatistics find = result.get(key);
+        for (List<LinkStatistics> foundList : foundListList) {
+            for (LinkStatistics found : foundList) {
+                final LinkStatisticsKey key = new LinkStatisticsKey(found);
+                final LinkStatistics find = result.get(key);
                 if (find != null) {
                     find.add(found);
                 } else {
@@ -79,7 +79,7 @@ public class HbaseApplicationMapStatisticsCallerDao implements ApplicationMapSta
             }
         }
 
-        return new ArrayList<TransactionFlowStatistics>(result.values());
+        return new ArrayList<LinkStatistics>(result.values());
     }
 
 

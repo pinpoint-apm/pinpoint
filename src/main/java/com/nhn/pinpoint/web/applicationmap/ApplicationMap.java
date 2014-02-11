@@ -18,8 +18,8 @@ public class ApplicationMap {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final NodeList applications = new NodeList();
-    private final LinkList relations = new LinkList();
+    private final NodeList nodeList = new NodeList();
+    private final LinkList linkList = new LinkList();
 
 	private final Set<String> applicationNames = new HashSet<String>();
 
@@ -30,26 +30,26 @@ public class ApplicationMap {
 
 
 	public List<Node> getNodes() {
-		return this.applications.getNodeList();
+		return this.nodeList.getNodeList();
 	}
 
 	public List<Link> getLinks() {
-		return this.relations.getLinks();
+		return this.linkList.getLinks();
 	}
 
-	void indexingApplication() {
-        this.applications.markSequence();
+	void indexingNode() {
+        this.nodeList.markSequence();
 	}
 
 	Node findApplication(NodeId applicationId) {
-        return this.applications.find(applicationId);
+        return this.nodeList.find(applicationId);
 	}
 
     void addApplication(List<Node> nodeList) {
         for (Node node : nodeList) {
             this.addApplicationName(node);
         }
-        this.applications.buildApplication(nodeList);
+        this.nodeList.buildApplication(nodeList);
     }
 
 	void addApplicationName(Node node) {
@@ -59,8 +59,8 @@ public class ApplicationMap {
 
 	}
 
-    void addRelation(List<Link> relationList) {
-        relations.buildRelation(relationList);
+    void addLink(List<Link> relationList) {
+        linkList.buildRelation(relationList);
     }
 
 
@@ -73,7 +73,7 @@ public class ApplicationMap {
 	}
 
     public void buildApplication() {
-        this.applications.build();
+        this.nodeList.build();
     }
 
     public boolean containsApplicationName(String applicationName) {

@@ -25,7 +25,6 @@ import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.common.bo.SpanBo;
 import com.nhn.pinpoint.common.bo.SpanEventBo;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
-import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
 import com.nhn.pinpoint.web.dao.AgentInfoDao;
 import com.nhn.pinpoint.web.dao.ApplicationIndexDao;
 import com.nhn.pinpoint.web.dao.ApplicationTraceIndexDao;
@@ -71,7 +70,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 	}
 
 	@Override
-	public LinkStatistics linkStatistics(Range range, List<TransactionId> traceIdSet, Application sourceApplication, Application destinationApplication, Filter filter) {
+	public com.nhn.pinpoint.web.vo.LinkStatistics linkStatistics(Range range, List<TransactionId> traceIdSet, Application sourceApplication, Application destinationApplication, Filter filter) {
         if (sourceApplication == null) {
             throw new NullPointerException("sourceApplication must not be null");
         }
@@ -88,7 +87,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 		List<List<SpanBo>> originalList = this.traceDao.selectAllSpans(traceIdSet);
         List<SpanBo> filteredTransactionList = filterList(originalList, filter);
 
-		LinkStatistics statistics = new LinkStatistics(range);
+		com.nhn.pinpoint.web.vo.LinkStatistics statistics = new com.nhn.pinpoint.web.vo.LinkStatistics(range);
 
 		// TODO fromToFilter처럼. node의 타입에 따른 처리 필요함.
 
@@ -174,8 +173,8 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 		final List<List<SpanBo>> originalList = this.traceDao.selectAllSpans(recursiveFilterList);
         final List<List<SpanBo>> filterList = filterList2(originalList, filter);
 
-        Set<TransactionFlowStatistics> statisticsData = new HashSet<TransactionFlowStatistics>();
-		Map<NodeId, TransactionFlowStatistics> statisticsMap = new HashMap<NodeId, TransactionFlowStatistics>();
+        Set<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics> statisticsData = new HashSet<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics>();
+		Map<NodeId, com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics> statisticsMap = new HashMap<NodeId, com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics>();
 
 
 		final TimeSeriesStore timeSeriesStore = new TimeSeriesStoreImpl2(range);
@@ -200,11 +199,11 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 				}
 
                 final ComplexNodeId statId = new ComplexNodeId(srcNode, destNode);
-				TransactionFlowStatistics stat = statisticsMap.get(statId);
+				com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics stat = statisticsMap.get(statId);
                 if (stat == null)  {
                     Application source = new Application(srcNode.getName(), srcNode.getServiceType());
                     Application dest = new Application(destNode.getName(), destNode.getServiceType());
-                    stat = new TransactionFlowStatistics(source, dest);
+                    stat = new com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics(source, dest);
                 }
 
                 final short slot = getHistogramSlotTime(span, destNode.getServiceType());
@@ -226,7 +225,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 		}
 
 		// mark agent info
-		for (TransactionFlowStatistics stat : statisticsData) {
+		for (com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics stat : statisticsData) {
 			fillAdditionalInfo(stat);
 		}
 
@@ -242,7 +241,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 
 
 
-    private void addNodeFromSpanEvent(Set<TransactionFlowStatistics> statisticsData, Map<NodeId, TransactionFlowStatistics> statisticsMap, TimeSeriesStore timeSeriesStore, Map<Long, SpanBo> transactionSpanMap, SpanBo span) {
+    private void addNodeFromSpanEvent(Set<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics> statisticsData, Map<NodeId, com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics> statisticsMap, TimeSeriesStore timeSeriesStore, Map<Long, SpanBo> transactionSpanMap, SpanBo span) {
         /**
          * span event의 statistics추가.
          */
@@ -272,11 +271,11 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
             }
 
             final NodeId spanEventStatId = new ComplexNodeId(srcNode, new Node(dest, destServiceType));
-            TransactionFlowStatistics statistics = statisticsMap.get(spanEventStatId);
+            com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics statistics = statisticsMap.get(spanEventStatId);
             if (statistics == null) {
                 Application sourceApplication = new Application(srcNode.getName(), srcNode.getServiceType());
                 Application destApplication = new Application(dest, destServiceType);
-                statistics = new TransactionFlowStatistics(sourceApplication, destApplication);
+                statistics = new com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics(sourceApplication, destApplication);
             }
 
             final int slot2 = getHistogramSlotTime(spanEvent, destServiceType);
@@ -351,7 +350,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 		return transactionIdList;
 	}
 
-	private void fillAdditionalInfo(TransactionFlowStatistics stat) {
+	private void fillAdditionalInfo(com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics stat) {
 		if (stat.getToServiceType().isTerminal() || stat.getToServiceType().isUnknown()) {
 			return;
 		}

@@ -60,7 +60,7 @@
     </logger>
 
     <logger name="com.nhn.pinpoint.web.mapper" additivity="false">
-        <level value="INFO"/>
+        <level value="DEBUG"/>
         <appender-ref ref="console"/>
     </logger>
     

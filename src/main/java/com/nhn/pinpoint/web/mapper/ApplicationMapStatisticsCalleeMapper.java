@@ -2,6 +2,7 @@ package com.nhn.pinpoint.web.mapper;
 
 import java.util.*;
 
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
 import com.nhn.pinpoint.web.vo.Application;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
@@ -11,9 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
-import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
-import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
 
 /**
  * rowkey = caller col = callee
@@ -22,19 +21,19 @@ import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
  * 
  */
 @Component
-public class ApplicationMapStatisticsCalleeMapper implements RowMapper<List<TransactionFlowStatistics>> {
+public class ApplicationMapStatisticsCalleeMapper implements RowMapper<List<LinkStatistics>> {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Override
-	public List<TransactionFlowStatistics> mapRow(Result result, int rowNum) throws Exception {
+	public List<LinkStatistics> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
 		final KeyValue[] keyList = result.raw();
 
 		// key is destApplicationName.
-		final List<TransactionFlowStatistics> stat = new ArrayList<TransactionFlowStatistics>(keyList.length + 10);
+		final List<LinkStatistics> stat = new ArrayList<LinkStatistics>(keyList.length + 10);
 
 		// key is destApplicationName
 //		Map<String, Set<String>> callerAppHostMap = new HashMap<String, Set<String>>();
@@ -63,14 +62,14 @@ public class ApplicationMapStatisticsCalleeMapper implements RowMapper<List<Tran
 			    logger.debug("    Fetched Callee. {} -> {} ({})", caller, callee, requestCount);
             }
 			
-            TransactionFlowStatistics statistics = new TransactionFlowStatistics(caller, callee);
+            LinkStatistics statistics = new LinkStatistics(caller, callee);
             statistics.addSample(calleeHost, calleeServiceType, (isError) ? (short) -1 : histogramSlot, requestCount);
 
 			stat.add(statistics);
 		}
 
 		// statistics에 dest host정보 삽입.
-//		for (Entry<String, TransactionFlowStatistics> entry : stat.entrySet()) {
+//		for (Entry<String, LinkStatistics> entry : stat.entrySet()) {
 //			entry.getValue().addToHosts(callerAppHostMap.get(entry.getKey()));
 //		}
 

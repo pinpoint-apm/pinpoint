@@ -5,23 +5,23 @@ import java.util.*;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.web.service.NodeId;
 
-public class RawStatisticsData {
-	private final Set<TransactionFlowStatistics> rawData;
+public class LinkStatisticsData {
+	private final Set<LinkStatistics> linkStatData;
 
-	public RawStatisticsData(Set<TransactionFlowStatistics> rawData) {
-        if (rawData == null) {
-            throw new NullPointerException("rawData must not be null");
+	public LinkStatisticsData(Set<LinkStatistics> linkStatData) {
+        if (linkStatData == null) {
+            throw new NullPointerException("linkStatData must not be null");
         }
-        this.rawData = rawData;
+        this.linkStatData = linkStatData;
 	}
 
-    public Set<TransactionFlowStatistics> getRawData() {
-        return rawData;
+    public Set<LinkStatistics> getLinkStatData() {
+        return linkStatData;
     }
 
     public Map<NodeId, Set<AgentInfoBo>> getAgentMap() {
 		final Map<NodeId, Set<AgentInfoBo>> agentMap = new HashMap<NodeId, Set<AgentInfoBo>>();
-		for (TransactionFlowStatistics stat : rawData) {
+		for (LinkStatistics stat : linkStatData) {
 			if (stat.getToAgentSet() == null) {
 				continue;
 			}
@@ -41,6 +41,6 @@ public class RawStatisticsData {
 
 	@Override
 	public String toString() {
-		return "RawStatisticsData [rawData=" + rawData + "]";
+		return "LinkStatisticsData [linkStatData=" + linkStatData + "]";
 	}
 }

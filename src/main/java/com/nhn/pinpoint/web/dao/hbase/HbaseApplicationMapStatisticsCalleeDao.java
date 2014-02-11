@@ -7,7 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatisticsKey;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsKey;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
 import org.apache.hadoop.hbase.client.Scan;
@@ -18,7 +19,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
 import com.nhn.pinpoint.web.dao.ApplicationMapStatisticsCalleeDao;
 import com.nhn.pinpoint.web.mapper.ApplicationMapLinkStatisticsMapper;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
@@ -43,12 +43,12 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
 
 	@Autowired
 	@Qualifier("applicationMapStatisticsCalleeMapper")
-	private RowMapper<List<TransactionFlowStatistics>> applicationMapStatisticsCalleeMapper;
+	private RowMapper<List<LinkStatistics>> applicationMapStatisticsCalleeMapper;
 
 	@Override
-	public List<TransactionFlowStatistics> selectCallee(Application callerApplication, Range range) {
+	public List<LinkStatistics> selectCallee(Application callerApplication, Range range) {
 		Scan scan = createScan(callerApplication, range);
-		final List<List<TransactionFlowStatistics>> foundListList = hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLEE, scan, applicationMapStatisticsCalleeMapper);
+		final List<List<LinkStatistics>> foundListList = hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLEE, scan, applicationMapStatisticsCalleeMapper);
 
 		if (foundListList.isEmpty()) {
 			logger.debug("There's no callee data. {}, {}", callerApplication, range);
@@ -57,13 +57,13 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
         return merge(foundListList);
 	}
 
-    private List<TransactionFlowStatistics> merge(List<List<TransactionFlowStatistics>> foundListList) {
-        final Map<TransactionFlowStatisticsKey, TransactionFlowStatistics> result = new HashMap<TransactionFlowStatisticsKey, TransactionFlowStatistics>();
+    private List<LinkStatistics> merge(List<List<LinkStatistics>> foundListList) {
+        final Map<LinkStatisticsKey, LinkStatistics> result = new HashMap<LinkStatisticsKey, LinkStatistics>();
 
-        for (List<TransactionFlowStatistics> foundList : foundListList) {
-            for (TransactionFlowStatistics found : foundList) {
-                final TransactionFlowStatisticsKey key = new TransactionFlowStatisticsKey(found);
-                final TransactionFlowStatistics find = result.get(key);
+        for (List<LinkStatistics> foundList : foundListList) {
+            for (LinkStatistics found : foundList) {
+                final LinkStatisticsKey key = new LinkStatisticsKey(found);
+                final LinkStatistics find = result.get(key);
                 if (find != null) {
                     find.add(found);
                 } else {
@@ -73,7 +73,7 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
         }
 
 
-        return new ArrayList<TransactionFlowStatistics>(result.values());
+        return new ArrayList<LinkStatistics>(result.values());
     }
 
     /**

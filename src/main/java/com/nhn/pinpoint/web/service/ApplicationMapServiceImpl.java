@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.nhn.pinpoint.web.applicationmap.Link;
-import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
+import com.nhn.pinpoint.web.applicationmap.rawdata.*;
 import com.nhn.pinpoint.web.dao.*;
 import com.nhn.pinpoint.web.vo.*;
 import org.slf4j.Logger;
@@ -18,7 +18,6 @@ import org.springframework.util.StopWatch;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
-import com.nhn.pinpoint.web.applicationmap.rawdata.TransactionFlowStatistics;
 
 /**
  * 
@@ -71,27 +70,27 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 	 * @param callerFoundApplications
 	 * @return
 	 */
-	private Set<TransactionFlowStatistics> selectCallee(Application callerApplication, Range range, Set<Node> calleeFoundApplications, Set<Node> callerFoundApplications) {
+	private Set<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics> selectCallee(Application callerApplication, Range range, Set<Node> calleeFoundApplications, Set<Node> callerFoundApplications) {
 		// 이미 조회된 구간이면 skip
         final Node key = new Node(callerApplication);
         if (calleeFoundApplications.contains(key)) {
 			logger.debug("ApplicationStatistics exists. Skip finding callee. {} ", callerApplication);
-			return new HashSet<TransactionFlowStatistics>(0);
+			return new HashSet<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics>(0);
 		}
 		calleeFoundApplications.add(key);
         if (logger.isDebugEnabled()) {
 		    logger.debug("Finding Callee. caller={}", callerApplication);
         }
 
-		final Set<TransactionFlowStatistics> calleeSet = new HashSet<TransactionFlowStatistics>();
+		final Set<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics> calleeSet = new HashSet<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics>();
 
-		List<TransactionFlowStatistics> callee = applicationMapStatisticsCalleeDao.selectCallee(callerApplication, range);
+		List<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics> callee = applicationMapStatisticsCalleeDao.selectCallee(callerApplication, range);
 
         if (logger.isDebugEnabled()) {
 		    logger.debug("Found Callee. count={}, caller={}", callee.size(), callerApplication);
         }
 
-		for (TransactionFlowStatistics stat : callee) {
+		for (com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics stat : callee) {
 			boolean replaced = replaceApplicationInfo(stat, range);
 
 			// replaced된 녀석은 CLIENT이기 때문에 callee검색용도로만 사용하고 map에 추가하지 않는다.
@@ -106,15 +105,15 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 			}
 
 			logger.debug("     Find subCallee of {}", stat.getToApplication());
-            Set<TransactionFlowStatistics> calleeSub = selectCallee(stat.getToApplication(), range, calleeFoundApplications, callerFoundApplications);
+            Set<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics> calleeSub = selectCallee(stat.getToApplication(), range, calleeFoundApplications, callerFoundApplications);
 			logger.debug("     Found subCallee. count={}, caller={}", calleeSub.size(), stat.getToApplication());
 
 			calleeSet.addAll(calleeSub);
 
 			// 찾아진 녀석들에 대한 caller도 찾는다.
-			for (TransactionFlowStatistics eachCallee : calleeSub) {
+			for (com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics eachCallee : calleeSub) {
 				logger.debug("     Find caller of {}", eachCallee.getFromApplication());
-				Set<TransactionFlowStatistics> callerSub = selectCaller(eachCallee.getFromApplication(), range, calleeFoundApplications, callerFoundApplications);
+				Set<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics> callerSub = selectCaller(eachCallee.getFromApplication(), range, calleeFoundApplications, callerFoundApplications);
 				logger.debug("     Found subCaller. count={}, callee={}", callerSub.size(), eachCallee.getFromApplication());
 				calleeSet.addAll(callerSub);
 			}
@@ -130,39 +129,39 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 	 * @param range
 	 * @return
 	 */
-	private Set<TransactionFlowStatistics> selectCaller(Application calleeApplication, Range range, Set<Node> calleeFoundApplications, Set<Node> callerFoundApplications) {
+	private Set<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics> selectCaller(Application calleeApplication, Range range, Set<Node> calleeFoundApplications, Set<Node> callerFoundApplications) {
 		// 이미 조회된 구간이면 skip
         final Node key = new Node(calleeApplication);
         if (callerFoundApplications.contains(key)) {
 			logger.debug("ApplicationStatistics exists. Skip finding caller. {}", calleeApplication);
-			return new HashSet<TransactionFlowStatistics>(0);
+			return new HashSet<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics>(0);
 		}
 		callerFoundApplications.add(key);
         if (logger.isDebugEnabled()) {
 		    logger.debug("Finding Caller. callee={}", calleeApplication);
         }
 
-		final Set<TransactionFlowStatistics> callerSet = new HashSet<TransactionFlowStatistics>();
+		final Set<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics> callerSet = new HashSet<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics>();
 
-		final List<TransactionFlowStatistics> caller = applicationMapStatisticsCallerDao.selectCaller(calleeApplication, range);
+		final List<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics> caller = applicationMapStatisticsCallerDao.selectCaller(calleeApplication, range);
 
 		logger.debug("Found Caller. count={}, callee={}", caller.size(), calleeApplication);
 
-		for (TransactionFlowStatistics stat : caller) {
+		for (com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics stat : caller) {
 			fillAdditionalInfo(stat, range);
 			callerSet.add(stat);
 
 			// 나를 부른 application을 찾아야 하기 떄문에 to를 입력.
-            Set<TransactionFlowStatistics> callerSub = selectCaller(stat.getFromApplication(), range, calleeFoundApplications, callerFoundApplications);
+            Set<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics> callerSub = selectCaller(stat.getFromApplication(), range, calleeFoundApplications, callerFoundApplications);
 			callerSet.addAll(callerSub);
 
 			// 찾아진 녀석들에 대한 callee도 찾는다.
-			for (TransactionFlowStatistics eachCallee : callerSub) {
+			for (com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics eachCallee : callerSub) {
 				// terminal이면 skip
 				if (eachCallee.getToServiceType().isTerminal() || eachCallee.getToServiceType().isUnknown()) {
 					continue;
 				}
-				Set<TransactionFlowStatistics> calleeSub = selectCallee(eachCallee.getToApplication(), range, calleeFoundApplications, callerFoundApplications);
+				Set<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics> calleeSub = selectCallee(eachCallee.getToApplication(), range, calleeFoundApplications, callerFoundApplications);
 				callerSet.addAll(calleeSub);
 			}
 		}
@@ -170,7 +169,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		return callerSet;
 	}
 
-	private boolean replaceApplicationInfo(TransactionFlowStatistics stat, Range range) {
+	private boolean replaceApplicationInfo(com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics stat, Range range) {
 		// rpc client의 목적지가 agent가 설치되어 application name이 존재한다면 replace.
 		if (stat.getToServiceType().isRpcClient()) {
 			logger.debug("Find applicationName {} {}", stat.getToApplication(), range);
@@ -188,7 +187,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		return false;
 	}
 
-	private void fillAdditionalInfo(TransactionFlowStatistics stat, Range range) {
+	private void fillAdditionalInfo(com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics stat, Range range) {
 		if (stat.getToServiceType().isTerminal() || stat.getToServiceType().isUnknown()) {
 			return;
 		}
@@ -224,13 +223,13 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
         // 무한 탐색을 방지하기 위한 용도.
 		final Set<Node> callerFoundApplications = new HashSet<Node>();
 		final Set<Node> calleeFoundApplications = new HashSet<Node>();
-		Set<TransactionFlowStatistics> callee = selectCallee(sourceApplication, range, calleeFoundApplications, callerFoundApplications);
+		Set<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics> callee = selectCallee(sourceApplication, range, calleeFoundApplications, callerFoundApplications);
 		logger.debug("Result of finding callee {}", callee);
 
-		Set<TransactionFlowStatistics> caller = selectCaller(sourceApplication, range, calleeFoundApplications, callerFoundApplications);
+		Set<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics> caller = selectCaller(sourceApplication, range, calleeFoundApplications, callerFoundApplications);
 		logger.debug("Result of finding caller {}", caller);
 
-		Set<TransactionFlowStatistics> data = new HashSet<TransactionFlowStatistics>(callee.size() + caller.size());
+		Set<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics> data = new HashSet<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics>(callee.size() + caller.size());
 		data.addAll(callee);
 		data.addAll(caller);
 
@@ -313,7 +312,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
     }
 
     @Override
-	public LinkStatistics linkStatistics(Application sourceApplication, Application destinationApplication, Range range) {
+	public com.nhn.pinpoint.web.vo.LinkStatistics linkStatistics(Application sourceApplication, Application destinationApplication, Range range) {
         if (sourceApplication == null) {
             throw new NullPointerException("sourceApplication must not be null");
         }
@@ -341,7 +340,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 			list = applicationMapStatisticsCalleeDao.selectCalleeStatistics(sourceApplication, destinationApplication, range);
 		}
 
-		LinkStatistics statistics = new LinkStatistics(range);
+		com.nhn.pinpoint.web.vo.LinkStatistics statistics = new com.nhn.pinpoint.web.vo.LinkStatistics(range);
 
 		// 조회가 안되는 histogram slot이 있으면 UI에 모두 보이지 않기 때문에 미리 정의된 slot을 모두 할당한다.
         HistogramSchema histogramSchema = destinationApplication.getServiceType().getHistogramSchema();
