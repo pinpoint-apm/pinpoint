@@ -1,15 +1,11 @@
 package com.nhn.pinpoint.web.vo;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 import com.nhn.pinpoint.common.HistogramSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.common.HistogramSlot;
 import com.nhn.pinpoint.web.util.TimeWindowUtils;
 
 /**
@@ -17,7 +13,7 @@ import com.nhn.pinpoint.web.util.TimeWindowUtils;
  * @author netspider
  * 
  */
-public class LinkStatistics {
+public class LoadFactor {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -38,15 +34,15 @@ public class LinkStatistics {
 	 * value = key=timestamp, value=value
 	 * </pre>
 	 */
-	private final List<SortedMap<Long, Long>> timeseriesValueList = new ArrayList<SortedMap<Long, Long>>();
-	private final SortedMap<Integer, Integer> timeseriesSlotIndex = new TreeMap<Integer, Integer>();
+	private final List<Map<Long, Long>> timeseriesValueList = new ArrayList<Map<Long, Long>>();
+	private final Map<Integer, Integer> timeseriesSlotIndex = new TreeMap<Integer, Integer>();
 
     private final Range range;
 
 	private long successCount = 0;
 	private long failedCount = 0;
 
-	public LinkStatistics(Range range) {
+	public LoadFactor(Range range) {
         if (range == null) {
             throw new NullPointerException("range must not be null");
         }
@@ -58,8 +54,8 @@ public class LinkStatistics {
 	 * 
 	 * @return
 	 */
-	private SortedMap<Long, Long> makeEmptyTimeseriesValueMap() {
-		SortedMap<Long, Long> map = new TreeMap<Long, Long>();
+	private Map<Long, Long> makeEmptyTimeseriesValueMap() {
+		Map<Long, Long> map = new TreeMap<Long, Long>();
 		long windowSize = TimeWindowUtils.getWindowSize(range.getFrom(), range.getTo());
 		for (long time = range.getFrom(); time <= range.getTo(); time += windowSize) {
 			map.put(time, 0L);
@@ -134,7 +130,7 @@ public class LinkStatistics {
 		 * </pre>
 		 */
 		for (int i = 0; i < timeseriesValueList.size(); i++) {
-			SortedMap<Long, Long> map = timeseriesValueList.get(i);
+			Map<Long, Long> map = timeseriesValueList.get(i);
 
 			// 다른 slot에도 같은 시간이 존재해야한다.
 			// FIXME responseTimeSlot의 자료형을 short으로 변경할 것.
@@ -161,11 +157,11 @@ public class LinkStatistics {
 		return failedCount;
 	}
 
-	public SortedMap<Integer, Integer> getTimeseriesSlotIndex() {
+	public Map<Integer, Integer> getTimeseriesSlotIndex() {
 		return timeseriesSlotIndex;
 	}
 
-	public List<SortedMap<Long, Long>> getTimeseriesValue() {
+	public List<Map<Long, Long>> getTimeseriesValue() {
 		return timeseriesValueList;
 	}
 
@@ -180,6 +176,6 @@ public class LinkStatistics {
 
 	@Override
 	public String toString() {
-		return "LinkStatistics [timeseriesValue=" + timeseriesValueList + ", timeseriesSlotIndex=" + timeseriesSlotIndex + ", range=" + range + ", successCount=" + successCount + ", failedCount=" + failedCount + "]";
+		return "LoadFactor [timeseriesValue=" + timeseriesValueList + ", timeseriesSlotIndex=" + timeseriesSlotIndex + ", range=" + range + ", successCount=" + successCount + ", failedCount=" + failedCount + "]";
 	}
 }

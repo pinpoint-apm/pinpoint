@@ -45,7 +45,7 @@ public class ApplicationMap {
         return this.nodeList.find(applicationId);
 	}
 
-    void addApplication(List<Node> nodeList) {
+    void addNode(List<Node> nodeList) {
         for (Node node : nodeList) {
             this.addApplicationName(node);
         }
@@ -72,7 +72,7 @@ public class ApplicationMap {
 		this.timeSeriesStore = timeSeriesStore;
 	}
 
-    public void buildApplication() {
+    public void buildNode() {
         this.nodeList.build();
     }
 

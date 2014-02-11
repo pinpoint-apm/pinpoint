@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
 import com.nhn.pinpoint.web.service.ApplicationMapService;
 import com.nhn.pinpoint.web.util.TimeUtils;
-import com.nhn.pinpoint.web.vo.LinkStatistics;
+import com.nhn.pinpoint.web.vo.LoadFactor;
 
 /**
  * 
@@ -105,23 +105,23 @@ public class ApplicationMapController {
         final Application sourceApplication = new Application(srcApplicationName, srcServiceType);
         final Application destinationApplication = new Application(destApplicationName, destServiceType);
         final Range range = new Range(from, to);
-		LinkStatistics linkStatistics = applicationMapService.linkStatistics(sourceApplication, destinationApplication, range);
+		LoadFactor loadFactor = applicationMapService.linkStatistics(sourceApplication, destinationApplication, range);
 
-		model.addAttribute("from", from);
-		model.addAttribute("to", to);
+		model.addAttribute("range", range);
 
 		model.addAttribute("srcApplication", sourceApplication);
 
         model.addAttribute("destApplication", destinationApplication);
 
-		model.addAttribute("linkStatistics", linkStatistics);
-//		model.addAttribute("histogramSummary", linkStatistics.getHistogramSummary().entrySet().iterator());
-		model.addAttribute("timeseriesSlotIndex", linkStatistics.getTimeseriesSlotIndex());
-		model.addAttribute("timeseriesValue", linkStatistics.getTimeseriesValue());
-		
+		model.addAttribute("linkStatistics", loadFactor);
+//		model.addAttribute("histogramSummary", loadFactor.getHistogramSummary().entrySet().iterator());
+		model.addAttribute("timeseriesSlotIndex", loadFactor.getTimeseriesSlotIndex());
+		model.addAttribute("timeseriesValue", loadFactor.getTimeseriesValue());
+
+        // 결과의 from, to를 다시 명시해야 되는듯 한데. 현재는 그냥 요청 데이터를 그냥 주는것으로 보임.
 		model.addAttribute("resultFrom", from);
 		model.addAttribute("resultTo", to);
-		
+
 		if (v == 2) {
 			return "linkStatistics2";
 		} else {

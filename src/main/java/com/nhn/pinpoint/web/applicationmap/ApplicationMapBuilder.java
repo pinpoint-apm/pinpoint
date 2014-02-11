@@ -35,7 +35,7 @@ public class ApplicationMapBuilder {
         Map<NodeId, Set<AgentInfoBo>> agentMap = linkStatisticsData.getAgentMap();
         // 변경하면 안됨
         final List<Node> sourceNode = createSourceNode(linkStatisticsData, agentMap);
-        nodeMap.addApplication(sourceNode);
+        nodeMap.addNode(sourceNode);
 
 
         // indexing application (UI의 서버맵을 그릴 때 key 정보가 필요한데 unique해야하고 link정보와 맞춰야 됨.)
@@ -45,7 +45,7 @@ public class ApplicationMapBuilder {
         nodeMap.addLink(sourceLink);
 
 
-        nodeMap.buildApplication();
+        nodeMap.buildNode();
 
         return nodeMap;
     }

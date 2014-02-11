@@ -312,7 +312,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
     }
 
     @Override
-	public com.nhn.pinpoint.web.vo.LinkStatistics linkStatistics(Application sourceApplication, Application destinationApplication, Range range) {
+	public LoadFactor linkStatistics(Application sourceApplication, Application destinationApplication, Range range) {
         if (sourceApplication == null) {
             throw new NullPointerException("sourceApplication must not be null");
         }
@@ -340,7 +340,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 			list = applicationMapStatisticsCalleeDao.selectCalleeStatistics(sourceApplication, destinationApplication, range);
 		}
 
-		com.nhn.pinpoint.web.vo.LinkStatistics statistics = new com.nhn.pinpoint.web.vo.LinkStatistics(range);
+		LoadFactor statistics = new LoadFactor(range);
 
 		// 조회가 안되는 histogram slot이 있으면 UI에 모두 보이지 않기 때문에 미리 정의된 slot을 모두 할당한다.
         HistogramSchema histogramSchema = destinationApplication.getServiceType().getHistogramSchema();

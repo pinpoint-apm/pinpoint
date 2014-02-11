@@ -70,7 +70,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 	}
 
 	@Override
-	public com.nhn.pinpoint.web.vo.LinkStatistics linkStatistics(Range range, List<TransactionId> traceIdSet, Application sourceApplication, Application destinationApplication, Filter filter) {
+	public LoadFactor linkStatistics(Range range, List<TransactionId> traceIdSet, Application sourceApplication, Application destinationApplication, Filter filter) {
         if (sourceApplication == null) {
             throw new NullPointerException("sourceApplication must not be null");
         }
@@ -87,7 +87,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 		List<List<SpanBo>> originalList = this.traceDao.selectAllSpans(traceIdSet);
         List<SpanBo> filteredTransactionList = filterList(originalList, filter);
 
-		com.nhn.pinpoint.web.vo.LinkStatistics statistics = new com.nhn.pinpoint.web.vo.LinkStatistics(range);
+		LoadFactor statistics = new LoadFactor(range);
 
 		// TODO fromToFilter처럼. node의 타입에 따른 처리 필요함.
 

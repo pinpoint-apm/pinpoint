@@ -9,8 +9,8 @@
 	"destApplicationType" : "${destApplication.serviceType.desc}",
 	"srcApplicationTypeCode" : "${srcApplication.serviceTypeCode}",
 	"destApplicationTypeCode" : "${destApplication.serviceTypeCode}",
-	"from" : ${from},
-	"to" : ${to},
+	"from" : ${range.from},
+	"to" : ${range.to},
 	"failedCount" : ${linkStatistics.failedCount},
 	"successCount" : ${linkStatistics.successCount},
 	"timeseriesHistogram" : [ <c:forEach items="${timeseriesSlotIndex}" var="slot" varStatus="status">

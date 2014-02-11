@@ -122,7 +122,7 @@ public class LinkStatistics {
 
     @Override
     public String toString() {
-        return "LinkStatistics{" +
+        return "LoadFactor{" +
                 "toHostList=" + toHostList +
                 ", fromApplication=" + fromApplication +
                 ", toApplication=" + toApplication +

@@ -2,7 +2,7 @@ package com.nhn.pinpoint.web.service;
 
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
 import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.web.vo.LinkStatistics;
+import com.nhn.pinpoint.web.vo.LoadFactor;
 import com.nhn.pinpoint.web.vo.Range;
 
 /**
@@ -18,5 +18,5 @@ public interface ApplicationMapService {
 	 */
 	public ApplicationMap selectApplicationMap(Application sourceApplication, Range range);
 	
-	public LinkStatistics linkStatistics(Application sourceApplication, Application destinationApplication, Range range);
+	public LoadFactor linkStatistics(Application sourceApplication, Application destinationApplication, Range range);
 }

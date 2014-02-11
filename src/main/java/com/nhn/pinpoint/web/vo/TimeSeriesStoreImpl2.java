@@ -19,7 +19,7 @@ public class TimeSeriesStoreImpl2 implements TimeSeriesStore {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private final Range range;
-	private final Map<NodeId, LinkStatistics> data = new HashMap<NodeId, LinkStatistics>();
+	private final Map<NodeId, LoadFactor> data = new HashMap<NodeId, LoadFactor>();
 	private final boolean enabled;
 
 	public TimeSeriesStoreImpl2(Range range) {
@@ -30,8 +30,8 @@ public class TimeSeriesStoreImpl2 implements TimeSeriesStore {
 		this.enabled = range.getFrom() == -1L || range.getTo() == -1L;
 	}
 
-	private LinkStatistics makeNewLinkStatistics() {
-		return new LinkStatistics(range);
+	private LoadFactor makeNewLinkStatistics() {
+		return new LoadFactor(range);
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class TimeSeriesStoreImpl2 implements TimeSeriesStore {
 		}
 		logger.debug("add sample key={}, timestamp={} responseTimeSlot={}, count={}", key, timestamp, responseTimeslot, callCount, isFailed);
 
-		LinkStatistics stat = data.get(key);
+		LoadFactor stat = data.get(key);
 
 		if (stat == null) {
 			stat = makeNewLinkStatistics();

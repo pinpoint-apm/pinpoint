@@ -69,7 +69,7 @@ public class ApplicationMapStatisticsCalleeMapper implements RowMapper<List<Link
 		}
 
 		// statistics에 dest host정보 삽입.
-//		for (Entry<String, LinkStatistics> entry : stat.entrySet()) {
+//		for (Entry<String, LoadFactor> entry : stat.entrySet()) {
 //			entry.getValue().addToHosts(callerAppHostMap.get(entry.getKey()));
 //		}
 

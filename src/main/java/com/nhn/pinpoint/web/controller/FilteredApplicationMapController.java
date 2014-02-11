@@ -2,8 +2,6 @@ package com.nhn.pinpoint.web.controller;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletResponse;
-
 import com.nhn.pinpoint.web.util.LimitUtils;
 import com.nhn.pinpoint.web.vo.Range;
 import org.slf4j.Logger;
@@ -15,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.util.DateUtils;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
 import com.nhn.pinpoint.web.filter.Filter;
@@ -23,7 +20,6 @@ import com.nhn.pinpoint.web.filter.FilterBuilder;
 import com.nhn.pinpoint.web.service.FilteredApplicationMapService;
 import com.nhn.pinpoint.web.util.TimeUtils;
 import com.nhn.pinpoint.web.vo.LimitedScanResult;
-import com.nhn.pinpoint.web.vo.LinkStatistics;
 import com.nhn.pinpoint.web.vo.TransactionId;
 
 /**

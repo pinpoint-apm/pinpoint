@@ -30,18 +30,18 @@ public class HostList {
     }
 
 
-    public void addHost(String hostName, short serviceTypeCode, short slot, long value) {
+    public void addHost(String hostName, short serviceTypeCode, short slot, long count) {
         if (hostName == null) {
             throw new NullPointerException("host must not be null");
         }
         final Host find = hostMap.get(hostName);
         if (find != null) {
             final ResponseHistogram histogram = find.getHistogram();
-            histogram.addSample(slot, value);
+            histogram.addSample(slot, count);
         } else {
             final Host host = new Host(hostName, ServiceType.findServiceType(serviceTypeCode));
             final ResponseHistogram histogram = host.getHistogram();
-            histogram.addSample(slot, value);
+            histogram.addSample(slot, count);
             hostMap.put(hostName, host);
         }
     }
