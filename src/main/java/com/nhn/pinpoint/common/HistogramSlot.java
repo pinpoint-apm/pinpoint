@@ -5,15 +5,15 @@ package com.nhn.pinpoint.common;
  */
 public class HistogramSlot {
     private final short slotTime;
-    private final ResponseCode responseCode;
+    private final ResponseType responseType;
 
 
-    public HistogramSlot(short slotTime, ResponseCode responseCode) {
-        if (responseCode == null) {
-            throw new NullPointerException("responseCode must not be null");
+    public HistogramSlot(short slotTime, ResponseType responseType) {
+        if (responseType == null) {
+            throw new NullPointerException("responseType must not be null");
         }
         this.slotTime = slotTime;
-        this.responseCode = responseCode;
+        this.responseType = responseType;
     }
 
     // TODO : int를 short으로 바꿔야할 듯...
@@ -22,8 +22,8 @@ public class HistogramSlot {
     }
 
 
-    public ResponseCode getResponseCode() {
-        return responseCode;
+    public ResponseType getResponseType() {
+        return responseType;
     }
 
 }

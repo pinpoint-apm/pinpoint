@@ -30,13 +30,7 @@ public class HistogramSchemaTest {
         Assert.assertEquals(histogramSchema.findHistogramSlot(1111).getSlotTime(), 3000);
     }
 
-    @Test
-    public void testFindHistogramSlotIndex() throws Exception {
-        HistogramSchema histogramSchema = ServiceType.TOMCAT.getHistogramSchema();
-        Assert.assertEquals(histogramSchema.findHistogramSlotIndex(999), 0);
-        Assert.assertEquals(histogramSchema.findHistogramSlotIndex(1000), 0);
-        Assert.assertEquals(histogramSchema.findHistogramSlotIndex(1111), 1);
-    }
+
 
     @Test
     public void testGetHistogramSlotIndex() throws Exception {

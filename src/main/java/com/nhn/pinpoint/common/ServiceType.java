@@ -14,65 +14,65 @@ public enum ServiceType {
 	/**
 	 * 정의되지 않은 서비스 코드,
 	 */
-	UNDEFINED((short) -1, "UNDEFINED", true, false, false, HistogramSchema.NORMAL),
+	UNDEFINED((short) -1, "UNDEFINED", true, false, false, HistogramSchema.NORMAL_SCHEMA),
 	
 	/**
 	 * agent가 설치되지 않은 피호출자.
 	 */
-    UNKNOWN((short) 1, "UNKNOWN", false, true, false, HistogramSchema.NORMAL),
+    UNKNOWN((short) 1, "UNKNOWN", false, true, false, HistogramSchema.NORMAL_SCHEMA),
     
     /**
      * 사용자
      */
-    USER((short) 2, "USER", false, true, false, HistogramSchema.NORMAL),
+    USER((short) 2, "USER", false, true, false, HistogramSchema.NORMAL_SCHEMA),
     
     /**
      * UNKNOWN의 그룹, UI에서만 사용함.
      */
-    UNKNOWN_GROUP((short) 3, "UNKNOWN_GROUP", false, true, false, HistogramSchema.NORMAL),
+    UNKNOWN_GROUP((short) 3, "UNKNOWN_GROUP", false, true, false, HistogramSchema.NORMAL_SCHEMA),
 
     // WAS류 1000번 부터 시작
-    STAND_ALONE((short) 1000, "STAND_ALONE", false, true, false, HistogramSchema.NORMAL),
-    TOMCAT((short) 1010, "TOMCAT", false, true, false, HistogramSchema.NORMAL),
-    BLOC((short) 1020, "BLOC", false, true, false, HistogramSchema.NORMAL),
+    STAND_ALONE((short) 1000, "STAND_ALONE", false, true, false, HistogramSchema.NORMAL_SCHEMA),
+    TOMCAT((short) 1010, "TOMCAT", false, true, false, HistogramSchema.NORMAL_SCHEMA),
+    BLOC((short) 1020, "BLOC", false, true, false, HistogramSchema.NORMAL_SCHEMA),
 
     /**
      * xxx_EXECUTE_QUERY만 server map통계정보에 집계된다.
      */
     // DB 2000
-    UNKNOWN_DB((short) 2050, "UNKNOWN_DB", true, false, true, HistogramSchema.NORMAL),
-    UNKNOWN_DB_EXECUTE_QUERY((short) 2051, "UNKNOWN_DB", true, true, true, HistogramSchema.NORMAL),
+    UNKNOWN_DB((short) 2050, "UNKNOWN_DB", true, false, true, HistogramSchema.NORMAL_SCHEMA),
+    UNKNOWN_DB_EXECUTE_QUERY((short) 2051, "UNKNOWN_DB", true, true, true, HistogramSchema.NORMAL_SCHEMA),
 
-    MYSQL((short) 2100, "MYSQL", true, false, true, HistogramSchema.NORMAL),
-    MYSQL_EXECUTE_QUERY((short) 2101, "MYSQL", true, true, true, HistogramSchema.NORMAL),
+    MYSQL((short) 2100, "MYSQL", true, false, true, HistogramSchema.NORMAL_SCHEMA),
+    MYSQL_EXECUTE_QUERY((short) 2101, "MYSQL", true, true, true, HistogramSchema.NORMAL_SCHEMA),
 
-    MSSQL((short) 2200, "MSSQL", true, false, true, HistogramSchema.NORMAL),
-    MSSQL_EXECUTE_QUERY((short) 2201, "MSSQL", true, true, true, HistogramSchema.NORMAL),
+    MSSQL((short) 2200, "MSSQL", true, false, true, HistogramSchema.NORMAL_SCHEMA),
+    MSSQL_EXECUTE_QUERY((short) 2201, "MSSQL", true, true, true, HistogramSchema.NORMAL_SCHEMA),
 
-    ORACLE((short) 2300, "ORACLE", true, false, true, HistogramSchema.NORMAL),
-    ORACLE_EXECUTE_QUERY((short) 2301, "ORACLE", true, true, true, HistogramSchema.NORMAL),
+    ORACLE((short) 2300, "ORACLE", true, false, true, HistogramSchema.NORMAL_SCHEMA),
+    ORACLE_EXECUTE_QUERY((short) 2301, "ORACLE", true, true, true, HistogramSchema.NORMAL_SCHEMA),
 
-    CUBRID((short) 2400, "CUBRID", true, false, true, HistogramSchema.NORMAL),
-    CUBRID_EXECUTE_QUERY((short) 2401, "CUBRID", true, true, true, HistogramSchema.NORMAL),
+    CUBRID((short) 2400, "CUBRID", true, false, true, HistogramSchema.NORMAL_SCHEMA),
+    CUBRID_EXECUTE_QUERY((short) 2401, "CUBRID", true, true, true, HistogramSchema.NORMAL_SCHEMA),
 
     // FIXME internal method를 여기에 넣기 애매하긴 하나.. 일단 그대로 둠.
-    INTERNAL_METHOD((short) 5000, "INTERNAL_METHOD", false, false, false, HistogramSchema.NORMAL),
+    INTERNAL_METHOD((short) 5000, "INTERNAL_METHOD", false, false, false, HistogramSchema.NORMAL_SCHEMA),
 
-    SPRING((short) 5050, "SPRING", false, false, false, HistogramSchema.NORMAL),
-    SPRING_MVC((short) 5051, "SPRING", false, false, false, HistogramSchema.NORMAL),
+    SPRING((short) 5050, "SPRING", false, false, false, HistogramSchema.NORMAL_SCHEMA),
+    SPRING_MVC((short) 5051, "SPRING", false, false, false, HistogramSchema.NORMAL_SCHEMA),
 
-    DBCP((short) 6050, "DBCP", false, false, false, HistogramSchema.NORMAL),
+    DBCP((short) 6050, "DBCP", false, false, false, HistogramSchema.NORMAL_SCHEMA),
 
     // memory cache  8000
-    MEMCACHED((short) 8050, "MEMCACHED", true, true, false, HistogramSchema.FAST),
-    MEMCACHED_FUTURE_GET((short) 8051, "MEMCACHED", true, false, false, HistogramSchema.FAST),
-    ARCUS((short) 8100, "ARCUS", true, true, true, HistogramSchema.FAST),
-    ARCUS_FUTURE_GET((short) 8101, "ARCUS", true, false, true, HistogramSchema.FAST),
+    MEMCACHED((short) 8050, "MEMCACHED", true, true, false, HistogramSchema.FAST_SCHEMA),
+    MEMCACHED_FUTURE_GET((short) 8051, "MEMCACHED", true, false, false, HistogramSchema.FAST_SCHEMA),
+    ARCUS((short) 8100, "ARCUS", true, true, true, HistogramSchema.FAST_SCHEMA),
+    ARCUS_FUTURE_GET((short) 8101, "ARCUS", true, false, true, HistogramSchema.FAST_SCHEMA),
 
     // connector류
-    HTTP_CLIENT((short) 9050, "HTTP_CLIENT", false, true, false, HistogramSchema.NORMAL),
-    JDK_HTTPURLCONNECTOR((short) 9055, "JDK_HTTPCONNECTOR", false, true, false, HistogramSchema.NORMAL),
-	NPC_CLIENT((short) 9060, "NPC_CLIENT", false, true, false, HistogramSchema.NORMAL);
+    HTTP_CLIENT((short) 9050, "HTTP_CLIENT", false, true, false, HistogramSchema.NORMAL_SCHEMA),
+    JDK_HTTPURLCONNECTOR((short) 9055, "JDK_HTTPCONNECTOR", false, true, false, HistogramSchema.NORMAL_SCHEMA),
+	NPC_CLIENT((short) 9060, "NPC_CLIENT", false, true, false, HistogramSchema.NORMAL_SCHEMA);
 
     private final short code;
     private final String desc;

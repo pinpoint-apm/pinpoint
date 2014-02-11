@@ -1,56 +1,44 @@
 package com.nhn.pinpoint.common;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author emeroad
  */
 public class HistogramSchema {
 
-    public static final short SLOW_SLOT_TIME = 0;
-    public static final HistogramSlot SLOW_SLOT = new HistogramSlot(SLOW_SLOT_TIME, ResponseCode.SLOW);
+    public static final short VERY_SLOW_SLOT_TIME = 0;
+    public static final HistogramSlot VERY_SLOW_SLOT = new HistogramSlot(VERY_SLOW_SLOT_TIME, ResponseType.VERY_SLOW);
 
     public static final short ERROR_SLOT_TIME = -1;
-    public static final HistogramSlot ERROR_SLOT = new HistogramSlot(ERROR_SLOT_TIME, ResponseCode.ERROR);
+    public static final HistogramSlot ERROR_SLOT = new HistogramSlot(ERROR_SLOT_TIME, ResponseType.ERROR);
     
-    public static final HistogramSchema FAST;
-    public static final HistogramSchema NORMAL;
+    public static final HistogramSchema FAST_SCHEMA;
+    public static final HistogramSchema NORMAL_SCHEMA;
 
     static {
-        FAST = new HistogramSchema(1);
-        FAST.addHistogramSlot(new HistogramSlot((short)100, ResponseCode.NORMAL));
-        FAST.addHistogramSlot(new HistogramSlot((short)300, ResponseCode.NORMAL));
-        FAST.addHistogramSlot(new HistogramSlot((short)500, ResponseCode.WARN));
+        FAST_SCHEMA = new HistogramSchema(1, (short)100, (short)300, (short)500);
 
-        NORMAL = new HistogramSchema(2);
-        NORMAL.addHistogramSlot(new HistogramSlot((short)1000, ResponseCode.NORMAL));
-        NORMAL.addHistogramSlot(new HistogramSlot((short)3000, ResponseCode.NORMAL));
-        NORMAL.addHistogramSlot(new HistogramSlot((short)5000, ResponseCode.WARN));
+        NORMAL_SCHEMA = new HistogramSchema(2, (short)1000, (short)3000, (short)5000);
     }
     // ** histogramSlot list는 항상 정렬된 list 이어야 한다.
     // 지금은 그냥 사람이 한다.
-    private final List<HistogramSlot> histogramSlotList = new ArrayList<HistogramSlot>(3);
+//    private final List<HistogramSlot> histogramSlotList = new ArrayList<HistogramSlot>(3);
     private final int typeCode;
 
-    // 내부에서 생성한 FAST, NORMAL등의 참조만 사용할것
-    private HistogramSchema(int typeCode) {
+    private final HistogramSlot fastSlot;
+    private final HistogramSlot normalSlot;
+    private final HistogramSlot slowSlot;
+    private final HistogramSlot verySlowSlot;
+    private final HistogramSlot errorSlot;
+
+    // 내부에서 생성한 FAST_SCHEMA, NORMAL등의 참조만 사용할것
+    private HistogramSchema(int typeCode, short fast, short normal, short slow) {
     	this.typeCode = typeCode;
+        this.fastSlot = new HistogramSlot(fast, ResponseType.FAST);
+        this.normalSlot = new HistogramSlot(normal, ResponseType.NORMAL);
+        this.slowSlot = new HistogramSlot(slow, ResponseType.SLOW);
+        this.verySlowSlot = VERY_SLOW_SLOT;
+        this.errorSlot = ERROR_SLOT;
     }
-
-    public void addHistogramSlot(HistogramSlot slot) {
-        this.histogramSlotList.add(slot);
-    }
-
-    public List<HistogramSlot> getHistogramSlotList() {
-        return histogramSlotList;
-    }
-
-    public long[] createNode() {
-        final int size = this.histogramSlotList.size();
-        return new long[size];
-    }
-
 
     /**
      * elapsedTime 기준으로 가장 적합한 슬롯을 찾는다.
@@ -58,47 +46,42 @@ public class HistogramSchema {
      * @return
      */
     public HistogramSlot findHistogramSlot(int elapsedTime) {
-        for (HistogramSlot slot : histogramSlotList) {
-            if (elapsedTime <= slot.getSlotTime()) {
-                return slot;
-            }
+        if (elapsedTime == ERROR_SLOT_TIME) {
+            return errorSlot;
         }
-        return SLOW_SLOT;
+        if (this.fastSlot.getSlotTime() <= elapsedTime) {
+            return fastSlot;
+        }
+        if (this.normalSlot.getSlotTime() <= elapsedTime) {
+            return normalSlot;
+        }
+        if (this.slowSlot.getSlotTime() <= elapsedTime) {
+            return slowSlot;
+        }
+        return verySlowSlot;
     }
 
-    /**
-     * elapsedTime 기준으로 가장 적합한 슬롯을 찾는다.
-     * @param elapsedTime
-     * @return
-     */
-    public int findHistogramSlotIndex(int elapsedTime) {
-        final int size = histogramSlotList.size();
-        for(int i = 0; i < size; i++) {
-            HistogramSlot slot = histogramSlotList.get(i);
-            if (elapsedTime <= slot.getSlotTime()) {
-                return i;
-            }
-        }
-        return -1;
+    public HistogramSlot getFastSlot() {
+        return fastSlot;
     }
 
-    /**
-     * 정확한 slotNumber를 기준으로 slot의 index 번호를 찾는다.
-     * @param slotNumber
-     * @return
-     */
-    public int getHistogramSlotIndex(int slotNumber) {
-        final int size = histogramSlotList.size();
-        for(int i = 0; i < size; i++) {
-            HistogramSlot slot = histogramSlotList.get(i);
-            if (slotNumber == slot.getSlotTime()) {
-                return i;
-            }
-        }
-        return -1;
+    public HistogramSlot getNormalSlot() {
+        return normalSlot;
     }
-    
-	@Override
+
+    public HistogramSlot getSlowSlot() {
+        return slowSlot;
+    }
+
+    public HistogramSlot getVerySlowSlot() {
+        return verySlowSlot;
+    }
+
+    public HistogramSlot getErrorSlot() {
+        return errorSlot;
+    }
+
+    @Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
