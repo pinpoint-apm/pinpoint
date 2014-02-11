@@ -49,13 +49,13 @@ public class HistogramSchema {
         if (elapsedTime == ERROR_SLOT_TIME) {
             return errorSlot;
         }
-        if (this.fastSlot.getSlotTime() <= elapsedTime) {
+        if (elapsedTime <= this.fastSlot.getSlotTime()) {
             return fastSlot;
         }
-        if (this.normalSlot.getSlotTime() <= elapsedTime) {
+        if (elapsedTime <= this.normalSlot.getSlotTime()) {
             return normalSlot;
         }
-        if (this.slowSlot.getSlotTime() <= elapsedTime) {
+        if (elapsedTime <= this.slowSlot.getSlotTime()) {
             return slowSlot;
         }
         return verySlowSlot;
