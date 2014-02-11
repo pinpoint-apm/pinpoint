@@ -47,12 +47,12 @@ public class ApplicationMap {
 
     void addNode(List<Node> nodeList) {
         for (Node node : nodeList) {
-            this.addApplicationName(node);
+            this.addNodeName(node);
         }
         this.nodeList.buildApplication(nodeList);
     }
 
-	void addApplicationName(Node node) {
+	void addNodeName(Node node) {
 		if (!node.getServiceType().isRpcClient()) {
 			applicationNames.add(node.getApplicationName());
 		}
@@ -60,7 +60,7 @@ public class ApplicationMap {
 	}
 
     void addLink(List<Link> relationList) {
-        linkList.buildRelation(relationList);
+        linkList.buildLink(relationList);
     }
 
 

@@ -14,13 +14,13 @@ public class LinkList {
         return new ArrayList<Link>(this.linkMap.values());
     }
 
-    public void buildRelation(List<Link> relationList) {
+    public void buildLink(List<Link> relationList) {
         for (Link link : relationList) {
-            buildRelation(link);
+            buildLink(link);
         }
     }
 
-    public void buildRelation(Link sourceLink) {
+    public void buildLink(Link sourceLink) {
         if (sourceLink == null) {
             throw new NullPointerException("sourceLink must not be null");
         }

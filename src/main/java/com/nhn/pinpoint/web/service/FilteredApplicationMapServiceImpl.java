@@ -12,6 +12,7 @@ import java.util.Set;
 import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.HistogramSlot;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
 import com.nhn.pinpoint.web.vo.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -173,8 +174,8 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 		final List<List<SpanBo>> originalList = this.traceDao.selectAllSpans(recursiveFilterList);
         final List<List<SpanBo>> filterList = filterList2(originalList, filter);
 
-        Set<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics> statisticsData = new HashSet<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics>();
-		Map<NodeId, com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics> statisticsMap = new HashMap<NodeId, com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics>();
+        Set<LinkStatistics> statisticsData = new HashSet<LinkStatistics>();
+		Map<NodeId, LinkStatistics> statisticsMap = new HashMap<NodeId, LinkStatistics>();
 
 
 		final TimeSeriesStore timeSeriesStore = new TimeSeriesStoreImpl2(range);
@@ -199,7 +200,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 				}
 
                 final ComplexNodeId statId = new ComplexNodeId(srcNode, destNode);
-				com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics stat = statisticsMap.get(statId);
+				LinkStatistics stat = statisticsMap.get(statId);
                 if (stat == null)  {
                     Application source = new Application(srcNode.getName(), srcNode.getServiceType());
                     Application dest = new Application(destNode.getName(), destNode.getServiceType());
@@ -241,7 +242,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 
 
 
-    private void addNodeFromSpanEvent(Set<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics> statisticsData, Map<NodeId, com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics> statisticsMap, TimeSeriesStore timeSeriesStore, Map<Long, SpanBo> transactionSpanMap, SpanBo span) {
+    private void addNodeFromSpanEvent(Set<LinkStatistics> statisticsData, Map<NodeId, LinkStatistics> statisticsMap, TimeSeriesStore timeSeriesStore, Map<Long, SpanBo> transactionSpanMap, SpanBo span) {
         /**
          * span event의 statistics추가.
          */
@@ -271,11 +272,11 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
             }
 
             final NodeId spanEventStatId = new ComplexNodeId(srcNode, new Node(dest, destServiceType));
-            com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics statistics = statisticsMap.get(spanEventStatId);
+            LinkStatistics statistics = statisticsMap.get(spanEventStatId);
             if (statistics == null) {
                 Application sourceApplication = new Application(srcNode.getName(), srcNode.getServiceType());
                 Application destApplication = new Application(dest, destServiceType);
-                statistics = new com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics(sourceApplication, destApplication);
+                statistics = new LinkStatistics(sourceApplication, destApplication);
             }
 
             final int slot2 = getHistogramSlotTime(spanEvent, destServiceType);
