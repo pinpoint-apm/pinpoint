@@ -3,7 +3,6 @@ package com.nhn.pinpoint.web.vo;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +18,7 @@ public class DefaultTimeSeriesStoreImpl implements TimeSeriesStore {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private final Range range;
-	private final Map<LinkStatisticsKey, LoadFactor> linkData = new HashMap<LinkStatisticsKey, LoadFactor>();
+	private final Map<LinkKey, LoadFactor> linkData = new HashMap<LinkKey, LoadFactor>();
     private final Map<Application, LoadFactor> nodeData = new HashMap<Application, LoadFactor>();
 
 	private final boolean enabled;
@@ -34,7 +33,7 @@ public class DefaultTimeSeriesStoreImpl implements TimeSeriesStore {
 
 
 	@Override
-	public void addLinkStat(LinkStatisticsKey linkKey, long timeStamp, int responseTimeSlot, long callCount, boolean isFailed) {
+	public void addLinkStat(LinkKey linkKey, long timeStamp, int responseTimeSlot, long callCount, boolean isFailed) {
         if (linkKey == null) {
             throw new NullPointerException("linkKey must not be null");
         }

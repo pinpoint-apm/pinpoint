@@ -7,8 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.nhn.pinpoint.web.vo.LinkKey;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsKey;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
 import org.apache.hadoop.hbase.client.Scan;
@@ -58,11 +58,11 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
 	}
 
     private List<LinkStatistics> merge(List<List<LinkStatistics>> foundListList) {
-        final Map<LinkStatisticsKey, LinkStatistics> result = new HashMap<LinkStatisticsKey, LinkStatistics>();
+        final Map<LinkKey, LinkStatistics> result = new HashMap<LinkKey, LinkStatistics>();
 
         for (List<LinkStatistics> foundList : foundListList) {
             for (LinkStatistics found : foundList) {
-                final LinkStatisticsKey key = new LinkStatisticsKey(found);
+                final LinkKey key = new LinkKey(found.getFromApplication(), found.getToApplication());
                 final LinkStatistics find = result.get(key);
                 if (find != null) {
                     find.add(found);

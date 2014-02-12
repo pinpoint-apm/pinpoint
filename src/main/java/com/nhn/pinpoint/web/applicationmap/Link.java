@@ -2,7 +2,7 @@ package com.nhn.pinpoint.web.applicationmap;
 
 import com.nhn.pinpoint.web.applicationmap.rawdata.Host;
 import com.nhn.pinpoint.web.applicationmap.rawdata.HostList;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsKey;
+import com.nhn.pinpoint.web.vo.LinkKey;
 import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
 import com.nhn.pinpoint.web.vo.Application;
 import org.slf4j.Logger;
@@ -17,10 +17,10 @@ import org.slf4j.LoggerFactory;
 public class Link {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    protected final LinkStatisticsKey id;
+    private final LinkKey linkKey;
 
-    private final Node from;
-    private final Node to;
+    private final Node fromNode;
+    private final Node toNode;
 	private final HostList hostList;
 
 
@@ -29,31 +29,31 @@ public class Link {
 
     }
 
-    private static LinkStatisticsKey createLinkKey(Node from, Node to) {
+    private static LinkKey createLinkKey(Node from, Node to) {
         if (from == null) {
-            throw new NullPointerException("from must not be null");
+            throw new NullPointerException("fromNode must not be null");
         }
         if (to == null) {
-            throw new NullPointerException("to must not be null");
+            throw new NullPointerException("toNode must not be null");
         }
-        Application fromId = from.getApplication();
-        Application toId = to.getApplication();
-        return new LinkStatisticsKey(fromId, toId);
+        final Application fromApplication = from.getApplication();
+        final Application toApplication = to.getApplication();
+        return new LinkKey(fromApplication, toApplication);
     }
 
-    Link(LinkStatisticsKey id, Node from, Node to, HostList hostList) {
-        if (from == null) {
-            throw new NullPointerException("from must not be null");
+    Link(LinkKey linkKey, Node fromNode, Node toNode, HostList hostList) {
+        if (fromNode == null) {
+            throw new NullPointerException("fromNode must not be null");
         }
-        if (to == null) {
-            throw new NullPointerException("to must not be null");
+        if (toNode == null) {
+            throw new NullPointerException("toNode must not be null");
         }
-        if (id == null) {
-            throw new NullPointerException("id must not be null");
+        if (linkKey == null) {
+            throw new NullPointerException("linkKey must not be null");
         }
-        this.id = id;
-        this.from = from;
-        this.to = to;
+        this.linkKey = linkKey;
+        this.fromNode = fromNode;
+        this.toNode = toNode;
         this.hostList = hostList;
     }
 
@@ -61,22 +61,22 @@ public class Link {
         if (copyLink == null) {
             throw new NullPointerException("copyLink must not be null");
         }
-        this.id = copyLink.id;
-        this.from = copyLink.from;
-        this.to = copyLink.to;
+        this.linkKey = copyLink.linkKey;
+        this.fromNode = copyLink.fromNode;
+        this.toNode = copyLink.toNode;
         this.hostList = new HostList(copyLink.hostList);
     }
 
-	public LinkStatisticsKey getId() {
-		return id;
+	public LinkKey getLinkKey() {
+		return linkKey;
 	}
 
 	public Node getFrom() {
-		return from;
+		return fromNode;
 	}
 
 	public Node getTo() {
-		return to;
+		return toNode;
 	}
 
 	public HostList getHostList() {
@@ -98,26 +98,25 @@ public class Link {
 		return result;
 	}
 
-	public void add(Link relation) {
-        if (relation == null) {
-            throw new NullPointerException("relation must not be null");
+	public void addLink(Link link) {
+        if (link == null) {
+            throw new NullPointerException("link must not be null");
         }
         // TODO this.equals로 바꿔도 되지 않을까?
-		if (this.from.equals(relation.getFrom()) && this.to.equals(relation.getTo())) {
-			// TODO Mergable value map을 만들어야 하나...
-            HostList relationHostList = relation.getHostList();
-            this.hostList.addHostList(relationHostList);
-		} else {
-            logger.info("from:{}, to:{}, relationFrom:{}, relationTo:{}", from, to, relation.getFrom(), relation.getTo());
-			throw new IllegalArgumentException("Can't merge.");
-		}
+		if (this.fromNode.equals(link.getFrom()) && this.toNode.equals(link.getTo())) {
+            logger.info("fromNode:{}, to:{}, fromNode:{}, linkTo:{}", fromNode, toNode, link.getFrom(), link.getTo());
+            throw new IllegalArgumentException("Can't merge.");
+        }
+
+        HostList linkHostList = link.getHostList();
+        this.hostList.addHostList(linkHostList);
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((linkKey == null) ? 0 : linkKey.hashCode());
 		return result;
 	}
 
@@ -130,17 +129,17 @@ public class Link {
 		if (getClass() != obj.getClass())
 			return false;
 		Link other = (Link) obj;
-		if (id == null) {
-			if (other.id != null)
+		if (linkKey == null) {
+			if (other.linkKey != null)
 				return false;
-		} else if (!id.equals(other.id))
+		} else if (!linkKey.equals(other.linkKey))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "Link [id=" + id + ", from=" + from + ", to=" + to + ", hostList=" + hostList + "]";
+		return "Link [linkKey=" + linkKey + ", fromNode=" + fromNode + ", toNode=" + toNode + ", hostList=" + hostList + "]";
 	}
 
 }

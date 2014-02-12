@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.web.applicationmap;
 
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsKey;
+import com.nhn.pinpoint.web.vo.LinkKey;
 
 import java.util.*;
 
@@ -8,7 +8,7 @@ import java.util.*;
  * @author emeroad
  */
 public class LinkList {
-    private final Map<LinkStatisticsKey, Link> linkMap = new HashMap<LinkStatisticsKey, Link>();
+    private final Map<LinkKey, Link> linkMap = new HashMap<LinkKey, Link>();
 
     public List<Link> getLinks() {
         return new ArrayList<Link>(this.linkMap.values());
@@ -25,10 +25,10 @@ public class LinkList {
             throw new NullPointerException("sourceLink must not be null");
         }
 
-        final LinkStatisticsKey id = sourceLink.getId();
+        final LinkKey id = sourceLink.getLinkKey();
         final Link find = this.linkMap.get(id);
         if (find != null) {
-            find.add(sourceLink);
+            find.addLink(sourceLink);
         } else {
             Link copy = new Link(sourceLink);
             this.linkMap.put(id, copy);

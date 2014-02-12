@@ -22,7 +22,7 @@ public class ApplicationMapBuilder {
 
     public ApplicationMap build(List<LinkStatistics> linkStatistics) {
         if (linkStatistics == null) {
-            throw new NullPointerException("rawData must not be null");
+            throw new NullPointerException("linkStatData must not be null");
         }
         final LinkStatisticsData linkStatisticsData = new LinkStatisticsData(linkStatistics);
 
@@ -50,23 +50,23 @@ public class ApplicationMapBuilder {
     private List<Link> createSourceLink(LinkStatisticsData rawData, ApplicationMap nodeMap) {
         final List<Link> result = new ArrayList<Link>();
         // extract relation
-        for (LinkStatistics stat : rawData.getLinkStatData()) {
-            final Application fromApplicationId = stat.getFromApplication();
-            Node from = nodeMap.findApplication(fromApplicationId);
+        for (LinkStatistics linkStat : rawData.getLinkStatData()) {
+            final Application fromApplicationId = linkStat.getFromApplication();
+            Node fromNode = nodeMap.findApplication(fromApplicationId);
             // TODO
-            final Application toApplicationId = stat.getToApplication();
-            Node to = nodeMap.findApplication(toApplicationId);
+            final Application toApplicationId = linkStat.getToApplication();
+            Node toNode = nodeMap.findApplication(toApplicationId);
 
             // rpc client가 빠진경우임.
-            if (to == null) {
+            if (toNode == null) {
                 continue;
             }
 
             // RPC client인 경우 dest application이 이미 있으면 삭제, 없으면 unknown cloud로 변경.
-            HostList toHostList = stat.getToHostList();
-            Link link = new Link(from, to, toHostList);
-            if (to.getServiceType().isRpcClient()) {
-                if (!nodeMap.containsApplicationName(to.getApplicationName())) {
+            HostList toHostList = linkStat.getToHostList();
+            Link link = new Link(fromNode, toNode, toHostList);
+            if (toNode.getServiceType().isRpcClient()) {
+                if (!nodeMap.containsApplicationName(toNode.getApplicationName())) {
                     result.add(link);
                 }
             } else {
@@ -76,24 +76,24 @@ public class ApplicationMapBuilder {
         return result;
     }
 
-    private List<Node> createSourceNode(LinkStatisticsData rawData, Map<Application, Set<AgentInfoBo>> agentMap) {
+    private List<Node> createSourceNode(LinkStatisticsData linkStatData, Map<Application, Set<AgentInfoBo>> agentMap) {
         final List<Node> result = new ArrayList<Node>();
         // extract application and histogram
-        for (LinkStatistics stat : rawData.getLinkStatData()) {
+        for (LinkStatistics linkStat : linkStatData.getLinkStatData()) {
             // FROM -> TO에서 FROM이 CLIENT가 아니면 FROM은 application
-            if (!stat.getFromServiceType().isRpcClient()) {
-                final Application fromApplication = stat.getFromApplication();
+            if (!linkStat.getFromServiceType().isRpcClient()) {
+                final Application fromApplication = linkStat.getFromApplication();
                 final Set<AgentInfoBo> agentSet = agentMap.get(fromApplication);
                 // FIXME from은 tohostlist를 보관하지 않아서 없음. null로 입력. 그렇지 않으면 이상해짐 ㅡㅡ;
-                Node node = new Node(fromApplication, agentSet);
-                result.add(node);
+                Node fromNode = new Node(fromApplication, agentSet);
+                result.add(fromNode);
             }
 
             // FROM -> TO에서 TO가 CLIENT가 아니면 TO는 application
-            if (!stat.getToServiceType().isRpcClient()) {
-                final Application toApplication = stat.getToApplication();
-                Node node = new Node(toApplication, stat.getToHostList());
-                result.add(node);
+            if (!linkStat.getToServiceType().isRpcClient()) {
+                final Application toApplication = linkStat.getToApplication();
+                Node toNode = new Node(toApplication, linkStat.getToHostList());
+                result.add(toNode);
             }
         }
         return result;

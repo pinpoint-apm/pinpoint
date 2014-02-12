@@ -1,20 +1,14 @@
-package com.nhn.pinpoint.web.applicationmap.rawdata;
-
-import com.nhn.pinpoint.web.vo.Application;
+package com.nhn.pinpoint.web.vo;
 
 /**
  * @author emeroad
  */
-public class LinkStatisticsKey {
+public final class LinkKey {
 
     private final Application fromApplication;
     private final Application toApplication;
 
-    public LinkStatisticsKey(LinkStatistics linkStatistics) {
-        this(linkStatistics.getFromApplication(), linkStatistics.getToApplication());
-    }
-
-    public LinkStatisticsKey(Application fromApplication, Application toApplication) {
+    public LinkKey(Application fromApplication, Application toApplication) {
         if (fromApplication == null) {
             throw new NullPointerException("fromApplication must not be null");
         }
@@ -30,7 +24,7 @@ public class LinkStatisticsKey {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        LinkStatisticsKey that = (LinkStatisticsKey) o;
+        LinkKey that = (LinkKey) o;
 
         if (!fromApplication.equals(that.fromApplication)) return false;
         if (!toApplication.equals(that.toApplication)) return false;

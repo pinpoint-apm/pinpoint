@@ -12,8 +12,8 @@ import java.util.Set;
 import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.HistogramSlot;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
+import com.nhn.pinpoint.web.vo.LinkKey;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsKey;
 import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
 import com.nhn.pinpoint.web.dao.*;
 import com.nhn.pinpoint.web.vo.*;
@@ -192,7 +192,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 
     private ApplicationMap createMap(Range range, List<List<SpanBo>> filterList) {
 
-        final Map<LinkStatisticsKey, LinkStatistics> linkStatMap = new HashMap<LinkStatisticsKey, LinkStatistics>();
+        final Map<LinkKey, LinkStatistics> linkStatMap = new HashMap<LinkKey, LinkStatistics>();
 
         final TimeSeriesStore timeSeriesStore = new DefaultTimeSeriesStoreImpl(range);
         final Map<Application, ResponseHistogramSummary> responseHistogramSummaryMap = new HashMap<Application, ResponseHistogramSummary>();
@@ -213,7 +213,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
                     continue;
                 }
 
-                final LinkStatisticsKey linkKey = new LinkStatisticsKey(srcApplication, destApplication);
+                final LinkKey linkKey = new LinkKey(srcApplication, destApplication);
                 LinkStatistics stat = linkStatMap.get(linkKey);
                 if (stat == null) {
                     Application source = new Application(srcApplication.getName(), srcApplication.getServiceType());
@@ -281,7 +281,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
     }
 
 
-    private void addNodeFromSpanEvent(SpanBo span, Map<LinkStatisticsKey, LinkStatistics> statisticsMap, TimeSeriesStore timeSeriesStore, Map<Long, SpanBo> transactionSpanMap) {
+    private void addNodeFromSpanEvent(SpanBo span, Map<LinkKey, LinkStatistics> statisticsMap, TimeSeriesStore timeSeriesStore, Map<Long, SpanBo> transactionSpanMap) {
         /**
          * span event의 statistics추가.
          */
@@ -310,7 +310,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
                 }
             }
 
-            final LinkStatisticsKey spanEventStatId = new LinkStatisticsKey(srcNode, new Application(dest, destServiceType));
+            final LinkKey spanEventStatId = new LinkKey(srcNode, new Application(dest, destServiceType));
             LinkStatistics statistics = statisticsMap.get(spanEventStatId);
             if (statistics == null) {
                 Application sourceApplication = new Application(srcNode.getName(), srcNode.getServiceType());
