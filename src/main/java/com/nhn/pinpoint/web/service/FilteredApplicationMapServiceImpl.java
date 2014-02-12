@@ -13,6 +13,7 @@ import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.HistogramSlot;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
+import com.nhn.pinpoint.web.dao.*;
 import com.nhn.pinpoint.web.vo.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -26,10 +27,6 @@ import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.common.bo.SpanBo;
 import com.nhn.pinpoint.common.bo.SpanEventBo;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
-import com.nhn.pinpoint.web.dao.AgentInfoDao;
-import com.nhn.pinpoint.web.dao.ApplicationIndexDao;
-import com.nhn.pinpoint.web.dao.ApplicationTraceIndexDao;
-import com.nhn.pinpoint.web.dao.TraceDao;
 import com.nhn.pinpoint.web.filter.Filter;
 
 /**
@@ -52,6 +49,9 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 
     @Autowired
     private AgentInfoDao agentInfoDao;
+
+    @Autowired
+    private MapResponseDao mapResponseDao;
 
     private static final Object V = new Object();
 
@@ -232,7 +232,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
                 NodeId key = new ComplexNodeId(Node.EMPTY, new Node(span.getApplicationId(), span.getServiceType()));
                 timeSeriesStore.add(key, span.getCollectorAcceptTime(), slot, 1L, span.hasException());
 
-                addNodeFromSpanEvent(linkStatMap, timeSeriesStore, transactionSpanMap, span);
+                addNodeFromSpanEvent(span, linkStatMap, timeSeriesStore, transactionSpanMap);
             }
         }
 
@@ -244,13 +244,14 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
         List<LinkStatistics> linkStatisticsList = new ArrayList<LinkStatistics>(linkStatMap.values());
         ApplicationMap map = new ApplicationMapBuilder().build(linkStatisticsList);
         map.setTimeSeriesStore(timeSeriesStore);
+        map.appendResponseTime(range, this.mapResponseDao);
 
 
         return map;
     }
 
 
-    private void addNodeFromSpanEvent(Map<NodeId, LinkStatistics> statisticsMap, TimeSeriesStore timeSeriesStore, Map<Long, SpanBo> transactionSpanMap, SpanBo span) {
+    private void addNodeFromSpanEvent(SpanBo span, Map<NodeId, LinkStatistics> statisticsMap, TimeSeriesStore timeSeriesStore, Map<Long, SpanBo> transactionSpanMap) {
         /**
          * span event의 statistics추가.
          */
