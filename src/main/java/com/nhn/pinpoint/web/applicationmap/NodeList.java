@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.web.applicationmap;
 
-import com.nhn.pinpoint.web.service.NodeId;
+import com.nhn.pinpoint.web.vo.Application;
 
 import java.util.*;
 
@@ -9,7 +9,7 @@ import java.util.*;
  */
 public class NodeList {
 
-    private final Map<NodeId, Node> nodeMap = new HashMap<NodeId, Node>();
+    private final Map<Application, Node> nodeMap = new HashMap<Application, Node>();
 
     public List<Node> getNodeList() {
         return new ArrayList<Node>(this.nodeMap.values());
@@ -22,7 +22,7 @@ public class NodeList {
         }
     }
 
-    public Node find(NodeId applicationId) {
+    public Node find(Application applicationId) {
         if (applicationId == null) {
             throw new NullPointerException("applicationId must not be null");
         }
@@ -33,7 +33,7 @@ public class NodeList {
         if (source == null) {
             throw new NullPointerException("source must not be null");
         }
-        final NodeId id = source.getId();
+        final Application id = source.getApplication();
         final Node find = nodeMap.get(id);
         if (find != null) {
             find.add(source);

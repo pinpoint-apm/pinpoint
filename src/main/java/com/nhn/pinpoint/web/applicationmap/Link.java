@@ -2,10 +2,9 @@ package com.nhn.pinpoint.web.applicationmap;
 
 import com.nhn.pinpoint.web.applicationmap.rawdata.Host;
 import com.nhn.pinpoint.web.applicationmap.rawdata.HostList;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsKey;
 import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
-import com.nhn.pinpoint.web.service.ComplexNodeId;
-import com.nhn.pinpoint.web.service.NodeId;
-import com.nhn.pinpoint.web.service.SimpleNodeId;
+import com.nhn.pinpoint.web.vo.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +17,7 @@ import org.slf4j.LoggerFactory;
 public class Link {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    protected final NodeId id;
+    protected final LinkStatisticsKey id;
 
     private final Node from;
     private final Node to;
@@ -26,23 +25,23 @@ public class Link {
 
 
     public Link(Node from, Node to, HostList hostList) {
-        this(createKey(from, to), from, to, hostList);
+        this(createLinkKey(from, to), from, to, hostList);
 
     }
 
-    private static ComplexNodeId createKey(Node from, Node to) {
+    private static LinkStatisticsKey createLinkKey(Node from, Node to) {
         if (from == null) {
             throw new NullPointerException("from must not be null");
         }
         if (to == null) {
             throw new NullPointerException("to must not be null");
         }
-        SimpleNodeId fromId = (SimpleNodeId) from.getId();
-        SimpleNodeId toId = (SimpleNodeId) to.getId();
-        return new ComplexNodeId(fromId.getKey(), toId.getKey());
+        Application fromId = from.getApplication();
+        Application toId = to.getApplication();
+        return new LinkStatisticsKey(fromId, toId);
     }
 
-    Link(NodeId id, Node from, Node to, HostList hostList) {
+    Link(LinkStatisticsKey id, Node from, Node to, HostList hostList) {
         if (from == null) {
             throw new NullPointerException("from must not be null");
         }
@@ -68,7 +67,7 @@ public class Link {
         this.hostList = new HostList(copyLink.hostList);
     }
 
-	public NodeId getId() {
+	public LinkStatisticsKey getId() {
 		return id;
 	}
 

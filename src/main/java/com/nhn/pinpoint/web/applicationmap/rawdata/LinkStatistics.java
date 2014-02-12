@@ -4,8 +4,6 @@ import java.util.Set;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.web.service.NodeId;
-import com.nhn.pinpoint.web.service.SimpleNodeId;
 import com.nhn.pinpoint.web.vo.Application;
 
 /**
@@ -38,14 +36,7 @@ public class LinkStatistics {
         this.toHostList = new HostList();
 	}
 
-	public NodeId getFromApplicationId() {
-        return new SimpleNodeId(this.fromApplication.getName(), this.fromApplication.getServiceType());
-	}
-	
-	public NodeId getToApplicationId() {
-        return new SimpleNodeId(this.toApplication.getName(), this.toApplication.getServiceType());
-	}
-	
+
 	/**
 	 * 
 	 * @param hostname

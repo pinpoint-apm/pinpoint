@@ -14,7 +14,7 @@ public class LinkStatisticsKey {
         this(linkStatistics.getFromApplication(), linkStatistics.getToApplication());
     }
 
-    private LinkStatisticsKey(Application fromApplication, Application toApplication) {
+    public LinkStatisticsKey(Application fromApplication, Application toApplication) {
         if (fromApplication == null) {
             throw new NullPointerException("fromApplication must not be null");
         }

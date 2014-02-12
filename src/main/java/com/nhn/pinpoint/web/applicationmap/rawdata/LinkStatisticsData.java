@@ -3,7 +3,7 @@ package com.nhn.pinpoint.web.applicationmap.rawdata;
 import java.util.*;
 
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.web.service.NodeId;
+import com.nhn.pinpoint.web.vo.Application;
 
 public class LinkStatisticsData {
 
@@ -20,13 +20,13 @@ public class LinkStatisticsData {
         return linkStatData;
     }
 
-    public Map<NodeId, Set<AgentInfoBo>> getAgentMap() {
-		final Map<NodeId, Set<AgentInfoBo>> agentMap = new HashMap<NodeId, Set<AgentInfoBo>>();
+    public Map<Application, Set<AgentInfoBo>> getAgentMap() {
+		final Map<Application, Set<AgentInfoBo>> agentMap = new HashMap<Application, Set<AgentInfoBo>>();
 		for (LinkStatistics stat : linkStatData) {
 			if (stat.getToAgentSet() == null) {
 				continue;
 			}
-            NodeId key = stat.getToApplicationId();
+            Application key = stat.getToApplication();
             final Set<AgentInfoBo> agentInfoBos = agentMap.get(key);
             if (agentInfoBos != null) {
 				Set<AgentInfoBo> toAgentSet = stat.getToAgentSet();

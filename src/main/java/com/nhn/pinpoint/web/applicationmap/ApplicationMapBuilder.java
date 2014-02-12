@@ -4,7 +4,7 @@ import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.web.applicationmap.rawdata.HostList;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsData;
-import com.nhn.pinpoint.web.service.NodeId;
+import com.nhn.pinpoint.web.vo.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +29,7 @@ public class ApplicationMapBuilder {
         final ApplicationMap nodeMap = new ApplicationMap();
 
         // extract agent
-        Map<NodeId, Set<AgentInfoBo>> agentMap = linkStatisticsData.getAgentMap();
+        Map<Application, Set<AgentInfoBo>> agentMap = linkStatisticsData.getAgentMap();
         // 변경하면 안됨
         final List<Node> sourceNode = createSourceNode(linkStatisticsData, agentMap);
         nodeMap.addNode(sourceNode);
@@ -51,10 +51,10 @@ public class ApplicationMapBuilder {
         final List<Link> result = new ArrayList<Link>();
         // extract relation
         for (LinkStatistics stat : rawData.getLinkStatData()) {
-            final NodeId fromApplicationId = stat.getFromApplicationId();
+            final Application fromApplicationId = stat.getFromApplication();
             Node from = nodeMap.findApplication(fromApplicationId);
             // TODO
-            final NodeId toApplicationId = stat.getToApplicationId();
+            final Application toApplicationId = stat.getToApplication();
             Node to = nodeMap.findApplication(toApplicationId);
 
             // rpc client가 빠진경우임.
@@ -76,24 +76,23 @@ public class ApplicationMapBuilder {
         return result;
     }
 
-    private List<Node> createSourceNode(LinkStatisticsData rawData, Map<NodeId, Set<AgentInfoBo>> agentMap) {
+    private List<Node> createSourceNode(LinkStatisticsData rawData, Map<Application, Set<AgentInfoBo>> agentMap) {
         final List<Node> result = new ArrayList<Node>();
         // extract application and histogram
         for (LinkStatistics stat : rawData.getLinkStatData()) {
             // FROM -> TO에서 FROM이 CLIENT가 아니면 FROM은 application
             if (!stat.getFromServiceType().isRpcClient()) {
-                final NodeId id = stat.getFromApplicationId();
-                final Set<AgentInfoBo> agentSet = agentMap.get(id);
+                final Application fromApplication = stat.getFromApplication();
+                final Set<AgentInfoBo> agentSet = agentMap.get(fromApplication);
                 // FIXME from은 tohostlist를 보관하지 않아서 없음. null로 입력. 그렇지 않으면 이상해짐 ㅡㅡ;
-                Node node = new Node(id, stat.getFromApplication(), agentSet);
+                Node node = new Node(fromApplication, agentSet);
                 result.add(node);
             }
 
             // FROM -> TO에서 TO가 CLIENT가 아니면 TO는 application
             if (!stat.getToServiceType().isRpcClient()) {
-                final NodeId to = stat.getToApplicationId();
-
-                Node node = new Node(to, stat.getToApplication(), stat.getToHostList());
+                final Application toApplication = stat.getToApplication();
+                Node node = new Node(toApplication, stat.getToHostList());
                 result.add(node);
             }
         }

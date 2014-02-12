@@ -3,7 +3,6 @@ package com.nhn.pinpoint.web.applicationmap;
 import java.util.*;
 
 import com.nhn.pinpoint.web.applicationmap.rawdata.HostList;
-import com.nhn.pinpoint.web.service.NodeId;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.ResponseHistogramSummary;
 import org.slf4j.Logger;
@@ -24,7 +23,6 @@ public class Node implements JsonSerializable {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private int sequence;
-    private final NodeId id;
     private final Application application;
 
     private final ServerInstanceList serverInstanceList = new ServerInstanceList();
@@ -35,24 +33,20 @@ public class Node implements JsonSerializable {
     private ResponseHistogramSummary responseHistogramSummary;
 	
 
-	public Node(NodeId id, Application application, Set<AgentInfoBo> agentSet) {
-        this(id, application, null, agentSet);
+	public Node(Application application, Set<AgentInfoBo> agentSet) {
+        this(application, null, agentSet);
 	}
 
-    public Node(NodeId id, Application application, HostList hostList) {
-        this(id, application, hostList, null);
+    public Node(Application application, HostList hostList) {
+        this(application, hostList, null);
     }
 
-    Node(NodeId id, Application application, HostList hostList, Set<AgentInfoBo> agentSet) {
-        if (id == null) {
-            throw new NullPointerException("id must not be null");
-        }
+    Node(Application application, HostList hostList, Set<AgentInfoBo> agentSet) {
         if (application == null) {
             throw new NullPointerException("application must not be null");
         }
 
-        logger.debug("create node id={}, applicationName={}, serviceType={}, agentSet={}", id, application, agentSet);
-        this.id = id;
+        logger.debug("create node application={}, serviceType={}, agentSet={}", application, agentSet);
         this.application = application;
         this.hostList = new HostList();
         this.agentSet = new HashSet<AgentInfoBo>();
@@ -73,7 +67,6 @@ public class Node implements JsonSerializable {
         if (copyNode == null) {
             throw new NullPointerException("copyNode must not be null");
         }
-        this.id = copyNode.id;
         this.application = copyNode.application;
         this.hostList = new HostList(copyNode.hostList);
         this.agentSet = new HashSet<AgentInfoBo>(copyNode.agentSet);
@@ -99,12 +92,11 @@ public class Node implements JsonSerializable {
 		return serverInstanceList.getServerInstanceList();
 	}
 
+    public Application getApplication() {
+        return application;
+    }
 
-	public NodeId getId() {
-		return this.id;
-	}
-
-	public void setSequence(int sequence) {
+    public void setSequence(int sequence) {
 		this.sequence = sequence;
 	}
 
@@ -120,7 +112,7 @@ public class Node implements JsonSerializable {
         if (node == null) {
             throw new NullPointerException("node must not be null");
         }
-        logger.debug("merge node a={}, b={}", this.id, node.id);
+        logger.debug("merge node this={}, node={}", this.application, node.application);
 		
         // 리얼 application을 실제빌드할때 copy하여 만들기 때문에. add할때 데이터를 hostList를 add해도 된다.
         this.hostList.addHostList(node.hostList);
@@ -173,6 +165,6 @@ public class Node implements JsonSerializable {
 
 	@Override
 	public String toString() {
-		return "Node [sequence=" + sequence + ", id=" + id + ", application=" + application + ", serverInstanceList=" + serverInstanceList + "]";
+		return "Node [sequence=" + sequence + ", application=" + application + ", serverInstanceList=" + serverInstanceList + "]";
 	}
 }

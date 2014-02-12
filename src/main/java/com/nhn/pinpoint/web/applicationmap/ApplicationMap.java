@@ -5,7 +5,6 @@ import java.util.*;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
 import com.nhn.pinpoint.web.dao.MapResponseDao;
-import com.nhn.pinpoint.web.service.NodeId;
 import com.nhn.pinpoint.web.vo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +42,7 @@ public class ApplicationMap {
         this.nodeList.markSequence();
 	}
 
-	Node findApplication(NodeId applicationId) {
+	Node findApplication(Application applicationId) {
         return this.nodeList.find(applicationId);
 	}
 

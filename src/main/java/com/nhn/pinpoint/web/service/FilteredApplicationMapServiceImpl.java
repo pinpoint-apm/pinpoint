@@ -13,6 +13,7 @@ import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.HistogramSlot;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsKey;
 import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
 import com.nhn.pinpoint.web.dao.*;
 import com.nhn.pinpoint.web.vo.*;
@@ -191,51 +192,45 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 
     private ApplicationMap createMap(Range range, List<List<SpanBo>> filterList) {
 
-        final Map<NodeId, LinkStatistics> linkStatMap = new HashMap<NodeId, LinkStatistics>();
+        final Map<LinkStatisticsKey, LinkStatistics> linkStatMap = new HashMap<LinkStatisticsKey, LinkStatistics>();
 
-        final TimeSeriesStore timeSeriesStore = new TimeSeriesStoreImpl2(range);
+        final TimeSeriesStore timeSeriesStore = new DefaultTimeSeriesStoreImpl(range);
         final Map<Application, ResponseHistogramSummary> responseHistogramSummaryMap = new HashMap<Application, ResponseHistogramSummary>();
         /**
          * 통계정보로 변환한다.
          */
         for (List<SpanBo> transaction : filterList) {
-            final Map<Long, SpanBo> transactionSpanMap = new HashMap<Long, SpanBo>();
-            for (SpanBo span : transaction) {
-                final SpanBo old = transactionSpanMap.put(span.getSpanId(), span);
-                if (old != null) {
-                    logger.warn("duplicated span found:{}", old);
-                }
-            }
+            final Map<Long, SpanBo> transactionSpanMap = checkDuplicatedSpanId(transaction);
 
             for (SpanBo span : transaction) {
                 // SPAN의 respoinseTime의 통계를 저장한다.
                 recordSpanResponseTime(span, responseHistogramSummaryMap);
 
-                final Node srcNode = createNode(span, transactionSpanMap);
-                final Node destNode = new Node(span.getApplicationId(), span.getServiceType());
+                final Application srcApplication = createApplication(span, transactionSpanMap);
+                final Application destApplication = new Application(span.getApplicationId(), span.getServiceType());
                 // record해야 되거나. rpc콜은 링크이다.
-                if (!destNode.getServiceType().isRecordStatistics() || destNode.getServiceType().isRpcClient()) {
+                if (!destApplication.getServiceType().isRecordStatistics() || destApplication.getServiceType().isRpcClient()) {
                     continue;
                 }
 
-                final ComplexNodeId statId = new ComplexNodeId(srcNode, destNode);
-                LinkStatistics stat = linkStatMap.get(statId);
+                final LinkStatisticsKey linkKey = new LinkStatisticsKey(srcApplication, destApplication);
+                LinkStatistics stat = linkStatMap.get(linkKey);
                 if (stat == null) {
-                    Application source = new Application(srcNode.getName(), srcNode.getServiceType());
-                    Application dest = new Application(destNode.getName(), destNode.getServiceType());
+                    Application source = new Application(srcApplication.getName(), srcApplication.getServiceType());
+                    Application dest = new Application(destApplication.getName(), destApplication.getServiceType());
                     stat = new LinkStatistics(source, dest);
-                    linkStatMap.put(statId, stat);
+                    linkStatMap.put(linkKey, stat);
                 }
 
-                final short slot = getHistogramSlotTime(span, destNode.getServiceType());
-                stat.addSample(destNode.getName(), destNode.getServiceType().getCode(), (short) slot, 1);
+                final short slotTime = getHistogramSlotTime(span, destApplication.getServiceType());
+                stat.addSample(destApplication.getName(), destApplication.getServiceType().getCode(), slotTime, 1);
 
                 // link timeseries statistics추가.
-                timeSeriesStore.add(statId, span.getCollectorAcceptTime(), slot, 1L, span.hasException());
+                timeSeriesStore.addLinkStat(linkKey, span.getCollectorAcceptTime(), slotTime, 1L, span.hasException());
 
                 // application timeseries statistics
-                NodeId key = new ComplexNodeId(Node.EMPTY, new Node(span.getApplicationId(), span.getServiceType()));
-                timeSeriesStore.add(key, span.getCollectorAcceptTime(), slot, 1L, span.hasException());
+                Application node = new Application(span.getApplicationId(), span.getServiceType());
+                timeSeriesStore.addNodeStat(node, span.getCollectorAcceptTime(), slotTime, 1L, span.hasException());
 
                 addNodeFromSpanEvent(span, linkStatMap, timeSeriesStore, transactionSpanMap);
             }
@@ -253,6 +248,17 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 
 
         return map;
+    }
+
+    private Map<Long, SpanBo> checkDuplicatedSpanId(List<SpanBo> transaction) {
+        final Map<Long, SpanBo> transactionSpanMap = new HashMap<Long, SpanBo>();
+        for (SpanBo span : transaction) {
+            final SpanBo old = transactionSpanMap.put(span.getSpanId(), span);
+            if (old != null) {
+                logger.warn("duplicated span found:{}", old);
+            }
+        }
+        return transactionSpanMap;
     }
 
     private void recordSpanResponseTime(SpanBo span, Map<Application, ResponseHistogramSummary> responseHistogramSummaryMap) {
@@ -275,7 +281,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
     }
 
 
-    private void addNodeFromSpanEvent(SpanBo span, Map<NodeId, LinkStatistics> statisticsMap, TimeSeriesStore timeSeriesStore, Map<Long, SpanBo> transactionSpanMap) {
+    private void addNodeFromSpanEvent(SpanBo span, Map<LinkStatisticsKey, LinkStatistics> statisticsMap, TimeSeriesStore timeSeriesStore, Map<Long, SpanBo> transactionSpanMap) {
         /**
          * span event의 statistics추가.
          */
@@ -283,7 +289,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
         if (CollectionUtils.isEmpty(spanEventBoList)) {
             return;
         }
-        final Node srcNode = new Node(span.getApplicationId(), span.getServiceType());
+        final Application srcNode = new Application(span.getApplicationId(), span.getServiceType());
 
         for (SpanEventBo spanEvent : spanEventBoList) {
             final String dest = spanEvent.getDestinationId();
@@ -295,16 +301,16 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 
             // rpc client이면서 acceptor가 없으면 unknown으로 변환시킨다.
             // 내가 아는 next spanid를 spanid로 가진 span이 있으면 acceptor가 존재하는 셈.
+            // acceptor check로직
             if (destServiceType.isRpcClient()) {
                 if (transactionSpanMap.containsKey(spanEvent.getNextSpanId())) {
-                    // TODO 여기를 고칠것.  rpc콜의 통계는 별도로 분리해서 생성해야 한다. 치환하면 안됨.
                     continue;
                 } else {
-                    destServiceType = ServiceType.UNKNOWN; // ServiceType.UNKNOWN_CLOUD;
+                    destServiceType = ServiceType.UNKNOWN;
                 }
             }
 
-            final NodeId spanEventStatId = new ComplexNodeId(srcNode, new Node(dest, destServiceType));
+            final LinkStatisticsKey spanEventStatId = new LinkStatisticsKey(srcNode, new Application(dest, destServiceType));
             LinkStatistics statistics = statisticsMap.get(spanEventStatId);
             if (statistics == null) {
                 Application sourceApplication = new Application(srcNode.getName(), srcNode.getServiceType());
@@ -312,34 +318,34 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
                 statistics = new LinkStatistics(sourceApplication, destApplication);
             }
 
-            final int slot2 = getHistogramSlotTime(spanEvent, destServiceType);
+            final int slotTime = getHistogramSlotTime(spanEvent, destServiceType);
 
             // FIXME
             // stat2.addSample((dest == null) ? spanEvent.getEndPoint() : dest, destServiceType.getCode(), (short) slot2, 1);
-            statistics.addSample(spanEvent.getEndPoint(), destServiceType.getCode(), (short) slot2, 1);
+            statistics.addSample(spanEvent.getEndPoint(), destServiceType.getCode(), (short) slotTime, 1);
 
             // agent 정보추가. destination의 agent정보 알 수 없음.
             statisticsMap.put(spanEventStatId, statistics);
 
             // link timeseries statistics추가.
-            timeSeriesStore.add(spanEventStatId, span.getStartTime() + spanEvent.getStartElapsed(), slot2, 1L, spanEvent.hasException());
+            timeSeriesStore.addLinkStat(spanEventStatId, span.getStartTime() + spanEvent.getStartElapsed(), slotTime, 1L, spanEvent.hasException());
 
             // application timeseries statistics
-            NodeId key = new ComplexNodeId(Node.EMPTY, new Node(spanEvent.getDestinationId(), spanEvent.getServiceType()));
-            timeSeriesStore.add(key, span.getCollectorAcceptTime(), slot2, 1L, spanEvent.hasException());
+            Application nodeKey = new Application(spanEvent.getDestinationId(), spanEvent.getServiceType());
+            timeSeriesStore.addNodeStat(nodeKey, span.getCollectorAcceptTime(), slotTime, 1L, spanEvent.hasException());
         }
     }
 
-    private Node createNode(SpanBo span, Map<Long, SpanBo> transactionSpanMap) {
+    private Application createApplication(SpanBo span, Map<Long, SpanBo> transactionSpanMap) {
         final SpanBo parentSpan = transactionSpanMap.get(span.getParentSpanId());
         if (span.isRoot() || parentSpan == null) {
             String src = span.getApplicationId();
             ServiceType srcServiceType = ServiceType.USER; // ServiceType.CLIENT;
-            return new Node(src, srcServiceType);
+            return new Application(src, srcServiceType);
         } else {
             String src = parentSpan.getApplicationId();
             ServiceType serviceType = parentSpan.getServiceType();
-            return new Node(src, serviceType);
+            return new Application(src, serviceType);
         }
     }
 
