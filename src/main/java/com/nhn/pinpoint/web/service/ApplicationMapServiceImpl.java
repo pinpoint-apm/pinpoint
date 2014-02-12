@@ -223,17 +223,17 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
         // 무한 탐색을 방지하기 위한 용도.
 		final Set<Node> callerFoundApplications = new HashSet<Node>();
 		final Set<Node> calleeFoundApplications = new HashSet<Node>();
-		Set<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics> callee = selectCallee(sourceApplication, range, calleeFoundApplications, callerFoundApplications);
+		Set<LinkStatistics> callee = selectCallee(sourceApplication, range, calleeFoundApplications, callerFoundApplications);
 		logger.debug("Result of finding callee {}", callee);
 
-		Set<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics> caller = selectCaller(sourceApplication, range, calleeFoundApplications, callerFoundApplications);
+		Set<LinkStatistics> caller = selectCaller(sourceApplication, range, calleeFoundApplications, callerFoundApplications);
 		logger.debug("Result of finding caller {}", caller);
 
-		Set<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics> data = new HashSet<com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics>(callee.size() + caller.size());
+		Set<LinkStatistics> data = new HashSet<LinkStatistics>(callee.size() + caller.size());
 		data.addAll(callee);
 		data.addAll(caller);
 
-		ApplicationMap map = new ApplicationMapBuilder().build(data);
+		ApplicationMap map = new ApplicationMapBuilder().build(new ArrayList<LinkStatistics>(data));
         appendResponseTime(map, range);
 
 		watch.stop();

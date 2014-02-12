@@ -6,16 +6,17 @@ import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.web.service.NodeId;
 
 public class LinkStatisticsData {
-	private final Set<LinkStatistics> linkStatData;
 
-	public LinkStatisticsData(Set<LinkStatistics> linkStatData) {
+	private final List<LinkStatistics> linkStatData;
+
+	public LinkStatisticsData(List<LinkStatistics> linkStatData) {
         if (linkStatData == null) {
             throw new NullPointerException("linkStatData must not be null");
         }
         this.linkStatData = linkStatData;
 	}
 
-    public Set<LinkStatistics> getLinkStatData() {
+    public List<LinkStatistics> getLinkStatData() {
         return linkStatData;
     }
 

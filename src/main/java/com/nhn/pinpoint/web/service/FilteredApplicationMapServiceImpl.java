@@ -39,24 +39,24 @@ import com.nhn.pinpoint.web.filter.Filter;
 @Service
 public class FilteredApplicationMapServiceImpl implements FilteredApplicationMapService {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	private TraceDao traceDao;
+    @Autowired
+    private TraceDao traceDao;
 
-	@Autowired
-	private ApplicationIndexDao applicationIndexDao;
+    @Autowired
+    private ApplicationIndexDao applicationIndexDao;
 
-	@Autowired
-	private ApplicationTraceIndexDao applicationTraceIndexDao;
+    @Autowired
+    private ApplicationTraceIndexDao applicationTraceIndexDao;
 
-	@Autowired
-	private AgentInfoDao agentInfoDao;
+    @Autowired
+    private AgentInfoDao agentInfoDao;
 
-	private static final Object V = new Object();
+    private static final Object V = new Object();
 
-	@Override
-	public LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, Range range, int limit) {
+    @Override
+    public LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, Range range, int limit) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
@@ -64,14 +64,14 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
             throw new NullPointerException("range must not be null");
         }
         if (logger.isTraceEnabled()) {
-			logger.trace("scan(selectTraceIdsFromApplicationTraceIndex) {}, {}", applicationName, range);
-		}
+            logger.trace("scan(selectTraceIdsFromApplicationTraceIndex) {}, {}", applicationName, range);
+        }
 
-		return this.applicationTraceIndexDao.scanTraceIndex(applicationName, range, limit);
-	}
+        return this.applicationTraceIndexDao.scanTraceIndex(applicationName, range, limit);
+    }
 
-	@Override
-	public LoadFactor linkStatistics(Range range, List<TransactionId> traceIdSet, Application sourceApplication, Application destinationApplication, Filter filter) {
+    @Override
+    public LoadFactor linkStatistics(Range range, List<TransactionId> traceIdSet, Application sourceApplication, Application destinationApplication, Filter filter) {
         if (sourceApplication == null) {
             throw new NullPointerException("sourceApplication must not be null");
         }
@@ -83,42 +83,42 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
         }
 
         StopWatch watch = new StopWatch();
-		watch.start();
+        watch.start();
 
-		List<List<SpanBo>> originalList = this.traceDao.selectAllSpans(traceIdSet);
+        List<List<SpanBo>> originalList = this.traceDao.selectAllSpans(traceIdSet);
         List<SpanBo> filteredTransactionList = filterList(originalList, filter);
 
-		LoadFactor statistics = new LoadFactor(range);
+        LoadFactor statistics = new LoadFactor(range);
 
-		// TODO fromToFilter처럼. node의 타입에 따른 처리 필요함.
+        // TODO fromToFilter처럼. node의 타입에 따른 처리 필요함.
 
-		// scan transaction list
-		for (SpanBo span : filteredTransactionList) {
-			if (sourceApplication.equals(span.getApplicationId(), span.getServiceType())) {
-				List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
-				if (spanEventBoList == null) {
-					continue;
-				}
+        // scan transaction list
+        for (SpanBo span : filteredTransactionList) {
+            if (sourceApplication.equals(span.getApplicationId(), span.getServiceType())) {
+                List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
+                if (spanEventBoList == null) {
+                    continue;
+                }
 
-				// find dest elapsed time
-				for (SpanEventBo spanEventBo : spanEventBoList) {
+                // find dest elapsed time
+                for (SpanEventBo spanEventBo : spanEventBoList) {
                     if (destinationApplication.equals(spanEventBo.getDestinationId(), spanEventBo.getServiceType())) {
-						// find exception
-						boolean hasException = spanEventBo.hasException();
-						// add sample
-						// TODO : 실제값 대신 slot값을 넣어야 함.
-						statistics.addSample(span.getStartTime() + spanEventBo.getStartElapsed(), spanEventBo.getEndElapsed(), 1, hasException);
-						break;
-					}
-				}
-			}
-		}
+                        // find exception
+                        boolean hasException = spanEventBo.hasException();
+                        // add sample
+                        // TODO : 실제값 대신 slot값을 넣어야 함.
+                        statistics.addSample(span.getStartTime() + spanEventBo.getStartElapsed(), spanEventBo.getEndElapsed(), 1, hasException);
+                        break;
+                    }
+                }
+            }
+        }
 
-		watch.stop();
-		logger.info("Fetch link statistics elapsed. {}ms", watch.getLastTaskTimeMillis());
+        watch.stop();
+        logger.info("Fetch link statistics elapsed. {}ms", watch.getLastTaskTimeMillis());
 
-		return statistics;
-	}
+        return statistics;
+    }
 
     private List<SpanBo> filterList(List<List<SpanBo>> transactionList, Filter filter) {
         final List<SpanBo> filteredResult = new ArrayList<SpanBo>();
@@ -141,22 +141,22 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
     }
 
     @Override
-	public ApplicationMap selectApplicationMap(TransactionId transactionId) {
+    public ApplicationMap selectApplicationMap(TransactionId transactionId) {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }
         List<TransactionId> transactionIdList = new ArrayList<TransactionId>();
-		transactionIdList.add(transactionId);
-		// FIXME from,to -1 땜방임.
+        transactionIdList.add(transactionId);
+        // FIXME from,to -1 땜방임.
         Range range = new Range(-1, -1);
         return selectApplicationMap(transactionIdList, range, Filter.NONE);
-	}
+    }
 
-	/**
-	 * filtered application map
-	 */
-	@Override
-	public ApplicationMap selectApplicationMap(List<TransactionId> transactionIdList, Range range, Filter filter) {
+    /**
+     * filtered application map
+     */
+    @Override
+    public ApplicationMap selectApplicationMap(List<TransactionId> transactionIdList, Range range, Filter filter) {
         if (transactionIdList == null) {
             throw new NullPointerException("transactionIdList must not be null");
         }
@@ -165,84 +165,92 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
         }
 
         StopWatch watch = new StopWatch();
-		watch.start();
+        watch.start();
 
-		// 개별 객체를 각각 보고 재귀 내용을 삭제함.
-		// 향후 tree base로 충돌구간을 점검하여 없앨 경우 여기서 filter를 치면 안됨.
-		final Collection<TransactionId> recursiveFilterList = recursiveCallFilter(transactionIdList);
-		// FIXME 나중에 List<Span>을 순회하면서 실행할 process chain을 두는것도 괜찮을듯.
-		final List<List<SpanBo>> originalList = this.traceDao.selectAllSpans(recursiveFilterList);
-        final List<List<SpanBo>> filterList = filterList2(originalList, filter);
+        final List<List<SpanBo>> filterList = selectFilteredSpan(transactionIdList, filter);
 
-        Set<LinkStatistics> statisticsData = new HashSet<LinkStatistics>();
-		Map<NodeId, LinkStatistics> statisticsMap = new HashMap<NodeId, LinkStatistics>();
+        ApplicationMap map = createMap(range, filterList);
 
+        watch.stop();
+        logger.debug("Select filtered application map elapsed. {}ms", watch.getTotalTimeMillis());
 
-		final TimeSeriesStore timeSeriesStore = new TimeSeriesStoreImpl2(range);
-		/**
-		 * 통계정보로 변환한다.
-		 */
-		for (List<SpanBo> transaction : filterList) {
-            final Map<Long, SpanBo> transactionSpanMap = new HashMap<Long, SpanBo>(transactionIdList.size());
-			for (SpanBo span : transaction) {
+        return map;
+    }
+
+    private List<List<SpanBo>> selectFilteredSpan(List<TransactionId> transactionIdList, Filter filter) {
+        // 개별 객체를 각각 보고 재귀 내용을 삭제함.
+        // 향후 tree base로 충돌구간을 점검하여 없앨 경우 여기서 filter를 치면 안됨.
+        final Collection<TransactionId> recursiveFilterList = recursiveCallFilter(transactionIdList);
+
+        // FIXME 나중에 List<Span>을 순회하면서 실행할 process chain을 두는것도 괜찮을듯.
+        final List<List<SpanBo>> originalList = this.traceDao.selectAllSpans(recursiveFilterList);
+
+        return filterList2(originalList, filter);
+    }
+
+    private ApplicationMap createMap(Range range, List<List<SpanBo>> filterList) {
+
+        final Map<NodeId, LinkStatistics> linkStatMap = new HashMap<NodeId, LinkStatistics>();
+
+        final TimeSeriesStore timeSeriesStore = new TimeSeriesStoreImpl2(range);
+        /**
+         * 통계정보로 변환한다.
+         */
+        for (List<SpanBo> transaction : filterList) {
+            final Map<Long, SpanBo> transactionSpanMap = new HashMap<Long, SpanBo>();
+            for (SpanBo span : transaction) {
                 final SpanBo old = transactionSpanMap.put(span.getSpanId(), span);
                 if (old != null) {
                     logger.warn("duplicated span found:{}", old);
                 }
             }
 
-			for (SpanBo span : transaction) {
+            for (SpanBo span : transaction) {
                 final Node srcNode = createNode(span, transactionSpanMap);
                 final Node destNode = new Node(span.getApplicationId(), span.getServiceType());
                 // record해야 되거나. rpc콜은 링크이다.
                 if (!destNode.getServiceType().isRecordStatistics() || destNode.getServiceType().isRpcClient()) {
-					continue;
-				}
+                    continue;
+                }
 
                 final ComplexNodeId statId = new ComplexNodeId(srcNode, destNode);
-				LinkStatistics stat = statisticsMap.get(statId);
-                if (stat == null)  {
+                LinkStatistics stat = linkStatMap.get(statId);
+                if (stat == null) {
                     Application source = new Application(srcNode.getName(), srcNode.getServiceType());
                     Application dest = new Application(destNode.getName(), destNode.getServiceType());
-                    stat = new com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics(source, dest);
+                    stat = new LinkStatistics(source, dest);
+                    linkStatMap.put(statId, stat);
                 }
 
                 final short slot = getHistogramSlotTime(span, destNode.getServiceType());
-
                 stat.addSample(destNode.getName(), destNode.getServiceType().getCode(), (short) slot, 1);
 
-				statisticsData.add(stat);
-				statisticsMap.put(statId, stat);
+                // link timeseries statistics추가.
+                timeSeriesStore.add(statId, span.getCollectorAcceptTime(), slot, 1L, span.hasException());
 
-				// link timeseries statistics추가.
-				timeSeriesStore.add(statId, span.getCollectorAcceptTime(), slot, 1L, span.hasException());
-				
-				// application timeseries statistics
+                // application timeseries statistics
                 NodeId key = new ComplexNodeId(Node.EMPTY, new Node(span.getApplicationId(), span.getServiceType()));
-				timeSeriesStore.add(key, span.getCollectorAcceptTime(), slot, 1L, span.hasException());
+                timeSeriesStore.add(key, span.getCollectorAcceptTime(), slot, 1L, span.hasException());
 
-                addNodeFromSpanEvent(statisticsData, statisticsMap, timeSeriesStore, transactionSpanMap, span);
+                addNodeFromSpanEvent(linkStatMap, timeSeriesStore, transactionSpanMap, span);
             }
-		}
+        }
 
-		// mark agent info
-		for (com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics stat : statisticsData) {
-			fillAdditionalInfo(stat);
-		}
+        // mark agent info
+        for (LinkStatistics stat : linkStatMap.values()) {
+            fillAdditionalInfo(stat);
+        }
 
-        ApplicationMap map = new ApplicationMapBuilder().build(statisticsData);
-		map.setTimeSeriesStore(timeSeriesStore);
-
-		watch.stop();
-		logger.debug("Select filtered application map elapsed. {}ms", watch.getTotalTimeMillis());
-
-		return map;
-	}
+        List<LinkStatistics> linkStatisticsList = new ArrayList<LinkStatistics>(linkStatMap.values());
+        ApplicationMap map = new ApplicationMapBuilder().build(linkStatisticsList);
+        map.setTimeSeriesStore(timeSeriesStore);
 
 
+        return map;
+    }
 
 
-    private void addNodeFromSpanEvent(Set<LinkStatistics> statisticsData, Map<NodeId, LinkStatistics> statisticsMap, TimeSeriesStore timeSeriesStore, Map<Long, SpanBo> transactionSpanMap, SpanBo span) {
+    private void addNodeFromSpanEvent(Map<NodeId, LinkStatistics> statisticsMap, TimeSeriesStore timeSeriesStore, Map<Long, SpanBo> transactionSpanMap, SpanBo span) {
         /**
          * span event의 statistics추가.
          */
@@ -286,7 +294,6 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
             statistics.addSample(spanEvent.getEndPoint(), destServiceType.getCode(), (short) slot2, 1);
 
             // agent 정보추가. destination의 agent정보 알 수 없음.
-            statisticsData.add(statistics);
             statisticsMap.put(spanEventStatId, statistics);
 
             // link timeseries statistics추가.
@@ -336,43 +343,43 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
         }
 
         List<TransactionId> crashKey = new ArrayList<TransactionId>();
-		Map<TransactionId, Object> filterMap = new LinkedHashMap<TransactionId, Object>(transactionIdList.size());
-		for (TransactionId transactionId : transactionIdList) {
-			Object old = filterMap.put(transactionId, V);
-			if (old != null) {
-				crashKey.add(transactionId);
-			}
-		}
-		if (crashKey.size() != 0) {
-			Set<TransactionId> filteredTrasnactionId = filterMap.keySet();
-			logger.info("transactionId crash found. original:{} filter:{} crashKey:{}", transactionIdList.size(), filteredTrasnactionId.size(), crashKey);
-			return filteredTrasnactionId;
-		}
-		return transactionIdList;
-	}
+        Map<TransactionId, Object> filterMap = new LinkedHashMap<TransactionId, Object>(transactionIdList.size());
+        for (TransactionId transactionId : transactionIdList) {
+            Object old = filterMap.put(transactionId, V);
+            if (old != null) {
+                crashKey.add(transactionId);
+            }
+        }
+        if (crashKey.size() != 0) {
+            Set<TransactionId> filteredTrasnactionId = filterMap.keySet();
+            logger.info("transactionId crash found. original:{} filter:{} crashKey:{}", transactionIdList.size(), filteredTrasnactionId.size(), crashKey);
+            return filteredTrasnactionId;
+        }
+        return transactionIdList;
+    }
 
-	private void fillAdditionalInfo(com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics stat) {
-		if (stat.getToServiceType().isTerminal() || stat.getToServiceType().isUnknown()) {
-			return;
-		}
-		Set<AgentInfoBo> agentSet = selectAgents(stat.getToApplication().getName());
-		if (agentSet.isEmpty()) {
-			return;
-		}
-		// destination이 WAS이고 agent가 설치되어있으면 agentSet이 존재한다.
-		stat.addToAgentSet(agentSet);
-		logger.debug("fill agent info. {}, {}", stat.getTo(), agentSet);
-	}
+    private void fillAdditionalInfo(com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics stat) {
+        if (stat.getToServiceType().isTerminal() || stat.getToServiceType().isUnknown()) {
+            return;
+        }
+        Set<AgentInfoBo> agentSet = selectAgents(stat.getToApplication().getName());
+        if (agentSet.isEmpty()) {
+            return;
+        }
+        // destination이 WAS이고 agent가 설치되어있으면 agentSet이 존재한다.
+        stat.addToAgentSet(agentSet);
+        logger.debug("fill agent info. {}, {}", stat.getTo(), agentSet);
+    }
 
-	private Set<AgentInfoBo> selectAgents(String applicationId) {
-		String[] agentIds = applicationIndexDao.selectAgentIds(applicationId);
-		Set<AgentInfoBo> agentSet = new HashSet<AgentInfoBo>();
-		for (String agentId : agentIds) {
-			// TODO 조회 시간대에 따라서 agent info row timestamp를 변경하여 조회해야하는지는 모르겠음.
-			AgentInfoBo info = agentInfoDao.findAgentInfoBeforeStartTime(agentId, System.currentTimeMillis());
-			agentSet.add(info);
-		}
-		return agentSet;
-	}
+    private Set<AgentInfoBo> selectAgents(String applicationId) {
+        String[] agentIds = applicationIndexDao.selectAgentIds(applicationId);
+        Set<AgentInfoBo> agentSet = new HashSet<AgentInfoBo>();
+        for (String agentId : agentIds) {
+            // TODO 조회 시간대에 따라서 agent info row timestamp를 변경하여 조회해야하는지는 모르겠음.
+            AgentInfoBo info = agentInfoDao.findAgentInfoBeforeStartTime(agentId, System.currentTimeMillis());
+            agentSet.add(info);
+        }
+        return agentSet;
+    }
 
 }
