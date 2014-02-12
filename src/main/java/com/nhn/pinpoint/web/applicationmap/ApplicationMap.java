@@ -82,14 +82,40 @@ public class ApplicationMap {
         return applicationNames.contains(applicationName);
     }
 
-    public void appendResponseTime(Range range, MapResponseDao mapResponseDao) {
-        List<Node> nodes = this.nodeList.getNodeList();
+    public static interface ResponseDataSource {
+        ResponseHistogramSummary getResponseHistogramSummary(Application application);
+    }
+
+    public void appendResponseTime(final Range range, final MapResponseDao mapResponseDao) {
+        appendResponseTime(new ResponseDataSource() {
+            @Override
+            public ResponseHistogramSummary getResponseHistogramSummary(Application application) {
+                final List<RawResponseTime> responseHistogram = mapResponseDao.selectResponseTime(application, range);
+                return createHistogramSummary(application, responseHistogram);
+            }
+        });
+    }
+
+    public void appendResponseTime(final Map<Application, ResponseHistogramSummary> histogramSummaryMap) {
+        appendResponseTime(new ResponseDataSource() {
+            @Override
+            public ResponseHistogramSummary getResponseHistogramSummary(Application application) {
+                return histogramSummaryMap.get(application);
+            }
+        });
+    }
+
+    public void appendResponseTime(ResponseDataSource responseDataSource) {
+        if (responseDataSource == null) {
+            throw new NullPointerException("responseDataSource must not be null");
+        }
+
+        final List<Node> nodes = this.nodeList.getNodeList();
         for (Node node : nodes) {
             if (node.getServiceType().isWas()) {
                 // was일 경우 자신의 response 히스토그램을 조회하여 채운다.
                 final Application application = new Application(node.getApplicationName(), node.getServiceType());
-                final List<RawResponseTime> responseHistogram = mapResponseDao.selectResponseTime(application, range);
-                ResponseHistogramSummary histogramSummary = createHistogramSummary(application, responseHistogram);
+                ResponseHistogramSummary histogramSummary = responseDataSource.getResponseHistogramSummary(application);
                 node.setResponseHistogramSummary(histogramSummary);
             } else if(node.getServiceType().isTerminal() || node.getServiceType().isUnknown()) {
                 // 터미널 노드인경우, 자신을 가리키는 link값을 합하여 histogram을 생성한다.

@@ -40,6 +40,12 @@ public class ResponseHistogram implements JsonSerializable {
 		this.histogramSchema = serviceType.getHistogramSchema();
 	}
 
+    public void addElapsedTime(int elapsedTime) {
+        HistogramSlot histogramSlot = histogramSchema.findHistogramSlot(elapsedTime);
+        short slotTime = histogramSlot.getSlotTime();
+        addSample(slotTime, 1);
+    }
+
     public ResponseHistogram(final short serviceType) {
         this(ServiceType.findServiceType(serviceType));
     }
@@ -56,6 +62,7 @@ public class ResponseHistogram implements JsonSerializable {
 			this.errorCount += count;
 			return;
 		}
+        // TODO slotTime 은 <= 아니고 ==으로 수정되어야함.
         if (slotTime <= histogramSchema.getFastSlot().getSlotTime()) {
             this.fastCount += count;
             return;

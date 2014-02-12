@@ -13,6 +13,7 @@ import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.HistogramSlot;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
+import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
 import com.nhn.pinpoint.web.dao.*;
 import com.nhn.pinpoint.web.vo.*;
 import org.apache.commons.collections.CollectionUtils;
@@ -193,6 +194,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
         final Map<NodeId, LinkStatistics> linkStatMap = new HashMap<NodeId, LinkStatistics>();
 
         final TimeSeriesStore timeSeriesStore = new TimeSeriesStoreImpl2(range);
+        final Map<Application, ResponseHistogramSummary> responseHistogramSummaryMap = new HashMap<Application, ResponseHistogramSummary>();
         /**
          * 통계정보로 변환한다.
          */
@@ -206,6 +208,9 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
             }
 
             for (SpanBo span : transaction) {
+                // SPAN의 respoinseTime의 통계를 저장한다.
+                recordSpanResponseTime(span, responseHistogramSummaryMap);
+
                 final Node srcNode = createNode(span, transactionSpanMap);
                 final Node destNode = new Node(span.getApplicationId(), span.getServiceType());
                 // record해야 되거나. rpc콜은 링크이다.
@@ -244,10 +249,29 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
         List<LinkStatistics> linkStatisticsList = new ArrayList<LinkStatistics>(linkStatMap.values());
         ApplicationMap map = new ApplicationMapBuilder().build(linkStatisticsList);
         map.setTimeSeriesStore(timeSeriesStore);
-        map.appendResponseTime(range, this.mapResponseDao);
+        map.appendResponseTime(responseHistogramSummaryMap);
 
 
         return map;
+    }
+
+    private void recordSpanResponseTime(SpanBo span, Map<Application, ResponseHistogramSummary> responseHistogramSummaryMap) {
+        ServiceType serviceType = span.getServiceType();
+        String applicationId = span.getApplicationId();
+        Application spanKey = new Application(applicationId, serviceType);
+        ResponseHistogramSummary responseHistogramSummary = responseHistogramSummaryMap.get(spanKey);
+        if (responseHistogramSummary == null) {
+            responseHistogramSummary = new ResponseHistogramSummary(spanKey);
+            responseHistogramSummaryMap.put(spanKey, responseHistogramSummary);
+        }
+
+        ResponseHistogram histogram = new ResponseHistogram(serviceType);
+        if (span.getErrCode() != 0) {
+            histogram.addElapsedTime(HistogramSchema.ERROR_SLOT_TIME);
+        } else {
+            histogram.addElapsedTime(span.getElapsed());
+        }
+        responseHistogramSummary.addTotal(histogram);
     }
 
 

@@ -9,7 +9,7 @@ public class ResponseHistogramSummary {
 
     private final Application application;
 
-    private final com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram total;
+    private final ResponseHistogram total;
 
     public ResponseHistogramSummary(Application application) {
         if (application == null) {
