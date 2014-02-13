@@ -34,15 +34,12 @@
 				"isWas" : ${node.serviceType.was},
                 <c:if test="${node.serviceType.was || node.serviceType.terminal || node.serviceType.unknown || node.serviceType.user}" >
                     "histogram" : ${node.responseHistogramSummary.total.json},
-
-                    <c:if test="${node.responseHistogramSummary.agentHistogram != null}" >
-                        "agentHistogram" : {
-                            <c:forEach items="${node.responseHistogramSummary.agentHistogram}" var="agentHistogram" varStatus="agentHistogramStatus">
-                                "${agentHistogram.key}" : ${agentHistogram.value.json}
-                                <c:if test="${!agentHistogramStatus.last}">,</c:if>
-                            </c:forEach>
-                        },
-                    </c:if>
+                    "agentHistogram" : {
+                        <c:forEach items="${node.responseHistogramSummary.agentHistogram}" var="agentHistogram" varStatus="agentHistogramStatus">
+                            "${agentHistogram.key}" : ${agentHistogram.value.json}
+                            <c:if test="${!agentHistogramStatus.last}">,</c:if>
+                        </c:forEach>
+                    },
                 </c:if>
 				"serverList" : {
 					<c:if test="${node.serviceType.desc != 'UNKNOWN'}">
