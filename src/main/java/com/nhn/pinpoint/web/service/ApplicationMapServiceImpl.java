@@ -76,21 +76,20 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 			logger.debug("ApplicationStatistics exists. Skip finding callee. {} ", callerApplication);
 			return new HashSet<LinkStatistics>(0);
 		}
-		calleeFoundApplications.add(callerApplication);
+
+        calleeFoundApplications.add(callerApplication);
         if (logger.isDebugEnabled()) {
 		    logger.debug("Finding Callee. caller={}", callerApplication);
         }
 
-		final Set<LinkStatistics> calleeSet = new HashSet<LinkStatistics>();
-
 		List<LinkStatistics> callee = applicationMapStatisticsCalleeDao.selectCallee(callerApplication, range);
-
         if (logger.isDebugEnabled()) {
 		    logger.debug("Found Callee. count={}, caller={}", callee.size(), callerApplication);
         }
 
+        final Set<LinkStatistics> calleeSet = new HashSet<LinkStatistics>();
 		for (LinkStatistics stat : callee) {
-			boolean replaced = replaceApplicationInfo(stat, range);
+			final boolean replaced = replaceApplicationInfo(stat, range);
 
 			// replaced된 녀석은 CLIENT이기 때문에 callee검색용도로만 사용하고 map에 추가하지 않는다.
 			if (!replaced) {
@@ -140,12 +139,10 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		    logger.debug("Finding Caller. callee={}", calleeApplication);
         }
 
-		final Set<LinkStatistics> callerSet = new HashSet<LinkStatistics>();
-
 		final List<LinkStatistics> caller = applicationMapStatisticsCallerDao.selectCaller(calleeApplication, range);
-
 		logger.debug("Found Caller. count={}, callee={}", caller.size(), calleeApplication);
 
+        final Set<LinkStatistics> callerSet = new HashSet<LinkStatistics>();
 		for (LinkStatistics stat : caller) {
 			fillAdditionalInfo(stat, range);
 			callerSet.add(stat);
@@ -272,11 +269,11 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 			list = applicationMapStatisticsCalleeDao.selectCalleeStatistics(sourceApplication, destinationApplication, range);
 		}
 
-		LoadFactor statistics = new LoadFactor(range);
+		LoadFactor loadFactor = new LoadFactor(range);
 
 		// 조회가 안되는 histogram slot이 있으면 UI에 모두 보이지 않기 때문에 미리 정의된 slot을 모두 할당한다.
         HistogramSchema histogramSchema = destinationApplication.getServiceType().getHistogramSchema();
-        statistics.setDefaultHistogramSlotList(histogramSchema);
+        loadFactor.setDefaultHistogramSlotList(histogramSchema);
 
 		logger.debug("Fetched statistics data={}", list);
 
@@ -287,13 +284,13 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 
 				for (Entry<Short, Long> histogram : histogramMap.entrySet()) {
 					if (histogram.getKey() == -1) {
-						statistics.addSample(timestamp, histogram.getKey(), histogram.getValue(), true);
+						loadFactor.addSample(timestamp, histogram.getKey(), histogram.getValue(), true);
 					} else {
-						statistics.addSample(timestamp, histogram.getKey(), histogram.getValue(), false);
+						loadFactor.addSample(timestamp, histogram.getKey(), histogram.getValue(), false);
 					}
 				}
 			}
 		}
-		return statistics;
+		return loadFactor;
 	}
 }

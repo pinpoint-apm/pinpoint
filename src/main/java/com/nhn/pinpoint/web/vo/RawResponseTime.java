@@ -46,6 +46,10 @@ public class RawResponseTime {
         return new ArrayList<ResponseHistogram>(responseHistogramMap.values());
     }
 
+    public Set<Map.Entry<String, ResponseHistogram>> getAgentHistogram() {
+        return this.responseHistogramMap.entrySet();
+    }
+
     @Override
     public String toString() {
         return "RawResponseTime{" +

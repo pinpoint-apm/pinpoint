@@ -90,7 +90,12 @@ public class ApplicationMap {
             @Override
             public ResponseHistogramSummary getResponseHistogramSummary(Application application) {
                 final List<RawResponseTime> responseHistogram = mapResponseDao.selectResponseTime(application, range);
-                return createHistogramSummary(application, responseHistogram);
+                ResponseHistogramSummary histogramSummary = createHistogramSummary(application, responseHistogram);
+
+                Map<String, ResponseHistogram> agentHistogram = createAgentHistogram(application, responseHistogram);
+                histogramSummary.setAgentHistogram(agentHistogram);
+                logger.debug("agentHistogram:{}", agentHistogram);
+                return histogramSummary;
             }
         });
     }
@@ -123,7 +128,7 @@ public class ApplicationMap {
 
                 List<Link> linkList = this.linkList.getLinks();
                 for (Link link : linkList) {
-                    com.nhn.pinpoint.web.applicationmap.Node toNode = link.getTo();
+                    Node toNode = link.getTo();
                     String applicationName = toNode.getApplicationName();
                     ServiceType serviceType = toNode.getServiceType();
                     Application destination = new Application(applicationName, serviceType);
@@ -142,7 +147,7 @@ public class ApplicationMap {
 
                 List<Link> linkList = this.linkList.getLinks();
                 for (Link link : linkList) {
-                    com.nhn.pinpoint.web.applicationmap.Node fromNode = link.getFrom();
+                    Node fromNode = link.getFrom();
                     String applicationName = fromNode.getApplicationName();
                     ServiceType serviceType = fromNode.getServiceType();
                     Application source = new Application(applicationName, serviceType);
@@ -174,5 +179,22 @@ public class ApplicationMap {
             }
         }
         return summary;
+    }
+
+    private Map<String, ResponseHistogram> createAgentHistogram(Application application, List<RawResponseTime> responseHistogram) {
+        // 타입을 좀더 정확히 agentId + serviceType으로 해야 될듯하다.
+        Map<String, ResponseHistogram> agentHistogramSummary = new HashMap<String, ResponseHistogram>();
+        for (RawResponseTime rawResponseTime : responseHistogram) {
+            Set<Map.Entry<String, ResponseHistogram>> agentHistogramEntry = rawResponseTime.getAgentHistogram();
+            for (Map.Entry<String, ResponseHistogram> entry : agentHistogramEntry) {
+                ResponseHistogram agentHistogram = agentHistogramSummary.get(entry.getKey());
+                if (agentHistogram == null) {
+                    agentHistogram = new ResponseHistogram(application.getServiceType());
+                    agentHistogramSummary.put(entry.getKey(), agentHistogram);
+                }
+                agentHistogram.add(entry.getValue());
+            }
+        }
+        return agentHistogramSummary;
     }
 }
