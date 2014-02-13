@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.web.vo;
 
-import com.nhn.pinpoint.web.applicationmap.rawdata.*;
 import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
 
 import java.util.*;
@@ -12,7 +11,7 @@ public class RawResponseTime {
     // rowKey
     private final String applicationName;
     private final short applicationServiceType;
-    private final long timeSlot;
+    private final long time;
 
     // column
     // ex: test agent의 2슬롯 카운트는 10
@@ -21,13 +20,13 @@ public class RawResponseTime {
 
 
 
-    public RawResponseTime(String applicationName, short applicationServiceType, long timeSlot) {
+    public RawResponseTime(String applicationName, short applicationServiceType, long time) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
         this.applicationName = applicationName;
         this.applicationServiceType = applicationServiceType;
-        this.timeSlot = timeSlot;
+        this.time = time;
     }
 
     public ResponseHistogram getHistogram(String agentId) {
@@ -52,7 +51,7 @@ public class RawResponseTime {
         return "RawResponseTime{" +
                 "applicationName='" + applicationName + '\'' +
                 ", applicationServiceType=" + applicationServiceType +
-                ", timeSlot=" + timeSlot +
+                ", time=" + time +
                 ", responseHistogramMap=" + responseHistogramMap +
                 '}';
     }

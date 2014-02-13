@@ -204,26 +204,25 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
 
             for (SpanBo span : transaction) {
                 // SPAN의 respoinseTime의 통계를 저장한다.
-                recordSpanResponseTime(span, responseHistogramSummaryMap);
-
-                final Application srcApplication = createApplication(span, transactionSpanMap);
+                final Application srcApplication = createSourceApplication(span, transactionSpanMap);
                 final Application destApplication = new Application(span.getApplicationId(), span.getServiceType());
+
+                recordSpanResponseTime(destApplication, span, responseHistogramSummaryMap);
+
                 // record해야 되거나. rpc콜은 링크이다.
                 if (!destApplication.getServiceType().isRecordStatistics() || destApplication.getServiceType().isRpcClient()) {
                     continue;
                 }
 
                 final LinkKey linkKey = new LinkKey(srcApplication, destApplication);
-                LinkStatistics stat = linkStatMap.get(linkKey);
-                if (stat == null) {
-                    Application source = new Application(srcApplication.getName(), srcApplication.getServiceType());
-                    Application dest = new Application(destApplication.getName(), destApplication.getServiceType());
-                    stat = new LinkStatistics(source, dest);
-                    linkStatMap.put(linkKey, stat);
+                LinkStatistics linkStat = linkStatMap.get(linkKey);
+                if (linkStat == null) {
+                    linkStat = new LinkStatistics(srcApplication, destApplication);
+                    linkStatMap.put(linkKey, linkStat);
                 }
 
                 final short slotTime = getHistogramSlotTime(span, destApplication.getServiceType());
-                stat.addSample(destApplication.getName(), destApplication.getServiceType().getCode(), slotTime, 1);
+                linkStat.addSample(destApplication.getName(), destApplication.getServiceType().getCode(), slotTime, 1);
 
                 // link timeseries statistics추가.
                 timeSeriesStore.addLinkStat(linkKey, span.getCollectorAcceptTime(), slotTime, 1L, span.hasException());
@@ -261,17 +260,15 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
         return transactionSpanMap;
     }
 
-    private void recordSpanResponseTime(SpanBo span, Map<Application, ResponseHistogramSummary> responseHistogramSummaryMap) {
-        ServiceType serviceType = span.getServiceType();
-        String applicationId = span.getApplicationId();
-        Application spanKey = new Application(applicationId, serviceType);
-        ResponseHistogramSummary responseHistogramSummary = responseHistogramSummaryMap.get(spanKey);
+    private void recordSpanResponseTime(Application application, SpanBo span, Map<Application, ResponseHistogramSummary> responseHistogramSummaryMap) {
+
+        ResponseHistogramSummary responseHistogramSummary = responseHistogramSummaryMap.get(application);
         if (responseHistogramSummary == null) {
-            responseHistogramSummary = new ResponseHistogramSummary(spanKey);
-            responseHistogramSummaryMap.put(spanKey, responseHistogramSummary);
+            responseHistogramSummary = new ResponseHistogramSummary(application);
+            responseHistogramSummaryMap.put(application, responseHistogramSummary);
         }
 
-        ResponseHistogram histogram = new ResponseHistogram(serviceType);
+        ResponseHistogram histogram = new ResponseHistogram(application.getServiceType());
         if (span.getErrCode() != 0) {
             histogram.addElapsedTime(HistogramSchema.ERROR_SLOT_TIME);
         } else {
@@ -336,7 +333,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
         }
     }
 
-    private Application createApplication(SpanBo span, Map<Long, SpanBo> transactionSpanMap) {
+    private Application createSourceApplication(SpanBo span, Map<Long, SpanBo> transactionSpanMap) {
         final SpanBo parentSpan = transactionSpanMap.get(span.getParentSpanId());
         if (span.isRoot() || parentSpan == null) {
             String src = span.getApplicationId();
