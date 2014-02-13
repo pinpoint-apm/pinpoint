@@ -35,7 +35,7 @@
                 <c:if test="${node.serviceType.was || node.serviceType.terminal || node.serviceType.unknown || node.serviceType.user}" >
                     "histogram" : ${node.responseHistogramSummary.total.json},
 
-                    <c:if test="${node.responseHistogramSummary.agentHistogram != null || node.responseHistogramSummary.agentHistogram.size != 0}" >
+                    <c:if test="${node.responseHistogramSummary.agentHistogram != null}" >
                         "agentHistogram" : {
                             <c:forEach items="${node.responseHistogramSummary.agentHistogram}" var="agentHistogram" varStatus="agentHistogramStatus">
                                 "${agentHistogram.key}" : ${agentHistogram.value.json}
