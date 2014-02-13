@@ -97,11 +97,11 @@ public class ApplicationMap {
         });
     }
 
-    public void appendResponseTime(final Map<Application, ResponseHistogramSummary> histogramSummaryMap) {
+    public void appendResponseTime(final MapResponseHistogramSummary mapHistogramSummary) {
         appendResponseTime(new ResponseDataSource() {
             @Override
             public ResponseHistogramSummary getResponseHistogramSummary(Application application) {
-                return histogramSummaryMap.get(application);
+                return mapHistogramSummary.get(application);
             }
         });
     }

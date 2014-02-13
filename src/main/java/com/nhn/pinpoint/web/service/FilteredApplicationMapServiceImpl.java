@@ -195,7 +195,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
         final Map<LinkKey, LinkStatistics> linkStatMap = new HashMap<LinkKey, LinkStatistics>();
 
         final TimeSeriesStore timeSeriesStore = new DefaultTimeSeriesStoreImpl(range);
-        final Map<Application, ResponseHistogramSummary> responseHistogramSummaryMap = new HashMap<Application, ResponseHistogramSummary>();
+        final MapResponseHistogramSummary mapHistogramSummary = new MapResponseHistogramSummary();
         /**
          * 통계정보로 변환한다.
          */
@@ -207,7 +207,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
                 final Application srcApplication = createSourceApplication(span, transactionSpanMap);
                 final Application destApplication = new Application(span.getApplicationId(), span.getServiceType());
 
-                recordSpanResponseTime(destApplication, span, responseHistogramSummaryMap);
+                recordSpanResponseTime(destApplication, span, mapHistogramSummary);
 
                 // record해야 되거나. rpc콜은 링크이다.
                 if (!destApplication.getServiceType().isRecordStatistics() || destApplication.getServiceType().isRpcClient()) {
@@ -243,7 +243,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
         List<LinkStatistics> linkStatisticsList = new ArrayList<LinkStatistics>(linkStatMap.values());
         ApplicationMap map = new ApplicationMapBuilder().build(linkStatisticsList);
         map.setTimeSeriesStore(timeSeriesStore);
-        map.appendResponseTime(responseHistogramSummaryMap);
+        map.appendResponseTime(mapHistogramSummary);
 
 
         return map;
@@ -260,22 +260,8 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
         return transactionSpanMap;
     }
 
-    private void recordSpanResponseTime(Application application, SpanBo span, Map<Application, ResponseHistogramSummary> responseHistogramSummaryMap) {
-
-        ResponseHistogramSummary responseHistogramSummary = responseHistogramSummaryMap.get(application);
-        if (responseHistogramSummary == null) {
-            responseHistogramSummary = new ResponseHistogramSummary(application);
-            responseHistogramSummaryMap.put(application, responseHistogramSummary);
-        }
-
-        Histogram histogram = new Histogram(application.getServiceType());
-        if (span.getErrCode() != 0) {
-            histogram.addElapsedTime(HistogramSchema.ERROR_SLOT_TIME);
-        } else {
-            histogram.addElapsedTime(span.getElapsed());
-        }
-        responseHistogramSummary.addApplicationLevelHistogram(histogram);
-        responseHistogramSummary.addAgentLevelHistogram(span.getAgentId(), histogram);
+    private void recordSpanResponseTime(Application application, SpanBo span, MapResponseHistogramSummary mapResponseHistogramSummary) {
+        mapResponseHistogramSummary.addHistogram(application, span);
     }
 
 
