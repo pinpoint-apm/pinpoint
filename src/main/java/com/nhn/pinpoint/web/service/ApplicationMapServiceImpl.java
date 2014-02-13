@@ -70,14 +70,13 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 	 * @param callerFoundApplications
 	 * @return
 	 */
-	private Set<LinkStatistics> selectCallee(Application callerApplication, Range range, Set<Node> calleeFoundApplications, Set<Node> callerFoundApplications) {
+	private Set<LinkStatistics> selectCallee(Application callerApplication, Range range, Set<Application> calleeFoundApplications, Set<Application> callerFoundApplications) {
 		// 이미 조회된 구간이면 skip
-        final Node key = new Node(callerApplication);
-        if (calleeFoundApplications.contains(key)) {
+        if (calleeFoundApplications.contains(callerApplication)) {
 			logger.debug("ApplicationStatistics exists. Skip finding callee. {} ", callerApplication);
 			return new HashSet<LinkStatistics>(0);
 		}
-		calleeFoundApplications.add(key);
+		calleeFoundApplications.add(callerApplication);
         if (logger.isDebugEnabled()) {
 		    logger.debug("Finding Callee. caller={}", callerApplication);
         }
@@ -129,14 +128,14 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 	 * @param range
 	 * @return
 	 */
-	private Set<LinkStatistics> selectCaller(Application calleeApplication, Range range, Set<Node> calleeFoundApplications, Set<Node> callerFoundApplications) {
+	private Set<LinkStatistics> selectCaller(Application calleeApplication, Range range, Set<Application> calleeFoundApplications, Set<Application> callerFoundApplications) {
 		// 이미 조회된 구간이면 skip
-        final Node key = new Node(calleeApplication);
-        if (callerFoundApplications.contains(key)) {
+
+        if (callerFoundApplications.contains(calleeApplication)) {
 			logger.debug("ApplicationStatistics exists. Skip finding caller. {}", calleeApplication);
 			return new HashSet<LinkStatistics>(0);
 		}
-		callerFoundApplications.add(key);
+		callerFoundApplications.add(calleeApplication);
         if (logger.isDebugEnabled()) {
 		    logger.debug("Finding Caller. callee={}", calleeApplication);
         }
@@ -221,8 +220,8 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		watch.start();
 
         // 무한 탐색을 방지하기 위한 용도.
-		final Set<Node> callerFoundApplications = new HashSet<Node>();
-		final Set<Node> calleeFoundApplications = new HashSet<Node>();
+		final Set<Application> callerFoundApplications = new HashSet<Application>();
+		final Set<Application> calleeFoundApplications = new HashSet<Application>();
 		Set<LinkStatistics> callee = selectCallee(sourceApplication, range, calleeFoundApplications, callerFoundApplications);
 		logger.debug("Result of finding callee {}", callee);
 
