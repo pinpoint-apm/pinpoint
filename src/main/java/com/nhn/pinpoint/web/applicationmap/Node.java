@@ -46,7 +46,7 @@ public class Node implements JsonSerializable {
             throw new NullPointerException("application must not be null");
         }
 
-        logger.debug("create node application={}, serviceType={}, agentSet={}", application, agentSet);
+        logger.debug("create node application={}, agentSet={}", application, agentSet);
         this.application = application;
         this.hostList = new HostList();
         this.agentSet = new HashSet<AgentInfoBo>();

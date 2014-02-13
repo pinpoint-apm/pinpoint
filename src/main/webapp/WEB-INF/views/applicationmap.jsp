@@ -73,13 +73,19 @@
 				"error" : ${link.histogram.errorCount},
 				"slow" : ${link.histogram.verySlowCount},
 				"histogram" : ${link.histogram.json},
-				"targetHosts" : {
-					<c:forEach items="${link.hostList.hostList}" var="host" varStatus="status2">
-						"${host.host}" : {
-							"histogram" : ${host.histogram.json}
-						}<c:if test="${!status2.last}">,</c:if>
-					</c:forEach>	
-				},
+                "agentHistogram" : {
+                    <c:forEach items="${link.hostList.hostList}" var="linkAgentHistogram" varStatus="linkAgentHistogramStatus">
+                    "${linkAgentHistogram.host}" : ${linkAgentHistogram.histogram.json}
+                    <c:if test="${!linkAgentHistogramStatus.last}">,</c:if>
+                    </c:forEach>
+                },
+                "targetHosts" : {
+                    <c:forEach items="${link.hostList.hostList}" var="host" varStatus="status2">
+                        "${host.host}" : {
+                            "histogram" : ${host.histogram.json}
+                        }<c:if test="${!status2.last}">,</c:if>
+                    </c:forEach>
+                },
 				<c:choose>
 					<c:when test="${(link.histogram.errorCount / link.histogram.totalCount * 100) > 10}">"category" : "bad"</c:when>
 					<c:otherwise>"category" : "default"</c:otherwise>

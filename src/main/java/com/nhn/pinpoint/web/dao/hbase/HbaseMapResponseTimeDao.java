@@ -46,14 +46,14 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
             throw new NullPointerException("application must not be null");
         }
         if (logger.isDebugEnabled()) {
-            logger.debug("selectResponseTime applicationName:{}, from:{}, to:{}", application, range);
+            logger.debug("selectResponseTime applicationName:{}, {}", application, range);
         }
         Scan scan = createScan(application, range);
         List<RawResponseTime> rawResponseTimeList = hbaseOperations2.find(tableName, scan, responseTimeMapper);
         if (logger.isDebugEnabled()) {
             logger.debug("row:{}", rawResponseTimeList.size());
             for (RawResponseTime rawResponseTime : rawResponseTimeList) {
-                logger.debug("rawResponseTime:{}", rawResponseTime);
+                logger.trace("rawResponseTime:{}", rawResponseTime);
             }
         }
 

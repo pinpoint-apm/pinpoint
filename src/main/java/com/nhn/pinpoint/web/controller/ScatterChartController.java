@@ -92,13 +92,14 @@ public class ScatterChartController {
 								@RequestParam(value = "_callback", required = false) String jsonpCallback,
 								@RequestParam(value = "v", required = false, defaultValue = "1") int version) {
         limit = LimitUtils.checkRange(limit);
-		logger.debug("fetch scatter data FROM={}, TO={}, LIMIT={}, FILTER={}", from, to, limit, filterText);
-		
+
 		StopWatch watch = new StopWatch();
 		watch.start("selectScatterData");
 
         // TODO 레인지 체크 확인 exception 발생, from값이 to 보다 더 큼.
         final Range range = Range.createUncheckedRange(from, to);
+        logger.debug("fetch scatter data. {}, LIMIT={}, FILTER={}", range, limit, filterText);
+
 		List<Dot> scatterData;
 		if (filterText == null) {
 			// FIXME ResultWithMark로 변경해야할지도?
