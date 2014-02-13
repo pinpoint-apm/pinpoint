@@ -26,4 +26,11 @@ public class HistogramSlot {
         return responseType;
     }
 
+    @Override
+    public String toString() {
+        return "HistogramSlot{" +
+                "slotTime=" + slotTime +
+                ", responseType=" + responseType +
+                '}';
+    }
 }

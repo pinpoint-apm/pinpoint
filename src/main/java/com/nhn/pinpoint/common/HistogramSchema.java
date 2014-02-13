@@ -102,4 +102,16 @@ public class HistogramSchema {
 			return false;
 		return true;
 	}
+
+    @Override
+    public String toString() {
+        return "HistogramSchema{" +
+                "typeCode=" + typeCode +
+                ", fastSlot=" + fastSlot +
+                ", normalSlot=" + normalSlot +
+                ", slowSlot=" + slowSlot +
+                ", verySlowSlot=" + verySlowSlot +
+                ", errorSlot=" + errorSlot +
+                '}';
+    }
 }
