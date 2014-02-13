@@ -36,11 +36,11 @@ public class HostList {
         }
         final Host find = hostMap.get(hostName);
         if (find != null) {
-            final ResponseHistogram histogram = find.getHistogram();
+            final Histogram histogram = find.getHistogram();
             histogram.addSample(slot, count);
         } else {
             final Host host = new Host(hostName, ServiceType.findServiceType(serviceTypeCode));
-            final ResponseHistogram histogram = host.getHistogram();
+            final Histogram histogram = host.getHistogram();
             histogram.addSample(slot, count);
             hostMap.put(hostName, host);
         }
@@ -53,7 +53,7 @@ public class HostList {
         final String hostName = host.getHost();
         final Host find = this.hostMap.get(hostName);
         if (find != null) {
-            final ResponseHistogram histogram = find.getHistogram();
+            final Histogram histogram = find.getHistogram();
             histogram.add(host.getHistogram());
         } else {
             // WARN 이것도 copy해야 함.

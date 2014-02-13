@@ -12,17 +12,17 @@ import java.util.HashMap;
 /**
  * @author emeroad
  */
-public class ResponseHistogramTest {
+public class HistogramTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final ObjectMapper objectMapper = new ObjectMapper();
     @Test
     public void testDeepCopy() throws Exception {
-        ResponseHistogram original = new ResponseHistogram(ServiceType.TOMCAT);
+        Histogram original = new Histogram(ServiceType.TOMCAT);
         original.addSample((short) 1000, 100);
 
 
-        ResponseHistogram copy = new ResponseHistogram(ServiceType.TOMCAT);
+        Histogram copy = new Histogram(ServiceType.TOMCAT);
         Assert.assertEquals(copy.getFastCount(), 0);
         copy.add(original);
         Assert.assertEquals(original.getFastCount(), copy.getFastCount());
@@ -35,7 +35,7 @@ public class ResponseHistogramTest {
 
     @Test
     public void testJson() throws Exception {
-        ResponseHistogram original = new ResponseHistogram(ServiceType.TOMCAT);
+        Histogram original = new Histogram(ServiceType.TOMCAT);
         original.addSample((short) 1000, 100);
 
         HashMap hashMap = objectMapper.readValue(original.getJson(), HashMap.class);

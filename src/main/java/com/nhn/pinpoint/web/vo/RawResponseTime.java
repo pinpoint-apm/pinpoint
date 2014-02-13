@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.web.vo;
 
-import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
+import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
 
 import java.util.*;
 
@@ -16,7 +16,7 @@ public class RawResponseTime {
     // column
     // ex: test agent의 2슬롯 카운트는 10
     // agentId 이 key임.
-    private final Map<String, ResponseHistogram> responseHistogramMap = new HashMap<String, ResponseHistogram>();
+    private final Map<String, Histogram> responseHistogramMap = new HashMap<String, Histogram>();
 
 
 
@@ -29,24 +29,24 @@ public class RawResponseTime {
         this.time = time;
     }
 
-    public ResponseHistogram getHistogram(String agentId) {
+    public Histogram getHistogram(String agentId) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
-        final ResponseHistogram responseHistogram = responseHistogramMap.get(agentId);
-        if (responseHistogram != null) {
-            return responseHistogram;
+        final Histogram histogram = responseHistogramMap.get(agentId);
+        if (histogram != null) {
+            return histogram;
         }
-        final ResponseHistogram newHistogram = new ResponseHistogram(applicationServiceType);
+        final Histogram newHistogram = new Histogram(applicationServiceType);
         responseHistogramMap.put(agentId, newHistogram);
         return newHistogram;
     }
 
-    public List<ResponseHistogram> getResponseHistogramList() {
-        return new ArrayList<ResponseHistogram>(responseHistogramMap.values());
+    public List<Histogram> getResponseHistogramList() {
+        return new ArrayList<Histogram>(responseHistogramMap.values());
     }
 
-    public Set<Map.Entry<String, ResponseHistogram>> getAgentHistogram() {
+    public Set<Map.Entry<String, Histogram>> getAgentHistogram() {
         return this.responseHistogramMap.entrySet();
     }
 

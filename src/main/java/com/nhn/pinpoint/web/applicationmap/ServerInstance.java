@@ -4,7 +4,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
+import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
 import com.nhn.pinpoint.web.util.JsonSerializable;
 
 /**
@@ -19,7 +19,7 @@ public class ServerInstance implements JsonSerializable {
 	
 	private final String id;
 	private final AgentInfoBo agentInfo;
-	private ResponseHistogram histogram;
+	private Histogram histogram;
 	
 	private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -54,11 +54,11 @@ public class ServerInstance implements JsonSerializable {
 		return agentInfo;
 	}
 
-	public void setHistogram(ResponseHistogram histogram) {
+	public void setHistogram(Histogram histogram) {
 		this.histogram = histogram;
 	}
 
-	public ResponseHistogram getHistogram() {
+	public Histogram getHistogram() {
 		return histogram;
 	}
 

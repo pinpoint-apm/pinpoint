@@ -3,7 +3,7 @@ package com.nhn.pinpoint.web.applicationmap;
 import java.util.*;
 
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
+import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
 import com.nhn.pinpoint.web.dao.MapResponseDao;
 import com.nhn.pinpoint.web.vo.*;
 import org.slf4j.Logger;
@@ -90,11 +90,8 @@ public class ApplicationMap {
             @Override
             public ResponseHistogramSummary getResponseHistogramSummary(Application application) {
                 final List<RawResponseTime> responseHistogram = mapResponseDao.selectResponseTime(application, range);
-                ResponseHistogramSummary histogramSummary = createHistogramSummary(application, responseHistogram);
-
-                Map<String, ResponseHistogram> agentHistogram = createAgentHistogram(application, responseHistogram);
-                histogramSummary.setAgentHistogram(agentHistogram);
-                logger.debug("agentHistogram:{}", agentHistogram);
+                final ResponseHistogramSummary histogramSummary = new ResponseHistogramSummary(application);
+                histogramSummary.createResponseHistogram(responseHistogram);
                 return histogramSummary;
             }
         });
@@ -134,8 +131,8 @@ public class ApplicationMap {
                     Application destination = new Application(applicationName, serviceType);
                     // destnation이 자신을 가리킨다면 데이터를 머지함.
                     if (nodeApplication.equals(destination)) {
-                        ResponseHistogram linkHistogram = link.getHistogram();
-//                        summary.addTotal(linkHistogram);
+                        Histogram linkHistogram = link.getHistogram();
+//                        summary.addApplicationLevelHistogram(linkHistogram);
                         summary.addLinkHistogram(linkHistogram);
                     }
                 }
@@ -153,8 +150,8 @@ public class ApplicationMap {
                     Application source = new Application(applicationName, serviceType);
                     // destnation이 자신을 가리킨다면 데이터를 머지함.
                     if (nodeApplication.equals(source)) {
-                        ResponseHistogram linkHistogram = link.getHistogram();
-//                        summary.addTotal(linkHistogram);
+                        Histogram linkHistogram = link.getHistogram();
+//                        summary.addApplicationLevelHistogram(linkHistogram);
                         summary.addLinkHistogram(linkHistogram);
                     }
                 }
@@ -170,31 +167,4 @@ public class ApplicationMap {
 
     }
 
-    private ResponseHistogramSummary createHistogramSummary(Application application, List<RawResponseTime> responseHistogram) {
-        final ResponseHistogramSummary summary = new ResponseHistogramSummary(application);
-        for (RawResponseTime rawResponseTime : responseHistogram) {
-            final List<ResponseHistogram> responseHistogramList = rawResponseTime.getResponseHistogramList();
-            for (ResponseHistogram histogram : responseHistogramList) {
-                summary.addTotal(histogram);
-            }
-        }
-        return summary;
-    }
-
-    private Map<String, ResponseHistogram> createAgentHistogram(Application application, List<RawResponseTime> responseHistogram) {
-        // 타입을 좀더 정확히 agentId + serviceType으로 해야 될듯하다.
-        Map<String, ResponseHistogram> agentHistogramSummary = new HashMap<String, ResponseHistogram>();
-        for (RawResponseTime rawResponseTime : responseHistogram) {
-            Set<Map.Entry<String, ResponseHistogram>> agentHistogramEntry = rawResponseTime.getAgentHistogram();
-            for (Map.Entry<String, ResponseHistogram> entry : agentHistogramEntry) {
-                ResponseHistogram agentHistogram = agentHistogramSummary.get(entry.getKey());
-                if (agentHistogram == null) {
-                    agentHistogram = new ResponseHistogram(application.getServiceType());
-                    agentHistogramSummary.put(entry.getKey(), agentHistogram);
-                }
-                agentHistogram.add(entry.getValue());
-            }
-        }
-        return agentHistogramSummary;
-    }
 }

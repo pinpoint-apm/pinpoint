@@ -12,9 +12,9 @@ import java.util.Set;
 import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.HistogramSlot;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
+import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
 import com.nhn.pinpoint.web.vo.LinkKey;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
-import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
 import com.nhn.pinpoint.web.dao.*;
 import com.nhn.pinpoint.web.vo.*;
 import org.apache.commons.collections.CollectionUtils;
@@ -268,13 +268,13 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
             responseHistogramSummaryMap.put(application, responseHistogramSummary);
         }
 
-        ResponseHistogram histogram = new ResponseHistogram(application.getServiceType());
+        Histogram histogram = new Histogram(application.getServiceType());
         if (span.getErrCode() != 0) {
             histogram.addElapsedTime(HistogramSchema.ERROR_SLOT_TIME);
         } else {
             histogram.addElapsedTime(span.getElapsed());
         }
-        responseHistogramSummary.addTotal(histogram);
+        responseHistogramSummary.addApplicationLevelHistogram(histogram);
     }
 
 

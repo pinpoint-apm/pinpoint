@@ -13,7 +13,7 @@ public class Host {
 	 */
 	private final String host;
 	private final ServiceType serviceType;
-	private final ResponseHistogram histogram;
+	private final Histogram histogram;
 
 	public Host(String host, ServiceType serviceType) {
         if (host == null) {
@@ -24,7 +24,7 @@ public class Host {
         }
         this.host = host;
 		this.serviceType = serviceType;
-		this.histogram = new ResponseHistogram(serviceType);
+		this.histogram = new Histogram(serviceType);
 	}
 
     public Host(Host copyHost) {
@@ -34,7 +34,7 @@ public class Host {
 
         this.host = copyHost.host;
         this.serviceType = copyHost.serviceType;
-        this.histogram = new ResponseHistogram(serviceType);
+        this.histogram = new Histogram(serviceType);
         this.histogram.add(copyHost.histogram);
     }
 
@@ -46,7 +46,7 @@ public class Host {
 		return serviceType;
 	}
 
-	public ResponseHistogram getHistogram() {
+	public Histogram getHistogram() {
 		return histogram;
 	}
 

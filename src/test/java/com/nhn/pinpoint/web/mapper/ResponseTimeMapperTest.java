@@ -4,7 +4,7 @@ import com.nhn.pinpoint.common.HistogramSlot;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
 import com.nhn.pinpoint.common.buffer.Buffer;
-import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
+import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
 import com.nhn.pinpoint.web.vo.RawResponseTime;
 import junit.framework.Assert;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -28,7 +28,7 @@ public class ResponseTimeMapperTest {
 
         responseTimeMapper.recordColumn(rawResponseTime, buffer.getBuffer(), Bytes.toBytes(1L));
 
-        ResponseHistogram agentHistogram = rawResponseTime.getHistogram("agent");
+        Histogram agentHistogram = rawResponseTime.getHistogram("agent");
         long fastCount = agentHistogram.getFastCount();
         Assert.assertEquals(fastCount, 1);
         long normal = agentHistogram.getNormalCount();

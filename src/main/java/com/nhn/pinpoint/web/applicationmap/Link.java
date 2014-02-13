@@ -1,9 +1,9 @@
 package com.nhn.pinpoint.web.applicationmap;
 
+import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
 import com.nhn.pinpoint.web.applicationmap.rawdata.Host;
 import com.nhn.pinpoint.web.applicationmap.rawdata.HostList;
 import com.nhn.pinpoint.web.vo.LinkKey;
-import com.nhn.pinpoint.web.applicationmap.rawdata.ResponseHistogram;
 import com.nhn.pinpoint.web.vo.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,14 +84,14 @@ public class Link {
 	}
 
 
-	public ResponseHistogram getHistogram() {
-		ResponseHistogram result = null;
+	public Histogram getHistogram() {
+		Histogram result = null;
 
 		for (Host host : hostList.getHostList()) {
 			if (result == null) {
 				// FIXME 뭔가 괴상한 방식이긴 하지만..
-				ResponseHistogram histogram = host.getHistogram();
-				result = new ResponseHistogram(histogram.getServiceType());
+				Histogram histogram = host.getHistogram();
+				result = new Histogram(histogram.getServiceType());
 			}
 			result.add(host.getHistogram());
 		}

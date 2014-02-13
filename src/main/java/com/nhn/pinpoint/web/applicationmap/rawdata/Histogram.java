@@ -1,7 +1,5 @@
 package com.nhn.pinpoint.web.applicationmap.rawdata;
 
-import java.util.List;
-
 import com.nhn.pinpoint.common.HistogramSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +13,7 @@ import com.nhn.pinpoint.web.util.JsonSerializable;
  * @author netspider
  * 
  */
-public class ResponseHistogram implements JsonSerializable {
+public class Histogram implements JsonSerializable {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
@@ -32,7 +30,7 @@ public class ResponseHistogram implements JsonSerializable {
 	private long errorCount;
 
 
-	public ResponseHistogram(ServiceType serviceType) {
+	public Histogram(ServiceType serviceType) {
         if (serviceType == null) {
             throw new NullPointerException("serviceType must not be null");
         }
@@ -46,7 +44,7 @@ public class ResponseHistogram implements JsonSerializable {
         addSample(slotTime, 1);
     }
 
-    public ResponseHistogram(final short serviceType) {
+    public Histogram(final short serviceType) {
         this(ServiceType.findServiceType(serviceType));
     }
 
@@ -107,7 +105,7 @@ public class ResponseHistogram implements JsonSerializable {
 		return totalCount;
 	}
 
-	public void add(ResponseHistogram histogram) {
+	public void add(Histogram histogram) {
         if (histogram == null) {
             throw new NullPointerException("histogram must not be null");
         }
@@ -121,7 +119,7 @@ public class ResponseHistogram implements JsonSerializable {
      * 같은 타입인지 체크하지 않음.
      * @param histogram
      */
-    public void addUncheckType(final ResponseHistogram histogram) {
+    public void addUncheckType(final Histogram histogram) {
         if (histogram == null) {
             throw new NullPointerException("histogram must not be null");
         }
@@ -141,7 +139,7 @@ public class ResponseHistogram implements JsonSerializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ResponseHistogram histogram = (ResponseHistogram) o;
+        Histogram histogram = (Histogram) o;
 
         if (serviceType != histogram.serviceType) return false;
 
@@ -155,7 +153,7 @@ public class ResponseHistogram implements JsonSerializable {
 
     @Override
     public String toString() {
-        return "ResponseHistogram{" +
+        return "Histogram{" +
                 "serviceType=" + serviceType +
                 ", histogramSchema=" + histogramSchema +
                 ", totalCount=" + totalCount +
