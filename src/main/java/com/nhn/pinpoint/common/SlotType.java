@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.common;
 
 
-public enum ResponseType {
+public enum SlotType {
 	FAST, NORMAL, SLOW, VERY_SLOW, ERROR;
 }

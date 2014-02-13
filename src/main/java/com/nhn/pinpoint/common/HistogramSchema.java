@@ -6,10 +6,10 @@ package com.nhn.pinpoint.common;
 public class HistogramSchema {
 
     public static final short VERY_SLOW_SLOT_TIME = 0;
-    public static final HistogramSlot VERY_SLOW_SLOT = new HistogramSlot(VERY_SLOW_SLOT_TIME, ResponseType.VERY_SLOW);
+    public static final HistogramSlot VERY_SLOW_SLOT = new HistogramSlot(VERY_SLOW_SLOT_TIME, SlotType.VERY_SLOW);
 
     public static final short ERROR_SLOT_TIME = -1;
-    public static final HistogramSlot ERROR_SLOT = new HistogramSlot(ERROR_SLOT_TIME, ResponseType.ERROR);
+    public static final HistogramSlot ERROR_SLOT = new HistogramSlot(ERROR_SLOT_TIME, SlotType.ERROR);
     
     public static final HistogramSchema FAST_SCHEMA;
     public static final HistogramSchema NORMAL_SCHEMA;
@@ -33,9 +33,9 @@ public class HistogramSchema {
     // 내부에서 생성한 FAST_SCHEMA, NORMAL등의 참조만 사용할것
     private HistogramSchema(int typeCode, short fast, short normal, short slow) {
     	this.typeCode = typeCode;
-        this.fastSlot = new HistogramSlot(fast, ResponseType.FAST);
-        this.normalSlot = new HistogramSlot(normal, ResponseType.NORMAL);
-        this.slowSlot = new HistogramSlot(slow, ResponseType.SLOW);
+        this.fastSlot = new HistogramSlot(fast, SlotType.FAST);
+        this.normalSlot = new HistogramSlot(normal, SlotType.NORMAL);
+        this.slowSlot = new HistogramSlot(slow, SlotType.SLOW);
         this.verySlowSlot = VERY_SLOW_SLOT;
         this.errorSlot = ERROR_SLOT;
     }
