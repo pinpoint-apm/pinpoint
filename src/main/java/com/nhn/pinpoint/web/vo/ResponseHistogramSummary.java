@@ -5,7 +5,6 @@ import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author emeroad
@@ -16,7 +15,7 @@ public class ResponseHistogramSummary {
 
     private final Histogram total;
 
-    private Map<String, Histogram> agentHistogram = new HashMap<String, Histogram>();
+    private Map<String, Histogram> agentHistogramMap = new HashMap<String, Histogram>();
 
     public ResponseHistogramSummary(Application application) {
         if (application == null) {
@@ -44,32 +43,31 @@ public class ResponseHistogramSummary {
         this.total.addUncheckType(linkHistogram);
     }
 
-    public void setAgentHistogram(Map<String, Histogram> agentHistogram) {
-        this.agentHistogram = agentHistogram;
+    public Map<String, Histogram> getAgentHistogramMap() {
+        return agentHistogramMap;
     }
 
-    public Map<String, Histogram> getAgentHistogram() {
-        return agentHistogram;
+    public void createResponseHistogram(List<RawResponseTime> responseHistogramList) {
+        createApplicationLevelResponseTime(responseHistogramList);
+        createAgentLevelResponseTime(responseHistogramList);
     }
 
-    public void createResponseHistogram(List<RawResponseTime> responseHistogram) {
-        createApplicationLevelResponseTime(responseHistogram);
-        createAgentLevelResponseTime(responseHistogram);
-    }
+    private void createAgentLevelResponseTime(List<RawResponseTime> responseHistogramList) {
 
-    private void createAgentLevelResponseTime(List<RawResponseTime> responseHistogram) {
-
-        for (RawResponseTime rawResponseTime : responseHistogram) {
-            Set<Map.Entry<String, Histogram>> agentHistogramEntry = rawResponseTime.getAgentHistogram();
-            for (Map.Entry<String, Histogram> entry : agentHistogramEntry) {
-                Histogram agentHistogram = this.agentHistogram.get(entry.getKey());
-                if (agentHistogram == null) {
-                    agentHistogram = new Histogram(application.getServiceType());
-                    this.agentHistogram.put(entry.getKey(), agentHistogram);
-                }
-                agentHistogram.add(entry.getValue());
+        for (RawResponseTime rawResponseTime : responseHistogramList) {
+            for (Map.Entry<String, Histogram> entry : rawResponseTime.getAgentHistogram()) {
+                addAgentLevelHistogram(entry.getKey(), entry.getValue());
             }
         }
+    }
+
+    public void addAgentLevelHistogram(String agentId, Histogram histogram) {
+        Histogram agentHistogram = this.agentHistogramMap.get(agentId);
+        if (agentHistogram == null) {
+            agentHistogram = new Histogram(application.getServiceType());
+            this.agentHistogramMap.put(agentId, agentHistogram);
+        }
+        agentHistogram.add(histogram);
     }
 
     private void createApplicationLevelResponseTime(List<RawResponseTime> responseHistogram) {

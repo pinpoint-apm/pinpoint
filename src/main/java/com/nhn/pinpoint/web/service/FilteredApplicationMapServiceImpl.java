@@ -275,6 +275,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
             histogram.addElapsedTime(span.getElapsed());
         }
         responseHistogramSummary.addApplicationLevelHistogram(histogram);
+        responseHistogramSummary.addAgentLevelHistogram(span.getAgentId(), histogram);
     }
 
 
