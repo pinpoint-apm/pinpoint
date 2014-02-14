@@ -49,8 +49,8 @@
     <bean id="daoAutoFlusher" class="com.nhn.pinpoint.collector.dao.AutoFlusher" init-method="initialize" destroy-method="shutdown">
     	<beans:property name="cachedStatisticsDaoList">
     		<beans:list>
-    			<beans:ref bean="hbaseApplicationMapStatisticsCallerDao"/>
-    			<beans:ref bean="hbaseApplicationMapStatisticsCalleeDao"/>
+    			<beans:ref bean="hbaseMapStatisticsCallerDao"/>
+    			<beans:ref bean="hbaseMapStatisticsCalleeDao"/>
                 <beans:ref bean="hbaseMapResponseTimeDao"/>
     		</beans:list>
     	</beans:property>

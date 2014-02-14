@@ -3,7 +3,7 @@ package com.nhn.pinpoint.collector.dao.hbase;
 import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_MAP_STATISTICS_CALLER;
 import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_MAP_STATISTICS_CALLER_CF_COUNTER;
 
-import com.nhn.pinpoint.collector.dao.ApplicationMapStatisticsCalleeDao;
+import com.nhn.pinpoint.collector.dao.MapStatisticsCalleeDao;
 import com.nhn.pinpoint.collector.dao.hbase.statistics.*;
 import com.nhn.pinpoint.collector.util.ConcurrentCounterMap;
 import org.apache.commons.lang.StringUtils;
@@ -30,7 +30,7 @@ import java.util.Map;
  * @author emeroad
  */
 @Repository
-public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapStatisticsCalleeDao {
+public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -48,11 +48,11 @@ public class HbaseApplicationMapStatisticsCalleeDao implements ApplicationMapSta
 
     private final ConcurrentCounterMap<RowInfo> counter = new ConcurrentCounterMap<RowInfo>();
 
-	public HbaseApplicationMapStatisticsCalleeDao() {
+	public HbaseMapStatisticsCalleeDao() {
         this(true);
 	}
 
-	public HbaseApplicationMapStatisticsCalleeDao(boolean useBulk) {
+	public HbaseMapStatisticsCalleeDao(boolean useBulk) {
 		this.useBulk = useBulk;
 	}
 

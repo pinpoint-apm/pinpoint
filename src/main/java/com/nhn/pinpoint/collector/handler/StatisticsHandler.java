@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.collector.handler;
 
-import com.nhn.pinpoint.collector.dao.ApplicationMapStatisticsCalleeDao;
-import com.nhn.pinpoint.collector.dao.ApplicationMapStatisticsCallerDao;
+import com.nhn.pinpoint.collector.dao.MapStatisticsCalleeDao;
+import com.nhn.pinpoint.collector.dao.MapStatisticsCallerDao;
 import com.nhn.pinpoint.collector.dao.MapResponseTimeDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,10 +15,10 @@ import org.springframework.stereotype.Service;
 public class StatisticsHandler {
 
 	@Autowired
-	private ApplicationMapStatisticsCalleeDao applicationMapStatisticsCalleeDao;
+	private MapStatisticsCalleeDao mapStatisticsCalleeDao;
 
 	@Autowired
-	private ApplicationMapStatisticsCallerDao applicationMapStatisticsCallerDao;
+	private MapStatisticsCallerDao mapStatisticsCallerDao;
 
     @Autowired
     private MapResponseTimeDao mapResponseTimeDao;
@@ -38,7 +38,7 @@ public class StatisticsHandler {
      * @param isError
      */
 	public void updateCaller(String callerApplicationName, short callerServiceType, String calleeApplicationName, short calleeServiceType, String calleeHost, int elapsed, boolean isError) {
-		applicationMapStatisticsCallerDao.update(callerApplicationName, callerServiceType, calleeApplicationName, calleeServiceType, calleeHost, elapsed, isError);
+		mapStatisticsCallerDao.update(callerApplicationName, callerServiceType, calleeApplicationName, calleeServiceType, calleeHost, elapsed, isError);
 	}
 
     /**
@@ -56,7 +56,7 @@ public class StatisticsHandler {
      * @param isError
      */
 	public void updateCallee(String calleeApplicationName, short calleeServiceType, String callerApplicationName, short callerServiceType, String callerHost, int elapsed, boolean isError) {
-		applicationMapStatisticsCalleeDao.update(calleeApplicationName, calleeServiceType, callerApplicationName, callerServiceType, callerHost, elapsed, isError);
+		mapStatisticsCalleeDao.update(calleeApplicationName, calleeServiceType, callerApplicationName, callerServiceType, callerHost, elapsed, isError);
 	}
 
     public void updateResponseTime(String applicationName, short serviceType, String agentId, int elapsed, boolean isError) {
