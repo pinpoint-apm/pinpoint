@@ -31,8 +31,7 @@ public class MapStatisticsCallerMapper implements RowMapper<List<LinkStatistics>
         }
 		final KeyValue[] keyList = result.raw();
 
-		final List<LinkStatistics> stat = new ArrayList<LinkStatistics>(keyList.length + 10);
-
+		final List<LinkStatistics> linkStatisticsList = new ArrayList<LinkStatistics>(keyList.length + 10);
 
 		for (KeyValue kv : keyList) {
 
@@ -56,10 +55,10 @@ public class MapStatisticsCallerMapper implements RowMapper<List<LinkStatistics>
             LinkStatistics statistics = new LinkStatistics(callerApplication, calleeApplication);
             statistics.addSample(calleeHost, calleeApplication.getServiceTypeCode(), (isError) ? (short) -1 : histogramSlot, requestCount);
 
-            stat.add(statistics);
+            linkStatisticsList.add(statistics);
 		}
 
-		return stat;
+		return linkStatisticsList;
 	}
 
     private Application readCallerApplication(byte[] qualifier) {

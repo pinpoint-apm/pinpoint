@@ -54,7 +54,6 @@ public class Node implements JsonSerializable {
         if (hostList != null) {
             // 이 put은 정확하지 않음.
             //		this.hostList.addHostList(hostList);
-            logger.debug("createApplication");
             this.hostList.put(hostList);
         }
 
@@ -112,7 +111,7 @@ public class Node implements JsonSerializable {
         if (node == null) {
             throw new NullPointerException("node must not be null");
         }
-        logger.debug("merge node this={}, node={}", this.application, node.application);
+        logger.trace("merge node this={}, node={}", this.application, node.application);
 		
         // 리얼 application을 실제빌드할때 copy하여 만들기 때문에. add할때 데이터를 hostList를 add해도 된다.
         this.hostList.addHostList(node.hostList);

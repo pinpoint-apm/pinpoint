@@ -33,10 +33,8 @@ public class MapStatisticsCalleeMapper implements RowMapper<List<LinkStatistics>
 		final KeyValue[] keyList = result.raw();
 
 		// key is destApplicationName.
-		final List<LinkStatistics> stat = new ArrayList<LinkStatistics>(keyList.length + 10);
+		final List<LinkStatistics> linkStatisticsList = new ArrayList<LinkStatistics>(keyList.length + 10);
 
-		// key is destApplicationName
-//		Map<String, Set<String>> callerAppHostMap = new HashMap<String, Set<String>>();
 
 		for (KeyValue kv : keyList) {
 
@@ -54,13 +52,13 @@ public class MapStatisticsCalleeMapper implements RowMapper<List<LinkStatistics>
 			boolean isError = histogramSlot == (short) -1;
 
 			if (logger.isDebugEnabled()) {
-			    logger.debug("    Fetched Callee. {} -> {} ({})", caller, callee, requestCount);
+			    logger.debug("    Fetched Callee. {} -> {} ({}) calleeHost", caller, callee, requestCount, calleeHost);
             }
 			
             LinkStatistics statistics = new LinkStatistics(caller, callee);
             statistics.addSample(calleeHost, callee.getServiceTypeCode(), (isError) ? (short) -1 : histogramSlot, requestCount);
 
-			stat.add(statistics);
+			linkStatisticsList.add(statistics);
 		}
 
 		// statistics에 dest host정보 삽입.
@@ -68,7 +66,7 @@ public class MapStatisticsCalleeMapper implements RowMapper<List<LinkStatistics>
 //			entry.getValue().addToHosts(callerAppHostMap.get(entry.getKey()));
 //		}
 
-		return stat;
+		return linkStatisticsList;
 	}
 
     private Application readCalleeApplication(byte[] qualifier) {
