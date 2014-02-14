@@ -41,14 +41,10 @@ public class MapStatisticsCalleeMapper implements RowMapper<List<LinkStatistics>
 		for (KeyValue kv : keyList) {
 
             final byte[] row = kv.getRow();
-            String callerApplicationName = ApplicationMapStatisticsUtils.getApplicationNameFromRowKey(row);
-			short callerServiceType = ApplicationMapStatisticsUtils.getApplicationTypeFromRowKey(row);
-            Application caller = new Application(callerApplicationName, callerServiceType);
+            Application caller = readCallerApplication(row);
 
             final byte[] qualifier = kv.getQualifier();
-			String calleeApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);
-			short calleeServiceType = ApplicationMapStatisticsUtils.getDestServiceTypeFromColumnName(qualifier);
-            Application callee = new Application(calleeApplicationName, calleeServiceType);
+            Application callee = readCalleeApplication(qualifier);
 			
 			long requestCount = Bytes.toLong(kv.getValue());
 			short histogramSlot = ApplicationMapStatisticsUtils.getHistogramSlotFromColumnName(qualifier);
@@ -57,13 +53,12 @@ public class MapStatisticsCalleeMapper implements RowMapper<List<LinkStatistics>
 			String calleeHost = ApplicationMapStatisticsUtils.getHost(qualifier);
 			boolean isError = histogramSlot == (short) -1;
 
-
 			if (logger.isDebugEnabled()) {
 			    logger.debug("    Fetched Callee. {} -> {} ({})", caller, callee, requestCount);
             }
 			
             LinkStatistics statistics = new LinkStatistics(caller, callee);
-            statistics.addSample(calleeHost, calleeServiceType, (isError) ? (short) -1 : histogramSlot, requestCount);
+            statistics.addSample(calleeHost, callee.getServiceTypeCode(), (isError) ? (short) -1 : histogramSlot, requestCount);
 
 			stat.add(statistics);
 		}
@@ -75,4 +70,16 @@ public class MapStatisticsCalleeMapper implements RowMapper<List<LinkStatistics>
 
 		return stat;
 	}
+
+    private Application readCalleeApplication(byte[] qualifier) {
+        String calleeApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);
+        short calleeServiceType = ApplicationMapStatisticsUtils.getDestServiceTypeFromColumnName(qualifier);
+        return new Application(calleeApplicationName, calleeServiceType);
+    }
+
+    private Application readCallerApplication(byte[] row) {
+        String callerApplicationName = ApplicationMapStatisticsUtils.getApplicationNameFromRowKey(row);
+        short callerServiceType = ApplicationMapStatisticsUtils.getApplicationTypeFromRowKey(row);
+        return new Application(callerApplicationName, callerServiceType);
+    }
 }
