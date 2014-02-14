@@ -55,6 +55,7 @@ public class BindValueConverter {
 
         SimpleTypeConverter simpleTypeConverter = new SimpleTypeConverter();
         convertermap.put("setByte", simpleTypeConverter);
+        convertermap.put("setBoolean", simpleTypeConverter);
         convertermap.put("setShort", simpleTypeConverter);
         convertermap.put("setInt", simpleTypeConverter);
         convertermap.put("setLong", simpleTypeConverter);
@@ -82,6 +83,10 @@ public class BindValueConverter {
 
     public String convert0(String methodName, Object[] args) {
         Converter converter = this.convertermap.get(methodName);
+        if (converter == null) {
+            // Converter를 찾지 못했을 경우 "" 빈문자열을 리턴하도록 한다.
+            return "";
+        }
         return converter.convert(args);
     }
 
