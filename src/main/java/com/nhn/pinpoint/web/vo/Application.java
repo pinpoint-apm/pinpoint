@@ -54,8 +54,8 @@ public final class Application {
         if (thatServiceType == null) {
             throw new NullPointerException("thatServiceType must not be null");
         }
-        if (!name.equals(thatName)) return false;
         if (serviceType != thatServiceType) return false;
+        if (!name.equals(thatName)) return false;
 
         return true;
     }
