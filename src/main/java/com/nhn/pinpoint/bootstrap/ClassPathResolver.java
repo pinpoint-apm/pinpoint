@@ -21,7 +21,7 @@ public class ClassPathResolver {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
-    private static final Pattern DEFAULT_AGENT_PATTERN = Pattern.compile("pinpoint-bootstrap-[0-9]+\\.[0-9]+\\.[0-9]+(\\-SNAPSHOT)?\\.jar");
+    private static final Pattern DEFAULT_AGENT_PATTERN = Pattern.compile("pinpoint-bootstrap(-[0-9]+\\.[0-9]+\\.[0-9]+(\\-SNAPSHOT)?)?\\.jar");
 
     private String classPath;
 

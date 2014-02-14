@@ -68,10 +68,12 @@ public class ClassPathResolverTest {
         findAgentJar("pinpoint-bootstrap-0.0.2.jar");
         findAgentJar("pinpoint-bootstrap-1.0.0.jar");
         findAgentJar("pinpoint-bootstrap-1.10.20.jar");
+        findAgentJar("pinpoint-bootstrap.jar");
 
 
         findAgentJarAssertFail("pinpoint-bootstrap-1.a.test.jar");
         findAgentJarAssertFail("pinpointbootstrap-1.a.test.jar");
+        findAgentJarAssertFail("pinpointbootstrap.jar");
     }
 
     private void findAgentJar(String path) {
