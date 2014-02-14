@@ -8,7 +8,7 @@ import com.nhn.pinpoint.web.vo.Range;
 /**
  * @author netspider
  */
-public interface ApplicationMapService {
+public interface MapService {
 	/**
 	 * 메인 화면의 서버 맵 조회.
 	 * 

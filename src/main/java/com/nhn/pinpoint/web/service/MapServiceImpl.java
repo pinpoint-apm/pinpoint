@@ -5,7 +5,6 @@ import java.util.Map.Entry;
 
 import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
-import com.nhn.pinpoint.web.applicationmap.Link;
 import com.nhn.pinpoint.web.applicationmap.rawdata.*;
 import com.nhn.pinpoint.web.dao.*;
 import com.nhn.pinpoint.web.vo.*;
@@ -24,7 +23,7 @@ import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
  * @author netspider
  */
 @Service
-public class ApplicationMapServiceImpl implements ApplicationMapService {
+public class MapServiceImpl implements MapService {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -38,10 +37,10 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
     private MapResponseDao mapResponseDao;
 
 	@Autowired
-	private ApplicationMapStatisticsCallerDao applicationMapStatisticsCallerDao;
+	private MapStatisticsCallerDao mapStatisticsCallerDao;
 
 	@Autowired
-	private ApplicationMapStatisticsCalleeDao applicationMapStatisticsCalleeDao;
+	private MapStatisticsCalleeDao mapStatisticsCalleeDao;
 
 	@Autowired
 	private HostApplicationMapDao hostApplicationMapDao;
@@ -82,7 +81,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		    logger.debug("Finding Callee. caller={}", callerApplication);
         }
 
-		List<LinkStatistics> callee = applicationMapStatisticsCalleeDao.selectCallee(callerApplication, range);
+		List<LinkStatistics> callee = mapStatisticsCalleeDao.selectCallee(callerApplication, range);
         if (logger.isDebugEnabled()) {
 		    logger.debug("Found Callee. count={}, caller={}", callee.size(), callerApplication);
         }
@@ -139,7 +138,7 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 		    logger.debug("Finding Caller. callee={}", calleeApplication);
         }
 
-		final List<LinkStatistics> caller = applicationMapStatisticsCallerDao.selectCaller(calleeApplication, range);
+		final List<LinkStatistics> caller = mapStatisticsCallerDao.selectCaller(calleeApplication, range);
 		logger.debug("Found Caller. count={}, callee={}", caller.size(), calleeApplication);
 
         final Set<LinkStatistics> callerSet = new HashSet<LinkStatistics>();
@@ -256,17 +255,17 @@ public class ApplicationMapServiceImpl implements ApplicationMapService {
 			// client는 applicatinname + servicetype.client로 기록된다.
 			// 그래서 src, dest가 둘 다 dest로 같음.
             Application userApplication = new Application(destinationApplication.getName(), sourceApplication.getServiceTypeCode());
-			list = applicationMapStatisticsCalleeDao.selectCalleeStatistics(userApplication, destinationApplication, range);
+			list = mapStatisticsCalleeDao.selectCalleeStatistics(userApplication, destinationApplication, range);
 		} else if (destinationApplication.getServiceType().isWas()) {
 			logger.debug("Find 'any -> was' link statistics");
 			// destination이 was인 경우에는 중간에 client event가 끼어있기 때문에 callee에서
 			// caller가
 			// 같은녀석을 찾아야 한다.
-			list = applicationMapStatisticsCallerDao.selectCallerStatistics(sourceApplication, destinationApplication, range);
+			list = mapStatisticsCallerDao.selectCallerStatistics(sourceApplication, destinationApplication, range);
 		} else {
 			logger.debug("Find 'was -> terminal' link statistics");
 			// 일반적으로 was -> terminal 간의 통계정보 조회.
-			list = applicationMapStatisticsCalleeDao.selectCalleeStatistics(sourceApplication, destinationApplication, range);
+			list = mapStatisticsCalleeDao.selectCalleeStatistics(sourceApplication, destinationApplication, range);
 		}
 
 		LoadFactor loadFactor = new LoadFactor(range);

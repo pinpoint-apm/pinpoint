@@ -20,7 +20,7 @@ import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
  * 
  */
 @Component
-public class ApplicationMapStatisticsCallerMapper implements RowMapper<List<LinkStatistics>> {
+public class MapStatisticsCallerMapper implements RowMapper<List<LinkStatistics>> {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

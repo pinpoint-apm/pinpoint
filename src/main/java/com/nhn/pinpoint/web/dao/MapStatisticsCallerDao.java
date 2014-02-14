@@ -12,7 +12,7 @@ import com.nhn.pinpoint.web.vo.Range;
  * @author netspider
  * 
  */
-public interface ApplicationMapStatisticsCallerDao {
+public interface MapStatisticsCallerDao {
 	public List<LinkStatistics> selectCaller(Application calleeApplication, Range range);
 	
 	public List<Map<Long, Map<Short, Long>>> selectCallerStatistics(Application callerApplication, Application calleeApplication, Range range);

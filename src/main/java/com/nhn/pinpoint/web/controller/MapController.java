@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.web.controller;
 
+import com.nhn.pinpoint.web.service.MapService;
 import com.nhn.pinpoint.web.util.Limiter;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
-import com.nhn.pinpoint.web.service.ApplicationMapService;
 import com.nhn.pinpoint.web.util.TimeUtils;
 import com.nhn.pinpoint.web.vo.LoadFactor;
 
@@ -22,12 +22,12 @@ import com.nhn.pinpoint.web.vo.LoadFactor;
  * @author netspider
  */
 @Controller
-public class ApplicationMapController {
+public class MapController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-	private ApplicationMapService applicationMapService;
+	private MapService mapService;
 
     @Autowired
     private Limiter dateLimit;
@@ -52,7 +52,7 @@ public class ApplicationMapController {
 
         Application application = new Application(applicationName, serviceType);
         Range range = new Range(from, to);
-        ApplicationMap map = applicationMapService.selectApplicationMap(application, range);
+        ApplicationMap map = mapService.selectApplicationMap(application, range);
 
 		model.addAttribute("nodes", map.getNodes());
 		model.addAttribute("links", map.getLinks());
@@ -105,11 +105,11 @@ public class ApplicationMapController {
         final Application sourceApplication = new Application(srcApplicationName, srcServiceType);
         final Application destinationApplication = new Application(destApplicationName, destServiceType);
         final Range range = new Range(from, to);
-		LoadFactor loadFactor = applicationMapService.linkStatistics(sourceApplication, destinationApplication, range);
+		LoadFactor loadFactor = mapService.linkStatistics(sourceApplication, destinationApplication, range);
 
 		model.addAttribute("range", range);
 
-		model.addAttribute("srcApplication", sourceApplication);
+        model.addAttribute("srcApplication", sourceApplication);
 
         model.addAttribute("destApplication", destinationApplication);
 

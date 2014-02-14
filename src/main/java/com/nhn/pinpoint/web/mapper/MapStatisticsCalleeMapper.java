@@ -21,7 +21,7 @@ import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
  * 
  */
 @Component
-public class ApplicationMapStatisticsCalleeMapper implements RowMapper<List<LinkStatistics>> {
+public class MapStatisticsCalleeMapper implements RowMapper<List<LinkStatistics>> {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

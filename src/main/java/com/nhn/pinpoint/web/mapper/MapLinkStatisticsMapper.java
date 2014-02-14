@@ -22,14 +22,14 @@ import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
  * @author netspider
  * 
  */
-public class ApplicationMapLinkStatisticsMapper implements RowMapper<Map<Long, Map<Short, Long>>> {
+public class MapLinkStatisticsMapper implements RowMapper<Map<Long, Map<Short, Long>>> {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    final Application callerApplication;
-    final Application calleeApplication;
+    private final Application callerApplication;
+    private final Application calleeApplication;
 
-	public ApplicationMapLinkStatisticsMapper(Application callerApplication, Application calleeApplication) {
+	public MapLinkStatisticsMapper(Application callerApplication, Application calleeApplication) {
         if (callerApplication == null) {
             throw new NullPointerException("callerApplication must not be null");
         }
