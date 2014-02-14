@@ -67,8 +67,8 @@ public final class Application {
 
         Application that = (Application) o;
 
-        if (!name.equals(that.name)) return false;
         if (serviceType != that.serviceType) return false;
+        if (!name.equals(that.name)) return false;
 
         return true;
     }
