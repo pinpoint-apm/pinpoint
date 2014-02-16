@@ -228,6 +228,15 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
      * @returns {*}
      */
     this.mergeNodeData = function (htLastMapData, nodeKey, node) {
+        for (var key in node.histogram) {
+            if (htLastMapData.applicationMapData.nodeDataArray[nodeKey].histogram) {
+                if (htLastMapData.applicationMapData.nodeDataArray[nodeKey].histogram[key]) {
+                    htLastMapData.applicationMapData.nodeDataArray[nodeKey].histogram[key] += node.histogram[key];
+                } else {
+                    htLastMapData.applicationMapData.nodeDataArray[nodeKey].histogram[key] = node.histogram[key];
+                }
+            }
+        }
         for (var key in node.serverList) {
             if (htLastMapData.applicationMapData.nodeDataArray[nodeKey].serverList[key]) {
                 for (var innerKey in node.serverList[key].instanceList) {
