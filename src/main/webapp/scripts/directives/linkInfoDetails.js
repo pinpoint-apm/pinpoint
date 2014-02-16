@@ -342,6 +342,23 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     htQuery = query;
                     showDetailInformation(link);
                 });
+
+                /**
+                 * passing transaction map
+                 * @param fromApplicationName
+                 * @param fromServiceType
+                 * @param toApplicationName
+                 * @param toServiceType
+                 */
+                scope.passingTransactionMap = function (fromServiceType, fromApplicationName, toServiceType, toApplicationName) {
+                    var oServerMapFilterVo = new ServerMapFilterVo();
+                    oServerMapFilterVo
+                        .setFromApplication(fromApplicationName)
+                        .setFromServiceType(fromServiceType)
+                        .setToApplication(toApplicationName)
+                        .setToServiceType(toServiceType);
+                    scope.$broadcast('linkInfoDetails.openFilteredMap', oServerMapFilterVo);
+                }
             }
         };
     } ]);

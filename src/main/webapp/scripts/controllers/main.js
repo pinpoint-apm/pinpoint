@@ -175,6 +175,13 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
         });
 
         /**
+         * scope event on serverMap.openFilteredMap
+         */
+        $scope.$on('linkInfoDetails.openFilteredMap', function (event, oServerMapFilterVo) {
+            openFilteredMapWithFilterVo(oServerMapFilterVo);
+        });
+
+        /**
          * scope event on linkInfoDetails.ResponseSummary.barClicked
          */
         $scope.$on('linkInfoDetails.ResponseSummary.barClicked', function (event, oServerMapFilterVo) {
