@@ -1,10 +1,17 @@
 <div class="nodeInfoDetails" ng-init="nodeIcon='USER'" ng-show="showNodeInfoDetails">
 
-    <ul ng-if="unknownGroup">
-        <li ng-repeat="node in unknownGroup">
-            {{node.applicationName}}<br/>
-        </li>
-    </ul>
+    <div ng-if="unknownGroup">
+
+        <div class="panel panel-default" ng-repeat="node in unknownGroup">
+            <div class="panel-heading">
+                {{node.applicationName}}
+            </div>
+            <div class="panel-body summaryCharts_{{$index}}" style="padding:0">
+                <svg style='height:120px;width:350px;' />
+            </div>
+        </div>
+
+    </div>
 
     <div class='infoBarChart' ng-show="showNodeInfoBarChart">
         <h5>Response Summary</h5>

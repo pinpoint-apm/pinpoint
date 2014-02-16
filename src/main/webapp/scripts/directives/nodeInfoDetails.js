@@ -17,7 +17,8 @@ pinpointApp
                 var htServermapData;
 
                 // define private variables of methods
-                var reset, showDetailInformation, renderApplicationStatistics, parseHistogramForNvd3;
+                var reset, showDetailInformation, renderApplicationStatistics, parseHistogramForNvd3,
+                    renderStatisticsSummary, parseHistogramForD3;
 
                 /**
                  * reset
@@ -44,19 +45,53 @@ pinpointApp
                  */
                 showDetailInformation = function (query, node) {
                     scope.showNodeInfoDetails = true;
-//                    scope.nodeCategory = node.category;
-//                    if (node.category !== 'UNKNOWN_GROUP') {
-//                        scope.nodeIcon = node.category; // do not be reset. because it will be like this '.../icons/.png 404 (Not Found)'
-//                    }
+
                     scope.unknownGroup = node.textArr;
                     scope.serverList = node.serverList;
                     scope.showServers = _.isEmpty(scope.serverList) ? false : true;
                     scope.isWas = node.isWas;
+
+                    if (!node.rawdata && node.category !== "USER" && node.category !== "UNKNOWN_GROUP") {
+//                        showApplicationStatisticsSummary(query.from, query.to, data.text, data.serviceTypeCode);
+                        renderApplicationStatistics([
+                            {
+                                'key': "Response Time Histogram",
+                                'values' : parseHistogramForNvd3(node.histogram)
+                            }
+                        ]);
+                        //renderApplicationStatistics(histogramData);
+                    } else if (node.category === 'UNKNOWN_GROUP'){
+
+                        for (var key in node.textArr) {
+                            renderStatisticsSummary('.nodeInfoDetails .summaryCharts_' + key +
+                                ' svg', parseHistogramForD3(node.rawdata[node.textArr[key].applicationName].histogram));
+                        }
+                    }
                     // scope.agents = data.agents;
                     // scope.showAgents = (scope.agents.length > 0) ? true : false;
                     if (!scope.$$phase) {
                         scope.$digest();
                     }
+                };
+
+                /**
+                 * parse histogram for d3.js
+                 * @param histogram
+                 */
+                parseHistogramForD3 = function (histogram) {
+                    var histogramSummary = [
+                        {
+                            "key": "Responsetime Histogram",
+                            "values": []
+                        }
+                    ];
+                    for (var key in histogram) {
+                        histogramSummary[0].values.push({
+                            "label": key,
+                            "value": histogram[key]
+                        });
+                    }
+                    return histogramSummary;
                 };
 
 //                var getApplicationStatisticsData = function (query, callback) {
@@ -132,6 +167,102 @@ pinpointApp
                         chart.color(config.myColors);
 
                         d3.select('.nodeInfoDetails .infoBarChart svg')
+                            .datum(data)
+                            .transition()
+                            .duration(0)
+                            .call(chart);
+
+                        nv.utils.windowResize(chart.update);
+
+                        return chart;
+                    });
+                };
+
+                /**
+                 * render statics summary
+                 * @param querySelector
+                 * @param data
+                 * @param clickEventName
+                 */
+                renderStatisticsSummary = function (querySelector, data, clickEventName) {
+                    nv.addGraph(function () {
+                        angular.element(querySelector).empty();
+                        var chart = nv.models.discreteBarChart().x(function (d) {
+                            return d.label;
+                        }).y(function (d) {
+                                return d.value;
+                            }).staggerLabels(false).tooltips(false).showValues(true);
+
+                        chart.xAxis.tickFormat(function (d) {
+                            // FIXME d로 넘어오는 값의 타입이 string이고 angular.isNumber는 "1000"에 대해 false를 반환함.
+                            // if (angular.isNumber(d)) {
+                            if (/^\d+$/.test(d)) {
+                                if (d >= 1000) {
+                                    return $filter('number')(d / 1000) + "s";
+                                } else {
+                                    return $filter('number')(d) + "ms";
+                                }
+                            } else if (d.charAt(d.length - 1) == '+') {
+                                var v = d.substr(0, d.length - 1);
+                                if (v >= 1000) {
+                                    return $filter('number')(v / 1000) + "s+";
+                                } else {
+                                    return $filter('number')(v) + "ms+";
+                                }
+                            } else {
+                                return d;
+                            }
+                        });
+
+                        chart.yAxis.tickFormat(function (d, i) {
+                            if (d >= 1000) {
+                                return $filter('number')(Math.floor(d / 1000)) + "k";
+                            } else {
+                                return $filter('number')(d);
+                            }
+                        });
+
+                        chart.valueFormat(function (d) {
+                            return $filter('number')(d);
+                        });
+
+                        chart.color(config.myColors);
+
+                        chart.discretebar.dispatch.on('elementClick', function (e) {
+                            if (clickEventName) {
+//                                var filterDataSet = {
+//                                    label: e.point.label,
+//                                    value: e.value,
+//                                    values: e.series.values,
+//                                    srcServiceType: scope.sourceinfo.serviceType,
+//                                    srcApplicationName: scope.sourceinfo.applicationName,
+//                                    destServiceType: scope.targetinfo.serviceType,
+//                                    destApplicationName: scope.targetinfo.applicationName
+//                                };
+                                var label = e.point.label,
+                                    values = e.series.values;
+                                var oServerMapFilterVo = new ServerMapFilterVo();
+                                oServerMapFilterVo
+                                    .setFromApplication(scope.sourceinfo.applicationName)
+                                    .setFromServiceType(scope.sourceinfo.serviceType)
+                                    .setToApplication(scope.targetinfo.applicationName)
+                                    .setToServiceType(scope.targetinfo.serviceType);
+                                if (label === 'error') {
+                                    oServerMapFilterVo.setIncludeException(true);
+                                } else if (label.indexOf('+') > 0) {
+                                    oServerMapFilterVo
+                                        .setResponseFrom(parseInt(label, 10))
+                                        .setResponseTo('max');
+                                } else {
+                                    oServerMapFilterVo
+                                        .setResponseFrom(filteredMapUtil.getStartValueForFilterByLabel(label, values))
+                                        .setResponseTo(parseInt(label, 10));
+                                }
+                                scope.$emit('linkInfoDetails.' + clickEventName + '.barClicked', oServerMapFilterVo);
+                            }
+                        });
+
+                        d3.select(querySelector)
                             .datum(data)
                             .transition()
                             .duration(0)
@@ -242,16 +373,6 @@ pinpointApp
                     scope.node = node;
                     scope.oNavbarVo = navbarVo;
                     htServermapData = mapData;
-                    if (!node.rawdata && node.category !== "USER" && node.category !== "UNKNOWN_GROUP") {
-//                        showApplicationStatisticsSummary(query.from, query.to, data.text, data.serviceTypeCode);
-                        renderApplicationStatistics([
-                            {
-                                'key': "Response Time Histogram",
-                                'values' : parseHistogramForNvd3(node.histogram)
-                            }
-                        ]);
-                        //renderApplicationStatistics(histogramData);
-                    }
                     showDetailInformation(query, node);
                 });
 

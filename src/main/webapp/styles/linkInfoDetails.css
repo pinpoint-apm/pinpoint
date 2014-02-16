@@ -1,15 +1,8 @@
-.linkInfoDetails dt {
-    font-size: 13px;
-}
-.linkInfoDetails dd {
-    font-size: 12px;
-}
-
 .linkInfoDetails {
     line-height: 25px;
     margin-bottom: 5px;
     /*font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;*/
-    font-size: 14px;
+    font-size: 12px;
     padding: 5px 15px 30px;
 }
 .linkInfoDetails .infoBarChart svg g.nv-group rect,

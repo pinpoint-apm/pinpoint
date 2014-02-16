@@ -14,7 +14,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
             link: function postLink(scope, element, attrs) {
 
                 // define private variables
-                var htQuery;
+                var htQuery, htRawData;
 
                 // define private variables of methods;
                 var reset, showDetailInformation, getLinkStatisticsData, renderStatisticsTimeSeriesHistogram,
@@ -42,7 +42,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                  * @param applicationName
                  */
                 scope.showDetailInformation = function (applicationName) {
-                    var link = scope.rawdata[applicationName];
+                    var link = htRawData[applicationName];
                     showDetailInformation(link);
                     scope.$emit('linkInfoDetail.showDetailInformationClicked', htQuery, link);
                 };
@@ -54,6 +54,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                  */
                 showDetailInformation = function (data) {
                     if (data.rawdata) {
+                        htRawData = data.rawdata
                         scope.linkCategory = 'UnknownLinkInfoBox';
                         for (var key in data.targetinfo) {
                             renderStatisticsSummary('.linkInfoDetails .summaryCharts_' + data.targetinfo[key].sequence +
@@ -72,7 +73,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         );
                     }
 
-                    scope.rawdata = data.rawdata;
+//                    scope.rawdata = data.rawdata;
 //                scope.query = data.query;
                     scope.targetinfo = data.targetinfo;
                     scope.sourceinfo = data.sourceinfo;

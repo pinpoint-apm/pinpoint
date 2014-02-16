@@ -233,7 +233,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
                 if (htLastMapData.applicationMapData.nodeDataArray[nodeKey].histogram[key]) {
                     htLastMapData.applicationMapData.nodeDataArray[nodeKey].histogram[key] += node.histogram[key];
                 } else {
-                    htLastMapData.applicationMapData.nodeDataArray[nodeKey].histogram[key] = node.histogram[key];
+                    htLastMapData.applicationMapData.nodeDataArray[nodeKey].histogram[key] += node.histogram[key];
                 }
             }
         }
@@ -347,6 +347,15 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
         var removeNodeIdSet = {};
         var removeLinkIdSet = {};
 
+        function getNodeByApplicationName(applicationName) {
+            for(var k in nodes) {
+                if (applicationName === nodes[k].text) {
+                    return nodes[k];
+                }
+            }
+            return false;
+        }
+
         nodes.forEach(function (node, nodeIndex) {
             if (node.category === "UNKNOWN") {
                 return;
@@ -384,6 +393,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
                             "id": newNodeKey,
                             "key": newNodeKey,
                             "textArr": [],
+                            "rawdata" : {},
                             "text": "",
                             "hosts": [],
                             "category": "UNKNOWN_GROUP",
@@ -409,6 +419,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
 
                     // fill the new node/link informations.
                     newNode.textArr.push({ 'count': link.text, 'applicationName': link.targetinfo.applicationName});
+                    newNode.rawdata[link.targetinfo.applicationName] = getNodeByApplicationName(link.targetinfo.applicationName);
 
                     newLink.text += link.text;
                     newLink.error += link.error;
