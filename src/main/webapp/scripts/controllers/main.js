@@ -140,7 +140,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
             if (link.rawdata) {
                 oSidebarTitleVo
                     .setImageType('UNKNOWN_GROUP')
-                    .setTitle('Unknown Links');
+                    .setTitle('Link Group');
             } else {
                 oSidebarTitleVo
                     .setImageType(link.sourceinfo.serviceType)

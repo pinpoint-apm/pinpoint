@@ -148,7 +148,7 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
             if (link.rawdata) {
                 oSidebarTitleVo
                     .setImageType('UNKNOWN_GROUP')
-                    .setTitle('Unknown Links');
+                    .setTitle('Link Group');
             } else {
                 oSidebarTitleVo
                     .setImageType(link.sourceinfo.serviceType)
