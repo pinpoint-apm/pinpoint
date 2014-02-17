@@ -41,10 +41,6 @@ public class ApplicationMapStatisticsUtils {
         }
     }
 
-    public static byte[] makeColumnName(short serviceType, String agentId, int elapsed, boolean isError) {
-        short slotNumber = getSlotNumber(serviceType, elapsed, isError);
-        return makeColumnName(agentId, slotNumber);
-    }
 
     public static byte[] makeColumnName(String agentId, short columnSlotNumber) {
         if (agentId == null) {
