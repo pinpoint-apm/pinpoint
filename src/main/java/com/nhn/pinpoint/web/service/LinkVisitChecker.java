@@ -18,28 +18,32 @@ public class LinkVisitChecker {
     private final Set<Application> callerFound = new HashSet<Application>();
 
     public boolean visitCaller(Application caller) {
-        final Set<Application> callerFound = this.callerFound;
-        if (callerFound.contains(caller)) {
-            logger.debug("LinkStatistics exists. Skip finding caller. {} ", caller);
-            return true;
+        if (caller == null) {
+            throw new NullPointerException("caller must not be null");
         }
-        callerFound.add(caller);
+        final boolean found = !callerFound.add(caller);
         if (logger.isDebugEnabled()) {
-            logger.debug("Finding Caller. caller={}", caller);
+            if (found) {
+                logger.debug("Finding Caller. caller={}", caller);
+            } else {
+                logger.debug("LinkStatistics exists. Skip finding caller. {} ", caller);
+            }
         }
-        return false;
+        return found;
     }
 
     public boolean visitCallee(Application callee) {
-        final Set<Application> calleeFound = this.calleeFound;
-        if (calleeFound.contains(callee)) {
-            logger.debug("LinkStatistics exists. Skip finding callee. {} ", callee);
-            return true;
+        if (callee == null) {
+            throw new NullPointerException("callee must not be null");
         }
-        calleeFound.add(callee);
+        final boolean found = !this.calleeFound.add(callee);
         if (logger.isDebugEnabled()) {
-            logger.debug("Finding Callee. callee={}", callee);
+            if (found) {
+                logger.debug("Finding Callee. callee={}", callee);
+            } else {
+                logger.debug("LinkStatistics exists. Skip finding callee. {} ", callee);
+            }
         }
-        return false;
+        return found;
     }
 }
