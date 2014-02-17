@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
 import com.nhn.pinpoint.web.vo.Application;
+import com.nhn.pinpoint.web.vo.LinkKey;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -29,9 +30,10 @@ public class MapStatisticsCallerMapper implements RowMapper<List<LinkStatistics>
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
+        logger.debug("mapRow:{}", rowNum);
 		final KeyValue[] keyList = result.raw();
 
-		final List<LinkStatistics> linkStatisticsList = new ArrayList<LinkStatistics>(keyList.length + 10);
+        final Map<LinkKey, LinkStatistics> linkStatisticsMap = new HashMap<LinkKey, LinkStatistics>();
 
 		for (KeyValue kv : keyList) {
 
@@ -41,25 +43,36 @@ public class MapStatisticsCallerMapper implements RowMapper<List<LinkStatistics>
             final byte[] qualifier = kv.getQualifier();
             Application callerApplication = readCallerApplication(qualifier);
 
-			long requestCount = Bytes.toLong(kv.getValue());
-			short histogramSlot = ApplicationMapStatisticsUtils.getHistogramSlotFromColumnName(qualifier);
-			
-			// TODO 이건 callerHost가 되어야 할 듯.
-			String calleeHost = ApplicationMapStatisticsUtils.getHost(qualifier);
-			boolean isError = histogramSlot == (short) -1;
-			
+            long requestCount = Bytes.toLong(kv.getValue());
+            short histogramSlot = ApplicationMapStatisticsUtils.getHistogramSlotFromColumnName(qualifier);
+
+            String callerHost = ApplicationMapStatisticsUtils.getHost(qualifier);
+            boolean isError = histogramSlot == (short) -1;
+
             if (logger.isDebugEnabled()) {
-			    logger.debug("    Fetched Caller. {} -> {} host:{} (slot:{}/{})", callerApplication, calleeApplication, calleeHost, histogramSlot, requestCount);
+                logger.debug("    Fetched Caller. {} callerHost:{} -> {} (slot:{}/{}),  ", callerApplication, callerHost, calleeApplication, histogramSlot, requestCount);
             }
 
-            LinkStatistics statistics = new LinkStatistics(callerApplication, calleeApplication);
-            statistics.addSample(calleeHost, calleeApplication.getServiceTypeCode(), (isError) ? (short) -1 : histogramSlot, requestCount);
+            LinkStatistics statistics = getLinkStatics(linkStatisticsMap, callerApplication, calleeApplication);
+            statistics.addSample(callerHost, calleeApplication.getServiceTypeCode(), (isError) ? (short) -1 : histogramSlot, requestCount);
 
-            linkStatisticsList.add(statistics);
+            if (logger.isDebugEnabled()) {
+                logger.debug("    Fetched Caller. statistics:{}", statistics);
+            }
 		}
 
-		return linkStatisticsList;
+        return new ArrayList<LinkStatistics>(linkStatisticsMap.values());
 	}
+
+    private LinkStatistics getLinkStatics(Map<LinkKey, LinkStatistics> linkStatisticsMap, Application callerApplication, Application calleeApplication) {
+        final LinkKey key = new LinkKey(callerApplication, calleeApplication);
+        LinkStatistics statistics = linkStatisticsMap.get(key);
+        if (statistics == null) {
+            statistics = new LinkStatistics(callerApplication, calleeApplication);
+            linkStatisticsMap.put(key, statistics);
+        }
+        return statistics;
+    }
 
     private Application readCallerApplication(byte[] qualifier) {
         String callerApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);

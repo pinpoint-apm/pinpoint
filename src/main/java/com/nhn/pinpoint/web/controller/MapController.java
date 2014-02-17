@@ -45,13 +45,14 @@ public class MapController {
 	@RequestMapping(value = "/getServerMapData", method = RequestMethod.GET)
 	public String getServerMapData(Model model,
 									@RequestParam("application") String applicationName,
-									@RequestParam("serviceType") short serviceType, 
+									@RequestParam("serviceType") short serviceType,
 									@RequestParam("from") long from,
 									@RequestParam("to") long to) {
-		this.dateLimit.limit(from, to);
+        final Range range = new Range(from, to);
+        this.dateLimit.limit(from, to);
 
         Application application = new Application(applicationName, serviceType);
-        Range range = new Range(from, to);
+
         ApplicationMap map = mapService.selectApplicationMap(application, range);
 
 		model.addAttribute("nodes", map.getNodes());

@@ -34,16 +34,14 @@ public class HostList {
         if (hostName == null) {
             throw new NullPointerException("host must not be null");
         }
-        final Host find = hostMap.get(hostName);
-        if (find != null) {
-            final Histogram histogram = find.getHistogram();
-            histogram.addSample(slot, count);
-        } else {
-            final Host host = new Host(hostName, ServiceType.findServiceType(serviceTypeCode));
-            final Histogram histogram = host.getHistogram();
-            histogram.addSample(slot, count);
+        Host host = hostMap.get(hostName);
+        if (host == null) {
+            host = new Host(hostName, ServiceType.findServiceType(serviceTypeCode));
             hostMap.put(hostName, host);
         }
+
+        final Histogram histogram = host.getHistogram();
+        histogram.addSample(slot, count);
     }
 
     public void addHost(Host host) {
@@ -92,4 +90,10 @@ public class HostList {
         }
     }
 
+    @Override
+    public String toString() {
+        return "HostList{" +
+                "hostMap=" + hostMap +
+                '}';
+    }
 }

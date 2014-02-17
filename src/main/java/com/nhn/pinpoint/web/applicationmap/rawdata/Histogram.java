@@ -155,7 +155,6 @@ public class Histogram implements JsonSerializable {
     public String toString() {
         return "Histogram{" +
                 "serviceType=" + serviceType +
-                ", histogramSchema=" + histogramSchema +
                 ", totalCount=" + totalCount +
                 ", fastCount=" + fastCount +
                 ", normalCount=" + normalCount +

@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.web.util;
 
+import com.nhn.pinpoint.web.vo.Range;
 import junit.framework.Assert;
 import org.junit.Test;
 
@@ -23,6 +24,18 @@ public class DateLimiterTest {
     }
 
     @Test
+    public void checkRange() {
+        Limiter limiter = new DateLimiter(2);
+
+        limiter.limit(new Range(0, TimeUnit.DAYS.toMillis(2)));
+
+        long time = 1000;
+        limiter.limit(new Range(time, time + TimeUnit.DAYS.toMillis(2)));
+
+        limiter.limit(new Range(TimeUnit.DAYS.toMillis(2), TimeUnit.DAYS.toMillis(2)));
+    }
+
+    @Test
     public void checkFail() {
         Limiter limiter = new DateLimiter(2);
         try {
@@ -36,6 +49,22 @@ public class DateLimiterTest {
             Assert.fail();
         } catch (Exception e) {
         }
-
     }
+
+    @Test
+    public void checkRangeFail() {
+        Limiter limiter = new DateLimiter(2);
+        try {
+            limiter.limit(new Range(0, TimeUnit.DAYS.toMillis(2) + 1));
+            Assert.fail();
+        } catch (Exception e) {
+        }
+
+        try {
+            limiter.limit(new Range(TimeUnit.DAYS.toMillis(2), 0));
+            Assert.fail();
+        } catch (Exception e) {
+        }
+    }
+
 }

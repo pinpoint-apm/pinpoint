@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.web.util;
 
+import com.nhn.pinpoint.web.vo.Range;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
@@ -33,6 +34,20 @@ public class DateLimiter implements Limiter {
         }
         if (limitDayMillis < elapsedTime) {
             throw new IllegalArgumentException("limitDay:"+ limitDay + " from:" + from + " to:" + to);
+        }
+    }
+
+    @Override
+    public void limit(Range range) {
+        if (range == null) {
+            throw new NullPointerException("range must not be null");
+        }
+        final long elapsedTime = range.getRange();
+        if (elapsedTime < 0) {
+            throw new  IllegalArgumentException("to - from < 0 " + range);
+        }
+        if (limitDayMillis < elapsedTime) {
+            throw new IllegalArgumentException("limitDay:"+ limitDay + " " + range);
         }
     }
 }

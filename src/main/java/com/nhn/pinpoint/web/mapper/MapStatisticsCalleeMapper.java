@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
 import com.nhn.pinpoint.web.vo.Application;
+import com.nhn.pinpoint.web.vo.LinkKey;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -30,12 +31,11 @@ public class MapStatisticsCalleeMapper implements RowMapper<List<LinkStatistics>
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
+        logger.debug("mapRow:{}", rowNum);
 		final KeyValue[] keyList = result.raw();
 
 		// key is destApplicationName.
-		final List<LinkStatistics> linkStatisticsList = new ArrayList<LinkStatistics>(keyList.length + 10);
-
-
+        final Map<LinkKey, LinkStatistics> linkStatisticsMap = new HashMap<LinkKey, LinkStatistics>();
 		for (KeyValue kv : keyList) {
 
             final byte[] row = kv.getRow();
@@ -52,22 +52,26 @@ public class MapStatisticsCalleeMapper implements RowMapper<List<LinkStatistics>
 			boolean isError = histogramSlot == (short) -1;
 
 			if (logger.isDebugEnabled()) {
-			    logger.debug("    Fetched Callee. {} -> {} ({}) calleeHost", caller, callee, requestCount, calleeHost);
+			    logger.debug("    Fetched Callee. {} -> {} (slot:{}/{}) calleeHost:{}", caller, callee, histogramSlot, requestCount, calleeHost);
             }
-			
-            LinkStatistics statistics = new LinkStatistics(caller, callee);
+
+            LinkStatistics statistics = getLinkStatistics(linkStatisticsMap, caller, callee);
             statistics.addSample(calleeHost, callee.getServiceTypeCode(), (isError) ? (short) -1 : histogramSlot, requestCount);
 
-			linkStatisticsList.add(statistics);
 		}
 
-		// statistics에 dest host정보 삽입.
-//		for (Entry<String, LoadFactor> entry : stat.entrySet()) {
-//			entry.getValue().addToHosts(callerAppHostMap.get(entry.getKey()));
-//		}
-
-		return linkStatisticsList;
+        return new ArrayList<LinkStatistics>(linkStatisticsMap.values());
 	}
+
+    private LinkStatistics getLinkStatistics(Map<LinkKey, LinkStatistics> linkStatisticsMap, Application caller, Application callee) {
+        final LinkKey key = new LinkKey(caller, callee);
+        LinkStatistics statistics = linkStatisticsMap.get(key);
+        if (statistics == null) {
+            statistics = new LinkStatistics(caller, callee);
+            linkStatisticsMap.put(key, statistics);
+        }
+        return statistics;
+    }
 
     private Application readCalleeApplication(byte[] qualifier) {
         String calleeApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);
