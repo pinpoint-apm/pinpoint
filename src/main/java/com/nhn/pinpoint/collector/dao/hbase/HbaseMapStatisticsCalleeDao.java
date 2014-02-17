@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.collector.dao.hbase;
 
-import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_MAP_STATISTICS_CALLER;
-import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_MAP_STATISTICS_CALLER_CF_COUNTER;
+import static com.nhn.pinpoint.common.hbase.HBaseTables.MAP_STATISTICS_CALLER;
+import static com.nhn.pinpoint.common.hbase.HBaseTables.MAP_STATISTICS_CALLER_CF_COUNTER;
 
 import com.nhn.pinpoint.collector.dao.MapStatisticsCalleeDao;
 import com.nhn.pinpoint.collector.dao.hbase.statistics.*;
@@ -104,7 +104,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
         if (columnName == null) {
             throw new NullPointerException("columnName must not be null");
         }
-        hbaseTemplate.incrementColumnValue(APPLICATION_MAP_STATISTICS_CALLER, rowKey, APPLICATION_MAP_STATISTICS_CALLER_CF_COUNTER, columnName, increment);
+        hbaseTemplate.incrementColumnValue(MAP_STATISTICS_CALLER, rowKey, MAP_STATISTICS_CALLER_CF_COUNTER, columnName, increment);
     }
 
     @Override
@@ -119,7 +119,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
             if (logger.isDebugEnabled()) {
                 logger.debug("flush {} Increment:{}", this.getClass().getSimpleName(), merge.size());
             }
-            hbaseTemplate.increment(APPLICATION_MAP_STATISTICS_CALLER, merge);
+            hbaseTemplate.increment(MAP_STATISTICS_CALLER, merge);
         }
 
     }

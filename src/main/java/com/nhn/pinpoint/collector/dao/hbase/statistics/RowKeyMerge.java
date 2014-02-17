@@ -5,11 +5,8 @@ import org.apache.hadoop.hbase.client.Increment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import java.util.*;
-
-import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_MAP_STATISTICS_CALLER_CF_COUNTER;
 
 /**
  * @author emeroad

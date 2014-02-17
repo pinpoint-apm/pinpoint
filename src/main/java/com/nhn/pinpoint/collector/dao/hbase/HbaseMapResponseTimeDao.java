@@ -93,7 +93,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         if (columnName == null) {
             throw new NullPointerException("columnName must not be null");
         }
-        hbaseTemplate.incrementColumnValue(APPLICATION_MAP_STATISTICS_SELF, rowKey, APPLICATION_MAP_STATISTICS_SELF_CF_COUNTER, columnName, increment);
+        hbaseTemplate.incrementColumnValue(MAP_STATISTICS_SELF, rowKey, MAP_STATISTICS_SELF_CF_COUNTER, columnName, increment);
     }
 
 
@@ -109,7 +109,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
             if (logger.isDebugEnabled()) {
                 logger.debug("flush {} Increment:{}", this.getClass().getSimpleName(), merge.size());
             }
-            hbaseTemplate.increment(APPLICATION_MAP_STATISTICS_SELF, merge);
+            hbaseTemplate.increment(MAP_STATISTICS_SELF, merge);
         }
 
 	}
