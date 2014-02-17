@@ -48,14 +48,14 @@ public final class HBaseTables {
     public static final String API_METADATA = "ApiMetaData";
     public static final byte[] API_METADATA_CF_API = Bytes.toBytes("Api");
 
-	public static final String APPLICATION_MAP_STATISTICS_CALLER = "ApplicationMapStatisticsCaller";
-	public static final byte[] APPLICATION_MAP_STATISTICS_CALLER_CF_COUNTER = Bytes.toBytes("C");
+	public static final String MAP_STATISTICS_CALLER = "ApplicationMapStatisticsCaller";
+	public static final byte[] MAP_STATISTICS_CALLER_CF_COUNTER = Bytes.toBytes("C");
 
-	public static final String APPLICATION_MAP_STATISTICS_CALLEE = "ApplicationMapStatisticsCallee";
-	public static final byte[] APPLICATION_MAP_STATISTICS_CALLEE_CF_COUNTER = Bytes.toBytes("C");
+	public static final String MAP_STATISTICS_CALLEE = "ApplicationMapStatisticsCallee";
+	public static final byte[] MAP_STATISTICS_CALLEE_CF_COUNTER = Bytes.toBytes("C");
 
-    public static final String APPLICATION_MAP_STATISTICS_SELF = "ApplicationMapStatisticsSelf";
-    public static final byte[] APPLICATION_MAP_STATISTICS_SELF_CF_COUNTER = Bytes.toBytes("C");
+    public static final String MAP_STATISTICS_SELF = "ApplicationMapStatisticsSelf";
+    public static final byte[] MAP_STATISTICS_SELF_CF_COUNTER = Bytes.toBytes("C");
 
 	public static final String HOST_APPLICATION_MAP = "HostApplicationMap";
 	public static final byte[] HOST_APPLICATION_MAP_CF_MAP = Bytes.toBytes("M");
