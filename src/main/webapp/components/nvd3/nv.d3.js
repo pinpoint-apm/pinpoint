@@ -2379,7 +2379,8 @@ nv.models.discreteBar = function() {
           })
         .select('rect')
           .attr('height', function(d,i) {
-            return  Math.max(Math.abs(y(getY(d,i)) - y(0)) || 1)
+        	  // [WEB-52] patched 1 -> 0
+            return  Math.max(Math.abs(y(getY(d,i)) - y(0)) || 0)
           });
 
 
