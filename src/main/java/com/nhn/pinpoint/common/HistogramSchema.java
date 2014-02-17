@@ -40,6 +40,10 @@ public class HistogramSchema {
         this.errorSlot = ERROR_SLOT;
     }
 
+    public int getTypeCode() {
+        return typeCode;
+    }
+
     /**
      * elapsedTime 기준으로 가장 적합한 슬롯을 찾는다.
      * @param elapsedTime
@@ -59,6 +63,25 @@ public class HistogramSchema {
             return slowSlot;
         }
         return verySlowSlot;
+    }
+
+    public HistogramSlot getHistogramSlot(final short slotTime) {
+        if (slotTime == ERROR_SLOT_TIME) {
+            return errorSlot;
+        }
+        if (slotTime == this.fastSlot.getSlotTime()) {
+            return fastSlot;
+        }
+        if (slotTime == this.normalSlot.getSlotTime()) {
+            return normalSlot;
+        }
+        if (slotTime == this.slowSlot.getSlotTime()) {
+            return slowSlot;
+        }
+        if (slotTime == this.verySlowSlot.getSlotTime()) {
+            return slowSlot;
+        }
+        throw new IllegalArgumentException("HistogramSlot not found. slotTime:" + slotTime);
     }
 
     public HistogramSlot getFastSlot() {
