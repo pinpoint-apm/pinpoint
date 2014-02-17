@@ -65,20 +65,13 @@ public class MapServiceImpl implements MapService {
 	 * 
 	 * @param callerApplication
 	 * @param range
-	 * @param callerFound
-	 * @param calleeFound
+	 * @param linkVisitChecker
 	 * @return
 	 */
-	private Set<LinkStatistics> selectCaller(Application callerApplication, Range range, Set<Application> callerFound, Set<Application> calleeFound) {
+	private Set<LinkStatistics> selectCaller(Application callerApplication, Range range, LinkVisitChecker linkVisitChecker) {
 		// 이미 조회된 구간이면 skip
-        if (callerFound.contains(callerApplication)) {
-			logger.debug("ApplicationStatistics exists. Skip finding caller. {} ", callerApplication);
-			return new HashSet<LinkStatistics>(0);
-		}
-
-        callerFound.add(callerApplication);
-        if (logger.isDebugEnabled()) {
-		    logger.debug("Finding Caller. caller={}", callerApplication);
+        if (linkVisitChecker.visitCaller(callerApplication)) {
+            return Collections.emptySet();
         }
 
 		List<LinkStatistics> caller = mapStatisticsCallerDao.selectCaller(callerApplication, range);
@@ -102,7 +95,7 @@ public class MapServiceImpl implements MapService {
 			}
 
 			logger.debug("     Find subCaller of {}", stat.getToApplication());
-            Set<LinkStatistics> callerSub = selectCaller(stat.getToApplication(), range, callerFound, calleeFound);
+            Set<LinkStatistics> callerSub = selectCaller(stat.getToApplication(), range, linkVisitChecker);
 			logger.debug("     Found subCaller. count={}, caller={}", callerSub.size(), stat.getToApplication());
 
 			callerSet.addAll(callerSub);
@@ -110,7 +103,7 @@ public class MapServiceImpl implements MapService {
 			// 찾아진 녀석들에 대한 caller도 찾는다.
 			for (LinkStatistics eachCaller : callerSub) {
 				logger.debug("     Find callee of {}", eachCaller.getFromApplication());
-				Set<LinkStatistics> calleeSub = selectCallee(eachCaller.getFromApplication(), range, callerFound, calleeFound);
+				Set<LinkStatistics> calleeSub = selectCallee(eachCaller.getFromApplication(), range, linkVisitChecker);
 				logger.debug("     Found subCallee. count={}, callee={}", calleeSub.size(), eachCaller.getFromApplication());
 				callerSet.addAll(calleeSub);
 			}
@@ -126,16 +119,10 @@ public class MapServiceImpl implements MapService {
 	 * @param range
 	 * @return
 	 */
-	private Set<LinkStatistics> selectCallee(Application calleeApplication, Range range, Set<Application> callerFound, Set<Application> calleeFound) {
+	private Set<LinkStatistics> selectCallee(Application calleeApplication, Range range, LinkVisitChecker linkVisitChecker) {
 		// 이미 조회된 구간이면 skip
-
-        if (calleeFound.contains(calleeApplication)) {
-			logger.debug("ApplicationStatistics exists. Skip finding callee. {}", calleeApplication);
-			return new HashSet<LinkStatistics>(0);
-		}
-		calleeFound.add(calleeApplication);
-        if (logger.isDebugEnabled()) {
-		    logger.debug("Finding Callee. callee={}", calleeApplication);
+        if (linkVisitChecker.visitCallee(calleeApplication)) {
+            return Collections.emptySet();
         }
 
 		final List<LinkStatistics> callee = mapStatisticsCalleeDao.selectCallee(calleeApplication, range);
@@ -147,7 +134,7 @@ public class MapServiceImpl implements MapService {
 			calleeSet.add(stat);
 
 			// 나를 부른 application을 찾아야 하기 떄문에 to를 입력.
-            Set<LinkStatistics> calleeSub = selectCallee(stat.getFromApplication(), range, callerFound, calleeFound);
+            Set<LinkStatistics> calleeSub = selectCallee(stat.getFromApplication(), range, linkVisitChecker);
 			calleeSet.addAll(calleeSub);
 
 			// 찾아진 녀석들에 대한 callee도 찾는다.
@@ -156,7 +143,7 @@ public class MapServiceImpl implements MapService {
 				if (eachCallee.getToServiceType().isTerminal() || eachCallee.getToServiceType().isUnknown()) {
 					continue;
 				}
-				Set<LinkStatistics> callerSub = selectCaller(eachCallee.getToApplication(), range, callerFound, calleeFound);
+				Set<LinkStatistics> callerSub = selectCaller(eachCallee.getToApplication(), range, linkVisitChecker);
 				calleeSet.addAll(callerSub);
 			}
 		}
@@ -214,13 +201,11 @@ public class MapServiceImpl implements MapService {
 		StopWatch watch = new StopWatch("applicationMapWatch");
 		watch.start();
 
-        // 무한 탐색을 방지하기 위한 용도.
-		final Set<Application> calleeFound = new HashSet<Application>();
-		final Set<Application> callerFound = new HashSet<Application>();
-		Set<LinkStatistics> caller = selectCaller(sourceApplication, range, callerFound, calleeFound);
+        LinkVisitChecker linkVisitChecker = new LinkVisitChecker();
+		Set<LinkStatistics> caller = selectCaller(sourceApplication, range, linkVisitChecker);
 		logger.debug("Result of finding caller {}", caller);
 
-		Set<LinkStatistics> callee = selectCallee(sourceApplication, range, callerFound, calleeFound);
+		Set<LinkStatistics> callee = selectCallee(sourceApplication, range, linkVisitChecker);
 		logger.debug("Result of finding callee {}", callee);
 
 		Set<LinkStatistics> data = new HashSet<LinkStatistics>(caller.size() + callee.size());
