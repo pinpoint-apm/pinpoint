@@ -37,10 +37,10 @@ public class MapServiceImpl implements MapService {
     private MapResponseDao mapResponseDao;
 
 	@Autowired
-	private MapStatisticsCallerDao mapStatisticsCallerDao;
+	private MapStatisticsCalleeDao mapStatisticsCalleeDao;
 
 	@Autowired
-	private MapStatisticsCalleeDao mapStatisticsCalleeDao;
+	private MapStatisticsCallerDao mapStatisticsCallerDao;
 
 	@Autowired
 	private HostApplicationMapDao hostApplicationMapDao;
@@ -65,35 +65,35 @@ public class MapServiceImpl implements MapService {
 	 * 
 	 * @param callerApplication
 	 * @param range
-	 * @param calleeFoundApplications
-	 * @param callerFoundApplications
+	 * @param callerFound
+	 * @param calleeFound
 	 * @return
 	 */
-	private Set<LinkStatistics> selectCallee(Application callerApplication, Range range, Set<Application> calleeFoundApplications, Set<Application> callerFoundApplications) {
+	private Set<LinkStatistics> selectCaller(Application callerApplication, Range range, Set<Application> callerFound, Set<Application> calleeFound) {
 		// 이미 조회된 구간이면 skip
-        if (calleeFoundApplications.contains(callerApplication)) {
-			logger.debug("ApplicationStatistics exists. Skip finding callee. {} ", callerApplication);
+        if (callerFound.contains(callerApplication)) {
+			logger.debug("ApplicationStatistics exists. Skip finding caller. {} ", callerApplication);
 			return new HashSet<LinkStatistics>(0);
 		}
 
-        calleeFoundApplications.add(callerApplication);
+        callerFound.add(callerApplication);
         if (logger.isDebugEnabled()) {
-		    logger.debug("Finding Callee. caller={}", callerApplication);
+		    logger.debug("Finding Caller. caller={}", callerApplication);
         }
 
-		List<LinkStatistics> callee = mapStatisticsCalleeDao.selectCallee(callerApplication, range);
+		List<LinkStatistics> caller = mapStatisticsCallerDao.selectCaller(callerApplication, range);
         if (logger.isDebugEnabled()) {
-		    logger.debug("Found Callee. count={}, caller={}", callee.size(), callerApplication);
+		    logger.debug("Found Caller. count={}, caller={}", caller.size(), callerApplication);
         }
 
-        final Set<LinkStatistics> calleeSet = new HashSet<LinkStatistics>();
-		for (LinkStatistics stat : callee) {
+        final Set<LinkStatistics> callerSet = new HashSet<LinkStatistics>();
+		for (LinkStatistics stat : caller) {
 			final boolean replaced = replaceApplicationInfo(stat, range);
 
 			// replaced된 녀석은 CLIENT이기 때문에 callee검색용도로만 사용하고 map에 추가하지 않는다.
 			if (!replaced) {
 				fillAdditionalInfo(stat, range);
-				calleeSet.add(stat);
+				callerSet.add(stat);
 			}
 
 			// terminal, unknowncloud 인 경우에는 skip
@@ -101,22 +101,22 @@ public class MapServiceImpl implements MapService {
 				continue;
 			}
 
-			logger.debug("     Find subCallee of {}", stat.getToApplication());
-            Set<LinkStatistics> calleeSub = selectCallee(stat.getToApplication(), range, calleeFoundApplications, callerFoundApplications);
-			logger.debug("     Found subCallee. count={}, caller={}", calleeSub.size(), stat.getToApplication());
+			logger.debug("     Find subCaller of {}", stat.getToApplication());
+            Set<LinkStatistics> callerSub = selectCaller(stat.getToApplication(), range, callerFound, calleeFound);
+			logger.debug("     Found subCaller. count={}, caller={}", callerSub.size(), stat.getToApplication());
 
-			calleeSet.addAll(calleeSub);
+			callerSet.addAll(callerSub);
 
 			// 찾아진 녀석들에 대한 caller도 찾는다.
-			for (LinkStatistics eachCallee : calleeSub) {
-				logger.debug("     Find caller of {}", eachCallee.getFromApplication());
-				Set<LinkStatistics> callerSub = selectCaller(eachCallee.getFromApplication(), range, calleeFoundApplications, callerFoundApplications);
-				logger.debug("     Found subCaller. count={}, callee={}", callerSub.size(), eachCallee.getFromApplication());
-				calleeSet.addAll(callerSub);
+			for (LinkStatistics eachCaller : callerSub) {
+				logger.debug("     Find callee of {}", eachCaller.getFromApplication());
+				Set<LinkStatistics> calleeSub = selectCallee(eachCaller.getFromApplication(), range, callerFound, calleeFound);
+				logger.debug("     Found subCallee. count={}, callee={}", calleeSub.size(), eachCaller.getFromApplication());
+				callerSet.addAll(calleeSub);
 			}
 		}
 
-		return calleeSet;
+		return callerSet;
 	}
 
 	/**
@@ -126,42 +126,42 @@ public class MapServiceImpl implements MapService {
 	 * @param range
 	 * @return
 	 */
-	private Set<LinkStatistics> selectCaller(Application calleeApplication, Range range, Set<Application> calleeFoundApplications, Set<Application> callerFoundApplications) {
+	private Set<LinkStatistics> selectCallee(Application calleeApplication, Range range, Set<Application> callerFound, Set<Application> calleeFound) {
 		// 이미 조회된 구간이면 skip
 
-        if (callerFoundApplications.contains(calleeApplication)) {
-			logger.debug("ApplicationStatistics exists. Skip finding caller. {}", calleeApplication);
+        if (calleeFound.contains(calleeApplication)) {
+			logger.debug("ApplicationStatistics exists. Skip finding callee. {}", calleeApplication);
 			return new HashSet<LinkStatistics>(0);
 		}
-		callerFoundApplications.add(calleeApplication);
+		calleeFound.add(calleeApplication);
         if (logger.isDebugEnabled()) {
-		    logger.debug("Finding Caller. callee={}", calleeApplication);
+		    logger.debug("Finding Callee. callee={}", calleeApplication);
         }
 
-		final List<LinkStatistics> caller = mapStatisticsCallerDao.selectCaller(calleeApplication, range);
-		logger.debug("Found Caller. count={}, callee={}", caller.size(), calleeApplication);
+		final List<LinkStatistics> callee = mapStatisticsCalleeDao.selectCallee(calleeApplication, range);
+		logger.debug("Found Callee. count={}, callee={}", callee.size(), calleeApplication);
 
-        final Set<LinkStatistics> callerSet = new HashSet<LinkStatistics>();
-		for (LinkStatistics stat : caller) {
+        final Set<LinkStatistics> calleeSet = new HashSet<LinkStatistics>();
+		for (LinkStatistics stat : callee) {
 			fillAdditionalInfo(stat, range);
-			callerSet.add(stat);
+			calleeSet.add(stat);
 
 			// 나를 부른 application을 찾아야 하기 떄문에 to를 입력.
-            Set<LinkStatistics> callerSub = selectCaller(stat.getFromApplication(), range, calleeFoundApplications, callerFoundApplications);
-			callerSet.addAll(callerSub);
+            Set<LinkStatistics> calleeSub = selectCallee(stat.getFromApplication(), range, callerFound, calleeFound);
+			calleeSet.addAll(calleeSub);
 
 			// 찾아진 녀석들에 대한 callee도 찾는다.
-			for (LinkStatistics eachCallee : callerSub) {
+			for (LinkStatistics eachCallee : calleeSub) {
 				// terminal이면 skip
 				if (eachCallee.getToServiceType().isTerminal() || eachCallee.getToServiceType().isUnknown()) {
 					continue;
 				}
-				Set<LinkStatistics> calleeSub = selectCallee(eachCallee.getToApplication(), range, calleeFoundApplications, callerFoundApplications);
-				callerSet.addAll(calleeSub);
+				Set<LinkStatistics> callerSub = selectCaller(eachCallee.getToApplication(), range, callerFound, calleeFound);
+				calleeSet.addAll(callerSub);
 			}
 		}
 
-		return callerSet;
+		return calleeSet;
 	}
 
 	private boolean replaceApplicationInfo(LinkStatistics stat, Range range) {
@@ -188,7 +188,6 @@ public class MapServiceImpl implements MapService {
 		}
 
 		Set<AgentInfoBo> agentSet = selectAgents(stat.getToApplication().getName());
-
 		if (agentSet.isEmpty()) {
 			return;
 		}
@@ -216,17 +215,17 @@ public class MapServiceImpl implements MapService {
 		watch.start();
 
         // 무한 탐색을 방지하기 위한 용도.
-		final Set<Application> callerFoundApplications = new HashSet<Application>();
-		final Set<Application> calleeFoundApplications = new HashSet<Application>();
-		Set<LinkStatistics> callee = selectCallee(sourceApplication, range, calleeFoundApplications, callerFoundApplications);
-		logger.debug("Result of finding callee {}", callee);
-
-		Set<LinkStatistics> caller = selectCaller(sourceApplication, range, calleeFoundApplications, callerFoundApplications);
+		final Set<Application> calleeFound = new HashSet<Application>();
+		final Set<Application> callerFound = new HashSet<Application>();
+		Set<LinkStatistics> caller = selectCaller(sourceApplication, range, callerFound, calleeFound);
 		logger.debug("Result of finding caller {}", caller);
 
-		Set<LinkStatistics> data = new HashSet<LinkStatistics>(callee.size() + caller.size());
-		data.addAll(callee);
+		Set<LinkStatistics> callee = selectCallee(sourceApplication, range, callerFound, calleeFound);
+		logger.debug("Result of finding callee {}", callee);
+
+		Set<LinkStatistics> data = new HashSet<LinkStatistics>(caller.size() + callee.size());
 		data.addAll(caller);
+		data.addAll(callee);
 
 		ApplicationMap map = new ApplicationMapBuilder().build(new ArrayList<LinkStatistics>(data));
         map.appendResponseTime(range, this.mapResponseDao);
@@ -255,17 +254,17 @@ public class MapServiceImpl implements MapService {
 			// client는 applicatinname + servicetype.client로 기록된다.
 			// 그래서 src, dest가 둘 다 dest로 같음.
             Application userApplication = new Application(destinationApplication.getName(), sourceApplication.getServiceTypeCode());
-			list = mapStatisticsCalleeDao.selectCalleeStatistics(userApplication, destinationApplication, range);
+			list = mapStatisticsCallerDao.selectCallerStatistics(userApplication, destinationApplication, range);
 		} else if (destinationApplication.getServiceType().isWas()) {
 			logger.debug("Find 'any -> was' link statistics");
 			// destination이 was인 경우에는 중간에 client event가 끼어있기 때문에 callee에서
 			// caller가
 			// 같은녀석을 찾아야 한다.
-			list = mapStatisticsCallerDao.selectCallerStatistics(sourceApplication, destinationApplication, range);
+			list = mapStatisticsCalleeDao.selectCalleeStatistics(sourceApplication, destinationApplication, range);
 		} else {
 			logger.debug("Find 'was -> terminal' link statistics");
 			// 일반적으로 was -> terminal 간의 통계정보 조회.
-			list = mapStatisticsCalleeDao.selectCalleeStatistics(sourceApplication, destinationApplication, range);
+			list = mapStatisticsCallerDao.selectCallerStatistics(sourceApplication, destinationApplication, range);
 		}
 
 		LoadFactor loadFactor = new LoadFactor(range);

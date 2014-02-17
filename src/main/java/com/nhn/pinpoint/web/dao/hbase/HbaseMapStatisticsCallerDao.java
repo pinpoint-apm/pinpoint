@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 import com.nhn.pinpoint.web.dao.MapStatisticsCallerDao;
 import com.nhn.pinpoint.web.mapper.MapLinkStatisticsMapper;
 import com.nhn.pinpoint.web.vo.LinkKey;
@@ -44,23 +43,17 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 
 	@Autowired
 	@Qualifier("mapStatisticsCallerMapper")
-	private RowMapper<List<LinkStatistics>> applicationMapStatisticsCallerMapper;
+	private RowMapper<List<LinkStatistics>> mapStatisticsCallerMapper;
 
 	@Override
-	public List<LinkStatistics> selectCaller(Application calleeApplication, Range range) {
-        if (calleeApplication == null) {
-            throw new NullPointerException("calleeApplication must not be null");
-        }
-        if (range == null) {
-            throw new NullPointerException("range must not be null");
-        }
-        Scan scan = createScan(calleeApplication, range);
-		final List<List<LinkStatistics>> foundListList = hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLER, scan, applicationMapStatisticsCallerMapper);
+	public List<LinkStatistics> selectCaller(Application callerApplication, Range range) {
+		Scan scan = createScan(callerApplication, range);
+		final List<List<LinkStatistics>> foundListList = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLEE, scan, mapStatisticsCallerMapper);
 
 		if (foundListList.isEmpty()) {
-			logger.debug("There's no caller data. {}, {}", calleeApplication, range);
+			logger.debug("There's no caller data. {}, {}", callerApplication, range);
 		}
-		
+		// 시계열 데이터가 토탈 머지 데이터로 변경되는듯함.
         return merge(foundListList);
 	}
 
@@ -79,9 +72,9 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
             }
         }
 
+
         return new ArrayList<LinkStatistics>(result.values());
     }
-
 
     /**
 	 * 메인페이지 서버 맵에서 연결선을 선택했을 때 보여주는 통계정보.
@@ -103,21 +96,21 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 		if (logger.isDebugEnabled()) {
 			logger.debug("selectCallerStatistics. {}, {}, {}", callerApplication, calleeApplication, range);
 		}
-		Scan scan = createScan(calleeApplication, range);
+		Scan scan = createScan(callerApplication, range);
 		RowMapper<Map<Long, Map<Short, Long>>> mapper = new MapLinkStatisticsMapper(callerApplication, calleeApplication);
-		return hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLER, scan, mapper);
+		return hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLEE, scan, mapper);
 	}
 
 	private Scan createScan(Application application, Range range) {
 		long startTime = TimeSlot.getStatisticsRowSlot(range.getFrom());
 		// hbase의 scanner를 사용하여 검색시 endTime은 검색 대상에 포함되지 않기 때문에, +1을 해줘야 된다.
 		long endTime = TimeSlot.getStatisticsRowSlot(range.getTo()) + 1;
-		
+
 		if (logger.isDebugEnabled()) {
 			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss,SSS");
 			logger.debug("scan startTime:{} endTime:{}", simpleDateFormat.format(new Date(startTime)), simpleDateFormat.format(new Date(endTime)));
 		}
-		
+
 		// timestamp가 reverse되었기 때문에 start, end를 바꿔서 조회.
 		byte[] startKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), endTime);
 		byte[] endKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), startTime);
@@ -126,7 +119,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 		scan.setCaching(this.scanCacheSize);
 		scan.setStartRow(startKey);
 		scan.setStopRow(endKey);
-		scan.addFamily(HBaseTables.APPLICATION_MAP_STATISTICS_CALLER_CF_COUNTER);
+		scan.addFamily(HBaseTables.MAP_STATISTICS_CALLEE_CF_COUNTER);
 		scan.setId("ApplicationStatisticsScan");
 
 		return scan;

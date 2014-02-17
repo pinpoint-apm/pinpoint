@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
+import com.nhn.pinpoint.web.dao.MapStatisticsCalleeDao;
 import com.nhn.pinpoint.web.mapper.MapLinkStatisticsMapper;
 import com.nhn.pinpoint.web.vo.LinkKey;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
@@ -20,7 +22,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import com.nhn.pinpoint.web.dao.MapStatisticsCalleeDao;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
@@ -43,15 +44,21 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
 	@Autowired
 	@Qualifier("mapStatisticsCalleeMapper")
-	private RowMapper<List<LinkStatistics>> applicationMapStatisticsCalleeMapper;
+	private RowMapper<List<LinkStatistics>> mapStatisticsCalleeMapper;
 
 	@Override
-	public List<LinkStatistics> selectCallee(Application callerApplication, Range range) {
-		Scan scan = createScan(callerApplication, range);
-		final List<List<LinkStatistics>> foundListList = hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLEE, scan, applicationMapStatisticsCalleeMapper);
+	public List<LinkStatistics> selectCallee(Application calleeApplication, Range range) {
+        if (calleeApplication == null) {
+            throw new NullPointerException("calleeApplication must not be null");
+        }
+        if (range == null) {
+            throw new NullPointerException("range must not be null");
+        }
+        Scan scan = createScan(calleeApplication, range);
+		final List<List<LinkStatistics>> foundListList = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLER, scan, mapStatisticsCalleeMapper);
 
 		if (foundListList.isEmpty()) {
-			logger.debug("There's no callee data. {}, {}", callerApplication, range);
+			logger.debug("There's no caller data. {}, {}", calleeApplication, range);
 		}
 		
         return merge(foundListList);
@@ -72,9 +79,9 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
             }
         }
 
-
         return new ArrayList<LinkStatistics>(result.values());
     }
+
 
     /**
 	 * 메인페이지 서버 맵에서 연결선을 선택했을 때 보여주는 통계정보.
@@ -96,21 +103,21 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 		if (logger.isDebugEnabled()) {
 			logger.debug("selectCalleeStatistics. {}, {}, {}", callerApplication, calleeApplication, range);
 		}
-		Scan scan = createScan(callerApplication, range);
+		Scan scan = createScan(calleeApplication, range);
 		RowMapper<Map<Long, Map<Short, Long>>> mapper = new MapLinkStatisticsMapper(callerApplication, calleeApplication);
-		return hbaseOperations2.find(HBaseTables.APPLICATION_MAP_STATISTICS_CALLEE, scan, mapper);
+		return hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLER, scan, mapper);
 	}
 
 	private Scan createScan(Application application, Range range) {
 		long startTime = TimeSlot.getStatisticsRowSlot(range.getFrom());
 		// hbase의 scanner를 사용하여 검색시 endTime은 검색 대상에 포함되지 않기 때문에, +1을 해줘야 된다.
 		long endTime = TimeSlot.getStatisticsRowSlot(range.getTo()) + 1;
-
+		
 		if (logger.isDebugEnabled()) {
 			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss,SSS");
 			logger.debug("scan startTime:{} endTime:{}", simpleDateFormat.format(new Date(startTime)), simpleDateFormat.format(new Date(endTime)));
 		}
-
+		
 		// timestamp가 reverse되었기 때문에 start, end를 바꿔서 조회.
 		byte[] startKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), endTime);
 		byte[] endKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), startTime);
@@ -119,7 +126,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 		scan.setCaching(this.scanCacheSize);
 		scan.setStartRow(startKey);
 		scan.setStopRow(endKey);
-		scan.addFamily(HBaseTables.APPLICATION_MAP_STATISTICS_CALLEE_CF_COUNTER);
+		scan.addFamily(HBaseTables.MAP_STATISTICS_CALLER_CF_COUNTER);
 		scan.setId("ApplicationStatisticsScan");
 
 		return scan;

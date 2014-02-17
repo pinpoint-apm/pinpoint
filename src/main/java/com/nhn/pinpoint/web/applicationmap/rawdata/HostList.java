@@ -92,8 +92,8 @@ public class HostList {
 
     @Override
     public String toString() {
-        return "HostList{" +
-                "hostMap=" + hostMap +
+        return "HostList{"
+                    + hostMap +
                 '}';
     }
 }

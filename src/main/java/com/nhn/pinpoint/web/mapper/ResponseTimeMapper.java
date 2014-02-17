@@ -25,8 +25,8 @@ public class ResponseTimeMapper implements RowMapper<RawResponseTime> {
         RawResponseTime rawResponseTime = createRawResponseTime(rowKey);
 
         for (KeyValue keyValue : result.raw()) {
-            if (!Bytes.equals(keyValue.getFamily(), HBaseTables.APPLICATION_MAP_STATISTICS_SELF_CF_COUNTER)) {
-                return rawResponseTime;
+            if (!Bytes.equals(keyValue.getFamily(), HBaseTables.MAP_STATISTICS_SELF_CF_COUNTER)) {
+                continue;
             }
             byte[] qualifier = keyValue.getQualifier();
             byte[] value = keyValue.getValue();

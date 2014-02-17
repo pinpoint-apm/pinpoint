@@ -29,7 +29,7 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final String tableName = HBaseTables.APPLICATION_MAP_STATISTICS_SELF;
+    private final String tableName = HBaseTables.MAP_STATISTICS_SELF;
 
     private int scanCacheSize = 40;
 
@@ -79,7 +79,7 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
         scan.setCaching(this.scanCacheSize);
         scan.setStartRow(startKey);
         scan.setStopRow(endKey);
-        scan.addFamily(HBaseTables.APPLICATION_MAP_STATISTICS_SELF_CF_COUNTER);
+        scan.addFamily(HBaseTables.MAP_STATISTICS_SELF_CF_COUNTER);
         scan.setId("ApplicationSelfScan");
 
         return scan;

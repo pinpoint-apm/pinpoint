@@ -114,9 +114,9 @@ public class LinkStatistics {
     @Override
     public String toString() {
         return "LoadFactor{" +
-                "toHostList=" + toHostList +
-                ", fromApplication=" + fromApplication +
+                "fromApplication=" + fromApplication +
                 ", toApplication=" + toApplication +
+                ", " + toHostList +
                 '}';
     }
 

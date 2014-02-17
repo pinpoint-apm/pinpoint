@@ -64,7 +64,7 @@ public class Host {
         final StringBuilder sb = new StringBuilder("Host{");
         sb.append("host='").append(host).append('\'');
         sb.append(", serviceType=").append(serviceType);
-        sb.append(", histogram=").append(histogram);
+        sb.append(", ").append(histogram);
         sb.append('}');
         return sb.toString();
     }
