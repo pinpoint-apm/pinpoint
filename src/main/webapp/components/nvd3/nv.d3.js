@@ -6823,7 +6823,8 @@ nv.models.multiBar = function() {
               return y((stacked ? d.y1 : 0));
             })
             .attr('height', function(d,i) {
-              return Math.max(Math.abs(y(d.y + (stacked ? d.y0 : 0)) - y((stacked ? d.y0 : 0))),1);
+            	// [WEB-52] 
+              return Math.max(Math.abs(y(d.y + (stacked ? d.y0 : 0)) - y((stacked ? d.y0 : 0))),0);
             })
             .each('end', function() {
               d3.select(this).transition().duration(drawTime)
@@ -6849,7 +6850,8 @@ nv.models.multiBar = function() {
                           y(getY(d,i)) || 0;
               })
               .attr('height', function(d,i) {
-                  return Math.max(Math.abs(y(getY(d,i)) - y(0)),1) || 0;
+            	  // [WEB-52] 
+                  return Math.max(Math.abs(y(getY(d,i)) - y(0)),0) || 0;
                 });
             })
 
