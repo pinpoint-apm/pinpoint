@@ -53,6 +53,8 @@ public final class HBaseTables {
 
 	public static final String MAP_STATISTICS_CALLEE = "ApplicationMapStatisticsCallee";
 	public static final byte[] MAP_STATISTICS_CALLEE_CF_COUNTER = Bytes.toBytes("C");
+    // 신버전의 column Name저장용.
+    public static final byte[] MAP_STATISTICS_CALLEE_CF_VER2_COUNTER = Bytes.toBytes("D");
 
     public static final String MAP_STATISTICS_SELF = "ApplicationMapStatisticsSelf";
     public static final byte[] MAP_STATISTICS_SELF_CF_COUNTER = Bytes.toBytes("C");
