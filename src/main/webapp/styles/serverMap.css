@@ -31,11 +31,15 @@
 .servermap .modal .form-group label {
 }
 .servermap .sidebar-title {
-    height: auto;
+    margin: 0;
 }
 .servermap .sidebar-title h3 {
     text-align: left;
-    height: auto;
-    line-height: normal;
-    background-color: transparent;
+    border: 0;
+    background: none;
+    -webkit-box-shadow:none;
+    box-shadow: none;
+}
+.servermap .sidebar-title .tooltip {
+    display: none !important;
 }
