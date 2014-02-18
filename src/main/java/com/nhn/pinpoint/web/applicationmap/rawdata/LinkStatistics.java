@@ -16,6 +16,8 @@ public class LinkStatistics {
 
     private Application fromApplication;
     private Application toApplication;
+    private long time;
+
 
 	/**
 	 * key = hostname
@@ -36,8 +38,11 @@ public class LinkStatistics {
         this.toHostList = new HostList();
 	}
 
+    public void setTime(long time) {
+        this.time = time;
+    }
 
-	/**
+    /**
 	 * 
 	 * @param hostname
 	 *            host이름 또는 endpoint

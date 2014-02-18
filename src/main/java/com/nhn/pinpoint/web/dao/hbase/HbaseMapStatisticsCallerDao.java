@@ -120,6 +120,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 		scan.setStartRow(startKey);
 		scan.setStopRow(endKey);
 		scan.addFamily(HBaseTables.MAP_STATISTICS_CALLEE_CF_COUNTER);
+        scan.addFamily(HBaseTables.MAP_STATISTICS_CALLEE_CF_VER2_COUNTER);
 		scan.setId("ApplicationStatisticsScan");
 
 		return scan;

@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.nhn.pinpoint.common.buffer.Buffer;
+import com.nhn.pinpoint.common.buffer.FixedBuffer;
+import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.web.vo.Application;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
@@ -106,33 +109,66 @@ public class MapLinkStatisticsMapper implements RowMapper<Map<Long, Map<Short, L
 		 */
 		Map<Long, Map<Short, Long>> resultStat = new HashMap<Long, Map<Short, Long>>();
 
+        final long timestamp = ApplicationMapStatisticsUtils.getTimestampFromRowKey(result.getRow());
 		for (KeyValue kv : keyList) {
-			final byte[] qualifier = kv.getQualifier();
-			String foundApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);
-			short foundServiceType = ApplicationMapStatisticsUtils.getDestServiceTypeFromColumnName(qualifier);
+            final byte[] family = kv.getFamily();
+            if (Bytes.equals(family, HBaseTables.MAP_STATISTICS_CALLEE_CF_COUNTER)) {
+                final byte[] qualifier = kv.getQualifier();
+                String foundApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);
+                short foundServiceType = ApplicationMapStatisticsUtils.getDestServiceTypeFromColumnName(qualifier);
 
-			if (dropRow(foundApplicationName, foundServiceType)) {
-				continue;
-			}
+                if (dropRow(foundApplicationName, foundServiceType)) {
+                    continue;
+                }
 
-			long timestamp = ApplicationMapStatisticsUtils.getTimestampFromRowKey(kv.getRow());
-			short histogramSlot = ApplicationMapStatisticsUtils.getHistogramSlotFromColumnName(qualifier);
-			long requestCount = Bytes.toLong(kv.getValue());
+                short histogramSlot = ApplicationMapStatisticsUtils.getHistogramSlotFromColumnName(qualifier);
+                long requestCount = Bytes.toLong(kv.getValue());
 
-			if (logger.isDebugEnabled()) {
-                logger.debug("Fetched statistics. timestamp={}, histogramSlot={}, requestCount={}", timestamp, histogramSlot, requestCount);
-			}
-			
-			if (resultStat.containsKey(timestamp)) {
-				Map<Short, Long> map = resultStat.get(timestamp);
-				long value = (map.containsKey(histogramSlot) ? map.get(histogramSlot) + requestCount : requestCount);
-				map.put(histogramSlot, value);
-				resultStat.put(timestamp, map);
-			} else {
-				Map<Short, Long> map = new TreeMap<Short, Long>();
-				map.put(histogramSlot, requestCount);
-				resultStat.put(timestamp, map);
-			}
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Fetched statistics. timestamp={}, histogramSlot={}, requestCount={}", timestamp, histogramSlot, requestCount);
+                }
+
+                if (resultStat.containsKey(timestamp)) {
+                    Map<Short, Long> map = resultStat.get(timestamp);
+                    long value = (map.containsKey(histogramSlot) ? map.get(histogramSlot) + requestCount : requestCount);
+                    map.put(histogramSlot, value);
+                    resultStat.put(timestamp, map);
+                } else {
+                    Map<Short, Long> map = new TreeMap<Short, Long>();
+                    map.put(histogramSlot, requestCount);
+                    resultStat.put(timestamp, map);
+                }
+            } else if (Bytes.equals(family, HBaseTables.MAP_STATISTICS_CALLEE_CF_VER2_COUNTER)) {
+                final byte[] qualifier = kv.getQualifier();
+                final Buffer buffer = new FixedBuffer(qualifier);
+
+                short foundServiceType = buffer.readShort();
+                String foundApplicationName = buffer.readPrefixedString();
+
+                if (dropRow(foundApplicationName, foundServiceType)) {
+                    continue;
+                }
+                String skipCalleeHost = buffer.readPrefixedString();
+                short histogramSlot = buffer.readShort();
+                String skipCallerAgentId = buffer.readPrefixedString();
+
+                long requestCount = Bytes.toLong(kv.getValue());
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Fetched statistics. timestamp={}, histogramSlot={}, requestCount={}", timestamp, histogramSlot, requestCount);
+                }
+
+                if (resultStat.containsKey(timestamp)) {
+                    Map<Short, Long> map = resultStat.get(timestamp);
+                    long value = (map.containsKey(histogramSlot) ? map.get(histogramSlot) + requestCount : requestCount);
+                    map.put(histogramSlot, value);
+                    resultStat.put(timestamp, map);
+                } else {
+                    Map<Short, Long> map = new TreeMap<Short, Long>();
+                    map.put(histogramSlot, requestCount);
+                    resultStat.put(timestamp, map);
+                }
+            }
 		}
 
 		return resultStat;

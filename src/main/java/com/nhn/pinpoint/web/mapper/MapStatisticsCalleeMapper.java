@@ -35,10 +35,12 @@ public class MapStatisticsCalleeMapper implements RowMapper<List<LinkStatistics>
 
         final Map<LinkKey, LinkStatistics> linkStatisticsMap = new HashMap<LinkKey, LinkStatistics>();
 
-		for (KeyValue kv : keyList) {
+        final byte[] rowKey = result.getRow();
+        final long timestamp = ApplicationMapStatisticsUtils.getTimestampFromRowKey(rowKey);
+        logger.debug("rowKey time:{}", timestamp);
+        Application calleeApplication = readCalleeApplication(rowKey);
 
-            final byte[] row = kv.getRow();
-            Application calleeApplication = readCalleeApplication(row);
+		for (KeyValue kv : keyList) {
 
             final byte[] qualifier = kv.getQualifier();
             Application callerApplication = readCallerApplication(qualifier);
@@ -53,7 +55,7 @@ public class MapStatisticsCalleeMapper implements RowMapper<List<LinkStatistics>
                 logger.debug("    Fetched Callee. {} callerHost:{} -> {} (slot:{}/{}),  ", callerApplication, callerHost, calleeApplication, histogramSlot, requestCount);
             }
 
-            LinkStatistics statistics = getLinkStatics(linkStatisticsMap, callerApplication, calleeApplication);
+            LinkStatistics statistics = getLinkStatics(linkStatisticsMap, callerApplication, calleeApplication, timestamp);
             statistics.addSample(callerHost, calleeApplication.getServiceTypeCode(), (isError) ? (short) -1 : histogramSlot, requestCount);
 
             if (logger.isDebugEnabled()) {
@@ -64,11 +66,12 @@ public class MapStatisticsCalleeMapper implements RowMapper<List<LinkStatistics>
         return new ArrayList<LinkStatistics>(linkStatisticsMap.values());
 	}
 
-    private LinkStatistics getLinkStatics(Map<LinkKey, LinkStatistics> linkStatisticsMap, Application callerApplication, Application calleeApplication) {
+    private LinkStatistics getLinkStatics(Map<LinkKey, LinkStatistics> linkStatisticsMap, Application callerApplication, Application calleeApplication, long timestamp) {
         final LinkKey key = new LinkKey(callerApplication, calleeApplication);
         LinkStatistics statistics = linkStatisticsMap.get(key);
         if (statistics == null) {
             statistics = new LinkStatistics(callerApplication, calleeApplication);
+            statistics.setTime(timestamp);
             linkStatisticsMap.put(key, statistics);
         }
         return statistics;
