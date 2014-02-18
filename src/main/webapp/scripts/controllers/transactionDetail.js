@@ -75,7 +75,8 @@ pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$sc
         showCallStacks = function () {
             if (bShowCallStacksOnce === false) {
                 bShowCallStacksOnce = true;
-                $scope.$broadcast('callStacks.initialize.forTransactionDetail', $scope.transactionDetail);
+                //$scope.$broadcast('callStacks.initialize.forTransactionDetail', $scope.transactionDetail);
+                $scope.$broadcast('distributedCallFlow.initialize.forTransactionDetail', $scope.transactionDetail);
             }
         };
 
