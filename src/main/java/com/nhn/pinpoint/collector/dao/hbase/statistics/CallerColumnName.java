@@ -1,13 +1,15 @@
 package com.nhn.pinpoint.collector.dao.hbase.statistics;
 
+import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
+import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
 
 /**
  * @author emeroad
  */
-public class CallColumnName implements ColumnName {
-    private short callServiceType;
-    private String callApplicationName;
+public class CallerColumnName implements ColumnName {
+    private short callerServiceType;
+    private String callerApplicationName;
     //  호출당하거나, 호출한 host,
     private String callHost;
     private short columnSlotNumber;
@@ -17,15 +19,15 @@ public class CallColumnName implements ColumnName {
 
     private long callCount;
 
-    public CallColumnName(short callServiceType, String callApplicationName, String callHost, short columnSlotNumber) {
-        if (callApplicationName == null) {
-            throw new NullPointerException("callApplicationName must not be null");
+    public CallerColumnName(short callerServiceType, String callerApplicationName, String callHost, short columnSlotNumber) {
+        if (callerApplicationName == null) {
+            throw new NullPointerException("callerApplicationName must not be null");
         }
         if (callHost == null) {
             throw new NullPointerException("callHost must not be null");
         }
-        this.callServiceType = callServiceType;
-        this.callApplicationName = callApplicationName;
+        this.callerServiceType = callerServiceType;
+        this.callerApplicationName = callerApplicationName;
         this.callHost = callHost;
         this.columnSlotNumber = columnSlotNumber;
     }
@@ -39,7 +41,7 @@ public class CallColumnName implements ColumnName {
     }
 
     public byte[] getColumnName() {
-        return ApplicationMapStatisticsUtils.makeColumnName(callServiceType, callApplicationName, callHost, columnSlotNumber);
+        return ApplicationMapStatisticsUtils.makeColumnName(callerServiceType, callerApplicationName, callHost, columnSlotNumber);
     }
 
     @Override
@@ -47,11 +49,11 @@ public class CallColumnName implements ColumnName {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        CallColumnName that = (CallColumnName) o;
+        CallerColumnName that = (CallerColumnName) o;
 
-        if (callServiceType != that.callServiceType) return false;
+        if (callerServiceType != that.callerServiceType) return false;
         if (columnSlotNumber != that.columnSlotNumber) return false;
-        if (callApplicationName != null ? !callApplicationName.equals(that.callApplicationName) : that.callApplicationName != null) return false;
+        if (callerApplicationName != null ? !callerApplicationName.equals(that.callerApplicationName) : that.callerApplicationName != null) return false;
         if (callHost != null ? !callHost.equals(that.callHost) : that.callHost != null) return false;
 
         return true;
@@ -66,8 +68,8 @@ public class CallColumnName implements ColumnName {
         if (hash != 0) {
             return hash;
         }
-        int result = (int) callServiceType;
-        result = 31 * result + (callApplicationName != null ? callApplicationName.hashCode() : 0);
+        int result = (int) callerServiceType;
+        result = 31 * result + (callerApplicationName != null ? callerApplicationName.hashCode() : 0);
         result = 31 * result + (callHost != null ? callHost.hashCode() : 0);
         result = 31 * result + (int) columnSlotNumber;
         hash = result;
@@ -76,9 +78,9 @@ public class CallColumnName implements ColumnName {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("CallColumnName{");
-        sb.append("callServiceType=").append(callServiceType);
-        sb.append(", callApplicationName='").append(callApplicationName).append('\'');
+        final StringBuilder sb = new StringBuilder("CallerColumnName{");
+        sb.append("callerServiceType=").append(callerServiceType);
+        sb.append(", callerApplicationName='").append(callerApplicationName).append('\'');
         sb.append(", callHost='").append(callHost).append('\'');
         sb.append(", columnSlotNumber=").append(columnSlotNumber);
         sb.append(", callCount=").append(callCount);

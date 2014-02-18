@@ -82,7 +82,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
         final RowKey calleeRowKey = new CallRowKey(calleeApplicationName, calleeServiceType, rowTimeSlot);
 
         final short callerSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(callerServiceType, elapsed, isError);
-        final ColumnName callerColumnName = new CallColumnName(callerServiceType, callerApplicationName, callerHost, callerSlotNumber);
+        final ColumnName callerColumnName = new CallerColumnName(callerServiceType, callerApplicationName, callerHost, callerSlotNumber);
 
 		if (useBulk) {
             RowInfo rowInfo = new DefaultRowInfo(calleeRowKey, callerColumnName);

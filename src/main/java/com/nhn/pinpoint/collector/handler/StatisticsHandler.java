@@ -37,8 +37,8 @@ public class StatisticsHandler {
      * @param elapsed
      * @param isError
      */
-	public void updateCaller(String callerApplicationName, short callerServiceType, String calleeApplicationName, short calleeServiceType, String calleeHost, int elapsed, boolean isError) {
-		mapStatisticsCallerDao.update(callerApplicationName, callerServiceType, calleeApplicationName, calleeServiceType, calleeHost, elapsed, isError);
+	public void updateCaller(String callerApplicationName, short callerServiceType, String callerAgentId, String calleeApplicationName, short calleeServiceType, String calleeHost, int elapsed, boolean isError) {
+		mapStatisticsCallerDao.update(callerApplicationName, callerServiceType, callerAgentId, calleeApplicationName, calleeServiceType, calleeHost, elapsed, isError);
 	}
 
     /**

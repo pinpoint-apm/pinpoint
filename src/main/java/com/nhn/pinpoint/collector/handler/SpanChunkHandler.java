@@ -63,7 +63,7 @@ public class SpanChunkHandler implements SimpleHandler {
 					 * 통계정보에 기반한 서버맵을 그리기 위한 정보 저장.
 					 */
 					// 내가 호출한 정보 저장. (span이 호출한 spanevent)
-					statisticsHandler.updateCaller(spanChunk.getApplicationName(), spanChunk.getServiceType(), spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getEndPoint(), elapsed, hasException);
+					statisticsHandler.updateCaller(spanChunk.getApplicationName(), spanChunk.getServiceType(), spanChunk.getAgentId(), spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getEndPoint(), elapsed, hasException);
 
 					// 나를 호출한 정보 저장 (spanevent를 호출한 span)
 					statisticsHandler.updateCallee(spanEvent.getDestinationId(), spanEvent.getServiceType(), spanChunk.getApplicationName(), spanChunk.getServiceType(), spanChunk.getEndPoint(), elapsed, hasException);

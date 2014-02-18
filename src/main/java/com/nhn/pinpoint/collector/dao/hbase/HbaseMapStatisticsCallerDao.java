@@ -2,6 +2,7 @@ package com.nhn.pinpoint.collector.dao.hbase;
 
 import static com.nhn.pinpoint.common.hbase.HBaseTables.MAP_STATISTICS_CALLEE;
 import static com.nhn.pinpoint.common.hbase.HBaseTables.MAP_STATISTICS_CALLEE_CF_COUNTER;
+import static com.nhn.pinpoint.common.hbase.HBaseTables.MAP_STATISTICS_CALLEE_CF_VER2_COUNTER;
 
 import com.nhn.pinpoint.collector.dao.MapStatisticsCallerDao;
 import com.nhn.pinpoint.collector.dao.hbase.statistics.*;
@@ -57,7 +58,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 	}
 
     @Override
-	public void update(String callerApplicationName, short callerServiceType, String calleeApplicationName, short calleeServiceType, String calleeHost, int elapsed, boolean isError) {
+	public void update(String callerApplicationName, short callerServiceType, String callerAgentid, String calleeApplicationName, short calleeServiceType, String calleeHost, int elapsed, boolean isError) {
         if (callerApplicationName == null) {
             throw new NullPointerException("callerApplicationName must not be null");
         }
@@ -66,8 +67,8 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
         }
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("[Caller] {} ({}) -> {} ({})[{}]",
-                    callerApplicationName, ServiceType.findServiceType(callerServiceType),
+			logger.debug("[Caller] {} ({}) {} -> {} ({})[{}]",
+                    callerApplicationName, ServiceType.findServiceType(callerServiceType), callerAgentid,
                     calleeApplicationName, ServiceType.findServiceType(calleeServiceType), calleeHost);
 		}
 
@@ -80,7 +81,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
         final RowKey callerRowKey = new CallRowKey(callerApplicationName, callerServiceType, rowTimeSlot);
 
         final short calleeSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(calleeServiceType, elapsed, isError);
-        final ColumnName calleeColumnName = new CallColumnName(calleeServiceType, calleeApplicationName, calleeHost, calleeSlotNumber);
+        final ColumnName calleeColumnName = new CalleeColumnName(callerAgentid, calleeServiceType, calleeApplicationName, calleeHost, calleeSlotNumber);
 		if (useBulk) {
             RowInfo rowInfo = new DefaultRowInfo(callerRowKey, calleeColumnName);
             this.counter.increment(rowInfo, 1L);
@@ -99,7 +100,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
         if (columnName == null) {
             throw new NullPointerException("columnName must not be null");
         }
-        hbaseTemplate.incrementColumnValue(MAP_STATISTICS_CALLEE, rowKey, MAP_STATISTICS_CALLEE_CF_COUNTER, columnName, increment);
+        hbaseTemplate.incrementColumnValue(MAP_STATISTICS_CALLEE, rowKey, MAP_STATISTICS_CALLEE_CF_VER2_COUNTER, columnName, increment);
     }
 
 

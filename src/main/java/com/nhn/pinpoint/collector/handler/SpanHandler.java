@@ -69,7 +69,7 @@ public class SpanHandler implements SimpleHandler {
         if (span.getParentSpanId() == -1) {
             // FIXME 테스트용. host값에 agentId를 입력.
             // user를 생성하는 부분
-            statisticsHandler.updateCaller(span.getApplicationName(), ServiceType.USER.getCode(), span.getApplicationName(), span.getServiceType(), span.getAgentId(), span.getElapsed(), isError);
+            statisticsHandler.updateCaller(span.getApplicationName(), ServiceType.USER.getCode(), span.getAgentId(), span.getApplicationName(), span.getServiceType(), span.getAgentId(), span.getElapsed(), isError);
             statisticsHandler.updateCallee(span.getApplicationName(), span.getServiceType(), span.getApplicationName(), ServiceType.USER.getCode(), span.getAgentId(), span.getElapsed(), isError);
             bugCheck++;
         }
@@ -118,7 +118,7 @@ public class SpanHandler implements SimpleHandler {
 
             // 통계정보에 기반한 서버맵을 그리기 위한 정보 저장.
             // 내가 호출한 정보 저장. (span이 호출한 spanevent)
-            statisticsHandler.updateCaller(span.getApplicationName(), span.getServiceType(), spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getEndPoint(), elapsed, hasException);
+            statisticsHandler.updateCaller(span.getApplicationName(), span.getServiceType(), span.getAgentId(), spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getEndPoint(), elapsed, hasException);
 
             // 나를 호출한 정보 저장 (spanevent를 호출한 span)
             statisticsHandler.updateCallee(spanEvent.getDestinationId(), spanEvent.getServiceType(), span.getApplicationName(), span.getServiceType(), span.getEndPoint(), elapsed, hasException);
