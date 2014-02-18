@@ -5,6 +5,7 @@
 }
 .distributed-call-flow .slick-cell {
     font-family: consolas;
+    border-bottom: 0;
 }
 .distributed-call-flow div {
     -webkit-box-sizing: content-box;
@@ -100,7 +101,7 @@
 }
 
 .slick-row.odd {
-    background: #fafafa;
+    /*background: #fafafa;*/
 }
 
 .slick-row.ui-state-active {

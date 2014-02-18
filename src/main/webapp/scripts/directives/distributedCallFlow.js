@@ -77,8 +77,8 @@ pinpointApp.directive('distributedCallFlow', [ '$filter',
                     {id: "method", name: "Method", field: "method", width: 400, formatter: treeFormatter},
                     {id: "argument", name: "Argument", field: "argument", width: 300},
                     {id: "exec-time", name: "Exec Time", field: "execTime", width: 90, formatter: execTimeFormatter},
-                    {id: "gap-ms", name: "Gap(ms)", field: "gapMs", width: 50, cssClass: "right-align", formatter: numberFormatter},
-                    {id: "time-ms", name: "Time(ms)", field: "timeMs", width: 50, cssClass: "right-align", formatter: numberFormatter},
+                    {id: "gap-ms", name: "Gap(ms)", field: "gapMs", width: 50, cssClass: "right-align"},
+                    {id: "time-ms", name: "Time(ms)", field: "timeMs", width: 50, cssClass: "right-align"},
                     {id: "time-per", name: "Time(%)", field: "timePer", width: 100, formatter: Slick.Formatters.PercentCompleteBar},
                     {id: "class", name: "Class", field: "class", width: 120},
                     {id: "api-type", name: "Api Type", field: "apiType", width: 90},
@@ -126,18 +126,18 @@ pinpointApp.directive('distributedCallFlow', [ '$filter',
                     dataView.beginUpdate();
                     dataView.setItems(window.callStacks);
                     dataView.setFilter(treeFilter);
-                    dataView.getItemMetadata = function (row) {
-                        var item = dataView.getItemByIdx(row);
-                        if (!item.execTime) {
-                            return {
-                                "columns": {
-                                    2: {
-                                        "colspan": "*"
-                                    }
-                                }
-                            };
-                        }
-                    };
+//                    dataView.getItemMetadata = function (row) {
+//                        var item = dataView.getItemByIdx(row);
+//                        if (!item.execTime) {
+//                            return {
+//                                "columns": {
+//                                    2: {
+//                                        "colspan": "*"
+//                                    }
+//                                }
+//                            };
+//                        }
+//                    };
                     dataView.endUpdate();
 
                     grid = new Slick.Grid(element.get(0), dataView, columns, options);
