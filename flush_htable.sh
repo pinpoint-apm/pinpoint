@@ -12,6 +12,7 @@ flush 'ApiMetaData'
 
 flush 'ApplicationMapStatisticsCaller'
 flush 'ApplicationMapStatisticsCallee'
+flush 'ApplicationMapStatisticsSelf'
 flush 'ApplicationStatistics'
 flush 'HostApplicationMap'
 

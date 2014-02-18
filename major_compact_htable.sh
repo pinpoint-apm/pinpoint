@@ -31,6 +31,8 @@ major_compact 'Traces'
 
 major_compact 'ApplicationMapStatisticsCaller'
 major_compact 'ApplicationMapStatisticsCallee'
+major_compact 'ApplicationMapStatisticsSelf'
+
 major_compact 'ApplicationStatistics'
 major_compact 'HostApplicationMap'
 
