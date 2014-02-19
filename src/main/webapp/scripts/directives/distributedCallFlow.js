@@ -16,7 +16,7 @@ pinpointApp.directive('distributedCallFlow', [ '$filter',
                 var grid, columns, dataView, lastAgent;
 
                 // initialize variables of methods
-                var initialize, treeFormatter, treeFilter, parseData, execTimeFormatter, numberFormatter,
+                var initialize, treeFormatter, treeFilter, parseData, execTimeFormatter,
                     getColorByString, progressBarFormatter;
 
                 // bootstrap
@@ -52,13 +52,19 @@ pinpointApp.directive('distributedCallFlow', [ '$filter',
                         html.push(" <span class='toggle'></span>&nbsp;");
                     }
 
+
                     if (item.hasException) {
+                        html.push('<span style="color:rgb(214, 39, 39);">');
                         html.push('<span class="glyphicon glyphicon-fire"></span>&nbsp;');
                     } else if (!item.isMethod) {
+                        html.push('<span style="color:rgb(79, 79, 107);">');
                         html.push('<span class="glyphicon glyphicon-info-sign"></span>&nbsp;');
+                    } else {
+                        html.push('<span>');
                     }
 
                     html.push(value);
+                    html.push('</span>');
 
                     return html.join('');
                 };
@@ -82,19 +88,15 @@ pinpointApp.directive('distributedCallFlow', [ '$filter',
                     return $filter('date')(value, 'HH:mm:ss sss');
                 };
 
-                numberFormatter = function (row, cell, value, columnDef, dataContext) {
-                    return $filter('number')(value);
-                };
-
                 progressBarFormatter = function (row, cell, value, columnDef, dataContext) {
                     if (value == null || value === "" || value == 0) {
                         return "";
                     }
                     var color;
                     if (value < 30) {
-                        color = "#B0E3F1";
+                        color = "#5bc0de";
                     } else if (value < 70) {
-                        color = "#81CFE5";
+                        color = "#5bc0de";
                     } else {
                         color = "#5bc0de";
                     }
