@@ -43,15 +43,11 @@
     background: #F5F7D7;
 }
 
-.slick-row {
-    position: absolute;
-    background: white;
-    border: 0px;
-    line-height: 20px;
+.slick-row:hover {
+    background-color: blue;
 }
 
-.slick-row.selected {
-    z-index: 10;
+.slick-row.active {
     background: #DFE8F6;
 }
 
@@ -89,11 +85,7 @@
 }
 
 .slick-cell.active {
-    border-color: gray;
-    border-style: solid;
-    white-space: normal;
-    text-overflow: initial;
-    word-break: break-all;
+
 }
 
 .slick-sortable-placeholder {

@@ -17,7 +17,7 @@ pinpointApp.directive('distributedCallFlow', [ '$filter',
 
                 // initialize variables of methods
                 var initialize, treeFormatter, treeFilter, parseData, execTimeFormatter, numberFormatter,
-                    getColorByString;
+                    getColorByString, progressBarFormatter;
 
                 // bootstrap
                 window.callStacks = [];
@@ -31,23 +31,36 @@ pinpointApp.directive('distributedCallFlow', [ '$filter',
                 };
 
                 treeFormatter = function (row, cell, value, columnDef, dataContext) {
+                    var html = [];
+
                     value = value.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
                     var item = dataView.getItemById(dataContext.id);
                     lastAgent = item.agent ? item.agent : lastAgent;
 
                     var leftBarColor = getColorByString(lastAgent),
-                        leftBar = "<div style='position:absolute;top:0;left:0;bottom:0;width:5px;background-color:"+leftBarColor+"'></div>",
-                        spacer = leftBar + "<span style='display:inline-block;height:1px;width:" + (15 * dataContext["indent"]) + "px'></span>",
                         idx = dataView.getIdxById(dataContext.id);
+                    html.push("<div style='position:absolute;top:0;left:0;bottom:0;width:5px;background-color:"+leftBarColor+"'></div>");
+                    html.push("<span style='display:inline-block;height:1px;width:" + (15 * dataContext["indent"]) + "px'></span>");
+
                     if (window.callStacks[idx + 1] && window.callStacks[idx + 1].indent > window.callStacks[idx].indent) {
                         if (dataContext._collapsed) {
-                            return spacer + " <span class='toggle expand'></span>&nbsp;" + value;
+                            html.push(" <span class='toggle expand'></span>&nbsp;");
                         } else {
-                            return spacer + " <span class='toggle collapse'></span>&nbsp;" + value;
+                            html.push(" <span class='toggle collapse'></span>&nbsp;");
                         }
                     } else {
-                        return spacer + " <span class='toggle'></span>&nbsp;" + value;
+                        html.push(" <span class='toggle'></span>&nbsp;");
                     }
+
+                    if (item.hasException) {
+                        html.push('<span class="glyphicon glyphicon-fire"></span>&nbsp;');
+                    } else if (!item.isMethod) {
+                        html.push('<span class="glyphicon glyphicon-info-sign"></span>&nbsp;');
+                    }
+
+                    html.push(value);
+
+                    return html.join('');
                 };
 
                 treeFilter = function (item) {
@@ -73,13 +86,28 @@ pinpointApp.directive('distributedCallFlow', [ '$filter',
                     return $filter('number')(value);
                 };
 
+                progressBarFormatter = function (row, cell, value, columnDef, dataContext) {
+                    if (value == null || value === "" || value == 0) {
+                        return "";
+                    }
+                    var color;
+                    if (value < 30) {
+                        color = "#B0E3F1";
+                    } else if (value < 70) {
+                        color = "#81CFE5";
+                    } else {
+                        color = "#5bc0de";
+                    }
+                    return "<span class='percent-complete-bar' style='background:" + color + ";width:" + value + "%'></span>";
+                };
+
                 columns = [
                     {id: "method", name: "Method", field: "method", width: 400, formatter: treeFormatter},
                     {id: "argument", name: "Argument", field: "argument", width: 300},
                     {id: "exec-time", name: "Exec Time", field: "execTime", width: 90, formatter: execTimeFormatter},
-                    {id: "gap-ms", name: "Gap(ms)", field: "gapMs", width: 50, cssClass: "right-align"},
-                    {id: "time-ms", name: "Time(ms)", field: "timeMs", width: 50, cssClass: "right-align"},
-                    {id: "time-per", name: "Time(%)", field: "timePer", width: 100, formatter: Slick.Formatters.PercentCompleteBar},
+                    {id: "gap-ms", name: "Gap(ms)", field: "gapMs", width: 60, cssClass: "right-align"},
+                    {id: "time-ms", name: "Time(ms)", field: "timeMs", width: 60, cssClass: "right-align"},
+                    {id: "time-per", name: "Time(%)", field: "timePer", width: 100, formatter: progressBarFormatter},
                     {id: "class", name: "Class", field: "class", width: 120},
                     {id: "api-type", name: "Api Type", field: "apiType", width: 90},
                     {id: "agent", name: "Agent", field: "agent", width: 130},
@@ -104,11 +132,13 @@ pinpointApp.directive('distributedCallFlow', [ '$filter',
                             execTime: val[index['begin']] > 0 ? val[index['begin']] : null,
                             gapMs: val[index['gap']],
                             timeMs: val[index['elapsedTime']],
-                            timePer: ((val[index['end']] - val[index['begin']]) * barRatio) + 0.9,
+                            timePer: val[index['elapsedTime']] ? ((val[index['end']] - val[index['begin']]) * barRatio) + 0.9 : null,
                             class: val[index['simpleClassName']],
                             apiType: val[index['apiType']],
                             agent: val[index['agent']],
-                            applicationName: val[index['applicationName']]
+                            applicationName: val[index['applicationName']],
+                            hasException: val[index['hasException']],
+                            isMethod: val[index['isMethod']]
                         });
                     });
                     return result;
