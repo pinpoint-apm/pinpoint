@@ -13,7 +13,7 @@ pinpointApp.directive('distributedCallFlow', [ '$filter',
 
 
                 // initialize variables
-                var grid, columns, options, dataView, lastAgent;
+                var grid, columns, dataView, lastAgent;
 
                 // initialize variables of methods
                 var initialize, treeFormatter, treeFilter, parseData, execTimeFormatter, numberFormatter,
@@ -114,11 +114,6 @@ pinpointApp.directive('distributedCallFlow', [ '$filter',
                     {id: "application-name", name: "Application Name", field: "applicationName", width: 150}
                 ];
 
-                options = {
-                    enableCellNavigation: true,
-                    enableColumnReorder: false
-                };
-
                 parseData = function(index, callStacks) {
                     var result = [],
                         barRatio = 100 / (callStacks[0][index.end] - callStacks[0][index.begin]);
@@ -151,6 +146,11 @@ pinpointApp.directive('distributedCallFlow', [ '$filter',
                 initialize = function (t) {
                     window.callStacks = parseData(t.callStackIndex, t.callStack);
                     // initialize the model
+
+                    var options = {
+                        enableCellNavigation: false,
+                        enableColumnReorder: false
+                    };
 
                     dataView = new Slick.Data.DataView({ inlineFilters: true });
                     dataView.beginUpdate();
@@ -209,10 +209,17 @@ pinpointApp.directive('distributedCallFlow', [ '$filter',
                 };
 
                 /**
-                 * scope event on callStacks.initialize
+                 * scope event on distributedCallFlow.initialize
                  */
                 scope.$on('distributedCallFlow.initialize.' + scope.namespace, function (event, transactionDetail) {
                     initialize(transactionDetail);
+                });
+
+                /**
+                 * scope event on distributedCallFlow.resize
+                 */
+                scope.$on('distributedCallFlow.resize.' + scope.namespace, function (event) {
+                    grid.resizeCanvas();
                 });
             }
         };

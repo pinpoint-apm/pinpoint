@@ -48,6 +48,11 @@ pinpointApp.controller('TransactionViewCtrl', [ 'TransactionViewConfig', '$scope
 //                north__spacing_closed: 20,
 //                north__togglerLength_closed: 100,
 //                north__togglerAlign_closed: "top",
+                            onresize_end: function (edge) {
+                                if (edge === 'center') {
+                                    $scope.$broadcast('distributedCallFlow.resize.forTransactionDetail');
+                                }
+                            },
                             center__maskContents: true // IMPORTANT - enable iframe masking
                         });
                     }, 100);
@@ -85,7 +90,8 @@ pinpointApp.controller('TransactionViewCtrl', [ 'TransactionViewConfig', '$scope
          * show call stacks
          */
         showCallStacks = function () {
-            $scope.$broadcast('callStacks.initialize.forTransactionView', $scope.transactionDetail);
+//            $scope.$broadcast('callStacks.initialize.forTransactionView', $scope.transactionDetail);
+            $scope.$broadcast('distributedCallFlow.initialize.forTransactionDetail', $scope.transactionDetail);
         };
 
         /**

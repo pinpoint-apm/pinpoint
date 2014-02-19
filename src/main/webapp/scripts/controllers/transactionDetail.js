@@ -84,6 +84,10 @@ pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$sc
             $window.open($location.absUrl());
         };
 
+        window.onresize = function (e) {
+            $scope.$broadcast('distributedCallFlow.resize.forTransactionDetail');
+        };
+
         // events binding
         $("#traceTabs li a").bind("click", function (e) {
             e.preventDefault();
