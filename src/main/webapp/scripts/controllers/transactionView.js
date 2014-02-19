@@ -91,7 +91,7 @@ pinpointApp.controller('TransactionViewCtrl', [ 'TransactionViewConfig', '$scope
          */
         showCallStacks = function () {
 //            $scope.$broadcast('callStacks.initialize.forTransactionView', $scope.transactionDetail);
-            $scope.$broadcast('distributedCallFlow.initialize.forTransactionDetail', $scope.transactionDetail);
+            $scope.$broadcast('distributedCallFlow.initialize.forTransactionView', $scope.transactionDetail);
         };
 
         /**
@@ -115,6 +115,10 @@ pinpointApp.controller('TransactionViewCtrl', [ 'TransactionViewConfig', '$scope
             $scope.$broadcast('agentChartGroup.initialize.forTransactionView', query);
         };
 
+
+        $scope.$on('distributedCallFlow.rowSelected.forTransactionView', function (e, item) {
+            console.log('distributedCallFlow.rowSelected.forTransactionView', item);
+        });
 
     }
 ]);

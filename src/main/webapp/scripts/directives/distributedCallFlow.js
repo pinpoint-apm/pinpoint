@@ -148,8 +148,11 @@ pinpointApp.directive('distributedCallFlow', [ '$filter',
                     // initialize the model
 
                     var options = {
-                        enableCellNavigation: false,
-                        enableColumnReorder: false
+                        enableCellNavigation: true,
+                        enableColumnReorder: true,
+//                        autoHeight: true,
+                        topPanelHeight: 30,
+                        rowHeight: 25
                     };
 
                     dataView = new Slick.Data.DataView({ inlineFilters: true });
@@ -182,7 +185,6 @@ pinpointApp.directive('distributedCallFlow', [ '$filter',
                                 } else {
                                     item._collapsed = false;
                                 }
-                                console.log('item', item._collapsed);
                                 dataView.updateItem(item.id, item);
                             }
                             e.stopImmediatePropagation();
@@ -193,15 +195,17 @@ pinpointApp.directive('distributedCallFlow', [ '$filter',
                         dataView.updateItem(args.item.id, args.item);
                     });
 
+                    grid.onActiveCellChanged.subscribe(function (e, args) {
+                        scope.$emit('distributedCallFlow.rowSelected.' + scope.namespace, args.grid.getDataItem(args.row));
+                    });
+
                     // wire up model events to drive the grid
                     dataView.onRowCountChanged.subscribe(function (e, args) {
-                        console.log('onRowCountChanged')
                         grid.updateRowCount();
                         grid.render();
                     });
 
                     dataView.onRowsChanged.subscribe(function (e, args) {
-                        console.log('onRowsChanged')
                         grid.invalidateRows(args.rows);
                         grid.render();
                     });
