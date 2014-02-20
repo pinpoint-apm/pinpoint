@@ -7,7 +7,7 @@ import com.nhn.pinpoint.common.util.TimeSlot;
 import com.nhn.pinpoint.web.dao.MapResponseDao;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
-import com.nhn.pinpoint.web.vo.RawResponseTime;
+import com.nhn.pinpoint.web.vo.ResponseTime;
 import org.apache.hadoop.hbase.client.Scan;
 
 import org.slf4j.Logger;
@@ -34,14 +34,14 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
     private int scanCacheSize = 40;
 
     @Autowired
-    private RowMapper<RawResponseTime> responseTimeMapper;
+    private RowMapper<ResponseTime> responseTimeMapper;
 
     @Autowired
     private HbaseOperations2 hbaseOperations2;
 
 
     @Override
-    public List<RawResponseTime> selectResponseTime(Application application, Range range) {
+    public List<ResponseTime> selectResponseTime(Application application, Range range) {
         if (application == null) {
             throw new NullPointerException("application must not be null");
         }
@@ -49,15 +49,15 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
             logger.debug("selectResponseTime applicationName:{}, {}", application, range);
         }
         Scan scan = createScan(application, range);
-        List<RawResponseTime> rawResponseTimeList = hbaseOperations2.find(tableName, scan, responseTimeMapper);
+        List<ResponseTime> responseTimeList = hbaseOperations2.find(tableName, scan, responseTimeMapper);
         if (logger.isDebugEnabled()) {
-            logger.debug("row:{}", rawResponseTimeList.size());
-            for (RawResponseTime rawResponseTime : rawResponseTimeList) {
-                logger.trace("rawResponseTime:{}", rawResponseTime);
+            logger.debug("row:{}", responseTimeList.size());
+            for (ResponseTime responseTime : responseTimeList) {
+                logger.trace("responseTime:{}", responseTime);
             }
         }
 
-        return rawResponseTimeList;
+        return responseTimeList;
     }
 
     private Scan createScan(Application application, Range range) {

@@ -7,7 +7,7 @@ import java.util.*;
 /**
  * @author emeroad
  */
-public class RawResponseTime {
+public class ResponseTime {
     // rowKey
     private final String applicationName;
     private final short applicationServiceType;
@@ -20,7 +20,7 @@ public class RawResponseTime {
 
 
 
-    public RawResponseTime(String applicationName, short applicationServiceType, long time) {
+    public ResponseTime(String applicationName, short applicationServiceType, long time) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
@@ -52,7 +52,7 @@ public class RawResponseTime {
 
     @Override
     public String toString() {
-        return "RawResponseTime{" +
+        return "ResponseTime{" +
                 "applicationName='" + applicationName + '\'' +
                 ", applicationServiceType=" + applicationServiceType +
                 ", time=" + time +

@@ -89,7 +89,7 @@ public class ApplicationMap {
         appendResponseTime(new ResponseDataSource() {
             @Override
             public ResponseHistogramSummary getResponseHistogramSummary(Application application) {
-                final List<RawResponseTime> responseHistogram = mapResponseDao.selectResponseTime(application, range);
+                final List<ResponseTime> responseHistogram = mapResponseDao.selectResponseTime(application, range);
                 final ResponseHistogramSummary histogramSummary = new ResponseHistogramSummary(application);
                 histogramSummary.createResponseHistogram(responseHistogram);
                 return histogramSummary;

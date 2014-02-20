@@ -73,8 +73,8 @@
 				"error" : ${link.histogram.errorCount},
 				"slow" : ${link.histogram.verySlowCount},
 				"histogram" : ${link.histogram.json},
-                "agentHistogram" : {
-                    <c:forEach items="${link.hostList.hostList}" var="linkAgentHistogram" varStatus="linkAgentHistogramStatus">
+                "sourceHistogram" : {
+                    <c:forEach items="${link.sourceList.hostList}" var="linkAgentHistogram" varStatus="linkAgentHistogramStatus">
                     "${linkAgentHistogram.host}" : ${linkAgentHistogram.histogram.json}
                     <c:if test="${!linkAgentHistogramStatus.last}">,</c:if>
                     </c:forEach>

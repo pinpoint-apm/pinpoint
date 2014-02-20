@@ -44,6 +44,10 @@ public final class Application {
 	}
 
     public short getServiceTypeCode() {
+        return serviceType.getCode();
+    }
+
+    public short getCode() {
         return code;
     }
 

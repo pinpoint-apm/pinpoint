@@ -16,13 +16,10 @@ public class LinkStatistics {
 
     private Application fromApplication;
     private Application toApplication;
+
     private long time;
 
-
-	/**
-	 * key = hostname
-	 */
-    private HostList toHostList;
+    private RawCallDataMap callDataMap;
 
     private Set<AgentInfoBo> toAgentSet;
 
@@ -35,8 +32,22 @@ public class LinkStatistics {
         }
         this.fromApplication = fromApplication;
 		this.toApplication = toApplication;
-        this.toHostList = new HostList();
+
+        this.callDataMap = new RawCallDataMap();
 	}
+
+    public LinkStatistics(Application fromApplication, Application toApplication, long time) {
+        if (fromApplication == null) {
+            throw new NullPointerException("fromAppliation must not be null");
+        }
+        if (toApplication == null) {
+            throw new NullPointerException("toApplication must not be null");
+        }
+        this.fromApplication = fromApplication;
+        this.toApplication = toApplication;
+        this.time = time;
+        this.callDataMap = new RawCallDataMap();
+    }
 
     public void setTime(long time) {
         this.time = time;
@@ -49,12 +60,12 @@ public class LinkStatistics {
 	 * @param slot
 	 * @param value
 	 */
-	public void addSample(String hostname, short serviceTypeCode, short slot, long value) {
+	public void addCallData(String callerAgentId, short callerServiceTypeCode, String hostname, short serviceTypeCode, short slot, long value) {
 		// TODO 임시코드
 		if (hostname == null || hostname.length() == 0) {
 			hostname = "UNKNOWNHOST";
 		}
-        this.toHostList.addHost(hostname, serviceTypeCode, slot, value);
+        this.callDataMap.addCallData(callerAgentId, callerServiceTypeCode, hostname, serviceTypeCode, slot, value);
 	}
 
 
@@ -69,6 +80,7 @@ public class LinkStatistics {
     public Application getToApplication() {
         return this.toApplication;
     }
+
 	public String getTo() {
 		return toApplication.getName();
 	}
@@ -90,8 +102,12 @@ public class LinkStatistics {
     }
 
 	public HostList getToHostList() {
-		return toHostList;
+        return callDataMap.getTargetList();
 	}
+
+    public HostList getSourceList() {
+        return callDataMap.getSourceList();
+    }
 
 	public Set<AgentInfoBo> getToAgentSet() {
 		return toAgentSet;
@@ -105,23 +121,23 @@ public class LinkStatistics {
 		}
 	}
 
-	public void add(LinkStatistics applicationStatistics) {
+	public void add(final LinkStatistics applicationStatistics) {
         if (applicationStatistics == null) {
             throw new NullPointerException("applicationStatistics must not be null");
         }
         if (!this.equals(applicationStatistics)) {
             throw new IllegalArgumentException("Can't merge with different link.");
 		}
-        final HostList target = applicationStatistics.getToHostList();
-        this.toHostList.addHostList(target);
+        final RawCallDataMap target = applicationStatistics.callDataMap;
+        this.callDataMap.addCallData(target);
 	}
 
     @Override
     public String toString() {
-        return "LoadFactor{" +
+        return "LinkStatistics{" +
                 "fromApplication=" + fromApplication +
                 ", toApplication=" + toApplication +
-                ", " + toHostList +
+                ", " + callDataMap +
                 '}';
     }
 

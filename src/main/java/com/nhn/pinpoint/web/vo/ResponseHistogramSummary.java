@@ -15,6 +15,7 @@ public class ResponseHistogramSummary {
 
     private final Histogram total;
 
+    // key는 agentId이다.
     private Map<String, Histogram> agentHistogramMap = new HashMap<String, Histogram>();
 
     public ResponseHistogramSummary(Application application) {
@@ -47,15 +48,15 @@ public class ResponseHistogramSummary {
         return agentHistogramMap;
     }
 
-    public void createResponseHistogram(List<RawResponseTime> responseHistogramList) {
+    public void createResponseHistogram(List<ResponseTime> responseHistogramList) {
         createApplicationLevelResponseTime(responseHistogramList);
         createAgentLevelResponseTime(responseHistogramList);
     }
 
-    private void createAgentLevelResponseTime(List<RawResponseTime> responseHistogramList) {
+    private void createAgentLevelResponseTime(List<ResponseTime> responseHistogramList) {
 
-        for (RawResponseTime rawResponseTime : responseHistogramList) {
-            for (Map.Entry<String, Histogram> entry : rawResponseTime.getAgentHistogram()) {
+        for (ResponseTime responseTime : responseHistogramList) {
+            for (Map.Entry<String, Histogram> entry : responseTime.getAgentHistogram()) {
                 addAgentLevelHistogram(entry.getKey(), entry.getValue());
             }
         }
@@ -70,9 +71,9 @@ public class ResponseHistogramSummary {
         agentHistogram.add(histogram);
     }
 
-    private void createApplicationLevelResponseTime(List<RawResponseTime> responseHistogram) {
-        for (RawResponseTime rawResponseTime : responseHistogram) {
-            final List<Histogram> histogramList = rawResponseTime.getResponseHistogramList();
+    private void createApplicationLevelResponseTime(List<ResponseTime> responseHistogram) {
+        for (ResponseTime responseTime : responseHistogram) {
+            final List<Histogram> histogramList = responseTime.getResponseHistogramList();
             for (Histogram histogram : histogramList) {
                 this.addApplicationLevelHistogram(histogram);
             }

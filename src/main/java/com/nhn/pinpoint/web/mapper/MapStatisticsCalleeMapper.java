@@ -45,7 +45,7 @@ public class MapStatisticsCalleeMapper implements RowMapper<List<LinkStatistics>
             final byte[] qualifier = kv.getQualifier();
             Application callerApplication = readCallerApplication(qualifier);
 
-            long requestCount = Bytes.toLong(kv.getValue());
+            long requestCount = Bytes.toLong(kv.getBuffer(), kv.getValueOffset());
             short histogramSlot = ApplicationMapStatisticsUtils.getHistogramSlotFromColumnName(qualifier);
 
             String callerHost = ApplicationMapStatisticsUtils.getHost(qualifier);
@@ -56,7 +56,7 @@ public class MapStatisticsCalleeMapper implements RowMapper<List<LinkStatistics>
             }
 
             LinkStatistics statistics = getLinkStatics(linkStatisticsMap, callerApplication, calleeApplication, timestamp);
-            statistics.addSample(callerHost, calleeApplication.getServiceTypeCode(), (isError) ? (short) -1 : histogramSlot, requestCount);
+            statistics.addCallData(callerApplication.getName(), callerApplication.getServiceTypeCode(), callerHost, calleeApplication.getServiceTypeCode(), (isError) ? (short) -1 : histogramSlot, requestCount);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("    Fetched Callee. statistics:{}", statistics);
@@ -70,8 +70,7 @@ public class MapStatisticsCalleeMapper implements RowMapper<List<LinkStatistics>
         final LinkKey key = new LinkKey(callerApplication, calleeApplication);
         LinkStatistics statistics = linkStatisticsMap.get(key);
         if (statistics == null) {
-            statistics = new LinkStatistics(callerApplication, calleeApplication);
-            statistics.setTime(timestamp);
+            statistics = new LinkStatistics(callerApplication, calleeApplication, timestamp);
             linkStatisticsMap.put(key, statistics);
         }
         return statistics;

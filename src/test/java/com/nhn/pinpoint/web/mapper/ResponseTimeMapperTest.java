@@ -5,7 +5,7 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
 import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
-import com.nhn.pinpoint.web.vo.RawResponseTime;
+import com.nhn.pinpoint.web.vo.ResponseTime;
 import junit.framework.Assert;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Test;
@@ -18,7 +18,7 @@ public class ResponseTimeMapperTest {
     @Test
     public void testResponseTimeMapperTest() throws Exception {
         ResponseTimeMapper responseTimeMapper = new ResponseTimeMapper();
-        RawResponseTime rawResponseTime = new RawResponseTime("applicaionName", ServiceType.TOMCAT.getCode(), System.currentTimeMillis());
+        ResponseTime responseTime = new ResponseTime("applicaionName", ServiceType.TOMCAT.getCode(), System.currentTimeMillis());
 
         Buffer buffer = new AutomaticBuffer();
         HistogramSlot histogramSlot = ServiceType.TOMCAT.getHistogramSchema().findHistogramSlot(1000);
@@ -26,9 +26,9 @@ public class ResponseTimeMapperTest {
         buffer.put(histogramSlotTime);
         buffer.put(Bytes.toBytes("agent"));
 
-        responseTimeMapper.recordColumn(rawResponseTime, buffer.getBuffer(), Bytes.toBytes(1L));
+        responseTimeMapper.recordColumn(responseTime, buffer.getBuffer(), Bytes.toBytes(1L));
 
-        Histogram agentHistogram = rawResponseTime.getHistogram("agent");
+        Histogram agentHistogram = responseTime.getHistogram("agent");
         long fastCount = agentHistogram.getFastCount();
         Assert.assertEquals(fastCount, 1);
         long normal = agentHistogram.getNormalCount();

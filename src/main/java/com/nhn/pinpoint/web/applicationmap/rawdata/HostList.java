@@ -30,19 +30,35 @@ public class HostList {
     }
 
 
-    public void addHost(String hostName, short serviceTypeCode, short slot, long count) {
+    public void addHost(String hostName, short serviceTypeCode, Histogram histogram) {
         if (hostName == null) {
             throw new NullPointerException("host must not be null");
         }
+        Host host = getHost(hostName, serviceTypeCode);
+
+        final Histogram hostHistogram = host.getHistogram();
+        hostHistogram.add(histogram);
+    }
+
+    public void addHostUncheck(String hostName, short serviceTypeCode, Histogram histogram) {
+        if (hostName == null) {
+            throw new NullPointerException("host must not be null");
+        }
+        Host host = getHost(hostName, serviceTypeCode);
+
+        final Histogram hostHistogram = host.getHistogram();
+        hostHistogram.addUncheckType(histogram);
+    }
+
+    private Host getHost(String hostName, short serviceTypeCode) {
         Host host = hostMap.get(hostName);
         if (host == null) {
             host = new Host(hostName, ServiceType.findServiceType(serviceTypeCode));
             hostMap.put(hostName, host);
         }
-
-        final Histogram histogram = host.getHistogram();
-        histogram.addSample(slot, count);
+        return host;
     }
+
 
     public void addHost(Host host) {
         if (host == null) {

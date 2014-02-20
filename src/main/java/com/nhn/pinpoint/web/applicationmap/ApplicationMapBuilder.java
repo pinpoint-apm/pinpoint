@@ -65,6 +65,7 @@ public class ApplicationMapBuilder {
             // RPC client인 경우 dest application이 이미 있으면 삭제, 없으면 unknown cloud로 변경.
             HostList toHostList = linkStat.getToHostList();
             Link link = new Link(fromNode, toNode, toHostList);
+            link.setSourceList(linkStat.getSourceList());
             if (toNode.getServiceType().isRpcClient()) {
                 if (!nodeMap.containsApplicationName(toNode.getApplicationName())) {
                     result.add(link);

@@ -2,7 +2,7 @@ package com.nhn.pinpoint.web.dao;
 
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
-import com.nhn.pinpoint.web.vo.RawResponseTime;
+import com.nhn.pinpoint.web.vo.ResponseTime;
 
 import java.util.List;
 
@@ -12,6 +12,6 @@ import java.util.List;
  * 
  */
 public interface MapResponseDao {
-    List<RawResponseTime> selectResponseTime(Application application, Range range);
+    List<ResponseTime> selectResponseTime(Application application, Range range);
 
 }

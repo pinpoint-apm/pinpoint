@@ -2,7 +2,6 @@ package com.nhn.pinpoint.web.mapper;
 
 import java.util.*;
 
-import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
 import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.buffer.FixedBuffer;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
@@ -61,7 +60,7 @@ public class MapStatisticsCallerMapper implements RowMapper<List<LinkStatistics>
                 }
 
                 LinkStatistics statistics = getLinkStatistics(linkStatisticsMap, caller, callee, timestamp);
-                statistics.addSample(calleeHost, callee.getServiceTypeCode(), (isError) ? (short) -1 : histogramSlot, requestCount);
+                statistics.addCallData(caller.getName(), caller.getServiceTypeCode(), calleeHost, callee.getServiceTypeCode(), (isError) ? (short) -1 : histogramSlot, requestCount);
             } else if (Bytes.equals(family, HBaseTables.MAP_STATISTICS_CALLEE_CF_VER2_COUNTER)) {
 
                 final byte[] qualifier = kv.getQualifier();
@@ -80,7 +79,7 @@ public class MapStatisticsCallerMapper implements RowMapper<List<LinkStatistics>
                 }
 
                 LinkStatistics statistics = getLinkStatistics(linkStatisticsMap, caller, callee, timestamp);
-                statistics.addSample(calleeHost, callee.getServiceTypeCode(), (isError) ? (short) -1 : histogramSlot, requestCount);
+                statistics.addCallData(callerAgentId, caller.getServiceTypeCode(), calleeHost, callee.getServiceTypeCode(), (isError) ? (short) -1 : histogramSlot, requestCount);
             } else {
                 throw new IllegalArgumentException("unknown ColumnFamily :" + Arrays.toString(family));
             }
@@ -94,8 +93,7 @@ public class MapStatisticsCallerMapper implements RowMapper<List<LinkStatistics>
         final LinkKey key = new LinkKey(caller, callee);
         LinkStatistics statistics = linkStatisticsMap.get(key);
         if (statistics == null) {
-            statistics = new LinkStatistics(caller, callee);
-            statistics.setTime(timestamp);
+            statistics = new LinkStatistics(caller, callee, timestamp);
             linkStatisticsMap.put(key, statistics);
         }
         return statistics;

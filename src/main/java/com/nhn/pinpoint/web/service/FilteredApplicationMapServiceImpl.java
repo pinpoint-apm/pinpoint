@@ -12,7 +12,6 @@ import java.util.Set;
 import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.HistogramSlot;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
-import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
 import com.nhn.pinpoint.web.vo.LinkKey;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
 import com.nhn.pinpoint.web.dao.*;
@@ -222,7 +221,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
                 }
 
                 final short slotTime = getHistogramSlotTime(span, destApplication.getServiceType());
-                linkStat.addSample(destApplication.getName(), destApplication.getServiceType().getCode(), slotTime, 1);
+                linkStat.addCallData(span.getAgentId(), srcApplication.getServiceTypeCode(), destApplication.getName(), destApplication.getServiceTypeCode(), slotTime, 1);
 
                 // link timeseries statistics추가.
                 timeSeriesStore.addLinkStat(linkKey, span.getCollectorAcceptTime(), slotTime, 1L, span.hasException());
@@ -276,13 +275,11 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
         final Application srcNode = new Application(span.getApplicationId(), span.getServiceType());
 
         for (SpanEventBo spanEvent : spanEventBoList) {
-            final String dest = spanEvent.getDestinationId();
-            ServiceType destServiceType = spanEvent.getServiceType();
 
+            ServiceType destServiceType = spanEvent.getServiceType();
             if (!destServiceType.isRecordStatistics() /*|| destServiceType.isRpcClient()*/) {
                 continue;
             }
-
             // rpc client이면서 acceptor가 없으면 unknown으로 변환시킨다.
             // 내가 아는 next spanid를 spanid로 가진 span이 있으면 acceptor가 존재하는 셈.
             // acceptor check로직
@@ -294,25 +291,26 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
                 }
             }
 
-            final LinkKey spanEventStatId = new LinkKey(srcNode, new Application(dest, destServiceType));
-            LinkStatistics statistics = statisticsMap.get(spanEventStatId);
-            if (statistics == null) {
+            final String dest = spanEvent.getDestinationId();
+            final LinkKey spanEventStatKey = new LinkKey(srcNode, new Application(dest, destServiceType));
+            LinkStatistics linkData = statisticsMap.get(spanEventStatKey);
+            if (linkData == null) {
                 Application sourceApplication = new Application(srcNode.getName(), srcNode.getServiceType());
                 Application destApplication = new Application(dest, destServiceType);
-                statistics = new LinkStatistics(sourceApplication, destApplication);
+                linkData = new LinkStatistics(sourceApplication, destApplication);
             }
 
             final int slotTime = getHistogramSlotTime(spanEvent, destServiceType);
 
             // FIXME
-            // stat2.addSample((dest == null) ? spanEvent.getEndPoint() : dest, destServiceType.getCode(), (short) slot2, 1);
-            statistics.addSample(spanEvent.getEndPoint(), destServiceType.getCode(), (short) slotTime, 1);
+            // stat2.addCallData((dest == null) ? spanEvent.getEndPoint() : dest, destServiceType.getCode(), (short) slot2, 1);
+            linkData.addCallData(span.getAgentId(), span.getServiceType().getCode(), spanEvent.getEndPoint(), destServiceType.getCode(), (short) slotTime, 1);
 
             // agent 정보추가. destination의 agent정보 알 수 없음.
-            statisticsMap.put(spanEventStatId, statistics);
+            statisticsMap.put(spanEventStatKey, linkData);
 
             // link timeseries statistics추가.
-            timeSeriesStore.addLinkStat(spanEventStatId, span.getStartTime() + spanEvent.getStartElapsed(), slotTime, 1L, spanEvent.hasException());
+            timeSeriesStore.addLinkStat(spanEventStatKey, span.getStartTime() + spanEvent.getStartElapsed(), slotTime, 1L, spanEvent.hasException());
 
             // application timeseries statistics
             Application nodeKey = new Application(spanEvent.getDestinationId(), spanEvent.getServiceType());

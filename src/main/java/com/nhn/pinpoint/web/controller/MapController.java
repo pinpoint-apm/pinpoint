@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.web.controller;
 
+import com.nhn.pinpoint.web.applicationmap.Link;
 import com.nhn.pinpoint.web.service.MapService;
 import com.nhn.pinpoint.web.util.Limiter;
 import com.nhn.pinpoint.web.vo.Application;
@@ -57,6 +58,13 @@ public class MapController {
 
 		model.addAttribute("nodes", map.getNodes());
 		model.addAttribute("links", map.getLinks());
+        if(map.getLinks() != null) {
+            logger.debug("link----------------------------------");
+            for (Link link : map.getLinks()) {
+                logger.debug("{}->{} : source:{}", link.getFrom().getApplication(), link.getTo().getApplication(),  link.getSourceList());
+            }
+        }
+
 
 		return "applicationmap";
 	}

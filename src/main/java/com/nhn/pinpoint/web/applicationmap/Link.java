@@ -21,7 +21,9 @@ public class Link {
 
     private final Node fromNode;
     private final Node toNode;
+
 	private final HostList hostList;
+    private HostList sourceList;
 
 
     public Link(Node from, Node to, HostList hostList) {
@@ -65,6 +67,7 @@ public class Link {
         this.fromNode = copyLink.fromNode;
         this.toNode = copyLink.toNode;
         this.hostList = new HostList(copyLink.hostList);
+        this.sourceList = new HostList(copyLink.sourceList);
     }
 
 	public LinkKey getLinkKey() {
@@ -98,6 +101,14 @@ public class Link {
 		return result;
 	}
 
+    public void setSourceList(HostList sourceList) {
+        this.sourceList = sourceList;
+    }
+
+    public HostList getSourceList() {
+        return sourceList;
+    }
+
 	public void addLink(Link link) {
         if (link == null) {
             throw new NullPointerException("link must not be null");
@@ -110,6 +121,7 @@ public class Link {
 
         HostList linkHostList = link.getHostList();
         this.hostList.addHostList(linkHostList);
+        this.sourceList.addHostList(link.getSourceList());
 	}
 
 	@Override
