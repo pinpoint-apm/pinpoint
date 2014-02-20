@@ -17,29 +17,6 @@ import com.nhn.pinpoint.common.hbase.HBaseTables;
  */
 public class ApplicationStatisticsUtils {
 	
-	public static byte[] makeColumnName(String agentId, short slotNumber) {
-		if (agentId == null) {
-			agentId = "";
-		}
-		byte[] slotNumberBytes = Bytes.toBytes(slotNumber);
-        byte[] agentIdBytes = Bytes.toBytes(agentId);
-		
-		return BytesUtils.concat(slotNumberBytes, agentIdBytes);
-	}
-
-
-	/**
-	 * <pre>
-	 * rowkey format = "APPLICATIONNAME(max 24bytes)" + apptype(2byte) + "TIMESTAMP(8byte)"
-	 * </pre>
-	 * 
-	 * @param applicationName
-	 * @param timestamp
-	 * @return
-	 */
-	public static byte[] makeRowKey(String applicationName, short applicationType, long timestamp) {
-		return ApplicationMapStatisticsUtils.makeRowKey(applicationName, applicationType, timestamp);
-	}
 
 	public static String getApplicationNameFromRowKey(byte[] bytes) {
         return ApplicationMapStatisticsUtils.getApplicationNameFromRowKey(bytes);
