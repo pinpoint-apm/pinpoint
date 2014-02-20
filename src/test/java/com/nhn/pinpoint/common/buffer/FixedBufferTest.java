@@ -1,10 +1,14 @@
 package com.nhn.pinpoint.common.buffer;
 
+import com.nhn.pinpoint.common.util.BytesUtils;
 import junit.framework.Assert;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.UnsupportedEncodingException;
+import java.util.Random;
 
 /**
  * @author emeroad
@@ -12,14 +16,24 @@ import org.slf4j.LoggerFactory;
 public class FixedBufferTest {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private Random random = new Random();
 
     @Test
     public void testPutPrefixedBytes() throws Exception {
         String test = "test";
-        int expected = 3333;
+        int endExpected = 3333;
+        testPutPrefixedBytes(test, endExpected);
+        testPutPrefixedBytes(null, endExpected);
+        testPutPrefixedBytes("", endExpected);
+    }
 
+    private void testPutPrefixedBytes(String test, int expected) throws UnsupportedEncodingException {
         Buffer buffer = new FixedBuffer(1024);
-        buffer.putPrefixedBytes(test.getBytes("UTF-8"));
+        if (test != null) {
+            buffer.putPrefixedBytes(test.getBytes("UTF-8"));
+        } else {
+            buffer.putPrefixedString(null);
+        }
 
         buffer.put(expected);
         byte[] buffer1 = buffer.getBuffer();
@@ -30,8 +44,80 @@ public class FixedBufferTest {
 
         int i = actual.readInt();
         Assert.assertEquals(expected, i);
+    }
 
+    @Test
+    public void testPut2PrefixedBytes() throws Exception {
+        String test = "test";
+        int endExpected = 3333;
 
+        checkPut2PrefixedBytes(test, endExpected);
+        checkPut2PrefixedBytes(null, endExpected);
+        checkPut2PrefixedBytes("", endExpected);
+
+        byte[] bytes = new byte[Short.MAX_VALUE];
+        checkPut2PrefixedBytes(BytesUtils.toString(bytes), endExpected, Short.MAX_VALUE * 2);
+
+        try {
+            byte[] bytes2 = new byte[Short.MAX_VALUE + 1];
+            checkPut2PrefixedBytes(BytesUtils.toString(bytes2), endExpected, Short.MAX_VALUE * 2);
+            Assert.fail("too large bytes");
+        } catch (Exception e) {
+        }
+
+    }
+
+    private void checkPut2PrefixedBytes(String test, int expected) throws UnsupportedEncodingException {
+        checkPut2PrefixedBytes(test, expected, 1024);
+    }
+
+    private void checkPut2PrefixedBytes(String test, int expected, int bufferSize) throws UnsupportedEncodingException {
+        Buffer buffer = new FixedBuffer(bufferSize);
+        if (test != null) {
+            buffer.put2PrefixedBytes(test.getBytes("UTF-8"));
+        } else {
+            buffer.put2PrefixedBytes(null);
+        }
+
+        buffer.put(expected);
+        byte[] buffer1 = buffer.getBuffer();
+
+        Buffer actual = new FixedBuffer(buffer1);
+        String s = actual.read2PrefixedString();
+        Assert.assertEquals(test, s);
+
+        int i = actual.readInt();
+        Assert.assertEquals(expected, i);
+    }
+
+    @Test
+    public void testPut4PrefixedBytes() throws Exception {
+        String test = "test";
+        int endExpected = 3333;
+
+        checkPut4PrefixedBytes(test, endExpected);
+        checkPut4PrefixedBytes(null, endExpected);
+        checkPut4PrefixedBytes("", endExpected);
+
+    }
+
+    private void checkPut4PrefixedBytes(String test, int expected) throws UnsupportedEncodingException {
+        Buffer buffer = new FixedBuffer(1024);
+        if (test != null) {
+            buffer.put4PrefixedBytes(test.getBytes("UTF-8"));
+        } else {
+            buffer.put4PrefixedBytes(null);
+        }
+
+        buffer.put(expected);
+        byte[] buffer1 = buffer.getBuffer();
+
+        Buffer actual = new FixedBuffer(buffer1);
+        String s = actual.read4PrefixedString();
+        Assert.assertEquals(test, s);
+
+        int i = actual.readInt();
+        Assert.assertEquals(expected, i);
     }
 
     @Test

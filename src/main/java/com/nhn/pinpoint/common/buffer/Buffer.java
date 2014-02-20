@@ -14,7 +14,15 @@ public interface Buffer {
 
     void putPrefixedBytes(byte[] bytes);
 
+    void put2PrefixedBytes(byte[] bytes);
+
+    void put4PrefixedBytes(byte[] bytes);
+
     void putPrefixedString(String string);
+
+    void put2PrefixedString(String string);
+
+    void put4PrefixedString(String string);
 
     void put(byte v);
 
@@ -88,7 +96,13 @@ public interface Buffer {
 
     byte[] readPrefixedBytes();
 
+    byte[] read2PrefixedBytes();
+
+    byte[] read4PrefixedBytes();
+
     String readPrefixedString();
+
+    String read2PrefixedString();
 
     String read4PrefixedString();
 

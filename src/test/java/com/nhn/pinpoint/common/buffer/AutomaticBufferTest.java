@@ -1,7 +1,8 @@
 package com.nhn.pinpoint.common.buffer;
 
 import com.nhn.pinpoint.common.util.BytesUtils;
-import junit.framework.Assert;
+import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,55 @@ public class AutomaticBufferTest {
     }
 
     @Test
+    public void testPut2PrefixedBytes() throws Exception {
+        byte[] bytes1 = new byte[2];
+        checkPut2PrefixedBytes(bytes1);
+
+        byte[] bytes2 = new byte[0];
+        checkPut2PrefixedBytes(bytes2);
+
+        byte[] bytes3 = new byte[Short.MAX_VALUE];
+        checkPut2PrefixedBytes(bytes3);
+
+        checkPut2PrefixedBytes(null);
+
+        try {
+            byte[] bytes4 = new byte[Short.MAX_VALUE+1];
+            checkPut2PrefixedBytes(bytes4);
+            Assert.fail("too large bytes");
+        } catch (Exception e) {
+        }
+    }
+
+    private void checkPut2PrefixedBytes(byte[] bytes) {
+        Buffer buffer = new AutomaticBuffer(0);
+        buffer.put2PrefixedBytes(bytes);
+
+        Buffer copy = new FixedBuffer(buffer.getBuffer());
+        Assert.assertArrayEquals(bytes, copy.read2PrefixedBytes());
+    }
+
+    @Test
+    public void testPut4PrefixedBytes() throws Exception {
+        byte[] bytes1 = new byte[2];
+        checkPut4PrefixedBytes(bytes1);
+
+        byte[] bytes2 = new byte[0];
+        checkPut4PrefixedBytes(bytes2);
+
+        checkPut4PrefixedBytes(null);
+
+    }
+
+    private void checkPut4PrefixedBytes(byte[] bytes) {
+        Buffer buffer = new AutomaticBuffer(0);
+        buffer.put4PrefixedBytes(bytes);
+
+        Buffer copy = new FixedBuffer(buffer.getBuffer());
+        Assert.assertArrayEquals(bytes, copy.read4PrefixedBytes());
+    }
+
+    @Test
     public void testPutPrefixedBytesCheckRange() throws Exception {
         Buffer buffer = new AutomaticBuffer(1);
         buffer.putPrefixedString(null);
@@ -40,7 +90,7 @@ public class AutomaticBufferTest {
 
         long l = System.currentTimeMillis();
         buffer.putSVar(l);
-        logger.info("currentTime size:{}", buffer.getOffset());
+        logger.trace("currentTime size:{}", buffer.getOffset());
         buffer.setOffset(0);
         Assert.assertEquals(buffer.readSVarLong(), l);
 
@@ -126,6 +176,7 @@ public class AutomaticBufferTest {
 
     }
 
+    @Ignore
     @Test
     public void testUdp() throws Exception {
         // Signature:Header{signature=85, version=100, type=28704}

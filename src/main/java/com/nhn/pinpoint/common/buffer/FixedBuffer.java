@@ -9,6 +9,7 @@ import java.io.UnsupportedEncodingException;
  */
 public class FixedBuffer implements Buffer {
 
+    protected static final int NULL = -1;
     protected byte[] buffer;
     protected int offset;
 
@@ -34,11 +35,34 @@ public class FixedBuffer implements Buffer {
 
 
     @Override
-    public void putPrefixedBytes(final byte[] bytes) {
+     public void putPrefixedBytes(final byte[] bytes) {
         if (bytes == null) {
-            putSVar(-1);
+            putSVar(NULL);
         } else {
             putSVar(bytes.length);
+            put(bytes);
+        }
+    }
+
+    @Override
+    public void put2PrefixedBytes(final byte[] bytes) {
+        if (bytes == null) {
+            put((short)NULL);
+        } else {
+            if (bytes.length > Short.MAX_VALUE) {
+                throw new IllegalArgumentException("too large bytes length:" + bytes.length);
+            }
+            put((short)bytes.length);
+            put(bytes);
+        }
+    }
+
+    @Override
+    public void put4PrefixedBytes(final byte[] bytes) {
+        if (bytes == null) {
+            put(NULL);
+        } else {
+            put(bytes.length);
             put(bytes);
         }
     }
@@ -47,6 +71,29 @@ public class FixedBuffer implements Buffer {
     public void putPrefixedString(final String string) {
         final byte[] bytes = BytesUtils.toBytes(string);
         putPrefixedBytes(bytes);
+    }
+
+    @Override
+    public void put2PrefixedString(final String string) {
+        final byte[] bytes = BytesUtils.toBytes(string);
+        if (string == null) {
+            put((short)NULL);
+            return;
+        }
+        if (bytes.length > Short.MAX_VALUE) {
+            throw new IllegalArgumentException("too large String size:" + bytes.length);
+        }
+        put2PrefixedBytes(bytes);
+    }
+
+    @Override
+    public void put4PrefixedString(final String string) {
+        final byte[] bytes = BytesUtils.toBytes(string);
+        if (string == null) {
+            put(NULL);
+            return;
+        }
+        put4PrefixedBytes(bytes);
     }
 
     @Override
@@ -221,7 +268,31 @@ public class FixedBuffer implements Buffer {
     @Override
     public byte[] readPrefixedBytes() {
         final int size = readSVarInt();
-        if (size == -1) {
+        if (size == NULL) {
+            return null;
+        }
+        if (size == 0) {
+            return EMPTY;
+        }
+        return readBytes(size);
+    }
+
+    @Override
+    public byte[] read2PrefixedBytes() {
+        final int size = readShort();
+        if (size == NULL) {
+            return null;
+        }
+        if (size == 0) {
+            return EMPTY;
+        }
+        return readBytes(size);
+    }
+
+    @Override
+    public byte[] read4PrefixedBytes() {
+        final int size = readInt();
+        if (size == NULL) {
             return null;
         }
         if (size == 0) {
@@ -241,7 +312,19 @@ public class FixedBuffer implements Buffer {
     @Override
     public String readPrefixedString() {
         final int size = readSVarInt();
-        if (size == -1) {
+        if (size == NULL) {
+            return null;
+        }
+        if (size == 0) {
+            return "";
+        }
+        return readString(size);
+    }
+
+    @Override
+    public String read2PrefixedString() {
+        final int size = readShort();
+        if (size == NULL) {
             return null;
         }
         if (size == 0) {
@@ -253,7 +336,7 @@ public class FixedBuffer implements Buffer {
     @Override
     public String read4PrefixedString() {
         final int size = readInt();
-        if (size == -1) {
+        if (size == NULL) {
             return null;
         }
         if (size == 0) {

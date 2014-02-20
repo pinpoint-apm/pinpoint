@@ -55,10 +55,37 @@ public class AutomaticBuffer extends FixedBuffer {
     public void putPrefixedBytes(final byte[] bytes) {
         if (bytes == null) {
             checkExpend(1);
-            super.putSVar(-1);
+            super.putSVar(NULL);
         } else {
             checkExpend(bytes.length + BytesUtils.VINT_MAX_SIZE);
             super.putSVar(bytes.length);
+            super.put(bytes);
+        }
+    }
+
+    @Override
+    public void put2PrefixedBytes(final byte[] bytes) {
+        if (bytes == null) {
+            checkExpend(BytesUtils.SHORT_BYTE_LENGTH);
+            super.put((short)NULL);
+        } else {
+            if (bytes.length > Short.MAX_VALUE) {
+                throw new IllegalArgumentException("too large bytes length:" + bytes.length);
+            }
+            checkExpend(bytes.length + BytesUtils.SHORT_BYTE_LENGTH);
+            super.put((short)bytes.length);
+            super.put(bytes);
+        }
+    }
+
+    @Override
+    public void put4PrefixedBytes(final byte[] bytes) {
+        if (bytes == null) {
+            checkExpend(BytesUtils.INT_BYTE_LENGTH);
+            super.put(NULL);
+        } else {
+            checkExpend(bytes.length + BytesUtils.INT_BYTE_LENGTH);
+            super.put(bytes.length);
             super.put(bytes);
         }
     }

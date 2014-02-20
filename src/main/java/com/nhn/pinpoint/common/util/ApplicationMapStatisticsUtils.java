@@ -112,12 +112,16 @@ public class ApplicationMapStatisticsUtils {
         return BytesUtils.concat(applicationnameBytesLength, applicationnameBytes, applicationtypeBytes, slot);
     }
 
-    public static String getApplicationNameFromRowKey(byte[] bytes) {
+    public static String getApplicationNameFromRowKey(byte[] bytes, int offset) {
         if (bytes == null) {
             throw new NullPointerException("bytes must not be null");
         }
-        short applicationNameLength = BytesUtils.bytesToShort(bytes, 0);
-        return BytesUtils.toString(bytes, 2, applicationNameLength); //.trim();
+        short applicationNameLength = BytesUtils.bytesToShort(bytes, offset);
+        return BytesUtils.toString(bytes, offset + 2, applicationNameLength); //.trim();
+    }
+
+    public static String getApplicationNameFromRowKey(byte[] bytes) {
+        return getApplicationNameFromRowKey(bytes, 0);
     }
 
     public static short getApplicationTypeFromRowKey(byte[] bytes) {
