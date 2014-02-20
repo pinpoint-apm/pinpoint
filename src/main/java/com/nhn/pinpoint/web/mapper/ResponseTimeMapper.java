@@ -29,17 +29,20 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
                 continue;
             }
             byte[] qualifier = keyValue.getQualifier();
-            byte[] value = keyValue.getValue();
-            recordColumn(responseTime, qualifier, value);
+
+            recordColumn(responseTime, qualifier, keyValue.getBuffer(), keyValue.getValueOffset());
         }
         return responseTime;
     }
 
     void recordColumn(ResponseTime responseTime, byte[] qualifier, byte[] value) {
+        recordColumn(responseTime, qualifier, value, 0);
+    }
+    void recordColumn(ResponseTime responseTime, byte[] qualifier, byte[] value, int valueOffset) {
         short slotNumber = Bytes.toShort(qualifier);
         // agentId도 데이터로 같이 엮어야 함.
         String agentId = Bytes.toString(qualifier, 2, qualifier.length - 2);
-        long count = Bytes.toLong(value);
+        long count = Bytes.toLong(value, valueOffset);
         responseTime.getHistogram(agentId).addSample(slotNumber, count);
     }
 

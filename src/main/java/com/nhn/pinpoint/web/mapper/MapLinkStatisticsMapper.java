@@ -122,7 +122,7 @@ public class MapLinkStatisticsMapper implements RowMapper<Map<Long, Map<Short, L
                 }
 
                 short histogramSlot = ApplicationMapStatisticsUtils.getHistogramSlotFromColumnName(qualifier);
-                long requestCount = Bytes.toLong(kv.getValue());
+                long requestCount = getValueToLong(kv);
 
                 if (logger.isDebugEnabled()) {
                     logger.debug("Fetched statistics. timestamp={}, histogramSlot={}, requestCount={}", timestamp, histogramSlot, requestCount);
@@ -152,7 +152,7 @@ public class MapLinkStatisticsMapper implements RowMapper<Map<Long, Map<Short, L
                 short histogramSlot = buffer.readShort();
                 String skipCallerAgentId = buffer.readPrefixedString();
 
-                long requestCount = Bytes.toLong(kv.getValue());
+                long requestCount = getValueToLong(kv);
 
                 if (logger.isDebugEnabled()) {
                     logger.debug("Fetched statistics. timestamp={}, histogramSlot={}, requestCount={}", timestamp, histogramSlot, requestCount);
@@ -173,4 +173,8 @@ public class MapLinkStatisticsMapper implements RowMapper<Map<Long, Map<Short, L
 
 		return resultStat;
 	}
+
+    private long getValueToLong(KeyValue kv) {
+        return Bytes.toLong(kv.getBuffer(), kv.getValueOffset());
+    }
 }

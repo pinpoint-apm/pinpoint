@@ -48,12 +48,12 @@ public class MapStatisticsCallerMapper implements RowMapper<List<LinkStatistics>
                 final byte[] qualifier = kv.getQualifier();
                 Application callee = readCalleeApplication(qualifier);
 
-                long requestCount = Bytes.toLong(kv.getValue());
-                short histogramSlot = ApplicationMapStatisticsUtils.getHistogramSlotFromColumnName(qualifier);
+                long requestCount = getValueToLong(kv);
 
-                // TODO 이게 callerHost가 아니라 calleeHost가 되어야하지 않나 싶음.
-                String calleeHost = ApplicationMapStatisticsUtils.getHost(qualifier);
+                short histogramSlot = ApplicationMapStatisticsUtils.getHistogramSlotFromColumnName(qualifier);
                 boolean isError = histogramSlot == (short) -1;
+
+                String calleeHost = ApplicationMapStatisticsUtils.getHost(qualifier);
 
                 if (logger.isDebugEnabled()) {
                     logger.debug("    Fetched Caller.  {} -> {} (slot:{}/{}) calleeHost:{}", caller, callee, histogramSlot, requestCount, calleeHost);
@@ -69,11 +69,11 @@ public class MapStatisticsCallerMapper implements RowMapper<List<LinkStatistics>
 
                 String calleeHost = buffer.readPrefixedString();
                 short histogramSlot = buffer.readShort();
+                boolean isError = histogramSlot == (short) -1;
+
                 String callerAgentId = buffer.readPrefixedString();
 
-                // TODO 이게 callerHost가 아니라 calleeHost가 되어야하지 않나 싶음.
-                boolean isError = histogramSlot == (short) -1;
-                long requestCount = Bytes.toLong(kv.getValue());
+                long requestCount = getValueToLong(kv);
                 if (logger.isDebugEnabled()) {
                     logger.debug("    Fetched Caller.(New) {} {} -> {} (slot:{}/{}) calleeHost:{}", caller, callerAgentId, callee, histogramSlot, requestCount, calleeHost);
                 }
@@ -88,6 +88,10 @@ public class MapStatisticsCallerMapper implements RowMapper<List<LinkStatistics>
 
         return new ArrayList<LinkStatistics>(linkStatisticsMap.values());
 	}
+
+    private long getValueToLong(KeyValue kv) {
+        return Bytes.toLong(kv.getBuffer(), kv.getValueOffset());
+    }
 
     private LinkStatistics getLinkStatistics(Map<LinkKey, LinkStatistics> linkStatisticsMap, Application caller, Application callee, long timestamp) {
         final LinkKey key = new LinkKey(caller, callee);
