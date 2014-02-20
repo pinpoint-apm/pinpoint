@@ -10,7 +10,7 @@ import com.nhn.pinpoint.web.vo.*;
  * @author netspider
  * @author emeroad
  */
-public interface FilteredApplicationMapService {
+public interface FilteredMapService {
 
 	public LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, Range range, int limit);
 

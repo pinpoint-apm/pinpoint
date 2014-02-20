@@ -35,7 +35,7 @@ import com.nhn.pinpoint.web.filter.Filter;
  * @author emeroad
  */
 @Service
-public class FilteredApplicationMapServiceImpl implements FilteredApplicationMapService {
+public class FilteredMapServiceImpl implements FilteredMapService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -216,7 +216,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
                 final LinkKey linkKey = new LinkKey(srcApplication, destApplication);
                 LinkStatistics linkStat = linkStatMap.get(linkKey);
                 if (linkStat == null) {
-                    linkStat = new LinkStatistics(srcApplication, destApplication);
+                    linkStat = new LinkStatistics(srcApplication, destApplication, span.getCollectorAcceptTime());
                     linkStatMap.put(linkKey, linkStat);
                 }
 
@@ -264,7 +264,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
     }
 
 
-    private void addNodeFromSpanEvent(SpanBo span, Map<LinkKey, LinkStatistics> statisticsMap, TimeSeriesStore timeSeriesStore, Map<Long, SpanBo> transactionSpanMap) {
+    private void addNodeFromSpanEvent(SpanBo span, Map<LinkKey, LinkStatistics> linkStatMap, TimeSeriesStore timeSeriesStore, Map<Long, SpanBo> transactionSpanMap) {
         /**
          * span event의 statistics추가.
          */
@@ -272,7 +272,7 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
         if (CollectionUtils.isEmpty(spanEventBoList)) {
             return;
         }
-        final Application srcNode = new Application(span.getApplicationId(), span.getServiceType());
+        final Application srcApplication = new Application(span.getApplicationId(), span.getServiceType());
 
         for (SpanEventBo spanEvent : spanEventBoList) {
 
@@ -292,12 +292,13 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
             }
 
             final String dest = spanEvent.getDestinationId();
-            final LinkKey spanEventStatKey = new LinkKey(srcNode, new Application(dest, destServiceType));
-            LinkStatistics linkData = statisticsMap.get(spanEventStatKey);
+            final Application destApplication = new Application(dest, destServiceType);
+            final LinkKey spanEventStatKey = new LinkKey(srcApplication, destApplication);
+            LinkStatistics linkData = linkStatMap.get(spanEventStatKey);
             if (linkData == null) {
-                Application sourceApplication = new Application(srcNode.getName(), srcNode.getServiceType());
-                Application destApplication = new Application(dest, destServiceType);
-                linkData = new LinkStatistics(sourceApplication, destApplication);
+                linkData = new LinkStatistics(srcApplication, destApplication);
+                // agent 정보추가. destination의 agent정보 알 수 없음.
+                linkStatMap.put(spanEventStatKey, linkData);
             }
 
             final int slotTime = getHistogramSlotTime(spanEvent, destServiceType);
@@ -305,9 +306,6 @@ public class FilteredApplicationMapServiceImpl implements FilteredApplicationMap
             // FIXME
             // stat2.addCallData((dest == null) ? spanEvent.getEndPoint() : dest, destServiceType.getCode(), (short) slot2, 1);
             linkData.addCallData(span.getAgentId(), span.getServiceType().getCode(), spanEvent.getEndPoint(), destServiceType.getCode(), (short) slotTime, 1);
-
-            // agent 정보추가. destination의 agent정보 알 수 없음.
-            statisticsMap.put(spanEventStatKey, linkData);
 
             // link timeseries statistics추가.
             timeSeriesStore.addLinkStat(spanEventStatKey, span.getStartTime() + spanEvent.getStartElapsed(), slotTime, 1L, spanEvent.hasException());

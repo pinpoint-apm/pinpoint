@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.nhn.pinpoint.common.util.DateUtils;
+import com.nhn.pinpoint.web.service.FilteredMapService;
 import com.nhn.pinpoint.web.util.LimitUtils;
 import com.nhn.pinpoint.web.filter.Filter;
 import com.nhn.pinpoint.web.filter.FilterBuilder;
@@ -24,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.nhn.pinpoint.common.bo.SpanBo;
-import com.nhn.pinpoint.web.service.FilteredApplicationMapService;
 import com.nhn.pinpoint.web.service.ScatterChartService;
 import com.nhn.pinpoint.web.util.TimeUtils;
 import com.nhn.pinpoint.web.vo.LimitedScanResult;
@@ -45,7 +45,7 @@ public class ScatterChartController {
 	private ScatterChartService scatter;
 	
 	@Autowired
-	private FilteredApplicationMapService flow;
+	private FilteredMapService flow;
 
     @Autowired
     private FilterBuilder filterBuilder;

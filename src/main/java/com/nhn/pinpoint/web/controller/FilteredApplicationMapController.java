@@ -2,6 +2,7 @@ package com.nhn.pinpoint.web.controller;
 
 import java.util.List;
 
+import com.nhn.pinpoint.web.service.FilteredMapService;
 import com.nhn.pinpoint.web.util.LimitUtils;
 import com.nhn.pinpoint.web.vo.Range;
 import org.slf4j.Logger;
@@ -17,13 +18,13 @@ import com.nhn.pinpoint.common.util.DateUtils;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
 import com.nhn.pinpoint.web.filter.Filter;
 import com.nhn.pinpoint.web.filter.FilterBuilder;
-import com.nhn.pinpoint.web.service.FilteredApplicationMapService;
 import com.nhn.pinpoint.web.util.TimeUtils;
 import com.nhn.pinpoint.web.vo.LimitedScanResult;
 import com.nhn.pinpoint.web.vo.TransactionId;
 
 /**
- * 
+ *
+ * @author emeroad
  * @author netspider
  */
 @Controller
@@ -32,7 +33,7 @@ public class FilteredApplicationMapController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
-	private FilteredApplicationMapService filteredApplicationMapService;
+	private FilteredMapService filteredMapService;
 
     @Autowired
     private FilterBuilder filterBuilder;
@@ -61,9 +62,9 @@ public class FilteredApplicationMapController {
         final Filter filter = filterBuilder.build(filterText);
         final Range range = new Range(from, to);
 
-        final LimitedScanResult<List<TransactionId>> limitedScanResult = filteredApplicationMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
+        final LimitedScanResult<List<TransactionId>> limitedScanResult = filteredMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
 
-		ApplicationMap map = filteredApplicationMapService.selectApplicationMap(limitedScanResult.getScanData(), range, filter);
+		ApplicationMap map = filteredMapService.selectApplicationMap(limitedScanResult.getScanData(), range, filter);
 		
 		model.addAttribute("from", from);
 		model.addAttribute("to", to);

@@ -6,9 +6,9 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.nhn.pinpoint.web.service.FilteredMapService;
 import com.nhn.pinpoint.web.util.LimitUtils;
 import com.nhn.pinpoint.web.vo.Range;
-import org.apache.hadoop.hbase.thrift.generated.Hbase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,6 @@ import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
 import com.nhn.pinpoint.web.calltree.span.SpanAlign;
 import com.nhn.pinpoint.web.filter.Filter;
 import com.nhn.pinpoint.web.filter.FilterBuilder;
-import com.nhn.pinpoint.web.service.FilteredApplicationMapService;
 import com.nhn.pinpoint.web.service.TransactionInfoService;
 import com.nhn.pinpoint.web.service.SpanResult;
 import com.nhn.pinpoint.web.service.SpanService;
@@ -48,7 +47,7 @@ public class BusinessTransactionController {
 	private TransactionInfoService transactionInfoService;
 
 	@Autowired
-	private FilteredApplicationMapService filteredApplicationMapService;
+	private FilteredMapService filteredMapService;
 
     @Autowired
     private FilterBuilder filterBuilder;
@@ -72,7 +71,7 @@ public class BusinessTransactionController {
         limit = LimitUtils.checkRange(limit);
 		Range range = new Range(from, to);
 		// TOOD 구조개선을 위해 server map조회 로직 분리함, 임시로 분리한 상태이고 개선이 필요하다.
-		LimitedScanResult<List<TransactionId>> traceIdList = filteredApplicationMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
+		LimitedScanResult<List<TransactionId>> traceIdList = filteredMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
 
 		Filter filter = filterBuilder.build(filterText);
 		BusinessTransactions selectBusinessTransactions = transactionInfoService.selectBusinessTransactions(traceIdList.getScanData(), applicationName, range, filter);
@@ -140,7 +139,7 @@ public class BusinessTransactionController {
             mv.addObject("traceId", traceId);
 
 			// application map
-			ApplicationMap map = filteredApplicationMapService.selectApplicationMap(traceId);
+			ApplicationMap map = filteredMapService.selectApplicationMap(traceId);
 			mv.addObject("nodes", map.getNodes());
 			mv.addObject("links", map.getLinks());
 
