@@ -8,9 +8,6 @@
     <packaging>jar</packaging>
 
     <properties>
-        <thrift.executable.windows>${thrift.executable.property.windwos}</thrift.executable.windows>
-        <thrift.executable.linux>${thrift.executable.property.linux}</thrift.executable.linux>
-        <thrift.executable.mac>${thrift.executable.property.mac}</thrift.executable.mac>
         <slf4j.version>1.7.5</slf4j.version>
     </properties>
 
@@ -130,7 +127,7 @@
                 <directory>${basedir}/src/main/resources</directory>
             </resource>
         </resources>
-
+        
         <testResources>
             <testResource>
                 <directory>${basedir}/src/test/java</directory>
@@ -143,7 +140,7 @@
                 <directory>${basedir}/src/test/resources</directory>
             </testResource>
         </testResources>
-
+        
         <plugins>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -152,7 +149,6 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -167,14 +163,11 @@
                     <showDeprecation>true</showDeprecation>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.4</version>
             </plugin>
-
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -195,73 +188,11 @@
                     <!--</systemProperties>-->
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
                 <version>2.5.2</version>
             </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>properties-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>read-project-properties</goal>
-                        </goals>
-                        <configuration>
-                            <files>
-                                <file>thrift.properties</file>
-                            </files>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.7</version>
-                <executions>
-                    <execution>
-                        <id>generate-sources</id>
-                        <phase>generate-sources</phase>
-                        <configuration>
-                            <target>
-                                <mkdir dir="${basedir}/generated-sources/thrift" />
-                                <delete>
-                                    <fileset dir="${basedir}/generated-sources/thrift"
-                                             includes="**/*" />
-                                </delete>
-                                <mkdir dir="${basedir}/generated-sources/thrift" />
-                                <exec executable="${thrift.executable}" failonerror="true">
-                                    <arg value="--gen" />
-                                    <arg value="java:beans" />
-                                    <arg value="-o" />
-                                    <arg value="${basedir}/generated-sources/thrift" />
-                                    <arg value="${basedir}/src/main/thrift/Pinpoint.thrift" />
-                                </exec>
-                                <exec executable="${thrift.executable}" failonerror="true">
-                                    <arg value="--gen" />
-                                    <arg value="java:beans" />
-                                    <arg value="-o" />
-                                    <arg value="${basedir}/generated-sources/thrift" />
-                                    <arg value="${basedir}/src/main/thrift/Trace.thrift" />
-                                </exec>
-                                <copy todir="src/main/java" overwrite="true">
-                                    <fileset dir="${basedir}/generated-sources/thrift/gen-javabean" />
-                                </copy>
-                                <delete dir="${basedir}/generated-sources" />
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
                 <artifactId>maven-clover2-plugin</artifactId>
@@ -293,7 +224,6 @@
                     <xmlOutputDirectory>${project.build.directory}/findbugs</xmlOutputDirectory>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
@@ -311,8 +241,6 @@
                     <!--</rulesets>-->
                 </configuration>
             </plugin>
-
-
             <plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
                 <artifactId>maven-clover2-plugin</artifactId>
@@ -324,36 +252,60 @@
                     <jdk>1.6</jdk>
                 </configuration>
             </plugin>
-
-
         </plugins>
     </reporting>
 
     <profiles>
         <profile>
-            <id>thrift-windows</id>
+            <id>with-thrift</id>
             <properties>
-                <thrift.executable>${thrift.executable.windows}</thrift.executable>
+                <thrift.executable>${thrift.executable}</thrift.executable>
             </properties>
+            <build>
+	            <plugins>
+		            <plugin>
+		                <artifactId>maven-antrun-plugin</artifactId>
+		                <version>1.7</version>
+		                <executions>
+		                    <execution>
+		                        <id>generate-sources</id>
+		                        <phase>generate-sources</phase>
+		                        <configuration>
+		                            <target>
+		                                <mkdir dir="${basedir}/generated-sources/thrift" />
+		                                <delete>
+		                                    <fileset dir="${basedir}/generated-sources/thrift" includes="**/*" />
+		                                </delete>
+		                                <mkdir dir="${basedir}/generated-sources/thrift" />
+		                                <exec executable="${thrift.executable}" failonerror="true">
+		                                    <arg value="--gen" />
+		                                    <arg value="java:beans" />
+		                                    <arg value="-o" />
+		                                    <arg value="${basedir}/generated-sources/thrift" />
+		                                    <arg value="${basedir}/src/main/thrift/Pinpoint.thrift" />
+		                                </exec>
+		                                <exec executable="${thrift.executable}" failonerror="true">
+		                                    <arg value="--gen" />
+		                                    <arg value="java:beans" />
+		                                    <arg value="-o" />
+		                                    <arg value="${basedir}/generated-sources/thrift" />
+		                                    <arg value="${basedir}/src/main/thrift/Trace.thrift" />
+		                                </exec>
+		                                <copy todir="src/main/java" overwrite="true">
+		                                    <fileset dir="${basedir}/generated-sources/thrift/gen-javabean" />
+		                                </copy>
+		                                <delete dir="${basedir}/generated-sources" />
+		                            </target>
+		                        </configuration>
+		                        <goals>
+		                            <goal>run</goal>
+		                        </goals>
+		                    </execution>
+		                </executions>
+		            </plugin>
+	            </plugins>
+            </build>
         </profile>
-
-        <profile>
-            <id>thrift-linux</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <thrift.executable>${thrift.executable.linux}</thrift.executable>
-            </properties>
-        </profile>
-
-        <profile>
-            <id>thrift-mac</id>
-            <properties>
-                <thrift.executable>${thrift.executable.mac}</thrift.executable>
-            </properties>
-        </profile>
-
         <profile>
             <id>klocwork</id>
             <build>
@@ -377,5 +329,4 @@
             </build>
         </profile>
     </profiles>
-
 </project>
