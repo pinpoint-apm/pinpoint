@@ -90,7 +90,7 @@ public class Link {
 	public Histogram getHistogram() {
 		Histogram result = null;
 
-		for (CallHistogram callHistogram : tagetList.getHostList()) {
+		for (CallHistogram callHistogram : tagetList.getCallHistogramList()) {
 			if (result == null) {
 				// FIXME 뭔가 괴상한 방식이긴 하지만..
 				Histogram histogram = callHistogram.getHistogram();

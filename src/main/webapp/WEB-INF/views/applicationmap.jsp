@@ -74,13 +74,13 @@
 				"slow" : ${link.histogram.verySlowCount},
 				"histogram" : ${link.histogram.json},
                 "sourceHistogram" : {
-                    <c:forEach items="${link.sourceList.hostList}" var="linkAgentHistogram" varStatus="linkAgentHistogramStatus">
+                    <c:forEach items="${link.sourceList.callHistogramList}" var="linkAgentHistogram" varStatus="linkAgentHistogramStatus">
                     "${linkAgentHistogram.id}" : ${linkAgentHistogram.histogram.json}
                     <c:if test="${!linkAgentHistogramStatus.last}">,</c:if>
                     </c:forEach>
                 },
                 "targetHosts" : {
-                    <c:forEach items="${link.targetList.hostList}" var="host" varStatus="status2">
+                    <c:forEach items="${link.targetList.callHistogramList}" var="host" varStatus="status2">
                         "${host.id}" : {
                             "histogram" : ${host.histogram.json}
                         }<c:if test="${!status2.last}">,</c:if>

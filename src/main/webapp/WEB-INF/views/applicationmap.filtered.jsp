@@ -75,7 +75,7 @@
 				"slow" : ${link.histogram.verySlowCount},
 				"histogram" : ${link.histogram.json},
 				"targetHosts" : {
-					<c:forEach items="${link.targetList.hostList}" var="host" varStatus="status2">
+					<c:forEach items="${link.targetList.callHistogramList}" var="host" varStatus="status2">
 						"${host.id}" : {
 							"histogram" : ${host.histogram.json}
 						}<c:if test="${!status2.last}">,</c:if>

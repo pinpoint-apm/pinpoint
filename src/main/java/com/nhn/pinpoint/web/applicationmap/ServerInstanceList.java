@@ -30,7 +30,7 @@ public class ServerInstanceList {
             return;
         }
 
-        for (CallHistogram callHistogram : hostHistogram.getHostList()) {
+        for (CallHistogram callHistogram : hostHistogram.getCallHistogramList()) {
             final String instanceName = callHistogram.getId();
             final String hostName = getHostName(callHistogram.getId());
             final ServiceType serviceType = callHistogram.getServiceType();

@@ -90,17 +90,17 @@ public class CallHistogramList {
         }
     }
 
-    public Collection<CallHistogram> getHostList() {
+    public Collection<CallHistogram> getCallHistogramList() {
         return callHistogramMap.values();
     }
 
     @Deprecated
-    public void put(CallHistogramList addCallHistogramList) {
-        if (addCallHistogramList == null) {
+    public void put(CallHistogramList callHistogramList) {
+        if (callHistogramList == null) {
             throw new NullPointerException("callHistogram must not be null");
         }
         // 이 메소드를 문제가 있음 put정책이 정확하지 않음.
-        for (CallHistogram callHistogram : addCallHistogramList.callHistogramMap.values()) {
+        for (CallHistogram callHistogram : callHistogramList.callHistogramMap.values()) {
             final String hostName = callHistogram.getId();
             ServiceType serviceType = callHistogram.getServiceType();
             Application agentId = new Application(hostName, serviceType);
@@ -113,7 +113,7 @@ public class CallHistogramList {
 
     @Override
     public String toString() {
-        return "CallHistogram{"
+        return "CallHistogramList{"
                     + callHistogramMap +
                 '}';
     }
