@@ -152,6 +152,7 @@ pinpointApp.directive('distributedCallFlow', [ '$filter',
                     var options = {
                         enableCellNavigation: true,
                         enableColumnReorder: true,
+                        enableTextSelectionOnCells: true,
 //                        autoHeight: true,
                         topPanelHeight: 30,
                         rowHeight: 25
