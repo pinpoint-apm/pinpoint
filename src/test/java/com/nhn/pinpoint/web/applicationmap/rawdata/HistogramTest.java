@@ -19,7 +19,7 @@ public class HistogramTest {
     @Test
     public void testDeepCopy() throws Exception {
         Histogram original = new Histogram(ServiceType.TOMCAT);
-        original.addSample((short) 1000, 100);
+        original.addCallCount((short) 1000, 100);
 
 
         Histogram copy = new Histogram(ServiceType.TOMCAT);
@@ -27,7 +27,7 @@ public class HistogramTest {
         copy.add(original);
         Assert.assertEquals(original.getFastCount(), copy.getFastCount());
 
-        copy.addSample((short) 1000, 100);
+        copy.addCallCount((short) 1000, 100);
         Assert.assertEquals(original.getFastCount(), 100);
         Assert.assertEquals(copy.getFastCount(), 200);
 
@@ -36,7 +36,7 @@ public class HistogramTest {
     @Test
     public void testJson() throws Exception {
         Histogram original = new Histogram(ServiceType.TOMCAT);
-        original.addSample((short) 1000, 100);
+        original.addCallCount((short) 1000, 100);
 
         HashMap hashMap = objectMapper.readValue(original.getJson(), HashMap.class);
 

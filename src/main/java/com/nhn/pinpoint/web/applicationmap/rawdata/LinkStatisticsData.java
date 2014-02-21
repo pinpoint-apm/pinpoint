@@ -7,16 +7,16 @@ import com.nhn.pinpoint.web.vo.Application;
 
 public class LinkStatisticsData {
 
-	private final List<LinkStatistics> linkStatData;
+	private final Collection<LinkStatistics> linkStatData;
 
-	public LinkStatisticsData(List<LinkStatistics> linkStatData) {
+	public LinkStatisticsData(Collection<LinkStatistics> linkStatData) {
         if (linkStatData == null) {
             throw new NullPointerException("linkStatData must not be null");
         }
         this.linkStatData = linkStatData;
 	}
 
-    public List<LinkStatistics> getLinkStatData() {
+    public Collection<LinkStatistics> getLinkStatData() {
         return linkStatData;
     }
 

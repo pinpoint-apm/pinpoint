@@ -38,10 +38,10 @@ public class Histogram implements JsonSerializable {
 		this.histogramSchema = serviceType.getHistogramSchema();
 	}
 
-    public void addElapsedTime(int elapsedTime) {
+    public void addCallCountByElapsedTime(int elapsedTime) {
         HistogramSlot histogramSlot = histogramSchema.findHistogramSlot(elapsedTime);
         short slotTime = histogramSlot.getSlotTime();
-        addSample(slotTime, 1);
+        addCallCount(slotTime, 1);
     }
 
     public Histogram(final short serviceType) {
@@ -49,7 +49,7 @@ public class Histogram implements JsonSerializable {
     }
 
 	// TODO slot번호를 이 클래스에서 추출해야 할 것 같긴 함.
-	public void addSample(final short slotTime, final long count) {
+	public void addCallCount(final short slotTime, final long count) {
 		this.totalCount += count;
 		
 		if (slotTime == histogramSchema.getVerySlowSlot().getSlotTime()) { // 0 is slow slotTime

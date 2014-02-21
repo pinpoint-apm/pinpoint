@@ -2,10 +2,7 @@ package com.nhn.pinpoint.web.dao.hbase;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 import com.nhn.pinpoint.web.dao.MapStatisticsCalleeDao;
@@ -44,10 +41,10 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
 	@Autowired
 	@Qualifier("mapStatisticsCalleeMapper")
-	private RowMapper<List<LinkStatistics>> mapStatisticsCalleeMapper;
+	private RowMapper<Collection<LinkStatistics>> mapStatisticsCalleeMapper;
 
 	@Override
-	public List<LinkStatistics> selectCallee(Application calleeApplication, Range range) {
+	public Collection<LinkStatistics> selectCallee(Application calleeApplication, Range range) {
         if (calleeApplication == null) {
             throw new NullPointerException("calleeApplication must not be null");
         }
@@ -55,7 +52,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
             throw new NullPointerException("range must not be null");
         }
         Scan scan = createScan(calleeApplication, range);
-		final List<List<LinkStatistics>> foundListList = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLER, scan, mapStatisticsCalleeMapper);
+		List<Collection<LinkStatistics>> foundListList = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLER, scan, mapStatisticsCalleeMapper);
 
 		if (foundListList.isEmpty()) {
 			logger.debug("There's no caller data. {}, {}", calleeApplication, range);
@@ -64,10 +61,10 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
         return merge(foundListList);
 	}
 
-    private List<LinkStatistics> merge(List<List<LinkStatistics>> foundListList) {
+    private Collection<LinkStatistics> merge(List<Collection<LinkStatistics>> foundListList) {
         final Map<LinkKey, LinkStatistics> result = new HashMap<LinkKey, LinkStatistics>();
 
-        for (List<LinkStatistics> foundList : foundListList) {
+        for (Collection<LinkStatistics> foundList : foundListList) {
             for (LinkStatistics found : foundList) {
                 final LinkKey key = new LinkKey(found.getFromApplication(), found.getToApplication());
                 final LinkStatistics find = result.get(key);
@@ -79,7 +76,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
             }
         }
 
-        return new ArrayList<LinkStatistics>(result.values());
+        return result.values();
     }
 
 

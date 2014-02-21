@@ -11,8 +11,8 @@ public class NodeList {
 
     private final Map<Application, Node> nodeMap = new HashMap<Application, Node>();
 
-    public List<Node> getNodeList() {
-        return new ArrayList<Node>(this.nodeMap.values());
+    public Collection<Node> getNodeList() {
+        return this.nodeMap.values();
     }
 
     public void markSequence() {

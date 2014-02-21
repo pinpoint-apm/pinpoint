@@ -26,7 +26,7 @@ public class ResponseTimeMapperTest {
         buffer.put(histogramSlotTime);
         buffer.put(Bytes.toBytes("agent"));
 
-        responseTimeMapper.recordColumn(responseTime, buffer.getBuffer(), Bytes.toBytes(1L));
+        responseTimeMapper.recordColumn(responseTime, buffer.getBuffer(), Bytes.toBytes(1L), 0);
 
         Histogram agentHistogram = responseTime.getHistogram("agent");
         long fastCount = agentHistogram.getFastCount();

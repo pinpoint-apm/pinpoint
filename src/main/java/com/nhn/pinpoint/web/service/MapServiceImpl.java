@@ -74,7 +74,7 @@ public class MapServiceImpl implements MapService {
             return Collections.emptySet();
         }
 
-		List<LinkStatistics> caller = mapStatisticsCallerDao.selectCaller(callerApplication, range);
+		Collection<LinkStatistics> caller = mapStatisticsCallerDao.selectCaller(callerApplication, range);
         if (logger.isDebugEnabled()) {
 		    logger.debug("Found Caller. count={}, caller={}", caller.size(), callerApplication);
         }
@@ -125,7 +125,7 @@ public class MapServiceImpl implements MapService {
             return Collections.emptySet();
         }
 
-		final List<LinkStatistics> callee = mapStatisticsCalleeDao.selectCallee(calleeApplication, range);
+		final Collection<LinkStatistics> callee = mapStatisticsCalleeDao.selectCallee(calleeApplication, range);
 		logger.debug("Found Callee. count={}, callee={}", callee.size(), calleeApplication);
 
         final Set<LinkStatistics> calleeSet = new HashSet<LinkStatistics>();

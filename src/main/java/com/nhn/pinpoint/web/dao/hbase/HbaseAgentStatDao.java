@@ -3,7 +3,6 @@ package com.nhn.pinpoint.web.dao.hbase;
 import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENT_NAME_MAX_LEN;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.nhn.pinpoint.thrift.dto.TAgentStat;

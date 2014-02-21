@@ -101,11 +101,11 @@ public class LinkStatistics {
         this.toApplication = toApplication;
     }
 
-	public HostList getToHostList() {
+	public CallHistogramList getToHostList() {
         return callDataMap.getTargetList();
 	}
 
-    public HostList getSourceList() {
+    public CallHistogramList getSourceList() {
         return callDataMap.getSourceList();
     }
 

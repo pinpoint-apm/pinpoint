@@ -1,8 +1,9 @@
 package com.nhn.pinpoint.web.mapper;
 
+import com.nhn.pinpoint.common.buffer.Buffer;
+import com.nhn.pinpoint.common.buffer.FixedBuffer;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 
-import com.nhn.pinpoint.common.util.ApplicationStatisticsUtils;
 import com.nhn.pinpoint.common.util.TimeUtils;
 import com.nhn.pinpoint.web.vo.ResponseTime;
 import org.apache.hadoop.hbase.KeyValue;
@@ -22,7 +23,7 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
             return null;
         }
         final byte[] rowKey = result.getRow();
-        ResponseTime responseTime = createRawResponseTime(rowKey);
+        ResponseTime responseTime = createResponseTime(rowKey);
 
         for (KeyValue keyValue : result.raw()) {
             if (!Bytes.equals(keyValue.getFamily(), HBaseTables.MAP_STATISTICS_SELF_CF_COUNTER)) {
@@ -35,22 +36,22 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
         return responseTime;
     }
 
-    void recordColumn(ResponseTime responseTime, byte[] qualifier, byte[] value) {
-        recordColumn(responseTime, qualifier, value, 0);
-    }
+
+
     void recordColumn(ResponseTime responseTime, byte[] qualifier, byte[] value, int valueOffset) {
         short slotNumber = Bytes.toShort(qualifier);
         // agentId도 데이터로 같이 엮어야 함.
         String agentId = Bytes.toString(qualifier, 2, qualifier.length - 2);
         long count = Bytes.toLong(value, valueOffset);
-        responseTime.getHistogram(agentId).addSample(slotNumber, count);
+        responseTime.addResponseTime(agentId, slotNumber, count);
     }
 
-    private ResponseTime createRawResponseTime(byte[] rowKey) {
-
-        String applicationName = ApplicationStatisticsUtils.getApplicationNameFromRowKey(rowKey);
-        short serviceType = ApplicationStatisticsUtils.getApplicationTypeFromRowKey(rowKey);
-        long time = TimeUtils.recoveryCurrentTimeMillis(ApplicationStatisticsUtils.getTimestampFromRowKey(rowKey));
-        return new ResponseTime(applicationName, serviceType, time);
+    private ResponseTime createResponseTime(byte[] rowKey) {
+        final Buffer row = new FixedBuffer(rowKey);
+        String applicationName = row.read2PrefixedString();
+        short serviceType = row.readShort();
+        final long timestamp = TimeUtils.recoveryCurrentTimeMillis(row.readLong());
+        return new ResponseTime(applicationName, serviceType, timestamp);
     }
+
 }

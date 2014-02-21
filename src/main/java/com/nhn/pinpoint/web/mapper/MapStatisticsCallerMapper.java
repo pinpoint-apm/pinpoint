@@ -4,7 +4,9 @@ import java.util.*;
 
 import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.buffer.FixedBuffer;
+import com.nhn.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
+import com.nhn.pinpoint.common.util.TimeUtils;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.LinkKey;
@@ -25,24 +27,24 @@ import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
  * 
  */
 @Component
-public class MapStatisticsCallerMapper implements RowMapper<List<LinkStatistics>> {
+public class MapStatisticsCallerMapper implements RowMapper<Collection<LinkStatistics>> {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Override
-	public List<LinkStatistics> mapRow(Result result, int rowNum) throws Exception {
+	public Collection<LinkStatistics> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
         logger.debug("mapRow:{}", rowNum);
-		final KeyValue[] keyList = result.raw();
-        final byte[] rowKey = result.getRow();
 
-        final long timestamp = ApplicationMapStatisticsUtils.getTimestampFromRowKey(rowKey);
-        Application caller = readCallerApplication(rowKey);
+        final Buffer row = new FixedBuffer(result.getRow());
+        final Application caller = readCallerApplication(row);
+        final long timestamp = TimeUtils.recoveryCurrentTimeMillis(row.readLong());
+
 		// key is destApplicationName.
         final Map<LinkKey, LinkStatistics> linkStatisticsMap = new HashMap<LinkKey, LinkStatistics>();
-		for (KeyValue kv : keyList) {
+        for (KeyValue kv :  result.raw()) {
             final byte[] family = kv.getFamily();
             if (Bytes.equals(family, HBaseTables.MAP_STATISTICS_CALLEE_CF_COUNTER)) {
                 final byte[] qualifier = kv.getQualifier();
@@ -63,12 +65,11 @@ public class MapStatisticsCallerMapper implements RowMapper<List<LinkStatistics>
                 statistics.addCallData(caller.getName(), caller.getServiceTypeCode(), calleeHost, callee.getServiceTypeCode(), (isError) ? (short) -1 : histogramSlot, requestCount);
             } else if (Bytes.equals(family, HBaseTables.MAP_STATISTICS_CALLEE_CF_VER2_COUNTER)) {
 
-                final byte[] qualifier = kv.getQualifier();
-                final Buffer buffer = new FixedBuffer(qualifier);
+                final Buffer buffer = new OffsetFixedBuffer(kv.getBuffer(), kv.getQualifierOffset());
                 Application callee = readCalleeApplication(buffer);
-
                 String calleeHost = buffer.readPrefixedString();
                 short histogramSlot = buffer.readShort();
+
                 boolean isError = histogramSlot == (short) -1;
 
                 String callerAgentId = buffer.readPrefixedString();
@@ -86,7 +87,7 @@ public class MapStatisticsCallerMapper implements RowMapper<List<LinkStatistics>
 
 		}
 
-        return new ArrayList<LinkStatistics>(linkStatisticsMap.values());
+        return linkStatisticsMap.values();
 	}
 
     private long getValueToLong(KeyValue kv) {
@@ -116,9 +117,9 @@ public class MapStatisticsCallerMapper implements RowMapper<List<LinkStatistics>
         return new Application(calleeApplicationName, calleeServiceyType);
     }
 
-    private Application readCallerApplication(byte[] row) {
-        String callerApplicationName = ApplicationMapStatisticsUtils.getApplicationNameFromRowKey(row);
-        short callerServiceType = ApplicationMapStatisticsUtils.getApplicationTypeFromRowKey(row);
+    private Application readCallerApplication(Buffer row) {
+        String callerApplicationName = row.read2PrefixedString();
+        short callerServiceType = row.readShort();
         return new Application(callerApplicationName, callerServiceType);
     }
 }

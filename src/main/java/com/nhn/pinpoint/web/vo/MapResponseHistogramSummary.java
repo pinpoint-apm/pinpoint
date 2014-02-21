@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.web.vo;
 
 import com.nhn.pinpoint.common.HistogramSchema;
-import com.nhn.pinpoint.common.bo.Span;
 import com.nhn.pinpoint.common.bo.SpanBo;
 import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
 
@@ -22,9 +21,9 @@ public class MapResponseHistogramSummary {
 
         Histogram histogram = new Histogram(application.getServiceType());
         if (span.getErrCode() != 0) {
-            histogram.addElapsedTime(HistogramSchema.ERROR_SLOT_TIME);
+            histogram.addCallCountByElapsedTime(HistogramSchema.ERROR_SLOT_TIME);
         } else {
-            histogram.addElapsedTime(span.getElapsed());
+            histogram.addCallCountByElapsedTime(span.getElapsed());
         }
         responseHistogramSummary.addApplicationLevelHistogram(histogram);
         responseHistogramSummary.addAgentLevelHistogram(span.getAgentId(), histogram);

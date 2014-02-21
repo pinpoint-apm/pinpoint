@@ -2,6 +2,9 @@ package com.nhn.pinpoint.web.mapper;
 
 import java.util.*;
 
+import com.nhn.pinpoint.common.buffer.Buffer;
+import com.nhn.pinpoint.common.buffer.FixedBuffer;
+import com.nhn.pinpoint.common.util.TimeUtils;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.LinkKey;
@@ -21,26 +24,24 @@ import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
  * 
  */
 @Component
-public class MapStatisticsCalleeMapper implements RowMapper<List<LinkStatistics>> {
+public class MapStatisticsCalleeMapper implements RowMapper<Collection<LinkStatistics>> {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Override
-	public List<LinkStatistics> mapRow(Result result, int rowNum) throws Exception {
+	public Collection<LinkStatistics> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
         logger.debug("mapRow:{}", rowNum);
-		final KeyValue[] keyList = result.raw();
+
+        final Buffer row = new FixedBuffer(result.getRow());
+        final Application calleeApplication = readCalleeApplication(row);
+        final long timestamp = TimeUtils.recoveryCurrentTimeMillis(row.readLong());
+
 
         final Map<LinkKey, LinkStatistics> linkStatisticsMap = new HashMap<LinkKey, LinkStatistics>();
-
-        final byte[] rowKey = result.getRow();
-        final long timestamp = ApplicationMapStatisticsUtils.getTimestampFromRowKey(rowKey);
-        logger.debug("rowKey time:{}", timestamp);
-        Application calleeApplication = readCalleeApplication(rowKey);
-
-		for (KeyValue kv : keyList) {
+		for (KeyValue kv : result.raw()) {
 
             final byte[] qualifier = kv.getQualifier();
             Application callerApplication = readCallerApplication(qualifier);
@@ -63,7 +64,7 @@ public class MapStatisticsCalleeMapper implements RowMapper<List<LinkStatistics>
             }
 		}
 
-        return new ArrayList<LinkStatistics>(linkStatisticsMap.values());
+        return linkStatisticsMap.values();
 	}
 
     private LinkStatistics getLinkStatics(Map<LinkKey, LinkStatistics> linkStatisticsMap, Application callerApplication, Application calleeApplication, long timestamp) {
@@ -82,9 +83,9 @@ public class MapStatisticsCalleeMapper implements RowMapper<List<LinkStatistics>
         return new Application(callerApplicationName, callerServiceType);
     }
 
-    private Application readCalleeApplication(byte[] row) {
-        String calleeApplicationName = ApplicationMapStatisticsUtils.getApplicationNameFromRowKey(row);
-        short calleeServiceType = ApplicationMapStatisticsUtils.getApplicationTypeFromRowKey(row);
+    private Application readCalleeApplication(Buffer row) {
+        String calleeApplicationName = row.read2PrefixedString();
+        short calleeServiceType = row.readShort();
         return new Application(calleeApplicationName, calleeServiceType);
     }
 }

@@ -2,8 +2,8 @@ package com.nhn.pinpoint.web.applicationmap;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.web.applicationmap.rawdata.Host;
-import com.nhn.pinpoint.web.applicationmap.rawdata.HostList;
+import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogram;
+import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogramList;
 
 import java.util.*;
 
@@ -25,15 +25,15 @@ public class ServerInstanceList {
      *
      * @param hostHistogram
      */
-    public void fillServerInstanceList(final HostList hostHistogram) {
+    public void fillServerInstanceList(final CallHistogramList hostHistogram) {
         if (hostHistogram == null) {
             return;
         }
 
-        for (Host host : hostHistogram.getHostList()) {
-            final String instanceName = host.getHost();
-            final String hostName = getHostName(host.getHost());
-            final ServiceType serviceType = host.getServiceType();
+        for (CallHistogram callHistogram : hostHistogram.getHostList()) {
+            final String instanceName = callHistogram.getId();
+            final String hostName = getHostName(callHistogram.getId());
+            final ServiceType serviceType = callHistogram.getServiceType();
 
             final List<ServerInstance> find = serverInstanceList.get(hostName);
             if (find == null) {

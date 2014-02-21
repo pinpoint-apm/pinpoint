@@ -2,6 +2,7 @@ package com.nhn.pinpoint.web.vo;
 
 import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +74,7 @@ public class ResponseHistogramSummary {
 
     private void createApplicationLevelResponseTime(List<ResponseTime> responseHistogram) {
         for (ResponseTime responseTime : responseHistogram) {
-            final List<Histogram> histogramList = responseTime.getResponseHistogramList();
+            final Collection<Histogram> histogramList = responseTime.getResponseHistogramList();
             for (Histogram histogram : histogramList) {
                 this.addApplicationLevelHistogram(histogram);
             }

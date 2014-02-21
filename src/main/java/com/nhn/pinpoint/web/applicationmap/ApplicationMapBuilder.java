@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.web.applicationmap;
 
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.web.applicationmap.rawdata.HostList;
+import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogramList;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsData;
 import com.nhn.pinpoint.web.vo.Application;
@@ -20,7 +20,7 @@ public class ApplicationMapBuilder {
     public ApplicationMapBuilder() {
     }
 
-    public ApplicationMap build(List<LinkStatistics> linkStatistics) {
+    public ApplicationMap build(Collection<LinkStatistics> linkStatistics) {
         if (linkStatistics == null) {
             throw new NullPointerException("linkStatData must not be null");
         }
@@ -63,8 +63,8 @@ public class ApplicationMapBuilder {
             }
 
             // RPC client인 경우 dest application이 이미 있으면 삭제, 없으면 unknown cloud로 변경.
-            HostList toHostList = linkStat.getToHostList();
-            Link link = new Link(fromNode, toNode, toHostList);
+            CallHistogramList toCallHistogramList = linkStat.getToHostList();
+            Link link = new Link(fromNode, toNode, toCallHistogramList);
             link.setSourceList(linkStat.getSourceList());
             if (toNode.getServiceType().isRpcClient()) {
                 if (!nodeMap.containsApplicationName(toNode.getApplicationName())) {

@@ -30,11 +30,11 @@ public class ApplicationMap {
 	}
 
 
-	public List<Node> getNodes() {
+	public Collection<Node> getNodes() {
 		return this.nodeList.getNodeList();
 	}
 
-	public List<Link> getLinks() {
+	public Collection<Link> getLinks() {
 		return this.linkList.getLinks();
 	}
 
@@ -111,7 +111,7 @@ public class ApplicationMap {
             throw new NullPointerException("responseDataSource must not be null");
         }
 
-        final List<Node> nodes = this.nodeList.getNodeList();
+        final Collection<Node> nodes = this.nodeList.getNodeList();
         for (Node node : nodes) {
             if (node.getServiceType().isWas()) {
                 // was일 경우 자신의 response 히스토그램을 조회하여 채운다.
@@ -123,7 +123,7 @@ public class ApplicationMap {
                 Application nodeApplication = new Application(node.getApplicationName(), node.getServiceType());
                 final ResponseHistogramSummary summary = new ResponseHistogramSummary(nodeApplication);
 
-                List<Link> linkList = this.linkList.getLinks();
+                Collection<Link> linkList = this.linkList.getLinks();
                 for (Link link : linkList) {
                     Node toNode = link.getTo();
                     String applicationName = toNode.getApplicationName();
@@ -142,7 +142,7 @@ public class ApplicationMap {
                 Application nodeApplication = new Application(node.getApplicationName(), node.getServiceType());
                 final ResponseHistogramSummary summary = new ResponseHistogramSummary(nodeApplication);
 
-                List<Link> linkList = this.linkList.getLinks();
+                Collection<Link> linkList = this.linkList.getLinks();
                 for (Link link : linkList) {
                     Node fromNode = link.getFrom();
                     String applicationName = fromNode.getApplicationName();

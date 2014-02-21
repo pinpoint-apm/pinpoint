@@ -75,13 +75,13 @@
 				"histogram" : ${link.histogram.json},
                 "sourceHistogram" : {
                     <c:forEach items="${link.sourceList.hostList}" var="linkAgentHistogram" varStatus="linkAgentHistogramStatus">
-                    "${linkAgentHistogram.host}" : ${linkAgentHistogram.histogram.json}
+                    "${linkAgentHistogram.id}" : ${linkAgentHistogram.histogram.json}
                     <c:if test="${!linkAgentHistogramStatus.last}">,</c:if>
                     </c:forEach>
                 },
                 "targetHosts" : {
-                    <c:forEach items="${link.hostList.hostList}" var="host" varStatus="status2">
-                        "${host.host}" : {
+                    <c:forEach items="${link.targetList.hostList}" var="host" varStatus="status2">
+                        "${host.id}" : {
                             "histogram" : ${host.histogram.json}
                         }<c:if test="${!status2.last}">,</c:if>
                     </c:forEach>

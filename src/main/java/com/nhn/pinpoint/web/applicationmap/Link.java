@@ -1,8 +1,8 @@
 package com.nhn.pinpoint.web.applicationmap;
 
+import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogram;
+import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogramList;
 import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
-import com.nhn.pinpoint.web.applicationmap.rawdata.Host;
-import com.nhn.pinpoint.web.applicationmap.rawdata.HostList;
 import com.nhn.pinpoint.web.vo.LinkKey;
 import com.nhn.pinpoint.web.vo.Application;
 import org.slf4j.Logger;
@@ -22,12 +22,12 @@ public class Link {
     private final Node fromNode;
     private final Node toNode;
 
-	private final HostList hostList;
-    private HostList sourceList;
+	private final CallHistogramList tagetList;
+    private CallHistogramList sourceList;
 
 
-    public Link(Node from, Node to, HostList hostList) {
-        this(createLinkKey(from, to), from, to, hostList);
+    public Link(Node from, Node to, CallHistogramList tagetList) {
+        this(createLinkKey(from, to), from, to, tagetList);
 
     }
 
@@ -43,7 +43,7 @@ public class Link {
         return new LinkKey(fromApplication, toApplication);
     }
 
-    Link(LinkKey linkKey, Node fromNode, Node toNode, HostList hostList) {
+    Link(LinkKey linkKey, Node fromNode, Node toNode, CallHistogramList tagetList) {
         if (fromNode == null) {
             throw new NullPointerException("fromNode must not be null");
         }
@@ -56,7 +56,7 @@ public class Link {
         this.linkKey = linkKey;
         this.fromNode = fromNode;
         this.toNode = toNode;
-        this.hostList = hostList;
+        this.tagetList = tagetList;
     }
 
     public Link(Link copyLink) {
@@ -66,8 +66,8 @@ public class Link {
         this.linkKey = copyLink.linkKey;
         this.fromNode = copyLink.fromNode;
         this.toNode = copyLink.toNode;
-        this.hostList = new HostList(copyLink.hostList);
-        this.sourceList = new HostList(copyLink.sourceList);
+        this.tagetList = new CallHistogramList(copyLink.tagetList);
+        this.sourceList = new CallHistogramList(copyLink.sourceList);
     }
 
 	public LinkKey getLinkKey() {
@@ -82,30 +82,30 @@ public class Link {
 		return toNode;
 	}
 
-	public HostList getHostList() {
-		return hostList;
+	public CallHistogramList getTargetList() {
+		return tagetList;
 	}
 
 
 	public Histogram getHistogram() {
 		Histogram result = null;
 
-		for (Host host : hostList.getHostList()) {
+		for (CallHistogram callHistogram : tagetList.getHostList()) {
 			if (result == null) {
 				// FIXME 뭔가 괴상한 방식이긴 하지만..
-				Histogram histogram = host.getHistogram();
+				Histogram histogram = callHistogram.getHistogram();
 				result = new Histogram(histogram.getServiceType());
 			}
-			result.add(host.getHistogram());
+			result.add(callHistogram.getHistogram());
 		}
 		return result;
 	}
 
-    public void setSourceList(HostList sourceList) {
+    public void setSourceList(CallHistogramList sourceList) {
         this.sourceList = sourceList;
     }
 
-    public HostList getSourceList() {
+    public CallHistogramList getSourceList() {
         return sourceList;
     }
 
@@ -119,8 +119,8 @@ public class Link {
             throw new IllegalArgumentException("Can't merge.");
         }
 
-        HostList linkHostList = link.getHostList();
-        this.hostList.addHostList(linkHostList);
+        CallHistogramList linkCallHistogramList = link.getTargetList();
+        this.tagetList.addHostList(linkCallHistogramList);
         this.sourceList.addHostList(link.getSourceList());
 	}
 
@@ -151,7 +151,7 @@ public class Link {
 
 	@Override
 	public String toString() {
-		return "Link [linkKey=" + linkKey + ", fromNode=" + fromNode + ", toNode=" + toNode + ", hostList=" + hostList + "]";
+		return "Link [linkKey=" + linkKey + ", fromNode=" + fromNode + ", toNode=" + toNode + ", tagetList=" + tagetList + "]";
 	}
 
 }

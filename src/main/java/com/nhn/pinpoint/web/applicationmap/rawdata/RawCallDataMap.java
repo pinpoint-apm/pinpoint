@@ -24,7 +24,7 @@ public class RawCallDataMap {
         RawCallData rawCallData = getRawCallData(linkKey);
 
         final Histogram histogram = rawCallData.getHistogram();
-        histogram.addSample(slot, count);
+        histogram.addCallCount(slot, count);
     }
 
     public LinkKey createLinkKey(String sourceAgentId, ServiceType sourceServiceType, String targetId, ServiceType targetServiceType) {
@@ -52,22 +52,22 @@ public class RawCallDataMap {
         return rawCallData;
     }
 
-    public HostList getTargetList() {
-        HostList targetList = new HostList();
+    public CallHistogramList getTargetList() {
+        CallHistogramList targetList = new CallHistogramList();
         for (Map.Entry<LinkKey, RawCallData> linkKeyRawCallDataEntry : rawCallDataMap.entrySet()) {
             final LinkKey key = linkKeyRawCallDataEntry.getKey();
-            final RawCallData value = linkKeyRawCallDataEntry.getValue();
-            targetList.addHost(key.getToApplication(), key.getToServiceType().getCode(), value.getHistogram());
+            final RawCallData rawCallData = linkKeyRawCallDataEntry.getValue();
+            targetList.addHost(key.getToApplication(), key.getToServiceType(), rawCallData.getHistogram());
         }
         return targetList;
     }
 
-    public HostList getSourceList() {
-        HostList sourceList = new HostList();
+    public CallHistogramList getSourceList() {
+        CallHistogramList sourceList = new CallHistogramList();
         for (Map.Entry<LinkKey, RawCallData> linkKeyRawCallDataEntry : rawCallDataMap.entrySet()) {
             final LinkKey key = linkKeyRawCallDataEntry.getKey();
-            final RawCallData value = linkKeyRawCallDataEntry.getValue();
-            sourceList.addHostUncheck(key.getFromApplication(), key.getFromServiceType().getCode(), value.getHistogram());
+            final RawCallData rawCallData = linkKeyRawCallDataEntry.getValue();
+            sourceList.addHostUncheck(key.getFromApplication(), key.getFromServiceType(), rawCallData.getHistogram());
         }
         return sourceList;
     }

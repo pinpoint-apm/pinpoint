@@ -10,8 +10,8 @@ import java.util.*;
 public class LinkList {
     private final Map<LinkKey, Link> linkMap = new HashMap<LinkKey, Link>();
 
-    public List<Link> getLinks() {
-        return new ArrayList<Link>(this.linkMap.values());
+    public Collection<Link> getLinks() {
+        return this.linkMap.values();
     }
 
     public void buildLink(List<Link> relationList) {

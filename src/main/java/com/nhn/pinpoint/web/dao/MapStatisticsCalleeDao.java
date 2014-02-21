@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.web.dao;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -13,7 +14,7 @@ import com.nhn.pinpoint.web.vo.Range;
  * 
  */
 public interface MapStatisticsCalleeDao {
-	public List<LinkStatistics> selectCallee(Application calleeApplication, Range range);
+	public Collection<LinkStatistics> selectCallee(Application calleeApplication, Range range);
 	
 	public List<Map<Long, Map<Short, Long>>> selectCalleeStatistics(Application callerApplication, Application calleeApplication, Range range);
 }

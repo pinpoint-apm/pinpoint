@@ -42,8 +42,12 @@ public class ResponseTime {
         return newHistogram;
     }
 
-    public List<Histogram> getResponseHistogramList() {
-        return new ArrayList<Histogram>(responseHistogramMap.values());
+    public void addResponseTime(String agentId, short slotNumber, long count) {
+        getHistogram(agentId).addCallCount(slotNumber, count);
+    }
+
+    public Collection<Histogram> getResponseHistogramList() {
+        return responseHistogramMap.values();
     }
 
     public Set<Map.Entry<String, Histogram>> getAgentHistogram() {
@@ -59,4 +63,5 @@ public class ResponseTime {
                 ", responseHistogramMap=" + responseHistogramMap +
                 '}';
     }
+
 }
