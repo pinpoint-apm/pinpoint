@@ -98,6 +98,18 @@ public class AutomaticBuffer extends FixedBuffer {
     }
 
     @Override
+    public void put2PrefixedString(final String string) {
+        byte[] bytes = BytesUtils.toBytes(string);
+        this.put2PrefixedBytes(bytes);
+    }
+
+    @Override
+    public void put4PrefixedString(final String string) {
+        byte[] bytes = BytesUtils.toBytes(string);
+        this.put4PrefixedBytes(bytes);
+    }
+
+    @Override
     public void put(final byte v) {
         checkExpend(1);
         super.put(v);

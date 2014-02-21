@@ -3,8 +3,11 @@ package com.nhn.pinpoint.common.util;
 import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.HistogramSlot;
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
+import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import org.apache.hadoop.hbase.util.Bytes;
+
 
 /**
  * <pre>
@@ -102,14 +105,16 @@ public class ApplicationMapStatisticsUtils {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
+        final byte[] applicationNameBytes= BytesUtils.toBytes(applicationName);
 
-        byte[] applicationnameBytes = Bytes.toBytes(applicationName);
-        byte[] applicationnameBytesLength = Bytes.toBytes((short) applicationnameBytes.length);
-        // byte[] offset = new byte[HBaseTables.APPLICATION_NAME_MAX_LEN - applicationnameBytes.length];
-        byte[] applicationtypeBytes = Bytes.toBytes(applicationType);
-        byte[] slot = Bytes.toBytes(TimeUtils.reverseCurrentTimeMillis(timestamp));
-
-        return BytesUtils.concat(applicationnameBytesLength, applicationnameBytes, applicationtypeBytes, slot);
+        final Buffer buffer = new AutomaticBuffer(2 + applicationNameBytes.length + 2 + 8);
+//        buffer.put2PrefixedString(applicationName);
+        buffer.put((short)applicationNameBytes.length);
+        buffer.put(applicationNameBytes);
+        buffer.put(applicationType);
+        long reverseTimeMillis = TimeUtils.reverseCurrentTimeMillis(timestamp);
+        buffer.put(reverseTimeMillis);
+        return buffer.getBuffer();
     }
 
     public static String getApplicationNameFromRowKey(byte[] bytes, int offset) {
@@ -125,11 +130,15 @@ public class ApplicationMapStatisticsUtils {
     }
 
     public static short getApplicationTypeFromRowKey(byte[] bytes) {
+        return getApplicationTypeFromRowKey(bytes, 0);
+    }
+
+    public static short getApplicationTypeFromRowKey(byte[] bytes, int offset) {
         if (bytes == null) {
             throw new NullPointerException("bytes must not be null");
         }
-        short applicationNameLength = BytesUtils.bytesToShort(bytes, 0);
-        return BytesUtils.bytesToShort(bytes, applicationNameLength + 2);
+        short applicationNameLength = BytesUtils.bytesToShort(bytes, offset);
+        return BytesUtils.bytesToShort(bytes, offset + applicationNameLength + 2);
     }
 
     public static long getTimestampFromRowKey(byte[] bytes) {
