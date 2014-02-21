@@ -28,7 +28,7 @@ import com.nhn.pinpoint.web.vo.TransactionId;
  * @author netspider
  */
 @Controller
-public class FilteredApplicationMapController {
+public class FilteredMapController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

@@ -58,13 +58,6 @@ public class MapController {
 
 		model.addAttribute("nodes", map.getNodes());
 		model.addAttribute("links", map.getLinks());
-        if(map.getLinks() != null) {
-            logger.debug("link----------------------------------");
-            for (Link link : map.getLinks()) {
-                logger.debug("{}->{} : source:{}", link.getFrom().getApplication(), link.getTo().getApplication(),  link.getSourceList());
-            }
-        }
-
 
 		return "applicationmap";
 	}

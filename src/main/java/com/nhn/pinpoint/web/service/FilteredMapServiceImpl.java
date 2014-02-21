@@ -212,11 +212,11 @@ public class FilteredMapServiceImpl implements FilteredMapService {
                 if (!destApplication.getServiceType().isRecordStatistics() || destApplication.getServiceType().isRpcClient()) {
                     continue;
                 }
-
+                long spanEndTime = span.getStartTime() + span.getElapsed();
                 final LinkKey linkKey = new LinkKey(srcApplication, destApplication);
                 LinkStatistics linkStat = linkStatMap.get(linkKey);
                 if (linkStat == null) {
-                    linkStat = new LinkStatistics(srcApplication, destApplication, span.getCollectorAcceptTime());
+                    linkStat = new LinkStatistics(srcApplication, destApplication);
                     linkStatMap.put(linkKey, linkStat);
                 }
 
