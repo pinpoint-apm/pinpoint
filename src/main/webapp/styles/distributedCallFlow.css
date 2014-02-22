@@ -12,6 +12,12 @@
     -moz-box-sizing: content-box;
     box-sizing: content-box;
 }
+.distributed-call-flow .has-exception {
+    color:rgb(214, 39, 39);
+}
+.distributed-call-flow .not-method {
+    color:rgb(79, 79, 107);
+}
 .distributed-call-flow .right-align {
     text-align: right;
 }

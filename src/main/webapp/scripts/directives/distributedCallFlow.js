@@ -17,7 +17,7 @@ pinpointApp.directive('distributedCallFlow', [ '$filter',
 
                 // initialize variables of methods
                 var initialize, treeFormatter, treeFilter, parseData, execTimeFormatter,
-                    getColorByString, progressBarFormatter;
+                    getColorByString, progressBarFormatter, argumentFormatter;
 
                 // bootstrap
                 window.callStacks = [];
@@ -38,7 +38,15 @@ pinpointApp.directive('distributedCallFlow', [ '$filter',
                     lastAgent = item.agent ? item.agent : lastAgent;
 
                     var leftBarColor = getColorByString(lastAgent),
-                        idx = dataView.getIdxById(dataContext.id);
+                        idx = dataView.getIdxById(dataContext.id),
+                        divClass = 'dcf-popover';
+
+                    if (item.hasException) {
+                        divClass += ' has-exception';
+                    } else if (!item.isMethod) {
+                        divClass += ' not-method';
+                    }
+                    html.push('<div class="'+divClass+'" data-container=".grid-canvas" data-toggle="popover" data-trigger="manual" data-placement="right" data-content="'+value+'">');
                     html.push("<div style='position:absolute;top:0;left:0;bottom:0;width:5px;background-color:"+leftBarColor+"'></div>");
                     html.push("<span style='display:inline-block;height:1px;width:" + (15 * dataContext["indent"]) + "px'></span>");
 
@@ -52,19 +60,14 @@ pinpointApp.directive('distributedCallFlow', [ '$filter',
                         html.push(" <span class='toggle'></span>&nbsp;");
                     }
 
-
                     if (item.hasException) {
-                        html.push('<span style="color:rgb(214, 39, 39);">');
                         html.push('<span class="glyphicon glyphicon-fire"></span>&nbsp;');
                     } else if (!item.isMethod) {
-                        html.push('<span style="color:rgb(79, 79, 107);">');
                         html.push('<span class="glyphicon glyphicon-info-sign"></span>&nbsp;');
-                    } else {
-                        html.push('<span>');
                     }
 
                     html.push(value);
-                    html.push('</span>');
+                    html.push('</div>');
 
                     return html.join('');
                 };
@@ -82,6 +85,15 @@ pinpointApp.directive('distributedCallFlow', [ '$filter',
                         }
                     }
                     return result;
+                };
+
+                argumentFormatter = function (row, cell, value, columnDef, dataConrtext) {
+                    var html = [];
+
+                    html.push('<div class="dcf-popover" data-container=".grid-canvas" data-toggle="popover" data-trigger="manual" data-placement="right" data-content="'+value+'">');
+                    html.push(value);
+                    html.push('</div>');
+                    return html.join('');
                 };
 
                 execTimeFormatter = function (row, cell, value, columnDef, dataContext) {
@@ -105,7 +117,7 @@ pinpointApp.directive('distributedCallFlow', [ '$filter',
 
                 columns = [
                     {id: "method", name: "Method", field: "method", width: 400, formatter: treeFormatter},
-                    {id: "argument", name: "Argument", field: "argument", width: 300},
+                    {id: "argument", name: "Argument", field: "argument", width: 300, formatter: argumentFormatter},
                     {id: "exec-time", name: "Exec Time", field: "execTime", width: 90, formatter: execTimeFormatter},
                     {id: "gap-ms", name: "Gap(ms)", field: "gapMs", width: 60, cssClass: "right-align"},
                     {id: "time-ms", name: "Time(ms)", field: "timeMs", width: 60, cssClass: "right-align"},
@@ -192,6 +204,10 @@ pinpointApp.directive('distributedCallFlow', [ '$filter',
                             }
                             e.stopImmediatePropagation();
                         }
+                    });
+
+                    grid.onDblClick.subscribe(function (e, args) {
+                        $(e.target).popover('toggle');
                     });
 
                     grid.onCellChange.subscribe(function (e, args) {
