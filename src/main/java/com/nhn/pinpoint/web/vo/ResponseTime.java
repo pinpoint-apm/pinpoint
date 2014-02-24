@@ -56,8 +56,16 @@ public class ResponseTime {
         getHistogram(agentId).addCallCount(slotNumber, count);
     }
 
-    public Collection<Histogram> getResponseHistogramList() {
+    public Collection<Histogram> getAgentResponseHistogramList() {
         return responseHistogramMap.values();
+    }
+
+    public Histogram getApplicationResponseHistogram() {
+        Histogram result = new Histogram(applicationServiceType);
+        for (Histogram histogram : responseHistogramMap.values()) {
+            result.add(histogram);
+        }
+        return result;
     }
 
     public Set<Map.Entry<String, Histogram>> getAgentHistogram() {

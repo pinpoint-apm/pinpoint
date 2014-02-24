@@ -5,6 +5,7 @@ import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogramList;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsData;
 import com.nhn.pinpoint.web.vo.Application;
+import com.nhn.pinpoint.web.vo.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +18,14 @@ public class ApplicationMapBuilder {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public ApplicationMapBuilder() {
+    private final Range range;
+
+    public ApplicationMapBuilder(Range range) {
+        if (range == null) {
+            throw new NullPointerException("range must not be null");
+        }
+
+        this.range = range;
     }
 
     public ApplicationMap build(Collection<LinkStatistics> linkStatistics) {
@@ -26,7 +34,7 @@ public class ApplicationMapBuilder {
         }
         final LinkStatisticsData linkStatisticsData = new LinkStatisticsData(linkStatistics);
 
-        final ApplicationMap nodeMap = new ApplicationMap();
+        final ApplicationMap nodeMap = new ApplicationMap(range);
 
         // extract agent
         Map<Application, Set<AgentInfoBo>> agentMap = linkStatisticsData.getAgentMap();

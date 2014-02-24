@@ -23,10 +23,15 @@ public class ApplicationMap {
     private final LinkList linkList = new LinkList();
 
 	private final Set<String> applicationNames = new HashSet<String>();
+    private final Range range;
 
-	private TimeSeriesStore timeSeriesStore;
-	
-	ApplicationMap() {
+    private TimeSeriesStore timeSeriesStore;
+
+	ApplicationMap(Range range) {
+        if (range == null) {
+            throw new NullPointerException("range must not be null");
+        }
+        this.range = range;
 	}
 
 

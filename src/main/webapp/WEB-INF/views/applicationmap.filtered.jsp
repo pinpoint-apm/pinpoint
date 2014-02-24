@@ -34,7 +34,7 @@
 				"terminal" : "${node.serviceType.terminal}",
 				"isWas" : ${node.serviceType.was},
                 <c:if test="${node.serviceType.was || node.serviceType.terminal || node.serviceType.unknown || node.serviceType.user}" >
-                    "histogram" : ${node.responseHistogramSummary.total.json},
+                    "histogram" : ${node.responseHistogramSummary.applicationHistogram.json},
                     "agentHistogram" : {
                         <c:forEach items="${node.responseHistogramSummary.agentHistogramMap}" var="agentHistogramMap" varStatus="agentHistogramStatus">
                         "${agentHistogramMap.key}" : ${agentHistogramMap.value.json}

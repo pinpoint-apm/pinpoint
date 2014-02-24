@@ -16,8 +16,11 @@ public class TimeHistogram  {
     private final Histogram histogram;
 
     public TimeHistogram(ServiceType serviceType, long timeStamp) {
+        if (serviceType == null) {
+            throw new NullPointerException("serviceType must not be null");
+        }
         this.timeStamp = timeStamp;
-        histogram = new Histogram(serviceType);
+        this.histogram = new Histogram(serviceType);
     }
 
 
@@ -36,5 +39,13 @@ public class TimeHistogram  {
             long anotherLong = anotherVal.getTimeStamp();
             return (thisLong<anotherLong ? -1 : (thisVal==anotherVal ? 0 : 1));
         }
+    }
+
+    @Override
+    public String toString() {
+        return "TimeHistogram{" +
+                "timeStamp=" + timeStamp +
+                ", " + histogram +
+                '}';
     }
 }

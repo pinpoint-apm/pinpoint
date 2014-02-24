@@ -212,7 +212,7 @@ public class MapServiceImpl implements MapService {
 		data.addAll(caller);
 		data.addAll(callee);
 
-		ApplicationMap map = new ApplicationMapBuilder().build(new ArrayList<LinkStatistics>(data));
+		ApplicationMap map = new ApplicationMapBuilder(range).build(new ArrayList<LinkStatistics>(data));
         map.appendResponseTime(range, this.mapResponseDao);
 
 		watch.stop();
