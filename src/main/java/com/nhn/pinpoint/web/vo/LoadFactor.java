@@ -58,11 +58,9 @@ public class LoadFactor {
 	 */
 	private Map<Long, Long> makeEmptyTimeseriesValueMap() {
 		Map<Long, Long> map = new TreeMap<Long, Long>();
-		long windowSize = timeWindow.getWindowSize();
-        Range windowRange = timeWindow.getWindowRange();
-        for (long time = windowRange.getFrom(); time <= windowRange.getTo(); time += windowSize) {
-			map.put(time, 0L);
-		}
+        for (Long time : timeWindow) {
+            map.put(time, 0L);
+        }
 		return map;
 	}
 
