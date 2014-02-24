@@ -52,6 +52,7 @@ pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$sc
             $scope.transactionDetail = result;
             $scope.completeStateClass = parseCompleteStateToClass(result.completeState);
             $scope.$digest();
+            $rootElement.find('[data-toggle="tooltip"]').tooltip('destroy').tooltip();
         };
 
         /**
