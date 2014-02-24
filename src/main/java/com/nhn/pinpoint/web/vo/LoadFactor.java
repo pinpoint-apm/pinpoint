@@ -3,10 +3,9 @@ package com.nhn.pinpoint.web.vo;
 import java.util.*;
 
 import com.nhn.pinpoint.common.HistogramSchema;
+import com.nhn.pinpoint.web.util.TimeWindow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.nhn.pinpoint.web.util.TimeWindowUtils;
 
 /**
  * 
@@ -42,11 +41,14 @@ public class LoadFactor {
 	private long successCount = 0;
 	private long failedCount = 0;
 
+    private final TimeWindow timeWindow;
+
 	public LoadFactor(Range range) {
         if (range == null) {
             throw new NullPointerException("range must not be null");
         }
         this.range = range;
+        timeWindow = new TimeWindow(range);
 	}
 
 	/**
@@ -56,7 +58,7 @@ public class LoadFactor {
 	 */
 	private Map<Long, Long> makeEmptyTimeseriesValueMap() {
 		Map<Long, Long> map = new TreeMap<Long, Long>();
-		long windowSize = TimeWindowUtils.getWindowSize(range.getFrom(), range.getTo());
+		long windowSize = timeWindow.getWindowSize();
 		for (long time = range.getFrom(); time <= range.getTo(); time += windowSize) {
 			map.put(time, 0L);
 		}
@@ -102,7 +104,7 @@ public class LoadFactor {
 		    logger.debug("Add sample. timeslot={}, responseTimeslot={}, callCount={}, failed={}", timestamp, responseTimeslot, callCount, isFailed);
         }
 
-		timestamp = TimeWindowUtils.refineTimestamp(range.getFrom(), range.getTo(), timestamp);
+		timestamp = timeWindow.refineTimestamp(timestamp);
 
 		if (isFailed) {
 			failedCount += callCount;

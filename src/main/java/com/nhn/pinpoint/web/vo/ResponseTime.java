@@ -11,22 +11,32 @@ public class ResponseTime {
     // rowKey
     private final String applicationName;
     private final short applicationServiceType;
-    private final long time;
+    private final long timeStamp;
 
-    // column
-    // ex: test agent의 2슬롯 카운트는 10
     // agentId 이 key임.
     private final Map<String, Histogram> responseHistogramMap = new HashMap<String, Histogram>();
 
 
-
-    public ResponseTime(String applicationName, short applicationServiceType, long time) {
+    public ResponseTime(String applicationName, short applicationServiceType, long timeStamp) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
         this.applicationName = applicationName;
         this.applicationServiceType = applicationServiceType;
-        this.time = time;
+        this.timeStamp = timeStamp;
+    }
+
+
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    public short getApplicationServiceType() {
+        return applicationServiceType;
+    }
+
+    public long getTimeStamp() {
+        return timeStamp;
     }
 
     public Histogram getHistogram(String agentId) {
@@ -59,7 +69,7 @@ public class ResponseTime {
         return "ResponseTime{" +
                 "applicationName='" + applicationName + '\'' +
                 ", applicationServiceType=" + applicationServiceType +
-                ", time=" + time +
+                ", timeStamp=" + timeStamp +
                 ", responseHistogramMap=" + responseHistogramMap +
                 '}';
     }

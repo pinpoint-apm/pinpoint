@@ -1,36 +1,41 @@
 package com.nhn.pinpoint.web.util;
 
+import com.nhn.pinpoint.web.vo.Range;
+
 /**
  * 
  * @author netspider
  * 
  */
-public class TimeWindowUtils {
+public class TimeWindow {
 
 	private static final int ONE_MINUTE = 60000;
 	private static final int ONE_HOUR = ONE_MINUTE * 60;
 	private static final int SIX_HOURS = ONE_HOUR * 6;
 	private static final int ONE_DAY = SIX_HOURS * 4;
 
-	/**
+    private final int windowSize;
+
+    public TimeWindow(Range range) {
+        this.windowSize = getWindowSize(range.getFrom(), range.getTo());
+    }
+
+    /**
 	 * timestamp를 윈도우 사이즈에 맞는 timestamp로 변환.
 	 * 
-	 * @param from
-	 * @param to
 	 * @param timestamp
 	 * @return
 	 */
-	public static long refineTimestamp(long from, long to, long timestamp) {
-		long slotSize = getWindowSize(from, to);
-		long time = timestamp / slotSize * slotSize;
+	public long refineTimestamp(long timestamp) {
+		long time = timestamp / windowSize * windowSize;
 		return time;
 	}
 
-	public static int getWindowIndex(long from, int windowSize, long timestamp) {
-		return (int) (timestamp - from) / windowSize - 1;
-	}
+    public int getWindowSize() {
+        return windowSize;
+    }
 
-	public static int getWindowSize(long from, long to) {
+    public int getWindowSize(long from, long to) {
 		long diff = to - from;
 		int size;
 

@@ -1,16 +1,20 @@
 package com.nhn.pinpoint.web.vo;
 
 import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
+import com.nhn.pinpoint.web.applicationmap.rawdata.TimeHistogram;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 
 /**
  * @author emeroad
  */
 public class ResponseHistogramSummary {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 
     private final Application application;
 
@@ -52,6 +56,49 @@ public class ResponseHistogramSummary {
     public void createResponseHistogram(List<ResponseTime> responseHistogramList) {
         createApplicationLevelResponseTime(responseHistogramList);
         createAgentLevelResponseTime(responseHistogramList);
+
+        createApplicationLevelTimeSeriesResponseTime(responseHistogramList);
+        createAgentLevelTimeSeriesResponseTime(responseHistogramList);
+    }
+
+    private void createApplicationLevelTimeSeriesResponseTime(List<ResponseTime> responseHistogramList) {
+
+    }
+
+    private void createAgentLevelTimeSeriesResponseTime(List<ResponseTime> responseHistogramList) {
+        Map<String, List<TimeHistogram>> agentLevelMap = new HashMap<String, List<TimeHistogram>>();
+        for (ResponseTime responseTime : responseHistogramList) {
+            Set<Map.Entry<String,Histogram>> agentHistogram = responseTime.getAgentHistogram();
+            for (Map.Entry<String, Histogram> agentEntry : agentHistogram) {
+                List<TimeHistogram> histogramList = agentLevelMap.get(agentEntry.getKey());
+                if (histogramList == null) {
+                    histogramList = new ArrayList<TimeHistogram>();
+                    agentLevelMap.put(agentEntry.getKey(), histogramList);
+                }
+                Histogram histogram = agentEntry.getValue();
+                TimeHistogram timeHistogram = new TimeHistogram(histogram.getServiceType(), responseTime.getTimeStamp());
+                timeHistogram.getHistogram().add(histogram);
+                histogramList.add(timeHistogram);
+            }
+        }
+        sortList(agentLevelMap);
+        for (Map.Entry<String, List<TimeHistogram>> agentListEntry : agentLevelMap.entrySet()) {
+            String agentName = agentListEntry.getKey();
+            logger.debug("------------agentName:{}", agentName);
+            List<TimeHistogram> value = agentListEntry.getValue();
+            for (TimeHistogram histogram : value) {
+                logger.debug("time:{} histogram:{}", histogram.getTimeStamp(), histogram);
+            }
+        }
+
+
+    }
+
+    private void sortList(Map<String, List<TimeHistogram>> agentLevelMap) {
+        Collection<List<TimeHistogram>> values = agentLevelMap.values();
+        for (List<TimeHistogram> value : values) {
+            Collections.sort(value, TimeHistogram.ASC_COMPARATOR);
+        }
     }
 
     private void createAgentLevelResponseTime(List<ResponseTime> responseHistogramList) {
