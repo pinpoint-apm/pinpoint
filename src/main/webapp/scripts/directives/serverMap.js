@@ -128,14 +128,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                             }
                             oProgressBar.setLoading(50);
                             htLastMapData = serverMapData;
-                            if (mergeUnknowns) {
-                                var copiedData = angular.copy(serverMapData);
-                                ServerMapDao.mergeUnknown(query, copiedData);
-                                serverMapCallback(query, copiedData, linkRouting, linkCurve);
-                            } else {
-                                serverMapCallback(query, serverMapData, linkRouting, linkCurve);
-                            }
-
+                            serverMapCallback(query, serverMapData, mergeUnknowns, linkRouting, linkCurve);
                         });
                     }
                 };
@@ -212,11 +205,19 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 /**
                  * server map callback
                  * @param query
+                 * @param mergeUnknowns
                  * @param copiedData
                  * @param linkRouting
                  * @param linkCurve
                  */
-                serverMapCallback = function (query, copiedData, linkRouting, linkCurve) {
+                serverMapCallback = function (query, data, mergeUnknowns, linkRouting, linkCurve) {
+
+                    var copiedData = data;
+                    if (mergeUnknowns) {
+                        copiedData = angular.copy(data);
+                        ServerMapDao.mergeUnknown(htLastQuery, copiedData);
+                    }
+
                     serverMapCachedQuery = angular.copy(query);
                     serverMapCachedData = angular.copy(copiedData);
                     oProgressBar.setLoading(80);
@@ -420,13 +421,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  */
                 scope.toggleMergeUnknowns = function () {
                     scope.mergeUnknowns = (scope.mergeUnknowns) ? false : true;
-                    if (scope.mergeUnknowns) {
-                        var copiedData = angular.copy(htLastMapData);
-                        ServerMapDao.mergeUnknown(htLastQuery, copiedData);
-                        serverMapCallback(htLastQuery, copiedData, scope.linkRouting, scope.linkCurve);
-                    } else {
-                        serverMapCallback(htLastQuery, htLastMapData, scope.linkRouting, scope.linkCurve);
-                    }
+                    serverMapCallback(htLastQuery, htLastMapData, scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
                     reset();
                 };
 
@@ -437,7 +432,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 scope.toggleLinkLableTextType = function (type) {
                     scope.totalRequestCount = (type !== 'tps') ? true : false;
                     scope.tps = (type === 'tps') ? true : false;
-                    serverMapCallback(htLastQuery, htLastMapData, scope.linkRouting, scope.linkCurve);
+                    serverMapCallback(htLastQuery, htLastMapData, scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
                     reset();
                 };
 
@@ -447,7 +442,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  */
                 scope.toggleLinkRouting = function (type) {
                     scope.linkRouting = cfg.options.htLinkType.sRouting = type;
-                    serverMapCallback(htLastQuery, htLastMapData, scope.linkRouting, scope.linkCurve);
+                    serverMapCallback(htLastQuery, htLastMapData, scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
                     reset();
                 };
 
@@ -457,7 +452,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  */
                 scope.toggleLinkCurve = function (type) {
                     scope.linkCurve = cfg.options.htLinkType.sCurve = type;
-                    serverMapCallback(htLastQuery, htLastMapData, scope.linkRouting, scope.linkCurve);
+                    serverMapCallback(htLastQuery, htLastMapData, scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
                     reset();
                 };
 
