@@ -345,13 +345,13 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 });
 
                 /**
-                 * passing transaction map
+                 * passing transaction map from link info details
                  * @param fromApplicationName
                  * @param fromServiceType
                  * @param toApplicationName
                  * @param toServiceType
                  */
-                scope.passingTransactionMap = function (fromServiceType, fromApplicationName, toServiceType, toApplicationName) {
+                scope.passingTransactionMapFromLinkInfoDetails = function (fromServiceType, fromApplicationName, toServiceType, toApplicationName) {
                     var oServerMapFilterVo = new ServerMapFilterVo();
                     oServerMapFilterVo
                         .setFromApplication(fromApplicationName)
