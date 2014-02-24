@@ -48,7 +48,7 @@ public class LoadFactor {
             throw new NullPointerException("range must not be null");
         }
         this.range = range;
-        timeWindow = new TimeWindow(range);
+        this.timeWindow = new TimeWindow(range);
 	}
 
 	/**
@@ -59,7 +59,8 @@ public class LoadFactor {
 	private Map<Long, Long> makeEmptyTimeseriesValueMap() {
 		Map<Long, Long> map = new TreeMap<Long, Long>();
 		long windowSize = timeWindow.getWindowSize();
-		for (long time = range.getFrom(); time <= range.getTo(); time += windowSize) {
+        Range windowRange = timeWindow.getWindowRange();
+        for (long time = windowRange.getFrom(); time <= windowRange.getTo(); time += windowSize) {
 			map.put(time, 0L);
 		}
 		return map;

@@ -10,7 +10,7 @@ import java.util.*;
 /**
  * @author emeroad
  */
-public class ApplicationTimeSeriesHistogram {
+public class ApplicationTimeSeriesHistogram  {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -52,5 +52,9 @@ public class ApplicationTimeSeriesHistogram {
         }
     }
 
+    public List<ResponseTimeModel> viewModel() {
+        return null;
+
+    }
 
 }

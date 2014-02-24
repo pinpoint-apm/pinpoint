@@ -16,9 +16,29 @@ public class TimeWindow {
 
     private final int windowSize;
 
+    private final Range range;
+
+    private final Range windowRange;
+
+    private long offset;
+
     public TimeWindow(Range range) {
+        if (range == null) {
+            throw new NullPointerException("range must not be null");
+        }
         this.windowSize = getWindowSize(range.getFrom(), range.getTo());
+        this.range = range;
+        this.windowRange = createWindowRange();
+        this.offset = windowRange.getFrom();
     }
+
+    public long getNextWindowTime() {
+        long current = offset;
+        this.offset += windowSize;
+        return current;
+    }
+
+
 
     /**
 	 * timestamp를 윈도우 사이즈에 맞는 timestamp로 변환.
@@ -31,14 +51,24 @@ public class TimeWindow {
 		return time;
 	}
 
+    public Range getWindowRange() {
+        return windowRange;
+    }
+
     public int getWindowSize() {
         return windowSize;
     }
 
-    public int getWindowSize(long from, long to) {
+    public Range createWindowRange() {
+        long from = refineTimestamp(range.getFrom());
+        long to = refineTimestamp(range.getTo());
+        return new Range(from, to);
+    }
+
+    private int getWindowSize(long from, long to) {
 		long diff = to - from;
 		int size;
-
+        // 구간 설정 부분은 제고의 여지가 있음.
 		if (diff <= ONE_HOUR) {
 			size = ONE_MINUTE;
 		} else if (diff <= SIX_HOURS) {
