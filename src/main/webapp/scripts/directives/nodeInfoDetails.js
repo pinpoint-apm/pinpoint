@@ -51,7 +51,7 @@ pinpointApp
                     scope.showServers = _.isEmpty(scope.serverList) ? false : true;
                     scope.isWas = node.isWas;
 
-                    if (!node.rawdata && node.category !== "USER" && node.category !== "UNKNOWN_GROUP") {
+                    if (!node.rawdata && /*node.category !== "USER" &&*/ node.category !== "UNKNOWN_GROUP") {
 //                        showApplicationStatisticsSummary(query.from, query.to, data.text, data.serviceTypeCode);
                         renderApplicationStatistics([
                             {
