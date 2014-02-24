@@ -281,31 +281,31 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         renderStatisticsTimeSeriesHistogram(result.timeseriesHistogram);
                     });
 
-                    getLinkStatisticsData(params, 2, function (query, result) {
-                        var oHelixChartVo = new HelixChartVo();
-                        oHelixChartVo
-                            .setType('stacked_line')
-                            .setGroup('loadForLinkInfoDetails')
-                            .setWidth(380)
-                            .setHeight(200)
-                            .setPadding([30, 90, 35, 50])
-                            .setMargin([0, 0, 20, 0])
-//                        .setXCount(30)
-//                        .setXInterval(5)
-//                        .setXTick('minutes')
-//                        .setXTickInterval(1)
-//                        .setXTickFormat('%H:%M')
-                            .setYTicks(5)
-                            .setLegend('1.0s,3.0s,5.0s,Slow,Failed')
-                            .setQueryValue('1.0s,3.0s,5.0s,Slow,Failed')
-//                        .setQueryInterval('5s')
-                            .setQueryFrom(begin)
-                            .setQueryTo(end)
-                            .generateEverythingForChart()
-                            .setData(result.timeseriesHistogram);
-//                        .parseDataTimestampToDateInstance();
-                        scope.$broadcast('helixChart.initialize.loadForLinkInfoDetails', oHelixChartVo);
-                    });
+//                    getLinkStatisticsData(params, 2, function (query, result) {
+//                        var oHelixChartVo = new HelixChartVo();
+//                        oHelixChartVo
+//                            .setType('stacked_line')
+//                            .setGroup('loadForLinkInfoDetails')
+//                            .setWidth(380)
+//                            .setHeight(200)
+//                            .setPadding([30, 90, 35, 50])
+//                            .setMargin([0, 0, 20, 0])
+////                        .setXCount(30)
+////                        .setXInterval(5)
+////                        .setXTick('minutes')
+////                        .setXTickInterval(1)
+////                        .setXTickFormat('%H:%M')
+//                            .setYTicks(5)
+//                            .setLegend('1.0s,3.0s,5.0s,Slow,Failed')
+//                            .setQueryValue('1.0s,3.0s,5.0s,Slow,Failed')
+////                        .setQueryInterval('5s')
+//                            .setQueryFrom(begin)
+//                            .setQueryTo(end)
+//                            .generateEverythingForChart()
+//                            .setData(result.timeseriesHistogram);
+////                        .parseDataTimestampToDateInstance();
+//                        scope.$broadcast('helixChart.initialize.loadForLinkInfoDetails', oHelixChartVo);
+//                    });
                 };
 
                 /**
