@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.web.view;
 
+import com.nhn.pinpoint.common.SlotType;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
@@ -9,12 +10,31 @@ import java.util.List;
 /**
  * @author emeroad
  */
-public interface ResponseTimeViewModel {
+public class ResponseTimeViewModel {
+
+    private final String columnName;
+    private final List<TimeCount> columnValue;
+
+    public ResponseTimeViewModel(String columnName, List<TimeCount> columnValue) {
+        if (columnName == null) {
+            throw new NullPointerException("columnName must not be null");
+        }
+        if (columnValue == null) {
+            throw new NullPointerException("columnValue must not be null");
+        }
+        this.columnName = columnName;
+        this.columnValue = columnValue;
+    }
+
     @JsonProperty("key")
-    String getColumnName();
+    public String getColumnName() {
+        return columnName;
+    }
 
     @JsonProperty("values")
-    List<TimeCount> getColumnValue();
+    public List<TimeCount> getColumnValue() {
+        return columnValue;
+    }
 
     @JsonSerialize(using=TimeCountSerializer.class)
     public static class TimeCount {

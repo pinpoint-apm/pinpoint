@@ -43,6 +43,7 @@
                 </c:if>
                 <c:if test="${node.serviceType.was}" >
                 "timeSeriesHistogram" : ${node.responseHistogramSummary.applicationTimeSeriesHistogramToJson},
+                "agentTimeSeriesHistogram" : ${node.responseHistogramSummary.agentTimeSeriesHistogramToJson},
                 </c:if>
 				"serverList" : {
 					<c:if test="${node.serviceType.desc != 'UNKNOWN'}">

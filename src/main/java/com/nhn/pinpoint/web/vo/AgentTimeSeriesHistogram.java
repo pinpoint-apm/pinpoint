@@ -1,7 +1,12 @@
 package com.nhn.pinpoint.web.vo;
 
+import com.nhn.pinpoint.common.HistogramSchema;
+import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.SlotType;
 import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
 import com.nhn.pinpoint.web.applicationmap.rawdata.TimeHistogram;
+import com.nhn.pinpoint.web.view.AgentResponseTimeViewModel;
+import com.nhn.pinpoint.web.view.ResponseTimeViewModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,4 +69,46 @@ public class AgentTimeSeriesHistogram {
             Collections.sort(value, TimeHistogram.ASC_COMPARATOR);
         }
     }
+
+    public List<AgentResponseTimeViewModel> createViewModel() {
+        final List<AgentResponseTimeViewModel> result = new ArrayList<AgentResponseTimeViewModel>();
+        for (Map.Entry<String, List<TimeHistogram>> entry : histogramMap.entrySet()) {
+            AgentResponseTimeViewModel model = createAgentResponseTimeViewModel(entry.getKey(), entry.getValue());
+            result.add(model);
+        }
+        return result;
+    }
+
+    private AgentResponseTimeViewModel createAgentResponseTimeViewModel(String agentName, List<TimeHistogram> timeHistogramList) {
+        List<ResponseTimeViewModel> responseTimeViewModel = createResponseTimeViewModel(timeHistogramList);
+        AgentResponseTimeViewModel agentResponseTimeViewModel = new AgentResponseTimeViewModel(agentName, responseTimeViewModel);
+        return agentResponseTimeViewModel;
+    }
+
+    public List<ResponseTimeViewModel> createResponseTimeViewModel(List<TimeHistogram> timeHistogramList) {
+        final List<ResponseTimeViewModel> value = new ArrayList<ResponseTimeViewModel>(5);
+        ServiceType serviceType = application.getServiceType();
+        HistogramSchema schema = serviceType.getHistogramSchema();
+        value.add(new ResponseTimeViewModel(schema.getFastSlot().getSlotName(), getColumnValue(SlotType.FAST, timeHistogramList)));
+        value.add(new ResponseTimeViewModel(schema.getNormalSlot().getSlotName(), getColumnValue(SlotType.NORMAL, timeHistogramList)));
+        value.add(new ResponseTimeViewModel(schema.getSlowSlot().getSlotName(), getColumnValue(SlotType.SLOW, timeHistogramList)));
+        value.add(new ResponseTimeViewModel(schema.getVerySlowSlot().getSlotName(), getColumnValue(SlotType.VERY_SLOW, timeHistogramList)));
+        value.add(new ResponseTimeViewModel(schema.getErrorSlot().getSlotName(), getColumnValue(SlotType.ERROR, timeHistogramList)));
+        return value;
+
+    }
+
+    public List<ResponseTimeViewModel.TimeCount> getColumnValue(SlotType slotType, List<TimeHistogram> timeHistogramList) {
+        List<ResponseTimeViewModel.TimeCount> result = new ArrayList<ResponseTimeViewModel.TimeCount>(timeHistogramList.size());
+        for (TimeHistogram timeHistogram : timeHistogramList) {
+            result.add(new ResponseTimeViewModel.TimeCount(timeHistogram.getTimeStamp(), getCount(timeHistogram, slotType)));
+        }
+        return result;
+    }
+
+    public long getCount(TimeHistogram timeHistogram, SlotType slotType) {
+        return timeHistogram.getHistogram().getCount(slotType);
+    }
+
+
 }

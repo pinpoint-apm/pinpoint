@@ -64,41 +64,26 @@ public class ApplicationTimeSeriesHistogram {
         final List<ResponseTimeViewModel> value = new ArrayList<ResponseTimeViewModel>(5);
         ServiceType serviceType = application.getServiceType();
         HistogramSchema schema = serviceType.getHistogramSchema();
-        value.add(new ViewModel(schema.getFastSlot().getSlotName(), SlotType.FAST));
-        value.add(new ViewModel(schema.getNormalSlot().getSlotName(), SlotType.NORMAL));
-        value.add(new ViewModel(schema.getSlowSlot().getSlotName(), SlotType.SLOW));
-        value.add(new ViewModel(schema.getVerySlowSlot().getSlotName(), SlotType.VERY_SLOW));
-        value.add(new ViewModel(schema.getErrorSlot().getSlotName(), SlotType.ERROR));
+        value.add(new ResponseTimeViewModel(schema.getFastSlot().getSlotName(), getColumnValue(SlotType.FAST)));
+        value.add(new ResponseTimeViewModel(schema.getNormalSlot().getSlotName(), getColumnValue(SlotType.NORMAL)));
+        value.add(new ResponseTimeViewModel(schema.getSlowSlot().getSlotName(), getColumnValue(SlotType.SLOW)));
+        value.add(new ResponseTimeViewModel(schema.getVerySlowSlot().getSlotName(), getColumnValue(SlotType.VERY_SLOW)));
+        value.add(new ResponseTimeViewModel(schema.getErrorSlot().getSlotName(), getColumnValue(SlotType.ERROR)));
         return value;
 
     }
 
-    public class ViewModel implements ResponseTimeViewModel {
-        private final String columnName;
-        private final SlotType slotType;
-
-        public ViewModel(String columnName, SlotType slotType) {
-            this.columnName = columnName;
-            this.slotType = slotType;
+    public List<ResponseTimeViewModel.TimeCount> getColumnValue(SlotType slotType) {
+        List<ResponseTimeViewModel.TimeCount> result = new ArrayList<ResponseTimeViewModel.TimeCount>(histogramList.size());
+        for (TimeHistogram timeHistogram : histogramList) {
+            result.add(new ResponseTimeViewModel.TimeCount(timeHistogram.getTimeStamp(), getCount(timeHistogram, slotType)));
         }
-
-        @Override
-        public String getColumnName() {
-            return columnName;
-        }
-
-        @Override
-        public List<TimeCount> getColumnValue() {
-            List<TimeCount> result = new ArrayList<TimeCount>(histogramList.size());
-            for (TimeHistogram timeHistogram : histogramList) {
-                result.add(new TimeCount(timeHistogram.getTimeStamp(), getCount(timeHistogram)));
-            }
-            return result;
-        }
-
-        public long getCount(TimeHistogram timeHistogram) {
-            return timeHistogram.getHistogram().getCount(slotType);
-        }
+        return result;
     }
+
+    public long getCount(TimeHistogram timeHistogram, SlotType slotType) {
+        return timeHistogram.getHistogram().getCount(slotType);
+    }
+
 
 }
