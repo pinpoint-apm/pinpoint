@@ -76,6 +76,12 @@ public class AgentTimeSeriesHistogram {
             AgentResponseTimeViewModel model = createAgentResponseTimeViewModel(entry.getKey(), entry.getValue());
             result.add(model);
         }
+        Collections.sort(result, new Comparator<AgentResponseTimeViewModel>() {
+            @Override
+            public int compare(AgentResponseTimeViewModel o1, AgentResponseTimeViewModel o2) {
+                return o1.getAgentName().compareTo(o2.getAgentName());
+            }
+        });
         return result;
     }
 
