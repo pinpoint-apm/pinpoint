@@ -6,18 +6,16 @@ package com.nhn.pinpoint.common;
 public class HistogramSchema {
 
     public static final short VERY_SLOW_SLOT_TIME = 0;
-    public static final HistogramSlot VERY_SLOW_SLOT = new HistogramSlot(VERY_SLOW_SLOT_TIME, SlotType.VERY_SLOW);
 
     public static final short ERROR_SLOT_TIME = -1;
-    public static final HistogramSlot ERROR_SLOT = new HistogramSlot(ERROR_SLOT_TIME, SlotType.ERROR);
-    
+
     public static final HistogramSchema FAST_SCHEMA;
     public static final HistogramSchema NORMAL_SCHEMA;
 
     static {
-        FAST_SCHEMA = new HistogramSchema(1, (short)100, (short)300, (short)500);
+        FAST_SCHEMA = new HistogramSchema(1, (short)100, "100ms", (short)300, "300ms", (short)500, "500ms", "Slow", "Error");
 
-        NORMAL_SCHEMA = new HistogramSchema(2, (short)1000, (short)3000, (short)5000);
+        NORMAL_SCHEMA = new HistogramSchema(2, (short)1000, "1.0s",  (short)3000, "3.0s", (short)5000, "5.0s", "Slow", "Error");
     }
     // ** histogramSlot list는 항상 정렬된 list 이어야 한다.
     // 지금은 그냥 사람이 한다.
@@ -31,13 +29,13 @@ public class HistogramSchema {
     private final HistogramSlot errorSlot;
 
     // 내부에서 생성한 FAST_SCHEMA, NORMAL등의 참조만 사용할것
-    private HistogramSchema(int typeCode, short fast, short normal, short slow) {
+    private HistogramSchema(int typeCode, short fast, String fastName, short normal, String normalName, short slow, String slowName, String verySlowName, String errorName) {
     	this.typeCode = typeCode;
-        this.fastSlot = new HistogramSlot(fast, SlotType.FAST);
-        this.normalSlot = new HistogramSlot(normal, SlotType.NORMAL);
-        this.slowSlot = new HistogramSlot(slow, SlotType.SLOW);
-        this.verySlowSlot = VERY_SLOW_SLOT;
-        this.errorSlot = ERROR_SLOT;
+        this.fastSlot = new HistogramSlot(fast, SlotType.FAST, fastName);
+        this.normalSlot = new HistogramSlot(normal, SlotType.NORMAL, normalName);
+        this.slowSlot = new HistogramSlot(slow, SlotType.SLOW, slowName);
+        this.verySlowSlot = new HistogramSlot(VERY_SLOW_SLOT_TIME, SlotType.VERY_SLOW, verySlowName);
+        this.errorSlot = new HistogramSlot(ERROR_SLOT_TIME, SlotType.ERROR, errorName);
     }
 
     public int getTypeCode() {
