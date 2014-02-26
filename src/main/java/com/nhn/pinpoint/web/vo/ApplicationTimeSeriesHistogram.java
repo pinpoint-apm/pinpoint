@@ -1,7 +1,11 @@
 package com.nhn.pinpoint.web.vo;
 
+import com.nhn.pinpoint.common.HistogramSchema;
+import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.SlotType;
 import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
 import com.nhn.pinpoint.web.applicationmap.rawdata.TimeHistogram;
+import com.nhn.pinpoint.web.view.ResponseTimeViewModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,7 +14,7 @@ import java.util.*;
 /**
  * @author emeroad
  */
-public class ApplicationTimeSeriesHistogram  {
+public class ApplicationTimeSeriesHistogram {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -26,6 +30,10 @@ public class ApplicationTimeSeriesHistogram  {
     }
 
     public void build(List<ResponseTime> responseHistogramList) {
+        if (responseHistogramList == null) {
+            throw new NullPointerException("responseHistogramList must not be null");
+        }
+
         Map<Long, TimeHistogram> applicationLevelHistogram = new HashMap<Long, TimeHistogram>();
 
         for (ResponseTime responseTime : responseHistogramList) {
@@ -52,9 +60,45 @@ public class ApplicationTimeSeriesHistogram  {
         }
     }
 
-    public List<ResponseTimeModel> viewModel() {
-        return null;
+    public List<ResponseTimeViewModel> createViewModel() {
+        final List<ResponseTimeViewModel> value = new ArrayList<ResponseTimeViewModel>(5);
+        ServiceType serviceType = application.getServiceType();
+        HistogramSchema schema = serviceType.getHistogramSchema();
+        value.add(new ViewModel(schema.getFastSlot().getSlotName(), SlotType.FAST));
+        value.add(new ViewModel(schema.getNormalSlot().getSlotName(), SlotType.NORMAL));
+        value.add(new ViewModel(schema.getSlowSlot().getSlotName(), SlotType.SLOW));
+        value.add(new ViewModel(schema.getVerySlowSlot().getSlotName(), SlotType.VERY_SLOW));
+        value.add(new ViewModel(schema.getErrorSlot().getSlotName(), SlotType.ERROR));
+        return value;
 
+    }
+
+    public class ViewModel implements ResponseTimeViewModel {
+        private final String columnName;
+        private final SlotType slotType;
+
+        public ViewModel(String columnName, SlotType slotType) {
+            this.columnName = columnName;
+            this.slotType = slotType;
+        }
+
+        @Override
+        public String getColumnName() {
+            return columnName;
+        }
+
+        @Override
+        public List<TimeCount> getColumnValue() {
+            List<TimeCount> result = new ArrayList<TimeCount>(histogramList.size());
+            for (TimeHistogram timeHistogram : histogramList) {
+                result.add(new TimeCount(timeHistogram.getTimeStamp(), getCount(timeHistogram)));
+            }
+            return result;
+        }
+
+        public long getCount(TimeHistogram timeHistogram) {
+            return timeHistogram.getHistogram().getCount(slotType);
+        }
     }
 
 }

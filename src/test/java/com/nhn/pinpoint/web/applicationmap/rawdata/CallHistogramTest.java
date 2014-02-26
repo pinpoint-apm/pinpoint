@@ -12,12 +12,12 @@ public class CallHistogramTest {
     @Test
     public void testDeepCopy() throws Exception {
         CallHistogram callHistogram = new CallHistogram("test", ServiceType.TOMCAT);
-        callHistogram.getHistogram().addCallCount(HistogramSchema.ERROR_SLOT.getSlotTime(), 1);
+        callHistogram.getHistogram().addCallCount(ServiceType.TOMCAT.getHistogramSchema().getErrorSlot().getSlotTime(), 1);
 
         CallHistogram copy = new CallHistogram(callHistogram);
         Assert.assertEquals(copy.getHistogram().getErrorCount(), 1);
 
-        callHistogram.getHistogram().addCallCount(HistogramSchema.ERROR_SLOT.getSlotTime(), 2);
+        callHistogram.getHistogram().addCallCount(ServiceType.TOMCAT.getHistogramSchema().getErrorSlot().getSlotTime(), 2);
         Assert.assertEquals(callHistogram.getHistogram().getErrorCount(), 3);
 
         Assert.assertEquals(copy.getHistogram().getErrorCount(), 1);

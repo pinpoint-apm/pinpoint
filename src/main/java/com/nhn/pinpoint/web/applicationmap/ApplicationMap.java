@@ -6,6 +6,7 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
 import com.nhn.pinpoint.web.dao.MapResponseDao;
 import com.nhn.pinpoint.web.vo.*;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +28,8 @@ public class ApplicationMap {
 
     private TimeSeriesStore timeSeriesStore;
 
+    private ObjectMapper objectMapper;
+
 	ApplicationMap(Range range) {
         if (range == null) {
             throw new NullPointerException("range must not be null");
@@ -34,8 +37,11 @@ public class ApplicationMap {
         this.range = range;
 	}
 
+    public void setObjectMapper(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
-	public Collection<Node> getNodes() {
+    public Collection<Node> getNodes() {
 		return this.nodeList.getNodeList();
 	}
 

@@ -1,11 +1,15 @@
 package com.nhn.pinpoint.web.applicationmap.rawdata;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.ServiceType;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.util.logging.resources.logging;
 
 import java.util.HashMap;
 
@@ -15,7 +19,10 @@ import java.util.HashMap;
 public class HistogramTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+
     @Test
     public void testDeepCopy() throws Exception {
         Histogram original = new Histogram(ServiceType.TOMCAT);
@@ -35,12 +42,13 @@ public class HistogramTest {
 
     @Test
     public void testJson() throws Exception {
+        HistogramSchema schema = ServiceType.TOMCAT.getHistogramSchema();
         Histogram original = new Histogram(ServiceType.TOMCAT);
-        original.addCallCount((short) 1000, 100);
+        original.addCallCount(schema.getFastSlot().getSlotTime(), 100);
 
         HashMap hashMap = objectMapper.readValue(original.getJson(), HashMap.class);
 
-        Assert.assertEquals(hashMap.get("1000"), 100);
-        Assert.assertEquals(hashMap.get("5000+"), 0);
+        Assert.assertEquals(hashMap.get(schema.getFastSlot().getSlotName()), 100);
+        Assert.assertEquals(hashMap.get(schema.getErrorSlot().getSlotName()), 0);
     }
 }

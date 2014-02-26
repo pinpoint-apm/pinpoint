@@ -1,21 +1,26 @@
 package com.nhn.pinpoint.web.applicationmap.rawdata;
 
 import com.nhn.pinpoint.common.HistogramSchema;
+import com.nhn.pinpoint.common.SlotType;
+import com.nhn.pinpoint.web.view.HistogramSerializer;
+
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.common.HistogramSlot;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.web.util.JsonSerializable;
+
+import java.io.IOException;
 
 /**
  * 
  * @author netspider
  * 
  */
-public class Histogram implements JsonSerializable {
-	
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+@JsonSerialize(using=HistogramSerializer.class)
+public class Histogram {
 	
 	private final ServiceType serviceType;
 	private final HistogramSchema histogramSchema;
@@ -30,7 +35,7 @@ public class Histogram implements JsonSerializable {
 	private long errorCount;
 
 
-	public Histogram(ServiceType serviceType) {
+    public Histogram(ServiceType serviceType) {
         if (serviceType == null) {
             throw new NullPointerException("serviceType must not be null");
         }
@@ -105,6 +110,26 @@ public class Histogram implements JsonSerializable {
 		return totalCount;
 	}
 
+    public long getCount(SlotType slotType) {
+        if (slotType == null) {
+            throw new NullPointerException("slotType must not be null");
+        }
+
+        switch (slotType) {
+            case FAST:
+                return fastCount;
+            case NORMAL:
+                return normalCount;
+            case SLOW:
+                return slowCount;
+            case VERY_SLOW:
+                return verySlowCount;
+            case ERROR:
+                return errorCount;
+        }
+        throw new IllegalArgumentException("slotType:" + slotType);
+    }
+
 	public void add(Histogram histogram) {
         if (histogram == null) {
             throw new NullPointerException("histogram must not be null");
@@ -164,35 +189,17 @@ public class Histogram implements JsonSerializable {
                 '}';
     }
 
-    @Override
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
+
 	public String getJson() {
-		final StringBuilder sb = new StringBuilder(128);
-		sb.append("{ ");
+        try {
+            return MAPPER.writeValueAsString(this);
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
 
-        appendSlotTimeAndCount(sb, histogramSchema.getFastSlot().getSlotTime(), fastCount);
-        sb.append(", ");
-        appendSlotTimeAndCount(sb, histogramSchema.getNormalSlot().getSlotTime(), normalCount);
-        sb.append(", ");
-        appendSlotTimeAndCount(sb, histogramSchema.getSlowSlot().getSlotTime(), slowCount);
-        sb.append(", ");
-        // very slow는 0값이라 slow 값을 사용해야 한다.
-        appendSlotTimeAndCount(sb, histogramSchema.getSlowSlot().getSlotTime() + "+", verySlowCount);
-        sb.append(", ");
-        appendSlotTimeAndCount(sb, "error", errorCount);
-        sb.append(" }");
-
-		return sb.toString();
 	}
 
-    private void appendSlotTimeAndCount(StringBuilder sb, short slotTime, long count) {
-        appendSlotTimeAndCount(sb, Short.toString(slotTime), count);
-    }
 
-    private void appendSlotTimeAndCount(StringBuilder sb, String slotTimeName, long count) {
-        sb.append('"');
-        sb.append(slotTimeName);
-        sb.append('"');
-        sb.append(":");
-        sb.append(count);
-    }
 }

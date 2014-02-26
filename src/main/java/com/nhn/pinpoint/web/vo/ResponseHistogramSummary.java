@@ -1,11 +1,13 @@
 package com.nhn.pinpoint.web.vo;
 
 import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
-import com.nhn.pinpoint.web.applicationmap.rawdata.TimeHistogram;
+import com.nhn.pinpoint.web.view.ResponseTimeViewModel;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -26,6 +28,9 @@ public class ResponseHistogramSummary {
     private ApplicationTimeSeriesHistogram applicationTimeSeriesHistogram;
 
     private AgentTimeSeriesHistogram agentTimeSeriesHistogram;
+
+    // 현재 노가다 json으로 변경하는 부분이 많아 모양이 이쁘게 나오기 애매하므로 일단 static으로 생성해서하자.
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     public ResponseHistogramSummary(Application application) {
         if (application == null) {
@@ -60,6 +65,19 @@ public class ResponseHistogramSummary {
         return agentHistogramMap;
     }
 
+    public List<ResponseTimeViewModel> getApplicationTimeSeriesHistogram() {
+        return applicationTimeSeriesHistogram.createViewModel();
+    }
+
+    public String getApplicationTimeSeriesHistogramToJson() {
+        try {
+            List<ResponseTimeViewModel> viewMode = applicationTimeSeriesHistogram.createViewModel();
+            return MAPPER.writeValueAsString(viewMode);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex.getMessage(), ex);
+        }
+    }
+
     public void createResponseHistogram(List<ResponseTime> responseHistogramList) {
         createApplicationLevelResponseTime(responseHistogramList);
         createAgentLevelResponseTime(responseHistogramList);
@@ -84,12 +102,6 @@ public class ResponseHistogramSummary {
         this.agentTimeSeriesHistogram = histogram;
     }
 
-    private void sortList(Map<String, List<TimeHistogram>> agentLevelMap) {
-        Collection<List<TimeHistogram>> values = agentLevelMap.values();
-        for (List<TimeHistogram> value : values) {
-            Collections.sort(value, TimeHistogram.ASC_COMPARATOR);
-        }
-    }
 
     private void createAgentLevelResponseTime(List<ResponseTime> responseHistogramList) {
 

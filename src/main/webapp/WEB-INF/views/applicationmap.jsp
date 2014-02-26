@@ -41,6 +41,9 @@
                         </c:forEach>
                     },
                 </c:if>
+                <c:if test="${node.serviceType.was}" >
+                "timeSeriesHistogram" : ${node.responseHistogramSummary.applicationTimeSeriesHistogramToJson},
+                </c:if>
 				"serverList" : {
 					<c:if test="${node.serviceType.desc != 'UNKNOWN'}">
 					<c:forEach items="${node.serverInstanceList}" var="serverInstance" varStatus="status5">

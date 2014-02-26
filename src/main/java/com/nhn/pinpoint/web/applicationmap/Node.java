@@ -107,7 +107,7 @@ public class Node implements JsonSerializable {
 		return getApplicationName(application);
 	}
 
-	public Node add(Node node) {
+	public void add(Node node) {
         if (node == null) {
             throw new NullPointerException("node must not be null");
         }
@@ -121,21 +121,6 @@ public class Node implements JsonSerializable {
 			this.agentSet.addAll(node.agentSet);
 		}
 		
-		// FIXME 여기를 주석처리하면 filter map에서 데이터가 제대로 보이지 않고.
-		// 주석 해제하면 통계 map에서 데이터가 맞지 않음.
-		// merge server instance list
-//		for (Entry<String, MergeableMap<String, ServerInstance>> entry : node.getServerInstanceList().entrySet()) {
-//			MergeableMap<String, ServerInstance> exists = serverInstanceList.get(entry.getKey());
-//			if (exists == null) {
-//				serverInstanceList.put(entry.getKey(), entry.getValue());
-//			} else {
-//				MergeableMap<String, ServerInstance> srcValueMap = entry.getValue();
-//				for (Entry<String, ServerInstance> valueEntry : srcValueMap.entrySet()) {
-//					exists.putOrMerge(valueEntry.getKey(), valueEntry.getValue());
-//				}
-//			}
-//		}
-		return this;
 	}
 
 	public ServiceType getServiceType() {

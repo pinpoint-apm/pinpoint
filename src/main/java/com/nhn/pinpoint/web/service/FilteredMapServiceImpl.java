@@ -340,7 +340,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
     private short getHistogramSlotTime(boolean hasException, int elapsedTime, ServiceType serviceType) {
         if (hasException) {
-            return HistogramSchema.ERROR_SLOT.getSlotTime();
+            return serviceType.getHistogramSchema().getErrorSlot().getSlotTime();
         } else {
             final HistogramSchema schema = serviceType.getHistogramSchema();
             final HistogramSlot histogramSlot = schema.findHistogramSlot(elapsedTime);
