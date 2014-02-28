@@ -21,7 +21,9 @@ public class ResponseHistogramSummary {
 
     private final Application application;
 
+    private final Range range;
     private final Histogram applicationHistogram;
+
 
     // key는 agentId이다.
     private Map<String, Histogram> agentHistogramMap = new HashMap<String, Histogram>();
@@ -30,18 +32,23 @@ public class ResponseHistogramSummary {
 
     private AgentTimeSeriesHistogram agentTimeSeriesHistogram;
 
+
     // 현재 노가다 json으로 변경하는 부분이 많아 모양이 이쁘게 나오기 애매하므로 일단 static으로 생성해서하자.
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    public ResponseHistogramSummary(Application application) {
+    public ResponseHistogramSummary(Application application, Range range) {
         if (application == null) {
             throw new NullPointerException("application must not be null");
         }
+        if (range == null) {
+            throw new NullPointerException("range must not be null");
+        }
         this.application = application;
+        this.range = range;
         this.applicationHistogram = new Histogram(application.getServiceType());
 
-        this.applicationTimeSeriesHistogram = new ApplicationTimeSeriesHistogram(application);
-        this.agentTimeSeriesHistogram = new AgentTimeSeriesHistogram(application);
+        this.applicationTimeSeriesHistogram = new ApplicationTimeSeriesHistogram(application, range);
+        this.agentTimeSeriesHistogram = new AgentTimeSeriesHistogram(application, range);
     }
 
     public void addApplicationLevelHistogram(Histogram histogram) {
@@ -98,7 +105,7 @@ public class ResponseHistogramSummary {
 
     private void createApplicationLevelTimeSeriesResponseTime(List<ResponseTime> responseHistogramList) {
 
-        ApplicationTimeSeriesHistogram histogram = new ApplicationTimeSeriesHistogram(application);
+        ApplicationTimeSeriesHistogram histogram = new ApplicationTimeSeriesHistogram(application, range);
         histogram.build(responseHistogramList);
 
         this.applicationTimeSeriesHistogram = histogram;
@@ -106,7 +113,7 @@ public class ResponseHistogramSummary {
     }
 
     private void createAgentLevelTimeSeriesResponseTime(List<ResponseTime> responseHistogramList) {
-        AgentTimeSeriesHistogram histogram = new AgentTimeSeriesHistogram(application);
+        AgentTimeSeriesHistogram histogram = new AgentTimeSeriesHistogram(application, range);
         histogram.build(responseHistogramList);
 
         this.agentTimeSeriesHistogram = histogram;

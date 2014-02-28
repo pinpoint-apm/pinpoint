@@ -6,8 +6,6 @@ import com.nhn.pinpoint.web.view.HistogramSerializer;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.common.HistogramSlot;
 import com.nhn.pinpoint.common.ServiceType;
@@ -23,9 +21,6 @@ import java.io.IOException;
 public class Histogram {
 	
 	private final ServiceType serviceType;
-	private final HistogramSchema histogramSchema;
-
-    private long totalCount;
 
     private long fastCount;
     private long normalCount;
@@ -40,11 +35,11 @@ public class Histogram {
             throw new NullPointerException("serviceType must not be null");
         }
 		this.serviceType = serviceType;
-		this.histogramSchema = serviceType.getHistogramSchema();
 	}
 
     public void addCallCountByElapsedTime(int elapsedTime) {
-        HistogramSlot histogramSlot = histogramSchema.findHistogramSlot(elapsedTime);
+        final HistogramSchema schema = serviceType.getHistogramSchema();
+        HistogramSlot histogramSlot = schema.findHistogramSlot(elapsedTime);
         short slotTime = histogramSlot.getSlotTime();
         addCallCount(slotTime, 1);
     }
@@ -55,26 +50,25 @@ public class Histogram {
 
 	// TODO slot번호를 이 클래스에서 추출해야 할 것 같긴 함.
 	public void addCallCount(final short slotTime, final long count) {
-		this.totalCount += count;
-		
-		if (slotTime == histogramSchema.getVerySlowSlot().getSlotTime()) { // 0 is slow slotTime
+        HistogramSchema schema = serviceType.getHistogramSchema();
+		if (slotTime == schema.getVerySlowSlot().getSlotTime()) { // 0 is slow slotTime
 			this.verySlowCount += count;
             return;
 		}
-        if (slotTime == histogramSchema.getErrorSlot().getSlotTime()) { // -1 is error
+        if (slotTime == schema.getErrorSlot().getSlotTime()) { // -1 is error
 			this.errorCount += count;
 			return;
 		}
         // TODO slotTime 은 <= 아니고 ==으로 수정되어야함.
-        if (slotTime <= histogramSchema.getFastSlot().getSlotTime()) {
+        if (slotTime <= schema.getFastSlot().getSlotTime()) {
             this.fastCount += count;
             return;
         }
-        if (slotTime <= histogramSchema.getNormalSlot().getSlotTime()) {
+        if (slotTime <= schema.getNormalSlot().getSlotTime()) {
             this.normalCount += count;
             return;
         }
-        if (slotTime <= histogramSchema.getSlowSlot().getSlotTime()) {
+        if (slotTime <= schema.getSlowSlot().getSlotTime()) {
             this.slowCount += count;
             return;
         }
@@ -107,7 +101,7 @@ public class Histogram {
 	}
 
 	public long getTotalCount() {
-		return totalCount;
+		return errorCount + fastCount + normalCount + slowCount + verySlowCount;
 	}
 
     public long getCount(SlotType slotType) {
@@ -154,8 +148,6 @@ public class Histogram {
         this.verySlowCount += histogram.verySlowCount;
 
         this.errorCount += histogram.errorCount;
-
-        this.totalCount += histogram.totalCount;
     }
 
 
@@ -180,7 +172,6 @@ public class Histogram {
     public String toString() {
         return "Histogram{" +
                 "serviceType=" + serviceType +
-                ", totalCount=" + totalCount +
                 ", fastCount=" + fastCount +
                 ", normalCount=" + normalCount +
                 ", slowCount=" + slowCount +

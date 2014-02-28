@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.web.view;
 
-import com.nhn.pinpoint.common.SlotType;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 

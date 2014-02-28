@@ -194,7 +194,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         final Map<LinkKey, LinkStatistics> linkStatMap = new HashMap<LinkKey, LinkStatistics>();
 
         final TimeSeriesStore timeSeriesStore = new DefaultTimeSeriesStoreImpl(range);
-        final MapResponseHistogramSummary mapHistogramSummary = new MapResponseHistogramSummary();
+        final MapResponseHistogramSummary mapHistogramSummary = new MapResponseHistogramSummary(range);
         /**
          * 통계정보로 변환한다.
          */
@@ -212,7 +212,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
                 if (!destApplication.getServiceType().isRecordStatistics() || destApplication.getServiceType().isRpcClient()) {
                     continue;
                 }
-                long spanEndTime = span.getStartTime() + span.getElapsed();
+
                 final LinkKey linkKey = new LinkKey(srcApplication, destApplication);
                 LinkStatistics linkStat = linkStatMap.get(linkKey);
                 if (linkStat == null) {

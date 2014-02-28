@@ -61,8 +61,6 @@ public class TimeWindowTest {
         testWindowSize(0, TimeUnit.MINUTES.toMillis(1));
         testWindowSize(0, TimeUnit.HOURS.toMillis(1));
         testWindowSize(0, TimeUnit.HOURS.toMillis(23));
-
-
     }
 
     private void testWindowSize(long start, long end) {
@@ -85,7 +83,39 @@ public class TimeWindowTest {
     }
 
     @Test
-    public void testGetWindowSize1() throws Exception {
+    public void testGetWindowRangeLength() throws Exception {
+        Range range = new Range(1L, 2L);
+        TimeWindow window = new TimeWindow(range);
+        long windowRangeLength = window.getWindowRangeCount();
+        logger.debug("{}", windowRangeLength);
+        Assert.assertEquals(1, windowRangeLength);
 
+    }
+
+    @Test
+    public void testGetWindowRangeLength2() throws Exception {
+        Range range = new Range(1L, 1000*60L + 1);
+        TimeWindow window = new TimeWindow(range);
+        long windowRangeLength = window.getWindowRangeCount();
+        logger.debug("{}", windowRangeLength);
+        Assert.assertEquals(2, windowRangeLength);
+    }
+
+    @Test
+     public void testRefineIndex1() throws Exception {
+        Range range = new Range(1L, 1000*60L);
+        TimeWindow window = new TimeWindow(range);
+        long index = window.getWindowIndex(2);
+        logger.debug("{}", index);
+        Assert.assertEquals(0, index);
+    }
+
+    @Test
+     public void testRefineIndex2() throws Exception {
+        Range range = new Range(1L, 1000*60L);
+        TimeWindow window = new TimeWindow(range);
+        long index = window.getWindowIndex(1000 * 60L);
+        logger.debug("{}", index);
+        Assert.assertEquals(1, index);
     }
 }

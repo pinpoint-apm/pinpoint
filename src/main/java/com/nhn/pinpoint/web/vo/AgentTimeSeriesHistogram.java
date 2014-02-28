@@ -5,6 +5,8 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.SlotType;
 import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
 import com.nhn.pinpoint.web.applicationmap.rawdata.TimeHistogram;
+import com.nhn.pinpoint.web.util.TimeWindow;
+import com.nhn.pinpoint.web.util.TimeWindowOneMinuteSampler;
 import com.nhn.pinpoint.web.view.AgentResponseTimeViewModel;
 import com.nhn.pinpoint.web.view.ResponseTimeViewModel;
 import org.slf4j.Logger;
@@ -20,14 +22,21 @@ public class AgentTimeSeriesHistogram {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Application application;
+    private final Range range;
+    private final TimeWindow window;
 
     private Map<String, List<TimeHistogram>> histogramMap = Collections.emptyMap();
 
-    public AgentTimeSeriesHistogram(Application application) {
+    public AgentTimeSeriesHistogram(Application application, Range range) {
         if (application == null) {
             throw new NullPointerException("application must not be null");
         }
+        if (range == null) {
+            throw new NullPointerException("range must not be null");
+        }
         this.application = application;
+        this.range = range;
+        this.window = new TimeWindow(range, TimeWindowOneMinuteSampler.SAMPLER);
     }
 
     public void build(List<ResponseTime> responseHistogramList) {
@@ -43,12 +52,11 @@ public class AgentTimeSeriesHistogram {
                 Histogram histogram = agentEntry.getValue();
 
                 TimeHistogram timeHistogram = new TimeHistogram(application.getServiceType(), responseTime.getTimeStamp());
-                timeHistogram.getHistogram().add(histogram);
+                timeHistogram.add(histogram);
                 histogramList.add(timeHistogram);
             }
         }
-        sortList(agentLevelMap);
-        this.histogramMap = agentLevelMap;
+        this.histogramMap = interpolation(agentLevelMap);
 
         if (logger.isDebugEnabled()) {
             for (Map.Entry<String, List<TimeHistogram>> agentListEntry : agentLevelMap.entrySet()) {
@@ -63,12 +71,40 @@ public class AgentTimeSeriesHistogram {
 
     }
 
-    private void sortList(Map<String, List<TimeHistogram>> agentLevelMap) {
-        Collection<List<TimeHistogram>> values = agentLevelMap.values();
-        for (List<TimeHistogram> value : values) {
-            Collections.sort(value, TimeHistogram.ASC_COMPARATOR);
+    private Map<String, List<TimeHistogram>> interpolation(Map<String, List<TimeHistogram>> agentLevelMap) {
+        if (agentLevelMap.size() == 0) {
+            return agentLevelMap;
         }
+        Map<String, List<TimeHistogram>> result = new HashMap<String, List<TimeHistogram>>();
+
+        for (String key : agentLevelMap.keySet()) {
+            List<TimeHistogram> value = new ArrayList<TimeHistogram>();
+            for (Long time : window) {
+                value.add(new TimeHistogram(application.getServiceType(), time));
+            }
+            result.put(key, value);
+        }
+
+
+        for (Map.Entry<String, List<TimeHistogram>> entry : agentLevelMap.entrySet()) {
+            List<TimeHistogram> histogramList = entry.getValue();
+            for (TimeHistogram timeHistogram : histogramList) {
+                long time = window.refineTimestamp(timeHistogram.getTimeStamp());
+                int windowIndex = window.getWindowIndex(time);
+                List<TimeHistogram> findSlot = result.get(entry.getKey());
+                TimeHistogram windowHistogram = findSlot.get(windowIndex);
+                windowHistogram.add(timeHistogram);
+            }
+        }
+        return result;
     }
+
+//    private void sortList(Map<String, List<TimeHistogram>> agentLevelMap) {
+//        Collection<List<TimeHistogram>> values = agentLevelMap.values();
+//        for (List<TimeHistogram> value : values) {
+//            Collections.sort(value, TimeHistogram.ASC_COMPARATOR);
+//        }
+//    }
 
     public List<AgentResponseTimeViewModel> createViewModel() {
         final List<AgentResponseTimeViewModel> result = new ArrayList<AgentResponseTimeViewModel>();
@@ -113,7 +149,7 @@ public class AgentTimeSeriesHistogram {
     }
 
     public long getCount(TimeHistogram timeHistogram, SlotType slotType) {
-        return timeHistogram.getHistogram().getCount(slotType);
+        return timeHistogram.getCount(slotType);
     }
 
 

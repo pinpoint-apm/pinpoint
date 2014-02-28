@@ -17,22 +17,26 @@ public class TimeWindow implements Iterable<Long> {
 	private static final int SIX_HOURS = ONE_HOUR * 6;
 	private static final int ONE_DAY = SIX_HOURS * 4;
 
-    private final int windowSlotSize;
+    private final long windowSlotSize;
 
     private final Range range;
 
     private final Range windowRange;
 
-
+    private final TimeWindowSampler sampler;
 
     public TimeWindow(Range range) {
+        this(range, TimeWindowDownSampler.SAMPLER);
+    }
+
+    public TimeWindow(Range range, TimeWindowSampler sampler) {
         if (range == null) {
             throw new NullPointerException("range must not be null");
         }
-        this.windowSlotSize = getWindowSlotSize(range.getFrom(), range.getTo());
+        this.sampler = sampler;
+        this.windowSlotSize = sampler.getWindowSize(range);
         this.range = range;
         this.windowRange = createWindowRange();
-
     }
 
     public Iterator<Long> iterator() {
@@ -56,8 +60,12 @@ public class TimeWindow implements Iterable<Long> {
         return windowRange;
     }
 
-    public int getWindowSlotSize() {
+    public long getWindowSlotSize() {
         return windowSlotSize;
+    }
+
+    public long getWindowRangeCount() {
+        return (windowRange.getRange() / windowSlotSize) + 1;
     }
 
     private Range createWindowRange() {
@@ -66,24 +74,11 @@ public class TimeWindow implements Iterable<Long> {
         return new Range(from, to);
     }
 
-    private int getWindowSlotSize(long from, long to) {
-		long diff = to - from;
-		int size;
-        // 구간 설정 부분은 제고의 여지가 있음.
-		if (diff <= ONE_HOUR) {
-			size = ONE_MINUTE;
-		} else if (diff <= SIX_HOURS) {
-			size = ONE_MINUTE * 5;
-		} else if (diff <= ONE_DAY) {
-			size = ONE_MINUTE * 10;
-		} else if (diff <= ONE_DAY * 2) {
-			size = ONE_MINUTE * 15;
-		} else {
-			size = ONE_MINUTE * 20;
-		}
 
-		return size;
-	}
+    public int getWindowIndex(long time) {
+        long index = (time - windowRange.getFrom()) / this.windowSlotSize;
+        return (int)index;
+    }
 
     private class Itr implements Iterator<Long> {
 
@@ -99,6 +94,15 @@ public class TimeWindow implements Iterable<Long> {
                 return false;
             }
             return true;
+        }
+
+
+        public Long peakNext() {
+            long current = cursor;
+            if (hasNext()) {
+                return current + windowSlotSize;
+            }
+            throw new NoSuchElementException();
         }
 
         @Override

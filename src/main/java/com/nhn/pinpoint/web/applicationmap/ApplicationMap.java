@@ -28,7 +28,6 @@ public class ApplicationMap {
 
     private TimeSeriesStore timeSeriesStore;
 
-    private ObjectMapper objectMapper;
 
 	ApplicationMap(Range range) {
         if (range == null) {
@@ -37,9 +36,6 @@ public class ApplicationMap {
         this.range = range;
 	}
 
-    public void setObjectMapper(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
 
     public Collection<Node> getNodes() {
 		return this.nodeList.getNodeList();
@@ -101,7 +97,7 @@ public class ApplicationMap {
             @Override
             public ResponseHistogramSummary getResponseHistogramSummary(Application application) {
                 final List<ResponseTime> responseHistogram = mapResponseDao.selectResponseTime(application, range);
-                final ResponseHistogramSummary histogramSummary = new ResponseHistogramSummary(application);
+                final ResponseHistogramSummary histogramSummary = new ResponseHistogramSummary(application, range);
                 histogramSummary.createResponseHistogram(responseHistogram);
                 return histogramSummary;
             }
@@ -112,7 +108,8 @@ public class ApplicationMap {
         appendResponseTime(new ResponseDataSource() {
             @Override
             public ResponseHistogramSummary getResponseHistogramSummary(Application application) {
-                return mapHistogramSummary.get(application);
+                ResponseHistogramSummary responseHistogramSummary = mapHistogramSummary.get(application);
+                return responseHistogramSummary;
             }
         });
     }
@@ -132,7 +129,7 @@ public class ApplicationMap {
             } else if(node.getServiceType().isTerminal() || node.getServiceType().isUnknown()) {
                 // 터미널 노드인경우, 자신을 가리키는 link값을 합하여 histogram을 생성한다.
                 Application nodeApplication = new Application(node.getApplicationName(), node.getServiceType());
-                final ResponseHistogramSummary summary = new ResponseHistogramSummary(nodeApplication);
+                final ResponseHistogramSummary summary = new ResponseHistogramSummary(nodeApplication, range);
 
                 Collection<Link> linkList = this.linkList.getLinks();
                 for (Link link : linkList) {
@@ -151,7 +148,7 @@ public class ApplicationMap {
             } else if(node.getServiceType().isUser()) {
                 // User노드인 경우 source 링크를 찾아 histogram을 생성한다.
                 Application nodeApplication = new Application(node.getApplicationName(), node.getServiceType());
-                final ResponseHistogramSummary summary = new ResponseHistogramSummary(nodeApplication);
+                final ResponseHistogramSummary summary = new ResponseHistogramSummary(nodeApplication, range);
 
                 Collection<Link> linkList = this.linkList.getLinks();
                 for (Link link : linkList) {
@@ -170,7 +167,7 @@ public class ApplicationMap {
             } else {
                 // 그냥 데미 데이터
                 Application nodeApplication = new Application(node.getApplicationName(), node.getServiceType());
-                ResponseHistogramSummary dummy = new ResponseHistogramSummary(nodeApplication);
+                ResponseHistogramSummary dummy = new ResponseHistogramSummary(nodeApplication, range);
                 node.setResponseHistogramSummary(dummy);
             }
 

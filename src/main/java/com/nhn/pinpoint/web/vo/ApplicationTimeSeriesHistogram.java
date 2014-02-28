@@ -5,6 +5,8 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.SlotType;
 import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
 import com.nhn.pinpoint.web.applicationmap.rawdata.TimeHistogram;
+import com.nhn.pinpoint.web.util.TimeWindow;
+import com.nhn.pinpoint.web.util.TimeWindowOneMinuteSampler;
 import com.nhn.pinpoint.web.view.ResponseTimeViewModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,14 +21,21 @@ public class ApplicationTimeSeriesHistogram {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Application application;
+    private final Range range;
+    private TimeWindow window;
 
     private List<TimeHistogram> histogramList = Collections.emptyList();
 
-    public ApplicationTimeSeriesHistogram(Application application) {
+    public ApplicationTimeSeriesHistogram(Application application, Range range) {
         if (application == null) {
             throw new NullPointerException("application must not be null");
         }
+        if (range == null) {
+            throw new NullPointerException("range must not be null");
+        }
         this.application = application;
+        this.range = range;
+        this.window = new TimeWindow(range, TimeWindowOneMinuteSampler.SAMPLER);
     }
 
     public void build(List<ResponseTime> responseHistogramList) {
@@ -45,11 +54,13 @@ public class ApplicationTimeSeriesHistogram {
             }
             // 개별 agent 레벨 데이터를 합친다.
             Histogram applicationResponseHistogram = responseTime.getApplicationResponseHistogram();
-            timeHistogram.getHistogram().add(applicationResponseHistogram);
+            timeHistogram.add(applicationResponseHistogram);
         }
 
         List<TimeHistogram> histogramList = new ArrayList<TimeHistogram>(applicationLevelHistogram.values());
-        Collections.sort(histogramList, TimeHistogram.ASC_COMPARATOR);
+
+//        Collections.sort(histogramList, TimeHistogram.ASC_COMPARATOR);
+        histogramList = interpolation(histogramList);
 
         this.histogramList = histogramList;
 
@@ -59,6 +70,47 @@ public class ApplicationTimeSeriesHistogram {
             }
         }
     }
+
+    private List<TimeHistogram> interpolation(List<TimeHistogram> histogramList) {
+        if (histogramList.size() == 0) {
+            return histogramList;
+        }
+        List<TimeHistogram> result = new ArrayList<TimeHistogram>();
+        for (Long time : window) {
+            result.add(new TimeHistogram(application.getServiceType(), time));
+        }
+
+
+        for (TimeHistogram timeHistogram : histogramList) {
+            long time = window.refineTimestamp(timeHistogram.getTimeStamp());
+            int windowIndex = window.getWindowIndex(time);
+
+            TimeHistogram windowHistogram = result.get(windowIndex);
+            windowHistogram.add(timeHistogram);
+        }
+
+
+        return result;
+    }
+
+    public long peakNextTime(long nextWindowTime, long windowSlotSize) {
+        return nextWindowTime + windowSlotSize;
+    }
+
+
+
+    private void append() {
+    }
+
+    private void interpolationEmptyList() {
+
+
+    }
+
+    private void appendEmtpy(List result) {
+
+    }
+
 
     public List<ResponseTimeViewModel> createViewModel() {
         final List<ResponseTimeViewModel> value = new ArrayList<ResponseTimeViewModel>(5);
@@ -76,13 +128,17 @@ public class ApplicationTimeSeriesHistogram {
     public List<ResponseTimeViewModel.TimeCount> getColumnValue(SlotType slotType) {
         List<ResponseTimeViewModel.TimeCount> result = new ArrayList<ResponseTimeViewModel.TimeCount>(histogramList.size());
         for (TimeHistogram timeHistogram : histogramList) {
-            result.add(new ResponseTimeViewModel.TimeCount(timeHistogram.getTimeStamp(), getCount(timeHistogram, slotType)));
+            final long timeStamp = timeHistogram.getTimeStamp();
+
+            ResponseTimeViewModel.TimeCount TimeCount = new ResponseTimeViewModel.TimeCount(timeStamp, getCount(timeHistogram, slotType));
+            result.add(TimeCount);
         }
         return result;
     }
 
+
     public long getCount(TimeHistogram timeHistogram, SlotType slotType) {
-        return timeHistogram.getHistogram().getCount(slotType);
+        return timeHistogram.getCount(slotType);
     }
 
 

@@ -7,30 +7,21 @@ import java.util.Comparator;
 /**
  * @author emeroad
  */
-public class TimeHistogram  {
+public class TimeHistogram extends Histogram  {
 
-    public static final AscComparator ASC_COMPARATOR = new AscComparator();
+    public static final Comparator ASC_COMPARATOR = new AscComparator();
 
     private final long timeStamp;
 
-    private final Histogram histogram;
-
     public TimeHistogram(ServiceType serviceType, long timeStamp) {
-        if (serviceType == null) {
-            throw new NullPointerException("serviceType must not be null");
-        }
+        super(serviceType);
         this.timeStamp = timeStamp;
-        this.histogram = new Histogram(serviceType);
     }
-
 
     public long getTimeStamp() {
         return timeStamp;
     }
 
-    public Histogram getHistogram() {
-        return histogram;
-    }
 
     private static class AscComparator implements Comparator<TimeHistogram> {
         @Override
@@ -45,7 +36,7 @@ public class TimeHistogram  {
     public String toString() {
         return "TimeHistogram{" +
                 "timeStamp=" + timeStamp +
-                ", " + histogram +
+                ", " + super.toString() +
                 '}';
     }
 }

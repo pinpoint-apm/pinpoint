@@ -13,7 +13,14 @@ import java.util.Map;
 public class MapResponseHistogramSummary {
 
     private final Map<Application, ResponseHistogramSummary> responseHistogramSummaryMap = new HashMap<Application, ResponseHistogramSummary>();
+    private final Range range;
 
+    public MapResponseHistogramSummary(Range range) {
+        if (range == null) {
+            throw new NullPointerException("range must not be null");
+        }
+        this.range = range;
+    }
 
     public void addHistogram(Application application, SpanBo span) {
 
@@ -32,7 +39,7 @@ public class MapResponseHistogramSummary {
     private ResponseHistogramSummary getResponseHistogram(Application application) {
         ResponseHistogramSummary responseHistogramSummary = responseHistogramSummaryMap.get(application);
         if (responseHistogramSummary == null) {
-            responseHistogramSummary = new ResponseHistogramSummary(application);
+            responseHistogramSummary = new ResponseHistogramSummary(application, range);
             responseHistogramSummaryMap.put(application, responseHistogramSummary);
         }
         return responseHistogramSummary;
