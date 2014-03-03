@@ -206,7 +206,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
                 final Application srcApplication = createSourceApplication(span, transactionSpanMap);
                 final Application destApplication = new Application(span.getApplicationId(), span.getServiceType());
 
-                recordSpanResponseTime(destApplication, span, mapHistogramSummary);
+                recordSpanResponseTime(destApplication, span, mapHistogramSummary, span.getCollectorAcceptTime());
 
                 // record해야 되거나. rpc콜은 링크이다.
                 if (!destApplication.getServiceType().isRecordStatistics() || destApplication.getServiceType().isRpcClient()) {
@@ -242,6 +242,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         Collection<LinkStatistics> linkStatisticsList = linkStatMap.values();
         ApplicationMap map = new ApplicationMapBuilder(range).build(linkStatisticsList);
         map.setTimeSeriesStore(timeSeriesStore);
+        mapHistogramSummary.build();
         map.appendResponseTime(mapHistogramSummary);
 
 
@@ -259,8 +260,8 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         return transactionSpanMap;
     }
 
-    private void recordSpanResponseTime(Application application, SpanBo span, MapResponseHistogramSummary mapResponseHistogramSummary) {
-        mapResponseHistogramSummary.addHistogram(application, span);
+    private void recordSpanResponseTime(Application application, SpanBo span, MapResponseHistogramSummary mapResponseHistogramSummary, long timeStamp) {
+        mapResponseHistogramSummary.addHistogram(application, span, timeStamp);
     }
 
 

@@ -51,7 +51,7 @@ public class ResponseHistogramSummary {
         this.agentTimeSeriesHistogram = new AgentTimeSeriesHistogram(application, range);
     }
 
-    public void addApplicationLevelHistogram(Histogram histogram) {
+    private void addApplicationLevelHistogram(Histogram histogram) {
         if (histogram == null) {
             throw new NullPointerException("histogram must not be null");
         }
@@ -95,13 +95,17 @@ public class ResponseHistogramSummary {
             throw new RuntimeException(ex.getMessage(), ex);
         }
     }
-    public void createResponseHistogram(List<ResponseTime> responseHistogramList) {
-        createApplicationLevelResponseTime(responseHistogramList);
-        createAgentLevelResponseTime(responseHistogramList);
 
-        createApplicationLevelTimeSeriesResponseTime(responseHistogramList);
+
+    public void createResponseHistogram(List<ResponseTime> responseHistogramList) {
         createAgentLevelTimeSeriesResponseTime(responseHistogramList);
+        createApplicationLevelTimeSeriesResponseTime(responseHistogramList);
+
+        createAgentLevelResponseTime(responseHistogramList);
+        createApplicationLevelResponseTime(responseHistogramList);
+
     }
+
 
     private void createApplicationLevelTimeSeriesResponseTime(List<ResponseTime> responseHistogramList) {
 
@@ -111,6 +115,7 @@ public class ResponseHistogramSummary {
         this.applicationTimeSeriesHistogram = histogram;
 
     }
+
 
     private void createAgentLevelTimeSeriesResponseTime(List<ResponseTime> responseHistogramList) {
         AgentTimeSeriesHistogram histogram = new AgentTimeSeriesHistogram(application, range);
@@ -129,7 +134,7 @@ public class ResponseHistogramSummary {
         }
     }
 
-    public void addAgentLevelHistogram(String agentId, Histogram histogram) {
+    private void addAgentLevelHistogram(String agentId, Histogram histogram) {
         Histogram agentHistogram = this.agentHistogramMap.get(agentId);
         if (agentHistogram == null) {
             agentHistogram = new Histogram(application.getServiceType());

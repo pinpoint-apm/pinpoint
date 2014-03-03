@@ -23,8 +23,6 @@ public class TimeWindow implements Iterable<Long> {
 
     private final Range windowRange;
 
-    private final TimeWindowSampler sampler;
-
     public TimeWindow(Range range) {
         this(range, TimeWindowDownSampler.SAMPLER);
     }
@@ -33,7 +31,9 @@ public class TimeWindow implements Iterable<Long> {
         if (range == null) {
             throw new NullPointerException("range must not be null");
         }
-        this.sampler = sampler;
+        if (sampler == null) {
+            throw new NullPointerException("sampler must not be null");
+        }
         this.windowSlotSize = sampler.getWindowSize(range);
         this.range = range;
         this.windowRange = createWindowRange();
@@ -52,7 +52,7 @@ public class TimeWindow implements Iterable<Long> {
 	 * @return
 	 */
 	public long refineTimestamp(long timestamp) {
-		long time = timestamp / windowSlotSize * windowSlotSize;
+		long time = (timestamp / windowSlotSize) * windowSlotSize;
 		return time;
 	}
 
@@ -96,14 +96,6 @@ public class TimeWindow implements Iterable<Long> {
             return true;
         }
 
-
-        public Long peakNext() {
-            long current = cursor;
-            if (hasNext()) {
-                return current + windowSlotSize;
-            }
-            throw new NoSuchElementException();
-        }
 
         @Override
         public Long next() {

@@ -52,6 +52,18 @@ public class TimeWindowTest {
     }
 
     @Test
+    public void testGetNextWindow2() throws Exception {
+        Range range = new Range(1L, TimeUnit.MINUTES.toMillis(1));
+        TimeWindow window = new TimeWindow(range);
+        int i = 0;
+        for (Long aLong : window) {
+            logger.debug("{}", aLong);
+            i++;
+        }
+        Assert.assertEquals(i, 2);
+    }
+
+    @Test
     public void testRefineTimestamp() throws Exception {
 
     }

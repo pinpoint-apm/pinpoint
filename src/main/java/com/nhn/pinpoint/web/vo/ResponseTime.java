@@ -13,7 +13,7 @@ public class ResponseTime {
     private final short applicationServiceType;
     private final long timeStamp;
 
-    // agentId 이 key임.
+    // agentId 가 key임.
     private final Map<String, Histogram> responseHistogramMap = new HashMap<String, Histogram>();
 
 
@@ -43,17 +43,20 @@ public class ResponseTime {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
-        final Histogram histogram = responseHistogramMap.get(agentId);
-        if (histogram != null) {
-            return histogram;
+        Histogram histogram = responseHistogramMap.get(agentId);
+        if (histogram == null) {
+            histogram = new Histogram(applicationServiceType);
+            responseHistogramMap.put(agentId, histogram);
         }
-        final Histogram newHistogram = new Histogram(applicationServiceType);
-        responseHistogramMap.put(agentId, newHistogram);
-        return newHistogram;
+        return histogram;
     }
 
     public void addResponseTime(String agentId, short slotNumber, long count) {
         getHistogram(agentId).addCallCount(slotNumber, count);
+    }
+
+    public void addResponseTime(String agentId, int elapsedTime) {
+        getHistogram(agentId).addCallCountByElapsedTime(elapsedTime);
     }
 
     public Collection<Histogram> getAgentResponseHistogramList() {

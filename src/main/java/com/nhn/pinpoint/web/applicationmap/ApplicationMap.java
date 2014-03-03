@@ -108,8 +108,10 @@ public class ApplicationMap {
         appendResponseTime(new ResponseDataSource() {
             @Override
             public ResponseHistogramSummary getResponseHistogramSummary(Application application) {
-                ResponseHistogramSummary responseHistogramSummary = mapHistogramSummary.get(application);
-                return responseHistogramSummary;
+                List<ResponseTime> responseHistogram = mapHistogramSummary.getResponseTimeList(application);
+                final ResponseHistogramSummary histogramSummary = new ResponseHistogramSummary(application, range);
+                histogramSummary.createResponseHistogram(responseHistogram);
+                return histogramSummary;
             }
         });
     }

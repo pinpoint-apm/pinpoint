@@ -71,18 +71,21 @@ public class AgentTimeSeriesHistogram {
 
     }
 
+
     private Map<String, List<TimeHistogram>> interpolation(Map<String, List<TimeHistogram>> agentLevelMap) {
         if (agentLevelMap.size() == 0) {
             return agentLevelMap;
         }
-        Map<String, List<TimeHistogram>> result = new HashMap<String, List<TimeHistogram>>();
-
+        Map<String, Map<Long, TimeHistogram>> windowTimeMap = new HashMap<String, Map<Long, TimeHistogram>>();
+        // window 공간생성.
+        // list로 할수도 있으나, filter일 경우 range를 초과하는 경우가 발생할 가능성이 있어 map으로 생성한다.
+        // 좀더 나은 방인이 있으면 변경하는게 좋을듯.
         for (String key : agentLevelMap.keySet()) {
-            List<TimeHistogram> value = new ArrayList<TimeHistogram>();
+            Map<Long, TimeHistogram> value = new HashMap<Long, TimeHistogram>();
             for (Long time : window) {
-                value.add(new TimeHistogram(application.getServiceType(), time));
+                value.put(time, new TimeHistogram(application.getServiceType(), time));
             }
-            result.put(key, value);
+            windowTimeMap.put(key, value);
         }
 
 
@@ -90,21 +93,41 @@ public class AgentTimeSeriesHistogram {
             List<TimeHistogram> histogramList = entry.getValue();
             for (TimeHistogram timeHistogram : histogramList) {
                 long time = window.refineTimestamp(timeHistogram.getTimeStamp());
-                int windowIndex = window.getWindowIndex(time);
-                List<TimeHistogram> findSlot = result.get(entry.getKey());
-                TimeHistogram windowHistogram = findSlot.get(windowIndex);
+//                int windowIndex = window.getWindowIndex(time);
+                Map<Long, TimeHistogram> findSlot = windowTimeMap.get(entry.getKey());
+                TimeHistogram windowHistogram = findSlot.get(time);
+                if (windowHistogram == null) {
+                    windowHistogram = new TimeHistogram(application.getServiceType(), time);
+                    findSlot.put(time, windowHistogram);
+                }
                 windowHistogram.add(timeHistogram);
             }
         }
+
+        Map<String, List<TimeHistogram>> result = new HashMap<String, List<TimeHistogram>>();
+        for (Map.Entry<String, Map<Long, TimeHistogram>> windowMapEntry : windowTimeMap.entrySet()) {
+            final String key = windowMapEntry.getKey();
+            List<TimeHistogram> histogramList = result.get(key);
+            if(histogramList == null) {
+                histogramList = new ArrayList<TimeHistogram>();
+                result.put(key, histogramList);
+            }
+            Map<Long, TimeHistogram> timeHistogramMap = windowMapEntry.getValue();
+            for (TimeHistogram timeHistogram : timeHistogramMap.values()) {
+                histogramList.add(timeHistogram);
+            }
+        }
+        sortList(result);
+
         return result;
     }
 
-//    private void sortList(Map<String, List<TimeHistogram>> agentLevelMap) {
-//        Collection<List<TimeHistogram>> values = agentLevelMap.values();
-//        for (List<TimeHistogram> value : values) {
-//            Collections.sort(value, TimeHistogram.ASC_COMPARATOR);
-//        }
-//    }
+    private void sortList(Map<String, List<TimeHistogram>> agentLevelMap) {
+        Collection<List<TimeHistogram>> values = agentLevelMap.values();
+        for (List<TimeHistogram> value : values) {
+            Collections.sort(value, TimeHistogram.ASC_COMPARATOR);
+        }
+    }
 
     public List<AgentResponseTimeViewModel> createViewModel() {
         final List<AgentResponseTimeViewModel> result = new ArrayList<AgentResponseTimeViewModel>();

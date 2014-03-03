@@ -76,7 +76,9 @@ public class ApplicationTimeSeriesHistogram {
             return histogramList;
         }
         List<TimeHistogram> result = new ArrayList<TimeHistogram>();
+        int i =0;
         for (Long time : window) {
+            logger.info("------------------------{}", i++);
             result.add(new TimeHistogram(application.getServiceType(), time));
         }
 
@@ -93,23 +95,7 @@ public class ApplicationTimeSeriesHistogram {
         return result;
     }
 
-    public long peakNextTime(long nextWindowTime, long windowSlotSize) {
-        return nextWindowTime + windowSlotSize;
-    }
 
-
-
-    private void append() {
-    }
-
-    private void interpolationEmptyList() {
-
-
-    }
-
-    private void appendEmtpy(List result) {
-
-    }
 
 
     public List<ResponseTimeViewModel> createViewModel() {
