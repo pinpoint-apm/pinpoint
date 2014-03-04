@@ -76,7 +76,7 @@ public class FixedBuffer implements Buffer {
     @Override
     public void put2PrefixedString(final String string) {
         final byte[] bytes = BytesUtils.toBytes(string);
-        if (string == null) {
+        if (bytes == null) {
             put((short)NULL);
             return;
         }
@@ -89,7 +89,7 @@ public class FixedBuffer implements Buffer {
     @Override
     public void put4PrefixedString(final String string) {
         final byte[] bytes = BytesUtils.toBytes(string);
-        if (string == null) {
+        if (bytes == null) {
             put(NULL);
             return;
         }
