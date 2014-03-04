@@ -362,7 +362,8 @@ public class HelloWorldController implements DisposableBean {
 
 			future.await();
 
-			Object result = future.get();
+			// Object result = future.get();
+			Object result = future.getReturnValue();
 			System.out.println("npc result=" + result);
 		} catch (Exception e) {
 			e.printStackTrace();

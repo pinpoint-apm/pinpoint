@@ -47,8 +47,9 @@ public class NPCController implements DisposableBean {
 			InvocationFuture future = connector.invoke("welcome/com.nhncorp.lucy.bloc.welcome.EchoBO", "execute", params);
 
 			future.await();
-
-			Object result = future.get();
+			
+			// Object result = future.get();
+			Object result = future.getReturnValue();
 			System.out.println("npc result=" + result);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -79,7 +80,8 @@ public class NPCController implements DisposableBean {
 
 			future.await();
 
-			Object result = future.get();
+			// Object result = future.get();
+			Object result = future.getReturnValue();
 			System.out.println("npc result=" + result);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -115,7 +117,8 @@ public class NPCController implements DisposableBean {
 
 			future.await();
 
-			Object result = future.get();
+			// Object result = future.get();
+			Object result = future.getReturnValue();
 			System.out.println("npc result=" + result);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -152,7 +155,8 @@ public class NPCController implements DisposableBean {
 
 			future.await();
 
-			Object result = future.get();
+			// Object result = future.get();
+			Object result = future.getReturnValue();
 			System.out.println("npc result=" + result);
 		} catch (Exception e) {
 			e.printStackTrace();

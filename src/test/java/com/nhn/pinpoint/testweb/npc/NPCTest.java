@@ -26,7 +26,8 @@ public class NPCTest {
 
 			future.await();
 
-			Object result = future.get();
+			// Object result = future.get();
+			Object result = future.getReturnValue();
 
 			System.out.println(result);
 			Assert.assertNotNull(result);

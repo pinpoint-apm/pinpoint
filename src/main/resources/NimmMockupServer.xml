@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<nimm-connector>
+	<management>
+		<server-list>
+			<server ip="127.0.0.1" port="21111"/>
+		</server-list>
+		<agent-list>
+			<agent className="com.nhncorp.lucy.nimm.connector.agent.ManagementAgent" domain-id="100" socket-id="1">
+
+				<properties>
+					<property name="rala" type="int" value="5"/>
+					<property name="wrala" type="Integer" value="55"/>
+					<property name="cookoo" type="String" value="chichi"/>
+					<property name="yoyo" type="float" value="10.0"/>
+					<property name="wyoyo" type="Float" value="11.11"/>
+					<property name="ohoo" type="double" value="10.8"/>
+					<property name="wohoo" type="Double" value="1010.88"/>
+					<property name="awesome" type="char" value="t"/>
+					<property name="wawesome" type="Character" value="T"/>
+					<property name="active" type="boolean" value="false"/>
+					<property name="wactive" type="Boolean" value="true"/>
+					<property name="binary" type="byte" value="92"/>
+					<property name="wbinary" type="Byte" value="93"/>
+					<property name="shortint" type="short" value="0"/>
+					<property name="wshortint" type="Short" value="1"/>
+					<property name="longint" type="long" value="65536"/>
+					<property name="wlongint" type="Long" value="6553665536"/>
+				</properties>
+			</agent>
+			<agent className="com.nhncorp.lucy.nimm.connector.agent.ManagementAgent"/>
+		</agent-list>
+		<representative-address>
+			<address domain-id="100" server-id="40"/>
+		</representative-address>
+
+		<allowed-address-list>
+			<address domain-id="7" server-id="30"/>
+			<address domain-id="100" server-id="40"/>
+			<address domain-id="101" server-id="40"/>
+			<address domain-id="102" server-id="42"/>
+		</allowed-address-list>
+	</management>
+
+	<service>
+		<agent-list>
+			<agent className="com.nhncorp.lucy.nimm.connector.agent.ServiceAgent" domain-id="47" socket-id="1"
+				   name="Santana"/>
+		</agent-list>
+		<representative-address>
+			<address domain-id="101" server-id="50"/>
+		</representative-address>
+
+		<allowed-address-list>
+			<address domain-id="103" server-id="50"/>
+			<address domain-id="47" server-id="50"/>
+			<address domain-id="123" server-id="52"/>
+		</allowed-address-list>
+
+		<bus-segmentation>
+			<segment-list default-seg-id="Default">
+
+				<segment id="Default">
+					<server ip="127.0.0.1" port="25555"/>
+				</segment>
+
+				<segment id="Rala">
+					<server ip="127.0.0.1" port="25556"/>
+				</segment>
+			</segment-list>
+
+			<transmission-policy>
+				<rule sender-domain-id="103" receiver-domain-id="2001" seg-id="Rala"/>
+				<rule sender-domain-id="47" receiver-domain-id="2002" seg-id="Rala"/>
+				<rule sender-domain-id="123" receiver-domain-id="2003" seg-id="Rala"/>
+			</transmission-policy>
+
+		</bus-segmentation>
+	</service>
+
+	<operation>
+		<sessionTimeout unit="ms">3000</sessionTimeout>
+		<workerThreadPool>256</workerThreadPool>
+		<defaultSocketTimeout>0</defaultSocketTimeout>
+	</operation>
+
+</nimm-connector>
