@@ -61,7 +61,7 @@ public class SpanUtilsTest {
         String agentId = Bytes.toString(traceIndexRowKey, 0, PinpointConstants.AGENT_NAME_MAX_LEN).trim();
         Assert.assertEquals(agentId0, agentId);
 
-        long time = TimeUtils.recoveryCurrentTimeMillis(Bytes.toLong(traceIndexRowKey, PinpointConstants.AGENT_NAME_MAX_LEN));
+        long time = TimeUtils.recoveryTimeMillis(Bytes.toLong(traceIndexRowKey, PinpointConstants.AGENT_NAME_MAX_LEN));
         Assert.assertEquals(time, l1);
     }
 }

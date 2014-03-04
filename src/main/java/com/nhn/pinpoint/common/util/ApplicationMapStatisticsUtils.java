@@ -112,7 +112,7 @@ public class ApplicationMapStatisticsUtils {
         buffer.put((short)applicationNameBytes.length);
         buffer.put(applicationNameBytes);
         buffer.put(applicationType);
-        long reverseTimeMillis = TimeUtils.reverseCurrentTimeMillis(timestamp);
+        long reverseTimeMillis = TimeUtils.reverseTimeMillis(timestamp);
         buffer.put(reverseTimeMillis);
         return buffer.getBuffer();
     }
@@ -146,6 +146,6 @@ public class ApplicationMapStatisticsUtils {
             throw new NullPointerException("bytes must not be null");
         }
         short applicationNameLength = BytesUtils.bytesToShort(bytes, 0);
-        return TimeUtils.recoveryCurrentTimeMillis(BytesUtils.bytesToLong(bytes, applicationNameLength + 4));
+        return TimeUtils.recoveryTimeMillis(BytesUtils.bytesToLong(bytes, applicationNameLength + 4));
     }
 }

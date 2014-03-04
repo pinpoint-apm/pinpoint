@@ -17,7 +17,7 @@ public class SpanUtils {
 			throw new IllegalArgumentException("agentId must not null");
 		}
 		final byte[] bAgentId = BytesUtils.toBytes(agentId);
-		return RowKeyUtils.concatFixedByteAndLong(bAgentId, AGENT_NAME_MAX_LEN, TimeUtils.reverseCurrentTimeMillis(timestamp));
+		return RowKeyUtils.concatFixedByteAndLong(bAgentId, AGENT_NAME_MAX_LEN, TimeUtils.reverseTimeMillis(timestamp));
 	}
 
 	public static byte[] getApplicationTraceIndexRowKey(String applicationName, long timestamp) {
@@ -25,14 +25,14 @@ public class SpanUtils {
 			throw new IllegalArgumentException("agentId must not null");
 		}
 		final byte[] bApplicationName = BytesUtils.toBytes(applicationName);
-		return RowKeyUtils.concatFixedByteAndLong(bApplicationName, AGENT_NAME_MAX_LEN, TimeUtils.reverseCurrentTimeMillis(timestamp));
+		return RowKeyUtils.concatFixedByteAndLong(bApplicationName, AGENT_NAME_MAX_LEN, TimeUtils.reverseTimeMillis(timestamp));
 	}
 	
 	public static byte[] getTraceIndexRowKey(byte[] agentId, long timestamp) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
-        return RowKeyUtils.concatFixedByteAndLong(agentId, AGENT_NAME_MAX_LEN, TimeUtils.reverseCurrentTimeMillis(timestamp));
+        return RowKeyUtils.concatFixedByteAndLong(agentId, AGENT_NAME_MAX_LEN, TimeUtils.reverseTimeMillis(timestamp));
 	}
 
     public static byte[] getVarTransactionId(TSpan span) {

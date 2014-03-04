@@ -39,7 +39,7 @@ public class RowKeyUtils {
 		final byte[] buffer = new byte[AGENT_NAME_MAX_LEN + LONG_BYTE_LENGTH + INT_BYTE_LENGTH];
 		Bytes.putBytes(buffer, 0, agentBytes, 0, agentBytes.length);
 
-		long reverseCurrentTimeMillis = TimeUtils.reverseCurrentTimeMillis(agentStartTime);
+		long reverseCurrentTimeMillis = TimeUtils.reverseTimeMillis(agentStartTime);
 		BytesUtils.writeLong(reverseCurrentTimeMillis, buffer, AGENT_NAME_MAX_LEN);
 
         BytesUtils.writeInt(keyCode, buffer, AGENT_NAME_MAX_LEN + LONG_BYTE_LENGTH);

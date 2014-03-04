@@ -67,7 +67,7 @@ public class StringMetaDataBo {
 
     public void readRowKey(byte[] rowKey) {
         this.agentId = Bytes.toString(rowKey, 0, AGENT_NAME_MAX_LEN).trim();
-        this.startTime = TimeUtils.recoveryCurrentTimeMillis(readTime(rowKey));
+        this.startTime = TimeUtils.recoveryTimeMillis(readTime(rowKey));
         this.stringId = readKeyCode(rowKey);
     }
 

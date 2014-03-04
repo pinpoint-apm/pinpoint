@@ -10,8 +10,8 @@ public class TimeUtilsTest {
     @Test
     public void testReverseCurrentTimeMillis() throws Exception {
         long currentTime = System.currentTimeMillis();
-        long reverseTime = TimeUtils.reverseCurrentTimeMillis(currentTime);
-        long recoveryTime = TimeUtils.recoveryCurrentTimeMillis(reverseTime);
+        long reverseTime = TimeUtils.reverseTimeMillis(currentTime);
+        long recoveryTime = TimeUtils.recoveryTimeMillis(reverseTime);
 
         Assert.assertEquals(currentTime, recoveryTime);
     }
