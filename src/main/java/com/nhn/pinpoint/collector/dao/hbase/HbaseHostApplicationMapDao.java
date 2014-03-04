@@ -3,8 +3,6 @@ package com.nhn.pinpoint.collector.dao.hbase;
 import static com.nhn.pinpoint.common.hbase.HBaseTables.HOST_APPLICATION_MAP;
 import static com.nhn.pinpoint.common.hbase.HBaseTables.HOST_APPLICATION_MAP_CF_MAP;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 import com.nhn.pinpoint.collector.dao.HostApplicationMapDao;
 import com.nhn.pinpoint.collector.util.AcceptedTimeService;
 import com.nhn.pinpoint.collector.util.AtomicLongUpdateMap;
@@ -67,7 +65,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     private void insertHost(String host, String applicationName, short serviceType, long statisticsRowSlot) {
         logger.debug("Insert host-application map. host={}, applicationName={}, serviceType={}", host, applicationName, serviceType);
 
-        byte[] rowKey = Bytes.toBytes(TimeUtils.reverseCurrentTimeMillis(statisticsRowSlot));
+        byte[] rowKey = Bytes.toBytes(TimeUtils.reverseTimeMillis(statisticsRowSlot));
         byte[] columnName = Bytes.toBytes(host);
 
         byte[] applicationNameBytes = Bytes.toBytes(applicationName);

@@ -29,7 +29,7 @@ public class CallRowKey implements RowKey {
 //        final Buffer buffer = new AutomaticBuffer();
 //        buffer.putPrefixedString(callApplicationName);
 //        buffer.put(callServiceType);
-//        buffer.put(TimeUtils.reverseCurrentTimeMillis(rowTimeSlot));
+//        buffer.put(TimeUtils.reverseTimeMillis(rowTimeSlot));
 //        마지막에 buffer.getBuffer()를 호출하지 않음. 이미 데이터가 들어가 있는 상황이므로, 그냥 가고 추후 수정한다..
         return ApplicationMapStatisticsUtils.makeRowKey(callApplicationName, callServiceType, rowTimeSlot);
     }
