@@ -76,9 +76,7 @@ public class ApplicationTimeSeriesHistogram {
             return histogramList;
         }
         List<TimeHistogram> result = new ArrayList<TimeHistogram>();
-        int i =0;
         for (Long time : window) {
-            logger.info("------------------------{}", i++);
             result.add(new TimeHistogram(application.getServiceType(), time));
         }
 
