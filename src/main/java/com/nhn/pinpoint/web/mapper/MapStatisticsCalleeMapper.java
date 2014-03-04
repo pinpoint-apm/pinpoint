@@ -37,7 +37,7 @@ public class MapStatisticsCalleeMapper implements RowMapper<Collection<LinkStati
 
         final Buffer row = new FixedBuffer(result.getRow());
         final Application calleeApplication = readCalleeApplication(row);
-        final long timestamp = TimeUtils.recoveryCurrentTimeMillis(row.readLong());
+        final long timestamp = TimeUtils.recoveryTimeMillis(row.readLong());
 
 
         final Map<LinkKey, LinkStatistics> linkStatisticsMap = new HashMap<LinkKey, LinkStatistics>();

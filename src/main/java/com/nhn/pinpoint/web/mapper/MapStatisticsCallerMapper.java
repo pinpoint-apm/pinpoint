@@ -40,7 +40,7 @@ public class MapStatisticsCallerMapper implements RowMapper<Collection<LinkStati
 
         final Buffer row = new FixedBuffer(result.getRow());
         final Application caller = readCallerApplication(row);
-        final long timestamp = TimeUtils.recoveryCurrentTimeMillis(row.readLong());
+        final long timestamp = TimeUtils.recoveryTimeMillis(row.readLong());
 
 		// key is destApplicationName.
         final Map<LinkKey, LinkStatistics> linkStatisticsMap = new HashMap<LinkKey, LinkStatistics>();

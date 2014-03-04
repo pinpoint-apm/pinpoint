@@ -55,8 +55,8 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 	}
 
 	private Scan createScan(String host, Range range) {
-        long startTime = TimeUtils.reverseCurrentTimeMillis(TimeSlot.getStatisticsRowSlot(range.getFrom()));
-		long endTime = TimeUtils.reverseCurrentTimeMillis(TimeSlot.getStatisticsRowSlot(range.getTo()) + 1);
+        long startTime = TimeUtils.reverseTimeMillis(TimeSlot.getStatisticsRowSlot(range.getFrom()));
+		long endTime = TimeUtils.reverseTimeMillis(TimeSlot.getStatisticsRowSlot(range.getTo()) + 1);
 
 		if (logger.isDebugEnabled()) {
 			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss,SSS");

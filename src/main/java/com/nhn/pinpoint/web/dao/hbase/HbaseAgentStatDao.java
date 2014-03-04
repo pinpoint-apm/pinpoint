@@ -84,7 +84,7 @@ public class HbaseAgentStatDao implements AgentStatDao {
 			throw new IllegalArgumentException("agentId must not null");
 		}
 		byte[] bAgentId = BytesUtils.toBytes(agentId);
-		return RowKeyUtils.concatFixedByteAndLong(bAgentId, AGENT_NAME_MAX_LEN, TimeUtils.reverseCurrentTimeMillis(timestamp));
+		return RowKeyUtils.concatFixedByteAndLong(bAgentId, AGENT_NAME_MAX_LEN, TimeUtils.reverseTimeMillis(timestamp));
 	}
 
 	private Scan createScan(String agentId, Range range) {

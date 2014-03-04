@@ -52,8 +52,8 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         Scan scan = new Scan();
         scan.setCaching(20);
         
-		long fromTime = TimeUtils.reverseCurrentTimeMillis(range.getTo());
-		long toTime = TimeUtils.reverseCurrentTimeMillis(1);
+		long fromTime = TimeUtils.reverseTimeMillis(range.getTo());
+		long toTime = TimeUtils.reverseTimeMillis(1);
 
         byte[] agentIdBytes = Bytes.toBytes(agentId);
         byte[] startKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, fromTime);
@@ -72,7 +72,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 					found++;
 					byte[] row = next.getRow();
 					long reverseStartTime = BytesUtils.bytesToLong(row, HBaseTables.AGENT_NAME_MAX_LEN);
-					long startTime = TimeUtils.recoveryCurrentTimeMillis(reverseStartTime);
+					long startTime = TimeUtils.recoveryTimeMillis(reverseStartTime);
 					byte[] value = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_IDENTIFIER);
 					
 					logger.debug("found={}, {}, start={}", found, range, startTime);
@@ -108,7 +108,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 //        T 1382579580000
         
 //		byte[] agentIdBytes = Bytes.toBytes(agentId);
-//		long reverseStartTime = TimeUtils.reverseCurrentTimeMillis(from);
+//		long reverseStartTime = TimeUtils.reverseTimeMillis(from);
 //		byte[] rowKey = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, reverseStartTime);
 //
 //		Get get = new Get(rowKey);
@@ -140,7 +140,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
                 for (Result next : results) {
                     byte[] row = next.getRow();
                     long reverseStartTime = BytesUtils.bytesToLong(row, HBaseTables.AGENT_NAME_MAX_LEN);
-                    long startTime = TimeUtils.recoveryCurrentTimeMillis(reverseStartTime);
+                    long startTime = TimeUtils.recoveryTimeMillis(reverseStartTime);
                     logger.debug("agent:{} startTime value {}", agentId, startTime);
                     // 바로 전 시작 시간을 찾아야 한다.
                     if (startTime < currentTime) {
@@ -173,7 +173,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         scan.setCaching(20);
 
         byte[] agentIdBytes = Bytes.toBytes(agentInfo);
-        long startTime = TimeUtils.reverseCurrentTimeMillis(currentTime);
+        long startTime = TimeUtils.reverseTimeMillis(currentTime);
         byte[] startKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, startTime);
         scan.setStartRow(startKeyBytes);
 

@@ -51,7 +51,7 @@ public class AgentInfoMapper implements RowMapper<List<AgentInfoBo>> {
         agentInfoBo.setAgentId(agentId);
 
         long reverseStartTime = BytesUtils.bytesToLong(rowKey, PinpointConstants.AGENT_NAME_MAX_LEN);
-        long startTime = TimeUtils.recoveryCurrentTimeMillis(reverseStartTime);
+        long startTime = TimeUtils.recoveryTimeMillis(reverseStartTime);
         agentInfoBo.setStartTime(startTime);
 
         logger.debug("agentInfo:{}", agentInfoBo);

@@ -49,7 +49,7 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
         String agentId = valueBuffer.readPrefixedString();
 
         long reverseAcceptedTime = BytesUtils.bytesToLong(buffer, kv.getRowOffset() + HBaseTables.APPLICATION_NAME_MAX_LEN + HBaseTables.APPLICATION_TRACE_INDEX_ROW_DISTRIBUTE_SIZE);
-        long acceptedTime = TimeUtils.recoveryCurrentTimeMillis(reverseAcceptedTime);
+        long acceptedTime = TimeUtils.recoveryTimeMillis(reverseAcceptedTime);
 
         final int qualifierOffset = kv.getQualifierOffset();
 

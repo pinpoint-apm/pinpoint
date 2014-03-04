@@ -50,7 +50,7 @@ public class ResponseTimeMapper implements RowMapper<ResponseTime> {
         final Buffer row = new FixedBuffer(rowKey);
         String applicationName = row.read2PrefixedString();
         short serviceType = row.readShort();
-        final long timestamp = TimeUtils.recoveryCurrentTimeMillis(row.readLong());
+        final long timestamp = TimeUtils.recoveryTimeMillis(row.readLong());
         return new ResponseTime(applicationName, serviceType, timestamp);
     }
 
