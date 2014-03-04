@@ -12,6 +12,9 @@
     -moz-box-sizing: content-box;
     box-sizing: content-box;
 }
+.distributed-call-flow .popover {
+    max-width: inherit;
+}
 .distributed-call-flow .has-exception {
     color:rgb(214, 39, 39);
 }
