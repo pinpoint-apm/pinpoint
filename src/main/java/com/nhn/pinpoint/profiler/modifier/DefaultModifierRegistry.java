@@ -10,6 +10,7 @@ import com.nhn.pinpoint.profiler.modifier.arcus.*;
 import com.nhn.pinpoint.profiler.modifier.bloc.handler.HTTPHandlerModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.HttpClient4Modifier;
 import com.nhn.pinpoint.profiler.modifier.connector.jdkhttpconnector.HttpURLConnectionModifier;
+import com.nhn.pinpoint.profiler.modifier.connector.nimm.NimmInvokerModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.npc.KeepAliveNpcHessianConnectorModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.npc.LightWeightConnectorModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.npc.NioNpcHessianConnectorModifier;
@@ -280,5 +281,9 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		addModifier(new LightWeightConnectorModifier(byteCodeInstrumentor, agent));
 		addModifier(new NioNpcHessianConnectorModifier(byteCodeInstrumentor, agent));
 		addModifier(new NpcHessianConnectorModifier(byteCodeInstrumentor, agent));
+	}
+	
+	public void addNimmModifier() {
+		addModifier(new NimmInvokerModifier(byteCodeInstrumentor, agent));
 	}
 }

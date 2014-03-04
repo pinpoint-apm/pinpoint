@@ -127,6 +127,12 @@
             <version>1.5.19</version>
             <scope>provided</scope>
         </dependency>
+		<dependency>
+			<groupId>com.nhncorp.lucy</groupId>
+			<artifactId>lucy-nimmconnector</artifactId>
+			<version>2.1.4</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>

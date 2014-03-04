@@ -133,6 +133,9 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         // npc
         modifierRepository.addNpcModifier();
         
+        // nimm
+        modifierRepository.addNimmModifier();
+        
         return modifierRepository;
     }
 
