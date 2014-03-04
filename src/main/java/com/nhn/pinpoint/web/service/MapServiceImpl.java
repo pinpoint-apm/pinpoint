@@ -212,7 +212,9 @@ public class MapServiceImpl implements MapService {
 		data.addAll(caller);
 		data.addAll(callee);
 
-		ApplicationMap map = new ApplicationMapBuilder(range).build(new ArrayList<LinkStatistics>(data));
+        ApplicationMapBuilder builder = new ApplicationMapBuilder(range);
+        ApplicationMap map = builder.build(data);
+        // 이걸 builder쪽에 넣어야 될듯한데.
         map.appendResponseTime(range, this.mapResponseDao);
 
 		watch.stop();
