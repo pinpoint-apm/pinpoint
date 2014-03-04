@@ -72,7 +72,8 @@ public enum ServiceType {
     // connector류
     HTTP_CLIENT((short) 9050, "HTTP_CLIENT", false, true, false, HistogramSchema.NORMAL_SCHEMA),
     JDK_HTTPURLCONNECTOR((short) 9055, "JDK_HTTPCONNECTOR", false, true, false, HistogramSchema.NORMAL_SCHEMA),
-	NPC_CLIENT((short) 9060, "NPC_CLIENT", false, true, false, HistogramSchema.NORMAL_SCHEMA);
+	NPC_CLIENT((short) 9060, "NPC_CLIENT", false, true, false, HistogramSchema.NORMAL_SCHEMA),
+	NIMM_CLIENT((short) 9070, "NIMM_CLIENT", false, true, false, HistogramSchema.NORMAL_SCHEMA);
 
     private final short code;
     private final String desc;
@@ -173,7 +174,6 @@ public enum ServiceType {
         }
         return serviceType;
     }
-
 
     private static final Map<Short, ServiceType> CODE_LOOKUP_TABLE = new HashMap<Short, ServiceType>();
     private static final Map<String, List<ServiceType>> STATISTICS_LOOKUP_TABLE = new HashMap<String, List<ServiceType>>();

@@ -48,13 +48,17 @@ public enum AnnotationKey {
     HTTP_COOKIE(45, "http.cookie", true),
     // httpclient일때 post 파라미터
 
-
-//    ARCUS_COMMAND(50, "arcus.command"),
+	// ARCUS_COMMAND(50, "arcus.command"),
     
     NPC_URL(60, "npc.url"),
     NPC_PARAM(61, "npc.param"),
     NPC_CONNECT_OPTION(62, "npc.connect.options"),
 
+    NIMM_OBJECT_NAME(70, "nimm.objectName"),
+    NIMM_METHOD_NAME(71, "nimm.methodName"),
+    NIMM_PARAM(72, "nimm.param"),
+    NIMM_CONNECT_OPTION(73, "nimm.connect.options"),
+    
     ARGS0(-1, "args[0]"),
     ARGS1(-2, "args[1]"),
     ARGS2(-3, "args[2]"),
