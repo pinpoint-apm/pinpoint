@@ -1,7 +1,7 @@
 'use strict';
 
-pinpointApp.directive('distributedCallFlow', [ '$filter',
-    function ($filter) {
+pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
+    function ($filter, $timeout) {
         return {
             restrict: 'E',
             replace: true,
@@ -190,6 +190,7 @@ pinpointApp.directive('distributedCallFlow', [ '$filter',
 
                     grid = new Slick.Grid(element.get(0), dataView, columns, options);
 
+                    var isSingleClick = true, clickTimeout = false;
                     grid.onClick.subscribe(function (e, args) {
                         if ($(e.target).hasClass("toggle")) {
                             var item = dataView.getItem(args.row);
@@ -204,9 +205,21 @@ pinpointApp.directive('distributedCallFlow', [ '$filter',
                             }
                             e.stopImmediatePropagation();
                         }
+
+                        if (!clickTimeout) {
+                            clickTimeout = $timeout(function () {
+                                if (isSingleClick) {
+                                    element.find('.dcf-popover').popover('hide');
+                                }
+                                isSingleClick = true;
+                                clickTimeout = false;
+                            }, 300);
+                        }
                     });
 
                     grid.onDblClick.subscribe(function (e, args) {
+                        isSingleClick = false;
+                        console.log('isSingleClick = false');
                         $(e.target).popover('toggle');
                     });
 
