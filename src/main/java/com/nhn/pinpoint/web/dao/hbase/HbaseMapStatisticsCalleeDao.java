@@ -106,9 +106,9 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 	}
 
 	private Scan createScan(Application application, Range range) {
-		long startTime = TimeSlot.getStatisticsRowSlot(range.getFrom());
+		long startTime = TimeSlot.getStatisticsRowSlot(range.getFrom()) - 1;
 		// hbase의 scanner를 사용하여 검색시 endTime은 검색 대상에 포함되지 않기 때문에, +1을 해줘야 된다.
-		long endTime = TimeSlot.getStatisticsRowSlot(range.getTo()) + 1;
+		long endTime = TimeSlot.getStatisticsRowSlot(range.getTo());
 		
 		if (logger.isDebugEnabled()) {
 			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss,SSS");
