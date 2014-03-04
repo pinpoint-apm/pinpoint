@@ -75,22 +75,29 @@ public class ApplicationTimeSeriesHistogram {
         if (histogramList.size() == 0) {
             return histogramList;
         }
-        List<TimeHistogram> result = new ArrayList<TimeHistogram>();
+        // span에 대한 개별 조회시 window time만 가지고 보간하는것에 한계가 있을수 있음.
+        //
+        Map<Long, TimeHistogram> resultMap = new HashMap<Long, TimeHistogram>();
         for (Long time : window) {
-            result.add(new TimeHistogram(application.getServiceType(), time));
+            resultMap.put(time, new TimeHistogram(application.getServiceType(), time));
         }
 
 
         for (TimeHistogram timeHistogram : histogramList) {
             long time = window.refineTimestamp(timeHistogram.getTimeStamp());
-            int windowIndex = window.getWindowIndex(time);
 
-            TimeHistogram windowHistogram = result.get(windowIndex);
+            TimeHistogram windowHistogram = resultMap.get(time);
+            if (windowHistogram == null) {
+                windowHistogram = new TimeHistogram(application.getServiceType(), time);
+                resultMap.put(time, windowHistogram);
+            }
             windowHistogram.add(timeHistogram);
         }
 
 
-        return result;
+        List<TimeHistogram> resultList = new ArrayList<TimeHistogram>(resultMap.values());
+        Collections.sort(resultList, TimeHistogram.ASC_COMPARATOR);
+        return resultList;
     }
 
 
