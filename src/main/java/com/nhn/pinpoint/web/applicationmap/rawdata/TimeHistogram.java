@@ -9,7 +9,7 @@ import java.util.Comparator;
  */
 public class TimeHistogram extends Histogram  {
 
-    public static final Comparator ASC_COMPARATOR = new AscComparator();
+    public static final Comparator<TimeHistogram> ASC_COMPARATOR = new AscComparator();
 
     private final long timeStamp;
 
