@@ -14,6 +14,7 @@ import java.security.ProtectionDomain;
 
 /**
  * @author emeroad
+ * @author netspider
  */
 public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
@@ -135,6 +136,9 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         
         // nimm
         modifierRepository.addNimmModifier();
+        
+        // lucy-net
+        modifierRepository.addLucyNetModifier();
         
         return modifierRepository;
     }

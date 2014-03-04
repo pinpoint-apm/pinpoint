@@ -6,10 +6,19 @@ import java.util.Map;
 import com.nhn.pinpoint.profiler.Agent;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.modifier.arcus.*;
+import com.nhn.pinpoint.profiler.modifier.arcus.ArcusClientModifier;
+import com.nhn.pinpoint.profiler.modifier.arcus.BaseOperationModifier;
+import com.nhn.pinpoint.profiler.modifier.arcus.CacheManagerModifier;
+import com.nhn.pinpoint.profiler.modifier.arcus.CollectionFutureModifier;
+import com.nhn.pinpoint.profiler.modifier.arcus.GetFutureModifier;
+import com.nhn.pinpoint.profiler.modifier.arcus.ImmediateFutureModifier;
+import com.nhn.pinpoint.profiler.modifier.arcus.MemcachedClientModifier;
+import com.nhn.pinpoint.profiler.modifier.arcus.OperationFutureModifier;
 import com.nhn.pinpoint.profiler.modifier.bloc.handler.HTTPHandlerModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.HttpClient4Modifier;
 import com.nhn.pinpoint.profiler.modifier.connector.jdkhttpconnector.HttpURLConnectionModifier;
+import com.nhn.pinpoint.profiler.modifier.connector.lucynet.CompositeInvocationFutureModifier;
+import com.nhn.pinpoint.profiler.modifier.connector.lucynet.DefaultInvocationFutureModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.nimm.NimmInvokerModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.npc.KeepAliveNpcHessianConnectorModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.npc.LightWeightConnectorModifier;
@@ -46,6 +55,7 @@ import com.nhn.pinpoint.profiler.modifier.tomcat.TomcatStandardServiceModifier;
 
 /**
  * @author emeroad
+ * @author netspider
  */
 public class DefaultModifierRegistry implements ModifierRegistry {
 
@@ -285,5 +295,10 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	
 	public void addNimmModifier() {
 		addModifier(new NimmInvokerModifier(byteCodeInstrumentor, agent));
+	}
+	
+	public void addLucyNetModifier() {
+		addModifier(new DefaultInvocationFutureModifier(byteCodeInstrumentor, agent));
+		addModifier(new CompositeInvocationFutureModifier(byteCodeInstrumentor, agent));
 	}
 }
