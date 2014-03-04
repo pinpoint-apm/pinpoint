@@ -17,8 +17,6 @@ public class LinkStatistics {
     private Application fromApplication;
     private Application toApplication;
 
-    private long time;
-
     private RawCallDataMap callDataMap;
 
     private Set<AgentInfoBo> toAgentSet;
@@ -36,23 +34,6 @@ public class LinkStatistics {
         this.callDataMap = new RawCallDataMap();
 	}
 
-    public LinkStatistics(Application fromApplication, Application toApplication, long time) {
-        if (fromApplication == null) {
-            throw new NullPointerException("fromAppliation must not be null");
-        }
-        if (toApplication == null) {
-            throw new NullPointerException("toApplication must not be null");
-        }
-        this.fromApplication = fromApplication;
-        this.toApplication = toApplication;
-        this.time = time;
-        this.callDataMap = new RawCallDataMap();
-    }
-
-    public void setTime(long time) {
-        this.time = time;
-    }
-
     /**
 	 * 
 	 * @param hostname
@@ -60,12 +41,12 @@ public class LinkStatistics {
 	 * @param slot
 	 * @param value
 	 */
-	public void addCallData(String callerAgentId, short callerServiceTypeCode, String hostname, short serviceTypeCode, short slot, long value) {
+	public void addCallData(String callerAgentId, short callerServiceTypeCode, String hostname, short serviceTypeCode, long timestamp, short slot, long value) {
 		// TODO 임시코드
 		if (hostname == null || hostname.length() == 0) {
 			hostname = "UNKNOWNHOST";
 		}
-        this.callDataMap.addCallData(callerAgentId, callerServiceTypeCode, hostname, serviceTypeCode, slot, value);
+        this.callDataMap.addCallData(callerAgentId, callerServiceTypeCode, hostname, serviceTypeCode, timestamp, slot, value);
 	}
 
 

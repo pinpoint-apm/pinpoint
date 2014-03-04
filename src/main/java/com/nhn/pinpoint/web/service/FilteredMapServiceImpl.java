@@ -12,6 +12,8 @@ import java.util.Set;
 import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.HistogramSlot;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
+import com.nhn.pinpoint.web.util.TimeWindow;
+import com.nhn.pinpoint.web.util.TimeWindowOneMinuteSampler;
 import com.nhn.pinpoint.web.vo.LinkKey;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
 import com.nhn.pinpoint.web.dao.*;
@@ -190,6 +192,8 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     }
 
     private ApplicationMap createMap(Range range, List<List<SpanBo>> filterList) {
+        // Window의 설정은 따로 inject받던지 해야 될듯함.
+        final TimeWindow window = new TimeWindow(range, TimeWindowOneMinuteSampler.SAMPLER);
 
         final Map<LinkKey, LinkStatistics> linkStatMap = new HashMap<LinkKey, LinkStatistics>();
 
@@ -221,7 +225,10 @@ public class FilteredMapServiceImpl implements FilteredMapService {
                 }
 
                 final short slotTime = getHistogramSlotTime(span, destApplication.getServiceType());
-                linkStat.addCallData(span.getAgentId(), srcApplication.getServiceTypeCode(), destApplication.getName(), destApplication.getServiceTypeCode(), slotTime, 1);
+                // link의 통계값에 collector acceptor time을 넣는것이 맞는것인지는 다시 생각해볼 필요가 있음.
+                // 통계값의 window의 time으로 전환해야함. 안그러면 slot이 맞지 않아 oom이 발생할수 있음.
+                long timestamp = window.refineTimestamp(span.getCollectorAcceptTime());
+                linkStat.addCallData(span.getAgentId(), srcApplication.getServiceTypeCode(), destApplication.getName(), destApplication.getServiceTypeCode(), timestamp, slotTime, 1);
 
                 // link timeseries statistics추가.
                 timeSeriesStore.addLinkStat(linkKey, span.getCollectorAcceptTime(), slotTime, 1L, span.hasException());
@@ -230,7 +237,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
                 Application node = new Application(span.getApplicationId(), span.getServiceType());
                 timeSeriesStore.addNodeStat(node, span.getCollectorAcceptTime(), slotTime, 1L, span.hasException());
 
-                addNodeFromSpanEvent(span, linkStatMap, timeSeriesStore, transactionSpanMap);
+                addNodeFromSpanEvent(span, window, linkStatMap, timeSeriesStore, transactionSpanMap);
             }
         }
 
@@ -265,7 +272,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     }
 
 
-    private void addNodeFromSpanEvent(SpanBo span, Map<LinkKey, LinkStatistics> linkStatMap, TimeSeriesStore timeSeriesStore, Map<Long, SpanBo> transactionSpanMap) {
+    private void addNodeFromSpanEvent(SpanBo span, TimeWindow window, Map<LinkKey, LinkStatistics> linkStatMap, TimeSeriesStore timeSeriesStore, Map<Long, SpanBo> transactionSpanMap) {
         /**
          * span event의 statistics추가.
          */
@@ -302,14 +309,15 @@ public class FilteredMapServiceImpl implements FilteredMapService {
                 linkStatMap.put(spanEventStatKey, linkData);
             }
 
-            final int slotTime = getHistogramSlotTime(spanEvent, destServiceType);
+            final short slotTime = getHistogramSlotTime(spanEvent, destServiceType);
 
             // FIXME
             // stat2.addCallData((dest == null) ? spanEvent.getEndPoint() : dest, destServiceType.getCode(), (short) slot2, 1);
-            linkData.addCallData(span.getAgentId(), span.getServiceType().getCode(), spanEvent.getEndPoint(), destServiceType.getCode(), (short) slotTime, 1);
+            final long spanEventTimeStamp = window.refineTimestamp(span.getStartTime() + spanEvent.getStartElapsed());
+            linkData.addCallData(span.getAgentId(), span.getServiceType().getCode(), spanEvent.getEndPoint(), destServiceType.getCode(), spanEventTimeStamp, slotTime, 1);
 
             // link timeseries statistics추가.
-            timeSeriesStore.addLinkStat(spanEventStatKey, span.getStartTime() + spanEvent.getStartElapsed(), slotTime, 1L, spanEvent.hasException());
+            timeSeriesStore.addLinkStat(spanEventStatKey, spanEventTimeStamp, slotTime, 1L, spanEvent.hasException());
 
             // application timeseries statistics
             Application nodeKey = new Application(spanEvent.getDestinationId(), spanEvent.getServiceType());

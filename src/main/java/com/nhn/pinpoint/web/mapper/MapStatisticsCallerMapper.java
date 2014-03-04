@@ -61,8 +61,8 @@ public class MapStatisticsCallerMapper implements RowMapper<Collection<LinkStati
                     logger.debug("    Fetched Caller.  {} -> {} (slot:{}/{}) calleeHost:{}", caller, callee, histogramSlot, requestCount, calleeHost);
                 }
 
-                LinkStatistics statistics = getLinkStatistics(linkStatisticsMap, caller, callee, timestamp);
-                statistics.addCallData(caller.getName(), caller.getServiceTypeCode(), calleeHost, callee.getServiceTypeCode(), (isError) ? (short) -1 : histogramSlot, requestCount);
+                LinkStatistics statistics = getLinkStatistics(linkStatisticsMap, caller, callee);
+                statistics.addCallData(caller.getName(), caller.getServiceTypeCode(), calleeHost, callee.getServiceTypeCode(), timestamp, (isError) ? (short) -1 : histogramSlot, requestCount);
             } else if (Bytes.equals(family, HBaseTables.MAP_STATISTICS_CALLEE_CF_VER2_COUNTER)) {
 
                 final Buffer buffer = new OffsetFixedBuffer(kv.getBuffer(), kv.getQualifierOffset());
@@ -79,8 +79,8 @@ public class MapStatisticsCallerMapper implements RowMapper<Collection<LinkStati
                     logger.debug("    Fetched Caller.(New) {} {} -> {} (slot:{}/{}) calleeHost:{}", caller, callerAgentId, callee, histogramSlot, requestCount, calleeHost);
                 }
 
-                LinkStatistics statistics = getLinkStatistics(linkStatisticsMap, caller, callee, timestamp);
-                statistics.addCallData(callerAgentId, caller.getServiceTypeCode(), calleeHost, callee.getServiceTypeCode(), (isError) ? (short) -1 : histogramSlot, requestCount);
+                LinkStatistics statistics = getLinkStatistics(linkStatisticsMap, caller, callee);
+                statistics.addCallData(callerAgentId, caller.getServiceTypeCode(), calleeHost, callee.getServiceTypeCode(), timestamp, (isError) ? (short) -1 : histogramSlot, requestCount);
             } else {
                 throw new IllegalArgumentException("unknown ColumnFamily :" + Arrays.toString(family));
             }
@@ -94,11 +94,11 @@ public class MapStatisticsCallerMapper implements RowMapper<Collection<LinkStati
         return Bytes.toLong(kv.getBuffer(), kv.getValueOffset());
     }
 
-    private LinkStatistics getLinkStatistics(Map<LinkKey, LinkStatistics> linkStatisticsMap, Application caller, Application callee, long timestamp) {
+    private LinkStatistics getLinkStatistics(Map<LinkKey, LinkStatistics> linkStatisticsMap, Application caller, Application callee) {
         final LinkKey key = new LinkKey(caller, callee);
         LinkStatistics statistics = linkStatisticsMap.get(key);
         if (statistics == null) {
-            statistics = new LinkStatistics(caller, callee, timestamp);
+            statistics = new LinkStatistics(caller, callee);
             linkStatisticsMap.put(key, statistics);
         }
         return statistics;

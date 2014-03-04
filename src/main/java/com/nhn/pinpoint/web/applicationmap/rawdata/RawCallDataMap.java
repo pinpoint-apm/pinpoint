@@ -15,16 +15,14 @@ public class RawCallDataMap {
     private final Map<LinkKey, RawCallData> rawCallDataMap = new HashMap<LinkKey, RawCallData>();
 
 
-    public void addCallData(String sourceAgentId, short sourceServiceType, String targetId, short targetServiceType, short slot, long count) {
-        addCallData(sourceAgentId, ServiceType.findServiceType(sourceServiceType), targetId, ServiceType.findServiceType(targetServiceType), slot, count);
+    public void addCallData(String sourceAgentId, short sourceServiceType, String targetId, short targetServiceType, long timestamp, short slot, long count) {
+        addCallData(sourceAgentId, ServiceType.findServiceType(sourceServiceType), targetId, ServiceType.findServiceType(targetServiceType), timestamp, slot, count);
     }
 
-    public void addCallData(String sourceAgentId, ServiceType sourceServiceType, String targetId, ServiceType targetServiceType, short slot, long count) {
+    public void addCallData(String sourceAgentId, ServiceType sourceServiceType, String targetId, ServiceType targetServiceType, long timestamp, short slot, long count) {
         LinkKey linkKey = createLinkKey(sourceAgentId, sourceServiceType, targetId, targetServiceType);
         RawCallData rawCallData = getRawCallData(linkKey);
-
-        final Histogram histogram = rawCallData.getHistogram();
-        histogram.addCallCount(slot, count);
+        rawCallData.addCallData(timestamp, slot, count);
     }
 
     public LinkKey createLinkKey(String sourceAgentId, ServiceType sourceServiceType, String targetId, ServiceType targetServiceType) {
@@ -34,11 +32,10 @@ public class RawCallDataMap {
     public void addCallData(RawCallDataMap target) {
         for (Map.Entry<LinkKey, RawCallData> copyEntry : target.rawCallDataMap.entrySet()) {
             final LinkKey key = copyEntry.getKey();
-            final RawCallData value = copyEntry.getValue();
+            final RawCallData copyRawCallData = copyEntry.getValue();
             RawCallData rawCallData = getRawCallData(key);
-            rawCallData.getHistogram().add(value.getHistogram());
+            rawCallData.addRawCallData(copyRawCallData);
         }
-
 
     }
 

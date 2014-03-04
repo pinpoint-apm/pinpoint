@@ -56,8 +56,8 @@ public class MapStatisticsCalleeMapper implements RowMapper<Collection<LinkStati
                 logger.debug("    Fetched Callee. {} callerHost:{} -> {} (slot:{}/{}),  ", callerApplication, callerHost, calleeApplication, histogramSlot, requestCount);
             }
 
-            LinkStatistics statistics = getLinkStatics(linkStatisticsMap, callerApplication, calleeApplication, timestamp);
-            statistics.addCallData(callerApplication.getName(), callerApplication.getServiceTypeCode(), callerHost, calleeApplication.getServiceTypeCode(), (isError) ? (short) -1 : histogramSlot, requestCount);
+            LinkStatistics statistics = getLinkStatics(linkStatisticsMap, callerApplication, calleeApplication);
+            statistics.addCallData(callerApplication.getName(), callerApplication.getServiceTypeCode(), callerHost, calleeApplication.getServiceTypeCode(), timestamp, (isError) ? (short) -1 : histogramSlot, requestCount);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("    Fetched Callee. statistics:{}", statistics);
@@ -67,11 +67,11 @@ public class MapStatisticsCalleeMapper implements RowMapper<Collection<LinkStati
         return linkStatisticsMap.values();
 	}
 
-    private LinkStatistics getLinkStatics(Map<LinkKey, LinkStatistics> linkStatisticsMap, Application callerApplication, Application calleeApplication, long timestamp) {
+    private LinkStatistics getLinkStatics(Map<LinkKey, LinkStatistics> linkStatisticsMap, Application callerApplication, Application calleeApplication) {
         final LinkKey key = new LinkKey(callerApplication, calleeApplication);
         LinkStatistics statistics = linkStatisticsMap.get(key);
         if (statistics == null) {
-            statistics = new LinkStatistics(callerApplication, calleeApplication, timestamp);
+            statistics = new LinkStatistics(callerApplication, calleeApplication);
             linkStatisticsMap.put(key, statistics);
         }
         return statistics;
