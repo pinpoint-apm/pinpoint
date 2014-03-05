@@ -6,6 +6,9 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 
@@ -19,9 +22,10 @@ public class CallHistogram {
 	 */
 	private final String id;
 	private final ServiceType serviceType;
-	private final Histogram histogram;
 
-    private ObjectMapper MAPPER = new ObjectMapper();
+    private final Map<Long, TimeHistogram> timeHistogramMap;
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
 	public CallHistogram(String agent, ServiceType serviceType) {
         if (agent == null) {
@@ -32,7 +36,7 @@ public class CallHistogram {
         }
         this.id = agent;
 		this.serviceType = serviceType;
-		this.histogram = new Histogram(serviceType);
+        this.timeHistogramMap = new HashMap<Long, TimeHistogram>();
 	}
 
     public CallHistogram(CallHistogram copyCallHistogram) {
@@ -42,8 +46,9 @@ public class CallHistogram {
 
         this.id = copyCallHistogram.id;
         this.serviceType = copyCallHistogram.serviceType;
-        this.histogram = new Histogram(serviceType);
-        this.histogram.add(copyCallHistogram.histogram);
+
+        this.timeHistogramMap = new HashMap<Long, TimeHistogram>();
+        addTimeHistogram(copyCallHistogram.timeHistogramMap.values());
     }
 
     @JsonProperty("name")
@@ -58,8 +63,42 @@ public class CallHistogram {
 
     @JsonProperty("histogram")
 	public Histogram getHistogram() {
-		return histogram;
+        Histogram histogram = new Histogram(serviceType);
+        for (TimeHistogram timeHistogram : timeHistogramMap.values()) {
+            histogram.add(timeHistogram);
+        }
+        return histogram;
 	}
+
+    @JsonIgnore
+    public Collection<TimeHistogram> getTimeHistogram() {
+        return timeHistogramMap.values();
+    }
+
+    public void addTimeHistogram(Collection<TimeHistogram> histogramList) {
+        for (TimeHistogram timeHistogram : histogramList) {
+            TimeHistogram find = this.timeHistogramMap.get(timeHistogram.getTimeStamp());
+            if (find == null) {
+                find = new TimeHistogram(serviceType, timeHistogram.getTimeStamp());
+                this.timeHistogramMap.put(timeHistogram.getTimeStamp(), find);
+            }
+            find.add(timeHistogram);
+        }
+    }
+
+    public void addTimeHistogramUncheckType(Collection<TimeHistogram> histogramList) {
+        // TODO uncheck가 왜 필요한지 이유 써 놓을것. user 치환시 예외가 있었던것 같음.???
+        for (TimeHistogram timeHistogram : histogramList) {
+            TimeHistogram find = this.timeHistogramMap.get(timeHistogram.getTimeStamp());
+            if (find == null) {
+                find = new TimeHistogram(serviceType, timeHistogram.getTimeStamp());
+                this.timeHistogramMap.put(timeHistogram.getTimeStamp(), find);
+            }
+            find.addUncheckType(timeHistogram);
+        }
+    }
+
+
 
     @JsonIgnore
 	public String getJson() {
@@ -76,7 +115,8 @@ public class CallHistogram {
         final StringBuilder sb = new StringBuilder("CallHistogram{");
         sb.append("agent='").append(id).append('\'');
         sb.append(", serviceType=").append(serviceType);
-        sb.append(", ").append(histogram);
+        // 자료 구조가 변경되어 잠시 땜빵.
+        sb.append(", ").append("histogram");
         sb.append('}');
         return sb.toString();
     }

@@ -13,7 +13,7 @@ import java.util.*;
 public class CallHistogramList {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    // agent별 Time 시리즈 데이터를 가지고 있음.
     private final Map<Application, CallHistogram> callHistogramMap = new HashMap<Application, CallHistogram>();
 
     public CallHistogramList() {
@@ -32,7 +32,7 @@ public class CallHistogramList {
     }
 
 
-    public void addHost(String agentName, ServiceType serviceType, Histogram histogram) {
+    public void addHost(String agentName, ServiceType serviceType, Collection<TimeHistogram> histogramList) {
         if (agentName == null) {
             throw new NullPointerException("agent must not be null");
         }
@@ -41,20 +41,19 @@ public class CallHistogramList {
         }
 
         CallHistogram callHistogram = getCallHistogram(agentName, serviceType);
-        final Histogram hostHistogram = callHistogram.getHistogram();
-        hostHistogram.add(histogram);
+        callHistogram.addTimeHistogram(histogramList);
     }
 
-    public void addHostUncheck(String hostName, ServiceType serviceType, Histogram histogram) {
+
+    public void addHostUncheck(String hostName, ServiceType serviceType, Collection<TimeHistogram> histogram) {
         if (hostName == null) {
-            throw new NullPointerException("callHistogram must not be null");
+            throw new NullPointerException("histogram must not be null");
         }
         if (serviceType == null) {
             throw new NullPointerException("serviceType must not be null");
         }
         CallHistogram callHistogram = getCallHistogram(hostName, serviceType);
-        final Histogram hostHistogram = callHistogram.getHistogram();
-        hostHistogram.addUncheckType(histogram);
+        callHistogram.addTimeHistogramUncheckType(histogram);
     }
 
 
@@ -77,8 +76,7 @@ public class CallHistogramList {
         ServiceType serviceType = callHistogram.getServiceType();
 
         CallHistogram findCallHistogram = getCallHistogram(hostName, serviceType);
-        Histogram histogram = findCallHistogram.getHistogram();
-        histogram.add(callHistogram.getHistogram());
+        findCallHistogram.addTimeHistogram(callHistogram.getTimeHistogram());
     }
 
     public void addHostList(CallHistogramList addCallHistogramList) {

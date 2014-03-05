@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
  * @author netspider
  * 
  */
+@Deprecated
 public class DefaultTimeSeriesStoreImpl implements TimeSeriesStore {
 
 	private static final String EMPTY = "{}";

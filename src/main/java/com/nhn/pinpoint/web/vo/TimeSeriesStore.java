@@ -7,6 +7,7 @@ import com.nhn.pinpoint.web.util.JsonSerializable;
  * @author netspider
  * 
  */
+@Deprecated
 public interface TimeSeriesStore extends JsonSerializable {
 	void addLinkStat(LinkKey key, long timestamp, int responseTimeslot, long callCount, boolean isFailed);
 

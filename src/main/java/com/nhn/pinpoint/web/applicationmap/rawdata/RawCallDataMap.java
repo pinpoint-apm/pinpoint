@@ -54,7 +54,7 @@ public class RawCallDataMap {
         for (Map.Entry<LinkKey, RawCallData> linkKeyRawCallDataEntry : rawCallDataMap.entrySet()) {
             final LinkKey key = linkKeyRawCallDataEntry.getKey();
             final RawCallData rawCallData = linkKeyRawCallDataEntry.getValue();
-            targetList.addHost(key.getToApplication(), key.getToServiceType(), rawCallData.getHistogram());
+            targetList.addHost(key.getToApplication(), key.getToServiceType(), rawCallData.getTimeHistogram());
         }
         return targetList;
     }
@@ -64,7 +64,7 @@ public class RawCallDataMap {
         for (Map.Entry<LinkKey, RawCallData> linkKeyRawCallDataEntry : rawCallDataMap.entrySet()) {
             final LinkKey key = linkKeyRawCallDataEntry.getKey();
             final RawCallData rawCallData = linkKeyRawCallDataEntry.getValue();
-            sourceList.addHostUncheck(key.getFromApplication(), key.getFromServiceType(), rawCallData.getHistogram());
+            sourceList.addHostUncheck(key.getFromApplication(), key.getFromServiceType(), rawCallData.getTimeHistogram());
         }
         return sourceList;
     }

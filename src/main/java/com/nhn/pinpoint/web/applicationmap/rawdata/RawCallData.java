@@ -3,8 +3,7 @@ package com.nhn.pinpoint.web.applicationmap.rawdata;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.vo.LinkKey;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 호출관계의 양방향 데이터를 표현
@@ -18,7 +17,7 @@ public class RawCallData {
 	private final String target;
 	private final ServiceType targetServiceType;
 
-	private final Map<Long, Histogram> targetHistogramTimeMap;
+	private final Map<Long, TimeHistogram> targetHistogramTimeMap;
 
     public RawCallData(LinkKey linkKey) {
         if (linkKey == null) {
@@ -30,21 +29,27 @@ public class RawCallData {
         this.target = linkKey.getToApplication();
         this.targetServiceType = linkKey.getToServiceType();
 
-        this.targetHistogramTimeMap = new HashMap<Long, Histogram>();
+        this.targetHistogramTimeMap = new HashMap<Long, TimeHistogram>();
     }
 
+
+    @Deprecated
 	public Histogram getHistogram() {
-        Histogram histogram = new Histogram(targetServiceType);
+        final Histogram histogram = new Histogram(targetServiceType);
         for (Histogram copy : targetHistogramTimeMap.values()) {
             histogram.add(copy);
         }
         return histogram;
 	}
 
+    public Collection<TimeHistogram> getTimeHistogram() {
+        return targetHistogramTimeMap.values();
+    }
+
     public void addCallData(long timestamp, short slot, long count) {
-        Histogram histogram = targetHistogramTimeMap.get(timestamp);
+        TimeHistogram histogram = targetHistogramTimeMap.get(timestamp);
         if (histogram == null) {
-            histogram = new Histogram(targetServiceType);
+            histogram = new TimeHistogram(targetServiceType, timestamp);
             targetHistogramTimeMap.put(timestamp, histogram);
         }
         histogram.addCallCount(slot, count);
@@ -54,11 +59,12 @@ public class RawCallData {
         if (copyRawCallData == null) {
             throw new NullPointerException("copyRawCallData must not be null");
         }
-        for (Map.Entry<Long, Histogram> copyEntry : copyRawCallData.targetHistogramTimeMap.entrySet()) {
-            Histogram histogram = targetHistogramTimeMap.get(copyEntry.getKey());
+        for (Map.Entry<Long, TimeHistogram> copyEntry : copyRawCallData.targetHistogramTimeMap.entrySet()) {
+            final Long timeStamp = copyEntry.getKey();
+            TimeHistogram histogram = targetHistogramTimeMap.get(timeStamp);
             if (histogram == null) {
-                histogram = new Histogram(targetServiceType);
-                targetHistogramTimeMap.put(copyEntry.getKey(), histogram);
+                histogram = new TimeHistogram(targetServiceType, timeStamp);
+                targetHistogramTimeMap.put(timeStamp, histogram);
             }
             histogram.add(copyEntry.getValue());
         }

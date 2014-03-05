@@ -93,6 +93,7 @@ public class Link {
 		for (CallHistogram callHistogram : tagetList.getCallHistogramList()) {
 			if (result == null) {
 				// FIXME 뭔가 괴상한 방식이긴 하지만..
+                // toNode의 서비스 타입이 들어가면 되는게 아닌가함?
 				Histogram histogram = callHistogram.getHistogram();
 				result = new Histogram(histogram.getServiceType());
 			}
