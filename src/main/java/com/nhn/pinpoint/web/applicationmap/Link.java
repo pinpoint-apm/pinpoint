@@ -99,26 +99,13 @@ public class Link {
 
 
 	public Histogram getHistogram() {
-		Histogram result = null;
-
-		for (CallHistogram callHistogram : tagetList.getCallHistogramList()) {
-			if (result == null) {
-				// FIXME 뭔가 괴상한 방식이긴 하지만..
-                // toNode의 서비스 타입이 들어가면 되는게 아닌가함?
-				Histogram histogram = callHistogram.getHistogram();
-				result = new Histogram(histogram.getServiceType());
-			}
-			result.add(callHistogram.getHistogram());
-		}
-//        Histogram result2 = new Histogram(toNode.getServiceType());
-//        for (CallHistogram callHistogram : tagetList.getCallHistogramList()) {
-//            result2.addUncheckType(callHistogram.getHistogram());
-//        }
-//        if (result2.getTotalCount() != result.getTotalCount()) {
-//            throw new IllegalArgumentException("ddd--------");
-//        }
-
-		return result;
+        // 내가 호출하는 대상의 serviceType을 가져와야 한다.
+        // tomcat -> arcus를 호출한다고 하였을 경우 arcus의 타입을 가져와야함.
+        final Histogram linkHistogram = new Histogram(toNode.getServiceType());
+        for (CallHistogram callHistogram : tagetList.getCallHistogramList()) {
+            linkHistogram.addUncheckType(callHistogram.getHistogram());
+        }
+		return linkHistogram;
 	}
 
     public void setSourceList(CallHistogramList sourceList) {
