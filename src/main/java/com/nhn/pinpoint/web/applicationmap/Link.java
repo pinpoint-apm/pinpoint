@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.web.applicationmap;
 
+import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogram;
 import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogramList;
 import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
@@ -70,6 +71,16 @@ public class Link {
         this.sourceList = new CallHistogramList(copyLink.sourceList);
     }
 
+    public Application getFilterApplication() {
+        // User 링크일 경우 from을 보면 안되고 was를 봐야 한다.
+        // User는 가상의 링크이기 때문에, User로 필터링을 칠수 없음.
+        if(fromNode.getServiceType() == ServiceType.USER) {
+            return toNode.getApplication();
+        }
+        return fromNode.getApplication();
+    }
+
+
 	public LinkKey getLinkKey() {
 		return linkKey;
 	}
@@ -99,6 +110,14 @@ public class Link {
 			}
 			result.add(callHistogram.getHistogram());
 		}
+//        Histogram result2 = new Histogram(toNode.getServiceType());
+//        for (CallHistogram callHistogram : tagetList.getCallHistogramList()) {
+//            result2.addUncheckType(callHistogram.getHistogram());
+//        }
+//        if (result2.getTotalCount() != result.getTotalCount()) {
+//            throw new IllegalArgumentException("ddd--------");
+//        }
+
 		return result;
 	}
 

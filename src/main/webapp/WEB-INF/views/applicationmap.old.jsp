@@ -62,6 +62,8 @@
 				"to" : ${link.to.sequence + 1},
 				"sourceinfo" : ${link.from.json},
 				"targetinfo" : ${link.to.json},
+                "filterApplicationName" : "${link.filterApplication.name}",
+                "filterApplicationServiceTypeCode" : ${link.filterApplication.serviceTypeCode},
 				"text" : ${link.histogram.totalCount},
 				"error" : ${link.histogram.errorCount},
 				"slow" : ${link.histogram.slowCount},
