@@ -12,7 +12,6 @@ import java.util.*;
  */
 public class ServerInstanceList {
 
-//    private final Map<String, Map<String, ServerInstance>> serverInstanceList = new TreeMap<String, Map<String, ServerInstance>>();
     private final Map<String, List<ServerInstance>> serverInstanceList = new TreeMap<String, List<ServerInstance>>();
 
     public Map<String, List<ServerInstance>> getServerInstanceList() {
@@ -35,16 +34,9 @@ public class ServerInstanceList {
             final String hostName = getHostName(callHistogram.getId());
             final ServiceType serviceType = callHistogram.getServiceType();
 
-            final List<ServerInstance> find = serverInstanceList.get(hostName);
-            if (find == null) {
-                final List<ServerInstance> newNode = new ArrayList<ServerInstance>();
-                final ServerInstance serverInstance = new ServerInstance(instanceName, serviceType);
-                newNode.add(serverInstance);
-                serverInstanceList.put(hostName, newNode);
-            } else {
-                final ServerInstance serverInstance = new ServerInstance(instanceName, serviceType);
-                addServerInstance(find, serverInstance);
-            }
+            final ServerInstance serverInstance = new ServerInstance(instanceName, serviceType);
+            List<ServerInstance> find = getServerInstanceList(hostName);
+            addServerInstance(find, serverInstance);
         }
     }
 
@@ -53,7 +45,6 @@ public class ServerInstanceList {
         for (ServerInstance  node : nodeList) {
             boolean equalsNode = node.getId().equals(serverId);
             if (equalsNode) {
-                node.addHistogram(serverInstance);
                 return;
             }
         }
@@ -75,18 +66,21 @@ public class ServerInstanceList {
         }
         for (AgentInfoBo agent : agentSet) {
             final String hostName = agent.getHostname();
+            final ServerInstance serverInstance = new ServerInstance(agent);
 
-            final List<ServerInstance> find = serverInstanceList.get(hostName);
-            if (find == null) {
-                List<ServerInstance> newNode = new ArrayList<ServerInstance>();
-                final ServerInstance serverInstance = new ServerInstance(agent);
-                newNode.add(serverInstance);
-                serverInstanceList.put(hostName, newNode);
-            } else {
-                final ServerInstance serverInstance = new ServerInstance(agent);
-                addServerInstance(find, serverInstance);
-            }
+            List<ServerInstance> find = getServerInstanceList(hostName);
+
+            addServerInstance(find, serverInstance);
         }
+    }
+
+    private List<ServerInstance> getServerInstanceList(String hostName) {
+        List<ServerInstance> find = serverInstanceList.get(hostName);
+        if (find == null) {
+            find = new ArrayList<ServerInstance>();
+            serverInstanceList.put(hostName, find);
+        }
+        return find;
     }
 
 }

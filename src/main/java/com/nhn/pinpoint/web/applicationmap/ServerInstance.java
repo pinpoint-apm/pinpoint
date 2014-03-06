@@ -4,7 +4,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
 import com.nhn.pinpoint.web.util.JsonSerializable;
 
 /**
@@ -19,9 +18,8 @@ public class ServerInstance implements JsonSerializable {
 	
 	private final String id;
 	private final AgentInfoBo agentInfo;
-	private Histogram histogram;
-	
-	private ObjectMapper objectMapper = new ObjectMapper();
+
+	private static final ObjectMapper MAPPER = new ObjectMapper();
 
 	public ServerInstance(AgentInfoBo agentInfo) {
         if (agentInfo == null) {
@@ -37,8 +35,8 @@ public class ServerInstance implements JsonSerializable {
         if (name == null) {
             throw new NullPointerException("name must not be null");
         }
-        if (name == null) {
-            throw new NullPointerException("name must not be null");
+        if (serviceType == null) {
+            throw new NullPointerException("serviceType must not be null");
         }
         this.name = name;
 		this.serviceType = serviceType;
@@ -54,19 +52,12 @@ public class ServerInstance implements JsonSerializable {
 		return agentInfo;
 	}
 
-	public void setHistogram(Histogram histogram) {
-		this.histogram = histogram;
-	}
-
-	public Histogram getHistogram() {
-		return histogram;
-	}
 
 	@Override
 	public String getJson() {
 		String agentInfoJson = "{}";
 		try {
-			agentInfoJson = objectMapper.writeValueAsString(agentInfo);
+			agentInfoJson = MAPPER.writeValueAsString(agentInfo);
 		} catch (Exception e) {
 			throw new RuntimeException("json create fail,", e);
 		}
@@ -75,23 +66,11 @@ public class ServerInstance implements JsonSerializable {
 		sb.append("{");
 		sb.append("\"name\":\"").append(name).append("\",");
 		sb.append("\"serviceType\":\"").append(serviceType).append("\",");
-		sb.append("\"agentInfo\":").append((agentInfo == null) ? null : agentInfoJson).append(",");
-		sb.append("\"histogram\":").append((histogram == null) ? null : histogram.getJson());
+		sb.append("\"agentInfo\":").append((agentInfo == null) ? null : agentInfoJson);
 		sb.append("}");
 		return sb.toString();
 	}
 
-	public void addHistogram(ServerInstance serverInstance) {
-		if (!this.id.equals(serverInstance.getId())) {
-			throw new IllegalArgumentException("Server instance id is not equal.");
-		}
-
-		if (this.histogram == null) {
-			this.histogram = serverInstance.getHistogram();
-		} else {
-			// this.histogram.add(serverInstance.getHistogram());
-		}
-	}
 
 	@Override
 	public int hashCode() {
@@ -120,7 +99,7 @@ public class ServerInstance implements JsonSerializable {
 
 	@Override
 	public String toString() {
-		return "ServerInstance [id=" + id + ", agentInfo=" + agentInfo + ", histogram=" + histogram + "]";
+		return "ServerInstance [id=" + id + ", agentInfo=" + agentInfo + "]";
 	}
 
 }
