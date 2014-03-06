@@ -50,7 +50,7 @@ public class Histogram {
 
 	// TODO slot번호를 이 클래스에서 추출해야 할 것 같긴 함.
 	public void addCallCount(final short slotTime, final long count) {
-        HistogramSchema schema = serviceType.getHistogramSchema();
+        final HistogramSchema schema = serviceType.getHistogramSchema();
 		if (slotTime == schema.getVerySlowSlot().getSlotTime()) { // 0 is slow slotTime
 			this.verySlowCount += count;
             return;
@@ -135,12 +135,16 @@ public class Histogram {
 	}
 
     /**
-     * 같은 타입인지 체크하지 않음.
+     * User일 경우 예외 상황이 발생할수 있어, schema의 동질여부만 체크하도록 함.
      * @param histogram
      */
     public void addUncheckType(final Histogram histogram) {
         if (histogram == null) {
             throw new NullPointerException("histogram must not be null");
+        }
+        if (serviceType.getHistogramSchema() != histogram.getServiceType().getHistogramSchema()) {
+            throw new IllegalArgumentException("schema not equals. this=" + this + ", histogram=" + histogram);
+
         }
         this.fastCount += histogram.fastCount;
         this.normalCount += histogram.normalCount;

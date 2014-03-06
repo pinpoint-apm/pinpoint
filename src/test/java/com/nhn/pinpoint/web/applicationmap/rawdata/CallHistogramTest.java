@@ -23,12 +23,16 @@ public class CallHistogramTest {
     @Test
     public void testDeepCopy() throws Exception {
         CallHistogram callHistogram = new CallHistogram("test", ServiceType.TOMCAT);
-        callHistogram.getHistogram().addCallCount(ServiceType.TOMCAT.getHistogramSchema().getErrorSlot().getSlotTime(), 1);
+        TimeHistogram histogram = new TimeHistogram(ServiceType.TOMCAT, 0);
+        histogram.addCallCount(ServiceType.TOMCAT.getHistogramSchema().getErrorSlot().getSlotTime(), 1);
+        callHistogram.addTimeHistogram(histogram);
 
         CallHistogram copy = new CallHistogram(callHistogram);
         Assert.assertEquals(copy.getHistogram().getErrorCount(), 1);
 
-        callHistogram.getHistogram().addCallCount(ServiceType.TOMCAT.getHistogramSchema().getErrorSlot().getSlotTime(), 2);
+        TimeHistogram histogram2 = new TimeHistogram(ServiceType.TOMCAT, 0);
+        histogram2.addCallCount(ServiceType.TOMCAT.getHistogramSchema().getErrorSlot().getSlotTime(), 2);
+        callHistogram.addTimeHistogram(histogram2);
         Assert.assertEquals(callHistogram.getHistogram().getErrorCount(), 3);
 
         Assert.assertEquals(copy.getHistogram().getErrorCount(), 1);
@@ -39,12 +43,17 @@ public class CallHistogramTest {
     public void testJsonCompatibility() throws Exception {
         // json구현을 Jackson으로 변경시 호환성 테스트
         CallHistogram callHistogram = new CallHistogram("test", ServiceType.TOMCAT);
-        callHistogram.getHistogram().addCallCount(ServiceType.TOMCAT.getHistogramSchema().getErrorSlot().getSlotTime(), 1);
+        TimeHistogram histogram = new TimeHistogram(ServiceType.TOMCAT, 0);
+        histogram.addCallCount(ServiceType.TOMCAT.getHistogramSchema().getErrorSlot().getSlotTime(), 1);
+        callHistogram.addTimeHistogram(histogram);
 
         CallHistogram copy = new CallHistogram(callHistogram);
+        logger.debug(copy.getHistogram().toString());
         Assert.assertEquals(copy.getHistogram().getErrorCount(), 1);
 
-        callHistogram.getHistogram().addCallCount(ServiceType.TOMCAT.getHistogramSchema().getErrorSlot().getSlotTime(), 2);
+        TimeHistogram histogram2 = new TimeHistogram(ServiceType.TOMCAT, 0);
+        histogram2.addCallCount(ServiceType.TOMCAT.getHistogramSchema().getErrorSlot().getSlotTime(), 2);
+        callHistogram.addTimeHistogram(histogram2);
         Assert.assertEquals(callHistogram.getHistogram().getErrorCount(), 3);
 
         String callJson = mapper.writeValueAsString(callHistogram);

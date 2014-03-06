@@ -75,14 +75,18 @@ public class CallHistogram {
         return timeHistogramMap.values();
     }
 
+    public void addTimeHistogram(TimeHistogram timeHistogram) {
+        TimeHistogram find = this.timeHistogramMap.get(timeHistogram.getTimeStamp());
+        if (find == null) {
+            find = new TimeHistogram(serviceType, timeHistogram.getTimeStamp());
+            this.timeHistogramMap.put(timeHistogram.getTimeStamp(), find);
+        }
+        find.add(timeHistogram);
+    }
+
     public void addTimeHistogram(Collection<TimeHistogram> histogramList) {
         for (TimeHistogram timeHistogram : histogramList) {
-            TimeHistogram find = this.timeHistogramMap.get(timeHistogram.getTimeStamp());
-            if (find == null) {
-                find = new TimeHistogram(serviceType, timeHistogram.getTimeStamp());
-                this.timeHistogramMap.put(timeHistogram.getTimeStamp(), find);
-            }
-            find.add(timeHistogram);
+            addTimeHistogram(timeHistogram);
         }
     }
 
@@ -120,4 +124,6 @@ public class CallHistogram {
         sb.append('}');
         return sb.toString();
     }
+
+
 }
