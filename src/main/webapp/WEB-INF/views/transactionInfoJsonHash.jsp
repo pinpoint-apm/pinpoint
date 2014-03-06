@@ -49,7 +49,7 @@
 			"isMethod":${record.method},
 			"hasChild":${record.hasChild},
 			"title":"${pinpoint:escapeJson(record.title)}",
-			"arguments":"${pinpoint:escapeJson(record.arguments)}",
+			"arguments":"${pinpoint:escapeJson(pinpoint:escapeHtml(record.arguments))}",
 			"executeTime": "<c:if test="${record.method}">${pinpoint:longToDateStr(record.begin, "HH:mm:ss SSS")}</c:if>",
 			"gap":"<c:if test="${record.method}"><fmt:formatNumber value="${record.gap}" type="number" /></c:if>",
 			"elapsedTime":"<c:if test="${record.method}"><fmt:formatNumber type="number" value="${record.elapsed}"/></c:if>",

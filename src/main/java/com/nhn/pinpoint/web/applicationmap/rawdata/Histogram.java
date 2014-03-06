@@ -136,6 +136,7 @@ public class Histogram {
 
     /**
      * User일 경우 예외 상황이 발생할수 있어, schema의 동질여부만 체크하도록 함.
+     * Unknown일 경우도 예외 상황있음. Unknown 노드에 HttpClient 호출정보를 머지해야 될경우.
      * @param histogram
      */
     public void addUncheckType(final Histogram histogram) {

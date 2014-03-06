@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.web.vo.callstacks;
 
 import com.nhn.pinpoint.common.ServiceType;
-import org.json.simple.JSONObject;
 
 /**
  * each stack

@@ -22,5 +22,12 @@
         <function-class>org.json.simple.JSONObject</function-class>
         <function-signature>java.lang.String escape(java.lang.String)</function-signature>
     </function>
+
+    <function>
+        <description>escapeHtml</description>
+        <name>escapeHtml</name>
+        <function-class>org.apache.commons.lang3.StringEscapeUtils</function-class>
+        <function-signature>java.lang.String escapeHtml4(java.lang.String)</function-signature>
+    </function>
 	
 </taglib>
