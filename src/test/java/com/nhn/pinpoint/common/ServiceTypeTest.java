@@ -5,6 +5,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 public class ServiceTypeTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -15,6 +17,25 @@ public class ServiceTypeTest {
 		System.out.println(ServiceType.BLOC.isIndexable());
 		System.out.println(ServiceType.ARCUS.isIndexable());
 	}
+
+    @Test
+    public void findDesc() {
+        String desc = "MYSQL";
+        List<ServiceType> mysqlList = ServiceType.findDesc(desc);
+        boolean find = false;
+        for (ServiceType serviceType : mysqlList) {
+            if(serviceType.getDesc().equals(desc)) {
+                find = true;
+            }
+        }
+        Assert.assertTrue(find);
+
+        try {
+            mysqlList.add(ServiceType.ARCUS);
+            Assert.fail();
+        } catch (Exception e) {
+        }
+    }
 
     @Test
     public void child() {

@@ -1,9 +1,6 @@
 package com.nhn.pinpoint.common;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author emeroad
@@ -185,21 +182,26 @@ public enum ServiceType {
 
     private static void initializeStatisticsLookupTable() {
         ServiceType[] values = ServiceType.values();
+        final Map<String, List<ServiceType>> temp = new HashMap<String, List<ServiceType>>();
         for (ServiceType serviceType : values) {
             if(serviceType.isRecordStatistics()) {
                 List<ServiceType> serviceTypeList = STATISTICS_LOOKUP_TABLE.get(serviceType.getDesc());
                 if (serviceTypeList == null) {
                     serviceTypeList = new ArrayList<ServiceType>();
-                    serviceTypeList.add(serviceType);
-                    STATISTICS_LOOKUP_TABLE.put(serviceType.getDesc(), serviceTypeList);
-                } else {
-                    serviceTypeList.add(serviceType);
+                    temp.put(serviceType.getDesc(), serviceTypeList);
                 }
+                serviceTypeList.add(serviceType);
             }
         }
+        // 수정하지 못하도록 한다.
+        for (Map.Entry<String, List<ServiceType>> entry : temp.entrySet()) {
+            List<ServiceType> serviceTypes = Collections.unmodifiableList(entry.getValue());
+            STATISTICS_LOOKUP_TABLE.put(entry.getKey(), serviceTypes);
+        }
+
     }
 
-    public static void initializeLookupTable() {
+    private static void initializeLookupTable() {
         ServiceType[] values = ServiceType.values();
         for (ServiceType serviceType : values) {
             ServiceType check = CODE_LOOKUP_TABLE.put(serviceType.code, serviceType);
