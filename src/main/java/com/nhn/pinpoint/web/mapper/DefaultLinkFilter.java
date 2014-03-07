@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.web.mapper;
 
-import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.vo.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +34,7 @@ public class DefaultLinkFilter implements LinkFilter {
             // src가 같지 않으면 버림.
             if (!this.callerApplication.getName().equals(foundApplication.getName()) || this.callerApplication.getServiceType() != foundApplication.getServiceType()) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("  DROP THE ROW,1, DIFFERENT SRC. fetched={}/{} , params={}", foundApplication.getName(), foundApplication.getServiceType(), calleeApplication);
+                    logger.debug("  DROP THE ROW,1, DIFFERENT SRC. fetched={} , params={}", foundApplication, calleeApplication);
                 }
                 return true;
             }
@@ -44,7 +43,7 @@ public class DefaultLinkFilter implements LinkFilter {
             // dest가 해당 was가 아니면 버림.
             if (!this.calleeApplication.getName().equals(foundApplication.getName())) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("  DROP THE ROW,2, DIFFERENT DEST. fetched={}/{}, params={}", foundApplication.getName(), foundApplication.getServiceType(), this.calleeApplication);
+                    logger.debug("  DROP THE ROW,2, DIFFERENT DEST. fetched={}, params={}", foundApplication, this.calleeApplication);
                 }
                 return true;
             }
@@ -56,7 +55,7 @@ public class DefaultLinkFilter implements LinkFilter {
                 // TODO 다른 좋은 비교 방법 없을까??
                 if (!this.calleeApplication.getName().equals(foundApplication.getName())) {
                     if (logger.isDebugEnabled()) {
-                        logger.debug("  DROP THE ROW,3, DIFFERENT DEST. fetched={}/{}, params={}", foundApplication.getName(), foundApplication.getServiceType(), calleeApplication);
+                        logger.debug("  DROP THE ROW,3, DIFFERENT DEST. fetched={}, params={}", foundApplication, calleeApplication);
                     }
                     return true;
                 }
@@ -64,7 +63,7 @@ public class DefaultLinkFilter implements LinkFilter {
                 // dest가 unknown이 아니면 applicaiton name, type 둘 다 비교.
                 if (!this.calleeApplication.getName().equals(foundApplication.getName()) || this.calleeApplication.getServiceType() != foundApplication.getServiceType()) {
                     if (logger.isDebugEnabled()) {
-                        logger.debug("  DROP THE ROW,4, DIFFERENT DEST. fetched={}/{}, params={}", foundApplication.getName(), foundApplication.getServiceType(), this.calleeApplication);
+                        logger.debug("  DROP THE ROW,4, DIFFERENT DEST. fetched={}, params={}", foundApplication, this.calleeApplication);
                     }
                     return true;
                 }
