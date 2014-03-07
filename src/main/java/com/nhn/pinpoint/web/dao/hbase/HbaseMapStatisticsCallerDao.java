@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import com.nhn.pinpoint.web.dao.MapStatisticsCallerDao;
-import com.nhn.pinpoint.web.mapper.MapLinkStatisticsMapper;
+import com.nhn.pinpoint.web.mapper.*;
 import com.nhn.pinpoint.web.vo.LinkKey;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
 import com.nhn.pinpoint.web.vo.Application;
@@ -89,12 +89,14 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 	 * </pre>
 	 */
 	@Override
-	public List<Map<Long, Map<Short, Long>>> selectCallerStatistics(Application callerApplication, Application calleeApplication, Range range) {
+	public List<Collection<LinkStatistics>> selectCallerStatistics(Application callerApplication, Application calleeApplication, Range range) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("selectCallerStatistics. {}, {}, {}", callerApplication, calleeApplication, range);
 		}
 		Scan scan = createScan(callerApplication, range);
-		RowMapper<Map<Long, Map<Short, Long>>> mapper = new MapLinkStatisticsMapper(callerApplication, calleeApplication);
+
+        final LinkFilter filter = new DefaultLinkFilter(callerApplication, calleeApplication);
+        RowMapper<Collection<LinkStatistics>> mapper = new MapStatisticsCallerMapper(filter);
 		return hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLEE, scan, mapper);
 	}
 

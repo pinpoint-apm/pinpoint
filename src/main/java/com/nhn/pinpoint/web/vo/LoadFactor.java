@@ -16,8 +16,8 @@ public class LoadFactor {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private static final Integer SLOT_VERY_SLOW = Integer.MAX_VALUE - 1;
-	private static final Integer SLOT_ERROR = (int)Integer.MAX_VALUE;
+	public static final Integer SLOT_VERY_SLOW = Integer.MAX_VALUE - 1;
+	public static final Integer SLOT_ERROR = (int)Integer.MAX_VALUE;
 
 //	/**
 //	 * <pre>
@@ -135,15 +135,16 @@ public class LoadFactor {
 
 			// 다른 slot에도 같은 시간이 존재해야한다.
 			// FIXME responseTimeSlot의 자료형을 short으로 변경할 것.
-			if (i == timeseriesSlotIndex.get(responseTimeslot)) {
-				long v = map.containsKey(timestamp) ? map.get(timestamp) + callCount : callCount;
-				map.put(timestamp, v);
-			} else {
-				if (!map.containsKey(timestamp)) {
-					map.put(timestamp, 0L);
-				}
-			}
-		}
+            Integer slotNumber = timeseriesSlotIndex.get(responseTimeslot);
+            if (i == slotNumber) {
+                long v = map.containsKey(timestamp) ? map.get(timestamp) + callCount : callCount;
+                map.put(timestamp, v);
+            } else {
+                if (!map.containsKey(timestamp)) {
+                    map.put(timestamp, 0L);
+                }
+            }
+        }
 	}
 
 //	public Map<Integer, Long> getHistogramSummary() {

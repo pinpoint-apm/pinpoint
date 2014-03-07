@@ -16,5 +16,5 @@ import com.nhn.pinpoint.web.vo.Range;
 public interface MapStatisticsCallerDao {
 	public Collection<LinkStatistics> selectCaller(Application callerApplication, Range range);
 
-	public List<Map<Long, Map<Short, Long>>> selectCallerStatistics(Application callerApplication, Application calleeApplication, Range range);
+	public List<Collection<LinkStatistics>> selectCallerStatistics(Application callerApplication, Application calleeApplication, Range range);
 }

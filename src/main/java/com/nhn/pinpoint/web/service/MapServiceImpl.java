@@ -234,7 +234,7 @@ public class MapServiceImpl implements MapService {
             throw new NullPointerException("destinationApplication must not be null");
         }
 
-        List<Map<Long, Map<Short, Long>>> list;
+        List<Collection<LinkStatistics>> list ;
 
 		if (sourceApplication.getServiceType().isUser()){
 			logger.debug("Find 'client -> any' link statistics");
@@ -262,20 +262,25 @@ public class MapServiceImpl implements MapService {
 
 		logger.debug("Fetched statistics data={}", list);
 
-		for (Map<Long, Map<Short, Long>> map : list) {
-			for (Entry<Long, Map<Short, Long>> entry : map.entrySet()) {
-				long timestamp = entry.getKey();
-				Map<Short, Long> histogramMap = entry.getValue();
+        for (Collection<LinkStatistics> linkStatisticsList : list) {
+            for (LinkStatistics entry : linkStatisticsList) {
+                CallHistogramList toHostList = entry.getToHostList();
+                Collection<CallHistogram> callHistogramList = toHostList.getCallHistogramList();
+                for (CallHistogram histogram : callHistogramList) {
+                    for (TimeHistogram timeHistogram : histogram.getTimeHistogram()) {
+                        final HistogramSchema schema = timeHistogram.getServiceType().getHistogramSchema();
+                        final long timeStamp = timeHistogram.getTimeStamp();
+                        loadFactor.addSample(timeStamp, schema.getFastSlot().getSlotTime(), timeHistogram.getFastCount(), false);
+                        loadFactor.addSample(timeStamp, schema.getNormalSlot().getSlotTime(), timeHistogram.getNormalCount(), false);
+                        loadFactor.addSample(timeStamp, schema.getSlowSlot().getSlotTime(), timeHistogram.getSlowCount(), false);
+                        loadFactor.addSample(timeStamp, LoadFactor.SLOT_VERY_SLOW, timeHistogram.getVerySlowCount(), false);
+                        loadFactor.addSample(timeStamp, LoadFactor.SLOT_ERROR, timeHistogram.getErrorCount(), true);
+                    }
+                }
 
-				for (Entry<Short, Long> histogram : histogramMap.entrySet()) {
-					if (histogram.getKey() == -1) {
-						loadFactor.addSample(timestamp, histogram.getKey(), histogram.getValue(), true);
-					} else {
-						loadFactor.addSample(timestamp, histogram.getKey(), histogram.getValue(), false);
-					}
-				}
-			}
-		}
+            }
+        }
+
 		return loadFactor;
 	}
 }

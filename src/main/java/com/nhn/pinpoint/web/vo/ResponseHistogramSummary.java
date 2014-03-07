@@ -26,7 +26,7 @@ public class ResponseHistogramSummary {
 
 
     // key는 agentId이다.
-    private Map<String, Histogram> agentHistogramMap = new HashMap<String, Histogram>();
+    private final Map<String, Histogram> agentHistogramMap = new HashMap<String, Histogram>();
 
     private ApplicationTimeSeriesHistogram applicationTimeSeriesHistogram;
 

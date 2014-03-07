@@ -28,7 +28,17 @@ public class MapStatisticsCalleeMapper implements RowMapper<Collection<LinkStati
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Override
+    private final LinkFilter filter;
+
+    public MapStatisticsCalleeMapper() {
+        this(SkipLinkFilter.FILTER);
+    }
+
+    public MapStatisticsCalleeMapper(LinkFilter filter) {
+        this.filter = filter;
+    }
+
+    @Override
 	public Collection<LinkStatistics> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyList();
@@ -44,7 +54,10 @@ public class MapStatisticsCalleeMapper implements RowMapper<Collection<LinkStati
 		for (KeyValue kv : result.raw()) {
 
             final byte[] qualifier = kv.getQualifier();
-            Application callerApplication = readCallerApplication(qualifier);
+            final Application callerApplication = readCallerApplication(qualifier);
+            if (filter.filter(callerApplication)) {
+                continue;
+            }
 
             long requestCount = Bytes.toLong(kv.getBuffer(), kv.getValueOffset());
             short histogramSlot = ApplicationMapStatisticsUtils.getHistogramSlotFromColumnName(qualifier);

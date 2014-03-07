@@ -31,7 +31,17 @@ public class MapStatisticsCallerMapper implements RowMapper<Collection<LinkStati
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Override
+    private final LinkFilter filter;
+
+    public MapStatisticsCallerMapper() {
+        this(SkipLinkFilter.FILTER);
+    }
+
+    public MapStatisticsCallerMapper(LinkFilter filter) {
+        this.filter = filter;
+    }
+
+    @Override
 	public Collection<LinkStatistics> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyList();
@@ -48,7 +58,10 @@ public class MapStatisticsCallerMapper implements RowMapper<Collection<LinkStati
             final byte[] family = kv.getFamily();
             if (Bytes.equals(family, HBaseTables.MAP_STATISTICS_CALLEE_CF_COUNTER)) {
                 final byte[] qualifier = kv.getQualifier();
-                Application callee = readCalleeApplication(qualifier);
+                final Application callee = readCalleeApplication(qualifier);
+                if (filter.filter(callee)) {
+                    continue;
+                }
 
                 long requestCount = getValueToLong(kv);
 
@@ -66,7 +79,11 @@ public class MapStatisticsCallerMapper implements RowMapper<Collection<LinkStati
             } else if (Bytes.equals(family, HBaseTables.MAP_STATISTICS_CALLEE_CF_VER2_COUNTER)) {
 
                 final Buffer buffer = new OffsetFixedBuffer(kv.getBuffer(), kv.getQualifierOffset());
-                Application callee = readCalleeApplication(buffer);
+                final Application callee = readCalleeApplication(buffer);
+                if (filter.filter(callee)) {
+                    continue;
+                }
+
                 String calleeHost = buffer.readPrefixedString();
                 short histogramSlot = buffer.readShort();
 
