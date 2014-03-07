@@ -45,9 +45,6 @@ public class ApplicationMap {
 		return this.linkList.getLinks();
 	}
 
-	void indexingNode() {
-        this.nodeList.markSequence();
-	}
 
 	Node findApplication(Application applicationId) {
         return this.nodeList.find(applicationId);

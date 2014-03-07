@@ -15,12 +15,6 @@ public class NodeList {
         return this.nodeMap.values();
     }
 
-    public void markSequence() {
-        int index = 0;
-        for (Node node : this.nodeMap.values()) {
-            node.setSequence(index++);
-        }
-    }
 
     public Node find(Application applicationId) {
         if (applicationId == null) {

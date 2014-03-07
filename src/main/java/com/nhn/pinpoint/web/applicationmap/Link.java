@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 public class Link {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    public static final String LINK_DELIMITER = "~";
     private final LinkKey linkKey;
 
     private final Node fromNode;
@@ -92,6 +93,10 @@ public class Link {
 	public Node getTo() {
 		return toNode;
 	}
+
+    public String getLinkName() {
+        return fromNode.getNodeName() + LINK_DELIMITER + toNode.getNodeName();
+    }
 
 	public CallHistogramList getTargetList() {
 		return tagetList;

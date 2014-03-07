@@ -22,7 +22,7 @@ public class Node implements JsonSerializable {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private int sequence;
+    public static final String NODE_DELIMITER = "^";
     private final Application application;
 
     private final ServerInstanceList serverInstanceList = new ServerInstanceList();
@@ -95,12 +95,10 @@ public class Node implements JsonSerializable {
         return application;
     }
 
-    public void setSequence(int sequence) {
-		this.sequence = sequence;
-	}
 
-	public int getSequence() {
-		return sequence;
+
+	public String getNodeName() {
+		return application.getName() + NODE_DELIMITER + application.getServiceType();
 	}
 
 	public String getApplicationName() {
@@ -139,7 +137,6 @@ public class Node implements JsonSerializable {
 	public String getJson() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{ ");
-		sb.append("\"sequence\" : ").append(sequence).append(",");
 		sb.append("\"applicationName\" : \"").append(application.getName()).append("\",");
 		sb.append("\"serviceType\" : \"").append(application.getServiceType()).append("\",");
 		sb.append("\"serviceTypeCode\" : \"").append(application.getServiceTypeCode()).append("\"");
@@ -149,6 +146,6 @@ public class Node implements JsonSerializable {
 
 	@Override
 	public String toString() {
-		return "Node [sequence=" + sequence + ", application=" + application + ", serverInstanceList=" + serverInstanceList + "]";
+		return "Node [application=" + application + ", serverInstanceList=" + serverInstanceList + "]";
 	}
 }

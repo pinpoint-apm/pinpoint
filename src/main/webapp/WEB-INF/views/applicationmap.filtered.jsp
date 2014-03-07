@@ -7,8 +7,8 @@
 		"nodeDataArray": [
 			<c:forEach items="${nodes}" var="node" varStatus="status">
 			{
-				"id" : ${status.count},
-				"key" : ${status.count},
+				"id" : "${node.nodeName}",
+				"key" : "${node.nodeName}",
 				<c:choose>
 					<c:when test="${node.applicationName == 'USER'}">
 					"text" : "USER",
@@ -69,9 +69,9 @@
 		"linkDataArray": [
 			<c:forEach items="${links}" var="link" varStatus="status">
 			{
-				"id" : "${link.from.sequence + 1}-${link.to.sequence + 1}",
-				"from" : ${link.from.sequence + 1},
-				"to" : ${link.to.sequence + 1},
+				"id" : "${link.linkName}",
+				"from" : "${link.from.nodeName}",
+				"to" : "${link.to.nodeName}",
 				"sourceinfo" : ${link.from.json},
 				"targetinfo" : ${link.to.json},
 				"text" : ${link.histogram.totalCount},

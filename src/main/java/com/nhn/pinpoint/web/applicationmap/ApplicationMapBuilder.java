@@ -43,8 +43,6 @@ public class ApplicationMapBuilder {
         nodeMap.addNode(sourceNode);
 
 
-        // indexing application (UI의 서버맵을 그릴 때 key 정보가 필요한데 unique해야하고 link정보와 맞춰야 됨.)
-        nodeMap.indexingNode();
         // 변경하면 안됨.
         List<Link> sourceLink = createSourceLink(linkStatisticsData, nodeMap);
         nodeMap.addLink(sourceLink);
