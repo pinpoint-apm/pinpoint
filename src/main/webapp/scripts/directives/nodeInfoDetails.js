@@ -61,7 +61,9 @@ pinpointApp
                             }
                         ]);
                         //renderApplicationStatistics(histogramData);
-                        renderStatisticsTimeSeriesHistogram(node.timeSeriesHistogram);
+                        if (node.isWas) {
+                            renderStatisticsTimeSeriesHistogram(node.timeSeriesHistogram);
+                        }
                     } else if (node.category === 'UNKNOWN_GROUP'){
 
                         for (var key in node.textArr) {
