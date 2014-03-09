@@ -13,9 +13,15 @@
 
     </div>
 
-    <div class='infoBarChart' ng-show="showNodeInfoBarChart">
+    <div class='infoBarChart' ng-show="showResponseSummary">
         <h5>Response Summary</h5>
         <svg style='height:150px;' />
+    </div>
+
+
+    <div class='infoChart' ng-show="showLoad">
+        <h5>Load</h5>
+        <svg style='height:150px' />
     </div>
 
     <div ng-show="showServers">

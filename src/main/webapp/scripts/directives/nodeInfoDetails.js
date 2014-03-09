@@ -14,11 +14,11 @@ pinpointApp
             link: function postLink(scope, element, attrs) {
 
                 // define private variables
-                var htServermapData;
+                var htServermapData, htLastNode;
 
                 // define private variables of methods
                 var reset, showDetailInformation, renderApplicationStatistics, parseHistogramForNvd3,
-                    renderStatisticsSummary, parseHistogramForD3;
+                    renderStatisticsSummary, parseHistogramForD3, renderStatisticsTimeSeriesHistogram;
 
                 /**
                  * reset
@@ -32,7 +32,8 @@ pinpointApp
                     scope.showServers = false;
                     scope.agents = null;
                     scope.showAgents = false;
-                    scope.showNodeInfoBarChart = false;
+                    scope.showResponseSummary = false;
+                    scope.showLoad = false;
                     if (!scope.$$phase) {
                         scope.$digest();
                     }
@@ -60,6 +61,7 @@ pinpointApp
                             }
                         ]);
                         //renderApplicationStatistics(histogramData);
+                        renderStatisticsTimeSeriesHistogram(node.timeSeriesHistogram);
                     } else if (node.category === 'UNKNOWN_GROUP'){
 
                         for (var key in node.textArr) {
@@ -119,7 +121,6 @@ pinpointApp
                  * @param data
                  */
                 renderApplicationStatistics = function (data) {
-                    scope.showNodeInfoBarChart = true;
                     if (!scope.$$phase) {
                         scope.$digest();
                     }
@@ -176,6 +177,7 @@ pinpointApp
 
                         return chart;
                     });
+                    scope.showResponseSummary = true;
                 };
 
                 /**
@@ -274,6 +276,50 @@ pinpointApp
                     });
                 };
 
+
+                /**
+                 * render statistics timeseries histogram
+                 * @param data
+                 */
+                renderStatisticsTimeSeriesHistogram = function (data) {
+                    nv.addGraph(function () {
+                        angular.element('.nodeInfoDetails .infoChart svg').empty();
+                        var chart = nv.models.multiBarChart().x(function (d) {
+                            return d[0];
+                        }).y(function (d) {
+                                return d[1];
+                            }).clipEdge(true).showControls(false);
+
+                        chart.stacked(true);
+
+                        chart.xAxis.tickFormat(function (d) {
+                            return d3.time.format('%H:%M')(new Date(d));
+                        });
+
+                        chart.yAxis.tickFormat(function (d) {
+                            return d;
+                        });
+
+                        chart.color(config.myColors);
+
+                        chart.multibar.dispatch.on('elementClick', function (e) {
+//                        console.log('element: ' + e.value, data);
+//                        console.dir(e.point);
+                        });
+
+                        d3.select('.nodeInfoDetails .infoChart svg')
+                            .datum(data)
+                            .transition()
+                            .duration(0)
+                            .call(chart);
+
+                        nv.utils.windowResize(chart.update);
+
+                        return chart;
+                    });
+                    scope.showLoad = true;
+                };
+
 //                var showApplicationStatisticsSummary = function (begin, end, applicationName, serviceType) {
 //                    var params = {
 //                        "from" : begin,
@@ -370,7 +416,7 @@ pinpointApp
                  */
                 scope.$on('nodeInfoDetails.initialize', function (event, e, query, node, mapData, navbarVo) {
                     reset();
-                    scope.node = node;
+                    htLastNode = node;
                     scope.oNavbarVo = navbarVo;
                     htServermapData = mapData;
                     showDetailInformation(query, node);
