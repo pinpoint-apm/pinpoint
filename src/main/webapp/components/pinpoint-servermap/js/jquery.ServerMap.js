@@ -743,10 +743,12 @@
          * @param {ojb} ojb
          */
         _onLinkClicked: function (e, obj) {
-            var node = obj.part,
-                htData = node.data,
+            var link = obj.part,
+                htData = link.data,
                 fOnLinkClicked = this.option('fOnLinkClicked');
             if (_.isFunction(fOnLinkClicked)) {
+                htData.fromNode = obj.fromNode.part.data;
+                htData.toNode = obj.toNode.part.data;
                 fOnLinkClicked.call(this, e, htData);
             }
         },
@@ -759,10 +761,12 @@
          * @param {ojb} ojb
          */
         _onLinkContextClicked: function (e, obj) {
-            var node = obj.part,
-                htData = node.data,
+            var link = obj.part,
+                htData = link.data,
                 fOnLinkContextClicked = this.option('fOnLinkContextClicked');
             if (_.isFunction(fOnLinkContextClicked)) {
+                htData.fromNode = obj.fromNode.part.data;
+                htData.toNode = obj.toNode.part.data;
                 fOnLinkContextClicked.call(this, e, htData);
             }
         },

@@ -4,6 +4,8 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
     return function ServerMapFilterVo(dataSet) {
         var self = this;
 
+        this._sMainApplication = null;
+        this._nMainServiceTypeCode = null;
         this._sFromApplication = null;
         this._sFromServiceType = null;
         this._sToApplication = null;
@@ -12,6 +14,30 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
         this._sResponseTo = 'max';
         this._bIncludeException = false;
         this._sRequestUrlPattern = '';
+
+        this.setMainApplication = function (mainApplication) {
+            if (angular.isString(mainApplication)) {
+                self._sMainApplication = mainApplication;
+            } else {
+                throw new Error('mainApplication should be string in ServerMapFilterVo.');
+            }
+            return self;
+        };
+        this.getMainApplication = function () {
+            return self._sMainApplication;
+        };
+
+        this.setMainServiceTypeCode = function (mainServiceTypeCode) {
+            if (angular.isNumber(mainServiceTypeCode)) {
+                self._nMainServiceTypeCode = mainServiceTypeCode;
+            } else {
+                throw new Error('mainServiceTypeCode should be number in ServerMapFilterVo.');
+            }
+            return self;
+        };
+        this.getMainServiceTypeCode = function () {
+            return self._nMainServiceTypeCode;
+        };
 
         this.setFromApplication = function (fromApplication) {
             if (angular.isString(fromApplication)) {

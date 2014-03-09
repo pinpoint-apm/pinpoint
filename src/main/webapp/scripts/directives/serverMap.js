@@ -36,7 +36,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
 
                 // define private variables
                 var serverMapCachedQuery, serverMapCachedData, bUseNodeContextMenu, bUseLinkContextMenu, htLastQuery,
-                    bUseBackgroundContextMenu, oServerMap, oAlert, oProgressBar, htLastMapData;
+                    bUseBackgroundContextMenu, oServerMap, oAlert, oProgressBar, htLastMapData, htLastLink, htLastNode;
 
                 // define private variables of methods
                 var showServerMap, reset, setNodeContextMenuPosition,
@@ -56,6 +56,8 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     }
                 };
                 htLastQuery = {};
+                htLastLink = {};
+                htLastNode = {};
                 oAlert = new Alerts(element);
                 oProgressBar = new ProgressBar(element);
                 scope.oNavbarVo = null;
@@ -234,7 +236,8 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     options.fOnNodeContextClicked = function (e, node) {
                         scope.$emit("serverMap.nodeContextClicked", e, query, node, copiedData);
                         reset();
-                        scope.node = node;
+//                        scope.node = node;
+                        htLastNode = node;
                         if (!bUseNodeContextMenu) {
                             return;
                         }
@@ -245,12 +248,13 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     options.fOnLinkContextClicked = function (e, link) {
                         scope.$emit("serverMap.linkContextClicked", e, query, link, copiedData);
                         reset();
-                        scope.link = link;
+                        htLastLink = link;
+//                        scope.link = link;
 //                    scope.nodeCategory = link.category || '';
-                        scope.srcServiceType = link.sourceinfo.serviceType || '';
-                        scope.srcApplicationName = link.sourceinfo.applicationName || '';
-                        scope.destServiceType = link.targetinfo.serviceType || '';
-                        scope.destApplicationName = link.targetinfo.applicationName || '';
+//                        scope.srcServiceType = link.sourceinfo.serviceType || '';
+//                        scope.srcApplicationName = link.sourceinfo.applicationName || '';
+//                        scope.destServiceType = link.targetinfo.serviceType || '';
+//                        scope.destApplicationName = link.targetinfo.applicationName || '';
 
                         if (!bUseLinkContextMenu || angular.isArray(link.targetinfo)) {
                             return;
@@ -329,7 +333,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * scope passing transaction response to scatter chart
                  */
                 scope.passingTransactionResponseToScatterChart = function () {
-                    scope.$emit('serverMap.passingTransactionResponseToScatterChart', scope.node);
+                    scope.$emit('serverMap.passingTransactionResponseToScatterChart', htLastNode);
                     reset();
                 };
 
@@ -338,11 +342,14 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  */
                 scope.passingTransactionList = function () {
                     var oServerMapFilterVo = new ServerMapFilterVo();
+
                     oServerMapFilterVo
-                        .setFromApplication(scope.srcApplicationName)
-                        .setFromServiceType(scope.srcServiceType)
-                        .setToApplication(scope.destApplicationName)
-                        .setToServiceType(scope.destServiceType);
+                        .setMainApplication(htLastLink.filterApplicationName)
+                        .setMainServiceTypeCode(htLastLink.filterApplicationServiceTypeCode)
+                        .setFromApplication(htLastLink.fromNode.text)
+                        .setFromServiceType(htLastLink.fromNode.category)
+                        .setToApplication(htLastLink.toNode.text)
+                        .setToServiceType(htLastLink.toNode.category);
                     scope.$broadcast('serverMap.openFilteredMap', oServerMapFilterVo);
                     reset();
                 };
@@ -350,39 +357,57 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 /**
                  * open filter wizard
                  */
+                var bIsFilterWizardLoaded = false;
                 scope.openFilterWizard = function () {
                     reset();
                     var oSidebarTitleVo = new SidebarTitleVo;
-                    oSidebarTitleVo
-                        .setImageType(scope.srcServiceType)
-                        .setTitle(scope.srcApplicationName)
-                        .setImageType2(scope.destServiceType)
-                        .setTitle2(scope.destApplicationName);
+
+                    if (htLastLink.fromNode.category === 'USER') {
+                        oSidebarTitleVo
+                            .setImageType(htLastLink.fromNode.text)
+                            .setTitle('USER')
+                            .setImageType2(htLastLink.toNode.category)
+                            .setTitle2(htLastLink.toNode.text);
+                    } else {
+                        oSidebarTitleVo
+                            .setImageType(htLastLink.fromNode.category)
+                            .setTitle(htLastLink.fromNode.text)
+                            .setImageType2(htLastLink.toNode.category)
+                            .setTitle2(htLastLink.toNode.text);
+                    }
                     scope.$broadcast('sidebarTitle.initialize.forServerMap', oSidebarTitleVo);
 
-                    $('#filterWizard')
-                        .modal('show')
-                        .on('shown.bs.dropdown', function () {
-                            if (scope.oNavbarVo.getFilter()) {
-                                var result = filteredMapUtil.findFilterInNavbarVo(
-                                                scope.srcApplicationName,
-                                                scope.srcServiceType,
-                                                scope.destApplicationName,
-                                                scope.destServiceType,
-                                                scope.oNavbarVo);
-                                if (result) {
-                                    scope.urlPattern = result.oServerMapFilterVo.getRequestUrlPattern();
-                                    scope.responseTime = {
-                                        from: result.oServerMapFilterVo.getResponseFrom(),
-                                        to: result.oServerMapFilterVo.getResponseTo()
-                                    };
-                                    scope.includeFailed = result.oServerMapFilterVo.getIncludeException();
-                                    if (!scope.$$phase) {
-                                        scope.$digest();
+                    $('#filterWizard').modal('show');
+                    if (!bIsFilterWizardLoaded) {
+                        bIsFilterWizardLoaded = true;
+                        $('#filterWizard')
+                            .on('shown.bs.modal', function () {
+                                if (scope.oNavbarVo.getFilter()) {
+                                    var result = filteredMapUtil.findFilterInNavbarVo(
+                                        htLastLink.fromNode.text,
+                                        htLastLink.fromNode.category,
+                                        htLastLink.toNode.text,
+                                        htLastLink.toNode.category,
+                                        scope.oNavbarVo);
+                                    if (result) {
+                                        scope.urlPattern = result.oServerMapFilterVo.getRequestUrlPattern();
+                                        scope.responseTime = {
+                                            from: result.oServerMapFilterVo.getResponseFrom(),
+                                            to: result.oServerMapFilterVo.getResponseTo()
+                                        };
+                                        scope.includeFailed = result.oServerMapFilterVo.getIncludeException();
                                     }
+                                } else {
+                                    scope.responseTime = {
+                                        from: 0,
+                                        to: 30000
+                                    };
                                 }
-                            }
-                        });
+                                if (!scope.$$phase) {
+                                     scope.$digest();
+                                }
+                            });
+                    }
                 };
 
                 /**
@@ -404,10 +429,12 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 scope.passingTransactionMap = function () {
                     var oServerMapFilterVo = new ServerMapFilterVo();
                     oServerMapFilterVo
-                        .setFromApplication(scope.srcApplicationName)
-                        .setFromServiceType(scope.srcServiceType)
-                        .setToApplication(scope.destApplicationName)
-                        .setToServiceType(scope.destServiceType)
+                        .setMainApplication(htLastLink.filterApplicationName)
+                        .setMainServiceTypeCode(htLastLink.filterApplicationServiceTypeCode)
+                        .setFromApplication(htLastLink.fromNode.text)
+                        .setFromServiceType(htLastLink.fromNode.category)
+                        .setToApplication(htLastLink.toNode.text)
+                        .setToServiceType(htLastLink.toNode.category)
                         .setResponseFrom(scope.responseTime.from)
                         .setResponseTo(scope.responseTime.to)
                         .setIncludeException(scope.includeFailed)

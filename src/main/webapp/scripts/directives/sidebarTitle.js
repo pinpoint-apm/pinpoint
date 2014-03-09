@@ -32,10 +32,9 @@ pinpointApp.directive('sidebarTitle', [ '$timeout',
                     scope.stImage2 = oSidebarTitleVo.getImage2();
                     scope.stImage2Show = oSidebarTitleVo.getImage2() ? true : false;
                     scope.stTitle2 = oSidebarTitleVo.getTitle2();
-                    if (!scope.$$phase) {
-                        scope.$digest();
-                    }
-                    element.find('[data-toggle="tooltip"]').tooltip('destroy').tooltip();
+                    $timeout(function () {
+                        element.find('[data-toggle="tooltip"]').tooltip('destroy').tooltip();
+                    });
                 };
 
                 /**
