@@ -99,10 +99,10 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         data: {
                             from: query.from,
                             to: query.to,
-                            srcServiceType: query.srcServiceType,
-                            srcApplicationName: query.srcApplicationName,
-                            destServiceType: query.destServiceType,
-                            destApplicationName: query.destApplicationName,
+                            sourceServiceType: query.sourceServiceType,
+                            sourceApplicationName: query.sourceApplicationName,
+                            targetServiceType: query.targetServiceType,
+                            targetApplicationName: query.targetApplicationName,
                             v: version
                         },
                         success: function (result) {
@@ -213,10 +213,10 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
 //                                    label: e.point.label,
 //                                    value: e.value,
 //                                    values: e.series.values,
-//                                    srcServiceType: scope.sourceinfo.serviceType,
-//                                    srcApplicationName: scope.sourceinfo.applicationName,
-//                                    destServiceType: scope.targetinfo.serviceType,
-//                                    destApplicationName: scope.targetinfo.applicationName
+//                                    sourceServiceType: scope.sourceinfo.serviceType,
+//                                    sourceApplicationName: scope.sourceinfo.applicationName,
+//                                    targetServiceType: scope.targetinfo.serviceType,
+//                                    targetApplicationName: scope.targetinfo.applicationName
 //                                };
                                 var label = e.point.label,
                                     values = e.series.values;
@@ -257,21 +257,21 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                  * show application statistics
                  * @param begin
                  * @param end
-                 * @param srcServiceType
-                 * @param srcApplicationName
-                 * @param destServiceType
-                 * @param destApplicationName
+                 * @param sourceServiceType
+                 * @param sourceApplicationName
+                 * @param targetServiceType
+                 * @param targetApplicationName
                  * @param histogram
                  */
-                showApplicationStatistics = function (begin, end, srcServiceType, srcApplicationName, destServiceType,
-                                                      destApplicationName, histogram) {
+                showApplicationStatistics = function (begin, end, sourceServiceType, sourceApplicationName, targetServiceType,
+                                                      targetApplicationName, histogram) {
                     var params = {
                         "from": begin,
                         "to": end,
-                        "srcServiceType": srcServiceType,
-                        "srcApplicationName": srcApplicationName,
-                        "destServiceType": destServiceType,
-                        "destApplicationName": destApplicationName
+                        "sourceServiceType": sourceServiceType,
+                        "sourceApplicationName": sourceApplicationName,
+                        "targetServiceType": targetServiceType,
+                        "targetApplicationName": targetApplicationName
                     };
 
                     scope.showLinkInfoChart = true;
@@ -279,7 +279,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     renderStatisticsSummary('.linkInfoDetails .infoBarChart svg', parseHistogramForD3(histogram), 'ResponseSummary');
 
                     getLinkStatisticsData(params, 1, function (query, result) {
-                        renderStatisticsTimeSeriesHistogram(result.timeseriesHistogram);
+                        renderStatisticsTimeSeriesHistogram(result.timeSeriesHistogram);
                     });
 
 //                    getLinkStatisticsData(params, 2, function (query, result) {

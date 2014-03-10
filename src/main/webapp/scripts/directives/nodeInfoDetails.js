@@ -52,8 +52,6 @@ pinpointApp
                     scope.isWas = node.isWas;
                     scope.agentHistogram = node.agentHistogram;
 
-                    console.log('node', node);
-
                     if (!node.rawdata && /*node.category !== "USER" &&*/ node.category !== "UNKNOWN_GROUP") {
                         renderApplicationStatistics([
                             {
@@ -73,7 +71,6 @@ pinpointApp
                     } else if (node.category === 'UNKNOWN_GROUP'){
 
                         for (var key in node.textArr) {
-                            console.log('.nodeInfoDetails .summaryCharts_' + key + ' svg');
                             renderStatisticsSummary('.nodeInfoDetails .summaryCharts_' + key +
                                 ' svg', parseHistogramForD3(node.rawdata[node.textArr[key].applicationName].histogram));
                         }
