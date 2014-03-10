@@ -3,9 +3,9 @@
     <!--<ul class="list-unstyled" ng-if="linkCategory == 'UnknownLinkInfoBox'">-->
         <!--<li ng-repeat="target in targetinfo">-->
             <!--<div style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;"-->
-                 <!--tooltip="{{sourceinfo[0].applicationName}} → {{target.applicationName}}" tooltip-placement="bottom">-->
-                <!--<img ng-src="/images/icons/{{sourceinfo[0].serviceType | icons}}.png" style="height:14px;" />-->
-                <!--{{sourceinfo[0].applicationName}}-->
+                 <!--tooltip="{{sourceInfo[0].applicationName}} → {{target.applicationName}}" tooltip-placement="bottom">-->
+                <!--<img ng-src="/images/icons/{{sourceInfo[0].serviceType | icons}}.png" style="height:14px;" />-->
+                <!--{{sourceInfo[0].applicationName}}-->
                 <!--<span class="glyphicon glyphicon-arrow-right"></span>-->
                 <!--<img ng-src="/images/icons/{{target.serviceType | icons}}.png" style="height:14px;" />-->
                 <!--{{target.applicationName}}-->
@@ -17,7 +17,7 @@
                     <!--<span class="glyphicon glyphicon-tasks"></span>-->
                 <!--</a>-->
                 <!--<a class="btn btn-default btn-xs" href title="Filter Transaction"  style="position: absolute;top: 50px; right:0;"-->
-                   <!--ng-click="passingTransactionMap(sourceinfo[0].serviceType, sourceinfo[0].applicationName, target.serviceType, target.applicationName)">-->
+                   <!--ng-click="passingTransactionMap(sourceInfo[0].serviceType, sourceInfo[0].applicationName, target.serviceType, target.applicationName)">-->
                     <!--<span class="glyphicon glyphicon-filter"></span>-->
                 <!--</a>-->
             <!--</div>-->
@@ -26,11 +26,11 @@
 
     <div ng-if="linkCategory == 'UnknownLinkInfoBox'">
 
-        <div class="panel panel-default" ng-repeat="target in targetinfo">
+        <div class="panel panel-default" ng-repeat="target in targetInfo">
             <div class="panel-heading" style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;"
-                 tooltip="{{sourceinfo.applicationName}} → {{target.applicationName}}" tooltip-placement="bottom">
-                <img ng-src="/images/icons/{{sourceinfo.serviceType | icons}}.png" style="height:14px;" />
-                {{sourceinfo[0].applicationName}}
+                 tooltip="{{sourceInfo.applicationName}} → {{target.applicationName}}" tooltip-placement="bottom">
+                <img ng-src="/images/icons/{{sourceInfo.serviceType | icons}}.png" style="height:14px;" />
+                {{sourceInfo.applicationName}}
                 <span class="glyphicon glyphicon-arrow-right"></span>
                 <img ng-src="/images/icons/UNKNOWN.png" style="height:14px;" />
                 {{target.applicationName}}

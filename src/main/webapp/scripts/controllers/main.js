@@ -143,17 +143,17 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
                     .setTitle('Link Group');
             } else {
                 oSidebarTitleVo
-                    .setImageType(link.sourceinfo.serviceType)
-                    .setTitle(link.sourceinfo.applicationName)
-                    .setImageType2(link.targetinfo.serviceType)
-                    .setTitle2(link.targetinfo.applicationName);
+                    .setImageType(link.sourceInfo.serviceType)
+                    .setTitle(link.sourceInfo.applicationName)
+                    .setImageType2(link.targetInfo.serviceType)
+                    .setTitle2(link.targetInfo.applicationName);
             }
             $scope.hasScatter = false;
             var foundFilter = filteredMapUtil.findFilterInNavbarVo(
-                link.sourceinfo.applicationName,
-                link.sourceinfo.serviceType,
-                link.targetinfo.applicationName,
-                link.targetinfo.serviceType,
+                link.sourceInfo.applicationName,
+                link.sourceInfo.serviceType,
+                link.targetInfo.applicationName,
+                link.targetInfo.serviceType,
                 oNavbarVo
             );
             if (foundFilter) {
@@ -195,10 +195,10 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
             $scope.hasScatter = false;
             var oSidebarTitleVo = new SidebarTitleVo;
             oSidebarTitleVo
-                .setImageType(link.sourceinfo.serviceType)
-                .setTitle(link.sourceinfo.applicationName)
-                .setImageType2(link.targetinfo.serviceType)
-                .setTitle2(link.targetinfo.applicationName);
+                .setImageType(link.sourceInfo.serviceType)
+                .setTitle(link.sourceInfo.applicationName)
+                .setImageType2(link.targetInfo.serviceType)
+                .setTitle2(link.targetInfo.applicationName);
             $scope.$broadcast('sidebarTitle.initialize.forMain', oSidebarTitleVo);
             $scope.$broadcast('nodeInfoDetails.reset');
             $scope.$broadcast('linkInfoDetails.initialize', null, query, link);

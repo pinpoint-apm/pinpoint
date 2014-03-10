@@ -57,22 +57,22 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     if (link.targetRawData) {
                         htTargetRawData = link.targetRawData;
                         scope.linkCategory = 'UnknownLinkInfoBox';
-                        for (var key in link.targetinfo) {
-                            var className = $filter('applicationNameToClassName')(link.targetinfo[key].applicationName)
+                        for (var key in link.targetInfo) {
+                            var className = $filter('applicationNameToClassName')(link.targetInfo[key].applicationName)
                             renderStatisticsSummary('.linkInfoDetails .summaryCharts_' + className +
-                                ' svg', parseHistogramForD3(link.targetRawData[link.targetinfo[key].applicationName].histogram));
+                                ' svg', parseHistogramForD3(link.targetRawData[link.targetInfo[key].applicationName].histogram));
                         }
-                        scope.sourceinfo = link.sourceinfo;
-                        scope.targetinfo = link.targetinfo;
+                        scope.sourceInfo = link.sourceInfo;
+                        scope.targetInfo = link.targetInfo;
                     } else {
                         scope.linkCategory = 'LinkInfoBox';
                         showApplicationStatistics(
                             htQuery.from,
                             htQuery.to,
-                            link.sourceinfo.serviceTypeCode,
-                            link.sourceinfo.applicationName,
-                            link.targetinfo.serviceTypeCode,
-                            link.targetinfo.applicationName,
+                            link.sourceInfo.serviceTypeCode,
+                            link.sourceInfo.applicationName,
+                            link.targetInfo.serviceTypeCode,
+                            link.targetInfo.applicationName,
                             link.histogram
                         );
                     }
@@ -221,10 +221,10 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                                     values = e.series.values;
                                 var oServerMapFilterVo = new ServerMapFilterVo();
                                 oServerMapFilterVo
-                                    .setFromApplication(scope.sourceinfo.applicationName)
-                                    .setFromServiceType(scope.sourceinfo.serviceType)
-                                    .setToApplication(scope.targetinfo.applicationName)
-                                    .setToServiceType(scope.targetinfo.serviceType);
+                                    .setFromApplication(scope.sourceInfo.applicationName)
+                                    .setFromServiceType(scope.sourceInfo.serviceType)
+                                    .setToApplication(scope.targetInfo.applicationName)
+                                    .setToServiceType(scope.targetInfo.serviceType);
                                 if (label === 'error') {
                                     oServerMapFilterVo.setIncludeException(true);
                                 } else if (label.indexOf('+') > 0) {
@@ -315,7 +315,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 parseHistogramForD3 = function (histogram) {
                     var histogramSummary = [
                         {
-                            "key": "Responsetime Histogram",
+                            "key": "Response Time Histogram",
                             "values": []
                         }
                     ];

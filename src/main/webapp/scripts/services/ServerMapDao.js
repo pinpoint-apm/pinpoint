@@ -368,7 +368,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
             var unknownCount = 0;
             links.forEach(function (link, linkIndex) {
                 if (link.from == node.key &&
-                    link.targetinfo.serviceType == "UNKNOWN" &&
+                    link.targetInfo.serviceType == "UNKNOWN" &&
                     inboundCountMap[link.to] && inboundCountMap[link.to].sourceCount == 1) {
                     unknownCount++;
                 }
@@ -379,7 +379,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
 
             // for each children.
             links.forEach(function (link, linkIndex) {
-                if (link.targetinfo.serviceType != "UNKNOWN") {
+                if (link.targetInfo.serviceType != "UNKNOWN") {
                     return;
                 }
                 if (inboundCountMap[link.to] && inboundCountMap[link.to].sourceCount > 1) {
@@ -409,8 +409,8 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
                             "to": newNodeKey,
                             "filterApplicationName": '',
                             "filterApplicationServiceTypeCode": '',
-                            "sourceinfo": {},
-                            "targetinfo": [],
+                            "sourceInfo": {},
+                            "targetInfo": [],
                             "text": 0,
                             "error": 0,
                             "slow": 0,
@@ -420,18 +420,18 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
                     }
 
                     // fill the new node/link informations.
-                    newNode.textArr.push({ 'count': link.text, 'applicationName': link.targetinfo.applicationName});
-                    newNode.targetRawData[link.targetinfo.applicationName] = getNodeByApplicationName(link.targetinfo.applicationName);
+                    newNode.textArr.push({ 'count': link.text, 'applicationName': link.targetInfo.applicationName});
+                    newNode.targetRawData[link.targetInfo.applicationName] = getNodeByApplicationName(link.targetInfo.applicationName);
 
                     newLink.text += link.text;
                     newLink.error += link.error;
                     newLink.slow += link.slow;
                     newLink.filterApplicationName = link.filterApplicationName;
                     newLink.filterApplicationServiceTypeCode = link.filterApplicationServiceTypeCode;
-                    newLink.sourceinfo = link.sourceinfo;
-                    newLink.targetinfo.push(link.targetinfo);
+                    newLink.sourceInfo = link.sourceInfo;
+                    newLink.targetInfo.push(link.targetInfo);
 
-                    newLink.targetRawData[link.targetinfo.applicationName] = angular.copy(link);
+                    newLink.targetRawData[link.targetInfo.applicationName] = angular.copy(link);
 
                     /*
                      * group된 노드에서 개별 노드의 정보를 조회할 때 사용됨.
@@ -477,7 +477,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
                 }
 
                 // targetinfo 에러를 우선으로, 요청수 내림차순 정렬.
-                newLink.targetinfo.sort(function (e1, e2) {
+                newLink.targetInfo.sort(function (e1, e2) {
                     var err1 = newLink.targetRawData[e1.applicationName].error;
                     var err2 = newLink.targetRawData[e2.applicationName].error;
 
