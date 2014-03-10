@@ -89,23 +89,23 @@ public class MapController {
 	 * @param model
 	 * @param from
 	 * @param to
-	 * @param srcApplicationName
-	 * @param srcServiceType
-	 * @param destApplicationName
-	 * @param destServiceType
+	 * @param sourceApplicationName
+	 * @param sourceServiceType
+	 * @param targetApplicationName
+	 * @param targetServiceType
 	 * @return
 	 */
 	@RequestMapping(value = "/linkStatistics", method = RequestMethod.GET)
 	public String getLinkStatistics(Model model,
 									@RequestParam("from") long from,
 									@RequestParam("to") long to,
-									@RequestParam("sourceApplicationName") String srcApplicationName,
-									@RequestParam("sourceServiceType") short srcServiceType,
-									@RequestParam("targetApplicationName") String destApplicationName,
-									@RequestParam("targetServiceType") short destServiceType) {
+									@RequestParam("sourceApplicationName") String sourceApplicationName,
+									@RequestParam("sourceServiceType") short sourceServiceType,
+									@RequestParam("targetApplicationName") String targetApplicationName,
+									@RequestParam("targetServiceType") short targetServiceType) {
 
-        final Application sourceApplication = new Application(srcApplicationName, srcServiceType);
-        final Application destinationApplication = new Application(destApplicationName, destServiceType);
+        final Application sourceApplication = new Application(sourceApplicationName, sourceServiceType);
+        final Application destinationApplication = new Application(targetApplicationName, targetServiceType);
         final Range range = new Range(from, to);
 
 //		LoadFactor loadFactor = mapService.linkStatistics(sourceApplication, destinationApplication, range);
