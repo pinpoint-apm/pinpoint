@@ -6,7 +6,7 @@ import com.nhn.pinpoint.web.vo.Application;
  * @author emeroad
  */
 public class SkipLinkFilter implements LinkFilter {
-    public static LinkFilter FILTER = new SkipLinkFilter();
+    public static final LinkFilter FILTER = new SkipLinkFilter();
 
     private SkipLinkFilter() {
     }
