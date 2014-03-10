@@ -52,6 +52,8 @@ pinpointApp
                     scope.showServers = _.isEmpty(scope.serverList) ? false : true;
                     scope.isWas = node.isWas;
 
+                    console.log('node', node);
+
                     if (!node.rawdata && /*node.category !== "USER" &&*/ node.category !== "UNKNOWN_GROUP") {
 //                        showApplicationStatisticsSummary(query.from, query.to, data.text, data.serviceTypeCode);
                         renderApplicationStatistics([
@@ -63,6 +65,12 @@ pinpointApp
                         //renderApplicationStatistics(histogramData);
                         if (node.isWas) {
                             renderStatisticsTimeSeriesHistogram(node.timeSeriesHistogram);
+
+                            for (var key in node.agentHistogram) {
+                                console.log('key', key);
+                                renderStatisticsSummary('.nodeInfoDetails .agentHistogram_' + key +
+                                    ' svg', parseHistogramForD3(node.agentHistogram[key]));
+                            }
                         }
                     } else if (node.category === 'UNKNOWN_GROUP'){
 

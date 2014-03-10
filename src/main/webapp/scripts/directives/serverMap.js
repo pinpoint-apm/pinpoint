@@ -26,8 +26,8 @@ pinpointApp.constant('serverMapConfig', {
     }
 });
 
-pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts', 'ProgressBar', 'SidebarTitleVo', '$filter', 'ServerMapFilterVo', 'encodeURIComponentFilter', 'filteredMapUtil', '$timeout',
-    function (cfg, ServerMapDao, Alerts, ProgressBar, SidebarTitleVo, $filter, ServerMapFilterVo, encodeURIComponentFilter, filteredMapUtil, $timeout) {
+pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts', 'ProgressBar', 'SidebarTitleVo', '$filter', 'ServerMapFilterVo', 'encodeURIComponentFilter', 'filteredMapUtil', '$base64',
+    function (cfg, ServerMapDao, Alerts, ProgressBar, SidebarTitleVo, $filter, ServerMapFilterVo, encodeURIComponentFilter, filteredMapUtil, $base64) {
         return {
             restrict: 'EA',
             replace: true,
@@ -438,7 +438,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         .setResponseFrom(scope.responseTime.from)
                         .setResponseTo(scope.responseTime.to)
                         .setIncludeException(scope.includeFailed)
-                        .setRequestUrlPattern(scope.urlPattern);
+                        .setRequestUrlPattern($base64.encode(scope.urlPattern));
                     scope.$broadcast('serverMap.openFilteredMap', oServerMapFilterVo);
                     reset();
                 };
