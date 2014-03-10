@@ -238,12 +238,6 @@ public class MapServiceImpl implements MapService {
         List<Collection<LinkStatistics>> list = selectLink(sourceApplication, destinationApplication, range);
         logger.debug("Fetched statistics data={}", list);
 
-        LoadFactor loadFactor = new LoadFactor(range);
-
-        // 조회가 안되는 histogram slot이 있으면 UI에 모두 보이지 않기 때문에 미리 정의된 slot을 모두 할당한다.
-        HistogramSchema histogramSchema = destinationApplication.getServiceType().getHistogramSchema();
-        loadFactor.setDefaultHistogramSlotList(histogramSchema);
-
         MapResponseHistogramSummary responseHistogramSummary = new MapResponseHistogramSummary(range);
         for (Collection<LinkStatistics> linkStatisticsList : list) {
             for (LinkStatistics entry : linkStatisticsList) {
@@ -262,8 +256,7 @@ public class MapServiceImpl implements MapService {
         }
         responseHistogramSummary.build();
         List<ResponseTime> responseTimeList = responseHistogramSummary.getResponseTimeList(destinationApplication);
-        final ResponseHistogramSummary histogramSummary = new ResponseHistogramSummary(destinationApplication, range);
-        histogramSummary.createResponseHistogram(responseTimeList);
+        final ResponseHistogramSummary histogramSummary = new ResponseHistogramSummary(destinationApplication, range, responseTimeList);
         return histogramSummary;
     }
 

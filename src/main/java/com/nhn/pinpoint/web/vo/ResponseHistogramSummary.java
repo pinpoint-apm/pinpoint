@@ -22,15 +22,16 @@ public class ResponseHistogramSummary {
     private final Application application;
 
     private final Range range;
+
+    // ApplicationLevelHistogram
     private final Histogram applicationHistogram;
 
-
     // key는 agentId이다.
-    private final Map<String, Histogram> agentHistogramMap = new HashMap<String, Histogram>();
+    private final Map<String, Histogram> agentHistogramMap;
 
-    private ApplicationTimeSeriesHistogram applicationTimeSeriesHistogram;
+    private final ApplicationTimeSeriesHistogram applicationTimeSeriesHistogram;
 
-    private AgentTimeSeriesHistogram agentTimeSeriesHistogram;
+    private final AgentTimeSeriesHistogram agentTimeSeriesHistogram;
 
 
     // 현재 노가다 json으로 변경하는 부분이 많아 모양이 이쁘게 나오기 애매하므로 일단 static으로 생성해서하자.
@@ -45,18 +46,35 @@ public class ResponseHistogramSummary {
         }
         this.application = application;
         this.range = range;
-        this.applicationHistogram = new Histogram(application.getServiceType());
 
-        this.applicationTimeSeriesHistogram = new ApplicationTimeSeriesHistogram(application, range);
-        this.agentTimeSeriesHistogram = new AgentTimeSeriesHistogram(application, range);
+        this.applicationHistogram = new Histogram(this.application.getServiceType());
+        this.agentHistogramMap = new HashMap<String, Histogram>();
+
+        this.applicationTimeSeriesHistogram = new ApplicationTimeSeriesHistogram(this.application, this.range);
+        this.agentTimeSeriesHistogram = new AgentTimeSeriesHistogram(this.application, this.range);
     }
 
-    private void addApplicationLevelHistogram(Histogram histogram) {
-        if (histogram == null) {
-            throw new NullPointerException("histogram must not be null");
+    public ResponseHistogramSummary(Application application, Range range, List<ResponseTime> responseHistogramList) {
+        if (application == null) {
+            throw new NullPointerException("application must not be null");
         }
-        this.applicationHistogram.add(histogram);
+        if (range == null) {
+            throw new NullPointerException("range must not be null");
+        }
+        if (responseHistogramList == null) {
+            throw new NullPointerException("responseHistogramList must not be null");
+        }
+        this.application = application;
+        this.range = range;
+
+        this.agentTimeSeriesHistogram = createAgentLevelTimeSeriesResponseTime(responseHistogramList);
+        this.applicationTimeSeriesHistogram = createApplicationLevelTimeSeriesResponseTime(responseHistogramList);
+
+        this.agentHistogramMap = createAgentLevelResponseTime(responseHistogramList);
+        this.applicationHistogram = createApplicationLevelResponseTime(responseHistogramList);
+
     }
+
 
     public Histogram getApplicationHistogram() {
         return applicationHistogram;
@@ -97,58 +115,49 @@ public class ResponseHistogramSummary {
     }
 
 
-    public void createResponseHistogram(List<ResponseTime> responseHistogramList) {
-        createAgentLevelTimeSeriesResponseTime(responseHistogramList);
-        createApplicationLevelTimeSeriesResponseTime(responseHistogramList);
-
-        createAgentLevelResponseTime(responseHistogramList);
-        createApplicationLevelResponseTime(responseHistogramList);
-
-    }
-
-
-    private void createApplicationLevelTimeSeriesResponseTime(List<ResponseTime> responseHistogramList) {
+    private ApplicationTimeSeriesHistogram createApplicationLevelTimeSeriesResponseTime(List<ResponseTime> responseHistogramList) {
 
         ApplicationTimeSeriesHistogram histogram = new ApplicationTimeSeriesHistogram(application, range);
         histogram.build(responseHistogramList);
-
-        this.applicationTimeSeriesHistogram = histogram;
+        return histogram;
 
     }
 
 
-    private void createAgentLevelTimeSeriesResponseTime(List<ResponseTime> responseHistogramList) {
+    private AgentTimeSeriesHistogram createAgentLevelTimeSeriesResponseTime(List<ResponseTime> responseHistogramList) {
         AgentTimeSeriesHistogram histogram = new AgentTimeSeriesHistogram(application, range);
         histogram.build(responseHistogramList);
-
-        this.agentTimeSeriesHistogram = histogram;
+        return histogram;
     }
 
 
-    private void createAgentLevelResponseTime(List<ResponseTime> responseHistogramList) {
-
+    private Map<String, Histogram> createAgentLevelResponseTime(List<ResponseTime> responseHistogramList) {
+        Map<String, Histogram> agentHistogramMap = new HashMap<String, Histogram>();
         for (ResponseTime responseTime : responseHistogramList) {
             for (Map.Entry<String, Histogram> entry : responseTime.getAgentHistogram()) {
-                addAgentLevelHistogram(entry.getKey(), entry.getValue());
+                addAgentLevelHistogram(agentHistogramMap, entry.getKey(), entry.getValue());
             }
         }
+        return agentHistogramMap;
     }
 
-    private void addAgentLevelHistogram(String agentId, Histogram histogram) {
-        Histogram agentHistogram = this.agentHistogramMap.get(agentId);
+    private void addAgentLevelHistogram(Map<String, Histogram> agentHistogramMap, String agentId, Histogram histogram) {
+        Histogram agentHistogram = agentHistogramMap.get(agentId);
         if (agentHistogram == null) {
             agentHistogram = new Histogram(application.getServiceType());
-            this.agentHistogramMap.put(agentId, agentHistogram);
+            agentHistogramMap.put(agentId, agentHistogram);
         }
         agentHistogram.add(histogram);
     }
 
-    private void createApplicationLevelResponseTime(List<ResponseTime> responseHistogram) {
+    private Histogram createApplicationLevelResponseTime(List<ResponseTime> responseHistogram) {
+        final Histogram applicationHistogram = new Histogram(this.application.getServiceType());
         for (ResponseTime responseTime : responseHistogram) {
             final Collection<Histogram> histogramList = responseTime.getAgentResponseHistogramList();
             for (Histogram histogram : histogramList) {
-                this.addApplicationLevelHistogram(histogram);
+                applicationHistogram.add(histogram);
             }
         }
+        return applicationHistogram;
     }
 }

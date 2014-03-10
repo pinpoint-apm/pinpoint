@@ -113,7 +113,6 @@ public class Node implements JsonSerializable {
 		
         // 리얼 application을 실제빌드할때 copy하여 만들기 때문에. add할때 데이터를 hostList를 add해도 된다.
         this.callHistogramList.addHostList(node.callHistogramList);
-//        this.callHistogramList.put(node.callHistogramList);
 
 		if (node.agentSet != null) {
 			this.agentSet.addAll(node.agentSet);

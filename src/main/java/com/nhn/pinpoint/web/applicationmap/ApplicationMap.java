@@ -84,8 +84,7 @@ public class ApplicationMap {
             @Override
             public ResponseHistogramSummary getResponseHistogramSummary(Application application) {
                 final List<ResponseTime> responseHistogram = mapResponseDao.selectResponseTime(application, range);
-                final ResponseHistogramSummary histogramSummary = new ResponseHistogramSummary(application, range);
-                histogramSummary.createResponseHistogram(responseHistogram);
+                final ResponseHistogramSummary histogramSummary = new ResponseHistogramSummary(application, range, responseHistogram);
                 return histogramSummary;
             }
         });
@@ -96,8 +95,7 @@ public class ApplicationMap {
             @Override
             public ResponseHistogramSummary getResponseHistogramSummary(Application application) {
                 List<ResponseTime> responseHistogram = mapHistogramSummary.getResponseTimeList(application);
-                final ResponseHistogramSummary histogramSummary = new ResponseHistogramSummary(application, range);
-                histogramSummary.createResponseHistogram(responseHistogram);
+                final ResponseHistogramSummary histogramSummary = new ResponseHistogramSummary(application, range, responseHistogram);
                 return histogramSummary;
             }
         });
@@ -113,12 +111,12 @@ public class ApplicationMap {
             if (node.getServiceType().isWas()) {
                 // was일 경우 자신의 response 히스토그램을 조회하여 채운다.
                 final Application application = new Application(node.getApplicationName(), node.getServiceType());
-                ResponseHistogramSummary histogramSummary = responseDataSource.getResponseHistogramSummary(application);
-                node.setResponseHistogramSummary(histogramSummary);
+                ResponseHistogramSummary nodeHistogramSummary = responseDataSource.getResponseHistogramSummary(application);
+                node.setResponseHistogramSummary(nodeHistogramSummary);
             } else if(node.getServiceType().isTerminal() || node.getServiceType().isUnknown()) {
                 // 터미널 노드인경우, 자신을 가리키는 link값을 합하여 histogram을 생성한다.
                 Application nodeApplication = new Application(node.getApplicationName(), node.getServiceType());
-                final ResponseHistogramSummary summary = new ResponseHistogramSummary(nodeApplication, range);
+                final ResponseHistogramSummary nodeHistogramSummary = new ResponseHistogramSummary(nodeApplication, range);
 
                 Collection<Link> linkList = this.linkList.getLinks();
                 for (Link link : linkList) {
@@ -130,14 +128,14 @@ public class ApplicationMap {
                     if (nodeApplication.equals(destination)) {
                         Histogram linkHistogram = link.getHistogram();
 //                        summary.addApplicationLevelHistogram(linkHistogram);
-                        summary.addLinkHistogram(linkHistogram);
+                        nodeHistogramSummary.addLinkHistogram(linkHistogram);
                     }
                 }
-                node.setResponseHistogramSummary(summary);
+                node.setResponseHistogramSummary(nodeHistogramSummary);
             } else if(node.getServiceType().isUser()) {
                 // User노드인 경우 source 링크를 찾아 histogram을 생성한다.
                 Application nodeApplication = new Application(node.getApplicationName(), node.getServiceType());
-                final ResponseHistogramSummary summary = new ResponseHistogramSummary(nodeApplication, range);
+                final ResponseHistogramSummary nodeHistogramSummary = new ResponseHistogramSummary(nodeApplication, range);
 
                 Collection<Link> linkList = this.linkList.getLinks();
                 for (Link link : linkList) {
@@ -149,10 +147,10 @@ public class ApplicationMap {
                     if (nodeApplication.equals(source)) {
                         Histogram linkHistogram = link.getHistogram();
 //                        summary.addApplicationLevelHistogram(linkHistogram);
-                        summary.addLinkHistogram(linkHistogram);
+                        nodeHistogramSummary.addLinkHistogram(linkHistogram);
                     }
                 }
-                node.setResponseHistogramSummary(summary);
+                node.setResponseHistogramSummary(nodeHistogramSummary);
             } else {
                 // 그냥 데미 데이터
                 Application nodeApplication = new Application(node.getApplicationName(), node.getServiceType());
