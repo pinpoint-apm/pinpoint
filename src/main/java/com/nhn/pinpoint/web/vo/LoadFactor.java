@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
  * @author netspider
  * 
  */
+@Deprecated
 public class LoadFactor {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());

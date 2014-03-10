@@ -35,6 +35,9 @@ public class MapStatisticsCalleeMapper implements RowMapper<Collection<LinkStati
     }
 
     public MapStatisticsCalleeMapper(LinkFilter filter) {
+        if (filter == null) {
+            throw new NullPointerException("filter must not be null");
+        }
         this.filter = filter;
     }
 
