@@ -33,15 +33,6 @@ public class RawCallData {
     }
 
 
-    @Deprecated
-	public Histogram getHistogram() {
-        final Histogram histogram = new Histogram(targetServiceType);
-        for (Histogram copy : targetHistogramTimeMap.values()) {
-            histogram.add(copy);
-        }
-        return histogram;
-	}
-
     public Collection<TimeHistogram> getTimeHistogram() {
         return targetHistogramTimeMap.values();
     }
@@ -59,6 +50,19 @@ public class RawCallData {
         if (copyRawCallData == null) {
             throw new NullPointerException("copyRawCallData must not be null");
         }
+        if (!this.source.equals(copyRawCallData.source)) {
+            throw new IllegalArgumentException("source not equals");
+        }
+        if (this.sourceServiceType != copyRawCallData.sourceServiceType) {
+            throw new IllegalArgumentException("sourceServiceType not equals");
+        }
+        if (!this.target.equals(copyRawCallData.target)) {
+            throw new IllegalArgumentException("target not equals");
+        }
+        if (this.targetServiceType != copyRawCallData.targetServiceType) {
+            throw new IllegalArgumentException("targetServiceType not equals");
+        }
+
         for (Map.Entry<Long, TimeHistogram> copyEntry : copyRawCallData.targetHistogramTimeMap.entrySet()) {
             final Long timeStamp = copyEntry.getKey();
             TimeHistogram histogram = targetHistogramTimeMap.get(timeStamp);
