@@ -32,6 +32,7 @@ pinpointApp
                     scope.showAgents = false;
                     scope.showResponseSummary = false;
                     scope.showLoad = false;
+                    scope.agentHistogram = false;
                     if (!scope.$$phase) {
                         scope.$digest();
                     }
@@ -49,6 +50,7 @@ pinpointApp
                     scope.serverList = node.serverList;
                     scope.showServers = _.isEmpty(scope.serverList) ? false : true;
                     scope.isWas = node.isWas;
+                    scope.agentHistogram = node.agentHistogram;
 
                     console.log('node', node);
 
