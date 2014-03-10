@@ -71,7 +71,8 @@ pinpointApp
                     } else if (node.category === 'UNKNOWN_GROUP'){
 
                         for (var key in node.textArr) {
-                            renderStatisticsSummary('.nodeInfoDetails .summaryCharts_' + key +
+                            var className = $filter('applicationNameToClassName')(key);
+                            renderStatisticsSummary('.nodeInfoDetails .summaryCharts_' + className +
                                 ' svg', parseHistogramForD3(node.rawdata[node.textArr[key].applicationName].histogram));
                         }
                     }
