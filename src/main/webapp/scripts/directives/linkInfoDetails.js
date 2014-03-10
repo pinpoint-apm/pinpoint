@@ -330,16 +330,16 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
 
                 /**
                  * passing transaction map from link info details
-                 * @param toServiceType
                  * @param toApplicationName
+                 * @param toServiceType
                  */
                 scope.passingTransactionMapFromLinkInfoDetails = function (toApplicationName, toServiceType) {
                     var oServerMapFilterVo = new ServerMapFilterVo();
                     oServerMapFilterVo
                         .setMainApplication(htLastLink.filterApplicationName)
                         .setMainServiceTypeCode(htLastLink.filterApplicationServiceTypeCode)
-                        .setFromApplication(htLastLink.sourceinfo.applicationName)
-                        .setFromServiceType(htLastLink.sourceinfo.serviceType)
+                        .setFromApplication(htLastLink.sourceInfo.applicationName)
+                        .setFromServiceType(htLastLink.sourceInfo.serviceType)
                         .setToApplication(toApplicationName)
                         .setToServiceType(toServiceType);
                     scope.$broadcast('linkInfoDetails.openFilteredMap', oServerMapFilterVo);
