@@ -99,11 +99,10 @@ public class MapController {
 	public String getLinkStatistics(Model model,
 									@RequestParam("from") long from,
 									@RequestParam("to") long to,
-									@RequestParam("srcApplicationName") String srcApplicationName,
-									@RequestParam("srcServiceType") short srcServiceType,
-									@RequestParam("destApplicationName") String destApplicationName,
-									@RequestParam("destServiceType") short destServiceType,
-									@RequestParam(value="v", required=false, defaultValue="1") int v) {
+									@RequestParam("sourceApplicationName") String srcApplicationName,
+									@RequestParam("sourceServiceType") short srcServiceType,
+									@RequestParam("targetApplicationName") String destApplicationName,
+									@RequestParam("targetServiceType") short destServiceType) {
 
         final Application sourceApplication = new Application(srcApplicationName, srcServiceType);
         final Application destinationApplication = new Application(destApplicationName, destServiceType);
