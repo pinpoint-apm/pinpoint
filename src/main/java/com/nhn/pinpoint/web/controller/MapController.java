@@ -114,9 +114,9 @@ public class MapController {
 
 		model.addAttribute("range", range);
 
-        model.addAttribute("srcApplication", sourceApplication);
+        model.addAttribute("sourceApplication", sourceApplication);
 
-        model.addAttribute("destApplication", destinationApplication);
+        model.addAttribute("targetApplication", destinationApplication);
 
         Histogram applicationHistogram = responseHistogramSummary.getApplicationHistogram();
 		model.addAttribute("linkStatistics", applicationHistogram);
