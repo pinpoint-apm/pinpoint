@@ -28,11 +28,11 @@
 
         <div class="panel panel-default" ng-repeat="target in targetinfo">
             <div class="panel-heading" style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;"
-                 tooltip="{{sourceinfo[0].applicationName}} → {{target.applicationName}}" tooltip-placement="bottom">
-                <img ng-src="/images/icons/{{sourceinfo[0].serviceType | icons}}.png" style="height:14px;" />
+                 tooltip="{{sourceinfo.applicationName}} → {{target.applicationName}}" tooltip-placement="bottom">
+                <img ng-src="/images/icons/{{sourceinfo.serviceType | icons}}.png" style="height:14px;" />
                 {{sourceinfo[0].applicationName}}
                 <span class="glyphicon glyphicon-arrow-right"></span>
-                <img ng-src="/images/icons/{{target.serviceType | icons}}.png" style="height:14px;" />
+                <img ng-src="/images/icons/UNKNOWN.png" style="height:14px;" />
                 {{target.applicationName}}
             </div>
             <div class="panel-body summaryCharts_{{target.applicationName | applicationNameToClassName}}" style="position: relative; padding:0">
@@ -42,7 +42,7 @@
                     <span class="glyphicon glyphicon-tasks"></span>
                 </a>
                 <a class="btn btn-default btn-xs" href title="Filter Transaction"  style="position: absolute;top: 50px; right:5px;"
-                   ng-click="passingTransactionMapFromLinkInfoDetails(sourceinfo[0].serviceType, sourceinfo[0].applicationName, target.serviceType, target.applicationName)">
+                   ng-click="passingTransactionMapFromLinkInfoDetails(target.serviceType, target.applicationName)">
                     <span class="glyphicon glyphicon-filter"></span>
                 </a>
             </div>

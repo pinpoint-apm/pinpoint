@@ -14,7 +14,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
             link: function postLink(scope, element, attrs) {
 
                 // define private variables
-                var htQuery, htRawData;
+                var htQuery, htTargetRawData, htLastLink;
 
                 // define private variables of methods;
                 var reset, showDetailInformation, getLinkStatisticsData, renderStatisticsTimeSeriesHistogram,
@@ -24,10 +24,11 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                  * reset
                  */
                 reset = function () {
+                    htQuery = false;
+                    htLastLink = false;
+                    htTargetRawData = false;
                     scope.showLinkInfoDetails = false;
                     scope.linkCategory = null;
-//                scope.rawdata = null;
-//                scope.query = null;
                     scope.targetinfo = null;
                     scope.sourceinfo = null;
                     scope.showLinkInfoChart = false;
@@ -42,7 +43,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                  * @param applicationName
                  */
                 scope.showDetailInformation = function (applicationName) {
-                    var link = htRawData[applicationName];
+                    var link = htTargetRawData[applicationName];
                     showDetailInformation(link);
                     scope.$emit('linkInfoDetail.showDetailInformationClicked', htQuery, link);
                 };
@@ -52,32 +53,30 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                  * @param query
                  * @param data
                  */
-                showDetailInformation = function (data) {
-                    if (data.rawdata) {
-                        htRawData = data.rawdata
+                showDetailInformation = function (link) {
+                    if (link.targetRawData) {
+                        htTargetRawData = link.targetRawData;
                         scope.linkCategory = 'UnknownLinkInfoBox';
-                        for (var key in data.targetinfo) {
-                            var className = $filter('applicationNameToClassName')(data.targetinfo[key].applicationName)
+                        for (var key in link.targetinfo) {
+                            var className = $filter('applicationNameToClassName')(link.targetinfo[key].applicationName)
                             renderStatisticsSummary('.linkInfoDetails .summaryCharts_' + className +
-                                ' svg', parseHistogramForD3(data.rawdata[data.targetinfo[key].applicationName].histogram));
+                                ' svg', parseHistogramForD3(link.targetRawData[link.targetinfo[key].applicationName].histogram));
                         }
+                        scope.sourceinfo = link.sourceinfo;
+                        scope.targetinfo = link.targetinfo;
                     } else {
                         scope.linkCategory = 'LinkInfoBox';
                         showApplicationStatistics(
                             htQuery.from,
                             htQuery.to,
-                            data.sourceinfo.serviceTypeCode,
-                            data.sourceinfo.applicationName,
-                            data.targetinfo.serviceTypeCode,
-                            data.targetinfo.applicationName,
-                            data.histogram
+                            link.sourceinfo.serviceTypeCode,
+                            link.sourceinfo.applicationName,
+                            link.targetinfo.serviceTypeCode,
+                            link.targetinfo.applicationName,
+                            link.histogram
                         );
                     }
 
-//                    scope.rawdata = data.rawdata;
-//                scope.query = data.query;
-                    scope.targetinfo = data.targetinfo;
-                    scope.sourceinfo = data.sourceinfo;
                     scope.showLinkInfoDetails = true;
                     if (!scope.$$phase) {
                         scope.$digest();
@@ -330,6 +329,23 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 };
 
                 /**
+                 * passing transaction map from link info details
+                 * @param toServiceType
+                 * @param toApplicationName
+                 */
+                scope.passingTransactionMapFromLinkInfoDetails = function (toApplicationName, toServiceType) {
+                    var oServerMapFilterVo = new ServerMapFilterVo();
+                    oServerMapFilterVo
+                        .setMainApplication(htLastLink.filterApplicationName)
+                        .setMainServiceTypeCode(htLastLink.filterApplicationServiceTypeCode)
+                        .setFromApplication(htLastLink.sourceinfo.applicationName)
+                        .setFromServiceType(htLastLink.sourceinfo.serviceType)
+                        .setToApplication(toApplicationName)
+                        .setToServiceType(toServiceType);
+                    scope.$broadcast('linkInfoDetails.openFilteredMap', oServerMapFilterVo);
+                };
+
+                /**
                  * scope event on linkInfoDetails.reset
                  */
                 scope.$on('linkInfoDetails.reset', function (event) {
@@ -342,25 +358,10 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 scope.$on('linkInfoDetails.initialize', function (event, e, query, link) {
                     reset();
                     htQuery = query;
+                    htLastLink = link;
+                    console.log('link', link);
                     showDetailInformation(link);
                 });
-
-                /**
-                 * passing transaction map from link info details
-                 * @param fromApplicationName
-                 * @param fromServiceType
-                 * @param toApplicationName
-                 * @param toServiceType
-                 */
-                scope.passingTransactionMapFromLinkInfoDetails = function (fromServiceType, fromApplicationName, toServiceType, toApplicationName) {
-                    var oServerMapFilterVo = new ServerMapFilterVo();
-                    oServerMapFilterVo
-                        .setFromApplication(fromApplicationName)
-                        .setFromServiceType(fromServiceType)
-                        .setToApplication(toApplicationName)
-                        .setToServiceType(toServiceType);
-                    scope.$broadcast('linkInfoDetails.openFilteredMap', oServerMapFilterVo);
-                }
             }
         };
     } ]);

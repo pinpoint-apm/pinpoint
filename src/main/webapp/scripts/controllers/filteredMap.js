@@ -145,7 +145,7 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
          */
         $scope.$on('serverMap.linkClicked', function (event, e, query, link, data) {
             var oSidebarTitleVo = new SidebarTitleVo;
-            if (link.rawdata) {
+            if (link.targetRawData) {
                 oSidebarTitleVo
                     .setImageType('UNKNOWN_GROUP')
                     .setTitle('Link Group');

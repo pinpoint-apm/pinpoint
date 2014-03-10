@@ -393,7 +393,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
                             "id": newNodeKey,
                             "key": newNodeKey,
                             "textArr": [],
-                            "rawdata" : {},
+                            "targetRawData" : {},
                             "text": "",
                             "hosts": [],
                             "category": "UNKNOWN_GROUP",
@@ -407,39 +407,31 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
                             "id": node.key + "-" + newNodeKey,
                             "from": node.key,
                             "to": newNodeKey,
-                            "sourceinfo": [],
+                            "filterApplicationName": '',
+                            "filterApplicationServiceTypeCode": '',
+                            "sourceinfo": {},
                             "targetinfo": [],
                             "text": 0,
                             "error": 0,
                             "slow": 0,
-                            "rawdata": {},
+                            "targetRawData": {},
                             "histogram": {}
                         };
                     }
 
                     // fill the new node/link informations.
                     newNode.textArr.push({ 'count': link.text, 'applicationName': link.targetinfo.applicationName});
-                    newNode.rawdata[link.targetinfo.applicationName] = getNodeByApplicationName(link.targetinfo.applicationName);
+                    newNode.targetRawData[link.targetinfo.applicationName] = getNodeByApplicationName(link.targetinfo.applicationName);
 
                     newLink.text += link.text;
                     newLink.error += link.error;
                     newLink.slow += link.slow;
-                    newLink.sourceinfo.push(link.sourceinfo);
+                    newLink.filterApplicationName = link.filterApplicationName;
+                    newLink.filterApplicationServiceTypeCode = link.filterApplicationServiceTypeCode;
+                    newLink.sourceinfo = link.sourceinfo;
                     newLink.targetinfo.push(link.targetinfo);
 
-                    var newRawData = {
-                        "id": link.id,
-                        "from": link.from,
-                        "to": link.to,
-                        "sourceinfo": link.sourceinfo,
-                        "targetinfo": link.targetinfo,
-                        "text": 0,
-                        "count": link.text,
-                        "error": link.error,
-                        "slow": link.slow,
-                        "histogram": link.histogram
-                    };
-                    newLink.rawdata[link.targetinfo.applicationName] = newRawData;
+                    newLink.targetRawData[link.targetinfo.applicationName] = angular.copy(link);
 
                     /*
                      * group된 노드에서 개별 노드의 정보를 조회할 때 사용됨.
@@ -447,7 +439,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
                      * value.applicationName}}']();" 으로 호출함.
                      */
 //                    SERVERMAP_METHOD_CACHE[link.targetinfo.applicationName] = function () {
-//                        linkClickHandler(null, query, newRawData);
+//                        linkClickHandler(null, query, newtargetRawData);
 //                    };
 
                     $.each(link.histogram, function (key, value) {
@@ -486,13 +478,13 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
 
                 // targetinfo 에러를 우선으로, 요청수 내림차순 정렬.
                 newLink.targetinfo.sort(function (e1, e2) {
-                    var err1 = newLink.rawdata[e1.applicationName].error;
-                    var err2 = newLink.rawdata[e2.applicationName].error;
+                    var err1 = newLink.targetRawData[e1.applicationName].error;
+                    var err2 = newLink.targetRawData[e2.applicationName].error;
 
                     if (err1 + err2 > 0) {
                         return err2 - err1;
                     } else {
-                        return newLink.rawdata[e2.applicationName].count - newLink.rawdata[e1.applicationName].count;
+                        return newLink.targetRawData[e2.applicationName].count - newLink.targetRawData[e1.applicationName].count;
                     }
                 });
 
