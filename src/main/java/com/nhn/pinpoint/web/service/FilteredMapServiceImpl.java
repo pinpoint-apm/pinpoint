@@ -306,7 +306,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
             final short slotTime = getHistogramSlotTime(spanEvent, destServiceType);
 
             // FIXME
-            // stat2.addCallData((dest == null) ? spanEvent.getEndPoint() : dest, destServiceType.getCode(), (short) slot2, 1);
+            // stat2.addCallHistogram((dest == null) ? spanEvent.getEndPoint() : dest, destServiceType.getCode(), (short) slot2, 1);
             final long spanEventTimeStamp = window.refineTimestamp(span.getStartTime() + spanEvent.getStartElapsed());
             linkData.addCallData(span.getAgentId(), span.getServiceType().getCode(), spanEvent.getEndPoint(), destServiceType.getCode(), spanEventTimeStamp, slotTime, 1);
 

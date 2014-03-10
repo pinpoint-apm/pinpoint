@@ -69,7 +69,7 @@ public class ApplicationMapBuilder {
             }
 
             // RPC client인 경우 dest application이 이미 있으면 삭제, 없으면 unknown cloud로 변경.
-            CallHistogramList toCallHistogramList = linkStat.getToHostList();
+            CallHistogramList toCallHistogramList = linkStat.getTargetList();
             Link link = new Link(fromNode, toNode, toCallHistogramList);
             link.setSourceList(linkStat.getSourceList());
             if (toNode.getServiceType().isRpcClient()) {
@@ -99,7 +99,7 @@ public class ApplicationMapBuilder {
             // FROM -> TO에서 TO가 CLIENT가 아니면 TO는 application
             if (!linkStat.getToServiceType().isRpcClient()) {
                 final Application toApplication = linkStat.getToApplication();
-                Node toNode = new Node(toApplication, linkStat.getToHostList());
+                Node toNode = new Node(toApplication, linkStat.getTargetList());
                 result.add(toNode);
             }
         }

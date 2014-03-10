@@ -32,7 +32,7 @@ public class CallHistogramList {
     }
 
 
-    public void addHost(String agentName, ServiceType serviceType, Collection<TimeHistogram> histogramList) {
+    public void addCallHistogram(String agentName, ServiceType serviceType, Collection<TimeHistogram> histogramList) {
         if (agentName == null) {
             throw new NullPointerException("agent must not be null");
         }
@@ -45,7 +45,7 @@ public class CallHistogramList {
     }
 
 
-    public void addHostUncheck(String hostName, ServiceType serviceType, Collection<TimeHistogram> histogram) {
+    public void addCallHistogramUncheck(String hostName, ServiceType serviceType, Collection<TimeHistogram> histogram) {
         if (hostName == null) {
             throw new NullPointerException("histogram must not be null");
         }
@@ -79,7 +79,7 @@ public class CallHistogramList {
         findCallHistogram.addTimeHistogram(callHistogram.getTimeHistogram());
     }
 
-    public void addHostList(CallHistogramList addCallHistogramList) {
+    public void addCallHistogram(CallHistogramList addCallHistogramList) {
         if (addCallHistogramList == null) {
             throw new NullPointerException("callHistogram must not be null");
         }

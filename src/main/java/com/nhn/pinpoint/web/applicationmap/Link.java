@@ -132,8 +132,8 @@ public class Link {
         }
 
         CallHistogramList linkCallHistogramList = link.getTargetList();
-        this.targetList.addHostList(linkCallHistogramList);
-        this.sourceList.addHostList(link.getSourceList());
+        this.targetList.addCallHistogram(linkCallHistogramList);
+        this.sourceList.addCallHistogram(link.getSourceList());
 	}
 
 	@Override

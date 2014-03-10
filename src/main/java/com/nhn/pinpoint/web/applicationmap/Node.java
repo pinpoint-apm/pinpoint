@@ -53,7 +53,7 @@ public class Node implements JsonSerializable {
 
         if (callHistogramList != null) {
             // 이 put은 정확하지 않음.
-            //		this.callHistogramList.addHostList(callHistogramList);
+            //		this.callHistogramList.addCallHistogram(callHistogramList);
             this.callHistogramList.put(callHistogramList);
         }
 
@@ -112,7 +112,7 @@ public class Node implements JsonSerializable {
         logger.trace("merge node this={}, node={}", this.application, node.application);
 		
         // 리얼 application을 실제빌드할때 copy하여 만들기 때문에. add할때 데이터를 hostList를 add해도 된다.
-        this.callHistogramList.addHostList(node.callHistogramList);
+        this.callHistogramList.addCallHistogram(node.callHistogramList);
 
 		if (node.agentSet != null) {
 			this.agentSet.addAll(node.agentSet);

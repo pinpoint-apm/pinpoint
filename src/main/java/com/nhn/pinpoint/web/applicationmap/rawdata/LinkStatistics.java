@@ -82,7 +82,7 @@ public class LinkStatistics {
         this.toApplication = toApplication;
     }
 
-	public CallHistogramList getToHostList() {
+	public CallHistogramList getTargetList() {
         return callDataMap.getTargetList();
 	}
 
