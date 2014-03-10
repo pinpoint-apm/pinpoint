@@ -26,8 +26,6 @@ public class ApplicationMap {
 	private final Set<String> applicationNames = new HashSet<String>();
     private final Range range;
 
-    private TimeSeriesStore timeSeriesStore;
-
 
 	ApplicationMap(Range range) {
         if (range == null) {
@@ -68,14 +66,6 @@ public class ApplicationMap {
         linkList.buildLink(relationList);
     }
 
-
-	public TimeSeriesStore getTimeSeriesStore() {
-		return timeSeriesStore;
-	}
-
-	public void setTimeSeriesStore(TimeSeriesStore timeSeriesStore) {
-		this.timeSeriesStore = timeSeriesStore;
-	}
 
     public void buildNode() {
         this.nodeList.build();

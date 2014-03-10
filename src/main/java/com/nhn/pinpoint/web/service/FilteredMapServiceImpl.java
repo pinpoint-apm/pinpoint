@@ -197,7 +197,6 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
         final Map<LinkKey, LinkStatistics> linkStatMap = new HashMap<LinkKey, LinkStatistics>();
 
-        final TimeSeriesStore timeSeriesStore = new DefaultTimeSeriesStoreImpl(range);
         final MapResponseHistogramSummary mapHistogramSummary = new MapResponseHistogramSummary(range);
         /**
          * 통계정보로 변환한다.
@@ -230,14 +229,8 @@ public class FilteredMapServiceImpl implements FilteredMapService {
                 long timestamp = window.refineTimestamp(span.getCollectorAcceptTime());
                 linkStat.addCallData(span.getAgentId(), srcApplication.getServiceTypeCode(), destApplication.getName(), destApplication.getServiceTypeCode(), timestamp, slotTime, 1);
 
-                // link timeseries statistics추가.
-                timeSeriesStore.addLinkStat(linkKey, span.getCollectorAcceptTime(), slotTime, 1L, span.hasException());
 
-                // application timeseries statistics
-                Application node = new Application(span.getApplicationId(), span.getServiceType());
-                timeSeriesStore.addNodeStat(node, span.getCollectorAcceptTime(), slotTime, 1L, span.hasException());
-
-                addNodeFromSpanEvent(span, window, linkStatMap, timeSeriesStore, transactionSpanMap);
+                addNodeFromSpanEvent(span, window, linkStatMap, transactionSpanMap);
             }
         }
 
@@ -249,7 +242,6 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         Collection<LinkStatistics> linkStatisticsList = linkStatMap.values();
         ApplicationMapBuilder applicationMapBuilder = new ApplicationMapBuilder(range);
         ApplicationMap map = applicationMapBuilder.build(linkStatisticsList);
-        map.setTimeSeriesStore(timeSeriesStore);
 
         mapHistogramSummary.build();
         map.appendResponseTime(mapHistogramSummary);
@@ -274,7 +266,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     }
 
 
-    private void addNodeFromSpanEvent(SpanBo span, TimeWindow window, Map<LinkKey, LinkStatistics> linkStatMap, TimeSeriesStore timeSeriesStore, Map<Long, SpanBo> transactionSpanMap) {
+    private void addNodeFromSpanEvent(SpanBo span, TimeWindow window, Map<LinkKey, LinkStatistics> linkStatMap, Map<Long, SpanBo> transactionSpanMap) {
         /**
          * span event의 statistics추가.
          */
@@ -318,12 +310,6 @@ public class FilteredMapServiceImpl implements FilteredMapService {
             final long spanEventTimeStamp = window.refineTimestamp(span.getStartTime() + spanEvent.getStartElapsed());
             linkData.addCallData(span.getAgentId(), span.getServiceType().getCode(), spanEvent.getEndPoint(), destServiceType.getCode(), spanEventTimeStamp, slotTime, 1);
 
-            // link timeseries statistics추가.
-            timeSeriesStore.addLinkStat(spanEventStatKey, spanEventTimeStamp, slotTime, 1L, spanEvent.hasException());
-
-            // application timeseries statistics
-            Application nodeKey = new Application(spanEvent.getDestinationId(), spanEvent.getServiceType());
-            timeSeriesStore.addNodeStat(nodeKey, span.getCollectorAcceptTime(), slotTime, 1L, spanEvent.hasException());
         }
     }
 

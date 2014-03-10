@@ -77,9 +77,6 @@ public class FilteredMapController {
 		model.addAttribute("nodes", map.getNodes());
 		model.addAttribute("links", map.getLinks());
 		
-		// FIXME linkstatistics detail에 보여주는 timeseries값을 서버맵에서 제공할 예정.
-		model.addAttribute("timeseriesResponses", map.getTimeSeriesStore());
-
 		return "applicationmap.filtered";
 	}
 	
