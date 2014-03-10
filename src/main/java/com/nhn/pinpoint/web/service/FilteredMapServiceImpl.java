@@ -247,8 +247,10 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         }
 
         Collection<LinkStatistics> linkStatisticsList = linkStatMap.values();
-        ApplicationMap map = new ApplicationMapBuilder(range).build(linkStatisticsList);
+        ApplicationMapBuilder applicationMapBuilder = new ApplicationMapBuilder(range);
+        ApplicationMap map = applicationMapBuilder.build(linkStatisticsList);
         map.setTimeSeriesStore(timeSeriesStore);
+
         mapHistogramSummary.build();
         map.appendResponseTime(mapHistogramSummary);
 

@@ -39,7 +39,14 @@ public class ResponseTime {
         return timeStamp;
     }
 
-    public Histogram getHistogram(String agentId) {
+    public Histogram findHistogram(String agentId) {
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
+        return responseHistogramMap.get(agentId);
+    }
+
+    private Histogram getHistogram(String agentId) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
@@ -53,6 +60,14 @@ public class ResponseTime {
 
     public void addResponseTime(String agentId, short slotNumber, long count) {
         getHistogram(agentId).addCallCount(slotNumber, count);
+    }
+
+
+    public void addLinkResponseTime(String agentId, Histogram histogram) {
+        if (histogram == null) {
+            throw new NullPointerException("histogram must not be null");
+        }
+        getHistogram(agentId).addUncheckType(histogram);
     }
 
     public void addResponseTime(String agentId, int elapsedTime) {

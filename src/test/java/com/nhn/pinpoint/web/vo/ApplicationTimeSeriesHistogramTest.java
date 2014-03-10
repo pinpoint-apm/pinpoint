@@ -41,11 +41,11 @@ public class ApplicationTimeSeriesHistogramTest {
         List<ResponseTime> responseTimeList = new ArrayList<ResponseTime>();
 
         ResponseTime one = new ResponseTime(app.getName(), app.getServiceTypeCode(), 0);
-        one.getHistogram("test").addCallCount((short) 1000, 1);
+        one.addResponseTime("test", (short) 1000, 1);
         responseTimeList.add(one);
 
         ResponseTime two = new ResponseTime(app.getName(), app.getServiceTypeCode(), 1000*60);
-        two .getHistogram("test").addCallCount((short) 3000, 1);
+        two .addResponseTime("test", (short) 3000, 1);
         responseTimeList.add(two);
         return responseTimeList;
     }

@@ -2,9 +2,11 @@ package com.nhn.pinpoint.web.vo;
 
 import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.bo.SpanBo;
-import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
+import com.nhn.pinpoint.web.applicationmap.rawdata.TimeHistogram;
 import com.nhn.pinpoint.web.util.TimeWindow;
 import com.nhn.pinpoint.web.util.TimeWindowOneMinuteSampler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.ws.Response;
 import java.util.*;
@@ -13,6 +15,7 @@ import java.util.*;
  * @author emeroad
  */
 public class MapResponseHistogramSummary {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Range range;
     private final TimeWindow window;
@@ -44,6 +47,14 @@ public class MapResponseHistogramSummary {
 
     }
 
+
+    public void addLinkHistogram(Application application, String agentId, TimeHistogram timeHistogram) {
+        long timeStamp = timeHistogram.getTimeStamp();
+        timeStamp = window.refineTimestamp(timeStamp);
+        final ResponseTime responseTime = getResponseTime(application, timeStamp);
+        responseTime.addLinkResponseTime(agentId, timeHistogram);
+    }
+
     private ResponseTime getResponseTime(Application application, Long timeStamp) {
         Map<Application, ResponseTime> responseTimeMap = responseTimeApplicationMap.get(timeStamp);
         if (responseTimeMap == null) {
@@ -66,7 +77,8 @@ public class MapResponseHistogramSummary {
                 List<ResponseTime> responseTimeList = result.get(applicationResponseTimeEntry.getKey());
                 if (responseTimeList == null) {
                     responseTimeList = new ArrayList<ResponseTime>();
-                    result.put(applicationResponseTimeEntry.getKey(), responseTimeList);
+                    Application key = applicationResponseTimeEntry.getKey();
+                    result.put(key, responseTimeList);
                 }
                 responseTimeList.add(applicationResponseTimeEntry.getValue());
             }
@@ -78,6 +90,9 @@ public class MapResponseHistogramSummary {
     }
 
     public List<ResponseTime> getResponseTimeList(Application application) {
-        return this.result.get(application);
+        List<ResponseTime> responseTimes = this.result.get(application);
+        return responseTimes;
     }
+
+
 }

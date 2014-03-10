@@ -104,6 +104,10 @@ public class Histogram {
 		return errorCount + fastCount + normalCount + slowCount + verySlowCount;
 	}
 
+    public long getSuccessCount() {
+        return fastCount + normalCount + slowCount + verySlowCount;
+    }
+
     public long getCount(SlotType slotType) {
         if (slotType == null) {
             throw new NullPointerException("slotType must not be null");

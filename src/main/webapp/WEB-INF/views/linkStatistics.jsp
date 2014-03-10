@@ -13,5 +13,5 @@
 	"to" : ${range.to},
 	"failedCount" : ${linkStatistics.errorCount},
 	"successCount" : ${linkStatistics.successCount},
-	"timeSeriesHistogram" : ${timeseriesHistogram}
+	"timeSeriesHistogram" : ${timeSeriesHistogram}
 }
