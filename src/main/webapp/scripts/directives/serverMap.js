@@ -249,14 +249,8 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         scope.$emit("serverMap.linkContextClicked", e, query, link, copiedData);
                         reset();
                         htLastLink = link;
-//                        scope.link = link;
-//                    scope.nodeCategory = link.category || '';
-//                        scope.srcServiceType = link.sourceinfo.serviceType || '';
-//                        scope.srcApplicationName = link.sourceinfo.applicationName || '';
-//                        scope.destServiceType = link.targetinfo.serviceType || '';
-//                        scope.destApplicationName = link.targetinfo.applicationName || '';
 
-                        if (!bUseLinkContextMenu || angular.isArray(link.targetinfo)) {
+                        if (!bUseLinkContextMenu || angular.isArray(link.targetInfo)) {
                             return;
                         }
                         setLinkContextMenuPosition(e.event.layerY, e.event.layerX);

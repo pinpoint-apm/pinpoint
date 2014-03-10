@@ -359,7 +359,6 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     reset();
                     htQuery = query;
                     htLastLink = link;
-                    console.log('link', link);
                     showDetailInformation(link);
                 });
             }
