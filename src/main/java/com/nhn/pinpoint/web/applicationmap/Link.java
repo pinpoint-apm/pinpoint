@@ -24,12 +24,12 @@ public class Link {
     private final Node fromNode;
     private final Node toNode;
 
-	private final CallHistogramList tagetList;
+	private final CallHistogramList targetList;
     private CallHistogramList sourceList;
 
 
-    public Link(Node from, Node to, CallHistogramList tagetList) {
-        this(createLinkKey(from, to), from, to, tagetList);
+    public Link(Node from, Node to, CallHistogramList targetList) {
+        this(createLinkKey(from, to), from, to, targetList);
 
     }
 
@@ -45,7 +45,7 @@ public class Link {
         return new LinkKey(fromApplication, toApplication);
     }
 
-    Link(LinkKey linkKey, Node fromNode, Node toNode, CallHistogramList tagetList) {
+    Link(LinkKey linkKey, Node fromNode, Node toNode, CallHistogramList targetList) {
         if (fromNode == null) {
             throw new NullPointerException("fromNode must not be null");
         }
@@ -58,7 +58,7 @@ public class Link {
         this.linkKey = linkKey;
         this.fromNode = fromNode;
         this.toNode = toNode;
-        this.tagetList = tagetList;
+        this.targetList = targetList;
     }
 
     public Link(Link copyLink) {
@@ -68,7 +68,7 @@ public class Link {
         this.linkKey = copyLink.linkKey;
         this.fromNode = copyLink.fromNode;
         this.toNode = copyLink.toNode;
-        this.tagetList = new CallHistogramList(copyLink.tagetList);
+        this.targetList = new CallHistogramList(copyLink.targetList);
         this.sourceList = new CallHistogramList(copyLink.sourceList);
     }
 
@@ -99,7 +99,7 @@ public class Link {
     }
 
 	public CallHistogramList getTargetList() {
-		return tagetList;
+		return targetList;
 	}
 
 
@@ -107,7 +107,7 @@ public class Link {
         // 내가 호출하는 대상의 serviceType을 가져와야 한다.
         // tomcat -> arcus를 호출한다고 하였을 경우 arcus의 타입을 가져와야함.
         final Histogram linkHistogram = new Histogram(toNode.getServiceType());
-        for (CallHistogram callHistogram : tagetList.getCallHistogramList()) {
+        for (CallHistogram callHistogram : targetList.getCallHistogramList()) {
             linkHistogram.addUncheckType(callHistogram.getHistogram());
         }
 		return linkHistogram;
@@ -132,7 +132,7 @@ public class Link {
         }
 
         CallHistogramList linkCallHistogramList = link.getTargetList();
-        this.tagetList.addHostList(linkCallHistogramList);
+        this.targetList.addHostList(linkCallHistogramList);
         this.sourceList.addHostList(link.getSourceList());
 	}
 
@@ -163,7 +163,7 @@ public class Link {
 
 	@Override
 	public String toString() {
-		return "Link [linkKey=" + linkKey + ", fromNode=" + fromNode + ", toNode=" + toNode + ", tagetList=" + tagetList + "]";
+		return "Link [linkKey=" + linkKey + ", fromNode=" + fromNode + ", toNode=" + toNode + ", targetList=" + targetList + "]";
 	}
 
 }
