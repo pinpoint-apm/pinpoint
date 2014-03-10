@@ -57,7 +57,8 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         htRawData = data.rawdata
                         scope.linkCategory = 'UnknownLinkInfoBox';
                         for (var key in data.targetinfo) {
-                            renderStatisticsSummary('.linkInfoDetails .summaryCharts_' + data.targetinfo[key].sequence +
+                            var className = $filter('applicationNameToClassName')(data.targetinfo[key].applicationName)
+                            renderStatisticsSummary('.linkInfoDetails .summaryCharts_' + className +
                                 ' svg', parseHistogramForD3(data.rawdata[data.targetinfo[key].applicationName].histogram));
                         }
                     } else {

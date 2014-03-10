@@ -35,7 +35,7 @@
                 <img ng-src="/images/icons/{{target.serviceType | icons}}.png" style="height:14px;" />
                 {{target.applicationName}}
             </div>
-            <div class="panel-body summaryCharts_{{target.sequence}}" style="position: relative; padding:0">
+            <div class="panel-body summaryCharts_{{target.applicationName | applicationNameToClassName}}" style="position: relative; padding:0">
                 <svg style='height:120px;width:350px;' />
                 <a class="btn btn-default btn-xs" href ng-click="showDetailInformation(target.applicationName)"
                    title="Show Link Information" style="position: absolute;top: 20px; right:5px;">

@@ -41,7 +41,7 @@
                             <span class="glyphicon" ng-class="{true:'glyphicon-minus',false:'glyphicon-plus'}[instance.showChart]"></span>
                         </button>
                         <div ng-show="instance.showChart">
-                            <div class="agentHistogram_{{instance.name}}">
+                            <div class="agentHistogram_{{instance.name | applicationNameToClassName}}">
                                 <h6>Response Summary</h6>
                                 <svg style='height:150px;width:350px' />
                             </div>

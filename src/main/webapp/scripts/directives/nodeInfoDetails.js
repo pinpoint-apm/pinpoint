@@ -25,8 +25,6 @@ pinpointApp
                  */
                 reset = function () {
                     scope.showNodeInfoDetails = false;
-//                    scope.nodeCategory = null;
-//                    scope.nodeIcon = 'USER';
                     scope.unknownGroup = null;
                     scope.hosts = null;
                     scope.showServers = false;
@@ -55,26 +53,25 @@ pinpointApp
                     console.log('node', node);
 
                     if (!node.rawdata && /*node.category !== "USER" &&*/ node.category !== "UNKNOWN_GROUP") {
-//                        showApplicationStatisticsSummary(query.from, query.to, data.text, data.serviceTypeCode);
                         renderApplicationStatistics([
                             {
                                 'key': "Response Time Histogram",
                                 'values' : parseHistogramForNvd3(node.histogram)
                             }
                         ]);
-                        //renderApplicationStatistics(histogramData);
                         if (node.isWas) {
                             renderStatisticsTimeSeriesHistogram(node.timeSeriesHistogram);
 
                             for (var key in node.agentHistogram) {
-                                console.log('key', key);
-                                renderStatisticsSummary('.nodeInfoDetails .agentHistogram_' + key +
+                                var className = $filter('applicationNameToClassName')(key);
+                                renderStatisticsSummary('.nodeInfoDetails .agentHistogram_' + className +
                                     ' svg', parseHistogramForD3(node.agentHistogram[key]));
                             }
                         }
                     } else if (node.category === 'UNKNOWN_GROUP'){
 
                         for (var key in node.textArr) {
+                            console.log('.nodeInfoDetails .summaryCharts_' + key + ' svg');
                             renderStatisticsSummary('.nodeInfoDetails .summaryCharts_' + key +
                                 ' svg', parseHistogramForD3(node.rawdata[node.textArr[key].applicationName].histogram));
                         }
