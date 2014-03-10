@@ -1,10 +1,12 @@
 package com.nhn.pinpoint.web.applicationmap;
 
+import java.io.IOException;
 import java.util.*;
 
 import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogramList;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.ResponseHistogramSummary;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,12 +27,12 @@ public class Node implements JsonSerializable {
     public static final String NODE_DELIMITER = "^";
     private final Application application;
 
-    private final ServerInstanceList serverInstanceList = new ServerInstanceList();
-
-	private final CallHistogramList callHistogramList;
-	private final Set<AgentInfoBo> agentSet;
+    private ServerBuilder serverBuilder = new ServerBuilder();
+    private ServerInstanceList serverInstanceList;
 
     private ResponseHistogramSummary responseHistogramSummary;
+    // 임시로 생성.
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 	
 
 	public Node(Application application, Set<AgentInfoBo> agentSet) {
@@ -48,18 +50,10 @@ public class Node implements JsonSerializable {
 
         logger.debug("create node application={}, agentSet={}", application, agentSet);
         this.application = application;
-        this.callHistogramList = new CallHistogramList();
-        this.agentSet = new HashSet<AgentInfoBo>();
 
-        if (callHistogramList != null) {
-            // 이 put은 정확하지 않음.
-            //		this.callHistogramList.addCallHistogram(callHistogramList);
-            this.callHistogramList.put(callHistogramList);
-        }
+        this.serverBuilder.addCallHistogramList(callHistogramList);
+        this.serverBuilder.addAgentInfo(agentSet);
 
-        if (agentSet != null) {
-            this.agentSet.addAll(agentSet);
-        }
     }
 
     public Node(Node copyNode) {
@@ -67,8 +61,8 @@ public class Node implements JsonSerializable {
             throw new NullPointerException("copyNode must not be null");
         }
         this.application = copyNode.application;
-        this.callHistogramList = new CallHistogramList(copyNode.callHistogramList);
-        this.agentSet = new HashSet<AgentInfoBo>(copyNode.agentSet);
+        this.serverBuilder.addServerInstance(copyNode.serverBuilder);
+
     }
 
     private String getApplicationName(Application application) {
@@ -80,16 +74,21 @@ public class Node implements JsonSerializable {
     }
 
     void build() {
-		if (!agentSet.isEmpty()) {
-			serverInstanceList.fillServerInstanceList(agentSet);
-		} else {
-            serverInstanceList.fillServerInstanceList(callHistogramList);
-		}
-	}
+        this.serverInstanceList = serverBuilder.build();
+        this.serverBuilder = null;
+    }
 	
 	public Map<String, List<ServerInstance>> getServerInstanceList() {
 		return serverInstanceList.getServerInstanceList();
 	}
+
+    public String getServerInstanceListJson() {
+        try {
+            return MAPPER.writeValueAsString(serverInstanceList);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex.getMessage(), ex);
+        }
+    }
 
     public Application getApplication() {
         return application;
@@ -112,12 +111,9 @@ public class Node implements JsonSerializable {
         logger.trace("merge node this={}, node={}", this.application, node.application);
 		
         // 리얼 application을 실제빌드할때 copy하여 만들기 때문에. add할때 데이터를 hostList를 add해도 된다.
-        this.callHistogramList.addCallHistogram(node.callHistogramList);
 
-		if (node.agentSet != null) {
-			this.agentSet.addAll(node.agentSet);
-		}
-		
+        this.serverBuilder.addServerInstance(node.serverBuilder);
+
 	}
 
 	public ServiceType getServiceType() {

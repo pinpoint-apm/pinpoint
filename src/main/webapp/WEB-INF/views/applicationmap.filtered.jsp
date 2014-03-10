@@ -46,23 +46,7 @@
                 "timeSeriesHistogram" : ${node.responseHistogramSummary.applicationTimeSeriesHistogramToJson},
                 "agentTimeSeriesHistogram" : ${node.responseHistogramSummary.agentTimeSeriesHistogramToJson},
                 </c:if>
-				"serverList" : {
-					<c:if test="${node.serviceType.desc != 'UNKNOWN'}">
-					<c:forEach items="${node.serverInstanceList}" var="serverInstance" varStatus="status5">
-						"${serverInstance.key}" : {
-							"name" : "${serverInstance.key}", 
-							"status" : null,
-							"instanceList" : {
-								<c:forEach items="${serverInstance.value}" var="instance" varStatus="status6">
-								"${instance.id}" : ${instance.json}
-									<c:if test="${!status6.last}">,</c:if>
-								</c:forEach>								
-							}
-						}
-						<c:if test="${!status5.last}">,</c:if>
-					</c:forEach>
-					</c:if>
-				}
+                "serverList" : ${node.serverInstanceListJson}
 			} <c:if test="${!status.last}">,</c:if>
 			</c:forEach>
 		],

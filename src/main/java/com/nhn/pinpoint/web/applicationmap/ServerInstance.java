@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.web.applicationmap;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import com.nhn.pinpoint.common.ServiceType;
@@ -11,15 +13,13 @@ import com.nhn.pinpoint.web.util.JsonSerializable;
  * @author netspider
  * @author emeroad
  */
-public class ServerInstance implements JsonSerializable {
+public class ServerInstance {
 
 	private final String name;
 	private final ServiceType serviceType;
 	
 	private final String id;
 	private final AgentInfoBo agentInfo;
-
-	private static final ObjectMapper MAPPER = new ObjectMapper();
 
 	public ServerInstance(AgentInfoBo agentInfo) {
         if (agentInfo == null) {
@@ -44,31 +44,24 @@ public class ServerInstance implements JsonSerializable {
 		this.agentInfo = null;
 	}
 
-	public String getId() {
+    @JsonProperty("name")
+    public String getName() {
+        return name;
+    }
+
+    @JsonProperty("serviceType")
+    public ServiceType getServiceType() {
+        return serviceType;
+    }
+
+    @JsonIgnore
+    public String getId() {
 		return this.id;
 	}
 
+    @JsonProperty("agentInfo")
 	public AgentInfoBo getAgentInfo() {
 		return agentInfo;
-	}
-
-
-	@Override
-	public String getJson() {
-		String agentInfoJson = "{}";
-		try {
-			agentInfoJson = MAPPER.writeValueAsString(agentInfo);
-		} catch (Exception e) {
-			throw new RuntimeException("json create fail,", e);
-		}
-		
-		StringBuilder sb = new StringBuilder();
-		sb.append("{");
-		sb.append("\"name\":\"").append(name).append("\",");
-		sb.append("\"serviceType\":\"").append(serviceType).append("\",");
-		sb.append("\"agentInfo\":").append((agentInfo == null) ? null : agentInfoJson);
-		sb.append("}");
-		return sb.toString();
 	}
 
 
