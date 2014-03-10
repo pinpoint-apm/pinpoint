@@ -25,7 +25,8 @@
     "angular-webstorage": "~0.9.3",
     "bootstrap": "~3.1.0",
     "angular-slider": "~0.1.6",
-    "slickgrid": "~2.1.0"
+    "slickgrid": "~2.1.0",
+    "angular-base64": "~2.0.1"
   },
   "devDependencies": {
     "angular-mocks": "1.2.9",
