@@ -37,8 +37,8 @@
                         {{instance.name}}
                         <a class="btn btn-default btn-xs" ng-show="isWas" ng-href="#/inspector/{{node.text}}@{{node.serviceTypeCode}}/{{oNavbarVo.getPeriod()}}/{{oNavbarVo.getQueryEndTime()}}/{{instance.name}}" target="_blank" title="Inspect Agents" alt="Inspect Agents">Inspector</a>
                         <a class="btn btn-default btn-xs" href="http://hubble.arcuscloud.nhncorp.com/" target="_blank" title="Arcus monitoring site" ng-show="nodeCategory == 'ARCUS'">Hubble</a>
-                        <button type="button" class="btn btn-default btn-xs" ng-init="instance.showChart=false" ng-click="instance.showChart=!instance.showChart"
-                                ng-show="agentHistogram[instance.name]">
+                        <button type="button" class="btn btn-xs" ng-init="instance.showChart=false" ng-click="instance.showChart=!instance.showChart"
+                                ng-show="agentHistogram[instance.name]" ng-class="{true:'btn-danger', false:'btn-default'}[agentHistogram[instance.name].Error > 0]">
                             <span class="glyphicon" ng-class="{true:'glyphicon-minus',false:'glyphicon-plus'}[instance.showChart]"></span>
                         </button>
                         <div ng-show="instance.showChart">
