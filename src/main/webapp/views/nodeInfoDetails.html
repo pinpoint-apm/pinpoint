@@ -13,13 +13,13 @@
 
     </div>
 
-    <div class='infoBarChart' ng-show="showResponseSummary">
+    <div class='histogram' ng-show="showResponseSummary">
         <h5>Response Summary</h5>
         <svg style='height:150px;' />
     </div>
 
 
-    <div class='infoChart' ng-show="showLoad">
+    <div class='timeSeriesHistogram' ng-show="showLoad">
         <h5>Load</h5>
         <svg style='height:150px' />
     </div>
@@ -44,6 +44,10 @@
                         <div ng-show="instance.showChart">
                             <div class="agentHistogram_{{instance.name | applicationNameToClassName}}">
                                 <h6>Response Summary</h6>
+                                <svg style='height:150px;width:350px' />
+                            </div>
+                            <div class="agentTimeSeriesHistogram_{{instance.name | applicationNameToClassName}}">
+                                <h6>Load</h6>
                                 <svg style='height:150px;width:350px' />
                             </div>
                         </div>
