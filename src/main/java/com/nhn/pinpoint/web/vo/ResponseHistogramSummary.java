@@ -13,6 +13,7 @@ import java.util.*;
 
 /**
  * @author emeroad
+ * @author netspider
  */
 public class ResponseHistogramSummary {
 
@@ -107,7 +108,7 @@ public class ResponseHistogramSummary {
 
     public String getAgentTimeSeriesHistogramToJson() {
         try {
-            List<AgentResponseTimeViewModel> viewModel = agentTimeSeriesHistogram.createViewModel();
+            Map<String, AgentResponseTimeViewModel> viewModel = agentTimeSeriesHistogram.createViewModel();
             return MAPPER.writeValueAsString(viewModel);
         } catch (IOException ex) {
             throw new RuntimeException(ex.getMessage(), ex);

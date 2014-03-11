@@ -16,6 +16,7 @@ import java.util.*;
 
 /**
  * @author emeroad
+ * @author netspider
  */
 public class AgentTimeSeriesHistogram {
 
@@ -71,7 +72,6 @@ public class AgentTimeSeriesHistogram {
 
     }
 
-
     private Map<String, List<TimeHistogram>> interpolation(Map<String, List<TimeHistogram>> agentLevelMap) {
         if (agentLevelMap.size() == 0) {
             return agentLevelMap;
@@ -87,7 +87,6 @@ public class AgentTimeSeriesHistogram {
             }
             windowTimeMap.put(key, value);
         }
-
 
         for (Map.Entry<String, List<TimeHistogram>> entry : agentLevelMap.entrySet()) {
             List<TimeHistogram> histogramList = entry.getValue();
@@ -129,24 +128,25 @@ public class AgentTimeSeriesHistogram {
         }
     }
 
-    public List<AgentResponseTimeViewModel> createViewModel() {
-        final List<AgentResponseTimeViewModel> result = new ArrayList<AgentResponseTimeViewModel>();
+    public Map<String, AgentResponseTimeViewModel> createViewModel() {
+        final Map<String, AgentResponseTimeViewModel> result = new HashMap<String, AgentResponseTimeViewModel>();
         for (Map.Entry<String, List<TimeHistogram>> entry : histogramMap.entrySet()) {
             AgentResponseTimeViewModel model = createAgentResponseTimeViewModel(entry.getKey(), entry.getValue());
-            result.add(model);
+            result.put(entry.getKey(), model);
+            // result.add(model);
         }
-        Collections.sort(result, new Comparator<AgentResponseTimeViewModel>() {
-            @Override
-            public int compare(AgentResponseTimeViewModel o1, AgentResponseTimeViewModel o2) {
-                return o1.getAgentName().compareTo(o2.getAgentName());
-            }
-        });
+        // Collections.sort(result, new Comparator<AgentResponseTimeViewModel>() {
+        //    @Override
+        //    public int compare(AgentResponseTimeViewModel o1, AgentResponseTimeViewModel o2) {
+        //        return o1.getAgentName().compareTo(o2.getAgentName());
+        //    }
+        // });
         return result;
     }
 
     private AgentResponseTimeViewModel createAgentResponseTimeViewModel(String agentName, List<TimeHistogram> timeHistogramList) {
         List<ResponseTimeViewModel> responseTimeViewModel = createResponseTimeViewModel(timeHistogramList);
-        AgentResponseTimeViewModel agentResponseTimeViewModel = new AgentResponseTimeViewModel(agentName, responseTimeViewModel);
+        AgentResponseTimeViewModel agentResponseTimeViewModel = new AgentResponseTimeViewModel(/*agentName,*/ responseTimeViewModel);
         return agentResponseTimeViewModel;
     }
 
@@ -160,7 +160,6 @@ public class AgentTimeSeriesHistogram {
         value.add(new ResponseTimeViewModel(schema.getVerySlowSlot().getSlotName(), getColumnValue(SlotType.VERY_SLOW, timeHistogramList)));
         value.add(new ResponseTimeViewModel(schema.getErrorSlot().getSlotName(), getColumnValue(SlotType.ERROR, timeHistogramList)));
         return value;
-
     }
 
     public List<ResponseTimeViewModel.TimeCount> getColumnValue(SlotType slotType, List<TimeHistogram> timeHistogramList) {
@@ -174,6 +173,4 @@ public class AgentTimeSeriesHistogram {
     public long getCount(TimeHistogram timeHistogram, SlotType slotType) {
         return timeHistogram.getCount(slotType);
     }
-
-
 }
