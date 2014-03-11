@@ -23,8 +23,8 @@
         $init: function (htOption) {
             this.option({
                 "sContainerId": '',
-                "sBigFont": "12pt NanumGothic,ng,dotum,AppleGothic,avn55,sans-serif",
-                "sSmallFont": "11pt NanumGothic,ng,dotum,AppleGothic,avn55,sans-serif",
+                "sBigFont": "12pt avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif",
+                "sSmallFont": "11pt avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif",
                 "sImageDir": './images/',
                 "nBoldKey": null,
                 "htIcons": {
@@ -42,9 +42,9 @@
                 },
                 "htNodeTheme": {
                     "default": {
-                        "backgroundColor": "#ffffff",
-                        "borderColor": "#adadad",
-                        "fontColor": "#333333"
+                        "backgroundColor": "#fefefe",
+                        "borderColor": "#8E8E93",
+                        "fontColor": "#1F1F21"
                     },
                     "bold": {
                         "borderColor": "#d43f3a"
@@ -56,7 +56,7 @@
                 },
                 "htLinkTheme": {
                     "default": {
-                        "backgroundColor": "#f9f9f9",
+                        "backgroundColor": "#fefefe",
                         "borderColor": "#7d7d7d",
                         "fontFamily": "10pt helvetica, arial, sans-serif",
                         "fontColor": "#5a5a5a",
@@ -75,7 +75,7 @@
                         "backgroundColor": "#ffc9c9",
                         "borderColor": "#7d7d7d",
                         "fontFamily": "10pt helvetica, arial, sans-serif",
-                        "fontColor": "#d72f30",
+                        "fontColor": "#FF1300",
                         "fontAlign": "center",
                         "margin": 1
                     }
@@ -86,11 +86,11 @@
                         "fontColor": "#ffffff"
                     },
                     "from": {
-                        "backgroundColor": "#247cbb",
+                        "backgroundColor": "#34AADC",
                         "fontColor": "#ffffff"
                     },
                     "to": {
-                        "backgroundColor": "#f78e41",
+                        "backgroundColor": "#FF9500",
                         "fontColor": "#ffffff"
                     }
                 },
