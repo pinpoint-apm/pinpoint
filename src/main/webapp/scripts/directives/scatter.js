@@ -29,7 +29,7 @@ pinpointApp.constant('scatterConfig', {
             // type name : color
             'Success': '#2ca02c',
             // 'Warning' : '#f5d025',
-            'Failed': '#FF2D55'
+            'Failed': '#d62728'
         },
         htOption: {
             dataType: 'jsonp',

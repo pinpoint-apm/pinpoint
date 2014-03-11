@@ -2,7 +2,7 @@
 
 pinpointApp.constant('nodeInfoDetailsConfig', {
     applicationStatisticsUrl: '/applicationStatistics.pinpoint',
-    myColors: ["#008000", "#4B72E3", "#A74EA7", "#BB5004", "#FF0000"]
+    myColors: ["#2ca02c", "#3c81fa", "#f8c731", "#f69124", "#f53034"]
 });
 
 pinpointApp

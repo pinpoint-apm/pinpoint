@@ -82,7 +82,7 @@
                 },
                 "htHighlightNode": {
                     "self": {
-                        "backgroundColor": "#28a1f7",
+                        "backgroundColor": "#289E1D",
                         "fontColor": "#ffffff"
                     },
                     "from": {
@@ -96,7 +96,7 @@
                 },
                 "htHighlightLink": {
                     "self": {
-                        "borderColor": "#28a1f7"
+                        "borderColor": "#289E1D"
                     },
                     "from": {
                         "borderColor": "#1270b4"
