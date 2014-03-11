@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author emeroad
@@ -30,7 +31,7 @@ public class AgentTimeSeriesHistogramTest {
         List<ResponseTime> responseHistogramList = createResponseTime(app, "test1", "test2");
         histogram.build(responseHistogramList);
 
-        List<AgentResponseTimeViewModel> viewModel = histogram.createViewModel();
+        Map<String, AgentResponseTimeViewModel> viewModel = histogram.createViewModel();
         logger.debug("{}", viewModel);
         ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
         String s = writer.writeValueAsString(viewModel);
