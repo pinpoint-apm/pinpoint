@@ -267,13 +267,31 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
 
         if (angular.isDefined(node.timeSeriesHistogram)) {
             for (var key in node.timeSeriesHistogram) {
-
+                if (angular.isDefined(htLastMapData.applicationMapData.nodeDataArray[nodeKey].timeSeriesHistogram)) {
+                    htLastMapData.applicationMapData.nodeDataArray[nodeKey].timeSeriesHistogram[key].values = node.timeSeriesHistogram[key].values.concat(htLastMapData.applicationMapData.nodeDataArray[nodeKey].timeSeriesHistogram[key].values);
+                } else {
+                    htLastMapData.applicationMapData.nodeDataArray[nodeKey].timeSeriesHistogram = node.timeSeriesHistogram;
+                }
             }
         }
 
         if (angular.isDefined(node.agentTimeSeriesHistogram)) {
             for (var key in node.agentTimeSeriesHistogram) {
-
+                if (angular.isDefined(htLastMapData.applicationMapData.nodeDataArray[nodeKey].agentTimeSeriesHistogram)) {
+                    if (angular.isDefined(htLastMapData.applicationMapData.nodeDataArray[nodeKey].agentTimeSeriesHistogram[key])) {
+                        for (var innerKey in node.agentTimeSeriesHistogram[key]) {
+                            if (angular.isDefined(htLastMapData.applicationMapData.nodeDataArray[nodeKey].agentTimeSeriesHistogram[key][innerKey])) {
+                                htLastMapData.applicationMapData.nodeDataArray[nodeKey].agentTimeSeriesHistogram[key][innerKey].values = node.agentTimeSeriesHistogram[key][innerKey].values.concat(htLastMapData.applicationMapData.nodeDataArray[nodeKey].agentTimeSeriesHistogram[key][innerKey].values);
+                            } else {
+                                htLastMapData.applicationMapData.nodeDataArray[nodeKey].agentTimeSeriesHistogram[key][innerKey] = node.agentTimeSeriesHistogram[key][innerKey];
+                            }
+                        }
+                    } else {
+                        htLastMapData.applicationMapData.nodeDataArray[nodeKey].agentTimeSeriesHistogram[key] = node.agentTimeSeriesHistogram[key];
+                    }
+                } else {
+                    htLastMapData.applicationMapData.nodeDataArray[nodeKey].agentTimeSeriesHistogram = node.agentTimeSeriesHistogram;
+                }
             }
         }
 
