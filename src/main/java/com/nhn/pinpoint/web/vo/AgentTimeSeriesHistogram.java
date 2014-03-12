@@ -16,7 +16,6 @@ import java.util.*;
 
 /**
  * @author emeroad
- * @author netspider
  */
 public class AgentTimeSeriesHistogram {
 
@@ -128,25 +127,24 @@ public class AgentTimeSeriesHistogram {
         }
     }
 
-    public Map<String, AgentResponseTimeViewModel> createViewModel() {
-        final Map<String, AgentResponseTimeViewModel> result = new HashMap<String, AgentResponseTimeViewModel>();
+    public List<AgentResponseTimeViewModel> createViewModel() {
+        final List<AgentResponseTimeViewModel> result = new ArrayList<AgentResponseTimeViewModel>();
         for (Map.Entry<String, List<TimeHistogram>> entry : histogramMap.entrySet()) {
             AgentResponseTimeViewModel model = createAgentResponseTimeViewModel(entry.getKey(), entry.getValue());
-            result.put(entry.getKey(), model);
-            // result.add(model);
+            result.add(model);
         }
-        // Collections.sort(result, new Comparator<AgentResponseTimeViewModel>() {
-        //    @Override
-        //    public int compare(AgentResponseTimeViewModel o1, AgentResponseTimeViewModel o2) {
-        //        return o1.getAgentName().compareTo(o2.getAgentName());
-        //    }
-        // });
+        Collections.sort(result, new Comparator<AgentResponseTimeViewModel>() {
+            @Override
+            public int compare(AgentResponseTimeViewModel o1, AgentResponseTimeViewModel o2) {
+                return o1.getAgentName().compareTo(o2.getAgentName());
+            }
+        });
         return result;
     }
 
     private AgentResponseTimeViewModel createAgentResponseTimeViewModel(String agentName, List<TimeHistogram> timeHistogramList) {
         List<ResponseTimeViewModel> responseTimeViewModel = createResponseTimeViewModel(timeHistogramList);
-        AgentResponseTimeViewModel agentResponseTimeViewModel = new AgentResponseTimeViewModel(/*agentName,*/ responseTimeViewModel);
+        AgentResponseTimeViewModel agentResponseTimeViewModel = new AgentResponseTimeViewModel(agentName, responseTimeViewModel);
         return agentResponseTimeViewModel;
     }
 

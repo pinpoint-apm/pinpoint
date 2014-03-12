@@ -31,7 +31,7 @@ public class AgentTimeSeriesHistogramTest {
         List<ResponseTime> responseHistogramList = createResponseTime(app, "test1", "test2");
         histogram.build(responseHistogramList);
 
-        Map<String, AgentResponseTimeViewModel> viewModel = histogram.createViewModel();
+        List<AgentResponseTimeViewModel> viewModel = histogram.createViewModel();
         logger.debug("{}", viewModel);
         ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
         String s = writer.writeValueAsString(viewModel);

@@ -4,9 +4,12 @@ import java.io.IOException;
 import java.util.*;
 
 import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogramList;
+import com.nhn.pinpoint.web.view.NodeSerializer;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.ResponseHistogramSummary;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +23,7 @@ import com.nhn.pinpoint.web.util.JsonSerializable;
  * @author netspider
  * @author emeroad
  */
+@JsonSerialize(using = NodeSerializer.class)
 public class Node implements JsonSerializable {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -29,6 +33,7 @@ public class Node implements JsonSerializable {
 
     private ServerBuilder serverBuilder = new ServerBuilder();
     private ServerInstanceList serverInstanceList;
+
 
     private ResponseHistogramSummary responseHistogramSummary;
     // 임시로 생성.
@@ -78,17 +83,20 @@ public class Node implements JsonSerializable {
         this.serverBuilder = null;
     }
 	
-	public Map<String, List<ServerInstance>> getServerInstanceList() {
-		return serverInstanceList.getServerInstanceList();
+	public ServerInstanceList getServerInstanceList() {
+		return serverInstanceList;
 	}
 
-    public String getServerInstanceListJson() {
+    @JsonIgnore
+    public String getNodeJson() {
         try {
-            return MAPPER.writeValueAsString(serverInstanceList);
+            return MAPPER.writeValueAsString(this);
         } catch (IOException ex) {
             throw new RuntimeException(ex.getMessage(), ex);
         }
     }
+
+
 
     public Application getApplication() {
         return application;
