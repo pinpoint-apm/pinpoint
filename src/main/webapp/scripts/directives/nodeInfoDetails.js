@@ -109,87 +109,6 @@ pinpointApp
                     return histogramSummary;
                 };
 
-//                var getApplicationStatisticsData = function (query, callback) {
-//                    jQuery.ajax({
-//                        type : 'GET',
-//                        url : config.applicationStatisticsUrl,
-//                        cache : false,
-//                        dataType: 'json',
-//                        data : {
-//                            from : query.from,
-//                            to : query.to,
-//                            applicationName : query.applicationName,
-//                            serviceType : query.serviceType
-//                        },
-//                        success : function (result) {
-//                            callback(query, result);
-//                        },
-//                        error : function (xhr, status, error) {
-//                            console.log("ERROR", status, error);
-//                        }
-//                    });
-//                };
-                /**
-                 * render application statistics
-                 * @param data
-                 */
-//                renderApplicationStatistics = function (data) {
-//
-//                    nv.addGraph(function () {
-//                        angular.element('.nodeInfoDetails .histogram svg').empty();
-//                        var chart = nv.models.discreteBarChart().x(function (d) {
-//                            return d.label;
-//                        }).y(function (d) {
-//                            return d.value;
-//                        }).staggerLabels(false).tooltips(false).showValues(true);
-//
-//                        chart.xAxis.tickFormat(function (d) {
-//                        	// FIXME d로 넘어오는 값의 타입이 string이고 angular.isNumber는 "1000"에 대해 false를 반환함.
-//                        	// if (angular.isNumber(d)) {
-//                        	if (/^\d+$/.test(d)) {
-//                            	if (d >= 1000) {
-//                            		return $filter('number')(d / 1000) + "s";
-//                            	} else {
-//                            		return $filter('number')(d) + "ms";
-//                            	}
-//                            } else if (d.charAt(d.length - 1) == '+') {
-//                            	var v = d.substr(0, d.length - 1);
-//                            	if (v >= 1000) {
-//                            		return $filter('number')(v / 1000) + "s+";
-//                            	} else {
-//                            		return $filter('number')(v) + "ms+";
-//                            	}
-//                            } else {
-//                            	return d;
-//                            }
-//                        });
-//
-//                        chart.yAxis.tickFormat(function (d, i) {
-//                    		if (d >= 1000) {
-//                    			return $filter('number')(Math.floor(d / 1000)) + "k";
-//                    		} else {
-//                    			return $filter('number')(d);
-//                    		}
-//                        });
-//
-//                        chart.valueFormat(function (d) {
-//                        	return $filter('number')(d);
-//                        });
-//
-//                        chart.color(config.myColors);
-//
-//                        d3.select('.nodeInfoDetails .histogram svg')
-//                            .datum(data)
-//                            .transition()
-//                            .duration(0)
-//                            .call(chart);
-//
-//                        nv.utils.windowResize(chart.update);
-//
-//                        return chart;
-//                    });
-//                };
-
                 /**
                  * render statics summary
                  * @param querySelector
@@ -272,7 +191,7 @@ pinpointApp
                         scope.$digest();
                     }
                     nv.addGraph(function () {
-                        angular.element().empty(querySelector);
+                        angular.element(querySelector).empty();
                         var chart = nv.models.multiBarChart().x(function (d) {
                             return d[0];
                         }).y(function (d) {
@@ -307,81 +226,6 @@ pinpointApp
                         return chart;
                     });
                 };
-
-//                var showApplicationStatisticsSummary = function (begin, end, applicationName, serviceType) {
-//                    var params = {
-//                        "from" : begin,
-//                        "to" : end,
-//                        "applicationName" : applicationName,
-//                        "serviceType" : serviceType
-//                    };
-//                    getApplicationStatisticsData(params, function (query, result) {
-//                        console.log('result', result);
-//                        renderApplicationStatistics(result.histogramSummary);
-//                    });
-//                };
-
-
-                // histogram 데이터 서버에서 만들지 않고, link정보에서 수집한다.
-//                var extractHistogramFromData = function (data) {
-//                    var histogram = [];
-//                    if (data && data.serverList /*&& angular.isArray(data.serverList) && data.serverList.length > 0*/) {
-//                        angular.forEach(data.serverList, function (serverInfo, serverName) {
-//                            var i = 0;
-//                            angular.forEach(serverInfo.instanceList, function (innerVal, innerKey) {
-//                            	if (innerVal.histogram == null) {
-//                            		return;
-//                            	}
-//                            	angular.forEach(innerVal.histogram, function(v, k) {
-//                            		if (histogram[i]) {
-//                            			histogram[i].value += Number(v, 10);
-//                            		} else {
-//                            			histogram[i] = {
-//                            					'label' : k,
-//                            					'value' : Number(v, 10)
-//                            			};
-//                            		}
-//                            		i++;
-//                            	});
-//                            	i = 0;
-//                            });
-//                        });
-//                    }
-//                    var histogramData = [{
-//                        'key' : "Response Time Histogram",
-//                        'values': histogram
-//                    }];
-//                    return histogramData;
-//                };
-
-                /**
-                 * recalculate histogram
-                 * @param key
-                 * @param linkDataArray
-                 * @returns {Array}
-                 */
-//                recalculateHistogram = function (key, linkDataArray) {
-//                    // application histogram data 서버에서 만들지 않고 클라이언트에서 만든다.
-//                    // var histogramData = extractHistogramFromData(node);
-//                    var histogram = [];
-//                    angular.forEach(linkDataArray, function (value, index) {
-//                        var i = 0;
-//                        if (value.to === key) {
-//                            angular.forEach(value.histogram, function (v, k) {
-//                                if (histogram[i]) {
-//                                    histogram[i].value += Number(v, 10);
-//                                } else {
-//                                    histogram[i] = {
-//                                        'label': k,
-//                                        'value': Number(v, 10)
-//                                    };
-//                                }
-//                                i += 1;
-//                            });
-//                        }
-//                    });
-//                    return histogram;
-//                };
 
                 /**
                  * parse histogram for nvd3
