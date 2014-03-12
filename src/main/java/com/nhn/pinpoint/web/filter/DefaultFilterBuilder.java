@@ -54,7 +54,7 @@ public class DefaultFilterBuilder implements FilterBuilder {
 					throw new IllegalArgumentException("invalid json " + jsonText);
 				}
 
-				logger.debug("FilterDescriptor=" + descriptor);
+				logger.debug("FilterDescriptor={}", descriptor);
 				
 				chain.addFilter(new FromToResponseFilter(descriptor));
 				
