@@ -41,8 +41,11 @@ public class NodeSerializer extends JsonSerializer<Node>  {
         jgen.writeBooleanField("isWas", serviceType.isWas());
 
         writeHistogram(jgen, node);
-
-        jgen.writeObjectField("serverList", node.getServerInstanceList());
+        if (node.getServiceType().isUnknown()) {
+            writeEmptyObject(jgen, "serverList");
+        } else {
+            jgen.writeObjectField("serverList", node.getServerInstanceList());
+        }
 
         jgen.writeEndObject();
     }
