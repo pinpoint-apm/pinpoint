@@ -52,7 +52,7 @@ pinpointApp
                     scope.isWas = node.isWas;
                     scope.agentHistogram = node.agentHistogram;
 
-                    if (!node.rawdata && /*node.category !== "USER" &&*/ node.category !== "UNKNOWN_GROUP") {
+                    if (!node.targetRawData && /*node.category !== "USER" &&*/ node.category !== "UNKNOWN_GROUP") {
                         renderHistogram('.nodeInfoDetails .histogram svg', [
                             {
                                 'key': "Response Time Histogram",
@@ -76,11 +76,10 @@ pinpointApp
                             }
                         }
                     } else if (node.category === 'UNKNOWN_GROUP'){
-
                         for (var key in node.textArr) {
                             var className = $filter('applicationNameToClassName')(key);
                             renderHistogram('.nodeInfoDetails .summaryCharts_' + className +
-                                ' svg', parseHistogramForD3(node.rawdata[node.textArr[key].applicationName].histogram));
+                                ' svg', parseHistogramForD3(node.targetRawData[node.textArr[key].applicationName].histogram));
                         }
                     }
                     // scope.agents = data.agents;
