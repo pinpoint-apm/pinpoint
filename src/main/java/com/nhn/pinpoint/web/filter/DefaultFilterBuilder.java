@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.web.filter;
 
+import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.List;
 
@@ -8,6 +9,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,7 +22,8 @@ public class DefaultFilterBuilder implements FilterBuilder {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private final ObjectMapper om = new ObjectMapper();
+    @Autowired
+	private ObjectMapper jsonObjectMapper;
 
 	@Override
 	public Filter build(String filterText) {
@@ -43,7 +46,7 @@ public class DefaultFilterBuilder implements FilterBuilder {
 		}
 		FilterChain chain = new FilterChain();
 		try {
-			List<FilterDescriptor> list = om.readValue(jsonText, new TypeReference<List<FilterDescriptor>>() {
+			List<FilterDescriptor> list = jsonObjectMapper.readValue(jsonText, new TypeReference<List<FilterDescriptor>>() {
 			});
 			
 			for (FilterDescriptor descriptor : list) {
@@ -59,9 +62,8 @@ public class DefaultFilterBuilder implements FilterBuilder {
 					chain.addFilter(new URLPatternFilter(descriptor));
 				}
 			}
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			return null;
+		} catch (IOException e) {
+			throw new RuntimeException(e.getMessage(), e);
 		}
 		return chain.get();
 	}
