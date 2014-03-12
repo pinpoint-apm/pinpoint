@@ -61,49 +61,7 @@ ${record.hasException}
 	"applicationMapData" : {
 		"nodeDataArray": [
 			<c:forEach items="${nodes}" var="node" varStatus="status">
-			{
-				"id" : "${node.nodeName}",
-				"key" : "${node.nodeName}",
-				<c:choose>
-					<c:when test="${node.applicationName == 'USER'}">
-					"text" : "USER",
-					</c:when>
-					<c:otherwise>
-					"text" : "${node.applicationName}",
-					</c:otherwise>
-				</c:choose>
-				<c:choose>
-					<c:when test="${node.serviceType.desc == 'USER'}">
-					"category" : "USER",
-					</c:when>
-					<c:otherwise>
-					"category" : "${node.serviceType.desc}",
-					</c:otherwise>
-				</c:choose>
-				<c:choose>
-					<c:when test="${node.serviceType.desc == 'USER'}">"fig" : "Ellipse"</c:when>
-					<c:when test="${node.serviceType.desc == 'TOMCAT'}">"fig" : "RoundedRectangle"</c:when>
-					<c:otherwise>"fig" : "Rectangle"</c:otherwise>
-				</c:choose>,
-				"serviceTypeCode" : "${node.serviceType.code}",
-				"terminal" : "${node.serviceType.terminal}",
-				"isWas" : ${node.serviceType.was},
-				"serverList" : {
-					<c:forEach items="${node.serverInstanceList}" var="serverInstance" varStatus="status5">
-						"${serverInstance.key}" : {
-							"name" : "${serverInstance.key}", 
-							"status" : null,
-							"instanceList" : {
-								<c:forEach items="${serverInstance.value}" var="instance" varStatus="status6">
-								"${instance.id}" : ${instance.json}
-									<c:if test="${!status6.last}">,</c:if>
-								</c:forEach>								
-							}
-						}
-						<c:if test="${!status5.last}">,</c:if>
-					</c:forEach>
-				}
-			} <c:if test="${!status.last}">,</c:if>
+            ${node.nodeJson} <c:if test="${!status.last}">,</c:if>
 			</c:forEach>
 		],
 		"linkDataArray": [
