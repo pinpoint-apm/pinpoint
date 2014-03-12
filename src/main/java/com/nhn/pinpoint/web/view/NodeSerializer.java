@@ -68,18 +68,30 @@ public class NodeSerializer extends JsonSerializer<Node>  {
         if (serviceType.isWas()) {
             List<ResponseTimeViewModel> applicationTimeSeriesHistogram = responseHistogramSummary.getApplicationTimeSeriesHistogram();
             if (applicationTimeSeriesHistogram == null) {
-                writeEmptyObject(jgen, "timeSeriesHistogram");
+                writeEmptyArray(jgen, "timeSeriesHistogram");
             } else {
                 jgen.writeObjectField("timeSeriesHistogram", applicationTimeSeriesHistogram);
             }
 
             List<AgentResponseTimeViewModel> agentTimeSeriesHistogram = responseHistogramSummary.getAgentTimeSeriesHistogram();
+
             if (agentTimeSeriesHistogram == null) {
                 writeEmptyObject(jgen, "agentTimeSeriesHistogram");
             } else {
-                jgen.writeObjectField("agentTimeSeriesHistogram", agentTimeSeriesHistogram);
+                jgen.writeFieldName("agentTimeSeriesHistogram");
+                jgen.writeStartObject();
+                for (AgentResponseTimeViewModel agentResponseTimeViewModel : agentTimeSeriesHistogram) {
+                    jgen.writeObject(agentResponseTimeViewModel);
+                }
+                jgen.writeEndObject();
             }
         }
+    }
+
+    private void writeEmptyArray(JsonGenerator jgen, String fieldName) throws IOException {
+        jgen.writeFieldName(fieldName);
+        jgen.writeStartArray();
+        jgen.writeEndArray();
     }
 
     private void writeEmptyObject(JsonGenerator jgen, String fieldName) throws IOException {
