@@ -16,7 +16,7 @@
     "modernizr": "~2.6.2",
     "jquery-ui": "~1.10.3",
     "datejs": "*",
-    "nvd3": "~1.0.0-beta",
+    "nvd3": "~1.1.15-beta",
     "d3": "~3.4.1",
     "jquery.layout": "*",
     "jquery-flexigrid": "~1.1.5",
