@@ -76,18 +76,8 @@ public class NodeSerializer extends JsonSerializer<Node>  {
                 jgen.writeObjectField("timeSeriesHistogram", applicationTimeSeriesHistogram);
             }
 
-            List<AgentResponseTimeViewModel> agentTimeSeriesHistogram = responseHistogramSummary.getAgentTimeSeriesHistogram();
-
-            if (agentTimeSeriesHistogram == null) {
-                writeEmptyObject(jgen, "agentTimeSeriesHistogram");
-            } else {
-                jgen.writeFieldName("agentTimeSeriesHistogram");
-                jgen.writeStartObject();
-                for (AgentResponseTimeViewModel agentResponseTimeViewModel : agentTimeSeriesHistogram) {
-                    jgen.writeObject(agentResponseTimeViewModel);
-                }
-                jgen.writeEndObject();
-            }
+            AgentResponseTimeViewModelList agentTimeSeriesHistogram = responseHistogramSummary.getAgentTimeSeriesHistogram();
+            jgen.writeObject(agentTimeSeriesHistogram);
         }
     }
 

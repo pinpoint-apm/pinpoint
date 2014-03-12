@@ -2,6 +2,7 @@ package com.nhn.pinpoint.web.vo;
 
 import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
 import com.nhn.pinpoint.web.view.AgentResponseTimeViewModel;
+import com.nhn.pinpoint.web.view.AgentResponseTimeViewModelList;
 import com.nhn.pinpoint.web.view.ResponseTimeViewModel;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -105,9 +106,11 @@ public class ResponseHistogramSummary {
     }
 
 
-    public List<AgentResponseTimeViewModel> getAgentTimeSeriesHistogram() {
-        return agentTimeSeriesHistogram.createViewModel();
+
+    public AgentResponseTimeViewModelList getAgentTimeSeriesHistogram() {
+        return new AgentResponseTimeViewModelList(agentTimeSeriesHistogram.createViewModel());
     }
+
     public String getAgentTimeSeriesHistogramToJson() {
         try {
             List<AgentResponseTimeViewModel> viewModel = agentTimeSeriesHistogram.createViewModel();
