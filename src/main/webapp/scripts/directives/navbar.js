@@ -179,6 +179,8 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                             oNavbarVo.setQueryEndTime(currentServerTime);
                             oNavbarVo.autoCalculateByQueryEndTimeAndPeriod();
                             emitAsChanged();
+                            setDateTime($fromPicker, oNavbarVo.getQueryStartTime());
+                            setDateTime($toPicker, oNavbarVo.getQueryEndTime());
                         });
                     } else if (getQueryStartTime() && getQueryEndTime()) {
                         oNavbarVo.setQueryStartTime(getQueryStartTime());
