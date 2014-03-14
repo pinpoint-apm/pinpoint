@@ -92,10 +92,13 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
 
 
     private String getEndpoint(String host, int port) {
+        if (host == null) {
+            return "UnknownHttpClient";
+        }
         if (port < 0) {
             return host;
         }
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(host.length() + 8);
         sb.append(host);
         sb.append(':');
         sb.append(port);
