@@ -25,9 +25,9 @@ public class ApplicationTimeSeriesHistogramTest {
     public void testViewModel() throws IOException {
 
         Application app = new Application("test", ServiceType.TOMCAT);
-        ApplicationTimeSeriesHistogram histogram = new ApplicationTimeSeriesHistogram(app, new Range(0, 10*6000));
+        ApplicationTimeSeriesHistogramBuilder builder = new ApplicationTimeSeriesHistogramBuilder(app, new Range(0, 10*6000));
         List<ResponseTime> responseHistogramList = createResponseTime(app);
-        histogram.build(responseHistogramList);
+        ApplicationTimeSeriesHistogram histogram = builder.build(responseHistogramList);
 
         List<ResponseTimeViewModel> viewModel = histogram.createViewModel();
         logger.debug("{}", viewModel);

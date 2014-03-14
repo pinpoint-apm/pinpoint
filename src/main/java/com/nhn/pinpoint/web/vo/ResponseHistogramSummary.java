@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.web.vo;
 
 import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
-import com.nhn.pinpoint.web.view.AgentResponseTimeViewModel;
 import com.nhn.pinpoint.web.view.AgentResponseTimeViewModelList;
 import com.nhn.pinpoint.web.view.ResponseTimeViewModel;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -111,22 +110,10 @@ public class ResponseHistogramSummary {
         return new AgentResponseTimeViewModelList(agentTimeSeriesHistogram.createViewModel());
     }
 
-    public String getAgentTimeSeriesHistogramToJson() {
-        try {
-            List<AgentResponseTimeViewModel> viewModel = agentTimeSeriesHistogram.createViewModel();
-            return MAPPER.writeValueAsString(viewModel);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex.getMessage(), ex);
-        }
-    }
-
 
     private ApplicationTimeSeriesHistogram createApplicationLevelTimeSeriesResponseTime(List<ResponseTime> responseHistogramList) {
-
-        ApplicationTimeSeriesHistogram histogram = new ApplicationTimeSeriesHistogram(application, range);
-        histogram.build(responseHistogramList);
-        return histogram;
-
+        ApplicationTimeSeriesHistogramBuilder builder = new ApplicationTimeSeriesHistogramBuilder(application, range);
+        return builder.build(responseHistogramList);
     }
 
 
