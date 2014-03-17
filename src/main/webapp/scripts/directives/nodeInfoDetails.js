@@ -149,8 +149,10 @@ pinpointApp
                         });
 
                         chart.yAxis.tickFormat(function (d, i) {
-                            if (d >= 1000) {
-                                return $filter('number')(Math.floor(d / 1000)) + "k";
+                            if (d >= 1000000) {
+                                return $filter('number')(Math.floor(d / 1000000)) + "M";
+                            } else if (d >= 1000) {
+                                return $filter('number')(Math.floor(d / 1000)) + "K";
                             } else {
                                 return $filter('number')(d);
                             }
