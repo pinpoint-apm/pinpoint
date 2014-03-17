@@ -33,12 +33,15 @@ public class UdpDataSender implements DataSender {
 
     private AsyncQueueingExecutor<TBase<?, ?>> executor;
 
-	public UdpDataSender(String host, int port, String threadName) {
+	public UdpDataSender(String host, int port, String threadName, int queueSize) {
         if (host == null ) {
             throw new NullPointerException("host must not be null");
         }
         if (threadName == null) {
             throw new NullPointerException("threadName must not be null");
+        }
+        if (queueSize <= 0) {
+            throw new IllegalArgumentException("queueSize");
         }
 
 
@@ -46,11 +49,11 @@ public class UdpDataSender implements DataSender {
         logger.info("UdpDataSender initialized. host={}, port={}", host, port);
 		this.udpSocket = createSocket(host, port);
 
-        this.executor = getExecutor(threadName);
+        this.executor = getExecutor(threadName, queueSize);
 	}
 
-    private AsyncQueueingExecutor<TBase<?, ?>> getExecutor(String senderName) {
-        final AsyncQueueingExecutor<TBase<?, ?>> executor = new AsyncQueueingExecutor<TBase<?, ?>>(1024 * 5, senderName);
+    private AsyncQueueingExecutor<TBase<?, ?>> getExecutor(String senderName, int queueSize) {
+        final AsyncQueueingExecutor<TBase<?, ?>> executor = new AsyncQueueingExecutor<TBase<?, ?>>(queueSize, senderName);
         executor.setListener(new AsyncQueueingExecutorListener<TBase<?, ?>>() {
             @Override
             public void execute(Collection<TBase<?, ?>> dtoList) {

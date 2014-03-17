@@ -24,7 +24,7 @@ public class UdpDataSenderTest {
 
     @Test
     public void sendAndFlushChck() throws InterruptedException {
-        UdpDataSender sender = new UdpDataSender("localhost", 9009, "test");
+        UdpDataSender sender = new UdpDataSender("localhost", 9009, "test", 128);
 
         TAgentInfo agentInfo = new TAgentInfo();
         sender.send(agentInfo);
