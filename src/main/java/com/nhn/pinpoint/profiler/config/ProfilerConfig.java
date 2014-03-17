@@ -19,10 +19,10 @@ public class ProfilerConfig {
 
 	private boolean profileEnable = false;
 
-	public String collectorServerIp = "127.0.0.1";
-    public int collectorUdpSpanServerPort = 9996;
-    public int collectorUdpServerPort = 9995;
-    public int collectorTcpServerPort = 9994;
+	private String collectorServerIp = "127.0.0.1";
+    private int collectorUdpSpanServerPort = 9996;
+    private int collectorUdpServerPort = 9995;
+    private int collectorTcpServerPort = 9994;
 
     private int spanDataSenderWriteQueueSize = 128;
     private int statDataSenderWriteQueueSize = 128;
