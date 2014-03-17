@@ -2,6 +2,11 @@ package com.nhn.pinpoint.web.filter;
 
 import org.apache.commons.lang.StringUtils;
 
+/**
+ * 
+ * @author netspider
+ * 
+ */
 public class FilterDescriptor {
 
 	private String fa = null;

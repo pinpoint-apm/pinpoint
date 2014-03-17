@@ -1,7 +1,9 @@
 package com.nhn.pinpoint.web.filter;
 
+import java.nio.charset.Charset;
 import java.util.List;
 
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.util.AntPathMatcher;
 
 import com.nhn.pinpoint.common.bo.SpanBo;
@@ -24,7 +26,7 @@ public class URLPatternFilter implements Filter {
 	
 	public URLPatternFilter(String fromServiceType, String fromApplicationName, String toServiceType, String toApplicationName, String urlPattern) {
 		this.fromToFilter = new FromToFilter(fromServiceType, fromApplicationName, toServiceType, toApplicationName);
-		this.urlPattern = urlPattern;
+		this.urlPattern = new String(Base64.decodeBase64(urlPattern), Charset.forName("UTF-8"));
 	}
 
 	@Override
