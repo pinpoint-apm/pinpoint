@@ -198,7 +198,7 @@ pinpointApp
                             return d[0];
                         }).y(function (d) {
                                 return d[1];
-                            }).clipEdge(true).showControls(false);
+                            }).clipEdge(true).showControls(false).delay(0);
 
                         chart.stacked(true);
 
