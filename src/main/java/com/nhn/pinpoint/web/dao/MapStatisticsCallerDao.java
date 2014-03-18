@@ -1,10 +1,8 @@
 package com.nhn.pinpoint.web.dao;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsData;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
 
@@ -14,7 +12,7 @@ import com.nhn.pinpoint.web.vo.Range;
  * 
  */
 public interface MapStatisticsCallerDao {
-	public Collection<LinkStatistics> selectCaller(Application callerApplication, Range range);
+	LinkStatisticsData selectCaller(Application callerApplication, Range range);
 
-	public List<Collection<LinkStatistics>> selectCallerStatistics(Application callerApplication, Application calleeApplication, Range range);
+	List<LinkStatisticsData> selectCallerStatistics(Application callerApplication, Application calleeApplication, Range range);
 }

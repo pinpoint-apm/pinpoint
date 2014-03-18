@@ -1,11 +1,10 @@
 package com.nhn.pinpoint.web.applicationmap;
 
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogram;
-import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogramList;
-import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
+import com.nhn.pinpoint.web.applicationmap.rawdata.*;
 import com.nhn.pinpoint.web.vo.LinkKey;
 import com.nhn.pinpoint.web.vo.Application;
+import com.nhn.pinpoint.web.vo.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,17 +18,18 @@ public class Link {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static final String LINK_DELIMITER = "~";
+
     private final LinkKey linkKey;
 
     private final Node fromNode;
     private final Node toNode;
+    private final Range range;
 
-	private final CallHistogramList targetList;
-    private CallHistogramList sourceList;
+    private final RawCallDataMap rawCallDataMap;
 
 
-    public Link(Node from, Node to, CallHistogramList targetList) {
-        this(createLinkKey(from, to), from, to, targetList);
+    public Link(Node from, Node to, Range range, RawCallDataMap rawCallDataMap) {
+        this(createLinkKey(from, to), from, to, range, rawCallDataMap);
 
     }
 
@@ -45,7 +45,7 @@ public class Link {
         return new LinkKey(fromApplication, toApplication);
     }
 
-    Link(LinkKey linkKey, Node fromNode, Node toNode, CallHistogramList targetList) {
+    Link(LinkKey linkKey, Node fromNode, Node toNode, Range range, RawCallDataMap rawCallDataMap) {
         if (fromNode == null) {
             throw new NullPointerException("fromNode must not be null");
         }
@@ -55,10 +55,16 @@ public class Link {
         if (linkKey == null) {
             throw new NullPointerException("linkKey must not be null");
         }
+        if (rawCallDataMap == null) {
+            throw new NullPointerException("rawCallDataMap must not be null");
+        }
+
         this.linkKey = linkKey;
         this.fromNode = fromNode;
         this.toNode = toNode;
-        this.targetList = targetList;
+
+        this.range = range;
+        this.rawCallDataMap = rawCallDataMap;
     }
 
     public Link(Link copyLink) {
@@ -68,8 +74,8 @@ public class Link {
         this.linkKey = copyLink.linkKey;
         this.fromNode = copyLink.fromNode;
         this.toNode = copyLink.toNode;
-        this.targetList = new CallHistogramList(copyLink.targetList);
-        this.sourceList = new CallHistogramList(copyLink.sourceList);
+        this.rawCallDataMap = new RawCallDataMap(copyLink.rawCallDataMap);
+        this.range = copyLink.range;
     }
 
     public Application getFilterApplication() {
@@ -99,7 +105,7 @@ public class Link {
     }
 
 	public CallHistogramList getTargetList() {
-		return targetList;
+		return rawCallDataMap.getTargetList();
 	}
 
 
@@ -107,18 +113,14 @@ public class Link {
         // 내가 호출하는 대상의 serviceType을 가져와야 한다.
         // tomcat -> arcus를 호출한다고 하였을 경우 arcus의 타입을 가져와야함.
         final Histogram linkHistogram = new Histogram(toNode.getServiceType());
-        for (CallHistogram callHistogram : targetList.getCallHistogramList()) {
+        for (CallHistogram callHistogram : rawCallDataMap.getTargetList().getCallHistogramList()) {
             linkHistogram.addUncheckType(callHistogram.getHistogram());
         }
 		return linkHistogram;
 	}
 
-    public void setSourceList(CallHistogramList sourceList) {
-        this.sourceList = sourceList;
-    }
-
     public CallHistogramList getSourceList() {
-        return sourceList;
+        return rawCallDataMap.getTargetList();
     }
 
 	public void addLink(Link link) {
@@ -130,10 +132,8 @@ public class Link {
             logger.info("fromNode:{}, to:{}, fromNode:{}, linkTo:{}", fromNode, toNode, link.getFrom(), link.getTo());
             throw new IllegalArgumentException("Can't merge.");
         }
-
-        CallHistogramList linkCallHistogramList = link.getTargetList();
-        this.targetList.addCallHistogram(linkCallHistogramList);
-        this.sourceList.addCallHistogram(link.getSourceList());
+        RawCallDataMap copyRawCallDataMap= link.rawCallDataMap;
+        this.rawCallDataMap.addCallData(copyRawCallDataMap);
 	}
 
 	@Override
@@ -163,7 +163,7 @@ public class Link {
 
 	@Override
 	public String toString() {
-		return "Link [linkKey=" + linkKey + ", fromNode=" + fromNode + ", toNode=" + toNode + ", targetList=" + targetList + "]";
+		return "Link [linkKey=" + linkKey + ", fromNode=" + fromNode + ", toNode=" + toNode + ", rawCallDataMap=" + rawCallDataMap + "]";
 	}
 
 }

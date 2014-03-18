@@ -12,9 +12,9 @@ import java.util.Set;
 import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.HistogramSlot;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsData;
 import com.nhn.pinpoint.web.util.TimeWindow;
 import com.nhn.pinpoint.web.util.TimeWindowOneMinuteSampler;
-import com.nhn.pinpoint.web.vo.LinkKey;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
 import com.nhn.pinpoint.web.dao.*;
 import com.nhn.pinpoint.web.vo.*;
@@ -195,8 +195,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         // Window의 설정은 따로 inject받던지 해야 될듯함.
         final TimeWindow window = new TimeWindow(range, TimeWindowOneMinuteSampler.SAMPLER);
 
-        final Map<LinkKey, LinkStatistics> linkStatMap = new HashMap<LinkKey, LinkStatistics>();
-
+        final LinkStatisticsData linkStatisticsData = new LinkStatisticsData();
         final MapResponseHistogramSummary mapHistogramSummary = new MapResponseHistogramSummary(range);
         /**
          * 통계정보로 변환한다.
@@ -216,32 +215,25 @@ public class FilteredMapServiceImpl implements FilteredMapService {
                     continue;
                 }
 
-                final LinkKey linkKey = new LinkKey(srcApplication, destApplication);
-                LinkStatistics linkStat = linkStatMap.get(linkKey);
-                if (linkStat == null) {
-                    linkStat = new LinkStatistics(srcApplication, destApplication);
-                    linkStatMap.put(linkKey, linkStat);
-                }
-
                 final short slotTime = getHistogramSlotTime(span, destApplication.getServiceType());
                 // link의 통계값에 collector acceptor time을 넣는것이 맞는것인지는 다시 생각해볼 필요가 있음.
                 // 통계값의 window의 time으로 전환해야함. 안그러면 slot이 맞지 않아 oom이 발생할수 있음.
                 long timestamp = window.refineTimestamp(span.getCollectorAcceptTime());
-                linkStat.addCallData(span.getAgentId(), srcApplication.getServiceTypeCode(), destApplication.getName(), destApplication.getServiceTypeCode(), timestamp, slotTime, 1);
+
+                linkStatisticsData.addCallData(srcApplication, span.getAgentId(), destApplication, destApplication.getName(), timestamp, slotTime, 1);
 
 
-                addNodeFromSpanEvent(span, window, linkStatMap, transactionSpanMap);
+                addNodeFromSpanEvent(span, window, linkStatisticsData, transactionSpanMap);
             }
         }
 
         // mark agent info
-        for (LinkStatistics stat : linkStatMap.values()) {
+        for (LinkStatistics stat : linkStatisticsData.getLinkStatData()) {
             fillAdditionalInfo(stat);
         }
 
-        Collection<LinkStatistics> linkStatisticsList = linkStatMap.values();
         ApplicationMapBuilder applicationMapBuilder = new ApplicationMapBuilder(range);
-        ApplicationMap map = applicationMapBuilder.build(linkStatisticsList);
+        ApplicationMap map = applicationMapBuilder.build(linkStatisticsData);
 
         mapHistogramSummary.build();
         map.appendResponseTime(mapHistogramSummary);
@@ -266,7 +258,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     }
 
 
-    private void addNodeFromSpanEvent(SpanBo span, TimeWindow window, Map<LinkKey, LinkStatistics> linkStatMap, Map<Long, SpanBo> transactionSpanMap) {
+    private void addNodeFromSpanEvent(SpanBo span, TimeWindow window, LinkStatisticsData linkStatMap, Map<Long, SpanBo> transactionSpanMap) {
         /**
          * span event의 statistics추가.
          */
@@ -295,21 +287,13 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
             final String dest = spanEvent.getDestinationId();
             final Application destApplication = new Application(dest, destServiceType);
-            final LinkKey spanEventStatKey = new LinkKey(srcApplication, destApplication);
-            LinkStatistics linkData = linkStatMap.get(spanEventStatKey);
-            if (linkData == null) {
-                linkData = new LinkStatistics(srcApplication, destApplication);
-                // agent 정보추가. destination의 agent정보 알 수 없음.
-                linkStatMap.put(spanEventStatKey, linkData);
-            }
 
             final short slotTime = getHistogramSlotTime(spanEvent, destServiceType);
 
             // FIXME
             // stat2.addCallHistogram((dest == null) ? spanEvent.getEndPoint() : dest, destServiceType.getCode(), (short) slot2, 1);
             final long spanEventTimeStamp = window.refineTimestamp(span.getStartTime() + spanEvent.getStartElapsed());
-            linkData.addCallData(span.getAgentId(), span.getServiceType().getCode(), spanEvent.getEndPoint(), destServiceType.getCode(), spanEventTimeStamp, slotTime, 1);
-
+            linkStatMap.addCallData(srcApplication, span.getAgentId(), destApplication, spanEvent.getEndPoint(), spanEventTimeStamp, slotTime, 1);
         }
     }
 
@@ -366,7 +350,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         return transactionIdList;
     }
 
-    private void fillAdditionalInfo(com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics stat) {
+    private void fillAdditionalInfo(LinkStatistics stat) {
         if (stat.getToServiceType().isTerminal() || stat.getToServiceType().isUnknown()) {
             return;
         }

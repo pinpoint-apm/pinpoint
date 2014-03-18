@@ -38,11 +38,7 @@ public class RawCallData {
     }
 
     public void addCallData(long timestamp, short slot, long count) {
-        TimeHistogram histogram = targetHistogramTimeMap.get(timestamp);
-        if (histogram == null) {
-            histogram = new TimeHistogram(targetServiceType, timestamp);
-            targetHistogramTimeMap.put(timestamp, histogram);
-        }
+        TimeHistogram histogram = getTimeHistogram(timestamp);
         histogram.addCallCount(slot, count);
     }
 
@@ -65,12 +61,17 @@ public class RawCallData {
 
         for (Map.Entry<Long, TimeHistogram> copyEntry : copyRawCallData.targetHistogramTimeMap.entrySet()) {
             final Long timeStamp = copyEntry.getKey();
-            TimeHistogram histogram = targetHistogramTimeMap.get(timeStamp);
-            if (histogram == null) {
-                histogram = new TimeHistogram(targetServiceType, timeStamp);
-                targetHistogramTimeMap.put(timeStamp, histogram);
-            }
+            TimeHistogram histogram = getTimeHistogram(timeStamp);
             histogram.add(copyEntry.getValue());
         }
+    }
+
+    private TimeHistogram getTimeHistogram(Long timeStamp) {
+        TimeHistogram histogram = targetHistogramTimeMap.get(timeStamp);
+        if (histogram == null) {
+            histogram = new TimeHistogram(targetServiceType, timeStamp);
+            targetHistogramTimeMap.put(timeStamp, histogram);
+        }
+        return histogram;
     }
 }

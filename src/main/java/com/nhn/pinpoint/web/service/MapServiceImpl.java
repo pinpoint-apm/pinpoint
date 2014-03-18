@@ -2,7 +2,6 @@ package com.nhn.pinpoint.web.service;
 
 import java.util.*;
 
-import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.nhn.pinpoint.web.applicationmap.rawdata.*;
 import com.nhn.pinpoint.web.dao.*;
@@ -70,25 +69,25 @@ public class MapServiceImpl implements MapService {
      * @param linkVisitChecker
      * @return
      */
-    private Set<LinkStatistics> selectCaller(Application callerApplication, Range range, LinkVisitChecker linkVisitChecker) {
+    private LinkStatisticsData selectCaller(Application callerApplication, Range range, LinkVisitChecker linkVisitChecker) {
         // 이미 조회된 구간이면 skip
         if (linkVisitChecker.visitCaller(callerApplication)) {
-            return Collections.emptySet();
+            return new LinkStatisticsData();
         }
 
-        Collection<LinkStatistics> caller = mapStatisticsCallerDao.selectCaller(callerApplication, range);
+        LinkStatisticsData caller = mapStatisticsCallerDao.selectCaller(callerApplication, range);
         if (logger.isDebugEnabled()) {
             logger.debug("Found Caller. count={}, caller={}", caller.size(), callerApplication);
         }
 
-        final Set<LinkStatistics> callerSet = new HashSet<LinkStatistics>();
-        for (LinkStatistics stat : caller) {
+        final LinkStatisticsData resultCaller = new LinkStatisticsData();
+        for (LinkStatistics stat : caller.getLinkStatData()) {
             final boolean replaced = replaceApplicationInfo(stat, range);
 
             // replaced된 녀석은 CLIENT이기 때문에 callee검색용도로만 사용하고 map에 추가하지 않는다.
             if (!replaced) {
                 fillAdditionalInfo(stat, range);
-                callerSet.add(stat);
+                resultCaller.addLinkStatistics(stat);
             }
 
             // terminal, unknowncloud 인 경우에는 skip
@@ -97,21 +96,21 @@ public class MapServiceImpl implements MapService {
             }
 
             logger.debug("     Find subCaller of {}", stat.getToApplication());
-            Set<LinkStatistics> callerSub = selectCaller(stat.getToApplication(), range, linkVisitChecker);
+            LinkStatisticsData callerSub = selectCaller(stat.getToApplication(), range, linkVisitChecker);
             logger.debug("     Found subCaller. count={}, caller={}", callerSub.size(), stat.getToApplication());
 
-            callerSet.addAll(callerSub);
+            resultCaller.addLinkStatisticsData(callerSub);
 
             // 찾아진 녀석들에 대한 caller도 찾는다.
-            for (LinkStatistics eachCaller : callerSub) {
+            for (LinkStatistics eachCaller : callerSub.getLinkStatData()) {
                 logger.debug("     Find callee of {}", eachCaller.getFromApplication());
-                Set<LinkStatistics> calleeSub = selectCallee(eachCaller.getFromApplication(), range, linkVisitChecker);
+                LinkStatisticsData calleeSub = selectCallee(eachCaller.getFromApplication(), range, linkVisitChecker);
                 logger.debug("     Found subCallee. count={}, callee={}", calleeSub.size(), eachCaller.getFromApplication());
-                callerSet.addAll(calleeSub);
+                resultCaller.addLinkStatisticsData(calleeSub);
             }
         }
 
-        return callerSet;
+        return resultCaller;
     }
 
     /**
@@ -121,32 +120,32 @@ public class MapServiceImpl implements MapService {
      * @param range
      * @return
      */
-    private Set<LinkStatistics> selectCallee(Application calleeApplication, Range range, LinkVisitChecker linkVisitChecker) {
+    private LinkStatisticsData selectCallee(Application calleeApplication, Range range, LinkVisitChecker linkVisitChecker) {
         // 이미 조회된 구간이면 skip
         if (linkVisitChecker.visitCallee(calleeApplication)) {
-            return Collections.emptySet();
+            return new LinkStatisticsData();
         }
 
-        final Collection<LinkStatistics> callee = mapStatisticsCalleeDao.selectCallee(calleeApplication, range);
+        final LinkStatisticsData callee = mapStatisticsCalleeDao.selectCallee(calleeApplication, range);
         logger.debug("Found Callee. count={}, callee={}", callee.size(), calleeApplication);
 
-        final Set<LinkStatistics> calleeSet = new HashSet<LinkStatistics>();
-        for (LinkStatistics stat : callee) {
+        final LinkStatisticsData calleeSet = new LinkStatisticsData();
+        for (LinkStatistics stat : callee.getLinkStatData()) {
             fillAdditionalInfo(stat, range);
-            calleeSet.add(stat);
+            calleeSet.addLinkStatistics(stat);
 
             // 나를 부른 application을 찾아야 하기 떄문에 to를 입력.
-            Set<LinkStatistics> calleeSub = selectCallee(stat.getFromApplication(), range, linkVisitChecker);
-            calleeSet.addAll(calleeSub);
+            LinkStatisticsData calleeSub = selectCallee(stat.getFromApplication(), range, linkVisitChecker);
+            calleeSet.addLinkStatisticsData(calleeSub);
 
             // 찾아진 녀석들에 대한 callee도 찾는다.
-            for (LinkStatistics eachCallee : calleeSub) {
+            for (LinkStatistics eachCallee : calleeSub.getLinkStatData()) {
                 // terminal이면 skip
                 if (eachCallee.getToServiceType().isTerminal() || eachCallee.getToServiceType().isUnknown()) {
                     continue;
                 }
-                Set<LinkStatistics> callerSub = selectCaller(eachCallee.getToApplication(), range, linkVisitChecker);
-                calleeSet.addAll(callerSub);
+                LinkStatisticsData callerSub = selectCaller(eachCallee.getToApplication(), range, linkVisitChecker);
+                calleeSet.addLinkStatisticsData(callerSub);
             }
         }
 
@@ -204,15 +203,15 @@ public class MapServiceImpl implements MapService {
         watch.start();
 
         LinkVisitChecker linkVisitChecker = new LinkVisitChecker();
-        Set<LinkStatistics> caller = selectCaller(sourceApplication, range, linkVisitChecker);
+        LinkStatisticsData caller = selectCaller(sourceApplication, range, linkVisitChecker);
         logger.debug("Result of finding caller {}", caller);
 
-        Set<LinkStatistics> callee = selectCallee(sourceApplication, range, linkVisitChecker);
+        LinkStatisticsData callee = selectCallee(sourceApplication, range, linkVisitChecker);
         logger.debug("Result of finding callee {}", callee);
 
-        Set<LinkStatistics> data = new HashSet<LinkStatistics>(caller.size() + callee.size());
-        data.addAll(caller);
-        data.addAll(callee);
+        LinkStatisticsData data = new LinkStatisticsData();
+        data.addLinkStatisticsData(caller);
+        data.addLinkStatisticsData(callee);
 
         ApplicationMapBuilder builder = new ApplicationMapBuilder(range);
         ApplicationMap map = builder.build(data);
@@ -235,17 +234,17 @@ public class MapServiceImpl implements MapService {
             throw new NullPointerException("destinationApplication must not be null");
         }
 
-        List<Collection<LinkStatistics>> list = selectLink(sourceApplication, destinationApplication, range);
+        List<LinkStatisticsData> list = selectLink(sourceApplication, destinationApplication, range);
         logger.debug("Fetched statistics data={}", list);
 
         MapResponseHistogramSummary responseHistogramSummary = new MapResponseHistogramSummary(range);
-        for (Collection<LinkStatistics> linkStatisticsList : list) {
-            for (LinkStatistics entry : linkStatisticsList) {
-                CallHistogramList sourceList = entry.getSourceList();
+        for (LinkStatisticsData entry : list) {
+            for (LinkStatistics linkStatistics : entry.getLinkStatData()) {
+                CallHistogramList sourceList = linkStatistics.getSourceList();
                 Collection<CallHistogram> callHistogramList = sourceList.getCallHistogramList();
                 for (CallHistogram histogram : callHistogramList) {
                     for (TimeHistogram timeHistogram : histogram.getTimeHistogram()) {
-                        Application toApplication = entry.getToApplication();
+                        Application toApplication = linkStatistics.getToApplication();
                         if (toApplication.getServiceType().isRpcClient()) {
                             toApplication = new Application(toApplication.getName(), ServiceType.UNKNOWN);
                         }
@@ -260,7 +259,7 @@ public class MapServiceImpl implements MapService {
         return histogramSummary;
     }
 
-    private List<Collection<LinkStatistics>> selectLink(Application sourceApplication, Application destinationApplication, Range range) {
+    private List<LinkStatisticsData> selectLink(Application sourceApplication, Application destinationApplication, Range range) {
         if (sourceApplication.getServiceType().isUser()) {
             logger.debug("Find 'client -> any' link statistics");
             // client는 applicatinname + servicetype.client로 기록된다.

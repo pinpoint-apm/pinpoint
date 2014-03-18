@@ -5,10 +5,9 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsData;
 import com.nhn.pinpoint.web.dao.MapStatisticsCalleeDao;
 import com.nhn.pinpoint.web.mapper.*;
-import com.nhn.pinpoint.web.vo.LinkKey;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
 import org.apache.hadoop.hbase.client.Scan;
@@ -41,10 +40,10 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
 	@Autowired
 	@Qualifier("mapStatisticsCalleeMapper")
-	private RowMapper<Collection<LinkStatistics>> mapStatisticsCalleeMapper;
+	private RowMapper<LinkStatisticsData> mapStatisticsCalleeMapper;
 
 	@Override
-	public Collection<LinkStatistics> selectCallee(Application calleeApplication, Range range) {
+	public LinkStatisticsData selectCallee(Application calleeApplication, Range range) {
         if (calleeApplication == null) {
             throw new NullPointerException("calleeApplication must not be null");
         }
@@ -52,7 +51,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
             throw new NullPointerException("range must not be null");
         }
         Scan scan = createScan(calleeApplication, range);
-		List<Collection<LinkStatistics>> foundListList = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLER, scan, mapStatisticsCalleeMapper);
+		List<LinkStatisticsData> foundListList = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLER, scan, mapStatisticsCalleeMapper);
 
 		if (foundListList.isEmpty()) {
 			logger.debug("There's no caller data. {}, {}", calleeApplication, range);
@@ -61,22 +60,14 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
         return merge(foundListList);
 	}
 
-    private Collection<LinkStatistics> merge(List<Collection<LinkStatistics>> foundListList) {
-        final Map<LinkKey, LinkStatistics> result = new HashMap<LinkKey, LinkStatistics>();
+    private LinkStatisticsData merge(List<LinkStatisticsData> foundListList) {
+        final LinkStatisticsData result = new LinkStatisticsData();
 
-        for (Collection<LinkStatistics> foundList : foundListList) {
-            for (LinkStatistics found : foundList) {
-                final LinkKey key = new LinkKey(found.getFromApplication(), found.getToApplication());
-                final LinkStatistics find = result.get(key);
-                if (find != null) {
-                    find.add(found);
-                } else {
-                    result.put(key, found);
-                }
-            }
+        for (LinkStatisticsData foundList : foundListList) {
+            result.addLinkStatisticsData(foundList);
         }
 
-        return result.values();
+        return result;
     }
 
 
@@ -96,7 +87,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 	 * </pre>
 	 */
 	@Override
-	public List<Collection<LinkStatistics>> selectCalleeStatistics(Application callerApplication, Application calleeApplication, Range range) {
+	public List<LinkStatisticsData> selectCalleeStatistics(Application callerApplication, Application calleeApplication, Range range) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("selectCalleeStatistics. {}, {}, {}", callerApplication, calleeApplication, range);
 		}
@@ -104,7 +95,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
 
         final LinkFilter filter = new DefaultLinkFilter(callerApplication, calleeApplication);
-        RowMapper<Collection<LinkStatistics>> mapper = new MapStatisticsCalleeMapper(filter);
+        RowMapper<LinkStatisticsData> mapper = new MapStatisticsCalleeMapper(filter);
 		return hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLER, scan, mapper);
 	}
 

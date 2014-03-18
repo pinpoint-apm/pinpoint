@@ -4,10 +4,9 @@ import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsData;
 import com.nhn.pinpoint.web.dao.MapStatisticsCallerDao;
 import com.nhn.pinpoint.web.mapper.*;
-import com.nhn.pinpoint.web.vo.LinkKey;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
 import org.apache.hadoop.hbase.client.Scan;
@@ -40,37 +39,26 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 
 	@Autowired
 	@Qualifier("mapStatisticsCallerMapper")
-	private RowMapper<Collection<LinkStatistics>> mapStatisticsCallerMapper;
+	private RowMapper<LinkStatisticsData> mapStatisticsCallerMapper;
 
 	@Override
-	public Collection<LinkStatistics> selectCaller(Application callerApplication, Range range) {
+	public LinkStatisticsData selectCaller(Application callerApplication, Range range) {
 		Scan scan = createScan(callerApplication, range);
-		final List<Collection<LinkStatistics>> foundListList = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLEE, scan, mapStatisticsCallerMapper);
+		final List<LinkStatisticsData> foundList = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLEE, scan, mapStatisticsCallerMapper);
 
-		if (foundListList.isEmpty()) {
+		if (foundList.isEmpty()) {
 			logger.debug("There's no caller data. {}, {}", callerApplication, range);
 		}
 		// 시계열 데이터가 토탈 머지 데이터로 변경되는듯함.
-        return merge(foundListList);
+        return merge(foundList);
 	}
 
-    private Collection<LinkStatistics> merge(List<Collection<LinkStatistics>> foundListList) {
-        final Map<LinkKey, LinkStatistics> result = new HashMap<LinkKey, LinkStatistics>();
-
-        for (Collection<LinkStatistics> foundList : foundListList) {
-            for (LinkStatistics found : foundList) {
-                final LinkKey key = new LinkKey(found.getFromApplication(), found.getToApplication());
-                final LinkStatistics find = result.get(key);
-                if (find != null) {
-                    find.add(found);
-                } else {
-                    result.put(key, found);
-                }
-            }
+    private LinkStatisticsData merge(List<LinkStatisticsData> foundList) {
+        final LinkStatisticsData result = new LinkStatisticsData();
+        for (LinkStatisticsData foundData : foundList) {
+            result.addLinkStatisticsData(foundData);
         }
-
-
-        return result.values();
+        return result;
     }
 
     /**
@@ -89,14 +77,14 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 	 * </pre>
 	 */
 	@Override
-	public List<Collection<LinkStatistics>> selectCallerStatistics(Application callerApplication, Application calleeApplication, Range range) {
+	public List<LinkStatisticsData> selectCallerStatistics(Application callerApplication, Application calleeApplication, Range range) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("selectCallerStatistics. {}, {}, {}", callerApplication, calleeApplication, range);
 		}
 		Scan scan = createScan(callerApplication, range);
 
         final LinkFilter filter = new DefaultLinkFilter(callerApplication, calleeApplication);
-        RowMapper<Collection<LinkStatistics>> mapper = new MapStatisticsCallerMapper(filter);
+        RowMapper<LinkStatisticsData> mapper = new MapStatisticsCallerMapper(filter);
 		return hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLEE, scan, mapper);
 	}
 

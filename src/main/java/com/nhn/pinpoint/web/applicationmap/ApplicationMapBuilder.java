@@ -1,9 +1,9 @@
 package com.nhn.pinpoint.web.applicationmap;
 
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogramList;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsData;
+import com.nhn.pinpoint.web.applicationmap.rawdata.RawCallDataMap;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
 import org.slf4j.Logger;
@@ -28,11 +28,10 @@ public class ApplicationMapBuilder {
         this.range = range;
     }
 
-    public ApplicationMap build(Collection<LinkStatistics> linkStatistics) {
-        if (linkStatistics == null) {
+    public ApplicationMap build(LinkStatisticsData linkStatisticsData) {
+        if (linkStatisticsData == null) {
             throw new NullPointerException("linkStatData must not be null");
         }
-        final LinkStatisticsData linkStatisticsData = new LinkStatisticsData(linkStatistics);
 
         final ApplicationMap nodeMap = new ApplicationMap(range);
 
@@ -69,9 +68,9 @@ public class ApplicationMapBuilder {
             }
 
             // RPC client인 경우 dest application이 이미 있으면 삭제, 없으면 unknown cloud로 변경.
-            CallHistogramList toCallHistogramList = linkStat.getTargetList();
-            Link link = new Link(fromNode, toNode, toCallHistogramList);
-            link.setSourceList(linkStat.getSourceList());
+            RawCallDataMap callDataMap = new RawCallDataMap(linkStat.getCallDataMap());
+            final Link link = new Link(fromNode, toNode, range, callDataMap);
+
             if (toNode.getServiceType().isRpcClient()) {
                 if (!nodeMap.containsApplicationName(toNode.getApplicationName())) {
                     result.add(link);

@@ -1,10 +1,13 @@
 package com.nhn.pinpoint.web.applicationmap.rawdata;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.web.vo.Application;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * DB에서 조회한 application호출 관계 정보.
@@ -13,13 +16,15 @@ import com.nhn.pinpoint.web.vo.Application;
  * @author emeroad
  */
 public class LinkStatistics {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private Application fromApplication;
+
+    private final Application fromApplication;
     private Application toApplication;
 
-    private RawCallDataMap callDataMap;
+    private final RawCallDataMap callDataMap;
 
-    private Set<AgentInfoBo> toAgentSet;
+    private final Set<AgentInfoBo> toAgentSet;
 
 	public LinkStatistics(Application fromApplication, Application toApplication) {
         if (fromApplication == null) {
@@ -30,6 +35,8 @@ public class LinkStatistics {
         }
         this.fromApplication = fromApplication;
 		this.toApplication = toApplication;
+
+        this.toAgentSet = new HashSet<AgentInfoBo>();
 
         this.callDataMap = new RawCallDataMap();
 	}
@@ -62,8 +69,9 @@ public class LinkStatistics {
         return this.toApplication;
     }
 
+
 	public String getTo() {
-		return toApplication.getName();
+		return getToApplication().getName();
 	}
 
 	public ServiceType getFromServiceType() {
@@ -71,18 +79,18 @@ public class LinkStatistics {
 	}
 
 	public ServiceType getToServiceType() {
-        return toApplication.getServiceType();
+        return getToApplication().getServiceType();
 	}
-
-    public void setFromApplication(Application fromApplication) {
-        this.fromApplication = fromApplication;
-    }
 
     public void setToApplication(Application toApplication) {
         this.toApplication = toApplication;
     }
 
-	public CallHistogramList getTargetList() {
+    public RawCallDataMap getCallDataMap() {
+        return  this.callDataMap;
+    }
+
+    public CallHistogramList getTargetList() {
         return callDataMap.getTargetList();
 	}
 
@@ -94,13 +102,12 @@ public class LinkStatistics {
 		return toAgentSet;
 	}
 
-	public void addToAgentSet(Set<AgentInfoBo> agentSet) {
-		if (this.toAgentSet != null) {
-			this.toAgentSet.addAll(agentSet);
-		} else {
-			this.toAgentSet = agentSet;
-		}
-	}
+    public void addToAgentSet(Set<AgentInfoBo> agentSet) {
+        if (agentSet == null) {
+            throw new NullPointerException("agentSet must not be null");
+        }
+        this.toAgentSet.addAll(agentSet);
+    }
 
 	public void add(final LinkStatistics applicationStatistics) {
         if (applicationStatistics == null) {

@@ -7,9 +7,8 @@ import com.nhn.pinpoint.common.buffer.FixedBuffer;
 import com.nhn.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.util.TimeUtils;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsData;
 import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.web.vo.LinkKey;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -27,7 +26,7 @@ import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
  * 
  */
 @Component
-public class MapStatisticsCallerMapper implements RowMapper<Collection<LinkStatistics>> {
+public class MapStatisticsCallerMapper implements RowMapper<LinkStatisticsData> {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -45,9 +44,9 @@ public class MapStatisticsCallerMapper implements RowMapper<Collection<LinkStati
     }
 
     @Override
-	public Collection<LinkStatistics> mapRow(Result result, int rowNum) throws Exception {
+	public LinkStatisticsData mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
-            return Collections.emptyList();
+            return new LinkStatisticsData();
         }
         logger.debug("mapRow:{}", rowNum);
 
@@ -56,7 +55,7 @@ public class MapStatisticsCallerMapper implements RowMapper<Collection<LinkStati
         final long timestamp = TimeUtils.recoveryTimeMillis(row.readLong());
 
 		// key is destApplicationName.
-        final Map<LinkKey, LinkStatistics> linkStatisticsMap = new HashMap<LinkKey, LinkStatistics>();
+        final LinkStatisticsData linkStatisticsMap = new LinkStatisticsData();
         for (KeyValue kv :  result.raw()) {
             final byte[] family = kv.getFamily();
             if (Bytes.equals(family, HBaseTables.MAP_STATISTICS_CALLEE_CF_COUNTER)) {
@@ -77,8 +76,10 @@ public class MapStatisticsCallerMapper implements RowMapper<Collection<LinkStati
                     logger.debug("    Fetched Caller.  {} -> {} (slot:{}/{}) calleeHost:{}", caller, callee, histogramSlot, requestCount, calleeHost);
                 }
 
-                LinkStatistics statistics = getLinkStatistics(linkStatisticsMap, caller, callee);
-                statistics.addCallData(caller.getName(), caller.getServiceTypeCode(), calleeHost, callee.getServiceTypeCode(), timestamp, (isError) ? (short) -1 : histogramSlot, requestCount);
+                final short slotTime = (isError) ? (short) -1 : histogramSlot;
+                linkStatisticsMap.addCallData(caller, caller.getName(), callee, calleeHost, timestamp, slotTime, requestCount);
+
+
             } else if (Bytes.equals(family, HBaseTables.MAP_STATISTICS_CALLEE_CF_VER2_COUNTER)) {
 
                 final Buffer buffer = new OffsetFixedBuffer(kv.getBuffer(), kv.getQualifierOffset());
@@ -99,30 +100,21 @@ public class MapStatisticsCallerMapper implements RowMapper<Collection<LinkStati
                     logger.debug("    Fetched Caller.(New) {} {} -> {} (slot:{}/{}) calleeHost:{}", caller, callerAgentId, callee, histogramSlot, requestCount, calleeHost);
                 }
 
-                LinkStatistics statistics = getLinkStatistics(linkStatisticsMap, caller, callee);
-                statistics.addCallData(callerAgentId, caller.getServiceTypeCode(), calleeHost, callee.getServiceTypeCode(), timestamp, (isError) ? (short) -1 : histogramSlot, requestCount);
+                final short slotTime = (isError) ? (short) -1 : histogramSlot;
+                linkStatisticsMap.addCallData(caller, callerAgentId, callee, calleeHost, timestamp, slotTime, requestCount);
             } else {
                 throw new IllegalArgumentException("unknown ColumnFamily :" + Arrays.toString(family));
             }
 
 		}
 
-        return linkStatisticsMap.values();
+        return linkStatisticsMap;
 	}
 
     private long getValueToLong(KeyValue kv) {
         return Bytes.toLong(kv.getBuffer(), kv.getValueOffset());
     }
 
-    private LinkStatistics getLinkStatistics(Map<LinkKey, LinkStatistics> linkStatisticsMap, Application caller, Application callee) {
-        final LinkKey key = new LinkKey(caller, callee);
-        LinkStatistics statistics = linkStatisticsMap.get(key);
-        if (statistics == null) {
-            statistics = new LinkStatistics(caller, callee);
-            linkStatisticsMap.put(key, statistics);
-        }
-        return statistics;
-    }
 
     private Application readCalleeApplication(byte[] qualifier) {
         String calleeApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);
@@ -132,9 +124,9 @@ public class MapStatisticsCallerMapper implements RowMapper<Collection<LinkStati
 
 
     private Application readCalleeApplication(Buffer buffer) {
-        short calleeServiceyType = buffer.readShort();
+        short calleeServiceType = buffer.readShort();
         String calleeApplicationName = buffer.readPrefixedString();
-        return new Application(calleeApplicationName, calleeServiceyType);
+        return new Application(calleeApplicationName, calleeServiceType);
     }
 
     private Application readCallerApplication(Buffer row) {

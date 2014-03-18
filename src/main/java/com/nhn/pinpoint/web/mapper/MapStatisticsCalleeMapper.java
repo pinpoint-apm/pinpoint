@@ -5,9 +5,8 @@ import java.util.*;
 import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.buffer.FixedBuffer;
 import com.nhn.pinpoint.common.util.TimeUtils;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsData;
 import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.web.vo.LinkKey;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -24,7 +23,7 @@ import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
  * 
  */
 @Component
-public class MapStatisticsCalleeMapper implements RowMapper<Collection<LinkStatistics>> {
+public class MapStatisticsCalleeMapper implements RowMapper<LinkStatisticsData> {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -42,9 +41,9 @@ public class MapStatisticsCalleeMapper implements RowMapper<Collection<LinkStati
     }
 
     @Override
-	public Collection<LinkStatistics> mapRow(Result result, int rowNum) throws Exception {
+	public LinkStatisticsData mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
-            return Collections.emptyList();
+            return new LinkStatisticsData();
         }
         logger.debug("mapRow:{}", rowNum);
 
@@ -53,7 +52,7 @@ public class MapStatisticsCalleeMapper implements RowMapper<Collection<LinkStati
         final long timestamp = TimeUtils.recoveryTimeMillis(row.readLong());
 
 
-        final Map<LinkKey, LinkStatistics> linkStatisticsMap = new HashMap<LinkKey, LinkStatistics>();
+        final LinkStatisticsData linkStatisticsData = new LinkStatisticsData();
 		for (KeyValue kv : result.raw()) {
 
             final byte[] qualifier = kv.getQualifier();
@@ -72,26 +71,17 @@ public class MapStatisticsCalleeMapper implements RowMapper<Collection<LinkStati
                 logger.debug("    Fetched Callee. {} callerHost:{} -> {} (slot:{}/{}),  ", callerApplication, callerHost, calleeApplication, histogramSlot, requestCount);
             }
 
-            LinkStatistics statistics = getLinkStatics(linkStatisticsMap, callerApplication, calleeApplication);
-            statistics.addCallData(callerApplication.getName(), callerApplication.getServiceTypeCode(), callerHost, calleeApplication.getServiceTypeCode(), timestamp, (isError) ? (short) -1 : histogramSlot, requestCount);
+
+            final short slotTime = (isError) ? (short) -1 : histogramSlot;
+            linkStatisticsData.addCallData(callerApplication, callerApplication.getName(), calleeApplication, callerHost, timestamp, slotTime, requestCount);
 
             if (logger.isDebugEnabled()) {
-                logger.debug("    Fetched Callee. statistics:{}", statistics);
+                logger.debug("    Fetched Callee. statistics:{}", linkStatisticsData);
             }
 		}
 
-        return linkStatisticsMap.values();
+        return linkStatisticsData;
 	}
-
-    private LinkStatistics getLinkStatics(Map<LinkKey, LinkStatistics> linkStatisticsMap, Application callerApplication, Application calleeApplication) {
-        final LinkKey key = new LinkKey(callerApplication, calleeApplication);
-        LinkStatistics statistics = linkStatisticsMap.get(key);
-        if (statistics == null) {
-            statistics = new LinkStatistics(callerApplication, calleeApplication);
-            linkStatisticsMap.put(key, statistics);
-        }
-        return statistics;
-    }
 
     private Application readCallerApplication(byte[] qualifier) {
         String callerApplicationName = ApplicationMapStatisticsUtils.getDestApplicationNameFromColumnName(qualifier);

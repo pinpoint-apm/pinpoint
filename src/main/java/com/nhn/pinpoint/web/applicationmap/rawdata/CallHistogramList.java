@@ -26,8 +26,8 @@ public class CallHistogramList {
 
         for (Map.Entry<Application, CallHistogram> copyEntry : copyCallHistogramList.callHistogramMap.entrySet()) {
             Application copyKey = copyEntry.getKey();
-            CallHistogram copyValue = new CallHistogram(copyEntry.getValue());
-            this.callHistogramMap.put(copyKey, copyValue);
+            CallHistogram newCallHistogram = new CallHistogram(copyEntry.getValue());
+            this.callHistogramMap.put(copyKey, newCallHistogram);
         }
     }
 
@@ -39,21 +39,26 @@ public class CallHistogramList {
         if (serviceType == null) {
             throw new NullPointerException("serviceType must not be null");
         }
-
+        if (histogramList == null) {
+            throw new NullPointerException("histogramList must not be null");
+        }
         CallHistogram callHistogram = getCallHistogram(agentName, serviceType);
         callHistogram.addTimeHistogram(histogramList);
     }
 
 
-    public void addCallHistogramUncheck(String hostName, ServiceType serviceType, Collection<TimeHistogram> histogram) {
+    public void addCallHistogramUncheck(String hostName, ServiceType serviceType, Collection<TimeHistogram> histogramList) {
         if (hostName == null) {
-            throw new NullPointerException("histogram must not be null");
+            throw new NullPointerException("hostName must not be null");
         }
         if (serviceType == null) {
             throw new NullPointerException("serviceType must not be null");
         }
+        if (histogramList == null) {
+            throw new NullPointerException("histogramList must not be null");
+        }
         CallHistogram callHistogram = getCallHistogram(hostName, serviceType);
-        callHistogram.addTimeHistogramUncheckType(histogram);
+        callHistogram.addTimeHistogramUncheckType(histogramList);
     }
 
 

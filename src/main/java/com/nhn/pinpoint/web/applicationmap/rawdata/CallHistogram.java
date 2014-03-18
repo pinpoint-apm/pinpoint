@@ -85,6 +85,9 @@ public class CallHistogram {
     }
 
     public void addTimeHistogram(Collection<TimeHistogram> histogramList) {
+        if (histogramList == null) {
+            throw new NullPointerException("histogramList must not be null");
+        }
         for (TimeHistogram timeHistogram : histogramList) {
             addTimeHistogram(timeHistogram);
         }

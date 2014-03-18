@@ -14,6 +14,15 @@ public class RawCallDataMap {
 
     private final Map<LinkKey, RawCallData> rawCallDataMap = new HashMap<LinkKey, RawCallData>();
 
+    public RawCallDataMap() {
+    }
+
+    public RawCallDataMap(RawCallDataMap copyRawCallDataMap) {
+        if (copyRawCallDataMap == null) {
+            throw new NullPointerException("copyRawCallDataMap must not be null");
+        }
+        addCallData(copyRawCallDataMap);
+    }
 
     public void addCallData(String sourceAgentId, short sourceServiceType, String targetId, short targetServiceType, long timestamp, short slot, long count) {
         addCallData(sourceAgentId, ServiceType.findServiceType(sourceServiceType), targetId, ServiceType.findServiceType(targetServiceType), timestamp, slot, count);
@@ -25,11 +34,14 @@ public class RawCallDataMap {
         rawCallData.addCallData(timestamp, slot, count);
     }
 
-    public LinkKey createLinkKey(String sourceAgentId, ServiceType sourceServiceType, String targetId, ServiceType targetServiceType) {
+    private LinkKey createLinkKey(String sourceAgentId, ServiceType sourceServiceType, String targetId, ServiceType targetServiceType) {
         return new LinkKey(sourceAgentId, sourceServiceType, targetId, targetServiceType);
     }
 
     public void addCallData(RawCallDataMap target) {
+        if (target == null) {
+            throw new NullPointerException("target must not be null");
+        }
         for (Map.Entry<LinkKey, RawCallData> copyEntry : target.rawCallDataMap.entrySet()) {
             final LinkKey key = copyEntry.getKey();
             final RawCallData copyRawCallData = copyEntry.getValue();
@@ -70,4 +82,5 @@ public class RawCallDataMap {
         }
         return sourceList;
     }
+
 }
