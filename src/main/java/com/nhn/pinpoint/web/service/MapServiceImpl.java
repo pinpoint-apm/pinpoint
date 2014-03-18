@@ -90,14 +90,15 @@ public class MapServiceImpl implements MapService {
                 resultCaller.addLinkStatistics(stat);
             }
 
+            final Application toApplication = stat.getToApplication();
             // terminal, unknowncloud 인 경우에는 skip
-            if (stat.getToServiceType().isTerminal() || stat.getToServiceType().isUnknown()) {
+            if (toApplication.getServiceType().isTerminal() || toApplication.getServiceType().isUnknown()) {
                 continue;
             }
 
-            logger.debug("     Find subCaller of {}", stat.getToApplication());
-            LinkStatisticsData callerSub = selectCaller(stat.getToApplication(), range, linkVisitChecker);
-            logger.debug("     Found subCaller. count={}, caller={}", callerSub.size(), stat.getToApplication());
+            logger.debug("     Find subCaller of {}", toApplication);
+            LinkStatisticsData callerSub = selectCaller(toApplication, range, linkVisitChecker);
+            logger.debug("     Found subCaller. count={}, caller={}", callerSub.size(), toApplication);
 
             resultCaller.addLinkStatisticsData(callerSub);
 
@@ -141,10 +142,11 @@ public class MapServiceImpl implements MapService {
             // 찾아진 녀석들에 대한 callee도 찾는다.
             for (LinkStatistics eachCallee : calleeSub.getLinkStatData()) {
                 // terminal이면 skip
-                if (eachCallee.getToServiceType().isTerminal() || eachCallee.getToServiceType().isUnknown()) {
+                final Application eachCalleeToApplication = eachCallee.getToApplication();
+                if (eachCalleeToApplication.getServiceType().isTerminal() || eachCalleeToApplication.getServiceType().isUnknown()) {
                     continue;
                 }
-                LinkStatisticsData callerSub = selectCaller(eachCallee.getToApplication(), range, linkVisitChecker);
+                LinkStatisticsData callerSub = selectCaller(eachCalleeToApplication, range, linkVisitChecker);
                 calleeSet.addLinkStatisticsData(callerSub);
             }
         }
@@ -154,24 +156,26 @@ public class MapServiceImpl implements MapService {
 
     private boolean replaceApplicationInfo(LinkStatistics stat, Range range) {
         // rpc client의 목적지가 agent가 설치되어 application name이 존재한다면 replace.
-        if (stat.getToServiceType().isRpcClient()) {
-            logger.debug("Find applicationName {} {}", stat.getToApplication(), range);
-            final Application app = hostApplicationMapDao.findApplicationName(stat.getTo(), range);
+        final Application toApplication = stat.getToApplication();
+        if (toApplication.getServiceType().isRpcClient()) {
+            logger.debug("Find applicationName {} {}", toApplication, range);
+            final Application app = hostApplicationMapDao.findApplicationName(toApplication.getName(), range);
             if (app != null) {
                 logger.debug("Application info replaced. {} => {}", stat, app);
 
-                stat.setToApplication(new Application(app.getName(), app.getServiceType()));
+                stat.setToAcceptApplication(new Application(app.getName(), app.getServiceType()));
                 return true;
             } else {
-                Application unknown = new Application(stat.getTo(), ServiceType.UNKNOWN);
-                stat.setToApplication(unknown);
+                Application unknown = new Application(toApplication.getName(), ServiceType.UNKNOWN);
+                stat.setToAcceptApplication(unknown);
             }
         }
         return false;
     }
 
     private void fillAdditionalInfo(LinkStatistics stat, Range range) {
-        if (stat.getToServiceType().isTerminal() || stat.getToServiceType().isUnknown()) {
+        final ServiceType toServiceType = stat.getToApplication().getServiceType();
+        if (toServiceType.isTerminal() || toServiceType.isUnknown()) {
             return;
         }
 

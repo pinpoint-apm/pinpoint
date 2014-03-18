@@ -61,30 +61,20 @@ public class LinkStatistics {
         return this.fromApplication;
     }
 
-	public String getFrom() {
-        return fromApplication.getName();
-	}
-
     public Application getToApplication() {
+//        if (toAcceptApplication != null) {
+//            return toAcceptApplication;
+//        }
         return this.toApplication;
     }
 
-
-	public String getTo() {
-		return getToApplication().getName();
-	}
-
-	public ServiceType getFromServiceType() {
-		return fromApplication.getServiceType();
-	}
-
-	public ServiceType getToServiceType() {
-        return getToApplication().getServiceType();
-	}
-
-    public void setToApplication(Application toApplication) {
-        this.toApplication = toApplication;
+    public void setToAcceptApplication(Application toAcceptApplication) {
+        this.toApplication = toAcceptApplication;
     }
+
+//    public Application getToAcceptApplication() {
+//        return toAcceptApplication;
+//    }
 
     public RawCallDataMap getCallDataMap() {
         return  this.callDataMap;
@@ -118,6 +108,7 @@ public class LinkStatistics {
 		}
         final RawCallDataMap target = applicationStatistics.callDataMap;
         this.callDataMap.addCallData(target);
+        this.toAgentSet.addAll(applicationStatistics.toAgentSet);
 	}
 
     @Override
@@ -138,6 +129,11 @@ public class LinkStatistics {
 
         if (!fromApplication.equals(that.fromApplication)) return false;
         if (!toApplication.equals(that.toApplication)) return false;
+//        if (toAcceptApplication != null) {
+//            if (!toAcceptApplication.equals(that.toAcceptApplication)) return false;
+//        } else {
+//            if (!toApplication.equals(that.toApplication)) return false;
+//        }
 
         return true;
     }
@@ -146,6 +142,11 @@ public class LinkStatistics {
     public int hashCode() {
         int result = fromApplication.hashCode();
         result = 31 * result + toApplication.hashCode();
+//        if (toAcceptApplication != null) {
+//            result = 31 * result + toAcceptApplication.hashCode();
+//        } else {
+//            result = 31 * result + toApplication.hashCode();
+//        }
         return result;
     }
 }

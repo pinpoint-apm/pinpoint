@@ -1,27 +1,18 @@
 package com.nhn.pinpoint.web.vo;
 
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.view.AgentResponseTimeViewModel;
-import com.nhn.pinpoint.web.view.AgentResponseTimeViewModelList;
-import com.nhn.pinpoint.web.view.ResponseTimeViewModel;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectWriter;
-import org.codehaus.jackson.map.SerializationConfig;
-import org.codehaus.jackson.util.DefaultPrettyPrinter;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.util.logging.resources.logging;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author emeroad
@@ -36,9 +27,9 @@ public class AgentTimeSeriesHistogramTest {
     public void testViewModel() throws IOException {
 
         Application app = new Application("test", ServiceType.TOMCAT);
-        AgentTimeSeriesHistogram histogram = new AgentTimeSeriesHistogram(app, new Range(0, 1000*60));
+        AgentTimeSeriesHistogramBuilder builder = new AgentTimeSeriesHistogramBuilder(app, new Range(0, 1000*60));
         List<ResponseTime> responseHistogramList = createResponseTime(app, "test1", "test2");
-        histogram.build(responseHistogramList);
+        AgentTimeSeriesHistogram histogram = builder.build(responseHistogramList);
 
         List<AgentResponseTimeViewModel> viewModel = histogram.createViewModel();
         logger.debug("{}", viewModel);

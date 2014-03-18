@@ -143,6 +143,7 @@ public class Histogram {
      * Unknown일 경우도 예외 상황있음. Unknown 노드에 HttpClient 호출정보를 머지해야 될경우.
      * @param histogram
      */
+    @Deprecated
     public void addUncheckType(final Histogram histogram) {
         if (histogram == null) {
             throw new NullPointerException("histogram must not be null");

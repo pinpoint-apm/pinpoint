@@ -2,6 +2,8 @@ package com.nhn.pinpoint.web.applicationmap.rawdata;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.vo.LinkKey;
+
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,6 +61,10 @@ public class RawCallDataMap {
             rawCallDataMap.put(key, rawCallData);
         }
         return rawCallData;
+    }
+
+    public Collection<RawCallData> getRawCallDataMap() {
+        return rawCallDataMap.values();
     }
 
     public CallHistogramList getTargetList() {

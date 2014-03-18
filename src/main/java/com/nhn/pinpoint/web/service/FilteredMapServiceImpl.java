@@ -351,16 +351,17 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     }
 
     private void fillAdditionalInfo(LinkStatistics stat) {
-        if (stat.getToServiceType().isTerminal() || stat.getToServiceType().isUnknown()) {
+        final Application toApplication = stat.getToApplication();
+        if (toApplication.getServiceType().isTerminal() || toApplication.getServiceType().isUnknown()) {
             return;
         }
-        Set<AgentInfoBo> agentSet = selectAgents(stat.getToApplication().getName());
+        Set<AgentInfoBo> agentSet = selectAgents(toApplication.getName());
         if (agentSet.isEmpty()) {
             return;
         }
         // destination이 WAS이고 agent가 설치되어있으면 agentSet이 존재한다.
         stat.addToAgentSet(agentSet);
-        logger.debug("fill agent info. {}, {}", stat.getTo(), agentSet);
+        logger.debug("fill agent info. {}, {}", toApplication, agentSet);
     }
 
     private Set<AgentInfoBo> selectAgents(String applicationId) {

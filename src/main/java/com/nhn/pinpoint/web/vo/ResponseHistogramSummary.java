@@ -118,8 +118,8 @@ public class ResponseHistogramSummary {
 
 
     private AgentTimeSeriesHistogram createAgentLevelTimeSeriesResponseTime(List<ResponseTime> responseHistogramList) {
-        AgentTimeSeriesHistogram histogram = new AgentTimeSeriesHistogram(application, range);
-        histogram.build(responseHistogramList);
+        AgentTimeSeriesHistogramBuilder builder = new AgentTimeSeriesHistogramBuilder(application, range);
+        AgentTimeSeriesHistogram histogram = builder.build(responseHistogramList);
         return histogram;
     }
 

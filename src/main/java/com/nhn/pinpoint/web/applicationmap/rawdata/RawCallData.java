@@ -32,6 +32,21 @@ public class RawCallData {
         this.targetHistogramTimeMap = new HashMap<Long, TimeHistogram>();
     }
 
+    public String getSource() {
+        return source;
+    }
+
+    public ServiceType getSourceServiceType() {
+        return sourceServiceType;
+    }
+
+    public String getTarget() {
+        return target;
+    }
+
+    public ServiceType getTargetServiceType() {
+        return targetServiceType;
+    }
 
     public Collection<TimeHistogram> getTimeHistogram() {
         return targetHistogramTimeMap.values();

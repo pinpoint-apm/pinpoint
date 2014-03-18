@@ -86,18 +86,19 @@ public class ApplicationMapBuilder {
         final List<Node> result = new ArrayList<Node>();
         // extract application and histogram
         for (LinkStatistics linkStat : linkStatData.getLinkStatData()) {
+            final Application fromApplication = linkStat.getFromApplication();
             // FROM -> TO에서 FROM이 CLIENT가 아니면 FROM은 application
-            if (!linkStat.getFromServiceType().isRpcClient()) {
-                final Application fromApplication = linkStat.getFromApplication();
+            if (!fromApplication.getServiceType().isRpcClient()) {
                 final Set<AgentInfoBo> agentSet = agentMap.get(fromApplication);
                 // FIXME from은 tohostlist를 보관하지 않아서 없음. null로 입력. 그렇지 않으면 이상해짐 ㅡㅡ;
                 Node fromNode = new Node(fromApplication, agentSet);
                 result.add(fromNode);
             }
 
+
+            final Application toApplication = linkStat.getToApplication();
             // FROM -> TO에서 TO가 CLIENT가 아니면 TO는 application
-            if (!linkStat.getToServiceType().isRpcClient()) {
-                final Application toApplication = linkStat.getToApplication();
+            if (!toApplication.getServiceType().isRpcClient()) {
                 Node toNode = new Node(toApplication, linkStat.getTargetList());
                 result.add(toNode);
             }

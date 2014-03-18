@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.web.vo;
 
 import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
+import com.nhn.pinpoint.web.applicationmap.rawdata.RawCallData;
 import com.nhn.pinpoint.web.applicationmap.rawdata.TimeHistogram;
 import com.nhn.pinpoint.web.util.TimeWindow;
 import com.nhn.pinpoint.web.util.TimeWindowOneMinuteSampler;
@@ -64,6 +65,31 @@ public class ApplicationTimeSeriesHistogramBuilder {
         return applicationTimeSeriesHistogram;
     }
 
+    public ApplicationTimeSeriesHistogram build(Collection<RawCallData> rawCallDataMapList) {
+        Map<Long, TimeHistogram> applicationLevelHistogram = new HashMap<Long, TimeHistogram>();
+        for (RawCallData rawCallData : rawCallDataMapList) {
+            for (TimeHistogram timeHistogram : rawCallData.getTimeHistogram()) {
+                Long timeStamp = timeHistogram.getTimeStamp();
+                TimeHistogram histogram = applicationLevelHistogram.get(timeStamp);
+                if (histogram == null) {
+                    histogram = new TimeHistogram(timeHistogram.getServiceType(), timeStamp);
+                    applicationLevelHistogram.put(timeStamp, histogram);
+                }
+                histogram.add(timeHistogram);
+            }
+        }
+
+        List<TimeHistogram> histogramList = interpolation(applicationLevelHistogram.values());
+        if (logger.isDebugEnabled()) {
+            for (TimeHistogram histogram : histogramList) {
+                logger.debug("applicationLevel histogram:{}", histogram);
+            }
+        }
+        ApplicationTimeSeriesHistogram applicationTimeSeriesHistogram = new ApplicationTimeSeriesHistogram(application, range, histogramList);
+        return applicationTimeSeriesHistogram;
+
+    }
+
     private List<TimeHistogram> interpolation(Collection<TimeHistogram> histogramList) {
         // span에 대한 개별 조회시 window time만 가지고 보간하는것에 한계가 있을수 있음.
         //
@@ -81,7 +107,7 @@ public class ApplicationTimeSeriesHistogramBuilder {
                 windowHistogram = new TimeHistogram(application.getServiceType(), time);
                 resultMap.put(time, windowHistogram);
             }
-            windowHistogram.add(timeHistogram);
+            windowHistogram.addUncheckType(timeHistogram);
         }
 
 
@@ -89,4 +115,5 @@ public class ApplicationTimeSeriesHistogramBuilder {
         Collections.sort(resultList, TimeHistogram.ASC_COMPARATOR);
         return resultList;
     }
+
 }
