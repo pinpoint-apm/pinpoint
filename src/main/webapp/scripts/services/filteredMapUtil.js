@@ -86,7 +86,9 @@ pinpointApp.factory('filteredMapUtil', [ 'filterConfig', 'encodeURIComponentFilt
             findFilterInNavbarVo: function (fa, fst, ta, tst, oNavbarVo) {
                 var filters = JSON.parse(oNavbarVo.getFilter()),
                     result = false;
-
+                if (fst === 'USER') {
+                    fa = 'USER';
+                }
                 if (angular.isArray(filters)) {
                     angular.forEach(filters, function(filter, index) {
                         var oServerMapFilterVo = new ServerMapFilterVo(filter);

@@ -1,7 +1,7 @@
 'use strict';
 
-pinpointApp.directive('filterInformation', [ '$filter',
-    function ($filter) {
+pinpointApp.directive('filterInformation', [ '$filter', '$base64',
+    function ($filter, $base64) {
         return {
             restrict: 'EA',
             replace: true,
@@ -23,7 +23,7 @@ pinpointApp.directive('filterInformation', [ '$filter',
                 initialize = function (oServerMapFilterVo) {
                     reset();
                     if (oServerMapFilterVo.getRequestUrlPattern()) {
-                        scope.urlPattern = oServerMapFilterVo.getRequestUrlPattern();
+                        scope.urlPattern = $base64.decode(oServerMapFilterVo.getRequestUrlPattern());
                     }
                     scope.includeException = oServerMapFilterVo.getIncludeException() ? 'Failed Only' : 'Success + Failed';
 
