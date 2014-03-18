@@ -25,6 +25,7 @@ pinpointApp
                  */
                 reset = function () {
                     scope.showNodeInfoDetails = false;
+                    scope.node = false;
                     scope.unknownGroup = null;
                     scope.hosts = null;
                     scope.showServers = false;
@@ -45,7 +46,7 @@ pinpointApp
                  */
                 showDetailInformation = function (query, node) {
                     scope.showNodeInfoDetails = true;
-
+                    scope.node = node;
                     scope.unknownGroup = node.textArr;
                     scope.serverList = node.serverList;
                     scope.showServers = _.isEmpty(scope.serverList) ? false : true;
@@ -96,7 +97,7 @@ pinpointApp
                 parseHistogramForD3 = function (histogram) {
                     var histogramSummary = [
                         {
-                            "key": "Responsetime Histogram",
+                            "key": "Response Time Histogram",
                             "values": []
                         }
                     ];
