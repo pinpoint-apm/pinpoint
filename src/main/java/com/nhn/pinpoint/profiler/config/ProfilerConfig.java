@@ -24,8 +24,8 @@ public class ProfilerConfig {
     private int collectorUdpServerPort = 9995;
     private int collectorTcpServerPort = 9994;
 
-    private int spanDataSenderWriteQueueSize = 128;
-    private int statDataSenderWriteQueueSize = 128;
+    private int spanDataSenderWriteQueueSize = 1024 * 5;
+    private int statDataSenderWriteQueueSize = 1024 * 5;
 
     private int jdbcSqlCacheSize = 1024;
 	private boolean jdbcProfile = true;
@@ -356,8 +356,8 @@ public class ProfilerConfig {
 		this.collectorUdpServerPort = readInt(prop, "profiler.collector.udp.port", 9995);
         this.collectorTcpServerPort = readInt(prop, "profiler.collector.tcp.port", 9994);
 
-        this.spanDataSenderWriteQueueSize = readInt(prop, "profiler.spandatasender.write.queue.size", 128);
-        this.statDataSenderWriteQueueSize = readInt(prop, "profiler.statdatasender.write.queue.size", 128);
+        this.spanDataSenderWriteQueueSize = readInt(prop, "profiler.spandatasender.write.queue.size", 1024 * 5);
+        this.statDataSenderWriteQueueSize = readInt(prop, "profiler.statdatasender.write.queue.size", 1024 * 5);
 
 
 		// JDBC
