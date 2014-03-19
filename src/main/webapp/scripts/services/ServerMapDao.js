@@ -603,4 +603,45 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
 
         return data;
     };
+
+    /**
+     * remove none necessary data for high performance
+     * @param data
+     */
+    this.removeNoneNecessaryDataForHighPerformance = function (data) {
+        var nodes = data.applicationMapData.nodeDataArray;
+
+        nodes.forEach(function (node, i) {
+            if (angular.isDefined(node.histogram)) {
+                delete node.histogram;
+            }
+            if (angular.isDefined(node.timeSeriesHistogram)) {
+                delete node.timeSeriesHistogram;
+            }
+            if (angular.isDefined(node.agentHistogram)) {
+                delete node.agentHistogram;
+            }
+            if (angular.isDefined(node.serverList)) {
+                delete node.serverList;
+            }
+        });
+    };
+
+    /**
+     * get node data by id
+     * @param data
+     * @param id
+     * @returns {boolean|hash table}
+     */
+    this.getNodeDataById = function (data, id) {
+        var nodes = data.applicationMapData.nodeDataArray;
+
+        var foundNode = false;
+        nodes.forEach(function (node) {
+            if (node.id === id) {
+                foundNode = node;
+            }
+        });
+        return foundNode;
+    }
 }]);

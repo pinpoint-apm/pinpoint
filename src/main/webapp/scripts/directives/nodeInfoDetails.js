@@ -44,7 +44,7 @@ pinpointApp
                  * @param query
                  * @param node
                  */
-                showDetailInformation = function (query, node) {
+                showDetailInformation = function (query, node, mapData) {
                     scope.showNodeInfoDetails = true;
                     scope.node = node;
                     scope.unknownGroup = node.textArr;
@@ -254,7 +254,7 @@ pinpointApp
                     htLastNode = node;
                     scope.oNavbarVo = navbarVo;
                     htServermapData = mapData;
-                    showDetailInformation(query, node);
+                    showDetailInformation(query, node, mapData);
                 });
 
                 /**
