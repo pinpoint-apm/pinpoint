@@ -225,6 +225,13 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     oProgressBar.setLoading(80);
                     if (copiedData.applicationMapData.nodeDataArray.length === 0) {
                         oProgressBar.stopLoading();
+                        console.log('scope.oNavbarVo', scope.oNavbarVo);
+                        console.log('scope.oNavbarVo.getFilter()', scope.oNavbarVo.getFilter());
+                        if (scope.oNavbarVo.getFilter()) {
+
+                        } else {
+
+                        }
                         oAlert.showInfo('There is no data.');
                         return;
                     }
