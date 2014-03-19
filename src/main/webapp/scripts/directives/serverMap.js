@@ -221,7 +221,6 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     }
 
                     ServerMapDao.removeNoneNecessaryDataForHighPerformance(copiedData);
-                    console.log('copiedData', copiedData);
 //                    serverMapCachedQuery = angular.copy(query);
 //                    serverMapCachedData = angular.copy(copiedData);
                     oProgressBar.setLoading(80);
