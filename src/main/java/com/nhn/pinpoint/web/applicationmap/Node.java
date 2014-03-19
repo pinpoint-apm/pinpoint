@@ -1,11 +1,14 @@
 package com.nhn.pinpoint.web.applicationmap;
 
+import java.io.IOException;
 import java.util.*;
 
 import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogramList;
 import com.nhn.pinpoint.web.view.NodeSerializer;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.ResponseHistogramSummary;
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +35,8 @@ public class Node {
 
 
     private ResponseHistogramSummary responseHistogramSummary;
+    // 임시로 생성.
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
 
 	public Node(Application application, Set<AgentInfoBo> agentSet) {
@@ -80,6 +85,27 @@ public class Node {
 	public ServerInstanceList getServerInstanceList() {
 		return serverInstanceList;
 	}
+
+    @JsonIgnore
+    public String getNodeJson() {
+        try {
+            return MAPPER.writeValueAsString(this);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex.getMessage(), ex);
+        }
+    }
+
+    public String getJson() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{ ");
+        sb.append("\"applicationName\" : \"").append(application.getName()).append("\",");
+        sb.append("\"serviceType\" : \"").append(application.getServiceType()).append("\",");
+        sb.append("\"serviceTypeCode\" : \"").append(application.getServiceTypeCode()).append("\"");
+        sb.append(" }");
+        return sb.toString();
+    }
+
+
 
     public Application getApplication() {
         return application;

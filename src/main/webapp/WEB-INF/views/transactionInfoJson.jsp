@@ -66,28 +66,7 @@ ${record.hasException}
 		],
 		"linkDataArray": [
 			<c:forEach items="${links}" var="link" varStatus="status">
-			{
-				"id" : "${link.linkName}",
-				"from" : "${link.from.nodeName}",
-				"to" : "${link.to.nodeName}",
-				"sourceInfo" : ${link.from.json},
-				"targetInfo" : ${link.to.json},
-				"text" : ${link.histogram.totalCount},
-				"error" : ${link.histogram.errorCount},
-				"slow" : ${link.histogram.verySlowCount},
-				"histogram" : ${link.histogram.json},
-				"targetHosts" : {
-					<c:forEach items="${link.targetList.callHistogramList}" var="host" varStatus="status2">
-						"${host.id}" : {
-							"histogram" : ${host.histogram.json}
-						}<c:if test="${!status2.last}">,</c:if>
-					</c:forEach>	
-				},
-				<c:choose>
-					<c:when test="${(link.histogram.errorCount / link.histogram.totalCount * 100) > 10}">"category" : "bad"</c:when>
-					<c:otherwise>"category" : "default"</c:otherwise>
-				</c:choose>
-			} <c:if test="${!status.last}">,</c:if>
+             ${link.json} <c:if test="${!status.last}">,</c:if>
 			</c:forEach>   	
 		]
 	}

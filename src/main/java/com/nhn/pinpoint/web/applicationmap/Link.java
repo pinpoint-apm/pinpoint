@@ -7,6 +7,7 @@ import com.nhn.pinpoint.web.view.LinkSerializer;
 import com.nhn.pinpoint.web.view.ResponseTimeViewModel;
 import com.nhn.pinpoint.web.vo.*;
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,8 @@ public class Link {
     private static final LinkStateResolver linkStateResolver = new LinkStateResolver();
 
     private final RawCallDataMap rawCallDataMap;
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
 
     public Link(Node from, Node to, Range range, RawCallDataMap rawCallDataMap) {
@@ -111,6 +114,15 @@ public class Link {
 
     public String getLinkName() {
         return fromNode.getNodeName() + LINK_DELIMITER + toNode.getNodeName();
+    }
+
+    @JsonIgnore
+    public String getJson() {
+        try {
+            return MAPPER.writeValueAsString(this);
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
 	public CallHistogramList getTargetList() {
