@@ -34,7 +34,7 @@ public class TimeWindow implements Iterable<Long> {
         if (sampler == null) {
             throw new NullPointerException("sampler must not be null");
         }
-        this.windowSlotSize = sampler.getWindowSize(range);
+        this.windowSlotSize = TimeWindowDownSampler.SAMPLER.getWindowSize(range);
         this.range = range;
         this.windowRange = createWindowRange();
     }
