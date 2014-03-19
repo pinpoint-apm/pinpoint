@@ -3,7 +3,6 @@ package com.nhn.pinpoint.web.vo;
 import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
 import com.nhn.pinpoint.web.view.AgentResponseTimeViewModelList;
 import com.nhn.pinpoint.web.view.ResponseTimeViewModel;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,9 +32,6 @@ public class ResponseHistogramSummary {
 
     private final AgentTimeSeriesHistogram agentTimeSeriesHistogram;
 
-
-    // 현재 노가다 json으로 변경하는 부분이 많아 모양이 이쁘게 나오기 애매하므로 일단 static으로 생성해서하자.
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     public ResponseHistogramSummary(Application application, Range range) {
         if (application == null) {
@@ -94,16 +90,6 @@ public class ResponseHistogramSummary {
     public List<ResponseTimeViewModel> getApplicationTimeSeriesHistogram() {
         return applicationTimeSeriesHistogram.createViewModel();
     }
-
-    public String getApplicationTimeSeriesHistogramToJson() {
-        try {
-            List<ResponseTimeViewModel> viewModel = applicationTimeSeriesHistogram.createViewModel();
-            return MAPPER.writeValueAsString(viewModel);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex.getMessage(), ex);
-        }
-    }
-
 
 
     public AgentResponseTimeViewModelList getAgentTimeSeriesHistogram() {

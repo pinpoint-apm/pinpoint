@@ -1,15 +1,13 @@
 package com.nhn.pinpoint.web.applicationmap.rawdata;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
+
 import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.ServiceType;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.util.logging.resources.logging;
 
 import java.util.HashMap;
 
@@ -46,7 +44,8 @@ public class HistogramTest {
         Histogram original = new Histogram(ServiceType.TOMCAT);
         original.addCallCount(schema.getFastSlot().getSlotTime(), 100);
 
-        HashMap hashMap = objectMapper.readValue(original.getJson(), HashMap.class);
+        String json = objectMapper.writeValueAsString(original);
+        HashMap hashMap = objectMapper.readValue(json, HashMap.class);
 
         Assert.assertEquals(hashMap.get(schema.getFastSlot().getSlotName()), 100);
         Assert.assertEquals(hashMap.get(schema.getErrorSlot().getSlotName()), 0);

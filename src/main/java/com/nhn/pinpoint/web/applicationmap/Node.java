@@ -1,21 +1,17 @@
 package com.nhn.pinpoint.web.applicationmap;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogramList;
 import com.nhn.pinpoint.web.view.NodeSerializer;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.ResponseHistogramSummary;
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.web.util.JsonSerializable;
 
 /**
  * node map에서 application을 나타낸다.
@@ -24,7 +20,7 @@ import com.nhn.pinpoint.web.util.JsonSerializable;
  * @author emeroad
  */
 @JsonSerialize(using = NodeSerializer.class)
-public class Node implements JsonSerializable {
+public class Node {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -36,9 +32,7 @@ public class Node implements JsonSerializable {
 
 
     private ResponseHistogramSummary responseHistogramSummary;
-    // 임시로 생성.
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-	
+
 
 	public Node(Application application, Set<AgentInfoBo> agentSet) {
         this(application, null, agentSet);
@@ -87,17 +81,6 @@ public class Node implements JsonSerializable {
 		return serverInstanceList;
 	}
 
-    @JsonIgnore
-    public String getNodeJson() {
-        try {
-            return MAPPER.writeValueAsString(this);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex.getMessage(), ex);
-        }
-    }
-
-
-
     public Application getApplication() {
         return application;
     }
@@ -135,17 +118,6 @@ public class Node implements JsonSerializable {
     public void setResponseHistogramSummary(ResponseHistogramSummary responseHistogramSummary) {
         this.responseHistogramSummary = responseHistogramSummary;
     }
-
-    @Override
-	public String getJson() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("{ ");
-		sb.append("\"applicationName\" : \"").append(application.getName()).append("\",");
-		sb.append("\"serviceType\" : \"").append(application.getServiceType()).append("\",");
-		sb.append("\"serviceTypeCode\" : \"").append(application.getServiceTypeCode()).append("\"");
-		sb.append(" }");
-		return sb.toString();
-	}
 
 	@Override
 	public String toString() {

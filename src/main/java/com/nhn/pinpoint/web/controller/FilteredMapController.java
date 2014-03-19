@@ -2,6 +2,7 @@ package com.nhn.pinpoint.web.controller;
 
 import java.util.List;
 
+import com.nhn.pinpoint.web.applicationmap.MapWrap;
 import com.nhn.pinpoint.web.service.FilteredMapService;
 import com.nhn.pinpoint.web.util.LimitUtils;
 import com.nhn.pinpoint.web.vo.Range;
@@ -21,6 +22,7 @@ import com.nhn.pinpoint.web.filter.FilterBuilder;
 import com.nhn.pinpoint.web.util.TimeUtils;
 import com.nhn.pinpoint.web.vo.LimitedScanResult;
 import com.nhn.pinpoint.web.vo.TransactionId;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  *
@@ -51,7 +53,8 @@ public class FilteredMapController {
 	 * @return
 	 */
 	@RequestMapping(value = "/getFilteredServerMapData", method = RequestMethod.GET)
-	public String getFilteredServerMapData(Model model,
+    @ResponseBody
+	public MapWrap getFilteredServerMapData(Model model,
 											@RequestParam("application") String applicationName,
 											@RequestParam("serviceType") short serviceType,
 											@RequestParam("from") long from,
@@ -66,18 +69,13 @@ public class FilteredMapController {
 
 		ApplicationMap map = filteredMapService.selectApplicationMap(limitedScanResult.getScanData(), range, filter);
 		
-		model.addAttribute("from", from);
-		model.addAttribute("to", to);
-		model.addAttribute("filter", filter);
-		model.addAttribute("lastFetchedTimestamp", limitedScanResult.getLimitedTime());
         if (logger.isDebugEnabled()) {
             logger.debug("getFilteredServerMapData range scan(limit:{}) from~to:{} ~ {} lastFetchedTimestamp:{}", limit, DateUtils.longToDateStr(from), DateUtils.longToDateStr(to), DateUtils.longToDateStr(limitedScanResult.getLimitedTime()));
         }
 
-		model.addAttribute("nodes", map.getNodes());
-		model.addAttribute("links", map.getLinks());
-		
-		return "applicationmap.filtered";
+        MapWrap mapWrap = new MapWrap(map);
+        mapWrap.setLastFetchedTimestamp(limitedScanResult.getLimitedTime());
+        return mapWrap;
 	}
 	
 	/**
@@ -91,7 +89,8 @@ public class FilteredMapController {
 	 * @return
 	 */
 	@RequestMapping(value = "/getLastFilteredServerMapData", method = RequestMethod.GET)
-	public String getLastFilteredServerMapData(Model model,
+    @ResponseBody
+	public MapWrap getLastFilteredServerMapData(Model model,
 			@RequestParam("application") String applicationName,
 			@RequestParam("serviceType") short serviceType,
 			@RequestParam("period") long period,

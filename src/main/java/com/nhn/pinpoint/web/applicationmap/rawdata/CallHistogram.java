@@ -3,7 +3,6 @@ package com.nhn.pinpoint.web.applicationmap.rawdata;
 import com.nhn.pinpoint.common.ServiceType;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -24,8 +23,6 @@ public class CallHistogram {
 	private final ServiceType serviceType;
 
     private final Map<Long, TimeHistogram> timeHistogramMap;
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
 	public CallHistogram(String agent, ServiceType serviceType) {
         if (agent == null) {
@@ -106,16 +103,6 @@ public class CallHistogram {
     }
 
 
-
-    @JsonIgnore
-	public String getJson() {
-        try {
-            // 추후 오브젝트를 MAPPER에 던저게 되면 해당 api를 제거하도록 하자.
-            return MAPPER.writeValueAsString(this);
-        } catch (IOException ex) {
-            throw new RuntimeException(ex.getMessage(), ex);
-        }
-    }
 
     @Override
     public String toString() {

@@ -4,13 +4,11 @@ import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.SlotType;
 import com.nhn.pinpoint.web.view.HistogramSerializer;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import com.nhn.pinpoint.common.HistogramSlot;
 import com.nhn.pinpoint.common.ServiceType;
 
-import java.io.IOException;
 
 /**
  * 
@@ -189,18 +187,5 @@ public class Histogram {
                 ", errorCount=" + errorCount +
                 '}';
     }
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
-
-	public String getJson() {
-        try {
-            return MAPPER.writeValueAsString(this);
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-
-	}
-
 
 }

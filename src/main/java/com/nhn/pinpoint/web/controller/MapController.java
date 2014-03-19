@@ -1,11 +1,14 @@
 package com.nhn.pinpoint.web.controller;
 
+import com.nhn.pinpoint.web.applicationmap.MapWrap;
 import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
 import com.nhn.pinpoint.web.service.MapService;
 import com.nhn.pinpoint.web.util.Limiter;
+import com.nhn.pinpoint.web.view.ResponseTimeViewModel;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
 import com.nhn.pinpoint.web.vo.ResponseHistogramSummary;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +20,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
 import com.nhn.pinpoint.web.util.TimeUtils;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.io.IOException;
+import java.util.List;
 
 
 /**
@@ -45,7 +52,8 @@ public class MapController {
 	 * @return
 	 */
 	@RequestMapping(value = "/getServerMapData", method = RequestMethod.GET)
-	public String getServerMapData(Model model,
+    @ResponseBody
+	public MapWrap getServerMapData(Model model,
 									@RequestParam("application") String applicationName,
 									@RequestParam("serviceType") short serviceType,
 									@RequestParam("from") long from,
@@ -57,10 +65,7 @@ public class MapController {
 
         ApplicationMap map = mapService.selectApplicationMap(application, range);
 
-		model.addAttribute("nodes", map.getNodes());
-		model.addAttribute("links", map.getLinks());
-
-		return "applicationmap";
+		return new MapWrap(map);
 	}
 
 	/**
@@ -73,7 +78,8 @@ public class MapController {
 	 * @return
 	 */
 	@RequestMapping(value = "/getLastServerMapData", method = RequestMethod.GET)
-	public String getLastServerMapData(Model model,
+    @ResponseBody
+	public MapWrap getLastServerMapData(Model model,
 										@RequestParam("application") String applicationName,
 										@RequestParam("serviceType") short serviceType,
 										@RequestParam("period") long period) {
@@ -120,7 +126,13 @@ public class MapController {
         Histogram applicationHistogram = responseHistogramSummary.getApplicationHistogram();
 		model.addAttribute("linkStatistics", applicationHistogram);
 //		model.addAttribute("histogramSummary", loadFactor.getHistogramSummary().entrySet().iterator());
-        String applicationTimeSeriesHistogramJson = responseHistogramSummary.getApplicationTimeSeriesHistogramToJson();
+        List<ResponseTimeViewModel> applicationTimeSeriesHistogram = responseHistogramSummary.getApplicationTimeSeriesHistogram();
+        String applicationTimeSeriesHistogramJson = null;
+        try {
+            applicationTimeSeriesHistogramJson = MAPPER.writeValueAsString(applicationTimeSeriesHistogram);
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
         model.addAttribute("timeSeriesHistogram", applicationTimeSeriesHistogramJson);
 
         // 결과의 from, to를 다시 명시해야 되는듯 한데. 현재는 그냥 요청 데이터를 그냥 주는것으로 보임.
@@ -130,4 +142,6 @@ public class MapController {
 
 		return "linkStatistics";
 	}
+
+    private final static ObjectMapper MAPPER = new ObjectMapper();
 }

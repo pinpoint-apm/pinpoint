@@ -1,15 +1,14 @@
 package com.nhn.pinpoint.web.applicationmap.rawdata;
 
-import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.ServiceType;
 import junit.framework.Assert;
-import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.util.logging.resources.logging;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -58,19 +57,22 @@ public class CallHistogramTest {
 
         String callJson = mapper.writeValueAsString(callHistogram);
         String before = originalJson(callHistogram);
+        logger.debug("callJson:{}", callJson);
         HashMap callJsonHashMap = mapper.readValue(callJson, HashMap.class);
+        logger.debug("before:{}", before);
         HashMap beforeJsonHashMap = mapper.readValue(before, HashMap.class);
         logger.debug("{} {}", callJsonHashMap, beforeJsonHashMap);
         Assert.assertEquals(callJsonHashMap, beforeJsonHashMap);
     }
 
 
-    public String originalJson(CallHistogram callHistogram) {
+    public String originalJson(CallHistogram callHistogram) throws IOException {
         //이전구현
         StringBuilder sb = new StringBuilder();
         sb.append("{");
         sb.append("\"name\":\"").append(callHistogram.getId()).append("\",");
-        sb.append("\"histogram\":").append(callHistogram.getHistogram().getJson());
+        String histogram = mapper.writeValueAsString(callHistogram.getHistogram());
+        sb.append("\"histogram\":").append(histogram);
         sb.append("}");
         return sb.toString();
     }

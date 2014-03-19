@@ -6,7 +6,6 @@ import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.nhn.pinpoint.web.applicationmap.rawdata.*;
 import com.nhn.pinpoint.web.dao.*;
 import com.nhn.pinpoint.web.vo.*;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,8 +42,6 @@ public class MapServiceImpl implements MapService {
 
     @Autowired
     private HostApplicationMapDao hostApplicationMapDao;
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private Set<AgentInfoBo> selectAgents(String applicationId) {
         if (applicationId == null) {

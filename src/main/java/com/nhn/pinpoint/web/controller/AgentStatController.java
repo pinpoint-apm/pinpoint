@@ -40,8 +40,7 @@ public class AgentStatController {
 							@RequestParam("agentId") String agentId,
 							@RequestParam("from") long from,
 							@RequestParam("to") long to,
-							@RequestParam(value = "sampleRate", required = false) Integer sampleRate,
-							@RequestParam(value = "_", required = false) String jsonpCallback) throws Exception {
+							@RequestParam(value = "sampleRate", required = false) Integer sampleRate) throws Exception {
 		StopWatch watch = new StopWatch();
 		watch.start("agentStatService.selectAgentStatList");
         Range range = new Range(from, to);
@@ -63,18 +62,6 @@ public class AgentStatController {
 			chart.addData(each, sampleRate);
 		}
 
-		/* Deprecated
-		response.setContentType("text/javascript; charset=UTF-8");
-		PrintWriter out = response.getWriter();
-
-		if (jsonpCallback != null) {
-			out.write(jsonpCallback + "(" + jsonObjectMapper.writeValueAsString(chart) + ")");
-		} else {
-			out.write(jsonObjectMapper.writeValueAsString(chart));
-		}
-		
-		out.close();
-		*/
 		return chart;
 	}
 

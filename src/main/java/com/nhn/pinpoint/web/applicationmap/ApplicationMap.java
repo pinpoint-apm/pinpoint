@@ -6,7 +6,7 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
 import com.nhn.pinpoint.web.dao.MapResponseDao;
 import com.nhn.pinpoint.web.vo.*;
-import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,11 +34,12 @@ public class ApplicationMap {
         this.range = range;
 	}
 
-
+    @JsonProperty("nodeDataArray")
     public Collection<Node> getNodes() {
 		return this.nodeList.getNodeList();
 	}
 
+    @JsonProperty("linkDataArray")
 	public Collection<Link> getLinks() {
 		return this.linkList.getLinks();
 	}

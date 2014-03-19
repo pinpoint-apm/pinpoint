@@ -3,9 +3,11 @@ package com.nhn.pinpoint.web.applicationmap;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.applicationmap.rawdata.*;
 import com.nhn.pinpoint.web.view.AgentResponseTimeViewModelList;
+import com.nhn.pinpoint.web.view.LinkSerializer;
 import com.nhn.pinpoint.web.view.ResponseTimeViewModel;
 import com.nhn.pinpoint.web.vo.*;
-import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +20,7 @@ import java.util.List;
  * @author netspider
  * @author emeroad
  */
+@JsonSerialize(using = LinkSerializer.class)
 public class Link {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -29,8 +32,9 @@ public class Link {
     private final Node toNode;
     private final Range range;
 
+    private static final LinkStateResolver linkStateResolver = new LinkStateResolver();
+
     private final RawCallDataMap rawCallDataMap;
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
 
     public Link(Node from, Node to, Range range, RawCallDataMap rawCallDataMap) {
@@ -123,45 +127,35 @@ public class Link {
         }
 		return linkHistogram;
 	}
-
+    @JsonIgnore
     public CallHistogramList getSourceList() {
 //        getSourceApplicationTimeSeriesHistogram();
 //        getSourceAgentTimeSeriesHistogram();
+//        getJson();
         return rawCallDataMap.getTargetList();
     }
 
-    public void getSourceApplicationTimeSeriesHistogram() {
-        logger.info("------------------");
-        logger.info("link{}", getLinkName());
-
+    public List<ResponseTimeViewModel> getSourceApplicationTimeSeriesHistogram() {
         // form인것 같지만 link의 시간은 rpc를 기준으로 삼아야 하기 때문에. to를 기준으로 삼아야 한다.
         ApplicationTimeSeriesHistogramBuilder builder = new ApplicationTimeSeriesHistogramBuilder(toNode.getApplication(), range);
         ApplicationTimeSeriesHistogram applicationTimeSeriesHistogram = builder.build(rawCallDataMap.getRawCallDataMap());
         List<ResponseTimeViewModel> viewModel = applicationTimeSeriesHistogram.createViewModel();
-        try {
-            String s = MAPPER.writeValueAsString(viewModel);
-            logger.debug("sourceApplicationHistogram:{}", s);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        logger.info("------------------");
+        return viewModel;
     }
 
-    public void getSourceAgentTimeSeriesHistogram() {
-        logger.info("------------------");
-        logger.info("link{}", getLinkName());
+    public AgentResponseTimeViewModelList getSourceAgentTimeSeriesHistogram() {
 
         // form인것 같지만 link의 시간은 rpc를 기준으로 삼아야 하기 때문에. to를 기준으로 삼아야 한다.
         AgentTimeSeriesHistogramBuilder builder = new AgentTimeSeriesHistogramBuilder(toNode.getApplication(), range);
         AgentTimeSeriesHistogram applicationTimeSeriesHistogram = builder.build(rawCallDataMap.getRawCallDataMap());
         AgentResponseTimeViewModelList agentResponseTimeViewModelList = new AgentResponseTimeViewModelList(applicationTimeSeriesHistogram.createViewModel());
-        try {
-            String s = MAPPER.writeValueAsString(agentResponseTimeViewModelList);
-            logger.debug("sourceApplicationHistogram:{}", s);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        logger.info("------------------");
+        return agentResponseTimeViewModelList;
+    }
+
+    public String getLinkState() {
+        // 이거 호출할때 마다 생성해서 수정이 요망함.
+        Histogram histogram = getHistogram();
+        return linkStateResolver.resolve(this, histogram);
     }
 
 	public void addLink(Link link) {
