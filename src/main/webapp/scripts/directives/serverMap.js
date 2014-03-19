@@ -225,14 +225,26 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     oProgressBar.setLoading(80);
                     if (copiedData.applicationMapData.nodeDataArray.length === 0) {
                         oProgressBar.stopLoading();
-                        console.log('scope.oNavbarVo', scope.oNavbarVo);
                         console.log('scope.oNavbarVo.getFilter()', scope.oNavbarVo.getFilter());
                         if (scope.oNavbarVo.getFilter()) {
+                            var aFilter = scope.oNavbarVo.getFilterAsJson();
+                            var aFilterInfo = [];
+                            aFilterInfo.push('<p>There is no data with the filter below.</p>');
 
+                            angular.forEach(aFilter, function (f) {
+                                aFilterInfo.push('<p><b>Path : ' + f.fa + '(' + f.fst + ') ~ ' + f.ta + '(' + f.tst + ')' + '</b><br>');
+                                aFilterInfo.push('<ul>');
+                                if (f.url) {
+                                    aFilterInfo.push('<li>Url Pattern : ' + $base64.decode(f.url) + '</li>');
+                                }
+                                aFilterInfo.push('<li>Response Time : ' + $filter('number')(f.rf) + ' ms ~ ' + $filter('number')(f.rt) + ' ms</li>');
+                                aFilterInfo.push('<li>Transaction Result : ' + (f.ie ? 'Failed Only' : 'Success + Failed') + '</li>');
+                                aFilterInfo.push('</ul></p>');
+                            });
+                            oAlert.showInfo(aFilterInfo.join(''));
                         } else {
-
+                            oAlert.showInfo('There is no data.');
                         }
-                        oAlert.showInfo('There is no data.');
                         return;
                     }
 
@@ -429,6 +441,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  */
                 scope.passingTransactionMap = function () {
                     var oServerMapFilterVo = new ServerMapFilterVo();
+                    console.log('htLastLink', htLastLink);
                     oServerMapFilterVo
                         .setMainApplication(htLastLink.filterApplicationName)
                         .setMainServiceTypeCode(htLastLink.filterApplicationServiceTypeCode)

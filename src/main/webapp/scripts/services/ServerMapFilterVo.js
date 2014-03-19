@@ -19,7 +19,7 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
             if (angular.isString(mainApplication)) {
                 self._sMainApplication = mainApplication;
             } else {
-                throw new Error('mainApplication should be string in ServerMapFilterVo.');
+                throw new Error('mainApplication should be string in ServerMapFilterVo. : ', mainApplication);
             }
             return self;
         };
@@ -31,7 +31,7 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
             if (angular.isNumber(mainServiceTypeCode)) {
                 self._nMainServiceTypeCode = mainServiceTypeCode;
             } else {
-                throw new Error('mainServiceTypeCode should be number in ServerMapFilterVo.');
+                throw new Error('mainServiceTypeCode should be number in ServerMapFilterVo. : ', mainServiceTypeCode);
             }
             return self;
         };
@@ -43,7 +43,7 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
             if (angular.isString(fromApplication)) {
                 self._sFromApplication = fromApplication;
             } else {
-                throw new Error('fromApplication should be string in ServerMapFilterVo.');
+                throw new Error('fromApplication should be string in ServerMapFilterVo. : ', fromApplication);
             }
             return self;
         };
@@ -55,7 +55,7 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
             if (angular.isString(fromServiceType)) {
                 self._sFromServiceType = fromServiceType;
             } else {
-                throw new Error('fromServiceType should be string in ServerMapFilterVo.');
+                throw new Error('fromServiceType should be string in ServerMapFilterVo. : ', fromServiceType);
             }
             return self;
         };
@@ -67,7 +67,7 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
             if (angular.isString(toApplication)) {
                 self._sToApplication = toApplication;
             } else {
-                throw new Error('toApplication should be string in ServerMapFilterVo.');
+                throw new Error('toApplication should be string in ServerMapFilterVo. : ', toApplication);
             }
             return self;
         };
@@ -79,7 +79,7 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
             if (angular.isString(toServiceType)) {
                 self._sToServiceType = toServiceType;
             } else {
-                throw new Error('toServiceType should be string in ServerMapFilterVo.');
+                throw new Error('toServiceType should be string in ServerMapFilterVo. : ', toServiceType);
             }
             return self;
         };
@@ -93,7 +93,7 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
             } else if (angular.isNumber(responseFrom)) {
                 self._sResponseFrom = responseFrom;
             } else {
-                throw new Error('responseFrom should be string in ServerMapFilterVo.');
+                throw new Error('responseFrom should be string in ServerMapFilterVo. : ', responseFrom);
             }
             return self;
         };

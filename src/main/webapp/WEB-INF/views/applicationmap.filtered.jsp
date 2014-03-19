@@ -17,6 +17,8 @@
 				"to" : "${link.to.nodeName}",
 				"sourceInfo" : ${link.from.json},
 				"targetInfo" : ${link.to.json},
+                "filterApplicationName" : "${link.filterApplication.name}",
+                "filterApplicationServiceTypeCode" : ${link.filterApplication.serviceTypeCode},
 				"text" : ${link.histogram.totalCount},
 				"error" : ${link.histogram.errorCount},
 				"slow" : ${link.histogram.verySlowCount},

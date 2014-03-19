@@ -79,6 +79,9 @@ pinpointApp.factory('NavbarVo', function () {
         this.getFilter = function () {
             return self._sFilter;
         };
+        this.getFilterAsJson = function () {
+            return JSON.parse(self._sFilter);
+        };
 
         this.setAgentId = function (agentId) {
             if (angular.isString(agentId)) {

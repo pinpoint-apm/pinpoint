@@ -41,7 +41,7 @@ pinpointApp.factory('Alerts', ['$timeout', function ($timeout) {
         this.showInfo = function (msg) {
             $timeout(function () {
                 this.getElement('.info').show();
-                this.getElement('.info .msg').text(msg);
+                this.getElement('.info .msg').html(msg);
             }.bind(this), 300);
         }.bind(this);
         this.hideInfo = function () {
