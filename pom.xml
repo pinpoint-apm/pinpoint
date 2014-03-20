@@ -12,6 +12,8 @@
         <metrics.version>3.0.1</metrics.version>
         <jetty.version>8.1.12.v20130726</jetty.version>
         <slf4j.version>1.7.5</slf4j.version>
+        <codehaus.jackson.version>1.9.13</codehaus.jackson.version>
+
     </properties>
 
     <repositories>
@@ -354,30 +356,22 @@
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-core-asl</artifactId>
-            <version>1.9.9</version>
-            <!--이것도 나옴-->
-            <!--<version>1.9.10</version>-->
+            <version>${codehaus.jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-mapper-asl</artifactId>
-            <version>1.9.9</version>
-            <!--이것도 나옴-->
-            <!--<version>1.9.10</version>-->
+            <version>${codehaus.jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-xc</artifactId>
-            <version>1.9.9</version>
-            <!--이것도 나옴-->
-            <!--<version>1.9.10</version>-->
+            <version>${codehaus.jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-jaxrs</artifactId>
-            <version>1.9.9</version>
-            <!--이것도 나옴-->
-            <!--<version>1.9.10</version>-->
+            <version>${codehaus.jackson.version}</version>
         </dependency>
 
         <!-- Logging depedencies -->
