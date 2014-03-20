@@ -14,10 +14,12 @@ import com.nhn.pinpoint.common.bo.AgentInfoBo;
 public class ServerInstance {
 
     private final String hostName;
+
     private final String name;
-    private final ServerType serverType;
 	private final ServiceType serviceType;
-	
+
+    private final ServerType serverType;
+
 	private final AgentInfoBo agentInfo;
 
 	public ServerInstance(AgentInfoBo agentInfo) {
