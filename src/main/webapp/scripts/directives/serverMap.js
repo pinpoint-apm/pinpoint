@@ -231,13 +231,19 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                             var aFilterInfo = [];
                             aFilterInfo.push('<p>There is no data with the filter below.</p>');
 
-                            angular.forEach(aFilter, function (f) {
-                                aFilterInfo.push('<p><b>Path : ' + f.fa + '(' + f.fst + ') ~ ' + f.ta + '(' + f.tst + ')' + '</b><br>');
+                            angular.forEach(aFilter, function (f, idx) {
+                                aFilterInfo.push('<p><b>Filter');
+                                if (aFilter.length > 1) {
+                                    aFilterInfo.push(' #'+(idx+1)+'');
+                                }
+                                aFilterInfo.push(' : ' + f.fa + '(' + f.fst + ') ~ ' + f.ta + '(' + f.tst + ')' + '</b><br>');
                                 aFilterInfo.push('<ul>');
                                 if (f.url) {
                                     aFilterInfo.push('<li>Url Pattern : ' + $base64.decode(f.url) + '</li>');
                                 }
-                                aFilterInfo.push('<li>Response Time : ' + $filter('number')(f.rf) + ' ms ~ ' + $filter('number')(f.rt) + ' ms</li>');
+                                if (f.rf && f.rt) {
+                                    aFilterInfo.push('<li>Response Time : ' + $filter('number')(f.rf) + ' ms ~ ' + $filter('number')(f.rt) + ' ms</li>');
+                                }
                                 aFilterInfo.push('<li>Transaction Result : ' + (f.ie ? 'Failed Only' : 'Success + Failed') + '</li>');
                                 aFilterInfo.push('</ul></p>');
                             });
