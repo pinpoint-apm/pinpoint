@@ -11,10 +11,4 @@ public interface AgentStatStore {
 	
 	TAgentStat get(String agentId);
 
-	@Deprecated
-	String getInJson();
-	
-	@Deprecated
-	String getInJson(String agentId);
-	
 }
