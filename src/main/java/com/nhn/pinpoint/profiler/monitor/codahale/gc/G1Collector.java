@@ -1,11 +1,14 @@
 package com.nhn.pinpoint.profiler.monitor.codahale.gc;
 
+import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
 import com.nhn.pinpoint.thrift.dto.TAgentStat;
 import com.nhn.pinpoint.thrift.dto.TJvmGc;
 import com.nhn.pinpoint.thrift.dto.TJvmGcType;
+
+import java.util.SortedMap;
 
 import static com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues.*;
 
@@ -23,19 +26,21 @@ public class G1Collector extends GarbageCollectorType {
 
 	@Override
 	public void map(MetricMonitorRegistry registry, TAgentStat agentStat, String agentId) {
-		MetricRegistry r = registry.getRegistry();
+		final MetricRegistry metricRegistry = registry.getRegistry();
 		TJvmGc gc = agentStat.getGc();
 		if (gc == null) {
 			gc = new TJvmGc();
 			agentStat.setGc(gc);
 		}
 		gc.setType(TJvmGcType.G1);
-		gc.setJvmMemoryHeapMax(MetricMonitorValues.getLong(r, JVM_MEMORY_HEAP_MAX));
-		gc.setJvmMemoryHeapUsed(MetricMonitorValues.getLong(r, JVM_MEMORY_HEAP_USED));
-		gc.setJvmMemoryNonHeapMax(MetricMonitorValues.getLong(r, JVM_MEMORY_NONHEAP_MAX));
-		gc.setJvmMemoryNonHeapUsed(MetricMonitorValues.getLong(r, JVM_MEMORY_NONHEAP_USED));
-		gc.setJvmGcOldCount(MetricMonitorValues.getLong(r, JVM_GC_G1_OLD_COUNT));
-		gc.setJvmGcOldTime(MetricMonitorValues.getLong(r, JVM_GC_G1_OLD_TIME));
+
+        final SortedMap<String, Gauge> gauges = metricRegistry.getGauges();
+		gc.setJvmMemoryHeapMax(MetricMonitorValues.getLong(gauges, JVM_MEMORY_HEAP_MAX));
+		gc.setJvmMemoryHeapUsed(MetricMonitorValues.getLong(gauges, JVM_MEMORY_HEAP_USED));
+		gc.setJvmMemoryNonHeapMax(MetricMonitorValues.getLong(gauges, JVM_MEMORY_NONHEAP_MAX));
+		gc.setJvmMemoryNonHeapUsed(MetricMonitorValues.getLong(gauges, JVM_MEMORY_NONHEAP_USED));
+		gc.setJvmGcOldCount(MetricMonitorValues.getLong(gauges, JVM_GC_G1_OLD_COUNT));
+		gc.setJvmGcOldTime(MetricMonitorValues.getLong(gauges, JVM_GC_G1_OLD_TIME));
 	}
 
 	@Override

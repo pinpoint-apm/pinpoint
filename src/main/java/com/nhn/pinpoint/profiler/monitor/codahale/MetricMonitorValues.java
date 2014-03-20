@@ -3,7 +3,6 @@ package com.nhn.pinpoint.profiler.monitor.codahale;
 import java.util.SortedMap;
 
 import com.codahale.metrics.Gauge;
-import com.codahale.metrics.MetricRegistry;
 
 
 /**
@@ -71,18 +70,22 @@ public class MetricMonitorValues {
 	public static final String JVM_MEMORY_POOLS_G1_SURVIVOR = JVM_MEMORY + ".pools.G1-Survivor-Space.usage";
 
 	@SuppressWarnings("rawtypes")
-	public static long getLong(MetricRegistry registry, String key) {
-		SortedMap<String, Gauge> gauges = registry.getGauges();
-		Gauge gauge = gauges.get(key);
+	public static long getLong(final SortedMap<String, Gauge> gauges, String key) {
+        if (gauges == null) {
+            throw new NullPointerException("gauges must not be null");
+        }
+        final Gauge gauge = gauges.get(key);
 		if (gauge == null) {
 			return 0;
 		}
 		Object value = gauge.getValue();
 		if (value == null) {
 			return 0;
-		} else if (value instanceof Long || value instanceof Integer) {
+		} else if (value instanceof Long) {
 			return (Long) value;
-		} else {
+		} else if (value instanceof Integer) {
+            return ((Integer) value).longValue();
+        } else {
 			return 0;
 		}
 	}

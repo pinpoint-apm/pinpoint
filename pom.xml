@@ -289,16 +289,16 @@
             <artifactId>metrics-jvm</artifactId>
             <version>${metrics.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.codahale.metrics</groupId>
-            <artifactId>metrics-json</artifactId>
-            <version>${metrics.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.codahale.metrics</groupId>
-            <artifactId>metrics-healthchecks</artifactId>
-            <version>${metrics.version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.codahale.metrics</groupId>-->
+            <!--<artifactId>metrics-json</artifactId>-->
+            <!--<version>${metrics.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>com.codahale.metrics</groupId>-->
+            <!--<artifactId>metrics-healthchecks</artifactId>-->
+            <!--<version>${metrics.version}</version>-->
+        <!--</dependency>-->
     </dependencies>
 
 
