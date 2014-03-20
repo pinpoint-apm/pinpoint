@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.web.applicationmap;
 
 import com.nhn.pinpoint.web.view.ServerInstanceListSerializer;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

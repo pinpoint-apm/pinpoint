@@ -11,6 +11,7 @@
         <spring.version>3.1.2.RELEASE</spring.version>
         <slf4j.version>1.7.5</slf4j.version>
         <codehaus.jackson.version>1.9.13</codehaus.jackson.version>
+        <fastxml.jackson.version>2.3.1</fastxml.jackson.version>
     </properties>
 
     <repositories>
@@ -459,22 +460,41 @@
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-core-asl</artifactId>
             <version>${codehaus.jackson.version}</version>
-
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-mapper-asl</artifactId>
             <version>${codehaus.jackson.version}</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-xc</artifactId>
             <version>${codehaus.jackson.version}</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-jaxrs</artifactId>
             <version>${codehaus.jackson.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${fastxml.jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${fastxml.jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${fastxml.jackson.version}</version>
         </dependency>
 
         <!-- Logging depedencies -->
@@ -580,12 +600,12 @@
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
-            <version>1.6.9</version>
+            <version>1.6.12</version>
         </dependency>
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
-            <version>1.6.9</version>
+            <version>1.6.12</version>
         </dependency>
     </dependencies>
 

@@ -25,7 +25,7 @@
 	<tx:annotation-driven />
 	<context:component-scan base-package="com.nhn.pinpoint.web.controller, com.nhn.pinpoint.web.util" />
 
-    <bean id="jsonView" class="org.springframework.web.servlet.view.json.MappingJacksonJsonView">
+    <bean id="jsonView" class="org.springframework.web.servlet.view.json.MappingJackson2JsonView">
     </bean>
 
 	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">

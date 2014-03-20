@@ -6,18 +6,18 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.codehaus.jackson.JsonEncoding;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotWritableException;
-import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-public class MappingJsonpJacksonHttpMessageConverter extends
-        MappingJacksonHttpMessageConverter {
+public class MappingJsonpJackson2HttpMessageConverter extends
+        MappingJackson2HttpMessageConverter {
 
     private static final String cbPrefix = "(";
     private static final String cbSuffix = ")";
@@ -33,7 +33,7 @@ public class MappingJsonpJacksonHttpMessageConverter extends
         }
     };
 
-    public MappingJsonpJacksonHttpMessageConverter() {
+    public MappingJsonpJackson2HttpMessageConverter() {
         setSupportedMediaTypes(DEFAULT_MEDIA_TYPES);
     }
 

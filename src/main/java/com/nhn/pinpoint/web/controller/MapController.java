@@ -8,7 +8,7 @@ import com.nhn.pinpoint.web.view.ResponseTimeViewModel;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
 import com.nhn.pinpoint.web.vo.ResponseHistogramSummary;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -60,7 +61,7 @@ public class MapController {
 									@RequestParam("to") long to) {
         final Range range = new Range(from, to);
         this.dateLimit.limit(from, to);
-
+        logger.debug("range:{}", TimeUnit.MILLISECONDS.toMinutes(range.getRange()));
         Application application = new Application(applicationName, serviceType);
 
         ApplicationMap map = mapService.selectApplicationMap(application, range);

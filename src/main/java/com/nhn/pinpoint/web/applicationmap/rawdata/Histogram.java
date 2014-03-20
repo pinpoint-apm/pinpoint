@@ -4,7 +4,7 @@ import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.SlotType;
 import com.nhn.pinpoint.web.view.HistogramSerializer;
 
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import com.nhn.pinpoint.common.HistogramSlot;
 import com.nhn.pinpoint.common.ServiceType;
