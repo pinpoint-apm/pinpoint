@@ -139,12 +139,10 @@ public class Link {
         }
 		return linkHistogram;
 	}
+
     @JsonIgnore
     public CallHistogramList getSourceList() {
-//        getSourceApplicationTimeSeriesHistogram();
-//        getSourceAgentTimeSeriesHistogram();
-//        getJson();
-        return rawCallDataMap.getTargetList();
+        return rawCallDataMap.getSourceList();
     }
 
     public List<ResponseTimeViewModel> getSourceApplicationTimeSeriesHistogram() {
