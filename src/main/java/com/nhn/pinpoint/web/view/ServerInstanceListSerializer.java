@@ -43,7 +43,7 @@ public class ServerInstanceListSerializer extends JsonSerializer<ServerInstanceL
     private void writeInstanceList(JsonGenerator jgen, List<ServerInstance> serverList) throws IOException {
         jgen.writeStartObject();
         for (ServerInstance serverInstance : serverList) {
-            jgen.writeFieldName(serverInstance.getId());
+            jgen.writeFieldName(serverInstance.getName());
             jgen.writeObject(serverInstance);
         }
 
