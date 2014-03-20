@@ -27,9 +27,8 @@ public class ServerInstanceList {
 
 
     private void addServerInstance(List<ServerInstance> nodeList, ServerInstance serverInstance) {
-        final String serverId = serverInstance.getId();
         for (ServerInstance  node : nodeList) {
-            boolean equalsNode = node.getId().equals(serverId);
+            boolean equalsNode = node.equals(serverInstance);
             if (equalsNode) {
                 return;
             }
@@ -48,8 +47,8 @@ public class ServerInstanceList {
         return find;
     }
 
-    void addServerInstance(String hostName, ServerInstance serverInstance) {
-        List<ServerInstance> find = getServerInstanceList(hostName);
+    void addServerInstance(ServerInstance serverInstance) {
+        List<ServerInstance> find = getServerInstanceList(serverInstance.getHostName());
         addServerInstance(find, serverInstance);
     }
 

@@ -13,34 +13,45 @@ import com.nhn.pinpoint.common.bo.AgentInfoBo;
  */
 public class ServerInstance {
 
-	private final String name;
+    private final String hostName;
+    private final String name;
+    private final ServerType serverType;
 	private final ServiceType serviceType;
 	
-	private final String id;
 	private final AgentInfoBo agentInfo;
 
 	public ServerInstance(AgentInfoBo agentInfo) {
         if (agentInfo == null) {
             throw new NullPointerException("agentInfo must not be null");
         }
+        this.hostName = agentInfo.getHostname();
         this.name = agentInfo.getAgentId();
 		this.serviceType = agentInfo.getServiceType();
-		this.id = name;// + serviceType;
 		this.agentInfo = agentInfo;
+        this.serverType = ServerType.Physical;
 	}
 	
-	public ServerInstance(String name, ServiceType serviceType) {
-        if (name == null) {
-            throw new NullPointerException("name must not be null");
+	public ServerInstance(String hostName, String physicalName, ServiceType serviceType) {
+        if (hostName == null) {
+            throw new NullPointerException("hostName must not be null");
+        }
+        if (physicalName == null) {
+            throw new NullPointerException("logicalName must not be null");
         }
         if (serviceType == null) {
             throw new NullPointerException("serviceType must not be null");
         }
-        this.name = name;
+        this.hostName = hostName;
+        this.name = physicalName;
 		this.serviceType = serviceType;
-		this.id = name + serviceType;
 		this.agentInfo = null;
+        this.serverType = ServerType.Logical;
 	}
+
+    @JsonIgnore
+    public String getHostName() {
+        return hostName;
+    }
 
     @JsonProperty("name")
     public String getName() {
@@ -53,9 +64,9 @@ public class ServerInstance {
     }
 
     @JsonIgnore
-    public String getId() {
-		return this.id;
-	}
+    public ServerType getServerType() {
+        return serverType;
+    }
 
     @JsonProperty("agentInfo")
 	public AgentInfoBo getAgentInfo() {
@@ -63,34 +74,27 @@ public class ServerInstance {
 	}
 
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ServerInstance other = (ServerInstance) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
-	}
+        ServerInstance that = (ServerInstance) o;
 
-	@Override
-	public String toString() {
-		return "ServerInstance [id=" + id + ", agentInfo=" + agentInfo + "]";
-	}
+        if (!name.equals(that.name)) return false;
+        if (serverType != that.serverType) return false;
+        if (serviceType != that.serviceType) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name.hashCode();
+        result = 31 * result + serverType.hashCode();
+        result = 31 * result + serviceType.hashCode();
+        return result;
+    }
+
 
 }

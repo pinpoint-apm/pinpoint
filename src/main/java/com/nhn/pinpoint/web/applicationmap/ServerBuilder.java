@@ -69,8 +69,8 @@ public class ServerBuilder {
             final String hostName = getHostName(callHistogram.getId());
             final ServiceType serviceType = callHistogram.getServiceType();
 
-            final ServerInstance serverInstance = new ServerInstance(instanceName, serviceType);
-            serverInstanceList.addServerInstance(hostName, serverInstance);
+            final ServerInstance serverInstance = new ServerInstance(hostName, instanceName, serviceType);
+            serverInstanceList.addServerInstance(serverInstance);
         }
         return serverInstanceList;
     }
@@ -78,9 +78,8 @@ public class ServerBuilder {
     public ServerInstanceList buildPhysicalServer(final Set<AgentInfoBo> agentSet) {
         final ServerInstanceList serverInstanceList = new ServerInstanceList();
         for (AgentInfoBo agent : agentSet) {
-            final String hostName = agent.getHostname();
             final ServerInstance serverInstance = new ServerInstance(agent);
-            serverInstanceList.addServerInstance(hostName, serverInstance);
+            serverInstanceList.addServerInstance(serverInstance);
 
         }
         return serverInstanceList;
