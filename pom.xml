@@ -10,6 +10,7 @@
     <properties>
         <spring.version>3.1.2.RELEASE</spring.version>
         <slf4j.version>1.7.5</slf4j.version>
+        <codehaus.jackson.version>1.9.13</codehaus.jackson.version>
     </properties>
 
     <repositories>
@@ -36,12 +37,6 @@
 
 
     <dependencies>
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-mapper-asl</artifactId>
-			<version>1.9.13</version>
-		</dependency>
-    
         <dependency>
             <groupId>com.nhn.pinpoint</groupId>
             <artifactId>pinpoint-commons</artifactId>
@@ -459,34 +454,27 @@
             <version>2.5.0</version>
         </dependency>
 
-        <!--jackson jsonMapper. hbase에서 일단 필요함. -->
+        <!--jackson jsonMapper. hbase에서 일단 필요함. 1.9.x 버전을 사용함-->
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-core-asl</artifactId>
-            <version>1.9.9</version>
-            <!--이것도 나옴-->
-            <!--<version>1.9.10</version>-->
+            <version>${codehaus.jackson.version}</version>
+
         </dependency>
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-mapper-asl</artifactId>
-            <version>1.9.9</version>
-            <!--이것도 나옴-->
-            <!--<version>1.9.10</version>-->
+            <version>${codehaus.jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-xc</artifactId>
-            <version>1.9.9</version>
-            <!--이것도 나옴-->
-            <!--<version>1.9.10</version>-->
+            <version>${codehaus.jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-jaxrs</artifactId>
-            <version>1.9.9</version>
-            <!--이것도 나옴-->
-            <!--<version>1.9.10</version>-->
+            <version>${codehaus.jackson.version}</version>
         </dependency>
 
         <!-- Logging depedencies -->
