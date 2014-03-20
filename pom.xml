@@ -298,12 +298,12 @@
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
-            <version>1.6.9</version>
+            <version>1.6.12</version>
         </dependency>
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
-            <version>1.6.9</version>
+            <version>1.6.12</version>
         </dependency>
         <dependency>
             <groupId>javax.mail</groupId>
