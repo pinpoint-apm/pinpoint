@@ -13,7 +13,7 @@
         <jetty.version>8.1.12.v20130726</jetty.version>
         <slf4j.version>1.7.5</slf4j.version>
         <codehaus.jackson.version>1.9.13</codehaus.jackson.version>
-
+        <fastxml.jackson.version>2.3.1</fastxml.jackson.version>
     </properties>
 
     <repositories>
@@ -374,6 +374,26 @@
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-jaxrs</artifactId>
             <version>${codehaus.jackson.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!--2.3.x jackson 추후 필요할 경우 scope runtime을 변경할 것-->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${fastxml.jackson.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${fastxml.jackson.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${fastxml.jackson.version}</version>
             <scope>runtime</scope>
         </dependency>
 
