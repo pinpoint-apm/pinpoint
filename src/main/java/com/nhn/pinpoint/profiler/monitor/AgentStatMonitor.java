@@ -88,7 +88,7 @@ public class AgentStatMonitor {
         public void run() {
 			try {
                 // TAgentStat 객체를 준비한다.
-                // WARNING TAgentStat을 재활용시 datasender가 별도의 thread이기 때문에. multithread문제가 생길수 있음.
+                // TODO TAgentStat을 재활용시 datasender가 별도의 thread이기 때문에. multithread문제가 생길수 있음.
                 final TAgentStat agentStat = new TAgentStat();
                 agentStat.setAgentId(agentId);
 				agentStat.setTimestamp(System.currentTimeMillis());
