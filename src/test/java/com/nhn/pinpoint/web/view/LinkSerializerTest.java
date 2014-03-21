@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.web.view;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.applicationmap.Link;
 import com.nhn.pinpoint.web.applicationmap.Node;
@@ -8,13 +10,9 @@ import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogramList;
 import com.nhn.pinpoint.web.applicationmap.rawdata.RawCallDataMap;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
-import org.apache.hadoop.hbase.thrift.CallQueue;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectWriter;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.util.logging.resources.logging;
 
 /**
  * @author emeroad

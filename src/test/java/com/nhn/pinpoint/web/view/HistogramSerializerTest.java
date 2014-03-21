@@ -1,8 +1,8 @@
 package com.nhn.pinpoint.web.view;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhn.pinpoint.common.HistogramSchema;
 import junit.framework.Assert;
-import org.codehaus.jackson.map.ObjectMapper;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;

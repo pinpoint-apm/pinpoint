@@ -1,10 +1,10 @@
 package com.nhn.pinpoint.web.vo;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.view.AgentResponseTimeViewModel;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,9 +34,9 @@ public class AgentTimeSeriesHistogramTest {
         List<AgentResponseTimeViewModel> viewModel = histogram.createViewModel();
         logger.debug("{}", viewModel);
 
-        JsonFactory jsonFactory = mapper.getJsonFactory();
+        JsonFactory jsonFactory = mapper.getFactory();
         StringWriter stringWriter = new StringWriter();
-        JsonGenerator jsonGenerator = jsonFactory.createJsonGenerator(stringWriter);
+        JsonGenerator jsonGenerator = jsonFactory.createGenerator(stringWriter);
         jsonGenerator.writeStartObject();
         for (AgentResponseTimeViewModel agentResponseTimeViewModel : viewModel) {
             jsonGenerator.writeObject(agentResponseTimeViewModel);

@@ -1,9 +1,8 @@
 package com.nhn.pinpoint.web.applicationmap.rawdata;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhn.pinpoint.common.ServiceType;
 import junit.framework.Assert;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
