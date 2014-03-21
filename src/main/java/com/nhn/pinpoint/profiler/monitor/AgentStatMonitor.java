@@ -30,6 +30,7 @@ public class AgentStatMonitor {
 
 	private final DataSender dataSender;
 	private final String agentId;
+    private final GarbageCollector garbageCollector;
 
 	public AgentStatMonitor(DataSender dataSender, String agentId) {
         if (dataSender == null) {
@@ -40,11 +41,15 @@ public class AgentStatMonitor {
         }
         this.dataSender = dataSender;
         this.agentId = agentId;
+        this.garbageCollector = GarbageCollectorFactory.createGarbageCollector();
+        if (logger.isInfoEnabled()) {
+            logger.info("found : {}", this.garbageCollector);
+        }
 	}
 
 
 	public void start() {
-		CollectJob job = new CollectJob(dataSender);
+		CollectJob job = new CollectJob();
 		// FIXME 설정에서 수집 주기를 가져올 수 있어야 한다.
 		long interval = DEFAULT_INTERVAL;
 		long wait = 0;
@@ -65,26 +70,6 @@ public class AgentStatMonitor {
 
     private class CollectJob implements Runnable {
 
-		private final DataSender dataSender;
-		private final GarbageCollector garbageCollector;
-        private final String agentId;
-
-		public CollectJob(DataSender dataSender) {
-            if (dataSender == null) {
-                throw new NullPointerException("dataSender must not be null");
-            }
-            this.dataSender = dataSender;
-            this.agentId = AgentStatMonitor.this.agentId;
-
-			// GarbageCollectorFactory 타입을 확인한다.
-			this.garbageCollector = GarbageCollectorFactory.createGarbageCollector();
-			if (logger.isInfoEnabled()) {
-				logger.info("found : {}", this.garbageCollector);
-			}
-		}
-
-
-
         public void run() {
 			try {
                 // TAgentStat 객체를 준비한다.
@@ -92,10 +77,10 @@ public class AgentStatMonitor {
                 final TAgentStat agentStat = new TAgentStat();
                 agentStat.setAgentId(agentId);
 				agentStat.setTimestamp(System.currentTimeMillis());
-                final TJvmGc gc = this.garbageCollector.collect();
+                final TJvmGc gc = garbageCollector.collect();
                 agentStat.setGc(gc);
 
-                this.dataSender.send(agentStat);
+                dataSender.send(agentStat);
 			} catch (Exception ex) {
 				logger.warn("AgentStat collect failed. Caused:{}", ex.getMessage(), ex);
 			}
