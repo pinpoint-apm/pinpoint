@@ -1,9 +1,10 @@
 package com.nhn.pinpoint.web.applicationmap.rawdata;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.ServiceType;
-import org.codehaus.jackson.map.ObjectMapper;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
