@@ -12,5 +12,5 @@ import com.nhn.pinpoint.web.vo.Application;
 public interface ApplicationIndexDao {
 	public List<Application> selectAllApplicationNames();
 
-	public String[] selectAgentIds(String applicationName);
+	public List<String> selectAgentIds(String applicationName);
 }

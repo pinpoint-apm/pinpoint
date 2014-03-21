@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.web.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
@@ -9,6 +8,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import com.nhn.pinpoint.web.vo.Range;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,13 +43,12 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
-        String[] agentIdList = applicationIndexDao.selectAgentIds(applicationName);
-
+       final List<String> agentIdList = applicationIndexDao.selectAgentIds(applicationName);
         if (logger.isDebugEnabled()) {
-		    logger.debug("agentIdList={}", Arrays.toString(agentIdList));
+		    logger.debug("agentIdList={}", agentIdList);
         }
 		
-		if (agentIdList == null || agentIdList.length == 0) {
+		if (CollectionUtils.isEmpty(agentIdList)) {
 			logger.debug("agentIdList is empty. applicationName={}, {}", applicationName, range);
 			return new TreeMap<String, List<AgentInfoBo>>();
 		}

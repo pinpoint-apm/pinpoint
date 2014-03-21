@@ -31,7 +31,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
 
 	@Autowired
 	@Qualifier("agentIdMapper")
-	private RowMapper<String[]> agentIdMapper;
+	private RowMapper<List<String>> agentIdMapper;
 
 	@Override
 	public List<Application> selectAllApplicationNames() {
@@ -41,7 +41,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
 	}
 
 	@Override
-	public String[] selectAgentIds(String applicationName) {
+	public List<String> selectAgentIds(String applicationName) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }

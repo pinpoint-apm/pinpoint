@@ -365,7 +365,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     }
 
     private Set<AgentInfoBo> selectAgents(String applicationId) {
-        String[] agentIds = applicationIndexDao.selectAgentIds(applicationId);
+        List<String> agentIds = applicationIndexDao.selectAgentIds(applicationId);
         Set<AgentInfoBo> agentSet = new HashSet<AgentInfoBo>();
         for (String agentId : agentIds) {
             // TODO 조회 시간대에 따라서 agent info row timestamp를 변경하여 조회해야하는지는 모르겠음.

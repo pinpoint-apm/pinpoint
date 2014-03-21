@@ -6,29 +6,29 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  *
  */
 @Component
-public class AgentIdMapper implements RowMapper<String[]> {
-    private static final String[] EMPTY_ARRAY = new String[0];
+public class AgentIdMapper implements RowMapper<List<String>> {
 
 	@Override
-	public String[] mapRow(Result result, int rowNum) throws Exception {
+	public List<String> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
-            return EMPTY_ARRAY;
+            return Collections.emptyList();
         }
-		KeyValue[] raw = result.raw();
-
-		String[] ret = new String[raw.length];
-		int index = 0;
+		final KeyValue[] raw = result.raw();
+		final List<String> agentIdList = new ArrayList<String>(raw.length);
 
 		for (KeyValue kv : raw) {
-			ret[index++] = Bytes.toString(kv.getQualifier());
+            final String agentId = Bytes.toString(kv.getQualifier());
+            agentIdList.add(agentId);
 		}
 
-		return ret;
+		return agentIdList;
 	}
 }
