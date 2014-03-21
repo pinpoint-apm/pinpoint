@@ -25,14 +25,17 @@ public class AgentStatMonitor {
     private static final long DEFAULT_INTERVAL = 1000 * 5;
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final boolean isTrace = logger.isTraceEnabled();
+
 
 	private final ScheduledExecutorService executor = new ScheduledThreadPoolExecutor(1, new PinpointThreadFactory("Pinpoint-stat-monitor", true));
 
 	private final DataSender dataSender;
 	private final String agentId;
     private final GarbageCollector garbageCollector;
+    private final long agentStartTime;
 
-	public AgentStatMonitor(DataSender dataSender, String agentId) {
+    public AgentStatMonitor(DataSender dataSender, String agentId, long startTime) {
         if (dataSender == null) {
             throw new NullPointerException("dataSender must not be null");
         }
@@ -41,6 +44,7 @@ public class AgentStatMonitor {
         }
         this.dataSender = dataSender;
         this.agentId = agentId;
+        this.agentStartTime = startTime;
         this.garbageCollector = GarbageCollectorFactory.createGarbageCollector();
         if (logger.isInfoEnabled()) {
             logger.info("found : {}", this.garbageCollector);
@@ -76,10 +80,13 @@ public class AgentStatMonitor {
                 // TODO TAgentStat을 재활용시 datasender가 별도의 thread이기 때문에. multithread문제가 생길수 있음.
                 final TAgentStat agentStat = new TAgentStat();
                 agentStat.setAgentId(agentId);
+                agentStat.setStartTimestamp(agentStartTime);
 				agentStat.setTimestamp(System.currentTimeMillis());
                 final TJvmGc gc = garbageCollector.collect();
                 agentStat.setGc(gc);
-
+                if (isTrace) {
+                    logger.trace("collect agentStat:{}", agentStat);
+                }
                 dataSender.send(agentStat);
 			} catch (Exception ex) {
 				logger.warn("AgentStat collect failed. Caused:{}", ex.getMessage(), ex);

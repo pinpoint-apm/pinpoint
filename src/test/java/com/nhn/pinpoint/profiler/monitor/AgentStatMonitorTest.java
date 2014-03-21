@@ -8,9 +8,9 @@ public class AgentStatMonitorTest {
 
 	@Test
 	public void test() throws InterruptedException {
-		System.out.println(System.currentTimeMillis());
-		System.setProperty("pinpoint.log", ".");
-		AgentStatMonitor monitor = new AgentStatMonitor(new LoggingDataSender(), "agentId");
+
+		System.setProperty("pinpoint.log", "test.");
+		AgentStatMonitor monitor = new AgentStatMonitor(new LoggingDataSender(), "agentId", System.currentTimeMillis());
 
 		monitor.start();
 

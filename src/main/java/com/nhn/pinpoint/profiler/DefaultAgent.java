@@ -116,7 +116,7 @@ public class DefaultAgent implements Agent {
         this.heartBitChecker = new HeartBitChecker(tcpDataSender, profilerConfig.getHeartbeatInterval(), tAgentInfo);
 
         // JVM 통계 등을 주기적으로 수집하여 collector에 전송하는 monitor를 초기화한다.
-        this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId());
+        this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId(), this.agentInformation.getStartTime());
 
         preLoadClass();
     }
