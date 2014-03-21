@@ -35,8 +35,8 @@ public class AgentStatController {
 	private AgentInfoService agentInfoService;
 	
 	@RequestMapping(value = "/getAgentStat", method = RequestMethod.GET)
-	public @ResponseBody AgentStatChartGroup getAgentStat(Model model,
-							HttpServletResponse response,
+    @ResponseBody
+	public AgentStatChartGroup getAgentStat(
 							@RequestParam("agentId") String agentId,
 							@RequestParam("from") long from,
 							@RequestParam("to") long to,
@@ -66,11 +66,11 @@ public class AgentStatController {
 	}
 
 	@RequestMapping(value = "/getAgentList", method = RequestMethod.GET)
-	public @ResponseBody SortedMap<String, List<AgentInfoBo>> getApplicationAgentList(Model model, HttpServletResponse response,
+    @ResponseBody
+    public SortedMap<String, List<AgentInfoBo>> getApplicationAgentList(
 											@RequestParam("application") String applicationName,
 											@RequestParam("from") long from,
-											@RequestParam("to") long to,
-											@RequestParam(value = "_", required = false) String jsonpCallback) {
+											@RequestParam("to") long to) {
         Range range = new Range(from, to);
 		SortedMap<String, List<AgentInfoBo>> applicationAgentList = agentInfoService.getApplicationAgentList(applicationName, range);
 		return applicationAgentList;
