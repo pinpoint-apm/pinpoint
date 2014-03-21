@@ -32,7 +32,7 @@ public class DefaultLinkFilter implements LinkFilter {
         if (this.calleeApplication.getServiceType().isWas() && this.callerApplication.getServiceType().isWas()) {
             logger.debug("check was to was.");
             // src가 같지 않으면 버림.
-            if (!this.callerApplication.getName().equals(foundApplication.getName()) || this.callerApplication.getServiceType() != foundApplication.getServiceType()) {
+            if (!this.callerApplication.equals(foundApplication)) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("  DROP THE ROW,1, DIFFERENT SRC. fetched={} , params={}", foundApplication, calleeApplication);
                 }
@@ -61,7 +61,7 @@ public class DefaultLinkFilter implements LinkFilter {
                 }
             } else {
                 // dest가 unknown이 아니면 applicaiton name, type 둘 다 비교.
-                if (!this.calleeApplication.getName().equals(foundApplication.getName()) || this.calleeApplication.getServiceType() != foundApplication.getServiceType()) {
+                if (!this.calleeApplication.equals(foundApplication)) {
                     if (logger.isDebugEnabled()) {
                         logger.debug("  DROP THE ROW,4, DIFFERENT DEST. fetched={}, params={}", foundApplication, this.calleeApplication);
                     }
