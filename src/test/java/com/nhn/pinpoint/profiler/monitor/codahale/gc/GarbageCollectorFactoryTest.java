@@ -12,17 +12,14 @@ public class GarbageCollectorFactoryTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private MetricMonitorRegistry registry = new MetricMonitorRegistry();
-
 	@Test
 	public void test() {
-//        registry.registerJvmGcMonitor(new MonitorName("jvm.gc"));
-//        registry.registerJvmMemoryMonitor(new MonitorName("jvm.memory"));
-
         GarbageCollector collector = new GarbageCollectorFactory().createGarbageCollector();
 
         logger.debug("collector.getType():{}", collector);
-        TJvmGc collect = collector.collect();
-        logger.debug("collector.collect():{}", collect);
+        TJvmGc collect1 = collector.collect();
+        logger.debug("collector.collect():{}", collect1);
+        TJvmGc collect2 = collector.collect();
+        logger.debug("collector.collect():{}", collect2);
     }
 }

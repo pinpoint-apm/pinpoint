@@ -62,6 +62,8 @@ public class DefaultAgent implements Agent {
     private final AgentInformation agentInformation;
 
     // agent info는 heartbeat에서 매번 사용한다.
+    // TODO 잠재적 멀티Thread문제가 발생가능할수 있음
+    // datasend할때 따로 생성해서 보도록 한다.
     private final TAgentInfo tAgentInfo;
 
     // agent의 상태,
