@@ -32,6 +32,7 @@ public class AgentStatMonitor {
 
 	private final DataSender dataSender;
 	private final String agentId;
+    private final GarbageCollectorFactory garbageCollectorFactory;
     private final GarbageCollector garbageCollector;
     private final long agentStartTime;
 
@@ -45,7 +46,8 @@ public class AgentStatMonitor {
         this.dataSender = dataSender;
         this.agentId = agentId;
         this.agentStartTime = startTime;
-        this.garbageCollector = GarbageCollectorFactory.createGarbageCollector();
+        this.garbageCollectorFactory = new GarbageCollectorFactory();
+        this.garbageCollector = garbageCollectorFactory.createGarbageCollector();
         if (logger.isInfoEnabled()) {
             logger.info("found : {}", this.garbageCollector);
         }

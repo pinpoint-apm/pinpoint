@@ -13,14 +13,15 @@ import static com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues.*;
  * @author harebox
  */
 public class GarbageCollectorFactory {
-
+    private final MetricMonitorRegistry monitorRegistry;
     /**
      * Metrics 통계 데이터를 이용하여 가비지 컬렉터 타입을 지정한다.
      */
-    private GarbageCollectorFactory() {
+    public GarbageCollectorFactory() {
+        this.monitorRegistry = createRegistry();
     }
 
-    private static MetricMonitorRegistry createRegistry() {
+    private MetricMonitorRegistry createRegistry() {
         final MetricMonitorRegistry monitorRegistry = new MetricMonitorRegistry();
 
         // FIXME 설정에 따라 어떤 데이터를 수집할 지 선택할 수 있도록 해야한다. 여기서는 JVM 메모리 정보를 default로 수집.
@@ -31,8 +32,8 @@ public class GarbageCollectorFactory {
     /**
      * 통계 키를 기반으로 생성
      */
-    public static GarbageCollector createGarbageCollector() {
-        MetricMonitorRegistry registry = createRegistry();
+    public GarbageCollector createGarbageCollector() {
+        MetricMonitorRegistry registry = this.monitorRegistry;
         Collection<String> keys = registry.getRegistry().getNames();
         if (keys.contains(JVM_GC_SERIAL_MSC_COUNT)) {
             return new SerialCollector(registry);
