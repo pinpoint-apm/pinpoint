@@ -3,12 +3,17 @@ package com.nhn.pinpoint.profiler.monitor.codahale;
 import java.util.SortedMap;
 
 import com.codahale.metrics.Gauge;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  * @author harebox
  */
 public class MetricMonitorValues {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MetricMonitorValues.class);
+
 
 	public static final String JVM_GC = "jvm.gc";
 	// Serial collector
@@ -70,24 +75,47 @@ public class MetricMonitorValues {
 	public static final String JVM_MEMORY_POOLS_G1_SURVIVOR = JVM_MEMORY + ".pools.G1-Survivor-Space.usage";
 
 	@SuppressWarnings("rawtypes")
-	public static long getLong(final SortedMap<String, Gauge> gauges, String key) {
-        if (gauges == null) {
-            throw new NullPointerException("gauges must not be null");
-        }
-        final Gauge gauge = gauges.get(key);
+	public static long getLong(Gauge<Long> gauge) {
 		if (gauge == null) {
 			return 0;
 		}
-		Object value = gauge.getValue();
-		if (value == null) {
-			return 0;
-		} else if (value instanceof Long) {
-			return (Long) value;
-		} else if (value instanceof Integer) {
-            return ((Integer) value).longValue();
-        } else {
-			return 0;
-		}
+		return gauge.getValue();
 	}
+
+    public static Gauge<Long> getLongGauge(final SortedMap<String, Gauge> gauges, String key) {
+        if (gauges == null) {
+            throw new NullPointerException("gauges must not be null");
+        }
+        if (key == null) {
+            throw new NullPointerException("key must not be null");
+        }
+        final Gauge gauge = gauges.get(key);
+        if (gauge == null) {
+            LOGGER.warn("key:{} not found", key);
+            return LONG_ZERO;
+        }
+        // type check getValue() 더 좋은 타입을 알아내는 방안이 없나?
+        Object value = gauge.getValue();
+        if (value instanceof Long) {
+            return gauge;
+        }
+        LOGGER.warn("invalid gauge type. key:{} gauge:{}", key, gauge);
+        return LONG_ZERO;
+    }
+
+    public static final Gauge<Long> LONG_ZERO = new EmptyGauge<Long>(0L);
+
+    public static class EmptyGauge<T> implements Gauge<T> {
+        private T emptyValue;
+
+        public EmptyGauge(T emptyValue) {
+            this.emptyValue = emptyValue;
+        }
+
+        @Override
+        public T getValue() {
+            return emptyValue;
+        }
+    }
 	
 }

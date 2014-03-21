@@ -4,14 +4,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import com.nhn.pinpoint.profiler.monitor.codahale.gc.GarbageCollector;
+import com.nhn.pinpoint.profiler.monitor.codahale.gc.GarbageCollectorFactory;
 import com.nhn.pinpoint.thrift.dto.TAgentStat;
+import com.nhn.pinpoint.thrift.dto.TJvmGc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
-import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
-import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
-import com.nhn.pinpoint.profiler.monitor.codahale.gc.GarbageCollector;
 import com.nhn.pinpoint.profiler.sender.DataSender;
 
 /**
@@ -63,46 +63,39 @@ public class AgentStatMonitor {
         logger.info("AgentStat monitor stopped");
 	}
 
-    class CollectJob implements Runnable {
-		private TAgentStat agentStat;
-		private DataSender dataSender;
-		private MetricMonitorRegistry monitorRegistry;
-		private GarbageCollector garbageCollector;
+    private class CollectJob implements Runnable {
+
+		private final DataSender dataSender;
+		private final GarbageCollector garbageCollector;
+        private final String agentId;
 
 		public CollectJob(DataSender dataSender) {
             if (dataSender == null) {
                 throw new NullPointerException("dataSender must not be null");
             }
             this.dataSender = dataSender;
-            this.monitorRegistry = createRegistry();
+            this.agentId = AgentStatMonitor.this.agentId;
 
-            // TAgentStat 객체를 준비한다.
-			this.agentStat = new TAgentStat();
-			this.agentStat.setAgentId(agentId);
-
-			// GarbageCollector 타입을 확인한다.
-			this.garbageCollector = new GarbageCollector();
-			this.garbageCollector.setType(monitorRegistry);
+			// GarbageCollectorFactory 타입을 확인한다.
+			this.garbageCollector = GarbageCollectorFactory.createGarbageCollector();
 			if (logger.isInfoEnabled()) {
 				logger.info("found : {}", this.garbageCollector);
 			}
 		}
 
-        private MetricMonitorRegistry createRegistry() {
-            // FIXME 디폴트 레지스트리를 생성하여 사용한다. 다른데서 쓸 일이 있으면 외부에서 삽입하도록 하자.
-            final MetricMonitorRegistry monitorRegistry = new MetricMonitorRegistry();
 
-            // FIXME 설정에 따라 어떤 데이터를 수집할 지 선택할 수 있도록 해야한다. 여기서는 JVM 메모리 정보를 default로 수집.
-            monitorRegistry.registerJvmMemoryMonitor(new MonitorName(MetricMonitorValues.JVM_MEMORY));
-            monitorRegistry.registerJvmGcMonitor(new MonitorName(MetricMonitorValues.JVM_GC));
-            return monitorRegistry;
-        }
 
         public void run() {
 			try {
+                // TAgentStat 객체를 준비한다.
+                // WARNING TAgentStat을 재활용시 datasender가 별도의 thread이기 때문에. multithread문제가 생길수 있음.
+                final TAgentStat agentStat = new TAgentStat();
+                agentStat.setAgentId(agentId);
 				agentStat.setTimestamp(System.currentTimeMillis());
-				garbageCollector.map(monitorRegistry, agentStat, agentId);
-				dataSender.send(agentStat);
+                final TJvmGc gc = this.garbageCollector.collect();
+                agentStat.setGc(gc);
+
+                this.dataSender.send(agentStat);
 			} catch (Exception ex) {
 				logger.warn("AgentStat collect failed. Caused:{}", ex.getMessage(), ex);
 			}

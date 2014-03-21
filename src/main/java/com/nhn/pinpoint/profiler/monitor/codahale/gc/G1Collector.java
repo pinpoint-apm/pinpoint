@@ -4,7 +4,6 @@ import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
-import com.nhn.pinpoint.thrift.dto.TAgentStat;
 import com.nhn.pinpoint.thrift.dto.TJvmGc;
 import com.nhn.pinpoint.thrift.dto.TJvmGcType;
 
@@ -17,30 +16,56 @@ import static com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues.*;
  * 
  * @author harebox
  */
-public class G1Collector extends GarbageCollectorType {
+public class G1Collector implements GarbageCollector {
 
-	@Override
+    public static final TJvmGcType GC_TYPE = TJvmGcType.G1;
+
+    private final Gauge<Long> heapMax;
+    private final Gauge<Long> heapUsed;
+
+    private final Gauge<Long> heapNonHeapMax;
+    private final Gauge<Long> heapNonHeapUsed;
+
+    private final Gauge<Long> gcCount;
+    private final Gauge<Long> gcTime;
+
+
+    public G1Collector(MetricMonitorRegistry registry) {
+        if (registry == null) {
+            throw new NullPointerException("registry must not be null");
+        }
+        final MetricRegistry metricRegistry = registry.getRegistry();
+        final SortedMap<String, Gauge> gauges = metricRegistry.getGauges();
+
+        this.heapMax = MetricMonitorValues.getLongGauge(gauges, JVM_MEMORY_HEAP_MAX);
+        this.heapUsed = MetricMonitorValues.getLongGauge(gauges, JVM_MEMORY_HEAP_USED);
+
+        this.heapNonHeapMax = MetricMonitorValues.getLongGauge(gauges, JVM_MEMORY_NONHEAP_MAX);
+        this.heapNonHeapUsed = MetricMonitorValues.getLongGauge(gauges, JVM_MEMORY_NONHEAP_USED);
+
+        this.gcCount = MetricMonitorValues.getLongGauge(gauges, JVM_GC_G1_OLD_COUNT);
+        this.gcTime = MetricMonitorValues.getLongGauge(gauges, JVM_GC_G1_OLD_TIME);
+    }
+
+    @Override
 	public int getTypeCode() {
-		return GarbageCollectorType.G1_COLLECTOR;
+		return GC_TYPE.ordinal();
 	}
 
 	@Override
-	public void map(MetricMonitorRegistry registry, TAgentStat agentStat, String agentId) {
-		final MetricRegistry metricRegistry = registry.getRegistry();
-		TJvmGc gc = agentStat.getGc();
-		if (gc == null) {
-			gc = new TJvmGc();
-			agentStat.setGc(gc);
-		}
-		gc.setType(TJvmGcType.G1);
+	public TJvmGc collect() {
 
-        final SortedMap<String, Gauge> gauges = metricRegistry.getGauges();
-		gc.setJvmMemoryHeapMax(MetricMonitorValues.getLong(gauges, JVM_MEMORY_HEAP_MAX));
-		gc.setJvmMemoryHeapUsed(MetricMonitorValues.getLong(gauges, JVM_MEMORY_HEAP_USED));
-		gc.setJvmMemoryNonHeapMax(MetricMonitorValues.getLong(gauges, JVM_MEMORY_NONHEAP_MAX));
-		gc.setJvmMemoryNonHeapUsed(MetricMonitorValues.getLong(gauges, JVM_MEMORY_NONHEAP_USED));
-		gc.setJvmGcOldCount(MetricMonitorValues.getLong(gauges, JVM_GC_G1_OLD_COUNT));
-		gc.setJvmGcOldTime(MetricMonitorValues.getLong(gauges, JVM_GC_G1_OLD_TIME));
+        final TJvmGc gc = new TJvmGc();
+        gc.setType(GC_TYPE);
+        gc.setJvmMemoryHeapMax(heapMax.getValue());
+        gc.setJvmMemoryHeapUsed(heapUsed.getValue());
+
+        gc.setJvmMemoryNonHeapMax(heapNonHeapMax.getValue());
+        gc.setJvmMemoryNonHeapUsed(heapNonHeapUsed.getValue());
+
+		gc.setJvmGcOldCount(gcCount.getValue());
+		gc.setJvmGcOldTime(gcTime.getValue());
+        return gc;
 	}
 
 	@Override
