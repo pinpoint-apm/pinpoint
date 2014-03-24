@@ -220,7 +220,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
                 // 통계값의 window의 time으로 전환해야함. 안그러면 slot이 맞지 않아 oom이 발생할수 있음.
                 long timestamp = window.refineTimestamp(span.getCollectorAcceptTime());
 
-                linkStatisticsData.addCallData(srcApplication, span.getAgentId(), destApplication, destApplication.getName(), timestamp, slotTime, 1);
+                linkStatisticsData.addLinkData(srcApplication, span.getAgentId(), destApplication, destApplication.getName(), timestamp, slotTime, 1);
 
 
                 addNodeFromSpanEvent(span, window, linkStatisticsData, transactionSpanMap);
@@ -293,7 +293,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
             // FIXME
             // stat2.addCallHistogram((dest == null) ? spanEvent.getEndPoint() : dest, destServiceType.getCode(), (short) slot2, 1);
             final long spanEventTimeStamp = window.refineTimestamp(span.getStartTime() + spanEvent.getStartElapsed());
-            linkStatMap.addCallData(srcApplication, span.getAgentId(), destApplication, spanEvent.getEndPoint(), spanEventTimeStamp, slotTime, 1);
+            linkStatMap.addLinkData(srcApplication, span.getAgentId(), destApplication, spanEvent.getEndPoint(), spanEventTimeStamp, slotTime, 1);
         }
     }
 

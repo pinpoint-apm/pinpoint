@@ -1,7 +1,5 @@
 package com.nhn.pinpoint.web.mapper;
 
-import java.util.*;
-
 import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.buffer.FixedBuffer;
 import com.nhn.pinpoint.common.util.TimeUtils;
@@ -73,7 +71,7 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkStatisticsData> 
 
 
             final short slotTime = (isError) ? (short) -1 : histogramSlot;
-            linkStatisticsData.addCallData(callerApplication, callerApplication.getName(), calleeApplication, callerHost, timestamp, slotTime, requestCount);
+            linkStatisticsData.addLinkData(callerApplication, callerApplication.getName(), calleeApplication, callerHost, timestamp, slotTime, requestCount);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("    Fetched Callee. statistics:{}", linkStatisticsData);

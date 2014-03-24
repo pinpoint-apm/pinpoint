@@ -77,7 +77,7 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkStatisticsData> 
                 }
 
                 final short slotTime = (isError) ? (short) -1 : histogramSlot;
-                linkStatisticsMap.addCallData(caller, caller.getName(), callee, calleeHost, timestamp, slotTime, requestCount);
+                linkStatisticsMap.addLinkData(caller, caller.getName(), callee, calleeHost, timestamp, slotTime, requestCount);
 
 
             } else if (Bytes.equals(family, HBaseTables.MAP_STATISTICS_CALLEE_CF_VER2_COUNTER)) {
@@ -101,7 +101,7 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkStatisticsData> 
                 }
 
                 final short slotTime = (isError) ? (short) -1 : histogramSlot;
-                linkStatisticsMap.addCallData(caller, callerAgentId, callee, calleeHost, timestamp, slotTime, requestCount);
+                linkStatisticsMap.addLinkData(caller, callerAgentId, callee, calleeHost, timestamp, slotTime, requestCount);
             } else {
                 throw new IllegalArgumentException("unknown ColumnFamily :" + Arrays.toString(family));
             }

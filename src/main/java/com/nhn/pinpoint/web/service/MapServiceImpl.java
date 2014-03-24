@@ -78,16 +78,16 @@ public class MapServiceImpl implements MapService {
         }
 
         final LinkStatisticsData resultCaller = new LinkStatisticsData();
-        for (LinkStatistics stat : caller.getLinkStatData()) {
-            final boolean replaced = replaceApplicationInfo(stat, range);
-
+        for (LinkStatistics link : caller.getLinkStatData()) {
+            final AcceptedLinkStatistics isAccepted = getRpcCallAccepted(link, range);
+            link = isAccepted.getLinkStatistics();
             // replaced된 녀석은 CLIENT이기 때문에 callee검색용도로만 사용하고 map에 추가하지 않는다.
-            if (!replaced) {
-                fillAdditionalInfo(stat, range);
-                resultCaller.addLinkStatistics(stat);
+            if (!isAccepted.isAccepted()) {
+                fillAdditionalInfo(link, range);
+                resultCaller.addLinkStatistics(link);
             }
 
-            final Application toApplication = stat.getToApplication();
+            final Application toApplication = link.getToApplication();
             // terminal, unknowncloud 인 경우에는 skip
             if (toApplication.getServiceType().isTerminal() || toApplication.getServiceType().isUnknown()) {
                 continue;
@@ -151,7 +151,7 @@ public class MapServiceImpl implements MapService {
         return calleeSet;
     }
 
-    private boolean replaceApplicationInfo(LinkStatistics stat, Range range) {
+    private AcceptedLinkStatistics getRpcCallAccepted(LinkStatistics stat, Range range) {
         // rpc client의 목적지가 agent가 설치되어 application name이 존재한다면 replace.
         final Application toApplication = stat.getToApplication();
         if (toApplication.getServiceType().isRpcClient()) {
@@ -159,15 +159,34 @@ public class MapServiceImpl implements MapService {
             final Application app = hostApplicationMapDao.findApplicationName(toApplication.getName(), range);
             if (app != null) {
                 logger.debug("Application info replaced. {} => {}", stat, app);
-
-                stat.setToAcceptApplication(new Application(app.getName(), app.getServiceType()));
-                return true;
+                Application acceptedApplication = new Application(app.getName(), app.getServiceType());
+                LinkStatistics linkStat = new LinkStatistics(stat.getFromApplication(), acceptedApplication, stat.getToAgentSet(), stat.getCallDataMap());
+                return new AcceptedLinkStatistics(true, linkStat);
             } else {
                 Application unknown = new Application(toApplication.getName(), ServiceType.UNKNOWN);
-                stat.setToAcceptApplication(unknown);
+                LinkStatistics unknownLinkStat = new LinkStatistics(stat.getFromApplication(), unknown, stat.getToAgentSet(), stat.getCallDataMap());
+                return new AcceptedLinkStatistics(false, unknownLinkStat);
             }
         }
-        return false;
+        return new AcceptedLinkStatistics(false, stat);
+    }
+
+    public class AcceptedLinkStatistics {
+        private final boolean isAccepted;
+        private final LinkStatistics linkStatistics;
+
+        public AcceptedLinkStatistics(boolean isAccepted, LinkStatistics linkStatistics) {
+            this.isAccepted = isAccepted;
+            this.linkStatistics = linkStatistics;
+        }
+
+        public boolean isAccepted() {
+            return isAccepted;
+        }
+
+        public LinkStatistics getLinkStatistics() {
+            return linkStatistics;
+        }
     }
 
     private void fillAdditionalInfo(LinkStatistics stat, Range range) {
