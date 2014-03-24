@@ -101,10 +101,10 @@ public final class LinkKey {
     @Override
     public String toString() {
         return "LinkKey{" +
-                "toServiceType=" + toServiceType +
-                ", toApplication='" + toApplication + '\'' +
+                "fromApplication='" + fromApplication + '\'' +
                 ", fromServiceType=" + fromServiceType +
-                ", fromApplication='" + fromApplication + '\'' +
+                ", toApplication='" + toApplication + '\'' +
+                ", toServiceType=" + toServiceType +
                 '}';
     }
 }

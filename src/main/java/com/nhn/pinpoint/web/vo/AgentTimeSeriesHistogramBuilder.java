@@ -55,13 +55,13 @@ public class AgentTimeSeriesHistogramBuilder {
 
         Map<String, List<TimeHistogram>> histogramMap = interpolation(agentLevelMap);
 
-        if (logger.isDebugEnabled()) {
+        if (logger.isTraceEnabled()) {
             for (Map.Entry<String, List<TimeHistogram>> agentListEntry : agentLevelMap.entrySet()) {
                 String agentName = agentListEntry.getKey();
-                logger.debug("agentName:{}", agentName);
+                logger.trace("agentName:{}", agentName);
                 List<TimeHistogram> value = agentListEntry.getValue();
                 for (TimeHistogram histogram : value) {
-                    logger.debug("histogram:{}", histogram);
+                    logger.trace("histogram:{}", histogram);
                 }
             }
         }
@@ -70,11 +70,13 @@ public class AgentTimeSeriesHistogramBuilder {
     }
 
     public AgentTimeSeriesHistogram build(Collection<RawCallData> rawCallDataMap) {
+
         Map<String, List<TimeHistogram>> agentLevelMap = new HashMap<String, List<TimeHistogram>>();
         for (RawCallData rawCallData : rawCallDataMap) {
             List<TimeHistogram> sourceHistogramList = agentLevelMap.get(rawCallData.getSource());
             if (sourceHistogramList == null) {
                 sourceHistogramList = new ArrayList<TimeHistogram>();
+                logger.debug("-----------source:{}, target:{}", rawCallData.getSource(), rawCallData.getTarget());
                 agentLevelMap.put(rawCallData.getSource(), sourceHistogramList);
             }
             // 주의 copy본이 아니라 원본 수정시 데이터가 틀릴수 있음.

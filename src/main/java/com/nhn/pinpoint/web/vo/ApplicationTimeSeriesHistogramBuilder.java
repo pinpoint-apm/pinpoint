@@ -56,9 +56,9 @@ public class ApplicationTimeSeriesHistogramBuilder {
 
 //        Collections.sort(histogramList, TimeHistogram.ASC_COMPARATOR);
         List<TimeHistogram> histogramList = interpolation(applicationLevelHistogram.values());
-        if (logger.isDebugEnabled()) {
+        if (logger.isTraceEnabled()) {
             for (TimeHistogram histogram : histogramList) {
-                logger.debug("applicationLevel histogram:{}", histogram);
+                logger.trace("applicationLevel histogram:{}", histogram);
             }
         }
         ApplicationTimeSeriesHistogram applicationTimeSeriesHistogram = new ApplicationTimeSeriesHistogram(application, range, histogramList);
@@ -80,9 +80,9 @@ public class ApplicationTimeSeriesHistogramBuilder {
         }
 
         List<TimeHistogram> histogramList = interpolation(applicationLevelHistogram.values());
-        if (logger.isDebugEnabled()) {
+        if (logger.isTraceEnabled()) {
             for (TimeHistogram histogram : histogramList) {
-                logger.debug("applicationLevel histogram:{}", histogram);
+                logger.trace("applicationLevel histogram:{}", histogram);
             }
         }
         ApplicationTimeSeriesHistogram applicationTimeSeriesHistogram = new ApplicationTimeSeriesHistogram(application, range, histogramList);

@@ -12,7 +12,7 @@ public class AgentResponseTimeViewModelList {
 
     public static final String DEFAULT_FIELD_NAME = "agentTimeSeriesHistogram";
 
-    private final String fieldName;
+    private String fieldName;
     private final List<AgentResponseTimeViewModel> agentResponseTimeViewModelList;
 
     public AgentResponseTimeViewModelList(List<AgentResponseTimeViewModel> agentResponseTimeViewModelList) {
@@ -28,6 +28,10 @@ public class AgentResponseTimeViewModelList {
         }
         this.fieldName = fieldName;
         this.agentResponseTimeViewModelList = agentResponseTimeViewModelList;
+    }
+
+    public void setFieldName(String fieldName) {
+        this.fieldName = fieldName;
     }
 
     public String getFieldName() {

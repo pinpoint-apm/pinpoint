@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @author emeroad
@@ -43,13 +44,25 @@ public class LinkSerializer extends JsonSerializer<Link> {
         jgen.writeObjectField("histogram", histogram);
 
         writeSourceHistogram(link, jgen);
-
         writeTargetHosts(link, jgen);
+
+        writeTimeSeriesHistogram(link, jgen);
+        writeSourceAgentTimeSeriesHistogram(link, jgen);
+
 
         String state = link.getLinkState();
         jgen.writeStringField("category", state);
 
         jgen.writeEndObject();
+    }
+
+
+
+    private void writeTimeSeriesHistogram(Link link, JsonGenerator jgen) throws IOException {
+        List<ResponseTimeViewModel> sourceApplicationTimeSeriesHistogram = link.getSourceApplicationTimeSeriesHistogram();
+
+        jgen.writeFieldName("timeSeriesHistogram");
+        jgen.writeObject(sourceApplicationTimeSeriesHistogram);
     }
 
     private void writeTargetHosts(Link link, JsonGenerator jgen) throws IOException {
@@ -79,6 +92,12 @@ public class LinkSerializer extends JsonSerializer<Link> {
             jgen.writeObject(callHistogram.getHistogram());
         }
         jgen.writeEndObject();
+    }
+
+    private void writeSourceAgentTimeSeriesHistogram(Link link, JsonGenerator jgen) throws IOException {
+        AgentResponseTimeViewModelList sourceAgentTimeSeriesHistogram = link.getSourceAgentTimeSeriesHistogram();
+        sourceAgentTimeSeriesHistogram.setFieldName("agentTimeSeriesHistogram");
+        jgen.writeObject(sourceAgentTimeSeriesHistogram);
     }
 
     private void writeSimpleNode(String fieldName, Node node, JsonGenerator jgen) throws IOException {

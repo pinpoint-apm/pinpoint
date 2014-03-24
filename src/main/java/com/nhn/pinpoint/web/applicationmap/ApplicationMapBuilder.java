@@ -68,7 +68,7 @@ public class ApplicationMapBuilder {
             }
 
             // RPC client인 경우 dest application이 이미 있으면 삭제, 없으면 unknown cloud로 변경.
-            RawCallDataMap callDataMap = new RawCallDataMap(linkStat.getCallDataMap());
+            RawCallDataMap callDataMap = linkStat.getCallDataMap();
             final Link link = new Link(fromNode, toNode, range, callDataMap);
 
             if (toNode.getServiceType().isRpcClient()) {

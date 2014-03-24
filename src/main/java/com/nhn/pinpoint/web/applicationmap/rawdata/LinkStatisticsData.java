@@ -18,7 +18,7 @@ public class LinkStatisticsData {
     }
 
     public void addCallData(Application srcApplication, String srcAgentId, Application destApplication, String destAgentId, long timestamp, short slotTime, long value) {
-        LinkStatistics linkStat = getLinkStatistics(srcApplication, destApplication);
+        final LinkStatistics linkStat = getLinkStatistics(srcApplication, destApplication);
         linkStat.addCallData(srcAgentId, srcApplication.getServiceTypeCode(), destAgentId, destApplication.getServiceTypeCode(), timestamp, slotTime, value);
     }
 

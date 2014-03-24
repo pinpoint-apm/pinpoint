@@ -89,4 +89,14 @@ public class RawCallData {
         }
         return histogram;
     }
+
+    @Override
+    public String toString() {
+        return "RawCallData{" +
+                "source='" + source + '\'' +
+                ", sourceServiceType=" + sourceServiceType +
+                ", target='" + target + '\'' +
+                ", targetServiceType=" + targetServiceType +
+                '}';
+    }
 }

@@ -76,7 +76,7 @@ public class Link {
         this.toNode = toNode;
 
         this.range = range;
-        this.rawCallDataMap = rawCallDataMap;
+        this.rawCallDataMap = new RawCallDataMap(rawCallDataMap);
     }
 
     public Link(Link copyLink) {
