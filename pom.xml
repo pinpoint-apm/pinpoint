@@ -36,13 +36,18 @@
             <artifactId>lucy-npc</artifactId>
             <version>1.5.19</version>
         </dependency>
-    <!-- 
+		<dependency>
+			<groupId>com.ning</groupId>
+			<artifactId>async-http-client</artifactId>
+			<version>1.8.3</version>
+		</dependency>
+    	<!-- 
         <dependency>
 			<groupId>com.nhncorp.lucy</groupId>
 			<artifactId>lucy-rb-nimmconnector</artifactId>
 			<version>1.0.2</version>
         </dependency>
-     -->
+     	-->
         <dependency>
 			<groupId>com.nhncorp.lucy</groupId>
 			<artifactId>lucy-nimmconnector</artifactId>
