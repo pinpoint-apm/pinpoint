@@ -21,19 +21,32 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.nhn.pinpoint.testweb.vo.RequestMappingInfo;
+
+/**
+ * 
+ * @author netspider
+ * 
+ */
 @Controller
 public class MainController {
 
 	@RequestMapping(value = "/docs", method = RequestMethod.GET)
 	public String getEndPointsInView(Model model) {
-		Map<String, List<String>> info = new HashMap<String, List<String>>();
+		model.addAttribute("mapping", getMappingInfo());
+		return "docs";
+	}
+
+	public Map<String, List<RequestMappingInfo>> getMappingInfo() {
+		Map<String, List<RequestMappingInfo>> info = new HashMap<String, List<RequestMappingInfo>>();
 		try {
 			String packaze = "com.nhn.pinpoint.testweb.controller";
 			ArrayList<String> classNamesFromPackage = MainController.getClassNamesFromPackage(packaze);
 
 			for (String className : classNamesFromPackage) {
 				Class<?> clazz = Class.forName(packaze + "." + className);
-				List<String> requestInfo = new ArrayList<String>();
+
+				List<RequestMappingInfo> requestInfo = new ArrayList<RequestMappingInfo>();
 
 				Method[] methods = clazz.getDeclaredMethods();
 
@@ -41,15 +54,19 @@ public class MainController {
 					Annotation[] annotations = m.getDeclaredAnnotations();
 
 					org.springframework.web.bind.annotation.RequestMapping mappingInfo = null;
+					com.nhn.pinpoint.testweb.util.Description description = null;
+
 					for (Annotation a : annotations) {
 						if (a instanceof org.springframework.web.bind.annotation.RequestMapping) {
 							mappingInfo = (org.springframework.web.bind.annotation.RequestMapping) a;
-							break;
+						}
+						if (a instanceof com.nhn.pinpoint.testweb.util.Description) {
+							description = (com.nhn.pinpoint.testweb.util.Description) a;
 						}
 					}
 
 					if (mappingInfo != null) {
-						requestInfo.add(mappingInfo.value()[0]);
+						requestInfo.add(new RequestMappingInfo(mappingInfo.value()[0], (description == null) ? "" : description.value()));
 					}
 				}
 
@@ -60,10 +77,7 @@ public class MainController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		model.addAttribute("mapping", info);
-
-		return "docs";
+		return info;
 	}
 
 	// spring에서 제공하는 기능이 있는것 같긴 하지만 그냥 구식으로.

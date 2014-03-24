@@ -19,7 +19,7 @@ public class NIMMController implements DisposableBean {
 	@Autowired
 	private NimmInvokerTest nimm;
 
-	@RequestMapping(value = "/nimm1")
+	@RequestMapping(value = "/nimm/1")
 	public String npc(Model model) {
 		try {
 			nimm.testInvoke();

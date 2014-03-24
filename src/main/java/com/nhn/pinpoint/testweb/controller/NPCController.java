@@ -1,11 +1,9 @@
 package com.nhn.pinpoint.testweb.controller;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,10 +21,7 @@ import com.nhncorp.lucy.npc.connector.NpcHessianConnector;
  * 
  */
 @Controller
-public class NPCController implements DisposableBean {
-
-	public NPCController() throws IOException {
-	}
+public class NPCController {
 
 	/**
 	 * using basic connector
@@ -34,7 +29,7 @@ public class NPCController implements DisposableBean {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/npc1")
+	@RequestMapping(value = "/npc/1")
 	public String npc(Model model) {
 		NpcHessianConnector connector = null;
 		try {
@@ -47,7 +42,7 @@ public class NPCController implements DisposableBean {
 			InvocationFuture future = connector.invoke("welcome/com.nhncorp.lucy.bloc.welcome.EchoBO", "execute", params);
 
 			future.await();
-			
+
 			// Object result = future.get();
 			Object result = future.getReturnValue();
 			System.out.println("npc result=" + result);
@@ -65,7 +60,7 @@ public class NPCController implements DisposableBean {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/npc2")
+	@RequestMapping(value = "/npc/2")
 	public String npc2(Model model) {
 		KeepAliveNpcHessianConnector connector = null;
 		try {
@@ -97,7 +92,7 @@ public class NPCController implements DisposableBean {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/npc3")
+	@RequestMapping(value = "/npc/3")
 	public String npc3(Model model) {
 		NpcHessianConnector connector = null;
 		try {
@@ -134,7 +129,7 @@ public class NPCController implements DisposableBean {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/npc4")
+	@RequestMapping(value = "/npc/4")
 	public String npc4(Model model) {
 		NpcHessianConnector connector = null;
 		try {
@@ -172,7 +167,7 @@ public class NPCController implements DisposableBean {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/npc5")
+	@RequestMapping(value = "/npc/5")
 	public String npc5(Model model) {
 		NpcHessianConnector connector = null;
 		try {
@@ -206,16 +201,9 @@ public class NPCController implements DisposableBean {
 		return "npc";
 	}
 
-	@RequestMapping(value = "/npcStream")
+	@RequestMapping(value = "/npc/6")
 	public String npcStream(Model model) {
-
 		// TODO test NPC stream
-
 		return "npc";
-	}
-
-	@Override
-	public void destroy() throws Exception {
-
 	}
 }

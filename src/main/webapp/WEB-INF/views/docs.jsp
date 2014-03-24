@@ -1,4 +1,4 @@
-<%@ page session="false"%>
+<%@ page session="false" contentType="text/html; charset=UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <html>
 <head>
@@ -19,7 +19,7 @@
 					<td>
 						<ul>
 						<c:forEach items="${item.value}" var="value">
-							<li><a href="${value}.pinpoint">${value}.pinpoint</a></li>
+							<li><a href="${value.url}.pinpoint">${value.url}.pinpoint</a> ${value.description}</li>
 						</c:forEach>
 						</ul>
 					</td>

@@ -26,18 +26,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 import perftest.LevelManager;
 
 import com.nhn.pinpoint.testweb.domain.Member;
+import com.nhn.pinpoint.testweb.service.CacheService;
 import com.nhn.pinpoint.testweb.service.DummyService;
 import com.nhn.pinpoint.testweb.service.MemberService;
+import com.nhn.pinpoint.testweb.util.Description;
 import com.nhn.pinpoint.testweb.util.HttpConnectorOptions;
 import com.nhn.pinpoint.testweb.util.HttpInvoker;
 import com.nhncorp.lucy.net.invoker.InvocationFuture;
 import com.nhncorp.lucy.npc.connector.NpcHessianConnector;
 
 @Controller
+@Deprecated
 public class HelloWorldController implements DisposableBean {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ArcusClient arcus;
+	private final ArcusClient arcus;
 	private final MemcachedClient memcached;
 	private final LevelManager levelManager;
 
@@ -52,6 +55,9 @@ public class HelloWorldController implements DisposableBean {
 
 	@Autowired
 	private DummyService dummyService;
+
+	@Autowired
+	private CacheService cacheService;
 
 	private void randomSlowMethod() {
 		try {
@@ -69,88 +75,19 @@ public class HelloWorldController implements DisposableBean {
 
 	@RequestMapping(value = "/encoding")
 	public String encoding(Model model, @RequestParam("name") String name) {
-        logger.debug("name=" + name);
-		return "donothing";
-	}
-
-	@RequestMapping(value = "/donothing")
-	public String donothing(Model model) {
-		logger.debug("do nothing.");
+		logger.debug("name=" + name);
 		return "donothing";
 	}
 
 	@RequestMapping(value = "/arcus")
 	public String arcus(Model model) {
-		int rand = new Random().nextInt(100);
-		String key = "pinpoint:testkey-" + rand;
-
-		// set
-		Future<Boolean> setFuture = null;
-		try {
-			setFuture = arcus.set(key, 10, "Hello, pinpoint." + rand);
-			setFuture.get(1000L, TimeUnit.MILLISECONDS);
-		} catch (Exception e) {
-			if (setFuture != null)
-				setFuture.cancel(true);
-		}
-
-		// get
-		Future<Object> getFuture = null;
-		try {
-			getFuture = arcus.asyncGet(key);
-			getFuture.get(1000L, TimeUnit.MILLISECONDS);
-		} catch (Exception e) {
-			if (getFuture != null)
-				getFuture.cancel(true);
-		}
-
-		// del
-		Future<Boolean> delFuture = null;
-		try {
-			delFuture = arcus.delete(key);
-			delFuture.get(1000L, TimeUnit.MILLISECONDS);
-		} catch (Exception e) {
-			if (delFuture != null)
-				delFuture.cancel(true);
-		}
-
+		cacheService.arcus();
 		return "arcus";
 	}
 
 	@RequestMapping(value = "/memcached")
 	public String memcached(Model model) {
-		int rand = new Random().nextInt(100);
-		String key = "pinpoint:testkey-" + rand;
-
-		// set
-		Future<Boolean> setFuture = null;
-		try {
-			setFuture = memcached.set(key, 10, "Hello, pinpoint." + rand);
-			setFuture.get(1000L, TimeUnit.MILLISECONDS);
-		} catch (Exception e) {
-			if (setFuture != null)
-				setFuture.cancel(true);
-		}
-
-		// get
-		Future<Object> getFuture = null;
-		try {
-			getFuture = memcached.asyncGet(key);
-			getFuture.get(1000L, TimeUnit.MILLISECONDS);
-		} catch (Exception e) {
-			if (getFuture != null)
-				getFuture.cancel(true);
-		}
-
-		// del
-		Future<Boolean> delFuture = null;
-		try {
-			delFuture = memcached.delete(key);
-			delFuture.get(1000L, TimeUnit.MILLISECONDS);
-		} catch (Exception e) {
-			if (delFuture != null)
-				delFuture.cancel(true);
-		}
+		cacheService.memcached();
 		return "memcached";
 	}
 
@@ -175,6 +112,7 @@ public class HelloWorldController implements DisposableBean {
 		return "mysql";
 	}
 
+	@Description("바인드 변수 + 상수값 파싱 로직테스트")
 	@RequestMapping(value = "/mysqlStatement")
 	public String mysqlStatement(Model model) {
 		int id = (new Random()).nextInt();
@@ -200,22 +138,22 @@ public class HelloWorldController implements DisposableBean {
 	public String nested(Model model) {
 		HttpInvoker client2 = new HttpInvoker(new HttpConnectorOptions());
 		client2.execute("http://localhost:8080/donothing.pinpoint", new HashMap<String, Object>());
-		
+
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
 		client.execute("http://www.naver.com/", new HashMap<String, Object>());
 		mysql(model);
 		return "remotecombination";
 	}
-	
+
 	@RequestMapping(value = "/remotecombination")
 	public String remotecombination(Model model) {
 		String[] ports = new String[] { "9080", "10080", "11080" };
 		Random random = new Random();
 		String port = ports[random.nextInt(3)];
-		
+
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
 		client.execute("http://localhost:" + port + "/combination.pinpoint", new HashMap<String, Object>());
-		
+
 		HttpInvoker client2 = new HttpInvoker(new HttpConnectorOptions());
 		client2.execute("http://localhost:8080/arcus.pinpoint", new HashMap<String, Object>());
 
@@ -233,11 +171,11 @@ public class HelloWorldController implements DisposableBean {
 		}
 		return "remotecombination";
 	}
-	
+
 	@RequestMapping(value = "/remotearcus")
 	public String remotearcus(Model model) {
 		arcus(model);
-		
+
 		String[] ports = new String[] { "9080", "10080", "11080" };
 		Random random = new Random();
 		String port = ports[random.nextInt(3)];
@@ -329,12 +267,12 @@ public class HelloWorldController implements DisposableBean {
 		String port = ports[random.nextInt(3)];
 
 		arcus(model);
-		
+
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
 		client.execute("http://localhost:" + port + "/arcus.pinpoint", new HashMap<String, Object>());
 		return "remotecombination";
 	}
-	
+
 	@RequestMapping(value = "/remoteerror")
 	public String remoteError(Model model) {
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
