@@ -84,6 +84,10 @@ pinpointApp.run([ '$rootScope', '$timeout', '$modal', '$location', '$cookies', '
             return angular.isDefined($cookies.SMSESSION);
         };
 
-        oLoginModal = $modal({template: 'views/login.modal.html', backdrop: 'static', placement: 'center'});
+        oLoginModal = $modal({template: 'views/login.modal.html', backdrop: 'static', placement: 'center', show: false});
+
+        if ($location.host() === 'hi.iamdenny.com') {
+            oLoginModal.show()
+        }
     }
 ]);
