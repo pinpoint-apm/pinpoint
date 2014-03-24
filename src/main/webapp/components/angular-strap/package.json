@@ -1,0 +1,58 @@
+{
+  "name": "angular-strap",
+  "description": "AngularStrap - AngularJS directives for Twitter Bootstrap",
+  "version": "2.0.0-rc.4",
+  "keywords": [
+    "angular",
+    "bootstrap"
+  ],
+  "homepage": "http://mgcrea.github.io/angular-strap",
+  "bugs": "https://github.com/mgcrea/angular-strap/issues",
+  "author": {
+    "name": "Olivier Louvignes",
+    "email": "olivier@mg-crea.com",
+    "url": "https://github.com/mgcrea"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mgcrea/angular-strap.git"
+  },
+  "licenses": [
+    {
+      "type": "MIT"
+    }
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-angular-templates": "~0.5.3",
+    "grunt-autoprefixer": "~0.7.2",
+    "grunt-concurrent": "~0.4.3",
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-connect": "~0.7.1",
+    "grunt-contrib-copy": "~0.5.0",
+    "grunt-contrib-cssmin": "~0.9.0",
+    "grunt-contrib-htmlmin": "~0.2.0",
+    "grunt-contrib-jshint": "~0.8.0",
+    "grunt-contrib-less": "~0.10.0",
+    "grunt-contrib-uglify": "~0.4.0",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-karma": "~0.6.2",
+    "grunt-newer": "~0.6.1",
+    "grunt-ngmin": "0.0.3",
+    "grunt-rev": "~0.1.0",
+    "grunt-usemin": "~2.0.2",
+    "jshint-stylish": "~0.1.5",
+    "karma-coverage": "~0.2.0",
+    "load-grunt-tasks": "~0.4.0",
+    "grunt-nginclude": "~0.3.1",
+    "grunt-karma-coveralls": "~2.4.0"
+  },
+  "engines": {
+    "node": ">=0.8.0"
+  },
+  "scripts": {
+    "test": "grunt test"
+  }
+}

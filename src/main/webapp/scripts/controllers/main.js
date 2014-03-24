@@ -32,6 +32,8 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
             $scope.$broadcast('serverMap.initialize', oNavbarVo);
         }, 500);
 
+
+
         /**
          * get first path of loction
          * @returns {*|string}
@@ -202,7 +204,6 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
             $scope.$broadcast('sidebarTitle.initialize.forMain', oSidebarTitleVo);
             $scope.$broadcast('nodeInfoDetails.reset');
             $scope.$broadcast('linkInfoDetails.initialize', null, query, link);
-
         });
 
     } ]);

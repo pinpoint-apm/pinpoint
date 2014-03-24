@@ -1,0 +1,14 @@
+{
+  "name": "autotype",
+  "_cacheHeaders": {
+    "ETag": "\"ec9107b73f90f905384d2f75516a50fb\"",
+    "Content-Length": "13286",
+    "Content-Type": "text/plain; charset=utf-8",
+    "Content-Disposition": "inline"
+  },
+  "_release": "e-tag:ec9107b73",
+  "main": "index.js",
+  "_source": "https://raw.github.com/mmonteleone/jquery.autotype/master/jquery.autotype.js",
+  "_target": "*",
+  "_originalSource": "https://raw.github.com/mmonteleone/jquery.autotype/master/jquery.autotype.js"
+}
