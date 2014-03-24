@@ -15,6 +15,7 @@ import com.nhn.pinpoint.profiler.modifier.arcus.ImmediateFutureModifier;
 import com.nhn.pinpoint.profiler.modifier.arcus.MemcachedClientModifier;
 import com.nhn.pinpoint.profiler.modifier.arcus.OperationFutureModifier;
 import com.nhn.pinpoint.profiler.modifier.bloc.handler.HTTPHandlerModifier;
+import com.nhn.pinpoint.profiler.modifier.connector.asynchttpclient.AsyncHttpClientModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.HttpClient4Modifier;
 import com.nhn.pinpoint.profiler.modifier.connector.jdkhttpconnector.HttpURLConnectionModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.lucynet.CompositeInvocationFutureModifier;
@@ -101,6 +102,9 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         // jdk HTTPUrlConnector
         HttpURLConnectionModifier httpURLConnectionModifier = new HttpURLConnectionModifier(byteCodeInstrumentor, agent);
         addModifier(httpURLConnectionModifier);
+        
+		// async http connector
+		addModifier(new AsyncHttpClientModifier(byteCodeInstrumentor, agent));
 	}
 
     public void addArcusModifier() {
