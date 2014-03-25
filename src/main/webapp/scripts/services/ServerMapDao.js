@@ -89,7 +89,6 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
             var newKey = {};
             angular.forEach(mapData.applicationMapData.nodeDataArray, function (node, key) {
                 var foundNodeKeyFromLastMapData = this.findExistingNodeKeyFromLastMapData(htLastMapData, node);
-                console.log('foundNodeKeyFromLastMapData', foundNodeKeyFromLastMapData);
                 if (foundNodeKeyFromLastMapData >= 0) {
                     this.mergeNodeData(htLastMapData, foundNodeKeyFromLastMapData, node);
                     newKey[node.key] = foundNodeKeyFromLastMapData;
