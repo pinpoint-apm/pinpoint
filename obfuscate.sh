@@ -49,10 +49,10 @@ echo "...OK"
 
 echo ""
 echo "Backup agent is ..."
-ls -al $HOME/pinpoint-testbed/agent-org
+ls -lR $HOME/pinpoint-testbed/agent-org
 
 echo ""
 echo "Obfuscated agent is ..."
-ls -al $HOME/pinpoint-testbed/agent
+ls -lR $HOME/pinpoint-testbed/agent
 
 echo "Everything is OK"
