@@ -36,36 +36,46 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
 
                 // define private variables
                 var serverMapCachedQuery, serverMapCachedData, bUseNodeContextMenu, bUseLinkContextMenu, htLastQuery,
-                    bUseBackgroundContextMenu, oServerMap, oAlert, oProgressBar, htLastMapData, htLastLink, htLastNode;
+                    bUseBackgroundContextMenu, oServerMap, oAlert, oProgressBar, htLastMapData, htLastLink, htLastNode,
+                    sLastSelection;
 
                 // define private variables of methods
-                var showServerMap, reset, setNodeContextMenuPosition,
+                var showServerMap, reset, setNodeContextMenuPosition, reset,
                     setLinkContextMenuPosition, setBackgroundContextMenuPosition, serverMapCallback, setLinkOption;
 
-                // initialize
-                oServerMap = null;
-                htLastMapData = {
-                    applicationMapData: {
-                        linkDataArray: [],
-                        nodeDataArray: []
-                    },
-                    lastFetchedTimestamp: [],
-                    timeSeriesResponses: {
-                        values: {},
-                        time: []
-                    }
-                };
-                htLastQuery = {};
-                htLastLink = {};
-                htLastNode = {};
+
+                // bootstrap
                 oAlert = new Alerts(element);
                 oProgressBar = new ProgressBar(element);
-                scope.oNavbarVo = null;
-                scope.mergeUnknowns = true;
-                scope.totalRequestCount = true;
-                scope.bShowServerMapStatus = false;
-                scope.linkRouting = cfg.options.htLinkType.sRouting;
-                scope.linkCurve = cfg.options.htLinkType.sCurve;
+
+                /**
+                 * reset
+                 */
+                reset = function () {
+                    oServerMap = null;
+                    htLastMapData = {
+                        applicationMapData: {
+                            linkDataArray: [],
+                            nodeDataArray: []
+                        },
+                        lastFetchedTimestamp: [],
+                        timeSeriesResponses: {
+                            values: {},
+                            time: []
+                        }
+                    };
+                    htLastQuery = {};
+                    htLastLink = {};
+                    htLastNode = {};
+                    sLastSelection = false;
+                    scope.oNavbarVo = null;
+                    scope.mergeUnknowns = true;
+                    scope.totalRequestCount = true;
+                    scope.bShowServerMapStatus = false;
+                    scope.linkRouting = cfg.options.htLinkType.sRouting;
+                    scope.linkCurve = cfg.options.htLinkType.sCurve;
+                };
+                reset();
 
                 /**
                  * show server map
@@ -258,6 +268,16 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     oProgressBar.setLoading(90);
 
                     var options = cfg.options;
+                    options.fOnNodeClicked = function (e, node) {
+                        var originalNode = ServerMapDao.getNodeDataById(data, node.id);
+                        if (originalNode) {
+                            node = originalNode;
+                        }
+                        sLastSelection = 'node';
+                        htLastNode = node;
+                        scope.$emit("serverMap.nodeClicked", e, query, node, data);
+                        reset();
+                    };
                     options.fOnNodeContextClicked = function (e, node) {
                         scope.$emit("serverMap.nodeContextClicked", e, query, node, data);
                         reset();
@@ -273,6 +293,12 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                             setNodeContextMenuPosition(e.event.layerY, e.event.layerX);
                         }
                     };
+                    options.fOnLinkClicked = function (e, link) {
+                        scope.$emit("serverMap.linkClicked", e, query, link, data);
+                        sLastSelection = 'link';
+                        htLastLink = link;
+                        reset();
+                    };
                     options.fOnLinkContextClicked = function (e, link) {
                         scope.$emit("serverMap.linkContextClicked", e, query, link, data);
                         reset();
@@ -282,18 +308,6 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                             return;
                         }
                         setLinkContextMenuPosition(e.event.layerY, e.event.layerX);
-                    };
-                    options.fOnLinkClicked = function (e, link) {
-                        scope.$emit("serverMap.linkClicked", e, query, link, data);
-                        reset();
-                    };
-                    options.fOnNodeClicked = function (e, node) {
-                        var originalNode = ServerMapDao.getNodeDataById(data, node.id);
-                        if (originalNode) {
-                            node = originalNode;
-                        }
-                        scope.$emit("serverMap.nodeClicked", e, query, node, data);
-                        reset();
                     };
                     options.fOnBackgroundClicked = function (e) {
                         scope.$emit("serverMap.backgroundClicked", e, query);
@@ -308,22 +322,26 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         setBackgroundContextMenuPosition(e.diagram.lastInput.event.layerY, e.diagram.lastInput.event.layerX);
                     };
 
-                    try {
-                        var selectedNode = _.find(copiedData.applicationMapData.nodeDataArray, function (node) {
-                            if (node.text === query.applicationName && angular.isUndefined(query.serviceType)) {
-                                return true;
-                            } else if (node.text === query.applicationName && node.serviceTypeCode === query.serviceType) {
-                                return true;
-                            } else {
-                                return false;
+                    if (!sLastSelection) {
+                        try {
+                            var selectedNode = _.find(copiedData.applicationMapData.nodeDataArray, function (node) {
+                                if (node.text === query.applicationName && angular.isUndefined(query.serviceType)) {
+                                    return true;
+                                } else if (node.text === query.applicationName && node.serviceTypeCode === query.serviceType) {
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                            });
+                            if (selectedNode) {
+                                options.nBoldKey = selectedNode.key;
                             }
-                        });
-                        if (selectedNode) {
-                            options.nBoldKey = selectedNode.key;
+                        } catch (e) {
+                            oAlert.showError('There is some error while selecting a node.');
+                            console.log(e);
                         }
-                    } catch (e) {
-                        oAlert.showError('There is some error while selecting a node.');
-                        console.log(e);
+                    } else {
+                        options.nBoldKey = null;
                     }
 
                     oProgressBar.setLoading(100);
@@ -334,6 +352,12 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     }
                     oServerMap.load(copiedData.applicationMapData);
                     oProgressBar.stopLoading();
+
+                    if (sLastSelection === 'node' && htLastNode) {
+                        oServerMap.highlightNodeByKey(htLastNode.key);
+                    } else if (sLastSelection === 'link' && htLastLink) {
+                        oServerMap.highlightLinkByFromTo(htLastLink.from, htLastLink.to);
+                    }
                 };
 
                 /**
@@ -524,6 +548,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * scope event on serverMap.initialize
                  */
                 scope.$on('serverMap.initialize', function (event, navbarVo) {
+                    reset();
                     scope.oNavbarVo = navbarVo;
                     scope.bShowServerMapStatus = true;
                     bUseNodeContextMenu = bUseLinkContextMenu = bUseBackgroundContextMenu = true;
@@ -541,6 +566,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * scope event on serverMap.initializeWithMapData
                  */
                 scope.$on('serverMap.initializeWithMapData', function (event, mapData) {
+                    reset();
                     scope.bShowServerMapStatus = false;
                     bUseBackgroundContextMenu = true;
                     bUseNodeContextMenu = bUseLinkContextMenu = false;
