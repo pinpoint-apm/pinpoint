@@ -88,9 +88,10 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
         } else {
             var newKey = {};
             angular.forEach(mapData.applicationMapData.nodeDataArray, function (node, key) {
-                var foundNodeKeyFromLastMapData = this.findExistingNodeFromLastMapData(htLastMapData, node);
-                if (foundNodeKeyFromLastMapData) {
-                    this.mergeNodeData(htLastMapData, foundNodeKeyFromLastMapData - 1, node);
+                var foundNodeKeyFromLastMapData = this.findExistingNodeKeyFromLastMapData(htLastMapData, node);
+                console.log('foundNodeKeyFromLastMapData', foundNodeKeyFromLastMapData);
+                if (foundNodeKeyFromLastMapData >= 0) {
+                    this.mergeNodeData(htLastMapData, foundNodeKeyFromLastMapData, node);
                     newKey[node.key] = foundNodeKeyFromLastMapData;
                 } else {
                     node.key = node.id = newKey[node.key] = htLastMapData.applicationMapData.nodeDataArray.length + 1;
@@ -118,10 +119,10 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
      * @param node
      * @returns {*}
      */
-    this.findExistingNodeFromLastMapData = function (htLastMapData, node) {
+    this.findExistingNodeKeyFromLastMapData = function (htLastMapData, node) {
         for (var key in htLastMapData.applicationMapData.nodeDataArray) {
             if (htLastMapData.applicationMapData.nodeDataArray[key].text === node.text && htLastMapData.applicationMapData.nodeDataArray[key].serviceTypeCode === node.serviceTypeCode) {
-                return htLastMapData.applicationMapData.nodeDataArray[key].key;
+                return key;
             }
         }
         return false;
