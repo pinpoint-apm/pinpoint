@@ -73,7 +73,7 @@ pinpointApp.run([ '$rootScope', '$timeout', '$modal', '$location', '$cookies', '
                     oLoginModal.show();
                     bIsLoginModalOpened = true;
                 }
-            });
+            }, 3000);
         }
         $rootScope.hide = function () {
             oLoginModal.hide();
@@ -86,8 +86,11 @@ pinpointApp.run([ '$rootScope', '$timeout', '$modal', '$location', '$cookies', '
 
         oLoginModal = $modal({template: 'views/login.modal.html', backdrop: 'static', placement: 'center', show: false});
 
-        if ($location.host() === 'hi.iamdenny.com') {
-            oLoginModal.show()
-        }
+        setTimeout(function () {
+            if ($location.host() === 'hi.iamdenny.com') {
+                oLoginModal.show()
+            }
+        }, 100);
+
     }
 ]);
