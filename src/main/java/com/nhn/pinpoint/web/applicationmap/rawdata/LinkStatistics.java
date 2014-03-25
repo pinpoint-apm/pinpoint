@@ -41,6 +41,22 @@ public class LinkStatistics {
         this.callDataMap = new RawCallDataMap();
 	}
 
+    // 이건 일부러 복사 생성자로 구현안함.
+    public LinkStatistics(Application fromApplication, Application toApplication, Set<AgentInfoBo> toAgentSet, RawCallDataMap callDataMap) {
+        if (fromApplication == null) {
+            throw new NullPointerException("fromAppliation must not be null");
+        }
+        if (toApplication == null) {
+            throw new NullPointerException("toApplication must not be null");
+        }
+        this.fromApplication = fromApplication;
+        this.toApplication = toApplication;
+
+        this.toAgentSet = toAgentSet;
+
+        this.callDataMap = callDataMap;
+    }
+
     /**
 	 * 
 	 * @param hostname
@@ -62,19 +78,9 @@ public class LinkStatistics {
     }
 
     public Application getToApplication() {
-//        if (toAcceptApplication != null) {
-//            return toAcceptApplication;
-//        }
         return this.toApplication;
     }
 
-    public void setToAcceptApplication(Application toAcceptApplication) {
-        this.toApplication = toAcceptApplication;
-    }
-
-//    public Application getToAcceptApplication() {
-//        return toAcceptApplication;
-//    }
 
     public RawCallDataMap getCallDataMap() {
         return  this.callDataMap;
@@ -129,11 +135,6 @@ public class LinkStatistics {
 
         if (!fromApplication.equals(that.fromApplication)) return false;
         if (!toApplication.equals(that.toApplication)) return false;
-//        if (toAcceptApplication != null) {
-//            if (!toAcceptApplication.equals(that.toAcceptApplication)) return false;
-//        } else {
-//            if (!toApplication.equals(that.toApplication)) return false;
-//        }
 
         return true;
     }
@@ -142,11 +143,6 @@ public class LinkStatistics {
     public int hashCode() {
         int result = fromApplication.hashCode();
         result = 31 * result + toApplication.hashCode();
-//        if (toAcceptApplication != null) {
-//            result = 31 * result + toAcceptApplication.hashCode();
-//        } else {
-//            result = 31 * result + toApplication.hashCode();
-//        }
         return result;
     }
 }
