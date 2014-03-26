@@ -27,6 +27,7 @@ pinpointApp.controller('ScatterFullScreenModeCtrl', [ '$scope', '$rootScope', '$
                 oNavbarVo.setQueryEndTime(Number($routeParams.queryEndTime, 10));
             }
             oNavbarVo.autoCalculateByQueryEndTimeAndPeriod();
-            $scope.$emit('scatter.initialize', oNavbarVo, 800, 600);
-        }, 100);
+            $scope.$emit('scatter.initialize', oNavbarVo);
+            $scope.$emit('scatter.initializeWithNode', {applicationName: oNavbarVo.getApplicationName()}, 800, 600)
+        }, 500);
     }]);
