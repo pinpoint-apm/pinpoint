@@ -25,7 +25,6 @@ public class ApplicationMap {
     private final NodeList nodeList = new NodeList();
     private final LinkList linkList = new LinkList();
 
-	private final Set<String> applicationNames = new HashSet<String>();
     private final Range range;
 
 
@@ -52,18 +51,8 @@ public class ApplicationMap {
 	}
 
     void addNode(List<Node> nodeList) {
-        for (Node node : nodeList) {
-            this.addNodeName(node);
-        }
         this.nodeList.addNodeList(nodeList);
     }
-
-	void addNodeName(Node node) {
-		if (!node.getServiceType().isRpcClient()) {
-			applicationNames.add(node.getApplication().getName());
-		}
-
-	}
 
     void addLink(List<Link> relationList) {
         linkList.buildLink(relationList);
@@ -71,8 +60,8 @@ public class ApplicationMap {
 
 
 
-    public boolean containsApplicationName(String applicationName) {
-        return applicationNames.contains(applicationName);
+    public boolean containsNode(String applicationName) {
+        return nodeList.containsNode(applicationName);
     }
 
     public void appendAgentInfo(LinkStatisticsDataSet linkStatisticsData, AgentSelector agentSelector) {

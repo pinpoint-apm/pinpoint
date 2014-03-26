@@ -87,7 +87,7 @@ public class ApplicationMapBuilder {
             final Link link = new Link(fromNode, toNode, range, callDataMap, new RawCallDataMap());
 
             if (toNode.getServiceType().isRpcClient()) {
-                if (!nodeMap.containsApplicationName(toNode.getApplication().getName())) {
+                if (!nodeMap.containsNode(toNode.getApplication().getName())) {
                     result.add(link);
                 }
             } else {
@@ -125,7 +125,7 @@ public class ApplicationMapBuilder {
             }
 
             if (toNode.getServiceType().isRpcClient()) {
-                if (!nodeMap.containsApplicationName(toNode.getApplication().getName())) {
+                if (!nodeMap.containsNode(toNode.getApplication().getName())) {
                     result.add(link);
                 }
             } else {
