@@ -50,7 +50,7 @@ public class ApplicationMap {
         return this.nodeList.findNode(applicationId);
 	}
 
-    void addNode(List<Node> nodeList) {
+    void addNodeList(List<Node> nodeList) {
         this.nodeList.addNodeList(nodeList);
     }
 
@@ -81,7 +81,7 @@ public class ApplicationMap {
         if (nodeServiceType.isTerminal()) {
             // terminal노드에 설치되어 있는 정보를 유추한다.
             ServerBuilder builder = new ServerBuilder();
-            Collection<LinkData> sourceLinkStatData = stat.getSourceLinkStatData();
+            Collection<LinkData> sourceLinkStatData = stat.getSourceLinkDataList();
             for (LinkData linkData : sourceLinkStatData) {
                 Application toApplication = linkData.getToApplication();
                 if (node.getApplication().equals(toApplication)) {

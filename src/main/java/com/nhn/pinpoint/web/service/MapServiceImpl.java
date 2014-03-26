@@ -79,7 +79,7 @@ public class MapServiceImpl implements MapService, AgentSelector {
         }
 
         final LinkDataDuplexMap resultCaller = new LinkDataDuplexMap();
-        for (LinkData link : caller.getLinkStatData()) {
+        for (LinkData link : caller.getLinkDataList()) {
             link = getRpcCallAccepted(link, range);
 
             resultCaller.addSourceLinkData(link);
@@ -97,7 +97,7 @@ public class MapServiceImpl implements MapService, AgentSelector {
             resultCaller.addLinkStatisticsDataSet(callerSub);
 
             // 찾아진 녀석들에 대한 caller도 찾는다.
-            for (LinkData eachCaller : callerSub.getSourceLinkStatData()) {
+            for (LinkData eachCaller : callerSub.getSourceLinkDataList()) {
                 logger.debug("     Find callee of {}", eachCaller.getFromApplication());
                 LinkDataDuplexMap calleeSub = selectCallee(eachCaller.getFromApplication(), range, linkVisitChecker);
                 logger.debug("     Found subCallee. count={}, callee={}", calleeSub.size(), eachCaller.getFromApplication());
@@ -125,7 +125,7 @@ public class MapServiceImpl implements MapService, AgentSelector {
         logger.debug("Found Callee. count={}, callee={}", callee.size(), calleeApplication);
 
         final LinkDataDuplexMap calleeSet = new LinkDataDuplexMap();
-        for (LinkData stat : callee.getLinkStatData()) {
+        for (LinkData stat : callee.getLinkDataList()) {
             calleeSet.addTargetLinkData(stat);
 
             // 나를 부른 application을 찾아야 하기 떄문에 to를 입력.
@@ -133,7 +133,7 @@ public class MapServiceImpl implements MapService, AgentSelector {
             calleeSet.addLinkStatisticsDataSet(calleeSub);
 
             // 찾아진 녀석들에 대한 callee도 찾는다.
-            for (LinkData eachCallee : calleeSub.getTargetLinkStatData()) {
+            for (LinkData eachCallee : calleeSub.getTargetLinkDataList()) {
                 // terminal이면 skip
                 final Application eachCalleeToApplication = eachCallee.getToApplication();
                 if (eachCalleeToApplication.getServiceType().isTerminal() || eachCalleeToApplication.getServiceType().isUnknown()) {
@@ -217,11 +217,11 @@ public class MapServiceImpl implements MapService, AgentSelector {
         }
 
         List<LinkDataMap> list = selectLink(sourceApplication, destinationApplication, range);
-        logger.debug("Fetched statistics data={}", list);
+        logger.debug("Fetched statistics data size={}", list.size());
 
         MapResponseHistogramSummary responseHistogramSummary = new MapResponseHistogramSummary(range);
         for (LinkDataMap entry : list) {
-            for (LinkData linkData : entry.getLinkStatData()) {
+            for (LinkData linkData : entry.getLinkDataList()) {
                 CallHistogramList sourceList = linkData.getSourceList();
                 Collection<CallHistogram> callHistogramList = sourceList.getCallHistogramList();
                 for (CallHistogram histogram : callHistogramList) {

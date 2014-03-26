@@ -25,16 +25,16 @@ public class LinkDataDuplexMap {
         return source;
     }
 
-    public Collection<LinkData> getSourceLinkStatData() {
-        return source.getLinkStatData();
+    public Collection<LinkData> getSourceLinkDataList() {
+        return source.getLinkDataList();
     }
 
     public LinkDataMap getTargetLinkData() {
         return target;
     }
 
-    public Collection<LinkData> getTargetLinkStatData() {
-        return target.getLinkStatData();
+    public Collection<LinkData> getTargetLinkDataList() {
+        return target.getLinkDataList();
     }
 
 
@@ -43,10 +43,10 @@ public class LinkDataDuplexMap {
         if (linkDataDuplexMap == null) {
             throw new NullPointerException("linkDataDuplexMap must not be null");
         }
-        for (LinkData copyLinkData : linkDataDuplexMap.source.getLinkStatData()) {
+        for (LinkData copyLinkData : linkDataDuplexMap.source.getLinkDataList()) {
             addSourceLinkData(copyLinkData);
         }
-        for (LinkData copyLinkData : linkDataDuplexMap.target.getLinkStatData()) {
+        for (LinkData copyLinkData : linkDataDuplexMap.target.getLinkDataList()) {
             addTargetLinkData(copyLinkData);
         }
     }

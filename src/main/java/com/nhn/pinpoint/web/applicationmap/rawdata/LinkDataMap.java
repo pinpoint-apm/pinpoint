@@ -7,13 +7,13 @@ import com.nhn.pinpoint.web.vo.LinkKey;
 
 public class LinkDataMap {
 
-    private final Map<LinkKey, LinkData> linkStatData = new HashMap<LinkKey, LinkData>();
+    private final Map<LinkKey, LinkData> linkDataMap = new HashMap<LinkKey, LinkData>();
 
 	public LinkDataMap() {
 	}
 
-    public Collection<LinkData> getLinkStatData() {
-        return linkStatData.values();
+    public Collection<LinkData> getLinkDataList() {
+        return linkDataMap.values();
     }
 
     public void addLinkData(Application srcApplication, String srcAgentId, Application destinationApplication, String destinationAgentId, long timestamp, short slotTime, long value) {
@@ -24,14 +24,14 @@ public class LinkDataMap {
 
 	@Override
 	public String toString() {
-		return "LinkDataMap [linkStatData=" + linkStatData + "]";
+		return "LinkDataMap [" + linkDataMap + "]";
 	}
 
     public void addLinkStatisticsData(LinkDataMap linkDataMap) {
         if (linkDataMap == null) {
             throw new NullPointerException("linkDataMap must not be null");
         }
-        for (LinkData copyLinkData : linkDataMap.linkStatData.values()) {
+        for (LinkData copyLinkData : linkDataMap.linkDataMap.values()) {
             addLinkStatistics(copyLinkData);
         }
     }
@@ -48,15 +48,15 @@ public class LinkDataMap {
 
     private LinkData getLinkStatistics(Application fromApplication, Application toApplication) {
         final LinkKey key = new LinkKey(fromApplication, toApplication);
-        LinkData findLink = linkStatData.get(key);
+        LinkData findLink = linkDataMap.get(key);
         if (findLink == null) {
             findLink = new LinkData(fromApplication, toApplication);
-            linkStatData.put(key, findLink);
+            linkDataMap.put(key, findLink);
         }
         return findLink;
     }
 
     public int size() {
-        return linkStatData.size();
+        return linkDataMap.size();
     }
 }

@@ -28,69 +28,105 @@ public class ApplicationMapBuilder {
         this.range = range;
     }
 
-    public ApplicationMap build(LinkDataDuplexMap linkStatisticsData, AgentSelector agentSelector) {
-        if (linkStatisticsData == null) {
-            throw new NullPointerException("linkStatData must not be null");
+    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentSelector agentSelector) {
+        if (linkDataDuplexMap == null) {
+            throw new NullPointerException("linkDataMap must not be null");
         }
 
-        final ApplicationMap nodeMap = new ApplicationMap(range);
+        final ApplicationMap map = new ApplicationMap(range);
+        buildNode(map, linkDataDuplexMap, agentSelector);
 
-        // extract agent
-//        Map<Application, Set<AgentInfoBo>> agentMap = linkStatisticsData.getSourceAgentMap();
-        // 변경하면 안됨
-        final List<Node> sourceNode = createSourceNode(linkStatisticsData);
-        nodeMap.addNode(sourceNode);
-
-        List<Node> targetNode = createTargetNode(linkStatisticsData);
-        nodeMap.addNode(targetNode);
-        logger.debug("targetNode:{}", targetNode);
-
-        LinkDataMap targetLinkData = linkStatisticsData.getTargetLinkData();
-        logger.debug("----------------targetLinkData:{}", targetLinkData.size());
-        for (LinkData statistics : targetLinkData.getLinkStatData()) {
-            logger.debug("target:{}", statistics);
-        }
-        nodeMap.appendAgentInfo(linkStatisticsData, agentSelector);
+        buildLink(map, linkDataDuplexMap);
 
 
-        // 변경하면 안됨.
-        List<Link> sourceLink = createSourceLink(linkStatisticsData.getSourceLinkData(), nodeMap);
-        logger.debug("sourceLink.size:{}", sourceLink.size());
-        nodeMap.addLink(sourceLink);
-
-
-        List<Link> targetLink = createTargetLink(linkStatisticsData.getTargetLinkData(), nodeMap);
-        logger.debug("targetLink.size:{}", targetLink.size());
-        nodeMap.addLink(targetLink);
-
-
-        return nodeMap;
+        return map;
     }
 
-    private List<Link> createSourceLink(LinkDataMap rawData, ApplicationMap nodeMap) {
+    private void buildNode(ApplicationMap map, LinkDataDuplexMap linkDataDuplexMap, AgentSelector agentSelector) {
+        final List<Node> sourceNode = createNode(linkDataDuplexMap.getSourceLinkData());
+        map.addNodeList(sourceNode);
+        logger.debug("sourceNode:{}", sourceNode);
+
+        final List<Node> targetNode = createNode(linkDataDuplexMap.getTargetLinkData());
+        map.addNodeList(targetNode);
+        logger.debug("targetNode:{}", targetNode);
+
+        // agentInfo를 넣는다.
+        map.appendAgentInfo(linkDataDuplexMap, agentSelector);
+        logger.debug("allNode:{}", map.getNodes());
+    }
+
+    private List<Node> createNode(LinkDataMap linkDataMap) {
+
+        final List<Node> result = new ArrayList<Node>();
+
+        for (LinkData linkData : linkDataMap.getLinkDataList()) {
+            final Application fromApplication = linkData.getFromApplication();
+            // FROM -> TO에서 FROM이 CLIENT가 아니면 FROM은 node
+            if (!fromApplication.getServiceType().isRpcClient()) {
+                Node fromNode = new Node(fromApplication);
+                result.add(fromNode);
+            } else {
+                logger.warn("found rpc fromNode linkData:{}", linkData);
+            }
+
+
+            final Application toApplication = linkData.getToApplication();
+            // FROM -> TO에서 TO가 CLIENT가 아니면 TO는 node
+            if (!toApplication.getServiceType().isRpcClient()) {
+                Node toNode = new Node(toApplication);
+                result.add(toNode);
+            } else {
+                logger.warn("found rpc toNode:{}", linkData);
+            }
+        }
+        return result;
+    }
+
+    private void buildLink(ApplicationMap map, LinkDataDuplexMap linkDataDuplexMap) {
+        // 변경하면 안됨.
+        List<Link> sourceLink = createSourceLink(linkDataDuplexMap.getSourceLinkData(), map);
+        logger.debug("sourceLink.size:{}", sourceLink.size());
+        map.addLink(sourceLink);
+
+
+        List<Link> targetLink = createTargetLink(linkDataDuplexMap.getTargetLinkData(), map);
+        logger.debug("targetLink.size:{}", targetLink.size());
+        map.addLink(targetLink);
+
+        LinkDataMap targetLinkData = linkDataDuplexMap.getTargetLinkData();
+        logger.debug("----------------targetLinkData:{}", targetLinkData.size());
+        for (LinkData statistics : targetLinkData.getLinkDataList()) {
+            logger.debug("target:{}", statistics);
+        }
+    }
+
+    private List<Link> createSourceLink(LinkDataMap linkDataMap, ApplicationMap map) {
         final List<Link> result = new ArrayList<Link>();
-        // extract relation
-        for (LinkData linkStat : rawData.getLinkStatData()) {
-            final Application fromApplicationId = linkStat.getFromApplication();
-            Node fromNode = nodeMap.findNode(fromApplicationId);
+
+        for (LinkData linkData : linkDataMap.getLinkDataList()) {
+            final Application fromApplicationId = linkData.getFromApplication();
+            Node fromNode = map.findNode(fromApplicationId);
             // TODO
-            final Application toApplicationId = linkStat.getToApplication();
-            Node toNode = nodeMap.findNode(toApplicationId);
+            final Application toApplicationId = linkData.getToApplication();
+            Node toNode = map.findNode(toApplicationId);
 
             // rpc client가 빠진경우임.
             if (toNode == null) {
+                logger.warn("rcp client not found:{}", toApplicationId);
                 continue;
             }
 
             // RPC client인 경우 dest application이 이미 있으면 삭제, 없으면 unknown cloud로 변경.
-            LinkCallDataMap callDataMap = linkStat.getLinkCallDataMap();
+            LinkCallDataMap callDataMap = linkData.getLinkCallDataMap();
             final Link link = new Link(fromNode, toNode, range, callDataMap, new LinkCallDataMap());
 
             if (toNode.getServiceType().isRpcClient()) {
-                if (!nodeMap.containsNode(toNode.getApplication().getName())) {
+                if (!map.containsNode(toNode.getApplication().getName())) {
                     result.add(link);
                 }
             } else {
+
                 result.add(link);
             }
         }
@@ -99,15 +135,15 @@ public class ApplicationMapBuilder {
 
 
 
-    private List<Link> createTargetLink(LinkDataMap rawData, ApplicationMap nodeMap) {
+    private List<Link> createTargetLink(LinkDataMap rawData, ApplicationMap map) {
         final List<Link> result = new ArrayList<Link>();
         // extract relation
-        for (LinkData linkStat : rawData.getLinkStatData()) {
-            final Application fromApplicationId = linkStat.getFromApplication();
-            Node fromNode = nodeMap.findNode(fromApplicationId);
+        for (LinkData linkData : rawData.getLinkDataList()) {
+            final Application fromApplicationId = linkData.getFromApplication();
+            Node fromNode = map.findNode(fromApplicationId);
             // TODO
-            final Application toApplicationId = linkStat.getToApplication();
-            Node toNode = nodeMap.findNode(toApplicationId);
+            final Application toApplicationId = linkData.getToApplication();
+            Node toNode = map.findNode(toApplicationId);
 
             // rpc client가 빠진경우임.
             if (fromNode == null) {
@@ -115,7 +151,7 @@ public class ApplicationMapBuilder {
             }
 
             // RPC client인 경우 dest application이 이미 있으면 삭제, 없으면 unknown cloud로 변경.
-            LinkCallDataMap callDataMap = linkStat.getLinkCallDataMap();
+            LinkCallDataMap callDataMap = linkData.getLinkCallDataMap();
 
             Link link;
             if (fromNode.getApplication().getServiceType().isUser()) {
@@ -125,7 +161,7 @@ public class ApplicationMapBuilder {
             }
 
             if (toNode.getServiceType().isRpcClient()) {
-                if (!nodeMap.containsNode(toNode.getApplication().getName())) {
+                if (!map.containsNode(toNode.getApplication().getName())) {
                     result.add(link);
                 }
             } else {
@@ -135,65 +171,6 @@ public class ApplicationMapBuilder {
         return result;
     }
 
-    private List<Node> createSourceNode(LinkDataDuplexMap linkStatData) {
 
-        final List<Node> result = new ArrayList<Node>();
-        // extract application and histogram
-        for (LinkData linkStat : linkStatData.getSourceLinkStatData()) {
-            final Application fromApplication = linkStat.getFromApplication();
-            // FROM -> TO에서 FROM이 CLIENT가 아니면 FROM은 application
-            if (!fromApplication.getServiceType().isRpcClient()) {
-                Node fromNode = new Node(fromApplication);
-                result.add(fromNode);
-            }
-
-
-            final Application toApplication = linkStat.getToApplication();
-            // FROM -> TO에서 TO가 CLIENT가 아니면 TO는 application
-            if (!toApplication.getServiceType().isRpcClient()) {
-                Node toNode = new Node(toApplication);
-                result.add(toNode);
-            }
-        }
-        if (logger.isDebugEnabled()) {
-            Collection<LinkData> targetLinkStatData = linkStatData.getSourceLinkStatData();
-            for (LinkData linkData : targetLinkStatData) {
-                logger.debug("---------------target:{}", linkData);
-            }
-        }
-
-        return result;
-    }
-
-    private List<Node> createTargetNode(LinkDataDuplexMap linkStatData) {
-
-        final List<Node> result = new ArrayList<Node>();
-        // extract application and histogram
-        for (LinkData linkStat : linkStatData.getTargetLinkStatData()) {
-            final Application fromApplication = linkStat.getFromApplication();
-            // FROM -> TO에서 FROM이 CLIENT가 아니면 FROM은 application
-            if (!fromApplication.getServiceType().isRpcClient()) {
-                // FIXME from은 tohostlist를 보관하지 않아서 없음. null로 입력. 그렇지 않으면 이상해짐 ㅡㅡ;
-                Node fromNode = new Node(fromApplication);
-                result.add(fromNode);
-            }
-
-
-            final Application toApplication = linkStat.getToApplication();
-            // FROM -> TO에서 TO가 CLIENT가 아니면 TO는 application
-            if (!toApplication.getServiceType().isRpcClient()) {
-                Node toNode = new Node(toApplication);
-                result.add(toNode);
-            }
-        }
-        if (logger.isDebugEnabled()) {
-            Collection<LinkData> targetLinkStatData = linkStatData.getSourceLinkStatData();
-            for (LinkData linkData : targetLinkStatData) {
-                logger.debug("---------------target:{}", linkData);
-            }
-        }
-
-        return result;
-    }
 
 }
