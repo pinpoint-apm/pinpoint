@@ -18,7 +18,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
 
                 // define private variables of methods;
                 var reset, showDetailInformation, getTimeSeriesHistogramData, renderTimeSeriesHistogram,
-                    renderStatisticsSummary, showApplicationStatistics, parseHistogramForD3;
+                    renderResponseSummary, showTimeSeriesHistogram, parseHistogramForD3;
 
                 /**
                  * reset
@@ -59,14 +59,14 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         scope.linkCategory = 'UnknownLinkInfoBox';
                         for (var key in link.targetInfo) {
                             var className = $filter('applicationNameToClassName')(link.targetInfo[key].applicationName)
-                            renderStatisticsSummary('.linkInfoDetails .summaryCharts_' + className +
+                            renderResponseSummary('.linkInfoDetails .summaryCharts_' + className +
                                 ' svg', parseHistogramForD3(link.targetRawData[link.targetInfo[key].applicationName].histogram));
                         }
                         scope.sourceInfo = link.sourceInfo;
                         scope.targetInfo = link.targetInfo;
                     } else {
                         scope.linkCategory = 'LinkInfoBox';
-                        showApplicationStatistics(
+                        showTimeSeriesHistogram(
                             htQuery.from,
                             htQuery.to,
                             link.sourceInfo.serviceTypeCode,
@@ -162,7 +162,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                  * @param data
                  * @param clickEventName
                  */
-                renderStatisticsSummary = function (querySelector, data, clickEventName) {
+                renderResponseSummary = function (querySelector, data, clickEventName) {
                     nv.addGraph(function () {
                         angular.element(querySelector).empty();
                         var chart = nv.models.discreteBarChart().x(function (d) {
@@ -210,23 +210,17 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
 
                         chart.discretebar.dispatch.on('elementClick', function (e) {
                             if (clickEventName) {
-//                                var filterDataSet = {
-//                                    label: e.point.label,
-//                                    value: e.value,
-//                                    values: e.series.values,
-//                                    sourceServiceType: scope.sourceinfo.serviceType,
-//                                    sourceApplicationName: scope.sourceinfo.applicationName,
-//                                    targetServiceType: scope.targetinfo.serviceType,
-//                                    targetApplicationName: scope.targetinfo.applicationName
-//                                };
                                 var label = e.point.label,
                                     values = e.series.values;
                                 var oServerMapFilterVo = new ServerMapFilterVo();
                                 oServerMapFilterVo
-                                    .setFromApplication(scope.sourceInfo.applicationName)
-                                    .setFromServiceType(scope.sourceInfo.serviceType)
-                                    .setToApplication(scope.targetInfo.applicationName)
-                                    .setToServiceType(scope.targetInfo.serviceType);
+                                    .setMainApplication(htLastLink.filterApplicationName)
+                                    .setMainServiceTypeCode(htLastLink.filterApplicationServiceTypeCode)
+                                    .setFromApplication(htLastLink.sourceInfo.applicationName)
+                                    .setFromServiceType(htLastLink.sourceInfo.serviceType)
+                                    .setToApplication(htLastLink.targetInfo.applicationName)
+                                    .setToServiceType(htLastLink.targetInfo.serviceType);
+
                                 if (label === 'error') {
                                     oServerMapFilterVo.setIncludeException(true);
                                 } else if (label.indexOf('+') > 0) {
@@ -235,8 +229,8 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                                         .setResponseTo('max');
                                 } else {
                                     oServerMapFilterVo
-                                        .setResponseFrom(filteredMapUtil.getStartValueForFilterByLabel(label, values))
-                                        .setResponseTo(parseInt(label, 10));
+                                        .setResponseFrom(filteredMapUtil.getStartValueForFilterByLabel(label, values) * 1000)
+                                        .setResponseTo(parseInt(label, 10) * 1000);
                                 }
                                 scope.$emit('linkInfoDetails.' + clickEventName + '.barClicked', oServerMapFilterVo);
                             }
@@ -264,7 +258,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                  * @param targetApplicationName
                  * @param histogram
                  */
-                showApplicationStatistics = function (begin, end, sourceServiceType, sourceApplicationName, targetServiceType,
+                showTimeSeriesHistogram = function (begin, end, sourceServiceType, sourceApplicationName, targetServiceType,
                                                       targetApplicationName, histogram) {
                     var params = {
                         "from": begin,
@@ -277,7 +271,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
 
                     scope.showLoad = true;
                     scope.showResponseSummary = true;
-                    renderStatisticsSummary('.linkInfoDetails .infoBarChart svg', parseHistogramForD3(histogram), 'ResponseSummary');
+                    renderResponseSummary('.linkInfoDetails .infoBarChart svg', parseHistogramForD3(histogram), 'ResponseSummary');
 
                     getTimeSeriesHistogramData(params, 1, function (query, result) {
                         renderTimeSeriesHistogram(result.timeSeriesHistogram);
