@@ -26,10 +26,19 @@
     border: 0;
 }
 .main-navbar .navbar-form {
-    margin-bottom: 0;
-    margin-left: 25px;
-    margin-top: 0;
+    margin: 0 0 0 25px;
     padding: 0;
+    width: auto;
+    border: 0;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+.main-navbar .navbar-nav {
+    float: left;
+    margin: 0;
+}
+.main-navbar .navbar-nav>li {
+    float: left;
 }
 .navbar-form .for-datetimepicker {
     /*width:470px;*/

@@ -1,0 +1,43 @@
+{
+  "author": "Siddique Hameed",
+  "name": "angular-timer",
+  "version": "1.0.12",
+  "homepage": "https://github.com/siddii/angular-timer",
+  "licenses": {
+    "type": "MIT",
+    "url": "https://github.com/siddii/angular-timer/blob/master/LICENSE.txt"
+  },
+  "bugs": "https://github.com/siddii/angular-timer/issues",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:siddii/angular-timer.git"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-contrib-connect": "~0.5.0",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-copy": "~0.4.0",
+    "grunt-contrib-jshint": "~0.6.0",
+    "grunt-contrib-uglify": "~0.2.2",
+    "grunt-contrib-qunit": "~0.2.2",
+    "grunt-contrib-watch": "~0.5.1",
+    "grunt-html-validation": "git://github.com/praveenvijayan/grunt-html-validation.git",
+    "grunt-jekyll": "~0.3.8",
+    "grunt-recess": "~0.3.3",
+    "browserstack-runner": "~0.0.11",
+    "karma-script-launcher": "~0.1.0",
+    "karma-chrome-launcher": "~0.1.1",
+    "karma-html2js-preprocessor": "~0.1.0",
+    "karma-firefox-launcher": "~0.1.2",
+    "karma-jasmine": "~0.1.4",
+    "requirejs": "~2.1.9",
+    "karma-requirejs": "~0.2.0",
+    "karma-coffee-preprocessor": "~0.1.1",
+    "karma-phantomjs-launcher": "~0.1.1",
+    "karma": "~0.10.8",
+    "grunt-karma": "~0.6.2",
+    "karma-ng-scenario": "~0.1.0"
+  }
+}

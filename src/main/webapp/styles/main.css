@@ -25,6 +25,7 @@ canvas {outline:none}
     bottom:0; 
     left:0; 
     right:0;
+    min-width: 880px;
 }
 #wrapper.no-navbar {
     padding-top: 0;
@@ -127,7 +128,7 @@ canvas {outline:none}
     position: fixed;
     top: 40%;
     left: 50%;
-    width: 450px;
+    max-width: 550px;
     -webkit-transform: translateX(-50%) translateY(-50%);
     transform: translateX(-50%) translateY(-50%);
 }
