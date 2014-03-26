@@ -17,7 +17,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 var htQuery, htTargetRawData, htLastLink;
 
                 // define private variables of methods;
-                var reset, showDetailInformation, getLinkStatisticsData, renderStatisticsTimeSeriesHistogram,
+                var reset, showDetailInformation, getTimeSeriesHistogramData, renderTimeSeriesHistogram,
                     renderStatisticsSummary, showApplicationStatistics, parseHistogramForD3;
 
                 /**
@@ -27,12 +27,12 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     htQuery = false;
                     htLastLink = false;
                     htTargetRawData = false;
-                    scope.showLinkInfoDetails = false;
                     scope.linkCategory = null;
                     scope.targetinfo = null;
                     scope.sourceinfo = null;
-                    scope.showLinkInfoChart = false;
-                    scope.showLinkInfoBarChart = false;
+                    scope.showLinkInfoDetails = false;
+                    scope.showResponseSummary = false;
+                    scope.showLoad = false;
                     if (!scope.$$phase) {
                         scope.$digest();
                     }
@@ -89,7 +89,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                  * @param version
                  * @param callback
                  */
-                getLinkStatisticsData = function (query, version, callback) {
+                getTimeSeriesHistogramData = function (query, version, callback) {
                     jQuery.ajax({
                         type: 'GET',
                         url: config.linkStatisticsUrl,
@@ -114,10 +114,10 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 };
 
                 /**
-                 * render statistics timseries histogram
+                 * render statistics time series histogram
                  * @param data
                  */
-                renderStatisticsTimeSeriesHistogram = function (data) {
+                renderTimeSeriesHistogram = function (data) {
                     nv.addGraph(function () {
                         angular.element('.linkInfoDetails .infoChart svg').empty();
                         var chart = nv.models.multiBarChart().x(function (d) {
@@ -275,15 +275,15 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         "targetApplicationName": targetApplicationName
                     };
 
-                    scope.showLinkInfoChart = true;
-                    scope.showLinkInfoBarChart = true;
+                    scope.showLoad = true;
+                    scope.showResponseSummary = true;
                     renderStatisticsSummary('.linkInfoDetails .infoBarChart svg', parseHistogramForD3(histogram), 'ResponseSummary');
 
-                    getLinkStatisticsData(params, 1, function (query, result) {
-                        renderStatisticsTimeSeriesHistogram(result.timeSeriesHistogram);
+                    getTimeSeriesHistogramData(params, 1, function (query, result) {
+                        renderTimeSeriesHistogram(result.timeSeriesHistogram);
                     });
 
-//                    getLinkStatisticsData(params, 2, function (query, result) {
+//                    getTimeSeriesHistogramData(params, 2, function (query, result) {
 //                        var oHelixChartVo = new HelixChartVo();
 //                        oHelixChartVo
 //                            .setType('stacked_line')
