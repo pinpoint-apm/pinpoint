@@ -1,7 +1,7 @@
 'use strict';
 
 nv.dev = false;
-var pinpointApp = angular.module('pinpointApp', [ 'ngRoute', 'ngResource', 'ngSanitize', 'webStorageModule', 'uiSlider', 'base64', 'mgcrea.ngStrap', 'ngCookies', 'timer']);
+var pinpointApp = angular.module('pinpointApp', [ 'ngRoute', 'ngResource', 'ngSanitize', 'webStorageModule', 'uiSlider', 'base64', 'mgcrea.ngStrap', 'ngCookies']);
 
 pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', function ($routeProvider, $locationProvider, $modalProvider) {
     $locationProvider.html5Mode(false).hashPrefix(''); // 해쉬뱅을 사용 안할 수 있다.
@@ -56,7 +56,7 @@ pinpointApp.run([ '$rootScope', '$timeout', '$modal', '$location', '$cookies', '
         if (Modernizr.canvas === false) {
             $timeout(function () {
                 $('#supported-browsers').modal();
-            });
+            }, 500);
         }
 
         // initialize variables
@@ -65,32 +65,29 @@ pinpointApp.run([ '$rootScope', '$timeout', '$modal', '$location', '$cookies', '
         // initialize variables of methods
         var checkLoginSession;
 
-        console.log('$cookies', $cookies);
-        console.log('$location.host()', $location.host());
         if ($location.host() === 'pinpoint.nhncorp.com') {
-            $interval(function () {
+            $timeout(function () {
                 if (checkLoginSession() === false && bIsLoginModalOpened === false) {
                     oLoginModal.show();
                     bIsLoginModalOpened = true;
                 }
+            }, 700);
+            $interval(function () {
+                if (checkLoginSession() === false && bIsLoginModalOpened === false) {
+                    oLoginModal.show();
+                    bIsLoginModalOpened = true;
+                } else if (checkLoginSession() === true && bIsLoginModalOpened === true) {
+                    oLoginModal.hide();
+                    bIsLoginModalOpened = false;
+                }
             }, 3000);
         }
-        $rootScope.hide = function () {
-            oLoginModal.hide();
-            bIsLoginModalOpened = false;
-        };
 
         checkLoginSession = function () {
             return angular.isDefined($cookies.SMSESSION);
         };
 
         oLoginModal = $modal({template: 'views/login.modal.html', backdrop: 'static', placement: 'center', show: false});
-
-        setTimeout(function () {
-            if ($location.host() === 'hi.iamdenny.com') {
-                oLoginModal.show()
-            }
-        }, 1000);
 
     }
 ]);

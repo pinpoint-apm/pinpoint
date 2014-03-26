@@ -28,7 +28,8 @@
     "slickgrid": "~2.1.0",
     "angular-base64": "~2.0.1",
     "angular-strap": "~2.0.0",
-    "angular-motion": "~0.3.2"
+    "angular-motion": "~0.3.2",
+    "angular-timer": "~1.0.12"
   },
   "devDependencies": {
     "angular-mocks": "1.2.14",
