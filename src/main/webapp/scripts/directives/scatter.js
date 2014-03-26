@@ -68,7 +68,7 @@ pinpointApp.directive('scatter',
                 link: function (scope, element, attrs) {
 
                     // define private variables
-                    var oNavbarVo, htScatterSet;
+                    var oNavbarVo, htScatterSet, htLastNode;
 
                     // define private variables of methods
                     var getDataSource, makeScatter, showScatter, pauseScatterAll;
@@ -76,6 +76,7 @@ pinpointApp.directive('scatter',
                     // initialize
                     oNavbarVo = null;
                     htScatterSet = {};
+                    htLastNode = {};
 
                     /**
                      * get data source
@@ -191,7 +192,7 @@ pinpointApp.directive('scatter',
                             $window.open('#/transactionList', token);
                         };
                         options.fFullScreenMode = function () {
-                            var url = '#/scatterFullScreenMode/' + oNavbarVo.getApplication() + '/' +
+                            var url = '#/scatterFullScreenMode/' + htLastNode.text + '@' + htLastNode.serviceTypeCode + '/' +
                                 oNavbarVo.getPeriod() + '/' + oNavbarVo.getQueryEndTime();
                             if (oNavbarVo.getFilter()) {
                                 url += '/' + oNavbarVo.getFilter();
@@ -258,9 +259,10 @@ pinpointApp.directive('scatter',
                     /**
                      * scope event on scatter.initializeWithNode
                      */
-                    scope.$on('scatter.initializeWithNode', function (event, node) {
+                    scope.$on('scatter.initializeWithNode', function (event, node, w, h) {
+                        htLastNode = node;
                         showScatter(node.applicationName || node.text, oNavbarVo.getQueryStartTime(),
-                            oNavbarVo.getQueryEndTime(), oNavbarVo.getQueryPeriod(), oNavbarVo.getFilter());
+                            oNavbarVo.getQueryEndTime(), oNavbarVo.getQueryPeriod(), oNavbarVo.getFilter(), w, h);
                     });
                 }
             };
