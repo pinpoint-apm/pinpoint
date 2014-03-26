@@ -9,7 +9,7 @@ import java.util.*;
  * 호출관계의 양방향 데이터를 표현
  * @author emeroad
  */
-public class RawCallData {
+public class LinkCallData {
 
     private final String source;
     private final ServiceType sourceServiceType;
@@ -19,7 +19,7 @@ public class RawCallData {
 
 	private final Map<Long, TimeHistogram> targetHistogramTimeMap;
 
-    public RawCallData(LinkKey linkKey) {
+    public LinkCallData(LinkKey linkKey) {
         if (linkKey == null) {
             throw new NullPointerException("linkKey must not be null");
         }
@@ -57,24 +57,24 @@ public class RawCallData {
         histogram.addCallCount(slot, count);
     }
 
-    public void addRawCallData(RawCallData copyRawCallData) {
-        if (copyRawCallData == null) {
-            throw new NullPointerException("copyRawCallData must not be null");
+    public void addRawCallData(LinkCallData copyLinkCallData) {
+        if (copyLinkCallData == null) {
+            throw new NullPointerException("copyLinkCallData must not be null");
         }
-        if (!this.source.equals(copyRawCallData.source)) {
+        if (!this.source.equals(copyLinkCallData.source)) {
             throw new IllegalArgumentException("source not equals");
         }
-        if (this.sourceServiceType != copyRawCallData.sourceServiceType) {
+        if (this.sourceServiceType != copyLinkCallData.sourceServiceType) {
             throw new IllegalArgumentException("sourceServiceType not equals");
         }
-        if (!this.target.equals(copyRawCallData.target)) {
+        if (!this.target.equals(copyLinkCallData.target)) {
             throw new IllegalArgumentException("target not equals");
         }
-        if (this.targetServiceType != copyRawCallData.targetServiceType) {
+        if (this.targetServiceType != copyLinkCallData.targetServiceType) {
             throw new IllegalArgumentException("targetServiceType not equals");
         }
 
-        for (Map.Entry<Long, TimeHistogram> copyEntry : copyRawCallData.targetHistogramTimeMap.entrySet()) {
+        for (Map.Entry<Long, TimeHistogram> copyEntry : copyLinkCallData.targetHistogramTimeMap.entrySet()) {
             final Long timeStamp = copyEntry.getKey();
             TimeHistogram histogram = getTimeHistogram(timeStamp);
             histogram.add(copyEntry.getValue());
@@ -92,7 +92,7 @@ public class RawCallData {
 
     @Override
     public String toString() {
-        return "RawCallData{" +
+        return "LinkCallData{" +
                 "source='" + source + '\'' +
                 ", sourceServiceType=" + sourceServiceType +
                 ", target='" + target + '\'' +

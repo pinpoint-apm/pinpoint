@@ -2,7 +2,7 @@ package com.nhn.pinpoint.web.vo;
 
 import com.nhn.pinpoint.common.SlotType;
 import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
-import com.nhn.pinpoint.web.applicationmap.rawdata.RawCallData;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkCallData;
 import com.nhn.pinpoint.web.applicationmap.rawdata.TimeHistogram;
 import com.nhn.pinpoint.web.util.TimeWindow;
 import com.nhn.pinpoint.web.util.TimeWindowOneMinuteSampler;
@@ -69,19 +69,19 @@ public class AgentTimeSeriesHistogramBuilder {
         return agentTimeSeriesHistogram;
     }
 
-    public AgentTimeSeriesHistogram build(Collection<RawCallData> rawCallDataMap) {
+    public AgentTimeSeriesHistogram build(Collection<LinkCallData> linkCallDataMap) {
 
         Map<String, List<TimeHistogram>> agentLevelMap = new HashMap<String, List<TimeHistogram>>();
-        for (RawCallData rawCallData : rawCallDataMap) {
-            List<TimeHistogram> sourceHistogramList = agentLevelMap.get(rawCallData.getSource());
+        for (LinkCallData linkCallData : linkCallDataMap) {
+            List<TimeHistogram> sourceHistogramList = agentLevelMap.get(linkCallData.getSource());
             if (sourceHistogramList == null) {
                 sourceHistogramList = new ArrayList<TimeHistogram>();
-                logger.debug("-----------source:{}, target:{}", rawCallData.getSource(), rawCallData.getTarget());
-                agentLevelMap.put(rawCallData.getSource(), sourceHistogramList);
+                logger.debug("-----------source:{}, target:{}", linkCallData.getSource(), linkCallData.getTarget());
+                agentLevelMap.put(linkCallData.getSource(), sourceHistogramList);
             }
             // 주의 copy본이 아니라 원본 수정시 데이터가 틀릴수 있음.
             // interpolation에서 객체를 재 생성하므로 현재는 상관없음.
-            sourceHistogramList.addAll(rawCallData.getTimeHistogram());
+            sourceHistogramList.addAll(linkCallData.getTimeHistogram());
         }
         Map<String, List<TimeHistogram>> histogramMap = interpolation(agentLevelMap);
         AgentTimeSeriesHistogram agentTimeSeriesHistogram = new AgentTimeSeriesHistogram(application, range, histogramMap);

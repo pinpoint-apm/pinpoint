@@ -1,9 +1,9 @@
 package com.nhn.pinpoint.web.applicationmap;
 
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsData;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsDataSet;
-import com.nhn.pinpoint.web.applicationmap.rawdata.RawCallDataMap;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkData;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
 import org.slf4j.Logger;
@@ -28,7 +28,7 @@ public class ApplicationMapBuilder {
         this.range = range;
     }
 
-    public ApplicationMap build(LinkStatisticsDataSet linkStatisticsData, AgentSelector agentSelector) {
+    public ApplicationMap build(LinkDataDuplexMap linkStatisticsData, AgentSelector agentSelector) {
         if (linkStatisticsData == null) {
             throw new NullPointerException("linkStatData must not be null");
         }
@@ -45,9 +45,9 @@ public class ApplicationMapBuilder {
         nodeMap.addNode(targetNode);
         logger.debug("targetNode:{}", targetNode);
 
-        LinkStatisticsData targetLinkData = linkStatisticsData.getTargetLinkData();
+        LinkDataMap targetLinkData = linkStatisticsData.getTargetLinkData();
         logger.debug("----------------targetLinkData:{}", targetLinkData.size());
-        for (LinkStatistics statistics : targetLinkData.getLinkStatData()) {
+        for (LinkData statistics : targetLinkData.getLinkStatData()) {
             logger.debug("target:{}", statistics);
         }
         nodeMap.appendAgentInfo(linkStatisticsData, agentSelector);
@@ -67,10 +67,10 @@ public class ApplicationMapBuilder {
         return nodeMap;
     }
 
-    private List<Link> createSourceLink(LinkStatisticsData rawData, ApplicationMap nodeMap) {
+    private List<Link> createSourceLink(LinkDataMap rawData, ApplicationMap nodeMap) {
         final List<Link> result = new ArrayList<Link>();
         // extract relation
-        for (LinkStatistics linkStat : rawData.getLinkStatData()) {
+        for (LinkData linkStat : rawData.getLinkStatData()) {
             final Application fromApplicationId = linkStat.getFromApplication();
             Node fromNode = nodeMap.findNode(fromApplicationId);
             // TODO
@@ -83,8 +83,8 @@ public class ApplicationMapBuilder {
             }
 
             // RPC client인 경우 dest application이 이미 있으면 삭제, 없으면 unknown cloud로 변경.
-            RawCallDataMap callDataMap = linkStat.getCallDataMap();
-            final Link link = new Link(fromNode, toNode, range, callDataMap, new RawCallDataMap());
+            LinkCallDataMap callDataMap = linkStat.getLinkCallDataMap();
+            final Link link = new Link(fromNode, toNode, range, callDataMap, new LinkCallDataMap());
 
             if (toNode.getServiceType().isRpcClient()) {
                 if (!nodeMap.containsNode(toNode.getApplication().getName())) {
@@ -99,10 +99,10 @@ public class ApplicationMapBuilder {
 
 
 
-    private List<Link> createTargetLink(LinkStatisticsData rawData, ApplicationMap nodeMap) {
+    private List<Link> createTargetLink(LinkDataMap rawData, ApplicationMap nodeMap) {
         final List<Link> result = new ArrayList<Link>();
         // extract relation
-        for (LinkStatistics linkStat : rawData.getLinkStatData()) {
+        for (LinkData linkStat : rawData.getLinkStatData()) {
             final Application fromApplicationId = linkStat.getFromApplication();
             Node fromNode = nodeMap.findNode(fromApplicationId);
             // TODO
@@ -115,13 +115,13 @@ public class ApplicationMapBuilder {
             }
 
             // RPC client인 경우 dest application이 이미 있으면 삭제, 없으면 unknown cloud로 변경.
-            RawCallDataMap callDataMap = linkStat.getCallDataMap();
+            LinkCallDataMap callDataMap = linkStat.getLinkCallDataMap();
 
             Link link;
             if (fromNode.getApplication().getServiceType().isUser()) {
-                link = new Link(fromNode, toNode, range, callDataMap, new RawCallDataMap());
+                link = new Link(fromNode, toNode, range, callDataMap, new LinkCallDataMap());
             } else {
-                link = new Link(fromNode, toNode, range, new RawCallDataMap(), callDataMap);
+                link = new Link(fromNode, toNode, range, new LinkCallDataMap(), callDataMap);
             }
 
             if (toNode.getServiceType().isRpcClient()) {
@@ -135,15 +135,14 @@ public class ApplicationMapBuilder {
         return result;
     }
 
-    private List<Node> createSourceNode(LinkStatisticsDataSet linkStatData) {
+    private List<Node> createSourceNode(LinkDataDuplexMap linkStatData) {
 
         final List<Node> result = new ArrayList<Node>();
         // extract application and histogram
-        for (LinkStatistics linkStat : linkStatData.getSourceLinkStatData()) {
+        for (LinkData linkStat : linkStatData.getSourceLinkStatData()) {
             final Application fromApplication = linkStat.getFromApplication();
             // FROM -> TO에서 FROM이 CLIENT가 아니면 FROM은 application
             if (!fromApplication.getServiceType().isRpcClient()) {
-                // FIXME from은 tohostlist를 보관하지 않아서 없음. null로 입력. 그렇지 않으면 이상해짐 ㅡㅡ;
                 Node fromNode = new Node(fromApplication);
                 result.add(fromNode);
             }
@@ -157,20 +156,20 @@ public class ApplicationMapBuilder {
             }
         }
         if (logger.isDebugEnabled()) {
-            Collection<LinkStatistics> targetLinkStatData = linkStatData.getSourceLinkStatData();
-            for (LinkStatistics linkStatistics : targetLinkStatData) {
-                logger.debug("---------------target:{}", linkStatistics);
+            Collection<LinkData> targetLinkStatData = linkStatData.getSourceLinkStatData();
+            for (LinkData linkData : targetLinkStatData) {
+                logger.debug("---------------target:{}", linkData);
             }
         }
 
         return result;
     }
 
-    private List<Node> createTargetNode(LinkStatisticsDataSet linkStatData) {
+    private List<Node> createTargetNode(LinkDataDuplexMap linkStatData) {
 
         final List<Node> result = new ArrayList<Node>();
         // extract application and histogram
-        for (LinkStatistics linkStat : linkStatData.getTargetLinkStatData()) {
+        for (LinkData linkStat : linkStatData.getTargetLinkStatData()) {
             final Application fromApplication = linkStat.getFromApplication();
             // FROM -> TO에서 FROM이 CLIENT가 아니면 FROM은 application
             if (!fromApplication.getServiceType().isRpcClient()) {
@@ -188,9 +187,9 @@ public class ApplicationMapBuilder {
             }
         }
         if (logger.isDebugEnabled()) {
-            Collection<LinkStatistics> targetLinkStatData = linkStatData.getSourceLinkStatData();
-            for (LinkStatistics linkStatistics : targetLinkStatData) {
-                logger.debug("---------------target:{}", linkStatistics);
+            Collection<LinkData> targetLinkStatData = linkStatData.getSourceLinkStatData();
+            for (LinkData linkData : targetLinkStatData) {
+                logger.debug("---------------target:{}", linkData);
             }
         }
 

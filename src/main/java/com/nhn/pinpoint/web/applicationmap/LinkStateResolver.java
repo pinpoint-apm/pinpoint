@@ -6,6 +6,8 @@ import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
  * @author emeroad
  */
 public class LinkStateResolver {
+    public static final LinkStateResolver DEFAULT_LINK_STATERE_SOLVER = new LinkStateResolver();
+
     public String resolve(Link link, Histogram histogram) {
         // Histogram이 중복으로 생성되고 있어 그냥 인자로 받음 수정 요망.
         final long error = getErrorRate(histogram);

@@ -67,22 +67,22 @@ public class MapServiceImpl implements MapService, AgentSelector {
      * @param linkVisitChecker
      * @return
      */
-    private LinkStatisticsDataSet selectCaller(Application callerApplication, Range range, LinkVisitChecker linkVisitChecker) {
+    private LinkDataDuplexMap selectCaller(Application callerApplication, Range range, LinkVisitChecker linkVisitChecker) {
         // 이미 조회된 구간이면 skip
         if (linkVisitChecker.visitCaller(callerApplication)) {
-            return new LinkStatisticsDataSet();
+            return new LinkDataDuplexMap();
         }
 
-        LinkStatisticsData caller = mapStatisticsCallerDao.selectCaller(callerApplication, range);
+        LinkDataMap caller = mapStatisticsCallerDao.selectCaller(callerApplication, range);
         if (logger.isDebugEnabled()) {
             logger.debug("Found Caller. count={}, caller={}", caller.size(), callerApplication);
         }
 
-        final LinkStatisticsDataSet resultCaller = new LinkStatisticsDataSet();
-        for (LinkStatistics link : caller.getLinkStatData()) {
+        final LinkDataDuplexMap resultCaller = new LinkDataDuplexMap();
+        for (LinkData link : caller.getLinkStatData()) {
             link = getRpcCallAccepted(link, range);
 
-            resultCaller.addSourceLinkStatistics(link);
+            resultCaller.addSourceLinkData(link);
 
             final Application toApplication = link.getToApplication();
             // terminal, unknowncloud 인 경우에는 skip
@@ -91,15 +91,15 @@ public class MapServiceImpl implements MapService, AgentSelector {
             }
 
             logger.debug("     Find subCaller of {}", toApplication);
-            LinkStatisticsDataSet callerSub = selectCaller(toApplication, range, linkVisitChecker);
+            LinkDataDuplexMap callerSub = selectCaller(toApplication, range, linkVisitChecker);
             logger.debug("     Found subCaller. count={}, caller={}", callerSub.size(), toApplication);
 
             resultCaller.addLinkStatisticsDataSet(callerSub);
 
             // 찾아진 녀석들에 대한 caller도 찾는다.
-            for (LinkStatistics eachCaller : callerSub.getSourceLinkStatData()) {
+            for (LinkData eachCaller : callerSub.getSourceLinkStatData()) {
                 logger.debug("     Find callee of {}", eachCaller.getFromApplication());
-                LinkStatisticsDataSet calleeSub = selectCallee(eachCaller.getFromApplication(), range, linkVisitChecker);
+                LinkDataDuplexMap calleeSub = selectCallee(eachCaller.getFromApplication(), range, linkVisitChecker);
                 logger.debug("     Found subCallee. count={}, callee={}", calleeSub.size(), eachCaller.getFromApplication());
                 resultCaller.addLinkStatisticsDataSet(calleeSub);
             }
@@ -115,31 +115,31 @@ public class MapServiceImpl implements MapService, AgentSelector {
      * @param range
      * @return
      */
-    private LinkStatisticsDataSet selectCallee(Application calleeApplication, Range range, LinkVisitChecker linkVisitChecker) {
+    private LinkDataDuplexMap selectCallee(Application calleeApplication, Range range, LinkVisitChecker linkVisitChecker) {
         // 이미 조회된 구간이면 skip
         if (linkVisitChecker.visitCallee(calleeApplication)) {
-            return new LinkStatisticsDataSet();
+            return new LinkDataDuplexMap();
         }
 
-        final LinkStatisticsData callee = mapStatisticsCalleeDao.selectCallee(calleeApplication, range);
+        final LinkDataMap callee = mapStatisticsCalleeDao.selectCallee(calleeApplication, range);
         logger.debug("Found Callee. count={}, callee={}", callee.size(), calleeApplication);
 
-        final LinkStatisticsDataSet calleeSet = new LinkStatisticsDataSet();
-        for (LinkStatistics stat : callee.getLinkStatData()) {
-            calleeSet.addTargetLinkStatistics(stat);
+        final LinkDataDuplexMap calleeSet = new LinkDataDuplexMap();
+        for (LinkData stat : callee.getLinkStatData()) {
+            calleeSet.addTargetLinkData(stat);
 
             // 나를 부른 application을 찾아야 하기 떄문에 to를 입력.
-            LinkStatisticsDataSet calleeSub = selectCallee(stat.getFromApplication(), range, linkVisitChecker);
+            LinkDataDuplexMap calleeSub = selectCallee(stat.getFromApplication(), range, linkVisitChecker);
             calleeSet.addLinkStatisticsDataSet(calleeSub);
 
             // 찾아진 녀석들에 대한 callee도 찾는다.
-            for (LinkStatistics eachCallee : calleeSub.getTargetLinkStatData()) {
+            for (LinkData eachCallee : calleeSub.getTargetLinkStatData()) {
                 // terminal이면 skip
                 final Application eachCalleeToApplication = eachCallee.getToApplication();
                 if (eachCalleeToApplication.getServiceType().isTerminal() || eachCalleeToApplication.getServiceType().isUnknown()) {
                     continue;
                 }
-                LinkStatisticsDataSet callerSub = selectCaller(eachCalleeToApplication, range, linkVisitChecker);
+                LinkDataDuplexMap callerSub = selectCaller(eachCalleeToApplication, range, linkVisitChecker);
                 calleeSet.addLinkStatisticsDataSet(callerSub);
             }
         }
@@ -147,7 +147,7 @@ public class MapServiceImpl implements MapService, AgentSelector {
         return calleeSet;
     }
 
-    private LinkStatistics getRpcCallAccepted(LinkStatistics stat, Range range) {
+    private LinkData getRpcCallAccepted(LinkData stat, Range range) {
         // rpc client의 목적지가 agent가 설치되어 application name이 존재한다면 replace.
         final Application toApplication = stat.getToApplication();
         if (toApplication.getServiceType().isRpcClient()) {
@@ -156,27 +156,15 @@ public class MapServiceImpl implements MapService, AgentSelector {
             if (app != null) {
                 logger.debug("Application info replaced. {} => {}", stat, app);
                 Application acceptedApplication = new Application(app.getName(), app.getServiceType());
-                LinkStatistics acceptedLisk = new LinkStatistics(stat.getFromApplication(), acceptedApplication, stat.getCallDataMap());
+                LinkData acceptedLisk = new LinkData(stat.getFromApplication(), acceptedApplication, stat.getLinkCallDataMap());
                 return acceptedLisk;
             } else {
                 Application unknown = new Application(toApplication.getName(), ServiceType.UNKNOWN);
-                LinkStatistics unknownLinkStat = new LinkStatistics(stat.getFromApplication(), unknown, stat.getCallDataMap());
+                LinkData unknownLinkStat = new LinkData(stat.getFromApplication(), unknown, stat.getLinkCallDataMap());
                 return unknownLinkStat;
             }
         }
         return stat;
-    }
-
-    public class AcceptedLinkStatistics {
-        private final LinkStatistics linkStatistics;
-
-        public AcceptedLinkStatistics(LinkStatistics linkStatistics) {
-            this.linkStatistics = linkStatistics;
-        }
-
-        public LinkStatistics getLinkStatistics() {
-            return linkStatistics;
-        }
     }
 
 
@@ -197,13 +185,13 @@ public class MapServiceImpl implements MapService, AgentSelector {
         watch.start();
 
         LinkVisitChecker linkVisitChecker = new LinkVisitChecker();
-        LinkStatisticsDataSet caller = selectCaller(sourceApplication, range, linkVisitChecker);
+        LinkDataDuplexMap caller = selectCaller(sourceApplication, range, linkVisitChecker);
         logger.debug("Result of finding caller {}", caller);
 
-        LinkStatisticsDataSet callee = selectCallee(sourceApplication, range, linkVisitChecker);
+        LinkDataDuplexMap callee = selectCallee(sourceApplication, range, linkVisitChecker);
         logger.debug("Result of finding callee {}", callee);
 
-        LinkStatisticsDataSet data = new LinkStatisticsDataSet();
+        LinkDataDuplexMap data = new LinkDataDuplexMap();
         data.addLinkStatisticsDataSet(caller);
         data.addLinkStatisticsDataSet(callee);
 
@@ -228,17 +216,17 @@ public class MapServiceImpl implements MapService, AgentSelector {
             throw new NullPointerException("destinationApplication must not be null");
         }
 
-        List<LinkStatisticsData> list = selectLink(sourceApplication, destinationApplication, range);
+        List<LinkDataMap> list = selectLink(sourceApplication, destinationApplication, range);
         logger.debug("Fetched statistics data={}", list);
 
         MapResponseHistogramSummary responseHistogramSummary = new MapResponseHistogramSummary(range);
-        for (LinkStatisticsData entry : list) {
-            for (LinkStatistics linkStatistics : entry.getLinkStatData()) {
-                CallHistogramList sourceList = linkStatistics.getSourceList();
+        for (LinkDataMap entry : list) {
+            for (LinkData linkData : entry.getLinkStatData()) {
+                CallHistogramList sourceList = linkData.getSourceList();
                 Collection<CallHistogram> callHistogramList = sourceList.getCallHistogramList();
                 for (CallHistogram histogram : callHistogramList) {
                     for (TimeHistogram timeHistogram : histogram.getTimeHistogram()) {
-                        Application toApplication = linkStatistics.getToApplication();
+                        Application toApplication = linkData.getToApplication();
                         if (toApplication.getServiceType().isRpcClient()) {
                             toApplication = new Application(toApplication.getName(), ServiceType.UNKNOWN);
                         }
@@ -253,7 +241,7 @@ public class MapServiceImpl implements MapService, AgentSelector {
         return histogramSummary;
     }
 
-    private List<LinkStatisticsData> selectLink(Application sourceApplication, Application destinationApplication, Range range) {
+    private List<LinkDataMap> selectLink(Application sourceApplication, Application destinationApplication, Range range) {
         if (sourceApplication.getServiceType().isUser()) {
             logger.debug("Find 'client -> any' link statistics");
             // client는 applicatinname + servicetype.client로 기록된다.

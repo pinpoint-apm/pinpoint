@@ -13,11 +13,10 @@ import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.HistogramSlot;
 import com.nhn.pinpoint.web.applicationmap.AgentSelector;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsData;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsDataSet;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.nhn.pinpoint.web.util.TimeWindow;
 import com.nhn.pinpoint.web.util.TimeWindowOneMinuteSampler;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
 import com.nhn.pinpoint.web.dao.*;
 import com.nhn.pinpoint.web.vo.*;
 import org.apache.commons.collections.CollectionUtils;
@@ -197,7 +196,7 @@ public class FilteredMapServiceImpl implements FilteredMapService, AgentSelector
         // Window의 설정은 따로 inject받던지 해야 될듯함.
         final TimeWindow window = new TimeWindow(range, TimeWindowOneMinuteSampler.SAMPLER);
 
-        final LinkStatisticsData linkStatisticsData = new LinkStatisticsData();
+        final LinkDataMap linkDataMap = new LinkDataMap();
         final MapResponseHistogramSummary mapHistogramSummary = new MapResponseHistogramSummary(range);
         /**
          * 통계정보로 변환한다.
@@ -222,16 +221,16 @@ public class FilteredMapServiceImpl implements FilteredMapService, AgentSelector
                 // 통계값의 window의 time으로 전환해야함. 안그러면 slot이 맞지 않아 oom이 발생할수 있음.
                 long timestamp = window.refineTimestamp(span.getCollectorAcceptTime());
 
-                linkStatisticsData.addLinkData(srcApplication, span.getAgentId(), destApplication, destApplication.getName(), timestamp, slotTime, 1);
+                linkDataMap.addLinkData(srcApplication, span.getAgentId(), destApplication, destApplication.getName(), timestamp, slotTime, 1);
 
 
-                addNodeFromSpanEvent(span, window, linkStatisticsData, transactionSpanMap);
+                addNodeFromSpanEvent(span, window, linkDataMap, transactionSpanMap);
             }
         }
 
-        LinkStatisticsDataSet linkStatisticsDataSet = new LinkStatisticsDataSet(linkStatisticsData);
+        LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap(linkDataMap);
         ApplicationMapBuilder applicationMapBuilder = new ApplicationMapBuilder(range);
-        ApplicationMap map = applicationMapBuilder.build(linkStatisticsDataSet, this);
+        ApplicationMap map = applicationMapBuilder.build(linkDataDuplexMap, this);
 
         mapHistogramSummary.build();
         map.appendResponseTime(mapHistogramSummary);
@@ -256,7 +255,7 @@ public class FilteredMapServiceImpl implements FilteredMapService, AgentSelector
     }
 
 
-    private void addNodeFromSpanEvent(SpanBo span, TimeWindow window, LinkStatisticsData linkStatMap, Map<Long, SpanBo> transactionSpanMap) {
+    private void addNodeFromSpanEvent(SpanBo span, TimeWindow window, LinkDataMap linkStatMap, Map<Long, SpanBo> transactionSpanMap) {
         /**
          * span event의 statistics추가.
          */

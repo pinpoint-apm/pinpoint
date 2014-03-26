@@ -4,7 +4,7 @@ import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsData;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.nhn.pinpoint.web.dao.MapStatisticsCallerDao;
 import com.nhn.pinpoint.web.mapper.*;
 import com.nhn.pinpoint.web.vo.Application;
@@ -39,12 +39,12 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 
 	@Autowired
 	@Qualifier("mapStatisticsCallerMapper")
-	private RowMapper<LinkStatisticsData> mapStatisticsCallerMapper;
+	private RowMapper<LinkDataMap> mapStatisticsCallerMapper;
 
 	@Override
-	public LinkStatisticsData selectCaller(Application callerApplication, Range range) {
+	public LinkDataMap selectCaller(Application callerApplication, Range range) {
 		Scan scan = createScan(callerApplication, range);
-		final List<LinkStatisticsData> foundList = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLEE, scan, mapStatisticsCallerMapper);
+		final List<LinkDataMap> foundList = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLEE, scan, mapStatisticsCallerMapper);
 
 		if (foundList.isEmpty()) {
 			logger.debug("There's no caller data. {}, {}", callerApplication, range);
@@ -53,9 +53,9 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
         return merge(foundList);
 	}
 
-    private LinkStatisticsData merge(List<LinkStatisticsData> foundList) {
-        final LinkStatisticsData result = new LinkStatisticsData();
-        for (LinkStatisticsData foundData : foundList) {
+    private LinkDataMap merge(List<LinkDataMap> foundList) {
+        final LinkDataMap result = new LinkDataMap();
+        for (LinkDataMap foundData : foundList) {
             result.addLinkStatisticsData(foundData);
         }
         return result;
@@ -77,14 +77,14 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 	 * </pre>
 	 */
 	@Override
-	public List<LinkStatisticsData> selectCallerStatistics(Application callerApplication, Application calleeApplication, Range range) {
+	public List<LinkDataMap> selectCallerStatistics(Application callerApplication, Application calleeApplication, Range range) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("selectCallerStatistics. {}, {}, {}", callerApplication, calleeApplication, range);
 		}
 		Scan scan = createScan(callerApplication, range);
 
         final LinkFilter filter = new DefaultLinkFilter(callerApplication, calleeApplication);
-        RowMapper<LinkStatisticsData> mapper = new MapStatisticsCallerMapper(filter);
+        RowMapper<LinkDataMap> mapper = new MapStatisticsCallerMapper(filter);
 		return hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLEE, scan, mapper);
 	}
 

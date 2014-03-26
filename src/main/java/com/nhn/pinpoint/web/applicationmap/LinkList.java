@@ -56,13 +56,13 @@ public class LinkList {
             throw new NullPointerException("sourceLink must not be null");
         }
 
-        final LinkKey id = sourceLink.getLinkKey();
-        final Link find = this.linkMap.get(id);
+        final LinkKey linkId = sourceLink.getLinkKey();
+        final Link find = this.linkMap.get(linkId);
         if (find != null) {
             find.addLink(sourceLink);
         } else {
             Link copy = new Link(sourceLink);
-            this.linkMap.put(id, copy);
+            this.linkMap.put(linkId, copy);
         }
     }
 }

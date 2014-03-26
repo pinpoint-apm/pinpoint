@@ -11,30 +11,30 @@ import org.slf4j.LoggerFactory;
  * @author netspider
  * @author emeroad
  */
-public class LinkStatistics {
+public class LinkData {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-
     private final Application fromApplication;
-    private Application toApplication;
+    private final Application toApplication;
 
-    private final RawCallDataMap callDataMap;
+    private final LinkCallDataMap linkCallDataMap;
 
-	public LinkStatistics(Application fromApplication, Application toApplication) {
+	public LinkData(Application fromApplication, Application toApplication) {
         if (fromApplication == null) {
             throw new NullPointerException("fromApplication must not be null");
         }
         if (toApplication == null) {
             throw new NullPointerException("toApplication must not be null");
         }
+
         this.fromApplication = fromApplication;
 		this.toApplication = toApplication;
 
-        this.callDataMap = new RawCallDataMap();
+        this.linkCallDataMap = new LinkCallDataMap();
 	}
 
     // 이건 일부러 복사 생성자로 구현안함.
-    public LinkStatistics(Application fromApplication, Application toApplication, RawCallDataMap callDataMap) {
+    public LinkData(Application fromApplication, Application toApplication, LinkCallDataMap linkCallDataMap) {
         if (fromApplication == null) {
             throw new NullPointerException("fromApplication must not be null");
         }
@@ -44,7 +44,7 @@ public class LinkStatistics {
         this.fromApplication = fromApplication;
         this.toApplication = toApplication;
 
-        this.callDataMap = callDataMap;
+        this.linkCallDataMap = linkCallDataMap;
     }
 
     /**
@@ -59,7 +59,7 @@ public class LinkStatistics {
 		if (hostname == null || hostname.length() == 0) {
 			hostname = "UNKNOWNHOST";
 		}
-        this.callDataMap.addCallData(callerAgentId, callerServiceTypeCode, hostname, serviceTypeCode, timestamp, slot, value);
+        this.linkCallDataMap.addCallData(callerAgentId, callerServiceTypeCode, hostname, serviceTypeCode, timestamp, slot, value);
 	}
 
 
@@ -72,35 +72,35 @@ public class LinkStatistics {
     }
 
 
-    public RawCallDataMap getCallDataMap() {
-        return  this.callDataMap;
+    public LinkCallDataMap getLinkCallDataMap() {
+        return  this.linkCallDataMap;
     }
 
     public CallHistogramList getTargetList() {
-        return callDataMap.getTargetList();
+        return linkCallDataMap.getTargetList();
 	}
 
     public CallHistogramList getSourceList() {
-        return callDataMap.getSourceList();
+        return linkCallDataMap.getSourceList();
     }
 
-	public void add(final LinkStatistics applicationStatistics) {
+	public void add(final LinkData applicationStatistics) {
         if (applicationStatistics == null) {
             throw new NullPointerException("applicationStatistics must not be null");
         }
         if (!this.equals(applicationStatistics)) {
             throw new IllegalArgumentException("Can't merge with different link.");
 		}
-        final RawCallDataMap target = applicationStatistics.callDataMap;
-        this.callDataMap.addCallData(target);
+        final LinkCallDataMap target = applicationStatistics.linkCallDataMap;
+        this.linkCallDataMap.addCallData(target);
 	}
 
     @Override
     public String toString() {
-        return "LinkStatistics{" +
+        return "LinkData{" +
                 "fromApplication=" + fromApplication +
                 ", toApplication=" + toApplication +
-                ", " + callDataMap +
+                ", " + linkCallDataMap +
                 '}';
     }
 
@@ -109,7 +109,7 @@ public class LinkStatistics {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        LinkStatistics that = (LinkStatistics) o;
+        LinkData that = (LinkData) o;
 
         if (!fromApplication.equals(that.fromApplication)) return false;
         if (!toApplication.equals(that.toApplication)) return false;

@@ -7,7 +7,7 @@ import com.nhn.pinpoint.common.buffer.FixedBuffer;
 import com.nhn.pinpoint.common.buffer.OffsetFixedBuffer;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.util.TimeUtils;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsData;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.nhn.pinpoint.web.vo.Application;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
@@ -26,7 +26,7 @@ import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
  * 
  */
 @Component
-public class MapStatisticsCallerMapper implements RowMapper<LinkStatisticsData> {
+public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -44,9 +44,9 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkStatisticsData> 
     }
 
     @Override
-	public LinkStatisticsData mapRow(Result result, int rowNum) throws Exception {
+	public LinkDataMap mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
-            return new LinkStatisticsData();
+            return new LinkDataMap();
         }
         logger.debug("mapRow:{}", rowNum);
 
@@ -55,7 +55,7 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkStatisticsData> 
         final long timestamp = TimeUtils.recoveryTimeMillis(row.readLong());
 
 		// key is destApplicationName.
-        final LinkStatisticsData linkStatisticsData = new LinkStatisticsData();
+        final LinkDataMap linkDataMap = new LinkDataMap();
         for (KeyValue kv :  result.raw()) {
             final byte[] family = kv.getFamily();
             if (Bytes.equals(family, HBaseTables.MAP_STATISTICS_CALLEE_CF_COUNTER)) {
@@ -77,7 +77,7 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkStatisticsData> 
                 }
 
                 final short slotTime = (isError) ? (short) -1 : histogramSlot;
-                linkStatisticsData.addLinkData(caller, caller.getName(), callee, calleeHost, timestamp, slotTime, requestCount);
+                linkDataMap.addLinkData(caller, caller.getName(), callee, calleeHost, timestamp, slotTime, requestCount);
 
 
             } else if (Bytes.equals(family, HBaseTables.MAP_STATISTICS_CALLEE_CF_VER2_COUNTER)) {
@@ -101,14 +101,14 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkStatisticsData> 
                 }
 
                 final short slotTime = (isError) ? (short) -1 : histogramSlot;
-                linkStatisticsData.addLinkData(caller, callerAgentId, callee, calleeHost, timestamp, slotTime, requestCount);
+                linkDataMap.addLinkData(caller, callerAgentId, callee, calleeHost, timestamp, slotTime, requestCount);
             } else {
                 throw new IllegalArgumentException("unknown ColumnFamily :" + Arrays.toString(family));
             }
 
 		}
 
-        return linkStatisticsData;
+        return linkDataMap;
 	}
 
     private long getValueToLong(KeyValue kv) {

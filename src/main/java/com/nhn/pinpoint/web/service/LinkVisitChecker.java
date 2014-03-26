@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.web.service;
 
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
 import com.nhn.pinpoint.web.vo.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +25,7 @@ public class LinkVisitChecker {
             if (found) {
                 logger.debug("Finding Caller. caller={}", caller);
             } else {
-                logger.debug("LinkStatistics exists. Skip finding caller. {} ", caller);
+                logger.debug("LinkData exists. Skip finding caller. {} ", caller);
             }
         }
         return found;
@@ -41,7 +40,7 @@ public class LinkVisitChecker {
             if (found) {
                 logger.debug("Finding Callee. callee={}", callee);
             } else {
-                logger.debug("LinkStatistics exists. Skip finding callee. {} ", callee);
+                logger.debug("LinkData exists. Skip finding callee. {} ", callee);
             }
         }
         return found;

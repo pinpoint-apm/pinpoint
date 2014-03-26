@@ -4,8 +4,8 @@ import java.util.*;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsDataSet;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkData;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.nhn.pinpoint.web.dao.MapResponseDao;
 import com.nhn.pinpoint.web.vo.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -64,14 +64,14 @@ public class ApplicationMap {
         return nodeList.containsNode(applicationName);
     }
 
-    public void appendAgentInfo(LinkStatisticsDataSet linkStatisticsData, AgentSelector agentSelector) {
+    public void appendAgentInfo(LinkDataDuplexMap linkStatisticsData, AgentSelector agentSelector) {
         for (Node node : nodeList.getNodeList()) {
             appendServerInfo(node, linkStatisticsData, agentSelector);
         }
 
     }
 
-    private void appendServerInfo(Node node, LinkStatisticsDataSet stat, AgentSelector agentSelector) {
+    private void appendServerInfo(Node node, LinkDataDuplexMap stat, AgentSelector agentSelector) {
         final ServiceType nodeServiceType = node.getServiceType();
         if (nodeServiceType.isUnknown()) {
             // unknown노드는 무엇이 설치되어있는지 알수가 없음.
@@ -81,11 +81,11 @@ public class ApplicationMap {
         if (nodeServiceType.isTerminal()) {
             // terminal노드에 설치되어 있는 정보를 유추한다.
             ServerBuilder builder = new ServerBuilder();
-            Collection<LinkStatistics> sourceLinkStatData = stat.getSourceLinkStatData();
-            for (LinkStatistics linkStatistics : sourceLinkStatData) {
-                Application toApplication = linkStatistics.getToApplication();
+            Collection<LinkData> sourceLinkStatData = stat.getSourceLinkStatData();
+            for (LinkData linkData : sourceLinkStatData) {
+                Application toApplication = linkData.getToApplication();
                 if (node.getApplication().equals(toApplication)) {
-                    builder.addCallHistogramList(linkStatistics.getTargetList());
+                    builder.addCallHistogramList(linkData.getTargetList());
                 }
             }
             ServerInstanceList serverInstanceList = builder.build();

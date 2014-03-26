@@ -27,47 +27,30 @@ public class Link {
 
     public static final String LINK_DELIMITER = "~";
 
-    private final LinkKey linkKey;
-
     private final Node fromNode;
     private final Node toNode;
+
     private final Range range;
 
-    private static final LinkStateResolver linkStateResolver = new LinkStateResolver();
+    private final LinkStateResolver linkStateResolver = LinkStateResolver.DEFAULT_LINK_STATERE_SOLVER;
 
-    private final RawCallDataMap source;
+    private final LinkCallDataMap source;
 
-    private final RawCallDataMap target;
+    private final LinkCallDataMap target;
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
 
-    public Link(Node from, Node to, Range range, RawCallDataMap source, RawCallDataMap target) {
-        this(createLinkKey(from, to), from, to, range, source, target);
 
-    }
-
-    private static LinkKey createLinkKey(Node from, Node to) {
-        if (from == null) {
-            throw new NullPointerException("fromNode must not be null");
-        }
-        if (to == null) {
-            throw new NullPointerException("toNode must not be null");
-        }
-        final Application fromApplication = from.getApplication();
-        final Application toApplication = to.getApplication();
-        return new LinkKey(fromApplication, toApplication);
-    }
-
-    Link(LinkKey linkKey, Node fromNode, Node toNode, Range range, RawCallDataMap source, RawCallDataMap target) {
+    public Link(Node fromNode, Node toNode, Range range, LinkCallDataMap source, LinkCallDataMap target) {
         if (fromNode == null) {
             throw new NullPointerException("fromNode must not be null");
         }
         if (toNode == null) {
             throw new NullPointerException("toNode must not be null");
         }
-        if (linkKey == null) {
-            throw new NullPointerException("linkKey must not be null");
+        if (range == null) {
+            throw new NullPointerException("range must not be null");
         }
         if (source == null) {
             throw new NullPointerException("source must not be null");
@@ -76,28 +59,26 @@ public class Link {
             throw new NullPointerException("target must not be null");
         }
 
-        this.linkKey = linkKey;
         this.fromNode = fromNode;
         this.toNode = toNode;
 
         this.range = range;
 
-        this.source = new RawCallDataMap(source);
-        this.target = new RawCallDataMap(target);
+        this.source = new LinkCallDataMap(source);
+        this.target = new LinkCallDataMap(target);
     }
 
     public Link(Link copyLink) {
         if (copyLink == null) {
             throw new NullPointerException("copyLink must not be null");
         }
-        this.linkKey = copyLink.linkKey;
         this.fromNode = copyLink.fromNode;
         this.toNode = copyLink.toNode;
 
         this.range = copyLink.range;
 
-        this.source = new RawCallDataMap(copyLink.source);
-        this.target = new RawCallDataMap(copyLink.target);
+        this.source = new LinkCallDataMap(copyLink.source);
+        this.target = new LinkCallDataMap(copyLink.target);
     }
 
     public Application getFilterApplication() {
@@ -111,7 +92,7 @@ public class Link {
 
 
 	public LinkKey getLinkKey() {
-		return linkKey;
+		return new LinkKey(fromNode.getApplication(), toNode.getApplication());
 	}
 
 	public Node getFrom() {
@@ -202,34 +183,31 @@ public class Link {
         this.target.addCallData(link.target);
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((linkKey == null) ? 0 : linkKey.hashCode());
-		return result;
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Link other = (Link) obj;
-		if (linkKey == null) {
-			if (other.linkKey != null)
-				return false;
-		} else if (!linkKey.equals(other.linkKey))
-			return false;
-		return true;
-	}
+        Link link = (Link) o;
 
-	@Override
-	public String toString() {
-		return "Link [linkKey=" + linkKey + ", fromNode=" + fromNode + ", toNode=" + toNode + ", source=" + source + "]";
-	}
+        if (!fromNode.equals(link.fromNode)) return false;
+        if (!toNode.equals(link.toNode)) return false;
 
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = fromNode.hashCode();
+        result = 31 * result + toNode.hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Link{" +
+                "toNode=" + toNode +
+                ", fromNode=" + fromNode +
+                '}';
+    }
 }

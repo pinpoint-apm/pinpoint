@@ -3,7 +3,7 @@ package com.nhn.pinpoint.web.mapper;
 import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.buffer.FixedBuffer;
 import com.nhn.pinpoint.common.util.TimeUtils;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsData;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.nhn.pinpoint.web.vo.Application;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
@@ -21,7 +21,7 @@ import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
  * 
  */
 @Component
-public class MapStatisticsCalleeMapper implements RowMapper<LinkStatisticsData> {
+public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -39,9 +39,9 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkStatisticsData> 
     }
 
     @Override
-	public LinkStatisticsData mapRow(Result result, int rowNum) throws Exception {
+	public LinkDataMap mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
-            return new LinkStatisticsData();
+            return new LinkDataMap();
         }
         logger.debug("mapRow:{}", rowNum);
 
@@ -50,7 +50,7 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkStatisticsData> 
         final long timestamp = TimeUtils.recoveryTimeMillis(row.readLong());
 
 
-        final LinkStatisticsData linkStatisticsData = new LinkStatisticsData();
+        final LinkDataMap linkDataMap = new LinkDataMap();
 		for (KeyValue kv : result.raw()) {
 
             final byte[] qualifier = kv.getQualifier();
@@ -71,14 +71,14 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkStatisticsData> 
 
 
             final short slotTime = (isError) ? (short) -1 : histogramSlot;
-            linkStatisticsData.addLinkData(callerApplication, callerApplication.getName(), calleeApplication, callerHost, timestamp, slotTime, requestCount);
+            linkDataMap.addLinkData(callerApplication, callerApplication.getName(), calleeApplication, callerHost, timestamp, slotTime, requestCount);
 
             if (logger.isDebugEnabled()) {
-                logger.debug("    Fetched Callee. statistics:{}", linkStatisticsData);
+                logger.debug("    Fetched Callee. statistics:{}", linkDataMap);
             }
 		}
 
-        return linkStatisticsData;
+        return linkDataMap;
 	}
 
     private Application readCallerApplication(byte[] qualifier) {

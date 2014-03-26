@@ -7,7 +7,7 @@ import com.nhn.pinpoint.web.applicationmap.Link;
 import com.nhn.pinpoint.web.applicationmap.Node;
 import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogram;
 import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogramList;
-import com.nhn.pinpoint.web.applicationmap.rawdata.RawCallDataMap;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
 import org.junit.Test;
@@ -30,8 +30,8 @@ public class LinkSerializerTest {
         list.addCallHistogram(histogram);
         Node node1 = new Node(new Application("test1", ServiceType.TOMCAT));
         Node node2 = new Node(new Application("test1", ServiceType.TOMCAT));
-        RawCallDataMap rawCallDataMap = new RawCallDataMap();
-        Link link = new Link(node1, node2, new Range(0, 1), rawCallDataMap, new RawCallDataMap());
+        LinkCallDataMap linkCallDataMap = new LinkCallDataMap();
+        Link link = new Link(node1, node2, new Range(0, 1), linkCallDataMap, new LinkCallDataMap());
         ObjectWriter objectWriter = MAPPER.writerWithDefaultPrettyPrinter();
         String s = objectWriter.writeValueAsString(link);
 

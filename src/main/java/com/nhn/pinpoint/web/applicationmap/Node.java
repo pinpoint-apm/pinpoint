@@ -39,8 +39,6 @@ public class Node {
         if (application == null) {
             throw new NullPointerException("application must not be null");
         }
-
-        logger.debug("create node application={}", application);
         this.application = application;
     }
 

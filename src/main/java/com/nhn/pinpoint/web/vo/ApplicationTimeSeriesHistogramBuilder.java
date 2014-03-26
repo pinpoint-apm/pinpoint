@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.web.vo;
 
 import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
-import com.nhn.pinpoint.web.applicationmap.rawdata.RawCallData;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkCallData;
 import com.nhn.pinpoint.web.applicationmap.rawdata.TimeHistogram;
 import com.nhn.pinpoint.web.util.TimeWindow;
 import com.nhn.pinpoint.web.util.TimeWindowOneMinuteSampler;
@@ -65,10 +65,10 @@ public class ApplicationTimeSeriesHistogramBuilder {
         return applicationTimeSeriesHistogram;
     }
 
-    public ApplicationTimeSeriesHistogram build(Collection<RawCallData> rawCallDataMapList) {
+    public ApplicationTimeSeriesHistogram build(Collection<LinkCallData> linkCallDataMapList) {
         Map<Long, TimeHistogram> applicationLevelHistogram = new HashMap<Long, TimeHistogram>();
-        for (RawCallData rawCallData : rawCallDataMapList) {
-            for (TimeHistogram timeHistogram : rawCallData.getTimeHistogram()) {
+        for (LinkCallData linkCallData : linkCallDataMapList) {
+            for (TimeHistogram timeHistogram : linkCallData.getTimeHistogram()) {
                 Long timeStamp = timeHistogram.getTimeStamp();
                 TimeHistogram histogram = applicationLevelHistogram.get(timeStamp);
                 if (histogram == null) {
