@@ -23,7 +23,7 @@ public class NodeSerializer extends JsonSerializer<Node>  {
         jgen.writeStringField("id", node.getNodeName());
         jgen.writeStringField("key", node.getNodeName());
 
-        jgen.writeStringField("text", node.getApplicationName());
+        jgen.writeStringField("text", node.getApplicationTextName());
 
         jgen.writeStringField("category", node.getServiceType().toString());
 

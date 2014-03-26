@@ -19,7 +19,7 @@ public class LinkStatisticsData {
 
     public void addLinkData(Application srcApplication, String srcAgentId, Application destApplication, String destAgentId, long timestamp, short slotTime, long value) {
         final LinkStatistics linkStat = getLinkStatistics(srcApplication, destApplication);
-        linkStat.addCallData(srcAgentId, srcApplication.getServiceTypeCode(), destAgentId, destApplication.getServiceTypeCode(), timestamp, slotTime, value);
+        linkStat.addLinkData(srcAgentId, srcApplication.getServiceTypeCode(), destAgentId, destApplication.getServiceTypeCode(), timestamp, slotTime, value);
     }
 
     public Map<Application, Set<AgentInfoBo>> getAgentMap() {

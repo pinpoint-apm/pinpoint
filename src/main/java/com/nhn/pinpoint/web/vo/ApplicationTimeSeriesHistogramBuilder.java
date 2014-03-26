@@ -75,7 +75,7 @@ public class ApplicationTimeSeriesHistogramBuilder {
                     histogram = new TimeHistogram(timeHistogram.getServiceType(), timeStamp);
                     applicationLevelHistogram.put(timeStamp, histogram);
                 }
-                histogram.add(timeHistogram);
+                histogram.addUncheckType(timeHistogram);
             }
         }
 

@@ -35,13 +35,15 @@ public class Link {
 
     private static final LinkStateResolver linkStateResolver = new LinkStateResolver();
 
-    private final RawCallDataMap rawCallDataMap;
+    private final RawCallDataMap source;
+
+    private final RawCallDataMap target;
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
 
-    public Link(Node from, Node to, Range range, RawCallDataMap rawCallDataMap) {
-        this(createLinkKey(from, to), from, to, range, rawCallDataMap);
+    public Link(Node from, Node to, Range range, RawCallDataMap source, RawCallDataMap target) {
+        this(createLinkKey(from, to), from, to, range, source, target);
 
     }
 
@@ -57,7 +59,7 @@ public class Link {
         return new LinkKey(fromApplication, toApplication);
     }
 
-    Link(LinkKey linkKey, Node fromNode, Node toNode, Range range, RawCallDataMap rawCallDataMap) {
+    Link(LinkKey linkKey, Node fromNode, Node toNode, Range range, RawCallDataMap source, RawCallDataMap target) {
         if (fromNode == null) {
             throw new NullPointerException("fromNode must not be null");
         }
@@ -67,8 +69,11 @@ public class Link {
         if (linkKey == null) {
             throw new NullPointerException("linkKey must not be null");
         }
-        if (rawCallDataMap == null) {
-            throw new NullPointerException("rawCallDataMap must not be null");
+        if (source == null) {
+            throw new NullPointerException("source must not be null");
+        }
+        if (target == null) {
+            throw new NullPointerException("target must not be null");
         }
 
         this.linkKey = linkKey;
@@ -76,7 +81,9 @@ public class Link {
         this.toNode = toNode;
 
         this.range = range;
-        this.rawCallDataMap = new RawCallDataMap(rawCallDataMap);
+
+        this.source = new RawCallDataMap(source);
+        this.target = new RawCallDataMap(target);
     }
 
     public Link(Link copyLink) {
@@ -86,14 +93,17 @@ public class Link {
         this.linkKey = copyLink.linkKey;
         this.fromNode = copyLink.fromNode;
         this.toNode = copyLink.toNode;
-        this.rawCallDataMap = new RawCallDataMap(copyLink.rawCallDataMap);
+
         this.range = copyLink.range;
+
+        this.source = new RawCallDataMap(copyLink.source);
+        this.target = new RawCallDataMap(copyLink.target);
     }
 
     public Application getFilterApplication() {
         // User 링크일 경우 from을 보면 안되고 was를 봐야 한다.
         // User는 가상의 링크이기 때문에, User로 필터링을 칠수 없음.
-        if(fromNode.getServiceType() == ServiceType.USER) {
+        if (fromNode.getServiceType() == ServiceType.USER) {
             return toNode.getApplication();
         }
         return fromNode.getApplication();
@@ -126,7 +136,7 @@ public class Link {
     }
 
 	public CallHistogramList getTargetList() {
-		return rawCallDataMap.getTargetList();
+		return source.getTargetList();
 	}
 
 
@@ -134,21 +144,31 @@ public class Link {
         // 내가 호출하는 대상의 serviceType을 가져와야 한다.
         // tomcat -> arcus를 호출한다고 하였을 경우 arcus의 타입을 가져와야함.
         final Histogram linkHistogram = new Histogram(toNode.getServiceType());
-        for (CallHistogram callHistogram : rawCallDataMap.getTargetList().getCallHistogramList()) {
+        for (CallHistogram callHistogram : source.getTargetList().getCallHistogramList()) {
             linkHistogram.addUncheckType(callHistogram.getHistogram());
         }
 		return linkHistogram;
 	}
 
+    public Histogram getTargetHistogram() {
+        // 내가 호출하는 대상의 serviceType을 가져와야 한다.
+        // tomcat -> arcus를 호출한다고 하였을 경우 arcus의 타입을 가져와야함.
+        final Histogram linkHistogram = new Histogram(toNode.getServiceType());
+        for (CallHistogram callHistogram : target.getTargetList().getCallHistogramList()) {
+            linkHistogram.addUncheckType(callHistogram.getHistogram());
+        }
+        return linkHistogram;
+    }
+
     @JsonIgnore
     public CallHistogramList getSourceList() {
-        return rawCallDataMap.getSourceList();
+        return source.getSourceList();
     }
 
     public List<ResponseTimeViewModel> getSourceApplicationTimeSeriesHistogram() {
         // form인것 같지만 link의 시간은 rpc를 기준으로 삼아야 하기 때문에. to를 기준으로 삼아야 한다.
         ApplicationTimeSeriesHistogramBuilder builder = new ApplicationTimeSeriesHistogramBuilder(toNode.getApplication(), range);
-        ApplicationTimeSeriesHistogram applicationTimeSeriesHistogram = builder.build(rawCallDataMap.getRawCallDataMap());
+        ApplicationTimeSeriesHistogram applicationTimeSeriesHistogram = builder.build(source.getRawCallDataMap());
         List<ResponseTimeViewModel> viewModel = applicationTimeSeriesHistogram.createViewModel();
         return viewModel;
     }
@@ -157,7 +177,7 @@ public class Link {
 
         // form인것 같지만 link의 시간은 rpc를 기준으로 삼아야 하기 때문에. to를 기준으로 삼아야 한다.
         AgentTimeSeriesHistogramBuilder builder = new AgentTimeSeriesHistogramBuilder(toNode.getApplication(), range);
-        AgentTimeSeriesHistogram applicationTimeSeriesHistogram = builder.build(rawCallDataMap.getRawCallDataMap());
+        AgentTimeSeriesHistogram applicationTimeSeriesHistogram = builder.build(source.getRawCallDataMap());
         AgentResponseTimeViewModelList agentResponseTimeViewModelList = new AgentResponseTimeViewModelList(applicationTimeSeriesHistogram.createViewModel());
         return agentResponseTimeViewModelList;
     }
@@ -173,12 +193,13 @@ public class Link {
             throw new NullPointerException("link must not be null");
         }
         // TODO this.equals로 바꿔도 되지 않을까?
-		if (this.fromNode.equals(link.getFrom()) && this.toNode.equals(link.getTo())) {
+		if (!(this.fromNode.equals(link.getFrom()) && this.toNode.equals(link.getTo()))) {
             logger.info("fromNode:{}, to:{}, fromNode:{}, linkTo:{}", fromNode, toNode, link.getFrom(), link.getTo());
             throw new IllegalArgumentException("Can't merge.");
         }
-        RawCallDataMap copyRawCallDataMap= link.rawCallDataMap;
-        this.rawCallDataMap.addCallData(copyRawCallDataMap);
+        this.source.addCallData(link.source);
+
+        this.target.addCallData(link.target);
 	}
 
 	@Override
@@ -208,7 +229,7 @@ public class Link {
 
 	@Override
 	public String toString() {
-		return "Link [linkKey=" + linkKey + ", fromNode=" + fromNode + ", toNode=" + toNode + ", rawCallDataMap=" + rawCallDataMap + "]";
+		return "Link [linkKey=" + linkKey + ", fromNode=" + fromNode + ", toNode=" + toNode + ", source=" + source + "]";
 	}
 
 }

@@ -31,7 +31,7 @@ public class LinkSerializerTest {
         Node node1 = new Node(new Application("test1", ServiceType.TOMCAT), list);
         Node node2 = new Node(new Application("test1", ServiceType.TOMCAT), list);
         RawCallDataMap rawCallDataMap = new RawCallDataMap();
-        Link link = new Link(node1, node2, new Range(0, 1), rawCallDataMap);
+        Link link = new Link(node1, node2, new Range(0, 1), rawCallDataMap, new RawCallDataMap());
         ObjectWriter objectWriter = MAPPER.writerWithDefaultPrettyPrinter();
         String s = objectWriter.writeValueAsString(link);
 

@@ -3,7 +3,6 @@ package com.nhn.pinpoint.web.applicationmap.rawdata;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.web.vo.Application;
 import org.slf4j.Logger;
@@ -64,7 +63,7 @@ public class LinkStatistics {
 	 * @param slot
 	 * @param value
 	 */
-	public void addCallData(String callerAgentId, short callerServiceTypeCode, String hostname, short serviceTypeCode, long timestamp, short slot, long value) {
+	public void addLinkData(String callerAgentId, short callerServiceTypeCode, String hostname, short serviceTypeCode, long timestamp, short slot, long value) {
 		// TODO 임시코드
 		if (hostname == null || hostname.length() == 0) {
 			hostname = "UNKNOWNHOST";

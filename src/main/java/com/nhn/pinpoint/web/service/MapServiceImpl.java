@@ -66,10 +66,10 @@ public class MapServiceImpl implements MapService {
      * @param linkVisitChecker
      * @return
      */
-    private LinkStatisticsData selectCaller(Application callerApplication, Range range, LinkVisitChecker linkVisitChecker) {
+    private LinkStatisticsDataSet selectCaller(Application callerApplication, Range range, LinkVisitChecker linkVisitChecker) {
         // 이미 조회된 구간이면 skip
         if (linkVisitChecker.visitCaller(callerApplication)) {
-            return new LinkStatisticsData();
+            return new LinkStatisticsDataSet();
         }
 
         LinkStatisticsData caller = mapStatisticsCallerDao.selectCaller(callerApplication, range);
@@ -77,15 +77,16 @@ public class MapServiceImpl implements MapService {
             logger.debug("Found Caller. count={}, caller={}", caller.size(), callerApplication);
         }
 
-        final LinkStatisticsData resultCaller = new LinkStatisticsData();
+        final LinkStatisticsDataSet resultCaller = new LinkStatisticsDataSet();
         for (LinkStatistics link : caller.getLinkStatData()) {
             final AcceptedLinkStatistics isAccepted = getRpcCallAccepted(link, range);
             link = isAccepted.getLinkStatistics();
             // replaced된 녀석은 CLIENT이기 때문에 callee검색용도로만 사용하고 map에 추가하지 않는다.
             if (!isAccepted.isAccepted()) {
                 fillAdditionalInfo(link, range);
-                resultCaller.addLinkStatistics(link);
+//                resultCaller.addSourceLinkStatistics(link);
             }
+            resultCaller.addSourceLinkStatistics(link);
 
             final Application toApplication = link.getToApplication();
             // terminal, unknowncloud 인 경우에는 skip
@@ -94,17 +95,17 @@ public class MapServiceImpl implements MapService {
             }
 
             logger.debug("     Find subCaller of {}", toApplication);
-            LinkStatisticsData callerSub = selectCaller(toApplication, range, linkVisitChecker);
+            LinkStatisticsDataSet callerSub = selectCaller(toApplication, range, linkVisitChecker);
             logger.debug("     Found subCaller. count={}, caller={}", callerSub.size(), toApplication);
 
-            resultCaller.addLinkStatisticsData(callerSub);
+            resultCaller.addLinkStatisticsDataSet(callerSub);
 
             // 찾아진 녀석들에 대한 caller도 찾는다.
-            for (LinkStatistics eachCaller : callerSub.getLinkStatData()) {
+            for (LinkStatistics eachCaller : callerSub.getSourceLinkStatData()) {
                 logger.debug("     Find callee of {}", eachCaller.getFromApplication());
-                LinkStatisticsData calleeSub = selectCallee(eachCaller.getFromApplication(), range, linkVisitChecker);
+                LinkStatisticsDataSet calleeSub = selectCallee(eachCaller.getFromApplication(), range, linkVisitChecker);
                 logger.debug("     Found subCallee. count={}, callee={}", calleeSub.size(), eachCaller.getFromApplication());
-                resultCaller.addLinkStatisticsData(calleeSub);
+                resultCaller.addLinkStatisticsDataSet(calleeSub);
             }
         }
 
@@ -118,33 +119,33 @@ public class MapServiceImpl implements MapService {
      * @param range
      * @return
      */
-    private LinkStatisticsData selectCallee(Application calleeApplication, Range range, LinkVisitChecker linkVisitChecker) {
+    private LinkStatisticsDataSet selectCallee(Application calleeApplication, Range range, LinkVisitChecker linkVisitChecker) {
         // 이미 조회된 구간이면 skip
         if (linkVisitChecker.visitCallee(calleeApplication)) {
-            return new LinkStatisticsData();
+            return new LinkStatisticsDataSet();
         }
 
         final LinkStatisticsData callee = mapStatisticsCalleeDao.selectCallee(calleeApplication, range);
         logger.debug("Found Callee. count={}, callee={}", callee.size(), calleeApplication);
 
-        final LinkStatisticsData calleeSet = new LinkStatisticsData();
+        final LinkStatisticsDataSet calleeSet = new LinkStatisticsDataSet();
         for (LinkStatistics stat : callee.getLinkStatData()) {
             fillAdditionalInfo(stat, range);
-            calleeSet.addLinkStatistics(stat);
+            calleeSet.addTargetLinkStatistics(stat);
 
             // 나를 부른 application을 찾아야 하기 떄문에 to를 입력.
-            LinkStatisticsData calleeSub = selectCallee(stat.getFromApplication(), range, linkVisitChecker);
-            calleeSet.addLinkStatisticsData(calleeSub);
+            LinkStatisticsDataSet calleeSub = selectCallee(stat.getFromApplication(), range, linkVisitChecker);
+            calleeSet.addLinkStatisticsDataSet(calleeSub);
 
             // 찾아진 녀석들에 대한 callee도 찾는다.
-            for (LinkStatistics eachCallee : calleeSub.getLinkStatData()) {
+            for (LinkStatistics eachCallee : calleeSub.getTargetLinkStatData()) {
                 // terminal이면 skip
                 final Application eachCalleeToApplication = eachCallee.getToApplication();
                 if (eachCalleeToApplication.getServiceType().isTerminal() || eachCalleeToApplication.getServiceType().isUnknown()) {
                     continue;
                 }
-                LinkStatisticsData callerSub = selectCaller(eachCalleeToApplication, range, linkVisitChecker);
-                calleeSet.addLinkStatisticsData(callerSub);
+                LinkStatisticsDataSet callerSub = selectCaller(eachCalleeToApplication, range, linkVisitChecker);
+                calleeSet.addLinkStatisticsDataSet(callerSub);
             }
         }
 
@@ -223,15 +224,15 @@ public class MapServiceImpl implements MapService {
         watch.start();
 
         LinkVisitChecker linkVisitChecker = new LinkVisitChecker();
-        LinkStatisticsData caller = selectCaller(sourceApplication, range, linkVisitChecker);
+        LinkStatisticsDataSet caller = selectCaller(sourceApplication, range, linkVisitChecker);
         logger.debug("Result of finding caller {}", caller);
 
-        LinkStatisticsData callee = selectCallee(sourceApplication, range, linkVisitChecker);
+        LinkStatisticsDataSet callee = selectCallee(sourceApplication, range, linkVisitChecker);
         logger.debug("Result of finding callee {}", callee);
 
-        LinkStatisticsData data = new LinkStatisticsData();
-        data.addLinkStatisticsData(caller);
-        data.addLinkStatisticsData(callee);
+        LinkStatisticsDataSet data = new LinkStatisticsDataSet();
+        data.addLinkStatisticsDataSet(caller);
+        data.addLinkStatisticsDataSet(callee);
 
         ApplicationMapBuilder builder = new ApplicationMapBuilder(range);
         ApplicationMap map = builder.build(data);

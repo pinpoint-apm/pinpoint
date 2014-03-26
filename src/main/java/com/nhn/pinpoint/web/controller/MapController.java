@@ -126,7 +126,7 @@ public class MapController {
 
         Histogram applicationHistogram = responseHistogramSummary.getApplicationHistogram();
 		model.addAttribute("linkStatistics", applicationHistogram);
-//		model.addAttribute("histogramSummary", loadFactor.getHistogramSummary().entrySet().iterator());
+
         List<ResponseTimeViewModel> applicationTimeSeriesHistogram = responseHistogramSummary.getApplicationTimeSeriesHistogram();
         String applicationTimeSeriesHistogramJson = null;
         try {

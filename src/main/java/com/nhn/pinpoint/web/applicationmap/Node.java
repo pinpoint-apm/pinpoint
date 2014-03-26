@@ -69,7 +69,7 @@ public class Node {
 
     }
 
-    private String getApplicationName(Application application) {
+    public String getApplicationTextName() {
         if (application.getServiceType().isUser()) {
             return "USER";
         } else {
@@ -98,7 +98,7 @@ public class Node {
     public String getJson() {
         StringBuilder sb = new StringBuilder();
         sb.append("{ ");
-        sb.append("\"applicationName\" : \"").append(application.getName()).append("\",");
+        sb.append("\"applicationName\" : \"").append(getApplicationTextName()).append("\",");
         sb.append("\"serviceType\" : \"").append(application.getServiceType()).append("\",");
         sb.append("\"serviceTypeCode\" : \"").append(application.getServiceTypeCode()).append("\"");
         sb.append(" }");
@@ -117,9 +117,6 @@ public class Node {
 		return application.getName() + NODE_DELIMITER + application.getServiceType();
 	}
 
-	public String getApplicationName() {
-		return getApplicationName(application);
-	}
 
 	public void add(Node node) {
         if (node == null) {

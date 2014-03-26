@@ -59,7 +59,7 @@ public class ApplicationMap {
 
 	void addNodeName(Node node) {
 		if (!node.getServiceType().isRpcClient()) {
-			applicationNames.add(node.getApplicationName());
+			applicationNames.add(node.getApplication().getName());
 		}
 
 	}
@@ -112,18 +112,18 @@ public class ApplicationMap {
         for (Node node : nodes) {
             if (node.getServiceType().isWas()) {
                 // was일 경우 자신의 response 히스토그램을 조회하여 채운다.
-                final Application application = new Application(node.getApplicationName(), node.getServiceType());
+                final Application application = new Application(node.getApplication().getName(), node.getServiceType());
                 ResponseHistogramSummary nodeHistogramSummary = responseDataSource.getResponseHistogramSummary(application);
                 node.setResponseHistogramSummary(nodeHistogramSummary);
             } else if(node.getServiceType().isTerminal() || node.getServiceType().isUnknown()) {
                 // 터미널 노드인경우, 자신을 가리키는 link값을 합하여 histogram을 생성한다.
-                Application nodeApplication = new Application(node.getApplicationName(), node.getServiceType());
+                Application nodeApplication = new Application(node.getApplication().getName(), node.getServiceType());
                 final ResponseHistogramSummary nodeHistogramSummary = new ResponseHistogramSummary(nodeApplication, range);
 
                 Collection<Link> linkList = this.linkList.getLinks();
                 for (Link link : linkList) {
                     Node toNode = link.getTo();
-                    String applicationName = toNode.getApplicationName();
+                    String applicationName = toNode.getApplication().getName();
                     ServiceType serviceType = toNode.getServiceType();
                     Application destination = new Application(applicationName, serviceType);
                     // destnation이 자신을 가리킨다면 데이터를 머지함.
@@ -136,26 +136,26 @@ public class ApplicationMap {
                 node.setResponseHistogramSummary(nodeHistogramSummary);
             } else if(node.getServiceType().isUser()) {
                 // User노드인 경우 source 링크를 찾아 histogram을 생성한다.
-                Application nodeApplication = new Application(node.getApplicationName(), node.getServiceType());
+                Application nodeApplication = new Application(node.getApplication().getName(), node.getServiceType());
                 final ResponseHistogramSummary nodeHistogramSummary = new ResponseHistogramSummary(nodeApplication, range);
 
                 Collection<Link> linkList = this.linkList.getLinks();
                 for (Link link : linkList) {
                     Node fromNode = link.getFrom();
-                    String applicationName = fromNode.getApplicationName();
+                    String applicationName = fromNode.getApplication().getName();
                     ServiceType serviceType = fromNode.getServiceType();
                     Application source = new Application(applicationName, serviceType);
                     // destnation이 자신을 가리킨다면 데이터를 머지함.
                     if (nodeApplication.equals(source)) {
-                        Histogram linkHistogram = link.getHistogram();
-//                        summary.addApplicationLevelHistogram(linkHistogram);
+                        logger.debug("nodeApplication:{}, source:{}", nodeApplication, source);
+                        Histogram linkHistogram = link.getTargetHistogram();
                         nodeHistogramSummary.addLinkHistogram(linkHistogram);
                     }
                 }
                 node.setResponseHistogramSummary(nodeHistogramSummary);
             } else {
                 // 그냥 데미 데이터
-                Application nodeApplication = new Application(node.getApplicationName(), node.getServiceType());
+                Application nodeApplication = new Application(node.getApplication().getName(), node.getServiceType());
                 ResponseHistogramSummary dummy = new ResponseHistogramSummary(nodeApplication, range);
                 node.setResponseHistogramSummary(dummy);
             }

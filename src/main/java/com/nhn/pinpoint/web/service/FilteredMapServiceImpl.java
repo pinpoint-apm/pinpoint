@@ -13,6 +13,7 @@ import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.HistogramSlot;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsData;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsDataSet;
 import com.nhn.pinpoint.web.util.TimeWindow;
 import com.nhn.pinpoint.web.util.TimeWindowOneMinuteSampler;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
@@ -231,9 +232,9 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         for (LinkStatistics stat : linkStatisticsData.getLinkStatData()) {
             fillAdditionalInfo(stat);
         }
-
+        LinkStatisticsDataSet linkStatisticsDataSet = new LinkStatisticsDataSet(linkStatisticsData);
         ApplicationMapBuilder applicationMapBuilder = new ApplicationMapBuilder(range);
-        ApplicationMap map = applicationMapBuilder.build(linkStatisticsData);
+        ApplicationMap map = applicationMapBuilder.build(linkStatisticsDataSet);
 
         mapHistogramSummary.build();
         map.appendResponseTime(mapHistogramSummary);
