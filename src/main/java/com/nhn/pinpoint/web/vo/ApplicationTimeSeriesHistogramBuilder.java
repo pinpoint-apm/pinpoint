@@ -72,10 +72,10 @@ public class ApplicationTimeSeriesHistogramBuilder {
                 Long timeStamp = timeHistogram.getTimeStamp();
                 TimeHistogram histogram = applicationLevelHistogram.get(timeStamp);
                 if (histogram == null) {
-                    histogram = new TimeHistogram(timeHistogram.getServiceType(), timeStamp);
+                    histogram = new TimeHistogram(timeHistogram.getHistogramSchema(), timeStamp);
                     applicationLevelHistogram.put(timeStamp, histogram);
                 }
-                histogram.addUncheckType(timeHistogram);
+                histogram.add(timeHistogram);
             }
         }
 
@@ -107,7 +107,7 @@ public class ApplicationTimeSeriesHistogramBuilder {
                 windowHistogram = new TimeHistogram(application.getServiceType(), time);
                 resultMap.put(time, windowHistogram);
             }
-            windowHistogram.addUncheckType(timeHistogram);
+            windowHistogram.add(timeHistogram);
         }
 
 

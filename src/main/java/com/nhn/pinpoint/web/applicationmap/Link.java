@@ -145,7 +145,7 @@ public class Link {
         // tomcat -> arcus를 호출한다고 하였을 경우 arcus의 타입을 가져와야함.
         final Histogram linkHistogram = new Histogram(toNode.getServiceType());
         for (CallHistogram callHistogram : source.getTargetList().getCallHistogramList()) {
-            linkHistogram.addUncheckType(callHistogram.getHistogram());
+            linkHistogram.add(callHistogram.getHistogram());
         }
 		return linkHistogram;
 	}
@@ -155,7 +155,7 @@ public class Link {
         // tomcat -> arcus를 호출한다고 하였을 경우 arcus의 타입을 가져와야함.
         final Histogram linkHistogram = new Histogram(toNode.getServiceType());
         for (CallHistogram callHistogram : target.getTargetList().getCallHistogramList()) {
-            linkHistogram.addUncheckType(callHistogram.getHistogram());
+            linkHistogram.add(callHistogram.getHistogram());
         }
         return linkHistogram;
     }

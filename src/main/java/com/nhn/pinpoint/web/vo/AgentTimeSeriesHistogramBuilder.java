@@ -115,7 +115,7 @@ public class AgentTimeSeriesHistogramBuilder {
                     windowHistogram = new TimeHistogram(application.getServiceType(), time);
                     findSlot.put(time, windowHistogram);
                 }
-                windowHistogram.addUncheckType(timeHistogram);
+                windowHistogram.add(timeHistogram);
             }
         }
 

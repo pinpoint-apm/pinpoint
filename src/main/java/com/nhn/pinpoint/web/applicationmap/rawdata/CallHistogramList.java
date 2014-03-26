@@ -47,20 +47,6 @@ public class CallHistogramList {
     }
 
 
-    public void addCallHistogramUncheck(String hostName, ServiceType serviceType, Collection<TimeHistogram> histogramList) {
-        if (hostName == null) {
-            throw new NullPointerException("hostName must not be null");
-        }
-        if (serviceType == null) {
-            throw new NullPointerException("serviceType must not be null");
-        }
-        if (histogramList == null) {
-            throw new NullPointerException("histogramList must not be null");
-        }
-        CallHistogram callHistogram = getCallHistogram(hostName, serviceType);
-        callHistogram.addTimeHistogramUncheckType(histogramList);
-    }
-
 
     private CallHistogram getCallHistogram(String agent, ServiceType serviceType) {
         Application agentId = new Application(agent, serviceType);

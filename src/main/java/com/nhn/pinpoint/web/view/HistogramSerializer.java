@@ -18,7 +18,7 @@ public class HistogramSerializer extends JsonSerializer<Histogram> {
     @Override
     public void serialize(Histogram histogram, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
         jgen.writeStartObject();
-        final HistogramSchema schema = histogram.getServiceType().getHistogramSchema();
+        final HistogramSchema schema = histogram.getHistogramSchema();
 
         jgen.writeFieldName(schema.getFastSlot().getSlotName());
         jgen.writeNumber(histogram.getFastCount());

@@ -25,7 +25,7 @@ public class HistogramSerializerTest {
     @Test
     public void testSerialize() throws Exception {
         Histogram original = new Histogram(ServiceType.TOMCAT);
-        HistogramSchema schema = original.getServiceType().getHistogramSchema();
+        HistogramSchema schema = original.getHistogramSchema();
         original.addCallCount(schema.getFastSlot().getSlotTime(), 1);
         original.addCallCount(schema.getNormalSlot().getSlotTime(), 2);
         original.addCallCount(schema.getSlowSlot().getSlotTime(), 3);
@@ -49,7 +49,7 @@ public class HistogramSerializerTest {
      * @return
      */
     public String internalJson(Histogram histogram) {
-        HistogramSchema histogramSchema = histogram.getServiceType().getHistogramSchema();
+        HistogramSchema histogramSchema = histogram.getHistogramSchema();
         final StringBuilder sb = new StringBuilder(128);
         sb.append("{ ");
 

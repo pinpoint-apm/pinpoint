@@ -18,7 +18,7 @@ import com.nhn.pinpoint.common.ServiceType;
 @JsonSerialize(using=HistogramSerializer.class)
 public class Histogram {
 	
-	private final ServiceType serviceType;
+	private final HistogramSchema schema;
 
     private long fastCount;
     private long normalCount;
@@ -32,12 +32,19 @@ public class Histogram {
         if (serviceType == null) {
             throw new NullPointerException("serviceType must not be null");
         }
-		this.serviceType = serviceType;
+		this.schema = serviceType.getHistogramSchema();
 	}
 
+    public Histogram(HistogramSchema schema) {
+        if (schema == null) {
+            throw new NullPointerException("schema must not be null");
+        }
+        this.schema = schema;
+    }
+
+
     public void addCallCountByElapsedTime(int elapsedTime) {
-        final HistogramSchema schema = serviceType.getHistogramSchema();
-        HistogramSlot histogramSlot = schema.findHistogramSlot(elapsedTime);
+        final HistogramSlot histogramSlot = this.schema.findHistogramSlot(elapsedTime);
         short slotTime = histogramSlot.getSlotTime();
         addCallCount(slotTime, 1);
     }
@@ -48,7 +55,7 @@ public class Histogram {
 
 	// TODO slot번호를 이 클래스에서 추출해야 할 것 같긴 함.
 	public void addCallCount(final short slotTime, final long count) {
-        final HistogramSchema schema = serviceType.getHistogramSchema();
+        final HistogramSchema schema = this.schema;
 		if (slotTime == schema.getVerySlowSlot().getSlotTime()) { // 0 is slow slotTime
 			this.verySlowCount += count;
             return;
@@ -73,8 +80,8 @@ public class Histogram {
         throw new IllegalArgumentException("slot not found slotTime:" + slotTime + " count:" + count);
 	}
 
-	public ServiceType getServiceType() {
-		return serviceType;
+	public HistogramSchema getHistogramSchema() {
+		return this.schema;
 	}
 
 
@@ -126,27 +133,11 @@ public class Histogram {
         throw new IllegalArgumentException("slotType:" + slotType);
     }
 
-	public void add(Histogram histogram) {
+	public void add(final Histogram histogram) {
         if (histogram == null) {
             throw new NullPointerException("histogram must not be null");
         }
-        if (this.serviceType != histogram.serviceType) {
-            throw new IllegalArgumentException("this=" + this + ", histogram=" + histogram);
-        }
-        addUncheckType(histogram);
-	}
-
-    /**
-     * User일 경우 예외 상황이 발생할수 있어, schema의 동질여부만 체크하도록 함.
-     * Unknown일 경우도 예외 상황있음. Unknown 노드에 HttpClient 호출정보를 머지해야 될경우.
-     * @param histogram
-     */
-    @Deprecated
-    public void addUncheckType(final Histogram histogram) {
-        if (histogram == null) {
-            throw new NullPointerException("histogram must not be null");
-        }
-        if (serviceType.getHistogramSchema() != histogram.getServiceType().getHistogramSchema()) {
+        if (this.schema != histogram.schema) {
             throw new IllegalArgumentException("schema not equals. this=" + this + ", histogram=" + histogram);
 
         }
@@ -156,7 +147,7 @@ public class Histogram {
         this.verySlowCount += histogram.verySlowCount;
 
         this.errorCount += histogram.errorCount;
-    }
+	}
 
 
     @Override
@@ -166,20 +157,20 @@ public class Histogram {
 
         Histogram histogram = (Histogram) o;
 
-        if (serviceType != histogram.serviceType) return false;
+        if (schema != histogram.schema) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return serviceType.hashCode();
+        return schema.hashCode();
     }
 
     @Override
     public String toString() {
         return "Histogram{" +
-                "serviceType=" + serviceType +
+                "schema=" + schema +
                 ", fastCount=" + fastCount +
                 ", normalCount=" + normalCount +
                 ", slowCount=" + slowCount +

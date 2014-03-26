@@ -67,7 +67,7 @@ public class ResponseTime {
         if (histogram == null) {
             throw new NullPointerException("histogram must not be null");
         }
-        getHistogram(agentId).addUncheckType(histogram);
+        getHistogram(agentId).add(histogram);
     }
 
     public void addResponseTime(String agentId, int elapsedTime) {

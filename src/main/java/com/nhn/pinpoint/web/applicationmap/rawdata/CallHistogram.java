@@ -89,18 +89,6 @@ public class CallHistogram {
         }
     }
 
-    public void addTimeHistogramUncheckType(Collection<TimeHistogram> histogramList) {
-        // TODO uncheck가 왜 필요한지 이유 써 놓을것. user 치환시 예외가 있었던것 같음.???
-        for (TimeHistogram timeHistogram : histogramList) {
-            TimeHistogram find = this.timeHistogramMap.get(timeHistogram.getTimeStamp());
-            if (find == null) {
-                find = new TimeHistogram(serviceType, timeHistogram.getTimeStamp());
-                this.timeHistogramMap.put(timeHistogram.getTimeStamp(), find);
-            }
-            find.addUncheckType(timeHistogram);
-        }
-    }
-
 
 
     @Override

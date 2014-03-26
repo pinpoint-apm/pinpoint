@@ -84,7 +84,7 @@ public class RawCallDataMap {
             final RawCallData rawCallData = linkKeyRawCallDataEntry.getValue();
             // to의 ServiceType이 들어가야 한다.
             // 여기서 source란 source의 입장에서 target 호출시의 데이터를 의미하는 것이기 때문에. ServiceType자체는 To의 ServiceType이 들어가야한다.
-            sourceList.addCallHistogramUncheck(key.getFromApplication(), key.getToServiceType(), rawCallData.getTimeHistogram());
+            sourceList.addCallHistogram(key.getFromApplication(), key.getToServiceType(), rawCallData.getTimeHistogram());
         }
         return sourceList;
     }

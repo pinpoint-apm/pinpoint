@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.web.applicationmap.rawdata;
 
+import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.ServiceType;
 
 import java.util.Comparator;
@@ -15,6 +16,11 @@ public class TimeHistogram extends Histogram  {
 
     public TimeHistogram(ServiceType serviceType, long timeStamp) {
         super(serviceType);
+        this.timeStamp = timeStamp;
+    }
+
+    public TimeHistogram(HistogramSchema schema, long timeStamp) {
+        super(schema);
         this.timeStamp = timeStamp;
     }
 

@@ -80,7 +80,7 @@ public class ResponseHistogramSummary {
         if (linkHistogram == null) {
             throw new NullPointerException("histogram must not be null");
         }
-        this.applicationHistogram.addUncheckType(linkHistogram);
+        this.applicationHistogram.add(linkHistogram);
     }
 
     public Map<String, Histogram> getAgentHistogramMap() {
