@@ -1,11 +1,6 @@
 package com.nhn.pinpoint.web.applicationmap.rawdata;
 
-import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.web.vo.Application;
-
 import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
 
 public class LinkStatisticsDataSet {
 
@@ -71,11 +66,6 @@ public class LinkStatisticsDataSet {
 
     public int size() {
         return source.size() + target.size();
-    }
-
-    public Map<Application, Set<AgentInfoBo>> getSourceAgentMap() {
-
-        return this.source.getAgentMap();
     }
 
 

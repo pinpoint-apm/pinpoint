@@ -2,6 +2,7 @@ package com.nhn.pinpoint.web.service;
 
 import java.util.*;
 
+import com.nhn.pinpoint.web.applicationmap.AgentSelector;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.nhn.pinpoint.web.applicationmap.rawdata.*;
 import com.nhn.pinpoint.web.dao.*;
@@ -21,7 +22,7 @@ import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
  * @author emeroad
  */
 @Service
-public class MapServiceImpl implements MapService {
+public class MapServiceImpl implements MapService, AgentSelector {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -43,7 +44,7 @@ public class MapServiceImpl implements MapService {
     @Autowired
     private HostApplicationMapDao hostApplicationMapDao;
 
-    private Set<AgentInfoBo> selectAgents(String applicationId) {
+    public Set<AgentInfoBo> selectAgent(String applicationId) {
         if (applicationId == null) {
             throw new NullPointerException("applicationId must not be null");
         }
@@ -79,13 +80,8 @@ public class MapServiceImpl implements MapService {
 
         final LinkStatisticsDataSet resultCaller = new LinkStatisticsDataSet();
         for (LinkStatistics link : caller.getLinkStatData()) {
-            final AcceptedLinkStatistics isAccepted = getRpcCallAccepted(link, range);
-            link = isAccepted.getLinkStatistics();
-            // replaced된 녀석은 CLIENT이기 때문에 callee검색용도로만 사용하고 map에 추가하지 않는다.
-            if (!isAccepted.isAccepted()) {
-                fillAdditionalInfo(link, range);
-//                resultCaller.addSourceLinkStatistics(link);
-            }
+            link = getRpcCallAccepted(link, range);
+
             resultCaller.addSourceLinkStatistics(link);
 
             final Application toApplication = link.getToApplication();
@@ -130,7 +126,6 @@ public class MapServiceImpl implements MapService {
 
         final LinkStatisticsDataSet calleeSet = new LinkStatisticsDataSet();
         for (LinkStatistics stat : callee.getLinkStatData()) {
-            fillAdditionalInfo(stat, range);
             calleeSet.addTargetLinkStatistics(stat);
 
             // 나를 부른 application을 찾아야 하기 떄문에 to를 입력.
@@ -152,7 +147,7 @@ public class MapServiceImpl implements MapService {
         return calleeSet;
     }
 
-    private AcceptedLinkStatistics getRpcCallAccepted(LinkStatistics stat, Range range) {
+    private LinkStatistics getRpcCallAccepted(LinkStatistics stat, Range range) {
         // rpc client의 목적지가 agent가 설치되어 application name이 존재한다면 replace.
         final Application toApplication = stat.getToApplication();
         if (toApplication.getServiceType().isRpcClient()) {
@@ -161,28 +156,22 @@ public class MapServiceImpl implements MapService {
             if (app != null) {
                 logger.debug("Application info replaced. {} => {}", stat, app);
                 Application acceptedApplication = new Application(app.getName(), app.getServiceType());
-                LinkStatistics linkStat = new LinkStatistics(stat.getFromApplication(), acceptedApplication, stat.getToAgentSet(), stat.getCallDataMap());
-                return new AcceptedLinkStatistics(true, linkStat);
+                LinkStatistics acceptedLisk = new LinkStatistics(stat.getFromApplication(), acceptedApplication, stat.getCallDataMap());
+                return acceptedLisk;
             } else {
                 Application unknown = new Application(toApplication.getName(), ServiceType.UNKNOWN);
-                LinkStatistics unknownLinkStat = new LinkStatistics(stat.getFromApplication(), unknown, stat.getToAgentSet(), stat.getCallDataMap());
-                return new AcceptedLinkStatistics(false, unknownLinkStat);
+                LinkStatistics unknownLinkStat = new LinkStatistics(stat.getFromApplication(), unknown, stat.getCallDataMap());
+                return unknownLinkStat;
             }
         }
-        return new AcceptedLinkStatistics(false, stat);
+        return stat;
     }
 
     public class AcceptedLinkStatistics {
-        private final boolean isAccepted;
         private final LinkStatistics linkStatistics;
 
-        public AcceptedLinkStatistics(boolean isAccepted, LinkStatistics linkStatistics) {
-            this.isAccepted = isAccepted;
+        public AcceptedLinkStatistics(LinkStatistics linkStatistics) {
             this.linkStatistics = linkStatistics;
-        }
-
-        public boolean isAccepted() {
-            return isAccepted;
         }
 
         public LinkStatistics getLinkStatistics() {
@@ -190,22 +179,6 @@ public class MapServiceImpl implements MapService {
         }
     }
 
-    private void fillAdditionalInfo(LinkStatistics stat, Range range) {
-        final ServiceType toServiceType = stat.getToApplication().getServiceType();
-        if (toServiceType.isTerminal() || toServiceType.isUnknown()) {
-            return;
-        }
-
-        Set<AgentInfoBo> agentSet = selectAgents(stat.getToApplication().getName());
-        if (agentSet.isEmpty()) {
-            return;
-        }
-
-        // destination이 WAS이고 agent가 설치되어있으면 agentSet이 존재한다.
-        stat.addToAgentSet(agentSet);
-
-        logger.debug("Fill agent info. {}, {}", stat.getToApplication().getName(), agentSet);
-    }
 
     /**
      * 메인화면에서 사용. 시간별로 TimeSlot을 조회하여 서버 맵을 그릴 때 사용한다.
@@ -235,7 +208,7 @@ public class MapServiceImpl implements MapService {
         data.addLinkStatisticsDataSet(callee);
 
         ApplicationMapBuilder builder = new ApplicationMapBuilder(range);
-        ApplicationMap map = builder.build(data);
+        ApplicationMap map = builder.build(data, this);
         // 이걸 builder쪽에 넣어야 될듯한데.
         map.appendResponseTime(range, this.mapResponseDao);
 

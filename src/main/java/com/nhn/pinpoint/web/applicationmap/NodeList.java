@@ -15,39 +15,29 @@ public class NodeList {
         return this.nodeMap.values();
     }
 
-
-    public Node find(Application applicationId) {
-        if (applicationId == null) {
-            throw new NullPointerException("applicationId must not be null");
+    public Node findNode(Application nodeId) {
+        if (nodeId == null) {
+            throw new NullPointerException("nodeId must not be null");
         }
-        return this.nodeMap.get(applicationId);
+        return this.nodeMap.get(nodeId);
     }
 
-    private void addApplication(Node source) {
-        if (source == null) {
-            throw new NullPointerException("source must not be null");
+    private void addNode(Node newNode) {
+        if (newNode == null) {
+            throw new NullPointerException("newNode must not be null");
         }
-        final Application id = source.getApplication();
-        final Node find = nodeMap.get(id);
-        if (find != null) {
-            find.add(source);
-        } else {
-            final Node node = new Node(source);
-            nodeMap.put(id, node);
+        final Application nodeId = newNode.getApplication();
+        Node node = findNode(nodeId);
+        if (node != null) {
+            return;
         }
-    }
-
-    public void build() {
-        for (Node node : nodeMap.values()) {
-            node.build();
-        }
+        nodeMap.put(nodeId, newNode);
     }
 
 
-    public void buildApplication(List<Node> sourceList) {
+    public void addNodeList(List<Node> sourceList) {
         for (Node source : sourceList) {
-            addApplication(source);
+            addNode(source);
         }
-
     }
 }

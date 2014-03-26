@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.web.applicationmap;
 
+import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.LinkKey;
 
 import java.util.*;
@@ -18,6 +19,36 @@ public class LinkList {
         for (Link link : relationList) {
             buildLink(link);
         }
+    }
+
+    public List<Link> findToLink(Application toApplication) {
+        if (toApplication == null) {
+            throw new NullPointerException("toApplication must not be null");
+        }
+        List<Link> findList = new ArrayList();
+        for (Link link : linkMap.values()) {
+            Node toNode = link.getTo();
+            // destnation이 자신을 가리킨다면 데이터를 머지함.
+            if (toNode.getApplication().equals(toApplication)) {
+                findList.add(link);
+            }
+        }
+        return findList;
+    }
+
+    public List<Link> findFromLink(Application fromApplication) {
+        if (fromApplication == null) {
+            throw new NullPointerException("toApplication must not be null");
+        }
+        List<Link> findList = new ArrayList();
+        for (Link link : linkMap.values()) {
+            Node fromNode = link.getFrom();
+            // destnation이 자신을 가리킨다면 데이터를 머지함.
+            if (fromNode.getApplication().equals(fromApplication)) {
+                findList.add(link);
+            }
+        }
+        return findList;
     }
 
     public void buildLink(Link sourceLink) {

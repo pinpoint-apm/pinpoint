@@ -3,10 +3,11 @@ package com.nhn.pinpoint.web.applicationmap;
 import java.util.*;
 
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
+import com.nhn.pinpoint.common.bo.AgentInfoBo;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsDataSet;
 import com.nhn.pinpoint.web.dao.MapResponseDao;
 import com.nhn.pinpoint.web.vo.*;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,15 +47,15 @@ public class ApplicationMap {
 	}
 
 
-	Node findApplication(Application applicationId) {
-        return this.nodeList.find(applicationId);
+	Node findNode(Application applicationId) {
+        return this.nodeList.findNode(applicationId);
 	}
 
     void addNode(List<Node> nodeList) {
         for (Node node : nodeList) {
             this.addNodeName(node);
         }
-        this.nodeList.buildApplication(nodeList);
+        this.nodeList.addNodeList(nodeList);
     }
 
 	void addNodeName(Node node) {
@@ -69,13 +70,53 @@ public class ApplicationMap {
     }
 
 
-    public void buildNode() {
-        this.nodeList.build();
-    }
 
     public boolean containsApplicationName(String applicationName) {
         return applicationNames.contains(applicationName);
     }
+
+    public void appendAgentInfo(LinkStatisticsDataSet linkStatisticsData, AgentSelector agentSelector) {
+        for (Node node : nodeList.getNodeList()) {
+            appendServerInfo(node, linkStatisticsData, agentSelector);
+        }
+
+    }
+
+    private void appendServerInfo(Node node, LinkStatisticsDataSet stat, AgentSelector agentSelector) {
+        final ServiceType nodeServiceType = node.getServiceType();
+        if (nodeServiceType.isUnknown()) {
+            // unknown노드는 무엇이 설치되어있는지 알수가 없음.
+            return;
+        }
+
+        if (nodeServiceType.isTerminal()) {
+            // terminal노드에 설치되어 있는 정보를 유추한다.
+            ServerBuilder builder = new ServerBuilder();
+            Collection<LinkStatistics> sourceLinkStatData = stat.getSourceLinkStatData();
+            for (LinkStatistics linkStatistics : sourceLinkStatData) {
+                Application toApplication = linkStatistics.getToApplication();
+                if (node.getApplication().equals(toApplication)) {
+                    builder.addCallHistogramList(linkStatistics.getTargetList());
+                }
+            }
+            ServerInstanceList serverInstanceList = builder.build();
+            node.setServerInstanceList(serverInstanceList);
+        } else if (nodeServiceType.isWas()) {
+            final Set<AgentInfoBo> agentList = agentSelector.selectAgent(node.getApplication().getName());
+            if (agentList.isEmpty()) {
+                return;
+            }
+            logger.debug("add agentInfo. {}, {}", node.getApplication(), agentList);
+            ServerBuilder builder = new ServerBuilder();
+            builder.addAgentInfo(agentList);
+            ServerInstanceList serverInstanceList = builder.build();
+            // destination이 WAS이고 agent가 설치되어있으면 agentSet이 존재한다.
+            node.setServerInstanceList(serverInstanceList);
+        }
+
+    }
+
+
 
     public static interface ResponseDataSource {
         ResponseHistogramSummary getResponseHistogramSummary(Application application);
@@ -120,37 +161,19 @@ public class ApplicationMap {
                 Application nodeApplication = new Application(node.getApplication().getName(), node.getServiceType());
                 final ResponseHistogramSummary nodeHistogramSummary = new ResponseHistogramSummary(nodeApplication, range);
 
-                Collection<Link> linkList = this.linkList.getLinks();
-                for (Link link : linkList) {
-                    Node toNode = link.getTo();
-                    String applicationName = toNode.getApplication().getName();
-                    ServiceType serviceType = toNode.getServiceType();
-                    Application destination = new Application(applicationName, serviceType);
-                    // destnation이 자신을 가리킨다면 데이터를 머지함.
-                    if (nodeApplication.equals(destination)) {
-                        Histogram linkHistogram = link.getHistogram();
-//                        summary.addApplicationLevelHistogram(linkHistogram);
-                        nodeHistogramSummary.addLinkHistogram(linkHistogram);
-                    }
+                final List<Link> toLinkList = linkList.findToLink(nodeApplication);
+                for (Link link : toLinkList) {
+                    nodeHistogramSummary.addLinkHistogram(link.getHistogram());
                 }
                 node.setResponseHistogramSummary(nodeHistogramSummary);
-            } else if(node.getServiceType().isUser()) {
+            } else if (node.getServiceType().isUser()) {
                 // User노드인 경우 source 링크를 찾아 histogram을 생성한다.
-                Application nodeApplication = new Application(node.getApplication().getName(), node.getServiceType());
+                Application nodeApplication = node.getApplication();
                 final ResponseHistogramSummary nodeHistogramSummary = new ResponseHistogramSummary(nodeApplication, range);
 
-                Collection<Link> linkList = this.linkList.getLinks();
-                for (Link link : linkList) {
-                    Node fromNode = link.getFrom();
-                    String applicationName = fromNode.getApplication().getName();
-                    ServiceType serviceType = fromNode.getServiceType();
-                    Application source = new Application(applicationName, serviceType);
-                    // destnation이 자신을 가리킨다면 데이터를 머지함.
-                    if (nodeApplication.equals(source)) {
-                        logger.debug("nodeApplication:{}, source:{}", nodeApplication, source);
-                        Histogram linkHistogram = link.getTargetHistogram();
-                        nodeHistogramSummary.addLinkHistogram(linkHistogram);
-                    }
+                final List<Link> fromLink = linkList.findFromLink(nodeApplication);
+                for (Link link : fromLink) {
+                    nodeHistogramSummary.addLinkHistogram(link.getHistogram());
                 }
                 node.setResponseHistogramSummary(nodeHistogramSummary);
             } else {

@@ -1,9 +1,7 @@
 package com.nhn.pinpoint.web.applicationmap;
 
 import java.io.IOException;
-import java.util.*;
 
-import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogramList;
 import com.nhn.pinpoint.web.view.NodeSerializer;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.ResponseHistogramSummary;
@@ -14,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.bo.AgentInfoBo;
 
 /**
  * node map에서 application을 나타낸다.
@@ -28,36 +25,23 @@ public class Node {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static final String NODE_DELIMITER = "^";
+
     private final Application application;
 
-    private ServerBuilder serverBuilder = new ServerBuilder();
     private ServerInstanceList serverInstanceList;
-
 
     private ResponseHistogramSummary responseHistogramSummary;
     // 임시로 생성.
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
 
-	public Node(Application application, Set<AgentInfoBo> agentSet) {
-        this(application, null, agentSet);
-	}
-
-    public Node(Application application, CallHistogramList callHistogramList) {
-        this(application, callHistogramList, null);
-    }
-
-    Node(Application application, CallHistogramList callHistogramList, Set<AgentInfoBo> agentSet) {
+    public Node(Application application) {
         if (application == null) {
             throw new NullPointerException("application must not be null");
         }
 
-        logger.debug("create node application={}, agentSet={}", application, agentSet);
+        logger.debug("create node application={}", application);
         this.application = application;
-
-        this.serverBuilder.addCallHistogramList(callHistogramList);
-        this.serverBuilder.addAgentInfo(agentSet);
-
     }
 
     public Node(Node copyNode) {
@@ -65,8 +49,6 @@ public class Node {
             throw new NullPointerException("copyNode must not be null");
         }
         this.application = copyNode.application;
-        this.serverBuilder.addServerInstance(copyNode.serverBuilder);
-
     }
 
     public String getApplicationTextName() {
@@ -77,12 +59,12 @@ public class Node {
         }
     }
 
-    void build() {
-        this.serverInstanceList = serverBuilder.build();
-        this.serverBuilder = null;
+
+    public void setServerInstanceList(ServerInstanceList serverInstanceList) {
+        this.serverInstanceList = serverInstanceList;
     }
-	
-	public ServerInstanceList getServerInstanceList() {
+
+    public ServerInstanceList getServerInstanceList() {
 		return serverInstanceList;
 	}
 
@@ -112,22 +94,8 @@ public class Node {
     }
 
 
-
 	public String getNodeName() {
 		return application.getName() + NODE_DELIMITER + application.getServiceType();
-	}
-
-
-	public void add(Node node) {
-        if (node == null) {
-            throw new NullPointerException("node must not be null");
-        }
-        logger.trace("merge node this={}, node={}", this.application, node.application);
-		
-        // 리얼 application을 실제빌드할때 copy하여 만들기 때문에. add할때 데이터를 hostList를 add해도 된다.
-
-        this.serverBuilder.addServerInstance(node.serverBuilder);
-
 	}
 
 	public ServiceType getServiceType() {

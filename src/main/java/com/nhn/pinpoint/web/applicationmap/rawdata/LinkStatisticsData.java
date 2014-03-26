@@ -2,7 +2,6 @@ package com.nhn.pinpoint.web.applicationmap.rawdata;
 
 import java.util.*;
 
-import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.LinkKey;
 
@@ -22,25 +21,6 @@ public class LinkStatisticsData {
         linkStat.addLinkData(srcAgentId, srcApplication.getServiceTypeCode(), destAgentId, destApplication.getServiceTypeCode(), timestamp, slotTime, value);
     }
 
-    public Map<Application, Set<AgentInfoBo>> getAgentMap() {
-		final Map<Application, Set<AgentInfoBo>> agentMap = new HashMap<Application, Set<AgentInfoBo>>();
-		for (LinkStatistics stat : linkStatData.values()) {
-			if (stat.getToAgentSet() == null) {
-				continue;
-			}
-            Application key = stat.getToApplication();
-            final Set<AgentInfoBo> agentInfoBos = agentMap.get(key);
-            if (agentInfoBos != null) {
-				Set<AgentInfoBo> toAgentSet = stat.getToAgentSet();
-				if (toAgentSet != null) {
-					agentInfoBos.addAll(stat.getToAgentSet());
-				}
-			} else {
-				agentMap.put(key, stat.getToAgentSet());
-			}
-		}
-		return agentMap;
-	}
 
 	@Override
 	public String toString() {

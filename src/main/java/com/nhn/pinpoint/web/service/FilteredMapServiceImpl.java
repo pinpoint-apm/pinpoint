@@ -11,6 +11,7 @@ import java.util.Set;
 
 import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.HistogramSlot;
+import com.nhn.pinpoint.web.applicationmap.AgentSelector;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsData;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsDataSet;
@@ -38,7 +39,7 @@ import com.nhn.pinpoint.web.filter.Filter;
  * @author emeroad
  */
 @Service
-public class FilteredMapServiceImpl implements FilteredMapService {
+public class FilteredMapServiceImpl implements FilteredMapService, AgentSelector {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -228,13 +229,9 @@ public class FilteredMapServiceImpl implements FilteredMapService {
             }
         }
 
-        // mark agent info
-        for (LinkStatistics stat : linkStatisticsData.getLinkStatData()) {
-            fillAdditionalInfo(stat);
-        }
         LinkStatisticsDataSet linkStatisticsDataSet = new LinkStatisticsDataSet(linkStatisticsData);
         ApplicationMapBuilder applicationMapBuilder = new ApplicationMapBuilder(range);
-        ApplicationMap map = applicationMapBuilder.build(linkStatisticsDataSet);
+        ApplicationMap map = applicationMapBuilder.build(linkStatisticsDataSet, this);
 
         mapHistogramSummary.build();
         map.appendResponseTime(mapHistogramSummary);
@@ -351,21 +348,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         return transactionIdList;
     }
 
-    private void fillAdditionalInfo(LinkStatistics stat) {
-        final Application toApplication = stat.getToApplication();
-        if (toApplication.getServiceType().isTerminal() || toApplication.getServiceType().isUnknown()) {
-            return;
-        }
-        Set<AgentInfoBo> agentSet = selectAgents(toApplication.getName());
-        if (agentSet.isEmpty()) {
-            return;
-        }
-        // destination이 WAS이고 agent가 설치되어있으면 agentSet이 존재한다.
-        stat.addToAgentSet(agentSet);
-        logger.debug("fill agent info. {}, {}", toApplication, agentSet);
-    }
-
-    private Set<AgentInfoBo> selectAgents(String applicationId) {
+    public Set<AgentInfoBo> selectAgent(String applicationId) {
         List<String> agentIds = applicationIndexDao.selectAgentIds(applicationId);
         Set<AgentInfoBo> agentSet = new HashSet<AgentInfoBo>();
         for (String agentId : agentIds) {

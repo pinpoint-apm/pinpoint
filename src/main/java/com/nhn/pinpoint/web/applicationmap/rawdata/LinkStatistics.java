@@ -1,9 +1,6 @@
 package com.nhn.pinpoint.web.applicationmap.rawdata;
 
-import java.util.HashSet;
-import java.util.Set;
 
-import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.web.vo.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,11 +20,9 @@ public class LinkStatistics {
 
     private final RawCallDataMap callDataMap;
 
-    private final Set<AgentInfoBo> toAgentSet;
-
 	public LinkStatistics(Application fromApplication, Application toApplication) {
         if (fromApplication == null) {
-            throw new NullPointerException("fromAppliation must not be null");
+            throw new NullPointerException("fromApplication must not be null");
         }
         if (toApplication == null) {
             throw new NullPointerException("toApplication must not be null");
@@ -35,23 +30,19 @@ public class LinkStatistics {
         this.fromApplication = fromApplication;
 		this.toApplication = toApplication;
 
-        this.toAgentSet = new HashSet<AgentInfoBo>();
-
         this.callDataMap = new RawCallDataMap();
 	}
 
     // 이건 일부러 복사 생성자로 구현안함.
-    public LinkStatistics(Application fromApplication, Application toApplication, Set<AgentInfoBo> toAgentSet, RawCallDataMap callDataMap) {
+    public LinkStatistics(Application fromApplication, Application toApplication, RawCallDataMap callDataMap) {
         if (fromApplication == null) {
-            throw new NullPointerException("fromAppliation must not be null");
+            throw new NullPointerException("fromApplication must not be null");
         }
         if (toApplication == null) {
             throw new NullPointerException("toApplication must not be null");
         }
         this.fromApplication = fromApplication;
         this.toApplication = toApplication;
-
-        this.toAgentSet = toAgentSet;
 
         this.callDataMap = callDataMap;
     }
@@ -93,17 +84,6 @@ public class LinkStatistics {
         return callDataMap.getSourceList();
     }
 
-	public Set<AgentInfoBo> getToAgentSet() {
-		return toAgentSet;
-	}
-
-    public void addToAgentSet(Set<AgentInfoBo> agentSet) {
-        if (agentSet == null) {
-            throw new NullPointerException("agentSet must not be null");
-        }
-        this.toAgentSet.addAll(agentSet);
-    }
-
 	public void add(final LinkStatistics applicationStatistics) {
         if (applicationStatistics == null) {
             throw new NullPointerException("applicationStatistics must not be null");
@@ -113,7 +93,6 @@ public class LinkStatistics {
 		}
         final RawCallDataMap target = applicationStatistics.callDataMap;
         this.callDataMap.addCallData(target);
-        this.toAgentSet.addAll(applicationStatistics.toAgentSet);
 	}
 
     @Override

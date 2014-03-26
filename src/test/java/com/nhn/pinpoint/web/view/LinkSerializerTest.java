@@ -28,8 +28,8 @@ public class LinkSerializerTest {
         CallHistogramList list = new CallHistogramList();
         CallHistogram histogram = new CallHistogram("test", ServiceType.TOMCAT);
         list.addCallHistogram(histogram);
-        Node node1 = new Node(new Application("test1", ServiceType.TOMCAT), list);
-        Node node2 = new Node(new Application("test1", ServiceType.TOMCAT), list);
+        Node node1 = new Node(new Application("test1", ServiceType.TOMCAT));
+        Node node2 = new Node(new Application("test1", ServiceType.TOMCAT));
         RawCallDataMap rawCallDataMap = new RawCallDataMap();
         Link link = new Link(node1, node2, new Range(0, 1), rawCallDataMap, new RawCallDataMap());
         ObjectWriter objectWriter = MAPPER.writerWithDefaultPrettyPrinter();

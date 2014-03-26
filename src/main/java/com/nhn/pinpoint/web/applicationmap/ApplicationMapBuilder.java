@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.web.applicationmap;
 
-import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatistics;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsData;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkStatisticsDataSet;
@@ -29,7 +28,7 @@ public class ApplicationMapBuilder {
         this.range = range;
     }
 
-    public ApplicationMap build(LinkStatisticsDataSet linkStatisticsData) {
+    public ApplicationMap build(LinkStatisticsDataSet linkStatisticsData, AgentSelector agentSelector) {
         if (linkStatisticsData == null) {
             throw new NullPointerException("linkStatData must not be null");
         }
@@ -51,7 +50,7 @@ public class ApplicationMapBuilder {
         for (LinkStatistics statistics : targetLinkData.getLinkStatData()) {
             logger.debug("target:{}", statistics);
         }
-
+        nodeMap.appendAgentInfo(linkStatisticsData, agentSelector);
 
 
         // 변경하면 안됨.
@@ -65,8 +64,6 @@ public class ApplicationMapBuilder {
         nodeMap.addLink(targetLink);
 
 
-        nodeMap.buildNode();
-
         return nodeMap;
     }
 
@@ -75,10 +72,10 @@ public class ApplicationMapBuilder {
         // extract relation
         for (LinkStatistics linkStat : rawData.getLinkStatData()) {
             final Application fromApplicationId = linkStat.getFromApplication();
-            Node fromNode = nodeMap.findApplication(fromApplicationId);
+            Node fromNode = nodeMap.findNode(fromApplicationId);
             // TODO
             final Application toApplicationId = linkStat.getToApplication();
-            Node toNode = nodeMap.findApplication(toApplicationId);
+            Node toNode = nodeMap.findNode(toApplicationId);
 
             // rpc client가 빠진경우임.
             if (toNode == null) {
@@ -107,10 +104,10 @@ public class ApplicationMapBuilder {
         // extract relation
         for (LinkStatistics linkStat : rawData.getLinkStatData()) {
             final Application fromApplicationId = linkStat.getFromApplication();
-            Node fromNode = nodeMap.findApplication(fromApplicationId);
+            Node fromNode = nodeMap.findNode(fromApplicationId);
             // TODO
             final Application toApplicationId = linkStat.getToApplication();
-            Node toNode = nodeMap.findApplication(toApplicationId);
+            Node toNode = nodeMap.findNode(toApplicationId);
 
             // rpc client가 빠진경우임.
             if (fromNode == null) {
@@ -140,17 +137,14 @@ public class ApplicationMapBuilder {
 
     private List<Node> createSourceNode(LinkStatisticsDataSet linkStatData) {
 
-        Map<Application, Set<AgentInfoBo>> targetAgentMap = linkStatData.getTargetLinkData().getAgentMap();
-
         final List<Node> result = new ArrayList<Node>();
         // extract application and histogram
         for (LinkStatistics linkStat : linkStatData.getSourceLinkStatData()) {
             final Application fromApplication = linkStat.getFromApplication();
             // FROM -> TO에서 FROM이 CLIENT가 아니면 FROM은 application
             if (!fromApplication.getServiceType().isRpcClient()) {
-                final Set<AgentInfoBo> agentSet = targetAgentMap.get(fromApplication);
                 // FIXME from은 tohostlist를 보관하지 않아서 없음. null로 입력. 그렇지 않으면 이상해짐 ㅡㅡ;
-                Node fromNode = new Node(fromApplication, agentSet);
+                Node fromNode = new Node(fromApplication);
                 result.add(fromNode);
             }
 
@@ -158,7 +152,7 @@ public class ApplicationMapBuilder {
             final Application toApplication = linkStat.getToApplication();
             // FROM -> TO에서 TO가 CLIENT가 아니면 TO는 application
             if (!toApplication.getServiceType().isRpcClient()) {
-                Node toNode = new Node(toApplication, linkStat.getTargetList());
+                Node toNode = new Node(toApplication);
                 result.add(toNode);
             }
         }
@@ -174,8 +168,6 @@ public class ApplicationMapBuilder {
 
     private List<Node> createTargetNode(LinkStatisticsDataSet linkStatData) {
 
-        Map<Application, Set<AgentInfoBo>> sourceAgentMap = linkStatData.getSourceLinkData().getAgentMap();
-
         final List<Node> result = new ArrayList<Node>();
         // extract application and histogram
         for (LinkStatistics linkStat : linkStatData.getTargetLinkStatData()) {
@@ -183,7 +175,7 @@ public class ApplicationMapBuilder {
             // FROM -> TO에서 FROM이 CLIENT가 아니면 FROM은 application
             if (!fromApplication.getServiceType().isRpcClient()) {
                 // FIXME from은 tohostlist를 보관하지 않아서 없음. null로 입력. 그렇지 않으면 이상해짐 ㅡㅡ;
-                Node fromNode = new Node(fromApplication, linkStat.getTargetList());
+                Node fromNode = new Node(fromApplication);
                 result.add(fromNode);
             }
 
@@ -191,7 +183,7 @@ public class ApplicationMapBuilder {
             final Application toApplication = linkStat.getToApplication();
             // FROM -> TO에서 TO가 CLIENT가 아니면 TO는 application
             if (!toApplication.getServiceType().isRpcClient()) {
-                Node toNode = new Node(toApplication, linkStat.getTargetList());
+                Node toNode = new Node(toApplication);
                 result.add(toNode);
             }
         }
