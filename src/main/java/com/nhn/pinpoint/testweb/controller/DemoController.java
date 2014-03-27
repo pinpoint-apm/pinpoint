@@ -1,5 +1,10 @@
 package com.nhn.pinpoint.testweb.controller;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -7,26 +12,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.nhn.pinpoint.testweb.configuration.DemoURLHolder;
 import com.nhn.pinpoint.testweb.service.CacheService;
 import com.nhn.pinpoint.testweb.service.CubridService;
 import com.nhn.pinpoint.testweb.service.MemberService;
+import com.nhn.pinpoint.testweb.util.AsyncHttpInvoker;
 import com.nhn.pinpoint.testweb.util.HttpConnectorOptions;
 import com.nhn.pinpoint.testweb.util.HttpInvoker;
 
 @Controller
 public class DemoController {
 
-	/**
-	 * dev-pinpoint-demo002.ncl
-	 */
-	private static final String HTTP_URL_BACKEND_WEB1 = "http://dev-pinpoint-workload002.ncl:8080/backend1.pinpoint";
+	private final DemoURLHolder urls;
 
-	private static final String HTTP_URL_BACKEND_WEB11 = "http://dev-pinpoint-workload002.ncl:8080/backend11.pinpoint";
-
-	/**
-	 * dev-pinpoint-demo003.ncl
-	 */
-	private static final String HTTP_URL_BACKEND_WEB2 = "http://dev-pinpoint-workload003.ncl:8080/backend2.pinpoint";
+	private final Random random = new Random();
 
 	@Autowired
 	private CacheService cacheService;
@@ -37,24 +36,30 @@ public class DemoController {
 	@Autowired
 	private CubridService cubridService;
 
+	public DemoController() {
+		urls = DemoURLHolder.getHolder();
+	}
+
 	@RequestMapping(value = "/netspider")
 	public String demo1() {
+		accessNaverBlog();
+		accessNaverCafe();
 		randomSlowMethod();
-		callBackend(HTTP_URL_BACKEND_WEB2);
+		callRemote(urls.getBackendApiURL());
 		return "demo";
 	}
 
 	@RequestMapping(value = "/emeroad")
 	public String demo2() {
 		randomSlowMethod();
-		callBackend(HTTP_URL_BACKEND_WEB1);
+		callRemote(urls.getBackendWebURL());
 		return "demo";
 	}
 
 	@RequestMapping(value = "/harebox")
 	public String demo3() {
 		cacheService.memcached();
-		naver();
+		accessNaver();
 		return "demo";
 	}
 
@@ -65,36 +70,24 @@ public class DemoController {
 		return "demo";
 	}
 
-	@RequestMapping(value = "/backend1")
-	public String backend1() {
+	@RequestMapping(value = "/backendweb")
+	public String backendweb() {
 		cacheService.arcus();
 		mysqlService.list();
+		if (random.nextBoolean()) {
+			callRemote(urls.getBackendApiURL());
+		}
 		return "demo";
 	}
 
-	@RequestMapping(value = "/backend2")
-	public String backend2() {
+	@RequestMapping(value = "/backendapi")
+	public String backendapi() {
 		mysqlService.list();
 		cubrid();
 		return "demo";
 	}
 
-	@RequestMapping(value = "/threetier")
-	public String threetier() {
-		cacheService.memcached();
-		callBackend(HTTP_URL_BACKEND_WEB11);
-		return "demo";
-	}
-
-	@RequestMapping(value = "/backend11")
-	public String backend11() {
-		cacheService.arcus();
-		mysqlService.list();
-		callBackend(HTTP_URL_BACKEND_WEB11);
-		return "demo";
-	}
-
-	private void callBackend(String url) {
+	private void callRemote(String url) {
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
 		client.execute(url, new HashMap<String, Object>());
 	}
@@ -110,9 +103,38 @@ public class DemoController {
 		}
 	}
 
-	private void naver() {
+	private void accessNaver() {
 		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
 		client.execute("http://www.naver.com/", new HashMap<String, Object>());
+	}
+
+	private void accessNaverBlog() {
+		AsyncHttpInvoker client = new AsyncHttpInvoker();
+		client.requestGet("http://blog.naver.com/", null, null);
+	}
+
+	private void accessNaverCafe() {
+		HttpURLConnection connection = null;
+		BufferedReader reader = null;
+		try {
+			connection = (HttpURLConnection) new URL("http://section.cafe.naver.com/").openConnection();
+			connection.connect();
+
+			reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			try {
+				if (reader != null) {
+					reader.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			if (connection != null) {
+				connection.disconnect();
+			}
+		}
 	}
 
 	private void randomSlowMethod() {
