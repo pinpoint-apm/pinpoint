@@ -31,8 +31,8 @@ pinpointApp
                     scope.showServers = false;
                     scope.agents = null;
                     scope.showAgents = false;
-                    scope.showResponseSummary = false;
-                    scope.showLoad = false;
+                    scope.showNodeResponseSummary = false;
+                    scope.showNodeLoad = false;
                     scope.agentHistogram = false;
                     if (!scope.$$phase) {
                         scope.$digest();
@@ -44,7 +44,7 @@ pinpointApp
                  * @param query
                  * @param node
                  */
-                showDetailInformation = function (query, node, mapData) {
+                showDetailInformation = function (query, node) {
                     scope.showNodeInfoDetails = true;
                     scope.node = node;
                     scope.unknownGroup = node.textArr;
@@ -60,10 +60,10 @@ pinpointApp
                                 'values' : parseHistogramForNvd3(node.histogram)
                             }
                         ]);
-                        scope.showResponseSummary = true;
+                        scope.showNodeResponseSummary = true;
                         if (node.isWas) {
                             renderTimeSeriesHistogram('.nodeInfoDetails .timeSeriesHistogram svg', node.timeSeriesHistogram);
-                            scope.showLoad = true;
+                            scope.showNodeLoad = true;
 
                             for (var key in node.agentHistogram) {
                                 var className = $filter('applicationNameToClassName')(key);

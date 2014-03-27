@@ -31,8 +31,8 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     scope.targetinfo = null;
                     scope.sourceinfo = null;
                     scope.showLinkInfoDetails = false;
-                    scope.showResponseSummary = false;
-                    scope.showLoad = false;
+                    scope.showLinkResponseSummary = false;
+                    scope.ShowLinkLoad = false;
                     if (!scope.$$phase) {
                         scope.$digest();
                     }
@@ -269,8 +269,8 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         "targetApplicationName": targetApplicationName
                     };
 
-                    scope.showLoad = true;
-                    scope.showResponseSummary = true;
+                    scope.ShowLinkLoad = true;
+                    scope.showLinkResponseSummary = true;
                     renderResponseSummary('.linkInfoDetails .infoBarChart svg', parseHistogramForD3(histogram), 'ResponseSummary');
 
                     getTimeSeriesHistogramData(params, 1, function (query, result) {
