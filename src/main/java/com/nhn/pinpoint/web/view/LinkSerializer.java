@@ -96,7 +96,7 @@ public class LinkSerializer extends JsonSerializer<Link> {
 
     private void writeSourceAgentTimeSeriesHistogram(Link link, JsonGenerator jgen) throws IOException {
         AgentResponseTimeViewModelList sourceAgentTimeSeriesHistogram = link.getSourceAgentTimeSeriesHistogram();
-        sourceAgentTimeSeriesHistogram.setFieldName("agentTimeSeriesHistogram");
+        sourceAgentTimeSeriesHistogram.setFieldName("sourceTimeSeriesHistogram");
         jgen.writeObject(sourceAgentTimeSeriesHistogram);
     }
 

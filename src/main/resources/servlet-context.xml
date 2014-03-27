@@ -26,12 +26,24 @@
 	<context:component-scan base-package="com.nhn.pinpoint.web.controller, com.nhn.pinpoint.web.util" />
 
     <bean id="jsonView" class="org.springframework.web.servlet.view.json.MappingJackson2JsonView">
+        <!-- 별도 필터에서 하고 있음.-->
+        <property name="disableCaching" value="false"/>
     </bean>
+
+    <bean id="jsonpView" class="com.nhn.pinpoint.web.util.MappingJackson2JsonpView">
+        <!-- 별도 필터에서 하고 있음.-->
+        <property name="disableCaching" value="false"/>
+    </bean>
+
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.BeanNameViewResolver"/>
 
 	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<property name="prefix" value="/WEB-INF/views/" />
 		<property name="suffix" value=".jsp" />
 	</bean>
+
+    <bean id="unwrapRootJsonObjectMapper" class="com.nhn.pinpoint.web.util.UnwrapRootJackson2ObjectMapper"/>
+
 
 	<bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
 	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" />

@@ -1,8 +1,16 @@
 package com.nhn.pinpoint.web.vo.scatter;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.nhn.pinpoint.web.view.DotSerializer;
 import com.nhn.pinpoint.web.vo.TransactionId;
 
+@JsonSerialize(using = DotSerializer.class)
 public class Dot {
+    public static final int EXCEPTION_NONE = 0;
+
+    public static final int SUCCESS_STATE = 1;
+    public static final int FAILED_STATE = 0;
+
     private final TransactionId transactionId;
     private final long acceptedTime;
     private final int elapsedTime;

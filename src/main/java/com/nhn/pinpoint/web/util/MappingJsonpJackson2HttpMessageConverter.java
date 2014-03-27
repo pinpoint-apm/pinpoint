@@ -16,8 +16,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-public class MappingJsonpJackson2HttpMessageConverter extends
-        MappingJackson2HttpMessageConverter {
+public class MappingJsonpJackson2HttpMessageConverter extends MappingJackson2HttpMessageConverter {
 
     private static final String cbPrefix = "(";
     private static final String cbSuffix = ")";
@@ -61,12 +60,9 @@ public class MappingJsonpJackson2HttpMessageConverter extends
         }
     }
 
-    private JsonGenerator getJsonGenerator(HttpOutputMessage outputMessage)
-            throws IOException {
-        JsonEncoding encoding = getJsonEncoding(outputMessage.getHeaders()
-                .getContentType());
-        return getObjectMapper().getJsonFactory().createJsonGenerator(
-                outputMessage.getBody(), encoding);
+    private JsonGenerator getJsonGenerator(HttpOutputMessage outputMessage) throws IOException {
+        JsonEncoding encoding = getJsonEncoding(outputMessage.getHeaders().getContentType());
+        return getObjectMapper().getFactory().createGenerator(outputMessage.getBody(), encoding);
     }
 
     private String getRequestParam(String paramName) {
@@ -74,8 +70,7 @@ public class MappingJsonpJackson2HttpMessageConverter extends
     }
 
     private HttpServletRequest getServletRequest() {
-        return ((ServletRequestAttributes) RequestContextHolder
-                .currentRequestAttributes()).getRequest();
+        return ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
     }
 
 }

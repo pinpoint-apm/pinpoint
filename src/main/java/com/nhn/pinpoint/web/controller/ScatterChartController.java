@@ -12,7 +12,7 @@ import com.nhn.pinpoint.web.service.FilteredMapService;
 import com.nhn.pinpoint.web.util.LimitUtils;
 import com.nhn.pinpoint.web.filter.Filter;
 import com.nhn.pinpoint.web.filter.FilterBuilder;
-import com.nhn.pinpoint.web.vo.Range;
+import com.nhn.pinpoint.web.vo.*;
 import com.nhn.pinpoint.web.vo.scatter.Dot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,9 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.nhn.pinpoint.common.bo.SpanBo;
 import com.nhn.pinpoint.web.service.ScatterChartService;
 import com.nhn.pinpoint.web.util.TimeUtils;
-import com.nhn.pinpoint.web.vo.LimitedScanResult;
-import com.nhn.pinpoint.web.vo.TransactionId;
-import com.nhn.pinpoint.web.vo.TransactionMetadataQuery;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  * 
@@ -73,7 +71,6 @@ public class ScatterChartController {
 
 	/**
 	 * 
-	 * @param model
 	 * @param applicationName
 	 * @param from
 	 * @param to
@@ -83,14 +80,14 @@ public class ScatterChartController {
 	 * @return
 	 */
 	@RequestMapping(value = "/getScatterData", method = RequestMethod.GET)
-	public String getScatterData(Model model,
+	public ModelAndView getScatterData(
 								@RequestParam("application") String applicationName,
 								@RequestParam("from") long from, 
 								@RequestParam("to") long to,
 								@RequestParam("limit") int limit, 
 								@RequestParam(value = "filter", required = false) String filterText,
 								@RequestParam(value = "_callback", required = false) String jsonpCallback,
-								@RequestParam(value = "v", required = false, defaultValue = "1") int version) {
+								@RequestParam(value = "v", required = false, defaultValue = "2") int version) {
         limit = LimitUtils.checkRange(limit);
 
 		StopWatch watch = new StopWatch();
@@ -100,67 +97,81 @@ public class ScatterChartController {
         final Range range = Range.createUncheckedRange(from, to);
         logger.debug("fetch scatter data. {}, LIMIT={}, FILTER={}", range, limit, filterText);
 
-		List<Dot> scatterData;
+        ModelAndView mv;
 		if (filterText == null) {
-			// FIXME ResultWithMark로 변경해야할지도?
-			scatterData = scatter.selectScatterData(applicationName, range, limit);
-			
-			if (scatterData.isEmpty()) {
-				model.addAttribute("resultFrom", -1);
-				model.addAttribute("resultTo", -1);
-			} else {
-				model.addAttribute("resultFrom", scatterData.get(scatterData.size() - 1).getAcceptedTime());
-				model.addAttribute("resultTo", to);
-			}
-		} else {
-			final LimitedScanResult<List<TransactionId>> limitedScanResult = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
-			final List<TransactionId> traceIdList = limitedScanResult.getScanData();
-			logger.trace("submitted transactionId count={}", traceIdList.size());
-			// TODO sorted만 하는가? tree기반으로 레인지 체크하도록 하고 삭제하도록 하자.
-			SortedSet<TransactionId> traceIdSet = new TreeSet<TransactionId>(traceIdList);
-			logger.debug("unified traceIdSet size={}", traceIdSet.size());
-
-            Filter filter = filterBuilder.build(filterText);
-            scatterData = scatter.selectScatterData(traceIdSet, applicationName, filter);
-
-			if (traceIdList.isEmpty()) {
-				model.addAttribute("resultFrom", -1);
-				model.addAttribute("resultTo", -1);
-			} else {
-				model.addAttribute("resultFrom", limitedScanResult.getLimitedTime());
-				model.addAttribute("resultTo", to);
-                if (logger.isDebugEnabled()) {
-                    logger.debug("getScatterData range scan(limited:{}) from ~ to:{} ~ {}, limited:{}, filterDataSize:{}",
-                            limit, DateUtils.longToDateStr(from), DateUtils.longToDateStr(to), DateUtils.longToDateStr(limitedScanResult.getLimitedTime()), traceIdList.size());
-                }
-			}
+            mv = selectScatterData(applicationName, range, limit, jsonpCallback);
+        } else {
+            mv = selectFilterScatterDataData(applicationName, range, filterText, limit, jsonpCallback);
 		}
 
 		watch.stop();
 
 		logger.info("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());
 
-		model.addAttribute("scatter", scatterData);
-
-		// TODO version은 임시로 사용됨. template변경과 서버개발을 동시에 하려고. 변경 후 삭제예정.
-		if (jsonpCallback == null) {
-			return "scatter_json" + ((version > 1) ? version : "");
-		} else {
-			model.addAttribute("callback", jsonpCallback);
-			return "scatter_jsonp" + ((version > 1) ? version : "");
-		}
+        return mv;
 	}
 
-	/**
+    private ModelAndView selectFilterScatterDataData(String applicationName, Range range, String filterText, int limit, String jsonpCallback) {
+
+        final LimitedScanResult<List<TransactionId>> limitedScanResult = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
+
+        final List<TransactionId> traceIdList = limitedScanResult.getScanData();
+        logger.trace("submitted transactionId count={}", traceIdList.size());
+        // TODO sorted만 하는가? tree기반으로 레인지 체크하도록 하고 삭제하도록 하자.
+        SortedSet<TransactionId> traceIdSet = new TreeSet<TransactionId>(traceIdList);
+        logger.debug("unified traceIdSet size={}", traceIdSet.size());
+
+        Filter filter = filterBuilder.build(filterText);
+        List<Dot> scatterData = scatter.selectScatterData(traceIdSet, applicationName, filter);
+        if (logger.isDebugEnabled()) {
+            logger.debug("getScatterData range scan(limited:{}) from ~ to:{} ~ {}, limited:{}, filterDataSize:{}",
+                    limit, DateUtils.longToDateStr(range.getFrom()), DateUtils.longToDateStr(range.getTo()), DateUtils.longToDateStr(limitedScanResult.getLimitedTime()), traceIdList.size());
+        }
+
+        Range resultRange;
+        if (traceIdList.isEmpty()) {
+            resultRange = new Range(-1, -1);
+        } else {
+            resultRange = new Range(limitedScanResult.getLimitedTime(), range.getTo());
+        }
+        return createModelAndVeiw(resultRange, jsonpCallback, scatterData);
+    }
+
+    private ModelAndView selectScatterData(String applicationName, Range range, int limit, String jsonpCallback) {
+
+        final List<Dot> scatterData = scatter.selectScatterData(applicationName, range, limit);
+        Range resultRange;
+        if (scatterData.isEmpty()) {
+            resultRange = new Range(-1, -1);
+        } else {
+            resultRange = new Range(scatterData.get(scatterData.size() - 1).getAcceptedTime(), range.getTo());
+        }
+        return createModelAndVeiw(resultRange, jsonpCallback, scatterData);
+    }
+
+    private ModelAndView createModelAndVeiw(Range range, String jsonpCallback, List<Dot> scatterData) {
+        ModelAndView mv = new ModelAndView();
+        mv.addObject("resultFrom", range.getFrom());
+        mv.addObject("resultTo", range.getTo());
+        mv.addObject("scatterIndex", ScatterIndex.MATA_DATA);
+        mv.addObject("scatter", scatterData);
+        if (jsonpCallback == null) {
+            mv.setViewName("jsonView");
+        } else {
+            mv.setViewName("jsonpView");
+        }
+        return mv;
+    }
+
+    /**
 	 * NOW 버튼을 눌렀을 때 scatter 데이터 조회.
 	 * 
-	 * @param model
 	 * @param applicationName
 	 * @param limit
 	 * @return
 	 */
 	@RequestMapping(value = "/getLastScatterData", method = RequestMethod.GET)
-	public String getLastScatterData(Model model, 
+	public ModelAndView getLastScatterData(
 									@RequestParam("application") String applicationName,
 									@RequestParam("period") long period,
 									@RequestParam("limit") int limit,
@@ -172,7 +183,7 @@ public class ScatterChartController {
         long to = TimeUtils.getDelayLastTime();
 		long from = to - period;
 		// TODO version은 임시로 사용됨. template변경과 서버개발을 동시에 하려고..
-		return getScatterData(model, applicationName, from, to, limit, filterText, jsonpCallback, version);
+		return getScatterData(applicationName, from, to, limit, filterText, jsonpCallback, version);
 	}
 
 	/**
