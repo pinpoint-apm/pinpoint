@@ -28,7 +28,7 @@ public class ResponseHistogramSummary {
     // key는 agentId이다.
     private final Map<String, Histogram> agentHistogramMap;
 
-    private final ApplicationTimeSeriesHistogram applicationTimeSeriesHistogram;
+    private ApplicationTimeSeriesHistogram applicationTimeSeriesHistogram;
 
     private final AgentTimeSeriesHistogram agentTimeSeriesHistogram;
 
@@ -76,7 +76,12 @@ public class ResponseHistogramSummary {
         return applicationHistogram;
     }
 
-    public void addLinkHistogram(Histogram linkHistogram) {
+    public void setApplicationTimeSeriesHistogram(ApplicationTimeSeriesHistogram applicationTimeSeriesHistogram) {
+        this.applicationTimeSeriesHistogram = applicationTimeSeriesHistogram;
+    }
+
+    @Deprecated
+    public void addHistogram(Histogram linkHistogram) {
         if (linkHistogram == null) {
             throw new NullPointerException("histogram must not be null");
         }

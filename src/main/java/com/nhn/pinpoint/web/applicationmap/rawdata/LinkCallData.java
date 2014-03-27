@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.web.applicationmap.rawdata;
 
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.LinkKey;
 
 import java.util.*;
@@ -31,6 +32,21 @@ public class LinkCallData {
 
         this.targetHistogramTimeMap = new HashMap<Long, TimeHistogram>();
     }
+
+    public LinkCallData(Application source, Application target) {
+        if (source == null) {
+            throw new NullPointerException("linkKey must not be null");
+        }
+        this.source = source.getName();
+        this.sourceServiceType = source.getServiceType();
+
+        this.target = target.getName();
+        this.targetServiceType = target.getServiceType();
+
+        this.targetHistogramTimeMap = new HashMap<Long, TimeHistogram>();
+    }
+
+
 
     public String getSource() {
         return source;

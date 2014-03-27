@@ -115,7 +115,6 @@ public class MapController {
         final Application destinationApplication = new Application(targetApplicationName, targetServiceType);
         final Range range = new Range(from, to);
 
-//		LoadFactor loadFactor = mapService.linkStatistics(sourceApplication, destinationApplication, range);
         ResponseHistogramSummary responseHistogramSummary = mapService.linkStatistics(sourceApplication, destinationApplication, range);
 
 		model.addAttribute("range", range);

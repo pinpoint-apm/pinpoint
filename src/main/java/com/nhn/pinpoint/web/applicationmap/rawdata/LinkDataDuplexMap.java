@@ -1,5 +1,8 @@
 package com.nhn.pinpoint.web.applicationmap.rawdata;
 
+import com.nhn.pinpoint.web.vo.Application;
+import com.nhn.pinpoint.web.vo.LinkKey;
+
 import java.util.Collection;
 
 public class LinkDataDuplexMap {
@@ -72,4 +75,19 @@ public class LinkDataDuplexMap {
     }
 
 
+    public LinkData getSourceLinkData(LinkKey findLinkKey) {
+        if (findLinkKey == null) {
+            throw new NullPointerException("findLinkKey must not be null");
+        }
+
+        return source.getLinkData(findLinkKey);
+    }
+
+    public LinkData getTargetLinkData(LinkKey findLinkKey) {
+        if (findLinkKey == null) {
+            throw new NullPointerException("findLinkKey must not be null");
+        }
+
+        return target.getLinkData(findLinkKey);
+    }
 }

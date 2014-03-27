@@ -80,7 +80,7 @@ public class MapServiceImpl implements MapService, AgentSelector {
 
         final LinkDataDuplexMap resultCaller = new LinkDataDuplexMap();
         for (LinkData link : caller.getLinkDataList()) {
-            link = getRpcCallAccepted(link, range);
+            link = checkRpcCallAccepted(link, range);
 
             resultCaller.addSourceLinkData(link);
 
@@ -147,7 +147,7 @@ public class MapServiceImpl implements MapService, AgentSelector {
         return calleeSet;
     }
 
-    private LinkData getRpcCallAccepted(LinkData stat, Range range) {
+    private LinkData checkRpcCallAccepted(LinkData stat, Range range) {
         // rpc client의 목적지가 agent가 설치되어 application name이 존재한다면 replace.
         final Application toApplication = stat.getToApplication();
         if (toApplication.getServiceType().isRpcClient()) {
@@ -156,12 +156,13 @@ public class MapServiceImpl implements MapService, AgentSelector {
             if (app != null) {
                 logger.debug("Application info replaced. {} => {}", stat, app);
                 Application acceptedApplication = new Application(app.getName(), app.getServiceType());
-                LinkData acceptedLisk = new LinkData(stat.getFromApplication(), acceptedApplication, stat.getLinkCallDataMap());
-                return acceptedLisk;
+
+                final LinkData acceptedLinkData = new LinkData(stat.getFromApplication(), acceptedApplication, stat.getLinkCallDataMap());
+                return acceptedLinkData;
             } else {
                 Application unknown = new Application(toApplication.getName(), ServiceType.UNKNOWN);
-                LinkData unknownLinkStat = new LinkData(stat.getFromApplication(), unknown, stat.getLinkCallDataMap());
-                return unknownLinkStat;
+                LinkData unknownLinkData = new LinkData(stat.getFromApplication(), unknown, stat.getLinkCallDataMap());
+                return unknownLinkData;
             }
         }
         return stat;

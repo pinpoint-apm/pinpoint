@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.nhn.pinpoint.web.dao.MapResponseDao;
@@ -142,28 +143,48 @@ public class ApplicationMap {
         for (Node node : nodes) {
             if (node.getServiceType().isWas()) {
                 // was일 경우 자신의 response 히스토그램을 조회하여 채운다.
-                final Application application = new Application(node.getApplication().getName(), node.getServiceType());
-                ResponseHistogramSummary nodeHistogramSummary = responseDataSource.getResponseHistogramSummary(application);
+                final Application nodeApplication = node.getApplication();
+                final ResponseHistogramSummary nodeHistogramSummary = responseDataSource.getResponseHistogramSummary(nodeApplication);
                 node.setResponseHistogramSummary(nodeHistogramSummary);
             } else if(node.getServiceType().isTerminal() || node.getServiceType().isUnknown()) {
                 // 터미널 노드인경우, 자신을 가리키는 link값을 합하여 histogram을 생성한다.
-                Application nodeApplication = new Application(node.getApplication().getName(), node.getServiceType());
+                final Application nodeApplication = node.getApplication();
                 final ResponseHistogramSummary nodeHistogramSummary = new ResponseHistogramSummary(nodeApplication, range);
 
                 final List<Link> toLinkList = linkList.findToLink(nodeApplication);
                 for (Link link : toLinkList) {
-                    nodeHistogramSummary.addLinkHistogram(link.getHistogram());
+                    nodeHistogramSummary.addHistogram(link.getHistogram());
                 }
+
+
+                LinkCallDataMap linkCallDataMap = new LinkCallDataMap();
+                for (Link link : toLinkList) {
+                    LinkCallDataMap sourceLinkCallDataMap = link.getSourceLinkCallDataMap();
+                    linkCallDataMap.addLinkDataMap(sourceLinkCallDataMap);
+                }
+                ApplicationTimeSeriesHistogramBuilder builder = new ApplicationTimeSeriesHistogramBuilder(nodeApplication, range);
+                ApplicationTimeSeriesHistogram applicationTimeSeriesHistogram = builder.build(linkCallDataMap.getRawCallDataMap());
+                nodeHistogramSummary.setApplicationTimeSeriesHistogram(applicationTimeSeriesHistogram);
+
                 node.setResponseHistogramSummary(nodeHistogramSummary);
             } else if (node.getServiceType().isUser()) {
                 // User노드인 경우 source 링크를 찾아 histogram을 생성한다.
                 Application nodeApplication = node.getApplication();
                 final ResponseHistogramSummary nodeHistogramSummary = new ResponseHistogramSummary(nodeApplication, range);
-
                 final List<Link> fromLink = linkList.findFromLink(nodeApplication);
-                for (Link link : fromLink) {
-                    nodeHistogramSummary.addLinkHistogram(link.getHistogram());
+                if (fromLink.size() > 1) {
+                    logger.warn("Invalid from UserNode:{}", linkList);
+                    throw new IllegalArgumentException("Invalid from UserNode.size() :" + fromLink.size());
+                } else if (fromLink.size() == 0) {
+                    logger.warn("from UserNode not found:{}", nodeApplication);
+                    continue;
                 }
+                final Link sourceLink = fromLink.get(0);
+                nodeHistogramSummary.addHistogram(sourceLink.getHistogram());
+
+                ApplicationTimeSeriesHistogram histogramData = sourceLink .getTargetApplicationTimeSeriesHistogramData();
+                nodeHistogramSummary.setApplicationTimeSeriesHistogram(histogramData);
+
                 node.setResponseHistogramSummary(nodeHistogramSummary);
             } else {
                 // 그냥 데미 데이터

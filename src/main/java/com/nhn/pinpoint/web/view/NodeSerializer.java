@@ -68,7 +68,7 @@ public class NodeSerializer extends JsonSerializer<Node>  {
                 jgen.writeObjectField("agentHistogram", agentHistogramMap);
             }
         }
-        if (serviceType.isWas()) {
+        if (serviceType.isWas() || serviceType.isUser() || serviceType.isTerminal() || serviceType.isUnknown()) {
             List<ResponseTimeViewModel> applicationTimeSeriesHistogram = responseHistogramSummary.getApplicationTimeSeriesHistogram();
             if (applicationTimeSeriesHistogram == null) {
                 writeEmptyArray(jgen, "timeSeriesHistogram");

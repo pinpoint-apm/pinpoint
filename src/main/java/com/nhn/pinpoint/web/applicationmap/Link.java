@@ -27,22 +27,30 @@ public class Link {
 
     public static final String LINK_DELIMITER = "~";
 
+    // 링크를 생성한 데이터의 주체가 누구인가를 나타냄
+    // source에 의해서 먼저 생성된것인지, target에 의해서 수동적으로 생성된것인지 나타낸다.
+    private CreateType createType;
     private final Node fromNode;
     private final Node toNode;
 
     private final Range range;
 
-    private final LinkStateResolver linkStateResolver = LinkStateResolver.DEFAULT_LINK_STATERE_SOLVER;
+    private final LinkStateResolver linkStateResolver = LinkStateResolver.DEFAULT_LINK_STATE_RESOLVER;
 
-    private final LinkCallDataMap source;
+    private final LinkCallDataMap sourceLinkCallDataMap = new LinkCallDataMap();
 
-    private final LinkCallDataMap target;
+    private final LinkCallDataMap targetLinkCallDataMap = new LinkCallDataMap();
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
+    private Histogram linkHistogram;
 
 
-    public Link(Node fromNode, Node toNode, Range range, LinkCallDataMap source, LinkCallDataMap target) {
+
+    public Link(CreateType createType, Node fromNode, Node toNode, Range range) {
+        if (createType == null) {
+            throw new NullPointerException("createType must not be null");
+        }
         if (fromNode == null) {
             throw new NullPointerException("fromNode must not be null");
         }
@@ -52,33 +60,14 @@ public class Link {
         if (range == null) {
             throw new NullPointerException("range must not be null");
         }
-        if (source == null) {
-            throw new NullPointerException("source must not be null");
-        }
-        if (target == null) {
-            throw new NullPointerException("target must not be null");
-        }
+
+        this.createType = createType;
 
         this.fromNode = fromNode;
         this.toNode = toNode;
 
         this.range = range;
 
-        this.source = new LinkCallDataMap(source);
-        this.target = new LinkCallDataMap(target);
-    }
-
-    public Link(Link copyLink) {
-        if (copyLink == null) {
-            throw new NullPointerException("copyLink must not be null");
-        }
-        this.fromNode = copyLink.fromNode;
-        this.toNode = copyLink.toNode;
-
-        this.range = copyLink.range;
-
-        this.source = new LinkCallDataMap(copyLink.source);
-        this.target = new LinkCallDataMap(copyLink.target);
     }
 
     public Application getFilterApplication() {
@@ -107,6 +96,14 @@ public class Link {
         return fromNode.getNodeName() + LINK_DELIMITER + toNode.getNodeName();
     }
 
+    public LinkCallDataMap getSourceLinkCallDataMap() {
+        return sourceLinkCallDataMap;
+    }
+
+    public LinkCallDataMap getTargetLinkCallDataMap() {
+        return targetLinkCallDataMap;
+    }
+
     @JsonIgnore
     public String getJson() {
         try {
@@ -117,25 +114,44 @@ public class Link {
     }
 
 	public CallHistogramList getTargetList() {
-		return source.getTargetList();
+		return sourceLinkCallDataMap.getTargetList();
 	}
 
 
 	public Histogram getHistogram() {
+        if (linkHistogram == null) {
+            linkHistogram = createLinkHistogram();
+        }
+        return linkHistogram;
+	}
+
+    private Histogram createLinkHistogram() {
         // 내가 호출하는 대상의 serviceType을 가져와야 한다.
         // tomcat -> arcus를 호출한다고 하였을 경우 arcus의 타입을 가져와야함.
         final Histogram linkHistogram = new Histogram(toNode.getServiceType());
-        for (CallHistogram callHistogram : source.getTargetList().getCallHistogramList()) {
+        final LinkCallDataMap findMap = getLinkCallDataMap();
+        for (CallHistogram callHistogram : findMap.getTargetList().getCallHistogramList()) {
             linkHistogram.add(callHistogram.getHistogram());
         }
-		return linkHistogram;
-	}
+        return linkHistogram;
+    }
+
+    private LinkCallDataMap getLinkCallDataMap() {
+        switch (createType) {
+            case Source:
+                return sourceLinkCallDataMap;
+            case Target:
+                return targetLinkCallDataMap;
+            default:
+                throw new IllegalArgumentException("invalid CreateType:" + createType);
+        }
+    }
 
     public Histogram getTargetHistogram() {
         // 내가 호출하는 대상의 serviceType을 가져와야 한다.
         // tomcat -> arcus를 호출한다고 하였을 경우 arcus의 타입을 가져와야함.
         final Histogram linkHistogram = new Histogram(toNode.getServiceType());
-        for (CallHistogram callHistogram : target.getTargetList().getCallHistogramList()) {
+        for (CallHistogram callHistogram : targetLinkCallDataMap.getTargetList().getCallHistogramList()) {
             linkHistogram.add(callHistogram.getHistogram());
         }
         return linkHistogram;
@@ -143,45 +159,47 @@ public class Link {
 
     @JsonIgnore
     public CallHistogramList getSourceList() {
-        return source.getSourceList();
+        return sourceLinkCallDataMap.getSourceList();
+    }
+
+    public void addSource(LinkCallDataMap sourceLinkCallDataMap) {
+        this.sourceLinkCallDataMap.addLinkDataMap(sourceLinkCallDataMap);
+    }
+
+    public void addTarget(LinkCallDataMap targetLinkCallDataMap) {
+        this.targetLinkCallDataMap.addLinkDataMap(targetLinkCallDataMap);
     }
 
     public List<ResponseTimeViewModel> getSourceApplicationTimeSeriesHistogram() {
+        ApplicationTimeSeriesHistogram histogramData = getSourceApplicationTimeSeriesHistogramData();
+        return histogramData.createViewModel();
+
+    }
+
+    public ApplicationTimeSeriesHistogram getSourceApplicationTimeSeriesHistogramData() {
         // form인것 같지만 link의 시간은 rpc를 기준으로 삼아야 하기 때문에. to를 기준으로 삼아야 한다.
         ApplicationTimeSeriesHistogramBuilder builder = new ApplicationTimeSeriesHistogramBuilder(toNode.getApplication(), range);
-        ApplicationTimeSeriesHistogram applicationTimeSeriesHistogram = builder.build(source.getRawCallDataMap());
-        List<ResponseTimeViewModel> viewModel = applicationTimeSeriesHistogram.createViewModel();
-        return viewModel;
+        return builder.build(sourceLinkCallDataMap.getRawCallDataMap());
+    }
+
+    public ApplicationTimeSeriesHistogram getTargetApplicationTimeSeriesHistogramData() {
+        // form인것 같지만 link의 시간은 rpc를 기준으로 삼아야 하기 때문에. to를 기준으로 삼아야 한다.
+        ApplicationTimeSeriesHistogramBuilder builder = new ApplicationTimeSeriesHistogramBuilder(toNode.getApplication(), range);
+        return builder.build(targetLinkCallDataMap.getRawCallDataMap());
     }
 
     public AgentResponseTimeViewModelList getSourceAgentTimeSeriesHistogram() {
 
         // form인것 같지만 link의 시간은 rpc를 기준으로 삼아야 하기 때문에. to를 기준으로 삼아야 한다.
         AgentTimeSeriesHistogramBuilder builder = new AgentTimeSeriesHistogramBuilder(toNode.getApplication(), range);
-        AgentTimeSeriesHistogram applicationTimeSeriesHistogram = builder.build(source.getRawCallDataMap());
+        AgentTimeSeriesHistogram applicationTimeSeriesHistogram = builder.build(sourceLinkCallDataMap.getRawCallDataMap());
         AgentResponseTimeViewModelList agentResponseTimeViewModelList = new AgentResponseTimeViewModelList(applicationTimeSeriesHistogram.createViewModel());
         return agentResponseTimeViewModelList;
     }
 
     public String getLinkState() {
-        // 이거 호출할때 마다 생성해서 수정이 요망함.
-        Histogram histogram = getHistogram();
-        return linkStateResolver.resolve(this, histogram);
+        return linkStateResolver.resolve(this);
     }
-
-	public void addLink(Link link) {
-        if (link == null) {
-            throw new NullPointerException("link must not be null");
-        }
-        // TODO this.equals로 바꿔도 되지 않을까?
-		if (!(this.fromNode.equals(link.getFrom()) && this.toNode.equals(link.getTo()))) {
-            logger.info("fromNode:{}, to:{}, fromNode:{}, linkTo:{}", fromNode, toNode, link.getFrom(), link.getTo());
-            throw new IllegalArgumentException("Can't merge.");
-        }
-        this.source.addCallData(link.source);
-
-        this.target.addCallData(link.target);
-	}
 
     @Override
     public boolean equals(Object o) {
@@ -206,8 +224,8 @@ public class Link {
     @Override
     public String toString() {
         return "Link{" +
-                "toNode=" + toNode +
-                ", fromNode=" + fromNode +
+                "fromNode=" + fromNode +
+                ", toNode=" + toNode +
                 '}';
     }
 }

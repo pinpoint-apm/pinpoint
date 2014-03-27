@@ -23,7 +23,7 @@ public class LinkCallDataMap {
         if (copyLinkCallDataMap == null) {
             throw new NullPointerException("copyLinkCallDataMap must not be null");
         }
-        addCallData(copyLinkCallDataMap);
+        addLinkDataMap(copyLinkCallDataMap);
     }
 
     public void addCallData(String sourceAgentId, short sourceServiceType, String targetId, short targetServiceType, long timestamp, short slot, long count) {
@@ -32,7 +32,7 @@ public class LinkCallDataMap {
 
     public void addCallData(String sourceAgentId, ServiceType sourceServiceType, String targetId, ServiceType targetServiceType, long timestamp, short slot, long count) {
         LinkKey linkKey = createLinkKey(sourceAgentId, sourceServiceType, targetId, targetServiceType);
-        LinkCallData linkCallData = getRawCallData(linkKey);
+        LinkCallData linkCallData = getLinkCallData(linkKey);
         linkCallData.addCallData(timestamp, slot, count);
     }
 
@@ -40,20 +40,20 @@ public class LinkCallDataMap {
         return new LinkKey(sourceAgentId, sourceServiceType, targetId, targetServiceType);
     }
 
-    public void addCallData(LinkCallDataMap target) {
+    public void addLinkDataMap(LinkCallDataMap target) {
         if (target == null) {
             throw new NullPointerException("target must not be null");
         }
         for (Map.Entry<LinkKey, LinkCallData> copyEntry : target.rawCallDataMap.entrySet()) {
             final LinkKey key = copyEntry.getKey();
             final LinkCallData copyLinkCallData = copyEntry.getValue();
-            LinkCallData linkCallData = getRawCallData(key);
+            LinkCallData linkCallData = getLinkCallData(key);
             linkCallData.addRawCallData(copyLinkCallData);
         }
 
     }
 
-    private LinkCallData getRawCallData(LinkKey key) {
+    private LinkCallData getLinkCallData(LinkKey key) {
         final Map<LinkKey, LinkCallData> rawCallDataMap = this.rawCallDataMap;
         LinkCallData linkCallData = rawCallDataMap.get(key);
         if (linkCallData == null) {

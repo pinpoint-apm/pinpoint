@@ -110,6 +110,6 @@ public class Node {
 
 	@Override
 	public String toString() {
-		return "Node [" + application + ", " + serverInstanceList + "]";
+		return "Node [" + application + "]";
 	}
 }

@@ -1,10 +1,10 @@
 package com.nhn.pinpoint.web.applicationmap;
 
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.nhn.pinpoint.web.vo.Application;
+import com.nhn.pinpoint.web.vo.LinkKey;
 import com.nhn.pinpoint.web.vo.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,10 +94,24 @@ public class ApplicationMapBuilder {
         logger.debug("targetLink.size:{}", targetLink.size());
         map.addLink(targetLink);
 
-        LinkDataMap targetLinkData = linkDataDuplexMap.getTargetLinkData();
-        logger.debug("----------------targetLinkData:{}", targetLinkData.size());
-        for (LinkData statistics : targetLinkData.getLinkDataList()) {
-            logger.debug("target:{}", statistics);
+
+        for (Link link : map.getLinks()) {
+            appendLinkHistogram(link, linkDataDuplexMap);
+        }
+
+    }
+
+    private void appendLinkHistogram(Link link, LinkDataDuplexMap linkDataDuplexMap) {
+        logger.debug("appendLinkHistogram link:{}", link);
+
+        LinkKey key = link.getLinkKey();
+        LinkData sourceLinkData = linkDataDuplexMap.getSourceLinkData(key);
+        if (sourceLinkData != null) {
+            link.addSource(sourceLinkData.getLinkCallDataMap());
+        }
+        LinkData targetLinkData = linkDataDuplexMap.getTargetLinkData(key);
+        if (targetLinkData != null) {
+            link.addTarget(targetLinkData.getLinkCallDataMap());
         }
     }
 
@@ -107,19 +121,18 @@ public class ApplicationMapBuilder {
         for (LinkData linkData : linkDataMap.getLinkDataList()) {
             final Application fromApplicationId = linkData.getFromApplication();
             Node fromNode = map.findNode(fromApplicationId);
-            // TODO
+
             final Application toApplicationId = linkData.getToApplication();
             Node toNode = map.findNode(toApplicationId);
 
             // rpc client가 빠진경우임.
             if (toNode == null) {
-                logger.warn("rcp client not found:{}", toApplicationId);
+                logger.warn("toNode rcp client not found:{}", toApplicationId);
                 continue;
             }
 
             // RPC client인 경우 dest application이 이미 있으면 삭제, 없으면 unknown cloud로 변경.
-            LinkCallDataMap callDataMap = linkData.getLinkCallDataMap();
-            final Link link = new Link(fromNode, toNode, range, callDataMap, new LinkCallDataMap());
+            final Link link = new Link(CreateType.Source, fromNode, toNode, range);
 
             if (toNode.getServiceType().isRpcClient()) {
                 if (!map.containsNode(toNode.getApplication().getName())) {
@@ -147,19 +160,12 @@ public class ApplicationMapBuilder {
 
             // rpc client가 빠진경우임.
             if (fromNode == null) {
+                logger.warn("fromNode rcp client not found:{}", toApplicationId);
                 continue;
             }
 
             // RPC client인 경우 dest application이 이미 있으면 삭제, 없으면 unknown cloud로 변경.
-            LinkCallDataMap callDataMap = linkData.getLinkCallDataMap();
-
-            Link link;
-            if (fromNode.getApplication().getServiceType().isUser()) {
-                link = new Link(fromNode, toNode, range, callDataMap, new LinkCallDataMap());
-            } else {
-                link = new Link(fromNode, toNode, range, new LinkCallDataMap(), callDataMap);
-            }
-
+            Link link = new Link(CreateType.Target, fromNode, toNode, range);
             if (toNode.getServiceType().isRpcClient()) {
                 if (!map.containsNode(toNode.getApplication().getName())) {
                     result.add(link);

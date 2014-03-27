@@ -92,7 +92,7 @@ public class LinkData {
             throw new IllegalArgumentException("Can't merge with different link.");
 		}
         final LinkCallDataMap target = applicationStatistics.linkCallDataMap;
-        this.linkCallDataMap.addCallData(target);
+        this.linkCallDataMap.addLinkDataMap(target);
 	}
 
     @Override

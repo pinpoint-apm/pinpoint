@@ -17,7 +17,7 @@ public class LinkList {
 
     public void buildLink(List<Link> relationList) {
         for (Link link : relationList) {
-            buildLink(link);
+            addLink(link);
         }
     }
 
@@ -25,7 +25,7 @@ public class LinkList {
         if (toApplication == null) {
             throw new NullPointerException("toApplication must not be null");
         }
-        List<Link> findList = new ArrayList();
+        List<Link> findList = new ArrayList<Link>();
         for (Link link : linkMap.values()) {
             Node toNode = link.getTo();
             // destnation이 자신을 가리킨다면 데이터를 머지함.
@@ -40,7 +40,7 @@ public class LinkList {
         if (fromApplication == null) {
             throw new NullPointerException("toApplication must not be null");
         }
-        List<Link> findList = new ArrayList();
+        List<Link> findList = new ArrayList<Link>();
         for (Link link : linkMap.values()) {
             Node fromNode = link.getFrom();
             // destnation이 자신을 가리킨다면 데이터를 머지함.
@@ -51,18 +51,16 @@ public class LinkList {
         return findList;
     }
 
-    public void buildLink(Link sourceLink) {
-        if (sourceLink == null) {
-            throw new NullPointerException("sourceLink must not be null");
+    public void addLink(Link newLink) {
+        if (newLink == null) {
+            throw new NullPointerException("newLink must not be null");
         }
 
-        final LinkKey linkId = sourceLink.getLinkKey();
+        final LinkKey linkId = newLink.getLinkKey();
         final Link find = this.linkMap.get(linkId);
-        if (find != null) {
-            find.addLink(sourceLink);
-        } else {
-            Link copy = new Link(sourceLink);
-            this.linkMap.put(linkId, copy);
+        if (find == null) {
+            this.linkMap.put(linkId, newLink);
         }
+
     }
 }

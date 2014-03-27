@@ -6,7 +6,6 @@ import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.LinkKey;
 
 public class LinkDataMap {
-
     private final Map<LinkKey, LinkData> linkDataMap = new HashMap<LinkKey, LinkData>();
 
 	public LinkDataMap() {
@@ -58,5 +57,12 @@ public class LinkDataMap {
 
     public int size() {
         return linkDataMap.size();
+    }
+
+    public LinkData getLinkData(LinkKey findLinkKey) {
+        if (findLinkKey == null) {
+            throw new NullPointerException("findLinkKey must not be null");
+        }
+        return this.linkDataMap.get(findLinkKey);
     }
 }
