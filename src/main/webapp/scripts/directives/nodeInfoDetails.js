@@ -50,10 +50,11 @@ pinpointApp
                     scope.unknownGroup = node.textArr;
                     scope.serverList = node.serverList;
                     scope.showServers = _.isEmpty(scope.serverList) ? false : true;
-                    scope.isWas = node.isWas;
+//                    scope.isWas = node.isWas;
+                    scope.isWas = true;
                     scope.agentHistogram = node.agentHistogram;
 
-                    if (!node.targetRawData && /*node.category !== "USER" &&*/ node.category !== "UNKNOWN_GROUP") {
+                    if (!node.targetRawData && node.category !== "UNKNOWN_GROUP") {
                         renderHistogram('.nodeInfoDetails .histogram svg', [
                             {
                                 'key': "Response Time Histogram",
@@ -61,9 +62,9 @@ pinpointApp
                             }
                         ]);
                         scope.showNodeResponseSummary = true;
-                        if (node.isWas) {
-                            renderTimeSeriesHistogram('.nodeInfoDetails .timeSeriesHistogram svg', node.timeSeriesHistogram);
+                        if (scope.isWas) {
                             scope.showNodeLoad = true;
+                            renderTimeSeriesHistogram('.nodeInfoDetails .timeSeriesHistogram svg', node.timeSeriesHistogram);
 
                             for (var key in node.agentHistogram) {
                                 var className = $filter('applicationNameToClassName')(key);
