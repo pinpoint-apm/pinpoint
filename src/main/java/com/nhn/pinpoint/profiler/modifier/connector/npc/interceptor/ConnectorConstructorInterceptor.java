@@ -2,6 +2,8 @@ package com.nhn.pinpoint.profiler.modifier.connector.npc.interceptor;
 
 import java.net.InetSocketAddress;
 
+import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.profiler.context.Trace;
 import com.nhn.pinpoint.profiler.context.TraceContext;
 import com.nhn.pinpoint.profiler.interceptor.*;
 import com.nhn.pinpoint.profiler.logging.PLogger;
@@ -24,13 +26,15 @@ public class ConnectorConstructorInterceptor implements SimpleAroundInterceptor,
 	private MethodDescriptor descriptor;
 	private TraceContext traceContext;
 
-	private MetaObject<InetSocketAddress> setServerAddress = new MetaObject<InetSocketAddress>("__setServerAddress", InetSocketAddress.class);
+	private final MetaObject<InetSocketAddress> setServerAddress = new MetaObject<InetSocketAddress>("__setServerAddress", InetSocketAddress.class);
 
 	@Override
 	public void before(Object target, Object[] args) {
 		if (isDebug) {
 			logger.beforeInterceptor(target, args);
 		}
+
+		InetSocketAddress serverAddress = null;
 
 		if (target instanceof KeepAliveNpcHessianConnector) {
 			/*
@@ -40,27 +44,55 @@ public class ConnectorConstructorInterceptor implements SimpleAroundInterceptor,
 			 */
 			if (args.length == 4) {
 				if (args[0] instanceof InetSocketAddress) {
-					setServerAddress.invoke(target, (InetSocketAddress) args[0]);
+					serverAddress = (InetSocketAddress) args[0];
 				}
 			} else if (args.length == 1) {
 				if (args[0] instanceof NpcConnectorOption) {
 					NpcConnectorOption option = (NpcConnectorOption) args[0];
-					InetSocketAddress address = option.getAddress();
-					setServerAddress.invoke(target, address);
+					serverAddress = option.getAddress();
 				}
 			}
 		} else {
 			if (args[0] instanceof NpcConnectorOption) {
 				NpcConnectorOption option = (NpcConnectorOption) args[0];
-				InetSocketAddress address = option.getAddress();
-				setServerAddress.invoke(target, address);
+				serverAddress = option.getAddress();
 			}
 		}
+
+		setServerAddress.invoke(target, serverAddress);
+
+		Trace trace = traceContext.currentTraceObject();
+		if (trace == null) {
+			return;
+		}
+
+		trace.traceBlockBegin();
+		trace.markBeforeTime();
+		trace.recordServiceType(ServiceType.NPC_CLIENT);
+
+		int port = serverAddress.getPort();
+		String endPoint = serverAddress.getHostName() + ((port > 0) ? ":" + port : "");
+		trace.recordDestinationId(endPoint);
 	}
 
 	@Override
 	public void after(Object target, Object[] args, Object result) {
+		if (isDebug) {
+			logger.afterInterceptor(target, args);
+		}
 
+		Trace trace = traceContext.currentTraceObject();
+		if (trace == null) {
+			return;
+		}
+
+		try {
+			trace.recordApi(descriptor);
+			trace.recordException(result);
+			trace.markAfterTime();
+		} finally {
+			trace.traceBlockEnd();
+		}
 	}
 
 	@Override
