@@ -11,8 +11,8 @@ public class PinpointThreadFactory implements ThreadFactory {
     private final static AtomicInteger FACTORY_NUMBER = new AtomicInteger(0);
     private final AtomicInteger threadNumber = new AtomicInteger(0);
 
-    private String threadPrefix;
-    private boolean daemon;
+    private final String threadPrefix;
+    private final boolean daemon;
 
 
     public PinpointThreadFactory() {
