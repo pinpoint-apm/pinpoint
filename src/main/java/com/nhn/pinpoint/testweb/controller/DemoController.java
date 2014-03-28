@@ -20,6 +20,11 @@ import com.nhn.pinpoint.testweb.util.AsyncHttpInvoker;
 import com.nhn.pinpoint.testweb.util.HttpConnectorOptions;
 import com.nhn.pinpoint.testweb.util.HttpInvoker;
 
+/**
+ * 
+ * @author netspider
+ * 
+ */
 @Controller
 public class DemoController {
 

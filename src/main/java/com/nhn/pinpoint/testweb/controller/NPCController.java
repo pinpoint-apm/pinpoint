@@ -49,7 +49,9 @@ public class NPCController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			connector.dispose();
+			if (connector != null) {
+				connector.dispose();
+			}
 		}
 		return "npc";
 	}
@@ -81,7 +83,9 @@ public class NPCController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			connector.dispose();
+			if (connector != null) {
+				connector.dispose();
+			}
 		}
 		return "npc";
 	}
@@ -118,7 +122,9 @@ public class NPCController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			connector.dispose();
+			if (connector != null) {
+				connector.dispose();
+			}
 		}
 		return "npc";
 	}
@@ -156,7 +162,9 @@ public class NPCController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			connector.dispose();
+			if (connector != null) {
+				connector.dispose();
+			}
 		}
 		return "npc";
 	}
@@ -196,7 +204,9 @@ public class NPCController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			connector.dispose();
+			if (connector != null) {
+				connector.dispose();
+			}
 		}
 		return "npc";
 	}
