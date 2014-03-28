@@ -23,6 +23,6 @@ public class DotSerializerTest {
         TransactionId transactionId = new TransactionId("aigw.dev.1^1395798795017^1527177");
         Dot dot = new Dot(transactionId, 100, 99, 1, "agent");
         String jsonValue = mapper.writeValueAsString(dot);
-        Assert.assertEquals("[100,99,\"aigw.dev.1^1395798795017^1527177\",1]", jsonValue);
+        Assert.assertEquals("[100,99,\"aigw.dev.1^1395798795017^1527177\",0]", jsonValue);
     }
 }
