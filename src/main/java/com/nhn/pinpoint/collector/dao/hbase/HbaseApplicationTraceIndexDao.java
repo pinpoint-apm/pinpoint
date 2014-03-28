@@ -53,13 +53,29 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         final byte[] distributedKey = crateRowKey(span, acceptedTime);
         Put put = new Put(distributedKey);
 
-//        byte[] transactionId = SpanUtils.getTransactionId(span);
-        byte[] varTransactionId = SpanUtils.getVarTransactionId(span);
-        put.add(APPLICATION_TRACE_INDEX_CF_TRACE, varTransactionId, acceptedTime, value);
+        put.add(APPLICATION_TRACE_INDEX_CF_TRACE, makeQualifier(span) , acceptedTime, value);
 
 		hbaseTemplate.put(APPLICATION_TRACE_INDEX, put);
 	}
 
+	private byte[] makeQualifier(final TSpan span) {
+		boolean useIndexedQualifier = false;
+		byte[] qualifier;
+
+		if (useIndexedQualifier) {
+			final Buffer columnName = new AutomaticBuffer(16);
+			// FIXME hbase column prefix filter를 사용하기 위해서 putVar를 사용하지 않음.
+			columnName.put(span.getElapsed());
+			columnName.put(SpanUtils.getVarTransactionId(span));
+			qualifier = columnName.getBuffer();
+		} else {
+			// OLD
+			// byte[] transactionId = SpanUtils.getTransactionId(span);
+			qualifier = SpanUtils.getVarTransactionId(span);
+		}
+		return qualifier;
+	}
+	
     private byte[] crateRowKey(TSpan span, long acceptedTime) {
         // key를 n빵한다.
         byte[] applicationTraceIndexRowKey = SpanUtils.getApplicationTraceIndexRowKey(span.getApplicationName(), acceptedTime);
