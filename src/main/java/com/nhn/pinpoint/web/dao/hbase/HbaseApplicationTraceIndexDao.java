@@ -3,12 +3,14 @@ package com.nhn.pinpoint.web.dao.hbase;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.nhn.pinpoint.web.vo.LimitedScanResult;
-import com.nhn.pinpoint.web.vo.Range;
-import com.nhn.pinpoint.web.vo.scatter.Dot;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.filter.BinaryPrefixComparator;
+import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
+import org.apache.hadoop.hbase.filter.FilterList;
+import org.apache.hadoop.hbase.filter.FilterList.Operator;
+import org.apache.hadoop.hbase.filter.QualifierFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +20,8 @@ import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import com.nhn.pinpoint.common.PinpointConstants;
+import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
+import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.hbase.LimitEventHandler;
@@ -26,11 +30,19 @@ import com.nhn.pinpoint.common.util.DateUtils;
 import com.nhn.pinpoint.common.util.SpanUtils;
 import com.nhn.pinpoint.common.util.TimeUtils;
 import com.nhn.pinpoint.web.dao.ApplicationTraceIndexDao;
+import com.nhn.pinpoint.web.mapper.TraceIndexScatterMapper;
+import com.nhn.pinpoint.web.mapper.TransactionIdMapper;
+import com.nhn.pinpoint.web.vo.LimitedScanResult;
+import com.nhn.pinpoint.web.vo.Range;
+import com.nhn.pinpoint.web.vo.ResponseTimeRange;
+import com.nhn.pinpoint.web.vo.SelectedScatterArea;
 import com.nhn.pinpoint.web.vo.TransactionId;
+import com.nhn.pinpoint.web.vo.scatter.Dot;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 
 /**
  * @author emeroad
+ * @author netspider
  */
 @Repository
 public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
@@ -96,13 +108,54 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             limitedScanResult.setLimitedTime(range.getFrom());
         }
 
+		return limitedScanResult;
+	}
+
+	@Override
+	public LimitedScanResult<List<TransactionId>> scanTraceIndex(final String applicationName, SelectedScatterArea area, int limit) {
+        if (applicationName == null) {
+            throw new NullPointerException("applicationName must not be null");
+        }
+        if (area == null) {
+            throw new NullPointerException("area must not be null");
+        }
+        if (limit < 0) {
+            throw new IllegalArgumentException("negative limit:" + limit);
+        }
+        logger.debug("scanTraceIndex");
+		Scan scan = createScan(applicationName, area.getTimeRange());
+		
+		final LimitedScanResult<List<TransactionId>> limitedScanResult = new LimitedScanResult<List<TransactionId>>();
+        LastRowAccessor lastRowAccessor = new LastRowAccessor();
+        List<List<TransactionId>> traceIndexList = hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX,
+                scan, traceIdRowKeyDistributor, limit, traceIndexMapper, lastRowAccessor);
+
+        List<TransactionId> transactionIdSum = new ArrayList<TransactionId>(128);
+        for(List<TransactionId> transactionId: traceIndexList) {
+            transactionIdSum.addAll(transactionId);
+        }
+		limitedScanResult.setScanData(transactionIdSum);
+
+        if (transactionIdSum.size() >= limit) {
+            Long lastRowTimestamp = lastRowAccessor.getLastRowTimestamp();
+            limitedScanResult.setLimitedTime(lastRowTimestamp);
+            if (logger.isDebugEnabled()) {
+                logger.debug("lastRowTimestamp lastTime:{}", DateUtils.longToDateStr(lastRowTimestamp));
+            }
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug("scanner start lastTime:{}", DateUtils.longToDateStr(area.getTimeRange().getFrom()));
+            }
+            limitedScanResult.setLimitedTime(area.getTimeRange().getFrom());
+        }
 
 		return limitedScanResult;
 	}
 
     private class LastRowAccessor implements LimitEventHandler {
-
         private Long lastRowTimestamp = -1L;
+        private TransactionId lastTransactionId = null;
+        private int lastTransactionElapsed = -1;
 
         @Override
         public void handleLastResult(Result lastResult) {
@@ -115,15 +168,27 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             byte[] originalRow = traceIdRowKeyDistributor.getOriginalKey(row);
             long reverseStartTime = BytesUtils.bytesToLong(originalRow, PinpointConstants.APPLICATION_NAME_MAX_LEN);
             this.lastRowTimestamp = TimeUtils.recoveryTimeMillis(reverseStartTime);
-
+            
+			byte[] qualifier = last.getQualifier();
+			this.lastTransactionId = TransactionIdMapper.parseVarTransactionId(qualifier, 0);
+			this.lastTransactionElapsed = BytesUtils.bytesToInt(qualifier, 0);
+            
             if (logger.isDebugEnabled()) {
-                logger.debug("lastRowTimestamp {}", DateUtils.longToDateStr(lastRowTimestamp));
+                logger.debug("lastRowTimestamp={}, lastTransactionId={}, lastTransactionElapsed={}", DateUtils.longToDateStr(lastRowTimestamp), lastTransactionId, lastTransactionElapsed);
             }
         }
 
         private Long getLastRowTimestamp() {
             return lastRowTimestamp;
         }
+
+		public TransactionId getLastTransactionId() {
+			return lastTransactionId;
+		}
+
+		public int getLastTransactionElapsed() {
+			return lastTransactionElapsed;
+		}
     }
 
 	private Scan createScan(String applicationName, Range range) {
@@ -140,12 +205,11 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
 		scan.addFamily(HBaseTables.APPLICATION_TRACE_INDEX_CF_TRACE);
 		scan.setId("ApplicationTraceIndexScan");
-
+		
 		// json으로 변화해서 로그를 찍어서. 최초 변환 속도가 느림.
 		logger.trace("create scan:{}", scan);
 		return scan;
 	}
-
 
 	@Override
 	public List<Dot> scanTraceScatter(String applicationName, Range range, final int limit) {
@@ -167,5 +231,52 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             mergeList.addAll(dotList);
         }
         return mergeList;
+	}
+	
+	@Override
+	public List<Dot> scanTraceScatter(String applicationName, SelectedScatterArea area, TransactionId offsetTransactionId, int offsetTransactionElapsed, int limit) {
+		if (applicationName == null) {
+			throw new NullPointerException("applicationName must not be null");
+		}
+		if (area == null) {
+			throw new NullPointerException("range must not be null");
+		}
+		if (limit < 0) {
+			throw new IllegalArgumentException("negative limit:" + limit);
+		}
+		logger.debug("scanTraceScatter");
+		Scan scan = createScan(applicationName, area.getTimeRange());
+
+		// filter by response time
+		ResponseTimeRange responseTimeRange = area.getResponseTimeRange();
+		byte[] responseFrom = Bytes.toBytes(responseTimeRange.getFrom());
+		byte[] responseTo = Bytes.toBytes(responseTimeRange.getTo());
+		FilterList filterList = new FilterList(Operator.MUST_PASS_ALL);
+		filterList.addFilter(new QualifierFilter(CompareOp.GREATER_OR_EQUAL, new BinaryPrefixComparator(responseFrom)));
+		filterList.addFilter(new QualifierFilter(CompareOp.LESS_OR_EQUAL, new BinaryPrefixComparator(responseTo)));
+		
+		// add offset
+		if (offsetTransactionId != null) {
+			final Buffer buffer = new AutomaticBuffer(32);
+			buffer.put(offsetTransactionElapsed);
+			buffer.putPrefixedString(offsetTransactionId.getAgentId());
+			buffer.putSVar(offsetTransactionId.getAgentStartTime());
+			buffer.putVar(offsetTransactionId.getTransactionSequence());
+			byte[] qualifierOffset = buffer.getBuffer();
+
+			filterList.addFilter(new QualifierFilter(CompareOp.GREATER, new BinaryPrefixComparator(qualifierOffset)));
+		}
+		
+		scan.setFilter(filterList);
+
+		LastRowAccessor lastRowAccessor = new LastRowAccessor();
+		List<List<Dot>> dotListList = hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, limit, traceIndexScatterMapper, lastRowAccessor);
+		
+		List<Dot> result = new ArrayList<Dot>();
+		for(List<Dot> dotList : dotListList) {
+			result.addAll(dotList);
+		}
+		
+		return result;
 	}
 }

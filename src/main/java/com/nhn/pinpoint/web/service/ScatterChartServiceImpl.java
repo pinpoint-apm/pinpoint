@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.nhn.pinpoint.web.vo.Range;
-import com.nhn.pinpoint.web.vo.scatter.Dot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +13,11 @@ import com.nhn.pinpoint.common.bo.SpanBo;
 import com.nhn.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.nhn.pinpoint.web.dao.TraceDao;
 import com.nhn.pinpoint.web.filter.Filter;
+import com.nhn.pinpoint.web.vo.Range;
+import com.nhn.pinpoint.web.vo.SelectedScatterArea;
 import com.nhn.pinpoint.web.vo.TransactionId;
 import com.nhn.pinpoint.web.vo.TransactionMetadataQuery;
+import com.nhn.pinpoint.web.vo.scatter.Dot;
 
 /**
  * @author netspider
@@ -42,6 +43,17 @@ public class ScatterChartServiceImpl implements ScatterChartService {
             throw new NullPointerException("range must not be null");
         }
         return applicationTraceIndexDao.scanTraceScatter(applicationName, range, limit);
+	}
+	
+	@Override
+	public List<Dot> selectScatterData(String applicationName, SelectedScatterArea area, TransactionId offsetTransactionId, int offsetTransactionElapsed, int limit) {
+		if (applicationName == null) {
+			throw new NullPointerException("applicationName must not be null");
+		}
+		if (area == null) {
+			throw new NullPointerException("area must not be null");
+		}
+		return applicationTraceIndexDao.scanTraceScatter(applicationName, area, offsetTransactionId, offsetTransactionElapsed, limit);
 	}
 
 	@Override

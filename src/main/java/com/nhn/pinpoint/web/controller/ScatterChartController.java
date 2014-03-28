@@ -224,4 +224,89 @@ public class ScatterChartController {
         logger.debug("query:{}", query);
         return query;
     }
+    
+    /**
+     * scatter chart에서 선택한 범위에 속하는 트랜잭션 목록을 조회
+     * 
+     * <pre>
+     * TEST URL = http://localhost:7080/transactionmetadata2.pinpoint?application=FRONT-WEB&from=1394432299032&to=1394433498269&responseFrom=100&responseTo=200&responseOffset=100&limit=10
+     * </pre>
+     * 
+     * @param model
+     * @param request
+     * @param response
+     * @return
+     */
+	@RequestMapping(value = "/transactionmetadata2", method = RequestMethod.GET)
+	public String getTransaction(Model model,
+								@RequestParam("application") String applicationName,
+								@RequestParam("from") long from, 
+								@RequestParam("to") long to,
+								@RequestParam("responseFrom") int responseFrom, 
+								@RequestParam("responseTo") int responseTo,
+								@RequestParam("limit") int limit, 
+								@RequestParam(value = "offsetTime", required = false, defaultValue = "-1") long offsetTime,
+								@RequestParam(value = "offsetTransactionId", required = false) String offsetTransactionId,
+								@RequestParam(value = "offsetTransactionElapsed", required = false, defaultValue = "-1") int offsetTransactionElapsed,
+								@RequestParam(value = "filter", required = false) String filterText) {
+
+		limit = LimitUtils.checkRange(limit);
+		
+		StopWatch watch = new StopWatch();
+		watch.start("selectScatterData");		
+
+		final SelectedScatterArea area = SelectedScatterArea.createUncheckedArea(from, to, responseFrom, responseTo);
+        logger.debug("fetch scatter data. {}, LIMIT={}, FILTER={}", area, limit, filterText);
+
+		if (filterText == null) {
+			
+			// limit에 걸려서 조회되지 않은 부분 우선 조회
+			TransactionId offsetId = null;
+			List<SpanBo> extraMetadata = null;
+			if (offsetTransactionId != null) {
+				offsetId = new TransactionId(offsetTransactionId);
+				
+				SelectedScatterArea extraArea = SelectedScatterArea.createUncheckedArea(offsetTime, offsetTime, responseFrom, responseTo);
+				List<Dot> extraAreaDotList = scatter.selectScatterData(applicationName, extraArea, offsetId, offsetTransactionElapsed, limit);
+				extraMetadata = scatter.selectTransactionMetadata(parseSelectTransaction(extraAreaDotList));
+				model.addAttribute("extraMetadata", extraMetadata);
+			}
+			
+			// limit에 걸려서 조회되지 않은 부분 조회 결과가 limit에 미치지 못하면 나머지 영역 추가 조회
+			if (extraMetadata == null || extraMetadata.size() < limit) {
+				int newlimit = limit - ((extraMetadata == null) ? 0 : extraMetadata.size());
+				List<Dot> selectedDotList = scatter.selectScatterData(applicationName, area, null, -1, newlimit);
+				List<SpanBo> metadata = scatter.selectTransactionMetadata(parseSelectTransaction(selectedDotList));
+				model.addAttribute("metadata", metadata);
+			}
+		} else {
+			final LimitedScanResult<List<TransactionId>> limitedScanResult = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, area, limit);
+			final List<TransactionId> traceIdList = limitedScanResult.getScanData();
+			logger.trace("submitted transactionId count={}", traceIdList.size());
+			
+			// TODO sorted만 하는가? tree기반으로 레인지 체크하도록 하고 삭제하도록 하자.
+			SortedSet<TransactionId> traceIdSet = new TreeSet<TransactionId>(traceIdList);
+			logger.debug("unified traceIdSet size={}", traceIdSet.size());
+
+            List<Dot> dots = scatter.selectScatterData(traceIdSet, applicationName, filterBuilder.build(filterText));
+            System.out.println(dots);
+		}
+
+        watch.stop();
+		logger.info("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());
+        
+		return "transactionmetadata2";
+	}
+	
+	private TransactionMetadataQuery parseSelectTransaction(List<Dot> dotList) {
+		TransactionMetadataQuery query = new TransactionMetadataQuery();
+		if (dotList == null) {
+			return query;
+		}
+		for (Dot dot : dotList) {
+			query.addQueryCondition(dot.getTransactionId(), dot.getAcceptedTime(), dot.getElapsedTime());
+		}
+		logger.debug("query:{}", query);
+		return query;
+	}
 }

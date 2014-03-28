@@ -178,6 +178,21 @@ pinpointApp.directive('scatter',
                                 htXY: htXY,
                                 aTraces: []
                             };
+                            
+                            // by netspider
+                            console.log(target, title, start, end, period, filter, w, h);
+                            var NEW_URL = "/transactionmetadata2.pinpoint?application=" + title;
+                            NEW_URL += "&from=" + htXY.nXFrom;
+                            NEW_URL += "&to=" + htXY.nXTo;
+							NEW_URL += "&responseFrom="+ htXY.nYFrom;
+							NEW_URL += "&responseTo=" + htXY.nYTo;
+							NEW_URL += "&limit=3";
+							if (filter) {
+								NEW_URL += "&filter=" + filter;
+							}
+                            // var ww = window.open(NEW_URL);
+                            // end
+
                             transactions.aTraces = this.getDataByXY(htXY.nXFrom, htXY.nXTo, htXY.nYFrom, htXY.nYTo);
                             if (transactions.aTraces.length === 0) {
                                 return;

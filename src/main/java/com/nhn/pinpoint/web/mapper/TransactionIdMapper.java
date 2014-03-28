@@ -17,6 +17,7 @@ import com.nhn.pinpoint.web.vo.TransactionId;
 
 /**
  * @author emeroad
+ * @author netspider
  */
 @Component
 public class TransactionIdMapper implements RowMapper<List<TransactionId>> {
@@ -44,17 +45,21 @@ public class TransactionIdMapper implements RowMapper<List<TransactionId>> {
 		}
 		return traceIdList;
 	}
+	
     // 중복시킴. TraceIndexScatterMapper랑 동일하므로 같이 변경하거나 리팩토링 할것.
     public static TransactionId parseVarTransactionId(byte[] bytes, int offset) {
         if (bytes == null) {
             throw new NullPointerException("bytes must not be null");
         }
         final Buffer buffer = new OffsetFixedBuffer(bytes, offset);
+        
+		// skip elapsed time (not used) hbase column prefix filter에서 filter용도로만 사용함.
+        // 데이터 사이즈를 줄일 수 있는지 모르겠음.
+		// buffer.readInt();
+        
         String agentId = buffer.readPrefixedString();
         long agentStartTime = buffer.readSVarLong();
         long transactionSequence = buffer.readVarLong();
         return new TransactionId(agentId, agentStartTime, transactionSequence);
     }
-
-
 }

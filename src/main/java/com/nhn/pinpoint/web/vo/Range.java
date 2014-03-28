@@ -2,6 +2,7 @@ package com.nhn.pinpoint.web.vo;
 
 /**
  * @author emeroad
+ * @author netspider
  */
 public final class Range {
     private final long from;
@@ -10,14 +11,14 @@ public final class Range {
     public Range(long from, long to) {
         this.from = from;
         this.to = to;
-        isValidate();
+        validate();
     }
 
     public Range(long from, long to, boolean check) {
         this.from = from;
         this.to = to;
         if (check) {
-            isValidate();
+        	validate();
         }
     }
 
@@ -37,7 +38,7 @@ public final class Range {
         return to - from;
     }
 
-    private void isValidate() {
+    public void validate() {
         if (this.to < this.from) {
             throw new IllegalArgumentException("invalid range:" + this);
         }

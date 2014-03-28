@@ -19,6 +19,7 @@ import com.nhn.pinpoint.common.util.BytesUtils;
 
 /**
  * @author emeroad
+ * @author netspider
  */
 @Component
 public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
@@ -53,19 +54,28 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
 
         final int qualifierOffset = kv.getQualifierOffset();
 
-//        TransactionId transactionId = new TransactionId(buffer, qualifierOffset);
-        TransactionId transactionId = parseVarTransactionId(buffer, qualifierOffset);
+		// TransactionId transactionId = new TransactionId(buffer, qualifierOffset);
+        // 잠시 TransactionIdMapper의 것을 사용하도록 함.
+		TransactionId transactionId = TransactionIdMapper.parseVarTransactionId(buffer, qualifierOffset);
+        
         return new Dot(transactionId, acceptedTime, elapsed, exceptionCode, agentId);
     }
 
+    /*
     public static TransactionId parseVarTransactionId(byte[] bytes, int offset) {
         if (bytes == null) {
             throw new NullPointerException("bytes must not be null");
         }
         final Buffer buffer = new OffsetFixedBuffer(bytes, offset);
+
+		// skip elapsed time (not used) hbase column prefix filter에서 filter용도로만 사용함.
+        // 데이터 사이즈를 줄일 수 있는지 모르겠음.
+		buffer.readInt();
+		
         String agentId = buffer.readPrefixedString();
         long agentStartTime = buffer.readSVarLong();
         long transactionSequence = buffer.readVarLong();
         return new TransactionId(agentId, agentStartTime, transactionSequence);
     }
+    */
 }
