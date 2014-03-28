@@ -64,7 +64,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
         final LinkDataMap result = new LinkDataMap();
 
         for (LinkDataMap foundList : foundListList) {
-            result.addLinkStatisticsData(foundList);
+            result.addLinkDataMap(foundList);
         }
 
         return result;

@@ -2,6 +2,7 @@ package com.nhn.pinpoint.web.applicationmap.rawdata;
 
 
 import com.nhn.pinpoint.web.vo.Application;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,14 +53,14 @@ public class LinkData {
 	 * @param hostname
 	 *            host이름 또는 endpoint
 	 * @param slot
-	 * @param value
+	 * @param count
 	 */
-	public void addLinkData(String callerAgentId, short callerServiceTypeCode, String hostname, short serviceTypeCode, long timestamp, short slot, long value) {
+	public void addLinkData(String callerAgentId, short callerServiceTypeCode, String hostname, short serviceTypeCode, long timestamp, short slot, long count) {
 		// TODO 임시코드
-		if (hostname == null || hostname.length() == 0) {
+		if (StringUtils.isEmpty(hostname)) {
 			hostname = "UNKNOWNHOST";
 		}
-        this.linkCallDataMap.addCallData(callerAgentId, callerServiceTypeCode, hostname, serviceTypeCode, timestamp, slot, value);
+        this.linkCallDataMap.addCallData(callerAgentId, callerServiceTypeCode, hostname, serviceTypeCode, timestamp, slot, count);
 	}
 
 
@@ -84,14 +85,14 @@ public class LinkData {
         return linkCallDataMap.getSourceList();
     }
 
-	public void add(final LinkData applicationStatistics) {
-        if (applicationStatistics == null) {
-            throw new NullPointerException("applicationStatistics must not be null");
+	public void add(final LinkData linkData) {
+        if (linkData == null) {
+            throw new NullPointerException("linkData must not be null");
         }
-        if (!this.equals(applicationStatistics)) {
+        if (!this.equals(linkData)) {
             throw new IllegalArgumentException("Can't merge with different link.");
 		}
-        final LinkCallDataMap target = applicationStatistics.linkCallDataMap;
+        final LinkCallDataMap target = linkData.linkCallDataMap;
         this.linkCallDataMap.addLinkDataMap(target);
 	}
 

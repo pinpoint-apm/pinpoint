@@ -56,7 +56,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
     private LinkDataMap merge(List<LinkDataMap> foundList) {
         final LinkDataMap result = new LinkDataMap();
         for (LinkDataMap foundData : foundList) {
-            result.addLinkStatisticsData(foundData);
+            result.addLinkDataMap(foundData);
         }
         return result;
     }

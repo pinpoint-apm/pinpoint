@@ -11,13 +11,20 @@ public class LinkDataMap {
 	public LinkDataMap() {
 	}
 
+    public LinkDataMap(LinkDataMap copyLinkDataMap) {
+        if (copyLinkDataMap == null) {
+            throw new NullPointerException("copyLinkDataMap must not be null");
+        }
+        addLinkDataMap(copyLinkDataMap);
+    }
+
     public Collection<LinkData> getLinkDataList() {
         return linkDataMap.values();
     }
 
-    public void addLinkData(Application srcApplication, String srcAgentId, Application destinationApplication, String destinationAgentId, long timestamp, short slotTime, long value) {
-        final LinkData linkStat = getLinkStatistics(srcApplication, destinationApplication);
-        linkStat.addLinkData(srcAgentId, srcApplication.getServiceTypeCode(), destinationAgentId, destinationApplication.getServiceTypeCode(), timestamp, slotTime, value);
+    public void addLinkData(Application sourceApplication, String sourceAgentId, Application destinationApplication, String destinationAgentId, long timestamp, short slotTime, long count) {
+        final LinkData linkStat = getLinkData(sourceApplication, destinationApplication);
+        linkStat.addLinkData(sourceAgentId, sourceApplication.getServiceTypeCode(), destinationAgentId, destinationApplication.getServiceTypeCode(), timestamp, slotTime, count);
     }
 
 
@@ -26,26 +33,26 @@ public class LinkDataMap {
 		return "LinkDataMap [" + linkDataMap + "]";
 	}
 
-    public void addLinkStatisticsData(LinkDataMap linkDataMap) {
+    public void addLinkDataMap(LinkDataMap linkDataMap) {
         if (linkDataMap == null) {
             throw new NullPointerException("linkDataMap must not be null");
         }
         for (LinkData copyLinkData : linkDataMap.linkDataMap.values()) {
-            addLinkStatistics(copyLinkData);
+            addLinkData(copyLinkData);
         }
     }
 
-    public void addLinkStatistics(LinkData copyLinkData) {
+    public void addLinkData(LinkData copyLinkData) {
         if (copyLinkData == null) {
             throw new NullPointerException("copyLinkData must not be null");
         }
         Application fromApplication = copyLinkData.getFromApplication();
         Application toApplication = copyLinkData.getToApplication();
-        LinkData linkData = getLinkStatistics(fromApplication, toApplication);
+        LinkData linkData = getLinkData(fromApplication, toApplication);
         linkData.add(copyLinkData);
     }
 
-    private LinkData getLinkStatistics(Application fromApplication, Application toApplication) {
+    private LinkData getLinkData(Application fromApplication, Application toApplication) {
         final LinkKey key = new LinkKey(fromApplication, toApplication);
         LinkData findLink = linkDataMap.get(key);
         if (findLink == null) {

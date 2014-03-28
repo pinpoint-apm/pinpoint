@@ -44,7 +44,7 @@ public class ApplicationMapBuilder {
     }
 
     private void buildNode(ApplicationMap map, LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService) {
-        final List<Node> sourceNode = createNode(linkDataDuplexMap.getSourceLinkData());
+        final List<Node> sourceNode = createNode(linkDataDuplexMap.getSourceLinkDataMap());
         map.addNodeList(sourceNode);
         logger.debug("sourceNode:{}", sourceNode);
 
@@ -86,7 +86,7 @@ public class ApplicationMapBuilder {
 
     private void buildLink(ApplicationMap map, LinkDataDuplexMap linkDataDuplexMap) {
         // 변경하면 안됨.
-        List<Link> sourceLink = createSourceLink(linkDataDuplexMap.getSourceLinkData(), map);
+        List<Link> sourceLink = createSourceLink(linkDataDuplexMap.getSourceLinkDataMap(), map);
         logger.debug("sourceLink.size:{}", sourceLink.size());
         map.addLink(sourceLink);
 
