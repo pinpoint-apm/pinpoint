@@ -164,8 +164,7 @@ public class AutomaticBuffer extends FixedBuffer {
         if (v == null) {
             throw new NullPointerException("v must not be null");
         }
+        checkExpend(v.length);
         super.put(v);
     }
-
-
 }
