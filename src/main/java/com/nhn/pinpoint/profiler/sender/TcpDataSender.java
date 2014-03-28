@@ -39,7 +39,7 @@ public class TcpDataSender implements EnhancedDataSender {
 
     private final SafeHeaderTBaseSerializer serializer = new SafeHeaderTBaseSerializer();
 
-    private RetryQueue retryQueue = new RetryQueue();
+    private final RetryQueue retryQueue = new RetryQueue();
 
     private AsyncQueueingExecutor<Object> executor;
 

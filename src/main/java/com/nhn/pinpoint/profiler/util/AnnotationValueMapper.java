@@ -44,7 +44,7 @@ public final class AnnotationValueMapper {
         } else if (value instanceof Short) {
             annotation.setValue(TAnnotationValue.shortValue((Short) value));
             return;
-        } else if(value instanceof TBase) {
+        } else if (value instanceof TBase) {
             throw new IllegalArgumentException("TBase not supported. Class:" + value.getClass());
         }
         String str = StringUtils.drop(value.toString());
