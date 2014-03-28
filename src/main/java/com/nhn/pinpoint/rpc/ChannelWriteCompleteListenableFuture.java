@@ -29,7 +29,7 @@ public class ChannelWriteCompleteListenableFuture<T> extends DefaultFuture<T> im
 
     @Override
     public void operationComplete(ChannelFuture future) throws Exception {
-        if(future.isSuccess()) {
+        if (future.isSuccess()) {
             this.setResult(result);
         } else {
             this.setFailure(future.getCause());
