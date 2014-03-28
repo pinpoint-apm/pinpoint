@@ -1,11 +1,7 @@
 package com.nhn.pinpoint.web.service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import com.nhn.pinpoint.web.vo.Range;
 import org.apache.commons.collections.CollectionUtils;
@@ -86,4 +82,19 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 		
 		return result;
 	}
+
+    public Set<AgentInfoBo> selectAgent(String applicationId) {
+        if (applicationId == null) {
+            throw new NullPointerException("applicationId must not be null");
+        }
+
+        List<String> agentIds = applicationIndexDao.selectAgentIds(applicationId);
+        Set<AgentInfoBo> agentSet = new HashSet<AgentInfoBo>();
+        for (String agentId : agentIds) {
+            // TODO 조회 시간대에 따라서 agent info row timestamp를 변경하여 조회해야하는지는 모르겠음.
+            AgentInfoBo info = agentInfoDao.findAgentInfoBeforeStartTime(agentId, System.currentTimeMillis());
+            agentSet.add(info);
+        }
+        return agentSet;
+    }
 }

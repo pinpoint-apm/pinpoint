@@ -2,7 +2,6 @@ package com.nhn.pinpoint.web.service;
 
 import java.util.*;
 
-import com.nhn.pinpoint.web.applicationmap.AgentSelector;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.nhn.pinpoint.web.applicationmap.rawdata.*;
 import com.nhn.pinpoint.web.dao.*;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
 
 /**
@@ -22,15 +20,12 @@ import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
  * @author emeroad
  */
 @Service
-public class MapServiceImpl implements MapService, AgentSelector {
+public class MapServiceImpl implements MapService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private ApplicationIndexDao applicationIndexDao;
-
-    @Autowired
-    private AgentInfoDao agentInfoDao;
+    private AgentInfoService agentInfoService;
 
     @Autowired
     private MapResponseDao mapResponseDao;
@@ -44,20 +39,6 @@ public class MapServiceImpl implements MapService, AgentSelector {
     @Autowired
     private HostApplicationMapDao hostApplicationMapDao;
 
-    public Set<AgentInfoBo> selectAgent(String applicationId) {
-        if (applicationId == null) {
-            throw new NullPointerException("applicationId must not be null");
-        }
-
-        List<String> agentIds = applicationIndexDao.selectAgentIds(applicationId);
-        Set<AgentInfoBo> agentSet = new HashSet<AgentInfoBo>();
-        for (String agentId : agentIds) {
-            // TODO 조회 시간대에 따라서 agent info row timestamp를 변경하여 조회해야하는지는 모르겠음.
-            AgentInfoBo info = agentInfoDao.findAgentInfoBeforeStartTime(agentId, System.currentTimeMillis());
-            agentSet.add(info);
-        }
-        return agentSet;
-    }
 
     /**
      * callerApplicationName이 호출한 callee를 모두 조회
@@ -197,7 +178,7 @@ public class MapServiceImpl implements MapService, AgentSelector {
         data.addLinkStatisticsDataSet(callee);
 
         ApplicationMapBuilder builder = new ApplicationMapBuilder(range);
-        ApplicationMap map = builder.build(data, this);
+        ApplicationMap map = builder.build(data, agentInfoService);
         // 이걸 builder쪽에 넣어야 될듯한데.
         map.appendResponseTime(range, this.mapResponseDao);
 

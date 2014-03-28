@@ -3,7 +3,6 @@ package com.nhn.pinpoint.web.service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +10,6 @@ import java.util.Set;
 
 import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.HistogramSlot;
-import com.nhn.pinpoint.web.applicationmap.AgentSelector;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataMap;
@@ -27,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.common.bo.SpanBo;
 import com.nhn.pinpoint.common.bo.SpanEventBo;
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
@@ -38,7 +35,7 @@ import com.nhn.pinpoint.web.filter.Filter;
  * @author emeroad
  */
 @Service
-public class FilteredMapServiceImpl implements FilteredMapService, AgentSelector {
+public class FilteredMapServiceImpl implements FilteredMapService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -46,13 +43,10 @@ public class FilteredMapServiceImpl implements FilteredMapService, AgentSelector
     private TraceDao traceDao;
 
     @Autowired
-    private ApplicationIndexDao applicationIndexDao;
-
-    @Autowired
     private ApplicationTraceIndexDao applicationTraceIndexDao;
 
     @Autowired
-    private AgentInfoDao agentInfoDao;
+    private AgentInfoService agentInfoService;
 
     @Autowired
     private MapResponseDao mapResponseDao;
@@ -230,7 +224,7 @@ public class FilteredMapServiceImpl implements FilteredMapService, AgentSelector
 
         LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap(linkDataMap);
         ApplicationMapBuilder applicationMapBuilder = new ApplicationMapBuilder(range);
-        ApplicationMap map = applicationMapBuilder.build(linkDataDuplexMap, this);
+        ApplicationMap map = applicationMapBuilder.build(linkDataDuplexMap, agentInfoService);
 
         mapHistogramSummary.build();
         map.appendResponseTime(mapHistogramSummary);
@@ -347,15 +341,5 @@ public class FilteredMapServiceImpl implements FilteredMapService, AgentSelector
         return transactionIdList;
     }
 
-    public Set<AgentInfoBo> selectAgent(String applicationId) {
-        List<String> agentIds = applicationIndexDao.selectAgentIds(applicationId);
-        Set<AgentInfoBo> agentSet = new HashSet<AgentInfoBo>();
-        for (String agentId : agentIds) {
-            // TODO 조회 시간대에 따라서 agent info row timestamp를 변경하여 조회해야하는지는 모르겠음.
-            AgentInfoBo info = agentInfoDao.findAgentInfoBeforeStartTime(agentId, System.currentTimeMillis());
-            agentSet.add(info);
-        }
-        return agentSet;
-    }
 
 }

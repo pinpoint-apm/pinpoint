@@ -8,6 +8,7 @@ import com.nhn.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.nhn.pinpoint.web.dao.MapResponseDao;
+import com.nhn.pinpoint.web.service.AgentInfoService;
 import com.nhn.pinpoint.web.vo.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.slf4j.Logger;
@@ -65,14 +66,14 @@ public class ApplicationMap {
         return nodeList.containsNode(applicationName);
     }
 
-    public void appendAgentInfo(LinkDataDuplexMap linkStatisticsData, AgentSelector agentSelector) {
+    public void appendAgentInfo(LinkDataDuplexMap linkStatisticsData, AgentInfoService agentInfoService) {
         for (Node node : nodeList.getNodeList()) {
-            appendServerInfo(node, linkStatisticsData, agentSelector);
+            appendServerInfo(node, linkStatisticsData, agentInfoService);
         }
 
     }
 
-    private void appendServerInfo(Node node, LinkDataDuplexMap stat, AgentSelector agentSelector) {
+    private void appendServerInfo(Node node, LinkDataDuplexMap stat, AgentInfoService agentInfoService) {
         final ServiceType nodeServiceType = node.getServiceType();
         if (nodeServiceType.isUnknown()) {
             // unknown노드는 무엇이 설치되어있는지 알수가 없음.
@@ -92,7 +93,7 @@ public class ApplicationMap {
             ServerInstanceList serverInstanceList = builder.build();
             node.setServerInstanceList(serverInstanceList);
         } else if (nodeServiceType.isWas()) {
-            final Set<AgentInfoBo> agentList = agentSelector.selectAgent(node.getApplication().getName());
+            final Set<AgentInfoBo> agentList = agentInfoService.selectAgent(node.getApplication().getName());
             if (agentList.isEmpty()) {
                 return;
             }

@@ -3,6 +3,7 @@ package com.nhn.pinpoint.web.applicationmap;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataMap;
+import com.nhn.pinpoint.web.service.AgentInfoService;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.LinkKey;
 import com.nhn.pinpoint.web.vo.Range;
@@ -28,13 +29,13 @@ public class ApplicationMapBuilder {
         this.range = range;
     }
 
-    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentSelector agentSelector) {
+    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService) {
         if (linkDataDuplexMap == null) {
             throw new NullPointerException("linkDataMap must not be null");
         }
 
         final ApplicationMap map = new ApplicationMap(range);
-        buildNode(map, linkDataDuplexMap, agentSelector);
+        buildNode(map, linkDataDuplexMap, agentInfoService);
 
         buildLink(map, linkDataDuplexMap);
 
@@ -42,7 +43,7 @@ public class ApplicationMapBuilder {
         return map;
     }
 
-    private void buildNode(ApplicationMap map, LinkDataDuplexMap linkDataDuplexMap, AgentSelector agentSelector) {
+    private void buildNode(ApplicationMap map, LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService) {
         final List<Node> sourceNode = createNode(linkDataDuplexMap.getSourceLinkData());
         map.addNodeList(sourceNode);
         logger.debug("sourceNode:{}", sourceNode);
@@ -52,7 +53,7 @@ public class ApplicationMapBuilder {
         logger.debug("targetNode:{}", targetNode);
 
         // agentInfo를 넣는다.
-        map.appendAgentInfo(linkDataDuplexMap, agentSelector);
+        map.appendAgentInfo(linkDataDuplexMap, agentInfoService);
         logger.debug("allNode:{}", map.getNodes());
     }
 
