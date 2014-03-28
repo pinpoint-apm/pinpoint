@@ -42,18 +42,16 @@
 		<property name="suffix" value=".jsp" />
 	</bean>
 
-    <bean id="unwrapRootJsonObjectMapper" class="com.nhn.pinpoint.web.util.UnwrapRootJackson2ObjectMapper"/>
-
 
 	<bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
 	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" />
 	
 	<mvc:interceptors>
-    <bean id="webContentInterceptor" class="org.springframework.web.servlet.mvc.WebContentInterceptor">
-        <property name="cacheSeconds" value="0"/>
-        <property name="useExpiresHeader" value="true"/>
-        <property name="useCacheControlHeader" value="true"/>
-        <property name="useCacheControlNoStore" value="true"/>
-    </bean>
+        <bean id="webContentInterceptor" class="org.springframework.web.servlet.mvc.WebContentInterceptor">
+            <property name="cacheSeconds" value="0"/>
+            <property name="useExpiresHeader" value="true"/>
+            <property name="useCacheControlHeader" value="true"/>
+            <property name="useCacheControlNoStore" value="true"/>
+        </bean>
 	</mvc:interceptors>
 </beans>

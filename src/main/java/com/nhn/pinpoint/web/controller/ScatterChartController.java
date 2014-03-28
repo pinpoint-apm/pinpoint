@@ -134,7 +134,7 @@ public class ScatterChartController {
         } else {
             resultRange = new Range(limitedScanResult.getLimitedTime(), range.getTo());
         }
-        return createModelAndVeiw(resultRange, jsonpCallback, scatterData);
+        return createModelAndView(resultRange, jsonpCallback, scatterData);
     }
 
     private ModelAndView selectScatterData(String applicationName, Range range, int limit, String jsonpCallback) {
@@ -146,10 +146,10 @@ public class ScatterChartController {
         } else {
             resultRange = new Range(scatterData.get(scatterData.size() - 1).getAcceptedTime(), range.getTo());
         }
-        return createModelAndVeiw(resultRange, jsonpCallback, scatterData);
+        return createModelAndView(resultRange, jsonpCallback, scatterData);
     }
 
-    private ModelAndView createModelAndVeiw(Range range, String jsonpCallback, List<Dot> scatterData) {
+    private ModelAndView createModelAndView(Range range, String jsonpCallback, List<Dot> scatterData) {
         ModelAndView mv = new ModelAndView();
         mv.addObject("resultFrom", range.getFrom());
         mv.addObject("resultTo", range.getTo());

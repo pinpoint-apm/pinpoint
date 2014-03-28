@@ -32,7 +32,7 @@ public class MappingJackson2JsonpView extends MappingJackson2JsonView {
     /**
      * Default content type. Overridable as bean property.
      */
-    public static final String DEFAULT_CONTENT_TYPE = "application/json";
+    public static final String DEFAULT_CONTENT_TYPE = "application/jsonp";
 
 
     private ObjectMapper objectMapper = new ObjectMapper();
