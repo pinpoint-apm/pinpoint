@@ -7,6 +7,7 @@ import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
 @Component
+@Deprecated
 public class ApplicationNameMapper implements RowMapper<String> {
 	@Override
 	public String mapRow(Result result, int rowNum) throws Exception {
