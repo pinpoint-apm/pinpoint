@@ -108,7 +108,6 @@ public class MapController {
 	public String getLinkStatistics(Model model,
 									@RequestParam("from") long from,
 									@RequestParam("to") long to,
-                                    @RequestParam("originTo") long originTo,
 									@RequestParam("sourceApplicationName") String sourceApplicationName,
 									@RequestParam("sourceServiceType") short sourceServiceType,
 									@RequestParam("targetApplicationName") String targetApplicationName,
