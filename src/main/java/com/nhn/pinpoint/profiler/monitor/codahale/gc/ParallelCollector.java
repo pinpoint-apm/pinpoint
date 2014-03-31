@@ -13,7 +13,8 @@ import static com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues.*;
 
 /**
  * HotSpot's Parallel (Old) collector
- * 
+ *
+ * @author emeroad
  * @author harebox
  */
 public class ParallelCollector implements GarbageCollector {

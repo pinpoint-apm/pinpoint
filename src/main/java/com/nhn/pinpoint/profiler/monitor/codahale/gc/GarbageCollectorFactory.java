@@ -10,6 +10,7 @@ import java.util.Collection;
 import static com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues.*;
 
 /**
+ * @author emeroad
  * @author harebox
  */
 public class GarbageCollectorFactory {

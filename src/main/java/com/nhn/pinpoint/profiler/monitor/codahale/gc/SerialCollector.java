@@ -13,7 +13,7 @@ import static com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues.*;
 
 /**
  * HotSpot's Serial collector
- * 
+ * @author emeroad
  * @author harebox
  */
 public class SerialCollector implements GarbageCollector {

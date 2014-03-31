@@ -18,7 +18,8 @@ import java.util.SortedMap;
 
 /**
  * HotSpot's Concurrent-Mark-Sweep collector
- * 
+ *
+ * @author emeroad
  * @author harebox
  */
 public class CmsCollector implements GarbageCollector {

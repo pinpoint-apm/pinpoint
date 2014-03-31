@@ -13,7 +13,8 @@ import static com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues.*;
 
 /**
  * HotSpot's Garbage-First(G1) collector
- * 
+ *
+ * @author emeroad
  * @author harebox
  */
 public class G1Collector implements GarbageCollector {

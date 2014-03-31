@@ -18,7 +18,8 @@ import com.nhn.pinpoint.profiler.monitor.MonitorRegistry;
 /**
  * 모니터링을 위해 <a href="http://metrics.codahale.com/">Codahale</a>
  * {@link MetricRegistry}를 활용한다. 인터페이스는 netty에서 정의한 MonitorRegistry를 참고하였음.
- * 
+ *
+ * @author emeroad
  * @author harebox
  */
 public class MetricMonitorRegistry implements MonitorRegistry {

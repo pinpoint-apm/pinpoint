@@ -6,6 +6,7 @@ import com.nhn.pinpoint.thrift.dto.TJvmGcType;
 
 /**
  * @author harebox
+ * @author emeroad
  */
 public interface GarbageCollector {
 

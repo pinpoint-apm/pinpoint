@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * @author emeroad
  * @author harebox
  */
 public class MetricMonitorValues {
