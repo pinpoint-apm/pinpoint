@@ -70,9 +70,14 @@ public class ConnectorConstructorInterceptor implements SimpleAroundInterceptor,
 		trace.markBeforeTime();
 		trace.recordServiceType(ServiceType.NPC_CLIENT);
 
-		int port = serverAddress.getPort();
-		String endPoint = serverAddress.getHostName() + ((port > 0) ? ":" + port : "");
-		trace.recordDestinationId(endPoint);
+		if (serverAddress != null) {
+			int port = serverAddress.getPort();
+			String endPoint = serverAddress.getHostName() + ((port > 0) ? ":" + port : "");
+			trace.recordDestinationId(endPoint);
+		} else {
+			// destination id가 없으면 안되기 때문에 unknown으로 지정.
+			trace.recordDestinationId("unknown");
+		}
 	}
 
 	@Override
