@@ -20,5 +20,15 @@ public interface ApplicationTraceIndexDao {
 
 	List<Dot> scanTraceScatter(String applicationName, Range range, int limit);
 
+	/**
+	 * scatter chart에서 선택한 영역에 속하는 transaction 조회
+	 * 
+	 * @param applicationName
+	 * @param area
+	 * @param offsetTransactionId
+	 * @param offsetTransactionElapsed
+	 * @param limit
+	 * @return
+	 */
 	List<Dot> scanTraceScatter(String applicationName, SelectedScatterArea area, TransactionId offsetTransactionId, int offsetTransactionElapsed, int limit);
 }

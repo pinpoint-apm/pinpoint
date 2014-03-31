@@ -8,6 +8,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.BinaryPrefixComparator;
 import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
+import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.FilterList.Operator;
 import org.apache.hadoop.hbase.filter.QualifierFilter;
@@ -30,7 +31,7 @@ import com.nhn.pinpoint.common.util.DateUtils;
 import com.nhn.pinpoint.common.util.SpanUtils;
 import com.nhn.pinpoint.common.util.TimeUtils;
 import com.nhn.pinpoint.web.dao.ApplicationTraceIndexDao;
-import com.nhn.pinpoint.web.mapper.TraceIndexScatterMapper;
+import com.nhn.pinpoint.web.mapper.TraceIndexScatterMapper2;
 import com.nhn.pinpoint.web.mapper.TransactionIdMapper;
 import com.nhn.pinpoint.web.vo.LimitedScanResult;
 import com.nhn.pinpoint.web.vo.Range;
@@ -233,6 +234,9 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         return mergeList;
 	}
 	
+	/**
+	 * 
+	 */
 	@Override
 	public List<Dot> scanTraceScatter(String applicationName, SelectedScatterArea area, TransactionId offsetTransactionId, int offsetTransactionElapsed, int limit) {
 		if (applicationName == null) {
@@ -247,6 +251,35 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 		logger.debug("scanTraceScatter");
 		Scan scan = createScan(applicationName, area.getTimeRange());
 
+		// method 1
+		// 아직 사용하지 않음. 대신 row mapper를 다른것을 사용. (테스트.)
+		// scan.setFilter(makeResponseTimeFilter(area, offsetTransactionId, offsetTransactionElapsed));
+		
+		// method 2
+		ResponseTimeRange responseTimeRange = area.getResponseTimeRange();
+		TraceIndexScatterMapper2 mapper = new TraceIndexScatterMapper2(responseTimeRange.getFrom(), responseTimeRange.getTo());
+		
+		List<List<Dot>> dotListList = hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, limit, mapper);
+		
+		List<Dot> result = new ArrayList<Dot>();
+		for(List<Dot> dotList : dotListList) {
+			result.addAll(dotList);
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * scatter chart에 속하는 트랜잭션을 구하기위해 선택된 y축영역(response time) 내에 속하는 값을 필터하기 위한
+	 * hbase filter를 생성한다. 이 필터를 사용하려면 column qualifier의 prefix로 elapsed time 4byte를
+	 * 붙여두어야 한다.
+	 * 
+	 * @param area
+	 * @param offsetTransactionId
+	 * @param offsetTransactionElapsed
+	 * @return
+	 */
+	private Filter makeResponseTimeFilter(final SelectedScatterArea area, final TransactionId offsetTransactionId, int offsetTransactionElapsed) {
 		// filter by response time
 		ResponseTimeRange responseTimeRange = area.getResponseTimeRange();
 		byte[] responseFrom = Bytes.toBytes(responseTimeRange.getFrom());
@@ -266,17 +299,6 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
 			filterList.addFilter(new QualifierFilter(CompareOp.GREATER, new BinaryPrefixComparator(qualifierOffset)));
 		}
-		
-		scan.setFilter(filterList);
-
-		LastRowAccessor lastRowAccessor = new LastRowAccessor();
-		List<List<Dot>> dotListList = hbaseOperations2.find(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, limit, traceIndexScatterMapper, lastRowAccessor);
-		
-		List<Dot> result = new ArrayList<Dot>();
-		for(List<Dot> dotList : dotListList) {
-			result.addAll(dotList);
-		}
-		
-		return result;
+		return filterList;
 	}
 }

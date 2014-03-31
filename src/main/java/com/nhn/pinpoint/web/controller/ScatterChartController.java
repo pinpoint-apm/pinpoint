@@ -259,7 +259,6 @@ public class ScatterChartController {
         logger.debug("fetch scatter data. {}, LIMIT={}, FILTER={}", area, limit, filterText);
 
 		if (filterText == null) {
-			
 			// limit에 걸려서 조회되지 않은 부분 우선 조회
 			TransactionId offsetId = null;
 			List<SpanBo> extraMetadata = null;
