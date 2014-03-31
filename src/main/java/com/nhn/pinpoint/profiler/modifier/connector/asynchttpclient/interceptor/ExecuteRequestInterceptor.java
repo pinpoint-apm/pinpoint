@@ -315,6 +315,13 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 		}
 	}
 
+	/**
+	 * com.ning.http.client.FluentStringsMap.toString()에서 큰따옴표, 공백, 세미콜론을 제거한 버전
+	 * 
+	 * @param params
+	 * @param limit
+	 * @return
+	 */
 	private String paramsToString(FluentStringsMap params, int limit) {
 		StringBuilder result = new StringBuilder(limit * 2);
 
