@@ -103,6 +103,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         serviceType: serviceType,
                         from: to - period,
                         to: to,
+                        originTo: scope.oNavbarVo.getQueryEndTime(),
                         period: period,
                         filter: encodeURIComponentFilter(filterText)
                     };

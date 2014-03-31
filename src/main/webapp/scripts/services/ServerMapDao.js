@@ -59,6 +59,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
                 serviceType: query.serviceType,
                 from: query.from,
                 to: query.to,
+                originTo: query.originTo,
                 filter: query.filter,
                 limit: cfg.FILTER_FETCH_LIMIT
             },
