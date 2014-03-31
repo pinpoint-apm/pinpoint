@@ -43,7 +43,7 @@ public class PayloadPacket {
             // 이건 payload 헤더이긴하다.
             header.writeInt(payload.length);
             ChannelBuffer payloadWrap = ChannelBuffers.wrappedBuffer(payload);
-            return ChannelBuffers.wrappedBuffer(header, payloadWrap);
+            return ChannelBuffers.wrappedBuffer(true, header, payloadWrap);
         }
     }
 
