@@ -1,5 +1,10 @@
 package com.nhn.pinpoint.testweb.service;
 
+/**
+ * 
+ * @author netspider
+ * 
+ */
 public interface AsyncHttpClientService {
 
 	public abstract String requestGet();
@@ -10,4 +15,5 @@ public interface AsyncHttpClientService {
 
 	public abstract String requestPostWithBody();
 
+	public abstract String requestMultipart();
 }

@@ -5,7 +5,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,7 @@ import com.nhn.pinpoint.testweb.service.MemberService;
 import com.nhn.pinpoint.testweb.util.AsyncHttpInvoker;
 import com.nhn.pinpoint.testweb.util.HttpConnectorOptions;
 import com.nhn.pinpoint.testweb.util.HttpInvoker;
+import com.ning.http.client.cookie.Cookie;
 
 /**
  * 
@@ -109,13 +113,26 @@ public class DemoController {
 	}
 
 	private void accessNaver() {
-		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
-		client.execute("http://www.naver.com/", new HashMap<String, Object>());
+		AsyncHttpInvoker client = new AsyncHttpInvoker();
+
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("query", "naver");
+		params.put("ie", "utf8");
+
+		Map<String, String> headers = new HashMap<String, String>();
+		headers.put("header1", "header1");
+		headers.put("header2", "header2");
+
+		List<Cookie> cookies = new ArrayList<Cookie>();
+		cookies.add(new Cookie("cookieName1", "cookieValue1", "cookieRawValue1", "", "/", 10, 10, false, false));
+		cookies.add(new Cookie("cookieName2", "cookieValue2", "cookieRawValue2", "", "/", 10, 10, false, false));
+
+		client.requestGet("http://search.naver.com/search.naver?where=nexearch", params, headers, cookies);
 	}
 
 	private void accessNaverBlog() {
-		AsyncHttpInvoker client = new AsyncHttpInvoker();
-		client.requestGet("http://blog.naver.com/", null, null);
+		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+		client.execute("http://section.blog.naver.com/", new HashMap<String, Object>());
 	}
 
 	private void accessNaverCafe() {

@@ -6,14 +6,15 @@ import java.util.Map.Entry;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClient.BoundRequestBuilder;
 import com.ning.http.client.AsyncHttpClientConfig;
+import com.ning.http.client.Part;
 import com.ning.http.client.Response;
+import com.ning.http.client.cookie.Cookie;
 
 /**
  * 
@@ -33,14 +34,21 @@ public class AsyncHttpInvoker {
 		logger.debug("init HttpClient : defaultAgent={}", defaultUserAgent);
 	}
 
-	public Response requestPost(String url, List<Entry<String, String>> headers, String body) {
+	public Response requestPost(String url, Map<String, String> headers, String body) {
 		if (url == null) {
 			return null;
 		}
 		BoundRequestBuilder requestBuilder = asyncHttpClient.preparePost(url);
+
 		try {
-			requestBuilder = this.addHeader(requestBuilder, headers);
+			if (headers != null) {
+				for (Entry<String, String> entry : headers.entrySet()) {
+					requestBuilder.addHeader(entry.getKey(), entry.getValue());
+				}
+			}
+
 			requestBuilder.setBody(body).setBodyEncoding("UTF-8");
+
 			Future<Response> f = requestBuilder.execute();
 			Response response = f.get(500L, TimeUnit.MILLISECONDS);
 
@@ -52,14 +60,60 @@ public class AsyncHttpInvoker {
 		}
 	}
 
-	public Response requestGet(String url, Map<String, List<String>> queries, List<Entry<String, String>> headers) {
+	public Response requestMultipart(String url, Map<String, String> headers, List<Part> parts) {
+		if (url == null) {
+			return null;
+		}
+		BoundRequestBuilder requestBuilder = asyncHttpClient.preparePost(url);
+
+		try {
+			if (headers != null) {
+				for (Entry<String, String> entry : headers.entrySet()) {
+					requestBuilder.addHeader(entry.getKey(), entry.getValue());
+				}
+			}
+
+			if (parts != null) {
+				for (Part part : parts) {
+					requestBuilder.addBodyPart(part);
+				}
+			}
+
+			Future<Response> f = requestBuilder.execute();
+			Response response = f.get(500L, TimeUnit.MILLISECONDS);
+
+			logger.debug("\n\t [POST] url \t: " + url + "\n\t headers \t: " + headers + "\n\t parts \t\t: " + parts + "\n\t reponse \t: " + response.toString());
+			return response;
+		} catch (Exception e) {
+			logger.debug("request read-timeout : url \t: " + url + "\n\t headers \t: " + headers + "\n\t parts \t: " + parts);
+			throw new RuntimeException(e);
+		}
+	}
+
+	public Response requestGet(String url, Map<String, String> queries, Map<String, String> headers, List<Cookie> cookies) {
 		if (url == null) {
 			return null;
 		}
 
-		BoundRequestBuilder requestBuilder = asyncHttpClient.prepareGet(url + queriesToQueryString(queries));
+		BoundRequestBuilder requestBuilder = asyncHttpClient.prepareGet(url);
 
-		requestBuilder = this.addHeader(requestBuilder, headers);
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				requestBuilder.addCookie(cookie);
+			}
+		}
+
+		if (queries != null) {
+			for (Entry<String, String> entry : queries.entrySet()) {
+				requestBuilder.addParameter(entry.getKey(), entry.getValue());
+			}
+		}
+
+		if (headers != null) {
+			for (Entry<String, String> entry : headers.entrySet()) {
+				requestBuilder.addHeader(entry.getKey(), entry.getValue());
+			}
+		}
 
 		try {
 			Future<Response> f = requestBuilder.execute();
@@ -72,36 +126,5 @@ public class AsyncHttpInvoker {
 			logger.debug("request read-timeout : url \t: " + url + "\n\t headers \t: " + headers + "\n\t queries \t: " + queries);
 			throw new RuntimeException(e);
 		}
-	}
-
-	private String queriesToQueryString(Map<String, List<String>> queries) {
-		if (queries == null) {
-			return StringUtils.EMPTY;
-		}
-
-		StringBuilder sb = new StringBuilder();
-		// not implemented haha.
-		return sb.toString();
-	}
-
-	private BoundRequestBuilder addHeader(BoundRequestBuilder requestBuilder, List<Entry<String, String>> headers) {
-		if (headers == null) {
-			return requestBuilder;
-		}
-
-		for (Entry<String, String> entry : headers) {
-			if (requestBuilder != null) {
-				if (!entry.getKey().equals("User-Agent")) {
-					requestBuilder.addHeader(entry.getKey(), entry.getValue());
-				}
-			}
-		}
-
-		// rewrite user-agent
-		if (requestBuilder != null) {
-			requestBuilder.addHeader("User-Agent", this.defaultUserAgent);
-		}
-
-		return requestBuilder;
 	}
 }
