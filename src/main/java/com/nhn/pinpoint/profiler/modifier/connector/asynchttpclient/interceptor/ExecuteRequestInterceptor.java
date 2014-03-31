@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
@@ -272,7 +273,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 					com.ning.http.client.StringPart p = (com.ning.http.client.StringPart) part;
 					sb.append(part.getName());
 					sb.append("=");
-					sb.append(StringUtils.drop(p.getValue(), entityDumpSize));
+					sb.append(p.getValue());
 				} else if (part instanceof com.ning.http.multipart.FilePart) {
 					com.ning.http.multipart.FilePart p = (com.ning.http.multipart.FilePart) part;
 					sb.append(part.getName());
@@ -284,6 +285,10 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 					// string을 꺼내오는 방법이 없고, apache http client의 adaptation
 					// class라 무시.
 					sb.append("=STRING");
+				}
+
+				if (sb.length() >= entityDumpSize) {
+					break;
 				}
 
 				if (iterator.hasNext()) {
@@ -304,9 +309,38 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 		if (paramSampler.isSampling()) {
 			FluentStringsMap requestParams = httpRequest.getParams();
 			if (requestParams != null) {
-				trace.recordAttribute(AnnotationKey.HTTP_PARAM, StringUtils.drop(requestParams.toString(), paramDumpSize));
+				String params = paramsToString(requestParams, paramDumpSize);
+				trace.recordAttribute(AnnotationKey.HTTP_PARAM, StringUtils.drop(params, paramDumpSize));
 			}
 		}
+	}
+
+	private String paramsToString(FluentStringsMap params, int limit) {
+		StringBuilder result = new StringBuilder();
+
+		for (Map.Entry<String, List<String>> entry : params.entrySet()) {
+			if (result.length() > 0) {
+				result.append(",");
+			}
+			result.append(entry.getKey());
+			result.append("=");
+
+			boolean needsComma = false;
+
+			for (String value : entry.getValue()) {
+				if (needsComma) {
+					result.append(", ");
+				} else {
+					needsComma = true;
+				}
+				result.append(value);
+			}
+			
+			if (result.length() >= limit) {
+				break;
+			}
+		}
+		return result.toString();
 	}
 
 	@Override
