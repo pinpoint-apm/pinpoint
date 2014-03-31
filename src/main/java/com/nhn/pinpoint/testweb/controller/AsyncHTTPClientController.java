@@ -41,4 +41,10 @@ public class AsyncHTTPClientController {
 		asyncHttpClientService.requestPostWithBody();
 		return "http";
 	}
+	
+	@RequestMapping(value = "/asynchttp/postWithMultipart")
+	public String requestPostWithMultipart(Model model) {
+		asyncHttpClientService.requestMultipart();
+		return "http";
+	}
 }
