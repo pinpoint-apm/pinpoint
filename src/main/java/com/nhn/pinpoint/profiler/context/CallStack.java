@@ -91,7 +91,8 @@ public class CallStack {
     public synchronized StackFrame pop() {
         if (index >= 0) {
             stack[index] = null;
-            index--;
+            this.index--;
+            // TODO 점검해볼것. klocwork 지적 사항임.
             return stack[index];
         } else {
             PinpointException ex = new PinpointException("Profiler CallStack check. index:" + index + "");
