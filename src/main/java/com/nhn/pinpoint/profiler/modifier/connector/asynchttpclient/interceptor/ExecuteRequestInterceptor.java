@@ -191,7 +191,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 				return;
 			}
 
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new StringBuilder(cookieDumpSize * 2);
 			Iterator<Cookie> iterator = cookies.iterator();
 			while (iterator.hasNext()) {
 				Cookie cookie = iterator.next();
@@ -255,7 +255,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 	protected void recordMultipartData(final com.ning.http.client.Request httpRequest, final Trace trace) {
 		List<Part> parts = httpRequest.getParts();
 		if (parts != null && parts.isEmpty()) {
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new StringBuilder(entityDumpSize * 2);
 			Iterator<Part> iterator = parts.iterator();
 			while (iterator.hasNext()) {
 				Part part = iterator.next();
@@ -316,7 +316,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 	}
 
 	private String paramsToString(FluentStringsMap params, int limit) {
-		StringBuilder result = new StringBuilder();
+		StringBuilder result = new StringBuilder(limit * 2);
 
 		for (Map.Entry<String, List<String>> entry : params.entrySet()) {
 			if (result.length() > 0) {
