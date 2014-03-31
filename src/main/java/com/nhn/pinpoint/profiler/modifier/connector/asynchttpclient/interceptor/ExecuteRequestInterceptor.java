@@ -1,12 +1,9 @@
 package com.nhn.pinpoint.profiler.modifier.connector.asynchttpclient.interceptor;
 
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Iterator;
-
-import org.apache.http.HeaderElement;
-import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
-import org.apache.http.ParseException;
+import java.util.List;
 
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
@@ -29,10 +26,13 @@ import com.nhn.pinpoint.profiler.util.SimpleSamplerFactory;
 import com.nhn.pinpoint.profiler.util.StringUtils;
 import com.ning.http.client.FluentCaseInsensitiveStringsMap;
 import com.ning.http.client.FluentStringsMap;
+import com.ning.http.client.Part;
+import com.ning.http.client.Request.EntityWriter;
 import com.ning.http.client.cookie.Cookie;
 
 /**
- * intercept com.ning.http.client.AsyncHttpClient.executeRequest(Request, AsyncHandler<T>)
+ * intercept com.ning.http.client.AsyncHttpClient.executeRequest(Request,
+ * AsyncHandler<T>)
  * 
  * @author netspider
  * 
@@ -45,13 +45,20 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 	protected TraceContext traceContext;
 	protected MethodDescriptor descriptor;
 
-	protected boolean collectCookie;
+	protected boolean dumpCookie;
 	protected DumpType cookieDumpType;
 	protected SimpleSampler cookieSampler;
+	protected int cookieDumpSize;
 
-	protected boolean collectEntity;
+	protected boolean dumpEntity;
 	protected DumpType entityDumpType;
 	protected SimpleSampler entitySampler;
+	protected int entityDumpSize;
+
+	protected boolean dumpParam;
+	protected DumpType paramDumpType;
+	protected SimpleSampler paramSampler;
+	protected int paramDumpSize;
 
 	@Override
 	public void before(Object target, Object[] args) {
@@ -152,18 +159,25 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 
 	private void recordHttpRequest(Trace trace, com.ning.http.client.Request httpRequest, Object result) {
 		final boolean isException = InterceptorUtils.isThrowable(result);
-		if (collectCookie) {
+		if (dumpCookie) {
 			if (DumpType.ALWAYS == cookieDumpType) {
 				recordCookie(httpRequest, trace);
 			} else if (DumpType.EXCEPTION == cookieDumpType && isException) {
 				recordCookie(httpRequest, trace);
 			}
 		}
-		if (collectEntity) {
+		if (dumpEntity) {
 			if (DumpType.ALWAYS == entityDumpType) {
 				recordEntity(httpRequest, trace);
 			} else if (DumpType.EXCEPTION == entityDumpType && isException) {
 				recordEntity(httpRequest, trace);
+			}
+		}
+		if (dumpParam) {
+			if (DumpType.ALWAYS == paramDumpType) {
+				recordParam(httpRequest, trace);
+			} else if (DumpType.EXCEPTION == paramDumpType && isException) {
+				recordParam(httpRequest, trace);
 			}
 		}
 	}
@@ -171,8 +185,12 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 	protected void recordCookie(com.ning.http.client.Request httpRequest, Trace trace) {
 		if (cookieSampler.isSampling()) {
 			Collection<Cookie> cookies = httpRequest.getCookies();
-			StringBuilder sb = new StringBuilder();
 
+			if (cookies.isEmpty()) {
+				return;
+			}
+
+			StringBuilder sb = new StringBuilder();
 			Iterator<Cookie> iterator = cookies.iterator();
 			while (iterator.hasNext()) {
 				Cookie cookie = iterator.next();
@@ -181,45 +199,114 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 					sb.append(",");
 				}
 			}
-			trace.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(sb.toString(), 1024));
+			trace.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(sb.toString(), cookieDumpSize));
 		}
 	}
 
-	protected void recordEntity(com.ning.http.client.Request httpRequest, Trace trace) {
+	protected void recordEntity(final com.ning.http.client.Request httpRequest, final Trace trace) {
 		if (entitySampler.isSampling()) {
-			FluentStringsMap requestParams = httpRequest.getParams();
-			if (requestParams != null) {
-				trace.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(requestParams.toString(), 1024));
-			}
+			recordNonMultipartData(httpRequest, trace);
+			recordMultipartData(httpRequest, trace);
 		}
 	}
 
 	/**
-	 * copy: EntityUtils Obtains character set of the entity, if known.
+	 * <pre>
+	 * body는 string, byte, stream, entitywriter 중 하나가 입력된다.
+	 * 여기에서는 stringdata만 수집하고 나머지는 일단 수집 안함.
+	 * </pre>
 	 * 
-	 * @param entity
-	 *            must not be null
-	 * @return the character set, or null if not found
-	 * @throws ParseException
-	 *             if header elements cannot be parsed
-	 * @throws IllegalArgumentException
-	 *             if entity is null
+	 * @param httpRequest
+	 * @param trace
 	 */
-	public static String getContentCharSet(final HttpEntity entity) throws ParseException {
-		if (entity == null) {
-			throw new IllegalArgumentException("HTTP entity may not be null");
+	protected void recordNonMultipartData(final com.ning.http.client.Request httpRequest, final Trace trace) {
+		final String stringData = httpRequest.getStringData();
+		if (stringData != null) {
+			trace.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(stringData, entityDumpSize));
+			return;
 		}
-		String charset = null;
-		if (entity.getContentType() != null) {
-			HeaderElement values[] = entity.getContentType().getElements();
-			if (values.length > 0) {
-				NameValuePair param = values[0].getParameterByName("charset");
-				if (param != null) {
-					charset = param.getValue();
+
+		final byte[] byteData = httpRequest.getByteData();
+		if (byteData != null) {
+			trace.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, "BYTE_DATA");
+			return;
+		}
+
+		final InputStream streamData = httpRequest.getStreamData();
+		if (streamData != null) {
+			trace.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, "STREAM_DATA");
+			return;
+		}
+
+		final EntityWriter entityWriter = httpRequest.getEntityWriter();
+		if (entityWriter != null) {
+			trace.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, "STREAM_DATA");
+			return;
+		}
+	}
+
+	/**
+	 * record http multipart data
+	 * 
+	 * @param httpRequest
+	 * @param trace
+	 */
+	protected void recordMultipartData(final com.ning.http.client.Request httpRequest, final Trace trace) {
+		List<Part> parts = httpRequest.getParts();
+		if (parts != null && parts.isEmpty()) {
+			StringBuilder sb = new StringBuilder();
+			Iterator<Part> iterator = parts.iterator();
+			while (iterator.hasNext()) {
+				Part part = iterator.next();
+				if (part instanceof com.ning.http.client.ByteArrayPart) {
+					com.ning.http.client.ByteArrayPart p = (com.ning.http.client.ByteArrayPart) part;
+					sb.append(part.getName());
+					sb.append("=BYTE_ARRAY_");
+					sb.append(p.getData().length);
+				} else if (part instanceof com.ning.http.client.FilePart) {
+					com.ning.http.client.FilePart p = (com.ning.http.client.FilePart) part;
+					sb.append(part.getName());
+					sb.append("=FILE_");
+					sb.append(p.getMimeType());
+				} else if (part instanceof com.ning.http.client.StringPart) {
+					com.ning.http.client.StringPart p = (com.ning.http.client.StringPart) part;
+					sb.append(part.getName());
+					sb.append("=");
+					sb.append(StringUtils.drop(p.getValue(), entityDumpSize));
+				} else if (part instanceof com.ning.http.multipart.FilePart) {
+					com.ning.http.multipart.FilePart p = (com.ning.http.multipart.FilePart) part;
+					sb.append(part.getName());
+					sb.append("=FILE_");
+					sb.append(p.getContentType());
+				} else if (part instanceof com.ning.http.multipart.StringPart) {
+					com.ning.http.multipart.StringPart p = (com.ning.http.multipart.StringPart) part;
+					sb.append(part.getName());
+					// string을 꺼내오는 방법이 없고, apache http client의 adaptation
+					// class라 무시.
+					sb.append("=STRING");
+				}
+
+				if (iterator.hasNext()) {
+					sb.append(",");
 				}
 			}
+			trace.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, StringUtils.drop(sb.toString(), entityDumpSize));
 		}
-		return charset;
+	}
+
+	/**
+	 * record http request parameter
+	 * 
+	 * @param httpRequest
+	 * @param trace
+	 */
+	protected void recordParam(final com.ning.http.client.Request httpRequest, final Trace trace) {
+		if (paramSampler.isSampling()) {
+			FluentStringsMap requestParams = httpRequest.getParams();
+			if (requestParams != null) {
+				trace.recordAttribute(AnnotationKey.HTTP_PARAM, StringUtils.drop(requestParams.toString(), paramDumpSize));
+			}
+		}
 	}
 
 	@Override
@@ -227,16 +314,25 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 		this.traceContext = traceContext;
 
 		final ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
-		this.collectCookie = profilerConfig.isApacheHttpClient4ProfileCookie();
-		this.cookieDumpType = profilerConfig.getApacheHttpClient4ProfileCookieDumpType();
-		if (collectCookie) {
-			this.cookieSampler = SimpleSamplerFactory.createSampler(collectCookie, profilerConfig.getApacheHttpClient4ProfileCookieSamplingRate());
+		this.dumpCookie = profilerConfig.isNingAsyncHttpClientProfileCookie();
+		this.cookieDumpType = profilerConfig.getNingAsyncHttpClientProfileCookieDumpType();
+		this.cookieDumpSize = profilerConfig.getNingAsyncHttpClientProfileCookieDumpSize();
+		if (dumpCookie) {
+			this.cookieSampler = SimpleSamplerFactory.createSampler(dumpCookie, profilerConfig.getNingAsyncHttpClientProfileCookieSamplingRate());
 		}
 
-		this.collectEntity = profilerConfig.isApacheHttpClient4ProfileEntity();
-		this.entityDumpType = profilerConfig.getApacheHttpClient4ProfileEntityDumpType();
-		if (collectEntity) {
-			this.entitySampler = SimpleSamplerFactory.createSampler(collectEntity, profilerConfig.getApacheHttpClient4ProfileEntitySamplingRate());
+		this.dumpEntity = profilerConfig.isNingAsyncHttpClientProfileEntity();
+		this.entityDumpType = profilerConfig.getNingAsyncHttpClientProfileEntityDumpType();
+		this.entityDumpSize = profilerConfig.getNingAsyncHttpClientProfileEntityDumpSize();
+		if (dumpEntity) {
+			this.entitySampler = SimpleSamplerFactory.createSampler(dumpEntity, profilerConfig.getNingAsyncHttpClientProfileEntitySamplingRate());
+		}
+
+		this.dumpParam = profilerConfig.isNingAsyncHttpClientProfileParam();
+		this.paramDumpType = profilerConfig.getNingAsyncHttpClientProfileParamDumpType();
+		this.paramDumpSize = profilerConfig.getNingAsyncHttpClientProfileParamDumpSize();
+		if (dumpParam) {
+			this.paramSampler = SimpleSamplerFactory.createSampler(dumpParam, profilerConfig.getNingAsyncHttpClientProfileParamSamplingRate());
 		}
 	}
 
