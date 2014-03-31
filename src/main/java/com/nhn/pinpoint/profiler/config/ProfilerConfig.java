@@ -12,6 +12,7 @@ import com.nhn.pinpoint.profiler.util.NumberUtils;
 
 /**
  * @author emeroad
+ * @author netspider
  */
 public class ProfilerConfig {
 
@@ -55,7 +56,6 @@ public class ProfilerConfig {
     private boolean memcached = true;
     private boolean memcachedKeyTrace = false;
 
-
     private boolean apacheHttpClient4Profile = true;
     private boolean apacheHttpClient4ProfileCookie = false;
     private DumpType apacheHttpClient4ProfileCookieDumpType = DumpType.EXCEPTION;
@@ -63,7 +63,20 @@ public class ProfilerConfig {
     private boolean apacheHttpClient4ProfileEntity = false;
     private DumpType apacheHttpClient4ProfileEntityDumpType = DumpType.EXCEPTION;
     private int apacheHttpClient4ProfileEntitySamplingRate = 1;
-
+    
+    private boolean ningAsyncHttpClientProfile = true;
+    private boolean ningAsyncHttpClientProfileCookie = false;
+    private DumpType ningAsyncHttpClientProfileCookieDumpType = DumpType.EXCEPTION;
+    private int ningAsyncHttpClientProfileCookieDumpSize = 1024;
+    private int ningAsyncHttpClientProfileCookieSamplingRate = 1;
+    private boolean ningAsyncHttpClientProfileEntity = false;
+    private DumpType ningAsyncHttpClientProfileEntityDumpType = DumpType.EXCEPTION;
+    private int ningAsyncHttpClientProfileEntityDumpSize = 1024;
+    private int ningAsyncHttpClientProfileEntitySamplingRate = 1;
+    private boolean ningAsyncHttpClientProfileParam = false;
+    private DumpType ningAsyncHttpClientProfileParamDumpType = DumpType.EXCEPTION;
+    private int ningAsyncHttpClientProfileParamDumpSize = 1024;
+    private int ningAsyncHttpClientProfileParamSamplingRate = 1;
 
     // 전역 샘플링
     private boolean samplingEnable = true;
@@ -317,7 +330,59 @@ public class ProfilerConfig {
     }
 
     //-----------------------------------------
+    // com/ning/http/client/AsyncHttpClient
+	public boolean isNingAsyncHttpClientProfile() {
+		return ningAsyncHttpClientProfile;
+	}
 
+	public boolean isNingAsyncHttpClientProfileCookie() {
+		return ningAsyncHttpClientProfileCookie;
+	}
+
+	public DumpType getNingAsyncHttpClientProfileCookieDumpType() {
+		return ningAsyncHttpClientProfileCookieDumpType;
+	}
+	
+	public int getNingAsyncHttpClientProfileCookieDumpSize() {
+		return ningAsyncHttpClientProfileCookieDumpSize;
+	}
+
+	public int getNingAsyncHttpClientProfileCookieSamplingRate() {
+		return ningAsyncHttpClientProfileCookieSamplingRate;
+	}
+
+	public boolean isNingAsyncHttpClientProfileEntity() {
+		return ningAsyncHttpClientProfileEntity;
+	}
+
+	public DumpType getNingAsyncHttpClientProfileEntityDumpType() {
+		return ningAsyncHttpClientProfileEntityDumpType;
+	}
+	
+	public int getNingAsyncHttpClientProfileEntityDumpSize() {
+		return ningAsyncHttpClientProfileEntityDumpSize;
+	}
+
+	public int getNingAsyncHttpClientProfileEntitySamplingRate() {
+		return ningAsyncHttpClientProfileEntitySamplingRate;
+	}
+	
+	public boolean isNingAsyncHttpClientProfileParam() {
+		return ningAsyncHttpClientProfileParam;
+	}
+	
+	public DumpType getNingAsyncHttpClientProfileParamDumpType() {
+		return ningAsyncHttpClientProfileParamDumpType;
+	}
+	
+	public int getNingAsyncHttpClientProfileParamDumpSize() {
+		return ningAsyncHttpClientProfileParamDumpSize;
+	}
+	
+	public int getNingAsyncHttpClientProfileParamSamplingRate() {
+		return ningAsyncHttpClientProfileParamSamplingRate;
+	}
+    
     /**
      * TODO remove this. 테스트 장비에서 call stack view가 잘 보이는지 테스트 하려고 추가함.
      *
@@ -404,6 +469,24 @@ public class ProfilerConfig {
         this.apacheHttpClient4ProfileEntityDumpType = readDumpType(prop, "profiler.apache.httpclient4.entity.dumptype", DumpType.EXCEPTION);
         this.apacheHttpClient4ProfileEntitySamplingRate = readInt(prop, "profiler.apache.httpclient4.entity.sampling.rate", 1);
 
+        //
+        // ning.asynchttpclient
+        //
+        this.ningAsyncHttpClientProfile = readBoolean(prop, "profiler.ning.asynchttpclient", true);
+        this.ningAsyncHttpClientProfileCookie = readBoolean(prop, "profiler.ning.asynchttpclient.cookie", false);
+        this.ningAsyncHttpClientProfileCookieDumpType = readDumpType(prop, "profiler.ning.asynchttpclient.cookie.dumptype", DumpType.EXCEPTION);
+        this.ningAsyncHttpClientProfileCookieDumpSize = readInt(prop, "profiler.ning.asynchttpclient.cookie.dumpsize", 1024);
+        this.ningAsyncHttpClientProfileCookieSamplingRate = readInt(prop, "profiler.ning.asynchttpclient.cookie.sampling.rate", 1);
+        
+        this.ningAsyncHttpClientProfileEntity = readBoolean(prop, "profiler.ning.asynchttpclient.entity", false);
+        this.ningAsyncHttpClientProfileEntityDumpType = readDumpType(prop, "profiler.ning.asynchttpclient.entity.dumptype", DumpType.EXCEPTION);
+        this.ningAsyncHttpClientProfileEntityDumpSize = readInt(prop, "profiler.ning.asynchttpclient.entity.dumpsize", 1024);
+        this.ningAsyncHttpClientProfileEntitySamplingRate = readInt(prop, "profiler.asynchttpclient.entity.sampling.rate", 1);
+
+        this.ningAsyncHttpClientProfileParam = readBoolean(prop, "profiler.ning.asynchttpclient.param", false);
+        this.ningAsyncHttpClientProfileParamDumpType = readDumpType(prop, "profiler.ning.asynchttpclient.param.dumptype", DumpType.EXCEPTION);
+        this.ningAsyncHttpClientProfileParamDumpSize = readInt(prop, "profiler.ning.asynchttpclient.param.dumpsize", 1024);
+        this.ningAsyncHttpClientProfileParamSamplingRate = readInt(prop, "profiler.asynchttpclient.param.sampling.rate", 1);
 
         this.samplingEnable = readBoolean(prop, "profiler.sampling.enable", true);
         this.samplingRate = readInt(prop, "profiler.sampling.rate", 1);
