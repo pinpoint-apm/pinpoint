@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 
 /**
- * 
+ * @author emeroad
  * @author netspider
  */
 @Controller
@@ -91,6 +91,7 @@ public class MapController {
 	}
 
 	/**
+     * 맵에서 직접 찍어오는걸로 변경시 잘 사용하지 않는 API가 될것임.
 	 * 필터가 사용되지 않은 서버맵의 연결선을 통과하는 요청의 통계정보 조회
 	 * 
 	 * @param model
@@ -102,10 +103,12 @@ public class MapController {
 	 * @param targetServiceType
 	 * @return
 	 */
+    @Deprecated
 	@RequestMapping(value = "/linkStatistics", method = RequestMethod.GET)
 	public String getLinkStatistics(Model model,
 									@RequestParam("from") long from,
 									@RequestParam("to") long to,
+                                    @RequestParam("originTo") long originTo,
 									@RequestParam("sourceApplicationName") String sourceApplicationName,
 									@RequestParam("sourceServiceType") short sourceServiceType,
 									@RequestParam("targetApplicationName") String targetApplicationName,
@@ -125,6 +128,7 @@ public class MapController {
 
         Histogram applicationHistogram = responseHistogramSummary.getApplicationHistogram();
 		model.addAttribute("linkStatistics", applicationHistogram);
+
 
         List<ResponseTimeViewModel> applicationTimeSeriesHistogram = responseHistogramSummary.getApplicationTimeSeriesHistogram();
         String applicationTimeSeriesHistogramJson = null;
