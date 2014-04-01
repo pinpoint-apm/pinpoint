@@ -37,6 +37,11 @@
             <version>1.5.19</version>
         </dependency>
 		<dependency>
+		    <groupId>com.google.guava</groupId>
+		    <artifactId>guava</artifactId>
+		    <version>15.0</version>
+		</dependency>
+		<dependency>
 			<groupId>com.ning</groupId>
 			<artifactId>async-http-client</artifactId>
 			<version>1.8.3</version>

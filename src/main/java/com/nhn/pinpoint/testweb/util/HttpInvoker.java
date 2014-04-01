@@ -23,13 +23,14 @@ import org.slf4j.LoggerFactory;
 
 public class HttpInvoker {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public final static int SLOW_REQUEST_TIME = 1000;
+	public final static int SLOW_REQUEST_TIME = 1000;
 
 	private HttpConnectorOptions connectorOptions;
 
 	public HttpInvoker() {
+		this(new HttpConnectorOptions());
 	}
 
 	public HttpInvoker(HttpConnectorOptions connectorOptions) {
@@ -50,35 +51,35 @@ public class HttpInvoker {
 		return httpClient;
 	}
 
-    public String execute(String uri, Map<String, Object> paramMap, String cookie) {
-        if (null == uri) {
-            return null;
-        }
+	public String execute(String uri, Map<String, Object> paramMap, String cookie) {
+		if (null == uri) {
+			return null;
+		}
 
-        HttpClient httpClient = null;
-        try {
-            HttpPost post = new HttpPost(uri);
-            if (cookie != null) {
-                post.setHeader("Cookie", cookie);
-            }
-            post.setEntity(getEntity(paramMap));
-            post.setParams(getHttpParams());
-            post.addHeader("Content-Type", "application/json;charset=UTF-8");
+		HttpClient httpClient = null;
+		try {
+			HttpPost post = new HttpPost(uri);
+			if (cookie != null) {
+				post.setHeader("Cookie", cookie);
+			}
+			post.setEntity(getEntity(paramMap));
+			post.setParams(getHttpParams());
+			post.addHeader("Content-Type", "application/json;charset=UTF-8");
 
-            ResponseHandler<String> responseHandler = new BasicResponseHandler();
+			ResponseHandler<String> responseHandler = new BasicResponseHandler();
 
-            httpClient = getHttpClient(getHttpParams());
+			httpClient = getHttpClient(getHttpParams());
 
-            return httpClient.execute(post, responseHandler);
-        } catch (Exception e) {
-            logger.warn("HttpClient.execute() error. Caused:{}", e.getMessage(), e);
-            return e.getMessage();
-        } finally {
-            if (null != httpClient && null != httpClient.getConnectionManager()) {
-                httpClient.getConnectionManager().shutdown();
-            }
-        }
-    }
+			return httpClient.execute(post, responseHandler);
+		} catch (Exception e) {
+			logger.warn("HttpClient.execute() error. Caused:{}", e.getMessage(), e);
+			return e.getMessage();
+		} finally {
+			if (null != httpClient && null != httpClient.getConnectionManager()) {
+				httpClient.getConnectionManager().shutdown();
+			}
+		}
+	}
 
 	public String execute(String uri, Map<String, Object> paramMap) {
 		return execute(uri, paramMap, null);
@@ -115,12 +116,12 @@ public class HttpInvoker {
 	}
 
 	private HttpEntity getEntity(Map<String, Object> paramMap) throws UnsupportedEncodingException {
-        if (paramMap.size() != 0) {
-//            size가 0일때 호출하면 entity에 {}가 들어감.
-		    return new StringEntity(paramMap.toString(), "UTF-8");
-        } else {
-            return new StringEntity("", "UTF-8");
-        }
+		if (paramMap.size() != 0) {
+			// size가 0일때 호출하면 entity에 {}가 들어감.
+			return new StringEntity(paramMap.toString(), "UTF-8");
+		} else {
+			return new StringEntity("", "UTF-8");
+		}
 	}
 
 	private HttpParams getHttpParams() {

@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.testweb.util;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -117,7 +119,7 @@ public class AsyncHttpInvoker {
 
 		try {
 			Future<Response> f = requestBuilder.execute();
-			Response response = f.get(500L, TimeUnit.MILLISECONDS);
+			Response response = f.get(60000L, TimeUnit.MILLISECONDS);
 
 			logger.debug("\n\t [GET] url \t: " + url + "\n\t headers \t: " + headers + "\n\t queries \t: " + queries + "\n\t reponse \t: " + response.toString());
 
@@ -126,5 +128,26 @@ public class AsyncHttpInvoker {
 			logger.debug("request read-timeout : url \t: " + url + "\n\t headers \t: " + headers + "\n\t queries \t: " + queries);
 			throw new RuntimeException(e);
 		}
+	}
+
+	public static Map<String, String> getDummyParams() {
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("query", "naver");
+		params.put("ie", "utf8");
+		return params;
+	}
+
+	public static Map<String, String> getDummyHeaders() {
+		Map<String, String> headers = new HashMap<String, String>();
+		headers.put("header1", "header1");
+		headers.put("header2", "header2");
+		return headers;
+	}
+
+	public static List<Cookie> getDummyCookies() {
+		List<Cookie> cookies = new ArrayList<Cookie>();
+		cookies.add(new Cookie("cookieName1", "cookieValue1", "cookieRawValue1", "", "/", 10, 10, false, false));
+		cookies.add(new Cookie("cookieName2", "cookieValue2", "cookieRawValue2", "", "/", 10, 10, false, false));
+		return cookies;
 	}
 }
