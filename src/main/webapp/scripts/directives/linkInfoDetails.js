@@ -5,8 +5,8 @@ pinpointApp.constant('linkInfoDetailsConfig', {
     myColors: ["#2ca02c", "#3c81fa", "#f8c731", "#f69124", "#f53034"]
 });
 
-pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartVo', '$filter', 'ServerMapFilterVo',  'filteredMapUtil',
-    function (config, HelixChartVo, $filter, ServerMapFilterVo, filteredMapUtil) {
+pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartVo', '$filter', 'ServerMapFilterVo',  'filteredMapUtil', 'humanReadableNumberFormatFilter',
+    function (config, HelixChartVo, $filter, ServerMapFilterVo, filteredMapUtil, humanReadableNumberFormatFilter) {
         return {
             restrict: 'EA',
             replace: true,
@@ -133,7 +133,11 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         });
 
                         chart.yAxis.tickFormat(function (d) {
-                            return d;
+                            return $filter('humanReadableNumberFormat')(d, 1);
+                        });
+
+                        chart.valueFormat(function (d) {
+                            return $filter('number')(d);
                         });
 
                         chart.color(config.myColors);
@@ -193,17 +197,19 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         });
 
                         chart.yAxis.tickFormat(function (d, i) {
-                        	if (d >= 1000000) {
-                                return $filter('number')(Math.floor(d / 1000000)) + "M";
-                    		} else if (d >= 1000) {
-                                return $filter('number')(Math.floor(d / 1000)) + "K";
-                            } else {
-                                return $filter('number')(d);
-                            }
+//                        	if (d >= 1000000) {
+//                                return $filter('number')(Math.floor(d / 1000000)) + "M";
+//                    		} else if (d >= 1000) {
+//                                return $filter('number')(Math.floor(d / 1000)) + "K";
+//                            } else {
+//                                return $filter('number')(d);
+//                            }
+                            return humanReadableNumberFormatFilter(d, 0);
                         });
 
                         chart.valueFormat(function (d) {
-                            return $filter('number')(d);
+//                            return $filter('number')(d);
+                            return humanReadableNumberFormatFilter(d, 0);
                         });
 
                         chart.color(config.myColors);

@@ -151,17 +151,12 @@ pinpointApp
                         });
 
                         chart.yAxis.tickFormat(function (d, i) {
-                            if (d >= 1000000) {
-                                return $filter('number')(Math.floor(d / 1000000)) + "M";
-                            } else if (d >= 1000) {
-                                return $filter('number')(Math.floor(d / 1000)) + "K";
-                            } else {
-                                return $filter('number')(d);
-                            }
+                            return $filter('humanReadableNumberFormat')(d, 0);
                         });
 
                         chart.valueFormat(function (d) {
-                            return $filter('number')(d);
+//                            return $filter('number')(d);
+                            return $filter('humanReadableNumberFormat')(d, 1);
                         });
 
                         chart.color(config.myColors);
@@ -209,7 +204,11 @@ pinpointApp
                         });
 
                         chart.yAxis.tickFormat(function (d) {
-                            return d;
+                            return $filter('humanReadableNumberFormat')(d, 0);
+                        });
+
+                        chart.valueFormat(function (d) {
+                            return $filter('number')(d);
                         });
 
                         chart.color(config.myColors);
