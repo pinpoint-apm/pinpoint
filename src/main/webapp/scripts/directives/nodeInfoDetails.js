@@ -207,10 +207,6 @@ pinpointApp
                             return $filter('humanReadableNumberFormat')(d, 0);
                         });
 
-                        chart.valueFormat(function (d) {
-                            return $filter('number')(d);
-                        });
-
                         chart.color(config.myColors);
 
                         chart.multibar.dispatch.on('elementClick', function (e) {

@@ -136,10 +136,6 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                             return $filter('humanReadableNumberFormat')(d, 1);
                         });
 
-                        chart.valueFormat(function (d) {
-                            return $filter('number')(d);
-                        });
-
                         chart.color(config.myColors);
 
                         chart.multibar.dispatch.on('elementClick', function (e) {
