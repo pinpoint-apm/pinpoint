@@ -123,7 +123,7 @@
 			<groupId>com.ning</groupId>
 			<artifactId>async-http-client</artifactId>
 			<version>1.8.3</version>
-			<scope>compile</scope>
+			<scope>provided</scope>
 		</dependency>
 
         <!-- [Start] Compile Interceptors -->
