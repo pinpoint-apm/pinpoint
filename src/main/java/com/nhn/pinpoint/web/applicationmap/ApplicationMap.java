@@ -29,6 +29,8 @@ public class ApplicationMap {
 
     private final Range range;
 
+//    private List<ApplicationScatterScanResult> applicationScatterScanResultList;
+
 
 	ApplicationMap(Range range) {
         if (range == null) {
@@ -93,7 +95,7 @@ public class ApplicationMap {
             ServerInstanceList serverInstanceList = builder.build();
             node.setServerInstanceList(serverInstanceList);
         } else if (nodeServiceType.isWas()) {
-            final Set<AgentInfoBo> agentList = agentInfoService.selectAgent(node.getApplication().getName());
+            final Set<AgentInfoBo> agentList = agentInfoService.selectAgent(node.getApplication().getName(), range);
             if (agentList.isEmpty()) {
                 return;
             }
@@ -106,8 +108,14 @@ public class ApplicationMap {
         }
 
     }
-
-
+//
+//    public void setApplicationScatterScanResult(List<ApplicationScatterScanResult> applicationScatterScanResultList) {
+//        this.applicationScatterScanResultList = applicationScatterScanResultList;
+//    }
+//
+//    public List<ApplicationScatterScanResult> getApplicationScatterScanResultList() {
+//        return applicationScatterScanResultList;
+//    }
 
     public static interface ResponseDataSource {
         ResponseHistogramSummary getResponseHistogramSummary(Application application);

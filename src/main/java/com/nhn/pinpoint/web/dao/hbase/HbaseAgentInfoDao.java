@@ -46,6 +46,10 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
+        if (range == null) {
+            throw new NullPointerException("range must not be null");
+        }
+
 
         logger.debug("get agentInfo with, agentId={}, {}", agentId, range);
     	

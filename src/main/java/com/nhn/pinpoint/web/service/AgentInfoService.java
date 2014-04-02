@@ -14,5 +14,5 @@ public interface AgentInfoService {
 	SortedMap<String, List<AgentInfoBo>> getApplicationAgentList(String applicationName, Range range);
 
 
-    Set<AgentInfoBo> selectAgent(String applicationId);
+    Set<AgentInfoBo> selectAgent(String applicationId, Range range);
 }

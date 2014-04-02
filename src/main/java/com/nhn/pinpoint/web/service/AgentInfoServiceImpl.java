@@ -83,7 +83,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 		return result;
 	}
 
-    public Set<AgentInfoBo> selectAgent(String applicationId) {
+    public Set<AgentInfoBo> selectAgent(String applicationId, Range range) {
         if (applicationId == null) {
             throw new NullPointerException("applicationId must not be null");
         }
@@ -92,8 +92,11 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         Set<AgentInfoBo> agentSet = new HashSet<AgentInfoBo>();
         for (String agentId : agentIds) {
             // TODO 조회 시간대에 따라서 agent info row timestamp를 변경하여 조회해야하는지는 모르겠음.
-            AgentInfoBo info = agentInfoDao.findAgentInfoBeforeStartTime(agentId, System.currentTimeMillis());
-            agentSet.add(info);
+            // 과거에 조회하였을 경우 이를 과거 시간을 기준으로 거슬러 올라가도록 to를 넣어서 조회하도록 임시 수정.
+            AgentInfoBo info = agentInfoDao.findAgentInfoBeforeStartTime(agentId, range.getTo());
+            if (info != null) {
+                agentSet.add(info);
+            }
         }
         return agentSet;
     }
