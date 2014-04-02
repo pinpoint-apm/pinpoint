@@ -156,7 +156,7 @@ pinpointApp
 
                         chart.valueFormat(function (d) {
 //                            return $filter('number')(d);
-                            return $filter('humanReadableNumberFormat')(d, 1);
+                            return $filter('humanReadableNumberFormat')(d, 1, true);
                         });
 
                         chart.color(config.myColors);
