@@ -90,7 +90,7 @@ public class ServerBuilder {
     public ServerInstanceList build() {
         if (!agentSet.isEmpty()) {
             // agent이름이 존재할 경우. 실제 리얼 서버가 존재할 경우
-            this.logger.debug("buildPhysicalServer");
+            this.logger.debug("buildPhysicalServer:{}", agentSet);
             return buildPhysicalServer(agentSet);
         } else {
             // 논리 이름으로 구성.
