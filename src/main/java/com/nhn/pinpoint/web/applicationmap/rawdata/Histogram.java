@@ -11,9 +11,9 @@ import com.nhn.pinpoint.common.ServiceType;
 
 
 /**
- * 
+ *
+ * @author emeroad
  * @author netspider
- * 
  */
 @JsonSerialize(using=HistogramSerializer.class)
 public class Histogram {

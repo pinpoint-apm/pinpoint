@@ -4,6 +4,9 @@ import com.nhn.pinpoint.web.vo.LinkKey;
 
 import java.util.Collection;
 
+/**
+ * @author emeroad
+ */
 public class LinkDataDuplexMap {
 
     private final LinkDataMap sourceLinkDataMap;

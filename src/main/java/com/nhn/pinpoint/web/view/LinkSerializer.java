@@ -59,7 +59,7 @@ public class LinkSerializer extends JsonSerializer<Link> {
 
 
     private void writeTimeSeriesHistogram(Link link, JsonGenerator jgen) throws IOException {
-        List<ResponseTimeViewModel> sourceApplicationTimeSeriesHistogram = link.getSourceApplicationTimeSeriesHistogram();
+        List<ResponseTimeViewModel> sourceApplicationTimeSeriesHistogram = link.getLinkApplicationTimeSeriesHistogram();
 
         jgen.writeFieldName("timeSeriesHistogram");
         jgen.writeObject(sourceApplicationTimeSeriesHistogram);

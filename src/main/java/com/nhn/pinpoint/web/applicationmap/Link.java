@@ -147,6 +147,14 @@ public class Link {
         }
     }
 
+    public List<ResponseTimeViewModel> getLinkApplicationTimeSeriesHistogram() {
+        if (createType == CreateType.Source)  {
+            return getSourceApplicationTimeSeriesHistogram();
+        } else {
+            return getTargetApplicationTimeSeriesHistogram();
+        }
+    }
+
     public Histogram getTargetHistogram() {
         // 내가 호출하는 대상의 serviceType을 가져와야 한다.
         // tomcat -> arcus를 호출한다고 하였을 경우 arcus의 타입을 가져와야함.
@@ -196,6 +204,12 @@ public class Link {
         AgentResponseTimeViewModelList agentResponseTimeViewModelList = new AgentResponseTimeViewModelList(applicationTimeSeriesHistogram.createViewModel());
         return agentResponseTimeViewModelList;
     }
+
+    public List<ResponseTimeViewModel> getTargetApplicationTimeSeriesHistogram() {
+        ApplicationTimeSeriesHistogram targetApplicationTimeSeriesHistogramData = getTargetApplicationTimeSeriesHistogramData();
+        return targetApplicationTimeSeriesHistogramData.createViewModel();
+    }
+
 
     public String getLinkState() {
         return linkStateResolver.resolve(this);
