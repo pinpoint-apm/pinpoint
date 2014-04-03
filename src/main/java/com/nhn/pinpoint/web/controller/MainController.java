@@ -2,18 +2,20 @@ package com.nhn.pinpoint.web.controller;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletResponse;
 
+import com.nhn.pinpoint.web.view.ApplicationGroup;
+import com.nhn.pinpoint.web.view.ServerTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.ui.ExtendedModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.nhn.pinpoint.web.service.CommonService;
 import com.nhn.pinpoint.web.vo.Application;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * @author emeroad
@@ -28,18 +30,17 @@ public class MainController {
 	private CommonService commonService;
 
 	@RequestMapping(value = "/applications", method = RequestMethod.GET)
-	public String flow(Model model) {
-		List<Application> applications = commonService.selectAllApplicationNames();
-		model.addAttribute("applications", applications);
+    @ResponseBody
+	public ApplicationGroup getApplicationGroup() {
+		List<Application> applicationList = commonService.selectAllApplicationNames();
+        logger.debug("/applications, {}", applicationList);
 
-		logger.debug("/applications, {}", applications);
-
-		return "applications";
+        return  new ApplicationGroup(applicationList);
 	}
 
 	@RequestMapping(value = "/serverTime", method = RequestMethod.GET)
-	public String getServerTime(Model model) {
-		model.addAttribute("currentServerTime", System.currentTimeMillis());
-		return "serverTime";
+    @ResponseBody
+	public ServerTime getServerTime() {
+		return new ServerTime();
 	}
 }
