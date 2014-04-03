@@ -2,6 +2,7 @@ package com.nhn.pinpoint.web.applicationmap;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
@@ -29,7 +30,7 @@ public class ApplicationMap {
 
     private final Range range;
 
-//    private List<ApplicationScatterScanResult> applicationScatterScanResultList;
+    private List<ApplicationScatterScanResult> applicationScatterScanResultList;
 
 
 	ApplicationMap(Range range) {
@@ -108,14 +109,15 @@ public class ApplicationMap {
         }
 
     }
-//
-//    public void setApplicationScatterScanResult(List<ApplicationScatterScanResult> applicationScatterScanResultList) {
-//        this.applicationScatterScanResultList = applicationScatterScanResultList;
-//    }
-//
-//    public List<ApplicationScatterScanResult> getApplicationScatterScanResultList() {
-//        return applicationScatterScanResultList;
-//    }
+
+    public void setApplicationScatterScanResult(List<ApplicationScatterScanResult> applicationScatterScanResultList) {
+        this.applicationScatterScanResultList = applicationScatterScanResultList;
+    }
+
+    @JsonIgnore
+    public List<ApplicationScatterScanResult> getApplicationScatterScanResultList() {
+        return applicationScatterScanResultList;
+    }
 
     public static interface ResponseDataSource {
         ResponseHistogramSummary getResponseHistogramSummary(Application application);

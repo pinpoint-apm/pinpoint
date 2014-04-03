@@ -1,5 +1,9 @@
 package com.nhn.pinpoint.web.vo;
 
+import com.nhn.pinpoint.common.util.DateUtils;
+
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author emeroad
  * @author netspider
@@ -69,6 +73,16 @@ public final class Range {
         return "Range{" +
                 "from=" + from +
                 ", to=" + to +
+                ", range=" + getRange() +
+                '}';
+    }
+
+
+    public String prettyToString() {
+        return "Range{" +
+                "from=" + DateUtils.longToDateStr(from) +
+                ", to=" + DateUtils.longToDateStr(to) +
+                ", range s=" + TimeUnit.MILLISECONDS.toSeconds(getRange()) +
                 '}';
     }
 }

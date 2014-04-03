@@ -16,7 +16,7 @@ import com.nhn.pinpoint.web.service.CommonService;
 import com.nhn.pinpoint.web.vo.Application;
 
 /**
- * 
+ * @author emeroad
  * @author netspider
  */
 @Controller

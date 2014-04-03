@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,7 +42,6 @@ public class FilteredMapController {
 	/**
 	 * 필터가 적용된 서버맵의 FROM ~ TO기간의 데이터 조회
 	 * 
-	 * @param model
 	 * @param applicationName
 	 * @param serviceType
 	 * @param from
@@ -54,34 +52,40 @@ public class FilteredMapController {
 	 */
 	@RequestMapping(value = "/getFilteredServerMapData", method = RequestMethod.GET)
     @ResponseBody
-	public MapWrap getFilteredServerMapData(Model model,
+	public MapWrap getFilteredServerMapData(
 											@RequestParam("application") String applicationName,
 											@RequestParam("serviceType") short serviceType,
 											@RequestParam("from") long from,
 											@RequestParam("to") long to,
+                                            @RequestParam("originTo") long originTo,
 											@RequestParam(value = "filter", required = false) String filterText,
 											@RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
         limit = LimitUtils.checkRange(limit);
         final Filter filter = filterBuilder.build(filterText);
+        // scan을 해야 될 토탈 범위
         final Range range = new Range(from, to);
-
         final LimitedScanResult<List<TransactionId>> limitedScanResult = filteredMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
 
-		ApplicationMap map = filteredMapService.selectApplicationMap(limitedScanResult.getScanData(), range, filter);
+        final long lastScanTime = limitedScanResult.getLimitedTime();
+        // 원본 범위, 시계열 차트의 sampling을 하려면 필요함.
+        final Range originalRange = new Range(from, originTo);
+        // 정확히 스캔된 범위가 어디까지 인지 알기 위해서 필요함.
+        final Range scannerRange = new Range(lastScanTime, to);
+        logger.debug("originalRange:{} scannerRange:{} ", originalRange, scannerRange);
+        ApplicationMap map = filteredMapService.selectApplicationMap(limitedScanResult.getScanData(), originalRange, scannerRange, filter);
 		
         if (logger.isDebugEnabled()) {
-            logger.debug("getFilteredServerMapData range scan(limit:{}) from~to:{} ~ {} lastFetchedTimestamp:{}", limit, DateUtils.longToDateStr(from), DateUtils.longToDateStr(to), DateUtils.longToDateStr(limitedScanResult.getLimitedTime()));
+            logger.debug("getFilteredServerMapData range scan(limit:{}) range:{} lastFetchedTimestamp:{}", limit, range.prettyToString(), DateUtils.longToDateStr(lastScanTime));
         }
 
         MapWrap mapWrap = new MapWrap(map);
-        mapWrap.setLastFetchedTimestamp(limitedScanResult.getLimitedTime());
+        mapWrap.setLastFetchedTimestamp(lastScanTime);
         return mapWrap;
 	}
 	
 	/**
 	 * 필터가 적용된 서버맵의 Period before 부터 현재시간까지의 데이터 조회.
 	 * 
-	 * @param model
 	 * @param applicationName
 	 * @param serviceType
 	 * @param filterText
@@ -90,7 +94,7 @@ public class FilteredMapController {
 	 */
 	@RequestMapping(value = "/getLastFilteredServerMapData", method = RequestMethod.GET)
     @ResponseBody
-	public MapWrap getLastFilteredServerMapData(Model model,
+	public MapWrap getLastFilteredServerMapData(
 			@RequestParam("application") String applicationName,
 			@RequestParam("serviceType") short serviceType,
 			@RequestParam("period") long period,
@@ -100,7 +104,9 @@ public class FilteredMapController {
 
 		long to = TimeUtils.getDelayLastTime();
 		long from = to - period;
-		return getFilteredServerMapData(model, applicationName, serviceType, from, to, filterText, limit);
+        // TODO 실시간 조회가 현재 disable이므로 to to로 수정하였음. 이것도 추가적으로 @RequestParam("originTo")가 필요할수 있음.
+		return getFilteredServerMapData(applicationName, serviceType, from, to, to, filterText, limit);
 	}
+
 
 }

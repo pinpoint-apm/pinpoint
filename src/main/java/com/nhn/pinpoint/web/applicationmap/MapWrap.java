@@ -2,6 +2,9 @@ package com.nhn.pinpoint.web.applicationmap;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.nhn.pinpoint.web.vo.ApplicationScatterScanResult;
+
+import java.util.List;
 
 /**
  * @author emeroad
@@ -28,5 +31,10 @@ public class MapWrap {
     @JsonProperty("lastFetchedTimestamp")
     public Long getLastFetchedTimestamp() {
         return lastFetchedTimestamp;
+    }
+
+    @JsonProperty("applicationScatterScanResult")
+    public List<ApplicationScatterScanResult> getApplicationScatterScanResult() {
+        return this.applicationMap.getApplicationScatterScanResultList();
     }
 }

@@ -18,7 +18,7 @@ public interface FilteredMapService {
 
 	public LoadFactor linkStatistics(Range range, List<TransactionId> traceIdSet, Application sourceApplication, Application destinationApplication, Filter filter);
 
-	public ApplicationMap selectApplicationMap(List<TransactionId> traceIdList, Range range, Filter filter);
+	public ApplicationMap selectApplicationMap(List<TransactionId> traceIdList, Range originalRange, Range scanRange, Filter filter);
 
 	public ApplicationMap selectApplicationMap(TransactionId transactionId);
 }

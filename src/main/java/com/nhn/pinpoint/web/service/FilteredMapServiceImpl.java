@@ -48,8 +48,6 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     @Autowired
     private AgentInfoService agentInfoService;
 
-    @Autowired
-    private MapResponseDao mapResponseDao;
 
     private static final Object V = new Object();
 
@@ -162,14 +160,14 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         transactionIdList.add(transactionId);
         // FIXME from,to -1 땜방임.
         Range range = new Range(-1, -1);
-        return selectApplicationMap(transactionIdList, range, Filter.NONE);
+        return selectApplicationMap(transactionIdList, range, range, Filter.NONE);
     }
 
     /**
      * filtered application map
      */
     @Override
-    public ApplicationMap selectApplicationMap(List<TransactionId> transactionIdList, Range range, Filter filter) {
+    public ApplicationMap selectApplicationMap(List<TransactionId> transactionIdList, Range originalRange, Range scanRange, Filter filter) {
         if (transactionIdList == null) {
             throw new NullPointerException("transactionIdList must not be null");
         }
@@ -182,7 +180,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
         final List<List<SpanBo>> filterList = selectFilteredSpan(transactionIdList, filter);
 
-        ApplicationMap map = createMap(range, filterList);
+        ApplicationMap map = createMap(originalRange, scanRange, filterList);
 
         watch.stop();
         logger.debug("Select filtered application map elapsed. {}ms", watch.getTotalTimeMillis());
@@ -201,11 +199,13 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         return filterList2(originalList, filter);
     }
 
-    private ApplicationMap createMap(Range range, List<List<SpanBo>> filterList) {
+    private ApplicationMap createMap(Range range, Range scanRange, List<List<SpanBo>> filterList) {
+
         // Window의 설정은 따로 inject받던지 해야 될듯함.
         final TimeWindow window = new TimeWindow(range, TimeWindowOneMinuteSampler.SAMPLER);
 
         final LinkDataMap linkDataMap = new LinkDataMap();
+        final DotExtractor dotExtractor = new DotExtractor(scanRange);
         final MapResponseHistogramSummary mapHistogramSummary = new MapResponseHistogramSummary(range);
         /**
          * 통계정보로 변환한다.
@@ -221,6 +221,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
                 recordSpanResponseTime(destApplication, span, mapHistogramSummary, span.getCollectorAcceptTime());
 
                 // record해야 되거나. rpc콜은 링크이다.
+                // 이 데이터를 기반으로 caller 데이터를 다시 생성해야 한다. accepted데이톨 링크를 생성하는 것은 잘못된 데이터임.
                 if (!destApplication.getServiceType().isRecordStatistics() || destApplication.getServiceType().isRpcClient()) {
                     continue;
                 }
@@ -234,16 +235,17 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
 
                 addNodeFromSpanEvent(span, window, linkDataMap, transactionSpanMap);
+                dotExtractor.addDot(span);
             }
         }
-
+        List<ApplicationScatterScanResult> applicationScatterScanResult = dotExtractor.getApplicationScatterScanResult();
         LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap(linkDataMap);
         ApplicationMapBuilder applicationMapBuilder = new ApplicationMapBuilder(range);
         ApplicationMap map = applicationMapBuilder.build(linkDataDuplexMap, agentInfoService);
 
         mapHistogramSummary.build();
         map.appendResponseTime(mapHistogramSummary);
-
+        map.setApplicationScatterScanResult(applicationScatterScanResult);
 
         return map;
     }
@@ -264,7 +266,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     }
 
 
-    private void addNodeFromSpanEvent(SpanBo span, TimeWindow window, LinkDataMap linkStatMap, Map<Long, SpanBo> transactionSpanMap) {
+    private void addNodeFromSpanEvent(SpanBo span, TimeWindow window, LinkDataMap linkDataMap, Map<Long, SpanBo> transactionSpanMap) {
         /**
          * span event의 statistics추가.
          */
@@ -297,9 +299,8 @@ public class FilteredMapServiceImpl implements FilteredMapService {
             final short slotTime = getHistogramSlotTime(spanEvent, destServiceType);
 
             // FIXME
-            // stat2.addCallHistogram((dest == null) ? spanEvent.getEndPoint() : dest, destServiceType.getCode(), (short) slot2, 1);
             final long spanEventTimeStamp = window.refineTimestamp(span.getStartTime() + spanEvent.getStartElapsed());
-            linkStatMap.addLinkData(srcApplication, span.getAgentId(), destApplication, spanEvent.getEndPoint(), spanEventTimeStamp, slotTime, 1);
+            linkDataMap.addLinkData(srcApplication, span.getAgentId(), destApplication, spanEvent.getEndPoint(), spanEventTimeStamp, slotTime, 1);
         }
     }
 
