@@ -2,7 +2,7 @@ package com.nhn.pinpoint.web.controller;
 
 import java.util.List;
 
-import com.nhn.pinpoint.web.applicationmap.MapWrap;
+import com.nhn.pinpoint.web.applicationmap.FilterMapWrap;
 import com.nhn.pinpoint.web.service.FilteredMapService;
 import com.nhn.pinpoint.web.util.LimitUtils;
 import com.nhn.pinpoint.web.vo.Range;
@@ -52,7 +52,7 @@ public class FilteredMapController {
 	 */
 	@RequestMapping(value = "/getFilteredServerMapData", method = RequestMethod.GET)
     @ResponseBody
-	public MapWrap getFilteredServerMapData(
+	public FilterMapWrap getFilteredServerMapData(
 											@RequestParam("application") String applicationName,
 											@RequestParam("serviceType") short serviceType,
 											@RequestParam("from") long from,
@@ -78,7 +78,7 @@ public class FilteredMapController {
             logger.debug("getFilteredServerMapData range scan(limit:{}) range:{} lastFetchedTimestamp:{}", limit, range.prettyToString(), DateUtils.longToDateStr(lastScanTime));
         }
 
-        MapWrap mapWrap = new MapWrap(map);
+        FilterMapWrap mapWrap = new FilterMapWrap(map);
         mapWrap.setLastFetchedTimestamp(lastScanTime);
         return mapWrap;
 	}
@@ -94,7 +94,7 @@ public class FilteredMapController {
 	 */
 	@RequestMapping(value = "/getLastFilteredServerMapData", method = RequestMethod.GET)
     @ResponseBody
-	public MapWrap getLastFilteredServerMapData(
+	public FilterMapWrap getLastFilteredServerMapData(
 			@RequestParam("application") String applicationName,
 			@RequestParam("serviceType") short serviceType,
 			@RequestParam("period") long period,
