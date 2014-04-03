@@ -136,7 +136,7 @@ public class ApplicationMapBuilder {
             final Link link = new Link(CreateType.Source, fromNode, toNode, range);
 
             if (toNode.getServiceType().isRpcClient()) {
-                if (!map.containsNode(toNode.getApplication().getName())) {
+                if (!map.containsNode(toNode.getApplication())) {
                     result.add(link);
                 }
             } else {
@@ -168,7 +168,7 @@ public class ApplicationMapBuilder {
             // RPC client인 경우 dest application이 이미 있으면 삭제, 없으면 unknown cloud로 변경.
             Link link = new Link(CreateType.Target, fromNode, toNode, range);
             if (toNode.getServiceType().isRpcClient()) {
-                if (!map.containsNode(toNode.getApplication().getName())) {
+                if (!map.containsNode(toNode.getApplication())) {
                     result.add(link);
                 }
             } else {

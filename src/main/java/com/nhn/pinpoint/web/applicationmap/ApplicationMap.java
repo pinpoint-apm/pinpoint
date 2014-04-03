@@ -64,9 +64,11 @@ public class ApplicationMap {
     }
 
 
-
-    public boolean containsNode(String applicationName) {
-        return nodeList.containsNode(applicationName);
+    public boolean containsNode(Application application) {
+        if (application == null) {
+            throw new NullPointerException("application must not be null");
+        }
+        return nodeList.containsNode(application);
     }
 
     public void appendAgentInfo(LinkDataDuplexMap linkStatisticsData, AgentInfoService agentInfoService) {

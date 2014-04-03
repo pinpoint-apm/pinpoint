@@ -9,8 +9,6 @@ import java.util.*;
  */
 public class NodeList {
     // 정확하게 이름으로만 확인을 해야 하는지 확인후 Application으로 해도 될경우 삭제가 필요함.
-    @Deprecated
-    private Set<String> applicationNameSet = new HashSet<String>();
 
     private final Map<Application, Node> nodeMap = new HashMap<Application, Node>();
 
@@ -35,7 +33,6 @@ public class NodeList {
             return;
         }
         nodeMap.put(nodeId, newNode);
-        applicationNameSet.add(nodeId.getName());
     }
 
 
@@ -45,10 +42,10 @@ public class NodeList {
         }
     }
 
-    public boolean containsNode(String applicationName) {
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+    public boolean containsNode(Application application) {
+        if (application == null) {
+            throw new NullPointerException("application must not be null");
         }
-        return applicationNameSet.contains(applicationName);
+        return nodeMap.containsKey(application);
     }
 }
