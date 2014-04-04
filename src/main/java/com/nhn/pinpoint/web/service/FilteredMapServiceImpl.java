@@ -82,6 +82,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     }
 
     @Override
+    @Deprecated
     public LoadFactor linkStatistics(Range range, List<TransactionId> traceIdSet, Application sourceApplication, Application destinationApplication, Filter filter) {
         if (sourceApplication == null) {
             throw new NullPointerException("sourceApplication must not be null");

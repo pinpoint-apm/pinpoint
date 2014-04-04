@@ -33,9 +33,9 @@ public class MainController {
     @ResponseBody
 	public ApplicationGroup getApplicationGroup() {
 		List<Application> applicationList = commonService.selectAllApplicationNames();
-        logger.debug("/applications, {}", applicationList);
+        logger.debug("/applications {}", applicationList);
 
-        return  new ApplicationGroup(applicationList);
+        return new ApplicationGroup(applicationList);
 	}
 
 	@RequestMapping(value = "/serverTime", method = RequestMethod.GET)
