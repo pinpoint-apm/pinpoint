@@ -68,8 +68,9 @@ public class SpanHandler implements SimpleHandler {
         int bugCheck = 0;
         if (span.getParentSpanId() == -1) {
             // FIXME 테스트용. host값에 agentId를 입력.
-            // user를 생성하는 부분
+            // 가상의 user를 생성하는 부분
             statisticsHandler.updateCaller(span.getApplicationName(), ServiceType.USER.getCode(), span.getAgentId(), span.getApplicationName(), span.getServiceType(), span.getAgentId(), span.getElapsed(), isError);
+            // 자신의 span정보 업데이트.
             statisticsHandler.updateCallee(span.getApplicationName(), span.getServiceType(), span.getApplicationName(), ServiceType.USER.getCode(), span.getAgentId(), span.getElapsed(), isError);
             bugCheck++;
         }
