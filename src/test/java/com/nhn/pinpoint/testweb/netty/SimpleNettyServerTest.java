@@ -18,6 +18,8 @@ import org.jboss.netty.handler.codec.http.HttpContentCompressor;
 import org.jboss.netty.handler.codec.http.HttpRequestDecoder;
 import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.testweb.util.AsyncHttpInvoker;
 import com.ning.http.client.Response;
@@ -29,12 +31,16 @@ import com.ning.http.client.Response;
  * 
  */
 public class SimpleNettyServerTest {
+
+	static final Logger logger = LoggerFactory.getLogger(SimpleNettyServerTest.class);
 	static final int SERVER_PORT = 2222;
-	static final int CLIENT_COUNT = 100;
+	static final int CLIENT_COUNT = 10;
 
 	@Test
 	public void server() throws IOException, InterruptedException {
-		ServerBootstrap bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory());
+		logger.info("TEST BEGIN");
+
+		ServerBootstrap bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(Executors.newCachedThreadPool(), Executors.newCachedThreadPool() ));
 		PipelineFactory factory = new PipelineFactory();
 		bootstrap.setPipelineFactory(factory);
 		bootstrap.bind(new InetSocketAddress(SERVER_PORT));
@@ -63,6 +69,8 @@ public class SimpleNettyServerTest {
 		}
 		startLatch.countDown();
 		stopLatch.await();
+
+		logger.info("TEST END");
 	}
 
 	public static class PipelineFactory implements ChannelPipelineFactory {

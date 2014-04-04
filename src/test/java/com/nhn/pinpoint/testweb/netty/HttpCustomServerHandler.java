@@ -57,6 +57,7 @@ public class HttpCustomServerHandler extends SimpleChannelUpstreamHandler {
 
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+		System.out.println("HttpCustomServerHandler.messageReceived (" + Thread.currentThread().getName() + ")");
 		this.listeningExecutorService.submit(new InvokeTask(ctx, e));
 	}
 
@@ -70,6 +71,8 @@ public class HttpCustomServerHandler extends SimpleChannelUpstreamHandler {
 		}
 
 		public void run() {
+			System.out.println("InvokeTask.run (" + Thread.currentThread().getName() + ")");
+
 			if (!(e.getMessage() instanceof HttpRequest)) {
 				logger.debug("[n/a] received message is illegal.");
 				DefaultHttpResponse res = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST);
@@ -79,6 +82,8 @@ public class HttpCustomServerHandler extends SimpleChannelUpstreamHandler {
 
 			HttpRequest request = (HttpRequest) e.getMessage();
 
+			// intercept
+			
 			try {
 				StringBuilder buf = new StringBuilder();
 
@@ -89,139 +94,41 @@ public class HttpCustomServerHandler extends SimpleChannelUpstreamHandler {
 				HttpResponseStatus status = OK;
 				String uri = request.getUri().substring(1);
 
-				long requestTime = System.currentTimeMillis();
-
 				// List<Entry<String, String>> headers = request.getHeaders();
 				List<Entry<String, String>> reponseHeader = new ArrayList<Entry<String, String>>();
 
 				buf.setLength(0);
 
-				// if (httpMethodMapper != null) {
 				HttpMethod reqMethod = request.getMethod();
-				// HttpMethodInfo methodInfo =
-				// httpMethodMapper.getMethod(uri.replaceAll("\\?.*", ""),
-				// reqMethod);
-				//
-				// if (methodInfo != null) {
 				if (reqMethod.equals(HttpMethod.POST) || reqMethod.equals(HttpMethod.PUT) || reqMethod.equals(HttpMethod.DELETE)) {
-					// if
-					// (methodInfo.getHttpMethod().equals(Path.HttpMethod.POST)
-					// || methodInfo.getHttpMethod().equals(Path.HttpMethod.PUT)
-					// ||
-					// methodInfo.getHttpMethod().equals(Path.HttpMethod.DELETE))
-					// {
 					ChannelBuffer content = request.getContent();
 
+					// invoke bo (async ??)
+					
 					buf.append("HelloNetty");
 
 					if (content.readable()) {
 						try {
-							// requestBody = addArgs(methodInfo, request, null);
-							// functionsResult =
-							// methodInfo.getMethod().invoke(methodInfo.getClassObj(),
-							// requestBody);
-							//
-							// if (functionsResult instanceof
-							// ResponseWithHttpCode) {
-							// ResponseWithHttpCode result =
-							// (ResponseWithHttpCode) functionsResult;
-							// status = result.getCode();
-							// reponseHeader.addAll(result.getHeaders());
-							// buf.append(parseResponse(result.getObj()));
-							// } else {
-							// buf.append(parseResponse(functionsResult));
-							// }
+
 						} catch (ConverterNotFoundException e1) {
 							status = HttpResponseStatus.BAD_REQUEST;
 							logger.error("convert fail : exception={}", e1.getMessage());
-							// buf.append(status.getCode() + "\r\n"
-							// + "Check Your Type");
 							buf.append(getResultString(status.getCode(), "Invalid parameter"));
 						}
 					} else {
 						status = HttpResponseStatus.BAD_REQUEST;
-						// buf.append(status.getCode() + "\r\n" +
-						// "No content on request.");
 						buf.append(getResultString(status.getCode(), "No content on request."));
 					}
-					// } else {
-					// status = HttpResponseStatus.BAD_REQUEST;
-					// buf.append(getResultString(status.getCode(),
-					// "incorrect method of this uri"));
-					// // buf.append(status.getCode() + "\r\n" +
-					// // "incorrect method of this uri");
-					//
-					// }
 				} else if (reqMethod.equals(HttpMethod.GET)) {
-					// if
-					// (methodInfo.getHttpMethod().equals(Path.HttpMethod.GET))
-					// {
 					QueryStringDecoder queryStringDecoder = new QueryStringDecoder(uri);
 					Map<String, List<String>> queries = queryStringDecoder.getParameters();
 
 					buf.append("HelloNetty");
 
-					// functionsResult =
-					// methodInfo.getMethod().invoke(methodInfo.getClassObj(),
-					// addArgs(methodInfo, request, queries));
-					// if (functionsResult instanceof ResponseWithHttpCode) {
-					// ResponseWithHttpCode result = (ResponseWithHttpCode)
-					// functionsResult;
-					// status = result.getCode();
-					// reponseHeader.addAll(result.getHeaders());
-					// buf.append(parseResponse(result.getObj()));
-					// } else {
-					// buf.append(parseResponse(functionsResult));
-					// }
-					// } else {
-					// status = HttpResponseStatus.BAD_REQUEST;
-					// // buf.append(status.getCode() + "\r\n" +
-					// // "incorrect method of this uri");
-					// buf.append(getResultString(status.getCode(),
-					// "incorrect method of this uri"));
-					// }
 				} else {
 					status = HttpResponseStatus.METHOD_NOT_ALLOWED;
-					// buf.append(status.getCode() + "\r\n" +
-					// "method not supports");
 					buf.append(getResultString(status.getCode(), "method not supports"));
 				}
-				// } else {
-				// status = HttpResponseStatus.NOT_FOUND;
-				// // buf.append(status.getCode() + "\r\n" +
-				// // "we don't have this uri");
-				// buf.append(getResultString(status.getCode(),
-				// "we don't have this uri"));
-				// }
-
-				// requestCounter.incr(
-				// getStatisticsKey(),(System.currentTimeMillis() -
-				// requestTime),status.hashCode() >= 400);
-
-				// if (methodInfo != null) {
-				// if (StringUtils.isNotEmpty(System.getProperty("monitorMode"))
-				// && System.getProperty("monitorMode").equals("URI")) {
-				// String rareUri = uri.replaceAll("\\?.*", "");
-				// requestCounter.incr(request.getMethod().getName() + " " +
-				// rareUri, System.currentTimeMillis() - requestTime,
-				// status.getCode() >= 400);
-				// } else {
-				// requestCounter.incr(methodInfo.getMethod().getName(),
-				// System.currentTimeMillis() - requestTime, status.getCode() >=
-				// 400);
-				// }
-				// } else {
-				// if (StringUtils.isNotEmpty(System.getProperty("monitorMode"))
-				// && System.getProperty("monitorMode").equals("URI")) {
-				// String rareUri = uri.replaceAll("\\?.*", "");
-				// requestCounter.incr(request.getMethod().getName() + " " +
-				// rareUri, System.currentTimeMillis() - requestTime, true);
-				// } else {
-				// requestCounter.incr("unknown method",
-				// System.currentTimeMillis() - requestTime, true);
-				// }
-				// }
-				// }
 
 				writeResponse(request, e, status, reponseHeader, buf);
 			} catch (Exception ex) {
@@ -285,55 +192,6 @@ public class HttpCustomServerHandler extends SimpleChannelUpstreamHandler {
 
 		Channel channel = ctx.getChannel();
 		if (channel.isOpen()) {
-			/*
-			 * request = (HttpRequest) e.getMessage();
-			 * 
-			 * // getCause를 두번하는 이유는 invocation exception에 wrap되서 오기때문 String
-			 * body = request.getContent().readable() ? new
-			 * String(request.getContent().array()) : ""; String cause =
-			 * stackTraceToStr(e.getCause().getCause());
-			 * 
-			 * logger.error(
-			 * "exceptionCaught : method={} \r\nURI={}, \r\nheaders={}, \r\nbody={}, \r\ncauseBy={}"
-			 * , request.getMethod().getName(), request.getUri(),
-			 * request.getHeaders(), body, cause);
-			 * 
-			 * if (channel.isWritable() && !(e.getCause() instanceof
-			 * java.io.IOException)) {
-			 * 
-			 * HttpResponse response = new DefaultHttpResponse(HTTP_1_1,
-			 * HttpResponseStatus.INTERNAL_SERVER_ERROR);
-			 * 
-			 * response.setHeader(CONTENT_TYPE,
-			 * "application/json; charset=UTF-8");
-			 * response.setContent(ChannelBuffers
-			 * .copiedBuffer(this.getResultString(500,
-			 * "Internal Server Error",e.getCause().getCause().toString()),
-			 * CharsetUtil.UTF_8));
-			 * 
-			 * channel.write(response);
-			 * 
-			 * 
-			 * String uri = request.getUri().substring(1); HttpMethod reqMethod
-			 * = request.getMethod(); HttpMethodInfo methodInfo =
-			 * httpMethodMapper.getMethod(uri.replaceAll("\\?.*", ""),
-			 * reqMethod);
-			 * 
-			 * if (methodInfo != null) {
-			 * if(StringUtils.isNotEmpty(System.getProperty("monitorMode")) &&
-			 * System.getProperty("monitorMode").equals("URI")) { String rareUri
-			 * = uri.replaceAll("\\?.*", "");
-			 * requestCounter.incr(request.getMethod().getName() + " " +
-			 * rareUri, 0, true); } else {
-			 * requestCounter.incr(methodInfo.getMethod().getName(), 0, true); }
-			 * } else {
-			 * if(StringUtils.isNotEmpty(System.getProperty("monitorMode")) &&
-			 * System.getProperty("monitorMode").equals("URI")) { String rareUri
-			 * = uri.replaceAll("\\?.*", "");
-			 * requestCounter.incr(request.getMethod().getName() + " " +
-			 * rareUri, 0, true); } else { requestCounter.incr("unknown method",
-			 * 0, true); } } }
-			 */
 
 			logger.error("channel error : exception={}", e);
 			channel.close();
@@ -359,48 +217,11 @@ public class HttpCustomServerHandler extends SimpleChannelUpstreamHandler {
 
 				String uri = request.getUri().substring(1);
 				HttpMethod reqMethod = request.getMethod();
-				// HttpMethodInfo methodInfo =
-				// httpMethodMapper.getMethod(uri.replaceAll("\\?.*", ""),
-				// reqMethod);
-				//
-				// if (methodInfo != null) {
-				// if (StringUtils.isNotEmpty(System.getProperty("monitorMode"))
-				// && System.getProperty("monitorMode").equals("URI")) {
-				// String rareUri = uri.replaceAll("\\?.*", "");
-				// requestCounter.incr(request.getMethod().getName() + " " +
-				// rareUri, 0, true);
-				// } else {
-				// requestCounter.incr(methodInfo.getMethod().getName(), 0,
-				// true);
-				// }
-				// } else {
-				// if (StringUtils.isNotEmpty(System.getProperty("monitorMode"))
-				// && System.getProperty("monitorMode").equals("URI")) {
-				// String rareUri = uri.replaceAll("\\?.*", "");
-				// requestCounter.incr(request.getMethod().getName() + " " +
-				// rareUri, 0, true);
-				// } else {
-				// requestCounter.incr("unknown method", 0, true);
-				// }
-				// }
+
 			}
 			channel.close();
 		}
 	}
-
-	// public String parseResponse(Object obj) {
-	// Gson gson = new Gson();
-	// if (obj instanceof String) {
-	// return (String) obj;
-	// } else {
-	// return gson.toJson(obj);
-	// }
-	// }
-
-	// private Object[] addArgs(HttpMethodInfo methodInfo, HttpRequest request,
-	// Map<String, List<String>> queries) {
-	// return methodInfo.addArgs(conversionService, request, queries);
-	// }
 
 	private String getResultString(int statusCode, String message) {
 		return String.format("{\"statusCode\":%s,\"statusMessage\":\"%s\"}", statusCode, message);
