@@ -205,7 +205,11 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         // Window의 설정은 따로 inject받던지 해야 될듯함.
         final TimeWindow window = new TimeWindow(range, TimeWindowOneMinuteSampler.SAMPLER);
 
-        final LinkDataMap linkDataMap = new LinkDataMap();
+
+        final LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
+//        final LinkDataMap sourceLinkDataMap = new LinkDataMap();
+        final LinkDataMap targetLinkDataMap = linkDataDuplexMap.getTargetLinkDataMap();
+
         final DotExtractor dotExtractor = new DotExtractor(scanRange);
         final MapResponseHistogramSummary mapHistogramSummary = new MapResponseHistogramSummary(range);
         /**
@@ -215,32 +219,39 @@ public class FilteredMapServiceImpl implements FilteredMapService {
             final Map<Long, SpanBo> transactionSpanMap = checkDuplicatedSpanId(transaction);
 
             for (SpanBo span : transaction) {
+                final Application parentApplication = createParentApplication(span, transactionSpanMap);
+                final Application spanApplication = new Application(span.getApplicationId(), span.getServiceType());
+
                 // SPAN의 respoinseTime의 통계를 저장한다.
-                final Application srcApplication = createSourceApplication(span, transactionSpanMap);
-                final Application destApplication = new Application(span.getApplicationId(), span.getServiceType());
+                recordSpanResponseTime(spanApplication, span, mapHistogramSummary, span.getCollectorAcceptTime());
 
-                recordSpanResponseTime(destApplication, span, mapHistogramSummary, span.getCollectorAcceptTime());
-
-                // record해야 되거나. rpc콜은 링크이다.
-                // 이 데이터를 기반으로 caller 데이터를 다시 생성해야 한다. accepted데이톨 링크를 생성하는 것은 잘못된 데이터임.
-                if (!destApplication.getServiceType().isRecordStatistics() || destApplication.getServiceType().isRpcClient()) {
+                // 사실상 여기서 걸리는것은 span의 serviceType이 잘못되었다고 할수 있음.
+                if (!spanApplication.getServiceType().isRecordStatistics() || spanApplication.getServiceType().isRpcClient()) {
+                    logger.warn("invalid span application:{}", spanApplication);
                     continue;
                 }
 
-                final short slotTime = getHistogramSlotTime(span, destApplication.getServiceType());
+                final short slotTime = getHistogramSlotTime(span, spanApplication.getServiceType());
                 // link의 통계값에 collector acceptor time을 넣는것이 맞는것인지는 다시 생각해볼 필요가 있음.
                 // 통계값의 window의 time으로 전환해야함. 안그러면 slot이 맞지 않아 oom이 발생할수 있음.
                 long timestamp = window.refineTimestamp(span.getCollectorAcceptTime());
 
-                linkDataMap.addLinkData(srcApplication, span.getAgentId(), destApplication, destApplication.getName(), timestamp, slotTime, 1);
+                if (parentApplication.getServiceType() == ServiceType.USER) {
+                    LinkDataMap sourceLinkData = linkDataDuplexMap.getSourceLinkDataMap();
+                    sourceLinkData.addLinkData(parentApplication, span.getAgentId(), spanApplication,  span.getAgentId(), timestamp, slotTime, 1);
+
+//                    targetLinkDataMap.addLinkData(spanApplication, span.getAgentId(), parentApplication, span.getAgentId(), timestamp, slotTime, 1);
+                } else {
+                    targetLinkDataMap.addLinkData(spanApplication, span.getAgentId(), parentApplication, span.getAgentId(), timestamp, slotTime, 1);
+                }
 
 
-                addNodeFromSpanEvent(span, window, linkDataMap, transactionSpanMap);
+                addNodeFromSpanEvent(span, window, linkDataDuplexMap, transactionSpanMap);
                 dotExtractor.addDot(span);
             }
         }
         List<ApplicationScatterScanResult> applicationScatterScanResult = dotExtractor.getApplicationScatterScanResult();
-        LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap(linkDataMap);
+
         ApplicationMapBuilder applicationMapBuilder = new ApplicationMapBuilder(range);
         ApplicationMap map = applicationMapBuilder.build(linkDataDuplexMap, agentInfoService);
 
@@ -267,7 +278,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     }
 
 
-    private void addNodeFromSpanEvent(SpanBo span, TimeWindow window, LinkDataMap linkDataMap, Map<Long, SpanBo> transactionSpanMap) {
+    private void addNodeFromSpanEvent(SpanBo span, TimeWindow window, LinkDataDuplexMap linkDataDuplexMap, Map<Long, SpanBo> transactionSpanMap) {
         /**
          * span event의 statistics추가.
          */
@@ -277,19 +288,19 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         }
         final Application srcApplication = new Application(span.getApplicationId(), span.getServiceType());
 
+        LinkDataMap sourceLinkDataMap = linkDataDuplexMap.getSourceLinkDataMap();
         for (SpanEventBo spanEvent : spanEventBoList) {
 
             ServiceType destServiceType = spanEvent.getServiceType();
-            if (!destServiceType.isRecordStatistics() /*|| destServiceType.isRpcClient()*/) {
+            if (!destServiceType.isRecordStatistics()) {
+                // internal 메소드
                 continue;
             }
             // rpc client이면서 acceptor가 없으면 unknown으로 변환시킨다.
             // 내가 아는 next spanid를 spanid로 가진 span이 있으면 acceptor가 존재하는 셈.
             // acceptor check로직
             if (destServiceType.isRpcClient()) {
-                if (transactionSpanMap.containsKey(spanEvent.getNextSpanId())) {
-                    continue;
-                } else {
+                if (!transactionSpanMap.containsKey(spanEvent.getNextSpanId())) {
                     destServiceType = ServiceType.UNKNOWN;
                 }
             }
@@ -301,20 +312,20 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
             // FIXME
             final long spanEventTimeStamp = window.refineTimestamp(span.getStartTime() + spanEvent.getStartElapsed());
-            linkDataMap.addLinkData(srcApplication, span.getAgentId(), destApplication, spanEvent.getEndPoint(), spanEventTimeStamp, slotTime, 1);
+            sourceLinkDataMap.addLinkData(srcApplication, span.getAgentId(), destApplication, spanEvent.getEndPoint(), spanEventTimeStamp, slotTime, 1);
         }
     }
 
-    private Application createSourceApplication(SpanBo span, Map<Long, SpanBo> transactionSpanMap) {
+    private Application createParentApplication(SpanBo span, Map<Long, SpanBo> transactionSpanMap) {
         final SpanBo parentSpan = transactionSpanMap.get(span.getParentSpanId());
         if (span.isRoot() || parentSpan == null) {
-            String src = span.getApplicationId();
-            ServiceType srcServiceType = ServiceType.USER; // ServiceType.CLIENT;
-            return new Application(src, srcServiceType);
+            String applicationName = span.getApplicationId();
+            ServiceType serviceType = ServiceType.USER;
+            return new Application(applicationName, serviceType);
         } else {
-            String src = parentSpan.getApplicationId();
+            String parentApplicationName = parentSpan.getApplicationId();
             ServiceType serviceType = parentSpan.getServiceType();
-            return new Application(src, serviceType);
+            return new Application(parentApplicationName, serviceType);
         }
     }
 

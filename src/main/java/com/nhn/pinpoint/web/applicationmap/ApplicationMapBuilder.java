@@ -51,7 +51,7 @@ public class ApplicationMapBuilder {
         NodeList nodeList = new NodeList();
         createNode(nodeList, linkDataDuplexMap.getSourceLinkDataMap());
 
-        createNode(nodeList, linkDataDuplexMap.getTargetLinkData());
+        createNode(nodeList, linkDataDuplexMap.getTargetLinkDataMap());
         map.addNodeList(nodeList.getNodeList());
 
         // agentInfo를 넣는다.
@@ -98,7 +98,7 @@ public class ApplicationMapBuilder {
         map.addLink(sourceLink);
 
 
-        List<Link> targetLink = createTargetLink(linkDataDuplexMap.getTargetLinkData(), map);
+        List<Link> targetLink = createTargetLink(linkDataDuplexMap.getTargetLinkDataMap(), map);
         logger.debug("targetLink.size:{}", targetLink.size());
         map.addLink(targetLink);
 

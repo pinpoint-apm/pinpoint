@@ -34,7 +34,7 @@ public class LinkDataDuplexMap {
         return sourceLinkDataMap.getLinkDataList();
     }
 
-    public LinkDataMap getTargetLinkData() {
+    public LinkDataMap getTargetLinkDataMap() {
         return targetLinkDataMap;
     }
 
