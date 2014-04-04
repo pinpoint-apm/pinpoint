@@ -57,7 +57,7 @@ public class CmsCollector implements GarbageCollector {
 
     @Override
 	public int getTypeCode() {
-		return GC_TYPE.ordinal();
+		return GC_TYPE.getValue();
 	}
 
 	@Override
