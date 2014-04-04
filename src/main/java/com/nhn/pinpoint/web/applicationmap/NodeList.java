@@ -8,7 +8,6 @@ import java.util.*;
  * @author emeroad
  */
 public class NodeList {
-    // 정확하게 이름으로만 확인을 해야 하는지 확인후 Application으로 해도 될경우 삭제가 필요함.
 
     private final Map<Application, Node> nodeMap = new HashMap<Application, Node>();
 
@@ -16,29 +15,32 @@ public class NodeList {
         return this.nodeMap.values();
     }
 
-    public Node findNode(Application nodeId) {
-        if (nodeId == null) {
-            throw new NullPointerException("nodeId must not be null");
+    public Node findNode(Application application) {
+        if (application == null) {
+            throw new NullPointerException("application must not be null");
         }
-        return this.nodeMap.get(nodeId);
+        return this.nodeMap.get(application);
     }
 
-    private void addNode(Node newNode) {
-        if (newNode == null) {
-            throw new NullPointerException("newNode must not be null");
+    public boolean addNode(Node node) {
+        if (node == null) {
+            throw new NullPointerException("node must not be null");
         }
-        final Application nodeId = newNode.getApplication();
-        Node node = findNode(nodeId);
-        if (node != null) {
-            return;
+        final Application nodeId = node.getApplication();
+        Node findNode = findNode(nodeId);
+        if (findNode != null) {
+            return false;
         }
-        nodeMap.put(nodeId, newNode);
+        return nodeMap.put(nodeId, node) == null;
     }
 
 
-    public void addNodeList(List<Node> sourceList) {
-        for (Node source : sourceList) {
-            addNode(source);
+    public void addNodeList(Collection<Node> nodeList) {
+        if (nodeList == null) {
+            throw new NullPointerException("nodeList must not be null");
+        }
+        for (Node node : nodeList) {
+            addNode(node);
         }
     }
 

@@ -9,26 +9,37 @@ import java.util.*;
  * @author emeroad
  */
 public class LinkList {
+
     private final Map<LinkKey, Link> linkMap = new HashMap<LinkKey, Link>();
 
     public Collection<Link> getLinks() {
         return this.linkMap.values();
     }
 
-    public void buildLink(List<Link> relationList) {
-        for (Link link : relationList) {
+    public void buildLink(List<Link> linkList) {
+        if (linkList == null) {
+            throw new NullPointerException("linkList must not be null");
+        }
+
+        for (Link link : linkList) {
             addLink(link);
         }
     }
 
+    /**
+     * toApplication을 가리키는(호출당하는) 모든 link를 찾음.
+     * @param toApplication
+     * @return
+     */
     public List<Link> findToLink(Application toApplication) {
         if (toApplication == null) {
             throw new NullPointerException("toApplication must not be null");
         }
+
         List<Link> findList = new ArrayList<Link>();
         for (Link link : linkMap.values()) {
             Node toNode = link.getTo();
-            // destnation이 자신을 가리킨다면 데이터를 머지함.
+            // destnation이 자신을 가리키는 모든 Link를 찾음.
             if (toNode.getApplication().equals(toApplication)) {
                 findList.add(link);
             }
@@ -36,14 +47,20 @@ public class LinkList {
         return findList;
     }
 
+    /**
+     * fromApplication 에서 나가는(호출하는) link를 모두 찾음.
+     * @param fromApplication
+     * @return
+     */
     public List<Link> findFromLink(Application fromApplication) {
         if (fromApplication == null) {
             throw new NullPointerException("toApplication must not be null");
         }
+
         List<Link> findList = new ArrayList<Link>();
         for (Link link : linkMap.values()) {
             Node fromNode = link.getFrom();
-            // destnation이 자신을 가리킨다면 데이터를 머지함.
+
             if (fromNode.getApplication().equals(fromApplication)) {
                 findList.add(link);
             }
@@ -51,15 +68,15 @@ public class LinkList {
         return findList;
     }
 
-    public void addLink(Link newLink) {
-        if (newLink == null) {
-            throw new NullPointerException("newLink must not be null");
+    public void addLink(Link link) {
+        if (link == null) {
+            throw new NullPointerException("link must not be null");
         }
 
-        final LinkKey linkId = newLink.getLinkKey();
+        final LinkKey linkId = link.getLinkKey();
         final Link find = this.linkMap.get(linkId);
         if (find == null) {
-            this.linkMap.put(linkId, newLink);
+            this.linkMap.put(linkId, link);
         }
 
     }

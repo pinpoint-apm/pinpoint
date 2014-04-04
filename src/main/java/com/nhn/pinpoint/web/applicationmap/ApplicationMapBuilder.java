@@ -33,6 +33,10 @@ public class ApplicationMapBuilder {
         if (linkDataDuplexMap == null) {
             throw new NullPointerException("linkDataMap must not be null");
         }
+        if (agentInfoService == null) {
+            throw new NullPointerException("agentInfoService must not be null");
+        }
+
 
         final ApplicationMap map = new ApplicationMap(range);
         buildNode(map, linkDataDuplexMap, agentInfoService);
@@ -44,29 +48,29 @@ public class ApplicationMapBuilder {
     }
 
     private void buildNode(ApplicationMap map, LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService) {
-        final List<Node> sourceNode = createNode(linkDataDuplexMap.getSourceLinkDataMap());
-        map.addNodeList(sourceNode);
-        logger.debug("sourceNode:{}", sourceNode);
+        NodeList nodeList = new NodeList();
+        createNode(nodeList, linkDataDuplexMap.getSourceLinkDataMap());
 
-        final List<Node> targetNode = createNode(linkDataDuplexMap.getTargetLinkData());
-        map.addNodeList(targetNode);
-        logger.debug("targetNode:{}", targetNode);
+        createNode(nodeList, linkDataDuplexMap.getTargetLinkData());
+        map.addNodeList(nodeList.getNodeList());
 
         // agentInfo를 넣는다.
         map.appendAgentInfo(linkDataDuplexMap, agentInfoService);
         logger.debug("allNode:{}", map.getNodes());
     }
 
-    private List<Node> createNode(LinkDataMap linkDataMap) {
-
-        final List<Node> result = new ArrayList<Node>();
+    private void createNode(NodeList nodeList, LinkDataMap linkDataMap) {
 
         for (LinkData linkData : linkDataMap.getLinkDataList()) {
             final Application fromApplication = linkData.getFromApplication();
             // FROM -> TO에서 FROM이 CLIENT가 아니면 FROM은 node
+            // rpc가 나올수가 없음. 이미 unknown으로 치환을 하기 때문에. 만약 rpc가 나온다면 이상한 케이스임
             if (!fromApplication.getServiceType().isRpcClient()) {
-                Node fromNode = new Node(fromApplication);
-                result.add(fromNode);
+                if (!nodeList.containsNode(fromApplication)) {
+                    logger.debug("createSourceNode:{}", fromApplication);
+                    Node fromNode = new Node(fromApplication);
+                    nodeList.addNode(fromNode);
+                }
             } else {
                 logger.warn("found rpc fromNode linkData:{}", linkData);
             }
@@ -75,13 +79,16 @@ public class ApplicationMapBuilder {
             final Application toApplication = linkData.getToApplication();
             // FROM -> TO에서 TO가 CLIENT가 아니면 TO는 node
             if (!toApplication.getServiceType().isRpcClient()) {
-                Node toNode = new Node(toApplication);
-                result.add(toNode);
+                if (!nodeList.containsNode(toApplication)) {
+                    logger.debug("createTargetNode:{}", toApplication);
+                    Node toNode = new Node(toApplication);
+                    nodeList.addNode(toNode);
+                }
             } else {
                 logger.warn("found rpc toNode:{}", linkData);
             }
         }
-        return result;
+
     }
 
     private void buildLink(ApplicationMap map, LinkDataDuplexMap linkDataDuplexMap) {

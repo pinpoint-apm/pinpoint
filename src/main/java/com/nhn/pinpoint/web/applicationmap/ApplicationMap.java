@@ -55,7 +55,7 @@ public class ApplicationMap {
         return this.nodeList.findNode(applicationId);
 	}
 
-    void addNodeList(List<Node> nodeList) {
+    void addNodeList(Collection<Node> nodeList) {
         this.nodeList.addNodeList(nodeList);
     }
 
