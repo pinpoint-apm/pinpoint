@@ -226,8 +226,8 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 serverMapCallback = function (query, data, mergeUnknowns, linkRouting, linkCurve) {
 
                     var copiedData;
+                    copiedData = angular.copy(data);
                     if (mergeUnknowns) {
-                        copiedData = angular.copy(data);
                         ServerMapDao.mergeUnknown(htLastQuery, copiedData);
                     }
 
