@@ -207,8 +207,6 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
 
         final LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
-//        final LinkDataMap sourceLinkDataMap = new LinkDataMap();
-        final LinkDataMap targetLinkDataMap = linkDataDuplexMap.getTargetLinkDataMap();
 
         final DotExtractor dotExtractor = new DotExtractor(scanRange);
         final MapResponseHistogramSummary mapHistogramSummary = new MapResponseHistogramSummary(range);
@@ -237,12 +235,26 @@ public class FilteredMapServiceImpl implements FilteredMapService {
                 long timestamp = window.refineTimestamp(span.getCollectorAcceptTime());
 
                 if (parentApplication.getServiceType() == ServiceType.USER) {
-                    LinkDataMap sourceLinkData = linkDataDuplexMap.getSourceLinkDataMap();
+                    // 정방향 데이터
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("span user:{} {} -> span:{} {}", parentApplication, span.getAgentId(), spanApplication, span.getAgentId());
+                    }
+                    final LinkDataMap sourceLinkData = linkDataDuplexMap.getSourceLinkDataMap();
                     sourceLinkData.addLinkData(parentApplication, span.getAgentId(), spanApplication,  span.getAgentId(), timestamp, slotTime, 1);
 
-//                    targetLinkDataMap.addLinkData(spanApplication, span.getAgentId(), parentApplication, span.getAgentId(), timestamp, slotTime, 1);
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("span target user:{} {} -> span:{} {}", parentApplication, span.getAgentId(), spanApplication, span.getAgentId());
+                    }
+                    // 역관계 데이터
+                    final LinkDataMap targetLinkDataMap = linkDataDuplexMap.getTargetLinkDataMap();
+                    targetLinkDataMap.addLinkData(parentApplication, span.getAgentId(), spanApplication, span.getAgentId(), timestamp, slotTime, 1);
                 } else {
-                    targetLinkDataMap.addLinkData(spanApplication, span.getAgentId(), parentApplication, span.getAgentId(), timestamp, slotTime, 1);
+                    // 역관계 데이터
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("span target parent:{} {} -> span:{} {}", parentApplication, span.getAgentId(), spanApplication, span.getAgentId());
+                    }
+                    final LinkDataMap targetLinkDataMap = linkDataDuplexMap.getTargetLinkDataMap();
+                    targetLinkDataMap.addLinkData(parentApplication, span.getAgentId(), spanApplication, span.getAgentId(), timestamp, slotTime, 1);
                 }
 
 
@@ -312,6 +324,9 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
             // FIXME
             final long spanEventTimeStamp = window.refineTimestamp(span.getStartTime() + spanEvent.getStartElapsed());
+            if (logger.isTraceEnabled()) {
+                logger.trace("spanEvent  src:{} {} -> dest:{} {}", srcApplication, span.getAgentId(), destApplication, spanEvent.getEndPoint());
+            }
             sourceLinkDataMap.addLinkData(srcApplication, span.getAgentId(), destApplication, spanEvent.getEndPoint(), spanEventTimeStamp, slotTime, 1);
         }
     }
