@@ -153,7 +153,7 @@ public class AsyncQueueingExecutor<T> implements Runnable {
     }
 
     public boolean isEmpty() {
-        return queue.size() == 0;
+        return queue.isEmpty();
     }
 
     public boolean isRun() {
