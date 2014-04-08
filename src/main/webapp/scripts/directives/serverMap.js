@@ -314,6 +314,10 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         scope.$emit("serverMap.backgroundClicked", e, query);
                         reset();
                     };
+                    options.fOnBackgroundDoubleClicked = function (e) {
+//                        console.log('doubleclicked', this, e);
+                        oServerMap.zoomToFit();
+                    };
                     options.fOnBackgroundContextClicked = function (e) {
                         scope.$emit("serverMap.backgroundContextClicked", e, query);
                         reset();

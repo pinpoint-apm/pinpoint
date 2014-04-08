@@ -121,6 +121,8 @@
                 },
                 "fOnBackgroundClicked": function (eMouseEvent, htData) {
                 },
+                "fOnBackgroundDoubleClicked": function (eMouseEvent, htData) {
+                },
                 "fOnBackgroundContextClicked": function (eMouseEvent, htData) {
                 }
             });
@@ -443,6 +445,12 @@
                 var fOnBackgroundClicked = self.option('fOnBackgroundClicked');
                 if (_.isFunction(fOnBackgroundClicked)) {
                     fOnBackgroundClicked.call(self, e);
+                }
+            });
+            this._oDiagram.addDiagramListener("BackgroundDoubleClicked", function (e) {
+                var fOnBackgroundDoubleClicked = self.option('fOnBackgroundDoubleClicked');
+                if (_.isFunction(fOnBackgroundDoubleClicked)) {
+                    fOnBackgroundDoubleClicked.call(self, e);
                 }
             });
             this._oDiagram.addDiagramListener("BackgroundContextClicked", function (e) {
@@ -780,6 +788,13 @@
 //            }
 //            this._oDiagram.zoomToFit();
             this.load(this._sLastModelData);
+        },
+
+        /**
+         * zoom to fit
+         */
+        zoomToFit: function () {
+            this._oDiagram.zoomToFit();
         }
 
     });
