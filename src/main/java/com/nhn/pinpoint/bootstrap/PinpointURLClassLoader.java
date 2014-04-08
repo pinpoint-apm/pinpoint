@@ -28,7 +28,7 @@ public class PinpointURLClassLoader extends URLClassLoader {
         // First, check if the class has already been loaded
         Class clazz = findLoadedClass(name);
         if (clazz == null) {
-            if (ProfilerLibClass.onLoadClass(name)) {
+            if (onLoadClass(name)) {
                 // 나한테 있어야 하는 class의 경우 그냥 로드.
                 clazz = findClass(name);
             } else {
@@ -48,6 +48,11 @@ public class PinpointURLClassLoader extends URLClassLoader {
             resolveClass(clazz);
         }
         return clazz;
+    }
+
+    // for test
+    boolean onLoadClass(String name) {
+        return ProfilerLibClass.onLoadClass(name);
     }
 
 }
