@@ -61,7 +61,10 @@ jQuery.fn.dragToSelect = function (conf) {
 		autoScroll:		false, 
 		selectOnMove:	false, 
 		onShow:			function () {return true;}, 
-		onHide:			function () {return true;}, 
+		onHide:			function () {return true;},
+        onEnter:        function () {return true;},
+        onMove:         function () {return true;},
+        onLeave:        function () {return true;},
 		onRefresh:		function () {return true;}
 	}, c);
 
@@ -350,7 +353,16 @@ jQuery.fn.dragToSelect = function (conf) {
 			showSelectBox(e);
 
 			e.preventDefault();
-		});
+		})
+        .mouseenter(function (e) {
+            config.onEnter(e);
+        })
+        .mousemove(function (e) {
+            config.onMove(e);
+        })
+        .mouseleave(function (e) {
+            config.onLeave(e);
+        });
 	jQuery(document).mousemove(function (e) {
 			if(!bIsDraging) return;
 			refreshSelectBox(e);

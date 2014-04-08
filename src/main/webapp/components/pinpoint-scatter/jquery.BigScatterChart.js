@@ -60,6 +60,7 @@ var BigScatterChart = $.Class({
                 'color': '#000',
                 'font-weight': 'bold'
             },
+            'bUseMouseGuideLine' : true,
             'sDragToSelectClassName': 'jquery-drag-to-select',
             'htCheckBoxImage': {
                 'checked': 'data:image/gif;base64,R0lGODlhDgANANU7APf6/QBoAO31+wBEAABZABSmDfj7/kLFLM/k9CpFeCA7bBs1ZiU/cWDZQBgxYvL4/PD2/ABLAKzQ6wBTAPn8/vD3/FLPNgBzAO30/J/J6JKgu1/YPzBLfzVQhQBvAO31/EhknURgmNTn9NPm9Orz+9fc51LQNztWjfX5/e/2++72+9vh7Njp9kBbk9jp9aCvzd3r+QB3AABhAKXM6SGvFTG5IEtnoBUuXuLu+v//zP///wAAAAAAAAAAAAAAAAAAACH5BAEAADsALAAAAAAOAA0AAAaHwJ1tSCS+VrsdSMdsOmOxXUiHq1ohlFguF2vpMAYDBvYxXDaNxuWkA3gCABIgYLGYAruOTraVoWQHgTIlOxw6BDWJiIoUGjsJOg8TNJSUEw8QCTsMOiwVEQWhERUuOAw7CjoSIykDrioiEjgKOws6MzMIArsIuDgLOw4ZVsRWDkk3ycrLN0lBADs=',
@@ -260,7 +261,43 @@ var BigScatterChart = $.Class({
         });
         this._welOverlay.appendTo(this._welContainer);
 
+
         var htLabelStyle = this.option('htLabelStyle');
+
+        // sXLabel
+        var sXLabel = this.option('sXLabel');
+        if (_.isString(sXLabel) && sXLabel.length > 0) {
+            this._welOverlay.append(this._welXLabel = $('<div>')
+                .text(sXLabel)
+                .css(htLabelStyle)
+                .css({
+                    'position': 'absolute',
+                    'text-align': 'center',
+                    'top': (nHeight - nPaddingBottom + 10) + 'px',
+                    'right': 0,
+                    'color': sLineColor
+                })
+            );
+        }
+
+        // sYLabel
+        var sYLabel = this.option('sYLabel');
+        if (_.isString(sYLabel) && sYLabel.length > 0) {
+            this._welOverlay.append(this._welYLabel = $('<div>')
+                .text(sYLabel)
+                .css(htLabelStyle)
+                .css({
+                    'position': 'absolute',
+                    'vertical-align': 'middle',
+                    'width': (nPaddingLeft - 15) + 'px',
+                    'text-align': 'right',
+                    'top': (nBubbleSize + nPaddingTop + 10) + 'px',
+                    'left': '0px',
+                    'color': sLineColor
+                })
+            );
+        }
+
         // x axis
         for (var i = 0; i <= this._nXSteps; i++) {
             this._awelXNumber.push($('<div>')
@@ -296,39 +333,49 @@ var BigScatterChart = $.Class({
         this._welOverlay.append(this._awelXNumber);
         this._welOverlay.append(this._awelYNumber);
 
-        // sXLabel
-        var sXLabel = this.option('sXLabel');
-        if (_.isString(sXLabel) && sXLabel.length > 0) {
-            this._welOverlay.append(this._welXLabel = $('<div>')
-                .text(sXLabel)
-                .css(htLabelStyle)
-                .css({
-                    'position': 'absolute',
-                    'text-align': 'center',
-                    'top': (nHeight - nPaddingBottom + 10) + 'px',
-                    'right': 0,
-                    'color': sLineColor
-                })
-            );
-        }
+        this._welXGuideNumber = $('<div>')
+            .css({
+                'position': 'absolute',
+                'width': '56px',
+                'height': '22px',
+                'line-height': '22px',
+                'margin-left': '-28px',
+                'text-align': 'center',
+                'top': (nHeight - nPaddingBottom + 10) + 'px',
+                'left': (nPaddingLeft + nBubbleSize) - (nXStep / 2) + i * nXStep + 'px',
+                'color': sLineColor,
+                'background': '#fff',
+                'border': '1px solid #ccc',
+                'border-radius': '5px',
+                'display': 'none'
+            })
+            .css(htLabelStyle)
+            .append($('<span></span>'))
+            .append($('<div style="position:absolute;border-left:1px solid red;height:10px;top:-10px;left:27px;"></div>'));
 
-        // sYLabel
-        var sYLabel = this.option('sYLabel');
-        if (_.isString(sYLabel) && sYLabel.length > 0) {
-            this._welOverlay.append(this._welYLabel = $('<div>')
-                .text(sYLabel)
-                .css(htLabelStyle)
-                .css({
-                    'position': 'absolute',
-                    'vertical-align': 'middle',
-                    'width': (nPaddingLeft - 15) + 'px',
-                    'text-align': 'right',
-                    'top': (nBubbleSize + nPaddingTop + 10) + 'px',
-                    'left': '0px',
-                    'color': sLineColor
-                })
-            );
-        }
+        this._welYGuideNumber = $('<div>')
+            .css({
+                'position': 'absolute',
+                'vertical-align': 'middle',
+                'width': (56 - 15) + 'px',
+                'height': '22px',
+                'line-height': '22px',
+                'margin-top': '-10px',
+                'padding-right': '3px',
+                'text-align': 'right',
+                'top': (nBubbleSize + (i * nYStep) + nPaddingTop - 10) + 'px',
+                'left': '0px',
+                'color': sLineColor,
+                'background': '#fff',
+                'border': '1px solid #ccc',
+                'border-radius': '5px',
+                'display': 'none'
+            })
+            .css(htLabelStyle)
+            .append($('<span></span>'))
+            .append($('<div style="position:absolute;border-top:1px solid red;width:10px;right:-10px;top:9px;"></div>'));
+        this._welOverlay.append(this._welXGuideNumber);
+        this._welOverlay.append(this._welYGuideNumber);
 
         // sShowNoData
         var sShowNoData = this.option('sShowNoData'),
@@ -620,23 +667,88 @@ var BigScatterChart = $.Class({
             });
         }, this);
 
-        var sDragToSelectClassName = this.option('sDragToSelectClassName');
+        var sDragToSelectClassName = this.option('sDragToSelectClassName'),
+            bGuideLineStart = false;
         this._welOverlay.dragToSelect({
             className: sDragToSelectClassName,
             onHide: function (welSelectBox) {
                 var htPosition = self._adjustSelectBoxForChart(welSelectBox),
                     htXY = self._parseCoordinatesToXY(htPosition);
-
                 self._welSelectBox = welSelectBox;
 
                 var fOnSelect = self.option('fOnSelect');
                 if (_.isFunction(fOnSelect)) {
                     fOnSelect.call(self, htPosition, htXY);
                 }
-            }
+            },
+//            onEnter: function (e) {
+//
+//                bGuideLineStart = true;
+//
+//            },
+            onMove: function (e) {
+                if (!self.option('bUseMouseGuideLine')) {
+                    return false;
+                }
+                if (self._checkMouseXYInChart(e.pageX, e.pageY)) {
+                    if (!bGuideLineStart) {
+                        self._showGuideLine();
+                        bGuideLineStart = true;
+                    }
+                    self._moveGuideLine(e.pageX, e.pageY);
+                } else {
+                    bGuideLineStart = false;
+                    self._hideGuideLine();
+                }
+            },
+//            onLeave: function (e) {
+//                if (!bGuideLineStart) {
+//                    return false;
+//                }
+//
+//            }
         });
     },
 
+    _checkMouseXYInChart: function (nX, nY) {
+        var nPaddingTop = this.option('nPaddingTop'),
+            nPaddingLeft = this.option('nPaddingLeft'),
+            nPaddingBottom = this.option('nPaddingBottom'),
+            nPaddingRight = this.option('nPaddingRight'),
+            htOffset = this._welContainer.offset(),
+            nXMin = htOffset.left + nPaddingLeft,
+            nXMax = htOffset.left + this._welContainer.width() - nPaddingRight,
+            nYMin = htOffset.top + nPaddingTop,
+            nYMax = htOffset.top + this._welContainer.height() - nPaddingBottom;
+
+        if (nX >= nXMin && nX <= nXMax
+            && nY >= nYMin && nY <= nYMax) {
+            return true;
+        } else {
+            return false;
+        }
+    },
+
+    _showGuideLine: function () {
+        this._welXGuideNumber.show();
+        this._welYGuideNumber.show();
+    },
+
+    _moveGuideLine: function (nX, nY) {
+        var htOffset = this._welContainer.offset(),
+            nPaddingTop = this.option('nPaddingTop'),
+            nPaddingBottom = this.option('nPaddingBottom'),
+            nHeight = this.option('nHeight');
+        this._welXGuideNumber.css('left', nX - htOffset.left);
+        this._welXGuideNumber.find('span').text(new Date(this._parseMouseXToXData(nX - htOffset.left)).toString("HH:mm:ss"));
+        this._welYGuideNumber.css('top', nY - htOffset.top);
+        this._welYGuideNumber.find('span').text(this._addComma(this._parseMouseYToYData(nHeight - nPaddingBottom - (nY - htOffset.top))));
+    },
+
+    _hideGuideLine: function () {
+        this._welXGuideNumber.hide();
+        this._welYGuideNumber.hide();
+    },
 
     _moveSelectBox: function (nXGap) {
         if (!this._welSelectBox) return;
@@ -713,7 +825,7 @@ var BigScatterChart = $.Class({
             'nWidth': nRight - nLeft,
             'nTop': nTop,
             'nHeight': nBottom - nTop
-        }
+        };
         return htPosition;
     },
 
