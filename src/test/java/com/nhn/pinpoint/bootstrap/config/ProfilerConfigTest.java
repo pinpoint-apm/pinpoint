@@ -49,7 +49,7 @@ public class ProfilerConfigTest {
 
     @Test
     public void readProperty() throws IOException {
-        String path = ProfilerConfig.class.getResource("/com/nhn/pinpoint/profiler/config/test.property").getPath();
+        String path = ProfilerConfig.class.getResource("/com/nhn/pinpoint/bootstrap/config/test.property").getPath();
         logger.debug("path:{}", path);
 
         ProfilerConfig profilerConfig = new ProfilerConfig();

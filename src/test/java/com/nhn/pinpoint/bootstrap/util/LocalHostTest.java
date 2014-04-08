@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.util;
+package com.nhn.pinpoint.bootstrap.util;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;

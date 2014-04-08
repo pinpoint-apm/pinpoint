@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler;
+package com.nhn.pinpoint.bootstrap;
 
 import com.nhn.pinpoint.bootstrap.ClassPathResolver;
 import org.junit.Assert;
