@@ -29,11 +29,16 @@ public class PinpointURLClassLoader extends URLClassLoader {
         Class clazz = findLoadedClass(name);
         if (clazz == null) {
             if (ProfilerLibClass.onLoadClass(name)) {
+                // 나한테 있어야 하는 class의 경우 그냥 로드.
                 clazz = findClass(name);
             } else {
                 try {
+                    // 부모를 찾고.
                     clazz = parent.loadClass(name);
                 } catch (ClassNotFoundException e) {
+                }
+                if (clazz == null) {
+                    // 없으면 나한테 로드 시도.
                     clazz = findClass(name);
                 }
             }
