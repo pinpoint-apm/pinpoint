@@ -16,6 +16,7 @@ import com.nhn.pinpoint.profiler.util.ApplicationServerTypeResolver;
 import com.nhn.pinpoint.profiler.util.PreparedStatementUtils;
 import com.nhn.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.nhn.pinpoint.thrift.dto.TAgentInfo;
+import com.nhn.pinpoint.thrift.dto.TApiMetaData;
 import com.nhn.pinpoint.profiler.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
@@ -38,6 +39,7 @@ import java.util.Set;
 
 /**
  * @author emeroad
+ * @author netspider
  */
 public class DefaultAgent implements Agent {
 
@@ -121,6 +123,16 @@ public class DefaultAgent implements Agent {
         this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId(), this.agentInformation.getStartTime());
 
         preLoadClass();
+        
+        /**
+         * FIXME
+         * tomcat의 경우에는 com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.CatalinaAwaitInterceptor가
+         * org/apache/catalina/startup/Catalina/await함수가 실행되기 전에 실행해주나.
+         * stand alone application은 그렇지 않으므로..
+         */
+        if (agentInformation.getServerType() == ServiceType.STAND_ALONE.getCode()) {
+        	started();
+        }
     }
 
     private void preLoadClass() {

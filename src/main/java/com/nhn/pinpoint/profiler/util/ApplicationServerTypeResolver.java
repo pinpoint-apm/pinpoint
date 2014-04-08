@@ -8,6 +8,7 @@ import java.io.File;
 
 /**
  * @author emeroad
+ * @author netspider
  */
 public class ApplicationServerTypeResolver {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -37,10 +38,7 @@ public class ApplicationServerTypeResolver {
     public boolean resolve() {
         // tomcat인지 확인한다.
         final String catalinaHome = System.getProperty("catalina.home");
-        if (catalinaHome == null) {
-            logger.warn("CATALINA_HOME is null");
-            return false;
-        }
+
         if (logger.isInfoEnabled()) {
             logger.info("CATALINA_HOME={}", catalinaHome);
         }
@@ -49,11 +47,9 @@ public class ApplicationServerTypeResolver {
         if (defaultType != null) {
             logger.info("applicationServerDefaultType:{}", defaultType);
             if (defaultType == ServiceType.TOMCAT) {
-                resolveTomcat(catalinaHome);
-                return true;
+                return resolveTomcat(catalinaHome);
             } else if(defaultType == ServiceType.BLOC) {
-                resolveBloc(catalinaHome);
-                return true;
+                return resolveBloc(catalinaHome);
             } else if(defaultType == ServiceType.STAND_ALONE) {
                 resolveStandAlone();
                 logger.info("applicationServerDefaultType:{}", defaultType);
@@ -68,35 +64,43 @@ public class ApplicationServerTypeResolver {
         final File blocCatalinaJar = new File(catalinaHome + "/server/lib/catalina.jar");
         final File blocServletApiJar = new File(catalinaHome + "/common/lib/servlet-api.jar");
         if (isFileExist(blocCatalinaJar) && isFileExist(blocServletApiJar)) {
-            // BLOC
-            resolveBloc(catalinaHome);
-            return true;
+            return resolveBloc(catalinaHome);
         } else if(isFileExist(new File(catalinaHome + "/lib/catalina.jar")))  {
-             resolveTomcat(catalinaHome);
-             return true;
+             return resolveTomcat(catalinaHome);
         } else {
-            logger.warn("ApplicationServerType resolve fail. type not found");
-            return false;
+        	// logger.warn("ApplicationServerType resolve fail. type not found");
+        	logger.info("applicationServerDefaultType:{}", defaultType);
+            return resolveStandAlone();
         }
     }
 
-
-    private void resolveTomcat(String catalinaHome) {
+    private boolean resolveTomcat(String catalinaHome) {
+        if (catalinaHome == null) {
+            logger.warn("CATALINA_HOME is null");
+            return false;
+        }
         this.serverType = ServiceType.TOMCAT;
         this.serverLibPath =  new String[] { catalinaHome + "/lib/servlet-api.jar", catalinaHome + "/lib/catalina.jar" };
         logger.info("ApplicationServerType:{} lib:{}", serverType, serverLibPath);
+        return true;
     }
 
-    private void resolveBloc(String catalinaHome) {
+    private boolean resolveBloc(String catalinaHome) {
+        if (catalinaHome == null) {
+            logger.warn("CATALINA_HOME is null");
+            return false;
+        }
         this.serverType = ServiceType.BLOC;
         this.serverLibPath = new String[] { catalinaHome + "/server/lib/catalina.jar", catalinaHome + "/common/lib/servlet-api.jar" };
         logger.info("ApplicationServerType:{} lib:{}", serverType, serverLibPath);
+        return true;
     }
 
-    private void resolveStandAlone() {
+    private boolean resolveStandAlone() {
         this.serverType = ServiceType.STAND_ALONE;
         this.serverLibPath = new String[] {};
         logger.info("ApplicationServerType:{} lib:{}", serverType, serverLibPath);
+        return true;
     }
 
     private boolean isFileExist(File libFile) {
