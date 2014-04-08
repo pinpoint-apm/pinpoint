@@ -3,7 +3,7 @@ package com.nhn.pinpoint.bootstrap;
 import com.nhn.pinpoint.ProductInfo;
 import com.nhn.pinpoint.common.PinpointConstants;
 import com.nhn.pinpoint.common.util.TransactionIdUtils;
-import com.nhn.pinpoint.profiler.config.ProfilerConfig;
+import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.instrument.Instrumentation;

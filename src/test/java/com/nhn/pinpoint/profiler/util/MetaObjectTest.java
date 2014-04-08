@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.profiler.util;
 
+import com.nhn.pinpoint.bootstrap.util.MetaObject;
 import junit.framework.Assert;
 import org.junit.Test;
 
