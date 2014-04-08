@@ -226,7 +226,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                                     .setToApplication(htLastLink.targetInfo.applicationName)
                                     .setToServiceType(htLastLink.targetInfo.serviceType);
 
-                                if (label === 'error') {
+                                if (label.toLowerCase() === 'error') {
                                     oServerMapFilterVo.setIncludeException(true);
                                 } else if (label.indexOf('+') > 0) {
                                     oServerMapFilterVo
