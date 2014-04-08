@@ -173,12 +173,12 @@ public class MapServiceImpl implements MapService {
         LinkDataDuplexMap callee = selectCallee(sourceApplication, range, linkVisitChecker);
         logger.debug("Result of finding callee {}", callee);
 
-        LinkDataDuplexMap data = new LinkDataDuplexMap();
-        data.addLinkStatisticsDataSet(caller);
-        data.addLinkStatisticsDataSet(callee);
+        LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
+        linkDataDuplexMap.addLinkStatisticsDataSet(caller);
+        linkDataDuplexMap.addLinkStatisticsDataSet(callee);
 
         ApplicationMapBuilder builder = new ApplicationMapBuilder(range);
-        ApplicationMap map = builder.build(data, agentInfoService);
+        ApplicationMap map = builder.build(linkDataDuplexMap, agentInfoService);
         // 이걸 builder쪽에 넣어야 될듯한데.
         map.appendResponseTime(range, this.mapResponseDao);
 

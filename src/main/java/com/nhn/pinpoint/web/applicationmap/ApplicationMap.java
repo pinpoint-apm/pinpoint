@@ -47,7 +47,7 @@ public class ApplicationMap {
 
     @JsonProperty("linkDataArray")
 	public Collection<Link> getLinks() {
-		return this.linkList.getLinks();
+		return this.linkList.getLinkList();
 	}
 
 
@@ -59,9 +59,10 @@ public class ApplicationMap {
         this.nodeList.addNodeList(nodeList);
     }
 
-    void addLink(List<Link> relationList) {
+    void addLink(Collection<Link> relationList) {
         linkList.buildLink(relationList);
     }
+
 
 
     public boolean containsNode(Application application) {

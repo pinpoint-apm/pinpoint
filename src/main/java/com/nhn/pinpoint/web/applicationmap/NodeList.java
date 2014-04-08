@@ -50,4 +50,8 @@ public class NodeList {
         }
         return nodeMap.containsKey(application);
     }
+
+    public int size() {
+        return this.nodeMap.size();
+    }
 }

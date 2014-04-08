@@ -12,11 +12,11 @@ public class LinkList {
 
     private final Map<LinkKey, Link> linkMap = new HashMap<LinkKey, Link>();
 
-    public Collection<Link> getLinks() {
+    public Collection<Link> getLinkList() {
         return this.linkMap.values();
     }
 
-    public void buildLink(List<Link> linkList) {
+    public void buildLink(Collection<Link> linkList) {
         if (linkList == null) {
             throw new NullPointerException("linkList must not be null");
         }
@@ -68,16 +68,27 @@ public class LinkList {
         return findList;
     }
 
-    public void addLink(Link link) {
+    public boolean addLink(Link link) {
         if (link == null) {
             throw new NullPointerException("link must not be null");
         }
 
         final LinkKey linkId = link.getLinkKey();
         final Link find = this.linkMap.get(linkId);
-        if (find == null) {
-            this.linkMap.put(linkId, link);
+        if (find != null) {
+            return false;
         }
+        return this.linkMap.put(linkId, link) == null;
+    }
 
+    public boolean containsNode(LinkKey linkKey) {
+        if (linkKey == null) {
+            throw new NullPointerException("linkKey must not be null");
+        }
+        return linkMap.containsKey(linkKey);
+    }
+
+    public int size() {
+        return this.linkMap.size();
     }
 }

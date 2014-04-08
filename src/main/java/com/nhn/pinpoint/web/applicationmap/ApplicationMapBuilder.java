@@ -10,8 +10,6 @@ import com.nhn.pinpoint.web.vo.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-
 /**
  * @author emeroad
  */
@@ -50,9 +48,11 @@ public class ApplicationMapBuilder {
     private void buildNode(ApplicationMap map, LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService) {
         NodeList nodeList = new NodeList();
         createNode(nodeList, linkDataDuplexMap.getSourceLinkDataMap());
-
+        logger.debug("node size:{}", nodeList.size());
         createNode(nodeList, linkDataDuplexMap.getTargetLinkDataMap());
+        logger.debug("node size:{}", nodeList.size());
         map.addNodeList(nodeList.getNodeList());
+
 
         // agentInfo를 넣는다.
         map.appendAgentInfo(linkDataDuplexMap, agentInfoService);
@@ -93,14 +93,12 @@ public class ApplicationMapBuilder {
 
     private void buildLink(ApplicationMap map, LinkDataDuplexMap linkDataDuplexMap) {
         // 변경하면 안됨.
-        List<Link> sourceLink = createSourceLink(linkDataDuplexMap.getSourceLinkDataMap(), map);
-        logger.debug("sourceLink.size:{}", sourceLink.size());
-        map.addLink(sourceLink);
-
-
-        List<Link> targetLink = createTargetLink(linkDataDuplexMap.getTargetLinkDataMap(), map);
-        logger.debug("targetLink.size:{}", targetLink.size());
-        map.addLink(targetLink);
+        LinkList linkList = new LinkList();
+        createSourceLink(linkList, linkDataDuplexMap.getSourceLinkDataMap(), map);
+        logger.debug("link size:{}", linkList.size());
+        createTargetLink(linkList, linkDataDuplexMap.getTargetLinkDataMap(), map);
+        logger.debug("link size:{}", linkList.size());
+        map.addLink(linkList.getLinkList());
 
 
         for (Link link : map.getLinks()) {
@@ -123,8 +121,7 @@ public class ApplicationMapBuilder {
         }
     }
 
-    private List<Link> createSourceLink(LinkDataMap linkDataMap, ApplicationMap map) {
-        final List<Link> result = new ArrayList<Link>();
+    private void createSourceLink(LinkList linkList, LinkDataMap linkDataMap, ApplicationMap map) {
 
         for (LinkData linkData : linkDataMap.getLinkDataList()) {
             final Application fromApplicationId = linkData.getFromApplication();
@@ -144,21 +141,23 @@ public class ApplicationMapBuilder {
 
             if (toNode.getServiceType().isRpcClient()) {
                 if (!map.containsNode(toNode.getApplication())) {
-                    result.add(link);
+                    if (!linkList.containsNode(link.getLinkKey())) {
+                        logger.debug("createSourceLink:{}", link);
+                        linkList.addLink(link);
+                    }
                 }
             } else {
-
-                result.add(link);
+                if (!linkList.containsNode(link.getLinkKey())) {
+                    logger.debug("createSourceLink:{}", link);
+                    linkList.addLink(link);
+                }
             }
         }
-        return result;
     }
 
 
+    private void createTargetLink(LinkList linkList, LinkDataMap rawData, ApplicationMap map) {
 
-    private List<Link> createTargetLink(LinkDataMap rawData, ApplicationMap map) {
-        final List<Link> result = new ArrayList<Link>();
-        // extract relation
         for (LinkData linkData : rawData.getLinkDataList()) {
             final Application fromApplicationId = linkData.getFromApplication();
             Node fromNode = map.findNode(fromApplicationId);
@@ -176,14 +175,22 @@ public class ApplicationMapBuilder {
             Link link = new Link(CreateType.Target, fromNode, toNode, range);
             if (toNode.getServiceType().isRpcClient()) {
                 if (!map.containsNode(toNode.getApplication())) {
-                    result.add(link);
+                    if (!linkList.containsNode(link.getLinkKey())) {
+                        logger.debug("createTargetLink:{}", link);
+                        linkList.addLink(link);
+                    }
                 }
             } else {
-                result.add(link);
+                if (!linkList.containsNode(link.getLinkKey())) {
+                    logger.debug("createTargetLink:{}", link);
+                    linkList.addLink(link);
+                }
             }
         }
-        return result;
     }
+
+
+
 
 
 
