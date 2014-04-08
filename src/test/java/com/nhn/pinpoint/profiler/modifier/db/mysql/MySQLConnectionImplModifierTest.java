@@ -4,14 +4,14 @@ import com.mysql.jdbc.JDBC4PreparedStatement;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.profiler.DummyInstrumentation;
-import com.nhn.pinpoint.profiler.config.ProfilerConfig;
-import com.nhn.pinpoint.profiler.context.DatabaseInfo;
+import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
+import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
 
-import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
+import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
 
 
-import com.nhn.pinpoint.profiler.util.MetaObject;
+import com.nhn.pinpoint.bootstrap.util.MetaObject;
 import com.nhn.pinpoint.profiler.util.TestClassLoader;
 import org.junit.Assert;
 import org.junit.Before;

@@ -2,13 +2,13 @@ package com.nhn.pinpoint.profiler.modifier.connector.npc.interceptor;
 
 import java.net.InetSocketAddress;
 
+import com.nhn.pinpoint.bootstrap.interceptor.*;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.context.Trace;
-import com.nhn.pinpoint.profiler.context.TraceContext;
-import com.nhn.pinpoint.profiler.interceptor.*;
-import com.nhn.pinpoint.profiler.logging.PLogger;
-import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
-import com.nhn.pinpoint.profiler.util.MetaObject;
+import com.nhn.pinpoint.bootstrap.context.Trace;
+import com.nhn.pinpoint.bootstrap.context.TraceContext;
+import com.nhn.pinpoint.bootstrap.logging.PLogger;
+import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.nhn.pinpoint.bootstrap.util.MetaObject;
 import com.nhncorp.lucy.npc.connector.KeepAliveNpcHessianConnector;
 import com.nhncorp.lucy.npc.connector.NpcConnectorOption;
 

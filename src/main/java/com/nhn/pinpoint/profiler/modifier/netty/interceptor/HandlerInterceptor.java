@@ -1,12 +1,16 @@
 package com.nhn.pinpoint.profiler.modifier.netty.interceptor;
 
-import com.nhn.pinpoint.profiler.logging.PLogger;
-import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
+import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.nhn.pinpoint.bootstrap.interceptor.ServiceTypeSupport;
+import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
+import com.nhn.pinpoint.bootstrap.logging.PLogger;
+import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.context.Trace;
-import com.nhn.pinpoint.profiler.context.TraceContext;
-import com.nhn.pinpoint.profiler.interceptor.*;
+import com.nhn.pinpoint.bootstrap.context.Trace;
+import com.nhn.pinpoint.bootstrap.context.TraceContext;
+import com.nhn.pinpoint.bootstrap.interceptor.*;
 
 /**
  * 
@@ -79,6 +83,6 @@ public class HandlerInterceptor implements SimpleAroundInterceptor, ServiceTypeS
 
 	@Override
 	public void setTraceContext(TraceContext traceContext) {
-		this.traceContext = traceContext;
+        this.traceContext = traceContext;
     }
 }

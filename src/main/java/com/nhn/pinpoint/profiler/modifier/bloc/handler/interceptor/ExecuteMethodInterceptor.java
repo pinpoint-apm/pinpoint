@@ -2,16 +2,20 @@ package com.nhn.pinpoint.profiler.modifier.bloc.handler.interceptor;
 
 import java.util.Enumeration;
 
+import com.nhn.pinpoint.bootstrap.context.Header;
+import com.nhn.pinpoint.bootstrap.context.Trace;
+import com.nhn.pinpoint.bootstrap.context.TraceContext;
+import com.nhn.pinpoint.bootstrap.context.TraceId;
+import com.nhn.pinpoint.bootstrap.interceptor.*;
 import com.nhn.pinpoint.profiler.context.*;
-import com.nhn.pinpoint.profiler.interceptor.*;
-import com.nhn.pinpoint.profiler.logging.PLogger;
+import com.nhn.pinpoint.bootstrap.logging.PLogger;
 
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
-import com.nhn.pinpoint.profiler.sampler.util.SamplingFlagUtils;
-import com.nhn.pinpoint.profiler.util.NumberUtils;
-import com.nhn.pinpoint.profiler.util.StringUtils;
+import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.nhn.pinpoint.bootstrap.sampler.SamplingFlagUtils;
+import com.nhn.pinpoint.bootstrap.util.NumberUtils;
+import com.nhn.pinpoint.bootstrap.util.StringUtils;
 
 /**
  * @author netspider

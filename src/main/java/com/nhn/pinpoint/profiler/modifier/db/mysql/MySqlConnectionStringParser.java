@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler.modifier.db.mysql;
 
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.context.DatabaseInfo;
+import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
 import com.nhn.pinpoint.profiler.modifier.db.ConnectionStringParser;
 import com.nhn.pinpoint.profiler.modifier.db.DefaultDatabaseInfo;
 import com.nhn.pinpoint.profiler.modifier.db.JDBCUrlParser;

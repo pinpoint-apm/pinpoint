@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.profiler.context;
 
+import com.nhn.pinpoint.bootstrap.context.TraceId;
 import com.nhn.pinpoint.common.util.TransactionIdUtils;
 import com.nhn.pinpoint.thrift.dto.TIntStringValue;
 import com.nhn.pinpoint.thrift.dto.TSpan;

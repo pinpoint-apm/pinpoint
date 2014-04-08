@@ -1,5 +1,9 @@
 package com.nhn.pinpoint.profiler.interceptor;
 
+import com.nhn.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
+import com.nhn.pinpoint.bootstrap.interceptor.InterceptorContext;
+import com.nhn.pinpoint.bootstrap.interceptor.InterceptorRegistry;
 import com.nhn.pinpoint.profiler.interceptor.bci.TestObject;
 import javassist.*;
 import org.junit.Assert;

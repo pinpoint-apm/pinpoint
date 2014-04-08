@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.profiler.context;
 
-import com.nhn.pinpoint.profiler.context.Header;
+import com.nhn.pinpoint.bootstrap.context.Header;
 import org.junit.Test;
 
 public class HeaderTest {

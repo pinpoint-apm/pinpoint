@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.profiler.sampler;
 
+import com.nhn.pinpoint.bootstrap.sampler.Sampler;
 import junit.framework.Assert;
 import org.junit.Test;
 

@@ -1,22 +1,25 @@
 package com.nhn.pinpoint.profiler.context;
 
 
+import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
+import com.nhn.pinpoint.bootstrap.context.Trace;
+import com.nhn.pinpoint.bootstrap.context.TraceContext;
+import com.nhn.pinpoint.bootstrap.context.TraceId;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.exception.PinpointException;
 import com.nhn.pinpoint.profiler.AgentInformation;
-import com.nhn.pinpoint.profiler.config.ProfilerConfig;
+import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.metadata.SimpleCache;
 import com.nhn.pinpoint.profiler.sender.EnhancedDataSender;
 import com.nhn.pinpoint.thrift.dto.TApiMetaData;
 import com.nhn.pinpoint.thrift.dto.TSqlMetaData;
 import com.nhn.pinpoint.common.util.ParsingResult;
 import com.nhn.pinpoint.common.util.SqlParser;
-import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
+import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.profiler.metadata.LRUCache;
 import com.nhn.pinpoint.profiler.metadata.Result;
 import com.nhn.pinpoint.profiler.modifier.db.JDBCUrlParser;
-import com.nhn.pinpoint.profiler.sampler.Sampler;
-import com.nhn.pinpoint.profiler.sender.DataSender;
+import com.nhn.pinpoint.bootstrap.sampler.Sampler;
 import com.nhn.pinpoint.profiler.util.NamedThreadLocal;
 import com.nhn.pinpoint.thrift.dto.TStringMetaData;
 import org.slf4j.Logger;

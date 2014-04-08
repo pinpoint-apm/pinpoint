@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler.context;
 
 import com.nhn.pinpoint.profiler.AgentInformation;
-import com.nhn.pinpoint.profiler.config.ProfilerConfig;
+import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.sender.DataSender;
 
 /**

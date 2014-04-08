@@ -1,7 +1,8 @@
 package com.nhn.pinpoint.profiler;
 
-import com.nhn.pinpoint.profiler.logging.PLogger;
-import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
+import com.nhn.pinpoint.bootstrap.Agent;
+import com.nhn.pinpoint.bootstrap.logging.PLogger;
+import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 
 
 /**

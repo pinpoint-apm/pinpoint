@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler;
 
-import com.nhn.pinpoint.profiler.config.ProfilerConfig;
+import com.nhn.pinpoint.bootstrap.Agent;
+import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.modifier.DefaultModifierRegistry;
 import com.nhn.pinpoint.profiler.modifier.Modifier;

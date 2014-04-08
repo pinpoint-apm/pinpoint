@@ -4,16 +4,16 @@ import java.net.InetSocketAddress;
 
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.context.Trace;
-import com.nhn.pinpoint.profiler.context.TraceContext;
-import com.nhn.pinpoint.profiler.context.TraceId;
-import com.nhn.pinpoint.profiler.interceptor.ByteCodeMethodDescriptorSupport;
-import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.profiler.interceptor.TraceContextSupport;
-import com.nhn.pinpoint.profiler.logging.PLogger;
-import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
-import com.nhn.pinpoint.profiler.util.MetaObject;
+import com.nhn.pinpoint.bootstrap.context.Trace;
+import com.nhn.pinpoint.bootstrap.context.TraceContext;
+import com.nhn.pinpoint.bootstrap.context.TraceId;
+import com.nhn.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
+import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
+import com.nhn.pinpoint.bootstrap.logging.PLogger;
+import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.nhn.pinpoint.bootstrap.util.MetaObject;
 
 public class InitializeConnectorInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 

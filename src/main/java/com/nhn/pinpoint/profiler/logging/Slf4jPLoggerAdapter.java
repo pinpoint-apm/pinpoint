@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.profiler.logging;
 
+import com.nhn.pinpoint.bootstrap.logging.PLogger;
 import org.slf4j.Marker;
 
 import java.math.BigDecimal;

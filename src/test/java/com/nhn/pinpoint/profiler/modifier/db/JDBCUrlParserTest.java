@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler.modifier.db;
 
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.context.DatabaseInfo;
+import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

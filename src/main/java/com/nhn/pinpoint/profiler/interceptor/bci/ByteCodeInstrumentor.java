@@ -2,7 +2,7 @@ package com.nhn.pinpoint.profiler.interceptor.bci;
 
 import java.security.ProtectionDomain;
 
-import com.nhn.pinpoint.profiler.interceptor.Interceptor;
+import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 
 /**
  * @author emeroad

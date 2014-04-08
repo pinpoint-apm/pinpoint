@@ -1,11 +1,14 @@
 package com.nhn.pinpoint.profiler.context;
 
+import com.nhn.pinpoint.bootstrap.context.AsyncTrace;
+import com.nhn.pinpoint.bootstrap.context.Trace;
+import com.nhn.pinpoint.bootstrap.context.TraceId;
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.util.ParsingResult;
 import com.nhn.pinpoint.profiler.AgentInformation;
-import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.profiler.util.StringUtils;
+import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.nhn.pinpoint.bootstrap.util.StringUtils;
 import com.nhn.pinpoint.thrift.dto.TIntStringStringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -3,7 +3,7 @@ package com.nhn.pinpoint.profiler.modifier;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
+import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import junit.framework.Assert;
 
 import org.junit.Before;
@@ -11,13 +11,13 @@ import org.junit.BeforeClass;
 
 import com.nhn.pinpoint.profiler.context.DefaultTraceContext;
 import com.nhn.pinpoint.profiler.context.MockTraceContextFactory;
-import com.nhn.pinpoint.profiler.context.TraceContext;
-import com.nhn.pinpoint.profiler.interceptor.ByteCodeMethodDescriptorSupport;
-import com.nhn.pinpoint.profiler.interceptor.Interceptor;
-import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.profiler.interceptor.TraceContextSupport;
+import com.nhn.pinpoint.bootstrap.context.TraceContext;
+import com.nhn.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
+import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
+import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
-import com.nhn.pinpoint.profiler.sampler.Sampler;
+import com.nhn.pinpoint.bootstrap.sampler.Sampler;
 
 public class BaseInterceptorTest {
 

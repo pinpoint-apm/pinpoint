@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.profiler.modifier.db;
 
-import com.nhn.pinpoint.profiler.context.DatabaseInfo;
+import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
 
 /**
  * @author emeroad

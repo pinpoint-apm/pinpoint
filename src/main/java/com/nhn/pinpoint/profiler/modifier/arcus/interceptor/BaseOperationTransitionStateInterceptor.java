@@ -5,23 +5,23 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
-import com.nhn.pinpoint.profiler.interceptor.ByteCodeMethodDescriptorSupport;
-import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.profiler.interceptor.TraceContextSupport;
-import com.nhn.pinpoint.profiler.logging.PLogger;
+import com.nhn.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
+import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
+import com.nhn.pinpoint.bootstrap.logging.PLogger;
 
 import com.nhn.pinpoint.common.AnnotationKey;
-import com.nhn.pinpoint.profiler.context.AsyncTrace;
-import com.nhn.pinpoint.profiler.context.TraceContext;
-import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
-import com.nhn.pinpoint.profiler.util.TimeObject;
+import com.nhn.pinpoint.bootstrap.context.AsyncTrace;
+import com.nhn.pinpoint.bootstrap.context.TraceContext;
+import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.nhn.pinpoint.bootstrap.util.TimeObject;
 import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.ops.OperationState;
 import net.spy.memcached.protocol.BaseOperationImpl;
 
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.util.MetaObject;
+import com.nhn.pinpoint.bootstrap.util.MetaObject;
 
 /**
  * @author emeroad

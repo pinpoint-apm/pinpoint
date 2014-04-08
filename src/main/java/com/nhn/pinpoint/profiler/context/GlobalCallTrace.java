@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.profiler.context;
 
+import com.nhn.pinpoint.bootstrap.context.AsyncTrace;
+
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;

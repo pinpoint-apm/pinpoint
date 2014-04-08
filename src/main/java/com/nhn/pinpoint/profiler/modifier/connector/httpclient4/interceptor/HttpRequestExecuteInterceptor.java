@@ -1,8 +1,8 @@
 package com.nhn.pinpoint.profiler.modifier.connector.httpclient4.interceptor;
 
-import com.nhn.pinpoint.profiler.interceptor.TargetClassLoader;
-import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
-import com.nhn.pinpoint.profiler.pair.NameIntValuePair;
+import com.nhn.pinpoint.bootstrap.interceptor.TargetClassLoader;
+import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.nhn.pinpoint.bootstrap.pair.NameIntValuePair;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 

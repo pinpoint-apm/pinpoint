@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.profiler.modifier.arcus;
 
-import com.nhn.pinpoint.profiler.Agent;
+import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import org.slf4j.LoggerFactory;
 

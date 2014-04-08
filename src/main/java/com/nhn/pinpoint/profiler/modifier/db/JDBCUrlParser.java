@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler.modifier.db;
 
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.context.DatabaseInfo;
+import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
 import com.nhn.pinpoint.profiler.modifier.db.cubrid.CubridConnectionStringParser;
 import com.nhn.pinpoint.profiler.modifier.db.mysql.MySqlConnectionStringParser;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.parser.Description;

@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.profiler.modifier.db.oracle;
 
-import com.nhn.pinpoint.profiler.Agent;
+import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import javassist.CtClass;

@@ -1,9 +1,8 @@
 package com.nhn.pinpoint.profiler.interceptor.bci;
 
-import com.nhn.pinpoint.profiler.interceptor.Interceptor;
+import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.util.DepthScope;
 
-import java.security.ProtectionDomain;
 import java.util.List;
 
 /**

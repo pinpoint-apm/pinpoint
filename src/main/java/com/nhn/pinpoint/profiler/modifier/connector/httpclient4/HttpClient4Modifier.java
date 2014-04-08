@@ -2,8 +2,8 @@ package com.nhn.pinpoint.profiler.modifier.connector.httpclient4;
 
 import java.security.ProtectionDomain;
 
-import com.nhn.pinpoint.profiler.Agent;
-import com.nhn.pinpoint.profiler.interceptor.Interceptor;
+import com.nhn.pinpoint.bootstrap.Agent;
+import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;

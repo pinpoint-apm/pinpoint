@@ -8,9 +8,9 @@ import java.net.URLClassLoader;
 import java.security.ProtectionDomain;
 
 
-import com.nhn.pinpoint.profiler.Agent;
-import com.nhn.pinpoint.profiler.interceptor.Interceptor;
-import com.nhn.pinpoint.profiler.interceptor.TargetClassLoader;
+import com.nhn.pinpoint.bootstrap.Agent;
+import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
+import com.nhn.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;

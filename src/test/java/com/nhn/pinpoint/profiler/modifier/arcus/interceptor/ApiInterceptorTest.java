@@ -13,7 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.nhn.pinpoint.profiler.interceptor.DefaultMethodDescriptor;
-import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
+import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.profiler.modifier.BaseInterceptorTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

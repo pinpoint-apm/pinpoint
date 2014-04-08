@@ -2,8 +2,8 @@ package com.nhn.pinpoint.profiler.modifier.db.mysql;
 
 import java.security.ProtectionDomain;
 
-import com.nhn.pinpoint.profiler.Agent;
-import com.nhn.pinpoint.profiler.interceptor.Interceptor;
+import com.nhn.pinpoint.bootstrap.Agent;
+import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.JDBCScope;
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.StatementExecuteQueryInterceptor;

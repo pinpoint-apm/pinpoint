@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler.sender;
 
 
+import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
 import com.nhn.pinpoint.thrift.dto.TResult;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.nhn.pinpoint.thrift.io.SafeHeaderTBaseSerializer;
@@ -12,6 +13,7 @@ import com.nhn.pinpoint.rpc.client.PinpointSocket;
 import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
+import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
@@ -27,6 +29,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class TcpDataSender implements EnhancedDataSender {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    static {
+        ChannelBuffers.buffer(2);
+    }
 
     private final PinpointSocketFactory pinpointSocketFactory;
     private PinpointSocket socket;
@@ -43,7 +48,9 @@ public class TcpDataSender implements EnhancedDataSender {
 
     private AsyncQueueingExecutor<Object> executor;
 
+
     public TcpDataSender(String host, int port) {
+
         pinpointSocketFactory = new PinpointSocketFactory();
         pinpointSocketFactory.setTimeoutMillis(1000 * 5);
         writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", host, port);
@@ -101,7 +108,7 @@ public class TcpDataSender implements EnhancedDataSender {
 
     }
 
-    private void sendPacket(Object dto) {
+    public void sendPacket(Object dto) {
         try {
             if (dto instanceof TBase) {
                 TBase<?, ?> tBase = (TBase<?, ?>) dto;

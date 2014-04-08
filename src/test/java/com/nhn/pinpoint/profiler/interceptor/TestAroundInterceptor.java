@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.profiler.interceptor;
 
+import com.nhn.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
+
 /**
  * @author emeroad
  */

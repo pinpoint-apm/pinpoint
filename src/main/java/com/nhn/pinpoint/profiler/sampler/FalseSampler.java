@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.profiler.sampler;
 
+import com.nhn.pinpoint.bootstrap.sampler.Sampler;
+
 /**
  * @author emeroad
  */

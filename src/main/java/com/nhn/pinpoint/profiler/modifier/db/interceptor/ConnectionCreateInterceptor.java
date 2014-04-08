@@ -1,15 +1,12 @@
 package com.nhn.pinpoint.profiler.modifier.db.interceptor;
 
 import java.sql.Connection;
-import java.util.Arrays;
 
-import com.nhn.pinpoint.profiler.interceptor.StaticAroundInterceptor;
-import com.nhn.pinpoint.profiler.logging.PLogger;
+import com.nhn.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
+import com.nhn.pinpoint.bootstrap.logging.PLogger;
 
-import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
-import com.nhn.pinpoint.profiler.util.InterceptorUtils;
-import com.nhn.pinpoint.profiler.util.MetaObject;
-import com.nhn.pinpoint.profiler.util.StringUtils;
+import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.nhn.pinpoint.bootstrap.util.InterceptorUtils;
 
 /**
  * @author emeroad

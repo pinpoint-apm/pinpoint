@@ -5,8 +5,8 @@ import java.security.ProtectionDomain;
 import java.util.Arrays;
 import java.util.List;
 
-import com.nhn.pinpoint.profiler.Agent;
-import com.nhn.pinpoint.profiler.interceptor.Interceptor;
+import com.nhn.pinpoint.bootstrap.Agent;
+import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.ScopeDelegateStaticInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;

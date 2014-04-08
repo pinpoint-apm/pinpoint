@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.profiler.modifier.arcus.interceptor;
 
-import com.nhn.pinpoint.profiler.interceptor.ParameterExtractor;
+import com.nhn.pinpoint.bootstrap.interceptor.ParameterExtractor;
 
 /**
  * @author emeroad

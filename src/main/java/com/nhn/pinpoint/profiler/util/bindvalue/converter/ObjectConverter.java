@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler.util.bindvalue.converter;
 
 import com.nhn.pinpoint.profiler.util.ArrayUtils;
-import com.nhn.pinpoint.profiler.util.StringUtils;
+import com.nhn.pinpoint.bootstrap.util.StringUtils;
 
 import java.io.InputStream;
 import java.math.BigDecimal;

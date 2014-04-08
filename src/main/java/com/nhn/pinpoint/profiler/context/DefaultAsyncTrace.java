@@ -2,10 +2,12 @@ package com.nhn.pinpoint.profiler.context;
 
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import com.nhn.pinpoint.bootstrap.context.AsyncTrace;
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.profiler.util.StringUtils;
+import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.nhn.pinpoint.bootstrap.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

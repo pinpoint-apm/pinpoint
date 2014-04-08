@@ -1,14 +1,14 @@
 package com.nhn.pinpoint.profiler.modifier.arcus.interceptor;
 
-import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.profiler.interceptor.TargetClassLoader;
-import com.nhn.pinpoint.profiler.logging.PLogger;
+import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.nhn.pinpoint.bootstrap.interceptor.TargetClassLoader;
+import com.nhn.pinpoint.bootstrap.logging.PLogger;
 
-import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
+import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import net.spy.memcached.MemcachedClient;
 import net.spy.memcached.ops.Operation;
 
-import com.nhn.pinpoint.profiler.util.MetaObject;
+import com.nhn.pinpoint.bootstrap.util.MetaObject;
 
 /**
  * 

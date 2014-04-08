@@ -1,16 +1,18 @@
 package com.nhn.pinpoint.profiler.util;
 
-import com.nhn.pinpoint.profiler.Agent;
-import com.nhn.pinpoint.profiler.context.Trace;
-import com.nhn.pinpoint.profiler.context.TraceContext;
-import com.nhn.pinpoint.profiler.logging.LoggingUtils;
+import com.nhn.pinpoint.bootstrap.interceptor.*;
+import com.nhn.pinpoint.bootstrap.util.MetaObject;
+import com.nhn.pinpoint.bootstrap.util.StringUtils;
+import com.nhn.pinpoint.bootstrap.Agent;
+import com.nhn.pinpoint.bootstrap.context.Trace;
+import com.nhn.pinpoint.bootstrap.context.TraceContext;
+import com.nhn.pinpoint.bootstrap.logging.LoggingUtils;
 import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.profiler.context.DefaultTrace;
 import com.nhn.pinpoint.profiler.context.DefaultTraceContext;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.modifier.Modifier;
-import com.nhn.pinpoint.profiler.interceptor.*;
 import com.nhn.pinpoint.profiler.util.bindvalue.BindValueConverter;
 import javassist.CannotCompileException;
 import javassist.Loader;

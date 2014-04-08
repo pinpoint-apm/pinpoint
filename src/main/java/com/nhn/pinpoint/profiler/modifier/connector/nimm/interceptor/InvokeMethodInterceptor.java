@@ -2,15 +2,15 @@ package com.nhn.pinpoint.profiler.modifier.connector.nimm.interceptor;
 
 import java.util.Arrays;
 
+import com.nhn.pinpoint.bootstrap.interceptor.*;
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.context.Trace;
-import com.nhn.pinpoint.profiler.context.TraceContext;
-import com.nhn.pinpoint.profiler.context.TraceId;
-import com.nhn.pinpoint.profiler.interceptor.*;
-import com.nhn.pinpoint.profiler.logging.PLogger;
-import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
-import com.nhn.pinpoint.profiler.util.MetaObject;
+import com.nhn.pinpoint.bootstrap.context.Trace;
+import com.nhn.pinpoint.bootstrap.context.TraceContext;
+import com.nhn.pinpoint.bootstrap.context.TraceId;
+import com.nhn.pinpoint.bootstrap.logging.PLogger;
+import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.nhn.pinpoint.bootstrap.util.MetaObject;
 
 /**
  * target lib = com.nhncorp.lucy.lucy-nimmconnector-2.1.4

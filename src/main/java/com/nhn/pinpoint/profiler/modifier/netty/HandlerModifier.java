@@ -2,8 +2,8 @@ package com.nhn.pinpoint.profiler.modifier.netty;
 
 import java.security.ProtectionDomain;
 
-import com.nhn.pinpoint.profiler.Agent;
-import com.nhn.pinpoint.profiler.interceptor.Interceptor;
+import com.nhn.pinpoint.bootstrap.Agent;
+import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
@@ -28,7 +28,7 @@ public class HandlerModifier extends AbstractModifier {
 	}
 
 	public String getTargetClass() {
-		return "net/spider/test/MyModule";
+		return "com/nhn/pinpointtest/HttpCustomServerHandler$InvokeTask";
 		// return "com/nhn/pinpointtest/HttpCustomServerHandler$InvokeTask";
 	}
 

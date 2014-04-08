@@ -1,8 +1,8 @@
 package com.nhn.pinpoint.profiler.modifier.tomcat.interceptor;
 
-import com.nhn.pinpoint.profiler.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.profiler.logging.PLogger;
-import com.nhn.pinpoint.profiler.logging.PLoggerFactory;
+import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.nhn.pinpoint.bootstrap.logging.PLogger;
+import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.util.StackTraceUtil;
 
 import com.nhn.pinpoint.profiler.LifeCycleEventListener;

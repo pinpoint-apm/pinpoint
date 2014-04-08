@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.profiler.util.bindvalue.converter;
 
-import com.nhn.pinpoint.profiler.util.StringUtils;
+import com.nhn.pinpoint.bootstrap.util.StringUtils;
 
 /**
  * @author emeroad

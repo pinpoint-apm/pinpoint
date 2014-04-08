@@ -4,14 +4,12 @@ import java.security.ProtectionDomain;
 import java.util.Arrays;
 import java.util.List;
 
-import com.nhn.pinpoint.profiler.Agent;
+import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.profiler.interceptor.bci.Method;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor;
-import javassist.CtClass;
-import javassist.CtMethod;
 
-import com.nhn.pinpoint.profiler.interceptor.Interceptor;
+import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import org.slf4j.Logger;
