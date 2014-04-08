@@ -1,5 +1,8 @@
 package com.nhn.pinpoint.rpc.client;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +24,8 @@ public class PinpointSocket {
 
     private volatile boolean closed;
     
-    private volatile PinpointSocketReconnectEventListener reconnectEventListener;
+    private List<PinpointSocketReconnectEventListener> reconnectEventListeners = new ArrayList<PinpointSocketReconnectEventListener>();
+    
     
     public PinpointSocket(SocketHandler socketHandler) {
         if (socketHandler == null) {
@@ -29,12 +33,10 @@ public class PinpointSocket {
         }
         this.socketHandler = socketHandler;
         socketHandler.setPinpointSocket(this);
-        this.reconnectEventListener = new DummyPinpointSocketReconnectEventListener();
     }
 
     public PinpointSocket() {
         this.socketHandler = new ReconnectStateSocketHandler();
-        this.reconnectEventListener = new DummyPinpointSocketReconnectEventListener();
     }
 
     void reconnectSocketHandler(SocketHandler socketHandler) {
@@ -48,23 +50,49 @@ public class PinpointSocket {
         }
         logger.warn("reconnectSocketHandler:{}", socketHandler);
         this.socketHandler = socketHandler;
-        getPinpointSocketReconnectEventListener().reconnectPerformed(this);
+        
+        notifyReconnectEvent();
     }
     
-    // reconnectEventListener의 경우 직접 생성자 호출시에 Dummy를 포함하고 있으며, 
+	// reconnectEventListener의 경우 직접 생성자 호출시에 Dummy를 포함하고 있으며, 
     // setter를 통해서도 접근을 못하게 하기 때문에 null이 아닌 것이 보장됨
-    public boolean setPinpointSocketReconnectEventListener(PinpointSocketReconnectEventListener reconnectEventListener) {
-    	if (reconnectEventListener == null) {
+    public boolean addPinpointSocketReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
+    	if (eventListener == null) {
     		return false;
     	}
     	
-    	this.reconnectEventListener = reconnectEventListener;
-    	return true;
+    	synchronized (this) {
+    		return this.reconnectEventListeners.add(eventListener);
+		}
     }
-    
-    private PinpointSocketReconnectEventListener getPinpointSocketReconnectEventListener() {
-    	return reconnectEventListener;
+
+    public boolean removePinpointSocketReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
+    	if (eventListener == null) {
+    		return false;
+    	}
+    	synchronized (this) {
+    		return this.reconnectEventListeners.remove(eventListener);
+		}
     }
+
+    private List<PinpointSocketReconnectEventListener> getPinpointSocketReconnectEventListener() {
+    	List<PinpointSocketReconnectEventListener> result = new ArrayList<PinpointSocketReconnectEventListener>();
+    	synchronized (this) {
+        	for (PinpointSocketReconnectEventListener eventListener : this.reconnectEventListeners) {
+        		result.add(eventListener);
+        	}
+		}
+    	
+    	return result;
+    }
+
+    private void notifyReconnectEvent() {
+    	List<PinpointSocketReconnectEventListener> reconnectEventListeners = getPinpointSocketReconnectEventListener();
+    	
+    	for (PinpointSocketReconnectEventListener eachListener : reconnectEventListeners) {
+    		eachListener.reconnectPerformed(this);
+    	}
+	}
 
     public void sendSync(byte[] bytes) {
         ensureOpen();

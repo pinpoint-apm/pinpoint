@@ -6,12 +6,14 @@ import com.nhn.pinpoint.rpc.ResponseMessage;
 import com.nhn.pinpoint.rpc.TestByteUtils;
 import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
 import com.nhn.pinpoint.rpc.server.TestSeverMessageListener;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /**
@@ -30,6 +32,7 @@ public class ReconnectTest {
         serverSocket.setMessageListener(new TestSeverMessageListener());
         serverSocket.bind("localhost", PORT);
 
+        final AtomicBoolean reconnectPerformed = new AtomicBoolean(false);
 
         final PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
         pinpointSocketFactory.setReconnectDelay(200);
@@ -37,6 +40,15 @@ public class ReconnectTest {
         PinpointServerSocket newServerSocket = null;
         try {
             PinpointSocket socket = pinpointSocketFactory.connect("localhost", 10234);
+            socket.addPinpointSocketReconnectEventListener(new PinpointSocketReconnectEventListener() {
+				
+				@Override
+				public void reconnectPerformed(PinpointSocket socket) {
+					reconnectPerformed.set(true);
+				}
+				
+			});
+            
             serverSocket.close();
             logger.info("server.close()---------------------------");
             Thread.sleep(1000);
@@ -68,7 +80,8 @@ public class ReconnectTest {
             }
             pinpointSocketFactory.release();
         }
-
+        
+        Assert.assertTrue(reconnectPerformed.get());
     }
 
     @Test
