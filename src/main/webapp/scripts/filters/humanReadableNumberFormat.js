@@ -6,7 +6,7 @@ angular.module('pinpointApp')
             if (isNaN(parseFloat(bytes)) || !isFinite(bytes)) return '-';
             if (typeof precision === 'undefined') precision = 1;
             var units = type ? ['bytes', 'kB', 'MB', 'GB', 'TB', 'PB'] : ['', 'k', 'M', 'G', 'T', 'P'],
-            number = bytes ? Math.floor(Math.log(bytes) / Math.log(1024)) : 0;
+            number = bytes < 1 ? 0 :  Math.floor(Math.log(bytes) / Math.log(1024));
             if (flexiblePrecision) {
                 var result = (bytes / Math.pow(1024, Math.floor(number)));
                 if (result % 1 > 0) {
@@ -15,7 +15,11 @@ angular.module('pinpointApp')
                     return result + ' ' + units[number];
                 }
             } else {
-                return (bytes / Math.pow(1024, Math.floor(number))).toFixed(precision) + ' ' + units[number];
+                if (bytes < 1) {
+                    return bytes + ' ' + units[number];
+                } else {
+                    return (bytes / Math.pow(1024, Math.floor(number))).toFixed(precision) + ' ' + units[number];
+                }
             }
 
         }
