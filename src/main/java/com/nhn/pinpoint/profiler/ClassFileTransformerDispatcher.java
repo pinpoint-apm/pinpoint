@@ -140,6 +140,9 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         // lucy-net
         modifierRepository.addLucyNetModifier();
         
+        // netty
+        modifierRepository.addNettyModifier();
+        
         return modifierRepository;
     }
 
