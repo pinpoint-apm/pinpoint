@@ -1,16 +1,17 @@
 package com.nhn.pinpoint.rpc.client;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.nhn.pinpoint.rpc.DefaultFuture;
 import com.nhn.pinpoint.rpc.Future;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.ResponseMessage;
-import org.jboss.netty.channel.ChannelFuture;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
  * @author emeroad
+ * @author koo.taejin
  */
 public class PinpointSocket {
 
@@ -19,19 +20,22 @@ public class PinpointSocket {
     private volatile SocketHandler socketHandler;
 
     private volatile boolean closed;
-
+    
+    private volatile PinpointSocketReconnectEventListener reconnectEventListener;
+    
     public PinpointSocket(SocketHandler socketHandler) {
         if (socketHandler == null) {
             throw new NullPointerException("socketHandler");
         }
         this.socketHandler = socketHandler;
         socketHandler.setPinpointSocket(this);
+        this.reconnectEventListener = new DummyPinpointSocketReconnectEventListener();
     }
 
     public PinpointSocket() {
         this.socketHandler = new ReconnectStateSocketHandler();
+        this.reconnectEventListener = new DummyPinpointSocketReconnectEventListener();
     }
-
 
     void reconnectSocketHandler(SocketHandler socketHandler) {
         if (socketHandler == null) {
@@ -44,13 +48,28 @@ public class PinpointSocket {
         }
         logger.warn("reconnectSocketHandler:{}", socketHandler);
         this.socketHandler = socketHandler;
+        getPinpointSocketReconnectEventListener().reconnectPerformed(this);
+    }
+    
+    // reconnectEventListener의 경우 직접 생성자 호출시에 Dummy를 포함하고 있으며, 
+    // setter를 통해서도 접근을 못하게 하기 때문에 null이 아닌 것이 보장됨
+    public boolean setPinpointSocketReconnectEventListener(PinpointSocketReconnectEventListener reconnectEventListener) {
+    	if (reconnectEventListener == null) {
+    		return false;
+    	}
+    	
+    	this.reconnectEventListener = reconnectEventListener;
+    	return true;
+    }
+    
+    private PinpointSocketReconnectEventListener getPinpointSocketReconnectEventListener() {
+    	return reconnectEventListener;
     }
 
     public void sendSync(byte[] bytes) {
         ensureOpen();
         socketHandler.sendSync(bytes);
     }
-
 
     public Future sendAsync(byte[] bytes) {
         ensureOpen();
@@ -119,4 +138,5 @@ public class PinpointSocket {
     public boolean isClosed() {
         return closed;
     }
+        
 }
