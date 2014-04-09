@@ -315,6 +315,9 @@ public class PinpointSocketFactory {
             bootstrap.releaseExternalResources();
         }
         Set<Timeout> stop = this.timer.stop();
+        if (!stop.isEmpty()) {
+            logger.info("stop Timeout:{}", stop.size());
+        }
 //        stop 뭔가 취소를 해야 되나??
     }
 }
