@@ -17,7 +17,8 @@ pinpointApp.constant('serverMapConfig', {
             'UNKNOWN': 'UNKNOWN.png',
             'UNKNOWN_GROUP': 'UNKNOWN.png',
             'USER': 'USER.png',
-            'ORACLE': 'ORACLE.png'
+            'ORACLE': 'ORACLE.png',
+            'STAND_ALONE': 'STAND_ALONE.png'
         },
         "htLinkType": {
             "sRouting": "Normal", // Normal, Orthogonal, AvoidNodes
