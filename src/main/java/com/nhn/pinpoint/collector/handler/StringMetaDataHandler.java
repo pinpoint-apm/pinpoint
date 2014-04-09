@@ -21,7 +21,7 @@ public class StringMetaDataHandler implements RequestResponseHandler {
 	private StringMetaDataDao stringMetaDataDao;
 
 	@Override
-	public TBase<?, ?> handler(TBase<?, ?> tbase) {
+	public TBase<?, ?> handleRequest(TBase<?, ?> tbase) {
 		if (!(tbase instanceof TStringMetaData)) {
 			logger.error("invalid tbase:{}", tbase);
 			return null;

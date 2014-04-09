@@ -26,9 +26,15 @@ public class UDPReceiverTest {
 		try {
 			DataReceiver receiver = new UDPReceiver("test", new DispatchHandler() {
                 @Override
-                public TBase dispatch(TBase<?, ?> tBase, byte[] packet, int offset, int length) {
-                    return null;
+                public void dispatchSendMessage(TBase<?, ?> tBase, byte[] packet, int offset, int length) {
                 }
+
+				@Override
+				public TBase dispatchRequestMessage(TBase<?, ?> tBase, byte[] packet, int offset, int length) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+				
             }, "127.0.0.1", 10999, 1024, 1, 10);
 //			receiver.start();
 //            start 타이밍을 spring안으로 변경하였음.

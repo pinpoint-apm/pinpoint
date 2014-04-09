@@ -29,7 +29,7 @@ public class SpanChunkHandler implements SimpleHandler {
 	private StatisticsHandler statisticsHandler;
 
 	@Override
-	public void handler(TBase<?, ?> tbase) {
+	public void handleSimple(TBase<?, ?> tbase) {
 
 		if (!(tbase instanceof TSpanChunk)) {
 			throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + this.getClass().getName());

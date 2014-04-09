@@ -33,6 +33,7 @@ import javax.annotation.PreDestroy;
 
 /**
  * @author emeroad
+ * @author koo.taejin
  */
 public class TCPReceiver {
 
@@ -143,7 +144,7 @@ public class TCPReceiver {
             final HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializer();
             try {
                 TBase<?, ?> tBase = deserializer.deserialize(bytes);
-                dispatchHandler.dispatch(tBase, bytes, Header.HEADER_SIZE, bytes.length);
+                dispatchHandler.dispatchSendMessage(tBase, bytes, Header.HEADER_SIZE, bytes.length);
             } catch (TException e) {
                 if (logger.isWarnEnabled()) {
                     logger.warn("packet serialize error. SendSocketAddress:{} Cause:{}", remoteAddress, e.getMessage(), e);
@@ -191,7 +192,7 @@ public class TCPReceiver {
                     }
                     return;
                 }
-                TBase result = dispatchHandler.dispatch(tBase, bytes, Header.HEADER_SIZE, bytes.length);
+                TBase result = dispatchHandler.dispatchRequestMessage(tBase, bytes, Header.HEADER_SIZE, bytes.length);
                 if (result != null) {
                     SafeHeaderTBaseSerializer serializer = new SafeHeaderTBaseSerializer();
                     byte[] resultBytes = serializer.serialize(result);

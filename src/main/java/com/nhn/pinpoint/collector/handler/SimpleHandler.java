@@ -4,7 +4,10 @@ import org.apache.thrift.TBase;
 
 /**
  * @author emeroad
+ * @author koo.taejin
  */
 public interface SimpleHandler {
-    void handler(TBase<?, ?> tbase);
+	
+    void handleSimple(TBase<?, ?> tbase);
+    
 }

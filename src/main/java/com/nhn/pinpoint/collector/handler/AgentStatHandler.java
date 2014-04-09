@@ -24,7 +24,7 @@ public class AgentStatHandler implements Handler {
 	@Autowired
 	private AgentStatDao agentStatDao;
 
-	public void handler(TBase<?, ?> tbase, byte[] packet, int offset, int length) {
+	public void handle(TBase<?, ?> tbase, byte[] packet, int offset, int length) {
         if (!(tbase instanceof TAgentStat)) {
             throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + this.getClass().getName());
         }

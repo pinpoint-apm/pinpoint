@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author emeroad
+ * @author koo.taejin
  */
 public abstract class AbstractDispatchHandler implements DispatchHandler {
 
@@ -24,7 +25,7 @@ public abstract class AbstractDispatchHandler implements DispatchHandler {
 
 
     @Override
-    public TBase dispatch(TBase<?, ?> tBase, byte[] packet, int offset, int length) {
+    public void dispatchSendMessage(TBase<?, ?> tBase, byte[] packet, int offset, int length) {
         // accepted time 마크
         acceptedTimeService.accept();
         // TODO 수정시 dispatch table은 자동으로 바뀌게 변경해도 될듯하다.
@@ -33,8 +34,8 @@ public abstract class AbstractDispatchHandler implements DispatchHandler {
             if (logger.isTraceEnabled()) {
                 logger.trace("simpleHandler name:{}", simpleHandler.getClass().getName());
             }
-            simpleHandler.handler(tBase);
-            return null;
+            simpleHandler.handleSimple(tBase);
+            return;
         }
 
         Handler handler = getHandler(tBase);
@@ -42,20 +43,27 @@ public abstract class AbstractDispatchHandler implements DispatchHandler {
             if (logger.isTraceEnabled()) {
                 logger.trace("handler name:{}", handler.getClass().getName());
             }
-            handler.handler(tBase, packet, offset, length);
-            return null;
+            handler.handle(tBase, packet, offset, length);
+            return;
         }
+
+        throw new UnsupportedOperationException("Handler not found. Unknown type of data received. tBase=" + tBase);
+    }
+    
+    public TBase dispatchRequestMessage(org.apache.thrift.TBase<?,?> tBase, byte[] packet, int offset, int length) {
+        // accepted time 마크
+        acceptedTimeService.accept();
 
         RequestResponseHandler requestResponseHandler = getRequestResponseHandler(tBase);
         if (requestResponseHandler != null) {
             if (logger.isTraceEnabled()) {
                 logger.trace("requestResponseHandler name:{}", requestResponseHandler.getClass().getName());
             }
-            return requestResponseHandler.handler(tBase);
+            return requestResponseHandler.handleRequest(tBase);
         }
 
         throw new UnsupportedOperationException("Handler not found. Unknown type of data received. tBase=" + tBase);
-    }
+    };
 
     Handler getHandler(TBase<?, ?> tBase) {
         return null;

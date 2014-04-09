@@ -1,8 +1,10 @@
 package com.nhn.pinpoint.collector.receiver;
 
+import com.nhn.pinpoint.collector.handler.AgentInfoHandler;
 import com.nhn.pinpoint.collector.handler.RequestResponseHandler;
 import com.nhn.pinpoint.collector.handler.SimpleHandler;
 import com.nhn.pinpoint.thrift.dto.*;
+
 import org.apache.thrift.TBase;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,12 +12,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * @author emeroad
+ * @author koo.taejin
  */
 public class TcpDispatchHandler extends AbstractDispatchHandler {
 
     @Autowired()
     @Qualifier("agentInfoHandler")
-    private SimpleHandler agentInfoHandler;
+    private AgentInfoHandler agentInfoHandler;
 
     @Autowired()
     @Qualifier("sqlMetaDataHandler")
@@ -46,6 +49,9 @@ public class TcpDispatchHandler extends AbstractDispatchHandler {
         }
         if (tBase instanceof TStringMetaData) {
             return stringMetaDataHandler;
+        }
+        if (tBase instanceof TAgentInfo) {
+        	return agentInfoHandler;
         }
         return null;
     }

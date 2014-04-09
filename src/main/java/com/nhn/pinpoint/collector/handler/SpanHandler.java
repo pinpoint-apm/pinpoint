@@ -38,7 +38,7 @@ public class SpanHandler implements SimpleHandler {
 	@Autowired
 	private HostApplicationMapDao hostApplicationMapDao;
 
-	public void handler(TBase<?, ?> tbase) {
+	public void handleSimple(TBase<?, ?> tbase) {
 
 		if (!(tbase instanceof TSpan)) {
 			throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + this.getClass().getName());

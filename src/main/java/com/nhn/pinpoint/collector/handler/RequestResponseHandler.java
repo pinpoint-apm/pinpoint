@@ -5,8 +5,11 @@ import org.springframework.stereotype.Service;
 
 /**
  * @author emeroad
+ * @author koo.taejin
  */
 @Service
 public interface RequestResponseHandler {
-    TBase<?, ?> handler(TBase<?, ?> tbase);
+	
+    TBase<?, ?> handleRequest(TBase<?, ?> tbase);
+    
 }

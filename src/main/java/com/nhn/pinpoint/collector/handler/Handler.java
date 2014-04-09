@@ -2,11 +2,12 @@ package com.nhn.pinpoint.collector.handler;
 
 import org.apache.thrift.TBase;
 
-import java.net.DatagramPacket;
-
 /**
  * @author emeroad
+ * @author koo.taejin
  */
 public interface Handler {
-    void handler(TBase<?, ?> tbase, byte[] packet, int offset, int length);
+	
+    void handle(TBase<?, ?> tbase, byte[] packet, int offset, int length);
+    
 }

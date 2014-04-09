@@ -279,7 +279,7 @@ public class UDPReceiver implements DataReceiver {
                     return;
                 }
                 // dispatch는 비지니스 로직 실행을 의미.
-                dispatchHandler.dispatch(tBase, packet.getData(), Header.HEADER_SIZE, packet.getLength());
+                dispatchHandler.dispatchSendMessage(tBase, packet.getData(), Header.HEADER_SIZE, packet.getLength());
             } catch (TException e) {
                 if (logger.isWarnEnabled()) {
                     logger.warn("packet serialize error. SendSocketAddress:{} Cause:{}", packet.getSocketAddress(), e.getMessage(), e);

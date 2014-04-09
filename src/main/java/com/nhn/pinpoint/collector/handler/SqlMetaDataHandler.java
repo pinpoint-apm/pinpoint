@@ -21,7 +21,7 @@ public class SqlMetaDataHandler implements RequestResponseHandler {
 	private SqlMetaDataDao sqlMetaDataDao;
 
 	@Override
-	public TBase<?, ?> handler(TBase<?, ?> tbase) {
+	public TBase<?, ?> handleRequest(TBase<?, ?> tbase) {
 		if (!(tbase instanceof TSqlMetaData)) {
 			logger.error("invalid tbase:{}", tbase);
 			return null;

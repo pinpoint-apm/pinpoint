@@ -21,7 +21,7 @@ public class ApiMetaDataHandler implements RequestResponseHandler {
 	private ApiMetaDataDao sqlMetaDataDao;
 
 	@Override
-	public TBase<?, ?> handler(TBase<?, ?> tbase) {
+	public TBase<?, ?> handleRequest(TBase<?, ?> tbase) {
 		if (!(tbase instanceof TApiMetaData)) {
 			logger.error("invalid tbase:{}", tbase);
 			return null;
