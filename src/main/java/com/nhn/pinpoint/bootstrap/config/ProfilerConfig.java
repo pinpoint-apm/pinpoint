@@ -78,6 +78,11 @@ public class ProfilerConfig {
     private int ningAsyncHttpClientProfileParamDumpSize = 1024;
     private int ningAsyncHttpClientProfileParamSamplingRate = 1;
 
+    // FIXME 임시
+    // line game netty config
+    private int lineGameNettyParamDumpSize = 512;
+    private int lineGameNettyEntityDumpSize = 512;
+    
     // 전역 샘플링
     private boolean samplingEnable = true;
     private int samplingRate = 1;
@@ -382,8 +387,16 @@ public class ProfilerConfig {
 	public int getNingAsyncHttpClientProfileParamSamplingRate() {
 		return ningAsyncHttpClientProfileParamSamplingRate;
 	}
-    
-    /**
+	
+    public int getLineGameNettyParamDumpSize() {
+		return lineGameNettyParamDumpSize;
+	}
+
+	public int getLineGameNettyEntityDumpSize() {
+		return lineGameNettyEntityDumpSize;
+	}
+
+	/**
      * TODO remove this. 테스트 장비에서 call stack view가 잘 보이는지 테스트 하려고 추가함.
      *
      * @param className
@@ -488,6 +501,13 @@ public class ProfilerConfig {
         this.ningAsyncHttpClientProfileParamDumpSize = readInt(prop, "profiler.ning.asynchttpclient.param.dumpsize", 1024);
         this.ningAsyncHttpClientProfileParamSamplingRate = readInt(prop, "profiler.asynchttpclient.param.sampling.rate", 1);
 
+        //
+        // FIXME 임시용, line game netty configuration
+        //
+        this.lineGameNettyParamDumpSize = readInt(prop, "profiler.line.game.netty.param.dumpsize", 512);
+        this.lineGameNettyEntityDumpSize = readInt(prop, "profiler.line.game.netty.entity.dumpsize", 512);
+        
+        
         this.samplingEnable = readBoolean(prop, "profiler.sampling.enable", true);
         this.samplingRate = readInt(prop, "profiler.sampling.rate", 1);
 
