@@ -72,14 +72,14 @@ public class ApplicationMap {
         return nodeList.containsNode(application);
     }
 
-    public void appendAgentInfo(LinkDataDuplexMap linkStatisticsData, AgentInfoService agentInfoService) {
+    public void appendAgentInfo(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService) {
         for (Node node : nodeList.getNodeList()) {
-            appendServerInfo(node, linkStatisticsData, agentInfoService);
+            appendServerInfo(node, linkDataDuplexMap, agentInfoService);
         }
 
     }
 
-    private void appendServerInfo(Node node, LinkDataDuplexMap stat, AgentInfoService agentInfoService) {
+    private void appendServerInfo(Node node, LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService) {
         final ServiceType nodeServiceType = node.getServiceType();
         if (nodeServiceType.isUnknown()) {
             // unknown노드는 무엇이 설치되어있는지 알수가 없음.
@@ -89,8 +89,7 @@ public class ApplicationMap {
         if (nodeServiceType.isTerminal()) {
             // terminal노드에 설치되어 있는 정보를 유추한다.
             ServerBuilder builder = new ServerBuilder();
-            Collection<LinkData> sourceLinkStatData = stat.getSourceLinkDataList();
-            for (LinkData linkData : sourceLinkStatData) {
+            for (LinkData linkData : linkDataDuplexMap.getSourceLinkDataList()) {
                 Application toApplication = linkData.getToApplication();
                 if (node.getApplication().equals(toApplication)) {
                     builder.addCallHistogramList(linkData.getTargetList());

@@ -18,13 +18,6 @@ public class LinkDataDuplexMap {
         this.targetLinkDataMap = new LinkDataMap();
 	}
 
-    public LinkDataDuplexMap(LinkDataMap sourceLinkDataMap) {
-        if (sourceLinkDataMap == null) {
-            throw new NullPointerException("sourceLinkDataMap must not be null");
-        }
-        this.sourceLinkDataMap = new LinkDataMap(sourceLinkDataMap);
-        this.targetLinkDataMap = new LinkDataMap();
-    }
 
     public LinkDataMap getSourceLinkDataMap() {
         return sourceLinkDataMap;
@@ -43,8 +36,7 @@ public class LinkDataDuplexMap {
     }
 
 
-
-    public void addLinkStatisticsDataSet(LinkDataDuplexMap linkDataDuplexMap) {
+    public void addLinkDataDuplexMap(LinkDataDuplexMap linkDataDuplexMap) {
         if (linkDataDuplexMap == null) {
             throw new NullPointerException("linkDataDuplexMap must not be null");
         }

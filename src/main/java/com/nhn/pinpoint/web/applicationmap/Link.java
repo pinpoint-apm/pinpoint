@@ -29,7 +29,7 @@ public class Link {
 
     // 링크를 생성한 데이터의 주체가 누구인가를 나타냄
     // source에 의해서 먼저 생성된것인지, target에 의해서 수동적으로 생성된것인지 나타낸다.
-    private CreateType createType;
+    private final CreateType createType;
     private final Node fromNode;
     private final Node toNode;
 
@@ -120,12 +120,12 @@ public class Link {
 
 	public Histogram getHistogram() {
         if (linkHistogram == null) {
-            linkHistogram = createLinkHistogram();
+            linkHistogram = createHistogram0();
         }
         return linkHistogram;
 	}
 
-    private Histogram createLinkHistogram() {
+    private Histogram createHistogram0() {
         // 내가 호출하는 대상의 serviceType을 가져와야 한다.
         // tomcat -> arcus를 호출한다고 하였을 경우 arcus의 타입을 가져와야함.
         final Histogram linkHistogram = new Histogram(toNode.getServiceType());
@@ -184,7 +184,7 @@ public class Link {
 
     }
 
-    public ApplicationTimeSeriesHistogram getSourceApplicationTimeSeriesHistogramData() {
+    private ApplicationTimeSeriesHistogram getSourceApplicationTimeSeriesHistogramData() {
         // form인것 같지만 link의 시간은 rpc를 기준으로 삼아야 하기 때문에. to를 기준으로 삼아야 한다.
         ApplicationTimeSeriesHistogramBuilder builder = new ApplicationTimeSeriesHistogramBuilder(toNode.getApplication(), range);
         return builder.build(sourceLinkCallDataMap.getRawCallDataMap());

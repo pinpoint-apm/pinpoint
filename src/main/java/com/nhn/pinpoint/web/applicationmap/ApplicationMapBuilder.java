@@ -136,18 +136,19 @@ public class ApplicationMapBuilder {
                 continue;
             }
 
-            // RPC client인 경우 dest application이 이미 있으면 삭제, 없으면 unknown cloud로 변경.
-            final Link link = new Link(CreateType.Source, fromNode, toNode, range);
-
+            // RPC client인 경우 dest application이 이미 있으면 삭제, 없으면 unknown cloud로 변경
+            // 여기서 RPC가 나올일이 없지 않나하는데. 먼저 앞단에서 Unknown노드로 변경시킴.
             if (toNode.getServiceType().isRpcClient()) {
                 if (!map.containsNode(toNode.getApplication())) {
-                    if (!linkList.containsNode(link.getLinkKey())) {
-                        logger.debug("createSourceLink:{}", link);
+                    final Link link = new Link(CreateType.Source, fromNode, toNode, range);
+                    if (!linkList.containsNode(link)) {
+                        logger.debug("createRpcSourceLink:{}", link);
                         linkList.addLink(link);
                     }
                 }
             } else {
-                if (!linkList.containsNode(link.getLinkKey())) {
+                final Link link = new Link(CreateType.Source, fromNode, toNode, range);
+                if (!linkList.containsNode(link)) {
                     logger.debug("createSourceLink:{}", link);
                     linkList.addLink(link);
                 }
@@ -172,16 +173,18 @@ public class ApplicationMapBuilder {
             }
 
             // RPC client인 경우 dest application이 이미 있으면 삭제, 없으면 unknown cloud로 변경.
-            Link link = new Link(CreateType.Target, fromNode, toNode, range);
             if (toNode.getServiceType().isRpcClient()) {
+                // to 노드가 존재하는지 검사?
                 if (!map.containsNode(toNode.getApplication())) {
-                    if (!linkList.containsNode(link.getLinkKey())) {
-                        logger.debug("createTargetLink:{}", link);
+                    Link link = new Link(CreateType.Target, fromNode, toNode, range);
+                    if (!linkList.containsNode(link)) {
+                        logger.debug("createRpcTargetLink:{}", link);
                         linkList.addLink(link);
                     }
                 }
             } else {
-                if (!linkList.containsNode(link.getLinkKey())) {
+                Link link = new Link(CreateType.Target, fromNode, toNode, range);
+                if (!linkList.containsNode(link)) {
                     logger.debug("createTargetLink:{}", link);
                     linkList.addLink(link);
                 }

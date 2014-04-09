@@ -76,7 +76,6 @@ public class AgentTimeSeriesHistogramBuilder {
             List<TimeHistogram> sourceHistogramList = agentLevelMap.get(linkCallData.getSource());
             if (sourceHistogramList == null) {
                 sourceHistogramList = new ArrayList<TimeHistogram>();
-                logger.debug("-----------source:{}, target:{}", linkCallData.getSource(), linkCallData.getTarget());
                 agentLevelMap.put(linkCallData.getSource(), sourceHistogramList);
             }
             // 주의 copy본이 아니라 원본 수정시 데이터가 틀릴수 있음.

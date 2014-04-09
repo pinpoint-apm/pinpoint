@@ -81,11 +81,11 @@ public class LinkList {
         return this.linkMap.put(linkId, link) == null;
     }
 
-    public boolean containsNode(LinkKey linkKey) {
-        if (linkKey == null) {
+    public boolean containsNode(Link link) {
+        if (link == null) {
             throw new NullPointerException("linkKey must not be null");
         }
-        return linkMap.containsKey(linkKey);
+        return linkMap.containsKey(link.getLinkKey());
     }
 
     public int size() {

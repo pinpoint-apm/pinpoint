@@ -75,14 +75,14 @@ public class MapServiceImpl implements MapService {
             LinkDataDuplexMap callerSub = selectCaller(toApplication, range, linkVisitChecker);
             logger.debug("     Found subCaller. count={}, caller={}", callerSub.size(), toApplication);
 
-            resultCaller.addLinkStatisticsDataSet(callerSub);
+            resultCaller.addLinkDataDuplexMap(callerSub);
 
             // 찾아진 녀석들에 대한 caller도 찾는다.
             for (LinkData eachCaller : callerSub.getSourceLinkDataList()) {
                 logger.debug("     Find callee of {}", eachCaller.getFromApplication());
                 LinkDataDuplexMap calleeSub = selectCallee(eachCaller.getFromApplication(), range, linkVisitChecker);
                 logger.debug("     Found subCallee. count={}, callee={}", calleeSub.size(), eachCaller.getFromApplication());
-                resultCaller.addLinkStatisticsDataSet(calleeSub);
+                resultCaller.addLinkDataDuplexMap(calleeSub);
             }
         }
 
@@ -111,7 +111,7 @@ public class MapServiceImpl implements MapService {
 
             // 나를 부른 application을 찾아야 하기 떄문에 to를 입력.
             LinkDataDuplexMap calleeSub = selectCallee(stat.getFromApplication(), range, linkVisitChecker);
-            calleeSet.addLinkStatisticsDataSet(calleeSub);
+            calleeSet.addLinkDataDuplexMap(calleeSub);
 
             // 찾아진 녀석들에 대한 callee도 찾는다.
             for (LinkData eachCallee : calleeSub.getTargetLinkDataList()) {
@@ -121,7 +121,7 @@ public class MapServiceImpl implements MapService {
                     continue;
                 }
                 LinkDataDuplexMap callerSub = selectCaller(eachCalleeToApplication, range, linkVisitChecker);
-                calleeSet.addLinkStatisticsDataSet(callerSub);
+                calleeSet.addLinkDataDuplexMap(callerSub);
             }
         }
 
@@ -132,7 +132,7 @@ public class MapServiceImpl implements MapService {
         // rpc client의 목적지가 agent가 설치되어 application name이 존재한다면 replace.
         final Application toApplication = stat.getToApplication();
         if (toApplication.getServiceType().isRpcClient()) {
-            logger.debug("Find applicationName {} {}", toApplication, range);
+            logger.debug("Find applicationName:{} {}", toApplication, range);
             final Application app = hostApplicationMapDao.findApplicationName(toApplication.getName(), range);
             if (app != null) {
                 logger.debug("Application info replaced. {} => {}", stat, app);
@@ -174,8 +174,8 @@ public class MapServiceImpl implements MapService {
         logger.debug("Result of finding callee {}", callee);
 
         LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
-        linkDataDuplexMap.addLinkStatisticsDataSet(caller);
-        linkDataDuplexMap.addLinkStatisticsDataSet(callee);
+        linkDataDuplexMap.addLinkDataDuplexMap(caller);
+        linkDataDuplexMap.addLinkDataDuplexMap(callee);
 
         ApplicationMapBuilder builder = new ApplicationMapBuilder(range);
         ApplicationMap map = builder.build(linkDataDuplexMap, agentInfoService);
