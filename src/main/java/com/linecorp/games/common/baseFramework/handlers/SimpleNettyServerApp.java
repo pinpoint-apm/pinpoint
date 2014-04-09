@@ -1,4 +1,4 @@
-package com.nhn.pinpointtest;
+package com.linecorp.games.common.baseFramework.handlers;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.CountDownLatch;
@@ -35,7 +35,7 @@ public class SimpleNettyServerApp {
 
 	static final Logger logger = LoggerFactory.getLogger(SimpleNettyServerApp.class);
 	static final int SERVER_PORT = 2222;
-	static final int CLIENT_COUNT = 10;
+	static final int CLIENT_COUNT = 1;
 
 	public static void main(String[] args) {
 		try {
@@ -59,6 +59,9 @@ public class SimpleNettyServerApp {
 							startLatch.await();
 							Response response = invoker.requestGet("http://localhost:" + SERVER_PORT, AsyncHttpInvoker.getDummyParams(), AsyncHttpInvoker.getDummyHeaders(), AsyncHttpInvoker.getDummyCookies());
 							logger.info(response.getResponseBody());
+
+							Response response2 = invoker.requestPost("http://localhost:" + SERVER_PORT, AsyncHttpInvoker.getDummyHeaders(), "I_AM_BODY");
+							logger.info(response2.getResponseBody());
 						} catch (Exception e) {
 							e.printStackTrace();
 						} finally {
@@ -70,13 +73,16 @@ public class SimpleNettyServerApp {
 			startLatch.countDown();
 			stopLatch.await();
 
-			bootstrap.shutdown();
-			executor.shutdown();
-
+			// bootstrap.shutdown();
+			// executor.shutdown();
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			logger.info("TEST END");
+			logger.info("TEST END. awaiting other requests.");
+			try {
+				Thread.sleep(Long.MAX_VALUE);
+			} catch (InterruptedException e) {
+			}
 		}
 	}
 

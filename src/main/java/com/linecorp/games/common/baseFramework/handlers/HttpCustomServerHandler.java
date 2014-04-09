@@ -1,4 +1,4 @@
-package com.nhn.pinpointtest;
+package com.linecorp.games.common.baseFramework.handlers;
 
 import static org.jboss.netty.handler.codec.http.HttpHeaders.isKeepAlive;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.CONNECTION;
@@ -17,6 +17,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
+import net.spy.memcached.ArcusClient;
+import net.spy.memcached.ConnectionFactoryBuilder;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -45,20 +50,46 @@ import org.springframework.core.convert.ConverterNotFoundException;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.nhn.pinpoint.testweb.util.AsyncHttpInvoker;
+import com.ning.http.client.Response;
 
 public class HttpCustomServerHandler extends SimpleChannelUpstreamHandler {
 	private static final Logger logger = LoggerFactory.getLogger(HttpCustomServerHandler.class.getName());
 
-	private ListeningExecutorService listeningExecutorService;
+	private final ListeningExecutorService listeningExecutorService;
+
+	private final ArcusClient arcus;
+	private final AsyncHttpInvoker asyncHttpInvoker = new AsyncHttpInvoker();
 
 	public HttpCustomServerHandler() {
 		this.listeningExecutorService = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
+		this.arcus = ArcusClient.createArcusClient("dev.arcuscloud.nhncorp.com:17288", "dev", new ConnectionFactoryBuilder());
 	}
 
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
 		System.out.println("HttpCustomServerHandler.messageReceived (" + Thread.currentThread().getName() + ")");
 		this.listeningExecutorService.submit(new InvokeTask(ctx, e));
+	}
+
+	private void accessArcus() {
+		Future<Boolean> future = null;
+		try {
+			future = arcus.set("pinpoint:test", 10, "Hello, Arcus");
+			future.get(100L, TimeUnit.MILLISECONDS);
+		} catch (Exception e) {
+			if (future != null) {
+				future.cancel(true);
+			}
+		}
+	}
+
+	private void accessNaver() {
+		asyncHttpInvoker.requestGet("http://blog.naver.com", AsyncHttpInvoker.getDummyParams(), AsyncHttpInvoker.getDummyHeaders(), AsyncHttpInvoker.getDummyCookies());
+	}
+
+	private void accessPinPointDev() {
+		asyncHttpInvoker.requestGet("http://10.101.55.177:9080/threetier.pinpoint", null, null, null);
 	}
 
 	private class InvokeTask implements Runnable {
@@ -83,7 +114,7 @@ public class HttpCustomServerHandler extends SimpleChannelUpstreamHandler {
 			HttpRequest request = (HttpRequest) e.getMessage();
 
 			// intercept
-			
+
 			try {
 				StringBuilder buf = new StringBuilder();
 
@@ -104,7 +135,7 @@ public class HttpCustomServerHandler extends SimpleChannelUpstreamHandler {
 					ChannelBuffer content = request.getContent();
 
 					// invoke bo (async ??)
-					
+
 					buf.append("HelloNetty");
 
 					if (content.readable()) {
@@ -129,6 +160,11 @@ public class HttpCustomServerHandler extends SimpleChannelUpstreamHandler {
 					status = HttpResponseStatus.METHOD_NOT_ALLOWED;
 					buf.append(getResultString(status.getCode(), "method not supports"));
 				}
+
+				// for demo
+				accessArcus();
+				accessNaver();
+				accessPinPointDev();
 
 				writeResponse(request, e, status, reponseHeader, buf);
 			} catch (Exception ex) {
