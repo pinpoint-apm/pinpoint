@@ -46,8 +46,8 @@ import com.nhn.pinpoint.profiler.modifier.db.oracle.OracleDriverModifier;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.OraclePreparedStatementWrapperModifier;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.OracleStatementWrapperModifier;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.PhysicalConnectionModifier;
+import com.nhn.pinpoint.profiler.modifier.linegame.HandlerInvokeTaskModifier;
 import com.nhn.pinpoint.profiler.modifier.method.MethodModifier;
-import com.nhn.pinpoint.profiler.modifier.netty.HandlerModifier;
 import com.nhn.pinpoint.profiler.modifier.servlet.HttpServletModifier;
 import com.nhn.pinpoint.profiler.modifier.servlet.SpringFrameworkServletModifier;
 import com.nhn.pinpoint.profiler.modifier.tomcat.CatalinaModifier;
@@ -307,7 +307,10 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		addModifier(new CompositeInvocationFutureModifier(byteCodeInstrumentor, agent));
 	}
 	
-	public void addNettyModifier() {
-		addModifier(new HandlerModifier(byteCodeInstrumentor, agent));
+	/**
+	 * line game에서 사용하는 baseframework의 http handler를 지원.
+	 */
+	public void addLineGameBaseFrameworkModifier() {
+		addModifier(new HandlerInvokeTaskModifier(byteCodeInstrumentor, agent));
 	}
 }

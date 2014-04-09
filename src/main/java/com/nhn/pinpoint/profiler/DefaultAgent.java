@@ -1,44 +1,47 @@
 package com.nhn.pinpoint.profiler;
 
-import com.nhn.pinpoint.ProductInfo;
-import com.nhn.pinpoint.bootstrap.Agent;
-import com.nhn.pinpoint.bootstrap.context.TraceContext;
-import com.nhn.pinpoint.common.PinpointConstants;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.Version;
-import com.nhn.pinpoint.common.util.BytesUtils;
-import com.nhn.pinpoint.exception.PinpointException;
-import com.nhn.pinpoint.profiler.context.*;
-import com.nhn.pinpoint.bootstrap.logging.PLogger;
-import com.nhn.pinpoint.bootstrap.logging.PLoggerBinder;
-import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.nhn.pinpoint.profiler.modifier.arcus.ArcusMethodFilter;
-import com.nhn.pinpoint.profiler.sender.EnhancedDataSender;
-import com.nhn.pinpoint.profiler.util.ApplicationServerTypeResolver;
-import com.nhn.pinpoint.profiler.util.PreparedStatementUtils;
-import com.nhn.pinpoint.profiler.util.RuntimeMXBeanUtils;
-import com.nhn.pinpoint.rpc.ClassPreLoader;
-import com.nhn.pinpoint.thrift.dto.TAgentInfo;
-import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
-import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
-import com.nhn.pinpoint.profiler.monitor.AgentStatMonitor;
-import com.nhn.pinpoint.bootstrap.sampler.Sampler;
-import com.nhn.pinpoint.profiler.sampler.SamplerFactory;
-import com.nhn.pinpoint.profiler.sender.DataSender;
-import com.nhn.pinpoint.profiler.sender.TcpDataSender;
-import com.nhn.pinpoint.profiler.sender.UdpDataSender;
-import com.nhn.pinpoint.bootstrap.util.NetworkUtils;
-import com.nhn.pinpoint.thrift.dto.TResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.nhn.pinpoint.ProductInfo;
+import com.nhn.pinpoint.bootstrap.Agent;
+import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
+import com.nhn.pinpoint.bootstrap.context.TraceContext;
+import com.nhn.pinpoint.bootstrap.logging.PLogger;
+import com.nhn.pinpoint.bootstrap.logging.PLoggerBinder;
+import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.nhn.pinpoint.bootstrap.sampler.Sampler;
+import com.nhn.pinpoint.bootstrap.util.NetworkUtils;
+import com.nhn.pinpoint.common.PinpointConstants;
+import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.Version;
+import com.nhn.pinpoint.common.util.BytesUtils;
+import com.nhn.pinpoint.exception.PinpointException;
+import com.nhn.pinpoint.profiler.context.DefaultTraceContext;
+import com.nhn.pinpoint.profiler.context.SpanStorageFactory;
+import com.nhn.pinpoint.profiler.context.StorageFactory;
+import com.nhn.pinpoint.profiler.context.TimeBaseStorageFactory;
+import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
+import com.nhn.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
+import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
+import com.nhn.pinpoint.profiler.modifier.arcus.ArcusMethodFilter;
+import com.nhn.pinpoint.profiler.monitor.AgentStatMonitor;
+import com.nhn.pinpoint.profiler.sampler.SamplerFactory;
+import com.nhn.pinpoint.profiler.sender.DataSender;
+import com.nhn.pinpoint.profiler.sender.EnhancedDataSender;
+import com.nhn.pinpoint.profiler.sender.TcpDataSender;
+import com.nhn.pinpoint.profiler.sender.UdpDataSender;
+import com.nhn.pinpoint.profiler.util.ApplicationServerTypeResolver;
+import com.nhn.pinpoint.profiler.util.PreparedStatementUtils;
+import com.nhn.pinpoint.profiler.util.RuntimeMXBeanUtils;
+import com.nhn.pinpoint.rpc.ClassPreLoader;
+import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 
 /**
  * @author emeroad
@@ -125,6 +128,16 @@ public class DefaultAgent implements Agent {
         this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId(), this.agentInformation.getStartTime());
 
         preLoadClass();
+        
+        /**
+         * FIXME
+         * tomcat의 경우에는 com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.CatalinaAwaitInterceptor가
+         * org/apache/catalina/startup/Catalina/await함수가 실행되기 전에 실행해주나.
+         * stand alone application은 그렇지 않으므로..
+         */
+        if (agentInformation.getServerType() == ServiceType.STAND_ALONE.getCode()) {
+        	started();
+        }
     }
 
     private void preLoadClass() {

@@ -141,8 +141,8 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         // lucy-net
         modifierRepository.addLucyNetModifier();
         
-        // netty
-        modifierRepository.addNettyModifier();
+        // LINE Game baseframework
+        modifierRepository.addLineGameBaseFrameworkModifier();
         
         return modifierRepository;
     }
