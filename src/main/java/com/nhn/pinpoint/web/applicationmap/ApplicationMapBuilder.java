@@ -1,14 +1,20 @@
 package com.nhn.pinpoint.web.applicationmap;
 
+import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.bo.AgentInfoBo;
+import com.nhn.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataMap;
+import com.nhn.pinpoint.web.dao.MapResponseDao;
 import com.nhn.pinpoint.web.service.AgentInfoService;
-import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.web.vo.LinkKey;
-import com.nhn.pinpoint.web.vo.Range;
+import com.nhn.pinpoint.web.vo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author emeroad
@@ -27,7 +33,7 @@ public class ApplicationMapBuilder {
         this.range = range;
     }
 
-    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService) {
+    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService, ResponseDataSource responseDataSource) {
         if (linkDataDuplexMap == null) {
             throw new NullPointerException("linkDataMap must not be null");
         }
@@ -35,28 +41,57 @@ public class ApplicationMapBuilder {
             throw new NullPointerException("agentInfoService must not be null");
         }
 
-
-        final ApplicationMap map = new ApplicationMap(range);
-        buildNode(map, linkDataDuplexMap, agentInfoService);
-
-        buildLink(map, linkDataDuplexMap);
+        NodeList nodeList = buildNode(linkDataDuplexMap);
+        LinkList linkList = buildLink(nodeList, linkDataDuplexMap);
 
 
+        appendResponseTime(nodeList, linkList, responseDataSource);
+        // agentInfo를 넣는다.
+        appendAgentInfo(nodeList, linkDataDuplexMap, agentInfoService);
+
+        final ApplicationMap map = new ApplicationMap(range, nodeList, linkList);
         return map;
     }
 
-    private void buildNode(ApplicationMap map, LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService) {
+
+    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService, final MapResponseDao mapResponseDao) {
+        ResponseDataSource responseSource = new ResponseDataSource() {
+            @Override
+            public ResponseHistogramSummary getResponseHistogramSummary(Application application) {
+                final List<ResponseTime> responseHistogram = mapResponseDao.selectResponseTime(application, range);
+                final ResponseHistogramSummary histogramSummary = new ResponseHistogramSummary(application, range, responseHistogram);
+                return histogramSummary;
+            }
+        };
+        return this.build(linkDataDuplexMap, agentInfoService, responseSource);
+    }
+
+    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService, final MapResponseHistogramSummary mapHistogramSummary) {
+        ResponseDataSource responseSource = new ResponseDataSource() {
+            @Override
+            public ResponseHistogramSummary getResponseHistogramSummary(Application application) {
+                List<ResponseTime> responseHistogram = mapHistogramSummary.getResponseTimeList(application);
+                final ResponseHistogramSummary histogramSummary = new ResponseHistogramSummary(application, range, responseHistogram);
+                return histogramSummary;
+            }
+        };
+        return this.build(linkDataDuplexMap, agentInfoService, responseSource);
+    }
+
+    public interface ResponseDataSource {
+        ResponseHistogramSummary getResponseHistogramSummary(Application application);
+    }
+
+
+    private NodeList buildNode(LinkDataDuplexMap linkDataDuplexMap) {
         NodeList nodeList = new NodeList();
         createNode(nodeList, linkDataDuplexMap.getSourceLinkDataMap());
         logger.debug("node size:{}", nodeList.size());
         createNode(nodeList, linkDataDuplexMap.getTargetLinkDataMap());
         logger.debug("node size:{}", nodeList.size());
-        map.addNodeList(nodeList);
 
-
-        // agentInfo를 넣는다.
-        map.appendAgentInfo(linkDataDuplexMap, agentInfoService);
-        logger.debug("allNode:{}", map.getNodes());
+        logger.debug("allNode:{}", nodeList.getNodeList());
+        return nodeList;
     }
 
     private void createNode(NodeList nodeList, LinkDataMap linkDataMap) {
@@ -98,20 +133,18 @@ public class ApplicationMapBuilder {
         return nodeList.addNode(fromNode);
     }
 
-    private void buildLink(ApplicationMap map, LinkDataDuplexMap linkDataDuplexMap) {
+    private LinkList buildLink(NodeList nodeList, LinkDataDuplexMap linkDataDuplexMap) {
         // 변경하면 안됨.
         LinkList linkList = new LinkList();
-        createSourceLink(linkList, linkDataDuplexMap.getSourceLinkDataMap(), map);
+        createSourceLink(nodeList, linkList, linkDataDuplexMap.getSourceLinkDataMap());
         logger.debug("link size:{}", linkList.size());
-        createTargetLink(linkList, linkDataDuplexMap.getTargetLinkDataMap(), map);
+        createTargetLink(nodeList, linkList, linkDataDuplexMap.getTargetLinkDataMap());
         logger.debug("link size:{}", linkList.size());
-        map.addLinkList(linkList);
 
-
-        for (Link link : map.getLinks()) {
+        for (Link link : linkList.getLinkList()) {
             appendLinkHistogram(link, linkDataDuplexMap);
         }
-
+        return linkList;
     }
 
     private void appendLinkHistogram(Link link, LinkDataDuplexMap linkDataDuplexMap) {
@@ -128,14 +161,14 @@ public class ApplicationMapBuilder {
         }
     }
 
-    private void createSourceLink(LinkList linkList, LinkDataMap linkDataMap, ApplicationMap map) {
+    private void createSourceLink(NodeList nodeList, LinkList linkList, LinkDataMap linkDataMap) {
 
         for (LinkData linkData : linkDataMap.getLinkDataList()) {
             final Application fromApplicationId = linkData.getFromApplication();
-            Node fromNode = map.findNode(fromApplicationId);
+            Node fromNode = nodeList.findNode(fromApplicationId);
 
             final Application toApplicationId = linkData.getToApplication();
-            Node toNode = map.findNode(toApplicationId);
+            Node toNode = nodeList.findNode(toApplicationId);
 
             // rpc client가 빠진경우임.
             if (toNode == null) {
@@ -146,7 +179,7 @@ public class ApplicationMapBuilder {
             // RPC client인 경우 dest application이 이미 있으면 삭제, 없으면 unknown cloud로 변경
             // 여기서 RPC가 나올일이 없지 않나하는데. 먼저 앞단에서 Unknown노드로 변경시킴.
             if (toNode.getServiceType().isRpcClient()) {
-                if (!map.containsNode(toNode.getApplication())) {
+                if (!nodeList.containsNode(toNode.getApplication())) {
                     final Link link = addLink(linkList, fromNode, toNode, CreateType.Source);
                     if (link != null) {
                         logger.debug("createRpcSourceLink:{}", link);
@@ -168,18 +201,17 @@ public class ApplicationMapBuilder {
         } else {
             return null;
         }
-
     }
 
 
-    private void createTargetLink(LinkList linkList, LinkDataMap rawData, ApplicationMap map) {
+    private void createTargetLink(NodeList nodeList, LinkList linkList, LinkDataMap linkDataMap) {
 
-        for (LinkData linkData : rawData.getLinkDataList()) {
+        for (LinkData linkData : linkDataMap.getLinkDataList()) {
             final Application fromApplicationId = linkData.getFromApplication();
-            Node fromNode = map.findNode(fromApplicationId);
+            Node fromNode = nodeList.findNode(fromApplicationId);
             // TODO
             final Application toApplicationId = linkData.getToApplication();
-            Node toNode = map.findNode(toApplicationId);
+            Node toNode = nodeList.findNode(toApplicationId);
 
             // rpc client가 빠진경우임.
             if (fromNode == null) {
@@ -190,7 +222,7 @@ public class ApplicationMapBuilder {
             // RPC client인 경우 dest application이 이미 있으면 삭제, 없으면 unknown cloud로 변경.
             if (toNode.getServiceType().isRpcClient()) {
                 // to 노드가 존재하는지 검사?
-                if (!map.containsNode(toNode.getApplication())) {
+                if (!nodeList.containsNode(toNode.getApplication())) {
                     final Link link = addLink(linkList, fromNode, toNode, CreateType.Target);
                     if(link != null) {
                         logger.debug("createRpcTargetLink:{}", link);
@@ -205,9 +237,110 @@ public class ApplicationMapBuilder {
         }
     }
 
+    public void appendResponseTime(NodeList nodeList, LinkList linkList, ResponseDataSource responseDataSource) {
+        if (responseDataSource == null) {
+            throw new NullPointerException("responseDataSource must not be null");
+        }
+
+        final Collection<Node> nodes = nodeList.getNodeList();
+        for (Node node : nodes) {
+            if (node.getServiceType().isWas()) {
+                // was일 경우 자신의 response 히스토그램을 조회하여 채운다.
+                final Application nodeApplication = node.getApplication();
+                final ResponseHistogramSummary nodeHistogramSummary = responseDataSource.getResponseHistogramSummary(nodeApplication);
+                node.setResponseHistogramSummary(nodeHistogramSummary);
+            } else if(node.getServiceType().isTerminal() || node.getServiceType().isUnknown()) {
+                // 터미널 노드인경우, 자신을 가리키는 link값을 합하여 histogram을 생성한다.
+                final Application nodeApplication = node.getApplication();
+                final ResponseHistogramSummary nodeHistogramSummary = new ResponseHistogramSummary(nodeApplication, range);
+
+                final List<Link> toLinkList = linkList.findToLink(nodeApplication);
+                for (Link link : toLinkList) {
+                    nodeHistogramSummary.addHistogram(link.getHistogram());
+                }
 
 
+                LinkCallDataMap linkCallDataMap = new LinkCallDataMap();
+                for (Link link : toLinkList) {
+                    LinkCallDataMap sourceLinkCallDataMap = link.getSourceLinkCallDataMap();
+                    linkCallDataMap.addLinkDataMap(sourceLinkCallDataMap);
+                }
+                ApplicationTimeSeriesHistogramBuilder builder = new ApplicationTimeSeriesHistogramBuilder(nodeApplication, range);
+                ApplicationTimeSeriesHistogram applicationTimeSeriesHistogram = builder.build(linkCallDataMap.getRawCallDataMap());
+                nodeHistogramSummary.setApplicationTimeSeriesHistogram(applicationTimeSeriesHistogram);
 
+                node.setResponseHistogramSummary(nodeHistogramSummary);
+            } else if (node.getServiceType().isUser()) {
+                // User노드인 경우 source 링크를 찾아 histogram을 생성한다.
+                Application nodeApplication = node.getApplication();
+                final ResponseHistogramSummary nodeHistogramSummary = new ResponseHistogramSummary(nodeApplication, range);
+                final List<Link> fromLink = linkList.findFromLink(nodeApplication);
+                if (fromLink.size() > 1) {
+                    logger.warn("Invalid from UserNode:{}", linkList);
+                    throw new IllegalArgumentException("Invalid from UserNode.size() :" + fromLink.size());
+                } else if (fromLink.size() == 0) {
+                    logger.warn("from UserNode not found:{}", nodeApplication);
+                    continue;
+                }
+                final Link sourceLink = fromLink.get(0);
+                nodeHistogramSummary.addHistogram(sourceLink.getHistogram());
+
+                ApplicationTimeSeriesHistogram histogramData = sourceLink .getTargetApplicationTimeSeriesHistogramData();
+                nodeHistogramSummary.setApplicationTimeSeriesHistogram(histogramData);
+
+                node.setResponseHistogramSummary(nodeHistogramSummary);
+            } else {
+                // 그냥 데미 데이터
+                Application nodeApplication = new Application(node.getApplication().getName(), node.getServiceType());
+                ResponseHistogramSummary dummy = new ResponseHistogramSummary(nodeApplication, range);
+                node.setResponseHistogramSummary(dummy);
+            }
+
+        }
+
+    }
+
+    public void appendAgentInfo(NodeList nodeList, LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService) {
+        for (Node node : nodeList.getNodeList()) {
+            appendServerInfo(node, linkDataDuplexMap, agentInfoService);
+        }
+
+    }
+
+    private void appendServerInfo(Node node, LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService) {
+        final ServiceType nodeServiceType = node.getServiceType();
+        if (nodeServiceType.isUnknown()) {
+            // unknown노드는 무엇이 설치되어있는지 알수가 없음.
+            return;
+        }
+
+        if (nodeServiceType.isTerminal()) {
+            // terminal노드에 설치되어 있는 정보를 유추한다.
+            ServerBuilder builder = new ServerBuilder();
+            for (LinkData linkData : linkDataDuplexMap.getSourceLinkDataList()) {
+                Application toApplication = linkData.getToApplication();
+                if (node.getApplication().equals(toApplication)) {
+                    builder.addCallHistogramList(linkData.getTargetList());
+                }
+            }
+            ServerInstanceList serverInstanceList = builder.build();
+            node.setServerInstanceList(serverInstanceList);
+        } else if (nodeServiceType.isWas()) {
+            final Set<AgentInfoBo> agentList = agentInfoService.selectAgent(node.getApplication().getName(), range);
+            if (agentList.isEmpty()) {
+                return;
+            }
+            logger.debug("add agentInfo. {}, {}", node.getApplication(), agentList);
+            ServerBuilder builder = new ServerBuilder();
+
+            builder.addAgentInfo(agentList);
+            ServerInstanceList serverInstanceList = builder.build();
+
+            // destination이 WAS이고 agent가 설치되어있으면 agentSet이 존재한다.
+            node.setServerInstanceList(serverInstanceList);
+        }
+
+    }
 
 
 }

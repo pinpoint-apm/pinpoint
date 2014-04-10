@@ -265,10 +265,9 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         List<ApplicationScatterScanResult> applicationScatterScanResult = dotExtractor.getApplicationScatterScanResult();
 
         ApplicationMapBuilder applicationMapBuilder = new ApplicationMapBuilder(range);
-        ApplicationMap map = applicationMapBuilder.build(linkDataDuplexMap, agentInfoService);
-
         mapHistogramSummary.build();
-        map.appendResponseTime(mapHistogramSummary);
+        ApplicationMap map = applicationMapBuilder.build(linkDataDuplexMap, agentInfoService, mapHistogramSummary);
+
         map.setApplicationScatterScanResult(applicationScatterScanResult);
 
         return map;

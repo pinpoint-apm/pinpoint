@@ -178,9 +178,7 @@ public class MapServiceImpl implements MapService {
         linkDataDuplexMap.addLinkDataDuplexMap(callee);
 
         ApplicationMapBuilder builder = new ApplicationMapBuilder(range);
-        ApplicationMap map = builder.build(linkDataDuplexMap, agentInfoService);
-        // 이걸 builder쪽에 넣어야 될듯한데.
-        map.appendResponseTime(range, this.mapResponseDao);
+        ApplicationMap map = builder.build(linkDataDuplexMap, agentInfoService, this.mapResponseDao);
 
         watch.stop();
         logger.info("Fetch applicationmap elapsed. {}ms", watch.getLastTaskTimeMillis());
