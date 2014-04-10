@@ -1,6 +1,8 @@
 package com.nhn.pinpoint.profiler.sender;
 
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
+import com.nhn.pinpoint.profiler.sender.message.PinpointMessage;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * @author emeroad
  */
-public class AsyncQueueingExecutor<T> implements Runnable {
+public class AsyncQueueingExecutor<T extends PinpointMessage> implements Runnable {
 
     private static final AsyncQueueingExecutorListener EMPTY_LISTENER = new EmptyAsyncQueueingExecutorListener();
 
@@ -115,8 +117,7 @@ public class AsyncQueueingExecutor<T> implements Runnable {
     }
 
     public boolean execute(T data) {
-
-        if (data == null) {
+        if (data == null || data.getTBase() == null) {
             if (isWarn) {
                 logger.warn("execute(). data is null");
             }

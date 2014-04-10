@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.profiler.sender;
 
 
-import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -13,6 +12,9 @@ import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.nhn.pinpoint.profiler.sender.message.PinpointMessage;
+import com.nhn.pinpoint.profiler.sender.message.PinpointRequestMessage;
+import com.nhn.pinpoint.profiler.sender.message.PinpointSendMessage;
 import com.nhn.pinpoint.rpc.Future;
 import com.nhn.pinpoint.rpc.FutureListener;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
@@ -26,8 +28,9 @@ import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
 
 /**
  * @author emeroad
+ * @author koo.taejin
  */
-public class TcpDataSender implements EnhancedDataSender {
+public class TcpDataSender extends AbstractDataSender implements EnhancedDataSender {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     static {
@@ -47,7 +50,7 @@ public class TcpDataSender implements EnhancedDataSender {
 
     private final RetryQueue retryQueue = new RetryQueue();
 
-    private AsyncQueueingExecutor<Object> executor;
+    private AsyncQueueingExecutor<PinpointMessage> executor;
 
 
     public TcpDataSender(String host, int port) {
@@ -57,7 +60,56 @@ public class TcpDataSender implements EnhancedDataSender {
         writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", host, port);
         connect(host, port);
 
-        this.executor = getExecutor();
+        this.executor = createAsyncQueueingExecutor(1024 * 5, "Pinpoint-TcpDataExecutor");
+    }
+    
+    @Override
+    public boolean send(TBase<?, ?> data) {
+    	PinpointMessage message = new PinpointSendMessage(data, serializer);
+        return executor.execute(message);
+    }
+
+    @Override
+    public boolean request(TBase<?, ?> data) {
+        return this.request(data, 3);
+    }
+
+    @Override
+    public boolean request(TBase<?, ?> data, int retryCount) {
+    	PinpointMessage message = new PinpointRequestMessage(data, retryCount, serializer);
+        return executor.execute(message);
+    }
+
+    @Override
+    public void stop() {
+        executor.stop();
+        socket.close();
+        pinpointSocketFactory.release();
+    }
+
+    @Override
+    protected void sendPacket(PinpointMessage message) {
+        try {
+    		byte[] copy = message.serialize();
+            if (copy == null) {
+                return;
+            }
+
+            if (message instanceof PinpointSendMessage) {
+                doSend(copy);
+        	} else if (message instanceof PinpointRequestMessage) {
+                int retryCount = ((PinpointRequestMessage) message).getRetryCount();
+                TBase tBase = message.getTBase();
+                
+                doRequest(copy, retryCount, tBase);
+        	} else {
+                logger.error("sendPacket fail. invalid dto type:{}", message.getClass());
+                return;
+        	}
+        } catch (Exception e) {
+            // 일단 exception 계층이 좀 엉터리라 Exception으로 그냥 잡음.
+            logger.warn("tcp send fail. Caused:{}", e.getMessage(), e);
+        }
     }
 
     private void connect(String host, int port) {
@@ -74,69 +126,6 @@ public class TcpDataSender implements EnhancedDataSender {
         this.socket = pinpointSocketFactory.scheduledConnect(host, port);
     }
 
-    public AsyncQueueingExecutor<Object> getExecutor() {
-        final AsyncQueueingExecutor<Object> executor = new AsyncQueueingExecutor<Object>(1024 * 5, "Pinpoint-TcpDataExecutor");
-        executor.setListener(new AsyncQueueingExecutorListener<Object>() {
-            @Override
-            public void execute(Collection<Object> dtoList) {
-                sendPacketN(dtoList);
-            }
-
-            @Override
-            public void execute(Object dto) {
-                sendPacket(dto);
-            }
-        });
-        return executor;
-    }
-
-
-    private void sendPacketN(Collection<Object> dtoList) {
-        Object[] dataList = dtoList.toArray();
-//          일단 single thread에서 하는거라 구지 복사 안해도 될것 같음.
-//        Object[] copy = Arrays.copyOf(original, original.length);
-
-//        for (Object data : dataList) {
-//        이렇게 바꾸지 말것. copy해서 return 하는게 아니라 항상 max치가 나옴.
-            final int size = dtoList.size();
-            for (int i = 0; i < size; i++) {
-            try {
-                sendPacket(dataList[i]);
-            } catch (Throwable th) {
-                logger.warn("Unexpected Error. Cause:{}", th.getMessage(), th);
-            }
-        }
-
-    }
-
-    public void sendPacket(Object dto) {
-        try {
-            if (dto instanceof TBase) {
-                TBase<?, ?> tBase = (TBase<?, ?>) dto;
-                byte[] copy = serialize(tBase);
-                if (copy == null) {
-                    return;
-                }
-                doSend(copy);
-            } else if(dto instanceof RequestMarker) {
-                RequestMarker requestMarker = (RequestMarker) dto;
-                final TBase<?, ?> tBase = requestMarker.getTBase();
-                int retry = requestMarker.getRetryCount();
-                byte[] copy = serialize(tBase);
-                if (copy == null) {
-                    return;
-                }
-                doRequest(copy, retry, tBase);
-            } else {
-                logger.error("sendPacket fail. invalid dto type:{}", dto.getClass());
-                return;
-            }
-        } catch (Exception e) {
-            // 일단 exception 계층이 좀 엉터리라 Exception으로 그냥 잡음.
-            logger.warn("tcp send fail. Caused:{}", e.getMessage(), e);
-        }
-    }
-
     private void doSend(byte[] copy) {
         Future write = this.socket.sendAsync(copy);
         write.setListener(writeFailFutureListener);
@@ -149,7 +138,8 @@ public class TcpDataSender implements EnhancedDataSender {
             @Override
             public void onComplete(Future<ResponseMessage> future) {
                 if (future.isSuccess()) {
-                    TBase<?, ?> response = deserialize(future);
+                	HeaderTBaseDeserializer deserializer = HeaderTBaseSerDesFactory.getDeserializer();
+                    TBase<?, ?> response = deserialize(deserializer, future);
                     if (response instanceof TResult) {
                         TResult result = (TResult) response;
                         if (result.isSuccess()) {
@@ -208,70 +198,17 @@ public class TcpDataSender implements EnhancedDataSender {
         fireState.compareAndSet(true, false);
     }
 
-    private TBase<?, ?> deserialize(Future<ResponseMessage> future) {
-        byte[] message = future.getResult().getMessage();
-        // caching해야 될려나?
-        HeaderTBaseDeserializer deserializer = HeaderTBaseSerDesFactory.getDeserializer();
-        try {
-            return deserializer.deserialize(message);
-        } catch (TException e) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("Deserialize fail. Caused:{}", e.getMessage(), e);
-            }
-            return null;
-        }
-    }
-
-    private byte[] serialize(TBase<?, ?> dto) {
-        try {
-            return serializer.serialize(dto);
-        } catch (TException e) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("Serialize fail:{} Caused:{}", dto, e.getMessage(), e);
-            }
-            return null;
-        }
-    }
-
-    @Override
-    public boolean request(TBase<?, ?> data) {
-        return this.request(data, 3);
-    }
-
-    @Override
-    public boolean request(TBase<?, ?> data, int retryCount) {
-        RequestMarker requestMarker = new RequestMarker(data, retryCount);
-        return executor.execute(requestMarker);
-    }
-
-    @Override
-    public boolean send(TBase<?, ?> data) {
-        return executor.execute(data);
-    }
-
-    @Override
-    public void stop() {
-        executor.stop();
-        socket.close();
-        pinpointSocketFactory.release();
-    }
-
-    private static class RequestMarker {
-        private final TBase tBase;
-        private final int retryCount;
-
-        private RequestMarker(TBase tBase, int retryCount) {
-            this.tBase = tBase;
-            this.retryCount = retryCount;
-        }
-
-        private TBase getTBase() {
-            return tBase;
-        }
-
-        private int getRetryCount() {
-            return retryCount;
-        }
-    }
+    protected TBase<?, ?> deserialize(HeaderTBaseDeserializer deserializer, Future<ResponseMessage> future) {
+		byte[] message = future.getResult().getMessage();
+		// caching해야 될려나?
+		try {
+			return deserializer.deserialize(message);
+		} catch (TException e) {
+			if (logger.isWarnEnabled()) {
+				logger.warn("Deserialize fail. Caused:{}", e.getMessage(), e);
+			}
+			return null;
+		}
+	}
 
 }

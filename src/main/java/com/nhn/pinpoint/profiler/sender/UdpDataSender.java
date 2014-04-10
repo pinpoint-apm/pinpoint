@@ -5,22 +5,22 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.util.Collection;
 
 import org.apache.thrift.TBase;
-import org.apache.thrift.TException;
-
-import com.nhn.pinpoint.thrift.io.HeaderTBaseSerDesFactory;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.nhn.pinpoint.profiler.sender.message.PinpointMessage;
+import com.nhn.pinpoint.profiler.sender.message.PinpointSendMessage;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseSerDesFactory;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
 
 /**
  * @author netspider
  * @author emeroad
+ * @author koo.taejin
  */
-public class UdpDataSender implements DataSender {
+public class UdpDataSender extends AbstractDataSender implements DataSender {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isTrace = logger.isTraceEnabled();
@@ -33,7 +33,7 @@ public class UdpDataSender implements DataSender {
 	// 주의 single thread용임
 	private HeaderTBaseSerializer serializer = HeaderTBaseSerDesFactory.getSerializer(false, HeaderTBaseSerDesFactory.DEFAULT_SAFETY_NOT_GURANTEED_MAX_SERIALIZE_DATA_SIZE);
 
-    private AsyncQueueingExecutor<TBase<?, ?>> executor;
+    private AsyncQueueingExecutor<PinpointMessage> executor;
 
 	public UdpDataSender(String host, int port, String threadName, int queueSize) {
         if (host == null ) {
@@ -51,23 +51,19 @@ public class UdpDataSender implements DataSender {
         logger.info("UdpDataSender initialized. host={}, port={}", host, port);
 		this.udpSocket = createSocket(host, port);
 
-        this.executor = getExecutor(threadName, queueSize);
+        this.executor = createAsyncQueueingExecutor(queueSize, threadName);
+	}
+	
+    @Override
+	public boolean send(TBase<?, ?> data) {
+    	PinpointMessage message = new PinpointSendMessage(data, serializer);
+		return executor.execute(message);
 	}
 
-    private AsyncQueueingExecutor<TBase<?, ?>> getExecutor(String senderName, int queueSize) {
-        final AsyncQueueingExecutor<TBase<?, ?>> executor = new AsyncQueueingExecutor<TBase<?, ?>>(queueSize, senderName);
-        executor.setListener(new AsyncQueueingExecutorListener<TBase<?, ?>>() {
-            @Override
-            public void execute(Collection<TBase<?, ?>> dtoList) {
-                sendPacketN(dtoList);
-            }
 
-            @Override
-            public void execute(TBase<?, ?> dto) {
-                sendPacket(dto);
-            }
-        });
-        return executor;
+    @Override
+    public void stop() {
+        executor.stop();
     }
 
     private DatagramSocket createSocket(String host, int port) {
@@ -85,45 +81,17 @@ public class UdpDataSender implements DataSender {
 		}
 	}
 
-    @Override
-	public boolean send(TBase<?, ?> data) {
-		return executor.execute(data);
-	}
-
-
-    @Override
-    public void stop() {
-        executor.stop();
-    }
-
-
-
-
-    protected void sendPacketN(Collection<TBase<?, ?>> dtoList) {
-        Object[] dataList = dtoList.toArray();
-//        for (Object data : dataList) {
-//        이렇게 바꾸지 말것. copy해서 return 하는게 아니라 항상 max치가 나옴.
-        final int size = dtoList.size();
-        for (int i = 0; i < size; i++) {
-			try {
-				sendPacket((TBase<?, ?>)dataList[i]);
-			} catch (Throwable th) {
-				logger.warn("Unexpected Error. Cause:" + th.getMessage(), th);
-			}
-		}
-	}
-
-
-	protected void sendPacket(TBase<?, ?> dto) {
-        if (dto instanceof TBase) {
-            final TBase<?, ?> tBase = (TBase<?, ?>) dto;
+	protected void sendPacket(PinpointMessage message) {
+		if (message instanceof PinpointSendMessage) {
             // single thread이므로 데이터 array를 nocopy해서 보냄.
-            byte[] interBufferData = serialize(tBase);
-            int interBufferSize = serializer.getInterBufferSize();
+            byte[] interBufferData = message.serialize();
             if (interBufferData == null) {
                 logger.warn("interBufferData is null");
                 return;
             }
+
+            TBase dto = message.getTBase();
+            int interBufferSize = serializer.getInterBufferSize();
             // single thread이므로 그냥 재활용한다.
             reusePacket.setData(interBufferData, 0, interBufferSize);
             try {
@@ -135,22 +103,8 @@ public class UdpDataSender implements DataSender {
                 logger.warn("packet send error {}", dto, e);
             }
 		} else {
-			logger.warn("sendPacket fail. invalid type:{}", dto != null ? dto.getClass() : null);
+			logger.warn("sendPacket fail. invalid type:{}", message != null ? message.getClass() : null);
 			return;
-		}
-
-	}
-
-
-
-	private byte[] serialize(TBase<?, ?> dto) {
-		try {
-			return serializer.serialize(dto);
-		} catch (TException e) {
-			if (logger.isWarnEnabled()) {
-                logger.warn("Serialize fail:{} Caused:{}", dto, e.getMessage(), e);
-			}
-			return null;
 		}
 	}
 

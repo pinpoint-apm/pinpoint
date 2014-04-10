@@ -2,12 +2,15 @@ package com.nhn.pinpoint.profiler.sender;
 
 import java.util.Collection;
 
+import com.nhn.pinpoint.profiler.sender.message.PinpointMessage;
+
 /**
  * @author emeroad
  */
-public interface AsyncQueueingExecutorListener<T> {
+public interface AsyncQueueingExecutorListener<T extends PinpointMessage> {
 
-    void execute(Collection<T> dtoList);
+    void execute(Collection<T> messageList);
 
-    void execute(T dto);
+    void execute(T message);
+    
 }
