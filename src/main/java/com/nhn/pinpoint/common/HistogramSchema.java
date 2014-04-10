@@ -15,11 +15,9 @@ public class HistogramSchema {
     static {
         FAST_SCHEMA = new HistogramSchema(1, (short)100, "100ms", (short)300, "300ms", (short)500, "500ms", "Slow", "Error");
 
-        NORMAL_SCHEMA = new HistogramSchema(2, (short)1000, "1.0s",  (short)3000, "3.0s", (short)5000, "5.0s", "Slow", "Error");
+        NORMAL_SCHEMA = new HistogramSchema(2, (short)1000, "1s",  (short)3000, "3s", (short)5000, "5s", "Slow", "Error");
     }
-    // ** histogramSlot list는 항상 정렬된 list 이어야 한다.
-    // 지금은 그냥 사람이 한다.
-//    private final List<HistogramSlot> histogramSlotList = new ArrayList<HistogramSlot>(3);
+
     private final int typeCode;
 
     private final HistogramSlot fastSlot;
