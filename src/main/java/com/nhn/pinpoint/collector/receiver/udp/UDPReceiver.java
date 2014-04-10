@@ -11,11 +11,10 @@ import com.nhn.pinpoint.collector.util.PacketUtils;
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.thrift.io.Header;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseSerDesFactory;
 import com.nhn.pinpoint.common.util.ExecutorFactory;
 import com.nhn.pinpoint.rpc.util.CpuUtils;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseSerDesFactory;
 import com.nhn.pinpoint.thrift.io.L4Packet;
-
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
@@ -26,7 +25,6 @@ import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-
 import java.io.IOException;
 import java.net.*;
 import java.util.concurrent.*;
@@ -74,6 +72,13 @@ public class UDPReceiver implements DataReceiver {
     private AtomicInteger rejectedExecutionCount = new AtomicInteger(0);
 
     private AtomicBoolean state = new AtomicBoolean(true);
+
+    private final ThreadLocal<HeaderTBaseDeserializer> deserializerCache = new NamedThreadLocal<HeaderTBaseDeserializer>(HeaderTBaseDeserializer.class.getSimpleName()) {
+        @Override
+        protected HeaderTBaseDeserializer initialValue() {
+            return HeaderTBaseSerDesFactory.getDeserializer();
+        }
+    };
 
 
     public UDPReceiver() {
@@ -251,12 +256,7 @@ public class UDPReceiver implements DataReceiver {
 
     private class DispatchPacket implements Runnable {
         private final DatagramPacket packet;
-        private final ThreadLocal<HeaderTBaseDeserializer> deserializer = new NamedThreadLocal<HeaderTBaseDeserializer>("HeaderTBaseDeserializer") {
-            @Override
-            protected HeaderTBaseDeserializer initialValue() {
-            	return HeaderTBaseSerDesFactory.getDeserializer();
-            }
-        };
+
 
         private DispatchPacket(DatagramPacket packet) {
             if (packet == null) {
@@ -269,7 +269,7 @@ public class UDPReceiver implements DataReceiver {
         public void run() {
         	Timer.Context time = timer.time();
         	
-            HeaderTBaseDeserializer deserializer = this.deserializer.get();
+            HeaderTBaseDeserializer deserializer = deserializerCache.get();
             TBase<?, ?> tBase = null;
             try {
                 tBase = deserializer.deserialize(packet.getData());
