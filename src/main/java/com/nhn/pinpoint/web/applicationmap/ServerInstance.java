@@ -75,6 +75,15 @@ public class ServerInstance {
 		return agentInfo;
 	}
 
+    @JsonProperty("hasInspector")
+    public boolean hasInspector() {
+        if (serviceType.isWas()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 
     @Override
     public boolean equals(Object o) {
