@@ -1,6 +1,8 @@
 package com.nhn.pinpoint.thrift.io;
 
 import com.nhn.pinpoint.thrift.dto.TAgentInfo;
+
+import org.apache.thrift.TException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -16,8 +18,22 @@ public class HeaderTBaseSerializerTest {
 
 
     @Test
-    public void testSerialize() throws Exception {
-        HeaderTBaseSerializer serializer = new HeaderTBaseSerializer();
+    public void testSerialize1() throws Exception {
+    	HeaderTBaseSerializer serializer = HeaderTBaseSerDesFactory.getSerializer(false, HeaderTBaseSerDesFactory.DEFAULT_SAFETY_NOT_GURANTEED_MAX_SERIALIZE_DATA_SIZE);
+    	HeaderTBaseDeserializer deserializer = HeaderTBaseSerDesFactory.getDeserializer();
+    	
+    	test(serializer, deserializer);
+    }
+    
+    @Test
+    public void testSerialize2() throws Exception {
+    	HeaderTBaseSerializer serializer = HeaderTBaseSerDesFactory.getSerializer(true, HeaderTBaseSerDesFactory.DEFAULT_SAFETY_GURANTEED_MAX_SERIALIZE_DATA_SIZE);
+    	HeaderTBaseDeserializer deserializer = HeaderTBaseSerDesFactory.getDeserializer();
+    	
+    	test(serializer, deserializer);
+    }
+    
+    private void test(HeaderTBaseSerializer serializer, HeaderTBaseDeserializer deserializer) throws TException {
 
         Header header = new Header();
         // 10 을 JVMInfoThriftDTO type
@@ -31,7 +47,6 @@ public class HeaderTBaseSerializerTest {
         byte[] serialize = serializer.serialize(tAgentInfo);
         dump(serialize);
 
-        HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializer();
         TAgentInfo deserialize = (TAgentInfo) deserializer.deserialize(serialize);
         logger.debug("deserializer:{}", deserialize.getClass());
 

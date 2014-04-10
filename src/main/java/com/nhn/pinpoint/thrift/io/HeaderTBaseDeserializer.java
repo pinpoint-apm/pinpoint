@@ -2,7 +2,6 @@ package com.nhn.pinpoint.thrift.io;
 
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.transport.TMemoryInputTransport;
@@ -12,21 +11,9 @@ import org.apache.thrift.transport.TMemoryInputTransport;
  */
 public class HeaderTBaseDeserializer {
 
-    private final TProtocol protocol_;
-    private final TMemoryInputTransport trans_;
-
-    private static final TBaseLocator DEFAULT_TBASE_LOCATOR = new DefaultTBaseLocator();
-    private final TBaseLocator locator = DEFAULT_TBASE_LOCATOR;
-
-    /**
-     * Create a new TDeserializer that uses the TBinaryProtocol by default.
-     */
-    public HeaderTBaseDeserializer() {
-//        this(new TBinaryProtocol.Factory());
-        this(new TCompactProtocol.Factory());
-    }
-
-
+    private final TProtocol protocol;
+    private final TMemoryInputTransport trans;
+    private final TBaseLocator locator;
 
     /**
      * Create a new TDeserializer. It will use the TProtocol specified by the
@@ -34,9 +21,10 @@ public class HeaderTBaseDeserializer {
      *
      * @param protocolFactory Factory to create a protocol
      */
-    public HeaderTBaseDeserializer(TProtocolFactory protocolFactory) {
-        trans_ = new TMemoryInputTransport();
-        protocol_ = protocolFactory.getProtocol(trans_);
+    HeaderTBaseDeserializer(TProtocolFactory protocolFactory, TBaseLocator locator) {
+        this.trans = new TMemoryInputTransport();
+        this.protocol = protocolFactory.getProtocol(trans);
+        this.locator = locator;
     }
 
     /**
@@ -46,12 +34,12 @@ public class HeaderTBaseDeserializer {
      */
     public TBase<?, ?> deserialize(byte[] bytes) throws TException {
         try {
-            trans_.reset(bytes);
+            trans.reset(bytes);
             Header header = readHeader();
             final int validate = validate(header);
             if (validate == HeaderUtils.OK) {
                 TBase<?, ?> base = locator.tBaseLookup(header.getType());
-                base.read(protocol_);
+                base.read(protocol);
                 return base;
             }
             if (validate == HeaderUtils.PASS_L4) {
@@ -59,8 +47,8 @@ public class HeaderTBaseDeserializer {
             }
             throw new IllegalStateException("invalid validate " + validate);
         } finally {
-            trans_.clear();
-            protocol_.reset();
+            trans.clear();
+            protocol.reset();
         }
     }
 
@@ -74,11 +62,11 @@ public class HeaderTBaseDeserializer {
     }
 
     private Header readHeader() throws TException {
-        final byte signature = protocol_.readByte();
-        final byte version = protocol_.readByte();
+        final byte signature = protocol.readByte();
+        final byte version = protocol.readByte();
         // 프로토콜 변경에 관계 없이 고정 사이즈의 데이터로 인코딩 하도록 변경.
-        final byte type1 = protocol_.readByte();
-        final byte type2 = protocol_.readByte();
+        final byte type1 = protocol.readByte();
+        final byte type2 = protocol.readByte();
         final short type = bytesToShort(type1, type2);
         return new Header(signature, version, type);
     }

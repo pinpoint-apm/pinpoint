@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.thrift.io;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -8,7 +9,7 @@ import java.util.Arrays;
 /**
  * @author emeroad
  */
-public class UnsafeByteArrayOutputStream extends OutputStream {
+public class UnsafeByteArrayOutputStream extends ByteArrayOutputStream {
 
     /**
      * The buffer where data is stored.
@@ -113,11 +114,7 @@ public class UnsafeByteArrayOutputStream extends OutputStream {
      * @see java.io.ByteArrayOutputStream#size()
      */
     public byte toByteArray()[] {
-        return Arrays.copyOf(buf, count);
-    }
-
-    public byte[] getInterBuffer() {
-        return buf;
+    	return buf;
     }
 
     /**
