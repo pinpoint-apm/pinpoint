@@ -17,7 +17,6 @@ import java.util.*;
 public class MapResponseHistogramSummary {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final Range range;
     private final TimeWindow window;
 
     private Map<Long, Map<Application, ResponseTime>> responseTimeApplicationMap = new HashMap<Long, Map<Application, ResponseTime>>();
@@ -28,7 +27,6 @@ public class MapResponseHistogramSummary {
         if (range == null) {
             throw new NullPointerException("range must not be null");
         }
-        this.range = range;
         // 일단 샘플링을 하지 않도록한다.
         this.window = new TimeWindow(range, TimeWindowOneMinuteSampler.SAMPLER);
 
