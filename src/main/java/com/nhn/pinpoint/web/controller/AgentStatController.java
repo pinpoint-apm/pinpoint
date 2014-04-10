@@ -3,7 +3,6 @@ package com.nhn.pinpoint.web.controller;
 import java.util.List;
 import java.util.SortedMap;
 
-import javax.servlet.http.HttpServletResponse;
 
 import com.nhn.pinpoint.web.vo.Range;
 import org.slf4j.Logger;

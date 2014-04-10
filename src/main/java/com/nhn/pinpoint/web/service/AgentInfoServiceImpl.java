@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.web.service;
 
 import java.util.*;
-import java.util.Map.Entry;
 
 import com.nhn.pinpoint.web.vo.Range;
 import org.apache.commons.collections.CollectionUtils;
@@ -74,8 +73,8 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 			}
 		}
 
-		for(Entry<String, List<AgentInfoBo>> entry : result.entrySet()) {
-			Collections.sort(entry.getValue());
+		for (List<AgentInfoBo> agentInfoBoList : result.values()) {
+			Collections.sort(agentInfoBoList, AgentInfoBo.NAME_ASC);
 		}
 
 		logger.info("getApplicationAgentList={}", result);
