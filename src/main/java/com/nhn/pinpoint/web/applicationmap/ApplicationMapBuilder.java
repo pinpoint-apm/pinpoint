@@ -2,19 +2,14 @@ package com.nhn.pinpoint.web.applicationmap;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkData;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataMap;
+import com.nhn.pinpoint.web.applicationmap.rawdata.*;
 import com.nhn.pinpoint.web.dao.MapResponseDao;
 import com.nhn.pinpoint.web.service.AgentInfoService;
 import com.nhn.pinpoint.web.vo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author emeroad
@@ -326,13 +321,13 @@ public class ApplicationMapBuilder {
             ServerInstanceList serverInstanceList = builder.build();
             node.setServerInstanceList(serverInstanceList);
         } else if (nodeServiceType.isWas()) {
-            final Set<AgentInfoBo> agentList = agentInfoService.selectAgent(node.getApplication().getName(), range);
+            Set<AgentInfoBo> agentList = agentInfoService.selectAgent(node.getApplication().getName(), range);
             if (agentList.isEmpty()) {
                 return;
             }
             logger.debug("add agentInfo. {}, {}", node.getApplication(), agentList);
             ServerBuilder builder = new ServerBuilder();
-
+            agentList = filterAgentInfoByResponseData(agentList, node);
             builder.addAgentInfo(agentList);
             ServerInstanceList serverInstanceList = builder.build();
 
@@ -340,6 +335,26 @@ public class ApplicationMapBuilder {
             node.setServerInstanceList(serverInstanceList);
         }
 
+    }
+
+    /**
+     * 실제 응답속도 정보가 있는 데이터를 기반으로 AgentInfo를 필터링 친다.
+     * 정공이라고 말할 수 있는 코드는 아님.
+     * 나중에 실제 서버가 살아 있는 정보를 기반으로 이를 유추할수 있게 해야한다.
+     */
+    private Set<AgentInfoBo> filterAgentInfoByResponseData(Set<AgentInfoBo> agentList, Node node) {
+        Set<AgentInfoBo> filteredAgentInfo = new HashSet<AgentInfoBo>();
+
+        ResponseHistogramSummary responseHistogramSummary = node.getResponseHistogramSummary();
+        Map<String, Histogram> agentHistogramMap = responseHistogramSummary.getAgentHistogramMap();
+        for (AgentInfoBo agentInfoBo : agentList) {
+            String agentId = agentInfoBo.getAgentId();
+            if (agentHistogramMap.containsKey(agentId)) {
+                filteredAgentInfo.add(agentInfoBo);
+            }
+        }
+
+        return filteredAgentInfo;
     }
 
 
