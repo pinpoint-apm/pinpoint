@@ -59,10 +59,9 @@ public class ApplicationMap {
         this.nodeList.addNodeList(nodeList);
     }
 
-    void addLink(Collection<Link> relationList) {
-        linkList.buildLink(relationList);
+    void addLinkList(LinkList linkList) {
+        this.linkList.addLinkList(linkList);
     }
-
 
 
     public boolean containsNode(Application application) {
@@ -120,6 +119,8 @@ public class ApplicationMap {
     public List<ApplicationScatterScanResult> getApplicationScatterScanResultList() {
         return applicationScatterScanResultList;
     }
+
+
 
     public static interface ResponseDataSource {
         ResponseHistogramSummary getResponseHistogramSummary(Application application);

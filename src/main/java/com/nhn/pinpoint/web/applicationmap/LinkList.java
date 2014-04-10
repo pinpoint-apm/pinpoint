@@ -16,12 +16,12 @@ public class LinkList {
         return this.linkMap.values();
     }
 
-    public void buildLink(Collection<Link> linkList) {
+    public void addLinkList(LinkList linkList) {
         if (linkList == null) {
             throw new NullPointerException("linkList must not be null");
         }
 
-        for (Link link : linkList) {
+        for (Link link : linkList.getLinkList()) {
             addLink(link);
         }
     }

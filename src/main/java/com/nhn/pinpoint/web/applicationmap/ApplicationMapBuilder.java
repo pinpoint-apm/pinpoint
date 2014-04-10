@@ -105,7 +105,7 @@ public class ApplicationMapBuilder {
         logger.debug("link size:{}", linkList.size());
         createTargetLink(linkList, linkDataDuplexMap.getTargetLinkDataMap(), map);
         logger.debug("link size:{}", linkList.size());
-        map.addLink(linkList.getLinkList());
+        map.addLinkList(linkList);
 
 
         for (Link link : map.getLinks()) {
