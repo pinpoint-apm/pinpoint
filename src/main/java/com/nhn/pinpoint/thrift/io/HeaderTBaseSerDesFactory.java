@@ -22,6 +22,10 @@ public final class HeaderTBaseSerDesFactory {
 	private HeaderTBaseSerDesFactory() {
 	}
 
+    public static HeaderTBaseSerializer getSerializer() {
+        return getSerializer(DEFAULT_SAFE_GURANTEED, DEFAULT_SAFETY_GURANTEED_MAX_SERIALIZE_DATA_SIZE);
+    }
+
 	// Serializer 생성
 	public static HeaderTBaseSerializer getSerializer(int outputStreamSize) {
 		return getSerializer(DEFAULT_SAFE_GURANTEED, outputStreamSize, new TCompactProtocol.Factory(), DEFAULT_TBASE_LOCATOR);
