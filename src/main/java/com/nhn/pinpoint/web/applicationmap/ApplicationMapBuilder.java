@@ -51,7 +51,7 @@ public class ApplicationMapBuilder {
         logger.debug("node size:{}", nodeList.size());
         createNode(nodeList, linkDataDuplexMap.getTargetLinkDataMap());
         logger.debug("node size:{}", nodeList.size());
-        map.addNodeList(nodeList.getNodeList());
+        map.addNodeList(nodeList);
 
 
         // agentInfo를 넣는다.
@@ -66,10 +66,9 @@ public class ApplicationMapBuilder {
             // FROM -> TO에서 FROM이 CLIENT가 아니면 FROM은 node
             // rpc가 나올수가 없음. 이미 unknown으로 치환을 하기 때문에. 만약 rpc가 나온다면 이상한 케이스임
             if (!fromApplication.getServiceType().isRpcClient()) {
-                if (!nodeList.containsNode(fromApplication)) {
+                final boolean success = addNode(nodeList, fromApplication);
+                if (success) {
                     logger.debug("createSourceNode:{}", fromApplication);
-                    Node fromNode = new Node(fromApplication);
-                    nodeList.addNode(fromNode);
                 }
             } else {
                 logger.warn("found rpc fromNode linkData:{}", linkData);
@@ -79,16 +78,24 @@ public class ApplicationMapBuilder {
             final Application toApplication = linkData.getToApplication();
             // FROM -> TO에서 TO가 CLIENT가 아니면 TO는 node
             if (!toApplication.getServiceType().isRpcClient()) {
-                if (!nodeList.containsNode(toApplication)) {
+                final boolean success = addNode(nodeList, toApplication);
+                if (success) {
                     logger.debug("createTargetNode:{}", toApplication);
-                    Node toNode = new Node(toApplication);
-                    nodeList.addNode(toNode);
                 }
             } else {
                 logger.warn("found rpc toNode:{}", linkData);
             }
         }
 
+    }
+
+    private boolean addNode(NodeList nodeList, Application application) {
+        if (nodeList.containsNode(application)) {
+            return false;
+        }
+
+        Node fromNode = new Node(application);
+        return nodeList.addNode(fromNode);
     }
 
     private void buildLink(ApplicationMap map, LinkDataDuplexMap linkDataDuplexMap) {
@@ -140,20 +147,28 @@ public class ApplicationMapBuilder {
             // 여기서 RPC가 나올일이 없지 않나하는데. 먼저 앞단에서 Unknown노드로 변경시킴.
             if (toNode.getServiceType().isRpcClient()) {
                 if (!map.containsNode(toNode.getApplication())) {
-                    final Link link = new Link(CreateType.Source, fromNode, toNode, range);
-                    if (!linkList.containsNode(link)) {
+                    final Link link = addLink(linkList, fromNode, toNode, CreateType.Source);
+                    if (link != null) {
                         logger.debug("createRpcSourceLink:{}", link);
-                        linkList.addLink(link);
                     }
                 }
             } else {
-                final Link link = new Link(CreateType.Source, fromNode, toNode, range);
-                if (!linkList.containsNode(link)) {
+                final Link link = addLink(linkList, fromNode, toNode, CreateType.Source);
+                if (link != null) {
                     logger.debug("createSourceLink:{}", link);
-                    linkList.addLink(link);
                 }
             }
         }
+    }
+
+    private Link addLink(LinkList linkList, Node fromNode, Node toNode, CreateType createType) {
+        final Link link = new Link(createType, fromNode, toNode, range);
+        if (linkList.addLink(link)) {
+            return link;
+        } else {
+            return null;
+        }
+
     }
 
 
@@ -176,17 +191,15 @@ public class ApplicationMapBuilder {
             if (toNode.getServiceType().isRpcClient()) {
                 // to 노드가 존재하는지 검사?
                 if (!map.containsNode(toNode.getApplication())) {
-                    Link link = new Link(CreateType.Target, fromNode, toNode, range);
-                    if (!linkList.containsNode(link)) {
+                    final Link link = addLink(linkList, fromNode, toNode, CreateType.Target);
+                    if(link != null) {
                         logger.debug("createRpcTargetLink:{}", link);
-                        linkList.addLink(link);
                     }
                 }
             } else {
-                Link link = new Link(CreateType.Target, fromNode, toNode, range);
-                if (!linkList.containsNode(link)) {
+                final Link link = addLink(linkList, fromNode, toNode, CreateType.Target);
+                if(link != null) {
                     logger.debug("createTargetLink:{}", link);
-                    linkList.addLink(link);
                 }
             }
         }

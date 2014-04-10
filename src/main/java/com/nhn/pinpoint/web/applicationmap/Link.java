@@ -238,8 +238,8 @@ public class Link {
     @Override
     public String toString() {
         return "Link{" +
-                "fromNode=" + fromNode +
-                ", toNode=" + toNode +
+                "from=" + fromNode +
+                " -> to=" + toNode +
                 '}';
     }
 }

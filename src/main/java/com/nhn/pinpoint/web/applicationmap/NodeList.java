@@ -35,11 +35,11 @@ public class NodeList {
     }
 
 
-    public void addNodeList(Collection<Node> nodeList) {
+    public void addNodeList(NodeList nodeList) {
         if (nodeList == null) {
             throw new NullPointerException("nodeList must not be null");
         }
-        for (Node node : nodeList) {
+        for (Node node : nodeList.getNodeList()) {
             addNode(node);
         }
     }
