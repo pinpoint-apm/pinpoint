@@ -5,11 +5,26 @@ import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
 import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.buffer.FixedBuffer;
 import com.nhn.pinpoint.thrift.dto.TAgentInfo;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.Comparator;
 
 /**
  * @author emeroad
  */
-public class AgentInfoBo implements Comparable<AgentInfoBo> {
+public class AgentInfoBo  {
+
+    public static final Comparator<AgentInfoBo> NAME_ASC = new Comparator<AgentInfoBo>() {
+        @Override
+        public int compare(AgentInfoBo that, AgentInfoBo other) {
+            // null 일때 상황이 애매할수 있어서 그냥 ""으로 처리함.
+            final String thatAgentId = StringUtils.defaultString(that.agentId);
+            final String otherAgentId = StringUtils.defaultString(other.agentId);
+            return thatAgentId.compareTo(otherAgentId);
+        }
+    };
+
+
     private String hostname;
     private String ip;
     private String ports;
@@ -204,8 +219,4 @@ public class AgentInfoBo implements Comparable<AgentInfoBo> {
         return sb.toString();
     }
 
-    @Override
-	public int compareTo(AgentInfoBo agentInfoBo) {
-		return this.agentId.compareTo(agentInfoBo.agentId);
-	}
 }
