@@ -80,9 +80,11 @@ public class InvokeTaskRunInterceptor implements SimpleAroundInterceptor, ByteCo
 			}
 
 			String requestURL = request.getUri();
-			String remoteAddr = channel.getRemoteAddress().toString();
-			String endPoint = channel.getLocalAddress().toString();
-
+			
+			// FIXME 모든 address는 / 로 시작하나???
+			String remoteAddr = channel.getRemoteAddress().toString().substring(1);
+			String endPoint = channel.getLocalAddress().toString().substring(1);
+			
 			// check sampled
 			boolean sampling = isSamplingEnabled(request);
 			if (!sampling) {
@@ -140,7 +142,7 @@ public class InvokeTaskRunInterceptor implements SimpleAroundInterceptor, ByteCo
 				short parentApplicationType = populateParentApplicationTypeFromRequest(request);
 				if (parentApplicationName != null) {
 					trace.recordParentApplication(parentApplicationName, parentApplicationType);
-					// trace.recordAcceptorHost(NetworkUtils.getHostFromURL(request.getRequestURL().toString()));
+					trace.recordAcceptorHost(endPoint);
 				}
 			} else {
 				// TODO 여기에서 client 정보를 수집할 수 있다.
