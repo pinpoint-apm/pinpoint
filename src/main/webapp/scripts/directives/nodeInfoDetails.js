@@ -51,7 +51,7 @@ pinpointApp
                     scope.serverList = node.serverList;
                     scope.showServers = _.isEmpty(scope.serverList) ? false : true;
 //                    scope.isWas = node.isWas;
-                    scope.isWas = true;
+//                    scope.isWas = true;
                     scope.agentHistogram = node.agentHistogram;
 
                     if (!node.targetRawData && node.category !== "UNKNOWN_GROUP") {
@@ -62,7 +62,8 @@ pinpointApp
                             }
                         ]);
                         scope.showNodeResponseSummary = true;
-                        if (scope.isWas) {
+//                        if (scope.isWas) {
+                        if (true) {
                             scope.showNodeLoad = true;
                             renderTimeSeriesHistogram('.nodeInfoDetails .timeSeriesHistogram svg', node.timeSeriesHistogram);
 
