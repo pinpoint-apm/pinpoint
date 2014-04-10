@@ -1,16 +1,10 @@
 package com.nhn.pinpoint.profiler.sender;
 
 
-import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
-import com.nhn.pinpoint.thrift.dto.TResult;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.nhn.pinpoint.thrift.io.SafeHeaderTBaseSerializer;
-import com.nhn.pinpoint.rpc.Future;
-import com.nhn.pinpoint.rpc.FutureListener;
-import com.nhn.pinpoint.rpc.PinpointSocketException;
-import com.nhn.pinpoint.rpc.ResponseMessage;
-import com.nhn.pinpoint.rpc.client.PinpointSocket;
-import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
+import java.util.Collection;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -19,9 +13,16 @@ import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
+import com.nhn.pinpoint.rpc.Future;
+import com.nhn.pinpoint.rpc.FutureListener;
+import com.nhn.pinpoint.rpc.PinpointSocketException;
+import com.nhn.pinpoint.rpc.ResponseMessage;
+import com.nhn.pinpoint.rpc.client.PinpointSocket;
+import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
+import com.nhn.pinpoint.thrift.dto.TResult;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseSerDesFactory;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
 
 /**
  * @author emeroad
@@ -42,7 +43,7 @@ public class TcpDataSender implements EnhancedDataSender {
     private final WriteFailFutureListener writeFailFutureListener;
 
 
-    private final SafeHeaderTBaseSerializer serializer = new SafeHeaderTBaseSerializer();
+    private final HeaderTBaseSerializer serializer = HeaderTBaseSerDesFactory.getSerializer(HeaderTBaseSerDesFactory.DEFAULT_SAFETY_GURANTEED_MAX_SERIALIZE_DATA_SIZE);
 
     private final RetryQueue retryQueue = new RetryQueue();
 
@@ -210,7 +211,7 @@ public class TcpDataSender implements EnhancedDataSender {
     private TBase<?, ?> deserialize(Future<ResponseMessage> future) {
         byte[] message = future.getResult().getMessage();
         // caching해야 될려나?
-        HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializer();
+        HeaderTBaseDeserializer deserializer = HeaderTBaseSerDesFactory.getDeserializer();
         try {
             return deserializer.deserialize(message);
         } catch (TException e) {

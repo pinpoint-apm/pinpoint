@@ -10,7 +10,9 @@ import java.util.Collection;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
+import com.nhn.pinpoint.thrift.io.HeaderTBaseSerDesFactory;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +31,7 @@ public class UdpDataSender implements DataSender {
 	private final DatagramSocket udpSocket;
 
 	// 주의 single thread용임
-	private HeaderTBaseSerializer serializer = new HeaderTBaseSerializer();
+	private HeaderTBaseSerializer serializer = HeaderTBaseSerDesFactory.getSerializer(false, HeaderTBaseSerDesFactory.DEFAULT_SAFETY_NOT_GURANTEED_MAX_SERIALIZE_DATA_SIZE);
 
     private AsyncQueueingExecutor<TBase<?, ?>> executor;
 
