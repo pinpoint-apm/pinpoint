@@ -11,9 +11,11 @@ import com.nhn.pinpoint.collector.util.PacketUtils;
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.thrift.io.Header;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseSerDesFactory;
 import com.nhn.pinpoint.common.util.ExecutorFactory;
 import com.nhn.pinpoint.rpc.util.CpuUtils;
 import com.nhn.pinpoint.thrift.io.L4Packet;
+
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
@@ -24,6 +26,7 @@ import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+
 import java.io.IOException;
 import java.net.*;
 import java.util.concurrent.*;
@@ -251,7 +254,7 @@ public class UDPReceiver implements DataReceiver {
         private final ThreadLocal<HeaderTBaseDeserializer> deserializer = new NamedThreadLocal<HeaderTBaseDeserializer>("HeaderTBaseDeserializer") {
             @Override
             protected HeaderTBaseDeserializer initialValue() {
-                return new HeaderTBaseDeserializer();
+            	return HeaderTBaseSerDesFactory.getDeserializer();
             }
         };
 

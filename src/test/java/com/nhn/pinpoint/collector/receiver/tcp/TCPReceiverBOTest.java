@@ -23,7 +23,8 @@ import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 import com.nhn.pinpoint.thrift.dto.TResult;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.nhn.pinpoint.thrift.io.SafeHeaderTBaseSerializer;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseSerDesFactory;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
 
 /**
  * @author koo.taejin
@@ -58,7 +59,7 @@ public class TCPReceiverBOTest {
 		encodeAndWrite(os, agentInfo, true);
 		ResponsePacket responsePacket = readAndDecode(is, 1000);
 
-		HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializer();
+		HeaderTBaseDeserializer deserializer = HeaderTBaseSerDesFactory.getDeserializer();
 		TResult result = (TResult) deserializer.deserialize(responsePacket.getPayload());
 		
 		Assert.assertTrue(result.isSuccess());
@@ -72,7 +73,7 @@ public class TCPReceiverBOTest {
 	}
 
 	private void encodeAndWrite(OutputStream os, TBase tbase, boolean isReqRes) throws Exception {
-		SafeHeaderTBaseSerializer seriallize = new SafeHeaderTBaseSerializer();
+		HeaderTBaseSerializer seriallize = HeaderTBaseSerDesFactory.getSerializer(HeaderTBaseSerDesFactory.DEFAULT_SAFETY_GURANTEED_MAX_SERIALIZE_DATA_SIZE);
 		byte[] payload = seriallize.serialize(tbase);
 
 		Packet packet = null;

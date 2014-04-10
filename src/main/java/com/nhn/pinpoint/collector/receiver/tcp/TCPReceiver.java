@@ -1,16 +1,25 @@
 package com.nhn.pinpoint.collector.receiver.tcp;
 
-import java.net.*;
+import java.net.InetAddress;
+import java.net.SocketAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
+import org.apache.thrift.TBase;
+import org.apache.thrift.TException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+
 import com.nhn.pinpoint.collector.receiver.DispatchHandler;
 import com.nhn.pinpoint.collector.util.PacketUtils;
-import com.nhn.pinpoint.thrift.io.Header;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.nhn.pinpoint.common.util.ExecutorFactory;
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
@@ -20,16 +29,11 @@ import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
 import com.nhn.pinpoint.rpc.server.ServerMessageListener;
 import com.nhn.pinpoint.rpc.server.ServerStreamChannel;
 import com.nhn.pinpoint.rpc.server.SocketChannel;
+import com.nhn.pinpoint.thrift.io.Header;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseSerDesFactory;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.nhn.pinpoint.thrift.io.L4Packet;
-import com.nhn.pinpoint.thrift.io.SafeHeaderTBaseSerializer;
-import org.apache.thrift.TBase;
-import org.apache.thrift.TException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 
 /**
  * @author emeroad
@@ -141,7 +145,7 @@ public class TCPReceiver {
 
         @Override
         public void run() {
-            final HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializer();
+            final HeaderTBaseDeserializer deserializer = HeaderTBaseSerDesFactory.getDeserializer();
             try {
                 TBase<?, ?> tBase = deserializer.deserialize(bytes);
                 dispatchHandler.dispatchSendMessage(tBase, bytes, Header.HEADER_SIZE, bytes.length);
@@ -179,7 +183,7 @@ public class TCPReceiver {
 
         @Override
         public void run() {
-            final HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializer();
+            final HeaderTBaseDeserializer deserializer = HeaderTBaseSerDesFactory.getDeserializer();
             byte[] bytes = requestPacket.getPayload();
             SocketAddress remoteAddress = socketChannel.getRemoteAddress();
             try {
@@ -194,7 +198,7 @@ public class TCPReceiver {
                 }
                 TBase result = dispatchHandler.dispatchRequestMessage(tBase, bytes, Header.HEADER_SIZE, bytes.length);
                 if (result != null) {
-                    SafeHeaderTBaseSerializer serializer = new SafeHeaderTBaseSerializer();
+                    HeaderTBaseSerializer serializer = HeaderTBaseSerDesFactory.getSerializer(HeaderTBaseSerDesFactory.DEFAULT_SAFETY_GURANTEED_MAX_SERIALIZE_DATA_SIZE);
                     byte[] resultBytes = serializer.serialize(result);
                     socketChannel.sendResponseMessage(requestPacket, resultBytes);
                 }
