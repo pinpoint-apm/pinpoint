@@ -36,7 +36,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
             link: function postLink(scope, element, attrs) {
 
                 // define private variables
-                var serverMapCachedQuery, serverMapCachedData, bUseNodeContextMenu, bUseLinkContextMenu, htLastQuery,
+                var bUseNodeContextMenu, bUseLinkContextMenu, htLastQuery,
                     bUseBackgroundContextMenu, oServerMap, oAlert, oProgressBar, htLastMapData, htLastLink, htLastNode,
                     sLastSelection;
 
@@ -233,8 +233,6 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     }
 
                     ServerMapDao.removeNoneNecessaryDataForHighPerformance(copiedData);
-//                    serverMapCachedQuery = angular.copy(query);
-//                    serverMapCachedData = angular.copy(copiedData);
                     oProgressBar.setLoading(80);
                     if (copiedData.applicationMapData.nodeDataArray.length === 0) {
                         oProgressBar.stopLoading();
@@ -556,7 +554,8 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     reset();
                     scope.oNavbarVo = navbarVo;
                     scope.bShowServerMapStatus = true;
-                    bUseNodeContextMenu = bUseLinkContextMenu = bUseBackgroundContextMenu = true;
+                    bUseLinkContextMenu = bUseBackgroundContextMenu = true;
+                    bUseNodeContextMenu = false;
                     showServerMap(navbarVo.getApplicationName(), navbarVo.getServiceType(), navbarVo.getQueryEndTime(), navbarVo.getQueryPeriod(), navbarVo.getFilter(), scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
                 });
 
