@@ -40,6 +40,6 @@ public final class StringUtils {
     private static void appendDropMessage(StringBuilder buffer, int length) {
         buffer.append("...(");
         buffer.append(length);
-        buffer.append(")");
+        buffer.append(')');
     }
 }
