@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.web.vo;
 
-import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
+import com.nhn.pinpoint.web.applicationmap.histogram.Histogram;
 
 import java.util.*;
 
@@ -59,19 +59,22 @@ public class ResponseTime {
     }
 
     public void addResponseTime(String agentId, short slotNumber, long count) {
-        getHistogram(agentId).addCallCount(slotNumber, count);
+        Histogram histogram = getHistogram(agentId);
+        histogram.addCallCount(slotNumber, count);
     }
 
 
-    public void addLinkResponseTime(String agentId, Histogram histogram) {
-        if (histogram == null) {
-            throw new NullPointerException("histogram must not be null");
+    public void addResponseTime(String agentId, Histogram copyHistogram) {
+        if (copyHistogram == null) {
+            throw new NullPointerException("copyHistogram must not be null");
         }
-        getHistogram(agentId).add(histogram);
+        Histogram histogram = getHistogram(agentId);
+        histogram.add(copyHistogram);
     }
 
     public void addResponseTime(String agentId, int elapsedTime) {
-        getHistogram(agentId).addCallCountByElapsedTime(elapsedTime);
+        Histogram histogram = getHistogram(agentId);
+        histogram.addCallCountByElapsedTime(elapsedTime);
     }
 
     public Collection<Histogram> getAgentResponseHistogramList() {

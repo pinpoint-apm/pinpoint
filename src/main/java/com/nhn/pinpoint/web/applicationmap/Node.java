@@ -2,9 +2,9 @@ package com.nhn.pinpoint.web.applicationmap;
 
 import java.io.IOException;
 
+import com.nhn.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.nhn.pinpoint.web.view.NodeSerializer;
 import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.web.vo.ResponseHistogramSummary;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -30,7 +30,7 @@ public class Node {
 
     private ServerInstanceList serverInstanceList;
 
-    private ResponseHistogramSummary responseHistogramSummary;
+    private NodeHistogram nodeHistogram;
     // 임시로 생성.
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -100,12 +100,12 @@ public class Node {
 		return application.getServiceType();
 	}
 
-    public ResponseHistogramSummary getResponseHistogramSummary() {
-        return responseHistogramSummary;
+    public NodeHistogram getNodeHistogram() {
+        return nodeHistogram;
     }
 
-    public void setResponseHistogramSummary(ResponseHistogramSummary responseHistogramSummary) {
-        this.responseHistogramSummary = responseHistogramSummary;
+    public void setNodeHistogram(NodeHistogram nodeHistogram) {
+        this.nodeHistogram = nodeHistogram;
     }
 
 	@Override

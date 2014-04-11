@@ -4,7 +4,7 @@ import com.nhn.pinpoint.web.applicationmap.Link;
 import com.nhn.pinpoint.web.applicationmap.Node;
 import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogram;
 import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogramList;
-import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
+import com.nhn.pinpoint.web.applicationmap.histogram.Histogram;
 import com.nhn.pinpoint.web.vo.Application;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;

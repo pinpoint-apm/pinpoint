@@ -3,6 +3,8 @@ package com.nhn.pinpoint.web.service;
 import java.util.*;
 
 import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
+import com.nhn.pinpoint.web.applicationmap.histogram.NodeHistogram;
+import com.nhn.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.nhn.pinpoint.web.applicationmap.rawdata.*;
 import com.nhn.pinpoint.web.dao.*;
 import com.nhn.pinpoint.web.vo.*;
@@ -188,7 +190,7 @@ public class MapServiceImpl implements MapService {
 
 
     @Override
-    public ResponseHistogramSummary linkStatistics(Application sourceApplication, Application destinationApplication, Range range) {
+    public NodeHistogram linkStatistics(Application sourceApplication, Application destinationApplication, Range range) {
         if (sourceApplication == null) {
             throw new NullPointerException("sourceApplication must not be null");
         }
@@ -199,7 +201,7 @@ public class MapServiceImpl implements MapService {
         List<LinkDataMap> list = selectLink(sourceApplication, destinationApplication, range);
         logger.debug("Fetched statistics data size={}", list.size());
 
-        MapResponseHistogramSummary responseHistogramSummary = new MapResponseHistogramSummary(range);
+        ResponseHistogramBuilder responseHistogramSummary = new ResponseHistogramBuilder(range);
         for (LinkDataMap entry : list) {
             for (LinkData linkData : entry.getLinkDataList()) {
                 CallHistogramList sourceList = linkData.getSourceList();
@@ -217,7 +219,7 @@ public class MapServiceImpl implements MapService {
         }
         responseHistogramSummary.build();
         List<ResponseTime> responseTimeList = responseHistogramSummary.getResponseTimeList(destinationApplication);
-        final ResponseHistogramSummary histogramSummary = new ResponseHistogramSummary(destinationApplication, range, responseTimeList);
+        final NodeHistogram histogramSummary = new NodeHistogram(destinationApplication, range, responseTimeList);
         return histogramSummary;
     }
 

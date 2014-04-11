@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.applicationmap.rawdata;
+package com.nhn.pinpoint.web.applicationmap.histogram;
 
 import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.SlotType;

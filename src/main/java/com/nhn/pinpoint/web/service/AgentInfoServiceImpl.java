@@ -74,7 +74,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 		}
 
 		for (List<AgentInfoBo> agentInfoBoList : result.values()) {
-			Collections.sort(agentInfoBoList, AgentInfoBo.NAME_ASC);
+			Collections.sort(agentInfoBoList, AgentInfoBo.AGENT_NAME_ASC_COMPARATOR);
 		}
 
 		logger.info("getApplicationAgentList={}", result);

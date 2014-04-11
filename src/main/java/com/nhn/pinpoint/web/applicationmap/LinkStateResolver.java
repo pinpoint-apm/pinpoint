@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.web.applicationmap;
 
-import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
+import com.nhn.pinpoint.web.applicationmap.histogram.Histogram;
 
 /**
  * @author emeroad

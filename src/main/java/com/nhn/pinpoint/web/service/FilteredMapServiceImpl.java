@@ -209,7 +209,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         final LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
 
         final DotExtractor dotExtractor = new DotExtractor(scanRange);
-        final MapResponseHistogramSummary mapHistogramSummary = new MapResponseHistogramSummary(range);
+        final ResponseHistogramBuilder mapHistogramSummary = new ResponseHistogramBuilder(range);
         /**
          * 통계정보로 변환한다.
          */
@@ -284,8 +284,8 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         return transactionSpanMap;
     }
 
-    private void recordSpanResponseTime(Application application, SpanBo span, MapResponseHistogramSummary mapResponseHistogramSummary, long timeStamp) {
-        mapResponseHistogramSummary.addHistogram(application, span, timeStamp);
+    private void recordSpanResponseTime(Application application, SpanBo span, ResponseHistogramBuilder responseHistogramBuilder, long timeStamp) {
+        responseHistogramBuilder.addHistogram(application, span, timeStamp);
     }
 
 

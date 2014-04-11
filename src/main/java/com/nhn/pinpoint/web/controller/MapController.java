@@ -1,13 +1,13 @@
 package com.nhn.pinpoint.web.controller;
 
 import com.nhn.pinpoint.web.applicationmap.MapWrap;
-import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
+import com.nhn.pinpoint.web.applicationmap.histogram.Histogram;
 import com.nhn.pinpoint.web.service.MapService;
 import com.nhn.pinpoint.web.util.Limiter;
 import com.nhn.pinpoint.web.view.ResponseTimeViewModel;
 import com.nhn.pinpoint.web.vo.Application;
+import com.nhn.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.nhn.pinpoint.web.vo.Range;
-import com.nhn.pinpoint.web.vo.ResponseHistogramSummary;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,8 +44,7 @@ public class MapController {
 
 	/**
 	 * FROM ~ TO기간의 서버 맵 데이터 조회
-	 * 
-	 * @param model
+	 *
 	 * @param applicationName
 	 * @param serviceType
 	 * @param from
@@ -54,7 +53,7 @@ public class MapController {
 	 */
 	@RequestMapping(value = "/getServerMapData", method = RequestMethod.GET)
     @ResponseBody
-	public MapWrap getServerMapData(Model model,
+	public MapWrap getServerMapData(
 									@RequestParam("application") String applicationName,
 									@RequestParam("serviceType") short serviceType,
 									@RequestParam("from") long from,
@@ -72,7 +71,6 @@ public class MapController {
 	/**
 	 * Period before 부터 현재시간까지의 서버맵 조회.
 	 * 
-	 * @param model
 	 * @param applicationName
 	 * @param serviceType
 	 * @param period
@@ -80,14 +78,14 @@ public class MapController {
 	 */
 	@RequestMapping(value = "/getLastServerMapData", method = RequestMethod.GET)
     @ResponseBody
-	public MapWrap getLastServerMapData(Model model,
+	public MapWrap getLastServerMapData(
 										@RequestParam("application") String applicationName,
 										@RequestParam("serviceType") short serviceType,
 										@RequestParam("period") long period) {
 		
 		long to = TimeUtils.getDelayLastTime();
 		long from = to - period;
-		return getServerMapData(model, applicationName, serviceType, from, to);
+		return getServerMapData(applicationName, serviceType, from, to);
 	}
 
 	/**
@@ -117,7 +115,7 @@ public class MapController {
         final Application destinationApplication = new Application(targetApplicationName, targetServiceType);
         final Range range = new Range(from, to);
 
-        ResponseHistogramSummary responseHistogramSummary = mapService.linkStatistics(sourceApplication, destinationApplication, range);
+        NodeHistogram nodeHistogram = mapService.linkStatistics(sourceApplication, destinationApplication, range);
 
 		model.addAttribute("range", range);
 
@@ -125,11 +123,11 @@ public class MapController {
 
         model.addAttribute("targetApplication", destinationApplication);
 
-        Histogram applicationHistogram = responseHistogramSummary.getApplicationHistogram();
+        Histogram applicationHistogram = nodeHistogram.getApplicationHistogram();
 		model.addAttribute("linkStatistics", applicationHistogram);
 
 
-        List<ResponseTimeViewModel> applicationTimeSeriesHistogram = responseHistogramSummary.getApplicationTimeSeriesHistogram();
+        List<ResponseTimeViewModel> applicationTimeSeriesHistogram = nodeHistogram.getApplicationTimeHistogram();
         String applicationTimeSeriesHistogramJson = null;
         try {
             applicationTimeSeriesHistogramJson = MAPPER.writeValueAsString(applicationTimeSeriesHistogram);

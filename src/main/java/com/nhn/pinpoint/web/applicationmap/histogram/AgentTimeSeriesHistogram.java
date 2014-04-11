@@ -1,14 +1,14 @@
-package com.nhn.pinpoint.web.vo;
+package com.nhn.pinpoint.web.applicationmap.histogram;
 
 import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.SlotType;
-import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
-import com.nhn.pinpoint.web.applicationmap.rawdata.TimeHistogram;
 import com.nhn.pinpoint.web.util.TimeWindow;
 import com.nhn.pinpoint.web.util.TimeWindowOneMinuteSampler;
 import com.nhn.pinpoint.web.view.AgentResponseTimeViewModel;
 import com.nhn.pinpoint.web.view.ResponseTimeViewModel;
+import com.nhn.pinpoint.web.vo.Application;
+import com.nhn.pinpoint.web.vo.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.applicationmap.rawdata;
+package com.nhn.pinpoint.web.applicationmap.histogram;
 
 import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.ServiceType;
@@ -8,9 +8,9 @@ import java.util.Comparator;
 /**
  * @author emeroad
  */
-public class TimeHistogram extends Histogram  {
+public class TimeHistogram extends Histogram {
 
-    public static final Comparator<TimeHistogram> ASC_COMPARATOR = new AscComparator();
+    public static final Comparator<TimeHistogram> TIME_STAMP_ASC_COMPARATOR = new TimeStampAscComparator();
 
     private final long timeStamp;
 
@@ -29,7 +29,7 @@ public class TimeHistogram extends Histogram  {
     }
 
 
-    private static class AscComparator implements Comparator<TimeHistogram> {
+    private static class TimeStampAscComparator implements Comparator<TimeHistogram> {
         @Override
         public int compare(TimeHistogram thisVal, TimeHistogram anotherVal) {
             long thisLong = thisVal.getTimeStamp();

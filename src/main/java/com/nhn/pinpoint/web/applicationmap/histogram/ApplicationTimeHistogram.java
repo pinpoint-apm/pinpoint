@@ -1,10 +1,11 @@
-package com.nhn.pinpoint.web.vo;
+package com.nhn.pinpoint.web.applicationmap.histogram;
 
 import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.SlotType;
-import com.nhn.pinpoint.web.applicationmap.rawdata.TimeHistogram;
 import com.nhn.pinpoint.web.view.ResponseTimeViewModel;
+import com.nhn.pinpoint.web.vo.Application;
+import com.nhn.pinpoint.web.vo.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +14,7 @@ import java.util.*;
 /**
  * @author emeroad
  */
-public class ApplicationTimeSeriesHistogram {
+public class ApplicationTimeHistogram {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -22,11 +23,11 @@ public class ApplicationTimeSeriesHistogram {
 
     private List<TimeHistogram> histogramList;
 
-    public ApplicationTimeSeriesHistogram(Application application, Range range) {
+    public ApplicationTimeHistogram(Application application, Range range) {
         this(application, range, Collections.<TimeHistogram>emptyList());
     }
 
-    public ApplicationTimeSeriesHistogram(Application application, Range range, List<TimeHistogram> histogramList) {
+    public ApplicationTimeHistogram(Application application, Range range, List<TimeHistogram> histogramList) {
         if (application == null) {
             throw new NullPointerException("application must not be null");
         }

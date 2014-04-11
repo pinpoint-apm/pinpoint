@@ -1,11 +1,12 @@
-package com.nhn.pinpoint.web.vo;
+package com.nhn.pinpoint.web.applicationmap.histogram;
 
 import com.nhn.pinpoint.common.SlotType;
-import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkCallData;
-import com.nhn.pinpoint.web.applicationmap.rawdata.TimeHistogram;
 import com.nhn.pinpoint.web.util.TimeWindow;
 import com.nhn.pinpoint.web.util.TimeWindowOneMinuteSampler;
+import com.nhn.pinpoint.web.vo.Application;
+import com.nhn.pinpoint.web.vo.Range;
+import com.nhn.pinpoint.web.vo.ResponseTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,7 +140,7 @@ public class AgentTimeSeriesHistogramBuilder {
     private void sortList(Map<String, List<TimeHistogram>> agentLevelMap) {
         Collection<List<TimeHistogram>> values = agentLevelMap.values();
         for (List<TimeHistogram> value : values) {
-            Collections.sort(value, TimeHistogram.ASC_COMPARATOR);
+            Collections.sort(value, TimeHistogram.TIME_STAMP_ASC_COMPARATOR);
         }
     }
 

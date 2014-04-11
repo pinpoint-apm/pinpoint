@@ -2,9 +2,8 @@ package com.nhn.pinpoint.web.service;
 
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
 import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.web.vo.LoadFactor;
+import com.nhn.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.nhn.pinpoint.web.vo.Range;
-import com.nhn.pinpoint.web.vo.ResponseHistogramSummary;
 
 /**
  * @author netspider
@@ -19,5 +18,5 @@ public interface MapService {
 	 */
 	public ApplicationMap selectApplicationMap(Application sourceApplication, Range range);
 	
-	public ResponseHistogramSummary linkStatistics(Application sourceApplication, Application destinationApplication, Range range);
+	public NodeHistogram linkStatistics(Application sourceApplication, Application destinationApplication, Range range);
 }

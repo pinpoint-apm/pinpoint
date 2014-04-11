@@ -3,6 +3,8 @@ package com.nhn.pinpoint.web.applicationmap.rawdata;
 import com.nhn.pinpoint.common.ServiceType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.nhn.pinpoint.web.applicationmap.histogram.Histogram;
+import com.nhn.pinpoint.web.applicationmap.histogram.TimeHistogram;
 
 import java.util.Collection;
 import java.util.HashMap;

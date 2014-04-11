@@ -2,8 +2,8 @@ package com.nhn.pinpoint.web.view;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.applicationmap.Node;
-import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
-import com.nhn.pinpoint.web.vo.ResponseHistogramSummary;
+import com.nhn.pinpoint.web.applicationmap.histogram.Histogram;
+import com.nhn.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -52,16 +52,16 @@ public class NodeSerializer extends JsonSerializer<Node>  {
 
     private void writeHistogram(JsonGenerator jgen, Node node) throws IOException {
         final ServiceType serviceType = node.getServiceType();
-        final ResponseHistogramSummary responseHistogramSummary = node.getResponseHistogramSummary();
+        final NodeHistogram nodeHistogram = node.getNodeHistogram();
         if (serviceType.isWas() || serviceType.isTerminal() || serviceType.isUnknown() || serviceType.isUser()) {
-            Histogram applicationHistogram = responseHistogramSummary.getApplicationHistogram();
+            Histogram applicationHistogram = nodeHistogram.getApplicationHistogram();
             if (applicationHistogram == null) {
                 writeEmptyObject(jgen, "histogram");
             } else {
                 jgen.writeObjectField("histogram", applicationHistogram);
             }
 
-            Map<String, Histogram> agentHistogramMap = responseHistogramSummary.getAgentHistogramMap();
+            Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();
             if(agentHistogramMap == null) {
                 writeEmptyObject(jgen, "agentHistogram");
             } else {
@@ -69,14 +69,14 @@ public class NodeSerializer extends JsonSerializer<Node>  {
             }
         }
         if (serviceType.isWas() || serviceType.isUser() || serviceType.isTerminal() || serviceType.isUnknown()) {
-            List<ResponseTimeViewModel> applicationTimeSeriesHistogram = responseHistogramSummary.getApplicationTimeSeriesHistogram();
+            List<ResponseTimeViewModel> applicationTimeSeriesHistogram = nodeHistogram.getApplicationTimeHistogram();
             if (applicationTimeSeriesHistogram == null) {
                 writeEmptyArray(jgen, "timeSeriesHistogram");
             } else {
                 jgen.writeObjectField("timeSeriesHistogram", applicationTimeSeriesHistogram);
             }
 
-            AgentResponseTimeViewModelList agentTimeSeriesHistogram = responseHistogramSummary.getAgentTimeSeriesHistogram();
+            AgentResponseTimeViewModelList agentTimeSeriesHistogram = nodeHistogram.getAgentTimeSeriesHistogram();
             jgen.writeObject(agentTimeSeriesHistogram);
         }
     }

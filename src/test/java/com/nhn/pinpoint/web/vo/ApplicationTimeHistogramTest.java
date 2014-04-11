@@ -1,6 +1,8 @@
 package com.nhn.pinpoint.web.vo;
 
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
+import com.nhn.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogramBuilder;
 import com.nhn.pinpoint.web.view.ResponseTimeViewModel;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
@@ -15,7 +17,7 @@ import java.util.List;
 /**
  * @author emeroad
  */
-public class ApplicationTimeSeriesHistogramTest {
+public class ApplicationTimeHistogramTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -25,9 +27,9 @@ public class ApplicationTimeSeriesHistogramTest {
     public void testViewModel() throws IOException {
 
         Application app = new Application("test", ServiceType.TOMCAT);
-        ApplicationTimeSeriesHistogramBuilder builder = new ApplicationTimeSeriesHistogramBuilder(app, new Range(0, 10*6000));
+        ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(app, new Range(0, 10*6000));
         List<ResponseTime> responseHistogramList = createResponseTime(app);
-        ApplicationTimeSeriesHistogram histogram = builder.build(responseHistogramList);
+        ApplicationTimeHistogram histogram = builder.build(responseHistogramList);
 
         List<ResponseTimeViewModel> viewModel = histogram.createViewModel();
         logger.debug("{}", viewModel);

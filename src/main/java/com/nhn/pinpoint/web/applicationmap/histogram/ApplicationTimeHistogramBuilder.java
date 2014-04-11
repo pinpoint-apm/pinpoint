@@ -1,10 +1,11 @@
-package com.nhn.pinpoint.web.vo;
+package com.nhn.pinpoint.web.applicationmap.histogram;
 
-import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkCallData;
-import com.nhn.pinpoint.web.applicationmap.rawdata.TimeHistogram;
 import com.nhn.pinpoint.web.util.TimeWindow;
 import com.nhn.pinpoint.web.util.TimeWindowOneMinuteSampler;
+import com.nhn.pinpoint.web.vo.Application;
+import com.nhn.pinpoint.web.vo.Range;
+import com.nhn.pinpoint.web.vo.ResponseTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +14,7 @@ import java.util.*;
 /**
  * @author emeroad
  */
-public class ApplicationTimeSeriesHistogramBuilder {
+public class ApplicationTimeHistogramBuilder {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Application application;
@@ -22,7 +23,7 @@ public class ApplicationTimeSeriesHistogramBuilder {
 
 
 
-    public ApplicationTimeSeriesHistogramBuilder(Application application, Range range) {
+    public ApplicationTimeHistogramBuilder(Application application, Range range) {
         if (application == null) {
             throw new NullPointerException("application must not be null");
         }
@@ -34,7 +35,7 @@ public class ApplicationTimeSeriesHistogramBuilder {
         this.window = new TimeWindow(range, TimeWindowOneMinuteSampler.SAMPLER);
     }
 
-    public ApplicationTimeSeriesHistogram build(List<ResponseTime> responseHistogramList) {
+    public ApplicationTimeHistogram build(List<ResponseTime> responseHistogramList) {
         if (responseHistogramList == null) {
             throw new NullPointerException("responseHistogramList must not be null");
         }
@@ -54,18 +55,18 @@ public class ApplicationTimeSeriesHistogramBuilder {
         }
 
 
-//        Collections.sort(histogramList, TimeHistogram.ASC_COMPARATOR);
+//        Collections.sort(histogramList, TimeHistogram.TIME_STAMP_ASC_COMPARATOR);
         List<TimeHistogram> histogramList = interpolation(applicationLevelHistogram.values());
         if (logger.isTraceEnabled()) {
             for (TimeHistogram histogram : histogramList) {
                 logger.trace("applicationLevel histogram:{}", histogram);
             }
         }
-        ApplicationTimeSeriesHistogram applicationTimeSeriesHistogram = new ApplicationTimeSeriesHistogram(application, range, histogramList);
-        return applicationTimeSeriesHistogram;
+        ApplicationTimeHistogram applicationTimeHistogram = new ApplicationTimeHistogram(application, range, histogramList);
+        return applicationTimeHistogram;
     }
 
-    public ApplicationTimeSeriesHistogram build(Collection<LinkCallData> linkCallDataMapList) {
+    public ApplicationTimeHistogram build(Collection<LinkCallData> linkCallDataMapList) {
         Map<Long, TimeHistogram> applicationLevelHistogram = new HashMap<Long, TimeHistogram>();
         for (LinkCallData linkCallData : linkCallDataMapList) {
             for (TimeHistogram timeHistogram : linkCallData.getTimeHistogram()) {
@@ -85,8 +86,8 @@ public class ApplicationTimeSeriesHistogramBuilder {
                 logger.trace("applicationLevel histogram:{}", histogram);
             }
         }
-        ApplicationTimeSeriesHistogram applicationTimeSeriesHistogram = new ApplicationTimeSeriesHistogram(application, range, histogramList);
-        return applicationTimeSeriesHistogram;
+        ApplicationTimeHistogram applicationTimeHistogram = new ApplicationTimeHistogram(application, range, histogramList);
+        return applicationTimeHistogram;
 
     }
 
@@ -112,7 +113,7 @@ public class ApplicationTimeSeriesHistogramBuilder {
 
 
         List<TimeHistogram> resultList = new ArrayList<TimeHistogram>(resultMap.values());
-        Collections.sort(resultList, TimeHistogram.ASC_COMPARATOR);
+        Collections.sort(resultList, TimeHistogram.TIME_STAMP_ASC_COMPARATOR);
         return resultList;
     }
 

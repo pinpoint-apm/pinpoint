@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.ServiceType;
 
+import com.nhn.pinpoint.web.applicationmap.histogram.Histogram;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

@@ -5,7 +5,7 @@ import com.nhn.pinpoint.common.HistogramSchema;
 import junit.framework.Assert;
 
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
+import com.nhn.pinpoint.web.applicationmap.histogram.Histogram;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

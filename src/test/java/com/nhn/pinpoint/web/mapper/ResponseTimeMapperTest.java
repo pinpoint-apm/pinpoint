@@ -4,7 +4,7 @@ import com.nhn.pinpoint.common.HistogramSlot;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
 import com.nhn.pinpoint.common.buffer.Buffer;
-import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
+import com.nhn.pinpoint.web.applicationmap.histogram.Histogram;
 import com.nhn.pinpoint.web.vo.ResponseTime;
 import junit.framework.Assert;
 import org.apache.hadoop.hbase.util.Bytes;

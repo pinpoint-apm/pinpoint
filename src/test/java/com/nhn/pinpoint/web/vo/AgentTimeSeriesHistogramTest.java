@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.web.applicationmap.histogram.AgentTimeSeriesHistogram;
+import com.nhn.pinpoint.web.applicationmap.histogram.AgentTimeSeriesHistogramBuilder;
 import com.nhn.pinpoint.web.view.AgentResponseTimeViewModel;
 import org.junit.Test;
 import org.slf4j.Logger;

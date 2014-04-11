@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.web.applicationmap.rawdata;
 
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.nhn.pinpoint.web.vo.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

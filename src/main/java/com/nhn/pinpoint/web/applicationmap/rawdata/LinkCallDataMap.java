@@ -14,7 +14,7 @@ public class LinkCallDataMap {
 
 //    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final Map<LinkKey, LinkCallData> rawCallDataMap = new HashMap<LinkKey, LinkCallData>();
+    private final Map<LinkKey, LinkCallData> linkDataMap = new HashMap<LinkKey, LinkCallData>();
 
     public LinkCallDataMap() {
     }
@@ -44,7 +44,7 @@ public class LinkCallDataMap {
         if (target == null) {
             throw new NullPointerException("target must not be null");
         }
-        for (Map.Entry<LinkKey, LinkCallData> copyEntry : target.rawCallDataMap.entrySet()) {
+        for (Map.Entry<LinkKey, LinkCallData> copyEntry : target.linkDataMap.entrySet()) {
             final LinkKey key = copyEntry.getKey();
             final LinkCallData copyLinkCallData = copyEntry.getValue();
             LinkCallData linkCallData = getLinkCallData(key);
@@ -54,7 +54,7 @@ public class LinkCallDataMap {
     }
 
     private LinkCallData getLinkCallData(LinkKey key) {
-        final Map<LinkKey, LinkCallData> rawCallDataMap = this.rawCallDataMap;
+        final Map<LinkKey, LinkCallData> rawCallDataMap = this.linkDataMap;
         LinkCallData linkCallData = rawCallDataMap.get(key);
         if (linkCallData == null) {
             linkCallData = new LinkCallData(key);
@@ -63,13 +63,13 @@ public class LinkCallDataMap {
         return linkCallData;
     }
 
-    public Collection<LinkCallData> getRawCallDataMap() {
-        return rawCallDataMap.values();
+    public Collection<LinkCallData> getLinkDataMap() {
+        return linkDataMap.values();
     }
 
     public CallHistogramList getTargetList() {
         CallHistogramList targetList = new CallHistogramList();
-        for (Map.Entry<LinkKey, LinkCallData> linkKeyRawCallDataEntry : rawCallDataMap.entrySet()) {
+        for (Map.Entry<LinkKey, LinkCallData> linkKeyRawCallDataEntry : linkDataMap.entrySet()) {
             final LinkKey key = linkKeyRawCallDataEntry.getKey();
             final LinkCallData linkCallData = linkKeyRawCallDataEntry.getValue();
             targetList.addCallHistogram(key.getToApplication(), key.getToServiceType(), linkCallData.getTimeHistogram());
@@ -79,7 +79,7 @@ public class LinkCallDataMap {
 
     public CallHistogramList getSourceList() {
         CallHistogramList sourceList = new CallHistogramList();
-        for (Map.Entry<LinkKey, LinkCallData> linkKeyRawCallDataEntry : rawCallDataMap.entrySet()) {
+        for (Map.Entry<LinkKey, LinkCallData> linkKeyRawCallDataEntry : linkDataMap.entrySet()) {
             final LinkKey key = linkKeyRawCallDataEntry.getKey();
             final LinkCallData linkCallData = linkKeyRawCallDataEntry.getValue();
             // to의 ServiceType이 들어가야 한다.
@@ -91,8 +91,8 @@ public class LinkCallDataMap {
 
     @Override
     public String toString() {
-        return "LinkCallDataMap{" +
-                "rawCallDataMap=" + rawCallDataMap +
+        return "LinkCallDataMap{"
+                    + linkDataMap +
                 '}';
     }
 }

@@ -2,6 +2,10 @@ package com.nhn.pinpoint.web.applicationmap;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
+import com.nhn.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
+import com.nhn.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogramBuilder;
+import com.nhn.pinpoint.web.applicationmap.histogram.Histogram;
+import com.nhn.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.nhn.pinpoint.web.applicationmap.rawdata.*;
 import com.nhn.pinpoint.web.dao.MapResponseDao;
 import com.nhn.pinpoint.web.service.AgentInfoService;
@@ -28,7 +32,7 @@ public class ApplicationMapBuilder {
         this.range = range;
     }
 
-    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService, ResponseDataSource responseDataSource) {
+    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService, NodeHistogramDataSource nodeHistogramDataSource) {
         if (linkDataDuplexMap == null) {
             throw new NullPointerException("linkDataMap must not be null");
         }
@@ -40,7 +44,7 @@ public class ApplicationMapBuilder {
         LinkList linkList = buildLink(nodeList, linkDataDuplexMap);
 
 
-        appendResponseTime(nodeList, linkList, responseDataSource);
+        appendNodeResponseTime(nodeList, linkList, nodeHistogramDataSource);
         // agentInfo를 넣는다.
         appendAgentInfo(nodeList, linkDataDuplexMap, agentInfoService);
 
@@ -50,31 +54,31 @@ public class ApplicationMapBuilder {
 
 
     public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService, final MapResponseDao mapResponseDao) {
-        ResponseDataSource responseSource = new ResponseDataSource() {
+        NodeHistogramDataSource responseSource = new NodeHistogramDataSource() {
             @Override
-            public ResponseHistogramSummary getResponseHistogramSummary(Application application) {
+            public NodeHistogram createNodeHistogram(Application application) {
                 final List<ResponseTime> responseHistogram = mapResponseDao.selectResponseTime(application, range);
-                final ResponseHistogramSummary histogramSummary = new ResponseHistogramSummary(application, range, responseHistogram);
-                return histogramSummary;
+                final NodeHistogram nodeHistogram = new NodeHistogram(application, range, responseHistogram);
+                return nodeHistogram;
             }
         };
         return this.build(linkDataDuplexMap, agentInfoService, responseSource);
     }
 
-    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService, final MapResponseHistogramSummary mapHistogramSummary) {
-        ResponseDataSource responseSource = new ResponseDataSource() {
+    public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService, final ResponseHistogramBuilder mapHistogramSummary) {
+        NodeHistogramDataSource responseSource = new NodeHistogramDataSource() {
             @Override
-            public ResponseHistogramSummary getResponseHistogramSummary(Application application) {
+            public NodeHistogram createNodeHistogram(Application application) {
                 List<ResponseTime> responseHistogram = mapHistogramSummary.getResponseTimeList(application);
-                final ResponseHistogramSummary histogramSummary = new ResponseHistogramSummary(application, range, responseHistogram);
-                return histogramSummary;
+                final NodeHistogram nodeHistogram = new NodeHistogram(application, range, responseHistogram);
+                return nodeHistogram;
             }
         };
         return this.build(linkDataDuplexMap, agentInfoService, responseSource);
     }
 
-    public interface ResponseDataSource {
-        ResponseHistogramSummary getResponseHistogramSummary(Application application);
+    public interface NodeHistogramDataSource {
+        NodeHistogram createNodeHistogram(Application application);
     }
 
 
@@ -232,63 +236,67 @@ public class ApplicationMapBuilder {
         }
     }
 
-    public void appendResponseTime(NodeList nodeList, LinkList linkList, ResponseDataSource responseDataSource) {
-        if (responseDataSource == null) {
-            throw new NullPointerException("responseDataSource must not be null");
+    public void appendNodeResponseTime(NodeList nodeList, LinkList linkList, NodeHistogramDataSource nodeHistogramDataSource) {
+        if (nodeHistogramDataSource == null) {
+            throw new NullPointerException("nodeHistogramDataSource must not be null");
         }
 
         final Collection<Node> nodes = nodeList.getNodeList();
         for (Node node : nodes) {
             if (node.getServiceType().isWas()) {
                 // was일 경우 자신의 response 히스토그램을 조회하여 채운다.
-                final Application nodeApplication = node.getApplication();
-                final ResponseHistogramSummary nodeHistogramSummary = responseDataSource.getResponseHistogramSummary(nodeApplication);
-                node.setResponseHistogramSummary(nodeHistogramSummary);
+                final Application wasNode = node.getApplication();
+                final NodeHistogram nodeHistogram = nodeHistogramDataSource.createNodeHistogram(wasNode);
+                node.setNodeHistogram(nodeHistogram);
+
             } else if(node.getServiceType().isTerminal() || node.getServiceType().isUnknown()) {
                 // 터미널 노드인경우, 자신을 가리키는 link값을 합하여 histogram을 생성한다.
-                final Application nodeApplication = node.getApplication();
-                final ResponseHistogramSummary nodeHistogramSummary = new ResponseHistogramSummary(nodeApplication, range);
+                final Application terminalNode = node.getApplication();
+                final NodeHistogram nodeHistogram = new NodeHistogram(terminalNode, range);
 
-                final List<Link> toLinkList = linkList.findToLink(nodeApplication);
+                // appclicationHistogram 생성.
+                final List<Link> toLinkList = linkList.findToLink(terminalNode);
+                final Histogram applicationHistogram = new Histogram(node.getServiceType());
                 for (Link link : toLinkList) {
-                    nodeHistogramSummary.addHistogram(link.getHistogram());
+                    applicationHistogram.add(link.getHistogram());
                 }
-
+                nodeHistogram.setApplicationHistogram(applicationHistogram);
 
                 LinkCallDataMap linkCallDataMap = new LinkCallDataMap();
                 for (Link link : toLinkList) {
                     LinkCallDataMap sourceLinkCallDataMap = link.getSourceLinkCallDataMap();
                     linkCallDataMap.addLinkDataMap(sourceLinkCallDataMap);
                 }
-                ApplicationTimeSeriesHistogramBuilder builder = new ApplicationTimeSeriesHistogramBuilder(nodeApplication, range);
-                ApplicationTimeSeriesHistogram applicationTimeSeriesHistogram = builder.build(linkCallDataMap.getRawCallDataMap());
-                nodeHistogramSummary.setApplicationTimeSeriesHistogram(applicationTimeSeriesHistogram);
+                ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(terminalNode, range);
+                ApplicationTimeHistogram applicationTimeHistogram = builder.build(linkCallDataMap.getLinkDataMap());
 
-                node.setResponseHistogramSummary(nodeHistogramSummary);
+                nodeHistogram.setApplicationTimeHistogram(applicationTimeHistogram);
+
+                node.setNodeHistogram(nodeHistogram);
             } else if (node.getServiceType().isUser()) {
                 // User노드인 경우 source 링크를 찾아 histogram을 생성한다.
-                Application nodeApplication = node.getApplication();
-                final ResponseHistogramSummary nodeHistogramSummary = new ResponseHistogramSummary(nodeApplication, range);
-                final List<Link> fromLink = linkList.findFromLink(nodeApplication);
+                Application userNode = node.getApplication();
+
+                final NodeHistogram nodeHistogram = new NodeHistogram(userNode, range);
+                final List<Link> fromLink = linkList.findFromLink(userNode);
                 if (fromLink.size() > 1) {
                     logger.warn("Invalid from UserNode:{}", linkList);
                     throw new IllegalArgumentException("Invalid from UserNode.size() :" + fromLink.size());
                 } else if (fromLink.size() == 0) {
-                    logger.warn("from UserNode not found:{}", nodeApplication);
+                    logger.warn("from UserNode not found:{}", userNode);
                     continue;
                 }
                 final Link sourceLink = fromLink.get(0);
-                nodeHistogramSummary.addHistogram(sourceLink.getHistogram());
+                nodeHistogram.setApplicationHistogram(sourceLink.getHistogram());
 
-                ApplicationTimeSeriesHistogram histogramData = sourceLink .getTargetApplicationTimeSeriesHistogramData();
-                nodeHistogramSummary.setApplicationTimeSeriesHistogram(histogramData);
+                ApplicationTimeHistogram histogramData = sourceLink.getTargetApplicationTimeSeriesHistogramData();
+                nodeHistogram.setApplicationTimeHistogram(histogramData);
 
-                node.setResponseHistogramSummary(nodeHistogramSummary);
+                node.setNodeHistogram(nodeHistogram);
             } else {
                 // 그냥 데미 데이터
-                Application nodeApplication = new Application(node.getApplication().getName(), node.getServiceType());
-                ResponseHistogramSummary dummy = new ResponseHistogramSummary(nodeApplication, range);
-                node.setResponseHistogramSummary(dummy);
+                NodeHistogram dummy = new NodeHistogram(node.getApplication(), range);
+                node.setNodeHistogram(dummy);
             }
 
         }
@@ -345,8 +353,8 @@ public class ApplicationMapBuilder {
     private Set<AgentInfoBo> filterAgentInfoByResponseData(Set<AgentInfoBo> agentList, Node node) {
         Set<AgentInfoBo> filteredAgentInfo = new HashSet<AgentInfoBo>();
 
-        ResponseHistogramSummary responseHistogramSummary = node.getResponseHistogramSummary();
-        Map<String, Histogram> agentHistogramMap = responseHistogramSummary.getAgentHistogramMap();
+        NodeHistogram nodeHistogram = node.getNodeHistogram();
+        Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();
         for (AgentInfoBo agentInfoBo : agentList) {
             String agentId = agentInfoBo.getAgentId();
             if (agentHistogramMap.containsKey(agentId)) {

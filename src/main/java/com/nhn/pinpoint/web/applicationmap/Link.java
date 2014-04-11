@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.web.applicationmap;
 
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.web.applicationmap.histogram.*;
 import com.nhn.pinpoint.web.applicationmap.rawdata.*;
 import com.nhn.pinpoint.web.view.AgentResponseTimeViewModelList;
 import com.nhn.pinpoint.web.view.LinkSerializer;
@@ -179,35 +180,35 @@ public class Link {
     }
 
     public List<ResponseTimeViewModel> getSourceApplicationTimeSeriesHistogram() {
-        ApplicationTimeSeriesHistogram histogramData = getSourceApplicationTimeSeriesHistogramData();
+        ApplicationTimeHistogram histogramData = getSourceApplicationTimeSeriesHistogramData();
         return histogramData.createViewModel();
 
     }
 
-    private ApplicationTimeSeriesHistogram getSourceApplicationTimeSeriesHistogramData() {
+    private ApplicationTimeHistogram getSourceApplicationTimeSeriesHistogramData() {
         // form인것 같지만 link의 시간은 rpc를 기준으로 삼아야 하기 때문에. to를 기준으로 삼아야 한다.
-        ApplicationTimeSeriesHistogramBuilder builder = new ApplicationTimeSeriesHistogramBuilder(toNode.getApplication(), range);
-        return builder.build(sourceLinkCallDataMap.getRawCallDataMap());
+        ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(toNode.getApplication(), range);
+        return builder.build(sourceLinkCallDataMap.getLinkDataMap());
     }
 
-    public ApplicationTimeSeriesHistogram getTargetApplicationTimeSeriesHistogramData() {
+    public ApplicationTimeHistogram getTargetApplicationTimeSeriesHistogramData() {
         // form인것 같지만 link의 시간은 rpc를 기준으로 삼아야 하기 때문에. to를 기준으로 삼아야 한다.
-        ApplicationTimeSeriesHistogramBuilder builder = new ApplicationTimeSeriesHistogramBuilder(toNode.getApplication(), range);
-        return builder.build(targetLinkCallDataMap.getRawCallDataMap());
+        ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(toNode.getApplication(), range);
+        return builder.build(targetLinkCallDataMap.getLinkDataMap());
     }
 
     public AgentResponseTimeViewModelList getSourceAgentTimeSeriesHistogram() {
 
         // form인것 같지만 link의 시간은 rpc를 기준으로 삼아야 하기 때문에. to를 기준으로 삼아야 한다.
         AgentTimeSeriesHistogramBuilder builder = new AgentTimeSeriesHistogramBuilder(toNode.getApplication(), range);
-        AgentTimeSeriesHistogram applicationTimeSeriesHistogram = builder.build(sourceLinkCallDataMap.getRawCallDataMap());
+        AgentTimeSeriesHistogram applicationTimeSeriesHistogram = builder.build(sourceLinkCallDataMap.getLinkDataMap());
         AgentResponseTimeViewModelList agentResponseTimeViewModelList = new AgentResponseTimeViewModelList(applicationTimeSeriesHistogram.createViewModel());
         return agentResponseTimeViewModelList;
     }
 
     public List<ResponseTimeViewModel> getTargetApplicationTimeSeriesHistogram() {
-        ApplicationTimeSeriesHistogram targetApplicationTimeSeriesHistogramData = getTargetApplicationTimeSeriesHistogramData();
-        return targetApplicationTimeSeriesHistogramData.createViewModel();
+        ApplicationTimeHistogram targetApplicationTimeHistogramData = getTargetApplicationTimeSeriesHistogramData();
+        return targetApplicationTimeHistogramData.createViewModel();
     }
 
 

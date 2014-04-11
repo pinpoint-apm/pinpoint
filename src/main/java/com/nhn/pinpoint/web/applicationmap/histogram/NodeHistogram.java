@@ -1,39 +1,42 @@
-package com.nhn.pinpoint.web.vo;
+package com.nhn.pinpoint.web.applicationmap.histogram;
 
-import com.nhn.pinpoint.web.applicationmap.rawdata.Histogram;
 import com.nhn.pinpoint.web.view.AgentResponseTimeViewModelList;
 import com.nhn.pinpoint.web.view.ResponseTimeViewModel;
+import com.nhn.pinpoint.web.vo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-import java.io.IOException;
 import java.util.*;
 
 /**
+ * applicationHistogram
+ * agentHistogram
+ * applicationTimeHistogram
+ * agentTimeHistogram
+ * 의 집합
  * @author emeroad
  */
-public class ResponseHistogramSummary {
+public class NodeHistogram {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
 
     private final Application application;
 
     private final Range range;
 
     // ApplicationLevelHistogram
-    private final Histogram applicationHistogram;
+    private Histogram applicationHistogram;
 
     // key는 agentId이다.
     private final Map<String, Histogram> agentHistogramMap;
 
-    private ApplicationTimeSeriesHistogram applicationTimeSeriesHistogram;
+    private ApplicationTimeHistogram applicationTimeHistogram;
 
     private final AgentTimeSeriesHistogram agentTimeSeriesHistogram;
 
 
-    public ResponseHistogramSummary(Application application, Range range) {
+    public NodeHistogram(Application application, Range range) {
         if (application == null) {
             throw new NullPointerException("application must not be null");
         }
@@ -46,11 +49,11 @@ public class ResponseHistogramSummary {
         this.applicationHistogram = new Histogram(this.application.getServiceType());
         this.agentHistogramMap = new HashMap<String, Histogram>();
 
-        this.applicationTimeSeriesHistogram = new ApplicationTimeSeriesHistogram(this.application, this.range);
+        this.applicationTimeHistogram = new ApplicationTimeHistogram(this.application, this.range);
         this.agentTimeSeriesHistogram = new AgentTimeSeriesHistogram(this.application, this.range);
     }
 
-    public ResponseHistogramSummary(Application application, Range range, List<ResponseTime> responseHistogramList) {
+    public NodeHistogram(Application application, Range range, List<ResponseTime> responseHistogramList) {
         if (application == null) {
             throw new NullPointerException("application must not be null");
         }
@@ -64,7 +67,7 @@ public class ResponseHistogramSummary {
         this.range = range;
 
         this.agentTimeSeriesHistogram = createAgentLevelTimeSeriesResponseTime(responseHistogramList);
-        this.applicationTimeSeriesHistogram = createApplicationLevelTimeSeriesResponseTime(responseHistogramList);
+        this.applicationTimeHistogram = createApplicationLevelTimeSeriesResponseTime(responseHistogramList);
 
         this.agentHistogramMap = createAgentLevelResponseTime(responseHistogramList);
         this.applicationHistogram = createApplicationLevelResponseTime(responseHistogramList);
@@ -76,24 +79,23 @@ public class ResponseHistogramSummary {
         return applicationHistogram;
     }
 
-    public void setApplicationTimeSeriesHistogram(ApplicationTimeSeriesHistogram applicationTimeSeriesHistogram) {
-        this.applicationTimeSeriesHistogram = applicationTimeSeriesHistogram;
+    public void setApplicationTimeHistogram(ApplicationTimeHistogram applicationTimeHistogram) {
+        this.applicationTimeHistogram = applicationTimeHistogram;
     }
 
-    @Deprecated
-    public void addHistogram(Histogram linkHistogram) {
-        if (linkHistogram == null) {
-            throw new NullPointerException("histogram must not be null");
+    public void setApplicationHistogram(Histogram applicationHistogram) {
+        if (applicationHistogram == null) {
+            throw new NullPointerException("applicationHistogram must not be null");
         }
-        this.applicationHistogram.add(linkHistogram);
+        this.applicationHistogram = applicationHistogram;
     }
 
     public Map<String, Histogram> getAgentHistogramMap() {
         return agentHistogramMap;
     }
 
-    public List<ResponseTimeViewModel> getApplicationTimeSeriesHistogram() {
-        return applicationTimeSeriesHistogram.createViewModel();
+    public List<ResponseTimeViewModel> getApplicationTimeHistogram() {
+        return applicationTimeHistogram.createViewModel();
     }
 
 
@@ -102,8 +104,8 @@ public class ResponseHistogramSummary {
     }
 
 
-    private ApplicationTimeSeriesHistogram createApplicationLevelTimeSeriesResponseTime(List<ResponseTime> responseHistogramList) {
-        ApplicationTimeSeriesHistogramBuilder builder = new ApplicationTimeSeriesHistogramBuilder(application, range);
+    private ApplicationTimeHistogram createApplicationLevelTimeSeriesResponseTime(List<ResponseTime> responseHistogramList) {
+        ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(application, range);
         return builder.build(responseHistogramList);
     }
 

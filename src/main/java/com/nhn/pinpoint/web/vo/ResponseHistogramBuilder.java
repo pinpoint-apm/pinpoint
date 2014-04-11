@@ -2,19 +2,18 @@ package com.nhn.pinpoint.web.vo;
 
 import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.bo.SpanBo;
-import com.nhn.pinpoint.web.applicationmap.rawdata.TimeHistogram;
+import com.nhn.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.nhn.pinpoint.web.util.TimeWindow;
 import com.nhn.pinpoint.web.util.TimeWindowOneMinuteSampler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.ws.Response;
 import java.util.*;
 
 /**
  * @author emeroad
  */
-public class MapResponseHistogramSummary {
+public class ResponseHistogramBuilder {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final TimeWindow window;
@@ -23,7 +22,7 @@ public class MapResponseHistogramSummary {
     private Map<Application, List<ResponseTime>> result = new HashMap<Application, List<ResponseTime>>();
 
 
-    public MapResponseHistogramSummary(Range range) {
+    public ResponseHistogramBuilder(Range range) {
         if (range == null) {
             throw new NullPointerException("range must not be null");
         }
@@ -50,7 +49,7 @@ public class MapResponseHistogramSummary {
         long timeStamp = timeHistogram.getTimeStamp();
         timeStamp = window.refineTimestamp(timeStamp);
         final ResponseTime responseTime = getResponseTime(application, timeStamp);
-        responseTime.addLinkResponseTime(agentId, timeHistogram);
+        responseTime.addResponseTime(agentId, timeHistogram);
     }
 
     private ResponseTime getResponseTime(Application application, Long timeStamp) {
