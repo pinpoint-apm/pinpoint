@@ -89,7 +89,9 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
             try {
                 return findModifier.modify(classLoader, javassistClassName, protectionDomain, classFileBuffer);
             } finally {
-                thread.setContextClassLoader(before);
+                if (before != null) {
+                    thread.setContextClassLoader(before);
+                }
             }
         }
         catch (Throwable e) {
