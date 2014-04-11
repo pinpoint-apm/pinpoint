@@ -17,6 +17,7 @@ import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.ResponseMessage;
 import com.nhn.pinpoint.rpc.client.PinpointSocket;
 import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
+import com.nhn.pinpoint.rpc.client.PinpointSocketReconnectEventListener;
 import com.nhn.pinpoint.thrift.dto.TResult;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseSerDesFactory;
@@ -51,7 +52,6 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
 
 
     public TcpDataSender(String host, int port) {
-
         pinpointSocketFactory = new PinpointSocketFactory();
         pinpointSocketFactory.setTimeoutMillis(1000 * 5);
         writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", host, port);
@@ -76,6 +76,22 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
         return executor.execute(message);
     }
 
+	@Override
+	public boolean request(TBase<?, ?> data, FutureListener listener) {
+    	RequestMarker message = new RequestMarker(data, listener);
+        return executor.execute(message);
+	}
+
+	@Override
+	public boolean addReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
+		return this.socket.addPinpointSocketReconnectEventListener(eventListener);
+	}
+
+	@Override
+	public boolean removeReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
+		return this.socket.removePinpointSocketReconnectEventListener(eventListener);
+	}
+
     @Override
     public void stop() {
         executor.stop();
@@ -93,14 +109,21 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
                 }
                 doSend(copy);
         	} else if (message instanceof RequestMarker) {
-        		TBase tBase = ((RequestMarker) message).getTBase();
-        		int retryCount = ((RequestMarker) message).getRetryCount();
-        		
+        		RequestMarker requestMarker = (RequestMarker) message;
+
+        		TBase tBase = requestMarker.getTBase();
+        		int retryCount = requestMarker.getRetryCount();
+        		FutureListener futureListener = requestMarker.getFutureListener();
         		byte[] copy = serialize(serializer, tBase);
                 if (copy == null) {
                     return;
                 }
-                doRequest(copy, retryCount, tBase);
+                
+                if (futureListener != null) {
+                	doRequest(copy, futureListener);
+                } else {
+                	doRequest(copy, retryCount, tBase);
+                }
         	} else {
                 logger.error("sendPacket fail. invalid dto type:{}", message.getClass());
                 return;
@@ -131,9 +154,7 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
     }
 
     private void doRequest(final byte[] requestPacket, final int retryCount, final Object targetClass) {
-        // 리팩토링 필요.
-        final Future<ResponseMessage> response = this.socket.request(requestPacket);
-        response.setListener(new FutureListener<ResponseMessage>() {
+    	FutureListener futureListner = (new FutureListener<ResponseMessage>() {
             @Override
             public void onComplete(Future<ResponseMessage> future) {
                 if (future.isSuccess()) {
@@ -160,6 +181,8 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
                 }
             }
         });
+    	
+    	doRequest(requestPacket, futureListner);
     }
 
     private void retryRequest(byte[] requestPacket, int retryCount, final String className) {
@@ -184,6 +207,10 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
         }
     }
 
+    private void doRequest(final byte[] requestPacket, FutureListener futureListener) {
+        final Future<ResponseMessage> response = this.socket.request(requestPacket);
+        response.setListener(futureListener);
+    }
 
     private boolean fireTimeout() {
         if (fireState.compareAndSet(false, true)) {

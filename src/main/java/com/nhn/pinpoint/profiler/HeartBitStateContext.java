@@ -2,12 +2,17 @@ package com.nhn.pinpoint.profiler;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * 
  * @author koo.taejin
  */
 public class HeartBitStateContext {
 
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	
 	// 클래스로 감싸 두지 않음 
 	private HeartBitState state = HeartBitState.NONE;
 	private long prevEventTimeMillis;
@@ -28,12 +33,15 @@ public class HeartBitStateContext {
 
 	// 메시지 성공시를 제외하고는 이걸로 변경하면 안됨
 	boolean changeStateToNeedRequest(long eventTimeMillis) {
+		logger.info(this.getClass().getSimpleName() + " will change to NEED_REQUEST state.");
+		
 		if (prevEventTimeMillis <= eventTimeMillis) {
 			synchronized (this) {
 				boolean isChange = changeState(this.state, HeartBitState.NEED_REQUEST);
 				if (isChange) {
 					prevEventTimeMillis = eventTimeMillis;
 				}
+				logger.info(this.getClass().getSimpleName() + " change to NEED_REQUEST state ({}) .", isChange);
 				return isChange;
 			}
 		}
@@ -41,12 +49,15 @@ public class HeartBitStateContext {
 	}
 	
 	boolean changeStateToNeedNotRequest(long eventTimeMillis) {
+		logger.info(this.getClass().getSimpleName() + " will change to NEED_NOT_REQUEST state.");
+
 		if (prevEventTimeMillis < eventTimeMillis) {
 			synchronized (this) {
 				boolean isChange = changeState(this.state, HeartBitState.NEED_NOT_REQUEST);
 				if (isChange) {
 					prevEventTimeMillis = eventTimeMillis;
 				}
+				logger.info(this.getClass().getSimpleName() + " change to NEED_NOT_REQUEST state ({}) .", isChange);
 				return isChange;
 			}
 		}
@@ -54,10 +65,13 @@ public class HeartBitStateContext {
 	}
 
 	boolean changeStateToFinish() {
-		synchronized (this) {
-			return changeState(this.state, HeartBitState.FINISH);
-		}
+		logger.info(this.getClass().getSimpleName() + " will change to FINISH state.");
 		
+		synchronized (this) {
+			boolean isChange =  changeState(this.state, HeartBitState.FINISH);
+			logger.info(this.getClass().getSimpleName() + " change to FINISH state ({}) .", isChange);
+			return isChange;
+		}
 	}
 	
 	private boolean changeState(HeartBitState current, HeartBitState next) {

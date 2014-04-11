@@ -5,9 +5,11 @@ import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.Version;
 import com.nhn.pinpoint.profiler.AgentInformation;
-
 import com.nhn.pinpoint.profiler.sender.EnhancedDataSender;
 import com.nhn.pinpoint.profiler.sender.LoggingDataSender;
+import com.nhn.pinpoint.rpc.FutureListener;
+import com.nhn.pinpoint.rpc.client.PinpointSocketReconnectEventListener;
+
 import org.apache.thrift.TBase;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -87,8 +89,22 @@ public class TraceTest {
         public boolean request(TBase<?, ?> data, int retry) {
             return send(data);
         }
-    }
 
+		@Override
+		public boolean request(TBase<?, ?> data, FutureListener listener) {
+            return send(data);
+		}
+		
+		@Override
+		public boolean addReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
+			return false;
+		}
+		
+		@Override
+		public boolean removeReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
+			return false;
+		}
+    }
 
     private void getDataFromDB(Trace trace) {
         trace.traceBlockBegin();

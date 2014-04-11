@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.rpc.Future;
+import com.nhn.pinpoint.rpc.FutureListener;
 import com.nhn.pinpoint.rpc.ResponseMessage;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
@@ -83,10 +84,18 @@ public abstract class AbstractDataSender implements DataSender {
 	protected static class RequestMarker {
 		private final TBase tBase;
 		private final int retryCount;
+		private final FutureListener futureListener;
 
 		protected RequestMarker(TBase tBase, int retryCount) {
 			this.tBase = tBase;
 			this.retryCount = retryCount;
+			this.futureListener = null;
+		}
+		
+		protected RequestMarker(TBase tBase, FutureListener futureListener) {
+			this.tBase = tBase;
+			this.retryCount = 3;
+			this.futureListener = futureListener;
 		}
 
 		protected TBase getTBase() {
@@ -95,6 +104,10 @@ public abstract class AbstractDataSender implements DataSender {
 
 		protected int getRetryCount() {
 			return retryCount;
+		}
+		
+		protected FutureListener getFutureListener() {
+			return futureListener;
 		}
 	}
 	
