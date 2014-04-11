@@ -10,8 +10,6 @@ import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.profiler.sender.message.PinpointMessage;
-import com.nhn.pinpoint.profiler.sender.message.PinpointSendMessage;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseSerDesFactory;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
 
@@ -33,7 +31,7 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
 	// 주의 single thread용임
 	private HeaderTBaseSerializer serializer = HeaderTBaseSerDesFactory.getSerializer(false, HeaderTBaseSerDesFactory.DEFAULT_SAFETY_NOT_GURANTEED_MAX_SERIALIZE_DATA_SIZE);
 
-    private AsyncQueueingExecutor<PinpointMessage> executor;
+    private AsyncQueueingExecutor<Object> executor;
 
 	public UdpDataSender(String host, int port, String threadName, int queueSize) {
         if (host == null ) {
@@ -56,8 +54,7 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
 	
     @Override
 	public boolean send(TBase<?, ?> data) {
-    	PinpointMessage message = new PinpointSendMessage(data, serializer);
-		return executor.execute(message);
+		return executor.execute(data);
 	}
 
 
@@ -81,16 +78,16 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
 		}
 	}
 
-	protected void sendPacket(PinpointMessage message) {
-		if (message instanceof PinpointSendMessage) {
+	protected void sendPacket(Object message) {
+		if (message instanceof TBase) {
+			TBase dto = (TBase) message;
             // single thread이므로 데이터 array를 nocopy해서 보냄.
-            byte[] interBufferData = message.serialize();
+            byte[] interBufferData = serialize(serializer, dto);
             if (interBufferData == null) {
                 logger.warn("interBufferData is null");
                 return;
             }
 
-            TBase dto = message.getTBase();
             int interBufferSize = serializer.getInterBufferSize();
             // single thread이므로 그냥 재활용한다.
             reusePacket.setData(interBufferData, 0, interBufferSize);

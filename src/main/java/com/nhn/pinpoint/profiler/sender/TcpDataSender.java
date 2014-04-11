@@ -5,16 +5,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.thrift.TBase;
-import org.apache.thrift.TException;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.profiler.sender.message.PinpointMessage;
-import com.nhn.pinpoint.profiler.sender.message.PinpointRequestMessage;
-import com.nhn.pinpoint.profiler.sender.message.PinpointSendMessage;
 import com.nhn.pinpoint.rpc.Future;
 import com.nhn.pinpoint.rpc.FutureListener;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
@@ -50,7 +46,7 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
 
     private final RetryQueue retryQueue = new RetryQueue();
 
-    private AsyncQueueingExecutor<PinpointMessage> executor;
+    private AsyncQueueingExecutor<Object> executor;
 
 
     public TcpDataSender(String host, int port) {
@@ -65,8 +61,7 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
     
     @Override
     public boolean send(TBase<?, ?> data) {
-    	PinpointMessage message = new PinpointSendMessage(data, serializer);
-        return executor.execute(message);
+        return executor.execute(data);
     }
 
     @Override
@@ -76,7 +71,7 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
 
     @Override
     public boolean request(TBase<?, ?> data, int retryCount) {
-    	PinpointMessage message = new PinpointRequestMessage(data, retryCount, serializer);
+    	RequestMarker message = new RequestMarker(data, retryCount);
         return executor.execute(message);
     }
 
@@ -88,19 +83,22 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
     }
 
     @Override
-    protected void sendPacket(PinpointMessage message) {
+    protected void sendPacket(Object message) {
         try {
-    		byte[] copy = message.serialize();
-            if (copy == null) {
-                return;
-            }
-
-            if (message instanceof PinpointSendMessage) {
+        	if (message instanceof TBase) {
+        		byte[] copy = serialize(serializer, (TBase) message);
+                if (copy == null) {
+                    return;
+                }
                 doSend(copy);
-        	} else if (message instanceof PinpointRequestMessage) {
-                int retryCount = ((PinpointRequestMessage) message).getRetryCount();
-                TBase tBase = message.getTBase();
-                
+        	} else if (message instanceof RequestMarker) {
+        		TBase tBase = ((RequestMarker) message).getTBase();
+        		int retryCount = ((RequestMarker) message).getRetryCount();
+        		
+        		byte[] copy = serialize(serializer, tBase);
+                if (copy == null) {
+                    return;
+                }
                 doRequest(copy, retryCount, tBase);
         	} else {
                 logger.error("sendPacket fail. invalid dto type:{}", message.getClass());
@@ -138,8 +136,9 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
             @Override
             public void onComplete(Future<ResponseMessage> future) {
                 if (future.isSuccess()) {
+            		// caching해야 될려나?
                 	HeaderTBaseDeserializer deserializer = HeaderTBaseSerDesFactory.getDeserializer();
-                    TBase<?, ?> response = deserialize(deserializer, future);
+                    TBase<?, ?> response = deserialize(deserializer, future.getResult());
                     if (response instanceof TResult) {
                         TResult result = (TResult) response;
                         if (result.isSuccess()) {
@@ -197,18 +196,5 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
         logger.debug("fireComplete");
         fireState.compareAndSet(true, false);
     }
-
-    protected TBase<?, ?> deserialize(HeaderTBaseDeserializer deserializer, Future<ResponseMessage> future) {
-		byte[] message = future.getResult().getMessage();
-		// caching해야 될려나?
-		try {
-			return deserializer.deserialize(message);
-		} catch (TException e) {
-			if (logger.isWarnEnabled()) {
-				logger.warn("Deserialize fail. Caused:{}", e.getMessage(), e);
-			}
-			return null;
-		}
-	}
 
 }
