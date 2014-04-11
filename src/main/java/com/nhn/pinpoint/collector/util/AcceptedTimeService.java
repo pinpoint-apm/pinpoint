@@ -5,9 +5,9 @@ package com.nhn.pinpoint.collector.util;
  */
 public interface AcceptedTimeService {
 
-    public void accept();
+    void accept();
 
-    public void accept(long time);
+    void accept(long time);
 
-    public long getAcceptedTime();
+    long getAcceptedTime();
 }
