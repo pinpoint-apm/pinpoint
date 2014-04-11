@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.vo;
+package com.nhn.pinpoint.web.applicationmap.histogram;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -7,6 +7,9 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.applicationmap.histogram.AgentTimeSeriesHistogram;
 import com.nhn.pinpoint.web.applicationmap.histogram.AgentTimeSeriesHistogramBuilder;
 import com.nhn.pinpoint.web.view.AgentResponseTimeViewModel;
+import com.nhn.pinpoint.web.vo.Application;
+import com.nhn.pinpoint.web.vo.Range;
+import com.nhn.pinpoint.web.vo.ResponseTime;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +22,7 @@ import java.util.List;
 /**
  * @author emeroad
  */
-public class AgentTimeSeriesHistogramTest {
+public class AgentTimeHistogramTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

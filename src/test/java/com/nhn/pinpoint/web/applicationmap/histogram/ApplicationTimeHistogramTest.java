@@ -1,9 +1,12 @@
-package com.nhn.pinpoint.web.vo;
+package com.nhn.pinpoint.web.applicationmap.histogram;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
 import com.nhn.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogramBuilder;
 import com.nhn.pinpoint.web.view.ResponseTimeViewModel;
+import com.nhn.pinpoint.web.vo.Application;
+import com.nhn.pinpoint.web.vo.Range;
+import com.nhn.pinpoint.web.vo.ResponseTime;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
 import org.junit.Test;
