@@ -30,6 +30,7 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     static {
+        // preClassLoad
         ChannelBuffers.buffer(2);
     }
 
