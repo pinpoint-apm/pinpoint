@@ -1,7 +1,9 @@
-package com.nhn.pinpoint.web.vo;
+package com.nhn.pinpoint.web.vo.scatter;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.nhn.pinpoint.web.view.ApplicationScatterScanResultSerializer;
+import com.nhn.pinpoint.web.vo.Application;
+import com.nhn.pinpoint.web.vo.scatter.ScatterScanResult;
 
 /**
  * @author emeroad

@@ -2,7 +2,9 @@ package com.nhn.pinpoint.web.service;
 
 import com.nhn.pinpoint.common.bo.SpanBo;
 import com.nhn.pinpoint.web.vo.*;
+import com.nhn.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
 import com.nhn.pinpoint.web.vo.scatter.Dot;
+import com.nhn.pinpoint.web.vo.scatter.ScatterScanResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

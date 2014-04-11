@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.vo;
+package com.nhn.pinpoint.web.vo.scatter;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

@@ -14,6 +14,7 @@ import com.nhn.pinpoint.web.filter.Filter;
 import com.nhn.pinpoint.web.filter.FilterBuilder;
 import com.nhn.pinpoint.web.vo.*;
 import com.nhn.pinpoint.web.vo.scatter.Dot;
+import com.nhn.pinpoint.web.vo.scatter.ScatterIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

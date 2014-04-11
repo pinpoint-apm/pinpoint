@@ -17,6 +17,7 @@ import com.nhn.pinpoint.web.util.TimeWindow;
 import com.nhn.pinpoint.web.util.TimeWindowOneMinuteSampler;
 import com.nhn.pinpoint.web.dao.*;
 import com.nhn.pinpoint.web.vo.*;
+import com.nhn.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

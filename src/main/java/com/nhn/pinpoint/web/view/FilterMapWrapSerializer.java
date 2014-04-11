@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.nhn.pinpoint.web.applicationmap.FilterMapWrap;
 import com.nhn.pinpoint.web.applicationmap.Node;
 import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.web.vo.ApplicationScatterScanResult;
+import com.nhn.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
 
 import java.io.IOException;
 import java.util.List;

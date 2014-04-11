@@ -1,7 +1,8 @@
-package com.nhn.pinpoint.web.vo;
+package com.nhn.pinpoint.web.vo.scatter;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.nhn.pinpoint.web.vo.scatter.Dot;
+import com.nhn.pinpoint.web.vo.scatter.ScatterIndex;
 
 import java.util.Collections;
 import java.util.List;
