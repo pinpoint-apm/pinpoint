@@ -124,13 +124,16 @@ canvas {outline:none}
     }
 }
 
-.login-modal.center .modal-dialog {
+.modal.center .modal-dialog {
     position: fixed;
     top: 40%;
     left: 50%;
-    max-width: 550px;
     -webkit-transform: translateX(-50%) translateY(-50%);
     transform: translateX(-50%) translateY(-50%);
+}
+
+.login-modal.center .modal-dialog {
+    max-width: 550px;
 }
 .login-modal .modal-footer {
     margin-top: 0;
