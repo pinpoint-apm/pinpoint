@@ -449,6 +449,11 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                                             to: result.oServerMapFilterVo.getResponseTo()
                                         };
                                         scope.includeFailed = result.oServerMapFilterVo.getIncludeException();
+                                    } else {
+                                        scope.responseTime = {
+                                            from: 0,
+                                            to: 30000
+                                        };
                                     }
                                 } else {
                                     scope.responseTime = {
