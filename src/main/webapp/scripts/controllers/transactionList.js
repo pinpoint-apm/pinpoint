@@ -11,14 +11,15 @@ pinpointApp.constant('TransactionListConfig', {
     }
 });
 
-pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$rootScope', '$timeout', '$window', '$http', 'webStorage', 'TimeSliderVo', 'encodeURIComponentFilter', 'TransactionDao',
-    function (cfg, $scope, $rootScope, $timeout, $window, $http, webStorage, TimeSliderVo, encodeURIComponentFilter, oTransactionDao) {
+pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope', '$routeParams', '$rootScope', '$timeout', '$window', '$http', 'webStorage', 'TimeSliderVo', 'encodeURIComponentFilter', 'TransactionDao',
+    function (cfg, $scope, $routeParams, $rootScope, $timeout, $window, $http, webStorage, TimeSliderVo, encodeURIComponentFilter, oTransactionDao) {
 
         // define private variables
-        var nFetchCount, nLastFetchedIndex, htTransactions, oTimeSliderVo;
+        var nFetchCount, nLastFetchedIndex, htTransactionInfo, htTransactionData, oTimeSliderVo;
 
         // define private variables of methods
-        var fetchStart, fetchNext, fetchAll, emitTransactionListToTable, getQuery, getTransactionList, changeTransactionDetail;
+        var fetchStart, fetchNext, fetchAll, emitTransactionListToTable, getQuery, getTransactionList, changeTransactionDetail,
+            validateParentWindow, parseWindowName, hasScatterByApplicationName, getDataByTransactionInfo;
 
         /**
          * initialization
@@ -30,12 +31,23 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
             nLastFetchedIndex = 0;
             $scope.transactionDetailUrl = 'index.html#/transactionDetail';
 
-//            htTransactions = webStorage.session.get($window.name);
-//        htTransactions = opener[$window.name];
-            oTransactionDao.getDataByName($window.name, function (data) {
-                htTransactions = data;
+            if(!validateParentWindow()) {
+                if (confirm('Scatter data of parent window had been changed.\r\nso can\'t scan the data any more.\r\nDo you want to close this window?')) {
+                    $window.close();
+                }
+            }
+
+            htTransactionInfo = parseWindowName($window.name);
+
+            if(!hasScatterByApplicationName(htTransactionInfo.applicationName)) {
+                if (confirm('There is no ' + htTransactionInfo.applicationName + ' scatter data in parent window.\r\nDo you want to close this window?')) {
+                    $window.close();
+                }
+            }
+
+            htTransactionData = getDataByTransactionInfo(htTransactionInfo);
                 oTimeSliderVo = new TimeSliderVo();
-                oTimeSliderVo.setTotal(htTransactions.aTraces.length);
+                oTimeSliderVo.setTotal(htTransactionData.length);
 
                 fetchStart();
                 $timeout(function () {
@@ -48,9 +60,56 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
                         center__maskContents: true // IMPORTANT - enable iframe masking
                     });
                 }, 500);
-            });
 
         }, 100);
+
+        /**
+         * validate parent window
+         * @returns {*}
+         */
+        validateParentWindow = function () {
+            var $parentParams = $window.opener.$routeParams;
+            return angular.isDefined($routeParams) &&
+                angular.isDefined($parentParams) &&
+                angular.equals($routeParams.application, $parentParams.application) &&
+                angular.equals($routeParams.period, $parentParams.period) &&
+                angular.equals($routeParams.queryEndTime, $parentParams.queryEndTime);
+        };
+
+        /**
+         * parse window name
+         * @param windowName
+         * @returns {{applicationName: *, nXFrom: *, nXTo: *, nYFrom: *, nYTo: *}}
+         */
+        parseWindowName = function (windowName) {
+            var t = windowName.split('|');
+            return {
+                applicationName: t[0],
+                nXFrom: t[1],
+                nXTo: t[2],
+                nYFrom: t[3],
+                nYTo: t[4]
+            };
+        };
+
+        /**
+         * has scatter by application name
+         * @param applicationName
+         * @returns {*}
+         */
+        hasScatterByApplicationName = function (applicationName) {
+            return angular.isDefined($window.opener.htoScatter[applicationName]);
+        };
+
+        /**
+         * get data by transaction list info
+         * @param t
+         * @returns {*}
+         */
+        getDataByTransactionInfo = function (t) {
+            var oScatter = $window.opener.htoScatter[t.applicationName];
+            return oScatter.getDataByXY(t.nXFrom, t.nXTo, t.nYFrom, t.nYTo);
+        };
 
         /**
          * emit transaction list to table
@@ -65,18 +124,18 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
          * @returns {Array | Boolean}
          */
         getQuery = function () {
-            if (!htTransactions.aTraces) {
+            if (!htTransactionData) {
                 $window.alert("Query parameter 캐시가 삭제되었기 때문에 데이터를 조회할 수 없습니다.\n\n이러한 현상은 scatter chart를 새로 조회했을 때 발생할 수 있습니다.");
                 return false;
             }
             var query = [];
-            for (var i = nLastFetchedIndex, j = 0; i < cfg.MAX_FETCH_BLOCK_SIZE * nFetchCount && i < htTransactions.aTraces.length; i++, j++) {
+            for (var i = nLastFetchedIndex, j = 0; i < cfg.MAX_FETCH_BLOCK_SIZE * nFetchCount && i < htTransactionData.length; i++, j++) {
                 if (i > 0) {
                     query.push("&");
                 }
-                query = query.concat(["I", j, "=", htTransactions.aTraces[i][cfg.transactionIndex.transactionId]]);
-                query = query.concat(["&T", j, "=", htTransactions.aTraces[i][cfg.transactionIndex.x]]);
-                query = query.concat(["&R", j, "=", htTransactions.aTraces[i][cfg.transactionIndex.y]]);
+                query = query.concat(["I", j, "=", htTransactionData[i][cfg.transactionIndex.transactionId]]);
+                query = query.concat(["&T", j, "=", htTransactionData[i][cfg.transactionIndex.x]]);
+                query = query.concat(["&R", j, "=", htTransactionData[i][cfg.transactionIndex.y]]);
                 nLastFetchedIndex++;
             }
             nFetchCount++;
@@ -95,7 +154,7 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
                 } else if (data.metadata.length < cfg.MAX_FETCH_BLOCK_SIZE || oTimeSliderVo.getTotal() === data.metadata.length + oTimeSliderVo.getCount()) {
                     $scope.$emit('timeSlider.disableMore');
                     $scope.$emit('timeSlider.changeMoreToDone');
-                    oTimeSliderVo.setInnerFrom(htTransactions.htXY.nXFrom);
+                    oTimeSliderVo.setInnerFrom(htTransactionInfo.nXFrom);
                 } else {
                     $scope.$emit('timeSlider.enableMore');
                     oTimeSliderVo.setInnerFrom(_.last(data.metadata).collectorAcceptTime);
@@ -127,16 +186,16 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
                 } else if (data.metadata.length < cfg.MAX_FETCH_BLOCK_SIZE || oTimeSliderVo.getTotal() === data.metadata.length) {
                     $scope.$emit('timeSlider.disableMore');
                     $scope.$emit('timeSlider.changeMoreToDone');
-                    oTimeSliderVo.setInnerFrom(htTransactions.htXY.nXFrom);
+                    oTimeSliderVo.setInnerFrom(htTransactionInfo.nXFrom);
                 } else {
                     $scope.$emit('timeSlider.enableMore');
                     oTimeSliderVo.setInnerFrom(_.last(data.metadata).collectorAcceptTime);
                 }
                 emitTransactionListToTable(data);
 
-                oTimeSliderVo.setFrom(htTransactions.htXY.nXFrom);
-                oTimeSliderVo.setTo(htTransactions.htXY.nXTo);
-                oTimeSliderVo.setInnerTo(htTransactions.htXY.nXTo);
+                oTimeSliderVo.setFrom(htTransactionInfo.nXFrom);
+                oTimeSliderVo.setTo(htTransactionInfo.nXTo);
+                oTimeSliderVo.setInnerTo(htTransactionInfo.nXTo);
                 oTimeSliderVo.setCount(data.metadata.length);
 
                 $scope.$emit('timeSlider.initialize', oTimeSliderVo);

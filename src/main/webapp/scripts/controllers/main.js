@@ -11,6 +11,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
 
         // initialize scope variables
         $scope.hasScatter = false;
+        $window.htoScatter = {};
 
         /**
          * bootstrap
@@ -26,6 +27,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
             if ($routeParams.queryEndTime) {
                 oNavbarVo.setQueryEndTime(Number($routeParams.queryEndTime, 10));
             }
+            $window.$routeParams = $routeParams;
             oNavbarVo.autoCalculateByQueryEndTimeAndPeriod();
             $scope.$broadcast('navbar.initialize', oNavbarVo);
             $scope.$broadcast('scatter.initialize', oNavbarVo);
@@ -55,6 +57,11 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
                 } else {
                     location.skipReload().path(url).replace();
                 }
+                $window.$routeParams = {
+                    application: oNavbarVo.getApplication(),
+                    period: (oNavbarVo.getPeriod()).toString(),
+                    queryEndTime: (oNavbarVo.getQueryEndTime()).toString()
+                };
                 if (!$scope.$$phase) {
                     $scope.$apply();
                 }
@@ -93,6 +100,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
         $scope.$on('navbar.changed', function (event, navbarVo) {
             oNavbarVo = navbarVo;
             changeLocation(oNavbarVo);
+            $window.htoScatter = {};
             $scope.hasScatter = false;
             $scope.$broadcast('sidebarTitle.empty.forMain');
             $scope.$broadcast('nodeInfoDetails.reset');

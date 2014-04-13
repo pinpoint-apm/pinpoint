@@ -9,6 +9,10 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
         // define private variables of methods
         var openFilteredMapWithFilterVo;
 
+        // initialize scope variables
+        $scope.hasScatter = false;
+        $window.htoScatter = {};
+
         /**
          * initialize
          */
@@ -26,6 +30,7 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
             if ($routeParams.filter) {
                 oNavbarVo.setFilter($routeParams.filter);
             }
+            $window.$routeParams = $routeParams;
             oNavbarVo.autoCalculateByQueryEndTimeAndPeriod();
 
             oTimeSliderVo = new TimeSliderVo()

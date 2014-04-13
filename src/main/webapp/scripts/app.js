@@ -20,7 +20,7 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
     }).when('/inspector/:application/:period/:queryEndTime/:agentId', {
         templateUrl: 'views/inspector.html',
         controller: 'InspectorCtrl'
-    }).when('/transactionList', {
+    }).when('/transactionList/:application/:period/:queryEndTime', {
         templateUrl: 'views/transactionList.html',
         controller: 'TransactionListCtrl'
     }).when('/transactionDetail', {

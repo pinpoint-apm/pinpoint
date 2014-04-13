@@ -180,31 +180,36 @@ pinpointApp.directive('scatter',
                             };
                             
                             // by netspider
-                            console.log(target, title, start, end, period, filter, w, h);
-                            var NEW_URL = "/transactionmetadata2.pinpoint?application=" + title;
-                            NEW_URL += "&from=" + htXY.nXFrom;
-                            NEW_URL += "&to=" + htXY.nXTo;
-							NEW_URL += "&responseFrom="+ htXY.nYFrom;
-							NEW_URL += "&responseTo=" + htXY.nYTo;
-							NEW_URL += "&limit=3";
-							if (filter) {
-								NEW_URL += "&filter=" + filter;
-							}
+//                            console.log(target, title, start, end, period, filter, w, h);
+//                            var NEW_URL = "/transactionmetadata2.pinpoint?application=" + title;
+//                            NEW_URL += "&from=" + htXY.nXFrom;
+//                            NEW_URL += "&to=" + htXY.nXTo;
+//							NEW_URL += "&responseFrom="+ htXY.nYFrom;
+//							NEW_URL += "&responseTo=" + htXY.nYTo;
+//							NEW_URL += "&limit=3";
+//							if (filter) {
+//								NEW_URL += "&filter=" + filter;
+//							}
                             // var ww = window.open(NEW_URL);
                             // end
 
-                            transactions.aTraces = this.getDataByXY(htXY.nXFrom, htXY.nXTo, htXY.nYFrom, htXY.nYTo);
-                            if (transactions.aTraces.length === 0) {
+//                            transactions.aTraces = this.getDataByXY(htXY.nXFrom, htXY.nXTo, htXY.nYFrom, htXY.nYTo);
+//                            if (transactions.aTraces.length === 0) {
+//                                return;
+//                            }
+                            if (!this.hasDataByXY(htXY.nXFrom, htXY.nXTo, htXY.nYFrom, htXY.nYTo)) {
                                 return;
                             }
 
-                            var token = 'transactionsFromScatter_' + _.random(100000, 999999);
+//                            var token = 'transactionsFromScatter_' + _.random(100000, 999999);
 //                            webStorage.session.add(token, transactions);
 //                            window[token] = transactions;
 //                            window.open("/selectedScatter.pinpoint", token);
+//                            oTransactionDao.addData(token, transactions);
 
-                            oTransactionDao.addData(token, transactions);
-                            $window.open('#/transactionList', token);
+                            var token = htLastNode.text + '|' + htXY.nXFrom + '|' + htXY.nXTo + '|' + htXY.nYFrom + '|' + htXY.nYTo;
+                            $window.open('#/transactionList/' + oNavbarVo.getApplication() + '/' +
+                                oNavbarVo.getPeriod() + '/' + oNavbarVo.getQueryEndTime(), token);
                         };
                         options.fFullScreenMode = function () {
                             var url = '#/scatterFullScreenMode/' + htLastNode.text + '@' + htLastNode.serviceTypeCode + '/' +
@@ -219,6 +224,7 @@ pinpointApp.directive('scatter',
                         oScatterChart = new BigScatterChart(options);
                         $timeout(function () {
                             oScatterChart.drawWithDataSource(getDataSource(title, start, end, filter));
+                            $window.htoScatter[htLastNode.text] = oScatterChart;
                         }, 100);
 
                         return oScatterChart;
@@ -276,7 +282,7 @@ pinpointApp.directive('scatter',
                      */
                     scope.$on('scatter.initializeWithNode', function (event, node, w, h) {
                         htLastNode = node;
-                        showScatter(node.applicationName || node.text, oNavbarVo.getQueryStartTime(),
+                        showScatter(node.text, oNavbarVo.getQueryStartTime(),
                             oNavbarVo.getQueryEndTime(), oNavbarVo.getQueryPeriod(), oNavbarVo.getFilter(), w, h);
                     });
                 }
