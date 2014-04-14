@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -43,8 +42,9 @@ public class LinkSerializer extends JsonSerializer<Link> {
 
         jgen.writeObjectField("histogram", histogram);
 
-        writeSourceHistogram(link, jgen);
-        writeTargetHosts(link, jgen);
+        // 링크별 각 agent가 어떻게 호출했는지 데이터
+        writeAgentHistogram("sourceHistogram", link.getSourceList(), jgen);
+        writeAgentHistogram("targetHistogram", link.getTargetList(), jgen);
 
         writeTimeSeriesHistogram(link, jgen);
         writeSourceAgentTimeSeriesHistogram(link, jgen);
@@ -65,29 +65,11 @@ public class LinkSerializer extends JsonSerializer<Link> {
         jgen.writeObject(sourceApplicationTimeSeriesHistogram);
     }
 
-    private void writeTargetHosts(Link link, JsonGenerator jgen) throws IOException {
-        CallHistogramList targetList = link.getTargetList();
-        Collection<CallHistogram> targetCallHistogramList = targetList.getCallHistogramList();
-        jgen.writeFieldName("targetHosts");
+
+    private void writeAgentHistogram(String fieldName, CallHistogramList callHistogramList, JsonGenerator jgen) throws IOException {
+        jgen.writeFieldName(fieldName);
         jgen.writeStartObject();
-        for (CallHistogram callHistogram : targetCallHistogramList) {
-            jgen.writeFieldName(callHistogram.getId());
-            jgen.writeStartObject();
-
-            jgen.writeFieldName("histogram");
-            jgen.writeObject(callHistogram.getHistogram());
-
-            jgen.writeEndObject();
-        }
-        jgen.writeEndObject();
-    }
-
-    private void writeSourceHistogram(Link link, JsonGenerator jgen) throws IOException {
-        jgen.writeFieldName("sourceHistogram");
-        final CallHistogramList sourceList = link.getSourceList();
-        Collection<CallHistogram> callHistogramList = sourceList.getCallHistogramList();
-        jgen.writeStartObject();
-        for (CallHistogram callHistogram : callHistogramList) {
+        for (CallHistogram callHistogram : callHistogramList.getCallHistogramList()) {
             jgen.writeFieldName(callHistogram.getId());
             jgen.writeObject(callHistogram.getHistogram());
         }
