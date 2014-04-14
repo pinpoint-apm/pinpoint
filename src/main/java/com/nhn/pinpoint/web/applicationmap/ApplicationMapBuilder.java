@@ -2,10 +2,7 @@ package com.nhn.pinpoint.web.applicationmap;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogram;
-import com.nhn.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogramBuilder;
-import com.nhn.pinpoint.web.applicationmap.histogram.Histogram;
-import com.nhn.pinpoint.web.applicationmap.histogram.NodeHistogram;
+import com.nhn.pinpoint.web.applicationmap.histogram.*;
 import com.nhn.pinpoint.web.applicationmap.rawdata.*;
 import com.nhn.pinpoint.web.dao.MapResponseDao;
 import com.nhn.pinpoint.web.service.AgentInfoService;
@@ -243,37 +240,17 @@ public class ApplicationMapBuilder {
 
         final Collection<Node> nodes = nodeList.getNodeList();
         for (Node node : nodes) {
-            if (node.getServiceType().isWas()) {
+            final ServiceType nodeType = node.getServiceType();
+            if (nodeType.isWas()) {
                 // was일 경우 자신의 response 히스토그램을 조회하여 채운다.
                 final Application wasNode = node.getApplication();
                 final NodeHistogram nodeHistogram = nodeHistogramDataSource.createNodeHistogram(wasNode);
                 node.setNodeHistogram(nodeHistogram);
 
-            } else if(node.getServiceType().isTerminal() || node.getServiceType().isUnknown()) {
-                // 터미널 노드인경우, 자신을 가리키는 link값을 합하여 histogram을 생성한다.
-                final Application terminalNode = node.getApplication();
-                final NodeHistogram nodeHistogram = new NodeHistogram(terminalNode, range);
-
-                // appclicationHistogram 생성.
-                final List<Link> toLinkList = linkList.findToLink(terminalNode);
-                final Histogram applicationHistogram = new Histogram(node.getServiceType());
-                for (Link link : toLinkList) {
-                    applicationHistogram.add(link.getHistogram());
-                }
-                nodeHistogram.setApplicationHistogram(applicationHistogram);
-
-                LinkCallDataMap linkCallDataMap = new LinkCallDataMap();
-                for (Link link : toLinkList) {
-                    LinkCallDataMap sourceLinkCallDataMap = link.getSourceLinkCallDataMap();
-                    linkCallDataMap.addLinkDataMap(sourceLinkCallDataMap);
-                }
-                ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(terminalNode, range);
-                ApplicationTimeHistogram applicationTimeHistogram = builder.build(linkCallDataMap.getLinkDataMap());
-
-                nodeHistogram.setApplicationTimeHistogram(applicationTimeHistogram);
-
+            } else if(nodeType.isTerminal() || nodeType.isUnknown()) {
+                final NodeHistogram nodeHistogram = createTerminalNodeHistogram(node, linkList);
                 node.setNodeHistogram(nodeHistogram);
-            } else if (node.getServiceType().isUser()) {
+            } else if (nodeType.isUser()) {
                 // User노드인 경우 source 링크를 찾아 histogram을 생성한다.
                 Application userNode = node.getApplication();
 
@@ -301,6 +278,61 @@ public class ApplicationMapBuilder {
 
         }
 
+    }
+
+    private NodeHistogram createTerminalNodeHistogram(Node node, LinkList linkList) {
+        // 터미널 노드인경우, 자신을 가리키는 link값을 합하여 histogram을 생성한다.
+        final Application nodeApplication = node.getApplication();
+        final NodeHistogram nodeHistogram = new NodeHistogram(nodeApplication, range);
+
+        // appclicationHistogram 생성.
+        final List<Link> toLinkList = linkList.findToLink(nodeApplication);
+        final Histogram applicationHistogram = new Histogram(node.getServiceType());
+        for (Link link : toLinkList) {
+            applicationHistogram.add(link.getHistogram());
+        }
+        nodeHistogram.setApplicationHistogram(applicationHistogram);
+
+        // applicationTimeHistogram 생성.
+        LinkCallDataMap linkCallDataMap = new LinkCallDataMap();
+        for (Link link : toLinkList) {
+            LinkCallDataMap sourceLinkCallDataMap = link.getSourceLinkCallDataMap();
+            linkCallDataMap.addLinkDataMap(sourceLinkCallDataMap);
+        }
+        ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(nodeApplication, range);
+        ApplicationTimeHistogram applicationTimeHistogram = builder.build(linkCallDataMap.getLinkDataMap());
+        nodeHistogram.setApplicationTimeHistogram(applicationTimeHistogram);
+
+        // terminal일 경우 node의 AgentLevel histogram을 추가로 생성한다.
+        if (nodeApplication.getServiceType().isTerminal()) {
+            final Map<String, Histogram> agentHistogramMap = new HashMap<String, Histogram>();
+
+            for (Link link : toLinkList) {
+                LinkCallDataMap sourceLinkCallDataMap = link.getSourceLinkCallDataMap();
+                CallHistogramList targetList = sourceLinkCallDataMap.getTargetList();
+                for (CallHistogram histogram : targetList.getCallHistogramList()) {
+                    Histogram find = agentHistogramMap.get(histogram.getId());
+                    if (find == null) {
+                        find = new Histogram(histogram.getServiceType());
+                        agentHistogramMap.put(histogram.getId(), find);
+                    }
+                    find.add(histogram.getHistogram());
+                }
+                nodeHistogram.setAgentHistogramMap(agentHistogramMap);
+            }
+        }
+
+        Collection<LinkCallData> mergeTarget = new ArrayList<LinkCallData>();
+        for (Link link : toLinkList) {
+            LinkCallDataMap sourceLinkCallDataMap = link.getSourceLinkCallDataMap();
+            Collection<LinkCallData> linkDataMap = sourceLinkCallDataMap.getLinkDataMap();
+            mergeTarget.addAll(linkDataMap);
+        }
+        AgentTimeSeriesHistogramBuilder agentTimeBuilder = new AgentTimeSeriesHistogramBuilder(nodeApplication, range);
+        AgentTimeSeriesHistogram agentTimeHistogram = agentTimeBuilder.buildTarget(mergeTarget);
+        nodeHistogram.setAgentTimeSeriesHistogram(agentTimeHistogram);
+
+        return nodeHistogram;
     }
 
     public void appendAgentInfo(NodeList nodeList, LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService) {

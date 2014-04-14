@@ -29,11 +29,11 @@ public class NodeHistogram {
     private Histogram applicationHistogram;
 
     // key는 agentId이다.
-    private final Map<String, Histogram> agentHistogramMap;
+    private Map<String, Histogram> agentHistogramMap;
 
     private ApplicationTimeHistogram applicationTimeHistogram;
 
-    private final AgentTimeSeriesHistogram agentTimeSeriesHistogram;
+    private AgentTimeSeriesHistogram agentTimeSeriesHistogram;
 
 
     public NodeHistogram(Application application, Range range) {
@@ -90,6 +90,10 @@ public class NodeHistogram {
         this.applicationHistogram = applicationHistogram;
     }
 
+    public void setAgentHistogramMap(Map<String, Histogram> agentHistogramMap) {
+        this.agentHistogramMap = agentHistogramMap;
+    }
+
     public Map<String, Histogram> getAgentHistogramMap() {
         return agentHistogramMap;
     }
@@ -103,6 +107,9 @@ public class NodeHistogram {
         return new AgentResponseTimeViewModelList(agentTimeSeriesHistogram.createViewModel());
     }
 
+    public void setAgentTimeSeriesHistogram(AgentTimeSeriesHistogram agentTimeSeriesHistogram) {
+        this.agentTimeSeriesHistogram = agentTimeSeriesHistogram;
+    }
 
     private ApplicationTimeHistogram createApplicationLevelTimeSeriesResponseTime(List<ResponseTime> responseHistogramList) {
         ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(application, range);

@@ -99,7 +99,7 @@ public class CallHistogram {
         sb.append("agent='").append(id).append('\'');
         sb.append(", serviceType=").append(serviceType);
         // 자료 구조가 변경되어 잠시 땜빵.
-        sb.append(", ").append("histogram");
+        sb.append(", ").append(timeHistogramMap);
         sb.append('}');
         return sb.toString();
     }

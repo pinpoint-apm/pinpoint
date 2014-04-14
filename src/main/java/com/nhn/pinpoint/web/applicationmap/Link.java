@@ -131,10 +131,8 @@ public class Link {
         // tomcat -> arcus를 호출한다고 하였을 경우 arcus의 타입을 가져와야함.
         final Histogram linkHistogram = new Histogram(toNode.getServiceType());
         final LinkCallDataMap findMap = getLinkCallDataMap();
-        for (CallHistogram callHistogram : findMap.getTargetList().getCallHistogramList()) {
-            linkHistogram.add(callHistogram.getHistogram());
-        }
-        return linkHistogram;
+        CallHistogramList targetList = findMap.getTargetList();
+        return targetList.mergeHistogram(toNode.getServiceType());
     }
 
     private LinkCallDataMap getLinkCallDataMap() {
@@ -159,11 +157,9 @@ public class Link {
     public Histogram getTargetHistogram() {
         // 내가 호출하는 대상의 serviceType을 가져와야 한다.
         // tomcat -> arcus를 호출한다고 하였을 경우 arcus의 타입을 가져와야함.
-        final Histogram linkHistogram = new Histogram(toNode.getServiceType());
-        for (CallHistogram callHistogram : targetLinkCallDataMap.getTargetList().getCallHistogramList()) {
-            linkHistogram.add(callHistogram.getHistogram());
-        }
-        return linkHistogram;
+        CallHistogramList targetList = targetLinkCallDataMap.getTargetList();
+        return targetList.mergeHistogram(toNode.getServiceType());
+
     }
 
     @JsonIgnore
@@ -201,9 +197,16 @@ public class Link {
 
         // form인것 같지만 link의 시간은 rpc를 기준으로 삼아야 하기 때문에. to를 기준으로 삼아야 한다.
         AgentTimeSeriesHistogramBuilder builder = new AgentTimeSeriesHistogramBuilder(toNode.getApplication(), range);
-        AgentTimeSeriesHistogram applicationTimeSeriesHistogram = builder.build(sourceLinkCallDataMap.getLinkDataMap());
+        AgentTimeSeriesHistogram applicationTimeSeriesHistogram = builder.buildSource(sourceLinkCallDataMap.getLinkDataMap());
         AgentResponseTimeViewModelList agentResponseTimeViewModelList = new AgentResponseTimeViewModelList(applicationTimeSeriesHistogram.createViewModel());
         return agentResponseTimeViewModelList;
+    }
+
+    public AgentTimeSeriesHistogram getTargetAgentTimeHistogram() {
+
+        AgentTimeSeriesHistogramBuilder builder = new AgentTimeSeriesHistogramBuilder(toNode.getApplication(), range);
+        AgentTimeSeriesHistogram agentTimeHistogram = builder.buildSource(targetLinkCallDataMap.getLinkDataMap());
+        return agentTimeHistogram;
     }
 
     public List<ResponseTimeViewModel> getTargetApplicationTimeSeriesHistogram() {

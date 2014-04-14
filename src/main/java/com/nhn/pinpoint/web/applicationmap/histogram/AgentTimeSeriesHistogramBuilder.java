@@ -70,14 +70,28 @@ public class AgentTimeSeriesHistogramBuilder {
         return agentTimeSeriesHistogram;
     }
 
-    public AgentTimeSeriesHistogram build(Collection<LinkCallData> linkCallDataMap) {
+    public AgentTimeSeriesHistogram buildSource(Collection<LinkCallData> linkCallDataMap) {
+        return build(linkCallDataMap, true);
+    }
+
+    public AgentTimeSeriesHistogram buildTarget(Collection<LinkCallData> linkCallDataMap) {
+        return build(linkCallDataMap, false);
+    }
+
+    private AgentTimeSeriesHistogram build(Collection<LinkCallData> linkCallDataMap, boolean sourceGroup) {
 
         Map<String, List<TimeHistogram>> agentLevelMap = new HashMap<String, List<TimeHistogram>>();
         for (LinkCallData linkCallData : linkCallDataMap) {
-            List<TimeHistogram> sourceHistogramList = agentLevelMap.get(linkCallData.getSource());
+            String nodeGroup = null;
+            if (sourceGroup) {
+                nodeGroup = linkCallData.getSource();
+            } else {
+                nodeGroup = linkCallData.getTarget();
+            }
+            List<TimeHistogram> sourceHistogramList = agentLevelMap.get(nodeGroup);
             if (sourceHistogramList == null) {
                 sourceHistogramList = new ArrayList<TimeHistogram>();
-                agentLevelMap.put(linkCallData.getSource(), sourceHistogramList);
+                agentLevelMap.put(nodeGroup, sourceHistogramList);
             }
             // 주의 copy본이 아니라 원본 수정시 데이터가 틀릴수 있음.
             // interpolation에서 객체를 재 생성하므로 현재는 상관없음.

@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.web.applicationmap.rawdata;
 
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.web.applicationmap.histogram.Histogram;
 import com.nhn.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.nhn.pinpoint.web.vo.Application;
 import org.slf4j.Logger;
@@ -59,6 +60,15 @@ public class CallHistogramList {
         return callHistogram;
     }
 
+    public Histogram mergeHistogram(ServiceType serviceType) {
+        final Histogram histogram = new Histogram(serviceType);
+        for (CallHistogram callHistogram : getCallHistogramList()) {
+            histogram.add(callHistogram.getHistogram());
+        }
+        return histogram;
+    }
+
+
 
     public void addCallHistogram(CallHistogram callHistogram) {
         if (callHistogram == null) {
@@ -82,23 +92,6 @@ public class CallHistogramList {
 
     public Collection<CallHistogram> getCallHistogramList() {
         return callHistogramMap.values();
-    }
-
-    @Deprecated
-    public void put(CallHistogramList callHistogramList) {
-        if (callHistogramList == null) {
-            throw new NullPointerException("callHistogram must not be null");
-        }
-        // 이 메소드를 문제가 있음 put정책이 정확하지 않음.
-        for (CallHistogram callHistogram : callHistogramList.callHistogramMap.values()) {
-            final String hostName = callHistogram.getId();
-            ServiceType serviceType = callHistogram.getServiceType();
-            Application agentId = new Application(hostName, serviceType);
-            final CallHistogram old = this.callHistogramMap.put(agentId, callHistogram);
-            if (old != null) {
-                logger.warn("old key exist. key:{}, new:{} old:{}", agentId, callHistogram, old);
-            }
-        }
     }
 
     @Override
