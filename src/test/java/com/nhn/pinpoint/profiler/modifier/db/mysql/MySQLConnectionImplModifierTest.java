@@ -39,31 +39,14 @@ public class MySQLConnectionImplModifierTest {
         PLoggerFactory.initialize(new Slf4jLoggerBinder());
 
         ProfilerConfig profilerConfig = new ProfilerConfig();
-
+        // profiler config를 setter를 열어두는것도 괜찮을듯 하다.
         String path = ProfilerConfig.class.getClassLoader().getResource("pinpoint.config").getPath();
-        System.out.println(path);
         profilerConfig.readConfigFile(path);
 
         profilerConfig.setApplicationServerType(ServiceType.STAND_ALONE);
         DefaultAgent agent = new MockAgent("", new DummyInstrumentation(), profilerConfig);
         loader = new TestClassLoader(agent);
-
-
-//        MySQLNonRegisteringDriverModifier driverModifier = new MySQLNonRegisteringDriverModifier(loader.getInstrumentor(), agent);
-//        loader.addModifier(driverModifier);
-//
-//        MySQLConnectionImplModifier connectionModifier = new MySQLConnectionImplModifier(loader.getInstrumentor(), agent);
-//        loader.addModifier(connectionModifier);
-//
-//        MySQLStatementModifier statementModifier = new MySQLStatementModifier(loader.getInstrumentor(), agent);
-//        loader.addModifier(statementModifier);
-//
-//        MySQLPreparedStatementModifier preparedStatementModifier = new MySQLPreparedStatementModifier(loader.getInstrumentor(), agent);
-//        loader.addModifier(preparedStatementModifier);
-//
-//        MySQLPreparedStatementJDBC4Modifier preparedStatementJDBC4Modifier = new MySQLPreparedStatementJDBC4Modifier(loader.getInstrumentor(), agent);
-//        loader.addModifier(preparedStatementJDBC4Modifier);
-
+        // agent가 로드한 모든 Modifier를 자동으로 찾도록 변경함.
 
 
         loader.initialize();
@@ -82,6 +65,9 @@ public class MySQLConnectionImplModifierTest {
         Properties properties = new Properties();
         properties.setProperty("user", "lucytest");
         properties.setProperty("password", "testlucy");
+
+        Class<?> aClass = loader.loadClass("com.mysql.jdbc.StringUtils");
+//        Assert.assertNotSame("check classLoader", aClass.getClassLoader(), loader);
 
 
 

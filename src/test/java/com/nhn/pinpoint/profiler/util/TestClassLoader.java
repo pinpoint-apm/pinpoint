@@ -32,11 +32,19 @@ public class TestClassLoader extends Loader {
 
 
     public TestClassLoader(DefaultAgent agent) {
+        if (agent == null) {
+            throw new NullPointerException("agent must not be null");
+        }
+
         this.agent = agent;
         this.instrumentor = agent.getByteCodeInstrumentor();
         this.instrumentTranslator = new InstrumentTranslator(this, agent);
     }
 
+    @Override
+    protected Class findClass(String name) throws ClassNotFoundException {
+        return super.findClass(name);
+    }
 
     public void initialize() {
         addDefaultDelegateLoadingOf();
@@ -56,11 +64,8 @@ public class TestClassLoader extends Loader {
     }
 
     private void addDefaultDelegateLoadingOf() {
-        // TODO  패키지명 필터로 바꾸던지 개선해야 될것으로 보임.
-        // 중요 클래스가 boot strap에 추가되면 testcase에서 오류가 발생함. 보완필요.
         this.delegateLoadingOf("com.nhn.pinpoint.bootstrap.");
 
-        this.delegateLoadingOf(BindValueConverter.class.getPackage() + ".");
     }
 
     @Override
