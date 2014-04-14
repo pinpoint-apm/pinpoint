@@ -8,6 +8,7 @@ import com.nhn.pinpoint.profiler.AgentInformation;
 import com.nhn.pinpoint.profiler.sender.EnhancedDataSender;
 import com.nhn.pinpoint.profiler.sender.LoggingDataSender;
 import com.nhn.pinpoint.rpc.FutureListener;
+import com.nhn.pinpoint.rpc.ResponseMessage;
 import com.nhn.pinpoint.rpc.client.PinpointSocketReconnectEventListener;
 
 import org.apache.thrift.TBase;
@@ -91,7 +92,7 @@ public class TraceTest {
         }
 
 		@Override
-		public boolean request(TBase<?, ?> data, FutureListener listener) {
+		public boolean request(TBase<?, ?> data, FutureListener<ResponseMessage> listener) {
             return send(data);
 		}
 		
