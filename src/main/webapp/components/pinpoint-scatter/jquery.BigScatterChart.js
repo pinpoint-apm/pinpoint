@@ -1388,6 +1388,36 @@ var BigScatterChart = $.Class({
         return aData;
     },
 
+    hasDataByXY: function (nXFrom, nXTo, nYFrom, nYTo) {
+        var aBubbleStep = this._aBubbleStep,
+            aBubbles = this._aBubbles,
+            htDataSource = this.option('htDataSource'),
+            htDataIndex = htDataSource.index,
+            htDataType = htDataSource.type;
+
+        var aVisibleType = [];
+        _.each(this._htwelTypeLi, function (welTypeLi, sKey) {
+            if (welTypeLi.hasClass('unchecked') === false) {
+                aVisibleType.push(sKey);
+            }
+        }, this);
+
+        for (var i = 0, nLen = aBubbleStep.length; i < nLen; i++) {
+            for (var j = 0, nLen2 = aBubbleStep[i].nLength; j < nLen2; j++) {
+                if (aBubbles[i][j][htDataIndex.x] >= nXFrom && aBubbles[i][j][htDataIndex.x] <= nXTo
+                    && _.indexOf(aVisibleType, htDataType[aBubbles[i][j][htDataIndex.type]]) >= 0) {
+
+                    if (aBubbles[i][j][htDataIndex.y] >= nYFrom && aBubbles[i][j][htDataIndex.y] <= nYTo
+                        || nYTo === this._nYMax && nYTo < aBubbles[i][j][htDataIndex.y]) {
+                        return true;
+                    }
+                }
+
+            }
+        }
+        return false;
+    },
+
     _hideNoData: function () {
         try {
             this._welShowNoData.hide();
