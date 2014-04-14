@@ -23,8 +23,8 @@ public class LinkDataMap {
     }
 
     public void addLinkData(Application sourceApplication, String sourceAgentId, Application destinationApplication, String destinationAgentId, long timestamp, short slotTime, long count) {
-        final LinkData linkStat = getLinkData(sourceApplication, destinationApplication);
-        linkStat.addLinkData(sourceAgentId, sourceApplication.getServiceTypeCode(), destinationAgentId, destinationApplication.getServiceTypeCode(), timestamp, slotTime, count);
+        final LinkData linkData = getLinkData(sourceApplication, destinationApplication);
+        linkData.addLinkData(sourceAgentId, sourceApplication.getServiceTypeCode(), destinationAgentId, destinationApplication.getServiceTypeCode(), timestamp, slotTime, count);
     }
 
 

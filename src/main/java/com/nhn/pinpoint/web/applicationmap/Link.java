@@ -196,16 +196,16 @@ public class Link {
     public AgentResponseTimeViewModelList getSourceAgentTimeSeriesHistogram() {
 
         // form인것 같지만 link의 시간은 rpc를 기준으로 삼아야 하기 때문에. to를 기준으로 삼아야 한다.
-        AgentTimeSeriesHistogramBuilder builder = new AgentTimeSeriesHistogramBuilder(toNode.getApplication(), range);
-        AgentTimeSeriesHistogram applicationTimeSeriesHistogram = builder.buildSource(sourceLinkCallDataMap.getLinkDataMap());
+        AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(toNode.getApplication(), range);
+        AgentTimeHistogram applicationTimeSeriesHistogram = builder.buildSource(sourceLinkCallDataMap.getLinkDataMap());
         AgentResponseTimeViewModelList agentResponseTimeViewModelList = new AgentResponseTimeViewModelList(applicationTimeSeriesHistogram.createViewModel());
         return agentResponseTimeViewModelList;
     }
 
-    public AgentTimeSeriesHistogram getTargetAgentTimeHistogram() {
+    public AgentTimeHistogram getTargetAgentTimeHistogram() {
 
-        AgentTimeSeriesHistogramBuilder builder = new AgentTimeSeriesHistogramBuilder(toNode.getApplication(), range);
-        AgentTimeSeriesHistogram agentTimeHistogram = builder.buildSource(targetLinkCallDataMap.getLinkDataMap());
+        AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(toNode.getApplication(), range);
+        AgentTimeHistogram agentTimeHistogram = builder.buildSource(targetLinkCallDataMap.getLinkDataMap());
         return agentTimeHistogram;
     }
 

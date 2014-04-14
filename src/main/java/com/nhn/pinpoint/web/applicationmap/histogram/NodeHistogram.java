@@ -33,7 +33,7 @@ public class NodeHistogram {
 
     private ApplicationTimeHistogram applicationTimeHistogram;
 
-    private AgentTimeSeriesHistogram agentTimeSeriesHistogram;
+    private AgentTimeHistogram agentTimeHistogram;
 
 
     public NodeHistogram(Application application, Range range) {
@@ -50,7 +50,7 @@ public class NodeHistogram {
         this.agentHistogramMap = new HashMap<String, Histogram>();
 
         this.applicationTimeHistogram = new ApplicationTimeHistogram(this.application, this.range);
-        this.agentTimeSeriesHistogram = new AgentTimeSeriesHistogram(this.application, this.range);
+        this.agentTimeHistogram = new AgentTimeHistogram(this.application, this.range);
     }
 
     public NodeHistogram(Application application, Range range, List<ResponseTime> responseHistogramList) {
@@ -66,7 +66,7 @@ public class NodeHistogram {
         this.application = application;
         this.range = range;
 
-        this.agentTimeSeriesHistogram = createAgentLevelTimeSeriesResponseTime(responseHistogramList);
+        this.agentTimeHistogram = createAgentLevelTimeSeriesResponseTime(responseHistogramList);
         this.applicationTimeHistogram = createApplicationLevelTimeSeriesResponseTime(responseHistogramList);
 
         this.agentHistogramMap = createAgentLevelResponseTime(responseHistogramList);
@@ -103,12 +103,12 @@ public class NodeHistogram {
     }
 
 
-    public AgentResponseTimeViewModelList getAgentTimeSeriesHistogram() {
-        return new AgentResponseTimeViewModelList(agentTimeSeriesHistogram.createViewModel());
+    public AgentResponseTimeViewModelList getAgentTimeHistogram() {
+        return new AgentResponseTimeViewModelList(agentTimeHistogram.createViewModel());
     }
 
-    public void setAgentTimeSeriesHistogram(AgentTimeSeriesHistogram agentTimeSeriesHistogram) {
-        this.agentTimeSeriesHistogram = agentTimeSeriesHistogram;
+    public void setAgentTimeHistogram(AgentTimeHistogram agentTimeHistogram) {
+        this.agentTimeHistogram = agentTimeHistogram;
     }
 
     private ApplicationTimeHistogram createApplicationLevelTimeSeriesResponseTime(List<ResponseTime> responseHistogramList) {
@@ -117,9 +117,9 @@ public class NodeHistogram {
     }
 
 
-    private AgentTimeSeriesHistogram createAgentLevelTimeSeriesResponseTime(List<ResponseTime> responseHistogramList) {
-        AgentTimeSeriesHistogramBuilder builder = new AgentTimeSeriesHistogramBuilder(application, range);
-        AgentTimeSeriesHistogram histogram = builder.build(responseHistogramList);
+    private AgentTimeHistogram createAgentLevelTimeSeriesResponseTime(List<ResponseTime> responseHistogramList) {
+        AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(application, range);
+        AgentTimeHistogram histogram = builder.build(responseHistogramList);
         return histogram;
     }
 

@@ -4,8 +4,6 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.web.applicationmap.histogram.AgentTimeSeriesHistogram;
-import com.nhn.pinpoint.web.applicationmap.histogram.AgentTimeSeriesHistogramBuilder;
 import com.nhn.pinpoint.web.view.AgentResponseTimeViewModel;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
@@ -32,9 +30,9 @@ public class AgentTimeHistogramTest {
     public void testViewModel() throws IOException {
 
         Application app = new Application("test", ServiceType.TOMCAT);
-        AgentTimeSeriesHistogramBuilder builder = new AgentTimeSeriesHistogramBuilder(app, new Range(0, 1000*60));
+        AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(app, new Range(0, 1000*60));
         List<ResponseTime> responseHistogramList = createResponseTime(app, "test1", "test2");
-        AgentTimeSeriesHistogram histogram = builder.build(responseHistogramList);
+        AgentTimeHistogram histogram = builder.build(responseHistogramList);
 
         List<AgentResponseTimeViewModel> viewModel = histogram.createViewModel();
         logger.debug("{}", viewModel);

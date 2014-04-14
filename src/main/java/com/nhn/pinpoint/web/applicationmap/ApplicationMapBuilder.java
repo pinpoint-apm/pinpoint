@@ -328,9 +328,9 @@ public class ApplicationMapBuilder {
             Collection<LinkCallData> linkDataMap = sourceLinkCallDataMap.getLinkDataMap();
             mergeTarget.addAll(linkDataMap);
         }
-        AgentTimeSeriesHistogramBuilder agentTimeBuilder = new AgentTimeSeriesHistogramBuilder(nodeApplication, range);
-        AgentTimeSeriesHistogram agentTimeHistogram = agentTimeBuilder.buildTarget(mergeTarget);
-        nodeHistogram.setAgentTimeSeriesHistogram(agentTimeHistogram);
+        AgentTimeHistogramBuilder agentTimeBuilder = new AgentTimeHistogramBuilder(nodeApplication, range);
+        AgentTimeHistogram agentTimeHistogram = agentTimeBuilder.buildTarget(mergeTarget);
+        nodeHistogram.setAgentTimeHistogram(agentTimeHistogram);
 
         return nodeHistogram;
     }

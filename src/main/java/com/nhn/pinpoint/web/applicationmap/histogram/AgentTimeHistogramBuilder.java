@@ -15,7 +15,7 @@ import java.util.*;
 /**
  * @author emeroad
  */
-public class AgentTimeSeriesHistogramBuilder {
+public class AgentTimeHistogramBuilder {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -23,7 +23,7 @@ public class AgentTimeSeriesHistogramBuilder {
     private final Range range;
     private final TimeWindow window;
 
-    public AgentTimeSeriesHistogramBuilder(Application application, Range range) {
+    public AgentTimeHistogramBuilder(Application application, Range range) {
         if (application == null) {
             throw new NullPointerException("application must not be null");
         }
@@ -36,7 +36,7 @@ public class AgentTimeSeriesHistogramBuilder {
     }
 
 
-    public AgentTimeSeriesHistogram build(List<ResponseTime> responseHistogramList) {
+    public AgentTimeHistogram build(List<ResponseTime> responseHistogramList) {
         Map<String, List<TimeHistogram>> agentLevelMap = new HashMap<String, List<TimeHistogram>>();
         for (ResponseTime responseTime : responseHistogramList) {
             Set<Map.Entry<String,Histogram>> agentHistogram = responseTime.getAgentHistogram();
@@ -66,19 +66,19 @@ public class AgentTimeSeriesHistogramBuilder {
                 }
             }
         }
-        AgentTimeSeriesHistogram agentTimeSeriesHistogram = new AgentTimeSeriesHistogram(application, range, histogramMap);
-        return agentTimeSeriesHistogram;
+        AgentTimeHistogram agentTimeHistogram = new AgentTimeHistogram(application, range, histogramMap);
+        return agentTimeHistogram;
     }
 
-    public AgentTimeSeriesHistogram buildSource(Collection<LinkCallData> linkCallDataMap) {
+    public AgentTimeHistogram buildSource(Collection<LinkCallData> linkCallDataMap) {
         return build(linkCallDataMap, true);
     }
 
-    public AgentTimeSeriesHistogram buildTarget(Collection<LinkCallData> linkCallDataMap) {
+    public AgentTimeHistogram buildTarget(Collection<LinkCallData> linkCallDataMap) {
         return build(linkCallDataMap, false);
     }
 
-    private AgentTimeSeriesHistogram build(Collection<LinkCallData> linkCallDataMap, boolean sourceGroup) {
+    private AgentTimeHistogram build(Collection<LinkCallData> linkCallDataMap, boolean sourceGroup) {
 
         Map<String, List<TimeHistogram>> agentLevelMap = new HashMap<String, List<TimeHistogram>>();
         for (LinkCallData linkCallData : linkCallDataMap) {
@@ -98,8 +98,8 @@ public class AgentTimeSeriesHistogramBuilder {
             sourceHistogramList.addAll(linkCallData.getTimeHistogram());
         }
         Map<String, List<TimeHistogram>> histogramMap = interpolation(agentLevelMap);
-        AgentTimeSeriesHistogram agentTimeSeriesHistogram = new AgentTimeSeriesHistogram(application, range, histogramMap);
-        return agentTimeSeriesHistogram;
+        AgentTimeHistogram agentTimeHistogram = new AgentTimeHistogram(application, range, histogramMap);
+        return agentTimeHistogram;
     }
 
     private Map<String, List<TimeHistogram>> interpolation(Map<String, List<TimeHistogram>> agentLevelMap) {

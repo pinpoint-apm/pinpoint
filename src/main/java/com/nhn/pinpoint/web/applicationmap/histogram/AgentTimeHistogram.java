@@ -17,7 +17,7 @@ import java.util.*;
 /**
  * @author emeroad
  */
-public class AgentTimeSeriesHistogram {
+public class AgentTimeHistogram {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -27,7 +27,7 @@ public class AgentTimeSeriesHistogram {
 
     private final Map<String, List<TimeHistogram>> histogramMap;
 
-    public AgentTimeSeriesHistogram(Application application, Range range) {
+    public AgentTimeHistogram(Application application, Range range) {
         if (application == null) {
             throw new NullPointerException("application must not be null");
         }
@@ -40,7 +40,7 @@ public class AgentTimeSeriesHistogram {
         this.histogramMap = Collections.emptyMap();
     }
 
-    public AgentTimeSeriesHistogram(Application application, Range range, Map<String, List<TimeHistogram>> histogramMap) {
+    public AgentTimeHistogram(Application application, Range range, Map<String, List<TimeHistogram>> histogramMap) {
         if (application == null) {
             throw new NullPointerException("application must not be null");
         }
