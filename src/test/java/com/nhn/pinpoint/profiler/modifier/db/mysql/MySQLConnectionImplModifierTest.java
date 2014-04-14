@@ -12,6 +12,7 @@ import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
 
 
 import com.nhn.pinpoint.bootstrap.util.MetaObject;
+import com.nhn.pinpoint.profiler.util.MockAgent;
 import com.nhn.pinpoint.profiler.util.TestClassLoader;
 import org.junit.Assert;
 import org.junit.Before;
@@ -38,25 +39,30 @@ public class MySQLConnectionImplModifierTest {
         PLoggerFactory.initialize(new Slf4jLoggerBinder());
 
         ProfilerConfig profilerConfig = new ProfilerConfig();
-        profilerConfig.setApplicationServerType(ServiceType.TOMCAT);
-        DefaultAgent agent = new DefaultAgent("", new DummyInstrumentation(), profilerConfig);
+
+        String path = ProfilerConfig.class.getClassLoader().getResource("pinpoint.config").getPath();
+        System.out.println(path);
+        profilerConfig.readConfigFile(path);
+
+        profilerConfig.setApplicationServerType(ServiceType.STAND_ALONE);
+        DefaultAgent agent = new MockAgent("", new DummyInstrumentation(), profilerConfig);
         loader = new TestClassLoader(agent);
 
 
-        MySQLNonRegisteringDriverModifier driverModifier = new MySQLNonRegisteringDriverModifier(loader.getInstrumentor(), agent);
-        loader.addModifier(driverModifier);
-
-        MySQLConnectionImplModifier connectionModifier = new MySQLConnectionImplModifier(loader.getInstrumentor(), agent);
-        loader.addModifier(connectionModifier);
-
-        MySQLStatementModifier statementModifier = new MySQLStatementModifier(loader.getInstrumentor(), agent);
-        loader.addModifier(statementModifier);
-
-        MySQLPreparedStatementModifier preparedStatementModifier = new MySQLPreparedStatementModifier(loader.getInstrumentor(), agent);
-        loader.addModifier(preparedStatementModifier);
-
-        MySQLPreparedStatementJDBC4Modifier preparedStatementJDBC4Modifier = new MySQLPreparedStatementJDBC4Modifier(loader.getInstrumentor(), agent);
-        loader.addModifier(preparedStatementJDBC4Modifier);
+//        MySQLNonRegisteringDriverModifier driverModifier = new MySQLNonRegisteringDriverModifier(loader.getInstrumentor(), agent);
+//        loader.addModifier(driverModifier);
+//
+//        MySQLConnectionImplModifier connectionModifier = new MySQLConnectionImplModifier(loader.getInstrumentor(), agent);
+//        loader.addModifier(connectionModifier);
+//
+//        MySQLStatementModifier statementModifier = new MySQLStatementModifier(loader.getInstrumentor(), agent);
+//        loader.addModifier(statementModifier);
+//
+//        MySQLPreparedStatementModifier preparedStatementModifier = new MySQLPreparedStatementModifier(loader.getInstrumentor(), agent);
+//        loader.addModifier(preparedStatementModifier);
+//
+//        MySQLPreparedStatementJDBC4Modifier preparedStatementJDBC4Modifier = new MySQLPreparedStatementJDBC4Modifier(loader.getInstrumentor(), agent);
+//        loader.addModifier(preparedStatementJDBC4Modifier);
 
 
 

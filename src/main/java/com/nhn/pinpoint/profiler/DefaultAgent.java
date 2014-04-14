@@ -53,7 +53,7 @@ public class DefaultAgent implements Agent {
     private final PLoggerBinder binder;
 
     private final ByteCodeInstrumentor byteCodeInstrumentor;
-    private final ClassFileTransformer classFileTransformer;
+    private final ClassFileTransformerDispatcher classFileTransformer;
 
     private final ProfilerConfig profilerConfig;
 
@@ -147,6 +147,13 @@ public class DefaultAgent implements Agent {
         logger.debug("preLoadClass:{}", PreparedStatementUtils.class.getName(), PreparedStatementUtils.findBindVariableSetMethod());
     }
 
+    public ByteCodeInstrumentor getByteCodeInstrumentor() {
+        return byteCodeInstrumentor;
+    }
+
+    public ClassFileTransformerDispatcher getClassFileTransformer() {
+        return classFileTransformer;
+    }
 
     private AgentInformation createAgentInformation(ServiceType serverType) {
         if (serverType == null) {
@@ -263,11 +270,11 @@ public class DefaultAgent implements Agent {
         return samplerFactory.createSampler(samplingEnable, samplingRate);
     }
 
-    private EnhancedDataSender createTcpDataSender() {
+    protected EnhancedDataSender createTcpDataSender() {
         return new TcpDataSender(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorTcpServerPort());
     }
 
-    private DataSender createUdpDataSender(int port, String threadName, int writeQueueSize) {
+    protected DataSender createUdpDataSender(int port, String threadName, int writeQueueSize) {
         return new UdpDataSender(this.profilerConfig.getCollectorServerIp(), port, threadName, writeQueueSize);
     }
 

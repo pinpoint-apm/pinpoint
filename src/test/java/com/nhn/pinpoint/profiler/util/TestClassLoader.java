@@ -31,10 +31,10 @@ public class TestClassLoader extends Loader {
     private Agent agent;
 
 
-    public TestClassLoader(Agent agent) {
-        this.instrumentor = new JavaAssistByteCodeInstrumentor(null, agent);
-        this.instrumentTranslator = new InstrumentTranslator(this);
+    public TestClassLoader(DefaultAgent agent) {
         this.agent = agent;
+        this.instrumentor = agent.getByteCodeInstrumentor();
+        this.instrumentTranslator = new InstrumentTranslator(this, agent);
     }
 
 
@@ -58,22 +58,7 @@ public class TestClassLoader extends Loader {
     private void addDefaultDelegateLoadingOf() {
         // TODO  패키지명 필터로 바꾸던지 개선해야 될것으로 보임.
         // 중요 클래스가 boot strap에 추가되면 testcase에서 오류가 발생함. 보완필요.
-
-        this.delegateLoadingOf(Interceptor.class.getName());
-        this.delegateLoadingOf(StaticAroundInterceptor.class.getName());
-        this.delegateLoadingOf(SimpleAroundInterceptor.class.getName());
-        this.delegateLoadingOf(InterceptorRegistry.class.getName());
-        this.delegateLoadingOf(Trace.class.getName());
-        this.delegateLoadingOf(TraceContextSupport.class.getName());
-        this.delegateLoadingOf(DefaultTrace.class.getName());
-        this.delegateLoadingOf(MetaObject.class.getName());
-        this.delegateLoadingOf(StringUtils.class.getName());
-        this.delegateLoadingOf(MethodDescriptor.class.getName());
-        this.delegateLoadingOf(ByteCodeMethodDescriptorSupport.class.getName());
-        this.delegateLoadingOf(LoggingUtils.class.getName());
-        this.delegateLoadingOf(DefaultAgent.class.getName());
-        this.delegateLoadingOf(TraceContext.class.getName());
-        this.delegateLoadingOf(DefaultTraceContext.class.getName());
+        this.delegateLoadingOf("com.nhn.pinpoint.bootstrap.");
 
         this.delegateLoadingOf(BindValueConverter.class.getPackage() + ".");
     }
