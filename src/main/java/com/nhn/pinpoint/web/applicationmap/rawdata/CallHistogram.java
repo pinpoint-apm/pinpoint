@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.nhn.pinpoint.web.applicationmap.histogram.Histogram;
 import com.nhn.pinpoint.web.applicationmap.histogram.TimeHistogram;
+import com.nhn.pinpoint.web.vo.Application;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -20,20 +21,16 @@ public class CallHistogram {
 	/**
 	 * UI에서 호스트를 구분하기 위한 목적으로 hostname, agentid, endpoint등 구분할 수 있는 아무거나 넣으면 됨.
 	 */
-	private final String id;
-	private final ServiceType serviceType;
+	private final Application agentId;
 
     private final Map<Long, TimeHistogram> timeHistogramMap;
 
-	public CallHistogram(String agent, ServiceType serviceType) {
-        if (agent == null) {
-            throw new NullPointerException("agent must not be null");
+	public CallHistogram(Application agentId) {
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
         }
-        if (serviceType == null) {
-            throw new NullPointerException("serviceType must not be null");
-        }
-        this.id = agent;
-		this.serviceType = serviceType;
+
+        this.agentId = agentId;
         this.timeHistogramMap = new HashMap<Long, TimeHistogram>();
 	}
 
@@ -42,8 +39,7 @@ public class CallHistogram {
             throw new NullPointerException("copyCallHistogram must not be null");
         }
 
-        this.id = copyCallHistogram.id;
-        this.serviceType = copyCallHistogram.serviceType;
+        this.agentId = copyCallHistogram.agentId;
 
         this.timeHistogramMap = new HashMap<Long, TimeHistogram>();
         addTimeHistogram(copyCallHistogram.timeHistogramMap.values());
@@ -51,17 +47,17 @@ public class CallHistogram {
 
     @JsonProperty("name")
     public String getId() {
-		return id;
+		return agentId.getName();
 	}
 
     @JsonIgnore
 	public ServiceType getServiceType() {
-		return serviceType;
+		return agentId.getServiceType();
 	}
 
     @JsonProperty("histogram")
 	public Histogram getHistogram() {
-        Histogram histogram = new Histogram(serviceType);
+        Histogram histogram = new Histogram(agentId.getServiceType());
         for (TimeHistogram timeHistogram : timeHistogramMap.values()) {
             histogram.add(timeHistogram);
         }
@@ -76,7 +72,7 @@ public class CallHistogram {
     public void addTimeHistogram(TimeHistogram timeHistogram) {
         TimeHistogram find = this.timeHistogramMap.get(timeHistogram.getTimeStamp());
         if (find == null) {
-            find = new TimeHistogram(serviceType, timeHistogram.getTimeStamp());
+            find = new TimeHistogram(agentId.getServiceType(), timeHistogram.getTimeStamp());
             this.timeHistogramMap.put(timeHistogram.getTimeStamp(), find);
         }
         find.add(timeHistogram);
@@ -96,8 +92,8 @@ public class CallHistogram {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("CallHistogram{");
-        sb.append("agent='").append(id).append('\'');
-        sb.append(", serviceType=").append(serviceType);
+        sb.append("agent='").append(agentId.getName()).append('\'');
+        sb.append(", serviceType=").append(agentId.getServiceType());
         // 자료 구조가 변경되어 잠시 땜빵.
         sb.append(", ").append(timeHistogramMap);
         sb.append('}');

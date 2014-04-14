@@ -3,6 +3,7 @@ package com.nhn.pinpoint.web.applicationmap.rawdata;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.applicationmap.histogram.TimeHistogram;
+import com.nhn.pinpoint.web.vo.Application;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -21,7 +22,7 @@ public class CallHistogramTest {
     private ObjectMapper mapper = new ObjectMapper();
     @Test
     public void testDeepCopy() throws Exception {
-        CallHistogram callHistogram = new CallHistogram("test", ServiceType.TOMCAT);
+        CallHistogram callHistogram = new CallHistogram(new Application("test", ServiceType.TOMCAT));
         TimeHistogram histogram = new TimeHistogram(ServiceType.TOMCAT, 0);
         histogram.addCallCount(ServiceType.TOMCAT.getHistogramSchema().getErrorSlot().getSlotTime(), 1);
         callHistogram.addTimeHistogram(histogram);
@@ -41,7 +42,7 @@ public class CallHistogramTest {
     @Test
     public void testJsonCompatibility() throws Exception {
         // json구현을 Jackson으로 변경시 호환성 테스트
-        CallHistogram callHistogram = new CallHistogram("test", ServiceType.TOMCAT);
+        CallHistogram callHistogram = new CallHistogram(new Application("test", ServiceType.TOMCAT));
         TimeHistogram histogram = new TimeHistogram(ServiceType.TOMCAT, 0);
         histogram.addCallCount(ServiceType.TOMCAT.getHistogramSchema().getErrorSlot().getSlotTime(), 1);
         callHistogram.addTimeHistogram(histogram);

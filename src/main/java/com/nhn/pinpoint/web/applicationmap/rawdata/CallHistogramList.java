@@ -34,27 +34,32 @@ public class CallHistogramList {
     }
 
 
-    public void addCallHistogram(String agentName, ServiceType serviceType, Collection<TimeHistogram> histogramList) {
-        if (agentName == null) {
-            throw new NullPointerException("agent must not be null");
-        }
-        if (serviceType == null) {
-            throw new NullPointerException("serviceType must not be null");
+    public void addCallHistogram(Application agentId, Collection<TimeHistogram> histogramList) {
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
         }
         if (histogramList == null) {
             throw new NullPointerException("histogramList must not be null");
         }
-        CallHistogram callHistogram = getCallHistogram(agentName, serviceType);
+        CallHistogram callHistogram = getCallHistogram(agentId);
         callHistogram.addTimeHistogram(histogramList);
+    }
+
+    public void addCallHistogram(String agentName, ServiceType serviceType, Collection<TimeHistogram> histogramList) {
+        Application agentId = new Application(agentName, serviceType);
+        addCallHistogram(agentId, histogramList);
     }
 
 
 
-    private CallHistogram getCallHistogram(String agent, ServiceType serviceType) {
-        Application agentId = new Application(agent, serviceType);
+    private CallHistogram getCallHistogram(Application agentId) {
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
+
         CallHistogram callHistogram = callHistogramMap.get(agentId);
         if (callHistogram == null) {
-            callHistogram = new CallHistogram(agent, serviceType);
+            callHistogram = new CallHistogram(agentId);
             callHistogramMap.put(agentId, callHistogram);
         }
         return callHistogram;
@@ -77,7 +82,8 @@ public class CallHistogramList {
         final String hostName = callHistogram.getId();
         ServiceType serviceType = callHistogram.getServiceType();
 
-        CallHistogram findCallHistogram = getCallHistogram(hostName, serviceType);
+        Application agentId = new Application(hostName, serviceType);
+        CallHistogram findCallHistogram = getCallHistogram(agentId);
         findCallHistogram.addTimeHistogram(callHistogram.getTimeHistogram());
     }
 
