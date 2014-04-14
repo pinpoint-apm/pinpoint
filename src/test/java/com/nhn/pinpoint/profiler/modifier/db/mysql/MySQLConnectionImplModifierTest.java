@@ -67,8 +67,13 @@ public class MySQLConnectionImplModifierTest {
         properties.setProperty("password", "testlucy");
 
         Class<?> aClass = loader.loadClass("com.mysql.jdbc.StringUtils");
+//      이게 loader와 동일하게 로드 되는게 정확한건지 애매함. 하위에 로드되는게 좋을것 같은데.
 //        Assert.assertNotSame("check classLoader", aClass.getClassLoader(), loader);
+        logger.debug("mysql cl:{}", loader);
 
+        Class<?> version = loader.loadClass("com.nhn.pinpoint.common.Version");
+        Assert.assertSame("check classLoader", this.getClass().getClassLoader(), version.getClassLoader());
+        logger.debug("common cl:{}", version.getClassLoader());
 
 
         Connection connection = driver.connect("jdbc:mysql://10.98.133.22:3306/hippo", properties);
