@@ -15,7 +15,7 @@ import com.nhn.pinpoint.thrift.dto.TResult;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseSerDesFactory;
 
-public class HeartBitCheckerListener<T> implements FutureListener<T> {
+public class HeartBitCheckerListener implements FutureListener<ResponseMessage> {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -32,7 +32,7 @@ public class HeartBitCheckerListener<T> implements FutureListener<T> {
 	// Latch 타이밍 중요함 잘못 걸면 문제한 대기할수 있음
 
 	@Override
-	public void onComplete(Future future) {
+	public void onComplete(Future<ResponseMessage> future) {
 		try {
 			if (future != null && future.isSuccess()) {
 				TBase tbase = deserialize(future);
@@ -57,7 +57,7 @@ public class HeartBitCheckerListener<T> implements FutureListener<T> {
 		state.changeStateToNeedRequest(System.currentTimeMillis());
 	}
 
-	private TBase<?, ?> deserialize(Future future) {
+	private TBase<?, ?> deserialize(Future<ResponseMessage> future) {
 		Object result = future.getResult();
 
 		if (ClassUtils.isAssignableValue(ResponseMessage.class, result)) {

@@ -77,7 +77,7 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
     }
 
 	@Override
-	public boolean request(TBase<?, ?> data, FutureListener listener) {
+	public boolean request(TBase<?, ?> data, FutureListener<ResponseMessage> listener) {
     	RequestMarker message = new RequestMarker(data, listener);
         return executor.execute(message);
 	}

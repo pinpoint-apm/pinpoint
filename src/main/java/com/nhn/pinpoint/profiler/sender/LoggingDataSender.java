@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.profiler.sender;
 
+import com.nhn.pinpoint.rpc.ResponseMessage;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,7 @@ public class LoggingDataSender implements EnhancedDataSender {
 
 
 	@Override
-	public boolean request(TBase<?, ?> data, FutureListener listener) {
+	public boolean request(TBase<?, ?> data, FutureListener<ResponseMessage> listener) {
         logger.info("request tBase:{} FutureListener:{}", data, listener);
         return false;
 	}
