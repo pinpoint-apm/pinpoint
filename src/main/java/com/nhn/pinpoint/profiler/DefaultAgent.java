@@ -53,7 +53,7 @@ public class DefaultAgent implements Agent {
     private final PLoggerBinder binder;
 
     private final ByteCodeInstrumentor byteCodeInstrumentor;
-    private final ClassFileTransformerDispatcher classFileTransformer;
+    private final ClassFileTransformer classFileTransformer;
 
     private final ProfilerConfig profilerConfig;
 
@@ -76,6 +76,11 @@ public class DefaultAgent implements Agent {
     // agent의 상태,
     private volatile AgentStatus agentStatus;
     private HeartBitChecker heartBitChecker;
+
+    static {
+        // rpc쪽 preload
+        ClassPreLoader.preload();
+    }
 
 
     public DefaultAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig) {
@@ -141,8 +146,6 @@ public class DefaultAgent implements Agent {
     }
 
     private void preLoadClass() {
-        // rpc쪽 preload
-        ClassPreLoader.preload();
         logger.debug("preLoadClass:{}", new ArcusMethodFilter().getClass().getName());
         logger.debug("preLoadClass:{}", PreparedStatementUtils.class.getName(), PreparedStatementUtils.findBindVariableSetMethod());
     }
@@ -151,7 +154,7 @@ public class DefaultAgent implements Agent {
         return byteCodeInstrumentor;
     }
 
-    public ClassFileTransformerDispatcher getClassFileTransformer() {
+    public ClassFileTransformer getClassFileTransformer() {
         return classFileTransformer;
     }
 
