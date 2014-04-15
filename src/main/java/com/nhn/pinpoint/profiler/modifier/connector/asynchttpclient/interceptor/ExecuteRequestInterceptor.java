@@ -77,7 +77,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 		}
 
 		final com.ning.http.client.Request httpRequest = (com.ning.http.client.Request) args[0];
-		final FluentCaseInsensitiveStringsMap httpRequestHeaders = httpRequest.getHeaders();
+
 		final boolean sampling = trace.canSampled();
 
 		if (!sampling) {
@@ -85,6 +85,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 				logger.debug("set Sampling flag=false");
 			}
 			if (httpRequest != null) {
+                final FluentCaseInsensitiveStringsMap httpRequestHeaders = httpRequest.getHeaders();
 				httpRequestHeaders.add(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
 			}
 			return;
@@ -98,6 +99,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 		trace.recordServiceType(ServiceType.HTTP_CLIENT);
 
 		if (httpRequest != null) {
+            final FluentCaseInsensitiveStringsMap httpRequestHeaders = httpRequest.getHeaders();
 			httpRequestHeaders.add(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
 			httpRequestHeaders.add(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
 			httpRequestHeaders.add(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
