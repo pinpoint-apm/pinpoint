@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.profiler.util;
 
+import java.util.Arrays;
+
 /**
  * @author emeroad
  */
@@ -15,7 +17,7 @@ public final class ApiUtils {
             if (variableName == null) {
                 return EMPTY_ARRAY;
             } else {
-                throw new IllegalArgumentException("invalid null pair parameterType:" + parameterType + ", variableName:" + variableName);
+                throw new IllegalArgumentException("invalid null pair parameterType:" + Arrays.toString(parameterType) + ", variableName:" + Arrays.toString(variableName));
             }
         }
         if (parameterType.length != variableName.length) {
