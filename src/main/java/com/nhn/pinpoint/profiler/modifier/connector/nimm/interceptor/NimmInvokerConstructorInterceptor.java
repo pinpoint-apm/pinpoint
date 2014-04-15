@@ -1,11 +1,7 @@
 package com.nhn.pinpoint.profiler.modifier.connector.nimm.interceptor;
 
-import com.nhn.pinpoint.bootstrap.context.TraceContext;
-import com.nhn.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
-import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.bootstrap.util.MetaObject;
@@ -17,13 +13,13 @@ import com.nhncorp.lucy.nimm.connector.address.NimmAddress.Species;
  * @author netspider
  * 
  */
-public class NimmInvokerConstructorInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
+public class NimmInvokerConstructorInterceptor implements SimpleAroundInterceptor, TargetClassLoader {
 
 	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 	private final boolean isDebug = logger.isDebugEnabled();
 
-	private MethodDescriptor descriptor;
-	private TraceContext traceContext;
+//	private MethodDescriptor descriptor;
+//	private TraceContext traceContext;
 
 	// TODO nimm socket도 수집해야하나?? nimmAddress는 constructor에서 string으로 변환한 값을 들고
 	// 있음.
@@ -61,14 +57,14 @@ public class NimmInvokerConstructorInterceptor implements SimpleAroundIntercepto
 
 	}
 
-	@Override
-	public void setMethodDescriptor(MethodDescriptor descriptor) {
-		this.descriptor = descriptor;
-		traceContext.cacheApi(descriptor);
-	}
+//	@Override
+//	public void setMethodDescriptor(MethodDescriptor descriptor) {
+//		this.descriptor = descriptor;
+//		traceContext.cacheApi(descriptor);
+//	}
 
-	@Override
-	public void setTraceContext(TraceContext traceContext) {
-		this.traceContext = traceContext;
-	}
+//	@Override
+//	public void setTraceContext(TraceContext traceContext) {
+//		this.traceContext = traceContext;
+//	}
 }
