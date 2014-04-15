@@ -196,15 +196,16 @@ public class DefaultAgent implements Agent {
     private TAgentInfo createTAgentInfo() {
         final ServerInfo serverInfo = this.serverInfo;
         String ip = serverInfo.getHostip();
-        String ports = "";
+        final StringBuilder ports = new StringBuilder();
         for (Entry<Integer, String> entry : serverInfo.getConnectors().entrySet()) {
-            ports += " " + entry.getKey();
+            ports.append(" ");
+            ports.append(entry.getKey());
         }
 
         final TAgentInfo agentInfo = new TAgentInfo();
         agentInfo.setIp(ip);
         agentInfo.setHostname(this.agentInformation.getMachineName());
-        agentInfo.setPorts(ports);
+        agentInfo.setPorts(ports.toString());
         agentInfo.setAgentId(agentInformation.getAgentId());
         agentInfo.setApplicationName(agentInformation.getApplicationName());
         agentInfo.setPid(agentInformation.getPid());
