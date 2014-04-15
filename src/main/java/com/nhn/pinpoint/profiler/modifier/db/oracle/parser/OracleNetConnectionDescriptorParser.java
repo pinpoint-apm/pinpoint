@@ -34,7 +34,7 @@ public class OracleNetConnectionDescriptorParser {
             driverType = DriverType.OCI;
         } else {
             // 파싱할 대상이 아님
-            throw new IllegalArgumentException("invalid oracle jdbc url. expected token:(" + THIN + " or " + OCI + ")");
+            throw new IllegalArgumentException("invalid oracle jdbc url. expected token:(" + THIN + " or " + OCI + ") url:" + url);
         }
 
         // thin 문자열 스킵

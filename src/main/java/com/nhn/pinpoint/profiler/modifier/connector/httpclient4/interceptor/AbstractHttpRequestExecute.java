@@ -168,9 +168,10 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
                 if (cookieSampler.isSampling()) {
                     trace.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, 1024));
                 }
+                // Cookie값이 2개 이상일수가 있나?
+                // 밑에서 break 를 쓰니 PMD에서 걸려서 수정함.
+                return;
             }
-            // Cookie값이 2개 이상일수가 있나?
-            break;
         }
     }
 
