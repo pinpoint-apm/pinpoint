@@ -89,9 +89,9 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
             try {
                 return findModifier.modify(classLoader, javassistClassName, protectionDomain, classFileBuffer);
             } finally {
-                if (before != null) {
-                    thread.setContextClassLoader(before);
-                }
+                // null일 경우도 다시 원복하는게 맞음.
+                // getContextClass 호출시 에러가 발생하였을 경우 여기서 호출당하지 않으므로 이부분에서 원복하는게 맞음.
+                thread.setContextClassLoader(before);
             }
         }
         catch (Throwable e) {
@@ -101,7 +101,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         }
     }
 
-    private ClassLoader getContextClassLoader(Thread thread) {
+    private ClassLoader getContextClassLoader(Thread thread) throws Throwable {
         try {
             return thread.getContextClassLoader();
         } catch (SecurityException se) {
@@ -110,7 +110,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
             if (isDebug) {
                 logger.debug("getContextClassLoader(). Caused:{}", th.getMessage(), th);
             }
-            return null;
+            throw th;
         }
     }
 
