@@ -3,7 +3,6 @@ package com.nhn.pinpoint.profiler.modifier.db.mysql;
 import com.mysql.jdbc.JDBC4PreparedStatement;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.DefaultAgent;
-import com.nhn.pinpoint.profiler.DummyInstrumentation;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
 
@@ -44,7 +43,7 @@ public class MySQLConnectionImplModifierTest {
         profilerConfig.readConfigFile(path);
 
         profilerConfig.setApplicationServerType(ServiceType.STAND_ALONE);
-        DefaultAgent agent = new MockAgent("", new DummyInstrumentation(), profilerConfig);
+        DefaultAgent agent = new MockAgent("", profilerConfig);
         loader = new TestClassLoader(agent);
         // agent가 로드한 모든 Modifier를 자동으로 찾도록 변경함.
 
@@ -58,6 +57,9 @@ public class MySQLConnectionImplModifierTest {
     public void testModify() throws Exception {
 
         Class<Driver> driverClazz = (Class<Driver>) loader.loadClass("com.mysql.jdbc.NonRegisteringDriver");
+//        Driver nonRegisteringDriver = new NonRegisteringDriver();
+//        Class<Driver> driverClazz = (Class<Driver>) nonRegisteringDriver.getClass();
+
         Driver driver = driverClazz.newInstance();
         logger.info("Driver class name:" + driverClazz.getName());
         logger.info("Driver class cl:" + driverClazz.getClassLoader());
@@ -69,7 +71,7 @@ public class MySQLConnectionImplModifierTest {
         Class<?> aClass = loader.loadClass("com.mysql.jdbc.StringUtils");
 //      이게 loader와 동일하게 로드 되는게 정확한건지 애매함. 하위에 로드되는게 좋을것 같은데.
 //        Assert.assertNotSame("check classLoader", aClass.getClassLoader(), loader);
-        logger.debug("mysql cl:{}", loader);
+        logger.debug("mysql cl:{}", aClass.getClassLoader());
 
         Class<?> version = loader.loadClass("com.nhn.pinpoint.common.Version");
         Assert.assertSame("check classLoader", this.getClass().getClassLoader(), version.getClassLoader());
