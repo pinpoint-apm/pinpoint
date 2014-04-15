@@ -33,7 +33,7 @@ public class HeartBitStateContext {
 
 	// 메시지 성공시를 제외하고는 이걸로 변경하면 안됨
 	boolean changeStateToNeedRequest(long eventTimeMillis) {
-		logger.info(this.getClass().getSimpleName() + " will change to NEED_REQUEST state.");
+		logger.info("{} will change to NEED_REQUEST state.", this.getClass().getSimpleName());
 		
 		if (prevEventTimeMillis <= eventTimeMillis) {
 			synchronized (this) {
@@ -41,7 +41,7 @@ public class HeartBitStateContext {
 				if (isChange) {
 					prevEventTimeMillis = eventTimeMillis;
 				}
-				logger.info(this.getClass().getSimpleName() + " change to NEED_REQUEST state ({}) .", isChange);
+				logger.info("{} change to NEED_REQUEST state ({}) .",this.getClass().getSimpleName(), isChange);
 				return isChange;
 			}
 		}
@@ -49,7 +49,7 @@ public class HeartBitStateContext {
 	}
 	
 	boolean changeStateToNeedNotRequest(long eventTimeMillis) {
-		logger.info(this.getClass().getSimpleName() + " will change to NEED_NOT_REQUEST state.");
+		logger.info("{} will change to NEED_NOT_REQUEST state.", this.getClass().getSimpleName());
 
 		if (prevEventTimeMillis < eventTimeMillis) {
 			synchronized (this) {
@@ -57,7 +57,7 @@ public class HeartBitStateContext {
 				if (isChange) {
 					prevEventTimeMillis = eventTimeMillis;
 				}
-				logger.info(this.getClass().getSimpleName() + " change to NEED_NOT_REQUEST state ({}) .", isChange);
+				logger.info("{} change to NEED_NOT_REQUEST state ({}) .", this.getClass().getSimpleName(), isChange);
 				return isChange;
 			}
 		}
@@ -65,11 +65,11 @@ public class HeartBitStateContext {
 	}
 
 	boolean changeStateToFinish() {
-		logger.info(this.getClass().getSimpleName() + " will change to FINISH state.");
+		logger.info("{} will change to FINISH state.", this.getClass().getSimpleName());
 		
 		synchronized (this) {
 			boolean isChange =  changeState(this.state, HeartBitState.FINISH);
-			logger.info(this.getClass().getSimpleName() + " change to FINISH state ({}) .", isChange);
+			logger.info("{} change to FINISH state ({}) .",this.getClass().getSimpleName(), isChange);
 			return isChange;
 		}
 	}
