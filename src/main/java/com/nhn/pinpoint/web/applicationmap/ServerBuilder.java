@@ -28,7 +28,7 @@ public class ServerBuilder {
         if (agentHistogramList == null) {
             return;
         }
-        this.agentHistogramList.addCallHistogram(agentHistogramList);
+        this.agentHistogramList.addAgentHistogram(agentHistogramList);
     }
 
     public void addAgentInfo(Set<AgentInfoBo> agentInfoBo) {
@@ -64,7 +64,7 @@ public class ServerBuilder {
      */
     public ServerInstanceList buildLogicalServer(final AgentHistogramList hostHistogram) {
         ServerInstanceList serverInstanceList = new ServerInstanceList();
-        for (AgentHistogram agentHistogram : hostHistogram.getCallHistogramList()) {
+        for (AgentHistogram agentHistogram : hostHistogram.getAgentHistogramList()) {
             final String instanceName = agentHistogram.getId();
             final String hostName = getHostName(agentHistogram.getId());
             final ServiceType serviceType = agentHistogram.getServiceType();

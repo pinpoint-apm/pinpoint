@@ -69,7 +69,7 @@ public class LinkSerializer extends JsonSerializer<Link> {
     private void writeAgentHistogram(String fieldName, AgentHistogramList agentHistogramList, JsonGenerator jgen) throws IOException {
         jgen.writeFieldName(fieldName);
         jgen.writeStartObject();
-        for (AgentHistogram agentHistogram : agentHistogramList.getCallHistogramList()) {
+        for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
             jgen.writeFieldName(agentHistogram.getId());
             jgen.writeObject(agentHistogram.getHistogram());
         }

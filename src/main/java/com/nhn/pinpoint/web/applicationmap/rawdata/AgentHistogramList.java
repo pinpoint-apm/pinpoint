@@ -16,7 +16,7 @@ public class AgentHistogramList {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     // agent별 Time 시리즈 데이터를 가지고 있음.
-    private final Map<Application, AgentHistogram> callHistogramMap = new HashMap<Application, AgentHistogram>();
+    private final Map<Application, AgentHistogram> agentHistogramMap = new HashMap<Application, AgentHistogram>();
 
     public AgentHistogramList() {
     }
@@ -29,33 +29,49 @@ public class AgentHistogramList {
         if (histogramList == null) {
             throw new NullPointerException("histogramList must not be null");
         }
-        AgentHistogram agentHistogram = getCallHistogram(agentId);
+        AgentHistogram agentHistogram = getAgentHistogram(agentId);
         agentHistogram.addTimeHistogram(histogramList);
     }
 
-    public void addCallHistogram(String agentName, ServiceType serviceType, Collection<TimeHistogram> histogramList) {
+    public void addCallHistogram(Application agentId, TimeHistogram timeHistogram) {
+        if (agentId == null) {
+            throw new NullPointerException("agentId must not be null");
+        }
+        if (timeHistogram == null) {
+            throw new NullPointerException("timeHistogram must not be null");
+        }
+        AgentHistogram agentHistogram = getAgentHistogram(agentId);
+        agentHistogram.addTimeHistogram(timeHistogram);
+    }
+
+    public void addAgentHistogram(String agentName, ServiceType serviceType, Collection<TimeHistogram> histogramList) {
         Application agentId = new Application(agentName, serviceType);
         addCallHistogram(agentId, histogramList);
     }
 
+    public void addAgentHistogram(String agentName, ServiceType serviceType, TimeHistogram timeHistogram) {
+        Application agentId = new Application(agentName, serviceType);
+        addCallHistogram(agentId, timeHistogram);
+    }
 
 
-    private AgentHistogram getCallHistogram(Application agentId) {
+
+    private AgentHistogram getAgentHistogram(Application agentId) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
 
-        AgentHistogram agentHistogram = callHistogramMap.get(agentId);
+        AgentHistogram agentHistogram = agentHistogramMap.get(agentId);
         if (agentHistogram == null) {
             agentHistogram = new AgentHistogram(agentId);
-            callHistogramMap.put(agentId, agentHistogram);
+            agentHistogramMap.put(agentId, agentHistogram);
         }
         return agentHistogram;
     }
 
     public Histogram mergeHistogram(ServiceType serviceType) {
         final Histogram histogram = new Histogram(serviceType);
-        for (AgentHistogram agentHistogram : getCallHistogramList()) {
+        for (AgentHistogram agentHistogram : getAgentHistogramList()) {
             histogram.add(agentHistogram.getHistogram());
         }
         return histogram;
@@ -63,7 +79,7 @@ public class AgentHistogramList {
 
 
 
-    public void addCallHistogram(AgentHistogram agentHistogram) {
+    public void addAgentHistogram(AgentHistogram agentHistogram) {
         if (agentHistogram == null) {
             throw new NullPointerException("agentHistogram must not be null");
         }
@@ -71,27 +87,31 @@ public class AgentHistogramList {
         ServiceType serviceType = agentHistogram.getServiceType();
 
         Application agentId = new Application(hostName, serviceType);
-        AgentHistogram findAgentHistogram = getCallHistogram(agentId);
+        AgentHistogram findAgentHistogram = getAgentHistogram(agentId);
         findAgentHistogram.addTimeHistogram(agentHistogram.getTimeHistogram());
     }
 
-    public void addCallHistogram(AgentHistogramList addAgentHistogramList) {
+    public void addAgentHistogram(AgentHistogramList addAgentHistogramList) {
         if (addAgentHistogramList == null) {
             throw new NullPointerException("agentHistogram must not be null");
         }
-        for (AgentHistogram agentHistogram : addAgentHistogramList.callHistogramMap.values()) {
-            addCallHistogram(agentHistogram);
+        for (AgentHistogram agentHistogram : addAgentHistogramList.agentHistogramMap.values()) {
+            addAgentHistogram(agentHistogram);
         }
     }
 
-    public Collection<AgentHistogram> getCallHistogramList() {
-        return callHistogramMap.values();
+    public Collection<AgentHistogram> getAgentHistogramList() {
+        return agentHistogramMap.values();
     }
 
     @Override
     public String toString() {
         return "AgentHistogramList{"
-                    + callHistogramMap +
+                    + agentHistogramMap +
                 '}';
+    }
+
+    public int size() {
+        return this.agentHistogramMap.size();
     }
 }

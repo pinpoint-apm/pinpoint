@@ -51,6 +51,11 @@ public class AgentHistogram {
 	}
 
     @JsonIgnore
+    public Application getAgentId() {
+        return agentId;
+    }
+
+    @JsonIgnore
 	public ServiceType getServiceType() {
 		return agentId.getServiceType();
 	}

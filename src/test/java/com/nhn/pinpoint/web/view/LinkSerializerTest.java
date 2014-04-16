@@ -27,7 +27,7 @@ public class LinkSerializerTest {
     public void testSerialize() throws Exception {
         AgentHistogramList list = new AgentHistogramList();
         AgentHistogram histogram = new AgentHistogram(new Application("test", ServiceType.TOMCAT));
-        list.addCallHistogram(histogram);
+        list.addAgentHistogram(histogram);
         Node node1 = new Node(new Application("test1", ServiceType.TOMCAT));
         Node node2 = new Node(new Application("test1", ServiceType.TOMCAT));
 

@@ -310,7 +310,7 @@ public class ApplicationMapBuilder {
             for (Link link : toLinkList) {
                 LinkCallDataMap sourceLinkCallDataMap = link.getSourceLinkCallDataMap();
                 AgentHistogramList targetList = sourceLinkCallDataMap.getTargetList();
-                for (AgentHistogram histogram : targetList.getCallHistogramList()) {
+                for (AgentHistogram histogram : targetList.getAgentHistogramList()) {
                     Histogram find = agentHistogramMap.get(histogram.getId());
                     if (find == null) {
                         find = new Histogram(histogram.getServiceType());
@@ -322,14 +322,14 @@ public class ApplicationMapBuilder {
             }
         }
 
-        Collection<LinkCallData> mergeTarget = new ArrayList<LinkCallData>();
+        LinkCallDataMap mergeSource = new LinkCallDataMap();
         for (Link link : toLinkList) {
             LinkCallDataMap sourceLinkCallDataMap = link.getSourceLinkCallDataMap();
-            Collection<LinkCallData> linkDataMap = sourceLinkCallDataMap.getLinkDataMap();
-            mergeTarget.addAll(linkDataMap);
+            mergeSource.addLinkDataMap(sourceLinkCallDataMap);
         }
+
         AgentTimeHistogramBuilder agentTimeBuilder = new AgentTimeHistogramBuilder(nodeApplication, range);
-        AgentTimeHistogram agentTimeHistogram = agentTimeBuilder.buildTarget(mergeTarget);
+        AgentTimeHistogram agentTimeHistogram = agentTimeBuilder.buildTarget(mergeSource);
         nodeHistogram.setAgentTimeHistogram(agentTimeHistogram);
 
         return nodeHistogram;

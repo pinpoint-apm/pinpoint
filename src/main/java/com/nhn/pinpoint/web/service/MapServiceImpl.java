@@ -205,7 +205,7 @@ public class MapServiceImpl implements MapService {
         for (LinkDataMap entry : list) {
             for (LinkData linkData : entry.getLinkDataList()) {
                 AgentHistogramList sourceList = linkData.getSourceList();
-                Collection<AgentHistogram> agentHistogramList = sourceList.getCallHistogramList();
+                Collection<AgentHistogram> agentHistogramList = sourceList.getAgentHistogramList();
                 for (AgentHistogram histogram : agentHistogramList) {
                     for (TimeHistogram timeHistogram : histogram.getTimeHistogram()) {
                         Application toApplication = linkData.getToApplication();

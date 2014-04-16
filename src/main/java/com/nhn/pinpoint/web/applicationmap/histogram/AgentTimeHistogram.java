@@ -25,7 +25,7 @@ public class AgentTimeHistogram {
     private final Range range;
     private final TimeWindow window;
 
-    private final Map<String, List<TimeHistogram>> histogramMap;
+    private final Map<Application, List<TimeHistogram>> histogramMap;
 
     public AgentTimeHistogram(Application application, Range range) {
         if (application == null) {
@@ -40,7 +40,7 @@ public class AgentTimeHistogram {
         this.histogramMap = Collections.emptyMap();
     }
 
-    public AgentTimeHistogram(Application application, Range range, Map<String, List<TimeHistogram>> histogramMap) {
+    public AgentTimeHistogram(Application application, Range range, Map<Application, List<TimeHistogram>> histogramMap) {
         if (application == null) {
             throw new NullPointerException("application must not be null");
         }
@@ -59,7 +59,7 @@ public class AgentTimeHistogram {
 
     public List<AgentResponseTimeViewModel> createViewModel() {
         final List<AgentResponseTimeViewModel> result = new ArrayList<AgentResponseTimeViewModel>();
-        for (Map.Entry<String, List<TimeHistogram>> entry : histogramMap.entrySet()) {
+        for (Map.Entry<Application, List<TimeHistogram>> entry : histogramMap.entrySet()) {
             AgentResponseTimeViewModel model = createAgentResponseTimeViewModel(entry.getKey(), entry.getValue());
             result.add(model);
         }
@@ -72,7 +72,7 @@ public class AgentTimeHistogram {
         return result;
     }
 
-    private AgentResponseTimeViewModel createAgentResponseTimeViewModel(String agentName, List<TimeHistogram> timeHistogramList) {
+    private AgentResponseTimeViewModel createAgentResponseTimeViewModel(Application agentName, List<TimeHistogram> timeHistogramList) {
         List<ResponseTimeViewModel> responseTimeViewModel = createResponseTimeViewModel(timeHistogramList);
         AgentResponseTimeViewModel agentResponseTimeViewModel = new AgentResponseTimeViewModel(agentName, responseTimeViewModel);
         return agentResponseTimeViewModel;

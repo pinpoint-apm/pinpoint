@@ -72,7 +72,7 @@ public class LinkCallDataMap {
         for (Map.Entry<LinkKey, LinkCallData> linkKeyRawCallDataEntry : linkDataMap.entrySet()) {
             final LinkKey key = linkKeyRawCallDataEntry.getKey();
             final LinkCallData linkCallData = linkKeyRawCallDataEntry.getValue();
-            targetList.addCallHistogram(key.getToApplication(), key.getToServiceType(), linkCallData.getTimeHistogram());
+            targetList.addAgentHistogram(key.getToApplication(), key.getToServiceType(), linkCallData.getTimeHistogram());
         }
         return targetList;
     }
@@ -84,7 +84,7 @@ public class LinkCallDataMap {
             final LinkCallData linkCallData = linkKeyRawCallDataEntry.getValue();
             // to의 ServiceType이 들어가야 한다.
             // 여기서 source란 source의 입장에서 target 호출시의 데이터를 의미하는 것이기 때문에. ServiceType자체는 To의 ServiceType이 들어가야한다.
-            sourceList.addCallHistogram(key.getFromApplication(), key.getToServiceType(), linkCallData.getTimeHistogram());
+            sourceList.addAgentHistogram(key.getFromApplication(), key.getToServiceType(), linkCallData.getTimeHistogram());
         }
         return sourceList;
     }

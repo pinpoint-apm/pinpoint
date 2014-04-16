@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.web.view;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.nhn.pinpoint.web.vo.Application;
 
 import java.util.List;
 
@@ -10,11 +11,11 @@ import java.util.List;
 @JsonSerialize(using=AgentResponseTimeViewModelSerializer.class)
 public class AgentResponseTimeViewModel {
 
-    private final String agentName;
+    private final Application agentName;
 
     private final List<ResponseTimeViewModel> responseTimeViewModel;
 
-    public AgentResponseTimeViewModel(String agentName, List<ResponseTimeViewModel> responseTimeViewModel) {
+    public AgentResponseTimeViewModel(Application agentName, List<ResponseTimeViewModel> responseTimeViewModel) {
         if (agentName == null) {
             throw new NullPointerException("agentName must not be null");
         }
@@ -26,7 +27,7 @@ public class AgentResponseTimeViewModel {
     }
 
     public String getAgentName() {
-        return agentName;
+        return agentName.getName();
     }
 
     public List<ResponseTimeViewModel> getResponseTimeViewModel() {
