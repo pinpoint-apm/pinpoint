@@ -13,7 +13,7 @@ public class PinpointURLClassLoader extends URLClassLoader {
 
     private final ClassLoader parent;
 
-    private ProfilerLibClass profilerLibClass = new ProfilerLibClass();
+    private final ProfilerLibClass profilerLibClass = new ProfilerLibClass();
 
     public PinpointURLClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
