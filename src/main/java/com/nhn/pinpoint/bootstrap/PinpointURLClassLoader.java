@@ -13,6 +13,8 @@ public class PinpointURLClassLoader extends URLClassLoader {
 
     private final ClassLoader parent;
 
+    private ProfilerLibClass profilerLibClass = new ProfilerLibClass();
+
     public PinpointURLClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, parent);
         if (parent == null) {
@@ -52,7 +54,7 @@ public class PinpointURLClassLoader extends URLClassLoader {
 
     // for test
     boolean onLoadClass(String name) {
-        return ProfilerLibClass.onLoadClass(name);
+        return profilerLibClass.onLoadClass(name);
     }
 
 }

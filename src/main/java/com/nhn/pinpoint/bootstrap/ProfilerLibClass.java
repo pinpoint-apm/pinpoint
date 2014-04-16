@@ -19,7 +19,7 @@ public class ProfilerLibClass {
             "com.codahale.metrics"
     };
 
-    public static boolean onLoadClass(String clazzName) {
+    public boolean onLoadClass(String clazzName) {
         final int length = PINPOINT_PROFILER_CLASS.length;
         for (int i = 0; i < length; i++) {
             if (clazzName.startsWith(PINPOINT_PROFILER_CLASS[i])) {
