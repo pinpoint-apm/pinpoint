@@ -2,8 +2,8 @@ package com.nhn.pinpoint.web.applicationmap;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogram;
-import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogramList;
+import com.nhn.pinpoint.web.applicationmap.rawdata.AgentHistogram;
+import com.nhn.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,19 +16,19 @@ public class ServerBuilder {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final CallHistogramList callHistogramList;
+    private final AgentHistogramList agentHistogramList;
     private final Set<AgentInfoBo> agentSet;
 
     public ServerBuilder() {
-        this.callHistogramList = new CallHistogramList();
+        this.agentHistogramList = new AgentHistogramList();
         this.agentSet = new HashSet<AgentInfoBo>();
     }
 
-    public void addCallHistogramList(CallHistogramList callHistogramList) {
-        if (callHistogramList == null) {
+    public void addCallHistogramList(AgentHistogramList agentHistogramList) {
+        if (agentHistogramList == null) {
             return;
         }
-        this.callHistogramList.addCallHistogram(callHistogramList);
+        this.agentHistogramList.addCallHistogram(agentHistogramList);
     }
 
     public void addAgentInfo(Set<AgentInfoBo> agentInfoBo) {
@@ -42,7 +42,7 @@ public class ServerBuilder {
         if (copy == null) {
             throw new NullPointerException("copy must not be null");
         }
-        addCallHistogramList(copy.callHistogramList);
+        addCallHistogramList(copy.agentHistogramList);
         addAgentInfo(copy.agentSet);
     }
 
@@ -62,12 +62,12 @@ public class ServerBuilder {
      *
      * @param hostHistogram
      */
-    public ServerInstanceList buildLogicalServer(final CallHistogramList hostHistogram) {
+    public ServerInstanceList buildLogicalServer(final AgentHistogramList hostHistogram) {
         ServerInstanceList serverInstanceList = new ServerInstanceList();
-        for (CallHistogram callHistogram : hostHistogram.getCallHistogramList()) {
-            final String instanceName = callHistogram.getId();
-            final String hostName = getHostName(callHistogram.getId());
-            final ServiceType serviceType = callHistogram.getServiceType();
+        for (AgentHistogram agentHistogram : hostHistogram.getCallHistogramList()) {
+            final String instanceName = agentHistogram.getId();
+            final String hostName = getHostName(agentHistogram.getId());
+            final ServiceType serviceType = agentHistogram.getServiceType();
 
             final ServerInstance serverInstance = new ServerInstance(hostName, instanceName, serviceType);
             serverInstanceList.addServerInstance(serverInstance);
@@ -95,7 +95,7 @@ public class ServerBuilder {
         } else {
             // 논리 이름으로 구성.
             this.logger.debug("buildLogicalServer");
-            return buildLogicalServer(callHistogramList);
+            return buildLogicalServer(agentHistogramList);
         }
     }
 

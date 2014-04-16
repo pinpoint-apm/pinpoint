@@ -160,9 +160,6 @@ public class AgentTimeHistogramBuilder {
 
 
 
-
-
-
     public long getCount(TimeHistogram timeHistogram, SlotType slotType) {
         return timeHistogram.getCount(slotType);
     }

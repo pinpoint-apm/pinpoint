@@ -204,9 +204,9 @@ public class MapServiceImpl implements MapService {
         ResponseHistogramBuilder responseHistogramSummary = new ResponseHistogramBuilder(range);
         for (LinkDataMap entry : list) {
             for (LinkData linkData : entry.getLinkDataList()) {
-                CallHistogramList sourceList = linkData.getSourceList();
-                Collection<CallHistogram> callHistogramList = sourceList.getCallHistogramList();
-                for (CallHistogram histogram : callHistogramList) {
+                AgentHistogramList sourceList = linkData.getSourceList();
+                Collection<AgentHistogram> agentHistogramList = sourceList.getCallHistogramList();
+                for (AgentHistogram histogram : agentHistogramList) {
                     for (TimeHistogram timeHistogram : histogram.getTimeHistogram()) {
                         Application toApplication = linkData.getToApplication();
                         if (toApplication.getServiceType().isRpcClient()) {

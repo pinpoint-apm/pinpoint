@@ -2,8 +2,8 @@ package com.nhn.pinpoint.web.view;
 
 import com.nhn.pinpoint.web.applicationmap.Link;
 import com.nhn.pinpoint.web.applicationmap.Node;
-import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogram;
-import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogramList;
+import com.nhn.pinpoint.web.applicationmap.rawdata.AgentHistogram;
+import com.nhn.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.nhn.pinpoint.web.applicationmap.histogram.Histogram;
 import com.nhn.pinpoint.web.vo.Application;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -66,12 +66,12 @@ public class LinkSerializer extends JsonSerializer<Link> {
     }
 
 
-    private void writeAgentHistogram(String fieldName, CallHistogramList callHistogramList, JsonGenerator jgen) throws IOException {
+    private void writeAgentHistogram(String fieldName, AgentHistogramList agentHistogramList, JsonGenerator jgen) throws IOException {
         jgen.writeFieldName(fieldName);
         jgen.writeStartObject();
-        for (CallHistogram callHistogram : callHistogramList.getCallHistogramList()) {
-            jgen.writeFieldName(callHistogram.getId());
-            jgen.writeObject(callHistogram.getHistogram());
+        for (AgentHistogram agentHistogram : agentHistogramList.getCallHistogramList()) {
+            jgen.writeFieldName(agentHistogram.getId());
+            jgen.writeObject(agentHistogram.getHistogram());
         }
         jgen.writeEndObject();
     }

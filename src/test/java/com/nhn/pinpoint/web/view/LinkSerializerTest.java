@@ -6,8 +6,8 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.applicationmap.Link;
 import com.nhn.pinpoint.web.applicationmap.CreateType;
 import com.nhn.pinpoint.web.applicationmap.Node;
-import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogram;
-import com.nhn.pinpoint.web.applicationmap.rawdata.CallHistogramList;
+import com.nhn.pinpoint.web.applicationmap.rawdata.AgentHistogram;
+import com.nhn.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
 import org.junit.Test;
@@ -25,8 +25,8 @@ public class LinkSerializerTest {
 
     @Test
     public void testSerialize() throws Exception {
-        CallHistogramList list = new CallHistogramList();
-        CallHistogram histogram = new CallHistogram(new Application("test", ServiceType.TOMCAT));
+        AgentHistogramList list = new AgentHistogramList();
+        AgentHistogram histogram = new AgentHistogram(new Application("test", ServiceType.TOMCAT));
         list.addCallHistogram(histogram);
         Node node1 = new Node(new Application("test1", ServiceType.TOMCAT));
         Node node2 = new Node(new Application("test1", ServiceType.TOMCAT));

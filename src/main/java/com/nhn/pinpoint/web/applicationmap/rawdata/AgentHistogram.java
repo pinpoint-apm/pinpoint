@@ -17,7 +17,7 @@ import java.util.Map;
  * @author emeroad
  */
 
-public class CallHistogram {
+public class AgentHistogram {
 	/**
 	 * UI에서 호스트를 구분하기 위한 목적으로 hostname, agentid, endpoint등 구분할 수 있는 아무거나 넣으면 됨.
 	 */
@@ -25,7 +25,7 @@ public class CallHistogram {
 
     private final Map<Long, TimeHistogram> timeHistogramMap;
 
-	public CallHistogram(Application agentId) {
+	public AgentHistogram(Application agentId) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
@@ -34,15 +34,15 @@ public class CallHistogram {
         this.timeHistogramMap = new HashMap<Long, TimeHistogram>();
 	}
 
-    public CallHistogram(CallHistogram copyCallHistogram) {
-        if (copyCallHistogram == null) {
-            throw new NullPointerException("copyCallHistogram must not be null");
+    public AgentHistogram(AgentHistogram copyAgentHistogram) {
+        if (copyAgentHistogram == null) {
+            throw new NullPointerException("copyAgentHistogram must not be null");
         }
 
-        this.agentId = copyCallHistogram.agentId;
+        this.agentId = copyAgentHistogram.agentId;
 
         this.timeHistogramMap = new HashMap<Long, TimeHistogram>();
-        addTimeHistogram(copyCallHistogram.timeHistogramMap.values());
+        addTimeHistogram(copyAgentHistogram.timeHistogramMap.values());
     }
 
     @JsonProperty("name")
@@ -91,7 +91,7 @@ public class CallHistogram {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("CallHistogram{");
+        final StringBuilder sb = new StringBuilder("AgentHistogram{");
         sb.append("agent='").append(agentId.getName()).append('\'');
         sb.append(", serviceType=").append(agentId.getServiceType());
         // 자료 구조가 변경되어 잠시 땜빵.

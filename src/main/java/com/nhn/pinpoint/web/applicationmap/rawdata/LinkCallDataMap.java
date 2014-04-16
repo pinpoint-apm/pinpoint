@@ -67,8 +67,8 @@ public class LinkCallDataMap {
         return linkDataMap.values();
     }
 
-    public CallHistogramList getTargetList() {
-        CallHistogramList targetList = new CallHistogramList();
+    public AgentHistogramList getTargetList() {
+        AgentHistogramList targetList = new AgentHistogramList();
         for (Map.Entry<LinkKey, LinkCallData> linkKeyRawCallDataEntry : linkDataMap.entrySet()) {
             final LinkKey key = linkKeyRawCallDataEntry.getKey();
             final LinkCallData linkCallData = linkKeyRawCallDataEntry.getValue();
@@ -77,8 +77,8 @@ public class LinkCallDataMap {
         return targetList;
     }
 
-    public CallHistogramList getSourceList() {
-        CallHistogramList sourceList = new CallHistogramList();
+    public AgentHistogramList getSourceList() {
+        AgentHistogramList sourceList = new AgentHistogramList();
         for (Map.Entry<LinkKey, LinkCallData> linkKeyRawCallDataEntry : linkDataMap.entrySet()) {
             final LinkKey key = linkKeyRawCallDataEntry.getKey();
             final LinkCallData linkCallData = linkKeyRawCallDataEntry.getValue();

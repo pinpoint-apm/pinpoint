@@ -114,7 +114,7 @@ public class Link {
         }
     }
 
-	public CallHistogramList getTargetList() {
+	public AgentHistogramList getTargetList() {
 		return sourceLinkCallDataMap.getTargetList();
 	}
 
@@ -131,7 +131,7 @@ public class Link {
         // tomcat -> arcus를 호출한다고 하였을 경우 arcus의 타입을 가져와야함.
         final Histogram linkHistogram = new Histogram(toNode.getServiceType());
         final LinkCallDataMap findMap = getLinkCallDataMap();
-        CallHistogramList targetList = findMap.getTargetList();
+        AgentHistogramList targetList = findMap.getTargetList();
         return targetList.mergeHistogram(toNode.getServiceType());
     }
 
@@ -157,13 +157,13 @@ public class Link {
     public Histogram getTargetHistogram() {
         // 내가 호출하는 대상의 serviceType을 가져와야 한다.
         // tomcat -> arcus를 호출한다고 하였을 경우 arcus의 타입을 가져와야함.
-        CallHistogramList targetList = targetLinkCallDataMap.getTargetList();
+        AgentHistogramList targetList = targetLinkCallDataMap.getTargetList();
         return targetList.mergeHistogram(toNode.getServiceType());
 
     }
 
     @JsonIgnore
-    public CallHistogramList getSourceList() {
+    public AgentHistogramList getSourceList() {
         return sourceLinkCallDataMap.getSourceList();
     }
 

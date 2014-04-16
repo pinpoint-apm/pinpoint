@@ -309,8 +309,8 @@ public class ApplicationMapBuilder {
 
             for (Link link : toLinkList) {
                 LinkCallDataMap sourceLinkCallDataMap = link.getSourceLinkCallDataMap();
-                CallHistogramList targetList = sourceLinkCallDataMap.getTargetList();
-                for (CallHistogram histogram : targetList.getCallHistogramList()) {
+                AgentHistogramList targetList = sourceLinkCallDataMap.getTargetList();
+                for (AgentHistogram histogram : targetList.getCallHistogramList()) {
                     Histogram find = agentHistogramMap.get(histogram.getId());
                     if (find == null) {
                         find = new Histogram(histogram.getServiceType());

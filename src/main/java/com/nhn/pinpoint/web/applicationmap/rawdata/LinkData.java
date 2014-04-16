@@ -77,11 +77,11 @@ public class LinkData {
         return  this.linkCallDataMap;
     }
 
-    public CallHistogramList getTargetList() {
+    public AgentHistogramList getTargetList() {
         return linkCallDataMap.getTargetList();
 	}
 
-    public CallHistogramList getSourceList() {
+    public AgentHistogramList getSourceList() {
         return linkCallDataMap.getSourceList();
     }
 
