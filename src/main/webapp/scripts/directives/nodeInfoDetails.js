@@ -18,7 +18,7 @@ pinpointApp
 
                 // define private variables of methods
                 var reset, showDetailInformation, parseHistogramForNvd3,
-                    renderHistogram, parseHistogramForD3, renderTimeSeriesHistogram;
+                    renderResponseSummary, parseHistogramForD3, renderLoad;
 
                 /**
                  * reset
@@ -55,7 +55,7 @@ pinpointApp
                     scope.agentHistogram = node.agentHistogram;
 
                     if (!node.targetRawData && node.category !== "UNKNOWN_GROUP") {
-                        renderHistogram('.nodeInfoDetails .histogram svg', [
+                        renderResponseSummary('.nodeInfoDetails .histogram svg', [
                             {
                                 'key': "Response Time Histogram",
                                 'values' : parseHistogramForNvd3(node.histogram)
@@ -65,23 +65,23 @@ pinpointApp
 //                        if (scope.isWas) {
                         if (true) {
                             scope.showNodeLoad = true;
-                            renderTimeSeriesHistogram('.nodeInfoDetails .timeSeriesHistogram svg', node.timeSeriesHistogram);
+                            renderLoad('.nodeInfoDetails .timeSeriesHistogram svg', node.timeSeriesHistogram);
 
                             for (var key in node.agentHistogram) {
                                 var className = $filter('applicationNameToClassName')(key);
-                                renderHistogram('.nodeInfoDetails .agentHistogram_' + className +
+                                renderResponseSummary('.nodeInfoDetails .agentHistogram_' + className +
                                     ' svg', parseHistogramForD3(node.agentHistogram[key]));
                             }
                             for (var key in node.agentTimeSeriesHistogram) {
                                 var className = $filter('applicationNameToClassName')(key);
-                                renderTimeSeriesHistogram('.nodeInfoDetails .agentTimeSeriesHistogram_' + className +
+                                renderLoad('.nodeInfoDetails .agentTimeSeriesHistogram_' + className +
                                     ' svg', node.agentTimeSeriesHistogram[key]);
                             }
                         }
                     } else if (node.category === 'UNKNOWN_GROUP'){
                         for (var key in node.textArr) {
                             var className = $filter('applicationNameToClassName')(key);
-                            renderHistogram('.nodeInfoDetails .summaryCharts_' + className +
+                            renderResponseSummary('.nodeInfoDetails .summaryCharts_' + className +
                                 ' svg', parseHistogramForD3(node.targetRawData[node.textArr[key].applicationName].histogram));
                         }
                     }
@@ -118,7 +118,7 @@ pinpointApp
                  * @param data
                  * @param clickEventName
                  */
-                renderHistogram = function (querySelector, data, clickEventName) {
+                renderResponseSummary = function (querySelector, data, clickEventName) {
                     if (!scope.$$phase) {
                         scope.$digest();
                     }
@@ -156,8 +156,8 @@ pinpointApp
                         });
 
                         chart.valueFormat(function (d) {
-//                            return $filter('number')(d);
-                            return $filter('humanReadableNumberFormat')(d, 1, true);
+                            return $filter('number')(d);
+//                            return $filter('humanReadableNumberFormat')(d, 1, true);
                         });
 
                         chart.color(config.myColors);
@@ -186,7 +186,7 @@ pinpointApp
                  * @param data
                  * @param clickEventName
                  */
-                renderTimeSeriesHistogram = function (querySelector, data, clickEventName) {
+                renderLoad = function (querySelector, data, clickEventName) {
                     if (!scope.$$phase) {
                         scope.$digest();
                     }
@@ -205,7 +205,8 @@ pinpointApp
                         });
 
                         chart.yAxis.tickFormat(function (d) {
-                            return $filter('humanReadableNumberFormat')(d, 0);
+//                            return $filter('humanReadableNumberFormat')(d, 0);
+                            return $filter('number')(d);
                         });
 
                         chart.color(config.myColors);

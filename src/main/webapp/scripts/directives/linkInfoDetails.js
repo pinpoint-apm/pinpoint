@@ -17,7 +17,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 var htQuery, htTargetRawData, htLastLink;
 
                 // define private variables of methods;
-                var reset, showDetailInformation, getTimeSeriesHistogramData, renderTimeSeriesHistogram,
+                var reset, showDetailInformation, getTimeSeriesHistogramData, renderLoad,
                     renderResponseSummary, showTimeSeriesHistogram, parseHistogramForD3;
 
                 /**
@@ -78,7 +78,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         scope.ShowLinkLoad = true;
                         scope.showLinkResponseSummary = true;
                         renderResponseSummary('.linkInfoDetails .infoBarChart svg', parseHistogramForD3(link.histogram), 'ResponseSummary');
-                        renderTimeSeriesHistogram(link.timeSeriesHistogram);
+                        renderLoad(link.timeSeriesHistogram);
                     }
 
                     scope.showLinkInfoDetails = true;
@@ -121,7 +121,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                  * render statistics time series histogram
                  * @param data
                  */
-                renderTimeSeriesHistogram = function (data) {
+                renderLoad = function (data) {
                     nv.addGraph(function () {
                         angular.element('.linkInfoDetails .infoChart svg').empty();
                         var chart = nv.models.multiBarChart().x(function (d) {
@@ -137,7 +137,8 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         });
 
                         chart.yAxis.tickFormat(function (d) {
-                            return $filter('humanReadableNumberFormat')(d, 0);
+//                            return $filter('humanReadableNumberFormat')(d, 0);
+                            return $filter('number')(d);
                         });
 
                         chart.color(config.myColors);
@@ -207,8 +208,8 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         });
 
                         chart.valueFormat(function (d) {
-//                            return $filter('number')(d);
-                            return humanReadableNumberFormatFilter(d, 1, true);
+                            return $filter('number')(d);
+//                            return humanReadableNumberFormatFilter(d, 1, true);
                         });
 
                         chart.color(config.myColors);
@@ -279,7 +280,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
 //                    renderResponseSummary('.linkInfoDetails .infoBarChart svg', parseHistogramForD3(histogram), 'ResponseSummary');
 //
 //                    getTimeSeriesHistogramData(params, 1, function (query, result) {
-//                        renderTimeSeriesHistogram(result.timeSeriesHistogram);
+//                        renderLoad(result.timeSeriesHistogram);
 //                    });
 //
 ////                    getTimeSeriesHistogramData(params, 2, function (query, result) {
