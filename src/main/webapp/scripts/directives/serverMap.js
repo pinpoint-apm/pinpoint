@@ -435,6 +435,10 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         bIsFilterWizardLoaded = true;
                         $('#filterWizard')
                             .on('shown.bs.modal', function () {
+                                $('slider', this).addClass('auto');
+                                setTimeout(function () {
+                                    $('#filterWizard slider').removeClass('auto');
+                                }, 500);
                                 if (scope.oNavbarVo.getFilter()) {
                                     var result = filteredMapUtil.findFilterInNavbarVo(
                                         htLastLink.fromNode.text,
@@ -464,6 +468,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                                 if (!scope.$$phase) {
                                      scope.$digest();
                                 }
+
                             });
                     }
                 };

@@ -44,8 +44,8 @@
     display: none !important;
 }
 
-.servermap slider span.pointer,
-.servermap slider span.bar.selection {
+.servermap slider.auto span.pointer,
+.servermap slider.auto span.bar.selection {
     -webkit-transition: all 0.1s ease;
     -moz-transition: all 0.1s ease;
     -o-transition: all 0.1s ease;
