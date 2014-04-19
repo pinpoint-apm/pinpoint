@@ -20,7 +20,7 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                     getColorByString, progressBarFormatter, argumentFormatter;
 
                 // bootstrap
-                window.callStacks = [];
+                window.callStacks = []; // Slick.Data.DataView 때문에, window 프로퍼티로 사용해야 scope 문제가 해결됨.
 
                 getColorByString = function(str) {
                     // str to hash
@@ -219,7 +219,7 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
 
                     grid.onDblClick.subscribe(function (e, args) {
                         isSingleClick = false;
-                        console.log('isSingleClick = false');
+//                        console.log('isSingleClick = false');
                         $(e.target).popover('toggle');
                     });
 
