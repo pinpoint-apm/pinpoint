@@ -417,17 +417,17 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
 
                     if (htLastLink.fromNode.category === 'USER') {
                         oSidebarTitleVo
-                            .setImageType(htLastLink.fromNode.text)
+                            .setImageType('USER')
                             .setTitle('USER')
-                            .setImageType2(htLastLink.toNode.category)
-                            .setTitle2(htLastLink.toNode.text);
                     } else {
                         oSidebarTitleVo
                             .setImageType(htLastLink.fromNode.category)
                             .setTitle(htLastLink.fromNode.text)
-                            .setImageType2(htLastLink.toNode.category)
-                            .setTitle2(htLastLink.toNode.text);
                     }
+                    oSidebarTitleVo
+                        .setImageType2(htLastLink.toNode.category)
+                        .setTitle2(htLastLink.toNode.text);
+
                     scope.$broadcast('sidebarTitle.initialize.forServerMap', oSidebarTitleVo);
 
                     $('#filterWizard').modal('show');

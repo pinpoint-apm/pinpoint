@@ -226,12 +226,17 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                                     .setFromServiceType(htLastLink.sourceInfo.serviceType)
                                     .setToApplication(htLastLink.targetInfo.applicationName)
                                     .setToServiceType(htLastLink.targetInfo.serviceType);
+                                if (htLastLink.sourceInfo.serviceType === 'USER') {
+                                    oServerMapFilterVo
+                                        .setFromApplication('USER')
+                                        .setFromServiceType('USER');
+                                }
 
                                 if (label.toLowerCase() === 'error') {
                                     oServerMapFilterVo.setIncludeException(true);
-                                } else if (label.indexOf('+') > 0) {
+                                } else if (label.toLowerCase() === 'slow') {
                                     oServerMapFilterVo
-                                        .setResponseFrom(parseInt(label, 10))
+                                        .setResponseFrom(filteredMapUtil.getStartValueForFilterByLabel(label, values) * 1000)
                                         .setResponseTo('max');
                                 } else {
                                     oServerMapFilterVo
