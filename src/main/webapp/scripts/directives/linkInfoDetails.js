@@ -5,8 +5,8 @@ pinpointApp.constant('linkInfoDetailsConfig', {
     myColors: ["#2ca02c", "#3c81fa", "#f8c731", "#f69124", "#f53034"]
 });
 
-pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartVo', '$filter', 'ServerMapFilterVo',  'filteredMapUtil', 'humanReadableNumberFormatFilter',
-    function (config, HelixChartVo, $filter, ServerMapFilterVo, filteredMapUtil, humanReadableNumberFormatFilter) {
+pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartVo', '$filter', 'ServerMapFilterVo',  'filteredMapUtil', 'humanReadableNumberFormatFilter', '$timeout',
+    function (config, HelixChartVo, $filter, ServerMapFilterVo, filteredMapUtil, humanReadableNumberFormatFilter, $timeout) {
         return {
             restrict: 'EA',
             replace: true,
@@ -14,11 +14,10 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
             link: function postLink(scope, element, attrs) {
 
                 // define private variables
-                var htQuery, htTargetRawData, htLastLink;
+                var htQuery, htTargetRawData, htLastLink, htUnknownLoadShown;
 
                 // define private variables of methods;
-                var reset, showDetailInformation, getTimeSeriesHistogramData, renderLoad,
-                    renderResponseSummary, showTimeSeriesHistogram, parseHistogramForD3;
+                var reset, showDetailInformation, renderLoad, renderResponseSummary, parseHistogramForD3;
 
                 /**
                  * reset
@@ -27,6 +26,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     htQuery = false;
                     htLastLink = false;
                     htTargetRawData = false;
+                    htUnknownLoadShown = {};
                     scope.linkCategory = null;
                     scope.targetinfo = null;
                     scope.sourceinfo = null;
@@ -60,10 +60,14 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         for (var key in link.targetInfo) {
                             var className = $filter('applicationNameToClassName')(link.targetInfo[key].applicationName)
                             renderResponseSummary('.linkInfoDetails .summaryCharts_' + className +
-                                ' svg', parseHistogramForD3(link.targetRawData[link.targetInfo[key].applicationName].histogram));
+                                ' .response-summary svg', parseHistogramForD3(link.targetRawData[link.targetInfo[key].applicationName].histogram));
                         }
                         scope.sourceInfo = link.sourceInfo;
                         scope.targetInfo = link.targetInfo;
+
+                        $timeout(function () {
+                            element.find('[data-toggle="tooltip"]').tooltip('destroy').tooltip();
+                        });
                     } else {
                         scope.linkCategory = 'LinkInfoBox';
 //                        showTimeSeriesHistogram(
@@ -78,7 +82,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         scope.ShowLinkLoad = true;
                         scope.showLinkResponseSummary = true;
                         renderResponseSummary('.linkInfoDetails .infoBarChart svg', parseHistogramForD3(link.histogram), 'ResponseSummary');
-                        renderLoad(link.timeSeriesHistogram);
+                        renderLoad('.linkInfoDetails .infoChart svg', link.timeSeriesHistogram);
                     }
 
                     scope.showLinkInfoDetails = true;
@@ -119,11 +123,12 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
 
                 /**
                  * render statistics time series histogram
+                 * @param querySelector
                  * @param data
                  */
-                renderLoad = function (data) {
+                renderLoad = function (querySelector, data) {
                     nv.addGraph(function () {
-                        angular.element('.linkInfoDetails .infoChart svg').empty();
+                        angular.element(querySelector).empty();
                         var chart = nv.models.multiBarChart().x(function (d) {
                             return d[0];
                         }).y(function (d) {
@@ -148,7 +153,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
 //                        console.dir(e.point);
                         });
 
-                        d3.select('.linkInfoDetails .infoChart svg')
+                        d3.select(querySelector)
                             .datum(data)
                             .transition()
                             .duration(0)
@@ -158,6 +163,15 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
 
                         return chart;
                     });
+                };
+
+                scope.renderLoad = function (applicationName) {
+                    if (angular.isUndefined(htUnknownLoadShown[applicationName])) {
+                        htUnknownLoadShown[applicationName] = true;
+                        var className = $filter('applicationNameToClassName')(applicationName);
+                        renderLoad('.linkInfoDetails .summaryCharts_' + className +
+                            ' .load svg', htLastLink.targetRawData[applicationName].timeSeriesHistogram);
+                    }
                 };
 
                 /**
@@ -177,33 +191,27 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
 
                         chart.xAxis.tickFormat(function (d) {
                             // FIXME d로 넘어오는 값의 타입이 string이고 angular.isNumber는 "1000"에 대해 false를 반환함.
+                            // 서버에서 알아서 넘어옴
                             // if (angular.isNumber(d)) {
-                            if (/^\d+$/.test(d)) {
-                                if (d >= 1000) {
-                                    return $filter('number')(d / 1000) + "s";
-                                } else {
-                                    return $filter('number')(d) + "ms";
-                                }
-                            } else if (d.charAt(d.length - 1) == '+') {
-                                var v = d.substr(0, d.length - 1);
-                                if (v >= 1000) {
-                                    return $filter('number')(v / 1000) + "s+";
-                                } else {
-                                    return $filter('number')(v) + "ms+";
-                                }
-                            } else {
+//                            if (/^\d+$/.test(d)) {
+//                                if (d >= 1000) {
+//                                    return $filter('number')(d / 1000) + "s";
+//                                } else {
+//                                    return $filter('number')(d) + "ms";
+//                                }
+//                            } else if (d.charAt(d.length - 1) == '+') {
+//                                var v = d.substr(0, d.length - 1);
+//                                if (v >= 1000) {
+//                                    return $filter('number')(v / 1000) + "s+";
+//                                } else {
+//                                    return $filter('number')(v) + "ms+";
+//                                }
+//                            } else {
                                 return d;
-                            }
+//                            }
                         });
 
                         chart.yAxis.tickFormat(function (d, i) {
-//                        	if (d >= 1000000) {
-//                                return $filter('number')(Math.floor(d / 1000000)) + "M";
-//                    		} else if (d >= 1000) {
-//                                return $filter('number')(Math.floor(d / 1000)) + "K";
-//                            } else {
-//                                return $filter('number')(d);
-//                            }
                             return humanReadableNumberFormatFilter(d, 0);
                         });
 
