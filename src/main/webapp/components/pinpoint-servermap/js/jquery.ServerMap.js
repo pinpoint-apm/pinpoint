@@ -472,9 +472,9 @@
             this._oDiagram.model = go.Model.fromJson(str);
             this._oDiagram.undoManager.isEnabled = true;
 
-            if (this.option('nBoldKey')) {
-                this.highlightNodeByKey(this.option('nBoldKey'));
-            }
+//            if (this.option('nBoldKey')) {
+//                this.highlightNodeByKey(this.option('nBoldKey'));
+//            }
         },
 
         /**
