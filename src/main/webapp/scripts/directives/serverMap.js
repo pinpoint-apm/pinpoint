@@ -72,7 +72,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 scope.linkCurve = cfg.options.htLinkType.sCurve;
 
                 /**
-                 * soft reset
+                 * reset
                  */
                 reset = function () {
                     scope.nodeContextMenuStyle = '';
