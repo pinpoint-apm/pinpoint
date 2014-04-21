@@ -1,7 +1,11 @@
 package com.nhn.pinpoint.web.dao.hbase;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
+import com.nhn.pinpoint.common.util.TimeSlot;
+import com.nhn.pinpoint.common.util.TimeUtils;
 import com.nhn.pinpoint.web.vo.Range;
 import com.nhn.pinpoint.web.vo.RangeFactory;
 import org.apache.hadoop.hbase.client.Scan;
@@ -55,15 +59,17 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 	}
 
 	private Scan createScan(String host, Range range) {
-        range = rangeFactory.createReverseStatisticsRange(range);
+        long startTime = TimeUtils.reverseTimeMillis(TimeSlot.getStatisticsRowSlot(range.getFrom()));
+		long endTime = TimeUtils.reverseTimeMillis(TimeSlot.getStatisticsRowSlot(range.getTo()) + 1);
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("scan time:{}", range.prettyToString());
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss,SSS");
+			logger.debug("scan startTime:{} endTime:{}", simpleDateFormat.format(new Date(startTime)), simpleDateFormat.format(new Date(endTime)));
 		}
 
 		// timestamp가 reverse되었기 때문에 start, end를 바꿔서 조회.
-		byte[] startKey = Bytes.toBytes(range.getFrom());
-		byte[] endKey = Bytes.toBytes(range.getTo());
+		byte[] startKey = Bytes.toBytes(endTime);
+		byte[] endKey = Bytes.toBytes(startTime);
 
 		Scan scan = new Scan();
 		scan.setCaching(this.scanCacheSize);
