@@ -1,13 +1,17 @@
 package com.nhn.pinpoint.web.vo;
 
 import com.nhn.pinpoint.common.util.TimeSlot;
-import com.nhn.pinpoint.common.util.TimeUtils;
 
 /**
  * @author emeroad
  */
 public class RangeFactory {
 
+    /**
+     * 역방향 분단위 통계 ragne 를 생성한다.
+     * @param range
+     * @return
+     */
     public Range createReverseStatisticsRange(Range range) {
         if (range == null) {
             throw new NullPointerException("range must not be null");
