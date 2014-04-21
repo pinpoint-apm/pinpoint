@@ -1597,6 +1597,7 @@ var BigScatterChart = $.Class({
         }
 
         var htOption = htDataSource.htOption;
+
         htOption.context = this;
         htOption.url = htDataSource.sUrl.call(this, this._nCallCount);
         htOption.data = htDataSource.htParam.call(this, this._nCallCount, this._htLastFechedParam, this._htLastFetchedData);
@@ -1629,7 +1630,7 @@ var BigScatterChart = $.Class({
                 self._showNoData();
                 self._welShowNoData.text(self.option('sShowNoData'));
             }
-        }
+        };
         this._oAjax = $.ajax(htOption);
         if (this._nCallCount === 0) {
             this._welShowNoData.text(this.option('sShowLoading'));

@@ -32,6 +32,10 @@ pinpointApp.constant('scatterConfig', {
             'Failed': '#d62728'
         },
         htOption: {
+            headers: {
+                accept: 'application/jsonp',
+                contentType: 'application/jsonp'
+            },
             dataType: 'jsonp',
             jsonp: '_callback'
         },
@@ -133,20 +137,9 @@ pinpointApp.directive('scatter',
                                 // STOP
                                 return -1;
                             },
-                            htOption: {
-                                dataType: 'jsonp',
-                                jsonp: '_callback'
-                            },
-                            index: {
-                                x: 0,
-                                y: 1,
-                                transactionId: 2,
-                                type: 3
-                            },
-                            type: {
-                                '0': 'Failed',
-                                '1': 'Success'
-                            }
+                            htOption: cfg.options.htOption,
+                            index: cfg.options.index,
+                            type: cfg.options.type
                         };
                         return htDataSource;
                     };
