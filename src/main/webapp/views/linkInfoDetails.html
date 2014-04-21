@@ -35,7 +35,7 @@
                 <img ng-src="/images/icons/UNKNOWN.png" style="height:14px;" />
                 {{target.applicationName}}
             </div>
-            <div ng-init="showResponseSummary=true" class="panel-body summaryCharts_{{target.applicationName | applicationNameToClassName}}" style="position: relative; padding:0">
+            <div ng-init="showResponseSummary=false" class="panel-body summaryCharts_{{target.applicationName | applicationNameToClassName}}" style="position: relative; padding:0">
                 <div class="response-summary" ng-show="showResponseSummary">
                     <svg style='height:120px;width:350px;'/>
                 </div>

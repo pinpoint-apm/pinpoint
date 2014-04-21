@@ -14,7 +14,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
             link: function postLink(scope, element, attrs) {
 
                 // define private variables
-                var htQuery, htTargetRawData, htLastLink, htUnknownLoadShown;
+                var htQuery, htTargetRawData, htLastLink, htUnknownResponseSummary;
 
                 // define private variables of methods;
                 var reset, showDetailInformation, renderLoad, renderResponseSummary, parseHistogramForD3;
@@ -26,7 +26,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     htQuery = false;
                     htLastLink = false;
                     htTargetRawData = false;
-                    htUnknownLoadShown = {};
+                    htUnknownResponseSummary = {};
                     scope.linkCategory = null;
                     scope.targetinfo = null;
                     scope.sourceinfo = null;
@@ -58,9 +58,10 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         htTargetRawData = link.targetRawData;
                         scope.linkCategory = 'UnknownLinkInfoBox';
                         for (var key in link.targetInfo) {
-                            var className = $filter('applicationNameToClassName')(link.targetInfo[key].applicationName)
-                            renderResponseSummary('.linkInfoDetails .summaryCharts_' + className +
-                                ' .response-summary svg', parseHistogramForD3(link.targetRawData[link.targetInfo[key].applicationName].histogram));
+                            var applicationName = link.targetInfo[key].applicationName,
+                                className = $filter('applicationNameToClassName')(applicationName)
+                            renderLoad('.linkInfoDetails .summaryCharts_' + className +
+                                ' .load svg', link.targetRawData[applicationName].timeSeriesHistogram);
                         }
                         scope.sourceInfo = link.sourceInfo;
                         scope.targetInfo = link.targetInfo;
@@ -166,11 +167,11 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 };
 
                 scope.renderLoad = function (applicationName) {
-                    if (angular.isUndefined(htUnknownLoadShown[applicationName])) {
-                        htUnknownLoadShown[applicationName] = true;
+                    if (angular.isUndefined(htUnknownResponseSummary[applicationName])) {
+                        htUnknownResponseSummary[applicationName] = true;
                         var className = $filter('applicationNameToClassName')(applicationName);
-                        renderLoad('.linkInfoDetails .summaryCharts_' + className +
-                            ' .load svg', htLastLink.targetRawData[applicationName].timeSeriesHistogram);
+                        renderResponseSummary('.linkInfoDetails .summaryCharts_' + className +
+                            ' .response-summary svg', parseHistogramForD3(htLastLink.targetRawData[applicationName].histogram));
                     }
                 };
 
