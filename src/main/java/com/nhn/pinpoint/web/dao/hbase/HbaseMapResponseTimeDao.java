@@ -3,10 +3,10 @@ package com.nhn.pinpoint.web.dao.hbase;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
-import com.nhn.pinpoint.common.util.TimeSlot;
 import com.nhn.pinpoint.web.dao.MapResponseDao;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
+import com.nhn.pinpoint.web.vo.RangeFactory;
 import com.nhn.pinpoint.web.vo.ResponseTime;
 import org.apache.hadoop.hbase.client.Scan;
 
@@ -16,8 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -38,6 +36,9 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
 
     @Autowired
     private HbaseOperations2 hbaseOperations2;
+
+    @Autowired
+    private RangeFactory rangeFactory;
 
 
     @Override
@@ -61,20 +62,17 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
     }
 
     private Scan createScan(Application application, Range range) {
-        long startTime = TimeSlot.getStatisticsRowSlot(range.getFrom()) - 1;
-        // hbase의 scanner를 사용하여 검색시 endTime은 검색 대상에 포함되지 않기 때문에, +1을 해줘야 된다.
-        // 단 key가 역으로 치환되어 있으므로 startTime에 -1을 해야함.
-        long endTime = TimeSlot.getStatisticsRowSlot(range.getTo());
+        range = rangeFactory.createReverseStatisticsRange(range);
+
 
         if (logger.isDebugEnabled()) {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss,SSS");
-            logger.debug("scan startTime:{} endTime:{}", simpleDateFormat.format(new Date(startTime)), simpleDateFormat.format(new Date(endTime)));
+            logger.debug("scan time:{} ", range.prettyToString());
         }
 
         // timestamp가 reverse되었기 때문에 start, end를 바꿔서 조회.
 
-        byte[] startKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), endTime);
-        byte[] endKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), startTime);
+        byte[] startKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), range.getFrom());
+        byte[] endKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), range.getTo());
 
         final Scan scan = new Scan();
         scan.setCaching(this.scanCacheSize);

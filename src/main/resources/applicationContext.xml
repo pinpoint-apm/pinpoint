@@ -39,5 +39,7 @@
     </bean>
     
     <bean id="jsonObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper"></bean>
+
+    <bean id="rangeFactory" class="com.nhn.pinpoint.web.vo.RangeFactory"></bean>
    
 </beans>

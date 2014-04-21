@@ -1,10 +1,9 @@
 package com.nhn.pinpoint.web.dao.hbase;
 
-import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 import com.nhn.pinpoint.web.vo.Range;
+import com.nhn.pinpoint.web.vo.RangeFactory;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -18,8 +17,6 @@ import com.nhn.pinpoint.web.dao.HostApplicationMapDao;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
-import com.nhn.pinpoint.common.util.TimeSlot;
-import com.nhn.pinpoint.common.util.TimeUtils;
 
 /**
  * 
@@ -40,6 +37,9 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 	@Qualifier("hostApplicationMapper")
 	private RowMapper<Application> hostApplicationMapper;
 
+    @Autowired
+    private RangeFactory rangeFactory;
+
 	@Override
 	public Application findApplicationName(String host, Range range) {
         if (host == null) {
@@ -55,17 +55,15 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 	}
 
 	private Scan createScan(String host, Range range) {
-        long startTime = TimeUtils.reverseTimeMillis(TimeSlot.getStatisticsRowSlot(range.getFrom()));
-		long endTime = TimeUtils.reverseTimeMillis(TimeSlot.getStatisticsRowSlot(range.getTo()) + 1);
+        range = rangeFactory.createReverseStatisticsRange(range);
 
 		if (logger.isDebugEnabled()) {
-			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss,SSS");
-			logger.debug("scan startTime:{} endTime:{}", simpleDateFormat.format(new Date(startTime)), simpleDateFormat.format(new Date(endTime)));
+			logger.debug("scan time:{}", range.prettyToString());
 		}
 
 		// timestamp가 reverse되었기 때문에 start, end를 바꿔서 조회.
-		byte[] startKey = Bytes.toBytes(endTime);
-		byte[] endKey = Bytes.toBytes(startTime);
+		byte[] startKey = Bytes.toBytes(range.getFrom());
+		byte[] endKey = Bytes.toBytes(range.getTo());
 
 		Scan scan = new Scan();
 		scan.setCaching(this.scanCacheSize);
