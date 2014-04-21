@@ -30,7 +30,7 @@
                 <span class="glyphicon glyphicon-home"></span>
                 {{server.name.split(':')[0]}}
                 <a class="btn btn-default btn-xs" href="http://nsight.nhncorp.com/dashboard_server/{{server.name.split(':')[0].replace('.nhnsystem.com','')}}" target="_blank" title="System resource monitoring site">NSight</a>
-                <ul>
+                <ul style="padding-left: 15px;">
                     <li ng-repeat="instance in server.instanceList">
                         <span class="glyphicon glyphicon-hdd"></span>
                         {{instance.name}}
