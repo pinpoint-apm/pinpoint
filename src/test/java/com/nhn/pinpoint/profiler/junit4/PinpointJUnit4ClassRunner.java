@@ -9,6 +9,7 @@ import java.util.List;
 import org.junit.internal.runners.statements.Fail;
 import org.junit.internal.runners.statements.RunAfters;
 import org.junit.internal.runners.statements.RunBefores;
+import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
@@ -91,14 +92,23 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 			throw new InitializationError("Error instantiating Test");
 		}
 	}
+
+	@Override
+	protected void runChild(FrameworkMethod method, RunNotifier notifier) {
+		ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
+		try {
+			Thread.currentThread().setContextClassLoader(this.testClassLoader);
+			super.runChild(method, notifier);
+		} finally {
+			Thread.currentThread().setContextClassLoader(originalClassLoader);
+		}
+	}
 	
 	@Override
 	protected Statement methodBlock(FrameworkMethod frameworkMethod) {
-		FrameworkMethod newFrameworkMethod = null;
 		try {
-			Thread.currentThread().setContextClassLoader(this.testClassLoader);
 			Method newMethod = this.testContext.getTestClass().getJavaClass().getMethod(frameworkMethod.getName());
-			newFrameworkMethod = new FrameworkMethod(newMethod);
+			FrameworkMethod newFrameworkMethod = new FrameworkMethod(newMethod);
 			return super.methodBlock(newFrameworkMethod);
 		} catch (NoSuchMethodException e) {
 			return new Fail(e);
