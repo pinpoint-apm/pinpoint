@@ -9,14 +9,55 @@ import org.apache.commons.lang.StringUtils;
  */
 public class FilterDescriptor {
 
+	/**
+	 * from application name
+	 */
 	private String fa = null;
+	
+	/**
+	 * from service type
+	 */
 	private String fst = null;
+	
+	/**
+	 * to application name
+	 */
 	private String ta = null;
+	
+	/**
+	 * to service type
+	 */
 	private String tst = null;
+	
+	/**
+	 * response time from
+	 */
 	private Long rf = null;
+	
+	/**
+	 * response time to
+	 */
 	private String rt = null;
+	
+	/**
+	 * include exception
+	 */
 	private Boolean ie = null;
+	
+	/**
+	 * requested url
+	 */
 	private String url = null;
+	
+	/**
+	 * from agent name
+	 */
+	private String fan = null;
+	
+	/**
+	 * to agent name
+	 */
+	private String tan = null;
 
 	public boolean isValid() {
 		return isValidFromToInfo() && isValidFromToResponseTime();
@@ -136,8 +177,33 @@ public class FilterDescriptor {
 		this.url = url;
 	}
 
+	public String getFan() {
+		return fan;
+	}
+	
+	public String getFromAgentName() {
+		return fan;
+	}
+
+	public void setFan(String fan) {
+		this.fan = fan;
+	}
+
+	public String getTan() {
+		return tan;
+	}
+	
+	public String getToAgentName() {
+		return tan;
+	}
+
+	public void setTan(String tan) {
+		this.tan = tan;
+	}
+
+	
 	@Override
 	public String toString() {
-		return "FilterDescriptor [fa=" + fa + ", fst=" + fst + ", ta=" + ta + ", tst=" + tst + ", rf=" + rf + ", rt=" + rt + ", ie=" + ie + ", url=" + url + "]";
+		return "FilterDescriptor [fa=" + fa + ", fst=" + fst + ", ta=" + ta + ", tst=" + tst + ", rf=" + rf + ", rt=" + rt + ", ie=" + ie + ", url=" + url + ", fan=" + fan + ", tan=" + tan + "]";
 	}
 }

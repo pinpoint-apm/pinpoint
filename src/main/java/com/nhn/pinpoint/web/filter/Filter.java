@@ -18,8 +18,5 @@ public interface Filter {
 		}
 	};
 
-	public static final String FILTER_DELIMETER = "\\^";
-	public static final String FILTER_ENTRY_DELIMETER = "\\|";
-
 	boolean include(List<SpanBo> transaction);
 }

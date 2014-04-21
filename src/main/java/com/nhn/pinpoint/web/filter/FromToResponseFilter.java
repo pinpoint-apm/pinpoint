@@ -11,22 +11,36 @@ import com.nhn.pinpoint.common.bo.SpanEventBo;
  * @author netspider
  * 
  */
+// FIXME 클래스 이름을 Common? Default? Filter와 같은 걸로 바꿀까.
 public class FromToResponseFilter implements Filter {
 
 	private final List<ServiceType> fromServiceCode;
 	private final String fromApplicationName;
+	private final String fromAgentName;
+	
 	private final List<ServiceType> toServiceCode;
 	private final String toApplicationName;
-
+	private final String toAgentName;
+	
 	private final Long fromResponseTime;
 	private final Long toResponseTime;
 	private final Boolean includeFailed;
 
 	public FromToResponseFilter(FilterDescriptor filterDescriptor) {
-		this(filterDescriptor.getFromServiceType(), filterDescriptor.getFromApplicationName(), filterDescriptor.getToServiceType(), filterDescriptor.getToApplicationName(), filterDescriptor.getResponseFrom(), filterDescriptor.getResponseTo(), filterDescriptor.getIncludeException());
-	}
+		if (filterDescriptor == null) {
+			throw new NullPointerException("filter descriptor must not be null");
+		}
 
-	public FromToResponseFilter(String fromServiceType, String fromApplicationName, String toServiceType, String toApplicationName, Long fromResponseTime, Long toResponseTime, Boolean includeFailed) {
+		String fromServiceType = filterDescriptor.getFromServiceType();
+		String fromApplicationName = filterDescriptor.getFromApplicationName();
+		String fromAgentName = filterDescriptor.getFromAgentName();
+		String toServiceType = filterDescriptor.getToServiceType();
+		String toApplicationName = filterDescriptor.getToApplicationName();
+		String toAgentName = filterDescriptor.getToAgentName();
+		Long fromResponseTime = filterDescriptor.getResponseFrom();
+		Long toResponseTime = filterDescriptor.getResponseTo();
+		Boolean includeFailed = filterDescriptor.getIncludeException();
+
 		if (fromApplicationName == null) {
 			throw new NullPointerException("fromApplicationName must not be null");
 		}
@@ -38,13 +52,15 @@ public class FromToResponseFilter implements Filter {
 		if (fromServiceCode == null) {
 			throw new IllegalArgumentException("fromServiceCode not found. fromServiceType:" + fromServiceType);
 		}
-
 		this.fromApplicationName = fromApplicationName;
+		this.fromAgentName = fromAgentName;
+		
 		this.toServiceCode = ServiceType.findDesc(toServiceType);
 		if (toServiceCode == null) {
 			throw new IllegalArgumentException("toServiceCode not found. toServiceCode:" + toServiceType);
 		}
 		this.toApplicationName = toApplicationName;
+		this.toAgentName = toAgentName;
 
 		this.fromResponseTime = fromResponseTime;
 		this.toResponseTime = toResponseTime;
@@ -65,22 +81,48 @@ public class FromToResponseFilter implements Filter {
 		}
 		return result;
 	}
-
+	
+	private boolean checkPinPointAgentName(String fromAgentName, String toAgentName) {
+		if (this.fromAgentName == null && this.toAgentName == null) {
+			return true;
+		}
+		
+		boolean result = true;
+		
+		if (this.fromAgentName != null) {
+			result &= this.fromAgentName.equals(fromAgentName);
+		}
+		
+		if (this.toAgentName != null) {
+			result &= this.toAgentName.equals(toAgentName);
+		}
+		
+		return result;
+	}
+	
 	@Override
 	public boolean include(List<SpanBo> transaction) {
 		if (includeServiceType(fromServiceCode, ServiceType.USER)) {
+			/**
+			 * USER -> WAS
+			 */
 			for (SpanBo span : transaction) {
 				if (span.isRoot() && includeServiceType(toServiceCode, span.getServiceType()) && toApplicationName.equals(span.getApplicationId())) {
-					return checkResponseCondition(span.getElapsed(), span.getErrCode() > 0);
+					return checkResponseCondition(span.getElapsed(), span.getErrCode() > 0)
+							&& checkPinPointAgentName(null, span.getAgentId());
 				}
 			}
 		} else if (includeUnknown(toServiceCode)) {
+			/**
+			 * WAS -> UNKNOWN
+			 */
 			for (SpanBo span : transaction) {
 				if (includeServiceType(fromServiceCode, span.getServiceType()) && fromApplicationName.equals(span.getApplicationId())) {
 					List<SpanEventBo> eventBoList = span.getSpanEventBoList();
 					if (eventBoList == null) {
 						continue;
 					}
+					
 					for (SpanEventBo event : eventBoList) {
 						// client가 있는지만 확인.
 						if (event.getServiceType().isRpcClient() && toApplicationName.equals(event.getDestinationId())) {
@@ -91,6 +133,7 @@ public class FromToResponseFilter implements Filter {
 			}
 		} else if (includeWas(toServiceCode)) {
 			/**
+			 * WAS -> WAS
 			 * destination이 was인 경우 src, dest의 span이 모두 존재하겠지... 그리고 circular
 			 * check. find src first. from, to와 같은 span이 두 개 이상 존재할 수 있다. 때문에
 			 * spanId == parentSpanId도 확인해야함.
@@ -104,12 +147,16 @@ public class FromToResponseFilter implements Filter {
 						}
 
 						if (includeServiceType(toServiceCode, destSpan.getServiceType()) && toApplicationName.equals(destSpan.getApplicationId())) {
-							return checkResponseCondition(destSpan.getElapsed(), destSpan.getErrCode() > 0);
+							return checkResponseCondition(destSpan.getElapsed(), destSpan.getErrCode() > 0)
+									&& checkPinPointAgentName(srcSpan.getAgentId(), destSpan.getAgentId());
 						}
 					}
 				}
 			}
 		} else {
+			/**
+			 * WAS -> BACKEND (non-WAS)
+			 */
 			for (SpanBo span : transaction) {
 				if (includeServiceType(fromServiceCode, span.getServiceType()) && fromApplicationName.equals(span.getApplicationId())) {
 					List<SpanEventBo> eventBoList = span.getSpanEventBoList();
@@ -118,13 +165,13 @@ public class FromToResponseFilter implements Filter {
 					}
 					for (SpanEventBo event : eventBoList) {
 						if (includeServiceType(toServiceCode, event.getServiceType()) && toApplicationName.equals(event.getDestinationId())) {
-							return checkResponseCondition(event.getEndElapsed(), event.hasException());
+							return checkResponseCondition(event.getEndElapsed(), event.hasException())
+									&& checkPinPointAgentName(span.getAgentId(), null);
 						}
 					}
 				}
 			}
 		}
-
 		return false;
 	}
 
@@ -157,10 +204,6 @@ public class FromToResponseFilter implements Filter {
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(fromApplicationName).append(" (").append(fromServiceCode).append(")");
-		sb.append(" --&gt; ");
-		sb.append(toApplicationName).append(" (").append(toServiceCode).append(")");
-		return sb.toString();
+		return "FromToResponseFilter [fromServiceCode=" + fromServiceCode + ", fromApplicationName=" + fromApplicationName + ", fromAgentName=" + fromAgentName + ", toServiceCode=" + toServiceCode + ", toApplicationName=" + toApplicationName + ", toAgentName=" + toAgentName + ", fromResponseTime=" + fromResponseTime + ", toResponseTime=" + toResponseTime + ", includeFailed=" + includeFailed + "]";
 	}
 }

@@ -24,6 +24,7 @@ public class FilterChain implements Filter {
 
 	@Override
 	public boolean include(List<SpanBo> transaction) {
+		// FIXME for loop 돌지않고 더 빠르게 확인할 수 있는 방법이 있을까.
 		for (Filter f : filterList) {
 			if (!f.include(transaction)) {
 				return false;
