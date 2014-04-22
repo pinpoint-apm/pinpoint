@@ -4,6 +4,7 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.applicationmap.histogram.Histogram;
 import com.nhn.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.nhn.pinpoint.web.vo.Application;
+import com.nhn.pinpoint.web.vo.ResponseTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,8 +22,21 @@ public class AgentHistogramList {
     public AgentHistogramList() {
     }
 
+    public AgentHistogramList(Application application, List<ResponseTime> responseHistogramList) {
+        if (responseHistogramList == null) {
+            throw new NullPointerException("responseHistogramList must not be null");
+        }
 
-    public void addCallHistogram(Application agentId, Collection<TimeHistogram> histogramList) {
+        for (ResponseTime responseTime : responseHistogramList) {
+            for (Map.Entry<String, TimeHistogram> agentEntry : responseTime.getAgentHistogram()) {
+                TimeHistogram timeHistogram = agentEntry.getValue();
+                this.addAgentHistogram(agentEntry.getKey(), application.getServiceType(), timeHistogram);
+            }
+        }
+    }
+
+
+    public void addTimeHistogram(Application agentId, Collection<TimeHistogram> histogramList) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
@@ -33,7 +47,7 @@ public class AgentHistogramList {
         agentHistogram.addTimeHistogram(histogramList);
     }
 
-    public void addCallHistogram(Application agentId, TimeHistogram timeHistogram) {
+    public void addTimeHistogram(Application agentId, TimeHistogram timeHistogram) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
@@ -46,12 +60,12 @@ public class AgentHistogramList {
 
     public void addAgentHistogram(String agentName, ServiceType serviceType, Collection<TimeHistogram> histogramList) {
         Application agentId = new Application(agentName, serviceType);
-        addCallHistogram(agentId, histogramList);
+        addTimeHistogram(agentId, histogramList);
     }
 
     public void addAgentHistogram(String agentName, ServiceType serviceType, TimeHistogram timeHistogram) {
         Application agentId = new Application(agentName, serviceType);
-        addCallHistogram(agentId, timeHistogram);
+        addTimeHistogram(agentId, timeHistogram);
     }
 
 

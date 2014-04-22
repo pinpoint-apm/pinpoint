@@ -134,7 +134,7 @@ public class NodeHistogram {
         return agentHistogramMap;
     }
 
-    private void addAgentLevelHistogram(Map<String, Histogram> agentHistogramMap, String agentId, Histogram histogram) {
+    private void addAgentLevelHistogram(Map<String, Histogram> agentHistogramMap, String agentId, TimeHistogram histogram) {
         Histogram agentHistogram = agentHistogramMap.get(agentId);
         if (agentHistogram == null) {
             agentHistogram = new Histogram(application.getServiceType());

@@ -39,28 +39,8 @@ public class AgentTimeHistogramBuilder {
 
 
     public AgentTimeHistogram build(List<ResponseTime> responseHistogramList) {
-        AgentHistogramList agentHistogramList = new AgentHistogramList();
-        for (ResponseTime responseTime : responseHistogramList) {
-            for (Map.Entry<String, TimeHistogram> agentEntry : responseTime.getAgentHistogram()) {
-                TimeHistogram timeHistogram = agentEntry.getValue();
-                agentHistogramList.addAgentHistogram(agentEntry.getKey(), application.getServiceType(), timeHistogram);
-            }
-        }
-
-        Map<Application, List<TimeHistogram>> histogramMap = interpolation(agentHistogramList, window);
-
-        if (logger.isTraceEnabled()) {
-            for (AgentHistogram agentListEntry : agentHistogramList.getAgentHistogramList()) {
-                Application agentName = agentListEntry.getAgentId();
-                logger.trace("agentName:{}", agentName);
-                Collection<TimeHistogram> value = agentListEntry.getTimeHistogram();
-                for (TimeHistogram histogram : value) {
-                    logger.trace("histogram:{}", histogram);
-                }
-            }
-        }
-        AgentTimeHistogram agentTimeHistogram = new AgentTimeHistogram(application, range, histogramMap);
-        return agentTimeHistogram;
+        AgentHistogramList agentHistogramList = new AgentHistogramList(application, responseHistogramList);
+        return build(agentHistogramList);
     }
 
     public AgentTimeHistogram buildSource(LinkCallDataMap linkCallDataMap) {
@@ -80,13 +60,13 @@ public class AgentTimeHistogramBuilder {
 
     private AgentTimeHistogram build(AgentHistogramList agentHistogramList) {
 
-        Map<Application, List<TimeHistogram>> histogramMap = interpolation(agentHistogramList, window);
+        Map<Application, Map<Long, TimeHistogram>> histogramMap = interpolation(agentHistogramList, window);
         AgentTimeHistogram agentTimeHistogram = new AgentTimeHistogram(application, range, histogramMap);
         return agentTimeHistogram;
     }
 
 
-    private Map<Application, List<TimeHistogram>> interpolation(AgentHistogramList agentLevelMap, TimeWindow window) {
+    private Map<Application, Map<Long, TimeHistogram>> interpolation(AgentHistogramList agentLevelMap, TimeWindow window) {
         if (agentLevelMap.size() == 0) {
             return Collections.emptyMap();
         }
@@ -104,10 +84,8 @@ public class AgentTimeHistogramBuilder {
         }
 
         for (AgentHistogram agentHistogram : agentLevelMap.getAgentHistogramList()) {
-            Collection<TimeHistogram> histogramList = agentHistogram.getTimeHistogram();
-            for (TimeHistogram timeHistogram : histogramList) {
-                long time = window.refineTimestamp(timeHistogram.getTimeStamp());
-//                int windowIndex = window.getWindowIndex(time);
+            for (TimeHistogram timeHistogram : agentHistogram.getTimeHistogram()) {
+                final Long time = window.refineTimestamp(timeHistogram.getTimeStamp());
                 Map<Long, TimeHistogram> findSlot = windowTimeMap.get(agentHistogram.getAgentId());
                 TimeHistogram windowHistogram = findSlot.get(time);
                 if (windowHistogram == null) {
@@ -118,29 +96,7 @@ public class AgentTimeHistogramBuilder {
             }
         }
 
-        Map<Application, List<TimeHistogram>> result = new HashMap<Application, List<TimeHistogram>>();
-        for (Map.Entry<Application, Map<Long, TimeHistogram>> windowMapEntry : windowTimeMap.entrySet()) {
-            final Application key = windowMapEntry.getKey();
-            List<TimeHistogram> histogramList = result.get(key);
-            if(histogramList == null) {
-                histogramList = new ArrayList<TimeHistogram>();
-                result.put(key, histogramList);
-            }
-            Map<Long, TimeHistogram> timeHistogramMap = windowMapEntry.getValue();
-            for (TimeHistogram timeHistogram : timeHistogramMap.values()) {
-                histogramList.add(timeHistogram);
-            }
-        }
-        sortList(result);
-
-        return result;
-    }
-
-    private void sortList(Map<Application, List<TimeHistogram>> agentLevelMap) {
-        Collection<List<TimeHistogram>> values = agentLevelMap.values();
-        for (List<TimeHistogram> value : values) {
-            Collections.sort(value, TimeHistogram.TIME_STAMP_ASC_COMPARATOR);
-        }
+        return windowTimeMap;
     }
 
 

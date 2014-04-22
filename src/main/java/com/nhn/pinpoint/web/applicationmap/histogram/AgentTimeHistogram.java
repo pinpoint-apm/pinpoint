@@ -25,7 +25,7 @@ public class AgentTimeHistogram {
     private final Range range;
     private final TimeWindow window;
 
-    private final Map<Application, List<TimeHistogram>> histogramMap;
+    private final Map<Application, Map<Long, TimeHistogram>> histogramMap;
 
     public AgentTimeHistogram(Application application, Range range) {
         if (application == null) {
@@ -40,7 +40,7 @@ public class AgentTimeHistogram {
         this.histogramMap = Collections.emptyMap();
     }
 
-    public AgentTimeHistogram(Application application, Range range, Map<Application, List<TimeHistogram>> histogramMap) {
+    public AgentTimeHistogram(Application application, Range range, Map<Application, Map<Long, TimeHistogram>> histogramMap) {
         if (application == null) {
             throw new NullPointerException("application must not be null");
         }
@@ -59,8 +59,9 @@ public class AgentTimeHistogram {
 
     public List<AgentResponseTimeViewModel> createViewModel() {
         final List<AgentResponseTimeViewModel> result = new ArrayList<AgentResponseTimeViewModel>();
-        for (Map.Entry<Application, List<TimeHistogram>> entry : histogramMap.entrySet()) {
-            AgentResponseTimeViewModel model = createAgentResponseTimeViewModel(entry.getKey(), entry.getValue());
+        for (Map.Entry<Application, Map<Long, TimeHistogram>> entry : histogramMap.entrySet()) {
+            List<TimeHistogram> timeList = sortTimeHistogram(entry.getValue());
+            AgentResponseTimeViewModel model = createAgentResponseTimeViewModel(entry.getKey(), timeList);
             result.add(model);
         }
         Collections.sort(result, new Comparator<AgentResponseTimeViewModel>() {
@@ -71,6 +72,13 @@ public class AgentTimeHistogram {
         });
         return result;
     }
+
+    private List<TimeHistogram> sortTimeHistogram(Map<Long, TimeHistogram> timeMap) {
+        List<TimeHistogram> timeList = new ArrayList<TimeHistogram>(timeMap.values());
+        Collections.sort(timeList, TimeHistogram.TIME_STAMP_ASC_COMPARATOR);
+        return timeList;
+    }
+
 
     private AgentResponseTimeViewModel createAgentResponseTimeViewModel(Application agentName, List<TimeHistogram> timeHistogramList) {
         List<ResponseTimeViewModel> responseTimeViewModel = createResponseTimeViewModel(timeHistogramList);
