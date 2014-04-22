@@ -62,7 +62,7 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
     }
 
     private Scan createScan(Application application, Range range) {
-        range = rangeFactory.createReverseStatisticsRange(range);
+        range = rangeFactory.createStatisticsRange(range);
 
 
         if (logger.isDebugEnabled()) {
@@ -71,8 +71,8 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
 
         // timestamp가 reverse되었기 때문에 start, end를 바꿔서 조회.
 
-        byte[] startKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), range.getFrom());
-        byte[] endKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), range.getTo());
+        byte[] startKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), range.getTo());
+        byte[] endKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), range.getFrom());
 
         final Scan scan = new Scan();
         scan.setCaching(this.scanCacheSize);

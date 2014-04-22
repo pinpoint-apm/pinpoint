@@ -12,7 +12,7 @@ public class RangeFactory {
      * @param range
      * @return
      */
-    public Range createReverseStatisticsRange(Range range) {
+    public Range createStatisticsRange(Range range) {
         if (range == null) {
             throw new NullPointerException("range must not be null");
         }
@@ -20,7 +20,7 @@ public class RangeFactory {
         // 단 key가 역으로 치환되어 있으므로 startTime에 -1을 해야함.
         final long startTime = TimeSlot.getStatisticsRowSlot(range.getFrom()) - 1;
         final long endTime = TimeSlot.getStatisticsRowSlot(range.getTo());
-        return Range.createUncheckedRange(endTime, startTime);
+        return Range.createUncheckedRange(startTime, endTime);
     }
 
 }
