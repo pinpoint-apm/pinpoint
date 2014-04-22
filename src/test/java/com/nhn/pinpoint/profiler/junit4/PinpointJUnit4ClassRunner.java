@@ -18,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
+import com.nhn.pinpoint.bootstrap.context.Trace;
+import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.DefaultAgent;
@@ -27,7 +29,6 @@ import com.nhn.pinpoint.profiler.util.MockAgent;
 import com.nhn.pinpoint.profiler.util.TestClassLoader;
 
 /**
- *
  * @author Hyun Jeong
  */
 public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
@@ -37,12 +38,14 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 	
 	private final TestClassLoader testClassLoader;
 	private final TestContext testContext;
+	private final DefaultAgent testAgent;
 
 	public PinpointJUnit4ClassRunner(Class<?> clazz) throws InitializationError {
 		super(clazz);
 		if (logger.isDebugEnabled()) {
 			logger.debug("PinpointJUnit4ClassRunner constructor called with [" + clazz + "].");
 		}
+		this.testAgent = createTestAgent();
 		this.testClassLoader = getTestClassLoader(clazz);
 		this.testClassLoader.initialize();
 		try {
@@ -51,10 +54,26 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 			throw new InitializationError(e);
 		}
 	}
+
+	private DefaultAgent createTestAgent() throws InitializationError {
+		System.setProperty("catalina.home", "test");
+		PLoggerFactory.initialize(new Slf4jLoggerBinder());
+		
+		ProfilerConfig profilerConfig = new ProfilerConfig();
+		
+		String path = ProfilerConfig.class.getClassLoader().getResource("pinpoint.config").getPath();
+		try {
+			profilerConfig.readConfigFile(path);
+		} catch (IOException e) {
+			throw new InitializationError("Unable to read pinpoint.config");
+		}
+		
+		profilerConfig.setApplicationServerType(ServiceType.STAND_ALONE);
+		return new MockAgent("", new DummyInstrumentation(), profilerConfig);
+	}
 	
 	private final TestClassLoader getTestClassLoader(Class<?> testClass) throws InitializationError {
 		PinpointTestClassLoader pinpointTestClassLoader = testClass.getAnnotation(PinpointTestClassLoader.class);
-		
 		if (pinpointTestClassLoader == null) {
 			if (logger.isInfoEnabled()) {
 				logger.info(String.format("@PinpointTestClassLoader not found for class [%s]", testClass));
@@ -69,23 +88,9 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 	}
 	
 	private final <T extends TestClassLoader> TestClassLoader createTestClassLoader(Class<T> testClassLoader) throws InitializationError {
-		System.setProperty("catalina.home", "test");
-		PLoggerFactory.initialize(new Slf4jLoggerBinder());
-		
-		ProfilerConfig profilerConfig = new ProfilerConfig();
-		
-		String path = ProfilerConfig.class.getClassLoader().getResource("pinpoint.config").getPath();
-		try {
-			profilerConfig.readConfigFile(path);
-		} catch (IOException e) {
-			throw new InitializationError("Unable to read pinpoint.config");
-		}
-		
-		profilerConfig.setApplicationServerType(ServiceType.STAND_ALONE);
-		DefaultAgent agent = new MockAgent("", new DummyInstrumentation(), profilerConfig);
 		try {
 			Constructor<T> c = testClassLoader.getConstructor(DefaultAgent.class);
-			T classLoader = c.newInstance(agent);
+			T classLoader = c.newInstance(this.testAgent);
 			return classLoader;
 		} catch (Exception e) {
 			// 어떤 exception이 발생하던 결국 InitializationError.
@@ -95,12 +100,45 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 
 	@Override
 	protected void runChild(FrameworkMethod method, RunNotifier notifier) {
+		TraceContext traceContext = this.testAgent.getTraceContext();
+		boolean methodHasTraceSupport = hasTraceSupport(method);
+		if (methodHasTraceSupport) {
+			beginTracing(traceContext);
+		}
 		ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
 		try {
 			Thread.currentThread().setContextClassLoader(this.testClassLoader);
 			super.runChild(method, notifier);
 		} finally {
 			Thread.currentThread().setContextClassLoader(originalClassLoader);
+			if (methodHasTraceSupport) {
+				endTracing(traceContext);
+			}
+		}
+	}
+	
+	// TODO check annotation and return accordingly
+	private boolean hasTraceSupport(FrameworkMethod method) {
+		return true;
+	}
+	
+	// TODO refine root trace parameters for test
+	private void beginTracing(TraceContext traceContext) {
+		Trace trace = traceContext.newTraceObject();
+		trace.markBeforeTime();
+		trace.recordServiceType(ServiceType.TEST);
+	}
+	
+	private void endTracing(TraceContext traceContext) {
+		try {
+			Trace trace = traceContext.currentRawTraceObject();
+			try {
+				trace.markAfterTime();
+			} finally {
+				trace.traceRootBlockEnd();
+			}
+		} finally {
+			traceContext.detachTraceObject();
 		}
 	}
 	
