@@ -6,8 +6,31 @@
             <div class="panel-heading">
                 {{node.applicationName}}
             </div>
-            <div class="panel-body summaryCharts_{{$index}}" style="padding:0">
-                <svg style='height:120px;width:350px;' />
+
+            <div ng-init="showNodeResponseSummary=false" class="panel-body summaryCharts_{{node.applicationName | applicationNameToClassName}}" style="position: relative; padding:0">
+                <div class="response-summary" ng-show="showNodeResponseSummary">
+                    <svg style='height:120px;width:350px;'/>
+                </div>
+                <div class="load" ng-hide="showNodeResponseSummary">
+                    <svg style='height:120px;width:350px;'/>
+                </div>
+
+                <a class="btn btn-default btn-xs" href ng-click="showNodeDetailInformation(node.applicationName)"
+                   title="Show Node Information" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;">
+                    <span class="glyphicon glyphicon-info-sign"></span>
+                </a>
+                <!--<a class="btn btn-default btn-xs" href title="Filter Transaction" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 50px; right:5px;"-->
+                   <!--ng-click="passingTransactionMapFromLinkInfoDetails(target.applicationName, target.serviceType)">-->
+                    <!--<span class="glyphicon glyphicon-filter"></span>-->
+                <!--</a>-->
+                <a class="btn btn-default btn-xs" href title="Show Load" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 50px; right:5px;"
+                   ng-click="showNodeResponseSummary=!showNodeResponseSummary" ng-show="showNodeResponseSummary">
+                    <span class="glyphicon glyphicon-stats"></span>
+                </a>
+                <a class="btn btn-default btn-xs" href title="Show Response Summary" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 50px; right:5px;"
+                   ng-click="showNodeResponseSummary=!showNodeResponseSummary;renderNodeResponseSummary(node.applicationName)" ng-show="!showNodeResponseSummary">
+                    <span class="glyphicon glyphicon-stats"></span>
+                </a>
             </div>
         </div>
 

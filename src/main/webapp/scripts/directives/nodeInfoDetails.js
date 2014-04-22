@@ -14,7 +14,7 @@ pinpointApp
             link: function postLink(scope, element, attrs) {
 
                 // define private variables
-                var htServermapData, htLastNode;
+                var htServermapData, htLastNode, htUnknownResponseSummary, htTargetRawData, htQuery;
 
                 // define private variables of methods
                 var reset, showDetailInformation, parseHistogramForNvd3,
@@ -24,6 +24,9 @@ pinpointApp
                  * reset
                  */
                 reset = function () {
+                    htUnknownResponseSummary = {};
+                    htTargetRawData = false;
+                    htQuery = false;
                     scope.showNodeInfoDetails = false;
                     scope.node = false;
                     scope.unknownGroup = null;
@@ -41,17 +44,14 @@ pinpointApp
 
                 /**
                  * show detail information
-                 * @param query
                  * @param node
                  */
-                showDetailInformation = function (query, node) {
+                showDetailInformation = function (node) {
                     scope.showNodeInfoDetails = true;
                     scope.node = node;
                     scope.unknownGroup = node.textArr;
                     scope.serverList = node.serverList;
                     scope.showServers = _.isEmpty(scope.serverList) ? false : true;
-//                    scope.isWas = node.isWas;
-//                    scope.isWas = true;
                     scope.agentHistogram = node.agentHistogram;
 
                     if (!node.targetRawData && node.category !== "UNKNOWN_GROUP") {
@@ -62,31 +62,27 @@ pinpointApp
                             }
                         ]);
                         scope.showNodeResponseSummary = true;
-//                        if (scope.isWas) {
-                        if (true) {
-                            scope.showNodeLoad = true;
-                            renderLoad('.nodeInfoDetails .timeSeriesHistogram svg', node.timeSeriesHistogram);
+                        scope.showNodeLoad = true;
+                        renderLoad('.nodeInfoDetails .timeSeriesHistogram svg', node.timeSeriesHistogram);
 
-                            for (var key in node.agentHistogram) {
-                                var className = $filter('applicationNameToClassName')(key);
-                                renderResponseSummary('.nodeInfoDetails .agentHistogram_' + className +
-                                    ' svg', parseHistogramForD3(node.agentHistogram[key]));
-                            }
-                            for (var key in node.agentTimeSeriesHistogram) {
-                                var className = $filter('applicationNameToClassName')(key);
-                                renderLoad('.nodeInfoDetails .agentTimeSeriesHistogram_' + className +
-                                    ' svg', node.agentTimeSeriesHistogram[key]);
-                            }
+                        for (var key in node.agentHistogram) {
+                            var className = $filter('applicationNameToClassName')(key);
+                            renderResponseSummary('.nodeInfoDetails .agentHistogram_' + className +
+                                ' svg', parseHistogramForD3(node.agentHistogram[key]));
+                        }
+                        for (var key in node.agentTimeSeriesHistogram) {
+                            var className = $filter('applicationNameToClassName')(key);
+                            renderLoad('.nodeInfoDetails .agentTimeSeriesHistogram_' + className +
+                                ' svg', node.agentTimeSeriesHistogram[key]);
                         }
                     } else if (node.category === 'UNKNOWN_GROUP'){
+                        htTargetRawData = node.targetRawData;
                         for (var key in node.textArr) {
-                            var className = $filter('applicationNameToClassName')(key);
-                            renderResponseSummary('.nodeInfoDetails .summaryCharts_' + className +
-                                ' svg', parseHistogramForD3(node.targetRawData[node.textArr[key].applicationName].histogram));
+                            var applicationName = node.textArr[key].applicationName,
+                                className = $filter('applicationNameToClassName')(applicationName);
+                            renderLoad('.nodeInfoDetails .summaryCharts_' + className + ' .load svg', node.targetRawData[applicationName].timeSeriesHistogram);
                         }
                     }
-                    // scope.agents = data.agents;
-                    // scope.showAgents = (scope.agents.length > 0) ? true : false;
                     if (!scope.$$phase) {
                         scope.$digest();
                     }
@@ -110,6 +106,16 @@ pinpointApp
                         });
                     }
                     return histogramSummary;
+                };
+
+                /**
+                 * show node detail information of scope
+                 * @param applicationName
+                 */
+                scope.showNodeDetailInformation = function (applicationName) {
+                    var node = htTargetRawData[applicationName];
+                    showDetailInformation(node);
+                    scope.$emit('nodeInfoDetail.showDetailInformationClicked', htQuery, node);
                 };
 
                 /**
@@ -179,6 +185,18 @@ pinpointApp
                     });
                 };
 
+                /**
+                 * scope render node response summary
+                 * @param applicationName
+                 */
+                scope.renderNodeResponseSummary = function (applicationName) {
+                    if (angular.isUndefined(htUnknownResponseSummary[applicationName])) {
+                        htUnknownResponseSummary[applicationName] = true;
+                        var className = $filter('applicationNameToClassName')(applicationName);
+                        renderResponseSummary('.nodeInfoDetails .summaryCharts_' + className +
+                            ' .response-summary svg', parseHistogramForD3(htLastNode.targetRawData[applicationName].histogram));
+                    }
+                };
 
                 /**
                  * render time series histogram
@@ -249,10 +267,11 @@ pinpointApp
                  */
                 scope.$on('nodeInfoDetails.initialize', function (event, e, query, node, mapData, navbarVo) {
                     reset();
+                    htQuery = query;
                     htLastNode = node;
                     scope.oNavbarVo = navbarVo;
                     htServermapData = mapData;
-                    showDetailInformation(query, node, mapData);
+                    showDetailInformation(node);
                 });
 
                 /**

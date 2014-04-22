@@ -39,10 +39,10 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 };
 
                 /**
-                 * show detail information of scope
+                 * show link detail information of scope
                  * @param applicationName
                  */
-                scope.showDetailInformation = function (applicationName) {
+                scope.showLinkDetailInformation = function (applicationName) {
                     var link = htTargetRawData[applicationName];
                     showDetailInformation(link);
                     scope.$emit('linkInfoDetail.showDetailInformationClicked', htQuery, link);
@@ -71,15 +71,6 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         });
                     } else {
                         scope.linkCategory = 'LinkInfoBox';
-//                        showTimeSeriesHistogram(
-//                            htQuery.from,
-//                            htQuery.to,
-//                            link.sourceInfo.serviceTypeCode,
-//                            link.sourceInfo.applicationName,
-//                            link.targetInfo.serviceTypeCode,
-//                            link.targetInfo.applicationName,
-//                            link.histogram
-//                        );
                         scope.ShowLinkLoad = true;
                         scope.showLinkResponseSummary = true;
                         renderResponseSummary('.linkInfoDetails .infoBarChart svg', parseHistogramForD3(link.histogram), 'ResponseSummary');
@@ -91,36 +82,6 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         scope.$digest();
                     }
                 };
-
-                /**
-                 * get link statistics data
-                 * @param query
-                 * @param version
-                 * @param callback
-                 */
-//                getTimeSeriesHistogramData = function (query, version, callback) {
-//                    jQuery.ajax({
-//                        type: 'GET',
-//                        url: config.linkStatisticsUrl,
-//                        cache: false,
-//                        dataType: 'json',
-//                        data: {
-//                            from: query.from,
-//                            to: query.to,
-//                            sourceServiceType: query.sourceServiceType,
-//                            sourceApplicationName: query.sourceApplicationName,
-//                            targetServiceType: query.targetServiceType,
-//                            targetApplicationName: query.targetApplicationName,
-//                            v: version
-//                        },
-//                        success: function (result) {
-//                            callback(query, result);
-//                        },
-//                        error: function (xhr, status, error) {
-//                            console.log("ERROR", status, error);
-//                        }
-//                    });
-//                };
 
                 /**
                  * render statistics time series histogram
@@ -166,7 +127,11 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     });
                 };
 
-                scope.renderLoad = function (applicationName) {
+                /**
+                 * scope render link response summary
+                 * @param applicationName
+                 */
+                scope.renderLinkResponseSummary = function (applicationName) {
                     if (angular.isUndefined(htUnknownResponseSummary[applicationName])) {
                         htUnknownResponseSummary[applicationName] = true;
                         var className = $filter('applicationNameToClassName')(applicationName);
@@ -267,62 +232,6 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         return chart;
                     });
                 };
-
-                /**
-                 * show application statistics
-                 * @param begin
-                 * @param end
-                 * @param sourceServiceType
-                 * @param sourceApplicationName
-                 * @param targetServiceType
-                 * @param targetApplicationName
-                 * @param histogram
-                 */
-//                showTimeSeriesHistogram = function (begin, end, sourceServiceType, sourceApplicationName, targetServiceType,
-//                                                      targetApplicationName, histogram) {
-//                    var params = {
-//                        "from": begin,
-//                        "to": end,
-//                        "sourceServiceType": sourceServiceType,
-//                        "sourceApplicationName": sourceApplicationName,
-//                        "targetServiceType": targetServiceType,
-//                        "targetApplicationName": targetApplicationName
-//                    };
-//
-//                    scope.ShowLinkLoad = true;
-//                    scope.showLinkResponseSummary = true;
-//                    renderResponseSummary('.linkInfoDetails .infoBarChart svg', parseHistogramForD3(histogram), 'ResponseSummary');
-//
-//                    getTimeSeriesHistogramData(params, 1, function (query, result) {
-//                        renderLoad(result.timeSeriesHistogram);
-//                    });
-//
-////                    getTimeSeriesHistogramData(params, 2, function (query, result) {
-////                        var oHelixChartVo = new HelixChartVo();
-////                        oHelixChartVo
-////                            .setType('stacked_line')
-////                            .setGroup('loadForLinkInfoDetails')
-////                            .setWidth(380)
-////                            .setHeight(200)
-////                            .setPadding([30, 90, 35, 50])
-////                            .setMargin([0, 0, 20, 0])
-//////                        .setXCount(30)
-//////                        .setXInterval(5)
-//////                        .setXTick('minutes')
-//////                        .setXTickInterval(1)
-//////                        .setXTickFormat('%H:%M')
-////                            .setYTicks(5)
-////                            .setLegend('1.0s,3.0s,5.0s,Slow,Failed')
-////                            .setQueryValue('1.0s,3.0s,5.0s,Slow,Failed')
-//////                        .setQueryInterval('5s')
-////                            .setQueryFrom(begin)
-////                            .setQueryTo(end)
-////                            .generateEverythingForChart()
-////                            .setData(result.timeseriesHistogram);
-//////                        .parseDataTimestampToDateInstance();
-////                        scope.$broadcast('helixChart.initialize.loadForLinkInfoDetails', oHelixChartVo);
-////                    });
-//                };
 
                 /**
                  * parse histogram for d3.js

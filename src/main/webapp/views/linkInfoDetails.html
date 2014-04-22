@@ -35,15 +35,15 @@
                 <img ng-src="/images/icons/UNKNOWN.png" style="height:14px;" />
                 {{target.applicationName}}
             </div>
-            <div ng-init="showResponseSummary=false" class="panel-body summaryCharts_{{target.applicationName | applicationNameToClassName}}" style="position: relative; padding:0">
-                <div class="response-summary" ng-show="showResponseSummary">
+            <div ng-init="showLinkResponseSummary=false" class="panel-body summaryCharts_{{target.applicationName | applicationNameToClassName}}" style="position: relative; padding:0">
+                <div class="response-summary" ng-show="showLinkResponseSummary">
                     <svg style='height:120px;width:350px;'/>
                 </div>
-                <div class="load" ng-hide="showResponseSummary">
+                <div class="load" ng-hide="showLinkResponseSummary">
                     <svg style='height:120px;width:350px;'/>
                 </div>
 
-                <a class="btn btn-default btn-xs" href ng-click="showDetailInformation(target.applicationName)"
+                <a class="btn btn-default btn-xs" href ng-click="showLinkDetailInformation(target.applicationName)"
                    title="Show Link Information" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;">
                     <span class="glyphicon glyphicon-info-sign"></span>
                 </a>
@@ -52,11 +52,11 @@
                     <span class="glyphicon glyphicon-filter"></span>
                 </a>
                 <a class="btn btn-default btn-xs" href title="Show Load" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 80px; right:5px;"
-                   ng-click="showResponseSummary=!showResponseSummary;renderLoad(target.applicationName)" ng-show="showResponseSummary">
+                   ng-click="showLinkResponseSummary=!showLinkResponseSummary" ng-show="showLinkResponseSummary">
                     <span class="glyphicon glyphicon-stats"></span>
                 </a>
                 <a class="btn btn-default btn-xs" href title="Show Response Summary" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 80px; right:5px;"
-                   ng-click="showResponseSummary=!showResponseSummary;renderLoad(target.applicationName)" ng-show="!showResponseSummary">
+                   ng-click="showLinkResponseSummary=!showLinkResponseSummary;renderLinkResponseSummary(target.applicationName)" ng-show="!showLinkResponseSummary">
                     <span class="glyphicon glyphicon-stats"></span>
                 </a>
             </div>

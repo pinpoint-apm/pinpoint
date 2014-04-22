@@ -215,7 +215,18 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
                 .setTitle2(link.targetInfo.applicationName);
             $scope.$broadcast('sidebarTitle.initialize.forFilteredMap', oSidebarTitleVo);
             $scope.$broadcast('nodeInfoDetails.reset');
-            $scope.$broadcast('linkInfoDetails.initialize', null, query, link);
+        });
 
+        /**
+         * scope event on nodeInfoDetail.showDetailInformationClicked
+         */
+        $scope.$on('nodeInfoDetail.showDetailInformationClicked', function (event, query, node) {
+            $scope.hasScatter = false;
+            var oSidebarTitleVo = new SidebarTitleVo;
+            oSidebarTitleVo
+                .setImageType(node.category)
+                .setTitle(node.text);
+            $scope.$broadcast('sidebarTitle.initialize.forMain', oSidebarTitleVo);
+            $scope.$broadcast('linkInfoDetails.reset');
         });
     }]);
