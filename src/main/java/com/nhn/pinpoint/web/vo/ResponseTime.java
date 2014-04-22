@@ -1,6 +1,8 @@
 package com.nhn.pinpoint.web.vo;
 
+import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.applicationmap.histogram.Histogram;
+import com.nhn.pinpoint.web.applicationmap.histogram.TimeHistogram;
 
 import java.util.*;
 
@@ -10,11 +12,11 @@ import java.util.*;
 public class ResponseTime {
     // rowKey
     private final String applicationName;
-    private final short applicationServiceType;
+    private final ServiceType applicationServiceType;
     private final long timeStamp;
 
     // agentId 가 key임.
-    private final Map<String, Histogram> responseHistogramMap = new HashMap<String, Histogram>();
+    private final Map<String, TimeHistogram> responseHistogramMap = new HashMap<String, TimeHistogram>();
 
 
     public ResponseTime(String applicationName, short applicationServiceType, long timeStamp) {
@@ -22,7 +24,7 @@ public class ResponseTime {
             throw new NullPointerException("applicationName must not be null");
         }
         this.applicationName = applicationName;
-        this.applicationServiceType = applicationServiceType;
+        this.applicationServiceType = ServiceType.findServiceType(applicationServiceType);
         this.timeStamp = timeStamp;
     }
 
@@ -32,7 +34,7 @@ public class ResponseTime {
     }
 
     public short getApplicationServiceType() {
-        return applicationServiceType;
+        return applicationServiceType.getCode();
     }
 
     public long getTimeStamp() {
@@ -50,9 +52,9 @@ public class ResponseTime {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
-        Histogram histogram = responseHistogramMap.get(agentId);
+        TimeHistogram histogram = responseHistogramMap.get(agentId);
         if (histogram == null) {
-            histogram = new Histogram(applicationServiceType);
+            histogram = new TimeHistogram(applicationServiceType, timeStamp);
             responseHistogramMap.put(agentId, histogram);
         }
         return histogram;
@@ -77,7 +79,7 @@ public class ResponseTime {
         histogram.addCallCountByElapsedTime(elapsedTime);
     }
 
-    public Collection<Histogram> getAgentResponseHistogramList() {
+    public Collection<TimeHistogram> getAgentResponseHistogramList() {
         return responseHistogramMap.values();
     }
 
@@ -89,7 +91,7 @@ public class ResponseTime {
         return result;
     }
 
-    public Set<Map.Entry<String, Histogram>> getAgentHistogram() {
+    public Set<Map.Entry<String, TimeHistogram>> getAgentHistogram() {
         return this.responseHistogramMap.entrySet();
     }
 

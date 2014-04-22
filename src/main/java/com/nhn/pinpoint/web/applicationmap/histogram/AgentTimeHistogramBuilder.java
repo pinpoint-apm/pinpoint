@@ -41,12 +41,8 @@ public class AgentTimeHistogramBuilder {
     public AgentTimeHistogram build(List<ResponseTime> responseHistogramList) {
         AgentHistogramList agentHistogramList = new AgentHistogramList();
         for (ResponseTime responseTime : responseHistogramList) {
-            Set<Map.Entry<String, Histogram>> agentHistogram = responseTime.getAgentHistogram();
-            for (Map.Entry<String, Histogram> agentEntry : agentHistogram) {
-
-                Histogram histogram = agentEntry.getValue();
-                TimeHistogram timeHistogram = new TimeHistogram(application.getServiceType(), responseTime.getTimeStamp());
-                timeHistogram.add(histogram);
+            for (Map.Entry<String, TimeHistogram> agentEntry : responseTime.getAgentHistogram()) {
+                TimeHistogram timeHistogram = agentEntry.getValue();
                 agentHistogramList.addAgentHistogram(agentEntry.getKey(), application.getServiceType(), timeHistogram);
             }
         }
