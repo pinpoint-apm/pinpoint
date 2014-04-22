@@ -33,11 +33,9 @@ pinpointApp.constant('scatterConfig', {
         },
         htOption: {
             headers: {
-                accept: 'application/jsonp',
-                contentType: 'application/jsonp'
+                accept: 'application/json'
             },
-            dataType: 'jsonp',
-            jsonp: '_callback'
+            dataType: 'json'
         },
         index: {
             x: 0,
@@ -139,11 +137,9 @@ pinpointApp.directive('scatter',
                             },
                             htOption: {
                                 headers: {
-                                    accept: 'application/jsonp',
-                                    contentType: 'application/jsonp'
+                                    accept: 'application/json'
                                 },
-                                dataType: 'jsonp',
-                                jsonp: '_callback'
+                                dataType: 'json'
                             },
                             index: {
                                 x: 0,
