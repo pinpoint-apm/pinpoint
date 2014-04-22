@@ -59,46 +59,41 @@ public class AgentTimeHistogramBuilder {
 
 
     private AgentTimeHistogram build(AgentHistogramList agentHistogramList) {
-
-        Map<Application, Map<Long, TimeHistogram>> histogramMap = interpolation(agentHistogramList, window);
-        AgentTimeHistogram agentTimeHistogram = new AgentTimeHistogram(application, range, histogramMap);
+        AgentHistogramList histogramList = interpolation(agentHistogramList, window);
+        AgentTimeHistogram agentTimeHistogram = new AgentTimeHistogram(application, range, histogramList);
         return agentTimeHistogram;
     }
 
 
-    private Map<Application, Map<Long, TimeHistogram>> interpolation(AgentHistogramList agentLevelMap, TimeWindow window) {
-        if (agentLevelMap.size() == 0) {
-            return Collections.emptyMap();
+    private AgentHistogramList interpolation(AgentHistogramList agentHistogramList, TimeWindow window) {
+        if (agentHistogramList.size() == 0) {
+            return new AgentHistogramList();
         }
 
-        Map<Application, Map<Long, TimeHistogram>> windowTimeMap = new HashMap<Application, Map<Long, TimeHistogram>>();
-        // window 공간생성.
+        // window 공간생성. AgentHistogramList 사용이전에는 그냥 생짜 자료구조를 사용함.
         // list로 할수도 있으나, filter일 경우 range를 초과하는 경우가 발생할 가능성이 있어 map으로 생성한다.
         // 좀더 나은 방인이 있으면 변경하는게 좋을듯.
-        for (AgentHistogram agentHistogram : agentLevelMap.getAgentHistogramList()) {
-            Map<Long, TimeHistogram> timeMap = new HashMap<Long, TimeHistogram>();
+        final AgentHistogramList resultAgentHistogramList = new AgentHistogramList();
+        for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
+            List<TimeHistogram> timeHistogramList = new ArrayList<TimeHistogram>();
             for (Long time : window) {
-                timeMap.put(time, new TimeHistogram(application.getServiceType(), time));
+                timeHistogramList.add(new TimeHistogram(application.getServiceType(), time));
             }
-            windowTimeMap.put(agentHistogram.getAgentId(), timeMap);
+            resultAgentHistogramList.addTimeHistogram(agentHistogram.getAgentId(), timeHistogramList);
         }
 
-        for (AgentHistogram agentHistogram : agentLevelMap.getAgentHistogramList()) {
+        for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
             for (TimeHistogram timeHistogram : agentHistogram.getTimeHistogram()) {
                 final Long time = window.refineTimestamp(timeHistogram.getTimeStamp());
-                Map<Long, TimeHistogram> findSlot = windowTimeMap.get(agentHistogram.getAgentId());
-                TimeHistogram windowHistogram = findSlot.get(time);
-                if (windowHistogram == null) {
-                    windowHistogram = new TimeHistogram(application.getServiceType(), time);
-                    findSlot.put(time, windowHistogram);
-                }
+                Application agentId = agentHistogram.getAgentId();
+                TimeHistogram windowHistogram = new TimeHistogram(timeHistogram.getHistogramSchema(), time);
                 windowHistogram.add(timeHistogram);
+                resultAgentHistogramList.addTimeHistogram(agentId, windowHistogram);
             }
         }
 
-        return windowTimeMap;
+        return resultAgentHistogramList;
     }
-
 
 
     public long getCount(TimeHistogram timeHistogram, SlotType slotType) {

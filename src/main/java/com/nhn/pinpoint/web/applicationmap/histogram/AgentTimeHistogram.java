@@ -3,6 +3,8 @@ package com.nhn.pinpoint.web.applicationmap.histogram;
 import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.SlotType;
+import com.nhn.pinpoint.web.applicationmap.rawdata.AgentHistogram;
+import com.nhn.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.nhn.pinpoint.web.util.TimeWindow;
 import com.nhn.pinpoint.web.util.TimeWindowOneMinuteSampler;
 import com.nhn.pinpoint.web.view.AgentResponseTimeViewModel;
@@ -25,7 +27,7 @@ public class AgentTimeHistogram {
     private final Range range;
     private final TimeWindow window;
 
-    private final Map<Application, Map<Long, TimeHistogram>> histogramMap;
+    private final AgentHistogramList agentHistogramList;
 
     public AgentTimeHistogram(Application application, Range range) {
         if (application == null) {
@@ -37,31 +39,32 @@ public class AgentTimeHistogram {
         this.application = application;
         this.range = range;
         this.window = new TimeWindow(range, TimeWindowOneMinuteSampler.SAMPLER);
-        this.histogramMap = Collections.emptyMap();
+        this.agentHistogramList = new AgentHistogramList();
     }
 
-    public AgentTimeHistogram(Application application, Range range, Map<Application, Map<Long, TimeHistogram>> histogramMap) {
+    public AgentTimeHistogram(Application application, Range range, AgentHistogramList agentHistogramList) {
         if (application == null) {
             throw new NullPointerException("application must not be null");
         }
         if (range == null) {
             throw new NullPointerException("range must not be null");
         }
-        if (histogramMap == null) {
-            throw new NullPointerException("histogramMap must not be null");
+        if (agentHistogramList == null) {
+            throw new NullPointerException("agentHistogramList must not be null");
         }
         this.application = application;
         this.range = range;
         this.window = new TimeWindow(range, TimeWindowOneMinuteSampler.SAMPLER);
-        this.histogramMap = histogramMap;
+        this.agentHistogramList = agentHistogramList;
     }
 
 
     public List<AgentResponseTimeViewModel> createViewModel() {
         final List<AgentResponseTimeViewModel> result = new ArrayList<AgentResponseTimeViewModel>();
-        for (Map.Entry<Application, Map<Long, TimeHistogram>> entry : histogramMap.entrySet()) {
-            List<TimeHistogram> timeList = sortTimeHistogram(entry.getValue());
-            AgentResponseTimeViewModel model = createAgentResponseTimeViewModel(entry.getKey(), timeList);
+        for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
+            Application agentId = agentHistogram.getAgentId();
+            List<TimeHistogram> timeList = sortTimeHistogram(agentHistogram.getTimeHistogram());
+            AgentResponseTimeViewModel model = createAgentResponseTimeViewModel(agentId, timeList);
             result.add(model);
         }
         Collections.sort(result, new Comparator<AgentResponseTimeViewModel>() {
@@ -73,8 +76,8 @@ public class AgentTimeHistogram {
         return result;
     }
 
-    private List<TimeHistogram> sortTimeHistogram(Map<Long, TimeHistogram> timeMap) {
-        List<TimeHistogram> timeList = new ArrayList<TimeHistogram>(timeMap.values());
+    private List<TimeHistogram> sortTimeHistogram(Collection<TimeHistogram> timeMap) {
+        List<TimeHistogram> timeList = new ArrayList<TimeHistogram>(timeMap);
         Collections.sort(timeList, TimeHistogram.TIME_STAMP_ASC_COMPARATOR);
         return timeList;
     }
