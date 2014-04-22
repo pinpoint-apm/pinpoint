@@ -43,21 +43,23 @@
                     <svg style='height:120px;width:350px;'/>
                 </div>
 
-                <a class="btn btn-default btn-xs" href ng-click="showLinkDetailInformation(target.applicationName)"
-                   title="Show Link Information" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;">
-                    <span class="glyphicon glyphicon-info-sign"></span>
-                </a>
-                <a class="btn btn-default btn-xs" href title="Filter Transaction" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 50px; right:5px;"
-                   ng-click="passingTransactionMapFromLinkInfoDetails(target.applicationName, target.serviceType)">
-                    <span class="glyphicon glyphicon-filter"></span>
-                </a>
-                <a class="btn btn-default btn-xs" href title="Show Load" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 80px; right:5px;"
+
+                <a class="btn btn-default btn-xs" href title="Show Load" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;"
                    ng-click="showLinkResponseSummary=!showLinkResponseSummary" ng-show="showLinkResponseSummary">
                     <span class="glyphicon glyphicon-stats"></span>
                 </a>
-                <a class="btn btn-default btn-xs" href title="Show Response Summary" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 80px; right:5px;"
+                <a class="btn btn-default btn-xs" href title="Show Response Summary" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;"
                    ng-click="showLinkResponseSummary=!showLinkResponseSummary;renderLinkResponseSummary(target.applicationName)" ng-show="!showLinkResponseSummary">
                     <span class="glyphicon glyphicon-stats"></span>
+                </a>
+
+                <a class="btn btn-default btn-xs" href ng-click="showLinkDetailInformation(target.applicationName)"
+                   title="Show Link Information" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 50px; right:5px;">
+                    <span class="glyphicon glyphicon-info-sign"></span>
+                </a>
+                <a class="btn btn-default btn-xs" href title="Filter Transaction" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 80px; right:5px;"
+                   ng-click="passingTransactionMapFromLinkInfoDetails(target.applicationName, target.serviceType)">
+                    <span class="glyphicon glyphicon-filter"></span>
                 </a>
             </div>
         </div>
