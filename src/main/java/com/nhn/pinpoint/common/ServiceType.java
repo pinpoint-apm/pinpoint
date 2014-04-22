@@ -27,6 +27,11 @@ public enum ServiceType {
      * UNKNOWN의 그룹, UI에서만 사용함.
      */
     UNKNOWN_GROUP((short) 3, "UNKNOWN_GROUP", false, true, false, HistogramSchema.NORMAL_SCHEMA),
+    
+    /**
+     * TEST의 그룹 - 테스트 실행 시 사용
+     */
+    TEST((short) 5, "TEST", false, false, false, HistogramSchema.NORMAL_SCHEMA),
 
     // WAS류 1000번 부터 시작
     STAND_ALONE((short) 1000, "STAND_ALONE", false, true, false, HistogramSchema.NORMAL_SCHEMA),
@@ -57,6 +62,8 @@ public enum ServiceType {
 
     SPRING((short) 5050, "SPRING", false, false, false, HistogramSchema.NORMAL_SCHEMA),
     SPRING_MVC((short) 5051, "SPRING", false, false, false, HistogramSchema.NORMAL_SCHEMA),
+    
+    IBATIS((short) 5500, "IBATIS", false, false, false, HistogramSchema.NORMAL_SCHEMA),
 
     DBCP((short) 6050, "DBCP", false, false, false, HistogramSchema.NORMAL_SCHEMA),
 
