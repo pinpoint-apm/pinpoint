@@ -132,7 +132,6 @@ public class Link {
     private Histogram createHistogram0() {
         // 내가 호출하는 대상의 serviceType을 가져와야 한다.
         // tomcat -> arcus를 호출한다고 하였을 경우 arcus의 타입을 가져와야함.
-        final Histogram linkHistogram = new Histogram(toNode.getServiceType());
         final LinkCallDataMap findMap = getLinkCallDataMap();
         AgentHistogramList targetList = findMap.getTargetList();
         return targetList.mergeHistogram(toNode.getServiceType());
