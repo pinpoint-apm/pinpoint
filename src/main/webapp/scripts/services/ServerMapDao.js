@@ -497,7 +497,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
                     newLink.filterApplicationName = link.filterApplicationName;
                     newLink.filterApplicationServiceTypeCode = link.filterApplicationServiceTypeCode;
                     newLink.sourceInfo = link.sourceInfo;
-                    link.targetInfo['text'] = link.text;
+                    link.targetInfo['count'] = link.text;
                     newLink.targetInfo.push(link.targetInfo);
 
                     newLink.targetRawData[link.targetInfo.applicationName] = angular.copy(link);

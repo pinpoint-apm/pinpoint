@@ -55,7 +55,6 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                  */
                 showDetailInformation = function (link) {
                     if (link.targetRawData) {
-                        console.log('link', link);
                         htTargetRawData = link.targetRawData;
                         scope.linkCategory = 'UnknownLinkInfoBox';
                         for (var key in link.targetInfo) {

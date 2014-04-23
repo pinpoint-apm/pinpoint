@@ -2,7 +2,7 @@
 
     <div ng-if="linkCategory == 'UnknownLinkInfoBox'">
 
-        <div class="panel panel-default" ng-repeat="target in targetInfo | orderBy:'text':true">
+        <div class="panel panel-default" ng-repeat="target in targetInfo | orderBy:'count':true">
             <div class="panel-heading" style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;"
                  title="{{sourceInfo.applicationName}} → {{target.applicationName}}" data-placement="bottom" data-toggle="tooltip" >
                 <img ng-src="/images/icons/{{sourceInfo.serviceType | icons}}.png" style="height:14px;" />
