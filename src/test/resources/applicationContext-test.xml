@@ -47,5 +47,7 @@
 
     <bean class="com.nhn.pinpoint.collector.util.ThreadLocalAcceptedTimeService"></bean>
 
+    <bean id="rangeFactory" class="com.nhn.pinpoint.web.vo.RangeFactory"></bean>
+
 
 </beans>
