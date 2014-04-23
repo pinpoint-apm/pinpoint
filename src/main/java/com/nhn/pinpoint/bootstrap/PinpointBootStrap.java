@@ -142,7 +142,7 @@ public class PinpointBootStrap {
         String agentLogFilePath = classPathResolver.getAgentLogFilePath();
         logger.info("logPath:" + agentLogFilePath);
 
-        System.setProperty(ProductInfo.NAME + "." + "log", agentLogFilePath);
+        System.setProperty(ProductInfo.NAME + ".log", agentLogFilePath);
     }
 
     private static String getConfigPath(ClassPathResolver classPathResolver) {
