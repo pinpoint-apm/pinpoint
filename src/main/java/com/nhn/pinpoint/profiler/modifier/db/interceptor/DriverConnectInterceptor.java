@@ -36,7 +36,7 @@ public class DriverConnectInterceptor implements SimpleAroundInterceptor, ByteCo
         }
         scope.push();
 
-        Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
@@ -53,7 +53,7 @@ public class DriverConnectInterceptor implements SimpleAroundInterceptor, ByteCo
         // 여기서는 trace context인지 아닌지 확인하면 안된다. trace 대상 thread가 아닌곳에서 connection이 생성될수 있음.
         scope.pop();
 
-        boolean success = InterceptorUtils.isSuccess(result);
+        final boolean success = InterceptorUtils.isSuccess(result);
         // 여기서는 trace context인지 아닌지 확인하면 안된다. trace 대상 thread가 아닌곳에서 connection이 생성될수 있음.
         final String driverUrl = (String) args[0];
         DatabaseInfo databaseInfo = createDatabaseInfo(driverUrl);
@@ -62,7 +62,7 @@ public class DriverConnectInterceptor implements SimpleAroundInterceptor, ByteCo
             this.setUrl.invoke(result, databaseInfo);
         }
 
-        Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
@@ -87,7 +87,7 @@ public class DriverConnectInterceptor implements SimpleAroundInterceptor, ByteCo
         if (url == null) {
             return UnKnownDatabaseInfo.INSTANCE;
         }
-        DatabaseInfo databaseInfo = traceContext.parseJdbcUrl(url);
+        final DatabaseInfo databaseInfo = traceContext.parseJdbcUrl(url);
         if (isDebug) {
             logger.debug("parse DatabaseInfo:{}", databaseInfo);
         }

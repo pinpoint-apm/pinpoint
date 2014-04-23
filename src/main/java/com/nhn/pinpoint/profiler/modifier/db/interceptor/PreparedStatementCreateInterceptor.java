@@ -36,7 +36,7 @@ public class PreparedStatementCreateInterceptor implements SimpleAroundIntercept
             logger.beforeInterceptor(target, args);
         }
 
-        Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
@@ -60,7 +60,7 @@ public class PreparedStatementCreateInterceptor implements SimpleAroundIntercept
             logger.afterInterceptor(target, args, result);
         }
 
-        boolean success = InterceptorUtils.isSuccess(result);
+        final boolean success = InterceptorUtils.isSuccess(result);
         ParsingResult parsingResult = null;
         if (success) {
             // preparedStatement의 생성이 성공하였을 경우만 PreparedStatement에 databaseInfo를 세팅해야 한다.
@@ -81,7 +81,7 @@ public class PreparedStatementCreateInterceptor implements SimpleAroundIntercept
             }
         }
 
-        Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
