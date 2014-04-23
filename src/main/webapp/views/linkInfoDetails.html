@@ -3,13 +3,12 @@
     <div ng-if="linkCategory == 'UnknownLinkInfoBox'">
 
         <div class="panel panel-default" ng-repeat="target in targetInfo | orderBy:'count':true">
-            <div class="panel-heading" style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;"
-                 title="{{sourceInfo.applicationName}} → {{target.applicationName}}" data-placement="bottom" data-toggle="tooltip" >
-                <img ng-src="/images/icons/{{sourceInfo.serviceType | icons}}.png" style="height:14px;" />
-                {{sourceInfo.applicationName}}
+            <div class="panel-heading">
+                <!--<img ng-src="/images/icons/{{sourceInfo.serviceType | icons}}.png" style="height:14px;" />-->
+                <!--{{sourceInfo.applicationName}}-->
                 <span class="glyphicon glyphicon-arrow-right"></span>
-                <img ng-src="/images/icons/UNKNOWN.png" style="height:14px;" />
-                {{target.applicationName}}
+                <!--<img ng-src="/images/icons/UNKNOWN.png" style="height:14px;" />-->
+                {{target.applicationName}}  <span class="badge">{{target.count}}</span>
             </div>
             <div ng-init="showLinkResponseSummary=false" class="panel-body summaryCharts_{{target.applicationName | applicationNameToClassName}}" style="position: relative; padding:0">
                 <div class="response-summary" ng-show="showLinkResponseSummary">

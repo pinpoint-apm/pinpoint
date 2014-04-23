@@ -12,3 +12,10 @@
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 14px;
 }
+.nodeInfoDetails .panel {
+    border: 1px solid #BDC3C7;
+}
+.nodeInfoDetails .panel-default>.panel-heading {
+    background-color: #E5F0FC;
+    border-bottom: 1px solid #BDC3C7;
+}

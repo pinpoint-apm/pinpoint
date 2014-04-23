@@ -1,11 +1,14 @@
 .linkInfoDetails {
-    line-height: 25px;
-    margin-bottom: 5px;
-    /*font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;*/
-    font-size: 12px;
     padding: 5px 15px 30px;
 }
 .linkInfoDetails .infoBarChart svg g.nv-group rect,
 .linkInfoDetails .infoBarChart svg g.nv-group text {
     cursor: pointer;
+}
+.linkInfoDetails .panel {
+    border: 1px solid #BDC3C7;
+}
+.linkInfoDetails .panel-default>.panel-heading {
+    background-color: #E5F0FC;
+    border-bottom: 1px solid #BDC3C7;
 }

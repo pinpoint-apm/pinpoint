@@ -4,7 +4,7 @@
 
         <div class="panel panel-default" ng-repeat="node in unknownGroup | orderBy:'count':true">
             <div class="panel-heading">
-                {{node.applicationName}}
+                {{node.applicationName}} <span class="badge">{{node.count}}</span>
             </div>
 
             <div ng-init="showNodeResponseSummary=false" class="panel-body summaryCharts_{{node.applicationName | applicationNameToClassName}}" style="position: relative; padding:0">
