@@ -9,6 +9,7 @@ import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.util.TimeUtils;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.nhn.pinpoint.web.vo.Application;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -77,6 +78,9 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
                 }
 
                 final short slotTime = (isError) ? (short) -1 : histogramSlot;
+                if (StringUtils.isEmpty(calleeHost)) {
+                    calleeHost = callee.getName();
+                }
                 linkDataMap.addLinkData(caller, caller.getName(), callee, calleeHost, timestamp, slotTime, requestCount);
 
 
@@ -101,6 +105,9 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
                 }
 
                 final short slotTime = (isError) ? (short) -1 : histogramSlot;
+                if (StringUtils.isEmpty(calleeHost)) {
+                    calleeHost = callee.getName();
+                }
                 linkDataMap.addLinkData(caller, callerAgentId, callee, calleeHost, timestamp, slotTime, requestCount);
             } else {
                 throw new IllegalArgumentException("unknown ColumnFamily :" + Arrays.toString(family));

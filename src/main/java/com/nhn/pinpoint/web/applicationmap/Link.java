@@ -14,7 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * application map에서 application간의 관계를 담은 클래스
@@ -184,13 +187,13 @@ public class Link {
     private ApplicationTimeHistogram getSourceApplicationTimeSeriesHistogramData() {
         // form인것 같지만 link의 시간은 rpc를 기준으로 삼아야 하기 때문에. to를 기준으로 삼아야 한다.
         ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(toNode.getApplication(), range);
-        return builder.build(sourceLinkCallDataMap.getLinkDataMap());
+        return builder.build(sourceLinkCallDataMap.getLinkDataList());
     }
 
     public ApplicationTimeHistogram getTargetApplicationTimeSeriesHistogramData() {
         // form인것 같지만 link의 시간은 rpc를 기준으로 삼아야 하기 때문에. to를 기준으로 삼아야 한다.
         ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(toNode.getApplication(), range);
-        return builder.build(targetLinkCallDataMap.getLinkDataMap());
+        return builder.build(targetLinkCallDataMap.getLinkDataList());
     }
 
     public AgentResponseTimeViewModelList getSourceAgentTimeSeriesHistogram() {
@@ -203,10 +206,18 @@ public class Link {
     }
 
     public AgentTimeHistogram getTargetAgentTimeHistogram() {
-
         AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(toNode.getApplication(), range);
         AgentTimeHistogram agentTimeHistogram = builder.buildSource(targetLinkCallDataMap);
         return agentTimeHistogram;
+    }
+
+    public Collection<Application> getSourceLinkTargetAgentList() {
+        Set<Application> agentList = new HashSet<Application>();
+        Collection<LinkCallData> linkDataList = sourceLinkCallDataMap.getLinkDataList();
+        for (LinkCallData linkCallData : linkDataList) {
+            agentList.add(new Application(linkCallData.getTarget(), linkCallData.getTargetServiceType()));
+        }
+        return agentList;
     }
 
     public List<ResponseTimeViewModel> getTargetApplicationTimeSeriesHistogram() {
@@ -217,6 +228,10 @@ public class Link {
 
     public String getLinkState() {
         return linkStateResolver.resolve(this);
+    }
+
+    public boolean isWasToWasLink() {
+        return this.fromNode.getApplication().getServiceType().isWas() && this.toNode.getApplication().getServiceType().isWas();
     }
 
     @Override
@@ -246,4 +261,6 @@ public class Link {
                 " -> to=" + toNode +
                 '}';
     }
+
+
 }

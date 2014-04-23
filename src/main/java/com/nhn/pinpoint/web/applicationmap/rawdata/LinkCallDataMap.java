@@ -63,7 +63,7 @@ public class LinkCallDataMap {
         return linkCallData;
     }
 
-    public Collection<LinkCallData> getLinkDataMap() {
+    public Collection<LinkCallData> getLinkDataList() {
         return linkDataMap.values();
     }
 

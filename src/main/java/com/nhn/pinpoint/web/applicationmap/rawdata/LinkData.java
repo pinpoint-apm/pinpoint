@@ -56,10 +56,9 @@ public class LinkData {
 	 * @param count
 	 */
 	public void addLinkData(String callerAgentId, short callerServiceTypeCode, String hostname, short serviceTypeCode, long timestamp, short slot, long count) {
-		// TODO 임시코드
-		if (StringUtils.isEmpty(hostname)) {
-			hostname = "UNKNOWNHOST";
-		}
+        if (hostname == null) {
+            throw new NullPointerException("hostname must not be null");
+        }
         this.linkCallDataMap.addCallData(callerAgentId, callerServiceTypeCode, hostname, serviceTypeCode, timestamp, slot, count);
 	}
 

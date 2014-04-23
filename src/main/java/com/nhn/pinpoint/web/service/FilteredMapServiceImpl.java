@@ -19,6 +19,7 @@ import com.nhn.pinpoint.web.dao.*;
 import com.nhn.pinpoint.web.vo.*;
 import com.nhn.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -327,7 +328,9 @@ public class FilteredMapServiceImpl implements FilteredMapService {
             if (logger.isTraceEnabled()) {
                 logger.trace("spanEvent  src:{} {} -> dest:{} {}", srcApplication, span.getAgentId(), destApplication, spanEvent.getEndPoint());
             }
-            sourceLinkDataMap.addLinkData(srcApplication, span.getAgentId(), destApplication, spanEvent.getEndPoint(), spanEventTimeStamp, slotTime, 1);
+            // endPoint는 null이 될수 있음.
+            final String destinationAgentId = StringUtils.defaultString(spanEvent.getEndPoint());
+            sourceLinkDataMap.addLinkData(srcApplication, span.getAgentId(), destApplication, destinationAgentId, spanEventTimeStamp, slotTime, 1);
         }
     }
 

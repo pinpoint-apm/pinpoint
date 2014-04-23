@@ -300,7 +300,7 @@ public class ApplicationMapBuilder {
             linkCallDataMap.addLinkDataMap(sourceLinkCallDataMap);
         }
         ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(nodeApplication, range);
-        ApplicationTimeHistogram applicationTimeHistogram = builder.build(linkCallDataMap.getLinkDataMap());
+        ApplicationTimeHistogram applicationTimeHistogram = builder.build(linkCallDataMap.getLinkDataList());
         nodeHistogram.setApplicationTimeHistogram(applicationTimeHistogram);
 
         // terminal일 경우 node의 AgentLevel histogram을 추가로 생성한다.

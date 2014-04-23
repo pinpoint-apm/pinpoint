@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -34,6 +35,9 @@ public class LinkSerializer extends JsonSerializer<Link> {
         Application filterApplication = link.getFilterApplication();
         jgen.writeStringField("filterApplicationName", filterApplication.getName());
         jgen.writeNumberField("filterApplicationServiceTypeCode", filterApplication.getServiceTypeCode());
+        if (link.isWasToWasLink()) {
+            writeWasToWasTargetRpcList(link, jgen);
+        }
 
         Histogram histogram = link.getHistogram();
         jgen.writeNumberField("text", histogram.getTotalCount());
@@ -54,6 +58,21 @@ public class LinkSerializer extends JsonSerializer<Link> {
         jgen.writeStringField("category", state);
 
         jgen.writeEndObject();
+    }
+
+    private void writeWasToWasTargetRpcList(Link link, JsonGenerator jgen) throws IOException {
+        // was -> was 연결일 경우 호출실패시의 이벤트를 filtering 하기 위한 추가적인 호출정보를 알려준다.
+        jgen.writeFieldName("filterTargetRpcList");
+        jgen.writeStartArray();
+        Collection<Application> sourceLinkTargetAgentList = link.getSourceLinkTargetAgentList();
+        for(Application application : sourceLinkTargetAgentList) {
+            jgen.writeStartObject();
+            jgen.writeStringField("rpc", application.getName());
+            jgen.writeNumberField("rpcServiceType", application.getServiceTypeCode());
+            jgen.writeEndObject();
+        }
+        jgen.writeEndArray();
+
     }
 
 
