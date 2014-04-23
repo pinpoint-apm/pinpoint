@@ -6,12 +6,12 @@ pinpointApp.constant('nodeInfoDetailsConfig', {
 });
 
 pinpointApp
-    .directive('nodeInfoDetails', [ 'nodeInfoDetailsConfig', '$filter', function (config, $filter) {
+    .directive('nodeInfoDetails', [ 'nodeInfoDetailsConfig', '$filter', '$timeout', function (config, $filter, $timeout) {
         return {
             restrict: 'EA',
             replace: true,
             templateUrl: 'views/nodeInfoDetails.html',
-            link: function postLink(scope, element, attrs) {
+            link: function postLink(scope, element) {
 
                 // define private variables
                 var htServermapData, htLastNode, htUnknownResponseSummary, htTargetRawData, htQuery;
@@ -82,6 +82,9 @@ pinpointApp
                                 className = $filter('applicationNameToClassName')(applicationName);
                             renderLoad('.nodeInfoDetails .summaryCharts_' + className + ' .load svg', node.targetRawData[applicationName].timeSeriesHistogram);
                         }
+                        $timeout(function () {
+                            element.find('[data-toggle="tooltip"]').tooltip('destroy').tooltip();
+                        });
                     }
                     if (!scope.$$phase) {
                         scope.$digest();
