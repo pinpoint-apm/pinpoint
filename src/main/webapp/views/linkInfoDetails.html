@@ -1,34 +1,10 @@
 <div class="linkInfoDetails" ng-show="showLinkInfoDetails">
 
-    <!--<ul class="list-unstyled" ng-if="linkCategory == 'UnknownLinkInfoBox'">-->
-        <!--<li ng-repeat="target in targetinfo">-->
-            <!--<div style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;"-->
-                 <!--tooltip="{{sourceInfo[0].applicationName}} → {{target.applicationName}}" tooltip-placement="bottom">-->
-                <!--<img ng-src="/images/icons/{{sourceInfo[0].serviceType | icons}}.png" style="height:14px;" />-->
-                <!--{{sourceInfo[0].applicationName}}-->
-                <!--<span class="glyphicon glyphicon-arrow-right"></span>-->
-                <!--<img ng-src="/images/icons/{{target.serviceType | icons}}.png" style="height:14px;" />-->
-                <!--{{target.applicationName}}-->
-            <!--</div>-->
-            <!--<div class="summaryCharts_{{target.sequence}}" style="position: relative;">-->
-                <!--<svg style='height:120px;width:350px;' />-->
-                <!--<a class="btn btn-default btn-xs" href ng-click="showDetailInformation(target.applicationName)"-->
-                   <!--title="Show Link Information" style="position: absolute;top: 20px; right:0;">-->
-                    <!--<span class="glyphicon glyphicon-tasks"></span>-->
-                <!--</a>-->
-                <!--<a class="btn btn-default btn-xs" href title="Filter Transaction"  style="position: absolute;top: 50px; right:0;"-->
-                   <!--ng-click="passingTransactionMap(sourceInfo[0].serviceType, sourceInfo[0].applicationName, target.serviceType, target.applicationName)">-->
-                    <!--<span class="glyphicon glyphicon-filter"></span>-->
-                <!--</a>-->
-            <!--</div>-->
-        <!--</li>-->
-    <!--</ul>-->
-
     <div ng-if="linkCategory == 'UnknownLinkInfoBox'">
 
-        <div class="panel panel-default" ng-repeat="target in targetInfo">
+        <div class="panel panel-default" ng-repeat="target in targetInfo | orderBy:'text':true">
             <div class="panel-heading" style="overflow: hidden;white-space: nowrap;text-overflow: ellipsis;"
-                 tooltip="{{sourceInfo.applicationName}} → {{target.applicationName}}" tooltip-placement="bottom">
+                 title="{{sourceInfo.applicationName}} → {{target.applicationName}}" data-placement="bottom" data-toggle="tooltip" >
                 <img ng-src="/images/icons/{{sourceInfo.serviceType | icons}}.png" style="height:14px;" />
                 {{sourceInfo.applicationName}}
                 <span class="glyphicon glyphicon-arrow-right"></span>
@@ -75,9 +51,5 @@
         <h5>Load</h5>
         <svg style='height:150px' />
     </div>
-    <!--<div ng-if="ShowLinkLoad" style="height:220px;">-->
-        <!--<h5>Load(Draft)</h5>-->
-        <!--<helix-chart namespace="loadForLinkInfoDetails"></helix-chart>-->
-    <!--</div>-->
 
 </div>
