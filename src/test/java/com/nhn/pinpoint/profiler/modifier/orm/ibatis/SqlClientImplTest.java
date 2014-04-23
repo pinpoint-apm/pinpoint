@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.profiler.modifier.orm.ibatis;
 
+import com.nhn.pinpoint.ProductInfo;
 import com.nhn.pinpoint.bootstrap.ContextClassLoaderExecuteTemplate;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -13,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 
+import java.net.URL;
 import java.util.concurrent.Callable;
 
 /**
@@ -23,10 +25,21 @@ public class SqlClientImplTest {
     private static TestClassLoader LOADER;
     private static ContextClassLoaderExecuteTemplate TEMPLATE;
 
+    private static void setupLogPath() {
+        // ci에서 일단 log 저장패스를 못찾아서 수정하였으나. 이건 매우 땜빵 코드임.
+        // test일 경우. 어떻게 보면 log를 저장할 필요가 없는데 profiler 디렉토리 구조상 local의 log4.xml을 물고 들어가서 사이드 이펙트가 있음.
+        final String logPathProperty = ProductInfo.NAME + ".log";
+        final URL testRootPath = MockAgent.class.getClassLoader().getResource(".");
+        System.setProperty(logPathProperty, testRootPath.getPath() + "/log");
+        System.setProperty("pinpoint.agentId", "test");
+    }
+
     @Before
     public void setUp() throws Exception {
         System.setProperty("catalina.home", "test");
+        setupLogPath();
         PLoggerFactory.initialize(new Slf4jLoggerBinder());
+
 
         ProfilerConfig profilerConfig = new ProfilerConfig();
 
