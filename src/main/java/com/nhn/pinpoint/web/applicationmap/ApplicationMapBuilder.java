@@ -373,6 +373,9 @@ public class ApplicationMapBuilder {
 
             // destination이 WAS이고 agent가 설치되어있으면 agentSet이 존재한다.
             node.setServerInstanceList(serverInstanceList);
+        } else {
+            // 기타 해당 되지 않는 상황일 경우 empty 정보를 넣는다.
+            node.setServerInstanceList(new ServerInstanceList());
         }
 
     }

@@ -2,6 +2,7 @@ package com.nhn.pinpoint.web.view;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.applicationmap.Node;
+import com.nhn.pinpoint.web.applicationmap.ServerInstanceList;
 import com.nhn.pinpoint.web.applicationmap.histogram.Histogram;
 import com.nhn.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -44,7 +45,12 @@ public class NodeSerializer extends JsonSerializer<Node>  {
         if (node.getServiceType().isUnknown()) {
             writeEmptyObject(jgen, "serverList");
         } else {
-            jgen.writeObjectField("serverList", node.getServerInstanceList());
+            final ServerInstanceList serverInstanceList = node.getServerInstanceList();
+            if (serverInstanceList != null) {
+                jgen.writeObjectField("serverList", serverInstanceList);
+            } else {
+                writeEmptyObject(jgen, "serverList");
+            }
         }
 
         jgen.writeEndObject();
