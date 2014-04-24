@@ -68,7 +68,7 @@ public class LinkSerializer extends JsonSerializer<Link> {
         for(Application application : sourceLinkTargetAgentList) {
             jgen.writeStartObject();
             jgen.writeStringField("rpc", application.getName());
-            jgen.writeNumberField("rpcServiceType", application.getServiceTypeCode());
+            jgen.writeNumberField("rpcServiceTypeCode", application.getServiceTypeCode());
             jgen.writeEndObject();
         }
         jgen.writeEndArray();
