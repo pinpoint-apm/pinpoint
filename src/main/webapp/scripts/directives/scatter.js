@@ -73,7 +73,7 @@ pinpointApp.directive('scatter',
                     var oNavbarVo, htScatterSet, htLastNode;
 
                     // define private variables of methods
-                    var getDataSource, makeScatter, showScatter, pauseScatterAll;
+                    var getDataSource, makeScatter, showScatter, showScatterBy, pauseScatterAll, makeScatterWithData;
 
                     // initialize
                     oNavbarVo = null;
@@ -164,8 +164,9 @@ pinpointApp.directive('scatter',
                      * @param filter
                      * @param w
                      * @param h
+                     * @param scatterData
                      */
-                    makeScatter = function (target, title, start, end, period, filter, w, h) {
+                    makeScatter = function (target, title, start, end, period, filter, w, h, scatterData) {
                         if (!Modernizr.canvas) {
                             alert("Can't draw scatter. Not supported browser.");
                         }
@@ -227,7 +228,11 @@ pinpointApp.directive('scatter',
                         var oScatterChart = null;
                         oScatterChart = new BigScatterChart(options);
                         $timeout(function () {
-                            oScatterChart.drawWithDataSource(getDataSource(title, start, end, filter));
+                            if (angular.isUndefined(scatterData)) {
+                                oScatterChart.drawWithDataSource(getDataSource(title, start, end, filter));
+                            } else {
+                                oScatterChart.addBubbleAndMoveAndDraw(scatterData.scatter, scatterData.resultFrom);
+                            }
                             $window.htoScatter[htLastNode.text] = oScatterChart;
                         }, 100);
 
@@ -264,6 +269,43 @@ pinpointApp.directive('scatter',
                     };
 
                     /**
+                     * show scatter by
+                     * @param title
+                     */
+                    showScatterBy = function (title) {
+                        element.children().hide();
+                        if (angular.isDefined(htScatterSet[title])) {
+                            htScatterSet[title].target.show();
+                        }
+                    };
+
+                    /**
+                     * make scatter with data
+                     * @param title
+                     * @param start
+                     * @param end
+                     * @param period
+                     * @param filter
+                     * @param w
+                     * @param h
+                     * @param data
+                     */
+                    makeScatterWithData = function (title, start, end, period, filter, w, h, data) {
+                        if (angular.isDefined(htScatterSet[title])) {
+                            htScatterSet[title].scatter.addBubbleAndMoveAndDraw(data.scatter, data.resultFrom);
+                        } else {
+                            var target = angular.element('<div class="scatter">');
+                            var oScatter = makeScatter(target, title, start, end, period, filter, w, h, data);
+                            htScatterSet[title] = {
+                                target : target,
+                                scatter : oScatter
+                            };
+                            element.append(target);
+                        }
+                        target.hide();
+                    };
+
+                    /**
                      * pause scatter all
                      */
                     pauseScatterAll = function () {
@@ -288,6 +330,22 @@ pinpointApp.directive('scatter',
                         htLastNode = node;
                         showScatter(node.text, oNavbarVo.getQueryStartTime(),
                             oNavbarVo.getQueryEndTime(), oNavbarVo.getQueryPeriod(), oNavbarVo.getFilter(), w, h);
+                    });
+
+                    /**
+                     * scope event on scatter.initializeWithData
+                     */
+                    scope.$on('scatter.initializeWithData', function (event, applicationName, data) {
+                        makeScatterWithData(applicationName, oNavbarVo.getQueryStartTime(),
+                            oNavbarVo.getQueryEndTime(), oNavbarVo.getQueryPeriod(), oNavbarVo.getFilter(), null, null, data);
+                    });
+
+                    /**
+                     * scope event on scatter.showByNode
+                     */
+                    scope.$on('scatter.showByNode', function (event, node) {
+                        htLastNode = node;
+                        showScatterBy(node.id);
                     });
                 }
             };

@@ -79,6 +79,12 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
             oTimeSliderVo.setInnerFrom(lastFetchedTimestamp);
             $scope.$broadcast('timeSlider.setInnerFromTo', oTimeSliderVo);
 
+            if (angular.isDefined(mapData.applicationScatterScanResult)) {
+                angular.forEach(mapData.applicationScatterScanResult, function (val, key) {
+                    $scope.$broadcast('scatter.initializeWithData', key, val);
+                });
+            }
+
             // auto trying fetch
             if (mapData.applicationMapData.nodeDataArray.length === 0 && mapData.applicationMapData.linkDataArray.length === 0) {
                 $timeout(function () {
@@ -116,9 +122,9 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
         /**
          * scope event on serverMap.passingTransactionResponseToScatterChart
          */
-        $scope.$on('serverMap.passingTransactionResponseToScatterChart', function (event, node) {
-            $scope.$broadcast('scatter.initializeWithNode', node);
-        });
+//        $scope.$on('serverMap.passingTransactionResponseToScatterChart', function (event, node) {
+//            $scope.$broadcast('scatter.initializeWithData', node);
+//        });
 
         /**
          * scope event on serverMap.nodeClicked
@@ -131,7 +137,7 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
 
             if (node.isWas === true) {
                 $scope.hasScatter = true;
-                $scope.$broadcast('scatter.initializeWithNode', node);
+                $scope.$broadcast('scatter.showByNode', node);
             } else if (node.category === 'UNKNOWN_GROUP') {
                 oSidebarTitleVo
                     .setTitle('Unknown Group');
