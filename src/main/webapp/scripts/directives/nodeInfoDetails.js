@@ -37,6 +37,10 @@ pinpointApp
                     scope.showNodeResponseSummary = false;
                     scope.showNodeLoad = false;
                     scope.agentHistogram = false;
+                    scope.nodeOrderBy = 'count';
+                    scope.nodeOrderByNameClass = '';
+                    scope.nodeOrderByCountClass = 'glyphicon-sort-by-order-alt';
+                    scope.nodeOrderByDesc = true;
                     if (!scope.$$phase) {
                         scope.$digest();
                     }
@@ -263,6 +267,52 @@ pinpointApp
                         })
                     });
                     return parsedHistogram;
+                };
+
+                /**
+                 * scope node order by name
+                 */
+                scope.nodeOrderByName = function () {
+                    if (scope.nodeOrderBy === 'applicationName') {
+                        scope.nodeOrderByDesc = !scope.nodeOrderByDesc;
+                        if (scope.nodeOrderByNameClass === 'glyphicon-sort-by-alphabet-alt') {
+                            scope.nodeOrderByNameClass = 'glyphicon-sort-by-alphabet';
+                        } else {
+                            scope.nodeOrderByNameClass = 'glyphicon-sort-by-alphabet-alt';
+                        }
+                    } else {
+                        scope.nodeOrderByNameClass = 'glyphicon-sort-by-alphabet-alt';
+                        scope.nodeOrderByCountClass = '';
+                        scope.nodeOrderByDesc = true;
+                        scope.nodeOrderBy = 'applicationName';
+                    }
+                };
+
+                /**
+                 * scope node order by count
+                 */
+                scope.nodeOrderByCount = function () {
+                    if (scope.nodeOrderBy === 'count') {
+                        scope.nodeOrderByDesc = !scope.nodeOrderByDesc;
+                        if (scope.nodeOrderByCountClass === 'glyphicon-sort-by-order-alt') {
+                            scope.nodeOrderByCountClass = 'glyphicon-sort-by-order';
+                        } else {
+                            scope.nodeOrderByCountClass = 'glyphicon-sort-by-order-alt';
+                        }
+                    } else {
+                        scope.nodeOrderByCountClass = 'glyphicon-sort-by-order-alt';
+                        scope.nodeOrderByNameClass = '';
+                        scope.nodeOrderByDesc = true;
+                        scope.nodeOrderBy = 'count';
+                    }
+                };
+
+                /**
+                 * scope update node search
+                 * @param nodeSearch
+                 */
+                scope.updateNodeSearch = function (nodeSearch) {
+                    console.log('updateNodeSearch', nodeSearch);
                 };
 
                 /**

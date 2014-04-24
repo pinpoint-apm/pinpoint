@@ -2,9 +2,24 @@
 
     <div ng-if="unknownGroup">
 
-        <div class="panel panel-default" ng-repeat="node in unknownGroup | orderBy:'count':true">
+        <div style="padding-bottom:10px;">
+            <div class="col-md-7">
+                <div class="form-group input-group-sm has-feedback" style="margin-bottom:0;">
+                    <input type="text" class="form-control" ng-model="nodeSearch" ng-change="updateNodeSearch(nodeSearch)" placeholder="coming soon.">
+                    <span class="glyphicon glyphicon-search form-control-feedback" style="top:0;"></span>
+                </div>
+            </div>
+            <div class="cal-md-4">
+                <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-default" ng-click="nodeOrderByName()">Name <span class="glyphicon" ng-class="nodeOrderByNameClass"></span></button>
+                    <button type="button" class="btn btn-default" ng-click="nodeOrderByCount()">Count <span class="glyphicon" ng-class="nodeOrderByCountClass"></span></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default" ng-repeat="node in unknownGroup | orderBy:nodeOrderBy:nodeOrderByDesc">
             <div class="panel-heading">
-                {{node.applicationName}} <span class="badge">{{node.count}}</span>
+                {{node.applicationName}} <span class="badge" style="position:absolute;right:20px;">{{node.count | number}}</span>
             </div>
 
             <div ng-init="showNodeResponseSummary=false" class="panel-body summaryCharts_{{node.applicationName | applicationNameToClassName}}" style="position: relative; padding:0">
