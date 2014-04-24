@@ -681,11 +681,6 @@ var BigScatterChart = $.Class({
                     fOnSelect.call(self, htPosition, htXY);
                 }
             },
-//            onEnter: function (e) {
-//
-//                bGuideLineStart = true;
-//
-//            },
             onMove: function (e) {
                 if (!self.option('bUseMouseGuideLine')) {
                     return false;
@@ -700,13 +695,7 @@ var BigScatterChart = $.Class({
                     bGuideLineStart = false;
                     self._hideGuideLine();
                 }
-            },
-//            onLeave: function (e) {
-//                if (!bGuideLineStart) {
-//                    return false;
-//                }
-//
-//            }
+            }
         });
     },
 
@@ -738,11 +727,13 @@ var BigScatterChart = $.Class({
         var htOffset = this._welContainer.offset(),
             nPaddingTop = this.option('nPaddingTop'),
             nPaddingBottom = this.option('nPaddingBottom'),
+            nPaddingLeft = this.option('nPaddingLeft'),
+            nBubbleSize = this.option('nBubbleSize'),
             nHeight = this.option('nHeight');
         this._welXGuideNumber.css('left', nX - htOffset.left);
-        this._welXGuideNumber.find('span').text(new Date(this._parseMouseXToXData(nX - htOffset.left)).toString("HH:mm:ss"));
+        this._welXGuideNumber.find('span').text(new Date(this._parseMouseXToXData(nX - htOffset.left - nPaddingLeft - nBubbleSize)).toString("HH:mm:ss"));
         this._welYGuideNumber.css('top', nY - htOffset.top);
-        this._welYGuideNumber.find('span').text(this._addComma(this._parseMouseYToYData(nHeight - nPaddingBottom - (nY - htOffset.top))));
+        this._welYGuideNumber.find('span').text(this._addComma(this._parseMouseYToYData(nHeight - nPaddingBottom - nBubbleSize - (nY - htOffset.top))));
     },
 
     _hideGuideLine: function () {
