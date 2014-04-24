@@ -301,8 +301,8 @@ pinpointApp.directive('scatter',
                                 scatter : oScatter
                             };
                             element.append(target);
+                            target.hide();
                         }
-                        target.hide();
                     };
 
                     /**

@@ -130,7 +130,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                             }
                             oProgressBar.setLoading(50);
                             if (query.from === result.lastFetchedTimestamp) {
-                                scope.$emit('serverMap.allFetched');
+                                scope.$emit('serverMap.allFetched', result);
                             } else {
                                 htLastMapData.lastFetchedTimestamp = result.lastFetchedTimestamp - 1;
                                 scope.$emit('serverMap.fetched', htLastMapData.lastFetchedTimestamp, result);

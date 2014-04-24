@@ -7,7 +7,7 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
         var oNavbarVo, oTimeSliderVo;
 
         // define private variables of methods
-        var openFilteredMapWithFilterVo;
+        var openFilteredMapWithFilterVo, broadcastScatterScanResultToScatter;
 
         // initialize scope variables
         $scope.hasScatter = false;
@@ -55,6 +55,14 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
             $window.open(url, "");
         };
 
+        broadcastScatterScanResultToScatter = function (applicationScatterScanResult) {
+            if (angular.isDefined(applicationScatterScanResult)) {
+                angular.forEach(applicationScatterScanResult, function (val, key) {
+                    $scope.$broadcast('scatter.initializeWithData', key, val);
+                });
+            }
+        };
+
         /**
          * get info details class
          * @returns {string}
@@ -79,11 +87,7 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
             oTimeSliderVo.setInnerFrom(lastFetchedTimestamp);
             $scope.$broadcast('timeSlider.setInnerFromTo', oTimeSliderVo);
 
-            if (angular.isDefined(mapData.applicationScatterScanResult)) {
-                angular.forEach(mapData.applicationScatterScanResult, function (val, key) {
-                    $scope.$broadcast('scatter.initializeWithData', key, val);
-                });
-            }
+            broadcastScatterScanResultToScatter(mapData.applicationScatterScanResult);
 
             // auto trying fetch
             if (mapData.applicationMapData.nodeDataArray.length === 0 && mapData.applicationMapData.linkDataArray.length === 0) {
@@ -98,11 +102,13 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
         /**
          * scope event on serverMap. allFetched
          */
-        $scope.$on('serverMap.allFetched', function (event) {
+        $scope.$on('serverMap.allFetched', function (event, mapData) {
             oTimeSliderVo.setInnerFrom(oTimeSliderVo.getFrom());
             $scope.$broadcast('timeSlider.setInnerFromTo', oTimeSliderVo);
             $scope.$broadcast('timeSlider.changeMoreToDone');
             $scope.$broadcast('timeSlider.disableMore');
+
+            broadcastScatterScanResultToScatter(mapData.applicationScatterScanResult);
         });
 
         /**
