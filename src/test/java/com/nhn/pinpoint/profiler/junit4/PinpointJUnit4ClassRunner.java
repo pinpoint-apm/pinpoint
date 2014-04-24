@@ -56,7 +56,6 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 	}
 
 	private DefaultAgent createTestAgent() throws InitializationError {
-		System.setProperty("catalina.home", "test");
 		PLoggerFactory.initialize(new Slf4jLoggerBinder());
 		
 		ProfilerConfig profilerConfig = new ProfilerConfig();

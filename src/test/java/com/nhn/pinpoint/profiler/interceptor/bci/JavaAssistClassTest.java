@@ -82,7 +82,6 @@ public class JavaAssistClassTest {
     }
 
     private TestClassLoader getTestClassLoader() {
-        System.setProperty("catalina.home", "test");
         PLoggerFactory.initialize(new Slf4jLoggerBinder());
 
 
