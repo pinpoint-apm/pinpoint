@@ -27,7 +27,7 @@
     <logger name="com.nhn.pinpoint" additivity="false">
         <level value="DEBUG" />
         <appender-ref ref="console" />
-        <appender-ref ref="dailyRollingFile" />
+        <!--<appender-ref ref="dailyRollingFile" />-->
     </logger>
 
 

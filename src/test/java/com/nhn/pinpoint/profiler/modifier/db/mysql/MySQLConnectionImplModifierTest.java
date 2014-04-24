@@ -34,7 +34,6 @@ public class MySQLConnectionImplModifierTest {
 
     @Before
     public void setUp() throws Exception {
-        System.setProperty("catalina.home", "test");
         PLoggerFactory.initialize(new Slf4jLoggerBinder());
 
         ProfilerConfig profilerConfig = new ProfilerConfig();
