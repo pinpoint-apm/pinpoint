@@ -17,11 +17,8 @@ import com.nhn.pinpoint.bootstrap.logging.PLogger;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.bootstrap.sampler.Sampler;
-import com.nhn.pinpoint.bootstrap.util.NetworkUtils;
-import com.nhn.pinpoint.common.PinpointConstants;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.Version;
-import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.exception.PinpointException;
 import com.nhn.pinpoint.profiler.context.DefaultTraceContext;
 import com.nhn.pinpoint.profiler.context.SpanStorageFactory;
@@ -39,7 +36,6 @@ import com.nhn.pinpoint.profiler.sender.TcpDataSender;
 import com.nhn.pinpoint.profiler.sender.UdpDataSender;
 import com.nhn.pinpoint.profiler.util.ApplicationServerTypeResolver;
 import com.nhn.pinpoint.profiler.util.PreparedStatementUtils;
-import com.nhn.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.nhn.pinpoint.rpc.ClassPreLoader;
 import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 
@@ -113,10 +109,8 @@ public class DefaultAgent implements Agent {
         this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor);
         instrumentation.addTransformer(this.classFileTransformer);
 
-
-        // TODO 일단 임시로 호환성을 위해 agentid에 machinename을 넣도록 하자
-        // TODO 박스 하나에 서버 인스턴스를 여러개 실행할 때에 문제가 될 수 있음.
-        this.agentInformation = createAgentInformation(typeResolver.getServerType());
+        final AgentInformationFactory agentInformationFactory = new AgentInformationFactory();
+        this.agentInformation = agentInformationFactory.createAgentInformation(typeResolver.getServerType());
         logger.info("agentInformation:{}", agentInformation);
 
         this.tAgentInfo = createTAgentInfo();
@@ -158,17 +152,6 @@ public class DefaultAgent implements Agent {
         return classFileTransformer;
     }
 
-    private AgentInformation createAgentInformation(ServiceType serverType) {
-        if (serverType == null) {
-            throw new NullPointerException("serverType must not be null");
-        }
-        final String machineName = NetworkUtils.getHostName();
-        final String agentId = getId("pinpoint.agentId", machineName, PinpointConstants.AGENT_NAME_MAX_LEN);
-        final String applicationName = getId("pinpoint.applicationName", "UnknownApplicationName", PinpointConstants.APPLICATION_NAME_MAX_LEN);
-        final long startTime = RuntimeMXBeanUtils.getVmStartTime();
-        final int pid = RuntimeMXBeanUtils.getPid();
-        return new AgentInformation(agentId, applicationName, startTime, pid, machineName, serverType.getCode(), Version.VERSION);
-    }
 
 
     private void dumpSystemProperties() {
@@ -281,21 +264,6 @@ public class DefaultAgent implements Agent {
     protected DataSender createUdpDataSender(int port, String threadName, int writeQueueSize) {
         return new UdpDataSender(this.profilerConfig.getCollectorServerIp(), port, threadName, writeQueueSize);
     }
-
-    private String getId(String key, String defaultValue, int maxlen) {
-        String value = System.getProperty(key, defaultValue);
-        validateId(value, key, maxlen);
-        return value;
-    }
-
-    private void validateId(String id, String idName, int maxlen) {
-        // 에러 체크 로직을 bootclass 앞단으로 이동시킴.
-        byte[] bytes = BytesUtils.toBytes(id);
-        if (bytes.length > maxlen) {
-            logger.warn("{} is too long(1~24). value={}", idName, id);
-        }
-    }
-
 
     public void addConnector(String protocol, int port){
         this.serverInfo.addConnector(protocol, port);

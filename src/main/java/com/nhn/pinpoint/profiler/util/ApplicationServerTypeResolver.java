@@ -54,6 +54,9 @@ public class ApplicationServerTypeResolver {
                 resolveStandAlone();
                 logger.info("applicationServerDefaultType:{}", defaultType);
                 return true;
+            } else if(defaultType == ServiceType.TEST_STAND_ALONE) {
+                // testcase를 돌릴경우
+                logger.info("applicationServerDefaultType:{}", defaultType);
             } else {
                 logger.warn("Invalid Default ApplicationServiceType:{} ", defaultType);
                 return false;
