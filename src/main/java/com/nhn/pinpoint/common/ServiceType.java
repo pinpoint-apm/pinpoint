@@ -35,6 +35,8 @@ public enum ServiceType {
 
     // WAS류 1000번 부터 시작
     STAND_ALONE((short) 1000, "STAND_ALONE", false, true, false, HistogramSchema.NORMAL_SCHEMA),
+    // testcase를 돌릴때 사용하는 was로 정의 하자.
+    TEST_STAND_ALONE((short) 1005, "TEST_STAND_ALONE", false, true, false, HistogramSchema.NORMAL_SCHEMA),
     TOMCAT((short) 1010, "TOMCAT", false, true, false, HistogramSchema.NORMAL_SCHEMA),
     BLOC((short) 1020, "BLOC", false, true, false, HistogramSchema.NORMAL_SCHEMA),
 
