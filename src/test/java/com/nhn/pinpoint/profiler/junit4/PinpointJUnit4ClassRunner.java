@@ -60,14 +60,14 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 		
 		ProfilerConfig profilerConfig = new ProfilerConfig();
 		
-		String path = ProfilerConfig.class.getClassLoader().getResource("pinpoint.config").getPath();
+		String path = MockAgent.class.getClassLoader().getResource("pinpoint.config").getPath();
 		try {
 			profilerConfig.readConfigFile(path);
 		} catch (IOException e) {
 			throw new InitializationError("Unable to read pinpoint.config");
 		}
 		
-		profilerConfig.setApplicationServerType(ServiceType.STAND_ALONE);
+		profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE);
 		return new MockAgent("", new DummyInstrumentation(), profilerConfig);
 	}
 	

@@ -2,7 +2,6 @@ package com.nhn.pinpoint.profiler.interceptor.bci;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.DefaultAgent;
-import com.nhn.pinpoint.profiler.DummyInstrumentation;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -86,7 +85,7 @@ public class JavaAssistClassTest {
 
 
         ProfilerConfig profilerConfig = new ProfilerConfig();
-        profilerConfig.setApplicationServerType(ServiceType.STAND_ALONE);
+        profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE);
         DefaultAgent agent = new MockAgent("", profilerConfig);
 
         return new TestClassLoader(agent);

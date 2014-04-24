@@ -30,10 +30,10 @@ public class SqlClientImplTest {
 
         ProfilerConfig profilerConfig = new ProfilerConfig();
 
-        String path = ProfilerConfig.class.getClassLoader().getResource("pinpoint.config").getPath();
+        String path = MockAgent.class.getClassLoader().getResource("pinpoint.config").getPath();
         profilerConfig.readConfigFile(path);
 
-        profilerConfig.setApplicationServerType(ServiceType.STAND_ALONE);
+        profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE);
         DefaultAgent agent = new MockAgent("", new DummyInstrumentation(), profilerConfig);
         LOADER = new TestClassLoader(agent);
 
