@@ -252,7 +252,18 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
         if (angular.isDefined(node.timeSeriesHistogram)) {
             for (var key in node.timeSeriesHistogram) {
                 if (angular.isDefined(htLastMapData.applicationMapData.nodeDataArray[nodeKey].timeSeriesHistogram)) {
-                    htLastMapData.applicationMapData.nodeDataArray[nodeKey].timeSeriesHistogram[key].values = node.timeSeriesHistogram[key].values.concat(htLastMapData.applicationMapData.nodeDataArray[nodeKey].timeSeriesHistogram[key].values);
+                    var aTemp = [];
+                    outer:
+                    for (var innerKey in node.timeSeriesHistogram[key].values) {
+                        for (var innerInnerKey in htLastMapData.applicationMapData.nodeDataArray[nodeKey].timeSeriesHistogram[key].values) {
+                            if (htLastMapData.applicationMapData.nodeDataArray[nodeKey].timeSeriesHistogram[key].values[innerInnerKey][0] === node.timeSeriesHistogram[key].values[innerKey][0]) {
+                                htLastMapData.applicationMapData.nodeDataArray[nodeKey].timeSeriesHistogram[key].values[innerInnerKey][1] += node.timeSeriesHistogram[key].values[innerKey][1];
+                                continue outer;
+                            }
+                        }
+                        aTemp.push(node.timeSeriesHistogram[key].values[innerKey]);
+                    }
+                    htLastMapData.applicationMapData.nodeDataArray[nodeKey].timeSeriesHistogram[key].values = aTemp.concat(htLastMapData.applicationMapData.nodeDataArray[nodeKey].timeSeriesHistogram[key].values);
                 } else {
                     htLastMapData.applicationMapData.nodeDataArray[nodeKey].timeSeriesHistogram = node.timeSeriesHistogram;
                 }
