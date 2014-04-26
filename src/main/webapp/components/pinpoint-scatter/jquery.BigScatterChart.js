@@ -704,11 +704,12 @@ var BigScatterChart = $.Class({
             nPaddingLeft = this.option('nPaddingLeft'),
             nPaddingBottom = this.option('nPaddingBottom'),
             nPaddingRight = this.option('nPaddingRight'),
+            nBubbleSize = this.option('nBubbleSize'),
             htOffset = this._welContainer.offset(),
-            nXMin = htOffset.left + nPaddingLeft,
-            nXMax = htOffset.left + this._welContainer.width() - nPaddingRight,
-            nYMin = htOffset.top + nPaddingTop,
-            nYMax = htOffset.top + this._welContainer.height() - nPaddingBottom;
+            nXMin = htOffset.left + nPaddingLeft + nBubbleSize,
+            nXMax = htOffset.left + this._welContainer.width() - nPaddingRight - nBubbleSize,
+            nYMin = htOffset.top + nPaddingTop + nBubbleSize,
+            nYMax = htOffset.top + this._welContainer.height() - nPaddingBottom - nBubbleSize;
 
         if (nX >= nXMin && nX <= nXMax
             && nY >= nYMin && nY <= nYMax) {
