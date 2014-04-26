@@ -179,10 +179,10 @@ pinpointApp.directive('scatter',
                         options.nXMax = end;
 //                        options.sTitle = title;
                         options.fOnSelect = function (htPosition, htXY) {
-                            var transactions = {
-                                htXY: htXY,
-                                aTraces: []
-                            };
+//                            var transactions = {
+//                                htXY: htXY,
+//                                aTraces: []
+//                            };
                             
                             // by netspider
 //                            console.log(target, title, start, end, period, filter, w, h);

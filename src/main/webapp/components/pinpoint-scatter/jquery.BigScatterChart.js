@@ -1300,6 +1300,11 @@ var BigScatterChart = $.Class({
             htDataIndex = htDataSource.index,
             htDataType = htDataSource.type;
 
+        nXFrom = parseInt(nXFrom, 10);
+        nXTo = parseInt(nXTo, 10);
+        nYFrom = parseInt(nYFrom, 10);
+        nYTo = parseInt(nYTo, 10);
+
         var aVisibleType = [];
         _.each(this._htwelTypeLi, function (welTypeLi, sKey) {
             if (welTypeLi.hasClass('unchecked') === false) {
@@ -1386,6 +1391,11 @@ var BigScatterChart = $.Class({
             htDataSource = this.option('htDataSource'),
             htDataIndex = htDataSource.index,
             htDataType = htDataSource.type;
+
+        nXFrom = parseInt(nXFrom, 10);
+        nXTo = parseInt(nXTo, 10);
+        nYFrom = parseInt(nYFrom, 10);
+        nYTo = parseInt(nYTo, 10);
 
         var aVisibleType = [];
         _.each(this._htwelTypeLi, function (welTypeLi, sKey) {
