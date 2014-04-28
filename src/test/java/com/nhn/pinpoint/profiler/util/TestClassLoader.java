@@ -66,6 +66,7 @@ public class TestClassLoader extends Loader {
     private void addDefaultDelegateLoadingOf() {
         this.delegateLoadingOf("com.nhn.pinpoint.bootstrap.");
         this.delegateLoadingOf("com.nhn.pinpoint.common.");
+        this.delegateLoadingOf("com.nhn.pinpoint.profiler.context.");
 
     }
 

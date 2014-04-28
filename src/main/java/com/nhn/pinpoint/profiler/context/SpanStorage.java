@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class SpanStorage implements Storage {
 
-    private List<TSpanEvent> spanEventList = new ArrayList<TSpanEvent>(10);
+    protected List<TSpanEvent> spanEventList = new ArrayList<TSpanEvent>(10);
     private final DataSender dataSender;
 
     public SpanStorage(DataSender dataSender) {

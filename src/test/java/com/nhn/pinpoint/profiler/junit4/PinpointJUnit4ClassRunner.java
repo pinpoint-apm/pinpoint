@@ -3,6 +3,7 @@ package com.nhn.pinpoint.profiler.junit4;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -24,6 +25,8 @@ import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.profiler.DummyInstrumentation;
+import com.nhn.pinpoint.profiler.context.DefaultTrace;
+import com.nhn.pinpoint.profiler.context.Storage;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.nhn.pinpoint.profiler.util.MockAgent;
 import com.nhn.pinpoint.profiler.util.TestClassLoader;
@@ -100,25 +103,15 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 	@Override
 	protected void runChild(FrameworkMethod method, RunNotifier notifier) {
 		TraceContext traceContext = this.testAgent.getTraceContext();
-		boolean methodHasTraceSupport = hasTraceSupport(method);
-		if (methodHasTraceSupport) {
-			beginTracing(traceContext);
-		}
+		beginTracing(traceContext);
 		ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
 		try {
 			Thread.currentThread().setContextClassLoader(this.testClassLoader);
 			super.runChild(method, notifier);
 		} finally {
 			Thread.currentThread().setContextClassLoader(originalClassLoader);
-			if (methodHasTraceSupport) {
-				endTracing(traceContext);
-			}
+			endTracing(traceContext);
 		}
-	}
-	
-	// TODO check annotation and return accordingly
-	private boolean hasTraceSupport(FrameworkMethod method) {
-		return true;
 	}
 	
 	// TODO refine root trace parameters for test
@@ -141,6 +134,31 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 		}
 	}
 	
+	@Override
+	protected Statement methodInvoker(FrameworkMethod method, Object test) {
+		// TestContext의 baseTestClass는 BasePinpointTest으로 로딩되므로, 캐스팅해도 된다.
+		@SuppressWarnings("unchecked")
+		Class<BasePinpointTest> baseTestClass = (Class<BasePinpointTest>)this.testContext.getBaseTestClass();
+		if (baseTestClass.isInstance(test)) {
+			DefaultTrace currentTrace = (DefaultTrace)this.testAgent.getTraceContext().currentRawTraceObject();
+			Method[] methods = baseTestClass.getDeclaredMethods();
+			for (Method m : methods) {
+				if (m.getName().equals("setCurrentStorage")) {
+					try {
+						Storage readableStorage = currentTrace.getStorage();
+						m.setAccessible(true);
+						m.invoke(test, readableStorage);
+					} catch (IllegalAccessException e) {
+						throw new RuntimeException(e);
+					} catch (InvocationTargetException e) {
+						throw new RuntimeException(e);
+					}
+				}
+			}
+		}
+		return super.methodInvoker(method, test);
+	}
+
 	@Override
 	protected Statement methodBlock(FrameworkMethod frameworkMethod) {
 		try {

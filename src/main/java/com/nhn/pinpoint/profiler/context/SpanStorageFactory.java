@@ -7,7 +7,7 @@ import com.nhn.pinpoint.profiler.sender.DataSender;
  */
 public class SpanStorageFactory implements StorageFactory {
 
-    private final DataSender dataSender;
+    protected final DataSender dataSender;
 
     public SpanStorageFactory(DataSender dataSender) {
         if (dataSender == null) {

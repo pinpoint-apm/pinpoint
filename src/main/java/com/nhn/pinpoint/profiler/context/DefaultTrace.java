@@ -95,6 +95,10 @@ public final class DefaultTrace implements Trace {
     public void setStorage(Storage storage) {
         this.storage = storage;
     }
+    
+    public Storage getStorage() {
+		return this.storage;
+    }
 
     public short getSequence() {
         return sequence++;

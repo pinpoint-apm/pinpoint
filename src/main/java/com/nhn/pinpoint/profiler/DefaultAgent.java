@@ -239,7 +239,7 @@ public class DefaultAgent implements Agent {
         return traceContext;
     }
 
-    private StorageFactory createStorageFactory() {
+    protected StorageFactory createStorageFactory() {
         if (profilerConfig.isSamplingElapsedTimeBaseEnable()) {
             return new TimeBaseStorageFactory(this.spanDataSender, this.profilerConfig, this.agentInformation);
         } else {
@@ -264,6 +264,18 @@ public class DefaultAgent implements Agent {
     protected DataSender createUdpDataSender(int port, String threadName, int writeQueueSize) {
         return new UdpDataSender(this.profilerConfig.getCollectorServerIp(), port, threadName, writeQueueSize);
     }
+    
+	protected EnhancedDataSender getTcpDataSender() {
+		return tcpDataSender;
+	}
+
+	protected DataSender getStatDataSender() {
+		return statDataSender;
+	}
+
+	protected DataSender getSpanDataSender() {
+		return spanDataSender;
+	}
 
     public void addConnector(String protocol, int port){
         this.serverInfo.addConnector(protocol, port);

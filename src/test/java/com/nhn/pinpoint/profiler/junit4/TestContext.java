@@ -13,6 +13,7 @@ import com.nhn.pinpoint.profiler.util.TestClassLoader;
 public class TestContext {
 
 	private final TestClass testClass;
+	private final Object baseTestClass;
 	private final Object beforeClass;
 	private final Object afterClass;
 	
@@ -21,6 +22,7 @@ public class TestContext {
 		try {
 			Thread.currentThread().setContextClassLoader(testClassLoader);
 			this.testClass = new TestClass(testClassLoader.loadClass(clazz.getName()));
+			this.baseTestClass = testClassLoader.loadClass(BasePinpointTest.class.getName());
 			this.beforeClass = testClassLoader.loadClass(Before.class.getName());
 			this.afterClass = testClassLoader.loadClass(After.class.getName());
 		} finally {
@@ -29,14 +31,18 @@ public class TestContext {
 	}
 
 	public TestClass getTestClass() {
-		return testClass;
+		return this.testClass;
+	}
+	
+	public Object getBaseTestClass() {
+		return this.baseTestClass;
 	}
 
 	public Object getBeforeClass() {
-		return beforeClass;
+		return this.beforeClass;
 	}
 
 	public Object getAfterClass() {
-		return afterClass;
+		return this.afterClass;
 	}
 }
