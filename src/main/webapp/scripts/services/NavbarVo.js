@@ -159,7 +159,7 @@ pinpointApp.factory('NavbarVo', function () {
         this.autoCalcultateByQueryStartTimeAndQueryEndTime = function () {
             self._nQueryPeriod = self._nQueryEndTime - self._nQueryStartTime;
             self._nPeriod = self._nQueryPeriod / 1000 / 60;
-            self._sReadablePeriod = self._nQueryPeriod / 1000 + 's';
+            self._sReadablePeriod = self._nQueryPeriod / 1000 / 60 + 'm';
             self._sQueryEndDateTime = moment(self._nQueryEndTime).format(self._sDateTimeFormat);
             return self;
         };
