@@ -50,7 +50,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                     ];
                     scope.application = oNavbarVo.getApplication() || '';
                     scope.disableApplication = true;
-                    scope.period = oNavbarVo.getPeriod() || 20;
+                    scope.readablePeriod = oNavbarVo.getReadablePeriod() || '20m';
                     scope.queryEndTime = oNavbarVo.getQueryEndTime() || '';
 //                    $http.defaults.useXDomain = true;
 
@@ -72,7 +72,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                     $application = element.find('.application');
                     scope.application = oNavbarVo.getApplication() || '';
                     scope.applicationName = oNavbarVo.getApplicationName() || '';
-                    scope.period = oNavbarVo.getPeriod() || 20;
+                    scope.readablePeriod = oNavbarVo.getReadablePeriod() || '20m';
                     scope.queryEndTime = oNavbarVo.getQueryEndTime() || '';
 
                     initializeDateTimePicker();
@@ -173,11 +173,13 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                     }
                     oNavbarVo.setApplication(scope.application);
 
-                    if (scope.periodType === 'last' && scope.period) {
+                    if (scope.periodType === 'last' && scope.readablePeriod) {
                         getQueryEndTimeFromServer(function (currentServerTime) {
-                            oNavbarVo.setPeriod(scope.period);
-                            oNavbarVo.setQueryEndTime(currentServerTime);
-                            oNavbarVo.autoCalculateByQueryEndTimeAndPeriod();
+//                            oNavbarVo.setPeriod(scope.period);
+//                            oNavbarVo.setQueryEndTime(currentServerTime);
+                            oNavbarVo.setReadablePeriod(scope.readablePeriod);
+                            oNavbarVo.setQueryEndDateTime(moment(currentServerTime).format('YYYY-MM-DD-HH-mm-ss'));
+                            oNavbarVo.autoCalculateByQueryEndDateTimeAndReadablePeriod();
                             emitAsChanged();
                             setDateTime($fromPicker, oNavbarVo.getQueryStartTime());
                             setDateTime($toPicker, oNavbarVo.getQueryEndTime());
@@ -195,6 +197,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                  */
                 emitAsChanged = function () {
                     setPeriodTypeAsCurrent();
+                    console.log('emitAsChanged', oNavbarVo);
                     scope.$emit('navbar.changed', oNavbarVo);
                 };
 
@@ -339,11 +342,11 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
 
                 /**
                  * set period
-                 * @param period
+                 * @param readablePeriod
                  */
-                scope.setPeriod = function (period) {
+                scope.setPeriod = function (readablePeriod) {
                     scope.periodDelay = true;
-                    scope.period = period;
+                    scope.readablePeriod = readablePeriod;
                     broadcast();
                     $timeout(function () {
                         scope.periodDelay = false;
@@ -355,12 +358,12 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
 
                 /**
                  * get period class
-                 * @param period
+                 * @param readablePeriod
                  * @returns {string}
                  */
-                scope.getPeriodClass = function (period) {
+                scope.getPeriodClass = function (readablePeriod) {
                     var periodClass = '';
-                    if (scope.period === period) {
+                    if (scope.readablePeriod === readablePeriod) {
                         periodClass += 'btn-info';
                     }
 

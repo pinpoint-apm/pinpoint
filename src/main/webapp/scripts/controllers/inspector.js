@@ -17,16 +17,16 @@ pinpointApp.controller('InspectorCtrl', [ '$scope', '$timeout', '$routeParams', 
             if ($routeParams.application) {
                 oNavbarVo.setApplication($routeParams.application);
             }
-            if ($routeParams.period) {
-                oNavbarVo.setPeriod(Number($routeParams.period, 10));
+            if ($routeParams.readablePeriod) {
+                oNavbarVo.setReadablePeriod($routeParams.readablePeriod);
             }
-            if ($routeParams.queryEndTime) {
-                oNavbarVo.setQueryEndTime(Number($routeParams.queryEndTime, 10));
+            if ($routeParams.queryEndDateTime) {
+                oNavbarVo.setQueryEndDateTime($routeParams.queryEndDateTime);
             }
             if ($routeParams.agentId) {
                 oNavbarVo.setAgentId($routeParams.agentId);
             }
-            oNavbarVo.autoCalculateByQueryEndTimeAndPeriod();
+            oNavbarVo.autoCalculateByQueryEndDateTimeAndReadablePeriod();
             $scope.$emit('navbar.initializeWithStaticApplication', oNavbarVo);
             $scope.$emit('agentList.initialize', oNavbarVo);
         }, 100);

@@ -214,11 +214,11 @@ pinpointApp.directive('scatter',
 
                             var token = htLastNode.text + '|' + htXY.nXFrom + '|' + htXY.nXTo + '|' + htXY.nYFrom + '|' + htXY.nYTo;
                             $window.open('#/transactionList/' + oNavbarVo.getApplication() + '/' +
-                                oNavbarVo.getPeriod() + '/' + oNavbarVo.getQueryEndTime(), token);
+                                oNavbarVo.getReadablePeriod() + '/' + oNavbarVo.getQueryEndDateTime(), token);
                         };
                         options.fFullScreenMode = function () {
                             var url = '#/scatterFullScreenMode/' + htLastNode.text + '@' + htLastNode.serviceTypeCode + '/' +
-                                oNavbarVo.getPeriod() + '/' + oNavbarVo.getQueryEndTime();
+                                oNavbarVo.getReadablePeriod() + '/' + oNavbarVo.getQueryEndDateTime();
                             if (oNavbarVo.getFilter()) {
                                 url += '/' + oNavbarVo.getFilter();
                             }

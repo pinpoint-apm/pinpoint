@@ -8,19 +8,19 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
     $routeProvider.when('/main', {
         templateUrl: 'views/ready.html',
         controller: 'MainCtrl'
-    }).when('/main/:application/:period/:queryEndTime', {
+    }).when('/main/:application/:readablePeriod/:queryEndDateTime', {
         templateUrl: 'views/main.html',
         controller: 'MainCtrl'
-    }).when('/filteredMap/:application/:period/:queryEndTime/:filter', {
+    }).when('/filteredMap/:application/:readablePeriod/:queryEndDateTime/:filter', {
         templateUrl: 'views/filteredMap.html',
         controller: 'FilteredMapCtrl'
-    }).when('/inspecator/:pplication/:period/:queryEndTime', {
+    }).when('/inspecator/:pplication/:readablePeriod/:queryEndDateTime', {
         templateUrl: 'views/inspector.html',
         controller: 'InspectorCtrl'
-    }).when('/inspector/:application/:period/:queryEndTime/:agentId', {
+    }).when('/inspector/:application/:readablePeriod/:queryEndDateTime/:agentId', {
         templateUrl: 'views/inspector.html',
         controller: 'InspectorCtrl'
-    }).when('/transactionList/:application/:period/:queryEndTime', {
+    }).when('/transactionList/:application/:readablePeriod/:queryEndDateTime', {
         templateUrl: 'views/transactionList.html',
         controller: 'TransactionListCtrl'
     }).when('/transactionDetail', {
@@ -32,10 +32,10 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
     }).when('/transactionView/:agentId/:traceId/:focusTimestamp', {
         templateUrl: 'views/transactionView.html',
         controller: 'TransactionViewCtrl'
-    }).when('/scatterFullScreenMode/:application/:period/:queryEndTime', {
+    }).when('/scatterFullScreenMode/:application/:readablePeriod/:queryEndDateTime', {
         templateUrl: 'views/scatterFullScreenMode.html',
         controller: 'ScatterFullScreenModeCtrl'
-    }).when('/scatterFullScreenMode/:application/:period/:queryEndTime/:filter', {
+    }).when('/scatterFullScreenMode/:application/:readablePeriod/:queryEndDateTime/:filter', {
         templateUrl: 'views/scatterFullScreenMode.html',
         controller: 'ScatterFullScreenModeCtrl'
     }).otherwise({

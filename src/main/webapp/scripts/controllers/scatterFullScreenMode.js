@@ -20,13 +20,13 @@ pinpointApp.controller('ScatterFullScreenModeCtrl', [ '$scope', '$rootScope', '$
             if ($routeParams.application) {
                 oNavbarVo.setApplication($routeParams.application);
             }
-            if ($routeParams.period) {
-                oNavbarVo.setPeriod(Number($routeParams.period, 10));
+            if ($routeParams.readablePeriod) {
+                oNavbarVo.setReadablePeriod($routeParams.readablePeriod);
             }
-            if ($routeParams.queryEndTime) {
-                oNavbarVo.setQueryEndTime(Number($routeParams.queryEndTime, 10));
+            if ($routeParams.queryEndDateTime) {
+                oNavbarVo.setQueryEndDateTime($routeParams.queryEndDateTime);
             }
-            oNavbarVo.autoCalculateByQueryEndTimeAndPeriod();
+            oNavbarVo.autoCalculateByQueryEndDateTimeAndReadablePeriod();
             $scope.$emit('scatter.initialize', oNavbarVo);
             $scope.$emit('scatter.initializeWithNode', {applicationName: oNavbarVo.getApplicationName()}, 800, 600)
         }, 500);

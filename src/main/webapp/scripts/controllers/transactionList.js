@@ -72,8 +72,8 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
             return angular.isDefined($routeParams) &&
                 angular.isDefined($parentParams) &&
                 angular.equals($routeParams.application, $parentParams.application) &&
-                angular.equals($routeParams.period, $parentParams.period) &&
-                angular.equals($routeParams.queryEndTime, $parentParams.queryEndTime);
+                angular.equals($routeParams.readablePeriod, $parentParams.readablePeriod) &&
+                angular.equals($routeParams.queryEndDateTime, $parentParams.queryEndDateTime);
         };
 
         /**

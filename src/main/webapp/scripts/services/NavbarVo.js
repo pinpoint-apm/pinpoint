@@ -13,6 +13,9 @@ pinpointApp.factory('NavbarVo', function () {
         this._nQueryPeriod = false;
         this._nQueryStartTime = false;
 
+        this._sReadablePeriod = false;
+        this._sQueryEndDateTime = false;
+
         this.setApplication = function (application) {
             if (angular.isString(application) && application.indexOf('@') > 0) {
                 self._sApplication = application;
@@ -93,6 +96,58 @@ pinpointApp.factory('NavbarVo', function () {
             return self._sAgentId;
         };
 
+        this.setReadablePeriod = function (readablePeriod) {
+            var regex = /^(\d)+(s|m|h|d|w|M|y)$/,
+                match = regex.exec(readablePeriod);
+            if (match) {
+                self._sReadablePeriod = readablePeriod;
+                var period = parseInt(readablePeriod, 10);
+                switch (match[2]) {
+                    case 'm':
+                        self.setPeriod(period * 60);
+                        break;
+                    case 'h':
+                        self.setPeriod(period * 60 * 60);
+                        break;
+                    case 'd':
+                        self.setPeriod(period * 60 * 60 * 24);
+                        break;
+                    case 'w':
+                        self.setPeriod(period * 60 * 60 * 24 * 7);
+                        break;
+                    case 'M':
+                        self.setPeriod(period * 60 * 60 * 24 * 30);
+                        break;
+                    case 'y':
+                        self.setPeriod(period * 60 * 60 * 24 * 30 * 12);
+                        break;
+                    default:
+                        self.setPeriod(period);
+                        break;
+                }
+            }
+            return self;
+        };
+        this.getReadablePeriod = function () {
+            return self._sReadablePeriod;
+        };
+
+        this.setQueryEndDateTime = function (queryEndDateTime) {
+            var regex = /^(19[7-9][0-9]|20\d{2})-(0[0-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])-(0[0-9]|1[0-9]|2[0-3])-([0-5][0-9])-([0-5][0-9])$/;
+            if (regex.test(queryEndDateTime)) {
+                self._sQueryEndDateTime = queryEndDateTime;
+                self.setQueryEndTime(self._parseQueryEndDateTimeToTimestamp(queryEndDateTime));
+            }
+            return self;
+        };
+        this.getQueryEndDateTime = function () {
+            return self._sQueryEndDateTime;
+        };
+
+        this._parseQueryEndDateTimeToTimestamp = function (queryEndDateTime) {
+            return moment(queryEndDateTime, 'YYYY-MM-DD-HH-mm-ss').valueOf();
+        };
+
         this.autoCalculateByQueryEndTimeAndPeriod = function () {
             self._nQueryPeriod = self._nPeriod  * 1000 * 60;
             self._nQueryStartTime = self._nQueryEndTime - self._nQueryPeriod;
@@ -102,6 +157,14 @@ pinpointApp.factory('NavbarVo', function () {
         this.autoCalcultateByQueryStartTimeAndQueryEndTime = function () {
             self._nQueryPeriod = self._nQueryEndTime - self._nQueryStartTime;
             self._nPeriod = self._nQueryPeriod / 1000 / 60;
+            self._sReadablePeriod = self._nQueryPeriod / 1000 + 's';
+            self._sQueryEndDateTime = moment(self._nQueryEndTime).format('YYYY-MM-DD-HH-mm-ss');
+            return self;
+        };
+
+        this.autoCalculateByQueryEndDateTimeAndReadablePeriod = function () {
+            self._nQueryPeriod = self._nPeriod  * 1000;
+            self._nQueryStartTime = self._nQueryEndTime - self._nQueryPeriod;
             return self;
         };
     };

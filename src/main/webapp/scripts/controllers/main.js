@@ -21,17 +21,18 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
             if ($routeParams.application) {
                 oNavbarVo.setApplication($routeParams.application);
             }
-            if ($routeParams.period) {
-                oNavbarVo.setPeriod(Number($routeParams.period, 10));
+            if ($routeParams.readablePeriod) {
+                oNavbarVo.setReadablePeriod($routeParams.readablePeriod);
             }
-            if ($routeParams.queryEndTime) {
-                oNavbarVo.setQueryEndTime(Number($routeParams.queryEndTime, 10));
+            if ($routeParams.queryEndDateTime) {
+                oNavbarVo.setQueryEndDateTime($routeParams.queryEndDateTime);
             }
             $window.$routeParams = $routeParams;
-            oNavbarVo.autoCalculateByQueryEndTimeAndPeriod();
+            oNavbarVo.autoCalculateByQueryEndDateTimeAndReadablePeriod();
             $scope.$broadcast('navbar.initialize', oNavbarVo);
             $scope.$broadcast('scatter.initialize', oNavbarVo);
             $scope.$broadcast('serverMap.initialize', oNavbarVo);
+
         }, 500);
 
 
@@ -49,8 +50,8 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
          * change location
          */
         changeLocation = function () {
-            var url = '/' + getFirstPathOfLocation() + '/' + oNavbarVo.getApplication() + '/' + oNavbarVo.getPeriod() +
-                '/' + oNavbarVo.getQueryEndTime();
+            var url = '/' + getFirstPathOfLocation() + '/' + oNavbarVo.getApplication() + '/' + oNavbarVo.getReadablePeriod() +
+                '/' + oNavbarVo.getQueryEndDateTime();
             if (location.path() !== url) {
                 if (location.path() === '/main') {
                     location.path(url).replace();
@@ -59,8 +60,8 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
                 }
                 $window.$routeParams = {
                     application: oNavbarVo.getApplication(),
-                    period: (oNavbarVo.getPeriod()).toString(),
-                    queryEndTime: (oNavbarVo.getQueryEndTime()).toString()
+                    readablePeriod: (oNavbarVo.getReadablePeriod()).toString(),
+                    queryEndDateTime: (oNavbarVo.getQueryEndDateTime()).toString()
                 };
                 if (!$scope.$$phase) {
                     $scope.$apply();
