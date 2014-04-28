@@ -59,6 +59,7 @@ public class FilteredMapController {
 											@RequestParam("to") long to,
                                             @RequestParam("originTo") long originTo,
 											@RequestParam(value = "filter", required = false) String filterText,
+											@RequestParam(value = "hint", required = false) String filterHint,
 											@RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
         limit = LimitUtils.checkRange(limit);
         final Filter filter = filterBuilder.build(filterText);
@@ -99,13 +100,14 @@ public class FilteredMapController {
 			@RequestParam("serviceType") short serviceType,
 			@RequestParam("period") long period,
 			@RequestParam(value = "filter", required = false) String filterText,
+			@RequestParam(value = "hint", required = false) String filterHint,
 			@RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
         limit = LimitUtils.checkRange(limit);
 
 		long to = TimeUtils.getDelayLastTime();
 		long from = to - period;
         // TODO 실시간 조회가 현재 disable이므로 to to로 수정하였음. 이것도 추가적으로 @RequestParam("originTo")가 필요할수 있음.
-		return getFilteredServerMapData(applicationName, serviceType, from, to, to, filterText, limit);
+		return getFilteredServerMapData(applicationName, serviceType, from, to, to, filterText, filterHint, limit);
 	}
 
 
