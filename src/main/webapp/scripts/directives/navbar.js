@@ -197,7 +197,6 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                  */
                 emitAsChanged = function () {
                     setPeriodTypeAsCurrent();
-                    console.log('emitAsChanged', oNavbarVo);
                     scope.$emit('navbar.changed', oNavbarVo);
                 };
 
