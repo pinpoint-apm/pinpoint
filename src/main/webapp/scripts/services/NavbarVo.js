@@ -16,6 +16,8 @@ pinpointApp.factory('NavbarVo', function () {
         this._sReadablePeriod = false;
         this._sQueryEndDateTime = false;
 
+        this._sDateTimeFormat = 'YYYY-MM-DD-HH-mm-ss';
+
         this.setApplication = function (application) {
             if (angular.isString(application) && application.indexOf('@') > 0) {
                 self._sApplication = application;
@@ -145,7 +147,7 @@ pinpointApp.factory('NavbarVo', function () {
         };
 
         this._parseQueryEndDateTimeToTimestamp = function (queryEndDateTime) {
-            return moment(queryEndDateTime, 'YYYY-MM-DD-HH-mm-ss').valueOf();
+            return moment(queryEndDateTime, self._sDateTimeFormat).valueOf();
         };
 
         this.autoCalculateByQueryEndTimeAndPeriod = function () {
@@ -158,7 +160,7 @@ pinpointApp.factory('NavbarVo', function () {
             self._nQueryPeriod = self._nQueryEndTime - self._nQueryStartTime;
             self._nPeriod = self._nQueryPeriod / 1000 / 60;
             self._sReadablePeriod = self._nQueryPeriod / 1000 + 's';
-            self._sQueryEndDateTime = moment(self._nQueryEndTime).format('YYYY-MM-DD-HH-mm-ss');
+            self._sQueryEndDateTime = moment(self._nQueryEndTime).format(self._sDateTimeFormat);
             return self;
         };
 
