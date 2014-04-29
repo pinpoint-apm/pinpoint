@@ -14,7 +14,6 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
         this._sResponseTo = 'max';
         this._bIncludeException = false;
         this._sRequestUrlPattern = '';
-        this._aHint = false;
 
         this.setMainApplication = function (mainApplication) {
             if (angular.isString(mainApplication)) {
@@ -145,19 +144,6 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
             return self._sRequestUrlPattern;
         };
 
-        this.setHint = function (hint) {
-            if (angular.isArray(hint)) {
-                self._aHint = hint;
-            }
-            return self;
-        };
-        this.getHint = function () {
-            return self._aHint;
-        };
-        this.getHintAsString = function () {
-            return JSON.stringify(self._aHint);
-        };
-
         this.toJson = function () {
             var filter = {
                 fa: self._sFromApplication,
@@ -176,11 +162,7 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
             if (self._sRequestUrlPattern) {
                 filter.url = self._sRequestUrlPattern;
             }
-
-            return {
-                f: filter,
-                h: self.getHint()
-            };
+            return filter;
         };
 
 

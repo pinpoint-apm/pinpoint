@@ -21,17 +21,17 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
             if ($routeParams.application) {
                 oNavbarVo.setApplication($routeParams.application);
             }
-            if ($routeParams.readablePeriod) {
-                oNavbarVo.setReadablePeriod($routeParams.readablePeriod);
+            if ($routeParams.period) {
+                oNavbarVo.setPeriod(Number($routeParams.period, 10));
             }
-            if ($routeParams.queryEndDateTime) {
-                oNavbarVo.setQueryEndDateTime($routeParams.queryEndDateTime);
+            if ($routeParams.queryEndTime) {
+                oNavbarVo.setQueryEndTime(Number($routeParams.queryEndTime, 10));
             }
             if ($routeParams.filter) {
                 oNavbarVo.setFilter($routeParams.filter);
             }
             $window.$routeParams = $routeParams;
-            oNavbarVo.autoCalculateByQueryEndDateTimeAndReadablePeriod();
+            oNavbarVo.autoCalculateByQueryEndTimeAndPeriod();
 
             oTimeSliderVo = new TimeSliderVo()
                 .setFrom(oNavbarVo.getQueryStartTime())

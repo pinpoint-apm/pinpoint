@@ -69,8 +69,8 @@ pinpointApp.factory('filteredMapUtil', [ 'filterConfig', 'encodeURIComponentFilt
             getFilteredMapUrlWithFilterVo: function (oServerMapFilterVo, oNavbarVo) {
                 var newFilter = this.mergeFilters(oServerMapFilterVo, oNavbarVo),
                     mainApplication = oServerMapFilterVo.getMainApplication() + '@' + oServerMapFilterVo.getMainServiceTypeCode(),
-                    url = '#/filteredMap/' + mainApplication + '/' + oNavbarVo.getReadablePeriod() + '/' +
-                        oNavbarVo.getQueryEndDateTime() + '/' + encodeURIComponentFilter(JSON.stringify(newFilter));
+                    url = '#/filteredMap/' + mainApplication + '/' + oNavbarVo.getPeriod() + '/' +
+                        oNavbarVo.getQueryEndTime() + '/' + encodeURIComponentFilter(JSON.stringify(newFilter));
                 return url;
             },
 
@@ -89,8 +89,8 @@ pinpointApp.factory('filteredMapUtil', [ 'filterConfig', 'encodeURIComponentFilt
                 if (fst === 'USER') {
                     fa = 'USER';
                 }
-                if (angular.isArray(filters.f)) {
-                    angular.forEach(filters.f, function(filter, index) {
+                if (angular.isArray(filters)) {
+                    angular.forEach(filters, function(filter, index) {
                         var oServerMapFilterVo = new ServerMapFilterVo(filter);
                         if (fa === oServerMapFilterVo.getFromApplication() &&
                             ta === oServerMapFilterVo.getToApplication() &&
