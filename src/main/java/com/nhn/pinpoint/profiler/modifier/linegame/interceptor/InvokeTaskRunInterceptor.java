@@ -64,11 +64,18 @@ public class InvokeTaskRunInterceptor implements SimpleAroundInterceptor, ByteCo
 			org.jboss.netty.channel.ChannelHandlerContext channelHandlerContext = getChannelHandlerContext.invoke(target);
 			org.jboss.netty.channel.MessageEvent e = getMessageEvent.invoke(target);
 
-			if (channelHandlerContext == null || e == null) {
+			if (channelHandlerContext == null) {
+				logger.debug("ChannelHandlerContext is null.");
+				return;
+			}
+
+			if (e == null) {
+				logger.debug("MessageEvent is null.");
 				return;
 			}
 
 			if (!(e.getMessage() instanceof org.jboss.netty.handler.codec.http.HttpRequest)) {
+				logger.debug("MessageEvent is not instance of org.jboss.netty.handler.codec.http.HttpRequest. {}", e.getMessage());
 				return;
 			}
 
@@ -76,6 +83,7 @@ public class InvokeTaskRunInterceptor implements SimpleAroundInterceptor, ByteCo
 
 			Channel channel = e.getChannel();
 			if (channel == null) {
+				logger.debug("Channel is null.");
 				return;
 			}
 
@@ -201,6 +209,10 @@ public class InvokeTaskRunInterceptor implements SimpleAroundInterceptor, ByteCo
 			trace.recordApi(descriptor);
 			trace.recordException(result);
 			trace.markAfterTime();
+		} catch (Throwable e) {
+			if (logger.isWarnEnabled()) {
+				logger.warn("com/linecorp/games/common/baseFramework/handlers/HttpCustomServerHandler$InvokeTask.run() trace end fail. Caused:{}", e.getMessage(), e);
+			}
 		} finally {
 			trace.traceRootBlockEnd();
 		}
