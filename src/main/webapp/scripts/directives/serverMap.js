@@ -395,6 +395,10 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         .setFromServiceType(htLastLink.fromNode.category)
                         .setToApplication(htLastLink.toNode.text)
                         .setToServiceType(htLastLink.toNode.category);
+
+                    if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {
+                        oServerMapFilterVo.setHint(htLastLink.filterTargetRpcList);
+                    }
                     scope.$broadcast('serverMap.openFilteredMap', oServerMapFilterVo);
                     reset();
                 };
@@ -483,7 +487,6 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  */
                 scope.passingTransactionMap = function () {
                     var oServerMapFilterVo = new ServerMapFilterVo();
-                    console.log('htLastLink', htLastLink);
                     oServerMapFilterVo
                         .setMainApplication(htLastLink.filterApplicationName)
                         .setMainServiceTypeCode(htLastLink.filterApplicationServiceTypeCode)
@@ -495,6 +498,10 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         .setResponseTo(scope.responseTime.to)
                         .setIncludeException(scope.includeFailed)
                         .setRequestUrlPattern($base64.encode(scope.urlPattern));
+
+                    if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {
+                        oServerMapFilterVo.setHint(htLastLink.filterTargetRpcList);
+                    }
                     scope.$broadcast('serverMap.openFilteredMap', oServerMapFilterVo);
                     reset();
                 };

@@ -89,8 +89,8 @@ pinpointApp.factory('filteredMapUtil', [ 'filterConfig', 'encodeURIComponentFilt
                 if (fst === 'USER') {
                     fa = 'USER';
                 }
-                if (angular.isArray(filters)) {
-                    angular.forEach(filters, function(filter, index) {
+                if (angular.isArray(filters.f)) {
+                    angular.forEach(filters.f, function(filter, index) {
                         var oServerMapFilterVo = new ServerMapFilterVo(filter);
                         if (fa === oServerMapFilterVo.getFromApplication() &&
                             ta === oServerMapFilterVo.getToApplication() &&

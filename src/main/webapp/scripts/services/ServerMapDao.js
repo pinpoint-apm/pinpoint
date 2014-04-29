@@ -173,7 +173,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
         var filters = JSON.parse(filterText),
             aFilter = [];
 
-        angular.forEach(filters, function (filter) {
+        angular.forEach(filters.f, function (filter) {
             aFilter.push({
                 fromCategory: filter.fst,
                 fromText: filter.fa,
