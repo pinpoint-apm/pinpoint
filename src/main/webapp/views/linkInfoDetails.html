@@ -3,13 +3,13 @@
     <div ng-if="linkCategory == 'UnknownLinkInfoBox'">
 
         <div style="padding-bottom:10px;">
-            <div class="col-md-7">
+            <div style="float:left;width:265px;padding-right:5px">
                 <div class="form-group input-group-sm has-feedback" style="margin-bottom:0;">
                     <input type="text" class="form-control" ng-model="linkSearch" ng-change="updateLinkSearch(linkSearch)" placeholder="coming soon.">
                     <span class="glyphicon glyphicon-search form-control-feedback" style="top:0;"></span>
                 </div>
             </div>
-            <div class="cal-md-4">
+            <div>
                 <div class="btn-group btn-group-sm">
                     <button type="button" class="btn btn-default" ng-click="linkOrderByName()">Name <span class="glyphicon" ng-class="linkOrderByNameClass"></span></button>
                     <button type="button" class="btn btn-default" ng-click="linkOrderByCount()">Count <span class="glyphicon" ng-class="linkOrderByCountClass"></span></button>
