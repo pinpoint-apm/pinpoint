@@ -27,8 +27,8 @@ pinpointApp.constant('serverMapConfig', {
     }
 });
 
-pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts', 'ProgressBar', 'SidebarTitleVo', '$filter', 'ServerMapFilterVo', 'encodeURIComponentFilter', 'filteredMapUtil', '$base64', '$timeout',
-    function (cfg, ServerMapDao, Alerts, ProgressBar, SidebarTitleVo, $filter, ServerMapFilterVo, encodeURIComponentFilter, filteredMapUtil, $base64, $timeout) {
+pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts', 'ProgressBar', 'SidebarTitleVo', '$filter', 'ServerMapFilterVo', 'encodeURIComponentFilter', 'filteredMapUtil', '$base64', 'ServerMapHintVo',
+    function (cfg, ServerMapDao, Alerts, ProgressBar, SidebarTitleVo, $filter, ServerMapFilterVo, encodeURIComponentFilter, filteredMapUtil, $base64, ServerMapHintVo) {
         return {
             restrict: 'EA',
             replace: true,
@@ -398,7 +398,12 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         .setToApplication(htLastLink.toNode.text)
                         .setToServiceType(htLastLink.toNode.category);
 
-                    scope.$broadcast('serverMap.openFilteredMap', oServerMapFilterVo, htLastLink.filterTargetRpcList);
+                    var oServerMapHintVo = new ServerMapHintVo();
+                    if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {
+                        oServerMapHintVo.setHint(htLastLink.toNode.text, htLastLink.filterTargetRpcList)
+                    }
+
+                    scope.$broadcast('serverMap.openFilteredMap', oServerMapFilterVo, oServerMapHintVo);
                     reset();
                 };
 
@@ -498,7 +503,11 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         .setIncludeException(scope.includeFailed)
                         .setRequestUrlPattern($base64.encode(scope.urlPattern));
 
-                    scope.$broadcast('serverMap.openFilteredMap', oServerMapFilterVo, htLastLink.filterTargetRpcList);
+                    var oServerMapHintVo = new ServerMapHintVo();
+                    if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {
+                        oServerMapHintVo.setHint(htLastLink.toNode.text, htLastLink.filterTargetRpcList)
+                    }
+                    scope.$broadcast('serverMap.openFilteredMap', oServerMapFilterVo, oServerMapHintVo);
                     reset();
                 };
 

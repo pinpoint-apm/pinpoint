@@ -72,10 +72,10 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
         /**
          * open filtered map with filter Vo
          * @param oServerMapFilterVo
-         * @param filterTargetRpcList
+         * @param oServerMapHintVo
          */
-        openFilteredMapWithFilterVo = function (oServerMapFilterVo, filterTargetRpcList) {
-            var url = filteredMapUtil.getFilteredMapUrlWithFilterVo(oNavbarVo, oServerMapFilterVo, filterTargetRpcList);
+        openFilteredMapWithFilterVo = function (oServerMapFilterVo, oServerMapHintVo) {
+            var url = filteredMapUtil.getFilteredMapUrlWithFilterVo(oNavbarVo, oServerMapFilterVo, oServerMapHintVo);
             console.log('url', url);
             $window.open(url, "");
         };
@@ -183,22 +183,22 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
         /**
          * scope event on serverMap.openFilteredMap
          */
-        $scope.$on('serverMap.openFilteredMap', function (event, oServerMapFilterVo, filterTargetRpcList) {
-            openFilteredMapWithFilterVo(oServerMapFilterVo, filterTargetRpcList);
+        $scope.$on('serverMap.openFilteredMap', function (event, oServerMapFilterVo, oServerMapHintVo) {
+            openFilteredMapWithFilterVo(oServerMapFilterVo, oServerMapHintVo);
         });
 
         /**
          * scope event on serverMap.openFilteredMap
          */
-        $scope.$on('linkInfoDetails.openFilteredMap', function (event, oServerMapFilterVo, filterTargetRpcList) {
-            openFilteredMapWithFilterVo(oServerMapFilterVo, filterTargetRpcList);
+        $scope.$on('linkInfoDetails.openFilteredMap', function (event, oServerMapFilterVo, oServerMapHintVo) {
+            openFilteredMapWithFilterVo(oServerMapFilterVo, oServerMapHintVo);
         });
 
         /**
          * scope event on linkInfoDetails.ResponseSummary.barClicked
          */
-        $scope.$on('linkInfoDetails.ResponseSummary.barClicked', function (event, oServerMapFilterVo, filterTargetRpcList) {
-            openFilteredMapWithFilterVo(oServerMapFilterVo, filterTargetRpcList);
+        $scope.$on('linkInfoDetails.ResponseSummary.barClicked', function (event, oServerMapFilterVo, oServerMapHintVo) {
+            openFilteredMapWithFilterVo(oServerMapFilterVo, oServerMapHintVo);
         });
 
         /**
