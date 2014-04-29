@@ -21,17 +21,20 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
             if ($routeParams.application) {
                 oNavbarVo.setApplication($routeParams.application);
             }
-            if ($routeParams.period) {
-                oNavbarVo.setPeriod(Number($routeParams.period, 10));
+            if ($routeParams.readablePeriod) {
+                oNavbarVo.setReadablePeriod($routeParams.readablePeriod);
             }
-            if ($routeParams.queryEndTime) {
-                oNavbarVo.setQueryEndTime(Number($routeParams.queryEndTime, 10));
+            if ($routeParams.queryEndDateTime) {
+                oNavbarVo.setQueryEndDateTime($routeParams.queryEndDateTime);
             }
             if ($routeParams.filter) {
                 oNavbarVo.setFilter($routeParams.filter);
             }
+            if ($routeParams.hint) {
+                oNavbarVo.setHint($routeParams.hint);
+            }
             $window.$routeParams = $routeParams;
-            oNavbarVo.autoCalculateByQueryEndTimeAndPeriod();
+            oNavbarVo.autoCalculateByQueryEndDateTimeAndReadablePeriod();
 
             oTimeSliderVo = new TimeSliderVo()
                 .setFrom(oNavbarVo.getQueryStartTime())
@@ -49,9 +52,10 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
         /**
          * open filtered map with filterVo
          * @param filterDataSet
+         * @param filterTargetRpcList
          */
-        openFilteredMapWithFilterVo = function (oServerMapFilterVo) {
-            var url = filteredMapUtil.getFilteredMapUrlWithFilterVo(oServerMapFilterVo, oNavbarVo);
+        openFilteredMapWithFilterVo = function (oServerMapFilterVo, filterTargetRpcList) {
+            var url = filteredMapUtil.getFilteredMapUrlWithFilterVo(oNavbarVo, oServerMapFilterVo, filterTargetRpcList);
             $window.open(url, "");
         };
 
@@ -196,22 +200,22 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
         /**
          * scope event on serverMap.openFilteredMap
          */
-        $scope.$on('serverMap.openFilteredMap', function (event, oServerMapFilterVo) {
-            openFilteredMapWithFilterVo(oServerMapFilterVo);
+        $scope.$on('serverMap.openFilteredMap', function (event, oServerMapFilterVo, filterTargetRpcList) {
+            openFilteredMapWithFilterVo(oServerMapFilterVo, filterTargetRpcList);
         });
 
         /**
          * scope event on serverMap.openFilteredMap
          */
-        $scope.$on('linkInfoDetails.openFilteredMap', function (event, oServerMapFilterVo) {
-            openFilteredMapWithFilterVo(oServerMapFilterVo);
+        $scope.$on('linkInfoDetails.openFilteredMap', function (event, oServerMapFilterVo, filterTargetRpcList) {
+            openFilteredMapWithFilterVo(oServerMapFilterVo, filterTargetRpcList);
         });
 
         /**
          * scope event on linkInfoDetails.ResponseSummary.barClicked
          */
-        $scope.$on('linkInfoDetails.ResponseSummary.barClicked', function (event, oServerMapFilterVo) {
-            openFilteredMapWithFilterVo(oServerMapFilterVo);
+        $scope.$on('linkInfoDetails.ResponseSummary.barClicked', function (event, oServerMapFilterVo, filterTargetRpcList) {
+            openFilteredMapWithFilterVo(oServerMapFilterVo, filterTargetRpcList);
         });
 
         /**

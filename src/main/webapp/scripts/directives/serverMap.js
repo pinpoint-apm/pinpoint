@@ -97,11 +97,12 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * @param to
                  * @param period
                  * @param filterText
+                 * @parma hintText
                  * @param mergeUnknowns
                  * @param linkRouting
                  * @param linkCurve
                  */
-                showServerMap = function (applicationName, serviceType, to, period, filterText, mergeUnknowns, linkRouting, linkCurve) {
+                showServerMap = function (applicationName, serviceType, to, period, filterText, hintText, mergeUnknowns, linkRouting, linkCurve) {
                     oProgressBar.startLoading();
                     oAlert.hideError();
                     oAlert.hideWarning();
@@ -118,7 +119,8 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         to: to,
                         originTo: scope.oNavbarVo.getQueryEndTime(),
                         period: period,
-                        filter: encodeURIComponentFilter(filterText)
+                        filter: encodeURIComponentFilter(filterText),
+                        hint: hintText ? encodeURIComponentFilter(hintText) : false
                     };
 
                     if (filterText) {
@@ -396,10 +398,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         .setToApplication(htLastLink.toNode.text)
                         .setToServiceType(htLastLink.toNode.category);
 
-                    if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {
-                        oServerMapFilterVo.setHint(htLastLink.filterTargetRpcList);
-                    }
-                    scope.$broadcast('serverMap.openFilteredMap', oServerMapFilterVo);
+                    scope.$broadcast('serverMap.openFilteredMap', oServerMapFilterVo, htLastLink.filterTargetRpcList);
                     reset();
                 };
 
@@ -499,10 +498,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         .setIncludeException(scope.includeFailed)
                         .setRequestUrlPattern($base64.encode(scope.urlPattern));
 
-                    if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {
-                        oServerMapFilterVo.setHint(htLastLink.filterTargetRpcList);
-                    }
-                    scope.$broadcast('serverMap.openFilteredMap', oServerMapFilterVo);
+                    scope.$broadcast('serverMap.openFilteredMap', oServerMapFilterVo, htLastLink.filterTargetRpcList);
                     reset();
                 };
 
@@ -567,14 +563,14 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     scope.bShowServerMapStatus = true;
                     bUseLinkContextMenu = bUseBackgroundContextMenu = true;
                     bUseNodeContextMenu = false;
-                    showServerMap(navbarVo.getApplicationName(), navbarVo.getServiceType(), navbarVo.getQueryEndTime(), navbarVo.getQueryPeriod(), navbarVo.getFilter(), scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
+                    showServerMap(navbarVo.getApplicationName(), navbarVo.getServiceType(), navbarVo.getQueryEndTime(), navbarVo.getQueryPeriod(), navbarVo.getFilter(), navbarVo.getHint(), scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
                 });
 
                 /**
                  * scope event on serverMap.fetch
                  */
                 scope.$on('serverMap.fetch', function (event, queryPeriod, queryEndTime) {
-                    showServerMap(scope.oNavbarVo.getApplicationName(), scope.oNavbarVo.getServiceType(), queryEndTime, queryPeriod, scope.oNavbarVo.getFilter(), scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
+                    showServerMap(scope.oNavbarVo.getApplicationName(), scope.oNavbarVo.getServiceType(), queryEndTime, queryPeriod, scope.oNavbarVo.getFilter(), scope.oNavbarVo.getHint(), scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
                 });
 
                 /**

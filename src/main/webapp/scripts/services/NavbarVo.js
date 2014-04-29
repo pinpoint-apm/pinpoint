@@ -15,6 +15,8 @@ pinpointApp.factory('NavbarVo', function () {
 
         this._sReadablePeriod = false;
         this._sQueryEndDateTime = false;
+        
+        this._sHint = false;
 
         this._sDateTimeFormat = 'YYYY-MM-DD-HH-mm-ss';
 
@@ -86,6 +88,19 @@ pinpointApp.factory('NavbarVo', function () {
         };
         this.getFilterAsJson = function () {
             return JSON.parse(self._sFilter);
+        };
+
+        this.setHint = function (Hint) {
+            if (angular.isString(Hint)) {
+                self._sHint = Hint;
+            }
+            return self;
+        };
+        this.getHint = function () {
+            return self._sHint;
+        };
+        this.getHintAsJson = function () {
+            return JSON.parse(self._sHint);
         };
 
         this.setAgentId = function (agentId) {

@@ -62,15 +62,19 @@ pinpointApp.factory('filteredMapUtil', [ 'filterConfig', 'encodeURIComponentFilt
 
             /**
              * get filtered map url with filter vo
-             * @param oServerMapFilterVo
              * @param oNavbarVo
+             * @param oServerMapFilterVo
+             * @param filterTargetRpcList
              * @returns {string}
              */
-            getFilteredMapUrlWithFilterVo: function (oServerMapFilterVo, oNavbarVo) {
+            getFilteredMapUrlWithFilterVo: function (oNavbarVo, oServerMapFilterVo, filterTargetRpcList) {
                 var newFilter = this.mergeFilters(oServerMapFilterVo, oNavbarVo),
                     mainApplication = oServerMapFilterVo.getMainApplication() + '@' + oServerMapFilterVo.getMainServiceTypeCode(),
-                    url = '#/filteredMap/' + mainApplication + '/' + oNavbarVo.getPeriod() + '/' +
-                        oNavbarVo.getQueryEndTime() + '/' + encodeURIComponentFilter(JSON.stringify(newFilter));
+                    url = '#/filteredMap/' + mainApplication + '/' + oNavbarVo.getReadablePeriod() + '/' +
+                        oNavbarVo.getQueryEndDateTime() + '/' + encodeURIComponentFilter(JSON.stringify(newFilter));
+                if (filterTargetRpcList) {
+                    url += '/' + encodeURIComponentFilter(JSON.stringify(filterTargetRpcList));
+                }
                 return url;
             },
 

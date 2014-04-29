@@ -49,20 +49,24 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
      * @param callback
      */
     this.getFilteredServerMapData = function (query, cb) {
+        var data = {
+            application: query.applicationName,
+            serviceType: query.serviceType,
+            from: query.from,
+            to: query.to,
+            originTo: query.originTo,
+            filter: query.filter,
+            limit: cfg.FILTER_FETCH_LIMIT
+        };
+        if (query.hint) {
+            data.hint = query.hint;
+        }
         jQuery.ajax({
             type: 'GET',
             url: cfg.filteredServerMapDataUrl,
             cache: false,
             dataType: 'json',
-            data: {
-                application: query.applicationName,
-                serviceType: query.serviceType,
-                from: query.from,
-                to: query.to,
-                originTo: query.originTo,
-                filter: query.filter,
-                limit: cfg.FILTER_FETCH_LIMIT
-            },
+            data: data,
             success: function (result) {
                 if (angular.isFunction(cb)) {
                     cb(null, query, result);

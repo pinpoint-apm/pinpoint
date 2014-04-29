@@ -14,7 +14,10 @@ pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', fun
     }).when('/filteredMap/:application/:readablePeriod/:queryEndDateTime/:filter', {
         templateUrl: 'views/filteredMap.html',
         controller: 'FilteredMapCtrl'
-    }).when('/inspecator/:pplication/:readablePeriod/:queryEndDateTime', {
+    }).when('/filteredMap/:application/:readablePeriod/:queryEndDateTime/:filter/:hint', {
+        templateUrl: 'views/filteredMap.html',
+        controller: 'FilteredMapCtrl'
+    }).when('/inspector/:application/:readablePeriod/:queryEndDateTime', {
         templateUrl: 'views/inspector.html',
         controller: 'InspectorCtrl'
     }).when('/inspector/:application/:readablePeriod/:queryEndDateTime/:agentId', {

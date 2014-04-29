@@ -8,4 +8,3 @@ cp -fr ./src/main/webapp/styles ./target/pinpoint-web-$VERSION
 cp -fr ./src/main/webapp/views ./target/pinpoint-web-$VERSION
 cp -fr ./src/main/webapp/images ./target/pinpoint-web-$VERSION
 cp -fr ./src/main/webapp/fonts ./target/pinpoint-web-$VERSION
-cp -fr ./src/main/webapp/components_v1 ./target/pinpoint-web-$VERSION

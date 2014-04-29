@@ -223,11 +223,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                                         .setResponseTo(parseInt(label, 10) * 1000);
                                 }
 
-                                if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {
-                                    oServerMapFilterVo.setHint(htLastLink.filterTargetRpcList);
-                                }
-
-                                scope.$emit('linkInfoDetails.' + clickEventName + '.barClicked', oServerMapFilterVo);
+                                scope.$emit('linkInfoDetails.' + clickEventName + '.barClicked', oServerMapFilterVo, htLastLink.filterTargetRpcList);
                             }
                         });
 
