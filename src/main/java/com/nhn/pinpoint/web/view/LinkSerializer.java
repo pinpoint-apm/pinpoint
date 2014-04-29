@@ -17,6 +17,7 @@ import java.util.List;
 
 /**
  * @author emeroad
+ * @author netspider
  */
 public class LinkSerializer extends JsonSerializer<Link> {
     @Override
@@ -109,6 +110,7 @@ public class LinkSerializer extends JsonSerializer<Link> {
         jgen.writeStringField("applicationName", application.getName());
         jgen.writeStringField("serviceType", application.getServiceType().toString());
         jgen.writeNumberField("serviceTypeCode", application.getServiceTypeCode());
+        jgen.writeBooleanField("isWas", application.getServiceType().isWas());
         jgen.writeEndObject();
     }
 }
