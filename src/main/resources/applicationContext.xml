@@ -17,6 +17,7 @@
     <context:annotation-config/>
 
     <context:component-scan base-package="com.nhn.pinpoint.web.dao.hbase,
+    									 com.nhn.pinpoint.web.dao.mysql,
                                          com.nhn.pinpoint.web.service,
                                          com.nhn.pinpoint.web.mapper,
                                          com.nhn.pinpoint.web.filter" />
@@ -25,14 +26,15 @@
         <property name="locations">
             <list>
                 <value>classpath:hbase.properties</value>
-<!--                 <value>classpath:jdbc.properties</value>
- -->            
- 			</list>
+                <value>classpath:jdbc.properties</value>
+            </list>
         </property>
     </bean>
 
     <import resource="classpath:applicationContext-hbase.xml" />
-    <!--<import resource="classpath:applicationContext-datasource.xml" />-->
+    <import resource="classpath:applicationContext-datasource.xml" />
+    <import resource="classpath:applicationContext-dao-config.xml" />
+    <!--<import resource="classpath:applicationContext-scheduler.xml" />-->
     <!--<import resource="classpath:applicationContext-cache.xml" />-->
 
     <bean id="spanMapper" class="com.nhn.pinpoint.web.mapper.SpanMapper"></bean>
