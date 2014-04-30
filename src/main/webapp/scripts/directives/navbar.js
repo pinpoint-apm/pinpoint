@@ -13,18 +13,20 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
             restrict: 'EA',
             replace: true,
             templateUrl: 'views/navbar.html',
-            link: function (scope, element, attrs) {
+            link: function (scope, element) {
 
                 // define private variables
-                var $application, $fromPicker, $toPicker, oNavbarVo;
+                var $application, $fromPicker, $toPicker, oNavbarVo, aReadablePeriodList;
 
-                // define private variables of methodwas
+                // define private variables of methods
                 var initialize, initializeDateTimePicker, initializeApplication, setDateTime, getQueryEndTimeFromServer,
                     broadcast, getApplicationList, getQueryStartTime, getQueryEndTime, parseApplicationList, emitAsChanged,
                     initializeWithStaticApplication, getPeriodType, setPeriodTypeAsCurrent, getDate;
 
                 scope.showNavbar = false;
                 scope.periodDelay = false;
+                aReadablePeriodList = ['5m', '20m', '1h', '3h', '6h', '12h', '1d', '2d'];
+
 
                 element.bind('selectstart', function (e) {
                     return false;
@@ -144,6 +146,9 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                         periodType = webStorage.session.get($window.name + cfg.periodTypePrefix);
                     } else {
                         periodType = oNavbarVo.getApplication() ? 'range' : 'last';
+                    }
+                    if (oNavbarVo.getReadablePeriod() && _.indexOf(aReadablePeriodList, oNavbarVo.getReadablePeriod()) < 0) {
+                        periodType = 'range';
                     }
                     return periodType;
                 };
