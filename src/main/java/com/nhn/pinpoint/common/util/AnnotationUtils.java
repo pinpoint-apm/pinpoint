@@ -75,6 +75,10 @@ public class AnnotationUtils {
             // 구현 방법이 매우 구림 좀더 개선 필요.
             return findAnnotationBo(list, AnnotationKey.ARGS0);
         }
+        
+        if (serviceType == ServiceType.IBATIS) {
+        	return findAnnotationBo(list, AnnotationKey.ARGS0);
+        }
         return null;
     }
 
