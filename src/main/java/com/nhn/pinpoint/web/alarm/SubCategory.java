@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import com.nhn.pinpoint.web.alarm.filter.AlarmFilter;
+
 public enum SubCategory {
 
 	RATE_FAIL("RATE_FAIL", 1, MainCategory.REQUEST) {
