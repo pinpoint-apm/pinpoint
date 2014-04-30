@@ -146,6 +146,9 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         // LINE Game baseframework
         modifierRepository.addLineGameBaseFrameworkModifier();
         
+        // orm
+        modifierRepository.addOrmModifier();
+        
         return modifierRepository;
     }
 

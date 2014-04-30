@@ -3,7 +3,6 @@ package com.nhn.pinpoint.profiler.modifier.orm.ibatis.filter;
 import org.apache.commons.lang3.ArrayUtils;
 
 /**
- *
  * @author Hyun Jeong
  */
 public final class IbatisInterfaceApi {
@@ -18,10 +17,7 @@ public final class IbatisInterfaceApi {
 		"queryForMap",
 		"queryForObject",
 		"queryForPaginatedList",
-		"queryForRowHandler",
-		"startBatch",
-		"executeBatch",
-		"executeBatchDetailed"
+		"queryForRowHandler"
 	};
 	private static final String[] sqlMapTransactionManagerApis = {
 		"startTransaction",
@@ -29,7 +25,6 @@ public final class IbatisInterfaceApi {
 		"commitTransaction",
 		"getDataSource",
 		"getUserConnection",
-		"setUserConnection",
 		"getCurrentConnection",
 	};
 	static final String[] sqlMapSessionApis = ArrayUtils.addAll(

@@ -1,14 +1,12 @@
 package com.nhn.pinpoint.profiler.modifier.orm.ibatis;
 
-import java.security.ProtectionDomain;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
-import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import com.nhn.pinpoint.profiler.interceptor.bci.MethodFilter;
+import com.nhn.pinpoint.profiler.modifier.orm.ibatis.filter.SqlMapSessionMethodFilter;
 
 /**
  * iBatis SqlMapSessionImpl Modifier
@@ -18,37 +16,30 @@ import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
  * 
  * @author Hyun Jeong
  */
-public class SqlMapSessionImplModifier extends AbstractModifier {
+public final class SqlMapSessionImplModifier extends IbatisClientModifier {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private static final MethodFilter sqlMapSessionMethodFilter = new SqlMapSessionMethodFilter();
 
-	private static final String TARGET_CLASS_NAME = "com/ibatis/sqlmap/engine/SqlMapSessionImpl";
+	public static final String TARGET_CLASS_NAME = "com/ibatis/sqlmap/engine/impl/SqlMapSessionImpl";
 
 	public SqlMapSessionImplModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
 		super(byteCodeInstrumentor, agent);
 	}
 
 	@Override
-	public String getTargetClass() {
+	public final String getTargetClass() {
 		return TARGET_CLASS_NAME;
 	}
 
 	@Override
-	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-		if (logger.isInfoEnabled()) {
-			logger.info("Modifying. {}", javassistClassName);
-		}
-		
-		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
-		try {
-			
-			InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
+	protected final Logger getLogger() {
+		return this.logger;
+	}
 
-			return aClass.toBytecode();
-		} catch (Throwable e) {
-			logger.warn("SqlMapClient modifier error. Cause:{}", e.getMessage(), e);
-			return null;
-		}
+	@Override
+	protected final MethodFilter getIbatisApiMethodFilter() {
+		return sqlMapSessionMethodFilter;
 	}
 
 }
