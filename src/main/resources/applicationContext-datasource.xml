@@ -23,7 +23,7 @@
         <property name="timeBetweenEvictionRunsMillis" value="30000"/>
         <property name="numTestsPerEvictionRun" value="6"/>
         <property name="minEvictableIdleTimeMillis" value="-1"/>
-        <property name="validationQuery" value="SELECT 0 FROM db_root"/>
+        <property name="validationQuery" value="SELECT 1"/>
 
         <!-- preparedStatement cache 사용여부 -->
         <property name="poolPreparedStatements" value="true"/>

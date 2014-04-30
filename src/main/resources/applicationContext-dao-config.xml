@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	   http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+	   http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+	   ">
+
+    <!-- Transaction manager for a single JDBC DataSource -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    
+  	<tx:advice id="transactionAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="select*" read-only="true" />
+            <tx:method name="read*" read-only="true" />
+            <tx:method name="get*" read-only="true" />
+            <tx:method name="view*"/>
+            <tx:method name="list*"/>
+            <tx:method name="add*"/>
+            <tx:method name="create*"/>
+            <tx:method name="delete*"/>
+            <tx:method name="update*"/>
+        </tx:attributes>
+    </tx:advice>
+    
+
+    <!-- SqlsessionFactory setup for MyBatis Database Layer -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+
+        <!-- mybatis 기본설정 -->
+        <property name="configLocation" value="classpath:/mybatis-config.xml"/>
+
+        <!-- typeAliases -->
+        <property name="typeAliasesPackage" value="com.nhn.pinpoint.web.alarm.vo" />
+
+        <!-- mapper 의 위치를 설정한다. -->
+        <property name="mapperLocations" value="classpath:/mapper/*Mapper.xml"/>
+
+        <!-- statement 선언의 오류를 좀 더 빠르게 파악하기 위해서 true로 설정 -->
+        <property name="failFast" value="true"/>
+
+        <property name="plugins">
+            <list>
+                <bean class="com.nhncorp.lucy.spring.db.mybatis.plugin.BindingLogPlugin"/>
+                <bean class="com.nhncorp.lucy.spring.db.mybatis.plugin.SlowQueryPlugin">
+                    <property name="slowQueryTime" value="3000"></property>
+                </bean>
+                <bean class="com.nhncorp.lucy.spring.db.mybatis.plugin.StatementIdAppenderPlugin"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="sqlSessionFactory"></constructor-arg>
+    </bean>
+
+    <!-- batch용 executorType 설정 -->
+    <bean id="batchSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="sqlSessionFactory"/>
+        <constructor-arg index="1" value="BATCH"/>
+    </bean>
+    <bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+        <property name="transactionManager" ref="transactionManager"/>
+    </bean>
+
+
+</beans>
