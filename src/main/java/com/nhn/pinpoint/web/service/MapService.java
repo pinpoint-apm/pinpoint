@@ -17,6 +17,7 @@ public interface MapService {
 	 * @return
 	 */
 	public ApplicationMap selectApplicationMap(Application sourceApplication, Range range);
-	
+
+    @Deprecated
 	public NodeHistogram linkStatistics(Application sourceApplication, Application destinationApplication, Range range);
 }

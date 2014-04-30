@@ -10,7 +10,7 @@ import com.nhn.pinpoint.web.vo.Application;
  * 
  */
 public interface ApplicationIndexDao {
-	public List<Application> selectAllApplicationNames();
+	List<Application> selectAllApplicationNames();
 
-	public List<String> selectAgentIds(String applicationName);
+	List<String> selectAgentIds(String applicationName);
 }

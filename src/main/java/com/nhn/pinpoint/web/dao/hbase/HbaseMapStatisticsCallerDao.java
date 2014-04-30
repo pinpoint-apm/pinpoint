@@ -78,6 +78,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 	 * </pre>
 	 */
 	@Override
+    @Deprecated
 	public List<LinkDataMap> selectCallerStatistics(Application callerApplication, Application calleeApplication, Range range) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("selectCallerStatistics. {}, {}, {}", callerApplication, calleeApplication, range);

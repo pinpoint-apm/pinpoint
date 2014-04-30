@@ -190,6 +190,7 @@ public class MapServiceImpl implements MapService {
 
 
     @Override
+    @Deprecated
     public NodeHistogram linkStatistics(Application sourceApplication, Application destinationApplication, Range range) {
         if (sourceApplication == null) {
             throw new NullPointerException("sourceApplication must not be null");
@@ -223,6 +224,7 @@ public class MapServiceImpl implements MapService {
         return histogramSummary;
     }
 
+    @Deprecated
     private List<LinkDataMap> selectLink(Application sourceApplication, Application destinationApplication, Range range) {
         if (sourceApplication.getServiceType().isUser()) {
             logger.debug("Find 'client -> any' link statistics");

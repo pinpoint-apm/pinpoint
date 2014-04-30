@@ -12,7 +12,8 @@ import com.nhn.pinpoint.web.vo.Range;
  * 
  */
 public interface MapStatisticsCalleeDao {
-	public LinkDataMap selectCallee(Application calleeApplication, Range range);
-	
-	public List<LinkDataMap> selectCalleeStatistics(Application callerApplication, Application calleeApplication, Range range);
+	LinkDataMap selectCallee(Application calleeApplication, Range range);
+
+    @Deprecated
+	List<LinkDataMap> selectCalleeStatistics(Application callerApplication, Application calleeApplication, Range range);
 }
