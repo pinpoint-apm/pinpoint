@@ -1,31 +1,35 @@
-package com.nhn.pinpoint.web.util;
+package com.nhn.pinpoint.web.filter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.Assert;
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.junit.Test;
 
-import com.nhn.pinpoint.web.filter.FilterDescriptor;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class JsonToObjectTest {
-
+/**
+ * 
+ * @author netspider
+ * 
+ */
+public class FilterDescriptorTest {
 	private final ObjectMapper om = new ObjectMapper();
 
 	@Test
 	public void convert() {
 		StringBuilder json = new StringBuilder();
 		json.append("[{");
-		json.append("\"fa\" : \"FROM_APPLICATION\",");
-		json.append("\"fst\" : \"FROM_APPLICATION_TYPE\",");
-		json.append("\"ta\" : \"TO_APPLICATION\",");
-		json.append("\"tst\" : \"TO_APPLICATION_TYPE\",");
-		json.append("\"rf\" : 0,");
-		json.append("\"rt\" : 1000,");
-		json.append("\"ie\" : 1,");
-		json.append("\"url\" : \"/**\"");
+		json.append("\"fa\" : \"FROM_APPLICATION\"");
+		json.append(", \"fst\" : \"FROM_APPLICATION_TYPE\"");
+		json.append(", \"ta\" : \"TO_APPLICATION\"");
+		json.append(", \"tst\" : \"TO_APPLICATION_TYPE\"");
+		json.append(", \"rf\" : 0");
+		json.append(", \"rt\" : 1000");
+		json.append(", \"ie\" : 1");
+		json.append(", \"url\" : \"/**\"");
 		json.append("}]");
 
 		try {

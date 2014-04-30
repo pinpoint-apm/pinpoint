@@ -11,7 +11,6 @@ import com.nhn.pinpoint.common.bo.SpanEventBo;
  * @author netspider
  * 
  */
-// FIXME 클래스 이름을 Common? Default? Filter와 같은 걸로 바꿀까.
 public class FromToResponseFilter implements Filter {
 
 	private final List<ServiceType> fromServiceCode;
@@ -25,8 +24,10 @@ public class FromToResponseFilter implements Filter {
 	private final Long fromResponseTime;
 	private final Long toResponseTime;
 	private final Boolean includeFailed;
+	
+	private final FilterHint hint;
 
-	public FromToResponseFilter(FilterDescriptor filterDescriptor) {
+	public FromToResponseFilter(FilterDescriptor filterDescriptor, FilterHint hint) {
 		if (filterDescriptor == null) {
 			throw new NullPointerException("filter descriptor must not be null");
 		}
@@ -65,6 +66,11 @@ public class FromToResponseFilter implements Filter {
 		this.fromResponseTime = fromResponseTime;
 		this.toResponseTime = toResponseTime;
 		this.includeFailed = includeFailed;
+	
+		if (hint == null) {
+			throw new NullPointerException("hint must not be null");
+		}
+		this.hint = hint;
 	}
 
 	private boolean checkResponseCondition(long elapsed, boolean hasError) {
@@ -138,17 +144,43 @@ public class FromToResponseFilter implements Filter {
 			 * check. find src first. from, to와 같은 span이 두 개 이상 존재할 수 있다. 때문에
 			 * spanId == parentSpanId도 확인해야함.
 			 */
-			for (SpanBo srcSpan : transaction) {
-				if (includeServiceType(fromServiceCode, srcSpan.getServiceType()) && fromApplicationName.equals(srcSpan.getApplicationId())) {
-					// find dest of src.
-					for (SpanBo destSpan : transaction) {
-						if (destSpan.getParentSpanId() != srcSpan.getSpanId()) {
+			if (hint.containApplicationHint(toApplicationName)) {
+				for (SpanBo srcSpan : transaction) {
+					List<SpanEventBo> eventBoList = srcSpan.getSpanEventBoList();
+					if (eventBoList == null) {
+						continue;
+					}
+					for (SpanEventBo event : eventBoList) {
+						if (!event.getServiceType().isRpcClient()) {
+							continue;
+						}
+						
+						if (!hint.containApplicationEndpoint(toApplicationName, event.getDestinationId(), event.getServiceType().getCode())) {
 							continue;
 						}
 
-						if (includeServiceType(toServiceCode, destSpan.getServiceType()) && toApplicationName.equals(destSpan.getApplicationId())) {
-							return checkResponseCondition(destSpan.getElapsed(), destSpan.getErrCode() > 0)
-									&& checkPinPointAgentName(srcSpan.getAgentId(), destSpan.getAgentId());
+						return checkResponseCondition(event.getEndElapsed(), event.hasException());
+						
+						// FIXME agent filter가 제대로 적용되려면 아래 기능이 추가되어야 함.
+						// && checkPinPointAgentName(srcSpan.getAgentId(), destSpan.getAgentId());
+					}
+				}
+			} else {
+				/**
+				 * hint가 들어가기 전 코드. hint를 사용했을 때 문제가 있으면 UI에서 hint를 주지 않거나.
+				 * 아래 코드로 동작하도록 수정하면 됨.
+				 */
+				for (SpanBo srcSpan : transaction) {
+					if (includeServiceType(fromServiceCode, srcSpan.getServiceType()) && fromApplicationName.equals(srcSpan.getApplicationId())) {
+						// find dest of src.
+						for (SpanBo destSpan : transaction) {
+							if (destSpan.getParentSpanId() != srcSpan.getSpanId()) {
+								continue;
+							}
+
+							if (includeServiceType(toServiceCode, destSpan.getServiceType()) && toApplicationName.equals(destSpan.getApplicationId())) {
+								return checkResponseCondition(destSpan.getElapsed(), destSpan.getErrCode() > 0) && checkPinPointAgentName(srcSpan.getAgentId(), destSpan.getAgentId());
+							}
 						}
 					}
 				}

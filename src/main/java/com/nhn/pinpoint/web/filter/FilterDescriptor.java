@@ -58,7 +58,7 @@ public class FilterDescriptor {
 	 * to agent name
 	 */
 	private String tan = null;
-
+	
 	public boolean isValid() {
 		return isValidFromToInfo() && isValidFromToResponseTime();
 	}
@@ -200,7 +200,6 @@ public class FilterDescriptor {
 	public void setTan(String tan) {
 		this.tan = tan;
 	}
-
 	
 	@Override
 	public String toString() {

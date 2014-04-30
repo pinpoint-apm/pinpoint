@@ -62,7 +62,7 @@ public class FilteredMapController {
 											@RequestParam(value = "hint", required = false) String filterHint,
 											@RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
         limit = LimitUtils.checkRange(limit);
-        final Filter filter = filterBuilder.build(filterText);
+        final Filter filter = filterBuilder.build(filterText, filterHint);
         // scan을 해야 될 토탈 범위
         final Range range = new Range(from, to);
         final LimitedScanResult<List<TransactionId>> limitedScanResult = filteredMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
