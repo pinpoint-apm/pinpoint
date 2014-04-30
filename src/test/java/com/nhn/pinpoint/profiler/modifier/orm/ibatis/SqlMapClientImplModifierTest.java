@@ -175,24 +175,5 @@ public class SqlMapClientImplModifierTest extends BasePinpointTest {
 		final AnnotationBo parameterAnnotationBo = annotationBoList.get(0);
 		assertThat(parameterAnnotationBo.getKey(), is(AnnotationKey.ARGS0.getCode()));
 	}
-	
-	@Test
-	public void startBatchShouldBeTraced() throws Exception {
-		// Given
-		SqlMapClient sqlMapClient = new SqlMapClientImpl(this.mockSqlMapExecutorDelegate);
-		// When
-		sqlMapClient.startBatch();
-		// Then
-		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
-		assertThat(spanEvents.size(), is(1));
-
-		// Check Method
-		final SpanEventBo apiCallSpanEventBo = spanEvents.get(0);
-		assertThat(apiCallSpanEventBo.getApiId(), not(0));
-
-		// Check Parameter
-		final List<AnnotationBo> annotationBoList = apiCallSpanEventBo.getAnnotationBoList();
-		assertNull(annotationBoList);
-	}
 
 }
