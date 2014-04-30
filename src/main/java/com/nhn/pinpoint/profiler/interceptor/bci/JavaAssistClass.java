@@ -9,12 +9,15 @@ import com.nhn.pinpoint.profiler.util.ApiUtils;
 import com.nhn.pinpoint.profiler.interceptor.*;
 import com.nhn.pinpoint.profiler.util.DepthScope;
 import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
+
 import javassist.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author emeroad
+ * @author netspider
  */
 public class JavaAssistClass implements InstrumentClass {
 
@@ -712,5 +715,25 @@ public class JavaAssistClass implements InstrumentClass {
 		} catch (NotFoundException e) {
 			return false;
 		}
+	}
+	
+	@Override
+	public InstrumentClass getNestedClass(String className) {
+		try {
+			CtClass[] nestedClasses = ctClass.getNestedClasses();
+
+			if (nestedClasses == null || nestedClasses.length == 0) {
+				return null;
+			}
+			
+			for (CtClass nested : nestedClasses) {
+				if (nested.getName().equals(className)) {
+					return new JavaAssistClass(this.instrumentor, nested);
+				}
+			}
+		} catch (NotFoundException e) {
+			return null;
+		}
+		return null;
 	}
 }

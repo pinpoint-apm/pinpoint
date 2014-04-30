@@ -7,6 +7,7 @@ import java.util.List;
 
 /**
  * @author emeroad
+ * @author netspider
  */
 public interface InstrumentClass {
 
@@ -60,4 +61,6 @@ public interface InstrumentClass {
 	public boolean isInterceptable();
 	
 	boolean hasDeclaredMethod(String methodName, String[] args);
+	
+	InstrumentClass getNestedClass(String className);
 }

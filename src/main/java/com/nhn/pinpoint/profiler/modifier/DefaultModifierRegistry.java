@@ -47,6 +47,7 @@ import com.nhn.pinpoint.profiler.modifier.db.oracle.OraclePreparedStatementWrapp
 import com.nhn.pinpoint.profiler.modifier.db.oracle.OracleStatementWrapperModifier;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.PhysicalConnectionModifier;
 import com.nhn.pinpoint.profiler.modifier.linegame.HandlerInvokeTaskModifier;
+import com.nhn.pinpoint.profiler.modifier.linegame.HttpCustomServerHandlerModifier;
 import com.nhn.pinpoint.profiler.modifier.method.MethodModifier;
 import com.nhn.pinpoint.profiler.modifier.servlet.HttpServletModifier;
 import com.nhn.pinpoint.profiler.modifier.servlet.SpringFrameworkServletModifier;
@@ -312,5 +313,6 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	 */
 	public void addLineGameBaseFrameworkModifier() {
 		addModifier(new HandlerInvokeTaskModifier(byteCodeInstrumentor, agent));
+		addModifier(new HttpCustomServerHandlerModifier(byteCodeInstrumentor, agent));
 	}
 }
