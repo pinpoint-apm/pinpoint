@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.web.alarm.resource;
 
-import com.nhn.pinpoint.web.alarm.checker.MainCategory;
-import com.nhn.pinpoint.web.alarm.checker.SubCategory;
+import com.nhn.pinpoint.web.alarm.MainCategory;
+import com.nhn.pinpoint.web.alarm.SubCategory;
 
 /**
  * 
