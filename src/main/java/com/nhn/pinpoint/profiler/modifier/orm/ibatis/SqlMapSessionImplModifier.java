@@ -28,17 +28,17 @@ public final class SqlMapSessionImplModifier extends IbatisClientModifier {
 	}
 
 	@Override
-	public final String getTargetClass() {
+	public String getTargetClass() {
 		return TARGET_CLASS_NAME;
 	}
 
 	@Override
-	protected final Logger getLogger() {
+	protected Logger getLogger() {
 		return this.logger;
 	}
 
 	@Override
-	protected final MethodFilter getIbatisApiMethodFilter() {
+	protected MethodFilter getIbatisApiMethodFilter() {
 		return sqlMapSessionMethodFilter;
 	}
 
