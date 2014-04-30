@@ -5,7 +5,7 @@
         <div style="padding-bottom:10px;">
             <div style="float:left;width:265px;padding-right:5px">
                 <div class="form-group input-group-sm has-feedback" style="margin-bottom:0;">
-                    <input type="text" class="form-control" ng-model="linkSearch" ng-change="updateLinkSearch(linkSearch)" placeholder="coming soon.">
+                    <input type="text" class="form-control" ng-model="linkSearch" placeholder="coming soon.">
                     <span class="glyphicon glyphicon-search form-control-feedback" style="top:0;"></span>
                 </div>
             </div>
@@ -17,7 +17,7 @@
             </div>
         </div>
 
-        <div class="panel panel-default" ng-repeat="target in targetInfo | orderBy:linkOrderBy:linkOrderByDesc">
+        <div class="panel panel-default" ng-repeat="target in targetInfo | orderBy:linkOrderBy:linkOrderByDesc" ng-show="showUnknownLinkBy(linkSearch, target)">
             <div class="panel-heading">
                 <!--<img ng-src="/images/icons/{{sourceInfo.serviceType | icons}}.png" style="height:14px;" />-->
                 <!--{{sourceInfo.applicationName}}-->

@@ -308,11 +308,22 @@ pinpointApp
                 };
 
                 /**
-                 * scope update node search
+                 * show unknown node by
                  * @param nodeSearch
+                 * @param node
+                 * @returns {boolean}
                  */
-                scope.updateNodeSearch = function (nodeSearch) {
-                    console.log('updateNodeSearch', nodeSearch);
+                scope.showUnknownNodeBy = function (nodeSearch, node) {
+                    if (nodeSearch) {
+                        if (node.applicationName.indexOf(nodeSearch) > -1 ||
+                            node.count.toString().indexOf(nodeSearch) > -1) {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    } else {
+                        return true;
+                    }
                 };
 
                 /**

@@ -5,7 +5,7 @@
         <div style="padding-bottom:10px;">
             <div style="float:left;width:265px;padding-right:5px">
                 <div class="form-group input-group-sm has-feedback" style="margin-bottom:0;">
-                    <input type="text" class="form-control" ng-model="nodeSearch" ng-change="updateNodeSearch(nodeSearch)" placeholder="coming soon.">
+                    <input type="text" class="form-control" ng-model="nodeSearch" placeholder="coming soon.">
                     <span class="glyphicon glyphicon-search form-control-feedback" style="top:0;"></span>
                 </div>
             </div>
@@ -17,9 +17,9 @@
             </div>
         </div>
 
-        <div class="panel panel-default" ng-repeat="node in unknownGroup | orderBy:nodeOrderBy:nodeOrderByDesc">
+        <div class="panel panel-default" ng-repeat="node in unknownGroup | orderBy:nodeOrderBy:nodeOrderByDesc" ng-show="showUnknownNodeBy(nodeSearch, node)">
             <div class="panel-heading">
-                {{node.applicationName}} <span class="badge" style="position:absolute;right:20px;">{{node.count | number}}</span>
+                {{node.applicationName}} <span class="badge" style="position:absolute;right:20px;">{{node.count | number}} calls</span>
             </div>
 
             <div ng-init="showNodeResponseSummary=false" class="panel-body summaryCharts_{{node.applicationName | applicationNameToClassName}}" style="position: relative; padding:0">

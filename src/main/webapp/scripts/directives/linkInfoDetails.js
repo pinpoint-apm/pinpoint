@@ -19,6 +19,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 // define private variables of methods;
                 var reset, showDetailInformation, renderLoad, renderResponseSummary, parseHistogramForD3;
 
+                scope.linkSearch = '';
                 /**
                  * reset
                  */
@@ -303,11 +304,22 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 };
 
                 /**
-                 * scope update link search
+                 * show unknown link by
                  * @param linkSearch
+                 * @param target
+                 * @returns {boolean}
                  */
-                scope.updateLinkSearch = function (linkSearch) {
-                    console.log('updateLinkSearch', linkSearch);
+                scope.showUnknownLinkBy = function (linkSearch, target) {
+                    if (linkSearch) {
+                        if (target.applicationName.indexOf(linkSearch) > -1 ||
+                            target.count.toString().indexOf(linkSearch) > -1) {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    } else {
+                        return true;
+                    }
                 };
 
                 /**
