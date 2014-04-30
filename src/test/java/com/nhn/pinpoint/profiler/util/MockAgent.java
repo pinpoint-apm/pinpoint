@@ -36,7 +36,6 @@ public class MockAgent extends DefaultAgent {
     
     @Override 
     protected StorageFactory createStorageFactory() {
-    	return new ReadableSpanStorageFactory(getSpanDataSender());
-    	
+		return new ReadableSpanStorageFactory();
     }
 }

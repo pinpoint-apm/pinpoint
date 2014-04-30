@@ -1,19 +1,13 @@
 package com.nhn.pinpoint.profiler.context;
 
-import com.nhn.pinpoint.profiler.sender.DataSender;
-
 /**
  * @author Hyun Jeong
  */
-public class ReadableSpanStorageFactory extends SpanStorageFactory {
-
-	public ReadableSpanStorageFactory(DataSender dataSender) {
-		super(dataSender);
-	}
+public class ReadableSpanStorageFactory implements StorageFactory {
 
 	@Override
 	public Storage createStorage() {
-		return new ReadableSpanStorage(super.dataSender);
+		return new ReadableSpanStorage();
 	}
 
 }

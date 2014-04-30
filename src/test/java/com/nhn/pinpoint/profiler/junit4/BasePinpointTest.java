@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.junit.runner.RunWith;
 
-import com.nhn.pinpoint.profiler.context.ReadableStorage;
-import com.nhn.pinpoint.profiler.context.SpanEvent;
+import com.nhn.pinpoint.bootstrap.context.ReadableStorage;
+import com.nhn.pinpoint.common.bo.SpanEventBo;
 import com.nhn.pinpoint.profiler.util.TestClassLoader;
 
 /**
@@ -16,9 +16,8 @@ import com.nhn.pinpoint.profiler.util.TestClassLoader;
 public abstract class BasePinpointTest {
 	private ThreadLocal<ReadableStorage> traceHolder = new ThreadLocal<ReadableStorage>();
 	
-	@SuppressWarnings("unchecked")
-	protected final List<SpanEvent> getCurrentSpanEvents() {
-		return (List<SpanEvent>)this.traceHolder.get().getSpanEventList();
+	protected final List<SpanEventBo> getCurrentSpanEvents() {
+		return this.traceHolder.get().getSpanEventList();
 	}
 	
 	final void setCurrentStorage(ReadableStorage spanStorage) {

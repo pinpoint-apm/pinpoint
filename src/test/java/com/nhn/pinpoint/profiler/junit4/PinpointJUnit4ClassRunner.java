@@ -26,7 +26,6 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.profiler.DummyInstrumentation;
 import com.nhn.pinpoint.profiler.context.DefaultTrace;
-import com.nhn.pinpoint.profiler.context.Storage;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.nhn.pinpoint.profiler.util.MockAgent;
 import com.nhn.pinpoint.profiler.util.TestClassLoader;
@@ -136,7 +135,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 	
 	@Override
 	protected Statement methodInvoker(FrameworkMethod method, Object test) {
-		// TestContext의 baseTestClass는 BasePinpointTest으로 로딩되므로, 캐스팅해도 된다.
+		// TestContext의 baseTestClass는 BasePinpointTest이므로, 캐스팅해도 된다.
 		@SuppressWarnings("unchecked")
 		Class<BasePinpointTest> baseTestClass = (Class<BasePinpointTest>)this.testContext.getBaseTestClass();
 		if (baseTestClass.isInstance(test)) {
@@ -145,9 +144,8 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 			for (Method m : methods) {
 				if (m.getName().equals("setCurrentStorage")) {
 					try {
-						Storage readableStorage = currentTrace.getStorage();
 						m.setAccessible(true);
-						m.invoke(test, readableStorage);
+						m.invoke(test, currentTrace.getStorage());
 					} catch (IllegalAccessException e) {
 						throw new RuntimeException(e);
 					} catch (InvocationTargetException e) {

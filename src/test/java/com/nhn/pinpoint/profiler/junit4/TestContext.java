@@ -17,7 +17,7 @@ public class TestContext {
 	private final Object beforeClass;
 	private final Object afterClass;
 	
-	TestContext(final TestClassLoader testClassLoader, Class<?> clazz) throws ClassNotFoundException {
+	<T extends TestClassLoader> TestContext(final T testClassLoader, Class<?> clazz) throws ClassNotFoundException {
 		ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
 		try {
 			Thread.currentThread().setContextClassLoader(testClassLoader);
