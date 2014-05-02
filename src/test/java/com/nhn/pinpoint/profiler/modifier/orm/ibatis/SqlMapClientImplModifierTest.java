@@ -44,6 +44,49 @@ public class SqlMapClientImplModifierTest extends BasePinpointTest {
 	}
 	
 	@Test
+	public void nullParametersShouldNotBeTraced() throws Exception {
+		// Given
+		SqlMapClient sqlMapClient = new SqlMapClientImpl(this.mockSqlMapExecutorDelegate);
+		// When
+		sqlMapClient.insert(null);
+		sqlMapClient.queryForList(null);
+		// Then
+		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
+		assertThat(spanEvents.size(), is(2));
+		
+		// Check Method
+		final SpanEventBo insertSpanEventBo = spanEvents.get(0);
+		final SpanEventBo queryForListSpanEventBo = spanEvents.get(1);
+		assertThat(insertSpanEventBo.getApiId(), not(0));
+		assertThat(queryForListSpanEventBo.getApiId(), not(0));
+		assertThat(insertSpanEventBo.getApiId(), not(queryForListSpanEventBo.getApiId()));
+		
+		// Check Parameter
+		assertNull(insertSpanEventBo.getAnnotationBoList());
+		assertNull(queryForListSpanEventBo.getAnnotationBoList());
+	}
+	
+	@Test
+	public void sameApiCallsShouldHaveTheSameApiId() throws Exception {
+		// Given
+		SqlMapClient sqlMapClient = new SqlMapClientImpl(this.mockSqlMapExecutorDelegate);
+		// When
+		sqlMapClient.insert("insertA");
+		sqlMapClient.insert("insertB");
+		// Then
+		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
+		assertThat(spanEvents.size(), is(2));
+		
+		// Check Method
+		final SpanEventBo insertASpanEventBo = spanEvents.get(0);
+		final SpanEventBo insertBSpanEventBo = spanEvents.get(1);
+		assertThat(insertASpanEventBo.getApiId(), not(0));
+		assertThat(insertBSpanEventBo.getApiId(), not(0));
+		assertThat(insertASpanEventBo.getApiId(), is(insertBSpanEventBo.getApiId()));
+		
+	}
+	
+	@Test
 	public void insertShouldBeTraced() throws Exception {
 		// Given
 		SqlMapClient sqlMapClient = new SqlMapClientImpl(this.mockSqlMapExecutorDelegate);
@@ -59,6 +102,7 @@ public class SqlMapClientImplModifierTest extends BasePinpointTest {
 		final SpanEventBo insertWith2ArgSpanEventBo = spanEvents.get(1);
 		assertThat(insertWith1ArgSpanEventBo.getApiId(), not(0));
 		assertThat(insertWith2ArgSpanEventBo.getApiId(), not(0));
+		assertThat(insertWith1ArgSpanEventBo.getApiId(), not(insertWith2ArgSpanEventBo.getApiId()));
 
 		// Check Parameter
 		final List<AnnotationBo> insertWith1ArgAnnotations = insertWith1ArgSpanEventBo.getAnnotationBoList();
@@ -89,6 +133,7 @@ public class SqlMapClientImplModifierTest extends BasePinpointTest {
 		final SpanEventBo deleteWith2ArgSpanEvent = spanEvents.get(1);
 		assertThat(deleteWith1ArgSpanEvent.getApiId(), not(0));
 		assertThat(deleteWith2ArgSpanEvent.getApiId(), not(0));
+		assertThat(deleteWith1ArgSpanEvent.getApiId(), not(deleteWith2ArgSpanEvent.getApiId()));
 
 		// Check Parameter
 		final List<AnnotationBo> deleteWith1ArgAnnotations = deleteWith1ArgSpanEvent.getAnnotationBoList();
@@ -118,6 +163,7 @@ public class SqlMapClientImplModifierTest extends BasePinpointTest {
 		final SpanEventBo updateWith2ArgSpanEvent = spanEvents.get(1);
 		assertThat(updateWith1ArgSpanEvent.getApiId(), not(0));
 		assertThat(updateWith2ArgSpanEvent.getApiId(), not(0));
+		assertThat(updateWith1ArgSpanEvent.getApiId(), not(updateWith2ArgSpanEvent.getApiId()));
 
 		// Check Parameter
 		final List<AnnotationBo> updateWith1ArgAnnotations = updateWith1ArgSpanEvent.getAnnotationBoList();
@@ -174,6 +220,37 @@ public class SqlMapClientImplModifierTest extends BasePinpointTest {
 
 		final AnnotationBo parameterAnnotationBo = annotationBoList.get(0);
 		assertThat(parameterAnnotationBo.getKey(), is(AnnotationKey.ARGS0.getCode()));
+	}
+	
+	@Test
+	public void transactionsShouldBeTraced() throws Exception {
+		// Given
+		SqlMapClient sqlMapClient = new SqlMapClientImpl(this.mockSqlMapExecutorDelegate);
+		// When
+		sqlMapClient.startTransaction();
+		sqlMapClient.commitTransaction();
+		sqlMapClient.endTransaction();
+		// Then
+		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
+		assertThat(spanEvents.size(), is(3));
+		
+		// Check Method
+		final SpanEventBo startTransactionSpanEventBo = spanEvents.get(0);
+		final SpanEventBo commitTransactionSpanEventBo = spanEvents.get(1);
+		final SpanEventBo endTransactionSpanEventBo = spanEvents.get(2);
+		
+		assertThat(startTransactionSpanEventBo.getApiId(), not(0));
+		assertThat(commitTransactionSpanEventBo.getApiId(), not(0));
+		assertThat(endTransactionSpanEventBo.getApiId(), not(0));
+		
+		assertThat(startTransactionSpanEventBo.getApiId(), not(commitTransactionSpanEventBo.getApiId()));
+		assertThat(commitTransactionSpanEventBo.getApiId(), not(endTransactionSpanEventBo.getApiId()));
+		assertThat(endTransactionSpanEventBo.getApiId(), not(startTransactionSpanEventBo.getApiId()));
+		
+		// Check Parameter
+		assertNull(startTransactionSpanEventBo.getAnnotationBoList());
+		assertNull(commitTransactionSpanEventBo.getAnnotationBoList());
+		assertNull(endTransactionSpanEventBo.getAnnotationBoList());
 	}
 
 }
