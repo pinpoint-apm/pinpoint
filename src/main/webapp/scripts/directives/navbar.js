@@ -161,7 +161,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                     if (time) {
                         date.setTime(time);
                     }
-                    $picker.datetimepicker('setDate', date);                  i
+                    $picker.datetimepicker('setDate', date);
                 };
 
                 /**
