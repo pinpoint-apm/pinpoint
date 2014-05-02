@@ -15,7 +15,7 @@ public class SqlMapClientMethodFilter extends IbatisMethodFilter {
 		return new HashSet<String>(Arrays.asList(IbatisInterfaceApi.sqlMapClientApis));
 	}
 	
-	protected boolean shouldTrackMethod(String methodName) {
+	protected final boolean shouldTrackMethod(String methodName) {
 		return WHITE_LIST_API.contains(methodName);
 	}
 }
