@@ -38,9 +38,9 @@
         <!-- typeAliases -->
         <property name="typeAliasesPackage" value="com.nhn.pinpoint.web.alarm.vo" />
 
-<!--         mapper 의 위치를 설정한다.
+		<!-- mapper 의 위치를 설정한다.-->
         <property name="mapperLocations" value="classpath:/mapper/*Mapper.xml"/>
- -->
+ 
         <!-- statement 선언의 오류를 좀 더 빠르게 파악하기 위해서 true로 설정 -->
         <property name="failFast" value="true"/>
 
@@ -55,11 +55,12 @@
         </property>
     </bean>
 
+	<!-- interface mapper 설정시 사용 
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
 		<property name="basePackage" value="com.nhn.pinpoint.web.mapper.mysql" />
 		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" /> 
 	</bean>
-
+ 	-->
     <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
         <constructor-arg index="0" ref="sqlSessionFactory"></constructor-arg>
     </bean>

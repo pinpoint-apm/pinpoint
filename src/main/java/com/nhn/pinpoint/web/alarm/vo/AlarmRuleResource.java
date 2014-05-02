@@ -1,5 +1,11 @@
 package com.nhn.pinpoint.web.alarm.vo;
 
+import org.apache.ibatis.type.Alias;
+
+import com.nhn.pinpoint.web.alarm.MainCategory;
+import com.nhn.pinpoint.web.alarm.SubCategory;
+
+@Alias("alarmRule")
 public class AlarmRuleResource {
 
 	private Integer id;
@@ -9,8 +15,14 @@ public class AlarmRuleResource {
 	private Integer thresholdRule;
 	private boolean compareRule;
 	private Integer continuosTime;
-	private String alarmRuleDescrption;
 	private String alarmRuleName;
+	private String alarmRuleDescrption;
+	
+//	private MainCategory mainCategory;
+//	private SubCategory subCategory;
+
+	private String mainCategory;
+	private String subCategory;
 
 	public Integer getId() {
 		return id;
@@ -84,11 +96,45 @@ public class AlarmRuleResource {
 		this.alarmRuleDescrption = alarmRuleDescrption;
 	}
 
+
+	public MainCategory getMainCategory() {
+		return MainCategory.getValue(mainCategory);
+	}
+
+	public void setMainCategory(String mainCategory) {
+		this.mainCategory = mainCategory;
+	}
+
+	public SubCategory getSubCategory() {
+		return SubCategory.getValue(subCategory);
+	}
+
+	public void setSubCategory(String subCategory) {
+		this.subCategory = subCategory;
+	}
+
 	@Override
 	public String toString() {
 		return "AlarmRuleResource [id=" + id + ", alarmRuleGroupId=" + alarmRuleGroupId + ", alarmRuleSubCategoryId=" + alarmRuleSubCategoryId + ", agentId="
-				+ agentId + ", thresholdRule=" + thresholdRule + ", compareRule=" + compareRule + ", continuosTime=" + continuosTime + ", alarmRuleName="
-				+ alarmRuleName + ", alarmRuleDescrption=" + alarmRuleDescrption + "]";
+				+ agentId + ", thresholdRule=" + thresholdRule + ", compareRule=" + compareRule + ", continuosTime=" + continuosTime + ", alarmRuleDescrption="
+				+ alarmRuleDescrption + ", alarmRuleName=" + alarmRuleName + ", mainCategory=" + getMainCategory() + ", subCategory=" + getSubCategory() + "]";
 	}
+
+//	public String getMainCategory() {
+//		return mainCategory;
+//	}
+//
+//	public void setMainCategory(String mainCategory) {
+//		this.mainCategory = mainCategory;
+//	}
+//
+//	public String getSubCategory() {
+//		return subCategory;
+//	}
+//
+//	public void setSubCategory(String subCategory) {
+//		this.subCategory = subCategory;
+//	}
+	
 
 }
