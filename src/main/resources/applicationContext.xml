@@ -30,11 +30,12 @@
             </list>
         </property>
     </bean>
-
+    <util:properties id="dataProps" location="classpath:data.properties"/>
+ 
     <import resource="classpath:applicationContext-hbase.xml" />
     <import resource="classpath:applicationContext-datasource.xml" />
     <import resource="classpath:applicationContext-dao-config.xml" />
-    <!--<import resource="classpath:applicationContext-scheduler.xml" />-->
+    <!--<import resource="classpath:applicationContext-scheduler.xml" /> -->
     <!--<import resource="classpath:applicationContext-cache.xml" />-->
 
     <bean id="spanMapper" class="com.nhn.pinpoint.web.mapper.SpanMapper"></bean>

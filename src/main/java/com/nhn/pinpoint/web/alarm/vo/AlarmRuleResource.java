@@ -11,7 +11,6 @@ public class AlarmRuleResource {
 	private Integer id;
 	private Integer alarmRuleGroupId;
 	private Integer alarmRuleSubCategoryId;
-	private String agentId;
 	private Integer thresholdRule;
 	private boolean compareRule;
 	private Integer continuosTime;
@@ -46,14 +45,6 @@ public class AlarmRuleResource {
 
 	public void setAlarmRuleSubCategoryId(Integer alarmRuleSubCategoryId) {
 		this.alarmRuleSubCategoryId = alarmRuleSubCategoryId;
-	}
-
-	public String getAgentId() {
-		return agentId;
-	}
-
-	public void setAgentId(String agentId) {
-		this.agentId = agentId;
 	}
 
 	public Integer getThresholdRule() {
@@ -115,11 +106,12 @@ public class AlarmRuleResource {
 
 	@Override
 	public String toString() {
-		return "AlarmRuleResource [id=" + id + ", alarmRuleGroupId=" + alarmRuleGroupId + ", alarmRuleSubCategoryId=" + alarmRuleSubCategoryId + ", agentId="
-				+ agentId + ", thresholdRule=" + thresholdRule + ", compareRule=" + compareRule + ", continuosTime=" + continuosTime + ", alarmRuleDescrption="
-				+ alarmRuleDescrption + ", alarmRuleName=" + alarmRuleName + ", mainCategory=" + getMainCategory() + ", subCategory=" + getSubCategory() + "]";
+		return "AlarmRuleResource [id=" + id + ", alarmRuleGroupId=" + alarmRuleGroupId + ", alarmRuleSubCategoryId=" + alarmRuleSubCategoryId
+				+ ", thresholdRule=" + thresholdRule + ", compareRule=" + compareRule + ", continuosTime=" + continuosTime + ", alarmRuleName=" + alarmRuleName
+				+ ", alarmRuleDescrption=" + alarmRuleDescrption + ", mainCategory=" + mainCategory + ", subCategory=" + subCategory + "]";
 	}
-
+	
+	
 //	public String getMainCategory() {
 //		return mainCategory;
 //	}

@@ -8,6 +8,7 @@
 		<result property="id" column="id"/>
 		<result property="alarmGroupName" column="alrm_grp_nm" />
 		<result property="alarmGroupDescrption" column="alrm_grp_desc" />
+		<result property="agentId" column="agt_id" />
 		
 		<association property="alarmRuleGroup" column="id" javaType="alarmRuleGroup" select="selectAlarmRuleGroupList"/>
 		<association property="alarmContactGroup" column="id" javaType="alarmContactGroup" select="selectAlarmContactGroupList"/>
@@ -17,7 +18,6 @@
 		<result property="id" />
 		<result property="alarmGroupName" column="alrm_grp_nm" />
 		<result property="alarmGroupDescrption" column="alrm_grp_desc" />
-		<result property="agentId" column="agt_id" />
 		<result property="thresholdRule" column="thrhd_rule" />
 		<result property="compareRule" column="cmpr_rule" />
 		<result property="continuosTime" column="cntu_tm" />
@@ -61,7 +61,6 @@
 			rule.id AS id,
 			rule.alrm_rule_grp_id AS alarmRuleGroupId,
 			rule.alrm_rule_sb_catg_id AS alrm_rule_sb_catg_id,
-			rule.agt_id AS agt_id,
 			rule.thrhd_rule AS thrhd_rule,
 			rule.cmpr_rule AS cmpr_rule,
 			rule.cntu_tm AS cntu_tm,

@@ -7,6 +7,8 @@ public class AlarmResource {
 	
 	private Integer id;
 
+	private String agentId;
+
 	private String alarmGroupName;
 	private String alarmGroupDescrption;
 	
@@ -20,7 +22,15 @@ public class AlarmResource {
 	public void setId(Integer id) {
 		this.id = id;
 	}
-	
+
+	public String getAgentId() {
+		return agentId;
+	}
+
+	public void setAgentId(String agentId) {
+		this.agentId = agentId;
+	}
+
 	public String getAlarmGroupName() {
 		return alarmGroupName;
 	}
@@ -53,8 +63,8 @@ public class AlarmResource {
 
 	@Override
 	public String toString() {
-		return "AlarmResource [id=" + id + ", alarmGroupName=" + alarmGroupName + ", alarmGroupDescrption=" + alarmGroupDescrption + ", alarmRuleGroup="
-				+ alarmRuleGroup + ", alarmContactGroup=" + alarmContactGroup + "]";
+		return "AlarmResource [id=" + id + ", agentId=" + agentId + ", alarmGroupName=" + alarmGroupName + ", alarmGroupDescrption=" + alarmGroupDescrption
+				+ ", alarmRuleGroup=" + alarmRuleGroup + ", alarmContactGroup=" + alarmContactGroup + "]";
 	}
-
+	
 }
