@@ -54,7 +54,6 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                     scope.disableApplication = true;
                     scope.readablePeriod = oNavbarVo.getReadablePeriod() || '20m';
                     scope.queryEndTime = oNavbarVo.getQueryEndTime() || '';
-//                    $http.defaults.useXDomain = true;
 
                     initializeDateTimePicker();
                     getApplicationList();
@@ -89,7 +88,6 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                         dateFormat: "yy-mm-dd",
                         timeFormat: "hh:mm tt",
                         onSelect: function () {
-//                            $toPicker.datetimepicker('option', 'minDate', $fromPicker.datetimepicker('getDate'));
                             if (getDate($fromPicker).isBefore(getDate($toPicker).add(-2).days()) || getDate($fromPicker).isAfter(getDate($toPicker))) {
                                 setDateTime($toPicker, getDate($fromPicker).add(2).days());
                             }
@@ -111,7 +109,6 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                         dateFormat: "yy-mm-dd",
                         timeFormat: "hh:mm tt",
                         onSelect: function () {
-//                            $fromPicker.datetimepicker('option', 'maxDate', $toPicker.datetimepicker('getDate'));
                             if (getDate($fromPicker).isBefore(getDate($toPicker).add(-2).days()) || getDate($fromPicker).isAfter(getDate($toPicker))) {
                                 setDateTime($fromPicker, getDate($toPicker).add(-2).days());
                             }
@@ -128,8 +125,6 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                     });
                     setDateTime($toPicker, oNavbarVo.getQueryEndTime());
 
-//                    $fromPicker.datetimepicker('option', 'maxDate', $toPicker.datetimepicker('getDate'));
-//                    $toPicker.datetimepicker('option', 'minDate', $fromPicker.datetimepicker('getDate'));
                 };
 
                 getDate = function ($picker) {
@@ -166,7 +161,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                     if (time) {
                         date.setTime(time);
                     }
-                    $picker.datetimepicker('setDate', date);
+                    $picker.datetimepicker('setDate', date);                  i
                 };
 
                 /**
@@ -180,8 +175,6 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
 
                     if (scope.periodType === 'last' && scope.readablePeriod) {
                         getQueryEndTimeFromServer(function (currentServerTime) {
-//                            oNavbarVo.setPeriod(scope.period);
-//                            oNavbarVo.setQueryEndTime(currentServerTime);
                             oNavbarVo.setReadablePeriod(scope.readablePeriod);
                             oNavbarVo.setQueryEndDateTime(moment(currentServerTime).format('YYYY-MM-DD-HH-mm-ss'));
                             oNavbarVo.autoCalculateByQueryEndDateTimeAndReadablePeriod();
