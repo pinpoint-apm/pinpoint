@@ -196,6 +196,18 @@ pinpointApp.factory('filteredMapUtil', [ 'filterConfig', 'encodeURIComponentFilt
                     });
                 }
                 return result;
+            },
+
+            /**
+             * do filters have unknown node
+             * @param filters
+             * @returns {boolean}
+             */
+            doFiltersHaveUnknownNode: function (filters) {
+                for (var k in filters) {
+                    if (filters[k].tst === 'UNKNOWN') return true;
+                }
+                return false;
             }
         }
     }

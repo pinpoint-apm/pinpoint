@@ -137,14 +137,16 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                                 htLastMapData.lastFetchedTimestamp = result.lastFetchedTimestamp - 1;
                                 scope.$emit('serverMap.fetched', htLastMapData.lastFetchedTimestamp, result);
                             }
-//                        ServerMapDao.mergeTimeSeriesResponses(result.timeSeriesResponses);
-                            var serverMapData = ServerMapDao.addFilterProperty(filterText, ServerMapDao.mergeFilteredMapData(htLastMapData, result));
+
+                            var filters = JSON.parse(filterText);
+                            var serverMapData = ServerMapDao.addFilterProperty(filters, ServerMapDao.mergeFilteredMapData(htLastMapData, result));
+                            if (filteredMapUtil.doFiltersHaveUnknownNode(filters)) scope.mergeUnknowns = mergeUnknowns = false;
                             if (mergeUnknowns) {
                                 var copiedData = angular.copy(serverMapData);
                                 ServerMapDao.mergeUnknown(query, copiedData);
-                                serverMapCallback(query, copiedData, linkRouting, linkCurve);
+                                serverMapCallback(query, copiedData, mergeUnknowns, linkRouting, linkCurve);
                             } else {
-                                serverMapCallback(query, serverMapData, linkRouting, linkCurve);
+                                serverMapCallback(query, serverMapData, mergeUnknowns, linkRouting, linkCurve);
                             }
                         });
                     } else {

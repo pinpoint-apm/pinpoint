@@ -150,12 +150,12 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
 
     /**
      * add filter property
-     * @param filterText
+     * @param s
      * @param mapData
      * @returns {*}
      */
-    this.addFilterProperty = function (filterText, mapData) {
-        var parsedFilters = this.parseFilterText(filterText, mapData);
+    this.addFilterProperty = function (filters, mapData) {
+        var parsedFilters = this.parseFilterText(filters, mapData);
 
         angular.forEach(mapData.applicationMapData.linkDataArray, function (val, key) {
             if (angular.isDefined(_.findWhere(parsedFilters, {fromKey: val.from, toKey: val.to}))) {
@@ -169,13 +169,12 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
 
     /**
      * parse filter text
-     * @param filterText
+     * @param filters
      * @param mapData
      * @returns {Array}
      */
-    this.parseFilterText = function (filterText, mapData) {
-        var filters = JSON.parse(filterText),
-            aFilter = [];
+    this.parseFilterText = function (filters, mapData) {
+        var aFilter = [];
 
         angular.forEach(filters, function (filter) {
             aFilter.push({
@@ -643,5 +642,6 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
             }
         });
         return foundNode;
-    }
+    };
+
 }]);
