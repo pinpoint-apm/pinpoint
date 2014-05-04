@@ -6,8 +6,8 @@ pinpointApp.constant('linkInfoDetailsConfig', {
     maxTimeToShowLoadAsDefaultForUnknown:  60 * 60 * 12 // 12h
 });
 
-pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartVo', '$filter', 'ServerMapFilterVo',  'filteredMapUtil', 'humanReadableNumberFormatFilter', '$timeout', 'isVisible',
-    function (cfg, HelixChartVo, $filter, ServerMapFilterVo, filteredMapUtil, humanReadableNumberFormatFilter, $timeout, isVisible) {
+pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartVo', '$filter', 'ServerMapFilterVo',  'filteredMapUtil', 'humanReadableNumberFormatFilter', '$timeout', 'isVisible', 'ServerMapHintVo',
+    function (cfg, HelixChartVo, $filter, ServerMapFilterVo, filteredMapUtil, humanReadableNumberFormatFilter, $timeout, isVisible, ServerMapHintVo) {
         return {
             restrict: 'EA',
             replace: true,
@@ -52,9 +52,9 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                  * @param applicationName
                  */
                 scope.showLinkDetailInformation = function (applicationName) {
-                    var link = htTargetRawData[applicationName];
-                    showDetailInformation(link);
-                    scope.$emit('linkInfoDetail.showDetailInformationClicked', htQuery, link);
+                    htLastLink = htTargetRawData[applicationName];
+                    showDetailInformation(htLastLink);
+                    scope.$emit('linkInfoDetail.showDetailInformationClicked', htQuery, htLastLink);
                 };
 
                 /**
@@ -395,7 +395,12 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         .setFromServiceType(htLastLink.sourceInfo.serviceType)
                         .setToApplication(toApplicationName)
                         .setToServiceType(toServiceType);
-                    scope.$broadcast('linkInfoDetails.openFilteredMap', oServerMapFilterVo);
+
+                    var oServerMapHintVo = new ServerMapHintVo();
+                    if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {
+                        oServerMapHintVo.setHint(htLastLink.toNode.text, htLastLink.filterTargetRpcList)
+                    }
+                    scope.$broadcast('linkInfoDetails.openFilteredMap', oServerMapFilterVo, oServerMapHintVo);
                 };
 
                 scope.linkSearchChange = function () {
