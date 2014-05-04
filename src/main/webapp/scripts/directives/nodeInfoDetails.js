@@ -3,7 +3,7 @@
 pinpointApp.constant('nodeInfoDetailsConfig', {
     applicationStatisticsUrl: '/applicationStatistics.pinpoint',
     myColors: ["#2ca02c", "#3c81fa", "#f8c731", "#f69124", "#f53034"],
-    maxTimeToShowLoadAsDefaultForUnknown: 60 * 60 * 3 // 3h
+    maxTimeToShowLoadAsDefaultForUnknown: 60 * 60 * 12 // 12h
 });
 
 pinpointApp
