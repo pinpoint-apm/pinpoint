@@ -5,7 +5,7 @@
         <div style="padding-bottom:10px;">
             <div style="float:left;width:265px;padding-right:5px">
                 <div class="form-group input-group-sm has-feedback" style="margin-bottom:0;">
-                    <input type="text" class="form-control" ng-model="nodeSearch" placeholder="Type keywords for filtering.">
+                    <input type="text" class="form-control" ng-model="nodeSearch" ng-change="nodeSearchChange()" placeholder="Type keywords for filtering.">
                     <span class="glyphicon glyphicon-search form-control-feedback" style="top:0;"></span>
                 </div>
             </div>
@@ -22,21 +22,21 @@
                 {{node.applicationName}} <span class="badge" style="position:absolute;right:20px;">{{node.count | number}} calls</span>
             </div>
 
-            <div ng-init="showNodeResponseSummary=false" class="panel-body summaryCharts_{{node.applicationName | applicationNameToClassName}}" style="position: relative; padding:0">
-                <div class="response-summary" ng-show="showNodeResponseSummary">
+            <div class="panel-body summaryCharts_{{node.applicationName | applicationNameToClassName}}" style="position: relative; padding:0">
+                <div class="response-summary" ng-show="showNodeResponseSummaryForUnknown">
                     <svg style='height:120px;width:350px;'/>
                 </div>
-                <div class="load" ng-hide="showNodeResponseSummary">
+                <div class="load" ng-hide="showNodeResponseSummaryForUnknown">
                     <svg style='height:120px;width:350px;'/>
                 </div>
 
 
                 <a class="btn btn-default btn-xs" href title="Show Load" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;"
-                   ng-click="showNodeResponseSummary=!showNodeResponseSummary" ng-show="showNodeResponseSummary">
+                   ng-click="showNodeResponseSummaryForUnknown=!showNodeResponseSummaryForUnknown;renderNodeLoad(node.applicationName)" ng-show="showNodeResponseSummaryForUnknown">
                     <span class="glyphicon glyphicon-stats"></span>
                 </a>
                 <a class="btn btn-default btn-xs" href title="Show Response Summary" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;"
-                   ng-click="showNodeResponseSummary=!showNodeResponseSummary;renderNodeResponseSummary(node.applicationName)" ng-show="!showNodeResponseSummary">
+                   ng-click="showNodeResponseSummaryForUnknown=!showNodeResponseSummaryForUnknown;renderNodeResponseSummary(node.applicationName)" ng-show="!showNodeResponseSummaryForUnknown">
                     <span class="glyphicon glyphicon-stats"></span>
                 </a>
                 <a class="btn btn-default btn-xs" href ng-click="showNodeDetailInformation(node.applicationName)"

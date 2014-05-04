@@ -5,7 +5,7 @@
         <div style="padding-bottom:10px;">
             <div style="float:left;width:265px;padding-right:5px">
                 <div class="form-group input-group-sm has-feedback" style="margin-bottom:0;">
-                    <input type="text" class="form-control" ng-model="linkSearch" placeholder="Type keywords for filtering.">
+                    <input type="text" class="form-control" ng-model="linkSearch" ng-change="linkSearchChange()" placeholder="Type keywords for filtering.">
                     <span class="glyphicon glyphicon-search form-control-feedback" style="top:0;"></span>
                 </div>
             </div>
@@ -25,21 +25,21 @@
                 <!--<img ng-src="/images/icons/UNKNOWN.png" style="height:14px;" />-->
                 {{target.applicationName}}  <span class="badge" style="position:absolute;right:20px;">{{target.count | number}} calls</span>
             </div>
-            <div ng-init="showLinkResponseSummary=false" class="panel-body summaryCharts_{{target.applicationName | applicationNameToClassName}}" style="position: relative; padding:0">
-                <div class="response-summary" ng-show="showLinkResponseSummary">
+            <div class="panel-body summaryCharts_{{target.applicationName | applicationNameToClassName}}" style="position: relative; padding:0">
+                <div class="response-summary" ng-show="showLinkResponseSummaryForUnknown">
                     <svg style='height:120px;width:350px;'/>
                 </div>
-                <div class="load" ng-hide="showLinkResponseSummary">
+                <div class="load" ng-hide="showLinkResponseSummaryForUnknown">
                     <svg style='height:120px;width:350px;'/>
                 </div>
 
 
                 <a class="btn btn-default btn-xs" href title="Show Load" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;"
-                   ng-click="showLinkResponseSummary=!showLinkResponseSummary" ng-show="showLinkResponseSummary">
+                   ng-click="showLinkResponseSummaryForUnknown=!showLinkResponseSummaryForUnknown;renderLinkLoad(target.applicationName)" ng-show="showLinkResponseSummaryForUnknown">
                     <span class="glyphicon glyphicon-stats"></span>
                 </a>
                 <a class="btn btn-default btn-xs" href title="Show Response Summary" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;"
-                   ng-click="showLinkResponseSummary=!showLinkResponseSummary;renderLinkResponseSummary(target.applicationName)" ng-show="!showLinkResponseSummary">
+                   ng-click="showLinkResponseSummaryForUnknown=!showLinkResponseSummaryForUnknown;renderLinkResponseSummary(target.applicationName)" ng-show="!showLinkResponseSummaryForUnknown">
                     <span class="glyphicon glyphicon-stats"></span>
                 </a>
 

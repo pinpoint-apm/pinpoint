@@ -1,23 +1,23 @@
-ㄷ/* servermap */
-.servermap-status {
+/* servermap */
+.servermap .servermap-status {
     position: absolute;
     top: 8px;
     left: 11px;
     z-index: 9;
     font-size: 12px;
 }
-.servermap-status .alert {
+.servermap .servermap-status .alert {
     margin-bottom: 5px;
     padding-right: 17px;
 }
-.servermap-status ul {
+.servermap .servermap-status ul {
     margin-bottom: 0;
 }
-.servermap-status h5,
-.servermap-status h6 {
+.servermap .servermap-status h5,
+.servermap .servermap-status h6 {
     margin: 0;
 }
-.servermap-status .controls .span2:first-child {
+.servermap .servermap-status .controls .span2:first-child {
     margin-left: 0 !important;
 }
 .servermap slider span.pointer:after{

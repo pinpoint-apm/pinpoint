@@ -1,10 +1,10 @@
 'use strict';
 
-pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routeParams', '$timeout', 'TimeSliderVo', 'NavbarVo', 'encodeURIComponentFilter', '$window', 'SidebarTitleVo', 'filteredMapUtil',
-    function (cfg, $scope, $routeParams, $timeout, TimeSliderVo, NavbarVo, encodeURIComponentFilter, $window, SidebarTitleVo, filteredMapUtil) {
+pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routeParams', '$timeout', 'TimeSliderVo', 'NavbarVo', 'encodeURIComponentFilter', '$window', 'SidebarTitleVo', 'filteredMapUtil', '$rootElement',
+    function (cfg, $scope, $routeParams, $timeout, TimeSliderVo, NavbarVo, encodeURIComponentFilter, $window, SidebarTitleVo, filteredMapUtil, $rootElement) {
 
         // define private variables
-        var oNavbarVo, oTimeSliderVo;
+        var oNavbarVo, oTimeSliderVo, bNodeSelected;
 
         // define private variables of methods
         var openFilteredMapWithFilterVo, broadcastScatterScanResultToScatter;
@@ -47,6 +47,16 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
                 $scope.$broadcast('serverMap.initialize', oNavbarVo);
                 $scope.$broadcast('scatter.initialize', oNavbarVo);
             });
+
+            $rootElement
+                .find('.info-details')
+                .bind('scroll', function (e) {
+                    if (bNodeSelected) {
+                        $scope.$broadcast('nodeInfoDetails.lazyRendering', e);
+                    } else {
+                        $scope.$broadcast('linkInfoDetails.lazyRendering', e);
+                    }
+                });
         }, 500);
 
         /**
@@ -140,6 +150,7 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
          * scope event on serverMap.nodeClicked
          */
         $scope.$on('serverMap.nodeClicked', function (event, e, query, node, data) {
+            bNodeSelected = true;
             var oSidebarTitleVo = new SidebarTitleVo;
             oSidebarTitleVo
                 .setImageType(node.category)
@@ -158,13 +169,14 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
             $scope.hasFilter = false;
             $scope.$broadcast('sidebarTitle.initialize.forFilteredMap', oSidebarTitleVo);
             $scope.$broadcast('nodeInfoDetails.initialize', e, query, node, data, oNavbarVo);
-            $scope.$broadcast('linkInfoDetails.reset', e, query, node, data, oNavbarVo);
+            $scope.$broadcast('linkInfoDetails.hide', e, query, node, data, oNavbarVo);
         });
 
         /**
          * scope event on serverMap.linkClicked
          */
         $scope.$on('serverMap.linkClicked', function (event, e, query, link, data) {
+            bNodeSelected = false;
             var oSidebarTitleVo = new SidebarTitleVo;
             if (link.targetRawData) {
                 oSidebarTitleVo
@@ -192,7 +204,7 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
                 $scope.hasFilter = false;
             }
             $scope.$broadcast('sidebarTitle.initialize.forFilteredMap', oSidebarTitleVo);
-            $scope.$broadcast('nodeInfoDetails.reset');
+            $scope.$broadcast('nodeInfoDetails.hide');
             $scope.$broadcast('linkInfoDetails.initialize', e, query, link, data, oNavbarVo);
         });
 
@@ -230,7 +242,7 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
                 .setImageType2(link.targetInfo.serviceType)
                 .setTitle2(link.targetInfo.applicationName);
             $scope.$broadcast('sidebarTitle.initialize.forFilteredMap', oSidebarTitleVo);
-            $scope.$broadcast('nodeInfoDetails.reset');
+            $scope.$broadcast('nodeInfoDetails.hide');
         });
 
         /**
@@ -243,6 +255,6 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
                 .setImageType(node.category)
                 .setTitle(node.text);
             $scope.$broadcast('sidebarTitle.initialize.forMain', oSidebarTitleVo);
-            $scope.$broadcast('linkInfoDetails.reset');
+            $scope.$broadcast('linkInfoDetails.hide');
         });
     }]);

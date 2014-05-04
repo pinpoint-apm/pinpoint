@@ -2,11 +2,12 @@
 
 pinpointApp.constant('linkInfoDetailsConfig', {
     linkStatisticsUrl: '/linkStatistics.pinpoint',
-    myColors: ["#2ca02c", "#3c81fa", "#f8c731", "#f69124", "#f53034"]
+    myColors: ["#2ca02c", "#3c81fa", "#f8c731", "#f69124", "#f53034"],
+    maxTimeToShowLoadAsDefaultForUnknown:  60 * 60 * 3 // 3h
 });
 
-pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartVo', '$filter', 'ServerMapFilterVo',  'filteredMapUtil', 'humanReadableNumberFormatFilter', '$timeout',
-    function (config, HelixChartVo, $filter, ServerMapFilterVo, filteredMapUtil, humanReadableNumberFormatFilter, $timeout) {
+pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartVo', '$filter', 'ServerMapFilterVo',  'filteredMapUtil', 'humanReadableNumberFormatFilter', '$timeout', 'isVisible',
+    function (cfg, HelixChartVo, $filter, ServerMapFilterVo, filteredMapUtil, humanReadableNumberFormatFilter, $timeout, isVisible) {
         return {
             restrict: 'EA',
             replace: true,
@@ -14,10 +15,11 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
             link: function postLink(scope, element, attrs) {
 
                 // define private variables
-                var htQuery, htTargetRawData, htLastLink, htUnknownResponseSummary;
+                var htQuery, htTargetRawData, htLastLink, htUnknownResponseSummary, htUnknownLoad;
 
                 // define private variables of methods;
-                var reset, showDetailInformation, renderLoad, renderResponseSummary, parseHistogramForD3;
+                var reset, showDetailInformation, renderLoad, renderResponseSummary, parseHistogramForD3,
+                    renderAllChartWhichIsVisible, hide, show;
 
                 scope.linkSearch = '';
                 /**
@@ -28,6 +30,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     htLastLink = false;
                     htTargetRawData = false;
                     htUnknownResponseSummary = {};
+                    htUnknownLoad = {};
                     scope.linkCategory = null;
                     scope.targetinfo = null;
                     scope.sourceinfo = null;
@@ -56,22 +59,18 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
 
                 /**
                  * show detail information
-                 * @param query
-                 * @param data
+                 * @param link
                  */
                 showDetailInformation = function (link) {
                     if (link.targetRawData) {
                         htTargetRawData = link.targetRawData;
                         scope.linkCategory = 'UnknownLinkInfoBox';
-                        for (var key in link.targetInfo) {
-                            var applicationName = link.targetInfo[key].applicationName,
-                                className = $filter('applicationNameToClassName')(applicationName)
-                            renderLoad('.linkInfoDetails .summaryCharts_' + className +
-                                ' .load svg', link.targetRawData[applicationName].timeSeriesHistogram);
-                        }
                         scope.sourceInfo = link.sourceInfo;
                         scope.targetInfo = link.targetInfo;
 
+                        scope.showLinkResponseSummaryForUnknown = (scope.oNavbarVo.getPeriod() <= cfg.maxTimeToShowLoadAsDefaultForUnknown) ? false : true;
+
+                        renderAllChartWhichIsVisible(link);
                         $timeout(function () {
                             element.find('[data-toggle="tooltip"]').tooltip('destroy').tooltip();
                         });
@@ -87,6 +86,37 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     if (!scope.$$phase) {
                         scope.$digest();
                     }
+                };
+
+                /**
+                 * render all chart which is visible
+                 * @param link
+                 */
+                renderAllChartWhichIsVisible = function (link) {
+                    $timeout(function () {
+                        for (var key in link.targetInfo) {
+                            var applicationName = link.targetInfo[key].applicationName,
+                                className = $filter('applicationNameToClassName')(applicationName);
+                            if (angular.isDefined(htUnknownResponseSummary[applicationName])) continue;
+                            if (angular.isDefined(htUnknownLoad[applicationName])) continue;
+
+                            if (scope.showLinkResponseSummaryForUnknown) {
+                                var elQuery = '.linkInfoDetails .summaryCharts_' + className + ' .response-summary svg',
+                                    el = angular.element(elQuery);
+                                var visible = isVisible(el.get(0));
+                                if (!visible) continue;
+                                htUnknownResponseSummary[applicationName] = true;
+                                renderResponseSummary(elQuery, parseHistogramForD3(link.targetRawData[applicationName].histogram));
+                            } else {
+                                var elQuery = '.linkInfoDetails .summaryCharts_' + className + ' .load svg',
+                                    el = angular.element(elQuery);
+                                var visible = isVisible(el.get(0));
+                                if (!visible) continue;
+                                htUnknownLoad[applicationName] = true;
+                                renderLoad(elQuery, link.targetRawData[applicationName].timeSeriesHistogram);
+                            }
+                        }
+                    });
                 };
 
                 /**
@@ -114,7 +144,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                             return $filter('number')(d);
                         });
 
-                        chart.color(config.myColors);
+                        chart.color(cfg.myColors);
 
                         chart.multibar.dispatch.on('elementClick', function (e) {
 //                        console.log('element: ' + e.value, data);
@@ -143,6 +173,19 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         var className = $filter('applicationNameToClassName')(applicationName);
                         renderResponseSummary('.linkInfoDetails .summaryCharts_' + className +
                             ' .response-summary svg', parseHistogramForD3(htLastLink.targetRawData[applicationName].histogram));
+                    }
+                };
+
+                /**
+                 * scope render link load
+                 * @param applicationName
+                 */
+                scope.renderLinkLoad = function (applicationName) {
+                    if (angular.isUndefined(htUnknownLoad[applicationName])) {
+                        htUnknownLoad[applicationName] = true;
+                        var className = $filter('applicationNameToClassName')(applicationName);
+                        renderLoad('.linkInfoDetails .summaryCharts_' + className +
+                            ' .load svg', htLastLink.targetRawData[applicationName].timeSeriesHistogram);
                     }
                 };
 
@@ -192,7 +235,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
 //                            return humanReadableNumberFormatFilter(d, 1, true);
                         });
 
-                        chart.color(config.myColors);
+                        chart.color(cfg.myColors);
 
                         chart.discretebar.dispatch.on('elementClick', function (e) {
                             if (clickEventName) {
@@ -266,6 +309,20 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 };
 
                 /**
+                 * hide
+                 */
+                hide = function () {
+                    element.hide();
+                };
+
+                /**
+                 * show
+                 */
+                show = function () {
+                    element.show();
+                };
+
+                /**
                  * scope link order by name
                  */
                 scope.linkOrderByName = function () {
@@ -282,6 +339,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         scope.linkOrderByDesc = true;
                         scope.linkOrderBy = 'applicationName';
                     }
+                    renderAllChartWhichIsVisible(htLastLink);
                 };
 
                 /**
@@ -301,6 +359,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         scope.linkOrderByDesc = true;
                         scope.linkOrderBy = 'count';
                     }
+                    renderAllChartWhichIsVisible(htLastLink);
                 };
 
                 /**
@@ -339,21 +398,34 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     scope.$broadcast('linkInfoDetails.openFilteredMap', oServerMapFilterVo);
                 };
 
+                scope.linkSearchChange = function () {
+                    renderAllChartWhichIsVisible(htLastLink);
+                };
+
                 /**
-                 * scope event on linkInfoDetails.reset
+                 * scope event on linkInfoDetails.hide
                  */
-                scope.$on('linkInfoDetails.reset', function (event) {
-                    reset();
+                scope.$on('linkInfoDetails.hide', function (event) {
+                    hide();
                 });
 
                 /**
                  * scope event on linkInfoDetails.linkClicked
                  */
                 scope.$on('linkInfoDetails.initialize', function (event, e, query, link) {
+                    show();
+                    if (angular.equals(htLastLink, link)) return;
                     reset();
                     htQuery = query;
                     htLastLink = link;
                     showDetailInformation(link);
+                });
+
+                /**
+                 * scope event on linkInfoDetails.lazyRendering
+                 */
+                scope.$on('linkInfoDetails.lazyRendering', function (event, e) {
+                    renderAllChartWhichIsVisible(htLastLink);
                 });
             }
         };
