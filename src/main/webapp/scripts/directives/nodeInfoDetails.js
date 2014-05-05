@@ -168,9 +168,9 @@ pinpointApp
                      * @param applicationName
                      */
                     scope.showNodeDetailInformation = function (applicationName) {
-                        var node = htTargetRawData[applicationName];
-                        showDetailInformation(node);
-                        scope.$emit('nodeInfoDetail.showDetailInformationClicked', htQuery, node);
+                        htLastNode = htTargetRawData[applicationName];
+                        showDetailInformation(htLastNode);
+                        scope.$emit('nodeInfoDetail.showDetailInformationClicked', htQuery, htLastNode);
                     };
 
                     /**
