@@ -47,6 +47,7 @@ public class IbatisApiInterceptor implements SimpleAroundInterceptor, ByteCodeMe
 		}
 		try {
 			trace.recordServiceType(ServiceType.IBATIS);
+			trace.recordException(result);
 			if (args != null && args.length > 0) {
 				trace.recordApi(descriptor, args[0], 0);
 			} else {

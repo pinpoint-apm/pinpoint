@@ -54,6 +54,26 @@ public class SqlMapSessionImplModifierTest extends BasePinpointTest {
 	}
 	
 	@Test
+	public void exceptionsThrownShouldBeTraced() throws Exception {
+		// Given
+		final String exceptionInsertId = "insertShouldThrowNPE";
+		when(this.mockSqlMapExecutorDelegate.insert(mockSessionScope, exceptionInsertId, null)).thenThrow(new NullPointerException());
+		SqlMapSession sqlMapSession = new SqlMapSessionImpl(this.sqlMapClient);
+		// When
+		try {
+			sqlMapSession.insert(exceptionInsertId);
+			fail("sqlMapSession.insert() should throw NullPointerException");
+		} catch (NullPointerException e) {
+			// Then
+			final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
+			assertThat(spanEvents.size(), is(1));
+			final SpanEventBo exceptionSpanEventBo = spanEvents.get(0);
+			assertThat(exceptionSpanEventBo.hasException(), is(true));
+			assertThat(exceptionSpanEventBo.getExceptionId(), not(0));
+		}
+	}
+	
+	@Test
 	public void nullParametersShouldNotBeTraced() throws Exception {
 		// Given
 		SqlMapSession sqlMapSession = new SqlMapSessionImpl(this.sqlMapClient);
