@@ -51,6 +51,8 @@ import com.nhn.pinpoint.profiler.modifier.linegame.HttpCustomServerHandlerModifi
 import com.nhn.pinpoint.profiler.modifier.method.MethodModifier;
 import com.nhn.pinpoint.profiler.modifier.orm.ibatis.SqlMapClientImplModifier;
 import com.nhn.pinpoint.profiler.modifier.orm.ibatis.SqlMapSessionImplModifier;
+import com.nhn.pinpoint.profiler.modifier.orm.mybatis.DefaultSqlSessionModifier;
+import com.nhn.pinpoint.profiler.modifier.orm.mybatis.SqlSessionTemplateModifier;
 import com.nhn.pinpoint.profiler.modifier.servlet.HttpServletModifier;
 import com.nhn.pinpoint.profiler.modifier.servlet.SpringFrameworkServletModifier;
 import com.nhn.pinpoint.profiler.modifier.tomcat.CatalinaModifier;
@@ -323,10 +325,16 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	 */
 	public void addOrmModifier() {
 		addIBatisSupport();
+		addMyBatisSupport();
 	}
 	
 	private void addIBatisSupport() {
 		addModifier(new SqlMapSessionImplModifier(byteCodeInstrumentor, agent));
 		addModifier(new SqlMapClientImplModifier(byteCodeInstrumentor, agent));
+	}
+
+	private void addMyBatisSupport() {
+		addModifier(new DefaultSqlSessionModifier(byteCodeInstrumentor, agent));
+		addModifier(new SqlSessionTemplateModifier(byteCodeInstrumentor, agent));
 	}
 }

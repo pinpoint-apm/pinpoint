@@ -198,6 +198,20 @@
             </exclusions>
         </dependency>
         
+        <dependency>
+		    <groupId>org.mybatis</groupId>
+		    <artifactId>mybatis</artifactId>
+		    <version>3.2.7</version>
+            <scope>provided</scope>
+		</dependency>
+		<dependency>
+		    <groupId>org.mybatis</groupId>
+		    <artifactId>mybatis-spring</artifactId>
+		    <version>1.2.2</version>
+            <scope>provided</scope>
+		</dependency>
+            
+        
         <!-- [End] Compile Interceptors -->
 
         <!-- 3.17.0 버전이 나왔으나 compile이 1.7로 되어 있어서 버전시 문제 있음 좀있음 1.6이하로 다시 컴파일해 줄듯 하니 기둘리자.-->
