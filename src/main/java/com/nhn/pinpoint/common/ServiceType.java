@@ -66,7 +66,8 @@ public enum ServiceType {
     SPRING_MVC((short) 5051, "SPRING", false, false, false, HistogramSchema.NORMAL_SCHEMA),
     
     IBATIS((short) 5500, "IBATIS", false, false, false, HistogramSchema.NORMAL_SCHEMA),
-
+    MYBATIS((short) 5510, "MYBATIS", false, false, false, HistogramSchema.NORMAL_SCHEMA),
+    
     DBCP((short) 6050, "DBCP", false, false, false, HistogramSchema.NORMAL_SCHEMA),
 
     // memory cache  8000
