@@ -17,21 +17,15 @@
             </div>
         </div>
 
-        <div class="panel panel-default" ng-repeat="target in targetInfo | orderBy:linkOrderBy:linkOrderByDesc" ng-show="showUnknownLinkBy(linkSearch, target)">
+        <div class="panel panel-default" ng-repeat="target in targetInfo | orderBy:linkOrderBy:linkOrderByDesc" ng-show="showUnknownLinkBy(linkSearch, target)" style="height:161px;">
             <div class="panel-heading">
-                <!--<img ng-src="/images/icons/{{sourceInfo.serviceType | icons}}.png" style="height:14px;" />-->
-                <!--{{sourceInfo.applicationName}}-->
                 <span class="glyphicon glyphicon-arrow-right"></span>
-                <!--<img ng-src="/images/icons/UNKNOWN.png" style="height:14px;" />-->
                 {{target.applicationName}}  <span class="badge" style="position:absolute;right:20px;">{{target.count | number}} calls</span>
             </div>
             <div class="panel-body summaryCharts_{{target.applicationName | applicationNameToClassName}}" style="position: relative; padding:0">
-                <div class="response-summary" ng-show="showLinkResponseSummaryForUnknown">
-                    <svg style='height:120px;width:350px;'/>
-                </div>
-                <div class="load" ng-hide="showLinkResponseSummaryForUnknown">
-                    <svg style='height:120px;width:350px;'/>
-                </div>
+
+                <response-time-chart namespace="forLink_{{target.applicationName | applicationNameToClassName}}"  ng-show="showLinkResponseSummaryForUnknown"></response-time-chart>
+                <load-chart namespace="forLink_{{target.applicationName | applicationNameToClassName}}" ng-hide="showLinkResponseSummaryForUnknown"></load-chart>
 
 
                 <a class="btn btn-default btn-xs" href title="Show Load" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;"
@@ -58,12 +52,12 @@
 
     <div class='infoBarChart' ng-show="showLinkResponseSummary">
         <h5>Response Summary</h5>
-        <svg style='height:150px' />
+        <response-time-chart namespace="forLink"></response-time-chart>
     </div>
 
     <div class='infoChart' ng-show="ShowLinkLoad">
         <h5>Load</h5>
-        <svg style='height:150px' />
+        <load-chart namespace="forLink"></load-chart>
     </div>
 
 </div>

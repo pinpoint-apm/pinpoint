@@ -16,11 +16,11 @@ pinpointApp
                 link: function postLink(scope, element) {
 
                     // define private variables
-                    var htServermapData, htLastNode, htUnknownResponseSummary, htUnknownLoad, htTargetRawData, htQuery;
+                    var htServermapData, htLastNode, htUnknownResponseSummary, htUnknownLoad, htTargetRawData, htQuery,
+                        htAgentChartRendered;
 
                     // define private variables of methods
-                    var reset, showDetailInformation, parseHistogramForNvd3, renderResponseSummary,
-                        parseHistogramForD3, renderLoad, renderAllChartWhichIsVisible, hide, show;
+                    var reset, showDetailInformation, renderAllChartWhichIsVisible, hide, show;
 
                     /**
                      * reset
@@ -28,6 +28,7 @@ pinpointApp
                     reset = function () {
                         htUnknownResponseSummary = {};
                         htUnknownLoad = {};
+                        htAgentChartRendered = {};
                         htTargetRawData = false;
                         htQuery = false;
                         scope.showNodeInfoDetails = false;
@@ -63,26 +64,11 @@ pinpointApp
                         scope.agentHistogram = node.agentHistogram;
 
                         if (!node.targetRawData && node.category !== "UNKNOWN_GROUP") {
-                            renderResponseSummary('.nodeInfoDetails .histogram svg', [
-                                {
-                                    'key': "Response Time Histogram",
-                                    'values' : parseHistogramForNvd3(node.histogram)
-                                }
-                            ]);
                             scope.showNodeResponseSummary = true;
                             scope.showNodeLoad = true;
-                            renderLoad('.nodeInfoDetails .timeSeriesHistogram svg', node.timeSeriesHistogram);
 
-                            for (var key in node.agentHistogram) {
-                                var className = $filter('applicationNameToClassName')(key);
-                                renderResponseSummary('.nodeInfoDetails .agentHistogram_' + className +
-                                    ' svg', parseHistogramForD3(node.agentHistogram[key]));
-                            }
-                            for (var key in node.agentTimeSeriesHistogram) {
-                                var className = $filter('applicationNameToClassName')(key);
-                                renderLoad('.nodeInfoDetails .agentTimeSeriesHistogram_' + className +
-                                    ' svg', node.agentTimeSeriesHistogram[key]);
-                            }
+                            scope.$broadcast('responseTimeChart.initAndRenderWithData.forNode', node.histogram, '100%', '150px', false, true);
+                            scope.$broadcast('loadChart.initAndRenderWithData.forNode', node.timeSeriesHistogram, '100%', '220px');
                         } else if (node.category === 'UNKNOWN_GROUP'){
                             htTargetRawData = node.targetRawData;
                             scope.showNodeResponseSummaryForUnknown = (scope.oNavbarVo.getPeriod() <= cfg.maxTimeToShowLoadAsDefaultForUnknown) ? false : true;
@@ -110,45 +96,23 @@ pinpointApp
                                 if (angular.isDefined(htUnknownResponseSummary[applicationName])) continue;
                                 if (angular.isDefined(htUnknownLoad[applicationName])) continue;
 
+                                var elQuery = '.nodeInfoDetails .summaryCharts_' + className,
+                                    el = angular.element(elQuery);
+                                var visible = isVisible(el.get(0));
+                                console.log('applicationName', applicationName, visible);
+                                if (!visible) continue;
+
                                 if (scope.showNodeResponseSummaryForUnknown) {
-                                    var elQuery = '.nodeInfoDetails .summaryCharts_' + className + ' .response-summary svg',
-                                        el = angular.element(elQuery);
-                                    var visible = isVisible(el.get(0));
-                                    if (!visible) continue;
                                     htUnknownResponseSummary[applicationName] = true;
-                                    renderResponseSummary(elQuery, parseHistogramForD3(node.targetRawData[applicationName].histogram));
+                                    scope.$broadcast('responseTimeChart.initAndRenderWithData.forNode_' + className, node.targetRawData[applicationName].histogram, '360px', '120px');
+                                    console.log('broadcast', 'responseTimeChart.initAndRenderWithData.forNode_' + className);
                                 } else {
-                                    var elQuery = '.nodeInfoDetails .summaryCharts_' + className + ' .load svg',
-                                        el = angular.element(elQuery);
-                                    var visible = isVisible(el.get(0));
-                                    if (!visible) continue;
                                     htUnknownLoad[applicationName] = true;
-                                    renderLoad(elQuery, node.targetRawData[applicationName].timeSeriesHistogram);
+                                    scope.$broadcast('loadChart.initAndRenderWithData.forNode_' + className, node.targetRawData[applicationName].timeSeriesHistogram, '360px', '120px');
                                 }
                             }
                         });
                     };
-
-                    /**
-                     * parse histogram for d3.js
-                     * @param histogram
-                     */
-                    parseHistogramForD3 = function (histogram) {
-                        var histogramSummary = [
-                            {
-                                "key": "Response Time Histogram",
-                                "values": []
-                            }
-                        ];
-                        for (var key in histogram) {
-                            histogramSummary[0].values.push({
-                                "label": key,
-                                "value": histogram[key]
-                            });
-                        }
-                        return histogramSummary;
-                    };
-
                     /**
                      * hide
                      */
@@ -174,73 +138,6 @@ pinpointApp
                     };
 
                     /**
-                     * render statics summary
-                     * @param querySelector
-                     * @param data
-                     * @param clickEventName
-                     */
-                    renderResponseSummary = function (querySelector, data, clickEventName) {
-                        if (!scope.$$phase) {
-                            scope.$digest();
-                        }
-                        nv.addGraph(function () {
-                            angular.element(querySelector).empty();
-                            var chart = nv.models.discreteBarChart().x(function (d) {
-                                return d.label;
-                            }).y(function (d) {
-                                    return d.value;
-                                }).staggerLabels(false).tooltips(false).showValues(true);
-
-                            chart.xAxis.tickFormat(function (d) {
-                                // FIXME d로 넘어오는 값의 타입이 string이고 angular.isNumber는 "1000"에 대해 false를 반환함.
-                                // if (angular.isNumber(d)) {
-                                if (/^\d+$/.test(d)) {
-                                    if (d >= 1000) {
-                                        return $filter('number')(d / 1000) + "s";
-                                    } else {
-                                        return $filter('number')(d) + "ms";
-                                    }
-                                } else if (d.charAt(d.length - 1) == '+') {
-                                    var v = d.substr(0, d.length - 1);
-                                    if (v >= 1000) {
-                                        return $filter('number')(v / 1000) + "s+";
-                                    } else {
-                                        return $filter('number')(v) + "ms+";
-                                    }
-                                } else {
-                                    return d;
-                                }
-                            });
-
-                            chart.yAxis.tickFormat(function (d, i) {
-                                return $filter('humanReadableNumberFormat')(d, 0);
-                            });
-
-                            chart.valueFormat(function (d) {
-                                return $filter('number')(d);
-    //                            return $filter('humanReadableNumberFormat')(d, 1, true);
-                            });
-
-                            chart.color(cfg.myColors);
-
-                            chart.discretebar.dispatch.on('elementClick', function (e) {
-                                if (clickEventName) {
-                                }
-                            });
-
-                            d3.select(querySelector)
-                                .datum(data)
-                                .transition()
-                                .duration(0)
-                                .call(chart);
-
-                            nv.utils.windowResize(chart.update);
-
-                            return chart;
-                        });
-                    };
-
-                    /**
                      * scope render node response summary
                      * @param applicationName
                      */
@@ -249,8 +146,7 @@ pinpointApp
                             htUnknownResponseSummary[applicationName] = true;
                             var className = $filter('applicationNameToClassName')(applicationName);
 
-                            renderResponseSummary('.nodeInfoDetails .summaryCharts_' + className +
-                            ' .response-summary svg', parseHistogramForD3(htLastNode.targetRawData[applicationName].histogram));
+                            scope.$broadcast('responseTimeChart.initAndRenderWithData.forNode_' + className, htLastNode.targetRawData[applicationName].histogram, '360px', '120px');
                         }
                     };
 
@@ -263,73 +159,20 @@ pinpointApp
                             htUnknownLoad[applicationName] = true;
                             var className = $filter('applicationNameToClassName')(applicationName);
 
-                            renderLoad('.nodeInfoDetails .summaryCharts_' + className +
-                                ' .load svg', htLastNode.targetRawData[applicationName].timeSeriesHistogram);
+                            scope.$broadcast('loadChart.initAndRenderWithData.forNode_' + className, htLastNode.targetRawData[applicationName].timeSeriesHistogram, '360px', '120px');
                         }
                     };
 
                     /**
-                     * render time series histogram
-                     * @param querySelector
-                     * @param data
-                     * @param clickEventName
+                     * render agent charts
+                     * @param applicationName
                      */
-                    renderLoad = function (querySelector, data, clickEventName) {
-                        if (!scope.$$phase) {
-                            scope.$digest();
-                        }
-                        nv.addGraph(function () {
-                            angular.element(querySelector).empty();
-                            var chart = nv.models.multiBarChart().x(function (d) {
-                                return d[0];
-                            }).y(function (d) {
-                                    return d[1];
-                                }).clipEdge(true).showControls(false).delay(0);
-
-                            chart.stacked(true);
-
-                            chart.xAxis.tickFormat(function (d) {
-                                return d3.time.format('%H:%M')(new Date(d));
-                            });
-
-                            chart.yAxis.tickFormat(function (d) {
-    //                            return $filter('humanReadableNumberFormat')(d, 0);
-                                return $filter('number')(d);
-                            });
-
-                            chart.color(cfg.myColors);
-
-                            chart.multibar.dispatch.on('elementClick', function (e) {
-                                if (clickEventName) {
-                                }
-                            });
-
-                            d3.select(querySelector)
-                                .datum(data)
-                                .transition()
-                                .duration(0)
-                                .call(chart);
-
-                            nv.utils.windowResize(chart.update);
-
-                            return chart;
-                        });
-                    };
-
-                    /**
-                     * parse histogram for nvd3
-                     * @param histogram
-                     * @returns {Array}
-                     */
-                    parseHistogramForNvd3 = function (histogram) {
-                        var parsedHistogram = [];
-                        angular.forEach(histogram, function (val, key) {
-                            parsedHistogram.push({
-                                label: key,
-                                value: val
-                            })
-                        });
-                        return parsedHistogram;
+                    scope.renderAgentCharts = function (applicationName) {
+                        if (angular.isDefined(htAgentChartRendered[applicationName])) return;
+                        htAgentChartRendered[applicationName] = true;
+                        var className = $filter('applicationNameToClassName')(applicationName);
+                        scope.$broadcast('responseTimeChart.initAndRenderWithData.forNode_' + className, htLastNode.agentHistogram[applicationName], '100%', '150px');
+                        scope.$broadcast('loadChart.initAndRenderWithData.forNode_' + className, htLastNode.agentTimeSeriesHistogram[applicationName], '100%', '220px');
                     };
 
                     /**
@@ -424,6 +267,10 @@ pinpointApp
                      */
                     scope.$on('nodeInfoDetails.lazyRendering', function (event, e) {
                         renderAllChartWhichIsVisible(htLastNode);
+                    });
+
+                    scope.$on('responseTimeChart.itemClicked.forNode', function (event, data) {
+                        console.log('on responseTimeChart.itemClicked.forNode', data);
                     });
 
                 }

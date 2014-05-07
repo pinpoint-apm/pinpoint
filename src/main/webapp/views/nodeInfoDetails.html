@@ -17,19 +17,14 @@
             </div>
         </div>
 
-        <div class="panel panel-default" ng-repeat="node in unknownGroup | orderBy:nodeOrderBy:nodeOrderByDesc" ng-show="showUnknownNodeBy(nodeSearch, node)">
+        <div class="panel panel-default" ng-repeat="node in unknownGroup | orderBy:nodeOrderBy:nodeOrderByDesc" ng-show="showUnknownNodeBy(nodeSearch, node)" style="height:161px;">
             <div class="panel-heading">
                 {{node.applicationName}} <span class="badge" style="position:absolute;right:20px;">{{node.count | number}} calls</span>
             </div>
 
             <div class="panel-body summaryCharts_{{node.applicationName | applicationNameToClassName}}" style="position: relative; padding:0">
-                <div class="response-summary" ng-show="showNodeResponseSummaryForUnknown">
-                    <svg style='height:120px;width:350px;'/>
-                </div>
-                <div class="load" ng-hide="showNodeResponseSummaryForUnknown">
-                    <svg style='height:120px;width:350px;'/>
-                </div>
-
+                <response-time-chart namespace="forNode_{{node.applicationName | applicationNameToClassName}}"  ng-show="showNodeResponseSummaryForUnknown"></response-time-chart>
+                <load-chart namespace="forNode_{{node.applicationName | applicationNameToClassName}}" ng-hide="showNodeResponseSummaryForUnknown"></load-chart>
 
                 <a class="btn btn-default btn-xs" href title="Show Load" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;"
                    ng-click="showNodeResponseSummaryForUnknown=!showNodeResponseSummaryForUnknown;renderNodeLoad(node.applicationName)" ng-show="showNodeResponseSummaryForUnknown">
@@ -54,12 +49,13 @@
 
     <div class='histogram' ng-show="showNodeResponseSummary">
         <h5>Response Summary</h5>
-        <svg style='height:150px;' />
+        <response-time-chart namespace="forNode"></response-time-chart>
     </div>
+
 
     <div class='timeSeriesHistogram' ng-show="showNodeLoad">
         <h5>Load</h5>
-        <svg style='height:150px' />
+        <load-chart namespace="forNode"></load-chart>
     </div>
 
     <div ng-show="showServers">
@@ -70,23 +66,23 @@
                 {{server.name.split(':')[0]}}
                 <a class="btn btn-default btn-xs" href="http://nsight.nhncorp.com/dashboard_server/{{server.name.split(':')[0].replace('.nhnsystem.com','')}}" target="_blank" title="System resource monitoring site">NSight</a>
                 <ul style="padding-left: 15px;">
-                    <li ng-repeat="instance in server.instanceList">
+                    <li ng-repeat="instance in server.instanceList" ng-init="instance.showChart=false">
                         <span class="glyphicon glyphicon-hdd"></span>
                         {{instance.name}}
                         <a class="btn btn-default btn-xs" ng-show="instance.hasInspector" ng-href="#/inspector/{{node.text}}@{{node.serviceTypeCode}}/{{oNavbarVo.getPeriod()}}/{{oNavbarVo.getQueryEndTime()}}/{{instance.name}}" target="_blank" title="Inspect Agents" alt="Inspect Agents">Inspector</a>
                         <a class="btn btn-default btn-xs" href="http://hubble.arcuscloud.nhncorp.com/" target="_blank" title="Arcus monitoring site" ng-show="nodeCategory == 'ARCUS'">Hubble</a>
-                        <button type="button" class="btn btn-xs" ng-click="instance.showChart=!instance.showChart"
+                        <button type="button" class="btn btn-xs" ng-click="instance.showChart=!instance.showChart;renderAgentCharts(instance.name);"
                                 ng-show="agentHistogram[instance.name]" ng-class="{true:'btn-danger', false:'btn-default'}[agentHistogram[instance.name].Error > 0]">
                             <span class="glyphicon" ng-class="{true:'glyphicon-minus',false:'glyphicon-plus'}[instance.showChart==true]"></span>
                         </button>
                         <div ng-show="instance.showChart">
                             <div class="agentHistogram_{{instance.name | applicationNameToClassName}}">
                                 <h6>Response Summary</h6>
-                                <svg style='height:150px;width:350px' />
+                                <response-time-chart namespace="forNode_{{instance.name | applicationNameToClassName}}"></response-time-chart>
                             </div>
                             <div class="agentTimeSeriesHistogram_{{instance.name | applicationNameToClassName}}">
                                 <h6>Load</h6>
-                                <svg style='height:150px;width:350px' />
+                                <load-chart namespace="forNode_{{instance.name | applicationNameToClassName}}"></load-chart>
                             </div>
                         </div>
                     </li>

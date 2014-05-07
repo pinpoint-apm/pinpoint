@@ -78,8 +78,8 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         scope.linkCategory = 'LinkInfoBox';
                         scope.ShowLinkLoad = true;
                         scope.showLinkResponseSummary = true;
-                        renderResponseSummary('.linkInfoDetails .infoBarChart svg', parseHistogramForD3(link.histogram), 'ResponseSummary');
-                        renderLoad('.linkInfoDetails .infoChart svg', link.timeSeriesHistogram);
+                        renderResponseSummary('forLink', link.histogram, '100%', '150px');
+                        renderLoad('forLink', link.timeSeriesHistogram, '100%', '220px');
                     }
 
                     scope.showLinkInfoDetails = true;
@@ -100,67 +100,79 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                             if (angular.isDefined(htUnknownResponseSummary[applicationName])) continue;
                             if (angular.isDefined(htUnknownLoad[applicationName])) continue;
 
+                            var elQuery = '.linkInfoDetails .summaryCharts_' + className,
+                                el = angular.element(elQuery);
+                            var visible = isVisible(el.get(0));
+                            if (!visible) continue;
+
                             if (scope.showLinkResponseSummaryForUnknown) {
-                                var elQuery = '.linkInfoDetails .summaryCharts_' + className + ' .response-summary svg',
-                                    el = angular.element(elQuery);
-                                var visible = isVisible(el.get(0));
-                                if (!visible) continue;
                                 htUnknownResponseSummary[applicationName] = true;
-                                renderResponseSummary(elQuery, parseHistogramForD3(link.targetRawData[applicationName].histogram));
+                                renderResponseSummary('forLink_' + className, link.targetRawData[applicationName].histogram, '360px', '120px');
                             } else {
-                                var elQuery = '.linkInfoDetails .summaryCharts_' + className + ' .load svg',
-                                    el = angular.element(elQuery);
-                                var visible = isVisible(el.get(0));
-                                if (!visible) continue;
                                 htUnknownLoad[applicationName] = true;
-                                renderLoad(elQuery, link.targetRawData[applicationName].timeSeriesHistogram);
+                                renderLoad('forLink_' + className, link.targetRawData[applicationName].timeSeriesHistogram, '360px', '120px');
                             }
                         }
                     });
                 };
 
                 /**
-                 * render statistics time series histogram
-                 * @param querySelector
-                 * @param data
+                 * render response summary
+                 * @param namespace
+                 * @param histogram
+                 * @param w
+                 * @param h
                  */
-                renderLoad = function (querySelector, data) {
-                    nv.addGraph(function () {
-                        angular.element(querySelector).empty();
-                        var chart = nv.models.multiBarChart().x(function (d) {
-                            return d[0];
-                        }).y(function (d) {
-                                return d[1];
-                            }).clipEdge(true).showControls(false).delay(0);
+                renderResponseSummary = function (namespace, histogram, w, h) {
+                    scope.$broadcast('responseTimeChart.initAndRenderWithData.' + namespace, histogram, w, h, true, true);
+                    scope.$on('responseTimeChart.itemClicked.' + namespace, function (event, data) {
+                        var label = data.responseTime,
+                            values = data.count;
+                        var oServerMapFilterVo = new ServerMapFilterVo();
+                        oServerMapFilterVo
+                            .setMainApplication(htLastLink.filterApplicationName)
+                            .setMainServiceTypeCode(htLastLink.filterApplicationServiceTypeCode)
+                            .setFromApplication(htLastLink.sourceInfo.applicationName)
+                            .setFromServiceType(htLastLink.sourceInfo.serviceType)
+                            .setToApplication(htLastLink.targetInfo.applicationName)
+                            .setToServiceType(htLastLink.targetInfo.serviceType);
+                        if (htLastLink.sourceInfo.serviceType === 'USER') {
+                            oServerMapFilterVo
+                                .setFromApplication('USER')
+                                .setFromServiceType('USER');
+                        }
 
-                        chart.stacked(true);
+                        if (label.toLowerCase() === 'error') {
+                            oServerMapFilterVo.setIncludeException(true);
+                        } else if (label.toLowerCase() === 'slow') {
+                            oServerMapFilterVo
+                                .setResponseFrom(filteredMapUtil.getStartValueForFilterByLabel(label, values) * 1000)
+                                .setResponseTo('max');
+                        } else {
+                            oServerMapFilterVo
+                                .setResponseFrom(filteredMapUtil.getStartValueForFilterByLabel(label, values) * 1000)
+                                .setResponseTo(parseInt(label, 10) * 1000);
+                        }
 
-                        chart.xAxis.tickFormat(function (d) {
-                            return d3.time.format('%H:%M')(new Date(d));
-                        });
+                        var oServerMapHintVo = new ServerMapHintVo();
+                        if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {
+                            oServerMapHintVo.setHint(htLastLink.targetInfo.applicationName, htLastLink.filterTargetRpcList)
+                        }
 
-                        chart.yAxis.tickFormat(function (d) {
-//                            return $filter('humanReadableNumberFormat')(d, 0);
-                            return $filter('number')(d);
-                        });
-
-                        chart.color(cfg.myColors);
-
-                        chart.multibar.dispatch.on('elementClick', function (e) {
-//                        console.log('element: ' + e.value, data);
-//                        console.dir(e.point);
-                        });
-
-                        d3.select(querySelector)
-                            .datum(data)
-                            .transition()
-                            .duration(0)
-                            .call(chart);
-
-                        nv.utils.windowResize(chart.update);
-
-                        return chart;
+                        scope.$emit('linkInfoDetails.ResponseSummary.barClicked', oServerMapFilterVo, oServerMapHintVo);
                     });
+                };
+
+                /**
+                 * render load
+                 * @param namespace
+                 * @param timeSeriesHistogram
+                 * @param w
+                 * @param h
+                 * @param useChartCursor
+                 */
+                renderLoad = function (namespace, timeSeriesHistogram, w, h, useChartCursor) {
+                    scope.$broadcast('loadChart.initAndRenderWithData.' + namespace, timeSeriesHistogram, w, h, useChartCursor);
                 };
 
                 /**
@@ -171,8 +183,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     if (angular.isUndefined(htUnknownResponseSummary[applicationName])) {
                         htUnknownResponseSummary[applicationName] = true;
                         var className = $filter('applicationNameToClassName')(applicationName);
-                        renderResponseSummary('.linkInfoDetails .summaryCharts_' + className +
-                            ' .response-summary svg', parseHistogramForD3(htLastLink.targetRawData[applicationName].histogram));
+                        renderResponseSummary('forLink_' + className, htLastLink.targetRawData[applicationName].histogram, '360px', '120px');
                     }
                 };
 
@@ -184,128 +195,8 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     if (angular.isUndefined(htUnknownLoad[applicationName])) {
                         htUnknownLoad[applicationName] = true;
                         var className = $filter('applicationNameToClassName')(applicationName);
-                        renderLoad('.linkInfoDetails .summaryCharts_' + className +
-                            ' .load svg', htLastLink.targetRawData[applicationName].timeSeriesHistogram);
+                        renderLoad('forLink_' + className, htLastLink.targetRawData[applicationName].timeSeriesHistogram, '360px', '120px');
                     }
-                };
-
-                /**
-                 * render statics summary
-                 * @param querySelector
-                 * @param data
-                 * @param clickEventName
-                 */
-                renderResponseSummary = function (querySelector, data, clickEventName) {
-                    nv.addGraph(function () {
-                        angular.element(querySelector).empty();
-                        var chart = nv.models.discreteBarChart().x(function (d) {
-                            return d.label;
-                        }).y(function (d) {
-                                return d.value;
-                            }).staggerLabels(false).tooltips(false).showValues(true);
-
-                        chart.xAxis.tickFormat(function (d) {
-                            // FIXME d로 넘어오는 값의 타입이 string이고 angular.isNumber는 "1000"에 대해 false를 반환함.
-                            // 서버에서 알아서 넘어옴
-                            // if (angular.isNumber(d)) {
-//                            if (/^\d+$/.test(d)) {
-//                                if (d >= 1000) {
-//                                    return $filter('number')(d / 1000) + "s";
-//                                } else {
-//                                    return $filter('number')(d) + "ms";
-//                                }
-//                            } else if (d.charAt(d.length - 1) == '+') {
-//                                var v = d.substr(0, d.length - 1);
-//                                if (v >= 1000) {
-//                                    return $filter('number')(v / 1000) + "s+";
-//                                } else {
-//                                    return $filter('number')(v) + "ms+";
-//                                }
-//                            } else {
-                                return d;
-//                            }
-                        });
-
-                        chart.yAxis.tickFormat(function (d, i) {
-                            return humanReadableNumberFormatFilter(d, 0);
-                        });
-
-                        chart.valueFormat(function (d) {
-                            return $filter('number')(d);
-//                            return humanReadableNumberFormatFilter(d, 1, true);
-                        });
-
-                        chart.color(cfg.myColors);
-
-                        chart.discretebar.dispatch.on('elementClick', function (e) {
-                            if (clickEventName) {
-                                var label = e.point.label,
-                                    values = e.series.values;
-                                var oServerMapFilterVo = new ServerMapFilterVo();
-                                oServerMapFilterVo
-                                    .setMainApplication(htLastLink.filterApplicationName)
-                                    .setMainServiceTypeCode(htLastLink.filterApplicationServiceTypeCode)
-                                    .setFromApplication(htLastLink.sourceInfo.applicationName)
-                                    .setFromServiceType(htLastLink.sourceInfo.serviceType)
-                                    .setToApplication(htLastLink.targetInfo.applicationName)
-                                    .setToServiceType(htLastLink.targetInfo.serviceType);
-                                if (htLastLink.sourceInfo.serviceType === 'USER') {
-                                    oServerMapFilterVo
-                                        .setFromApplication('USER')
-                                        .setFromServiceType('USER');
-                                }
-
-                                if (label.toLowerCase() === 'error') {
-                                    oServerMapFilterVo.setIncludeException(true);
-                                } else if (label.toLowerCase() === 'slow') {
-                                    oServerMapFilterVo
-                                        .setResponseFrom(filteredMapUtil.getStartValueForFilterByLabel(label, values) * 1000)
-                                        .setResponseTo('max');
-                                } else {
-                                    oServerMapFilterVo
-                                        .setResponseFrom(filteredMapUtil.getStartValueForFilterByLabel(label, values) * 1000)
-                                        .setResponseTo(parseInt(label, 10) * 1000);
-                                }
-
-                                var oServerMapHintVo = new ServerMapHintVo();
-                                if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {
-                                    oServerMapHintVo.setHint(htLastLink.targetInfo.applicationName, htLastLink.filterTargetRpcList)
-                                }
-
-                                scope.$emit('linkInfoDetails.' + clickEventName + '.barClicked', oServerMapFilterVo, oServerMapHintVo);
-                            }
-                        });
-
-                        d3.select(querySelector)
-                            .datum(data)
-                            .transition()
-                            .duration(0)
-                            .call(chart);
-
-                        nv.utils.windowResize(chart.update);
-
-                        return chart;
-                    });
-                };
-
-                /**
-                 * parse histogram for d3.js
-                 * @param histogram
-                 */
-                parseHistogramForD3 = function (histogram) {
-                    var histogramSummary = [
-                        {
-                            "key": "Response Time Histogram",
-                            "values": []
-                        }
-                    ];
-                    for (var key in histogram) {
-                        histogramSummary[0].values.push({
-                            "label": key,
-                            "value": histogram[key]
-                        });
-                    }
-                    return histogramSummary;
                 };
 
                 /**
