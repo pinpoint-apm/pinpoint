@@ -4,22 +4,43 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import com.nhn.pinpoint.web.alarm.filter.AlarmCheckFilter;
 import com.nhn.pinpoint.web.alarm.filter.AlarmFilter;
+import com.nhn.pinpoint.web.alarm.filter.FailureCountFilter;
+import com.nhn.pinpoint.web.alarm.filter.FailureRatesFilter;
+import com.nhn.pinpoint.web.alarm.vo.AlarmRuleResource;
+import com.nhn.pinpoint.web.vo.Application;
 
 public enum SubCategory {
 
 	RATE_FAIL("RATE_FAIL", 1, MainCategory.REQUEST) {
 		@Override
-		public AlarmFilter createAlarmFilter(MainCategory parent) {
-			// TODO Auto-generated method stub
-			return null;
+		public AlarmCheckFilter createAlarmFilter(Application application, MainCategory parent, AlarmRuleResource rule) {
+			AlarmCheckFilter filter = null;
+			if (MainCategory.REQUEST == parent) {
+				filter = new FailureRatesFilter(application);
+			}
+
+			if (filter != null) {
+				filter.initialize(rule);
+			}
+			
+			return filter;
 		}
 	},
 	COUNT_FAIL("COUNT_FAIL", 2, MainCategory.REQUEST) {
 		@Override
-		public AlarmFilter createAlarmFilter(MainCategory parent) {
-			// TODO Auto-generated method stub
-			return null;
+		public AlarmCheckFilter createAlarmFilter(Application application, MainCategory parent, AlarmRuleResource rule) {
+			AlarmCheckFilter filter = null;
+			if (MainCategory.REQUEST == parent) {
+				filter = new FailureCountFilter(application);
+			}
+
+			if (filter != null) {
+				filter.initialize(rule);
+			}
+
+			return filter;
 		}
 	};
 
@@ -52,17 +73,16 @@ public enum SubCategory {
 		return parentSupportCategoryList;
 	}
 
-	AlarmFilter createAlarmFilter() throws Exception {
+	AlarmFilter createAlarmFilter(Application application, AlarmRuleResource rule) throws Exception {
 		List<MainCategory> parentSupportCategoryList = getParentSupportCategoryList();
 		if (parentSupportCategoryList.size() == 1) {
-			return createAlarmFilter(parentSupportCategoryList.get(0));
+			return createAlarmFilter(application, parentSupportCategoryList.get(0), rule);
 		} else {
 			throw new Exception("Ambiguous ParentCategory Exception");
-			// 
 		}
 	}
 	
-	public abstract AlarmFilter createAlarmFilter(MainCategory parent);
+	public abstract AlarmCheckFilter createAlarmFilter(Application application, MainCategory parent, AlarmRuleResource rule);
 
 	public static SubCategory getValue(String value) {
 		return SubCategory.valueOf(value.toUpperCase(Locale.ENGLISH));

@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.web.alarm;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +17,18 @@ public class DefaultAlarmJobsRepository implements AlarmJobsRepository {
 	private final Map<Application, List<AlarmJob>> repository = new HashMap<Application, List<AlarmJob>>();
 
 	public DefaultAlarmJobsRepository() {
+	}
+	
+	@Override
+	public int getTotalJobCount() {
+		int totalCount = 0;
+		
+		Collection<List<AlarmJob>> values = repository.values();
+		for (List<AlarmJob> value : values) {
+			totalCount += value.size();
+		}
+		
+		return totalCount;
 	}
 
 	public List<AlarmJob> addAlarmJob(Application application, AlarmJob job) {

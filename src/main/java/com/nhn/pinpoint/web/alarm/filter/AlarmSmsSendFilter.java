@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.web.alarm.AlarmEvent;
+import com.nhn.pinpoint.web.vo.Application;
 
 /**
  * 
@@ -26,12 +27,15 @@ public class AlarmSmsSendFilter extends AlarmSendFilter {
 
 	private static final String QUOTATATION = "\"";
 
+	private final Application application;
+	
 	private final String mexMtUrl;
 	private final String serviceId;
 	private final String sender;
 	private final List<String> receiverList;
 
-	public AlarmSmsSendFilter(String mexMtUrl, String serviceId, String sender, List<String> receiverList) {
+	public AlarmSmsSendFilter(Application application, String mexMtUrl, String serviceId, String sender, List<String> receiverList) {
+		this.application = application;
 		this.mexMtUrl = mexMtUrl;
 		this.serviceId = serviceId;
 		this.sender = sender;
@@ -57,7 +61,7 @@ public class AlarmSmsSendFilter extends AlarmSendFilter {
 			if (response != null) {
 				HttpEntity entity = response.getEntity();
 				// 이작업 자체가 닫는거랑 같음
-				logger.debug("{}", EntityUtils.toString(entity));
+				logger.debug("result={}", EntityUtils.toString(entity));
 			}
 		} catch (Exception e) {
 			logger.warn(e.getMessage(), e);

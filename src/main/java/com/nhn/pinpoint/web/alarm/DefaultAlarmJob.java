@@ -3,6 +3,9 @@ package com.nhn.pinpoint.web.alarm;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.nhn.pinpoint.web.alarm.filter.AlarmCheckFilter;
 import com.nhn.pinpoint.web.alarm.filter.AlarmFilter;
 import com.nhn.pinpoint.web.alarm.filter.AlarmSendFilter;
@@ -14,6 +17,8 @@ import com.nhn.pinpoint.web.vo.Application;
  */
 public class DefaultAlarmJob implements AlarmJob {
 	
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
 	private final Application application;
 	
 	public DefaultAlarmJob(Application application) {
@@ -24,12 +29,13 @@ public class DefaultAlarmJob implements AlarmJob {
 	private final List<AlarmSendFilter> sendFilterList = new ArrayList<AlarmSendFilter>();
 
 	@Override
-	public void execute(AlarmEvent event) {
+	public boolean execute(AlarmEvent event) {
+		logger.debug("{} execute. CheckFilterList={},  SendFilterList={}", this.getClass().getSimpleName(), checkFilterList, sendFilterList);
 		
 		for (AlarmCheckFilter checkFilter : this.checkFilterList) {
 			boolean isSatisfy = checkFilter.execute(event);
 			if (!isSatisfy) {
-				return;
+				return false;
 			}
 		}
 		
@@ -37,6 +43,7 @@ public class DefaultAlarmJob implements AlarmJob {
 			sendFilter.execute(event);
 		}
 		
+		return true;
 	}
 
 	public <T extends AlarmFilter> void addFilter(List<T> filterList) {

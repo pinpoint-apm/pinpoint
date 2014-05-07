@@ -606,6 +606,13 @@
             </exclusions>
         </dependency>
 
+        <!-- for email platform dependencies -->
+		<dependency>
+            <groupId>com.nhncorp.lucy</groupId>
+            <artifactId>lucy-npc</artifactId>
+            <version>1.5.19</version>
+        </dependency>
+
         <!-- Test dependencies -->
 		<dependency>
             <groupId>com.nhn.pinpoint</groupId>

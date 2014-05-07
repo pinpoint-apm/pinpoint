@@ -6,6 +6,8 @@ import com.nhn.pinpoint.web.vo.Application;
 
 public interface AlarmJobsRepository {
 
+	int getTotalJobCount();
+	
 	List<AlarmJob> getAlarmJob(Application application);
 	
 	List<Application> getRegistedApplicationList();
