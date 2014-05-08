@@ -20,7 +20,8 @@ pinpointApp
                         htAgentChartRendered;
 
                     // define private variables of methods
-                    var reset, showDetailInformation, renderAllChartWhichIsVisible, hide, show;
+                    var reset, showDetailInformation, renderAllChartWhichIsVisible, hide, show, renderResponseSummary,
+                        renderLoad;
 
                     /**
                      * reset
@@ -67,8 +68,8 @@ pinpointApp
                             scope.showNodeResponseSummary = true;
                             scope.showNodeLoad = true;
 
-                            scope.$broadcast('responseTimeChart.initAndRenderWithData.forNode', node.histogram, '100%', '150px', false, true);
-                            scope.$broadcast('loadChart.initAndRenderWithData.forNode', node.timeSeriesHistogram, '100%', '220px');
+                            renderResponseSummary('forNode', node.text, node.histogram, '100%', '150px');
+                            renderLoad('forNode', node.text, node.timeSeriesHistogram, '100%', '220px', true);
                         } else if (node.category === 'UNKNOWN_GROUP'){
                             htTargetRawData = node.targetRawData;
                             scope.showNodeResponseSummaryForUnknown = (scope.oNavbarVo.getPeriod() <= cfg.maxTimeToShowLoadAsDefaultForUnknown) ? false : true;
@@ -99,20 +100,48 @@ pinpointApp
                                 var elQuery = '.nodeInfoDetails .summaryCharts_' + className,
                                     el = angular.element(elQuery);
                                 var visible = isVisible(el.get(0));
-                                console.log('applicationName', applicationName, visible);
                                 if (!visible) continue;
 
                                 if (scope.showNodeResponseSummaryForUnknown) {
                                     htUnknownResponseSummary[applicationName] = true;
-                                    scope.$broadcast('responseTimeChart.initAndRenderWithData.forNode_' + className, node.targetRawData[applicationName].histogram, '360px', '120px');
-                                    console.log('broadcast', 'responseTimeChart.initAndRenderWithData.forNode_' + className);
+                                    renderResponseSummary(null, applicationName, node.targetRawData[applicationName].histogram, '360px', '120px');
                                 } else {
                                     htUnknownLoad[applicationName] = true;
-                                    scope.$broadcast('loadChart.initAndRenderWithData.forNode_' + className, node.targetRawData[applicationName].timeSeriesHistogram, '360px', '120px');
+                                    renderLoad(null, applicationName, node.targetRawData[applicationName].timeSeriesHistogram, '360px', '120px');
                                 }
                             }
                         });
                     };
+
+                    /**
+                     * render response summary
+                     * @param namespace
+                     * @param toApplicationName
+                     * @param histogram
+                     * @param w
+                     * @param h
+                     */
+                    renderResponseSummary = function (namespace, toApplicationName, histogram, w, h) {
+                        var className = $filter('applicationNameToClassName')(toApplicationName),
+                            namespace = namespace || 'forNode_' + className;
+                        scope.$broadcast('responseTimeChart.initAndRenderWithData.' + namespace, histogram, w, h, false, true);
+                    };
+
+                    /**
+                     * render load
+                     * @param namespace
+                     * @param toApplicationName
+                     * @param timeSeriesHistogram
+                     * @param w
+                     * @param h
+                     * @param useChartCursor
+                     */
+                    renderLoad = function (namespace, toApplicationName, timeSeriesHistogram, w, h, useChartCursor) {
+                        var className = $filter('applicationNameToClassName')(toApplicationName),
+                            namespace = namespace || 'forNode_' + className;
+                        scope.$broadcast('loadChart.initAndRenderWithData.' + namespace, timeSeriesHistogram, w, h, useChartCursor);
+                    };
+
                     /**
                      * hide
                      */
@@ -144,9 +173,7 @@ pinpointApp
                     scope.renderNodeResponseSummary = function (applicationName) {
                         if (angular.isUndefined(htUnknownResponseSummary[applicationName])) {
                             htUnknownResponseSummary[applicationName] = true;
-                            var className = $filter('applicationNameToClassName')(applicationName);
-
-                            scope.$broadcast('responseTimeChart.initAndRenderWithData.forNode_' + className, htLastNode.targetRawData[applicationName].histogram, '360px', '120px');
+                            renderResponseSummary(null, applicationName, htLastNode.targetRawData[applicationName].histogram, '360px', '120px');
                         }
                     };
 
@@ -157,9 +184,7 @@ pinpointApp
                     scope.renderNodeLoad = function (applicationName) {
                         if (angular.isUndefined(htUnknownLoad[applicationName])) {
                             htUnknownLoad[applicationName] = true;
-                            var className = $filter('applicationNameToClassName')(applicationName);
-
-                            scope.$broadcast('loadChart.initAndRenderWithData.forNode_' + className, htLastNode.targetRawData[applicationName].timeSeriesHistogram, '360px', '120px');
+                            renderLoad(null, applicationName, htLastNode.targetRawData[applicationName].timeSeriesHistogram, '360px', '120px');
                         }
                     };
 
@@ -170,9 +195,8 @@ pinpointApp
                     scope.renderAgentCharts = function (applicationName) {
                         if (angular.isDefined(htAgentChartRendered[applicationName])) return;
                         htAgentChartRendered[applicationName] = true;
-                        var className = $filter('applicationNameToClassName')(applicationName);
-                        scope.$broadcast('responseTimeChart.initAndRenderWithData.forNode_' + className, htLastNode.agentHistogram[applicationName], '100%', '150px');
-                        scope.$broadcast('loadChart.initAndRenderWithData.forNode_' + className, htLastNode.agentTimeSeriesHistogram[applicationName], '100%', '220px');
+                        renderResponseSummary(null, applicationName, htLastNode.agentHistogram[applicationName], '100%', '150px');
+                        renderLoad(null, applicationName, htLastNode.agentTimeSeriesHistogram[applicationName], '100%', '150px');
                     };
 
                     /**
@@ -270,7 +294,7 @@ pinpointApp
                     });
 
                     scope.$on('responseTimeChart.itemClicked.forNode', function (event, data) {
-                        console.log('on responseTimeChart.itemClicked.forNode', data);
+//                        console.log('on responseTimeChart.itemClicked.forNode', data);
                     });
 
                 }

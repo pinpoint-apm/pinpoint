@@ -22,6 +22,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     renderAllChartWhichIsVisible, hide, show;
 
                 scope.linkSearch = '';
+
                 /**
                  * reset
                  */
@@ -35,13 +36,12 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     scope.targetinfo = null;
                     scope.sourceinfo = null;
                     scope.showLinkInfoDetails = false;
-                    scope.showLinkResponseSummary = false;
-                    scope.ShowLinkLoad = false;
                     scope.linkSearch = '';
                     scope.linkOrderBy = 'count';
                     scope.linkOrderByNameClass = '';
                     scope.linkOrderByCountClass = 'glyphicon-sort-by-order-alt';
                     scope.linkOrderByDesc = true;
+                    scope.namespace = null;
                     if (!scope.$$phase) {
                         scope.$digest();
                     }
@@ -76,10 +76,8 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         });
                     } else {
                         scope.linkCategory = 'LinkInfoBox';
-                        scope.ShowLinkLoad = true;
-                        scope.showLinkResponseSummary = true;
-                        renderResponseSummary('forLink', link.histogram, '100%', '150px');
-                        renderLoad('forLink', link.timeSeriesHistogram, '100%', '220px');
+                        renderResponseSummary('forLink', link.targetInfo.applicationName, link.histogram, '100%', '150px');
+                        renderLoad('forLink', link.targetInfo.applicationName, link.timeSeriesHistogram, '100%', '220px', false);
                     }
 
                     scope.showLinkInfoDetails = true;
@@ -107,10 +105,10 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
 
                             if (scope.showLinkResponseSummaryForUnknown) {
                                 htUnknownResponseSummary[applicationName] = true;
-                                renderResponseSummary('forLink_' + className, link.targetRawData[applicationName].histogram, '360px', '120px');
+                                renderResponseSummary(null, applicationName, link.targetRawData[applicationName].histogram, '360px', '120px');
                             } else {
                                 htUnknownLoad[applicationName] = true;
-                                renderLoad('forLink_' + className, link.targetRawData[applicationName].timeSeriesHistogram, '360px', '120px');
+                                renderLoad(null, applicationName, link.targetRawData[applicationName].timeSeriesHistogram, '360px', '120px');
                             }
                         }
                     });
@@ -119,11 +117,14 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 /**
                  * render response summary
                  * @param namespace
+                 * @param toApplicationName
                  * @param histogram
                  * @param w
                  * @param h
                  */
-                renderResponseSummary = function (namespace, histogram, w, h) {
+                renderResponseSummary = function (namespace, toApplicationName, histogram, w, h) {
+                    var className = $filter('applicationNameToClassName')(toApplicationName),
+                        namespace = namespace || 'forLink_' + className;
                     scope.$broadcast('responseTimeChart.initAndRenderWithData.' + namespace, histogram, w, h, true, true);
                     scope.$on('responseTimeChart.itemClicked.' + namespace, function (event, data) {
                         var label = data.responseTime,
@@ -133,9 +134,12 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                             .setMainApplication(htLastLink.filterApplicationName)
                             .setMainServiceTypeCode(htLastLink.filterApplicationServiceTypeCode)
                             .setFromApplication(htLastLink.sourceInfo.applicationName)
-                            .setFromServiceType(htLastLink.sourceInfo.serviceType)
-                            .setToApplication(htLastLink.targetInfo.applicationName)
-                            .setToServiceType(htLastLink.targetInfo.serviceType);
+                            .setFromServiceType(htLastLink.sourceInfo.serviceType);
+                        if (htLastLink.targetRawData) {
+                            oServerMapFilterVo
+                                .setToApplication(toApplicationName)
+                                .setToServiceType(htLastLink.targetRawData[toApplicationName].targetInfo.serviceType);
+                        }
                         if (htLastLink.sourceInfo.serviceType === 'USER') {
                             oServerMapFilterVo
                                 .setFromApplication('USER')
@@ -166,12 +170,14 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 /**
                  * render load
                  * @param namespace
-                 * @param timeSeriesHistogram
+                 * @param toApplicationName
                  * @param w
                  * @param h
                  * @param useChartCursor
                  */
-                renderLoad = function (namespace, timeSeriesHistogram, w, h, useChartCursor) {
+                renderLoad = function (namespace, toApplicationName, timeSeriesHistogram, w, h, useChartCursor) {
+                    var className = $filter('applicationNameToClassName')(toApplicationName),
+                        namespace = namespace || 'forLink_' + className;
                     scope.$broadcast('loadChart.initAndRenderWithData.' + namespace, timeSeriesHistogram, w, h, useChartCursor);
                 };
 
@@ -182,8 +188,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 scope.renderLinkResponseSummary = function (applicationName) {
                     if (angular.isUndefined(htUnknownResponseSummary[applicationName])) {
                         htUnknownResponseSummary[applicationName] = true;
-                        var className = $filter('applicationNameToClassName')(applicationName);
-                        renderResponseSummary('forLink_' + className, htLastLink.targetRawData[applicationName].histogram, '360px', '120px');
+                        renderResponseSummary(null, applicationName, htLastLink.targetRawData[applicationName].histogram, '360px', '120px');
                     }
                 };
 
@@ -194,8 +199,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 scope.renderLinkLoad = function (applicationName) {
                     if (angular.isUndefined(htUnknownLoad[applicationName])) {
                         htUnknownLoad[applicationName] = true;
-                        var className = $filter('applicationNameToClassName')(applicationName);
-                        renderLoad('forLink_' + className, htLastLink.targetRawData[applicationName].timeSeriesHistogram, '360px', '120px');
+                        renderLoad(null, applicationName, htLastLink.targetRawData[applicationName].timeSeriesHistogram, '360px', '120px');
                     }
                 };
 
@@ -294,6 +298,9 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     scope.$broadcast('linkInfoDetails.openFilteredMap', oServerMapFilterVo, oServerMapHintVo);
                 };
 
+                /**
+                 * link search change
+                 */
                 scope.linkSearchChange = function () {
                     renderAllChartWhichIsVisible(htLastLink);
                 };

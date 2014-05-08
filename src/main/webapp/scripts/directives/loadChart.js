@@ -158,7 +158,6 @@ pinpointApp
                 };
 
                 scope.$on('loadChart.initAndRenderWithData.' + scope.namespace, function (event, data, w, h, useChartCursor) {
-                    console.log('responseTimeChart.initAndRenderWithData.' + scope.namespace);
                     setIdAutomatically();
                     setWidthHeight(w, h);
                     render(parseTimeSeriesHistogramForAmcharts(data), useChartCursor);
