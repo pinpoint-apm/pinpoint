@@ -10,8 +10,8 @@
 		<result property="alarmGroupDescrption" column="alrm_grp_desc" />
 		<result property="agentId" column="agt_id" />
 		
-		<association property="alarmRuleGroup" column="id" javaType="alarmRuleGroup" select="selectAlarmRuleGroupList"/>
-		<association property="alarmContactGroup" column="id" javaType="alarmContactGroup" select="selectAlarmContactGroupList"/>
+		<association property="alarmRuleGroup" column="alrm_rule_grp_id" javaType="alarmRuleGroup" select="selectAlarmRuleGroupList"/>
+		<association property="alarmContactGroup" column="alrm_cntt_grp_id" javaType="alarmContactGroup" select="selectAlarmContactGroupList"/>
 	</resultMap>
 
 	<resultMap id="alarmRuleMap" type="alarmRule">
@@ -29,7 +29,6 @@
 	
 	<resultMap id="alarmRuleGroupMap" type="alarmRuleGroup">
 		<result property="id" column="id"/>
-		<result property="alarmId" column="alrm_grp_id" />
 		<result property="alarmRuleGroupName" column="alrm_rule_grp_nm" />
 		<result property="alarmRuleGroupDescrption" column="alrm_rule_grp_desc" />
 		<collection property="alarmRuleList" javaType="ArrayList" column="id" ofType="alarmRule" select="selectAlarmRuleList"> </collection>
@@ -37,7 +36,6 @@
 	
 	<resultMap id="alarmContactMap" type="alarmContact">
 		<result property="id" column="id"/>
-		<result property="alarmContactGroupId" column="alrm_cntt_grp_id" />
 		<result property="phoneNum" column="phn_no" />
 		<result property="emailAddress" column="mail_addr" />
 	</resultMap>

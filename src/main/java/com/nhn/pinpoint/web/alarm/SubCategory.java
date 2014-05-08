@@ -8,11 +8,15 @@ import com.nhn.pinpoint.web.alarm.filter.AlarmCheckFilter;
 import com.nhn.pinpoint.web.alarm.filter.AlarmFilter;
 import com.nhn.pinpoint.web.alarm.filter.FailureCountFilter;
 import com.nhn.pinpoint.web.alarm.filter.FailureRatesFilter;
+import com.nhn.pinpoint.web.alarm.filter.SlowCountFilter;
+import com.nhn.pinpoint.web.alarm.filter.SlowRatesFilter;
 import com.nhn.pinpoint.web.alarm.vo.AlarmRuleResource;
 import com.nhn.pinpoint.web.vo.Application;
 
 public enum SubCategory {
 
+	// 이후에 Filter가 늘어나게 되면 Decorator패턴으로 변경하는 것도 좋은 방법일듯함
+	
 	RATE_FAIL("RATE_FAIL", 1, MainCategory.REQUEST) {
 		@Override
 		public AlarmCheckFilter createAlarmFilter(Application application, MainCategory parent, AlarmRuleResource rule) {
@@ -34,6 +38,36 @@ public enum SubCategory {
 			AlarmCheckFilter filter = null;
 			if (MainCategory.REQUEST == parent) {
 				filter = new FailureCountFilter(application);
+			}
+
+			if (filter != null) {
+				filter.initialize(rule);
+			}
+
+			return filter;
+		}
+	},
+	RATE_SLOW("RATE_SLOW", 3, MainCategory.REQUEST) {
+		@Override
+		public AlarmCheckFilter createAlarmFilter(Application application, MainCategory parent, AlarmRuleResource rule) {
+			AlarmCheckFilter filter = null;
+			if (MainCategory.REQUEST == parent) {
+				filter = new SlowRatesFilter(application);
+			}
+
+			if (filter != null) {
+				filter.initialize(rule);
+			}
+
+			return filter;
+		}
+	},
+	COUNT_SLOW("COUNT_SLOW", 4, MainCategory.REQUEST) {
+		@Override
+		public AlarmCheckFilter createAlarmFilter(Application application, MainCategory parent, AlarmRuleResource rule) {
+			AlarmCheckFilter filter = null;
+			if (MainCategory.REQUEST == parent) {
+				filter = new SlowCountFilter(application);
 			}
 
 			if (filter != null) {

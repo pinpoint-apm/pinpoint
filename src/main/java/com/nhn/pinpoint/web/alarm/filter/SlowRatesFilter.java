@@ -15,20 +15,15 @@ import com.nhn.pinpoint.web.dao.MapStatisticsCallerDao;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
 
-/**
- * 
- * @author koo.taejin
- */
-public class FailureCountFilter extends AlarmCheckCountFilter {
+public class SlowRatesFilter  extends AlarmCheckRatesFilter {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private final Application application;
 
-	public FailureCountFilter(Application application) {
+	public SlowRatesFilter(Application application) {
 		this.application = application;
 	}
-	
 	
 	@Override
 	protected boolean check(AlarmEvent event) {
@@ -59,7 +54,7 @@ public class FailureCountFilter extends AlarmCheckCountFilter {
 			AgentHistogramList sourceList = linkData.getSourceList();
 			Collection<AgentHistogram> agentHistogramList = sourceList.getAgentHistogramList();
 
-			boolean isSatisFied = checkCounts(toApplication, agentHistogramList);
+			boolean isSatisFied = checkRates(toApplication, agentHistogramList);
 			if (isSatisFied) {
 				return true;
 			}
@@ -67,22 +62,20 @@ public class FailureCountFilter extends AlarmCheckCountFilter {
 
 		return false;
 	}
-
-	private boolean checkCounts(Application toApplication, Collection<AgentHistogram> agentHistogramList) {
+	
+	private boolean checkRates(Application toApplication, Collection<AgentHistogram> agentHistogramList) {
 		long totalCount = 0;
 		long successCount = 0;
-		long errorCount = 0;
+		long slowCount = 0;
 
 		for (AgentHistogram agent : agentHistogramList) {
 			for (TimeHistogram time : agent.getTimeHistogram()) {
 				totalCount += time.getTotalCount();
-				successCount += time.getSuccessCount();
-				errorCount = time.getErrorCount();
+				slowCount += time.getSlowCount();
 			}
 		}
-		logger.info("{} -> {} {}/{}(error={})", application.getName(), toApplication.getName(), successCount, totalCount, errorCount);
+		logger.info("{} -> {} {}/{}(slow={})", application.getName(), toApplication.getName(), successCount, totalCount, slowCount);
 
-		return check(errorCount);
+		return check(slowCount, totalCount);
 	}
-
 }

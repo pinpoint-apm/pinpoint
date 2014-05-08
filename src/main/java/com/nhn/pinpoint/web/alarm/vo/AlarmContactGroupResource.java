@@ -8,7 +8,6 @@ import org.apache.ibatis.type.Alias;
 public class AlarmContactGroupResource {
 
 	private Integer id;
-	private Integer alarmId;
 
 	private String alarmContactGroupName;
 	private String alarmContactGroupDescrption;
@@ -21,14 +20,6 @@ public class AlarmContactGroupResource {
 
 	public void setId(Integer id) {
 		this.id = id;
-	}
-
-	public Integer getAlarmId() {
-		return alarmId;
-	}
-
-	public void setAlarmId(Integer alarmId) {
-		this.alarmId = alarmId;
 	}
 
 	public String getAlarmContactGroupName() {
@@ -57,7 +48,7 @@ public class AlarmContactGroupResource {
 
 	@Override
 	public String toString() {
-		return "AlarmContactGroupResource [id=" + id + ", alarmId=" + alarmId + ", alarmContactGroupName=" + alarmContactGroupName
+		return "AlarmContactGroupResource [id=" + id + ", alarmContactGroupName=" + alarmContactGroupName
 				+ ", alarmContactGroupDescrption=" + alarmContactGroupDescrption + ", alarmContactList=" + alarmContactList + "]";
 	}
 
