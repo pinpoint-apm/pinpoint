@@ -76,7 +76,7 @@ pinpointApp
                                 "fillAlphas": 0.8,
 //                                "labelText": "[[value]]",
                                 "lineAlpha": 0.3,
-                                "title": "1s",
+                                "title": aDynamicKey[0],
                                 "type": "column",
 //                                "color": "#000000",
                                 "valueField": aDynamicKey[0]
@@ -85,7 +85,7 @@ pinpointApp
                                 "fillAlphas": 0.8,
 //                                "labelText": "[[value]]",
                                 "lineAlpha": 0.3,
-                                "title": "3s",
+                                "title": aDynamicKey[1],
                                 "type": "column",
                                 "color": "#000000",
                                 "valueField": aDynamicKey[1]
@@ -94,7 +94,7 @@ pinpointApp
                                 "fillAlphas": 0.8,
 //                                "labelText": "[[value]]",
                                 "lineAlpha": 0.3,
-                                "title": "5s",
+                                "title": aDynamicKey[2],
                                 "type": "column",
 //                                "color": "#000000",
                                 "valueField": aDynamicKey[2]
@@ -103,7 +103,7 @@ pinpointApp
                                 "fillAlphas": 0.8,
 //                                "labelText": "[[value]]",
                                 "lineAlpha": 0.3,
-                                "title": "Slow",
+                                "title": aDynamicKey[3],
                                 "type": "column",
 //                                "color": "#000000",
                                 "valueField": aDynamicKey[3]
@@ -112,7 +112,7 @@ pinpointApp
                                 "fillAlphas": 0.8,
 //                                "labelText": "[[value]]",
                                 "lineAlpha": 0.3,
-                                "title": "Error",
+                                "title": aDynamicKey[4],
                                 "type": "column",
 //                                "color": "#000000",
                                 "valueField": aDynamicKey[4]
