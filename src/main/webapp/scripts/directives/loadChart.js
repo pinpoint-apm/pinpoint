@@ -16,21 +16,34 @@ pinpointApp
             link: function postLink(scope, element, attrs) {
 
                 // define variables
-                var id;
+                var id, aDynamicKey;
 
                 // define variables of methods
                 var setIdAutomatically, setWidthHeight, render, parseTimeSeriesHistogramForAmcharts;
 
+                /**
+                 * set id automatically
+                 */
                 setIdAutomatically = function () {
                     id = 'loadId-' + scope.namespace;
                     element.attr('id', id);
                 };
 
+                /**
+                 * set width height
+                 * @param w
+                 * @param h
+                 */
                 setWidthHeight = function (w, h) {
                     if (w) element.css('width', w);
                     if (h) element.css('height', h);
                 };
 
+                /**
+                 * render
+                 * @param data
+                 * @param useChartCursor
+                 */
                 render = function (data, useChartCursor) {
                     $timeout(function () {
                         var options = {
@@ -66,7 +79,7 @@ pinpointApp
                                 "title": "1s",
                                 "type": "column",
 //                                "color": "#000000",
-                                "valueField": "1s"
+                                "valueField": aDynamicKey[0]
                             }, {
                                 "balloonText": "[[title]] : <b>[[value]]</b>",
                                 "fillAlphas": 0.8,
@@ -75,7 +88,7 @@ pinpointApp
                                 "title": "3s",
                                 "type": "column",
                                 "color": "#000000",
-                                "valueField": "3s"
+                                "valueField": aDynamicKey[1]
                             }, {
                                 "balloonText": "[[title]] : <b>[[value]]</b>",
                                 "fillAlphas": 0.8,
@@ -84,7 +97,7 @@ pinpointApp
                                 "title": "5s",
                                 "type": "column",
 //                                "color": "#000000",
-                                "valueField": "5s"
+                                "valueField": aDynamicKey[2]
                             }, {
                                 "balloonText": "[[title]] : <b>[[value]]</b>",
                                 "fillAlphas": 0.8,
@@ -93,7 +106,7 @@ pinpointApp
                                 "title": "Slow",
                                 "type": "column",
 //                                "color": "#000000",
-                                "valueField": "Slow"
+                                "valueField": aDynamicKey[3]
                             }, {
                                 "balloonText": "[[title]] : <b>[[value]]</b>",
                                 "fillAlphas": 0.8,
@@ -102,7 +115,7 @@ pinpointApp
                                 "title": "Error",
                                 "type": "column",
 //                                "color": "#000000",
-                                "valueField": "Error"
+                                "valueField": aDynamicKey[4]
                             }],
                             "categoryField": "time",
                             "categoryAxis": {
@@ -139,8 +152,11 @@ pinpointApp
                         return -1;
                     }
 
+                    aDynamicKey = [];
+
                     var newData = [];
                     for (var key in data) {
+                        aDynamicKey.push(data[key].key);
                         for (var innerKey in data[key].values) {
                             var a = getKeyFromNewDataByTime(data[key].values[innerKey][0]);
                             if (a > -1) {
@@ -157,12 +173,18 @@ pinpointApp
                     return newData;
                 };
 
+                /**
+                 * scope event on loadChart.initAndRenderWithData.namespace
+                 */
                 scope.$on('loadChart.initAndRenderWithData.' + scope.namespace, function (event, data, w, h, useChartCursor) {
                     setIdAutomatically();
                     setWidthHeight(w, h);
                     render(parseTimeSeriesHistogramForAmcharts(data), useChartCursor);
                 });
 
+                /**
+                 * scope event on loadChart.updateData.namespace
+                 */
                 scope.$on('loadChart.updateData.' + scope.namespace, function (event, data) {
                     render(parseTimeSeriesHistogramForAmcharts(data));
                 });

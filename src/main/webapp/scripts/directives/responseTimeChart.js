@@ -23,16 +23,30 @@ pinpointApp
                     var setIdAutomatically, setWidthHeight, render, clickGraphItemListener, updateData,
                         parseHistogramForAmcharts;
 
+                    /**
+                     * set id automatically
+                     */
                     setIdAutomatically = function () {
                         id = 'responseTimeId-' + scope.namespace;
                         element.attr('id', id);
                     };
 
+                    /**
+                     * set width height
+                     * @param w
+                     * @param h
+                     */
                     setWidthHeight = function (w, h) {
                         element.css('width', w || '100%');
                         element.css('height', h || '150px');
                     };
 
+                    /**
+                     * render
+                     * @param data
+                     * @param useFilterTransaction
+                     * @param useChartCursor
+                     */
                     render = function (data, useFilterTransaction, useChartCursor) {
                         $timeout(function () {
                             var options = {
@@ -77,16 +91,29 @@ pinpointApp
                         });
                     };
 
+                    /**
+                     * click graph item listener
+                     * @param event
+                     */
                     clickGraphItemListener = function (event) {
                         scope.$emit('responseTimeChart.itemClicked.' + scope.namespace, event.item.serialDataItem.dataContext);
                     };
 
+                    /**
+                     * update data
+                     * @param data
+                     */
                     updateData = function (data) {
                         oChart.setDataProvider = data;
                         oChart.validateNow();
                         oChart.validateData();
                     };
 
+                    /**
+                     * parse histogram for amcharts
+                     * @param data
+                     * @returns {Array}
+                     */
                     parseHistogramForAmcharts = function (data) {
                         var newData = [],
                             i = 0;
@@ -100,13 +127,18 @@ pinpointApp
                         return newData;
                     };
 
+                    /**
+                     * scope event on responseTimeChart.initAndRenderWithData.namespace
+                     */
                     scope.$on('responseTimeChart.initAndRenderWithData.' + scope.namespace, function (event, data, w, h, useFilterTransaction, useChartCursor) {
-                        console.log('responseTimeChart.initAndRenderWithData.' + scope.namespace);
                         setIdAutomatically();
                         setWidthHeight(w, h);
                         render(parseHistogramForAmcharts(data), useFilterTransaction, useChartCursor);
                     });
 
+                    /**
+                     * scope event on responseTimeChart.updateData.namespace
+                     */
                     scope.$on('responseTimeChart.updateData.' + scope.namespace, function (event, data) {
                         updateData(parseHistogramForAmcharts(data));
                     });
