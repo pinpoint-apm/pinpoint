@@ -28,6 +28,7 @@ pinpointApp.factory('isVisible', function () {
 
         //-- Return true for document node
         if ( 9 === p.nodeType ) {
+//            console.log('9', p);
             return true;
         }
 
@@ -58,7 +59,8 @@ pinpointApp.factory('isVisible', function () {
         //-- If we have a parent, let's continue:
         if ( p ) {
             //-- Check if the parent can hide its children.
-            if ( ('hidden' === _getStyle(p, 'overflow') || 'scroll' === _getStyle(p, 'overflow')) ) {
+            var overflow = _getStyle(p, 'overflow');
+            if ( ('hidden' === overflow || 'scroll' === overflow || 'auto' === overflow) ) {
                 //-- Only check if the offset is different for the parent
                 if (
                 //-- If the target element is to the right of the parent elm
@@ -79,6 +81,7 @@ pinpointApp.factory('isVisible', function () {
                 l += p.offsetLeft;
                 t += p.offsetTop;
             }
+//            console.log('p', p);
             //-- Let's recursively check upwards:
             return _isVisible(p, t, r, b, l, w, h);
         }
