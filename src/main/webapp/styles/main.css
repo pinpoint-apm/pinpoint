@@ -82,6 +82,7 @@ canvas {outline:none}
 }
 .info-details.has-scatter {
     top: 330px;
+    border-top: 1px solid #ddd;
 }
 .info-details.has-filter {
     top: 160px;
