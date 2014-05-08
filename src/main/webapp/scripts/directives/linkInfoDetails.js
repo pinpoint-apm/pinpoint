@@ -6,8 +6,8 @@ pinpointApp.constant('linkInfoDetailsConfig', {
     maxTimeToShowLoadAsDefaultForUnknown:  60 * 60 * 12 // 12h
 });
 
-pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartVo', '$filter', 'ServerMapFilterVo',  'filteredMapUtil', 'humanReadableNumberFormatFilter', '$timeout', 'isVisible', 'ServerMapHintVo',
-    function (cfg, HelixChartVo, $filter, ServerMapFilterVo, filteredMapUtil, humanReadableNumberFormatFilter, $timeout, isVisible, ServerMapHintVo) {
+pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartVo', '$filter', 'ServerMapFilterVo',  'filteredMapUtil', 'humanReadableNumberFormatFilter', '$timeout', 'isVisible', 'ServerMapHintVo', '$window',
+    function (cfg, HelixChartVo, $filter, ServerMapFilterVo, filteredMapUtil, humanReadableNumberFormatFilter, $timeout, isVisible, ServerMapHintVo, $window) {
         return {
             restrict: 'EA',
             replace: true,
@@ -15,13 +15,21 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
             link: function postLink(scope, element, attrs) {
 
                 // define private variables
-                var htQuery, htTargetRawData, htLastLink, htUnknownResponseSummary, htUnknownLoad;
+                var htQuery, htTargetRawData, htLastLink, htUnknownResponseSummary, htUnknownLoad, bShown;
 
                 // define private variables of methods;
-                var reset, showDetailInformation, renderLoad, renderResponseSummary, parseHistogramForD3,
-                    renderAllChartWhichIsVisible, hide, show;
+                var reset, showDetailInformation, renderLoad, renderResponseSummary, renderAllChartWhichIsVisible,
+                    hide, show;
 
+                // bootstrap
                 scope.linkSearch = '';
+                bShown = false;
+
+                angular.element($window).bind('resize',function(e) {
+                    if (bShown && htLastLink.targetRawData) {
+                        renderAllChartWhichIsVisible(htLastLink);
+                    }
+                });
 
                 /**
                  * reset
@@ -207,6 +215,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                  * hide
                  */
                 hide = function () {
+                    bShown = false;
                     element.hide();
                 };
 
@@ -214,6 +223,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                  * show
                  */
                 show = function () {
+                    bShown = true;
                     element.show();
                 };
 

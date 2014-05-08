@@ -7,8 +7,8 @@ pinpointApp.constant('nodeInfoDetailsConfig', {
 });
 
 pinpointApp
-    .directive('nodeInfoDetails', [ 'nodeInfoDetailsConfig', '$filter', '$timeout', 'isVisible',
-        function (cfg, $filter, $timeout, isVisible) {
+    .directive('nodeInfoDetails', [ 'nodeInfoDetailsConfig', '$filter', '$timeout', 'isVisible', '$window',
+        function (cfg, $filter, $timeout, isVisible, $window) {
             return {
                 restrict: 'EA',
                 replace: true,
@@ -17,11 +17,20 @@ pinpointApp
 
                     // define private variables
                     var htServermapData, htLastNode, htUnknownResponseSummary, htUnknownLoad, htTargetRawData, htQuery,
-                        htAgentChartRendered;
+                        htAgentChartRendered, bShown;
 
                     // define private variables of methods
                     var reset, showDetailInformation, renderAllChartWhichIsVisible, hide, show, renderResponseSummary,
                         renderLoad;
+
+                    // bootstrap
+                    bShown = false;
+
+                    angular.element($window).bind('resize',function(e) {
+                        if (bShown && htLastNode.category === 'UNKNOWN_GROUP') {
+                            renderAllChartWhichIsVisible(htLastNode);
+                        }
+                    });
 
                     /**
                      * reset
@@ -146,6 +155,7 @@ pinpointApp
                      * hide
                      */
                     hide = function () {
+                        bShown = false;
                         element.hide();
                     };
 
@@ -153,6 +163,7 @@ pinpointApp
                      * show
                      */
                     show = function () {
+                        bShown = true;
                         element.show();
                     };
 
