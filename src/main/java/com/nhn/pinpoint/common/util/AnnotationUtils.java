@@ -76,7 +76,7 @@ public class AnnotationUtils {
             return findAnnotationBo(list, AnnotationKey.ARGS0);
         }
         
-        if (serviceType == ServiceType.IBATIS) {
+        if (serviceType == ServiceType.IBATIS || serviceType == ServiceType.MYBATIS) {
         	return findAnnotationBo(list, AnnotationKey.ARGS0);
         }
         return null;
