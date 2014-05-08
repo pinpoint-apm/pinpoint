@@ -4,11 +4,11 @@ package com.nhn.pinpoint.web.alarm.filter;
 public abstract class AlarmCheckRatesFilter extends AlarmCheckFilter {
 
 	protected boolean check(long count, long totalCount) {
-		double rates = getRates(count, totalCount);
+		int rates = getRates(count, totalCount);
 
 		int threshold = getRule().getThresholdRule();
 		
-		if (rates > threshold) {
+		if (rates >= threshold) {
 			return true;
 		} else {
 			return false;

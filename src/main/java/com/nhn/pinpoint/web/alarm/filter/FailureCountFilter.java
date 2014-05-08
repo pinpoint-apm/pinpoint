@@ -51,10 +51,10 @@ public class FailureCountFilter extends AlarmCheckCountFilter {
 		LinkDataMap linkDataMap = dao.selectCaller(application, range);
 		for (LinkData linkData : linkDataMap.getLinkDataList()) {
 			Application toApplication = linkData.getToApplication();
-			if (toApplication.getServiceType().isTerminal() || toApplication.getServiceType().isUnknown()) {
-				logger.debug("Application({}) is invalid serviceType. this is skip.", toApplication.getName());
-				continue;
-			}
+//			if (toApplication.getServiceType().isTerminal() || toApplication.getServiceType().isUnknown()) {
+//				logger.debug("Application({}) is invalid serviceType. this is skip.", toApplication.getName());
+//				continue;
+//			}
 
 			AgentHistogramList sourceList = linkData.getSourceList();
 			Collection<AgentHistogram> agentHistogramList = sourceList.getAgentHistogramList();

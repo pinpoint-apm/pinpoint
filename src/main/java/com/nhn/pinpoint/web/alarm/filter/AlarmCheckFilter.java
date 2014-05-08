@@ -22,7 +22,7 @@ public abstract class AlarmCheckFilter implements AlarmFilter {
 	
 	abstract protected boolean check(AlarmEvent event);
 
-	protected AlarmRuleResource getRule() {
+	public AlarmRuleResource getRule() {
 		return rule;
 	}
 

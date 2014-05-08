@@ -46,10 +46,10 @@ public class FailureRatesFilter extends AlarmCheckRatesFilter {
 		LinkDataMap linkDataMap = dao.selectCaller(application, range);
 		for (LinkData linkData : linkDataMap.getLinkDataList()) {
 			Application toApplication = linkData.getToApplication();
-			if (toApplication.getServiceType().isTerminal() || toApplication.getServiceType().isUnknown()) {
-				logger.debug("Application({}) is invalid serviceType. this is skip.", toApplication.getName());
-				continue;
-			}
+//			if (toApplication.getServiceType().isTerminal() || toApplication.getServiceType().isUnknown()) {
+//				logger.debug("Application({}) is invalid serviceType. this is skip.", toApplication.getName());
+//				continue;
+//			}
 
 			AgentHistogramList sourceList = linkData.getSourceList();
 			Collection<AgentHistogram> agentHistogramList = sourceList.getAgentHistogramList();
@@ -66,16 +66,18 @@ public class FailureRatesFilter extends AlarmCheckRatesFilter {
 	private boolean checkRates(Application toApplication, Collection<AgentHistogram> agentHistogramList) {
 		long totalCount = 0;
 		long successCount = 0;
+		long slowCount = 0;
 		long errorCount = 0;
 
 		for (AgentHistogram agent : agentHistogramList) {
 			for (TimeHistogram time : agent.getTimeHistogram()) {
 				totalCount += time.getTotalCount();
 				successCount += time.getSuccessCount();
+				slowCount += time.getSlowCount();
 				errorCount = time.getErrorCount();
 			}
 		}
-		logger.info("{} -> {} {}/{}(error={})", application.getName(), toApplication.getName(), successCount, totalCount, errorCount);
+		logger.info("{} -> {} {}/{}(slow={}, error={})", application.getName(), toApplication.getName(), successCount, totalCount, slowCount, errorCount);
 
 		return check(errorCount, totalCount);
 	}

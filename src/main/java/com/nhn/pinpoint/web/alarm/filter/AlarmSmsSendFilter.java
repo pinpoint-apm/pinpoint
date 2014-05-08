@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.web.alarm.AlarmEvent;
+import com.nhn.pinpoint.web.alarm.resource.SmsResource;
 import com.nhn.pinpoint.web.vo.Application;
 
 /**
@@ -28,17 +29,12 @@ public class AlarmSmsSendFilter extends AlarmSendFilter {
 	private static final String QUOTATATION = "\"";
 
 	private final Application application;
-	
-	private final String mexMtUrl;
-	private final String serviceId;
-	private final String sender;
+	private final SmsResource smsResource;
 	private final List<String> receiverList;
 
-	public AlarmSmsSendFilter(Application application, String mexMtUrl, String serviceId, String sender, List<String> receiverList) {
+	public AlarmSmsSendFilter(Application application, SmsResource smsResource, List<String> receiverList) {
 		this.application = application;
-		this.mexMtUrl = mexMtUrl;
-		this.serviceId = serviceId;
-		this.sender = sender;
+		this.smsResource = smsResource;
 		this.receiverList = receiverList;
 	}
 
@@ -47,12 +43,12 @@ public class AlarmSmsSendFilter extends AlarmSendFilter {
 		DefaultHttpClient client = new DefaultHttpClient();
 
 		List<NameValuePair> nvps = new ArrayList<NameValuePair>();
-		nvps.add(new BasicNameValuePair("serviceId", serviceId));
-		nvps.add(new BasicNameValuePair("sendMdn", QUOTATATION + sender + QUOTATATION));
+		nvps.add(new BasicNameValuePair("serviceId", smsResource.getServiceId()));
+		nvps.add(new BasicNameValuePair("sendMdn", QUOTATATION + smsResource.getSenderPhoneNumber() + QUOTATATION));
 		nvps.add(new BasicNameValuePair("receiveMdnList", convertToReceiverFormat(receiverList)));
 		nvps.add(new BasicNameValuePair("content", QUOTATATION + null + QUOTATATION));
 
-		HttpGet get = new HttpGet(mexMtUrl + "?" + URLEncodedUtils.format(nvps, "UTF-8"));
+		HttpGet get = new HttpGet(smsResource.getUrl() + "?" + URLEncodedUtils.format(nvps, "UTF-8"));
 
 		logger.debug("{}", get.getURI());
 		

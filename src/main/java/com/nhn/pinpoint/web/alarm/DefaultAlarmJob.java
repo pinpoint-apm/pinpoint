@@ -30,10 +30,11 @@ public class DefaultAlarmJob implements AlarmJob {
 
 	@Override
 	public boolean execute(AlarmEvent event) {
-		logger.debug("{} execute. CheckFilterList={},  SendFilterList={}", this.getClass().getSimpleName(), checkFilterList, sendFilterList);
+		logger.debug("{} {} execute. CheckFilterList={},  SendFilterList={}", application, this.getClass().getSimpleName(), checkFilterList, sendFilterList);
 		
 		for (AlarmCheckFilter checkFilter : this.checkFilterList) {
 			boolean isSatisfy = checkFilter.execute(event);
+			logger.debug("{} filter Satisfy({})", checkFilter.getClass().getSimpleName(), isSatisfy);
 			if (!isSatisfy) {
 				return false;
 			}
