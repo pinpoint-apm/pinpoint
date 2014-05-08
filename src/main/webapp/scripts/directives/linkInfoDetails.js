@@ -327,7 +327,12 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                  */
                 scope.$on('linkInfoDetails.initialize', function (event, e, query, link) {
                     show();
-                    if (angular.equals(htLastLink, link)) return;
+                    if (angular.equals(htLastLink, link)) {
+                        if (htLastLink.targetRawData) {
+                            renderAllChartWhichIsVisible(htLastLink);
+                        }
+                        return;
+                    }
                     reset();
                     htQuery = query;
                     htLastLink = link;

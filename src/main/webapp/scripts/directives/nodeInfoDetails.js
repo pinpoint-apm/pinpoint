@@ -281,7 +281,12 @@ pinpointApp
                      */
                     scope.$on('nodeInfoDetails.initialize', function (event, e, query, node, mapData, navbarVo) {
                         show();
-                        if (angular.equals(htLastNode, node)) return;
+                        if (angular.equals(htLastNode, node)) {
+                            if (htLastNode.category === 'UNKNOWN_GROUP') {
+                                renderAllChartWhichIsVisible(htLastNode);
+                            }
+                            return;
+                        }
                         reset();
                         htQuery = query;
                         htLastNode = node;
