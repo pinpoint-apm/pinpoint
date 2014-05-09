@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -251,7 +252,8 @@ public class SqlMapSessionImplModifierTest extends BasePinpointTest {
 		final AnnotationBo parameterAnnotationBo = annotationBoList.get(0);
 		assertThat(parameterAnnotationBo.getKey(), is(AnnotationKey.ARGS0.getCode()));
 	}
-	
+
+	@Ignore // 쿼리 작업만 tracing 하도록 변경
 	@Test
 	public void transactionsShouldBeTraced() throws Exception {
 		// Given
@@ -282,7 +284,8 @@ public class SqlMapSessionImplModifierTest extends BasePinpointTest {
 		assertNull(commitTransactionSpanEventBo.getAnnotationBoList());
 		assertNull(endTransactionSpanEventBo.getAnnotationBoList());
 	}
-	
+
+	@Ignore // 쿼리 작업만 tracing 하도록 변경
 	@Test
 	public void closeShouldBeTraced() throws Exception {
 		// Given

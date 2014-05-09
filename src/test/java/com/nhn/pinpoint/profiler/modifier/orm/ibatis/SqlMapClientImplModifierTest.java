@@ -7,6 +7,7 @@ import static org.hamcrest.CoreMatchers.*;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -241,6 +242,7 @@ public class SqlMapClientImplModifierTest extends BasePinpointTest {
 		assertThat(parameterAnnotationBo.getKey(), is(AnnotationKey.ARGS0.getCode()));
 	}
 	
+	@Ignore // 쿼리 작업만 tracing 하도록 변경
 	@Test
 	public void transactionsShouldBeTraced() throws Exception {
 		// Given
