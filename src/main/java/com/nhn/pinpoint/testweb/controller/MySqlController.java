@@ -6,6 +6,7 @@ import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +27,7 @@ public class MySqlController {
 	private MySqlService mySqlService;
 
 	@Autowired
+	@Qualifier("memberService")
 	private MemberService service;
 
 	@RequestMapping(value = "/mysql/crud")

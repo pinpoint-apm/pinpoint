@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nhn.pinpoint.testweb.domain.Member;
 import com.nhn.pinpoint.testweb.repository.MemberDao;
 
-@Service
+@Service("memberService")
 @Transactional("mysqlTransactionManager")
 public class MemberServiceImpl implements MemberService {
 
