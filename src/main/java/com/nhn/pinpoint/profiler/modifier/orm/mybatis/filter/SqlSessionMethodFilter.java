@@ -26,14 +26,14 @@ public class SqlSessionMethodFilter implements MethodFilter {
 				"select",
 				"insert",
 				"update",
-				"delete",
-				"commit",
-				"rollback",
-				"flushStatements",
-				"close",
-				"getConfiguration",
-				"getMapper",
-				"getConnection"
+				"delete"
+//				"commit",
+//				"rollback",
+//				"flushStatements",
+//				"close",
+//				"getConfiguration",
+//				"getMapper",
+//				"getConnection"
 		));
 	}
 

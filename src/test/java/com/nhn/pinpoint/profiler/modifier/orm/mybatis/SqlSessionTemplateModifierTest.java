@@ -17,6 +17,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.transaction.TransactionFactory;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -71,6 +72,7 @@ public class SqlSessionTemplateModifierTest extends MyBatisClientModifierTest {
 		// Should not manually close SqlSessionTemplate
 	}
 
+	@Ignore // 쿼리 작업만 tracing 하도록 변경
 	@Override
 	@Test
 	public void commitShouldBeTraced() throws Exception {
@@ -86,6 +88,7 @@ public class SqlSessionTemplateModifierTest extends MyBatisClientModifierTest {
 		}
 	}
 
+	@Ignore // 쿼리 작업만 tracing 하도록 변경
 	@Override
 	@Test
 	public void rollbackShouldBeTraced() throws Exception {
@@ -101,6 +104,7 @@ public class SqlSessionTemplateModifierTest extends MyBatisClientModifierTest {
 		}
 	}
 
+	@Ignore // 쿼리 작업만 tracing 하도록 변경
 	@Override
 	@Test
 	public void closeShouldBeTraced() throws Exception {

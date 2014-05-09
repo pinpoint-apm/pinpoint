@@ -12,6 +12,7 @@ import java.util.Set;
 import org.apache.ibatis.session.SqlSession;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 
@@ -121,7 +122,8 @@ public abstract class MyBatisClientModifierTest extends BasePinpointTest {
 		// Then
 		assertNOperations(2);
 	}
-	
+
+	@Ignore // 쿼리 작업만 tracing 하도록 변경
 	@Test
 	public void commitShouldBeTraced() throws Exception {
 		// When
@@ -142,7 +144,8 @@ public abstract class MyBatisClientModifierTest extends BasePinpointTest {
 		assertNull(commitWith0ArgSpanEvent.getAnnotationBoList());
 		assertThat(commitWith1ArgSpanEvent.getAnnotationBoList().get(0).getKey(), is(AnnotationKey.ARGS0.getCode()));
 	}
-	
+
+	@Ignore // 쿼리 작업만 tracing 하도록 변경
 	@Test
 	public void rollbackShouldBeTraced() throws Exception {
 		// When
@@ -163,7 +166,8 @@ public abstract class MyBatisClientModifierTest extends BasePinpointTest {
 		assertNull(rollbackWith0ArgSpanEvent.getAnnotationBoList());
 		assertThat(rollbackWith1ArgSpanEvent.getAnnotationBoList().get(0).getKey(), is(AnnotationKey.ARGS0.getCode()));
 	}
-	
+
+	@Ignore // 쿼리 작업만 tracing 하도록 변경
 	@Test
 	public void flushStatementsShouldBeTraced() throws Exception {
 		// When
@@ -179,7 +183,8 @@ public abstract class MyBatisClientModifierTest extends BasePinpointTest {
 		// Check Parameter
 		assertNull(flushStatementsSpanEvent.getAnnotationBoList());
 	}
-	
+
+	@Ignore // 쿼리 작업만 tracing 하도록 변경
 	@Test
 	public void closeShouldBeTraced() throws Exception {
 		// When
@@ -195,7 +200,8 @@ public abstract class MyBatisClientModifierTest extends BasePinpointTest {
 		// Check Parameter
 		assertNull(closeSpanEvent.getAnnotationBoList());
 	}
-	
+
+	@Ignore // 쿼리 작업만 tracing 하도록 변경
 	@Test
 	public void getConfigurationShouldBeTraced() throws Exception {
 		// When
@@ -211,7 +217,8 @@ public abstract class MyBatisClientModifierTest extends BasePinpointTest {
 		// Check Parameter
 		assertNull(getConfigurationSpanEvent.getAnnotationBoList());
 	}
-	
+
+	@Ignore // 쿼리 작업만 tracing 하도록 변경
 	@Test
 	public void getMapperShouldBeTraced() throws Exception {
 		// Given
@@ -229,7 +236,8 @@ public abstract class MyBatisClientModifierTest extends BasePinpointTest {
 		// Check Parameter
 		assertThat(getConnectionSpanEvent.getAnnotationBoList().get(0).getKey(), is(AnnotationKey.ARGS0.getCode()));
 	}
-	
+
+	@Ignore // 쿼리 작업만 tracing 하도록 변경
 	@Test
 	public void getConnectionShouldBeTraced() throws Exception {
 		// When
