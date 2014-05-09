@@ -153,11 +153,23 @@
             <version>1.1.2</version>
         </dependency>
 
+        <!-- ORM dependencies -->
         <dependency>
             <groupId>com.ibatis</groupId>
             <artifactId>ibatis2-sqlmap</artifactId>
             <version>2.3.4.726-p4</version>
         </dependency>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>3.2.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <version>1.2.2</version>
+        </dependency>
+        
         <!-- Spring depedencies -->
         <dependency>
             <groupId>org.springframework</groupId>

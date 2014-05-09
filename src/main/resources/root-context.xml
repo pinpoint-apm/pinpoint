@@ -13,6 +13,7 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
     <import resource="applicationContext-datasource.xml"/>
+    <import resource="classpath:orm/mybatis/mybatis-dao-config.xml"/>
 
     <bean id="jdbcTemplateMysql" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
         <constructor-arg name="dataSource" ref="mysqlDatasource"/>
