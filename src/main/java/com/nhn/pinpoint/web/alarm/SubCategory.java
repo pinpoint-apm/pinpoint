@@ -20,12 +20,12 @@ import com.nhn.pinpoint.web.vo.Application;
 public enum SubCategory {
 
 	// 이후에 Filter가 늘어나게 되면 Decorator패턴으로 변경하는 것도 좋은 방법일듯함
-	
-	RATE_FAIL("RATE_FAIL", 1, "%", MainCategory.REQUEST) {
+	// 보낸 요청 받은 요청 
+	FAIL_RATE("FAIL_RATE", 1, "%", MainCategory.REQUEST_SENDED) {
 		@Override
 		public AlarmCheckFilter createAlarmFilter(Application application, MainCategory parent, AlarmRuleResource rule) {
 			AlarmCheckFilter filter = null;
-			if (MainCategory.REQUEST == parent) {
+			if (MainCategory.REQUEST_SENDED == parent) {
 				filter = new FailureRatesFilter(application);
 			}
 
@@ -36,11 +36,11 @@ public enum SubCategory {
 			return filter;
 		}
 	},
-	COUNT_FAIL("COUNT_FAIL", 2, " ", MainCategory.REQUEST) {
+	FAIL_COUNT("FAIL_COUNT", 2, " ", MainCategory.REQUEST_SENDED) {	
 		@Override
 		public AlarmCheckFilter createAlarmFilter(Application application, MainCategory parent, AlarmRuleResource rule) {
 			AlarmCheckFilter filter = null;
-			if (MainCategory.REQUEST == parent) {
+			if (MainCategory.REQUEST_SENDED == parent) {
 				filter = new FailureCountFilter(application);
 			}
 
@@ -51,11 +51,11 @@ public enum SubCategory {
 			return filter;
 		}
 	},
-	RATE_SLOW("RATE_SLOW", 3, "%", MainCategory.REQUEST) {
+	SLOW_RATE("SLOW_RATE", 3, "%", MainCategory.REQUEST_SENDED) {
 		@Override
 		public AlarmCheckFilter createAlarmFilter(Application application, MainCategory parent, AlarmRuleResource rule) {
 			AlarmCheckFilter filter = null;
-			if (MainCategory.REQUEST == parent) {
+			if (MainCategory.REQUEST_SENDED == parent) {
 				filter = new SlowRatesFilter(application);
 			}
 
@@ -66,11 +66,11 @@ public enum SubCategory {
 			return filter;
 		}
 	},
-	COUNT_SLOW("COUNT_SLOW", 4, " ", MainCategory.REQUEST) {
+	SLOW_COUNT("SLOW_COUNT", 4, " ", MainCategory.REQUEST_SENDED) {
 		@Override
 		public AlarmCheckFilter createAlarmFilter(Application application, MainCategory parent, AlarmRuleResource rule) {
 			AlarmCheckFilter filter = null;
-			if (MainCategory.REQUEST == parent) {
+			if (MainCategory.REQUEST_SENDED == parent) {
 				filter = new SlowCountFilter(application);
 			}
 
