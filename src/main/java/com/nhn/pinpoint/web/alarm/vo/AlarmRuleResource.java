@@ -5,6 +5,10 @@ import org.apache.ibatis.type.Alias;
 import com.nhn.pinpoint.web.alarm.MainCategory;
 import com.nhn.pinpoint.web.alarm.SubCategory;
 
+/**
+ * 
+ * @author koo.taejin
+ */
 @Alias("alarmRule")
 public class AlarmRuleResource {
 
@@ -102,6 +106,17 @@ public class AlarmRuleResource {
 
 	public void setSubCategory(String subCategory) {
 		this.subCategory = subCategory;
+	}
+
+	public String ruleToString() {
+		StringBuilder rule = new StringBuilder();
+		
+		rule.append(getMainCategory().getName() + " ");
+		rule.append(getSubCategory().getName() + " ");
+		rule.append(">=" + thresholdRule + getSubCategory().getUnit() + " ");
+		rule.append("(" + getContinuosTime() + "ms)");
+		
+		return rule.toString();
 	}
 
 	@Override

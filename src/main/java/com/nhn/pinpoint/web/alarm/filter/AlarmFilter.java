@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.web.alarm.filter;
 
-import com.nhn.pinpoint.web.alarm.AlarmEvent;
 
 /**
  * 
@@ -8,6 +7,4 @@ import com.nhn.pinpoint.web.alarm.AlarmEvent;
  */
 public interface AlarmFilter {
 
-	boolean execute(AlarmEvent event);
-	
 }

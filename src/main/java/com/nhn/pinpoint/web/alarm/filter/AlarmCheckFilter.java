@@ -11,16 +11,11 @@ public abstract class AlarmCheckFilter implements AlarmFilter {
 	
 	private AlarmRuleResource rule;
 	
+	abstract public boolean check(AlarmEvent event);
+
 	public void initialize(AlarmRuleResource rule) {
 		this.rule = rule;
 	}
-	
-	@Override
-	public boolean execute(AlarmEvent event) {
-		return check(event);
-	}
-	
-	abstract protected boolean check(AlarmEvent event);
 
 	public AlarmRuleResource getRule() {
 		return rule;

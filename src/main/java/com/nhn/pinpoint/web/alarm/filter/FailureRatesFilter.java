@@ -15,6 +15,10 @@ import com.nhn.pinpoint.web.dao.MapStatisticsCallerDao;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
 
+/**
+ * 
+ * @author koo.taejin
+ */
 public class FailureRatesFilter extends AlarmCheckRatesFilter {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -26,7 +30,7 @@ public class FailureRatesFilter extends AlarmCheckRatesFilter {
 	}
 	
 	@Override
-	protected boolean check(AlarmEvent event) {
+	public boolean check(AlarmEvent event) {
 		logger.debug("{} check.", this.getClass().getSimpleName());
 		
 		MapStatisticsCallerDao dao = event.getMapStatisticsCallerDao();

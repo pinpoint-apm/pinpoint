@@ -33,7 +33,7 @@ public class DefaultAlarmJob implements AlarmJob {
 		logger.debug("{} {} execute. CheckFilterList={},  SendFilterList={}", application, this.getClass().getSimpleName(), checkFilterList, sendFilterList);
 		
 		for (AlarmCheckFilter checkFilter : this.checkFilterList) {
-			boolean isSatisfy = checkFilter.execute(event);
+			boolean isSatisfy = checkFilter.check(event);
 			logger.debug("{} filter Satisfy({})", checkFilter.getClass().getSimpleName(), isSatisfy);
 			if (!isSatisfy) {
 				return false;
@@ -41,7 +41,7 @@ public class DefaultAlarmJob implements AlarmJob {
 		}
 		
 		for (AlarmSendFilter sendFilter : this.sendFilterList) {
-			sendFilter.execute(event);
+			sendFilter.send(this.checkFilterList, event);
 		}
 		
 		return true;

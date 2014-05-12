@@ -26,7 +26,7 @@ public class SlowCountFilter extends AlarmCheckCountFilter {
 	}
 	
 	@Override
-	protected boolean check(AlarmEvent event) {
+	public boolean check(AlarmEvent event) {
 		logger.debug("{} check.", this.getClass().getSimpleName());
 		
 		MapStatisticsCallerDao dao = event.getMapStatisticsCallerDao();

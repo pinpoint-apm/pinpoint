@@ -29,9 +29,8 @@ public class FailureCountFilter extends AlarmCheckCountFilter {
 		this.application = application;
 	}
 	
-	
 	@Override
-	protected boolean check(AlarmEvent event) {
+	public boolean check(AlarmEvent event) {
 		logger.debug("{} check.", this.getClass().getSimpleName());
 		
 		MapStatisticsCallerDao dao = event.getMapStatisticsCallerDao();

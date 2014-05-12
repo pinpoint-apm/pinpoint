@@ -13,11 +13,15 @@ import com.nhn.pinpoint.web.alarm.filter.SlowRatesFilter;
 import com.nhn.pinpoint.web.alarm.vo.AlarmRuleResource;
 import com.nhn.pinpoint.web.vo.Application;
 
+/**
+ * 
+ * @author koo.taejin
+ */
 public enum SubCategory {
 
 	// 이후에 Filter가 늘어나게 되면 Decorator패턴으로 변경하는 것도 좋은 방법일듯함
 	
-	RATE_FAIL("RATE_FAIL", 1, MainCategory.REQUEST) {
+	RATE_FAIL("RATE_FAIL", 1, "%", MainCategory.REQUEST) {
 		@Override
 		public AlarmCheckFilter createAlarmFilter(Application application, MainCategory parent, AlarmRuleResource rule) {
 			AlarmCheckFilter filter = null;
@@ -32,7 +36,7 @@ public enum SubCategory {
 			return filter;
 		}
 	},
-	COUNT_FAIL("COUNT_FAIL", 2, MainCategory.REQUEST) {
+	COUNT_FAIL("COUNT_FAIL", 2, " ", MainCategory.REQUEST) {
 		@Override
 		public AlarmCheckFilter createAlarmFilter(Application application, MainCategory parent, AlarmRuleResource rule) {
 			AlarmCheckFilter filter = null;
@@ -47,7 +51,7 @@ public enum SubCategory {
 			return filter;
 		}
 	},
-	RATE_SLOW("RATE_SLOW", 3, MainCategory.REQUEST) {
+	RATE_SLOW("RATE_SLOW", 3, "%", MainCategory.REQUEST) {
 		@Override
 		public AlarmCheckFilter createAlarmFilter(Application application, MainCategory parent, AlarmRuleResource rule) {
 			AlarmCheckFilter filter = null;
@@ -62,7 +66,7 @@ public enum SubCategory {
 			return filter;
 		}
 	},
-	COUNT_SLOW("COUNT_SLOW", 4, MainCategory.REQUEST) {
+	COUNT_SLOW("COUNT_SLOW", 4, " ", MainCategory.REQUEST) {
 		@Override
 		public AlarmCheckFilter createAlarmFilter(Application application, MainCategory parent, AlarmRuleResource rule) {
 			AlarmCheckFilter filter = null;
@@ -81,10 +85,12 @@ public enum SubCategory {
 	private final String name;
 	private final int code;
 	private final List<MainCategory> parentSupportCategoryList;
+	private final String unit;
 
-	private SubCategory(String name, int code, MainCategory firstParentSupportCategory, MainCategory... otherParentSupportCategories) {
+	private SubCategory(String name, int code, String unit, MainCategory firstParentSupportCategory, MainCategory... otherParentSupportCategories) {
 		this.name = name;
 		this.code = code;
+		this.unit = unit;
 
 		parentSupportCategoryList = new ArrayList<MainCategory>();
 
@@ -101,6 +107,10 @@ public enum SubCategory {
 
 	public int getCode() {
 		return code;
+	}
+
+	public String getUnit() {
+		return unit;
 	}
 
 	private List<MainCategory> getParentSupportCategoryList() {

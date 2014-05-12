@@ -39,7 +39,7 @@ public class AlarmSmsSendFilter extends AlarmSendFilter {
 	}
 
 	@Override
-	public boolean send(AlarmEvent event) {
+	public boolean send(List<AlarmCheckFilter> alarmCheckFilterList, AlarmEvent event) {
 		DefaultHttpClient client = new DefaultHttpClient();
 
 		List<NameValuePair> nvps = new ArrayList<NameValuePair>();
