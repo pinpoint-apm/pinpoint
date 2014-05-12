@@ -101,6 +101,7 @@ public class DefaultAlarmScheduler implements AlarmScheduler {
 		synchronized (this) {
 			if (this.repository == null) {
 				logger.warn("{}'s repository is null. this job will be skipped.", this.getClass().getName());
+				return;
 			}
 			
 			int totalJobCount = this.repository.getTotalJobCount();
