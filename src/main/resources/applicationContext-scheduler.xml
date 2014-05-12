@@ -13,13 +13,12 @@
 
 	<description>Spring Batch infrastructure beans.</description>
 
-   
-
 	<bean id="alarmScheduler" class="com.nhn.pinpoint.web.scheduler.DefaultAlarmScheduler" init-method="initialize"/>
 	<task:scheduler id="batchSchduler" pool-size="2" />
 
 	<task:scheduled-tasks scheduler="batchSchduler">
-		<task:scheduled ref="alarmScheduler" method="execute" fixed-delay="50000" />
+		<task:scheduled ref="alarmScheduler" method="execute" fixed-delay="300000" />			<!-- 5분 -->
+		<task:scheduled ref="alarmScheduler" method="initialize" fixed-delay="1800000" />		<!-- 30분 -->
 	</task:scheduled-tasks>	
 
 </beans>

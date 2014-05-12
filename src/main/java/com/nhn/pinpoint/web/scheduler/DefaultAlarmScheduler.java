@@ -87,7 +87,9 @@ public class DefaultAlarmScheduler implements AlarmScheduler {
 		
 		logger.info("{} initilization success(Registred {} Jobs). ", this.getClass().getName(), repository.getTotalJobCount());
 		
-		this.repository = repository;
+		synchronized (this) {
+			this.repository = repository;
+		}
 	}
 
 	@Override
@@ -96,11 +98,17 @@ public class DefaultAlarmScheduler implements AlarmScheduler {
 
 		AlarmEvent event = createAlarmEvent();
 		
-		int totalJobCount = repository.getTotalJobCount();
-		
-		List<Application> applicationList = repository.getRegistedApplicationList();
-		for (Application application : applicationList) {
-			executeEachApplication(application, event, totalJobCount);
+		synchronized (this) {
+			if (this.repository == null) {
+				logger.warn("{}'s repository is null. this job will be skipped.", this.getClass().getName());
+			}
+			
+			int totalJobCount = this.repository.getTotalJobCount();
+			
+			List<Application> applicationList = this.repository.getRegistedApplicationList();
+			for (Application application : applicationList) {
+				executeEachApplication(application, event, totalJobCount);
+			}
 		}
 		
 	}
