@@ -91,7 +91,7 @@ pinpointApp
 //                                "balloonColor": "red",
                                 "fillAlphas": 0.8,
 //                                "labelText": "[[value]]",
-                                "lineAlpha": 0.3,
+                                "lineAlpha": 0,
                                 "title": aDynamicKey[0],
 //                                "type": "column",
 //                                "color": "#000000",
@@ -100,7 +100,7 @@ pinpointApp
                                 "balloonText": "[[title]] : <b>[[value]]</b>",
                                 "fillAlphas": 0.8,
 //                                "labelText": "[[value]]",
-                                "lineAlpha": 0.3,
+                                "lineAlpha": 0,
                                 "title": aDynamicKey[1],
 //                                "type": "column",
 //                                "color": "#000000",
@@ -118,7 +118,7 @@ pinpointApp
                                 "balloonText": "[[title]] : <b>[[value]]</b>",
                                 "fillAlphas": 0.8,
 //                                "labelText": "[[value]]",
-                                "lineAlpha": 0.3,
+                                "lineAlpha": 0,
                                 "title": aDynamicKey[3],
 //                                "type": "column",
 //                                "color": "#000000",
@@ -127,7 +127,7 @@ pinpointApp
                                 "balloonText": "[[title]] : <b>[[value]]</b>",
                                 "fillAlphas": 0.8,
 //                                "labelText": "[[value]]",
-                                "lineAlpha": 0.3,
+                                "lineAlpha": 0,
                                 "title": aDynamicKey[4],
 //                                "type": "column",
 //                                "color": "#000000",
@@ -137,8 +137,8 @@ pinpointApp
                         if (useChartCursor) {
                             options["chartCursor"] = {
                                 "cursorPosition": "mouse",
-                                    "categoryBalloonAlpha": 0.7,
-                                    "categoryBalloonDateFormat": "H:NN"
+                                "categoryBalloonAlpha": 0.7,
+                                "categoryBalloonDateFormat": "H:NN"
                             };
                         }
                         AmCharts.makeChart(id, options);
