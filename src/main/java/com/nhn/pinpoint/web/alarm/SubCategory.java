@@ -2,7 +2,6 @@ package com.nhn.pinpoint.web.alarm;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import com.nhn.pinpoint.web.alarm.filter.AlarmCheckFilter;
 import com.nhn.pinpoint.web.alarm.filter.AlarmFilter;
@@ -129,7 +128,14 @@ public enum SubCategory {
 	public abstract AlarmCheckFilter createAlarmFilter(Application application, MainCategory parent, AlarmRuleResource rule);
 
 	public static SubCategory getValue(String value) {
-		return SubCategory.valueOf(value.toUpperCase(Locale.ENGLISH));
+		SubCategory[] categories = SubCategory.values();
+		for (SubCategory category : categories) {
+			if (category.getName().equalsIgnoreCase(value)) {
+				return category;
+			}
+		}
+		
+		return null;
 	}
 
 	public static SubCategory getValue(int code) {

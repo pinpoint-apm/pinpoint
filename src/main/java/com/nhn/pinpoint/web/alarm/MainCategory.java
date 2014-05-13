@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.web.alarm;
 
-import java.util.Locale;
 
 public enum MainCategory {
 
@@ -26,7 +25,14 @@ public enum MainCategory {
 	}
 
 	public static MainCategory getValue(String value) {
-		return MainCategory.valueOf(value.toUpperCase(Locale.ENGLISH));
+		MainCategory[] categories = MainCategory.values();
+		for (MainCategory category : categories) {
+			if (category.getName().equalsIgnoreCase(value)) {
+				return category;
+			}
+		}
+		
+		return null;
 	}
 
 	public static MainCategory getValue(int code) {
