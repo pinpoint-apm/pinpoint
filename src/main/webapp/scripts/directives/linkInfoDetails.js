@@ -149,18 +149,26 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         var oServerMapFilterVo = new ServerMapFilterVo();
                         oServerMapFilterVo
                             .setMainApplication(htLastLink.filterApplicationName)
-                            .setMainServiceTypeCode(htLastLink.filterApplicationServiceTypeCode)
-                            .setFromApplication(htLastLink.sourceInfo.applicationName)
-                            .setFromServiceType(htLastLink.sourceInfo.serviceType);
-                        if (htLastLink.targetRawData) {
-                            oServerMapFilterVo
-                                .setToApplication(toApplicationName)
-                                .setToServiceType(htLastLink.targetRawData[toApplicationName].targetInfo.serviceType);
-                        }
+                            .setMainServiceTypeCode(htLastLink.filterApplicationServiceTypeCode);
+
                         if (htLastLink.sourceInfo.serviceType === 'USER') {
                             oServerMapFilterVo
                                 .setFromApplication('USER')
                                 .setFromServiceType('USER');
+                        } else {
+                            oServerMapFilterVo
+                                .setFromApplication(htLastLink.sourceInfo.applicationName)
+                                .setFromServiceType(htLastLink.sourceInfo.serviceType);
+                        }
+
+                        if (htLastLink.targetRawData) {
+                            oServerMapFilterVo
+                                .setToApplication(toApplicationName)
+                                .setToServiceType(htLastLink.targetRawData[toApplicationName].targetInfo.serviceType);
+                        } else {
+                            oServerMapFilterVo
+                                .setToApplication(htLastLink.targetInfo.applicationName)
+                                .setToServiceType(htLastLink.targetInfo.serviceType);
                         }
 
                         if (label.toLowerCase() === 'error') {
