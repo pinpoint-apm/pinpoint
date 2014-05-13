@@ -89,6 +89,14 @@ pinpointApp.controller('TransactionDetailCtrl', ['TransactionDetailConfig', '$sc
             $scope.$broadcast('distributedCallFlow.resize.forTransactionDetail');
         };
 
+        /**
+         * open transaction view
+         * @param transaction
+         */
+        $scope.openTransactionView = function () {
+            $window.open('/#/transactionView/' + $scope.transactionDetail.agentId + '/' + $scope.transactionDetail.transactionId + '/' + $scope.transactionDetail.callStackStart);
+        };
+
         // events binding
         $("#traceTabs li a").bind("click", function (e) {
             e.preventDefault();

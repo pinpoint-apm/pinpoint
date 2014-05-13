@@ -35,6 +35,7 @@ pinpointApp.directive('transactionTable', ['$window', function ($window) {
                 }
                 scope.transactionList = scope.transactionList.concat(transactionList);
                 resetIndexToTransactionList();
+                element.find('[data-toggle="tooltip"]').tooltip('destroy').tooltip();
             };
 
             /**
