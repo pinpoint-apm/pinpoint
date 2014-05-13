@@ -56,7 +56,8 @@ pinpointApp
                                 "startDuration": 1,
                                 "valueAxes": [
                                     {
-                                        "gridAlpha": 0.1
+                                        "gridAlpha": 0.1,
+                                        "usePrefixes": true
                                     }
                                 ],
                                 "graphs": [
@@ -70,14 +71,18 @@ pinpointApp
                                         "valueField": "count"
                                     }
                                 ],
-                                "categoryField": "responseTime"
+                                "categoryField": "responseTime",
+                                "categoryAxis": {
+                                    "gridAlpha": 0
+                                }
                             };
                             if (useChartCursor) {
                                 options["chartCursor"] = {
                                     "fullWidth": true,
-                                        "categoryBalloonAlpha": 0.7,
-                                        "cursorColor": "#000",
-                                        "cursorAlpha": 0.3
+                                    "categoryBalloonAlpha": 0.7,
+                                    "cursorColor": "#000000",
+                                    "cursorAlpha": 0,
+                                    "zoomable": false
                                 };
                             }
                             oChart = AmCharts.makeChart(id, options);

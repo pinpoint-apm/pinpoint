@@ -67,17 +67,30 @@ pinpointApp
                             "dataProvider": data,
                             "valueAxes": [{
                                 "stackType": "regular",
-                                "axisAlpha": 0.1,
+                                "axisAlpha": 1,
+                                "usePrefixes": true,
                                 "gridAlpha": 0.1
                             }],
+                            "categoryField": "time",
+                            "categoryAxis": {
+                                "parseDates": true,
+                                "equalSpacing": true,
+//                                "dashLength": 1,
+//                                "minorGridEnabled": true,
+                                "minPeriod": "NN",
+                                "gridAlpha": 0
+                            },
+                            "balloon": {
+                                "fillAlpha": 1
+                            },
                             "graphs": [{
                                 "balloonText": "[[title]] : <b>[[value]]</b>",
-                                "balloonColor": "red",
+//                                "balloonColor": "red",
                                 "fillAlphas": 0.8,
 //                                "labelText": "[[value]]",
                                 "lineAlpha": 0.3,
                                 "title": aDynamicKey[0],
-                                "type": "column",
+//                                "type": "column",
 //                                "color": "#000000",
                                 "valueField": aDynamicKey[0]
                             }, {
@@ -86,8 +99,8 @@ pinpointApp
 //                                "labelText": "[[value]]",
                                 "lineAlpha": 0.3,
                                 "title": aDynamicKey[1],
-                                "type": "column",
-                                "color": "#000000",
+//                                "type": "column",
+//                                "color": "#000000",
                                 "valueField": aDynamicKey[1]
                             }, {
                                 "balloonText": "[[title]] : <b>[[value]]</b>",
@@ -95,7 +108,7 @@ pinpointApp
 //                                "labelText": "[[value]]",
                                 "lineAlpha": 0.3,
                                 "title": aDynamicKey[2],
-                                "type": "column",
+//                                "type": "column",
 //                                "color": "#000000",
                                 "valueField": aDynamicKey[2]
                             }, {
@@ -104,7 +117,7 @@ pinpointApp
 //                                "labelText": "[[value]]",
                                 "lineAlpha": 0.3,
                                 "title": aDynamicKey[3],
-                                "type": "column",
+//                                "type": "column",
 //                                "color": "#000000",
                                 "valueField": aDynamicKey[3]
                             }, {
@@ -113,18 +126,10 @@ pinpointApp
 //                                "labelText": "[[value]]",
                                 "lineAlpha": 0.3,
                                 "title": aDynamicKey[4],
-                                "type": "column",
+//                                "type": "column",
 //                                "color": "#000000",
                                 "valueField": aDynamicKey[4]
-                            }],
-                            "categoryField": "time",
-                            "categoryAxis": {
-                                "parseDates": true,
-                                "equalSpacing": true,
-                                "dashLength": 1,
-                                "minorGridEnabled": true,
-                                "minPeriod": "NN"
-                            }
+                            }]
                         };
                         if (useChartCursor) {
                             options["chartCursor"] = {
