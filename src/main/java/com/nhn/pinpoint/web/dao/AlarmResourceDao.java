@@ -11,17 +11,23 @@ import com.nhn.pinpoint.web.alarm.vo.AlarmRuleResource;
 
 public interface AlarmResourceDao {
 
-	public int selectAlarmCount();
+	int selectAlarmCount();
 
-	public List<AlarmResource> selectAlarmList();
+	List<AlarmResource> selectAlarmList();
 
-	public List<AlarmRuleResource> selectAlarmRuleList();
+	List<AlarmRuleResource> selectAlarmRuleList();
 	
-	public List<AlarmRuleGroupResource> selectAlarmRuleGroupList();
+	List<AlarmRuleGroupResource> selectAlarmRuleGroupList();
 	
-	public List<AlarmContactResource> selectAlarmContactList();
+	void insertAlarmContact(AlarmContactResource resource);
+	List<AlarmContactResource> selectAlarmContactList();
+	void updateAlarmCountact(AlarmContactResource resource);
+	void deleteAlarmCountact(AlarmContactResource resource);
 	
-	public List<AlarmContactGroupResource> selectAlarmContactGroupList();
-	
+	void insertAlarmContactGroup(AlarmContactGroupResource resource);
+	List<AlarmContactGroupResource> selectAlarmContactGroupList();
+	void updateAlarmContactGroup(AlarmContactGroupResource resource);
+	void deleteAlarmCountactGroup(AlarmContactGroupResource resource);
+
 	
 }

@@ -45,6 +45,12 @@
 		<result property="alarmId" column="alrm_grp_id" />
 		<result property="alarmContactGroupName" column="alrm_cntt_grp_nm" />
 		<result property="alarmContactGroupDescrption" column="alrm_cntt_grp_desc" />
+	
+		<result property="registerTime" column="reg_ymd" />
+		<result property="registerEmployeeNumber" column="reg_emp_no" />
+		<result property="modifyTime" column="mod_ymd" />
+		<result property="modifyEmployeeNumber" column="mod_emp_no" />
+		
 		<collection property="alarmContactList" javaType="ArrayList" column="id" ofType="alarmContact" select="selectAlarmContactList"> </collection>
 	</resultMap>	
 	
@@ -97,5 +103,62 @@
 		
 		WHERE id = #{id}
 	</select>
+	
+	<insert id="insertAlarmContact" parameterType="alarmContact" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO alrm_cntt_info (
+			alrm_cntt_grp_id, 
+			phn_no, 
+			mail_addr 
+		) VALUES (
+			#{alarmContactGroupId},
+			#{phoneNum},
+			#{emailAddress}
+		)
+	</insert>
+	
+	<update id="updateAlarmContact" parameterType="alarmContact">
+		UPDATE alrm_cntt_info 
+		SET	alrm_cntt_grp_id = #{alarmContactGroupId},
+			phn_no = #{phoneNum},
+			mail_addr = #{emailAddress}
+		WHERE id = #{id}
+	</update>
+	
+	<delete id="deleteAlarmContact" parameterType="int">
+		DELETE FROM alrm_cntt_info
+		WHERE id = #{id}
+	</delete>
+	
+	<insert id="insertAlarmContactGroup" parameterType="alarmContactGroup" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO alrm_cntt_grp (
+			alrm_cntt_grp_nm, 
+			alrm_cntt_grp_desc, 
+			reg_ymd,
+			reg_emp_no,
+			mod_ymd,
+			mod_emp_no
+		) VALUES (
+			#{alarmContactGroupName},
+			#{alarmContactGroupDescrption},
+			now(),
+			#{registerEmployeeNumber},
+			now(),
+			#{modifyEmployeeNumber}
+		)
+	</insert>
+	
+	<update id="updateAlarmContactGroup" parameterType="alarmContactGroup">
+		UPDATE alrm_cntt_grp 
+		SET	alrm_cntt_grp_nm = #{alarmContactGroupName},
+			alrm_cntt_grp_desc = #{alarmContactGroupDescrption},
+			mod_ymd = CURRENT_DATETIME,
+			mod_emp_no = #{modifyEmployeeNumber}
+		WHERE id = #{id}
+	</update>
+
+	<update id="deleteAlarmContactGroup" parameterType="int">
+		DELETE FROM alrm_cntt_grp
+		WHERE id = #{id}
+	</update>	
 	
 </mapper>

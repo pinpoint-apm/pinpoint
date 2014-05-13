@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.web.dao.mysql;
 
+import java.util.Date;
 import java.util.List;
 
 import org.mybatis.spring.SqlSessionTemplate;
@@ -57,4 +58,36 @@ public class MySqlAlarmResourceDao implements AlarmResourceDao {
 		return getSqlSessionTemplate().selectList(NAMESPACE + "selectAlarmContactGroupList", 1);
 	}
 
+	
+	@Override
+	public void insertAlarmContact(AlarmContactResource resource) {
+		getSqlSessionTemplate().insert(NAMESPACE + "insertAlarmContact", resource);
+	}
+	
+	@Override
+	public void updateAlarmCountact(AlarmContactResource resource) {
+		getSqlSessionTemplate().update(NAMESPACE + "updateAlarmContact", resource);
+	}
+	
+	@Override
+	public void deleteAlarmCountact(AlarmContactResource resource) {
+		getSqlSessionTemplate().update(NAMESPACE + "deleteAlarmContact", resource.getId());
+	}
+
+	@Override
+	public void insertAlarmContactGroup(AlarmContactGroupResource resource) {
+		getSqlSessionTemplate().insert(NAMESPACE + "insertAlarmContactGroup", resource);
+	}
+	
+	@Override
+	public void updateAlarmContactGroup(AlarmContactGroupResource resource) {
+		getSqlSessionTemplate().insert(NAMESPACE + "updateAlarmContactGroup", resource);
+	}
+	
+	@Override
+	public void deleteAlarmCountactGroup(AlarmContactGroupResource resource) {
+		getSqlSessionTemplate().update(NAMESPACE + "deleteAlarmContactGroup", resource.getId());
+	}
+
+	
 }
