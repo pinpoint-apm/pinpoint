@@ -46,20 +46,20 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
             }
 
             htTransactionData = getDataByTransactionInfo(htTransactionInfo);
-                oTimeSliderVo = new TimeSliderVo();
-                oTimeSliderVo.setTotal(htTransactionData.length);
+            oTimeSliderVo = new TimeSliderVo();
+            oTimeSliderVo.setTotal(htTransactionData.length);
 
-                fetchStart();
-                $timeout(function () {
-                    $("#main-container").layout({
-                        north__minSize: 20,
-                        north__size: 200,
+            fetchStart();
+            $timeout(function () {
+                $("#main-container").layout({
+                    north__minSize: 20,
+                    north__size: 200,
 //                north__spacing_closed: 20,
 //                north__togglerLength_closed: 100,
 //                north__togglerAlign_closed: "top",
-                        center__maskContents: true // IMPORTANT - enable iframe masking
-                    });
-                }, 500);
+                    center__maskContents: true // IMPORTANT - enable iframe masking
+                });
+            }, 100);
 
         }, 100);
 
