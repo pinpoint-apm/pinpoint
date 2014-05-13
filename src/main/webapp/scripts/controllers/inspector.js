@@ -84,7 +84,7 @@ pinpointApp.controller('InspectorCtrl', [ '$scope', '$timeout', '$routeParams', 
          * @returns {string}
          */
         getLocation = function () {
-            var url = '/' + getFirstPathOfLocation() + '/' + oNavbarVo.getApplication() + '/' + oNavbarVo.getPeriod() + '/' + oNavbarVo.getQueryEndTime();
+            var url = '/' + getFirstPathOfLocation() + '/' + oNavbarVo.getApplication() + '/' + oNavbarVo.getReadablePeriod() + '/' + oNavbarVo.getQueryEndDateTime();
             if (oNavbarVo.getAgentId()) {
                 url += '/' + oNavbarVo.getAgentId();
             }
