@@ -62,7 +62,7 @@ pinpointApp
                                 ],
                                 "graphs": [
                                     {
-                                        "balloonText": useFilterTransaction ? 'Filter Transaction with [[category]]' : '',
+                                        "balloonText": useFilterTransaction ? '[[category]] filtering' : '',
                                         "colorField": "color",
                                         "labelText": "[[value]]",
                                         "fillAlphas": 0.8,

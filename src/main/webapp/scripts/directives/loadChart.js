@@ -75,13 +75,16 @@ pinpointApp
                             "categoryAxis": {
                                 "parseDates": true,
                                 "equalSpacing": true,
+                                "startOnAxis": true,
+                                "gridPosition": "start",
 //                                "dashLength": 1,
 //                                "minorGridEnabled": true,
                                 "minPeriod": "NN",
                                 "gridAlpha": 0
                             },
                             "balloon": {
-                                "fillAlpha": 1
+                                "fillAlpha": 1,
+                                "borderThickness": 1
                             },
                             "graphs": [{
                                 "balloonText": "[[title]] : <b>[[value]]</b>",

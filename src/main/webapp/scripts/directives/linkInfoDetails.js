@@ -46,6 +46,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     scope.showLinkInfoDetails = false;
                     scope.showLinkResponseSummary = false;
                     scope.showLinkLoad = false;
+                    scope.showLinkServers = false;
                     scope.linkSearch = '';
                     scope.linkOrderBy = 'count';
                     scope.linkOrderByNameClass = '';
@@ -89,7 +90,11 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         scope.showLinkResponseSummary = true;
                         scope.showLinkLoad = true;
                         renderResponseSummary('forLink', link.targetInfo.applicationName, link.histogram, '100%', '150px');
-                        renderLoad('forLink', link.targetInfo.applicationName, link.timeSeriesHistogram, '100%', '220px', false);
+                        renderLoad('forLink', link.targetInfo.applicationName, link.timeSeriesHistogram, '100%', '220px', true);
+
+
+                        console.log('link', link);
+//                        scope.showLinkServers = _.isEmpty(scope.serverList) ? false : true;
                     }
 
                     scope.showLinkInfoDetails = true;

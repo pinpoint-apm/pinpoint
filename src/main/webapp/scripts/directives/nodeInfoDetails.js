@@ -45,7 +45,7 @@ pinpointApp
                         scope.node = false;
                         scope.unknownGroup = null;
                         scope.hosts = null;
-                        scope.showServers = false;
+                        scope.showNodeServers = false;
                         scope.agents = null;
                         scope.showAgents = false;
                         scope.showNodeResponseSummaryForUnknown = false;
@@ -70,7 +70,7 @@ pinpointApp
                         scope.node = node;
                         scope.unknownGroup = node.textArr;
                         scope.serverList = node.serverList;
-                        scope.showServers = _.isEmpty(scope.serverList) ? false : true;
+                        scope.showNodeServers = _.isEmpty(scope.serverList) ? false : true;
                         scope.agentHistogram = node.agentHistogram;
 
                         if (!node.targetRawData && node.category !== "UNKNOWN_GROUP") {
