@@ -47,6 +47,15 @@ if [[ $rc != 0 ]] ; then
 fi
 echo "...OK"
 
+echo "Copy mapping file"
+cp $HOME/pinpoint-bootstrap/target/agent.map $HOME/pinpoint-testbed/agent/agent.map
+rc=$?
+if [[ $rc != 0 ]] ; then
+        echo "OBFUSCATION FAILED $rc"
+        exit $rc
+fi
+echo "...OK"
+
 echo ""
 echo "Backup agent is ..."
 ls -lR $HOME/pinpoint-testbed/agent-org
