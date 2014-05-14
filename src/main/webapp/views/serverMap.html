@@ -71,8 +71,9 @@
                             <label class="col-sm-2 control-label">Transaction Result</label>
                             <div class="col-sm-8">
                                 <div class="btn-group">
-                                    <button type="button" class="btn btn-sm" ng-class="{true:'btn-default', false:'btn-success'}[includeFailed]" ng-click="includeFailed=false">Success + Failed</button>
-                                    <button type="button" class="btn btn-sm" ng-class="{true:'btn-success', false:'btn-default'}[includeFailed]" ng-click="includeFailed=true">Failed Only</button>
+                                    <button type="button" class="btn btn-sm" ng-class="{true:'btn-success', false:'btn-default'}[includeFailed==null]" ng-click="includeFailed=null">Success + Failed</button>
+                                    <button type="button" class="btn btn-sm" ng-class="{true:'btn-success', false:'btn-default'}[includeFailed==false]" ng-click="includeFailed=false">Success Only</button>
+                                    <button type="button" class="btn btn-sm" ng-class="{true:'btn-success', false:'btn-default'}[includeFailed==true]" ng-click="includeFailed=true">Failed Only</button>
                                 </div>
                             </div>
                         </div>

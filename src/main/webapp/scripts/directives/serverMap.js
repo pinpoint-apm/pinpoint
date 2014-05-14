@@ -83,7 +83,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         from: 0,
                         to: 30000
                     };
-                    scope.includeFailed = false;
+                    scope.includeFailed = null;
                     $('#filterWizard').modal('hide');
                     if (!scope.$$phase) {
                         scope.$digest();
@@ -450,10 +450,9 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                                         scope.oNavbarVo);
                                     if (result) {
                                         scope.urlPattern = result.oServerMapFilterVo.getRequestUrlPattern();
-                                        scope.responseTime = {
-                                            from: result.oServerMapFilterVo.getResponseFrom(),
-                                            to: result.oServerMapFilterVo.getResponseTo()
-                                        };
+                                        scope.responseTime.from = result.oServerMapFilterVo.getResponseFrom();
+                                        var to = result.oServerMapFilterVo.getResponseTo();
+                                        scope.responseTime.to = to === 'max' ? 30000 : to;
                                         scope.includeFailed = result.oServerMapFilterVo.getIncludeException();
                                     } else {
                                         scope.responseTime = {

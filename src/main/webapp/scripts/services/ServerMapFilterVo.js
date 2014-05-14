@@ -172,15 +172,13 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
                 .setFromApplication(dataSet.fa)
                 .setFromServiceType(dataSet.fst)
                 .setToApplication(dataSet.ta)
-                .setToServiceType(dataSet.tst);
+                .setToServiceType(dataSet.tst)
+                .setIncludeException(dataSet.ie);
 
             if (angular.isNumber(dataSet.rf) && dataSet.rt) {
                 this
                     .setResponseFrom(dataSet.rf)
                     .setResponseTo(dataSet.rt);
-            }
-            if (dataSet.ie) {
-                this.setIncludeException(dataSet.ie)
             }
             if (dataSet.url) {
                 this.setRequestUrlPattern(dataSet.url);
