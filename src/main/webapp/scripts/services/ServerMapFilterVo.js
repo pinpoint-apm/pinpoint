@@ -149,15 +149,13 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
                 fa: self._sFromApplication,
                 fst: self._sFromServiceType,
                 ta: self._sToApplication,
-                tst: self._sToServiceType
+                tst: self._sToServiceType,
+                ie: self._bIncludeException
             };
 
             if (!(self._sResponseFrom == 0 && self._sResponseTo === 'max')) {
                 filter.rf = self._sResponseFrom;
                 filter.rt = self._sResponseTo;
-            }
-            if (self._bIncludeException) {
-                filter.ie = self._bIncludeException;
             }
             if (self._sRequestUrlPattern) {
                 filter.url = self._sRequestUrlPattern;

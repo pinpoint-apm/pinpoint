@@ -189,12 +189,10 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                             } else if (label.toLowerCase() === 'slow') {
                                 oServerMapFilterVo
                                     .setResponseFrom(filteredMapUtil.getStartValueForFilterByLabel(label, values) * 1000)
-                                    .setIncludeException(false)
                                     .setResponseTo('max');
                             } else {
                                 oServerMapFilterVo
                                     .setResponseFrom(filteredMapUtil.getStartValueForFilterByLabel(label, values) * 1000)
-                                    .setIncludeException(false)
                                     .setResponseTo(parseInt(label, 10) * 1000);
                             }
 
