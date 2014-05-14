@@ -15,7 +15,8 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
             link: function postLink(scope, element, attrs) {
 
                 // define private variables
-                var htQuery, htTargetRawData, htLastLink, htUnknownResponseSummary, htUnknownLoad, bShown, htAgentChartRendered;
+                var htQuery, htTargetRawData, htLastLink, htUnknownResponseSummary, htUnknownLoad, bShown,
+                    htAgentChartRendered, bResponseSummaryForLinkRendered, bLoadForLinkRendered;
 
                 // define private variables of methods;
                 var reset, showDetailInformation, renderLoad, renderResponseSummary, renderAllChartWhichIsVisible,
@@ -23,6 +24,8 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
 
                 // bootstrap
                 scope.linkSearch = '';
+                bResponseSummaryForLinkRendered = false;
+                bLoadForLinkRendered = false;
                 bShown = false;
 
                 angular.element($window).bind('resize',function(e) {
@@ -145,54 +148,61 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 renderResponseSummary = function (namespace, toApplicationName, histogram, w, h) {
                     var className = $filter('applicationNameToClassName')(toApplicationName),
                         namespace = namespace || 'forLink_' + className;
-                    scope.$broadcast('responseTimeChart.initAndRenderWithData.' + namespace, histogram, w, h, true, true);
-                    scope.$on('responseTimeChart.itemClicked.' + namespace, function (event, data) {
-                        var label = data.responseTime,
-                            values = data.count;
-                        var oServerMapFilterVo = new ServerMapFilterVo();
-                        oServerMapFilterVo
-                            .setMainApplication(htLastLink.filterApplicationName)
-                            .setMainServiceTypeCode(htLastLink.filterApplicationServiceTypeCode);
 
-                        if (htLastLink.sourceInfo.serviceType === 'USER') {
-                            oServerMapFilterVo
-                                .setFromApplication('USER')
-                                .setFromServiceType('USER');
-                        } else {
-                            oServerMapFilterVo
-                                .setFromApplication(htLastLink.sourceInfo.applicationName)
-                                .setFromServiceType(htLastLink.sourceInfo.serviceType);
+                    if (namespace === 'forLink' && bResponseSummaryForLinkRendered) {
+                        scope.$broadcast('responseTimeChart.updateData.' + namespace, histogram);
+                    } else {
+                        if (namespace === 'forLink') {
+                            bResponseSummaryForLinkRendered = true;
                         }
-
-                        if (htLastLink.targetRawData) {
+                        scope.$broadcast('responseTimeChart.initAndRenderWithData.' + namespace, histogram, w, h, true, true);
+                        scope.$on('responseTimeChart.itemClicked.' + namespace, function (event, data) {
+                            var label = data.responseTime,
+                                values = data.count;
+                            var oServerMapFilterVo = new ServerMapFilterVo();
                             oServerMapFilterVo
-                                .setToApplication(toApplicationName)
-                                .setToServiceType(htLastLink.targetRawData[toApplicationName].targetInfo.serviceType);
-                        } else {
-                            oServerMapFilterVo
-                                .setToApplication(htLastLink.targetInfo.applicationName)
-                                .setToServiceType(htLastLink.targetInfo.serviceType);
-                        }
+                                .setMainApplication(htLastLink.filterApplicationName)
+                                .setMainServiceTypeCode(htLastLink.filterApplicationServiceTypeCode);
 
-                        if (label.toLowerCase() === 'error') {
-                            oServerMapFilterVo.setIncludeException(true);
-                        } else if (label.toLowerCase() === 'slow') {
-                            oServerMapFilterVo
-                                .setResponseFrom(filteredMapUtil.getStartValueForFilterByLabel(label, values) * 1000)
-                                .setResponseTo('max');
-                        } else {
-                            oServerMapFilterVo
-                                .setResponseFrom(filteredMapUtil.getStartValueForFilterByLabel(label, values) * 1000)
-                                .setResponseTo(parseInt(label, 10) * 1000);
-                        }
+                            if (htLastLink.sourceInfo.serviceType === 'USER') {
+                                oServerMapFilterVo
+                                    .setFromApplication('USER')
+                                    .setFromServiceType('USER');
+                            } else {
+                                oServerMapFilterVo
+                                    .setFromApplication(htLastLink.sourceInfo.applicationName)
+                                    .setFromServiceType(htLastLink.sourceInfo.serviceType);
+                            }
 
-                        var oServerMapHintVo = new ServerMapHintVo();
-                        if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {
-                            oServerMapHintVo.setHint(htLastLink.targetInfo.applicationName, htLastLink.filterTargetRpcList)
-                        }
+                            if (htLastLink.targetRawData) {
+                                oServerMapFilterVo
+                                    .setToApplication(toApplicationName)
+                                    .setToServiceType(htLastLink.targetRawData[toApplicationName].targetInfo.serviceType);
+                            } else {
+                                oServerMapFilterVo
+                                    .setToApplication(htLastLink.targetInfo.applicationName)
+                                    .setToServiceType(htLastLink.targetInfo.serviceType);
+                            }
 
-                        scope.$emit('linkInfoDetails.ResponseSummary.barClicked', oServerMapFilterVo, oServerMapHintVo);
-                    });
+                            if (label.toLowerCase() === 'error') {
+                                oServerMapFilterVo.setIncludeException(true);
+                            } else if (label.toLowerCase() === 'slow') {
+                                oServerMapFilterVo
+                                    .setResponseFrom(filteredMapUtil.getStartValueForFilterByLabel(label, values) * 1000)
+                                    .setResponseTo('max');
+                            } else {
+                                oServerMapFilterVo
+                                    .setResponseFrom(filteredMapUtil.getStartValueForFilterByLabel(label, values) * 1000)
+                                    .setResponseTo(parseInt(label, 10) * 1000);
+                            }
+
+                            var oServerMapHintVo = new ServerMapHintVo();
+                            if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {
+                                oServerMapHintVo.setHint(htLastLink.targetInfo.applicationName, htLastLink.filterTargetRpcList)
+                            }
+                            scope.$emit('linkInfoDetails.ResponseSummary.barClicked', oServerMapFilterVo, oServerMapHintVo);
+                        });
+                    }
                 };
 
                 /**
@@ -206,7 +216,14 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 renderLoad = function (namespace, toApplicationName, timeSeriesHistogram, w, h, useChartCursor) {
                     var className = $filter('applicationNameToClassName')(toApplicationName),
                         namespace = namespace || 'forLink_' + className;
-                    scope.$broadcast('loadChart.initAndRenderWithData.' + namespace, timeSeriesHistogram, w, h, useChartCursor);
+                    if (namespace === 'forLink' && bLoadForLinkRendered) {
+                        scope.$broadcast('loadChart.updateData.' + namespace, timeSeriesHistogram);
+                    } else {
+                        if (namespace === 'forLink') {
+                            bLoadForLinkRendered = true;
+                        }
+                        scope.$broadcast('loadChart.initAndRenderWithData.' + namespace, timeSeriesHistogram, w, h, useChartCursor);
+                    }
                 };
 
                 /**

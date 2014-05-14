@@ -16,10 +16,10 @@ pinpointApp
             link: function postLink(scope, element, attrs) {
 
                 // define variables
-                var id, aDynamicKey;
+                var id, aDynamicKey, oChart;
 
                 // define variables of methods
-                var setIdAutomatically, setWidthHeight, render, parseTimeSeriesHistogramForAmcharts;
+                var setIdAutomatically, setWidthHeight, render, parseTimeSeriesHistogramForAmcharts, updateData;
 
                 /**
                  * set id automatically
@@ -141,7 +141,18 @@ pinpointApp
                                 "categoryBalloonDateFormat": "H:NN"
                             };
                         }
-                        AmCharts.makeChart(id, options);
+                        oChart = AmCharts.makeChart(id, options);
+                    });
+                };
+
+                /**
+                 * update data
+                 * @param data
+                 */
+                updateData = function (data) {
+                    oChart.dataProvider = data;
+                    $timeout(function () {
+                        oChart.validateData();
                     });
                 };
 
@@ -194,7 +205,7 @@ pinpointApp
                  * scope event on loadChart.updateData.namespace
                  */
                 scope.$on('loadChart.updateData.' + scope.namespace, function (event, data) {
-                    render(parseTimeSeriesHistogramForAmcharts(data));
+                    updateData(parseTimeSeriesHistogramForAmcharts(data));
                 });
             }
         };
