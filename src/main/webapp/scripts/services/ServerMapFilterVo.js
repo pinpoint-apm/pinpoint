@@ -12,7 +12,7 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
         this._sToServiceType = null;
         this._sResponseFrom = 0;
         this._sResponseTo = 'max';
-        this._bIncludeException = false;
+        this._bIncludeException = null;
         this._sRequestUrlPattern = '';
 
         this.setMainApplication = function (mainApplication) {
