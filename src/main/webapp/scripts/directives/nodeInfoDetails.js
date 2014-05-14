@@ -200,10 +200,10 @@ pinpointApp
                     };
 
                     /**
-                     * render agent charts
+                     * render node agent charts
                      * @param applicationName
                      */
-                    scope.renderAgentCharts = function (applicationName) {
+                    scope.renderNodeAgentCharts = function (applicationName) {
                         if (angular.isDefined(htAgentChartRendered[applicationName])) return;
                         htAgentChartRendered[applicationName] = true;
                         renderResponseSummary(null, applicationName, htLastNode.agentHistogram[applicationName], '100%', '150px');

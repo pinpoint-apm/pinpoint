@@ -15,7 +15,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
             link: function postLink(scope, element, attrs) {
 
                 // define private variables
-                var htQuery, htTargetRawData, htLastLink, htUnknownResponseSummary, htUnknownLoad, bShown;
+                var htQuery, htTargetRawData, htLastLink, htUnknownResponseSummary, htUnknownLoad, bShown, htAgentChartRendered;
 
                 // define private variables of methods;
                 var reset, showDetailInformation, renderLoad, renderResponseSummary, renderAllChartWhichIsVisible,
@@ -39,6 +39,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     htLastLink = false;
                     htTargetRawData = false;
                     htUnknownResponseSummary = {};
+                    htAgentChartRendered = {};
                     htUnknownLoad = {};
                     scope.linkCategory = null;
                     scope.targetinfo = null;
@@ -52,6 +53,8 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     scope.linkOrderByNameClass = '';
                     scope.linkOrderByCountClass = 'glyphicon-sort-by-order-alt';
                     scope.linkOrderByDesc = true;
+                    scope.sourceHistogram = false;
+                    scope.fromNode = false;
                     scope.namespace = null;
                     if (!scope.$$phase) {
                         scope.$digest();
@@ -92,9 +95,9 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         renderResponseSummary('forLink', link.targetInfo.applicationName, link.histogram, '100%', '150px');
                         renderLoad('forLink', link.targetInfo.applicationName, link.timeSeriesHistogram, '100%', '220px', true);
 
-
-                        console.log('link', link);
-//                        scope.showLinkServers = _.isEmpty(scope.serverList) ? false : true;
+                        scope.showLinkServers = _.isEmpty(link.sourceHistogram) ? false : true;
+                        scope.sourceHistogram = link.sourceHistogram;
+                        scope.fromNode = link.fromNode;
                     }
 
                     scope.showLinkInfoDetails = true;
@@ -323,6 +326,17 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         oServerMapHintVo.setHint(htLastLink.toNode.text, htLastLink.filterTargetRpcList)
                     }
                     scope.$broadcast('linkInfoDetails.openFilteredMap', oServerMapFilterVo, oServerMapHintVo);
+                };
+
+                /**
+                 * render link agent charts
+                 * @param applicationName
+                 */
+                scope.renderLinkAgentCharts = function (applicationName) {
+                    if (angular.isDefined(htAgentChartRendered[applicationName])) return;
+                    htAgentChartRendered[applicationName] = true;
+                    renderResponseSummary(null, applicationName, htLastLink.sourceHistogram[applicationName], '100%', '150px');
+                    renderLoad(null, applicationName, htLastLink.sourceTimeSeriesHistogram[applicationName], '100%', '200px', true);
                 };
 
                 /**
