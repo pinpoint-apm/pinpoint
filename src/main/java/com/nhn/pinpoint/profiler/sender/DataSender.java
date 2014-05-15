@@ -4,6 +4,7 @@ import org.apache.thrift.TBase;
 
 /**
  * @author emeroad
+ * @author netspider
  */
 public interface DataSender {
 
@@ -11,4 +12,5 @@ public interface DataSender {
 
     void stop();
 
+    boolean isNetworkAvalable();
 }

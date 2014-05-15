@@ -11,6 +11,7 @@ import com.nhn.pinpoint.rpc.client.PinpointSocketReconnectEventListener;
 
 /**
  * @author emeroad
+ * @author netspider
  */
 public class LoggingDataSender implements EnhancedDataSender {
 
@@ -60,5 +61,9 @@ public class LoggingDataSender implements EnhancedDataSender {
         logger.info("removeReconnectEventListener eventListener:{}", eventListener);
 		return false;
 	}
-	
+
+	@Override
+	public boolean isNetworkAvalable() {
+		return true;
+	}
 }

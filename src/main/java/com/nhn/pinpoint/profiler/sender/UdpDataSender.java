@@ -51,12 +51,6 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
 		this.udpSocket = createSocket(host, port);
 
 		this.executor = createAsyncQueueingExecutor(queueSize, threadName);
-
-		if (isNetworkAvalable()) {
-			logger.info("udp connect success:{}/{}", host, port);
-		} else {
-			logger.warn("udp connect fail:{}/{}", host, port);
-		}
 	}
 	
     @Override
@@ -69,7 +63,7 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
         executor.stop();
     }
     
-    private boolean isNetworkAvalable() {
+    public boolean isNetworkAvalable() {
     	NetworkAvailabilityCheckPacket dto = new NetworkAvailabilityCheckPacket();
         try {
             byte[] interBufferData = serialize(serializer, dto);

@@ -105,6 +105,11 @@ public class TraceTest {
 		public boolean removeReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
 			return false;
 		}
+
+		@Override
+		public boolean isNetworkAvalable() {
+			return true;
+		}
     }
 
     private void getDataFromDB(Trace trace) {

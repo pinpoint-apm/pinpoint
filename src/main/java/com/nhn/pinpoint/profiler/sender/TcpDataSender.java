@@ -26,6 +26,7 @@ import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
 /**
  * @author emeroad
  * @author koo.taejin
+ * @author netspider
  */
 public class TcpDataSender extends AbstractDataSender implements EnhancedDataSender {
 
@@ -225,4 +226,11 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
         fireState.compareAndSet(true, false);
     }
 
+	@Override
+	public boolean isNetworkAvalable() {
+		if (this.socket == null) {
+			return false;
+		}
+		return this.socket.isConnected();
+	}
 }
