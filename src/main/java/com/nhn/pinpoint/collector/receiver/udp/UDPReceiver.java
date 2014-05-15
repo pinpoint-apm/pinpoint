@@ -11,10 +11,12 @@ import com.nhn.pinpoint.collector.util.PacketUtils;
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.thrift.io.Header;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
+import com.nhn.pinpoint.thrift.io.NetworkAvailabilityCheckPacket;
 import com.nhn.pinpoint.common.util.ExecutorFactory;
 import com.nhn.pinpoint.rpc.util.CpuUtils;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseSerDesFactory;
 import com.nhn.pinpoint.thrift.io.L4Packet;
+
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
@@ -25,6 +27,7 @@ import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+
 import java.io.IOException;
 import java.net.*;
 import java.util.concurrent.*;
@@ -33,6 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author emeroad
+ * @author netspider
  */
 public class UDPReceiver implements DataReceiver {
 
@@ -281,6 +285,11 @@ public class UDPReceiver implements DataReceiver {
                     }
                     return;
                 }
+                // Network port availability check packet
+                if (tBase instanceof NetworkAvailabilityCheckPacket) {
+                	responseOK();
+                	return;
+                }
                 // dispatch는 비지니스 로직 실행을 의미.
                 dispatchHandler.dispatchSendMessage(tBase, packet.getData(), Header.HEADER_SIZE, packet.getLength());
             } catch (TException e) {
@@ -305,6 +314,19 @@ public class UDPReceiver implements DataReceiver {
             }
         }
 
-
+        private void responseOK() {
+			try {
+				byte[] okBytes = NetworkAvailabilityCheckPacket.DATA_OK;
+				DatagramPacket pongPacket = new DatagramPacket(okBytes, okBytes.length, packet.getSocketAddress());
+				socket.send(pongPacket);
+			} catch (IOException e) {
+                if (logger.isWarnEnabled()) {
+                    logger.warn("pong error. SendSocketAddress:{} Cause:{}", packet.getSocketAddress(), e.getMessage(), e);
+                }
+                if (logger.isDebugEnabled()) {
+                    logger.debug("packet dump hex:{}", PacketUtils.dumpDatagramPacket(packet));
+                }
+			}
+        }
     }
 }
