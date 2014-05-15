@@ -64,6 +64,8 @@ public enum ServiceType {
 
     SPRING((short) 5050, "SPRING", false, false, false, HistogramSchema.NORMAL_SCHEMA),
     SPRING_MVC((short) 5051, "SPRING", false, false, false, HistogramSchema.NORMAL_SCHEMA),
+    // FIXME 스프링 관련 코드들 어떻게 가져갈지 정리 필요
+    SPRING_ORM_IBATIS((short) 5061, "SPRING", false, false, false, HistogramSchema.NORMAL_SCHEMA),
     
     IBATIS((short) 5500, "IBATIS", false, false, false, HistogramSchema.NORMAL_SCHEMA),
     MYBATIS((short) 5510, "MYBATIS", false, false, false, HistogramSchema.NORMAL_SCHEMA),
