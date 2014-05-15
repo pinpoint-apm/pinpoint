@@ -10,7 +10,7 @@ import com.nhn.pinpoint.profiler.sender.UdpDataSender;
  * @author netspider
  * 
  */
-public class NetworkAvailabilityChecker {
+public class NetworkAvailabilityChecker implements PinpointTools {
 	public static void main(String[] args) {
 		if (args.length != 1) {
 			System.out.println("usage : " + NetworkAvailabilityChecker.class.getSimpleName() + " AGENT_CONFIG_FILE");
