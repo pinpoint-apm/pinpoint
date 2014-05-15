@@ -55,6 +55,7 @@ import com.nhn.pinpoint.profiler.modifier.orm.mybatis.DefaultSqlSessionModifier;
 import com.nhn.pinpoint.profiler.modifier.orm.mybatis.SqlSessionTemplateModifier;
 import com.nhn.pinpoint.profiler.modifier.servlet.HttpServletModifier;
 import com.nhn.pinpoint.profiler.modifier.servlet.SpringFrameworkServletModifier;
+import com.nhn.pinpoint.profiler.modifier.spring.orm.ibatis.SqlMapClientTemplateModifier;
 import com.nhn.pinpoint.profiler.modifier.tomcat.CatalinaModifier;
 import com.nhn.pinpoint.profiler.modifier.tomcat.StandardHostValveInvokeModifier;
 import com.nhn.pinpoint.profiler.modifier.tomcat.TomcatConnectorModifier;
@@ -331,6 +332,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	private void addIBatisSupport() {
 		addModifier(new SqlMapSessionImplModifier(byteCodeInstrumentor, agent));
 		addModifier(new SqlMapClientImplModifier(byteCodeInstrumentor, agent));
+		addModifier(new SqlMapClientTemplateModifier(byteCodeInstrumentor,agent));
 	}
 
 	private void addMyBatisSupport() {
