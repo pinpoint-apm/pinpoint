@@ -1,14 +1,26 @@
 package com.nhn.pinpoint.thrift.io;
 
-import com.nhn.pinpoint.thrift.dto.*;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
+import com.nhn.pinpoint.thrift.dto.TAgentInfo;
+import com.nhn.pinpoint.thrift.dto.TAgentStat;
+import com.nhn.pinpoint.thrift.dto.TApiMetaData;
+import com.nhn.pinpoint.thrift.dto.TResult;
+import com.nhn.pinpoint.thrift.dto.TSpan;
+import com.nhn.pinpoint.thrift.dto.TSpanChunk;
+import com.nhn.pinpoint.thrift.dto.TSqlMetaData;
+import com.nhn.pinpoint.thrift.dto.TStringMetaData;
+
 /**
  * @author emeroad
+ * @author netspider
  */
 class DefaultTBaseLocator implements TBaseLocator {
 
+	private static final short NETWORK_CHECK = 10;
+	private static final Header NETWORK_CHECK_HEADER = createHeader(NETWORK_CHECK);
+	
     private static final short SPAN = 40;
     private static final Header SPAN_HEADER = createHeader(SPAN);
 
@@ -39,6 +51,8 @@ class DefaultTBaseLocator implements TBaseLocator {
     @Override
     public TBase<?, ?> tBaseLookup(short type) throws TException {
         switch (type) {
+        	case NETWORK_CHECK:
+        		return new NetworkAvailabilityCheckPacket();
             case SPAN:
                 return new TSpan();
             case AGENT_INFO:
@@ -62,6 +76,9 @@ class DefaultTBaseLocator implements TBaseLocator {
     public Header headerLookup(TBase<?, ?> tbase) throws TException {
         if (tbase == null) {
             throw new IllegalArgumentException("tbase must not be null");
+        }
+        if (tbase instanceof NetworkAvailabilityCheckPacket) {
+        	return NETWORK_CHECK_HEADER;
         }
         if (tbase instanceof TSpan) {
             return SPAN_HEADER;
