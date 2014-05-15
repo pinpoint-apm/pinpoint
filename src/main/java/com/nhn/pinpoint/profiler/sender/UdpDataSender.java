@@ -5,6 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.util.Arrays;
 
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.thrift.io.HeaderTBaseSerDesFactory;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.nhn.pinpoint.thrift.io.NetworkAvailabilityCheckPacket;
 
 /**
  * @author netspider
@@ -44,12 +46,17 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
             throw new IllegalArgumentException("queueSize");
         }
 
-
         // Socket 생성에 에러가 발생하면 Agent start가 안되게 변경.
         logger.info("UdpDataSender initialized. host={}, port={}", host, port);
 		this.udpSocket = createSocket(host, port);
 
-        this.executor = createAsyncQueueingExecutor(queueSize, threadName);
+		this.executor = createAsyncQueueingExecutor(queueSize, threadName);
+
+		if (isNetworkAvalable()) {
+			logger.info("udp connect success:{}/{}", host, port);
+		} else {
+			logger.warn("udp connect fail:{}/{}", host, port);
+		}
 	}
 	
     @Override
@@ -57,10 +64,36 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
 		return executor.execute(data);
 	}
 
-
     @Override
     public void stop() {
         executor.stop();
+    }
+    
+    private boolean isNetworkAvalable() {
+    	NetworkAvailabilityCheckPacket dto = new NetworkAvailabilityCheckPacket();
+        try {
+            byte[] interBufferData = serialize(serializer, dto);
+        	int interBufferSize = serializer.getInterBufferSize();
+            reusePacket.setData(interBufferData, 0, interBufferSize);
+            udpSocket.send(reusePacket);
+            
+            if (isTrace) {
+                logger.trace("Data sent. {}", dto);
+            }
+            
+			byte[] receiveData = new byte[NetworkAvailabilityCheckPacket.DATA_OK.length];
+			DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+			udpSocket.receive(receivePacket);
+			
+			if (isTrace) {
+				logger.trace("Data received. {}", Arrays.toString(receivePacket.getData()));
+			}
+			
+			return Arrays.equals(NetworkAvailabilityCheckPacket.DATA_OK , receiveData);
+        } catch (IOException e) {
+            logger.warn("packet send error {}", dto, e);
+            return false;
+        }
     }
 
     private DatagramSocket createSocket(String host, int port) {
@@ -104,5 +137,4 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
 			return;
 		}
 	}
-
 }
