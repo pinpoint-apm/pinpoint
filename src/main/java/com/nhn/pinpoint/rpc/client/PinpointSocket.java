@@ -15,6 +15,7 @@ import com.nhn.pinpoint.rpc.ResponseMessage;
 /**
  * @author emeroad
  * @author koo.taejin
+ * @author netspider
  */
 public class PinpointSocket {
 
@@ -25,7 +26,6 @@ public class PinpointSocket {
     private volatile boolean closed;
     
     private List<PinpointSocketReconnectEventListener> reconnectEventListeners = new ArrayList<PinpointSocketReconnectEventListener>();
-    
     
     public PinpointSocket(SocketHandler socketHandler) {
         if (socketHandler == null) {
@@ -166,5 +166,8 @@ public class PinpointSocket {
     public boolean isClosed() {
         return closed;
     }
-        
+
+	public boolean isConnected() {
+		return this.socketHandler.isConnected();
+	}
 }

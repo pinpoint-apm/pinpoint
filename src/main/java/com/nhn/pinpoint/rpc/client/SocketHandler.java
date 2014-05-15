@@ -7,6 +7,7 @@ import java.net.SocketAddress;
 
 /**
  * @author emeroad
+ * @author netspider
  */
 public interface SocketHandler {
 
@@ -32,5 +33,5 @@ public interface SocketHandler {
 
     void sendPing();
 
-
+    boolean isConnected();
 }

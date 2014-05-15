@@ -9,6 +9,7 @@ import java.net.SocketAddress;
 
 /**
  * @author emeroad
+ * @author netspider
  */
 public class ReconnectStateSocketHandler implements SocketHandler {
 
@@ -72,4 +73,9 @@ public class ReconnectStateSocketHandler implements SocketHandler {
     @Override
     public void sendPing() {
     }
+
+	@Override
+	public boolean isConnected() {
+		return false;
+	}
 }

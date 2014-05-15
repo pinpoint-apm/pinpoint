@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author emeroad
+ * @author netspider
  */
 public class PinpointSocketHandler extends SimpleChannelHandler implements SocketHandler {
 
@@ -421,4 +422,9 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         sb.append('}');
         return sb.toString();
     }
+
+	@Override
+	public boolean isConnected() {
+		return this.state.isRun();
+	}
 }
