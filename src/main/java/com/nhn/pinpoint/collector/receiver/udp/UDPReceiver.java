@@ -287,6 +287,9 @@ public class UDPReceiver implements DataReceiver {
                 }
                 // Network port availability check packet
                 if (tBase instanceof NetworkAvailabilityCheckPacket) {
+                	if (logger.isDebugEnabled()) {
+                        logger.debug("received udp network availability check packet.");
+                    }
                 	responseOK();
                 	return;
                 }
