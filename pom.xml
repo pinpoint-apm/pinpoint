@@ -8,7 +8,7 @@
     <packaging>war</packaging>
 
     <properties>
-        <spring.version>3.1.2.RELEASE</spring.version>
+        <spring.version>3.2.3.RELEASE</spring.version>
         <slf4j.version>1.7.5</slf4j.version>
         <codehaus.jackson.version>1.9.13</codehaus.jackson.version>
         <fastxml.jackson.version>2.3.1</fastxml.jackson.version>
@@ -320,7 +320,33 @@
         <dependency>
             <groupId>com.nhncorp.lucy</groupId>
             <artifactId>lucy-core</artifactId>
-            <version>1.7.6</version>
+            <version>1.7.7</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>freemarker</artifactId>
+                    <groupId>org.freemarker</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>lucy-xss</artifactId>
+                    <groupId>com.nhncorp.lucy</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>spring-security-taglibs</artifactId>
+                    <groupId>org.springframework.security</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>spring-security-config</artifactId>
+                    <groupId>org.springframework.security</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>spring-security-web</artifactId>
+                    <groupId>org.springframework.security</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>spring-security-core</artifactId>
+                    <groupId>org.springframework.security</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-fileupload</groupId>
@@ -580,6 +606,21 @@
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
             <version>1.1.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>17.0</version>
+        </dependency>
+
+
+        <!-- Test dependencies -->
+		<dependency>
+            <groupId>com.nhn.pinpoint</groupId>
+            <artifactId>pinpoint-profiler</artifactId>
+            <version>1.0.2-SNAPSHOT</version>
+            <scope>test</scope>
         </dependency>
         
         <!-- for sms platform dependencies -->

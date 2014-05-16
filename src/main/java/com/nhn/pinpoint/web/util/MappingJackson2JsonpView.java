@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
+import org.springframework.web.servlet.view.AbstractView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,7 +21,7 @@ import java.util.Set;
  * renderMergedOutputModel만 수정함.
  * @author emeroad
  */
-public class MappingJackson2JsonpView extends MappingJackson2JsonView {
+public class MappingJackson2JsonpView extends AbstractView {
 
     private static final String cbPrefix = "(";
     private static final String cbSuffix = ")";
