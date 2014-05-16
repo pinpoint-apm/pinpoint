@@ -132,12 +132,36 @@
             <artifactId>lucy-npc</artifactId>
             <version>1.5.19</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>mina-core</artifactId>
+                    <groupId>external.org.apache.mina</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 		<dependency>
 			<groupId>com.nhncorp.lucy</groupId>
 			<artifactId>lucy-nimmconnector</artifactId>
 			<version>2.1.4</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>cglib-nodep</artifactId>
+                    <groupId>cglib</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jaxen</artifactId>
+                    <groupId>jaxen</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>dom4j</artifactId>
+                    <groupId>dom4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>mina-core</artifactId>
+                    <groupId>external.org.apache.mina</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -274,6 +298,12 @@
             <artifactId>arcus-client</artifactId>
             <version>1.6.2.1</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>ehcache-core</artifactId>
+                    <groupId>net.sf.ehcache</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
 
