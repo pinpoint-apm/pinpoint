@@ -1,8 +1,8 @@
 package com.nhn.pinpoint.collector.receiver.udp;
 
 import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import com.nhn.pinpoint.collector.StatServer;
 import com.nhn.pinpoint.collector.receiver.DataReceiver;
 import com.nhn.pinpoint.collector.receiver.DispatchHandler;
 import com.nhn.pinpoint.collector.util.DatagramPacketFactory;
@@ -49,7 +49,7 @@ public class UDPReceiver implements DataReceiver {
     private String receiverName = this.getClass().getSimpleName();
 
     @Autowired
-    private StatServer statServer;
+    private MetricRegistry metricRegistry;
 
     private Timer timer;
     private Counter rejectedCounter;
@@ -109,7 +109,7 @@ public class UDPReceiver implements DataReceiver {
 
     public void afterPropertiesSet() {
         Assert.notNull(dispatchHandler, "dispatchHandler must not be null");
-        Assert.notNull(statServer, "statServer must not be null");
+        Assert.notNull(metricRegistry, "metricRegistry must not be null");
 
         this.socket = createSocket(bindAddress, port, receiverBufferSize);
 
@@ -117,8 +117,8 @@ public class UDPReceiver implements DataReceiver {
         this.datagramPacketPool = new ObjectPool<DatagramPacket>(new DatagramPacketFactory(), packetPoolSize);
         this.worker = ExecutorFactory.newFixedThreadPool(workerThreadSize, workerThreadQueueSize, receiverName + "-Worker", true);
 
-        this.timer = statServer.getRegistry().timer(receiverName + "-timer");
-        this.rejectedCounter = statServer.getRegistry().counter(receiverName + "-rejected");
+        this.timer = metricRegistry.timer(receiverName + "-timer");
+        this.rejectedCounter = metricRegistry.counter(receiverName + "-rejected");
         this.io = (ThreadPoolExecutor) Executors.newCachedThreadPool(new PinpointThreadFactory(receiverName + "-Io", true));
     }
 

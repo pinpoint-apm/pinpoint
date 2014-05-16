@@ -532,23 +532,6 @@
             <version>${metrics.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-            <version>${jetty.version}</version>
-            <exclusions>
-                <exclusion>
-                    <!-- servlet jar패키징이 이상한듯 정상으로 tomcat이 안올라감 따로 servlet를 걸었음.-->
-                    <artifactId>javax.servlet</artifactId>
-                    <groupId>org.eclipse.jetty.orbit</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <dependency>
             <groupId>javax.servlet</groupId>
             <!-- servlet artifactid 가 이상함. -->
             <artifactId>javax.servlet-api</artifactId>
