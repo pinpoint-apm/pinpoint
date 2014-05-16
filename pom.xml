@@ -8,7 +8,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <spring.version>3.1.2.RELEASE</spring.version>
+        <spring.version>3.2.3.RELEASE</spring.version>
         <slf4j.version>1.7.5</slf4j.version>
         <metrics.version>3.0.1</metrics.version>
     </properties>
@@ -117,7 +117,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>14.0.1</version>
+            <version>17.0</version>
         </dependency>
 		<dependency>
 			<groupId>com.ning</groupId>
