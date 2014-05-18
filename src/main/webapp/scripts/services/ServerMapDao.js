@@ -331,9 +331,11 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
             return  htLastMapData;
         }
 
-        htLastMapData.applicationMapData.linkDataArray[linkKey].applicationName += link.applicationName;
-        htLastMapData.applicationMapData.linkDataArray[linkKey].error += link.error;
-        htLastMapData.applicationMapData.linkDataArray[linkKey].slow += link.slow;
+//        htLastMapData.applicationMapData.linkDataArray[linkKey].applicationName += link.applicationName;
+
+        htLastMapData.applicationMapData.linkDataArray[linkKey].totalCount += link.totalCount;
+        htLastMapData.applicationMapData.linkDataArray[linkKey].errorCount += link.errorCount;
+        htLastMapData.applicationMapData.linkDataArray[linkKey].slowCount += link.slowCount;
 
         if (angular.isDefined(link.histogram)) {
             for (var key in link.histogram) {
