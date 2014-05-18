@@ -69,6 +69,10 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
             $window.open(url, "");
         };
 
+        /**
+         * broadcast scatter scan result to scatter
+         * @param applicationScatterScanResult
+         */
         broadcastScatterScanResultToScatter = function (applicationScatterScanResult) {
             if (angular.isDefined(applicationScatterScanResult)) {
                 angular.forEach(applicationScatterScanResult, function (val, key) {
@@ -157,7 +161,7 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
             if (node.isWas === true) {
                 $scope.hasScatter = true;
                 oSidebarTitleVo.setTitle(node.applicationName);
-                $scope.$broadcast('scatter.initializeWithNode', node);
+                $scope.$broadcast('scatter.showByNode', node);
             } else if (node.unknownNodeGroup) {
                 oSidebarTitleVo.setTitle('Unknown Group');
                 $scope.hasScatter = false;

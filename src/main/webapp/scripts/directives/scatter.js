@@ -345,7 +345,7 @@ pinpointApp.directive('scatter',
                      */
                     scope.$on('scatter.showByNode', function (event, node) {
                         htLastNode = node;
-                        showScatterBy(node.id);
+                        showScatterBy(node.key);
                     });
                 }
             };
