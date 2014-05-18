@@ -58,7 +58,7 @@ pinpointApp.factory('NavbarVo', function () {
             return self._sApplication.split('@')[0];
         };
 
-        this.getServiceType = function () {
+        this.getServiceTypeCode = function () {
             return self._sApplication.split('@')[1];
         };
 

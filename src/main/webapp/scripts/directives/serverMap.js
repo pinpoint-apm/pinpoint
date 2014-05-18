@@ -77,7 +77,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 /**
                  * show server map
                  * @param applicationName
-                 * @param serviceType
+                 * @param serviceTypeCode
                  * @param to
                  * @param period
                  * @param filterText
@@ -86,7 +86,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * @param linkRouting
                  * @param linkCurve
                  */
-                showServerMap = function (applicationName, serviceType, to, period, filterText, hintText, mergeUnknowns, linkRouting, linkCurve) {
+                showServerMap = function (applicationName, serviceTypeCode, to, period, filterText, hintText, mergeUnknowns, linkRouting, linkCurve) {
                     oProgressBar.startLoading();
                     oAlert.hideError();
                     oAlert.hideWarning();
@@ -98,7 +98,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
 
                     htLastQuery = {
                         applicationName: applicationName,
-                        serviceType: serviceType,
+                        serviceTypeCode: serviceTypeCode,
                         from: to - period,
                         to: to,
                         originTo: scope.oNavbarVo.getQueryEndTime(),
@@ -311,14 +311,14 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         selectedNode = _.find(copiedData.applicationMapData.nodeDataArray, function (node) {
                             if (node.applicationName === query.applicationName && angular.isUndefined(query.serviceType)) {
                                 return true;
-                            } else if (node.applicationName === query.applicationName && node.serviceTypeCode === query.serviceType) {
+                            } else if (node.applicationName === query.applicationName && node.serviceTypeCode === query.serviceTypeCode) {
                                 return true;
                             } else {
                                 return false;
                             }
                         });
                         if (selectedNode) {
-                            options.nBoldKey = selectedNode.key;
+                            options.sBoldKey = selectedNode.key;
                         }
                     } catch (e) {
                         oAlert.showError('There is some error while selecting a node.');
@@ -331,7 +331,6 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     } else {
                         oServerMap.option(options);
                     }
-                    console.log('copiedData.applicationMapData', copiedData.applicationMapData);
                     oServerMap.load(copiedData.applicationMapData);
                     oProgressBar.stopLoading();
 
@@ -339,7 +338,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         oServerMap.highlightNodeByKey(htLastNode.key);
                     } else if (sLastSelection === 'link' && htLastLink) {
                         oServerMap.highlightLinkByFromTo(htLastLink.from, htLastLink.to);
-                    } else {
+                    } else if (selectedNode) {
                         oServerMap.highlightNodeByKey(selectedNode.key);
                     }
                 };
@@ -558,14 +557,14 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     scope.bShowServerMapStatus = true;
                     bUseLinkContextMenu = bUseBackgroundContextMenu = true;
                     bUseNodeContextMenu = false;
-                    showServerMap(navbarVo.getApplicationName(), navbarVo.getServiceType(), navbarVo.getQueryEndTime(), navbarVo.getQueryPeriod(), navbarVo.getFilter(), navbarVo.getHint(), scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
+                    showServerMap(navbarVo.getApplicationName(), navbarVo.getServiceTypeCode(), navbarVo.getQueryEndTime(), navbarVo.getQueryPeriod(), navbarVo.getFilter(), navbarVo.getHint(), scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
                 });
 
                 /**
                  * scope event on serverMap.fetch
                  */
                 scope.$on('serverMap.fetch', function (event, queryPeriod, queryEndTime) {
-                    showServerMap(scope.oNavbarVo.getApplicationName(), scope.oNavbarVo.getServiceType(), queryEndTime, queryPeriod, scope.oNavbarVo.getFilter(), scope.oNavbarVo.getHint(), scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
+                    showServerMap(scope.oNavbarVo.getApplicationName(), scope.oNavbarVo.getServiceTypeCode(), queryEndTime, queryPeriod, scope.oNavbarVo.getFilter(), scope.oNavbarVo.getHint(), scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
                 });
 
                 /**
