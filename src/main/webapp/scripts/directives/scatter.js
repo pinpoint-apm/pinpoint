@@ -212,12 +212,12 @@ pinpointApp.directive('scatter',
 //                            window.open("/selectedScatter.pinpoint", token);
 //                            oTransactionDao.addData(token, transactions);
 
-                            var token = htLastNode.text + '|' + htXY.nXFrom + '|' + htXY.nXTo + '|' + htXY.nYFrom + '|' + htXY.nYTo;
+                            var token = htLastNode.applicationName + '|' + htXY.nXFrom + '|' + htXY.nXTo + '|' + htXY.nYFrom + '|' + htXY.nYTo;
                             $window.open('#/transactionList/' + oNavbarVo.getApplication() + '/' +
                                 oNavbarVo.getReadablePeriod() + '/' + oNavbarVo.getQueryEndDateTime(), token);
                         };
                         options.fFullScreenMode = function () {
-                            var url = '#/scatterFullScreenMode/' + htLastNode.text + '@' + htLastNode.serviceTypeCode + '/' +
+                            var url = '#/scatterFullScreenMode/' + htLastNode.applicationName + '@' + htLastNode.serviceTypeCode + '/' +
                                 oNavbarVo.getReadablePeriod() + '/' + oNavbarVo.getQueryEndDateTime();
                             if (oNavbarVo.getFilter()) {
                                 url += '/' + oNavbarVo.getFilter();
@@ -233,7 +233,7 @@ pinpointApp.directive('scatter',
                             } else {
                                 oScatterChart.addBubbleAndMoveAndDraw(scatterData.scatter, scatterData.resultFrom);
                             }
-                            $window.htoScatter[htLastNode.text] = oScatterChart;
+                            $window.htoScatter[htLastNode.applicationName] = oScatterChart;
                         }, 100);
 
                         return oScatterChart;
@@ -328,7 +328,7 @@ pinpointApp.directive('scatter',
                      */
                     scope.$on('scatter.initializeWithNode', function (event, node, w, h) {
                         htLastNode = node;
-                        showScatter(node.text, oNavbarVo.getQueryStartTime(),
+                        showScatter(node.applicationName, oNavbarVo.getQueryStartTime(),
                             oNavbarVo.getQueryEndTime(), oNavbarVo.getQueryPeriod(), oNavbarVo.getFilter(), w, h);
                     });
 

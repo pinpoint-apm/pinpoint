@@ -15,7 +15,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
             link: function postLink(scope, element, attrs) {
 
                 // define private variables
-                var htQuery, htTargetRawData, htLastLink, htUnknownResponseSummary, htUnknownLoad, bShown,
+                var htQuery, htLastLink, htUnknownResponseSummary, htUnknownLoad, bShown,
                     htAgentChartRendered, bResponseSummaryForLinkRendered, bLoadForLinkRendered;
 
                 // define private variables of methods;
@@ -40,13 +40,11 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 reset = function () {
                     htQuery = false;
                     htLastLink = false;
-                    htTargetRawData = false;
                     htUnknownResponseSummary = {};
                     htAgentChartRendered = {};
                     htUnknownLoad = {};
                     scope.linkCategory = null;
-                    scope.targetinfo = null;
-                    scope.sourceinfo = null;
+                    scope.unknownLinkGroup = null;
                     scope.showLinkInfoDetails = false;
                     scope.showLinkResponseSummary = false;
                     scope.showLinkLoad = false;
@@ -57,7 +55,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     scope.linkOrderByCountClass = 'glyphicon-sort-by-order-alt';
                     scope.linkOrderByDesc = true;
                     scope.sourceHistogram = false;
-                    scope.fromNode = false;
+//                    scope.fromNode = false;
                     scope.namespace = null;
                     if (!scope.$$phase) {
                         scope.$digest();
@@ -66,10 +64,10 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
 
                 /**
                  * show link detail information of scope
-                 * @param applicationName
+                 * @param index
                  */
-                scope.showLinkDetailInformation = function (applicationName) {
-                    htLastLink = htTargetRawData[applicationName];
+                scope.showLinkDetailInformation = function (index) {
+                    htLastLink = htLastLink.unknownLinkGroup[index];
                     showDetailInformation(htLastLink);
                     scope.$emit('linkInfoDetail.showDetailInformationClicked', htQuery, htLastLink);
                 };
@@ -79,11 +77,9 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                  * @param link
                  */
                 showDetailInformation = function (link) {
-                    if (link.targetRawData) {
-                        htTargetRawData = link.targetRawData;
+                    if (link.unknownLinkGroup) {
                         scope.linkCategory = 'UnknownLinkInfoBox';
-                        scope.sourceInfo = link.sourceInfo;
-                        scope.targetInfo = link.targetInfo;
+                        scope.unknownLinkGroup = link.unknownLinkGroup;
 
                         scope.showLinkResponseSummaryForUnknown = (scope.oNavbarVo.getPeriod() <= cfg.maxTimeToShowLoadAsDefaultForUnknown) ? false : true;
 
@@ -100,7 +96,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
 
                         scope.showLinkServers = _.isEmpty(link.sourceHistogram) ? false : true;
                         scope.sourceHistogram = link.sourceHistogram;
-                        scope.fromNode = link.fromNode;
+//                        scope.fromNode = link.fromNode;
                     }
 
                     scope.showLinkInfoDetails = true;
@@ -115,25 +111,25 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                  */
                 renderAllChartWhichIsVisible = function (link) {
                     $timeout(function () {
-                        for (var key in link.targetInfo) {
-                            var applicationName = link.targetInfo[key].applicationName,
+                        angular.forEach(link.unknownLinkGroup, function (link, index) {
+                            var applicationName = link.targetInfo.applicationName,
                                 className = $filter('applicationNameToClassName')(applicationName);
-                            if (angular.isDefined(htUnknownResponseSummary[applicationName])) continue;
-                            if (angular.isDefined(htUnknownLoad[applicationName])) continue;
+                            if (angular.isDefined(htUnknownResponseSummary[applicationName])) return;
+                            if (angular.isDefined(htUnknownLoad[applicationName])) return;
 
                             var elQuery = '.linkInfoDetails .summaryCharts_' + className,
                                 el = angular.element(elQuery);
                             var visible = isVisible(el.get(0));
-                            if (!visible) continue;
+                            if (!visible) return;
 
                             if (scope.showLinkResponseSummaryForUnknown) {
                                 htUnknownResponseSummary[applicationName] = true;
-                                renderResponseSummary(null, applicationName, link.targetRawData[applicationName].histogram, '360px', '120px');
+                                renderResponseSummary(null, applicationName, link.histogram, '360px', '120px');
                             } else {
                                 htUnknownLoad[applicationName] = true;
-                                renderLoad(null, applicationName, link.targetRawData[applicationName].timeSeriesHistogram, '360px', '120px');
+                                renderLoad(null, applicationName, link.timeSeriesHistogram, '360px', '120px');
                             }
-                        }
+                        });
                     });
                 };
 
@@ -231,22 +227,24 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 /**
                  * scope render link response summary
                  * @param applicationName
+                 * @param index
                  */
-                scope.renderLinkResponseSummary = function (applicationName) {
+                scope.renderLinkResponseSummary = function (applicationName, index) {
                     if (angular.isUndefined(htUnknownResponseSummary[applicationName])) {
                         htUnknownResponseSummary[applicationName] = true;
-                        renderResponseSummary(null, applicationName, htLastLink.targetRawData[applicationName].histogram, '360px', '120px');
+                        renderResponseSummary(null, applicationName, htLastLink.unknownLinkGroup[index].histogram, '360px', '120px');
                     }
                 };
 
                 /**
                  * scope render link load
                  * @param applicationName
+                 * @param index
                  */
-                scope.renderLinkLoad = function (applicationName) {
+                scope.renderLinkLoad = function (applicationName, index) {
                     if (angular.isUndefined(htUnknownLoad[applicationName])) {
                         htUnknownLoad[applicationName] = true;
-                        renderLoad(null, applicationName, htLastLink.targetRawData[applicationName].timeSeriesHistogram, '360px', '120px');
+                        renderLoad(null, applicationName, htLastLink.unknownLinkGroup[index].timeSeriesHistogram, '360px', '120px');
                     }
                 };
 
@@ -327,22 +325,22 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
 
                 /**
                  * passing transaction map from link info details
-                 * @param toApplicationName
-                 * @param toServiceType
+                 * @param index
                  */
-                scope.passingTransactionMapFromLinkInfoDetails = function (toApplicationName, toServiceType) {
-                    var oServerMapFilterVo = new ServerMapFilterVo();
+                scope.passingTransactionMapFromLinkInfoDetails = function (index) {
+                    var link = htLastLink.unknownLinkGroup[index],
+                        oServerMapFilterVo = new ServerMapFilterVo();
                     oServerMapFilterVo
-                        .setMainApplication(htLastLink.filterApplicationName)
-                        .setMainServiceTypeCode(htLastLink.filterApplicationServiceTypeCode)
-                        .setFromApplication(htLastLink.sourceInfo.applicationName)
-                        .setFromServiceType(htLastLink.sourceInfo.serviceType)
-                        .setToApplication(toApplicationName)
-                        .setToServiceType(toServiceType);
+                        .setMainApplication(link.filterApplicationName)
+                        .setMainServiceTypeCode(link.filterApplicationServiceTypeCode)
+                        .setFromApplication(link.sourceInfo.applicationName)
+                        .setFromServiceType(link.sourceInfo.serviceType)
+                        .setToApplication(link.targetInfo.applicationName)
+                        .setToServiceType(link.targetInfo.serviceType);
 
                     var oServerMapHintVo = new ServerMapHintVo();
-                    if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {
-                        oServerMapHintVo.setHint(htLastLink.toNode.text, htLastLink.filterTargetRpcList)
+                    if (link.sourceInfo.isWas && link.targetInfo.isWas) {
+                        oServerMapHintVo.setHint(link.toNode.applicationName, link.filterTargetRpcList)
                     }
                     scope.$broadcast('linkInfoDetails.openFilteredMap', oServerMapFilterVo, oServerMapHintVo);
                 };

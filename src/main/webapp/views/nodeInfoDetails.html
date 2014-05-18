@@ -1,6 +1,6 @@
 <div class="nodeInfoDetails" ng-init="nodeIcon='USER'" ng-show="showNodeInfoDetails">
 
-    <div ng-if="unknownGroup">
+    <div ng-if="unknownNodeGroup">
 
         <div style="padding-bottom:10px;">
             <div style="float:left;width:265px;padding-right:5px">
@@ -17,7 +17,7 @@
             </div>
         </div>
 
-        <div class="panel panel-default" ng-repeat="node in unknownGroup | orderBy:nodeOrderBy:nodeOrderByDesc" ng-show="showUnknownNodeBy(nodeSearch, node)" style="height:161px;">
+        <div class="panel panel-default" ng-repeat="(index, node) in unknownNodeGroup | orderBy:nodeOrderBy:nodeOrderByDesc" ng-show="showUnknownNodeBy(nodeSearch, node)" style="height:161px;">
             <div class="panel-heading">
                 {{node.applicationName}} <span class="badge" style="position:absolute;right:20px;">{{node.count | number}} calls</span>
             </div>
@@ -27,14 +27,14 @@
                 <load-chart namespace="forNode_{{node.applicationName | applicationNameToClassName}}" ng-hide="showNodeResponseSummaryForUnknown"></load-chart>
 
                 <a class="btn btn-default btn-xs" href title="Show Load" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;"
-                   ng-click="showNodeResponseSummaryForUnknown=!showNodeResponseSummaryForUnknown;renderNodeLoad(node.applicationName)" ng-show="showNodeResponseSummaryForUnknown">
+                   ng-click="showNodeResponseSummaryForUnknown=!showNodeResponseSummaryForUnknown;renderNodeLoad(node.applicationName, index)" ng-show="showNodeResponseSummaryForUnknown">
                     <span class="glyphicon glyphicon-stats"></span>
                 </a>
                 <a class="btn btn-default btn-xs" href title="Show Response Summary" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;"
-                   ng-click="showNodeResponseSummaryForUnknown=!showNodeResponseSummaryForUnknown;renderNodeResponseSummary(node.applicationName)" ng-show="!showNodeResponseSummaryForUnknown">
+                   ng-click="showNodeResponseSummaryForUnknown=!showNodeResponseSummaryForUnknown;renderNodeResponseSummary(node.applicationName, index)" ng-show="!showNodeResponseSummaryForUnknown">
                     <span class="glyphicon glyphicon-stats"></span>
                 </a>
-                <a class="btn btn-default btn-xs" href ng-click="showNodeDetailInformation(node.applicationName)"
+                <a class="btn btn-default btn-xs" href ng-click="showNodeDetailInformation(index)"
                    title="Show Node Information" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 50px; right:5px;">
                     <span class="glyphicon glyphicon-info-sign"></span>
                 </a>

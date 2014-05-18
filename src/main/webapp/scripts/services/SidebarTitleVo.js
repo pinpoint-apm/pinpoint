@@ -22,7 +22,7 @@ pinpointApp.factory('SidebarTitleVo', [ function () {
         };
         this._parseImageTypeToImageUrl = function (imageType) {
             if (angular.isString(imageType)) {
-                var imageUrl = '/images/icons/';
+                var imageUrl = '/images/servermap/';
                 switch (imageType) {
                     case 'UNKNOWN_GROUP' :
                         imageUrl += 'UNKNOWN.png';

@@ -3,23 +3,7 @@
 pinpointApp.constant('serverMapConfig', {
     options: {
         "sContainerId": 'servermap',
-        "sImageDir": '/images/icons/',
-        "htIcons": {
-            'APACHE': 'APACHE.png',
-            'ARCUS': 'ARCUS.png',
-            'BLOC': 'BLOC.png',
-            'CUBRID': 'CUBRID.png',
-            'ETC': 'ETC.png',
-            'MEMCACHED': 'MEMCACHED.png',
-            'MYSQL': 'MYSQL.png',
-            'QUEUE': 'QUEUE.png',
-            'TOMCAT': 'TOMCAT.png',
-            'UNKNOWN': 'UNKNOWN.png',
-            'UNKNOWN_GROUP': 'UNKNOWN.png',
-            'USER': 'USER.png',
-            'ORACLE': 'ORACLE.png',
-            'STAND_ALONE': 'STAND_ALONE.png'
-        },
+        "sImageDir": '/images/servermap/',
         "htLinkType": {
             "sRouting": "Normal", // Normal, Orthogonal, AvoidNodes
             "sCurve": "JumpGap" // Bezier, JumpOver, JumpGap
@@ -266,7 +250,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
 
                     var options = cfg.options;
                     options.fOnNodeClicked = function (e, node) {
-                        var originalNode = ServerMapDao.getNodeDataById(data, node.id);
+                        var originalNode = ServerMapDao.getNodeDataByKey(data, node.key);
                         if (originalNode) {
                             node = originalNode;
                         }
@@ -278,7 +262,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     options.fOnNodeContextClicked = function (e, node) {
                         scope.$emit("serverMap.nodeContextClicked", e, query, node, data);
                         reset();
-                        var originalNode = ServerMapDao.getNodeDataById(data, node.id);
+                        var originalNode = ServerMapDao.getNodeDataByKey(data, node.key);
                         if (originalNode) {
                             node = originalNode;
                         }
@@ -325,9 +309,9 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     var selectedNode;
                     try {
                         selectedNode = _.find(copiedData.applicationMapData.nodeDataArray, function (node) {
-                            if (node.text === query.applicationName && angular.isUndefined(query.serviceType)) {
+                            if (node.applicationName === query.applicationName && angular.isUndefined(query.serviceType)) {
                                 return true;
-                            } else if (node.text === query.applicationName && node.serviceTypeCode === query.serviceType) {
+                            } else if (node.applicationName === query.applicationName && node.serviceTypeCode === query.serviceType) {
                                 return true;
                             } else {
                                 return false;
@@ -347,6 +331,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     } else {
                         oServerMap.option(options);
                     }
+                    console.log('copiedData.applicationMapData', copiedData.applicationMapData);
                     oServerMap.load(copiedData.applicationMapData);
                     oProgressBar.stopLoading();
 
@@ -395,14 +380,14 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     oServerMapFilterVo
                         .setMainApplication(htLastLink.filterApplicationName)
                         .setMainServiceTypeCode(htLastLink.filterApplicationServiceTypeCode)
-                        .setFromApplication(htLastLink.fromNode.text)
-                        .setFromServiceType(htLastLink.fromNode.category)
-                        .setToApplication(htLastLink.toNode.text)
-                        .setToServiceType(htLastLink.toNode.category);
+                        .setFromApplication(htLastLink.fromNode.applicationName)
+                        .setFromServiceType(htLastLink.fromNode.serviceType)
+                        .setToApplication(htLastLink.toNode.applicationName)
+                        .setToServiceType(htLastLink.toNode.serviceType);
 
                     var oServerMapHintVo = new ServerMapHintVo();
                     if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {
-                        oServerMapHintVo.setHint(htLastLink.toNode.text, htLastLink.filterTargetRpcList)
+                        oServerMapHintVo.setHint(htLastLink.toNode.applicationName, htLastLink.filterTargetRpcList)
                     }
 
                     scope.$broadcast('serverMap.openFilteredMap', oServerMapFilterVo, oServerMapHintVo);
@@ -417,18 +402,18 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     reset();
                     var oSidebarTitleVo = new SidebarTitleVo;
 
-                    if (htLastLink.fromNode.category === 'USER') {
+                    if (htLastLink.fromNode.serviceType === 'USER') {
                         oSidebarTitleVo
                             .setImageType('USER')
                             .setTitle('USER')
                     } else {
                         oSidebarTitleVo
-                            .setImageType(htLastLink.fromNode.category)
-                            .setTitle(htLastLink.fromNode.text)
+                            .setImageType(htLastLink.fromNode.serviceType)
+                            .setTitle(htLastLink.fromNode.applicationName)
                     }
                     oSidebarTitleVo
-                        .setImageType2(htLastLink.toNode.category)
-                        .setTitle2(htLastLink.toNode.text);
+                        .setImageType2(htLastLink.toNode.serviceType)
+                        .setTitle2(htLastLink.toNode.applicationName);
 
                     scope.$broadcast('sidebarTitle.initialize.forServerMap', oSidebarTitleVo);
 
@@ -443,10 +428,10 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                                 }, 500);
                                 if (scope.oNavbarVo.getFilter()) {
                                     var result = filteredMapUtil.findFilterInNavbarVo(
-                                        htLastLink.fromNode.text,
-                                        htLastLink.fromNode.category,
-                                        htLastLink.toNode.text,
-                                        htLastLink.toNode.category,
+                                        htLastLink.fromNode.applicationName,
+                                        htLastLink.fromNode.serviceType,
+                                        htLastLink.toNode.applicationName,
+                                        htLastLink.toNode.serviceType,
                                         scope.oNavbarVo);
                                     if (result) {
                                         scope.urlPattern = result.oServerMapFilterVo.getRequestUrlPattern();
@@ -495,10 +480,10 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     oServerMapFilterVo
                         .setMainApplication(htLastLink.filterApplicationName)
                         .setMainServiceTypeCode(htLastLink.filterApplicationServiceTypeCode)
-                        .setFromApplication(htLastLink.fromNode.text)
-                        .setFromServiceType(htLastLink.fromNode.category)
-                        .setToApplication(htLastLink.toNode.text)
-                        .setToServiceType(htLastLink.toNode.category)
+                        .setFromApplication(htLastLink.fromNode.applicationName)
+                        .setFromServiceType(htLastLink.fromNode.serviceType)
+                        .setToApplication(htLastLink.toNode.applicationName)
+                        .setToServiceType(htLastLink.toNode.serviceType)
                         .setResponseFrom(scope.responseTime.from)
                         .setResponseTo(scope.responseTime.to)
                         .setIncludeException(scope.includeFailed)
@@ -506,7 +491,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
 
                     var oServerMapHintVo = new ServerMapHintVo();
                     if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {
-                        oServerMapHintVo.setHint(htLastLink.toNode.text, htLastLink.filterTargetRpcList)
+                        oServerMapHintVo.setHint(htLastLink.toNode.applicationName, htLastLink.filterTargetRpcList)
                     }
                     scope.$broadcast('serverMap.openFilteredMap', oServerMapFilterVo, oServerMapHintVo);
                     reset();

@@ -152,18 +152,17 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
         $scope.$on('serverMap.nodeClicked', function (event, e, query, node, data) {
             bNodeSelected = true;
             var oSidebarTitleVo = new SidebarTitleVo;
-            oSidebarTitleVo
-                .setImageType(node.category)
-                .setTitle(node.text);
+            oSidebarTitleVo.setImageType(node.serviceType);
 
             if (node.isWas === true) {
                 $scope.hasScatter = true;
-                $scope.$broadcast('scatter.showByNode', node);
-            } else if (node.category === 'UNKNOWN_GROUP') {
-                oSidebarTitleVo
-                    .setTitle('Unknown Group');
+                oSidebarTitleVo.setTitle(node.applicationName);
+                $scope.$broadcast('scatter.initializeWithNode', node);
+            } else if (node.unknownNodeGroup) {
+                oSidebarTitleVo.setTitle('Unknown Group');
                 $scope.hasScatter = false;
             } else {
+                oSidebarTitleVo.setTitle(node.applicationName);
                 $scope.hasScatter = false;
             }
             $scope.hasFilter = false;
@@ -178,7 +177,7 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
         $scope.$on('serverMap.linkClicked', function (event, e, query, link, data) {
             bNodeSelected = false;
             var oSidebarTitleVo = new SidebarTitleVo;
-            if (link.targetRawData) {
+            if (link.unknownLinkGroup) {
                 oSidebarTitleVo
                     .setImageType(link.sourceInfo.serviceType)
                     .setTitle('Unknown Group from ' + link.sourceInfo.applicationName);
@@ -252,8 +251,8 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
             $scope.hasScatter = false;
             var oSidebarTitleVo = new SidebarTitleVo;
             oSidebarTitleVo
-                .setImageType(node.category)
-                .setTitle(node.text);
+                .setImageType(node.serviceType)
+                .setTitle(node.applicationName);
             $scope.$broadcast('sidebarTitle.initialize.forMain', oSidebarTitleVo);
             $scope.$broadcast('linkInfoDetails.hide');
         });

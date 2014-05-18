@@ -98,7 +98,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
                     this.mergeNodeData(htLastMapData, foundNodeKeyFromLastMapData, node);
                     newKey[node.key] = foundNodeKeyFromLastMapData;
                 } else {
-                    node.key = node.id = newKey[node.key] = htLastMapData.applicationMapData.nodeDataArray.length + 1;
+                    node.key = newKey[node.key] = htLastMapData.applicationMapData.nodeDataArray.length + 1;
                     htLastMapData.applicationMapData.nodeDataArray.push(node);
                 }
             }, this);
@@ -109,7 +109,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
                 } else {
                     link.from = newKey[link.from];
                     link.to = newKey[link.to];
-                    link.id = [link.from, '-', link.to].join('');
+                    link.key = [link.from, '-', link.to].join('');
                     htLastMapData.applicationMapData.linkDataArray.push(link);
                 }
             }, this);
@@ -125,7 +125,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
      */
     this.findExistingNodeKeyFromLastMapData = function (htLastMapData, node) {
         for (var key in htLastMapData.applicationMapData.nodeDataArray) {
-            if (htLastMapData.applicationMapData.nodeDataArray[key].text === node.text && htLastMapData.applicationMapData.nodeDataArray[key].serviceTypeCode === node.serviceTypeCode) {
+            if (htLastMapData.applicationMapData.nodeDataArray[key].applicationName === node.applicationName && htLastMapData.applicationMapData.nodeDataArray[key].serviceTypeCode === node.serviceTypeCode) {
                 return key;
             }
         }
@@ -180,10 +180,10 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
             aFilter.push({
                 fromCategory: filter.fst,
                 fromText: filter.fa,
-                fromKey: this.findNodeKeyByText(filter.fa, mapData),
+                fromKey: this.findNodeKeyByApplicationName(filter.fa, mapData),
                 toCategory: filter.tst,
                 toText: filter.ta,
-                toKey: this.findNodeKeyByText(filter.ta, mapData)
+                toKey: this.findNodeKeyByApplicationName(filter.ta, mapData)
             })
         }, this);
         return aFilter;
@@ -191,15 +191,15 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
 
     /**
      * find node key by text
-     * @param text
+     * @param applicationName
      * @param mapData
      * @returns {*}
      */
-    this.findNodeKeyByText = function (text, mapData) {
+    this.findNodeKeyByApplicationName = function (applicationName, mapData) {
         //if (text === 'CLIENT') {
         //    text = 'USER';
         //}
-        var result = _.findWhere(mapData.applicationMapData.nodeDataArray, {text: text});
+        var result = _.findWhere(mapData.applicationMapData.nodeDataArray, {applicationName: applicationName});
         if (angular.isDefined(result)) {
             return result.key;
         } else {
@@ -331,7 +331,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
             return  htLastMapData;
         }
 
-        htLastMapData.applicationMapData.linkDataArray[linkKey].text += link.text;
+        htLastMapData.applicationMapData.linkDataArray[linkKey].applicationName += link.applicationName;
         htLastMapData.applicationMapData.linkDataArray[linkKey].error += link.error;
         htLastMapData.applicationMapData.linkDataArray[linkKey].slow += link.slow;
 
@@ -418,7 +418,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
             links.forEach(function (link) {
                 if (link.to === node.key) {
                     inboundCountMap[node.key].sourceCount++;
-                    inboundCountMap[node.key].totalCallCount += link.text;
+                    inboundCountMap[node.key].totalCallCount += link.totalCount;
                 }
             });
         });
@@ -431,7 +431,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
 
         function getNodeByApplicationName(applicationName) {
             for(var k in nodes) {
-                if (applicationName === nodes[k].text) {
+                if (applicationName === nodes[k].applicationName) {
                     return nodes[k];
                 }
             }
@@ -472,49 +472,50 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
                 if (link.from == node.key) {
                     if (!newNode) {
                         newNode = {
-                            "id": newNodeKey,
                             "key": newNodeKey,
-                            "textArr": [],
-                            "targetRawData" : {},
-                            "text": "",
-                            "hosts": [],
-                            "category": "UNKNOWN_GROUP",
-                            "terminal": "true",
-                            "agents": [],
-                            "fig": "Rectangle"
+                            "unknownNodeGroup": [],
+                            "serviceType": "UNKNOWN_GROUP",
+                            "category": "UNKNOWN_GROUP"
                         };
                     }
                     if (!newLink) {
                         newLink = {
-                            "id": node.key + "-" + newNodeKey,
+                            "key": node.key + "-" + newNodeKey,
                             "from": node.key,
                             "to": newNodeKey,
-                            "filterApplicationName": '',
-                            "filterApplicationServiceTypeCode": '',
                             "sourceInfo": {},
                             "targetInfo": [],
-                            "text": 0,
-                            "error": 0,
-                            "slow": 0,
-                            "targetRawData": {},
+                            "totalCount": 0,
+                            "errorCount": 0,
+                            "slowCount": 0,
+                            "state": 'default',
+                            "unknownLinkGroup": [],
                             "histogram": {}
                         };
                     }
 
+//                    newNode.targetRawData[link.targetInfo.applicationName] = thisNode;
+
                     // fill the new node/link informations.
-                    newNode.textArr.push({ 'count': link.text, 'applicationName': link.targetInfo.applicationName});
-                    newNode.targetRawData[link.targetInfo.applicationName] = getNodeByApplicationName(link.targetInfo.applicationName);
+//                    newNode.unknownGroup.push(
+//                        {
+//                            'applicationName': link.targetInfo.applicationName,
+//                            'totalCount': link.totalCount,
+//                            'hasAlert': link.hasAlert
+//                        }
+//                    );
+                    var thisNode = getNodeByApplicationName(link.targetInfo.applicationName);
+                    delete thisNode.category;
+                    newNode.unknownNodeGroup.push(thisNode);
 
-                    newLink.text += link.text;
-                    newLink.error += link.error;
-                    newLink.slow += link.slow;
-                    newLink.filterApplicationName = link.filterApplicationName;
-                    newLink.filterApplicationServiceTypeCode = link.filterApplicationServiceTypeCode;
+                    link.targetInfo['totalCount'] = link.totalCount;
+                    newLink.totalCount += link.totalCount;
+                    newLink.errorCount += link.errorCount;
+                    newLink.slowCount += link.slowCount;
                     newLink.sourceInfo = link.sourceInfo;
-                    link.targetInfo['count'] = link.text;
-                    newLink.targetInfo.push(link.targetInfo);
 
-                    newLink.targetRawData[link.targetInfo.applicationName] = angular.copy(link);
+                    newLink.unknownLinkGroup.push(link);
+
 
                     /*
                      * group된 노드에서 개별 노드의 정보를 조회할 때 사용됨.
@@ -534,42 +535,46 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
                     });
 
                     removeNodeIdSet[link.to] = null;
-                    removeLinkIdSet[link.id] = null;
+                    removeLinkIdSet[link.key] = null;
                 }
             });
 
             if (newNode) {
-                newNode.textArr.sort(function (e1, e2) {
-                    return e2.count - e1.count;
+                newNode.unknownNodeGroup.sort(function (e1, e2) {
+                    return e2.totalCount - e1.totalCount;
                 });
 
-                var nodeCount = newNode.textArr.length - 1;
-                $.each(newNode.textArr, function (i, e) {
-                    newNode.text += e.applicationName + " (" + e.count + ")" + (i < nodeCount ? "\n" : "");
-                });
+//                var nodeCount = newNode.textArr.length - 1;
+//                $.each(newNode.textArr, function (i, e) {
+//                    newNode.applicationName += e.applicationName + " (" + e.totalCount + ")" + (i < nodeCount ? "\n" : "");
+//                });
 
 //						console.log("newNode", newNode);
                 newNodeList.push(newNode);
             }
 
             if (newLink) {
-                if ((newLink.error / newLink.text * 100) > 10) {
-                    newLink.category = "bad";
+                if ((newLink.errorCount / newLink.totalCount * 100) > 10) {
+                    newLink.state = "bad";
                 } else {
-                    newLink.category = "default";
+                    newLink.state = "default";
                 }
 
-                // targetinfo 에러를 우선으로, 요청수 내림차순 정렬.
-                newLink.targetInfo.sort(function (e1, e2) {
-                    var err1 = newLink.targetRawData[e1.applicationName].error;
-                    var err2 = newLink.targetRawData[e2.applicationName].error;
-
-                    if (err1 + err2 > 0) {
-                        return err2 - err1;
-                    } else {
-                        return newLink.targetRawData[e2.applicationName].count - newLink.targetRawData[e1.applicationName].count;
-                    }
+                newLink.unknownLinkGroup.sort(function (e1, e2) {
+                    return e2.totalCount - e1.totalCount;
                 });
+
+                // targetinfo 에러를 우선으로, 요청수 내림차순 정렬.
+//                newLink.targetInfo.sort(function (e1, e2) {
+//                    var err1 = newLink.unknownGroup[e1.applicationName].errorCount;
+//                    var err2 = newLink.unknownGroup[e2.applicationName].errorCount;
+//
+//                    if (err1 + err2 > 0) {
+//                        return err2 - err1;
+//                    } else {
+//                        return newLink.unknownGroup[e2.applicationName].count - newLink.unknownGroup[e1.applicationName].count;
+//                    }
+//                });
 
 //						console.log("newLink", newLink);
                 newLinkList.push(newLink);
@@ -586,7 +591,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
 
         $.each(removeNodeIdSet, function (key, val) {
             nodes.forEach(function (node, i) {
-                if (node.id == key) {
+                if (node.key == key) {
                     nodes.splice(i, 1);
                 }
             });
@@ -594,7 +599,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
 
         $.each(removeLinkIdSet, function (key, val) {
             links.forEach(function (link, i) {
-                if (link.id === key) {
+                if (link.key === key) {
                     links.splice(i, 1);
                 }
             });
@@ -627,17 +632,17 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
     };
 
     /**
-     * get node data by id
+     * get node data by key
      * @param data
-     * @param id
+     * @param key
      * @returns {boolean|hash table}
      */
-    this.getNodeDataById = function (data, id) {
+    this.getNodeDataByKey = function (data, key) {
         var nodes = data.applicationMapData.nodeDataArray;
 
         var foundNode = false;
         nodes.forEach(function (node) {
-            if (node.id === id) {
+            if (node.key ===key) {
                 foundNode = node;
             }
         });

@@ -16,7 +16,7 @@ pinpointApp
                 link: function postLink(scope, element) {
 
                     // define private variables
-                    var htServermapData, htLastNode, htUnknownResponseSummary, htUnknownLoad, htTargetRawData, htQuery,
+                    var htServermapData, htLastNode, htUnknownResponseSummary, htUnknownLoad, htQuery,
                         htAgentChartRendered, bShown;
 
                     // define private variables of methods
@@ -39,11 +39,10 @@ pinpointApp
                         htUnknownResponseSummary = {};
                         htUnknownLoad = {};
                         htAgentChartRendered = {};
-                        htTargetRawData = false;
                         htQuery = false;
                         scope.showNodeInfoDetails = false;
                         scope.node = false;
-                        scope.unknownGroup = null;
+                        scope.unknownNodeGroup = null;
                         scope.hosts = null;
                         scope.showNodeServers = false;
                         scope.agents = null;
@@ -68,7 +67,7 @@ pinpointApp
                     showDetailInformation = function (node) {
                         scope.showNodeInfoDetails = true;
                         scope.node = node;
-                        scope.unknownGroup = node.textArr;
+                        scope.unknownNodeGroup = node.unknownNodeGroup;
                         scope.serverList = node.serverList;
                         scope.showNodeServers = _.isEmpty(scope.serverList) ? false : true;
                         scope.agentHistogram = node.agentHistogram;
@@ -77,10 +76,9 @@ pinpointApp
                             scope.showNodeResponseSummary = true;
                             scope.showNodeLoad = true;
 
-                            renderResponseSummary('forNode', node.text, node.histogram, '100%', '150px');
-                            renderLoad('forNode', node.text, node.timeSeriesHistogram, '100%', '220px', true);
+                            renderResponseSummary('forNode', node.applicationName, node.histogram, '100%', '150px');
+                            renderLoad('forNode', node.applicationName, node.timeSeriesHistogram, '100%', '220px', true);
                         } else if (node.category === 'UNKNOWN_GROUP'){
-                            htTargetRawData = node.targetRawData;
                             scope.showNodeResponseSummaryForUnknown = (scope.oNavbarVo.getPeriod() <= cfg.maxTimeToShowLoadAsDefaultForUnknown) ? false : true;
 
                             renderAllChartWhichIsVisible(node);
@@ -100,25 +98,25 @@ pinpointApp
                      */
                     renderAllChartWhichIsVisible = function (node) {
                         $timeout(function () {
-                            for (var key in node.textArr) {
-                                var applicationName = node.textArr[key].applicationName,
+                            angular.forEach(node.unknownNodeGroup, function (node){
+                                var applicationName = node.applicationName,
                                     className = $filter('applicationNameToClassName')(applicationName);
-                                if (angular.isDefined(htUnknownResponseSummary[applicationName])) continue;
-                                if (angular.isDefined(htUnknownLoad[applicationName])) continue;
+                                if (angular.isDefined(htUnknownResponseSummary[applicationName])) return;
+                                if (angular.isDefined(htUnknownLoad[applicationName])) return;
 
                                 var elQuery = '.nodeInfoDetails .summaryCharts_' + className,
                                     el = angular.element(elQuery);
                                 var visible = isVisible(el.get(0));
-                                if (!visible) continue;
+                                if (!visible) return;
 
                                 if (scope.showNodeResponseSummaryForUnknown) {
                                     htUnknownResponseSummary[applicationName] = true;
-                                    renderResponseSummary(null, applicationName, node.targetRawData[applicationName].histogram, '360px', '120px');
+                                    renderResponseSummary(null, applicationName, node.histogram, '360px', '120px');
                                 } else {
                                     htUnknownLoad[applicationName] = true;
-                                    renderLoad(null, applicationName, node.targetRawData[applicationName].timeSeriesHistogram, '360px', '120px');
+                                    renderLoad(null, applicationName, node.timeSeriesHistogram, '360px', '120px');
                                 }
-                            }
+                            });
                         });
                     };
 
@@ -169,10 +167,10 @@ pinpointApp
 
                     /**
                      * show node detail information of scope
-                     * @param applicationName
+                     * @param index
                      */
-                    scope.showNodeDetailInformation = function (applicationName) {
-                        htLastNode = htTargetRawData[applicationName];
+                    scope.showNodeDetailInformation = function (index) {
+                        htLastNode = htLastNode.unknownNodeGroup[index];
                         showDetailInformation(htLastNode);
                         scope.$emit('nodeInfoDetail.showDetailInformationClicked', htQuery, htLastNode);
                     };
@@ -180,22 +178,24 @@ pinpointApp
                     /**
                      * scope render node response summary
                      * @param applicationName
+                     * @param index
                      */
-                    scope.renderNodeResponseSummary = function (applicationName) {
+                    scope.renderNodeResponseSummary = function (applicationName, index) {
                         if (angular.isUndefined(htUnknownResponseSummary[applicationName])) {
                             htUnknownResponseSummary[applicationName] = true;
-                            renderResponseSummary(null, applicationName, htLastNode.targetRawData[applicationName].histogram, '360px', '120px');
+                            renderResponseSummary(null, applicationName, htLastNode.unknownNodeGroup[index].histogram, '360px', '120px');
                         }
                     };
 
                     /**
                      * scope render node load
                      * @param applicationName
+                     * @param index
                      */
-                    scope.renderNodeLoad = function (applicationName) {
+                    scope.renderNodeLoad = function (applicationName, index) {
                         if (angular.isUndefined(htUnknownLoad[applicationName])) {
                             htUnknownLoad[applicationName] = true;
-                            renderLoad(null, applicationName, htLastNode.targetRawData[applicationName].timeSeriesHistogram, '360px', '120px');
+                            renderLoad(null, applicationName, htLastNode.unknownNodeGroup[index].timeSeriesHistogram, '360px', '120px');
                         }
                     };
 

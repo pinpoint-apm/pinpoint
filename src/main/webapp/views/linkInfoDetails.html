@@ -17,32 +17,32 @@
             </div>
         </div>
 
-        <div class="panel panel-default" ng-repeat="target in targetInfo | orderBy:linkOrderBy:linkOrderByDesc" ng-show="showUnknownLinkBy(linkSearch, target)" style="height:161px;">
+        <div class="panel panel-default" ng-repeat="(index, link) in unknownLinkGroup | orderBy:linkOrderBy:linkOrderByDesc" ng-show="showUnknownLinkBy(linkSearch, link)" style="height:161px;">
             <div class="panel-heading">
                 <span class="glyphicon glyphicon-arrow-right"></span>
-                {{target.applicationName}}  <span class="badge" style="position:absolute;right:20px;">{{target.count | number}} calls</span>
+                {{link.targetInfo.applicationName}}  <span class="badge" style="position:absolute;right:20px;">{{link.count | number}} calls</span>
             </div>
-            <div class="panel-body summaryCharts_{{target.applicationName | applicationNameToClassName}}" style="position: relative; padding:0">
+            <div class="panel-body summaryCharts_{{link.targetInfo.applicationName | applicationNameToClassName}}" style="position: relative; padding:0">
 
-                <response-time-chart namespace="forLink_{{target.applicationName | applicationNameToClassName}}"  ng-show="showLinkResponseSummaryForUnknown"></response-time-chart>
-                <load-chart namespace="forLink_{{target.applicationName | applicationNameToClassName}}" ng-hide="showLinkResponseSummaryForUnknown"></load-chart>
+                <response-time-chart namespace="forLink_{{link.targetInfo.applicationName | applicationNameToClassName}}"  ng-show="showLinkResponseSummaryForUnknown"></response-time-chart>
+                <load-chart namespace="forLink_{{link.targetInfo.applicationName | applicationNameToClassName}}" ng-hide="showLinkResponseSummaryForUnknown"></load-chart>
 
 
                 <a class="btn btn-default btn-xs" href title="Show Load" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;"
-                   ng-click="showLinkResponseSummaryForUnknown=!showLinkResponseSummaryForUnknown;renderLinkLoad(target.applicationName)" ng-show="showLinkResponseSummaryForUnknown">
+                   ng-click="showLinkResponseSummaryForUnknown=!showLinkResponseSummaryForUnknown;renderLinkLoad(link.targetInfo.applicationName, index)" ng-show="showLinkResponseSummaryForUnknown">
                     <span class="glyphicon glyphicon-stats"></span>
                 </a>
                 <a class="btn btn-default btn-xs" href title="Show Response Summary" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;"
-                   ng-click="showLinkResponseSummaryForUnknown=!showLinkResponseSummaryForUnknown;renderLinkResponseSummary(target.applicationName)" ng-show="!showLinkResponseSummaryForUnknown">
+                   ng-click="showLinkResponseSummaryForUnknown=!showLinkResponseSummaryForUnknown;renderLinkResponseSummary(link.targetInfo.applicationName, index)" ng-show="!showLinkResponseSummaryForUnknown">
                     <span class="glyphicon glyphicon-stats"></span>
                 </a>
 
-                <a class="btn btn-default btn-xs" href ng-click="showLinkDetailInformation(target.applicationName)"
+                <a class="btn btn-default btn-xs" href ng-click="showLinkDetailInformation(index)"
                    title="Show Link Information" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 50px; right:5px;">
                     <span class="glyphicon glyphicon-info-sign"></span>
                 </a>
                 <a class="btn btn-default btn-xs" href title="Filter Transaction" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 80px; right:5px;"
-                   ng-click="passingTransactionMapFromLinkInfoDetails(target.applicationName, target.serviceType)">
+                   ng-click="passingTransactionMapFromLinkInfoDetails(index)">
                     <span class="glyphicon glyphicon-filter"></span>
                 </a>
             </div>
@@ -66,7 +66,7 @@
             <li ng-repeat="(name, histogram) in sourceHistogram" ng-init="linkInstanceShow[name]=false">
                 <span class="glyphicon glyphicon-hdd"></span>
                 {{name}}
-                <!--<a class="btn btn-default btn-xs" ng-show="instance.hasInspector" ng-href="#/inspector/{{fromNode.text}}@{{fromNode.serviceTypeCode}}/{{oNavbarVo.getReadablePeriod()}}/{{oNavbarVo.getQueryEndDateTime()}}/{{instance.name}}" target="_blank" title="Inspect Agents" alt="Inspect Agents">Inspector</a>-->
+                <!--<a class="btn btn-default btn-xs" ng-show="instance.hasInspector" ng-href="#/inspector/{{fromNode.text}}@{{fromNode.serviceTypeCode}}/{{oNavbarVo.getReadablePeriod()}}/{{oNavbarVo.getQueryEndDateTime()}}/{{instance.name}}" link="_blank" title="Inspect Agents" alt="Inspect Agents">Inspector</a>-->
                 <button type="button" class="btn btn-xs" ng-click="linkInstanceShow[name]=!linkInstanceShow[name];renderLinkAgentCharts(name);"
                         ng-class="{true:'btn-danger', false:'btn-default'}[histogram.Error > 0]">
                     <span class="glyphicon" ng-class="{true:'glyphicon-minus',false:'glyphicon-plus'}[linkInstanceShow[name]==true]"></span>
