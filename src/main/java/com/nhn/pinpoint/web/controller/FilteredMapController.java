@@ -43,7 +43,7 @@ public class FilteredMapController {
 	 * 필터가 적용된 서버맵의 FROM ~ TO기간의 데이터 조회
 	 * 
 	 * @param applicationName
-	 * @param serviceType
+	 * @param serviceTypeCode
 	 * @param from
 	 * @param to
 	 * @param filterText
@@ -53,8 +53,8 @@ public class FilteredMapController {
 	@RequestMapping(value = "/getFilteredServerMapData", method = RequestMethod.GET)
     @ResponseBody
 	public FilterMapWrap getFilteredServerMapData(
-											@RequestParam("application") String applicationName,
-											@RequestParam("serviceType") short serviceType,
+											@RequestParam("applicationName") String applicationName,
+											@RequestParam("serviceTypeCode") short serviceTypeCode,
 											@RequestParam("from") long from,
 											@RequestParam("to") long to,
                                             @RequestParam("originTo") long originTo,
@@ -88,7 +88,7 @@ public class FilteredMapController {
 	 * 필터가 적용된 서버맵의 Period before 부터 현재시간까지의 데이터 조회.
 	 * 
 	 * @param applicationName
-	 * @param serviceType
+	 * @param serviceTypeCode
 	 * @param filterText
 	 * @param limit
 	 * @return
@@ -96,8 +96,8 @@ public class FilteredMapController {
 	@RequestMapping(value = "/getLastFilteredServerMapData", method = RequestMethod.GET)
     @ResponseBody
 	public FilterMapWrap getLastFilteredServerMapData(
-			@RequestParam("application") String applicationName,
-			@RequestParam("serviceType") short serviceType,
+			@RequestParam("applicationName") String applicationName,
+			@RequestParam("serviceTypeCode") short serviceTypeCode,
 			@RequestParam("period") long period,
 			@RequestParam(value = "filter", required = false) String filterText,
 			@RequestParam(value = "hint", required = false) String filterHint,
@@ -107,7 +107,7 @@ public class FilteredMapController {
 		long to = TimeUtils.getDelayLastTime();
 		long from = to - period;
         // TODO 실시간 조회가 현재 disable이므로 to to로 수정하였음. 이것도 추가적으로 @RequestParam("originTo")가 필요할수 있음.
-		return getFilteredServerMapData(applicationName, serviceType, from, to, to, filterText, filterHint, limit);
+		return getFilteredServerMapData(applicationName, serviceTypeCode, from, to, to, filterText, filterHint, limit);
 	}
 
 

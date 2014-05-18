@@ -46,7 +46,7 @@ public class MapController {
 	 * FROM ~ TO기간의 서버 맵 데이터 조회
 	 *
 	 * @param applicationName
-	 * @param serviceType
+	 * @param serviceTypeCode
 	 * @param from
 	 * @param to
 	 * @return
@@ -54,14 +54,14 @@ public class MapController {
 	@RequestMapping(value = "/getServerMapData", method = RequestMethod.GET)
     @ResponseBody
 	public MapWrap getServerMapData(
-									@RequestParam("application") String applicationName,
-									@RequestParam("serviceType") short serviceType,
+									@RequestParam("applicationName") String applicationName,
+									@RequestParam("serviceTypeCode") short serviceTypeCode,
 									@RequestParam("from") long from,
 									@RequestParam("to") long to) {
         final Range range = new Range(from, to);
         this.dateLimit.limit(from, to);
         logger.debug("range:{}", TimeUnit.MILLISECONDS.toMinutes(range.getRange()));
-        Application application = new Application(applicationName, serviceType);
+        Application application = new Application(applicationName, serviceTypeCode);
 
         ApplicationMap map = mapService.selectApplicationMap(application, range);
 
@@ -72,20 +72,20 @@ public class MapController {
 	 * Period before 부터 현재시간까지의 서버맵 조회.
 	 * 
 	 * @param applicationName
-	 * @param serviceType
+	 * @param serviceTypeCode
 	 * @param period
 	 * @return
 	 */
 	@RequestMapping(value = "/getLastServerMapData", method = RequestMethod.GET)
     @ResponseBody
 	public MapWrap getLastServerMapData(
-										@RequestParam("application") String applicationName,
-										@RequestParam("serviceType") short serviceType,
+										@RequestParam("applicationName") String applicationName,
+										@RequestParam("serviceTypeCode") short serviceTypeCode,
 										@RequestParam("period") long period) {
 		
 		long to = TimeUtils.getDelayLastTime();
 		long from = to - period;
-		return getServerMapData(applicationName, serviceType, from, to);
+		return getServerMapData(applicationName, serviceTypeCode, from, to);
 	}
 
 	/**
