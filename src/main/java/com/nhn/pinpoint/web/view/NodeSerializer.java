@@ -21,25 +21,28 @@ public class NodeSerializer extends JsonSerializer<Node>  {
     @Override
     public void serialize(Node node, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
         jgen.writeStartObject();
-        jgen.writeStringField("id", node.getNodeName());
-        jgen.writeStringField("key", node.getNodeName());
+//        jgen.writeStringField("id", node.getNodeName());
+        jgen.writeStringField("key", node.getNodeName()); // necessary for go.js
 
-        jgen.writeStringField("text", node.getApplicationTextName());
+        jgen.writeStringField("applicationName", node.getApplicationTextName()); // for go.js
 
-        jgen.writeStringField("category", node.getServiceType().toString());
+        jgen.writeStringField("category", node.getServiceType().toString());  // necessary for go.js
+        jgen.writeStringField("serviceType", node.getServiceType().toString());
 
         final ServiceType serviceType = node.getApplication().getServiceType();
-        if (serviceType.isUser()) {
-            jgen.writeStringField("fig", "Ellipse");
-        } else if(serviceType.isWas()) {
-            jgen.writeStringField("fig", "RoundedRectangle");
-        } else {
-            jgen.writeStringField("fig", "Rectangle");
-        }
+//        if (serviceType.isUser()) {
+//            jgen.writeStringField("fig", "Ellipse");
+//        } else if(serviceType.isWas()) {
+//            jgen.writeStringField("fig", "RoundedRectangle");
+//        } else {
+//            jgen.writeStringField("fig", "Rectangle");
+//        }
 
         jgen.writeStringField("serviceTypeCode", Short.toString(serviceType.getCode()));
-        jgen.writeStringField("terminal", Boolean.toString(serviceType.isTerminal()));
-        jgen.writeBooleanField("isWas", serviceType.isWas());
+//        jgen.writeStringField("terminal", Boolean.toString(serviceType.isTerminal()));
+        jgen.writeBooleanField("isWas", serviceType.isWas());  // for go.js
+        jgen.writeBooleanField("isFiltered", true);  // for go.js
+        jgen.writeBooleanField("hasAlert", true);  // for go.js
 
         writeHistogram(jgen, node);
         if (node.getServiceType().isUnknown()) {
@@ -65,6 +68,9 @@ public class NodeSerializer extends JsonSerializer<Node>  {
                 writeEmptyObject(jgen, "histogram");
             } else {
                 jgen.writeObjectField("histogram", applicationHistogram);
+                jgen.writeNumberField("totalCount", applicationHistogram.getTotalCount()); // for go.js
+                jgen.writeNumberField("errorCount", applicationHistogram.getErrorCount());
+                jgen.writeNumberField("slowCount", applicationHistogram.getSlowCount());
             }
 
             Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();

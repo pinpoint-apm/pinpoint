@@ -24,10 +24,10 @@ public class LinkSerializer extends JsonSerializer<Link> {
     public void serialize(Link link, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
         jgen.writeStartObject();
 
-        jgen.writeStringField("id", link.getLinkName());
+        jgen.writeStringField("key", link.getLinkName());  // for servermap
 
-        jgen.writeStringField("from", link.getFrom().getNodeName());
-        jgen.writeStringField("to", link.getTo().getNodeName());
+        jgen.writeStringField("from", link.getFrom().getNodeName());  // necessary for go.js
+        jgen.writeStringField("to", link.getTo().getNodeName()); // necessary for go.js
 
 
         writeSimpleNode("sourceInfo", link.getFrom(), jgen);
@@ -41,9 +41,9 @@ public class LinkSerializer extends JsonSerializer<Link> {
         }
 
         Histogram histogram = link.getHistogram();
-        jgen.writeNumberField("text", histogram.getTotalCount());
-        jgen.writeNumberField("error", histogram.getErrorCount());
-        jgen.writeNumberField("slow", histogram.getSlowCount());
+        jgen.writeNumberField("totalCount", histogram.getTotalCount()); // for go.js
+        jgen.writeNumberField("errorCount", histogram.getErrorCount());
+        jgen.writeNumberField("slowCount", histogram.getSlowCount());
 
         jgen.writeObjectField("histogram", histogram);
 
@@ -56,7 +56,7 @@ public class LinkSerializer extends JsonSerializer<Link> {
 
 
         String state = link.getLinkState();
-        jgen.writeStringField("category", state);
+        jgen.writeStringField("state", state); // for go.js
 
         jgen.writeEndObject();
     }
