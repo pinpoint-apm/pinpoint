@@ -150,9 +150,12 @@ pinpointApp
                  * @param data
                  */
                 updateData = function (data) {
-                    oChart.dataProvider = data;
+//                    oChart.dataProvider = data;
+                    oChart.clear();
+                    element.empty();
                     $timeout(function () {
-                        oChart.validateData();
+//                        oChart.validateData();
+                        render(data, true);
                     });
                 };
 
