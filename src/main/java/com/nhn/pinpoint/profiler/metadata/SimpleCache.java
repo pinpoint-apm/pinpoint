@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class SimpleCache<T> {
     // 0인값은 존재 하지 않음을 나타냄.
     private final AtomicInteger idGen;
-    private final ConcurrentMap<T, Result> cache = new ConcurrentHashMap<T, Result>(512, 0.75f, 32);
+    private final ConcurrentMap<T, Result> cache = new ConcurrentHashMap<T, Result>(512, 0.75f, 64);
 
     public SimpleCache() {
         this(1);

@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class Slf4jLoggerBinder implements PLoggerBinder {
 
-    private ConcurrentMap<String, PLogger> loggerCache = new ConcurrentHashMap<String, PLogger>(256, 0.75f, 32);
+    private ConcurrentMap<String, PLogger> loggerCache = new ConcurrentHashMap<String, PLogger>(256, 0.75f, 128);
 
     @Override
     public PLogger getLogger(String name) {
