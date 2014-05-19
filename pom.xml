@@ -329,6 +329,12 @@
             <groupId>org.apache.zookeeper</groupId>
             <artifactId>zookeeper</artifactId>
             <version>3.4.5-cdh4.5.0</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>jline</artifactId>
+                    <groupId>jline</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
