@@ -46,7 +46,8 @@
 
         <property name="plugins">
             <list>
-                <bean class="com.nhncorp.lucy.spring.db.mybatis.plugin.BindingLogPlugin"/>
+                <!-- mybatis 3.2 에서 호환성이 깨진 부분이 있어 패치 버전을 끼워 넣음-->
+                <bean class="com.nhncorp.lucy.spring.db.mybatis.plugin.BindingLogPlugin32"/>
                 <bean class="com.nhncorp.lucy.spring.db.mybatis.plugin.SlowQueryPlugin">
                     <property name="slowQueryTime" value="3000"></property>
                 </bean>
