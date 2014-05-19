@@ -23,7 +23,7 @@
         $init: function (htOption) {
             this.option({
                 "sContainerId": '',
-                "sBigFont": "12pt avn85,NanumGothic,ng,dotum,AppleGothic,sans-serif",
+                "sBigFont": "11pt avn85,NanumGothic,ng,dotum,AppleGothic,sans-serif",
                 "sSmallFont": "10pt avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif",
                 "sImageDir": './images/',
                 "sBoldKey": null,
@@ -61,7 +61,7 @@
                     "default": {
                         "backgroundColor": "#ffffff",
                         "borderColor": "#c5c5c5",
-                        "fontFamily": "12pt avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif",
+                        "fontFamily": "11pt avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif",
                         "fontColor": "#000000",
                         "fontAlign": "center",
                         "margin": 1
@@ -69,7 +69,7 @@
                     "bad": {
                         "backgroundColor": "#ffc9c9",
                         "borderColor": "#7d7d7d",
-                        "fontFamily": "12pt avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif",
+                        "fontFamily": "11pt avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif",
                         "fontColor": "#FF1300",
                         "fontAlign": "center",
                         "margin": 1
@@ -187,7 +187,7 @@
 //                            margin: new go.Margin(10, 10, 10, 10),
                             isPanelMain: true,
 //                            maxSize: new go.Size(150, NaN),
-                            minSize: new go.Size(150, 100),
+                            minSize: new go.Size(120, 100),
                             name: "NODE_SHAPE",
                             portId: ""
                         },
@@ -225,14 +225,14 @@
                             {
                                 alignment: go.Spot.TopLeft,
                                 alignmentFocus: go.Spot.TopLeft,
-                                minSize: new go.Size(130, NaN)
+                                minSize: new go.Size(120, NaN)
                             },
                             self.$(
                                 go.Picture,
                                 {
                                     source: sImageDir + sImageName,
                                     margin: new go.Margin(22, 0, 5, 0),
-                                    desiredSize: new go.Size(100, 40),
+                                    desiredSize: new go.Size(80, 40),
                                     imageStretch: go.GraphObject.Uniform
                                 }
                             ),
@@ -340,10 +340,25 @@
                 {
                 },
                 self.$(
+                    go.Picture,
+                    {
+                        source: sImageDir + 'ERROR.png',
+                        margin: new go.Margin(1, 2),
+                        desiredSize: new go.Size(10, 10),
+                        visible: false,
+                        column: 1,
+                        imageStretch: go.GraphObject.Uniform
+                    },
+                    new go.Binding("visible", "totalCount", function (val) {
+                        return val > 100 ? true : false;
+                    })
+//                    new go.Binding("visible", "hasAlert")
+                ),
+                self.$(
                     go.TextBlock,
                     {
                         margin: new go.Margin(1, 2),
-                        column: 1,
+                        column: 2,
                         font: self.option('sSmallFont'),
 //                        height:30,
                         alignment: go.Spot.Left
@@ -354,25 +369,13 @@
                     go.TextBlock,
                     {
                         margin: new go.Margin(1, 2),
-                        column: 2,
+                        column: 3,
                         alignment: go.Spot.Right,
                         font: self.option('sSmallFont')
                     },
                     new go.Binding('text', 'totalCount', function (val) {
                         return Number(val, 10).toLocaleString();
                     })
-                ),
-                self.$(
-                    go.Picture,
-                    {
-                        source: sImageDir + 'ERROR.png',
-                        margin: new go.Margin(1, 2),
-                        desiredSize: new go.Size(10, 10),
-                        visible: true,
-                        column: 3,
-                        imageStretch: go.GraphObject.Uniform
-                    }
-//                    new go.Binding("visible", "hasAlert")
                 )
             );
 
@@ -392,7 +395,7 @@
 //                            margin: new go.Margin(10, 10, 10, 10),
                             isPanelMain: true,
 //                            maxSize: new go.Size(150, NaN),
-                            minSize: new go.Size(150, 100),
+                            minSize: new go.Size(100, 100),
                             name: "NODE_SHAPE",
                             portId: "",
                             strokeWidth: self.option('htNodeTheme').default.borderWidth,
@@ -608,8 +611,8 @@
                 go.LayeredDigraphLayout,
                 { // rdirection: 90,
                     isOngoing: false,
-                    layerSpacing: 150,
-                    columnSpacing: 50,
+                    layerSpacing: 100,
+                    columnSpacing: 30,
                     setsPortSpots: false
                     // packOption : 7 // 1(PackExpand), 2(PackStraighten),
                     // 4(PackMedian)의 합
