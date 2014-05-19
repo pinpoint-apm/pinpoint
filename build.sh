@@ -106,7 +106,7 @@ if [[ $rc != 0 ]] ; then
         exit $rc
 fi
 
-cp ../pinpoint-profiler/target/dependency/guava-14.0.1.jar $DEPLOY_DIR/lib
+cp ../pinpoint-profiler/target/dependency/guava-17.0.jar $DEPLOY_DIR/lib
 rc=$?
 if [[ $rc != 0 ]] ; then
         echo "BUILD FAILED $rc"
