@@ -43,15 +43,19 @@ public class NodeSerializer extends JsonSerializer<Node>  {
         jgen.writeBooleanField("isWas", serviceType.isWas());  // for go.js
         jgen.writeBooleanField("hasAlert", true);  // for go.js
 
+
         writeHistogram(jgen, node);
         if (node.getServiceType().isUnknown()) {
             writeEmptyObject(jgen, "serverList");
+            jgen.writeNumberField("instanceCount", 0);
         } else {
             final ServerInstanceList serverInstanceList = node.getServerInstanceList();
             if (serverInstanceList != null) {
                 jgen.writeObjectField("serverList", serverInstanceList);
+                jgen.writeNumberField("instanceCount", serverInstanceList.getInstanceCount());
             } else {
                 writeEmptyObject(jgen, "serverList");
+                jgen.writeNumberField("instanceCount", 0);
             }
         }
 
