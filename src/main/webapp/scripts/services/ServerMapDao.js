@@ -157,6 +157,16 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
     this.addFilterProperty = function (filters, mapData) {
         var parsedFilters = this.parseFilterText(filters, mapData);
 
+        // node
+        angular.forEach(mapData.applicationMapData.nodeDataArray, function (val) {
+            if (angular.isDefined(_.findWhere(parsedFilters, {nodeKey: val.key}))) {
+                val.isFiltered = true;
+            } else {
+                val.isFiltered = false;
+            }
+        });
+
+        // link
         angular.forEach(mapData.applicationMapData.linkDataArray, function (val, key) {
             if (angular.isDefined(_.findWhere(parsedFilters, {fromKey: val.from, toKey: val.to}))) {
                 val.isFiltered = true;
@@ -178,12 +188,13 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
 
         angular.forEach(filters, function (filter) {
             aFilter.push({
-                fromCategory: filter.fst,
-                fromText: filter.fa,
+                fromServiceType: filter.fst,
+                fromApplication: filter.fa,
                 fromKey: this.findNodeKeyByApplicationName(filter.fa, mapData),
-                toCategory: filter.tst,
-                toText: filter.ta,
-                toKey: this.findNodeKeyByApplicationName(filter.ta, mapData)
+                toServiceType: filter.tst,
+                toApplication: filter.ta,
+                toKey: this.findNodeKeyByApplicationName(filter.ta, mapData),
+                nodeKey: '' // 추후 노드 필터시,,,,
             })
         }, this);
         return aFilter;
