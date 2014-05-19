@@ -15,9 +15,7 @@
 	</resultMap>
 
 	<resultMap id="alarmRuleMap" type="alarmRule">
-		<result property="id" />
-		<result property="alarmGroupName" column="alrm_grp_nm" />
-		<result property="alarmGroupDescrption" column="alrm_grp_desc" />
+		<result property="id" column="id"/>
 		<result property="thresholdRule" column="thrhd_rule" />
 		<result property="compareRule" column="cmpr_rule" />
 		<result property="continuosTime" column="cntu_tm" />
