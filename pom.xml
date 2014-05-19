@@ -346,6 +346,18 @@
                     <artifactId>spring-security-core</artifactId>
                     <groupId>org.springframework.security</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>xercesImpl</artifactId>
+                    <groupId>xerces</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>jaxen</artifactId>
+                    <groupId>jaxen</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>xalan</artifactId>
+                    <groupId>xalan</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -588,7 +600,7 @@
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
             <version>${slf4j.version}</version>
-            <scope>runtime</scope>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
