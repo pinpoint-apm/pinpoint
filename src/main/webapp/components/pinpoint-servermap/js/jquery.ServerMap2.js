@@ -288,7 +288,7 @@
                                 {
                                     source: sImageDir + 'FILTER.png',
                                     desiredSize: new go.Size(17, 17),
-                                    visible: _.random(0, 1) ? true : false,
+                                    visible: false,
                                     imageStretch: go.GraphObject.Uniform
                                 },
                                 new go.Binding("visible", "isFiltered")
@@ -299,8 +299,12 @@
                             go.Panel.Auto,
                             {
                                 alignment: go.Spot.TopRight,
-                                alignmentFocus: go.Spot.TopRight
+                                alignmentFocus: go.Spot.TopRight,
+                                visible: false
                             },
+                            new go.Binding("visible", "instanceCount", function (v) {
+                                return v > 1 ? true : false;
+                            }),
                             self.$(
                                 go.Shape,
                                 {
@@ -319,7 +323,7 @@
                                 },
                                 self.$(
                                     go.TextBlock,
-                                    _.random(1, 120).toString(),
+                                    new go.Binding("text", "instanceCount"),
                                     {
                                         stroke: "#FFFFFF",
                                         textAlign: "center",
