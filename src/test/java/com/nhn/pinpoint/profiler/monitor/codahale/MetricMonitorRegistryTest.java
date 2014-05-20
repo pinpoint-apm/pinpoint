@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.monitor;
+package com.nhn.pinpoint.profiler.monitor.codahale;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -6,6 +6,10 @@ import static org.junit.Assert.assertTrue;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.nhn.pinpoint.profiler.monitor.CounterMonitor;
+import com.nhn.pinpoint.profiler.monitor.EventRateMonitor;
+import com.nhn.pinpoint.profiler.monitor.HistogramMonitor;
+import com.nhn.pinpoint.profiler.monitor.MonitorName;
 import com.nhn.pinpoint.thrift.dto.TAgentStat;
 import org.apache.thrift.meta_data.FieldMetaData;
 import org.junit.Test;
