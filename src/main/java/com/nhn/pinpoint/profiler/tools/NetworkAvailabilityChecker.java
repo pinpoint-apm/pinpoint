@@ -21,7 +21,7 @@ public class NetworkAvailabilityChecker implements PinpointTools {
 
         DataSender udpSender = null;
         DataSender udpSpanSender = null;
-        DataSender tcpSender = null
+        DataSender tcpSender = null;
 		try {
 			ProfilerConfig profilerConfig = new ProfilerConfig();
 			profilerConfig.readConfigFile(configPath);
