@@ -14,8 +14,8 @@ import java.util.concurrent.ConcurrentMap;
 public class DefaultResponseMetric implements ResponseMetric {
 
     private final ServiceType serviceType;
-
-    private final ConcurrentMap<String, Histogram> counter = new ConcurrentHashMap<String, Histogram>(64, 0.75f, 64);
+    // TODO lru cache로 변경할것. lru로 변경할 경우 counting이 틀려질 가능성이 있으나, oom이 발생하는것을 막을수 있음.
+    private final ConcurrentMap<String, Histogram> histogramMap = new ConcurrentHashMap<String, Histogram>(256, 0.75f, 128);
 
     public DefaultResponseMetric(ServiceType serviceType) {
         if (serviceType == null) {
@@ -23,7 +23,6 @@ public class DefaultResponseMetric implements ResponseMetric {
         }
         this.serviceType = serviceType;
     }
-
 
     @Override
     public void addResponseTime(String destinationId, int millis) {
@@ -35,14 +34,13 @@ public class DefaultResponseMetric implements ResponseMetric {
     }
 
     private Histogram getHistogram0(String destinationId) {
-        final Histogram hit = counter.get(destinationId);
+        final Histogram hit = histogramMap.get(destinationId);
         if (hit != null) {
             return hit;
         }
-        final HistogramSchema schema = serviceType.getHistogramSchema();
-        final Histogram histogram = new Histogram(schema);
+        final Histogram histogram = new Histogram(serviceType);
 
-        final Histogram exist = counter.putIfAbsent(destinationId, histogram);
+        final Histogram exist = histogramMap.putIfAbsent(destinationId, histogram);
         if (exist != null) {
             return exist;
         }
@@ -50,8 +48,8 @@ public class DefaultResponseMetric implements ResponseMetric {
     }
 
     public List<HistogramSnapshot> createSnapshotList() {
-        final List<HistogramSnapshot> histogramSnapshotList = new ArrayList<HistogramSnapshot>(counter.size() + 4);
-        for (Histogram histogram : counter.values()) {
+        final List<HistogramSnapshot> histogramSnapshotList = new ArrayList<HistogramSnapshot>(histogramMap.size() + 4);
+        for (Histogram histogram : histogramMap.values()) {
             final HistogramSnapshot snapshot = histogram.createSnapshot();
             histogramSnapshotList.add(snapshot);
         }

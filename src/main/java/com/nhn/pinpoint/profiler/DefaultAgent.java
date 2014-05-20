@@ -119,7 +119,7 @@ public class DefaultAgent implements Agent {
         this.statDataSender = createUdpDataSender(this.profilerConfig.getCollectorUdpServerPort(), "Pinpoint-UdpStatDataExecutor", this.profilerConfig.getStatDataSenderWriteQueueSize());
 
 
-        this.traceContext = createTraceContext();
+        this.traceContext = createTraceContext(agentInformation.getServerType());
 
         this.heartBitChecker = new HeartBitChecker(tcpDataSender, profilerConfig.getHeartbeatInterval(), tAgentInfo);
 
@@ -220,9 +220,9 @@ public class DefaultAgent implements Agent {
     }
 
 
-    private TraceContext createTraceContext() {
+    private TraceContext createTraceContext(short serverType) {
         final int jdbcSqlCacheSize = profilerConfig.getJdbcSqlCacheSize();
-        final DefaultTraceContext traceContext = new DefaultTraceContext(jdbcSqlCacheSize);
+        final DefaultTraceContext traceContext = new DefaultTraceContext(jdbcSqlCacheSize, serverType);
         traceContext.setAgentInformation(this.agentInformation);
         traceContext.setPriorityDataSender(this.tcpDataSender);
 

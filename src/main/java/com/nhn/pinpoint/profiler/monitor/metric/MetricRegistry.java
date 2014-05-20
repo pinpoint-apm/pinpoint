@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.profiler.monitor.metric;
 
-import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.ServiceType;
 
 import java.util.ArrayList;
@@ -14,21 +13,28 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class MetricRegistry {
 
-    private final ConcurrentMap<Short, ResponseMetric> rpcCache = new ConcurrentHashMap<Short, ResponseMetric>(128, 0.75f, 128);
+    private final ConcurrentMap<Short, ResponseMetric> rpcCache = new ConcurrentHashMap<Short, ResponseMetric>(256, 0.75f, 128);
 
-    private final ResponseMetric responseMetric;
-    private final ServiceType serviceType;
+    private final Histogram responseMetric;
 
 
     public MetricRegistry(ServiceType serviceType) {
         if (serviceType == null) {
             throw new NullPointerException("serviceType must not be null");
         }
-        this.serviceType = serviceType;
-        this.responseMetric = new DefaultResponseMetric(serviceType);
+        if (!serviceType.isWas()) {
+            throw new IllegalArgumentException("illegal serviceType:" + serviceType);
+        }
+        this.responseMetric = new Histogram(serviceType);
     }
 
     public ResponseMetric getRpcMetric(ServiceType serviceType) {
+        if (serviceType == null) {
+            throw new NullPointerException("serviceType must not be null");
+        }
+        if (!serviceType.isRecordStatistics()) {
+            throw new IllegalArgumentException("illegal serviceType:" + serviceType);
+        }
         final Short code = serviceType.getCode();
         final ResponseMetric hit = rpcCache.get(code);
         if ( hit!= null) {
@@ -43,7 +49,11 @@ public class MetricRegistry {
         return responseMetric;
     }
 
-    public Collection<HistogramSnapshot> createSnapshot() {
+    public void addResponseTime(int mills) {
+        this.responseMetric.addResponseTime(mills);
+    }
+
+    public Collection<HistogramSnapshot> createRpcResponseSnapshot() {
         final List<HistogramSnapshot> histogramSnapshotList = new ArrayList<HistogramSnapshot>(16);
         for (ResponseMetric metric : rpcCache.values()) {
             histogramSnapshotList.addAll(metric.createSnapshotList());
@@ -51,7 +61,7 @@ public class MetricRegistry {
         return histogramSnapshotList;
     }
 
-    public ResponseMetric getWasResponseMetric() {
-        return responseMetric;
+    public HistogramSnapshot createWasResponseSnapshot() {
+        return responseMetric.createSnapshot();
     }
 }

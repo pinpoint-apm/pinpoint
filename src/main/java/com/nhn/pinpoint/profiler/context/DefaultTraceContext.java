@@ -10,6 +10,7 @@ import com.nhn.pinpoint.exception.PinpointException;
 import com.nhn.pinpoint.profiler.AgentInformation;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.metadata.SimpleCache;
+import com.nhn.pinpoint.profiler.monitor.metric.MetricRegistry;
 import com.nhn.pinpoint.profiler.sender.EnhancedDataSender;
 import com.nhn.pinpoint.thrift.dto.TApiMetaData;
 import com.nhn.pinpoint.thrift.dto.TSqlMetaData;
@@ -50,6 +51,10 @@ public class DefaultTraceContext implements TraceContext {
 
     private StorageFactory storageFactory;
 
+    private final ServiceType contextServiceType;
+
+    private final MetricRegistry metricRegistry;
+
     private final LRUCache<String> sqlCache;
     private final SqlParser sqlParser = new SqlParser();
 
@@ -64,11 +69,13 @@ public class DefaultTraceContext implements TraceContext {
 
 
     public DefaultTraceContext() {
-        this(LRUCache.DEFAULT_CACHE_SIZE);
+        this(LRUCache.DEFAULT_CACHE_SIZE, ServiceType.STAND_ALONE.getCode());
     }
 
-    public DefaultTraceContext(final int sqlCacheSize) {
+    public DefaultTraceContext(final int sqlCacheSize, final short contextServiceType) {
         this.sqlCache = new LRUCache<String>(sqlCacheSize);
+        this.contextServiceType = ServiceType.findServiceType(contextServiceType);
+        this.metricRegistry = new MetricRegistry(this.contextServiceType);
     }
 
 

@@ -2,6 +2,7 @@ package com.nhn.pinpoint.profiler.monitor.metric;
 
 import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.HistogramSlot;
+import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.SlotType;
 import com.nhn.pinpoint.profiler.util.jdk.LongAdder;
 
@@ -17,30 +18,39 @@ public class Histogram {
 
     private final LongAdder errorCounter = new LongAdder();
 
-    private final HistogramSchema schema;
+    private final ServiceType serviceType;
 
-    public Histogram(HistogramSchema schema) {
-        if (schema == null) {
-            throw new NullPointerException("schema must not be null");
+    public Histogram(ServiceType serviceType) {
+        if (serviceType == null) {
+            throw new NullPointerException("serviceType must not be null");
         }
-        this.schema = schema;
+        this.serviceType = serviceType;
     }
 
+    public ServiceType getServiceType() {
+        return serviceType;
+    }
 
     public void addResponseTime(int millis) {
+        HistogramSchema schema = serviceType.getHistogramSchema();
         final HistogramSlot histogramSlot = schema.findHistogramSlot(millis);
         final SlotType slotType = histogramSlot.getSlotType();
         switch (slotType) {
             case FAST:
                 fastCounter.increment();
+                return;
             case NORMAL:
                 normalCounter.increment();
+                return;
             case SLOW:
                 slowCounter.increment();
+                return;
             case VERY_SLOW:
                 verySlowCounter.increment();
+                return;
             case ERROR:
                 errorCounter.increment();
+                return;
             default:
                 throw new IllegalArgumentException("slot Type notFound:" + slotType);
         }
@@ -54,7 +64,7 @@ public class Histogram {
         long verySlow = verySlowCounter.sum();
         long error = errorCounter.sum();
 
-        return new HistogramSnapshot(fast, normal, slow, verySlow, error);
+        return new HistogramSnapshot(this.serviceType, fast, normal, slow, verySlow, error);
     }
 
 }
