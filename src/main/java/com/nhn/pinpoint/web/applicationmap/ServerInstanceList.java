@@ -33,11 +33,8 @@ public class ServerInstanceList {
 
 	public int getInstanceCount() {
 		int count = 0;
-		for (Entry<String, List<ServerInstance>> entry : serverInstanceList.entrySet()) {
-			List<ServerInstance> value = entry.getValue();
-			if (value != null) {
-				count += value.size();
-			}
+		for (List<ServerInstance> entry : serverInstanceList.values()) {
+			count += entry.size();
 		}
 		return count;
 	}
