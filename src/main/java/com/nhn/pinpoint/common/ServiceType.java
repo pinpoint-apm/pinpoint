@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.common;
 
+import com.nhn.pinpoint.common.util.RpcCodeRange;
+
 import java.util.*;
 
 /**
@@ -116,7 +118,7 @@ public enum ServiceType {
     }
 
     public boolean isRpcClient() {
-        return code >= 9000 && code < 10000;
+        return RpcCodeRange.isRpcRange(code);
     }
 
     public boolean isIndexable() {
