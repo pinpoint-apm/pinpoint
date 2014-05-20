@@ -51,8 +51,6 @@ class DefaultTBaseLocator implements TBaseLocator {
     @Override
     public TBase<?, ?> tBaseLookup(short type) throws TException {
         switch (type) {
-        	case NETWORK_CHECK:
-        		return new NetworkAvailabilityCheckPacket();
             case SPAN:
                 return new TSpan();
             case AGENT_INFO:
@@ -69,6 +67,8 @@ class DefaultTBaseLocator implements TBaseLocator {
                 return new TResult();
             case STRINGMETADATA:
                 return new TStringMetaData();
+            case NETWORK_CHECK:
+                return new NetworkAvailabilityCheckPacket();
         }
         throw new TException("Unsupported type:" + type);
     }
@@ -76,9 +76,6 @@ class DefaultTBaseLocator implements TBaseLocator {
     public Header headerLookup(TBase<?, ?> tbase) throws TException {
         if (tbase == null) {
             throw new IllegalArgumentException("tbase must not be null");
-        }
-        if (tbase instanceof NetworkAvailabilityCheckPacket) {
-        	return NETWORK_CHECK_HEADER;
         }
         if (tbase instanceof TSpan) {
             return SPAN_HEADER;
@@ -103,6 +100,9 @@ class DefaultTBaseLocator implements TBaseLocator {
         }
         if (tbase instanceof TStringMetaData) {
             return STRINGMETADATA_HEADER;
+        }
+        if (tbase instanceof NetworkAvailabilityCheckPacket) {
+            return NETWORK_CHECK_HEADER;
         }
         throw new TException("Unsupported Type" + tbase.getClass());
     }

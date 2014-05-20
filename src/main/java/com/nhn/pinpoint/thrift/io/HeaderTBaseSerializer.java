@@ -86,12 +86,6 @@ public class HeaderTBaseSerializer {
             throw new TException("JVM DOES NOT SUPPORT ENCODING: " + charset);
         }
     }
-    
-    public boolean isSafetyGurantee() {
-    	if (baos instanceof UnsafeByteArrayOutputStream) {
-    		return false;
-    	}
-    	return true;
-    }
+
    
 }
