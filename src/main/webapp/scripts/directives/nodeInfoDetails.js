@@ -111,7 +111,7 @@ pinpointApp
 
                                 if (scope.showNodeResponseSummaryForUnknown) {
                                     htUnknownResponseSummary[applicationName] = true;
-                                    renderResponseSummary(null, applicationName, node.histogram, '360px', '120px');
+                                    renderResponseSummary(null, applicationName, node.histogram, '360px', '100px');
                                 } else {
                                     htUnknownLoad[applicationName] = true;
                                     renderLoad(null, applicationName, node.timeSeriesHistogram, '360px', '120px');
@@ -183,7 +183,7 @@ pinpointApp
                     scope.renderNodeResponseSummary = function (applicationName, index) {
                         if (angular.isUndefined(htUnknownResponseSummary[applicationName])) {
                             htUnknownResponseSummary[applicationName] = true;
-                            renderResponseSummary(null, applicationName, htLastNode.unknownNodeGroup[index].histogram, '360px', '120px');
+                            renderResponseSummary(null, applicationName, htLastNode.unknownNodeGroup[index].histogram, '360px', '100px');
                         }
                     };
 

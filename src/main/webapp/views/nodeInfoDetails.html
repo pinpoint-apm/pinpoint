@@ -23,8 +23,14 @@
             </div>
 
             <div class="panel-body summaryCharts_{{node.applicationName | applicationNameToClassName}}" style="position: relative; padding:0">
-                <response-time-chart namespace="forNode_{{node.applicationName | applicationNameToClassName}}"  ng-show="showNodeResponseSummaryForUnknown"></response-time-chart>
-                <load-chart namespace="forNode_{{node.applicationName | applicationNameToClassName}}" ng-hide="showNodeResponseSummaryForUnknown"></load-chart>
+                <div ng-show="showNodeResponseSummaryForUnknown" style="padding-top: 20px;">
+                    <h6 style="position:absolute;top:5px;left:10px;margin:0;">Response Summary</h6>
+                    <response-time-chart namespace="forNode_{{node.applicationName | applicationNameToClassName}}"></response-time-chart>
+                </div>
+                <div ng-hide="showNodeResponseSummaryForUnknown">
+                    <h6 style="position:absolute;top:5px;left:10px;margin:0;">Load</h6>
+                    <load-chart namespace="forNode_{{node.applicationName | applicationNameToClassName}}"></load-chart>
+                </div>
 
                 <a class="btn btn-default btn-xs" href title="Show Load" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;"
                    ng-click="showNodeResponseSummaryForUnknown=!showNodeResponseSummaryForUnknown;renderNodeLoad(node.applicationName, index)" ng-show="showNodeResponseSummaryForUnknown">

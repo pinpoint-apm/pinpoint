@@ -124,7 +124,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
 
                             if (scope.showLinkResponseSummaryForUnknown) {
                                 htUnknownResponseSummary[applicationName] = true;
-                                renderResponseSummary(null, applicationName, link.histogram, '360px', '120px');
+                                renderResponseSummary(null, applicationName, link.histogram, '360px', '100px');
                             } else {
                                 htUnknownLoad[applicationName] = true;
                                 renderLoad(null, applicationName, link.timeSeriesHistogram, '360px', '120px');
@@ -232,7 +232,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 scope.renderLinkResponseSummary = function (applicationName, index) {
                     if (angular.isUndefined(htUnknownResponseSummary[applicationName])) {
                         htUnknownResponseSummary[applicationName] = true;
-                        renderResponseSummary(null, applicationName, htLastLink.unknownLinkGroup[index].histogram, '360px', '120px');
+                        renderResponseSummary(null, applicationName, htLastLink.unknownLinkGroup[index].histogram, '360px', '100px');
                     }
                 };
 
