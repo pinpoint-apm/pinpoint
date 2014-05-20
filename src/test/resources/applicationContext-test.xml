@@ -41,18 +41,11 @@
     <bean id="metricRegistry" class="com.codahale.metrics.MetricRegistry">
     </bean>
 
-    <bean id="agentStatStore" class="com.nhn.pinpoint.collector.monitor.DefaultAgentStatStore">
-    </bean>
 
     <bean id="metricsServlet" class="com.codahale.metrics.servlets.MetricsServlet">
         <constructor-arg ref="metricRegistry" />
     </bean>
 
-    <bean id="agentStatServlet" class="com.nhn.pinpoint.collector.monitor.servlet.AgentStatServlet">
-    </bean>
-
-    <bean id="statServer" class="com.nhn.pinpoint.collector.StatServer">
-    </bean>
 
     <bean id="jsonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper">
     </bean>
