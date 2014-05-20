@@ -58,24 +58,19 @@ public class HeartBitCheckerListener implements FutureListener<ResponseMessage> 
 	}
 
 	private TBase<?, ?> deserialize(Future<ResponseMessage> future) {
-		Object result = future.getResult();
+        final ResponseMessage responseMessage = future.getResult();
 
-		if (ClassUtils.isAssignableValue(ResponseMessage.class, result)) {
-			ResponseMessage responseMessage = (ResponseMessage) result;
-
-			HeaderTBaseDeserializer deserializer = HeaderTBaseSerDesFactory.getDeserializer();
-			byte[] message = responseMessage.getMessage();
-			// caching해야 될려나?
-			try {
-				return deserializer.deserialize(message);
-			} catch (TException e) {
-				if (logger.isWarnEnabled()) {
-					logger.warn("Deserialize fail. Caused:{}", e.getMessage(), e);
-				}
-				return null;
-			}
-		}
-		return null;
+        HeaderTBaseDeserializer deserializer = HeaderTBaseSerDesFactory.getDeserializer();
+        byte[] message = responseMessage.getMessage();
+        // caching해야 될려나?
+        try {
+            return deserializer.deserialize(message);
+        } catch (TException e) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("Deserialize fail. Caused:{}", e.getMessage(), e);
+            }
+            return null;
+        }
 	}
 
 }
