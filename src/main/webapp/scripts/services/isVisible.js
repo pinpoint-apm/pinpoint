@@ -18,12 +18,16 @@ pinpointApp.factory('isVisible', function () {
      * @param (w)       Element width number
      * @param (h)       Element height number
      */
-    function _isVisible(el, t, r, b, l, w, h) {
+    function _isVisible(el, overFlowMaxDepth, t, r, b, l, w, h) {
         var p = el.parentNode,
             VISIBLE_PADDING = 2;
 
         if ( !_elementInDocument(el) ) {
             return false;
+        }
+
+        if (!overFlowMaxDepth && overFlowMaxDepth !== 0) {
+            overFlowMaxDepth = 99999;
         }
 
         //-- Return true for document node
@@ -61,19 +65,22 @@ pinpointApp.factory('isVisible', function () {
             //-- Check if the parent can hide its children.
             var overflow = _getStyle(p, 'overflow');
             if ( ('hidden' === overflow || 'scroll' === overflow || 'auto' === overflow) ) {
-                //-- Only check if the offset is different for the parent
-                if (
-                //-- If the target element is to the right of the parent elm
-                    l + VISIBLE_PADDING > p.offsetWidth + p.scrollLeft ||
-                        //-- If the target element is to the left of the parent elm
-                        l + w - VISIBLE_PADDING < p.scrollLeft ||
-                        //-- If the target element is under the parent elm
-                        t + VISIBLE_PADDING > p.offsetHeight + p.scrollTop ||
-                        //-- If the target element is above the parent elm
-                        t + h - VISIBLE_PADDING < p.scrollTop
-                    ) {
-                    //-- Our target element is out of bounds:
-                    return false;
+                if (overFlowMaxDepth > 0) {
+                    overFlowMaxDepth -= 1;
+                    //-- Only check if the offset is different for the parent
+                    if (
+                    //-- If the target element is to the right of the parent elm
+                        l + VISIBLE_PADDING > p.offsetWidth + p.scrollLeft ||
+                            //-- If the target element is to the left of the parent elm
+                            l + w - VISIBLE_PADDING < p.scrollLeft ||
+                            //-- If the target element is under the parent elm
+                            t + VISIBLE_PADDING > p.offsetHeight + p.scrollTop ||
+                            //-- If the target element is above the parent elm
+                            t + h - VISIBLE_PADDING < p.scrollTop
+                        ) {
+                        //-- Our target element is out of bounds:
+                        return false;
+                    }
                 }
             }
             //-- Add the offset parent's left/top coords to our element's offset:
@@ -83,7 +90,7 @@ pinpointApp.factory('isVisible', function () {
             }
 //            console.log('p', p);
             //-- Let's recursively check upwards:
-            return _isVisible(p, t, r, b, l, w, h);
+            return _isVisible(p, overFlowMaxDepth,  t, r, b, l, w, h);
         }
         return true;
     }

@@ -34,6 +34,12 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     }
                 });
 
+                element
+                    .find('.unknown-list')
+                    .bind('scroll', function (e) {
+                        renderAllChartWhichIsVisible(htLastLink);
+                    });
+
                 /**
                  * reset
                  */
@@ -119,7 +125,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
 
                             var elQuery = '.linkInfoDetails .summaryCharts_' + className,
                                 el = angular.element(elQuery);
-                            var visible = isVisible(el.get(0));
+                            var visible = isVisible(el.get(0), 1);
                             if (!visible) return;
 
                             if (scope.showLinkResponseSummaryForUnknown) {
@@ -268,7 +274,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                  * scope link order by name
                  */
                 scope.linkOrderByName = function () {
-                    if (scope.linkOrderBy === 'applicationName') {
+                    if (scope.linkOrderBy === 'targetInfo.applicationName') {
                         scope.linkOrderByDesc = !scope.linkOrderByDesc;
                         if (scope.linkOrderByNameClass === 'glyphicon-sort-by-alphabet-alt') {
                             scope.linkOrderByNameClass = 'glyphicon-sort-by-alphabet';
@@ -279,7 +285,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         scope.linkOrderByNameClass = 'glyphicon-sort-by-alphabet-alt';
                         scope.linkOrderByCountClass = '';
                         scope.linkOrderByDesc = true;
-                        scope.linkOrderBy = 'applicationName';
+                        scope.linkOrderBy = 'targetInfo.applicationName';
                     }
                     renderAllChartWhichIsVisible(htLastLink);
                 };
@@ -288,7 +294,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                  * scope link order by count
                  */
                 scope.linkOrderByCount = function () {
-                    if (scope.linkOrderBy === 'count') {
+                    if (scope.linkOrderBy === 'totalCount') {
                         scope.linkOrderByDesc = !scope.linkOrderByDesc;
                         if (scope.linkOrderByCountClass === 'glyphicon-sort-by-order-alt') {
                             scope.linkOrderByCountClass = 'glyphicon-sort-by-order';
@@ -299,7 +305,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         scope.linkOrderByCountClass = 'glyphicon-sort-by-order-alt';
                         scope.linkOrderByNameClass = '';
                         scope.linkOrderByDesc = true;
-                        scope.linkOrderBy = 'count';
+                        scope.linkOrderBy = 'totalCount';
                     }
                     renderAllChartWhichIsVisible(htLastLink);
                 };
@@ -307,13 +313,13 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 /**
                  * show unknown link by
                  * @param linkSearch
-                 * @param target
+                 * @param link
                  * @returns {boolean}
                  */
-                scope.showUnknownLinkBy = function (linkSearch, target) {
+                scope.showUnknownLinkBy = function (linkSearch, link) {
                     if (linkSearch) {
-                        if (target.applicationName.indexOf(linkSearch) > -1 ||
-                            target.count.toString().indexOf(linkSearch) > -1) {
+                        if (link.targetInfo.applicationName.indexOf(linkSearch) > -1 ||
+                            link.totalCount.toString().indexOf(linkSearch) > -1) {
                             return true;
                         } else {
                             return false;

@@ -33,17 +33,6 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
             $scope.$broadcast('navbar.initialize', oNavbarVo);
             $scope.$broadcast('scatter.initialize', oNavbarVo);
             $scope.$broadcast('serverMap.initialize', oNavbarVo);
-
-
-            $rootElement
-                .find('.info-details')
-                .bind('scroll', function (e) {
-                    if (bNodeSelected) {
-                        $scope.$broadcast('nodeInfoDetails.lazyRendering', e);
-                    } else {
-                        $scope.$broadcast('linkInfoDetails.lazyRendering', e);
-                    }
-                });
         }, 500);
 
 

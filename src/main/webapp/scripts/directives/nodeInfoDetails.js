@@ -32,6 +32,12 @@ pinpointApp
                         }
                     });
 
+                    element
+                        .find('.unknown-list')
+                        .bind('scroll', function (e) {
+                            renderAllChartWhichIsVisible(htLastNode);
+                        });
+
                     /**
                      * reset
                      */
@@ -106,7 +112,7 @@ pinpointApp
 
                                 var elQuery = '.nodeInfoDetails .summaryCharts_' + className,
                                     el = angular.element(elQuery);
-                                var visible = isVisible(el.get(0));
+                                var visible = isVisible(el.get(0), 1);
                                 if (!visible) return;
 
                                 if (scope.showNodeResponseSummaryForUnknown) {
@@ -241,7 +247,7 @@ pinpointApp
                      * scope node order by count
                      */
                     scope.nodeOrderByCount = function () {
-                        if (scope.nodeOrderBy === 'count') {
+                        if (scope.nodeOrderBy === 'totalCount') {
                             scope.nodeOrderByDesc = !scope.nodeOrderByDesc;
                             if (scope.nodeOrderByCountClass === 'glyphicon-sort-by-order-alt') {
                                 scope.nodeOrderByCountClass = 'glyphicon-sort-by-order';
@@ -252,7 +258,7 @@ pinpointApp
                             scope.nodeOrderByCountClass = 'glyphicon-sort-by-order-alt';
                             scope.nodeOrderByNameClass = '';
                             scope.nodeOrderByDesc = true;
-                            scope.nodeOrderBy = 'count';
+                            scope.nodeOrderBy = 'totalCount';
                         }
                         renderAllChartWhichIsVisible(htLastNode);
                     };
@@ -266,7 +272,7 @@ pinpointApp
                     scope.showUnknownNodeBy = function (nodeSearch, node) {
                         if (nodeSearch) {
                             if (node.applicationName.indexOf(nodeSearch) > -1 ||
-                                node.count.toString().indexOf(nodeSearch) > -1) {
+                                node.totalCount.toString().indexOf(nodeSearch) > -1) {
                                 return true;
                             } else {
                                 return false;
