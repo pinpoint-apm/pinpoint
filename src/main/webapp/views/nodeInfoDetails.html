@@ -19,7 +19,7 @@
 
         <div class="panel panel-default" ng-repeat="(index, node) in unknownNodeGroup | orderBy:nodeOrderBy:nodeOrderByDesc" ng-show="showUnknownNodeBy(nodeSearch, node)" style="height:161px;">
             <div class="panel-heading">
-                {{node.applicationName}} <span class="badge" style="position:absolute;right:20px;">{{node.count | number}} calls</span>
+                {{node.applicationName}} <span class="badge" style="position:absolute;right:20px;">{{node.totalCount | number}} calls</span>
             </div>
 
             <div class="panel-body summaryCharts_{{node.applicationName | applicationNameToClassName}}" style="position: relative; padding:0">
