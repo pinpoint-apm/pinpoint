@@ -6,6 +6,8 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
+import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 import org.apache.thrift.TBase;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -23,7 +25,6 @@ import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 import com.nhn.pinpoint.thrift.dto.TResult;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseSerDesFactory;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
 
 /**
@@ -59,7 +60,7 @@ public class TCPReceiverBOTest {
 		encodeAndWrite(os, agentInfo, true);
 		ResponsePacket responsePacket = readAndDecode(is, 1000);
 
-		HeaderTBaseDeserializer deserializer = HeaderTBaseSerDesFactory.getDeserializer();
+        HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializerFactory().createDeserializer();
 		TResult result = (TResult) deserializer.deserialize(responsePacket.getPayload());
 		
 		Assert.assertTrue(result.isSuccess());
@@ -73,8 +74,8 @@ public class TCPReceiverBOTest {
 	}
 
 	private void encodeAndWrite(OutputStream os, TBase tbase, boolean isReqRes) throws Exception {
-		HeaderTBaseSerializer seriallize = HeaderTBaseSerDesFactory.getSerializer(HeaderTBaseSerDesFactory.DEFAULT_SAFETY_GURANTEED_MAX_SERIALIZE_DATA_SIZE);
-		byte[] payload = seriallize.serialize(tbase);
+		HeaderTBaseSerializer serializer = HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer();
+		byte[] payload = serializer.serialize(tbase);
 
 		Packet packet = null;
 		if (isReqRes) {

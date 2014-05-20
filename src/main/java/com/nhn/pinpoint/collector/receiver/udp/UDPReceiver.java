@@ -9,20 +9,15 @@ import com.nhn.pinpoint.collector.util.DatagramPacketFactory;
 import com.nhn.pinpoint.collector.util.ObjectPool;
 import com.nhn.pinpoint.collector.util.PacketUtils;
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
-import com.nhn.pinpoint.thrift.io.Header;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.nhn.pinpoint.thrift.io.NetworkAvailabilityCheckPacket;
+import com.nhn.pinpoint.thrift.io.*;
 import com.nhn.pinpoint.common.util.ExecutorFactory;
 import com.nhn.pinpoint.rpc.util.CpuUtils;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseSerDesFactory;
-import com.nhn.pinpoint.thrift.io.L4Packet;
 
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.NamedThreadLocal;
 import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
@@ -77,12 +72,7 @@ public class UDPReceiver implements DataReceiver {
 
     private AtomicBoolean state = new AtomicBoolean(true);
 
-    private final ThreadLocal<HeaderTBaseDeserializer> deserializerCache = new NamedThreadLocal<HeaderTBaseDeserializer>(HeaderTBaseDeserializer.class.getSimpleName()) {
-        @Override
-        protected HeaderTBaseDeserializer initialValue() {
-            return HeaderTBaseSerDesFactory.getDeserializer();
-        }
-    };
+    private final DeserializerFactory deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory(new HeaderTBaseDeserializerFactory());
 
 
     public UDPReceiver() {
@@ -273,7 +263,7 @@ public class UDPReceiver implements DataReceiver {
         public void run() {
         	Timer.Context time = timer.time();
         	
-            HeaderTBaseDeserializer deserializer = deserializerCache.get();
+            final HeaderTBaseDeserializer deserializer = deserializerFactory.createDeserializer();
             TBase<?, ?> tBase = null;
             try {
                 tBase = deserializer.deserialize(packet.getData());
