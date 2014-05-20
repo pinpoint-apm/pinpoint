@@ -19,6 +19,9 @@ public class NetworkAvailabilityChecker implements PinpointTools {
 
 		String configPath = args[0];
 
+        DataSender udpSender = null;
+        DataSender udpSpanSender = null;
+        DataSender tcpSender = null
 		try {
 			ProfilerConfig profilerConfig = new ProfilerConfig();
 			profilerConfig.readConfigFile(configPath);
@@ -28,9 +31,9 @@ public class NetworkAvailabilityChecker implements PinpointTools {
 			int usPort = profilerConfig.getCollectorUdpSpanServerPort();
 			int tPort = profilerConfig.getCollectorTcpServerPort();
 
-			DataSender udpSender = new UdpDataSender(collector, uPort, "UDP", 10);
-			DataSender udpSpanSender = new UdpDataSender(collector, usPort, "UDP-SPAN", 10);
-			DataSender tcpSender = new TcpDataSender(collector, tPort);
+			udpSender = new UdpDataSender(collector, uPort, "UDP", 10);
+			udpSpanSender = new UdpDataSender(collector, usPort, "UDP-SPAN", 10);
+			tcpSender = new TcpDataSender(collector, tPort);
 
 			boolean udpSenderResult = udpSender.isNetworkAvalable();
 			boolean udpSpanSenderResult = udpSpanSender.isNetworkAvalable();
@@ -46,7 +49,16 @@ public class NetworkAvailabilityChecker implements PinpointTools {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
+            closeDataSender(udpSender);
+            closeDataSender(udpSpanSender);
+            closeDataSender(tcpSender);
 			System.out.println("END.");
 		}
-	}
+    }
+
+    private static void closeDataSender(DataSender dataSender) {
+        if (dataSender != null) {
+            dataSender.stop();
+        }
+    }
 }
