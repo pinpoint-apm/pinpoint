@@ -4,6 +4,8 @@ package com.nhn.pinpoint.profiler.sender;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 import org.apache.thrift.TBase;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.util.Timeout;
@@ -20,7 +22,6 @@ import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
 import com.nhn.pinpoint.rpc.client.PinpointSocketReconnectEventListener;
 import com.nhn.pinpoint.thrift.dto.TResult;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseSerDesFactory;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
 
 /**
@@ -45,7 +46,7 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
     private final WriteFailFutureListener writeFailFutureListener;
 
 
-    private final HeaderTBaseSerializer serializer = HeaderTBaseSerDesFactory.getSerializer(HeaderTBaseSerDesFactory.DEFAULT_SAFETY_GURANTEED_MAX_SERIALIZE_DATA_SIZE);
+    private final HeaderTBaseSerializer serializer = HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer();
 
     private final RetryQueue retryQueue = new RetryQueue();
 
@@ -160,7 +161,7 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
             public void onComplete(Future<ResponseMessage> future) {
                 if (future.isSuccess()) {
             		// caching해야 될려나?
-                	HeaderTBaseDeserializer deserializer = HeaderTBaseSerDesFactory.getDeserializer();
+                	HeaderTBaseDeserializer deserializer = HeaderTBaseDeserializerFactory.DEFAULT_FACTORY.createDeserializer();
                     TBase<?, ?> response = deserialize(deserializer, future.getResult());
                     if (response instanceof TResult) {
                         TResult result = (TResult) response;

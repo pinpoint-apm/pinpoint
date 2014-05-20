@@ -7,12 +7,12 @@ import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.Arrays;
 
+import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.thrift.io.HeaderTBaseSerDesFactory;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.nhn.pinpoint.thrift.io.NetworkAvailabilityCheckPacket;
 
 /**
@@ -31,7 +31,7 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
 	private final DatagramSocket udpSocket;
 
 	// 주의 single thread용임
-	private HeaderTBaseSerializer serializer = HeaderTBaseSerDesFactory.getSerializer(false, HeaderTBaseSerDesFactory.DEFAULT_SAFETY_NOT_GURANTEED_MAX_SERIALIZE_DATA_SIZE);
+	private final HeaderTBaseSerializer serializer = new HeaderTBaseSerializerFactory(false, HeaderTBaseSerializerFactory.DEFAULT_UDP_STREAM_MAX_SIZE).createSerializer();
 
     private AsyncQueueingExecutor<Object> executor;
 
@@ -109,13 +109,13 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
 		if (message instanceof TBase) {
 			TBase dto = (TBase) message;
             // single thread이므로 데이터 array를 nocopy해서 보냄.
-            byte[] interBufferData = serialize(serializer, dto);
+            byte[] interBufferData = serialize(this.serializer, dto);
             if (interBufferData == null) {
                 logger.warn("interBufferData is null");
                 return;
             }
 
-            int interBufferSize = serializer.getInterBufferSize();
+            int interBufferSize = this.serializer.getInterBufferSize();
             // single thread이므로 그냥 재활용한다.
             reusePacket.setData(interBufferData, 0, interBufferSize);
             try {

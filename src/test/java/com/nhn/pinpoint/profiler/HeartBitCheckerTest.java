@@ -3,6 +3,7 @@ package com.nhn.pinpoint.profiler;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 import junit.framework.Assert;
 
 import org.apache.thrift.TException;
@@ -20,7 +21,6 @@ import com.nhn.pinpoint.rpc.server.ServerStreamChannel;
 import com.nhn.pinpoint.rpc.server.SocketChannel;
 import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 import com.nhn.pinpoint.thrift.dto.TResult;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseSerDesFactory;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
 
 public class HeartBitCheckerTest {
@@ -173,8 +173,7 @@ public class HeartBitCheckerTest {
 			logger.info("handleRequest~~~:{}", requestPacket);
 
 			try {
-				HeaderTBaseSerializer serializer = HeaderTBaseSerDesFactory
-						.getSerializer(HeaderTBaseSerDesFactory.DEFAULT_SAFETY_GURANTEED_MAX_SERIALIZE_DATA_SIZE);
+				HeaderTBaseSerializer serializer = HeaderTBaseSerializerFactory.DEFAULT_FACTORY.createSerializer();
 
 				TResult result = new TResult(true);
 				byte[] resultBytes = serializer.serialize(result);
