@@ -5,7 +5,7 @@
  *
  * http://gee.cs.oswego.edu/cgi-bin/viewcvs.cgi/jsr166/src/main/java/util/concurrent/ThreadLocalRandom.java?view=markup
  */
-package com.nhn.pinpoint.profiler.util;
+package com.nhn.pinpoint.profiler.util.jdk;
 
 import java.util.Random;
 

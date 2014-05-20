@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.profiler.context;
 
-import com.nhn.pinpoint.profiler.util.ThreadLocalRandom;
+import com.nhn.pinpoint.profiler.util.jdk.ThreadLocalRandom;
 
 /**
  * @author emeroad
