@@ -60,6 +60,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     scope.linkOrderByNameClass = '';
                     scope.linkOrderByCountClass = 'glyphicon-sort-by-order-alt';
                     scope.linkOrderByDesc = true;
+                    scope.sourceApplicationName = '';
                     scope.sourceHistogram = false;
 //                    scope.fromNode = false;
                     scope.namespace = null;
@@ -101,6 +102,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         renderLoad('forLink', link.targetInfo.applicationName, link.timeSeriesHistogram, '100%', '220px', true);
 
                         scope.showLinkServers = _.isEmpty(link.sourceHistogram) ? false : true;
+                        scope.sourceApplicationName = link.sourceInfo.applicationName;
                         scope.sourceHistogram = link.sourceHistogram;
 //                        scope.fromNode = link.fromNode;
                     }

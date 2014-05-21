@@ -70,7 +70,7 @@
         </div>
 
         <div ng-show="showLinkServers">
-            <h5>Instances</h5>
+            <h5>{{sourceApplicationName}}'s Instances</h5>
             <ul class="server-list list-unstyled" ng-init="linkInstanceShow={}">
                 <li ng-repeat="(name, histogram) in sourceHistogram" ng-init="linkInstanceShow[name]=false">
                     <span class="glyphicon glyphicon-hdd"></span>
