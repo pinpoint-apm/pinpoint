@@ -48,15 +48,6 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
                 $scope.$broadcast('scatter.initialize', oNavbarVo);
             });
 
-            $rootElement
-                .find('.info-details')
-                .bind('scroll', function (e) {
-                    if (bNodeSelected) {
-                        $scope.$broadcast('nodeInfoDetails.lazyRendering', e);
-                    } else {
-                        $scope.$broadcast('linkInfoDetails.lazyRendering', e);
-                    }
-                });
         }, 500);
 
         /**

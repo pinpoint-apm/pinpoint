@@ -31,7 +31,7 @@
     overflow:auto;
     padding:0 15px;
 }
-.nodeInfoDetails .known-link {
+.linkInfoDetails .known-link {
     position: absolute;
     top: 0;
     bottom:0;

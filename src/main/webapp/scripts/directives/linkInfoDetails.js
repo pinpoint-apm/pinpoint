@@ -134,7 +134,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                                 renderResponseSummaryWithLink(null, link, '360px', '160px');
                             } else {
                                 htUnknownLoad[applicationName] = true;
-                                renderLoad(null, applicationName, link.timeSeriesHistogram, '360px', '180px');
+                                renderLoad(null, applicationName, link.timeSeriesHistogram, '360px', '180px', true);
                             }
                         });
                     });
@@ -302,7 +302,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 scope.renderLinkLoad = function (applicationName, index) {
                     if (angular.isUndefined(htUnknownLoad[applicationName])) {
                         htUnknownLoad[applicationName] = true;
-                        renderLoad(null, applicationName, htLastLink.unknownLinkGroup[index].timeSeriesHistogram, '360px', '180px');
+                        renderLoad(null, applicationName, htLastLink.unknownLinkGroup[index].timeSeriesHistogram, '360px', '180px', true);
                     }
                 };
 

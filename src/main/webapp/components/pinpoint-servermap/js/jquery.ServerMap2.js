@@ -353,10 +353,10 @@
                         column: 1,
                         imageStretch: go.GraphObject.Uniform
                     },
-                    new go.Binding("visible", "totalCount", function (val) {
-                        return val > 100 ? true : false;
-                    })
-//                    new go.Binding("visible", "hasAlert")
+//                    new go.Binding("visible", "totalCount", function (val) {
+//                        return val > 100 ? true : false;
+//                    })
+                    new go.Binding("visible", "hasAlert")
                 ),
                 self.$(
                     go.TextBlock,
@@ -569,8 +569,8 @@
                                 new go.Binding("text", "totalCount", function (val) {
                                     return Number(val, 10).toLocaleString();
                                 }) ,
-                                new go.Binding("stroke", "state", function (error) {
-                                    return (error > 0) ? bad.fontColor : htDefault.fontColor;
+                                new go.Binding("stroke", "hasAlert", function (hasAlert) {
+                                    return (hasAlert) ? bad.fontColor : htDefault.fontColor;
                                 })
                             )
                         )
