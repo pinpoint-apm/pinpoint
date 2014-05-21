@@ -108,16 +108,6 @@ public final class DefaultTrace implements Trace {
         return this.callStack.getIndex();
     }
 
-    @Override
-    public AsyncTrace createAsyncTrace() {
-        // 경우에 따라 별도 timeout 처리가 있어야 될수도 있음.                                                               
-        SpanEvent spanEvent = new SpanEvent(callStack.getSpan());
-        spanEvent.setSequence(getSequence());
-        DefaultAsyncTrace asyncTrace = new DefaultAsyncTrace(spanEvent);
-        // asyncTrace.setDataSender(this.getDataSender());                                                                   
-        asyncTrace.setStorage(this.storage);
-        return asyncTrace;
-    }
 
     private StackFrame createSpanEventStackFrame(int stackId) {
         SpanEvent spanEvent = new SpanEvent(callStack.getSpan());

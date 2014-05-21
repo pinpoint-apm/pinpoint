@@ -14,6 +14,7 @@ import com.nhn.pinpoint.bootstrap.util.MetaObject;
 /**
  * @author emeroad
  */
+@Deprecated
 public class BaseOperationCancelInterceptor implements SimpleAroundInterceptor {
 
 	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());

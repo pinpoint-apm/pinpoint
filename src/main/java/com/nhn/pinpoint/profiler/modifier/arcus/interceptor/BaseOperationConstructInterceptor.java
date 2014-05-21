@@ -3,13 +3,12 @@ package com.nhn.pinpoint.profiler.modifier.arcus.interceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
 
-import com.nhn.pinpoint.bootstrap.context.AsyncTrace;
 import com.nhn.pinpoint.bootstrap.context.Trace;
 import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.bootstrap.util.MetaObject;
-import com.nhn.pinpoint.bootstrap.util.TimeObject;
+
 
 /**
  * @author emeroad
@@ -40,12 +39,12 @@ public class BaseOperationConstructInterceptor implements SimpleAroundIntercepto
 		}
 
 		// 일단 이벤트가 세지 않는다는 가정하에 별도 timeout처리가 없음.
-		AsyncTrace asyncTrace = trace.createAsyncTrace();
-		asyncTrace.markBeforeTime();
-
-		asyncTrace.setAttachObject(new TimeObject());
-
-		setAsyncTrace.invoke(target, asyncTrace);
+//		AsyncTrace asyncTrace = trace.createAsyncTrace();
+//		asyncTrace.markBeforeTime();
+//
+//		asyncTrace.setAttachObject(new TimeObject());
+//
+//		setAsyncTrace.invoke(target, asyncTrace);
 	}
 
     @Override

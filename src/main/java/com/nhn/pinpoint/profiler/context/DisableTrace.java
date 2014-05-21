@@ -20,11 +20,6 @@ public class DisableTrace  implements Trace {
     }
 
     @Override
-    public AsyncTrace createAsyncTrace() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void traceBlockBegin() {
         throw new UnsupportedOperationException();
     }
