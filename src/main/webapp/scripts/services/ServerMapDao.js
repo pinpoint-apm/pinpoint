@@ -232,96 +232,105 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
             return htLastMapData;
         }
 
+        var thisNode = htLastMapData.applicationMapData.nodeDataArray[nodeKey];
+
+        thisNode.errorCount += node.errorCount;
+        thisNode.slowCount += node.slowCount;
+        thisNode.totalCount += node.totalCount;
+        if (node.hasAlert) {
+            thisNode.hasAlert = node.hasAlert;
+        }
+
         if (angular.isDefined(node.histogram)) {
             for (var key in node.histogram) {
-                if (angular.isDefined(htLastMapData.applicationMapData.nodeDataArray[nodeKey].histogram)) {
-                    if (htLastMapData.applicationMapData.nodeDataArray[nodeKey].histogram[key]) {
-                        htLastMapData.applicationMapData.nodeDataArray[nodeKey].histogram[key] += node.histogram[key];
+                if (angular.isDefined(thisNode.histogram)) {
+                    if (thisNode.histogram[key]) {
+                        thisNode.histogram[key] += node.histogram[key];
                     } else {
-                        htLastMapData.applicationMapData.nodeDataArray[nodeKey].histogram[key] = node.histogram[key];
+                        thisNode.histogram[key] = node.histogram[key];
                     }
                 } else {
-                    htLastMapData.applicationMapData.nodeDataArray[nodeKey].histogram = {};
-                    htLastMapData.applicationMapData.nodeDataArray[nodeKey].histogram[key] = node.histogram[key];
+                    thisNode.histogram = {};
+                    thisNode.histogram[key] = node.histogram[key];
                 }
             }
         }
 
         if (angular.isDefined(node.agentHistogram)) {
             for (var key in node.agentHistogram) {
-                if (angular.isDefined(htLastMapData.applicationMapData.nodeDataArray[nodeKey].agentHistogram[key])) {
+                if (angular.isDefined(thisNode.agentHistogram[key])) {
                     for (var innerKey in node.agentHistogram[key]) {
-                        if (angular.isDefined(htLastMapData.applicationMapData.nodeDataArray[nodeKey].agentHistogram[key][innerKey])) {
-                            htLastMapData.applicationMapData.nodeDataArray[nodeKey].agentHistogram[key][innerKey] += node.agentHistogram[key][innerKey];
+                        if (angular.isDefined(thisNode.agentHistogram[key][innerKey])) {
+                            thisNode.agentHistogram[key][innerKey] += node.agentHistogram[key][innerKey];
                         } else {
-                            htLastMapData.applicationMapData.nodeDataArray[nodeKey].agentHistogram[key][innerKey] = node.agentHistogram[key][innerKey];
+                            thisNode.agentHistogram[key][innerKey] = node.agentHistogram[key][innerKey];
                         }
                     }
                 } else {
-                    htLastMapData.applicationMapData.nodeDataArray[nodeKey].agentHistogram[key] = node.agentHistogram[key];
+                    thisNode.agentHistogram[key] = node.agentHistogram[key];
                 }
             }
         }
 
         if (angular.isDefined(node.timeSeriesHistogram)) {
             for (var key in node.timeSeriesHistogram) {
-                if (angular.isDefined(htLastMapData.applicationMapData.nodeDataArray[nodeKey].timeSeriesHistogram)) {
+                if (angular.isDefined(thisNode.timeSeriesHistogram)) {
                     var aTemp = [];
                     outer:
                     for (var innerKey in node.timeSeriesHistogram[key].values) {
-                        for (var innerInnerKey in htLastMapData.applicationMapData.nodeDataArray[nodeKey].timeSeriesHistogram[key].values) {
-                            if (htLastMapData.applicationMapData.nodeDataArray[nodeKey].timeSeriesHistogram[key].values[innerInnerKey][0] === node.timeSeriesHistogram[key].values[innerKey][0]) {
-                                htLastMapData.applicationMapData.nodeDataArray[nodeKey].timeSeriesHistogram[key].values[innerInnerKey][1] += node.timeSeriesHistogram[key].values[innerKey][1];
+                        for (var innerInnerKey in thisNode.timeSeriesHistogram[key].values) {
+                            if (thisNode.timeSeriesHistogram[key].values[innerInnerKey][0] === node.timeSeriesHistogram[key].values[innerKey][0]) {
+                                thisNode.timeSeriesHistogram[key].values[innerInnerKey][1] += node.timeSeriesHistogram[key].values[innerKey][1];
                                 continue outer;
                             }
                         }
                         aTemp.push(node.timeSeriesHistogram[key].values[innerKey]);
                     }
-                    htLastMapData.applicationMapData.nodeDataArray[nodeKey].timeSeriesHistogram[key].values = aTemp.concat(htLastMapData.applicationMapData.nodeDataArray[nodeKey].timeSeriesHistogram[key].values);
+                    thisNode.timeSeriesHistogram[key].values = aTemp.concat(thisNode.timeSeriesHistogram[key].values);
                 } else {
-                    htLastMapData.applicationMapData.nodeDataArray[nodeKey].timeSeriesHistogram = node.timeSeriesHistogram;
+                    thisNode.timeSeriesHistogram = node.timeSeriesHistogram;
                 }
             }
         }
 
         if (angular.isDefined(node.agentTimeSeriesHistogram)) {
             for (var key in node.agentTimeSeriesHistogram) {
-                if (angular.isDefined(htLastMapData.applicationMapData.nodeDataArray[nodeKey].agentTimeSeriesHistogram)) {
-                    if (angular.isDefined(htLastMapData.applicationMapData.nodeDataArray[nodeKey].agentTimeSeriesHistogram[key])) {
+                if (angular.isDefined(thisNode.agentTimeSeriesHistogram)) {
+                    if (angular.isDefined(thisNode.agentTimeSeriesHistogram[key])) {
                         for (var innerKey in node.agentTimeSeriesHistogram[key]) {
-                            if (angular.isDefined(htLastMapData.applicationMapData.nodeDataArray[nodeKey].agentTimeSeriesHistogram[key][innerKey])) {
-                                htLastMapData.applicationMapData.nodeDataArray[nodeKey].agentTimeSeriesHistogram[key][innerKey].values = node.agentTimeSeriesHistogram[key][innerKey].values.concat(htLastMapData.applicationMapData.nodeDataArray[nodeKey].agentTimeSeriesHistogram[key][innerKey].values);
+                            if (angular.isDefined(thisNode.agentTimeSeriesHistogram[key][innerKey])) {
+                                thisNode.agentTimeSeriesHistogram[key][innerKey].values = node.agentTimeSeriesHistogram[key][innerKey].values.concat(thisNode.agentTimeSeriesHistogram[key][innerKey].values);
                             } else {
-                                htLastMapData.applicationMapData.nodeDataArray[nodeKey].agentTimeSeriesHistogram[key][innerKey] = node.agentTimeSeriesHistogram[key][innerKey];
+                                thisNode.agentTimeSeriesHistogram[key][innerKey] = node.agentTimeSeriesHistogram[key][innerKey];
                             }
                         }
                     } else {
-                        htLastMapData.applicationMapData.nodeDataArray[nodeKey].agentTimeSeriesHistogram[key] = node.agentTimeSeriesHistogram[key];
+                        thisNode.agentTimeSeriesHistogram[key] = node.agentTimeSeriesHistogram[key];
                     }
                 } else {
-                    htLastMapData.applicationMapData.nodeDataArray[nodeKey].agentTimeSeriesHistogram = node.agentTimeSeriesHistogram;
+                    thisNode.agentTimeSeriesHistogram = node.agentTimeSeriesHistogram;
                 }
             }
         }
 
         if (angular.isDefined(node.serverList)) {
             for (var key in node.serverList) {
-                if (htLastMapData.applicationMapData.nodeDataArray[nodeKey].serverList[key]) {
+                if (thisNode.serverList[key]) {
                     for (var innerKey in node.serverList[key].instanceList) {
-                        if (htLastMapData.applicationMapData.nodeDataArray[nodeKey].serverList[key].instanceList[innerKey]) {
+                        if (thisNode.serverList[key].instanceList[innerKey]) {
                             for (var insideKey in node.serverList[key].instanceList[innerKey].histogram) {
-                                if (htLastMapData.applicationMapData.nodeDataArray[nodeKey].serverList[key].instanceList[innerKey].histogram[insideKey]) {
-                                    htLastMapData.applicationMapData.nodeDataArray[nodeKey].serverList[key].instanceList[innerKey].histogram[insideKey] += node.serverList[key].instanceList[innerKey].histogram[insideKey];
+                                if (thisNode.serverList[key].instanceList[innerKey].histogram[insideKey]) {
+                                    thisNode.serverList[key].instanceList[innerKey].histogram[insideKey] += node.serverList[key].instanceList[innerKey].histogram[insideKey];
                                 } else {
-                                    htLastMapData.applicationMapData.nodeDataArray[nodeKey].serverList[key].instanceList[innerKey].histogram[insideKey] = node.serverList[key].instanceList[innerKey].histogram[insideKey];
+                                    thisNode.serverList[key].instanceList[innerKey].histogram[insideKey] = node.serverList[key].instanceList[innerKey].histogram[insideKey];
                                 }
                             }
                         } else {
-                            htLastMapData.applicationMapData.nodeDataArray[nodeKey].serverList[key].instanceList[innerKey] = node.serverList[key].instanceList[innerKey];
+                            thisNode.serverList[key].instanceList[innerKey] = node.serverList[key].instanceList[innerKey];
                         }
                     }
                 } else {
-                    htLastMapData.applicationMapData.nodeDataArray[nodeKey].serverList[key] = node.serverList[key];
+                    thisNode.serverList[key] = node.serverList[key];
                 }
             }
         }
@@ -342,18 +351,42 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
             return  htLastMapData;
         }
 
-//        htLastMapData.applicationMapData.linkDataArray[linkKey].applicationName += link.applicationName;
+        var thisLink =  htLastMapData.applicationMapData.linkDataArray[linkKey];
 
-        htLastMapData.applicationMapData.linkDataArray[linkKey].totalCount += link.totalCount;
-        htLastMapData.applicationMapData.linkDataArray[linkKey].errorCount += link.errorCount;
-        htLastMapData.applicationMapData.linkDataArray[linkKey].slowCount += link.slowCount;
+        thisLink.errorCount += link.errorCount;
+        thisLink.slowCount += link.slowCount;
+        thisLink.totalCount += link.totalCount;
+        if (link.hasAlert) {
+            thisLink.hasAlert = link.hasAlert;
+        }
 
         if (angular.isDefined(link.histogram)) {
             for (var key in link.histogram) {
-                if (htLastMapData.applicationMapData.linkDataArray[linkKey].histogram[key]) {
-                    htLastMapData.applicationMapData.linkDataArray[linkKey].histogram[key] += link.histogram[key];
+                if (thisLink.histogram[key]) {
+                    thisLink.histogram[key] += link.histogram[key];
                 } else {
-                    htLastMapData.applicationMapData.linkDataArray[linkKey].histogram[key] = link.histogram[key];
+                    thisLink.histogram[key] = link.histogram[key];
+                }
+            }
+        }
+
+        if (angular.isDefined(link.timeSeriesHistogram)) {
+            for (var key in link.timeSeriesHistogram) {
+                if (angular.isDefined(thisLink.timeSeriesHistogram)) {
+                    var aTemp = [];
+                    outer:
+                        for (var innerKey in link.timeSeriesHistogram[key].values) {
+                            for (var innerInnerKey in thisLink.timeSeriesHistogram[key].values) {
+                                if (thisLink.timeSeriesHistogram[key].values[innerInnerKey][0] === link.timeSeriesHistogram[key].values[innerKey][0]) {
+                                    thisLink.timeSeriesHistogram[key].values[innerInnerKey][1] += link.timeSeriesHistogram[key].values[innerKey][1];
+                                    continue outer;
+                                }
+                            }
+                            aTemp.push(link.timeSeriesHistogram[key].values[innerKey]);
+                        }
+                    thisLink.timeSeriesHistogram[key].values = aTemp.concat(thisLink.timeSeriesHistogram[key].values);
+                } else {
+                    thisLink.timeSeriesHistogram = link.timeSeriesHistogram;
                 }
             }
         }
@@ -361,30 +394,27 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
         if (angular.isDefined(link.sourceHistogram)) {
             for (var key in link.sourceHistogram) {
                 for (var innerKey in link.sourceHistogram[key]) {
-                    if (htLastMapData.applicationMapData.linkDataArray[linkKey].sourceHistogram[key][innerKey]) {
-                        htLastMapData.applicationMapData.linkDataArray[linkKey].sourceHistogram[key][innerKey] += link.sourceHistogram[key][innerKey];
+                    if (thisLink.sourceHistogram[key][innerKey]) {
+                        thisLink.sourceHistogram[key][innerKey] += link.sourceHistogram[key][innerKey];
                     } else {
-                        htLastMapData.applicationMapData.linkDataArray[linkKey].sourceHistogram[key][innerKey] = link.sourceHistogram[key][innerKey];
+                        thisLink.sourceHistogram[key][innerKey] = link.sourceHistogram[key][innerKey];
                     }
                 }
             }
         }
 
-        if (angular.isDefined(link.targetHosts)) {
-            for (var key in link.targetHosts) {
-                if (htLastMapData.applicationMapData.linkDataArray[linkKey].targetHosts[key]) {
-                    for (var innerKey in link.targetHosts[key].histogram) {
-                        if (htLastMapData.applicationMapData.linkDataArray[linkKey].targetHosts[key].histogram[innerKey]) {
-                            htLastMapData.applicationMapData.linkDataArray[linkKey].targetHosts[key].histogram[innerKey] += link.targetHosts[key].histogram[innerKey];
-                        } else {
-                            htLastMapData.applicationMapData.linkDataArray[linkKey].targetHosts[key].histogram[innerKey] = link.targetHosts[key].histogram[innerKey];
-                        }
+        if (angular.isDefined(link.targetHistogram)) {
+            for (var key in link.targetHistogram) {
+                for (var innerKey in link.targetHistogram[key]) {
+                    if (thisLink.targetHistogram[key][innerKey]) {
+                        thisLink.targetHistogram[key][innerKey] += link.targetHistogram[key][innerKey];
+                    } else {
+                        thisLink.targetHistogram[key][innerKey] = link.targetHistogram[key][innerKey];
                     }
-                } else {
-                    htLastMapData.applicationMapData.linkDataArray[linkKey].targetHosts[key] = link.targetHosts[key];
                 }
             }
         }
+
         return htLastMapData;
     };
 
@@ -501,7 +531,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
                             "totalCount": 0,
                             "errorCount": 0,
                             "slowCount": 0,
-                            "state": 'default',
+                            "hasAlert": false,
                             "unknownLinkGroup": [],
                             "histogram": {}
                         };
@@ -526,6 +556,9 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
                     newLink.errorCount += link.errorCount;
                     newLink.slowCount += link.slowCount;
                     newLink.sourceInfo = link.sourceInfo;
+                    if (link.hasAlert) {
+                        newLink.hasAlert = link.hasAlert;
+                    }
 
                     newLink.unknownLinkGroup.push(link);
 
