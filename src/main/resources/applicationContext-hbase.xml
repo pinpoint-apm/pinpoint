@@ -21,6 +21,10 @@
                 <prop key="hbase.zookeeper.property.clientPort">${hbase.client.port}</prop>
                 <prop key="hbase.htable.threads.max">${hbase.htable.threads.max}</prop>
                 <prop key="hbase.ipc.client.tcpnodelay">true</prop>
+                <!-- socketTimeout internal ping 로직도 있고, permanent connection이라 짤게 줄이기는 애매한것같음.-->
+                <prop key="hbase.rpc.timeout">30000</prop>
+                <!-- connectTimeout -->
+                <prop key="ipc.socket.timeout">10000</prop>
             </props>
         </property>
     </bean>
