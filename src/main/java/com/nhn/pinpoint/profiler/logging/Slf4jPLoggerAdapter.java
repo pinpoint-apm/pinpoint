@@ -8,10 +8,7 @@ import java.math.BigInteger;
 import java.net.URL;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author emeroad
@@ -19,7 +16,7 @@ import java.util.Map;
 public class Slf4jPLoggerAdapter implements PLogger {
     public static final int BUFFER_SIZE = 512;
 
-    private static final Map<Class<?>, Class<?>> SIMPLE_TYPE = new HashMap<Class<?>, Class<?>>();
+    private static final Map<Class<?>, Class<?>> SIMPLE_TYPE = new IdentityHashMap<Class<?>, Class<?>>();
     static {
         SIMPLE_TYPE.put(String.class, String.class);
         SIMPLE_TYPE.put(Boolean.class, Boolean.class);
