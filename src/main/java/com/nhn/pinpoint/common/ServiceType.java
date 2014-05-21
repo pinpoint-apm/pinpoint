@@ -186,7 +186,7 @@ public enum ServiceType {
         return serviceType;
     }
 
-    private static final IntHashMap<ServiceType> CODE_LOOKUP_TABLE = new IntHashMap<ServiceType>(128);
+    private static final IntHashMap<ServiceType> CODE_LOOKUP_TABLE = new IntHashMap<ServiceType>(256);
     private static final Map<String, List<ServiceType>> STATISTICS_LOOKUP_TABLE = new HashMap<String, List<ServiceType>>(64);
 
     static {
