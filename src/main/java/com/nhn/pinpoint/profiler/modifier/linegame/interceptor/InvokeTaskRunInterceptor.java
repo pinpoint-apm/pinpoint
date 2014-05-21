@@ -191,7 +191,11 @@ public class InvokeTaskRunInterceptor implements SimpleAroundInterceptor, ByteCo
 					if (content.readable()) {
 						// FIXME request body type에 따른 처리가 필요함.
 						// HttpPostRequestDecoder
-						String bodyStr = content.toString(0, entityDumpSize, CharsetUtil.UTF_8);
+						int contentSize = content.array().length;
+						if (contentSize > entityDumpSize) {
+							contentSize = entityDumpSize;
+						}
+						String bodyStr = content.toString(0, contentSize, CharsetUtil.UTF_8);
 						if (bodyStr != null && bodyStr.length() > 0) {
 							trace.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, bodyStr);
 						}
