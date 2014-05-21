@@ -19,8 +19,8 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     htAgentChartRendered, bResponseSummaryForLinkRendered, bLoadForLinkRendered;
 
                 // define private variables of methods;
-                var reset, showDetailInformation, renderLoad, renderResponseSummary, renderAllChartWhichIsVisible,
-                    hide, show;
+                var reset, showDetailInformation, renderLoad, renderResponseSummaryWithHistogram, renderAllChartWhichIsVisible,
+                    hide, show, renderResponseSummaryWithLink;
 
                 // bootstrap
                 scope.linkSearch = '';
@@ -56,7 +56,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     scope.showLinkLoad = false;
                     scope.showLinkServers = false;
                     scope.linkSearch = '';
-                    scope.linkOrderBy = 'count';
+                    scope.linkOrderBy = 'totalCount';
                     scope.linkOrderByNameClass = '';
                     scope.linkOrderByCountClass = 'glyphicon-sort-by-order-alt';
                     scope.linkOrderByDesc = true;
@@ -97,7 +97,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         scope.linkCategory = 'LinkInfoBox';
                         scope.showLinkResponseSummary = true;
                         scope.showLinkLoad = true;
-                        renderResponseSummary('forLink', link.targetInfo.applicationName, link.histogram, '100%', '150px');
+                        renderResponseSummaryWithHistogram('forLink', link.targetInfo.applicationName, link.histogram, '100%', '150px');
                         renderLoad('forLink', link.targetInfo.applicationName, link.timeSeriesHistogram, '100%', '220px', true);
 
                         scope.showLinkServers = _.isEmpty(link.sourceHistogram) ? false : true;
@@ -130,10 +130,11 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
 
                             if (scope.showLinkResponseSummaryForUnknown) {
                                 htUnknownResponseSummary[applicationName] = true;
-                                renderResponseSummary(null, applicationName, link.histogram, '360px', '100px');
+//                                renderResponseSummaryWithHistogram(null, applicationName, link.histogram, '360px', '160px');
+                                renderResponseSummaryWithLink(null, link, '360px', '160px');
                             } else {
                                 htUnknownLoad[applicationName] = true;
-                                renderLoad(null, applicationName, link.timeSeriesHistogram, '360px', '120px');
+                                renderLoad(null, applicationName, link.timeSeriesHistogram, '360px', '180px');
                             }
                         });
                     });
@@ -147,7 +148,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                  * @param w
                  * @param h
                  */
-                renderResponseSummary = function (namespace, toApplicationName, histogram, w, h) {
+                renderResponseSummaryWithHistogram = function (namespace, toApplicationName, histogram, w, h) {
                     var className = $filter('applicationNameToClassName')(toApplicationName),
                         namespace = namespace || 'forLink_' + className;
 
@@ -176,15 +177,9 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                                     .setFromServiceType(htLastLink.sourceInfo.serviceType);
                             }
 
-                            if (htLastLink.targetRawData) {
-                                oServerMapFilterVo
-                                    .setToApplication(toApplicationName)
-                                    .setToServiceType(htLastLink.targetRawData[toApplicationName].targetInfo.serviceType);
-                            } else {
-                                oServerMapFilterVo
-                                    .setToApplication(htLastLink.targetInfo.applicationName)
-                                    .setToServiceType(htLastLink.targetInfo.serviceType);
-                            }
+                            oServerMapFilterVo
+                                .setToApplication(htLastLink.targetInfo.applicationName)
+                                .setToServiceType(htLastLink.targetInfo.serviceType);
 
                             if (label.toLowerCase() === 'error') {
                                 oServerMapFilterVo.setIncludeException(true);
@@ -203,6 +198,62 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                             var oServerMapHintVo = new ServerMapHintVo();
                             if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {
                                 oServerMapHintVo.setHint(htLastLink.targetInfo.applicationName, htLastLink.filterTargetRpcList)
+                            }
+                            scope.$emit('linkInfoDetails.ResponseSummary.barClicked', oServerMapFilterVo, oServerMapHintVo);
+                        });
+                    }
+                };
+
+                renderResponseSummaryWithLink = function (namespace, link, w, h) {
+                    var className = $filter('applicationNameToClassName')(link.targetInfo.applicationName),
+                        namespace = namespace || 'forLink_' + className;
+
+                    if (namespace === 'forLink' && bResponseSummaryForLinkRendered) {
+                        scope.$broadcast('responseTimeChart.updateData.' + namespace, link.histogram);
+                    } else {
+                        if (namespace === 'forLink') {
+                            bResponseSummaryForLinkRendered = true;
+                        }
+                        scope.$broadcast('responseTimeChart.initAndRenderWithData.' + namespace, link.histogram, w, h, true, true);
+                        scope.$on('responseTimeChart.itemClicked.' + namespace, function (event, data) {
+                            var label = data.responseTime,
+                                values = data.count;
+                            var oServerMapFilterVo = new ServerMapFilterVo();
+                            oServerMapFilterVo
+                                .setMainApplication(link.filterApplicationName)
+                                .setMainServiceTypeCode(link.filterApplicationServiceTypeCode);
+
+                            if (link.sourceInfo.serviceType === 'USER') {
+                                oServerMapFilterVo
+                                    .setFromApplication('USER')
+                                    .setFromServiceType('USER');
+                            } else {
+                                oServerMapFilterVo
+                                    .setFromApplication(link.sourceInfo.applicationName)
+                                    .setFromServiceType(link.sourceInfo.serviceType);
+                            }
+
+                            oServerMapFilterVo
+                                .setToApplication(link.targetInfo.applicationName)
+                                .setToServiceType(link.targetInfo.serviceType);
+
+                            if (label.toLowerCase() === 'error') {
+                                oServerMapFilterVo.setIncludeException(true);
+                            } else if (label.toLowerCase() === 'slow') {
+                                oServerMapFilterVo
+                                    .setResponseFrom(filteredMapUtil.getStartValueForFilterByLabel(label, values) * 1000)
+                                    .setIncludeException(false)
+                                    .setResponseTo('max');
+                            } else {
+                                oServerMapFilterVo
+                                    .setResponseFrom(filteredMapUtil.getStartValueForFilterByLabel(label, values) * 1000)
+                                    .setIncludeException(false)
+                                    .setResponseTo(parseInt(label, 10) * 1000);
+                            }
+
+                            var oServerMapHintVo = new ServerMapHintVo();
+                            if (link.sourceInfo.isWas && link.targetInfo.isWas) {
+                                oServerMapHintVo.setHint(link.targetInfo.applicationName, link.filterTargetRpcList)
                             }
                             scope.$emit('linkInfoDetails.ResponseSummary.barClicked', oServerMapFilterVo, oServerMapHintVo);
                         });
@@ -238,7 +289,8 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 scope.renderLinkResponseSummary = function (applicationName, index) {
                     if (angular.isUndefined(htUnknownResponseSummary[applicationName])) {
                         htUnknownResponseSummary[applicationName] = true;
-                        renderResponseSummary(null, applicationName, htLastLink.unknownLinkGroup[index].histogram, '360px', '100px');
+//                        renderResponseSummaryWithHistogram(null, applicationName, htLastLink.unknownLinkGroup[index].histogram, '360px', '100px');
+                        renderResponseSummaryWithLink(null, htLastLink.unknownLinkGroup[index], '360px', '160px');
                     }
                 };
 
@@ -250,7 +302,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 scope.renderLinkLoad = function (applicationName, index) {
                     if (angular.isUndefined(htUnknownLoad[applicationName])) {
                         htUnknownLoad[applicationName] = true;
-                        renderLoad(null, applicationName, htLastLink.unknownLinkGroup[index].timeSeriesHistogram, '360px', '120px');
+                        renderLoad(null, applicationName, htLastLink.unknownLinkGroup[index].timeSeriesHistogram, '360px', '180px');
                     }
                 };
 
@@ -358,7 +410,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 scope.renderLinkAgentCharts = function (applicationName) {
                     if (angular.isDefined(htAgentChartRendered[applicationName])) return;
                     htAgentChartRendered[applicationName] = true;
-                    renderResponseSummary(null, applicationName, htLastLink.sourceHistogram[applicationName], '100%', '150px');
+                    renderResponseSummaryWithHistogram(null, applicationName, htLastLink.sourceHistogram[applicationName], '100%', '150px');
                     renderLoad(null, applicationName, htLastLink.sourceTimeSeriesHistogram[applicationName], '100%', '200px', true);
                 };
 

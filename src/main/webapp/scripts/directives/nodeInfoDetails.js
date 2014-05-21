@@ -57,7 +57,7 @@ pinpointApp
                         scope.showNodeResponseSummary = false;
                         scope.showNodeLoad = false;
                         scope.agentHistogram = false;
-                        scope.nodeOrderBy = 'count';
+                        scope.nodeOrderBy = 'totalCount';
                         scope.nodeOrderByNameClass = '';
                         scope.nodeOrderByCountClass = 'glyphicon-sort-by-order-alt';
                         scope.nodeOrderByDesc = true;
@@ -78,15 +78,14 @@ pinpointApp
                         scope.showNodeServers = _.isEmpty(scope.serverList) ? false : true;
                         scope.agentHistogram = node.agentHistogram;
 
-                        if (!node.targetRawData && node.category !== "UNKNOWN_GROUP") {
+                        if (node.serviceType !== "UNKNOWN_GROUP") {
                             scope.showNodeResponseSummary = true;
                             scope.showNodeLoad = true;
 
                             renderResponseSummary('forNode', node.applicationName, node.histogram, '100%', '150px');
                             renderLoad('forNode', node.applicationName, node.timeSeriesHistogram, '100%', '220px', true);
-                        } else if (node.category === 'UNKNOWN_GROUP'){
+                        } else if (node.serviceType === 'UNKNOWN_GROUP'){
                             scope.showNodeResponseSummaryForUnknown = (scope.oNavbarVo.getPeriod() <= cfg.maxTimeToShowLoadAsDefaultForUnknown) ? false : true;
-
                             renderAllChartWhichIsVisible(node);
 
                             $timeout(function () {
@@ -117,10 +116,10 @@ pinpointApp
 
                                 if (scope.showNodeResponseSummaryForUnknown) {
                                     htUnknownResponseSummary[applicationName] = true;
-                                    renderResponseSummary(null, applicationName, node.histogram, '360px', '100px');
+                                    renderResponseSummary(null, applicationName, node.histogram, '360px', '160px');
                                 } else {
                                     htUnknownLoad[applicationName] = true;
-                                    renderLoad(null, applicationName, node.timeSeriesHistogram, '360px', '120px');
+                                    renderLoad(null, applicationName, node.timeSeriesHistogram, '360px', '180px', true);
                                 }
                             });
                         });
@@ -189,7 +188,7 @@ pinpointApp
                     scope.renderNodeResponseSummary = function (applicationName, index) {
                         if (angular.isUndefined(htUnknownResponseSummary[applicationName])) {
                             htUnknownResponseSummary[applicationName] = true;
-                            renderResponseSummary(null, applicationName, htLastNode.unknownNodeGroup[index].histogram, '360px', '100px');
+                            renderResponseSummary(null, applicationName, htLastNode.unknownNodeGroup[index].histogram, '360px', '160px');
                         }
                     };
 
@@ -201,7 +200,7 @@ pinpointApp
                     scope.renderNodeLoad = function (applicationName, index) {
                         if (angular.isUndefined(htUnknownLoad[applicationName])) {
                             htUnknownLoad[applicationName] = true;
-                            renderLoad(null, applicationName, htLastNode.unknownNodeGroup[index].timeSeriesHistogram, '360px', '120px');
+                            renderLoad(null, applicationName, htLastNode.unknownNodeGroup[index].timeSeriesHistogram, '360px', '180px', true);
                         }
                     };
 
