@@ -537,16 +537,6 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
                         };
                     }
 
-//                    newNode.targetRawData[link.targetInfo.applicationName] = thisNode;
-
-                    // fill the new node/link informations.
-//                    newNode.unknownGroup.push(
-//                        {
-//                            'applicationName': link.targetInfo.applicationName,
-//                            'totalCount': link.totalCount,
-//                            'hasAlert': link.hasAlert
-//                        }
-//                    );
                     var thisNode = getNodeByApplicationName(link.targetInfo.applicationName);
                     delete thisNode.category;
                     newNode.unknownNodeGroup.push(thisNode);
@@ -559,18 +549,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
                     if (link.hasAlert) {
                         newLink.hasAlert = link.hasAlert;
                     }
-
                     newLink.unknownLinkGroup.push(link);
-
-
-                    /*
-                     * group된 노드에서 개별 노드의 정보를 조회할 때 사용됨.
-                     * onclick="SERVERMAP_METHOD_CACHE['{{=
-                     * value.applicationName}}']();" 으로 호출함.
-                     */
-//                    SERVERMAP_METHOD_CACHE[link.targetinfo.applicationName] = function () {
-//                        linkClickHandler(null, query, newtargetRawData);
-//                    };
 
                     $.each(link.histogram, function (key, value) {
                         if (newLink.histogram[key]) {
@@ -589,40 +568,13 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
                 newNode.unknownNodeGroup.sort(function (e1, e2) {
                     return e2.totalCount - e1.totalCount;
                 });
-
-//                var nodeCount = newNode.textArr.length - 1;
-//                $.each(newNode.textArr, function (i, e) {
-//                    newNode.applicationName += e.applicationName + " (" + e.totalCount + ")" + (i < nodeCount ? "\n" : "");
-//                });
-
-//						console.log("newNode", newNode);
                 newNodeList.push(newNode);
             }
 
             if (newLink) {
-                if ((newLink.errorCount / newLink.totalCount * 100) > 10) {
-                    newLink.state = "bad";
-                } else {
-                    newLink.state = "default";
-                }
-
                 newLink.unknownLinkGroup.sort(function (e1, e2) {
                     return e2.totalCount - e1.totalCount;
                 });
-
-                // targetinfo 에러를 우선으로, 요청수 내림차순 정렬.
-//                newLink.targetInfo.sort(function (e1, e2) {
-//                    var err1 = newLink.unknownGroup[e1.applicationName].errorCount;
-//                    var err2 = newLink.unknownGroup[e2.applicationName].errorCount;
-//
-//                    if (err1 + err2 > 0) {
-//                        return err2 - err1;
-//                    } else {
-//                        return newLink.unknownGroup[e2.applicationName].count - newLink.unknownGroup[e1.applicationName].count;
-//                    }
-//                });
-
-//						console.log("newLink", newLink);
                 newLinkList.push(newLink);
             }
         });

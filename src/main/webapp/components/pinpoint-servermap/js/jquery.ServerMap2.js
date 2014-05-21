@@ -30,12 +30,14 @@
                 "htIcons": {
                     'APACHE': 'APACHE.png',
                     'ARCUS': 'ARCUS.png',
+                    'BACKEND': 'BACKEND.png',
                     'CUBRID': 'CUBRID.png',
 //                    'ETC': 'ETC.png',
                     'MEMCACHED': 'MEMCACHED.png',
                     'MYSQL': 'MYSQL.png',
-//                    'QUEUE': 'QUEUE.png',
+                    'QUEUE': 'QUEUE.png',
                     'TOMCAT': 'TOMCAT.png',
+                    'STAND_ALONE': 'STAND_ALONE.png',
                     'UNKNOWN': 'UNKNOWN.png',
                     'UNKNOWN_GROUP': 'UNKNOWN_GROUP.png',
                     'USER': 'USER.png'
