@@ -26,24 +26,25 @@ angular.module('mgcrea.ngStrap.helpers.dateParser', [])
       var regExpMap = {
         'sss'   : '[0-9]{3}',
         'ss'    : '[0-5][0-9]',
-        's'     : options.strict ? '[1-5]?[0-9]' : '[0-5][0-9]',
+        's'     : options.strict ? '[1-5]?[0-9]' : '[0-9]|[0-5][0-9]',
         'mm'    : '[0-5][0-9]',
-        'm'     : options.strict ? '[1-5]?[0-9]' : '[0-5][0-9]',
+        'm'     : options.strict ? '[1-5]?[0-9]' : '[0-9]|[0-5][0-9]',
         'HH'    : '[01][0-9]|2[0-3]',
-        'H'     : options.strict ? '[0][1-9]|[1][012]' : '[01][0-9]|2[0-3]',
+        'H'     : options.strict ? '1?[0-9]|2[0-3]' : '[01]?[0-9]|2[0-3]',
         'hh'    : '[0][1-9]|[1][012]',
-        'h'     : options.strict ? '[1-9]|[1][012]' : '[0]?[1-9]|[1][012]',
+        'h'     : options.strict ? '[1-9]|1[012]' : '0?[1-9]|1[012]',
         'a'     : 'AM|PM',
         'EEEE'  : $locale.DATETIME_FORMATS.DAY.join('|'),
         'EEE'   : $locale.DATETIME_FORMATS.SHORTDAY.join('|'),
-        'dd'    : '[0-2][0-9]{1}|[3][01]{1}',
-        'd'     : options.strict ? '[1-2]?[0-9]{1}|[3][01]{1}' : '[0-2][0-9]{1}|[3][01]{1}',
+        'dd'    : '0[1-9]|[12][0-9]|3[01]',
+        'd'     : options.strict ? '[1-9]|[1-2][0-9]|3[01]' : '0?[1-9]|[1-2][0-9]|3[01]',
         'MMMM'  : $locale.DATETIME_FORMATS.MONTH.join('|'),
         'MMM'   : $locale.DATETIME_FORMATS.SHORTMONTH.join('|'),
-        'MM'    : '[0][1-9]|[1][012]',
-        'M'     : options.strict ? '[1-9]|[1][012]' : '[0][1-9]|[1][012]',
-        'yyyy'  : '(?:(?:[1]{1}[0-9]{1}[0-9]{1}[0-9]{1})|(?:[2]{1}[0-9]{3}))(?![[0-9]])',
-        'yy'    : '(?:(?:[0-9]{1}[0-9]{1}))(?![[0-9]])'
+        'MM'    : '0[1-9]|1[012]',
+        'M'     : options.strict ? '[1-9]|1[012]' : '0?[1-9]|1[012]',
+        'yyyy'  : '[1]{1}[0-9]{3}|[2]{1}[0-9]{3}',
+        'yy'    : '[0-9]{2}',
+        'y'     : options.strict ? '-?(0|[1-9][0-9]{0,3})' : '-?0*[0-9]{1,4}',
       };
 
       var setFnMap = {
@@ -85,7 +86,7 @@ angular.module('mgcrea.ngStrap.helpers.dateParser', [])
         if(angular.isDate(value)) return value;
         var matches = regex.exec(value);
         if(!matches) return false;
-        var date = baseDate || new Date(0);
+        var date = baseDate || new Date(0, 0, 1);
         for(var i = 0; i < matches.length - 1; i++) {
           setMap[i] && setMap[i].call(date, matches[i+1]);
         }

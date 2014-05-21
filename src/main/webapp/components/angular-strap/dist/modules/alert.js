@@ -1,6 +1,6 @@
 /**
  * angular-strap
- * @version v2.0.0-rc.4 - 2014-03-07
+ * @version v2.0.2 - 2014-04-27
  * @link http://mgcrea.github.io/angular-strap
  * @author Olivier Louvignes (olivier@mg-crea.com)
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -9,7 +9,7 @@
 // @BUG: following snippet won't compile correctly
 // @TODO: submit issue to core
 // '<span ng-if="title"><strong ng-bind="title"></strong>&nbsp;</span><span ng-bind-html="content"></span>' +
-angular.module('mgcrea.ngStrap.alert', []).provider('$alert', function () {
+angular.module('mgcrea.ngStrap.alert', ['mgcrea.ngStrap.modal']).provider('$alert', function () {
   var defaults = this.defaults = {
       animation: 'am-fade',
       prefixClass: 'alert',

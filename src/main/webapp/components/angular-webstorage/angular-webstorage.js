@@ -70,8 +70,13 @@
  * </code>
  * 
  * @author Fredric Rylander, https://github.com/fredricrylander/angular-webstorage
- * @date 2013-07-29
- * @version 0.9.2
+ * @date 2013-12-18
+ * @version 0.9.5
+ * 
+ * @contributor Paulo Cesar (https://github.com/pocesar)
+ * @contributor David Chang (https://github.com/hasdavidc)
+ * @contributor David Rodriguez (https://github.com/programmerdave)
+ * @contrubutor (https://github.com/jswxwxf)
  * 
  * 
  * The MIT License
@@ -96,6 +101,36 @@
  * IN THE SOFTWARE.
  */
 
+ /*
+  * Change Log
+  * ----------
+  * v0.9.0
+  * - Initial commit.
+  *
+  * v0.9.1
+  * - Bugfix: removed trailing commas that IE choked on, as reported by
+  *   Paulo Cesar (pocesar).
+  *
+  * v0.9.2
+  * - Now using the identity operator instead of equality when comparing
+  *   prefixes while clearing storage.
+  * - Bugfix: clearSession() is now actually clearing sessionStorage and not
+  *   localStorage, as reported by David Chang (hasdavidc).
+  *
+  * v0.9.3
+  * - Bugfix: now using the `errorName` constant when broadcasting errors
+  *   over the `$rootScope`.
+  *
+  * v0.9.4
+  * - Added strict mode.
+  * - Bugfix: the module threw access denied exceptions under 'Protected Mode'
+  *   in IE, as reported by (jswxwxf). Fixed by wrapping the sessionStorage and
+  *   localStorage polyfillers in a try/catch-block.
+  *
+  * v0.9.5
+  * - Bugfix: get(), getFromLocal() and getFromSession() will now return `null`
+  *   on errors as expected, reported by David Rodriguez (programmerdave).
+  */
 
 /**
  * Setup the webStorageModule.
@@ -123,6 +158,8 @@ webStorageModule.constant('errorName', 'webStorage.notification.error');
  * Setup the webStorage service.
  */
 webStorageModule.factory('webStorage', ['$rootScope', 'prefix', 'order', 'errorName', function($rootScope, prefix, order, errorName) {
+	'use strict';
+
 	/**
 	 * Boolean flag indicating client support for local storage.
 	 * @private 
@@ -210,7 +247,7 @@ webStorageModule.factory('webStorage', ['$rootScope', 'prefix', 'order', 'errorN
 		}
 		return false;
 	};
-	
+
 	/**
 	 * Getter for the key/value web store.
 	 * 
@@ -269,7 +306,7 @@ webStorageModule.factory('webStorage', ['$rootScope', 'prefix', 'order', 'errorN
 		}
 		return false;
 	};
-	
+
 	/**
 	 * Add the specified key/value pair to the local web store.
 	 * 
@@ -288,7 +325,7 @@ webStorageModule.factory('webStorage', ['$rootScope', 'prefix', 'order', 'errorN
 			return true;
 		}
 		return false;
-	};
+	}
 	
 	/**
 	 * Add the specified key/value pair to the session web store.
@@ -308,7 +345,7 @@ webStorageModule.factory('webStorage', ['$rootScope', 'prefix', 'order', 'errorN
 			return true;
 		}
 		return false;
-	};
+	}
 	
 	/**
 	 * Add the specified key/value pair to the in-memory store.
@@ -340,10 +377,10 @@ webStorageModule.factory('webStorage', ['$rootScope', 'prefix', 'order', 'errorN
 			try { 
 				var value = localStorage.getItem(prefix + key);
 				return value && JSON.parse(value); 
-			} catch (e) { return croak(e); }			
+			} catch (e) { croak(e); return null; }
 		}
 		return null;
-	};
+	}
 	
 	/**
 	 * Get the specified value from the session web store.
@@ -360,10 +397,10 @@ webStorageModule.factory('webStorage', ['$rootScope', 'prefix', 'order', 'errorN
 			try {
 				var value = sessionStorage.getItem(prefix + key);
 				return value && JSON.parse(value); 
-			} catch (e) { return croak(e); }
+			} catch (e) { croak(e); return null; }
 		}
 		return null;
-	};
+	}
 	
 	/**
 	 * Get the specified value from the in-memory store.
@@ -391,7 +428,7 @@ webStorageModule.factory('webStorage', ['$rootScope', 'prefix', 'order', 'errorN
 			return true;			
 		}
 		return false;
-	};
+	}
 	
 	/**
 	 * Remove the specified key/value pair from the session store.
@@ -406,7 +443,7 @@ webStorageModule.factory('webStorage', ['$rootScope', 'prefix', 'order', 'errorN
 			return true;			
 		}
 		return false;
-	};
+	}
 	
 	/**
 	 * Remove the specified key/value pair from the in-memory store.
@@ -444,7 +481,7 @@ webStorageModule.factory('webStorage', ['$rootScope', 'prefix', 'order', 'errorN
 		}
 		try { localStorage.clear(); } catch (e) { return croak(e); }
 		return true;
-	};
+	}
 	
 	/**
 	 * Clear all key/value pairs form the session store.
@@ -468,7 +505,7 @@ webStorageModule.factory('webStorage', ['$rootScope', 'prefix', 'order', 'errorN
 		}
 		try { sessionStorage.clear(); } catch (e) { return croak(e); }
 		return true;
-	};
+	}
 	
 	/**
 	 * Clear all key/value pairs form the in-memory store.
@@ -490,13 +527,13 @@ webStorageModule.factory('webStorage', ['$rootScope', 'prefix', 'order', 'errorN
 	 * @private
 	 */
 	function testLocalStorage() {
-	    try {
-	        localStorage.setItem(prefix + 'angular.webStorage.test', true);
-	        localStorage.removeItem(prefix + 'angular.webStorage.test');
-	        return true;
-	    } catch (e) {
-	    	return false;
-	    }
+		try {
+			localStorage.setItem(prefix + 'angular.webStorage.test', true);
+			localStorage.removeItem(prefix + 'angular.webStorage.test');
+			return true;
+		} catch (e) {
+			return false;
+		}
 	}
 	
 	/**
@@ -506,13 +543,13 @@ webStorageModule.factory('webStorage', ['$rootScope', 'prefix', 'order', 'errorN
 	 * @private
 	 */
 	function testSessionStorage() {
-	    try {
-	        sessionStorage.setItem(prefix + 'angular.webStorage.test', true);
-	        sessionStorage.removeItem(prefix + 'angular.webStorage.test');
-	        return true;
-	    } catch (e) {
-	    	return false;
-	    }
+		try {
+			sessionStorage.setItem(prefix + 'angular.webStorage.test', true);
+			sessionStorage.removeItem(prefix + 'angular.webStorage.test');
+			return true;
+		} catch (e) {
+			return false;
+		}
 	}
 	
 	/**
@@ -530,88 +567,102 @@ webStorageModule.factory('webStorage', ['$rootScope', 'prefix', 'order', 'errorN
 }]);
 
 
+/**
+ * Polyfilling the localStorage and sessionStorage APIs by setting cookies
+ * on the document.
+ *
+ * Source from: https://developer.mozilla.org/en-US/docs/DOM/Storage
+ */
 
-// Support for localStorage, compatible with old browsers, like Internet 
-// Explorer < 8 (tested and working even in Internet Explorer 6).
-// Source From: https://developer.mozilla.org/en-US/docs/DOM/Storage
-if (!window.localStorage) {
-	window.localStorage = {
-		getItem : function(sKey) {
-			if (!sKey || !this.hasOwnProperty(sKey)) {
-				return null;
-			}
-			return unescape(document.cookie.replace(new RegExp("(?:^|.*;\\s*)"
-					+ escape(sKey).replace(/[\-\.\+\*]/g, "\\$&")
-					+ "\\s*\\=\\s*((?:[^;](?!;))*[^;]?).*"), "$1"));
-		},
-		key : function(nKeyId) {
-			return unescape(document.cookie.replace(/\s*\=(?:.(?!;))*$/, "")
-					.split(/\s*\=(?:[^;](?!;))*[^;]?;\s*/)[nKeyId]);
-		},
-		setItem : function(sKey, sValue) {
-			if (!sKey) {
-				return;
-			}
-			document.cookie = escape(sKey) + "=" + escape(sValue)
-					+ "; expires=Tue, 19 Jan 2038 03:14:07 GMT; path=/";
-			this.length = document.cookie.match(/\=/g).length;
-		},
-		length : 0,
-		removeItem : function(sKey) {
-			if (!sKey || !this.hasOwnProperty(sKey)) {
-				return;
-			}
-			document.cookie = escape(sKey)
-					+ "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
-			this.length--;
-		},
-		hasOwnProperty : function(sKey) {
-			return (new RegExp("(?:^|;\\s*)"
-					+ escape(sKey).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\="))
-					.test(document.cookie);
-		}
-	};
-	window.localStorage.length = (document.cookie.match(/\=/g) || window.localStorage).length;
-}
+try {
+	/* jshint -W001 */// 'hasOwnProperty' is a really bad name.
+	/* jshint -W014 */// Bad line break before +.
 
-// Support for sessionStorage, compatible with old browsers, like Internet
-// Explorer < 8 (tested and working even in Internet Explorer 6).
-// Source From: https://developer.mozilla.org/en-US/docs/DOM/Storage
-if (!window.sessionStorage) {
-	window.sessionStorage = {
-		getItem : function(sKey) {
-			if (!sKey || !this.hasOwnProperty(sKey)) {
-				return null;
+	// Support for localStorage, compatible with old browsers, like Internet 
+	// Explorer < 8 (tested and working even in Internet Explorer 6).
+	// Source From: https://developer.mozilla.org/en-US/docs/DOM/Storage
+	if (!window.localStorage) {
+		window.localStorage = {
+			getItem : function(sKey) {
+				if (!sKey || !this.hasOwnProperty(sKey)) {
+					return null;
+				}
+				return unescape(document.cookie.replace(new RegExp("(?:^|.*;\\s*)"
+						+ escape(sKey).replace(/[\-\.\+\*]/g, "\\$&")
+						+ "\\s*\\=\\s*((?:[^;](?!;))*[^;]?).*"), "$1"));
+			},
+			key : function(nKeyId) {
+				return unescape(document.cookie.replace(/\s*\=(?:.(?!;))*$/, "")
+						.split(/\s*\=(?:[^;](?!;))*[^;]?;\s*/)[nKeyId]);
+			},
+			setItem : function(sKey, sValue) {
+				if (!sKey) {
+					return;
+				}
+				document.cookie = escape(sKey) + "=" + escape(sValue)
+						+ "; expires=Tue, 19 Jan 2038 03:14:07 GMT; path=/";
+				this.length = document.cookie.match(/\=/g).length;
+			},
+			length : 0,
+			removeItem : function(sKey) {
+				if (!sKey || !this.hasOwnProperty(sKey)) {
+					return;
+				}
+				document.cookie = escape(sKey)
+						+ "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+				this.length--;
+			},
+			hasOwnProperty : function(sKey) {
+				return (new RegExp("(?:^|;\\s*)"
+						+ escape(sKey).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\="))
+						.test(document.cookie);
 			}
-			return unescape(document.cookie.replace(new RegExp("(?:^|.*;\\s*)"
-					+ escape(sKey).replace(/[\-\.\+\*]/g, "\\$&")
-					+ "\\s*\\=\\s*((?:[^;](?!;))*[^;]?).*"), "$1"));
-		},
-		key : function(nKeyId) {
-			return unescape(document.cookie.replace(/\s*\=(?:.(?!;))*$/, "")
-					.split(/\s*\=(?:[^;](?!;))*[^;]?;\s*/)[nKeyId]);
-		},
-		setItem : function(sKey, sValue) {
-			if (!sKey) {
-				return;
+		};
+		window.localStorage.length = (document.cookie.match(/\=/g) || window.localStorage).length;
+	}
+
+	// Support for sessionStorage, compatible with old browsers, like Internet
+	// Explorer < 8 (tested and working even in Internet Explorer 6).
+	// Source From: https://developer.mozilla.org/en-US/docs/DOM/Storage
+	if (!window.sessionStorage) {
+		window.sessionStorage = {
+			getItem : function(sKey) {
+				if (!sKey || !this.hasOwnProperty(sKey)) {
+					return null;
+				}
+				return unescape(document.cookie.replace(new RegExp("(?:^|.*;\\s*)"
+						+ escape(sKey).replace(/[\-\.\+\*]/g, "\\$&")
+						+ "\\s*\\=\\s*((?:[^;](?!;))*[^;]?).*"), "$1"));
+			},
+			key : function(nKeyId) {
+				return unescape(document.cookie.replace(/\s*\=(?:.(?!;))*$/, "")
+						.split(/\s*\=(?:[^;](?!;))*[^;]?;\s*/)[nKeyId]);
+			},
+			setItem : function(sKey, sValue) {
+				if (!sKey) {
+					return;
+				}
+				document.cookie = escape(sKey) + "=" + escape(sValue) + "; path=/";
+				this.length = document.cookie.match(/\=/g).length;
+			},
+			length : 0,
+			removeItem : function(sKey) {
+				if (!sKey || !this.hasOwnProperty(sKey)) {
+					return;
+				}
+				document.cookie = escape(sKey)
+						+ "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+				this.length--;
+			},
+			hasOwnProperty : function(sKey) {
+				return (new RegExp("(?:^|;\\s*)"
+						+ escape(sKey).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\="))
+						.test(document.cookie);
 			}
-			document.cookie = escape(sKey) + "=" + escape(sValue) + "; path=/";
-			this.length = document.cookie.match(/\=/g).length;
-		},
-		length : 0,
-		removeItem : function(sKey) {
-			if (!sKey || !this.hasOwnProperty(sKey)) {
-				return;
-			}
-			document.cookie = escape(sKey)
-					+ "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
-			this.length--;
-		},
-		hasOwnProperty : function(sKey) {
-			return (new RegExp("(?:^|;\\s*)"
-					+ escape(sKey).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\="))
-					.test(document.cookie);
-		}
-	};
-	window.sessionStorage.length = (document.cookie.match(/\=/g) || window.sessionStorage).length;
+		};
+		window.sessionStorage.length = (document.cookie.match(/\=/g) || window.sessionStorage).length;
+	}
+
+} catch (e) {
+	// Protected Mode on IE? There's really nothing to do at this stage.
 }

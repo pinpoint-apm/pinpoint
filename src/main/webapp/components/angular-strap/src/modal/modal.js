@@ -8,6 +8,7 @@ angular.module('mgcrea.ngStrap.modal', ['mgcrea.ngStrap.helpers.dimensions'])
       animation: 'am-fade',
       backdropAnimation: 'am-fade',
       prefixClass: 'modal',
+      prefixEvent: 'modal',
       placement: 'top',
       template: 'modal/modal.tpl.html',
       contentTemplate: false,
@@ -19,7 +20,7 @@ angular.module('mgcrea.ngStrap.modal', ['mgcrea.ngStrap.helpers.dimensions'])
       show: true
     };
 
-    this.$get = function($window, $rootScope, $compile, $q, $templateCache, $http, $animate, $timeout, dimensions) {
+    this.$get = function($window, $rootScope, $compile, $q, $templateCache, $http, $animate, $timeout, $sce, dimensions) {
 
       var forEach = angular.forEach;
       var trim = String.prototype.trim;
@@ -32,7 +33,7 @@ angular.module('mgcrea.ngStrap.modal', ['mgcrea.ngStrap.helpers.dimensions'])
         var $modal = {};
 
         // Common vars
-        var options = angular.extend({}, defaults, config);
+        var options = $modal.$options = angular.extend({}, defaults, config);
         $modal.$promise = fetchTemplate(options.template);
         var scope = $modal.$scope = options.scope && options.scope.$new() || $rootScope.$new();
         if(!options.element && !options.container) {
@@ -41,7 +42,7 @@ angular.module('mgcrea.ngStrap.modal', ['mgcrea.ngStrap.helpers.dimensions'])
 
         // Support scope as string options
         forEach(['title', 'content'], function(key) {
-          if(options[key]) scope[key] = options[key];
+          if(options[key]) scope[key] = $sce.trustAsHtml(options[key]);
         });
 
         // Provide scope helpers
@@ -116,6 +117,7 @@ angular.module('mgcrea.ngStrap.modal', ['mgcrea.ngStrap.helpers.dimensions'])
 
         $modal.show = function() {
 
+          scope.$emit(options.prefixEvent + '.show.before', $modal);
           var parent = options.container ? findElement(options.container) : null;
           var after = options.container ? null : options.element;
 
@@ -136,9 +138,11 @@ angular.module('mgcrea.ngStrap.modal', ['mgcrea.ngStrap.helpers.dimensions'])
           if(options.backdrop) {
             $animate.enter(backdropElement, bodyElement, null, function() {});
           }
-          $animate.enter(modalElement, parent, after, function() {});
+          $animate.enter(modalElement, parent, after, function() {
+            scope.$emit(options.prefixEvent + '.show', $modal);
+          });
           scope.$isShown = true;
-          scope.$$phase || scope.$digest();
+          scope.$$phase || scope.$root.$$phase || scope.$digest();
           // Focus once the enter-animation has started
           // Weird PhantomJS bug hack
           var el = modalElement[0];
@@ -159,12 +163,13 @@ angular.module('mgcrea.ngStrap.modal', ['mgcrea.ngStrap.helpers.dimensions'])
           if(options.keyboard) {
             modalElement.on('keyup', $modal.$onKeyUp);
           }
-
         };
 
         $modal.hide = function() {
 
+          scope.$emit(options.prefixEvent + '.hide.before', $modal);
           $animate.leave(modalElement, function() {
+            scope.$emit(options.prefixEvent + '.hide', $modal);
             bodyElement.removeClass(options.prefixClass + '-open');
             if(options.animation) {
               bodyElement.addClass(options.prefixClass + '-with-' + options.animation);
@@ -174,7 +179,7 @@ angular.module('mgcrea.ngStrap.modal', ['mgcrea.ngStrap.helpers.dimensions'])
             $animate.leave(backdropElement, function() {});
           }
           scope.$isShown = false;
-          scope.$$phase || scope.$digest();
+          scope.$$phase || scope.$root.$$phase || scope.$digest();
 
           // Unbind events
           if(options.backdrop) {
@@ -184,7 +189,6 @@ angular.module('mgcrea.ngStrap.modal', ['mgcrea.ngStrap.helpers.dimensions'])
           if(options.keyboard) {
             modalElement.off('keyup', $modal.$onKeyUp);
           }
-
         };
 
         $modal.toggle = function() {

@@ -1,25 +1,30 @@
 /**
  * angular-strap
- * @version v2.0.0-rc.4 - 2014-03-07
+ * @version v2.0.2 - 2014-04-27
  * @link http://mgcrea.github.io/angular-strap
  * @author Olivier Louvignes (olivier@mg-crea.com)
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
 'use strict';
-angular.module('mgcrea.ngStrap.affix', ['mgcrea.ngStrap.helpers.dimensions']).provider('$affix', function () {
+angular.module('mgcrea.ngStrap.affix', [
+  'mgcrea.ngStrap.helpers.dimensions',
+  'mgcrea.ngStrap.helpers.debounce'
+]).provider('$affix', function () {
   var defaults = this.defaults = { offsetTop: 'auto' };
   this.$get = [
     '$window',
+    'debounce',
     'dimensions',
-    function ($window, dimensions) {
+    function ($window, debounce, dimensions) {
       var bodyEl = angular.element($window.document.body);
+      var windowEl = angular.element($window);
       function AffixFactory(element, config) {
         var $affix = {};
         // Common vars
         var options = angular.extend({}, defaults, config);
         var targetEl = options.target;
         // Initial private vars
-        var reset = 'affix affix-top affix-bottom', initialAffixTop = 0, initialOffsetTop = 0, affixed = null, unpin = null;
+        var reset = 'affix affix-top affix-bottom', initialAffixTop = 0, initialOffsetTop = 0, offsetTop = 0, offsetBottom = 0, affixed = null, unpin = null;
         var parent = element.parent();
         // Options: custom parent
         if (options.offsetParent) {
@@ -31,49 +36,26 @@ angular.module('mgcrea.ngStrap.affix', ['mgcrea.ngStrap.helpers.dimensions']).pr
             parent = angular.element(options.offsetParent);
           }
         }
-        // Options: offsets
-        var offsetTop = 0;
-        if (options.offsetTop) {
-          if (options.offsetTop === 'auto') {
-            options.offsetTop = '+0';
-          }
-          if (options.offsetTop.match(/^[-+]\d+$/)) {
-            initialAffixTop -= options.offsetTop * 1;
-            if (options.offsetParent) {
-              offsetTop = dimensions.offset(parent[0]).top + options.offsetTop * 1;
-            } else {
-              offsetTop = dimensions.offset(element[0]).top - dimensions.css(element[0], 'marginTop', true) + options.offsetTop * 1;
-            }
-          } else {
-            offsetTop = options.offsetTop * 1;
-          }
-        }
-        var offsetBottom = 0;
-        if (options.offsetBottom) {
-          if (options.offsetParent && options.offsetBottom.match(/^[-+]\d+$/)) {
-            // add 1 pixel due to rounding problems...
-            offsetBottom = getScrollHeight() - (dimensions.offset(parent[0]).top + dimensions.height(parent[0])) + options.offsetBottom * 1 + 1;
-          } else {
-            offsetBottom = options.offsetBottom * 1;
-          }
-        }
         $affix.init = function () {
+          $affix.$parseOffsets();
           initialOffsetTop = dimensions.offset(element[0]).top + initialAffixTop;
           // Bind events
-          targetEl.on('scroll', this.checkPosition);
-          targetEl.on('click', this.checkPositionWithEventLoop);
+          targetEl.on('scroll', $affix.checkPosition);
+          targetEl.on('click', $affix.checkPositionWithEventLoop);
+          windowEl.on('resize', $affix.$debouncedOnResize);
           // Both of these checkPosition() calls are necessary for the case where
           // the user hits refresh after scrolling to the bottom of the page.
-          this.checkPosition();
-          this.checkPositionWithEventLoop();
+          $affix.checkPosition();
+          $affix.checkPositionWithEventLoop();
         };
         $affix.destroy = function () {
           // Unbind events
-          targetEl.off('scroll', this.checkPosition);
-          targetEl.off('click', this.checkPositionWithEventLoop);
+          targetEl.off('scroll', $affix.checkPosition);
+          targetEl.off('click', $affix.checkPositionWithEventLoop);
+          windowEl.off('resize', $affix.$debouncedOnResize);
         };
         $affix.checkPositionWithEventLoop = function () {
-          setTimeout(this.checkPosition, 1);
+          setTimeout($affix.checkPosition, 1);
         };
         $affix.checkPosition = function () {
           // if (!this.$element.is(':visible')) return
@@ -107,6 +89,38 @@ angular.module('mgcrea.ngStrap.affix', ['mgcrea.ngStrap.helpers.dimensions']).pr
             unpin = null;
             element.css('position', 'fixed');
             element.css('top', initialAffixTop + 'px');
+          }
+        };
+        $affix.$onResize = function () {
+          $affix.$parseOffsets();
+          $affix.checkPosition();
+        };
+        $affix.$debouncedOnResize = debounce($affix.$onResize, 50);
+        $affix.$parseOffsets = function () {
+          // Reset position to calculate correct offsetTop
+          element.css('position', options.offsetParent ? '' : 'relative');
+          if (options.offsetTop) {
+            if (options.offsetTop === 'auto') {
+              options.offsetTop = '+0';
+            }
+            if (options.offsetTop.match(/^[-+]\d+$/)) {
+              initialAffixTop = -options.offsetTop * 1;
+              if (options.offsetParent) {
+                offsetTop = dimensions.offset(parent[0]).top + options.offsetTop * 1;
+              } else {
+                offsetTop = dimensions.offset(element[0]).top - dimensions.css(element[0], 'marginTop', true) + options.offsetTop * 1;
+              }
+            } else {
+              offsetTop = options.offsetTop * 1;
+            }
+          }
+          if (options.offsetBottom) {
+            if (options.offsetParent && options.offsetBottom.match(/^[-+]\d+$/)) {
+              // add 1 pixel due to rounding problems...
+              offsetBottom = getScrollHeight() - (dimensions.offset(parent[0]).top + dimensions.height(parent[0])) + options.offsetBottom * 1 + 1;
+            } else {
+              offsetBottom = options.offsetBottom * 1;
+            }
           }
         };
         // Private methods

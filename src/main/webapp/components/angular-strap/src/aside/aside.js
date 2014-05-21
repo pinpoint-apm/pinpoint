@@ -39,7 +39,7 @@ angular.module('mgcrea.ngStrap.aside', ['mgcrea.ngStrap.modal'])
 
   })
 
-  .directive('bsAside', function($window, $location, $sce, $aside) {
+  .directive('bsAside', function($window, $sce, $aside) {
 
     var requestAnimationFrame = $window.requestAnimationFrame || $window.setTimeout;
 

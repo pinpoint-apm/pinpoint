@@ -1,6 +1,7 @@
 .dev/
 .tmp/
 .DS_Store
+.idea
 *.sublime-project
 *.sublime-workspace
 bower_components/
@@ -9,3 +10,4 @@ node_modules/
 /docs/
 /test/coverage/
 !.gitignore
+!dist/

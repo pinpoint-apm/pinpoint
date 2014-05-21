@@ -24,6 +24,10 @@ Browser compatibility
 * Firefox 10+
 * Safari 3+
 * Opera 10.6+
+ 
+Usage
+-----
+You can source Select2 directly from a [CDN like JSDliver](http://www.jsdelivr.com/#!select2), [download it from this GitHub repo](https://github.com/ivaynberg/select2/tags), or use one of the integrations below.
 
 Integrations
 ------------
@@ -33,8 +37,11 @@ Integrations
 * [AngularUI](http://angular-ui.github.com/#directives-select2) ([AngularJS](angularjs.org))
 * [Django](https://github.com/applegrew/django-select2)
 * [Symfony](https://github.com/19Gerhard85/sfSelect2WidgetsPlugin)
-* [Bootstrap](https://github.com/t0m/select2-bootstrap-css) (CSS skin)
-* [Yii](https://github.com/tonybolzan/yii-select2)
+* [Symfony2](https://github.com/avocode/FormExtensions)
+* [Bootstrap 2](https://github.com/t0m/select2-bootstrap-css) and [Bootstrap 3](https://github.com/t0m/select2-bootstrap-css/tree/bootstrap3) (CSS skins)
+* [Meteor](https://github.com/nate-strauser/meteor-select2) (modern reactive JavaScript framework; + [Bootstrap 3 skin](https://github.com/esperadomedia/meteor-select2-bootstrap3-css/))
+* [Yii 2.x](http://demos.krajee.com/widgets#select2)
+* [Yii 1.x](https://github.com/tonybolzan/yii-select2)
 
 Internationalization (i18n)
 ---------------------------

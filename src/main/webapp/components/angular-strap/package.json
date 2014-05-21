@@ -1,7 +1,7 @@
 {
   "name": "angular-strap",
   "description": "AngularStrap - AngularJS directives for Twitter Bootstrap",
-  "version": "2.0.0-rc.4",
+  "version": "2.0.2",
   "keywords": [
     "angular",
     "bootstrap"
@@ -19,40 +19,42 @@
   },
   "licenses": [
     {
-      "type": "MIT"
+      "type": "MIT",
+      "url": "https://github.com/mgcrea/angular-strap/blob/master/LICENSE.md"
     }
   ],
   "dependencies": {},
   "devDependencies": {
-    "grunt": "~0.4.2",
-    "grunt-angular-templates": "~0.5.3",
-    "grunt-autoprefixer": "~0.7.2",
-    "grunt-concurrent": "~0.4.3",
-    "grunt-contrib-clean": "~0.5.0",
-    "grunt-contrib-concat": "~0.3.0",
-    "grunt-contrib-connect": "~0.7.1",
-    "grunt-contrib-copy": "~0.5.0",
-    "grunt-contrib-cssmin": "~0.9.0",
-    "grunt-contrib-htmlmin": "~0.2.0",
-    "grunt-contrib-jshint": "~0.8.0",
-    "grunt-contrib-less": "~0.10.0",
-    "grunt-contrib-uglify": "~0.4.0",
-    "grunt-contrib-watch": "~0.5.3",
-    "grunt-karma": "~0.6.2",
-    "grunt-newer": "~0.6.1",
-    "grunt-ngmin": "0.0.3",
-    "grunt-rev": "~0.1.0",
-    "grunt-usemin": "~2.0.2",
-    "jshint-stylish": "~0.1.5",
-    "karma-coverage": "~0.2.0",
-    "load-grunt-tasks": "~0.4.0",
-    "grunt-nginclude": "~0.3.1",
-    "grunt-karma-coveralls": "~2.4.0"
+    "gulp": "^3.6.2",
+    "gulp-autoprefixer": "0.0.7",
+    "gulp-changed": "^0.3.0",
+    "gulp-clean": "^0.2.4",
+    "gulp-cleancss": "^0.2.1",
+    "gulp-concat-util": "^0.2.2",
+    "gulp-connect": "^2.0.5",
+    "gulp-coveralls": "^0.1.2",
+    "gulp-htmlmin": "^0.1.2",
+    "gulp-jshint": "^1.5.5",
+    "gulp-less": "^1.2.3",
+    "gulp-nginclude": "^0.4.3",
+    "gulp-ngmin": "^0.2.0",
+    "gulp-ngtemplate": "^0.2.1",
+    "gulp-open": "^0.2.8",
+    "gulp-rename": "^1.2.0",
+    "gulp-uglify": "^0.2.1",
+    "gulp-usemin": "^0.3.3",
+    "gulp-util": "^2.2.14",
+    "gulp-watch": "^0.6.2",
+    "jshint-stylish": "^0.1.5",
+    "karma": "^0.12.14",
+    "karma-coverage": "^0.2.1",
+    "karma-jasmine": "^0.1.5",
+    "karma-phantomjs-launcher": "^0.1.4"
   },
   "engines": {
-    "node": ">=0.8.0"
+    "node": ">= 0.8.0"
   },
   "scripts": {
-    "test": "grunt test"
+    "test": "gulp test"
   }
 }

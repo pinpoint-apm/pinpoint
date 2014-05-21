@@ -1,6 +1,6 @@
 <ul class="nav nav-tabs">
   <li ng-repeat="pane in panes" ng-class="{active: $index == active}">
-    <a data-toggle="tab" ng-click="setActive($index, $event)" data-index="{{$index}}">{{pane.title}}</a>
+    <a data-toggle="tab" ng-click="setActive($index, $event)" data-index="{{$index}}" ng-bind-html="pane.title"></a>
   </li>
 </ul>
 <div class="tab-content">

@@ -1,7 +1,7 @@
 {
   "name": "angular-strap",
   "description": "AngularStrap - AngularJS directives for Twitter Bootstrap",
-  "version": "2.0.0-rc.4",
+  "version": "2.0.2",
   "keywords": [
     "angular",
     "bootstrap"
@@ -19,7 +19,8 @@
   },
   "licenses": [
     {
-      "type": "MIT"
+      "type": "MIT",
+      "url": "https://github.com/mgcrea/angular-strap/blob/master/LICENSE.md"
     }
   ],
   "main": [
@@ -48,11 +49,11 @@
     "highlightjs": "~8.0.0",
     "jquery": "~2.1.0"
   },
-  "_release": "2.0.0-rc.4",
+  "_release": "2.0.2",
   "_resolution": {
     "type": "version",
-    "tag": "v2.0.0-rc.4",
-    "commit": "05cd5f34fb86adb11a561f906dc4fdcdd363b016"
+    "tag": "v2.0.2",
+    "commit": "3d7ff4b417d02fd9c8f307d3d0a2c0f6462bec59"
   },
   "_source": "git://github.com/mgcrea/angular-strap.git",
   "_target": "~2.0.0",

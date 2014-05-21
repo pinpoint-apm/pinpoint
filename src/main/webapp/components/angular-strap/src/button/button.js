@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('mgcrea.ngStrap.button', ['ngAnimate'])
+angular.module('mgcrea.ngStrap.button', [])
 
   .provider('$button', function() {
 
@@ -35,7 +35,7 @@ angular.module('mgcrea.ngStrap.button', ['ngAnimate'])
 
   })
 
-  .directive('bsCheckbox', function($button, $$animateReflow) {
+  .directive('bsCheckbox', function($button, $$rAF) {
 
     var defaults = $button.defaults;
     var constantValueRegExp = /^(true|false|\d+)$/;
@@ -77,7 +77,7 @@ angular.module('mgcrea.ngStrap.button', ['ngAnimate'])
         controller.$render = function () {
           // console.warn('$render', element.attr('ng-model'), 'controller.$modelValue', typeof controller.$modelValue, controller.$modelValue, 'controller.$viewValue', typeof controller.$viewValue, controller.$viewValue);
           var isActive = angular.equals(controller.$modelValue, trueValue);
-          $$animateReflow(function() {
+          $$rAF(function() {
             if(isInput) element[0].checked = isActive;
             activeElement.toggleClass(options.activeClass, isActive);
           });
@@ -121,7 +121,7 @@ angular.module('mgcrea.ngStrap.button', ['ngAnimate'])
 
   })
 
-  .directive('bsRadio', function($button, $$animateReflow) {
+  .directive('bsRadio', function($button, $$rAF) {
 
     var defaults = $button.defaults;
     var constantValueRegExp = /^(true|false|\d+)$/;
@@ -143,7 +143,7 @@ angular.module('mgcrea.ngStrap.button', ['ngAnimate'])
         controller.$render = function () {
           // console.warn('$render', element.attr('value'), 'controller.$modelValue', typeof controller.$modelValue, controller.$modelValue, 'controller.$viewValue', typeof controller.$viewValue, controller.$viewValue);
           var isActive = angular.equals(controller.$modelValue, value);
-          $$animateReflow(function() {
+          $$rAF(function() {
             if(isInput) element[0].checked = isActive;
             activeElement.toggleClass(options.activeClass, isActive);
           });

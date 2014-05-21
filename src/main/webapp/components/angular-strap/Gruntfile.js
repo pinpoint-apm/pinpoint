@@ -66,7 +66,7 @@ module.exports = function (grunt) {
         files: [
           '{docs,.dev,<%= yo.src %>}/{,*/}{,docs/}*.html',
           '{docs,.tmp,<%= yo.src %>}/{,*/}*.css',
-          '{docs,.dev,.tmp,<%= yo.src %>}/{,*/}*.js',
+          '{docs,.dev,.tmp,<%= yo.src %>}/{,*/}{,docs/}*.js',
           '{docs,<%= yo.src %>}/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
         ]
       }
@@ -407,7 +407,7 @@ module.exports = function (grunt) {
           flatten: true,
           cwd: '<%= yo.src %>',
           src: '{,*/}/*.tpl.html',
-          dest: '.tmp/ngtemplates',
+          dest: '.tmp/templates',
           ext: '.tpl.js'
         }]
       },
@@ -434,13 +434,13 @@ module.exports = function (grunt) {
         files: [{
           cwd: '<%= yo.src %>',
           src: '{,*/}docs/*.html',
-          dest: '.tmp/ngtemplates/scripts/src-docs.js'
+          dest: '.tmp/templates/scripts/src-docs.js'
         },
         {
           cwd: '<%= yo.docs %>',
           // src: 'views/{,*/}*.html',
           src: 'views/{aside,sidebar}.html',
-          dest: '.tmp/ngtemplates/scripts/docs-views.js'
+          dest: '.tmp/templates/scripts/docs-views.js'
         }
         ]
       }
@@ -492,7 +492,8 @@ module.exports = function (grunt) {
     coveralls: {
       options: {
         /*jshint camelcase: false */
-        coverage_dir: 'test/coverage/PhantomJS 1.9.7 (Linux)/'
+        coverage_dir: 'test/coverage/PhantomJS 1.9.7 (Linux)/',
+        force: true
       }
     }
 

@@ -91,7 +91,9 @@ angular.module('mgcrea.ngStrap.scrollspy', ['mgcrea.ngStrap.helpers.debounce', '
           scrollEl.off('scroll', debouncedCheckPosition);
           unbindViewContentLoaded();
           unbindIncludeContentLoaded();
-
+          if (scrollId) {
+            delete spies[scrollId];
+          }
         };
 
         $scrollspy.checkPosition = function() {

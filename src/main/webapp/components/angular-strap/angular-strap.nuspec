@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
     <metadata>
         <id>angular-strap</id>
-        <version>2.0.0-rc3</version>
+        <version>2.0.0</version>
         <authors>Olivier Louvignes and contributors</authors>
         <owners>mgcrea</owners>
         <licenseUrl>https://raw.github.com/mgcrea/angular-strap/master/LICENSE.md</licenseUrl>
@@ -13,7 +13,7 @@
         <tags>angular bootstrap</tags>
         <dependencies>
             <dependency id="bootstrap" version="[3.0.0, 4.0.0)" />
-            <dependency id="angularjs" version="[1.2.0, 2.0.0)" />
+            <dependency id="AngularJS.Core" version="[1.2.0, 2.0.0)" />
         </dependencies>
     </metadata>
     <files>

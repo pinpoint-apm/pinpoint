@@ -1,12 +1,12 @@
 /**
  * angular-strap
- * @version v2.0.0-rc.4 - 2014-03-07
+ * @version v2.0.2 - 2014-04-27
  * @link http://mgcrea.github.io/angular-strap
  * @author Olivier Louvignes (olivier@mg-crea.com)
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
 'use strict';
-angular.module('mgcrea.ngStrap.button', ['ngAnimate']).provider('$button', function () {
+angular.module('mgcrea.ngStrap.button', []).provider('$button', function () {
   var defaults = this.defaults = {
       activeClass: 'active',
       toggleEvent: 'click'
@@ -31,8 +31,8 @@ angular.module('mgcrea.ngStrap.button', ['ngAnimate']).provider('$button', funct
   };
 }).directive('bsCheckbox', [
   '$button',
-  '$$animateReflow',
-  function ($button, $$animateReflow) {
+  '$$rAF',
+  function ($button, $$rAF) {
     var defaults = $button.defaults;
     var constantValueRegExp = /^(true|false|\d+)$/;
     return {
@@ -67,7 +67,7 @@ angular.module('mgcrea.ngStrap.button', ['ngAnimate']).provider('$button', funct
         controller.$render = function () {
           // console.warn('$render', element.attr('ng-model'), 'controller.$modelValue', typeof controller.$modelValue, controller.$modelValue, 'controller.$viewValue', typeof controller.$viewValue, controller.$viewValue);
           var isActive = angular.equals(controller.$modelValue, trueValue);
-          $$animateReflow(function () {
+          $$rAF(function () {
             if (isInput)
               element[0].checked = isActive;
             activeElement.toggleClass(options.activeClass, isActive);
@@ -104,8 +104,8 @@ angular.module('mgcrea.ngStrap.button', ['ngAnimate']).provider('$button', funct
   };
 }).directive('bsRadio', [
   '$button',
-  '$$animateReflow',
-  function ($button, $$animateReflow) {
+  '$$rAF',
+  function ($button, $$rAF) {
     var defaults = $button.defaults;
     var constantValueRegExp = /^(true|false|\d+)$/;
     return {
@@ -121,7 +121,7 @@ angular.module('mgcrea.ngStrap.button', ['ngAnimate']).provider('$button', funct
         controller.$render = function () {
           // console.warn('$render', element.attr('value'), 'controller.$modelValue', typeof controller.$modelValue, controller.$modelValue, 'controller.$viewValue', typeof controller.$viewValue, controller.$viewValue);
           var isActive = angular.equals(controller.$modelValue, value);
-          $$animateReflow(function () {
+          $$rAF(function () {
             if (isInput)
               element[0].checked = isActive;
             activeElement.toggleClass(options.activeClass, isActive);

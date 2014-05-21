@@ -34,19 +34,19 @@ angular.module('mgcrea.ngStrap.helpers.parseOptions', [])
         $parseOptions.valuesFn = function(scope, controller) {
           return $q.when(valuesFn(scope, controller))
           .then(function(values) {
-            $parseOptions.$values = values ? parseValues(values) : {};
+            $parseOptions.$values = values ? parseValues(values, scope) : {};
             return $parseOptions.$values;
           });
         };
 
         // Private functions
 
-        function parseValues(values) {
+        function parseValues(values, scope) {
           return values.map(function(match, index) {
             var locals = {}, label, value;
             locals[valueName] = match;
-            label = displayFn(locals);
-            value = valueFn(locals) || index;
+            label = displayFn(scope, locals);
+            value = valueFn(scope, locals) || index;
             return {label: label, value: value};
           });
         }
