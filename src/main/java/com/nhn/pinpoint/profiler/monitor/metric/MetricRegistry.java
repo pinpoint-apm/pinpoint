@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class MetricRegistry {
 
-    private final ConcurrentMap<Short, ResponseMetric> rpcCache = new ConcurrentHashMap<Short, ResponseMetric>(256, 0.75f, 128);
+    private final ConcurrentMap<Short, ResponseMetric> rpcCache = new ConcurrentHashMap<Short, ResponseMetric>();
 
     private final Histogram responseMetric;
 
