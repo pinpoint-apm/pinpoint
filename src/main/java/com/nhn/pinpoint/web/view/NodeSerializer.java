@@ -41,7 +41,7 @@ public class NodeSerializer extends JsonSerializer<Node>  {
         jgen.writeStringField("serviceTypeCode", Short.toString(serviceType.getCode()));
 //        jgen.writeStringField("terminal", Boolean.toString(serviceType.isTerminal()));
         jgen.writeBooleanField("isWas", serviceType.isWas());  // for go.js
-        jgen.writeBooleanField("hasAlert", true);  // for go.js
+
 
 
         writeHistogram(jgen, node);
@@ -69,11 +69,23 @@ public class NodeSerializer extends JsonSerializer<Node>  {
             Histogram applicationHistogram = nodeHistogram.getApplicationHistogram();
             if (applicationHistogram == null) {
                 writeEmptyObject(jgen, "histogram");
+                jgen.writeBooleanField("hasAlert", false);  // for go.js
             } else {
                 jgen.writeObjectField("histogram", applicationHistogram);
                 jgen.writeNumberField("totalCount", applicationHistogram.getTotalCount()); // for go.js
                 jgen.writeNumberField("errorCount", applicationHistogram.getErrorCount());
                 jgen.writeNumberField("slowCount", applicationHistogram.getSlowCount());
+
+                if (applicationHistogram.getTotalCount() == 0) {
+                    jgen.writeBooleanField("hasAlert", false);  // for go.js
+                } else {
+                    long error = applicationHistogram.getErrorCount() / applicationHistogram.getTotalCount();
+                    if (error * 100 > 10) {
+                        jgen.writeBooleanField("hasAlert", true);  // for go.js
+                    } else {
+                        jgen.writeBooleanField("hasAlert", false);  // for go.js
+                    }
+                }
             }
 
             Map<String, Histogram> agentHistogramMap = nodeHistogram.getAgentHistogramMap();
@@ -82,6 +94,8 @@ public class NodeSerializer extends JsonSerializer<Node>  {
             } else {
                 jgen.writeObjectField("agentHistogram", agentHistogramMap);
             }
+        } else {
+            jgen.writeBooleanField("hasAlert", false);  // for go.js
         }
         if (serviceType.isWas() || serviceType.isUser() || serviceType.isTerminal() || serviceType.isUnknown()) {
             List<ResponseTimeViewModel> applicationTimeSeriesHistogram = nodeHistogram.getApplicationTimeHistogram();

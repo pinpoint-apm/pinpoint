@@ -21,6 +21,17 @@ public class LinkStateResolver {
 
     }
 
+    public boolean resolve2(Link link) {
+        if (link == null) {
+            throw new NullPointerException("link must not be null");
+        }
+        final long error = getErrorRate(link.getHistogram());
+        if (error * 100 > 10) {
+            return true;
+        }
+        return false;
+    }
+
     private long getErrorRate(Histogram histogram) {
         if (histogram == null) {
             throw new NullPointerException("histogram must not be null");

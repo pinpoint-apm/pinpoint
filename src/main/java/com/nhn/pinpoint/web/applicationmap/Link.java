@@ -229,6 +229,10 @@ public class Link {
         return linkStateResolver.resolve(this);
     }
 
+    public Boolean getLinkAlert() {
+        return linkStateResolver.resolve2(this);
+    }
+
     public boolean isWasToWasLink() {
         return this.fromNode.getApplication().getServiceType().isWas() && this.toNode.getApplication().getServiceType().isWas();
     }

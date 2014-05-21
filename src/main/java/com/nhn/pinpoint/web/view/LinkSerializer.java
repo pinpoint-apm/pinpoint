@@ -55,8 +55,9 @@ public class LinkSerializer extends JsonSerializer<Link> {
         writeSourceAgentTimeSeriesHistogram(link, jgen);
 
 
-        String state = link.getLinkState();
-        jgen.writeStringField("state", state); // for go.js
+//        String state = link.getLinkState();
+//        jgen.writeStringField("state", state); // for go.js
+        jgen.writeBooleanField("hasAlert", link.getLinkAlert()); // for go.js
 
         jgen.writeEndObject();
     }
