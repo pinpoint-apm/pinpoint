@@ -476,10 +476,10 @@ $.layout = {
 		,	H	= outerHeight
 		;
 		// strip border and/or padding from outerHeight to get CSS Height
-		if (bs !== "border-box")
-			H -= (b($E, "Top") + b($E, "Bottom"));
-		if (bs === "content-box")
-			H -= (n($E, "paddingTop") + n($E, "paddingBottom"));
+//		if (bs !== "border-box")
+//			H -= (b($E, "Top") + b($E, "Bottom"));
+//		if (bs === "content-box")
+//			H -= (n($E, "paddingTop") + n($E, "paddingBottom"));
 		return max(0,H);
 	}
 
@@ -1503,6 +1503,7 @@ $.fn.layout = function (opts) {
 	*/
 ,	_create = function () {
 		// initialize config/options
+            console.log('_create')
 		initOptions();
 		var o = options
 		,	s = state;
@@ -1559,6 +1560,7 @@ $.fn.layout = function (opts) {
 	*/
 ,	_initLayoutElements = function (retry) {
 		// initialize config/options
+            console.log('_initLayoutElements');
 		var o = options;
 		// CANNOT init panes inside a hidden container!
 		if (!$N.is(":visible")) {

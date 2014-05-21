@@ -18,7 +18,7 @@
   "ignore": [
     "README.md"
   ],
-  "_release": "master",
+  "_release": "ab39ea2748",
   "_resolution": {
     "type": "branch",
     "branch": "master",
@@ -26,6 +26,5 @@
   },
   "_source": "git://github.com/jlbfalcao/jquery.layout.git",
   "_target": "*",
-  "_originalSource": "jquery.layout",
-  "_direct": true
+  "_originalSource": "jquery.layout"
 }
