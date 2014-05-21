@@ -116,7 +116,7 @@ public enum AnnotationKey {
         return viewInRecordSet;
     }
 
-    private static final Map<Integer, AnnotationKey> CODE_LOOKUP_TABLE = new HashMap<Integer, AnnotationKey>();
+    private static final IntHashMap<AnnotationKey> CODE_LOOKUP_TABLE = new IntHashMap<AnnotationKey>();
     static {
         initializeLookupTable();
     }
