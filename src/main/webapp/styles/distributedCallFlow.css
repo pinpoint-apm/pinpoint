@@ -13,7 +13,8 @@
     box-sizing: content-box;
 }
 .distributed-call-flow .popover {
-    max-width: inherit;
+    /*max-width: inherit;*/
+    max-width: 500px;
 }
 .distributed-call-flow .has-exception {
     color:rgb(214, 39, 39);
