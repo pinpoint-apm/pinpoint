@@ -87,7 +87,7 @@ pinpointApp.directive('agentList', [ 'agentListConfig', '$rootScope', function (
              */
             scope.$on('agentList.initialize', function (event, navbarVo) {
                 oNavbarVo = navbarVo;
-                showAgentGroup(oNavbarVo.getApplicationName(), oNavbarVo.getServiceType(), oNavbarVo.getQueryStartTime(), oNavbarVo.getQueryEndTime(), oNavbarVo.getAgentId());
+                showAgentGroup(oNavbarVo.getApplicationName(), oNavbarVo.getServiceTypeCode(), oNavbarVo.getQueryStartTime(), oNavbarVo.getQueryEndTime(), oNavbarVo.getAgentId());
             });
         }
     };
