@@ -29,7 +29,7 @@ public class MetricRegistryTest {
 
         metricRegistry = new MetricRegistry(ServiceType.TOMCAT);
         try {
-            metricRegistry.getRpcMetric(ServiceType.BLOC);
+            metricRegistry.getRpcMetric(ServiceType.IBATIS);
             Assert.fail();
         } catch (Exception e) {
         }
