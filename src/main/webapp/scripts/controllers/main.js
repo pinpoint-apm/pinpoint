@@ -220,9 +220,17 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
         $scope.$on('nodeInfoDetail.showDetailInformationClicked', function (event, query, node) {
             $scope.hasScatter = false;
             var oSidebarTitleVo = new SidebarTitleVo;
+
             oSidebarTitleVo
-                .setImageType(node.serviceType)
-                .setTitle(node.applicationName);
+                .setImageType(node.serviceType);
+            if (node.unknownNodeGroup) {
+                oSidebarTitleVo.setTitle('Unknown Group');
+                $scope.hasScatter = false;
+            } else {
+                oSidebarTitleVo.setTitle(node.applicationName);
+                $scope.hasScatter = false;
+            }
+
             $scope.$broadcast('sidebarTitle.initialize.forMain', oSidebarTitleVo);
             $scope.$broadcast('linkInfoDetails.hide');
         });

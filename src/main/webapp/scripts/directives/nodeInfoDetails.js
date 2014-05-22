@@ -25,6 +25,7 @@ pinpointApp
 
                     // bootstrap
                     bShown = false;
+                    scope.htLastUnknownNode = false;
 
                     angular.element($window).bind('resize',function(e) {
                         if (bShown && htLastNode.category === 'UNKNOWN_GROUP') {
@@ -87,6 +88,7 @@ pinpointApp
                         } else if (node.serviceType === 'UNKNOWN_GROUP'){
                             scope.showNodeResponseSummaryForUnknown = (scope.oNavbarVo.getPeriod() <= cfg.maxTimeToShowLoadAsDefaultForUnknown) ? false : true;
                             renderAllChartWhichIsVisible(node);
+                            scope.htLastUnknownNode = angular.copy(node);
 
                             $timeout(function () {
                                 element.find('[data-toggle="tooltip"]').tooltip('destroy').tooltip();
@@ -116,10 +118,10 @@ pinpointApp
 
                                 if (scope.showNodeResponseSummaryForUnknown) {
                                     htUnknownResponseSummary[applicationName] = true;
-                                    renderResponseSummary(null, applicationName, node.histogram, '360px', '160px');
+                                    renderResponseSummary(null, applicationName, node.histogram, '360px', '180px');
                                 } else {
                                     htUnknownLoad[applicationName] = true;
-                                    renderLoad(null, applicationName, node.timeSeriesHistogram, '360px', '180px', true);
+                                    renderLoad(null, applicationName, node.timeSeriesHistogram, '360px', '200px', true);
                                 }
                             });
                         });
@@ -181,6 +183,17 @@ pinpointApp
                     };
 
                     /**
+                     * go back to unknown node
+                     */
+                    scope.goBackToUnknownNode = function () {
+                        htLastNode = angular.copy(scope.htLastUnknownNode);
+                        htUnknownResponseSummary = {};
+                        htUnknownLoad = {};
+                        showDetailInformation(htLastNode);
+                        scope.$emit('nodeInfoDetail.showDetailInformationClicked', htQuery, htLastNode);
+                    };
+
+                    /**
                      * scope render node response summary
                      * @param applicationName
                      * @param index
@@ -188,7 +201,7 @@ pinpointApp
                     scope.renderNodeResponseSummary = function (applicationName, index) {
                         if (angular.isUndefined(htUnknownResponseSummary[applicationName])) {
                             htUnknownResponseSummary[applicationName] = true;
-                            renderResponseSummary(null, applicationName, htLastNode.unknownNodeGroup[index].histogram, '360px', '160px');
+                            renderResponseSummary(null, applicationName, htLastNode.unknownNodeGroup[index].histogram, '360px', '180px');
                         }
                     };
 
@@ -200,7 +213,7 @@ pinpointApp
                     scope.renderNodeLoad = function (applicationName, index) {
                         if (angular.isUndefined(htUnknownLoad[applicationName])) {
                             htUnknownLoad[applicationName] = true;
-                            renderLoad(null, applicationName, htLastNode.unknownNodeGroup[index].timeSeriesHistogram, '360px', '180px', true);
+                            renderLoad(null, applicationName, htLastNode.unknownNodeGroup[index].timeSeriesHistogram, '360px', '200px', true);
                         }
                     };
 
@@ -295,6 +308,7 @@ pinpointApp
                         reset();
                         htQuery = query;
                         htLastNode = node;
+                        scope.htLastUnknownNode = false;
                         scope.oNavbarVo = navbarVo;
                         htServermapData = mapData;
                         showDetailInformation(node);

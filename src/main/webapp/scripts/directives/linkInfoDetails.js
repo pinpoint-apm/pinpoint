@@ -27,6 +27,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 bResponseSummaryForLinkRendered = false;
                 bLoadForLinkRendered = false;
                 bShown = false;
+                scope.htLastUnknownLink = false;
 
                 angular.element($window).bind('resize',function(e) {
                     if (bShown && htLastLink.targetRawData) {
@@ -70,23 +71,15 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 };
 
                 /**
-                 * show link detail information of scope
-                 * @param index
-                 */
-                scope.showLinkDetailInformation = function (index) {
-                    htLastLink = htLastLink.unknownLinkGroup[index];
-                    showDetailInformation(htLastLink);
-                    scope.$emit('linkInfoDetail.showDetailInformationClicked', htQuery, htLastLink);
-                };
-
-                /**
                  * show detail information
                  * @param link
                  */
                 showDetailInformation = function (link) {
+                    console.log('link', link);
+                    scope.link = link;
                     if (link.unknownLinkGroup) {
-                        scope.linkCategory = 'UnknownLinkInfoBox';
                         scope.unknownLinkGroup = link.unknownLinkGroup;
+                        scope.htLastUnknownLink = angular.copy(link);
 
                         scope.showLinkResponseSummaryForUnknown = (scope.oNavbarVo.getPeriod() <= cfg.maxTimeToShowLoadAsDefaultForUnknown) ? false : true;
 
@@ -95,7 +88,6 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                             element.find('[data-toggle="tooltip"]').tooltip('destroy').tooltip();
                         });
                     } else {
-                        scope.linkCategory = 'LinkInfoBox';
                         scope.showLinkResponseSummary = true;
                         scope.showLinkLoad = true;
                         renderResponseSummaryWithHistogram('forLink', link.targetInfo.applicationName, link.histogram, '100%', '150px');
@@ -132,11 +124,10 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
 
                             if (scope.showLinkResponseSummaryForUnknown) {
                                 htUnknownResponseSummary[applicationName] = true;
-//                                renderResponseSummaryWithHistogram(null, applicationName, link.histogram, '360px', '160px');
-                                renderResponseSummaryWithLink(null, link, '360px', '160px');
+                                renderResponseSummaryWithLink(null, link, '360px', '180px');
                             } else {
                                 htUnknownLoad[applicationName] = true;
-                                renderLoad(null, applicationName, link.timeSeriesHistogram, '360px', '180px', true);
+                                renderLoad(null, applicationName, link.timeSeriesHistogram, '360px', '200px', true);
                             }
                         });
                     });
@@ -284,6 +275,27 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 };
 
                 /**
+                 * show link detail information of scope
+                 * @param index
+                 */
+                scope.showLinkDetailInformation = function (index) {
+                    htLastLink = htLastLink.unknownLinkGroup[index];
+                    showDetailInformation(htLastLink);
+                    scope.$emit('linkInfoDetail.showDetailInformationClicked', htQuery, htLastLink);
+                };
+
+                /**
+                 * go back to unknown link
+                 */
+                scope.goBackToUnknownLink = function () {
+                    htLastLink = angular.copy(scope.htLastUnknownLink);
+                    htUnknownResponseSummary = {};
+                    htUnknownLoad = {};
+                    showDetailInformation(htLastLink);
+                    scope.$emit('linkInfoDetail.showDetailInformationClicked', htQuery, htLastLink);
+                };
+
+                /**
                  * scope render link response summary
                  * @param applicationName
                  * @param index
@@ -291,8 +303,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 scope.renderLinkResponseSummary = function (applicationName, index) {
                     if (angular.isUndefined(htUnknownResponseSummary[applicationName])) {
                         htUnknownResponseSummary[applicationName] = true;
-//                        renderResponseSummaryWithHistogram(null, applicationName, htLastLink.unknownLinkGroup[index].histogram, '360px', '100px');
-                        renderResponseSummaryWithLink(null, htLastLink.unknownLinkGroup[index], '360px', '160px');
+                        renderResponseSummaryWithLink(null, htLastLink.unknownLinkGroup[index], '360px', '180px');
                     }
                 };
 
@@ -304,7 +315,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 scope.renderLinkLoad = function (applicationName, index) {
                     if (angular.isUndefined(htUnknownLoad[applicationName])) {
                         htUnknownLoad[applicationName] = true;
-                        renderLoad(null, applicationName, htLastLink.unknownLinkGroup[index].timeSeriesHistogram, '360px', '180px', true);
+                        renderLoad(null, applicationName, htLastLink.unknownLinkGroup[index].timeSeriesHistogram, '360px', '200px', true);
                     }
                 };
 
@@ -444,6 +455,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     reset();
                     htQuery = query;
                     htLastLink = link;
+                    scope.htLastUnknownLink = false;
                     showDetailInformation(link);
                 });
 
