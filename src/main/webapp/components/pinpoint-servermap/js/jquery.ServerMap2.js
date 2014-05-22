@@ -313,7 +313,6 @@
                                     figure: "RoundedRectangle",
                                     fill: "#848484",
                                     strokeWidth: 1,
-                                    height: 20,
                                     stroke: "#848484"
                                 }
                             ),
@@ -329,7 +328,7 @@
                                     {
                                         stroke: "#FFFFFF",
                                         textAlign: "center",
-                                        height: 16,
+                                        height: 13,
                                         font: self.option('sSmallFont'),
                                         editable: false
                                     }
