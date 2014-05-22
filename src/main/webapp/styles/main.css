@@ -9,7 +9,7 @@ html, body {
     margin: 0;
     padding: 0;
 }
-body,input,textarea,select,button,table{font-family:avn55,'나눔고딕',NanumGothic,ng,'돋움',dotum,AppleGothic,sans-serif}
+body,input,textarea,select,button,table{font-family:Arimo,avn55,'나눔고딕',NanumGothic,ng,'돋움',dotum,AppleGothic,sans-serif}
 canvas {outline:none}
 
 /* if avn55, should be */

@@ -3,10 +3,30 @@
 pinpointApp.constant('serverMapConfig', {
     options: {
         "sContainerId": 'servermap',
+        "sBigFont": "11pt Arimo,avn85,NanumGothic,ng,dotum,AppleGothic,sans-serif",
+        "sSmallFont": "11pt Arimo,avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif",
         "sImageDir": '/images/servermap/',
         "htLinkType": {
             "sRouting": "Normal", // Normal, Orthogonal, AvoidNodes
             "sCurve": "JumpGap" // Bezier, JumpOver, JumpGap
+        },
+        "htLinkTheme": {
+            "default": {
+                "backgroundColor": "#ffffff",
+                "borderColor": "#c5c5c5",
+                "fontFamily": "11pt Arimo,avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif",
+                "fontColor": "#000000",
+                "fontAlign": "center",
+                "margin": 1
+            },
+            "bad": {
+                "backgroundColor": "#ffc9c9",
+                "borderColor": "#7d7d7d",
+                "fontFamily": "11pt Arimo,avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif",
+                "fontColor": "#FF1300",
+                "fontAlign": "center",
+                "margin": 1
+            }
         }
     }
 });
