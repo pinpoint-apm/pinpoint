@@ -230,7 +230,7 @@ public class Link {
     }
 
     public Boolean getLinkAlert() {
-        return linkStateResolver.resolve2(this);
+        return linkStateResolver.isAlert(this);
     }
 
     public boolean isWasToWasLink() {
