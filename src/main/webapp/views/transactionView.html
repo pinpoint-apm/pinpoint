@@ -9,6 +9,9 @@
     }
 </style>
 <div class="navbar navbar-fixed-top" style="height:30px;min-height: 30px;background-color:#252a3a;color:#ddd;font-size:11px;">
+    <div style="position: absolute;top:3px;left:3px;z-index:10000;">
+        <span class="label label-danger"><span class="glyphicon glyphicon-exclamation-sign"></span> Technical Preview</span>
+    </div>
     <div class="row">
         <div class="col-md-3 app-title" title="{{transactionDetail.applicationName}}" data-toggle="tooltip" data-placement="bottom">Application : {{transactionDetail.applicationName}}</div>
         <div class="col-md-3 app-title" title="{{transactionDetail.transactionId}}" data-toggle="tooltip" data-placement="bottom">TransactionId : {{transactionDetail.transactionId}}</div>
