@@ -2,6 +2,7 @@ package com.nhn.pinpoint.web.dao.hbase;
 
 import java.util.List;
 
+import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -51,5 +52,13 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
 		get.addFamily(HBaseTables.APPLICATION_INDEX_CF_AGENTS);
 
 		return hbaseOperations2.get(HBaseTables.APPLICATION_INDEX, get, agentIdMapper);
+	}
+	
+	@Override
+	public void deleteApplicationName(String applicationName) {
+		byte[] rowKey = Bytes.toBytes(applicationName);
+		Delete delete = new Delete(rowKey);
+		delete.setWriteToWAL(false);
+		hbaseOperations2.delete(HBaseTables.APPLICATION_INDEX, delete);
 	}
 }
