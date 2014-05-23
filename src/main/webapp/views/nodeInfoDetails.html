@@ -4,9 +4,12 @@
 
         <div style="padding-left:15px;">
             <div style="float:left;width:265px;padding-right:5px">
-                <div class="form-group input-group-sm has-feedback" style="margin-bottom:0;">
+                <div class="input-group form-group input-group-sm has-feedback" style="margin-bottom:0;">
+                    <span class=" input-group-addon">
+                        <span class="glyphicon glyphicon-search" style="top:0;"></span>
+                    </span>
                     <input type="text" class="form-control" ng-model="nodeSearch" ng-change="nodeSearchChange()" placeholder="Type keywords for filtering.">
-                    <span class="glyphicon glyphicon-search form-control-feedback" style="top:0;"></span>
+                    <span class="glyphicon glyphicon-remove form-control-feedback" style="top:-2px;z-index:2;" ng-click="nodeSearch=''" ng-show="nodeSearch"></span>
                 </div>
             </div>
             <div>
