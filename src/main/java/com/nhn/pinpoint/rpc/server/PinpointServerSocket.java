@@ -5,6 +5,7 @@ import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.client.WriteFailFutureListener;
 import com.nhn.pinpoint.rpc.packet.*;
 import com.nhn.pinpoint.rpc.util.CpuUtils;
+import com.nhn.pinpoint.rpc.util.LoggerFactorySetup;
 import com.nhn.pinpoint.rpc.util.TimerFactory;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.*;
@@ -49,6 +50,10 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     private ServerMessageListener messageListener = SimpleLoggingServerMessageListener.LISTENER;
     private WriteFailFutureListener traceSendAckWriteFailFutureListener = new  WriteFailFutureListener(logger, "TraceSendAckPacket send fail.", "TraceSendAckPacket send() success.");
     private InetAddress[] ignoreAddressList;
+
+    static {
+        LoggerFactorySetup.setupSlf4jLoggerFactory();
+    }
 
     public PinpointServerSocket() {
         ServerBootstrap bootstrap = createBootStrap(1, WORKER_COUNT);

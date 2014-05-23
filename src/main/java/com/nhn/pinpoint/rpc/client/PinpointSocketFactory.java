@@ -3,6 +3,7 @@ package com.nhn.pinpoint.rpc.client;
 
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
+import com.nhn.pinpoint.rpc.util.LoggerFactorySetup;
 import com.nhn.pinpoint.rpc.util.TimerFactory;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.*;
@@ -40,6 +41,9 @@ public class PinpointSocketFactory {
     private long pingDelay = 5 * 60 * 1000;
     private long timeoutMillis = 3 * 1000;
 
+    static {
+        LoggerFactorySetup.setupSlf4jLoggerFactory();
+    }
 
     public PinpointSocketFactory() {
         this(1, 1);
