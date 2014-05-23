@@ -24,7 +24,7 @@
             <div class="panel panel-default" ng-repeat="(index, link) in unknownLinkGroup | orderBy:linkOrderBy:linkOrderByDesc" ng-show="showUnknownLinkBy(linkSearch, link)" style="height:241px;">
                 <div class="panel-heading">
                     <span class="glyphicon glyphicon-arrow-right"></span>
-                    {{link.targetInfo.applicationName}}<span class="badge pull-right" ng-class="{'alert-danger':link.hasAlert}" title="Total Call Count" data-toggle="tooltip" data-placement="bottom">{{link.totalCount | number}}</span>
+                    {{link.targetInfo.applicationName}}<span class="badge pull-right" ng-class="{'alert-danger':link.hasAlert}" title="Total Call Count" data-toggle="tooltip" data-placement="left">{{link.totalCount | number}}</span>
                 </div>
                 <div class="panel-body summaryCharts_{{link.targetInfo.applicationName | applicationNameToClassName}}" style="position: relative; padding:0">
                     <div ng-show="showLinkResponseSummaryForUnknown" style="padding-top: 20px;">

@@ -23,7 +23,7 @@
         <div class="unknown-list">
             <div class="panel panel-default" ng-repeat="(index, node) in unknownNodeGroup | orderBy:nodeOrderBy:nodeOrderByDesc" ng-show="showUnknownNodeBy(nodeSearch, node)" style="height:241px;">
                 <div class="panel-heading">
-                    {{node.applicationName}}<span class="badge pull-right" ng-class="{'alert-danger':node.hasAlert}" title="Total Call Count" data-toggle="tooltip" data-placement="bottom">{{node.totalCount | number}}</span>
+                    {{node.applicationName}}<span class="badge pull-right" ng-class="{'alert-danger':node.hasAlert}" title="Total Call Count" data-toggle="tooltip" data-placement="left">{{node.totalCount | number}}</span>
                 </div>
 
                 <div class="panel-body summaryCharts_{{node.applicationName | applicationNameToClassName}}" style="position: relative; padding:0">
