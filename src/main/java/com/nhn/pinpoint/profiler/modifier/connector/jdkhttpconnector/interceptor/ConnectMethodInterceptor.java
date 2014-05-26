@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler.modifier.connector.jdkhttpconnector.interceptor;
 
 import java.net.HttpURLConnection;
+import java.net.URL;
 
 import com.nhn.pinpoint.bootstrap.context.Header;
 import com.nhn.pinpoint.bootstrap.context.Trace;
@@ -65,8 +66,9 @@ public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCo
 
 		trace.recordServiceType(ServiceType.JDK_HTTPURLCONNECTOR);
 
-		String host = request.getURL().getHost();
-		int port = request.getURL().getPort();
+        final URL url = request.getURL();
+        final String host = url.getHost();
+		final int port = url.getPort();
 
 		// TODO protocol은 어떻게 표기하지???
         String endpoint = getEndpoint(host, port);
@@ -74,14 +76,14 @@ public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCo
 //        trace.recordEndPoint(endpoint);
 		trace.recordDestinationId(endpoint);
 
-		trace.recordAttribute(AnnotationKey.HTTP_URL, request.getURL().toString());
+		trace.recordAttribute(AnnotationKey.HTTP_URL, url.toString());
 	}
 
     private String getEndpoint(String host, int port) {
         if (port < 0) {
             return host;
         }
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(32);
         sb.append(host);
         sb.append(':');
         sb.append(port);
