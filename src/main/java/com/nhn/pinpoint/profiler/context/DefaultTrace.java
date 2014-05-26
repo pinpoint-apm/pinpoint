@@ -2,6 +2,7 @@ package com.nhn.pinpoint.profiler.context;
 
 import com.nhn.pinpoint.bootstrap.context.AsyncTrace;
 import com.nhn.pinpoint.bootstrap.context.Trace;
+import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.context.TraceId;
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
@@ -34,22 +35,18 @@ public final class DefaultTrace implements Trace {
 
     private Storage storage;
 
-    private final DefaultTraceContext traceContext;
+    private final TraceContext traceContext;
 
     // use for calculating depth of each Span.                                                                               
     private int latestStackIndex = -1;
     private StackFrame currentStackFrame;
 
-    public DefaultTrace(final DefaultTraceContext traceContext, final String agentId, long agentStartTime, long transactionId) {
+    public DefaultTrace(final TraceContext traceContext, long transactionId) {
         if (traceContext == null) {
             throw new NullPointerException("traceContext must not be null");
         }
-        if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
-        }
-
         this.traceContext = traceContext;
-        this.traceId = new DefaultTraceId(agentId, agentStartTime, transactionId);
+        this.traceId = new DefaultTraceId(traceContext.getAgentId(), traceContext.getAgentStartTime(), transactionId);
 
         final Span span = createSpan(traceId);
         this.callStack = new CallStack(span);
@@ -62,16 +59,15 @@ public final class DefaultTrace implements Trace {
 
     private Span createSpan(final TraceId traceId) {
         final Span span = new Span();
-        final AgentInformation agentInformation = traceContext.getAgentInformation();
-        span.setAgentId(agentInformation.getAgentId());
-        span.setApplicationName(agentInformation.getApplicationName());
-        span.setAgentStartTime(agentInformation.getStartTime());
+        span.setAgentId(traceContext.getAgentId());
+        span.setApplicationName(traceContext.getApplicationName());
+        span.setAgentStartTime(traceContext.getAgentStartTime());
         // traceId 레코드를 나중에 해야 된다.
         span.recordTraceId(traceId);
         return span;
     }
 
-    public DefaultTrace(DefaultTraceContext traceContext, TraceId continueTraceId) {
+    public DefaultTrace(TraceContext traceContext, TraceId continueTraceId) {
         if (traceContext == null) {
             throw new NullPointerException("traceContext must not be null");
         }
