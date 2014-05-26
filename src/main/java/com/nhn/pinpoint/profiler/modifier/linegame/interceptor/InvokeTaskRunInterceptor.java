@@ -1,15 +1,18 @@
 package com.nhn.pinpoint.profiler.modifier.linegame.interceptor;
 
+import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.nhn.pinpoint.common.util.HttpUtils;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.handler.codec.http.HttpMethod;
+import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.QueryStringDecoder;
-import org.jboss.netty.util.CharsetUtil;
 
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.bootstrap.context.Header;
@@ -30,6 +33,7 @@ import com.nhn.pinpoint.bootstrap.util.StringUtils;
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.context.SpanId;
+import org.jboss.netty.util.CharsetUtil;
 
 /**
  * <pre>
@@ -44,6 +48,8 @@ public class InvokeTaskRunInterceptor implements SimpleAroundInterceptor, ByteCo
 
 	private final PLogger logger = PLoggerFactory.getLogger(InvokeTaskRunInterceptor.class);
 	private final boolean isDebug = logger.isDebugEnabled();
+    private static final String DEFAULT_CHARSET= "UTF-8";
+
 
 	private MethodDescriptor descriptor;
 	private TraceContext traceContext;
@@ -182,47 +188,109 @@ public class InvokeTaskRunInterceptor implements SimpleAroundInterceptor, ByteCo
 			org.jboss.netty.channel.MessageEvent e = getMessageEvent.invoke(target);
 
 			if (e != null) {
-				org.jboss.netty.handler.codec.http.HttpRequest request = (org.jboss.netty.handler.codec.http.HttpRequest) e.getMessage();
+                recordHttpParameter2(trace, e);
+            }
 
-				HttpMethod reqMethod = request.getMethod();
+            trace.recordApi(descriptor);
+            trace.recordException(result);
+            trace.markAfterTime();
+        } catch (Throwable e) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("com/linecorp/games/common/baseFramework/handlers/HttpCustomServerHandler$InvokeTask.run() trace end fail. Caused:{}", e.getMessage(), e);
+            }
+        } finally {
+            trace.traceRootBlockEnd();
+        }
+    }
 
-				if (reqMethod.equals(HttpMethod.POST) || reqMethod.equals(HttpMethod.PUT) || reqMethod.equals(HttpMethod.DELETE)) {
-					ChannelBuffer content = request.getContent();
-					if (content.readable()) {
-						// FIXME request body type에 따른 처리가 필요함.
-						// HttpPostRequestDecoder
-						int contentSize = content.array().length;
-						if (contentSize > entityDumpSize) {
-							contentSize = entityDumpSize;
-						}
-						String bodyStr = content.toString(0, contentSize, CharsetUtil.UTF_8);
-						if (bodyStr != null && bodyStr.length() > 0) {
-							trace.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, bodyStr);
-						}
-					}
-				} else if (reqMethod.equals(HttpMethod.GET)) {
-					// String parameters = getRequestParameter_old(request, 64,
-					// 512);
-					String parameters = getRequestParameter(request, paramDumpSize);
-					if (parameters != null && parameters.length() > 0) {
-						trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
-					}
-				}
-			}
+    private void recordHttpParameter2(Trace trace, MessageEvent e) {
+        final Object message = e.getMessage();
+        if (message instanceof  org.jboss.netty.handler.codec.http.HttpRequest) {
+            final org.jboss.netty.handler.codec.http.HttpRequest request = (org.jboss.netty.handler.codec.http.HttpRequest) message;
+            HttpMethod reqMethod = request.getMethod();
 
-			trace.recordApi(descriptor);
-			trace.recordException(result);
-			trace.markAfterTime();
-		} catch (Throwable e) {
-			if (logger.isWarnEnabled()) {
-				logger.warn("com/linecorp/games/common/baseFramework/handlers/HttpCustomServerHandler$InvokeTask.run() trace end fail. Caused:{}", e.getMessage(), e);
-			}
-		} finally {
-			trace.traceRootBlockEnd();
-		}
-	}
+            if (reqMethod.equals(HttpMethod.POST) || reqMethod.equals(HttpMethod.PUT) || reqMethod.equals(HttpMethod.DELETE)) {
+                ChannelBuffer content = request.getContent();
+                if (content.readable()) {
+                    // FIXME request body type에 따른 처리가 필요함.
+                    // HttpPostRequestDecoder
+                    int contentSize = content.array().length;
+                    if (contentSize > entityDumpSize) {
+                        contentSize = entityDumpSize;
+                    }
+                    // netty 3.9 면 getHeader가 deprecated 되었다. 추후 없어질수는 있기는 한데 일단 동작에 문제가 없는듯 함.
+                    final Charset charset = getCharset(request);
+                    String bodyStr = content.toString(0, contentSize, charset);
+                    if (bodyStr != null && bodyStr.length() > 0) {
+                        trace.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, bodyStr);
+                    }
+                }
+            } else if (reqMethod.equals(HttpMethod.GET)) {
+                // String parameters = getRequestParameter_old(request, 64,
+                // 512);
+                String parameters = getRequestParameter(request, paramDumpSize);
+                if (parameters != null && parameters.length() > 0) {
+                    trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+                }
+            }
+        }
+    }
 
-	/**
+    // buffer index를 정확하게 계산하는 로직이나 before에서 데이터를 읽어야 함.
+    private void recordHttpParameter(Trace trace, MessageEvent e) {
+        final Object message = e.getMessage();
+        if (message instanceof  org.jboss.netty.handler.codec.http.HttpRequest) {
+            final org.jboss.netty.handler.codec.http.HttpRequest request = (org.jboss.netty.handler.codec.http.HttpRequest) message;
+
+            final HttpMethod reqMethod = request.getMethod();
+
+            if (equalMethod(HttpMethod.POST, reqMethod) || equalMethod(HttpMethod.PUT, reqMethod) || equalMethod(HttpMethod.DELETE, reqMethod)) {
+                ChannelBuffer content = request.getContent();
+                int contentSize = content.readableBytes();
+                if (contentSize > 0) {
+                    // FIXME request body type에 따른 처리가 필요함.
+                    // HttpPostRequestDecoder
+                    if (contentSize > entityDumpSize) {
+                        contentSize = entityDumpSize;
+                    }
+                    final Charset charset = getCharset(request);
+
+                    // 해당 메소드의 경우 readerIndex를 after에서 읽을경우 다음으로 갈수 있음.
+                    String bodyStr = content.toString(content.readerIndex(), contentSize, charset);
+                    if (bodyStr != null && bodyStr.length() > 0) {
+                        trace.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, bodyStr);
+                    }
+                }
+            } else if (equalMethod(HttpMethod.GET, reqMethod)) {
+                // String parameters = getRequestParameter_old(request, 64,
+                // 512);
+                String parameters = getRequestParameter(request, paramDumpSize);
+                if (parameters != null && parameters.length() > 0) {
+                    trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+                }
+            }
+        }
+    }
+
+    private Charset getCharset(HttpRequest request) {
+        return CharsetUtil.UTF_8;
+        // http 스펙상으로는 아래가 맞긴한데. 강제 설정 변경수가 있어서. 아래 처럼할 경우 문제가 생길수 있는것 같음.
+        // 코드에 utf8로 박혀 있으면 그냥 UTF-8로 하는게 더 안전할듯함.
+//        // netty 3.9 면 getHeader가 deprecated 되었다. 추후 없어질수는 있기는 한데 일단 동작에 문제가 없는듯 함.
+//        final String contentTypeValue = request.getHeader("Content-Type");
+//        // charset.forName을 부르는게 그렇게 좋지는 않은것 같음.
+//        return Charset.forName(HttpUtils.parseContentTypeCharset(contentTypeValue, DEFAULT_CHARSET));
+    }
+
+
+    private boolean equalMethod(HttpMethod thisMethod, HttpMethod thatMethod) {
+        if (thatMethod == null) {
+            return false;
+        }
+        return thisMethod.getName().equals(thatMethod.getName());
+    }
+
+    /**
 	 * request header에 sampling 정보가 포함되어있는지 확인.
 	 * 
 	 * @param request
