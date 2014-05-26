@@ -73,14 +73,19 @@ pinpointApp
                             }],
                             "categoryField": "time",
                             "categoryAxis": {
-                                "parseDates": true,
-                                "equalSpacing": true,
+//                                "parseDates": true,
+//                                "equalSpacing": true,
                                 "startOnAxis": true,
                                 "gridPosition": "start",
 //                                "dashLength": 1,
 //                                "minorGridEnabled": true,
-                                "minPeriod": "NN",
-                                "gridAlpha": 0
+//                                "minPeriod": "mm",
+//                                "categoryFunction": function (category, dataItem, categoryAxis) {
+//                                    return category;
+//                                },
+                                "labelFunction": function (valueText, serialDataItem, categoryAxis) {
+                                    return new Date(valueText).toString('hh:mm');
+                                }
                             },
                             "balloon": {
                                 "fillAlpha": 1,
@@ -93,7 +98,7 @@ pinpointApp
 //                                "labelText": "[[value]]",
                                 "lineAlpha": 0,
                                 "title": aDynamicKey[0],
-//                                "type": "column",
+                                "type": "step",
 //                                "color": "#000000",
                                 "valueField": aDynamicKey[0]
                             }, {
@@ -102,7 +107,7 @@ pinpointApp
 //                                "labelText": "[[value]]",
                                 "lineAlpha": 0,
                                 "title": aDynamicKey[1],
-//                                "type": "column",
+                                "type": "step",
 //                                "color": "#000000",
                                 "valueField": aDynamicKey[1]
                             }, {
@@ -111,7 +116,7 @@ pinpointApp
 //                                "labelText": "[[value]]",
                                 "lineAlpha": 0.3,
                                 "title": aDynamicKey[2],
-//                                "type": "column",
+                                "type": "step",
 //                                "color": "#000000",
                                 "valueField": aDynamicKey[2]
                             }, {
@@ -120,7 +125,7 @@ pinpointApp
 //                                "labelText": "[[value]]",
                                 "lineAlpha": 0,
                                 "title": aDynamicKey[3],
-//                                "type": "column",
+                                "type": "step",
 //                                "color": "#000000",
                                 "valueField": aDynamicKey[3]
                             }, {
@@ -129,7 +134,7 @@ pinpointApp
 //                                "labelText": "[[value]]",
                                 "lineAlpha": 0,
                                 "title": aDynamicKey[4],
-//                                "type": "column",
+                                "type": "step",
 //                                "color": "#000000",
                                 "valueField": aDynamicKey[4]
                             }]
@@ -167,7 +172,7 @@ pinpointApp
                 parseTimeSeriesHistogramForAmcharts = function (data) {
                     function getKeyFromNewDataByTime (time) {
                         for (var key in newData) {
-                            if (new Date(time).toString() === newData[key].time.toString()) {
+                            if (new Date(time).toString('yyyy-MM-dd hh:mm') === newData[key].time) {
                                 return key;
                             }
                         }
@@ -185,7 +190,7 @@ pinpointApp
                                 newData[a][data[key].key] = data[key].values[innerKey][1];
                             } else {
                                 var b = {
-                                    time: new Date(data[key].values[innerKey][0])
+                                    time: new Date(data[key].values[innerKey][0]).toString('yyyy-MM-dd hh:mm')
                                 };
                                 b[data[key].key] = data[key].values[innerKey][1];
                                 newData.push(b);
