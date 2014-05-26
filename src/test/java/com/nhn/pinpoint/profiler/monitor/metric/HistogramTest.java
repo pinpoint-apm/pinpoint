@@ -11,7 +11,7 @@ public class HistogramTest {
     @Test
     public void testAddResponseTime() throws Exception {
         HistogramSchema schema = ServiceType.TOMCAT.getHistogramSchema();
-        Histogram histogram = new Histogram(ServiceType.TOMCAT);
+        LongAdderHistogram histogram = new LongAdderHistogram(ServiceType.TOMCAT);
         histogram.addResponseTime(1000);
 
         histogram.addResponseTime(3000);

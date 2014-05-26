@@ -5,7 +5,7 @@ import com.nhn.pinpoint.profiler.monitor.HistogramMonitor;
 
 public class MetricHistogramMonitor implements HistogramMonitor {
 
-	final Histogram delegate;
+	private final Histogram delegate;
 	
 	public MetricHistogramMonitor(Histogram delegate) {
 		if (delegate == null) {

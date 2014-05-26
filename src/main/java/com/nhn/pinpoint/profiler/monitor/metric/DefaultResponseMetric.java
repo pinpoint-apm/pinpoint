@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.profiler.monitor.metric;
 
-import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.ServiceType;
 
 import java.util.ArrayList;
@@ -38,13 +37,17 @@ public class DefaultResponseMetric implements ResponseMetric {
         if (hit != null) {
             return hit;
         }
-        final Histogram histogram = new Histogram(serviceType);
+        final Histogram histogram = createHistogram();
 
         final Histogram exist = histogramMap.putIfAbsent(destinationId, histogram);
         if (exist != null) {
             return exist;
         }
         return histogram;
+    }
+
+    private LongAdderHistogram createHistogram() {
+        return new LongAdderHistogram(serviceType);
     }
 
     public List<HistogramSnapshot> createSnapshotList() {

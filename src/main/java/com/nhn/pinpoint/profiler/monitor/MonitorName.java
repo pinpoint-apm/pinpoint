@@ -2,7 +2,7 @@ package com.nhn.pinpoint.profiler.monitor;
 
 public class MonitorName {
 
-	private String name;
+	private final String name;
 
 	public MonitorName(String name) {
 		this.name = name;

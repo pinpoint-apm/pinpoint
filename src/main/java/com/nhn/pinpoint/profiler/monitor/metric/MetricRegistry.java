@@ -25,7 +25,7 @@ public class MetricRegistry {
         if (!serviceType.isWas()) {
             throw new IllegalArgumentException("illegal serviceType:" + serviceType);
         }
-        this.responseMetric = new Histogram(serviceType);
+        this.responseMetric = new LongAdderHistogram(serviceType);
     }
 
     public ResponseMetric getRpcMetric(ServiceType serviceType) {
