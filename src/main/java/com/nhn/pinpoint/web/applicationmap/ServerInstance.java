@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
+import com.nhn.pinpoint.web.applicationmap.link.MatcherGroup;
+import com.nhn.pinpoint.web.applicationmap.link.ServerMatcher;
 
 /**
  * 
@@ -22,6 +24,12 @@ public class ServerInstance {
 
 	private final AgentInfoBo agentInfo;
 
+
+    // 모양세는 어디선가 inject받던지 하는게 좋은데. 일단 그냥 한다. 로직에서 new하는 부분이라. 이걸 inject받을려니 힘듬.
+    private static final MatcherGroup MATCHER_GROUP = new MatcherGroup();
+
+    private ServerMatcher match;
+
 	public ServerInstance(AgentInfoBo agentInfo) {
         if (agentInfo == null) {
             throw new NullPointerException("agentInfo must not be null");
@@ -31,6 +39,7 @@ public class ServerInstance {
 		this.serviceType = agentInfo.getServiceType();
 		this.agentInfo = agentInfo;
         this.serverType = ServerType.Physical;
+        this.match = MATCHER_GROUP.match(hostName);
 	}
 	
 	public ServerInstance(String hostName, String physicalName, ServiceType serviceType) {
@@ -48,6 +57,7 @@ public class ServerInstance {
 		this.serviceType = serviceType;
 		this.agentInfo = null;
         this.serverType = ServerType.Logical;
+        this.match = MATCHER_GROUP.match(hostName);
 	}
 
     @JsonIgnore
@@ -74,6 +84,16 @@ public class ServerInstance {
 	public AgentInfoBo getAgentInfo() {
 		return agentInfo;
 	}
+
+    @JsonProperty("linkName")
+    public String getLinkName() {
+        return match.getLinkName();
+    }
+
+    @JsonProperty("linkURL")
+    public String getLinkURL() {
+        return match.getLink(hostName);
+    }
 
     @JsonProperty("hasInspector")
     public boolean hasInspector() {
