@@ -72,6 +72,28 @@ public class JDBCUrlParserTest {
     }
 
     @Test
+    public void mysqlParseCookierunMaster() {
+        DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:mysql://10.115.8.209:5605/db_cookierun?useUnicode=true&characterEncoding=UTF-8&noAccessToProcedureBodies=true&autoDeserialize=true&elideSetAutoCommits=true&sessionVariables=time_zone='%2B09:00',tx_isolation='READ-COMMITTED'");
+        Assert.assertEquals(dbInfo.getType(), ServiceType.MYSQL);
+        Assert.assertEquals(dbInfo.getHost().get(0), "10.115.8.209:5605");
+        Assert.assertEquals(dbInfo.getDatabaseId(), "db_cookierun");
+        Assert.assertEquals(dbInfo.getUrl(), "jdbc:mysql://10.115.8.209:5605/db_cookierun");
+        logger.info(dbInfo.toString());
+    }
+
+
+    @Test
+    public void mysqlParseCookierunSlave() {
+        DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:mysql:loadbalance://10.118.222.35:5605/db_cookierun?useUnicode=true&characterEncoding=UTF-8&noAccessToProcedureBodies=true&autoDeserialize=true&elideSetAutoCommits=true&sessionVariables=time_zone='%2B09:00',tx_isolation='READ-UNCOMMITTED'");
+        Assert.assertEquals(dbInfo.getType(), ServiceType.MYSQL);
+        Assert.assertEquals(dbInfo.getHost().get(0), "10.118.222.35:5605");
+        Assert.assertEquals(dbInfo.getDatabaseId(), "db_cookierun");
+        Assert.assertEquals(dbInfo.getUrl(), "jdbc:mysql:loadbalance://10.118.222.35:5605/db_cookierun");
+        logger.info(dbInfo.toString());
+    }
+
+
+    @Test
     public void oracleParser1() {
         //    jdbc:oracle:thin:@hostname:port:SID
 //      "jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE";
