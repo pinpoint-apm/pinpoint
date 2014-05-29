@@ -40,20 +40,16 @@ public class JavaAssistClassTest {
 
                     InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
 
-                    interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.interceptor.TestBeforeInterceptor");
-                    logger.info(this.interceptor.getClass().getClassLoader().toString());
+                    Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.interceptor.TestBeforeInterceptor");
+                    addInterceptor(interceptor);
+                    logger.info(interceptor.getClass().getClassLoader().toString());
                     String methodName = "callA";
-                    aClass.addInterceptor(methodName, null, (Interceptor) interceptor);
+                    aClass.addInterceptor(methodName, null, interceptor);
                     return aClass.toBytecode();
                 } catch (InstrumentException e) {
                     e.printStackTrace();
                     throw new RuntimeException(e.getMessage(), e);
                 }
-            }
-
-            @Override
-            public Object getInterceptor() {
-                return interceptor;
             }
         };
         testModifier.setTargetClass(javassistClassName);
@@ -70,7 +66,7 @@ public class JavaAssistClassTest {
         callA.invoke(testObject);
 
 
-        Object interceptor = testModifier.getInterceptor();
+        Interceptor interceptor = testModifier.getInterceptor(0);
         assertEqualsIntField(interceptor, "call", 1);
         assertEqualsObjectField(interceptor, "className", "com.nhn.pinpoint.profiler.interceptor.bci.TestObject");
         assertEqualsObjectField(interceptor, "methodName", methodName);
@@ -116,19 +112,15 @@ public class JavaAssistClassTest {
                     logger.info("modify cl:{}", classLoader);
                     InstrumentClass aClass = byteCodeInstrumentor.getClass(testClassObject);
 
-                    interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.interceptor.TestBeforeInterceptor");
-                    logger.info(this.interceptor.getClass().getClassLoader().toString());
+                    Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.interceptor.TestBeforeInterceptor");
+                    addInterceptor(interceptor);
+                    logger.info(interceptor.getClass().getClassLoader().toString());
                     String methodName = "callA";
-                    aClass.addInterceptor(methodName, null, (Interceptor) interceptor);
+                    aClass.addInterceptor(methodName, null, interceptor);
                     return aClass.toBytecode();
                 } catch (InstrumentException e) {
                     throw new RuntimeException(e.getMessage(), e);
                 }
-            }
-
-            @Override
-            public Object getInterceptor() {
-                return interceptor;
             }
         };
         testModifier.setTargetClass(testClassObject);
@@ -145,7 +137,7 @@ public class JavaAssistClassTest {
         callA.invoke(testObject);
 
 
-        Object interceptor = testModifier.getInterceptor();
+        final Interceptor interceptor = testModifier.getInterceptor(0);
         assertEqualsIntField(interceptor, "call", 1);
         assertEqualsObjectField(interceptor, "className", "com.nhn.pinpoint.profiler.interceptor.bci.TestObjectContextClassLoader");
         assertEqualsObjectField(interceptor, "methodName", methodName);
@@ -171,14 +163,16 @@ public class JavaAssistClassTest {
                     logger.info("modify cl:{}", classLoader);
                     InstrumentClass aClass = byteCodeInstrumentor.getClass(testClassObject);
 
-                    interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.interceptor.TestAfterInterceptor");
-                    logger.info(this.interceptor.getClass().getClassLoader().toString());
+                    Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.interceptor.TestAfterInterceptor");
+                    addInterceptor(interceptor);
+                    logger.info(interceptor.getClass().getClassLoader().toString());
                     String methodName = "callA";
-                    aClass.addInterceptor(methodName, null, (Interceptor) interceptor);
+                    aClass.addInterceptor(methodName, null, interceptor);
 
-                    interceptor2 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.interceptor.TestAfterInterceptor");
+                    Interceptor interceptor2 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.interceptor.TestAfterInterceptor");
+                    addInterceptor(interceptor2);
                     String methodName2 = "callB";
-                    aClass.addInterceptor(methodName2, null, (Interceptor) interceptor2);
+                    aClass.addInterceptor(methodName2, null, interceptor2);
 
                     return aClass.toBytecode();
                 } catch (InstrumentException e) {
@@ -186,10 +180,6 @@ public class JavaAssistClassTest {
                 }
             }
 
-            @Override
-            public Object getInterceptor() {
-                return interceptor;
-            }
         };
         testModifier.setTargetClass(testClassObject);
         loader.addModifier(testModifier);
@@ -205,7 +195,7 @@ public class JavaAssistClassTest {
         Object result = callA.invoke(testObject);
 
 
-        Object interceptor = testModifier.getInterceptor();
+        Interceptor interceptor = testModifier.getInterceptor(0);
         assertEqualsIntField(interceptor, "call", 1);
         assertEqualsObjectField(interceptor, "className", testClassObject);
         assertEqualsObjectField(interceptor, "methodName", methodName);
@@ -219,7 +209,7 @@ public class JavaAssistClassTest {
         Method callBMethod = testObject.getClass().getMethod(methodName2);
         callBMethod.invoke(testObject);
 
-        Object interceptor2 = testModifier.getInterceptor2();
+        Interceptor interceptor2 = testModifier.getInterceptor(1);
         assertEqualsIntField(interceptor2, "call", 1);
         assertEqualsObjectField(interceptor2, "className", testClassObject);
         assertEqualsObjectField(interceptor2, "methodName", methodName2);
@@ -258,10 +248,6 @@ public class JavaAssistClassTest {
                 }
             }
 
-            @Override
-            public Object getInterceptor() {
-                return interceptor;
-            }
         };
         testModifier.setTargetClass(testClassObject);
         loader.addModifier(testModifier);
@@ -277,7 +263,7 @@ public class JavaAssistClassTest {
         Method testString = testObject.getClass().getMethod("test", new Class[]{String.class});
         testString.invoke(testObject, "method");
 
-        Constructor<? extends Object> constructor = testObject.getClass().getConstructor(null);
+        Constructor<?> constructor = testObject.getClass().getConstructor(null);
         Object o = constructor.newInstance();
 
     }

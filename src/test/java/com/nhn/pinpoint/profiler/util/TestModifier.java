@@ -1,10 +1,13 @@
 package com.nhn.pinpoint.profiler.util;
 
 import com.nhn.pinpoint.bootstrap.Agent;
+import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 
 import java.security.ProtectionDomain;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author emeroad
@@ -12,8 +15,8 @@ import java.security.ProtectionDomain;
 public abstract class TestModifier extends AbstractModifier {
 
     private String targetClass;
-    public Object interceptor;
-    public Object interceptor2;
+
+    public final List<Interceptor> interceptorList = new ArrayList<Interceptor>();
 
     public TestModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);
@@ -29,13 +32,20 @@ public abstract class TestModifier extends AbstractModifier {
         return targetClass;
     }
 
-    public Object getInterceptor() {
-        return interceptor;
+    public void addInterceptor(Interceptor interceptor) {
+        this.interceptorList.add(interceptor);
     }
 
-    public Object getInterceptor2() {
-        return interceptor2;
+    public List<Interceptor> getInterceptorList() {
+        return interceptorList;
     }
+
+    public Interceptor getInterceptor(int index) {
+        return interceptorList.get(index);
+    }
+
+
+
 
     @Override
     public abstract byte[] modify(ClassLoader classLoader, String className, ProtectionDomain protectedDomain, byte[] classFileBuffer);
