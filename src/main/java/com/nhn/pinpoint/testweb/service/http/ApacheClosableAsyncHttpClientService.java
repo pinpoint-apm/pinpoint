@@ -19,72 +19,81 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PreDestroy;
+
 /**
- * 
  * @author netspider
- * 
  */
 @Service
 public class ApacheClosableAsyncHttpClientService implements HttpClientService {
 
-	private static final Logger logger = LoggerFactory.getLogger(ApacheClosableAsyncHttpClientService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ApacheClosableAsyncHttpClientService.class);
 
-	private final CloseableHttpAsyncClient httpClient;
+    private final CloseableHttpAsyncClient httpClient;
 
-	public ApacheClosableAsyncHttpClientService() {
-		this.httpClient = HttpAsyncClients.custom().useSystemProperties().build();
-		this.httpClient.start();
-	}
+    public ApacheClosableAsyncHttpClientService() {
+        this.httpClient = HttpAsyncClients.custom().useSystemProperties().build();
+        this.httpClient.start();
+    }
 
-	@Override
-	public String get() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @PreDestroy
+    public void close() {
+        try {
+            this.httpClient.close();
+        } catch (IOException e) {
+            logger.warn("CloseableHttpAsyncClient close error Caused:" + e.getCause(), e);
+        }
+    }
 
-	@Override
-	public String getWithParam() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String get() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public String post() {
-		try {
-			HttpPost httpRequest = new HttpPost("http://dev.pinpoint.nhncorp.com/");
+    @Override
+    public String getWithParam() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-			List<NameValuePair> params = new ArrayList<NameValuePair>();
-			params.add(new BasicNameValuePair("param1", "value1"));
-			httpRequest.setEntity(new UrlEncodedFormEntity(params, Consts.UTF_8.name()));
+    @Override
+    public String post() {
+        try {
+            HttpPost httpRequest = new HttpPost("http://dev.pinpoint.nhncorp.com/");
 
-			Future<HttpResponse> responseFuture = this.httpClient.execute(httpRequest, null);
-			HttpResponse response = (HttpResponse) responseFuture.get();
+            List<NameValuePair> params = new ArrayList<NameValuePair>();
+            params.add(new BasicNameValuePair("param1", "value1"));
+            httpRequest.setEntity(new UrlEncodedFormEntity(params, Consts.UTF_8.name()));
 
-			String result = null;
-			if ((response != null) && (response.getEntity() != null)) {
-				try {
-					InputStream is = response.getEntity().getContent();
-					result = IOUtils.toString(is);
-				} catch (IOException e) {
-				}
-			}
+            Future<HttpResponse> responseFuture = this.httpClient.execute(httpRequest, null);
+            HttpResponse response = (HttpResponse) responseFuture.get();
 
-			return result;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
+            String result = null;
+            if ((response != null) && (response.getEntity() != null)) {
+                try {
+                    InputStream is = response.getEntity().getContent();
+                    result = IOUtils.toString(is);
+                } catch (IOException e) {
+                }
+            }
 
-	@Override
-	public String postWithBody() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
-	@Override
-	public String postMultipart() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String postWithBody() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String postMultipart() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }
