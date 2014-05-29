@@ -100,7 +100,7 @@ public class JDBCUrlParserTest {
         Assert.assertEquals(dbInfo.getHost().get(0), "10.118.222.35:5605");
         Assert.assertEquals(dbInfo.getHost().get(0), "10.118.222.36:5605");
         Assert.assertEquals(dbInfo.getDatabaseId(), "db_cookierun");
-        Assert.assertEquals(dbInfo.getUrl(), "jdbc:mysql:loadbalance://10.118.222.35:5605/db_cookierun");
+        Assert.assertEquals(dbInfo.getUrl(), "jdbc:mysql:loadbalance://10.118.222.35:5605,10.118.222.36:5605/db_cookierun");
         logger.info(dbInfo.toString());
     }
 
