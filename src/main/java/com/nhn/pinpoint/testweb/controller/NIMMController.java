@@ -35,7 +35,6 @@ public class NIMMController implements DisposableBean {
 
 	@Override
 	public void destroy() throws Exception {
-        System.out.println("-----------------------------");
         try {
             nimm.tearDown();
         } catch (Exception e) {
