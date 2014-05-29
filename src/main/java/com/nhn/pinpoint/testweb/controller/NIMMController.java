@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.testweb.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,6 +18,8 @@ import com.nhn.pinpoint.testweb.nimm.mockupserver.NimmInvokerTest;
 @Controller
 public class NIMMController implements DisposableBean {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 	@Autowired
 	private NimmInvokerTest nimm;
 
@@ -31,7 +35,12 @@ public class NIMMController implements DisposableBean {
 
 	@Override
 	public void destroy() throws Exception {
-		nimm.tearDown();
-		nimm.dispose();
+        System.out.println("-----------------------------");
+        try {
+            nimm.tearDown();
+        } catch (Exception e) {
+            logger.warn("tearDown() error Caused:" + e.getMessage(), e);
+        }
+        nimm.dispose();
 	}
 }
