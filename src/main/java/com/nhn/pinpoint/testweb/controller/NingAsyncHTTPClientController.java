@@ -5,7 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.nhn.pinpoint.testweb.service.AsyncHttpClientService;
+import com.nhn.pinpoint.testweb.service.http.HttpClientService;
 
 /**
  * 
@@ -13,38 +13,38 @@ import com.nhn.pinpoint.testweb.service.AsyncHttpClientService;
  * 
  */
 @Controller
-public class AsyncHTTPClientController {
+public class NingAsyncHTTPClientController {
 
 	@Autowired
-	private AsyncHttpClientService asyncHttpClientService;
+	private HttpClientService ningAsyncHttpClientService;
 
-	@RequestMapping(value = "/asynchttp/get")
+	@RequestMapping(value = "/ningAsyncHttp/get")
 	public String requestGet(Model model) {
-		asyncHttpClientService.requestGet();
+		ningAsyncHttpClientService.get();
 		return "http";
 	}
 
-	@RequestMapping(value = "/asynchttp/getWithParam")
+	@RequestMapping(value = "/ningAsyncHttp/getWithParam")
 	public String requestGetWithParam(Model model) {
-		asyncHttpClientService.requestGetWithParam();
+		ningAsyncHttpClientService.getWithParam();
 		return "http";
 	}
 
-	@RequestMapping(value = "/asynchttp/post")
+	@RequestMapping(value = "/ningAsyncHttp/post")
 	public String requestPost(Model model) {
-		asyncHttpClientService.requestPost();
+		ningAsyncHttpClientService.post();
 		return "http";
 	}
 
-	@RequestMapping(value = "/asynchttp/postWithBody")
+	@RequestMapping(value = "/ningAsyncHttp/postWithBody")
 	public String requestPostWithBody(Model model) {
-		asyncHttpClientService.requestPostWithBody();
+		ningAsyncHttpClientService.postWithBody();
 		return "http";
 	}
 	
-	@RequestMapping(value = "/asynchttp/postWithMultipart")
+	@RequestMapping(value = "/ningAsyncHttp/postWithMultipart")
 	public String requestPostWithMultipart(Model model) {
-		asyncHttpClientService.requestMultipart();
+		ningAsyncHttpClientService.postMultipart();
 		return "http";
 	}
 }

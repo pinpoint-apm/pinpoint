@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.testweb.service;
+package com.nhn.pinpoint.testweb.service.http;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,24 +22,24 @@ import com.ning.http.multipart.StringPart;
  * 
  */
 @Service
-public class AsyncHttpClientServiceImpl implements AsyncHttpClientService {
-	private static final Logger logger = LoggerFactory.getLogger(AsyncHttpClientServiceImpl.class);
+public class NingAsyncHttpClientService implements HttpClientService {
+	private static final Logger logger = LoggerFactory.getLogger(NingAsyncHttpClientService.class);
 
 	private final AsyncHttpInvoker httpInvoker;
 
-	public AsyncHttpClientServiceImpl() {
+	public NingAsyncHttpClientService() {
 		httpInvoker = new AsyncHttpInvoker();
 	}
 
 	@Override
-	public String requestGet() {
+	public String get() {
 		Response r = httpInvoker.requestGet("http://www.naver.com", null, null, null);
 		logger.debug("r={}" + r.toString());
 		return r.toString();
 	}
 
 	@Override
-	public String requestGetWithParam() {
+	public String getWithParam() {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("query", "naver");
 		params.put("ie", "utf8");
@@ -58,14 +58,14 @@ public class AsyncHttpClientServiceImpl implements AsyncHttpClientService {
 	}
 
 	@Override
-	public String requestPost() {
+	public String post() {
 		Response r = httpInvoker.requestPost("http://www.naver.com", null, null);
 		logger.debug("r={}" + r.toString());
 		return r.toString();
 	}
 
 	@Override
-	public String requestPostWithBody() {
+	public String postWithBody() {
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("header1", "header1");
 		headers.put("header2", "header2");
@@ -76,7 +76,7 @@ public class AsyncHttpClientServiceImpl implements AsyncHttpClientService {
 	}
 
 	@Override
-	public String requestMultipart() {
+	public String postMultipart() {
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("header1", "header1");
 		headers.put("header2", "header2");
