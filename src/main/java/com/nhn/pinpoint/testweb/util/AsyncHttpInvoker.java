@@ -17,12 +17,16 @@ import com.ning.http.client.AsyncHttpClientConfig;
 import com.ning.http.client.Part;
 import com.ning.http.client.Response;
 import com.ning.http.client.cookie.Cookie;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PreDestroy;
 
 /**
  * 
  * @author netspider
  * 
  */
+@Component
 public class AsyncHttpInvoker {
 
 	private static final Logger logger = LoggerFactory.getLogger(AsyncHttpInvoker.class);
@@ -35,6 +39,11 @@ public class AsyncHttpInvoker {
 		defaultUserAgent = "pinpoint/test";
 		logger.debug("init HttpClient : defaultAgent={}", defaultUserAgent);
 	}
+
+    @PreDestroy
+    public void close() {
+        asyncHttpClient.close();
+    }
 
 	public Response requestPost(String url, Map<String, String> headers, String body) {
 		if (url == null) {
