@@ -2,6 +2,7 @@
 
 pinpointApp.constant('loadChartConfig', {
     myColors: ["#2ca02c", "#3c81fa", "#f8c731", "#f69124", "#f53034"]
+//    myColors: ["#c9e7a5", "#bbcdf0", "#fce0b5", "#f69124", "#f53034"]
 });
 
 pinpointApp
@@ -63,7 +64,7 @@ pinpointApp
                                 "markerType" : "circle", // square, circle, diamond, triangleUp, triangleDown, triangleLeft, triangleDown, bubble, line, none.
                                 "position": "top"
                             },
-                            "colors" : cfg.myColors,
+//                            "colors" : cfg.myColors,
                             "dataProvider": data,
                             "valueAxes": [{
                                 "stackType": "regular",
@@ -94,48 +95,58 @@ pinpointApp
                             "graphs": [{
                                 "balloonText": "[[title]] : <b>[[value]]</b>",
 //                                "balloonColor": "red",
-                                "fillAlphas": 0.8,
+                                "fillAlphas": 0.2,
+                                "fillColors": cfg.myColors[0],
 //                                "labelText": "[[value]]",
-                                "lineAlpha": 0,
+                                "lineAlpha": 0.8,
+                                "lineColor": "#787779",
                                 "title": aDynamicKey[0],
                                 "type": "step",
-//                                "color": "#000000",
+                                "legendColor": cfg.myColors[0],
                                 "valueField": aDynamicKey[0]
                             }, {
                                 "balloonText": "[[title]] : <b>[[value]]</b>",
-                                "fillAlphas": 0.8,
+                                "fillAlphas": 0.3,
+                                "fillColors": cfg.myColors[1],
 //                                "labelText": "[[value]]",
-                                "lineAlpha": 0,
+                                "lineAlpha": 0.8,
+                                "lineColor": "#787779",
                                 "title": aDynamicKey[1],
                                 "type": "step",
-//                                "color": "#000000",
+                                "legendColor": cfg.myColors[1],
                                 "valueField": aDynamicKey[1]
                             }, {
                                 "balloonText": "[[title]] : <b>[[value]]</b>",
-                                "fillAlphas": 0.8,
+                                "fillAlphas": 0.4,
+                                "fillColors": cfg.myColors[2],
 //                                "labelText": "[[value]]",
-                                "lineAlpha": 0.3,
+                                "lineAlpha": 0.8,
+                                "lineColor": "#787779",
                                 "title": aDynamicKey[2],
                                 "type": "step",
-//                                "color": "#000000",
+                                "legendColor": cfg.myColors[2],
                                 "valueField": aDynamicKey[2]
                             }, {
                                 "balloonText": "[[title]] : <b>[[value]]</b>",
-                                "fillAlphas": 0.8,
+                                "fillAlphas": 0.6,
+                                "fillColors": cfg.myColors[3],
 //                                "labelText": "[[value]]",
-                                "lineAlpha": 0,
+                                "lineAlpha": 0.8,
+                                "lineColor": "#787779",
                                 "title": aDynamicKey[3],
                                 "type": "step",
-//                                "color": "#000000",
+                                "legendColor": cfg.myColors[3],
                                 "valueField": aDynamicKey[3]
                             }, {
                                 "balloonText": "[[title]] : <b>[[value]]</b>",
-                                "fillAlphas": 0.8,
+                                "fillAlphas": 0.6,
+                                "fillColors": cfg.myColors[4],
 //                                "labelText": "[[value]]",
-                                "lineAlpha": 0,
+                                "lineAlpha": 0.8,
+                                "lineColor": "#787779",
                                 "title": aDynamicKey[4],
                                 "type": "step",
-//                                "color": "#000000",
+                                "legendColor": cfg.myColors[4],
                                 "valueField": aDynamicKey[4]
                             }]
                         };

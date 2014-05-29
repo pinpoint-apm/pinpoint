@@ -65,8 +65,10 @@ pinpointApp
                                         "balloonText": useFilterTransaction ? '[[category]] filtering' : '',
                                         "colorField": "color",
                                         "labelText": "[[value]]",
-                                        "fillAlphas": 0.8,
-                                        "lineAlpha": 0.2,
+                                        "fillAlphas": 0.3,
+                                        "alphaField": "alpha",
+                                        "lineAlpha": 0.8,
+                                        "lineColor": "#787779",
                                         "type": "column",
                                         "valueField": "count"
                                     }
@@ -122,12 +124,14 @@ pinpointApp
                      */
                     parseHistogramForAmcharts = function (data) {
                         var newData = [],
+                            alpha = [0.2, 0.3, 0.4, 0.6, 0.6],
                             i = 0;
                         for (var key in data) {
                             newData.push({
                                 responseTime: key,
                                 count: data[key],
-                                color: cfg.myColors[i++]
+                                color: cfg.myColors[i],
+                                alpha: alpha[i++]
                             });
                         }
                         return newData;
