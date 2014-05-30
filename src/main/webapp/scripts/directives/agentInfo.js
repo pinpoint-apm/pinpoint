@@ -16,7 +16,7 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                 var oNavbarVo, oAlert, oProgressBar;
 
                 // define private variables of methods
-                var getSampleRate, showAgentStat, d3MakeGcCharts;
+                var showAgentStat, d3MakeGcCharts;
 
                 // initialize
                 scope.agentInfoTemplate = 'views/agentInfoReady.html';

@@ -33,7 +33,7 @@ pinpointApp.service('AgentDao', [ 'agentDaoConfig',
          */
         this.getSampleRate = function (period) {
             var MAX_POINTS = 100;
-            var points = (period * 60) / 5;
+            var points = period / 5;
             var rate = Math.floor(points / MAX_POINTS);
             return points <= MAX_POINTS ? 1 : rate;
         };
