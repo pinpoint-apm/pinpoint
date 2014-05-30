@@ -69,7 +69,7 @@ public class InstrumentTranslator implements Translator {
         logger.info("Modify loader:{}, name:{},  modifier{}", loader, classname, modifier);
 
         final Thread thread = Thread.currentThread();
-        ClassLoader beforeClassLoader = thread.getContextClassLoader();
+        final ClassLoader beforeClassLoader = thread.getContextClassLoader();
         thread.setContextClassLoader(loader);
         try {
             byte[] modify = modifier.modify(this.loader, classname, null, null);
@@ -77,9 +77,7 @@ public class InstrumentTranslator implements Translator {
         } catch (IOException ex) {
             throw new NotFoundException(classname + " not found. Caused:" + ex.getMessage(), ex);
         } finally {
-            if (beforeClassLoader != null) {
-                thread.setContextClassLoader(beforeClassLoader);
-            }
+            thread.setContextClassLoader(beforeClassLoader);
         }
     }
 }
