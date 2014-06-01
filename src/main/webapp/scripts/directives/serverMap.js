@@ -185,12 +185,11 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  */
                 setNodeContextMenuPosition = function (top, left) {
                     scope.nodeContextMenuStyle = {
-                        display: 'block'
-                    };
-                    element.find('.nodeContextMenu').css({
+                        display: 'block',
                         'top': top,
-                        'left': left
-                    });
+                        'left': left,
+                        'z-index': 9999999 // it should be higher than 9999998, because of intro.js
+                    };
                     scope.$digest();
                 };
 
@@ -201,13 +200,11 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  */
                 setLinkContextMenuPosition = function (top, left) {
                     scope.linkContextMenuStyle = {
-                        display: 'block'
-                    };
-                    var linkContextMenu = element.find('.linkContextMenu');
-                    linkContextMenu.css({
+                        display: 'block',
                         'top': top,
-                        'left': left
-                    });
+                        'left': left,
+                        'z-index': 9999999 // it should be higher than 9999998, because of intro.js
+                    };
                     scope.$digest();
                 };
 
@@ -218,13 +215,11 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  */
                 setBackgroundContextMenuPosition = function (top, left) {
                     scope.backgroundContextMenuStyle = {
-                        display: 'block'
-                    };
-                    var backgroundContextMenu = element.find('.backgroundContextMenu');
-                    backgroundContextMenu.css({
+                        display: 'block',
                         'top': top,
-                        'left': left
-                    });
+                        'left': left,
+                        'z-index': 9999999 // it should be higher than 9999998, because of intro.js
+                    };
                     scope.$digest();
                 };
 
