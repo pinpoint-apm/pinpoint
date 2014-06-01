@@ -14,7 +14,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
         $window.htoScatter = {};
         bNodeSelected = true;
         $scope.bShowHelpIcons = false;
-        bNoData = false;
+        bNoData = true;
 
         /**
          * bootstrap
@@ -102,10 +102,16 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
             return infoDetailsClass.join(' ');
         };
 
+        /**
+         * scope event on servermap.hasData
+         */
         $scope.$on('servermap.hasData', function (event) {
             bNoData = false;
         });
 
+        /**
+         * scope event on servermap.hasNoData
+         */
         $scope.$on('servermap.hasNoData', function (event) {
             bNoData = true;
         });

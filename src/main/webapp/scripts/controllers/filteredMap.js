@@ -4,7 +4,7 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
     function (cfg, $scope, $routeParams, $timeout, TimeSliderVo, NavbarVo, encodeURIComponentFilter, $window, SidebarTitleVo, filteredMapUtil, $rootElement) {
 
         // define private variables
-        var oNavbarVo, oTimeSliderVo, bNodeSelected;
+        var oNavbarVo, oTimeSliderVo, bNodeSelected, bNoData;
 
         // define private variables of methods
         var openFilteredMapWithFilterVo, broadcastScatterScanResultToScatter;
@@ -12,6 +12,7 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
         // initialize scope variables
         $scope.hasScatter = false;
         $window.htoScatter = {};
+        bNoData = true;
 
         /**
          * initialize
@@ -73,6 +74,13 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
         };
 
         /**
+         * get main container class
+         */
+        $scope.getMainContainerClass = function () {
+            return bNoData ? 'no-data' : '';
+        };
+
+        /**
          * get info details class
          * @returns {string}
          */
@@ -88,6 +96,20 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
 
             return infoDetailsClass.join(' ');
         };
+
+        /**
+         * scope event on servermap.hasData
+         */
+        $scope.$on('servermap.hasData', function (event) {
+            bNoData = false;
+        });
+
+        /**
+         * scope event on servermap.hasNoData
+         */
+        $scope.$on('servermap.hasNoData', function (event) {
+            bNoData = true;
+        });
 
         /**
          * scope event on serverMap.fetched
