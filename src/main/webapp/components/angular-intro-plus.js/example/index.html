@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" data-ng-app="myApp">
+<head>
+    <meta charset="utf-8">
+    <title>Angular Intro Plus.js</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Angular Intro.js - Angular wrapper for intro.js">
+
+
+    <!-- styles -->
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+    <link href="assets/css/demo.css" rel="stylesheet">
+
+    <!-- Add IntroJs styles -->
+    <link href="../bower_components/intro.js/introjs.css" rel="stylesheet">
+    <link href="../src/angular-intro-plus.css" rel="stylesheet">
+
+
+</head>
+
+<body >
+
+<div class="container-narrow" ng-controller="MyController"
+     ng-intro-plus-options="IntroPlusOptions" ng-intro-plus-show="CallMe"
+     ng-intro-plus-oncomplete="CompletedEvent" ng-intro-plus-onexit="ExitEvent"
+     ng-intro-plus-onchange="ChangeEvent" ng-intro-plus-onbeforechange="BeforeChangeEvent"
+     ng-intro-plus-onafterchange="AfterChangeEvent"
+     ng-intro-plus-autostart="false">
+
+    <div class="masthead">
+        <ul id="step5" class="nav nav-pills pull-right">
+            <li><a href="https://github.com/iamdenny/angular-intro-plus.js/tree/master/build"><i class='icon-black icon-download-alt'></i> Download</a></li>
+            <li><a href="https://github.com/iamdenny/angular-intro-plus.js">Github</a></li>
+        </ul>
+        <h3 class="muted">ng-intro-plus</h3>
+    </div>
+
+    <div class="jumbotron">
+        <h1 id="step1">Angular Intro Plus.js</h1>
+        <p id="step4" class="lead">AngularJS directives for <a href="http://usablica.github.io/intro.js/" onclick="window.open(this.href);return false;">intro.js</a></p>
+        <a class="btn btn-large btn-success" ng-click="CallMe();">Demo</a>
+
+    </div>
+
+
+    <div class="row marketing">
+        <div id="step2" class="col-md-6">
+            <h4>Setup</h4>
+            <p>Include the JS and CSS files for intro.js, and angular-intro-plus.min.js.  Add the module <code>angular-intro-plus</code> to your app declaration.</p>
+
+            <h4>Options</h4>
+            <p>Set the options like so: <code>ng-intro-plus-options="IntroPlusOptions"</code>. Define <code>$scope.IntroPlusOptions</code> in your controller.  The format is only same the steps of <a href="https://github.com/usablica/intro.js#options">original</a>.</p>
+
+            <h4>Method name</h4>
+            <p>Pick a method name, <code>ng-intro-plus-show="CallMe"</code>. You can invoke the intro from elsewhere by calling <code>CallMe();</code>. To autostart, use <code>ng-intro-plus-autostart="true"</code></p>
+
+            <h4>Callbacks</h4>
+            <p>You can get callbacks to your controller using the <code>ng-intro-plus-oncomplete</code>, <code>ng-intro-plus-onexit</code>, <code>ng-intro-plus-onchange</code>, <code>ng-intro-plus-onbeforechange</code> and <code>ng-intro-plus-onafterchange</code> directives.</p>
+
+            <p>See <a href="https://github.com/iamdenny/angular-intro-plus.js/blob/master/example/index.html">index.html</a> and <a href="https://github.com/iamdenny/angular-intro-plus.js/blob/master/example/app.js">app.js</a> for usage code.</p>
+        </div>
+
+        <div id="step3" class="col-md-6">
+            <h4><a href="https://github.com/iamdenny/angular-intro-plus.js/tree/master/example">Example</a></h4>
+            <p>Set the options and method name:
+               <pre>
+&lt;div ng-controller="MyController"
+ng-intro-plus-options="IntroPlusOptions"
+ng-intro-plus-show="CallMe" ...
+               </pre>
+            </p>
+
+            <p>Options in the controller
+            <pre>
+$scope.IntroPlusOptions = {
+steps:[
+{
+element: '#step1',
+intro: "First tooltip"
+},
+{
+element: '#step4',
+intro: "Second tooltip",
+position: 'right'
+},
+...
+            </pre>
+            </p>
+
+            <p>Call it either way
+                <pre>&lt;button ng-click="CallMe();"&gt;Go&lt;/button&gt;</pre>
+                <pre>$scope.CallMe();</pre>
+            </p>
+
+             </div>
+    </div>
+
+    <hr>
+
+</div>
+<script type="text/javascript" src="../bower_components/intro.js/minified/intro.min.js"></script>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="../src/angular-intro-plus.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>

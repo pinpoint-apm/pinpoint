@@ -1,0 +1,23 @@
+{
+  "name": "angular-intro-plus.js",
+  "version": "0.1.0",
+  "main": "src/angular-intro-plus.js",
+  "description": "Angular directive to wrap intro.js, and developed from angular-intro.js",
+  "license": "MIT",
+  "ignore": [],
+  "dependencies": {
+    "intro.js": "0.9.0",
+    "jquery": ">= 1.9.0",
+    "bootstrap": ">= 3.1.1"
+  },
+  "homepage": "https://github.com/iamdenny/angular-intro-plus.js",
+  "_release": "0.1.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.1.0",
+    "commit": "c2a2ef62fbc2acdc20610b98fe737c7eab0752d6"
+  },
+  "_source": "git://github.com/iamdenny/angular-intro-plus.js.git",
+  "_target": "~0.1.0",
+  "_originalSource": "angular-intro-plus.js"
+}
