@@ -4,7 +4,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
     function (cfg, $scope, $timeout, $routeParams, location, NavbarVo, encodeURIComponentFilter, $window, SidebarTitleVo, filteredMapUtil, $rootElement) {
 
         // define private variables
-        var oNavbarVo, bNodeSelected;
+        var oNavbarVo, bNodeSelected, bNoData;
 
         // define private variables of methods
         var getFirstPathOfLocation, changeLocation, openFilteredMapWithFilterVo;
@@ -14,6 +14,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
         $window.htoScatter = {};
         bNodeSelected = true;
         $scope.bShowHelpIcons = false;
+        bNoData = false;
 
         /**
          * bootstrap
@@ -35,7 +36,6 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
             $scope.$broadcast('scatter.initialize', oNavbarVo);
             $scope.$broadcast('serverMap.initialize', oNavbarVo);
         }, 500);
-
 
         /**
          * get first path of location
@@ -79,6 +79,13 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
         };
 
         /**
+         * get main container class
+         */
+        $scope.getMainContainerClass = function () {
+            return bNoData ? 'no-data' : '';
+        };
+
+        /**
          * get info details class
          * @returns {string}
          */
@@ -94,6 +101,14 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
 
             return infoDetailsClass.join(' ');
         };
+
+        $scope.$on('servermap.hasData', function (event) {
+            bNoData = false;
+        });
+
+        $scope.$on('servermap.hasNoData', function (event) {
+            bNoData = true;
+        });
 
         /**
          * scope event on navbar.changed
@@ -236,6 +251,10 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
             $scope.$broadcast('linkInfoDetails.hide');
         });
 
+        /**
+         * help
+         * @type {{steps: Array}}
+         */
         $scope.IntroPlusOptions = {
             steps:[
                 {

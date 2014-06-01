@@ -2,8 +2,8 @@
 <navbar bShowHelpIcons="bShowHelpIcons"></navbar>
 <span class="glyphicon glyphicon-question-sign" ng-click="showHelpIcons();" style="position: fixed; top:12px; right:10px;z-index:1040;color:#fff;font-size:17px;cursor:pointer;"></span>
 <!-- Add your site or application content here -->
-<div class="main-container">
-    <div class="main" ng-class="main">
+<div class="main-container" ng-class="getMainContainerClass()">
+    <div class="main">
         <server-map></server-map>
     </div>
     <div class="sidebar" ng-class="sidebar">

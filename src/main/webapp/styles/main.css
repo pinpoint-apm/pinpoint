@@ -51,6 +51,9 @@ canvas {outline:none}
   margin-right: 422px;
   height: 100%;
 }
+.main-container.no-data .main {
+    margin-right:0;
+}
 .main.fullsize {
   margin-right: 12px;
 }
@@ -68,6 +71,9 @@ canvas {outline:none}
 }
 .sidebar.smallsize {
   width: 0;
+}
+.main-container.no-data .sidebar {
+    display:none;
 }
 
 /* info-details */

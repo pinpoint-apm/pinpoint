@@ -45,7 +45,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     sLastSelection;
 
                 // define private variables of methods
-                var showServerMap, setNodeContextMenuPosition, reset,
+                var showServerMap, setNodeContextMenuPosition, reset, emitDataExisting,
                     setLinkContextMenuPosition, setBackgroundContextMenuPosition, serverMapCallback, setLinkOption;
 
 
@@ -145,6 +145,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                             var filters = JSON.parse(filterText);
                             var serverMapData = ServerMapDao.addFilterProperty(filters, ServerMapDao.mergeFilteredMapData(htLastMapData, result));
                             if (filteredMapUtil.doFiltersHaveUnknownNode(filters)) scope.mergeUnknowns = mergeUnknowns = false;
+                            emitDataExisting(htLastMapData);
                             if (mergeUnknowns) {
                                 var copiedData = angular.copy(serverMapData);
                                 ServerMapDao.mergeUnknown(query, copiedData);
@@ -158,12 +159,22 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                             if (err) {
                                 oProgressBar.stopLoading();
                                 oAlert.showError('There is some error.');
+                                scope.$emit('servermap.hasNoData');
                                 return false;
                             }
                             oProgressBar.setLoading(50);
+                            emitDataExisting(serverMapData);
                             htLastMapData = serverMapData;
                             serverMapCallback(query, serverMapData, mergeUnknowns, linkRouting, linkCurve);
                         });
+                    }
+                };
+
+                emitDataExisting = function (serverMapData) {
+                    if (serverMapData.applicationMapData.nodeDataArray.length === 0 || serverMapData.applicationMapData.linkDataArray.length === 0) {
+                        scope.$emit('servermap.hasNoData');
+                    } else {
+                        scope.$emit('servermap.hasData');
                     }
                 };
 
