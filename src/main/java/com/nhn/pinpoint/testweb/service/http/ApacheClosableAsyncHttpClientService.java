@@ -65,7 +65,7 @@ public class ApacheClosableAsyncHttpClientService implements HttpClientService {
             List<NameValuePair> params = new ArrayList<NameValuePair>();
             params.add(new BasicNameValuePair("param1", "value1"));
             httpRequest.setEntity(new UrlEncodedFormEntity(params, Consts.UTF_8.name()));
-
+			
             Future<HttpResponse> responseFuture = this.httpClient.execute(httpRequest, null);
             HttpResponse response = (HttpResponse) responseFuture.get();
 

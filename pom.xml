@@ -81,6 +81,25 @@
 			<artifactId>lucy-nimmconnector</artifactId>
 			<version>2.1.4</version>
         </dependency>
+        
+		<!-- Apache HTTP Client -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
+            <version>4.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpasyncclient</artifactId>
+            <version>4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore-nio</artifactId>
+            <version>4.3</version>
+        </dependency>
+        
+        <!-- 
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
@@ -92,6 +111,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        -->
 
         <dependency>
             <groupId>arcus</groupId>
