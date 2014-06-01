@@ -139,6 +139,11 @@ canvas {outline:none}
     margin-top: 0;
 }
 
+.introjs-tooltip {
+    max-width: 500px;
+}
+
+
 /*임시로 워터마크 숨김*/
 .response-summary > div > div > div > a {
     display: none !important;

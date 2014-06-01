@@ -2,7 +2,7 @@
 
     <div class="unknown-group" ng-show="node.serviceType == 'UNKNOWN_GROUP'">
 
-        <div style="padding-left:15px;">
+        <div class="search-n-order" style="padding-left:15px;">
             <div style="float:left;width:265px;padding-right:5px">
                 <div class="input-group form-group input-group-sm has-feedback" style="margin-bottom:0;">
                     <span class=" input-group-addon">
@@ -70,7 +70,7 @@
             <load-chart namespace="forNode"></load-chart>
         </div>
 
-        <div ng-show="showNodeServers">
+        <div class="node-servers" ng-show="showNodeServers">
             <h5>Servers</h5>
             <ul class="server-list list-unstyled">
                 <li ng-repeat="(key, server) in serverList">

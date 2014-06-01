@@ -6,15 +6,15 @@
             <form class="navbar-form pull-left">
                 <ul class="nav navbar-nav">
                     <li style="margin-top:0px;">
-                        <div ng-show="showApplication" style="margin-top:5px;">
-                            <select class="application" ng-disabled="disableApplication" style="width:290px;margin:1px 0 0 0;height:28px;">
+                        <div ng-show="showApplication" style="margin-top:5px;" id="navbar_application">
+                            <select class="application" ng-disabled="disableApplication" style="width:290px;margin:1px 0 0 0;height:28px;" id="navbar_application">
                                 <option ng-repeat="app in applications" value="{{app.value}}">{{app.text}}</option>
                             </select>
                         </div>
                         <div ng-show="showStaticApplication" class="btn btn-sm disabled" style="margin-top:5px;background-color:#f5f5f5;opacity:1;filter:alpha(opacity=100);">{{applicationName}}</div>
                     </li>
                     <li class="divider-vertical"></li>
-                    <li class="for-datetimepicker">
+                    <li class="for-datetimepicker" id="navbar_period">
                         <div ng-show="periodType == 'last'" class="btn-group btn-group-sm" style="margin-top:0px;">
                             <button type="button" class="btn btn-success" ng-click="periodType = 'range'"><span class="glyphicon glyphicon-th-list"></span></button>
                             <button type="button" class="btn btn-default" ng-class="getPeriodClass('5m')" ng-click="setPeriod('5m')" ng-disabled="periodDelay">Last 5m</button>

@@ -2,7 +2,7 @@
 
     <div class="unknown-group" ng-show="link.toNode.serviceType == 'UNKNOWN_GROUP'">
 
-        <div style="padding-left:15px;">
+        <div class="search-n-order" style="padding-left:15px;">
             <div style="float:left;width:265px;padding-right:5px">
                 <div class="input-group form-group input-group-sm has-feedback" style="margin-bottom:0;">
                     <span class=" input-group-addon">
@@ -72,7 +72,7 @@
             <load-chart namespace="forLink"></load-chart>
         </div>
 
-        <div ng-show="showLinkServers">
+        <div class="link-servers" ng-show="showLinkServers">
             <h5>{{sourceApplicationName}}'s Instances</h5>
             <ul class="server-list list-unstyled" ng-init="linkInstanceShow={}">
                 <li ng-repeat="(name, histogram) in sourceHistogram" ng-init="linkInstanceShow[name]=false">

@@ -64,9 +64,9 @@ pinpointApp.directive('scatter',
     [ 'scatterConfig', '$rootScope', '$timeout', 'webStorage', 'TransactionDao', '$window',
         function (cfg, $rootScope, $timeout, webStorage, oTransactionDao, $window) {
             return {
-//                template: '<div class="scatter"></div>',
+                template: '<div id="scatter"></div>',
                 restrict: 'EA',
-//                replace: true,
+                replace: true,
                 link: function (scope, element, attrs) {
 
                     // define private variables
