@@ -3,7 +3,7 @@
     position: absolute;
     top: 8px;
     left: 11px;
-    z-index: 9999999; /* it should be higher than 9999998, because of intro.js */
+    z-index: 9;
     font-size: 12px;
 }
 .servermap .servermap-status .alert {
