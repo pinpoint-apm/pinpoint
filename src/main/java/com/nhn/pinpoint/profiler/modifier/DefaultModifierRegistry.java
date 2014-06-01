@@ -16,7 +16,10 @@ import com.nhn.pinpoint.profiler.modifier.arcus.MemcachedClientModifier;
 import com.nhn.pinpoint.profiler.modifier.arcus.OperationFutureModifier;
 import com.nhn.pinpoint.profiler.modifier.bloc.handler.HTTPHandlerModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.asynchttpclient.AsyncHttpClientModifier;
+import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.BasicFutureModifier;
+import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.ClosableHttpAsyncClientModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.HttpClient4Modifier;
+import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.InternalHttpAsyncClientModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.jdkhttpconnector.HttpURLConnectionModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.lucynet.CompositeInvocationFutureModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.lucynet.DefaultInvocationFutureModifier;
@@ -110,8 +113,13 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         HttpURLConnectionModifier httpURLConnectionModifier = new HttpURLConnectionModifier(byteCodeInstrumentor, agent);
         addModifier(httpURLConnectionModifier);
         
-		// async http connector
+		// ning async http client
 		addModifier(new AsyncHttpClientModifier(byteCodeInstrumentor, agent));
+		
+		// apache nio http client
+		// addModifier(new InternalHttpAsyncClientModifier(byteCodeInstrumentor, agent));
+		addModifier(new ClosableHttpAsyncClientModifier(byteCodeInstrumentor, agent));
+		addModifier(new BasicFutureModifier(byteCodeInstrumentor, agent));
 	}
 
     public void addArcusModifier() {
