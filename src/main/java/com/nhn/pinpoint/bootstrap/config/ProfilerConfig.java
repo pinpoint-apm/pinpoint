@@ -56,6 +56,9 @@ public class ProfilerConfig {
     private boolean memcached = true;
     private boolean memcachedKeyTrace = false;
 
+    /**
+     * apache http client
+     */
     private boolean apacheHttpClient4Profile = true;
     private boolean apacheHttpClient4ProfileCookie = false;
     private DumpType apacheHttpClient4ProfileCookieDumpType = DumpType.EXCEPTION;
@@ -64,6 +67,14 @@ public class ProfilerConfig {
     private DumpType apacheHttpClient4ProfileEntityDumpType = DumpType.EXCEPTION;
     private int apacheHttpClient4ProfileEntitySamplingRate = 1;
     
+    /**
+     * apache nio http client
+     */
+    private boolean apacheNIOHttpClient4Profile = true;
+    
+    /**
+     * ning async http client
+     */
     private boolean ningAsyncHttpClientProfile = true;
     private boolean ningAsyncHttpClientProfileCookie = false;
     private DumpType ningAsyncHttpClientProfileCookieDumpType = DumpType.EXCEPTION;
@@ -335,6 +346,12 @@ public class ProfilerConfig {
     }
 
     //-----------------------------------------
+    // org/apache/http/impl/nio/*
+    public boolean getApacheNIOHttpClient4Profile() {
+    	return apacheNIOHttpClient4Profile;
+    }
+    
+    //-----------------------------------------
     // com/ning/http/client/AsyncHttpClient
 	public boolean isNingAsyncHttpClientProfile() {
 		return ningAsyncHttpClientProfile;
@@ -472,7 +489,9 @@ public class ProfilerConfig {
         this.memcached = readBoolean(prop, "profiler.memcached", true);
         this.memcachedKeyTrace = readBoolean(prop, "profiler.memcached.keytrace", false);
 
-
+		/**
+		 * apache http client 4
+		 */
         this.apacheHttpClient4Profile = readBoolean(prop, "profiler.apache.httpclient4", true);
         this.apacheHttpClient4ProfileCookie = readBoolean(prop, "profiler.apache.httpclient4.cookie", false);
         this.apacheHttpClient4ProfileCookieDumpType = readDumpType(prop, "profiler.apache.httpclient4.cookie.dumptype", DumpType.EXCEPTION);
@@ -482,9 +501,14 @@ public class ProfilerConfig {
         this.apacheHttpClient4ProfileEntityDumpType = readDumpType(prop, "profiler.apache.httpclient4.entity.dumptype", DumpType.EXCEPTION);
         this.apacheHttpClient4ProfileEntitySamplingRate = readInt(prop, "profiler.apache.httpclient4.entity.sampling.rate", 1);
 
-        //
-        // ning.asynchttpclient
-        //
+        /**
+         * apache nio http client
+         */
+        this.apacheNIOHttpClient4Profile = readBoolean(prop, "profiler.apache.nio.httpclient4", true);
+        
+        /**
+         * ning.async http client
+         */
         this.ningAsyncHttpClientProfile = readBoolean(prop, "profiler.ning.asynchttpclient", true);
         this.ningAsyncHttpClientProfileCookie = readBoolean(prop, "profiler.ning.asynchttpclient.cookie", false);
         this.ningAsyncHttpClientProfileCookieDumpType = readDumpType(prop, "profiler.ning.asynchttpclient.cookie.dumptype", DumpType.EXCEPTION);
