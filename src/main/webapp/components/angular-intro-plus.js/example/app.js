@@ -22,6 +22,22 @@ app.controller('MyController', function ($scope) {
         console.log("After Change Event called");
     };
 
+    $scope.BeforeOverlayCreation = function () {
+        console.log('BeforeOverlayCreation');
+    };
+
+    $scope.AfterOverlayCreation = function () {
+        console.log('AfterOverlayCreation');
+    };
+
+    $scope.BeforeOverlayRemoval = function () {
+        console.log('BeforeOverlayRemoval');
+    };
+
+    $scope.AfterOverlayRemoval = function () {
+        console.log('AfterOverlayRemoval');
+    };
+
     $scope.IntroPlusOptions = {
         steps:[
         {

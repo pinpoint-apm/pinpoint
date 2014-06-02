@@ -149,6 +149,19 @@ canvas {outline:none}
     max-width: 500px;
 }
 
+#copyright {
+    position: fixed;
+    left: 10px;
+    bottom: 10px;
+    width: 300px;
+    z-index: 9999999;
+    display: none;
+}
+#copyright p {
+    padding: 10px;
+    font-size: 12px;
+}
+
 
 /*임시로 워터마크 숨김*/
 .response-summary > div > div > div > a {

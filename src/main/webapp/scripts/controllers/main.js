@@ -334,4 +334,12 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
             ]
         };
 
+        $scope.onAfterOverlayCreation = function () {
+            $rootElement.find('#copyright').show();
+        };
+
+        $scope.onBeforeOverlayRemoval = function () {
+            $rootElement.find('#copyright').hide();
+        };
+
     } ]);

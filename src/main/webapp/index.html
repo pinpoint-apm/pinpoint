@@ -122,7 +122,16 @@
 <![endif]-->
 
 <div id="wrapper" ng-class="wrapperClass" ng-style="wrapperStyle" ng-view=""
-     ng-intro-plus-options="IntroPlusOptions" ng-intro-plus-show="showHelpIcons">
+     ng-intro-plus-options="IntroPlusOptions" ng-intro-plus-show="showHelpIcons"
+     ng-intro-plus-on-after-overlay-creation="onAfterOverlayCreation"
+     ng-intro-plus-on-before-overlay-removal="onBeforeOverlayRemoval">
+</div>
+
+<div id="copyright">
+    <p class="bg-info">
+        Copyright 2014 Pinpoint.<br>
+        <a href="http://yobi.navercorp.com/Pinpoint/pinpoint-web" target="_blank">go to Yobi Repository</a>
+    </p>
 </div>
 
 <!-- ng-template -->

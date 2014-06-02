@@ -22,10 +22,12 @@
 
 <div class="container-narrow" ng-controller="MyController"
      ng-intro-plus-options="IntroPlusOptions" ng-intro-plus-show="CallMe"
-     ng-intro-plus-oncomplete="CompletedEvent" ng-intro-plus-onexit="ExitEvent"
-     ng-intro-plus-onchange="ChangeEvent" ng-intro-plus-onbeforechange="BeforeChangeEvent"
-     ng-intro-plus-onafterchange="AfterChangeEvent"
-     ng-intro-plus-autostart="false">
+     ng-intro-plus-on-complete="CompletedEvent" ng-intro-plus-on-exit="ExitEvent"
+     ng-intro-plus-on-change="ChangeEvent" ng-intro-plus-on-before-change="BeforeChangeEvent"
+     ng-intro-plus-on-after-change="AfterChangeEvent"
+     ng-intro-plus-autostart="false"
+     ng-intro-plus-on-before-overlay-creation="BeforeOverlayCreation" ng-intro-plus-on-before-overlay-removal="BeforeOverlayRemoval"
+     ng-intro-plus-on-after-overlay-creation="AfterOverlayCreation" ng-intro-plus-on-after-overlay-removal="AfterOverlayRemoval">
 
     <div class="masthead">
         <ul id="step5" class="nav nav-pills pull-right">
@@ -55,7 +57,11 @@
             <p>Pick a method name, <code>ng-intro-plus-show="CallMe"</code>. You can invoke the intro from elsewhere by calling <code>CallMe();</code>. To autostart, use <code>ng-intro-plus-autostart="true"</code></p>
 
             <h4>Callbacks</h4>
-            <p>You can get callbacks to your controller using the <code>ng-intro-plus-oncomplete</code>, <code>ng-intro-plus-onexit</code>, <code>ng-intro-plus-onchange</code>, <code>ng-intro-plus-onbeforechange</code> and <code>ng-intro-plus-onafterchange</code> directives.</p>
+            <p>You can get callbacks to your controller using the <code>ng-intro-plus-on-complete</code>,
+                <code>ng-intro-plus-on-exit</code>, <code>ng-intro-plus-on-change</code>,
+                <code>ng-intro-plus-on-before-change</code>, <code>ng-intro-plus-on-after-change</code>
+                <code>ng-intro-plus-on-before-overlay-creation</code>, <code>ng-intro-plus-on-after-overlay-creation</code>, and
+                <code>ng-intro-plus-on-before-overlay-removal</code>, <code>ng-intro-plus-on-after-overlay-removal</code> directives.</p>
 
             <p>See <a href="https://github.com/iamdenny/angular-intro-plus.js/blob/master/example/index.html">index.html</a> and <a href="https://github.com/iamdenny/angular-intro-plus.js/blob/master/example/app.js">app.js</a> for usage code.</p>
         </div>
