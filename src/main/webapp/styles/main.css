@@ -1,15 +1,15 @@
 @font-face{font-family:ng;src:url(../fonts/nanumgothic.eot);src:local('※'),url(../fonts/nanumgothic.woff) format('woff')}
 @font-face{font-family:nm;src:url(../fonts/nanummyeongjo.eot);src:local('※'),url(../fonts/nanummyeongjo.woff) format('woff')}
-@font-face{font-family:tjp;src:url(../fonts/trajanpro.eot);src:local('※'),url(../fonts/trajanpro.woff) format('woff')}
-@font-face{font-family:avn55;src:url(../fonts/avenir55.eot);src:local('※'),url(../fonts/avenir55.woff) format('woff')}
-@font-face{font-family:avn85;src:url(../fonts/avenir85.eot);src:local('※'),url(../fonts/avenir85.woff) format('woff')}
+/*@font-face{font-family:tjp;src:url(../fonts/trajanpro.eot);src:local('※'),url(../fonts/trajanpro.woff) format('woff')}*/
+/*@font-face{font-family:avn55;src:url(../fonts/avenir55.eot);src:local('※'),url(../fonts/avenir55.woff) format('woff')}*/
+/*@font-face{font-family:avn85;src:url(../fonts/avenir85.eot);src:local('※'),url(../fonts/avenir85.woff) format('woff')}*/
 
 html, body {
     height: 100%;
     margin: 0;
     padding: 0;
 }
-body,input,textarea,select,button,table{font-family:Arimo,avn55,'나눔고딕',NanumGothic,ng,'돋움',dotum,AppleGothic,sans-serif}
+body,input,textarea,select,button,table{font-family:Lato,'나눔고딕',NanumGothic,ng,'돋움',dotum,AppleGothic,sans-serif}
 canvas {outline:none}
 
 /* if avn55, should be */
