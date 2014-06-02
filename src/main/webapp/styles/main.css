@@ -153,7 +153,7 @@ canvas {outline:none}
     position: fixed;
     left: 10px;
     bottom: 10px;
-    width: 300px;
+    width: 250px;
     z-index: 9999999;
     display: none;
 }
