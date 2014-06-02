@@ -38,6 +38,7 @@
                     'QUEUE': 'QUEUE.png',
                     'TOMCAT': 'TOMCAT.png',
                     'STAND_ALONE': 'STAND_ALONE.png',
+                    'ORACLE': 'ORACLE.png',
                     'UNKNOWN': 'UNKNOWN.png',
                     'UNKNOWN_GROUP': 'UNKNOWN_GROUP.png',
                     'USER': 'USER.png'
