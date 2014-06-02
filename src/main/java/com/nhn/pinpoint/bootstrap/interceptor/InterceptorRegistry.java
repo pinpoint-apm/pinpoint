@@ -37,7 +37,7 @@ public class InterceptorRegistry {
         if (interceptor == null) {
             return -1;
         }
-        int newId = id.getAndIncrement();
+        int newId = nextId();
         if (newId > max) {
             throw new IndexOutOfBoundsException("size=" + index.length + " id=" + id);
         }
@@ -47,11 +47,15 @@ public class InterceptorRegistry {
         return newId;
     }
 
+    private int nextId() {
+        return id.getAndIncrement();
+    }
+
     int addSimpleInterceptor0(SimpleAroundInterceptor interceptor) {
         if (interceptor == null) {
             return -1;
         }
-        int newId = id.getAndIncrement();
+        int newId = nextId();
         if (newId > max) {
             throw new IndexOutOfBoundsException("size=" + index.length + " id=" + id);
         }
