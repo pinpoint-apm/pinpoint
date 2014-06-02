@@ -29,6 +29,7 @@ public class JavaAssistClass implements InstrumentClass {
     private static final int STATIC_INTERCEPTOR = 0;
     private static final int SIMPLE_INTERCEPTOR = 1;
 
+    private static final int NOT_DEFINE_INTERCEPTOR_ID = -1;
 
     public JavaAssistClass(JavaAssistByteCodeInstrumentor instrumentor, CtClass ctClass) {
         this.instrumentor = instrumentor;
@@ -135,14 +136,41 @@ public class JavaAssistClass implements InstrumentClass {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        return addInterceptor0(null, args, interceptor, -1, Type.around, false);
+        final CtBehavior behavior = getBehavior(null, args, interceptor, NOT_DEFINE_INTERCEPTOR_ID);
+        return addInterceptor0(behavior, null, interceptor, NOT_DEFINE_INTERCEPTOR_ID, Type.around, false);
     }
 
     public int addConstructorInterceptor(String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        return addInterceptor0(null, args, interceptor, -1, type, false);
+        final CtBehavior behavior = getBehavior(null, args, interceptor, NOT_DEFINE_INTERCEPTOR_ID);
+        return addInterceptor0(behavior, null, interceptor, NOT_DEFINE_INTERCEPTOR_ID, type, false);
+    }
+
+    public int addAllConstructorInterceptor(Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException{
+        return addAllConstructorInterceptor(interceptor, Type.around);
+    }
+
+    public int addAllConstructorInterceptor(Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException {
+        if (interceptor == null) {
+            throw new IllegalArgumentException("interceptor is null");
+        }
+        final CtConstructor[] constructorList = ctClass.getConstructors();
+        final int length = constructorList.length;
+        if (length == 0) {
+            throw new NotFoundInstrumentException("Constructor not found.");
+        }
+        int interceptorId = 0;
+        if (length > 0) {
+            interceptorId = addInterceptor0(constructorList[0], null, interceptor, NOT_DEFINE_INTERCEPTOR_ID, type, false);
+        }
+        if (length > 1) {
+            for (int i = 1; i< length; i++) {
+                addInterceptor0(constructorList[i], null, null, interceptorId, Type.around, false);
+            }
+        }
+        return interceptorId;
     }
 
 
@@ -151,7 +179,8 @@ public class JavaAssistClass implements InstrumentClass {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        return addInterceptor0(methodName, args, interceptor, -1, Type.around, true);
+        final CtBehavior behavior = getBehavior(methodName, args, interceptor, NOT_DEFINE_INTERCEPTOR_ID);
+        return addInterceptor0(behavior, methodName, interceptor, NOT_DEFINE_INTERCEPTOR_ID, Type.around, true);
     }
 
     @Override
@@ -159,7 +188,8 @@ public class JavaAssistClass implements InstrumentClass {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        return addInterceptor0(methodName, args, interceptor, -1, type, true);
+        final CtBehavior behavior = getBehavior(methodName, args, interceptor, NOT_DEFINE_INTERCEPTOR_ID);
+        return addInterceptor0(behavior, methodName, interceptor, NOT_DEFINE_INTERCEPTOR_ID, type, true);
     }
 
     @Override
@@ -170,7 +200,8 @@ public class JavaAssistClass implements InstrumentClass {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        return addInterceptor0(methodName, args, interceptor, -1, Type.around, false);
+        final CtBehavior behavior = getBehavior(methodName, args, interceptor, NOT_DEFINE_INTERCEPTOR_ID);
+        return addInterceptor0(behavior, methodName, interceptor, NOT_DEFINE_INTERCEPTOR_ID, Type.around, false);
     }
 
     @Override
@@ -211,12 +242,14 @@ public class JavaAssistClass implements InstrumentClass {
 
     @Override
     public int reuseInterceptor(String methodName, String[] args, int interceptorId) throws InstrumentException, NotFoundInstrumentException {
-        return addInterceptor0(methodName, args, null, interceptorId, Type.around, false);
+        final CtBehavior behavior = getBehavior(methodName, args, null, interceptorId);
+        return addInterceptor0(behavior, methodName, null, interceptorId, Type.around, false);
     }
 
     @Override
     public int reuseInterceptor(String methodName, String[] args, int interceptorId, Type type) throws InstrumentException, NotFoundInstrumentException {
-        return addInterceptor0(methodName, args, null, interceptorId, type, false);
+        final CtBehavior behavior = getBehavior(methodName, args, null, interceptorId);
+        return addInterceptor0(behavior, methodName, null, interceptorId, type, false);
     }
 
     @Override
@@ -224,7 +257,8 @@ public class JavaAssistClass implements InstrumentClass {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        return addInterceptor0(methodName, args, interceptor, -1, type, false);
+        final CtBehavior behavior = getBehavior(methodName, args, interceptor, NOT_DEFINE_INTERCEPTOR_ID);
+        return addInterceptor0(behavior, methodName, interceptor, NOT_DEFINE_INTERCEPTOR_ID, type, false);
     }
 
     private CtBehavior getBehavior(String methodName, String[] args) throws NotFoundException {
@@ -234,10 +268,9 @@ public class JavaAssistClass implements InstrumentClass {
         return getMethod(methodName, args);
     }
 
-    private int addInterceptor0(String methodName, String[] args, Interceptor interceptor, int interceptorId, Type type, boolean useContextClassLoader) throws InstrumentException, NotFoundInstrumentException {
-        CtBehavior behavior = null;
+    private CtBehavior getBehavior(String methodName, String[] args, Interceptor interceptor, int interceptorId) throws NotFoundInstrumentException {
         try {
-            behavior = getBehavior(methodName, args);
+            return getBehavior(methodName, args);
         } catch (NotFoundException e) {
             // target method나 constructor를 차지 못했을 경우는 NotFoundInstrumentException을 던진다.
             if (interceptor == null) {
@@ -246,6 +279,9 @@ public class JavaAssistClass implements InstrumentClass {
                 throw new NotFoundInstrumentException(interceptor.getClass().getSimpleName() + " add fail. Cause:" + e.getMessage(), e);
             }
         }
+    }
+
+    private int addInterceptor0(CtBehavior behavior, String methodName, Interceptor interceptor, int interceptorId, Type type, boolean useContextClassLoader) throws InstrumentException, NotFoundInstrumentException {
         try {
             if (interceptor != null) {
                 if(interceptor instanceof StaticAroundInterceptor) {
