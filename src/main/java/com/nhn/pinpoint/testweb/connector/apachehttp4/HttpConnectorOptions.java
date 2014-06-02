@@ -1,15 +1,11 @@
-/*
- * @(#)HttpConnectorOptions.java $version 2011. 10. 6
- *
- * Copyright 2011 NHN Corp. All rights Reserved. 
- * NHN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
- */
-package com.nhn.pinpoint.testweb.util;
+package com.nhn.pinpoint.testweb.connector.apachehttp4;
 
 import java.nio.charset.Charset;
 
 /**
- * @author nhn
+ * 
+ * @author netspider
+ * 
  */
 public class HttpConnectorOptions {
 	private String host;
@@ -75,5 +71,4 @@ public class HttpConnectorOptions {
 	public void setModulePath(String modulePath) {
 		this.modulePath = modulePath;
 	}
-
 }

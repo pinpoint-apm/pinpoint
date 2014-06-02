@@ -15,14 +15,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.nhn.pinpoint.testweb.configuration.DemoURLHolder;
+import com.nhn.pinpoint.testweb.connector.apachehttp4.ApacheHttpClient4;
+import com.nhn.pinpoint.testweb.connector.apachehttp4.HttpConnectorOptions;
+import com.nhn.pinpoint.testweb.connector.ningasync.NingAsyncHttpClient;
 import com.nhn.pinpoint.testweb.service.CacheService;
 import com.nhn.pinpoint.testweb.service.CubridService;
 import com.nhn.pinpoint.testweb.service.MemberService;
-import com.nhn.pinpoint.testweb.util.AsyncHttpInvoker;
-import com.nhn.pinpoint.testweb.util.HttpConnectorOptions;
-import com.nhn.pinpoint.testweb.util.HttpInvoker;
 import com.ning.http.client.cookie.Cookie;
 
 /**
@@ -47,60 +48,71 @@ public class DemoController {
 	@Autowired
 	private CubridService cubridService;
 
+	@Autowired
+	private NingAsyncHttpClient ningAsyncHttpClient;
+
+	@Autowired
+	private ApacheHttpClient4 apacheHttpClient;
+
 	public DemoController() {
 		urls = DemoURLHolder.getHolder();
 	}
 
 	@RequestMapping(value = "/netspider")
-	public String demo1() {
+	public @ResponseBody
+	String demo1() {
 		accessNaverBlog();
 		accessNaverCafe();
 		randomSlowMethod();
 		callRemote(urls.getBackendApiURL());
-		return "demo";
+		return "OK";
 	}
 
 	@RequestMapping(value = "/emeroad")
-	public String demo2() {
+	public @ResponseBody
+	String demo2() {
 		randomSlowMethod();
 		callRemote(urls.getBackendWebURL());
-		return "demo";
+		return "OK";
 	}
 
 	@RequestMapping(value = "/harebox")
-	public String demo3() {
+	public @ResponseBody
+	String demo3() {
 		cacheService.memcached();
 		accessNaver();
-		return "demo";
+		return "OK";
 	}
 
 	@RequestMapping(value = "/denny")
-	public String demo4() {
+	public @ResponseBody
+	String demo4() {
 		mysqlService.list();
 		randomSlowMethod();
-		return "demo";
+		return "OK";
 	}
 
 	@RequestMapping(value = "/backendweb")
-	public String backendweb() {
+	public @ResponseBody
+	String backendweb() {
 		cacheService.arcus();
 		mysqlService.list();
 		if (random.nextBoolean()) {
 			callRemote(urls.getBackendApiURL());
 		}
-		return "demo";
+		return "OK";
 	}
 
 	@RequestMapping(value = "/backendapi")
-	public String backendapi() {
+	public @ResponseBody
+	String backendapi() {
 		mysqlService.list();
 		cubrid();
-		return "demo";
+		return "OK";
 	}
 
 	private void callRemote(String url) {
-		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
-		client.execute(url, new HashMap<String, Object>());
+		apacheHttpClient.execute(url, new HashMap<String, Object>());
 	}
 
 	private void cubrid() {
@@ -115,8 +127,6 @@ public class DemoController {
 	}
 
 	private void accessNaver() {
-		AsyncHttpInvoker client = new AsyncHttpInvoker();
-
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("query", "naver");
 		params.put("ie", "utf8");
@@ -129,11 +139,11 @@ public class DemoController {
 		cookies.add(new Cookie("cookieName1", "cookieValue1", "cookieRawValue1", "", "/", 10, 10, false, false));
 		cookies.add(new Cookie("cookieName2", "cookieValue2", "cookieRawValue2", "", "/", 10, 10, false, false));
 
-		client.requestGet("http://search.naver.com/search.naver?where=nexearch", params, headers, cookies);
+		ningAsyncHttpClient.requestGet("http://search.naver.com/search.naver?where=nexearch", params, headers, cookies);
 	}
 
 	private void accessNaverBlog() {
-		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+		ApacheHttpClient4 client = new ApacheHttpClient4(new HttpConnectorOptions());
 		client.execute("http://section.blog.naver.com/", new HashMap<String, Object>());
 	}
 

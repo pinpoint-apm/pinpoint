@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.nhn.pinpoint.testweb.connector.apachehttp4.ApacheClosableAsyncHttpClient;
+
 /**
  * 
  * @author netspider
@@ -16,11 +18,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class ApacheClosableAsyncHttpClientTest {
 
 	@Autowired
-	private ApacheClosableAsyncHttpClientService apacheClosableAsyncHttpClientService;
+	private ApacheClosableAsyncHttpClient apacheClosableAsyncHttpClient;
 
 	@Test
 	public void requestPost() {
-		String requestPost = apacheClosableAsyncHttpClientService.post();
+		String requestPost = apacheClosableAsyncHttpClient.post();
 		System.out.println(requestPost);
 	}
 }

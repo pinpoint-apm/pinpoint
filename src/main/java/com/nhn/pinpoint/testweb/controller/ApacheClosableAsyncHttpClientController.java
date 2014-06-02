@@ -4,8 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.nhn.pinpoint.testweb.service.http.HttpClientService;
+import com.nhn.pinpoint.testweb.connector.apachehttp4.ApacheClosableAsyncHttpClient;
 
 /**
  * 
@@ -16,35 +17,36 @@ import com.nhn.pinpoint.testweb.service.http.HttpClientService;
 public class ApacheClosableAsyncHttpClientController {
 
 	@Autowired
-	private HttpClientService apacheClosableAsyncHttpClientService;
+	private ApacheClosableAsyncHttpClient client;
 
 	@RequestMapping(value = "/apacheClosableAsyncHttp/get")
-	public String requestGet(Model model) {
-		apacheClosableAsyncHttpClientService.get();
-		return "http";
+	public @ResponseBody
+	String requestGet(Model model) {
+		return "NOT_IMPLEMENTED";
 	}
 
 	@RequestMapping(value = "/apacheClosableAsyncHttp/getWithParam")
-	public String requestGetWithParam(Model model) {
-		apacheClosableAsyncHttpClientService.getWithParam();
-		return "http";
+	public @ResponseBody
+	String requestGetWithParam(Model model) {
+		return "NOT_IMPLEMENTED";
 	}
 
 	@RequestMapping(value = "/apacheClosableAsyncHttp/post")
-	public String requestPost(Model model) {
-		apacheClosableAsyncHttpClientService.post();
-		return "http";
+	public @ResponseBody
+	String requestPost(Model model) {
+		client.post();
+		return "OK";
 	}
 
 	@RequestMapping(value = "/apacheClosableAsyncHttp/postWithBody")
-	public String requestPostWithBody(Model model) {
-		apacheClosableAsyncHttpClientService.postWithBody();
-		return "http";
+	public @ResponseBody
+	String requestPostWithBody(Model model) {
+		return "NOT_IMPLEMENTED";
 	}
 
 	@RequestMapping(value = "/apacheClosableAsyncHttp/postWithMultipart")
-	public String requestPostWithMultipart(Model model) {
-		apacheClosableAsyncHttpClientService.postMultipart();
-		return "http";
+	public @ResponseBody
+	String requestPostWithMultipart(Model model) {
+		return "NOT_IMPLEMENTED";
 	}
 }

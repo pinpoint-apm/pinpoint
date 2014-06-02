@@ -1,8 +1,9 @@
 package com.nhn.pinpoint.testweb.controller;
 
+import com.nhn.pinpoint.testweb.connector.apachehttp4.HttpConnectorOptions;
+import com.nhn.pinpoint.testweb.connector.apachehttp4.ApacheHttpClient4;
 import com.nhn.pinpoint.testweb.util.Description;
-import com.nhn.pinpoint.testweb.util.HttpConnectorOptions;
-import com.nhn.pinpoint.testweb.util.HttpInvoker;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -21,7 +22,7 @@ public class ExceptionalCaseController {
 	@Description("root의 완료가 지연될경우 parent가 완료된 데이터를 정상적으로 확인가능지.")
 	@RequestMapping(value = "/exceptionalcase/rootslow")
 	public void rootSlow() {
-		HttpInvoker client2 = new HttpInvoker(new HttpConnectorOptions());
+		ApacheHttpClient4 client2 = new ApacheHttpClient4(new HttpConnectorOptions());
 		client2.execute("http://localhost:8080/donothing.pinpoint", new HashMap<String, Object>());
 
 		try {

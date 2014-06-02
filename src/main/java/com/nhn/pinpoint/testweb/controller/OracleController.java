@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  *
@@ -17,29 +18,31 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class OracleController {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	
+
 	@Autowired
 	private OracleService oracleService;
 
 	@Description("preparedStatement 테스트. resultset은 가지고 오지 않음.")
 	@RequestMapping(value = "/oracle/selectOne")
-	public String selectOne(Model model) {
+	public @ResponseBody
+	String selectOne(Model model) {
 		logger.info("selectOne start");
 
 		int i = oracleService.selectOne();
 
 		logger.info("selectOne end:{}", i);
-		return "donothing";
+		return "OK";
 	}
 
 	@Description("statement 테스트. resultset은 가지고 오지 않음")
 	@RequestMapping(value = "/oracle/createStatement")
-	public String oracleStatement(Model model) {
+	public @ResponseBody
+	String oracleStatement(Model model) {
 		logger.info("createStatement start");
 
 		oracleService.createStatement();
 
 		logger.info("createStatement end:{}");
-		return "donothing";
+		return "OK";
 	}
 }

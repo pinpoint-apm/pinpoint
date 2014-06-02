@@ -17,7 +17,7 @@ import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.testweb.util.AsyncHttpInvoker;
+import com.nhn.pinpoint.testweb.connector.ningasync.NingAsyncHttpClient;
 import com.ning.http.client.Response;
 
 /**
@@ -46,7 +46,7 @@ public class SimpleNettyServerApp {
 			bootstrap.setPipelineFactory(factory);
 			bootstrap.bind(new InetSocketAddress(SERVER_PORT));
 
-			final AsyncHttpInvoker invoker = new AsyncHttpInvoker();
+			final NingAsyncHttpClient invoker = new NingAsyncHttpClient();
 			final CountDownLatch startLatch = new CountDownLatch(1);
 			final CountDownLatch stopLatch = new CountDownLatch(CLIENT_COUNT);
 			final ExecutorService executor = Executors.newCachedThreadPool();
@@ -57,10 +57,10 @@ public class SimpleNettyServerApp {
 					public void run() {
 						try {
 							startLatch.await();
-							Response response = invoker.requestGet("http://localhost:" + SERVER_PORT, AsyncHttpInvoker.getDummyParams(), AsyncHttpInvoker.getDummyHeaders(), AsyncHttpInvoker.getDummyCookies());
+							Response response = invoker.requestGet("http://localhost:" + SERVER_PORT, NingAsyncHttpClient.getDummyParams(), NingAsyncHttpClient.getDummyHeaders(), NingAsyncHttpClient.getDummyCookies());
 							logger.info(response.getResponseBody());
 
-							Response response2 = invoker.requestPost("http://localhost:" + SERVER_PORT, AsyncHttpInvoker.getDummyHeaders(), "I_AM_BODY");
+							Response response2 = invoker.requestPost("http://localhost:" + SERVER_PORT, NingAsyncHttpClient.getDummyHeaders(), "I_AM_BODY");
 							logger.info(response2.getResponseBody());
 						} catch (Exception e) {
 							e.printStackTrace();

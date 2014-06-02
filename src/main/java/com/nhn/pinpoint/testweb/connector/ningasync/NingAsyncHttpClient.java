@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.testweb.util;
+package com.nhn.pinpoint.testweb.connector.ningasync;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,14 +27,14 @@ import javax.annotation.PreDestroy;
  * 
  */
 @Component
-public class AsyncHttpInvoker {
+public class NingAsyncHttpClient {
 
-	private static final Logger logger = LoggerFactory.getLogger(AsyncHttpInvoker.class);
+	private static final Logger logger = LoggerFactory.getLogger(NingAsyncHttpClient.class);
 
 	private final AsyncHttpClient asyncHttpClient;
 	private String defaultUserAgent;
 
-	public AsyncHttpInvoker() {
+	public NingAsyncHttpClient() {
 		asyncHttpClient = new AsyncHttpClient(new AsyncHttpClientConfig.Builder().setAllowPoolingConnection(true).setCompressionEnabled(true).build());
 		defaultUserAgent = "pinpoint/test";
 		logger.debug("init HttpClient : defaultAgent={}", defaultUserAgent);

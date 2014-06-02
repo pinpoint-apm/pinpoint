@@ -50,7 +50,7 @@ import org.springframework.core.convert.ConverterNotFoundException;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
-import com.nhn.pinpoint.testweb.util.AsyncHttpInvoker;
+import com.nhn.pinpoint.testweb.connector.ningasync.NingAsyncHttpClient;
 import com.ning.http.client.Response;
 
 public class HttpCustomServerHandler extends SimpleChannelUpstreamHandler {
@@ -59,7 +59,7 @@ public class HttpCustomServerHandler extends SimpleChannelUpstreamHandler {
 	private final ListeningExecutorService listeningExecutorService;
 
 	private final ArcusClient arcus;
-	private final AsyncHttpInvoker asyncHttpInvoker = new AsyncHttpInvoker();
+	private final NingAsyncHttpClient asyncHttpInvoker = new NingAsyncHttpClient();
 
 	public HttpCustomServerHandler() {
 		this.listeningExecutorService = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
@@ -85,7 +85,7 @@ public class HttpCustomServerHandler extends SimpleChannelUpstreamHandler {
 	}
 
 	private void accessNaver() {
-		asyncHttpInvoker.requestGet("http://blog.naver.com", AsyncHttpInvoker.getDummyParams(), AsyncHttpInvoker.getDummyHeaders(), AsyncHttpInvoker.getDummyCookies());
+		asyncHttpInvoker.requestGet("http://blog.naver.com", NingAsyncHttpClient.getDummyParams(), NingAsyncHttpClient.getDummyHeaders(), NingAsyncHttpClient.getDummyCookies());
 	}
 
 	private void accessPinPointDev() {

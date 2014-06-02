@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.nhncorp.lucy.net.invoker.InvocationFuture;
 import com.nhncorp.lucy.net.invoker.InvocationFutureListener;
@@ -30,7 +31,8 @@ public class NPCController {
 	 * @return
 	 */
 	@RequestMapping(value = "/npc/1")
-	public String npc(Model model) {
+	public @ResponseBody
+	String npc(Model model) {
 		NpcHessianConnector connector = null;
 		try {
 			InetSocketAddress serverAddress = new InetSocketAddress("127.0.0.1", 5000);
@@ -48,12 +50,13 @@ public class NPCController {
 			System.out.println("npc result=" + result);
 		} catch (Exception e) {
 			e.printStackTrace();
+			return e.getMessage();
 		} finally {
 			if (connector != null) {
 				connector.dispose();
 			}
 		}
-		return "npc";
+		return "OK";
 	}
 
 	/**
@@ -63,7 +66,8 @@ public class NPCController {
 	 * @return
 	 */
 	@RequestMapping(value = "/npc/2")
-	public String npc2(Model model) {
+	public @ResponseBody
+	String npc2(Model model) {
 		KeepAliveNpcHessianConnector connector = null;
 		try {
 			InetSocketAddress serverAddress = new InetSocketAddress("127.0.0.1", 5000);
@@ -82,12 +86,13 @@ public class NPCController {
 			System.out.println("npc result=" + result);
 		} catch (Exception e) {
 			e.printStackTrace();
+			return e.getMessage();
 		} finally {
 			if (connector != null) {
 				connector.dispose();
 			}
 		}
-		return "npc";
+		return "OK";
 	}
 
 	/**
@@ -97,7 +102,8 @@ public class NPCController {
 	 * @return
 	 */
 	@RequestMapping(value = "/npc/3")
-	public String npc3(Model model) {
+	public @ResponseBody
+	String npc3(Model model) {
 		NpcHessianConnector connector = null;
 		try {
 			InetSocketAddress serverAddress = new InetSocketAddress("127.0.0.1", 5000);
@@ -121,12 +127,13 @@ public class NPCController {
 			System.out.println("npc result=" + result);
 		} catch (Exception e) {
 			e.printStackTrace();
+			return e.getMessage();
 		} finally {
 			if (connector != null) {
 				connector.dispose();
 			}
 		}
-		return "npc";
+		return "OK";
 	}
 
 	/**
@@ -136,7 +143,8 @@ public class NPCController {
 	 * @return
 	 */
 	@RequestMapping(value = "/npc/4")
-	public String npc4(Model model) {
+	public @ResponseBody
+	String npc4(Model model) {
 		NpcHessianConnector connector = null;
 		try {
 			InetSocketAddress serverAddress = new InetSocketAddress("127.0.0.1", 5000);
@@ -161,12 +169,13 @@ public class NPCController {
 			System.out.println("npc result=" + result);
 		} catch (Exception e) {
 			e.printStackTrace();
+			return e.getMessage();
 		} finally {
 			if (connector != null) {
 				connector.dispose();
 			}
 		}
-		return "npc";
+		return "OK";
 	}
 
 	/**
@@ -176,7 +185,8 @@ public class NPCController {
 	 * @return
 	 */
 	@RequestMapping(value = "/npc/5")
-	public String npc5(Model model) {
+	public @ResponseBody
+	String npc5(Model model) {
 		NpcHessianConnector connector = null;
 		try {
 			InetSocketAddress serverAddress = new InetSocketAddress("127.0.0.1", 5000);
@@ -203,17 +213,18 @@ public class NPCController {
 			});
 		} catch (Exception e) {
 			e.printStackTrace();
+			return e.getMessage();
 		} finally {
 			if (connector != null) {
 				connector.dispose();
 			}
 		}
-		return "npc";
+		return "OK";
 	}
 
 	@RequestMapping(value = "/npc/6")
-	public String npcStream(Model model) {
-		// TODO test NPC stream
-		return "npc";
+	public @ResponseBody
+	String npcStream(Model model) {
+		return "NOT_IMPLEMENTED";
 	}
 }

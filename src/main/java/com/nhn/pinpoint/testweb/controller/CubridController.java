@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.nhn.pinpoint.testweb.service.CubridService;
 
@@ -21,22 +22,34 @@ public class CubridController {
 	private CubridService cubridService;
 
 	@RequestMapping(value = "/cubrid/selectOne")
-	public String selectOne(Model model) {
-		logger.info("selectOne start");
+	public @ResponseBody
+	String selectOne(Model model) {
+		try {
+			logger.info("selectOne start");
 
-		int i = cubridService.selectOne();
+			int i = cubridService.selectOne();
 
-		logger.info("selectOne end:{}", i);
-		return "donothing";
+			logger.info("selectOne end:{}", i);
+			return "OK";
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			return e.getMessage();
+		}
 	}
 
 	@RequestMapping(value = "/cubrid/createStatement")
-	public String oracleStatement(Model model) {
-		logger.info("createStatement start");
+	public @ResponseBody
+	String oracleStatement(Model model) {
+		try {
+			logger.info("createStatement start");
+			
+			cubridService.createStatement();
 
-		cubridService.createStatement();
-
-		logger.info("createStatement end:{}");
-		return "donothing";
+			logger.info("createStatement end:{}");
+			return "OK";
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			return e.getMessage();
+		}
 	}
 }

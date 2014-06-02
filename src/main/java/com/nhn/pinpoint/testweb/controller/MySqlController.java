@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.nhn.pinpoint.testweb.domain.Member;
 import com.nhn.pinpoint.testweb.service.MemberService;
@@ -31,56 +32,80 @@ public class MySqlController {
 	private MemberService service;
 
 	@RequestMapping(value = "/mysql/crud")
-	public String crud(Model model) {
-		int id = (new Random()).nextInt();
+	public @ResponseBody
+	String crud(Model model) {
+		try {
+			int id = (new Random()).nextInt();
 
-		Member member = new Member();
-		member.setId(id);
-		member.setName("chisu");
-		member.setJoined(new Date());
+			Member member = new Member();
+			member.setId(id);
+			member.setName("chisu");
+			member.setJoined(new Date());
 
-		service.add(member);
-		service.list();
-		service.delete(id);
+			service.add(member);
+			service.list();
+			service.delete(id);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			return e.getMessage();
+		}
 
-		return "mysql";
+		return "OK";
 	}
 
 	@RequestMapping(value = "/mysql/crudWithStatement")
-	public String crudWithStatement(Model model) {
-		int id = (new Random()).nextInt();
+	public @ResponseBody
+	String crudWithStatement(Model model) {
+		try {
+			int id = (new Random()).nextInt();
 
-		Member member = new Member();
-		member.setId(id);
-		member.setName("chisu");
-		member.setJoined(new Date());
+			Member member = new Member();
+			member.setId(id);
+			member.setName("chisu");
+			member.setJoined(new Date());
 
-		service.addStatement(member);
-		service.list();
-		service.delete(id);
+			service.addStatement(member);
+			service.list();
+			service.delete(id);
 
-		return "mysql";
+			return "OK";
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			return e.getMessage();
+		}
 	}
 
 	@Description("preparedStatement 테스트. resultset은 가지고 오지 않음.")
 	@RequestMapping(value = "/mysql/selectOne")
-	public String selectOne(Model model) {
-		logger.info("selectOne start");
+	public @ResponseBody
+	String selectOne(Model model) {
+		try {
+			logger.info("selectOne start");
 
-		int i = mySqlService.selectOne();
+			int i = mySqlService.selectOne();
 
-		logger.info("selectOne end:{}", i);
-		return "mysql";
+			logger.info("selectOne end:{}", i);
+			return "OK";
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			return e.getMessage();
+		}
 	}
 
 	@Description("statement 테스트. resultset은 가지고 오지 않음.")
 	@RequestMapping(value = "/mysql/createStatement")
-	public String oracleStatement(Model model) {
-		logger.info("createStatement start");
+	public @ResponseBody
+	String oracleStatement(Model model) {
+		try {
+			logger.info("createStatement start");
 
-		mySqlService.createStatement();
+			mySqlService.createStatement();
 
-		logger.info("createStatement end:{}");
-		return "mysql";
+			logger.info("createStatement end:{}");
+			return "OK";
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			return e.getMessage();
+		}
 	}
 }

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.testweb.util;
+package com.nhn.pinpoint.testweb.connector.apachehttp4;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
@@ -20,8 +20,15 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
-public class HttpInvoker {
+/**
+ * 
+ * @author netspider
+ * 
+ */
+@Component
+public class ApacheHttpClient4 {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -29,11 +36,11 @@ public class HttpInvoker {
 
 	private HttpConnectorOptions connectorOptions;
 
-	public HttpInvoker() {
+	public ApacheHttpClient4() {
 		this(new HttpConnectorOptions());
 	}
 
-	public HttpInvoker(HttpConnectorOptions connectorOptions) {
+	public ApacheHttpClient4(HttpConnectorOptions connectorOptions) {
 		this.connectorOptions = connectorOptions;
 	}
 

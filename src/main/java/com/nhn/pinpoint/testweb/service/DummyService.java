@@ -4,8 +4,8 @@ import java.util.HashMap;
 
 import org.springframework.stereotype.Service;
 
-import com.nhn.pinpoint.testweb.util.HttpConnectorOptions;
-import com.nhn.pinpoint.testweb.util.HttpInvoker;
+import com.nhn.pinpoint.testweb.connector.apachehttp4.HttpConnectorOptions;
+import com.nhn.pinpoint.testweb.connector.apachehttp4.ApacheHttpClient4;
 
 @Service
 public class DummyService {
@@ -59,7 +59,7 @@ public class DummyService {
 
 	private void ca() {
 		System.out.println("ca");
-		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+		ApacheHttpClient4 client = new ApacheHttpClient4(new HttpConnectorOptions());
 		client.execute("http://localhost:8080/mysqlsimple.pinpoint", new HashMap<String, Object>());
 	}
 }

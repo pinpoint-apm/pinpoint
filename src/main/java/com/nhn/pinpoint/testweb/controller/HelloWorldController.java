@@ -23,16 +23,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import perftest.LevelManager;
 
+import com.nhn.pinpoint.testweb.connector.apachehttp4.HttpConnectorOptions;
+import com.nhn.pinpoint.testweb.connector.apachehttp4.ApacheHttpClient4;
 import com.nhn.pinpoint.testweb.domain.Member;
 import com.nhn.pinpoint.testweb.service.CacheService;
 import com.nhn.pinpoint.testweb.service.DummyService;
 import com.nhn.pinpoint.testweb.service.MemberService;
 import com.nhn.pinpoint.testweb.util.Description;
-import com.nhn.pinpoint.testweb.util.HttpConnectorOptions;
-import com.nhn.pinpoint.testweb.util.HttpInvoker;
 import com.nhncorp.lucy.net.invoker.InvocationFuture;
 import com.nhncorp.lucy.npc.connector.NpcHessianConnector;
 
@@ -70,31 +71,36 @@ public class HelloWorldController implements DisposableBean {
 	}
 
 	@RequestMapping(value = "/dummy")
-	public String dummy(Model model) {
+	public @ResponseBody
+	String dummy(Model model) {
 		dummyService.doSomething();
-		return "donothing";
+		return "OK";
 	}
 
 	@RequestMapping(value = "/encoding")
-	public String encoding(Model model, @RequestParam("name") String name) {
+	public @ResponseBody
+	String encoding(Model model, @RequestParam("name") String name) {
 		logger.debug("name=" + name);
-		return "donothing";
+		return "OK";
 	}
 
 	@RequestMapping(value = "/arcus")
-	public String arcus(Model model) {
+	public @ResponseBody
+	String arcus(Model model) {
 		cacheService.arcus();
-		return "arcus";
+		return "OK";
 	}
 
 	@RequestMapping(value = "/memcached")
-	public String memcached(Model model) {
+	public @ResponseBody
+	String memcached(Model model) {
 		cacheService.memcached();
-		return "memcached";
+		return "OK";
 	}
 
 	@RequestMapping(value = "/mysql")
-	public String mysql(Model model) {
+	public @ResponseBody
+	String mysql(Model model) {
 		int id = (new Random()).nextInt();
 
 		Member member = new Member();
@@ -111,12 +117,13 @@ public class HelloWorldController implements DisposableBean {
 		// del
 		service.delete(id);
 
-		return "mysql";
+		return "OK";
 	}
 
 	@Description("바인드 변수 + 상수값 파싱 로직테스트")
 	@RequestMapping(value = "/mysqlStatement")
-	public String mysqlStatement(Model model) {
+	public @ResponseBody
+	String mysqlStatement(Model model) {
 		int id = (new Random()).nextInt();
 
 		Member member = new Member();
@@ -133,30 +140,32 @@ public class HelloWorldController implements DisposableBean {
 		// del
 		service.delete(id);
 
-		return "mysql";
+		return "OK";
 	}
 
 	@RequestMapping(value = "/nested")
-	public String nested(Model model) {
-		HttpInvoker client2 = new HttpInvoker(new HttpConnectorOptions());
+	public @ResponseBody
+	String nested(Model model) {
+		ApacheHttpClient4 client2 = new ApacheHttpClient4(new HttpConnectorOptions());
 		client2.execute("http://localhost:8080/donothing.pinpoint", new HashMap<String, Object>());
 
-		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+		ApacheHttpClient4 client = new ApacheHttpClient4(new HttpConnectorOptions());
 		client.execute("http://www.naver.com/", new HashMap<String, Object>());
 		mysql(model);
-		return "remotecombination";
+		return "OK";
 	}
 
 	@RequestMapping(value = "/remotecombination")
-	public String remotecombination(Model model) {
+	public @ResponseBody
+	String remotecombination(Model model) {
 		String[] ports = new String[] { "9080", "10080", "11080" };
 		Random random = new Random();
 		String port = ports[random.nextInt(3)];
 
-		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+		ApacheHttpClient4 client = new ApacheHttpClient4(new HttpConnectorOptions());
 		client.execute("http://localhost:" + port + "/combination.pinpoint", new HashMap<String, Object>());
 
-		HttpInvoker client2 = new HttpInvoker(new HttpConnectorOptions());
+		ApacheHttpClient4 client2 = new ApacheHttpClient4(new HttpConnectorOptions());
 		client2.execute("http://localhost:8080/arcus.pinpoint", new HashMap<String, Object>());
 
 		client.execute("http://www.naver.com/", new HashMap<String, Object>());
@@ -171,23 +180,25 @@ public class HelloWorldController implements DisposableBean {
 			client.execute("http://url3/", new HashMap<String, Object>());
 		} catch (Exception e) {
 		}
-		return "remotecombination";
+		return "OK";
 	}
 
 	@RequestMapping(value = "/remotearcus")
-	public String remotearcus(Model model) {
+	public @ResponseBody
+	String remotearcus(Model model) {
 		arcus(model);
 
 		String[] ports = new String[] { "9080", "10080", "11080" };
 		Random random = new Random();
 		String port = ports[random.nextInt(3)];
-		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+		ApacheHttpClient4 client = new ApacheHttpClient4(new HttpConnectorOptions());
 		client.execute("http://localhost:" + port + "/arcus.pinpoint", new HashMap<String, Object>());
-		return "remotecombination";
+		return "OK";
 	}
 
 	@RequestMapping(value = "/combination")
-	public String combination(Model model) {
+	public @ResponseBody
+	String combination(Model model) {
 		try {
 			mysql(model);
 		} catch (Exception e) {
@@ -208,7 +219,7 @@ public class HelloWorldController implements DisposableBean {
 
 		randomSlowMethod();
 
-		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+		ApacheHttpClient4 client = new ApacheHttpClient4(new HttpConnectorOptions());
 		client.execute("http://www.naver.com/", new HashMap<String, Object>());
 		client.execute("http://www.naver.com/", new HashMap<String, Object>());
 
@@ -217,39 +228,48 @@ public class HelloWorldController implements DisposableBean {
 
 		npc(model);
 
-		return "combination";
+		return "OK";
 	}
 
 	@RequestMapping(value = "/httperror")
-	public String httperror(Model model) {
-		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+	public @ResponseBody
+	String httperror(Model model) {
+		ApacheHttpClient4 client = new ApacheHttpClient4(new HttpConnectorOptions());
 		client.execute("http://127.0.0.1/", new HashMap<String, Object>());
-		return "error";
+		return "OK";
 	}
 
 	@RequestMapping(value = "/error500")
-	public String error500(Model model) {
-		int i = 1 / 0;
-		return "error";
+	public @ResponseBody
+	String error500(Model model) {
+		try {
+			int i = 1 / 0;
+			return "OK";
+		} catch (Exception e) {
+			return e.getMessage();
+		}
 	}
 
 	@RequestMapping(value = "/slow")
-	public String slow(Model model) {
+	public @ResponseBody
+	String slow(Model model) {
 		try {
 			Thread.sleep(new Random().nextInt(10) * 100);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		return "error";
+		return "OK";
 	}
 
 	@RequestMapping(value = "/throwexception")
-	public String exception(Model model) {
+	public @ResponseBody
+	String exception(Model model) {
 		throw new RuntimeException("Exception test");
 	}
 
 	@RequestMapping(value = "/arcustimeout")
-	public String arcustimeout(Model model) {
+	public @ResponseBody
+	String arcustimeout(Model model) {
 		Future<Boolean> future = null;
 		try {
 			future = arcus.set("pinpoint:expect-timeout", 10, "Hello, Timeout.");
@@ -258,39 +278,44 @@ public class HelloWorldController implements DisposableBean {
 			if (future != null)
 				future.cancel(true);
 			e.printStackTrace();
+			return e.getMessage();
 		}
-		return "timeout";
+		return "OK";
 	}
 
 	@RequestMapping(value = "/remotesimple")
-	public String remotesimple(Model model) {
+	public @ResponseBody
+	String remotesimple(Model model) {
 		String[] ports = new String[] { "9080", "10080", "11080" };
 		Random random = new Random();
 		String port = ports[random.nextInt(3)];
 
 		arcus(model);
 
-		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+		ApacheHttpClient4 client = new ApacheHttpClient4(new HttpConnectorOptions());
 		client.execute("http://localhost:" + port + "/arcus.pinpoint", new HashMap<String, Object>());
-		return "remotecombination";
+		return "OK";
 	}
 
 	@RequestMapping(value = "/remoteerror")
-	public String remoteError(Model model) {
-		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+	public @ResponseBody
+	String remoteError(Model model) {
+		ApacheHttpClient4 client = new ApacheHttpClient4(new HttpConnectorOptions());
 		client.execute("http://localhost:10080/rpcerror.pinpoint", new HashMap<String, Object>());
-		return "remotecombination";
+		return "OK";
 	}
 
 	@RequestMapping(value = "/rpcerror")
-	public String rpcError(Model model) {
-		HttpInvoker client = new HttpInvoker(new HttpConnectorOptions());
+	public @ResponseBody
+	String rpcError(Model model) {
+		ApacheHttpClient4 client = new ApacheHttpClient4(new HttpConnectorOptions());
 		client.execute("UNKNOWN_URL", new HashMap<String, Object>());
-		return "remotecombination";
+		return "OK";
 	}
 
 	@RequestMapping(value = "/npc")
-	public String npc(Model model) {
+	public @ResponseBody
+	String npc(Model model) {
 		try {
 			InetSocketAddress serverAddress = new InetSocketAddress("127.0.0.1", 5000);
 			NpcHessianConnector connector = new NpcHessianConnector(serverAddress, true);
@@ -306,15 +331,17 @@ public class HelloWorldController implements DisposableBean {
 			Object result = future.getReturnValue();
 			System.out.println("npc result=" + result);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
+			return e.getMessage();
 		}
-		return "npc";
+		return "OK";
 	}
 
 	@RequestMapping(value = "/perftest")
-	public String perfTest(Model model) {
+	public @ResponseBody
+	String perfTest(Model model) {
 		levelManager.traverse();
-		return "perftest";
+		return "OK";
 	}
 
 	@Override
