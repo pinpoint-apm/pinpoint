@@ -36,6 +36,7 @@
 
         <property name="testOnBorrow" value="false"></property>
         <property name="testOnReturn" value="false"></property>
+        <!-- 원래는 true가 맞으나. 연결이 오래 지속되면 끊기는 상황에서 정상동작하는지 보기 위해서 false로 남겨두자.-->
         <property name="testWhileIdle" value="false"></property>
 
         <property name="timeBetweenEvictionRunsMillis" value="30000"></property>
@@ -67,6 +68,7 @@
 
         <property name="testOnBorrow" value="false"></property>
         <property name="testOnReturn" value="false"></property>
+        <!-- 원래는 true가 맞으나. 연결이 오래 지속되면 끊기는 상황에서 정상동작하는지 보기 위해서 false로 남겨두자.-->
         <property name="testWhileIdle" value="false"></property>
 
         <property name="timeBetweenEvictionRunsMillis" value="30000"></property>
