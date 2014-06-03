@@ -94,7 +94,6 @@ public class JDBCUrlParserTest {
 
     @Test
     public void mysqlParseCookierunSlave2() {
-        // TODO 파싱이 정상적이지 않음. 파싱로직보완이 필요함.
         DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:mysql:loadbalance://10.118.222.35:5605,10.118.222.36:5605/db_cookierun?useUnicode=true&characterEncoding=UTF-8&noAccessToProcedureBodies=true&autoDeserialize=true&elideSetAutoCommits=true&sessionVariables=time_zone='%2B09:00',tx_isolation='READ-UNCOMMITTED'");
         Assert.assertEquals(dbInfo.getType(), ServiceType.MYSQL);
         Assert.assertEquals(dbInfo.getHost().get(0), "10.118.222.35:5605");

@@ -34,6 +34,7 @@ public class DriverConnectInterceptor implements SimpleAroundInterceptor, ByteCo
     }
 
     public DriverConnectInterceptor(boolean recordConnection) {
+        // mysql loadbalance 전용옵션 실제 destination은 하위의 구현체에서 레코딩한다.
         this.recordConnection = recordConnection;
     }
 
@@ -79,10 +80,13 @@ public class DriverConnectInterceptor implements SimpleAroundInterceptor, ByteCo
         }
 
         try {
-            // database connect도 매우 무거운 액션이므로 카운트로 친다.
-            trace.recordServiceType(databaseInfo.getExecuteQueryType());
-            trace.recordEndPoint(databaseInfo.getMultipleHost());
-            trace.recordDestinationId(databaseInfo.getDatabaseId());
+
+            if (recordConnection) {
+                // database connect도 매우 무거운 액션이므로 카운트로 친다.
+                trace.recordServiceType(databaseInfo.getExecuteQueryType());
+                trace.recordEndPoint(databaseInfo.getMultipleHost());
+                trace.recordDestinationId(databaseInfo.getDatabaseId());
+            }
 
 
             trace.recordApiCachedString(descriptor, driverUrl, 0);

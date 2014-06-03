@@ -1,6 +1,7 @@
-package com.nhn.pinpoint.profiler.modifier.db.mysql;
+package com.nhn.pinpoint.profiler.modifier.db.mysql.interceptor;
 
 import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
+import com.nhn.pinpoint.bootstrap.context.Trace;
 import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.interceptor.*;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
@@ -35,17 +36,29 @@ public class MySQLConnectionCreateInterceptor implements SimpleAroundInterceptor
             return;
         }
 
-        if (InterceptorUtils.isThrowable(result)) {
-            return;
+        final String url = getString(args[0]);
+        final Integer port = getInteger(args[1]);
+        final String databaseId = getString(args[3]);
+        DatabaseInfo databaseInfo = null;
+        if (url != null && port != null && databaseId != null) {
+            databaseInfo = traceContext.createDatabaseInfo(ServiceType.MYSQL, ServiceType.MYSQL_EXECUTE_QUERY, url, port, databaseId);
+            if (InterceptorUtils.isSuccess(result)) {
+                // connection이 정상 성공일때만 set해야 한다.
+                setUrl.invoke(target, databaseInfo);
+            }
         }
 
-        String url = getString(args[0]);
-        Integer port = getInteger(args[1]);
-        String databaseId = getString(args[3]);
-        if (url != null && port != null && databaseId != null) {
-            DatabaseInfo databaseInfo = traceContext.createDatabaseInfo(ServiceType.MYSQL, ServiceType.MYSQL_EXECUTE_QUERY, url, port, databaseId);
-            setUrl.invoke(target, databaseInfo);
+        final Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
+            return;
         }
+        // 상위에서 레코딩 중일 경우반드시한다.
+        if (databaseInfo != null) {
+            trace.recordServiceType(databaseInfo.getExecuteQueryType());
+            trace.recordEndPoint(databaseInfo.getMultipleHost());
+            trace.recordDestinationId(databaseInfo.getDatabaseId());
+        }
+
     }
 
     private String getString(Object value) {

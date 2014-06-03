@@ -12,6 +12,7 @@ import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import java.security.ProtectionDomain;
 
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.*;
+import com.nhn.pinpoint.profiler.modifier.db.mysql.interceptor.MySQLConnectionCreateInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
