@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.profiler.context;
 
-import com.nhn.pinpoint.bootstrap.context.AsyncTrace;
+import com.nhn.pinpoint.bootstrap.context.Metric;
 import com.nhn.pinpoint.bootstrap.context.Trace;
 import com.nhn.pinpoint.bootstrap.context.TraceId;
 import com.nhn.pinpoint.common.AnnotationKey;
@@ -51,6 +51,11 @@ public class DisableTrace  implements Trace {
 
     @Override
     public void traceRootBlockEnd() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void traceRootBlockEnd(Metric responseMetric) {
         throw new UnsupportedOperationException();
     }
 

@@ -1,15 +1,13 @@
 package com.nhn.pinpoint.profiler.context;
 
-import com.nhn.pinpoint.bootstrap.context.AsyncTrace;
-import com.nhn.pinpoint.bootstrap.context.Trace;
-import com.nhn.pinpoint.bootstrap.context.TraceContext;
-import com.nhn.pinpoint.bootstrap.context.TraceId;
+import com.nhn.pinpoint.bootstrap.context.*;
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.util.ParsingResult;
-import com.nhn.pinpoint.profiler.AgentInformation;
+import com.nhn.pinpoint.exception.PinpointException;
 import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.bootstrap.util.StringUtils;
+import com.nhn.pinpoint.profiler.monitor.metric.Histogram;
 import com.nhn.pinpoint.thrift.dto.TIntStringStringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -171,9 +169,26 @@ public final class DefaultTrace implements Trace {
     }
 
     @Override
+    public void traceRootBlockEnd(Metric responseMetric) {
+        recordResponseTime(responseMetric);
+        traceRootBlockEnd();
+    }
+
+
+    private void recordResponseTime(Metric responseMetric) {
+        if (responseMetric instanceof Histogram) {
+            Histogram histogram = (Histogram) responseMetric;
+            histogram.addResponseTime(getAfterTime());
+        } else {
+            logger.warn("invalid Metric:{}", responseMetric);
+        }
+    }
+
+    @Override
     public void traceBlockEnd() {
         traceBlockEnd(DEFAULT_STACKID);
     }
+
 
 
     @Override
@@ -190,7 +205,8 @@ public final class DefaultTrace implements Trace {
         if (stackFrameId != stackId) {
             // 자체 stack dump를 하면 오류발견이 쉬울것으로 생각됨
             if (logger.isWarnEnabled()) {
-                logger.warn("Corrupted CallStack found. StackId not matched. expected:{} current:{}", stackId, stackFrameId);
+                PinpointException exception = new PinpointException("Corrupted CallStack found");
+                logger.warn("Corrupted CallStack found. StackId not matched. expected:{} current:{}", stackId, stackFrameId, exception);
             }
         }
         if (currentStackFrame instanceof RootStackFrame) {

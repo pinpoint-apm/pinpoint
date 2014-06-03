@@ -4,16 +4,12 @@ import com.nhn.pinpoint.common.ServiceType;
 import junit.framework.Assert;
 import org.junit.Test;
 
-import java.util.concurrent.ConcurrentHashMap;
-
-import static org.junit.Assert.*;
-
 public class MetricRegistryTest {
 
     @Test
     public void testSuccess() {
         MetricRegistry metricRegistry = new MetricRegistry(ServiceType.TOMCAT);
-        ResponseMetric rpcMetric = metricRegistry.getRpcMetric(ServiceType.HTTP_CLIENT);
+        RpcMetric rpcMetric = metricRegistry.getRpcMetric(ServiceType.HTTP_CLIENT);
 
 
     }

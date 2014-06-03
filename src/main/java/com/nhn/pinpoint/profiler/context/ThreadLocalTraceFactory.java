@@ -17,9 +17,10 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class ThreadLocalTraceFactory implements TraceFactory {
 
-    private static final Logger logger = LoggerFactory.getLogger(ThreadLocalTraceFactory.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ThreadLocal<Trace> threadLocal = new NamedThreadLocal<Trace>("Trace");
+
     private final TraceContext traceContext;
     private final MetricRegistry metricRegistry;
 
@@ -61,10 +62,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         if (trace == null) {
             return null;
         }
-        if (trace.canSampled()) {
-            return trace;
-        }
-        return null;
+        return trace;
     }
 
     /**

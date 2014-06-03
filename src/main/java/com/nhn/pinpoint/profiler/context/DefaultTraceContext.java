@@ -1,14 +1,12 @@
 package com.nhn.pinpoint.profiler.context;
 
 
-import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
-import com.nhn.pinpoint.bootstrap.context.Trace;
-import com.nhn.pinpoint.bootstrap.context.TraceContext;
-import com.nhn.pinpoint.bootstrap.context.TraceId;
+import com.nhn.pinpoint.bootstrap.context.*;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.AgentInformation;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.metadata.SimpleCache;
+import com.nhn.pinpoint.profiler.modifier.db.DefaultDatabaseInfo;
 import com.nhn.pinpoint.profiler.monitor.metric.MetricRegistry;
 import com.nhn.pinpoint.profiler.sender.EnhancedDataSender;
 import com.nhn.pinpoint.thrift.dto.TApiMetaData;
@@ -23,6 +21,9 @@ import com.nhn.pinpoint.bootstrap.sampler.Sampler;
 import com.nhn.pinpoint.thrift.dto.TStringMetaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author emeroad
@@ -84,7 +85,7 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     public Trace currentRpcTraceObject() {
-        return traceFactory.currentRpcTraceObject();
+        return traceFactory.currentTraceObject();
     }
 
     /**
@@ -256,9 +257,19 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     @Override
-    public DatabaseInfo parseJdbcUrl(final String url) {
+     public DatabaseInfo parseJdbcUrl(final String url) {
         return this.jdbcUrlParser.parse(url);
     }
+
+    @Override
+    public DatabaseInfo createDatabaseInfo(ServiceType type, ServiceType executeQueryType, String url, int port, String databaseId) {
+        List<String> host = new ArrayList<String>();
+        host.add(url + ":" + port);
+        DatabaseInfo databaseInfo = new DefaultDatabaseInfo(type, executeQueryType, url, url, host, databaseId);
+        return databaseInfo;
+    }
+
+
 
     public void setPriorityDataSender(final EnhancedDataSender priorityDataSender) {
         this.priorityDataSender = priorityDataSender;
@@ -272,4 +283,17 @@ public class DefaultTraceContext implements TraceContext {
         this.agentInformation = agentInformation;
     }
 
+    @Override
+    public Metric getRpcMetric(ServiceType serviceType) {
+        if (serviceType == null) {
+            throw new NullPointerException("serviceType must not be null");
+        }
+
+        return this.metricRegistry.getRpcMetric(serviceType);
+    }
+
+    @Override
+    public Metric getContextMetric() {
+        return this.metricRegistry.getResponseMetric();
+    }
 }

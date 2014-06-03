@@ -8,13 +8,13 @@ import org.junit.Test;
 import java.util.List;
 
 
-public class DefaultResponseMetricTest {
+public class DefaultRpcMetricTest {
 
     @Test
     public void testAddResponseTime() throws Exception {
 
         HistogramSchema schema = ServiceType.HTTP_CLIENT.getHistogramSchema();
-        DefaultResponseMetric metric = new DefaultResponseMetric(ServiceType.HTTP_CLIENT);
+        DefaultRpcMetric metric = new DefaultRpcMetric(ServiceType.HTTP_CLIENT);
         metric.addResponseTime("test1", schema.getFastSlot().getSlotTime());
 
         metric.addResponseTime("test2", schema.getSlowSlot().getSlotTime());

@@ -1,12 +1,13 @@
 package com.nhn.pinpoint.profiler.monitor.metric;
 
+import com.nhn.pinpoint.bootstrap.context.Metric;
+
 import java.util.Collection;
-import java.util.List;
 
 /**
  * @author emeroad
  */
-public interface ResponseMetric {
+public interface RpcMetric extends Metric {
 
     void addResponseTime(String destinationId, int millis);
 

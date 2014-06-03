@@ -31,9 +31,9 @@ public class LongAdderHistogram implements Histogram {
         return serviceType;
     }
 
-    public void addResponseTime(int millis) {
+    public void addResponseTime(long millis) {
         HistogramSchema schema = serviceType.getHistogramSchema();
-        final HistogramSlot histogramSlot = schema.findHistogramSlot(millis);
+        final HistogramSlot histogramSlot = schema.findHistogramSlot((int) millis);
         final SlotType slotType = histogramSlot.getSlotType();
         switch (slotType) {
             case FAST:
