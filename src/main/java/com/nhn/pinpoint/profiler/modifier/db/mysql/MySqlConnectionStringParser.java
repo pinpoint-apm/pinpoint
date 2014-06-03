@@ -8,18 +8,53 @@ import com.nhn.pinpoint.profiler.modifier.db.JDBCUrlParser;
 import com.nhn.pinpoint.profiler.modifier.db.StringMaker;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * @author emeroad
  */
 public class MySqlConnectionStringParser implements ConnectionStringParser {
 
+    // jdbc:mysql:loadbalance://10.25.149.62:3306,10.25.149.61:3306/MySQL?characterEncoding=UTF-8
+    private static final String JDBC_MYSQL_LOADBALANCE = "jdbc:mysql:loadbalance:";
+    private static Pattern COMMA_SPLIT = Pattern.compile(",");
+
     @Override
     public DatabaseInfo parse(String url) {
         if (url == null) {
             return JDBCUrlParser.createUnknownDataBase(ServiceType.MYSQL, ServiceType.MYSQL_EXECUTE_QUERY, url);
         }
+
+        if (isLoadbalanceUrl(url)) {
+            return parseLoadbalancedUrl(url);
+        }
+        return parseNormal(url);
+    }
+
+    private DatabaseInfo parseLoadbalancedUrl(String url) {
+        // jdbc:mysql://10.98.133.22:3306/test_lucy_db
+        StringMaker maker = new StringMaker(url);
+        maker.after("jdbc:mysql:");
+        // 10.98.133.22:3306 replacation driver같은 경우 n개가 가능할듯.
+        // mm db? 의 경우도 고려해야 될듯하다.
+        String host = maker.after("//").before('/').value();
+
+        String[] parsedHost = COMMA_SPLIT.split(host);
+        List<String> hostList = Arrays.asList(parsedHost);
+
+
+        String databaseId = maker.next().afterLast('/').before('?').value();
+        String normalizedUrl = maker.clear().before('?').value();
+        return new DefaultDatabaseInfo(ServiceType.MYSQL, ServiceType.MYSQL_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
+    }
+
+    private boolean isLoadbalanceUrl(String url) {
+        return url.regionMatches(true, 0, JDBC_MYSQL_LOADBALANCE, 0, JDBC_MYSQL_LOADBALANCE.length());
+    }
+
+    private DatabaseInfo parseNormal(String url) {
         // jdbc:mysql://10.98.133.22:3306/test_lucy_db
         StringMaker maker = new StringMaker(url);
         maker.after("jdbc:mysql:");

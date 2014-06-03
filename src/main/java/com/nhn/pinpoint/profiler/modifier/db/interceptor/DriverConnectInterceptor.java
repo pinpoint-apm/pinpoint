@@ -27,6 +27,15 @@ public class DriverConnectInterceptor implements SimpleAroundInterceptor, ByteCo
     private MethodDescriptor descriptor;
     private TraceContext traceContext;
     private final DepthScope scope = JDBCScope.SCOPE;
+    private final boolean recordConnection;
+
+    public DriverConnectInterceptor() {
+        this(true);
+    }
+
+    public DriverConnectInterceptor(boolean recordConnection) {
+        this.recordConnection = recordConnection;
+    }
 
     @Override
     public void before(Object target, Object[] args) {
@@ -58,8 +67,10 @@ public class DriverConnectInterceptor implements SimpleAroundInterceptor, ByteCo
         final String driverUrl = (String) args[0];
         DatabaseInfo databaseInfo = createDatabaseInfo(driverUrl);
         if (success) {
-            // 생성이 성공해야 result가 connection임.
-            this.setUrl.invoke(result, databaseInfo);
+            if (recordConnection) {
+                // 생성이 성공해야 result가 connection임.
+                this.setUrl.invoke(result, databaseInfo);
+            }
         }
 
         final Trace trace = traceContext.currentTraceObject();

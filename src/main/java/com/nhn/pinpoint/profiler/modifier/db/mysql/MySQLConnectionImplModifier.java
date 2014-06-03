@@ -47,6 +47,9 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
 //                "java.lang.String", "int", "java.util.Properties", "java.lang.String", "java.lang.String"
 //            };
 //            mysqlConnection.addInterceptor("getInstance", params, createConnection);
+            Interceptor connectionUrlBindInterceptor = new MySQLConnectionCreateInterceptor();
+            mysqlConnection.addConstructorInterceptor(new String[]{"java.lang.String", "int",
+                    "java.util.Properties", "java.lang.String", "java.lang.String" }, connectionUrlBindInterceptor);
 
 
             Interceptor closeConnection = new ConnectionCloseInterceptor();
