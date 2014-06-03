@@ -98,7 +98,7 @@ public class JDBCUrlParserTest {
         DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:mysql:loadbalance://10.118.222.35:5605,10.118.222.36:5605/db_cookierun?useUnicode=true&characterEncoding=UTF-8&noAccessToProcedureBodies=true&autoDeserialize=true&elideSetAutoCommits=true&sessionVariables=time_zone='%2B09:00',tx_isolation='READ-UNCOMMITTED'");
         Assert.assertEquals(dbInfo.getType(), ServiceType.MYSQL);
         Assert.assertEquals(dbInfo.getHost().get(0), "10.118.222.35:5605");
-        Assert.assertEquals(dbInfo.getHost().get(0), "10.118.222.36:5605");
+        Assert.assertEquals(dbInfo.getHost().get(1), "10.118.222.36:5605");
         Assert.assertEquals(dbInfo.getDatabaseId(), "db_cookierun");
         Assert.assertEquals(dbInfo.getUrl(), "jdbc:mysql:loadbalance://10.118.222.35:5605,10.118.222.36:5605/db_cookierun");
         logger.info(dbInfo.toString());
