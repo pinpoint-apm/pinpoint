@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.bootstrap.context;
 
+import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.util.ParsingResult;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
@@ -43,9 +44,15 @@ public interface TraceContext {
 
     DatabaseInfo parseJdbcUrl(String sql);
 
+    DatabaseInfo createDatabaseInfo(ServiceType type, ServiceType executeQueryType, String url, int port, String databaseId);
+
     TraceId createTraceId(String transactionId, long parentSpanID, long spanID, short flags);
 
     void disableSampling();
 
     ProfilerConfig getProfilerConfig();
+
+    Metric getRpcMetric(ServiceType serviceType);
+
+    Metric getContextMetric();
 }
