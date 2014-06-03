@@ -19,6 +19,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
 import java.sql.*;
 import java.util.Properties;
 
@@ -55,32 +58,15 @@ public class MySQLConnectionImplModifierTest {
     @Test
     public void testModify() throws Exception {
 
-        Class<Driver> driverClazz = (Class<Driver>) loader.loadClass("com.mysql.jdbc.NonRegisteringDriver");
-//        Driver nonRegisteringDriver = new NonRegisteringDriver();
-//        Class<Driver> driverClazz = (Class<Driver>) nonRegisteringDriver.getClass();
-
-        Driver driver = driverClazz.newInstance();
-        logger.info("Driver class name:" + driverClazz.getName());
-        logger.info("Driver class cl:" + driverClazz.getClassLoader());
+        Driver driver = loadClass();
 
         Properties properties = new Properties();
         properties.setProperty("user", "lucytest");
         properties.setProperty("password", "testlucy");
-
-        Class<?> aClass = loader.loadClass("com.mysql.jdbc.StringUtils");
-//      이게 loader와 동일하게 로드 되는게 정확한건지 애매함. 하위에 로드되는게 좋을것 같은데.
-//        Assert.assertNotSame("check classLoader", aClass.getClassLoader(), loader);
-        logger.debug("mysql cl:{}", aClass.getClassLoader());
-
-        Class<?> version = loader.loadClass("com.nhn.pinpoint.common.Version");
-        Assert.assertSame("check classLoader", this.getClass().getClassLoader(), version.getClassLoader());
-        logger.debug("common cl:{}", version.getClassLoader());
-
-
         Connection connection = driver.connect("jdbc:mysql://10.98.133.22:3306/hippo", properties);
 
-        logger.info("Connection class name:" + connection.getClass().getName());
-        logger.info("Connection class cl:" + connection.getClass().getClassLoader());
+        logger.info("Connection class name:{}", connection.getClass().getName());
+        logger.info("Connection class cl:{}", connection.getClass().getClassLoader());
 
         DatabaseInfo url = getUrl.invoke(connection);
         Assert.assertNotNull(url);
@@ -95,6 +81,66 @@ public class MySQLConnectionImplModifierTest {
 
         connection.close();
         DatabaseInfo clearUrl = getUrl.invoke(connection);
+        Assert.assertNull(clearUrl);
+
+    }
+
+    private Driver loadClass() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+        Class<Driver> driverClazz = (Class<Driver>) loader.loadClass("com.mysql.jdbc.NonRegisteringDriver");
+//        Driver nonRegisteringDriver = new NonRegisteringDriver();
+//        Class<Driver> driverClazz = (Class<Driver>) nonRegisteringDriver.getClass();
+
+        Driver driver = driverClazz.newInstance();
+        logger.info("Driver class name:{}", driverClazz.getName());
+        logger.info("Driver class cl:{}", driverClazz.getClassLoader());
+
+
+        Class<?> aClass = loader.loadClass("com.mysql.jdbc.StringUtils");
+//      이게 loader와 동일하게 로드 되는게 정확한건지 애매함. 하위에 로드되는게 좋을것 같은데.
+//        Assert.assertNotSame("check classLoader", aClass.getClassLoader(), loader);
+        logger.debug("mysql cl:{}", aClass.getClassLoader());
+
+        Class<?> version = loader.loadClass("com.nhn.pinpoint.common.Version");
+        Assert.assertSame("check classLoader", this.getClass().getClassLoader(), version.getClassLoader());
+        logger.debug("common cl:{}", version.getClassLoader());
+        return driver;
+    }
+
+    @Test
+    public void loadBalancedUrlModify() throws Exception {
+
+        Driver driver = loadClass();
+
+        Properties properties = new Properties();
+        properties.setProperty("user", "lucytest");
+        properties.setProperty("password", "testlucy");
+        Connection connection = driver.connect("jdbc:mysql:loadbalance://10.98.133.23:3306,10.98.133.22:3306/hippo", properties);
+
+        logger.info("Connection class name:{}", connection.getClass().getName());
+        logger.info("Connection class cl:{}", connection.getClass().getClassLoader());
+        // loadbalanced 타입을때 가져올수 있는 reflection을 쓰지 않으면
+        // 그리고 LoadBalancingConnectionProxy으로 캐스팅할 경우 classLoader가 달라서 문제가 생김. 일단 그냥둔다.
+        InvocationHandler invocationHandler = Proxy.getInvocationHandler(connection);
+        Class<? extends InvocationHandler> aClass = invocationHandler.getClass();
+
+        Field current = aClass.getDeclaredField("currentConn");
+        current.setAccessible(true);
+        Object internalConnection = current.get(invocationHandler);
+
+
+        DatabaseInfo url = getUrl.invoke(internalConnection);
+        Assert.assertNotNull(url);
+
+        statement(connection);
+
+        preparedStatement(connection);
+
+        preparedStatement2(connection);
+
+        preparedStatement3(connection);
+
+        connection.close();
+        DatabaseInfo clearUrl = getUrl.invoke(internalConnection);
         Assert.assertNull(clearUrl);
 
     }
