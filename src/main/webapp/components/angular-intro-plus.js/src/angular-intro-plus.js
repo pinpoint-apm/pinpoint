@@ -86,6 +86,7 @@ ngIntroDirective.directive('ngIntroPlusOptions', ['$timeout', '$parse', function
                         return;
                     }
                     newEl.appendTo('body');
+                    newEl.addClass('introjs-plus-help-icon');
                     newEl.css('top', offset.top + (height/2 - newEl.height()/2) + 'px');
                     newEl.css('left', offset.left + (width/2 - newEl.width()/2) + 'px');
                     if (lastHiddenHelpIconsIndex === i) {
@@ -106,11 +107,12 @@ ngIntroDirective.directive('ngIntroPlusOptions', ['$timeout', '$parse', function
              * remove child help icons
              */
             removeChildHelpIcons = function () {
-                for(var k in aelChildHelpIcons) {
-                    if (aelChildHelpIcons[k]) {
-                        aelChildHelpIcons[k].remove();
-                    }
-                }
+//                for(var k in aelChildHelpIcons) {
+//                    if (aelChildHelpIcons[k]) {
+//                        aelChildHelpIcons[k].remove();
+//                    }
+//                }
+                $('.introjs-plus-help-icon').remove();
             };
 
             /**
