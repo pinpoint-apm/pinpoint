@@ -1,6 +1,6 @@
 {
   "name": "angular-intro-plus.js",
-  "version": "0.3.4",
+  "version": "0.3.8",
   "description": "Angular directive to wrap intro.js, and developed from angular-intro.js",
   "main": "angular-intro-plus.js",
   "directories": {

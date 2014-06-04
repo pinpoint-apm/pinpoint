@@ -7,7 +7,7 @@ An angularjs directive that wraps [intro.js](http://usablica.github.io/intro.js/
 ![angularintroplus](https://lh4.googleusercontent.com/-YvCjzN3W1WE/U4nEnlUiE5I/AAAAAAAAx-w/fBZyPNR3mRo/w717-h417-no/%25E1%2584%2589%25E1%2585%25B3%25E1%2584%258F%25E1%2585%25B3%25E1%2584%2585%25E1%2585%25B5%25E1%2586%25AB%25E1%2584%2589%25E1%2585%25A3%25E1%2586%25BA+2014-05-31+%25E1%2584%258B%25E1%2585%25A9%25E1%2584%2592%25E1%2585%25AE+8.33.12.png)
 
 
-See [the demo page](http://angular-intro.iamdenny.com/) for an overview.
+See [the demo page](http://angular-intro-plus.iamdenny.com/) for an overview.
 
 
 ## Details

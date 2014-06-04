@@ -1,9 +1,9 @@
 var ngIntroDirective = angular.module('angular-intro-plus', []);
 
 /**
-* TODO: Use isolate scope, but requires angular 1.2: http://plnkr.co/edit/a2c14O?p=preview
-* See: http://stackoverflow.com/q/18796023/237209
-*/
+ * TODO: Use isolate scope, but requires angular 1.2: http://plnkr.co/edit/a2c14O?p=preview
+ * See: http://stackoverflow.com/q/18796023/237209
+ */
 
 ngIntroDirective.directive('ngIntroPlusOptions', ['$timeout', '$parse', function ($timeout, $parse) {
 
@@ -37,15 +37,15 @@ ngIntroDirective.directive('ngIntroPlusOptions', ['$timeout', '$parse', function
                     removeChildHelpIcons();
                 });
                 elPlusOverlay.appendTo('body');
+                lastHiddenHelpIconsIndex = false;
                 setTimeout(function() {
                     elPlusOverlay.css('opacity', 0.8);
 
                     if (attrs.ngIntroPlusOnAfterOverlayCreation) {
                         scope.$eval(attrs.ngIntroPlusOnAfterOverlayCreation)(scope);
                     }
+                    createChildHelpIcons();
                 }, 10);
-                lastHiddenHelpIconsIndex = false;
-                createChildHelpIcons();
             };
 
             /**
@@ -81,7 +81,8 @@ ngIntroDirective.directive('ngIntroPlusOptions', ['$timeout', '$parse', function
 
                     // @todo might be changed this to isVisible module
                     if (el.css('display') === 'none' ||
-                        (offset.top === 0 && offset.left === 0)) {
+                        (offset.top === 0 && offset.left === 0) ||
+                        width < 1 || height < 1) {
                         aelChildHelpIcons.push(false);
                         return;
                     }
@@ -229,27 +230,33 @@ ngIntroDirective.directive('ngIntroPlusOptions', ['$timeout', '$parse', function
              * ng intro plus hide
              */
             scope[attrs.ngIntroPlusHide] = function () {
-                exitIntro();
-                removeChildHelpIcons();
-                removeOverlay();
+                if (elPlusOverlay) {
+                    exitIntro();
+                    removeChildHelpIcons();
+                    removeOverlay();
+                }
             };
 
             /**
              * ng intro plus hide help box
              */
             scope[attrs.ngIntroPlusHideHelpBox] = function () {
-                exitIntro();
-                showChildHelpIcons();
+                if (elPlusOverlay) {
+                    exitIntro();
+                    showChildHelpIcons();
+                }
             };
 
             /**
              * ng intro plus refresh help icons
              */
             scope[attrs.ngIntroPlusRefreshHelpIcons] = function () {
-                $timeout(function () {
-                    removeChildHelpIcons();
-                    createChildHelpIcons();
-                });
+                if (elPlusOverlay) {
+                    $timeout(function () {
+                        removeChildHelpIcons();
+                        createChildHelpIcons();
+                    });
+                }
             };
 
             // autostart
