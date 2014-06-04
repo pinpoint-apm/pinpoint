@@ -162,6 +162,8 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
             $scope.$broadcast('sidebarTitle.initialize.forMain', oSidebarTitleVo);
             $scope.$broadcast('nodeInfoDetails.initialize', e, query, node, data, oNavbarVo);
             $scope.$broadcast('linkInfoDetails.hide');
+
+            $scope.refreshHelpIcons();
         });
 
         /**
@@ -198,6 +200,8 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
             $scope.$broadcast('sidebarTitle.initialize.forMain', oSidebarTitleVo);
             $scope.$broadcast('nodeInfoDetails.hide');
             $scope.$broadcast('linkInfoDetails.initialize', e, query, link, data, oNavbarVo);
+
+            $scope.refreshHelpIcons();
         });
 
         /**
@@ -334,10 +338,16 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
             ]
         };
 
+        /**
+         * on after overlay creation
+         */
         $scope.onAfterOverlayCreation = function () {
             $rootElement.find('#copyright').show();
         };
 
+        /**
+         * on before overlay removal
+         */
         $scope.onBeforeOverlayRemoval = function () {
             $rootElement.find('#copyright').hide();
         };

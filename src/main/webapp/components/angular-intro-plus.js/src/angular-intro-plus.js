@@ -12,11 +12,11 @@ ngIntroDirective.directive('ngIntroPlusOptions', ['$timeout', '$parse', function
         link: function(scope, element, attrs) {
 
             // define variables
-            var elPlusOverlay, aelChildHelpIcons, oIntro, htOptions;
+            var elPlusOverlay, aelChildHelpIcons, oIntro, htOptions, lastHiddenHelpIconsIndex;
 
             // define variables of methods
             var createOverlay, removeOverlay, createChildHelpIcons, removeChildHelpIcons, showChildHelpIcons,
-                hideChildHelpIcon, showIntro, startIntroPlus;
+                hideChildHelpIcon, showIntro, startIntroPlus, exitIntro;
 
             // bootstrap
             elPlusOverlay = false;
@@ -44,8 +44,8 @@ ngIntroDirective.directive('ngIntroPlusOptions', ['$timeout', '$parse', function
                         scope.$eval(attrs.ngIntroPlusOnAfterOverlayCreation)(scope);
                     }
                 }, 10);
+                lastHiddenHelpIconsIndex = false;
                 createChildHelpIcons();
-
             };
 
             /**
@@ -71,6 +71,7 @@ ngIntroDirective.directive('ngIntroPlusOptions', ['$timeout', '$parse', function
              */
             createChildHelpIcons = function () {
                 aelChildHelpIcons = [];
+                window.aa=[];
                 angular.forEach(htOptions.steps, function (currentItem, i) {
 
                     var el = $(currentItem.element),
@@ -78,13 +79,17 @@ ngIntroDirective.directive('ngIntroPlusOptions', ['$timeout', '$parse', function
                         width = el.width(),
                         height = el.height(),
                         newEl = $(htOptions.helpIcons || '<span class="glyphicon glyphicon-question-sign" style="position:absolute;color:#fff;font-size:24px;z-index:1000000;cursor:pointer;"></span>');
-                    if (offset.top === 0 && offset.left === 0) {
+
+                    if (el.css('display') === 'none') {
                         aelChildHelpIcons.push(false);
                         return;
                     }
                     newEl.appendTo('body');
                     newEl.css('top', offset.top + (height/2 - newEl.height()/2) + 'px');
                     newEl.css('left', offset.left + (width/2 - newEl.width()/2) + 'px');
+                    if (lastHiddenHelpIconsIndex === i) {
+                        newEl.hide();
+                    }
                     newEl.bind('click', function () {
                         showChildHelpIcons();
                         setTimeout(function () {
@@ -124,6 +129,7 @@ ngIntroDirective.directive('ngIntroPlusOptions', ['$timeout', '$parse', function
              */
             hideChildHelpIcon = function (i) {
                 if (aelChildHelpIcons[i]) {
+                    lastHiddenHelpIconsIndex = i;
                     aelChildHelpIcons[i].hide();
                 }
             };
@@ -144,7 +150,7 @@ ngIntroDirective.directive('ngIntroPlusOptions', ['$timeout', '$parse', function
 
                     oIntro.onexit(function () {
                         showChildHelpIcons();
-                        oIntro = false;
+                        exitIntro();
                         if(attrs.ngIntroPlusOnExit) {
                             scope.$eval(attrs.ngIntroPlusOnExit)(scope);
                         }
@@ -172,6 +178,9 @@ ngIntroDirective.directive('ngIntroPlusOptions', ['$timeout', '$parse', function
                 }
             };
 
+            /**
+             * start intro plus
+             */
             startIntroPlus = function () {
                 var inputOptions = scope.$eval(attrs.ngIntroPlusOptions);
                 htOptions = {
@@ -193,10 +202,54 @@ ngIntroDirective.directive('ngIntroPlusOptions', ['$timeout', '$parse', function
                 }
             };
 
+            /**
+             * exit intro
+             */
+            exitIntro = function () {
+                if (oIntro) {
+                    oIntro.exit();
+                    oIntro = false;
+                    // remove elements of intro.js immediately, because it makes delay 500ms that interrupt click event
+                    $('.introjs-overlay').remove();
+                    $('.introjs-helperLayer').remove();
+                }
+            };
+
+            /**
+             * ng intro plus show
+             */
             scope[attrs.ngIntroPlusShow] = function() {
                 startIntroPlus();
             };
 
+            /**
+             * ng intro plus hide
+             */
+            scope[attrs.ngIntroPlusHide] = function () {
+                exitIntro();
+                removeChildHelpIcons();
+                removeOverlay();
+            };
+
+            /**
+             * ng intro plus hide help box
+             */
+            scope[attrs.ngIntroPlusHideHelpBox] = function () {
+                exitIntro();
+                showChildHelpIcons();
+            };
+
+            /**
+             * ng intro plus refresh help icons
+             */
+            scope[attrs.ngIntroPlusRefreshHelpIcons] = function () {
+                $timeout(function () {
+                    removeChildHelpIcons();
+                    createChildHelpIcons();
+                });
+            };
+
+            // autostart
             if(attrs.ngIntroAutostart == 'true') {
                 $timeout(function() {
                     $parse(attrs.ngIntroPlusShow)(scope)();
