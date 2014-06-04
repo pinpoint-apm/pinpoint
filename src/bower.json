@@ -29,7 +29,7 @@
     "angular-motion": "~0.3.2",
     "angular-timer": "~1.0.12",
     "intro.js": "0.9.x",
-    "angular-intro-plus.js": "~0.3.1"
+    "angular-intro-plus.js": "~0.3.3"
   },
   "devDependencies": {
     "angular-mocks": "1.2.14",

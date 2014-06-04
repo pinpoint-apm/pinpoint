@@ -1,6 +1,6 @@
 {
   "name": "angular-intro-plus.js",
-  "version": "0.3.1",
+  "version": "0.3.3",
   "main": "src/angular-intro-plus.js",
   "description": "Angular directive to wrap intro.js, and developed from angular-intro.js",
   "license": "MIT",
@@ -11,13 +11,13 @@
     "bootstrap": ">= 3.1.1"
   },
   "homepage": "https://github.com/iamdenny/angular-intro-plus.js",
-  "_release": "0.3.1",
+  "_release": "0.3.3",
   "_resolution": {
     "type": "version",
-    "tag": "0.3.1",
-    "commit": "34dbaaad4b2ce70ba20e15600baa1a711a45e80d"
+    "tag": "0.3.3",
+    "commit": "a7777e5f154efdda07fc0a3fb1128ff7e7181346"
   },
   "_source": "git://github.com/iamdenny/angular-intro-plus.js.git",
-  "_target": "~0.3.1",
+  "_target": "~0.3.3",
   "_originalSource": "angular-intro-plus.js"
 }
