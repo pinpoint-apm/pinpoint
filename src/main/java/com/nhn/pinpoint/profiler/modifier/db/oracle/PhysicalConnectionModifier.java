@@ -52,11 +52,34 @@ public class PhysicalConnectionModifier extends AbstractModifier {
             Interceptor closeConnection = new ConnectionCloseInterceptor();
             oracleConnection.addScopeInterceptor("close", null, closeConnection, JDBCScope.SCOPE);
 
-            Interceptor createStatement = new StatementCreateInterceptor();
-            oracleConnection.addScopeInterceptor("createStatement", null, createStatement, JDBCScope.SCOPE);
 
-            Interceptor preparedStatement = new PreparedStatementCreateInterceptor();
-            oracleConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String"}, preparedStatement, JDBCScope.SCOPE);
+            Interceptor statementCreateInterceptor1 = new StatementCreateInterceptor();
+            oracleConnection.addScopeInterceptor("createStatement", null, statementCreateInterceptor1, JDBCScope.SCOPE);
+
+            Interceptor statementCreateInterceptor2 = new StatementCreateInterceptor();
+            oracleConnection.addScopeInterceptor("createStatement", new String[]{"int", "int"}, statementCreateInterceptor2, JDBCScope.SCOPE);
+
+            Interceptor statementCreateInterceptor3 = new StatementCreateInterceptor();
+            oracleConnection.addScopeInterceptor("createStatement", new String[]{"int", "int", "int"}, statementCreateInterceptor3, JDBCScope.SCOPE);
+
+
+            Interceptor preparedStatementCreateInterceptor1 = new PreparedStatementCreateInterceptor();
+            oracleConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String"}, preparedStatementCreateInterceptor1, JDBCScope.SCOPE);
+
+            Interceptor preparedStatementCreateInterceptor2 = new PreparedStatementCreateInterceptor();
+            oracleConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int"}, preparedStatementCreateInterceptor2, JDBCScope.SCOPE);
+
+            Interceptor preparedStatementCreateInterceptor3 = new PreparedStatementCreateInterceptor();
+            oracleConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int[]"}, preparedStatementCreateInterceptor3, JDBCScope.SCOPE);
+
+            Interceptor preparedStatementCreateInterceptor4 = new PreparedStatementCreateInterceptor();
+            oracleConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "java.lang.String[]"}, preparedStatementCreateInterceptor4, JDBCScope.SCOPE);
+
+            Interceptor preparedStatementCreateInterceptor5 = new PreparedStatementCreateInterceptor();
+            oracleConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int", "int"}, preparedStatementCreateInterceptor5, JDBCScope.SCOPE);
+
+            Interceptor preparedStatementCreateInterceptor6 = new PreparedStatementCreateInterceptor();
+            oracleConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int", "int", "int"}, preparedStatementCreateInterceptor6, JDBCScope.SCOPE);
 
             final ProfilerConfig profilerConfig = agent.getProfilerConfig();
             if (profilerConfig.isJdbcProfileOracleSetAutoCommit()) {

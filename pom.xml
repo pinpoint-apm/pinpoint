@@ -208,6 +208,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>cubrid</groupId>
+            <artifactId>cubrid-jdbc</artifactId>
+            <version>8.4.3.1005</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>oracle</groupId>
             <artifactId>ojdbc6</artifactId>
             <version>11.1.0.7.0</version>
