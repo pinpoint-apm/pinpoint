@@ -1,39 +1,49 @@
-package com.nhn.pinpoint.profiler.modifier.db.mysql;
+package com.nhn.pinpoint.profiler.modifier.db.cubrid;
 
 import com.mysql.jdbc.JDBC4PreparedStatement;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
-
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
-
-
 import com.nhn.pinpoint.bootstrap.util.MetaObject;
+import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.profiler.DefaultAgent;
+import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.nhn.pinpoint.profiler.util.MockAgent;
 import com.nhn.pinpoint.profiler.util.TestClassLoader;
+import cubrid.jdbc.driver.CUBRIDDriver;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
 import java.sql.*;
 import java.util.Properties;
 
 /**
  * @author emeroad
  */
-public class MySQLConnectionImplModifierTest {
+public class CubridConnectionTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private TestClassLoader loader;
 
+    @Test
+    public void executeQueryAndexecuteUpdate() throws SQLException {
+        CUBRIDDriver driver = new CUBRIDDriver();
+        Properties properties = new Properties();
+        properties.setProperty("user", "dba");
+        properties.setProperty("password", "nhn!@#123");
+        Connection connect = driver.connect("jdbc:cubrid:10.101.57.233:30102:pinpoint:::", properties);
+
+        PreparedStatement preparedStatement = connect.prepareStatement("select 1 from db_root where 1=?");
+        preparedStatement.setInt(1, 1);
+        ResultSet resultSet = preparedStatement.executeQuery();
+        if (resultSet.next()) {
+            System.out.println("---" + resultSet.getObject(1));
+        }
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -61,74 +71,14 @@ public class MySQLConnectionImplModifierTest {
         Driver driver = loadClass();
 
         Properties properties = new Properties();
-        properties.setProperty("user", "lucytest");
-        properties.setProperty("password", "testlucy");
-        Connection connection = driver.connect("jdbc:mysql://10.98.133.22:3306/hippo", properties);
+        properties.setProperty("user", "dba");
+        properties.setProperty("password", "nhn!@#123");
+        Connection connection = driver.connect("jdbc:cubrid:10.101.57.233:30102:pinpoint:::", properties);
 
         logger.info("Connection class name:{}", connection.getClass().getName());
         logger.info("Connection class cl:{}", connection.getClass().getClassLoader());
 
         DatabaseInfo url = getUrl.invoke(connection);
-        Assert.assertNotNull(url);
-
-        statement(connection);
-
-        preparedStatement(connection);
-
-        preparedStatement2(connection);
-
-        preparedStatement3(connection);
-
-        connection.close();
-        DatabaseInfo clearUrl = getUrl.invoke(connection);
-        Assert.assertNull(clearUrl);
-
-    }
-
-    private Driver loadClass() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        Class<Driver> driverClazz = (Class<Driver>) loader.loadClass("com.mysql.jdbc.NonRegisteringDriver");
-//        Driver nonRegisteringDriver = new NonRegisteringDriver();
-//        Class<Driver> driverClazz = (Class<Driver>) nonRegisteringDriver.getClass();
-
-        Driver driver = driverClazz.newInstance();
-        logger.info("Driver class name:{}", driverClazz.getName());
-        logger.info("Driver class cl:{}", driverClazz.getClassLoader());
-
-
-        Class<?> aClass = loader.loadClass("com.mysql.jdbc.StringUtils");
-//      이게 loader와 동일하게 로드 되는게 정확한건지 애매함. 하위에 로드되는게 좋을것 같은데.
-//        Assert.assertNotSame("check classLoader", aClass.getClassLoader(), loader);
-        logger.debug("mysql cl:{}", aClass.getClassLoader());
-
-        Class<?> version = loader.loadClass("com.nhn.pinpoint.common.Version");
-        Assert.assertSame("check classLoader", this.getClass().getClassLoader(), version.getClassLoader());
-        logger.debug("common cl:{}", version.getClassLoader());
-        return driver;
-    }
-
-    @Test
-    public void loadBalancedUrlModify() throws Exception {
-
-        Driver driver = loadClass();
-
-        Properties properties = new Properties();
-        properties.setProperty("user", "lucytest");
-        properties.setProperty("password", "testlucy");
-        Connection connection = driver.connect("jdbc:mysql:loadbalance://10.98.133.23:3306,10.98.133.22:3306/hippo", properties);
-
-        logger.info("Connection class name:{}", connection.getClass().getName());
-        logger.info("Connection class cl:{}", connection.getClass().getClassLoader());
-        // loadbalanced 타입을때 가져올수 있는 reflection을 쓰지 않으면
-        // 그리고 LoadBalancingConnectionProxy으로 캐스팅할 경우 classLoader가 달라서 문제가 생김. 일단 그냥둔다.
-        InvocationHandler invocationHandler = Proxy.getInvocationHandler(connection);
-        Class<? extends InvocationHandler> aClass = invocationHandler.getClass();
-
-        Field current = aClass.getDeclaredField("currentConn");
-        current.setAccessible(true);
-        Object internalConnection = current.get(invocationHandler);
-
-
-        DatabaseInfo url = getUrl.invoke(internalConnection);
         Assert.assertNotNull(url);
 
         statement(connection);
@@ -149,11 +99,27 @@ public class MySQLConnectionImplModifierTest {
 
         preparedStatement8(connection);
 
+
         connection.close();
-        DatabaseInfo clearUrl = getUrl.invoke(internalConnection);
+        DatabaseInfo clearUrl = getUrl.invoke(connection);
         Assert.assertNull(clearUrl);
 
     }
+
+    private Driver loadClass() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+        Class<Driver> driverClazz = (Class<Driver>) loader.loadClass("cubrid.jdbc.driver.CUBRIDDriver");
+
+        Driver driver = driverClazz.newInstance();
+        logger.info("Driver class name:{}", driverClazz.getName());
+        logger.info("Driver class cl:{}", driverClazz.getClassLoader());
+
+
+        Class<?> version = loader.loadClass("com.nhn.pinpoint.common.Version");
+        Assert.assertSame("check classLoader", this.getClass().getClassLoader(), version.getClassLoader());
+        logger.debug("common cl:{}", version.getClassLoader());
+        return driver;
+    }
+
 
     private void statement(Connection connection) throws SQLException {
         Statement statement = connection.createStatement();
@@ -168,6 +134,7 @@ public class MySQLConnectionImplModifierTest {
         resultSet.close();
         preparedStatement.close();
     }
+
 
     private void preparedStatement2(Connection connection) throws SQLException {
         PreparedStatement preparedStatement = connection.prepareStatement("select * from member where id = ?");
@@ -193,7 +160,6 @@ public class MySQLConnectionImplModifierTest {
 
         connection.setAutoCommit(true);
     }
-
 
     private void preparedStatement4(Connection connection) throws SQLException {
 //        Statement.RETURN_GENERATED_KEYS or Statement.NO_GENERATED_KEYS
@@ -242,13 +208,4 @@ public class MySQLConnectionImplModifierTest {
         preparedStatement.close();
     }
 
-
-    @Test
-    public void test() throws NoSuchMethodException {
-//        setNClob(int parameterIndex, NClob value)
-        JDBC4PreparedStatement.class.getDeclaredMethod("setNClob", new Class[]{int.class, NClob.class});
-//        JDBC4PreparedStatement.class.getDeclaredMethod("addBatch", null);
-        JDBC4PreparedStatement.class.getMethod("addBatch");
-
-    }
 }

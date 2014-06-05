@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
  * @author emeroad
  */
 public class MySQLConnectionImplTest {
-    private final Logger logger = LoggerFactory.getLogger(MySQLConnectionImplTest.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private TestClassLoader loader;
 
