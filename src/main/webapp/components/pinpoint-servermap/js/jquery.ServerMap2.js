@@ -185,12 +185,15 @@
                     self.$(
                         go.Shape,
                         {
+                            alignment: go.Spot.TopLeft,
+                            alignmentFocus: go.Spot.TopLeft,
                             figure: "RoundedRectangle",
                             strokeWidth: 1,
 //                            margin: new go.Margin(10, 10, 10, 10),
+                            margin: 0,
                             isPanelMain: true,
 //                            maxSize: new go.Size(150, NaN),
-                            minSize: new go.Size(120, 100),
+                            minSize: new go.Size(120, NaN),
                             name: "NODE_SHAPE",
                             portId: ""
                         },
@@ -221,6 +224,8 @@
                         go.Panel,
                         go.Panel.Spot,
                         {
+                            alignment: go.Spot.TopLeft,
+                            alignmentFocus: go.Spot.TopLeft
                         },
                         self.$(
                             go.Panel,
@@ -234,7 +239,7 @@
                                 go.Picture,
                                 {
                                     source: sImageDir + sImageName,
-                                    margin: new go.Margin(22, 0, 5, 0),
+                                    margin: new go.Margin(18, 0, 5, 0),
                                     desiredSize: new go.Size(80, 40),
                                     imageStretch: go.GraphObject.Uniform
                                 }
@@ -273,16 +278,16 @@
                             {
                                 alignment: go.Spot.TopLeft,
                                 alignmentFocus: go.Spot.TopLeft,
-                                margin: 3
+                                margin: 0
                             },
                             self.$(
                                 go.Picture,
                                 {
                                     source: sImageDir + 'ERROR.png',
                                     desiredSize: new go.Size(20, 20),
-                                    visible: false,
+//                                    visible: false,
                                     imageStretch: go.GraphObject.Uniform,
-                                    margin: new go.Margin(0, 5, 0, 0)
+                                    margin: new go.Margin(1, 5, 0, 1)
                                 },
                                 new go.Binding("visible", "hasAlert")
                             ),
@@ -329,7 +334,7 @@
                                     {
                                         stroke: "#FFFFFF",
                                         textAlign: "center",
-                                        height: 13,
+                                        height: 16,
                                         font: self.option('sSmallFont'),
                                         editable: false
                                     }
@@ -427,7 +432,7 @@
                                 go.Picture,
                                 {
                                     source: sImageDir + sImageName,
-                                    margin: new go.Margin(22, 0, 5, 0),
+                                    margin: new go.Margin(0, 0, 5, 0),
                                     desiredSize: new go.Size(100, 40),
                                     imageStretch: go.GraphObject.Uniform
                                 }
