@@ -19,7 +19,6 @@ public class MySqlConnectionStringParser implements ConnectionStringParser {
 
     // jdbc:mysql:loadbalance://10.25.149.62:3306,10.25.149.61:3306/MySQL?characterEncoding=UTF-8
     private static final String JDBC_MYSQL_LOADBALANCE = "jdbc:mysql:loadbalance:";
-    private static Pattern COMMA_SPLIT = Pattern.compile(",");
 
     @Override
     public DatabaseInfo parse(String url) {
@@ -41,7 +40,8 @@ public class MySqlConnectionStringParser implements ConnectionStringParser {
         // mm db? 의 경우도 고려해야 될듯하다.
         String host = maker.after("//").before('/').value();
 
-        String[] parsedHost = COMMA_SPLIT.split(host);
+        // regex cache코드 삭제. 자주 호출되는 api가 아니라 메모리에 안가지고있는게 좋을듯함하다.
+        String[] parsedHost = host.split(",");
         List<String> hostList = Arrays.asList(parsedHost);
 
 
