@@ -446,6 +446,8 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     scope.targetHistogram = htLastLink.toNode.agentHistogram;
                     scope.fromApplicationName = htLastLink.fromNode.applicationName;
                     scope.toApplicationName = htLastLink.toNode.applicationName;
+                    scope.fromAgentName = '';
+                    scope.toAgentName = '';
 
                     scope.$broadcast('sidebarTitle.initialize.forServerMap', oSidebarTitleVo);
 
