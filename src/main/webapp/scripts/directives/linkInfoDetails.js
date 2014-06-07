@@ -75,7 +75,6 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                  * @param link
                  */
                 showDetailInformation = function (link) {
-                    console.log('link', link);
                     scope.link = link;
                     if (link.unknownLinkGroup) {
                         scope.unknownLinkGroup = link.unknownLinkGroup;

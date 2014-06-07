@@ -90,10 +90,10 @@ canvas {outline:none}
     border-top: 1px solid #ddd;
 }
 .info-details.has-filter {
-    top: 160px;
+    top: 175px;
 }
 .info-details.has-scatter.has-filter {
-    top: 440px;
+    top: 455px;
 }
 
 .wait {

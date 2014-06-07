@@ -8,8 +8,10 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
         this._nMainServiceTypeCode = null;
         this._sFromApplication = null;
         this._sFromServiceType = null;
+        this._sFromAgentName = null;
         this._sToApplication = null;
         this._sToServiceType = null;
+        this._sToAgentName = null;
         this._sResponseFrom = 0;
         this._sResponseTo = 'max';
         this._bIncludeException = null;
@@ -63,6 +65,18 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
             return self._sFromServiceType;
         };
 
+        this.setFromAgentName = function (fromAgentName) {
+            if (angular.isString(fromAgentName)) {
+                self._sFromAgentName = fromAgentName;
+            } else {
+                throw new Error('fromAgentName should be string in ServerMapFilterVo. : ', fromAgentName);
+            }
+            return self;
+        };
+        this.getFromAgentName = function () {
+            return self._sFromAgentName;
+        };
+
         this.setToApplication = function (toApplication) {
             if (angular.isString(toApplication)) {
                 self._sToApplication = toApplication;
@@ -85,6 +99,18 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
         };
         this.getToServiceType = function () {
             return self._sToServiceType;
+        };
+
+        this.setToAgentName = function (toAgentName) {
+            if (angular.isString(toAgentName)) {
+                self._sToAgentName = toAgentName;
+            } else {
+                throw new Error('toAgentName should be string in ServerMapFilterVo. : ', toAgentName);
+            }
+            return self;
+        };
+        this.getToAgentName = function () {
+            return self._sToAgentName;
         };
 
         this.setResponseFrom = function (responseFrom) {
@@ -160,6 +186,13 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
             if (self._sRequestUrlPattern) {
                 filter.url = self._sRequestUrlPattern;
             }
+            if (self._sFromAgentName) {
+                filter.fan = self._sFromAgentName;
+            }
+            if (self._sToAgentName) {
+                filter.tan = self._sToAgentName;
+            }
+
             return filter;
         };
 
@@ -182,6 +215,12 @@ pinpointApp.factory('ServerMapFilterVo', [  function () {
             }
             if (dataSet.url) {
                 this.setRequestUrlPattern(dataSet.url);
+            }
+            if (dataSet.fan) {
+                this.setFromAgentName(dataSet.fan);
+            }
+            if (dataSet.tan) {
+                this.setToAgentName(dataSet.tan);
             }
         }
     };

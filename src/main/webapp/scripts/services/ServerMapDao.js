@@ -440,11 +440,10 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
 
     /**
      * merge unknown
-     * @param query
      * @param data
      * @returns {*}
      */
-    this.mergeUnknown = function (query, data) {
+    this.mergeUnknown = function (data) {
 //        SERVERMAP_METHOD_CACHE = {};
         var nodes = data.applicationMapData.nodeDataArray;
         var links = data.applicationMapData.linkDataArray;

@@ -50,6 +50,28 @@
                             <label class="col-sm-2 control-label" style="padding-top:25px;">Path</label>
                             <sidebar-title namespace="forServerMap"></sidebar-title>
                         </div>
+                        <div class="form-group" ng-show="sourceInfo.isWas || targetInfo.isWas">
+                            <label class="col-sm-2 control-label">Agent</label>
+                            <div class="col-sm-8">
+                                <select ng-show="sourceInfo.isWas" ng-model="fromAgentName">
+                                    <option value="">All</option>
+                                    <option ng-repeat="(agentName,v) in sourceHistogram" value="{{agentName}}">{{agentName}}</option>
+                                </select>
+                                <span ng-hide="sourceInfo.isWas">
+                                    {{fromApplicationName}}
+                                </span>
+                                &nbsp;
+                                <span class="glyphicon glyphicon-arrow-right"></span>
+                                &nbsp;
+                                <select ng-show="targetInfo.isWas" ng-model="toAgentName">
+                                    <option value="">All</option>
+                                    <option ng-repeat="(agentName,v) in targetHistogram" value="{{agentName}}">{{agentName}}</option>
+                                </select>
+                                <span ng-hide="targetInfo.isWas">
+                                    {{toApplicationName}}
+                                </span>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label for="urlPattern" class="col-sm-2 control-label">URL Pattern</label>
 

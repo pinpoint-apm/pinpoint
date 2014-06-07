@@ -148,7 +148,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                             emitDataExisting(htLastMapData);
                             if (mergeUnknowns) {
                                 var copiedData = angular.copy(serverMapData);
-                                ServerMapDao.mergeUnknown(query, copiedData);
+                                ServerMapDao.mergeUnknown(copiedData);
                                 serverMapCallback(query, copiedData, mergeUnknowns, linkRouting, linkCurve);
                             } else {
                                 serverMapCallback(query, serverMapData, mergeUnknowns, linkRouting, linkCurve);
@@ -236,10 +236,10 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     var copiedData;
                     copiedData = angular.copy(data);
                     if (mergeUnknowns) {
-                        ServerMapDao.mergeUnknown(htLastQuery, copiedData);
+                        ServerMapDao.mergeUnknown(copiedData);
                     }
 
-                    ServerMapDao.removeNoneNecessaryDataForHighPerformance(copiedData);
+//                    ServerMapDao.removeNoneNecessaryDataForHighPerformance(copiedData);
                     oProgressBar.setLoading(80);
                     if (copiedData.applicationMapData.nodeDataArray.length === 0) {
                         oProgressBar.stopLoading();
@@ -440,6 +440,13 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         .setImageType2(htLastLink.toNode.serviceType)
                         .setTitle2(htLastLink.toNode.applicationName);
 
+                    scope.sourceInfo = htLastLink.sourceInfo;
+                    scope.sourceHistogram = htLastLink.sourceHistogram;
+                    scope.targetInfo = htLastLink.targetInfo;
+                    scope.targetHistogram = htLastLink.toNode.agentHistogram;
+                    scope.fromApplicationName = htLastLink.fromNode.applicationName;
+                    scope.toApplicationName = htLastLink.toNode.applicationName;
+
                     scope.$broadcast('sidebarTitle.initialize.forServerMap', oSidebarTitleVo);
 
                     $('#filterWizard').modal('show');
@@ -464,6 +471,8 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                                         var to = result.oServerMapFilterVo.getResponseTo();
                                         scope.responseTime.to = to === 'max' ? 30000 : to;
                                         scope.includeFailed = result.oServerMapFilterVo.getIncludeException();
+                                        scope.fromAgentName = result.oServerMapFilterVo.getFromAgentName();
+                                        scope.toAgentName = result.oServerMapFilterVo.getToAgentName();
                                     } else {
                                         scope.responseTime = {
                                             from: 0,
@@ -513,6 +522,13 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         .setResponseTo(scope.responseTime.to)
                         .setIncludeException(scope.includeFailed)
                         .setRequestUrlPattern($base64.encode(scope.urlPattern));
+
+                    if (scope.fromAgentName) {
+                        oServerMapFilterVo.setFromAgentName(scope.fromAgentName);
+                    }
+                    if (scope.toAgentName) {
+                        oServerMapFilterVo.setToAgentName(scope.toAgentName);
+                    }
 
                     var oServerMapHintVo = new ServerMapHintVo();
                     if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {

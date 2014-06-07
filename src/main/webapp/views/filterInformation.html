@@ -1,6 +1,10 @@
 <div class="filter-information">
     <h5>Filter Information</h5>
     <dl class="dl-horizontal">
+
+        <dt ng-show="agentFilterInfo">Agent</dt>
+        <dd ng-show="agentFilterInfo">{{agentFilterInfo}}</dd>
+
         <dt>Url Pattern</dt>
         <dd>{{urlPattern}}</dd>
 

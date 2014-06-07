@@ -43,6 +43,12 @@ pinpointApp.directive('filterInformation', [ '$filter', '$base64',
                         scope.responseTime = responseTime.join(' ');
                     }
 
+                    var fromAgentName = oServerMapFilterVo.getFromAgentName();
+                    var toAgentName = oServerMapFilterVo.getToAgentName();
+                    if (fromAgentName || toAgentName) {
+                        scope.agentFilterInfo = (fromAgentName || 'all') + ' -> ' + (toAgentName || 'all');
+                    }
+
                 };
 
                 /**
