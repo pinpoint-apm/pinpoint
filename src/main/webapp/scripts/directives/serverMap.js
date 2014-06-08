@@ -42,7 +42,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 // define private variables
                 var bUseNodeContextMenu, bUseLinkContextMenu, htLastQuery,
                     bUseBackgroundContextMenu, oServerMap, oAlert, oProgressBar, htLastMapData, htLastLink, htLastNode,
-                    sLastSelection;
+                    sLastSelection, $fromAgentName, $toAgentName;
 
                 // define private variables of methods
                 var showServerMap, setNodeContextMenuPosition, reset, emitDataExisting,
@@ -74,6 +74,10 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 scope.bShowServerMapStatus = false;
                 scope.linkRouting = cfg.options.htLinkType.sRouting;
                 scope.linkCurve = cfg.options.htLinkType.sCurve;
+                $fromAgentName = element.find('.fromAgentName');
+                $toAgentName = element.find('.toAgentName');
+                $fromAgentName.select2();
+                $toAgentName.select2();
 
                 /**
                  * reset
