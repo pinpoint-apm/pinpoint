@@ -53,7 +53,7 @@ public class BaseOperationTransitionStateInterceptor implements SimpleAroundInte
             }
 			return;
 		}
-
+        // TODO null 체크가 필요하지 않나하는데? 일단 사용하지 않는 interceptor이므로 TODO만 붙여 둔다.
 		OperationState newState = (OperationState) args[0];
 
 		BaseOperationImpl baseOperation = (BaseOperationImpl) target;
@@ -99,7 +99,7 @@ public class BaseOperationTransitionStateInterceptor implements SimpleAroundInte
 			// long createTime = asyncTrace.getBeforeTime();
 			asyncTrace.markAfterTime();
 //			asyncTrace.traceBlockEnd();
-		} else if (newState == OperationState.COMPLETE || newState == OperationState.TIMEDOUT) {
+		} else if (newState == OperationState.COMPLETE || isArcusTimeout(newState)) {
 			if (isDebug) {
                 logger.debug("event:{} asyncTrace:{}", newState, asyncTrace);
 			}
@@ -125,7 +125,15 @@ public class BaseOperationTransitionStateInterceptor implements SimpleAroundInte
 		}
 	}
 
-	private String getCommand(BaseOperationImpl baseOperation) {
+    private boolean isArcusTimeout(OperationState newState) {
+        if (newState == null) {
+            return false;
+        }
+        // arcus에만 추가된 타입이라. 따로 처리함.
+        return "TIMEDOUT".equals(newState);
+    }
+
+    private String getCommand(BaseOperationImpl baseOperation) {
 		ByteBuffer buffer = baseOperation.getBuffer();
 		if (buffer == null) {
 			return "UNKNOWN";
