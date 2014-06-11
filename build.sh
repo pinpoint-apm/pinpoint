@@ -1,3 +1,4 @@
+#! /bin/bash
 #profile
 PROFILE=""
 if [ "$1" != "" ] ; then
