@@ -1,3 +1,4 @@
+#! /bin/bash
 mvn clean eclipse:eclipse package dependency:copy-dependencies install -Dmaven.test.skip
 
 rc=$?
