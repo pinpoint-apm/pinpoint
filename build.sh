@@ -1,3 +1,4 @@
+#! /bin/bash
 VERSION="1.0.2-SNAPSHOT"
 DEPLOY_DIR="../pinpoint-testbed/pinpoint-collector/webapps"
 FILENAME="pinpoint-collector-$VERSION.war"
