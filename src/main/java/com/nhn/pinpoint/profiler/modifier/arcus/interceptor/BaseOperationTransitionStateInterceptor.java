@@ -130,7 +130,7 @@ public class BaseOperationTransitionStateInterceptor implements SimpleAroundInte
             return false;
         }
         // arcus에만 추가된 타입이라. 따로 처리함.
-        return "TIMEDOUT".equals(newState);
+        return "TIMEDOUT".equals(newState.toString());
     }
 
     private String getCommand(BaseOperationImpl baseOperation) {
