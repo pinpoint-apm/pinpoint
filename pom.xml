@@ -11,6 +11,7 @@
         <spring.version>3.2.3.RELEASE</spring.version>
         <slf4j.version>1.7.5</slf4j.version>
         <metrics.version>3.0.1</metrics.version>
+        <pinpiont-agent-dir>${basedir}/target/pinpoint-agent/</pinpiont-agent-dir>
     </properties>
 
     <distributionManagement>
@@ -444,6 +445,47 @@
                 <configuration>
                     <encoding>UTF-8</encoding>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>copy-log4j</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${pinpiont-agent-dir}/lib</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/src/main/resources-${env}</directory>
+                                    <filtering>true</filtering>
+                                    <includes>
+                                        <include>**/log4j.xml</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-config</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${pinpiont-agent-dir}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/src/main/resources-${env}</directory>
+                                    <filtering>true</filtering>
+                                    <includes>
+                                        <include>**/pinpoint.config</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -509,8 +551,44 @@
 						<exclude>**/pinpoint.config</exclude>
 						<exclude>**/log4j.xml</exclude>
 					</excludes>
+                    <outputDirectory>${pinpiont-agent-dir}/lib</outputDirectory>
 				</configuration>
 			</plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeScope>runtime</includeScope>
+                            <!-- pinpoint-bootstrap 은 하위에 있어야 한다. pinpoint-commons는 bootstrap에 포함됨.-->
+                            <excludeArtifactIds>pinpoint-bootstrap,pinpoint-commons</excludeArtifactIds>
+                            <outputDirectory>${pinpiont-agent-dir}/lib</outputDirectory>
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-bootstrap-dependencies</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeArtifactIds>pinpoint-bootstrap</includeArtifactIds>
+                            <outputDirectory>${pinpiont-agent-dir}</outputDirectory>
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
