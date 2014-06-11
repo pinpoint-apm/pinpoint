@@ -197,26 +197,24 @@
                 </configuration>
             </plugin>
             <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.4</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>1.7.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
                         <goals>
-                            <goal>attached</goal>
+                            <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>com.nhn.pinpoint:pinpoint-commons</include>
+                                </includes>
+                            </artifactSet>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Premain-Class>com.nhn.pinpoint.bootstrap.PinpointBootStrap</Premain-Class>
-                        </manifestEntries>
-                    </archive>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -227,6 +225,14 @@
                         <phase>package</phase>
                     </execution>
                 </executions>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Premain-Class>com.nhn.pinpoint.bootstrap.PinpointBootStrap</Premain-Class>
+                            <Pinpiont-Version>${version}</Pinpiont-Version>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
             </plugin>
 
 
