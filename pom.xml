@@ -239,7 +239,7 @@
                 <version>3.0.1</version>
 
                 <configuration>
-                    <linkXref>true</linkXref>
+                    <linkXRef>true</linkXRef>
                     <sourceEncoding>UTF-8</sourceEncoding>
                     <targetJdk>1.6</targetJdk>
                     <!--<rulesets>-->
