@@ -1,39 +1,73 @@
-<div class="container" style="min-height:100%;position:relative;">
+<div class="inspector-container">
     <div ng-include=" 'error' "></div>
     <div ng-include=" 'warning' "></div>
     <div ng-include=" 'info' "></div>
     <div ng-include=" 'loading' "></div>
 
-    <div class="row">
-        <div class="span12">
-            <h5 style="color:#0088cc;">Information</h5>
-            <table class="table table-striped table-condensed" style="font-size:12px;">
-                <tbody>
-                <tr ng-repeat="i in info">
-                    <td><b>{{i.key}}</b></td>
-                    <td>{{i.val}}
-                    <a ng-show="i.key == 'IP'" class="btn btn-default btn-xs" href="http://nsight.nhncorp.com/dashboard_server/{{i.val}}" target="_blank" title="System resource monitoring site">NSight</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td><b>Start Time</b></td>
-                    <td>{{agent.startTime | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
-                </tr>
-                <tr>
-                    <td><b>End Status</b></td>
-                    <td>{{agent.endStatus}} (last checked : {{agent.endTimeStamp | date:'yyyy-MM-dd HH:mm:ss Z'}})</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div class="row" ng-show="memoryGroup">
-        <div class="span12">
-            <h5 style="color:#0088cc;">Memory & Garbage Collection</h5>
-            <div class="{{each.span}}" ng-repeat="each in memoryGroup">
-                <h5>{{each.title}}</h5>
-                <svg id="line_{{each.id}}" style="height:220px;" />
+    <div>
+        <h3>Information</h3>
+
+        <div class="row">
+            <div class="col-md-6">
+                <table class="table table-striped table-condensed" style="font-size:12px;">
+                    <tbody>
+                    <tr>
+                        <td class="text-right">Agent Id :</td>
+                        <td>{{info.agentId}}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Hostname :</td>
+                        <td>{{info.hostname}}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Service Type :</td>
+                        <td>{{info.serviceType}}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Agent Version :</td>
+                        <td>{{info.agentVersion}}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Start Time :</td>
+                        <td>{{agent.startTime | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
+            <div class="col-md-6">
+                <table class="table table-striped table-condensed" style="font-size:12px;">
+                    <tbody>
+                    <tr>
+                        <td class="text-right">Application Name :</td>
+                        <td>{{info.applicationName}}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">IP :</td>
+                        <td>{{info.ip}}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">PID :</td>
+                        <td>{{info.pid}}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">JVM GC Type :</td>
+                        <td>{{info.jvmGcType}}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">End Status :</td>
+                        <td>{{agent.endStatus}} (last checked : {{agent.endTimeStamp | date:'yyyy-MM-dd HH:mm:ss Z'}})</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+    <div ng-show="memoryGroup">
+        <h3>Memory & Garbage Collection</h3>
+        <div class="{{each.span}}" ng-repeat="each in memoryGroup">
+            <h5>{{each.title}}</h5>
+            <svg id="line_{{each.id}}" style="height:220px;" />
         </div>
     </div>
     <!--div class="row">

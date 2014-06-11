@@ -24,11 +24,11 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                 oProgressBar = new ProgressBar();
 
                 // TODO this is dummy
-                scope.info = [
-                    { key: 'Application Type', val: 'Tomcat' },
-                    { key: 'JVM Version', val: '1.6.0_32' },
-                    { key: 'JVM Options', val: '' }
-                ];
+//                scope.info = [
+//                    { key: 'Application Type', val: 'Tomcat' },
+//                    { key: 'JVM Version', val: '1.6.0_32' },
+//                    { key: 'JVM Options', val: '' }
+//                ];
 
                 /**
                  * scope event of agentInfo.initialize
@@ -39,15 +39,25 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                     oNavbarVo = navbarVo;
                     scope.memoryGroup = null;
 
-                    scope.info = [
-                        { key: 'Agent Id', val: agent.agentId },
-                        { key: 'Application Name', val: agent.applicationName },
-                        { key: 'Hostname', val: agent.hostname },
-                        { key: 'IP', val: agent.ip },
-                        { key: 'Service Type', val: agent.serviceType },
-                        { key: 'PID', val: agent.pid },
-                        { key: 'Agent Version', val: agent.version }
-                    ];
+//                    scope.info = [
+//                        { key: 'Agent Id', val: agent.agentId },
+//                        { key: 'Application Name', val: agent.applicationName },
+//                        { key: 'Hostname', val: agent.hostname },
+//                        { key: 'IP', val: agent.ip },
+//                        { key: 'Service Type', val: agent.serviceType },
+//                        { key: 'PID', val: agent.pid },
+//                        { key: 'Agent Version', val: agent.version }
+//                    ];
+                    scope.info = {
+                        'agentId': agent.agentId,
+                        'applicationName': agent.applicationName,
+                        'hostname': agent.hostname,
+                        'ip': agent.ip,
+                        'serviceType': agent.serviceType,
+                        'pid': agent.pid,
+                        'agentVersion': agent.version,
+                        'jvmGcType': ''
+                    };
 
                     $timeout(function () {
                         showAgentStat(agent.agentId, oNavbarVo.getQueryStartTime(), oNavbarVo.getQueryEndTime(), oNavbarVo.getPeriod());
@@ -182,7 +192,8 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                         }
                         scope.agentStat = result;
                         if (angular.isDefined(result.type) && result.type) {
-                            scope.info.push({key: 'JVM GC Type', val: result.type});
+                            console.log('info', scope.info);
+                            scope.info['jvmGcType'] =  result.type;
                             oProgressBar.setLoading(80);
                             d3MakeGcCharts(result);
                             $timeout(function () {
