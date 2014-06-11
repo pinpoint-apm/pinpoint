@@ -81,8 +81,8 @@
 			<artifactId>lucy-nimmconnector</artifactId>
 			<version>2.1.4</version>
         </dependency>
-        
-		<!-- Apache HTTP Client -->
+
+        <!-- Apache HTTP Client -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
@@ -464,7 +464,9 @@
                 <version>2.2</version>
                 <configuration>
                     <path>/</path>
-                    <classesDir>target/classes</classesDir>
+                    <!--<additionalClassesDirs>-->
+                        <!--<additionalClasspathDir>${basedir}/target/classes</additionalClasspathDir>-->
+                    <!--</additionalClassesDirs>-->
                     <warSourceDirectory>src/main/webapp</warSourceDirectory>
                     <port>20330</port>
                     <fork>true</fork>
