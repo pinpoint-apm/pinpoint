@@ -29,7 +29,7 @@ public class AddOpInterceptor implements SimpleAroundInterceptor, TargetClassLoa
             logger.beforeInterceptor(target, args);
 		}
 
-		String serviceCode = getServiceCode.invoke((MemcachedClient) target);
+		String serviceCode = getServiceCode.invoke(target);
 		Operation op = (Operation) args[1];
 
 		setServiceCode.invoke(op, serviceCode);

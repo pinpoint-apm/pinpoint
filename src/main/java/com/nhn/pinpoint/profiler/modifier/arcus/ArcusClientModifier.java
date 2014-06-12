@@ -40,6 +40,10 @@ public class ArcusClientModifier extends AbstractModifier {
 		try {
 			InstrumentClass arcusClient = byteCodeInstrumentor.getClass(javassistClassName);
 
+            if (!checkCompatibility(arcusClient)) {
+                return null;
+            }
+
 			final Interceptor setCacheManagerInterceptor = byteCodeInstrumentor.newInterceptor(classLoader,protectedDomain,"com.nhn.pinpoint.profiler.modifier.arcus.interceptor.SetCacheManagerInterceptor");
             final String[] args = {"net.spy.memcached.CacheManager"};
             arcusClient.addInterceptor("setCacheManager", args, setCacheManagerInterceptor, Type.before);
@@ -66,6 +70,15 @@ public class ArcusClientModifier extends AbstractModifier {
 			return null;
 		}
 	}
+
+    private boolean checkCompatibility(InstrumentClass arcusClient) {
+        // 하위 memcached class에 addOp가 있는지 체크
+        final boolean addOp = arcusClient.hasMethod("addOp", "(Ljava/lang/String;Lnet/spy/memcached/ops/Operation;)Lnet/spy/memcached/ops/Operation;");
+        if (!addOp) {
+            logger.warn("addOp() not found. skip ArcusClientModifier");
+        }
+        return addOp;
+    }
 
 
 }

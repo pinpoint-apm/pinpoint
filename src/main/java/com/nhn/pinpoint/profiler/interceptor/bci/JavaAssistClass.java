@@ -752,6 +752,35 @@ public class JavaAssistClass implements InstrumentClass {
 			return false;
 		}
 	}
+
+    /**
+     * 가능한 String methodName, String desc을 사용하자. 편한대신에 속도가 상대적으로 좀 느리다.
+     * @param methodName
+     * @param args
+     * @return
+     */
+    @Override
+    public boolean hasMethod(String methodName, String[] args) {
+        final String parameterDescription = JavaAssistUtils.getParameterDescription(args);
+        final CtMethod[] methods = ctClass.getMethods();
+        for (CtMethod method : methods) {
+            if (methodName.equals(method.getName()) && method.getMethodInfo2().getDescriptor().startsWith(parameterDescription)) {
+                return true;
+            }
+
+        }
+        return false;
+    }
+
+    @Override
+    public boolean hasMethod(String methodName, String desc) {
+        try {
+            CtMethod m = ctClass.getMethod(methodName, desc);
+            return m != null;
+        } catch (NotFoundException e) {
+            return false;
+        }
+    }
 	
 	@Override
 	public InstrumentClass getNestedClass(String className) {

@@ -65,6 +65,11 @@ public interface InstrumentClass {
 	public boolean isInterceptable();
 	
 	boolean hasDeclaredMethod(String methodName, String[] args);
+
+    @Deprecated
+    boolean hasMethod(String methodName, String[] args);
+
+    boolean hasMethod(String methodName, String desc);
 	
 	InstrumentClass getNestedClass(String className);
 }

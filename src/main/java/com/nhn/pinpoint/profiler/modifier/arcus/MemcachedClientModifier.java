@@ -39,12 +39,14 @@ public class MemcachedClientModifier extends AbstractModifier {
 		try {
 			InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
 
+            String[] args = {"java.lang.String", "net.spy.memcached.ops.Operation"};
+            if (!checkCompatibility(aClass, args)) {
+                return null;
+            }
 			aClass.addTraceVariable("__serviceCode", "__setServiceCode", "__getServiceCode", "java.lang.String");
 
 			Interceptor addOpInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain,
                     "com.nhn.pinpoint.profiler.modifier.arcus.interceptor.AddOpInterceptor");
-
-            String[] args = {"java.lang.String", "net.spy.memcached.ops.Operation"};
             aClass.addInterceptor("addOp", args, addOpInterceptor, Type.before);
 
 			// 모든 public 메소드에 ApiInterceptor를 적용한다.
@@ -68,5 +70,14 @@ public class MemcachedClientModifier extends AbstractModifier {
 			return null;
 		}
 	}
+
+    private boolean checkCompatibility(InstrumentClass aClass, String[] args) {
+        // 일단 addOp 존재유무로 체크
+        final boolean addOp = aClass.hasDeclaredMethod("addOp", args);
+        if (!addOp) {
+            logger.warn("addOp() not found. skip MemcachedClientModifier");
+        }
+        return addOp;
+    }
 
 }
