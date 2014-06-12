@@ -5,7 +5,6 @@
 
     <property name="pinpoint.version" value="1.0.2-SNAPSHOT"/>
 
-    <property name="pinpoint.bootstrap.dependency.jar" value="pinpoint-bootstrap-${pinpoint.version}-jar-with-dependencies.jar"/>
     <property name="pinpoint.bootstrap.jar" value="pinpoint-bootstrap-${pinpoint.version}.jar"/>
 
 
@@ -18,7 +17,7 @@
     </target>
 
     <target name="copy.agent">
-        <copy file="${target.dir}/${pinpoint.bootstrap.dependency.jar}" tofile="${agent.dir}/${pinpoint.bootstrap.jar}" overwrite="true">
+        <copy file="${target.dir}/${pinpoint.bootstrap.jar}" tofile="${agent.dir}/${pinpoint.bootstrap.jar}" overwrite="true">
         </copy>
     </target>
 
