@@ -11,7 +11,7 @@
 
     <property name="maven.dir" value="${env.M2_HOME}"/>
     <property name="agent.lib.dir" value="${basedir}/../deploy/pinpoint-agent/lib"/>
-    <property name="target.dir" value="${basedir}/target/"/>
+    <property name="target.dir" value="${basedir}/target"/>
 
     <target name="deploy" depends="mvn.build.install, copy.agent">
     </target>
@@ -25,7 +25,7 @@
     </target>
 
     <target name="copy.agent">
-        <copy file="${target.dir}/${pinpoint.profiler.jar}"  todir="${agent.lib.dir}" overwrite="true">
+        <copy file="${target.dir}/pinpoint-agent/lib/${pinpoint.profiler.jar}"  todir="${agent.lib.dir}" overwrite="true">
         </copy>
     </target>
 
