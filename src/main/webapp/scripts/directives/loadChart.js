@@ -183,7 +183,7 @@ pinpointApp
                 parseTimeSeriesHistogramForAmcharts = function (data) {
                     function getKeyFromNewDataByTime (time) {
                         for (var key in newData) {
-                            if (new Date(time).toString('yyyy-MM-dd hh:mm') === newData[key].time) {
+                            if (new Date(time).toString('yyyy-MM-dd HH:mm') === newData[key].time) {
                                 return key;
                             }
                         }
@@ -201,7 +201,7 @@ pinpointApp
                                 newData[a][data[key].key] = data[key].values[innerKey][1];
                             } else {
                                 var b = {
-                                    time: new Date(data[key].values[innerKey][0]).toString('yyyy-MM-dd hh:mm')
+                                    time: new Date(data[key].values[innerKey][0]).toString('yyyy-MM-dd HH:mm')
                                 };
                                 b[data[key].key] = data[key].values[innerKey][1];
                                 newData.push(b);
