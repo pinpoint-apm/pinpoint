@@ -16,19 +16,12 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                 var oNavbarVo, oAlert, oProgressBar;
 
                 // define private variables of methods
-                var showAgentStat, d3MakeGcCharts;
+                var getAgentStat, showCharts, parseChartDataForAmcharts;
 
                 // initialize
                 scope.agentInfoTemplate = 'views/agentInfoReady.html';
                 oAlert = new Alerts();
                 oProgressBar = new ProgressBar();
-
-                // TODO this is dummy
-//                scope.info = [
-//                    { key: 'Application Type', val: 'Tomcat' },
-//                    { key: 'JVM Version', val: '1.6.0_32' },
-//                    { key: 'JVM Options', val: '' }
-//                ];
 
                 /**
                  * scope event of agentInfo.initialize
@@ -39,15 +32,6 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                     oNavbarVo = navbarVo;
                     scope.memoryGroup = null;
 
-//                    scope.info = [
-//                        { key: 'Agent Id', val: agent.agentId },
-//                        { key: 'Application Name', val: agent.applicationName },
-//                        { key: 'Hostname', val: agent.hostname },
-//                        { key: 'IP', val: agent.ip },
-//                        { key: 'Service Type', val: agent.serviceType },
-//                        { key: 'PID', val: agent.pid },
-//                        { key: 'Agent Version', val: agent.version }
-//                    ];
                     scope.info = {
                         'agentId': agent.agentId,
                         'applicationName': agent.applicationName,
@@ -60,122 +44,101 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                     };
 
                     $timeout(function () {
-                        showAgentStat(agent.agentId, oNavbarVo.getQueryStartTime(), oNavbarVo.getQueryEndTime(), oNavbarVo.getPeriod());
+                        getAgentStat(agent.agentId, oNavbarVo.getQueryStartTime(), oNavbarVo.getQueryEndTime(), oNavbarVo.getPeriod());
                         scope.$apply();
                     });
                 });
 
-                d3MakeGcCharts = function (agentStat) {
+                /**
+                 * show charts
+                 * @param agentStat
+                 */
+                showCharts = function (agentStat) {
                     var total = { id: 'total', title: 'Total (Heap + PermGen)', span: 'span12', line: [
-                        { id: 'jvmMemoryTotalUsed', key: 'used', values: [] },
-                        { id: 'jvmMemoryTotalMax', key: 'max', values: [] },
-                        { id: 'gc', key: 'GC', values: [], bar: true }
+                        { id: 'jvmMemoryTotalUsed', key: 'Used', values: [], isGc: false },
+                        { id: 'jvmMemoryTotalMax', key: 'Max', values: [], isGc: false },
+                        { id: 'gc', key: 'GC', values: [], bar: true, isGc: true }
                     ]};
 
                     var heap = { id: 'heap', title: 'Heap', span: 'span12', line: [
-                        { id: 'jvmMemoryHeapUsed', key: 'used', values: [] },
-                        { id: 'jvmMemoryHeapMax', key: 'max', values: [] },
-                        { id: 'gc', key: 'GC', values: [], bar: true }
+                        { id: 'jvmMemoryHeapUsed', key: 'Used', values: [], isGc: false },
+                        { id: 'jvmMemoryHeapMax', key: 'Max', values: [], isGc: false },
+                        { id: 'gc', key: 'GC', values: [], bar: true, isGc: true }
                     ]};
 
                     var nonheap = { id: 'nonheap', title: 'PermGen', span: 'span12', line: [
-                        { id: 'jvmMemoryNonHeapUsed', key: 'used', values: [] },
-                        { id: 'jvmMemoryNonHeapMax', key: 'max', values: [] },
-                        { id: 'gc', key: 'GC', values: [], bar: true }
+                        { id: 'jvmMemoryNonHeapUsed', key: 'Used', values: [], isGc: false },
+                        { id: 'jvmMemoryNonHeapMax', key: 'Max', values: [], isGc: false },
+                        { id: 'gc', key: 'GC', values: [], bar: true, isGc: true }
                     ]};
 
-                    var result = [ heap, nonheap ];
-                    scope.memoryGroup = result;
+                    scope.memoryGroup = [ heap, nonheap ];
 
-                    var POINTS_TIMESTAMP = 0;
-                    var POINTS_MIN = 1;
-                    var POINTS_MAX = 2;
-                    var POINTS_AVG = 3;
-
-                    result.forEach(function (each) {
-                        each.line.forEach(function (line) {
-                            if (line.bar) {
-                                // bar chart
-                                var pointsTime = agentStat.charts['jvmGcOldTime'].points;
-                                var pointsCount = agentStat.charts['jvmGcOldCount'].points;
-
-                                if (pointsTime.length !== pointsCount.length) {
-                                    console.log('assertion error', 'time.length != count.length');
-                                    return;
-                                }
-
-                                for (var i = pointsCount.length - 1; i >= 0; --i) {
-                                    var timestamp = pointsTime[i][POINTS_TIMESTAMP];
-                                    var currTime = pointsTime[i][POINTS_MAX];
-                                    var currCount = pointsCount[i][POINTS_MAX];
-                                    var prevTime = line.prevTime;
-                                    var prevCount = line.prevCount;
-
-                                    if (!line.prevTime || !line.prevCount) {
-                                        line.values.push({x: timestamp, y: 0});
-                                        line.prevTime = currTime;
-                                        line.prevCount = currCount;
-                                    } else {
-                                        if ((currCount - prevCount > 0) && (currTime - prevTime > 0)) {
-                                            line.values.push({x: timestamp, y: currTime - prevTime});
-                                            line.prevTime = currTime;
-                                            line.prevCount = currCount;
-                                        } else {
-                                            line.values.push({x: timestamp, y: 0});
-                                        }
-                                    }
-                                }
-                            } else {
-                                // line chart
-                                var points = agentStat.charts[line.id].points;
-                                for (var j = points.length - 1; j >= 0; --j) {
-                                    line.values.push({x: points[j][POINTS_TIMESTAMP], y: points[j][POINTS_MAX]});
-                                }
-                            }
-                        });
-
-                        // draw a chart
-                        nv.addGraph(function () {
-                            var chart = nv.models.linePlusBarChart();
-                            chart.x(function (d, i) {
-                                return i;
-                            });
-                            chart.xAxis.tickFormat(function (d) {
-                                var dx = each.line[0].values[d] && each.line[0].values[d].x || 0;
-                                return d3.time.format('%X')(new Date(dx));
-                            });
-                            chart.y1Axis.axisLabel('GC elapsed time (ms)').tickFormat(function (d) {
-                                return d;
-                            });
-                            chart.y2Axis.tickFormat(function (d) {
-                                var sizes = [' B', 'KB', 'MB', 'GB', 'TB'];
-                                var posttxt = 0;
-                                var precision = 2;
-                                if (d == 0) return '0';
-                                while (d >= 1024) {
-                                    posttxt++;
-                                    d = d / 1024;
-                                }
-                                return parseInt(d).toFixed(precision) + " " + sizes[posttxt];
-                            });
-                            chart.bars.forceY([0]);
-                            chart.lines.forceY([0]);
-                            chart.margin({top: 30, right: 100, bottom: 50, left: 100})
-                            d3.select('#line_' + each.id).datum(each.line).transition().duration(100).call(chart);
-                            d3.select("#circle").attr("stroke-width", "1px");
-                            nv.utils.windowResize(chart.update);
-                            return chart;
-                        });
-                    });
+                    scope.$broadcast('jvmMemoryChart.initAndRenderWithData.forHeap', parseChartDataForAmcharts(heap, agentStat), '100%', '300px');
+                    scope.$broadcast('jvmMemoryChart.initAndRenderWithData.forNonHeap', parseChartDataForAmcharts(nonheap, agentStat), '100%', '300px');
                 };
 
                 /**
-                 * show agent stat
+                 * parse chart data for amcharts
+                 * @param info
+                 * @param agentStat
+                 * @returns {Array}
+                 */
+                parseChartDataForAmcharts = function (info, agentStat) {
+                    var newData = [],
+                        POINTS_TIMESTAMP = 0, POINTS_MIN = 1, POINTS_MAX = 2, POINTS_AVG = 3,
+                        pointsTime = agentStat.charts['jvmGcOldTime'].points,
+                        pointsCount = agentStat.charts['jvmGcOldCount'].points;
+
+                    if (pointsTime.length !== pointsCount.length) {
+                        throw new Error('assertion error', 'time.length != count.length');
+                        return;
+                    }
+
+                    var currTime, currCount, prevTime, prevCount; // for gc
+
+                    for (var i = pointsCount.length - 1; i >= 0; --i) {
+                        var thisData = {
+                            time: new Date(pointsTime[i][POINTS_TIMESTAMP]).toString('yyyy-MM-dd HH:mm'),
+                            Used: 0,
+                            Max: 0,
+                            GC: 0
+                        };
+                        for (var k in info.line) {
+                            if (info.line[k].isGc) {
+                                var GC = 0;
+                                currTime = pointsTime[i][POINTS_MAX];
+                                currCount = pointsCount[i][POINTS_MAX];
+                                if (!prevTime || !prevCount) {
+                                    prevTime = currTime;
+                                    prevCount = currCount;
+                                } else {
+                                    if ((currCount - prevCount > 0) && (currTime - prevTime > 0)) {
+                                        GC = currTime - prevTime;
+                                        prevTime = currTime;
+                                        prevCount = currCount;
+                                    }
+                                }
+                                thisData[info.line[k].key] = GC;
+                            } else {
+                                thisData[info.line[k].key] = agentStat.charts[info.line[k].id].points[i][POINTS_MAX]
+                            }
+
+                        }
+
+                        newData.push(thisData);
+                    }
+
+                    return newData;
+                };
+
+                /**
+                 * get agent stat
                  * @param agentId
                  * @param from
                  * @param to
                  */
-                showAgentStat = function (agentId, from, to, period) {
+                getAgentStat = function (agentId, from, to, period) {
                     oProgressBar.startLoading();
                     var query = {
                         agentId: agentId,
@@ -192,10 +155,9 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                         }
                         scope.agentStat = result;
                         if (angular.isDefined(result.type) && result.type) {
-                            console.log('info', scope.info);
                             scope.info['jvmGcType'] =  result.type;
                             oProgressBar.setLoading(80);
-                            d3MakeGcCharts(result);
+                            showCharts(result);
                             $timeout(function () {
                                 oProgressBar.setLoading(100);
                                 oProgressBar.stopLoading();
@@ -207,6 +169,20 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                         scope.$digest();
                     });
                 };
+
+                /**
+                 * scope event on jvmMemoryChart.cursorChanged.forHeap
+                 */
+                scope.$on('jvmMemoryChart.cursorChanged.forHeap', function (e, event) {
+                    scope.$broadcast('jvmMemoryChart.showCursorAt.forNonHeap', event.index);
+                });
+
+                /**
+                 * scope event on jvmMemoryChart.cursorChanged.forNonHeap
+                 */
+                scope.$on('jvmMemoryChart.cursorChanged.forNonHeap', function (e, event) {
+                    scope.$broadcast('jvmMemoryChart.showCursorAt.forHeap', event.index);
+                });
             }
         };
     }]);

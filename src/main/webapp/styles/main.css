@@ -164,10 +164,6 @@ canvas {outline:none}
 
 
 /*임시로 워터마크 숨김*/
-.response-summary > div > div > div > a {
-    display: none !important;
-}
-
-.load > div > div > div > a {
+a[title="JavaScript charts"] {
     display: none !important;
 }

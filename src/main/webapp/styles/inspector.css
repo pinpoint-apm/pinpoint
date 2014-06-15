@@ -1,5 +1,6 @@
 .inspector-container {
-    max-width:900px;
+    width:95%;
+    position:relative;
 }
 .sidebar-spy {
     position: absolute;

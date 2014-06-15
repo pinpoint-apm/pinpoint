@@ -65,9 +65,26 @@
     </div>
     <div ng-show="memoryGroup">
         <h3>Memory & Garbage Collection</h3>
-        <div class="{{each.span}}" ng-repeat="each in memoryGroup">
-            <h5>{{each.title}}</h5>
-            <svg id="line_{{each.id}}" style="height:220px;" />
+
+        <!--<div class="row">-->
+            <!--<div class="col-md-6">-->
+                <!--<h5>{{memoryGroup[0].title}}</h5>-->
+                <!--<svg id="line_{{memoryGroup[0].id}}" style="height:220px;" />-->
+            <!--</div>-->
+            <!--<div class="col-md-6">-->
+                <!--<h5>{{memoryGroup[1].title}}</h5>-->
+                <!--<svg id="line_{{memoryGroup[1].id}}" style="height:220px;" />-->
+            <!--</div>-->
+        <!--</div>-->
+        <div class="row">
+            <div class="col-md-6">
+                <h5>{{memoryGroup[0].title}}</h5>
+                <jvm-memory-chart namespace="forHeap"></jvm-memory-chart>
+            </div>
+            <div class="col-md-6">
+                <h5>{{memoryGroup[1].title}}</h5>
+                <jvm-memory-chart namespace="forNonHeap"></jvm-memory-chart>
+            </div>
         </div>
     </div>
     <!--div class="row">

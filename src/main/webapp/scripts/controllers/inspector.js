@@ -29,7 +29,7 @@ pinpointApp.controller('InspectorCtrl', [ '$scope', '$timeout', '$routeParams', 
             oNavbarVo.autoCalculateByQueryEndDateTimeAndReadablePeriod();
             $scope.$emit('navbar.initializeWithStaticApplication', oNavbarVo);
             $scope.$emit('agentList.initialize', oNavbarVo);
-        }, 100);
+        }, 500);
 
         /**
          * scope event on navbar.changed
