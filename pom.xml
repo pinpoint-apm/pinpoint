@@ -132,7 +132,7 @@
             <groupId>arcus</groupId>
             <artifactId>arcus-client</artifactId>
             <version>1.5.3</version>
-            <!-- 
+            <!--
             <version>1.6.2.1</version>
              -->
         </dependency>
