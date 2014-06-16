@@ -1,7 +1,7 @@
 {
   "name": "angular-strap",
-  "description": "AngularStrap - AngularJS directives for Twitter Bootstrap",
-  "version": "2.0.2",
+  "description": "AngularStrap - AngularJS directives for Bootstrap",
+  "version": "2.0.3",
   "keywords": [
     "angular",
     "bootstrap"
@@ -33,20 +33,20 @@
     "CONTRIBUTING.md"
   ],
   "dependencies": {
-    "angular": "~1.2.10",
-    "bootstrap": "~3.1.0"
+    "angular": "~1.2.16",
+    "bootstrap": "~3.1.1"
   },
   "devDependencies": {
-    "angular-animate": "~1.2.10",
-    "angular-i18n": "~1.2.10",
-    "angular-mocks": "~1.2.10",
+    "angular-animate": "~1.2.16",
+    "angular-i18n": "~1.2.16",
+    "angular-mocks": "~1.2.16",
     "angular-motion": "~0.3.1",
-    "angular-route": "~1.2.10",
-    "angular-sanitize": "~1.2.10",
-    "angular-scenario": "~1.2.10",
-    "fastclick": "~0.6.11",
-    "font-awesome": "~4.0.3",
+    "angular-route": "~1.2.16",
+    "angular-sanitize": "~1.2.16",
+    "angular-scenario": "~1.2.16",
+    "fastclick": "~1.0.2",
+    "font-awesome": "~4.1.0",
     "highlightjs": "~8.0.0",
-    "jquery": "~2.1.0"
+    "jquery": "~2.1.1"
   }
 }

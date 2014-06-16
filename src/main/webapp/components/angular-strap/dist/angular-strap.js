@@ -1,6 +1,6 @@
 /**
  * angular-strap
- * @version v2.0.2 - 2014-04-27
+ * @version v2.0.3 - 2014-05-30
  * @link http://mgcrea.github.io/angular-strap
  * @author Olivier Louvignes (olivier@mg-crea.com)
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -227,7 +227,8 @@ angular.module('mgcrea.ngStrap.alert', ['mgcrea.ngStrap.modal']).provider('$aler
       keyboard: true,
       show: true,
       duration: false,
-      type: false
+      type: false,
+      dismissable: true
     };
   this.$get = [
     '$modal',
@@ -238,7 +239,8 @@ angular.module('mgcrea.ngStrap.alert', ['mgcrea.ngStrap.modal']).provider('$aler
         // Common vars
         var options = angular.extend({}, defaults, config);
         $alert = $modal(options);
-        // Support scope as string options [/*title, content, */type]
+        // Support scope as string options [/*title, content, */ type, dismissable]
+        $alert.$scope.dismissable = !!options.dismissable;
         if (options.type) {
           $alert.$scope.type = options.type;
         }
@@ -281,7 +283,8 @@ angular.module('mgcrea.ngStrap.alert', ['mgcrea.ngStrap.modal']).provider('$aler
           'html',
           'container',
           'animation',
-          'duration'
+          'duration',
+          'dismissable'
         ], function (key) {
           if (angular.isDefined(attr[key]))
             options[key] = attr[key];
@@ -313,95 +316,6 @@ angular.module('mgcrea.ngStrap.alert', ['mgcrea.ngStrap.modal']).provider('$aler
           alert.destroy();
           options = null;
           alert = null;
-        });
-      }
-    };
-  }
-]);
-
-// Source: aside.js
-angular.module('mgcrea.ngStrap.aside', ['mgcrea.ngStrap.modal']).provider('$aside', function () {
-  var defaults = this.defaults = {
-      animation: 'am-fade-and-slide-right',
-      prefixClass: 'aside',
-      placement: 'right',
-      template: 'aside/aside.tpl.html',
-      contentTemplate: false,
-      container: false,
-      element: null,
-      backdrop: true,
-      keyboard: true,
-      html: false,
-      show: true
-    };
-  this.$get = [
-    '$modal',
-    function ($modal) {
-      function AsideFactory(config) {
-        var $aside = {};
-        // Common vars
-        var options = angular.extend({}, defaults, config);
-        $aside = $modal(options);
-        return $aside;
-      }
-      return AsideFactory;
-    }
-  ];
-}).directive('bsAside', [
-  '$window',
-  '$sce',
-  '$aside',
-  function ($window, $sce, $aside) {
-    var requestAnimationFrame = $window.requestAnimationFrame || $window.setTimeout;
-    return {
-      restrict: 'EAC',
-      scope: true,
-      link: function postLink(scope, element, attr, transclusion) {
-        // Directive options
-        var options = {
-            scope: scope,
-            element: element,
-            show: false
-          };
-        angular.forEach([
-          'template',
-          'contentTemplate',
-          'placement',
-          'backdrop',
-          'keyboard',
-          'html',
-          'container',
-          'animation'
-        ], function (key) {
-          if (angular.isDefined(attr[key]))
-            options[key] = attr[key];
-        });
-        // Support scope as data-attrs
-        angular.forEach([
-          'title',
-          'content'
-        ], function (key) {
-          attr[key] && attr.$observe(key, function (newValue, oldValue) {
-            scope[key] = $sce.trustAsHtml(newValue);
-          });
-        });
-        // Support scope as an object
-        attr.bsAside && scope.$watch(attr.bsAside, function (newValue, oldValue) {
-          if (angular.isObject(newValue)) {
-            angular.extend(scope, newValue);
-          } else {
-            scope.content = newValue;
-          }
-        }, true);
-        // Initialize aside
-        var aside = $aside(options);
-        // Trigger
-        element.on(attr.trigger || 'click', aside.toggle);
-        // Garbage collection
-        scope.$on('$destroy', function () {
-          aside.destroy();
-          options = null;
-          aside = null;
         });
       }
     };
@@ -543,6 +457,95 @@ angular.module('mgcrea.ngStrap.button', []).provider('$button', function () {
   }
 ]);
 
+// Source: aside.js
+angular.module('mgcrea.ngStrap.aside', ['mgcrea.ngStrap.modal']).provider('$aside', function () {
+  var defaults = this.defaults = {
+      animation: 'am-fade-and-slide-right',
+      prefixClass: 'aside',
+      placement: 'right',
+      template: 'aside/aside.tpl.html',
+      contentTemplate: false,
+      container: false,
+      element: null,
+      backdrop: true,
+      keyboard: true,
+      html: false,
+      show: true
+    };
+  this.$get = [
+    '$modal',
+    function ($modal) {
+      function AsideFactory(config) {
+        var $aside = {};
+        // Common vars
+        var options = angular.extend({}, defaults, config);
+        $aside = $modal(options);
+        return $aside;
+      }
+      return AsideFactory;
+    }
+  ];
+}).directive('bsAside', [
+  '$window',
+  '$sce',
+  '$aside',
+  function ($window, $sce, $aside) {
+    var requestAnimationFrame = $window.requestAnimationFrame || $window.setTimeout;
+    return {
+      restrict: 'EAC',
+      scope: true,
+      link: function postLink(scope, element, attr, transclusion) {
+        // Directive options
+        var options = {
+            scope: scope,
+            element: element,
+            show: false
+          };
+        angular.forEach([
+          'template',
+          'contentTemplate',
+          'placement',
+          'backdrop',
+          'keyboard',
+          'html',
+          'container',
+          'animation'
+        ], function (key) {
+          if (angular.isDefined(attr[key]))
+            options[key] = attr[key];
+        });
+        // Support scope as data-attrs
+        angular.forEach([
+          'title',
+          'content'
+        ], function (key) {
+          attr[key] && attr.$observe(key, function (newValue, oldValue) {
+            scope[key] = $sce.trustAsHtml(newValue);
+          });
+        });
+        // Support scope as an object
+        attr.bsAside && scope.$watch(attr.bsAside, function (newValue, oldValue) {
+          if (angular.isObject(newValue)) {
+            angular.extend(scope, newValue);
+          } else {
+            scope.content = newValue;
+          }
+        }, true);
+        // Initialize aside
+        var aside = $aside(options);
+        // Trigger
+        element.on(attr.trigger || 'click', aside.toggle);
+        // Garbage collection
+        scope.$on('$destroy', function () {
+          aside.destroy();
+          options = null;
+          aside = null;
+        });
+      }
+    };
+  }
+]);
+
 // Source: datepicker.js
 angular.module('mgcrea.ngStrap.datepicker', [
   'mgcrea.ngStrap.helpers.dateParser',
@@ -561,6 +564,7 @@ angular.module('mgcrea.ngStrap.datepicker', [
       useNative: false,
       dateType: 'date',
       dateFormat: 'shortDate',
+      modelDateFormat: null,
       dayFormat: 'dd',
       strictFormat: false,
       autoclose: false,
@@ -568,7 +572,9 @@ angular.module('mgcrea.ngStrap.datepicker', [
       maxDate: +Infinity,
       startView: 0,
       minView: 0,
-      startWeek: 0
+      startWeek: 0,
+      iconLeft: 'glyphicon glyphicon-chevron-left',
+      iconRight: 'glyphicon glyphicon-chevron-right'
     };
   this.$get = [
     '$window',
@@ -597,6 +603,8 @@ angular.module('mgcrea.ngStrap.datepicker', [
         $datepicker.$views = pickerViews.views;
         var viewDate = pickerViews.viewDate;
         scope.$mode = options.startView;
+        scope.$iconLeft = options.iconLeft;
+        scope.$iconRight = options.iconRight;
         var $picker = $datepicker.$views[scope.$mode];
         // Scope methods
         scope.$select = function (date) {
@@ -791,6 +799,7 @@ angular.module('mgcrea.ngStrap.datepicker', [
           'autoclose',
           'dateType',
           'dateFormat',
+          'modelDateFormat',
           'dayFormat',
           'strictFormat',
           'startWeek',
@@ -852,14 +861,18 @@ angular.module('mgcrea.ngStrap.datepicker', [
             controller.$setValidity('date', false);
             return;
           } else {
-            var isValid = (isNaN(datepicker.$options.minDate) || parsedDate.getTime() >= datepicker.$options.minDate) && (isNaN(datepicker.$options.maxDate) || parsedDate.getTime() <= datepicker.$options.maxDate);
+            var isMinValid = isNaN(datepicker.$options.minDate) || parsedDate.getTime() >= datepicker.$options.minDate;
+            var isMaxValid = isNaN(datepicker.$options.maxDate) || parsedDate.getTime() <= datepicker.$options.maxDate;
+            var isValid = isMinValid && isMaxValid;
             controller.$setValidity('date', isValid);
+            controller.$setValidity('min', isMinValid);
+            controller.$setValidity('max', isMaxValid);
             // Only update the model when we have a valid date
             if (isValid)
               controller.$dateValue = parsedDate;
           }
           if (options.dateType === 'string') {
-            return dateFilter(viewValue, options.dateFormat);
+            return dateFilter(parsedDate, options.modelDateFormat || options.dateFormat);
           } else if (options.dateType === 'number') {
             return controller.$dateValue.getTime();
           } else if (options.dateType === 'iso') {
@@ -877,7 +890,7 @@ angular.module('mgcrea.ngStrap.datepicker', [
           } else if (angular.isDate(modelValue)) {
             date = modelValue;
           } else if (options.dateType === 'string') {
-            date = dateParser.parse(modelValue);
+            date = dateParser.parse(modelValue, null, options.modelDateFormat);
           } else {
             date = new Date(modelValue);
           }
@@ -1131,124 +1144,6 @@ angular.module('mgcrea.ngStrap.datepicker', [
   ];
 });
 
-// Source: dropdown.js
-angular.module('mgcrea.ngStrap.dropdown', ['mgcrea.ngStrap.tooltip']).provider('$dropdown', function () {
-  var defaults = this.defaults = {
-      animation: 'am-fade',
-      prefixClass: 'dropdown',
-      placement: 'bottom-left',
-      template: 'dropdown/dropdown.tpl.html',
-      trigger: 'click',
-      container: false,
-      keyboard: true,
-      html: false,
-      delay: 0
-    };
-  this.$get = [
-    '$window',
-    '$rootScope',
-    '$tooltip',
-    function ($window, $rootScope, $tooltip) {
-      var bodyEl = angular.element($window.document.body);
-      var matchesSelector = Element.prototype.matchesSelector || Element.prototype.webkitMatchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.msMatchesSelector || Element.prototype.oMatchesSelector;
-      function DropdownFactory(element, config) {
-        var $dropdown = {};
-        // Common vars
-        var options = angular.extend({}, defaults, config);
-        var scope = $dropdown.$scope = options.scope && options.scope.$new() || $rootScope.$new();
-        $dropdown = $tooltip(element, options);
-        // Protected methods
-        $dropdown.$onKeyDown = function (evt) {
-          if (!/(38|40)/.test(evt.keyCode))
-            return;
-          evt.preventDefault();
-          evt.stopPropagation();
-          // Retrieve focused index
-          var items = angular.element($dropdown.$element[0].querySelectorAll('li:not(.divider) a'));
-          if (!items.length)
-            return;
-          var index;
-          angular.forEach(items, function (el, i) {
-            if (matchesSelector && matchesSelector.call(el, ':focus'))
-              index = i;
-          });
-          // Navigate with keyboard
-          if (evt.keyCode === 38 && index > 0)
-            index--;
-          else if (evt.keyCode === 40 && index < items.length - 1)
-            index++;
-          else if (angular.isUndefined(index))
-            index = 0;
-          items.eq(index)[0].focus();
-        };
-        // Overrides
-        var show = $dropdown.show;
-        $dropdown.show = function () {
-          show();
-          setTimeout(function () {
-            options.keyboard && $dropdown.$element.on('keydown', $dropdown.$onKeyDown);
-            bodyEl.on('click', onBodyClick);
-          });
-        };
-        var hide = $dropdown.hide;
-        $dropdown.hide = function () {
-          options.keyboard && $dropdown.$element.off('keydown', $dropdown.$onKeyDown);
-          bodyEl.off('click', onBodyClick);
-          hide();
-        };
-        // Private functions
-        function onBodyClick(evt) {
-          if (evt.target === element[0])
-            return;
-          return evt.target !== element[0] && $dropdown.hide();
-        }
-        return $dropdown;
-      }
-      return DropdownFactory;
-    }
-  ];
-}).directive('bsDropdown', [
-  '$window',
-  '$location',
-  '$sce',
-  '$dropdown',
-  function ($window, $location, $sce, $dropdown) {
-    return {
-      restrict: 'EAC',
-      scope: true,
-      link: function postLink(scope, element, attr, transclusion) {
-        // Directive options
-        var options = { scope: scope };
-        angular.forEach([
-          'placement',
-          'container',
-          'delay',
-          'trigger',
-          'keyboard',
-          'html',
-          'animation',
-          'template'
-        ], function (key) {
-          if (angular.isDefined(attr[key]))
-            options[key] = attr[key];
-        });
-        // Support scope as an object
-        attr.bsDropdown && scope.$watch(attr.bsDropdown, function (newValue, oldValue) {
-          scope.content = newValue;
-        }, true);
-        // Initialize dropdown
-        var dropdown = $dropdown(element, options);
-        // Garbage collection
-        scope.$on('$destroy', function () {
-          dropdown.destroy();
-          options = null;
-          dropdown = null;
-        });
-      }
-    };
-  }
-]);
-
 // Source: date-parser.js
 angular.module('mgcrea.ngStrap.helpers.dateParser', []).provider('$dateParser', [
   '$localeProvider',
@@ -1335,15 +1230,17 @@ angular.module('mgcrea.ngStrap.helpers.dateParser', []).provider('$dateParser', 
               return !isNaN(date.getTime());
             return regex.test(date);
           };
-          $dateParser.parse = function (value, baseDate) {
+          $dateParser.parse = function (value, baseDate, format) {
+            var formatRegex = format ? regExpForFormat(format) : regex;
+            var formatSetMap = format ? setMapForFormat(format) : setMap;
             if (angular.isDate(value))
               return value;
-            var matches = regex.exec(value);
+            var matches = formatRegex.exec(value);
             if (!matches)
               return false;
             var date = baseDate || new Date(0, 0, 1);
             for (var i = 0; i < matches.length - 1; i++) {
-              setMap[i] && setMap[i].call(date, matches[i + 1]);
+              formatSetMap[i] && formatSetMap[i].call(date, matches[i + 1]);
             }
             return date;
           };
@@ -1490,8 +1387,8 @@ angular.module('mgcrea.ngStrap.helpers.dimensions', []).factory('dimensions', [
       var boxRect = element.getBoundingClientRect();
       var docElement = element.ownerDocument;
       return {
-        width: element.offsetWidth,
-        height: element.offsetHeight,
+        width: boxRect.width || element.offsetWidth,
+        height: boxRect.height || element.offsetHeight,
         top: boxRect.top + (window.pageYOffset || docElement.documentElement.scrollTop) - (docElement.documentElement.clientTop || 0),
         left: boxRect.left + (window.pageXOffset || docElement.documentElement.scrollLeft) - (docElement.documentElement.clientLeft || 0)
       };
@@ -1564,7 +1461,7 @@ angular.module('mgcrea.ngStrap.helpers.dimensions', []).factory('dimensions', [
       return value;
     };
     /**
-     * Provides equivalent of jQuery's height function
+     * Provides equivalent of jQuery's width function
      * @required-by bootstrap-affix
      * @url http://api.jquery.com/width/
      * @param element
@@ -1666,6 +1563,124 @@ angular.version.minor < 3 && angular.version.dot < 14 && angular.module('ng').fa
      //     });
      //   };
      // });
+
+// Source: dropdown.js
+angular.module('mgcrea.ngStrap.dropdown', ['mgcrea.ngStrap.tooltip']).provider('$dropdown', function () {
+  var defaults = this.defaults = {
+      animation: 'am-fade',
+      prefixClass: 'dropdown',
+      placement: 'bottom-left',
+      template: 'dropdown/dropdown.tpl.html',
+      trigger: 'click',
+      container: false,
+      keyboard: true,
+      html: false,
+      delay: 0
+    };
+  this.$get = [
+    '$window',
+    '$rootScope',
+    '$tooltip',
+    function ($window, $rootScope, $tooltip) {
+      var bodyEl = angular.element($window.document.body);
+      var matchesSelector = Element.prototype.matchesSelector || Element.prototype.webkitMatchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.msMatchesSelector || Element.prototype.oMatchesSelector;
+      function DropdownFactory(element, config) {
+        var $dropdown = {};
+        // Common vars
+        var options = angular.extend({}, defaults, config);
+        var scope = $dropdown.$scope = options.scope && options.scope.$new() || $rootScope.$new();
+        $dropdown = $tooltip(element, options);
+        // Protected methods
+        $dropdown.$onKeyDown = function (evt) {
+          if (!/(38|40)/.test(evt.keyCode))
+            return;
+          evt.preventDefault();
+          evt.stopPropagation();
+          // Retrieve focused index
+          var items = angular.element($dropdown.$element[0].querySelectorAll('li:not(.divider) a'));
+          if (!items.length)
+            return;
+          var index;
+          angular.forEach(items, function (el, i) {
+            if (matchesSelector && matchesSelector.call(el, ':focus'))
+              index = i;
+          });
+          // Navigate with keyboard
+          if (evt.keyCode === 38 && index > 0)
+            index--;
+          else if (evt.keyCode === 40 && index < items.length - 1)
+            index++;
+          else if (angular.isUndefined(index))
+            index = 0;
+          items.eq(index)[0].focus();
+        };
+        // Overrides
+        var show = $dropdown.show;
+        $dropdown.show = function () {
+          show();
+          setTimeout(function () {
+            options.keyboard && $dropdown.$element.on('keydown', $dropdown.$onKeyDown);
+            bodyEl.on('click', onBodyClick);
+          });
+        };
+        var hide = $dropdown.hide;
+        $dropdown.hide = function () {
+          options.keyboard && $dropdown.$element.off('keydown', $dropdown.$onKeyDown);
+          bodyEl.off('click', onBodyClick);
+          hide();
+        };
+        // Private functions
+        function onBodyClick(evt) {
+          if (evt.target === element[0])
+            return;
+          return evt.target !== element[0] && $dropdown.hide();
+        }
+        return $dropdown;
+      }
+      return DropdownFactory;
+    }
+  ];
+}).directive('bsDropdown', [
+  '$window',
+  '$location',
+  '$sce',
+  '$dropdown',
+  function ($window, $location, $sce, $dropdown) {
+    return {
+      restrict: 'EAC',
+      scope: true,
+      link: function postLink(scope, element, attr, transclusion) {
+        // Directive options
+        var options = { scope: scope };
+        angular.forEach([
+          'placement',
+          'container',
+          'delay',
+          'trigger',
+          'keyboard',
+          'html',
+          'animation',
+          'template'
+        ], function (key) {
+          if (angular.isDefined(attr[key]))
+            options[key] = attr[key];
+        });
+        // Support scope as an object
+        attr.bsDropdown && scope.$watch(attr.bsDropdown, function (newValue, oldValue) {
+          scope.content = newValue;
+        }, true);
+        // Initialize dropdown
+        var dropdown = $dropdown(element, options);
+        // Garbage collection
+        scope.$on('$destroy', function () {
+          dropdown.destroy();
+          options = null;
+          dropdown = null;
+        });
+      }
+    };
+  }
+]);
 
 // Source: modal.js
 angular.module('mgcrea.ngStrap.modal', ['mgcrea.ngStrap.helpers.dimensions']).provider('$modal', function () {
@@ -1804,7 +1819,7 @@ angular.module('mgcrea.ngStrap.modal', ['mgcrea.ngStrap.helpers.dimensions']).pr
             scope.$emit(options.prefixEvent + '.show', $modal);
           });
           scope.$isShown = true;
-          scope.$$phase || scope.$root.$$phase || scope.$digest();
+          scope.$$phase || scope.$root && scope.$root.$$phase || scope.$digest();
           // Focus once the enter-animation has started
           // Weird PhantomJS bug hack
           var el = modalElement[0];
@@ -1838,7 +1853,7 @@ angular.module('mgcrea.ngStrap.modal', ['mgcrea.ngStrap.helpers.dimensions']).pr
             });
           }
           scope.$isShown = false;
-          scope.$$phase || scope.$root.$$phase || scope.$digest();
+          scope.$$phase || scope.$root && scope.$root.$$phase || scope.$digest();
           // Unbind events
           if (options.backdrop) {
             modalElement.off('click', hideOnBackdropClick);
@@ -1986,375 +2001,6 @@ angular.module('mgcrea.ngStrap.navbar', []).provider('$navbar', function () {
               liElement.removeClass(options.activeClass);
             }
           });
-        });
-      }
-    };
-  }
-]);
-
-// Source: select.js
-angular.module('mgcrea.ngStrap.select', [
-  'mgcrea.ngStrap.tooltip',
-  'mgcrea.ngStrap.helpers.parseOptions'
-]).provider('$select', function () {
-  var defaults = this.defaults = {
-      animation: 'am-fade',
-      prefixClass: 'select',
-      placement: 'bottom-left',
-      template: 'select/select.tpl.html',
-      trigger: 'focus',
-      container: false,
-      keyboard: true,
-      html: false,
-      delay: 0,
-      multiple: false,
-      sort: true,
-      caretHtml: '&nbsp;<span class="caret"></span>',
-      placeholder: 'Choose among the following...',
-      maxLength: 3,
-      maxLengthHtml: 'selected'
-    };
-  this.$get = [
-    '$window',
-    '$document',
-    '$rootScope',
-    '$tooltip',
-    function ($window, $document, $rootScope, $tooltip) {
-      var bodyEl = angular.element($window.document.body);
-      var isTouch = 'createTouch' in $window.document;
-      function SelectFactory(element, controller, config) {
-        var $select = {};
-        // Common vars
-        var options = angular.extend({}, defaults, config);
-        $select = $tooltip(element, options);
-        var parentScope = config.scope;
-        var scope = $select.$scope;
-        scope.$matches = [];
-        scope.$activeIndex = 0;
-        scope.$isMultiple = options.multiple;
-        scope.$activate = function (index) {
-          scope.$$postDigest(function () {
-            $select.activate(index);
-          });
-        };
-        scope.$select = function (index, evt) {
-          scope.$$postDigest(function () {
-            $select.select(index);
-          });
-        };
-        scope.$isVisible = function () {
-          return $select.$isVisible();
-        };
-        scope.$isActive = function (index) {
-          return $select.$isActive(index);
-        };
-        // Public methods
-        $select.update = function (matches) {
-          scope.$matches = matches;
-          $select.$updateActiveIndex();
-        };
-        $select.activate = function (index) {
-          if (options.multiple) {
-            scope.$activeIndex.sort();
-            $select.$isActive(index) ? scope.$activeIndex.splice(scope.$activeIndex.indexOf(index), 1) : scope.$activeIndex.push(index);
-            if (options.sort)
-              scope.$activeIndex.sort();
-          } else {
-            scope.$activeIndex = index;
-          }
-          return scope.$activeIndex;
-        };
-        $select.select = function (index) {
-          var value = scope.$matches[index].value;
-          $select.activate(index);
-          if (options.multiple) {
-            controller.$setViewValue(scope.$activeIndex.map(function (index) {
-              return scope.$matches[index].value;
-            }));
-          } else {
-            controller.$setViewValue(value);
-          }
-          controller.$render();
-          if (parentScope)
-            parentScope.$digest();
-          // Hide if single select
-          if (!options.multiple) {
-            $select.hide();
-          }
-          // Emit event
-          scope.$emit('$select.select', value, index);
-        };
-        // Protected methods
-        $select.$updateActiveIndex = function () {
-          if (controller.$modelValue && scope.$matches.length) {
-            if (options.multiple && angular.isArray(controller.$modelValue)) {
-              scope.$activeIndex = controller.$modelValue.map(function (value) {
-                return $select.$getIndex(value);
-              });
-            } else {
-              scope.$activeIndex = $select.$getIndex(controller.$modelValue);
-            }
-          } else if (scope.$activeIndex >= scope.$matches.length) {
-            scope.$activeIndex = options.multiple ? [] : 0;
-          }
-        };
-        $select.$isVisible = function () {
-          if (!options.minLength || !controller) {
-            return scope.$matches.length;
-          }
-          // minLength support
-          return scope.$matches.length && controller.$viewValue.length >= options.minLength;
-        };
-        $select.$isActive = function (index) {
-          if (options.multiple) {
-            return scope.$activeIndex.indexOf(index) !== -1;
-          } else {
-            return scope.$activeIndex === index;
-          }
-        };
-        $select.$getIndex = function (value) {
-          var l = scope.$matches.length, i = l;
-          if (!l)
-            return;
-          for (i = l; i--;) {
-            if (scope.$matches[i].value === value)
-              break;
-          }
-          if (i < 0)
-            return;
-          return i;
-        };
-        $select.$onMouseDown = function (evt) {
-          // Prevent blur on mousedown on .dropdown-menu
-          evt.preventDefault();
-          evt.stopPropagation();
-          // Emulate click for mobile devices
-          if (isTouch) {
-            var targetEl = angular.element(evt.target);
-            targetEl.triggerHandler('click');
-          }
-        };
-        $select.$onKeyDown = function (evt) {
-          if (!/(9|13|38|40)/.test(evt.keyCode))
-            return;
-          evt.preventDefault();
-          evt.stopPropagation();
-          // Select with enter
-          if (!options.multiple && (evt.keyCode === 13 || evt.keyCode === 9)) {
-            return $select.select(scope.$activeIndex);
-          }
-          // Navigate with keyboard
-          if (evt.keyCode === 38 && scope.$activeIndex > 0)
-            scope.$activeIndex--;
-          else if (evt.keyCode === 40 && scope.$activeIndex < scope.$matches.length - 1)
-            scope.$activeIndex++;
-          else if (angular.isUndefined(scope.$activeIndex))
-            scope.$activeIndex = 0;
-          scope.$digest();
-        };
-        // Overrides
-        var _show = $select.show;
-        $select.show = function () {
-          _show();
-          if (options.multiple) {
-            $select.$element.addClass('select-multiple');
-          }
-          setTimeout(function () {
-            $select.$element.on(isTouch ? 'touchstart' : 'mousedown', $select.$onMouseDown);
-            if (options.keyboard) {
-              element.on('keydown', $select.$onKeyDown);
-            }
-          });
-        };
-        var _hide = $select.hide;
-        $select.hide = function () {
-          $select.$element.off(isTouch ? 'touchstart' : 'mousedown', $select.$onMouseDown);
-          if (options.keyboard) {
-            element.off('keydown', $select.$onKeyDown);
-          }
-          _hide(true);
-        };
-        return $select;
-      }
-      SelectFactory.defaults = defaults;
-      return SelectFactory;
-    }
-  ];
-}).directive('bsSelect', [
-  '$window',
-  '$parse',
-  '$q',
-  '$select',
-  '$parseOptions',
-  function ($window, $parse, $q, $select, $parseOptions) {
-    var defaults = $select.defaults;
-    return {
-      restrict: 'EAC',
-      require: 'ngModel',
-      link: function postLink(scope, element, attr, controller) {
-        // Directive options
-        var options = { scope: scope };
-        angular.forEach([
-          'placement',
-          'container',
-          'delay',
-          'trigger',
-          'keyboard',
-          'html',
-          'animation',
-          'template',
-          'placeholder',
-          'multiple',
-          'maxLength',
-          'maxLengthHtml'
-        ], function (key) {
-          if (angular.isDefined(attr[key]))
-            options[key] = attr[key];
-        });
-        // Add support for select markup
-        if (element[0].nodeName.toLowerCase() === 'select') {
-          var inputEl = element;
-          inputEl.css('display', 'none');
-          element = angular.element('<button type="button" class="btn btn-default"></button>');
-          inputEl.after(element);
-        }
-        // Build proper ngOptions
-        var parsedOptions = $parseOptions(attr.ngOptions);
-        // Initialize select
-        var select = $select(element, controller, options);
-        // Watch ngOptions values before filtering for changes
-        var watchedOptions = parsedOptions.$match[7].replace(/\|.+/, '').trim();
-        scope.$watch(watchedOptions, function (newValue, oldValue) {
-          // console.warn('scope.$watch(%s)', watchedOptions, newValue, oldValue);
-          parsedOptions.valuesFn(scope, controller).then(function (values) {
-            select.update(values);
-            controller.$render();
-          });
-        }, true);
-        // Watch model for changes
-        scope.$watch(attr.ngModel, function (newValue, oldValue) {
-          // console.warn('scope.$watch(%s)', attr.ngModel, newValue, oldValue);
-          select.$updateActiveIndex();
-        }, true);
-        // Model rendering in view
-        controller.$render = function () {
-          // console.warn('$render', element.attr('ng-model'), 'controller.$modelValue', typeof controller.$modelValue, controller.$modelValue, 'controller.$viewValue', typeof controller.$viewValue, controller.$viewValue);
-          var selected, index;
-          if (options.multiple && angular.isArray(controller.$modelValue)) {
-            selected = controller.$modelValue.map(function (value) {
-              index = select.$getIndex(value);
-              return angular.isDefined(index) ? select.$scope.$matches[index].label : false;
-            }).filter(angular.isDefined);
-            if (selected.length > (options.maxLength || defaults.maxLength)) {
-              selected = selected.length + ' ' + (options.maxLengthHtml || defaults.maxLengthHtml);
-            } else {
-              selected = selected.join(', ');
-            }
-          } else {
-            index = select.$getIndex(controller.$modelValue);
-            selected = angular.isDefined(index) ? select.$scope.$matches[index].label : false;
-          }
-          element.html((selected ? selected : attr.placeholder || defaults.placeholder) + defaults.caretHtml);
-        };
-        // Garbage collection
-        scope.$on('$destroy', function () {
-          select.destroy();
-          options = null;
-          select = null;
-        });
-      }
-    };
-  }
-]);
-
-// Source: popover.js
-angular.module('mgcrea.ngStrap.popover', ['mgcrea.ngStrap.tooltip']).provider('$popover', function () {
-  var defaults = this.defaults = {
-      animation: 'am-fade',
-      placement: 'right',
-      template: 'popover/popover.tpl.html',
-      contentTemplate: false,
-      trigger: 'click',
-      keyboard: true,
-      html: false,
-      title: '',
-      content: '',
-      delay: 0,
-      container: false
-    };
-  this.$get = [
-    '$tooltip',
-    function ($tooltip) {
-      function PopoverFactory(element, config) {
-        // Common vars
-        var options = angular.extend({}, defaults, config);
-        var $popover = $tooltip(element, options);
-        // Support scope as string options [/*title, */content]
-        if (options.content) {
-          $popover.$scope.content = options.content;
-        }
-        return $popover;
-      }
-      return PopoverFactory;
-    }
-  ];
-}).directive('bsPopover', [
-  '$window',
-  '$location',
-  '$sce',
-  '$popover',
-  function ($window, $location, $sce, $popover) {
-    var requestAnimationFrame = $window.requestAnimationFrame || $window.setTimeout;
-    return {
-      restrict: 'EAC',
-      scope: true,
-      link: function postLink(scope, element, attr) {
-        // Directive options
-        var options = { scope: scope };
-        angular.forEach([
-          'template',
-          'contentTemplate',
-          'placement',
-          'container',
-          'delay',
-          'trigger',
-          'keyboard',
-          'html',
-          'animation'
-        ], function (key) {
-          if (angular.isDefined(attr[key]))
-            options[key] = attr[key];
-        });
-        // Support scope as data-attrs
-        angular.forEach([
-          'title',
-          'content'
-        ], function (key) {
-          attr[key] && attr.$observe(key, function (newValue, oldValue) {
-            scope[key] = $sce.trustAsHtml(newValue);
-            angular.isDefined(oldValue) && requestAnimationFrame(function () {
-              popover && popover.$applyPlacement();
-            });
-          });
-        });
-        // Support scope as an object
-        attr.bsPopover && scope.$watch(attr.bsPopover, function (newValue, oldValue) {
-          if (angular.isObject(newValue)) {
-            angular.extend(scope, newValue);
-          } else {
-            scope.content = newValue;
-          }
-          angular.isDefined(oldValue) && requestAnimationFrame(function () {
-            popover && popover.$applyPlacement();
-          });
-        }, true);
-        // Initialize popover
-        var popover = $popover(element, options);
-        // Garbage collection
-        scope.$on('$destroy', function () {
-          popover.destroy();
-          options = null;
-          popover = null;
         });
       }
     };
@@ -2584,6 +2230,376 @@ angular.module('mgcrea.ngStrap.scrollspy', [
   }
 ]);
 
+// Source: popover.js
+angular.module('mgcrea.ngStrap.popover', ['mgcrea.ngStrap.tooltip']).provider('$popover', function () {
+  var defaults = this.defaults = {
+      animation: 'am-fade',
+      container: false,
+      target: false,
+      placement: 'right',
+      template: 'popover/popover.tpl.html',
+      contentTemplate: false,
+      trigger: 'click',
+      keyboard: true,
+      html: false,
+      title: '',
+      content: '',
+      delay: 0
+    };
+  this.$get = [
+    '$tooltip',
+    function ($tooltip) {
+      function PopoverFactory(element, config) {
+        // Common vars
+        var options = angular.extend({}, defaults, config);
+        var $popover = $tooltip(element, options);
+        // Support scope as string options [/*title, */content]
+        if (options.content) {
+          $popover.$scope.content = options.content;
+        }
+        return $popover;
+      }
+      return PopoverFactory;
+    }
+  ];
+}).directive('bsPopover', [
+  '$window',
+  '$location',
+  '$sce',
+  '$popover',
+  function ($window, $location, $sce, $popover) {
+    var requestAnimationFrame = $window.requestAnimationFrame || $window.setTimeout;
+    return {
+      restrict: 'EAC',
+      scope: true,
+      link: function postLink(scope, element, attr) {
+        // Directive options
+        var options = { scope: scope };
+        angular.forEach([
+          'template',
+          'contentTemplate',
+          'placement',
+          'container',
+          'target',
+          'delay',
+          'trigger',
+          'keyboard',
+          'html',
+          'animation'
+        ], function (key) {
+          if (angular.isDefined(attr[key]))
+            options[key] = attr[key];
+        });
+        // Support scope as data-attrs
+        angular.forEach([
+          'title',
+          'content'
+        ], function (key) {
+          attr[key] && attr.$observe(key, function (newValue, oldValue) {
+            scope[key] = $sce.trustAsHtml(newValue);
+            angular.isDefined(oldValue) && requestAnimationFrame(function () {
+              popover && popover.$applyPlacement();
+            });
+          });
+        });
+        // Support scope as an object
+        attr.bsPopover && scope.$watch(attr.bsPopover, function (newValue, oldValue) {
+          if (angular.isObject(newValue)) {
+            angular.extend(scope, newValue);
+          } else {
+            scope.content = newValue;
+          }
+          angular.isDefined(oldValue) && requestAnimationFrame(function () {
+            popover && popover.$applyPlacement();
+          });
+        }, true);
+        // Initialize popover
+        var popover = $popover(element, options);
+        // Garbage collection
+        scope.$on('$destroy', function () {
+          popover.destroy();
+          options = null;
+          popover = null;
+        });
+      }
+    };
+  }
+]);
+
+// Source: select.js
+angular.module('mgcrea.ngStrap.select', [
+  'mgcrea.ngStrap.tooltip',
+  'mgcrea.ngStrap.helpers.parseOptions'
+]).provider('$select', function () {
+  var defaults = this.defaults = {
+      animation: 'am-fade',
+      prefixClass: 'select',
+      placement: 'bottom-left',
+      template: 'select/select.tpl.html',
+      trigger: 'focus',
+      container: false,
+      keyboard: true,
+      html: false,
+      delay: 0,
+      multiple: false,
+      sort: true,
+      caretHtml: '&nbsp;<span class="caret"></span>',
+      placeholder: 'Choose among the following...',
+      maxLength: 3,
+      maxLengthHtml: 'selected',
+      iconCheckmark: 'glyphicon glyphicon-ok'
+    };
+  this.$get = [
+    '$window',
+    '$document',
+    '$rootScope',
+    '$tooltip',
+    function ($window, $document, $rootScope, $tooltip) {
+      var bodyEl = angular.element($window.document.body);
+      var isTouch = 'createTouch' in $window.document;
+      function SelectFactory(element, controller, config) {
+        var $select = {};
+        // Common vars
+        var options = angular.extend({}, defaults, config);
+        $select = $tooltip(element, options);
+        var scope = $select.$scope;
+        scope.$matches = [];
+        scope.$activeIndex = 0;
+        scope.$isMultiple = options.multiple;
+        scope.$iconCheckmark = options.iconCheckmark;
+        scope.$activate = function (index) {
+          scope.$$postDigest(function () {
+            $select.activate(index);
+          });
+        };
+        scope.$select = function (index, evt) {
+          scope.$$postDigest(function () {
+            $select.select(index);
+          });
+        };
+        scope.$isVisible = function () {
+          return $select.$isVisible();
+        };
+        scope.$isActive = function (index) {
+          return $select.$isActive(index);
+        };
+        // Public methods
+        $select.update = function (matches) {
+          scope.$matches = matches;
+          $select.$updateActiveIndex();
+        };
+        $select.activate = function (index) {
+          if (options.multiple) {
+            scope.$activeIndex.sort();
+            $select.$isActive(index) ? scope.$activeIndex.splice(scope.$activeIndex.indexOf(index), 1) : scope.$activeIndex.push(index);
+            if (options.sort)
+              scope.$activeIndex.sort();
+          } else {
+            scope.$activeIndex = index;
+          }
+          return scope.$activeIndex;
+        };
+        $select.select = function (index) {
+          var value = scope.$matches[index].value;
+          scope.$apply(function () {
+            $select.activate(index);
+            if (options.multiple) {
+              controller.$setViewValue(scope.$activeIndex.map(function (index) {
+                return scope.$matches[index].value;
+              }));
+            } else {
+              controller.$setViewValue(value);
+              // Hide if single select
+              $select.hide();
+            }
+          });
+          // Emit event
+          scope.$emit('$select.select', value, index);
+        };
+        // Protected methods
+        $select.$updateActiveIndex = function () {
+          if (controller.$modelValue && scope.$matches.length) {
+            if (options.multiple && angular.isArray(controller.$modelValue)) {
+              scope.$activeIndex = controller.$modelValue.map(function (value) {
+                return $select.$getIndex(value);
+              });
+            } else {
+              scope.$activeIndex = $select.$getIndex(controller.$modelValue);
+            }
+          } else if (scope.$activeIndex >= scope.$matches.length) {
+            scope.$activeIndex = options.multiple ? [] : 0;
+          }
+        };
+        $select.$isVisible = function () {
+          if (!options.minLength || !controller) {
+            return scope.$matches.length;
+          }
+          // minLength support
+          return scope.$matches.length && controller.$viewValue.length >= options.minLength;
+        };
+        $select.$isActive = function (index) {
+          if (options.multiple) {
+            return scope.$activeIndex.indexOf(index) !== -1;
+          } else {
+            return scope.$activeIndex === index;
+          }
+        };
+        $select.$getIndex = function (value) {
+          var l = scope.$matches.length, i = l;
+          if (!l)
+            return;
+          for (i = l; i--;) {
+            if (scope.$matches[i].value === value)
+              break;
+          }
+          if (i < 0)
+            return;
+          return i;
+        };
+        $select.$onMouseDown = function (evt) {
+          // Prevent blur on mousedown on .dropdown-menu
+          evt.preventDefault();
+          evt.stopPropagation();
+          // Emulate click for mobile devices
+          if (isTouch) {
+            var targetEl = angular.element(evt.target);
+            targetEl.triggerHandler('click');
+          }
+        };
+        $select.$onKeyDown = function (evt) {
+          if (!/(9|13|38|40)/.test(evt.keyCode))
+            return;
+          evt.preventDefault();
+          evt.stopPropagation();
+          // Select with enter
+          if (!options.multiple && (evt.keyCode === 13 || evt.keyCode === 9)) {
+            return $select.select(scope.$activeIndex);
+          }
+          // Navigate with keyboard
+          if (evt.keyCode === 38 && scope.$activeIndex > 0)
+            scope.$activeIndex--;
+          else if (evt.keyCode === 40 && scope.$activeIndex < scope.$matches.length - 1)
+            scope.$activeIndex++;
+          else if (angular.isUndefined(scope.$activeIndex))
+            scope.$activeIndex = 0;
+          scope.$digest();
+        };
+        // Overrides
+        var _show = $select.show;
+        $select.show = function () {
+          _show();
+          if (options.multiple) {
+            $select.$element.addClass('select-multiple');
+          }
+          setTimeout(function () {
+            $select.$element.on(isTouch ? 'touchstart' : 'mousedown', $select.$onMouseDown);
+            if (options.keyboard) {
+              element.on('keydown', $select.$onKeyDown);
+            }
+          });
+        };
+        var _hide = $select.hide;
+        $select.hide = function () {
+          $select.$element.off(isTouch ? 'touchstart' : 'mousedown', $select.$onMouseDown);
+          if (options.keyboard) {
+            element.off('keydown', $select.$onKeyDown);
+          }
+          _hide(true);
+        };
+        return $select;
+      }
+      SelectFactory.defaults = defaults;
+      return SelectFactory;
+    }
+  ];
+}).directive('bsSelect', [
+  '$window',
+  '$parse',
+  '$q',
+  '$select',
+  '$parseOptions',
+  function ($window, $parse, $q, $select, $parseOptions) {
+    var defaults = $select.defaults;
+    return {
+      restrict: 'EAC',
+      require: 'ngModel',
+      link: function postLink(scope, element, attr, controller) {
+        // Directive options
+        var options = { scope: scope };
+        angular.forEach([
+          'placement',
+          'container',
+          'delay',
+          'trigger',
+          'keyboard',
+          'html',
+          'animation',
+          'template',
+          'placeholder',
+          'multiple',
+          'maxLength',
+          'maxLengthHtml'
+        ], function (key) {
+          if (angular.isDefined(attr[key]))
+            options[key] = attr[key];
+        });
+        // Add support for select markup
+        if (element[0].nodeName.toLowerCase() === 'select') {
+          var inputEl = element;
+          inputEl.css('display', 'none');
+          element = angular.element('<button type="button" class="btn btn-default"></button>');
+          inputEl.after(element);
+        }
+        // Build proper ngOptions
+        var parsedOptions = $parseOptions(attr.ngOptions);
+        // Initialize select
+        var select = $select(element, controller, options);
+        // Watch ngOptions values before filtering for changes
+        var watchedOptions = parsedOptions.$match[7].replace(/\|.+/, '').trim();
+        scope.$watch(watchedOptions, function (newValue, oldValue) {
+          // console.warn('scope.$watch(%s)', watchedOptions, newValue, oldValue);
+          parsedOptions.valuesFn(scope, controller).then(function (values) {
+            select.update(values);
+            controller.$render();
+          });
+        }, true);
+        // Watch model for changes
+        scope.$watch(attr.ngModel, function (newValue, oldValue) {
+          // console.warn('scope.$watch(%s)', attr.ngModel, newValue, oldValue);
+          select.$updateActiveIndex();
+          controller.$render();
+        }, true);
+        // Model rendering in view
+        controller.$render = function () {
+          // console.warn('$render', element.attr('ng-model'), 'controller.$modelValue', typeof controller.$modelValue, controller.$modelValue, 'controller.$viewValue', typeof controller.$viewValue, controller.$viewValue);
+          var selected, index;
+          if (options.multiple && angular.isArray(controller.$modelValue)) {
+            selected = controller.$modelValue.map(function (value) {
+              index = select.$getIndex(value);
+              return angular.isDefined(index) ? select.$scope.$matches[index].label : false;
+            }).filter(angular.isDefined);
+            if (selected.length > (options.maxLength || defaults.maxLength)) {
+              selected = selected.length + ' ' + (options.maxLengthHtml || defaults.maxLengthHtml);
+            } else {
+              selected = selected.join(', ');
+            }
+          } else {
+            index = select.$getIndex(controller.$modelValue);
+            selected = angular.isDefined(index) ? select.$scope.$matches[index].label : false;
+          }
+          element.html((selected ? selected : attr.placeholder || defaults.placeholder) + defaults.caretHtml);
+        };
+        // Garbage collection
+        scope.$on('$destroy', function () {
+          select.destroy();
+          options = null;
+          select = null;
+        });
+      }
+    };
+  }
+]);
+
 // Source: tab.js
 angular.module('mgcrea.ngStrap.tab', []).run([
   '$templateCache',
@@ -2665,12 +2681,15 @@ angular.module('mgcrea.ngStrap.timepicker', [
       useNative: true,
       timeType: 'date',
       timeFormat: 'shortTime',
+      modelTimeFormat: null,
       autoclose: false,
       minTime: -Infinity,
       maxTime: +Infinity,
       length: 5,
       hourStep: 1,
-      minuteStep: 5
+      minuteStep: 5,
+      iconUp: 'glyphicon glyphicon-chevron-up',
+      iconDown: 'glyphicon glyphicon-chevron-down'
     };
   this.$get = [
     '$window',
@@ -2702,7 +2721,9 @@ angular.module('mgcrea.ngStrap.timepicker', [
             millisecond: startDate.getMilliseconds()
           };
         var format = $locale.DATETIME_FORMATS[options.timeFormat] || options.timeFormat;
-        var formats = /(h+)[:]?(m+)[ ]?(a?)/i.exec(format).slice(1);
+        var formats = /(h+)([:\.])?(m+)[ ]?(a?)/i.exec(format).slice(1);
+        scope.$iconUp = options.iconUp;
+        scope.$iconDown = options.iconDown;
         // Scope methods
         scope.$select = function (date, index) {
           $timepicker.select(date, index);
@@ -2770,7 +2791,7 @@ angular.module('mgcrea.ngStrap.timepicker', [
             minute = new Date(1970, 0, 1, 0, viewDate.minute - (midIndex - i) * options.minuteStep);
             minutes.push({
               date: minute,
-              label: dateFilter(minute, formats[1]),
+              label: dateFilter(minute, formats[2]),
               selected: $timepicker.$date && $timepicker.$isSelected(minute, 1),
               disabled: $timepicker.$isDisabled(minute, 1)
             });
@@ -2783,8 +2804,9 @@ angular.module('mgcrea.ngStrap.timepicker', [
             ]);
           }
           scope.rows = rows;
-          scope.showAM = !!formats[2];
+          scope.showAM = !!formats[3];
           scope.isAM = ($timepicker.$date || hours[midIndex].date).getHours() < 12;
+          scope.timeSeparator = formats[1];
           $timepicker.$isBuilt = true;
         };
         $timepicker.$isSelected = function (date, index) {
@@ -2843,7 +2865,7 @@ angular.module('mgcrea.ngStrap.timepicker', [
           var hours = newDate.getHours(), hoursLength = dateFilter(newDate, 'h').length;
           var minutes = newDate.getMinutes(), minutesLength = dateFilter(newDate, 'mm').length;
           var lateralMove = /(37|39)/.test(evt.keyCode);
-          var count = 2 + !!formats[2] * 1;
+          var count = 2 + !!formats[3] * 1;
           // Navigate indexes (left, right)
           if (lateralMove) {
             if (evt.keyCode === 37)
@@ -2983,6 +3005,7 @@ angular.module('mgcrea.ngStrap.timepicker', [
           'autoclose',
           'timeType',
           'timeFormat',
+          'modelTimeFormat',
           'useNative',
           'hourStep',
           'minuteStep',
@@ -3042,7 +3065,7 @@ angular.module('mgcrea.ngStrap.timepicker', [
               controller.$dateValue = parsedTime;
           }
           if (options.timeType === 'string') {
-            return dateFilter(viewValue, options.timeFormat);
+            return dateFilter(parsedTime, options.modelTimeFormat || options.timeFormat);
           } else if (options.timeType === 'number') {
             return controller.$dateValue.getTime();
           } else if (options.timeType === 'iso') {
@@ -3060,7 +3083,7 @@ angular.module('mgcrea.ngStrap.timepicker', [
           } else if (angular.isDate(modelValue)) {
             date = modelValue;
           } else if (options.timeType === 'string') {
-            date = dateParser.parse(modelValue);
+            date = dateParser.parse(modelValue, null, options.modelTimeFormat);
           } else {
             date = new Date(modelValue);
           }
@@ -3092,6 +3115,7 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions']).
       prefixClass: 'tooltip',
       prefixEvent: 'tooltip',
       container: false,
+      target: false,
       placement: 'top',
       template: 'tooltip/tooltip.tpl.html',
       contentTemplate: false,
@@ -3111,10 +3135,9 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions']).
     '$templateCache',
     '$http',
     '$animate',
-    '$timeout',
     'dimensions',
     '$$rAF',
-    function ($window, $rootScope, $compile, $q, $templateCache, $http, $animate, $timeout, dimensions, $$rAF) {
+    function ($window, $rootScope, $compile, $q, $templateCache, $http, $animate, dimensions, $$rAF) {
       var trim = String.prototype.trim;
       var isTouch = 'createTouch' in $window.document;
       var htmlReplaceRegExp = /ng-bind="/gi;
@@ -3205,6 +3228,10 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions']).
               nodeName === 'button' && trigger !== 'hover' && element.on(isTouch ? 'touchstart' : 'mousedown', $tooltip.$onFocusElementMouseDown);
             }
           });
+          // Options: target
+          if (options.target) {
+            options.target = angular.isElement(options.target) ? options.target : findElement(options.target)[0];
+          }
           // Options: show
           if (options.show) {
             scope.$$postDigest(function () {
@@ -3230,6 +3257,8 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions']).
             tipElement.remove();
             tipElement = null;
           }
+          // Cancel pending callbacks
+          clearTimeout(timeout);
           // Destroy scope
           scope.$destroy();
         };
@@ -3256,8 +3285,8 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions']).
           });
           // Set the initial positioning.
           tipElement.css({
-            top: '0px',
-            left: '0px',
+            top: '-9999px',
+            left: '-9999px',
             display: 'block'
           }).addClass(options.placement);
           // Options: animation
@@ -3270,7 +3299,7 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions']).
             scope.$emit(options.prefixEvent + '.show', $tooltip);
           });
           $tooltip.$isShown = scope.$isShown = true;
-          scope.$$phase || scope.$root.$$phase || scope.$digest();
+          scope.$$phase || scope.$root && scope.$root.$$phase || scope.$digest();
           $$rAF($tooltip.$applyPlacement);
           // var a = bodyEl.offsetWidth + 1; ?
           // Bind events
@@ -3303,7 +3332,7 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions']).
             scope.$emit(options.prefixEvent + '.hide', $tooltip);
           });
           $tooltip.$isShown = scope.$isShown = false;
-          scope.$$phase || scope.$root.$$phase || scope.$digest();
+          scope.$$phase || scope.$root && scope.$root.$$phase || scope.$digest();
           // Unbind events
           if (options.keyboard && tipElement !== null) {
             tipElement.off('keyup', $tooltip.$onKeyUp);
@@ -3349,9 +3378,9 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions']).
         // Private methods
         function getPosition() {
           if (options.container === 'body') {
-            return dimensions.offset(element[0]);
+            return dimensions.offset(options.target || element[0]);
           } else {
-            return dimensions.position(element[0]);
+            return dimensions.position(options.target || element[0]);
           }
         }
         function getCalculatedOffset(placement, position, actualWidth, actualHeight) {
@@ -3442,6 +3471,7 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions']).
           'contentTemplate',
           'placement',
           'container',
+          'target',
           'delay',
           'trigger',
           'keyboard',
@@ -3548,8 +3578,8 @@ angular.module('mgcrea.ngStrap.typeahead', [
         $typeahead.select = function (index) {
           var value = scope.$matches[index].value;
           controller.$setViewValue(value);
-          scope.$resetMatches();
           controller.$render();
+          scope.$resetMatches();
           if (parentScope)
             parentScope.$digest();
           // Emit event

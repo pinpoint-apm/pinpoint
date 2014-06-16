@@ -7,7 +7,7 @@ before_script:
   - export PHANTOMJS_BIN=/usr/local/phantomjs/bin/phantomjs
   - sh -e /etc/init.d/xvfb start
   - sleep 3 # give xvfb some time to start
-  - npm install -gq bower coveralls
+  - npm install -gq bower # coveralls
   - bower install --dev --config.interactive=0
   - gulp --version
   - bower --version

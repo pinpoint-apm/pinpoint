@@ -8,7 +8,7 @@
         <licenseUrl>https://raw.github.com/mgcrea/angular-strap/master/LICENSE.md</licenseUrl>
         <projectUrl>https://github.com/mgcrea/angular-strap</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>AngularStrap - AngularJS directives for Twitter Bootstrap</description>
+        <description>AngularStrap - AngularJS directives for Bootstrap</description>
         <copyright>Copyright Olivier Louvignes 2014</copyright>
         <tags>angular bootstrap</tags>
         <dependencies>
