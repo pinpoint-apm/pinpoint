@@ -36,36 +36,11 @@ angular.module('pinpointApp')
                         if (h) element.css('height', h);
                     };
 
-                    // generate some random data, quite different range
-                    function generateChartData() {
-                        var chartData = [];
-                        var firstDate = new Date();
-                        firstDate.setDate(firstDate.getDate() - 100);
-
-                        for (var i = 0; i < 100; i++) {
-                            // we create date objects here. In your data, you can have date strings
-                            // and then set format of your dates using chart.dataDateFormat property,
-                            // however when possible, use date objects, as this will speed up chart rendering.
-                            var newDate = new Date(firstDate);
-                            newDate.setDate(newDate.getDate() + i);
-
-                            var Max = Math.round(Math.random() * 40) + 100;
-                            var Used = Math.round(Math.random() * 80) + 500;
-                            var GC = Math.round(Math.random() * 6000);
-
-                            chartData.push({
-                                time: newDate,
-                                Max: Max,
-                                Used: Used,
-                                GC: GC
-                            });
-                        }
-                        return chartData;
-                    }
-
+                    /**
+                     * render
+                     * @param chartData
+                     */
                     render = function (chartData) {
-                        chartData = chartData || generateChartData();
-
                         var options = {
                             "type": "serial",
                             "theme": "light",
@@ -114,8 +89,8 @@ angular.module('pinpointApp')
                                     "valueAxis": "v1",
                                     "balloonText": "[[value]]ms",
                                     "lineColor": "#FF6600",
-                                    "title": "GC",
-                                    "valueField": "GC",
+                                    "title": "FGC",
+                                    "valueField": "FGC",
                                     "type": "column",
                                     "fillAlphas": 0.3
                                 }
@@ -152,6 +127,10 @@ angular.module('pinpointApp')
                         });
                     };
 
+                    /**
+                     * show cursor at
+                     * @param category
+                     */
                     showCursorAt = function (category) {
                         if (category) {
                             if (angular.isNumber(category)) {

@@ -55,21 +55,21 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                  */
                 showCharts = function (agentStat) {
                     var total = { id: 'total', title: 'Total (Heap + PermGen)', span: 'span12', line: [
-                        { id: 'jvmMemoryTotalUsed', key: 'Used', values: [], isGc: false },
-                        { id: 'jvmMemoryTotalMax', key: 'Max', values: [], isGc: false },
-                        { id: 'gc', key: 'GC', values: [], bar: true, isGc: true }
+                        { id: 'jvmMemoryTotalUsed', key: 'Used', values: [], isFgc: false },
+                        { id: 'jvmMemoryTotalMax', key: 'Max', values: [], isFgc: false },
+                        { id: 'fgc', key: 'FGC', values: [], bar: true, isFgc: true }
                     ]};
 
                     var heap = { id: 'heap', title: 'Heap', span: 'span12', line: [
-                        { id: 'jvmMemoryHeapUsed', key: 'Used', values: [], isGc: false },
-                        { id: 'jvmMemoryHeapMax', key: 'Max', values: [], isGc: false },
-                        { id: 'gc', key: 'GC', values: [], bar: true, isGc: true }
+                        { id: 'jvmMemoryHeapUsed', key: 'Used', values: [], isFgc: false },
+                        { id: 'jvmMemoryHeapMax', key: 'Max', values: [], isFgc: false },
+                        { id: 'fgc', key: 'FGC', values: [], bar: true, isFgc: true }
                     ]};
 
                     var nonheap = { id: 'nonheap', title: 'PermGen', span: 'span12', line: [
-                        { id: 'jvmMemoryNonHeapUsed', key: 'Used', values: [], isGc: false },
-                        { id: 'jvmMemoryNonHeapMax', key: 'Max', values: [], isGc: false },
-                        { id: 'gc', key: 'GC', values: [], bar: true, isGc: true }
+                        { id: 'jvmMemoryNonHeapUsed', key: 'Used', values: [], isFgc: false },
+                        { id: 'jvmMemoryNonHeapMax', key: 'Max', values: [], isFgc: false },
+                        { id: 'fgc', key: 'FGC', values: [], bar: true, isFgc: true }
                     ]};
 
                     scope.memoryGroup = [ heap, nonheap ];
@@ -105,7 +105,7 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                             GC: 0
                         };
                         for (var k in info.line) {
-                            if (info.line[k].isGc) {
+                            if (info.line[k].isFgc) {
                                 var GC = 0;
                                 currTime = pointsTime[i][POINTS_MAX];
                                 currCount = pointsCount[i][POINTS_MAX];
