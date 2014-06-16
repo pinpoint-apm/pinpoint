@@ -84,10 +84,25 @@ public class HttpServletInterceptor implements SimpleAroundInterceptor, ByteCode
                     logger.debug("TraceID exist. continue trace. {} requestUrl:{}, remoteAddr:{}", new Object[]{traceId, requestURL, remoteAddr});
                 }
                 trace = traceContext.continueTraceObject(traceId);
+                if (!trace.canSampled()) {
+                    if (isDebug) {
+                        logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[]{traceId, requestURL, remoteAddr});
+                        return;
+                    }
+                } else {
+                    if (isDebug) {
+                        logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[]{traceId, requestURL, remoteAddr});
+                    }
+                }
             } else {
                 trace = traceContext.newTraceObject();
-                if (isDebug) {
-                    logger.debug("TraceID not exist. start new trace. {} requestUrl:{}, remoteAddr:{}", new Object[]{traceId, requestURL, remoteAddr});
+                if (!trace.canSampled()){
+                    logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", new Object[]{requestURL, remoteAddr});
+                    return;
+                } else {
+                    if (isDebug) {
+                        logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", new Object[]{requestURL, remoteAddr});
+                    }
                 }
             }
 
