@@ -2,6 +2,8 @@
 
 Encapsulation of Nick Galbreath's base64.js library for AngularJS
 
+For Base64 encoding whch supports UTF8 see [angular-utf8-base64](https://github.com/stranger82/angular-utf8-base64)
+
 ## Installation
 
 ### Bower
@@ -10,10 +12,10 @@ Encapsulation of Nick Galbreath's base64.js library for AngularJS
 bower install angular-base64
 ```
 
-**NB:** The `ngBase64` bower package is deprecated.
+**NB:** The `ngBase64` bower package is deprecated due to camel casing issues on case-sensitive file systems.
 
 ```html
-<script src="bower_components/ngBase64/angular-base64.js"></script>
+<script src="bower_components/angular-base64/angular-base64.js"></script>
 ```
 
 ## Usage

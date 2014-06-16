@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.14
+ * @license AngularJS v1.2.18
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -99,10 +99,10 @@ function shallowClearAndCopy(src, dst) {
  *   Given a template `/path/:verb` and parameter `{verb:'greet', salutation:'Hello'}` results in
  *   URL `/path/greet?salutation=Hello`.
  *
- *   If the parameter value is prefixed with `@` then the value of that parameter is extracted from
- *   the data object (useful for non-GET operations).
+ *   If the parameter value is prefixed with `@` then the value of that parameter will be taken
+ *   from the corresponding key on the data object (useful for non-GET operations).
  *
- * @param {Object.&lt;Object&gt;=} actions Hash with declaration of custom action that should extend
+ * @param {Object.<Object>=} actions Hash with declaration of custom action that should extend
  *   the default set of resource actions. The declaration should be created in the format of {@link
  *   ng.$http#usage_parameters $http.config}:
  *
@@ -204,6 +204,9 @@ function shallowClearAndCopy(src, dst) {
  *     On failure, the promise is resolved with the {@link ng.$http http response} object, without
  *     the `resource` property.
  *
+ *     If an interceptor object was provided, the promise will instead be resolved with the value
+ *     returned by the interceptor.
+ *
  *   - `$resolved`: `true` after first server interaction is completed (either with success or
  *      rejection), `false` before that. Knowing if the Resource has been resolved is useful in
  *      data-binding.
@@ -258,7 +261,7 @@ function shallowClearAndCopy(src, dst) {
 
    ```js
      var User = $resource('/user/:userId', {userId:'@id'});
-     var user = User.get({userId:123}, function() {
+     User.get({userId:123}, function(user) {
        user.abc = true;
        user.$save();
      });
@@ -277,6 +280,16 @@ function shallowClearAndCopy(src, dst) {
          //putResponseHeaders => $http header getter
        });
      });
+   ```
+ *
+ * You can also access the raw `$http` promise via the `$promise` property on the object returned
+ *
+   ```
+     var User = $resource('/user/:userId', {userId:'@id'});
+     User.get({userId:123})
+         .$promise.then(function(user) {
+           $scope.user = user;
+         });
    ```
 
  * # Creating a custom 'PUT' request
@@ -514,23 +527,32 @@ angular.module('ngResource', ['ng']).
                              extend({}, extractParams(data, action.params || {}), params),
                              action.url);
 
-          var promise = $http(httpConfig).then(function(response) {
+          var promise = $http(httpConfig).then(function (response) {
             var data = response.data,
-                promise = value.$promise;
+              promise = value.$promise;
 
             if (data) {
               // Need to convert action.isArray to boolean in case it is undefined
               // jshint -W018
               if (angular.isArray(data) !== (!!action.isArray)) {
-                throw $resourceMinErr('badcfg', 'Error in resource configuration. Expected ' +
-                  'response to contain an {0} but got an {1}',
-                  action.isArray?'array':'object', angular.isArray(data)?'array':'object');
+                throw $resourceMinErr('badcfg',
+                    'Error in resource configuration. Expected ' +
+                    'response to contain an {0} but got an {1}',
+                  action.isArray ? 'array' : 'object',
+                  angular.isArray(data) ? 'array' : 'object');
               }
               // jshint +W018
               if (action.isArray) {
                 value.length = 0;
-                forEach(data, function(item) {
-                  value.push(new Resource(item));
+                forEach(data, function (item) {
+                  if (typeof item === "object") {
+                    value.push(new Resource(item));
+                  } else {
+                    // Valid JSON values may be string literals, and these should not be converted
+                    // into objects. These items will not have access to the Resource prototype
+                    // methods, but unfortunately there
+                    value.push(item);
+                  }
                 });
               } else {
                 shallowClearAndCopy(data, value);

@@ -2,13 +2,13 @@
   "name": "pinpoint",
   "version": "0.0.1",
   "dependencies": {
-    "angular": "1.2.14",
+    "angular": "1.2.18",
     "json3": "~3.2.6",
     "es5-shim": "~2.1.0",
-    "angular-resource": "1.2.14",
-    "angular-cookies": "1.2.14",
-    "angular-sanitize": "1.2.14",
-    "angular-route": "1.2.14",
+    "angular-resource": "1.2.18",
+    "angular-cookies": "1.2.18",
+    "angular-sanitize": "1.2.18",
+    "angular-route": "1.2.18",
     "select2": "~3.4.1",
     "underscore": "~1.5.1",
     "moment": "*",
@@ -32,8 +32,8 @@
     "angular-intro-plus.js": "~0.3.9"
   },
   "devDependencies": {
-    "angular-mocks": "1.2.14",
-    "angular-scenario": "1.2.14"
+    "angular-mocks": "1.2.18",
+    "angular-scenario": "1.2.18"
   },
   "appPath": "main/webapp",
   "testPath": "test/webapp"

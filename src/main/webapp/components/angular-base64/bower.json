@@ -2,8 +2,7 @@
     "name": "angular-base64",
     "version": "2.0.1",
     "main": [
-        "angular-base64.js",
-        "angular-base64.min.js"
+        "angular-base64.js"
     ],
     "ignore": [
         "package.json",

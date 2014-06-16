@@ -1,5 +1,5 @@
 /**
- * @license AngularJS v1.2.14
+ * @license AngularJS v1.2.18
  * (c) 2010-2014 Google, Inc. http://angularjs.org
  * License: MIT
  */
@@ -42,7 +42,7 @@ var $sanitizeMinErr = angular.$$minErr('$sanitize');
 /**
  * @ngdoc service
  * @name $sanitize
- * @function
+ * @kind function
  *
  * @description
  *   The input is sanitized by parsing the html into tokens. All safe tokens (from a whitelist) are
@@ -166,6 +166,7 @@ var START_TAG_REGEXP =
   COMMENT_REGEXP = /<!--(.*?)-->/g,
   DOCTYPE_REGEXP = /<!DOCTYPE([^>]*?)>/i,
   CDATA_REGEXP = /<!\[CDATA\[(.*?)]]>/g,
+  SURROGATE_PAIR_REGEXP = /[\uD800-\uDBFF][\uDC00-\uDFFF]/g,
   // Match everything outside of normal chars and " (quote character)
   NON_ALPHANUMERIC_REGEXP = /([^\#-~| |!])/g;
 
@@ -259,7 +260,7 @@ function htmlParser( html, handler ) {
         match = html.match( DOCTYPE_REGEXP );
 
         if ( match ) {
-          html = html.replace( match[0] , '');
+          html = html.replace( match[0], '');
           chars = false;
         }
       // end tag
@@ -404,6 +405,11 @@ function decodeEntities(value) {
 function encodeEntities(value) {
   return value.
     replace(/&/g, '&amp;').
+    replace(SURROGATE_PAIR_REGEXP, function (value) {
+      var hi = value.charCodeAt(0);
+      var low = value.charCodeAt(1);
+      return '&#' + (((hi - 0xD800) * 0x400) + (low - 0xDC00) + 0x10000) + ';';
+    }).
     replace(NON_ALPHANUMERIC_REGEXP, function(value){
       return '&#' + value.charCodeAt(0) + ';';
     }).
@@ -476,7 +482,7 @@ angular.module('ngSanitize', []).provider('$sanitize', $SanitizeProvider);
 /**
  * @ngdoc filter
  * @name linky
- * @function
+ * @kind function
  *
  * @description
  * Finds links in text input and turns them into html links. Supports http/https/ftp/mailto and

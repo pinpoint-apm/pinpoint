@@ -1,9 +1,8 @@
 {
   "name": "angular-base64",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "main": [
-    "angular-base64.js",
-    "angular-base64.min.js"
+    "angular-base64.js"
   ],
   "ignore": [
     "package.json",
@@ -13,14 +12,13 @@
     "angular": ">= 1.0.8"
   },
   "homepage": "https://github.com/ninjatronic/angular-base64",
-  "_release": "2.0.1",
+  "_release": "2.0.2",
   "_resolution": {
     "type": "version",
-    "tag": "v2.0.1",
-    "commit": "e2dce867bc0eef1ef74db96d9899c052cf8ba0a7"
+    "tag": "v2.0.2",
+    "commit": "c99806416e20a3059f47e1ba1ce240ad4cf65e6d"
   },
   "_source": "git://github.com/ninjatronic/angular-base64.git",
   "_target": "~2.0.1",
-  "_originalSource": "angular-base64",
-  "_direct": true
+  "_originalSource": "angular-base64"
 }
