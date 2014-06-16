@@ -1,6 +1,6 @@
 /**
  * angular-strap
- * @version v2.0.2 - 2014-04-27
+ * @version v2.0.3 - 2014-05-30
  * @link http://mgcrea.github.io/angular-strap
  * @author Olivier Louvignes (olivier@mg-crea.com)
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -23,6 +23,7 @@ angular.module('mgcrea.ngStrap.datepicker', [
       useNative: false,
       dateType: 'date',
       dateFormat: 'shortDate',
+      modelDateFormat: null,
       dayFormat: 'dd',
       strictFormat: false,
       autoclose: false,
@@ -30,7 +31,9 @@ angular.module('mgcrea.ngStrap.datepicker', [
       maxDate: +Infinity,
       startView: 0,
       minView: 0,
-      startWeek: 0
+      startWeek: 0,
+      iconLeft: 'glyphicon glyphicon-chevron-left',
+      iconRight: 'glyphicon glyphicon-chevron-right'
     };
   this.$get = [
     '$window',
@@ -59,6 +62,8 @@ angular.module('mgcrea.ngStrap.datepicker', [
         $datepicker.$views = pickerViews.views;
         var viewDate = pickerViews.viewDate;
         scope.$mode = options.startView;
+        scope.$iconLeft = options.iconLeft;
+        scope.$iconRight = options.iconRight;
         var $picker = $datepicker.$views[scope.$mode];
         // Scope methods
         scope.$select = function (date) {
@@ -253,6 +258,7 @@ angular.module('mgcrea.ngStrap.datepicker', [
           'autoclose',
           'dateType',
           'dateFormat',
+          'modelDateFormat',
           'dayFormat',
           'strictFormat',
           'startWeek',
@@ -314,14 +320,18 @@ angular.module('mgcrea.ngStrap.datepicker', [
             controller.$setValidity('date', false);
             return;
           } else {
-            var isValid = (isNaN(datepicker.$options.minDate) || parsedDate.getTime() >= datepicker.$options.minDate) && (isNaN(datepicker.$options.maxDate) || parsedDate.getTime() <= datepicker.$options.maxDate);
+            var isMinValid = isNaN(datepicker.$options.minDate) || parsedDate.getTime() >= datepicker.$options.minDate;
+            var isMaxValid = isNaN(datepicker.$options.maxDate) || parsedDate.getTime() <= datepicker.$options.maxDate;
+            var isValid = isMinValid && isMaxValid;
             controller.$setValidity('date', isValid);
+            controller.$setValidity('min', isMinValid);
+            controller.$setValidity('max', isMaxValid);
             // Only update the model when we have a valid date
             if (isValid)
               controller.$dateValue = parsedDate;
           }
           if (options.dateType === 'string') {
-            return dateFilter(viewValue, options.dateFormat);
+            return dateFilter(parsedDate, options.modelDateFormat || options.dateFormat);
           } else if (options.dateType === 'number') {
             return controller.$dateValue.getTime();
           } else if (options.dateType === 'iso') {
@@ -339,7 +349,7 @@ angular.module('mgcrea.ngStrap.datepicker', [
           } else if (angular.isDate(modelValue)) {
             date = modelValue;
           } else if (options.dateType === 'string') {
-            date = dateParser.parse(modelValue);
+            date = dateParser.parse(modelValue, null, options.modelDateFormat);
           } else {
             date = new Date(modelValue);
           }

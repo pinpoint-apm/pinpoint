@@ -1,6 +1,6 @@
 /**
  * angular-strap
- * @version v2.0.2 - 2014-04-27
+ * @version v2.0.3 - 2014-05-30
  * @link http://mgcrea.github.io/angular-strap
  * @author Olivier Louvignes (olivier@mg-crea.com)
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -25,7 +25,8 @@ angular.module('mgcrea.ngStrap.select', [
       caretHtml: '&nbsp;<span class="caret"></span>',
       placeholder: 'Choose among the following...',
       maxLength: 3,
-      maxLengthHtml: 'selected'
+      maxLengthHtml: 'selected',
+      iconCheckmark: 'glyphicon glyphicon-ok'
     };
   this.$get = [
     '$window',
@@ -40,11 +41,11 @@ angular.module('mgcrea.ngStrap.select', [
         // Common vars
         var options = angular.extend({}, defaults, config);
         $select = $tooltip(element, options);
-        var parentScope = config.scope;
         var scope = $select.$scope;
         scope.$matches = [];
         scope.$activeIndex = 0;
         scope.$isMultiple = options.multiple;
+        scope.$iconCheckmark = options.iconCheckmark;
         scope.$activate = function (index) {
           scope.$$postDigest(function () {
             $select.activate(index);
@@ -79,21 +80,18 @@ angular.module('mgcrea.ngStrap.select', [
         };
         $select.select = function (index) {
           var value = scope.$matches[index].value;
-          $select.activate(index);
-          if (options.multiple) {
-            controller.$setViewValue(scope.$activeIndex.map(function (index) {
-              return scope.$matches[index].value;
-            }));
-          } else {
-            controller.$setViewValue(value);
-          }
-          controller.$render();
-          if (parentScope)
-            parentScope.$digest();
-          // Hide if single select
-          if (!options.multiple) {
-            $select.hide();
-          }
+          scope.$apply(function () {
+            $select.activate(index);
+            if (options.multiple) {
+              controller.$setViewValue(scope.$activeIndex.map(function (index) {
+                return scope.$matches[index].value;
+              }));
+            } else {
+              controller.$setViewValue(value);
+              // Hide if single select
+              $select.hide();
+            }
+          });
           // Emit event
           scope.$emit('$select.select', value, index);
         };
@@ -248,6 +246,7 @@ angular.module('mgcrea.ngStrap.select', [
         scope.$watch(attr.ngModel, function (newValue, oldValue) {
           // console.warn('scope.$watch(%s)', attr.ngModel, newValue, oldValue);
           select.$updateActiveIndex();
+          controller.$render();
         }, true);
         // Model rendering in view
         controller.$render = function () {

@@ -1,6 +1,6 @@
 /**
  * angular-strap
- * @version v2.0.2 - 2014-04-27
+ * @version v2.0.3 - 2014-05-30
  * @link http://mgcrea.github.io/angular-strap
  * @author Olivier Louvignes (olivier@mg-crea.com)
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -91,15 +91,17 @@ angular.module('mgcrea.ngStrap.helpers.dateParser', []).provider('$dateParser', 
               return !isNaN(date.getTime());
             return regex.test(date);
           };
-          $dateParser.parse = function (value, baseDate) {
+          $dateParser.parse = function (value, baseDate, format) {
+            var formatRegex = format ? regExpForFormat(format) : regex;
+            var formatSetMap = format ? setMapForFormat(format) : setMap;
             if (angular.isDate(value))
               return value;
-            var matches = regex.exec(value);
+            var matches = formatRegex.exec(value);
             if (!matches)
               return false;
             var date = baseDate || new Date(0, 0, 1);
             for (var i = 0; i < matches.length - 1; i++) {
-              setMap[i] && setMap[i].call(date, matches[i + 1]);
+              formatSetMap[i] && formatSetMap[i].call(date, matches[i + 1]);
             }
             return date;
           };

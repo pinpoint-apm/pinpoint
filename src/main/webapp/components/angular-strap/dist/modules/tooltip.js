@@ -1,6 +1,6 @@
 /**
  * angular-strap
- * @version v2.0.2 - 2014-04-27
+ * @version v2.0.3 - 2014-05-30
  * @link http://mgcrea.github.io/angular-strap
  * @author Olivier Louvignes (olivier@mg-crea.com)
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -12,6 +12,7 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions']).
       prefixClass: 'tooltip',
       prefixEvent: 'tooltip',
       container: false,
+      target: false,
       placement: 'top',
       template: 'tooltip/tooltip.tpl.html',
       contentTemplate: false,
@@ -31,10 +32,9 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions']).
     '$templateCache',
     '$http',
     '$animate',
-    '$timeout',
     'dimensions',
     '$$rAF',
-    function ($window, $rootScope, $compile, $q, $templateCache, $http, $animate, $timeout, dimensions, $$rAF) {
+    function ($window, $rootScope, $compile, $q, $templateCache, $http, $animate, dimensions, $$rAF) {
       var trim = String.prototype.trim;
       var isTouch = 'createTouch' in $window.document;
       var htmlReplaceRegExp = /ng-bind="/gi;
@@ -125,6 +125,10 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions']).
               nodeName === 'button' && trigger !== 'hover' && element.on(isTouch ? 'touchstart' : 'mousedown', $tooltip.$onFocusElementMouseDown);
             }
           });
+          // Options: target
+          if (options.target) {
+            options.target = angular.isElement(options.target) ? options.target : findElement(options.target)[0];
+          }
           // Options: show
           if (options.show) {
             scope.$$postDigest(function () {
@@ -150,6 +154,8 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions']).
             tipElement.remove();
             tipElement = null;
           }
+          // Cancel pending callbacks
+          clearTimeout(timeout);
           // Destroy scope
           scope.$destroy();
         };
@@ -176,8 +182,8 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions']).
           });
           // Set the initial positioning.
           tipElement.css({
-            top: '0px',
-            left: '0px',
+            top: '-9999px',
+            left: '-9999px',
             display: 'block'
           }).addClass(options.placement);
           // Options: animation
@@ -190,7 +196,7 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions']).
             scope.$emit(options.prefixEvent + '.show', $tooltip);
           });
           $tooltip.$isShown = scope.$isShown = true;
-          scope.$$phase || scope.$root.$$phase || scope.$digest();
+          scope.$$phase || scope.$root && scope.$root.$$phase || scope.$digest();
           $$rAF($tooltip.$applyPlacement);
           // var a = bodyEl.offsetWidth + 1; ?
           // Bind events
@@ -223,7 +229,7 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions']).
             scope.$emit(options.prefixEvent + '.hide', $tooltip);
           });
           $tooltip.$isShown = scope.$isShown = false;
-          scope.$$phase || scope.$root.$$phase || scope.$digest();
+          scope.$$phase || scope.$root && scope.$root.$$phase || scope.$digest();
           // Unbind events
           if (options.keyboard && tipElement !== null) {
             tipElement.off('keyup', $tooltip.$onKeyUp);
@@ -269,9 +275,9 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions']).
         // Private methods
         function getPosition() {
           if (options.container === 'body') {
-            return dimensions.offset(element[0]);
+            return dimensions.offset(options.target || element[0]);
           } else {
-            return dimensions.position(element[0]);
+            return dimensions.position(options.target || element[0]);
           }
         }
         function getCalculatedOffset(placement, position, actualWidth, actualHeight) {
@@ -362,6 +368,7 @@ angular.module('mgcrea.ngStrap.tooltip', ['mgcrea.ngStrap.helpers.dimensions']).
           'contentTemplate',
           'placement',
           'container',
+          'target',
           'delay',
           'trigger',
           'keyboard',

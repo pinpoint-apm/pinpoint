@@ -1,6 +1,6 @@
 /**
  * angular-strap
- * @version v2.0.2 - 2014-04-27
+ * @version v2.0.3 - 2014-05-30
  * @link http://mgcrea.github.io/angular-strap
  * @author Olivier Louvignes (olivier@mg-crea.com)
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -68,8 +68,8 @@ angular.module('mgcrea.ngStrap.typeahead', [
         $typeahead.select = function (index) {
           var value = scope.$matches[index].value;
           controller.$setViewValue(value);
-          scope.$resetMatches();
           controller.$render();
+          scope.$resetMatches();
           if (parentScope)
             parentScope.$digest();
           // Emit event
