@@ -24,7 +24,7 @@ canvas {outline:none}
     bottom:0; 
     left:0; 
     right:0;
-    min-width: 880px;
+    min-width: 1050px;
 }
 #wrapper.no-navbar {
     padding-top: 0;

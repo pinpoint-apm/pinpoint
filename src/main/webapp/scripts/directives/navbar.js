@@ -21,11 +21,33 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                 // define private variables of methods
                 var initialize, initializeDateTimePicker, initializeApplication, setDateTime, getQueryEndTimeFromServer,
                     broadcast, getApplicationList, getQueryStartTime, getQueryEndTime, parseApplicationList, emitAsChanged,
-                    initializeWithStaticApplication, getPeriodType, setPeriodTypeAsCurrent, getDate;
+                    initializeWithStaticApplication, getPeriodType, setPeriodTypeAsCurrent, getDate, startUpdate,
+                    resetTimeLeft;
 
                 scope.showNavbar = false;
                 scope.periodDelay = false;
                 aReadablePeriodList = ['5m', '20m', '1h', '3h', '6h', '12h', '1d', '2d'];
+                scope.autoUpdate = false;
+                scope.timeLeft = 10;
+                scope.timeCountDown = 10;
+                scope.timeList = [
+                    {
+                        time: 10,
+                        label: '10 seconds'
+                    },
+                    {
+                        time: 20,
+                        label: '20 seconds'
+                    },
+                    {
+                        time: 30,
+                        label: '30 seconds'
+                    },
+                    {
+                        time: 60,
+                        label: '1 minute'
+                    }
+                ];
 
 
                 element.bind('selectstart', function (e) {
@@ -324,26 +346,13 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                 };
 
                 /**
-                 * scope event on navbar.initialize
-                 */
-                scope.$on('navbar.initialize', function (event, navbarVo) {
-                    initialize(navbarVo);
-                });
-
-                /**
-                 * scope event on navbar.initializeWithStaticApplication
-                 */
-                scope.$on('navbar.initializeWithStaticApplication', function (event, navbarVo) {
-                    initializeWithStaticApplication(navbarVo);
-                });
-
-                /**
                  * set period
                  * @param readablePeriod
                  */
                 scope.setPeriod = function (readablePeriod) {
                     scope.periodDelay = true;
                     scope.readablePeriod = readablePeriod;
+                    scope.autoUpdate = false;
                     broadcast();
                     $timeout(function () {
                         scope.periodDelay = false;
@@ -370,6 +379,97 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
 
                     return periodClass;
                 };
+
+                /**
+                 * show upddate
+                 * @returns {boolean}
+                 */
+                scope.showUpdate = function () {
+                    return (_.indexOf(['5m', '20m', '1h', '3h'], scope.readablePeriod) >= 0)
+                        && scope.application ? true : false
+                };
+
+                /**
+                 * start update
+                 */
+                startUpdate = function () {
+                    if (scope.autoUpdate) {
+                        scope.timeLeft -= 1;
+                        if (scope.timeLeft === 0) {
+                            scope.update();
+                            scope.timeLeft = scope.timeCountDown;
+                        }
+                        $timeout(startUpdate, 1000);
+                    }
+                };
+
+                /**
+                 * reset tiem left
+                 */
+                resetTimeLeft = function () {
+                    scope.timeLeft = scope.timeCountDown;
+                };
+
+                /**
+                 * set auto update time
+                 * @param time
+                 */
+                scope.setAutoUpdateTime = function (time) {
+                    scope.timeCountDown = time;
+                    scope.timeLeft = time;
+                };
+
+                /**
+                 * update
+                 */
+                scope.update = function () {
+                    var oldAutoUpdate = scope.autoUpdate;
+                    scope.autoUpdate = false;
+                    scope.periodDelay = true;
+                    broadcast();
+                    $timeout(function () {
+                        scope.periodDelay = false;
+                        resetTimeLeft();
+                        scope.autoUpdate = oldAutoUpdate;
+                        if (!scope.$$phase) {
+                            scope.$digest();
+                        }
+                    }, 1000);
+                };
+
+                /**
+                 * toggle period
+                 * @param type
+                 */
+                scope.togglePeriod = function (type) {
+                    scope.periodType = type;
+                    scope.autoUpdate = false;
+                };
+
+                /**
+                 * watch auto update
+                 */
+                scope.$watch('autoUpdate', function (newVal, oldVal) {
+                    if (newVal) {
+                        $timeout(startUpdate, 1000);
+                    } else {
+                        resetTimeLeft();
+                    }
+                });
+
+                /**
+                 * scope event on navbar.initialize
+                 */
+                scope.$on('navbar.initialize', function (event, navbarVo) {
+                    initialize(navbarVo);
+                });
+
+                /**
+                 * scope event on navbar.initializeWithStaticApplication
+                 */
+                scope.$on('navbar.initializeWithStaticApplication', function (event, navbarVo) {
+                    initializeWithStaticApplication(navbarVo);
+                });
             }
         };
     } ]);
