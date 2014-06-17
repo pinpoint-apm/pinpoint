@@ -58,13 +58,21 @@ angular.module('pinpointApp')
                                     "id": "v1",
                                     "gridAlpha": 0,
                                     "axisAlpha": 1,
-                                    "position": "left"
+                                    "position": "left",
+//                                    "labelFunction": function (value, valueText, valueAxis) {
+//                                        return valueText + 'ms';
+//                                    }
+                                    "title": "Full GC (ms)"
                                 },
                                 {
                                     "id": "v2",
                                     "gridAlpha": 0,
                                     "axisAlpha": 1,
-                                    "position": "right"
+                                    "position": "right",
+//                                    "labelFunction": function (value, valueText, valueAxis) {
+//                                        return valueText + 'B';
+//                                    }
+                                    "title": "Memory (bytes)"
                                 }
                             ],
                             "graphs": [

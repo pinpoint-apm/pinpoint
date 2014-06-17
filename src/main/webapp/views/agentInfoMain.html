@@ -12,6 +12,10 @@
                 <table class="table table-striped table-condensed" style="font-size:12px;">
                     <tbody>
                     <tr>
+                        <td class="text-right">Application Name :</td>
+                        <td>{{info.applicationName}}</td>
+                    </tr>
+                    <tr>
                         <td class="text-right">Agent Id :</td>
                         <td>{{info.agentId}}</td>
                     </tr>
@@ -20,16 +24,12 @@
                         <td>{{info.hostname}}</td>
                     </tr>
                     <tr>
+                        <td class="text-right">IP :</td>
+                        <td>{{info.ip}} <a class="btn btn-default btn-xs" href="http://nsight.nhncorp.com/dashboard_server/{{info.ip}}" target="_blank" title="System resource monitoring site">NSight</a>
+                    </tr>
+                    <tr>
                         <td class="text-right">Service Type :</td>
                         <td>{{info.serviceType}}</td>
-                    </tr>
-                    <tr>
-                        <td class="text-right">Agent Version :</td>
-                        <td>{{info.agentVersion}}</td>
-                    </tr>
-                    <tr>
-                        <td class="text-right">Start Time :</td>
-                        <td>{{agent.startTime | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
                     </tr>
                     </tbody>
                 </table>
@@ -38,12 +38,8 @@
                 <table class="table table-striped table-condensed" style="font-size:12px;">
                     <tbody>
                     <tr>
-                        <td class="text-right">Application Name :</td>
-                        <td>{{info.applicationName}}</td>
-                    </tr>
-                    <tr>
-                        <td class="text-right">IP :</td>
-                        <td>{{info.ip}}</td>
+                        <td class="text-right">Agent Version :</td>
+                        <td>{{info.agentVersion}}</td>
                     </tr>
                     <tr>
                         <td class="text-right">PID :</td>
@@ -52,6 +48,10 @@
                     <tr>
                         <td class="text-right">JVM GC Type :</td>
                         <td>{{info.jvmGcType}}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Start Time :</td>
+                        <td>{{agent.startTime | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
                     </tr>
                     <tr>
                         <td class="text-right">End Status :</td>
