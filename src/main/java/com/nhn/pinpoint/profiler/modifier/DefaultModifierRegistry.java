@@ -18,6 +18,7 @@ import com.nhn.pinpoint.profiler.modifier.bloc.handler.HTTPHandlerModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.asynchttpclient.AsyncHttpClientModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.BasicFutureModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.ClosableHttpAsyncClientModifier;
+import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.ClosableHttpClientModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.HttpClient4Modifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.InternalHttpAsyncClientModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.jdkhttpconnector.HttpURLConnectionModifier;
@@ -119,6 +120,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		// apache nio http client
 		// addModifier(new InternalHttpAsyncClientModifier(byteCodeInstrumentor, agent));
 		addModifier(new ClosableHttpAsyncClientModifier(byteCodeInstrumentor, agent));
+		addModifier(new ClosableHttpClientModifier(byteCodeInstrumentor, agent));
 		addModifier(new BasicFutureModifier(byteCodeInstrumentor, agent));
 	}
 

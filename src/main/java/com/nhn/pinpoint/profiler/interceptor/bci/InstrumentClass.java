@@ -36,6 +36,18 @@ public interface InstrumentClass {
 
     int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, DepthScope scope) throws InstrumentException, NotFoundInstrumentException;
 
+    /**
+     * methodName, args가 일치하는 메소드가 클래스에 구현되어있는 경우에만 scope interceptor를 적용합니다.
+     * 
+     * @param methodName
+     * @param args
+     * @param interceptor
+     * @param scope
+     * @return
+     * @throws InstrumentException
+     */
+    int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, DepthScope scope) throws InstrumentException;
+
     int addInterceptor(String methodName, String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException;
 
     int addInterceptorCallByContextClassLoader(String methodName, String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;

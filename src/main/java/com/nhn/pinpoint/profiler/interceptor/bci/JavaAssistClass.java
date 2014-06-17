@@ -2,6 +2,7 @@ package com.nhn.pinpoint.profiler.interceptor.bci;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.nhn.pinpoint.bootstrap.interceptor.*;
@@ -217,6 +218,32 @@ public class JavaAssistClass implements InstrumentClass {
         }
         interceptor = wrapScopeInterceptor(interceptor, scope);
         return addInterceptor(methodName, args, interceptor);
+    }
+    
+	/*
+	 * (non-Javadoc)
+	 * @see com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass#addScopeInterceptorIfDeclared(java.lang.String, java.lang.String[], com.nhn.pinpoint.bootstrap.interceptor.Interceptor, com.nhn.pinpoint.profiler.util.DepthScope)
+	 */
+    @Override
+    public int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, DepthScope scope) throws InstrumentException {
+    	if (methodName == null) {
+    		throw new NullPointerException("methodName must not be null");
+    	}
+    	if (interceptor == null) {
+    		throw new IllegalArgumentException("interceptor is null");
+    	}
+    	if (scope == null) {
+    		throw new NullPointerException("scope must not be null");
+    	}
+    	if (hasDeclaredMethod(methodName, args)) {
+    		interceptor = wrapScopeInterceptor(interceptor, scope);
+    		return addInterceptor(methodName, args, interceptor);
+    	} else {
+			if (logger.isWarnEnabled()) {
+				logger.warn("Method is not declared. class={}, methodName={}, args={}", ctClass.getName(), methodName, Arrays.toString(args));
+			}
+    		return -1;
+    	}
     }
 
     private Interceptor wrapScopeInterceptor(Interceptor interceptor, DepthScope scope) {

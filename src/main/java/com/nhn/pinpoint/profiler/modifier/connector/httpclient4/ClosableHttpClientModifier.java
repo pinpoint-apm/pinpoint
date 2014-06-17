@@ -13,35 +13,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Apache httpclient4 modifier (4.2이하 버전에서만 사용 가능)
+ * Apache httpclient 4.3 CloseableHttpClient modifier
+ * 
  * <p/>
  * <p/>
  * <pre>
- * http://grepcode.com/file/repo1.maven.org/maven2/org.apache.httpcomponents/httpclient4/4.0.3/org/apache/http/impl/client/AbstractHttpClient.java#AbstractHttpClient.execute%28org.apache.http.HttpHost%2Corg.apache.http.HttpRequest%2Corg.apache.http.client.ResponseHandler%2Corg.apache.http.protocol.HttpContext%29
- *
- * Hooking
- * org.apache.http.impl.client.AbstractHttpClient.
- * public <T> T execute(
- *            final HttpHost target,
- *            final HttpRequest request,
- *            final ResponseHandler<? extends T> responseHandler,
- *            final HttpContext context)
- *            throws IOException, ClientProtocolException {
+ * http://grepcode.com/file/repo1.maven.org/maven2/org.apache.httpcomponents/httpclient/4.3/org/apache/http/impl/client/CloseableHttpClient.java?av=h#CloseableHttpClient
  * </pre>
  *
  * @author netspider
- * @author emeroad
  */
-public class HttpClient4Modifier extends AbstractModifier {
+public class ClosableHttpClientModifier extends AbstractModifier {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public HttpClient4Modifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+    public ClosableHttpClientModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);
     }
 
     public String getTargetClass() {
-        return "org/apache/http/impl/client/AbstractHttpClient";
+        return "org/apache/http/impl/client/CloseableHttpClient";
     }
 
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {

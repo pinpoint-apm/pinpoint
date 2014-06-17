@@ -13,6 +13,7 @@ import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 
 /**
+ * HTTP Client 4.3 이상 버전에 있는 클래스.
  * 
  * @author netspider
  * 
