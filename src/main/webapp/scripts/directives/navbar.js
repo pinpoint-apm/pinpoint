@@ -398,8 +398,9 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                         if (scope.timeLeft === 0) {
                             scope.update();
                             scope.timeLeft = scope.timeCountDown;
+                        } else {
+                            $timeout(startUpdate, 1000);
                         }
-                        $timeout(startUpdate, 1000);
                     }
                 };
 
