@@ -26,6 +26,8 @@ public interface Trace {
     void traceBlockBegin(int stackId);
 
     void traceRootBlockEnd();
+    
+    void traceRootBlockEnd(Metric responseMetric);
 
     void traceBlockEnd();
 
