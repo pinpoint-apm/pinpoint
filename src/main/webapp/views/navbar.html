@@ -28,13 +28,13 @@
                                 <button type="button" class="btn btn-default" ng-class="getPeriodClass('2d')" ng-click="setPeriod('2d')" ng-disabled="periodDelay">2d</button>
                             </div>
 
-                            <div class="btn-group btn-group-sm input-group input-group-sm" style="margin-top:0px;width:180px;" ng-show="showUpdate()">
+                            <div class="btn-group btn-group-sm input-group input-group-sm" style="margin-top:0px;width:146px;" ng-show="showUpdate()">
                                 <span class="input-group-addon">
                                     <label style="margin:0;">
                                         <input type="checkbox" ng-model="autoUpdate"> Update
                                     </label>
                                 </span>
-                                <button type="button" class="btn btn-default dropdown-toggle form-control" data-toggle="dropdown">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                     {{timeLeft}} sec <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu" role="menu">
@@ -42,11 +42,6 @@
                                         <a href ng-click="setAutoUpdateTime(t.time)">{{t.label}}</a>
                                     </li>
                                 </ul>
-                                <span class="input-group-btn">
-                                    <button type="button" class="btn btn-default" ng-click="update()" ng-disabled="periodDelay">
-                                        <span class="glyphicon glyphicon-refresh"></span>
-                                    </button>
-                                </span>
                             </div>
                         </div>
                         <div ng-show="periodType == 'range'" class="datetimepicker input-group input-group-sm date" style="width:400px">
