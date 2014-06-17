@@ -13,10 +13,10 @@
         <!--<li><a href="#example1-11">Tab 11</a></li>-->
         <!--<li><a href="#example1-12">Tab 12</a></li>-->
     </ul>
-    <div id="Heap_{{namespace}}">
-        <line-plus-bar-chart namespace="Heap_{{namespace}}"></line-plus-bar-chart>
+    <div id="Heap_{{namespace}}" class="content">
+        <jvm-memory-chart namespace="forHeap_{{namespace}}"></jvm-memory-chart>
     </div>
-    <div id="PermGen_{{namespace}}">
-        <line-plus-bar-chart namespace="PermGen_{{namespace}}"></line-plus-bar-chart>
+    <div id="PermGen_{{namespace}}" class="content">
+        <jvm-memory-chart namespace="forNonHeap_{{namespace}}"></jvm-memory-chart>
     </div>
 </div>
