@@ -115,16 +115,16 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
                 return;
             }
 
-            int interBufferSize = this.serializer.getInterBufferSize();
+            final int interBufferSize = this.serializer.getInterBufferSize();
             // single thread이므로 그냥 재활용한다.
             reusePacket.setData(interBufferData, 0, interBufferSize);
             try {
                 udpSocket.send(reusePacket);
-                if (isTrace) {
-                    logger.trace("Data sent. {}", dto);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Data sent. {}, {}", interBufferSize, dto);
                 }
             } catch (IOException e) {
-                logger.warn("packet send error {}", dto, e);
+                logger.warn("packet send error {}, {}", interBufferSize, dto, e);
             }
 		} else {
 			logger.warn("sendPacket fail. invalid type:{}", message != null ? message.getClass() : null);
