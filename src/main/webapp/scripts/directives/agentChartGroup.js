@@ -97,6 +97,24 @@ pinpointApp.directive('agentChartGroup', [ 'agentChartGroupConfig', '$timeout', 
             scope.$on('agentChartGroup.initialize.' + scope.namespace, function (event, query) {
                 initialize(query);
             });
+
+            scope.$on('agentChartGroup.showCursorAt.' + scope.namespace, function (event, category) {
+                if (htChartCache.Heap) {
+                    scope.$broadcast('jvmMemoryChart.showCursorAt.forHeap_' + scope.namespace, category);
+                }
+                if (htChartCache.PermGen) {
+                    scope.$broadcast('jvmMemoryChart.showCursorAt.forNonHeap_' + scope.namespace, category);
+                }
+            });
+
+            scope.$on('agentChartGroup.resize.' + scope.namespace, function (event, category) {
+                if (htChartCache.Heap) {
+                    scope.$broadcast('jvmMemoryChart.resize.forHeap_' + scope.namespace, category);
+                }
+                if (htChartCache.PermGen) {
+                    scope.$broadcast('jvmMemoryChart.resize.forNonHeap_' + scope.namespace, category);
+                }
+            });
         }
     };
 }]);

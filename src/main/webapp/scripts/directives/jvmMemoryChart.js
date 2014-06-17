@@ -16,7 +16,7 @@ angular.module('pinpointApp')
                     var sId, oChart;
 
                     // define variables of methods
-                    var setIdAutomatically, setWidthHeight, render, showCursorAt;
+                    var setIdAutomatically, setWidthHeight, render, showCursorAt, resize;
 
                     /**
                      * set id automatically
@@ -151,7 +151,17 @@ angular.module('pinpointApp')
                     };
 
                     /**
-                     * scope event on loadChart.initAndRenderWithData.namespace
+                     * resize
+                     */
+                    resize = function () {
+                        if (oChart) {
+                            oChart.validateNow();
+                            oChart.validateSize();
+                        }
+                    };
+
+                    /**
+                     * scope event on jvmMemoryChart.initAndRenderWithData.namespace
                      */
                     scope.$on('jvmMemoryChart.initAndRenderWithData.' + scope.namespace, function (event, data, w, h) {
                         setIdAutomatically();
@@ -161,10 +171,17 @@ angular.module('pinpointApp')
                     });
 
                     /**
-                     * scope event on loadChart.updateData.namespace
+                     * scope event on jvmMemoryChart.showCursorAt.namespace
                      */
                     scope.$on('jvmMemoryChart.showCursorAt.' + scope.namespace, function (event, category) {
                         showCursorAt(category)
+                    });
+
+                    /**
+                     * scope event on jvmMemoryChart.resize.namespace
+                     */
+                    scope.$on('jvmMemoryChart.resize.' + scope.namespace, function (event, category) {
+                        resize();
                     });
                 }
             };

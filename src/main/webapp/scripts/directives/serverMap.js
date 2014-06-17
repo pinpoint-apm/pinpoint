@@ -46,7 +46,8 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
 
                 // define private variables of methods
                 var showServerMap, setNodeContextMenuPosition, reset, emitDataExisting,
-                    setLinkContextMenuPosition, setBackgroundContextMenuPosition, serverMapCallback, setLinkOption;
+                    setLinkContextMenuPosition, setBackgroundContextMenuPosition, serverMapCallback, setLinkOption,
+                    zoomToFit;
 
 
                 // bootstrap
@@ -325,7 +326,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         reset();
                     };
                     options.fOnBackgroundDoubleClicked = function (e) {
-                        oServerMap.zoomToFit();
+                        zoomToFit();
                     };
                     options.fOnBackgroundContextClicked = function (e) {
                         scope.$emit("serverMap.backgroundContextClicked", e, query);
@@ -500,6 +501,15 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 };
 
                 /**
+                 * zoom to fit
+                 */
+                zoomToFit = function () {
+                    if (oServerMap) {
+                        oServerMap.zoomToFit();
+                    }
+                };
+
+                /**
                  * response time formatting
                  * @param value
                  * @returns {string}
@@ -630,6 +640,12 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     serverMapCallback(htLastQuery, htLastMapData, scope.mergeUnknowns, scope.linkRouting, scope.linkCurve);
                 });
 
+                /**
+                 * scope event on serverMap.zoomToFit
+                 */
+                scope.$on('serverMap.zoomToFit', function (event) {
+                    zoomToFit();
+                });
             }
         };
     }]);

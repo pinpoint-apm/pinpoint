@@ -8,10 +8,11 @@ pinpointApp.controller('TransactionViewCtrl', [ 'TransactionViewConfig', '$scope
     function (cfg, $scope, $rootScope, $rootElement, Alerts, ProgressBar, $timeout, $routeParams, TransactionDao, AgentDao) {
 
         // define private variables
-        var oAlert, oProgressBar, htHeapCache;
+        var oAlert, oProgressBar;
 
         // define private variables of methods
-        var parseTransactionDetail, parseCompleteStateToClass, showCallStacks, showServerMap, showHeapChart;
+        var parseTransactionDetail, parseCompleteStateToClass, showCallStacks, showServerMap, showHeapChart,
+            showChartCursorAt;
 
         // initialize
         $rootScope.wrapperClass = 'no-navbar';
@@ -51,6 +52,8 @@ pinpointApp.controller('TransactionViewCtrl', [ 'TransactionViewConfig', '$scope
                             onresize_end: function (edge) {
                                 if (edge === 'center') {
                                     $scope.$broadcast('distributedCallFlow.resize.forTransactionDetail');
+                                    $scope.$broadcast('agentChartGroup.resize.forTransactionView');
+                                    $scope.$broadcast('serverMap.zoomToFit');
                                 }
                             },
                             center__maskContents: true // IMPORTANT - enable iframe masking
@@ -59,7 +62,7 @@ pinpointApp.controller('TransactionViewCtrl', [ 'TransactionViewConfig', '$scope
                 });
                 showHeapChart($routeParams.agentId, $routeParams.focusTimestamp);
             }
-        }, 100);
+        }, 500);
 
         /**
          * parse transaction detail
@@ -116,9 +119,16 @@ pinpointApp.controller('TransactionViewCtrl', [ 'TransactionViewConfig', '$scope
             $scope.$broadcast('agentChartGroup.initialize.forTransactionView', query);
         };
 
+        showChartCursorAt = function (category) {
+            $scope.$broadcast('agentChartGroup.showCursorAt.forTransactionView', category);
+        };
+
 
         $scope.$on('distributedCallFlow.rowSelected.forTransactionView', function (e, item) {
             console.log('distributedCallFlow.rowSelected.forTransactionView', item);
+            var category = item.execTime ? new Date(item.execTime).toString('yyyy-MM-dd HH:mm') : false;
+            showChartCursorAt(category);
+
         });
 
     }
