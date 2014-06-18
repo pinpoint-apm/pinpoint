@@ -17,7 +17,7 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
 
                 // initialize variables of methods
                 var initialize, treeFormatter, treeFilter, parseData, execTimeFormatter,
-                    getColorByString, progressBarFormatter, argumentFormatter;
+                    getColorByString, progressBarFormatter, argumentFormatter, hasChildNode;
 
                 // bootstrap
                 window.callStacks = []; // Slick.Data.DataView 때문에, window 프로퍼티로 사용해야 scope 문제가 해결됨.
@@ -195,7 +195,6 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                         if ($(e.target).hasClass("toggle")) {
                             var item = dataView.getItem(args.row);
                             if (item) {
-
                                 if (!item._collapsed) {
                                     item._collapsed = true;
                                 } else {
@@ -229,6 +228,36 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
 
                     grid.onActiveCellChanged.subscribe(function (e, args) {
                         scope.$emit('distributedCallFlow.rowSelected.' + scope.namespace, args.grid.getDataItem(args.row));
+                    });
+
+                    hasChildNode = function (row) {
+                        var nextItem = dataView.getItem(row + 1);
+                        if (nextItem) {
+                            if (row === nextItem.parent) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    };
+
+                    grid.onKeyDown.subscribe(function (e, args) {
+                        var item = dataView.getItem(args.row);
+
+                        if (e.which == 37) {
+                            if (hasChildNode(args.row)) {
+                                item._collapsed = true;
+                                dataView.updateItem(item.id, item);
+                            } else if (item.indent > 0 && item.parent >= 0) {
+                                var parent = dataView.getItem(item.parent);
+                                parent._collapsed = true;
+                                dataView.updateItem(item.id, item);
+                                grid.setActiveCell(dataView.getRowById(parent.id), 0);
+                            }
+
+                        } else if (e.which == 39 && angular.isDefined(item._collapsed)) {
+                            item._collapsed = false;
+                            dataView.updateItem(item.id, item);
+                        }
                     });
 
                     // wire up model events to drive the grid
