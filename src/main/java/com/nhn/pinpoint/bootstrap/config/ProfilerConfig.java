@@ -98,12 +98,9 @@ public class ProfilerConfig {
     private boolean samplingEnable = true;
     private int samplingRate = 1;
 
-    // 전역 샘플링이 수행된 이후의 부분 샘플링
-	private boolean samplingElapsedTimeBaseEnable;
-	private int samplingElapsedTimeBaseBufferSize;
-	private boolean samplingElapsedTimeBaseDiscard;
-	private long samplingElapsedTimeBaseDiscardTimeLimit;
-
+    // span buffering에 대한 설정.
+	private boolean ioBufferingEnable;
+	private int ioBufferingBufferSize;
 
 	private int profileJvmCollectInterval;
 	
@@ -266,20 +263,12 @@ public class ProfilerConfig {
         return samplingRate;
     }
 
-    public boolean isSamplingElapsedTimeBaseEnable() {
-		return samplingElapsedTimeBaseEnable;
+    public boolean isIoBufferingEnable() {
+		return ioBufferingEnable;
 	}
 
-	public int getSamplingElapsedTimeBaseBufferSize() {
-		return samplingElapsedTimeBaseBufferSize;
-	}
-
-	public boolean isSamplingElapsedTimeBaseDiscard() {
-		return samplingElapsedTimeBaseDiscard;
-	}
-
-	public long getSamplingElapsedTimeBaseDiscardTimeLimit() {
-		return samplingElapsedTimeBaseDiscardTimeLimit;
+	public int getIoBufferingBufferBufferSize() {
+		return ioBufferingBufferSize;
 	}
 
 	public int getProfileJvmCollectInterval() {
@@ -536,11 +525,9 @@ public class ProfilerConfig {
         this.samplingRate = readInt(prop, "profiler.sampling.rate", 1);
 
 		// 샘플링 + io 조절 bufferSize 결정
-		this.samplingElapsedTimeBaseEnable = readBoolean(prop, "profiler.sampling.elapsedtimebase.enable", true);
+		this.ioBufferingEnable = readBoolean(prop, "profiler.io.buffering.enable", true);
         // 버퍼 사이즈는 여기에 있는것은 문제가 있는것도 같음. 설정 조정의 필요성이 있음.
-		this.samplingElapsedTimeBaseBufferSize = readInt(prop, "profiler.sampling.elapsedtimebase.buffersize", 20);
-		this.samplingElapsedTimeBaseDiscard = readBoolean(prop, "profiler.sampling.elapsedtimebase.discard", true);
-		this.samplingElapsedTimeBaseDiscardTimeLimit = readLong(prop, "profiler.sampling.elapsedtimebase.discard.timelimit", 1000);
+		this.ioBufferingBufferSize = readInt(prop, "profiler.io.buffering.buffersize", 20);
 
 		// JVM
 		this.profileJvmCollectInterval = readInt(prop, "profiler.jvm.collect.interval", 1000);
@@ -682,10 +669,8 @@ public class ProfilerConfig {
         sb.append("\n memcachedKeyTrace=").append(memcachedKeyTrace);
         sb.append("\n samplingEnable=").append(samplingEnable);
         sb.append("\n samplingRate=").append(samplingRate);
-        sb.append("\n samplingElapsedTimeBaseEnable=").append(samplingElapsedTimeBaseEnable);
-        sb.append("\n samplingElapsedTimeBaseBufferSize=").append(samplingElapsedTimeBaseBufferSize);
-        sb.append("\n samplingElapsedTimeBaseDiscard=").append(samplingElapsedTimeBaseDiscard);
-        sb.append("\n samplingElapsedTimeBaseDiscardTimeLimit=").append(samplingElapsedTimeBaseDiscardTimeLimit);
+        sb.append("\n ioBufferingEnable=").append(ioBufferingEnable);
+        sb.append("\n ioBufferingBufferSize=").append(ioBufferingBufferSize);
         sb.append("\n profileJvmCollectInterval=").append(profileJvmCollectInterval);
         sb.append("\n profileInclude=").append(profileInclude);
         sb.append("\n profileIncludeSub=").append(profileIncludeSub);
