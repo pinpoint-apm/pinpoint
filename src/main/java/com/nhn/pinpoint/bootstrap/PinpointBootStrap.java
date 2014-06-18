@@ -11,6 +11,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 /**
  * @author emeroad
@@ -28,6 +29,8 @@ public class PinpointBootStrap {
     public static final String BOOT_STRAP_LOAD_STATE_LOADING = "LOADING";
     public static final String BOOT_STRAP_LOAD_STATE_COMPLETE = "COMPLETE";
     public static final String BOOT_STRAP_LOAD_STATE_ERROR = "ERROR";
+    
+    private static final Pattern validIdPattern = Pattern.compile("[^a-zA-Z0-9._(\\-)]");
 
     public static void premain(String agentArgs, Instrumentation instrumentation) {
         if (agentArgs != null) {
@@ -49,11 +52,11 @@ public class PinpointBootStrap {
             return;
         }
 
-        if (!checkProfilerIdSize("pinpoint.agentId", PinpointConstants.AGENT_NAME_MAX_LEN)) {
+        if (!isValidId("pinpoint.agentId", PinpointConstants.AGENT_NAME_MAX_LEN)) {
             loadStateChange(BOOT_STRAP_LOAD_STATE_ERROR);
             return;
         }
-        if (!checkProfilerIdSize("pinpoint.applicationName", PinpointConstants.APPLICATION_NAME_MAX_LEN)) {
+        if (!isValidId("pinpoint.applicationName", PinpointConstants.APPLICATION_NAME_MAX_LEN)) {
             loadStateChange(BOOT_STRAP_LOAD_STATE_ERROR);
             return;
         }
@@ -104,13 +107,19 @@ public class PinpointBootStrap {
         }
         return false;
     }
-
-    private static boolean checkProfilerIdSize(String propertyName, int maxSize) {
+    
+    private static boolean isValidId(String propertyName, int maxSize) {
         logger.info("check -D" + propertyName);
         String value = System.getProperty(propertyName);
         if (value != null) {
             // 문자열 앞뒤에 공백은 허용되지 않음.
             value = value.trim();
+
+			if (validIdPattern.matcher(value).find()) {
+				logger.severe("invalid value. value can only contain alphanumeric, dot, dash and underscore. propertyName:" + propertyName + " propertyValue:" + value);
+				return false;
+			}
+            
             final byte[] bytes;
             try {
                 bytes = toBytes(value);
