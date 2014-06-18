@@ -24,6 +24,7 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isTrace = logger.isTraceEnabled();
+    private final boolean isDebug = logger.isDebugEnabled();
 
     // 주의 single thread용임
     private DatagramPacket reusePacket = new DatagramPacket(new byte[1], 1);
@@ -120,11 +121,11 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
             reusePacket.setData(interBufferData, 0, interBufferSize);
             try {
                 udpSocket.send(reusePacket);
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Data sent. {}, {}", interBufferSize, dto);
+                if (isDebug) {
+                    logger.debug("Data sent. size:{}, {}", interBufferSize, dto);
                 }
             } catch (IOException e) {
-                logger.warn("packet send error {}, {}", interBufferSize, dto, e);
+                logger.warn("packet send error. size:{}, {}", interBufferSize, dto, e);
             }
 		} else {
 			logger.warn("sendPacket fail. invalid type:{}", message != null ? message.getClass() : null);
