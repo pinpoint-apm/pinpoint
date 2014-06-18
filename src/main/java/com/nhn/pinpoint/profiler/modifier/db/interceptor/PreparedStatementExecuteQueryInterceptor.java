@@ -22,6 +22,8 @@ import com.nhn.pinpoint.bootstrap.util.MetaObject;
  */
 public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
+    private static final int MAX_BIND_VALUE_LIMIT = 1024;
+
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -96,23 +98,8 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
             temp[key] = entry.getValue();
         }
 
-        return bindValueToString(temp);
+        return BindValueUtils.bindValueToString(temp, MAX_BIND_VALUE_LIMIT);
 
-    }
-
-    private String bindValueToString(String[] temp) {
-        if (temp == null) {
-            return "";
-        }
-        final StringBuilder sb = new StringBuilder(32);
-        int end = temp.length - 1;
-        for (int i = 0; i < temp.length; i++) {
-            sb.append(temp[i]);
-            if (i < end) {
-                sb.append(", ");
-            }
-        }
-        return sb.toString();
     }
 
     @Override
