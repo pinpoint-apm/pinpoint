@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 
 /**
  * @author emeroad
+ * @author netspider
  */
 public class PinpointBootStrap {
 
@@ -116,7 +117,7 @@ public class PinpointBootStrap {
             value = value.trim();
 
 			if (validIdPattern.matcher(value).find()) {
-				logger.severe("invalid value. value can only contain alphanumeric, dot, dash and underscore. propertyName:" + propertyName + " propertyValue:" + value);
+				logger.severe("invalid Id. " + propertyName + " can only contain alphanumeric, dot, dash and underscore. value:" + value);
 				return false;
 			}
             
