@@ -91,25 +91,21 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
             htLastMapData.applicationMapData.linkDataArray = mapData.applicationMapData.linkDataArray;
             htLastMapData.applicationMapData.nodeDataArray = mapData.applicationMapData.nodeDataArray;
         } else {
-            var newKey = {};
             angular.forEach(mapData.applicationMapData.nodeDataArray, function (node, key) {
                 var foundNodeKeyFromLastMapData = this.findExistingNodeKeyFromLastMapData(htLastMapData, node);
                 if (foundNodeKeyFromLastMapData >= 0) {
                     this.mergeNodeData(htLastMapData, foundNodeKeyFromLastMapData, node);
-                    newKey[node.key] = foundNodeKeyFromLastMapData;
                 } else {
-                    node.key = newKey[node.key] = htLastMapData.applicationMapData.nodeDataArray.length + 1;
+                    node.key =  htLastMapData.applicationMapData.nodeDataArray.length + 1;
                     htLastMapData.applicationMapData.nodeDataArray.push(node);
                 }
             }, this);
+
             angular.forEach(mapData.applicationMapData.linkDataArray, function (link, key) {
-                var foundLinkKeyFromLastMapData = this.findExistingLinkFromLastMapData(htLastMapData, link, newKey);
-                if (foundLinkKeyFromLastMapData) {
+                var foundLinkKeyFromLastMapData = this.findExistingLinkFromLastMapData(htLastMapData, link);
+                if (foundLinkKeyFromLastMapData >= 0) {
                     this.mergeLinkData(htLastMapData, foundLinkKeyFromLastMapData, link);
                 } else {
-                    link.from = newKey[link.from];
-                    link.to = newKey[link.to];
-                    link.key = [link.from, '-', link.to].join('');
                     htLastMapData.applicationMapData.linkDataArray.push(link);
                 }
             }, this);
@@ -129,28 +125,27 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
                 return key;
             }
         }
-        return false;
+        return -1;
     };
 
     /**
      * find existing link from last map data
      * @param htLastMapData
      * @param link
-     * @param newKey
      * @returns {*}
      */
-    this.findExistingLinkFromLastMapData = function (htLastMapData, link, newKey) {
+    this.findExistingLinkFromLastMapData = function (htLastMapData, link) {
         for (var key in htLastMapData.applicationMapData.linkDataArray) {
-            if (htLastMapData.applicationMapData.linkDataArray[key].from === newKey[link.from] && htLastMapData.applicationMapData.linkDataArray[key].to === newKey[link.to]) {
+            if (htLastMapData.applicationMapData.linkDataArray[key].from === link.from && htLastMapData.applicationMapData.linkDataArray[key].to === link.to) {
                 return key;
             }
         }
-        return false;
+        return -1;
     };
 
     /**
      * add filter property
-     * @param s
+     * @param filters
      * @param mapData
      * @returns {*}
      */
