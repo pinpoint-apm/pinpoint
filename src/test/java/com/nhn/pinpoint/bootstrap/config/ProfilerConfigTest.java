@@ -57,4 +57,29 @@ public class ProfilerConfigTest {
 
     }
 
+
+    @Test
+    public void ioBuffering_test() throws IOException {
+        String path = ProfilerConfig.class.getResource("/com/nhn/pinpoint/bootstrap/config/test.property").getPath();
+        logger.debug("path:{}", path);
+
+        ProfilerConfig profilerConfig = new ProfilerConfig();
+        profilerConfig.readConfigFile(path);
+
+        Assert.assertEquals(profilerConfig.isIoBufferingEnable(), false);
+        Assert.assertEquals(profilerConfig.getIoBufferingBufferBufferSize(), 30);
+    }
+
+    @Test
+    public void ioBuffering_default() throws IOException {
+        String path = ProfilerConfig.class.getResource("/com/nhn/pinpoint/bootstrap/config/default.property").getPath();
+        logger.debug("path:{}", path);
+
+        ProfilerConfig profilerConfig = new ProfilerConfig();
+        profilerConfig.readConfigFile(path);
+
+        Assert.assertEquals(profilerConfig.isIoBufferingEnable(), true);
+        Assert.assertEquals(profilerConfig.getIoBufferingBufferBufferSize(), 10);
+    }
+
 }

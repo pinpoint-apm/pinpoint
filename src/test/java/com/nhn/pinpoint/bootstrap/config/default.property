@@ -1,0 +1,5 @@
+profiler.apache.httpclient4.cookie.dumptype=EXCEPTION
+
+
+profiler.io.buffering.enable=true
+profiler.io.buffering.buffersize=10
