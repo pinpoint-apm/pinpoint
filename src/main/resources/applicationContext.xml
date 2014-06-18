@@ -16,8 +16,15 @@
 
     <context:annotation-config/>
 
+	<!--
     <context:component-scan base-package="com.nhn.pinpoint.web.dao.hbase,
     									 com.nhn.pinpoint.web.dao.mysql,
+                                         com.nhn.pinpoint.web.service,
+                                         com.nhn.pinpoint.web.mapper,
+                                         com.nhn.pinpoint.web.filter" />
+	-->
+
+    <context:component-scan base-package="com.nhn.pinpoint.web.dao.hbase,
                                          com.nhn.pinpoint.web.service,
                                          com.nhn.pinpoint.web.mapper,
                                          com.nhn.pinpoint.web.filter" />
@@ -26,16 +33,24 @@
         <property name="locations">
             <list>
                 <value>classpath:hbase.properties</value>
+                <!-- 
                 <value>classpath:jdbc.properties</value>
+                -->
             </list>
         </property>
     </bean>
+    
+    <!-- 
     <util:properties id="dataProps" location="classpath:data.properties"/>
+    -->
  
     <import resource="classpath:applicationContext-hbase.xml" />
+    
+    <!-- 
     <import resource="classpath:applicationContext-datasource.xml" />
     <import resource="classpath:applicationContext-dao-config.xml" />
     <import resource="classpath:applicationContext-scheduler.xml" />
+    -->
     <!--<import resource="classpath:applicationContext-cache.xml" />-->
 
     <bean id="spanMapper" class="com.nhn.pinpoint.web.mapper.SpanMapper"></bean>
@@ -47,8 +62,9 @@
     <bean id="jsonObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper"></bean>
 
     <bean id="rangeFactory" class="com.nhn.pinpoint.web.vo.RangeFactory"></bean>
-   
+
+	<!--
     <bean id="mailResource" class="com.nhn.pinpoint.web.alarm.resource.MailResourceImpl" />
     <bean id="smsResource" class="com.nhn.pinpoint.web.alarm.resource.SmsResourceImpl" />
-   
+	-->   
 </beans>
