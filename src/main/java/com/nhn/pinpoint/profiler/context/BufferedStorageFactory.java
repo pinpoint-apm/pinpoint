@@ -22,7 +22,7 @@ public class BufferedStorageFactory implements StorageFactory {
         }
         this.dataSender = dataSender;
 
-        this.bufferSize = config.getSamplingElapsedTimeBaseBufferSize();
+        this.bufferSize = config.getIoBufferingBufferBufferSize();
 
         this.spanChunkFactory = new SpanChunkFactory(agentInformation);
     }

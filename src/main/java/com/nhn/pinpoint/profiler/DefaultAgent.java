@@ -240,7 +240,7 @@ public class DefaultAgent implements Agent {
     }
 
     protected StorageFactory createStorageFactory() {
-        if (profilerConfig.isSamplingElapsedTimeBaseEnable()) {
+        if (profilerConfig.isIoBufferingEnable()) {
             return new BufferedStorageFactory(this.spanDataSender, this.profilerConfig, this.agentInformation);
         } else {
             return new SpanStorageFactory(spanDataSender);
