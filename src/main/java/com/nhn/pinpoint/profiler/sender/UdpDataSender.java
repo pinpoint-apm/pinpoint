@@ -26,6 +26,9 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
     private final boolean isTrace = logger.isTraceEnabled();
     private final boolean isDebug = logger.isDebugEnabled();
 
+    public static final int SOCKET_TIMEOUT = 1000 * 5;
+    public static final int SEND_BUFFER_SIZE = 1024 * 64 * 16;
+
     // 주의 single thread용임
     private DatagramPacket reusePacket = new DatagramPacket(new byte[1], 1);
 
@@ -36,7 +39,11 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
 
     private AsyncQueueingExecutor<Object> executor;
 
-	public UdpDataSender(String host, int port, String threadName, int queueSize) {
+    public UdpDataSender(String host, int port, String threadName, int queueSize) {
+        this(host, port, threadName, queueSize, SOCKET_TIMEOUT, SEND_BUFFER_SIZE);
+    }
+
+	public UdpDataSender(String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize) {
         if (host == null ) {
             throw new NullPointerException("host must not be null");
         }
@@ -46,10 +53,16 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
         if (queueSize <= 0) {
             throw new IllegalArgumentException("queueSize");
         }
+        if (timeout <= 0) {
+            throw new IllegalArgumentException("timeout");
+        }
+        if (sendBufferSize <= 0) {
+            throw new IllegalArgumentException("sendBufferSize");
+        }
 
         // Socket 생성에 에러가 발생하면 Agent start가 안되게 변경.
         logger.info("UdpDataSender initialized. host={}, port={}", host, port);
-		this.udpSocket = createSocket(host, port);
+		this.udpSocket = createSocket(host, port, timeout, sendBufferSize);
 
 		this.executor = createAsyncQueueingExecutor(queueSize, threadName);
 	}
@@ -91,18 +104,21 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
         }
     }
 
-    private DatagramSocket createSocket(String host, int port) {
+    private DatagramSocket createSocket(String host, int port, int timeout, int sendBufferSize) {
 		try {
             DatagramSocket datagramSocket = new DatagramSocket();
 
-			datagramSocket.setSoTimeout(1000 * 5);
-            datagramSocket.setSendBufferSize(1024 * 64 * 16);
+			datagramSocket.setSoTimeout(timeout);
+            datagramSocket.setSendBufferSize(sendBufferSize);
+            if (logger.isInfoEnabled()) {
+                logger.info("verify sendBufferSize:{}", datagramSocket.getSendBufferSize());
+            }
 
 			InetSocketAddress serverAddress = new InetSocketAddress(host, port);
 			datagramSocket.connect(serverAddress);
 			return datagramSocket;
 		} catch (SocketException e) {
-			throw new IllegalStateException("DataramSocket create fail. Cause" + e.getMessage(), e);
+			throw new IllegalStateException("DatagramSocket create fail. Cause" + e.getMessage(), e);
 		}
 	}
 
