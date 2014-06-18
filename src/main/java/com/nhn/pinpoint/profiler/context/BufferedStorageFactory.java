@@ -7,15 +7,13 @@ import com.nhn.pinpoint.profiler.sender.DataSender;
 /**
  * @author emeroad
  */
-public class TimeBaseStorageFactory implements StorageFactory {
+public class BufferedStorageFactory implements StorageFactory {
 
     private final DataSender dataSender;
     private final int bufferSize;
-    private final boolean discardEnable;
-    private final long discardTimeLimit;
     private final SpanChunkFactory spanChunkFactory;
 
-    public TimeBaseStorageFactory(DataSender dataSender, ProfilerConfig config, AgentInformation agentInformation) {
+    public BufferedStorageFactory(DataSender dataSender, ProfilerConfig config, AgentInformation agentInformation) {
         if (dataSender == null) {
             throw new NullPointerException("dataSender must not be null");
         }
@@ -25,8 +23,6 @@ public class TimeBaseStorageFactory implements StorageFactory {
         this.dataSender = dataSender;
 
         this.bufferSize = config.getSamplingElapsedTimeBaseBufferSize();
-        this.discardEnable = config.isSamplingElapsedTimeBaseDiscard();
-        this.discardTimeLimit = config.getSamplingElapsedTimeBaseDiscardTimeLimit();
 
         this.spanChunkFactory = new SpanChunkFactory(agentInformation);
     }
@@ -34,10 +30,15 @@ public class TimeBaseStorageFactory implements StorageFactory {
 
     @Override
     public Storage createStorage() {
-        TimeBaseStorage timeBaseStorage = new TimeBaseStorage(this.dataSender, spanChunkFactory, this.bufferSize);
-        timeBaseStorage.setLimitTime(this.discardTimeLimit);
-        timeBaseStorage.setDiscard(this.discardEnable);
-        return timeBaseStorage;
+        BufferedStorage bufferedStorage = new BufferedStorage(this.dataSender, spanChunkFactory, this.bufferSize);
+        return bufferedStorage;
     }
 
+    @Override
+    public String toString() {
+        return "BufferedStorageFactory{" +
+                "bufferSize=" + bufferSize +
+                ", dataSender=" + dataSender +
+                '}';
+    }
 }

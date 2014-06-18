@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
+import com.nhn.pinpoint.profiler.context.BufferedStorageFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +24,6 @@ import com.nhn.pinpoint.exception.PinpointException;
 import com.nhn.pinpoint.profiler.context.DefaultTraceContext;
 import com.nhn.pinpoint.profiler.context.SpanStorageFactory;
 import com.nhn.pinpoint.profiler.context.StorageFactory;
-import com.nhn.pinpoint.profiler.context.TimeBaseStorageFactory;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
@@ -234,14 +234,14 @@ public class DefaultAgent implements Agent {
 
 
         final StorageFactory storageFactory = createStorageFactory();
-        logger.info("StorageFactoryType:{}", storageFactory.getClass());
+        logger.info("StorageFactoryType:{}", storageFactory);
         traceContext.setStorageFactory(storageFactory);
         return traceContext;
     }
 
     protected StorageFactory createStorageFactory() {
         if (profilerConfig.isSamplingElapsedTimeBaseEnable()) {
-            return new TimeBaseStorageFactory(this.spanDataSender, this.profilerConfig, this.agentInformation);
+            return new BufferedStorageFactory(this.spanDataSender, this.profilerConfig, this.agentInformation);
         } else {
             return new SpanStorageFactory(spanDataSender);
 
