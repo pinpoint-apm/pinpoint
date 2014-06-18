@@ -56,6 +56,10 @@ public class ProfilerConfig {
     private boolean memcached = true;
     private boolean memcachedKeyTrace = false;
 
+    private boolean ibatis = true;
+    
+    private boolean mybatis = true;
+    
     /**
      * apache http client
      */
@@ -402,6 +406,14 @@ public class ProfilerConfig {
 		return lineGameNettyEntityDumpSize;
 	}
 
+	public boolean isIBatisEnabled() {
+		return ibatis;
+	}
+	
+	public boolean isMyBatisEnabled() {
+		return mybatis;
+	}
+	
 	/**
      * TODO remove this. 테스트 장비에서 call stack view가 잘 보이는지 테스트 하려고 추가함.
      *
@@ -520,6 +532,9 @@ public class ProfilerConfig {
         this.lineGameNettyParamDumpSize = readInt(prop, "profiler.line.game.netty.param.dumpsize", 512);
         this.lineGameNettyEntityDumpSize = readInt(prop, "profiler.line.game.netty.entity.dumpsize", 512);
         
+        this.ibatis = readBoolean(prop, "profiler.orm.ibatis", true);
+        
+        this.mybatis = readBoolean(prop, "profiler.orm.mybatis", true);
         
         this.samplingEnable = readBoolean(prop, "profiler.sampling.enable", true);
         this.samplingRate = readInt(prop, "profiler.sampling.rate", 1);
