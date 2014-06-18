@@ -11,13 +11,17 @@ import com.nhn.pinpoint.common.ServiceType;
 
 /**
  * @author Hyun Jeong
+ * @author netspider
  */
 public abstract class SqlMapOperationInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
 	private final ServiceType serviceType;
 	
 	private MethodDescriptor descriptor;
-	private TraceContext traceContext;
+	
+	protected TraceContext traceContext;
+	
+	protected boolean enabled = true;
 	
 	public SqlMapOperationInterceptor(ServiceType serviceType) {
 		this.serviceType = serviceType;
@@ -25,8 +29,17 @@ public abstract class SqlMapOperationInterceptor implements SimpleAroundIntercep
 	
 	protected abstract PLogger getLogger();
 	
+	protected abstract void initConfig();
+	
 	@Override
 	public final void before(Object target, Object[] args) {
+		if (!enabled) {
+			if (getLogger().isDebugEnabled()) {
+				getLogger().debug("interceptor is disabled.");
+			}			
+			return;
+		}
+		
 		if (getLogger().isDebugEnabled()) {
 			getLogger().beforeInterceptor(target, args);
 		}
@@ -41,6 +54,10 @@ public abstract class SqlMapOperationInterceptor implements SimpleAroundIntercep
 
 	@Override
 	public final void after(Object target, Object[] args, Object result) {
+		if (!enabled) {
+			return;
+		}
+		
 		if (getLogger().isDebugEnabled()) {
 			getLogger().afterInterceptor(target, args, result);
 		}
@@ -66,6 +83,7 @@ public abstract class SqlMapOperationInterceptor implements SimpleAroundIntercep
 	@Override
 	public final void setTraceContext(TraceContext traceContext) {
 		this.traceContext = traceContext;
+		this.initConfig();
 	}
 
 	@Override
