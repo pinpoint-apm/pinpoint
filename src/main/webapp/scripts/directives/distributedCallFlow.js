@@ -243,7 +243,7 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                     grid.onKeyDown.subscribe(function (e, args) {
                         var item = dataView.getItem(args.row);
 
-                        if (e.which == 37) {
+                        if (e.which == 37) { // left
                             if (hasChildNode(args.row)) {
                                 item._collapsed = true;
                                 dataView.updateItem(item.id, item);
@@ -253,9 +253,15 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                                 dataView.updateItem(item.id, item);
                                 grid.setActiveCell(dataView.getRowById(parent.id), 0);
                             }
-
-                        } else if (e.which == 39 && angular.isDefined(item._collapsed)) {
-                            item._collapsed = false;
+                        } else if (e.which == 39) { // right
+                            if (item._collapsed) {
+                                item._collapsed = false;
+                            } else {
+                                var nextItem = dataView.getItem(args.row + 1);
+                                if (nextItem) {
+                                    grid.setActiveCell(args.row + 1, 0);
+                                }
+                            }
                             dataView.updateItem(item.id, item);
                         }
                     });
