@@ -28,6 +28,7 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
 
     public static final int SOCKET_TIMEOUT = 1000 * 5;
     public static final int SEND_BUFFER_SIZE = 1024 * 64 * 16;
+    public static final int UDP_MAX_PACKET_LENGTH = 65507;
 
     // 주의 single thread용임
     private DatagramPacket reusePacket = new DatagramPacket(new byte[1], 1);
@@ -76,7 +77,7 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
     public void stop() {
         executor.stop();
     }
-    
+
     public boolean isNetworkAvailable() {
     	NetworkAvailabilityCheckPacket dto = new NetworkAvailabilityCheckPacket();
         try {
@@ -124,28 +125,42 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
 
 	protected void sendPacket(Object message) {
 		if (message instanceof TBase) {
-			TBase dto = (TBase) message;
+			final TBase dto = (TBase) message;
             // single thread이므로 데이터 array를 nocopy해서 보냄.
-            byte[] interBufferData = serialize(this.serializer, dto);
-            if (interBufferData == null) {
+            final byte[] internalBufferData = serialize(this.serializer, dto);
+            if (internalBufferData == null) {
                 logger.warn("interBufferData is null");
                 return;
             }
 
-            final int interBufferSize = this.serializer.getInterBufferSize();
+            final int internalBufferSize = this.serializer.getInterBufferSize();
+            if (isLimit(internalBufferSize)) {
+                // udp 데이터 제한일 경우 error을 socket레벨에서 내는것보다는 먼저 체크하여 discard하는게 더 바람직함.
+                logger.warn("discard packet. Caused:too large message. size:{}, {}", internalBufferSize, dto);
+                return;
+            }
             // single thread이므로 그냥 재활용한다.
-            reusePacket.setData(interBufferData, 0, interBufferSize);
+            reusePacket.setData(internalBufferData, 0, internalBufferSize);
+
             try {
                 udpSocket.send(reusePacket);
                 if (isDebug) {
-                    logger.debug("Data sent. size:{}, {}", interBufferSize, dto);
+                    logger.debug("Data sent. size:{}, {}", internalBufferSize, dto);
                 }
             } catch (IOException e) {
-                logger.warn("packet send error. size:{}, {}", interBufferSize, dto, e);
+                logger.warn("packet send error. size:{}, {}", internalBufferSize, dto, e);
             }
 		} else {
 			logger.warn("sendPacket fail. invalid type:{}", message != null ? message.getClass() : null);
 			return;
 		}
 	}
+
+    // for test
+    protected boolean isLimit(int interBufferSize) {
+        if (interBufferSize > UDP_MAX_PACKET_LENGTH) {
+            return true;
+        }
+        return false;
+    }
 }
