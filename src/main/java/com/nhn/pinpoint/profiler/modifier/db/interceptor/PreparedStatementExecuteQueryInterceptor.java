@@ -22,7 +22,7 @@ import com.nhn.pinpoint.bootstrap.util.MetaObject;
  */
 public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
-    private static final int MAX_BIND_VALUE_LIMIT = 1024;
+    private static final int DEFAULT_BIND_VALUE_LENGTH = 1024;
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -34,6 +34,7 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
 
     private MethodDescriptor descriptor;
     private TraceContext traceContext;
+    private int maxSqlBindValueLength = DEFAULT_BIND_VALUE_LENGTH;
 
     @Override
     public void before(Object target, Object[] args) {
@@ -98,7 +99,7 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
             temp[key] = entry.getValue();
         }
 
-        return BindValueUtils.bindValueToString(temp, MAX_BIND_VALUE_LIMIT);
+        return BindValueUtils.bindValueToString(temp, maxSqlBindValueLength);
 
     }
 
@@ -132,5 +133,6 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
     @Override
     public void setTraceContext(TraceContext traceContext) {
         this.traceContext = traceContext;
+        this.maxSqlBindValueLength = traceContext.getProfilerConfig().getJdbcMaxSqlBindValueSize();
     }
 }
