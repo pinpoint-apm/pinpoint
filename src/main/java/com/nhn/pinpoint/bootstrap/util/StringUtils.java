@@ -37,6 +37,21 @@ public final class StringUtils {
         }
     }
 
+    public static void appendDrop(StringBuilder builder, final String str, final int length) {
+        if (str == null) {
+            return;
+        }
+        if (length < 0) {
+            return;
+        }
+        if (str.length() > length) {
+            builder.append(str.substring(0, length));
+            appendDropMessage(builder, str.length());
+        } else {
+            builder.append(str);
+        }
+    }
+
     private static void appendDropMessage(StringBuilder buffer, int length) {
         buffer.append("...(");
         buffer.append(length);
