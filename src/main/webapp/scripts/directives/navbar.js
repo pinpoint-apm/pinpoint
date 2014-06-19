@@ -48,6 +48,12 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                         label: '1 minute'
                     }
                 ];
+                scope.applications = [
+                    {
+                        text: 'Select an application.',
+                        value: ''
+                    }
+                ];
 
 
                 element.bind('selectstart', function (e) {
@@ -63,7 +69,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
 
                     scope.periodType = getPeriodType();
                     scope.showNavbar = true;
-                    scope.showApplication = true;
+                    scope.showStaticApplication = false;
                     scope.showStatic = !scope.showApplication;
                     $application = element.find('.application');
                     scope.applications = [
@@ -77,6 +83,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                     scope.readablePeriod = oNavbarVo.getReadablePeriod() || '20m';
                     scope.queryEndTime = oNavbarVo.getQueryEndTime() || '';
 
+                    initializeApplication();
                     initializeDateTimePicker();
                     getApplicationList();
                 };
@@ -90,8 +97,7 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
 
                     scope.periodType = getPeriodType();
                     scope.showNavbar = true;
-                    scope.showApplication = false;
-                    scope.showStaticApplication = !scope.showApplication;
+                    scope.showStaticApplication = true;
                     $application = element.find('.application');
                     scope.application = oNavbarVo.getApplication() || '';
                     scope.applicationName = oNavbarVo.getApplicationName() || '';
@@ -244,12 +250,18 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                                 scope.disableApplication = false;
                                 $timeout(function () { // it should be apply after pushing data, so
                                     // it should work like nextTick
-                                    initializeApplication();
+//                                    initializeApplication();
+                                    if (oNavbarVo.getApplication()) {
+                                        $application.select2('val', oNavbarVo.getApplication());
+                                        scope.application = oNavbarVo.getApplication();
+                                    }
                                 });
                             });
                         }
+                        scope.hideFakeApplication = true;
                     }).error(function (data, status) {
                         scope.applications[0].text = 'Application error.';
+                        scope.hideFakeApplication = true;
                     });
                 };
 
@@ -331,11 +343,6 @@ pinpointApp.directive('navbar', [ 'cfg', '$rootScope', '$http',
                         // 참고1 : http://jimhoskins.com/2012/12/17/angularjs-and-apply.html
                         // 참고2 : http://jsfiddle.net/CDvGy/2/
                     });
-
-                    if (oNavbarVo.getApplication()) {
-                        $application.select2('val', oNavbarVo.getApplication());
-                        scope.application = oNavbarVo.getApplication();
-                    }
                 };
 
                 /**

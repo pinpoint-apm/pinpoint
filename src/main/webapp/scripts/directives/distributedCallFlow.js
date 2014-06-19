@@ -247,11 +247,16 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                             if (hasChildNode(args.row)) {
                                 item._collapsed = true;
                                 dataView.updateItem(item.id, item);
-                            } else if (item.indent > 0 && item.parent >= 0) {
-                                var parent = dataView.getItem(item.parent);
-                                parent._collapsed = true;
-                                dataView.updateItem(item.id, item);
-                                grid.setActiveCell(dataView.getRowById(parent.id), 0);
+//                            } else if (item.indent > 0 && item.parent >= 0) {
+//                                var parent = dataView.getItem(item.parent);
+//                                parent._collapsed = true;
+//                                dataView.updateItem(item.id, item);
+//                                grid.setActiveCell(dataView.getRowById(parent.id), 0);
+                            } else {
+                                var prevItem = dataView.getItem(args.row - 1);
+                                if (prevItem) {
+                                    grid.setActiveCell(args.row - 1, 0);
+                                }
                             }
                         } else if (e.which == 39) { // right
                             if (item._collapsed) {

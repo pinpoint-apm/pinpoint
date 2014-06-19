@@ -6,16 +6,17 @@
             <form class="navbar-form pull-left">
                 <ul class="nav navbar-nav">
                     <li style="margin-top:0px;">
-                        <div ng-show="showApplication" style="margin-top:5px;" id="navbar_application">
-                            <select class="application" ng-disabled="disableApplication" style="width:290px;margin:1px 0 0 0;height:28px;" id="navbar_application">
+                        <div ng-hide="showStaticApplication" style="margin-top:5px;" id="navbar_application">
+                            <select class="application" ng-disabled="disableApplication" id="navbar_application">
                                 <option ng-repeat="app in applications" value="{{app.value}}">{{app.text}}</option>
                             </select>
+                            <img ng-hide="hideFakeApplication" src="images/navbar_application_fake.png" style="position:absolute;left:0;top:5px;">
                         </div>
                         <div ng-show="showStaticApplication" class="btn btn-sm disabled" style="margin-top:5px;background-color:#f5f5f5;opacity:1;filter:alpha(opacity=100);">{{applicationName}}</div>
                     </li>
                     <li class="divider-vertical"></li>
                     <li class="for-datetimepicker" id="navbar_period">
-                        <div ng-show="periodType == 'last'">
+                        <div ng-show="periodType != 'range'">
                             <div class="btn-group btn-group-sm" style="margin-top:0px;width:365px;float:left;">
                                 <button type="button" class="btn btn-success" ng-click="togglePeriod('range')"><span class="glyphicon glyphicon-th-list"></span></button>
                                 <button type="button" class="btn btn-default" ng-class="getPeriodClass('5m')" ng-click="setPeriod('5m')" ng-disabled="periodDelay">Last 5m</button>

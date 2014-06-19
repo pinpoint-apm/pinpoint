@@ -68,3 +68,8 @@
     color: rgb(216, 33, 33);
     font-family: 'Tahoma', 'Trebuchet MS', 'Verdana';
 }
+.navbar .application {
+    width:290px;
+    margin:0;
+    height:28px;
+}

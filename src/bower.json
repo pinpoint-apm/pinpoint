@@ -9,7 +9,7 @@
     "angular-cookies": "1.2.18",
     "angular-sanitize": "1.2.18",
     "angular-route": "1.2.18",
-    "select2": "~3.4.1",
+    "select2": "~3.5.0",
     "underscore": "~1.5.1",
     "moment": "*",
     "modernizr": "~2.6.2",
