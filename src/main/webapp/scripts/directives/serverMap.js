@@ -42,7 +42,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 // define private variables
                 var bUseNodeContextMenu, bUseLinkContextMenu, htLastQuery,
                     bUseBackgroundContextMenu, oServerMap, oAlert, oProgressBar, htLastMapData, htLastLink, htLastNode,
-                    sLastSelection, $fromAgentName, $toAgentName;
+                    sLastSelection, $fromAgentName, $toAgentName, bIsFilterWizardLoaded;
 
                 // define private variables of methods
                 var showServerMap, setNodeContextMenuPosition, reset, emitDataExisting,
@@ -79,6 +79,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 $toAgentName = element.find('.toAgentName');
                 $fromAgentName.select2();
                 $toAgentName.select2();
+                bIsFilterWizardLoaded = false;
 
                 /**
                  * reset
@@ -427,7 +428,6 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 /**
                  * open filter wizard
                  */
-                var bIsFilterWizardLoaded = false;
                 scope.openFilterWizard = function () {
                     reset();
                     var oSidebarTitleVo = new SidebarTitleVo;
@@ -451,8 +451,8 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     scope.targetHistogram = htLastLink.toNode.agentHistogram;
                     scope.fromApplicationName = htLastLink.fromNode.applicationName;
                     scope.toApplicationName = htLastLink.toNode.applicationName;
-                    scope.fromAgentName = '';
-                    scope.toAgentName = '';
+                    $fromAgentName.select2('val', '');
+                    $toAgentName.select2('val', '');
 
                     scope.$broadcast('sidebarTitle.initialize.forServerMap', oSidebarTitleVo);
 
