@@ -228,7 +228,7 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
     }
 
 	@Override
-	public boolean isNetworkAvalable() {
+	public boolean isNetworkAvailable() {
 		if (this.socket == null) {
 			return false;
 		}

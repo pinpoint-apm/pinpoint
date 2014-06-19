@@ -77,7 +77,7 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
         executor.stop();
     }
     
-    public boolean isNetworkAvalable() {
+    public boolean isNetworkAvailable() {
     	NetworkAvailabilityCheckPacket dto = new NetworkAvailabilityCheckPacket();
         try {
             byte[] interBufferData = serialize(serializer, dto);

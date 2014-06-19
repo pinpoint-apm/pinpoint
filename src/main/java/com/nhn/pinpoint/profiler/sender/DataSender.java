@@ -12,5 +12,5 @@ public interface DataSender {
 
     void stop();
 
-    boolean isNetworkAvalable();
+    boolean isNetworkAvailable();
 }

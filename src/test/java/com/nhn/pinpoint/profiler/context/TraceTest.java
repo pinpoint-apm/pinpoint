@@ -107,7 +107,7 @@ public class TraceTest {
 		}
 
 		@Override
-		public boolean isNetworkAvalable() {
+		public boolean isNetworkAvailable() {
 			return true;
 		}
     }

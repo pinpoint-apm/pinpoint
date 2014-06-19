@@ -72,7 +72,7 @@ public class CountingDataSender implements EnhancedDataSender {
     }
 
     @Override
-    public boolean isNetworkAvalable() {
+    public boolean isNetworkAvailable() {
         return false;
     }
 

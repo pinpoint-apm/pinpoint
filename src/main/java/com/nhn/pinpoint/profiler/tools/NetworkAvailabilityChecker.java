@@ -35,9 +35,9 @@ public class NetworkAvailabilityChecker implements PinpointTools {
 			udpSpanSender = new UdpDataSender(collector, usPort, "UDP-SPAN", 10);
 			tcpSender = new TcpDataSender(collector, tPort);
 
-			boolean udpSenderResult = udpSender.isNetworkAvalable();
-			boolean udpSpanSenderResult = udpSpanSender.isNetworkAvalable();
-			boolean tcpSenderResult = tcpSender.isNetworkAvalable();
+			boolean udpSenderResult = udpSender.isNetworkAvailable();
+			boolean udpSpanSenderResult = udpSpanSender.isNetworkAvailable();
+			boolean tcpSenderResult = tcpSender.isNetworkAvailable();
 
 			StringBuilder sb = new StringBuilder();
 			sb.append("\nTEST RESULT\n");
