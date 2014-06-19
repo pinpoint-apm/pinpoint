@@ -27,9 +27,9 @@ public abstract class IbatisClientModifier extends AbstractModifier {
 	private static final ServiceType serviceType = ServiceType.IBATIS;
 	private static final DepthScope scope = IbatisScope.SCOPE;
 
-	protected abstract Logger getLogger();
-	
-	protected abstract MethodFilter getIbatisApiMethodFilter();
+    protected Logger logger;
+
+    protected abstract MethodFilter getIbatisApiMethodFilter();
 
 	public IbatisClientModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
 		super(byteCodeInstrumentor, agent);
@@ -37,8 +37,8 @@ public abstract class IbatisClientModifier extends AbstractModifier {
 
 	@Override
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-		if (this.getLogger().isInfoEnabled()) {
-			this.getLogger().info("Modifying. {}", javassistClassName);
+		if (logger.isInfoEnabled()) {
+            logger.info("Modifying. {}", javassistClassName);
 		}
 		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 		try {
@@ -52,7 +52,7 @@ public abstract class IbatisClientModifier extends AbstractModifier {
 			
 			return ibatisClientImpl.toBytecode();
 		} catch (Throwable e) {
-			this.getLogger().warn("{} modifier error. Cause:{}", javassistClassName, e.getMessage(), e);
+			this.logger.warn("{} modifier error. Cause:{}", javassistClassName, e.getMessage(), e);
 			return null;
 		}
 	}

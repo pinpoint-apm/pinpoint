@@ -26,10 +26,10 @@ public abstract class MyBatisClientModifier extends AbstractModifier {
 	private static final ServiceType serviceType = ServiceType.MYBATIS;
 	private static final DepthScope scope = MyBatisScope.SCOPE;
 	private static final MethodFilter sqlSessionMethodFilter = new SqlSessionMethodFilter();
-	
-	protected abstract Logger getLogger();
-	
-	protected MethodFilter getSqlSessionMethodFilter() {
+    protected Logger logger;
+
+
+    protected MethodFilter getSqlSessionMethodFilter() {
 		return sqlSessionMethodFilter;
 	}
 	
@@ -39,8 +39,8 @@ public abstract class MyBatisClientModifier extends AbstractModifier {
 
 	@Override
 	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-		if (this.getLogger().isInfoEnabled()) {
-			this.getLogger().info("Modifying. {}", javassistClassName);
+		if (logger.isInfoEnabled()) {
+            logger.info("Modifying. {}", javassistClassName);
 		}
 		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 		try {
@@ -53,7 +53,7 @@ public abstract class MyBatisClientModifier extends AbstractModifier {
 			
 			return myBatisClientImpl.toBytecode();
 		} catch (Throwable e) {
-			this.getLogger().warn("{} modifier error. Cause:{}", javassistClassName, e.getMessage(), e);
+            logger.warn("{} modifier error. Cause:{}", javassistClassName, e.getMessage(), e);
 			return null;
 		}
 	}

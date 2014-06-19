@@ -15,21 +15,7 @@ public class MyBatisSqlMapOperationInterceptor extends SqlMapOperationIntercepto
 	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
 	public MyBatisSqlMapOperationInterceptor(ServiceType serviceType) {
-		super(serviceType);
+		super(serviceType, PLoggerFactory.getLogger(MyBatisSqlMapOperationInterceptor.class));
 	}
 
-	@Override
-	protected PLogger getLogger() {
-		return this.logger;
-	}
-	
-	@Override
-	protected void initConfig() {
-		if (traceContext != null) {
-			final ProfilerConfig config = traceContext.getProfilerConfig();
-			if (config != null) {
-				this.enabled = config.isMyBatisEnabled();
-			}
-		}
-	}
 }

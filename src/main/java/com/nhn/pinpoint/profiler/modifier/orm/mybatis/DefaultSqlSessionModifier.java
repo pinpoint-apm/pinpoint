@@ -11,22 +11,16 @@ import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
  */
 public class DefaultSqlSessionModifier extends MyBatisClientModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
 	public static final String TARGET_CLASS_NAME = "org/apache/ibatis/session/defaults/DefaultSqlSession";
 	
 	public DefaultSqlSessionModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
 		super(byteCodeInstrumentor, agent);
+        logger = LoggerFactory.getLogger(this.getClass());
 	}
 	
 	@Override
 	public String getTargetClass() {
 		return TARGET_CLASS_NAME;
-	}
-
-	@Override
-	protected Logger getLogger() {
-		return this.logger;
 	}
 
 }

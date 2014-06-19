@@ -12,24 +12,8 @@ import com.nhn.pinpoint.profiler.modifier.orm.SqlMapOperationInterceptor;
  */
 public class IbatisSqlMapOperationInterceptor extends SqlMapOperationInterceptor {
 
-	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-
 	public IbatisSqlMapOperationInterceptor(ServiceType serviceType) {
-		super(serviceType);
+		super(serviceType, PLoggerFactory.getLogger(IbatisSqlMapOperationInterceptor.class));
 	}
 
-	@Override
-	protected PLogger getLogger() {
-		return this.logger;
-	}
-
-	@Override
-	protected void initConfig() {
-		if (traceContext != null) {
-			final ProfilerConfig config = traceContext.getProfilerConfig();
-			if (config != null) {
-				this.enabled = config.isIBatisEnabled();
-			}
-		}
-	}
 }

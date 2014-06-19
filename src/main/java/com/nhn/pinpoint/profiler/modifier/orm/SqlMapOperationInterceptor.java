@@ -20,28 +20,18 @@ public abstract class SqlMapOperationInterceptor implements SimpleAroundIntercep
 	private MethodDescriptor descriptor;
 	
 	protected TraceContext traceContext;
+
+    protected final PLogger logger;
 	
-	protected boolean enabled = true;
-	
-	public SqlMapOperationInterceptor(ServiceType serviceType) {
+	public SqlMapOperationInterceptor(ServiceType serviceType, PLogger logger) {
 		this.serviceType = serviceType;
+        this.logger = logger;
 	}
-	
-	protected abstract PLogger getLogger();
-	
-	protected abstract void initConfig();
 	
 	@Override
 	public final void before(Object target, Object[] args) {
-		if (!enabled) {
-			if (getLogger().isDebugEnabled()) {
-				getLogger().debug("interceptor is disabled.");
-			}			
-			return;
-		}
-		
-		if (getLogger().isDebugEnabled()) {
-			getLogger().beforeInterceptor(target, args);
+		if (logger.isDebugEnabled()) {
+            logger.beforeInterceptor(target, args);
 		}
 		
 		Trace trace = traceContext.currentTraceObject();
@@ -54,12 +44,8 @@ public abstract class SqlMapOperationInterceptor implements SimpleAroundIntercep
 
 	@Override
 	public final void after(Object target, Object[] args, Object result) {
-		if (!enabled) {
-			return;
-		}
-		
-		if (getLogger().isDebugEnabled()) {
-			getLogger().afterInterceptor(target, args, result);
+		if (logger.isDebugEnabled()) {
+            logger.afterInterceptor(target, args, result);
 		}
 		
 		Trace trace = traceContext.currentTraceObject();
@@ -83,7 +69,6 @@ public abstract class SqlMapOperationInterceptor implements SimpleAroundIntercep
 	@Override
 	public final void setTraceContext(TraceContext traceContext) {
 		this.traceContext = traceContext;
-		this.initConfig();
 	}
 
 	@Override

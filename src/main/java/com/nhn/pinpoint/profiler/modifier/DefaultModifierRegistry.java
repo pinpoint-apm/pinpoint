@@ -340,13 +340,17 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	}
 	
 	private void addIBatisSupport() {
-		addModifier(new SqlMapSessionImplModifier(byteCodeInstrumentor, agent));
-		addModifier(new SqlMapClientImplModifier(byteCodeInstrumentor, agent));
-		addModifier(new SqlMapClientTemplateModifier(byteCodeInstrumentor,agent));
+        if (profilerConfig.isIBatisEnabled()) {
+            addModifier(new SqlMapSessionImplModifier(byteCodeInstrumentor, agent));
+            addModifier(new SqlMapClientImplModifier(byteCodeInstrumentor, agent));
+            addModifier(new SqlMapClientTemplateModifier(byteCodeInstrumentor, agent));
+        }
 	}
 
 	private void addMyBatisSupport() {
-		addModifier(new DefaultSqlSessionModifier(byteCodeInstrumentor, agent));
-		addModifier(new SqlSessionTemplateModifier(byteCodeInstrumentor, agent));
+        if (profilerConfig.isMyBatisEnabled()) {
+            addModifier(new DefaultSqlSessionModifier(byteCodeInstrumentor, agent));
+            addModifier(new SqlSessionTemplateModifier(byteCodeInstrumentor, agent));
+        }
 	}
 }

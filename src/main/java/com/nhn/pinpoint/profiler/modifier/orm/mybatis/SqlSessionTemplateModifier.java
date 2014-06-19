@@ -11,12 +11,11 @@ import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
  */
 public class SqlSessionTemplateModifier extends MyBatisClientModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
 	public static final String TARGET_CLASS_NAME = "org/mybatis/spring/SqlSessionTemplate";
 
 	public SqlSessionTemplateModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
 		super(byteCodeInstrumentor, agent);
+        this.logger = LoggerFactory.getLogger(this.getClass());
 	}
 
 	@Override
@@ -24,9 +23,6 @@ public class SqlSessionTemplateModifier extends MyBatisClientModifier {
 		return TARGET_CLASS_NAME;
 	}
 
-	@Override
-	protected Logger getLogger() {
-		return this.logger;
-	}
+
 
 }
