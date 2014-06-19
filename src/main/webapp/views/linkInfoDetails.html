@@ -78,7 +78,7 @@
                 <li ng-repeat="(name, histogram) in sourceHistogram" ng-init="linkInstanceShow[name]=false">
                     <span class="glyphicon glyphicon-hdd"></span>
                     {{name}}
-                    <!--<a class="btn btn-default btn-xs" ng-show="instance.hasInspector" ng-href="#/inspector/{{fromNode.text}}@{{fromNode.serviceTypeCode}}/{{oNavbarVo.getReadablePeriod()}}/{{oNavbarVo.getQueryEndDateTime()}}/{{instance.name}}" link="_blank" title="Inspect Agents" alt="Inspect Agents">Inspector</a>-->
+                    <a class="btn btn-default btn-xs" ng-show-debug="instance.hasInspector" ng-href="#/inspector/{{fromNode.applicationName}}@{{fromNode.serviceTypeCode}}/{{oNavbarVo.getReadablePeriod()}}/{{oNavbarVo.getQueryEndDateTime()}}/{{name}}" link="_blank" title="Inspect Agents" alt="Inspect Agents">Inspector</a>
                     <button type="button" class="btn btn-xs" ng-click="linkInstanceShow[name]=!linkInstanceShow[name];renderLinkAgentCharts(name);"
                             ng-class="{true:'btn-danger', false:'btn-default'}[histogram.Error > 0]">
                         <span class="glyphicon" ng-class="{true:'glyphicon-minus',false:'glyphicon-plus'}[linkInstanceShow[name]==true]"></span>

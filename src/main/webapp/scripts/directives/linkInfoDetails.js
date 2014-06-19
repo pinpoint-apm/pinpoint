@@ -95,7 +95,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                         scope.showLinkServers = _.isEmpty(link.sourceHistogram) ? false : true;
                         scope.sourceApplicationName = link.sourceInfo.applicationName;
                         scope.sourceHistogram = link.sourceHistogram;
-//                        scope.fromNode = link.fromNode;
+                        scope.fromNode = link.fromNode;
                     }
 
                     scope.showLinkInfoDetails = true;
