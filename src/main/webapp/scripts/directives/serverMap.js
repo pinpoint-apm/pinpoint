@@ -478,8 +478,8 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                                         var to = result.oServerMapFilterVo.getResponseTo();
                                         scope.responseTime.to = to === 'max' ? 30000 : to;
                                         scope.includeFailed = result.oServerMapFilterVo.getIncludeException();
-                                        scope.fromAgentName = result.oServerMapFilterVo.getFromAgentName();
-                                        scope.toAgentName = result.oServerMapFilterVo.getToAgentName();
+                                        $fromAgentName.select2('val', result.oServerMapFilterVo.getFromAgentName());
+                                        $toAgentName.select2('val', result.oServerMapFilterVo.getToAgentName());
                                     } else {
                                         scope.responseTime = {
                                             from: 0,
