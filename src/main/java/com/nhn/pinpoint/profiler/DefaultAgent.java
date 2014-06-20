@@ -115,8 +115,10 @@ public class DefaultAgent implements Agent {
 
         this.tAgentInfo = createTAgentInfo();
         this.tcpDataSender = createTcpDataSender();
-        this.spanDataSender = createUdpDataSender(this.profilerConfig.getCollectorUdpSpanServerPort(), "Pinpoint-UdpSpanDataExecutor", this.profilerConfig.getSpanDataSenderWriteQueueSize());
-        this.statDataSender = createUdpDataSender(this.profilerConfig.getCollectorUdpServerPort(), "Pinpoint-UdpStatDataExecutor", this.profilerConfig.getStatDataSenderWriteQueueSize());
+        this.spanDataSender = createUdpDataSender(this.profilerConfig.getCollectorUdpSpanServerPort(), "Pinpoint-UdpSpanDataExecutor",
+                this.profilerConfig.getSpanDataSenderWriteQueueSize(), this.profilerConfig.getSpanDataSenderSocketTimeout(), this.profilerConfig.getSpanDataSenderSocketSendBufferSize());
+        this.statDataSender = createUdpDataSender(this.profilerConfig.getCollectorUdpServerPort(), "Pinpoint-UdpStatDataExecutor",
+                this.profilerConfig.getStatDataSenderWriteQueueSize(), this.profilerConfig.getStatDataSenderSocketTimeout(), this.profilerConfig.getStatDataSenderSocketSendBufferSize());
 
 
         this.traceContext = createTraceContext(agentInformation.getServerType());
@@ -261,8 +263,8 @@ public class DefaultAgent implements Agent {
         return new TcpDataSender(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorTcpServerPort());
     }
 
-    protected DataSender createUdpDataSender(int port, String threadName, int writeQueueSize) {
-        return new UdpDataSender(this.profilerConfig.getCollectorServerIp(), port, threadName, writeQueueSize);
+    protected DataSender createUdpDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize) {
+        return new UdpDataSender(this.profilerConfig.getCollectorServerIp(), port, threadName, writeQueueSize, timeout, sendBufferSize);
     }
     
 	protected EnhancedDataSender getTcpDataSender() {
