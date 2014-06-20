@@ -25,8 +25,8 @@ public class MockAgent extends DefaultAgent {
     }
 
     @Override
-    protected DataSender createUdpDataSender(int port, String threadName, int writeQueueSize) {
-        return new LoggingDataSender();
+    protected DataSender createUdpDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize) {
+        return super.createUdpDataSender(port, threadName, writeQueueSize, timeout, sendBufferSize);
     }
 
     @Override
