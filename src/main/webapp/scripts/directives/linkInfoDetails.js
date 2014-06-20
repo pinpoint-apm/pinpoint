@@ -453,7 +453,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     }
                     reset();
                     htQuery = query;
-                    htLastLink = link;
+                    htLastLink = angular.copy(link);
                     scope.htLastUnknownLink = false;
                     showDetailInformation(link);
                 });

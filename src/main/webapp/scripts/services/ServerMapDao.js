@@ -237,17 +237,16 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
         }
 
         if (angular.isDefined(node.histogram)) {
-            for (var key in node.histogram) {
-                if (angular.isDefined(thisNode.histogram)) {
-                    if (thisNode.histogram[key]) {
+            if (angular.isDefined(thisNode.histogram)) {
+                for (var key in node.histogram) {
+                    if (angular.isDefined(thisNode.histogram[key])) {
                         thisNode.histogram[key] += node.histogram[key];
                     } else {
                         thisNode.histogram[key] = node.histogram[key];
                     }
-                } else {
-                    thisNode.histogram = {};
-                    thisNode.histogram[key] = node.histogram[key];
                 }
+            } else {
+                thisNode.histogram = node.histogram;
             }
         }
 
@@ -388,24 +387,33 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
 
         if (angular.isDefined(link.sourceHistogram)) {
             for (var key in link.sourceHistogram) {
-                for (var innerKey in link.sourceHistogram[key]) {
-                    if (thisLink.sourceHistogram[key][innerKey]) {
-                        thisLink.sourceHistogram[key][innerKey] += link.sourceHistogram[key][innerKey];
-                    } else {
-                        thisLink.sourceHistogram[key][innerKey] = link.sourceHistogram[key][innerKey];
+                if (angular.isDefined(thisLink.sourceHistogram[key])) {
+                    for (var innerKey in link.sourceHistogram[key]) {
+                        if (thisLink.sourceHistogram[key][innerKey]) {
+                            thisLink.sourceHistogram[key][innerKey] += link.sourceHistogram[key][innerKey];
+                        } else {
+                            thisLink.sourceHistogram[key][innerKey] = link.sourceHistogram[key][innerKey];
+                        }
                     }
+                } else {
+                    thisLink.sourceHistogram[key] = link.sourceHistogram[key];
                 }
+
             }
         }
 
         if (angular.isDefined(link.targetHistogram)) {
             for (var key in link.targetHistogram) {
-                for (var innerKey in link.targetHistogram[key]) {
-                    if (thisLink.targetHistogram[key][innerKey]) {
-                        thisLink.targetHistogram[key][innerKey] += link.targetHistogram[key][innerKey];
-                    } else {
-                        thisLink.targetHistogram[key][innerKey] = link.targetHistogram[key][innerKey];
+                if (angular.isDefined(thisLink.targetHistogram[key])) {
+                    for (var innerKey in link.targetHistogram[key]) {
+                        if (thisLink.targetHistogram[key][innerKey]) {
+                            thisLink.targetHistogram[key][innerKey] += link.targetHistogram[key][innerKey];
+                        } else {
+                            thisLink.targetHistogram[key][innerKey] = link.targetHistogram[key][innerKey];
+                        }
                     }
+                } else {
+                    thisLink.targetHistogram[key] = link.targetHistogram[key];
                 }
             }
         }

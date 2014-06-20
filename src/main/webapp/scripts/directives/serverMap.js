@@ -42,12 +42,12 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 // define private variables
                 var bUseNodeContextMenu, bUseLinkContextMenu, htLastQuery,
                     bUseBackgroundContextMenu, oServerMap, oAlert, oProgressBar, htLastMapData, htLastLink, htLastNode,
-                    sLastSelection, $fromAgentName, $toAgentName, bIsFilterWizardLoaded;
+                    sLastSelection, $fromAgentName, $toAgentName, bIsFilterWizardLoaded, lastCopiedData;
 
                 // define private variables of methods
                 var showServerMap, setNodeContextMenuPosition, reset, emitDataExisting,
                     setLinkContextMenuPosition, setBackgroundContextMenuPosition, serverMapCallback, setLinkOption,
-                    zoomToFit;
+                    zoomToFit, updateLastSelection;
 
 
                 // bootstrap
@@ -80,11 +80,13 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 $fromAgentName.select2();
                 $toAgentName.select2();
                 bIsFilterWizardLoaded = false;
+                lastCopiedData = null;
 
                 /**
                  * reset
                  */
                 reset = function () {
+                    lastCopiedData = null;
                     scope.nodeContextMenuStyle = '';
                     scope.linkContextMenuStyle = '';
                     scope.backgroundContextMenuStyle = '';
@@ -153,9 +155,9 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                             if (filteredMapUtil.doFiltersHaveUnknownNode(filters)) scope.mergeUnknowns = mergeUnknowns = false;
                             emitDataExisting(htLastMapData);
                             if (mergeUnknowns) {
-                                var copiedData = angular.copy(serverMapData);
-                                ServerMapDao.mergeUnknown(copiedData);
-                                serverMapCallback(query, copiedData, mergeUnknowns, linkRouting, linkCurve);
+                                var lastCopiedData = angular.copy(serverMapData);
+                                ServerMapDao.mergeUnknown(lastCopiedData);
+                                serverMapCallback(query, lastCopiedData, mergeUnknowns, linkRouting, linkCurve);
                             } else {
                                 serverMapCallback(query, serverMapData, mergeUnknowns, linkRouting, linkCurve);
                             }
@@ -181,6 +183,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         scope.$emit('servermap.hasNoData');
                     } else {
                         scope.$emit('servermap.hasData');
+                        updateLastSelection();
                     }
                 };
 
@@ -233,21 +236,20 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * server map callback
                  * @param query
                  * @param mergeUnknowns
-                 * @param copiedData
+                 * @param lastCopiedData
                  * @param linkRouting
                  * @param linkCurve
                  */
                 serverMapCallback = function (query, data, mergeUnknowns, linkRouting, linkCurve) {
 
-                    var copiedData;
-                    copiedData = angular.copy(data);
+                    lastCopiedData = angular.copy(data);
                     if (mergeUnknowns) {
-                        ServerMapDao.mergeUnknown(copiedData);
+                        ServerMapDao.mergeUnknown(lastCopiedData);
                     }
 
-//                    ServerMapDao.removeNoneNecessaryDataForHighPerformance(copiedData);
+//                    ServerMapDao.removeNoneNecessaryDataForHighPerformance(lastCopiedData);
                     oProgressBar.setLoading(80);
-                    if (copiedData.applicationMapData.nodeDataArray.length === 0) {
+                    if (lastCopiedData.applicationMapData.nodeDataArray.length === 0) {
                         oProgressBar.stopLoading();
                         if (scope.oNavbarVo.getFilter()) {
                             var aFilter = scope.oNavbarVo.getFilterAsJson();
@@ -277,18 +279,19 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         return;
                     }
 
-                    setLinkOption(copiedData, linkRouting, linkCurve);
+                    setLinkOption(lastCopiedData, linkRouting, linkCurve);
                     oProgressBar.setLoading(90);
 
                     var options = cfg.options;
                     options.fOnNodeClicked = function (e, node) {
+                        console.log('fOnNodeClicked', node);
                         var originalNode = ServerMapDao.getNodeDataByKey(data, node.key);
                         if (originalNode) {
                             node = originalNode;
                         }
                         sLastSelection = 'node';
                         htLastNode = node;
-                        scope.$emit("serverMap.nodeClicked", e, query, node, data);
+                        scope.$emit("serverMap.nodeClicked", e, htLastQuery, node, lastCopiedData);
                         reset();
                     };
                     options.fOnNodeContextClicked = function (e, node) {
@@ -307,7 +310,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         }
                     };
                     options.fOnLinkClicked = function (e, link) {
-                        scope.$emit("serverMap.linkClicked", e, query, link, data);
+                        scope.$emit("serverMap.linkClicked", e, htLastQuery, link, lastCopiedData);
                         sLastSelection = 'link';
                         htLastLink = link;
                         reset();
@@ -340,7 +343,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
 
                     var selectedNode;
                     try {
-                        selectedNode = _.find(copiedData.applicationMapData.nodeDataArray, function (node) {
+                        selectedNode = _.find(lastCopiedData.applicationMapData.nodeDataArray, function (node) {
                             if (node.applicationName === query.applicationName && angular.isUndefined(query.serviceType)) {
                                 return true;
                             } else if (node.applicationName === query.applicationName && node.serviceTypeCode === query.serviceTypeCode) {
@@ -363,16 +366,10 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     } else {
                         oServerMap.option(options);
                     }
-                    oServerMap.load(copiedData.applicationMapData);
+                    oServerMap.load(lastCopiedData.applicationMapData);
                     oProgressBar.stopLoading();
 
-                    if (sLastSelection === 'node' && htLastNode) {
-                        oServerMap.highlightNodeByKey(htLastNode.key);
-                    } else if (sLastSelection === 'link' && htLastLink) {
-                        oServerMap.highlightLinkByFromTo(htLastLink.from, htLastLink.to);
-                    } else if (selectedNode) {
-                        oServerMap.highlightNodeByKey(selectedNode.key);
-                    }
+                    updateLastSelection(selectedNode);
                 };
 
                 /**
@@ -506,6 +503,21 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 zoomToFit = function () {
                     if (oServerMap) {
                         oServerMap.zoomToFit();
+                    }
+                };
+
+                /**
+                 * update last selection
+                 * @param selectedNode
+                 */
+                updateLastSelection = function (selectedNode) {
+                    console.log('updateLastSelection', sLastSelection)
+                    if (sLastSelection === 'node' && htLastNode) {
+                        oServerMap.highlightNodeByKey(htLastNode.key);
+                    } else if (sLastSelection === 'link' && htLastLink) {
+                        oServerMap.highlightLinkByFromTo(htLastLink.from, htLastLink.to);
+                    } else if (selectedNode) {
+                        oServerMap.highlightNodeByKey(selectedNode.key);
                     }
                 };
 

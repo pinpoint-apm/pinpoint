@@ -307,7 +307,7 @@ pinpointApp
                         }
                         reset();
                         htQuery = query;
-                        htLastNode = node;
+                        htLastNode = angular.copy(node);
                         scope.htLastUnknownNode = false;
                         scope.oNavbarVo = navbarVo;
                         htServermapData = mapData;
