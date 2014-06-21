@@ -17,7 +17,7 @@ pinpointApp
 
                     // define private variables
                     var htServermapData, htLastNode, htUnknownResponseSummary, htUnknownLoad, htQuery,
-                        htAgentChartRendered, bShown;
+                        htAgentChartRendered, bShown, sLastKey;
 
                     // define private variables of methods
                     var reset, showDetailInformation, renderAllChartWhichIsVisible, hide, show, renderResponseSummary,
@@ -88,7 +88,8 @@ pinpointApp
                         } else if (node.serviceType === 'UNKNOWN_GROUP'){
                             scope.showNodeResponseSummaryForUnknown = (scope.oNavbarVo.getPeriod() <= cfg.maxTimeToShowLoadAsDefaultForUnknown) ? false : true;
                             renderAllChartWhichIsVisible(node);
-                            scope.htLastUnknownNode = angular.copy(node);
+//                            scope.htLastUnknownNode = angular.copy(node);
+                            scope.htLastUnknownNode = node;
 
                             $timeout(function () {
                                 element.find('[data-toggle="tooltip"]').tooltip('destroy').tooltip();
@@ -186,7 +187,7 @@ pinpointApp
                      * go back to unknown node
                      */
                     scope.goBackToUnknownNode = function () {
-                        htLastNode = angular.copy(scope.htLastUnknownNode);
+                        htLastNode = scope.htLastUnknownNode;
                         htUnknownResponseSummary = {};
                         htUnknownLoad = {};
                         showDetailInformation(htLastNode);
@@ -299,7 +300,7 @@ pinpointApp
                      */
                     scope.$on('nodeInfoDetails.initialize', function (event, e, query, node, mapData, navbarVo) {
                         show();
-                        if (angular.equals(htLastNode, node)) {
+                        if (angular.equals(sLastKey, node.key)) {
                             if (htLastNode.category === 'UNKNOWN_GROUP') {
                                 renderAllChartWhichIsVisible(htLastNode);
                             }
@@ -307,7 +308,8 @@ pinpointApp
                         }
                         reset();
                         htQuery = query;
-                        htLastNode = angular.copy(node);
+                        sLastKey = node.key;
+                        htLastNode = node;
                         scope.htLastUnknownNode = false;
                         scope.oNavbarVo = navbarVo;
                         htServermapData = mapData;

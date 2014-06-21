@@ -442,13 +442,13 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
 
     /**
      * merge unknown
-     * @param data
+     * @param applicationMapData
      * @returns {*}
      */
-    this.mergeUnknown = function (data) {
+    this.mergeUnknown = function (applicationMapData) {
 //        SERVERMAP_METHOD_CACHE = {};
-        var nodes = data.applicationMapData.nodeDataArray;
-        var links = data.applicationMapData.linkDataArray;
+        var nodes = applicationMapData.nodeDataArray;
+        var links = applicationMapData.linkDataArray;
 
         var inboundCountMap = {};
         nodes.forEach(function (node) {
@@ -581,11 +581,11 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
         });
 
         newNodeList.forEach(function (newNode) {
-            data.applicationMapData.nodeDataArray.push(newNode);
+            applicationMapData.nodeDataArray.push(newNode);
         });
 
         newLinkList.forEach(function (newLink) {
-            data.applicationMapData.linkDataArray.push(newLink);
+            applicationMapData.linkDataArray.push(newLink);
         });
 
         $.each(removeNodeIdSet, function (key, val) {
@@ -604,7 +604,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
             });
         });
 
-        return data;
+        return applicationMapData;
     };
 
     /**

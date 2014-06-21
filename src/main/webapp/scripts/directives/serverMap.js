@@ -232,9 +232,9 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * @param linkCurve
                  */
                 serverMapCallback = function (query, data, mergeUnknowns, linkRouting, linkCurve) {
-                    var lastCopiedData = angular.copy(data);
+                    var lastCopiedData = data;
                     if (mergeUnknowns) {
-                        ServerMapDao.mergeUnknown(lastCopiedData);
+                        lastCopiedData.applicationMapData = ServerMapDao.mergeUnknown(data.applicationMapData);
                     }
 
 //                    ServerMapDao.removeNoneNecessaryDataForHighPerformance(lastCopiedData);
@@ -274,6 +274,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
 
                     var options = cfg.options;
                     options.fOnNodeClicked = function (e, node) {
+                        console.time('node');
                         var originalNode = ServerMapDao.getNodeDataByKey(data, node.key);
                         if (originalNode) {
                             node = originalNode;

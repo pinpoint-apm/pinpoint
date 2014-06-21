@@ -16,7 +16,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
 
                 // define private variables
                 var htQuery, htLastLink, htUnknownResponseSummary, htUnknownLoad, bShown,
-                    htAgentChartRendered, bResponseSummaryForLinkRendered, bLoadForLinkRendered;
+                    htAgentChartRendered, bResponseSummaryForLinkRendered, bLoadForLinkRendered, sLastKey;
 
                 // define private variables of methods;
                 var reset, showDetailInformation, renderLoad, renderResponseSummaryWithHistogram, renderAllChartWhichIsVisible,
@@ -78,7 +78,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     scope.link = link;
                     if (link.unknownLinkGroup) {
                         scope.unknownLinkGroup = link.unknownLinkGroup;
-                        scope.htLastUnknownLink = angular.copy(link);
+                        scope.htLastUnknownLink = link;
 
                         scope.showLinkResponseSummaryForUnknown = (scope.oNavbarVo.getPeriod() <= cfg.maxTimeToShowLoadAsDefaultForUnknown) ? false : true;
 
@@ -287,7 +287,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                  * go back to unknown link
                  */
                 scope.goBackToUnknownLink = function () {
-                    htLastLink = angular.copy(scope.htLastUnknownLink);
+                    htLastLink = scope.htLastUnknownLink;
                     htUnknownResponseSummary = {};
                     htUnknownLoad = {};
                     showDetailInformation(htLastLink);
@@ -445,7 +445,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                  */
                 scope.$on('linkInfoDetails.initialize', function (event, e, query, link) {
                     show();
-                    if (angular.equals(htLastLink, link)) {
+                    if (angular.equals(sLastKey, link.key)) {
                         if (htLastLink.targetRawData) {
                             renderAllChartWhichIsVisible(htLastLink);
                         }
@@ -453,7 +453,8 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                     }
                     reset();
                     htQuery = query;
-                    htLastLink = angular.copy(link);
+                    sLastKey = link.key;
+                    htLastLink = link;
                     scope.htLastUnknownLink = false;
                     showDetailInformation(link);
                 });
