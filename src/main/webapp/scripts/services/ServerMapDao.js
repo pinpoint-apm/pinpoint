@@ -82,45 +82,45 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
 
     /**
      *merge filtered map data
-     * @param htLastMapData
-     * @param mapData
+     * @param lastData
+     * @param newData
      * @returns {*}
      */
-    this.mergeFilteredMapData = function (htLastMapData, mapData) {
-        if (htLastMapData.applicationMapData.linkDataArray.length === 0 && htLastMapData.applicationMapData.nodeDataArray.length === 0) {
-            htLastMapData.applicationMapData.linkDataArray = mapData.applicationMapData.linkDataArray;
-            htLastMapData.applicationMapData.nodeDataArray = mapData.applicationMapData.nodeDataArray;
+    this.mergeFilteredMapData = function (lastData, newData) {
+        if (lastData.linkDataArray.length === 0 && lastData.nodeDataArray.length === 0) {
+            lastData.linkDataArray = newData.linkDataArray;
+            lastData.nodeDataArray = newData.nodeDataArray;
         } else {
-            angular.forEach(mapData.applicationMapData.nodeDataArray, function (node, key) {
-                var foundNodeKeyFromLastMapData = this.findExistingNodeKeyFromLastMapData(htLastMapData, node);
+            angular.forEach(newData.nodeDataArray, function (node, key) {
+                var foundNodeKeyFromLastMapData = this.findExistingNodeKeyFromLastMapData(lastData, node);
                 if (foundNodeKeyFromLastMapData >= 0) {
-                    this.mergeNodeData(htLastMapData, foundNodeKeyFromLastMapData, node);
+                    lastData = this.mergeNodeData(lastData, foundNodeKeyFromLastMapData, node);
                 } else {
-                    htLastMapData.applicationMapData.nodeDataArray.push(node);
+                    lastData.nodeDataArray.push(node);
                 }
             }, this);
 
-            angular.forEach(mapData.applicationMapData.linkDataArray, function (link, key) {
-                var foundLinkKeyFromLastMapData = this.findExistingLinkFromLastMapData(htLastMapData, link);
+            angular.forEach(newData.linkDataArray, function (link, key) {
+                var foundLinkKeyFromLastMapData = this.findExistingLinkFromLastMapData(lastData, link);
                 if (foundLinkKeyFromLastMapData >= 0) {
-                    this.mergeLinkData(htLastMapData, foundLinkKeyFromLastMapData, link);
+                    lastData = this.mergeLinkData(lastData, foundLinkKeyFromLastMapData, link);
                 } else {
-                    htLastMapData.applicationMapData.linkDataArray.push(link);
+                    lastData.linkDataArray.push(link);
                 }
             }, this);
         }
-        return htLastMapData;
+        return lastData;
     };
 
     /**
      * find existing node from last map data
-     * @param htLastMapData
+     * @param applicationMapData
      * @param node
      * @returns {*}
      */
-    this.findExistingNodeKeyFromLastMapData = function (htLastMapData, node) {
-        for (var key in htLastMapData.applicationMapData.nodeDataArray) {
-            if (htLastMapData.applicationMapData.nodeDataArray[key].applicationName === node.applicationName && htLastMapData.applicationMapData.nodeDataArray[key].serviceTypeCode === node.serviceTypeCode) {
+    this.findExistingNodeKeyFromLastMapData = function (applicationMapData, node) {
+        for (var key in applicationMapData.nodeDataArray) {
+            if (applicationMapData.nodeDataArray[key].applicationName === node.applicationName && applicationMapData.nodeDataArray[key].serviceTypeCode === node.serviceTypeCode) {
                 return key;
             }
         }
@@ -129,13 +129,13 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
 
     /**
      * find existing link from last map data
-     * @param htLastMapData
+     * @param applicationMapData
      * @param link
      * @returns {*}
      */
-    this.findExistingLinkFromLastMapData = function (htLastMapData, link) {
-        for (var key in htLastMapData.applicationMapData.linkDataArray) {
-            if (htLastMapData.applicationMapData.linkDataArray[key].from === link.from && htLastMapData.applicationMapData.linkDataArray[key].to === link.to) {
+    this.findExistingLinkFromLastMapData = function (applicationMapData, link) {
+        for (var key in applicationMapData.linkDataArray) {
+            if (applicationMapData.linkDataArray[key].from === link.from && applicationMapData.linkDataArray[key].to === link.to) {
                 return key;
             }
         }
@@ -148,11 +148,11 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
      * @param mapData
      * @returns {*}
      */
-    this.addFilterProperty = function (filters, mapData) {
-        var parsedFilters = this.parseFilterText(filters, mapData);
+    this.addFilterProperty = function (filters, applicationMapData) {
+        var parsedFilters = this.parseFilterText(filters, applicationMapData);
 
         // node
-        angular.forEach(mapData.applicationMapData.nodeDataArray, function (val) {
+        angular.forEach(applicationMapData.nodeDataArray, function (val) {
             if (angular.isDefined(_.findWhere(parsedFilters, {nodeKey: val.key}))) {
                 val.isFiltered = true;
             } else {
@@ -161,33 +161,33 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
         });
 
         // link
-        angular.forEach(mapData.applicationMapData.linkDataArray, function (val, key) {
+        angular.forEach(applicationMapData.linkDataArray, function (val, key) {
             if (angular.isDefined(_.findWhere(parsedFilters, {fromKey: val.from, toKey: val.to}))) {
                 val.isFiltered = true;
             } else {
                 val.isFiltered = false;
             }
         }, this);
-        return mapData;
+        return applicationMapData;
     };
 
     /**
      * parse filter text
      * @param filters
-     * @param mapData
+     * @param applicationMapData
      * @returns {Array}
      */
-    this.parseFilterText = function (filters, mapData) {
+    this.parseFilterText = function (filters, applicationMapData) {
         var aFilter = [];
 
         angular.forEach(filters, function (filter) {
             aFilter.push({
                 fromServiceType: filter.fst,
                 fromApplication: filter.fa,
-                fromKey: this.findNodeKeyByApplicationName(filter.fa, mapData),
+                fromKey: this.findNodeKeyByApplicationName(filter.fa, applicationMapData),
                 toServiceType: filter.tst,
                 toApplication: filter.ta,
-                toKey: this.findNodeKeyByApplicationName(filter.ta, mapData),
+                toKey: this.findNodeKeyByApplicationName(filter.ta, applicationMapData),
                 nodeKey: '' // 추후 노드 필터시,,,,
             })
         }, this);
@@ -197,14 +197,14 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
     /**
      * find node key by text
      * @param applicationName
-     * @param mapData
+     * @param applicationMapData
      * @returns {*}
      */
-    this.findNodeKeyByApplicationName = function (applicationName, mapData) {
+    this.findNodeKeyByApplicationName = function (applicationName, applicationMapData) {
         //if (text === 'CLIENT') {
         //    text = 'USER';
         //}
-        var result = _.findWhere(mapData.applicationMapData.nodeDataArray, {applicationName: applicationName});
+        var result = _.findWhere(applicationMapData.nodeDataArray, {applicationName: applicationName});
         if (angular.isDefined(result)) {
             return result.key;
         } else {
@@ -214,19 +214,19 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
 
     /**
      * merge node data
-     * @param htLastMapData
+     * @param applicationMapData
      * @param nodeKey
      * @param node
      * @returns {*}
      */
-    this.mergeNodeData = function (htLastMapData, nodeKey, node) {
+    this.mergeNodeData = function (applicationMapData, nodeKey, node) {
 
-        if (angular.isUndefined(htLastMapData.applicationMapData.nodeDataArray[nodeKey])) {
-            htLastMapData.applicationMapData.nodeDataArray[nodeKey] = node;
-            return htLastMapData;
+        if (angular.isUndefined(applicationMapData.nodeDataArray[nodeKey])) {
+            applicationMapData.nodeDataArray[nodeKey] = node;
+            return applicationMapData;
         }
 
-        var thisNode = htLastMapData.applicationMapData.nodeDataArray[nodeKey];
+        var thisNode = applicationMapData.nodeDataArray[nodeKey];
 
         thisNode.errorCount += node.errorCount;
         thisNode.slowCount += node.slowCount;
@@ -327,24 +327,24 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
                 }
             }
         }
-        return htLastMapData;
+        return applicationMapData;
     };
 
     /**
      * merge link data
-     * @param htLastMapData
+     * @param applicationMapData
      * @param linkKey
      * @param link
      * @returns {*}
      */
-    this.mergeLinkData = function (htLastMapData, linkKey, link) {
+    this.mergeLinkData = function (applicationMapData, linkKey, link) {
 
-        if (angular.isUndefined(htLastMapData.applicationMapData.linkDataArray[linkKey])) {
-            htLastMapData.applicationMapData.linkDataArray[linkKey] = link;
-            return  htLastMapData;
+        if (angular.isUndefined(applicationMapData.linkDataArray[linkKey])) {
+            applicationMapData.linkDataArray[linkKey] = link;
+            return  applicationMapData;
         }
 
-        var thisLink =  htLastMapData.applicationMapData.linkDataArray[linkKey];
+        var thisLink =  applicationMapData.linkDataArray[linkKey];
 
         thisLink.errorCount += link.errorCount;
         thisLink.slowCount += link.slowCount;
@@ -417,7 +417,7 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
             }
         }
 
-        return htLastMapData;
+        return applicationMapData;
     };
 
     /**
@@ -445,8 +445,9 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
      * @param applicationMapData
      * @returns {*}
      */
-    this.mergeUnknown = function (applicationMapData) {
+    this.mergeUnknown = function (mapData) {
 //        SERVERMAP_METHOD_CACHE = {};
+        var applicationMapData = angular.copy(mapData);
         var nodes = applicationMapData.nodeDataArray;
         var links = applicationMapData.linkDataArray;
 
@@ -632,12 +633,12 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
 
     /**
      * get node data by key
-     * @param data
+     * @param applicationMapData
      * @param key
      * @returns {boolean|hash table}
      */
-    this.getNodeDataByKey = function (data, key) {
-        var nodes = data.applicationMapData.nodeDataArray;
+    this.getNodeDataByKey = function (applicationMapData, key) {
+        var nodes = applicationMapData.nodeDataArray;
 
         var foundNode = false;
         nodes.forEach(function (node) {
