@@ -147,7 +147,6 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                                 htLastMapData.lastFetchedTimestamp = result.lastFetchedTimestamp - 1;
                                 scope.$emit('serverMap.fetched', htLastMapData.lastFetchedTimestamp, result);
                             }
-                            console.log('result', result);
                             var filters = JSON.parse(filterText);
                             var serverMapData = ServerMapDao.addFilterProperty(filters, ServerMapDao.mergeFilteredMapData(htLastMapData, result));
                             if (filteredMapUtil.doFiltersHaveUnknownNode(filters)) scope.mergeUnknowns = mergeUnknowns = false;
@@ -233,7 +232,6 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * @param linkCurve
                  */
                 serverMapCallback = function (query, data, mergeUnknowns, linkRouting, linkCurve) {
-                    console.log('data', data);
                     var lastCopiedData = angular.copy(data);
                     if (mergeUnknowns) {
                         ServerMapDao.mergeUnknown(lastCopiedData);
@@ -357,7 +355,6 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     } else {
                         oServerMap.option(options);
                     }
-//                    console.log('lastCopiedData', lastCopiedData);
                     oServerMap.load(lastCopiedData.applicationMapData);
                     oProgressBar.stopLoading();
 
