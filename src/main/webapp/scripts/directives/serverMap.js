@@ -284,7 +284,6 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
 
                     var options = cfg.options;
                     options.fOnNodeClicked = function (e, node) {
-                        console.log('fOnNodeClicked', node);
                         var originalNode = ServerMapDao.getNodeDataByKey(data, node.key);
                         if (originalNode) {
                             node = originalNode;
@@ -511,7 +510,6 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * @param selectedNode
                  */
                 updateLastSelection = function (selectedNode) {
-                    console.log('updateLastSelection', sLastSelection)
                     if (sLastSelection === 'node' && htLastNode) {
                         oServerMap.highlightNodeByKey(htLastNode.key);
                     } else if (sLastSelection === 'link' && htLastLink) {
