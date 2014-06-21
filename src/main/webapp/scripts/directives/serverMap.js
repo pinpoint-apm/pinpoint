@@ -42,7 +42,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 // define private variables
                 var bUseNodeContextMenu, bUseLinkContextMenu, htLastQuery,
                     bUseBackgroundContextMenu, oServerMap, oAlert, oProgressBar, htLastMapData, htLastLink, htLastNode,
-                    sLastSelection, $fromAgentName, $toAgentName, bIsFilterWizardLoaded, lastCopiedData;
+                    sLastSelection, $fromAgentName, $toAgentName, bIsFilterWizardLoaded;
 
                 // define private variables of methods
                 var showServerMap, setNodeContextMenuPosition, reset, emitDataExisting,
@@ -80,13 +80,11 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 $fromAgentName.select2();
                 $toAgentName.select2();
                 bIsFilterWizardLoaded = false;
-                lastCopiedData = null;
 
                 /**
                  * reset
                  */
                 reset = function () {
-                    lastCopiedData = null;
                     scope.nodeContextMenuStyle = '';
                     scope.linkContextMenuStyle = '';
                     scope.backgroundContextMenuStyle = '';
@@ -149,18 +147,12 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                                 htLastMapData.lastFetchedTimestamp = result.lastFetchedTimestamp - 1;
                                 scope.$emit('serverMap.fetched', htLastMapData.lastFetchedTimestamp, result);
                             }
-
+                            console.log('result', result);
                             var filters = JSON.parse(filterText);
                             var serverMapData = ServerMapDao.addFilterProperty(filters, ServerMapDao.mergeFilteredMapData(htLastMapData, result));
                             if (filteredMapUtil.doFiltersHaveUnknownNode(filters)) scope.mergeUnknowns = mergeUnknowns = false;
                             emitDataExisting(htLastMapData);
-                            if (mergeUnknowns) {
-                                var lastCopiedData = angular.copy(serverMapData);
-                                ServerMapDao.mergeUnknown(lastCopiedData);
-                                serverMapCallback(query, lastCopiedData, mergeUnknowns, linkRouting, linkCurve);
-                            } else {
-                                serverMapCallback(query, serverMapData, mergeUnknowns, linkRouting, linkCurve);
-                            }
+                            serverMapCallback(query, serverMapData, mergeUnknowns, linkRouting, linkCurve);
                         });
                     } else {
                         ServerMapDao.getServerMapData(htLastQuery, function (err, query, serverMapData) {
@@ -241,8 +233,8 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  * @param linkCurve
                  */
                 serverMapCallback = function (query, data, mergeUnknowns, linkRouting, linkCurve) {
-
-                    lastCopiedData = angular.copy(data);
+                    console.log('data', data);
+                    var lastCopiedData = angular.copy(data);
                     if (mergeUnknowns) {
                         ServerMapDao.mergeUnknown(lastCopiedData);
                     }
@@ -365,6 +357,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     } else {
                         oServerMap.option(options);
                     }
+//                    console.log('lastCopiedData', lastCopiedData);
                     oServerMap.load(lastCopiedData.applicationMapData);
                     oProgressBar.stopLoading();
 

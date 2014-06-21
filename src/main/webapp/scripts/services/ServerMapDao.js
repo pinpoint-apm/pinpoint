@@ -96,7 +96,6 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
                 if (foundNodeKeyFromLastMapData >= 0) {
                     this.mergeNodeData(htLastMapData, foundNodeKeyFromLastMapData, node);
                 } else {
-                    node.key =  htLastMapData.applicationMapData.nodeDataArray.length + 1;
                     htLastMapData.applicationMapData.nodeDataArray.push(node);
                 }
             }, this);
