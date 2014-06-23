@@ -6,7 +6,7 @@
 
 	<description>pinpoint Custom Tag Library</description>
 	<tlib-version>1.0</tlib-version>
-	<short-name>pcom.profiler.inpoint</short-name>
+	<short-name>com.profiler.pinpoint</short-name>
 	<uri>http://pinpoint.nhncorp.com/pinpoint</uri>
 
 	<function>
@@ -30,4 +30,32 @@
         <function-signature>java.lang.String escapeHtml4(java.lang.String)</function-signature>
     </function>
 	
+	<tag>
+		<name>script</name>
+		<tag-class>com.nhn.pinpoint.web.taglib.ScriptTag</tag-class>
+		<body-content>empty</body-content>
+		<description>script tag</description>
+		<attribute>
+			<name>src</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+	</tag>
+	
+	<tag>
+		<name>link</name>
+		<tag-class>com.nhn.pinpoint.web.taglib.LinkTag</tag-class>
+		<body-content>empty</body-content>
+		<description>link tag</description>
+		<attribute>
+			<name>rel</name>
+			<required>true</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>href</name>
+			<required>true</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+	</tag>
 </taglib>
