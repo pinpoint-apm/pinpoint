@@ -180,7 +180,10 @@
                     {
                         selectionAdorned: false,
                         cursor: "pointer",
-                        name: "NODE"
+                        name: "NODE",
+                        click: function (e, obj) {
+                            self._onNodeClicked(e, obj);
+                        }
                     },
                     self.$(
                         go.Shape,
@@ -360,9 +363,6 @@
                         column: 1,
                         imageStretch: go.GraphObject.Uniform
                     },
-//                    new go.Binding("visible", "totalCount", function (val) {
-//                        return val > 100 ? true : false;
-//                    })
                     new go.Binding("visible", "hasAlert")
                 ),
                 self.$(
@@ -374,7 +374,14 @@
 //                        height:30,
                         alignment: go.Spot.Left
                     },
-                    new go.Binding('text', 'applicationName')
+                    new go.Binding('text', 'applicationName'),
+                    new go.Binding('click', 'key', function (key) {
+                        return function (e, obj) {
+                            e.bubbles = false;
+                            self._onNodeClicked(e, obj, key);
+                            return false;
+                        };
+                    })
                 ),
                 self.$(
                     go.TextBlock,
@@ -397,7 +404,12 @@
                     {
                         selectionAdorned: false,
                         cursor: "pointer",
-                        name: "NODE"
+                        name: "NODE",
+                        click: function (e, obj) {
+                            if (e.bubbles) {
+                                self._onNodeClicked(e, obj);
+                            }
+                        }
                     },
                     self.$(
                         go.Shape,
@@ -638,13 +650,16 @@
                 }
             );
 
-            var self = this;
+            var self = this, once;
             // whenever selection changes, run updateHighlights
             this._oDiagram.addDiagramListener("ChangedSelection", function (e) {
                 var selection = self._oDiagram.selection.first();
                 if (selection) {
                     if (selection instanceof go.Node) {
-                        self._onNodeClicked(e, selection);
+                        if (!once) {
+                            self._onNodeClicked(e, selection);
+                            once = true;
+                        }
                     } else if (selection instanceof go.Link) {
                         self._onLinkClicked(e, selection);
                     }
@@ -922,13 +937,14 @@
          * @method _onNodeClicked
          * @param {Event} e
          * @param {ojb} ojb
+         * @param {String} unknownKey
          */
-        _onNodeClicked: function (e, obj) {
+        _onNodeClicked: function (e, obj, unknownKey) {
             var node = obj.part,
                 htData = node.data,
                 fOnNodeClicked = this.option('fOnNodeClicked');
             if (_.isFunction(fOnNodeClicked)) {
-                fOnNodeClicked.call(this, e, htData);
+                fOnNodeClicked.call(this, e, htData, unknownKey);
             }
             // node.diagram.startTransaction("onNodeClick");
             // node.diagram.commitTransaction("onNodeClick");

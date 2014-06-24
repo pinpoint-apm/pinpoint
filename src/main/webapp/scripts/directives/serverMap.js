@@ -277,8 +277,8 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     oProgressBar.setLoading(90);
 
                     var options = cfg.options;
-                    options.fOnNodeClicked = function (e, node) {
-                        var originalNode = ServerMapDao.getNodeDataByKey(applicationMapData, node.key);
+                    options.fOnNodeClicked = function (e, node, unknownKey) {
+                        var originalNode = ServerMapDao.getNodeDataByKey(applicationMapData, unknownKey || node.key);
                         if (originalNode) {
                             node = originalNode;
                         }
