@@ -79,10 +79,6 @@ pinpointApp
 		            "<li><span class='glyphicon glyphicon-stop' style='color:#f69124'></span> : '5초 <= 응답시간'에 해당하는 성공한 트랜잭션의 수</li>" +
 		            "<li><span class='glyphicon glyphicon-stop' style='color:#f53034'></span> : 응답시관과 무관하게 실패한 트랜잭션의 수</li>" +
 		            "</ul>" +
-            		"[기능]<br/>" +
-            		"<ul>" +
-            		"<li>바(bar)를 클릭하면 해당 응답시간에 속한 트랜잭션의 목록을 조회합니다.</li>" +
-            		"</ul>" +
             		"</div>",
             "load": "<div style='width:400px'>Load Chart<br/>시간별 트랜잭션의 응답 결과입니다.<br/><br/>" +
             		"[범례]<br/>" +
@@ -111,32 +107,57 @@ pinpointApp
             		"<ul>" +
             		"<li><button type='button' class='btn btn-default btn-xs'>NSight</button> : nsight에서 물리서버 상태를 조회할 수 있습니다.</li>" +
             		"<li><button type='button' class='btn btn-default btn-xs'>Inspector</button> : Pinpoint가 설치된 WAS의 상세한 정보를 보여줍니다.</li>" +
-            		"<li><button type='button' class='btn btn-default btn-xs'><span class='glyphicon glyphicon-plus'></span></button> : 해당 인스턴스에서 처리된 트랜잭션 통계를 조회할 수 있습니다. 빨간색 버튼은 에러를 발생시킨 트랜잭션이 포함되어있다는 의미를 갖습니다.</li>" +
+            		"<li><button type='button' class='btn btn-default btn-xs'><span class='glyphicon glyphicon-plus'></span></button> : 해당 인스턴스에서 처리된 트랜잭션 통계를 조회할 수 있습니다.</li>" +
+            		"<li><button type='button' class='btn btn-danger btn-xs'><span class='glyphicon glyphicon-plus'></span></button> : 에러를 발생시킨 트랜잭션이 포함되어있다는 의미입니다.</li>" +
             		"</ul>",
             "unknownList": '차트 오른쪽 상단의 아이콘부터,<br>첫번째 : Response Summary / Load 차트 변환<br>두번째 : 해당 노드 상세보기',
             "searchAndOrder": '서버 이름과 Count로 검색이 가능합니다.<br>Name, Count 클릭시 오름/내림차순 정렬 됩니다.'
         },
         "linkInfoDetails": {
-            "responseSummary": "<div style='width:370px'>응답결과 요약 입니다.<br/>" +
-                "바(bar)를 클릭하면 해당 응답시간에 속한 트랜잭션의 목록을 조회합니다.<br/>" +
-                "<ul>" +
-                "<li>1s : 응답시간이 1초 이내인 성공한 트랜잭션의 개수</li>" +
-                "<li>3s : 응답시간이 1초 ~ 3초인 성공한 트랜잭션의 개수</li>" +
-                "<li>5s : 응답시간이 3초 ~ 5초인 성공한 트랜잭션의 개수</li>" +
-                "<li>slow : 응답시간이 5초를 초과한 성공한 트랜잭션의 개수</li>" +
-                "<li>error : 실패한 트랜잭션의 개수 (응답시간과 무관합니다.)</li>" +
-                "</ul></div>"
-            ,
-            "load": "<div style='width:370px'>시간별 트랜잭션의 응답 결과입니다.<br/>" +
-                "범례를 클릭하여 해당 응답시간에 속한 트랜잭션을 차트에서 제외하거나 포함 할 수 있습니다.<br/>" +
-                "<ul>" +
-                "<li>1s : 응답시간이 1초 이내인 성공한 트랜잭션의 개수</li>" +
-                "<li>3s : 응답시간이 1초 ~ 3초인 성공한 트랜잭션의 개수</li>" +
-                "<li>5s : 응답시간이 3초 ~ 5초인 성공한 트랜잭션의 개수</li>" +
-                "<li>slow : 응답시간이 5초를 초과한 성공한 트랜잭션의 개수</li>" +
-                "<li>error : 실패한 트랜잭션의 개수 (응답시간과 무관합니다.)</li>" +
-                "</ul></div>",
-            "linkServers": '인스턴스 정보 입니다.',
+            "responseSummary": "<div style='width:400px'>Response Summary Chart<br/>응답결과 요약 입니다.<br/><br/>" +
+		            "[범례]<br/>" +
+		            "<ul>" +
+		    		"<li>X축 : 트랜잭션 응답시간 요약 단위</li>" +
+		    		"<li>Y축 : 트랜잭션의 개수</li>" +
+		            "<li><span class='glyphicon glyphicon-stop' style='color:#2ca02c'></span> : '0초 <= 응답시간 < 1초'에 해당하는 성공한 트랜잭션의 수</li>" +
+		            "<li><span class='glyphicon glyphicon-stop' style='color:#3c81fa'></span> : '1초 <= 응답시간 < 3초'에 해당하는 성공한 트랜잭션의 수</li>" +
+		            "<li><span class='glyphicon glyphicon-stop' style='color:#f8c731'></span> : '3초 <= 응답시간 < 5초'에 해당하는 성공한 트랜잭션의 수</li>" +
+		            "<li><span class='glyphicon glyphicon-stop' style='color:#f69124'></span> : '5초 <= 응답시간'에 해당하는 성공한 트랜잭션의 수</li>" +
+		            "<li><span class='glyphicon glyphicon-stop' style='color:#f53034'></span> : 응답시관과 무관하게 실패한 트랜잭션의 수</li>" +
+		            "</ul>" +
+		    		"[기능]<br/>" +
+		    		"<ul>" +
+		    		"<li>바(bar)를 클릭하면 해당 응답시간에 속한 트랜잭션의 목록을 조회합니다.</li>" +
+		    		"</ul>" +
+		    		"</div>",
+		    "load": "<div style='width:400px'>Load Chart<br/>시간별 트랜잭션의 응답 결과입니다.<br/><br/>" +
+		    		"[범례]<br/>" +
+		            "<ul>" +
+		    		"<li>X축 : 트랜잭션이 실행된 시간 (분단위)</li>" +
+		    		"<li>Y축 : 트랜잭션의 개수</li>" +
+		            "<li><span class='glyphicon glyphicon-stop' style='color:#2ca02c'></span> : '0초 <= 응답시간 < 1초'에 해당하는 성공한 트랜잭션의 수</li>" +
+		            "<li><span class='glyphicon glyphicon-stop' style='color:#3c81fa'></span> : '1초 <= 응답시간 < 3초'에 해당하는 성공한 트랜잭션의 수</li>" +
+		            "<li><span class='glyphicon glyphicon-stop' style='color:#f8c731'></span> : '3초 <= 응답시간 < 5초'에 해당하는 성공한 트랜잭션의 수</li>" +
+		            "<li><span class='glyphicon glyphicon-stop' style='color:#f69124'></span> : '5초 <= 응답시간'에 해당하는 성공한 트랜잭션의 수</li>" +
+		            "<li><span class='glyphicon glyphicon-stop' style='color:#f53034'></span> : 응답시관과 무관하게 실패한 트랜잭션의 수</li>" +
+		            "</ul>" +
+		            "[기능]<br/>" +
+		    		"<ul>" +
+		    		"<li>범례를 클릭하여 해당 응답시간에 속한 트랜잭션을 차트에서 제외하거나 포함 할 수 있습니다.</li>" +
+		    		"<li>마우스로 드래그하여 드래그 한 범위를 확대할 수 있습니다.</li>" +
+		    		"</ul>" +
+		    		"</div>",
+            "linkServers": "Server Instance<br/>해당 구간을 통과하는 트랜잭션을 호출한 서버 인스턴스의 정보입니다. (호출자)<br/><br/>" +
+		    		"[범례]<br/>" +
+		    		"<ul>" +
+		    		"<li><span class='glyphicon glyphicon-hdd'></span> : 물리서버에 설치된 서버 인스턴스에서 동작중인 Pinpoint의 agentId입니다.</li>" +
+		    		"</ul>" +
+		    		"[기능]<br/>" +
+		    		"<ul>" +
+		    		"<li><button type='button' class='btn btn-default btn-xs'>Inspector</button> : Pinpoint가 설치된 WAS의 상세한 정보를 보여줍니다.</li>" +
+		    		"<li><button type='button' class='btn btn-default btn-xs'><span class='glyphicon glyphicon-plus'></span></button> : 해당 인스턴스에서 처리된 트랜잭션 통계를 조회할 수 있습니다.</li>" +
+		    		"<li><button type='button' class='btn btn-danger btn-xs'><span class='glyphicon glyphicon-plus'></span></button> : 에러를 발생시킨 트랜잭션이 포함되어있다는 의미입니다.</li>" +
+		    		"</ul>",
             "unknownList": '차트 오른쪽 상단의 아이콘부터,<br>첫번째 : Response Summary / Load 차트 변환<br>두번째 : 해당 노드 상세보기',
             "searchAndOrder": '서버 이름과 Count로 검색이 가능합니다.<br>Name, Count 클릭시 오름/내림차순 정렬 됩니다.'
         }
