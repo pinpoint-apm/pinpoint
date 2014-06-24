@@ -125,9 +125,9 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	}
 
     public void addArcusModifier() {
-        final boolean arucs = profilerConfig.isArucs();
+        final boolean arcus = profilerConfig.isArucs();
         boolean memcached;
-        if (arucs) {
+        if (arcus) {
             // arcus가 true일 경우 memcached는 자동으로 true가 되야 한다.
             memcached = true;
         } else {
@@ -141,7 +141,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
             MemcachedClientModifier memcachedClientModifier = new MemcachedClientModifier(byteCodeInstrumentor, agent);
             addModifier(memcachedClientModifier);
 
-            if (arucs) {
+            if (arcus) {
                 ArcusClientModifier arcusClientModifier = new ArcusClientModifier(byteCodeInstrumentor, agent);
                 addModifier(arcusClientModifier);
                 // arcus의 Future임
