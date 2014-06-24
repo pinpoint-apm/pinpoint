@@ -8,14 +8,18 @@ import javax.servlet.jsp.tagext.SimpleTagSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.nhn.pinpoint.web.util.MavenProjectInformation;
+
 /**
  * 
  * @author netspider
  * 
  */
 public class LinkTag extends SimpleTagSupport {
-	
+
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	private MavenProjectInformation mavenMetaInformation = MavenProjectInformation.getInstance();
 
 	private String rel = "";
 	private String href = "";
@@ -39,6 +43,12 @@ public class LinkTag extends SimpleTagSupport {
 			sb.append(rel);
 			sb.append("\" href=\"");
 			sb.append(href);
+
+			if (mavenMetaInformation != null) {
+				sb.append("?v=");
+				sb.append(mavenMetaInformation.getBuildTime());
+			}
+
 			sb.append("\">");
 
 			out.println(sb.toString());

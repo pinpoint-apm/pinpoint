@@ -8,6 +8,8 @@ import javax.servlet.jsp.tagext.SimpleTagSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.nhn.pinpoint.web.util.MavenProjectInformation;
+
 /**
  * 
  * @author netspider
@@ -16,6 +18,8 @@ import org.slf4j.LoggerFactory;
 public class ScriptTag extends SimpleTagSupport {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	private MavenProjectInformation mavenMetaInformation = MavenProjectInformation.getInstance();
 
 	private String src = "";
 
@@ -31,6 +35,12 @@ public class ScriptTag extends SimpleTagSupport {
 			StringBuffer sb = new StringBuffer();
 			sb.append("<script src=\"");
 			sb.append(src);
+
+			if (mavenMetaInformation != null) {
+				sb.append("?v=");
+				sb.append(mavenMetaInformation.getBuildTime());
+			}
+
 			sb.append("\"></script>");
 			out.println(sb.toString());
 		} catch (Exception e) {
