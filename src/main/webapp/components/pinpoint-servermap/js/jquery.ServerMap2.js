@@ -109,7 +109,6 @@
             });
 
             this.option(htOption);
-
             this._initVariables();
             this._initNodeTemplates();
             this._initLinkTemplates();
@@ -123,6 +122,7 @@
          */
         _initVariables: function () {
             this.$ = go.GraphObject.make;
+            this.nodeClickEventOnce = false;
             this._oDiagram = this.$(
                 go.Diagram,
                 this.option('sContainerId'),
@@ -650,15 +650,15 @@
                 }
             );
 
-            var self = this, once;
+            var self = this;
             // whenever selection changes, run updateHighlights
             this._oDiagram.addDiagramListener("ChangedSelection", function (e) {
                 var selection = self._oDiagram.selection.first();
                 if (selection) {
                     if (selection instanceof go.Node) {
-                        if (!once) {
+                        if (!self.nodeClickEventOnce) {
                             self._onNodeClicked(e, selection);
-                            once = true;
+                            self.nodeClickEventOnce = true;
                         }
                     } else if (selection instanceof go.Link) {
                         self._onLinkClicked(e, selection);
@@ -693,6 +693,7 @@
          * @param {Hash Table} str
          */
         load: function (str) {
+            this.nodeClickEventOnce = false;
             this._sLastModelData = str;
             this._oDiagram.model = go.Model.fromJson(str);
             this._oDiagram.undoManager.isEnabled = true;
