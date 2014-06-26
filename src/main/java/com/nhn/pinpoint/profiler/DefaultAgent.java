@@ -223,21 +223,21 @@ public class DefaultAgent implements Agent {
 
 
     private TraceContext createTraceContext(short serverType) {
+        final StorageFactory storageFactory = createStorageFactory();
+        logger.info("StorageFactoryType:{}", storageFactory);
+
+        final Sampler sampler = createSampler();
+        logger.info("SamplerType:{}", sampler);
+
         final int jdbcSqlCacheSize = profilerConfig.getJdbcSqlCacheSize();
-        final DefaultTraceContext traceContext = new DefaultTraceContext(jdbcSqlCacheSize, serverType);
+        final DefaultTraceContext traceContext = new DefaultTraceContext(jdbcSqlCacheSize, serverType, storageFactory, sampler);
         traceContext.setAgentInformation(this.agentInformation);
         traceContext.setPriorityDataSender(this.tcpDataSender);
 
-        final Sampler sampler = createSampler();
-        logger.info("SamplerType:{}", sampler.getClass());
 
-        traceContext.setSampler(sampler);
         traceContext.setProfilerConfig(profilerConfig);
 
 
-        final StorageFactory storageFactory = createStorageFactory();
-        logger.info("StorageFactoryType:{}", storageFactory);
-        traceContext.setStorageFactory(storageFactory);
         return traceContext;
     }
 

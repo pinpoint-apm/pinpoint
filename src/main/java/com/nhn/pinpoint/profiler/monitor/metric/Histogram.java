@@ -9,7 +9,7 @@ import com.nhn.pinpoint.common.ServiceType;
 public interface Histogram extends Metric {
     ServiceType getServiceType();
 
-    void addResponseTime(long millis);
+    void addResponseTime(int millis);
 
     HistogramSnapshot createSnapshot();
 }

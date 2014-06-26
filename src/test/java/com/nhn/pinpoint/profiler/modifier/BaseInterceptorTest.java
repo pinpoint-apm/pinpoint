@@ -45,12 +45,9 @@ public class BaseInterceptorTest {
 
 		if (interceptor instanceof TraceContextSupport) {
 			// sampler
-			Sampler sampler = mock(Sampler.class);
-			when(sampler.isSampling()).thenReturn(true);
 
 			// trace context
 			TraceContext traceContext = new MockTraceContextFactory().create();
-			((DefaultTraceContext) traceContext).setSampler(sampler);
 			((TraceContextSupport) interceptor).setTraceContext(traceContext);
 		}
 		

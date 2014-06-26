@@ -47,6 +47,11 @@ public class RootStackFrame implements StackFrame {
         return span.getAfterTime();
     }
 
+    @Override
+    public int getElapsedTime() {
+        return span.getElapsed();
+    }
+
 
     public Span getSpan() {
         return span;

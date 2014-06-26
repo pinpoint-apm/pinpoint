@@ -44,6 +44,11 @@ public class SpanEventStackFrame implements StackFrame {
         return spanEvent.getAfterTime();
     }
 
+    @Override
+    public int getElapsedTime() {
+        return spanEvent.getEndElapsed();
+    }
+
     public void setSequence(short sequence) {
         spanEvent.setSequence(sequence);
     }

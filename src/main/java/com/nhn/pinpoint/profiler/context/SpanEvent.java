@@ -65,5 +65,4 @@ public class SpanEvent extends TSpanEvent {
     }
 
 
-
 }

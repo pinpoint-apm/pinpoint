@@ -232,6 +232,25 @@ public class MySQLConnectionImplModifierTest {
         preparedStatement.close();
     }
 
+    private void preparedStatementError(Connection connection) throws SQLException {
+//        Statement.RETURN_GENERATED_KEYS or Statement.NO_GENERATED_KEYS
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try {
+            preparedStatement = connection.prepareStatement("select 8 from invalidTable", ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+            logger.info("PreparedStatement className:{}", preparedStatement.getClass().getName());
+            resultSet = preparedStatement.executeQuery();
+        } finally {
+            if (resultSet != null) {
+                resultSet.close();
+            }
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+
+        }
+    }
+
     private void preparedStatement8(Connection connection) throws SQLException {
 //        Statement.RETURN_GENERATED_KEYS or Statement.NO_GENERATED_KEYS
 //        ResultSet.HOLD_CURSORS_OVER_COMMIT or ResultSet.CLOSE_CURSORS_AT_COMMIT

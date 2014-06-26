@@ -24,19 +24,30 @@ public class ThreadLocalTraceFactory implements TraceFactory {
     private final TraceContext traceContext;
     private final MetricRegistry metricRegistry;
 
+    private final StorageFactory storageFactory;
+    private final Sampler sampler;
+
     // internal stacktrace 추적때 필요한 unique 아이디, activethreadcount의  slow 타임 계산의 위해서도 필요할듯 함.
     // 일단 소스를 좀더 단순화 하기 위해서 옮김.
     private final AtomicLong transactionId = new AtomicLong(0);
 
-    public ThreadLocalTraceFactory(TraceContext traceContext, MetricRegistry metricRegistry) {
+    public ThreadLocalTraceFactory(TraceContext traceContext, MetricRegistry metricRegistry, StorageFactory storageFactory, Sampler sampler) {
         if (traceContext == null) {
             throw new NullPointerException("traceContext must not be null");
         }
         if (metricRegistry == null) {
             throw new NullPointerException("metricRegistry must not be null");
         }
+        if (storageFactory == null) {
+            throw new NullPointerException("storageFactory must not be null");
+        }
+        if (sampler == null) {
+            throw new NullPointerException("sampler must not be null");
+        }
         this.traceContext = traceContext;
         this.metricRegistry = metricRegistry;
+        this.storageFactory = storageFactory;
+        this.sampler = sampler;
     }
 
 
@@ -75,14 +86,16 @@ public class ThreadLocalTraceFactory implements TraceFactory {
     }
 
     @Override
-    public void disableSampling() {
+    public Trace disableSampling() {
         checkBeforeTraceObject();
-        threadLocal.set(DisableTrace.INSTANCE);
+        final Trace metricTrace = new MetricTrace(traceContext, nextTransactionId());
+        threadLocal.set(metricTrace);
+        return metricTrace;
     }
 
     // remote 에서 샘플링 대상으로 선정된 경우.
     @Override
-    public Trace continueTraceObject(final TraceId traceID, StorageFactory storageFactory) {
+    public Trace continueTraceObject(final TraceId traceID) {
         checkBeforeTraceObject();
 
         // datasender연결 부분 수정 필요.
@@ -109,7 +122,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
     }
 
     @Override
-    public Trace newTraceObject(StorageFactory storageFactory, Sampler sampler) {
+    public Trace newTraceObject() {
         checkBeforeTraceObject();
         // datasender연결 부분 수정 필요.
         final boolean sampling = sampler.isSampling();
@@ -121,9 +134,9 @@ public class ThreadLocalTraceFactory implements TraceFactory {
             threadLocal.set(trace);
             return trace;
         } else {
-            final DisableTrace instance = DisableTrace.INSTANCE;
-            threadLocal.set(DisableTrace.INSTANCE);
-            return instance;
+            final Trace metricTrace = new MetricTrace(traceContext, nextTransactionId());
+            threadLocal.set(metricTrace);
+            return metricTrace;
         }
     }
 

@@ -55,11 +55,6 @@ public class DisableTrace  implements Trace {
     }
 
     @Override
-    public void traceRootBlockEnd(Metric responseMetric) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void traceBlockEnd() {
         throw new UnsupportedOperationException();
     }
@@ -77,6 +72,11 @@ public class DisableTrace  implements Trace {
     @Override
     public boolean canSampled() {
         // sampling false를 항상 false를 리턴한다.
+        return false;
+    }
+
+    @Override
+    public boolean isRoot() {
         return false;
     }
 

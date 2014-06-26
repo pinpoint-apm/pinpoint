@@ -14,12 +14,12 @@ public interface TraceFactory {
 
     Trace currentRawTraceObject();
 
-    void disableSampling();
+    Trace disableSampling();
 
     // remote 에서 샘플링 대상으로 선정된 경우.
-    Trace continueTraceObject(TraceId traceID, StorageFactory storageFactory);
+    Trace continueTraceObject(TraceId traceID);
 
-    Trace newTraceObject(StorageFactory storageFactory, Sampler sampler);
+    Trace newTraceObject();
 
     void detachTraceObject();
 }

@@ -8,6 +8,7 @@ import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.metadata.SimpleCache;
 import com.nhn.pinpoint.profiler.modifier.db.DefaultDatabaseInfo;
 import com.nhn.pinpoint.profiler.monitor.metric.MetricRegistry;
+import com.nhn.pinpoint.profiler.sampler.TrueSampler;
 import com.nhn.pinpoint.profiler.sender.EnhancedDataSender;
 import com.nhn.pinpoint.thrift.dto.TApiMetaData;
 import com.nhn.pinpoint.thrift.dto.TSqlMetaData;
@@ -44,8 +45,6 @@ public class DefaultTraceContext implements TraceContext {
 
     private EnhancedDataSender priorityDataSender;
 
-    private StorageFactory storageFactory;
-
     private final ServiceType contextServiceType;
 
     private final MetricRegistry metricRegistry;
@@ -58,23 +57,26 @@ public class DefaultTraceContext implements TraceContext {
 
     private final JDBCUrlParser jdbcUrlParser = new JDBCUrlParser();
 
-    private Sampler sampler;
-
     private ProfilerConfig profilerConfig;
 
-
+    // for test
     public DefaultTraceContext() {
-        this(LRUCache.DEFAULT_CACHE_SIZE, ServiceType.STAND_ALONE.getCode());
+        this(LRUCache.DEFAULT_CACHE_SIZE, ServiceType.STAND_ALONE.getCode(), new LogStorageFactory(), new TrueSampler());
     }
 
-    public DefaultTraceContext(final int sqlCacheSize, final short contextServiceType) {
+    public DefaultTraceContext(final int sqlCacheSize, final short contextServiceType, StorageFactory storageFactory, Sampler sampler) {
+        if (storageFactory == null) {
+            throw new NullPointerException("storageFactory must not be null");
+        }
+        if (sampler == null) {
+            throw new NullPointerException("sampler must not be null");
+        }
         this.sqlCache = new LRUCache<String>(sqlCacheSize);
         this.contextServiceType = ServiceType.findServiceType(contextServiceType);
         this.metricRegistry = new MetricRegistry(this.contextServiceType);
 
-        traceFactory = new ThreadLocalTraceFactory(this, metricRegistry);
+        this.traceFactory = new ThreadLocalTraceFactory(this, metricRegistry, storageFactory, sampler);
     }
-
 
     /**
      * sampling 여부까지 체크하여 유효성을 검증한 후 Trace를 리턴한다.
@@ -98,8 +100,8 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     @Override
-    public void disableSampling() {
-        traceFactory.disableSampling();
+    public Trace disableSampling() {
+        return traceFactory.disableSampling();
     }
 
     public void setProfilerConfig(final ProfilerConfig profilerConfig) {
@@ -113,11 +115,11 @@ public class DefaultTraceContext implements TraceContext {
 
     // remote 에서 샘플링 대상으로 선정된 경우.
     public Trace continueTraceObject(final TraceId traceID) {
-        return traceFactory.continueTraceObject(traceID, storageFactory);
+        return traceFactory.continueTraceObject(traceID);
     }
 
     public Trace newTraceObject() {
-        return traceFactory.newTraceObject(storageFactory, this.sampler);
+        return traceFactory.newTraceObject();
     }
 
 
@@ -159,21 +161,6 @@ public class DefaultTraceContext implements TraceContext {
     @Override
     public String getServerType() {
         return ServiceType.findServiceType(this.agentInformation.getServerType()).getDesc();
-    }
-
-
-    public void setStorageFactory(final StorageFactory storageFactory) {
-        if (storageFactory == null) {
-            throw new NullPointerException("storageFactory must not be null");
-        }
-        this.storageFactory = storageFactory;
-    }
-
-    public void setSampler(final Sampler sampler) {
-        if (sampler == null) {
-            throw new NullPointerException("sampler must not be null");
-        }
-        this.sampler = sampler;
     }
 
 

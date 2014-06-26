@@ -17,6 +17,8 @@ public interface StackFrame {
 
     long getAfterTime();
 
+    int getElapsedTime();
+
     void setEndPoint(String endPoint);
 
     void setRpc(String rpc);

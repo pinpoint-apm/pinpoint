@@ -2,6 +2,7 @@ package com.nhn.pinpoint.profiler.context;
 
 import com.nhn.pinpoint.bootstrap.context.*;
 import com.nhn.pinpoint.common.AnnotationKey;
+import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.util.ParsingResult;
 import com.nhn.pinpoint.exception.PinpointException;
@@ -35,7 +36,7 @@ public final class DefaultTrace implements Trace {
 
     private final TraceContext traceContext;
 
-    // use for calculating depth of each Span.                                                                               
+    // use for calculating depth of each Span.
     private int latestStackIndex = -1;
     private StackFrame currentStackFrame;
 
@@ -162,6 +163,7 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public void traceRootBlockEnd() {
+        metricResponseTime();
         pop(ROOT_STACKID);
         callStack.popRoot();
         // 잘못된 stack 조작시 다음부터 그냥 nullPointerException이 발생할건데 괜찮은가?
@@ -169,24 +171,20 @@ public final class DefaultTrace implements Trace {
     }
 
     @Override
-    public void traceRootBlockEnd(Metric responseMetric) {
-        recordResponseTime(responseMetric);
-        traceRootBlockEnd();
-    }
-
-
-    private void recordResponseTime(Metric responseMetric) {
-        if (responseMetric instanceof Histogram) {
-            Histogram histogram = (Histogram) responseMetric;
-            histogram.addResponseTime(getAfterTime());
-        } else {
-            logger.warn("invalid Metric:{}", responseMetric);
-        }
-    }
-
-    @Override
     public void traceBlockEnd() {
         traceBlockEnd(DEFAULT_STACKID);
+    }
+
+    private void metricResponseTime() {
+        final int errCode = this.getCallStack().getSpan().getErrCode();
+        if (errCode != 0) {
+            Histogram contextMetric = (Histogram) this.traceContext.getContextMetric();
+            contextMetric.addResponseTime(HistogramSchema.ERROR_SLOT_TIME);
+        } else {
+            final int elapsedTime = this.currentStackFrame.getElapsedTime();
+            Histogram contextMetric = (Histogram) this.traceContext.getContextMetric();
+            contextMetric.addResponseTime(elapsedTime);
+        }
     }
 
 
@@ -232,6 +230,10 @@ public final class DefaultTrace implements Trace {
 
     public boolean canSampled() {
         return this.sampling;
+    }
+
+    public boolean isRoot() {
+        return getTraceId().isRoot();
     }
 
     public void setSampling(boolean sampling) {

@@ -31,7 +31,7 @@ public class LongAdderHistogram implements Histogram {
         return serviceType;
     }
 
-    public void addResponseTime(long millis) {
+    public void addResponseTime(int millis) {
         HistogramSchema schema = serviceType.getHistogramSchema();
         final HistogramSlot histogramSlot = schema.findHistogramSlot((int) millis);
         final SlotType slotType = histogramSlot.getSlotType();
@@ -67,4 +67,15 @@ public class LongAdderHistogram implements Histogram {
         return new HistogramSnapshot(this.serviceType, fast, normal, slow, verySlow, error);
     }
 
+    @Override
+    public String toString() {
+        return "LongAdderHistogram{" +
+                "fastCounter=" + fastCounter +
+                ", normalCounter=" + normalCounter +
+                ", slowCounter=" + slowCounter +
+                ", verySlowCounter=" + verySlowCounter +
+                ", errorCounter=" + errorCounter +
+                ", serviceType=" + serviceType +
+                '}';
+    }
 }
