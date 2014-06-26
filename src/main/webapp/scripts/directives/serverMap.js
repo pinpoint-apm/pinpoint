@@ -167,7 +167,6 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                             emitDataExisting(mapData);
                             htLastMapData = mapData;
                             var serverMapData = ServerMapDao.extractDataFromApplicationMapData(mapData.applicationMapData);
-                            console.log('serverMapData', serverMapData);
                             serverMapCallback(query, serverMapData, mergeUnknowns, linkRouting, linkCurve);
                         });
                     }
@@ -318,6 +317,8 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                             originalLink = ServerMapDao.getLinkDataByKey(htLastMapData.applicationMapData, link.key);
                         }
                         if (originalLink) {
+                            originalLink.fromNode = link.fromNode;
+                            originalLink.toNode = link.toNode;
                             link = originalLink;
                         }
                         sLastSelection = 'link';
@@ -328,6 +329,8 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     options.fOnLinkContextClicked = function (e, link) {
                         var originalLink = ServerMapDao.getLinkDataByKey(htLastMapData.applicationMapData, link.key);
                         if (originalLink) {
+                            originalLink.fromNode = link.fromNode;
+                            originalLink.toNode = link.toNode;
                             link = originalLink;
                         }
                         reset();

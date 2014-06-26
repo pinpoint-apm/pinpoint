@@ -298,9 +298,9 @@ pinpointApp
                     /**
                      * scope event on nodeInfoDetails.initialize
                      */
-                    scope.$on('nodeInfoDetails.initialize', function (event, e, query, node, mapData, navbarVo) {
+                    scope.$on('nodeInfoDetails.initialize', function (event, e, query, node, mapData, navbarVo, reloadOnly) {
                         show();
-                        if (angular.equals(sLastKey, node.key)) {
+                        if (angular.equals(sLastKey, node.key) && !reloadOnly) {
                             if (htLastNode.category === 'UNKNOWN_GROUP') {
                                 renderAllChartWhichIsVisible(htLastNode);
                             }

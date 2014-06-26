@@ -4,7 +4,7 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
     function (cfg, $scope, $routeParams, $timeout, TimeSliderVo, NavbarVo, encodeURIComponentFilter, $window, SidebarTitleVo, filteredMapUtil, $rootElement) {
 
         // define private variables
-        var oNavbarVo, oTimeSliderVo, bNodeSelected, bNoData;
+        var oNavbarVo, oTimeSliderVo, bNodeSelected, bNoData, reloadOnlyForNode, reloadOnlyForLink;
 
         // define private variables of methods
         var openFilteredMapWithFilterVo, broadcastScatterScanResultToScatter;
@@ -13,6 +13,8 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
         $scope.hasScatter = false;
         $window.htoScatter = {};
         bNoData = true;
+        reloadOnlyForNode = false;
+        reloadOnlyForLink = false;
 
         /**
          * initialize
@@ -116,6 +118,8 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
          */
         $scope.$on('serverMap.fetched', function (event, lastFetchedTimestamp, mapData) {
             oTimeSliderVo.setInnerFrom(lastFetchedTimestamp);
+            reloadOnlyForNode = true;
+            reloadOnlyForLink = true;
             $scope.$broadcast('timeSlider.setInnerFromTo', oTimeSliderVo);
 
             broadcastScatterScanResultToScatter(mapData.applicationScatterScanResult);
@@ -135,6 +139,8 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
          */
         $scope.$on('serverMap.allFetched', function (event, mapData) {
             oTimeSliderVo.setInnerFrom(oTimeSliderVo.getFrom());
+            reloadOnlyForNode = true;
+            reloadOnlyForLink = true;
             $scope.$broadcast('timeSlider.setInnerFromTo', oTimeSliderVo);
             $scope.$broadcast('timeSlider.changeMoreToDone');
             $scope.$broadcast('timeSlider.disableMore');
@@ -184,8 +190,9 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
             }
             $scope.hasFilter = false;
             $scope.$broadcast('sidebarTitle.initialize.forFilteredMap', oSidebarTitleVo);
-            $scope.$broadcast('nodeInfoDetails.initialize', e, query, node, data, oNavbarVo);
+            $scope.$broadcast('nodeInfoDetails.initialize', e, query, node, data, oNavbarVo, reloadOnlyForNode);
             $scope.$broadcast('linkInfoDetails.hide', e, query, node, data, oNavbarVo);
+            reloadOnlyForNode = false;
         });
 
         /**
@@ -221,7 +228,8 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
             }
             $scope.$broadcast('sidebarTitle.initialize.forFilteredMap', oSidebarTitleVo);
             $scope.$broadcast('nodeInfoDetails.hide');
-            $scope.$broadcast('linkInfoDetails.initialize', e, query, link, data, oNavbarVo);
+            $scope.$broadcast('linkInfoDetails.initialize', e, query, link, data, oNavbarVo, reloadOnlyForLink);
+            reloadOnlyForLink = false;
         });
 
 
