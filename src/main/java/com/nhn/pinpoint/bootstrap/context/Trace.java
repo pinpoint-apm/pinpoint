@@ -27,8 +27,6 @@ public interface Trace {
 
     void traceRootBlockEnd();
     
-    void traceRootBlockEnd(Metric responseMetric);
-
     void traceBlockEnd();
 
     void traceBlockEnd(int stackId);
@@ -36,6 +34,8 @@ public interface Trace {
     TraceId getTraceId();
 
     boolean canSampled();
+
+    boolean isRoot();
 
 
     void recordException(Object result);

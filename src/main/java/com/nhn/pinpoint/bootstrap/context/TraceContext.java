@@ -48,7 +48,7 @@ public interface TraceContext {
 
     TraceId createTraceId(String transactionId, long parentSpanID, long spanID, short flags);
 
-    void disableSampling();
+    Trace disableSampling();
 
     ProfilerConfig getProfilerConfig();
 
