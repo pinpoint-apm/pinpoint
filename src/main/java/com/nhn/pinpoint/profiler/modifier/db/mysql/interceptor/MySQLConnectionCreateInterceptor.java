@@ -14,12 +14,11 @@ import com.nhn.pinpoint.common.ServiceType;
 /**
  * @author emeroad
  */
-public class MySQLConnectionCreateInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+public class MySQLConnectionCreateInterceptor implements SimpleAroundInterceptor, TraceContextSupport {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private MethodDescriptor descriptor;
     private TraceContext traceContext;
 
     private final MetaObject setUrl = new MetaObject("__setDatabaseInfo", Object.class);
@@ -80,11 +79,6 @@ public class MySQLConnectionCreateInterceptor implements SimpleAroundInterceptor
 
     }
 
-    @Override
-     public void setMethodDescriptor(MethodDescriptor descriptor) {
-        this.descriptor = descriptor;
-        traceContext.cacheApi(descriptor);
-    }
 
     @Override
     public void setTraceContext(TraceContext traceContext) {
