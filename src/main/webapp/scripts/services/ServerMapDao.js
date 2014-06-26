@@ -13,6 +13,8 @@ pinpointApp.constant('serverMapDaoConfig', {
 
 pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDao(cfg) {
 
+    var self = this;
+
     /**
      * get server map data
      * @param query
@@ -553,13 +555,13 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
                     }
                     newLink.unknownLinkGroup.push(link);
 
-                    $.each(link.histogram, function (key, value) {
-                        if (newLink.histogram[key]) {
-                            newLink.histogram[key] += value;
-                        } else {
-                            newLink.histogram[key] = value;
-                        }
-                    });
+//                    $.each(link.histogram, function (key, value) {
+//                        if (newLink.histogram[key]) {
+//                            newLink.histogram[key] += value;
+//                        } else {
+//                            newLink.histogram[key] = value;
+//                        }
+//                    });
 
                     removeNodeIdSet[link.to] = null;
                     removeLinkIdSet[link.key] = null;
@@ -609,29 +611,6 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
     };
 
     /**
-     * remove none necessary data for high performance
-     * @param data
-     */
-    this.removeNoneNecessaryDataForHighPerformance = function (data) {
-        var nodes = data.applicationMapData.nodeDataArray;
-
-        nodes.forEach(function (node, i) {
-            if (angular.isDefined(node.histogram)) {
-                delete node.histogram;
-            }
-            if (angular.isDefined(node.timeSeriesHistogram)) {
-                delete node.timeSeriesHistogram;
-            }
-            if (angular.isDefined(node.agentHistogram)) {
-                delete node.agentHistogram;
-            }
-            if (angular.isDefined(node.serverList)) {
-                delete node.serverList;
-            }
-        });
-    };
-
-    /**
      * get node data by key
      * @param applicationMapData
      * @param key
@@ -642,11 +621,83 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
 
         var foundNode = false;
         nodes.forEach(function (node) {
-            if (node.key ===key) {
+            if (node.key === key) {
                 foundNode = node;
             }
         });
         return foundNode;
     };
 
+    /**
+     * get link data by key
+     * @param applicationMapData
+     * @param key
+     * @returns {boolean|hash table}
+     */
+    this.getLinkDataByKey = function (applicationMapData, key) {
+        var links = applicationMapData.linkDataArray;
+
+        var foundLink = false;
+        links.forEach(function (link) {
+            if (link.key === key) {
+                foundLink = link;
+            }
+        });
+        return foundLink;
+    };
+
+    /**
+     * get unknown node data by unknown node group
+     * @param applicationMapData
+     * @param unknownNodeGroup
+     * @returns {*}
+     */
+    this.getUnknownNodeDataByUnknownNodeGroup = function (applicationMapData, unknownNodeGroup) {
+        for (var k in unknownNodeGroup) {
+            unknownNodeGroup[k] = self.getNodeDataByKey(applicationMapData, unknownNodeGroup[k].key);
+        }
+
+        return unknownNodeGroup;
+    };
+
+    /**
+     * get unknown link data by unknown link group
+     * @param applicationMapData
+     * @param unknownLinkGroup
+     * @returns {*}
+     */
+    this.getUnknownLinkDataByUnknownLinkGroup = function (applicationMapData, unknownLinkGroup) {
+        for (var k in unknownLinkGroup) {
+            unknownLinkGroup[k] = self.getLinkDataByKey(applicationMapData, unknownLinkGroup[k].key);
+        }
+
+        return unknownLinkGroup;
+    };
+
+    /**
+     * extract data from application map data
+     * @param applicationMapData
+     * @returns {*}
+     */
+    this.extractDataFromApplicationMapData = function (applicationMapData) {
+        var nodeProperty = ['applicationName', 'category', 'errorCount', 'hasAlert', 'instanceCount', 'isWas', 'key', 'slowCount', 'serviceType', 'totalCount'],
+            linkProperty = ['errorCount', 'from', 'hasAlert', 'key', 'sourceInfo', 'slowCount', 'to', 'targetInfo', 'totalCount'];
+        var serverMapData = {
+            nodeDataArray: [],
+            linkDataArray: []
+        };
+        angular.forEach(applicationMapData.nodeDataArray, function (node, k) {
+            serverMapData.nodeDataArray.push({});
+            angular.forEach(nodeProperty, function (p) {
+                serverMapData.nodeDataArray[k][p] = node[p];
+            });
+        });
+        angular.forEach(applicationMapData.linkDataArray, function (link, k) {
+            serverMapData.linkDataArray.push({});
+            angular.forEach(linkProperty, function (p) {
+                serverMapData.linkDataArray[k][p] = link[p];
+            });
+        });
+        return serverMapData;
+    };
 }]);

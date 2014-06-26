@@ -183,7 +183,8 @@
                         name: "NODE",
                         click: function (e, obj) {
                             self._onNodeClicked(e, obj);
-                        }
+                        },
+                        contextClick: self._onNodeContextClicked.bind(this)
                     },
                     self.$(
                         go.Shape,
@@ -409,7 +410,8 @@
                             if (e.bubbles) {
                                 self._onNodeClicked(e, obj);
                             }
-                        }
+                        },
+                        contextClick: self._onNodeContextClicked.bind(this)
                     },
                     self.$(
                         go.Shape,
