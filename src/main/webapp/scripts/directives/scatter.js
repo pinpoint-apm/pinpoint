@@ -336,6 +336,9 @@ pinpointApp.directive('scatter',
                      * scope event on scatter.initializeWithData
                      */
                     scope.$on('scatter.initializeWithData', function (event, applicationName, data) {
+                        htLastNode = {
+                            applicationName: applicationName.split('^')[0]
+                        };
                         makeScatterWithData(applicationName, oNavbarVo.getQueryStartTime(),
                             oNavbarVo.getQueryEndTime(), oNavbarVo.getQueryPeriod(), oNavbarVo.getFilter(), null, null, data);
                     });

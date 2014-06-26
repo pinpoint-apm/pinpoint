@@ -121,7 +121,6 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
             reloadOnlyForNode = true;
             reloadOnlyForLink = true;
             $scope.$broadcast('timeSlider.setInnerFromTo', oTimeSliderVo);
-
             broadcastScatterScanResultToScatter(mapData.applicationScatterScanResult);
 
             // auto trying fetch

@@ -29,7 +29,7 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
             // initialize private variables;
             nFetchCount = 1;
             nLastFetchedIndex = 0;
-            $scope.transactionDetailUrl = 'index.html#/transactionDetail';
+            $scope.transactionDetailUrl = 'index.jsp#/transactionDetail';
 
             if(!validateParentWindow()) {
                 if (confirm('Scatter data of parent window had been changed.\r\nso can\'t scan the data any more.\r\nDo you want to close this window?')) {
