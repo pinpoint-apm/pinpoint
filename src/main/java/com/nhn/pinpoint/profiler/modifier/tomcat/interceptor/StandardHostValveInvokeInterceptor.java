@@ -57,7 +57,7 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
             trace.recordRemoteAddress(remoteAddr);
 
             if (!trace.isRoot()) {
-                recordParentInfo(request, trace);
+                recordParentInfo(trace, request);
             }
         } catch (Throwable e) {
             if (logger.isWarnEnabled()) {
@@ -111,7 +111,7 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
         }
     }
 
-    private void recordParentInfo(HttpServletRequest request, Trace trace) {
+    private void recordParentInfo(Trace trace, HttpServletRequest request) {
         String parentApplicationName = request.getHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString());
         if (parentApplicationName != null) {
             trace.recordAcceptorHost(NetworkUtils.getHostFromURL(request.getRequestURL().toString()));
