@@ -3,7 +3,7 @@ package com.nhn.pinpoint.profiler.util;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.profiler.DummyInstrumentation;
-import com.nhn.pinpoint.profiler.context.ReadableSpanStorageFactory;
+import com.nhn.pinpoint.profiler.context.storage.ReadableSpanStorageFactory;
 import com.nhn.pinpoint.profiler.context.StorageFactory;
 import com.nhn.pinpoint.profiler.sender.DataSender;
 import com.nhn.pinpoint.profiler.sender.EnhancedDataSender;

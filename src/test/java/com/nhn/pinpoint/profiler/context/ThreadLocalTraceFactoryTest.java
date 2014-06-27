@@ -2,6 +2,7 @@ package com.nhn.pinpoint.profiler.context;
 
 import com.nhn.pinpoint.bootstrap.context.Trace;
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.profiler.context.storage.LogStorageFactory;
 import com.nhn.pinpoint.profiler.monitor.metric.MetricRegistry;
 import com.nhn.pinpoint.profiler.sampler.TrueSampler;
 import junit.framework.Assert;

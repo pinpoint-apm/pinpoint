@@ -3,6 +3,7 @@ package com.nhn.pinpoint.profiler.context;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.Version;
 import com.nhn.pinpoint.profiler.AgentInformation;
+import com.nhn.pinpoint.profiler.context.storage.BufferedStorage;
 import com.nhn.pinpoint.profiler.sender.CountingDataSender;
 import junit.framework.Assert;
 import org.junit.Before;

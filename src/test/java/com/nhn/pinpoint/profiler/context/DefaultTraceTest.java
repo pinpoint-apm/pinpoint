@@ -3,6 +3,7 @@ package com.nhn.pinpoint.profiler.context;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.Version;
 import com.nhn.pinpoint.profiler.AgentInformation;
+import com.nhn.pinpoint.profiler.context.storage.SpanStorage;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinderInitializer;
 import com.nhn.pinpoint.profiler.sender.LoggingDataSender;
 import org.junit.*;

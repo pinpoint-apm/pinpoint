@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
-import com.nhn.pinpoint.profiler.context.BufferedStorageFactory;
+import com.nhn.pinpoint.profiler.context.storage.BufferedStorageFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +22,7 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.Version;
 import com.nhn.pinpoint.exception.PinpointException;
 import com.nhn.pinpoint.profiler.context.DefaultTraceContext;
-import com.nhn.pinpoint.profiler.context.SpanStorageFactory;
+import com.nhn.pinpoint.profiler.context.storage.SpanStorageFactory;
 import com.nhn.pinpoint.profiler.context.StorageFactory;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;

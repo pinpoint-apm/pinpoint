@@ -5,6 +5,7 @@ import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.Version;
 import com.nhn.pinpoint.profiler.AgentInformation;
+import com.nhn.pinpoint.profiler.context.storage.SpanStorage;
 import com.nhn.pinpoint.profiler.sender.EnhancedDataSender;
 import com.nhn.pinpoint.profiler.sender.LoggingDataSender;
 import com.nhn.pinpoint.rpc.FutureListener;

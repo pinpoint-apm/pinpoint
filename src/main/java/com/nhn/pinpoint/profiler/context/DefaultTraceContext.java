@@ -5,6 +5,7 @@ import com.nhn.pinpoint.bootstrap.context.*;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.AgentInformation;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
+import com.nhn.pinpoint.profiler.context.storage.LogStorageFactory;
 import com.nhn.pinpoint.profiler.metadata.SimpleCache;
 import com.nhn.pinpoint.profiler.modifier.db.DefaultDatabaseInfo;
 import com.nhn.pinpoint.profiler.monitor.metric.MetricRegistry;

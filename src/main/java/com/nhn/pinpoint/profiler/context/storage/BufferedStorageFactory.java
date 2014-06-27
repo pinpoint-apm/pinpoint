@@ -1,7 +1,10 @@
-package com.nhn.pinpoint.profiler.context;
+package com.nhn.pinpoint.profiler.context.storage;
 
 import com.nhn.pinpoint.profiler.AgentInformation;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
+import com.nhn.pinpoint.profiler.context.SpanChunkFactory;
+import com.nhn.pinpoint.profiler.context.Storage;
+import com.nhn.pinpoint.profiler.context.StorageFactory;
 import com.nhn.pinpoint.profiler.sender.DataSender;
 
 /**
