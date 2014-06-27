@@ -6,14 +6,7 @@ import java.util.Map;
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.modifier.arcus.ArcusClientModifier;
-import com.nhn.pinpoint.profiler.modifier.arcus.BaseOperationModifier;
-import com.nhn.pinpoint.profiler.modifier.arcus.CacheManagerModifier;
-import com.nhn.pinpoint.profiler.modifier.arcus.CollectionFutureModifier;
-import com.nhn.pinpoint.profiler.modifier.arcus.GetFutureModifier;
-import com.nhn.pinpoint.profiler.modifier.arcus.ImmediateFutureModifier;
-import com.nhn.pinpoint.profiler.modifier.arcus.MemcachedClientModifier;
-import com.nhn.pinpoint.profiler.modifier.arcus.OperationFutureModifier;
+import com.nhn.pinpoint.profiler.modifier.arcus.*;
 import com.nhn.pinpoint.profiler.modifier.bloc.handler.HTTPHandlerModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.asynchttpclient.AsyncHttpClientModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.BasicFutureModifier;
@@ -141,6 +134,9 @@ public class DefaultModifierRegistry implements ModifierRegistry {
             MemcachedClientModifier memcachedClientModifier = new MemcachedClientModifier(byteCodeInstrumentor, agent);
             addModifier(memcachedClientModifier);
 
+            FrontCacheMemcachedClientModifier frontCacheMemcachedClientModifier = new FrontCacheMemcachedClientModifier(byteCodeInstrumentor, agent);
+            addModifier(frontCacheMemcachedClientModifier);
+
             if (arcus) {
                 ArcusClientModifier arcusClientModifier = new ArcusClientModifier(byteCodeInstrumentor, agent);
                 addModifier(arcusClientModifier);
@@ -159,6 +155,9 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 
             OperationFutureModifier operationFutureModifier = new OperationFutureModifier(byteCodeInstrumentor, agent);
             addModifier(operationFutureModifier);
+
+            FrontCacheGetFutureModifier frontCacheGetFutureModifier = new FrontCacheGetFutureModifier(byteCodeInstrumentor, agent);
+            addModifier(frontCacheGetFutureModifier);
 
             // future modifier end ---------------------------------------------------
 

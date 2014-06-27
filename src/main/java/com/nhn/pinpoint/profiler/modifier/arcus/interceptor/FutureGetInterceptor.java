@@ -64,10 +64,14 @@ public class FutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMe
             final Operation op = (Operation) getOperation.invoke(target);
             if (op != null) {
                 MemcachedNode handlingNode = op.getHandlingNode();
-                SocketAddress socketAddress = handlingNode.getSocketAddress();
-                if (socketAddress instanceof InetSocketAddress) {
-                    InetSocketAddress address = (InetSocketAddress) socketAddress;
-                    trace.recordEndPoint(address.getHostName() + ":" + address.getPort());
+                if (handlingNode != null) {
+                    SocketAddress socketAddress = handlingNode.getSocketAddress();
+                    if (socketAddress instanceof InetSocketAddress) {
+                        InetSocketAddress address = (InetSocketAddress) socketAddress;
+                        trace.recordEndPoint(address.getHostName() + ":" + address.getPort());
+                    }
+                } else {
+                    logger.info("no handling node");
                 }
             } else {
                 logger.info("operation not found");

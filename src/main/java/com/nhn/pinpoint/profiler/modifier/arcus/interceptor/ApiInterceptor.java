@@ -14,6 +14,7 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.bootstrap.context.Trace;
 import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.util.MetaObject;
+import net.spy.memcached.plugin.FrontCacheGetFuture;
 
 /**
  * @author emeroad
@@ -65,7 +66,7 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDe
             }
 
             // find the target node
-            if (result instanceof Future) {
+            if ((result instanceof Future) && !(result instanceof FrontCacheGetFuture)) {
                 Operation op = (Operation) getOperation.invoke(((Future<?>)result));
                 if (op != null) {
                     MemcachedNode handlingNode = op.getHandlingNode();
