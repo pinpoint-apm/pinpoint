@@ -37,12 +37,7 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
 
         try {
             final HttpServletRequest request = (HttpServletRequest) args[0];
-            final String requestURL = request.getRequestURI();
-            final String remoteAddr = request.getRemoteAddr();
-            final int port = request.getServerPort();
-            final String endPoint = request.getServerName() + ":" + port;
-
-            final Trace trace = createTrace(request, requestURL, remoteAddr);
+            final Trace trace = createTrace(request);
             if (!trace.canSampled()) {
                 return;
             }
@@ -50,9 +45,15 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
             trace.markBeforeTime();
 
             trace.recordServiceType(ServiceType.TOMCAT);
+
+            final String requestURL = request.getRequestURI();
             trace.recordRpcName(requestURL);
 
+            final int port = request.getServerPort();
+            final String endPoint = request.getServerName() + ":" + port;
             trace.recordEndPoint(endPoint);
+
+            final String remoteAddr = request.getRemoteAddr();
             trace.recordRemoteAddress(remoteAddr);
 
             if (!trace.isRoot()) {
@@ -65,7 +66,7 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
         }
     }
 
-    private Trace createTrace(HttpServletRequest request, String requestURL, String remoteAddr) {
+    private Trace createTrace(HttpServletRequest request) {
         // remote call에 sampling flag가 설정되어있을 경우는 샘플링 대상으로 삼지 않는다.
         final boolean sampling = samplingEnable(request);
         if (!sampling) {
@@ -73,7 +74,7 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
             // sampling 대상이 아닐경우 rpc 호출에서 sampling 대상이 아닌 것에 rpc호출 파라미터에 sampling disable 파라미터를 박을수 있다.
             final Trace trace = traceContext.disableSampling();
             if (isDebug) {
-                logger.debug("remotecall sampling flag found. skip trace requestUrl:{}, remoteAddr:{}", requestURL, remoteAddr);
+                logger.debug("remotecall sampling flag found. skip trace requestUrl:{}, remoteAddr:{}", request.getRequestURI(), request.getRemoteAddr());
             }
             return trace;
         }
@@ -87,11 +88,11 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
 
             if (trace.canSampled()) {
                 if (isDebug) {
-                    logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[]{traceId, requestURL, remoteAddr});
+                    logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[] {traceId, request.getRequestURI(), request.getRemoteAddr()});
                 }
             } else {
                 if (isDebug) {
-                    logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[]{traceId, requestURL, remoteAddr});
+                    logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[] {traceId, request.getRequestURI(), request.getRemoteAddr()});
                 }
             }
             return trace;
@@ -99,11 +100,11 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
             final Trace trace = traceContext.newTraceObject();
             if (trace.canSampled()){
                 if (isDebug) {
-                    logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", new Object[]{requestURL, remoteAddr});
+                    logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", request.getRequestURI(), request.getRemoteAddr());
                 }
             } else {
                 if (isDebug) {
-                    logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", new Object[]{requestURL, remoteAddr});
+                    logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", request.getRequestURI(), request.getRemoteAddr());
                 }
             }
             return trace;
@@ -142,7 +143,6 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
                 trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
             }
 
-
             trace.recordApi(descriptor);
 
             trace.recordException(result);
@@ -168,7 +168,7 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
             long spanID = NumberUtils.parseLong(request.getHeader(Header.HTTP_SPAN_ID.toString()), SpanId.NULL);
             short flags = NumberUtils.parseShort(request.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
 
-            TraceId id = this.traceContext.createTraceId(transactionId, parentSpanID, spanID, flags);
+            final TraceId id = this.traceContext.createTraceId(transactionId, parentSpanID, spanID, flags);
             if (isDebug) {
                 logger.debug("TraceID exist. continue trace. {}", id);
             }
@@ -180,7 +180,7 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
 
     private boolean samplingEnable(HttpServletRequest request) {
         // optional 값.
-        String samplingFlag = request.getHeader(Header.HTTP_SAMPLED.toString());
+        final String samplingFlag = request.getHeader(Header.HTTP_SAMPLED.toString());
         if (isDebug) {
             logger.debug("SamplingFlag:{}", samplingFlag);
         }
