@@ -8,6 +8,7 @@ import com.nhn.pinpoint.bootstrap.interceptor.*;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import net.spy.memcached.MemcachedNode;
+import net.spy.memcached.internal.OperationFuture;
 import net.spy.memcached.ops.Operation;
 
 import com.nhn.pinpoint.common.ServiceType;
@@ -66,7 +67,7 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDe
             }
 
             // find the target node
-            if ((result instanceof Future) && !(result instanceof FrontCacheGetFuture)) {
+            if (result instanceof OperationFuture) {
                 Operation op = (Operation) getOperation.invoke(((Future<?>)result));
                 if (op != null) {
                     MemcachedNode handlingNode = op.getHandlingNode();
