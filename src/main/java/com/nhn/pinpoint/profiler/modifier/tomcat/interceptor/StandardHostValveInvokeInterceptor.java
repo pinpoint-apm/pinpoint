@@ -2,10 +2,7 @@ package com.nhn.pinpoint.profiler.modifier.tomcat.interceptor;
 
 import java.util.Enumeration;
 
-import com.nhn.pinpoint.bootstrap.context.Header;
-import com.nhn.pinpoint.bootstrap.context.Trace;
-import com.nhn.pinpoint.bootstrap.context.TraceContext;
-import com.nhn.pinpoint.bootstrap.context.TraceId;
+import com.nhn.pinpoint.bootstrap.context.*;
 import com.nhn.pinpoint.bootstrap.interceptor.*;
 import com.nhn.pinpoint.profiler.context.*;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
@@ -31,7 +28,6 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
     private MethodDescriptor descriptor;
 
     private TraceContext traceContext;
-//    private ContainerAcceptor acceptor = new ContainerAcceptor(logger, ServiceType.TOMCAT);
 
     @Override
     public void before(Object target, Object[] args) {
@@ -40,52 +36,15 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
         }
 
         try {
-//            traceContext.getActiveThreadCounter().start();
+            final HttpServletRequest request = (HttpServletRequest) args[0];
+            final String requestURL = request.getRequestURI();
+            final String remoteAddr = request.getRemoteAddr();
+            final int port = request.getServerPort();
+            final String endPoint = request.getServerName() + ":" + port;
 
-            HttpServletRequest request = (HttpServletRequest) args[0];
-            String requestURL = request.getRequestURI();
-            String remoteAddr = request.getRemoteAddr();
-            String port = Integer.toString(request.getServerPort());
-            String endPoint = request.getServerName() + ":" + port;
-
-            // remote call에 sampling flag가 설정되어있을 경우는 샘플링 대상으로 삼지 않는다.
-            boolean sampling = samplingEnable(request);
-            if (!sampling) {
-                // 샘플링 대상이 아닐 경우도 TraceObject를 생성하여, sampling 대상이 아니라는것을 명시해야 한다.
-                // sampling 대상이 아닐경우 rpc 호출에서 sampling 대상이 아닌 것에 rpc호출 파라미터에 sampling disable 파라미터를 박을수 있다.
-                traceContext.disableSampling();
-                if (isDebug) {
-                    logger.debug("remotecall sampling flag found. skip trace requestUrl:{}, remoteAddr:{}", requestURL, remoteAddr);
-                }
+            final Trace trace = createTrace(request, requestURL, remoteAddr);
+            if (!trace.canSampled()) {
                 return;
-            }
-
-
-            TraceId traceId = populateTraceIdFromRequest(request);
-            Trace trace;
-            if (traceId != null) {
-                // TODO remote에서 sampling flag로 마크가되는 대상으로 왔을 경우도 추가로 샘플링 칠수 있어야 할것으로 보임.
-                trace = traceContext.continueTraceObject(traceId);
-                if (!trace.canSampled()) {
-                    if (isDebug) {
-                        logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[]{traceId, requestURL, remoteAddr});
-                        return;
-                    }
-                } else {
-                    if (isDebug) {
-                        logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[]{traceId, requestURL, remoteAddr});
-                    }
-                }
-            } else {
-                trace = traceContext.newTraceObject();
-                if (!trace.canSampled()){
-                    logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", new Object[]{requestURL, remoteAddr});
-                    return;
-                } else {
-                    if (isDebug) {
-                        logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", new Object[]{requestURL, remoteAddr});
-                    }
-                }
             }
 
             trace.markBeforeTime();
@@ -93,20 +52,11 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
             trace.recordServiceType(ServiceType.TOMCAT);
             trace.recordRpcName(requestURL);
 
-
             trace.recordEndPoint(endPoint);
             trace.recordRemoteAddress(remoteAddr);
-            
-            // 서버 맵을 통계정보에서 조회하려면 remote로 호출되는 WAS의 관계를 알아야해서 부모의 application name을 전달받음.
-            if (traceId != null && !traceId.isRoot()) {
-            	String parentApplicationName = populateParentApplicationNameFromRequest(request);
-            	short parentApplicationType = populateParentApplicationTypeFromRequest(request);
-            	if (parentApplicationName != null) {
-            		trace.recordParentApplication(parentApplicationName, parentApplicationType);
-            		trace.recordAcceptorHost(NetworkUtils.getHostFromURL(request.getRequestURL().toString()));
-            	}
-            } else {
-            	// TODO 여기에서 client 정보를 수집할 수 있다.
+
+            if (!trace.isRoot()) {
+                recordParentInfo(request, trace);
             }
         } catch (Throwable e) {
             if (logger.isWarnEnabled()) {
@@ -115,13 +65,67 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
         }
     }
 
+    private Trace createTrace(HttpServletRequest request, String requestURL, String remoteAddr) {
+        // remote call에 sampling flag가 설정되어있을 경우는 샘플링 대상으로 삼지 않는다.
+        final boolean sampling = samplingEnable(request);
+        if (!sampling) {
+            // 샘플링 대상이 아닐 경우도 TraceObject를 생성하여, sampling 대상이 아니라는것을 명시해야 한다.
+            // sampling 대상이 아닐경우 rpc 호출에서 sampling 대상이 아닌 것에 rpc호출 파라미터에 sampling disable 파라미터를 박을수 있다.
+            final Trace trace = traceContext.disableSampling();
+            if (isDebug) {
+                logger.debug("remotecall sampling flag found. skip trace requestUrl:{}, remoteAddr:{}", requestURL, remoteAddr);
+            }
+            return trace;
+        }
+
+
+        final TraceId traceId = populateTraceIdFromRequest(request);
+        if (traceId != null) {
+            // TODO remote에서 sampling flag로 마크가되는 대상으로 왔을 경우도 추가로 샘플링 칠수 있어야 할것으로 보임.
+            final Trace trace = traceContext.continueTraceObject(traceId);
+            // 서버 맵을 통계정보에서 조회하려면 remote로 호출되는 WAS의 관계를 알아야해서 부모의 application name을 전달받음.
+
+            if (trace.canSampled()) {
+                if (isDebug) {
+                    logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[]{traceId, requestURL, remoteAddr});
+                }
+            } else {
+                if (isDebug) {
+                    logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[]{traceId, requestURL, remoteAddr});
+                }
+            }
+            return trace;
+        } else {
+            final Trace trace = traceContext.newTraceObject();
+            if (trace.canSampled()){
+                if (isDebug) {
+                    logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", new Object[]{requestURL, remoteAddr});
+                }
+            } else {
+                if (isDebug) {
+                    logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", new Object[]{requestURL, remoteAddr});
+                }
+            }
+            return trace;
+        }
+    }
+
+    private void recordParentInfo(HttpServletRequest request, Trace trace) {
+        String parentApplicationName = request.getHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString());
+        if (parentApplicationName != null) {
+            trace.recordAcceptorHost(NetworkUtils.getHostFromURL(request.getRequestURL().toString()));
+
+            final String type = request.getHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString());
+            final short parentApplicationType = NumberUtils.parseShort(type, ServiceType.UNDEFINED.getCode());
+            trace.recordParentApplication(parentApplicationName, parentApplicationType);
+        }
+    }
+
     @Override
     public void after(Object target, Object[] args, Object result) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result);
         }
-
-//        traceContext.getActiveThreadCounter().end();
 
         Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
@@ -183,18 +187,6 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
         return SamplingFlagUtils.isSamplingFlag(samplingFlag);
     }
 
-    private String populateParentApplicationNameFromRequest(HttpServletRequest request) {
-		return request.getHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString());
-	}
-	
-	private short populateParentApplicationTypeFromRequest(HttpServletRequest request) {
-		String type = request.getHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString());
-		if (type != null) {
-			return Short.valueOf(type);
-		}
-		return ServiceType.UNDEFINED.getCode();
-	}
-    
     private String getRequestParameter(HttpServletRequest request, int eachLimit, int totalLimit) {
         Enumeration<?> attrs = request.getParameterNames();
         final StringBuilder params = new StringBuilder(64);
