@@ -1,8 +1,11 @@
-package com.nhn.pinpoint.profiler.context;
+package com.nhn.pinpoint.profiler.context.storage;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.Version;
 import com.nhn.pinpoint.profiler.AgentInformation;
+import com.nhn.pinpoint.profiler.context.Span;
+import com.nhn.pinpoint.profiler.context.SpanChunkFactory;
+import com.nhn.pinpoint.profiler.context.SpanEvent;
 import com.nhn.pinpoint.profiler.context.storage.BufferedStorage;
 import com.nhn.pinpoint.profiler.sender.CountingDataSender;
 import junit.framework.Assert;
