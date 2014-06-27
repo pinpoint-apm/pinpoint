@@ -47,6 +47,8 @@ pinpointApp.directive('filterInformation', [ '$filter', '$base64',
                     var toAgentName = oServerMapFilterVo.getToAgentName();
                     if (fromAgentName || toAgentName) {
                         scope.agentFilterInfo = (fromAgentName || 'all') + ' -> ' + (toAgentName || 'all');
+                    } else {
+                        scope.agentFilterInfo = false;
                     }
 
                 };
