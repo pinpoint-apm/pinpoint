@@ -15,6 +15,7 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
         bNoData = true;
         reloadOnlyForNode = false;
         reloadOnlyForLink = false;
+        $scope.sidebarLoading = false;
 
         /**
          * initialize
@@ -104,6 +105,7 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
          */
         $scope.$on('servermap.hasData', function (event) {
             bNoData = false;
+            $scope.sidebarLoading = false;
         });
 
         /**
@@ -111,6 +113,7 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
          */
         $scope.$on('servermap.hasNoData', function (event) {
             bNoData = true;
+            $scope.sidebarLoading = false;
         });
 
         /**
@@ -157,6 +160,7 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
                 .setQueryStartTime(oNavbarVo.getQueryStartTime())
                 .setQueryEndTime(oTimeSliderVo.getInnerFrom())
                 .autoCalcultateByQueryStartTimeAndQueryEndTime();
+            $scope.sidebarLoading = true;
             $scope.$broadcast('timeSlider.disableMore');
             $scope.$broadcast('serverMap.fetch', newNavbarVo.getQueryPeriod(), newNavbarVo.getQueryEndTime());
         });

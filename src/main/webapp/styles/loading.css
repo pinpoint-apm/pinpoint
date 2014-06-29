@@ -1,0 +1,272 @@
+.cg-busy{
+    position:absolute;
+    top:0px;
+    left:0px;
+    right:0px;
+    bottom:0px;
+    z-index:30;
+}
+
+.cg-busy-animation.ng-hide-add,
+.cg-busy-animation.ng-hide-remove {
+    -webkit-transition:all .3s ease;
+    -moz-transition:all .3s ease;
+    -o-transition:all .3s ease;
+    transition:all .3s ease;
+    display:block !important;
+}
+.cg-busy-animation.ng-hide-remove {
+    opacity:0;
+    -webkit-transform:translate(0px,-40px);
+    -moz-transform:translate(0px,-40px);
+    -ms-transform:translate(0px,-40px);
+    -o-transform:translate(0px,-40px);
+    transform:translate(0px,-40px);
+}
+.cg-busy-animation.ng-hide-remove.ng-hide-remove-active {
+    opacity:1;
+    -webkit-transform:translate(0px,0px);
+    -moz-transform:translate(0px,0px);
+    -ms-transform:translate(0px,0px);
+    -o-transform:translate(0px,0px);
+    transform:translate(0px,0px);
+}
+.cg-busy-animation.ng-hide-add {
+    opacity:1;
+    -webkit-transform:translate(0px,0px);
+    -moz-transform:translate(0px,0px);
+    -ms-transform:translate(0px,0px);
+    -o-transform:translate(0px,0px);
+    transform:translate(0px,0px);
+}
+.cg-busy-animation.ng-hide-add.ng-hide-add-active {
+    opacity:0;
+    -webkit-transform:translate(0px,-40px);
+    -moz-transform:translate(0px,-40px);
+    -ms-transform:translate(0px,-40px);
+    -o-transform:translate(0px,-40px);
+    transform:translate(0px,-40px);
+}
+
+.cg-busy-backdrop {
+    background-color:white;
+    opacity:.7;
+}
+
+/* All styles below are for the default template. */
+
+.cg-busy-default-wrapper {
+    text-align:center;
+    z-index:31;
+}
+
+.cg-busy-default-sign{
+    display: inline-block;
+    position:relative;
+    padding-bottom: 6px;
+    color:#333333;
+    text-shadow:0 1px 1px rgba(255, 255, 255, 0.75);
+    background-color:#e9eeee;
+    border:1px solid #dddddd;
+    border-top-width:0;
+    -webkit-border-radius:7px;
+    -moz-border-radius:7px;
+    border-radius:7px;
+    border-top-left-radius:0;
+    border-top-right-radius:0;
+    -webkit-box-shadow:inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
+    -moz-box-shadow:inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05);
+}
+.cg-busy-default-text{
+    margin:13px 12px 6px 49px;
+    font-size:16px;
+    color:#555;
+    text-align: left;
+    max-width: 400px;
+}
+.cg-busy-default-spinner{
+    position:absolute;
+    width:25px;
+    height:25px;
+    display:inline-block;
+    top:12px;
+    left:14px;
+}
+.cg-busy-default-spinner div{
+    width:12%;
+    height:26%;
+    background:#000;
+    position:absolute;
+    left:44.5%;
+    top:37%;
+    opacity:0;
+    -webkit-animation:cg-busy-spinner-anim 1s linear infinite;
+    -moz-animation:cg-busy-spinner-anim 1s linear infinite;
+    -ms-animation:cg-busy-spinner-anim 1s linear infinite;
+    -o-animation:cg-busy-spinner-anim 1s linear infinite;
+    animation:cg-busy-spinner-anim 1s linear infinite;
+    -webkit-border-radius:50px;
+    -moz-border-radius:50px;
+    border-radius:50px;
+    -webkit-box-shadow:0 0 3px rgba(0,0,0,0.2);
+    -moz-box-shadow:0 0 3px rgba(0,0,0,0.2);
+    box-shadow:0 0 3px rgba(0,0,0,0.2);
+}
+.cg-busy-default-spinner div.bar1{
+    -webkit-transform:rotate(0deg) translate(0, -142%);
+    -moz-transform:rotate(0deg) translate(0, -142%);
+    -ms-transform:rotate(0deg) translate(0, -142%);
+    -o-transform:rotate(0deg) translate(0, -142%);
+    transform:rotate(0deg) translate(0, -142%);
+    -webkit-animation-delay:0s;
+    -moz-animation-delay:0s;
+    -ms-animation-delay:0s;
+    -o-animation-delay:0s;
+    animation-delay:0s;
+}
+.cg-busy-default-spinner div.bar2{
+    -webkit-transform:rotate(30deg) translate(0, -142%);
+    -moz-transform:rotate(30deg) translate(0, -142%);
+    -ms-transform:rotate(30deg) translate(0, -142%);
+    -o-transform:rotate(30deg) translate(0, -142%);
+    transform:rotate(30deg) translate(0, -142%);
+    -webkit-animation-delay:-0.9167s;
+    -moz-animation-delay:-0.9167s;
+    -ms-animation-delay:-0.9167s;
+    -o-animation-delay:-0.9167s;
+    animation-delay:-0.9167s;
+}
+.cg-busy-default-spinner div.bar3{
+    -webkit-transform:rotate(60deg) translate(0, -142%);
+    -moz-transform:rotate(60deg) translate(0, -142%);
+    -ms-transform:rotate(60deg) translate(0, -142%);
+    -o-transform:rotate(60deg) translate(0, -142%);
+    transform:rotate(60deg) translate(0, -142%);
+    -webkit-animation-delay:-0.833s;
+    -moz-animation-delay:-0.833s;
+    -ms-animation-delay:-0.833s;
+    -o-animation-delay:-0.833s;
+    animation-delay:-0.833s;
+}
+.cg-busy-default-spinner div.bar4{
+    -webkit-transform:rotate(90deg) translate(0, -142%);
+    -moz-transform:rotate(90deg) translate(0, -142%);
+    -ms-transform:rotate(90deg) translate(0, -142%);
+    -o-transform:rotate(90deg) translate(0, -142%);
+    transform:rotate(90deg) translate(0, -142%);
+    -webkit-animation-delay:-0.75s;
+    -moz-animation-delay:-0.75s;
+    -ms-animation-delay:-0.75s;
+    -o-animation-delay:-0.75s;
+    animation-delay:-0.75s;
+}
+.cg-busy-default-spinner div.bar5{
+    -webkit-transform:rotate(120deg) translate(0, -142%);
+    -moz-transform:rotate(120deg) translate(0, -142%);
+    -ms-transform:rotate(120deg) translate(0, -142%);
+    -o-transform:rotate(120deg) translate(0, -142%);
+    transform:rotate(120deg) translate(0, -142%);
+    -webkit-animation-delay:-0.667s;
+    -moz-animation-delay:-0.667s;
+    -ms-animation-delay:-0.667s;
+    -o-animation-delay:-0.667s;
+    animation-delay:-0.667s;
+}
+.cg-busy-default-spinner div.bar6{
+    -webkit-transform:rotate(150deg) translate(0, -142%);
+    -moz-transform:rotate(150deg) translate(0, -142%);
+    -ms-transform:rotate(150deg) translate(0, -142%);
+    -o-transform:rotate(150deg) translate(0, -142%);
+    transform:rotate(150deg) translate(0, -142%);
+    -webkit-animation-delay:-0.5833s;
+    -moz-animation-delay:-0.5833s;
+    -ms-animation-delay:-0.5833s;
+    -o-animation-delay:-0.5833s;
+    animation-delay:-0.5833s;
+}
+.cg-busy-default-spinner div.bar7{
+    -webkit-transform:rotate(180deg) translate(0, -142%);
+    -moz-transform:rotate(180deg) translate(0, -142%);
+    -ms-transform:rotate(180deg) translate(0, -142%);
+    -o-transform:rotate(180deg) translate(0, -142%);
+    transform:rotate(180deg) translate(0, -142%);
+    -webkit-animation-delay:-0.5s;
+    -moz-animation-delay:-0.5s;
+    -ms-animation-delay:-0.5s;
+    -o-animation-delay:-0.5s;
+    animation-delay:-0.5s;
+}
+.cg-busy-default-spinner div.bar8{
+    -webkit-transform:rotate(210deg) translate(0, -142%);
+    -moz-transform:rotate(210deg) translate(0, -142%);
+    -ms-transform:rotate(210deg) translate(0, -142%);
+    -o-transform:rotate(210deg) translate(0, -142%);
+    transform:rotate(210deg) translate(0, -142%);
+    -webkit-animation-delay:-0.41667s;
+    -moz-animation-delay:-0.41667s;
+    -ms-animation-delay:-0.41667s;
+    -o-animation-delay:-0.41667s;
+    animation-delay:-0.41667s;
+}
+.cg-busy-default-spinner div.bar9{
+    -webkit-transform:rotate(240deg) translate(0, -142%);
+    -moz-transform:rotate(240deg) translate(0, -142%);
+    -ms-transform:rotate(240deg) translate(0, -142%);
+    -o-transform:rotate(240deg) translate(0, -142%);
+    transform:rotate(240deg) translate(0, -142%);
+    -webkit-animation-delay:-0.333s;
+    -moz-animation-delay:-0.333s;
+    -ms-animation-delay:-0.333s;
+    -o-animation-delay:-0.333s;
+    animation-delay:-0.333s;
+}
+.cg-busy-default-spinner div.bar10{
+    -webkit-transform:rotate(270deg) translate(0, -142%);
+    -moz-transform:rotate(270deg) translate(0, -142%);
+    -ms-transform:rotate(270deg) translate(0, -142%);
+    -o-transform:rotate(270deg) translate(0, -142%);
+    transform:rotate(270deg) translate(0, -142%);
+    -webkit-animation-delay:-0.25s;
+    -moz-animation-delay:-0.25s;
+    -ms-animation-delay:-0.25s;
+    -o-animation-delay:-0.25s;
+    animation-delay:-0.25s;
+}
+.cg-busy-default-spinner div.bar11{
+    -webkit-transform:rotate(300deg) translate(0, -142%);
+    -moz-transform:rotate(300deg) translate(0, -142%);
+    -ms-transform:rotate(300deg) translate(0, -142%);
+    -o-transform:rotate(300deg) translate(0, -142%);
+    transform:rotate(300deg) translate(0, -142%);
+    -webkit-animation-delay:-0.1667s;
+    -moz-animation-delay:-0.1667s;
+    -ms-animation-delay:-0.1667s;
+    -o-animation-delay:-0.1667s;
+    animation-delay:-0.1667s;
+}
+.cg-busy-default-spinner div.bar12{
+    -webkit-transform:rotate(330deg) translate(0, -142%);
+    -moz-transform:rotate(330deg) translate(0, -142%);
+    -ms-transform:rotate(330deg) translate(0, -142%);
+    -o-transform:rotate(330deg) translate(0, -142%);
+    transform:rotate(330deg) translate(0, -142%);
+    -webkit-animation-delay:-0.0833s;
+    -moz-animation-delay:-0.0833s;
+    -ms-animation-delay:-0.0833s;
+    -o-animation-delay:-0.0833s;
+    animation-delay:-0.0833s;
+}
+
+@-webkit-keyframes cg-busy-spinner-anim{
+    from {opacity: 1;}
+    to {opacity: 0.25;}
+}
+@-moz-keyframes cg-busy-spinner-anim{
+    from {opacity: 1;}
+    to {opacity: 0.25;}
+}
+@keyframes cg-busy-spinner-anim{
+    from {opacity: 1;}
+    to {opacity: 0.25;}
+}

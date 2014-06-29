@@ -30,6 +30,7 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
             nFetchCount = 1;
             nLastFetchedIndex = 0;
             $scope.transactionDetailUrl = 'index.jsp#/transactionDetail';
+            $scope.sidebarLoading = true;
 
             if(!validateParentWindow()) {
                 if (confirm('Scatter data of parent window had been changed.\r\nso can\'t scan the data any more.\r\nDo you want to close this window?')) {
@@ -163,6 +164,7 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
 
                 oTimeSliderVo.addCount(data.metadata.length);
                 $scope.$emit('timeSlider.setInnerFromTo', oTimeSliderVo);
+                $scope.sidebarLoading = false;
             });
         };
 
@@ -199,6 +201,7 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
                 oTimeSliderVo.setCount(data.metadata.length);
 
                 $scope.$emit('timeSlider.initialize', oTimeSliderVo);
+                $scope.sidebarLoading = false;
             });
         };
 
@@ -246,6 +249,7 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
          * scope event on timeSlider.moreClicked
          */
         $scope.$on('timeSlider.moreClicked', function (event) {
+            $scope.sidebarLoading = true;
             $scope.$emit('timeSlider.disableMore');
             $timeout(function () {
                 fetchNext();

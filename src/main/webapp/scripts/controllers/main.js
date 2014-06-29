@@ -15,6 +15,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
         bNodeSelected = true;
         $scope.bShowHelpIcons = false;
         bNoData = true;
+        $scope.sidebarLoading = false;
 
         /**
          * bootstrap
@@ -107,6 +108,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
          */
         $scope.$on('servermap.hasData', function (event) {
             bNoData = false;
+            $scope.sidebarLoading = false;
         });
 
         /**
@@ -114,6 +116,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
          */
         $scope.$on('servermap.hasNoData', function (event) {
             bNoData = true;
+            $scope.sidebarLoading = false;
         });
 
         /**
@@ -124,6 +127,7 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
             changeLocation(oNavbarVo);
             $window.htoScatter = {};
             $scope.hasScatter = false;
+            $scope.sidebarLoading = true;
             $scope.$broadcast('sidebarTitle.empty.forMain');
             $scope.$broadcast('nodeInfoDetails.hide');
             $scope.$broadcast('linkInfoDetails.hide');

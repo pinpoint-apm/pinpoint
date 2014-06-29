@@ -6,7 +6,7 @@
     <div class="main">
         <server-map></server-map>
     </div>
-    <div class="sidebar" ng-class="sidebar">
+    <div class="sidebar" ng-class="sidebar" loading="sidebarLoading" loading-message="Loading...">
         <sidebar-title namespace="forMain"></sidebar-title>
         <filter-information namespace="forMain" ng-show="hasFilter"></filter-information>
         <scatter ng-show="hasScatter"></scatter>

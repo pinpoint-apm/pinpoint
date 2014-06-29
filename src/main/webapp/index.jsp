@@ -57,6 +57,7 @@
     <pinpoint:link rel="stylesheet" href="styles/serverMap.css" />
     <pinpoint:link rel="stylesheet" href="styles/filterInformation.css" />
     <pinpoint:link rel="stylesheet" href="styles/distributedCallFlow.css" />
+    <pinpoint:link rel="stylesheet" href="styles/loading.css" />
     <!-- endbuild -->
 
     <!-- build:js scripts/plugins.js -->
@@ -180,6 +181,30 @@
         </div>
     </div>
 </script>
+<script id="loading.html" type="text/ng-template">
+    <div class="cg-busy cg-busy-animation ng-hide" ng-show="!!showLoading">
+        <div class="cg-busy cg-busy-backdrop"></div>
+        <div class="cg-busy-default-wrapper" style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px;">
+            <div class="cg-busy-default-sign">
+                <div class="cg-busy-default-spinner">
+                    <div class="bar1"></div>
+                    <div class="bar2"></div>
+                    <div class="bar3"></div>
+                    <div class="bar4"></div>
+                    <div class="bar5"></div>
+                    <div class="bar6"></div>
+                    <div class="bar7"></div>
+                    <div class="bar8"></div>
+                    <div class="bar9"></div>
+                    <div class="bar10"></div>
+                    <div class="bar11"></div>
+                    <div class="bar12"></div>
+                </div>
+                <div class="cg-busy-default-text ng-binding">{{loadingMessage}}</div>
+            </div>
+        </div>
+    </div>
+</script>
 
 <!-- Modal -->
 <div id="supported-browsers" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
@@ -278,6 +303,7 @@
 <pinpoint:script src="scripts/directives/loadChart.js" />
 <pinpoint:script src="scripts/services/helpContent.js" />
 <pinpoint:script src="scripts/directives/jvmMemoryChart.js" />
+<pinpoint:script src="scripts/directives/loading.js" />
 <!-- endbuild -->
 </body>
 </html>
