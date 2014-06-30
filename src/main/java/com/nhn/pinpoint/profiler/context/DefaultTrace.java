@@ -96,7 +96,7 @@ public final class DefaultTrace implements Trace {
 		return this.storage;
     }
 
-    public short getSequence() {
+    public short nextSequence() {
         return sequence++;
     }
 
@@ -111,7 +111,7 @@ public final class DefaultTrace implements Trace {
 
         SpanEventStackFrame stackFrame = new SpanEventStackFrame(spanEvent);
         stackFrame.setStackFrameId(stackId);
-        stackFrame.setSequence(getSequence());
+        stackFrame.setSequence(nextSequence());
         return stackFrame;
     }
 
@@ -181,10 +181,16 @@ public final class DefaultTrace implements Trace {
         if (errCode != 0) {
             Histogram contextMetric = (Histogram) this.traceContext.getContextMetric();
             contextMetric.addResponseTime(HistogramSchema.ERROR_SLOT_TIME);
+            if (isDebug) {
+                logger.debug("ContextMetric {}", contextMetric);
+            }
         } else {
             final int elapsedTime = this.currentStackFrame.getElapsedTime();
             Histogram contextMetric = (Histogram) this.traceContext.getContextMetric();
             contextMetric.addResponseTime(elapsedTime);
+            if (isDebug) {
+                logger.debug("ContextMetric {}", contextMetric);
+            }
         }
     }
 

@@ -38,24 +38,21 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
         try {
             final HttpServletRequest request = (HttpServletRequest) args[0];
             final Trace trace = createTrace(request);
-            if (!trace.canSampled()) {
-                return;
-            }
 
             trace.markBeforeTime();
+            if (trace.canSampled()) {
+                trace.recordServiceType(ServiceType.TOMCAT);
 
-            trace.recordServiceType(ServiceType.TOMCAT);
+                final String requestURL = request.getRequestURI();
+                trace.recordRpcName(requestURL);
 
-            final String requestURL = request.getRequestURI();
-            trace.recordRpcName(requestURL);
+                final int port = request.getServerPort();
+                final String endPoint = request.getServerName() + ":" + port;
+                trace.recordEndPoint(endPoint);
 
-            final int port = request.getServerPort();
-            final String endPoint = request.getServerName() + ":" + port;
-            trace.recordEndPoint(endPoint);
-
-            final String remoteAddr = request.getRemoteAddr();
-            trace.recordRemoteAddress(remoteAddr);
-
+                final String remoteAddr = request.getRemoteAddr();
+                trace.recordRemoteAddress(remoteAddr);
+            }
             if (!trace.isRoot()) {
                 recordParentInfo(trace, request);
             }
@@ -128,25 +125,23 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
             logger.afterInterceptor(target, args, result);
         }
 
-        Trace trace = traceContext.currentRawTraceObject();
+        final Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
         traceContext.detachTraceObject();
-        if (!trace.canSampled()) {
-            return;
-        }
+
         try {
-            HttpServletRequest request = (HttpServletRequest) args[0];
-            String parameters = getRequestParameter(request, 64, 512);
-            if (parameters != null && parameters.length() > 0) {
-                trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+            if (trace.canSampled()) {
+                final HttpServletRequest request = (HttpServletRequest) args[0];
+                final String parameters = getRequestParameter(request, 64, 512);
+                if (parameters != null && parameters.length() > 0) {
+                    trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+                }
+
+                trace.recordApi(descriptor);
             }
-
-            trace.recordApi(descriptor);
-
             trace.recordException(result);
-
             trace.markAfterTime();
         } finally {
             trace.traceRootBlockEnd();
