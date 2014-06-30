@@ -57,7 +57,7 @@ public class ExecuteMethodInterceptor extends SpanSimpleAroundInterceptor implem
     }
 
     @Override
-    protected Trace createTrace(Object[] args) {
+    protected Trace createTrace(Object target, Object[] args) {
         final external.org.apache.coyote.Request request = (external.org.apache.coyote.Request) args[0];
         final boolean sampling = samplingEnable(request);
         if (!sampling) {

@@ -49,7 +49,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     }
 
     @Override
-    protected Trace createTrace(Object[] args) {
+    protected Trace createTrace(Object target, Object[] args) {
         final HttpServletRequest request = (HttpServletRequest) args[0];
         // remote call에 sampling flag가 설정되어있을 경우는 샘플링 대상으로 삼지 않는다.
         final boolean sampling = samplingEnable(request);
