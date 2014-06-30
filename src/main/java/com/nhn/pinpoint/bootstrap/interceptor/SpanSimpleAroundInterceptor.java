@@ -52,7 +52,7 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
         }
         traceContext.detachTraceObject();
         try {
-            doInAfterTrace(trace, args, result);
+            doInAfterTrace(trace, target, args, result);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("Tomcat StandardHostValve trace start fail. Caused:{}", th.getMessage(), th);
@@ -62,7 +62,7 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
         }
     }
 
-    protected abstract void doInAfterTrace(final Trace trace, final Object[] args, final Object result);
+    protected abstract void doInAfterTrace(final Trace trace, final Object target, final Object[] args, final Object result);
 
 
     @Override
