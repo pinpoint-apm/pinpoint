@@ -38,7 +38,7 @@ public class MetricRegistry {
         }
         final Short code = serviceType.getCode();
         final RpcMetric hit = rpcCache.get(code);
-        if ( hit!= null) {
+        if (hit != null) {
             return hit;
         }
         final RpcMetric rpcMetric = new DefaultRpcMetric(serviceType);

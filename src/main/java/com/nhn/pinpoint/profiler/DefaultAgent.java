@@ -23,7 +23,7 @@ import com.nhn.pinpoint.common.Version;
 import com.nhn.pinpoint.exception.PinpointException;
 import com.nhn.pinpoint.profiler.context.DefaultTraceContext;
 import com.nhn.pinpoint.profiler.context.storage.SpanStorageFactory;
-import com.nhn.pinpoint.profiler.context.StorageFactory;
+import com.nhn.pinpoint.profiler.context.storage.StorageFactory;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;

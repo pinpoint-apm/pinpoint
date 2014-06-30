@@ -61,12 +61,16 @@ public class CallStack {
 
     public synchronized int push() {
         index++;
+        checkExpentStack();
+        return index;
+    }
+
+    private void checkExpentStack() {
         if (index > stack.length - 1) {
             StackFrame[] old = stack;
             stack = new StackFrame[index + 4];
             System.arraycopy(old, 0, stack, 0, old.length);
         }
-        return index;
     }
 
     public synchronized int getStackFrameIndex() {

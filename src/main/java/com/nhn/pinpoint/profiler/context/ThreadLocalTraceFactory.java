@@ -5,6 +5,8 @@ import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.context.TraceId;
 import com.nhn.pinpoint.bootstrap.sampler.Sampler;
 import com.nhn.pinpoint.exception.PinpointException;
+import com.nhn.pinpoint.profiler.context.storage.Storage;
+import com.nhn.pinpoint.profiler.context.storage.StorageFactory;
 import com.nhn.pinpoint.profiler.monitor.metric.MetricRegistry;
 import com.nhn.pinpoint.profiler.util.NamedThreadLocal;
 import org.slf4j.Logger;
@@ -88,7 +90,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
     @Override
     public Trace disableSampling() {
         checkBeforeTraceObject();
-        final Trace metricTrace = new MetricTrace(traceContext, nextTransactionId());
+        final Trace metricTrace = createMetricTrace();
         threadLocal.set(metricTrace);
         return metricTrace;
     }
@@ -134,10 +136,14 @@ public class ThreadLocalTraceFactory implements TraceFactory {
             threadLocal.set(trace);
             return trace;
         } else {
-            final Trace metricTrace = new MetricTrace(traceContext, nextTransactionId());
+            final Trace metricTrace = createMetricTrace();
             threadLocal.set(metricTrace);
             return metricTrace;
         }
+    }
+
+    private MetricTrace createMetricTrace() {
+        return new MetricTrace(traceContext, nextTransactionId());
     }
 
     private long nextTransactionId() {

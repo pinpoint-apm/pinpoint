@@ -7,7 +7,6 @@ import com.nhn.pinpoint.bootstrap.context.ReadableStorage;
 import com.nhn.pinpoint.common.bo.SpanEventBo;
 import com.nhn.pinpoint.profiler.context.Span;
 import com.nhn.pinpoint.profiler.context.SpanEvent;
-import com.nhn.pinpoint.profiler.context.Storage;
 
 /**
  * @author Hyun Jeong

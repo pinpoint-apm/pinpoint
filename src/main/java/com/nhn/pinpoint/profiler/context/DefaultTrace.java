@@ -8,6 +8,7 @@ import com.nhn.pinpoint.common.util.ParsingResult;
 import com.nhn.pinpoint.exception.PinpointException;
 import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.bootstrap.util.StringUtils;
+import com.nhn.pinpoint.profiler.context.storage.Storage;
 import com.nhn.pinpoint.profiler.monitor.metric.Histogram;
 import com.nhn.pinpoint.thrift.dto.TIntStringStringValue;
 import org.slf4j.Logger;
