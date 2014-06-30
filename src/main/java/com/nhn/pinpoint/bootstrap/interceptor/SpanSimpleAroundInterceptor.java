@@ -41,7 +41,7 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
     protected abstract Trace createTrace(final Object target, final Object[] args);
 
     @Override
-    public void after(Object target, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result);
         }
@@ -52,7 +52,7 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
         }
         traceContext.detachTraceObject();
         try {
-            doInAfterTrace(trace, target, args, result);
+            doInAfterTrace(trace, target, args, result, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("after. Caused:{}", th.getMessage(), th);
@@ -62,7 +62,7 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
         }
     }
 
-    protected abstract void doInAfterTrace(final Trace trace, final Object target, final Object[] args, final Object result);
+    protected abstract void doInAfterTrace(final Trace trace, final Object target, final Object[] args, final Object result, Throwable throwable);
 
 
     @Override

@@ -25,9 +25,9 @@ public class LoggingInterceptor implements StaticAroundInterceptor, SimpleAround
 	}
 
 	@Override
-	public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
+	public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
 		if (logger.isLoggable(Level.FINE)) {
-			logger.fine("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result);
+			logger.fine("after " + StringUtils.toString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result + " Throwable:" + throwable);
 		}
 	}
 
@@ -39,9 +39,9 @@ public class LoggingInterceptor implements StaticAroundInterceptor, SimpleAround
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (logger.isLoggable(Level.FINE)) {
-            logger.fine("after " + StringUtils.toString(target) + " args:" + Arrays.toString(args) + " result:" + result);
+            logger.fine("after " + StringUtils.toString(target) + " args:" + Arrays.toString(args) + " result:" + result + " Throwable:" + throwable);
         }
     }
 

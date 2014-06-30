@@ -38,7 +38,7 @@ public interface Trace {
     boolean isRoot();
 
 
-    void recordException(Object result);
+    void recordException(Throwable throwable);
 
     void recordApi(MethodDescriptor methodDescriptor);
 

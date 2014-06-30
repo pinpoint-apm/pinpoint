@@ -12,11 +12,12 @@ public final class InterceptorUtils {
         return result instanceof Throwable;
     }
 
-	public static boolean isSuccess(Object result) {
-		return !isThrowable(result);
-	}
+    public static boolean isSuccess(Throwable throwable) {
+        return throwable == null;
+    }
 
-	public static String exceptionToString(Exception ex) {
+
+    public static String exceptionToString(Throwable ex) {
 		if (ex != null) {
 			StringBuilder sb = new StringBuilder(128);
 			sb.append(ex.toString()).append("\n");

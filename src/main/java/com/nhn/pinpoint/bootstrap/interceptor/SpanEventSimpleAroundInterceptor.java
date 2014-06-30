@@ -43,7 +43,7 @@ public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundIn
 
 
     @Override
-    public void after(Object target, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result);
         }
@@ -53,7 +53,7 @@ public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundIn
             return;
         }
         try {
-            doInAfterTrace(trace, target, args, result);
+            doInAfterTrace(trace, target, args, result, throwable);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("after error. Caused:{}", th.getMessage(), th);
@@ -63,7 +63,7 @@ public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundIn
         }
     }
 
-    protected abstract void doInAfterTrace(final Trace trace, final Object target, final Object[] args, final Object result);
+    protected abstract void doInAfterTrace(final Trace trace, final Object target, final Object[] args, final Object result, Throwable throwable);
 
 
     @Override
