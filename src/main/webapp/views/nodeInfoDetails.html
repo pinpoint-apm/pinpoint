@@ -36,16 +36,16 @@
                         <load-chart namespace="forNode_{{node.applicationName | applicationNameToClassName}}"></load-chart>
                     </div>
 
-                    <a class="btn btn-default btn-xs" href title="Show Load" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;"
+                    <a class="btn btn-default btn-xs" href title="Show Load" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;color:#8a6d3b"
                        ng-click="showNodeResponseSummaryForUnknown=!showNodeResponseSummaryForUnknown;renderNodeLoad(node.applicationName, index)" ng-show="showNodeResponseSummaryForUnknown">
                         <span class="glyphicon glyphicon-stats"></span>
                     </a>
-                    <a class="btn btn-default btn-xs" href title="Show Response Summary" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;"
+                    <a class="btn btn-default btn-xs" href title="Show Response Summary" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;color:#8a6d3b"
                        ng-click="showNodeResponseSummaryForUnknown=!showNodeResponseSummaryForUnknown;renderNodeResponseSummary(node.applicationName, index)" ng-show="!showNodeResponseSummaryForUnknown">
                         <span class="glyphicon glyphicon-stats"></span>
                     </a>
                     <a class="btn btn-default btn-xs" href ng-click="showNodeDetailInformation(index)"
-                       title="Show Node Information" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 50px; right:5px;">
+                       title="Show Node Information" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 50px; right:5px;color:#31708f;">
                         <span class="glyphicon glyphicon-info-sign"></span>
                     </a>
                     <!--<a class="btn btn-default btn-xs" href title="Filter Transaction" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 50px; right:5px;"-->

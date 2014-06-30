@@ -416,6 +416,15 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
                 };
 
                 /**
+                 * open filter wizard
+                 * @param index
+                 */
+                scope.openFilterWizard = function (index) {
+                    var link = htLastLink.unknownLinkGroup[index];
+                    scope.$broadcast('linkInfoDetails.openFilterWizard', link);
+                };
+
+                /**
                  * render link agent charts
                  * @param applicationName
                  */

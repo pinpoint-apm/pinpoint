@@ -669,6 +669,8 @@ pinpointApp.service('ServerMapDao', [ 'serverMapDaoConfig', function ServerMapDa
     this.getUnknownLinkDataByUnknownLinkGroup = function (applicationMapData, unknownLinkGroup) {
         for (var k in unknownLinkGroup) {
             unknownLinkGroup[k] = self.getLinkDataByKey(applicationMapData, unknownLinkGroup[k].key);
+            unknownLinkGroup[k]['fromNode'] = self.getNodeDataByKey(applicationMapData, unknownLinkGroup[k].from);
+            unknownLinkGroup[k]['toNode'] = self.getNodeDataByKey(applicationMapData, unknownLinkGroup[k].to);
         }
 
         return unknownLinkGroup;

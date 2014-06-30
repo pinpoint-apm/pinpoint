@@ -38,21 +38,25 @@
 
 
 
-                    <a class="btn btn-default btn-xs" href title="Show Load" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;"
+                    <a class="btn btn-default btn-xs" href title="Show Load" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;color:#8a6d3b"
                        ng-click="showLinkResponseSummaryForUnknown=!showLinkResponseSummaryForUnknown;renderLinkLoad(link.targetInfo.applicationName, index)" ng-show="showLinkResponseSummaryForUnknown">
                         <span class="glyphicon glyphicon-stats"></span>
                     </a>
-                    <a class="btn btn-default btn-xs" href title="Show Response Summary" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;"
+                    <a class="btn btn-default btn-xs" href title="Show Response Summary" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;color:#8a6d3b"
                        ng-click="showLinkResponseSummaryForUnknown=!showLinkResponseSummaryForUnknown;renderLinkResponseSummary(link.targetInfo.applicationName, index)" ng-show="!showLinkResponseSummaryForUnknown">
                         <span class="glyphicon glyphicon-stats"></span>
                     </a>
 
                     <a class="btn btn-default btn-xs" href ng-click="showLinkDetailInformation(index)"
-                       title="Show Link Information" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 50px; right:5px;">
+                       title="Show Link Information" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 50px; right:5px;color:#31708f;">
                         <span class="glyphicon glyphicon-info-sign"></span>
                     </a>
-                    <a class="btn btn-default btn-xs" href title="Filter Transaction" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 80px; right:5px;"
+                    <a class="btn btn-default btn-xs" href title="Filter Transaction" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 80px; right:5px;color:#3c763d"
                        ng-click="passingTransactionMapFromLinkInfoDetails(index)">
+                        <span class="glyphicon glyphicon-filter"></span>
+                    </a>
+                    <a class="btn btn-default btn-xs" href title="Filter Transaction Wizard" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 110px; right:5px;color:#a94442;"
+                       ng-click="openFilterWizard(index)">
                         <span class="glyphicon glyphicon-filter"></span>
                     </a>
                 </div>

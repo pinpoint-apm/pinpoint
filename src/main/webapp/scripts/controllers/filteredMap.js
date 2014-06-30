@@ -251,6 +251,13 @@ pinpointApp.controller('FilteredMapCtrl', [ 'filterConfig', '$scope', '$routePar
         });
 
         /**
+         * scope event on linkInfoDetails.openFilterWizard
+         */
+        $scope.$on('linkInfoDetails.openFilterWizard', function (event, oServerMapFilterVo, oServerMapHintVo) {
+            $scope.$broadcast('serverMap.openFilterWizard', oServerMapFilterVo, oServerMapHintVo);
+        });
+
+        /**
          * scope event on linkInfoDetails.ResponseSummary.barClicked
          */
         $scope.$on('linkInfoDetails.ResponseSummary.barClicked', function (event, oServerMapFilterVo, filterTargetRpcList) {

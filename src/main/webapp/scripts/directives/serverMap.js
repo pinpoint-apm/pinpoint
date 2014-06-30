@@ -47,7 +47,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                 // define private variables of methods
                 var showServerMap, setNodeContextMenuPosition, reset, emitDataExisting,
                     setLinkContextMenuPosition, setBackgroundContextMenuPosition, serverMapCallback, setLinkOption,
-                    zoomToFit, updateLastSelection;
+                    zoomToFit, updateLastSelection, openFilterWizard;
 
 
                 // bootstrap
@@ -409,41 +409,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                     });
                 };
 
-                /**
-                 * scope passing transaction response to scatter chart
-                 */
-                scope.passingTransactionResponseToScatterChart = function () {
-                    scope.$emit('serverMap.passingTransactionResponseToScatterChart', htLastNode);
-                    reset();
-                };
-
-                /**
-                 * passing transaction list
-                 */
-                scope.passingTransactionList = function () {
-                    var oServerMapFilterVo = new ServerMapFilterVo();
-
-                    oServerMapFilterVo
-                        .setMainApplication(htLastLink.filterApplicationName)
-                        .setMainServiceTypeCode(htLastLink.filterApplicationServiceTypeCode)
-                        .setFromApplication(htLastLink.fromNode.applicationName)
-                        .setFromServiceType(htLastLink.fromNode.serviceType)
-                        .setToApplication(htLastLink.toNode.applicationName)
-                        .setToServiceType(htLastLink.toNode.serviceType);
-
-                    var oServerMapHintVo = new ServerMapHintVo();
-                    if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {
-                        oServerMapHintVo.setHint(htLastLink.toNode.applicationName, htLastLink.filterTargetRpcList)
-                    }
-
-                    scope.$broadcast('serverMap.openFilteredMap', oServerMapFilterVo, oServerMapHintVo);
-                    reset();
-                };
-
-                /**
-                 * open filter wizard
-                 */
-                scope.openFilterWizard = function () {
+                openFilterWizard = function () {
                     reset();
                     var oSidebarTitleVo = new SidebarTitleVo;
 
@@ -508,11 +474,49 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                                     };
                                 }
                                 if (!scope.$$phase) {
-                                     scope.$digest();
+                                    scope.$digest();
                                 }
 
                             });
                     }
+                };
+
+                /**
+                 * scope passing transaction response to scatter chart
+                 */
+                scope.passingTransactionResponseToScatterChart = function () {
+                    scope.$emit('serverMap.passingTransactionResponseToScatterChart', htLastNode);
+                    reset();
+                };
+
+                /**
+                 * passing transaction list
+                 */
+                scope.passingTransactionList = function () {
+                    var oServerMapFilterVo = new ServerMapFilterVo();
+
+                    oServerMapFilterVo
+                        .setMainApplication(htLastLink.filterApplicationName)
+                        .setMainServiceTypeCode(htLastLink.filterApplicationServiceTypeCode)
+                        .setFromApplication(htLastLink.fromNode.applicationName)
+                        .setFromServiceType(htLastLink.fromNode.serviceType)
+                        .setToApplication(htLastLink.toNode.applicationName)
+                        .setToServiceType(htLastLink.toNode.serviceType);
+
+                    var oServerMapHintVo = new ServerMapHintVo();
+                    if (htLastLink.sourceInfo.isWas && htLastLink.targetInfo.isWas) {
+                        oServerMapHintVo.setHint(htLastLink.toNode.applicationName, htLastLink.filterTargetRpcList)
+                    }
+
+                    scope.$broadcast('serverMap.openFilteredMap', oServerMapFilterVo, oServerMapHintVo);
+                    reset();
+                };
+
+                /**
+                 * open filter wizard
+                 */
+                scope.openFilterWizard = function () {
+                    openFilterWizard();
                 };
 
                 /**
@@ -676,6 +680,11 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                  */
                 scope.$on('serverMap.zoomToFit', function (event) {
                     zoomToFit();
+                });
+
+                scope.$on('serverMap.openFilterWizard', function (event, link) {
+                    htLastLink = link;
+                    openFilterWizard();
                 });
             }
         };

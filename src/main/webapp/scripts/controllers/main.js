@@ -223,10 +223,17 @@ pinpointApp.controller('MainCtrl', [ 'filterConfig', '$scope', '$timeout', '$rou
         });
 
         /**
+         * scope event on linkInfoDetails.openFilterWizard
+         */
+        $scope.$on('linkInfoDetails.openFilterWizard', function (event, oServerMapFilterVo, oServerMapHintVo) {
+            $scope.$broadcast('serverMap.openFilterWizard', oServerMapFilterVo, oServerMapHintVo);
+        });
+
+        /**
          * scope event on linkInfoDetails.ResponseSummary.barClicked
          */
-        $scope.$on('linkInfoDetails.ResponseSummary.barClicked', function (event, oServerMapFilterVo, oServerMapHintVo) {
-            openFilteredMapWithFilterVo(oServerMapFilterVo, oServerMapHintVo);
+        $scope.$on('linkInfoDetails.ResponseSummary.barClicked', function (event, link) {
+            openFilteredMapWithFilterVo(link);
         });
 
         /**
