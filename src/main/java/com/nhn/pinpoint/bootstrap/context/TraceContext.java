@@ -54,5 +54,7 @@ public interface TraceContext {
 
     Metric getRpcMetric(ServiceType serviceType);
 
-    Metric getContextMetric();
+    void recordContextMetricIsError();
+
+    void recordContextMetric(int elapsedTime);
 }
