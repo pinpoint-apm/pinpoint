@@ -31,7 +31,7 @@ public class ExecuteMethodInterceptor extends SpanSimpleAroundInterceptor implem
     }
 
     @Override
-    public void doInBeforeTrace(Trace trace, Object[] args) {
+    public void doInBeforeTrace(Trace trace, Object target, Object[] args) {
 
         final external.org.apache.coyote.Request request = (external.org.apache.coyote.Request) args[0];
         trace.markBeforeTime();

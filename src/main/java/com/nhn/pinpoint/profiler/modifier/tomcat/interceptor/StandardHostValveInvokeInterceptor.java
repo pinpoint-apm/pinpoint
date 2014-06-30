@@ -5,7 +5,6 @@ import java.util.Enumeration;
 import com.nhn.pinpoint.bootstrap.context.*;
 import com.nhn.pinpoint.bootstrap.interceptor.*;
 import com.nhn.pinpoint.profiler.context.*;
-import com.nhn.pinpoint.bootstrap.logging.PLogger;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,7 +26,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     }
 
     @Override
-    protected void doInBeforeTrace(Trace trace, Object[] args) {
+    protected void doInBeforeTrace(Trace trace, Object target, Object[] args) {
         final HttpServletRequest request = (HttpServletRequest) args[0];
         trace.markBeforeTime();
         if (trace.canSampled()) {
