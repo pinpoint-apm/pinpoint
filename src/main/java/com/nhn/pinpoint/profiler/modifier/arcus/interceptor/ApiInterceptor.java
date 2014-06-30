@@ -15,7 +15,6 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.bootstrap.context.Trace;
 import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.util.MetaObject;
-import net.spy.memcached.plugin.FrontCacheGetFuture;
 
 /**
  * @author emeroad
@@ -48,7 +47,7 @@ public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDe
 	}
 
     @Override
-    public void after(Object target, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
 		if (isDebug) {
 			logger.afterInterceptor(target, args, result);
 		}

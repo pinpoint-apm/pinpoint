@@ -13,7 +13,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.nhn.pinpoint.rpc.server.SocketChannel;
 import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.internal.OperationFuture;
 import net.spy.memcached.ops.Operation;
@@ -59,7 +58,7 @@ public class FutureGetInterceptorTest extends BaseInterceptorTest {
 			when(operation.getHandlingNode()).thenReturn(node);
 			
 			interceptor.before(future, new Object[] { timeout, unit });
-			interceptor.after(future, new Object[] { timeout, unit }, null);
+			interceptor.after(future, new Object[] { timeout, unit }, null, null);
 		} catch (Exception e) {
 			fail(e.getMessage());
 		}
@@ -92,7 +91,7 @@ public class FutureGetInterceptorTest extends BaseInterceptorTest {
 			when(operation.getHandlingNode()).thenReturn(node);
 			
 			interceptor.before(future, new Object[] { timeout, unit });
-			interceptor.after(future, new Object[] { timeout, unit }, null);
+			interceptor.after(future, new Object[] { timeout, unit }, null, null);
 		} catch (Exception e) {
 			fail(e.getMessage());
 		}

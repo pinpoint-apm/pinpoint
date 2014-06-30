@@ -5,7 +5,6 @@ import com.nhn.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
 
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
-import net.spy.memcached.MemcachedClient;
 import net.spy.memcached.ops.Operation;
 
 import com.nhn.pinpoint.bootstrap.util.MetaObject;
@@ -36,7 +35,7 @@ public class AddOpInterceptor implements SimpleAroundInterceptor, TargetClassLoa
 	}
 
     @Override
-    public void after(Object target, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result);
         }

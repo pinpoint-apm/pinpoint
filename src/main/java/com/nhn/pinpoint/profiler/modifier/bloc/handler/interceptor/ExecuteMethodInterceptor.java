@@ -103,7 +103,7 @@ public class ExecuteMethodInterceptor extends SpanSimpleAroundInterceptor implem
 
 
     @Override
-    public void doInAfterTrace(Trace trace, Object target, Object[] args, Object result) {
+    public void doInAfterTrace(Trace trace, Object target, Object[] args, Object result, Throwable throwable) {
 
         if (trace.canSampled()) {
             external.org.apache.coyote.Request request = (external.org.apache.coyote.Request) args[0];
@@ -114,7 +114,7 @@ public class ExecuteMethodInterceptor extends SpanSimpleAroundInterceptor implem
 
             trace.recordApi(descriptor);
         }
-        trace.recordException(result);
+        trace.recordException(throwable);
         trace.markAfterTime();
     }
 

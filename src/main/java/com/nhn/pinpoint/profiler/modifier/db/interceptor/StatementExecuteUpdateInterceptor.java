@@ -66,7 +66,7 @@ public class StatementExecuteUpdateInterceptor implements SimpleAroundIntercepto
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result);
         }
@@ -77,7 +77,7 @@ public class StatementExecuteUpdateInterceptor implements SimpleAroundIntercepto
         }
 
         try {
-            trace.recordException(result);
+            trace.recordException(throwable);
 
             // TODO 결과, 수행시간을.알수 있어야 될듯.
             trace.markAfterTime();

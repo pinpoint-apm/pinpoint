@@ -109,7 +109,7 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             // result는 로깅하지 않는다.
             logger.afterInterceptor(target, args);
@@ -131,10 +131,10 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
                     trace.recordDestinationId(endpoint);
                 }
 
-                recordHttpRequest(trace, httpRequest, result);
+                recordHttpRequest(trace, httpRequest, throwable);
             }
             trace.recordApi(descriptor);
-            trace.recordException(result);
+            trace.recordException(throwable);
 
             trace.markAfterTime();
         } finally {
@@ -142,8 +142,8 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
         }
     }
 
-    private void recordHttpRequest(Trace trace, HttpRequest httpRequest, Object result) {
-        final boolean isException = InterceptorUtils.isThrowable(result);
+    private void recordHttpRequest(Trace trace, HttpRequest httpRequest, Throwable throwable) {
+        final boolean isException = InterceptorUtils.isThrowable(throwable);
         if (cookie) {
             if (DumpType.ALWAYS == cookieDumpType) {
                 recordCookie(httpRequest, trace);

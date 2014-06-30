@@ -46,7 +46,7 @@ public class TransactionSetAutoCommitInterceptor implements SimpleAroundIntercep
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result);
         }
@@ -57,7 +57,7 @@ public class TransactionSetAutoCommitInterceptor implements SimpleAroundIntercep
         }
         if (target instanceof Connection) {
             Connection con = (Connection) target;
-            afterStartTransaction(trace, con, args, result);
+            afterStartTransaction(trace, con, args, throwable);
         }
     }
 
@@ -67,7 +67,7 @@ public class TransactionSetAutoCommitInterceptor implements SimpleAroundIntercep
 
     }
 
-    private void afterStartTransaction(Trace trace, Connection target, Object[] arg, Object result) {
+    private void afterStartTransaction(Trace trace, Connection target, Object[] arg, Throwable throwable) {
         try {
             DatabaseInfo databaseInfo = this.getDatabaseInfo.invoke(target);
             if (databaseInfo == null) {
@@ -79,7 +79,7 @@ public class TransactionSetAutoCommitInterceptor implements SimpleAroundIntercep
 
 
             trace.recordApi(descriptor, arg);
-            trace.recordException(result);
+            trace.recordException(throwable);
 
             trace.markAfterTime();
         } catch (Exception e) {

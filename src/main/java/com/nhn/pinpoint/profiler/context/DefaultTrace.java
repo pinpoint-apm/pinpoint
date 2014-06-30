@@ -256,18 +256,18 @@ public final class DefaultTrace implements Trace {
     }
 
     @Override
-    public void recordException(Object result) {
-        if (result instanceof Throwable) {
-            final Throwable th = (Throwable) result;
-            final String drop = StringUtils.drop(th.getMessage(), 256);
-            // exception class가 proxy라서 class Name이 불규칙하면 문제가 발생할수 있다.
-            final int exceptionId = traceContext.cacheString(th.getClass().getName());
-            this.currentStackFrame.setExceptionInfo(exceptionId, drop);
+    public void recordException(Throwable th) {
+        if (th == null) {
+            return;
+        }
+        final String drop = StringUtils.drop(th.getMessage(), 256);
+        // exception class가 proxy라서 class Name이 불규칙하면 문제가 발생할수 있다.
+        final int exceptionId = traceContext.cacheString(th.getClass().getName());
+        this.currentStackFrame.setExceptionInfo(exceptionId, drop);
 
-            final Span span = getCallStack().getSpan();
-            if (!span.isSetErrCode()) {
-                span.setErrCode(1);
-            }
+        final Span span = getCallStack().getSpan();
+        if (!span.isSetErrCode()) {
+            span.setErrCode(1);
         }
     }
 

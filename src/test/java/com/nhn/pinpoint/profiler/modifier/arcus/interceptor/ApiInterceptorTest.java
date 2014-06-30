@@ -42,7 +42,7 @@ public class ApiInterceptorTest extends BaseInterceptorTest {
 	public void testAround() {
 		Object[] args = new Object[] {"key", 10, "my_value"};
 		interceptor.before(client, args);
-		interceptor.after(client, args, null);
+		interceptor.after(client, args, null, null);
 	}
 
 	/**

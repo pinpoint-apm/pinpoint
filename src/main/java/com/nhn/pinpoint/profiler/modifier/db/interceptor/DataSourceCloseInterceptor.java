@@ -42,7 +42,7 @@ public class DataSourceCloseInterceptor implements SimpleAroundInterceptor, Byte
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             // args에 암호가 있을 가능성이 있어서 로그에서 제외
             logger.afterInterceptor(target, null, result);
@@ -58,7 +58,7 @@ public class DataSourceCloseInterceptor implements SimpleAroundInterceptor, Byte
         try {
             trace.recordServiceType(ServiceType.DBCP);
             trace.recordApi(descriptor);
-            trace.recordException(result);
+            trace.recordException(throwable);
 
             trace.markAfterTime();
         } finally {

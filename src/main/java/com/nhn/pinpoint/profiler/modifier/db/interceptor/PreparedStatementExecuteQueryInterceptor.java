@@ -104,7 +104,7 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result);
         }
@@ -116,7 +116,7 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
 
         try {
             // TODO 일단 테스트로 실패일경우 종료 아닐경우 resultset fetch까지 계산. fetch count는 옵션으로 빼는게 좋을듯.
-            trace.recordException(result);
+            trace.recordException(throwable);
             trace.markAfterTime();
         } finally {
             trace.traceBlockEnd();

@@ -84,7 +84,7 @@ public class InvokeInterceptor implements SimpleAroundInterceptor, ByteCodeMetho
 	}
 
 	@Override
-	public void after(Object target, Object[] args, Object result) {
+	public void after(Object target, Object[] args, Object result, Throwable throwable) {
 		if (isDebug) {
 			// result는 로깅하지 않는다.
 			logger.afterInterceptor(target, args);
@@ -96,7 +96,7 @@ public class InvokeInterceptor implements SimpleAroundInterceptor, ByteCodeMetho
 		}
         try {
             trace.recordApi(descriptor);
-            trace.recordException(result);
+            trace.recordException(throwable);
 
             trace.markAfterTime();
         } finally {

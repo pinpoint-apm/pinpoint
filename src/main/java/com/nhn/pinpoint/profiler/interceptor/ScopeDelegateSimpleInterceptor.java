@@ -37,12 +37,12 @@ public class ScopeDelegateSimpleInterceptor implements SimpleAroundInterceptor, 
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         final int pop = scope.pop();
         if (pop != DepthScope.ZERO) {
             return;
         }
-        this.delegate.after(target, args, result);
+        this.delegate.after(target, args, result, throwable);
     }
 
     @Override

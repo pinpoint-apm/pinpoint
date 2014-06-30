@@ -44,7 +44,7 @@ public class DebugScopeDelegateSimpleInterceptor implements SimpleAroundIntercep
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         final int pop = scope.pop();
         if (pop != DepthScope.ZERO) {
             if (isDebug) {
@@ -52,7 +52,7 @@ public class DebugScopeDelegateSimpleInterceptor implements SimpleAroundIntercep
             }
             return;
         }
-        this.delegate.after(target, args, result);
+        this.delegate.after(target, args, result, throwable);
     }
 
     @Override

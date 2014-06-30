@@ -56,14 +56,14 @@ public class DriverConnectInterceptor implements SimpleAroundInterceptor, ByteCo
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, null, result);
         }
         // 여기서는 trace context인지 아닌지 확인하면 안된다. trace 대상 thread가 아닌곳에서 connection이 생성될수 있음.
         scope.pop();
 
-        final boolean success = InterceptorUtils.isSuccess(result);
+        final boolean success = InterceptorUtils.isSuccess(throwable);
         // 여기서는 trace context인지 아닌지 확인하면 안된다. trace 대상 thread가 아닌곳에서 connection이 생성될수 있음.
         final String driverUrl = (String) args[0];
         DatabaseInfo databaseInfo = createDatabaseInfo(driverUrl);
@@ -90,7 +90,7 @@ public class DriverConnectInterceptor implements SimpleAroundInterceptor, ByteCo
 
 
             trace.recordApiCachedString(descriptor, driverUrl, 0);
-            trace.recordException(result);
+            trace.recordException(throwable);
 
             trace.markAfterTime();
         } finally {

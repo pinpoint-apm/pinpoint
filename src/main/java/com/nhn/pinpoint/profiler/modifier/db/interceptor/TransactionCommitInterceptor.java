@@ -45,7 +45,7 @@ public class TransactionCommitInterceptor implements SimpleAroundInterceptor, By
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result);
         }
@@ -56,7 +56,7 @@ public class TransactionCommitInterceptor implements SimpleAroundInterceptor, By
         }
         if (target instanceof Connection) {
             Connection con = (Connection) target;
-            afterCommit(trace, con, result);
+            afterCommit(trace, con, throwable);
         }
     }
 
@@ -66,7 +66,7 @@ public class TransactionCommitInterceptor implements SimpleAroundInterceptor, By
         trace.markBeforeTime();
     }
 
-    private void afterCommit(Trace trace, Connection target, Object result) {
+    private void afterCommit(Trace trace, Connection target, Throwable throwable) {
         try {
             DatabaseInfo databaseInfo = this.getDatabaseInfo.invoke(target);
             if (databaseInfo == null) {
@@ -78,7 +78,7 @@ public class TransactionCommitInterceptor implements SimpleAroundInterceptor, By
 
 
             trace.recordApi(descriptor);
-            trace.recordException(result);
+            trace.recordException(throwable);
 
             trace.markAfterTime();
         } catch (Exception e) {

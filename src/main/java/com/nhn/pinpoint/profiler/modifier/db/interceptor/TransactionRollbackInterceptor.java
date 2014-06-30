@@ -45,7 +45,7 @@ public class TransactionRollbackInterceptor implements SimpleAroundInterceptor, 
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result);
         }
@@ -56,7 +56,7 @@ public class TransactionRollbackInterceptor implements SimpleAroundInterceptor, 
         }
         if (target instanceof Connection) {
             Connection con = (Connection) target;
-            afterRollback(trace, con, result);
+            afterRollback(trace, con, throwable);
         }
     }
 
@@ -68,7 +68,7 @@ public class TransactionRollbackInterceptor implements SimpleAroundInterceptor, 
 
     }
 
-    private void afterRollback(Trace trace, Connection target, Object result) {
+    private void afterRollback(Trace trace, Connection target, Throwable throwable) {
         try {
 
             DatabaseInfo databaseInfo = this.getDatabaseInfo.invoke(target);
@@ -81,14 +81,13 @@ public class TransactionRollbackInterceptor implements SimpleAroundInterceptor, 
 
 
             trace.recordApi(descriptor);
-            trace.recordException(result);
 //            boolean success = InterceptorUtils.isSuccess(result);
 //            if (success) {
 //                trace.recordAttribute("Transaction", "rollback");
 //            } else {
 //                trace.recordAttribute("Transaction", "rollback fail");
 //            }
-            trace.recordException(result);
+            trace.recordException(throwable);
             trace.markAfterTime();
         } catch (Exception e) {
             if (logger.isWarnEnabled()) {

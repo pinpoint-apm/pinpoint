@@ -27,7 +27,7 @@ public class MySQLConnectionCreateInterceptor implements SimpleAroundInterceptor
 //    private final MetaObject setUrl = new MetaObject("__setDatabaseInfo", Object.class);
 
     @Override
-    public void after(Object target, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result);
         }
@@ -41,7 +41,7 @@ public class MySQLConnectionCreateInterceptor implements SimpleAroundInterceptor
         DatabaseInfo databaseInfo = null;
         if (url != null && port != null && databaseId != null) {
             databaseInfo = traceContext.createDatabaseInfo(ServiceType.MYSQL, ServiceType.MYSQL_EXECUTE_QUERY, url, port, databaseId);
-            if (InterceptorUtils.isSuccess(result)) {
+            if (InterceptorUtils.isSuccess(throwable)) {
                 // connection이 정상 성공일때만 set해야 한다.
                 setUrl.invoke(target, databaseInfo);
             }

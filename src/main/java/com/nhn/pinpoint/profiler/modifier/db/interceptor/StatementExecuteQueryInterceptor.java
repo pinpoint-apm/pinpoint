@@ -58,7 +58,7 @@ public class StatementExecuteQueryInterceptor implements SimpleAroundInterceptor
 
 
     @Override
-    public void after(Object target, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result);
         }
@@ -70,7 +70,7 @@ public class StatementExecuteQueryInterceptor implements SimpleAroundInterceptor
 
         try {
             trace.recordApi(descriptor);
-            trace.recordException(result);
+            trace.recordException(throwable);
             if (args.length > 0) {
                 Object arg = args[0];
                 if (arg instanceof String) {

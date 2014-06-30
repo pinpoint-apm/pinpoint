@@ -81,7 +81,7 @@ public class DisableTrace  implements Trace {
     }
 
     @Override
-    public void recordException(Object result) {
+    public void recordException(Throwable throwable) {
         throw new UnsupportedOperationException();
     }
 

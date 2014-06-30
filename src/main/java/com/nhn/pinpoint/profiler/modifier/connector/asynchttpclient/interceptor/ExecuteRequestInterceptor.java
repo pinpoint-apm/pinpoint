@@ -110,7 +110,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 	}
 
 	@Override
-	public void after(Object target, Object[] args, Object result) {
+	public void after(Object target, Object[] args, Object result, Throwable throwable) {
 		if (isDebug) {
 			// result는 로깅하지 않는다.
 			logger.afterInterceptor(target, args);
@@ -135,11 +135,11 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 				String endpoint = getEndpoint(httpRequest.getURI().getHost(), httpRequest.getURI().getPort());
 				trace.recordDestinationId(endpoint);
 
-				recordHttpRequest(trace, httpRequest, result);
+				recordHttpRequest(trace, httpRequest, throwable);
 			}
 
 			trace.recordApi(descriptor);
-			trace.recordException(result);
+			trace.recordException(throwable);
 			trace.markAfterTime();
 		} finally {
 			trace.traceBlockEnd();
@@ -160,8 +160,8 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 		return sb.toString();
 	}
 
-	private void recordHttpRequest(Trace trace, com.ning.http.client.Request httpRequest, Object result) {
-		final boolean isException = InterceptorUtils.isThrowable(result);
+	private void recordHttpRequest(Trace trace, com.ning.http.client.Request httpRequest, Throwable throwable) {
+		final boolean isException = InterceptorUtils.isThrowable(throwable);
 		if (dumpCookie) {
 			if (DumpType.ALWAYS == cookieDumpType) {
 				recordCookie(httpRequest, trace);

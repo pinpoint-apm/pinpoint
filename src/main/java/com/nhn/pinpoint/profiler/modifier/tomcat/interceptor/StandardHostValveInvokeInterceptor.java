@@ -108,7 +108,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     }
 
     @Override
-    protected void doInAfterTrace(Trace trace, Object target, Object[] args, Object result) {
+    protected void doInAfterTrace(Trace trace, Object target, Object[] args, Object result, Throwable throwable) {
         if (trace.canSampled()) {
             final HttpServletRequest request = (HttpServletRequest) args[0];
             final String parameters = getRequestParameter(request, 64, 512);
@@ -118,7 +118,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
 
             trace.recordApi(descriptor);
         }
-        trace.recordException(result);
+        trace.recordException(throwable);
         trace.markAfterTime();
     }
 

@@ -41,7 +41,7 @@ public class DebugScopeDelegateStaticInterceptor implements StaticAroundIntercep
     }
 
     @Override
-    public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
+    public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
         final int pop = scope.pop();
         if (pop != DepthScope.ZERO) {
             if (isDebug) {
@@ -49,7 +49,7 @@ public class DebugScopeDelegateStaticInterceptor implements StaticAroundIntercep
             }
             return;
         }
-        this.delegate.after(target, className, methodName, parameterDescription, args, result);
+        this.delegate.after(target, className, methodName, parameterDescription, args, result, throwable);
     }
 
 

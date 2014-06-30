@@ -65,7 +65,7 @@ public class BasicFutureFailedInterceptor implements SimpleAroundInterceptor, By
 	}
 
 	@Override
-	public void after(Object target, Object[] args, Object result) {
+	public void after(Object target, Object[] args, Object result, Throwable throwable) {
 		if (isDebug) {
 			logger.afterInterceptor(target, args);
 		}
@@ -77,7 +77,7 @@ public class BasicFutureFailedInterceptor implements SimpleAroundInterceptor, By
 
 		try {
 			trace.recordApi(descriptor);
-			trace.recordException(result);
+			trace.recordException(throwable);
 			trace.markAfterTime();
 		} finally {
 			trace.traceBlockEnd();

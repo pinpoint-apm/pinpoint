@@ -25,9 +25,9 @@ public abstract class SqlMapOperationInterceptor extends SpanEventSimpleAroundIn
 	}
 
 	@Override
-	public final void doInAfterTrace(Trace trace, Object target, Object[] args, Object result) {
+	public final void doInAfterTrace(Trace trace, Object target, Object[] args, Object result, Throwable throwable) {
         trace.recordServiceType(this.serviceType);
-        trace.recordException(result);
+        trace.recordException(throwable);
         if (args != null && args.length > 0) {
             trace.recordApi(descriptor, args[0], 0);
         } else {

@@ -43,7 +43,7 @@ public class DataSourceGetConnectionInterceptor implements SimpleAroundIntercept
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             // args에 암호가 있을 가능성이 있어서 로그에서 제외
             logger.afterInterceptor(target, null, result);
@@ -65,7 +65,7 @@ public class DataSourceGetConnectionInterceptor implements SimpleAroundIntercept
 //                args[1]은 패스워드라서 뺀다.
                 trace.recordApi(descriptor, args[0], 0);
             }
-            trace.recordException(result);
+            trace.recordException(throwable);
 
             trace.markAfterTime();
         } finally {

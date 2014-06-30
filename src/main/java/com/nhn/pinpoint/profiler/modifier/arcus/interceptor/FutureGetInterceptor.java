@@ -44,7 +44,7 @@ public class FutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMe
 	}
 
     @Override
-    public void after(Object target, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
 		if (isDebug) {
 			logger.afterInterceptor(target, args, result);
 		}

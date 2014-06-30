@@ -55,12 +55,12 @@ public class PreparedStatementCreateInterceptor implements SimpleAroundIntercept
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
             logger.afterInterceptor(target, args, result);
         }
 
-        final boolean success = InterceptorUtils.isSuccess(result);
+        final boolean success = InterceptorUtils.isSuccess(throwable);
         ParsingResult parsingResult = null;
         if (success) {
             // preparedStatement의 생성이 성공하였을 경우만 PreparedStatement에 databaseInfo를 세팅해야 한다.
@@ -87,7 +87,7 @@ public class PreparedStatementCreateInterceptor implements SimpleAroundIntercept
         }
         try {
             trace.recordSqlParsingResult(parsingResult);
-            trace.recordException(result);
+            trace.recordException(throwable);
             trace.recordApi(descriptor);
 
             trace.markAfterTime();

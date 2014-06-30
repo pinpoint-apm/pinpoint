@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.nhn.pinpoint.common.util.HttpUtils;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.MessageEvent;
@@ -171,7 +170,7 @@ public class InvokeTaskRunInterceptor implements SimpleAroundInterceptor, ByteCo
 	}
 
 	@Override
-	public void after(Object target, Object[] args, Object result) {
+	public void after(Object target, Object[] args, Object result, Throwable throwable) {
 		if (isDebug) {
 			logger.afterInterceptor(target, args);
 		}
@@ -194,7 +193,7 @@ public class InvokeTaskRunInterceptor implements SimpleAroundInterceptor, ByteCo
             }
 
             trace.recordApi(descriptor);
-            trace.recordException(result);
+            trace.recordException(throwable);
             trace.markAfterTime();
         } catch (Throwable e) {
             if (logger.isWarnEnabled()) {

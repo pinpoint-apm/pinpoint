@@ -221,15 +221,16 @@ public class MetricTrace implements Trace {
 
 
     @Override
-    public void recordException(Object result) {
-        if (result instanceof Throwable) {
-            // TODO 추가적인 객체를 생성하지 않도록 MARK Exception이 있으면 좋을것 같음.
-            this.currentStackFrame.setExceptionInfo(EXCEPTION_MARK, "");
+    public void recordException(Throwable th) {
+        if (th == null) {
+            return;
+        }
+        // TODO 추가적인 객체를 생성하지 않도록 MARK Exception이 있으면 좋을것 같음.
+        this.currentStackFrame.setExceptionInfo(EXCEPTION_MARK, "");
 
-            final Span span = getCallStack().getSpan();
-            if (!span.isSetErrCode()) {
-                span.setErrCode(1);
-            }
+        final Span span = getCallStack().getSpan();
+        if (!span.isSetErrCode()) {
+            span.setErrCode(1);
         }
     }
 
