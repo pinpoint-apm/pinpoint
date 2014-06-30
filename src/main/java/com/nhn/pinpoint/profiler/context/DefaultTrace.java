@@ -179,18 +179,10 @@ public final class DefaultTrace implements Trace {
     private void metricResponseTime() {
         final int errCode = this.getCallStack().getSpan().getErrCode();
         if (errCode != 0) {
-            Histogram contextMetric = (Histogram) this.traceContext.getContextMetric();
-            contextMetric.addResponseTime(HistogramSchema.ERROR_SLOT_TIME);
-            if (isDebug) {
-                logger.debug("ContextMetric {}", contextMetric);
-            }
+            traceContext.recordContextMetricIsError();
         } else {
             final int elapsedTime = this.currentStackFrame.getElapsedTime();
-            Histogram contextMetric = (Histogram) this.traceContext.getContextMetric();
-            contextMetric.addResponseTime(elapsedTime);
-            if (isDebug) {
-                logger.debug("ContextMetric {}", contextMetric);
-            }
+            traceContext.recordContextMetric(elapsedTime);
         }
     }
 
