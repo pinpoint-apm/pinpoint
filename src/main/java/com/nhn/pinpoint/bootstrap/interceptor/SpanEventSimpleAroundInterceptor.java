@@ -7,7 +7,7 @@ import com.nhn.pinpoint.bootstrap.logging.PLogger;
 /**
  * @author emeroad
  */
-public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
     protected final PLogger logger;
     protected final boolean isDebug;
 
@@ -15,7 +15,7 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
 
     protected TraceContext traceContext;
 
-    protected SpanSimpleAroundInterceptor(PLogger logger) {
+    protected SpanEventSimpleAroundInterceptor(PLogger logger) {
         this.logger = logger;
         this.isDebug = logger.isDebugEnabled();
     }
@@ -26,8 +26,11 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
             logger.beforeInterceptor(target, args);
         }
 
+        final Trace trace = traceContext.currentTraceObject();
+        if (trace == null) {
+            return;
+        }
         try {
-            final Trace trace = createTrace(args);
             doInBeforeTrace(trace, args);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
@@ -38,7 +41,6 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
 
     protected abstract void doInBeforeTrace(final Trace trace, final Object[] args);
 
-    protected abstract Trace createTrace(final Object[] args);
 
     @Override
     public void after(Object target, Object[] args, Object result) {
@@ -46,19 +48,18 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
             logger.afterInterceptor(target, args, result);
         }
 
-        Trace trace = traceContext.currentRawTraceObject();
+        final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
-        traceContext.detachTraceObject();
         try {
             doInAfterTrace(trace, target, args, result);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
-                logger.warn("after. Caused:{}", th.getMessage(), th);
+                logger.warn("after error. Caused:{}", th.getMessage(), th);
             }
         } finally {
-            trace.traceRootBlockEnd();
+            trace.traceBlockEnd();
         }
     }
 
