@@ -20,50 +20,38 @@ import com.nhn.pinpoint.bootstrap.util.StringUtils;
 /**
  * @author emeroad
  */
-public class StandardHostValveInvokeInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
+public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundInterceptor implements ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isInfoEnabled();
-
-    private MethodDescriptor descriptor;
-
-    private TraceContext traceContext;
+    public StandardHostValveInvokeInterceptor() {
+        super(PLoggerFactory.getLogger(StandardHostValveInvokeInterceptor.class));
+    }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
+    protected void doInBeforeTrace(Trace trace, Object[] args) {
+        final HttpServletRequest request = (HttpServletRequest) args[0];
+        trace.markBeforeTime();
+        if (trace.canSampled()) {
+            trace.recordServiceType(ServiceType.TOMCAT);
+
+            final String requestURL = request.getRequestURI();
+            trace.recordRpcName(requestURL);
+
+            final int port = request.getServerPort();
+            final String endPoint = request.getServerName() + ":" + port;
+            trace.recordEndPoint(endPoint);
+
+            final String remoteAddr = request.getRemoteAddr();
+            trace.recordRemoteAddress(remoteAddr);
         }
 
-        try {
-            final HttpServletRequest request = (HttpServletRequest) args[0];
-            final Trace trace = createTrace(request);
-
-            trace.markBeforeTime();
-            if (trace.canSampled()) {
-                trace.recordServiceType(ServiceType.TOMCAT);
-
-                final String requestURL = request.getRequestURI();
-                trace.recordRpcName(requestURL);
-
-                final int port = request.getServerPort();
-                final String endPoint = request.getServerName() + ":" + port;
-                trace.recordEndPoint(endPoint);
-
-                final String remoteAddr = request.getRemoteAddr();
-                trace.recordRemoteAddress(remoteAddr);
-            }
-            if (!trace.isRoot()) {
-                recordParentInfo(trace, request);
-            }
-        } catch (Throwable e) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("Tomcat StandardHostValve trace start fail. Caused:{}", e.getMessage(), e);
-            }
+        if (!trace.isRoot()) {
+            recordParentInfo(trace, request);
         }
     }
 
-    private Trace createTrace(HttpServletRequest request) {
+    @Override
+    protected Trace createTrace(Object[] args) {
+        final HttpServletRequest request = (HttpServletRequest) args[0];
         // remote call에 sampling flag가 설정되어있을 경우는 샘플링 대상으로 삼지 않는다.
         final boolean sampling = samplingEnable(request);
         if (!sampling) {
@@ -108,6 +96,7 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
         }
     }
 
+
     private void recordParentInfo(Trace trace, HttpServletRequest request) {
         String parentApplicationName = request.getHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString());
         if (parentApplicationName != null) {
@@ -120,32 +109,18 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args, result);
-        }
-
-        final Trace trace = traceContext.currentRawTraceObject();
-        if (trace == null) {
-            return;
-        }
-        traceContext.detachTraceObject();
-
-        try {
-            if (trace.canSampled()) {
-                final HttpServletRequest request = (HttpServletRequest) args[0];
-                final String parameters = getRequestParameter(request, 64, 512);
-                if (parameters != null && parameters.length() > 0) {
-                    trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
-                }
-
-                trace.recordApi(descriptor);
+    protected void doInAfterTrace(Trace trace, Object[] args, Object result) {
+        if (trace.canSampled()) {
+            final HttpServletRequest request = (HttpServletRequest) args[0];
+            final String parameters = getRequestParameter(request, 64, 512);
+            if (parameters != null && parameters.length() > 0) {
+                trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
             }
-            trace.recordException(result);
-            trace.markAfterTime();
-        } finally {
-            trace.traceRootBlockEnd();
+
+            trace.recordApi(descriptor);
         }
+        trace.recordException(result);
+        trace.markAfterTime();
     }
 
     /**
@@ -206,14 +181,4 @@ public class StandardHostValveInvokeInterceptor implements SimpleAroundIntercept
         return params.toString();
     }
 
-    @Override
-    public void setMethodDescriptor(MethodDescriptor descriptor) {
-        this.descriptor = descriptor;
-        this.traceContext.cacheApi(descriptor);
-    }
-
-    @Override
-    public void setTraceContext(TraceContext traceContext) {
-        this.traceContext = traceContext;
-    }
 }
