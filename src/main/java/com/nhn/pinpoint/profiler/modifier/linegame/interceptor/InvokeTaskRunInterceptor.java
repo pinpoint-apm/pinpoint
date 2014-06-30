@@ -122,8 +122,8 @@ public class InvokeTaskRunInterceptor implements SimpleAroundInterceptor, ByteCo
 				if (!trace.canSampled()) {
 					if (isDebug) {
 						logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[] { traceId, requestURL, remoteAddr });
-						return;
 					}
+					return;
 				} else {
 					if (isDebug) {
 						logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[] { traceId, requestURL, remoteAddr });
@@ -132,7 +132,9 @@ public class InvokeTaskRunInterceptor implements SimpleAroundInterceptor, ByteCo
 			} else {
 				trace = traceContext.newTraceObject();
 				if (!trace.canSampled()) {
-					logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", new Object[] { requestURL, remoteAddr });
+					if (isDebug) {
+						logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", new Object[] { requestURL, remoteAddr });
+					}
 					return;
 				} else {
 					if (isDebug) {

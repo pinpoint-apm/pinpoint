@@ -23,6 +23,7 @@ import com.nhn.pinpoint.bootstrap.util.NumberUtils;
 
 /**
  * @author emeroad
+ * @authro netspider
  */
 public class HttpServletInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
@@ -87,8 +88,8 @@ public class HttpServletInterceptor implements SimpleAroundInterceptor, ByteCode
                 if (!trace.canSampled()) {
                     if (isDebug) {
                         logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[]{traceId, requestURL, remoteAddr});
-                        return;
                     }
+                    return;
                 } else {
                     if (isDebug) {
                         logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[]{traceId, requestURL, remoteAddr});
@@ -97,8 +98,10 @@ public class HttpServletInterceptor implements SimpleAroundInterceptor, ByteCode
             } else {
                 trace = traceContext.newTraceObject();
                 if (!trace.canSampled()){
-                    logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", new Object[]{requestURL, remoteAddr});
-                    return;
+                	if (isDebug) {
+                		logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", new Object[]{requestURL, remoteAddr});
+                	}
+            		return;
                 } else {
                     if (isDebug) {
                         logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", new Object[]{requestURL, remoteAddr});
