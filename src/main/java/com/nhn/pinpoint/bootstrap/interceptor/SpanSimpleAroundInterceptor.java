@@ -8,12 +8,17 @@ import com.nhn.pinpoint.bootstrap.logging.PLogger;
  * @author emeroad
  */
 public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
-    protected PLogger logger;
-    protected boolean isDebug = false;
+    protected final PLogger logger;
+    protected final boolean isDebug;
 
     protected MethodDescriptor descriptor;
 
     protected TraceContext traceContext;
+
+    protected SpanSimpleAroundInterceptor(PLogger logger) {
+        this.logger = logger;
+        this.isDebug = logger.isDebugEnabled();
+    }
 
     @Override
     public void before(Object target, Object[] args) {
@@ -23,10 +28,7 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
 
         try {
             final Trace trace = createTrace(args);
-            if (!trace.canSampled()) {
-                return;
-            }
-            doInBeforeTrace(trace);
+            doInBeforeTrace(trace, args);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("trace start fail. Caused:{}", th.getMessage(), th);
@@ -34,9 +36,9 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
         }
     }
 
-    protected abstract void doInBeforeTrace(Trace trace);
+    protected abstract void doInBeforeTrace(final Trace trace, final Object[] args);
 
-    protected abstract Trace createTrace(Object[] args);
+    protected abstract Trace createTrace(final Object[] args);
 
     @Override
     public void after(Object target, Object[] args, Object result) {
@@ -49,9 +51,6 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
             return;
         }
         traceContext.detachTraceObject();
-        if (!trace.canSampled()) {
-            return;
-        }
         try {
             doInAfterTrace(trace, args, result);
         } catch (Throwable th) {
@@ -63,7 +62,7 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
         }
     }
 
-    protected abstract void doInAfterTrace(Trace trace, Object[] args, Object result);
+    protected abstract void doInAfterTrace(final Trace trace, final Object[] args, final Object result);
 
 
     @Override
