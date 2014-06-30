@@ -22,53 +22,43 @@ import external.org.apache.coyote.Request;
  * @author netspider
  * @author emeroad
  */
-public class ExecuteMethodInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
+public class ExecuteMethodInterceptor extends SpanSimpleAroundInterceptor implements ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-    private final boolean isInfo = logger.isInfoEnabled();
 
-    private MethodDescriptor descriptor;
-    private TraceContext traceContext;
 
-    @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
-
-        try {
-            final external.org.apache.coyote.Request request = (external.org.apache.coyote.Request) args[0];
-            final Trace trace = createTrace(request);
-
-            trace.markBeforeTime();
-            if (trace.canSampled()) {
-                trace.recordServiceType(ServiceType.BLOC);
-
-                final String requestURL = request.requestURI().toString();
-                trace.recordRpcName(requestURL);
-
-                // TODO tomcat과 로직이 미묘하게 다름 차이점 알아내서 고칠것.
-                // String remoteAddr = request.remoteAddr().toString();
-
-                trace.recordEndPoint(request.protocol().toString() + ":" + request.serverName().toString() + ":" + request.getServerPort());
-                trace.recordDestinationId(request.serverName().toString() + ":" + request.getServerPort());
-                trace.recordAttribute(AnnotationKey.HTTP_URL, request.requestURI().toString());
-            }
-//          부모 정보를 샘플링여부를 따지면 안됨.
-//          TODO 부모정보 레코딩로직이 없음.
-//            if (!trace.isRoot()) {
-//                recordParentInfo(trace, request);
-//            }
-
-        } catch (Throwable e) {
-            if (logger.isWarnEnabled()) {
-                logger.warn( "Tomcat StandardHostValve trace start fail. Caused:{}", e.getMessage(), e);
-            }
-        }
+    public ExecuteMethodInterceptor() {
+        super(PLoggerFactory.getLogger(ExecuteMethodInterceptor.class));
     }
 
-    private Trace createTrace(Request request) {
+    @Override
+    public void doInBeforeTrace(Trace trace, Object[] args) {
+
+        final external.org.apache.coyote.Request request = (external.org.apache.coyote.Request) args[0];
+        trace.markBeforeTime();
+        if (trace.canSampled()) {
+            trace.recordServiceType(ServiceType.BLOC);
+
+            final String requestURL = request.requestURI().toString();
+            trace.recordRpcName(requestURL);
+
+            // TODO tomcat과 로직이 미묘하게 다름 차이점 알아내서 고칠것.
+            // String remoteAddr = request.remoteAddr().toString();
+
+            trace.recordEndPoint(request.protocol().toString() + ":" + request.serverName().toString() + ":" + request.getServerPort());
+            trace.recordDestinationId(request.serverName().toString() + ":" + request.getServerPort());
+            trace.recordAttribute(AnnotationKey.HTTP_URL, request.requestURI().toString());
+        }
+//      부모 정보를 샘플링여부를 따지면 안됨.
+//      TODO 부모정보 레코딩로직이 없음.
+//      if (!trace.isRoot()) {
+//          recordParentInfo(trace, request);
+//      }
+
+    }
+
+    @Override
+    protected Trace createTrace(Object[] args) {
+        final external.org.apache.coyote.Request request = (external.org.apache.coyote.Request) args[0];
         final boolean sampling = samplingEnable(request);
         if (!sampling) {
             // 샘플링 대상이 아닐 경우도 TraceObject를 생성하여, sampling 대상이 아니라는것을 명시해야 한다.
@@ -113,33 +103,19 @@ public class ExecuteMethodInterceptor implements SimpleAroundInterceptor, ByteCo
 
 
     @Override
-    public void after(Object target, Object[] args, Object result) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args, result);
-        }
+    public void doInAfterTrace(Trace trace, Object target, Object[] args, Object result) {
 
-        final Trace trace = traceContext.currentRawTraceObject();
-        if (trace == null) {
-            return;
-        }
-        traceContext.detachTraceObject();
-
-        try {
-            if (trace.canSampled()) {
-                external.org.apache.coyote.Request request = (external.org.apache.coyote.Request) args[0];
-                String parameters = getRequestParameter(request, 64, 512);
-                if (parameters != null && parameters.length() > 0) {
-                    trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
-                }
-
-                trace.recordApi(descriptor);
+        if (trace.canSampled()) {
+            external.org.apache.coyote.Request request = (external.org.apache.coyote.Request) args[0];
+            String parameters = getRequestParameter(request, 64, 512);
+            if (parameters != null && parameters.length() > 0) {
+                trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
             }
-            trace.recordException(result);
 
-            trace.markAfterTime();
-        } finally {
-            trace.traceRootBlockEnd();
+            trace.recordApi(descriptor);
         }
+        trace.recordException(result);
+        trace.markAfterTime();
     }
 
     private boolean samplingEnable(external.org.apache.coyote.Request request) {
@@ -196,15 +172,4 @@ public class ExecuteMethodInterceptor implements SimpleAroundInterceptor, ByteCo
         return params.toString();
     }
 
-    @Override
-    public void setMethodDescriptor(MethodDescriptor descriptor) {
-        this.descriptor = descriptor;
-        traceContext.cacheApi(descriptor);
-    }
-
-
-    @Override
-    public void setTraceContext(TraceContext traceContext) {
-        this.traceContext = traceContext;
-    }
 }
