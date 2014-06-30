@@ -31,7 +31,7 @@ public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundIn
             return;
         }
         try {
-            doInBeforeTrace(trace, args);
+            doInBeforeTrace(trace, target, args);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("before. Caused:{}", th.getMessage(), th);
@@ -39,7 +39,7 @@ public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundIn
         }
     }
 
-    protected abstract void doInBeforeTrace(final Trace trace, final Object[] args);
+    protected abstract void doInBeforeTrace(final Trace trace, final Object target, final Object[] args);
 
 
     @Override
