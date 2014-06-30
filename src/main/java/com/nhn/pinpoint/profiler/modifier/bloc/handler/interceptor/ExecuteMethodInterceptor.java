@@ -16,6 +16,7 @@ import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.nhn.pinpoint.bootstrap.util.NumberUtils;
 import com.nhn.pinpoint.bootstrap.util.StringUtils;
+import external.org.apache.coyote.Request;
 
 /**
  * @author netspider
@@ -37,61 +38,28 @@ public class ExecuteMethodInterceptor implements SimpleAroundInterceptor, ByteCo
         }
 
         try {
-            external.org.apache.coyote.Request request = (external.org.apache.coyote.Request) args[0];
-
-            boolean sampling = samplingEnable(request);
-            if (!sampling) {
-                // 샘플링 대상이 아닐 경우도 TraceObject를 생성하여, sampling 대상이 아니라는것을 명시해야 한다.
-                // sampling 대상이 아닐경우 rpc 호출에서 sampling 대상이 아닌 것에 rpc호출 파라미터에 sampling disable 파라미터를 박을수 있다.
-                traceContext.disableSampling();
-                if (isDebug) {
-                    logger.debug("mark disable sampling. skip trace");
-                }
-                return;
-            }
-
-            String requestURL = request.requestURI().toString();
-            String remoteAddr = request.remoteAddr().toString();
-
-
-            TraceId traceId = populateTraceIdFromRequest(request);
-            Trace trace;
-            if (traceId != null) {
-                trace = traceContext.continueTraceObject(traceId);
-                if (!trace.canSampled()) {
-                    if (isDebug) {
-                        logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[]{traceId, requestURL, remoteAddr});
-                    }
-                    return;
-                } else {
-                    if (isDebug) {
-                        logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[]{traceId, requestURL, remoteAddr});
-                    }
-                }
-            } else {
-                trace = traceContext.newTraceObject();
-                if (!trace.canSampled()){
-                	if (isDebug) {
-                		logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", new Object[]{requestURL, remoteAddr});
-                	}
-                    return;
-                } else {
-                    if (isDebug) {
-                        logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", new Object[]{requestURL, remoteAddr});
-                    }
-                }
-            }
+            final external.org.apache.coyote.Request request = (external.org.apache.coyote.Request) args[0];
+            final Trace trace = createTrace(request);
 
             trace.markBeforeTime();
+            if (trace.canSampled()) {
+                trace.recordServiceType(ServiceType.BLOC);
 
-            trace.recordServiceType(ServiceType.BLOC);
-            trace.recordRpcName(requestURL);
+                final String requestURL = request.requestURI().toString();
+                trace.recordRpcName(requestURL);
 
+                // TODO tomcat과 로직이 미묘하게 다름 차이점 알아내서 고칠것.
+                // String remoteAddr = request.remoteAddr().toString();
 
-            trace.recordEndPoint(request.protocol().toString() + ":" + request.serverName().toString() + ":" + request.getServerPort());
-            trace.recordDestinationId(request.serverName().toString() + ":" + request.getServerPort());
-            trace.recordAttribute(AnnotationKey.HTTP_URL, request.requestURI().toString());
-
+                trace.recordEndPoint(request.protocol().toString() + ":" + request.serverName().toString() + ":" + request.getServerPort());
+                trace.recordDestinationId(request.serverName().toString() + ":" + request.getServerPort());
+                trace.recordAttribute(AnnotationKey.HTTP_URL, request.requestURI().toString());
+            }
+//          부모 정보를 샘플링여부를 따지면 안됨.
+//          TODO 부모정보 레코딩로직이 없음.
+//            if (!trace.isRoot()) {
+//                recordParentInfo(trace, request);
+//            }
 
         } catch (Throwable e) {
             if (logger.isWarnEnabled()) {
@@ -100,6 +68,48 @@ public class ExecuteMethodInterceptor implements SimpleAroundInterceptor, ByteCo
         }
     }
 
+    private Trace createTrace(Request request) {
+        final boolean sampling = samplingEnable(request);
+        if (!sampling) {
+            // 샘플링 대상이 아닐 경우도 TraceObject를 생성하여, sampling 대상이 아니라는것을 명시해야 한다.
+            // sampling 대상이 아닐경우 rpc 호출에서 sampling 대상이 아닌 것에 rpc호출 파라미터에 sampling disable 파라미터를 박을수 있다.
+            final Trace trace = traceContext.disableSampling();
+            if (isDebug) {
+                logger.debug("mark disable sampling. skip trace");
+            }
+            return trace;
+        }
+
+
+        final TraceId traceId = populateTraceIdFromRequest(request);
+        if (traceId != null) {
+            final Trace trace = traceContext.continueTraceObject(traceId);
+            if (trace.canSampled()) {
+                if (isDebug) {
+                    logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[]{traceId, request.requestURI(), request.remoteAddr()});
+                }
+                return trace;
+            } else {
+                if (isDebug) {
+                    logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[]{traceId, request.requestURI(), request.remoteAddr()});
+                }
+                return trace;
+            }
+        } else {
+            final Trace trace = traceContext.newTraceObject();
+            if (trace.canSampled()) {
+                if (isDebug) {
+                    logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", request.requestURI(), request.remoteAddr());
+                }
+                return trace;
+            } else {
+                if (isDebug) {
+                    logger.debug("TraceID not exist. camSampled is false. skip trace. requestUrl:{}, remoteAddr:{}", request.requestURI(), request.remoteAddr());
+                }
+                return trace;
+            }
+        }
+    }
 
 
     @Override
@@ -108,27 +118,22 @@ public class ExecuteMethodInterceptor implements SimpleAroundInterceptor, ByteCo
             logger.afterInterceptor(target, args, result);
         }
 
-//        traceContext.getActiveThreadCounter().end();
-
-        Trace trace = traceContext.currentRawTraceObject();
+        final Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
         traceContext.detachTraceObject();
 
-        if (!trace.canSampled()) {
-            return;
-        }
-
         try {
-            external.org.apache.coyote.Request request = (external.org.apache.coyote.Request) args[0];
-            String parameters = getRequestParameter(request, 64, 512);
-            if (parameters != null && parameters.length() > 0) {
-                trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+            if (trace.canSampled()) {
+                external.org.apache.coyote.Request request = (external.org.apache.coyote.Request) args[0];
+                String parameters = getRequestParameter(request, 64, 512);
+                if (parameters != null && parameters.length() > 0) {
+                    trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
+                }
+
+                trace.recordApi(descriptor);
             }
-
-            trace.recordApi(descriptor);
-
             trace.recordException(result);
 
             trace.markAfterTime();
