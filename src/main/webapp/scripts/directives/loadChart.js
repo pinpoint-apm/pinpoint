@@ -85,7 +85,7 @@ pinpointApp
 //                                    return category;
 //                                },
                                 "labelFunction": function (valueText, serialDataItem, categoryAxis) {
-                                    return new Date(valueText).toString('hh:mm');
+                                    return new Date(valueText).toString('HH:mm');
                                 }
                             },
                             "balloon": {
