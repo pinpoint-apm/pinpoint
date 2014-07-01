@@ -11,9 +11,9 @@ public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundIn
     protected final PLogger logger;
     protected final boolean isDebug;
 
-    protected MethodDescriptor descriptor;
+    private MethodDescriptor descriptor;
 
-    protected TraceContext traceContext;
+    private TraceContext traceContext;
 
     protected SpanEventSimpleAroundInterceptor(PLogger logger) {
         this.logger = logger;
@@ -26,17 +26,25 @@ public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundIn
             logger.beforeInterceptor(target, args);
         }
 
+        prepareBeforeTrace(target, args);
+
         final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
         try {
+            // blockBegin 인터페이스 분리가 필요함.
+            trace.traceBlockBegin();
             doInBeforeTrace(trace, target, args);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
                 logger.warn("before. Caused:{}", th.getMessage(), th);
             }
         }
+    }
+
+    protected void prepareBeforeTrace(Object target, Object[] args) {
+
     }
 
     protected abstract void doInBeforeTrace(final Trace trace, final Object target, final Object[] args);
@@ -47,6 +55,8 @@ public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundIn
         if (isDebug) {
             logger.afterInterceptor(target, args, result);
         }
+
+        prepareAfterTrace(target, args, result, throwable);
 
         final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
@@ -63,6 +73,10 @@ public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundIn
         }
     }
 
+    protected void prepareAfterTrace(Object target, Object[] args, Object result, Throwable throwable) {
+
+    }
+
     protected abstract void doInAfterTrace(final Trace trace, final Object target, final Object[] args, final Object result, Throwable throwable);
 
 
@@ -72,8 +86,16 @@ public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundIn
         this.traceContext.cacheApi(descriptor);
     }
 
+    public MethodDescriptor getMethodDescriptor() {
+        return descriptor;
+    }
+
     @Override
     public void setTraceContext(TraceContext traceContext) {
         this.traceContext = traceContext;
+    }
+
+    public TraceContext getTraceContext() {
+        return traceContext;
     }
 }
