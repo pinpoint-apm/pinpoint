@@ -26,7 +26,7 @@ public class ApiInterceptor extends SpanEventSimpleAroundInterceptor implements 
     
     private ParameterExtractor parameterExtractor;
 
-    public ApiInterceptor(PLogger logger) {
+    public ApiInterceptor() {
         super(PLoggerFactory.getLogger(ApiInterceptor.class));
     }
 
