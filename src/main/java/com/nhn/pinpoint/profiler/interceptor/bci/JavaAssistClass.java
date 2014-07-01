@@ -12,7 +12,6 @@ import com.nhn.pinpoint.profiler.util.DepthScope;
 import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
 
 import javassist.*;
-import javassist.expr.FieldAccess;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -838,8 +837,10 @@ public class JavaAssistClass implements InstrumentClass {
 			CtField traceVariable = ctClass.getField(variableName);
 			CtMethod getterMethod = CtNewMethod.getter(getterName, traceVariable);
 			ctClass.addMethod(getterMethod);
-		} catch (Exception e) {
-			throw new InstrumentException(variableName + " addVariableAccessor fail. Cause:" + e.getMessage(), e);
-		}
+		} catch (NotFoundException ex) {
+			throw new InstrumentException(variableName + " addVariableAccessor fail. Cause:" + ex.getMessage(), ex);
+		} catch (CannotCompileException ex) {
+            throw new InstrumentException(variableName + " addVariableAccessor fail. Cause:" + ex.getMessage(), ex);
+        }
 	}
 }
