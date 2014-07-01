@@ -11,7 +11,7 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
     protected final PLogger logger;
     protected final boolean isDebug;
 
-    private MethodDescriptor descriptor;
+    private MethodDescriptor methodDescriptor;
 
     private TraceContext traceContext;
 
@@ -67,12 +67,12 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
 
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {
-        this.descriptor = descriptor;
+        this.methodDescriptor = descriptor;
         this.traceContext.cacheApi(descriptor);
     }
 
     public MethodDescriptor getMethodDescriptor() {
-        return descriptor;
+        return methodDescriptor;
     }
 
     @Override
