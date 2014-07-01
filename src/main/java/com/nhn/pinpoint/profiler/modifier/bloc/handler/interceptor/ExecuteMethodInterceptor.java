@@ -22,7 +22,7 @@ import external.org.apache.coyote.Request;
  * @author netspider
  * @author emeroad
  */
-public class ExecuteMethodInterceptor extends SpanSimpleAroundInterceptor implements ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
+public class ExecuteMethodInterceptor extends SpanSimpleAroundInterceptor implements TargetClassLoader {
 
 
 

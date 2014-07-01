@@ -19,7 +19,7 @@ import com.nhn.pinpoint.bootstrap.util.StringUtils;
 /**
  * @author emeroad
  */
-public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundInterceptor implements ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
+public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundInterceptor implements TargetClassLoader {
 
     public StandardHostValveInvokeInterceptor() {
         super(PLoggerFactory.getLogger(StandardHostValveInvokeInterceptor.class));
