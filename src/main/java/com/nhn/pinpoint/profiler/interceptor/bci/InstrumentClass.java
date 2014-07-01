@@ -84,4 +84,6 @@ public interface InstrumentClass {
     boolean hasMethod(String methodName, String desc);
 	
 	InstrumentClass getNestedClass(String className);
+
+	void addGetter(String getterName, String fieldName, String fieldType) throws InstrumentException;
 }

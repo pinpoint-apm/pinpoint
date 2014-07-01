@@ -12,6 +12,7 @@ import com.nhn.pinpoint.profiler.util.DepthScope;
 import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
 
 import javassist.*;
+import javassist.expr.FieldAccess;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -828,5 +829,17 @@ public class JavaAssistClass implements InstrumentClass {
 			return null;
 		}
 		return null;
+	}
+	
+	@Override
+	public void addGetter(String getterName, String variableName, String variableType) throws InstrumentException {
+		try {
+			// FIXME getField, getDeclaredField둘 중 뭐가 나을지. 자식 클래스에 getter를 만들려면 getField가 나을 것 같기도 하고.
+			CtField traceVariable = ctClass.getField(variableName);
+			CtMethod getterMethod = CtNewMethod.getter(getterName, traceVariable);
+			ctClass.addMethod(getterMethod);
+		} catch (Exception e) {
+			throw new InstrumentException(variableName + " addVariableAccessor fail. Cause:" + e.getMessage(), e);
+		}
 	}
 }
