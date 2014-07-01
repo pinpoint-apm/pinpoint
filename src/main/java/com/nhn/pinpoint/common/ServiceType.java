@@ -52,6 +52,7 @@ public enum ServiceType {
     TEST_STAND_ALONE((short) 1005, "TEST_STAND_ALONE", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
     TOMCAT((short) 1010, "TOMCAT", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
     BLOC((short) 1020, "BLOC", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
+    // BLOC4((short) 1030, "BLOC4", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
 
     /**
      * Database
@@ -136,6 +137,7 @@ public enum ServiceType {
         this.histogramSchema = histogramSchema;
     }
 
+    // FIXME 이 메소드를 사용해서 ServiceType을 찾는건 좋지 않을 듯.
     public static List<ServiceType> findDesc(String desc) {
         if (desc == null) {
             throw new NullPointerException("desc must not be null");
