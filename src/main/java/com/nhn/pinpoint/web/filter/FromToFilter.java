@@ -13,6 +13,7 @@ import com.nhn.pinpoint.common.bo.SpanEventBo;
  */
 public class FromToFilter implements Filter {
 
+	// FIXME from, to serviceCode가 왜 List로 되어있는지 기억이 안나네. ServiceType으로 해도 될 듯 한데.
 	private final List<ServiceType> fromServiceCode;
     private final String fromApplicationName;
     private final List<ServiceType> toServiceCode;
