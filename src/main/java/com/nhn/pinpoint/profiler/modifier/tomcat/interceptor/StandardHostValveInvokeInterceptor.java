@@ -56,7 +56,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         if (!sampling) {
             // 샘플링 대상이 아닐 경우도 TraceObject를 생성하여, sampling 대상이 아니라는것을 명시해야 한다.
             // sampling 대상이 아닐경우 rpc 호출에서 sampling 대상이 아닌 것에 rpc호출 파라미터에 sampling disable 파라미터를 박을수 있다.
-            final Trace trace = traceContext.disableSampling();
+            final Trace trace = getTraceContext().disableSampling();
             if (isDebug) {
                 logger.debug("remotecall sampling flag found. skip trace requestUrl:{}, remoteAddr:{}", request.getRequestURI(), request.getRemoteAddr());
             }
@@ -67,7 +67,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         final TraceId traceId = populateTraceIdFromRequest(request);
         if (traceId != null) {
             // TODO remote에서 sampling flag로 마크가되는 대상으로 왔을 경우도 추가로 샘플링 칠수 있어야 할것으로 보임.
-            final Trace trace = traceContext.continueTraceObject(traceId);
+            final Trace trace = getTraceContext().continueTraceObject(traceId);
             // 서버 맵을 통계정보에서 조회하려면 remote로 호출되는 WAS의 관계를 알아야해서 부모의 application name을 전달받음.
 
             if (trace.canSampled()) {
@@ -81,8 +81,8 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
             }
             return trace;
         } else {
-            final Trace trace = traceContext.newTraceObject();
-            if (trace.canSampled()){
+            final Trace trace = getTraceContext().newTraceObject();
+            if (trace.canSampled()) {
                 if (isDebug) {
                     logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", request.getRequestURI(), request.getRemoteAddr());
                 }
@@ -116,7 +116,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
                 trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
             }
 
-            trace.recordApi(descriptor);
+            trace.recordApi(getMethodDescriptor());
         }
         trace.recordException(throwable);
         trace.markAfterTime();
@@ -137,7 +137,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
             long spanID = NumberUtils.parseLong(request.getHeader(Header.HTTP_SPAN_ID.toString()), SpanId.NULL);
             short flags = NumberUtils.parseShort(request.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
 
-            final TraceId id = this.traceContext.createTraceId(transactionId, parentSpanID, spanID, flags);
+            final TraceId id = getTraceContext().createTraceId(transactionId, parentSpanID, spanID, flags);
             if (isDebug) {
                 logger.debug("TraceID exist. continue trace. {}", id);
             }

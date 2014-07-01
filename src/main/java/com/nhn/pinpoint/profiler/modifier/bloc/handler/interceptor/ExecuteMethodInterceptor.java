@@ -63,7 +63,7 @@ public class ExecuteMethodInterceptor extends SpanSimpleAroundInterceptor implem
         if (!sampling) {
             // 샘플링 대상이 아닐 경우도 TraceObject를 생성하여, sampling 대상이 아니라는것을 명시해야 한다.
             // sampling 대상이 아닐경우 rpc 호출에서 sampling 대상이 아닌 것에 rpc호출 파라미터에 sampling disable 파라미터를 박을수 있다.
-            final Trace trace = traceContext.disableSampling();
+            final Trace trace = getTraceContext().disableSampling();
             if (isDebug) {
                 logger.debug("mark disable sampling. skip trace");
             }
@@ -73,7 +73,7 @@ public class ExecuteMethodInterceptor extends SpanSimpleAroundInterceptor implem
 
         final TraceId traceId = populateTraceIdFromRequest(request);
         if (traceId != null) {
-            final Trace trace = traceContext.continueTraceObject(traceId);
+            final Trace trace = getTraceContext().continueTraceObject(traceId);
             if (trace.canSampled()) {
                 if (isDebug) {
                     logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[]{traceId, request.requestURI(), request.remoteAddr()});
@@ -86,7 +86,7 @@ public class ExecuteMethodInterceptor extends SpanSimpleAroundInterceptor implem
                 return trace;
             }
         } else {
-            final Trace trace = traceContext.newTraceObject();
+            final Trace trace = getTraceContext().newTraceObject();
             if (trace.canSampled()) {
                 if (isDebug) {
                     logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", request.requestURI(), request.remoteAddr());
@@ -112,7 +112,7 @@ public class ExecuteMethodInterceptor extends SpanSimpleAroundInterceptor implem
                 trace.recordAttribute(AnnotationKey.HTTP_PARAM, parameters);
             }
 
-            trace.recordApi(descriptor);
+            trace.recordApi(getMethodDescriptor());
         }
         trace.recordException(throwable);
         trace.markAfterTime();
@@ -138,7 +138,7 @@ public class ExecuteMethodInterceptor extends SpanSimpleAroundInterceptor implem
             long spanId = NumberUtils.parseLong(request.getHeader(Header.HTTP_SPAN_ID.toString()), SpanId.NULL);
             short flags = NumberUtils.parseShort(request.getHeader(Header.HTTP_FLAGS.toString()), (short) 0);
 
-            TraceId id = this.traceContext.createTraceId(transactionId, parentSpanId, spanId, flags);
+            TraceId id = this.getTraceContext().createTraceId(transactionId, parentSpanId, spanId, flags);
             if (isDebug) {
                 logger.debug("TraceID exist. continue trace. {}", id);
             }

@@ -129,10 +129,10 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
                     return classLoader.loadClass(defineClass);
                 } else {
                     final CtClass clazz = childClassPool.get(defineClass);
-                    if (isDebug) {
-                        // 개발환경에서 체크해도 충분한 내용이라. 로그 레벨이 debug일때만 체크한다.
-                        checkTargetClassInterface(clazz);
-                    }
+
+                    // 로그 레벨을 debug로 하니 개발때 제대로 체크 안하는 사람이 있어서 수정함.
+                    checkTargetClassInterface(clazz);
+
                     defineAbstractSuperClass(clazz, classLoader, protectedDomain);
                     defineNestedClass(clazz, classLoader, protectedDomain);
                     return clazz.toClass(classLoader, protectedDomain);

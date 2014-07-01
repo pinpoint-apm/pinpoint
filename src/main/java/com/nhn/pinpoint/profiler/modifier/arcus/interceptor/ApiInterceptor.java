@@ -13,98 +13,65 @@ import net.spy.memcached.ops.Operation;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.bootstrap.context.Trace;
-import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.util.MetaObject;
 
 /**
  * @author emeroad
  */
-public class ApiInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, ParameterExtractorSupport, TargetClassLoader {
+public class ApiInterceptor extends SpanEventSimpleAroundInterceptor implements ParameterExtractorSupport, TargetClassLoader {
 
-	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
 
     private MetaObject<Object> getOperation = new MetaObject<Object>("__getOperation");
     private MetaObject<Object> getServiceCode = new MetaObject<Object>("__getServiceCode");
     
-    private MethodDescriptor methodDescriptor;
-    private TraceContext traceContext;
     private ParameterExtractor parameterExtractor;
 
+    public ApiInterceptor(PLogger logger) {
+        super(PLoggerFactory.getLogger(ApiInterceptor.class));
+    }
+
     @Override
-	public void before(Object target, Object[] args) {
-		if (isDebug) {
-			logger.beforeInterceptor(target, args);
-		}
-		
-		final Trace trace = traceContext.currentTraceObject();
-		if (trace == null) {
-			return;
-		}
-		
-		trace.traceBlockBegin();
+	public void doInBeforeTrace(Trace trace, final Object target, Object[] args) {
 		trace.markBeforeTime();
 	}
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-		if (isDebug) {
-			logger.afterInterceptor(target, args, result);
-		}
+    public void doInAfterTrace(Trace trace, Object target, Object[] args, Object result, Throwable throwable) {
 
-		final Trace trace = traceContext.currentTraceObject();
-		if (trace == null) {
-			return;
-		}
-		try {
-            if (parameterExtractor != null) {
-                final int index = parameterExtractor.getIndex();
-                final Object recordObject = parameterExtractor.extractObject(args);
-                trace.recordApi(methodDescriptor, recordObject, index);
-            } else {
-                trace.recordApi(methodDescriptor);
-            }
-
-            // find the target node
-            if (result instanceof OperationFuture) {
-                Operation op = (Operation) getOperation.invoke(((Future<?>)result));
-                if (op != null) {
-                    MemcachedNode handlingNode = op.getHandlingNode();
-                    SocketAddress socketAddress = handlingNode.getSocketAddress();
-                    if (socketAddress instanceof InetSocketAddress) {
-                        InetSocketAddress address = (InetSocketAddress) socketAddress;
-                        trace.recordEndPoint(address.getHostName() + ":" + address.getPort());
-                    }
-                } else {
-                    logger.info("operation not found");
-                }
-            }
-
-            // determine the service type
-            String serviceCode = (String) getServiceCode.invoke(target);
-            if (serviceCode != null) {
-                trace.recordDestinationId(serviceCode);
-                trace.recordServiceType(ServiceType.ARCUS);
-            } else {
-                trace.recordDestinationId("MEMCACHED");
-                trace.recordServiceType(ServiceType.MEMCACHED);
-            }
-
-            trace.markAfterTime();
-        } finally {
-            trace.traceBlockEnd();
+        if (parameterExtractor != null) {
+            final int index = parameterExtractor.getIndex();
+            final Object recordObject = parameterExtractor.extractObject(args);
+            trace.recordApi(getMethodDescriptor(), recordObject, index);
+        } else {
+            trace.recordApi(getMethodDescriptor());
         }
-    }
 
-    @Override
-    public void setMethodDescriptor(MethodDescriptor descriptor) {
-        this.methodDescriptor = descriptor;
-        this.traceContext.cacheApi(descriptor);
-    }
+        // find the target node
+        if (result instanceof OperationFuture) {
+            Operation op = (Operation) getOperation.invoke(((Future<?>)result));
+            if (op != null) {
+                MemcachedNode handlingNode = op.getHandlingNode();
+                SocketAddress socketAddress = handlingNode.getSocketAddress();
+                if (socketAddress instanceof InetSocketAddress) {
+                    InetSocketAddress address = (InetSocketAddress) socketAddress;
+                    trace.recordEndPoint(address.getHostName() + ":" + address.getPort());
+                }
+            } else {
+                logger.info("operation not found");
+            }
+        }
 
-    @Override
-    public void setTraceContext(TraceContext traceContext) {
-        this.traceContext = traceContext;
+        // determine the service type
+        String serviceCode = (String) getServiceCode.invoke(target);
+        if (serviceCode != null) {
+            trace.recordDestinationId(serviceCode);
+            trace.recordServiceType(ServiceType.ARCUS);
+        } else {
+            trace.recordDestinationId("MEMCACHED");
+            trace.recordServiceType(ServiceType.MEMCACHED);
+        }
+
+        trace.markAfterTime();
     }
 
     @Override

@@ -9,7 +9,7 @@ import com.nhn.pinpoint.common.ServiceType;
  * @author Hyun Jeong
  * @author netspider
  */
-public abstract class SqlMapOperationInterceptor extends SpanEventSimpleAroundInterceptor implements ByteCodeMethodDescriptorSupport, TraceContextSupport {
+public abstract class SqlMapOperationInterceptor extends SpanEventSimpleAroundInterceptor {
 
 	private final ServiceType serviceType;
 
@@ -20,7 +20,6 @@ public abstract class SqlMapOperationInterceptor extends SpanEventSimpleAroundIn
 	
 	@Override
 	public final void doInBeforeTrace(Trace trace, final Object target, Object[] args) {
-		trace.traceBlockBegin();
 		trace.markBeforeTime();
 	}
 
@@ -29,9 +28,9 @@ public abstract class SqlMapOperationInterceptor extends SpanEventSimpleAroundIn
         trace.recordServiceType(this.serviceType);
         trace.recordException(throwable);
         if (args != null && args.length > 0) {
-            trace.recordApi(descriptor, args[0], 0);
+            trace.recordApi(getMethodDescriptor(), args[0], 0);
         } else {
-            trace.recordApi(descriptor);
+            trace.recordApi(getMethodDescriptor());
         }
         trace.markAfterTime();
 	}

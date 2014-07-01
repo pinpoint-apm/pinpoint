@@ -2,10 +2,7 @@ package com.nhn.pinpoint.profiler.modifier.db.interceptor;
 
 import com.nhn.pinpoint.bootstrap.context.Trace;
 import com.nhn.pinpoint.bootstrap.context.TraceContext;
-import com.nhn.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
-import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
+import com.nhn.pinpoint.bootstrap.interceptor.*;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
@@ -15,84 +12,46 @@ import com.nhn.pinpoint.bootstrap.util.MetaObject;
  * @author netspider
  * @author emeroad
  */
-public class StatementExecuteQueryInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+public class StatementExecuteQueryInterceptor extends SpanEventSimpleAroundInterceptor {
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
 
     private final MetaObject<DatabaseInfo> getDatabaseInfo = new MetaObject<DatabaseInfo>(UnKnownDatabaseInfo.INSTANCE, "__getDatabaseInfo");
-    private MethodDescriptor descriptor;
-    private TraceContext traceContext;
+
+    public StatementExecuteQueryInterceptor() {
+        super(PLoggerFactory.getLogger(StatementExecuteQueryInterceptor.class));
+    }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
-
-        Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        trace.traceBlockBegin();
+    public void doInBeforeTrace(Trace trace, final Object target, Object[] args) {
         trace.markBeforeTime();
-        try {
-            /**
-             * If method was not called by request handler, we skip tagging.
-             */
-            DatabaseInfo databaseInfo = this.getDatabaseInfo.invoke(target);
-            if (databaseInfo == null) {
-                databaseInfo = UnKnownDatabaseInfo.INSTANCE;
-            }
-            trace.recordServiceType(databaseInfo.getExecuteQueryType());
-            trace.recordEndPoint(databaseInfo.getMultipleHost());
-            trace.recordDestinationId(databaseInfo.getDatabaseId());
-
-        } catch (Exception e) {
-            if (logger.isInfoEnabled()) {
-                logger.warn(e.getMessage(), e);
-            }
+        /**
+         * If method was not called by request handler, we skip tagging.
+         */
+        DatabaseInfo databaseInfo = this.getDatabaseInfo.invoke(target);
+        if (databaseInfo == null) {
+            databaseInfo = UnKnownDatabaseInfo.INSTANCE;
         }
+        trace.recordServiceType(databaseInfo.getExecuteQueryType());
+        trace.recordEndPoint(databaseInfo.getMultipleHost());
+        trace.recordDestinationId(databaseInfo.getDatabaseId());
+
     }
 
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args, result);
-        }
+    public void doInAfterTrace(Trace trace, Object target, Object[] args, Object result, Throwable throwable) {
 
-        Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        try {
-            trace.recordApi(descriptor);
-            trace.recordException(throwable);
-            if (args.length > 0) {
-                Object arg = args[0];
-                if (arg instanceof String) {
-                    trace.recordSqlInfo((String) arg);
-                    // TODO parsing result 추가 처리 고려
-                }
+        trace.recordApi(getMethodDescriptor());
+        if (args.length > 0) {
+            Object arg = args[0];
+            if (arg instanceof String) {
+                trace.recordSqlInfo((String) arg);
+                // TODO parsing result 추가 처리 고려
             }
-
-            trace.markAfterTime();
-        } finally {
-            trace.traceBlockEnd();
         }
+        trace.recordException(throwable);
+        trace.markAfterTime();
+
     }
 
-    @Override
-    public void setMethodDescriptor(MethodDescriptor descriptor) {
-        this.descriptor = descriptor;
-        traceContext.cacheApi(descriptor);
-    }
-
-    @Override
-    public void setTraceContext(TraceContext traceContext) {
-        this.traceContext = traceContext;
-    }
 }

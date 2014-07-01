@@ -56,7 +56,6 @@ public class MetricTrace implements Trace {
         this.callStack.setStackFrame(stackFrame);
         this.currentStackFrame = stackFrame;
 
-        this.transactionId = transactionId;
     }
 
     private Span createSpan() {

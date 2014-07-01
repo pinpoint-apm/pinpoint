@@ -8,6 +8,7 @@ import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.npc.interceptor.InvokeInterceptor;
+import com.nhn.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +56,7 @@ public class KeepAliveNpcHessianConnectorModifier extends AbstractModifier {
 			connectorClass.addInterceptor("initializeConnector", null, initializeConnectorInterceptor);
 
 			// invokeImpl
-			Interceptor invokeImplInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor");
+			Interceptor invokeImplInterceptor = new MethodInterceptor();
 			connectorClass.addInterceptor("invokeImpl", new String[] { "java.lang.String", "java.lang.String", "java.nio.charset.Charset", "java.lang.Object[]" }, invokeImplInterceptor);
 
 			// invoke
