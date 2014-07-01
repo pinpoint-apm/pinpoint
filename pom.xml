@@ -278,6 +278,13 @@
 		    <scope>test</scope>
 		</dependency>
         
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-all</artifactId>
+			<version>4.0.18.Final</version>
+            <scope>provided</scope>
+		</dependency>
+        
         <!-- [End] Compile Interceptors -->
 
         <!-- 3.17.0 버전이 나왔으나 compile이 1.7로 되어 있어서 버전시 문제 있음 좀있음 1.6이하로 다시 컴파일해 줄듯 하니 기둘리자.-->

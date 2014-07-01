@@ -6,14 +6,23 @@ import java.util.Map;
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.modifier.arcus.*;
+import com.nhn.pinpoint.profiler.modifier.arcus.ArcusClientModifier;
+import com.nhn.pinpoint.profiler.modifier.arcus.BaseOperationModifier;
+import com.nhn.pinpoint.profiler.modifier.arcus.CacheManagerModifier;
+import com.nhn.pinpoint.profiler.modifier.arcus.CollectionFutureModifier;
+import com.nhn.pinpoint.profiler.modifier.arcus.FrontCacheGetFutureModifier;
+import com.nhn.pinpoint.profiler.modifier.arcus.FrontCacheMemcachedClientModifier;
+import com.nhn.pinpoint.profiler.modifier.arcus.GetFutureModifier;
+import com.nhn.pinpoint.profiler.modifier.arcus.ImmediateFutureModifier;
+import com.nhn.pinpoint.profiler.modifier.arcus.MemcachedClientModifier;
+import com.nhn.pinpoint.profiler.modifier.arcus.OperationFutureModifier;
 import com.nhn.pinpoint.profiler.modifier.bloc.handler.HTTPHandlerModifier;
+import com.nhn.pinpoint.profiler.modifier.bloc4.NettyInboundHandlerModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.asynchttpclient.AsyncHttpClientModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.BasicFutureModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.ClosableHttpAsyncClientModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.ClosableHttpClientModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.HttpClient4Modifier;
-import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.InternalHttpAsyncClientModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.jdkhttpconnector.HttpURLConnectionModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.lucynet.CompositeInvocationFutureModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.lucynet.DefaultInvocationFutureModifier;
@@ -166,10 +175,21 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         }
     }
 
-    public void addBLOCModifier() {
+    /**
+     * BLOC 3.x
+     */
+    public void addBLOC3Modifier() {
 		HTTPHandlerModifier httpHandlerModifier = new HTTPHandlerModifier(byteCodeInstrumentor, agent);
 		addModifier(httpHandlerModifier);
 	}
+    
+    /**
+     * BLOC 4.x
+     */
+    public void addBLOC4Modifier() {
+    	NettyInboundHandlerModifier nettyInboundHandlerModifier = new NettyInboundHandlerModifier(byteCodeInstrumentor, agent);
+    	addModifier(nettyInboundHandlerModifier);
+    }
 
 	public void addTomcatModifier() {
 		StandardHostValveInvokeModifier standardHostValveInvokeModifier = new StandardHostValveInvokeModifier(byteCodeInstrumentor, agent);

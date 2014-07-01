@@ -131,8 +131,11 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         // arcus, memcached
         modifierRepository.addArcusModifier();
 
-        // bloc
-        modifierRepository.addBLOCModifier();
+        // bloc 3.x
+        modifierRepository.addBLOC3Modifier();
+        
+        // bloc 4.x
+        modifierRepository.addBLOC4Modifier();
 
         // npc
         modifierRepository.addNpcModifier();

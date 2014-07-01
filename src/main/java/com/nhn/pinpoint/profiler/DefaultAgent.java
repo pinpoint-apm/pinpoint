@@ -136,7 +136,7 @@ public class DefaultAgent implements Agent {
          * org/apache/catalina/startup/Catalina/await함수가 실행되기 전에 실행해주나.
          * stand alone application은 그렇지 않으므로..
          */
-        if (agentInformation.getServerType() == ServiceType.STAND_ALONE.getCode()) {
+        if (typeResolver.isManuallyStartupRequired()) {
         	started();
         }
     }
