@@ -275,7 +275,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         return;
                     }
 
-                    setLinkOption(lastCopiedData, linkRouting, linkCurve);
+                    lastCopiedData.linkDataArray = setLinkOption(lastCopiedData.linkDataArray, linkRouting, linkCurve);
                     oProgressBar.setLoading(90);
 
                     var options = cfg.options;
@@ -392,23 +392,26 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
 
                 /**
                  * set link option
-                 * @param data
+                 * @param linkDataArray
                  * @param linkRouting
                  * @param linkCurve
                  */
-                setLinkOption = function (data, linkRouting, linkCurve) {
-                    var links = data.linkDataArray;
-                    links.forEach(function (link) {
-                        // 재귀 호출인 경우에는 avoidsnodes사용을 강제함.
-                        if (link.from === link.to) {
-                            link.routing = "AvoidsNodes";
+                setLinkOption = function (linkDataArray, linkRouting, linkCurve) {
+                    var links = linkDataArray;
+                    for(var k in links) {
+                        if (links[k].from === links[k].to) {
+                            links[k].routing = "AvoidsNodes";
                         } else {
-                            link.routing = linkRouting;
+                            links[k].routing = linkRouting;
                         }
-                        link.curve = linkCurve;
-                    });
+                        links[k].curve = linkCurve;
+                    }
+                    return links;
                 };
 
+                /**
+                 * open filter wizard
+                 */
                 openFilterWizard = function () {
                     reset();
                     var oSidebarTitleVo = new SidebarTitleVo;

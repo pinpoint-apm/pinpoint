@@ -528,11 +528,11 @@
                     option,
                     new go.Binding("routing", "routing", function (val) {
                         return go.Link[val];
-                    }).makeTwoWay(),
+                    }),
                     new go.Binding("curve", "curve", function (val) {
                         return go.Link[val];
-                    }).makeTwoWay(),
-                    new go.Binding("curviness", "curviness").makeTwoWay(),
+                    }),
+                    new go.Binding("curviness", "curviness"),
                     self.$(
                         go.Shape,  // the link shape
                         {
