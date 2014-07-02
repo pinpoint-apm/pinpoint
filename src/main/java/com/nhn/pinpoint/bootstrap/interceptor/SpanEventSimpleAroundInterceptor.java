@@ -24,7 +24,7 @@ public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundIn
     @Override
     public void before(Object target, Object[] args) {
         if (isDebug) {
-            logger.beforeInterceptor(target, args);
+            logBeforeInterceptor(target, args);
         }
 
         prepareBeforeTrace(target, args);
@@ -44,6 +44,10 @@ public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundIn
         }
     }
 
+    protected void logBeforeInterceptor(Object target, Object[] args) {
+        logger.beforeInterceptor(target, args);
+    }
+
     protected void prepareBeforeTrace(Object target, Object[] args) {
 
     }
@@ -54,7 +58,7 @@ public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundIn
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
-            logger.afterInterceptor(target, args, result);
+            logAfterInterceptor(target, args, result);
         }
 
         prepareAfterTrace(target, args, result, throwable);
@@ -72,6 +76,10 @@ public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundIn
         } finally {
             trace.traceBlockEnd();
         }
+    }
+
+    protected void logAfterInterceptor(Object target, Object[] args, Object result) {
+        logger.afterInterceptor(target, args, result);
     }
 
     protected void prepareAfterTrace(Object target, Object[] args, Object result, Throwable throwable) {

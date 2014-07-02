@@ -47,7 +47,7 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
             logger.afterInterceptor(target, args, result);
         }
 
-        Trace trace = traceContext.currentRawTraceObject();
+        final Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
