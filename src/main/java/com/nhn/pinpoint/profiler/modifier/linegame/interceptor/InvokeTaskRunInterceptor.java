@@ -148,18 +148,19 @@ public class InvokeTaskRunInterceptor extends SpanSimpleAroundInterceptor implem
             // TODO remote에서 sampling flag로 마크가되는 대상으로 왔을 경우도 추가로 샘플링 칠수 있어야
             // 할것으로 보임.
             final Trace trace = getTraceContext().continueTraceObject(traceId);
-            if (!trace.canSampled()) {
+            if (trace.canSampled()) {
                 if (isDebug) {
                     String requestURL = request.getUri();
                     String remoteAddr = getRemoteAddress(channel);
-                    logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[]{traceId, requestURL, remoteAddr});
+                    logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[]{traceId, requestURL, remoteAddr});
                 }
                 return trace;
             } else {
                 if (isDebug) {
                     String requestURL = request.getUri();
                     String remoteAddr = getRemoteAddress(channel);
-                    logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[]{traceId, requestURL, remoteAddr});
+                    logger.debug("TraceID exist. camSampled is false. skip trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[]{traceId, requestURL, remoteAddr});
+
                 }
                 return trace;
             }
