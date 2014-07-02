@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.profiler.modifier.db.interceptor;
 
+import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
 import com.nhn.pinpoint.bootstrap.interceptor.*;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.bootstrap.context.Trace;
@@ -26,7 +27,7 @@ public class DataSourceGetConnectionInterceptor extends SpanEventSimpleAroundInt
     }
 
     @Override
-    public void doInBeforeTrace(Trace trace, final Object target, Object[] args) {
+    public void doInBeforeTrace(RecordableTrace trace, final Object target, Object[] args) {
         trace.markBeforeTime();
     }
 
@@ -37,7 +38,7 @@ public class DataSourceGetConnectionInterceptor extends SpanEventSimpleAroundInt
     }
 
     @Override
-    public void doInAfterTrace(Trace trace, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
         trace.recordServiceType(ServiceType.DBCP);
         if (args == null) {
 //                args == null인 경우 parameter가 없는 getConnection() 호출시

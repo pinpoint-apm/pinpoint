@@ -2,13 +2,9 @@ package com.nhn.pinpoint.profiler.modifier.bloc.handler.interceptor;
 
 import java.util.Enumeration;
 
-import com.nhn.pinpoint.bootstrap.context.Header;
-import com.nhn.pinpoint.bootstrap.context.Trace;
-import com.nhn.pinpoint.bootstrap.context.TraceContext;
-import com.nhn.pinpoint.bootstrap.context.TraceId;
+import com.nhn.pinpoint.bootstrap.context.*;
 import com.nhn.pinpoint.bootstrap.interceptor.*;
 import com.nhn.pinpoint.profiler.context.*;
-import com.nhn.pinpoint.bootstrap.logging.PLogger;
 
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
@@ -16,7 +12,6 @@ import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.nhn.pinpoint.bootstrap.util.NumberUtils;
 import com.nhn.pinpoint.bootstrap.util.StringUtils;
-import external.org.apache.coyote.Request;
 
 /**
  * @author netspider
@@ -31,7 +26,7 @@ public class ExecuteMethodInterceptor extends SpanSimpleAroundInterceptor implem
     }
 
     @Override
-    public void doInBeforeTrace(Trace trace, Object target, Object[] args) {
+    public void doInBeforeTrace(RecordableTrace trace, Object target, Object[] args) {
 
         final external.org.apache.coyote.Request request = (external.org.apache.coyote.Request) args[0];
         trace.markBeforeTime();
@@ -103,7 +98,7 @@ public class ExecuteMethodInterceptor extends SpanSimpleAroundInterceptor implem
 
 
     @Override
-    public void doInAfterTrace(Trace trace, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
 
         if (trace.canSampled()) {
             external.org.apache.coyote.Request request = (external.org.apache.coyote.Request) args[0];

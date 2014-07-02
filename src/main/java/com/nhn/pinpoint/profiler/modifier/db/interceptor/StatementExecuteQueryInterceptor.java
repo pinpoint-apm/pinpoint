@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.profiler.modifier.db.interceptor;
 
+import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
 import com.nhn.pinpoint.bootstrap.context.Trace;
 import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.interceptor.*;
@@ -22,7 +23,7 @@ public class StatementExecuteQueryInterceptor extends SpanEventSimpleAroundInter
     }
 
     @Override
-    public void doInBeforeTrace(Trace trace, final Object target, Object[] args) {
+    public void doInBeforeTrace(RecordableTrace trace, final Object target, Object[] args) {
         trace.markBeforeTime();
         /**
          * If method was not called by request handler, we skip tagging.
@@ -39,7 +40,7 @@ public class StatementExecuteQueryInterceptor extends SpanEventSimpleAroundInter
 
 
     @Override
-    public void doInAfterTrace(Trace trace, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
 
         trace.recordApi(getMethodDescriptor());
         if (args.length > 0) {

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.nhn.pinpoint.bootstrap.context.*;
 import com.nhn.pinpoint.bootstrap.interceptor.*;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
@@ -15,10 +16,6 @@ import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.QueryStringDecoder;
 
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
-import com.nhn.pinpoint.bootstrap.context.Header;
-import com.nhn.pinpoint.bootstrap.context.Trace;
-import com.nhn.pinpoint.bootstrap.context.TraceContext;
-import com.nhn.pinpoint.bootstrap.context.TraceId;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.nhn.pinpoint.bootstrap.util.MetaObject;
@@ -53,7 +50,7 @@ public class InvokeTaskRunInterceptor extends SpanSimpleAroundInterceptor implem
     private int entityDumpSize = 512;
 
     @Override
-    public void doInBeforeTrace(Trace trace, Object target, Object[] args) {
+    public void doInBeforeTrace(RecordableTrace trace, Object target, Object[] args) {
 
         org.jboss.netty.channel.ChannelHandlerContext channelHandlerContext = getChannelHandlerContext.invoke(target);
         org.jboss.netty.channel.MessageEvent e = getMessageEvent.invoke(target);
@@ -195,7 +192,7 @@ public class InvokeTaskRunInterceptor extends SpanSimpleAroundInterceptor implem
     }
 
     @Override
-    public void doInAfterTrace(Trace trace, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
 
         if (trace.canSampled()) {
             org.jboss.netty.channel.MessageEvent e = getMessageEvent.invoke(target);
@@ -211,7 +208,7 @@ public class InvokeTaskRunInterceptor extends SpanSimpleAroundInterceptor implem
 
     }
 
-    private void recordHttpParameter2(Trace trace, MessageEvent e) {
+    private void recordHttpParameter2(RecordableTrace trace, MessageEvent e) {
         final Object message = e.getMessage();
         if (message instanceof org.jboss.netty.handler.codec.http.HttpRequest) {
             final org.jboss.netty.handler.codec.http.HttpRequest request = (org.jboss.netty.handler.codec.http.HttpRequest) message;

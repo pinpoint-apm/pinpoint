@@ -4,6 +4,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.Future;
 
+import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
 import com.nhn.pinpoint.bootstrap.interceptor.*;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -31,12 +32,12 @@ public class ApiInterceptor extends SpanEventSimpleAroundInterceptor implements 
     }
 
     @Override
-	public void doInBeforeTrace(Trace trace, final Object target, Object[] args) {
+	public void doInBeforeTrace(RecordableTrace trace, final Object target, Object[] args) {
 		trace.markBeforeTime();
 	}
 
     @Override
-    public void doInAfterTrace(Trace trace, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
 
         if (parameterExtractor != null) {
             final int index = parameterExtractor.getIndex();

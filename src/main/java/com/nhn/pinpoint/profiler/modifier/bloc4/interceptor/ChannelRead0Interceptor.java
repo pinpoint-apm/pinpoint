@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.profiler.modifier.bloc4.interceptor;
 
+import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
 import com.nhn.pinpoint.bootstrap.interceptor.*;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -35,7 +36,7 @@ public class ChannelRead0Interceptor extends SpanSimpleAroundInterceptor impleme
     }
 
     @Override
-	public void doInBeforeTrace(Trace trace, Object target, Object[] args) {
+	public void doInBeforeTrace(RecordableTrace trace, Object target, Object[] args) {
         io.netty.channel.ChannelHandlerContext ctx = (io.netty.channel.ChannelHandlerContext) args[0];
         io.netty.handler.codec.http.FullHttpRequest request = (io.netty.handler.codec.http.FullHttpRequest) args[1];
 
@@ -116,7 +117,7 @@ public class ChannelRead0Interceptor extends SpanSimpleAroundInterceptor impleme
     }
 
 	@Override
-	public void doInAfterTrace(Trace trace, Object target, Object[] args, Object result, Throwable throwable) {
+	public void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
         if (trace.canSampled()) {
             io.netty.handler.codec.http.FullHttpRequest request = (io.netty.handler.codec.http.FullHttpRequest) args[1];
 

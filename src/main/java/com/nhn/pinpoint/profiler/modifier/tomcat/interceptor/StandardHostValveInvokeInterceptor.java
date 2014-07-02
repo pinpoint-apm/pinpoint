@@ -26,7 +26,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     }
 
     @Override
-    protected void doInBeforeTrace(Trace trace, Object target, Object[] args) {
+    protected void doInBeforeTrace(RecordableTrace trace, Object target, Object[] args) {
         final HttpServletRequest request = (HttpServletRequest) args[0];
         trace.markBeforeTime();
         if (trace.canSampled()) {
@@ -96,7 +96,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     }
 
 
-    private void recordParentInfo(Trace trace, HttpServletRequest request) {
+    private void recordParentInfo(RecordableTrace trace, HttpServletRequest request) {
         String parentApplicationName = request.getHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString());
         if (parentApplicationName != null) {
             trace.recordAcceptorHost(NetworkUtils.getHostFromURL(request.getRequestURL().toString()));
@@ -108,7 +108,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     }
 
     @Override
-    protected void doInAfterTrace(Trace trace, Object target, Object[] args, Object result, Throwable throwable) {
+    protected void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
         if (trace.canSampled()) {
             final HttpServletRequest request = (HttpServletRequest) args[0];
             final String parameters = getRequestParameter(request, 64, 512);

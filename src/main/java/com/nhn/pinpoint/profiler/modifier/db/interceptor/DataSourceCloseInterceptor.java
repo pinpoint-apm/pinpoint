@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.profiler.modifier.db.interceptor;
 
+import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
 import com.nhn.pinpoint.bootstrap.interceptor.*;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.bootstrap.context.Trace;
@@ -27,7 +28,7 @@ public class DataSourceCloseInterceptor extends SpanEventSimpleAroundInterceptor
     }
 
     @Override
-    public void doInBeforeTrace(Trace trace, final Object target, Object[] args) {
+    public void doInBeforeTrace(RecordableTrace trace, final Object target, Object[] args) {
         trace.markBeforeTime();
     }
 
@@ -38,7 +39,7 @@ public class DataSourceCloseInterceptor extends SpanEventSimpleAroundInterceptor
     }
 
     @Override
-    public void doInAfterTrace(Trace trace, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
         trace.recordServiceType(ServiceType.DBCP);
         trace.recordApi(getMethodDescriptor());
         trace.recordException(throwable);
