@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.bootstrap.interceptor;
 
+import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
 import com.nhn.pinpoint.bootstrap.context.Trace;
 import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
@@ -36,7 +37,7 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
         }
     }
 
-    protected abstract void doInBeforeTrace(final Trace trace, Object target, final Object[] args);
+    protected abstract void doInBeforeTrace(final RecordableTrace trace, Object target, final Object[] args);
 
     protected abstract Trace createTrace(final Object target, final Object[] args);
 
@@ -62,7 +63,7 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
         }
     }
 
-    protected abstract void doInAfterTrace(final Trace trace, final Object target, final Object[] args, final Object result, Throwable throwable);
+    protected abstract void doInAfterTrace(final RecordableTrace trace, final Object target, final Object[] args, final Object result, Throwable throwable);
 
 
     @Override
