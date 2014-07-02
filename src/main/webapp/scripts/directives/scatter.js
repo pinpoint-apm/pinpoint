@@ -212,7 +212,7 @@ pinpointApp.directive('scatter',
 //                            window.open("/selectedScatter.pinpoint", token);
 //                            oTransactionDao.addData(token, transactions);
 
-                            var token = htLastNode.applicationName + '|' + htXY.nXFrom + '|' + htXY.nXTo + '|' + htXY.nYFrom + '|' + htXY.nYTo;
+                            var token = title + '|' + htXY.nXFrom + '|' + htXY.nXTo + '|' + htXY.nYFrom + '|' + htXY.nYTo;
                             $window.open('#/transactionList/' + oNavbarVo.getApplication() + '/' +
                                 oNavbarVo.getReadablePeriod() + '/' + oNavbarVo.getQueryEndDateTime(), token);
                         };
@@ -233,7 +233,7 @@ pinpointApp.directive('scatter',
                             } else {
                                 oScatterChart.addBubbleAndMoveAndDraw(scatterData.scatter, scatterData.resultFrom);
                             }
-                            $window.htoScatter[htLastNode.applicationName] = oScatterChart;
+                            $window.htoScatter[title] = oScatterChart;
                         }, 100);
 
                         return oScatterChart;
