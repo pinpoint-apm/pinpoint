@@ -22,7 +22,7 @@ import com.nhn.pinpoint.bootstrap.util.StringUtils;
 public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundInterceptor implements TargetClassLoader {
 
     public StandardHostValveInvokeInterceptor() {
-        super(PLoggerFactory.getLogger(StandardHostValveInvokeInterceptor.class));
+        super(StandardHostValveInvokeInterceptor.class);
     }
 
     @Override

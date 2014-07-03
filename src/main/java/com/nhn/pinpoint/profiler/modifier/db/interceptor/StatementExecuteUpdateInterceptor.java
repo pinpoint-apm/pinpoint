@@ -4,7 +4,6 @@ import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
 
 import com.nhn.pinpoint.bootstrap.interceptor.*;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
-import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
 
 /**
@@ -16,7 +15,7 @@ import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
 public class StatementExecuteUpdateInterceptor extends SpanEventSimpleAroundInterceptor {
 
     public StatementExecuteUpdateInterceptor() {
-        super(PLoggerFactory.getLogger(StatementExecuteUpdateInterceptor.class));
+        super(StatementExecuteUpdateInterceptor.class);
     }
 
     @Override

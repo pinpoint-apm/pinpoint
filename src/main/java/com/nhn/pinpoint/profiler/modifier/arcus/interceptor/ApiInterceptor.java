@@ -6,8 +6,6 @@ import java.util.concurrent.Future;
 
 import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
 import com.nhn.pinpoint.bootstrap.interceptor.*;
-import com.nhn.pinpoint.bootstrap.logging.PLogger;
-import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.internal.OperationFuture;
 import net.spy.memcached.ops.Operation;
@@ -28,7 +26,7 @@ public class ApiInterceptor extends SpanEventSimpleAroundInterceptor implements 
     private ParameterExtractor parameterExtractor;
 
     public ApiInterceptor() {
-        super(PLoggerFactory.getLogger(ApiInterceptor.class));
+        super(ApiInterceptor.class);
     }
 
     @Override

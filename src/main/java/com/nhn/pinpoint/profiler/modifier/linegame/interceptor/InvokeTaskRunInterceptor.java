@@ -16,7 +16,6 @@ import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.QueryStringDecoder;
 
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
-import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.nhn.pinpoint.bootstrap.util.MetaObject;
 import com.nhn.pinpoint.bootstrap.util.NumberUtils;
@@ -40,7 +39,7 @@ public class InvokeTaskRunInterceptor extends SpanSimpleAroundInterceptor implem
     private static final String DEFAULT_CHARSET = "UTF-8";
 
     public InvokeTaskRunInterceptor() {
-        super(PLoggerFactory.getLogger(InvokeTaskRunInterceptor.class));
+        super(InvokeTaskRunInterceptor.class);
     }
 
     private MetaObject<org.jboss.netty.channel.ChannelHandlerContext> getChannelHandlerContext = new MetaObject<org.jboss.netty.channel.ChannelHandlerContext>("__getChannelHandlerContext");

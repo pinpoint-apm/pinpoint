@@ -5,7 +5,6 @@ import com.nhn.pinpoint.bootstrap.interceptor.*;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.ParsingResultTraceValue;
-import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.common.util.ParsingResult;
 
 import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
@@ -18,7 +17,7 @@ public class PreparedStatementCreateInterceptor extends SpanEventSimpleAroundInt
 
 
     public PreparedStatementCreateInterceptor() {
-        super(PLoggerFactory.getLogger(PreparedStatementCreateInterceptor.class));
+        super(PreparedStatementCreateInterceptor.class);
     }
 
     @Override

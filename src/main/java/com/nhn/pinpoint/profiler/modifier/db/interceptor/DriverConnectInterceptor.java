@@ -3,7 +3,6 @@ package com.nhn.pinpoint.profiler.modifier.db.interceptor;
 import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
 import com.nhn.pinpoint.bootstrap.interceptor.*;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
-import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
 import com.nhn.pinpoint.profiler.util.DepthScope;
 import com.nhn.pinpoint.bootstrap.util.InterceptorUtils;
@@ -23,7 +22,7 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptor {
     }
 
     public DriverConnectInterceptor(boolean recordConnection) {
-        super(PLoggerFactory.getLogger(DriverConnectInterceptor.class));
+        super(DriverConnectInterceptor.class);
         // mysql loadbalance 전용옵션 실제 destination은 하위의 구현체에서 레코딩한다.
         this.recordConnection = recordConnection;
     }

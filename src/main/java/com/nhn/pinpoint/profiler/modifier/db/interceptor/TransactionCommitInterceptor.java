@@ -4,7 +4,6 @@ import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
 import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
 import com.nhn.pinpoint.bootstrap.interceptor.*;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
-import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 
 /**
  * @author emeroad
@@ -13,7 +12,7 @@ public class TransactionCommitInterceptor extends SpanEventSimpleAroundIntercept
 
 
     public TransactionCommitInterceptor() {
-        super(PLoggerFactory.getLogger(TransactionCommitInterceptor.class));
+        super(TransactionCommitInterceptor.class);
     }
 
     @Override

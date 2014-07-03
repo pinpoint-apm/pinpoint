@@ -3,9 +3,6 @@ package com.nhn.pinpoint.profiler.modifier.db.interceptor;
 import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
 import com.nhn.pinpoint.bootstrap.interceptor.*;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.bootstrap.context.Trace;
-import com.nhn.pinpoint.bootstrap.logging.PLogger;
-import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.util.DepthScope;
 
 /**
@@ -18,7 +15,7 @@ public class DataSourceCloseInterceptor extends SpanEventSimpleAroundInterceptor
     private final DepthScope scope = JDBCScope.SCOPE;
 
     public DataSourceCloseInterceptor() {
-        super(PLoggerFactory.getLogger(DataSourceCloseInterceptor.class));
+        super(DataSourceCloseInterceptor.class);
     }
 
     @Override

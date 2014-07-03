@@ -3,8 +3,6 @@ package com.nhn.pinpoint.profiler.modifier.db.interceptor;
 import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
 import com.nhn.pinpoint.bootstrap.interceptor.*;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.bootstrap.context.Trace;
-import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 
 import com.nhn.pinpoint.profiler.util.DepthScope;
 
@@ -17,7 +15,7 @@ public class DataSourceGetConnectionInterceptor extends SpanEventSimpleAroundInt
     private final DepthScope scope = JDBCScope.SCOPE;
 
     public DataSourceGetConnectionInterceptor() {
-        super(PLoggerFactory.getLogger(DataSourceGetConnectionInterceptor.class));
+        super(DataSourceGetConnectionInterceptor.class);
     }
 
     @Override

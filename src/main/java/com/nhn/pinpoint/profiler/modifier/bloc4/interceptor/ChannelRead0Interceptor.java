@@ -14,7 +14,6 @@ import java.util.Map.Entry;
 import com.nhn.pinpoint.bootstrap.context.Header;
 import com.nhn.pinpoint.bootstrap.context.Trace;
 import com.nhn.pinpoint.bootstrap.context.TraceId;
-import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.nhn.pinpoint.bootstrap.util.MetaObject;
 import com.nhn.pinpoint.bootstrap.util.NumberUtils;
@@ -32,7 +31,7 @@ public class ChannelRead0Interceptor extends SpanSimpleAroundInterceptor impleme
 	private MetaObject<java.nio.charset.Charset> getUriEncoding = new MetaObject<java.nio.charset.Charset>("__getUriEncoding");
 
     public ChannelRead0Interceptor() {
-        super(PLoggerFactory.getLogger(ChannelRead0Interceptor.class));
+        super(ChannelRead0Interceptor.class);
     }
 
     @Override

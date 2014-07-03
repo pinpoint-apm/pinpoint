@@ -8,7 +8,6 @@ import com.nhn.pinpoint.profiler.context.*;
 
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.nhn.pinpoint.bootstrap.util.NumberUtils;
 import com.nhn.pinpoint.bootstrap.util.StringUtils;
@@ -22,7 +21,7 @@ public class ExecuteMethodInterceptor extends SpanSimpleAroundInterceptor implem
 
 
     public ExecuteMethodInterceptor() {
-        super(PLoggerFactory.getLogger(ExecuteMethodInterceptor.class));
+        super(ExecuteMethodInterceptor.class);
     }
 
     @Override

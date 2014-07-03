@@ -1,9 +1,7 @@
 package com.nhn.pinpoint.profiler.modifier.orm;
 
 import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
-import com.nhn.pinpoint.bootstrap.context.Trace;
 import com.nhn.pinpoint.bootstrap.interceptor.*;
-import com.nhn.pinpoint.bootstrap.logging.PLogger;
 import com.nhn.pinpoint.common.ServiceType;
 
 /**
@@ -14,8 +12,8 @@ public abstract class SqlMapOperationInterceptor extends SpanEventSimpleAroundIn
 
 	private final ServiceType serviceType;
 
-	public SqlMapOperationInterceptor(ServiceType serviceType, PLogger logger) {
-        super(logger);
+	public SqlMapOperationInterceptor(ServiceType serviceType, Class<? extends SpanEventSimpleAroundInterceptor> childClazz) {
+        super(childClazz);
 		this.serviceType = serviceType;
 	}
 	
