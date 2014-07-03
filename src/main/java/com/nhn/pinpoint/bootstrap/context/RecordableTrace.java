@@ -63,6 +63,12 @@ public interface RecordableTrace {
 
     void recordParentApplication(String parentApplicationName, short parentApplicationType);
 
+    /**
+     * WAS_A -> WAS_B 호출 관계일 때 WAS_B에서 WAS_A가 보내준 호출 정보를 통해 자기 자신의 정보를 추출하여 저장
+     * 이 데이터는 서버맵에서 WAS끼리 호출관계를 알아낼 떄 필요하다.
+     * 
+     * @param host host 값은 WAS를 호출한 URL상의 host를 가져와야 한다.
+     */
     void recordAcceptorHost(String host);
 
     int getStackFrameId();
