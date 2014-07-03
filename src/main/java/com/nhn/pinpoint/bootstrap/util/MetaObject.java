@@ -6,6 +6,10 @@ import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+/**
+ * TraceValue interface를 구현하여 사용하라
+ */
+@Deprecated
 public final class MetaObject<R> {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
