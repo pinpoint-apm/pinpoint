@@ -6,7 +6,7 @@ import com.nhn.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
 import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
@@ -41,13 +41,8 @@ public class StatementExecuteUpdateInterceptor implements SimpleAroundIntercepto
         trace.markBeforeTime();
 
         try {
-            DatabaseInfo databaseInfo = null;
-            if (target instanceof DatabaseInfoTraceValue) {
-                databaseInfo = ((DatabaseInfoTraceValue)target).__getTraceDatabaseInfo();
-            }
-            if (databaseInfo == null) {
-                databaseInfo = UnKnownDatabaseInfo.INSTANCE;
-            }
+            DatabaseInfo databaseInfo = DatabaseInfoTraceValueUtils.__getTraceDatabaseInfo(target, UnKnownDatabaseInfo.INSTANCE);
+
             trace.recordServiceType(databaseInfo.getExecuteQueryType());
             trace.recordEndPoint(databaseInfo.getMultipleHost());
             trace.recordDestinationId(databaseInfo.getDatabaseId());

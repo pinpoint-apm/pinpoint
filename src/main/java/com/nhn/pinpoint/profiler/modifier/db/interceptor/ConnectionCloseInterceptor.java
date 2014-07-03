@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler.modifier.db.interceptor;
 
 import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
 
@@ -20,9 +20,7 @@ public class ConnectionCloseInterceptor implements SimpleAroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
         // close의 경우 호출이 실패하더라도 데이터를 삭제해야함.
-        if (target instanceof DatabaseInfoTraceValue) {
-            ((DatabaseInfoTraceValue)target).__setTraceDatabaseInfo(null);
-        }
+        DatabaseInfoTraceValueUtils.__setTraceDatabaseInfo(target, null);
     }
 
     @Override

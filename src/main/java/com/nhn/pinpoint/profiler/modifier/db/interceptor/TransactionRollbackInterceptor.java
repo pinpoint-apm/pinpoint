@@ -7,7 +7,7 @@ import com.nhn.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
 import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 
@@ -69,13 +69,8 @@ public class TransactionRollbackInterceptor implements SimpleAroundInterceptor, 
 
     private void afterRollback(Trace trace, Connection target, Throwable throwable) {
         try {
-            DatabaseInfo databaseInfo = null;
-            if (target instanceof DatabaseInfoTraceValue) {
-                databaseInfo = ((DatabaseInfoTraceValue) target).__getTraceDatabaseInfo();
-            }
-            if (databaseInfo == null) {
-                databaseInfo = UnKnownDatabaseInfo.INSTANCE;
-            }
+            DatabaseInfo databaseInfo = DatabaseInfoTraceValueUtils.__getTraceDatabaseInfo(target, UnKnownDatabaseInfo.INSTANCE);
+
             trace.recordServiceType(databaseInfo.getType());
             trace.recordEndPoint(databaseInfo.getMultipleHost());
             trace.recordDestinationId(databaseInfo.getDatabaseId());

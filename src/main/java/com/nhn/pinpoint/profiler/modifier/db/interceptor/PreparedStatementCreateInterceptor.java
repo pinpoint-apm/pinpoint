@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler.modifier.db.interceptor;
 
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.ParsingResultTraceValue;
 import com.nhn.pinpoint.common.util.ParsingResult;
 import com.nhn.pinpoint.bootstrap.context.Trace;
@@ -40,23 +41,12 @@ public class PreparedStatementCreateInterceptor implements SimpleAroundIntercept
         trace.traceBlockBegin();
         trace.markBeforeTime();
 
-        final DatabaseInfo databaseInfo = getDatabaseInfo(target);
+        final DatabaseInfo databaseInfo = DatabaseInfoTraceValueUtils.__getTraceDatabaseInfo(target, UnKnownDatabaseInfo.INSTANCE);
         trace.recordServiceType(databaseInfo.getType());
         trace.recordEndPoint(databaseInfo.getMultipleHost());
         trace.recordDestinationId(databaseInfo.getDatabaseId());
 
 
-    }
-
-    private DatabaseInfo getDatabaseInfo(Object target) {
-        if (target instanceof DatabaseInfoTraceValue) {
-            final DatabaseInfo databaseInfo = ((DatabaseInfoTraceValue)target).__getTraceDatabaseInfo();
-            if (databaseInfo == null) {
-                return UnKnownDatabaseInfo.INSTANCE;
-            }
-            return databaseInfo;
-        }
-        return UnKnownDatabaseInfo.INSTANCE;
     }
 
     @Override

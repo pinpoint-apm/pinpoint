@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.profiler.modifier.db.interceptor;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,7 +8,7 @@ import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.BindValueTraceValue;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.ParsingResultTraceValue;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
 
@@ -47,13 +46,7 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
         trace.traceBlockBegin();
         trace.markBeforeTime();
         try {
-            DatabaseInfo databaseInfo = null;
-            if (target instanceof DatabaseInfoTraceValue) {
-                databaseInfo = ((DatabaseInfoTraceValue)target).__getTraceDatabaseInfo();
-            }
-            if (databaseInfo == null) {
-                databaseInfo = UnKnownDatabaseInfo.INSTANCE;
-            }
+            DatabaseInfo databaseInfo = DatabaseInfoTraceValueUtils.__getTraceDatabaseInfo(target, UnKnownDatabaseInfo.INSTANCE);
             trace.recordServiceType(databaseInfo.getExecuteQueryType());
 
             trace.recordEndPoint(databaseInfo.getMultipleHost());

@@ -6,7 +6,7 @@ import com.nhn.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
 import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
 import com.nhn.pinpoint.profiler.util.DepthScope;
@@ -67,9 +67,7 @@ public class DriverConnectInterceptor implements SimpleAroundInterceptor, ByteCo
         DatabaseInfo databaseInfo = createDatabaseInfo(driverUrl);
         if (success) {
             if (recordConnection) {
-                if (result instanceof DatabaseInfoTraceValue) {
-                    ((DatabaseInfoTraceValue)result).__setTraceDatabaseInfo(databaseInfo);
-                }
+                DatabaseInfoTraceValueUtils.__setTraceDatabaseInfo(result, databaseInfo);
             }
         }
 

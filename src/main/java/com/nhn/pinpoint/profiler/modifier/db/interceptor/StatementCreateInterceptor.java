@@ -4,7 +4,7 @@ import com.nhn.pinpoint.bootstrap.context.Trace;
 import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
@@ -44,16 +44,8 @@ public class StatementCreateInterceptor implements SimpleAroundInterceptor, Trac
             return;
         }
         if (target instanceof Connection) {
-            DatabaseInfo databaseInfo = null;
-            if (target instanceof DatabaseInfoTraceValue) {
-                databaseInfo = ((DatabaseInfoTraceValue)target).__getTraceDatabaseInfo();
-            }
-            if (result instanceof DatabaseInfoTraceValue) {
-                if (databaseInfo == null) {
-                    databaseInfo = UnKnownDatabaseInfo.INSTANCE;
-                }
-                ((DatabaseInfoTraceValue) result).__setTraceDatabaseInfo(databaseInfo);
-            }
+            final DatabaseInfo databaseInfo = DatabaseInfoTraceValueUtils.__getTraceDatabaseInfo(target, UnKnownDatabaseInfo.INSTANCE);
+            DatabaseInfoTraceValueUtils.__setTraceDatabaseInfo(result, databaseInfo);
         }
     }
 
