@@ -180,7 +180,7 @@ angular.module('pinpointApp')
                     /**
                      * scope event on jvmMemoryChart.resize.namespace
                      */
-                    scope.$on('jvmMemoryChart.resize.' + scope.namespace, function (event, category) {
+                    scope.$on('jvmMemoryChart.resize.' + scope.namespace, function (event) {
                         resize();
                     });
                 }

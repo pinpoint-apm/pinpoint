@@ -14,12 +14,11 @@ pinpointApp.controller('TransactionViewCtrl', [ 'TransactionViewConfig', '$scope
         var parseTransactionDetail, parseCompleteStateToClass, showCallStacks, showServerMap, showHeapChart,
             showChartCursorAt;
 
-        // initialize
+        // bootstrap
         $rootScope.wrapperClass = 'no-navbar';
         $rootScope.wrapperStyle = {
             'padding-top': '30px'
         };
-
         oAlert = new Alerts($rootElement);
         oProgressBar = new ProgressBar($rootElement);
 
@@ -119,11 +118,18 @@ pinpointApp.controller('TransactionViewCtrl', [ 'TransactionViewConfig', '$scope
             $scope.$broadcast('agentChartGroup.initialize.forTransactionView', query);
         };
 
+        /**
+         * show chart cursor at
+         * @param category
+         */
         showChartCursorAt = function (category) {
             $scope.$broadcast('agentChartGroup.showCursorAt.forTransactionView', category);
         };
 
 
+        /**
+         * scope event on distributedCallFlow.rowSelected.forTransactionView
+         */
         $scope.$on('distributedCallFlow.rowSelected.forTransactionView', function (e, item) {
             console.log('distributedCallFlow.rowSelected.forTransactionView', item);
             var category = item.execTime ? new Date(item.execTime).toString('yyyy-MM-dd HH:mm') : false;

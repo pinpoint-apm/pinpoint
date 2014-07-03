@@ -21,8 +21,9 @@ pinpointApp.directive('agentChartGroup', [ 'agentChartGroupConfig', '$timeout', 
             var htChartCache, htLastAgentStat;
 
             // define private variables of methods
-            var initialize, showHeapChart, parseAgentStat, showPermGenChart;
+            var initialize, showHeapChart, showPermGenChart, showCursorAt, resize;
 
+            // bootstrap
             scope.showChartGroup = false;
 
             /**
@@ -54,6 +55,12 @@ pinpointApp.directive('agentChartGroup', [ 'agentChartGroupConfig', '$timeout', 
 //                        console.log(ui.newTab.text(), ui.newTab.index());
                         if (ui.newTab.text() === 'PermGen' && htChartCache.PermGen === false) {
                             showPermGenChart(htLastAgentStat);
+                            return;
+                        }
+                        if (ui.newTab.text() === 'PermGen') {
+                            scope.$broadcast('jvmMemoryChart.resize.forNonHeap_' + scope.namespace);
+                        } else {
+                            scope.$broadcast('jvmMemoryChart.resize.forHeap_' + scope.namespace);
                         }
                     }
                 });
@@ -92,28 +99,49 @@ pinpointApp.directive('agentChartGroup', [ 'agentChartGroupConfig', '$timeout', 
             };
 
             /**
-             * scope event on agentChartGroup.initialize.namespace
+             * show cursor at
+             * @param category
              */
-            scope.$on('agentChartGroup.initialize.' + scope.namespace, function (event, query) {
-                initialize(query);
-            });
-
-            scope.$on('agentChartGroup.showCursorAt.' + scope.namespace, function (event, category) {
+            showCursorAt = function (category) {
                 if (htChartCache.Heap) {
                     scope.$broadcast('jvmMemoryChart.showCursorAt.forHeap_' + scope.namespace, category);
                 }
                 if (htChartCache.PermGen) {
                     scope.$broadcast('jvmMemoryChart.showCursorAt.forNonHeap_' + scope.namespace, category);
                 }
-            });
+            };
 
-            scope.$on('agentChartGroup.resize.' + scope.namespace, function (event, category) {
+            /**
+             * resize
+             */
+            resize = function () {
                 if (htChartCache.Heap) {
-                    scope.$broadcast('jvmMemoryChart.resize.forHeap_' + scope.namespace, category);
+                    scope.$broadcast('jvmMemoryChart.resize.forHeap_' + scope.namespace);
                 }
                 if (htChartCache.PermGen) {
-                    scope.$broadcast('jvmMemoryChart.resize.forNonHeap_' + scope.namespace, category);
+                    scope.$broadcast('jvmMemoryChart.resize.forNonHeap_' + scope.namespace);
                 }
+            };
+
+            /**
+             * scope event on agentChartGroup.initialize.namespace
+             */
+            scope.$on('agentChartGroup.initialize.' + scope.namespace, function (event, query) {
+                initialize(query);
+            });
+
+            /**
+             * scope event on agentChartGroup.showCursorAt.namespace
+             */
+            scope.$on('agentChartGroup.showCursorAt.' + scope.namespace, function (event, category) {
+                showCursorAt(category);
+            });
+
+            /**
+             * scope event on agentChartGroup.resize.namespace
+             */
+            scope.$on('agentChartGroup.resize.' + scope.namespace, function (event) {
+                resize();
             });
         }
     };
