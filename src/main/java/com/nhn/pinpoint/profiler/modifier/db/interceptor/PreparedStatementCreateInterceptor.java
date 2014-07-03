@@ -1,62 +1,39 @@
 package com.nhn.pinpoint.profiler.modifier.db.interceptor;
 
+import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
+import com.nhn.pinpoint.bootstrap.interceptor.*;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.ParsingResultTraceValue;
-import com.nhn.pinpoint.common.util.ParsingResult;
-import com.nhn.pinpoint.bootstrap.context.Trace;
-import com.nhn.pinpoint.bootstrap.context.TraceContext;
-import com.nhn.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
-import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.nhn.pinpoint.common.util.ParsingResult;
+
 import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
-import com.nhn.pinpoint.bootstrap.logging.PLogger;
 import com.nhn.pinpoint.bootstrap.util.InterceptorUtils;
 
 /**
  * @author emeroad
  */
-public class PreparedStatementCreateInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+public class PreparedStatementCreateInterceptor extends SpanEventSimpleAroundInterceptor {
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
 
-    private MethodDescriptor descriptor;
-
-    // connection 용.
-    private TraceContext traceContext;
+    public PreparedStatementCreateInterceptor() {
+        super(PLoggerFactory.getLogger(PreparedStatementCreateInterceptor.class));
+    }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
-
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-        trace.traceBlockBegin();
+    public void doInBeforeTrace(RecordableTrace trace, Object target, Object[] args)  {
         trace.markBeforeTime();
 
         final DatabaseInfo databaseInfo = DatabaseInfoTraceValueUtils.__getTraceDatabaseInfo(target, UnKnownDatabaseInfo.INSTANCE);
         trace.recordServiceType(databaseInfo.getType());
         trace.recordEndPoint(databaseInfo.getMultipleHost());
         trace.recordDestinationId(databaseInfo.getDatabaseId());
-
-
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args, result);
-        }
-
+    protected void prepareAfterTrace(Object target, Object[] args, Object result, Throwable throwable) {
         final boolean success = InterceptorUtils.isSuccess(throwable);
-        ParsingResult parsingResult = null;
         if (success) {
             if (target instanceof DatabaseInfoTraceValue) {
                 // preparedStatement의 생성이 성공하였을 경우만 PreparedStatement에 databaseInfo를 세팅해야 한다.
@@ -71,7 +48,7 @@ public class PreparedStatementCreateInterceptor implements SimpleAroundIntercept
                 // 1. traceContext를 체크하면 안됨. traceContext에서 즉 같은 thread에서 prearedStatement에서 안만들수도 있음.
                 // 2. sampling 동작이 동작할 경우 preparedStatement를 create하는 thread가 trace 대상이 아닐수 있음. 먼제 sql을 저장해야 한다.
                 String sql = (String) args[0];
-                parsingResult = traceContext.parseSql(sql);
+                ParsingResult parsingResult = getTraceContext().parseSql(sql);
                 if (parsingResult != null) {
                     ((ParsingResultTraceValue)result).__setTraceParsingResult(parsingResult);
                 } else {
@@ -81,31 +58,18 @@ public class PreparedStatementCreateInterceptor implements SimpleAroundIntercept
                 }
             }
         }
-
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-        try {
-            trace.recordSqlParsingResult(parsingResult);
-            trace.recordException(throwable);
-            trace.recordApi(descriptor);
-
-            trace.markAfterTime();
-        } finally {
-            trace.traceBlockEnd();
-        }
-    }
-
-
-    @Override
-    public void setMethodDescriptor(MethodDescriptor descriptor) {
-        this.descriptor = descriptor;
-        traceContext.cacheApi(descriptor);
     }
 
     @Override
-    public void setTraceContext(TraceContext traceContext) {
-        this.traceContext = traceContext;
+    public void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
+
+        ParsingResult parsingResult = ((ParsingResultTraceValue) result).__getTraceParsingResult();
+        trace.recordSqlParsingResult(parsingResult);
+        trace.recordException(throwable);
+        trace.recordApi(getMethodDescriptor());
+
+        trace.markAfterTime();
     }
+
+
 }

@@ -31,12 +31,15 @@ public class MySQLConnectionCreateInterceptor implements SimpleAroundInterceptor
             return;
         }
 
-        final String url = getString(args[0]);
-        final Integer port = getInteger(args[1]);
+        final String hostToConnectTo = getString(args[0]);
+        final Integer portToConnectTo = getInteger(args[1]);
         final String databaseId = getString(args[3]);
+        // loadbalance 일경우 변형된 connectUrl이 온다.
+//        final String url = getString(args[4]);
         DatabaseInfo databaseInfo = null;
-        if (url != null && port != null && databaseId != null) {
-            databaseInfo = traceContext.createDatabaseInfo(ServiceType.MYSQL, ServiceType.MYSQL_EXECUTE_QUERY, url, port, databaseId);
+        if (hostToConnectTo != null && portToConnectTo != null && databaseId != null) {
+            // 여기의 url은 직접 사용하면 위험하다.
+            databaseInfo = traceContext.createDatabaseInfo(ServiceType.MYSQL, ServiceType.MYSQL_EXECUTE_QUERY, hostToConnectTo, portToConnectTo, databaseId);
             if (InterceptorUtils.isSuccess(throwable)) {
                 // connection이 정상 성공일때만 set해야 한다.
                 if (target instanceof DatabaseInfoTraceValue) {

@@ -151,7 +151,7 @@ public class JavaAssistClass implements InstrumentClass {
         addTraceValue0(traceValue, initValue);
     }
 
-    public void addTraceValue0(Class<?> traceValue, String initValue) throws InstrumentException {
+    public void addTraceValue0(Class<? extends TraceValue> traceValue, String initValue) throws InstrumentException {
         if (traceValue == null) {
             throw new NullPointerException("traceValue must not be null");
         }

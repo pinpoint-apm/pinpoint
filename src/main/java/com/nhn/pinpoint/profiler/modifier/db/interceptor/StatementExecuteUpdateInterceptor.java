@@ -1,15 +1,11 @@
 package com.nhn.pinpoint.profiler.modifier.db.interceptor;
 
-import com.nhn.pinpoint.bootstrap.context.Trace;
-import com.nhn.pinpoint.bootstrap.context.TraceContext;
-import com.nhn.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
-import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
+import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
+
+import com.nhn.pinpoint.bootstrap.interceptor.*;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
-import com.nhn.pinpoint.bootstrap.logging.PLogger;
 
 /**
  * protected int executeUpdate(String sql, boolean isBatch, boolean returnGeneratedKeys)
@@ -17,80 +13,39 @@ import com.nhn.pinpoint.bootstrap.logging.PLogger;
  * @author netspider
  * @author emeroad
  */
-public class StatementExecuteUpdateInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
+public class StatementExecuteUpdateInterceptor extends SpanEventSimpleAroundInterceptor {
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-//    private int apiId;
-    private MethodDescriptor descriptor;
-    private TraceContext traceContext;
+    public StatementExecuteUpdateInterceptor() {
+        super(PLoggerFactory.getLogger(StatementExecuteUpdateInterceptor.class));
+    }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
+    public void doInBeforeTrace(RecordableTrace trace, Object target, Object[] args) {
 
-        Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        trace.traceBlockBegin();
         trace.markBeforeTime();
 
-        try {
-            DatabaseInfo databaseInfo = DatabaseInfoTraceValueUtils.__getTraceDatabaseInfo(target, UnKnownDatabaseInfo.INSTANCE);
+        DatabaseInfo databaseInfo = DatabaseInfoTraceValueUtils.__getTraceDatabaseInfo(target, UnKnownDatabaseInfo.INSTANCE);
 
-            trace.recordServiceType(databaseInfo.getExecuteQueryType());
-            trace.recordEndPoint(databaseInfo.getMultipleHost());
-            trace.recordDestinationId(databaseInfo.getDatabaseId());
+        trace.recordServiceType(databaseInfo.getExecuteQueryType());
+        trace.recordEndPoint(databaseInfo.getMultipleHost());
+        trace.recordDestinationId(databaseInfo.getDatabaseId());
 
-            trace.recordApi(descriptor);
-            if (args != null && args.length > 0) {
-                Object arg = args[0];
-                if (arg instanceof String) {
-                    trace.recordSqlInfo((String) arg);
-                }
-            }
-
-        } catch (Exception e) {
-            if (logger.isWarnEnabled()) {
-                logger.warn(e.getMessage(), e);
+        trace.recordApi(getMethodDescriptor());
+        if (args != null && args.length > 0) {
+            Object arg = args[0];
+            if (arg instanceof String) {
+                trace.recordSqlInfo((String) arg);
             }
         }
     }
 
-    @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args, result);
-        }
-
-        Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        try {
-            trace.recordException(throwable);
-
-            // TODO 결과, 수행시간을.알수 있어야 될듯.
-            trace.markAfterTime();
-        } finally {
-            trace.traceBlockEnd();
-        }
-    }
 
     @Override
-    public void setMethodDescriptor(MethodDescriptor descriptor) {
-        this.descriptor = descriptor;
-        traceContext.cacheApi(descriptor);
+    public void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
+        trace.recordException(throwable);
+
+        // TODO 결과, 수행시간을.알수 있어야 될듯.
+        trace.markAfterTime();
     }
 
-    @Override
-    public void setTraceContext(TraceContext traceContext) {
-        this.traceContext = traceContext;
-    }
 }
