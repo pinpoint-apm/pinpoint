@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.nhn.pinpoint.bootstrap.interceptor.*;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
 import com.nhn.pinpoint.profiler.util.ApiUtils;
 import com.nhn.pinpoint.profiler.interceptor.*;
 import com.nhn.pinpoint.profiler.util.DepthScope;
@@ -31,6 +32,12 @@ public class JavaAssistClass implements InstrumentClass {
     private static final int SIMPLE_INTERCEPTOR = 1;
 
     private static final int NOT_DEFINE_INTERCEPTOR_ID = -1;
+
+    private static final String FIELD_PREFIX = "__p";
+    private static final String SETTER_PREFIX = "__set";
+    private static final String GETTER_PREFIX = "__get";
+    private static final String MARKER_CLASS_NAME = "com.nhn.pinpoint.bootstrap.interceptor.tracevalue.TraceValue";
+
 
     public JavaAssistClass(JavaAssistByteCodeInstrumentor instrumentor, CtClass ctClass) {
         this.instrumentor = instrumentor;
@@ -101,15 +108,18 @@ public class JavaAssistClass implements InstrumentClass {
         }
     }
 
+    @Deprecated
     public void addTraceVariable(String variableName, String setterName, String getterName, String variableType, String initValue) throws InstrumentException {
         addTraceVariable0(variableName, setterName, getterName, variableType, initValue);
     }
 
+    @Deprecated
     public void addTraceVariable(String variableName, String setterName, String getterName, String variableType) throws InstrumentException {
         addTraceVariable0(variableName, setterName, getterName, variableType, null);
     }
 
-    public void addTraceVariable0(String variableName, String setterName, String getterName, String variableType, String initValue) throws InstrumentException {
+    @Deprecated
+    private void addTraceVariable0(String variableName, String setterName, String getterName, String variableType, String initValue) throws InstrumentException {
         try {
             CtClass type = instrumentor.getClassPool().get(variableType);
             CtField traceVariable = new CtField(type, variableName, ctClass);
@@ -131,6 +141,115 @@ public class JavaAssistClass implements InstrumentClass {
         } catch (CannotCompileException e) {
             throw new InstrumentException(variableName + " addTraceVariable fail. Cause:" + e.getMessage(), e);
         }
+    }
+
+    public void addTraceValue(Class<? extends TraceValue> traceValue) throws InstrumentException {
+        addTraceValue0(traceValue, null);
+    }
+
+    public void addTraceValue(Class<? extends TraceValue> traceValue, String initValue) throws InstrumentException {
+        addTraceValue0(traceValue, initValue);
+    }
+
+    public void addTraceValue0(Class<?> traceValue, String initValue) throws InstrumentException {
+        if (traceValue == null) {
+            throw new NullPointerException("traceValue must not be null");
+        }
+        // testcase에서 classLoader가 다를수 있어서 isAssignableFrom으로 안함.
+        // 추가로 수정하긴해야 될듯함.
+        final boolean marker = checkTraceValueMarker(traceValue);
+        if (!marker) {
+            throw new InstrumentException(traceValue + " maker interface  not implements" );
+        }
+
+        try {
+            final CtClass ctValueHandler = instrumentor.getClassPool().get(traceValue.getName());
+
+            final java.lang.reflect.Method[] declaredMethods = traceValue.getDeclaredMethods();
+            final String variableName = FIELD_PREFIX + ctValueHandler.getSimpleName();
+
+            final CtField traceVariableType = determineTraceValueType(variableName, declaredMethods);
+
+            boolean requiredField = false;
+            for (java.lang.reflect.Method method : declaredMethods) {
+                // 2개 이상의 중복일때를 체크하지 않았음.
+                if (isSetter(method)) {
+                    // setter
+                    CtMethod setterMethod = CtNewMethod.setter(method.getName(), traceVariableType);
+                    ctClass.addMethod(setterMethod);
+                    requiredField = true;
+                } else if(isGetter(method)) {
+                    // getter
+                    CtMethod getterMethod = CtNewMethod.getter(method.getName(), traceVariableType);
+                    ctClass.addMethod(getterMethod);
+                    requiredField = true;
+                }
+            }
+            if (requiredField) {
+                ctClass.addInterface(ctValueHandler);
+                if (initValue == null) {
+                    ctClass.addField(traceVariableType);
+                } else {
+                    ctClass.addField(traceVariableType, initValue);
+                }
+            }
+
+        } catch (NotFoundException e) {
+            throw new InstrumentException(traceValue + " implements fail. Cause:" + e.getMessage(), e);
+        } catch (CannotCompileException e) {
+            throw new InstrumentException(traceValue + " implements fail. Cause:" + e.getMessage(), e);
+        }
+    }
+
+
+
+    private boolean checkTraceValueMarker(Class<?> traceValue) {
+        for (Class<?> anInterface : traceValue.getInterfaces()) {
+            if (MARKER_CLASS_NAME.equals(anInterface.getName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isGetter(java.lang.reflect.Method method) {
+        return method.getName().startsWith(GETTER_PREFIX);
+    }
+
+    private boolean isSetter(java.lang.reflect.Method method) {
+        return method.getName().startsWith(SETTER_PREFIX);
+    }
+
+    private CtField determineTraceValueType(String variableName, java.lang.reflect.Method[] declaredMethods) throws NotFoundException, CannotCompileException, InstrumentException {
+        Class<?> getterReturnType = null;
+        Class<?> setterType = null;
+        for (java.lang.reflect.Method method : declaredMethods) {
+            if (isGetter(method)) {
+                getterReturnType = method.getReturnType();
+            } else if (isSetter(method)) {
+                Class<?>[] parameterTypes = method.getParameterTypes();
+                if (parameterTypes.length != 1) {
+                    throw new InstrumentException("invalid setterParameter. parameterTypes:" + Arrays.toString(parameterTypes));
+                }
+                setterType = parameterTypes[0];
+            }
+        }
+        if (getterReturnType == null && setterType == null) {
+            throw new InstrumentException("getter or setter not found");
+        }
+        if (getterReturnType != null && setterType != null) {
+            if(!getterReturnType.equals(setterType)) {
+                throw new InstrumentException("invalid setter or getter parameter");
+            }
+        }
+        Class<?> resolveType;
+        if (getterReturnType != null) {
+            resolveType = getterReturnType;
+        } else {
+            resolveType = setterType;
+        }
+        CtClass type = instrumentor.getClassPool().get(resolveType.getName());
+        return new CtField(type, variableName, ctClass);
     }
 
     public int addConstructorInterceptor(String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException {

@@ -1,11 +1,17 @@
 package com.nhn.pinpoint.profiler.interceptor.bci;
 
+import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.BindValueTraceValue;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.IntTraceValue;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
+import com.nhn.pinpoint.profiler.modifier.db.interceptor.UnKnownDatabaseInfo;
 import com.nhn.pinpoint.profiler.util.MockAgent;
 import com.nhn.pinpoint.profiler.util.TestClassLoader;
 import com.nhn.pinpoint.profiler.util.TestModifier;
@@ -19,12 +25,95 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * @author emeroad
  */
 public class JavaAssistClassTest {
     private Logger logger = LoggerFactory.getLogger(JavaAssistByteCodeInstrumentor.class.getName());
+
+    @Test
+    public void addTraceValue() throws Exception {
+        final TestClassLoader loader = getTestClassLoader();
+        final String javassistClassName = "com.nhn.pinpoint.profiler.interceptor.bci.TestObject";
+        final TestModifier testModifier = new TestModifier(loader.getInstrumentor(), loader.getAgent()) {
+
+            @Override
+            public byte[] modify(ClassLoader classLoader, String className, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+                try {
+                    logger.info("modify cl:{}", classLoader);
+
+                    InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
+
+                    Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.interceptor.TestBeforeInterceptor");
+                    addInterceptor(interceptor);
+                    aClass.addTraceValue(ObjectTraceValue.class);
+                    aClass.addTraceValue(IntTraceValue.class);
+                    aClass.addTraceValue(DatabaseInfoTraceValue.class);
+                    aClass.addTraceValue(BindValueTraceValue.class);
+
+                    logger.info(interceptor.getClass().getClassLoader().toString());
+                    String methodName = "callA";
+                    aClass.addInterceptor(methodName, null, interceptor);
+                    return aClass.toBytecode();
+                } catch (InstrumentException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e.getMessage(), e);
+                }
+            }
+        };
+        testModifier.setTargetClass(javassistClassName);
+        loader.addModifier(testModifier);
+        loader.initialize();
+
+        Class testObjectClazz = loader.loadClass(javassistClassName);
+        final String methodName = "callA";
+        logger.info("class:{}", testObjectClazz.toString());
+        final Object testObject = testObjectClazz.newInstance();
+        Method callA = testObjectClazz.getMethod(methodName);
+        callA.invoke(testObject);
+
+
+        if (testObject instanceof ObjectTraceValue) {
+            ObjectTraceValue objectTraceValue = (ObjectTraceValue) testObject;
+            objectTraceValue.__setTraceObject("a");
+            Object get = objectTraceValue.__getTraceObject();
+            Assert.assertEquals("a", get);
+        } else {
+            Assert.fail("ObjectTraceValue implements fail");
+        }
+
+        if (testObject instanceof IntTraceValue) {
+            IntTraceValue intTraceValue = (IntTraceValue) testObject;
+            intTraceValue.__setTraceInt(1);
+            int a = intTraceValue.__getTraceInt();
+            Assert.assertEquals(1, a);
+        } else {
+            Assert.fail("IntTraceValue implements fail");
+        }
+
+        if (testObject instanceof DatabaseInfoTraceValue) {
+            DatabaseInfoTraceValue databaseInfoTraceValue = (DatabaseInfoTraceValue) testObject;
+            databaseInfoTraceValue.__setTraceDatabaseInfo(UnKnownDatabaseInfo.INSTANCE);
+            DatabaseInfo databaseInfo = databaseInfoTraceValue.__getTraceDatabaseInfo();
+            Assert.assertSame(UnKnownDatabaseInfo.INSTANCE, databaseInfo);
+        } else {
+            Assert.fail("DatabaseInfoTraceValue implements fail");
+        }
+
+        if (testObject instanceof BindValueTraceValue) {
+            BindValueTraceValue bindValueTraceValue = (BindValueTraceValue) testObject;
+            Map<Integer, String> integerStringMap = Collections.<Integer, String>emptyMap();
+            bindValueTraceValue.__setTraceBindValue(integerStringMap);
+            Map<Integer, String> bindValueMap = bindValueTraceValue.__getTraceBindValue();
+            Assert.assertSame(integerStringMap, bindValueMap);
+        } else {
+            Assert.fail("BindValueTraceValue implements fail");
+        }
+
+    }
 
     @Test
     public void testBeforeAddInterceptor() throws Exception {

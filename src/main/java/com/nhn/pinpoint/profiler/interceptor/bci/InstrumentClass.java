@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler.interceptor.bci;
 
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
 import com.nhn.pinpoint.profiler.util.DepthScope;
 
 import java.util.List;
@@ -62,9 +63,21 @@ public interface InstrumentClass {
 
 	Class<?> toClass() throws InstrumentException;
 
+    /**
+     * 대신 addTraceValue 를 사용하라.
+     */
+    @Deprecated
     void addTraceVariable(String variableName, String setterName, String getterName, String variableType, String initValue) throws InstrumentException;
 
+    /**
+     * 대신 addTraceValue 를 사용하라.
+     */
+    @Deprecated
 	void addTraceVariable(String variableName, String setterName, String getterName, String variableType) throws InstrumentException;
+
+    void addTraceValue(Class<? extends TraceValue> traceValue, String initValue) throws InstrumentException;
+
+    void addTraceValue(Class<? extends TraceValue> traceValue) throws InstrumentException;
 
 	boolean insertCodeAfterConstructor(String[] args, String code);
 
