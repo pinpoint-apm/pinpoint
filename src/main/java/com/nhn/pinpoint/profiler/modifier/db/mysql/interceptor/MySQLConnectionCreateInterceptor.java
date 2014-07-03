@@ -4,11 +4,11 @@ import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
 import com.nhn.pinpoint.bootstrap.context.Trace;
 import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.interceptor.*;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
 
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.bootstrap.util.InterceptorUtils;
-import com.nhn.pinpoint.bootstrap.util.MetaObject;
 import com.nhn.pinpoint.common.ServiceType;
 
 /**
@@ -21,10 +21,6 @@ public class MySQLConnectionCreateInterceptor implements SimpleAroundInterceptor
 
     private TraceContext traceContext;
 
-    private final MetaObject setUrl = new MetaObject("__setDatabaseInfo", Object.class);
-
-    // setUrl에서 String type은 databaseInfo로 변경되었다.
-//    private final MetaObject setUrl = new MetaObject("__setDatabaseInfo", Object.class);
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
@@ -43,7 +39,9 @@ public class MySQLConnectionCreateInterceptor implements SimpleAroundInterceptor
             databaseInfo = traceContext.createDatabaseInfo(ServiceType.MYSQL, ServiceType.MYSQL_EXECUTE_QUERY, url, port, databaseId);
             if (InterceptorUtils.isSuccess(throwable)) {
                 // connection이 정상 성공일때만 set해야 한다.
-                setUrl.invoke(target, databaseInfo);
+                if (target instanceof DatabaseInfoTraceValue) {
+                    ((DatabaseInfoTraceValue)target).__setTraceDatabaseInfo(databaseInfo);
+                }
             }
         }
 

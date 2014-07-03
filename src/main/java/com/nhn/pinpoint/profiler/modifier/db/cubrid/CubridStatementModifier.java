@@ -4,6 +4,7 @@ import java.security.ProtectionDomain;
 
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
@@ -52,7 +53,7 @@ public class CubridStatementModifier extends AbstractModifier {
             Interceptor executeInterceptor2 = new StatementExecuteUpdateInterceptor();
 			statementClass.addScopeInterceptor("execute", new String[]{"java.lang.String", "int"}, executeInterceptor2, JDBCScope.SCOPE);
 
-			statementClass.addTraceVariable("__databaseInfo", "__setDatabaseInfo", "__getDatabaseInfo", "java.lang.Object");
+            statementClass.addTraceValue(DatabaseInfoTraceValue.class);
 
 			return statementClass.toBytecode();
 		} catch (InstrumentException e) {

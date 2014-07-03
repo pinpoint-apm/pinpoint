@@ -6,11 +6,11 @@ import com.nhn.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
 import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
 import com.nhn.pinpoint.profiler.util.DepthScope;
 import com.nhn.pinpoint.bootstrap.util.InterceptorUtils;
-import com.nhn.pinpoint.bootstrap.util.MetaObject;
 
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
 
@@ -21,8 +21,6 @@ public class DriverConnectInterceptor implements SimpleAroundInterceptor, ByteCo
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-
-    private final MetaObject setUrl = new MetaObject("__setDatabaseInfo", Object.class);
 
     private MethodDescriptor descriptor;
     private TraceContext traceContext;
@@ -69,8 +67,9 @@ public class DriverConnectInterceptor implements SimpleAroundInterceptor, ByteCo
         DatabaseInfo databaseInfo = createDatabaseInfo(driverUrl);
         if (success) {
             if (recordConnection) {
-                // 생성이 성공해야 result가 connection임.
-                this.setUrl.invoke(result, databaseInfo);
+                if (result instanceof DatabaseInfoTraceValue) {
+                    ((DatabaseInfoTraceValue)result).__setTraceDatabaseInfo(databaseInfo);
+                }
             }
         }
 

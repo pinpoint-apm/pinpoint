@@ -4,11 +4,11 @@ import com.nhn.pinpoint.bootstrap.context.Trace;
 import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
 import com.nhn.pinpoint.bootstrap.util.InterceptorUtils;
-import com.nhn.pinpoint.bootstrap.util.MetaObject;
 
 import java.sql.Connection;
 
@@ -20,10 +20,6 @@ public class StatementCreateInterceptor implements SimpleAroundInterceptor, Trac
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    // connection 용.
-    private final MetaObject<DatabaseInfo> getDatabaseInfo = new MetaObject<DatabaseInfo>(UnKnownDatabaseInfo.INSTANCE, "__getDatabaseInfo");
-
-    private final MetaObject setUrl = new MetaObject("__setDatabaseInfo", Object.class);
     private TraceContext traceContext;
 
     @Override
@@ -48,11 +44,16 @@ public class StatementCreateInterceptor implements SimpleAroundInterceptor, Trac
             return;
         }
         if (target instanceof Connection) {
-            DatabaseInfo databaseInfo = getDatabaseInfo.invoke(target);
-            if (databaseInfo == null) {
-                databaseInfo = UnKnownDatabaseInfo.INSTANCE;
+            DatabaseInfo databaseInfo = null;
+            if (target instanceof DatabaseInfoTraceValue) {
+                databaseInfo = ((DatabaseInfoTraceValue)target).__getTraceDatabaseInfo();
             }
-            setUrl.invoke(result, databaseInfo);
+            if (result instanceof DatabaseInfoTraceValue) {
+                if (databaseInfo == null) {
+                    databaseInfo = UnKnownDatabaseInfo.INSTANCE;
+                }
+                ((DatabaseInfoTraceValue) result).__setTraceDatabaseInfo(databaseInfo);
+            }
         }
     }
 

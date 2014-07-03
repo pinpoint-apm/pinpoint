@@ -7,9 +7,9 @@ import com.nhn.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
 import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.nhn.pinpoint.bootstrap.util.MetaObject;
 
 import java.sql.Connection;
 
@@ -21,7 +21,6 @@ public class TransactionCommitInterceptor implements SimpleAroundInterceptor, By
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final MetaObject<DatabaseInfo> getDatabaseInfo = new MetaObject<DatabaseInfo>(UnKnownDatabaseInfo.INSTANCE, "__getDatabaseInfo");
     private MethodDescriptor descriptor;
     private TraceContext traceContext;
 
@@ -68,7 +67,10 @@ public class TransactionCommitInterceptor implements SimpleAroundInterceptor, By
 
     private void afterCommit(Trace trace, Connection target, Throwable throwable) {
         try {
-            DatabaseInfo databaseInfo = this.getDatabaseInfo.invoke(target);
+            DatabaseInfo databaseInfo = null;
+            if (target instanceof DatabaseInfoTraceValue) {
+                databaseInfo = ((DatabaseInfoTraceValue) target).__getTraceDatabaseInfo();
+            }
             if (databaseInfo == null) {
                 databaseInfo = UnKnownDatabaseInfo.INSTANCE;
             }

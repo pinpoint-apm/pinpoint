@@ -1,13 +1,10 @@
 package com.nhn.pinpoint.profiler.modifier.db.interceptor;
 
 import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
-import com.nhn.pinpoint.bootstrap.context.Trace;
-import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.interceptor.*;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
-import com.nhn.pinpoint.bootstrap.logging.PLogger;
-import com.nhn.pinpoint.bootstrap.util.MetaObject;
 
 /**
  * @author netspider
@@ -16,7 +13,6 @@ import com.nhn.pinpoint.bootstrap.util.MetaObject;
 public class StatementExecuteQueryInterceptor extends SpanEventSimpleAroundInterceptor {
 
 
-    private final MetaObject<DatabaseInfo> getDatabaseInfo = new MetaObject<DatabaseInfo>(UnKnownDatabaseInfo.INSTANCE, "__getDatabaseInfo");
 
     public StatementExecuteQueryInterceptor() {
         super(PLoggerFactory.getLogger(StatementExecuteQueryInterceptor.class));
@@ -28,7 +24,10 @@ public class StatementExecuteQueryInterceptor extends SpanEventSimpleAroundInter
         /**
          * If method was not called by request handler, we skip tagging.
          */
-        DatabaseInfo databaseInfo = this.getDatabaseInfo.invoke(target);
+        DatabaseInfo databaseInfo = null;
+        if (target instanceof DatabaseInfoTraceValue) {
+            databaseInfo = ((DatabaseInfoTraceValue)target).__getTraceDatabaseInfo();
+        }
         if (databaseInfo == null) {
             databaseInfo = UnKnownDatabaseInfo.INSTANCE;
         }

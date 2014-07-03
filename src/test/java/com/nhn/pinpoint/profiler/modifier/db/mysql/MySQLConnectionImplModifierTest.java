@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler.modifier.db.mysql;
 
 import com.mysql.jdbc.JDBC4PreparedStatement;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
@@ -10,7 +11,6 @@ import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
 
 
-import com.nhn.pinpoint.bootstrap.util.MetaObject;
 import com.nhn.pinpoint.profiler.util.MockAgent;
 import com.nhn.pinpoint.profiler.util.TestClassLoader;
 import org.junit.Assert;
@@ -53,8 +53,6 @@ public class MySQLConnectionImplModifierTest {
         loader.initialize();
     }
 
-    private MetaObject<DatabaseInfo> getUrl = new MetaObject<DatabaseInfo>("__getDatabaseInfo");
-
     @Test
     public void testModify() throws Exception {
 
@@ -68,7 +66,7 @@ public class MySQLConnectionImplModifierTest {
         logger.info("Connection class name:{}", connection.getClass().getName());
         logger.info("Connection class cl:{}", connection.getClass().getClassLoader());
 
-        DatabaseInfo url = getUrl.invoke(connection);
+        DatabaseInfo url = ((DatabaseInfoTraceValue)connection).__getTraceDatabaseInfo();
         Assert.assertNotNull(url);
 
         statement(connection);
@@ -80,7 +78,7 @@ public class MySQLConnectionImplModifierTest {
         preparedStatement3(connection);
 
         connection.close();
-        DatabaseInfo clearUrl = getUrl.invoke(connection);
+        DatabaseInfo clearUrl = ((DatabaseInfoTraceValue)connection).__getTraceDatabaseInfo();
         Assert.assertNull(clearUrl);
 
     }
@@ -128,7 +126,7 @@ public class MySQLConnectionImplModifierTest {
         Object internalConnection = current.get(invocationHandler);
 
 
-        DatabaseInfo url = getUrl.invoke(internalConnection);
+        DatabaseInfo url = ((DatabaseInfoTraceValue)internalConnection).__getTraceDatabaseInfo();
         Assert.assertNotNull(url);
 
         statement(connection);
@@ -150,7 +148,7 @@ public class MySQLConnectionImplModifierTest {
         preparedStatement8(connection);
 
         connection.close();
-        DatabaseInfo clearUrl = getUrl.invoke(internalConnection);
+        DatabaseInfo clearUrl = ((DatabaseInfoTraceValue)internalConnection).__getTraceDatabaseInfo();
         Assert.assertNull(clearUrl);
 
     }

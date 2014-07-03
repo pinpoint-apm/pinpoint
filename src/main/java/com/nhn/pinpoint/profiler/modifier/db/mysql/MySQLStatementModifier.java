@@ -3,7 +3,9 @@ package com.nhn.pinpoint.profiler.modifier.db.mysql;
 import java.security.ProtectionDomain;
 
 import com.nhn.pinpoint.bootstrap.Agent;
+import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.JDBCScope;
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.StatementExecuteQueryInterceptor;
@@ -56,7 +58,7 @@ public class MySQLStatementModifier extends AbstractModifier {
             Interceptor executeUpdateInterceptor4 = new StatementExecuteUpdateInterceptor();
             statementClass.addScopeInterceptor("execute", new String[]{"java.lang.String", "int"}, executeUpdateInterceptor4, JDBCScope.SCOPE);
 
-            statementClass.addTraceVariable("__databaseInfo", "__setDatabaseInfo", "__getDatabaseInfo", "java.lang.Object");
+            statementClass.addTraceValue(DatabaseInfoTraceValue.class);
             return statementClass.toBytecode();
         } catch (InstrumentException e) {
             if (logger.isWarnEnabled()) {

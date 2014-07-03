@@ -3,6 +3,7 @@ package com.nhn.pinpoint.profiler.modifier.db.mysql;
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
@@ -43,7 +44,7 @@ public class MySQLConnectionModifier extends AbstractModifier {
             }
 
 
-            mysqlConnection.addTraceVariable("__databaseInfo", "__setDatabaseInfo", "__getDatabaseInfo", "java.lang.Object");
+            mysqlConnection.addTraceValue(DatabaseInfoTraceValue.class);
 
             // 해당 Interceptor를 공통클래스 만들경우 system에 로드해야 된다.
 //            Interceptor createConnection  = new ConnectionCreateInterceptor();

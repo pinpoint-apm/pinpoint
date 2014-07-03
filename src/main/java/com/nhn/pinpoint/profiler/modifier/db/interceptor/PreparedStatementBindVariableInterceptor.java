@@ -4,8 +4,8 @@ import com.nhn.pinpoint.bootstrap.context.Trace;
 import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.BindValueTraceValue;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.nhn.pinpoint.bootstrap.util.MetaObject;
 import com.nhn.pinpoint.bootstrap.util.NumberUtils;
 import com.nhn.pinpoint.profiler.util.bindvalue.BindValueConverter;
 
@@ -20,7 +20,6 @@ public class PreparedStatementBindVariableInterceptor implements StaticAroundInt
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final MetaObject<Map<Integer, String>> getBindValue = new MetaObject<Map<Integer, String>>("__getBindValue");
     private TraceContext traceContext;
 
     @Override
@@ -34,12 +33,14 @@ public class PreparedStatementBindVariableInterceptor implements StaticAroundInt
             logger.afterInterceptor(target, className, methodName, parameterDescription, args, result);
         }
 
-        Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
             return;
         }
-
-        Map<Integer, String> bindList = getBindValue.invoke(target);
+        Map<Integer, String> bindList = null;
+        if (target instanceof BindValueTraceValue) {
+            bindList = ((BindValueTraceValue)target).__getTraceBindValue();
+        }
         if (bindList == null) {
             if (logger.isWarnEnabled()) {
                 logger.warn("bindValue is null");

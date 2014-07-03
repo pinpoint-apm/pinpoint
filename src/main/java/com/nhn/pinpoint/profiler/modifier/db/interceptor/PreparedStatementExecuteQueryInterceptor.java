@@ -8,6 +8,9 @@ import com.nhn.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
 import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.BindValueTraceValue;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.ParsingResultTraceValue;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
 
 import com.nhn.pinpoint.common.util.ParsingResult;
@@ -15,7 +18,6 @@ import com.nhn.pinpoint.bootstrap.context.Trace;
 import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
-import com.nhn.pinpoint.bootstrap.util.MetaObject;
 
 /**
  * @author emeroad
@@ -26,11 +28,6 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-
-    private final MetaObject<Object> getSql = new MetaObject<Object>("__getSql");
-    private final MetaObject<DatabaseInfo> getDatabaseInfo = new MetaObject<DatabaseInfo>(UnKnownDatabaseInfo.INSTANCE, "__getDatabaseInfo");
-    private final MetaObject<Map<Integer, String>> getBindValue = new MetaObject<Map<Integer, String>>("__getBindValue");
-    private final MetaObject setBindValue = new MetaObject("__setBindValue", Map.class);
 
     private MethodDescriptor descriptor;
     private TraceContext traceContext;
@@ -50,7 +47,10 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
         trace.traceBlockBegin();
         trace.markBeforeTime();
         try {
-            DatabaseInfo databaseInfo = getDatabaseInfo.invoke(target);
+            DatabaseInfo databaseInfo = null;
+            if (target instanceof DatabaseInfoTraceValue) {
+                databaseInfo = ((DatabaseInfoTraceValue)target).__getTraceDatabaseInfo();
+            }
             if (databaseInfo == null) {
                 databaseInfo = UnKnownDatabaseInfo.INSTANCE;
             }
@@ -59,9 +59,14 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
             trace.recordEndPoint(databaseInfo.getMultipleHost());
             trace.recordDestinationId(databaseInfo.getDatabaseId());
 
-
-            final ParsingResult parsingResult = (ParsingResult) getSql.invoke(target);
-            Map<Integer, String> bindValue = getBindValue.invoke(target);
+            ParsingResult parsingResult = null;
+            if (target instanceof ParsingResultTraceValue) {
+                parsingResult = ((ParsingResultTraceValue) target).__getTraceParsingResult();
+            }
+            Map<Integer, String> bindValue = null;
+            if (target instanceof BindValueTraceValue) {
+                bindValue = ((BindValueTraceValue)target).__getTraceBindValue();
+            }
             if (bindValue != null) {
                 String bindString = toBindVariable(bindValue);
                 trace.recordSqlParsingResult(parsingResult, bindString);
@@ -86,7 +91,9 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
     }
 
     private void clean(Object target) {
-        setBindValue.invoke(target, Collections.synchronizedMap(new HashMap()));
+        if (target instanceof BindValueTraceValue) {
+            ((BindValueTraceValue) target).__setTraceBindValue(new HashMap<Integer, String>());
+        }
     }
 
     private String toBindVariable(Map<Integer, String> bindValue) {

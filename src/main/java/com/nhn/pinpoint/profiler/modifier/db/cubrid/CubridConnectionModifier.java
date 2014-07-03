@@ -5,6 +5,7 @@ import java.security.ProtectionDomain;
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
@@ -36,7 +37,7 @@ public class CubridConnectionModifier extends AbstractModifier {
 		try {
 			InstrumentClass cubridConnection = byteCodeInstrumentor.getClass(javassistClassName);
 
-			cubridConnection.addTraceVariable("__databaseInfo", "__setDatabaseInfo", "__getDatabaseInfo", "java.lang.Object");
+            cubridConnection.addTraceValue(DatabaseInfoTraceValue.class);
 
             Interceptor connectionCloseInterceptor = new ConnectionCloseInterceptor();
             cubridConnection.addScopeInterceptor("close", null, connectionCloseInterceptor, JDBCScope.SCOPE);

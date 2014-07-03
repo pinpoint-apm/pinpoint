@@ -7,6 +7,10 @@ import java.util.List;
 
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.BindValueTraceValue;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.ParsingResultTraceValue;
+import com.nhn.pinpoint.common.util.ParsingResult;
 import com.nhn.pinpoint.profiler.interceptor.ScopeDelegateStaticInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
@@ -52,9 +56,9 @@ public class CubridPreparedStatementModifier extends AbstractModifier {
             Interceptor executeUpdateInterceptor = new PreparedStatementExecuteQueryInterceptor();
             preparedStatementClass.addScopeInterceptor("executeUpdate", null, executeUpdateInterceptor, JDBCScope.SCOPE);
 
-			preparedStatementClass.addTraceVariable("__databaseInfo", "__setDatabaseInfo", "__getDatabaseInfo", "java.lang.Object");
-			preparedStatementClass.addTraceVariable("__sql", "__setSql", "__getSql", "java.lang.Object");
-			preparedStatementClass.addTraceVariable("__bindValue", "__setBindValue", "__getBindValue", "java.util.Map", "java.util.Collections.synchronizedMap(new java.util.HashMap());");
+            preparedStatementClass.addTraceValue(DatabaseInfoTraceValue.class);
+            preparedStatementClass.addTraceValue(ParsingResultTraceValue.class);
+            preparedStatementClass.addTraceValue(BindValueTraceValue.class, "new java.util.HashMap();");
 
 			bindVariableIntercept(preparedStatementClass, classLoader, protectedDomain);
 

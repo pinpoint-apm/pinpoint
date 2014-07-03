@@ -2,6 +2,9 @@ package com.nhn.pinpoint.profiler.modifier.db.mysql;
 
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.BindValueTraceValue;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.ParsingResultTraceValue;
 import com.nhn.pinpoint.profiler.interceptor.ScopeDelegateStaticInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
@@ -55,10 +58,10 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
             Interceptor executeUpdate = new PreparedStatementExecuteQueryInterceptor();
             preparedStatement.addScopeInterceptor("executeUpdate", null, executeUpdate, JDBCScope.SCOPE);
 
-            preparedStatement.addTraceVariable("__databaseInfo", "__setDatabaseInfo", "__getDatabaseInfo", "java.lang.Object");
-            preparedStatement.addTraceVariable("__sql", "__setSql", "__getSql", "java.lang.Object");
+            preparedStatement.addTraceValue(DatabaseInfoTraceValue.class);
+            preparedStatement.addTraceValue(ParsingResultTraceValue.class);
 
-            preparedStatement.addTraceVariable("__bindValue", "__setBindValue", "__getBindValue", "java.util.Map", "java.util.Collections.synchronizedMap(new java.util.HashMap());");
+            preparedStatement.addTraceValue(BindValueTraceValue.class, "new java.util.HashMap();");
             bindVariableIntercept(preparedStatement, classLoader, protectedDomain);
 
             return preparedStatement.toBytecode();
