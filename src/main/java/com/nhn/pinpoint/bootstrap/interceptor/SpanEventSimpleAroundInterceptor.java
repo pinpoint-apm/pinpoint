@@ -4,6 +4,7 @@ import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
 import com.nhn.pinpoint.bootstrap.context.Trace;
 import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
+import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 
 /**
  * @author emeroad
@@ -16,8 +17,8 @@ public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundIn
 
     private TraceContext traceContext;
 
-    protected SpanEventSimpleAroundInterceptor(PLogger logger) {
-        this.logger = logger;
+    protected SpanEventSimpleAroundInterceptor(Class<? extends SpanEventSimpleAroundInterceptor> childClazz) {
+        this.logger = PLoggerFactory.getLogger(childClazz);
         this.isDebug = logger.isDebugEnabled();
     }
 
