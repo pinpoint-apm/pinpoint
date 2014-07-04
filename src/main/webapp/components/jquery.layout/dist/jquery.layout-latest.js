@@ -1503,7 +1503,6 @@ $.fn.layout = function (opts) {
 	*/
 ,	_create = function () {
 		// initialize config/options
-            console.log('_create')
 		initOptions();
 		var o = options
 		,	s = state;
@@ -1560,7 +1559,6 @@ $.fn.layout = function (opts) {
 	*/
 ,	_initLayoutElements = function (retry) {
 		// initialize config/options
-            console.log('_initLayoutElements');
 		var o = options;
 		// CANNOT init panes inside a hidden container!
 		if (!$N.is(":visible")) {

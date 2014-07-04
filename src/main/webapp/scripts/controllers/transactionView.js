@@ -48,9 +48,12 @@ pinpointApp.controller('TransactionViewCtrl', [ 'TransactionViewConfig', '$scope
 //                north__spacing_closed: 20,
 //                north__togglerLength_closed: 100,
 //                north__togglerAlign_closed: "top",
+                            onload_end: function () {
+                                $scope.$broadcast('distributedCallFlow.resize.forTransactionView');
+                            },
                             onresize_end: function (edge) {
                                 if (edge === 'center') {
-                                    $scope.$broadcast('distributedCallFlow.resize.forTransactionDetail');
+                                    $scope.$broadcast('distributedCallFlow.resize.forTransactionView');
                                     $scope.$broadcast('agentChartGroup.resize.forTransactionView');
                                     $scope.$broadcast('serverMap.zoomToFit');
                                 }

@@ -11,7 +11,6 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
             },
             link: function postLink(scope, element, attrs) {
 
-
                 // initialize variables
                 var grid, columns, dataView, lastAgent;
 
@@ -22,6 +21,11 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                 // bootstrap
                 window.callStacks = []; // Slick.Data.DataView 때문에, window 프로퍼티로 사용해야 scope 문제가 해결됨.
 
+                /**
+                 * get color by string
+                 * @param str
+                 * @returns {string}
+                 */
                 getColorByString = function(str) {
                     // str to hash
                     for (var i = 0, hash = 0; i < str.length; hash = str.charCodeAt(i++) + ((hash << 5) - hash));
@@ -30,6 +34,15 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                     return colour;
                 };
 
+                /**
+                 * tree formatter
+                 * @param row
+                 * @param cell
+                 * @param value
+                 * @param columnDef
+                 * @param dataContext
+                 * @returns {string}
+                 */
                 treeFormatter = function (row, cell, value, columnDef, dataContext) {
                     var html = [];
 
@@ -72,6 +85,11 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                     return html.join('');
                 };
 
+                /**
+                 * tree filter
+                 * @param item
+                 * @returns {boolean}
+                 */
                 treeFilter = function (item) {
                     var result = true;
                     if (item.parent != null) {
@@ -87,6 +105,15 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                     return result;
                 };
 
+                /**
+                 * argument formatter
+                 * @param row
+                 * @param cell
+                 * @param value
+                 * @param columnDef
+                 * @param dataConrtext
+                 * @returns {string}
+                 */
                 argumentFormatter = function (row, cell, value, columnDef, dataConrtext) {
                     var html = [];
 
@@ -96,10 +123,28 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                     return html.join('');
                 };
 
+                /**
+                 * exec time formatter
+                 * @param row
+                 * @param cell
+                 * @param value
+                 * @param columnDef
+                 * @param dataContext
+                 * @returns {*}
+                 */
                 execTimeFormatter = function (row, cell, value, columnDef, dataContext) {
                     return $filter('date')(value, 'HH:mm:ss sss');
                 };
 
+                /**
+                 * progress bar formatter
+                 * @param row
+                 * @param cell
+                 * @param value
+                 * @param columnDef
+                 * @param dataContext
+                 * @returns {string}
+                 */
                 progressBarFormatter = function (row, cell, value, columnDef, dataContext) {
                     if (value == null || value === "" || value == 0) {
                         return "";
@@ -115,6 +160,7 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                     return "<span class='percent-complete-bar' style='background:" + color + ";width:" + value + "%'></span>";
                 };
 
+                // columns
                 columns = [
                     {id: "method", name: "Method", field: "method", width: 400, formatter: treeFormatter},
                     {id: "argument", name: "Argument", field: "argument", width: 300, formatter: argumentFormatter},
@@ -128,6 +174,12 @@ pinpointApp.directive('distributedCallFlow', [ '$filter', '$timeout',
                     {id: "application-name", name: "Application Name", field: "applicationName", width: 150}
                 ];
 
+                /**
+                 * parse data
+                 * @param index
+                 * @param callStacks
+                 * @returns {Array}
+                 */
                 parseData = function(index, callStacks) {
                     var result = [],
                         barRatio = 100 / (callStacks[0][index.end] - callStacks[0][index.begin]);
