@@ -17,12 +17,12 @@ public class DummyPLogger implements PLogger {
 
 
     @Override
-    public void afterInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
+    public void afterInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
 
     }
 
     @Override
-    public void afterInterceptor(Object target, Object[] args, Object result) {
+    public void afterInterceptor(Object target, Object[] args, Object result, Throwable throwable) {
     }
 
 

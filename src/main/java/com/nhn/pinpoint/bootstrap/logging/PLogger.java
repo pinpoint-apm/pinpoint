@@ -10,9 +10,9 @@ public interface PLogger {
 
     void beforeInterceptor(Object target, Object[] args);
 
-    void afterInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result);
+    void afterInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable);
 
-    void afterInterceptor(Object target, Object[] args, Object result);
+    void afterInterceptor(Object target, Object[] args, Object result, Throwable throwable);
 
     void afterInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args);
 

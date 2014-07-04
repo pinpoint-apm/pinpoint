@@ -4,14 +4,19 @@ import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
 import com.nhn.pinpoint.bootstrap.context.Trace;
 import junit.framework.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static org.mockito.Mockito.*;
 
 
 public class SpanSimpleAroundInterceptorTest {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+
     @Test
     public void lifeCycle() throws Exception {
-
         MockTraceContext context = new MockTraceContext();
         MockTrace mockTrace = new MockTrace();
         context.setTrace(mockTrace);
