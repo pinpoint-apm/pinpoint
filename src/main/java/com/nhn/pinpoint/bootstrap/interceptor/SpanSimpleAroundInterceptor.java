@@ -30,6 +30,9 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
 
         try {
             final Trace trace = createTrace(target, args);
+            if (trace == null) {
+                return;
+            }
             doInBeforeTrace(trace, target, args);
         } catch (Throwable th) {
             if (logger.isWarnEnabled()) {
