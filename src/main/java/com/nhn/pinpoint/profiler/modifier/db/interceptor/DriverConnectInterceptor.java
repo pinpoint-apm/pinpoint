@@ -45,8 +45,8 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptor {
 
 
     @Override
-    protected void logAfterInterceptor(Object target, Object[] args, Object result) {
-        logger.afterInterceptor(target, null, result);
+    protected void logAfterInterceptor(Object target, Object[] args, Object result, Throwable throwable) {
+        logger.afterInterceptor(target, null, result, throwable);
     }
 
     @Override

@@ -106,7 +106,7 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
-            logger.afterInterceptor(target, args, result);
+            logger.afterInterceptor(target, args, result, throwable);
         }
 
         Trace trace = traceContext.currentTraceObject();

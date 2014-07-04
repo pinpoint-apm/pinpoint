@@ -25,7 +25,7 @@ public class MySQLConnectionCreateInterceptor implements SimpleAroundInterceptor
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
-            logger.afterInterceptor(target, args, result);
+            logger.afterInterceptor(target, args, result, throwable);
         }
         if (args == null || args.length != 5) {
             return;

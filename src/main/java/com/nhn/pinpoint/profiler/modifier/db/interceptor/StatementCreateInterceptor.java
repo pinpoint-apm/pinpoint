@@ -33,10 +33,10 @@ public class StatementCreateInterceptor implements SimpleAroundInterceptor, Trac
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
-            logger.afterInterceptor(target, args, result);
+            logger.afterInterceptor(target, args, result, throwable);
         }
 
-        if (!InterceptorUtils.isSuccess(throwable)) {
+        if (InterceptorUtils.isThrowable(throwable)) {
             return;
         }
         Trace trace = traceContext.currentTraceObject();

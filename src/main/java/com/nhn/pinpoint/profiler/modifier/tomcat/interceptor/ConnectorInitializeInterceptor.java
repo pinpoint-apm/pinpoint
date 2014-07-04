@@ -32,7 +32,7 @@ public class ConnectorInitializeInterceptor implements SimpleAroundInterceptor, 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
-            logger.afterInterceptor(target, args, result);
+            logger.afterInterceptor(target, args, result, throwable);
         }
         Connector connector = (Connector) target;
         agent.addConnector(connector.getProtocol(), connector.getPort());

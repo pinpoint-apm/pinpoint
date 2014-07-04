@@ -30,7 +30,7 @@ public class PreparedStatementBindVariableInterceptor implements StaticAroundInt
     public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
 
         if (isDebug) {
-            logger.afterInterceptor(target, className, methodName, parameterDescription, args, result);
+            logger.afterInterceptor(target, className, methodName, parameterDescription, args, result, throwable);
         }
 
         final Trace trace = traceContext.currentTraceObject();

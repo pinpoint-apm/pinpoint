@@ -80,23 +80,37 @@ public class Slf4jPLoggerAdapter implements PLogger {
     }
 
     @Override
-    public void afterInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result) {
+    public void afterInterceptor(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
         StringBuilder sb = new StringBuilder(BUFFER_SIZE);
         sb.append("after ");
         logMethod(sb, target, className, methodName, parameterDescription, args);
-        sb.append(" result:");
-        sb.append(normalizedParameter(result));
-        logger.debug(sb.toString());
+        logResult(sb, result, throwable);
+
     }
 
+
+
     @Override
-    public void afterInterceptor(Object target, Object[] args, Object result) {
+    public void afterInterceptor(Object target, Object[] args, Object result, Throwable throwable) {
         StringBuilder sb = new StringBuilder(BUFFER_SIZE);
         sb.append("after ");
         logMethod(sb, target, args);
-        sb.append(" result:");
-        sb.append(normalizedParameter(result));
-        logger.debug(sb.toString());
+        logResult(sb, result, throwable);
+        if (throwable == null) {
+            logger.debug(sb.toString());
+        } else {
+            logger.debug(sb.toString(), throwable);
+        }
+    }
+
+    private static void logResult(StringBuilder sb, Object result, Throwable throwable) {
+        if (throwable == null) {
+            sb.append(" result:");
+            sb.append(normalizedParameter(result));
+        }  else {
+            sb.append(" Caused:");
+            sb.append(throwable.getMessage());
+        }
     }
 
     @Override
