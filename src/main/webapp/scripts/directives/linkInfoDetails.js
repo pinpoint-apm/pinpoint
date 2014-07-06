@@ -12,6 +12,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartV
             restrict: 'EA',
             replace: true,
             templateUrl: 'views/linkInfoDetails.html',
+            scope: {},
             link: function postLink(scope, element, attrs) {
 
                 // define private variables

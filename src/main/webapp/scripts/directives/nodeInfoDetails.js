@@ -13,6 +13,7 @@ pinpointApp
                 restrict: 'EA',
                 replace: true,
                 templateUrl: 'views/nodeInfoDetails.html',
+                scope: {},
                 link: function postLink(scope, element) {
 
                     // define private variables
