@@ -57,4 +57,8 @@ public interface TraceContext {
     void recordContextMetricIsError();
 
     void recordContextMetric(int elapsedTime);
+
+    void recordAcceptResponseTime(String parentApplicationName, short parentApplicationType, int elapsedTime);
+
+    void recordUserAcceptResponseTime(int elapsedTime);
 }
