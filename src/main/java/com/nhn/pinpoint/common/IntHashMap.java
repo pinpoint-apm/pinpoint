@@ -36,7 +36,7 @@ package com.nhn.pinpoint.common;
  * @see java.util.HashMap
  */
 // 내부 튜닝용 가져다 사용하지 말것
-class IntHashMap<T> {
+public class IntHashMap<T> {
 
     /**
      * The hash table data.

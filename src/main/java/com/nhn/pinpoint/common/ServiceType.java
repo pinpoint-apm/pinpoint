@@ -117,6 +117,9 @@ public enum ServiceType {
 	NPC_CLIENT((short) 9060, "NPC_CLIENT", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
 	NIMM_CLIENT((short) 9070, "NIMM_CLIENT", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA);
 
+    public static final short WAS_START_INDEX = 1000;
+    public static final short WAS_END_INDEX = 2000;
+
     private final short code;
     private final String desc;
     private final boolean terminal;
@@ -201,8 +204,12 @@ public enum ServiceType {
     }
 
 	public boolean isWas() {
-		return code >= 1000 && code < 2000;
+		return isWas(this.code);
 	}
+
+    public static boolean isWas(final short code) {
+        return code >= WAS_START_INDEX && code < WAS_END_INDEX;
+    }
 
     @Override
     public String toString() {
