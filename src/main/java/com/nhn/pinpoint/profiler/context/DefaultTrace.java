@@ -9,7 +9,6 @@ import com.nhn.pinpoint.exception.PinpointException;
 import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.bootstrap.util.StringUtils;
 import com.nhn.pinpoint.profiler.context.storage.Storage;
-import com.nhn.pinpoint.profiler.monitor.metric.Histogram;
 import com.nhn.pinpoint.thrift.dto.TIntStringStringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -177,12 +176,29 @@ public final class DefaultTrace implements Trace {
     }
 
     private void metricResponseTime() {
-        final int errCode = this.getCallStack().getSpan().getErrCode();
-        if (errCode != 0) {
+        final Span span = this.getCallStack().getSpan();
+        final boolean isError = span.getErrCode() != 0;
+        final int elapsedTime = this.currentStackFrame.getElapsedTime();
+        final TraceContext traceContext = this.traceContext;
+        if (isError) {
             traceContext.recordContextMetricIsError();
         } else {
-            final int elapsedTime = this.currentStackFrame.getElapsedTime();
             traceContext.recordContextMetric(elapsedTime);
+        }
+        final String parentApplicationName = span.getParentApplicationName();
+        if (parentApplicationName == null) {
+            if (isError) {
+                traceContext.recordUserAcceptResponseTime(HistogramSchema.ERROR_SLOT_TIME);
+            } else {
+                traceContext.recordUserAcceptResponseTime(elapsedTime);
+            }
+        } else {
+            final short parentApplicationType = span.getParentApplicationType();
+            if (isError) {
+                traceContext.recordAcceptResponseTime(parentApplicationName, parentApplicationType, HistogramSchema.ERROR_SLOT_TIME);
+            } else {
+                traceContext.recordAcceptResponseTime(parentApplicationName, parentApplicationType, elapsedTime);
+            }
         }
     }
 

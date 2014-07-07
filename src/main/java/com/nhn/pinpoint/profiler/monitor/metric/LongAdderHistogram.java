@@ -10,7 +10,7 @@ import com.nhn.pinpoint.profiler.util.jdk.LongAdder;
  * @author emeroad
  */
 public class LongAdderHistogram implements Histogram {
-
+    // fastCounter만 LongAdder를 사용하고 나머지는 AtomicLong을 사용하는 방법도 있음.
     private final LongAdder fastCounter = new LongAdder();
     private final LongAdder normalCounter = new LongAdder();
     private final LongAdder slowCounter = new LongAdder();
@@ -19,12 +19,14 @@ public class LongAdderHistogram implements Histogram {
     private final LongAdder errorCounter = new LongAdder();
 
     private final ServiceType serviceType;
+    private final HistogramSchema schema;
 
     public LongAdderHistogram(ServiceType serviceType) {
         if (serviceType == null) {
             throw new NullPointerException("serviceType must not be null");
         }
         this.serviceType = serviceType;
+        this.schema = serviceType.getHistogramSchema();
     }
 
     public ServiceType getServiceType() {
@@ -32,7 +34,6 @@ public class LongAdderHistogram implements Histogram {
     }
 
     public void addResponseTime(int millis) {
-        HistogramSchema schema = serviceType.getHistogramSchema();
         final HistogramSlot histogramSlot = schema.findHistogramSlot(millis);
         final SlotType slotType = histogramSlot.getSlotType();
         switch (slotType) {

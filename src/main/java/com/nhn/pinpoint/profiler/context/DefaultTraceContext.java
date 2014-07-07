@@ -10,7 +10,7 @@ import com.nhn.pinpoint.profiler.context.storage.LogStorageFactory;
 import com.nhn.pinpoint.profiler.context.storage.StorageFactory;
 import com.nhn.pinpoint.profiler.metadata.SimpleCache;
 import com.nhn.pinpoint.profiler.modifier.db.DefaultDatabaseInfo;
-import com.nhn.pinpoint.profiler.monitor.metric.Histogram;
+import com.nhn.pinpoint.profiler.monitor.metric.ContextMetric;
 import com.nhn.pinpoint.profiler.monitor.metric.MetricRegistry;
 import com.nhn.pinpoint.profiler.sampler.TrueSampler;
 import com.nhn.pinpoint.profiler.sender.EnhancedDataSender;
@@ -283,19 +283,23 @@ public class DefaultTraceContext implements TraceContext {
         return this.metricRegistry.getRpcMetric(serviceType);
     }
 
-    private Metric getContextMetric() {
-        return this.metricRegistry.getResponseMetric();
-    }
 
     public void recordContextMetricIsError() {
         recordContextMetric(HistogramSchema.ERROR_SLOT_TIME);
     }
 
     public void recordContextMetric(int elapsedTime) {
-        Histogram contextMetric = (Histogram) getContextMetric();
+        final ContextMetric contextMetric = this.metricRegistry.getResponseMetric();
         contextMetric.addResponseTime(elapsedTime);
-        if (isDebug) {
-            logger.debug("ContextMetric {}", contextMetric);
-        }
+    }
+
+    public void recordAcceptResponseTime(String parentApplicationName, short parentApplicationType, int elapsedTime) {
+        final ContextMetric contextMetric = this.metricRegistry.getResponseMetric();
+        contextMetric.addAcceptHistogram(parentApplicationName, parentApplicationType, elapsedTime);
+    }
+
+    public void recordUserAcceptResponseTime(int elapsedTime) {
+        final ContextMetric contextMetric = this.metricRegistry.getResponseMetric();
+        contextMetric.addUserAcceptHistogram(elapsedTime);
     }
 }

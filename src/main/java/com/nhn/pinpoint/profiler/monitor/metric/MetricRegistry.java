@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.profiler.monitor.metric;
 
-import com.nhn.pinpoint.bootstrap.context.Metric;
 import com.nhn.pinpoint.common.ServiceType;
 
 import java.util.ArrayList;
@@ -16,7 +15,7 @@ public class MetricRegistry {
 
     private final ConcurrentMap<Short, RpcMetric> rpcCache = new ConcurrentHashMap<Short, RpcMetric>();
 
-    private final Histogram responseMetric;
+    private final ContextMetric contextMetric;
 
 
     public MetricRegistry(ServiceType serviceType) {
@@ -26,7 +25,8 @@ public class MetricRegistry {
         if (!serviceType.isWas()) {
             throw new IllegalArgumentException("illegal serviceType:" + serviceType);
         }
-        this.responseMetric = new LongAdderHistogram(serviceType);
+
+        this.contextMetric = new ContextMetric(serviceType);
     }
 
     public RpcMetric getRpcMetric(ServiceType serviceType) {
@@ -50,12 +50,12 @@ public class MetricRegistry {
         return rpcMetric;
     }
 
-    public Metric getResponseMetric() {
-        return responseMetric;
+    public ContextMetric getResponseMetric() {
+        return contextMetric;
     }
 
     public void addResponseTime(int mills) {
-        this.responseMetric.addResponseTime(mills);
+        this.contextMetric.addResponseTime(mills);
     }
 
     public Collection<HistogramSnapshot> createRpcResponseSnapshot() {
@@ -67,6 +67,6 @@ public class MetricRegistry {
     }
 
     public HistogramSnapshot createWasResponseSnapshot() {
-        return responseMetric.createSnapshot();
+        return null;
     }
 }
