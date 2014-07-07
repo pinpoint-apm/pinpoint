@@ -255,8 +255,8 @@ var BigScatterChart = $.Class({
             'width': this.option('nWidth'),
             'height': this.option('nHeight'),
             'top': 0,
-            'font-family': 'Helvetica, Arial, sans-serif',
             'cursor': 'crosshair',
+            'background-color': 'rgba(0,0,0,0)', // for ie10
             'z-index': nZIndexForCanvas++
         });
         this._welOverlay.appendTo(this._welContainer);
