@@ -126,4 +126,14 @@ public class MockTraceContext implements TraceContext {
     public void recordContextMetric(int elapsedTime) {
 
     }
+
+	@Override
+	public void recordAcceptResponseTime(String parentApplicationName, short parentApplicationType, int elapsedTime) {
+		
+	}
+
+	@Override
+	public void recordUserAcceptResponseTime(int elapsedTime) {
+		
+	}
 }
