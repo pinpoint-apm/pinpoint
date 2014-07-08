@@ -8,6 +8,7 @@ public class DefaultParsingResult implements ParsingResult {
     public static final char SEPARATOR = ',';
     private String sql;
     private StringBuilder output;
+    private int id;
 
 
     public DefaultParsingResult() {
@@ -26,6 +27,15 @@ public class DefaultParsingResult implements ParsingResult {
 
     public void setSql(String sql) {
         this.sql = sql;
+    }
+
+    @Override
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     @Override

@@ -7,4 +7,6 @@ public interface ParsingResult {
     String getSql();
 
     String getOutput();
+
+    int getId();
 }

@@ -10,14 +10,14 @@ public class SqlParser {
     public static final char SYMBOL_REPLACE = '$';
     public static final char NUMBER_REPLACE = '#';
 
-    private static final ParsingResult NULL = new DefaultParsingResult("", new StringBuilder());
+    private static final DefaultParsingResult NULL = new DefaultParsingResult("", new StringBuilder());
     private static final int NEXT_TOKEN_NOT_EXIST = -1;
 
 
     public SqlParser() {
     }
 
-    public ParsingResult normalizedSql(String sql) {
+    public DefaultParsingResult normalizedSql(String sql) {
         if (sql == null) {
             return NULL;
         }
