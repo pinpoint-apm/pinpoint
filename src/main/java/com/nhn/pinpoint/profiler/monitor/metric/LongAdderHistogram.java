@@ -18,23 +18,24 @@ public class LongAdderHistogram implements Histogram {
 
     private final LongAdder errorCounter = new LongAdder();
 
-    private final ServiceType serviceType;
-    private final HistogramSchema schema;
+    private final short serviceType;
+    private final HistogramSchema histogramSchema;
 
     public LongAdderHistogram(ServiceType serviceType) {
-        if (serviceType == null) {
-            throw new NullPointerException("serviceType must not be null");
-        }
-        this.serviceType = serviceType;
-        this.schema = serviceType.getHistogramSchema();
+        this(serviceType.getCode(), serviceType.getHistogramSchema());
     }
 
-    public ServiceType getServiceType() {
+    public LongAdderHistogram(short serviceType, HistogramSchema histogramSchema) {
+        this.serviceType = serviceType;
+        this.histogramSchema = histogramSchema;
+    }
+
+    public short getServiceType() {
         return serviceType;
     }
 
     public void addResponseTime(int millis) {
-        final HistogramSlot histogramSlot = schema.findHistogramSlot(millis);
+        final HistogramSlot histogramSlot = histogramSchema.findHistogramSlot(millis);
         final SlotType slotType = histogramSlot.getSlotType();
         switch (slotType) {
             case FAST:

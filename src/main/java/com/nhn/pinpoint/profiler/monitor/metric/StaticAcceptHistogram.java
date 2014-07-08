@@ -39,17 +39,18 @@ public class StaticAcceptHistogram implements AcceptHistogram {
         if (histogramMap == null) {
             return false;
         }
-        Histogram histogram = getHistogram(histogramMap, parentApplicationName, serviceType);
+        final Histogram histogram = getHistogram(histogramMap, parentApplicationName, serviceType);
         histogram.addResponseTime(millis);
         return true;
     }
 
-    private Histogram getHistogram(ConcurrentMap<String, Histogram> histogramMap, String parentApplicationName, short serviceType) {
+    private Histogram getHistogram(ConcurrentMap<String, Histogram> histogramMap, String parentApplicationName, short serviceTypeCode) {
         final Histogram hit = histogramMap.get(parentApplicationName);
         if (hit != null) {
             return hit;
         }
-        final Histogram histogram = new LongAdderHistogram(ServiceType.findServiceType(serviceType));
+        final ServiceType serviceType = ServiceType.findServiceType(serviceTypeCode);
+        final Histogram histogram = new LongAdderHistogram(serviceType);
         final Histogram old = histogramMap.putIfAbsent(parentApplicationName, histogram);
         if (old != null) {
             return old;

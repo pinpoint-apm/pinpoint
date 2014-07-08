@@ -1,12 +1,10 @@
 package com.nhn.pinpoint.profiler.monitor.metric;
 
-import com.nhn.pinpoint.common.ServiceType;
-
 /**
  * @author emeroad
  */
 public class HistogramSnapshot {
-    private final ServiceType serviceType;
+    private final short serviceType;
     private final long fastCount;
     private final long normalCount;
     private final long slowCount;
@@ -14,10 +12,8 @@ public class HistogramSnapshot {
 
     private final long errorCount;
 
-    public HistogramSnapshot(ServiceType serviceType, long fastCount, long normalCount, long slowCount, long verySlowCount, long errorCounter) {
-        if (serviceType == null) {
-            throw new NullPointerException("serviceType must not be null");
-        }
+    public HistogramSnapshot(short serviceType, long fastCount, long normalCount, long slowCount, long verySlowCount, long errorCounter) {
+
         this.serviceType = serviceType;
         this.fastCount = fastCount;
         this.normalCount = normalCount;
@@ -26,7 +22,7 @@ public class HistogramSnapshot {
         this.errorCount = errorCounter;
     }
 
-    public ServiceType getServiceType() {
+    public short getServiceType() {
         return serviceType;
     }
 

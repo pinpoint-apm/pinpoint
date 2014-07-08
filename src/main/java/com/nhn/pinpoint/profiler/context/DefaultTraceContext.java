@@ -195,7 +195,7 @@ public class DefaultTraceContext implements TraceContext {
             return 0;
         }
         final Result result = this.stringCache.put(value);
-        if(result.isNewValue()) {
+        if (result.isNewValue()) {
             final TStringMetaData stringMetaData = new TStringMetaData();
             stringMetaData.setAgentId(getAgentId());
             stringMetaData.setAgentStartTime(getAgentStartTime());
