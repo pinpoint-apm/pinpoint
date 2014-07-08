@@ -379,8 +379,8 @@ public final class DefaultTrace implements Trace {
         if (parsingResult == null) {
             return;
         }
-        final String sql = parsingResult.getSql();
-        final TIntStringStringValue tSqlValue = new TIntStringStringValue(sql.hashCode());
+//        final String sql = parsingResult.getSql();
+        final TIntStringStringValue tSqlValue = new TIntStringStringValue(parsingResult.getId());
         final String output = parsingResult.getOutput();
         if (isNotEmpty(output)) {
             tSqlValue.setStringValue1(output);

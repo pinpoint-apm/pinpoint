@@ -4,6 +4,7 @@ package com.nhn.pinpoint.profiler.context;
 import com.nhn.pinpoint.bootstrap.context.*;
 import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.util.DefaultParsingResult;
 import com.nhn.pinpoint.profiler.AgentInformation;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.context.storage.LogStorageFactory;
@@ -53,7 +54,7 @@ public class DefaultTraceContext implements TraceContext {
 
     private final MetricRegistry metricRegistry;
 
-    private final LRUCache<String> sqlCache;
+    private final SimpleCache<String> sqlCache;
     private final SqlParser sqlParser = new SqlParser();
 
     private final SimpleCache<String> apiCache = new SimpleCache<String>();
@@ -75,7 +76,7 @@ public class DefaultTraceContext implements TraceContext {
         if (sampler == null) {
             throw new NullPointerException("sampler must not be null");
         }
-        this.sqlCache = new LRUCache<String>(sqlCacheSize);
+        this.sqlCache = new SimpleCache<String>(sqlCacheSize);
         this.contextServiceType = ServiceType.findServiceType(contextServiceType);
         this.metricRegistry = new MetricRegistry(this.contextServiceType);
 
@@ -219,12 +220,12 @@ public class DefaultTraceContext implements TraceContext {
     @Override
     public ParsingResult parseSql(final String sql) {
 
-        final ParsingResult parsingResult = this.sqlParser.normalizedSql(sql);
+        final DefaultParsingResult parsingResult = this.sqlParser.normalizedSql(sql);
         final String normalizedSql = parsingResult.getSql();
         // 파싱시 변경되지 않았다면 동일 객체를 리턴하므로 그냥 ==비교를 하면 됨
 
-        final boolean newValue = this.sqlCache.put(normalizedSql);
-        if (newValue) {
+        final Result cachingResult = this.sqlCache.put(normalizedSql);
+        if (cachingResult.isNewValue()) {
             if (isDebug) {
                 // TODO hit% 로그를 남겨야 문제 발생시 도움이 될듯 하다.
                 logger.debug("NewSQLParsingResult:{}", parsingResult);
@@ -237,13 +238,13 @@ public class DefaultTraceContext implements TraceContext {
             sqlMetaData.setAgentId(getAgentId());
             sqlMetaData.setAgentStartTime(getAgentStartTime());
 
-            sqlMetaData.setHashCode(normalizedSql.hashCode());
+            sqlMetaData.setHashCode(cachingResult.getId());
             sqlMetaData.setSql(normalizedSql);
 
             // 좀더 신뢰성이 있는 tcp connection이 필요함.
             this.priorityDataSender.request(sqlMetaData);
         }
-        // hashId그냥 return String에서 까보면 됨.
+        parsingResult.setId(cachingResult.getId());
         return parsingResult;
     }
 
