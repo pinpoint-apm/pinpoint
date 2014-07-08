@@ -20,7 +20,8 @@ pinpointApp
                 var id, aDynamicKey, oChart;
 
                 // define variables of methods
-                var setIdAutomatically, setWidthHeight, render, parseTimeSeriesHistogramForAmcharts, updateData;
+                var setIdAutomatically, setWidthHeight, render, parseTimeSeriesHistogramForAmcharts, updateData,
+                    renderSimple;
 
                 /**
                  * set id automatically
@@ -162,6 +163,91 @@ pinpointApp
                 };
 
                 /**
+                 * render simple
+                 * @param data
+                 * @param useChartCursor
+                 */
+                renderSimple = function (data, useChartCursor) {
+                    $timeout(function () {
+                        var options = {
+                            "type": "serial",
+                            "pathToImages": "./components/amcharts/images/",
+                            "theme": "light",
+                            "dataProvider": data,
+                            "valueAxes": [{
+                                "stackType": "regular",
+                                "axisAlpha": 0,
+                                "gridAlpha": 0,
+                                "labelsEnabled": false
+                            }],
+                            "categoryField": "time",
+                            "categoryAxis": {
+                                "startOnAxis": true,
+                                "gridPosition": "start",
+                                "labelFunction": function (valueText, serialDataItem, categoryAxis) {
+                                    return new Date(valueText).toString('HH:mm');
+                                }
+                            },
+                            "chartScrollbar": {
+                                "graph": "AmGraph-1"
+                            },
+                            "graphs": [{
+                                "id": "AmGraph-1",
+                                "fillAlphas": 0.2,
+                                "fillColors": cfg.myColors[0],
+                                "lineAlpha": 0.8,
+                                "lineColor": "#787779",
+                                "type": "step",
+                                "valueField": aDynamicKey[0]
+                            }, {
+                                "id": "AmGraph-2",
+                                "fillAlphas": 0.3,
+                                "fillColors": cfg.myColors[1],
+                                "lineAlpha": 0.8,
+                                "lineColor": "#787779",
+                                "type": "step",
+                                "valueField": aDynamicKey[1]
+                            }, {
+                                "id": "AmGraph-3",
+                                "fillAlphas": 0.4,
+                                "fillColors": cfg.myColors[2],
+                                "lineAlpha": 0.8,
+                                "lineColor": "#787779",
+                                "type": "step",
+                                "valueField": aDynamicKey[2]
+                            }, {
+                                "id": "AmGraph-4",
+                                "fillAlphas": 0.6,
+                                "fillColors": cfg.myColors[3],
+                                "lineAlpha": 0.8,
+                                "lineColor": "#787779",
+                                "type": "step",
+                                "valueField": aDynamicKey[3]
+                            }, {
+                                "id": "AmGraph-5",
+                                "fillAlphas": 0.6,
+                                "fillColors": cfg.myColors[4],
+                                "lineAlpha": 0.8,
+                                "lineColor": "#787779",
+                                "type": "step",
+                                "valueField": aDynamicKey[4]
+                            }]
+                        };
+                        if (useChartCursor) {
+                            options["chartCursor"] = {
+                                "avoidBalloonOverlapping": false
+                            };
+                        }
+                        oChart = AmCharts.makeChart(id, options);
+
+                        oChart.addListener('changed', function (e) {
+//                            console.log('changed');
+                            // broadcast
+                        });
+                    });
+                };
+
+                /**
                  * update data
                  * @param data
                  */
@@ -225,6 +311,15 @@ pinpointApp
                  */
                 scope.$on('loadChart.updateData.' + scope.namespace, function (event, data) {
                     updateData(parseTimeSeriesHistogramForAmcharts(data));
+                });
+
+                /**
+                 * scope event on loadChart.initAndSimpleRenderWithData.namespace
+                 */
+                scope.$on('loadChart.initAndSimpleRenderWithData.' + scope.namespace, function (event, data, w, h, useChartCursor) {
+                    setIdAutomatically();
+                    setWidthHeight(w, h);
+                    renderSimple(parseTimeSeriesHistogramForAmcharts(data), useChartCursor);
                 });
             }
         };

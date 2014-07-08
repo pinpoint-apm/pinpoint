@@ -445,6 +445,7 @@ pinpointApp.directive('serverMap', [ 'serverMapConfig', 'ServerMapDao', 'Alerts'
                         bIsFilterWizardLoaded = true;
                         $('#filterWizard')
                             .on('shown.bs.modal', function () {
+//                                scope.$broadcast('loadChart.initAndSimpleRenderWithData.forFilterWizard', htLastLink.timeSeriesHistogram, '100%', '150px');
                                 $('slider', this).addClass('auto');
                                 setTimeout(function () {
                                     $('#filterWizard slider').removeClass('auto');

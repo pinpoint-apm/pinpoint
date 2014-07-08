@@ -134,6 +134,9 @@ canvas {outline:none}
     position: fixed;
     top: 40%;
     left: 50%;
+    /*margin-top: -320px; *//* height: 640px */
+    /*margin-left: -450px; *//* width : 900px */
+    /* amchart can't calculate with these */
     -webkit-transform: translateX(-50%) translateY(-50%);
     transform: translateX(-50%) translateY(-50%);
 }
