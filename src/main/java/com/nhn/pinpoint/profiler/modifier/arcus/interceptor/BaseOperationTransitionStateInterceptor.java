@@ -93,7 +93,7 @@ public class BaseOperationTransitionStateInterceptor implements SimpleAroundInte
 //			asyncTrace.recordAttribute(AnnotationKey.ARCUS_COMMAND, cmd);
 
 			// TimeObject timeObject = (TimeObject)
-			// asyncTrace.getAttachObject();
+			// asyncTrace.getFrameObject();
 			// timeObject.markSendTime();
 
 			// long createTime = asyncTrace.getBeforeTime();

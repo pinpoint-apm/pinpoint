@@ -31,9 +31,9 @@ public interface StackFrame {
 
     void addAnnotation(Annotation annotation);
 
-    void attachObject(Object object);
+    void attachFrameObject(Object frameObject);
 
-    Object getAttachObject(Object object);
+    Object getFrameObject();
 
-    Object detachObject();
+    Object detachFrameObject();
 }

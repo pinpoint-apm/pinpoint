@@ -7,6 +7,7 @@ public class RootStackFrame implements StackFrame {
 
     private final Span span;
     private int stackId;
+    private Object frameObject;
 
 
     public RootStackFrame(Span span) {
@@ -92,16 +93,19 @@ public class RootStackFrame implements StackFrame {
     }
 
     @Override
-    public void attachObject(Object object) {
+    public void attachFrameObject(Object frameObject) {
+        this.frameObject = frameObject;
     }
 
     @Override
-    public Object getAttachObject(Object object) {
-        return null;
+    public Object getFrameObject() {
+        return this.frameObject;
     }
 
     @Override
-    public Object detachObject() {
-        return null;
+    public Object detachFrameObject() {
+        Object copy = this.frameObject;
+        this.frameObject = null;
+        return copy;
     }
 }

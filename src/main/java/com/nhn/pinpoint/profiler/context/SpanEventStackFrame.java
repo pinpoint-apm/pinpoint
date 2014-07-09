@@ -6,6 +6,7 @@ package com.nhn.pinpoint.profiler.context;
 public class SpanEventStackFrame implements StackFrame {
     private final SpanEvent spanEvent;
     private int stackId;
+    private Object frameObject;
 
     public SpanEventStackFrame(SpanEvent spanEvent) {
         if (spanEvent == null) {
@@ -96,18 +97,20 @@ public class SpanEventStackFrame implements StackFrame {
     }
 
     @Override
-    public void attachObject(Object object) {
-
+    public void attachFrameObject(Object frameObject) {
+        this.frameObject = frameObject;
     }
 
     @Override
-    public Object getAttachObject(Object object) {
-        return null;
+    public Object getFrameObject() {
+        return this.frameObject;
     }
 
     @Override
-    public Object detachObject() {
-        return null;
+    public Object detachFrameObject() {
+        Object copy = this.frameObject;
+        this.frameObject = null;
+        return copy;
     }
 
 
