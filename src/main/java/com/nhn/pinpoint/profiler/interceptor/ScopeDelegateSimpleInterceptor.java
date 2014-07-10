@@ -6,6 +6,7 @@ import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.nhn.pinpoint.profiler.util.DepthScope;
+import com.nhn.pinpoint.profiler.util.Scope;
 
 /**
  * @author emeroad
@@ -13,10 +14,10 @@ import com.nhn.pinpoint.profiler.util.DepthScope;
 public class ScopeDelegateSimpleInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
     private final SimpleAroundInterceptor delegate;
-    private final DepthScope scope;
+    private final Scope scope;
 
 
-    public ScopeDelegateSimpleInterceptor(SimpleAroundInterceptor delegate, DepthScope scope) {
+    public ScopeDelegateSimpleInterceptor(SimpleAroundInterceptor delegate, Scope scope) {
         if (delegate == null) {
             throw new NullPointerException("delegate must not be null");
         }

@@ -11,6 +11,8 @@ import java.security.ProtectionDomain;
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.TargetClassLoader;
+import com.nhn.pinpoint.profiler.util.Scope;
+import com.nhn.pinpoint.profiler.util.ScopePool;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -33,6 +35,8 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 
     private Agent agent;
 
+    private final ScopePool scopePool = new ScopePool();
+
     private final ClassLoadChecker classLoadChecker = new ClassLoadChecker();
 
     public JavaAssistByteCodeInstrumentor() {
@@ -54,6 +58,11 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
 
     public ClassPool getClassPool() {
         return this.childClassPool;
+    }
+
+    @Override
+    public Scope getScope(String scopeName) {
+        return this.scopePool.getScope(scopeName);
     }
 
     private NamedClassPool createClassPool(String[] pathNames, String classPoolName) {

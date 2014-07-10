@@ -3,6 +3,7 @@ package com.nhn.pinpoint.profiler.interceptor.bci;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
 import com.nhn.pinpoint.profiler.util.DepthScope;
+import com.nhn.pinpoint.profiler.util.Scope;
 
 import java.util.List;
 
@@ -35,8 +36,11 @@ public interface InstrumentClass {
 
 	int addInterceptor(String methodName, String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
 
-    int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, DepthScope scope) throws InstrumentException, NotFoundInstrumentException;
+    int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException, NotFoundInstrumentException;
 
+    int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, Scope scope) throws InstrumentException, NotFoundInstrumentException;
+
+    int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException;
     /**
      * methodName, args가 일치하는 메소드가 클래스에 구현되어있는 경우에만 scope interceptor를 적용합니다.
      * 
@@ -47,7 +51,7 @@ public interface InstrumentClass {
      * @return
      * @throws InstrumentException
      */
-    int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, DepthScope scope) throws InstrumentException;
+    int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, Scope scope) throws InstrumentException;
 
     int addInterceptor(String methodName, String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException;
 

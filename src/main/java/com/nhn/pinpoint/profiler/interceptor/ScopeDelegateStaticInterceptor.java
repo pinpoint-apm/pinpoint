@@ -4,16 +4,17 @@ import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.nhn.pinpoint.profiler.util.DepthScope;
+import com.nhn.pinpoint.profiler.util.Scope;
 
 /**
  * @author emeroad
  */
 public class ScopeDelegateStaticInterceptor implements StaticAroundInterceptor, TraceContextSupport {
     private final StaticAroundInterceptor delegate;
-    private final DepthScope scope;
+    private final Scope scope;
 
 
-    public ScopeDelegateStaticInterceptor(StaticAroundInterceptor delegate, DepthScope scope) {
+    public ScopeDelegateStaticInterceptor(StaticAroundInterceptor delegate, Scope scope) {
         if (delegate == null) {
             throw new NullPointerException("delegate must not be null");
         }

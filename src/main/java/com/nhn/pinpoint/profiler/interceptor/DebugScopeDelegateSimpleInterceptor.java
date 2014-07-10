@@ -8,6 +8,7 @@ import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.util.DepthScope;
+import com.nhn.pinpoint.profiler.util.Scope;
 
 /**
  * @author emeroad
@@ -17,10 +18,10 @@ public class DebugScopeDelegateSimpleInterceptor implements SimpleAroundIntercep
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     private final SimpleAroundInterceptor delegate;
-    private final DepthScope scope;
+    private final Scope scope;
 
 
-    public DebugScopeDelegateSimpleInterceptor(SimpleAroundInterceptor delegate, DepthScope scope) {
+    public DebugScopeDelegateSimpleInterceptor(SimpleAroundInterceptor delegate, Scope scope) {
         if (delegate == null) {
             throw new NullPointerException("delegate must not be null");
         }

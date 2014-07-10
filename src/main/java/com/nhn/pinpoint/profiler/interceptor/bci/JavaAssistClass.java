@@ -9,9 +9,9 @@ import com.nhn.pinpoint.bootstrap.interceptor.*;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
 import com.nhn.pinpoint.profiler.util.ApiUtils;
 import com.nhn.pinpoint.profiler.interceptor.*;
-import com.nhn.pinpoint.profiler.util.DepthScope;
 import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
 
+import com.nhn.pinpoint.profiler.util.Scope;
 import javassist.*;
 
 import org.slf4j.Logger;
@@ -325,7 +325,14 @@ public class JavaAssistClass implements InstrumentClass {
     }
 
     @Override
-    public int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, DepthScope scope) throws InstrumentException, NotFoundInstrumentException {
+    public int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException, NotFoundInstrumentException {
+        final Scope scope = this.instrumentor.getScope(scopeName);
+        return addScopeInterceptor(methodName, args, interceptor, scope);
+    }
+
+
+    @Override
+    public int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, Scope scope) throws InstrumentException, NotFoundInstrumentException {
         if (methodName == null) {
             throw new NullPointerException("methodName must not be null");
         }
@@ -344,7 +351,7 @@ public class JavaAssistClass implements InstrumentClass {
 	 * @see com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass#addScopeInterceptorIfDeclared(java.lang.String, java.lang.String[], com.nhn.pinpoint.bootstrap.interceptor.Interceptor, com.nhn.pinpoint.profiler.util.DepthScope)
 	 */
     @Override
-    public int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, DepthScope scope) throws InstrumentException {
+    public int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, Scope scope) throws InstrumentException {
     	if (methodName == null) {
     		throw new NullPointerException("methodName must not be null");
     	}
@@ -365,7 +372,13 @@ public class JavaAssistClass implements InstrumentClass {
     	}
     }
 
-    private Interceptor wrapScopeInterceptor(Interceptor interceptor, DepthScope scope) {
+    @Override
+    public int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException {
+        final Scope scope = this.instrumentor.getScope(scopeName);
+        return addScopeInterceptorIfDeclared(methodName, args, interceptor, scope);
+    }
+
+    private Interceptor wrapScopeInterceptor(Interceptor interceptor, Scope scope) {
         final Logger interceptorLogger = LoggerFactory.getLogger(interceptor.getClass());
 
         if (interceptor instanceof  SimpleAroundInterceptor) {
