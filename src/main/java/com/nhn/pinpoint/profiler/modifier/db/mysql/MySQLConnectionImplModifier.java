@@ -55,49 +55,49 @@ public class MySQLConnectionImplModifier extends AbstractModifier {
 
 
             Interceptor closeConnection = new ConnectionCloseInterceptor();
-            mysqlConnection.addScopeInterceptor("close", null, closeConnection, JDBCScope.SCOPE);
+            mysqlConnection.addScopeInterceptor("close", null, closeConnection, MYSQLScope.SCOPE_NAME);
 
 
             Interceptor statementCreateInterceptor1 = new StatementCreateInterceptor();
-            mysqlConnection.addScopeInterceptor("createStatement", null, statementCreateInterceptor1, JDBCScope.SCOPE);
+            mysqlConnection.addScopeInterceptor("createStatement", null, statementCreateInterceptor1, MYSQLScope.SCOPE_NAME);
 
             Interceptor statementCreateInterceptor2 = new StatementCreateInterceptor();
-            mysqlConnection.addScopeInterceptor("createStatement", new String[]{"int", "int"}, statementCreateInterceptor2, JDBCScope.SCOPE);
+            mysqlConnection.addScopeInterceptor("createStatement", new String[]{"int", "int"}, statementCreateInterceptor2, MYSQLScope.SCOPE_NAME);
 
             Interceptor statementCreateInterceptor3 = new StatementCreateInterceptor();
-            mysqlConnection.addScopeInterceptor("createStatement", new String[]{"int", "int", "int"}, statementCreateInterceptor3, JDBCScope.SCOPE);
+            mysqlConnection.addScopeInterceptor("createStatement", new String[]{"int", "int", "int"}, statementCreateInterceptor3, MYSQLScope.SCOPE_NAME);
 
 
             Interceptor preparedStatementCreateInterceptor1 = new PreparedStatementCreateInterceptor();
-            mysqlConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String"}, preparedStatementCreateInterceptor1, JDBCScope.SCOPE);
+            mysqlConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String"}, preparedStatementCreateInterceptor1, MYSQLScope.SCOPE_NAME);
 
             Interceptor preparedStatementCreateInterceptor2 = new PreparedStatementCreateInterceptor();
-            mysqlConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int"}, preparedStatementCreateInterceptor2, JDBCScope.SCOPE);
+            mysqlConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int"}, preparedStatementCreateInterceptor2, MYSQLScope.SCOPE_NAME);
 
             Interceptor preparedStatementCreateInterceptor3 = new PreparedStatementCreateInterceptor();
-            mysqlConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int[]"}, preparedStatementCreateInterceptor3, JDBCScope.SCOPE);
+            mysqlConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int[]"}, preparedStatementCreateInterceptor3, MYSQLScope.SCOPE_NAME);
 
             Interceptor preparedStatementCreateInterceptor4 = new PreparedStatementCreateInterceptor();
-            mysqlConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "java.lang.String[]"}, preparedStatementCreateInterceptor4, JDBCScope.SCOPE);
+            mysqlConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "java.lang.String[]"}, preparedStatementCreateInterceptor4, MYSQLScope.SCOPE_NAME);
 
             Interceptor preparedStatementCreateInterceptor5 = new PreparedStatementCreateInterceptor();
-            mysqlConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int", "int"}, preparedStatementCreateInterceptor5, JDBCScope.SCOPE);
+            mysqlConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int", "int"}, preparedStatementCreateInterceptor5, MYSQLScope.SCOPE_NAME);
 
             Interceptor preparedStatementCreateInterceptor6 = new PreparedStatementCreateInterceptor();
-            mysqlConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int", "int", "int"}, preparedStatementCreateInterceptor6, JDBCScope.SCOPE);
+            mysqlConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int", "int", "int"}, preparedStatementCreateInterceptor6, MYSQLScope.SCOPE_NAME);
 
             final ProfilerConfig profilerConfig = agent.getProfilerConfig();
             if (profilerConfig.isJdbcProfileMySqlSetAutoCommit()) {
                 Interceptor setAutocommit = new TransactionSetAutoCommitInterceptor();
-                mysqlConnection.addScopeInterceptor("setAutoCommit", new String[]{"boolean"}, setAutocommit, JDBCScope.SCOPE);
+                mysqlConnection.addScopeInterceptor("setAutoCommit", new String[]{"boolean"}, setAutocommit, MYSQLScope.SCOPE_NAME);
             }
             if (profilerConfig.isJdbcProfileMySqlCommit()) {
                 Interceptor commit = new TransactionCommitInterceptor();
-                mysqlConnection.addScopeInterceptor("commit", null, commit, JDBCScope.SCOPE);
+                mysqlConnection.addScopeInterceptor("commit", null, commit, MYSQLScope.SCOPE_NAME);
             }
             if (profilerConfig.isJdbcProfileMySqlRollback()) {
                 Interceptor rollback = new TransactionRollbackInterceptor();
-                mysqlConnection.addScopeInterceptor("rollback", null, rollback, JDBCScope.SCOPE);
+                mysqlConnection.addScopeInterceptor("rollback", null, rollback, MYSQLScope.SCOPE_NAME);
             }
             if (this.logger.isInfoEnabled()) {
                 this.logger.info("{} class is converted.", javassistClassName);

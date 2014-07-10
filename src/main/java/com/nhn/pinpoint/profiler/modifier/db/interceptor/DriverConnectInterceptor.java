@@ -4,8 +4,8 @@ import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
 import com.nhn.pinpoint.bootstrap.interceptor.*;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
 import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
-import com.nhn.pinpoint.profiler.util.DepthScope;
 import com.nhn.pinpoint.bootstrap.util.InterceptorUtils;
+import com.nhn.pinpoint.profiler.util.Scope;
 
 
 /**
@@ -13,18 +13,22 @@ import com.nhn.pinpoint.bootstrap.util.InterceptorUtils;
  */
 public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptor {
 
-
-    private final DepthScope scope = JDBCScope.SCOPE;
+    private final Scope scope;
     private final boolean recordConnection;
 
-    public DriverConnectInterceptor() {
-        this(true);
+
+    public DriverConnectInterceptor(Scope scope) {
+        this(true, scope);
     }
 
-    public DriverConnectInterceptor(boolean recordConnection) {
+    public DriverConnectInterceptor(boolean recordConnection, Scope scope) {
         super(DriverConnectInterceptor.class);
+        if (scope == null) {
+            throw new NullPointerException("scope must not be null");
+        }
         // mysql loadbalance 전용옵션 실제 destination은 하위의 구현체에서 레코딩한다.
         this.recordConnection = recordConnection;
+        this.scope = scope;
     }
 
     @Override

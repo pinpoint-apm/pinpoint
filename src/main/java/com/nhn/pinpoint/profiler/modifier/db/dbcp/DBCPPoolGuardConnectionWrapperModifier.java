@@ -40,7 +40,7 @@ public class DBCPPoolGuardConnectionWrapperModifier extends AbstractModifier {
         try {
             InstrumentClass wrapper = byteCodeInstrumentor.getClass(javassistClassName);
             Interceptor close = new DataSourceCloseInterceptor();
-            wrapper.addInterceptor("close", null, close);
+            wrapper.addScopeInterceptor("close", null, close, DBCPScope.SCOPE_NAME);
 
             return wrapper.toBytecode();
         } catch (InstrumentException e) {

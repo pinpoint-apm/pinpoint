@@ -40,49 +40,49 @@ public class CubridConnectionModifier extends AbstractModifier {
             cubridConnection.addTraceValue(DatabaseInfoTraceValue.class);
 
             Interceptor connectionCloseInterceptor = new ConnectionCloseInterceptor();
-            cubridConnection.addScopeInterceptor("close", null, connectionCloseInterceptor, JDBCScope.SCOPE);
+            cubridConnection.addScopeInterceptor("close", null, connectionCloseInterceptor, CubridScope.SCOPE_NAME);
 
 
             Interceptor statementCreateInterceptor1 = new StatementCreateInterceptor();
-            cubridConnection.addScopeInterceptor("createStatement", null, statementCreateInterceptor1, JDBCScope.SCOPE);
+            cubridConnection.addScopeInterceptor("createStatement", null, statementCreateInterceptor1, CubridScope.SCOPE_NAME);
 
             Interceptor statementCreateInterceptor2 = new StatementCreateInterceptor();
-            cubridConnection.addScopeInterceptor("createStatement", new String[]{"int", "int"}, statementCreateInterceptor2, JDBCScope.SCOPE);
+            cubridConnection.addScopeInterceptor("createStatement", new String[]{"int", "int"}, statementCreateInterceptor2, CubridScope.SCOPE_NAME);
 
             Interceptor statementCreateInterceptor3 = new StatementCreateInterceptor();
-            cubridConnection.addScopeInterceptor("createStatement", new String[]{"int", "int", "int"}, statementCreateInterceptor3, JDBCScope.SCOPE);
+            cubridConnection.addScopeInterceptor("createStatement", new String[]{"int", "int", "int"}, statementCreateInterceptor3, CubridScope.SCOPE_NAME);
 
 
             Interceptor preparedStatementCreateInterceptor1 = new PreparedStatementCreateInterceptor();
-            cubridConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String"}, preparedStatementCreateInterceptor1, JDBCScope.SCOPE);
+            cubridConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String"}, preparedStatementCreateInterceptor1, CubridScope.SCOPE_NAME);
 
             Interceptor preparedStatementCreateInterceptor2 = new PreparedStatementCreateInterceptor();
-            cubridConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int"}, preparedStatementCreateInterceptor2, JDBCScope.SCOPE);
+            cubridConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int"}, preparedStatementCreateInterceptor2, CubridScope.SCOPE_NAME);
 
             Interceptor preparedStatementCreateInterceptor3 = new PreparedStatementCreateInterceptor();
-            cubridConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int[]"}, preparedStatementCreateInterceptor3, JDBCScope.SCOPE);
+            cubridConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int[]"}, preparedStatementCreateInterceptor3, CubridScope.SCOPE_NAME);
 
             Interceptor preparedStatementCreateInterceptor4 = new PreparedStatementCreateInterceptor();
-            cubridConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "java.lang.String[]"}, preparedStatementCreateInterceptor4, JDBCScope.SCOPE);
+            cubridConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "java.lang.String[]"}, preparedStatementCreateInterceptor4, CubridScope.SCOPE_NAME);
 
             Interceptor preparedStatementCreateInterceptor5 = new PreparedStatementCreateInterceptor();
-            cubridConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int", "int"}, preparedStatementCreateInterceptor5, JDBCScope.SCOPE);
+            cubridConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int", "int"}, preparedStatementCreateInterceptor5, CubridScope.SCOPE_NAME);
 
             Interceptor preparedStatementCreateInterceptor6 = new PreparedStatementCreateInterceptor();
-            cubridConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int", "int", "int"}, preparedStatementCreateInterceptor6, JDBCScope.SCOPE);
+            cubridConnection.addScopeInterceptor("prepareStatement", new String[]{"java.lang.String", "int", "int", "int"}, preparedStatementCreateInterceptor6, CubridScope.SCOPE_NAME);
 
             final ProfilerConfig profilerConfig = agent.getProfilerConfig();
             if (profilerConfig.isJdbcProfileCubridSetAutoCommit()) {
                 Interceptor setAutoCommit = new TransactionSetAutoCommitInterceptor();
-                cubridConnection.addScopeInterceptor("setAutoCommit", new String[]{"boolean"}, setAutoCommit, JDBCScope.SCOPE);
+                cubridConnection.addScopeInterceptor("setAutoCommit", new String[]{"boolean"}, setAutoCommit, CubridScope.SCOPE_NAME);
             }
             if (profilerConfig.isJdbcProfileCubridCommit()) {
                 Interceptor commit = new TransactionCommitInterceptor();
-                cubridConnection.addScopeInterceptor("commit", null, commit, JDBCScope.SCOPE);
+                cubridConnection.addScopeInterceptor("commit", null, commit, CubridScope.SCOPE_NAME);
             }
             if (profilerConfig.isJdbcProfileCubridRollback()) {
                 Interceptor rollback = new TransactionRollbackInterceptor();
-                cubridConnection.addScopeInterceptor("rollback", null, rollback, JDBCScope.SCOPE);
+                cubridConnection.addScopeInterceptor("rollback", null, rollback, CubridScope.SCOPE_NAME);
             }
 
             if (this.logger.isInfoEnabled()) {

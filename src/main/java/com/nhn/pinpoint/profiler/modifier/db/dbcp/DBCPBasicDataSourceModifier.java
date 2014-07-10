@@ -37,10 +37,10 @@ public class DBCPBasicDataSourceModifier extends AbstractModifier {
         try {
             InstrumentClass basicDataSource = byteCodeInstrumentor.getClass(javassistClassName);
             Interceptor getConnection0 = new DataSourceGetConnectionInterceptor();
-            basicDataSource.addInterceptor("getConnection", null, getConnection0);
+            basicDataSource.addScopeInterceptor("getConnection", null, getConnection0, DBCPScope.SCOPE_NAME);
 
             Interceptor getConnection1 = new DataSourceGetConnectionInterceptor();
-            basicDataSource.addInterceptor("getConnection", new String[] {"java.lang.String", "java.lang.String"}, getConnection1);
+            basicDataSource.addScopeInterceptor("getConnection", new String[] {"java.lang.String", "java.lang.String"}, getConnection1, DBCPScope.SCOPE_NAME);
 
             return basicDataSource.toBytecode();
         } catch (InstrumentException e) {

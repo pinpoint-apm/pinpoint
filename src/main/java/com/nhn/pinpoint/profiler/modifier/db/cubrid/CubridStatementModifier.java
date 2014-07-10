@@ -9,7 +9,6 @@ import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
-import com.nhn.pinpoint.profiler.modifier.db.interceptor.JDBCScope;
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.StatementExecuteQueryInterceptor;
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.StatementExecuteUpdateInterceptor;
 import org.slf4j.Logger;
@@ -39,19 +38,19 @@ public class CubridStatementModifier extends AbstractModifier {
 			InstrumentClass statementClass = byteCodeInstrumentor.getClass(javassistClassName);
 
             Interceptor executeQueryInterceptor = new StatementExecuteQueryInterceptor();
-            statementClass.addScopeInterceptor("executeQuery", new String[]{"java.lang.String"}, executeQueryInterceptor, JDBCScope.SCOPE);
+            statementClass.addScopeInterceptor("executeQuery", new String[]{"java.lang.String"}, executeQueryInterceptor, CubridScope.SCOPE_NAME);
 
             Interceptor executeUpdateInterceptor1 = new StatementExecuteUpdateInterceptor();
-            statementClass.addScopeInterceptor("executeUpdate", new String[]{"java.lang.String"}, executeUpdateInterceptor1, JDBCScope.SCOPE);
+            statementClass.addScopeInterceptor("executeUpdate", new String[]{"java.lang.String"}, executeUpdateInterceptor1, CubridScope.SCOPE_NAME);
 
             Interceptor executeUpdateInterceptor2 = new StatementExecuteUpdateInterceptor();
-			statementClass.addScopeInterceptor("executeUpdate", new String[]{"java.lang.String", "int"}, executeUpdateInterceptor2, JDBCScope.SCOPE);
+			statementClass.addScopeInterceptor("executeUpdate", new String[]{"java.lang.String", "int"}, executeUpdateInterceptor2, CubridScope.SCOPE_NAME);
 
             Interceptor executeInterceptor1 = new StatementExecuteUpdateInterceptor();
-            statementClass.addScopeInterceptor("execute", new String[]{"java.lang.String"}, executeInterceptor1, JDBCScope.SCOPE);
+            statementClass.addScopeInterceptor("execute", new String[]{"java.lang.String"}, executeInterceptor1, CubridScope.SCOPE_NAME);
 
             Interceptor executeInterceptor2 = new StatementExecuteUpdateInterceptor();
-			statementClass.addScopeInterceptor("execute", new String[]{"java.lang.String", "int"}, executeInterceptor2, JDBCScope.SCOPE);
+			statementClass.addScopeInterceptor("execute", new String[]{"java.lang.String", "int"}, executeInterceptor2, CubridScope.SCOPE_NAME);
 
             statementClass.addTraceValue(DatabaseInfoTraceValue.class);
 

@@ -20,6 +20,7 @@ import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.*;
 import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
 import com.nhn.pinpoint.profiler.util.PreparedStatementUtils;
+import com.nhn.pinpoint.profiler.util.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,13 +49,13 @@ public class CubridPreparedStatementModifier extends AbstractModifier {
 			InstrumentClass preparedStatementClass = byteCodeInstrumentor.getClass(javassistClassName);
 
             Interceptor executeInterceptor = new PreparedStatementExecuteQueryInterceptor();
-            preparedStatementClass.addScopeInterceptor("execute", null, executeInterceptor, JDBCScope.SCOPE);
+            preparedStatementClass.addScopeInterceptor("execute", null, executeInterceptor, CubridScope.SCOPE_NAME);
 
             Interceptor executeQueryInterceptor = new PreparedStatementExecuteQueryInterceptor();
-            preparedStatementClass.addScopeInterceptor("executeQuery", null, executeQueryInterceptor, JDBCScope.SCOPE);
+            preparedStatementClass.addScopeInterceptor("executeQuery", null, executeQueryInterceptor, CubridScope.SCOPE_NAME);
 
             Interceptor executeUpdateInterceptor = new PreparedStatementExecuteQueryInterceptor();
-            preparedStatementClass.addScopeInterceptor("executeUpdate", null, executeUpdateInterceptor, JDBCScope.SCOPE);
+            preparedStatementClass.addScopeInterceptor("executeUpdate", null, executeUpdateInterceptor, CubridScope.SCOPE_NAME);
 
             preparedStatementClass.addTraceValue(DatabaseInfoTraceValue.class);
             preparedStatementClass.addTraceValue(ParsingResultTraceValue.class);
@@ -73,8 +74,8 @@ public class CubridPreparedStatementModifier extends AbstractModifier {
 
 	private void bindVariableIntercept(InstrumentClass preparedStatement, ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
 		List<Method> bindMethod = PreparedStatementUtils.findBindVariableSetMethod();
-
-		Interceptor interceptor = new ScopeDelegateStaticInterceptor(new PreparedStatementBindVariableInterceptor(), JDBCScope.SCOPE);
+        final Scope scope = byteCodeInstrumentor.getScope(CubridScope.SCOPE_NAME);
+        Interceptor interceptor = new ScopeDelegateStaticInterceptor(new PreparedStatementBindVariableInterceptor(), scope);
 		int interceptorId = -1;
 		for (Method method : bindMethod) {
 			String methodName = method.getName();

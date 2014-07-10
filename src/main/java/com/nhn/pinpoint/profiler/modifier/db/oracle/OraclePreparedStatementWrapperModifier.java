@@ -14,6 +14,7 @@ import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.*;
 import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
 import com.nhn.pinpoint.profiler.util.PreparedStatementUtils;
+import com.nhn.pinpoint.profiler.util.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,11 +48,11 @@ public class OraclePreparedStatementWrapperModifier extends AbstractModifier {
             InstrumentClass preparedStatement = byteCodeInstrumentor.getClass(javassistClassName);
 
             Interceptor execute = new PreparedStatementExecuteQueryInterceptor();
-            preparedStatement.addScopeInterceptor("execute", null, execute, JDBCScope.SCOPE);
+            preparedStatement.addScopeInterceptor("execute", null, execute, OracleScope.SCOPE_NAME);
             Interceptor executeQuery = new PreparedStatementExecuteQueryInterceptor();
-            preparedStatement.addScopeInterceptor("executeQuery", null, executeQuery, JDBCScope.SCOPE);
+            preparedStatement.addScopeInterceptor("executeQuery", null, executeQuery, OracleScope.SCOPE_NAME);
             Interceptor executeUpdate = new PreparedStatementExecuteQueryInterceptor();
-            preparedStatement.addScopeInterceptor("executeUpdate", null, executeUpdate, JDBCScope.SCOPE);
+            preparedStatement.addScopeInterceptor("executeUpdate", null, executeUpdate, OracleScope.SCOPE_NAME);
 
             preparedStatement.addTraceValue(DatabaseInfoTraceValue.class);
             preparedStatement.addTraceValue(ParsingResultTraceValue.class);
@@ -70,8 +71,8 @@ public class OraclePreparedStatementWrapperModifier extends AbstractModifier {
 
     private void bindVariableIntercept(InstrumentClass preparedStatement, ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
         List<Method> bindMethod = PreparedStatementUtils.findBindVariableSetMethod();
-
-        Interceptor interceptor = new ScopeDelegateStaticInterceptor(new PreparedStatementBindVariableInterceptor(), JDBCScope.SCOPE);
+        final Scope scope = byteCodeInstrumentor.getScope(OracleScope.SCOPE_NAME);
+        Interceptor interceptor = new ScopeDelegateStaticInterceptor(new PreparedStatementBindVariableInterceptor(), scope);
         int interceptorId = -1;
         for (Method method : bindMethod) {
             String methodName = method.getName();

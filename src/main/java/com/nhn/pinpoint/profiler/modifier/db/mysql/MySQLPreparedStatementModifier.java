@@ -21,6 +21,7 @@ import java.security.ProtectionDomain;
 import java.util.Arrays;
 import java.util.List;
 
+import com.nhn.pinpoint.profiler.util.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,13 +51,13 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
             InstrumentClass preparedStatement = byteCodeInstrumentor.getClass(javassistClassName);
 
             Interceptor execute = new PreparedStatementExecuteQueryInterceptor();
-            preparedStatement.addScopeInterceptor("execute", null, execute, JDBCScope.SCOPE);
+            preparedStatement.addScopeInterceptor("execute", null, execute, MYSQLScope.SCOPE_NAME);
 
             Interceptor executeQuery = new PreparedStatementExecuteQueryInterceptor();
-            preparedStatement.addScopeInterceptor("executeQuery", null, executeQuery, JDBCScope.SCOPE);
+            preparedStatement.addScopeInterceptor("executeQuery", null, executeQuery, MYSQLScope.SCOPE_NAME);
 
             Interceptor executeUpdate = new PreparedStatementExecuteQueryInterceptor();
-            preparedStatement.addScopeInterceptor("executeUpdate", null, executeUpdate, JDBCScope.SCOPE);
+            preparedStatement.addScopeInterceptor("executeUpdate", null, executeUpdate, MYSQLScope.SCOPE_NAME);
 
             preparedStatement.addTraceValue(DatabaseInfoTraceValue.class);
             preparedStatement.addTraceValue(ParsingResultTraceValue.class);
@@ -77,7 +78,8 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
         ExcludeBindVariableFilter exclude = new ExcludeBindVariableFilter(new String[]{"setRowId", "setNClob", "setSQLXML"});
         List<Method> bindMethod = PreparedStatementUtils.findBindVariableSetMethod(exclude);
 
-        Interceptor interceptor = new ScopeDelegateStaticInterceptor(new PreparedStatementBindVariableInterceptor(), JDBCScope.SCOPE);
+        final Scope scope = byteCodeInstrumentor.getScope(MYSQLScope.SCOPE_NAME);
+        Interceptor interceptor = new ScopeDelegateStaticInterceptor(new PreparedStatementBindVariableInterceptor(), scope);
         int interceptorId = -1;
         for (Method method : bindMethod) {
             String methodName = method.getName();

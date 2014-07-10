@@ -12,28 +12,27 @@ import com.nhn.pinpoint.profiler.util.DepthScope;
 public class DataSourceCloseInterceptor extends SpanEventSimpleAroundInterceptor {
 
 
-    private final DepthScope scope = JDBCScope.SCOPE;
 
     public DataSourceCloseInterceptor() {
         super(DataSourceCloseInterceptor.class);
     }
 
-    @Override
-    protected void prepareBeforeTrace(Object target, Object[] args) {
-        // 예외 케이스 : getConnection()에서 Driver.connect()가 호출되는지 알고 싶으므로 push만 한다.
-        scope.push();
-    }
+//    @Override
+//    protected void prepareBeforeTrace(Object target, Object[] args) {
+//        // 예외 케이스 : getConnection()에서 Driver.connect()가 호출되는지 알고 싶으므로 push만 한다.
+//        scope.push();
+//    }
 
     @Override
     public void doInBeforeTrace(RecordableTrace trace, final Object target, Object[] args) {
         trace.markBeforeTime();
     }
 
-    @Override
-    protected void prepareAfterTrace(Object target, Object[] args, Object result, Throwable throwable) {
-        // 예외 케이스 : getConnection()에서 Driver.connect()가 호출되는지 알고 싶으므로 pop만 한다.
-        scope.pop();
-    }
+//    @Override
+//    protected void prepareAfterTrace(Object target, Object[] args, Object result, Throwable throwable) {
+//        // 예외 케이스 : getConnection()에서 Driver.connect()가 호출되는지 알고 싶으므로 pop만 한다.
+//        scope.pop();
+//    }
 
     @Override
     public void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {

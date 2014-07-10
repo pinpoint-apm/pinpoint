@@ -10,6 +10,7 @@ import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import java.security.ProtectionDomain;
 
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.DriverConnectInterceptor;
+import com.nhn.pinpoint.profiler.util.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,11 +37,12 @@ public class MySQLNonRegisteringDriverModifier extends AbstractModifier {
         try {
             InstrumentClass mysqlConnection = byteCodeInstrumentor.getClass(javassistClassName);
 
-
-            Interceptor createConnection = new DriverConnectInterceptor(false);
+            final Scope scope = byteCodeInstrumentor.getScope(MYSQLScope.SCOPE_NAME);
+            Interceptor createConnection = new DriverConnectInterceptor(false, scope);
             String[] params = new String[]{
                     "java.lang.String", "java.util.Properties"
             };
+//            Driver에서는 scopeInterceptor를 걸면안된다. trace thread가 아닌곳에서 connection이 생성될수 있다.
             mysqlConnection.addInterceptor("connect", params, createConnection);
 
             if (this.logger.isInfoEnabled()) {
