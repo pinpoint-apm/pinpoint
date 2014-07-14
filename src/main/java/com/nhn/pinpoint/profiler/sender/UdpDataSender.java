@@ -111,8 +111,11 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
 
 			datagramSocket.setSoTimeout(timeout);
             datagramSocket.setSendBufferSize(sendBufferSize);
-            if (logger.isInfoEnabled()) {
-                logger.info("verify sendBufferSize:{}", datagramSocket.getSendBufferSize());
+            if (logger.isWarnEnabled()) {
+                final int checkSendBufferSize = datagramSocket.getSendBufferSize();
+                if (sendBufferSize != checkSendBufferSize) {
+                    logger.warn("DatagramSocket.setSendBufferSize() error. {}!={}", sendBufferSize, checkSendBufferSize);
+                }
             }
 
 			InetSocketAddress serverAddress = new InetSocketAddress(host, port);
