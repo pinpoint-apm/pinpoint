@@ -790,6 +790,15 @@
                 <configuration>
                     <attachClasses>true</attachClasses>
                     <classesClassifier>classes</classesClassifier>
+					<webResources>
+                        <resource>
+                            <filtering>true</filtering>
+                            <directory>src/main/webapp</directory>
+                            <includes>
+                                <include>**/*.html</include>
+                            </includes>
+                        </resource>
+                    </webResources>
                 </configuration>
             </plugin>
 

@@ -29,7 +29,7 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
             // initialize private variables;
             nFetchCount = 1;
             nLastFetchedIndex = 0;
-            $scope.transactionDetailUrl = 'index.jsp#/transactionDetail';
+            $scope.transactionDetailUrl = 'index.html#/transactionDetail';
             $scope.sidebarLoading = true;
 
             if(!validateParentWindow()) {
@@ -230,7 +230,7 @@ pinpointApp.controller('TransactionListCtrl', ['TransactionListConfig', '$scope'
          * @param transaction
          */
         changeTransactionDetail = function (transaction) {
-            var transactionDetailUrl = 'index.jsp#/transactionDetail'; // the filename should be existing, if not it's doesn't work on ie and firefox
+            var transactionDetailUrl = 'index.html#/transactionDetail'; // the filename should be existing, if not it's doesn't work on ie and firefox
             if (transaction.traceId && transaction.collectorAcceptTime) {
                 transactionDetailUrl += '/' + encodeURIComponentFilter(transaction.traceId) + '/' + transaction.collectorAcceptTime;
                 $scope.transactionDetailUrl = transactionDetailUrl;
