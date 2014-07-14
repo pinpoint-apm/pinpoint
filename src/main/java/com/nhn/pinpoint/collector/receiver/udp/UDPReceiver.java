@@ -191,6 +191,12 @@ public class UDPReceiver implements DataReceiver {
         try {
             DatagramSocket so = new DatagramSocket(null);
             so.setReceiveBufferSize(receiveBufferSize);
+            if (logger.isWarnEnabled()) {
+                final int checkReceiveBufferSize = so.getReceiveBufferSize();
+                if (receiveBufferSize != checkReceiveBufferSize) {
+                    logger.warn("DatagramSocket.setReceiveBufferSize() error. {}!={}", receiveBufferSize, checkReceiveBufferSize);
+                }
+            }
             so.setSoTimeout(1000 * 5);
             // 바인드 타이밍이 약간 빠름.
             so.bind(new InetSocketAddress(bindAddress, port));
