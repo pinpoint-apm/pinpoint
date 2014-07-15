@@ -17,11 +17,11 @@ public class LocalHostTest {
 
         System.out.println("NetworkInterface");
         Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
-        while(networkInterfaces.hasMoreElements()) {
+        while (networkInterfaces.hasMoreElements()) {
             NetworkInterface networkInterface = networkInterfaces.nextElement();
             System.out.println("Nic:" + networkInterface);
             Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
-            while(inetAddresses.hasMoreElements()) {
+            while (inetAddresses.hasMoreElements()) {
                 InetAddress inetAddress = inetAddresses.nextElement();
                 System.out.println(inetAddress.getCanonicalHostName());
                 System.out.println(inetAddress.getHostName());

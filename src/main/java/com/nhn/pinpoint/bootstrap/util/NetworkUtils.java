@@ -1,8 +1,6 @@
 package com.nhn.pinpoint.bootstrap.util;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.URL;
+import java.net.*;
 import java.util.Enumeration;
 import java.util.logging.Logger;
 
@@ -11,14 +9,17 @@ import java.util.logging.Logger;
  */
 public final class NetworkUtils {
 
+    public static final String ERROR_HOST_NAME = "UNKNOWN-HOST";
+
     private NetworkUtils() {
     }
 
     public static String getHostName() {
 		try {
-			return InetAddress.getLocalHost().getHostName();
-		} catch (Exception e) {
-			return "UNKNOWN-HOST";
+            final InetAddress localHost = InetAddress.getLocalHost();
+            return localHost.getHostName();
+		} catch (UnknownHostException e) {
+			return ERROR_HOST_NAME;
 		}
 	}
 	
@@ -39,32 +40,37 @@ public final class NetworkUtils {
                 while (eaddr.hasMoreElements()) {
                     InetAddress inet = eaddr.nextElement();
 
-                    if (inet.getCanonicalHostName().equalsIgnoreCase(inet.getHostAddress()) == false) {
-                        name = inet.getCanonicalHostName();
+                    final String canonicalHostName = inet.getCanonicalHostName();
+                    if (!canonicalHostName.equalsIgnoreCase(inet.getHostAddress())) {
+                        name = canonicalHostName;
                         break;
                     }
                 }
             }
             return name;
-        } catch (Exception e) {
+        } catch (SocketException e) {
             Logger.getLogger(NetworkUtils.class.getClass().getName()).warning(e.getMessage());
             return "UNKNOWN-HOST";
         }
     }
 
-    public static String getHostFromURL(String url) {
+    public static String getHostFromURL(final String urlSpec) {
+        if (urlSpec == null) {
+            return null;
+        }
         try {
-            URL u = new URL(url);
+            final URL url = new URL(urlSpec);
 
-            String host = u.getHost();
-            int port = u.getPort();
+            final String host = url.getHost();
+            final int port = url.getPort();
 
-            if (port > 0) {
-                return host + ":" + port;
-            } else {
+            if (port == -1) {
                 return host;
+            } else {
+                // TODO defualt port일 경우 아래와 같이 url을 만들어야 하는지 애매함.
+                return host + ":" + port;
             }
-        } catch (Exception e) {
+        } catch (MalformedURLException e) {
             return null;
         }
     }
