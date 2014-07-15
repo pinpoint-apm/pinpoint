@@ -142,7 +142,7 @@ public abstract class MyBatisClientModifierTest extends BasePinpointTest {
 		
 		// Check Parameter
 		assertNull(commitWith0ArgSpanEvent.getAnnotationBoList());
-		assertThat(commitWith1ArgSpanEvent.getAnnotationBoList().get(0).getKey(), is(AnnotationKey.ARGS0.getCode()));
+		assertThat(commitWith1ArgSpanEvent.getAnnotationBoList().get(0).getKey(), is(AnnotationKey.CACHE_ARGS0.getCode()));
 	}
 
 	@Ignore // 쿼리 작업만 tracing 하도록 변경
@@ -164,7 +164,7 @@ public abstract class MyBatisClientModifierTest extends BasePinpointTest {
 		
 		// Check Parameter
 		assertNull(rollbackWith0ArgSpanEvent.getAnnotationBoList());
-		assertThat(rollbackWith1ArgSpanEvent.getAnnotationBoList().get(0).getKey(), is(AnnotationKey.ARGS0.getCode()));
+		assertThat(rollbackWith1ArgSpanEvent.getAnnotationBoList().get(0).getKey(), is(AnnotationKey.CACHE_ARGS0.getCode()));
 	}
 
 	@Ignore // 쿼리 작업만 tracing 하도록 변경
@@ -234,7 +234,7 @@ public abstract class MyBatisClientModifierTest extends BasePinpointTest {
 		assertThat(getConnectionSpanEvent.getApiId(), not(NOT_CACHED));
 		
 		// Check Parameter
-		assertThat(getConnectionSpanEvent.getAnnotationBoList().get(0).getKey(), is(AnnotationKey.ARGS0.getCode()));
+		assertThat(getConnectionSpanEvent.getAnnotationBoList().get(0).getKey(), is(AnnotationKey.CACHE_ARGS0.getCode()));
 	}
 
 	@Ignore // 쿼리 작업만 tracing 하도록 변경
@@ -268,7 +268,7 @@ public abstract class MyBatisClientModifierTest extends BasePinpointTest {
 			final List<AnnotationBo> apiAnnotations = apiSpanEvent.getAnnotationBoList();
 			assertThat(apiAnnotations.size(), is(1));
 			final AnnotationBo apiParameterAnnotation = apiAnnotations.get(0);
-			assertThat(apiParameterAnnotation.getKey(), is(AnnotationKey.ARGS0.getCode()));
+			assertThat(apiParameterAnnotation.getKey(), is(AnnotationKey.CACHE_ARGS0.getCode()));
 		}
 		assertThat(uniqueApiIds.size(), is(numOperations));
 	}
