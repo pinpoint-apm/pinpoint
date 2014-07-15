@@ -139,12 +139,12 @@ public class SqlMapSessionImplModifierTest extends BasePinpointTest {
 		final List<AnnotationBo> insertWith1ArgAnnotations = insertWith1ArgSpanEventBo.getAnnotationBoList();
 		assertThat(insertWith1ArgAnnotations.size(), is(1));
 		final AnnotationBo insertWith1ArgParameterAnnotation = insertWith1ArgAnnotations.get(0);
-		assertThat(insertWith1ArgParameterAnnotation.getKey(), is(AnnotationKey.ARGS0.getCode()));
+		assertThat(insertWith1ArgParameterAnnotation.getKey(), is(AnnotationKey.CACHE_ARGS0.getCode()));
 		
 		final List<AnnotationBo> insertWith2ArgAnnotations = insertWith2ArgSpanEventBo.getAnnotationBoList();
 		assertThat(insertWith2ArgAnnotations.size(), is(1));
 		final AnnotationBo insertWith2ArgAnnotation = insertWith2ArgAnnotations.get(0);
-		assertThat(insertWith2ArgAnnotation.getKey(), is(AnnotationKey.ARGS0.getCode()));
+		assertThat(insertWith2ArgAnnotation.getKey(), is(AnnotationKey.CACHE_ARGS0.getCode()));
 		
 	}
 	
@@ -170,12 +170,12 @@ public class SqlMapSessionImplModifierTest extends BasePinpointTest {
 		final List<AnnotationBo> deleteWith1ArgAnnotations = deleteWith1ArgSpanEvent.getAnnotationBoList();
 		assertThat(deleteWith1ArgAnnotations.size(), is(1));
 		final AnnotationBo deleteWith1ArgParameterAnnotation = deleteWith1ArgAnnotations.get(0);
-		assertThat(deleteWith1ArgParameterAnnotation.getKey(), is(AnnotationKey.ARGS0.getCode()));
+		assertThat(deleteWith1ArgParameterAnnotation.getKey(), is(AnnotationKey.CACHE_ARGS0.getCode()));
 		
 		final List<AnnotationBo> deleteWith2ArgAnnotations = deleteWith2ArgSpanEvent.getAnnotationBoList();
 		assertThat(deleteWith2ArgAnnotations.size(), is(1));
 		final AnnotationBo deleteWith2ArgAnnotation = deleteWith2ArgAnnotations.get(0);
-		assertThat(deleteWith2ArgAnnotation.getKey(), is(AnnotationKey.ARGS0.getCode()));
+		assertThat(deleteWith2ArgAnnotation.getKey(), is(AnnotationKey.CACHE_ARGS0.getCode()));
 	}
 	
 	@Test
@@ -200,12 +200,12 @@ public class SqlMapSessionImplModifierTest extends BasePinpointTest {
 		final List<AnnotationBo> updateWith1ArgAnnotations = updateWith1ArgSpanEvent.getAnnotationBoList();
 		assertThat(updateWith1ArgAnnotations.size(), is(1));
 		final AnnotationBo updateWith1ArgParameterAnnotation = updateWith1ArgAnnotations.get(0);
-		assertThat(updateWith1ArgParameterAnnotation.getKey(), is(AnnotationKey.ARGS0.getCode()));
+		assertThat(updateWith1ArgParameterAnnotation.getKey(), is(AnnotationKey.CACHE_ARGS0.getCode()));
 		
 		final List<AnnotationBo> updateWith2ArgAnnotations = updateWith2ArgSpanEvent.getAnnotationBoList();
 		assertThat(updateWith2ArgAnnotations.size(), is(1));
 		final AnnotationBo updateWith2ArgAnnotation = updateWith2ArgAnnotations.get(0);
-		assertThat(updateWith2ArgAnnotation.getKey(), is(AnnotationKey.ARGS0.getCode()));
+		assertThat(updateWith2ArgAnnotation.getKey(), is(AnnotationKey.CACHE_ARGS0.getCode()));
 		
 	}
 
@@ -228,7 +228,7 @@ public class SqlMapSessionImplModifierTest extends BasePinpointTest {
 		assertThat(annotationBoList.size(), is(1));
 
 		final AnnotationBo parameterAnnotationBo = annotationBoList.get(0);
-		assertThat(parameterAnnotationBo.getKey(), is(AnnotationKey.ARGS0.getCode()));
+		assertThat(parameterAnnotationBo.getKey(), is(AnnotationKey.CACHE_ARGS0.getCode()));
 	}
 
 	@Test
@@ -250,7 +250,7 @@ public class SqlMapSessionImplModifierTest extends BasePinpointTest {
 		assertThat(annotationBoList.size(), is(1));
 
 		final AnnotationBo parameterAnnotationBo = annotationBoList.get(0);
-		assertThat(parameterAnnotationBo.getKey(), is(AnnotationKey.ARGS0.getCode()));
+		assertThat(parameterAnnotationBo.getKey(), is(AnnotationKey.CACHE_ARGS0.getCode()));
 	}
 
 	@Ignore // 쿼리 작업만 tracing 하도록 변경

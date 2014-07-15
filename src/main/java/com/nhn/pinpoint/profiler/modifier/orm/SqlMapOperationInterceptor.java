@@ -27,7 +27,7 @@ public abstract class SqlMapOperationInterceptor extends SpanEventSimpleAroundIn
         trace.recordServiceType(this.serviceType);
         trace.recordException(throwable);
         if (args != null && args.length > 0) {
-            trace.recordApi(getMethodDescriptor(), args[0], 0);
+            trace.recordApiCachedString(getMethodDescriptor(), (String)args[0], 0);
         } else {
             trace.recordApi(getMethodDescriptor());
         }
