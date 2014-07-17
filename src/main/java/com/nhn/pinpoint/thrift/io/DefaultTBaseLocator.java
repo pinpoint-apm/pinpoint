@@ -11,6 +11,10 @@ import com.nhn.pinpoint.thrift.dto.TSpan;
 import com.nhn.pinpoint.thrift.dto.TSpanChunk;
 import com.nhn.pinpoint.thrift.dto.TSqlMetaData;
 import com.nhn.pinpoint.thrift.dto.TStringMetaData;
+import com.nhn.pinpoint.thrift.dto.control.TBye;
+import com.nhn.pinpoint.thrift.dto.control.THello;
+import com.nhn.pinpoint.thrift.dto.control.TLeave;
+import com.nhn.pinpoint.thrift.dto.control.TWelcome;
 
 /**
  * @author emeroad
@@ -46,8 +50,21 @@ class DefaultTBaseLocator implements TBaseLocator {
 
     private static final short STRINGMETADATA = 330;
     private static final Header STRINGMETADATA_HEADER = createHeader(STRINGMETADATA);
+    
+    // 컨트롤 구조
+    private static final short HELLO = 500;
+    private static final Header HELLO_HEADER = createHeader(HELLO);
+    
+    private static final short WELCOME = 510;
+    private static final Header WELCOME_HEADER = createHeader(WELCOME);
 
+    private static final short BYE = 520;
+    private static final Header BYE_HEADER = createHeader(BYE);
 
+    private static final short LEAVE = 530;
+    private static final Header LEAVE_HEADER = createHeader(LEAVE);
+
+    
     @Override
     public TBase<?, ?> tBaseLookup(short type) throws TException {
         switch (type) {
@@ -69,6 +86,14 @@ class DefaultTBaseLocator implements TBaseLocator {
                 return new TStringMetaData();
             case NETWORK_CHECK:
                 return new NetworkAvailabilityCheckPacket();
+            case HELLO:
+            	return new THello();
+            case WELCOME:
+            	return new TWelcome();
+            case BYE:
+            	return new TBye();
+            case LEAVE:
+            	return new TLeave();
         }
         throw new TException("Unsupported type:" + type);
     }
@@ -104,6 +129,19 @@ class DefaultTBaseLocator implements TBaseLocator {
         if (tbase instanceof NetworkAvailabilityCheckPacket) {
             return NETWORK_CHECK_HEADER;
         }
+        if (tbase instanceof THello) {
+        	return HELLO_HEADER;
+        }
+        if (tbase instanceof TWelcome) {
+        	return WELCOME_HEADER;
+        }
+        if (tbase instanceof TBye) {
+        	return BYE_HEADER;
+        }
+        if (tbase instanceof TLeave) {
+        	return LEAVE_HEADER;
+        }
+        
         throw new TException("Unsupported Type" + tbase.getClass());
     }
 
