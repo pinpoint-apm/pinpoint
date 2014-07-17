@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.common.buffer;
 
 import com.nhn.pinpoint.common.util.BytesUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.UnsupportedEncodingException;
 
@@ -292,6 +293,24 @@ public class FixedBuffer implements Buffer {
     }
 
     @Override
+    public byte[] readPadBytes(int totalLength) {
+        return readBytes(totalLength);
+    }
+
+    @Override
+    public String readPadString(int totalLength) {
+        return readString(totalLength);
+    }
+
+    @Override
+    public String readPadStringAndRightTrim(int totalLength) {
+        String string = BytesUtils.toStringAndRightTrim(buffer, offset, totalLength);
+        this.offset = offset + totalLength;
+        return string ;
+    }
+
+
+    @Override
     public byte[] readPrefixedBytes() {
         final int size = readSVarInt();
         if (size == NULL) {
@@ -395,10 +414,15 @@ public class FixedBuffer implements Buffer {
         if (offset == buffer.length) {
             return this.buffer;
         } else {
-            final byte[] copy = new byte[offset];
-            System.arraycopy(buffer, 0, copy, 0, offset);
-            return copy;
+            return copyBuffer();
         }
+    }
+
+    @Override
+    public byte[] copyBuffer() {
+        final byte[] copy = new byte[offset];
+        System.arraycopy(buffer, 0, copy, 0, offset);
+        return copy;
     }
 
     /**

@@ -1,15 +1,16 @@
 package com.nhn.pinpoint.common.buffer;
 
 import com.nhn.pinpoint.common.util.BytesUtils;
-import junit.framework.Assert;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -69,6 +70,22 @@ public class FixedBufferTest {
     }
 
     @Test
+    public void readPadBytes() {
+        byte[] bytes = new byte[10];
+        random.nextBytes(bytes);
+        Buffer writeBuffer = new FixedBuffer(32);
+        writeBuffer.putPadBytes(bytes, 20);
+        writeBuffer.put(255);
+
+        Buffer readBuffer = new FixedBuffer(writeBuffer.getBuffer());
+        byte[] readPadBytes = readBuffer.readPadBytes(20);
+        Assert.assertArrayEquals(bytes, Arrays.copyOf(readPadBytes, 10));
+        int readInt = readBuffer.readInt();
+        Assert.assertEquals(255, readInt);
+    }
+
+
+    @Test
     public void testPadBytes_Error() throws Exception {
 
         Buffer buffer1_1 = new FixedBuffer(32);
@@ -110,6 +127,34 @@ public class FixedBufferTest {
         byte[] padBytes = new byte[TOTAL_LENGTH - TEST_SIZE];
         Assert.assertEquals("check pad", padString, new String(padBytes, Charset.forName("UTF-8")));
 
+    }
+
+    @Test
+    public void readPadString() {
+        String testString = StringUtils.repeat('a', 10);
+        Buffer writeBuffer = new FixedBuffer(32);
+        writeBuffer.putPadString(testString, 20);
+        writeBuffer.put(255);
+
+        Buffer readBuffer = new FixedBuffer(writeBuffer.getBuffer());
+        String readPadString = readBuffer.readPadString(20);
+        Assert.assertEquals(testString, readPadString.substring(0, 10));
+        int readInt = readBuffer.readInt();
+        Assert.assertEquals(255, readInt);
+    }
+
+    @Test
+    public void readPadStringAndRightTrim() {
+        String testString = StringUtils.repeat('a', 10);
+        Buffer writeBuffer = new FixedBuffer(32);
+        writeBuffer.putPadString(testString, 20);
+        writeBuffer.put(255);
+
+        Buffer readBuffer = new FixedBuffer(writeBuffer.getBuffer());
+        String readPadString = readBuffer.readPadStringAndRightTrim(20);
+        Assert.assertEquals(testString, readPadString);
+        int readInt = readBuffer.readInt();
+        Assert.assertEquals(255, readInt);
     }
 
     @Test

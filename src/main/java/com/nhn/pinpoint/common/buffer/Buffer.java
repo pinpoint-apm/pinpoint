@@ -98,6 +98,12 @@ public interface Buffer {
 
     long readSVarLong();
 
+    byte[] readPadBytes(int totalLength);
+
+    String readPadString(int totalLength);
+
+    String readPadStringAndRightTrim(int totalLength);
+
     byte[] readPrefixedBytes();
 
     byte[] read2PrefixedBytes();
@@ -111,6 +117,8 @@ public interface Buffer {
     String read4PrefixedString();
 
     byte[] getBuffer();
+
+    byte[] copyBuffer();
 
     byte[] getInternalBuffer();
 
