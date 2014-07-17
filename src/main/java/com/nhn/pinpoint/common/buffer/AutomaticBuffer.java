@@ -50,6 +50,12 @@ public class AutomaticBuffer extends FixedBuffer {
         return expendBufferSize;
     }
 
+    @Override
+    public void putPadBytes(byte[] bytes, int totalLength) {
+        checkExpend(totalLength);
+        super.putPadBytes(bytes, totalLength);
+    }
+
 
     @Override
     public void putPrefixedBytes(final byte[] bytes) {
@@ -88,6 +94,12 @@ public class AutomaticBuffer extends FixedBuffer {
             super.put(bytes.length);
             super.put(bytes);
         }
+    }
+
+    @Override
+    public void putPadString(String string, int totalLength) {
+        checkExpend(totalLength);
+        super.putPadString(string, totalLength);
     }
 
 

@@ -8,7 +8,6 @@ import java.io.UnsupportedEncodingException;
  * @author emeroad
  */
 public class FixedBuffer implements Buffer {
-
     protected static final int NULL = -1;
     protected byte[] buffer;
     protected int offset;
@@ -31,6 +30,27 @@ public class FixedBuffer implements Buffer {
         }
         this.buffer = buffer;
         this.offset = 0;
+    }
+
+    @Override
+    public void putPadBytes(byte[] bytes, int totalLength) {
+        if (bytes == null) {
+            bytes = EMPTY;
+        }
+        if (bytes.length > totalLength) {
+            throw new IllegalArgumentException("bytes too big:" + bytes.length + " totalLength:" + totalLength);
+        }
+        put(bytes);
+        final int padSize = totalLength - bytes.length;
+        if (padSize > 0) {
+            putPad(padSize);
+        }
+    }
+
+    private void putPad(int padSize) {
+        for (int i = 0; i < padSize; i++) {
+            put((byte)0);
+        }
     }
 
 
@@ -65,6 +85,12 @@ public class FixedBuffer implements Buffer {
             put(bytes.length);
             put(bytes);
         }
+    }
+
+    @Override
+    public void putPadString(String string, int totalLength) {
+        final byte[] bytes = BytesUtils.toBytes(string);
+        putPadBytes(bytes, totalLength);
     }
 
     @Override

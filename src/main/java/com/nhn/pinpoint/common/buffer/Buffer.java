@@ -12,11 +12,15 @@ public interface Buffer {
 
     public static final String UTF8 = "UTF-8";
 
+    void putPadBytes(byte[] bytes, int totalLength);
+
     void putPrefixedBytes(byte[] bytes);
 
     void put2PrefixedBytes(byte[] bytes);
 
     void put4PrefixedBytes(byte[] bytes);
+
+    void putPadString(String string, int totalLength);
 
     void putPrefixedString(String string);
 
