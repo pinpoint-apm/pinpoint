@@ -1,9 +1,12 @@
-package com.nhn.pinpoint.profiler.monitor.codahale.gc;
+package com.nhn.pinpoint.profiler.monitor.codahale;
 
 import com.nhn.pinpoint.profiler.monitor.MonitorName;
-import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
-import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
-import com.nhn.pinpoint.thrift.dto.TJvmGc;
+import com.nhn.pinpoint.profiler.monitor.codahale.cpu.CpuLoadCollector;
+import com.nhn.pinpoint.profiler.monitor.codahale.gc.CmsCollector;
+import com.nhn.pinpoint.profiler.monitor.codahale.gc.G1Collector;
+import com.nhn.pinpoint.profiler.monitor.codahale.gc.GarbageCollector;
+import com.nhn.pinpoint.profiler.monitor.codahale.gc.ParallelCollector;
+import com.nhn.pinpoint.profiler.monitor.codahale.gc.SerialCollector;
 
 import java.util.Collection;
 
@@ -12,13 +15,14 @@ import static com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues.*;
 /**
  * @author emeroad
  * @author harebox
+ * @author hyungil.jeong
  */
-public class GarbageCollectorFactory {
+public class AgentStatCollectorFactory {
     private final MetricMonitorRegistry monitorRegistry;
     /**
      * Metrics 통계 데이터를 이용하여 가비지 컬렉터 타입을 지정한다.
      */
-    public GarbageCollectorFactory() {
+    public AgentStatCollectorFactory() {
         this.monitorRegistry = createRegistry();
     }
 
@@ -28,6 +32,7 @@ public class GarbageCollectorFactory {
         // FIXME 설정에 따라 어떤 데이터를 수집할 지 선택할 수 있도록 해야한다. 여기서는 JVM 메모리 정보를 default로 수집.
         monitorRegistry.registerJvmMemoryMonitor(new MonitorName(MetricMonitorValues.JVM_MEMORY));
         monitorRegistry.registerJvmGcMonitor(new MonitorName(MetricMonitorValues.JVM_GC));
+        monitorRegistry.registerCpuLoadMonitor(new MonitorName(MetricMonitorValues.CPU_LOAD));
         return monitorRegistry;
     }
     /**
@@ -48,6 +53,10 @@ public class GarbageCollectorFactory {
             // error말고 unknownCollector를 던지는 걸로 수정해야함..
             throw new RuntimeException("unknown garbage collector");
         }
+    }
+    
+    public CpuLoadCollector createCpuLoadCollector() {
+    	return new CpuLoadCollector(this.monitorRegistry);
     }
 
 }
