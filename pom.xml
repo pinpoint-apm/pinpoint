@@ -1,0 +1,58 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.nhn.pinpoint</groupId>
+	<artifactId>pinpoint-profiler-optional</artifactId>
+	<version>1.0.2-SNAPSHOT</version>
+	<name>pinpoint profiler optional</name>
+	<description>pinpoint profiler optional package</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.nhn.pinpoint</groupId>
+            <artifactId>pinpoint-profiler</artifactId>
+            <version>1.0.2-SNAPSHOT</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.nhn.pinpoint</groupId>
+                    <artifactId>pinpoint-commons</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.nhn.pinpoint</groupId>
+                    <artifactId>pinpoint-bootstrap</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.nhn.pinpoint</groupId>
+                    <artifactId>pinpoint-rpc</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.nhn.pinpoint</groupId>
+                    <artifactId>pinpoint-thrift</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+	
+	<build>
+        <plugins>
+            <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.5.1</version>
+				<inherited>true</inherited>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+                    <debug>${compiler-debug}</debug>
+					<optimize>true</optimize>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+            </plugin>
+        </plugins>
+	</build>
+</project>
