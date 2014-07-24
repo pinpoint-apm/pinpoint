@@ -40,6 +40,8 @@ public class SpanEvent extends TSpanEvent {
     public void markStartTime() {
 //        spanEvent.setStartElapsed((int) (startTime - parentSpanStartTime));
         final int startElapsed = (int)(System.currentTimeMillis() - span.getStartTime());
+        // startElapsed이 0이면 마크를 안하는 로직은 거의 쓸모가 없다. 하지 말것.
+        // Span에서 최초 SpanEvent나 0이 나올 가능성이 있고, 이후 SpanEvent의 경우는 거의 그렇지 않음.
         this.setStartElapsed(startElapsed);
     }
 
