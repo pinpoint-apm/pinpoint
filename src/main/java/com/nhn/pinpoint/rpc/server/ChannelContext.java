@@ -1,19 +1,26 @@
 package com.nhn.pinpoint.rpc.server;
 
 import org.jboss.netty.channel.Channel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author emeroad
+ * @author koo.taejin
  */
 public class ChannelContext {
 
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
     private final ServerStreamChannelManager streamChannelManager;
 
     private final Channel channel;
 
     private final SocketChannel socketChannel;
+    
+    private final PinpointServerSocketState state;
 
-    private volatile boolean closePacketReceived;
+    private AgentProperties agentProperties;
 
     public ChannelContext(Channel channel) {
         if (channel == null) {
@@ -22,6 +29,7 @@ public class ChannelContext {
         this.channel = channel;
         this.socketChannel = new SocketChannel(channel);
         this.streamChannelManager = new ServerStreamChannelManager(channel);
+        this.state = new PinpointServerSocketState();
     }
 
 
@@ -42,11 +50,26 @@ public class ChannelContext {
         return socketChannel;
     }
 
-    public boolean isClosePacketReceived() {
-        return closePacketReceived;
-    }
+	public PinpointServerSocketState getState() {
+		return state;
+	}
+	
+	public AgentProperties getAgentProperties() {
+		return agentProperties;
+	}
 
-    public void closePacketReceived() {
-        this.closePacketReceived = true;
-    }
+	public boolean setAgentProperties(AgentProperties agentProperties) {
+		if (agentProperties == null) {
+			return false;
+		}
+		
+		if (this.agentProperties == null) {
+			this.agentProperties = agentProperties;
+			return true;
+		} 
+		
+		logger.warn("Already Register AgentProperties.({}).", this.agentProperties);
+		return false;
+	}
+
 }
