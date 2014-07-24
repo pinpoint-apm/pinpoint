@@ -19,6 +19,18 @@ public class PinpointServerSocketState {
 		if (enable) {
 			this.beforeState = this.currentState;
 			this.currentState = state;
+		} else if (PinpointServerSocketStateCode.isFinished(this.currentState)) {
+			// 상태가 더 이상 변경할수 없는 것들은 로그만 출력
+			// 이미 종료 상태이기 때문에 이렇게 처리해도 큰 문제가 없음
+			PinpointServerSocketStateCode checkBefore = this.beforeState;
+			PinpointServerSocketStateCode checkCurrent = this.currentState;
+
+			String errorMessage = cannotChangeMessage(checkBefore, checkCurrent, state);
+			
+			this.beforeState = this.currentState;
+			this.currentState = PinpointServerSocketStateCode.ERROR_ILLEGAL_STATE_CHANGE;
+				
+			logger.warn(errorMessage);
 		} else {
 			PinpointServerSocketStateCode checkBefore = this.beforeState;
 			PinpointServerSocketStateCode checkCurrent = this.currentState;
@@ -59,7 +71,11 @@ public class PinpointServerSocketState {
 	}
 	
 	private String errorMessage(PinpointServerSocketStateCode checkBefore, PinpointServerSocketStateCode checkCurrent, PinpointServerSocketStateCode nextState) {
-		return "Invalid State(current:" + checkCurrent + " before:" + checkBefore + " next:" + nextState;
+		return "Invalid State(current:" + checkCurrent + " before:" + checkBefore + " next:" + nextState + ")";
+	}
+
+	private String cannotChangeMessage(PinpointServerSocketStateCode checkBefore, PinpointServerSocketStateCode checkCurrent, PinpointServerSocketStateCode nextState) {
+		return "Can not change State(current:" + checkCurrent + " before:" + checkBefore + " next:" + nextState + ")";
 	}
 
 	public PinpointServerSocketStateCode getCurrentState() {

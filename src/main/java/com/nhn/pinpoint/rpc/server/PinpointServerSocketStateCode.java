@@ -26,7 +26,7 @@ public enum PinpointServerSocketStateCode {
 	// 서버쪽에서 먼저 연결을 끊자는 메시지도 필요하다. 
 	// 예를 들어 HELLO 이후 다 확인했는데, 같은 Agent명이 있으면(?) 이걸 사용자에게 말해야 할까? 아닐까? 알림 등
 	ERROR_UNKOWN(RUN, RUN_WITHOUT_REGISTER), 
-	ERROR_ILLEGAL_STATE_CHANGE(NONE, RUN, RUN_WITHOUT_REGISTER, BEING_SHUTDOWN, SHUTDOWN);
+	ERROR_ILLEGAL_STATE_CHANGE(NONE, RUN, RUN_WITHOUT_REGISTER, BEING_SHUTDOWN);
 
 	private final Set<PinpointServerSocketStateCode> validBeforeStateSet;
 
@@ -59,6 +59,13 @@ public enum PinpointServerSocketStateCode {
 			return true;
 		}
 
+		return false;
+	}
+	
+	public static boolean isFinished(PinpointServerSocketStateCode code) {
+		if (code == SHUTDOWN || code == UNEXPECTED_SHUTDOWN || code == ERROR_UNKOWN || code == ERROR_ILLEGAL_STATE_CHANGE) {
+			return true;
+		}
 		return false;
 	}
 

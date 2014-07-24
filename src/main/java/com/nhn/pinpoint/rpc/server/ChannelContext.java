@@ -50,8 +50,38 @@ public class ChannelContext {
         return socketChannel;
     }
 
-	public PinpointServerSocketState getState() {
-		return state;
+	public PinpointServerSocketStateCode getCurrentStateCode() {
+		return state.getCurrentState();
+	}
+
+	public void changeStateRun() {
+		logger.debug("Channel({}) state will be changed {}.", channel, PinpointServerSocketStateCode.RUN);
+		state.changeStateRun();
+	}
+
+	public void changeStateRunWithoutRegister() {
+		logger.debug("Channel({}) state will be changed {}.", channel, PinpointServerSocketStateCode.RUN_WITHOUT_REGISTER);
+		state.changeStateRunWithoutRegister();
+	}
+	
+	public void changeStateBeingShutdown() {
+		logger.debug("Channel({}) state will be changed {}.", channel, PinpointServerSocketStateCode.BEING_SHUTDOWN);
+		state.changeStateBeingShutdown();
+	}
+
+	public void changeStateShutdown() {
+		logger.debug("Channel({}) state will be changed {}.", channel, PinpointServerSocketStateCode.SHUTDOWN);
+		state.changeStateShutdown();
+	}
+
+	public void changeStateUnexpectedShutdown() {
+		logger.debug("Channel({}) state will be changed {}.", channel, PinpointServerSocketStateCode.UNEXPECTED_SHUTDOWN);
+		state.changeStateUnexpectedShutdown();
+	}
+
+	public void changeStateUnkownError() {
+		logger.debug("Channel({}) state will be changed {}.", channel, PinpointServerSocketStateCode.ERROR_UNKOWN);
+		state.changeStateUnkownError();
 	}
 	
 	public AgentProperties getAgentProperties() {

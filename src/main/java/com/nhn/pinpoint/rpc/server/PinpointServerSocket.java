@@ -1,17 +1,23 @@
 package com.nhn.pinpoint.rpc.server;
 
-import com.nhn.pinpoint.common.util.PinpointThreadFactory;
-import com.nhn.pinpoint.rpc.PinpointSocketException;
-import com.nhn.pinpoint.rpc.client.WriteFailFutureListener;
-import com.nhn.pinpoint.rpc.control.ProtocolException;
-import com.nhn.pinpoint.rpc.packet.*;
-import com.nhn.pinpoint.rpc.util.ControlMessageEnDeconderUtils;
-import com.nhn.pinpoint.rpc.util.CpuUtils;
-import com.nhn.pinpoint.rpc.util.LoggerFactorySetup;
-import com.nhn.pinpoint.rpc.util.TimerFactory;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.jboss.netty.bootstrap.ServerBootstrap;
-import org.jboss.netty.channel.*;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelPipelineFactory;
+import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.ExceptionEvent;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.SimpleChannelHandler;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.ChannelGroupFuture;
 import org.jboss.netty.channel.group.ChannelGroupFutureListener;
@@ -26,13 +32,25 @@ import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import com.nhn.pinpoint.common.util.PinpointThreadFactory;
+import com.nhn.pinpoint.rpc.PinpointSocketException;
+import com.nhn.pinpoint.rpc.client.WriteFailFutureListener;
+import com.nhn.pinpoint.rpc.control.ProtocolException;
+import com.nhn.pinpoint.rpc.packet.ControlRegisterAgentConfirmPacket;
+import com.nhn.pinpoint.rpc.packet.ControlRegisterAgentPacket;
+import com.nhn.pinpoint.rpc.packet.Packet;
+import com.nhn.pinpoint.rpc.packet.PacketType;
+import com.nhn.pinpoint.rpc.packet.PingPacket;
+import com.nhn.pinpoint.rpc.packet.RequestPacket;
+import com.nhn.pinpoint.rpc.packet.SendPacket;
+import com.nhn.pinpoint.rpc.packet.ServerClosePacket;
+import com.nhn.pinpoint.rpc.packet.StreamClosePacket;
+import com.nhn.pinpoint.rpc.packet.StreamCreatePacket;
+import com.nhn.pinpoint.rpc.packet.StreamPacket;
+import com.nhn.pinpoint.rpc.util.ControlMessageEnDeconderUtils;
+import com.nhn.pinpoint.rpc.util.CpuUtils;
+import com.nhn.pinpoint.rpc.util.LoggerFactorySetup;
+import com.nhn.pinpoint.rpc.util.TimerFactory;
 
 /**
  * @author emeroad
@@ -188,7 +206,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 	private void closeChannel(Channel channel) {
         logger.debug("received ClientClosePacket {}", channel);
         ChannelContext channelContext = getChannelContext(channel);
-        channelContext.getState().changeStateBeingShutdown();
+        channelContext.changeStateBeingShutdown();
         
 //      상대방이 닫는거에 반응해서 socket을 닫도록 하자.
 //        channel.close();
@@ -232,7 +250,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 			boolean isSuccess = context.setAgentProperties(new AgentProperties(properties));
 			// 이미 등록되어 있다면 상태를 변경하지 않음
 			if (isSuccess) {
-				context.getState().changeStateRun();
+				context.changeStateRun();
 			}
 			logger.debug("Channel({}) State changed to Run.", channel);
 		} catch (ProtocolException e) {
@@ -280,7 +298,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         prepareChannel(channel);
         
         ChannelContext channelContext = getChannelContext(channel);
-        channelContext.getState().changeStateRunWithoutRegister();
+        channelContext.changeStateRunWithoutRegister();
         
         super.channelConnected(ctx, e);
     }
@@ -289,12 +307,12 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         final Channel channel = e.getChannel();
         final ChannelContext channelContext = getChannelContext(channel);
-        PinpointServerSocketState state = channelContext.getState();
+        PinpointServerSocketStateCode currentStateCode = channelContext.getCurrentStateCode();
         
-        if (state.getCurrentState() != PinpointServerSocketStateCode.BEING_SHUTDOWN) {
-        	state.changeStateShutdown();
+        if (currentStateCode != PinpointServerSocketStateCode.BEING_SHUTDOWN) {
+        	channelContext.changeStateShutdown();
         } else {
-        	state.changeStateUnexpectedShutdown();
+        	channelContext.changeStateUnexpectedShutdown();
         }
         
         if (logger.isDebugEnabled()) {
@@ -309,18 +327,18 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         final Channel channel = e.getChannel();
         final ChannelContext channelContext = getChannelContext(channel);
 
-        PinpointServerSocketState state = channelContext.getState();
+        PinpointServerSocketStateCode currentStateCode = channelContext.getCurrentStateCode();
         
-        if (state.getCurrentState() != PinpointServerSocketStateCode.BEING_SHUTDOWN) {
+        if (currentStateCode == PinpointServerSocketStateCode.BEING_SHUTDOWN) {
             if (logger.isDebugEnabled()) {
                 logger.debug("client channelClosed. normal closed. {}", channel);
             }
-        	state.changeStateShutdown();
+            channelContext.changeStateShutdown();
         } else if(released) {
             if (logger.isDebugEnabled()) {
                 logger.debug("client channelClosed. server shutdown. {}", channel);
             }
-        	state.changeStateShutdown();
+            channelContext.changeStateShutdown();
         } else {
             boolean check = checkIgnoreAddress(channel);
             if (check) {
@@ -328,7 +346,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
             } else {
                 logger.debug("checkAddress, Client channelClosed channelClosed {}", channel);
             }
-            state.changeStateUnexpectedShutdown();
+            channelContext.changeStateUnexpectedShutdown();
         }
         channelContext.closeAllStreamChannel();
     }

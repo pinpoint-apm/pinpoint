@@ -2,7 +2,6 @@ package com.nhn.pinpoint.rpc;
 
 /**
  * @author emeroad
- * @author koo.taejin
  */
 public interface Future<T> {
 
@@ -14,7 +13,7 @@ public interface Future<T> {
 
     boolean isSuccess();
 
-    boolean addListener(FutureListener<T> listener);
+    boolean setListener(FutureListener<T> listener);
 
     boolean await(long timeoutMillis);
 

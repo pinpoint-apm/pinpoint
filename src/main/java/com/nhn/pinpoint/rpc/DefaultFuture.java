@@ -1,8 +1,5 @@
 package com.nhn.pinpoint.rpc;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
@@ -10,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author emeroad
- * @author koo.taejin
  */
 public class DefaultFuture<T> implements TimerTask, Future<T> {
 
@@ -26,7 +22,8 @@ public class DefaultFuture<T> implements TimerTask, Future<T> {
 
     private Timeout timeout;
     private FailureEventHandler failureEventHandler;
-    private List<FutureListener<T>> listeners = new ArrayList<FutureListener<T>>();
+    private FutureListener<T> listener;
+
 
     public DefaultFuture() {
         this(3000);
@@ -125,13 +122,11 @@ public class DefaultFuture<T> implements TimerTask, Future<T> {
     }
 
     private void notifyListener() {
-    	for (FutureListener<T> listener : this.listeners) {
-            if (listener != null) {
-                fireOnComplete(listener);
-            }
-    	}
-    	
-    	this.listeners = new ArrayList<FutureListener<T>>();
+        FutureListener<T> listener = this.listener;
+        if (listener != null) {
+            fireOnComplete(listener);
+            this.listener = null;
+        }
     }
 
     protected void notifyFailureHandle() {
@@ -144,8 +139,8 @@ public class DefaultFuture<T> implements TimerTask, Future<T> {
     }
 
     @Override
-    public boolean addListener(FutureListener<T> listener) {
-    	if (listener == null) {
+    public boolean setListener(FutureListener<T> listener) {
+        if (listener == null) {
             throw new NullPointerException("listener");
         }
 
@@ -154,13 +149,13 @@ public class DefaultFuture<T> implements TimerTask, Future<T> {
             if (ready) {
                 alreadyReady = true;
             } else {
-                this.listeners.add(listener);
+                this.listener = listener;
             }
 
         }
 
         if (alreadyReady) {
-        	fireOnComplete(listener);
+            fireOnComplete(listener);
         }
         return !alreadyReady;
     }

@@ -16,18 +16,17 @@ public class FutureTest {
 		DefaultFuture<String> future = new DefaultFuture<String>();
 
 		SimpleListener<String> listener1 = new SimpleListener<String>();
-		SimpleListener<String> listener2 = new SimpleListener<String>();
 
-		future.addListener(listener1);
-		future.addListener(listener2);
+		future.setListener(listener1);
+//		future.addListener(listener2);
 
 		Assert.assertFalse(listener1.isFinished());
-		Assert.assertFalse(listener2.isFinished());
+//		Assert.assertFalse(listener2.isFinished());
 
 		future.setResult("Hello");
 
 		Assert.assertTrue(listener1.isFinished());
-		Assert.assertTrue(listener2.isFinished());
+//		Assert.assertTrue(listener2.isFinished());
 	}
 
 	@Test
@@ -38,7 +37,7 @@ public class FutureTest {
 
 		future.setResult("Hello");
 
-		future.addListener(listener);
+		future.setListener(listener);
 
 		Assert.assertTrue(listener.isFinished());
 	}
