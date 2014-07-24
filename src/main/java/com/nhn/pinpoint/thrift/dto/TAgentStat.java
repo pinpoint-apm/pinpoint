@@ -39,6 +39,7 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
   private static final org.apache.thrift.protocol.TField START_TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("startTimestamp", org.apache.thrift.protocol.TType.I64, (short)2);
   private static final org.apache.thrift.protocol.TField TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("timestamp", org.apache.thrift.protocol.TType.I64, (short)3);
   private static final org.apache.thrift.protocol.TField GC_FIELD_DESC = new org.apache.thrift.protocol.TField("gc", org.apache.thrift.protocol.TType.STRUCT, (short)10);
+  private static final org.apache.thrift.protocol.TField CPU_LOAD_FIELD_DESC = new org.apache.thrift.protocol.TField("cpuLoad", org.apache.thrift.protocol.TType.STRUCT, (short)20);
   private static final org.apache.thrift.protocol.TField METADATA_FIELD_DESC = new org.apache.thrift.protocol.TField("metadata", org.apache.thrift.protocol.TType.STRING, (short)200);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
@@ -51,6 +52,7 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
   private long startTimestamp; // required
   private long timestamp; // required
   private TJvmGc gc; // optional
+  private TCpuLoad cpuLoad; // optional
   private String metadata; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
@@ -59,6 +61,7 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
     START_TIMESTAMP((short)2, "startTimestamp"),
     TIMESTAMP((short)3, "timestamp"),
     GC((short)10, "gc"),
+    CPU_LOAD((short)20, "cpuLoad"),
     METADATA((short)200, "metadata");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
@@ -82,6 +85,8 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
           return TIMESTAMP;
         case 10: // GC
           return GC;
+        case 20: // CPU_LOAD
+          return CPU_LOAD;
         case 200: // METADATA
           return METADATA;
         default:
@@ -127,7 +132,7 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
   private static final int __STARTTIMESTAMP_ISSET_ID = 0;
   private static final int __TIMESTAMP_ISSET_ID = 1;
   private byte __isset_bitfield = 0;
-  private _Fields optionals[] = {_Fields.GC,_Fields.METADATA};
+  private _Fields optionals[] = {_Fields.GC,_Fields.CPU_LOAD,_Fields.METADATA};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -139,6 +144,8 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.GC, new org.apache.thrift.meta_data.FieldMetaData("gc", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TJvmGc.class)));
+    tmpMap.put(_Fields.CPU_LOAD, new org.apache.thrift.meta_data.FieldMetaData("cpuLoad", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TCpuLoad.class)));
     tmpMap.put(_Fields.METADATA, new org.apache.thrift.meta_data.FieldMetaData("metadata", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
@@ -174,6 +181,9 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
     if (other.isSetGc()) {
       this.gc = new TJvmGc(other.gc);
     }
+    if (other.isSetCpuLoad()) {
+      this.cpuLoad = new TCpuLoad(other.cpuLoad);
+    }
     if (other.isSetMetadata()) {
       this.metadata = other.metadata;
     }
@@ -191,6 +201,7 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
     setTimestampIsSet(false);
     this.timestamp = 0;
     this.gc = null;
+    this.cpuLoad = null;
     this.metadata = null;
   }
 
@@ -284,6 +295,29 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
     }
   }
 
+  public TCpuLoad getCpuLoad() {
+    return this.cpuLoad;
+  }
+
+  public void setCpuLoad(TCpuLoad cpuLoad) {
+    this.cpuLoad = cpuLoad;
+  }
+
+  public void unsetCpuLoad() {
+    this.cpuLoad = null;
+  }
+
+  /** Returns true if field cpuLoad is set (has been assigned a value) and false otherwise */
+  public boolean isSetCpuLoad() {
+    return this.cpuLoad != null;
+  }
+
+  public void setCpuLoadIsSet(boolean value) {
+    if (!value) {
+      this.cpuLoad = null;
+    }
+  }
+
   public String getMetadata() {
     return this.metadata;
   }
@@ -341,6 +375,14 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
       }
       break;
 
+    case CPU_LOAD:
+      if (value == null) {
+        unsetCpuLoad();
+      } else {
+        setCpuLoad((TCpuLoad)value);
+      }
+      break;
+
     case METADATA:
       if (value == null) {
         unsetMetadata();
@@ -366,6 +408,9 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
     case GC:
       return getGc();
 
+    case CPU_LOAD:
+      return getCpuLoad();
+
     case METADATA:
       return getMetadata();
 
@@ -388,6 +433,8 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
       return isSetTimestamp();
     case GC:
       return isSetGc();
+    case CPU_LOAD:
+      return isSetCpuLoad();
     case METADATA:
       return isSetMetadata();
     }
@@ -440,6 +487,15 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
       if (!(this_present_gc && that_present_gc))
         return false;
       if (!this.gc.equals(that.gc))
+        return false;
+    }
+
+    boolean this_present_cpuLoad = true && this.isSetCpuLoad();
+    boolean that_present_cpuLoad = true && that.isSetCpuLoad();
+    if (this_present_cpuLoad || that_present_cpuLoad) {
+      if (!(this_present_cpuLoad && that_present_cpuLoad))
+        return false;
+      if (!this.cpuLoad.equals(that.cpuLoad))
         return false;
     }
 
@@ -508,6 +564,16 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetCpuLoad()).compareTo(other.isSetCpuLoad());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetCpuLoad()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.cpuLoad, other.cpuLoad);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     lastComparison = Boolean.valueOf(isSetMetadata()).compareTo(other.isSetMetadata());
     if (lastComparison != 0) {
       return lastComparison;
@@ -563,6 +629,16 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
       }
       first = false;
     }
+    if (isSetCpuLoad()) {
+      if (!first) sb.append(", ");
+      sb.append("cpuLoad:");
+      if (this.cpuLoad == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.cpuLoad);
+      }
+      first = false;
+    }
     if (isSetMetadata()) {
       if (!first) sb.append(", ");
       sb.append("metadata:");
@@ -582,6 +658,9 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
     // check for sub-struct validity
     if (gc != null) {
       gc.validate();
+    }
+    if (cpuLoad != null) {
+      cpuLoad.validate();
     }
   }
 
@@ -654,6 +733,15 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
+          case 20: // CPU_LOAD
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+              struct.cpuLoad = new TCpuLoad();
+              struct.cpuLoad.read(iprot);
+              struct.setCpuLoadIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
           case 200: // METADATA
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.metadata = iprot.readString();
@@ -690,6 +778,13 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
         if (struct.isSetGc()) {
           oprot.writeFieldBegin(GC_FIELD_DESC);
           struct.gc.write(oprot);
+          oprot.writeFieldEnd();
+        }
+      }
+      if (struct.cpuLoad != null) {
+        if (struct.isSetCpuLoad()) {
+          oprot.writeFieldBegin(CPU_LOAD_FIELD_DESC);
+          struct.cpuLoad.write(oprot);
           oprot.writeFieldEnd();
         }
       }
@@ -730,10 +825,13 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
       if (struct.isSetGc()) {
         optionals.set(3);
       }
-      if (struct.isSetMetadata()) {
+      if (struct.isSetCpuLoad()) {
         optionals.set(4);
       }
-      oprot.writeBitSet(optionals, 5);
+      if (struct.isSetMetadata()) {
+        optionals.set(5);
+      }
+      oprot.writeBitSet(optionals, 6);
       if (struct.isSetAgentId()) {
         oprot.writeString(struct.agentId);
       }
@@ -746,6 +844,9 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
       if (struct.isSetGc()) {
         struct.gc.write(oprot);
       }
+      if (struct.isSetCpuLoad()) {
+        struct.cpuLoad.write(oprot);
+      }
       if (struct.isSetMetadata()) {
         oprot.writeString(struct.metadata);
       }
@@ -754,7 +855,7 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, TAgentStat struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(5);
+      BitSet incoming = iprot.readBitSet(6);
       if (incoming.get(0)) {
         struct.agentId = iprot.readString();
         struct.setAgentIdIsSet(true);
@@ -773,6 +874,11 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
         struct.setGcIsSet(true);
       }
       if (incoming.get(4)) {
+        struct.cpuLoad = new TCpuLoad();
+        struct.cpuLoad.read(iprot);
+        struct.setCpuLoadIsSet(true);
+      }
+      if (incoming.get(5)) {
         struct.metadata = iprot.readString();
         struct.setMetadataIsSet(true);
       }

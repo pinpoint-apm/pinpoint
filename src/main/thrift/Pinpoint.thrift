@@ -35,10 +35,16 @@ struct TJvmGc {
     7: i64          jvmGcOldTime
 }
 
+struct TCpuLoad {
+    1: double       jvmCpuLoad
+    2: double       systemCpuLoad
+}
+
 struct TAgentStat {
     1: string               agentId
     2: i64                  startTimestamp
     3: i64                  timestamp
     10: optional TJvmGc     gc
+    20: optional TCpuLoad   cpuLoad
     200: optional string    metadata    
 }
