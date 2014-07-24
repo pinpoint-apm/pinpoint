@@ -309,7 +309,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         final ChannelContext channelContext = getChannelContext(channel);
         PinpointServerSocketStateCode currentStateCode = channelContext.getCurrentStateCode();
         
-        if (currentStateCode != PinpointServerSocketStateCode.BEING_SHUTDOWN) {
+        if (currentStateCode == PinpointServerSocketStateCode.BEING_SHUTDOWN) {
         	channelContext.changeStateShutdown();
         } else {
         	channelContext.changeStateUnexpectedShutdown();
@@ -326,7 +326,6 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         final Channel channel = e.getChannel();
         final ChannelContext channelContext = getChannelContext(channel);
-
         PinpointServerSocketStateCode currentStateCode = channelContext.getCurrentStateCode();
         
         if (currentStateCode == PinpointServerSocketStateCode.BEING_SHUTDOWN) {
