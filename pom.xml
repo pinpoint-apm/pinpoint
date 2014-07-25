@@ -34,7 +34,39 @@
     </dependencies>
 	
 	<build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/java</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <filtering>true</filtering>
+                <directory>${basedir}/src/main/resources</directory>
+            </resource>
+        </resources>
+        <testResources>
+            <testResource>
+                <directory>${basedir}/src/test/java</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </testResource>
+            <testResource>
+                <filtering>true</filtering>
+                <directory>${basedir}/src/test/resources</directory>
+            </testResource>
+        </testResources>
+        
         <plugins>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
             <plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -52,6 +84,32 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.4</version>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.12.4</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>2.5.2</version>
+            </plugin>
+            <plugin>
+                <groupId>com.atlassian.maven.plugins</groupId>
+                <artifactId>maven-clover2-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <jdk>1.6</jdk>
+                    <generateXml>true</generateXml>
+                    <generateHtml>true</generateHtml>
+                    <generateHistorical>false</generateHistorical>
+                    <licenseLocation>clover.license</licenseLocation>
+                    <singleCloverDatabase>false</singleCloverDatabase>
+                    <includesTestSourceRoots>false</includesTestSourceRoots>
+                </configuration>
             </plugin>
         </plugins>
 	</build>
