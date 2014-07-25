@@ -15,8 +15,6 @@ import com.nhn.pinpoint.thrift.dto.TCpuLoad;
  */
 public class CpuLoadCollector {
 	
-	private static final Double NOT_COLLECTED = -1D;
-
 	private final Gauge<Double> jvmCpuLoadGauge;
 	private final Gauge<Double> systemCpuLoadGauge;
 
@@ -36,15 +34,21 @@ public class CpuLoadCollector {
 	public TCpuLoad collectCpuLoad() {
 		Double jvmCpuLoad = this.jvmCpuLoadGauge.getValue();
 		Double systemCpuLoad = this.systemCpuLoadGauge.getValue();
-		if (jvmCpuLoad == NOT_COLLECTED && systemCpuLoad == NOT_COLLECTED) {
+		if (notCollected(jvmCpuLoad) && notCollected(systemCpuLoad)) {
 			return null;
 		}
 		TCpuLoad cpuLoad = new TCpuLoad();
-		cpuLoad.setJvmCpuLoad(jvmCpuLoad);
-		cpuLoad.setJvmCpuLoadIsSet(jvmCpuLoad != NOT_COLLECTED);
-		cpuLoad.setSystemCpuLoad(systemCpuLoad);
-		cpuLoad.setSystemCpuLoadIsSet(systemCpuLoad != NOT_COLLECTED);
+		if (!notCollected(jvmCpuLoad)) {
+			cpuLoad.setJvmCpuLoad(jvmCpuLoad);
+		}
+		if (!notCollected(systemCpuLoad)) {
+			cpuLoad.setSystemCpuLoad(systemCpuLoad);
+		}
 		return cpuLoad;
+	}
+	
+	private boolean notCollected(double cpuLoad) {
+		return cpuLoad < 0;
 	}
 
 	public Double collectJvmCpuLoad() {
