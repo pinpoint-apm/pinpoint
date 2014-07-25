@@ -36,8 +36,8 @@ struct TJvmGc {
 }
 
 struct TCpuLoad {
-    1: double       jvmCpuLoad
-    2: double       systemCpuLoad
+    1: optional double       jvmCpuLoad
+    2: optional double       systemCpuLoad
 }
 
 struct TAgentStat {

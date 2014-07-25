@@ -44,8 +44,8 @@ public class TCpuLoad implements org.apache.thrift.TBase<TCpuLoad, TCpuLoad._Fie
     schemes.put(TupleScheme.class, new TCpuLoadTupleSchemeFactory());
   }
 
-  private double jvmCpuLoad; // required
-  private double systemCpuLoad; // required
+  private double jvmCpuLoad; // optional
+  private double systemCpuLoad; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -112,29 +112,19 @@ public class TCpuLoad implements org.apache.thrift.TBase<TCpuLoad, TCpuLoad._Fie
   private static final int __JVMCPULOAD_ISSET_ID = 0;
   private static final int __SYSTEMCPULOAD_ISSET_ID = 1;
   private byte __isset_bitfield = 0;
+  private _Fields optionals[] = {_Fields.JVM_CPU_LOAD,_Fields.SYSTEM_CPU_LOAD};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.JVM_CPU_LOAD, new org.apache.thrift.meta_data.FieldMetaData("jvmCpuLoad", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.JVM_CPU_LOAD, new org.apache.thrift.meta_data.FieldMetaData("jvmCpuLoad", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.DOUBLE)));
-    tmpMap.put(_Fields.SYSTEM_CPU_LOAD, new org.apache.thrift.meta_data.FieldMetaData("systemCpuLoad", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.SYSTEM_CPU_LOAD, new org.apache.thrift.meta_data.FieldMetaData("systemCpuLoad", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.DOUBLE)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TCpuLoad.class, metaDataMap);
   }
 
   public TCpuLoad() {
-  }
-
-  public TCpuLoad(
-    double jvmCpuLoad,
-    double systemCpuLoad)
-  {
-    this();
-    this.jvmCpuLoad = jvmCpuLoad;
-    setJvmCpuLoadIsSet(true);
-    this.systemCpuLoad = systemCpuLoad;
-    setSystemCpuLoadIsSet(true);
   }
 
   /**
@@ -263,8 +253,8 @@ public class TCpuLoad implements org.apache.thrift.TBase<TCpuLoad, TCpuLoad._Fie
     if (that == null)
       return false;
 
-    boolean this_present_jvmCpuLoad = true;
-    boolean that_present_jvmCpuLoad = true;
+    boolean this_present_jvmCpuLoad = true && this.isSetJvmCpuLoad();
+    boolean that_present_jvmCpuLoad = true && that.isSetJvmCpuLoad();
     if (this_present_jvmCpuLoad || that_present_jvmCpuLoad) {
       if (!(this_present_jvmCpuLoad && that_present_jvmCpuLoad))
         return false;
@@ -272,8 +262,8 @@ public class TCpuLoad implements org.apache.thrift.TBase<TCpuLoad, TCpuLoad._Fie
         return false;
     }
 
-    boolean this_present_systemCpuLoad = true;
-    boolean that_present_systemCpuLoad = true;
+    boolean this_present_systemCpuLoad = true && this.isSetSystemCpuLoad();
+    boolean that_present_systemCpuLoad = true && that.isSetSystemCpuLoad();
     if (this_present_systemCpuLoad || that_present_systemCpuLoad) {
       if (!(this_present_systemCpuLoad && that_present_systemCpuLoad))
         return false;
@@ -337,13 +327,17 @@ public class TCpuLoad implements org.apache.thrift.TBase<TCpuLoad, TCpuLoad._Fie
     StringBuilder sb = new StringBuilder("TCpuLoad(");
     boolean first = true;
 
-    sb.append("jvmCpuLoad:");
-    sb.append(this.jvmCpuLoad);
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("systemCpuLoad:");
-    sb.append(this.systemCpuLoad);
-    first = false;
+    if (isSetJvmCpuLoad()) {
+      sb.append("jvmCpuLoad:");
+      sb.append(this.jvmCpuLoad);
+      first = false;
+    }
+    if (isSetSystemCpuLoad()) {
+      if (!first) sb.append(", ");
+      sb.append("systemCpuLoad:");
+      sb.append(this.systemCpuLoad);
+      first = false;
+    }
     sb.append(")");
     return sb.toString();
   }
@@ -418,12 +412,16 @@ public class TCpuLoad implements org.apache.thrift.TBase<TCpuLoad, TCpuLoad._Fie
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
-      oprot.writeFieldBegin(JVM_CPU_LOAD_FIELD_DESC);
-      oprot.writeDouble(struct.jvmCpuLoad);
-      oprot.writeFieldEnd();
-      oprot.writeFieldBegin(SYSTEM_CPU_LOAD_FIELD_DESC);
-      oprot.writeDouble(struct.systemCpuLoad);
-      oprot.writeFieldEnd();
+      if (struct.isSetJvmCpuLoad()) {
+        oprot.writeFieldBegin(JVM_CPU_LOAD_FIELD_DESC);
+        oprot.writeDouble(struct.jvmCpuLoad);
+        oprot.writeFieldEnd();
+      }
+      if (struct.isSetSystemCpuLoad()) {
+        oprot.writeFieldBegin(SYSTEM_CPU_LOAD_FIELD_DESC);
+        oprot.writeDouble(struct.systemCpuLoad);
+        oprot.writeFieldEnd();
+      }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
