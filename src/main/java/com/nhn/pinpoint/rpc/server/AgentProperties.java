@@ -18,7 +18,7 @@ public class AgentProperties {
 	public static final String KEY_PID = "pid";
 	public static final String KEY_VERSION = "version";
 	public static final String KEY_START_TIME_MILLIS = "startTimestamp";
-
+	
 	private final Map<String, Object> properties;
 
 	public AgentProperties(Map<String, Object> properties) {
@@ -38,5 +38,5 @@ public class AgentProperties {
 
 		return null;
 	}
-
+	
 }

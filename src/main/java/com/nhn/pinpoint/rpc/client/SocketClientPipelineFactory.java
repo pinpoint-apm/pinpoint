@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author emeroad
+ * @author koo.taejin
  */
 public class SocketClientPipelineFactory implements ChannelPipelineFactory {
 
@@ -31,8 +32,9 @@ public class SocketClientPipelineFactory implements ChannelPipelineFactory {
         pipeline.addLast("encoder", new PacketEncoder());
         pipeline.addLast("decoder", new PacketDecoder());
         long pingDelay = pinpointSocketFactory.getPingDelay();
+        long registerAgentPacketDelay = pinpointSocketFactory.getRegisterAgentPacketDelay();
         long timeoutMillis = pinpointSocketFactory.getTimeoutMillis();
-        PinpointSocketHandler pinpointSocketHandler = new PinpointSocketHandler(pinpointSocketFactory, pingDelay, timeoutMillis);
+        PinpointSocketHandler pinpointSocketHandler = new PinpointSocketHandler(pinpointSocketFactory, pingDelay, registerAgentPacketDelay, timeoutMillis);
         pipeline.addLast("writeTimeout", new WriteTimeoutHandler(pinpointSocketHandler.getChannelTimer(), 3000, TimeUnit.MILLISECONDS));
         pipeline.addLast("socketHandler", pinpointSocketHandler);
         return pipeline;

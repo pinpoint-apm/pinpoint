@@ -243,30 +243,49 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 
     private void handleRegisterAgent(ControlRegisterAgentPacket message, Channel channel) {
         ChannelContext context = getChannelContext(channel);
-        byte[] payload = message.getPayload();
-        
-        try {
-			Map properties = (Map) ControlMessageEnDeconderUtils.decode(payload);
-			boolean isSuccess = context.setAgentProperties(new AgentProperties(properties));
-			// 이미 등록되어 있다면 상태를 변경하지 않음
-			if (isSuccess) {
-				context.changeStateRun();
-			}
-			logger.debug("Channel({}) State changed to Run.", channel);
-		} catch (ProtocolException e) {
-			logger.warn(e.getMessage(), e);
-		}
+
+        int code = registerAgent(context, message);
+
+        if (code == ControlRegisterAgentConfirmPacket.SUCCESS) {
+        	context.changeStateRun();
+        }
         
 		try {
 			Map result = new HashMap();
-			result.put("code", 0);
-
+			result.put("code", code);
+			
 			byte[] resultPayload = ControlMessageEnDeconderUtils.encode(result);
 			ControlRegisterAgentConfirmPacket packet = new ControlRegisterAgentConfirmPacket(message.getRequestId(), resultPayload);
 
 			channel.write(packet);
 		} catch (ProtocolException e) {
 			logger.warn(e.getMessage(), e);
+		}
+	}
+    
+	private int registerAgent(ChannelContext context, ControlRegisterAgentPacket message) {
+		Map properties = null;
+		try {
+			byte[] payload = message.getPayload();
+			properties = (Map) ControlMessageEnDeconderUtils.decode(payload);
+		} catch (ProtocolException e) {
+			logger.warn(e.getMessage(), e);
+		}
+		
+		if (properties == null) {
+			return ControlRegisterAgentConfirmPacket.ILLEGAL_PROTOCOL;
+		}
+		
+		boolean hasAllType = AgentPropertiesType.hasAllType(properties);
+		if (!hasAllType) {
+			return ControlRegisterAgentConfirmPacket.INVALID_PROPERTIES;
+		}
+
+		boolean isSuccess = context.setAgentProperties(properties);
+		if (isSuccess) {
+			return ControlRegisterAgentConfirmPacket.SUCCESS;
+		} else {
+			return ControlRegisterAgentConfirmPacket.ALREADY_REGISTER;
 		}
 	}
     
@@ -311,6 +330,8 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         
         if (currentStateCode == PinpointServerSocketStateCode.BEING_SHUTDOWN) {
         	channelContext.changeStateShutdown();
+        } else if(released) {
+            channelContext.changeStateShutdown();
         } else {
         	channelContext.changeStateUnexpectedShutdown();
         }
@@ -322,6 +343,8 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         super.channelDisconnected(ctx, e);
     }
 
+    // 참고 ChannelClose 이벤트는 상대방이 먼저 연결을 끊어 Disconnected가 발생했을 경우에도 발생이 가능함
+    // 이부분 염두하고 코드 작성이 필요함 
     @Override
     public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         final Channel channel = e.getChannel();

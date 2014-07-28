@@ -1,31 +1,66 @@
 package com.nhn.pinpoint.rpc.client;
 
-import com.nhn.pinpoint.rpc.*;
-import com.nhn.pinpoint.rpc.packet.*;
-import com.nhn.pinpoint.rpc.util.TimerFactory;
-import org.jboss.netty.channel.*;
-import org.jboss.netty.util.*;
+import java.net.SocketAddress;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.ExceptionEvent;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.SimpleChannelHandler;
+import org.jboss.netty.util.HashedWheelTimer;
+import org.jboss.netty.util.Timeout;
+import org.jboss.netty.util.Timer;
+import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.SocketAddress;
-import java.util.concurrent.TimeUnit;
+import com.nhn.pinpoint.rpc.ChannelWriteCompleteListenableFuture;
+import com.nhn.pinpoint.rpc.ChannelWriteFailListenableFuture;
+import com.nhn.pinpoint.rpc.DefaultFuture;
+import com.nhn.pinpoint.rpc.Future;
+import com.nhn.pinpoint.rpc.PinpointSocketException;
+import com.nhn.pinpoint.rpc.ResponseMessage;
+import com.nhn.pinpoint.rpc.control.ProtocolException;
+import com.nhn.pinpoint.rpc.packet.ClientClosePacket;
+import com.nhn.pinpoint.rpc.packet.ControlRegisterAgentConfirmPacket;
+import com.nhn.pinpoint.rpc.packet.ControlRegisterAgentPacket;
+import com.nhn.pinpoint.rpc.packet.Packet;
+import com.nhn.pinpoint.rpc.packet.PacketType;
+import com.nhn.pinpoint.rpc.packet.PingPacket;
+import com.nhn.pinpoint.rpc.packet.RequestPacket;
+import com.nhn.pinpoint.rpc.packet.ResponsePacket;
+import com.nhn.pinpoint.rpc.packet.SendPacket;
+import com.nhn.pinpoint.rpc.packet.StreamPacket;
+import com.nhn.pinpoint.rpc.util.ControlMessageEnDeconderUtils;
+import com.nhn.pinpoint.rpc.util.MapUtils;
+import com.nhn.pinpoint.rpc.util.TimerFactory;
 
 /**
  * @author emeroad
  * @author netspider
+ * @author koo.taejin
  */
 public class PinpointSocketHandler extends SimpleChannelHandler implements SocketHandler {
 
+	private static final long DEFAULT_PING_DELAY = 60 * 1000 * 5;
+	private static final long DEFAULT_TIMEOUTMILLIS = 3 * 1000;
+	private static final long DEFAULT_REGISTER_AGENT_PACKET_DELAY = 60 * 1000 * 1;
+	
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final State state = new State();
 
     private volatile Channel channel;
 
-    private long timeoutMillis = 3 * 1000;
-    private long pingDelay = 60 * 1000 * 5;
-
+    private long timeoutMillis = DEFAULT_TIMEOUTMILLIS;
+    private long pingDelay = DEFAULT_PING_DELAY;
+    private long registerAgentPacketDelay = DEFAULT_REGISTER_AGENT_PACKET_DELAY;
+    
     private final Timer channelTimer;
 
     private final PinpointSocketFactory pinpointSocketFactory;
@@ -38,11 +73,15 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     private final ChannelFutureListener pingWriteFailFutureListener = new WriteFailFutureListener(this.logger, "ping write fail.", "ping write success.");
     private final ChannelFutureListener sendWriteFailFutureListener = new WriteFailFutureListener(this.logger, "send() write fail.", "send() write fail.");
 
+    public PinpointSocketHandler(PinpointSocketFactory pinpointSocketFactory, Map agentProperties) {
+    	this(pinpointSocketFactory, DEFAULT_PING_DELAY, DEFAULT_REGISTER_AGENT_PACKET_DELAY, DEFAULT_TIMEOUTMILLIS);
+    }
 
-    public PinpointSocketHandler(PinpointSocketFactory pinpointSocketFactory, long pingDelay, long timeoutMillis) {
+    public PinpointSocketHandler(PinpointSocketFactory pinpointSocketFactory, long pingDelay, long registerAgentPacketDelay, long timeoutMillis) {
         if (pinpointSocketFactory == null) {
             throw new NullPointerException("pinpointSocketFactory must not be null");
         }
+        
         HashedWheelTimer timer = TimerFactory.createHashedWheelTimer("Pinpoint-SocketHandler-Timer", 100, TimeUnit.MILLISECONDS, 512);
         timer.start();
         this.channelTimer = timer;
@@ -50,8 +89,9 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         this.requestManager = new RequestManager(timer);
         this.streamChannelManager = new StreamChannelManager();
         this.pingDelay = pingDelay;
+        this.registerAgentPacketDelay = registerAgentPacketDelay;
         this.timeoutMillis = timeoutMillis;
-    }
+	}
 
     public Timer getChannelTimer() {
         return channelTimer;
@@ -80,15 +120,17 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
             logger.debug("channelOpen() state:{} {}", state.getString(), channel);
         }
         this.channel = channel;
-
     }
 
     public void open() {
-        logger.info("open() change state=RUN");
-        if (!state.changeRun()) {
+        logger.info("open() change state=RUN_WITHOUT_REGISTER");
+        if (!state.changeRunWithoutRegister()) {
             throw new IllegalStateException("invalid open state:" + state.getString());
         }
-
+ 
+        // 처음에 쏘고 Timer에 걸어놓음
+        sendRegisterAgentPacket();
+        registerRegisterAgentPacketTask();
     }
 
     @Override
@@ -103,6 +145,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
             logger.debug("channelConnected() state:{} {}", state.getString(), channel);
         }
         registerPing();
+       
     }
 
     private void registerPing() {
@@ -138,6 +181,53 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         write.addListener(pingWriteFailFutureListener);
     }
 
+    private class RegisterAgentPacketTask implements TimerTask {
+
+		@Override
+		public void run(Timeout timeout) throws Exception {
+			if (timeout.isCancelled()) {
+				newRegisterAgentPacketTimeout(this);
+				return;
+			}
+			if (isClosed()) {
+				return;
+			}
+			
+			if (state.getState() == State.RUN_WITHOUT_REGISTER) {
+				sendRegisterAgentPacket();
+				newRegisterAgentPacketTimeout(this);
+			}
+		}
+    	
+    }
+
+    private void registerRegisterAgentPacketTask() {
+        final RegisterAgentPacketTask task = new RegisterAgentPacketTask();
+        newRegisterAgentPacketTimeout(task);
+    }
+    
+    private void newRegisterAgentPacketTimeout(RegisterAgentPacketTask task) {
+        this.channelTimer.newTimeout(task, registerAgentPacketDelay, TimeUnit.MILLISECONDS);
+    }
+
+	void sendRegisterAgentPacket() {
+		if (!isRun()) {
+			return;
+		}
+
+		logger.debug("write RegisterAgentPacket {}", channel);
+
+		byte[] payload;
+		try {
+			Map properties = this.pinpointSocketFactory.getAgentProperties();
+			payload = ControlMessageEnDeconderUtils.encode(properties);
+			ControlRegisterAgentPacket packet = new ControlRegisterAgentPacket(payload);
+			ChannelFuture write = this.channel.write(packet);
+		} catch (ProtocolException e) {
+			logger.warn(e.getMessage(), e);
+		}
+	}
+
     public void sendPing() {
         if (!isRun()) {
             return;
@@ -151,7 +241,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         }
         logger.debug("sendPing success {}", channel);
     }
-
+    
 
 
     public void send(byte[] bytes) {
@@ -276,6 +366,9 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
                 case PacketType.CONTROL_SERVER_CLOSE:
                     messageReceivedServerClosed(e.getChannel());
                     return;
+                case PacketType.CONTROL_REGISTER_AGENT_CONFIRM:
+                    messageReceivedRegisterAgentConfirm((ControlRegisterAgentConfirmPacket)message, e.getChannel());
+                    return;
                 default:
                     logger.warn("unexpectedMessage received:{} address:{}", message, e.getRemoteAddress());
             }
@@ -284,12 +377,45 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         }
     }
 
-    private void messageReceivedServerClosed(Channel channel) {
+	private void messageReceivedServerClosed(Channel channel) {
         logger.info("ServerClosed Packet received. {}", channel);
         // reconnect 상태로 변경한다.
         state.setState(State.RECONNECT);
     }
 
+    private void messageReceivedRegisterAgentConfirm(ControlRegisterAgentConfirmPacket message, Channel channel) {
+        logger.info("RegisterAgentConfirm Packet({}) received. {}", message, channel);
+        // reconnect 상태로 변경한다.
+        
+        boolean isSuccess = handleRegisterAgentConfirm(message.getPayload());
+        
+        if (isSuccess) {
+        	state.changeRun();
+        } 
+	}
+    
+    private boolean handleRegisterAgentConfirm(byte[] payload) {
+    	Map result = null;
+        try {
+			result = (Map) ControlMessageEnDeconderUtils.decode(payload);
+		} catch (ProtocolException e) {
+			logger.warn(e.getMessage(), e);
+		}
+        
+        // TOOO 더이상 메시지를 안보내는게 좋을지 계속 보내는게 좋을지 고민이 필요함
+        if (result == null) {
+        	return false;
+        }
+        
+        int code = MapUtils.get(result, "code", Integer.class, -1);
+        
+        if (code == ControlRegisterAgentConfirmPacket.SUCCESS || code == ControlRegisterAgentConfirmPacket.ALREADY_REGISTER) {
+        	return true;
+        } else {
+        	return false;
+        }
+    }
+	
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
         Throwable cause = e.getCause();
@@ -317,9 +443,9 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
             return;
         } else if(currentState == State.INIT_RECONNECT){
             logger.debug("channelClosed() reconnect fail. state:{} {}", state.getString(currentState), e.getChannel());
-        } else if (currentState == State.RUN || currentState == State.RECONNECT) {
+        } else if (state.isRun(currentState) || currentState == State.RECONNECT) {
             // 여기서 부터 비정상 closed라고 볼수 있다.
-            if (currentState == State.RUN) {
+            if (state.isRun(currentState)) {
                 logger.debug("change state=reconnect");
                 state.setState(State.RECONNECT);
             }
@@ -333,11 +459,9 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         releaseResource();
     }
 
-
-
     private void ensureOpen() {
         final int currentState = state.getState();
-        if (currentState == State.RUN) {
+        if (state.isRun(currentState)) {
             return;
         }
         if (currentState == State.CLOSED) {

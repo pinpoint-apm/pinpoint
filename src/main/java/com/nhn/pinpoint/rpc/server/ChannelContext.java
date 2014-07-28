@@ -1,5 +1,8 @@
 package com.nhn.pinpoint.rpc.server;
 
+import java.util.Collections;
+import java.util.Map;
+
 import org.jboss.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +23,7 @@ public class ChannelContext {
     
     private final PinpointServerSocketState state;
 
-    private AgentProperties agentProperties;
+    private Map agentProperties = Collections.EMPTY_MAP;
 
     public ChannelContext(Channel channel) {
         if (channel == null) {
@@ -84,16 +87,16 @@ public class ChannelContext {
 		state.changeStateUnkownError();
 	}
 	
-	public AgentProperties getAgentProperties() {
+	public Map getAgentProperties() {
 		return agentProperties;
 	}
 
-	public boolean setAgentProperties(AgentProperties agentProperties) {
+	public boolean setAgentProperties(Map agentProperties) {
 		if (agentProperties == null) {
 			return false;
 		}
 		
-		if (this.agentProperties == null) {
+		if (this.agentProperties == Collections.EMPTY_MAP) {
 			this.agentProperties = agentProperties;
 			return true;
 		} 

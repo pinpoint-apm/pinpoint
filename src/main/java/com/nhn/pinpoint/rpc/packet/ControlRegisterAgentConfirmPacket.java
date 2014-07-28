@@ -8,6 +8,11 @@ import org.jboss.netty.buffer.ChannelBuffers;
  */
 public class ControlRegisterAgentConfirmPacket extends ControlPacket {
 
+	public static final int SUCCESS = 0;
+	public static final int ALREADY_REGISTER = 1;
+	public static final int INVALID_PROPERTIES = 2;
+	public static final int ILLEGAL_PROTOCOL = 3;
+	
 	public ControlRegisterAgentConfirmPacket(byte[] payload) {
 		super(payload);
 	}
