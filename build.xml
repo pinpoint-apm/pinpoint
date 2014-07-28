@@ -1,0 +1,33 @@
+<project name="pinpoint_profiler_optional_build" basedir=".">
+    <property environment="env"/>
+
+    <!-- 버전은 맨날 변경해야 됨 -->
+    <property name="pinpoint.version" value="1.0.2-SNAPSHOT"/>
+
+    <property name="pinpoint.profiler.optional.jar" value="pinpoint-profiler-optional-${pinpoint.version}.jar"/>
+
+    <property name="maven.dir" value="${env.M2_HOME}"/>
+
+    <target name="mvn.build.install">
+        <exec executable="${maven.dir}/bin/mvn.bat">
+            <arg value="-Dmaven.test.skip=true"/>
+            <arg value="clean"/>
+            <arg value="install"/>
+        </exec>
+    </target>
+
+    <target name="mvn.build.jar">
+        <exec executable="${maven.dir}/bin/mvn.bat">
+            <arg value="compile"/>
+            <arg value="jar:jar"/>
+        </exec>
+    </target>
+
+
+    <!--<target name="clean" >-->
+    <!--<delete dir="${class.dir}/class/*"/>-->
+    <!--<delete dir="${jar.dir}/jar/*"/>-->
+    <!--<delete dir="${javadoc.dir}/doc/*"/>-->
+    <!--</target>-->
+
+</project>
