@@ -78,7 +78,7 @@ public class PinpointServerSocketState {
 		return "Can not change State(current:" + checkCurrent + " before:" + checkBefore + " next:" + nextState + ")";
 	}
 
-	public PinpointServerSocketStateCode getCurrentState() {
+	public synchronized PinpointServerSocketStateCode getCurrentState() {
 		return currentState;
 	}
 

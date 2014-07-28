@@ -2,7 +2,10 @@ package com.nhn.pinpoint.rpc.server;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -67,8 +70,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     private ServerBootstrap bootstrap;
 
     private Channel serverChannel;
-    private final ChannelGroup channelGroup = new DefaultChannelGroup();
-
+    private final ChannelGroup channelGroup = new DefaultChannelGroup(); 
     private final Timer pingTimer;
 
     private ServerMessageListener messageListener = SimpleLoggingServerMessageListener.LISTENER;
@@ -501,4 +503,72 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         }
         logger.info("sendServerClosedPacket end");
     }
+    
+    public List<ChannelContext> getRegisterAgentChannelContext() {
+    	List<ChannelContext> channelContextList = new ArrayList<ChannelContext>();
+    	
+    	Iterator<Channel> iterator = channelGroup.iterator();
+    	while (iterator.hasNext()) {
+    		Channel channel = iterator.next();
+    		ChannelContext context = getChannelContext(channel);
+    		
+    		if (context.getCurrentStateCode() == PinpointServerSocketStateCode.RUN) {
+    			channelContextList.add(context);
+    		}
+    	}
+    	
+    	return channelContextList;
+    }
+    
+    public ChannelContext getRegisterAgentChannelContext(String applicationName, String agentId, long startTimeMillis) {
+    	if (applicationName == null) {
+    		return null;
+    	}
+    	
+    	if (agentId == null) {
+    		return null;
+    	}
+    	
+    	if (startTimeMillis <= 0) {
+    		return null;
+    	}
+    	
+    	List<ChannelContext> channelContextList = new ArrayList<ChannelContext>();
+    	
+    	Iterator<Channel> iterator = channelGroup.iterator();
+    	while (iterator.hasNext()) {
+    		Channel channel = iterator.next();
+    		ChannelContext context = getChannelContext(channel);
+    		
+    		if (context.getCurrentStateCode() == PinpointServerSocketStateCode.RUN) {
+    			Map agentProperties = context.getAgentProperties();
+    			
+    			if (!applicationName.equals(agentProperties.get(AgentPropertiesType.APPLICATION_NAME))) {
+    				continue;
+    			}
+    			
+    			if (!agentId.equals(agentProperties.get(AgentPropertiesType.AGENT_ID))) {
+    				continue;
+    			}
+
+    			if (startTimeMillis != (Long)agentProperties.get(AgentPropertiesType.START_TIMESTAMP)) {
+    				continue;
+    			}
+    			
+    			channelContextList.add(context);
+    		}
+    	}
+
+    	if (channelContextList.size() == 0) {
+    		return null;
+    	} 
+    	
+    	if (channelContextList.size() == 1) {
+    		return channelContextList.get(0);
+    	} else {
+    		logger.warn("Ambigous Channel Context {}, {}, {} (Valid Agent list={}).", applicationName, agentId, startTimeMillis, channelContextList);
+    		return null;
+    	}
+    }
+    
 }
