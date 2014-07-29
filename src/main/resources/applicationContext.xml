@@ -94,14 +94,17 @@
 
     <bean id="hTable" class="com.nhn.pinpoint.common.hbase.HBaseTables"></bean>
 
+    <!-- 호출자 정보 -->
     <bean id="callerMerge" class="com.nhn.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
         <constructor-arg value="#{hTable.MAP_STATISTICS_CALLEE_CF_VER2_COUNTER}"/>
     </bean>
 
+    <!-- 호출받은 정보 -->
     <bean id="calleeMerge" class="com.nhn.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
         <constructor-arg value="#{hTable.MAP_STATISTICS_CALLER_CF_COUNTER}"/>
     </bean>
 
+    <!-- 자신의 response data -->
     <bean id="selfMerge" class="com.nhn.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
         <constructor-arg value="#{hTable.MAP_STATISTICS_SELF_CF_COUNTER}"/>
     </bean>

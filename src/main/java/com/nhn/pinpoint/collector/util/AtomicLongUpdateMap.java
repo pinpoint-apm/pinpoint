@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class AtomicLongUpdateMap<T> {
     // FIXME 매핑정보 매번 저장하지 말고 30~50초 주기로 한 개만 저장되도록 변경.
+    // OOM 위험성이 있으니 LRU로 변경할지 검토할것?
     private final ConcurrentMap<T, AtomicLong> cache = new ConcurrentHashMap<T, AtomicLong>(1024, 0.75f, 32);
 
 

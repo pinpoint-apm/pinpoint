@@ -133,6 +133,11 @@ public class SpanHandler implements SimpleHandler {
         if (acceptorHost == null) {
             return;
         }
-        hostApplicationMapDao.insert(acceptorHost, span.getApplicationName(), span.getServiceType());
+        final String spanApplicationName = span.getApplicationName();
+        final short spanServiceType = span.getServiceType();
+
+        final String parentApplicationName = span.getParentApplicationName();
+        final short parentServiceType = span.getParentApplicationType();
+        hostApplicationMapDao.insert(acceptorHost, spanApplicationName, spanServiceType, parentApplicationName, parentServiceType);
     }
 }
