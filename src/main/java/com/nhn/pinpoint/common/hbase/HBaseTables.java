@@ -52,6 +52,7 @@ public final class HBaseTables {
 	public static final byte[] MAP_STATISTICS_CALLER_CF_COUNTER = Bytes.toBytes("C");
 
 	public static final String MAP_STATISTICS_CALLEE = "ApplicationMapStatisticsCallee";
+    // 나중에 삭제할것. 관련 코드도같이 제거해도 됨.
 	public static final byte[] MAP_STATISTICS_CALLEE_CF_COUNTER = Bytes.toBytes("C");
     // 신버전의 column Name저장용.
     public static final byte[] MAP_STATISTICS_CALLEE_CF_VER2_COUNTER = Bytes.toBytes("D");
@@ -61,6 +62,10 @@ public final class HBaseTables {
 
 	public static final String HOST_APPLICATION_MAP = "HostApplicationMap";
 	public static final byte[] HOST_APPLICATION_MAP_CF_MAP = Bytes.toBytes("M");
+
+    public static final String HOST_APPLICATION_MAP_VER2 = "HostApplicationMap_Ver2";
+    public static final byte[] HOST_APPLICATION_MAP_VER2_CF_MAP = Bytes.toBytes("M");
+
 
     public static final short STATISTICS_CQ_ERROR_SLOT_NUMBER = -1;
     public static final byte[] STATISTICS_CQ_ERROR_SLOT = Bytes.toBytes(STATISTICS_CQ_ERROR_SLOT_NUMBER);

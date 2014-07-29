@@ -35,6 +35,7 @@ drop 'ApplicationMapStatisticsSelf'
 
 drop 'ApplicationStatistics'
 drop 'HostApplicationMap'
+drop 'HostApplicationMap_Ver2'
 
 
 create 'AgentInfo', { NAME => 'Info' }
@@ -53,7 +54,9 @@ create 'ApplicationMapStatisticsCallee', { NAME => 'C', TTL => 5184000, VERSION 
 create 'ApplicationMapStatisticsSelf', { NAME => 'C', TTL => 5184000, VERSION => 1 }
 
 create 'ApplicationStatistics', { NAME => 'C', TTL => 5184000, VERSION => 1 }
+
 create 'HostApplicationMap', { NAME => 'M', TTL => 5184000, VERSION => 1 }
+create 'HostApplicationMap_Ver2', { NAME => 'M', TTL => 5184000, VERSION => 1 }
 
 list
 EOF
