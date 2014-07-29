@@ -261,11 +261,9 @@ public class ControlPacketServerTest {
 		properties.put(AgentProperties.KEY_HOSTNAME, "hostname");
 		properties.put(AgentProperties.KEY_IP, "ip");
 		properties.put(AgentProperties.KEY_PID, 1111);
-		properties.put(AgentProperties.KEY_PORTS, 65535);
 		properties.put(AgentProperties.KEY_SERVICE_TYPE, 10);
 		properties.put(AgentProperties.KEY_START_TIME_MILLIS, System.currentTimeMillis());
 		properties.put(AgentProperties.KEY_VERSION, "1.0");
-		
 		
 		return properties;
 	}

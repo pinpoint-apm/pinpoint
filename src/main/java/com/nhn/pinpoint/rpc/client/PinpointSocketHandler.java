@@ -384,38 +384,29 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     }
 
     private void messageReceivedRegisterAgentConfirm(ControlRegisterAgentConfirmPacket message, Channel channel) {
-        logger.info("RegisterAgentConfirm Packet({}) received. {}", message, channel);
+    	int code = getRegisterAgnetConfirmPacketCode(message.getPayload());
+
+    	logger.info("RegisterAgentConfirm Packet({}) code={} received. {}", message, code, channel);
         // reconnect 상태로 변경한다.
-        
-        boolean isSuccess = handleRegisterAgentConfirm(message.getPayload());
-        
-        if (isSuccess) {
-        	state.changeRun();
-        } 
-	}
+
+    	if (code == ControlRegisterAgentConfirmPacket.SUCCESS || code == ControlRegisterAgentConfirmPacket.ALREADY_REGISTER) {
+    		state.changeRun();
+        }
+    }
     
-    private boolean handleRegisterAgentConfirm(byte[] payload) {
+    private int getRegisterAgnetConfirmPacketCode(byte[] payload) {
     	Map result = null;
         try {
 			result = (Map) ControlMessageEnDeconderUtils.decode(payload);
 		} catch (ProtocolException e) {
 			logger.warn(e.getMessage(), e);
 		}
-        
-        // TOOO 더이상 메시지를 안보내는게 좋을지 계속 보내는게 좋을지 고민이 필요함
-        if (result == null) {
-        	return false;
-        }
-        
+
         int code = MapUtils.get(result, "code", Integer.class, -1);
-        
-        if (code == ControlRegisterAgentConfirmPacket.SUCCESS || code == ControlRegisterAgentConfirmPacket.ALREADY_REGISTER) {
-        	return true;
-        } else {
-        	return false;
-        }
+
+        return code;
     }
-	
+    
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
         Throwable cause = e.getCause();

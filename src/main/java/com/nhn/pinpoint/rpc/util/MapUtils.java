@@ -16,6 +16,10 @@ public class MapUtils {
 	}
 
 	public static <T> T get(Map map, Object key, Class<T> clazz, T defaultValue) {
+		if (map == null) {
+			return defaultValue;
+		}
+		
 		if (!map.containsKey(key)) {
 			return defaultValue;
 		}
@@ -25,8 +29,7 @@ public class MapUtils {
 			return (T) value;
 		}
 
-		return null;
-		
+		return null;	
 	}
 	
 }

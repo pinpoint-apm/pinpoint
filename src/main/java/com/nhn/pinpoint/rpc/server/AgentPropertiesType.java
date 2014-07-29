@@ -11,7 +11,6 @@ public enum AgentPropertiesType {
 
 	HOSTNAME("hostName", String.class),
 	IP("ip", String.class),
-	PORTS("ports", Integer.class),
 	AGENT_ID("agentId", String.class),
 	APPLICATION_NAME("applicationName", String.class),
 	SERVICE_TYPE("serviceType", Integer.class),

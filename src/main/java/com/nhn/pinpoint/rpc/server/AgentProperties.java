@@ -11,7 +11,6 @@ public class AgentProperties {
 
 	public static final String KEY_HOSTNAME = "hostName";
 	public static final String KEY_IP = "ip";
-	public static final String KEY_PORTS = "ports";
 	public static final String KEY_AGENTID = "agentId";
 	public static final String KEY_APPLICATION_NAME = "applicationName";
 	public static final String KEY_SERVICE_TYPE = "serviceType";
