@@ -48,4 +48,13 @@ public class RpcApplication {
         result = 31 * result + application.hashCode();
         return result;
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("RpcApplication{");
+        sb.append("host='").append(host).append('\'');
+        sb.append(", application=").append(application);
+        sb.append('}');
+        return sb.toString();
+    }
 }
