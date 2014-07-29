@@ -18,7 +18,7 @@ public class LinkData {
     private final Application fromApplication;
     private final Application toApplication;
 
-    private final LinkCallDataMap linkCallDataMap;
+    private LinkCallDataMap linkCallDataMap;
 
 	public LinkData(Application fromApplication, Application toApplication) {
         if (fromApplication == null) {
@@ -61,6 +61,10 @@ public class LinkData {
         }
         this.linkCallDataMap.addCallData(callerAgentId, callerServiceTypeCode, hostname, serviceTypeCode, timestamp, slot, count);
 	}
+
+    public void resetLinkData() {
+        this.linkCallDataMap = new LinkCallDataMap();
+    }
 
 
     public Application getFromApplication() {

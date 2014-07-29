@@ -74,6 +74,13 @@ public class LinkCallData {
         histogram.addCallCount(slot, count);
     }
 
+    public void addCallData(Collection<TimeHistogram> timeHistogramList) {
+        for (TimeHistogram timeHistogram : timeHistogramList) {
+            TimeHistogram histogram = getTimeHistogram(timeHistogram.getTimeStamp());
+            histogram.add(timeHistogram);
+        }
+    }
+
     public void addRawCallData(LinkCallData copyLinkCallData) {
         if (copyLinkCallData == null) {
             throw new NullPointerException("copyLinkCallData must not be null");

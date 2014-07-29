@@ -1,6 +1,8 @@
 package com.nhn.pinpoint.web.applicationmap.rawdata;
 
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.web.applicationmap.histogram.Histogram;
+import com.nhn.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.nhn.pinpoint.web.vo.LinkKey;
 
 import java.util.Collection;
@@ -28,6 +30,12 @@ public class LinkCallDataMap {
 
     public void addCallData(String sourceAgentId, short sourceServiceType, String targetId, short targetServiceType, long timestamp, short slot, long count) {
         addCallData(sourceAgentId, ServiceType.findServiceType(sourceServiceType), targetId, ServiceType.findServiceType(targetServiceType), timestamp, slot, count);
+    }
+
+    public void addCallData(String sourceAgentId, short sourceServiceType, String targetId, short targetServiceType, Collection<TimeHistogram> timeHistogramList) {
+        LinkKey linkKey = createLinkKey(sourceAgentId, ServiceType.findServiceType(sourceServiceType), targetId, ServiceType.findServiceType(targetServiceType));
+        LinkCallData linkCallData = getLinkCallData(linkKey);
+        linkCallData.addCallData(timeHistogramList);
     }
 
     public void addCallData(String sourceAgentId, ServiceType sourceServiceType, String targetId, ServiceType targetServiceType, long timestamp, short slot, long count) {
@@ -76,6 +84,7 @@ public class LinkCallDataMap {
         }
         return targetList;
     }
+
 
     public AgentHistogramList getSourceList() {
         AgentHistogramList sourceList = new AgentHistogramList();
