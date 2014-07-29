@@ -254,7 +254,9 @@ public class LinkDataSelector {
     private void fillEmulationLink(LinkDataDuplexMap linkDataDuplexMap) {
         // TODO 이쪽 부분은 추후에 ui가 들어오면 다시 구현이 필요하다.
         // http://yobi.navercorp.com/Pinpoint/pinpoint-web/issue/193
-        logger.debug("this.emulationLinkMarker{}", this.emulationLinkMarker);
+        // 현재는 역치환 관계 노드를 펼쳐만 놓았고, virtual node를 생성하여 rpc 데이터를 치환하는 로직은 넣지 못했음.
+        // virtual node 생성에 관련해서 추가적으로 많은 고민이 필요할듯하다.
+        logger.debug("this.emulationLinkMarker:{}", this.emulationLinkMarker);
         List<LinkData> emulationLinkDataList = findEmulationLinkData(linkDataDuplexMap);
 
         for (LinkData emulationLinkData : emulationLinkDataList) {
@@ -264,6 +266,12 @@ public class LinkDataSelector {
 
             LinkKey findLinkKey = new LinkKey(emulationLinkData.getFromApplication(), emulationLinkData.getToApplication());
             LinkData targetLinkData = linkDataDuplexMap.getTargetLinkData(findLinkKey);
+            if (targetLinkData == null) {
+                // 예외 케이스가 발생한적이 있는데. 정확한 이벤트를 캡쳐하지 못했음.
+                // 일단 error로 해둔후 문제 케이스를 추가로 잡아야 될듯함.
+                logger.error("targetLinkData not found findLinkKey:{}", findLinkKey);
+                continue;
+            }
 
             // 역치환 데이터 생성. target이 accept한 데이터를 반대로 호출 데이터로 바꾼다.
             LinkCallDataMap targetList = targetLinkData.getLinkCallDataMap();
@@ -271,18 +279,19 @@ public class LinkDataSelector {
 
             LinkCallData beforeLinkCallData = beforeLinkDataList.iterator().next();
             for (LinkCallData agentHistogram : targetList.getLinkDataList()) {
-                Application target = new Application(agentHistogram.getTarget(), agentHistogram.getTargetServiceType());
-//                LinkCallData beforeLinkCallData = findBeforeAgent(beforeLinkDataList, target);
-
-
                 Collection<TimeHistogram> timeHistogramList = agentHistogram.getTimeHistogram();
                 LinkCallDataMap linkCallDataMap = emulationLinkData.getLinkCallDataMap();
 
-                logger.debug("emulationLink {}", beforeLinkCallData);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("emulationLink before:{}", beforeLinkCallData);
+                    logger.debug("emulationLink agent:{}", agentHistogram);
+                    logger.debug("emulationLink link:{}/{} -> {}/{}", agentHistogram.getTarget(), agentHistogram.getTargetServiceType(),
+                            beforeLinkCallData.getTarget(), beforeLinkCallData.getTargetServiceType().getCode());
+                }
 
 //                linkCallDataMap.addCallData(beforeLinkCallData.getSource(), beforeLinkCallData.getSourceServiceType().getCode(),
 //                        beforeLinkCallData.getTarget(), beforeLinkCallData.getTargetServiceType().getCode(), timeHistogramList);
-                linkCallDataMap.addCallData(beforeLinkCallData.getSource(), beforeLinkCallData.getSourceServiceType().getCode(),
+                linkCallDataMap.addCallData(agentHistogram.getTarget(), agentHistogram.getTargetServiceType().getCode(),
                         beforeLinkCallData.getTarget(), beforeLinkCallData.getTargetServiceType().getCode(), timeHistogramList);
             }
 
