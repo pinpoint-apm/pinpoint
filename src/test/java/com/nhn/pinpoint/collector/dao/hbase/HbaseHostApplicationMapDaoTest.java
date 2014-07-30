@@ -4,6 +4,7 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.buffer.FixedBuffer;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
+import com.nhn.pinpoint.common.util.DefaultTimeSlot;
 import com.nhn.pinpoint.common.util.TimeSlot;
 import com.nhn.pinpoint.common.util.TimeUtils;
 import junit.framework.Assert;
@@ -18,11 +19,12 @@ public class HbaseHostApplicationMapDaoTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final TimeSlot timeSlot = new DefaultTimeSlot();
 
     @Test
     public void testCreateRowKey() throws Exception {
         HbaseHostApplicationMapDao dao = new HbaseHostApplicationMapDao();
-        long statisticsRowSlot = TimeSlot.getStatisticsRowSlot(System.currentTimeMillis());
+        long statisticsRowSlot = timeSlot.getTimeSlot(System.currentTimeMillis());
         byte[] parentApps = dao.createRowKey("parentApp", ServiceType.TOMCAT.getCode(), statisticsRowSlot, null);
         logger.debug("rowKey size:{}", parentApps.length);
 

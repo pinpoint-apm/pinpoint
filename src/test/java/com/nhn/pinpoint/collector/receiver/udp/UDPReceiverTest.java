@@ -59,10 +59,10 @@ public class UDPReceiverTest {
     public void socketBufferSize() throws SocketException {
         DatagramSocket datagramSocket = new DatagramSocket();
         int receiveBufferSize = datagramSocket.getReceiveBufferSize();
-        System.out.println(receiveBufferSize);
+        logger.debug("{}", receiveBufferSize);
 
         datagramSocket.setReceiveBufferSize(64*1024*10);
-        System.out.println(datagramSocket.getReceiveBufferSize());
+        logger.debug("{}", datagramSocket.getReceiveBufferSize());
 
         datagramSocket.close();
     }
