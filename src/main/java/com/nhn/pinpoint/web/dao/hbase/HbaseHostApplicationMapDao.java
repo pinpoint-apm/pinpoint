@@ -53,6 +53,9 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     @Autowired
     private RangeFactory rangeFactory;
 
+    @Autowired
+    private TimeSlot timeSlot;
+
 
     @Override
     @Deprecated
@@ -80,8 +83,8 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         if (logger.isDebugEnabled()) {
             logger.debug("scan range:{}", range);
         }
-        long startTime = TimeUtils.reverseTimeMillis(TimeSlot.getStatisticsRowSlot(range.getFrom()));
-        long endTime = TimeUtils.reverseTimeMillis(TimeSlot.getStatisticsRowSlot(range.getTo()) + 1);
+        long startTime = TimeUtils.reverseTimeMillis(timeSlot.getTimeSlot(range.getFrom()));
+        long endTime = TimeUtils.reverseTimeMillis(timeSlot.getTimeSlot(range.getTo()) + 1);
 
         // timestamp가 reverse되었기 때문에 start, end를 바꿔서 조회.
         byte[] startKey = Bytes.toBytes(endTime);
@@ -128,8 +131,8 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
             logger.debug("scan parentApplication:{}, range:{}", parentApplication, range);
         }
         // scanner crate로직의 공통화가 필요함.
-        final long startTime = TimeUtils.reverseTimeMillis(TimeSlot.getStatisticsRowSlot(range.getFrom()));
-        final long endTime = TimeUtils.reverseTimeMillis(TimeSlot.getStatisticsRowSlot(range.getTo()) + 1);
+        final long startTime = TimeUtils.reverseTimeMillis(timeSlot.getTimeSlot(range.getFrom()));
+        final long endTime = TimeUtils.reverseTimeMillis(timeSlot.getTimeSlot(range.getTo()) + 1);
         // timestamp가 reverse되었기 때문에 start, end를 바꿔서 조회.
         final byte[] startKey = createKey(parentApplication, endTime);
         final byte[] endKey = createKey(parentApplication, startTime);

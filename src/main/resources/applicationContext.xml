@@ -59,9 +59,14 @@
         <property name="annotationMapper" ref="annotationMapper"/>
     </bean>
     
-    <bean id="jsonObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper"></bean>
+    <bean id="jsonObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
+    </bean>
 
-    <bean id="rangeFactory" class="com.nhn.pinpoint.web.vo.RangeFactory"></bean>
+    <bean id="rangeFactory" class="com.nhn.pinpoint.web.vo.RangeFactory">
+    </bean>
+
+    <bean id="timeSlot" class="com.nhn.pinpoint.common.util.DefaultTimeSlot">
+    </bean>
 
 	<!--
     <bean id="mailResource" class="com.nhn.pinpoint.web.alarm.resource.MailResourceImpl" />
