@@ -60,7 +60,8 @@
     <bean id="metricRegistry" class="com.codahale.metrics.MetricRegistry">
     </bean>
 
-    <bean id="collectorMetric" class="com.nhn.pinpoint.collector.monitor.CollectorMetric"></bean>
+    <bean id="collectorMetric" class="com.nhn.pinpoint.collector.monitor.CollectorMetric">
+    </bean>
 
 
     <bean id="tcpReceiver" class="com.nhn.pinpoint.collector.receiver.tcp.TCPReceiver">
@@ -92,7 +93,8 @@
     <bean id="jsonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper">
     </bean>
 
-    <bean id="hTable" class="com.nhn.pinpoint.common.hbase.HBaseTables"></bean>
+    <bean id="hTable" class="com.nhn.pinpoint.common.hbase.HBaseTables">
+    </bean>
 
     <!-- 호출자 정보 -->
     <bean id="callerMerge" class="com.nhn.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">

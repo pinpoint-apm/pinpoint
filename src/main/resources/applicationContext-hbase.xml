@@ -31,15 +31,13 @@
 
 
     <bean id="hbaseTemplate" class="com.nhn.pinpoint.common.hbase.HbaseTemplate2">
-        <property name="configuration" ref="hbaseConfiguration"></property>
+        <property name="configuration" ref="hbaseConfiguration"/>
         <!-- hbase pool 사이즈 동적설정이 필요함. -->
-        <property name="poolSize" value="${hbase.hTablePoolSize}"></property>
+        <property name="poolSize" value="${hbase.hTablePoolSize}"/>
     </bean>
 
     <bean id="applicationTraceIndexDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
-        <constructor-arg>
-            <ref bean="applicationTraceIndex"></ref>
-        </constructor-arg>
+        <constructor-arg ref="applicationTraceIndex"/>
     </bean>
 
     <bean id="applicationTraceIndex" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix$OneByteSimpleHash">
@@ -49,9 +47,7 @@
     </bean>
 
     <bean id="traceDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
-        <constructor-arg>
-            <ref bean="traceHasher"></ref>
-        </constructor-arg>
+        <constructor-arg ref="traceHasher"/>
     </bean>
 
     <bean id="traceHasher" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix$OneByteSimpleHash">
@@ -61,9 +57,7 @@
     </bean>
 
     <bean id="agentStatRowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
-        <constructor-arg>
-            <ref bean="agentStatRangeHasher"></ref>
-        </constructor-arg>
+        <constructor-arg ref="agentStatRangeHasher"/>
     </bean>
 
     <bean id="agentStatRangeHasher" class="com.nhn.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
@@ -73,9 +67,7 @@
     </bean>
 
     <bean id="metadataRowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
-        <constructor-arg>
-            <ref bean="metadataRangeHasher"></ref>
-        </constructor-arg>
+        <constructor-arg ref="metadataRangeHasher"/>
     </bean>
 
     <bean id="metadataRangeHasher" class="com.nhn.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
