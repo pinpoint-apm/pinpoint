@@ -41,6 +41,9 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 	private AcceptedTimeService acceptedTimeService;
 
     @Autowired
+    private TimeSlot timeSlot;
+
+    @Autowired
     @Qualifier("calleeMerge")
     private RowKeyMerge rowKeyMerge;
 
@@ -78,7 +81,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
 		// make row key. rowkey는 나.
 		final long acceptedTime = acceptedTimeService.getAcceptedTime();
-		final long rowTimeSlot = TimeSlot.getStatisticsRowSlot(acceptedTime);
+		final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
         final RowKey calleeRowKey = new CallRowKey(calleeApplicationName, calleeServiceType, rowTimeSlot);
 
         final short callerSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(callerServiceType, elapsed, isError);

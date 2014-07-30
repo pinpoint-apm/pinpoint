@@ -110,5 +110,9 @@
     <bean id="selfMerge" class="com.nhn.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
         <constructor-arg value="#{hTable.MAP_STATISTICS_SELF_CF_COUNTER}"/>
     </bean>
+
+
+    <bean id="timeSlot" class="com.nhn.pinpoint.common.util.DefaultTimeSlot">
+    </bean>
     
 </beans>

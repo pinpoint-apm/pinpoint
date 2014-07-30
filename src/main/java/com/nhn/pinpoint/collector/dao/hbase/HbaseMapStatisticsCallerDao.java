@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.collector.dao.hbase;
 
 import static com.nhn.pinpoint.common.hbase.HBaseTables.MAP_STATISTICS_CALLEE;
-import static com.nhn.pinpoint.common.hbase.HBaseTables.MAP_STATISTICS_CALLEE_CF_COUNTER;
 import static com.nhn.pinpoint.common.hbase.HBaseTables.MAP_STATISTICS_CALLEE_CF_VER2_COUNTER;
 
 import com.nhn.pinpoint.collector.dao.MapStatisticsCallerDao;
@@ -45,6 +44,9 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
     @Qualifier("callerMerge")
     private RowKeyMerge rowKeyMerge;
 
+    @Autowired
+    private TimeSlot timeSlot;
+
 	private final boolean useBulk;
 
     private final ConcurrentCounterMap<RowInfo> counter = new ConcurrentCounterMap<RowInfo>();
@@ -77,7 +79,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 
         // make row key. rowkey는 나.
 		final long acceptedTime = acceptedTimeService.getAcceptedTime();
-		final long rowTimeSlot = TimeSlot.getStatisticsRowSlot(acceptedTime);
+		final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
         final RowKey callerRowKey = new CallRowKey(callerApplicationName, callerServiceType, rowTimeSlot);
 
         final short calleeSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(calleeServiceType, elapsed, isError);

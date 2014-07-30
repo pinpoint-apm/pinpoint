@@ -38,6 +38,9 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
 	private AcceptedTimeService acceptedTimeService;
 
     @Autowired
+    private TimeSlot timeSlot;
+
+    @Autowired
     @Qualifier("selfMerge")
     private RowKeyMerge rowKeyMerge;
 
@@ -70,7 +73,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
 
         // make row key. rowkey는 나.
 		final long acceptedTime = acceptedTimeService.getAcceptedTime();
-		final long rowTimeSlot = TimeSlot.getStatisticsRowSlot(acceptedTime);
+		final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
         final RowKey selfRowKey = new CallRowKey(applicationName, applicationServiceType, rowTimeSlot);
 
         final short slotNumber = ApplicationMapStatisticsUtils.getSlotNumber(applicationServiceType, elapsed, isError);

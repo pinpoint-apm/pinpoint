@@ -1,22 +1,17 @@
 package com.nhn.pinpoint.collector.dao.hbase;
 
-import static com.nhn.pinpoint.common.hbase.HBaseTables.HOST_APPLICATION_MAP;
-import static com.nhn.pinpoint.common.hbase.HBaseTables.HOST_APPLICATION_MAP_CF_MAP;
-
 import com.nhn.pinpoint.collector.dao.HostApplicationMapDao;
 import com.nhn.pinpoint.collector.util.AcceptedTimeService;
 import com.nhn.pinpoint.collector.util.AtomicLongUpdateMap;
 import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
 import com.nhn.pinpoint.common.buffer.Buffer;
-import org.apache.hadoop.hbase.util.Bytes;
+import com.nhn.pinpoint.common.util.TimeSlot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
-import com.nhn.pinpoint.common.util.BytesUtils;
-import com.nhn.pinpoint.common.util.TimeSlot;
 import com.nhn.pinpoint.common.util.TimeUtils;
 import org.springframework.stereotype.Repository;
 
@@ -36,6 +31,9 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 	@Autowired
 	private AcceptedTimeService acceptedTimeService;
 
+    @Autowired
+    private TimeSlot timeSlot;
+
 	// FIXME 매핑정보 매번 저장하지 말고 30~50초 주기로 한 개만 저장되도록 변경.
     private final AtomicLongUpdateMap<CacheKey> updater = new AtomicLongUpdateMap<CacheKey>();
 
@@ -52,9 +50,8 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         final long statisticsRowSlot = getSlotTime();
 
         final CacheKey cacheKey = new CacheKey(host, bindApplicationName, bindServiceType, parentApplicationName, parentServiceType);
-        final boolean update = updater.update(cacheKey, statisticsRowSlot);
-        if (update) {
-//            insertHost(host, bindApplicationName, bindServiceType, statisticsRowSlot, parentApplicationName, parentServiceType);
+        final boolean needUpdate = updater.update(cacheKey, statisticsRowSlot);
+        if (needUpdate) {
             insertHostVer2(host, bindApplicationName, bindServiceType, statisticsRowSlot, parentApplicationName, parentServiceType);
         }
 	}
@@ -62,31 +59,10 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     private long getSlotTime() {
         final long acceptedTime = acceptedTimeService.getAcceptedTime();
-        return TimeSlot.getStatisticsRowSlot(acceptedTime);
+        return timeSlot.getTimeSlot(acceptedTime);
     }
 
-    private void insertHost(String host, String bindApplicationName, short bindServiceType, long statisticsRowSlot, String parentApplicationName, short parentServiceType) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Insert host-application map. host={}, bindApplicationName={}, bindServiceType={}, parentApplicationName={}, parentServiceType={}",
-                    host, bindApplicationName, bindServiceType, parentApplicationName, parentServiceType);
-        }
 
-        byte[] rowKey = Bytes.toBytes(TimeUtils.reverseTimeMillis(statisticsRowSlot));
-        byte[] columnName = Bytes.toBytes(host);
-
-        // TODO bindApplication의 size validation check를 해야 함.
-        byte[] applicationNameBytes = Bytes.toBytes(bindApplicationName);
-        byte[] offsetBytes = new byte[HBaseTables.APPLICATION_NAME_MAX_LEN - applicationNameBytes.length];
-        byte[] serviceTypeBytes = Bytes.toBytes(bindServiceType);
-        byte[] value = BytesUtils.concat(applicationNameBytes, offsetBytes, serviceTypeBytes);
-
-        try {
-            hbaseTemplate.put(HOST_APPLICATION_MAP, rowKey, HOST_APPLICATION_MAP_CF_MAP, columnName, value);
-        } catch (Exception ex) {
-            logger.warn("retry one. Caused:{}", ex.getCause(), ex);
-            hbaseTemplate.put(HOST_APPLICATION_MAP, rowKey, HOST_APPLICATION_MAP_CF_MAP, columnName, value);
-        }
-    }
 
     private void insertHostVer2(String host, String bindApplicationName, short bindServiceType, long statisticsRowSlot, String parentApplicationName, short parentServiceType) {
         if (logger.isDebugEnabled()) {
