@@ -64,6 +64,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 //    private final boolean isDebug = logger.isDebugEnabled();
 
+	private static final long DEFAULT_TIMEOUTMILLIS = 3 * 1000;
     private static final int WORKER_COUNT = CpuUtils.workerCount();
 
     private volatile boolean released;
@@ -72,6 +73,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     private Channel serverChannel;
     private final ChannelGroup channelGroup = new DefaultChannelGroup(); 
     private final Timer pingTimer;
+    private final Timer requestManagerTimer;
 
     private ServerMessageListener messageListener = SimpleLoggingServerMessageListener.LISTENER;
     private WriteFailFutureListener traceSendAckWriteFailFutureListener = new  WriteFailFutureListener(logger, "TraceSendAckPacket send fail.", "TraceSendAckPacket send() success.");
@@ -87,6 +89,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         addPipeline(bootstrap);
         this.bootstrap = bootstrap;
         this.pingTimer = TimerFactory.createHashedWheelTimer("PinpointServerSocket-PingTimer", 50, TimeUnit.MILLISECONDS, 512);
+        this.requestManagerTimer = TimerFactory.createHashedWheelTimer("PinpointServerSocket-RequestManager", 50, TimeUnit.MILLISECONDS, 512);
     }
 
     public void setIgnoreAddressList(InetAddress[] ignoreAddressList) {
@@ -397,13 +400,16 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     }
 
     private void prepareChannel(Channel channel) {
-        ChannelContext channelContext = new ChannelContext(channel);
+    	SocketChannel socketChannel = new SocketChannel(channel, DEFAULT_TIMEOUTMILLIS, requestManagerTimer);
+    	ServerStreamChannelManager streamChannelManager = new ServerStreamChannelManager(channel);
+    	
+        ChannelContext channelContext = new ChannelContext(socketChannel, streamChannelManager);
 
         channel.setAttachment(channelContext);
 
         channelGroup.add(channel);
     }
-
+    
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
         logger.error("Unexpected Exception happened. event:{}", e, e.getCause());
@@ -474,6 +480,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         sendServerClosedPacket();
 
         pingTimer.stop();
+        
         if (serverChannel != null) {
             ChannelFuture close = serverChannel.close();
             close.awaitUninterruptibly(3000, TimeUnit.MILLISECONDS);
@@ -483,6 +490,9 @@ public class PinpointServerSocket extends SimpleChannelHandler {
             bootstrap.releaseExternalResources();
             bootstrap = null;
         }
+        
+        // 요청을 죽인뒤에 timer를 제거함
+        requestManagerTimer.stop();
     }
 
     private void sendServerClosedPacket() {
