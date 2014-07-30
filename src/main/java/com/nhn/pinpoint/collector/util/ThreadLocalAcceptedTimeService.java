@@ -13,7 +13,7 @@ public class ThreadLocalAcceptedTimeService implements AcceptedTimeService {
 
     @Override
     public void accept() {
-        local.set(System.currentTimeMillis());
+        accept(System.currentTimeMillis());
     }
 
     @Override
