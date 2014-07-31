@@ -56,7 +56,7 @@ create 'ApplicationMapStatisticsSelf', { NAME => 'C', TTL => 5184000, VERSION =>
 create 'ApplicationStatistics', { NAME => 'C', TTL => 5184000, VERSION => 1 }
 
 create 'HostApplicationMap', { NAME => 'M', TTL => 5184000, VERSION => 1 }
-create 'HostApplicationMap_Ver2', { NAME => 'M', TTL => 5184000, VERSION => 1 }
+create 'HostApplicationMap_Ver2', { NAME => 'M', TTL => 5184000, VERSION => 1 }, {SPLITS=>["\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00","\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00","\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"]}
 
 list
 EOF
