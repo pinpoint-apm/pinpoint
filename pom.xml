@@ -32,7 +32,47 @@
             </exclusions>
         </dependency>
     </dependencies>
-	
+	<profiles>
+        <profile>
+            <id>local</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <env>local</env>
+                <deploy-path>deploy</deploy-path>
+                <compiler-debug>true</compiler-debug>
+            </properties>
+        </profile>
+        
+        <!-- Test server -->
+        <profile>
+            <id>test</id>
+            <properties>
+                <env>test</env>
+                <compiler-debug>true</compiler-debug>
+            </properties>
+        </profile>
+
+        <!-- Development server -->
+        <profile>
+            <id>dev</id>
+            <properties>
+                <env>dev</env>
+                <compiler-debug>true</compiler-debug>
+            </properties>
+        </profile>
+
+        <!-- real server -->
+        <profile>
+            <id>release</id>
+            <properties>
+                <env>release</env>
+                <compiler-debug>false</compiler-debug>
+            </properties>
+        </profile>
+    </profiles>
+    
 	<build>
         <resources>
             <resource>
