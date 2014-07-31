@@ -28,4 +28,10 @@ public final class EmptyCpuLoadMetricSet implements CpuLoadMetricSet {
 		gauges.put(MetricMonitorValues.CPU_LOAD_SYSTEM_SUFFIX, UNSUPPORTED_CPU_LOAD_METRIC_GAUGE);
 		return Collections.unmodifiableMap(gauges);
 	}
+
+	@Override
+	public String toString() {
+		return "Disabled CpuLoadMetricSet";
+	}
+	
 }

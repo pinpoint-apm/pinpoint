@@ -16,7 +16,6 @@ public class CpuLoadMetricSetSelector {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(CpuLoadMetricSetSelector.class);
 
-
 	private static final String OPTIONAL_CPU_LOAD_METRIC_SET_CLASSPATH = "com.nhn.pinpoint.profiler.monitor.codahale.cpu.metric.EnhancedCpuLoadMetricSet";
 	
 	private CpuLoadMetricSetSelector() {
@@ -27,14 +26,22 @@ public class CpuLoadMetricSetSelector {
 		if (canLoadOptionalPackage()) {
 			CpuLoadMetricSet optionalPackage = loadOptionalPackage();
 			if (optionalPackage != null) {
+				if (LOGGER.isInfoEnabled()) {
+					LOGGER.info("loaded : {}", optionalPackage);
+				}
 				return optionalPackage;
 			}
 		}
+		CpuLoadMetricSet cpuLoadMetricSetToLoad = null;
 		if (canLoadDefault()) {
-			return new DefaultCpuLoadMetricSet();
+			cpuLoadMetricSetToLoad = new DefaultCpuLoadMetricSet();
 		} else {
-			return new EmptyCpuLoadMetricSet();
+			cpuLoadMetricSetToLoad = new EmptyCpuLoadMetricSet();
 		}
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("loaded : {}", cpuLoadMetricSetToLoad);
+		}
+		return cpuLoadMetricSetToLoad;
 	}
 	
 	private static CpuLoadMetricSet loadOptionalPackage() {
