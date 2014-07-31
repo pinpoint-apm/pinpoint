@@ -14,18 +14,18 @@ public class JvmUtils {
 	private static final RuntimeMXBean RUNTIME_MX_BEAN = ManagementFactory.getRuntimeMXBean();
 	private static final Map<String, String> SYSTEM_PROPERTIES = RUNTIME_MX_BEAN.getSystemProperties();
 	
+	private static final JvmVersion JVM_VERSION = _getVersion();
+	
 	private JvmUtils() {
 		throw new IllegalAccessError();
 	}
 	
 	public static JvmVersion getVersion() {
-		String javaVersion = getSystemProperty(SystemPropertyKey.JAVA_SPECIFICATION_VERSION);
-		return JvmVersion.getFromVersion(javaVersion);
+		return JVM_VERSION;
 	}
 	
 	public static boolean supportsVersion(JvmVersion other) {
-		String javaVersion = getSystemProperty(SystemPropertyKey.JAVA_SPECIFICATION_VERSION);
-		return JvmVersion.getFromVersion(javaVersion).onOrAfter(other);
+		return JVM_VERSION.onOrAfter(other);
 	}
 	
 	public static String getSystemProperty(SystemPropertyKey systemPropertyKey) {
@@ -34,5 +34,10 @@ public class JvmUtils {
 			return SYSTEM_PROPERTIES.get(key);
 		}
 		return "";
+	}
+	
+	private static JvmVersion _getVersion() {
+		String javaVersion = getSystemProperty(SystemPropertyKey.JAVA_SPECIFICATION_VERSION);
+		return JvmVersion.getFromVersion(javaVersion);
 	}
 }
