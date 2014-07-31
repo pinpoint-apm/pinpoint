@@ -68,4 +68,9 @@ public final class DefaultCpuLoadMetricSet extends AbstractCpuLoadMetricSet {
 		};
 	}
 
+	@Override
+	public String toString() {
+		return "Default CpuLoadMetricSet for Java 1.6";
+	}
+
 }
