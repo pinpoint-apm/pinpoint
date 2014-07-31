@@ -12,6 +12,7 @@ import com.nhn.pinpoint.common.util.TimeUtils;
 import com.nhn.pinpoint.web.service.map.AcceptApplication;
 import com.nhn.pinpoint.web.vo.Range;
 import com.nhn.pinpoint.web.vo.RangeFactory;
+import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -55,6 +56,10 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     @Autowired
     private TimeSlot timeSlot;
+
+    @Autowired
+    @Qualifier("acceptApplicationRowKeyDistributor")
+    private AbstractRowKeyDistributor acceptApplicationRowKeyDistributor;
 
 
     @Override
@@ -106,7 +111,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
             throw new NullPointerException("fromApplication must not be null");
         }
         final Scan scan = createScan(fromApplication, range);
-		final List<List<AcceptApplication>> result = hbaseOperations2.find(HBaseTables.HOST_APPLICATION_MAP_VER2, scan, hostApplicationMapperVer2);
+		final List<List<AcceptApplication>> result = hbaseOperations2.find(HBaseTables.HOST_APPLICATION_MAP_VER2, scan, acceptApplicationRowKeyDistributor, hostApplicationMapperVer2);
 		if (CollectionUtils.isNotEmpty(result)) {
             final Set<AcceptApplication> resultSet = new HashSet<AcceptApplication>();
             for (List<AcceptApplication> resultList : result) {

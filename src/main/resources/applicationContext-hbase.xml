@@ -29,9 +29,7 @@
     </bean>
 
     <bean id="applicationTraceIndexDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
-        <constructor-arg>
-            <ref bean="applicationTraceIndex"></ref>
-        </constructor-arg>
+        <constructor-arg ref="applicationTraceIndex"/>
     </bean>
 
     <bean id="applicationTraceIndex" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix$OneByteSimpleHash">
@@ -41,9 +39,7 @@
     </bean>
 
     <bean id="traceDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
-        <constructor-arg>
-            <ref bean="traceHasher"></ref>
-        </constructor-arg>
+        <constructor-arg ref="traceHasher"/>
     </bean>
 
     <bean id="traceHasher" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix$OneByteSimpleHash">
@@ -54,9 +50,7 @@
 
 
     <bean id="agentStatRowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
-        <constructor-arg>
-            <ref bean="agentStatRangeHasher"></ref>
-        </constructor-arg>
+        <constructor-arg ref="agentStatRangeHasher"/>
     </bean>
 
     <bean id="agentStatRangeHasher" class="com.nhn.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
@@ -66,14 +60,23 @@
     </bean>
 
     <bean id="metadataRowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
-        <constructor-arg>
-            <ref bean="metadataRangeHasher"></ref>
-        </constructor-arg>
+        <constructor-arg ref="metadataRangeHasher"/>
     </bean>
 
     <bean id="metadataRangeHasher" class="com.nhn.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
         <constructor-arg type="int" value="0"/>
         <constructor-arg type="int" value="32"/>
         <constructor-arg type="int" value="8"/>
+    </bean>
+
+    <bean id="acceptApplicationRowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
+        <constructor-arg ref="acceptApplicationHasher"/>
+    </bean>
+
+    <bean id="acceptApplicationHasher" class="com.nhn.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
+        <!-- parentApplicationName 을 해쉬한다. -->
+        <constructor-arg type="int" value="0"/>
+        <constructor-arg type="int" value="24"/>
+        <constructor-arg type="int" value="4"/>
     </bean>
 </beans>
