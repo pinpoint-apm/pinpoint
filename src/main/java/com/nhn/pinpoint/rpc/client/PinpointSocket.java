@@ -31,6 +31,10 @@ public class PinpointSocket {
     public PinpointSocket() {
     	this(new ReconnectStateSocketHandler());
     }
+    
+    public PinpointSocket(MessageListener messageListener) {
+    	this(new ReconnectStateSocketHandler(), messageListener);
+    }
 
     public PinpointSocket(SocketHandler socketHandler) {
     	this(socketHandler, null);

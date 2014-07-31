@@ -215,12 +215,15 @@ public class PinpointSocketFactory {
     }
 
     public PinpointSocket scheduledConnect(String host, int port) {
+    	return scheduledConnect(host, port, null);
+    }
+    
+    public PinpointSocket scheduledConnect(String host, int port, MessageListener messageListener) {
         PinpointSocket pinpointSocket = new PinpointSocket();
         SocketAddress address = new InetSocketAddress(host, port);
         reconnect(pinpointSocket, address);
         return pinpointSocket;
     }
-
 
     SocketHandler getSocketHandler(ChannelFuture connectFuture, SocketAddress address) {
         if (address == null) {

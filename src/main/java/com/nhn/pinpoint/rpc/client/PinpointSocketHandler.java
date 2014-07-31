@@ -134,6 +134,9 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         if (messageListener == null) {
             throw new NullPointerException("messageListener must not be null");
         }
+        
+        logger.info("{} registered Listner({}).", toString(), messageListener);
+        
         this.messageListener = messageListener;
         
         // MessageHandler가 걸릴 경우 Register Agent Packet 전달
