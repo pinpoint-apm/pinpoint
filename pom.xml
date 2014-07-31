@@ -589,6 +589,27 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>copy-optional-package</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>com.nhn.pinpoint</groupId>
+									<artifactId>pinpoint-profiler-optional</artifactId>
+									<version>1.0.2-SNAPSHOT</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>${pinpiont-agent-dir}/lib</outputDirectory>
+							<overWriteReleases>true</overWriteReleases>
+							<overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>copy-bootstrap-dependencies</id>
                         <phase>compile</phase>
                         <goals>
