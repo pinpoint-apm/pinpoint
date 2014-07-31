@@ -17,6 +17,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration("classpath:applicationContext-test.xml")
 public class PreSplitRegionsTest {
 
+    int acceptApplictaion = 4;
     int metaDataNumber = 8;
 	int traceRegionNumber = 64;
 	int traceIndexRegionNumber = 32;
@@ -31,6 +32,27 @@ public class PreSplitRegionsTest {
     @Qualifier("applicationTraceIndexDistributor")
     private AbstractRowKeyDistributor rowKeyDistributor;
 
+
+    @Test
+    public void acceptApplication4() {
+        List<String> regions = new ArrayList<String>();
+
+        OneByteSimpleHash hash = new OneByteSimpleHash(acceptApplictaion);
+        for (byte[] each : hash.getAllPossiblePrefixes()) {
+            byte onebyte = each[0];
+            if (onebyte == 0) {
+                continue;
+            }
+
+            String region = "\\x" +  Integer.toString((onebyte & 0xff) + 0x100, 16).substring(1);
+            for (int i = 0; i < 15; i++) {
+                region += "\\x00";
+            }
+            regions.add(region);
+        }
+
+        printCommand(metadata, regions);
+    }
 
     @Test
     public void metaData8() {

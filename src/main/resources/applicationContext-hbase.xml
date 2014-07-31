@@ -75,4 +75,15 @@
         <constructor-arg type="int" value="32"/>
         <constructor-arg type="int" value="8"/>
     </bean>
+
+    <bean id="acceptApplicationRowKeyDistributor" class="com.sematext.hbase.wd.RowKeyDistributorByHashPrefix">
+        <constructor-arg ref="acceptApplicationHasher"/>
+    </bean>
+
+    <bean id="acceptApplicationHasher" class="com.nhn.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
+        <!-- parentApplicationName 을 해쉬한다. -->
+        <constructor-arg type="int" value="0"/>
+        <constructor-arg type="int" value="24"/>
+        <constructor-arg type="int" value="4"/>
+    </bean>
 </beans>

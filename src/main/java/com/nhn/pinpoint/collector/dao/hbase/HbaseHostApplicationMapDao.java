@@ -6,6 +6,7 @@ import com.nhn.pinpoint.collector.util.AtomicLongUpdateMap;
 import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
 import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.util.TimeSlot;
+import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.TimeUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -33,6 +35,10 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     @Autowired
     private TimeSlot timeSlot;
+
+    @Autowired
+    @Qualifier("acceptApplicationRowKeyDistributor")
+    private AbstractRowKeyDistributor rowKeyDistributor;
 
 	// FIXME 매핑정보 매번 저장하지 말고 30~50초 주기로 한 개만 저장되도록 변경.
     private final AtomicLongUpdateMap<CacheKey> updater = new AtomicLongUpdateMap<CacheKey>();
@@ -91,7 +97,13 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         return buffer.getBuffer();
     }
 
-    byte[] createRowKey(String parentApplicationName, short parentServiceType, long statisticsRowSlot, String parentAgentId) {
+
+    private byte[] createRowKey(String parentApplicationName, short parentServiceType, long statisticsRowSlot, String parentAgentId) {
+        final byte[] rowKey = createRowKey0(parentApplicationName, parentServiceType, statisticsRowSlot, parentAgentId);
+        return  rowKeyDistributor.getDistributedKey(rowKey);
+    }
+
+    byte[] createRowKey0(String parentApplicationName, short parentServiceType, long statisticsRowSlot, String parentAgentId) {
         // 향후 이 뒤에다가 추가적인 스펙이 추가되어 agentId을 붙여도 스캔에 안전한것으로 판단됨. + 근데 parentAgentServiceType도 넣어야 되나???
         final int SIZE = HBaseTables.APPLICATION_NAME_MAX_LEN + 2 + 8;
         final Buffer rowKeyBuffer = new AutomaticBuffer(SIZE);
