@@ -54,12 +54,11 @@ public class BufferedStorage implements Storage {
             }
         }
         if (flushData != null) {
-            if (isDebug) {
-                logger.debug("flush SpanChunk");
-            }
             final SpanChunk spanChunk = spanChunkFactory.create(flushData);
+            if (isDebug) {
+                logger.debug("flush SpanChunk {}", spanChunk);
+            }
             dataSender.send(spanChunk);
-
         }
     }
 
@@ -92,7 +91,7 @@ public class BufferedStorage implements Storage {
             span.setSpanEventList((List) spanEventList);
         }
         if (isDebug) {
-            logger.debug("flush span");
+            logger.debug("flush span {}", span);
         }
         dataSender.send(span);
     }
