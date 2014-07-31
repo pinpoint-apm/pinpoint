@@ -182,25 +182,33 @@ public class PinpointSocketFactory {
     }
 
     public PinpointSocket connect(String host, int port) throws PinpointSocketException {
+    	return connect(host, port, null);
+    }
+    
+    public PinpointSocket connect(String host, int port, MessageListener messageListener) throws PinpointSocketException {
         SocketAddress address = new InetSocketAddress(host, port);
         ChannelFuture connectFuture = bootstrap.connect(address);
         SocketHandler socketHandler = getSocketHandler(connectFuture, address);
 
-        PinpointSocket pinpointSocket = new PinpointSocket(socketHandler);
+        PinpointSocket pinpointSocket = new PinpointSocket(socketHandler, messageListener);
         traceSocket(pinpointSocket);
         return pinpointSocket;
     }
 
     public PinpointSocket reconnect(String host, int port) throws PinpointSocketException {
+    	return reconnect(host, port, null);
+    }
+
+    public PinpointSocket reconnect(String host, int port, MessageListener messageListener) throws PinpointSocketException {
         SocketAddress address = new InetSocketAddress(host, port);
         ChannelFuture connectFuture = bootstrap.connect(address);
         SocketHandler socketHandler = getSocketHandler(connectFuture, address);
 
-        PinpointSocket pinpointSocket = new PinpointSocket(socketHandler);
+        PinpointSocket pinpointSocket = new PinpointSocket(socketHandler, messageListener);
         traceSocket(pinpointSocket);
         return pinpointSocket;
     }
-
+    
     private void traceSocket(PinpointSocket pinpointSocket) {
         // socket을 닫지 않고 clsoe했을 경우의 추적 로직이 필요함
         // 예외 케이스 이므로 나중에 만들어도 될듯.

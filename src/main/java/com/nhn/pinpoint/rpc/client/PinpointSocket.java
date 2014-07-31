@@ -20,6 +20,7 @@ import com.nhn.pinpoint.rpc.ResponseMessage;
 public class PinpointSocket {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final MessageListener messageListener;
 
     private volatile SocketHandler socketHandler;
 
@@ -27,17 +28,27 @@ public class PinpointSocket {
     
     private List<PinpointSocketReconnectEventListener> reconnectEventListeners = new ArrayList<PinpointSocketReconnectEventListener>();
     
+    public PinpointSocket() {
+    	this(new ReconnectStateSocketHandler());
+    }
+
     public PinpointSocket(SocketHandler socketHandler) {
+    	this(socketHandler, null);
+    }
+    
+    public PinpointSocket(SocketHandler socketHandler, MessageListener messageListener) {
         if (socketHandler == null) {
             throw new NullPointerException("socketHandler");
         }
+        this.messageListener = messageListener;
+        if (this.messageListener != null) {
+        	socketHandler.setMessageListener(messageListener);
+        }
         this.socketHandler = socketHandler;
+        
         socketHandler.setPinpointSocket(this);
     }
 
-    public PinpointSocket() {
-        this.socketHandler = new ReconnectStateSocketHandler();
-    }
 
     void reconnectSocketHandler(SocketHandler socketHandler) {
         if (socketHandler == null) {
@@ -49,6 +60,11 @@ public class PinpointSocket {
             return;
         }
         logger.warn("reconnectSocketHandler:{}", socketHandler);
+        
+        // Pinpoint 소켓 내부 객체가 되기전에 listener를 먼저 등록
+        if (this.messageListener != null) {
+        	socketHandler.setMessageListener(messageListener);
+        }
         this.socketHandler = socketHandler;
         
         notifyReconnectEvent();

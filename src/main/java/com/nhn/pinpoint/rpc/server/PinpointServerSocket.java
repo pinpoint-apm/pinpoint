@@ -45,6 +45,7 @@ import com.nhn.pinpoint.rpc.packet.Packet;
 import com.nhn.pinpoint.rpc.packet.PacketType;
 import com.nhn.pinpoint.rpc.packet.PingPacket;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
+import com.nhn.pinpoint.rpc.packet.ResponsePacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.rpc.packet.ServerClosePacket;
 import com.nhn.pinpoint.rpc.packet.StreamClosePacket;
@@ -187,6 +188,11 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 			case PacketType.APPLICATION_REQUEST: {
 				SocketChannel socketChannel = getChannelContext(channel).getSocketChannel();
 				messageListener.handleRequest((RequestPacket) message, socketChannel);
+				return;
+			}
+			case PacketType.APPLICATION_RESPONSE: {
+				SocketChannel socketChannel = getChannelContext(channel).getSocketChannel();
+				socketChannel.receiveResponsePacket((ResponsePacket) message);
 				return;
 			}
 			case PacketType.APPLICATION_STREAM_CREATE:

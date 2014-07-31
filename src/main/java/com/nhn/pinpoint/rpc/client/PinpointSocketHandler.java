@@ -56,6 +56,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     private final State state = new State();
 
     private volatile Channel channel;
+    private volatile MessageListener messageListener = SimpleLoggingMessageListener.LISTENER;
 
     private long timeoutMillis = DEFAULT_TIMEOUTMILLIS;
     private long pingDelay = DEFAULT_PING_DELAY;
@@ -105,7 +106,6 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         this.pinpointSocket = pinpointSocket;
     }
 
-
     public void setConnectSocketAddress(SocketAddress connectSocketAddress) {
         if (connectSocketAddress == null) {
             throw new NullPointerException("connectSocketAddress must not be null");
@@ -127,11 +127,19 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         if (!state.changeRunWithoutRegister()) {
             throw new IllegalStateException("invalid open state:" + state.getString());
         }
- 
-        // 처음에 쏘고 Timer에 걸어놓음
+    }
+    
+    @Override
+	public void setMessageListener(MessageListener messageListener) {
+        if (messageListener == null) {
+            throw new NullPointerException("messageListener must not be null");
+        }
+        this.messageListener = messageListener;
+        
+        // MessageHandler가 걸릴 경우 Register Agent Packet 전달
         sendRegisterAgentPacket();
         registerRegisterAgentPacketTask();
-    }
+	}
 
     @Override
     public void initReconnect() {
@@ -352,10 +360,13 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
                 case PacketType.APPLICATION_RESPONSE:
                     this.requestManager.messageReceived((ResponsePacket) message, e.getChannel());
                     return;
+                    // connector로 들어오는 request 메시지를 핸들링을 해야 함.
                 case PacketType.APPLICATION_REQUEST:
-                    this.requestManager.messageReceived((RequestPacket) message, e.getChannel());
+                	this.messageListener.handleRequest((RequestPacket) message, e.getChannel());
                     return;
-                // connector로 들어오는 request 메시지를 핸들링을 해야 함.
+                case PacketType.APPLICATION_SEND:
+                	this.messageListener.handleSend((SendPacket) message, e.getChannel());
+                    return;
                 case PacketType.APPLICATION_STREAM_CREATE:
                 case PacketType.APPLICATION_STREAM_CLOSE:
                 case PacketType.APPLICATION_STREAM_CREATE_SUCCESS:
@@ -542,4 +553,5 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 	public boolean isConnected() {
 		return this.state.isRun();
 	}
+
 }

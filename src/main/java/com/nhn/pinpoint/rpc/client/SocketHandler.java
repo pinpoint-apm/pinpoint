@@ -34,4 +34,6 @@ public interface SocketHandler {
     void sendPing();
 
     boolean isConnected();
+
+	void setMessageListener(MessageListener messageListener);
 }

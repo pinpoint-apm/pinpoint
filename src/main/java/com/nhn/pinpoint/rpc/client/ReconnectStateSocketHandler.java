@@ -22,6 +22,10 @@ public class ReconnectStateSocketHandler implements SocketHandler {
     public void open() {
         throw new IllegalStateException();
     }
+    
+    @Override
+    public void setMessageListener(MessageListener messageListener) {
+    }
 
     @Override
     public void initReconnect() {

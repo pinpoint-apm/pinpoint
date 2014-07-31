@@ -80,6 +80,10 @@ public class SocketChannel {
         SendPacket send = new SendPacket(payload);
         this.channel.write(send);
     }
+    
+    public void receiveResponsePacket(ResponsePacket packet) {
+    	this.requestManager.messageReceived(packet, channel);
+    }
 
     @Override
     public boolean equals(Object o) {
