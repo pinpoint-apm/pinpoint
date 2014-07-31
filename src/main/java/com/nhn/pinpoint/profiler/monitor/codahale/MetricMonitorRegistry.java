@@ -5,7 +5,6 @@ import com.codahale.metrics.Histogram;
 import com.codahale.metrics.JvmAttributeGaugeSet;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.SharedMetricRegistries;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
@@ -14,6 +13,7 @@ import com.nhn.pinpoint.profiler.monitor.EventRateMonitor;
 import com.nhn.pinpoint.profiler.monitor.HistogramMonitor;
 import com.nhn.pinpoint.profiler.monitor.MonitorName;
 import com.nhn.pinpoint.profiler.monitor.MonitorRegistry;
+import com.nhn.pinpoint.profiler.monitor.codahale.cpu.CpuLoadMetricSetSelector;
 
 /**
  * 모니터링을 위해 <a href="http://metrics.codahale.com/">Codahale</a>
@@ -77,6 +77,13 @@ public class MetricMonitorRegistry implements MonitorRegistry {
             throw new NullPointerException("monitorName must not be null");
         }
         this.delegate.register(monitorName.getName(), new GarbageCollectorMetricSet());
+	}
+	
+	public void registerCpuLoadMonitor(MonitorName monitorName) {
+		if (monitorName == null) {
+			throw new NullPointerException("monitorName must not be null");
+		}
+		this.delegate.register(monitorName.getName(), CpuLoadMetricSetSelector.getCpuLoadMetricSet());
 	}
 	
 	public void registerJvmThreadStatesMonitor(MonitorName monitorName) {

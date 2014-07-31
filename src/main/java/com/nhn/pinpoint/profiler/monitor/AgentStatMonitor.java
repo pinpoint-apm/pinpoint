@@ -4,10 +4,13 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import com.nhn.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
+import com.nhn.pinpoint.profiler.monitor.codahale.cpu.CpuLoadCollector;
 import com.nhn.pinpoint.profiler.monitor.codahale.gc.GarbageCollector;
-import com.nhn.pinpoint.profiler.monitor.codahale.gc.GarbageCollectorFactory;
 import com.nhn.pinpoint.thrift.dto.TAgentStat;
+import com.nhn.pinpoint.thrift.dto.TCpuLoad;
 import com.nhn.pinpoint.thrift.dto.TJvmGc;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +21,7 @@ import com.nhn.pinpoint.profiler.sender.DataSender;
  * AgentStat monitor
  * 
  * @author harebox
- * 
+ * @author hyungil.jeong
  */
 public class AgentStatMonitor {
 
@@ -32,8 +35,9 @@ public class AgentStatMonitor {
 
 	private final DataSender dataSender;
 	private final String agentId;
-    private final GarbageCollectorFactory garbageCollectorFactory;
+    private final AgentStatCollectorFactory agentStatCollectorFactory;
     private final GarbageCollector garbageCollector;
+    private final CpuLoadCollector cpuLoadCollector;
     private final long agentStartTime;
 
     public AgentStatMonitor(DataSender dataSender, String agentId, long startTime) {
@@ -46,8 +50,9 @@ public class AgentStatMonitor {
         this.dataSender = dataSender;
         this.agentId = agentId;
         this.agentStartTime = startTime;
-        this.garbageCollectorFactory = new GarbageCollectorFactory();
-        this.garbageCollector = garbageCollectorFactory.createGarbageCollector();
+        this.agentStatCollectorFactory = new AgentStatCollectorFactory();
+        this.garbageCollector = agentStatCollectorFactory.createGarbageCollector();
+        this.cpuLoadCollector = agentStatCollectorFactory.createCpuLoadCollector();
         if (logger.isInfoEnabled()) {
             logger.info("found : {}", this.garbageCollector);
         }
@@ -86,6 +91,8 @@ public class AgentStatMonitor {
 				agentStat.setTimestamp(System.currentTimeMillis());
                 final TJvmGc gc = garbageCollector.collect();
                 agentStat.setGc(gc);
+                final TCpuLoad cpuLoad = cpuLoadCollector.collectCpuLoad();
+                agentStat.setCpuLoad(cpuLoad);
                 if (isTrace) {
                     logger.trace("collect agentStat:{}", agentStat);
                 }
