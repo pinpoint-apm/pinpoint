@@ -16,6 +16,7 @@ disable 'ApplicationMapStatisticsSelf'
 
 disable 'ApplicationStatistics'
 disable 'HostApplicationMap'
+disable 'HostApplicationMap_Ver2'
 
 
 drop 'AgentInfo'
