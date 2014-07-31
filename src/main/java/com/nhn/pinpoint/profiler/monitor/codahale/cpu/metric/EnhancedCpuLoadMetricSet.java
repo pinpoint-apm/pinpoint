@@ -28,4 +28,9 @@ public class EnhancedCpuLoadMetricSet extends AbstractCpuLoadMetricSet {
 		};
 	}
 
+	@Override
+	public String toString() {
+		return "CpuLoadMetricSet for Java 1.7+";
+	}
+	
 }
