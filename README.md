@@ -22,4 +22,21 @@ Pinpoint-profiler-optional
 </plugin>
 ```
 
-환경변수에 JAVA_7_HOME을 잡아주시거나, maven의 settings.xml에 JAVA_7_HOME property를 설정해주세요.
+환경변수에 JAVA_7_HOME을 잡아주시고, maven의 settings.xml에 JAVA_7_HOME property를 아래와 같이 설정해주세요.
+
+(m2e 플러그인을 사용한 maven 빌드를 하시려면 settings.xml을 수정하셔야 합니다.)
+```xml
+<settings>
+    <profiles>
+      <profile>
+          <id>JAVA_7_HOME</id>
+            <properties>
+              <JAVA_7_HOME>JDK 1.7+ 패스</JAVA_7_HOME>
+            </properties>
+      </profile>
+    </profiles>
+    <activeProfiles>     
+        <activeProfile>JAVA_7_HOME</activeProfile>   
+    </activeProfiles>
+</settings> 
+```
