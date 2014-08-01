@@ -37,7 +37,7 @@ public class TSqlMetaData implements org.apache.thrift.TBase<TSqlMetaData, TSqlM
 
   private static final org.apache.thrift.protocol.TField AGENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("agentId", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField AGENT_START_TIME_FIELD_DESC = new org.apache.thrift.protocol.TField("agentStartTime", org.apache.thrift.protocol.TType.I64, (short)2);
-  private static final org.apache.thrift.protocol.TField HASH_CODE_FIELD_DESC = new org.apache.thrift.protocol.TField("hashCode", org.apache.thrift.protocol.TType.I32, (short)4);
+  private static final org.apache.thrift.protocol.TField SQL_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("sqlId", org.apache.thrift.protocol.TType.I32, (short)4);
   private static final org.apache.thrift.protocol.TField SQL_FIELD_DESC = new org.apache.thrift.protocol.TField("sql", org.apache.thrift.protocol.TType.STRING, (short)5);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
@@ -48,14 +48,14 @@ public class TSqlMetaData implements org.apache.thrift.TBase<TSqlMetaData, TSqlM
 
   private String agentId; // required
   private long agentStartTime; // required
-  private int hashCode; // required
+  private int sqlId; // required
   private String sql; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     AGENT_ID((short)1, "agentId"),
     AGENT_START_TIME((short)2, "agentStartTime"),
-    HASH_CODE((short)4, "hashCode"),
+    SQL_ID((short)4, "sqlId"),
     SQL((short)5, "sql");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
@@ -75,8 +75,8 @@ public class TSqlMetaData implements org.apache.thrift.TBase<TSqlMetaData, TSqlM
           return AGENT_ID;
         case 2: // AGENT_START_TIME
           return AGENT_START_TIME;
-        case 4: // HASH_CODE
-          return HASH_CODE;
+        case 4: // SQL_ID
+          return SQL_ID;
         case 5: // SQL
           return SQL;
         default:
@@ -120,7 +120,7 @@ public class TSqlMetaData implements org.apache.thrift.TBase<TSqlMetaData, TSqlM
 
   // isset id assignments
   private static final int __AGENTSTARTTIME_ISSET_ID = 0;
-  private static final int __HASHCODE_ISSET_ID = 1;
+  private static final int __SQLID_ISSET_ID = 1;
   private byte __isset_bitfield = 0;
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
@@ -129,7 +129,7 @@ public class TSqlMetaData implements org.apache.thrift.TBase<TSqlMetaData, TSqlM
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.AGENT_START_TIME, new org.apache.thrift.meta_data.FieldMetaData("agentStartTime", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.HASH_CODE, new org.apache.thrift.meta_data.FieldMetaData("hashCode", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.SQL_ID, new org.apache.thrift.meta_data.FieldMetaData("sqlId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.SQL, new org.apache.thrift.meta_data.FieldMetaData("sql", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
@@ -143,15 +143,15 @@ public class TSqlMetaData implements org.apache.thrift.TBase<TSqlMetaData, TSqlM
   public TSqlMetaData(
     String agentId,
     long agentStartTime,
-    int hashCode,
+    int sqlId,
     String sql)
   {
     this();
     this.agentId = agentId;
     this.agentStartTime = agentStartTime;
     setAgentStartTimeIsSet(true);
-    this.hashCode = hashCode;
-    setHashCodeIsSet(true);
+    this.sqlId = sqlId;
+    setSqlIdIsSet(true);
     this.sql = sql;
   }
 
@@ -164,7 +164,7 @@ public class TSqlMetaData implements org.apache.thrift.TBase<TSqlMetaData, TSqlM
       this.agentId = other.agentId;
     }
     this.agentStartTime = other.agentStartTime;
-    this.hashCode = other.hashCode;
+    this.sqlId = other.sqlId;
     if (other.isSetSql()) {
       this.sql = other.sql;
     }
@@ -179,8 +179,8 @@ public class TSqlMetaData implements org.apache.thrift.TBase<TSqlMetaData, TSqlM
     this.agentId = null;
     setAgentStartTimeIsSet(false);
     this.agentStartTime = 0;
-    setHashCodeIsSet(false);
-    this.hashCode = 0;
+    setSqlIdIsSet(false);
+    this.sqlId = 0;
     this.sql = null;
   }
 
@@ -229,26 +229,26 @@ public class TSqlMetaData implements org.apache.thrift.TBase<TSqlMetaData, TSqlM
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __AGENTSTARTTIME_ISSET_ID, value);
   }
 
-  public int getHashCode() {
-    return this.hashCode;
+  public int getSqlId() {
+    return this.sqlId;
   }
 
-  public void setHashCode(int hashCode) {
-    this.hashCode = hashCode;
-    setHashCodeIsSet(true);
+  public void setSqlId(int sqlId) {
+    this.sqlId = sqlId;
+    setSqlIdIsSet(true);
   }
 
-  public void unsetHashCode() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __HASHCODE_ISSET_ID);
+  public void unsetSqlId() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __SQLID_ISSET_ID);
   }
 
-  /** Returns true if field hashCode is set (has been assigned a value) and false otherwise */
-  public boolean isSetHashCode() {
-    return EncodingUtils.testBit(__isset_bitfield, __HASHCODE_ISSET_ID);
+  /** Returns true if field sqlId is set (has been assigned a value) and false otherwise */
+  public boolean isSetSqlId() {
+    return EncodingUtils.testBit(__isset_bitfield, __SQLID_ISSET_ID);
   }
 
-  public void setHashCodeIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __HASHCODE_ISSET_ID, value);
+  public void setSqlIdIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __SQLID_ISSET_ID, value);
   }
 
   public String getSql() {
@@ -292,11 +292,11 @@ public class TSqlMetaData implements org.apache.thrift.TBase<TSqlMetaData, TSqlM
       }
       break;
 
-    case HASH_CODE:
+    case SQL_ID:
       if (value == null) {
-        unsetHashCode();
+        unsetSqlId();
       } else {
-        setHashCode((Integer)value);
+        setSqlId((Integer)value);
       }
       break;
 
@@ -319,8 +319,8 @@ public class TSqlMetaData implements org.apache.thrift.TBase<TSqlMetaData, TSqlM
     case AGENT_START_TIME:
       return Long.valueOf(getAgentStartTime());
 
-    case HASH_CODE:
-      return Integer.valueOf(getHashCode());
+    case SQL_ID:
+      return Integer.valueOf(getSqlId());
 
     case SQL:
       return getSql();
@@ -340,8 +340,8 @@ public class TSqlMetaData implements org.apache.thrift.TBase<TSqlMetaData, TSqlM
       return isSetAgentId();
     case AGENT_START_TIME:
       return isSetAgentStartTime();
-    case HASH_CODE:
-      return isSetHashCode();
+    case SQL_ID:
+      return isSetSqlId();
     case SQL:
       return isSetSql();
     }
@@ -379,12 +379,12 @@ public class TSqlMetaData implements org.apache.thrift.TBase<TSqlMetaData, TSqlM
         return false;
     }
 
-    boolean this_present_hashCode = true;
-    boolean that_present_hashCode = true;
-    if (this_present_hashCode || that_present_hashCode) {
-      if (!(this_present_hashCode && that_present_hashCode))
+    boolean this_present_sqlId = true;
+    boolean that_present_sqlId = true;
+    if (this_present_sqlId || that_present_sqlId) {
+      if (!(this_present_sqlId && that_present_sqlId))
         return false;
-      if (this.hashCode != that.hashCode)
+      if (this.sqlId != that.sqlId)
         return false;
     }
 
@@ -433,12 +433,12 @@ public class TSqlMetaData implements org.apache.thrift.TBase<TSqlMetaData, TSqlM
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetHashCode()).compareTo(other.isSetHashCode());
+    lastComparison = Boolean.valueOf(isSetSqlId()).compareTo(other.isSetSqlId());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetHashCode()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.hashCode, other.hashCode);
+    if (isSetSqlId()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.sqlId, other.sqlId);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -485,8 +485,8 @@ public class TSqlMetaData implements org.apache.thrift.TBase<TSqlMetaData, TSqlM
     sb.append(this.agentStartTime);
     first = false;
     if (!first) sb.append(", ");
-    sb.append("hashCode:");
-    sb.append(this.hashCode);
+    sb.append("sqlId:");
+    sb.append(this.sqlId);
     first = false;
     if (!first) sb.append(", ");
     sb.append("sql:");
@@ -557,10 +557,10 @@ public class TSqlMetaData implements org.apache.thrift.TBase<TSqlMetaData, TSqlM
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 4: // HASH_CODE
+          case 4: // SQL_ID
             if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.hashCode = iprot.readI32();
-              struct.setHashCodeIsSet(true);
+              struct.sqlId = iprot.readI32();
+              struct.setSqlIdIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -594,8 +594,8 @@ public class TSqlMetaData implements org.apache.thrift.TBase<TSqlMetaData, TSqlM
       oprot.writeFieldBegin(AGENT_START_TIME_FIELD_DESC);
       oprot.writeI64(struct.agentStartTime);
       oprot.writeFieldEnd();
-      oprot.writeFieldBegin(HASH_CODE_FIELD_DESC);
-      oprot.writeI32(struct.hashCode);
+      oprot.writeFieldBegin(SQL_ID_FIELD_DESC);
+      oprot.writeI32(struct.sqlId);
       oprot.writeFieldEnd();
       if (struct.sql != null) {
         oprot.writeFieldBegin(SQL_FIELD_DESC);
@@ -626,7 +626,7 @@ public class TSqlMetaData implements org.apache.thrift.TBase<TSqlMetaData, TSqlM
       if (struct.isSetAgentStartTime()) {
         optionals.set(1);
       }
-      if (struct.isSetHashCode()) {
+      if (struct.isSetSqlId()) {
         optionals.set(2);
       }
       if (struct.isSetSql()) {
@@ -639,8 +639,8 @@ public class TSqlMetaData implements org.apache.thrift.TBase<TSqlMetaData, TSqlM
       if (struct.isSetAgentStartTime()) {
         oprot.writeI64(struct.agentStartTime);
       }
-      if (struct.isSetHashCode()) {
-        oprot.writeI32(struct.hashCode);
+      if (struct.isSetSqlId()) {
+        oprot.writeI32(struct.sqlId);
       }
       if (struct.isSetSql()) {
         oprot.writeString(struct.sql);
@@ -660,8 +660,8 @@ public class TSqlMetaData implements org.apache.thrift.TBase<TSqlMetaData, TSqlM
         struct.setAgentStartTimeIsSet(true);
       }
       if (incoming.get(2)) {
-        struct.hashCode = iprot.readI32();
-        struct.setHashCodeIsSet(true);
+        struct.sqlId = iprot.readI32();
+        struct.setSqlIdIsSet(true);
       }
       if (incoming.get(3)) {
         struct.sql = iprot.readString();

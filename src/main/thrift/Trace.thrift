@@ -132,7 +132,7 @@ struct TSqlMetaData {
     1: string agentId
     2: i64 agentStartTime
 
-    4: i32 hashCode
+    4: i32 sqlId
     5: string sql;
 }
 
