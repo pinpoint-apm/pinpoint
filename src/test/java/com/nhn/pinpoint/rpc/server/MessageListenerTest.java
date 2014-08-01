@@ -134,55 +134,46 @@ public class MessageListenerTest {
 			ss.close();
 		}
 	}
-
 	
-	private PinpointSocketFactory createPinpointSocketFactory() {
-		PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
-		pinpointSocketFactory.setAgentProperties(getParams());
-
-		return pinpointSocketFactory;
-	}
-
-	// @Test
-	public void pingInternal() throws IOException, InterruptedException {
+	@Test
+	public void serverMessageListenerTest4() throws InterruptedException {
 		PinpointServerSocket ss = new PinpointServerSocket();
 		ss.bind("127.0.0.1", 10234);
-		PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
-		// pinpointSocketFactory.setPingDelay(100);
-		pinpointSocketFactory.setAgentProperties(getParams());
+
+		Map params = getParams();
+		PinpointSocketFactory socketFactory = createPinpointSocketFactory(params);
 
 		try {
-			PinpointSocket socket = pinpointSocketFactory.connect("127.0.0.1", 10234, SimpleLoggingMessageListener.LISTENER);
-			// socket.setMessageListener(SimpleLoggingMessageListener.LISTENER);
+			EchoMessageListener echoMessageListener1 = new EchoMessageListener();
+			
+			// 리스터를 등록한 것만 RegisterAgent 로 나옴
+			PinpointSocket socket = socketFactory.connect("127.0.0.1", 10234, echoMessageListener1);
+			
+			Thread.sleep(500);
 
-			PinpointSocket socket2 = pinpointSocketFactory.connect("127.0.0.1", 10234, SimpleLoggingMessageListener.LISTENER);
-			// socket2.setMessageListener(SimpleLoggingMessageListener.LISTENER);
+			ChannelContext channelContext = ss.getRegisterAgentChannelContext("application", "agent", (Long) params.get(AgentPropertiesType.START_TIMESTAMP.getName()));
+			Assert.assertNotNull(channelContext);
 
-			Thread.sleep(1000);
-
-			List<ChannelContext> channelContextList = ss.getRegisterAgentChannelContext();
-
-			for (ChannelContext channelContext : channelContextList) {
-				Future future = channelContext.getSocketChannel().sendRequestMessage(new byte[0]);
-				future.await();
-				System.out.println(future.getResult());
-
-				channelContext.getSocketChannel().sendRequestMessage(new byte[0]);
-				channelContext.getSocketChannel().sendRequestMessage(new byte[0]);
-				channelContext.getSocketChannel().sendRequestMessage(new byte[0]);
-				channelContext.getSocketChannel().sendRequestMessage(new byte[0]);
-
-				channelContext.getSocketChannel().sendMessage(new byte[0]);
-			}
-
-			Thread.sleep(1000);
+			channelContext = ss.getRegisterAgentChannelContext("application", "agent", (Long) params.get(AgentPropertiesType.START_TIMESTAMP.getName()) + 1);
+			Assert.assertNull(channelContext);
 
 			socket.close();
 		} finally {
-			pinpointSocketFactory.release();
+			socketFactory.release();
 			ss.close();
 		}
+	}
 
+	
+	private PinpointSocketFactory createPinpointSocketFactory() {
+		return createPinpointSocketFactory(getParams());
+	}
+
+	private PinpointSocketFactory createPinpointSocketFactory(Map param) {
+		PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
+		pinpointSocketFactory.setAgentProperties(param);
+
+		return pinpointSocketFactory;
 	}
 
 	private Map getParams() {

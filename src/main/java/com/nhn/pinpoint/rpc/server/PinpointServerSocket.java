@@ -559,15 +559,15 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     		if (context.getCurrentStateCode() == PinpointServerSocketStateCode.RUN) {
     			Map agentProperties = context.getAgentProperties();
     			
-    			if (!applicationName.equals(agentProperties.get(AgentPropertiesType.APPLICATION_NAME))) {
+    			if (!applicationName.equals(agentProperties.get(AgentPropertiesType.APPLICATION_NAME.getName()))) {
     				continue;
     			}
     			
-    			if (!agentId.equals(agentProperties.get(AgentPropertiesType.AGENT_ID))) {
+    			if (!agentId.equals(agentProperties.get(AgentPropertiesType.AGENT_ID.getName()))) {
     				continue;
     			}
 
-    			if (startTimeMillis != (Long)agentProperties.get(AgentPropertiesType.START_TIMESTAMP)) {
+    			if (startTimeMillis != (Long)agentProperties.get(AgentPropertiesType.START_TIMESTAMP.getName())) {
     				continue;
     			}
     			
