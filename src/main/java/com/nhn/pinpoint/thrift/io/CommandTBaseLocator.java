@@ -18,7 +18,7 @@ public class CommandTBaseLocator implements TBaseLocator  {
     private static final Header RESULT_HEADER = createHeader(RESULT);
 
     private static final short THREAD_DUMP = 720;
-    private static final Header THREAD_DUMP_HEADER = createHeader(RESULT);
+    private static final Header THREAD_DUMP_HEADER = createHeader(THREAD_DUMP);
     
     
 	@Override
