@@ -238,7 +238,7 @@ public class DefaultTraceContext implements TraceContext {
             sqlMetaData.setAgentId(getAgentId());
             sqlMetaData.setAgentStartTime(getAgentStartTime());
 
-            sqlMetaData.setHashCode(cachingResult.getId());
+            sqlMetaData.setSqlId(cachingResult.getId());
             sqlMetaData.setSql(normalizedSql);
 
             // 좀더 신뢰성이 있는 tcp connection이 필요함.

@@ -653,45 +653,6 @@
     </reporting>
 
     <profiles>
-        <!-- Copy optional -->
-        <profile>
-            <id>copy-optional</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-		                <groupId>org.apache.maven.plugins</groupId>
-		                <artifactId>maven-dependency-plugin</artifactId>
-		                <executions>
-		                    <execution>
-		                        <id>copy-optional-package</id>
-		                        <phase>package</phase>
-		                        <goals>
-		                            <goal>copy</goal>
-		                        </goals>
-		                        <configuration>
-		                            <artifactItems>
-		                                <artifactItem>
-		                                    <groupId>com.nhn.pinpoint</groupId>
-		                                    <artifactId>pinpoint-profiler-optional</artifactId>
-		                                    <version>1.0.2-SNAPSHOT</version>
-		                                    <type>jar</type>
-		                                    <overWrite>true</overWrite>
-		                                </artifactItem>
-		                            </artifactItems>
-		                            <outputDirectory>${pinpiont-agent-dir}/lib</outputDirectory>
-		                            <overWriteReleases>true</overWriteReleases>
-		                            <overWriteSnapshots>true</overWriteSnapshots>
-		                        </configuration>
-		                    </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    
         <!-- Local server -->
         <profile>
             <id>local</id>
