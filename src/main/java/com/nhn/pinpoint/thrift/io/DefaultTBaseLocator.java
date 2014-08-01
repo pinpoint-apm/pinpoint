@@ -14,6 +14,7 @@ import com.nhn.pinpoint.thrift.dto.TStringMetaData;
 
 /**
  * @author emeroad
+ * @author koo.taejin
  * @author netspider
  */
 class DefaultTBaseLocator implements TBaseLocator {
@@ -105,6 +106,50 @@ class DefaultTBaseLocator implements TBaseLocator {
         throw new TException("Unsupported Type" + tbase.getClass());
     }
 
+    @Override
+    public boolean isSupport(short type) {
+    	try {
+			tBaseLookup(type);
+			return true;
+		} catch (TException e) {
+		}
+    	
+    	return false;
+    }
+
+    @Override
+    public boolean isSupport(Class<? extends TBase> clazz) {
+        if (clazz.equals(TSpan.class)) {
+        	return true;
+        }
+        if (clazz.equals(TSpanChunk.class)) {
+        	return true;
+        }
+        if (clazz.equals(TAgentInfo.class)) {
+        	return true;
+        }
+        if (clazz.equals(TAgentStat.class)) {
+        	return true;
+        }
+        if (clazz.equals(TSqlMetaData.class)) {
+        	return true;
+        }
+        if (clazz.equals(TApiMetaData.class)) {
+        	return true;
+        }
+        if (clazz.equals(TResult.class)) {
+        	return true;
+        }
+        if (clazz.equals(TStringMetaData.class)) {
+        	return true;
+        }
+        if (clazz.equals(NetworkAvailabilityCheckPacket.class)) {
+        	return true;
+        }
+
+        return false;
+    }
+    
     private static Header createHeader(short type) {
         Header header = new Header();
         header.setType(type);
