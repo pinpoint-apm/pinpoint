@@ -74,6 +74,12 @@
         <appender-ref ref="console"/>
     </logger>
 
+    <logger name="com.nhn.pinpoint.collector.handler.AgentStatHandler" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="console"/>
+    </logger>
+
+
     <logger name="com.nhn.pinpoint.web.mapper.ApiMetaDataMapper" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="console"/>
