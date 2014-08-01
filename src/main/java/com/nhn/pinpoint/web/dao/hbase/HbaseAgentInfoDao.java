@@ -70,9 +70,9 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         List<AgentInfoBo> found = hbaseOperations2.find(HBaseTables.AGENTINFO, scan, new ResultsExtractor<List<AgentInfoBo>>() {
 			@Override
 			public List<AgentInfoBo> extractData(ResultScanner results) throws Exception {
-				List<AgentInfoBo> result = new ArrayList<AgentInfoBo>();
+				final List<AgentInfoBo> result = new ArrayList<AgentInfoBo>();
 				int found = 0;
-				for (Result next; (next = results.next()) != null;) {
+                for (Result next : results) {
 					found++;
 					byte[] row = next.getRow();
 					long reverseStartTime = BytesUtils.bytesToLong(row, HBaseTables.AGENT_NAME_MAX_LEN);
@@ -82,11 +82,11 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 					logger.debug("found={}, {}, start={}", found, range, startTime);
 					
 					if (found > 1 && startTime <= range.getFrom()) {
-						logger.debug("stop finding agentinfo.");
+						logger.debug("stop finding agentInfo.");
 						break;
 					}
 					
-					AgentInfoBo agentInfoBo = new AgentInfoBo();
+					final AgentInfoBo agentInfoBo = new AgentInfoBo();
 					agentInfoBo.setAgentId(agentId);
 					agentInfoBo.setStartTime(startTime);
 					agentInfoBo.readValue(value);
