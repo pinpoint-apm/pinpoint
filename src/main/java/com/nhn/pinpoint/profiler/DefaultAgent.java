@@ -2,11 +2,11 @@ package com.nhn.pinpoint.profiler;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
-import com.nhn.pinpoint.profiler.context.storage.BufferedStorageFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,10 +18,10 @@ import com.nhn.pinpoint.bootstrap.logging.PLogger;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.bootstrap.sampler.Sampler;
-import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.Version;
 import com.nhn.pinpoint.exception.PinpointException;
 import com.nhn.pinpoint.profiler.context.DefaultTraceContext;
+import com.nhn.pinpoint.profiler.context.storage.BufferedStorageFactory;
 import com.nhn.pinpoint.profiler.context.storage.SpanStorageFactory;
 import com.nhn.pinpoint.profiler.context.storage.StorageFactory;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
@@ -29,6 +29,7 @@ import com.nhn.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.nhn.pinpoint.profiler.modifier.arcus.ArcusMethodFilter;
 import com.nhn.pinpoint.profiler.monitor.AgentStatMonitor;
+import com.nhn.pinpoint.profiler.receiver.CommandDispatcher;
 import com.nhn.pinpoint.profiler.sampler.SamplerFactory;
 import com.nhn.pinpoint.profiler.sender.DataSender;
 import com.nhn.pinpoint.profiler.sender.EnhancedDataSender;
@@ -37,10 +38,16 @@ import com.nhn.pinpoint.profiler.sender.UdpDataSender;
 import com.nhn.pinpoint.profiler.util.ApplicationServerTypeResolver;
 import com.nhn.pinpoint.profiler.util.PreparedStatementUtils;
 import com.nhn.pinpoint.rpc.ClassPreLoader;
+import com.nhn.pinpoint.rpc.PinpointSocketException;
+import com.nhn.pinpoint.rpc.client.MessageListener;
+import com.nhn.pinpoint.rpc.client.PinpointSocket;
+import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
+import com.nhn.pinpoint.rpc.server.AgentPropertiesType;
 import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 
 /**
  * @author emeroad
+ * @author koo.taejin
  */
 public class DefaultAgent implements Agent {
 
@@ -58,6 +65,9 @@ public class DefaultAgent implements Agent {
 
     private final TraceContext traceContext;
 
+    private final PinpointSocketFactory factory;
+    private final PinpointSocket socket;
+    
     private final EnhancedDataSender tcpDataSender;
     private final DataSender statDataSender;
     private final DataSender spanDataSender;
@@ -114,7 +124,11 @@ public class DefaultAgent implements Agent {
         logger.info("agentInformation:{}", agentInformation);
 
         this.tAgentInfo = createTAgentInfo();
-        this.tcpDataSender = createTcpDataSender();
+        
+        this.factory = createPinpointSocketFactory();
+        this.socket = createPinpointSocket(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorTcpServerPort(), factory);
+        
+        this.tcpDataSender = new TcpDataSender(socket);
         this.spanDataSender = createUdpDataSender(this.profilerConfig.getCollectorUdpSpanServerPort(), "Pinpoint-UdpSpanDataExecutor",
                 this.profilerConfig.getSpanDataSenderWriteQueueSize(), this.profilerConfig.getSpanDataSenderSocketTimeout(), this.profilerConfig.getSpanDataSenderSocketSendBufferSize());
         this.statDataSender = createUdpDataSender(this.profilerConfig.getCollectorUdpServerPort(), "Pinpoint-UdpStatDataExecutor",
@@ -259,8 +273,34 @@ public class DefaultAgent implements Agent {
         return samplerFactory.createSampler(samplingEnable, samplingRate);
     }
 
-    protected EnhancedDataSender createTcpDataSender() {
-        return new TcpDataSender(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorTcpServerPort());
+    protected PinpointSocketFactory createPinpointSocketFactory() {
+    	Map properties =  this.agentInformation.toMap();
+    	properties.put(AgentPropertiesType.IP.getName(), this.profilerConfig.getCollectorServerIp());
+
+    	PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
+        pinpointSocketFactory.setTimeoutMillis(1000 * 5);
+        pinpointSocketFactory.setAgentProperties(properties);
+
+        return pinpointSocketFactory;
+	}
+    
+    protected PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory) {
+    	MessageListener messageListener = new CommandDispatcher();
+    	
+    	PinpointSocket socket = null;
+    	for (int i = 0; i < 3; i++) {
+            try {
+                socket = factory.connect(host, port, messageListener);
+                logger.info("tcp connect success:{}/{}", host, port);
+                return socket;
+            } catch (PinpointSocketException e) {
+                logger.warn("tcp connect fail:{}/{} try reconnect, retryCount:{}", host, port, i);
+            }
+        }
+        logger.warn("change background tcp connect mode  {}/{} ", host, port);
+        socket = factory.scheduledConnect(host, port, messageListener);
+    	
+        return socket;
     }
 
     protected DataSender createUdpDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize) {
@@ -336,8 +376,10 @@ public class DefaultAgent implements Agent {
         this.statDataSender.stop();
         this.tcpDataSender.stop();
 
+        this.socket.close();
+        this.factory.release();
+        
         changeStatus(AgentStatus.STOPPED);
-
     }
 
 }

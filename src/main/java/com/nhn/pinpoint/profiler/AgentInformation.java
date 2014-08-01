@@ -1,7 +1,13 @@
 package com.nhn.pinpoint.profiler;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.nhn.pinpoint.rpc.server.AgentPropertiesType;
+
 /**
  * @author emeroad
+ * @author koo.taejin
  */
 public class AgentInformation {
     private final String agentId;
@@ -62,6 +68,20 @@ public class AgentInformation {
 
     public String getVersion() {
         return version;
+    }
+    
+    public Map toMap() {
+    	Map map = new HashMap();
+    	
+    	map.put(AgentPropertiesType.AGENT_ID.getName(), this.agentId);
+    	map.put(AgentPropertiesType.APPLICATION_NAME.getName(), this.applicationName);
+    	map.put(AgentPropertiesType.HOSTNAME.getName(), this.machineName);
+    	map.put(AgentPropertiesType.PID.getName(), this.pid);
+    	map.put(AgentPropertiesType.SERVICE_TYPE.getName(), this.serverType);
+    	map.put(AgentPropertiesType.START_TIMESTAMP.getName(), this.startTime);
+    	map.put(AgentPropertiesType.VERSION.getName(), this.version);
+    	
+    	return map;
     }
 
     @Override

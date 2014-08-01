@@ -1,28 +1,30 @@
 package com.nhn.pinpoint.profiler.sender;
 
 
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 import org.apache.thrift.TBase;
 import org.jboss.netty.buffer.ChannelBuffers;
+import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timeout;
+import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.rpc.Future;
 import com.nhn.pinpoint.rpc.FutureListener;
-import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.ResponseMessage;
 import com.nhn.pinpoint.rpc.client.PinpointSocket;
-import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
 import com.nhn.pinpoint.rpc.client.PinpointSocketReconnectEventListener;
+import com.nhn.pinpoint.rpc.util.TimerFactory;
 import com.nhn.pinpoint.thrift.dto.TResult;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 
 /**
  * @author emeroad
@@ -37,10 +39,9 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
         ChannelBuffers.buffer(2);
     }
 
-    private final PinpointSocketFactory pinpointSocketFactory;
-    private PinpointSocket socket;
-    private final int connectRetryCount = 3;
-
+    private final PinpointSocket socket;
+    private final Timer timer;
+    
     private final AtomicBoolean fireState = new AtomicBoolean(false);
 
     private final WriteFailFutureListener writeFailFutureListener;
@@ -52,14 +53,17 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
 
     private AsyncQueueingExecutor<Object> executor;
 
-
-    public TcpDataSender(String host, int port) {
-        pinpointSocketFactory = new PinpointSocketFactory();
-        pinpointSocketFactory.setTimeoutMillis(1000 * 5);
-        writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", host, port);
-        connect(host, port);
-
+    public TcpDataSender(PinpointSocket socket) {
+    	this.socket = socket;
+    	this.timer = createTimer();
+    	writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", "host", -1);
         this.executor = createAsyncQueueingExecutor(1024 * 5, "Pinpoint-TcpDataExecutor");
+    }
+    
+    private Timer createTimer() {
+        HashedWheelTimer timer = TimerFactory.createHashedWheelTimer("Pinpoint-DataSender-Timer", 100, TimeUnit.MILLISECONDS, 512);
+        timer.start();
+        return timer;
     }
     
     @Override
@@ -97,8 +101,11 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
     @Override
     public void stop() {
         executor.stop();
-        socket.close();
-        pinpointSocketFactory.release();
+
+        Set<Timeout> stop = timer.stop();
+        if (!stop.isEmpty()) {
+            logger.info("stop Timeout:{}", stop.size());
+        }
     }
 
     @Override
@@ -134,20 +141,6 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
             // 일단 exception 계층이 좀 엉터리라 Exception으로 그냥 잡음.
             logger.warn("tcp send fail. Caused:{}", e.getMessage(), e);
         }
-    }
-
-    private void connect(String host, int port) {
-        for (int i = 0; i < connectRetryCount; i++) {
-            try {
-                this.socket = pinpointSocketFactory.connect(host, port);
-                logger.info("tcp connect success:{}/{}", host, port);
-                return;
-            } catch (PinpointSocketException e) {
-                logger.warn("tcp connect fail:{}/{} try reconnect, retryCount:{}", host, port, i);
-            }
-        }
-        logger.warn("change background tcp connect mode  {}/{} ", host, port);
-        this.socket = pinpointSocketFactory.scheduledConnect(host, port);
     }
 
     private void doSend(byte[] copy) {
@@ -191,7 +184,7 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
         RetryMessage retryMessage = new RetryMessage(retryCount, requestPacket);
         retryQueue.add(retryMessage);
         if (fireTimeout()) {
-            pinpointSocketFactory.newTimeout(new TimerTask() {
+        	timer.newTimeout(new TimerTask() {
                 @Override
                 public void run(Timeout timeout) throws Exception {
                     while(true) {
