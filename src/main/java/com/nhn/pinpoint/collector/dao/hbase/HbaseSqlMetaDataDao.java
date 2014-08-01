@@ -39,7 +39,7 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
             logger.debug("insert:{}", sqlMetaData);
         }
 
-        SqlMetaDataBo sqlMetaDataBo = new SqlMetaDataBo(sqlMetaData.getAgentId(), sqlMetaData.getAgentStartTime(), sqlMetaData.getHashCode());
+        SqlMetaDataBo sqlMetaDataBo = new SqlMetaDataBo(sqlMetaData.getAgentId(), sqlMetaData.getAgentStartTime(), sqlMetaData.getSqlId());
         final byte[] rowKey = getDistributedKey(sqlMetaDataBo.toRowKey());
 
 
