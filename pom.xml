@@ -291,6 +291,13 @@
 		                                    <arg value="${basedir}/generated-sources/thrift" />
 		                                    <arg value="${basedir}/src/main/thrift/Trace.thrift" />
 		                                </exec>
+		                                <exec executable="${thrift.executable}" failonerror="true">
+		                                    <arg value="--gen" />
+		                                    <arg value="java:beans" />
+		                                    <arg value="-o" />
+		                                    <arg value="${basedir}/generated-sources/thrift" />
+		                                    <arg value="${basedir}/src/main/thrift/Command.thrift" />
+		                                </exec>
 		                                <copy todir="src/main/java" overwrite="true">
 		                                    <fileset dir="${basedir}/generated-sources/thrift/gen-javabean" />
 		                                </copy>

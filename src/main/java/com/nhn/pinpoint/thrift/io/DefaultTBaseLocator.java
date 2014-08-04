@@ -14,6 +14,7 @@ import com.nhn.pinpoint.thrift.dto.TStringMetaData;
 
 /**
  * @author emeroad
+ * @author koo.taejin
  * @author netspider
  */
 class DefaultTBaseLocator implements TBaseLocator {
@@ -30,10 +31,8 @@ class DefaultTBaseLocator implements TBaseLocator {
     private static final short AGENT_STAT = 55;
     private static final Header AGENT_STAT_HEADER = createHeader(AGENT_STAT);
 
-
     private static final short SPANCHUNK = 70;
     private static final Header SPANCHUNK_HEADER = createHeader(SPANCHUNK);
-
 
     private static final short SQLMETADATA = 300;
     private static final Header SQLMETADATA_HEADER = createHeader(SQLMETADATA);
@@ -46,8 +45,7 @@ class DefaultTBaseLocator implements TBaseLocator {
 
     private static final short STRINGMETADATA = 330;
     private static final Header STRINGMETADATA_HEADER = createHeader(STRINGMETADATA);
-
-
+    
     @Override
     public TBase<?, ?> tBaseLookup(short type) throws TException {
         switch (type) {
@@ -104,9 +102,54 @@ class DefaultTBaseLocator implements TBaseLocator {
         if (tbase instanceof NetworkAvailabilityCheckPacket) {
             return NETWORK_CHECK_HEADER;
         }
+        
         throw new TException("Unsupported Type" + tbase.getClass());
     }
 
+    @Override
+    public boolean isSupport(short type) {
+    	try {
+			tBaseLookup(type);
+			return true;
+		} catch (TException e) {
+		}
+    	
+    	return false;
+    }
+
+    @Override
+    public boolean isSupport(Class<? extends TBase> clazz) {
+        if (clazz.equals(TSpan.class)) {
+        	return true;
+        }
+        if (clazz.equals(TSpanChunk.class)) {
+        	return true;
+        }
+        if (clazz.equals(TAgentInfo.class)) {
+        	return true;
+        }
+        if (clazz.equals(TAgentStat.class)) {
+        	return true;
+        }
+        if (clazz.equals(TSqlMetaData.class)) {
+        	return true;
+        }
+        if (clazz.equals(TApiMetaData.class)) {
+        	return true;
+        }
+        if (clazz.equals(TResult.class)) {
+        	return true;
+        }
+        if (clazz.equals(TStringMetaData.class)) {
+        	return true;
+        }
+        if (clazz.equals(NetworkAvailabilityCheckPacket.class)) {
+        	return true;
+        }
+
+        return false;
+    }
+    
     private static Header createHeader(short type) {
         Header header = new Header();
         header.setType(type);
