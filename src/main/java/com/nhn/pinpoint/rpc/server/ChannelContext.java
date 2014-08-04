@@ -1,52 +1,96 @@
 package com.nhn.pinpoint.rpc.server;
 
-import org.jboss.netty.channel.Channel;
+import java.util.Collections;
+import java.util.Map;
 
-/**
- * @author emeroad
- */
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ChannelContext {
 
-    private final ServerStreamChannelManager streamChannelManager;
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final Channel channel;
+	private final ServerStreamChannelManager streamChannelManager;
 
-    private final SocketChannel socketChannel;
+	private final SocketChannel socketChannel;
 
-    private volatile boolean closePacketReceived;
+	private final PinpointServerSocketState state;
 
-    public ChannelContext(Channel channel) {
-        if (channel == null) {
-            throw new NullPointerException("channel must not be null");
-        }
-        this.channel = channel;
-        this.socketChannel = new SocketChannel(channel);
-        this.streamChannelManager = new ServerStreamChannelManager(channel);
-    }
+	private Map agentProperties = Collections.EMPTY_MAP;
 
+	public ChannelContext(SocketChannel socketChannel, ServerStreamChannelManager streamChannelManager) {
+		this.socketChannel = socketChannel;
+		this.streamChannelManager = streamChannelManager;
 
-    public ServerStreamChannel getStreamChannel(int channelId) {
-        return streamChannelManager.findStreamChannel(channelId);
-    }
+		this.state = new PinpointServerSocketState();
+	}
 
-    public ServerStreamChannel createStreamChannel(int channelId) {
-        return streamChannelManager.createStreamChannel(channelId);
-    }
+	public ServerStreamChannel getStreamChannel(int channelId) {
+		return streamChannelManager.findStreamChannel(channelId);
+	}
 
+	public ServerStreamChannel createStreamChannel(int channelId) {
+		return streamChannelManager.createStreamChannel(channelId);
+	}
 
-    public void closeAllStreamChannel() {
-        streamChannelManager.closeInternal();
-    }
+	public void closeAllStreamChannel() {
+		streamChannelManager.closeInternal();
+	}
 
-    public SocketChannel getSocketChannel() {
-        return socketChannel;
-    }
+	public SocketChannel getSocketChannel() {
+		return socketChannel;
+	}
 
-    public boolean isClosePacketReceived() {
-        return closePacketReceived;
-    }
+	public PinpointServerSocketStateCode getCurrentStateCode() {
+		return state.getCurrentState();
+	}
 
-    public void closePacketReceived() {
-        this.closePacketReceived = true;
-    }
+	public void changeStateRun() {
+		logger.debug("Channel({}) state will be changed {}.", socketChannel, PinpointServerSocketStateCode.RUN);
+		state.changeStateRun();
+	}
+
+	public void changeStateRunWithoutRegister() {
+		logger.debug("Channel({}) state will be changed {}.", socketChannel, PinpointServerSocketStateCode.RUN_WITHOUT_REGISTER);
+		state.changeStateRunWithoutRegister();
+	}
+
+	public void changeStateBeingShutdown() {
+		logger.debug("Channel({}) state will be changed {}.", socketChannel, PinpointServerSocketStateCode.BEING_SHUTDOWN);
+		state.changeStateBeingShutdown();
+	}
+
+	public void changeStateShutdown() {
+		logger.debug("Channel({}) state will be changed {}.", socketChannel, PinpointServerSocketStateCode.SHUTDOWN);
+		state.changeStateShutdown();
+	}
+
+	public void changeStateUnexpectedShutdown() {
+		logger.debug("Channel({}) state will be changed {}.", socketChannel, PinpointServerSocketStateCode.UNEXPECTED_SHUTDOWN);
+		state.changeStateUnexpectedShutdown();
+	}
+
+	public void changeStateUnkownError() {
+		logger.debug("Channel({}) state will be changed {}.", socketChannel, PinpointServerSocketStateCode.ERROR_UNKOWN);
+		state.changeStateUnkownError();
+	}
+
+	public Map getAgentProperties() {
+		return agentProperties;
+	}
+
+	public boolean setAgentProperties(Map agentProperties) {
+		if (agentProperties == null) {
+			return false;
+		}
+
+		if (this.agentProperties == Collections.EMPTY_MAP) {
+			this.agentProperties = agentProperties;
+			return true;
+		}
+
+		logger.warn("Already Register AgentProperties.({}).", this.agentProperties);
+		return false;
+	}
+
 }

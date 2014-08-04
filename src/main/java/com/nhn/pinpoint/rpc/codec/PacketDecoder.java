@@ -2,6 +2,7 @@ package com.nhn.pinpoint.rpc.codec;
 
 import com.nhn.pinpoint.rpc.client.WriteFailFutureListener;
 import com.nhn.pinpoint.rpc.packet.*;
+
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author emeroad
+ * @author koo.taejin
  */
 public class PacketDecoder extends FrameDecoder {
 
@@ -56,13 +58,18 @@ public class PacketDecoder extends FrameDecoder {
                 readPong(packetType, buffer);
                 // pong 도 그냥 버리자.
                 return null;
+            case PacketType.CONTROL_REGISTER_AGENT:
+            	return readRegisterAgent(packetType, buffer);
+            case PacketType.CONTROL_REGISTER_AGENT_CONFIRM:
+            	return readRegisterAgentConfirm(packetType, buffer);
+            	
         }
         logger.error("invalid packetType received. packetType:{}, channel:{}", packetType, channel);
         channel.close();
         return null;
     }
 
-    private void sendPong(Channel channel) {
+	private void sendPong(Channel channel) {
         // ping에 대한 응답으로 pong은 자동으로 응답한다.
         logger.debug("receive ping. send pong. {}", channel);
         ChannelFuture write = channel.write(PongPacket.PONG_PACKET);
@@ -123,6 +130,12 @@ public class PacketDecoder extends FrameDecoder {
         return StreamClosePacket.readBuffer(packetType, buffer);
     }
 
+    private Object readRegisterAgent(short packetType, ChannelBuffer buffer) {
+        return ControlRegisterAgentPacket.readBuffer(packetType, buffer);
+	}
 
+    private Object readRegisterAgentConfirm(short packetType, ChannelBuffer buffer) {
+        return ControlRegisterAgentConfirmPacket.readBuffer(packetType, buffer);
+	}
 
 }

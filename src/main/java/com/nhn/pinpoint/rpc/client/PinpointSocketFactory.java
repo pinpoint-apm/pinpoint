@@ -1,28 +1,41 @@
 package com.nhn.pinpoint.rpc.client;
 
 
-import com.nhn.pinpoint.common.util.PinpointThreadFactory;
-import com.nhn.pinpoint.rpc.PinpointSocketException;
-import com.nhn.pinpoint.rpc.util.LoggerFactorySetup;
-import com.nhn.pinpoint.rpc.util.TimerFactory;
-import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.channel.*;
-import org.jboss.netty.channel.socket.nio.NioClientBossPool;
-import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
-import org.jboss.netty.channel.socket.nio.NioWorkerPool;
-import org.jboss.netty.util.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.jboss.netty.bootstrap.ClientBootstrap;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
+import org.jboss.netty.channel.ChannelPipeline;
+import org.jboss.netty.channel.ChannelPipelineException;
+import org.jboss.netty.channel.socket.nio.NioClientBossPool;
+import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
+import org.jboss.netty.channel.socket.nio.NioWorkerPool;
+import org.jboss.netty.util.HashedWheelTimer;
+import org.jboss.netty.util.ThreadNameDeterminer;
+import org.jboss.netty.util.Timeout;
+import org.jboss.netty.util.Timer;
+import org.jboss.netty.util.TimerTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.nhn.pinpoint.common.util.PinpointThreadFactory;
+import com.nhn.pinpoint.rpc.PinpointSocketException;
+import com.nhn.pinpoint.rpc.util.CopyUtils;
+import com.nhn.pinpoint.rpc.util.LoggerFactorySetup;
+import com.nhn.pinpoint.rpc.util.TimerFactory;
+
 /**
  * @author emeroad
+ * @author koo.taejin
  */
 public class PinpointSocketFactory {
 
@@ -30,17 +43,25 @@ public class PinpointSocketFactory {
 
     public static final String CONNECT_TIMEOUT_MILLIS = "connectTimeoutMillis";
     private static final int DEFAULT_CONNECT_TIMEOUT = 5000;
+	private static final long DEFAULT_TIMEOUTMILLIS = 3 * 1000;
+    private static final long DEFAULT_PING_DELAY = 60 * 1000 * 5;
+	private static final long DEFAULT_REGISTER_AGENT_PACKET_DELAY = 60 * 1000 * 1;
+
 
     private volatile boolean released;
     private ClientBootstrap bootstrap;
-
+    private Map agentProperties = Collections.EMPTY_MAP;
+    
     private long reconnectDelay = 3 * 1000;
     private final Timer timer;
+
     // 이 값이 짧아야 될 필요가 없음. client에서 server로 가는 핑 주기를 짧게 유지한다고 해서.
     // 연결끊김이 빨랑 디텍트 되는게 아님. 오히려 server에서 client의 ping주기를 짧게 해야 디텍트 속도가 빨라짐.
-    private long pingDelay = 5 * 60 * 1000;
-    private long timeoutMillis = 3 * 1000;
-
+    private long pingDelay = DEFAULT_PING_DELAY;
+    private long registerAgentPacketDelay = DEFAULT_REGISTER_AGENT_PACKET_DELAY;
+    private long timeoutMillis = DEFAULT_TIMEOUTMILLIS;
+    
+    
     static {
         LoggerFactorySetup.setupSlf4jLoggerFactory();
     }
@@ -120,6 +141,17 @@ public class PinpointSocketFactory {
         }
         this.pingDelay = pingDelay;
     }
+    
+	public long getRegisterAgentPacketDelay() {
+		return registerAgentPacketDelay;
+	}
+
+	public void setRegisterAgentPacketDelay(long registerAgentPacketDelay) {
+        if (registerAgentPacketDelay < 0) {
+            throw new IllegalArgumentException("registerAgentPacketDelay cannot be a negative number");
+        }
+ 		this.registerAgentPacketDelay = registerAgentPacketDelay;
+	}
 
     public long getTimeoutMillis() {
         return timeoutMillis;
@@ -150,37 +182,48 @@ public class PinpointSocketFactory {
     }
 
     public PinpointSocket connect(String host, int port) throws PinpointSocketException {
+    	return connect(host, port, null);
+    }
+    
+    public PinpointSocket connect(String host, int port, MessageListener messageListener) throws PinpointSocketException {
         SocketAddress address = new InetSocketAddress(host, port);
         ChannelFuture connectFuture = bootstrap.connect(address);
         SocketHandler socketHandler = getSocketHandler(connectFuture, address);
 
-        PinpointSocket pinpointSocket = new PinpointSocket(socketHandler);
+        PinpointSocket pinpointSocket = new PinpointSocket(socketHandler, messageListener);
         traceSocket(pinpointSocket);
         return pinpointSocket;
     }
 
     public PinpointSocket reconnect(String host, int port) throws PinpointSocketException {
+    	return reconnect(host, port, null);
+    }
+
+    public PinpointSocket reconnect(String host, int port, MessageListener messageListener) throws PinpointSocketException {
         SocketAddress address = new InetSocketAddress(host, port);
         ChannelFuture connectFuture = bootstrap.connect(address);
         SocketHandler socketHandler = getSocketHandler(connectFuture, address);
 
-        PinpointSocket pinpointSocket = new PinpointSocket(socketHandler);
+        PinpointSocket pinpointSocket = new PinpointSocket(socketHandler, messageListener);
         traceSocket(pinpointSocket);
         return pinpointSocket;
     }
-
+    
     private void traceSocket(PinpointSocket pinpointSocket) {
         // socket을 닫지 않고 clsoe했을 경우의 추적 로직이 필요함
         // 예외 케이스 이므로 나중에 만들어도 될듯.
     }
 
     public PinpointSocket scheduledConnect(String host, int port) {
+    	return scheduledConnect(host, port, null);
+    }
+    
+    public PinpointSocket scheduledConnect(String host, int port, MessageListener messageListener) {
         PinpointSocket pinpointSocket = new PinpointSocket();
         SocketAddress address = new InetSocketAddress(host, port);
         reconnect(pinpointSocket, address);
         return pinpointSocket;
     }
-
 
     SocketHandler getSocketHandler(ChannelFuture connectFuture, SocketAddress address) {
         if (address == null) {
@@ -324,4 +367,22 @@ public class PinpointSocketFactory {
         }
 //        stop 뭔가 취소를 해야 되나??
     }
+
+	public Map getAgentProperties() {
+		return agentProperties;
+	}
+
+	public void setAgentProperties(Map agentProperties) {
+		if (agentProperties == null) {
+			return;
+		}
+		
+		if (this.agentProperties != Collections.EMPTY_MAP) {
+			logger.warn("Properties variable alreay registered.");
+			return;
+		}
+		
+		this.agentProperties = Collections.unmodifiableMap(CopyUtils.mediumCopyMap(agentProperties));
+	}
+
 }
