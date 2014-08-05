@@ -13,6 +13,7 @@ public final class DefaultCpuLoadMetricSet extends AbstractCpuLoadMetricSet {
 
 	private static final int UNSUPPORTED = -1;
 	private static final int UNINITIALIZED = -1;
+	private static final Double UNSUPPORTED_CPU_LOAD_METRIC = -1.0D;
 
 	private final RuntimeMXBean runtimeMXBean;
 
@@ -32,7 +33,7 @@ public final class DefaultCpuLoadMetricSet extends AbstractCpuLoadMetricSet {
 				
 				final long cpuTimeNS = operatingSystemMXBean.getProcessCpuTime();
 				if (cpuTimeNS == UNSUPPORTED) {
-					return (double)UNSUPPORTED;
+					return UNSUPPORTED_CPU_LOAD_METRIC;
 				}
 				final long upTimeMS = runtimeMXBean.getUptime();
 				
@@ -63,7 +64,7 @@ public final class DefaultCpuLoadMetricSet extends AbstractCpuLoadMetricSet {
 		return new Gauge<Double>() {
 			@Override
 			public Double getValue() {
-				return operatingSystemMXBean.getSystemLoadAverage();
+				return UNSUPPORTED_CPU_LOAD_METRIC;
 			}
 		};
 	}
