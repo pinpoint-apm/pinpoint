@@ -24,8 +24,8 @@ public final class EmptyCpuLoadMetricSet implements CpuLoadMetricSet {
 	@Override
 	public Map<String, Metric> getMetrics() {
 		final Map<String, Metric> gauges = new HashMap<String, Metric>();
-		gauges.put(MetricMonitorValues.CPU_LOAD_JVM_SUFFIX, UNSUPPORTED_CPU_LOAD_METRIC_GAUGE);
-		gauges.put(MetricMonitorValues.CPU_LOAD_SYSTEM_SUFFIX, UNSUPPORTED_CPU_LOAD_METRIC_GAUGE);
+		gauges.put(MetricMonitorValues.CPU_LOAD_JVM, UNSUPPORTED_CPU_LOAD_METRIC_GAUGE);
+		gauges.put(MetricMonitorValues.CPU_LOAD_SYSTEM, UNSUPPORTED_CPU_LOAD_METRIC_GAUGE);
 		return Collections.unmodifiableMap(gauges);
 	}
 

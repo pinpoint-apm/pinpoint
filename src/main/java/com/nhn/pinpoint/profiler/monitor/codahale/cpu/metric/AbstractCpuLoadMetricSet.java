@@ -27,8 +27,8 @@ public abstract class AbstractCpuLoadMetricSet implements CpuLoadMetricSet {
 	@Override
 	public Map<String, Metric> getMetrics() {
 		final Map<String, Metric> gauges = new HashMap<String, Metric>();
-		gauges.put(MetricMonitorValues.CPU_LOAD_JVM_SUFFIX, getJvmCpuLoadGauge(this.mxBean));
-		gauges.put(MetricMonitorValues.CPU_LOAD_SYSTEM_SUFFIX, getSystemCpuLoadGauge(this.mxBean));
+		gauges.put(MetricMonitorValues.CPU_LOAD_JVM, getJvmCpuLoadGauge(this.mxBean));
+		gauges.put(MetricMonitorValues.CPU_LOAD_SYSTEM, getSystemCpuLoadGauge(this.mxBean));
 		return Collections.unmodifiableMap(gauges);
 	}
 }

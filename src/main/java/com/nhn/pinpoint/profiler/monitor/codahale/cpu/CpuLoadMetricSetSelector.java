@@ -13,37 +13,29 @@ import com.nhn.pinpoint.profiler.monitor.codahale.cpu.metric.EmptyCpuLoadMetricS
  * @author hyungil.jeong
  */
 public class CpuLoadMetricSetSelector {
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(CpuLoadMetricSetSelector.class);
 
 	private static final String OPTIONAL_CPU_LOAD_METRIC_SET_CLASSPATH = "com.nhn.pinpoint.profiler.monitor.codahale.cpu.metric.EnhancedCpuLoadMetricSet";
-	
+
 	private CpuLoadMetricSetSelector() {
 		throw new IllegalAccessError();
 	}
-	
+
 	public static CpuLoadMetricSet getCpuLoadMetricSet() {
 		if (canLoadOptionalPackage()) {
 			CpuLoadMetricSet optionalPackage = loadOptionalPackage();
 			if (optionalPackage != null) {
-				if (LOGGER.isInfoEnabled()) {
-					LOGGER.info("loaded : {}", optionalPackage);
-				}
 				return optionalPackage;
 			}
 		}
-		CpuLoadMetricSet cpuLoadMetricSetToLoad = null;
 		if (canLoadDefault()) {
-			cpuLoadMetricSetToLoad = new DefaultCpuLoadMetricSet();
+			return new DefaultCpuLoadMetricSet();
 		} else {
-			cpuLoadMetricSetToLoad = new EmptyCpuLoadMetricSet();
+			return new EmptyCpuLoadMetricSet();
 		}
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("loaded : {}", cpuLoadMetricSetToLoad);
-		}
-		return cpuLoadMetricSetToLoad;
 	}
-	
+
 	private static CpuLoadMetricSet loadOptionalPackage() {
 		try {
 			@SuppressWarnings("unchecked")
@@ -58,12 +50,12 @@ public class CpuLoadMetricSetSelector {
 		}
 		return null;
 	}
-	
+
 	private static boolean canLoadOptionalPackage() {
 		// JDK 1.7 이상인지만 확인
 		return JvmUtils.supportsVersion(JvmVersion.JAVA_7);
 	}
-	
+
 	private static boolean canLoadDefault() {
 		return JvmUtils.getVersion() != JvmVersion.UNSUPPORTED;
 	}
