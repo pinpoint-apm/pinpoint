@@ -19,11 +19,15 @@ import static com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues.*;
  */
 public class AgentStatCollectorFactory {
     private final MetricMonitorRegistry monitorRegistry;
+    private final GarbageCollector garbageCollector;
+    private final CpuLoadCollector cpuLoadCollector;
     /**
      * Metrics 통계 데이터를 이용하여 가비지 컬렉터 타입을 지정한다.
      */
     public AgentStatCollectorFactory() {
         this.monitorRegistry = createRegistry();
+        this.garbageCollector = createGarbageCollector();
+        this.cpuLoadCollector = createCpuLoadCollector();
     }
 
     private MetricMonitorRegistry createRegistry() {
@@ -38,7 +42,7 @@ public class AgentStatCollectorFactory {
     /**
      * 통계 키를 기반으로 생성
      */
-    public GarbageCollector createGarbageCollector() {
+    private GarbageCollector createGarbageCollector() {
         MetricMonitorRegistry registry = this.monitorRegistry;
         Collection<String> keys = registry.getRegistry().getNames();
         if (keys.contains(JVM_GC_SERIAL_MSC_COUNT)) {
@@ -55,8 +59,16 @@ public class AgentStatCollectorFactory {
         }
     }
     
-    public CpuLoadCollector createCpuLoadCollector() {
+    private CpuLoadCollector createCpuLoadCollector() {
     	return new CpuLoadCollector(this.monitorRegistry);
+    }
+    
+    public GarbageCollector getGarbageCollector() {
+    	return this.garbageCollector;
+    }
+    
+    public CpuLoadCollector getCpuLoadCollector() {
+    	return this.cpuLoadCollector;
     }
 
 }

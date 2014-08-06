@@ -50,12 +50,4 @@ public class CpuLoadCollector {
 	private boolean notCollected(double cpuLoad) {
 		return cpuLoad < 0;
 	}
-
-	public Double collectJvmCpuLoad() {
-		return this.jvmCpuLoadGauge.getValue();
-	}
-
-	public Double collectSystemCpuLoad() {
-		return this.systemCpuLoadGauge.getValue();
-	}
 }
