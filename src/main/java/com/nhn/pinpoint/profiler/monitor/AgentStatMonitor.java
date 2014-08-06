@@ -50,14 +50,17 @@ public class AgentStatMonitor {
         this.dataSender = dataSender;
         this.agentId = agentId;
         this.agentStartTime = startTime;
-        this.agentStatCollectorFactory = new AgentStatCollectorFactory();
-        this.garbageCollector = agentStatCollectorFactory.createGarbageCollector();
-        this.cpuLoadCollector = agentStatCollectorFactory.createCpuLoadCollector();
+        this.agentStatCollectorFactory = createAgentStatCollectorFactory();
+        this.garbageCollector = agentStatCollectorFactory.getGarbageCollector();
+        this.cpuLoadCollector = agentStatCollectorFactory.getCpuLoadCollector();
         if (logger.isInfoEnabled()) {
             logger.info("found : {}", this.garbageCollector);
         }
 	}
-
+    
+    private AgentStatCollectorFactory createAgentStatCollectorFactory() {
+    	return new AgentStatCollectorFactory();
+    }
 
 	public void start() {
 		CollectJob job = new CollectJob();
