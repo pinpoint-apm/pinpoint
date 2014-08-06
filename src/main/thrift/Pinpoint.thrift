@@ -41,10 +41,16 @@ struct TCpuLoad {
 }
 
 struct TAgentStat {
-    1: string               agentId
-    2: i64                  startTimestamp
-    3: i64                  timestamp
+    1: optional string      agentId
+    2: optional i64         startTimestamp
+    3: optional i64         timestamp
     10: optional TJvmGc     gc
     20: optional TCpuLoad   cpuLoad
     200: optional string    metadata    
+}
+
+struct TAgentStatBatch {
+    1: string                   agentId
+    2: i64                      startTimestamp
+    10: list<TAgentStat>        agentStats
 }
