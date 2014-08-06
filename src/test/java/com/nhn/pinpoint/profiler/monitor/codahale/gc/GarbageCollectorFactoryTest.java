@@ -4,9 +4,7 @@ import com.nhn.pinpoint.thrift.dto.TJvmGc;
 
 import org.junit.Test;
 
-import com.nhn.pinpoint.profiler.monitor.MonitorName;
 import com.nhn.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
-import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +15,7 @@ public class GarbageCollectorFactoryTest {
 
 	@Test
 	public void test() {
-        GarbageCollector collector = new AgentStatCollectorFactory().createGarbageCollector();
+        GarbageCollector collector = new AgentStatCollectorFactory().getGarbageCollector();
 
         logger.debug("collector.getType():{}", collector);
         TJvmGc collect1 = collector.collect();
