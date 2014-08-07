@@ -1,6 +1,11 @@
 package com.nhn.pinpoint.profiler.sender;
 
 import com.nhn.pinpoint.thrift.dto.TApiMetaData;
+import com.nhn.pinpoint.profiler.receiver.CommandDispatcher;
+import com.nhn.pinpoint.rpc.PinpointSocketException;
+import com.nhn.pinpoint.rpc.client.MessageListener;
+import com.nhn.pinpoint.rpc.client.PinpointSocket;
+import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.rpc.packet.StreamPacket;
@@ -8,13 +13,16 @@ import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
 import com.nhn.pinpoint.rpc.server.ServerMessageListener;
 import com.nhn.pinpoint.rpc.server.ServerStreamChannel;
 import com.nhn.pinpoint.rpc.server.SocketChannel;
+
 import junit.framework.Assert;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -68,7 +76,10 @@ public class TcpDataSenderTest {
     public void connectAndSend() throws InterruptedException {
         this.sendLatch = new CountDownLatch(2);
 
-        TcpDataSender sender = new TcpDataSender(HOST, PORT);
+        PinpointSocketFactory socketFactory = createPinpointSocketFactory();
+        PinpointSocket socket = createPinpointSocket(HOST, PORT, socketFactory);
+        
+        TcpDataSender sender = new TcpDataSender(socket);
         try {
             sender.send(new TApiMetaData("test", System.currentTimeMillis(), 1, "TestApi"));
             sender.send(new TApiMetaData("test", System.currentTimeMillis(), 1, "TestApi"));
@@ -78,8 +89,42 @@ public class TcpDataSenderTest {
             Assert.assertTrue(received);
         } finally {
             sender.stop();
+            
+            if (socket != null) {
+            	socket.close();
+            }
+            
+            if (socketFactory != null) {
+            	socketFactory.release();
+            }
         }
+    }
+    
+    private PinpointSocketFactory createPinpointSocketFactory() {
+    	PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
+        pinpointSocketFactory.setTimeoutMillis(1000 * 5);
+        pinpointSocketFactory.setAgentProperties(Collections.EMPTY_MAP);
 
+        return pinpointSocketFactory;
+	}
 
+    
+    private PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory) {
+    	MessageListener messageListener = new CommandDispatcher();
+    	
+    	PinpointSocket socket = null;
+    	for (int i = 0; i < 3; i++) {
+            try {
+                socket = factory.connect(host, port, messageListener);
+                logger.info("tcp connect success:{}/{}", host, port);
+                return socket;
+            } catch (PinpointSocketException e) {
+            	logger.warn("tcp connect fail:{}/{} try reconnect, retryCount:{}", host, port, i);
+            }
+        }
+    	logger.warn("change background tcp connect mode  {}/{} ", host, port);
+        socket = factory.scheduledConnect(host, port, messageListener);
+    	
+        return socket;
     }
 }

@@ -1,6 +1,13 @@
 package com.nhn.pinpoint.profiler.sender;
 
+import java.util.Collections;
+
 import com.nhn.pinpoint.thrift.dto.TApiMetaData;
+import com.nhn.pinpoint.profiler.receiver.CommandDispatcher;
+import com.nhn.pinpoint.rpc.PinpointSocketException;
+import com.nhn.pinpoint.rpc.client.MessageListener;
+import com.nhn.pinpoint.rpc.client.PinpointSocket;
+import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.rpc.packet.StreamPacket;
@@ -8,6 +15,9 @@ import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
 import com.nhn.pinpoint.rpc.server.ServerMessageListener;
 import com.nhn.pinpoint.rpc.server.ServerStreamChannel;
 import com.nhn.pinpoint.rpc.server.SocketChannel;
+
+import net.sf.cglib.proxy.Factory;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +62,11 @@ public class TcpDataSenderReconnectTest {
     @Test
     public void connectAndSend() throws InterruptedException {
         PinpointServerSocket old = serverStart();
-        TcpDataSender sender = new TcpDataSender(HOST, PORT);
+
+        PinpointSocketFactory socketFactory = createPinpointSocketFactory();
+        PinpointSocket socket = createPinpointSocket(HOST, PORT, socketFactory);
+
+        TcpDataSender sender = new TcpDataSender(socket);
         Thread.sleep(500);
         old.close();
 
@@ -69,5 +83,35 @@ public class TcpDataSenderReconnectTest {
         sender.stop();
 
         pinpointServerSocket.close();
+        socket.close();
+        socketFactory.release();
+    }
+    
+    private PinpointSocketFactory createPinpointSocketFactory() {
+    	PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
+        pinpointSocketFactory.setTimeoutMillis(1000 * 5);
+        pinpointSocketFactory.setAgentProperties(Collections.EMPTY_MAP);
+
+        return pinpointSocketFactory;
+	}
+
+    
+    private PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory) {
+    	MessageListener messageListener = new CommandDispatcher();
+    	
+    	PinpointSocket socket = null;
+    	for (int i = 0; i < 3; i++) {
+            try {
+                socket = factory.connect(host, port, messageListener);
+                logger.info("tcp connect success:{}/{}", host, port);
+                return socket;
+            } catch (PinpointSocketException e) {
+            	logger.warn("tcp connect fail:{}/{} try reconnect, retryCount:{}", host, port, i);
+            }
+        }
+    	logger.warn("change background tcp connect mode  {}/{} ", host, port);
+        socket = factory.scheduledConnect(host, port, messageListener);
+    	
+        return socket;
     }
 }

@@ -29,11 +29,6 @@ public class MockAgent extends DefaultAgent {
         return super.createUdpDataSender(port, threadName, writeQueueSize, timeout, sendBufferSize);
     }
 
-    @Override
-    protected EnhancedDataSender createTcpDataSender() {
-        return new LoggingDataSender();
-    }
-    
     @Override 
     protected StorageFactory createStorageFactory() {
 		return new ReadableSpanStorageFactory();

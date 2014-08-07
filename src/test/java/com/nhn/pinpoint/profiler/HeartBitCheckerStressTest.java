@@ -1,14 +1,19 @@
 package com.nhn.pinpoint.profiler;
 
+import java.util.Collections;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.nhn.pinpoint.profiler.receiver.CommandDispatcher;
 import com.nhn.pinpoint.profiler.sender.TcpDataSender;
+import com.nhn.pinpoint.rpc.PinpointSocketException;
+import com.nhn.pinpoint.rpc.client.MessageListener;
+import com.nhn.pinpoint.rpc.client.PinpointSocket;
+import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.rpc.packet.StreamPacket;
@@ -19,6 +24,7 @@ import com.nhn.pinpoint.rpc.server.SocketChannel;
 import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 import com.nhn.pinpoint.thrift.dto.TResult;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 
 public class HeartBitCheckerStressTest {
 
@@ -36,7 +42,10 @@ public class HeartBitCheckerStressTest {
 
 		ResponseServerMessageListener serverListener = new ResponseServerMessageListener(requestCount, successCount);
 
-		TcpDataSender sender = new TcpDataSender(HOST, PORT);
+        PinpointSocketFactory socketFactory = createPinpointSocketFactory();
+        PinpointSocket socket = createPinpointSocket(HOST, PORT, socketFactory);
+
+		TcpDataSender sender = new TcpDataSender(socket);
 		HeartBitChecker checker = new HeartBitChecker(sender, 1000L, getAgentInfo());
 
 		long strarTime = System.currentTimeMillis();
@@ -55,6 +64,14 @@ public class HeartBitCheckerStressTest {
 		} finally {
 			if (checker != null) {
 				checker.stop();
+			}
+			
+			if (socket != null) {
+				socket.close();
+			}
+			
+			if (socketFactory != null) {
+				socketFactory.release();
 			}
 		}
 	}
@@ -149,4 +166,32 @@ public class HeartBitCheckerStressTest {
 		}
 	}
 
+	 private PinpointSocketFactory createPinpointSocketFactory() {
+	    	PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
+	        pinpointSocketFactory.setTimeoutMillis(1000 * 5);
+	        pinpointSocketFactory.setAgentProperties(Collections.EMPTY_MAP);
+
+	        return pinpointSocketFactory;
+		}
+
+	    
+	    private PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory) {
+	    	MessageListener messageListener = new CommandDispatcher();
+	    	
+	    	PinpointSocket socket = null;
+	    	for (int i = 0; i < 3; i++) {
+	            try {
+	                socket = factory.connect(host, port, messageListener);
+	                logger.info("tcp connect success:{}/{}", host, port);
+	                return socket;
+	            } catch (PinpointSocketException e) {
+	            	logger.warn("tcp connect fail:{}/{} try reconnect, retryCount:{}", host, port, i);
+	            }
+	        }
+	    	logger.warn("change background tcp connect mode  {}/{} ", host, port);
+	        socket = factory.scheduledConnect(host, port, messageListener);
+	    	
+	        return socket;
+	    }
+	    
 }
