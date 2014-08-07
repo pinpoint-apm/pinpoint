@@ -1,9 +1,19 @@
 package com.nhn.pinpoint.profiler.tools;
 
+import java.util.Collections;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
+import com.nhn.pinpoint.profiler.receiver.CommandDispatcher;
 import com.nhn.pinpoint.profiler.sender.DataSender;
 import com.nhn.pinpoint.profiler.sender.TcpDataSender;
 import com.nhn.pinpoint.profiler.sender.UdpDataSender;
+import com.nhn.pinpoint.rpc.PinpointSocketException;
+import com.nhn.pinpoint.rpc.client.MessageListener;
+import com.nhn.pinpoint.rpc.client.PinpointSocket;
+import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
 
 /**
  * 
@@ -11,6 +21,9 @@ import com.nhn.pinpoint.profiler.sender.UdpDataSender;
  * 
  */
 public class NetworkAvailabilityChecker implements PinpointTools {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(NetworkAvailabilityChecker.class);
+	
 	public static void main(String[] args) {
 		if (args.length != 1) {
 			System.out.println("usage : " + NetworkAvailabilityChecker.class.getSimpleName() + " AGENT_CONFIG_FILE");
@@ -22,6 +35,9 @@ public class NetworkAvailabilityChecker implements PinpointTools {
         DataSender udpSender = null;
         DataSender udpSpanSender = null;
         DataSender tcpSender = null;
+        
+        PinpointSocketFactory socketFactory = null;
+        PinpointSocket socket = null;
 		try {
 			ProfilerConfig profilerConfig = new ProfilerConfig();
 			profilerConfig.readConfigFile(configPath);
@@ -33,7 +49,11 @@ public class NetworkAvailabilityChecker implements PinpointTools {
 
 			udpSender = new UdpDataSender(collector, uPort, "UDP", 10);
 			udpSpanSender = new UdpDataSender(collector, usPort, "UDP-SPAN", 10);
-			tcpSender = new TcpDataSender(collector, tPort);
+			
+			socketFactory = createPinpointSocketFactory();
+			socket = createPinpointSocket(collector, tPort, socketFactory);
+			
+			tcpSender = new TcpDataSender(socket);
 
 			boolean udpSenderResult = udpSender.isNetworkAvailable();
 			boolean udpSpanSenderResult = udpSpanSender.isNetworkAvailable();
@@ -53,6 +73,13 @@ public class NetworkAvailabilityChecker implements PinpointTools {
             closeDataSender(udpSpanSender);
             closeDataSender(tcpSender);
 			System.out.println("END.");
+			
+			if (socket != null) {
+				socket.close();
+			}
+			if (socketFactory != null) {
+				socketFactory.release();
+			}
 		}
     }
 
@@ -61,4 +88,33 @@ public class NetworkAvailabilityChecker implements PinpointTools {
             dataSender.stop();
         }
     }
+    
+    private static PinpointSocketFactory createPinpointSocketFactory() {
+    	PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
+        pinpointSocketFactory.setTimeoutMillis(1000 * 5);
+        pinpointSocketFactory.setAgentProperties(Collections.EMPTY_MAP);
+
+        return pinpointSocketFactory;
+	}
+
+    
+    private static PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory) {
+    	MessageListener messageListener = new CommandDispatcher();
+    	
+    	PinpointSocket socket = null;
+    	for (int i = 0; i < 3; i++) {
+            try {
+                socket = factory.connect(host, port, messageListener);
+                LOGGER.info("tcp connect success:{}/{}", host, port);
+                return socket;
+            } catch (PinpointSocketException e) {
+            	LOGGER.warn("tcp connect fail:{}/{} try reconnect, retryCount:{}", host, port, i);
+            }
+        }
+    	LOGGER.warn("change background tcp connect mode  {}/{} ", host, port);
+        socket = factory.scheduledConnect(host, port, messageListener);
+    	
+        return socket;
+    }
+    
 }
