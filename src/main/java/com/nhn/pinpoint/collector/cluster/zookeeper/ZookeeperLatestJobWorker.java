@@ -15,6 +15,7 @@ import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.nhn.pinpoint.collector.cluster.zookeeper.exception.TimeoutException;
 import com.nhn.pinpoint.collector.cluster.zookeeper.job.DeleteJob;
 import com.nhn.pinpoint.collector.cluster.zookeeper.job.Job;
 import com.nhn.pinpoint.collector.cluster.zookeeper.job.UpdateJob;
@@ -173,6 +174,9 @@ public class ZookeeperLatestJobWorker implements Runnable {
 			return true;
 		} catch (Exception e) {
 			logger.warn(e.getMessage(), e);
+			if (e instanceof TimeoutException) {
+				putJob(channelContext, job);
+			}
 		}
 		
 		return false;
@@ -195,6 +199,9 @@ public class ZookeeperLatestJobWorker implements Runnable {
 			return true;
 		} catch (Exception e) {
 			logger.warn(e.getMessage(), e);
+			if (e instanceof TimeoutException) {
+				putJob(channelContext, job);
+			}
 		}
 		
 		return false;

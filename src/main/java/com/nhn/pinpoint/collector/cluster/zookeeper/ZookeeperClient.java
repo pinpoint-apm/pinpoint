@@ -17,6 +17,7 @@ import com.nhn.pinpoint.collector.cluster.zookeeper.exception.AuthException;
 import com.nhn.pinpoint.collector.cluster.zookeeper.exception.BadOperationException;
 import com.nhn.pinpoint.collector.cluster.zookeeper.exception.ConnectionException;
 import com.nhn.pinpoint.collector.cluster.zookeeper.exception.PinpointZookeeperException;
+import com.nhn.pinpoint.collector.cluster.zookeeper.exception.TimeoutException;
 import com.nhn.pinpoint.collector.cluster.zookeeper.exception.UnknownException;
 
 /**
@@ -176,6 +177,8 @@ public class ZookeeperClient {
 			case NOCHILDRENFOREPHEMERALS:
 			case NOTEMPTY:
 				throw new BadOperationException(keeperException.getMessage(), keeperException);
+			case OPERATIONTIMEOUT:
+				throw new TimeoutException(keeperException.getMessage(), keeperException);
 			default:
 				throw new UnknownException(keeperException.getMessage(), keeperException);
 			}
