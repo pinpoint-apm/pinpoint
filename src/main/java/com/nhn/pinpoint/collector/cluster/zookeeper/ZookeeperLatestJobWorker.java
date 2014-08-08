@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.collector.cluster.zookeeper;
 
-import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,7 +10,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,12 +136,12 @@ public class ZookeeperLatestJobWorker implements Runnable {
 					}
 				}
 			} else {
-				logger.info("LeackDetector Start.");
+				logger.debug("LeackDetector Start.");
 				
 				List<ChannelContext> currentChannelContextList = getRegisteredChannelContextList();
 				for (ChannelContext channelContext : currentChannelContextList) {
 					if (PinpointServerSocketStateCode.isFinished(channelContext.getCurrentStateCode())) {
-						logger.debug("LeackDetector Find Leak ChannelContext={}.", channelContext);
+						logger.info("LeackDetector Find Leak ChannelContext={}.", channelContext);
 						putJob(channelContext, new DeleteJob());
 					}
 				}
@@ -229,7 +227,7 @@ public class ZookeeperLatestJobWorker implements Runnable {
 				waitTime = 1000;
 			}
 			if (waitUnitTimeMillis < 100) {
-				waitUnitTime = 500;
+				waitUnitTime = 100;
 			}
 			
 			long startTimeMillis = System.currentTimeMillis();
