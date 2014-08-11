@@ -33,6 +33,7 @@ import com.nhn.pinpoint.profiler.receiver.CommandDispatcher;
 import com.nhn.pinpoint.profiler.sampler.SamplerFactory;
 import com.nhn.pinpoint.profiler.sender.DataSender;
 import com.nhn.pinpoint.profiler.sender.EnhancedDataSender;
+import com.nhn.pinpoint.profiler.sender.LoggingDataSender;
 import com.nhn.pinpoint.profiler.sender.TcpDataSender;
 import com.nhn.pinpoint.profiler.sender.UdpDataSender;
 import com.nhn.pinpoint.profiler.util.ApplicationServerTypeResolver;
@@ -128,7 +129,8 @@ public class DefaultAgent implements Agent {
         this.factory = createPinpointSocketFactory();
         this.socket = createPinpointSocket(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorTcpServerPort(), factory);
         
-        this.tcpDataSender = new TcpDataSender(socket);
+        this.tcpDataSender = createTcpDataSender(socket);
+        
         this.spanDataSender = createUdpDataSender(this.profilerConfig.getCollectorUdpSpanServerPort(), "Pinpoint-UdpSpanDataExecutor",
                 this.profilerConfig.getSpanDataSenderWriteQueueSize(), this.profilerConfig.getSpanDataSenderSocketTimeout(), this.profilerConfig.getSpanDataSenderSocketSendBufferSize());
         this.statDataSender = createUdpDataSender(this.profilerConfig.getCollectorUdpServerPort(), "Pinpoint-UdpStatDataExecutor",
@@ -303,6 +305,10 @@ public class DefaultAgent implements Agent {
         return socket;
     }
 
+    protected EnhancedDataSender createTcpDataSender(PinpointSocket socket) {
+        return new TcpDataSender(socket);
+    }
+    
     protected DataSender createUdpDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize) {
         return new UdpDataSender(this.profilerConfig.getCollectorServerIp(), port, threadName, writeQueueSize, timeout, sendBufferSize);
     }
@@ -376,8 +382,12 @@ public class DefaultAgent implements Agent {
         this.statDataSender.stop();
         this.tcpDataSender.stop();
 
-        this.socket.close();
-        this.factory.release();
+        if (this.socket != null) {
+        	this.socket.close();
+        }
+        if (this.factory != null) {
+        	this.factory.release();
+        }
         
         changeStatus(AgentStatus.STOPPED);
     }
