@@ -2,6 +2,7 @@ package com.nhn.pinpoint.collector.cluster.zookeeper;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,17 +67,27 @@ public class ZookeeperClusterManager implements SocketChannelStateChangeEventLis
 		}
 		
 		if (PinpointServerSocketStateCode.RUN == stateCode) {
-			byte[] contents = createContents(agentProperties, stateCode);
+			byte[] contents = serializeContents(agentProperties, stateCode);
 			if (contents == null) {
 				return;
 			}
 			
-			UpdateJob job = new UpdateJob(contents);
-			worker.handleUpdate(channelContext, job);
+			UpdateJob job = new UpdateJob(channelContext, contents);
+			worker.handleUpdate(job);
 		} else if (PinpointServerSocketStateCode.isFinished(stateCode)) {
-			DeleteJob job = new DeleteJob();
-			worker.handleDelete(channelContext, job);
+			DeleteJob job = new DeleteJob(channelContext);
+			worker.handleDelete(job);
 		} 
+	}
+	
+	public Map getData(ChannelContext channelContext) {
+		byte[] contents = worker.getData(channelContext);
+		
+		if (contents == null) {
+			return Collections.EMPTY_MAP;
+		}
+		
+		return deserializeContents(contents);
 	}
 
 	private boolean skipAgent(Map agentProperties) {
@@ -90,7 +101,7 @@ public class ZookeeperClusterManager implements SocketChannelStateChangeEventLis
 		return false;
 	}
 	
-	private byte[] createContents(Map agentProperties, PinpointServerSocketStateCode state) {
+	private byte[] serializeContents(Map agentProperties, PinpointServerSocketStateCode state) {
 		Map contents = new HashMap();
 		contents.put(localHost.getHostAddress(), agentProperties);
 		contents.put("state", state.name());
@@ -102,6 +113,16 @@ public class ZookeeperClusterManager implements SocketChannelStateChangeEventLis
 		}
 		
 		return null;
+	}
+
+	private Map deserializeContents(byte[] contents) {
+		try {
+			return objectmapper.readValue(contents, Map.class);
+		} catch (Exception e) {
+			logger.warn(e.getMessage(), e);
+		}
+
+		return Collections.EMPTY_MAP;
 	}
 	
 	public void close() {

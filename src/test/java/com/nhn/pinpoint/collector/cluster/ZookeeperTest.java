@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.zookeeper.KeeperException;
+import org.junit.Assert;
+import org.junit.Test;
 
 import com.nhn.pinpoint.collector.cluster.zookeeper.ZookeeperClusterManager;
 import com.nhn.pinpoint.rpc.server.AgentProperties;
@@ -17,7 +19,7 @@ public class ZookeeperTest {
 	// 테스트만들기가 어려움 일단 가장 단순한 테스트는 로그보고 확인
 	// 이후 추가예정
 	
-//	@Test
+	@Test
 	public void simpleTest1() throws KeeperException, IOException, InterruptedException {
 		try {
 			ChannelContext channelContext = new ChannelContext(null, null);
@@ -25,17 +27,25 @@ public class ZookeeperTest {
 			
 			
 			ZookeeperClusterManager clusterManager = new ZookeeperClusterManager("dev.zk.pinpoint.navercorp.com", 3000);
+
 			clusterManager.eventPerformed(channelContext, PinpointServerSocketStateCode.RUN_WITHOUT_REGISTER);
+			Thread.sleep(1000);
+			Map result = clusterManager.getData(channelContext);
+			Assert.assertNull(getCode(result));
+
 			clusterManager.eventPerformed(channelContext, PinpointServerSocketStateCode.RUN);
+			Thread.sleep(1000);
+			result = clusterManager.getData(channelContext);
+			Assert.assertEquals(PinpointServerSocketStateCode.RUN, getCode(result));
+
 			clusterManager.eventPerformed(channelContext, PinpointServerSocketStateCode.SHUTDOWN);
-			
-			
-			Thread.sleep(5000);
+			Thread.sleep(1000);
+			result = clusterManager.getData(channelContext);
+			Assert.assertNull(getCode(result));
 			
 			clusterManager.close();
 			
-//			clusterManager.eventPerformed(channelContext, PinpointServerSocketStateCode.RUN);
-			Thread.sleep(100000);
+//			Thread.sleep(100000);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -64,6 +74,11 @@ public class ZookeeperTest {
 		
 	}
 
+	private PinpointServerSocketStateCode getCode(Map channelContextData) {
+		String state = (String) channelContextData.get("state");
+		return PinpointServerSocketStateCode.getStateCode(state);
+	}
+	
 	
 	private Map getParams() {
 		Map properties = new HashMap();

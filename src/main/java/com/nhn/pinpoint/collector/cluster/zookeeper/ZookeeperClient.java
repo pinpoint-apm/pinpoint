@@ -27,6 +27,7 @@ public class ZookeeperClient {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+	// 쥬키퍼 클라이언트는 스레드 세이프함
 	private final ZooKeeper zookeeper;
 	private final AtomicBoolean clientState = new AtomicBoolean(true);
 	
@@ -99,6 +100,18 @@ public class ZookeeperClient {
 			} 
 		}
 		return znodePath;
+	}
+	
+	public byte[] getData(String path) throws PinpointZookeeperException, InterruptedException {
+		checkState();
+
+		try {
+			return zookeeper.getData(path, false, null);
+		} catch (KeeperException exception) {
+			handleException(exception);
+		}
+		
+		throw new UnknownException("UnknownException.");
 	}
 
 	public void setData(String path, byte[] data) throws PinpointZookeeperException, InterruptedException {
@@ -176,13 +189,14 @@ public class ZookeeperClient {
 			case BADVERSION:
 			case NOCHILDRENFOREPHEMERALS:
 			case NOTEMPTY:
+			case NODEEXISTS:
+			case NONODE:
 				throw new BadOperationException(keeperException.getMessage(), keeperException);
 			case OPERATIONTIMEOUT:
 				throw new TimeoutException(keeperException.getMessage(), keeperException);
 			default:
 				throw new UnknownException(keeperException.getMessage(), keeperException);
 			}
-
 	}
 	
 	public void close() {
