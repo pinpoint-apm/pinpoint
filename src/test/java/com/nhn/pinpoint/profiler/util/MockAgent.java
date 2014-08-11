@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.profiler.util;
 
+import java.lang.instrument.Instrumentation;
+
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.profiler.DummyInstrumentation;
@@ -8,11 +10,12 @@ import com.nhn.pinpoint.profiler.context.storage.StorageFactory;
 import com.nhn.pinpoint.profiler.sender.DataSender;
 import com.nhn.pinpoint.profiler.sender.EnhancedDataSender;
 import com.nhn.pinpoint.profiler.sender.LoggingDataSender;
-
-import java.lang.instrument.Instrumentation;
+import com.nhn.pinpoint.rpc.client.PinpointSocket;
+import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
 
 /**
  * @author emeroad
+ * @author koo.taejin
  */
 public class MockAgent extends DefaultAgent {
 
@@ -33,4 +36,21 @@ public class MockAgent extends DefaultAgent {
     protected StorageFactory createStorageFactory() {
 		return new ReadableSpanStorageFactory();
     }
+    
+    
+    @Override
+    protected PinpointSocketFactory createPinpointSocketFactory() {
+    	return null;
+    }
+    
+    @Override
+    protected PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory) {
+    	return null;
+    }
+    
+    @Override
+    protected EnhancedDataSender createTcpDataSender(PinpointSocket socket) {
+        return new LoggingDataSender();
+    }
+    
 }
