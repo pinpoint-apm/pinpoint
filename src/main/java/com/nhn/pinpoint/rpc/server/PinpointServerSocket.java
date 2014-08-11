@@ -80,19 +80,28 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     private WriteFailFutureListener traceSendAckWriteFailFutureListener = new  WriteFailFutureListener(logger, "TraceSendAckPacket send fail.", "TraceSendAckPacket send() success.");
     private InetAddress[] ignoreAddressList;
 
+    private final SocketChannelStateChangeEventListener channelStateChangeEventListener;
+    
     static {
         LoggerFactorySetup.setupSlf4jLoggerFactory();
     }
 
     public PinpointServerSocket() {
+    	this(DoNothingChannelStateEventListener.INSTANCE);
+    }
+
+    public PinpointServerSocket(SocketChannelStateChangeEventListener channelStateChangeEventListener) {
         ServerBootstrap bootstrap = createBootStrap(1, WORKER_COUNT);
         setOptions(bootstrap);
         addPipeline(bootstrap);
         this.bootstrap = bootstrap;
         this.pingTimer = TimerFactory.createHashedWheelTimer("PinpointServerSocket-PingTimer", 50, TimeUnit.MILLISECONDS, 512);
         this.requestManagerTimer = TimerFactory.createHashedWheelTimer("PinpointServerSocket-RequestManager", 50, TimeUnit.MILLISECONDS, 512);
-    }
 
+        this.channelStateChangeEventListener = channelStateChangeEventListener;
+    }
+    
+    
     public void setIgnoreAddressList(InetAddress[] ignoreAddressList) {
         if (ignoreAddressList == null) {
             throw new NullPointerException("ignoreAddressList must not be null");
@@ -409,7 +418,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     	SocketChannel socketChannel = new SocketChannel(channel, DEFAULT_TIMEOUTMILLIS, requestManagerTimer);
     	ServerStreamChannelManager streamChannelManager = new ServerStreamChannelManager(channel);
     	
-        ChannelContext channelContext = new ChannelContext(socketChannel, streamChannelManager);
+        ChannelContext channelContext = new ChannelContext(socketChannel, streamChannelManager, channelStateChangeEventListener);
 
         channel.setAttachment(channelContext);
 
@@ -588,3 +597,4 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     }
     
 }
+
