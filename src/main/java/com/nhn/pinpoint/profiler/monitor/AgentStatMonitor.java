@@ -9,8 +9,8 @@ import java.util.concurrent.TimeUnit;
 import com.nhn.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
 import com.nhn.pinpoint.profiler.monitor.codahale.cpu.CpuLoadCollector;
 import com.nhn.pinpoint.profiler.monitor.codahale.gc.GarbageCollector;
+import com.nhn.pinpoint.thrift.dto.TAgentStat;
 import com.nhn.pinpoint.thrift.dto.TAgentStatBatch;
-import com.nhn.pinpoint.thrift.dto.TAgentStatSingle;
 import com.nhn.pinpoint.thrift.dto.TCpuLoad;
 import com.nhn.pinpoint.thrift.dto.TJvmGc;
 
@@ -87,39 +87,39 @@ public class AgentStatMonitor {
 		// 멀티쓰레드로 돌릴 일이 생긴다면 바꿔야 함. (그럴 일은 없을 것 같음)
 		private final int numStatsPerBatch;
 		private int collectCount = 0;
-		private List<TAgentStatSingle> agentStats;
+		private List<TAgentStat> agentStats;
 
 		private CollectJob(int numStatsPerBatch) {
 			this.garbageCollector = agentStatCollectorFactory.getGarbageCollector();
 			this.cpuLoadCollector = agentStatCollectorFactory.getCpuLoadCollector();
 			this.numStatsPerBatch = numStatsPerBatch;
-			this.agentStats = new ArrayList<TAgentStatSingle>(this.numStatsPerBatch);
+			this.agentStats = new ArrayList<TAgentStat>(this.numStatsPerBatch);
 		}
 
 		public void run() {
 			try {
-				final TAgentStatSingle agentStatSingle = collectAgentStat();
-				this.agentStats.add(agentStatSingle);
+				final TAgentStat agentStat = collectAgentStat();
+				this.agentStats.add(agentStat);
 				if (++this.collectCount >= this.numStatsPerBatch) {
 					sendAgentStats();
-					resetBatchCount();
+					this.collectCount = 0;
 				}
 			} catch (Exception ex) {
 				logger.warn("AgentStat collect failed. Caused:{}", ex.getMessage(), ex);
 			}
 		}
 
-		private TAgentStatSingle collectAgentStat() {
-			final TAgentStatSingle agentStatSingle = new TAgentStatSingle();
-			agentStatSingle.setTimeStamp(System.currentTimeMillis());
+		private TAgentStat collectAgentStat() {
+			final TAgentStat agentStat = new TAgentStat();
+			agentStat.setTimestamp(System.currentTimeMillis());
 			final TJvmGc gc = garbageCollector.collect();
-			agentStatSingle.setGc(gc);
+			agentStat.setGc(gc);
 			final TCpuLoad cpuLoad = cpuLoadCollector.collectCpuLoad();
-			agentStatSingle.setCpuLoad(cpuLoad);
+			agentStat.setCpuLoad(cpuLoad);
 			if (isTrace) {
-				logger.trace("collect agentStat:{}", agentStatSingle);
+				logger.trace("collect agentStat:{}", agentStat);
 			}
-			return agentStatSingle;
+			return agentStat;
 		}
 
 		private void sendAgentStats() {
@@ -130,17 +130,13 @@ public class AgentStatMonitor {
 			agentStatBatch.setAgentId(agentId);
 			agentStatBatch.setStartTimestamp(agentStartTime);
 			agentStatBatch.setAgentStats(this.agentStats);
+			// 위와 마찬가지로 agentStats 리스트 재활용시, datasender가 별도의 thread이기 때문에,
+			// send하기 전에 리스트가 변경될 수 있음. 따라서 새로운 리스트를 만들어준다.
+			this.agentStats = new ArrayList<TAgentStat>(this.numStatsPerBatch);
 			if (isTrace) {
 				logger.trace("collect agentStat:{}", agentStatBatch);
 			}
 			dataSender.send(agentStatBatch);
-		}
-
-		private void resetBatchCount() {
-			this.collectCount = 0;
-			// 위와 마찬가지로 agentStats 리스트 재활용시, datasender가 별도의 thread이기 때문에,
-			// send하기 전에 리스트가 변경될 수 있음. 따라서 새로운 리스트를 만들어준다.
-			this.agentStats = new ArrayList<TAgentStatSingle>(this.numStatsPerBatch);
 		}
 	}
 
