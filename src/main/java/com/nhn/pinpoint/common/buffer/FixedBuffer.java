@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.common.buffer;
 
 import com.nhn.pinpoint.common.util.BytesUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.UnsupportedEncodingException;
 
@@ -182,8 +181,22 @@ public class FixedBuffer implements Buffer {
         this.offset = BytesUtils.writeVar64(v, buffer, offset);
     }
 
-
     @Override
+	public void put(double v) {
+    	put(Double.doubleToRawLongBits(v));
+	}
+
+	@Override
+	public void putVar(double v) {
+		putVar(Double.doubleToRawLongBits(v));
+	}
+
+	@Override
+	public void putSVar(double v) {
+		putSVar(Double.doubleToRawLongBits(v));
+	}
+
+	@Override
     public void put(final byte[] v) {
         if (v == null) {
             throw new NullPointerException("v must not be null");
@@ -293,6 +306,21 @@ public class FixedBuffer implements Buffer {
     }
 
     @Override
+	public double readDouble() {
+		return Double.longBitsToDouble(this.readLong());
+	}
+
+	@Override
+	public double readVarDouble() {
+		return Double.longBitsToDouble(this.readVarLong());
+	}
+
+	@Override
+	public double readSVarDouble() {
+		return Double.longBitsToDouble(this.readSVarLong());
+	}
+
+	@Override
     public byte[] readPadBytes(int totalLength) {
         return readBytes(totalLength);
     }
