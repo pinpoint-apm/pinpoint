@@ -68,5 +68,17 @@ public enum PinpointServerSocketStateCode {
 		}
 		return false;
 	}
+	
+	public static PinpointServerSocketStateCode getStateCode(String name) {
+		PinpointServerSocketStateCode[] allStateCodes = PinpointServerSocketStateCode.values();
+		
+		for (PinpointServerSocketStateCode code : allStateCodes) {
+			if (code.name().equalsIgnoreCase(name)) {
+				return code;
+			}
+		}
+		
+		return null;
+	}
 
 }
