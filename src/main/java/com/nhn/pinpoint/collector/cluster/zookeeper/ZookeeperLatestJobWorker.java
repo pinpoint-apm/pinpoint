@@ -270,7 +270,7 @@ public class ZookeeperLatestJobWorker implements Runnable {
 
 			long startTimeMillis = System.currentTimeMillis();
 
-			while (latestJobRepository.size() == 0 && isOverWaitTime(waitTime, startTimeMillis) && workerState.get() == 1) {
+			while (latestJobRepository.size() == 0 && !isOverWaitTime(waitTime, startTimeMillis) && workerState.get() == 1) {
 				try {
 					lock.wait(waitUnitTime);
 				} catch (InterruptedException e) {
