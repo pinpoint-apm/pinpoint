@@ -287,7 +287,7 @@ public class ZookeeperLatestJobWorker implements Runnable {
 	}
 
 	private boolean isOverWaitTime(long waitTimeMillis, long startTimeMillis) {
-		return waitTimeMillis > (System.currentTimeMillis() - startTimeMillis);
+		return waitTimeMillis < (System.currentTimeMillis() - startTimeMillis);
 	}
 
 	private Iterator<ChannelContext> getLatestJobRepositoryKeyIterator() {
@@ -305,7 +305,7 @@ public class ZookeeperLatestJobWorker implements Runnable {
 
 	}
 
-	private void putJob(Job job) {
+	public void putJob(Job job) {
 		if (job.getMaxRetryCount() < job.getCurrentRetryCount()) {
 			if (logger.isInfoEnabled()) {
 				logger.warn("Leack Job Queue Register Job={}.", job);

@@ -73,10 +73,10 @@ public class ZookeeperClusterManager implements SocketChannelStateChangeEventLis
 			}
 			
 			UpdateJob job = new UpdateJob(channelContext, contents);
-			worker.handleUpdate(job);
+			worker.putJob(job);
 		} else if (PinpointServerSocketStateCode.isFinished(stateCode)) {
 			DeleteJob job = new DeleteJob(channelContext);
-			worker.handleDelete(job);
+			worker.putJob(job);
 		} 
 	}
 	
