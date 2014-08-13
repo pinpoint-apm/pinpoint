@@ -19,7 +19,10 @@ public enum JvmVersion {
 	}
 	
 	public boolean onOrAfter(JvmVersion other) {
-		return this.version >= other.version;
+		if (this == UNSUPPORTED || other == UNSUPPORTED) {
+			return false;
+		}
+		return this == other || this.version > other.version;
 	}
 	
 	public static JvmVersion getFromVersion(String javaVersion) {
