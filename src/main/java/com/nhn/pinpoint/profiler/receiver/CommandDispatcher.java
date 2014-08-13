@@ -87,7 +87,7 @@ public class CommandDispatcher implements MessageListener {
 		logger.info("MessageReceive {} {}", packet, channel);
 	}
 	
-	TBase deserialize(byte[] payload) {
+	private TBase deserialize(byte[] payload) {
 		if (payload == null) {
 			logger.warn("Payload may not be null.");
 			return null;
@@ -104,7 +104,7 @@ public class CommandDispatcher implements MessageListener {
     	return null;
 	}
 	
-	byte[] serialize(TBase result) {
+	private byte[] serialize(TBase result) {
 		if (result == null) {
 			logger.warn("tBase may not be null.");
 			return null;
@@ -113,6 +113,7 @@ public class CommandDispatcher implements MessageListener {
     	try {
 			HeaderTBaseSerializer serializer = serializerFactory.createSerializer();
 			byte[] payload = serializer.serialize(result);
+			return payload;
 		} catch (TException e) {
 			logger.warn(e.getMessage(), e);
 		}
