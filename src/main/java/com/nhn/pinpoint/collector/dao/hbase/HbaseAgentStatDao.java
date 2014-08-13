@@ -3,7 +3,8 @@ package com.nhn.pinpoint.collector.dao.hbase;
 import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENT_NAME_MAX_LEN;
 import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENT_STAT;
 import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENT_STAT_CF_STATISTICS;
-import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENT_STAT_CF_STATISTICS_V1;
+import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENT_STAT_CF_STATISTICS_MEMORY_GC;
+import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENT_STAT_CF_STATISTICS_CPU_LOAD;
 
 import org.apache.hadoop.hbase.client.Put;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import com.nhn.pinpoint.collector.dao.AgentStatDao;
+import com.nhn.pinpoint.collector.mapper.thrift.ThriftBoMapper;
+import com.nhn.pinpoint.common.bo.AgentStatCpuLoadBo;
+import com.nhn.pinpoint.common.bo.AgentStatMemoryGcBo;
 import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.util.RowKeyUtils;
@@ -23,18 +27,27 @@ import com.sematext.hbase.wd.AbstractRowKeyDistributor;
  * 
  * @author harebox
  * @author emeroad
+ * @author hyungil.jeong
  */
 @Repository
 public class HbaseAgentStatDao implements AgentStatDao {
 
     @Autowired
 	private HbaseOperations2 hbaseTemplate;
+    
+    @Autowired
+    @Qualifier("agentStatMemoryGcBoMapper")
+    private ThriftBoMapper<AgentStatMemoryGcBo, TAgentStat> agentStatMemoryGcBoMapper;
+    
+    @Autowired
+    @Qualifier("agentStatCpuLoadBoMapper")
+    private ThriftBoMapper<AgentStatCpuLoadBo, TAgentStat> agentStatCpuLoadBoMapper;
 
     @Autowired
     @Qualifier("agentStatRowKeyDistributor")
     private AbstractRowKeyDistributor rowKeyDistributor;
 
-	public void insert(final TAgentStat agentStat, final byte[] value) {
+	public void insert(final TAgentStat agentStat) {
         if (agentStat == null) {
             throw new NullPointerException("agentStat must not be null");
         }
@@ -42,7 +55,12 @@ public class HbaseAgentStatDao implements AgentStatDao {
 		byte[] key = getDistributedRowKey(agentStat, timestamp);
 
 		Put put = new Put(key);
-		put.add(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_V1, timestamp, value);
+		
+		final AgentStatMemoryGcBo agentStatMemoryGcBo = this.agentStatMemoryGcBoMapper.map(agentStat);
+		put.add(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_MEMORY_GC, timestamp, agentStatMemoryGcBo.writeValue());
+		
+		final AgentStatCpuLoadBo agentStatCpuLoadBo = this.agentStatCpuLoadBoMapper.map(agentStat);
+		put.add(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_CPU_LOAD, timestamp, agentStatCpuLoadBo.writeValue());
 		
 		hbaseTemplate.put(AGENT_STAT, put);
 	}

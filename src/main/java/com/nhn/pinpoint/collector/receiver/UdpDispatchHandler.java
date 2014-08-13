@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * @author emeroad
+ * @author hyungil.jeong
  */
 public class UdpDispatchHandler extends AbstractDispatchHandler {
 
@@ -24,7 +25,8 @@ public class UdpDispatchHandler extends AbstractDispatchHandler {
     @Override
     Handler getHandler(TBase<?, ?> tBase) {
         // code값을 기반으로 switch table로 바꾸면 눈꼽만큼 빨라짐.
-        if (tBase instanceof TAgentStat) {
+		// FIXME (2014.08) Legacy - TAgentStats should not be sent over the wire.
+        if (tBase instanceof TAgentStat || tBase instanceof TAgentStatBatch) {
             return agentStatHandler;
         }
         return null;
