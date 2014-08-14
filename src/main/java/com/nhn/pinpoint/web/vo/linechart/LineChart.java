@@ -2,24 +2,22 @@ package com.nhn.pinpoint.web.vo.linechart;
 
 import java.util.List;
 
-public class LineChart extends Chart {
+public abstract class LineChart<X extends Number, Y extends Number> extends Chart {
 
-	protected Chart.Points points;
+    protected Chart.Points points;
 
-	public LineChart() {
-		this.points = new Points();
-	}
-	
-	public void addPoint(Long[] point) {
-		points.getPoints().add(point);
-	}
+    public LineChart() {
+        this.points = new Points();
+    }
 
-	public void setPoints(Points points) {
-		this.points = points;
-	}
-	
-	public List<Long[]> getPoints() {
-		return this.points.getPoints();
-	}
+    public abstract void addPoint(X xVal, Y yVal);
+
+    public void setPoints(Points points) {
+        this.points = points;
+    }
+
+    public List<Number[]> getPoints() {
+        return this.points.getPoints();
+    }
 
 }
