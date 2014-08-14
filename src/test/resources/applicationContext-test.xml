@@ -29,25 +29,27 @@
         </property>
     </bean>
 
-    <import resource="classpath:applicationContext-hbase.xml"></import>
+    <import resource="classpath:applicationContext-hbase.xml"/>
 
 
 
-    <bean id="trace" class="com.nhn.pinpoint.collector.dao.hbase.HbaseTraceDao"></bean>
-    <bean class="com.nhn.pinpoint.collector.dao.hbase.HbaseAgentInfoDao"></bean>
+    <bean id="trace" class="com.nhn.pinpoint.collector.dao.hbase.HbaseTraceDao"/>
+    <bean class="com.nhn.pinpoint.collector.dao.hbase.HbaseAgentInfoDao"/>
 
 
-    <bean id="spanMapper" class="com.nhn.pinpoint.web.mapper.SpanMapper"></bean>
-    <bean id="annotationMapper" class="com.nhn.pinpoint.web.mapper.AnnotationMapper"></bean>
+    <bean id="spanMapper" class="com.nhn.pinpoint.web.mapper.SpanMapper"/>
+    <bean id="annotationMapper" class="com.nhn.pinpoint.web.mapper.AnnotationMapper"/>
     <bean id="spanAnnotationMapper" class="com.nhn.pinpoint.web.mapper.SpanMapper">
         <property name="annotationMapper" ref="annotationMapper"/>
     </bean>
 
-    <bean id="jsonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper"></bean>
+    <bean id="jsonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper"/>
 
-    <bean class="com.nhn.pinpoint.collector.util.ThreadLocalAcceptedTimeService"></bean>
+    <bean class="com.nhn.pinpoint.collector.util.ThreadLocalAcceptedTimeService"/>
 
-    <bean id="rangeFactory" class="com.nhn.pinpoint.web.vo.RangeFactory"></bean>
+    <bean id="rangeFactory" class="com.nhn.pinpoint.web.vo.RangeFactory"/>
+
+    <bean id="timeSlot" class="com.nhn.pinpoint.common.util.DefaultTimeSlot"/>
 
 
 </beans>
