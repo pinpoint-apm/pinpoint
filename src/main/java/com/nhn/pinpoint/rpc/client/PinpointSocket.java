@@ -2,6 +2,7 @@ package com.nhn.pinpoint.rpc.client;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,7 @@ public class PinpointSocket {
 
     private volatile boolean closed;
     
-    private List<PinpointSocketReconnectEventListener> reconnectEventListeners = new ArrayList<PinpointSocketReconnectEventListener>();
+    private List<PinpointSocketReconnectEventListener> reconnectEventListeners = new CopyOnWriteArrayList<PinpointSocketReconnectEventListener>();
     
     public PinpointSocket() {
     	this(new ReconnectStateSocketHandler());
@@ -81,28 +82,19 @@ public class PinpointSocket {
     		return false;
     	}
     	
-    	synchronized (this) {
-    		return this.reconnectEventListeners.add(eventListener);
-		}
+   		return this.reconnectEventListeners.add(eventListener);
     }
 
     public boolean removePinpointSocketReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
     	if (eventListener == null) {
     		return false;
     	}
-    	synchronized (this) {
-    		return this.reconnectEventListeners.remove(eventListener);
-		}
+
+    	return this.reconnectEventListeners.remove(eventListener);
     }
 
     private List<PinpointSocketReconnectEventListener> getPinpointSocketReconnectEventListener() {
-    	List<PinpointSocketReconnectEventListener> result = new ArrayList<PinpointSocketReconnectEventListener>();
-    	synchronized (this) {
-        	for (PinpointSocketReconnectEventListener eventListener : this.reconnectEventListeners) {
-        		result.add(eventListener);
-        	}
-		}
-    	
+    	List<PinpointSocketReconnectEventListener> result = new ArrayList<PinpointSocketReconnectEventListener>(reconnectEventListeners);
     	return result;
     }
 
