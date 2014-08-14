@@ -92,7 +92,9 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         checkBeforeTraceObject();
         final Trace metricTrace = createMetricTrace();
         threadLocal.set(metricTrace);
-        return metricTrace;
+//        return metricTrace;
+        // TODO STATDISABLE 잠시 통계기능을 disable시키기 위해서 null리턴
+        return null;
     }
 
     // remote 에서 샘플링 대상으로 선정된 경우.
@@ -142,8 +144,10 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         }
     }
 
-    private MetricTrace createMetricTrace() {
-        return new MetricTrace(traceContext, nextTransactionId());
+    private Trace createMetricTrace() {
+        return DisableTrace.INSTANCE;
+//        TODO STATDISABLE 일단 통게 저장기능은 disable한다.
+//        return new MetricTrace(traceContext, nextTransactionId());
     }
 
     private long nextTransactionId() {

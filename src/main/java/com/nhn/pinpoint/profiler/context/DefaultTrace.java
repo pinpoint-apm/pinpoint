@@ -163,7 +163,8 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public void traceRootBlockEnd() {
-        metricResponseTime();
+//        TODO STATDISABLE 통계 코드 일단 제거
+//        metricResponseTime();
         pop(ROOT_STACKID);
         callStack.popRoot();
         // 잘못된 stack 조작시 다음부터 그냥 nullPointerException이 발생할건데 괜찮은가?

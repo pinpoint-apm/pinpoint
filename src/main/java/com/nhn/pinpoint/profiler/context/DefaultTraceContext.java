@@ -106,7 +106,9 @@ public class DefaultTraceContext implements TraceContext {
 
     @Override
     public Trace disableSampling() {
-        return traceFactory.disableSampling();
+        return null;
+//        TODO STATDISABLE 통계 코드 일단 제거
+//        return traceFactory.disableSampling();
     }
 
     public void setProfilerConfig(final ProfilerConfig profilerConfig) {
