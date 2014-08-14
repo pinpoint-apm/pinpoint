@@ -32,8 +32,7 @@ public class AgentInfoMapper implements RowMapper<List<AgentInfoBo>> {
         KeyValue[] raw = result.raw();
 
         List<AgentInfoBo> agentInfoBoList = new ArrayList<AgentInfoBo>(raw.length);
-        for (int i = 0; i < raw.length; i++) {
-            KeyValue keyValue = raw[i];
+        for (KeyValue keyValue : raw) {
             AgentInfoBo agentInfoBo = mappingAgentInfo(keyValue);
 
             agentInfoBoList.add(agentInfoBo);
