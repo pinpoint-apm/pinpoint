@@ -12,7 +12,7 @@ public final class TransactionIdUtils {
     public static final String TRANSACTION_ID_DELIMITER = "^";
     public static final byte VERSION = 0;
 
-    public static final String formatString(String agentId, long agentStartTime, long transactionSequence) {
+    public static String formatString(String agentId, long agentStartTime, long transactionSequence) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
@@ -25,7 +25,7 @@ public final class TransactionIdUtils {
         return sb.toString();
     }
 
-    public static final byte[] formatBytes(String agentId, long agentStartTime, long transactionSequence) {
+    public static byte[] formatBytes(String agentId, long agentStartTime, long transactionSequence) {
         // agentId는 null이 될수 있음.
         // vesion + prefixed size + string + long + long
         final Buffer buffer = new AutomaticBuffer(1 + 5 + 24 + 10 + 10);
