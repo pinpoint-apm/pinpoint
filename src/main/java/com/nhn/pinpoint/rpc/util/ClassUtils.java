@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.rpc.util;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -9,7 +8,7 @@ import java.util.Map;
  */
 public class ClassUtils {
 
-	private static final Map primitiveWrapperMap = new HashMap();
+	private static final Map<Class<?>, Class<?>> primitiveWrapperMap = new HashMap<Class<?>, Class<?>>();
 	static {
 		primitiveWrapperMap.put(Boolean.TYPE, Boolean.class);
 		primitiveWrapperMap.put(Byte.TYPE, Byte.class);
@@ -22,11 +21,11 @@ public class ClassUtils {
 		primitiveWrapperMap.put(Void.TYPE, Void.TYPE);
 	}
 	
-    private static final Map wrapperPrimitiveMap = new HashMap();
+    private static final Map<Class, Class> wrapperPrimitiveMap = new HashMap<Class, Class>();
     static {
-        for (Iterator it = primitiveWrapperMap.keySet().iterator(); it.hasNext();) {
-            Class primitiveClass = (Class) it.next();
-            Class wrapperClass = (Class) primitiveWrapperMap.get(primitiveClass);
+        for (Object o : primitiveWrapperMap.keySet()) {
+            Class primitiveClass = (Class) o;
+            Class wrapperClass = primitiveWrapperMap.get(primitiveClass);
             if (!primitiveClass.equals(wrapperClass)) {
                 wrapperPrimitiveMap.put(wrapperClass, primitiveClass);
             }
@@ -37,7 +36,7 @@ public class ClassUtils {
 		return isAssignable(cls, toClass, true);
 	}
 		
-	public static boolean isAssignable(Class cls, Class toClass, boolean autoboxing) {
+	public static boolean isAssignable(Class<?> cls, Class<?> toClass, boolean autoboxing) {
 		if (toClass == null) {
 			return false;
 		}
@@ -101,13 +100,13 @@ public class ClassUtils {
 	public static Class primitiveToWrapper(Class cls) {
 		Class convertedClass = cls;
 		if (cls != null && cls.isPrimitive()) {
-			convertedClass = (Class) primitiveWrapperMap.get(cls);
+			convertedClass = primitiveWrapperMap.get(cls);
 		}
 		return convertedClass;
 	}
 
 	public static Class wrapperToPrimitive(Class cls) {
-		return (Class) wrapperPrimitiveMap.get(cls);
+		return wrapperPrimitiveMap.get(cls);
 	}
 
 }
