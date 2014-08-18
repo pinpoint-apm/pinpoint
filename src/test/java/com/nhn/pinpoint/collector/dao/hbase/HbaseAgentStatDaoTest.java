@@ -34,70 +34,70 @@ import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 @ContextConfiguration("classpath:applicationContext-test.xml")
 public class HbaseAgentStatDaoTest {
 
-	@Mock
-	private HbaseOperations2 hbaseTemplate;
-	
-	@Spy
-	@Autowired
+    @Mock
+    private HbaseOperations2 hbaseTemplate;
+
+    @Spy
+    @Autowired
     @Qualifier("agentStatMemoryGcBoMapper")
     private ThriftBoMapper<AgentStatMemoryGcBo, TAgentStat> agentStatMemoryGcBoMapper;
-	
-	@Spy
-	@Autowired
+
+    @Spy
+    @Autowired
     @Qualifier("agentStatCpuLoadBoMapper")
     private ThriftBoMapper<AgentStatCpuLoadBo, TAgentStat> agentStatCpuLoadBoMapper;
-	
-	@Spy
-	@Autowired
+
+    @Spy
+    @Autowired
     @Qualifier("agentStatRowKeyDistributor")
     private AbstractRowKeyDistributor rowKeyDistributor;
-	
-	@InjectMocks
-	private AgentStatDao agentStatDao = new HbaseAgentStatDao();
-	
-	@Before
-	public void setUp() throws Exception {
-		MockitoAnnotations.initMocks(this);
-	}
-	
-	@Test
-	public void testInsert() {
-		// Given
-		final String agentId = "agentId";
-		final long startTimestamp = Long.MAX_VALUE;
-		final TAgentStat agentStat = createAgentStat(agentId, startTimestamp, createTJvmGc(agentId, startTimestamp), createTCpuLoad());
-		// When
-		agentStatDao.insert(agentStat);
-		// Then
-		verify(hbaseTemplate).put(eq(HBaseTables.AGENT_STAT), isA(Put.class));
-	}
-	
-	private TAgentStat createAgentStat(String agentId, long startTimestamp, TJvmGc gc, TCpuLoad cpuLoad) {
-		final TAgentStat agentStat = new TAgentStat();
-		agentStat.setAgentId(agentId);
-		agentStat.setStartTimestamp(startTimestamp);
-		agentStat.setGc(gc);
-		agentStat.setCpuLoad(cpuLoad);
-		return agentStat;
-	}
-	
-	private TJvmGc createTJvmGc(String agentId, long startTimestamp) {
-		final TJvmGc jvmGc = new TJvmGc();
-		jvmGc.setType(TJvmGcType.G1);
-		jvmGc.setJvmMemoryHeapUsed(Long.MIN_VALUE);
-		jvmGc.setJvmMemoryHeapMax(Long.MAX_VALUE);
-		jvmGc.setJvmMemoryNonHeapUsed(Long.MIN_VALUE);
-		jvmGc.setJvmMemoryNonHeapMax(Long.MAX_VALUE);
-		jvmGc.setJvmGcOldCount(1L);
-		jvmGc.setJvmGcOldTime(1L);
-		return jvmGc;
-	}
-	
-	private TCpuLoad createTCpuLoad() {
-		final TCpuLoad cpuLoad = new TCpuLoad();
-		cpuLoad.setJvmCpuLoad(Double.MIN_VALUE);
-		cpuLoad.setSystemCpuLoad(Double.MAX_VALUE);
-		return cpuLoad;
-	}
+
+    @InjectMocks
+    private AgentStatDao agentStatDao = new HbaseAgentStatDao();
+
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+    }
+
+    @Test
+    public void testInsert() {
+        // Given
+        final String agentId = "agentId";
+        final long startTimestamp = Long.MAX_VALUE;
+        final TAgentStat agentStat = createAgentStat(agentId, startTimestamp, createTJvmGc(agentId, startTimestamp), createTCpuLoad());
+        // When
+        agentStatDao.insert(agentStat);
+        // Then
+        verify(hbaseTemplate).put(eq(HBaseTables.AGENT_STAT), isA(Put.class));
+    }
+
+    private TAgentStat createAgentStat(String agentId, long startTimestamp, TJvmGc gc, TCpuLoad cpuLoad) {
+        final TAgentStat agentStat = new TAgentStat();
+        agentStat.setAgentId(agentId);
+        agentStat.setStartTimestamp(startTimestamp);
+        agentStat.setGc(gc);
+        agentStat.setCpuLoad(cpuLoad);
+        return agentStat;
+    }
+
+    private TJvmGc createTJvmGc(String agentId, long startTimestamp) {
+        final TJvmGc jvmGc = new TJvmGc();
+        jvmGc.setType(TJvmGcType.G1);
+        jvmGc.setJvmMemoryHeapUsed(Long.MIN_VALUE);
+        jvmGc.setJvmMemoryHeapMax(Long.MAX_VALUE);
+        jvmGc.setJvmMemoryNonHeapUsed(Long.MIN_VALUE);
+        jvmGc.setJvmMemoryNonHeapMax(Long.MAX_VALUE);
+        jvmGc.setJvmGcOldCount(1L);
+        jvmGc.setJvmGcOldTime(1L);
+        return jvmGc;
+    }
+
+    private TCpuLoad createTCpuLoad() {
+        final TCpuLoad cpuLoad = new TCpuLoad();
+        cpuLoad.setJvmCpuLoad(Double.MIN_VALUE);
+        cpuLoad.setSystemCpuLoad(Double.MAX_VALUE);
+        return cpuLoad;
+    }
 
 }

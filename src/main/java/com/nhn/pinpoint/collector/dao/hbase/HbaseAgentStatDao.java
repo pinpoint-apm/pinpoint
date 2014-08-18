@@ -33,12 +33,12 @@ import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 public class HbaseAgentStatDao implements AgentStatDao {
 
     @Autowired
-	private HbaseOperations2 hbaseTemplate;
-    
+    private HbaseOperations2 hbaseTemplate;
+
     @Autowired
     @Qualifier("agentStatMemoryGcBoMapper")
     private ThriftBoMapper<AgentStatMemoryGcBo, TAgentStat> agentStatMemoryGcBoMapper;
-    
+
     @Autowired
     @Qualifier("agentStatCpuLoadBoMapper")
     private ThriftBoMapper<AgentStatCpuLoadBo, TAgentStat> agentStatCpuLoadBoMapper;
@@ -47,38 +47,38 @@ public class HbaseAgentStatDao implements AgentStatDao {
     @Qualifier("agentStatRowKeyDistributor")
     private AbstractRowKeyDistributor rowKeyDistributor;
 
-	public void insert(final TAgentStat agentStat) {
+    public void insert(final TAgentStat agentStat) {
         if (agentStat == null) {
             throw new NullPointerException("agentStat must not be null");
         }
         long timestamp = agentStat.getTimestamp();
-		byte[] key = getDistributedRowKey(agentStat, timestamp);
+        byte[] key = getDistributedRowKey(agentStat, timestamp);
 
-		Put put = new Put(key);
-		
-		final AgentStatMemoryGcBo agentStatMemoryGcBo = this.agentStatMemoryGcBoMapper.map(agentStat);
-		put.add(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_MEMORY_GC, timestamp, agentStatMemoryGcBo.writeValue());
-		
-		final AgentStatCpuLoadBo agentStatCpuLoadBo = this.agentStatCpuLoadBoMapper.map(agentStat);
-		put.add(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_CPU_LOAD, timestamp, agentStatCpuLoadBo.writeValue());
-		
-		hbaseTemplate.put(AGENT_STAT, put);
-	}
+        Put put = new Put(key);
 
-	/**
-	 * timestamp 기반의 row key를 만든다.
-	 */
-	private byte[] getRowKey(String agentId, long timestamp) {
-		if (agentId == null) {
-			throw new IllegalArgumentException("agentId must not null");
-		}
-		byte[] bAgentId = BytesUtils.toBytes(agentId);
-		return RowKeyUtils.concatFixedByteAndLong(bAgentId, AGENT_NAME_MAX_LEN, TimeUtils.reverseTimeMillis(timestamp));
-	}
-	
-	/**
-	 * row key를 bucket 단위로 분산시킨다.  
-	 */
+        final AgentStatMemoryGcBo agentStatMemoryGcBo = this.agentStatMemoryGcBoMapper.map(agentStat);
+        put.add(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_MEMORY_GC, timestamp, agentStatMemoryGcBo.writeValue());
+
+        final AgentStatCpuLoadBo agentStatCpuLoadBo = this.agentStatCpuLoadBoMapper.map(agentStat);
+        put.add(AGENT_STAT_CF_STATISTICS, AGENT_STAT_CF_STATISTICS_CPU_LOAD, timestamp, agentStatCpuLoadBo.writeValue());
+
+        hbaseTemplate.put(AGENT_STAT, put);
+    }
+
+    /**
+     * timestamp 기반의 row key를 만든다.
+     */
+    private byte[] getRowKey(String agentId, long timestamp) {
+        if (agentId == null) {
+            throw new IllegalArgumentException("agentId must not null");
+        }
+        byte[] bAgentId = BytesUtils.toBytes(agentId);
+        return RowKeyUtils.concatFixedByteAndLong(bAgentId, AGENT_NAME_MAX_LEN, TimeUtils.reverseTimeMillis(timestamp));
+    }
+
+    /**
+     * row key를 bucket 단위로 분산시킨다.  
+     */
     private byte[] getDistributedRowKey(TAgentStat agentStat, long timestamp) {
         byte[] key = getRowKey(agentStat.getAgentId(), timestamp);
         return rowKeyDistributor.getDistributedKey(key);

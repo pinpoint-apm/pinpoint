@@ -7,5 +7,5 @@ import com.nhn.pinpoint.thrift.dto.TAgentStat;
  * @author hyungil.jeong
  */
 public interface AgentStatDao {
-	void insert(TAgentStat agentStat);
+    void insert(TAgentStat agentStat);
 }

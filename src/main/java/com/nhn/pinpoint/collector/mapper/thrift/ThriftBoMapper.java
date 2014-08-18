@@ -7,5 +7,5 @@ import org.apache.thrift.TBase;
  */
 public interface ThriftBoMapper<T, F extends TBase<?,?>> {
 
-	public T map(F thriftObject);
+    public T map(F thriftObject);
 }
