@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.rpc.client;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -93,15 +92,8 @@ public class PinpointSocket {
     	return this.reconnectEventListeners.remove(eventListener);
     }
 
-    private List<PinpointSocketReconnectEventListener> getPinpointSocketReconnectEventListener() {
-    	List<PinpointSocketReconnectEventListener> result = new ArrayList<PinpointSocketReconnectEventListener>(reconnectEventListeners);
-    	return result;
-    }
-
     private void notifyReconnectEvent() {
-    	List<PinpointSocketReconnectEventListener> reconnectEventListeners = getPinpointSocketReconnectEventListener();
-    	
-    	for (PinpointSocketReconnectEventListener eachListener : reconnectEventListeners) {
+    	for (PinpointSocketReconnectEventListener eachListener : this.reconnectEventListeners) {
     		eachListener.reconnectPerformed(this);
     	}
 	}
