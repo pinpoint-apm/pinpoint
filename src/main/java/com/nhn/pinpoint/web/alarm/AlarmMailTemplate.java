@@ -29,7 +29,9 @@ public class AlarmMailTemplate {
 
 	public String createBody(List<AlarmCheckFilter> alarmCheckFilterList) {
 		StringBuilder body = new StringBuilder();
-		body.append(application + " Alarm." + LINE_FEED);
+		body.append(application);
+        body.append(" Alarm.");
+        body.append(LINE_FEED);
 
 		body.append("<ul>");
 		for (AlarmCheckFilter alarmCheckFilter : alarmCheckFilterList) {
@@ -38,7 +40,7 @@ public class AlarmMailTemplate {
 			body.append("<li>");
 
 			body.append(String.format("<strong>%s</strong><br>", rule.getMainCategory().getName() + " (" + rule.getSubCategory().getName() + ")"));
-			body.append(">= " + rule.getThresholdRule() + " " + rule.getSubCategory().getUnit() + " (" + TimeUnit.MILLISECONDS.toMinutes(rule.getContinuosTime()) + " min)<br>");
+			body.append(">= ").append(rule.getThresholdRule()).append(" ").append(rule.getSubCategory().getUnit()).append(" (").append(TimeUnit.MILLISECONDS.toMinutes(rule.getContinuosTime())).append(" min)<br>");
 			String url = mailResource.getPinpointUrl() + "/#/main/" + application.getName() + "@" + application.getCode() + "/" + TimeUnit.MILLISECONDS.toMinutes(rule.getContinuosTime()) + "/" + alarmEvent.getEventStartTimeMillis();
 			body.append(String.format(LINK_FORMAT, url, url));
 //			contents.append("<br>");

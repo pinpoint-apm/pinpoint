@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 
 import com.nhn.pinpoint.web.vo.Application;
@@ -44,7 +45,7 @@ public class DefaultAlarmJobsRepository implements AlarmJobsRepository {
 		List<AlarmJob> alarmJobList = repository.get(application);
 
 		if (alarmJobList == null || alarmJobList.size() == 0) {
-			return Collections.EMPTY_LIST;
+			return Collections.emptyList();
 		}
 
 		List<AlarmJob> shallowCopyResult = new ArrayList<AlarmJob>();
@@ -55,8 +56,8 @@ public class DefaultAlarmJobsRepository implements AlarmJobsRepository {
 	public List<Application> getRegistedApplicationList() {
 		Set<Application> keyList = repository.keySet();
 
-		if (keyList == null || keyList.size() == 0) {
-			return Collections.EMPTY_LIST;
+        if (CollectionUtils.isEmpty(keyList)) {
+			return Collections.emptyList();
 		}
 
 		List<Application> shallowCopyResult = new ArrayList<Application>();

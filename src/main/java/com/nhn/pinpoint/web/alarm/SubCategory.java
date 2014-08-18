@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.web.alarm;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.nhn.pinpoint.web.alarm.filter.AlarmCheckFilter;
@@ -95,9 +96,7 @@ public enum SubCategory {
 
 		parentSupportCategoryList.add(firstParentSupportCategory);
 
-		for (MainCategory category : otherParentSupportCategories) {
-			parentSupportCategoryList.add(category);
-		}
+        Collections.addAll(parentSupportCategoryList, otherParentSupportCategories);
 	}
 
 	public String getName() {
