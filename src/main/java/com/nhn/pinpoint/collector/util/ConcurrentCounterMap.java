@@ -16,8 +16,6 @@ public class ConcurrentCounterMap<T> {
 
     private final Entry<T>[] entryArray;
 
-    private static final Map EMPTY = Collections.emptyMap();
-
     public ConcurrentCounterMap() {
         this(16);
     }
@@ -75,7 +73,8 @@ public class ConcurrentCounterMap<T> {
 
     private List<Map<T, LongAdder>> removeAll() {
         final List<Map<T, LongAdder>> copy = new ArrayList<Map<T, LongAdder>>(entryArray.length);
-        for(int i = 0; i < entryArray.length; i++ ) {
+        final int entryArrayLength = entryArray.length;
+        for (int i = 0; i < entryArrayLength; i++ ) {
             Entry<T> tEntry = entryArray[i];
             Map<T, LongAdder> remove = tEntry.remove();
             copy.add(remove);
@@ -101,6 +100,9 @@ public class ConcurrentCounterMap<T> {
     }
 
     private static class Entry<T> {
+        private static final Map EMPTY = Collections.emptyMap();
+
+
         private Map<T, LongAdder> map = new HashMap<T, LongAdder>();
 
         public synchronized void increment(T key, Long increment) {
