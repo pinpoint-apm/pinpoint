@@ -74,7 +74,7 @@ public interface Buffer {
      * @param v
      */
     void putSVar(long v);
-    
+
     void put(double v);
 
     /**
@@ -115,11 +115,11 @@ public interface Buffer {
     long readVarLong();
 
     long readSVarLong();
-    
+
     double readDouble();
-    
+
     double readVarDouble();
-    
+
     double readSVarDouble();
 
     byte[] readPadBytes(int totalLength);

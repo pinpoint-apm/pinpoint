@@ -55,7 +55,7 @@ public class FixedBuffer implements Buffer {
 
 
     @Override
-     public void putPrefixedBytes(final byte[] bytes) {
+    public void putPrefixedBytes(final byte[] bytes) {
         if (bytes == null) {
             putSVar(NULL);
         } else {
@@ -182,21 +182,21 @@ public class FixedBuffer implements Buffer {
     }
 
     @Override
-	public void put(double v) {
-    	put(Double.doubleToRawLongBits(v));
-	}
+    public void put(double v) {
+        put(Double.doubleToRawLongBits(v));
+    }
 
-	@Override
-	public void putVar(double v) {
-		putVar(Double.doubleToRawLongBits(v));
-	}
+    @Override
+    public void putVar(double v) {
+        putVar(Double.doubleToRawLongBits(v));
+    }
 
-	@Override
-	public void putSVar(double v) {
-		putSVar(Double.doubleToRawLongBits(v));
-	}
+    @Override
+    public void putSVar(double v) {
+        putSVar(Double.doubleToRawLongBits(v));
+    }
 
-	@Override
+    @Override
     public void put(final byte[] v) {
         if (v == null) {
             throw new NullPointerException("v must not be null");
@@ -306,21 +306,21 @@ public class FixedBuffer implements Buffer {
     }
 
     @Override
-	public double readDouble() {
-		return Double.longBitsToDouble(this.readLong());
-	}
+    public double readDouble() {
+        return Double.longBitsToDouble(this.readLong());
+    }
 
-	@Override
-	public double readVarDouble() {
-		return Double.longBitsToDouble(this.readVarLong());
-	}
+    @Override
+    public double readVarDouble() {
+        return Double.longBitsToDouble(this.readVarLong());
+    }
 
-	@Override
-	public double readSVarDouble() {
-		return Double.longBitsToDouble(this.readSVarLong());
-	}
+    @Override
+    public double readSVarDouble() {
+        return Double.longBitsToDouble(this.readSVarLong());
+    }
 
-	@Override
+    @Override
     public byte[] readPadBytes(int totalLength) {
         return readBytes(totalLength);
     }
