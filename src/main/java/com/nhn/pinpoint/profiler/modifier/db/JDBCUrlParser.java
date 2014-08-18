@@ -154,13 +154,13 @@ public class JDBCUrlParser {
 //                parser.getDriverType();
             return createOracleDatabaseInfo(keyValue, url);
         } catch (OracleConnectionStringException ex) {
-            logger.warn("OracleConnectionString parse error. url:{} Caused:", new Object[]{url, ex.getMessage(), ex});
+            logger.warn("OracleConnectionString parse error. url:{} Caused:", url, ex.getMessage(), ex);
 
             // 에러찍고 그냥 unknownDataBase 생성
             return createUnknownDataBase(ServiceType.ORACLE, ServiceType.ORACLE_EXECUTE_QUERY, url);
         } catch (Throwable ex) {
             // 나중에 좀더 정교하게 exception을 던지게 되면 OracleConnectionStringException 만 잡는것으로 바꿔야 될듯하다.
-            logger.warn("OracleConnectionString parse error. url:{} Caused:", new Object[]{url, ex.getMessage(), ex});
+            logger.warn("OracleConnectionString parse error. url:{} Caused:", url, ex.getMessage(), ex);
             // 에러찍고 그냥 unknownDataBase 생성
             return createUnknownDataBase(ServiceType.ORACLE, ServiceType.ORACLE_EXECUTE_QUERY, url);
         }

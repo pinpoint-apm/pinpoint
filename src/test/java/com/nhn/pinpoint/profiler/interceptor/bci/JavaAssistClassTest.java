@@ -105,7 +105,7 @@ public class JavaAssistClassTest {
 
         if (testObject instanceof BindValueTraceValue) {
             BindValueTraceValue bindValueTraceValue = (BindValueTraceValue) testObject;
-            Map<Integer, String> integerStringMap = Collections.<Integer, String>emptyMap();
+            Map<Integer, String> integerStringMap = Collections.emptyMap();
             bindValueTraceValue.__setTraceBindValue(integerStringMap);
             Map<Integer, String> bindValueMap = bindValueTraceValue.__getTraceBindValue();
             Assert.assertSame(integerStringMap, bindValueMap);

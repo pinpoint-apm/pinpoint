@@ -18,7 +18,7 @@ public class SqlSessionMethodFilter implements MethodFilter {
 	
 	private static final Set<String> WHITE_LIST_API = createWhiteListApi();
 	
-	private static final Set<String> createWhiteListApi() {
+	private static Set<String> createWhiteListApi() {
 		return new HashSet<String>(Arrays.asList(
 				"selectOne",
 				"selectList",

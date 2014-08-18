@@ -42,11 +42,13 @@ public class ThreadDumpBO implements TBaseRequestBO {
 		StringBuilder dump = new StringBuilder();
 		for (ThreadInfo info : threadInfoList) {
 			dump.append(info.getThreadName());
-			dump.append("\t Thread.State: " + info.getThreadState());
+			dump.append("\t Thread.State: ");
+            dump.append(info.getThreadState());
 			
 			StackTraceElement[] elements = info.getStackTrace();
 			for (StackTraceElement element : elements) {
-				dump.append("\r\n\t at" + element);
+				dump.append("\r\n\t at");
+                dump.append(element);
 			}
 			dump.append("\r\n");
 			dump.append("\r\n");
@@ -85,7 +87,6 @@ public class ThreadDumpBO implements TBaseRequestBO {
 			return Arrays.asList(getAllThreadInfo());
 		}
 
-		ThreadInfo[] threadInfos = getAllThreadInfo();
 		for (ThreadInfo threadInfo : getAllThreadInfo()) {
 			if (threadInfo.getBlockedTime() >= pendingTimeMillis) {
 				result.add(threadInfo);

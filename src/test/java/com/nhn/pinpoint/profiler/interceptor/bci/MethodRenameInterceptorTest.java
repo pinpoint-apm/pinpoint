@@ -68,7 +68,7 @@ public class MethodRenameInterceptorTest {
         //  actual code generated needs to depend on whether the
         //  timed method returns a value
         String type = mold.getReturnType().getName();
-        StringBuffer body = new StringBuffer();
+        StringBuilder body = new StringBuilder();
         body.append("{\nlong start = System.currentTimeMillis();\n");
         if (!"void".equals(type)) {
             body.append(type + " result = ");

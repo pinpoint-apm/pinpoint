@@ -73,7 +73,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 		return new MockAgent("", new DummyInstrumentation(), profilerConfig);
 	}
 	
-	private final TestClassLoader getTestClassLoader(Class<?> testClass) throws InitializationError {
+	private TestClassLoader getTestClassLoader(Class<?> testClass) throws InitializationError {
 		PinpointTestClassLoader pinpointTestClassLoader = testClass.getAnnotation(PinpointTestClassLoader.class);
 		if (pinpointTestClassLoader == null) {
 			if (logger.isInfoEnabled()) {
@@ -88,7 +88,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 		}
 	}
 	
-	private final <T extends TestClassLoader> TestClassLoader createTestClassLoader(Class<T> testClassLoader) throws InitializationError {
+	private <T extends TestClassLoader> TestClassLoader createTestClassLoader(Class<T> testClassLoader) throws InitializationError {
 		try {
 			Constructor<T> c = testClassLoader.getConstructor(DefaultAgent.class);
 			T classLoader = c.newInstance(this.testAgent);
