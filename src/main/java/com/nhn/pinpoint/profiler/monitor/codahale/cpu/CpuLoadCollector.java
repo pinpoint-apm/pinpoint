@@ -15,36 +15,36 @@ import com.nhn.pinpoint.thrift.dto.TCpuLoad;
  */
 public class CpuLoadCollector {
 
-	private final Gauge<Double> jvmCpuLoadGauge;
-	private final Gauge<Double> systemCpuLoadGauge;
+    private final Gauge<Double> jvmCpuLoadGauge;
+    private final Gauge<Double> systemCpuLoadGauge;
 
-	@SuppressWarnings("unchecked")
-	public CpuLoadCollector(CpuLoadMetricSet cpuLoadMetricSet) {
-		if (cpuLoadMetricSet == null) {
-			throw new NullPointerException("cpuLoadMetricSet must not be null");
-		}
-		Map<String, Metric> metrics = cpuLoadMetricSet.getMetrics();
-		this.jvmCpuLoadGauge = (Gauge<Double>)MetricMonitorValues.getMetric(metrics, CPU_LOAD_JVM, DOUBLE_ZERO);
-		this.systemCpuLoadGauge = (Gauge<Double>)MetricMonitorValues.getMetric(metrics, CPU_LOAD_SYSTEM, DOUBLE_ZERO);
-	}
+    @SuppressWarnings("unchecked")
+    public CpuLoadCollector(CpuLoadMetricSet cpuLoadMetricSet) {
+        if (cpuLoadMetricSet == null) {
+            throw new NullPointerException("cpuLoadMetricSet must not be null");
+        }
+        Map<String, Metric> metrics = cpuLoadMetricSet.getMetrics();
+        this.jvmCpuLoadGauge = (Gauge<Double>)MetricMonitorValues.getMetric(metrics, CPU_LOAD_JVM, DOUBLE_ZERO);
+        this.systemCpuLoadGauge = (Gauge<Double>)MetricMonitorValues.getMetric(metrics, CPU_LOAD_SYSTEM, DOUBLE_ZERO);
+    }
 
-	public TCpuLoad collectCpuLoad() {
-		Double jvmCpuLoad = this.jvmCpuLoadGauge.getValue();
-		Double systemCpuLoad = this.systemCpuLoadGauge.getValue();
-		if (notCollected(jvmCpuLoad) && notCollected(systemCpuLoad)) {
-			return null;
-		}
-		TCpuLoad cpuLoad = new TCpuLoad();
-		if (!notCollected(jvmCpuLoad)) {
-			cpuLoad.setJvmCpuLoad(jvmCpuLoad);
-		}
-		if (!notCollected(systemCpuLoad)) {
-			cpuLoad.setSystemCpuLoad(systemCpuLoad);
-		}
-		return cpuLoad;
-	}
+    public TCpuLoad collectCpuLoad() {
+        Double jvmCpuLoad = this.jvmCpuLoadGauge.getValue();
+        Double systemCpuLoad = this.systemCpuLoadGauge.getValue();
+        if (notCollected(jvmCpuLoad) && notCollected(systemCpuLoad)) {
+            return null;
+        }
+        TCpuLoad cpuLoad = new TCpuLoad();
+        if (!notCollected(jvmCpuLoad)) {
+            cpuLoad.setJvmCpuLoad(jvmCpuLoad);
+        }
+        if (!notCollected(systemCpuLoad)) {
+            cpuLoad.setSystemCpuLoad(systemCpuLoad);
+        }
+        return cpuLoad;
+    }
 
-	private boolean notCollected(double cpuLoad) {
-		return cpuLoad < 0;
-	}
+    private boolean notCollected(double cpuLoad) {
+        return cpuLoad < 0;
+    }
 }
