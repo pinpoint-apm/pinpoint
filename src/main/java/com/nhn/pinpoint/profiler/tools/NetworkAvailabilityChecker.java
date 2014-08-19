@@ -92,7 +92,7 @@ public class NetworkAvailabilityChecker implements PinpointTools {
     private static PinpointSocketFactory createPinpointSocketFactory() {
     	PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
         pinpointSocketFactory.setTimeoutMillis(1000 * 5);
-        pinpointSocketFactory.setAgentProperties(Collections.EMPTY_MAP);
+        pinpointSocketFactory.setProperties(Collections.EMPTY_MAP);
 
         return pinpointSocketFactory;
 	}

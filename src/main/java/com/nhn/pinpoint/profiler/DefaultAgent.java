@@ -33,7 +33,6 @@ import com.nhn.pinpoint.profiler.receiver.CommandDispatcher;
 import com.nhn.pinpoint.profiler.sampler.SamplerFactory;
 import com.nhn.pinpoint.profiler.sender.DataSender;
 import com.nhn.pinpoint.profiler.sender.EnhancedDataSender;
-import com.nhn.pinpoint.profiler.sender.LoggingDataSender;
 import com.nhn.pinpoint.profiler.sender.TcpDataSender;
 import com.nhn.pinpoint.profiler.sender.UdpDataSender;
 import com.nhn.pinpoint.profiler.util.ApplicationServerTypeResolver;
@@ -43,7 +42,6 @@ import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.client.MessageListener;
 import com.nhn.pinpoint.rpc.client.PinpointSocket;
 import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
-import com.nhn.pinpoint.rpc.server.AgentPropertiesType;
 import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 
 /**
@@ -281,7 +279,7 @@ public class DefaultAgent implements Agent {
 
     	PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
         pinpointSocketFactory.setTimeoutMillis(1000 * 5);
-        pinpointSocketFactory.setAgentProperties(properties);
+        pinpointSocketFactory.setProperties(properties);
 
         return pinpointSocketFactory;
 	}

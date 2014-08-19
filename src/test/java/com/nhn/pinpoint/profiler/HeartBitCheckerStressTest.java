@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -164,12 +165,17 @@ public class HeartBitCheckerStressTest {
 		public void handleStream(StreamPacket streamPacket, ServerStreamChannel streamChannel) {
 			logger.info("handleStreamPacket:{}", streamPacket);
 		}
+		
+		@Override
+		public int handleEnableWorker(Map arg0) {
+			return 0;
+		}
 	}
 
 	 private PinpointSocketFactory createPinpointSocketFactory() {
 	    	PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
 	        pinpointSocketFactory.setTimeoutMillis(1000 * 5);
-	        pinpointSocketFactory.setAgentProperties(Collections.EMPTY_MAP);
+	        pinpointSocketFactory.setProperties(Collections.EMPTY_MAP);
 
 	        return pinpointSocketFactory;
 		}
