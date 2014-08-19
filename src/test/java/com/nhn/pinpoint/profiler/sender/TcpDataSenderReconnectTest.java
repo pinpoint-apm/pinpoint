@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler.sender;
 
 import java.util.Collections;
+import java.util.Map;
 
 import com.nhn.pinpoint.thrift.dto.TApiMetaData;
 import com.nhn.pinpoint.profiler.receiver.CommandDispatcher;
@@ -53,6 +54,11 @@ public class TcpDataSenderReconnectTest {
             public void handleStream(StreamPacket streamPacket, ServerStreamChannel streamChannel) {
                 logger.info("handleStreamPacket:{}", streamPacket);
             }
+
+			@Override
+			public int handleEnableWorker(Map properties) {
+				return 0;
+			}
         });
         server.bind(HOST, PORT);
         return server;
@@ -90,7 +96,7 @@ public class TcpDataSenderReconnectTest {
     private PinpointSocketFactory createPinpointSocketFactory() {
     	PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
         pinpointSocketFactory.setTimeoutMillis(1000 * 5);
-        pinpointSocketFactory.setAgentProperties(Collections.EMPTY_MAP);
+        pinpointSocketFactory.setProperties(Collections.EMPTY_MAP);
 
         return pinpointSocketFactory;
 	}

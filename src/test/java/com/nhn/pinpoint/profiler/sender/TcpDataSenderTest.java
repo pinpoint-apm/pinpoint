@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -60,6 +61,11 @@ public class TcpDataSenderTest {
             @Override
             public void handleStream(StreamPacket streamPacket, ServerStreamChannel streamChannel) {
                 logger.info("handleStreamPacket:{}", streamPacket);
+            }
+            
+            @Override
+            public int handleEnableWorker(Map arg0) {
+            	return 0;
             }
         });
         server.bind(HOST, PORT);
@@ -103,7 +109,7 @@ public class TcpDataSenderTest {
     private PinpointSocketFactory createPinpointSocketFactory() {
     	PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
         pinpointSocketFactory.setTimeoutMillis(1000 * 5);
-        pinpointSocketFactory.setAgentProperties(Collections.EMPTY_MAP);
+        pinpointSocketFactory.setProperties(Collections.EMPTY_MAP);
 
         return pinpointSocketFactory;
 	}

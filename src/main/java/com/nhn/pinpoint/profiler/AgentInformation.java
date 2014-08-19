@@ -3,8 +3,6 @@ package com.nhn.pinpoint.profiler;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.nhn.pinpoint.rpc.server.AgentPropertiesType;
-
 /**
  * @author emeroad
  * @author koo.taejin
