@@ -4,9 +4,6 @@ import java.util.Map;
 
 import com.nhn.pinpoint.rpc.util.ClassUtils;
 
-/**
- * @author koo.taejin
- */
 public class AgentProperties {
 
 	public static final String KEY_HOSTNAME = "hostName";

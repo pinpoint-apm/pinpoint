@@ -3,7 +3,6 @@ package com.nhn.pinpoint.rpc.server;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -554,55 +553,6 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         }
     	
     	return channelContextList;
-    }
-    
-    public ChannelContext getDuplexChannelContext(String applicationName, String agentId, long startTimeMillis) {
-    	if (applicationName == null) {
-    		return null;
-    	}
-    	
-    	if (agentId == null) {
-    		return null;
-    	}
-    	
-    	if (startTimeMillis <= 0) {
-    		return null;
-    	}
-    	
-    	List<ChannelContext> channelContextList = new ArrayList<ChannelContext>();
-
-        for (Channel channel : channelGroup) {
-            ChannelContext context = getChannelContext(channel);
-
-            if (context.getCurrentStateCode() == PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION) {
-                Map agentProperties = context.getChannelProperties();
-
-                if (!applicationName.equals(agentProperties.get(AgentPropertiesType.APPLICATION_NAME.getName()))) {
-                    continue;
-                }
-
-                if (!agentId.equals(agentProperties.get(AgentPropertiesType.AGENT_ID.getName()))) {
-                    continue;
-                }
-
-                if (startTimeMillis != (Long) agentProperties.get(AgentPropertiesType.START_TIMESTAMP.getName())) {
-                    continue;
-                }
-
-                channelContextList.add(context);
-            }
-        }
-
-    	if (channelContextList.size() == 0) {
-    		return null;
-    	} 
-    	
-    	if (channelContextList.size() == 1) {
-    		return channelContextList.get(0);
-    	} else {
-    		logger.warn("Ambiguous Channel Context {}, {}, {} (Valid Agent list={}).", applicationName, agentId, startTimeMillis, channelContextList);
-    		return null;
-    	}
     }
     
 }

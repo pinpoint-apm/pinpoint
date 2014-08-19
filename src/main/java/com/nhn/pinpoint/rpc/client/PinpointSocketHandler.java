@@ -204,7 +204,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 				return;
 			}
 			
-			if (state.getState() == State.RUN_WITHOUT_REGISTER) {
+			if (state.getState() == State.RUN) {
 				sendEnableWorkerPacket();
 				reservationEnableWorkerPacketJob(this);
 			}
