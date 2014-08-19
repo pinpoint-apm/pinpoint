@@ -150,10 +150,10 @@ public class MessageListenerTest {
 			
 			Thread.sleep(500);
 
-			ChannelContext channelContext = ss.getDuplexChannelContext("application", "agent", (Long) params.get(AgentPropertiesType.START_TIMESTAMP.getName()));
+			ChannelContext channelContext = getChannelContext("application", "agent", (Long) params.get(AgentPropertiesType.START_TIMESTAMP.getName()), ss.getDuplexCommunicationChannelContext());
 			Assert.assertNotNull(channelContext);
 
-			channelContext = ss.getDuplexChannelContext("application", "agent", (Long) params.get(AgentPropertiesType.START_TIMESTAMP.getName()) + 1);
+			channelContext = getChannelContext("application", "agent", (Long) params.get(AgentPropertiesType.START_TIMESTAMP.getName()) + 1, ss.getDuplexCommunicationChannelContext());
 			Assert.assertNull(channelContext);
 
 			socket.close();
@@ -221,5 +221,54 @@ public class MessageListenerTest {
 		}
 
 	}
+	
+	
+	private ChannelContext getChannelContext(String applicationName, String agentId, long startTimeMillis, List<ChannelContext> duplexChannelContextList) {
+    	if (applicationName == null) {
+    		return null;
+    	}
+    	
+    	if (agentId == null) {
+    		return null;
+    	}
+    	
+    	if (startTimeMillis <= 0) {
+    		return null;
+    	}
+    	
+    	List<ChannelContext> channelContextList = new ArrayList<ChannelContext>();
+
+    	for (ChannelContext eachContext : duplexChannelContextList) {
+            if (eachContext.getCurrentStateCode() == PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION) {
+                Map agentProperties = eachContext.getChannelProperties();
+
+                if (!applicationName.equals(agentProperties.get(AgentPropertiesType.APPLICATION_NAME.getName()))) {
+                    continue;
+                }
+
+                if (!agentId.equals(agentProperties.get(AgentPropertiesType.AGENT_ID.getName()))) {
+                    continue;
+                }
+
+                if (startTimeMillis != (Long) agentProperties.get(AgentPropertiesType.START_TIMESTAMP.getName())) {
+                    continue;
+                }
+
+                channelContextList.add(eachContext);
+            }
+    	}
+    	
+
+    	if (channelContextList.size() == 0) {
+    		return null;
+    	} 
+    	
+    	if (channelContextList.size() == 1) {
+    		return channelContextList.get(0);
+    	} else {
+    		logger.warn("Ambiguous Channel Context {}, {}, {} (Valid Agent list={}).", applicationName, agentId, startTimeMillis, channelContextList);
+    		return null;
+    	}
+    }
 
 }

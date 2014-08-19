@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.rpc.util.CopyUtils;
-import com.nhn.pinpoint.rpc.util.MapUtils;
 
 public class ChannelContext {
 
@@ -96,10 +95,6 @@ public class ChannelContext {
 		if (state.changeStateUnkownError()) {
 			stateChangeEventListener.eventPerformed(this, PinpointServerSocketStateCode.ERROR_UNKOWN);
 		}
-	}
-	
-	public String getVersion() {
-		return MapUtils.get(channelProperties, AgentPropertiesType.VERSION.getName(), String.class, "UNKNOWN");
 	}
 
 	public Map getChannelProperties() {

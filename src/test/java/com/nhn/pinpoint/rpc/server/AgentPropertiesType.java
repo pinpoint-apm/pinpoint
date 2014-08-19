@@ -4,9 +4,6 @@ import java.util.Map;
 
 import com.nhn.pinpoint.rpc.util.ClassUtils;
 
-/**
- * @author koo.taejin
- */
 public enum AgentPropertiesType {
 
 	HOSTNAME("hostName", String.class),

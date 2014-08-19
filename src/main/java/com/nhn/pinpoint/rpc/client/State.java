@@ -18,8 +18,8 @@ public class State {
     // 0 핸드쉐이크 안함.. 1은 동작중, 2는 closed
     public static final int INIT_RECONNECT = -1;
     public static final int INIT = 0;
-    public static final int RUN_WITHOUT_REGISTER = 1;
-    public static final int RUN = 2;
+    public static final int RUN = 1;
+    public static final int RUN_DUPLEX_COMMUNICATION = 2;
     public static final int CLOSED = 3;
 //    이 상태가 있어야 되나?
     public static final int RECONNECT = 4;
@@ -33,11 +33,11 @@ public class State {
 
     public boolean isRun() {
     	int code = state.get();
-        return code == RUN_WITHOUT_REGISTER || code == RUN;
+        return code == RUN || code == RUN_DUPLEX_COMMUNICATION;
     }
     
     public boolean isRun(int code) {
-        return code == RUN_WITHOUT_REGISTER || code == RUN;
+        return code == RUN || code == RUN_DUPLEX_COMMUNICATION;
     }
 
     public boolean isClosed() {
@@ -45,27 +45,27 @@ public class State {
     }
 
     public boolean changeRunWithoutRegister() {
-    	logger.debug("State Will Be Changed {}.", getString(RUN_WITHOUT_REGISTER));
-        final int current = state.get();
-        if (current == INIT) {
-            return this.state.compareAndSet(INIT, RUN_WITHOUT_REGISTER);
-        } else if(current == INIT_RECONNECT) {
-            return this.state.compareAndSet(INIT_RECONNECT, RUN_WITHOUT_REGISTER);
-        }
-        throw new IllegalStateException("InvalidState current:"  + getString(current) + " change:" + getString(RUN_WITHOUT_REGISTER));
-    }
-
-    public boolean changeRun() {
     	logger.debug("State Will Be Changed {}.", getString(RUN));
         final int current = state.get();
         if (current == INIT) {
             return this.state.compareAndSet(INIT, RUN);
         } else if(current == INIT_RECONNECT) {
             return this.state.compareAndSet(INIT_RECONNECT, RUN);
-        } else if (current == RUN_WITHOUT_REGISTER) {
-        	return this.state.compareAndSet(RUN_WITHOUT_REGISTER, RUN);
         }
         throw new IllegalStateException("InvalidState current:"  + getString(current) + " change:" + getString(RUN));
+    }
+
+    public boolean changeRun() {
+    	logger.debug("State Will Be Changed {}.", getString(RUN_DUPLEX_COMMUNICATION));
+        final int current = state.get();
+        if (current == INIT) {
+            return this.state.compareAndSet(INIT, RUN_DUPLEX_COMMUNICATION);
+        } else if(current == INIT_RECONNECT) {
+            return this.state.compareAndSet(INIT_RECONNECT, RUN_DUPLEX_COMMUNICATION);
+        } else if (current == RUN) {
+        	return this.state.compareAndSet(RUN, RUN_DUPLEX_COMMUNICATION);
+        }
+        throw new IllegalStateException("InvalidState current:"  + getString(current) + " change:" + getString(RUN_DUPLEX_COMMUNICATION));
     }
 
     public boolean changeClosed(int before) {
@@ -75,7 +75,7 @@ public class State {
 
     public boolean changeClosed() {
     	logger.debug("State Will Be Changed {}.", getString(CLOSED));
-    	return this.state.compareAndSet(RUN_WITHOUT_REGISTER, CLOSED);
+    	return this.state.compareAndSet(RUN, CLOSED);
     }
 
     public void setClosed() {
@@ -91,10 +91,10 @@ public class State {
         switch (stateCode) {
             case INIT:
                 return "INIT";
-            case RUN_WITHOUT_REGISTER:
-                return "RUN_WITHOUT_REGISTER";
             case RUN:
                 return "RUN";
+            case RUN_DUPLEX_COMMUNICATION:
+                return "RUN_DUPLEX_COMMUNICATION";
             case CLOSED:
                 return "CLOSED";
             case RECONNECT:
