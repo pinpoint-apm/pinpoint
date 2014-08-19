@@ -27,17 +27,17 @@ public class ZookeeperClusterManagerTest {
 			ZookeeperClusterManager clusterManager = new ZookeeperClusterManager("127.0.0.1:" + DEFAULT_ACCEPTOR_PORT, 3000);
 
 			ChannelContext channelContext = new ChannelContext(null, null, clusterManager);
-			channelContext.setAgentProperties(getParams());
+			channelContext.setChannelProperties(getParams());
 
-			channelContext.changeStateRunWithoutRegister();
+			channelContext.changeStateRun();
 			Thread.sleep(1000);
 			Map result = clusterManager.getData(channelContext);
 			Assert.assertNull(getCode(result));
 
-			channelContext.changeStateRun();
+			channelContext.changeStateRunDuplexCommunication();
 			Thread.sleep(1000);
 			result = clusterManager.getData(channelContext);
-			Assert.assertEquals(PinpointServerSocketStateCode.RUN, getCode(result));
+			Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION, getCode(result));
 
 			channelContext.changeStateShutdown();
 			Thread.sleep(1000);
@@ -60,14 +60,14 @@ public class ZookeeperClusterManagerTest {
 			ZookeeperClusterManager clusterManager = new ZookeeperClusterManager("127.0.0.1:" + DEFAULT_ACCEPTOR_PORT, 3000);
 
 			ChannelContext channelContext = new ChannelContext(null, null, clusterManager);
-			channelContext.setAgentProperties(getParams());
+			channelContext.setChannelProperties(getParams());
 
-			channelContext.changeStateRunWithoutRegister();
+			channelContext.changeStateRun();
 			Thread.sleep(1000);
 			Map result = clusterManager.getData(channelContext);
 			Assert.assertNull(getCode(result));
 
-			channelContext.changeStateRun();
+			channelContext.changeStateRunDuplexCommunication();
 			Thread.sleep(1000);
 			result = clusterManager.getData(channelContext);
 			Assert.assertNull(getCode(result));
@@ -75,7 +75,7 @@ public class ZookeeperClusterManagerTest {
 			ts = createZookeeperServer(DEFAULT_ACCEPTOR_PORT);
 			Thread.sleep(1000);
 			result = clusterManager.getData(channelContext);
-			Assert.assertEquals(PinpointServerSocketStateCode.RUN, getCode(result));
+			Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION, getCode(result));
 
 			channelContext.changeStateShutdown();
 			Thread.sleep(1000);
@@ -100,17 +100,17 @@ public class ZookeeperClusterManagerTest {
 			ZookeeperClusterManager clusterManager = new ZookeeperClusterManager("127.0.0.1:" + DEFAULT_ACCEPTOR_PORT, 3000);
 
 			ChannelContext channelContext = new ChannelContext(null, null, clusterManager);
-			channelContext.setAgentProperties(getParams());
+			channelContext.setChannelProperties(getParams());
 
-			channelContext.changeStateRunWithoutRegister();
+			channelContext.changeStateRun();
 			Thread.sleep(1000);
 			Map result = clusterManager.getData(channelContext);
 			Assert.assertNull(getCode(result));
 
-			channelContext.changeStateRun();
+			channelContext.changeStateRunDuplexCommunication();
 			Thread.sleep(1000);
 			result = clusterManager.getData(channelContext);
-			Assert.assertEquals(PinpointServerSocketStateCode.RUN, getCode(result));
+			Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION, getCode(result));
 
 			ts.stop();
 			Thread.sleep(1000);
@@ -118,7 +118,7 @@ public class ZookeeperClusterManagerTest {
 			Thread.sleep(1000);
 
 			result = clusterManager.getData(channelContext);
-			Assert.assertEquals(PinpointServerSocketStateCode.RUN, getCode(result));
+			Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION, getCode(result));
 
 			channelContext.changeStateShutdown();
 			Thread.sleep(1000);
@@ -140,14 +140,14 @@ public class ZookeeperClusterManagerTest {
 			ZookeeperClusterManager clusterManager = new ZookeeperClusterManager("127.0.0.1:" + DEFAULT_ACCEPTOR_PORT, 3000);
 
 			ChannelContext channelContext = new ChannelContext(null, null, clusterManager);
-			channelContext.setAgentProperties(getParams());
+			channelContext.setChannelProperties(getParams());
 
-			channelContext.changeStateRunWithoutRegister();
+			channelContext.changeStateRun();
 			Thread.sleep(1000);
 			Map result = clusterManager.getData(channelContext);
 			Assert.assertNull(getCode(result));
 
-			channelContext.changeStateRun();
+			channelContext.changeStateRunDuplexCommunication();
 			Thread.sleep(1000);
 			result = clusterManager.getData(channelContext);
 			Assert.assertNull(getCode(result));
@@ -180,17 +180,17 @@ public class ZookeeperClusterManagerTest {
 			ZookeeperClusterManager clusterManager = new ZookeeperClusterManager("127.0.0.1:" + DEFAULT_ACCEPTOR_PORT, 3000);
 
 			ChannelContext channelContext = new ChannelContext(null, null, clusterManager);
-			channelContext.setAgentProperties(getParams());
+			channelContext.setChannelProperties(getParams());
 
-			channelContext.changeStateRunWithoutRegister();
+			channelContext.changeStateRun();
 			Thread.sleep(1000);
 			Map result = clusterManager.getData(channelContext);
 			Assert.assertNull(getCode(result));
 
-			channelContext.changeStateRun();
+			channelContext.changeStateRunDuplexCommunication();
 			Thread.sleep(1000);
 			result = clusterManager.getData(channelContext);
-			Assert.assertEquals(PinpointServerSocketStateCode.RUN, getCode(result));
+			Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION, getCode(result));
 
 			channelContext.changeStateShutdown();
 			Thread.sleep(1000);
@@ -219,7 +219,11 @@ public class ZookeeperClusterManagerTest {
 	}
 
 	private void closeZookeeperServer(TestingServer mockZookeeperServer) throws Exception {
-		mockZookeeperServer.close();
+		try {
+			mockZookeeperServer.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	private PinpointServerSocketStateCode getCode(Map channelContextData) {
