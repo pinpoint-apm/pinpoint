@@ -4,6 +4,7 @@ import java.net.InetAddress;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -12,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import com.nhn.pinpoint.thrift.io.*;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
@@ -23,15 +23,25 @@ import com.nhn.pinpoint.collector.receiver.DispatchHandler;
 import com.nhn.pinpoint.collector.util.PacketUtils;
 import com.nhn.pinpoint.common.util.ExecutorFactory;
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
+import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.rpc.packet.StreamPacket;
+import com.nhn.pinpoint.rpc.server.AgentPropertiesType;
 import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
 import com.nhn.pinpoint.rpc.server.ServerMessageListener;
 import com.nhn.pinpoint.rpc.server.ServerStreamChannel;
 import com.nhn.pinpoint.rpc.server.SocketChannel;
+import com.nhn.pinpoint.thrift.io.DeserializerFactory;
+import com.nhn.pinpoint.thrift.io.Header;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
-import org.springframework.core.NamedThreadLocal;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
+import com.nhn.pinpoint.thrift.io.L4Packet;
+import com.nhn.pinpoint.thrift.io.SerializerFactory;
+import com.nhn.pinpoint.thrift.io.ThreadLocalHeaderTBaseDeserializerFactory;
+import com.nhn.pinpoint.thrift.io.ThreadLocalHeaderTBaseSerializerFactory;
 
 /**
  * @author emeroad
@@ -108,6 +118,20 @@ public class TCPReceiver {
             @Override
             public void handleStream(StreamPacket streamPacket, ServerStreamChannel streamChannel) {
                 logger.warn("unsupported streamPacket received {}", streamPacket);
+            }
+            
+            @Override
+            public int handleEnableWorker(Map properties) {
+    			if (properties == null) {
+    				return ControlEnableWorkerConfirmPacket.ILLEGAL_PROTOCOL;
+    			}
+    			
+    			boolean hasAllType = AgentPropertiesType.hasAllType(properties);
+    			if (!hasAllType) {
+    				return ControlEnableWorkerConfirmPacket.INVALID_PROPERTIES;
+    			}
+
+    			return ControlEnableWorkerConfirmPacket.SUCCESS;
             }
         });
         this.pinpointServerSocket.bind(bindAddress, port);

@@ -59,14 +59,14 @@ public class ZookeeperClusterManager implements SocketChannelStateChangeEventLis
 	public void eventPerformed(ChannelContext channelContext, PinpointServerSocketStateCode stateCode) {
 		logger.info("eventPerformed ChannelContext={}, State={}", channelContext, stateCode);
 
-		Map agentProperties = channelContext.getAgentProperties();
+		Map agentProperties = channelContext.getChannelProperties();
 		
 		// 현재는 AgentProperties에 값을 모를 경우 skip 
 		if (skipAgent(agentProperties)) {
 			return;
 		}
 		
-		if (PinpointServerSocketStateCode.RUN == stateCode) {
+		if (PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION == stateCode) {
 			byte[] contents = serializeContents(agentProperties, stateCode);
 			if (contents == null) {
 				return;

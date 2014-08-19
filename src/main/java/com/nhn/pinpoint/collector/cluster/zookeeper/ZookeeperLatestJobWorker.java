@@ -331,7 +331,7 @@ public class ZookeeperLatestJobWorker implements Runnable {
 			}
 
 			if (zNodePath == null) {
-				Map agentProperties = channelContext.getAgentProperties();
+				Map agentProperties = channelContext.getChannelProperties();
 				String applicationName = MapUtils.get(agentProperties, AgentPropertiesType.APPLICATION_NAME.getName(),
 						AgentPropertiesType.APPLICATION_NAME.getClazzType());
 				String agentId = MapUtils.get(agentProperties, AgentPropertiesType.AGENT_ID.getName(), AgentPropertiesType.AGENT_ID.getClazzType());
