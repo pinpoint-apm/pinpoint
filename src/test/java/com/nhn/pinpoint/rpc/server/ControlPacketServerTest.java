@@ -17,8 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.rpc.control.ProtocolException;
-import com.nhn.pinpoint.rpc.packet.ControlRegisterAgentConfirmPacket;
-import com.nhn.pinpoint.rpc.packet.ControlRegisterAgentPacket;
+import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
+import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerPacket;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.ResponsePacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
@@ -157,7 +157,7 @@ public class ControlPacketServerTest {
 
 	private int sendAndReceiveRegisterPacket(Socket socket, Map properties) throws ProtocolException, IOException {
 		sendRegisterPacket(socket.getOutputStream(), properties);
-		ControlRegisterAgentConfirmPacket packet = receiveRegisterConfirmPacket(socket.getInputStream());
+		ControlEnableWorkerConfirmPacket packet = receiveRegisterConfirmPacket(socket.getInputStream());
 		Map result = (Map) ControlMessageEnDeconderUtils.decode(packet.getPayload());
 		
 		return MapUtils.get(result, "code", Integer.class, -1);
@@ -171,7 +171,7 @@ public class ControlPacketServerTest {
 
 	private void sendRegisterPacket(OutputStream outputStream, Map properties) throws ProtocolException, IOException {
 		byte[] payload = ControlMessageEnDeconderUtils.encode(properties);
-		ControlRegisterAgentPacket packet = new ControlRegisterAgentPacket(1, payload);
+		ControlEnableWorkerPacket packet = new ControlEnableWorkerPacket(1, payload);
 
 		ByteBuffer bb = packet.toBuffer().toByteBuffer(0, packet.toBuffer().writerIndex());
 		sendData(outputStream, bb.array());
@@ -190,14 +190,14 @@ public class ControlPacketServerTest {
 		outputStream.flush();
 	}
 
-	private ControlRegisterAgentConfirmPacket receiveRegisterConfirmPacket(InputStream inputStream) throws ProtocolException, IOException {
+	private ControlEnableWorkerConfirmPacket receiveRegisterConfirmPacket(InputStream inputStream) throws ProtocolException, IOException {
 
 		byte[] payload = readData(inputStream);
 		ChannelBuffer cb = ChannelBuffers.wrappedBuffer(payload);
 
 		short packetType = cb.readShort();
 
-		ControlRegisterAgentConfirmPacket packet = ControlRegisterAgentConfirmPacket.readBuffer(packetType, cb);
+		ControlEnableWorkerConfirmPacket packet = ControlEnableWorkerConfirmPacket.readBuffer(packetType, cb);
 		return packet;
 	}
 
@@ -243,13 +243,28 @@ public class ControlPacketServerTest {
 
 		@Override
 		public void handleRequest(RequestPacket requestPacket, SocketChannel channel) {
-			logger.info("handlerRequest {}", requestPacket, channel);
+			logger.info("handlerRequest {} {}", requestPacket, channel);
 			channel.sendResponseMessage(requestPacket, requestPacket.getPayload());
 		}
 
 		@Override
 		public void handleStream(StreamPacket streamPacket, ServerStreamChannel streamChannel) {
+			logger.info("handleStream {} {}", streamPacket, streamChannel);
 
+		}
+		
+		@Override
+		public int handleEnableWorker(Map properties) {
+			if (properties == null) {
+				return ControlEnableWorkerConfirmPacket.ILLEGAL_PROTOCOL;
+			}
+			
+			boolean hasAllType = AgentPropertiesType.hasAllType(properties);
+			if (!hasAllType) {
+				return ControlEnableWorkerConfirmPacket.INVALID_PROPERTIES;
+			}
+
+			return ControlEnableWorkerConfirmPacket.SUCCESS;
 		}
 	}
 	

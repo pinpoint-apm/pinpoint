@@ -26,8 +26,8 @@ public class PacketType {
     public static final short CONTROL_SERVER_CLOSE = 110;
 
     // 컨트롤 패킷
-    public static final short CONTROL_REGISTER_AGENT = 150;
-    public static final short CONTROL_REGISTER_AGENT_CONFIRM = 151;
+    public static final short CONTROL_ENABLE_WORKER = 150;
+    public static final short CONTROL_ENABLE_WORKER_CONFIRM = 151;
 
     // ping, pong의 경우 성능상 두고 다른 CONTROL은 이걸로 뺌
     public static final short CONTROL_PING = 200;

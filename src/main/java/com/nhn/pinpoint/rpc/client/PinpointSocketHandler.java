@@ -27,8 +27,8 @@ import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.ResponseMessage;
 import com.nhn.pinpoint.rpc.control.ProtocolException;
 import com.nhn.pinpoint.rpc.packet.ClientClosePacket;
-import com.nhn.pinpoint.rpc.packet.ControlRegisterAgentConfirmPacket;
-import com.nhn.pinpoint.rpc.packet.ControlRegisterAgentPacket;
+import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
+import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerPacket;
 import com.nhn.pinpoint.rpc.packet.Packet;
 import com.nhn.pinpoint.rpc.packet.PacketType;
 import com.nhn.pinpoint.rpc.packet.PingPacket;
@@ -49,7 +49,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 
 	private static final long DEFAULT_PING_DELAY = 60 * 1000 * 5;
 	private static final long DEFAULT_TIMEOUTMILLIS = 3 * 1000;
-	private static final long DEFAULT_REGISTER_AGENT_PACKET_DELAY = 60 * 1000 * 1;
+	private static final long DEFAULT_ENABLE_WORKER_PACKET_DELAY = 60 * 1000 * 1;
 	
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -60,7 +60,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 
     private long timeoutMillis = DEFAULT_TIMEOUTMILLIS;
     private long pingDelay = DEFAULT_PING_DELAY;
-    private long registerAgentPacketDelay = DEFAULT_REGISTER_AGENT_PACKET_DELAY;
+    private long enableWorkerPacketDelay = DEFAULT_ENABLE_WORKER_PACKET_DELAY;
     
     private final Timer channelTimer;
 
@@ -75,10 +75,10 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     private final ChannelFutureListener sendWriteFailFutureListener = new WriteFailFutureListener(this.logger, "send() write fail.", "send() write fail.");
 
     public PinpointSocketHandler(PinpointSocketFactory pinpointSocketFactory, Map agentProperties) {
-    	this(pinpointSocketFactory, DEFAULT_PING_DELAY, DEFAULT_REGISTER_AGENT_PACKET_DELAY, DEFAULT_TIMEOUTMILLIS);
+    	this(pinpointSocketFactory, DEFAULT_PING_DELAY, DEFAULT_ENABLE_WORKER_PACKET_DELAY, DEFAULT_TIMEOUTMILLIS);
     }
 
-    public PinpointSocketHandler(PinpointSocketFactory pinpointSocketFactory, long pingDelay, long registerAgentPacketDelay, long timeoutMillis) {
+    public PinpointSocketHandler(PinpointSocketFactory pinpointSocketFactory, long pingDelay, long enableWorkerPacketDelay, long timeoutMillis) {
         if (pinpointSocketFactory == null) {
             throw new NullPointerException("pinpointSocketFactory must not be null");
         }
@@ -90,7 +90,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         this.requestManager = new RequestManager(timer);
         this.streamChannelManager = new StreamChannelManager();
         this.pingDelay = pingDelay;
-        this.registerAgentPacketDelay = registerAgentPacketDelay;
+        this.enableWorkerPacketDelay = enableWorkerPacketDelay;
         this.timeoutMillis = timeoutMillis;
 	}
 
@@ -140,8 +140,8 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         this.messageListener = messageListener;
         
         // MessageHandler가 걸릴 경우 Register Agent Packet 전달
-        sendRegisterAgentPacket();
-        registerRegisterAgentPacketTask();
+        sendEnableWorkerPacket();
+        reservationEnableWorkerPacketJob();
 	}
 
     @Override
@@ -192,12 +192,12 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         write.addListener(pingWriteFailFutureListener);
     }
 
-    private class RegisterAgentPacketTask implements TimerTask {
+    private class RegisterEnableWorkerPacketJob implements TimerTask {
 
 		@Override
 		public void run(Timeout timeout) throws Exception {
 			if (timeout.isCancelled()) {
-				newRegisterAgentPacketTimeout(this);
+				reservationEnableWorkerPacketJob(this);
 				return;
 			}
 			if (isClosed()) {
@@ -205,34 +205,34 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 			}
 			
 			if (state.getState() == State.RUN_WITHOUT_REGISTER) {
-				sendRegisterAgentPacket();
-				newRegisterAgentPacketTimeout(this);
+				sendEnableWorkerPacket();
+				reservationEnableWorkerPacketJob(this);
 			}
 		}
     	
     }
 
-    private void registerRegisterAgentPacketTask() {
-        final RegisterAgentPacketTask task = new RegisterAgentPacketTask();
-        newRegisterAgentPacketTimeout(task);
+    private void reservationEnableWorkerPacketJob() {
+        final RegisterEnableWorkerPacketJob job = new RegisterEnableWorkerPacketJob();
+        reservationEnableWorkerPacketJob(job);
     }
     
-    private void newRegisterAgentPacketTimeout(RegisterAgentPacketTask task) {
-        this.channelTimer.newTimeout(task, registerAgentPacketDelay, TimeUnit.MILLISECONDS);
+    private void reservationEnableWorkerPacketJob(RegisterEnableWorkerPacketJob task) {
+        this.channelTimer.newTimeout(task, enableWorkerPacketDelay, TimeUnit.MILLISECONDS);
     }
 
-	void sendRegisterAgentPacket() {
+	void sendEnableWorkerPacket() {
 		if (!isRun()) {
 			return;
 		}
 
-		logger.debug("write RegisterAgentPacket {}", channel);
+		logger.debug("write EnableWorkerPacket {}", channel);
 
 		byte[] payload;
 		try {
-			Map properties = this.pinpointSocketFactory.getAgentProperties();
+			Map properties = this.pinpointSocketFactory.getProperties();
 			payload = ControlMessageEnDeconderUtils.encode(properties);
-			ControlRegisterAgentPacket packet = new ControlRegisterAgentPacket(payload);
+			ControlEnableWorkerPacket packet = new ControlEnableWorkerPacket(payload);
 			ChannelFuture write = this.channel.write(packet);
 		} catch (ProtocolException e) {
 			logger.warn(e.getMessage(), e);
@@ -380,8 +380,8 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
                 case PacketType.CONTROL_SERVER_CLOSE:
                     messageReceivedServerClosed(e.getChannel());
                     return;
-                case PacketType.CONTROL_REGISTER_AGENT_CONFIRM:
-                    messageReceivedRegisterAgentConfirm((ControlRegisterAgentConfirmPacket)message, e.getChannel());
+                case PacketType.CONTROL_ENABLE_WORKER_CONFIRM:
+                    messageReceivedEnableWorkerConfirm((ControlEnableWorkerConfirmPacket)message, e.getChannel());
                     return;
                 default:
                     logger.warn("unexpectedMessage received:{} address:{}", message, e.getRemoteAddress());
@@ -397,13 +397,13 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         state.setState(State.RECONNECT);
     }
 
-    private void messageReceivedRegisterAgentConfirm(ControlRegisterAgentConfirmPacket message, Channel channel) {
+    private void messageReceivedEnableWorkerConfirm(ControlEnableWorkerConfirmPacket message, Channel channel) {
     	int code = getRegisterAgnetConfirmPacketCode(message.getPayload());
 
-    	logger.info("RegisterAgentConfirm Packet({}) code={} received. {}", message, code, channel);
+    	logger.info("EnableWorkerConfirm Packet({}) code={} received. {}", message, code, channel);
         // reconnect 상태로 변경한다.
 
-    	if (code == ControlRegisterAgentConfirmPacket.SUCCESS || code == ControlRegisterAgentConfirmPacket.ALREADY_REGISTER) {
+    	if (code == ControlEnableWorkerConfirmPacket.SUCCESS || code == ControlEnableWorkerConfirmPacket.ALREADY_REGISTER) {
     		state.changeRun();
         }
     }

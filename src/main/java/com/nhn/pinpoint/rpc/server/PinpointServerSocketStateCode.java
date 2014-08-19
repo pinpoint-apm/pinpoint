@@ -17,16 +17,16 @@ public enum PinpointServerSocketStateCode {
 	// UNEXPECTED_SHUTDOWN : CLOSE 등의 명령을 받지 못한 상태에서 상대방이 연결을 종료하였을떄 
 	
 	NONE(), 
-	RUN_WITHOUT_REGISTER(NONE), 
-	RUN(NONE, RUN_WITHOUT_REGISTER), 
-	BEING_SHUTDOWN(RUN, RUN_WITHOUT_REGISTER),
-	SHUTDOWN(RUN, RUN_WITHOUT_REGISTER, BEING_SHUTDOWN),
-	UNEXPECTED_SHUTDOWN(RUN, RUN_WITHOUT_REGISTER),
+	RUN(NONE), //Simplex Communication
+	RUN_DUPLEX_COMMUNICATION(NONE, RUN), 
+	BEING_SHUTDOWN(RUN_DUPLEX_COMMUNICATION, RUN),
+	SHUTDOWN(RUN_DUPLEX_COMMUNICATION, RUN, BEING_SHUTDOWN),
+	UNEXPECTED_SHUTDOWN(RUN_DUPLEX_COMMUNICATION, RUN),
 	
 	// 서버쪽에서 먼저 연결을 끊자는 메시지도 필요하다. 
 	// 예를 들어 HELLO 이후 다 확인했는데, 같은 Agent명이 있으면(?) 이걸 사용자에게 말해야 할까? 아닐까? 알림 등
-	ERROR_UNKOWN(RUN, RUN_WITHOUT_REGISTER), 
-	ERROR_ILLEGAL_STATE_CHANGE(NONE, RUN, RUN_WITHOUT_REGISTER, BEING_SHUTDOWN);
+	ERROR_UNKOWN(RUN_DUPLEX_COMMUNICATION, RUN), 
+	ERROR_ILLEGAL_STATE_CHANGE(NONE, RUN_DUPLEX_COMMUNICATION, RUN, BEING_SHUTDOWN);
 
 	private final Set<PinpointServerSocketStateCode> validBeforeStateSet;
 
@@ -55,7 +55,7 @@ public enum PinpointServerSocketStateCode {
 	}
 
 	public static boolean isRun(PinpointServerSocketStateCode code) {
-		if (code == RUN || code == RUN_WITHOUT_REGISTER) {
+		if (code == RUN_DUPLEX_COMMUNICATION || code == RUN) {
 			return true;
 		}
 

@@ -14,11 +14,11 @@ public class PinpointServerSocketStateTest {
 	public void changeStateTest1() {
 		PinpointServerSocketState state = new PinpointServerSocketState();
 
-		state.changeStateRunWithoutRegister();
-		Assert.assertEquals(PinpointServerSocketStateCode.RUN_WITHOUT_REGISTER, state.getCurrentState());
-
 		state.changeStateRun();
 		Assert.assertEquals(PinpointServerSocketStateCode.RUN, state.getCurrentState());
+
+		state.changeStateRunDuplexCommunication();
+		Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION, state.getCurrentState());
 
 		state.changeStateBeingShutdown();
 		Assert.assertEquals(PinpointServerSocketStateCode.BEING_SHUTDOWN, state.getCurrentState());
@@ -33,8 +33,8 @@ public class PinpointServerSocketStateTest {
 	public void changeStateTest2() {
 		PinpointServerSocketState state = new PinpointServerSocketState();
 
-		state.changeStateRun();
-		Assert.assertEquals(PinpointServerSocketStateCode.RUN, state.getCurrentState());
+		state.changeStateRunDuplexCommunication();
+		Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION, state.getCurrentState());
 
 		state.changeStateBeingShutdown();
 		Assert.assertEquals(PinpointServerSocketStateCode.BEING_SHUTDOWN, state.getCurrentState());
@@ -49,8 +49,8 @@ public class PinpointServerSocketStateTest {
 	public void changeStateTest3() {
 		PinpointServerSocketState state = new PinpointServerSocketState();
 
-		state.changeStateRunWithoutRegister();
-		Assert.assertEquals(PinpointServerSocketStateCode.RUN_WITHOUT_REGISTER, state.getCurrentState());
+		state.changeStateRun();
+		Assert.assertEquals(PinpointServerSocketStateCode.RUN, state.getCurrentState());
 
 		state.changeStateUnexpectedShutdown();
 		Assert.assertEquals(PinpointServerSocketStateCode.UNEXPECTED_SHUTDOWN, state.getCurrentState());
@@ -62,8 +62,8 @@ public class PinpointServerSocketStateTest {
 	public void changeStateTest4() {
 		PinpointServerSocketState state = new PinpointServerSocketState();
 
-		state.changeStateRunWithoutRegister();
-		Assert.assertEquals(PinpointServerSocketStateCode.RUN_WITHOUT_REGISTER, state.getCurrentState());
+		state.changeStateRun();
+		Assert.assertEquals(PinpointServerSocketStateCode.RUN, state.getCurrentState());
 
 		state.changeStateShutdown();
 		Assert.assertEquals(PinpointServerSocketStateCode.SHUTDOWN, state.getCurrentState());
@@ -73,8 +73,8 @@ public class PinpointServerSocketStateTest {
 	public void changeStateTest5() {
 		PinpointServerSocketState state = new PinpointServerSocketState();
 
-		state.changeStateRun();
-		Assert.assertEquals(PinpointServerSocketStateCode.RUN, state.getCurrentState());
+		state.changeStateRunDuplexCommunication();
+		Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION, state.getCurrentState());
 
 		state.changeStateShutdown();
 		Assert.assertEquals(PinpointServerSocketStateCode.SHUTDOWN, state.getCurrentState());
@@ -93,8 +93,8 @@ public class PinpointServerSocketStateTest {
 	public void invalidChangeStateTest2() {
 		PinpointServerSocketState state = new PinpointServerSocketState();
 
-		state.changeStateRun();
-		Assert.assertEquals(PinpointServerSocketStateCode.RUN, state.getCurrentState());
+		state.changeStateRunDuplexCommunication();
+		Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION, state.getCurrentState());
 
 		state.changeStateBeingShutdown();
 		Assert.assertEquals(PinpointServerSocketStateCode.BEING_SHUTDOWN, state.getCurrentState());

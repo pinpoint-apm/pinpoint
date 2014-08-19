@@ -3,8 +3,8 @@ package com.nhn.pinpoint.rpc.server;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -39,8 +39,8 @@ import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.client.WriteFailFutureListener;
 import com.nhn.pinpoint.rpc.control.ProtocolException;
-import com.nhn.pinpoint.rpc.packet.ControlRegisterAgentConfirmPacket;
-import com.nhn.pinpoint.rpc.packet.ControlRegisterAgentPacket;
+import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
+import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerPacket;
 import com.nhn.pinpoint.rpc.packet.Packet;
 import com.nhn.pinpoint.rpc.packet.PacketType;
 import com.nhn.pinpoint.rpc.packet.PingPacket;
@@ -211,8 +211,28 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 			case PacketType.APPLICATION_STREAM_RESPONSE:
 				handleStreamPacket((StreamPacket) message, channel);
 				return;
-			case PacketType.CONTROL_REGISTER_AGENT:
-				handleRegisterAgent((ControlRegisterAgentPacket) message, channel);
+			case PacketType.CONTROL_ENABLE_WORKER:
+				int requestId = ((ControlEnableWorkerPacket)message).getRequestId();
+				
+				Map properties = decodeSocketProperties((ControlEnableWorkerPacket) message);
+				if (properties == null) {
+					sendEnableWorkerConfirmMessage(requestId, ControlEnableWorkerConfirmPacket.ILLEGAL_PROTOCOL, channel);
+					return;
+				}
+				
+				ChannelContext channelContext = getChannelContext(channel);
+				channelContext.setChannelProperties(properties);
+				
+				int returnCode = messageListener.handleEnableWorker(properties);
+				if (returnCode == ControlEnableWorkerConfirmPacket.SUCCESS) {
+					if (changeStateToRunDuplexCommunication(returnCode, channel)) {
+						sendEnableWorkerConfirmMessage(requestId, ControlEnableWorkerConfirmPacket.SUCCESS, channel);
+					} else {
+						sendEnableWorkerConfirmMessage(requestId, ControlEnableWorkerConfirmPacket.ALREADY_REGISTER, channel);
+					}
+				} else {
+					sendEnableWorkerConfirmMessage(requestId, returnCode, channel);
+				}
 				return;
 			case PacketType.CONTROL_CLIENT_CLOSE: {
 				closeChannel(channel);
@@ -260,55 +280,48 @@ public class PinpointServerSocket extends SimpleChannelHandler {
             logger.warn("invalid streamPacket. channel:{}", channel);
         }
     }
-
-    private void handleRegisterAgent(ControlRegisterAgentPacket message, Channel channel) {
-        ChannelContext context = getChannelContext(channel);
-
-        int code = registerAgent(context, message);
-
-        if (code == ControlRegisterAgentConfirmPacket.SUCCESS) {
-        	context.changeStateRun();
-        }
-        
-		try {
-			Map result = new HashMap();
-			result.put("code", code);
-			
-			byte[] resultPayload = ControlMessageEnDeconderUtils.encode(result);
-			ControlRegisterAgentConfirmPacket packet = new ControlRegisterAgentConfirmPacket(message.getRequestId(), resultPayload);
-
-			channel.write(packet);
-		} catch (ProtocolException e) {
-			logger.warn(e.getMessage(), e);
-		}
-	}
     
-	private int registerAgent(ChannelContext context, ControlRegisterAgentPacket message) {
+	private Map decodeSocketProperties(ControlEnableWorkerPacket message) {
 		Map properties = null;
 		try {
 			byte[] payload = message.getPayload();
 			properties = (Map) ControlMessageEnDeconderUtils.decode(payload);
+			return properties;
 		} catch (ProtocolException e) {
 			logger.warn(e.getMessage(), e);
 		}
 		
-		if (properties == null) {
-			return ControlRegisterAgentConfirmPacket.ILLEGAL_PROTOCOL;
-		}
-		
-		boolean hasAllType = AgentPropertiesType.hasAllType(properties);
-		if (!hasAllType) {
-			return ControlRegisterAgentConfirmPacket.INVALID_PROPERTIES;
-		}
-
-		boolean isSuccess = context.setAgentProperties(properties);
-		if (isSuccess) {
-			return ControlRegisterAgentConfirmPacket.SUCCESS;
-		} else {
-			return ControlRegisterAgentConfirmPacket.ALREADY_REGISTER;
-		}
+		return null;
 	}
     
+	private boolean changeStateToRunDuplexCommunication(int returnCode, Channel channel) {
+		ChannelContext context = getChannelContext(channel);
+
+		if (returnCode == ControlEnableWorkerConfirmPacket.SUCCESS) {
+			if (context.getCurrentStateCode() != PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION) {
+				context.changeStateRunDuplexCommunication();
+				return true;
+			} 
+		}
+
+		return false;
+	}
+	
+    private void sendEnableWorkerConfirmMessage(int requestId, int returnCode, Channel channel) {
+		try {
+			Map result = new HashMap();
+			result.put("code", returnCode);
+			
+			byte[] resultPayload = ControlMessageEnDeconderUtils.encode(result);
+			ControlEnableWorkerConfirmPacket packet = new ControlEnableWorkerConfirmPacket(requestId, resultPayload);
+	
+			channel.write(packet);
+		} catch (ProtocolException e) {
+			logger.warn(e.getMessage(), e);
+		}
+    	
+    }
+
     @Override
     public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         final Channel channel = e.getChannel();
@@ -337,7 +350,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         prepareChannel(channel);
         
         ChannelContext channelContext = getChannelContext(channel);
-        channelContext.changeStateRunWithoutRegister();
+        channelContext.changeStateRun();
         
         super.channelConnected(ctx, e);
     }
@@ -529,13 +542,13 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         logger.info("sendServerClosedPacket end");
     }
     
-    public List<ChannelContext> getRegisterAgentChannelContext() {
+    public List<ChannelContext> getDuplexCommunicationChannelContext() {
     	List<ChannelContext> channelContextList = new ArrayList<ChannelContext>();
 
         for (Channel channel : channelGroup) {
             ChannelContext context = getChannelContext(channel);
 
-            if (context.getCurrentStateCode() == PinpointServerSocketStateCode.RUN) {
+            if (context.getCurrentStateCode() == PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION) {
                 channelContextList.add(context);
             }
         }
@@ -543,7 +556,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     	return channelContextList;
     }
     
-    public ChannelContext getRegisterAgentChannelContext(String applicationName, String agentId, long startTimeMillis) {
+    public ChannelContext getDuplexChannelContext(String applicationName, String agentId, long startTimeMillis) {
     	if (applicationName == null) {
     		return null;
     	}
@@ -561,8 +574,8 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         for (Channel channel : channelGroup) {
             ChannelContext context = getChannelContext(channel);
 
-            if (context.getCurrentStateCode() == PinpointServerSocketStateCode.RUN) {
-                Map agentProperties = context.getAgentProperties();
+            if (context.getCurrentStateCode() == PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION) {
+                Map agentProperties = context.getChannelProperties();
 
                 if (!applicationName.equals(agentProperties.get(AgentPropertiesType.APPLICATION_NAME.getName()))) {
                     continue;

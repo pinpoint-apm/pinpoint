@@ -6,34 +6,34 @@ import org.jboss.netty.buffer.ChannelBuffers;
 /**
  * @author koo.taejin
  */
-public class ControlRegisterAgentPacket extends ControlPacket {
+public class ControlEnableWorkerPacket extends ControlPacket {
 
-	public ControlRegisterAgentPacket(byte[] payload) {
+	public ControlEnableWorkerPacket(byte[] payload) {
 		super(payload);
 	}
 
-	public ControlRegisterAgentPacket(int requestId, byte[] payload) {
+	public ControlEnableWorkerPacket(int requestId, byte[] payload) {
 		super(payload);
 		setRequestId(requestId);
 	}
 
 	@Override
 	public short getPacketType() {
-		return PacketType.CONTROL_REGISTER_AGENT;
+		return PacketType.CONTROL_ENABLE_WORKER;
 	}
 
 	@Override
 	public ChannelBuffer toBuffer() {
 
 		ChannelBuffer header = ChannelBuffers.buffer(2 + 4 + 4);
-		header.writeShort(PacketType.CONTROL_REGISTER_AGENT);
+		header.writeShort(PacketType.CONTROL_ENABLE_WORKER);
 		header.writeInt(getRequestId());
 
 		return PayloadPacket.appendPayload(header, payload);
 	}
 
-	public static ControlRegisterAgentPacket readBuffer(short packetType, ChannelBuffer buffer) {
-		assert packetType == PacketType.CONTROL_REGISTER_AGENT;
+	public static ControlEnableWorkerPacket readBuffer(short packetType, ChannelBuffer buffer) {
+		assert packetType == PacketType.CONTROL_ENABLE_WORKER;
 
 		if (buffer.readableBytes() < 8) {
 			buffer.resetReaderIndex();
@@ -45,7 +45,7 @@ public class ControlRegisterAgentPacket extends ControlPacket {
 		if (payload == null) {
 			return null;
 		}
-		final ControlRegisterAgentPacket helloPacket = new ControlRegisterAgentPacket(payload.array());
+		final ControlEnableWorkerPacket helloPacket = new ControlEnableWorkerPacket(payload.array());
 		helloPacket.setRequestId(messageId);
 		return helloPacket;
 	}

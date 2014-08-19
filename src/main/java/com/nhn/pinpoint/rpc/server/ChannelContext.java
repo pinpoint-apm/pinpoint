@@ -21,7 +21,7 @@ public class ChannelContext {
 
 	private final SocketChannelStateChangeEventListener stateChangeEventListener;
 	
-	private volatile Map agentProperties = Collections.EMPTY_MAP;
+	private volatile Map channelProperties = Collections.EMPTY_MAP;
 
 	public ChannelContext(SocketChannel socketChannel, ServerStreamChannelManager streamChannelManager) {
 		this(socketChannel, streamChannelManager, DoNothingChannelStateEventListener.INSTANCE);
@@ -63,10 +63,10 @@ public class ChannelContext {
 		}
 	}
 
-	public void changeStateRunWithoutRegister() {
-		logger.debug("Channel({}) state will be changed {}.", socketChannel, PinpointServerSocketStateCode.RUN_WITHOUT_REGISTER);
-		if (state.changeStateRunWithoutRegister()) {
-			stateChangeEventListener.eventPerformed(this, PinpointServerSocketStateCode.RUN_WITHOUT_REGISTER);
+	public void changeStateRunDuplexCommunication() {
+		logger.debug("Channel({}) state will be changed {}.", socketChannel, PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION);
+		if (state.changeStateRunDuplexCommunication()) {
+			stateChangeEventListener.eventPerformed(this, PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION);
 		}
 	}
 
@@ -99,26 +99,26 @@ public class ChannelContext {
 	}
 	
 	public String getVersion() {
-		return MapUtils.get(agentProperties, AgentPropertiesType.VERSION.getName(), String.class, "UNKNOWN");
+		return MapUtils.get(channelProperties, AgentPropertiesType.VERSION.getName(), String.class, "UNKNOWN");
 	}
 
-	public Map getAgentProperties() {
-		return agentProperties;
+	public Map getChannelProperties() {
+		return channelProperties;
 	}
 
-	public boolean setAgentProperties(Map agentProperties) {
-		if (agentProperties == null) {
+	public boolean setChannelProperties(Map properties) {
+		if (properties == null) {
 			return false;
 		}
 
-		synchronized (agentProperties) {
-			if (this.agentProperties == Collections.EMPTY_MAP) {
-				this.agentProperties = Collections.unmodifiableMap(CopyUtils.mediumCopyMap(agentProperties));
+		synchronized (properties) {
+			if (this.channelProperties == Collections.EMPTY_MAP) {
+				this.channelProperties = Collections.unmodifiableMap(CopyUtils.mediumCopyMap(properties));
 				return true;
 			}
 		}
 
-		logger.warn("Already Register AgentProperties.({}).", this.agentProperties);
+		logger.warn("Already Register ChannelProperties.({}).", this.channelProperties);
 		return false;
 	}
 

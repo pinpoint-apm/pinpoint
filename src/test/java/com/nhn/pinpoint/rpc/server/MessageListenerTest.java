@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.rpc.server;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +39,7 @@ public class MessageListenerTest {
 
 			Thread.sleep(500);
 
-			List<ChannelContext> channelContextList = ss.getRegisterAgentChannelContext();
+			List<ChannelContext> channelContextList = ss.getDuplexCommunicationChannelContext();
 			if (channelContextList.size() != 1) {
 				Assert.fail();
 			}
@@ -68,7 +67,7 @@ public class MessageListenerTest {
 			PinpointSocket socket = socketFactory.connect("127.0.0.1", 10234, echoMessageListener);
 			Thread.sleep(500);
 
-			List<ChannelContext> channelContextList = ss.getRegisterAgentChannelContext();
+			List<ChannelContext> channelContextList = ss.getDuplexCommunicationChannelContext();
 			if (channelContextList.size() != 1) {
 				Assert.fail();
 			}
@@ -112,7 +111,7 @@ public class MessageListenerTest {
 			
 			Thread.sleep(500);
 
-			List<ChannelContext> channelContextList = ss.getRegisterAgentChannelContext();
+			List<ChannelContext> channelContextList = ss.getDuplexCommunicationChannelContext();
 			if (channelContextList.size() != 2) {
 				Assert.fail();
 			}
@@ -151,10 +150,10 @@ public class MessageListenerTest {
 			
 			Thread.sleep(500);
 
-			ChannelContext channelContext = ss.getRegisterAgentChannelContext("application", "agent", (Long) params.get(AgentPropertiesType.START_TIMESTAMP.getName()));
+			ChannelContext channelContext = ss.getDuplexChannelContext("application", "agent", (Long) params.get(AgentPropertiesType.START_TIMESTAMP.getName()));
 			Assert.assertNotNull(channelContext);
 
-			channelContext = ss.getRegisterAgentChannelContext("application", "agent", (Long) params.get(AgentPropertiesType.START_TIMESTAMP.getName()) + 1);
+			channelContext = ss.getDuplexChannelContext("application", "agent", (Long) params.get(AgentPropertiesType.START_TIMESTAMP.getName()) + 1);
 			Assert.assertNull(channelContext);
 
 			socket.close();
@@ -171,7 +170,7 @@ public class MessageListenerTest {
 
 	private PinpointSocketFactory createPinpointSocketFactory(Map param) {
 		PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
-		pinpointSocketFactory.setAgentProperties(param);
+		pinpointSocketFactory.setProperties(param);
 
 		return pinpointSocketFactory;
 	}

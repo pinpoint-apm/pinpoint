@@ -58,11 +58,10 @@ public class PacketDecoder extends FrameDecoder {
                 readPong(packetType, buffer);
                 // pong 도 그냥 버리자.
                 return null;
-            case PacketType.CONTROL_REGISTER_AGENT:
-            	return readRegisterAgent(packetType, buffer);
-            case PacketType.CONTROL_REGISTER_AGENT_CONFIRM:
-            	return readRegisterAgentConfirm(packetType, buffer);
-            	
+            case PacketType.CONTROL_ENABLE_WORKER:
+            	return readEnableWorker(packetType, buffer);
+            case PacketType.CONTROL_ENABLE_WORKER_CONFIRM:
+            	return readEnableWorkerConfirm(packetType, buffer);
         }
         logger.error("invalid packetType received. packetType:{}, channel:{}", packetType, channel);
         channel.close();
@@ -130,12 +129,12 @@ public class PacketDecoder extends FrameDecoder {
         return StreamClosePacket.readBuffer(packetType, buffer);
     }
 
-    private Object readRegisterAgent(short packetType, ChannelBuffer buffer) {
-        return ControlRegisterAgentPacket.readBuffer(packetType, buffer);
+    private Object readEnableWorker(short packetType, ChannelBuffer buffer) {
+        return ControlEnableWorkerPacket.readBuffer(packetType, buffer);
 	}
 
-    private Object readRegisterAgentConfirm(short packetType, ChannelBuffer buffer) {
-        return ControlRegisterAgentConfirmPacket.readBuffer(packetType, buffer);
+    private Object readEnableWorkerConfirm(short packetType, ChannelBuffer buffer) {
+        return ControlEnableWorkerConfirmPacket.readBuffer(packetType, buffer);
 	}
 
 }

@@ -51,11 +51,11 @@ public class PinpointServerSocketState {
 	public boolean changeStateRun() {
 		return setSessionState(PinpointServerSocketStateCode.RUN);
 	}
-
-	public boolean changeStateRunWithoutRegister() {
-		return setSessionState(PinpointServerSocketStateCode.RUN_WITHOUT_REGISTER);
-	}
 	
+	public boolean changeStateRunDuplexCommunication() {
+		return setSessionState(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION);
+	}
+
 	public boolean changeStateBeingShutdown() {
 		return setSessionState(PinpointServerSocketStateCode.BEING_SHUTDOWN);
 	}

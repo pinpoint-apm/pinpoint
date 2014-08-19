@@ -1,11 +1,15 @@
 package com.nhn.pinpoint.rpc;
 
+import java.util.Map;
+
+import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.rpc.packet.StreamPacket;
 import com.nhn.pinpoint.rpc.server.ServerMessageListener;
 import com.nhn.pinpoint.rpc.server.ServerStreamChannel;
 import com.nhn.pinpoint.rpc.server.SocketChannel;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,8 +37,13 @@ public class RequestResponseServerMessageListener implements ServerMessageListen
 
     @Override
     public void handleStream(StreamPacket streamPacket, ServerStreamChannel streamChannel) {
-        logger.info("handlerStream {}", streamChannel, streamChannel);
+        logger.info("handlerStream {} {}", streamChannel, streamChannel);
     }
 
+	@Override
+	public int handleEnableWorker(Map properties) {
+        logger.info("handleEnableWorker {}", properties);
+        return ControlEnableWorkerConfirmPacket.SUCCESS;
+	}
 
 }

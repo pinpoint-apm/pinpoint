@@ -6,39 +6,40 @@ import org.jboss.netty.buffer.ChannelBuffers;
 /**
  * @author koo.taejin
  */
-public class ControlRegisterAgentConfirmPacket extends ControlPacket {
+public class ControlEnableWorkerConfirmPacket extends ControlPacket {
 
 	public static final int SUCCESS = 0;
 	public static final int ALREADY_REGISTER = 1;
 	public static final int INVALID_PROPERTIES = 2;
 	public static final int ILLEGAL_PROTOCOL = 3;
+	public static final int UNKNOWN_ERROR = 4;
 	
-	public ControlRegisterAgentConfirmPacket(byte[] payload) {
+	public ControlEnableWorkerConfirmPacket(byte[] payload) {
 		super(payload);
 	}
 
-	public ControlRegisterAgentConfirmPacket(int requestId, byte[] payload) {
+	public ControlEnableWorkerConfirmPacket(int requestId, byte[] payload) {
 		super(payload);
 		setRequestId(requestId);
 	}
 
 	@Override
 	public short getPacketType() {
-		return PacketType.CONTROL_REGISTER_AGENT_CONFIRM;
+		return PacketType.CONTROL_ENABLE_WORKER_CONFIRM;
 	}
 
 	@Override
 	public ChannelBuffer toBuffer() {
 
 		ChannelBuffer header = ChannelBuffers.buffer(2 + 4 + 4);
-		header.writeShort(PacketType.CONTROL_REGISTER_AGENT_CONFIRM);
+		header.writeShort(PacketType.CONTROL_ENABLE_WORKER_CONFIRM);
 		header.writeInt(getRequestId());
 
 		return PayloadPacket.appendPayload(header, payload);
 	}
 
-	public static ControlRegisterAgentConfirmPacket readBuffer(short packetType, ChannelBuffer buffer) {
-		assert packetType == PacketType.CONTROL_REGISTER_AGENT_CONFIRM;
+	public static ControlEnableWorkerConfirmPacket readBuffer(short packetType, ChannelBuffer buffer) {
+		assert packetType == PacketType.CONTROL_ENABLE_WORKER_CONFIRM;
 
 		if (buffer.readableBytes() < 8) {
 			buffer.resetReaderIndex();
@@ -50,7 +51,7 @@ public class ControlRegisterAgentConfirmPacket extends ControlPacket {
 		if (payload == null) {
 			return null;
 		}
-		final ControlRegisterAgentConfirmPacket helloPacket = new ControlRegisterAgentConfirmPacket(payload.array());
+		final ControlEnableWorkerConfirmPacket helloPacket = new ControlEnableWorkerConfirmPacket(payload.array());
 		helloPacket.setRequestId(messageId);
 		return helloPacket;
 	}

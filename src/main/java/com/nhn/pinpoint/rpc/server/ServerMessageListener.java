@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.rpc.server;
 
+import java.util.Map;
+
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.rpc.packet.StreamPacket;
@@ -14,5 +16,7 @@ public interface ServerMessageListener {
     void handleRequest(RequestPacket requestPacket, SocketChannel channel);
 
     void handleStream(StreamPacket streamPacket, ServerStreamChannel streamChannel);
+    
+    int handleEnableWorker(Map properties);
 
 }

@@ -32,9 +32,9 @@ public class SocketClientPipelineFactory implements ChannelPipelineFactory {
         pipeline.addLast("encoder", new PacketEncoder());
         pipeline.addLast("decoder", new PacketDecoder());
         long pingDelay = pinpointSocketFactory.getPingDelay();
-        long registerAgentPacketDelay = pinpointSocketFactory.getRegisterAgentPacketDelay();
+        long enableWorkerPacketDelay = pinpointSocketFactory.getEnableWorkerPacketDelay();
         long timeoutMillis = pinpointSocketFactory.getTimeoutMillis();
-        PinpointSocketHandler pinpointSocketHandler = new PinpointSocketHandler(pinpointSocketFactory, pingDelay, registerAgentPacketDelay, timeoutMillis);
+        PinpointSocketHandler pinpointSocketHandler = new PinpointSocketHandler(pinpointSocketFactory, pingDelay, enableWorkerPacketDelay, timeoutMillis);
         pipeline.addLast("writeTimeout", new WriteTimeoutHandler(pinpointSocketHandler.getChannelTimer(), 3000, TimeUnit.MILLISECONDS));
         pipeline.addLast("socketHandler", pinpointSocketHandler);
         return pipeline;

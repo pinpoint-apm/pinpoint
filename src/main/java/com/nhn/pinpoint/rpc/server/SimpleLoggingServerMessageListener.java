@@ -1,8 +1,12 @@
 package com.nhn.pinpoint.rpc.server;
 
+import java.util.Map;
+
+import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.rpc.packet.StreamPacket;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +34,11 @@ public class SimpleLoggingServerMessageListener implements ServerMessageListener
     public void handleStream(StreamPacket streamPacket, ServerStreamChannel streamChannel) {
         logger.info("handlerStream {} {}", streamChannel, streamChannel);
     }
-
+    
+    @Override
+    public int handleEnableWorker(Map properties) {
+        logger.info("handleEnableWorker {}", properties);
+        return ControlEnableWorkerConfirmPacket.SUCCESS;
+    }
 
 }

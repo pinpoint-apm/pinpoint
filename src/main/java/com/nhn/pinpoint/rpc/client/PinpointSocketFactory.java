@@ -45,12 +45,12 @@ public class PinpointSocketFactory {
     private static final int DEFAULT_CONNECT_TIMEOUT = 5000;
 	private static final long DEFAULT_TIMEOUTMILLIS = 3 * 1000;
     private static final long DEFAULT_PING_DELAY = 60 * 1000 * 5;
-	private static final long DEFAULT_REGISTER_AGENT_PACKET_DELAY = 60 * 1000 * 1;
+	private static final long DEFAULT_ENABLE_WORKER_PACKET_DELAY = 60 * 1000 * 1;
 
 
     private volatile boolean released;
     private ClientBootstrap bootstrap;
-    private Map agentProperties = Collections.EMPTY_MAP;
+    private Map properties = Collections.EMPTY_MAP;
     
     private long reconnectDelay = 3 * 1000;
     private final Timer timer;
@@ -58,7 +58,7 @@ public class PinpointSocketFactory {
     // 이 값이 짧아야 될 필요가 없음. client에서 server로 가는 핑 주기를 짧게 유지한다고 해서.
     // 연결끊김이 빨랑 디텍트 되는게 아님. 오히려 server에서 client의 ping주기를 짧게 해야 디텍트 속도가 빨라짐.
     private long pingDelay = DEFAULT_PING_DELAY;
-    private long registerAgentPacketDelay = DEFAULT_REGISTER_AGENT_PACKET_DELAY;
+    private long enableWorkerPacketDelay = DEFAULT_ENABLE_WORKER_PACKET_DELAY;
     private long timeoutMillis = DEFAULT_TIMEOUTMILLIS;
     
     
@@ -142,15 +142,15 @@ public class PinpointSocketFactory {
         this.pingDelay = pingDelay;
     }
     
-	public long getRegisterAgentPacketDelay() {
-		return registerAgentPacketDelay;
+	public long getEnableWorkerPacketDelay() {
+		return enableWorkerPacketDelay;
 	}
 
-	public void setRegisterAgentPacketDelay(long registerAgentPacketDelay) {
-        if (registerAgentPacketDelay < 0) {
-            throw new IllegalArgumentException("registerAgentPacketDelay cannot be a negative number");
+	public void setEnableWorkerPacketDelay(long enableWorkerPacketDelay) {
+        if (enableWorkerPacketDelay < 0) {
+            throw new IllegalArgumentException("EnableWorkerPacketDelay cannot be a negative number");
         }
- 		this.registerAgentPacketDelay = registerAgentPacketDelay;
+ 		this.enableWorkerPacketDelay = enableWorkerPacketDelay;
 	}
 
     public long getTimeoutMillis() {
@@ -368,21 +368,21 @@ public class PinpointSocketFactory {
 //        stop 뭔가 취소를 해야 되나??
     }
 
-	public Map getAgentProperties() {
-		return agentProperties;
+	public Map getProperties() {
+		return properties;
 	}
 
-	public void setAgentProperties(Map agentProperties) {
+	public void setProperties(Map agentProperties) {
 		if (agentProperties == null) {
 			return;
 		}
 		
-		if (this.agentProperties != Collections.EMPTY_MAP) {
+		if (this.properties != Collections.EMPTY_MAP) {
 			logger.warn("Properties variable alreay registered.");
 			return;
 		}
 		
-		this.agentProperties = Collections.unmodifiableMap(CopyUtils.mediumCopyMap(agentProperties));
+		this.properties = Collections.unmodifiableMap(CopyUtils.mediumCopyMap(agentProperties));
 	}
 
 }
