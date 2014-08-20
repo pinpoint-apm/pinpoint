@@ -1,15 +1,11 @@
 package com.nhn.pinpoint.profiler.junit4;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.List;
 
-import org.junit.internal.runners.statements.Fail;
-import org.junit.internal.runners.statements.RunAfters;
-import org.junit.internal.runners.statements.RunBefores;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
@@ -55,6 +51,17 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
         } catch (ClassNotFoundException e) {
             throw new InitializationError(e);
         }
+        // 테스트 대상을 TestClassLoader로 로드된 테스트 객체로 바꿔치기 한다.
+        // JUnit Runner에서 내부적으로 getTestClass()를 호출하여 사용하는데 이게 final이어서 override 불가.
+        try {
+            // PinpointJunit4ClassRunner -> BlockJUnit4ClassRunner -> ParentRunner.fTestClass
+            Field testClassField = this.getClass().getSuperclass().getSuperclass().getDeclaredField("fTestClass");
+            testClassField.setAccessible(true);
+            testClassField.set(this, this.testContext.getTestClass());
+        } catch (Exception e) {
+            // InitializationError로 퉁치자.
+            throw new InitializationError(e);
+        }
     }
 
     private DefaultAgent createTestAgent() throws InitializationError {
@@ -73,14 +80,25 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
         return new MockAgent("", new DummyInstrumentation(), profilerConfig);
     }
 
+    private Class<?> findPinpointTestClassLoaderAnnotationForClass(Class<?> testClass) {
+        if (testClass == null || testClass.equals(Object.class)) {
+            return null;
+        }
+        if (testClass.isAnnotationPresent(PinpointTestClassLoader.class)) {
+            return testClass;
+        }
+        return findPinpointTestClassLoaderAnnotationForClass(testClass.getSuperclass());
+    }
+
     private TestClassLoader getTestClassLoader(Class<?> testClass) throws InitializationError {
-        PinpointTestClassLoader pinpointTestClassLoader = testClass.getAnnotation(PinpointTestClassLoader.class);
-        if (pinpointTestClassLoader == null) {
+        Class<?> classWithPinpointTestClassLoaderAnnotationSpecified = findPinpointTestClassLoaderAnnotationForClass(testClass); 
+        if (classWithPinpointTestClassLoaderAnnotationSpecified == null) {
             if (logger.isInfoEnabled()) {
                 logger.info(String.format("@PinpointTestClassLoader not found for class [%s]", testClass));
             }
             return createTestClassLoader(defaultTestClassLoader);
         } else {
+            PinpointTestClassLoader pinpointTestClassLoader = classWithPinpointTestClassLoaderAnnotationSpecified.getAnnotation(PinpointTestClassLoader.class);
             if (logger.isTraceEnabled()) {
                 logger.trace(String.format("Retrieved @PinpointTestClassLoader [%s] for class [%s]", pinpointTestClassLoader, testClass));
             }
@@ -155,40 +173,6 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
             }
         }
         return super.methodInvoker(method, test);
-    }
-
-    @Override
-    protected Statement methodBlock(FrameworkMethod frameworkMethod) {
-        try {
-            Method newMethod = this.testContext.getTestClass().getJavaClass().getMethod(frameworkMethod.getName());
-            FrameworkMethod newFrameworkMethod = new FrameworkMethod(newMethod);
-            return super.methodBlock(newFrameworkMethod);
-        } catch (NoSuchMethodException e) {
-            return new Fail(e);
-        } catch (SecurityException e) {
-            return new Fail(e);
-        }
-    }
-
-    @Override
-    protected Object createTest() throws Exception {
-        return this.testContext.getTestClass().getJavaClass().newInstance();
-    }
-
-    @Override
-    @Deprecated
-    protected Statement withBefores(FrameworkMethod method, Object target, Statement statement) {
-        @SuppressWarnings("unchecked")
-        List<FrameworkMethod> befores = this.testContext.getTestClass().getAnnotatedMethods((Class<? extends Annotation>)this.testContext.getBeforeClass());
-        return new RunBefores(statement, befores, target);
-    }
-
-    @Override
-    @Deprecated
-    protected Statement withAfters(FrameworkMethod method, Object target, Statement statement) {
-        @SuppressWarnings("unchecked")
-        List<FrameworkMethod> afters = this.testContext.getTestClass().getAnnotatedMethods((Class<? extends Annotation>)this.testContext.getAfterClass());
-        return new RunAfters(statement, afters, target);
     }
 
 }

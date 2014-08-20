@@ -26,7 +26,7 @@ public class TestClassLoader extends Loader {
     private final Logger logger = LoggerFactory.getLogger(TestClassLoader.class.getName());
 
     private final String agentClassName;
-
+    
     private Agent agent;
     private ByteCodeInstrumentor instrumentor;
     private InstrumentTranslator instrumentTranslator;
@@ -35,7 +35,7 @@ public class TestClassLoader extends Loader {
     public TestClassLoader(String agentClassName) {
         this.agentClassName = agentClassName;
     }
-
+    
     public TestClassLoader(DefaultAgent agent) {
         if (agent == null) {
             throw new NullPointerException("agent must not be null");
@@ -46,7 +46,7 @@ public class TestClassLoader extends Loader {
         this.instrumentor = agent.getByteCodeInstrumentor();
         this.instrumentTranslator = new InstrumentTranslator(this, agent);
     }
-
+    
     @Override
     protected Class findClass(String name) throws ClassNotFoundException {
         return super.findClass(name);
@@ -54,10 +54,10 @@ public class TestClassLoader extends Loader {
 
     public void initialize() throws InitializationError {
         addDefaultDelegateLoadingOf();
-        //        loadAgent();
+//        loadAgent();
         addTranslator();
     }
-
+    
     private void loadAgent() throws InitializationError {
         try {
             Thread.currentThread().setContextClassLoader(this);
@@ -73,17 +73,17 @@ public class TestClassLoader extends Loader {
             throw new InitializationError(e);
         }
     }
-
+    
     private ProfilerConfig getProfilerConfig() throws InitializationError {
         ProfilerConfig profilerConfig = new ProfilerConfig();
-
+        
         String path = MockAgent.class.getClassLoader().getResource("pinpoint.config").getPath();
         try {
             profilerConfig.readConfigFile(path);
         } catch (IOException e) {
             throw new InitializationError("Unable to read pinpoint.config");
         }
-
+        
         profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE);
         return profilerConfig;
     }
@@ -112,6 +112,9 @@ public class TestClassLoader extends Loader {
     private void addDefaultDelegateLoadingOf() {
         this.delegateLoadingOf("com.nhn.pinpoint.bootstrap.");
         this.delegateLoadingOf("com.nhn.pinpoint.common.");
+        this.delegateLoadingOf("junit.");
+        this.delegateLoadingOf("org.hamcrest.");
+        this.delegateLoadingOf("org.junit.");
     }
 
     @Override
