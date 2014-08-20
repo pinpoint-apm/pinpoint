@@ -13,7 +13,7 @@ import java.util.List;
 public class SpanIdMatcher {
     private List<SpanBo> nextSpanBoList;
 
-    private final long MAX_EXCLUDE_WEIGHT = 1000 * 5;
+    private static final long MAX_EXCLUDE_WEIGHT = 1000 * 5;
 
     public SpanIdMatcher(List<SpanBo> nextSpanBoList) {
         if (nextSpanBoList == null) {
@@ -28,11 +28,9 @@ public class SpanIdMatcher {
         if (weightSpanList.size() == 0) {
             return null;
         }
-        Collections.sort(weightSpanList, new Comparator() {
+        Collections.sort(weightSpanList, new Comparator<WeightSpanBo>() {
             @Override
-            public int compare(Object o1, Object o2) {
-                WeightSpanBo wSpan1 = (WeightSpanBo) o1;
-                WeightSpanBo wSpan2 = (WeightSpanBo) o2;
+            public int compare(WeightSpanBo wSpan1, WeightSpanBo wSpan2) {
                 final long spanWeight1 = wSpan1.getWeight();
                 final long spanWeight2 = wSpan2.getWeight();
                 if (spanWeight1 < spanWeight2) {
