@@ -68,7 +68,7 @@ public class CommandDispatcher implements MessageListener {
 
 			if (bo == null) {
 				TResult tResult = new TResult(false);
-				tResult.setMessage("Unsupported Listner.");
+				tResult.setMessage("Unsupported Listener.");
 
 				response = tResult;
 			} else {
@@ -77,7 +77,7 @@ public class CommandDispatcher implements MessageListener {
 		}
 		
 		byte[] payload = serialize(response);
-		if (packet != null) {
+		if (payload != null) {
 			channel.write(new ResponsePacket(packet.getRequestId(), payload));
 		}
 	}
