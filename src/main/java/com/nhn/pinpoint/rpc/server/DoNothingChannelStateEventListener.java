@@ -7,7 +7,7 @@ public class DoNothingChannelStateEventListener implements SocketChannelStateCha
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
-	public static SocketChannelStateChangeEventListener INSTANCE = new DoNothingChannelStateEventListener();
+	public static final SocketChannelStateChangeEventListener INSTANCE = new DoNothingChannelStateEventListener();
 
 	@Override
 	public void eventPerformed(ChannelContext channelContext, PinpointServerSocketStateCode stateCode) {
