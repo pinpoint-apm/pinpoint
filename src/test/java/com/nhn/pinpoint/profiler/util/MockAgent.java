@@ -49,6 +49,11 @@ public class MockAgent extends DefaultAgent {
     }
     
     @Override
+    protected PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory, boolean useMessageListener) {
+    	return null;
+    }
+    
+    @Override
     protected EnhancedDataSender createTcpDataSender(PinpointSocket socket) {
         return new LoggingDataSender();
     }
