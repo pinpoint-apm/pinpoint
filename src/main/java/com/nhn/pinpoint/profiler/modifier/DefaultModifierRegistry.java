@@ -144,7 +144,8 @@ public class DefaultModifierRegistry implements ModifierRegistry {
             addModifier(memcachedClientModifier);
 
             FrontCacheMemcachedClientModifier frontCacheMemcachedClientModifier = new FrontCacheMemcachedClientModifier(byteCodeInstrumentor, agent);
-            addModifier(frontCacheMemcachedClientModifier);
+//            관련 수정에 사이드 이펙트가 있이서 일단 disable함.
+//            addModifier(frontCacheMemcachedClientModifier);
 
             if (arcus) {
                 ArcusClientModifier arcusClientModifier = new ArcusClientModifier(byteCodeInstrumentor, agent);
@@ -166,7 +167,8 @@ public class DefaultModifierRegistry implements ModifierRegistry {
             addModifier(operationFutureModifier);
 
             FrontCacheGetFutureModifier frontCacheGetFutureModifier = new FrontCacheGetFutureModifier(byteCodeInstrumentor, agent);
-            addModifier(frontCacheGetFutureModifier);
+            //            관련 수정에 사이드 이펙트가 있이서 일단 disable함.
+//            addModifier(frontCacheGetFutureModifier);
 
             // future modifier end ---------------------------------------------------
 
