@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,7 +47,7 @@ public class EventListnerTest {
 			sendAndReceiveSimplePacket(socket);
 			Assert.assertEquals(eventListner.getCode(), PinpointServerSocketStateCode.RUN);
 			
-			int code= sendAndReceiveRegisterPacket(socket, getParams());
+			int code = sendAndReceiveRegisterPacket(socket, getParams());
 			Assert.assertEquals(eventListner.getCode(), PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION);
 
 			sendAndReceiveSimplePacket(socket);
@@ -63,12 +62,12 @@ public class EventListnerTest {
 		}
 	}
 
-	private int sendAndReceiveRegisterPacket(Socket socket, Map properties) throws ProtocolException, IOException {
+	private int sendAndReceiveRegisterPacket(Socket socket, Map<String, Object> properties) throws ProtocolException, IOException {
 		sendRegisterPacket(socket.getOutputStream(), properties);
 		ControlEnableWorkerConfirmPacket packet = receiveRegisterConfirmPacket(socket.getInputStream());
-		Map result = (Map) ControlMessageEnDeconderUtils.decode(packet.getPayload());
+		Map<Object, Object> result = (Map<Object, Object>) ControlMessageEnDeconderUtils.decode(packet.getPayload());
 		
-		return MapUtils.get(result, "code", Integer.class, -1);
+		return MapUtils.getInteger(result, "code", -1);
 	}
 
 	private void sendAndReceiveSimplePacket(Socket socket) throws ProtocolException, IOException {
@@ -77,7 +76,7 @@ public class EventListnerTest {
 		Assert.assertNotNull(responsePacket);
 	}
 
-	private void sendRegisterPacket(OutputStream outputStream, Map properties) throws ProtocolException, IOException {
+	private void sendRegisterPacket(OutputStream outputStream, Map<String, Object> properties) throws ProtocolException, IOException {
 		byte[] payload = ControlMessageEnDeconderUtils.encode(properties);
 		ControlEnableWorkerPacket packet = new ControlEnableWorkerPacket(1, payload);
 
@@ -143,8 +142,8 @@ public class EventListnerTest {
 		return payload;
 	}
 	
-	private Map getParams() {
-		Map properties = new HashMap();
+	private Map<String, Object> getParams() {
+		Map<String, Object> properties = new HashMap<String, Object>();
 		
 		properties.put(AgentProperties.KEY_AGENTID, "agent");
 		properties.put(AgentProperties.KEY_APPLICATION_NAME, "application");

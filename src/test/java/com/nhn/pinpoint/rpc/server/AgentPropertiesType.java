@@ -17,9 +17,9 @@ public enum AgentPropertiesType {
 	
 
 	private final String name; 
-	private final Class clazzType;
+	private final Class<?> clazzType;
 	
-	private AgentPropertiesType(String name, Class clazzType) {
+	private AgentPropertiesType(String name, Class<?> clazzType) {
 		this.name = name;
 		this.clazzType = clazzType;
 	}
@@ -28,7 +28,7 @@ public enum AgentPropertiesType {
 		return name;
 	}
 	
-	public Class getClazzType() {
+	public Class<?> getClazzType() {
 		return clazzType;
 	}
 	

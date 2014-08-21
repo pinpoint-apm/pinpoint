@@ -50,7 +50,7 @@ public class PinpointSocketFactory {
 
     private volatile boolean released;
     private ClientBootstrap bootstrap;
-    private Map properties = Collections.EMPTY_MAP;
+    private Map<String, Object> properties = Collections.emptyMap();
     
     private long reconnectDelay = 3 * 1000;
     private final Timer timer;
@@ -368,21 +368,16 @@ public class PinpointSocketFactory {
 //        stop 뭔가 취소를 해야 되나??
     }
 
-	public Map getProperties() {
+	Map<String, Object> getProperties() {
 		return properties;
 	}
 
-	public void setProperties(Map agentProperties) {
-		if (agentProperties == null) {
-			return;
-		}
-		
-		if (this.properties != Collections.EMPTY_MAP) {
-			logger.warn("Properties variable alreay registered.");
-			return;
-		}
-		
-		this.properties = Collections.unmodifiableMap(CopyUtils.mediumCopyMap(agentProperties));
+	public void setProperties(Map<String, Object> agentProperties) {
+        if (agentProperties == null) {
+            throw new NullPointerException("agentProperties must not be null");
+        }
+
+		this.properties = Collections.unmodifiableMap(agentProperties);
 	}
 
 }

@@ -20,7 +20,7 @@ public class ChannelContext {
 
 	private final SocketChannelStateChangeEventListener stateChangeEventListener;
 	
-	private volatile Map channelProperties = Collections.EMPTY_MAP;
+	private volatile Map<Object, Object> channelProperties = Collections.emptyMap();
 
 	public ChannelContext(SocketChannel socketChannel, ServerStreamChannelManager streamChannelManager) {
 		this(socketChannel, streamChannelManager, DoNothingChannelStateEventListener.INSTANCE);
@@ -97,23 +97,21 @@ public class ChannelContext {
 		}
 	}
 
-	public Map getChannelProperties() {
+	public Map<Object, Object> getChannelProperties() {
 		return channelProperties;
 	}
 
-	public boolean setChannelProperties(Map properties) {
+	public boolean setChannelProperties(Map<Object, Object> properties) {
 		if (properties == null) {
 			return false;
 		}
+        if (this.channelProperties != null) {
+            logger.warn("Already Register ChannelProperties.({}).", this.channelProperties);
+            return false;
+        }
 
-		synchronized (properties) {
-			if (this.channelProperties == Collections.EMPTY_MAP) {
-				this.channelProperties = Collections.unmodifiableMap(CopyUtils.mediumCopyMap(properties));
-				return true;
-			}
-		}
+        this.channelProperties = Collections.unmodifiableMap(properties);
 
-		logger.warn("Already Register ChannelProperties.({}).", this.channelProperties);
 		return false;
 	}
 

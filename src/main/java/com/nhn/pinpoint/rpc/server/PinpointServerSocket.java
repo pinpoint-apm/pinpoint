@@ -213,7 +213,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 			case PacketType.CONTROL_ENABLE_WORKER:
 				int requestId = ((ControlEnableWorkerPacket)message).getRequestId();
 				
-				Map properties = decodeSocketProperties((ControlEnableWorkerPacket) message);
+				Map<Object, Object> properties = decodeSocketProperties((ControlEnableWorkerPacket) message);
 				if (properties == null) {
 					sendEnableWorkerConfirmMessage(requestId, ControlEnableWorkerConfirmPacket.ILLEGAL_PROTOCOL, channel);
 					return;
@@ -280,11 +280,10 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         }
     }
     
-	private Map decodeSocketProperties(ControlEnableWorkerPacket message) {
-		Map properties = null;
+	private Map<Object, Object> decodeSocketProperties(ControlEnableWorkerPacket message) {
 		try {
 			byte[] payload = message.getPayload();
-			properties = (Map) ControlMessageEnDeconderUtils.decode(payload);
+            Map<Object, Object> properties = (Map) ControlMessageEnDeconderUtils.decode(payload);
 			return properties;
 		} catch (ProtocolException e) {
 			logger.warn(e.getMessage(), e);
@@ -308,7 +307,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 	
     private void sendEnableWorkerConfirmMessage(int requestId, int returnCode, Channel channel) {
 		try {
-			Map result = new HashMap();
+			Map<String, Object> result = new HashMap<String, Object>();
 			result.put("code", returnCode);
 			
 			byte[] resultPayload = ControlMessageEnDeconderUtils.encode(result);

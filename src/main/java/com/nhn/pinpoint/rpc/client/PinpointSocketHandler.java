@@ -73,6 +73,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 
     private final ChannelFutureListener pingWriteFailFutureListener = new WriteFailFutureListener(this.logger, "ping write fail.", "ping write success.");
     private final ChannelFutureListener sendWriteFailFutureListener = new WriteFailFutureListener(this.logger, "send() write fail.", "send() write fail.");
+    private final ChannelFutureListener enableWorkerWriteFailFutureListener = new WriteFailFutureListener(this.logger, "enableWorker write fail.", "enableWorker write success.");
 
     public PinpointSocketHandler(PinpointSocketFactory pinpointSocketFactory, Map agentProperties) {
     	this(pinpointSocketFactory, DEFAULT_PING_DELAY, DEFAULT_ENABLE_WORKER_PACKET_DELAY, DEFAULT_TIMEOUTMILLIS);
@@ -228,12 +229,12 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 
 		logger.debug("write EnableWorkerPacket {}", channel);
 
-		byte[] payload;
 		try {
-			Map properties = this.pinpointSocketFactory.getProperties();
-			payload = ControlMessageEnDeconderUtils.encode(properties);
+			Map<String, Object> properties = this.pinpointSocketFactory.getProperties();
+            byte[] payload = ControlMessageEnDeconderUtils.encode(properties);
 			ControlEnableWorkerPacket packet = new ControlEnableWorkerPacket(payload);
-			ChannelFuture write = this.channel.write(packet);
+			final ChannelFuture write = this.channel.write(packet);
+            write.addListener(enableWorkerWriteFailFutureListener);
 		} catch (ProtocolException e) {
 			logger.warn(e.getMessage(), e);
 		}
@@ -398,7 +399,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     }
 
     private void messageReceivedEnableWorkerConfirm(ControlEnableWorkerConfirmPacket message, Channel channel) {
-    	int code = getRegisterAgnetConfirmPacketCode(message.getPayload());
+    	int code = getRegisterAgentConfirmPacketCode(message.getPayload());
 
     	logger.info("EnableWorkerConfirm Packet({}) code={} received. {}", message, code, channel);
         // reconnect 상태로 변경한다.
@@ -408,7 +409,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         }
     }
     
-    private int getRegisterAgnetConfirmPacketCode(byte[] payload) {
+    private int getRegisterAgentConfirmPacketCode(byte[] payload) {
     	Map result = null;
         try {
 			result = (Map) ControlMessageEnDeconderUtils.decode(payload);
@@ -416,7 +417,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 			logger.warn(e.getMessage(), e);
 		}
 
-        int code = MapUtils.get(result, "code", Integer.class, -1);
+        int code = MapUtils.getInteger(result, "code", -1);
 
         return code;
     }

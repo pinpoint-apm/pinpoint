@@ -158,9 +158,9 @@ public class ControlPacketServerTest {
 	private int sendAndReceiveRegisterPacket(Socket socket, Map properties) throws ProtocolException, IOException {
 		sendRegisterPacket(socket.getOutputStream(), properties);
 		ControlEnableWorkerConfirmPacket packet = receiveRegisterConfirmPacket(socket.getInputStream());
-		Map result = (Map) ControlMessageEnDeconderUtils.decode(packet.getPayload());
+		Map<Object, Object> result = (Map<Object, Object>) ControlMessageEnDeconderUtils.decode(packet.getPayload());
 		
-		return MapUtils.get(result, "code", Integer.class, -1);
+		return MapUtils.getInteger(result, "code", -1);
 	}
 
 	private void sendAndReceiveSimplePacket(Socket socket) throws ProtocolException, IOException {

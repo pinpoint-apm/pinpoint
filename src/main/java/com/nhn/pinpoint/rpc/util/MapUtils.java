@@ -11,25 +11,40 @@ public class MapUtils {
 	private MapUtils() {
 	}
 
-	public static <T> T get(Map map, Object key, Class<T> clazz) {
-		return get(map, key, clazz, null);
+	public static String getString(Map<Object, Object> map, String key) {
+		return getString(map, key, null);
 	}
 
-	public static <T> T get(Map map, Object key, Class<T> clazz, T defaultValue) {
+	public static String getString(Map<Object, Object> map, String key, String defaultValue) {
 		if (map == null) {
 			return defaultValue;
 		}
 		
-		if (!map.containsKey(key)) {
-			return defaultValue;
-		}
-
-		Object value = map.get(key);
-		if (ClassUtils.isAssignable(value.getClass(), clazz)) {
-			return (T) value;
-		}
+		final Object value = map.get(key);
+        if (value instanceof String) {
+            return (String) value;
+        }
 
 		return null;	
 	}
-	
+
+
+    public static Integer getInteger(Map<Object, Object> map, String key) {
+        return getInteger(map, key, null);
+    }
+
+    public static Integer getInteger(Map<Object, Object> map, String key, Integer defaultValue) {
+        if (map == null) {
+            return defaultValue;
+        }
+
+        final Object value = map.get(key);
+        if (value instanceof Integer) {
+            return (Integer) value;
+        }
+
+        return null;
+    }
+
+
 }
