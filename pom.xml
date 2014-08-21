@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.nhn.pinpoint</groupId>
     <artifactId>pinpoint-profiler</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.2</version>
     <name>pinpoint profiler</name>
     <packaging>jar</packaging>
 
@@ -57,7 +57,7 @@
         <dependency>
             <groupId>com.nhn.pinpoint</groupId>
             <artifactId>pinpoint-commons</artifactId>
-            <version>1.0.2-SNAPSHOT</version>
+            <version>1.0.2</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.hadoop</groupId>
@@ -80,7 +80,7 @@
         <dependency>
             <groupId>com.nhn.pinpoint</groupId>
             <artifactId>pinpoint-thrift</artifactId>
-            <version>1.0.2-SNAPSHOT</version>
+            <version>1.0.2</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.thrift</groupId>
@@ -100,13 +100,13 @@
         <dependency>
             <groupId>com.nhn.pinpoint</groupId>
             <artifactId>pinpoint-bootstrap</artifactId>
-            <version>1.0.2-SNAPSHOT</version>
+            <version>1.0.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.nhn.pinpoint</groupId>
             <artifactId>pinpoint-rpc</artifactId>
-            <version>1.0.2-SNAPSHOT</version>
+            <version>1.0.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
