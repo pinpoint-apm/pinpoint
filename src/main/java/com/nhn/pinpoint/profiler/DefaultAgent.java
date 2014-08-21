@@ -274,7 +274,7 @@ public class DefaultAgent implements Agent {
     }
 
     protected PinpointSocketFactory createPinpointSocketFactory() {
-    	Map properties =  this.agentInformation.toMap();
+    	Map<String, Object> properties =  this.agentInformation.toMap();
     	properties.put(AgentPropertiesType.IP.getName(), this.profilerConfig.getCollectorServerIp());
 
     	PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
