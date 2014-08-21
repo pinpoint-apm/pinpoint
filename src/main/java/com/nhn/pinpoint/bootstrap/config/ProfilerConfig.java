@@ -33,7 +33,8 @@ public class ProfilerConfig {
     private int statDataSenderSocketSendBufferSize = 1024 * 64 * 16;
     private int statDataSenderSocketTimeout = 1000 * 3;
 
-
+    private boolean tcpDataSenderCommandAcceptEnable = false;
+    
     private int jdbcSqlCacheSize = 1024;
     private int jdbcMaxSqlBindValueSize = 1024;
 	private boolean jdbcProfile = true;
@@ -205,6 +206,10 @@ public class ProfilerConfig {
 
     public int getSpanDataSenderSocketSendBufferSize() {
         return spanDataSenderSocketSendBufferSize;
+    }
+    
+    public boolean isTcpDataSenderCommandAcceptEnable() {
+    	return tcpDataSenderCommandAcceptEnable;
     }
 
     public int getSpanDataSenderSocketTimeout() {
@@ -487,6 +492,7 @@ public class ProfilerConfig {
         this.statDataSenderSocketSendBufferSize = readInt(prop, "profiler.statdatasender.socket.sendbuffersize", 1024 * 64 * 16);
         this.statDataSenderSocketTimeout = readInt(prop, "profiler.statdatasender.socket.timeout", 1000 * 3);
 
+        this.tcpDataSenderCommandAcceptEnable = readBoolean(prop, "profiler.tcpdatasender.command.accept.enable", false);
 
 		// JDBC
 		this.jdbcProfile = readBoolean(prop, "profiler.jdbc", true);
@@ -701,6 +707,7 @@ public class ProfilerConfig {
         sb.append("\n statDataSenderWriteQueueSize=").append(statDataSenderWriteQueueSize);
         sb.append("\n statDataSenderSocketSendBufferSize=").append(statDataSenderSocketSendBufferSize);
         sb.append("\n statDataSenderSocketTimeout=").append(statDataSenderSocketTimeout);
+        sb.append("\n tcpCommandAcceptEnable=").append(tcpDataSenderCommandAcceptEnable);
         sb.append("\n jdbcSqlCacheSize=").append(jdbcSqlCacheSize);
         sb.append("\n jdbcProfile=").append(jdbcProfile);
         sb.append("\n jdbcProfileMySql=").append(jdbcProfileMySql);
