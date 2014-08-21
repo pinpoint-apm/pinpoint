@@ -81,5 +81,28 @@ public class ProfilerConfigTest {
         Assert.assertEquals(profilerConfig.isIoBufferingEnable(), true);
         Assert.assertEquals(profilerConfig.getIoBufferingBufferBufferSize(), 10);
     }
+    
+    @Test
+    public void tcpCommandAcceptrConfigTest1() throws IOException {
+        String path = ProfilerConfig.class.getResource("/com/nhn/pinpoint/bootstrap/config/test.property").getPath();
+        logger.debug("path:{}", path);
+
+        ProfilerConfig profilerConfig = new ProfilerConfig();
+        profilerConfig.readConfigFile(path);
+        
+        Assert.assertFalse(profilerConfig.isTcpDataSenderCommandAcceptEnable());
+    }
+    
+    @Test
+    public void tcpCommandAcceptrConfigTest2() throws IOException {
+        String path = ProfilerConfig.class.getResource("/com/nhn/pinpoint/bootstrap/config/test2.property").getPath();
+        logger.debug("path:{}", path);
+
+        ProfilerConfig profilerConfig = new ProfilerConfig();
+        profilerConfig.readConfigFile(path);
+        
+        Assert.assertTrue(profilerConfig.isTcpDataSenderCommandAcceptEnable());
+    }
+    
 
 }
