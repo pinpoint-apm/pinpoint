@@ -3,7 +3,7 @@
 <project name="pinpoint-bootstrap-build" basedir="." default="deploy">
     <property environment="env"/>
 
-    <property name="pinpoint.version" value="1.0.2-SNAPSHOT"/>
+    <property name="pinpoint.version" value="1.0.2"/>
 
     <property name="pinpoint.bootstrap.jar" value="pinpoint-bootstrap-${pinpoint.version}.jar"/>
 
