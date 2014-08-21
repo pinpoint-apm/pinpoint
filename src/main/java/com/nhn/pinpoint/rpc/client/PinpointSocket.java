@@ -10,6 +10,7 @@ import com.nhn.pinpoint.rpc.DefaultFuture;
 import com.nhn.pinpoint.rpc.Future;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.ResponseMessage;
+import com.nhn.pinpoint.rpc.util.AssertUtils;
 
 
 /**
@@ -37,17 +38,16 @@ public class PinpointSocket {
     }
 
     public PinpointSocket(SocketHandler socketHandler) {
-    	this(socketHandler, null);
+    	this(socketHandler, SimpleLoggingMessageListener.LISTENER);
     }
     
     public PinpointSocket(SocketHandler socketHandler, MessageListener messageListener) {
-        if (socketHandler == null) {
-            throw new NullPointerException("socketHandler");
-        }
+        AssertUtils.assertNotNull(socketHandler, "socketHandler");
+        AssertUtils.assertNotNull(messageListener, "messageListener");
+        
         this.messageListener = messageListener;
-        if (this.messageListener != null) {
-        	socketHandler.setMessageListener(messageListener);
-        }
+        socketHandler.setMessageListener(this.messageListener);
+        
         this.socketHandler = socketHandler;
         
         socketHandler.setPinpointSocket(this);
@@ -55,9 +55,8 @@ public class PinpointSocket {
 
 
     void reconnectSocketHandler(SocketHandler socketHandler) {
-        if (socketHandler == null) {
-            throw new NullPointerException("socketHandler must not be null");
-        }
+        AssertUtils.assertNotNull(socketHandler, "socketHandler");
+
         if (closed) {
             logger.warn("reconnectSocketHandler(). socketHandler force close.");
             socketHandler.close();
@@ -66,9 +65,7 @@ public class PinpointSocket {
         logger.warn("reconnectSocketHandler:{}", socketHandler);
         
         // Pinpoint 소켓 내부 객체가 되기전에 listener를 먼저 등록
-        if (this.messageListener != null) {
-        	socketHandler.setMessageListener(messageListener);
-        }
+        socketHandler.setMessageListener(messageListener);
         this.socketHandler = socketHandler;
         
         notifyReconnectEvent();

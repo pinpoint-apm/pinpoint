@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jboss.netty.channel.Channel;
 import org.junit.Assert;
@@ -17,6 +18,7 @@ import com.nhn.pinpoint.rpc.client.MessageListener;
 import com.nhn.pinpoint.rpc.client.PinpointSocket;
 import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
 import com.nhn.pinpoint.rpc.client.SimpleLoggingMessageListener;
+import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.ResponsePacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
@@ -34,7 +36,7 @@ public class MessageListenerTest {
 		try {
 
 			// 리스터를 등록한 것만 RegisterAgent 로 나옴
-			PinpointSocket socket = socketFactory.connect("127.0.0.1", 10234, SimpleLoggingMessageListener.LISTENER);
+			PinpointSocket socket = socketFactory.connect("127.0.0.1", 10234, new EchoMessageListener());
 			PinpointSocket socket2 = socketFactory.connect("127.0.0.1", 10234);
 
 			Thread.sleep(500);
@@ -163,6 +165,64 @@ public class MessageListenerTest {
 		}
 	}
 
+	@Test
+	public void serverMessageListenerTest5() throws InterruptedException {
+		PinpointServerSocket ss = new PinpointServerSocket();
+		ss.bind("127.0.0.1", 10234);
+
+		PinpointSocketFactory socketFactory = createPinpointSocketFactory();
+		try {
+
+			// Listener가 없을때 디폴트로 등록하는 SimpleLoggingMessageListener.LISTENER인 경우 상호 연결이 불가능함
+			PinpointSocket socket = socketFactory.connect("127.0.0.1", 10234, SimpleLoggingMessageListener.LISTENER);
+
+			Thread.sleep(500);
+
+			List<ChannelContext> channelContextList = ss.getDuplexCommunicationChannelContext();
+			if (channelContextList.size() != 0) {
+				Assert.fail();
+			}
+
+			socket.close();
+		} finally {
+			socketFactory.release();
+			ss.close();
+		}
+	}
+
+	// 받지 않을 경우 몇번이나 재시도 하는지 확인
+	@Test
+	public void serverMessageListenerTest6() throws InterruptedException {
+		DuplexCheckListener serverListener = new DuplexCheckListener();
+		
+		PinpointServerSocket ss = new PinpointServerSocket();
+		ss.bind("127.0.0.1", 10234);
+		ss.setMessageListener(serverListener);
+
+		PinpointSocketFactory socketFactory = createPinpointSocketFactory();
+		socketFactory.setEnableWorkerPacketDelay(500);
+		
+		try {
+
+			// Listener가 없을때 디폴트로 등록하는 SimpleLoggingMessageListener.LISTENER인 경우 상호 연결이 불가능함
+			PinpointSocket socket = socketFactory.connect("127.0.0.1", 10234, new EchoMessageListener());
+			Thread.sleep(5000);
+
+			List<ChannelContext> channelContextList = ss.getDuplexCommunicationChannelContext();
+			if (channelContextList.size() != 0) {
+				Assert.fail();
+			}
+			
+			if (serverListener.getReceiveEnableWorkerPacketCount() != 4) {
+				Assert.fail();
+			}
+
+			socket.close();
+		} finally {
+			socketFactory.release();
+			ss.close();
+		}
+	}
 	
 	private PinpointSocketFactory createPinpointSocketFactory() {
 		return createPinpointSocketFactory(getParams());
@@ -219,9 +279,23 @@ public class MessageListenerTest {
 		public List<RequestPacket> getRequestPacketRepository() {
 			return requestPacketRepository;
 		}
-
 	}
 	
+	class DuplexCheckListener extends SimpleLoggingServerMessageListener {
+		
+		private final AtomicInteger receiveEnableWorkerPacketCount = new AtomicInteger();
+		
+		@Override
+		public int handleEnableWorker(Map properties) {
+			receiveEnableWorkerPacketCount.incrementAndGet();
+			return ControlEnableWorkerConfirmPacket.UNKNOWN_ERROR;
+		}
+
+		public int getReceiveEnableWorkerPacketCount() {
+			return receiveEnableWorkerPacketCount.get();
+		}
+		
+	}
 	
 	private ChannelContext getChannelContext(String applicationName, String agentId, long startTimeMillis, List<ChannelContext> duplexChannelContextList) {
     	if (applicationName == null) {
@@ -270,5 +344,7 @@ public class MessageListenerTest {
     		return null;
     	}
     }
+	
+	
 
 }

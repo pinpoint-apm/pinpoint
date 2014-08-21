@@ -44,7 +44,7 @@ public class State {
         return state.get() == CLOSED;
     }
 
-    public boolean changeRunWithoutRegister() {
+    public boolean changeRun() {
     	logger.debug("State Will Be Changed {}.", getString(RUN));
         final int current = state.get();
         if (current == INIT) {
@@ -55,7 +55,7 @@ public class State {
         throw new IllegalStateException("InvalidState current:"  + getString(current) + " change:" + getString(RUN));
     }
 
-    public boolean changeRun() {
+    public boolean changeRunDuplexCommunication() {
     	logger.debug("State Will Be Changed {}.", getString(RUN_DUPLEX_COMMUNICATION));
         final int current = state.get();
         if (current == INIT) {
@@ -64,6 +64,8 @@ public class State {
             return this.state.compareAndSet(INIT_RECONNECT, RUN_DUPLEX_COMMUNICATION);
         } else if (current == RUN) {
         	return this.state.compareAndSet(RUN, RUN_DUPLEX_COMMUNICATION);
+        } else if (current == RUN_DUPLEX_COMMUNICATION) {
+        	return true;
         }
         throw new IllegalStateException("InvalidState current:"  + getString(current) + " change:" + getString(RUN_DUPLEX_COMMUNICATION));
     }
