@@ -29,7 +29,6 @@ import com.nhn.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.nhn.pinpoint.profiler.modifier.arcus.ArcusMethodFilter;
 import com.nhn.pinpoint.profiler.monitor.AgentStatMonitor;
-import com.nhn.pinpoint.profiler.receiver.CommandDispatcher;
 import com.nhn.pinpoint.profiler.sampler.SamplerFactory;
 import com.nhn.pinpoint.profiler.sender.DataSender;
 import com.nhn.pinpoint.profiler.sender.EnhancedDataSender;
@@ -42,6 +41,7 @@ import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.client.MessageListener;
 import com.nhn.pinpoint.rpc.client.PinpointSocket;
 import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
+import com.nhn.pinpoint.rpc.client.SimpleLoggingMessageListener;
 import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 
 /**
@@ -125,7 +125,7 @@ public class DefaultAgent implements Agent {
         this.tAgentInfo = createTAgentInfo();
         
         this.factory = createPinpointSocketFactory();
-        this.socket = createPinpointSocket(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorTcpServerPort(), factory);
+        this.socket = createPinpointSocket(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorTcpServerPort(), factory, this.profilerConfig.isTcpDataSenderCommandAcceptEnable());
         
         this.tcpDataSender = createTcpDataSender(socket);
         
@@ -275,7 +275,7 @@ public class DefaultAgent implements Agent {
 
     protected PinpointSocketFactory createPinpointSocketFactory() {
     	Map<String, Object> properties =  this.agentInformation.toMap();
-    	properties.put(AgentPropertiesType.IP.getName(), this.profilerConfig.getCollectorServerIp());
+    	properties.put(AgentPropertiesType.IP.getName(), serverInfo.getHostip());
 
     	PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
         pinpointSocketFactory.setTimeoutMillis(1000 * 5);
@@ -285,7 +285,19 @@ public class DefaultAgent implements Agent {
 	}
     
     protected PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory) {
-    	MessageListener messageListener = new CommandDispatcher();
+    	return createPinpointSocket(host, port, factory, false);
+    }
+    
+    protected PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory, boolean useMessageListener) {
+    	// 1.2 버전이 Tcp Data Command 허용하는 버전이 아니기 떄문에 true이던 false이던 무조건 SimpleLoggingMessageListener를 이용하게 함
+    	// SimpleLoggingMessageListener.LISTENER 는 서로 통신을 하지 않게 설정되어 있음 (테스트코드는 pinpoint-rpc에 존재)
+    	// 1.3 버전으로 할 경우 아래 분기에서 MessageListener 변경 필요
+    	MessageListener messageListener = null;
+    	if (useMessageListener) {
+    		messageListener = SimpleLoggingMessageListener.LISTENER;
+    	} else {
+    		messageListener = SimpleLoggingMessageListener.LISTENER;
+    	}
     	
     	PinpointSocket socket = null;
     	for (int i = 0; i < 3; i++) {
