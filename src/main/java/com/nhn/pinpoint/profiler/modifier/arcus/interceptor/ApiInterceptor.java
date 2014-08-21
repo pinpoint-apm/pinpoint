@@ -46,7 +46,7 @@ public class ApiInterceptor extends SpanEventSimpleAroundInterceptor implements 
         }
 
         // find the target node
-        if (result instanceof OperationFuture) {
+        if (result instanceof Future) {
             Operation op = (Operation) getOperation.invoke(((Future<?>)result));
             if (op != null) {
                 MemcachedNode handlingNode = op.getHandlingNode();
