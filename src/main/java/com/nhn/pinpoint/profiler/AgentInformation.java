@@ -68,8 +68,8 @@ public class AgentInformation {
         return version;
     }
     
-    public Map toMap() {
-    	Map map = new HashMap();
+    public Map<String, Object> toMap() {
+    	Map<String, Object> map = new HashMap<String, Object>();
     	
     	map.put(AgentPropertiesType.AGENT_ID.getName(), this.agentId);
     	map.put(AgentPropertiesType.APPLICATION_NAME.getName(), this.applicationName);
