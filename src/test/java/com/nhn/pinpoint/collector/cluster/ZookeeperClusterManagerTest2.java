@@ -11,7 +11,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.nhn.pinpoint.collector.cluster.zookeeper.ZookeeperClusterManager;
-import com.nhn.pinpoint.rpc.server.AgentProperties;
+import com.nhn.pinpoint.collector.receiver.tcp.AgentProperties;
 import com.nhn.pinpoint.rpc.server.ChannelContext;
 import com.nhn.pinpoint.rpc.server.PinpointServerSocketStateCode;
 
@@ -209,8 +209,8 @@ public class ZookeeperClusterManagerTest2 {
 		return PinpointServerSocketStateCode.getStateCode(state);
 	}
 
-	private Map getParams() {
-		Map properties = new HashMap();
+	private Map<Object, Object> getParams() {
+		Map<Object, Object> properties = new HashMap<Object, Object>();
 
 		properties.put(AgentProperties.KEY_AGENTID, "agent");
 		properties.put(AgentProperties.KEY_APPLICATION_NAME, "application");

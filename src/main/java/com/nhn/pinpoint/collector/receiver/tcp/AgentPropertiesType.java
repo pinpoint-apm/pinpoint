@@ -36,7 +36,7 @@ public enum AgentPropertiesType {
 		return clazzType;
 	}
 	
-	public static boolean hasAllType(Map properties) {
+	public static boolean hasAllType(Map<Object, Object> properties) {
 		for (AgentPropertiesType type : AgentPropertiesType.values()) {
 			Object value = properties.get(type.getName());
 			

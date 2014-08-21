@@ -19,7 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhn.pinpoint.collector.cluster.zookeeper.job.DeleteJob;
 import com.nhn.pinpoint.collector.cluster.zookeeper.job.UpdateJob;
-import com.nhn.pinpoint.rpc.server.AgentPropertiesType;
+import com.nhn.pinpoint.collector.receiver.tcp.AgentPropertiesType;
 import com.nhn.pinpoint.rpc.server.ChannelContext;
 import com.nhn.pinpoint.rpc.server.PinpointServerSocketStateCode;
 import com.nhn.pinpoint.rpc.server.SocketChannelStateChangeEventListener;
@@ -90,9 +90,9 @@ public class ZookeeperClusterManager implements SocketChannelStateChangeEventLis
 		return deserializeContents(contents);
 	}
 
-	private boolean skipAgent(Map agentProperties) {
-		String applicationName = MapUtils.get(agentProperties, AgentPropertiesType.APPLICATION_NAME.getName(), AgentPropertiesType.APPLICATION_NAME.getClazzType());
-		String agentId = MapUtils.get(agentProperties, AgentPropertiesType.AGENT_ID.getName(), AgentPropertiesType.AGENT_ID.getClazzType());
+	private boolean skipAgent(Map<Object, Object> agentProperties) {
+		String applicationName = MapUtils.getString(agentProperties, AgentPropertiesType.APPLICATION_NAME.getName());
+		String agentId = MapUtils.getString(agentProperties, AgentPropertiesType.AGENT_ID.getName());
 
 		if (StringUtils.isEmpty(applicationName) || StringUtils.isEmpty(agentId)) {
 			return true;
@@ -102,7 +102,7 @@ public class ZookeeperClusterManager implements SocketChannelStateChangeEventLis
 	}
 	
 	private byte[] serializeContents(Map agentProperties, PinpointServerSocketStateCode state) {
-		Map contents = new HashMap();
+		Map<Object, Object> contents = new HashMap<Object, Object>();
 		contents.put(localHost.getHostAddress(), agentProperties);
 		contents.put("state", state.name());
 		

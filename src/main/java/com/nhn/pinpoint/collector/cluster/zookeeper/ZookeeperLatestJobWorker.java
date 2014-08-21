@@ -20,7 +20,7 @@ import com.nhn.pinpoint.collector.cluster.zookeeper.job.DeleteJob;
 import com.nhn.pinpoint.collector.cluster.zookeeper.job.Job;
 import com.nhn.pinpoint.collector.cluster.zookeeper.job.UpdateJob;
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
-import com.nhn.pinpoint.rpc.server.AgentPropertiesType;
+import com.nhn.pinpoint.collector.receiver.tcp.AgentPropertiesType;
 import com.nhn.pinpoint.rpc.server.ChannelContext;
 import com.nhn.pinpoint.rpc.server.PinpointServerSocketStateCode;
 import com.nhn.pinpoint.rpc.util.MapUtils;
@@ -331,10 +331,9 @@ public class ZookeeperLatestJobWorker implements Runnable {
 			}
 
 			if (zNodePath == null) {
-				Map agentProperties = channelContext.getChannelProperties();
-				String applicationName = MapUtils.get(agentProperties, AgentPropertiesType.APPLICATION_NAME.getName(),
-						AgentPropertiesType.APPLICATION_NAME.getClazzType());
-				String agentId = MapUtils.get(agentProperties, AgentPropertiesType.AGENT_ID.getName(), AgentPropertiesType.AGENT_ID.getClazzType());
+				Map<Object, Object> agentProperties = channelContext.getChannelProperties();
+				final String applicationName = MapUtils.getString(agentProperties, AgentPropertiesType.APPLICATION_NAME.getName());
+				final String agentId = MapUtils.getString(agentProperties, AgentPropertiesType.AGENT_ID.getName());
 
 				if (StringUtils.isEmpty(applicationName) || StringUtils.isEmpty(agentId)) {
 					return null;
@@ -346,7 +345,7 @@ public class ZookeeperLatestJobWorker implements Runnable {
 				zNodePath = bindingPathAndZnode(path, zNodeName);
 				znodeMappingRepository.put(channelContext, zNodePath);
 
-				logger.info("Created Zookeeper UniqPath = " + zNodePath);
+				logger.info("Created Zookeeper UniqPath = {}", zNodePath);
 			}
 
 			return zNodePath;
@@ -357,7 +356,7 @@ public class ZookeeperLatestJobWorker implements Runnable {
 		synchronized (znodeMappingRepository) {
 			String zNodePath = znodeMappingRepository.remove(channelContext);
 			if (zNodePath != null) {
-				logger.info("Deleted Zookeeper UniqPath = " + zNodePath);
+				logger.info("Deleted Zookeeper UniqPath = {}", zNodePath);
 			}
 		}
 	}
