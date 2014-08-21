@@ -10,8 +10,8 @@ public enum PinpointServerSocketStateCode {
 
 	// 상태는 다음과 같다.
 	// NONE : 아무 이벤트가 없는 상태
-	// RUN_WITHOUT_REGISTER_AGENT_RESOURCE : 동작은 하고 있지만 Agent의 정보를 서로 확인하지 못한 상태
-	// RUN : Agent의 정보를 서로 확인하고 동작 중인 상태
+	// RUN : 서버로 메시지를 보내는 것만 가능한 Socket 상태 
+	// RUN_DUPLEX_COMMUNICATION : 양방향 통신이 가능한 Socket 상태 (서버로 메시지를 보내는 것 서버가 보낸 메시지를 처리하는 것 )
 	// BEING_SHUTDOWN : CLOSE 등의 명령을 받고 연결을 종료를 대기하는 상태 
 	// SHUTDOWN : 내가 끊거나 종료대기가 되어있는 상태일때 종료  
 	// UNEXPECTED_SHUTDOWN : CLOSE 등의 명령을 받지 못한 상태에서 상대방이 연결을 종료하였을떄 

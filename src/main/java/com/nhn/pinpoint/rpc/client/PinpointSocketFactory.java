@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
-import com.nhn.pinpoint.rpc.util.CopyUtils;
+import com.nhn.pinpoint.rpc.util.AssertUtils;
 import com.nhn.pinpoint.rpc.util.LoggerFactorySetup;
 import com.nhn.pinpoint.rpc.util.TimerFactory;
 
@@ -172,7 +172,6 @@ public class PinpointSocketFactory {
     }
 
     private NioClientSocketChannelFactory createChannelFactory(int bossCount, int workerCount, Timer timer) {
-
         ExecutorService boss = Executors.newCachedThreadPool(new PinpointThreadFactory("Pinpoint-Client-Boss", true));
         NioClientBossPool bossPool = new NioClientBossPool(boss, bossCount, timer, ThreadNameDeterminer.CURRENT);
 
@@ -182,10 +181,12 @@ public class PinpointSocketFactory {
     }
 
     public PinpointSocket connect(String host, int port) throws PinpointSocketException {
-    	return connect(host, port, null);
+    	return connect(host, port, SimpleLoggingMessageListener.LISTENER);
     }
     
     public PinpointSocket connect(String host, int port, MessageListener messageListener) throws PinpointSocketException {
+    	AssertUtils.assertNotNull(messageListener);
+    	
         SocketAddress address = new InetSocketAddress(host, port);
         ChannelFuture connectFuture = bootstrap.connect(address);
         SocketHandler socketHandler = getSocketHandler(connectFuture, address);
@@ -196,11 +197,13 @@ public class PinpointSocketFactory {
     }
 
     public PinpointSocket reconnect(String host, int port) throws PinpointSocketException {
-    	return reconnect(host, port, null);
+    	return reconnect(host, port, SimpleLoggingMessageListener.LISTENER);
     }
 
     public PinpointSocket reconnect(String host, int port, MessageListener messageListener) throws PinpointSocketException {
-        SocketAddress address = new InetSocketAddress(host, port);
+    	AssertUtils.assertNotNull(messageListener);
+
+    	SocketAddress address = new InetSocketAddress(host, port);
         ChannelFuture connectFuture = bootstrap.connect(address);
         SocketHandler socketHandler = getSocketHandler(connectFuture, address);
 
@@ -215,11 +218,13 @@ public class PinpointSocketFactory {
     }
 
     public PinpointSocket scheduledConnect(String host, int port) {
-    	return scheduledConnect(host, port, null);
+    	return scheduledConnect(host, port, SimpleLoggingMessageListener.LISTENER);
     }
     
     public PinpointSocket scheduledConnect(String host, int port, MessageListener messageListener) {
-        PinpointSocket pinpointSocket = new PinpointSocket();
+    	AssertUtils.assertNotNull(messageListener);
+
+        PinpointSocket pinpointSocket = new PinpointSocket(new ReconnectStateSocketHandler(), messageListener);
         SocketAddress address = new InetSocketAddress(host, port);
         reconnect(pinpointSocket, address);
         return pinpointSocket;
@@ -373,9 +378,7 @@ public class PinpointSocketFactory {
 	}
 
 	public void setProperties(Map<String, Object> agentProperties) {
-        if (agentProperties == null) {
-            throw new NullPointerException("agentProperties must not be null");
-        }
+		AssertUtils.assertNotNull(properties, "agentProperties must not be null");
 
 		this.properties = Collections.unmodifiableMap(agentProperties);
 	}

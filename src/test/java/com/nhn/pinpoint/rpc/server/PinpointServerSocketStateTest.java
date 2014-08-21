@@ -9,7 +9,7 @@ import org.junit.Test;
 public class PinpointServerSocketStateTest {
 
 	// Agent버전이 최신일 경우 (2014-07 기준)
-	// 가장 기본적인 형태 RUN_WITHOUT_RGISTER -> 이후 Agent 정보 획득 RUN ->  클라이언트 종료전 Agent 정보 제거 요청에 따른 BEING_SHUTDOWN -> 연결종료
+	// 가장 기본적인 형태 RUN -> 이후 Agent 정보 획득 RUN_DUPLEX_COMMUNICATION ->  클라이언트 종료전 Agent 정보 제거 요청에 따른 BEING_SHUTDOWN -> 연결종료
 	@Test
 	public void changeStateTest1() {
 		PinpointServerSocketState state = new PinpointServerSocketState();
@@ -28,7 +28,7 @@ public class PinpointServerSocketStateTest {
 	}
 
 	// Agent버전이 최신일 경우 (2014-07 기준)
-	// 가장 기본적인 형태 RUN -> 이후 Agent 정보 획득 RUN ->  클라이언트 종료전 Agent 정보 제거 요청에 따른 BEING_SHUTDOWN -> 연결종료
+	// 가장 기본적인 형태 RUN_DUPLEX_COMMUNICATION -> 이후 Agent 정보 획득 RUN_DUPLEX_COMMUNICATION ->  클라이언트 종료전 Agent 정보 제거 요청에 따른 BEING_SHUTDOWN -> 연결종료
 	@Test
 	public void changeStateTest2() {
 		PinpointServerSocketState state = new PinpointServerSocketState();
@@ -44,7 +44,7 @@ public class PinpointServerSocketStateTest {
 	}
 
 	// Agent버전이 구버전일 경우 (2014-07 기준)
-	// 가장 기본적인 형태 RUN_WITHOUT_RGISTER -> 연결종료
+	// 가장 기본적인 형태 RUN -> 연결종료
 	@Test
 	public void changeStateTest3() {
 		PinpointServerSocketState state = new PinpointServerSocketState();
@@ -57,7 +57,7 @@ public class PinpointServerSocketStateTest {
 	}
 
 	// Agent버전이 구버전일 경우 (2014-07 기준)
-	// 가장 기본적인 형태 RUN_WITHOUT_RGISTER -> 연결종료
+	// 가장 기본적인 형태 RUN -> 연결종료
 	@Test
 	public void changeStateTest4() {
 		PinpointServerSocketState state = new PinpointServerSocketState();

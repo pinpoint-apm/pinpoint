@@ -6,7 +6,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.rpc.util.CopyUtils;
+import com.nhn.pinpoint.rpc.util.AssertUtils;
 
 public class ChannelContext {
 
@@ -105,14 +105,14 @@ public class ChannelContext {
 		if (properties == null) {
 			return false;
 		}
-        if (this.channelProperties != null) {
+		
+        if (this.channelProperties != Collections.emptyMap()) {
             logger.warn("Already Register ChannelProperties.({}).", this.channelProperties);
             return false;
         }
 
         this.channelProperties = Collections.unmodifiableMap(properties);
-
-		return false;
+        return true;
 	}
 
 }

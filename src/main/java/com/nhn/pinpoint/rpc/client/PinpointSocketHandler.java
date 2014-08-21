@@ -3,6 +3,7 @@ package com.nhn.pinpoint.rpc.client;
 import java.net.SocketAddress;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -36,6 +37,7 @@ import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.ResponsePacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.rpc.packet.StreamPacket;
+import com.nhn.pinpoint.rpc.util.AssertUtils;
 import com.nhn.pinpoint.rpc.util.ControlMessageEnDeconderUtils;
 import com.nhn.pinpoint.rpc.util.MapUtils;
 import com.nhn.pinpoint.rpc.util.TimerFactory;
@@ -49,7 +51,9 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 
 	private static final long DEFAULT_PING_DELAY = 60 * 1000 * 5;
 	private static final long DEFAULT_TIMEOUTMILLIS = 3 * 1000;
+	
 	private static final long DEFAULT_ENABLE_WORKER_PACKET_DELAY = 60 * 1000 * 1;
+	private static final int DEFAULT_ENABLE_WORKER_PACKET_RETRY_COUNT = 3;
 	
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -60,7 +64,9 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 
     private long timeoutMillis = DEFAULT_TIMEOUTMILLIS;
     private long pingDelay = DEFAULT_PING_DELAY;
+    
     private long enableWorkerPacketDelay = DEFAULT_ENABLE_WORKER_PACKET_DELAY;
+    private int enableWorkerPacketRetryCount = DEFAULT_ENABLE_WORKER_PACKET_RETRY_COUNT;
     
     private final Timer channelTimer;
 
@@ -75,7 +81,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     private final ChannelFutureListener sendWriteFailFutureListener = new WriteFailFutureListener(this.logger, "send() write fail.", "send() write fail.");
     private final ChannelFutureListener enableWorkerWriteFailFutureListener = new WriteFailFutureListener(this.logger, "enableWorker write fail.", "enableWorker write success.");
 
-    public PinpointSocketHandler(PinpointSocketFactory pinpointSocketFactory, Map agentProperties) {
+    public PinpointSocketHandler(PinpointSocketFactory pinpointSocketFactory) {
     	this(pinpointSocketFactory, DEFAULT_PING_DELAY, DEFAULT_ENABLE_WORKER_PACKET_DELAY, DEFAULT_TIMEOUTMILLIS);
     }
 
@@ -124,25 +130,27 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     }
 
     public void open() {
-        logger.info("open() change state=RUN_WITHOUT_REGISTER");
-        if (!state.changeRunWithoutRegister()) {
+        logger.info("open() change state=RUN");
+        if (!state.changeRun()) {
             throw new IllegalStateException("invalid open state:" + state.getString());
         }
     }
     
     @Override
 	public void setMessageListener(MessageListener messageListener) {
-        if (messageListener == null) {
-            throw new NullPointerException("messageListener must not be null");
-        }
+        AssertUtils.assertNotNull(messageListener, "messageListener");
         
         logger.info("{} registered Listner({}).", toString(), messageListener);
         
-        this.messageListener = messageListener;
-        
-        // MessageHandler가 걸릴 경우 Register Agent Packet 전달
-        sendEnableWorkerPacket();
-        reservationEnableWorkerPacketJob();
+        if (messageListener != SimpleLoggingMessageListener.LISTENER) {
+            this.messageListener = messageListener;
+            
+            // MessageListener 등록시 EnableWorkerPacket전달
+            sendEnableWorkerPacket();
+            
+            RegisterEnableWorkerPacketJob job = new RegisterEnableWorkerPacketJob(enableWorkerPacketRetryCount);
+            reservationEnableWorkerPacketJob(job);
+        }
 	}
 
     @Override
@@ -195,6 +203,14 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 
     private class RegisterEnableWorkerPacketJob implements TimerTask {
 
+    	private final int maxRetryCount;
+    	private final AtomicInteger currentCount;
+    	
+    	public RegisterEnableWorkerPacketJob(int maxRetryCount) {
+    		this.maxRetryCount = maxRetryCount;
+    		this.currentCount = new AtomicInteger(0);
+		}
+
 		@Override
 		public void run(Timeout timeout) throws Exception {
 			if (timeout.isCancelled()) {
@@ -206,20 +222,33 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 			}
 			
 			if (state.getState() == State.RUN) {
+				incrementCurrentRetryCount();
+				
 				sendEnableWorkerPacket();
 				reservationEnableWorkerPacketJob(this);
 			}
 		}
+
+    	public int getMaxRetryCount() {
+    		return maxRetryCount;
+    	}
+
+    	public int getCurrentRetryCount() {
+    		return currentCount.get();
+    	}
+    	
+    	public void incrementCurrentRetryCount() {
+    		currentCount.incrementAndGet();
+    	}
     	
     }
 
-    private void reservationEnableWorkerPacketJob() {
-        final RegisterEnableWorkerPacketJob job = new RegisterEnableWorkerPacketJob();
-        reservationEnableWorkerPacketJob(job);
-    }
-    
     private void reservationEnableWorkerPacketJob(RegisterEnableWorkerPacketJob task) {
-        this.channelTimer.newTimeout(task, enableWorkerPacketDelay, TimeUnit.MILLISECONDS);
+    	if (task.getCurrentRetryCount() >= task.getMaxRetryCount()) {
+    		return;
+    	}
+
+		this.channelTimer.newTimeout(task, enableWorkerPacketDelay, TimeUnit.MILLISECONDS);
     }
 
 	void sendEnableWorkerPacket() {
@@ -405,7 +434,9 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         // reconnect 상태로 변경한다.
 
     	if (code == ControlEnableWorkerConfirmPacket.SUCCESS || code == ControlEnableWorkerConfirmPacket.ALREADY_REGISTER) {
-    		state.changeRun();
+    		state.changeRunDuplexCommunication();
+        } else {
+        	logger.warn("Invalid EnableWorkerConfirm Packet ({}) code={} received. {}", message, code, channel);
         }
     }
     
