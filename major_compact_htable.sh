@@ -35,5 +35,6 @@ major_compact 'ApplicationMapStatisticsSelf'
 
 major_compact 'ApplicationStatistics'
 major_compact 'HostApplicationMap'
+major_compact 'HostApplicationMap_Ver2'
 
 EOF
