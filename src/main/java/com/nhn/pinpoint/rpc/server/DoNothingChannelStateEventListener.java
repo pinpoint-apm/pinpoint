@@ -11,7 +11,7 @@ public class DoNothingChannelStateEventListener implements SocketChannelStateCha
 
 	@Override
 	public void eventPerformed(ChannelContext channelContext, PinpointServerSocketStateCode stateCode) {
-		logger.warn("eventPerformed {}:", channelContext);
+		logger.info("eventPerformed {}:", channelContext);
 	}
 
 }

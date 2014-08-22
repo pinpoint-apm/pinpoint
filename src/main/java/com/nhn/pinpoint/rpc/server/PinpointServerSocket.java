@@ -348,7 +348,11 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         prepareChannel(channel);
         
         ChannelContext channelContext = getChannelContext(channel);
-        channelContext.changeStateRun();
+        
+        boolean check = checkIgnoreAddress(channel);
+        if (check) {
+        	channelContext.changeStateRun();
+        }
         
         super.channelConnected(ctx, e);
     }
@@ -364,7 +368,10 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         } else if(released) {
             channelContext.changeStateShutdown();
         } else {
-        	channelContext.changeStateUnexpectedShutdown();
+            boolean check = checkIgnoreAddress(channel);
+            if (check) {
+            	channelContext.changeStateUnexpectedShutdown();
+            }
         }
         
         if (logger.isDebugEnabled()) {
@@ -396,10 +403,10 @@ public class PinpointServerSocket extends SimpleChannelHandler {
             boolean check = checkIgnoreAddress(channel);
             if (check) {
                 logger.warn("Unexpected Client channelClosed {}", channel);
+                channelContext.changeStateUnexpectedShutdown();
             } else {
                 logger.debug("checkAddress, Client channelClosed channelClosed {}", channel);
             }
-            channelContext.changeStateUnexpectedShutdown();
         }
         channelContext.closeAllStreamChannel();
     }
