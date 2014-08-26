@@ -159,7 +159,7 @@ public class JavaAssistClass implements InstrumentClass {
         // 추가로 수정하긴해야 될듯함.
         final boolean marker = checkTraceValueMarker(traceValue);
         if (!marker) {
-            throw new InstrumentException(traceValue + " maker interface  not implements" );
+            throw new InstrumentException(traceValue + " marker interface  not implements" );
         }
 
         try {
