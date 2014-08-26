@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.hamcrest.CoreMatchers.*;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import org.junit.Before;
@@ -61,6 +62,15 @@ public class SqlMapClientImplModifierTest extends BasePinpointTest {
 			assertThat(exceptionSpanEventBo.hasException(), is(true));
 			assertThat(exceptionSpanEventBo.getExceptionId(), not(0));
 		}
+	}
+	
+	@Test(expected=NullPointerException.class)
+	public void test() throws SQLException {
+        // Given
+        when(this.mockSqlMapExecutorDelegate.beginSessionScope()).thenReturn(null);
+        SqlMapClient sqlMapClient = new SqlMapClientImpl(this.mockSqlMapExecutorDelegate);
+        // When
+        sqlMapClient.insert("insertShouldThrowNPE");
 	}
 	
 	@Test
