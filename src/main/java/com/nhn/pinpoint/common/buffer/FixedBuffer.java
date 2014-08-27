@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.common.buffer;
 
 import com.nhn.pinpoint.common.util.BytesUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.UnsupportedEncodingException;
 
@@ -56,7 +55,7 @@ public class FixedBuffer implements Buffer {
 
 
     @Override
-     public void putPrefixedBytes(final byte[] bytes) {
+    public void putPrefixedBytes(final byte[] bytes) {
         if (bytes == null) {
             putSVar(NULL);
         } else {
@@ -182,6 +181,20 @@ public class FixedBuffer implements Buffer {
         this.offset = BytesUtils.writeVar64(v, buffer, offset);
     }
 
+    @Override
+    public void put(double v) {
+        put(Double.doubleToRawLongBits(v));
+    }
+
+    @Override
+    public void putVar(double v) {
+        putVar(Double.doubleToRawLongBits(v));
+    }
+
+    @Override
+    public void putSVar(double v) {
+        putSVar(Double.doubleToRawLongBits(v));
+    }
 
     @Override
     public void put(final byte[] v) {
@@ -290,6 +303,21 @@ public class FixedBuffer implements Buffer {
     @Override
     public long readSVarLong() {
         return BytesUtils.zigzagToLong(readVarLong());
+    }
+
+    @Override
+    public double readDouble() {
+        return Double.longBitsToDouble(this.readLong());
+    }
+
+    @Override
+    public double readVarDouble() {
+        return Double.longBitsToDouble(this.readVarLong());
+    }
+
+    @Override
+    public double readSVarDouble() {
+        return Double.longBitsToDouble(this.readSVarLong());
     }
 
     @Override

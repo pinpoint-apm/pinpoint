@@ -75,6 +75,24 @@ public interface Buffer {
      */
     void putSVar(long v);
 
+    void put(double v);
+
+    /**
+     * 가변인코딩을 사용하여 저장한다.
+     * 상수값에 강한 인코딩을 한다.
+     * 음수값이 들어갈 경우 사이즈가 fixint 인코딩 보다 더 커짐
+     * 이경우 putSVar를 사용한다.
+     * @param v
+     */
+    void putVar(double v);
+
+    /**
+     * 가변인코딩을 사용하여 저장한다.
+     * 상수, 음수의 분포가 동일한 데이터 일 경우 사용한다.
+     * @param v
+     */
+    void putSVar(double v);
+
     void put(byte[] v);
 
     byte readByte();
@@ -97,6 +115,12 @@ public interface Buffer {
     long readVarLong();
 
     long readSVarLong();
+
+    double readDouble();
+
+    double readVarDouble();
+
+    double readSVarDouble();
 
     byte[] readPadBytes(int totalLength);
 
