@@ -1,16 +1,23 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.nhn.pinpoint</groupId>
-	<artifactId>pinpoint-profiler-optional</artifactId>
-	<version>1.0.2</version>
-	<name>pinpoint profiler optional</name>
-	<description>pinpoint profiler optional package</description>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.nhn.pinpoint</groupId>
+        <artifactId>pom</artifactId>
+        <version>1.0.2</version>
+    </parent>
+    
+    <artifactId>pinpoint-profiler-optional</artifactId>
+    <name>pinpoint profiler optional</name>
+    <description>pinpoint profiler optional package</description>
+    
+    <properties>
+       <jdk.version>1.7</jdk.version>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.nhn.pinpoint</groupId>
             <artifactId>pinpoint-profiler</artifactId>
-            <version>1.0.2</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -32,48 +39,8 @@
             </exclusions>
         </dependency>
     </dependencies>
-	<profiles>
-        <profile>
-            <id>local</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <env>local</env>
-                <deploy-path>deploy</deploy-path>
-                <compiler-debug>true</compiler-debug>
-            </properties>
-        </profile>
-        
-        <!-- Test server -->
-        <profile>
-            <id>test</id>
-            <properties>
-                <env>test</env>
-                <compiler-debug>true</compiler-debug>
-            </properties>
-        </profile>
-
-        <!-- Development server -->
-        <profile>
-            <id>dev</id>
-            <properties>
-                <env>dev</env>
-                <compiler-debug>true</compiler-debug>
-            </properties>
-        </profile>
-
-        <!-- real server -->
-        <profile>
-            <id>release</id>
-            <properties>
-                <env>release</env>
-                <compiler-debug>false</compiler-debug>
-            </properties>
-        </profile>
-    </profiles>
     
-	<build>
+    <build>
         <resources>
             <resource>
                 <directory>${basedir}/src/main/java</directory>
@@ -102,56 +69,26 @@
         <plugins>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>2.6</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <encoding>UTF-8</encoding>
+                    <debug>${compiler-debug}</debug>
+                    <fork>true</fork>
+                    <verbose>true</verbose>
+                    <compilerVersion>${jdk.version}</compilerVersion>
+                    <executable>${JAVA_7_HOME}/bin/javac</executable>
                 </configuration>
             </plugin>
             <plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.5.1</version>
-				<inherited>true</inherited>
-				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
-                    <debug>${compiler-debug}</debug>
-					<optimize>true</optimize>
-					<fork>true</fork>
-					<verbose>true</verbose>
-					<compilerVersion>1.7</compilerVersion>
-					<executable>${JAVA_7_HOME}/bin/javac</executable>
-					<encoding>UTF-8</encoding>
-				</configuration>
-			</plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
-            </plugin>
-            <plugin>
-            <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <configuration>
-                            <tasks>
-                                <copy file="${project.build.directory}/${project.build.finalName}.jar"
-                                    tofile="${basedir}/../pinpoint-profiler/target/pinpoint-agent/lib/${project.build.finalName}.jar">
-                                </copy>
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.12.4</version>
                 <configuration>
                     <jvm>${JAVA_7_HOME}/bin/java</jvm>
                     <forkMode>once</forkMode>
@@ -160,23 +97,62 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
-                <version>2.5.2</version>
             </plugin>
             <plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
                 <artifactId>maven-clover2-plugin</artifactId>
-                <version>3.0.2</version>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                    <jdk>1.7</jdk>
-                    <generateXml>true</generateXml>
-                    <generateHtml>true</generateHtml>
-                    <generateHistorical>false</generateHistorical>
-                    <licenseLocation>clover.license</licenseLocation>
-                    <singleCloverDatabase>false</singleCloverDatabase>
-                    <includesTestSourceRoots>false</includesTestSourceRoots>
-                </configuration>
             </plugin>
         </plugins>
-	</build>
+    </build>
+    
+    <profiles>
+    
+        <!-- Local server -->
+        <profile>
+            <id>local</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <compiler-debug>true</compiler-debug>
+            </properties>
+        </profile>
+        
+        <!-- Test server -->
+        <profile>
+            <id>test</id>
+            <properties>
+                <compiler-debug>true</compiler-debug>
+            </properties>
+        </profile>
+
+        <!-- Development server -->
+        <profile>
+            <id>dev</id>
+            <properties>
+                <compiler-debug>true</compiler-debug>
+            </properties>
+        </profile>
+
+        <!-- real server -->
+        <profile>
+            <id>release</id>
+            <properties>
+                <compiler-debug>false</compiler-debug>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>klocwork</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.klocwork.ps</groupId>
+                        <artifactId>kwmaven</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+    
 </project>

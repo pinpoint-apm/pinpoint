@@ -1,78 +1,43 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.nhn.pinpoint</groupId>
+    <parent>
+        <groupId>com.nhn.pinpoint</groupId>
+        <artifactId>pom</artifactId>
+        <version>1.0.2</version>
+    </parent>
+
     <artifactId>pinpoint-web</artifactId>
-    <version>1.0.2</version>
     <name>pinpoint-web</name>
     <packaging>war</packaging>
 
     <properties>
-        <spring.version>3.2.3.RELEASE</spring.version>
-        <slf4j.version>1.7.5</slf4j.version>
-        <codehaus.jackson.version>1.9.13</codehaus.jackson.version>
-        <fastxml.jackson.version>2.3.1</fastxml.jackson.version>
-     	<mybatis.version>3.2.7</mybatis.version>
-        <mybatis.spring.version>1.2.2</mybatis.spring.version>
-		<buildTime>${maven.build.timestamp}</buildTime>
-		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+        <buildTime>${maven.build.timestamp}</buildTime>
+        <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     </properties>
-
-    <repositories>
-        <repository>
-            <id>nhn</id>
-            <url>http://repo.nhncorp.com/maven2/</url>
-        </repository>
-        <repository>
-            <id>cubrid.release.repository</id>
-            <url>http://maven.cubrid.org</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>cloudera</id>
-            <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
-        </repository>
-    </repositories>
-
-
 
     <dependencies>
         <dependency>
             <groupId>com.nhn.pinpoint</groupId>
             <artifactId>pinpoint-commons</artifactId>
-            <version>1.0.2</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.nhn.pinpoint</groupId>
             <artifactId>pinpoint-rpc</artifactId>
-            <version>1.0.2</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.nhn.pinpoint</groupId>
             <artifactId>pinpoint-thrift</artifactId>
-            <version>1.0.2</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty</artifactId>
-            <version>3.6.6.Final</version>
-            <scope>compile</scope>
         </dependency>
 
 
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
-            <version>2.0.0-cdh4.5.0</version>
-            <scope>compile</scope>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.hadoop</groupId>
@@ -195,7 +160,6 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-core</artifactId>
-            <version>2.0.0-mr1-cdh4.5.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.mortbay.jetty</groupId>
@@ -255,7 +219,6 @@
         <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase</artifactId>
-            <version>0.94.6-cdh4.5.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.mortbay.jetty</groupId>
@@ -322,7 +285,6 @@
         <dependency>
             <groupId>com.nhncorp.lucy</groupId>
             <artifactId>lucy-core</artifactId>
-            <version>1.7.7</version>
             <exclusions>
                 <exclusion>
                     <artifactId>freemarker</artifactId>
@@ -365,17 +327,14 @@
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
-            <version>1.3.0-p1</version>
         </dependency>
         <dependency>
             <groupId>com.sematext.hbasewd</groupId>
             <artifactId>hbasewd</artifactId>
-            <version>0.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.zookeeper</groupId>
             <artifactId>zookeeper</artifactId>
-            <version>3.4.5-cdh4.5.0</version>
             <exclusions>
                 <exclusion>
                     <artifactId>jline</artifactId>
@@ -387,8 +346,6 @@
         <dependency>
             <groupId>org.apache.thrift</groupId>
             <artifactId>libthrift</artifactId>
-            <version>0.9.1</version>
-            <scope>compile</scope>
             <exclusions>
                 <exclusion>
                     <artifactId>httpclient</artifactId>
@@ -408,7 +365,6 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-hadoop</artifactId>
-            <version>1.0.2.RELEASE</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework</groupId>
@@ -436,7 +392,6 @@
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>servlet-api</artifactId>
-            <version>6.0.35</version>
             <scope>provided</scope>
         </dependency>
 
@@ -444,25 +399,21 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
-            <version>1.1.0</version>
         </dependency>
         <dependency>
             <groupId>taglibs</groupId>
             <artifactId>standard</artifactId>
-            <version>1.1.2</version>
         </dependency>
         <dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jsp-api</artifactId>
-			<version>2.0</version>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jsp-api</artifactId>
             <scope>provided</scope>
-		</dependency>
-        
+        </dependency>
+
         <!-- Spring depedencies -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>${spring.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>commons-logging</groupId>
@@ -473,187 +424,146 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>${spring.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
-            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
-            <version>${spring.version}</version>
         </dependency>
 
-		<!-- Mybatis dependecies -->
-		<dependency>
-			<groupId>commons-dbcp</groupId>
-			<artifactId>commons-dbcp</artifactId>
-			<version>1.4-p2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.mybatis</groupId>
-			<artifactId>mybatis</artifactId>
-			<version>${mybatis.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.mybatis</groupId>
-			<artifactId>mybatis-spring</artifactId>
-			<version>${mybatis.spring.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.springframework</groupId>
-					<artifactId>spring-core</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.springframework</groupId>
-					<artifactId>spring-tx</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.springframework</groupId>
-					<artifactId>spring-jdbc</artifactId>
-				</exclusion>				
-				<exclusion>
-					<groupId>org.springframework</groupId>
-					<artifactId>spring-context</artifactId>
-				</exclusion>				
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.mybatis</groupId>
-			<artifactId>mybatis-spring</artifactId>
-			<version>${mybatis.spring.version}</version>
-		</dependency>
-		<dependency>
+        <!-- Mybatis dependecies -->
+        <dependency>
+            <groupId>commons-dbcp</groupId>
+            <artifactId>commons-dbcp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-tx</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-jdbc</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-context</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.20</version>
         </dependency>
 
         <!-- Caching dependecies -->
-		<dependency>
+        <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-core</artifactId>
-            <version>2.5.0</version>
         </dependency>
 
-        <!--jackson jsonMapper. hbase에서 일단 필요함. 1.9.x 버전을 사용함-->
+        <!--jackson jsonMapper. hbase에서 일단 필요함. 1.9.x 버전을 사용함 -->
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-core-asl</artifactId>
-            <version>${codehaus.jackson.version}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-mapper-asl</artifactId>
-            <version>${codehaus.jackson.version}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-xc</artifactId>
-            <version>${codehaus.jackson.version}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-jaxrs</artifactId>
-            <version>${codehaus.jackson.version}</version>
             <scope>runtime</scope>
         </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>${fastxml.jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>${fastxml.jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${fastxml.jackson.version}</version>
         </dependency>
 
         <!-- Logging depedencies -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
-            <scope>compile</scope>
         </dependency>
         <!-- commons-logging-adapter -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-            <version>${slf4j.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>${slf4j.version}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>1.2.16</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.nhncorp.nelo2</groupId>
             <artifactId>nelo2-java-sdk-log4j</artifactId>
-            <version>1.3.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
             <artifactId>json-simple</artifactId>
-            <version>1.1.1</version>
         </dependency>
 
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>17.0</version>
         </dependency>
 
 
-        <!-- Test dependencies -->
-		<dependency>
-            <groupId>com.nhn.pinpoint</groupId>
-            <artifactId>pinpoint-profiler</artifactId>
-            <version>1.0.2</version>
-            <scope>test</scope>
-        </dependency>
-        
         <!-- for sms platform dependencies -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.0.3</version>
             <exclusions>
                 <exclusion>
                     <artifactId>commons-logging</artifactId>
@@ -661,10 +571,9 @@
                 </exclusion>
             </exclusions>
         </dependency>
-		<dependency>
+        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
-            <version>4.0.1</version>
             <exclusions>
                 <exclusion>
                     <artifactId>commons-logging</artifactId>
@@ -674,58 +583,34 @@
         </dependency>
 
         <!-- for email platform dependencies -->
-		<dependency>
+        <dependency>
             <groupId>com.nhncorp.lucy</groupId>
             <artifactId>lucy-npc</artifactId>
-            <version>1.5.19</version>
         </dependency>
 
         <!-- Test dependencies -->
-		<dependency>
+        <dependency>
             <groupId>com.nhn.pinpoint</groupId>
             <artifactId>pinpoint-profiler</artifactId>
-            <version>1.0.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.nhn.pinpoint</groupId>
             <artifactId>pinpoint-collector</artifactId>
-            <version>1.0.2</version>
             <classifier>classes</classifier>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.8.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-library</artifactId>
-            <version>1.3</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.8.4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-nodep</artifactId>
-            <version>2.2</version>
         </dependency>
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
-            <version>1.6.12</version>
         </dependency>
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
-            <version>1.6.12</version>
         </dependency>
     </dependencies>
 
@@ -762,35 +647,19 @@
         <plugins>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>2.6</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.5.1</version>
-                <inherited>true</inherited>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                    <debug>true</debug>
-                    <optimize>true</optimize>
-                    <encoding>UTF-8</encoding>
-                    <showDeprecation>true</showDeprecation>
-                </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>2.4</version>
                 <configuration>
-                    <attachClasses>true</attachClasses>
-                    <classesClassifier>classes</classesClassifier>
-					<webResources>
+                    <webResources>
                         <resource>
                             <filtering>true</filtering>
                             <directory>src/main/webapp</directory>
@@ -801,43 +670,18 @@
                     </webResources>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.12.4</version>
-                <configuration>
-                    <excludes>
-                        <exclude>**/Mock*</exclude>
-                        <exclude>**/Abstract*</exclude>
-                        <exclude>**/*Helper</exclude>
-                        <exclude>**/*$*</exclude>
-                    </excludes>
-                </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
-                <version>2.5.2</version>
             </plugin>
-
             <plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
                 <artifactId>maven-clover2-plugin</artifactId>
-                <version>3.0.2</version>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                    <jdk>1.6</jdk>
-                    <generateXml>true</generateXml>
-                    <generateHtml>true</generateHtml>
-                    <generateHistorical>false</generateHistorical>
-                    <licenseLocation>clover.license</licenseLocation>
-                    <singleCloverDatabase>false</singleCloverDatabase>
-                    <includesTestSourceRoots>false</includesTestSourceRoots>
-                </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.tomcat.maven</groupId>
                 <artifactId>tomcat6-maven-plugin</artifactId>
@@ -872,79 +716,7 @@
         </plugins>
     </build>
 
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>2.5.2</version>
-                <configuration>
-                    <excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
-                    <xmlOutput>true</xmlOutput>
-                    <xmlOutputDirectory>${project.build.directory}/findbugs</xmlOutputDirectory>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.0.1</version>
-
-                <configuration>
-                    <linkXRef>true</linkXRef>
-                    <sourceEncoding>UTF-8</sourceEncoding>
-                    <targetJdk>1.6</targetJdk>
-                    <!--<rulesets>-->
-                        <!--<ruleset>/rulesets/unusedcode.xml</ruleset>-->
-                        <!--<ruleset>/rulesets/basic.xml</ruleset>-->
-                        <!--<ruleset>/rulesets/imports.xml</ruleset>-->
-                        <!--<ruleset>/rulesets/design.xml</ruleset>-->
-                    <!--</rulesets>-->
-                </configuration>
-            </plugin>
-
-
-
-        </plugins>
-    </reporting>
-
     <profiles>
-        <!-- Local server -->
-        <profile>
-            <id>local</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <env>local</env>
-                <deploy-path>deploy</deploy-path>
-            </properties>
-        </profile>
-
-        <!-- Test server -->
-        <profile>
-            <id>test</id>
-            <properties>
-                <env>test</env>
-            </properties>
-        </profile>
-        
-        <!-- Development server -->
-        <profile>
-            <id>dev</id>
-            <properties>
-                <env>dev</env>
-            </properties>
-        </profile>
-
-        <!-- real server -->
-        <profile>
-            <id>release</id>
-            <properties>
-                <env>release</env>
-            </properties>
-        </profile>
-
         <profile>
             <id>klocwork</id>
             <build>
@@ -952,21 +724,9 @@
                     <plugin>
                         <groupId>com.klocwork.ps</groupId>
                         <artifactId>kwmaven</artifactId>
-                        <configuration>
-                            <buildspec_filename>${KWINJECT_OUT_PATH}</buildspec_filename>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <phase>validate</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
                     </plugin>
                 </plugins>
             </build>
         </profile>
     </profiles>
-
 </project>

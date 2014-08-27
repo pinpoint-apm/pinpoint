@@ -1,0 +1,785 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <organization>
+        <name>Naver Corporation</name>
+        <url>http://www.navercorp.com/</url>
+    </organization>
+    <groupId>com.nhn.pinpoint</groupId>
+    <artifactId>pom</artifactId>
+    <version>1.0.2</version>
+    <name>pinpoint</name>
+    <packaging>pom</packaging>
+
+    <distributionManagement>
+        <repository>
+            <id>nhn.release.repository</id>
+            <name>nhncorp.release</name>
+            <url>http://repo.nhncorp.com/maven2</url>
+        </repository>
+        <snapshotRepository>
+            <id>nhn.snapshot.repository</id>
+            <name>nhncorp.snapshot</name>
+            <url>http://repo.nhncorp.com/m2-snapshot-repository</url>
+            <uniqueVersion>true</uniqueVersion>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>nhn.snapshot.repository</id>
+            <name>NHN Snapshot Repository</name>
+            <url>http://repo.nhncorp.com/m2-snapshot-repository/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>nhn.release.repository</id>
+            <url>http://repo.nhncorp.com/maven2</url>
+        </repository>
+        <repository>
+            <id>cloudera</id>
+            <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>nhn-repository</id>
+            <name>NHN Maven2 Repository</name>
+            <url>http://repo.nhncorp.com/maven2</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>codehaus repository</id>
+            <name>Codehaus Maven2 Repository</name>
+            <url>http://repository.codehaus.org</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <modules>
+        <module>bootstrap</module>
+        <module>collector</module>
+        <module>commons</module>
+        <module>profiler</module>
+        <module>profiler-optional</module>
+        <module>rpc</module>
+        <module>thrift</module>
+        <module>web</module>
+    </modules>
+ 
+    <properties>
+        <encoding>UTF-8</encoding>
+        <jdk.version>1.6</jdk.version>
+        <slf4j.version>1.7.5</slf4j.version>
+        <metrics.version>3.0.1</metrics.version>
+        <spring.version>3.2.3.RELEASE</spring.version>
+        <jetty.version>8.1.12.v20130726</jetty.version>
+        <codehaus.jackson.version>1.9.13</codehaus.jackson.version>
+        <fastxml.jackson.version>2.3.1</fastxml.jackson.version>
+        <httpcomponents.version>4.3</httpcomponents.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-library</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.nhn.pinpoint</groupId>
+                <artifactId>pinpoint-commons</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.nhn.pinpoint</groupId>
+                <artifactId>pinpoint-rpc</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.nhn.pinpoint</groupId>
+                <artifactId>pinpoint-thrift</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.nhn.pinpoint</groupId>
+                <artifactId>pinpoint-bootstrap</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.nhn.pinpoint</groupId>
+                <artifactId>pinpoint-profiler</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.nhn.pinpoint</groupId>
+                <artifactId>pinpoint-collector</artifactId>
+                <classifier>classes</classifier>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-orm</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-test</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-webmvc</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jdbc</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-tx</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-oxm</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-instrument</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context-support</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-aop</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-aspects</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+
+            <!-- serving performance metrics -->
+            <dependency>
+                <groupId>com.codahale.metrics</groupId>
+                <artifactId>metrics-core</artifactId>
+                <version>${metrics.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.codahale.metrics</groupId>
+                <artifactId>metrics-jvm</artifactId>
+                <version>${metrics.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.codahale.metrics</groupId>
+                <artifactId>metrics-servlets</artifactId>
+                <version>${metrics.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${fastxml.jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-core-asl</artifactId>
+                <version>${codehaus.jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${fastxml.jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-mapper-asl</artifactId>
+                <version>${codehaus.jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-xc</artifactId>
+                <version>${codehaus.jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-jaxrs</artifactId>
+                <version>${codehaus.jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${fastxml.jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.googlecode.json-simple</groupId>
+                <artifactId>json-simple</artifactId>
+                <version>1.1.1</version>
+            </dependency>
+            
+
+
+            
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-common</artifactId>
+                <version>2.0.0-cdh4.5.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-core</artifactId>
+                <version>2.0.0-mr1-cdh4.5.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.hbase</groupId>
+                <artifactId>hbase</artifactId>
+                <version>0.94.6-cdh4.5.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.sematext.hbasewd</groupId>
+                <artifactId>hbasewd</artifactId>
+                <version>0.1.0</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-hadoop</artifactId>
+                <version>1.0.2.RELEASE</version>
+            </dependency>
+
+            
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jcl-over-slf4j</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <version>1.2.16</version>
+                <scope>test</scope>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.nhncorp.nelo2</groupId>
+                <artifactId>nelo2-java-sdk-log4j</artifactId>
+                <version>1.3.0</version>
+            </dependency>
+
+
+            
+            <dependency>
+                <groupId>com.nhncorp.lucy</groupId>
+                <artifactId>lucy-core</artifactId>
+                <version>1.7.7</version>
+            </dependency>
+            <dependency>
+                <groupId>com.nhncorp.lucy</groupId>
+                <artifactId>lucy-npc</artifactId>
+                <version>1.5.19</version>
+            </dependency>
+            <dependency>
+                <groupId>com.nhncorp.lucy</groupId>
+                <artifactId>lucy-nimmconnector</artifactId>
+                <version>2.1.4</version>
+            </dependency>
+            <dependency>
+                <groupId>com.nhncorp.lucy</groupId>
+                <artifactId>lucy-bloc-http11</artifactId>
+                <version>5.5.23</version>
+            </dependency>
+
+            
+            
+            
+            <dependency>
+                <groupId>commons-dbcp</groupId>
+                <artifactId>commons-dbcp</artifactId>
+                <version>1.4-p2</version>
+            </dependency>
+            <dependency>
+                <groupId>com.ibatis</groupId>
+                <artifactId>ibatis2-sqlmap</artifactId>
+                <version>2.3.4.726-p4</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mybatis</groupId>
+                <artifactId>mybatis</artifactId>
+                <version>3.2.7</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mybatis</groupId>
+                <artifactId>mybatis-spring</artifactId>
+                <version>1.2.2</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>5.1.20</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>cubrid</groupId>
+                <artifactId>cubrid-jdbc</artifactId>
+                <version>8.4.3.1005</version>
+            </dependency>
+            <dependency>
+                <groupId>oracle</groupId>
+                <artifactId>ojdbc6</artifactId>
+                <version>11.1.0.7.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.ning</groupId>
+                <artifactId>async-http-client</artifactId>
+                <version>1.8.3</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty</artifactId>
+                <version>3.6.6.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-all</artifactId>
+                <version>4.0.18.Final</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>catalina</artifactId>
+                <version>6.0.35</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>arcus</groupId>
+                <artifactId>arcus-client</artifactId>
+                <version>1.6.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>arcus</groupId>
+                <artifactId>arcus-spring</artifactId>
+                <version>0.3.5</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>net.sf.ehcache</groupId>
+                <artifactId>ehcache-core</artifactId>
+                <version>2.6.9</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sf.ehcache</groupId>
+                <artifactId>ehcache</artifactId>
+                <version>1.6.2</version>
+            </dependency>
+            
+            
+            
+            
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${httpcomponents.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore</artifactId>
+                <version>${httpcomponents.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore-nio</artifactId>
+                <version>${httpcomponents.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpasyncclient</artifactId>
+                <version>4.0</version>
+            </dependency>
+            
+            
+            
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>1.4</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.3.2</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sourceforge.jtds</groupId>
+                <artifactId>jtds</artifactId>
+                <version>1.2.4</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-fileupload</groupId>
+                <artifactId>commons-fileupload</artifactId>
+                <version>1.3.0-p1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.transaction</groupId>
+                <artifactId>jta</artifactId>
+                <version>1.1</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.mail</groupId>
+                <artifactId>mail</artifactId>
+                <version>1.4.7</version>
+            </dependency>
+
+
+
+            
+            <dependency>
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>3.18.0-GA</version>
+            </dependency>
+            <dependency>
+                <groupId>cglib</groupId>
+                <artifactId>cglib-nodep</artifactId>
+                <version>2.2</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjrt</artifactId>
+                <version>1.6.12</version>
+            </dependency>
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjweaver</artifactId>
+                <version>1.6.12</version>
+            </dependency>
+
+            
+            
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>servlet-api</artifactId>
+                <version>6.0.35</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>3.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>jstl</artifactId>
+                <version>1.1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>jsp-api</artifactId>
+                <version>2.0</version>
+            </dependency>
+            <dependency>
+                <groupId>taglibs</groupId>
+                <artifactId>standard</artifactId>
+                <version>1.1.2</version>
+            </dependency>
+            
+            
+            
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.8.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest-library</artifactId>
+                <version>1.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-all</artifactId>
+                <version>1.8.4</version>
+            </dependency>
+            <dependency>
+                <groupId>org.dbunit</groupId>
+                <artifactId>dbunit</artifactId>
+                <version>2.4.3</version>
+            </dependency>
+            
+            
+            <dependency>
+                <groupId>org.apache.zookeeper</groupId>
+                <artifactId>zookeeper</artifactId>
+                <version>3.4.5-cdh4.5.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.thrift</groupId>
+                <artifactId>libthrift</artifactId>
+                <version>0.9.1</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>17.0</version>
+            </dependency>
+            
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>2.6</version>
+                    <configuration>
+                        <encoding>${encoding}</encoding>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.0</version>
+                    <configuration>
+                        <source>${jdk.version}</source>
+                        <target>${jdk.version}</target>
+                        <debug>true</debug>
+                        <optimize>true</optimize>
+                        <encoding>${encoding}</encoding>
+                        <showDeprecations>true</showDeprecations>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>2.4</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>2.4</version>
+                    <configuration>
+                        <attachClasses>true</attachClasses>
+                        <classesClassifier>classes</classesClassifier>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>com.nhncorp.maven</groupId>
+                    <artifactId>maven-revision-plugin</artifactId>
+                    <version>1.0.0</version>
+                    <executions>
+                        <execution>
+                            <phase>compile</phase>
+                            <goals>
+                                <goal>create</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.17</version>
+                    <configuration>
+                        <excludes>
+                            <exclude>**/Mock*</exclude>
+                            <exclude>**/Abstract*</exclude>
+                            <exclude>**/*Helper</exclude>
+                            <exclude>**/*$*</exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>com.atlassian.maven.plugins</groupId>
+                    <artifactId>maven-clover2-plugin</artifactId>
+                    <version>3.1.6</version>
+                    <configuration>
+                        <encoding>${encoding}</encoding>
+                        <jdk>${jdk.version}</jdk>
+                        <generateXml>true</generateXml>
+                        <generateHtml>true</generateHtml>
+                        <generateHistorical>false</generateHistorical>
+                        <licenseLocation>clover.license</licenseLocation>
+                        <singleCloverDatabase>false</singleCloverDatabase>
+                        <includesTestSourceRoots>false</includesTestSourceRoots>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>findbugs-maven-plugin</artifactId>
+                    <version>2.5.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.nhncorp.maven</groupId>
+                    <artifactId>maven-klocwork-plugin</artifactId>
+                    <version>1.0.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.klocwork.ps</groupId>
+                    <artifactId>kwmaven</artifactId>
+                    <version>2.1.1</version>
+                    <configuration>
+                        <buildspec_filename>${KWINJECT_OUT_PATH}</buildspec_filename>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>run</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <inherited>false</inherited>
+                <configuration>
+                    <aggregate>true</aggregate>
+                    <inputEncoding>${encoding}</inputEncoding>
+                    <outputEncoding>${encoding}</outputEncoding>
+                    <windowTitle>Pinpoint ${project.version} Cross
+                        Reference</windowTitle>
+                    <docTitle>Pinpoint ${project.version} Cross
+                        Reference</docTitle>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <configuration>
+                    <excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
+                    <xmlOutput>true</xmlOutput>
+                    <xmlOutputDirectory>${project.build.directory}/findbugs</xmlOutputDirectory>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>3.0.1</version>
+                <configuration>
+                    <linkXref>true</linkXref>
+                    <sourceEncoding>${encoding}</sourceEncoding>
+                    <targetJdk>${jdk.version}</targetJdk>
+                    <!-- <rulesets> <ruleset>/rulesets/unusedcode.xml</ruleset> 
+                        <ruleset>/rulesets/basic.xml</ruleset> <ruleset>/rulesets/imports.xml</ruleset> 
+                        <ruleset>/rulesets/design.xml</ruleset> </rulesets> -->
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.atlassian.maven.plugins</groupId>
+                <artifactId>maven-clover2-plugin</artifactId>
+                <configuration>
+                    <includesTestSourceRoots>true</includesTestSourceRoots>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <profiles>
+        <!-- Local server -->
+        <profile>
+            <id>local</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <env>local</env>
+            </properties>
+        </profile>
+
+        <!-- Test server -->
+        <profile>
+            <id>test</id>
+            <properties>
+                <env>test</env>
+            </properties>
+        </profile>
+
+        <!-- Development server -->
+        <profile>
+            <id>dev</id>
+            <properties>
+                <env>dev</env>
+            </properties>
+        </profile>
+
+        <!-- real server -->
+        <profile>
+            <id>release</id>
+            <properties>
+                <env>release</env>
+            </properties>
+        </profile>
+    </profiles>
+</project>

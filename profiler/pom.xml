@@ -1,63 +1,24 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.nhn.pinpoint</groupId>
+    <parent>
+        <groupId>com.nhn.pinpoint</groupId>
+        <artifactId>pom</artifactId>
+        <version>1.0.2</version>
+    </parent>
+
     <artifactId>pinpoint-profiler</artifactId>
-    <version>1.0.2</version>
     <name>pinpoint profiler</name>
     <packaging>jar</packaging>
 
     <properties>
-        <spring.version>3.2.3.RELEASE</spring.version>
-        <slf4j.version>1.7.5</slf4j.version>
-        <metrics.version>3.0.1</metrics.version>
         <pinpiont-agent-dir>${basedir}/target/pinpoint-agent/</pinpiont-agent-dir>
     </properties>
-
-    <distributionManagement>
-        <repository>
-            <id>nhn.release.repository</id>
-            <name>nhncorp.release</name>
-            <url>dav:http://repo.nhncorp.com/maven2</url>
-        </repository>
-        <snapshotRepository>
-            <id>nhn.snapshot.repository</id>
-            <name>nhncorp.snapshot</name>
-            <url>dav:http://repo.nhncorp.com/m2-snapshot-repository</url>
-            <uniqueVersion>true</uniqueVersion>
-        </snapshotRepository>
-    </distributionManagement>
-
-    <repositories>
-        <repository>
-            <id>nhn.release.repository</id>
-            <url>http://repo.nhncorp.com/maven2</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-        <repository>
-            <id>nhn.snapshot.repository</id>
-            <url>http://repo.nhncorp.com/m2-snapshot-repository</url>
-            <snapshots>
-                <!--<updatePolicy>always</updatePolicy>-->
-                <!--<checksumPolicy>fail</checksumPolicy>-->
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-    </repositories>
 
     <dependencies>
         <dependency>
             <groupId>com.nhn.pinpoint</groupId>
             <artifactId>pinpoint-commons</artifactId>
-            <version>1.0.2</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.hadoop</groupId>
@@ -80,7 +41,6 @@
         <dependency>
             <groupId>com.nhn.pinpoint</groupId>
             <artifactId>pinpoint-thrift</artifactId>
-            <version>1.0.2</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.thrift</groupId>
@@ -96,42 +56,32 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>com.nhn.pinpoint</groupId>
             <artifactId>pinpoint-bootstrap</artifactId>
-            <version>1.0.2</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.nhn.pinpoint</groupId>
             <artifactId>pinpoint-rpc</artifactId>
-            <version>1.0.2</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty</artifactId>
-            <version>3.6.6.Final</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>17.0</version>
         </dependency>
-		<dependency>
-			<groupId>com.ning</groupId>
-			<artifactId>async-http-client</artifactId>
-			<version>1.8.3</version>
-			<scope>provided</scope>
-		</dependency>
+        <dependency>
+            <groupId>com.ning</groupId>
+            <artifactId>async-http-client</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- [Start] Compile Interceptors -->
         <dependency>
             <groupId>com.nhncorp.lucy</groupId>
             <artifactId>lucy-npc</artifactId>
-            <version>1.5.19</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -140,10 +90,9 @@
                 </exclusion>
             </exclusions>
         </dependency>
-		<dependency>
-			<groupId>com.nhncorp.lucy</groupId>
-			<artifactId>lucy-nimmconnector</artifactId>
-			<version>2.1.4</version>
+        <dependency>
+            <groupId>com.nhncorp.lucy</groupId>
+            <artifactId>lucy-nimmconnector</artifactId>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -164,30 +113,26 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        
+
         <!-- HTTP Client -->
         <dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpcore</artifactId>
-			<version>4.3</version>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore</artifactId>
             <scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpasyncclient</artifactId>
-			<version>4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpasyncclient</artifactId>
             <scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpcore-nio</artifactId>
-			<version>4.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpcore-nio</artifactId>
             <scope>provided</scope>
-		</dependency>
+        </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.3</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -200,31 +145,27 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        
-        
+
+
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.18</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>cubrid</groupId>
             <artifactId>cubrid-jdbc</artifactId>
-            <version>8.4.3.1005</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>oracle</groupId>
             <artifactId>ojdbc6</artifactId>
-            <version>11.1.0.7.0</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.nhncorp.lucy</groupId>
             <artifactId>lucy-bloc-http11</artifactId>
-            <version>5.5.23</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -237,11 +178,10 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        
+
         <dependency>
             <groupId>com.ibatis</groupId>
             <artifactId>ibatis2-sqlmap</artifactId>
-            <version>2.3.4.726-p4</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -250,56 +190,48 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        
+
         <dependency>
-		    <groupId>org.mybatis</groupId>
-		    <artifactId>mybatis</artifactId>
-		    <version>3.2.7</version>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
             <scope>provided</scope>
-		</dependency>
-		<dependency>
-		    <groupId>org.mybatis</groupId>
-		    <artifactId>mybatis-spring</artifactId>
-		    <version>1.2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
             <scope>provided</scope>
-		</dependency>
-        
+        </dependency>
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
-            <version>${spring.version}</version>
             <scope>test</scope>
         </dependency>
-		
-		<dependency>
-		    <groupId>org.springframework</groupId>
-		    <artifactId>spring-tx</artifactId>
-		    <version>${spring.version}</version>
-		    <scope>test</scope>
-		</dependency>
-        
-		<dependency>
-			<groupId>io.netty</groupId>
-			<artifactId>netty-all</artifactId>
-			<version>4.0.18.Final</version>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
             <scope>provided</scope>
-		</dependency>
-        
+        </dependency>
+
         <!-- [End] Compile Interceptors -->
 
-        <!-- 3.17.0 버전이 나왔으나 compile이 1.7로 되어 있어서 버전시 문제 있음 좀있음 1.6이하로 다시 컴파일해 줄듯 하니 기둘리자.-->
+        <!-- 3.17.0 버전이 나왔으나 compile이 1.7로 되어 있어서 버전시 문제 있음 좀있음 1.6이하로 다시 
+            컴파일해 줄듯 하니 기둘리자. -->
         <dependency>
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
-            <version>3.18.0-GA</version>
-            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.thrift</groupId>
             <artifactId>libthrift</artifactId>
-            <version>0.9.1</version>
-            <scope>compile</scope>
             <exclusions>
                 <exclusion>
                     <artifactId>httpclient</artifactId>
@@ -319,20 +251,17 @@
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>servlet-api</artifactId>
-            <version>6.0.35</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>catalina</artifactId>
-            <version>6.0.35</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>arcus</groupId>
             <artifactId>arcus-client</artifactId>
-            <version>1.6.2.1</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -345,80 +274,48 @@
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-core</artifactId>
-            <version>2.6.9</version>
             <scope>provided</scope>
         </dependency>
-
-
-        <!-- unit test -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.8.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-library</artifactId>
-            <version>1.3</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.8.4</version>
-            <scope>test</scope>
-        </dependency>
-
 
         <!-- Logging depedencies -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
-            <scope>compile</scope>
         </dependency>
         <!-- commons-logging-adapter -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-            <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>${slf4j.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>1.2.16</version>
-            <scope>compile</scope>
         </dependency>
-        
+
         <!-- serving performance metrics -->
         <dependency>
             <groupId>com.codahale.metrics</groupId>
             <artifactId>metrics-core</artifactId>
-            <version>${metrics.version}</version>
         </dependency>
         <dependency>
             <groupId>com.codahale.metrics</groupId>
             <artifactId>metrics-jvm</artifactId>
-            <version>${metrics.version}</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>com.codahale.metrics</groupId>-->
-            <!--<artifactId>metrics-json</artifactId>-->
-            <!--<version>${metrics.version}</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>com.codahale.metrics</groupId>-->
-            <!--<artifactId>metrics-healthchecks</artifactId>-->
-            <!--<version>${metrics.version}</version>-->
-        <!--</dependency>-->
+        <!--<dependency> -->
+        <!--<groupId>com.codahale.metrics</groupId> -->
+        <!--<artifactId>metrics-json</artifactId> -->
+        <!--<version>${metrics.version}</version> -->
+        <!--</dependency> -->
+        <!--<dependency> -->
+        <!--<groupId>com.codahale.metrics</groupId> -->
+        <!--<artifactId>metrics-healthchecks</artifactId> -->
+        <!--<version>${metrics.version}</version> -->
+        <!--</dependency> -->
     </dependencies>
 
 
@@ -455,10 +352,6 @@
         <plugins>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>2.6</version>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                </configuration>
                 <executions>
                     <execution>
                         <id>copy-log4j</id>
@@ -499,76 +392,39 @@
                         </configuration>
                     </execution>
                 </executions>
-
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.5.1</version>
                 <inherited>true</inherited>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
                     <debug>${compiler-debug}</debug>
-                    <optimize>true</optimize>
-                    <encoding>UTF-8</encoding>
-                    <!--<showDeprecation>true</showDeprecation>-->
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/pinpoint.config</exclude>
+                        <exclude>**/log4j.xml</exclude>
+                    </excludes>
+                    <outputDirectory>${pinpiont-agent-dir}/lib</outputDirectory>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.14</version>
-                <configuration>
-                    <excludes>
-                        <exclude>**/Mock*</exclude>
-                        <exclude>**/Abstract*</exclude>
-                        <exclude>**/*Helper</exclude>
-                        <exclude>**/*$*</exclude>
-                    </excludes>
-                </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
-                <version>2.5.2</version>
             </plugin>
 
             <plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
                 <artifactId>maven-clover2-plugin</artifactId>
-                <version>3.0.2</version>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                    <jdk>1.6</jdk>
-                    <generateXml>true</generateXml>
-                    <generateHtml>true</generateHtml>
-                    <generateHistorical>false</generateHistorical>
-                    <licenseLocation>clover.license</licenseLocation>
-                    <singleCloverDatabase>false</singleCloverDatabase>
-                    <includesTestSourceRoots>false</includesTestSourceRoots>
-                </configuration>
             </plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.3</version>
-				<configuration>
-					<excludes>
-						<exclude>**/pinpoint.config</exclude>
-						<exclude>**/log4j.xml</exclude>
-					</excludes>
-                    <outputDirectory>${pinpiont-agent-dir}/lib</outputDirectory>
-				</configuration>
-			</plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -581,7 +437,8 @@
                         </goals>
                         <configuration>
                             <includeScope>runtime</includeScope>
-                            <!-- pinpoint-bootstrap 은 하위에 있어야 한다. pinpoint-commons는 bootstrap에 포함됨.-->
+                            <!-- pinpoint-bootstrap 은 하위에 있어야 한다. pinpoint-commons는 
+                                bootstrap에 포함됨. -->
                             <excludeArtifactIds>pinpoint-bootstrap,pinpoint-commons</excludeArtifactIds>
                             <outputDirectory>${pinpiont-agent-dir}/lib</outputDirectory>
                             <overWriteReleases>true</overWriteReleases>
@@ -606,54 +463,8 @@
         </plugins>
     </build>
 
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>2.5.2</version>
-                <configuration>
-                    <excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
-                    <xmlOutput>true</xmlOutput>
-                    <xmlOutputDirectory>${project.build.directory}/findbugs</xmlOutputDirectory>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.0.1</version>
-
-                <configuration>
-                    <linkXRef>true</linkXRef>
-                    <sourceEncoding>UTF-8</sourceEncoding>
-                    <targetJdk>1.6</targetJdk>
-                    <!--<rulesets>-->
-                        <!--<ruleset>/rulesets/unusedcode.xml</ruleset>-->
-                        <!--<ruleset>/rulesets/basic.xml</ruleset>-->
-                        <!--<ruleset>/rulesets/imports.xml</ruleset>-->
-                        <!--<ruleset>/rulesets/design.xml</ruleset>-->
-                    <!--</rulesets>-->
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>com.atlassian.maven.plugins</groupId>
-                <artifactId>maven-clover2-plugin</artifactId>
-                <version>3.0.2</version>
-                <configuration>
-                    <includesTestSourceRoots>true</includesTestSourceRoots>
-                    <licenseLocation>clover.license</licenseLocation>
-                    <encoding>UTF-8</encoding>
-                    <jdk>1.6</jdk>
-                </configuration>
-            </plugin>
-
-        </plugins>
-    </reporting>
-
     <profiles>
-    
+
         <!-- Local server -->
         <profile>
             <id>local</id>
@@ -661,17 +472,14 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <env>local</env>
-                <deploy-path>deploy</deploy-path>
                 <compiler-debug>true</compiler-debug>
             </properties>
         </profile>
-        
+
         <!-- Test server -->
         <profile>
             <id>test</id>
             <properties>
-                <env>test</env>
                 <compiler-debug>true</compiler-debug>
             </properties>
         </profile>
@@ -680,7 +488,6 @@
         <profile>
             <id>dev</id>
             <properties>
-                <env>dev</env>
                 <compiler-debug>true</compiler-debug>
             </properties>
         </profile>
@@ -689,7 +496,6 @@
         <profile>
             <id>release</id>
             <properties>
-                <env>release</env>
                 <compiler-debug>false</compiler-debug>
             </properties>
         </profile>
@@ -701,17 +507,6 @@
                     <plugin>
                         <groupId>com.klocwork.ps</groupId>
                         <artifactId>kwmaven</artifactId>
-                        <configuration>
-                            <buildspec_filename>${KWINJECT_OUT_PATH}</buildspec_filename>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <phase>validate</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
                     </plugin>
                 </plugins>
             </build>

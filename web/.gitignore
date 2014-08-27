@@ -1,4 +1,5 @@
 target
-*.iml
+/*.iml
 .classpath
 .project
+/.settings/

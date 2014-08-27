@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+    "-//Puppy Crawl//DTD Suppressions 1.0//EN"
+    "http://www.puppycrawl.com/dtds/suppressions_1_0.dtd">
+
+<suppressions>
+    <suppress checks="StrictDuplicateCodeCheck" files="AnnotationValidationConfigurationBuilder.java"/>
+    <suppress checks="ModifiedControlVariableCheck" files="ErrorUtil.java" lines="31"/>
+    <suppress checks="SuperCloneCheck" files="ResultCacheEntry.java" />
+    <suppress checks="SuperCloneCheck" files="ServiceExecutionContext.java" />
+    <suppress checks="NPathComplexityCheck" files="DefaultUsfActionInvocation.java" />
+    <suppress checks="CyclomaticComplexityCheck" files="StringUtil.java" />
+    <suppress checks="NPathComplexityCheck" files="MessageMethod.java" />
+</suppressions>

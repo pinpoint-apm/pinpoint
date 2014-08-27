@@ -4,55 +4,26 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.nhn.pinpoint</groupId>
+    <parent>
+        <groupId>com.nhn.pinpoint</groupId>
+        <artifactId>pom</artifactId>
+        <version>1.0.2</version>
+    </parent>
+    
     <artifactId>pinpoint-rpc</artifactId>
-    <version>1.0.2</version>
     <name>pinpoint-rpc</name>
     <packaging>jar</packaging>
-
-    <properties>
-        <slf4j.version>1.7.5</slf4j.version>
-    </properties>
-
-
-
-    <repositories>
-        <repository>
-            <id>nhn.release.repository</id>
-            <url>http://repo.nhncorp.com/maven2</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-        <repository>
-            <id>nhn.snapshot.repository</id>
-            <url>http://repo.nhncorp.com/m2-snapshot-repository</url>
-            <snapshots>
-                <!--<updatePolicy>always</updatePolicy>-->
-                <!--<checksumPolicy>fail</checksumPolicy>-->
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-    </repositories>
 
     <dependencies>
         <dependency>
             <groupId>com.nhn.pinpoint</groupId>
             <artifactId>pinpoint-commons</artifactId>
-            <version>1.0.2</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty</artifactId>
-            <version>3.6.6.Final</version>
             <scope>provided</scope>
         </dependency>
 
@@ -61,8 +32,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
-            <scope>compile</scope>
             <optional>true</optional>
         </dependency>
         <!-- thrift logging lib -->
@@ -70,19 +39,16 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-            <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <version>1.2.16</version>
             <scope>test</scope>
         </dependency>
         <!--<dependency>-->
@@ -91,29 +57,7 @@
         <!--<version>1.6.6</version>-->
         <!--<scope>test</scope>-->
         <!--</dependency>-->
-
-
-        <!-- unit test -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.8.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-library</artifactId>
-            <version>1.3</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.8.4</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
-
 
     <build>
         <resources>
@@ -145,127 +89,29 @@
         <plugins>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>2.6</version>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.5.1</version>
-                <inherited>true</inherited>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                    <debug>true</debug>
-                    <optimize>true</optimize>
-                    <encoding>UTF-8</encoding>
-                    <showDeprecation>true</showDeprecation>
-                </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
             </plugin>
-
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.16</version>
-                <configuration>
-                    <excludes>
-                        <exclude>**/Abstract*</exclude>
-                        <exclude>**/*$*</exclude>
-                        <exclude>**/TestInterceptor*.java</exclude>
-                        <exclude>**/Mock*.java</exclude>
-                    </excludes>
-
-                    <!--<systemProperties>-->
-                    <!--<property>-->
-                    <!--<name>java.util.logging.config.file</name>-->
-                    <!--<value>${project.build.testOutputDirectory}/logging.test.properties</value>-->
-                    <!--</property>-->
-                    <!--</systemProperties>-->
-                </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
-                <version>2.5.2</version>
             </plugin>
-
-
             <plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
                 <artifactId>maven-clover2-plugin</artifactId>
-                <version>3.0.2</version>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                    <jdk>1.6</jdk>
-                    <generateXml>true</generateXml>
-                    <generateHtml>true</generateHtml>
-                    <generateHistorical>false</generateHistorical>
-                    <licenseLocation>clover.license</licenseLocation>
-                    <singleCloverDatabase>false</singleCloverDatabase>
-                    <includesTestSourceRoots>false</includesTestSourceRoots>
-                </configuration>
             </plugin>
-
         </plugins>
     </build>
-
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>2.5.2</version>
-                <configuration>
-                    <excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
-                    <xmlOutput>true</xmlOutput>
-                    <xmlOutputDirectory>${project.build.directory}/findbugs</xmlOutputDirectory>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.0.1</version>
-
-                <configuration>
-                    <linkXRef>true</linkXRef>
-                    <sourceEncoding>UTF-8</sourceEncoding>
-                    <targetJdk>1.6</targetJdk>
-                    <!--<rulesets>-->
-                        <!--<ruleset>/rulesets/unusedcode.xml</ruleset>-->
-                        <!--<ruleset>/rulesets/basic.xml</ruleset>-->
-                        <!--<ruleset>/rulesets/imports.xml</ruleset>-->
-                        <!--<ruleset>/rulesets/design.xml</ruleset>-->
-                    <!--</rulesets>-->
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>com.atlassian.maven.plugins</groupId>
-                <artifactId>maven-clover2-plugin</artifactId>
-                <version>3.0.2</version>
-                <configuration>
-                    <includesTestSourceRoots>true</includesTestSourceRoots>
-                    <licenseLocation>clover.license</licenseLocation>
-                    <encoding>UTF-8</encoding>
-                    <jdk>1.6</jdk>
-                </configuration>
-            </plugin>
-
-        </plugins>
-    </reporting>
-
 
     <profiles>
         <profile>
@@ -275,21 +121,9 @@
                     <plugin>
                         <groupId>com.klocwork.ps</groupId>
                         <artifactId>kwmaven</artifactId>
-                        <configuration>
-                            <buildspec_filename>${KWINJECT_OUT_PATH}</buildspec_filename>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <phase>validate</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
                     </plugin>
                 </plugins>
             </build>
         </profile>
     </profiles>
-
 </project>
