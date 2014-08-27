@@ -1,0 +1,1 @@
+﻿mvn package install -Dmaven.test.skip
