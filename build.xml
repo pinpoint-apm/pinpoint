@@ -1,0 +1,29 @@
+<project name="pinpoint_common_build" basedir=".">
+    <property environment="env"/>
+
+    <property name="maven.dir" value="${env.M2_HOME}"/>
+    <property name="common.dir" value="${basedir}/../deploy/agent/agentlib/lib"/>
+    <property name="target.dir" value="${basedir}/target/"/>
+
+
+    <!--<target name="copy.common.deploy.dir" depends="mvn.build">-->
+        <!--<copy file="${target.dir}/pinpoint-commons-0.0.2.jar" todir="${common.dir}">-->
+        <!--</copy>-->
+    <!--</target>-->
+
+    <target name="mvn.build">
+        <exec executable="${maven.dir}/bin/mvn.bat">
+            <!--<arg value="install"/>-->
+            <arg value="compile"/>
+            <arg value="jar:jar"/>
+        </exec>
+    </target>
+
+
+    <!--<target name="clean" >-->
+    <!--<delete dir="${class.dir}/class/*"/>-->
+    <!--<delete dir="${jar.dir}/jar/*"/>-->
+    <!--<delete dir="${javadoc.dir}/doc/*"/>-->
+    <!--</target>-->
+
+</project>
