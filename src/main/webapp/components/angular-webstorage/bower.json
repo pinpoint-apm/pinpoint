@@ -1,0 +1,13 @@
+{
+  "name": "angular-webstorage",
+  "version": "0.9.5",
+  "main": "angular-webstorage.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "components"
+  ],
+  "dependencies": {
+    "angular": "~1.0 || ~1.1"
+  }
+}

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
+
+    <appender name="console" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.EnhancedPatternLayout">
+            <!--<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-3p(%-35.35c{5}:%-3L) %m%n"/>-->
+            <param name="ConversionPattern" value="%d{HH:mm:ss} %-5p(%-35.35c{1.}:%-3L) %m%n"/>
+            <!-- %L 옵션은 라인넘버가 출력되나 속도저하가 심하다. -->
+            <!--<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-30c{1}) %m%n" />-->
+        </layout>
+    </appender>
+
+    <appender name="nelo" class="com.nhncorp.nelo2.log4j.NeloAppender">
+        <param name="Threshold" value="WARN"/>
+        <param name="projectName" value="PINPOINT"/>
+        <param name="collectorUrl" value="nelo2-col.nhncorp.com"/>
+        <param name="port" value="10006"/>
+        <param name="encoding" value="utf-8"/>
+        <param name="timeout" value="1200"/>
+        <param name="enable" value="true"/>
+        <param name="logType" value="test"/>
+        <param name="logSource" value="web"/>
+        <param name="errorCodeTYpe" value="default"/>
+        <param name="debug" value="false"/>
+    </appender>
+
+    <appender name="nelo-async" class="com.nhncorp.nelo2.log4j.Nelo2AsyncAppender">
+        <param name="Threshold" value="WARN"/>
+        <param name="blocking" value="false"/>
+        <param name="locationInfo" value="false"/>
+        <param name="bufferSize" value="1024"/>
+        <appender-ref ref="nelo"/>
+    </appender>
+
+
+    <logger name="com.nhn.pinpoint" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="console"/>
+    </logger>
+    
+    <logger name="com.nhn.pinpoint.web.filter" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="console"/>
+    </logger>
+    
+    <logger name="com.nhn.pinpoint.web.controller" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="console"/>
+    </logger>
+    
+    <logger name="com.nhn.pinpoint.web.applicationmap" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="console"/>
+    </logger>
+    
+    <logger name="com.nhn.pinpoint.web.calltree.server" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="console"/>
+    </logger>
+
+    <logger name="com.nhn.pinpoint.web.mapper" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="console"/>
+    </logger>
+    
+    <logger name="com.nhn.pinpoint.web.service" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="console"/>
+    </logger>
+    
+    <logger name="com.nhn.pinpoint.web.dao" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="console"/>
+    </logger>
+
+    <logger name="com.nhn.pinpoint.web.mapper.ApiMetaDataMapper" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="console"/>
+    </logger>
+
+    <logger name="com.ibatis" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="console"/>
+    </logger>
+
+    <logger name="org.springframework" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="console"/>
+    </logger>
+
+    <logger name="org.apache.zookeeper.ZooKeeper" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="console"/>
+    </logger>
+    <logger name="org.apache.zookeeper.ClientCnxn" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="console"/>
+    </logger>
+
+    <logger name="org.apache.hadoop.hbase" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="console"/>
+    </logger>
+
+    <root>
+        <level value="INFO"/>
+        <appender-ref ref="console"/>
+        <!--<appender-ref ref="nelo-async"/>-->
+    </root>
+</log4j:configuration>

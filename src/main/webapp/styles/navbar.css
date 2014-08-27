@@ -1,0 +1,75 @@
+.navbar {
+    z-index: 1040;
+}
+.main-navbar {
+    position: absolute;
+    margin: -40px 0 0 0;
+    height: 40px;
+    min-height: 40px;
+    background-color: #252a3a;
+    width: 100%;
+    border-radius: 0;
+}
+.main-navbar .navbar-brand {
+    padding: 7px 15px;
+}
+.main-navbar .brand {
+    margin-left: 20px;
+}
+.main-navbar .nav>li {
+    margin-top: 5px;
+}
+.main-navbar .divider-vertical {
+    height: 35px;
+    min-height: 1px;
+    margin: 0 9px;
+    border: 0;
+}
+.main-navbar .navbar-form {
+    margin: 0 0 0 25px;
+    padding: 0;
+    width: auto;
+    border: 0;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+.main-navbar .navbar-nav {
+    float: left;
+    margin: 0;
+}
+.main-navbar .navbar-nav>li {
+    float: left;
+}
+.navbar-form .for-datetimepicker {
+    /*width:470px;*/
+}
+.navbar-form .datetimepicker {
+    margin: 0 0 0 1px;
+}
+.navbar-form .datetimepicker .checkbox input[type="checkbox"]{
+    float: none;
+}
+.navbar-form .datetimepicker .icon-calendar {
+    margin-left: 1px;
+}
+#ui-datepicker-div {
+    font-size: 75%;
+    z-index: 10 !important;
+}
+.navbar .select2-container .select2-choice {
+    height: 30px;
+    line-height: 30px;
+}
+.navbar .beta {
+    position: absolute;
+    left:158px;
+    top: 12px;
+    font-size: 12px;
+    color: rgb(216, 33, 33);
+    font-family: 'Tahoma', 'Trebuchet MS', 'Verdana';
+}
+.navbar .application {
+    width:290px;
+    margin:0;
+    height:28px;
+}

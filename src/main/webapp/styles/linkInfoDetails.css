@@ -1,0 +1,42 @@
+.linkInfoDetails {
+    /*padding: 5px 15px 30px;*/
+}
+.linkInfoDetails .infoBarChart svg g.nv-group rect,
+.linkInfoDetails .infoBarChart svg g.nv-group text {
+    cursor: pointer;
+}
+.linkInfoDetails .panel {
+    border: 1px solid #BDC3C7;
+}
+.linkInfoDetails .panel-default>.panel-heading {
+    background-color: #E5F0FC;
+    border-bottom: 1px solid #BDC3C7;
+}
+.linkInfoDetails .server-list,
+.linkInfoDetails .server-list ul {
+    list-style: none;
+}
+.linkInfoDetails .server-list li {
+    margin-bottom: 5px;
+    /*font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;*/
+    font-size: 12px;
+}
+
+.linkInfoDetails .unknown-group .unknown-list {
+    position: absolute;
+    top: 40px;
+    bottom:0;
+    left:0;
+    right:0;
+    overflow:auto;
+    padding:0 15px;
+}
+.linkInfoDetails .known-link {
+    position: absolute;
+    top: 0;
+    bottom:0;
+    left:0;
+    right:0;
+    overflow:auto;
+    padding:0 15px;
+}

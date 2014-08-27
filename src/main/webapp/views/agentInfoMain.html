@@ -1,0 +1,109 @@
+<div class="inspector-container">
+    <div ng-include=" 'error' "></div>
+    <div ng-include=" 'warning' "></div>
+    <div ng-include=" 'info' "></div>
+    <div ng-include=" 'loading' "></div>
+
+    <div>
+        <h3>Information</h3>
+
+        <div class="row">
+            <div class="col-md-6">
+                <table class="table table-striped table-condensed" style="font-size:12px;">
+                    <tbody>
+                    <tr>
+                        <td class="text-right">Application Name :</td>
+                        <td>{{info.applicationName}}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Agent Id :</td>
+                        <td>{{info.agentId}}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Hostname :</td>
+                        <td>{{info.hostname}}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">IP :</td>
+                        <td>{{info.ip}} <a class="btn btn-default btn-xs" href="http://nsight.nhncorp.com/dashboard_server/{{info.ip}}" target="_blank" title="System resource monitoring site">NSight</a>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Service Type :</td>
+                        <td>{{info.serviceType}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <table class="table table-striped table-condensed" style="font-size:12px;">
+                    <tbody>
+                    <tr>
+                        <td class="text-right">Agent Version :</td>
+                        <td>{{info.agentVersion}}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">PID :</td>
+                        <td>{{info.pid}}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">JVM GC Type :</td>
+                        <td>{{info.jvmGcType}}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">Start Time :</td>
+                        <td>{{agent.startTime | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-right">End Status :</td>
+                        <td>{{agent.endStatus}} (last checked : {{agent.endTimeStamp | date:'yyyy-MM-dd HH:mm:ss Z'}})</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+    <div ng-show="memoryGroup">
+        <h3>Memory & Garbage Collection</h3>
+
+        <!--<div class="row">-->
+            <!--<div class="col-md-6">-->
+                <!--<h5>{{memoryGroup[0].title}}</h5>-->
+                <!--<svg id="line_{{memoryGroup[0].id}}" style="height:220px;" />-->
+            <!--</div>-->
+            <!--<div class="col-md-6">-->
+                <!--<h5>{{memoryGroup[1].title}}</h5>-->
+                <!--<svg id="line_{{memoryGroup[1].id}}" style="height:220px;" />-->
+            <!--</div>-->
+        <!--</div>-->
+        <div class="row">
+            <div class="col-md-6">
+                <h5>{{memoryGroup[0].title}}</h5>
+                <jvm-memory-chart namespace="forHeap"></jvm-memory-chart>
+            </div>
+            <div class="col-md-6">
+                <h5>{{memoryGroup[1].title}}</h5>
+                <jvm-memory-chart namespace="forNonHeap"></jvm-memory-chart>
+            </div>
+        </div>
+    </div>
+    <!--div class="row">
+        <div class="span12">
+            <h5>Data Table <small>(updated : {{timestamp}})</small></h5>
+            <table class="table table-striped table-condensed">
+                <thead>
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="(k, v) in agent_stats">
+                    <td><small>{{k}}</small></td>
+                    <td><small>{{v.value}}</small></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div-->
+</div>

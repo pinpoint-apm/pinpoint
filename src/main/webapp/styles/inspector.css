@@ -1,0 +1,64 @@
+.inspector-container {
+    width:95%;
+    position:relative;
+}
+.sidebar-spy {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 0;
+    margin: 0 12px 0 0;
+    width: 238px;
+    height: 100%;
+    border: 0;
+    border-right: 1px solid #ddd;
+    overflow: auto;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0;
+}
+
+.main-spy {
+    margin-left: 250px;
+    height: 100%;
+    overflow: auto;
+}
+
+.agent-list .searchbox {
+    width: 100%;
+}
+
+.agent-list .nav li > a:hover,
+.agent-list .nav li > a:focus {
+    text-decoration: none;
+    background-color: #eeeeee;
+}
+
+.agent-list .nav-list {
+    padding: 0;
+}
+.agent-list .nav-list .nav-header {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.agent-list .nav-list li > a,
+.agent-list .nav-list .nav-header {
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    -o-text-overow: ellipsis;
+}
+
+.agent-list .nav-list li > a {
+    padding: 3px 15px;
+}
+
+.agent-list .nav-list .active > a,
+.agent-list .nav-list .active > a:hover,
+.agent-list .nav-list .active > a:focus {
+    color: #ffffff;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+    background-color: #0088cc;
+}

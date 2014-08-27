@@ -1,0 +1,112 @@
+<div class="nodeInfoDetails" ng-init="nodeIcon='USER'" ng-show="showNodeInfoDetails">
+
+    <div class="unknown-group" ng-show="node.serviceType == 'UNKNOWN_GROUP'">
+
+        <div class="search-n-order" style="padding-left:15px;">
+            <div style="float:left;width:265px;padding-right:5px">
+                <div class="input-group form-group input-group-sm has-feedback" style="margin-bottom:0;">
+                    <span class=" input-group-addon">
+                        <span class="glyphicon glyphicon-search" style="top:0;"></span>
+                    </span>
+                    <input type="text" class="form-control" ng-model="nodeSearch" ng-change="nodeSearchChange()" placeholder="Type keywords for filtering.">
+                    <span class="glyphicon glyphicon-remove form-control-feedback" style="top:-2px;z-index:2;" ng-click="nodeSearch=''" ng-show="nodeSearch"></span>
+                </div>
+            </div>
+            <div>
+                <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-default" ng-click="nodeOrderByName()">Name <span class="glyphicon" ng-class="nodeOrderByNameClass"></span></button>
+                    <button type="button" class="btn btn-default" ng-click="nodeOrderByCount()">Count <span class="glyphicon" ng-class="nodeOrderByCountClass"></span></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="unknown-list">
+            <div class="panel panel-default" ng-repeat="(index, node) in unknownNodeGroup | orderBy:nodeOrderBy:nodeOrderByDesc" ng-show="showUnknownNodeBy(nodeSearch, node)" style="height:241px;">
+                <div class="panel-heading">
+                    {{node.applicationName}}<span class="badge pull-right" ng-class="{'alert-danger':node.hasAlert}" title="Total Call Count" data-toggle="tooltip" data-placement="left">{{node.totalCount | number}}</span>
+                </div>
+
+                <div class="panel-body summaryCharts_{{node.applicationName | applicationNameToClassName}}" style="position: relative; padding:0">
+                    <div ng-show="showNodeResponseSummaryForUnknown" style="padding-top: 20px;">
+                        <h6 style="position:absolute;top:5px;left:10px;margin:0;">Response Summary</h6>
+                        <response-time-chart namespace="forNode_{{node.applicationName | applicationNameToClassName}}"></response-time-chart>
+                    </div>
+                    <div ng-hide="showNodeResponseSummaryForUnknown">
+                        <h6 style="position:absolute;top:5px;left:10px;margin:0;">Load</h6>
+                        <load-chart namespace="forNode_{{node.applicationName | applicationNameToClassName}}"></load-chart>
+                    </div>
+
+                    <a class="btn btn-default btn-xs" href title="Show Load" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;color:#8a6d3b"
+                       ng-click="showNodeResponseSummaryForUnknown=!showNodeResponseSummaryForUnknown;renderNodeLoad(node.applicationName, index)" ng-show="showNodeResponseSummaryForUnknown">
+                        <span class="glyphicon glyphicon-stats"></span>
+                    </a>
+                    <a class="btn btn-default btn-xs" href title="Show Response Summary" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 20px; right:5px;color:#8a6d3b"
+                       ng-click="showNodeResponseSummaryForUnknown=!showNodeResponseSummaryForUnknown;renderNodeResponseSummary(node.applicationName, index)" ng-show="!showNodeResponseSummaryForUnknown">
+                        <span class="glyphicon glyphicon-stats"></span>
+                    </a>
+                    <a class="btn btn-default btn-xs" href ng-click="showNodeDetailInformation(index)"
+                       title="Show Node Information" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 50px; right:5px;color:#31708f;">
+                        <span class="glyphicon glyphicon-info-sign"></span>
+                    </a>
+                    <!--<a class="btn btn-default btn-xs" href title="Filter Transaction" data-toggle="tooltip" data-placement="left" style="position: absolute;top: 50px; right:5px;"-->
+                       <!--ng-click="passingTransactionMapFromLinkInfoDetails(target.applicationName, target.serviceType)">-->
+                        <!--<span class="glyphicon glyphicon-filter"></span>-->
+                    <!--</a>-->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="known-node" ng-hide="node.serviceType == 'UNKNOWN_GROUP'">
+
+        <div class='response-summary' ng-show="showNodeResponseSummary">
+            <h5>Response Summary</h5>
+            <response-time-chart namespace="forNode"></response-time-chart>
+        </div>
+
+        <div class='load' ng-show="showNodeLoad">
+            <h5>Load</h5>
+            <load-chart namespace="forNode"></load-chart>
+        </div>
+
+        <div class="node-servers" ng-show="showNodeServers">
+            <h5>Servers</h5>
+            <ul class="server-list list-unstyled">
+                <li ng-repeat="(key, server) in serverList">
+                    <span class="glyphicon glyphicon-home"></span>
+                    {{server.name.split(':')[0]}}
+                    <a class="btn btn-default btn-xs" href="http://nsight.nhncorp.com/dashboard_server/{{server.name.split(':')[0].replace('.nhnsystem.com','')}}" target="_blank" title="System resource monitoring site">NSight</a>
+                    <ul style="padding-left: 15px;padding-top:5px;">
+                        <li ng-repeat="instance in server.instanceList" ng-init="instance.showChart=false">
+                            <span class="glyphicon glyphicon-hdd"></span>
+                            {{instance.name}}
+                            <a class="btn btn-default btn-xs" ng-show="instance.hasInspector" ng-href="#/inspector/{{node.applicationName}}@{{node.serviceTypeCode}}/{{oNavbarVo.getReadablePeriod()}}/{{oNavbarVo.getQueryEndDateTime()}}/{{instance.name}}" target="_blank" title="Inspect Agents" alt="Inspect Agents">Inspector</a>
+                            <a class="btn btn-default btn-xs" href="http://hubble.arcuscloud.nhncorp.com/" target="_blank" title="Arcus monitoring site" ng-show="nodeCategory == 'ARCUS'">Hubble</a>
+                            <button type="button" class="btn btn-xs" ng-click="instance.showChart=!instance.showChart;renderNodeAgentCharts(instance.name);"
+                                    ng-show="agentHistogram[instance.name]" ng-class="{true:'btn-danger', false:'btn-default'}[agentHistogram[instance.name].Error > 0]">
+                                <span class="glyphicon" ng-class="{true:'glyphicon-minus',false:'glyphicon-plus'}[instance.showChart==true]"></span>
+                            </button>
+                            <div ng-show="instance.showChart">
+                                <div class="agentHistogram_{{instance.name | applicationNameToClassName}}">
+                                    <h6>Response Summary</h6>
+                                    <response-time-chart namespace="forNode_{{instance.name | applicationNameToClassName}}"></response-time-chart>
+                                </div>
+                                <div class="agentTimeSeriesHistogram_{{instance.name | applicationNameToClassName}}">
+                                    <h6>Load</h6>
+                                    <load-chart namespace="forNode_{{instance.name | applicationNameToClassName}}"></load-chart>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div ng-show="node.serviceType=='UNKNOWN' && htLastUnknownNode">
+            <button type="button" class="btn btn-default btn-xs" ng-click="goBackToUnknownNode()"><span class="glyphicon glyphicon-arrow-left"></span> Go back to Unknown Group</button>
+        </div>
+
+    </div>
+
+</div>

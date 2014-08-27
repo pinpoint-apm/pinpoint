@@ -1,0 +1,174 @@
+<div class="servermap" style="width:100%;height:100%;position: relative;">
+    <div id="servermap" style="width:100%;height:100%;position: relative;"></div>
+    <div class="servermap-status" ng-show="bShowServerMapStatus">
+        <div class="alert alert-info" style="min-height: 45px;">
+            <h6 ng-show="oNavbarVo.getQueryStartTime() && oNavbarVo.getQueryEndTime()">{{oNavbarVo.getQueryStartTime() |
+                date:'yyyy-MM-dd HH:mm:ss'}} ~ {{oNavbarVo.getQueryEndTime() | date:'yyyy-MM-dd HH:mm:ss'}}</h6>
+            <!--<h6 ng-if="oNavbarVo.getFilter()">Base WAS : {{oNavbarVo.getApplicationName()}}</h6>-->
+            <!--<ul class="list-unstyled" ng-if="oNavbarVo.getFilter()"-->
+                <!--ng-bind-html="oNavbarVo.getFilter() | filterToString">-->
+            <!--</ul>-->
+        </div>
+    </div>
+    <div ng-include=" 'error' "></div>
+    <div ng-include=" 'warning' "></div>
+    <div ng-include=" 'info' "></div>
+    <div ng-include=" 'loading' "></div>
+
+    <ul ng-style="nodeContextMenuStyle" class="nodeContextMenu dropdown-menu" role="menu" aria-labelledby="dropdownMenu"
+        style="z-index:10">
+        <!--<li><a href tabindex="-1" ng-click="passingTransactionList()"><i class="icon-map-marker"></i> Passing Transaction List</a></li>-->
+        <!--<li class="divider"></li>-->
+        <li><a href tabindex="-1" ng-click="passingTransactionResponseToScatterChart()"><span
+                class="glyphicon glyphicon-list"></span> Transaction Scatter Chart</a></li>
+        <li><a tabindex="-1"
+               ng-href="#/inspector/{{oNavbarVo.getApplication()}}/{{oNavbarVo.getPeriod()}}/{{oNavbarVo.getQueryEndTime()}}"
+               target="_blank"><span class="glyphicon glyphicon-search"></span> Inspect Agents</a></li>
+    </ul>
+
+    <ul ng-style="linkContextMenuStyle" class="linkContextMenu dropdown-menu" role="menu" aria-labelledby="dropdownMenu"
+        style="z-index:10">
+        <!--<li><a href tabindex="-1" ng-click="openFilterWizard()"><span class="glyphicon glyphicon-filter"></span> Filter Transaction</a></li>-->
+        <li><a href tabindex="-1" ng-click="passingTransactionList()"><span class="glyphicon glyphicon-filter"></span> Filter
+            Transaction</a></li>
+        <li><a href tabindex="-1" ng-click="openFilterWizard()"><span class="glyphicon glyphicon-filter"></span> Filter
+            Transaction Wizard</a></li>
+    </ul>
+
+    <!-- Modal -->
+    <div class="modal fade bs-modal-lg center" id="filterWizard" tabindex="-1" role="dialog" aria-labelledby="myFilterWizard"
+         aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myFilterWizard">Filter Wizard</h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" role="form">
+                        <div class="form-group" style="margin-bottom:0">
+                            <label class="col-sm-2 control-label" style="padding-top:25px;">Path</label>
+                            <sidebar-title namespace="forServerMap"></sidebar-title>
+                        </div>
+                        <div class="form-group" ng-show="sourceInfo.isWas || targetInfo.isWas">
+                            <label class="col-sm-2 control-label" style="padding-top:4px;">Agent</label>
+                            <div class="col-sm-8">
+                                <select ng-show="sourceInfo.isWas" ng-model="fromAgentName" class="fromAgentName" style="width:120px;">
+                                    <option value="">All</option>
+                                    <option ng-repeat="(agentName,v) in sourceHistogram" value="{{agentName}}">{{agentName}}</option>
+                                </select>
+                                <span ng-hide="sourceInfo.isWas">
+                                    All<!--{{fromApplicationName}}-->
+                                </span>
+                                &nbsp;
+                                <span class="glyphicon glyphicon-arrow-right"></span>
+                                &nbsp;
+                                <select ng-show="targetInfo.isWas" ng-model="toAgentName" class="toAgentName" style="width:120px;">
+                                    <option value="">All</option>
+                                    <option ng-repeat="(agentName,v) in targetHistogram" value="{{agentName}}">{{agentName}}</option>
+                                </select>
+                                <span ng-hide="targetInfo.isWas">
+                                    All<!--{{toApplicationName}}-->
+                                </span>
+                            </div>
+                        </div>
+                        <!--<div class="form-group">-->
+                            <!--<label for="urlPattern" class="col-sm-2 control-label">Period</label>-->
+                            <!--<div class="col-sm-8">-->
+                                <!--<load-chart namespace="forFilterWizard"></load-chart>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                        <div class="form-group">
+                            <label for="urlPattern" class="col-sm-2 control-label">URL Pattern</label>
+
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="urlPattern" placeholder="Request URL Pattern" ng-model="urlPattern">
+                            </div>
+                            <div class="col-sm-2" style="padding-top:7px">
+                                <span class="label label-info">ant-style</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label" style="padding-top: 17px;">Response Time</label>
+
+                            <div class="col-sm-8">
+                                <slider id="responseTime" floor="0" ceiling="30000" step="100" ng-model-low="responseTime.from" ng-model-high="responseTime.to" translate="responseTimeFormatting"></slider>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Transaction Result</label>
+                            <div class="col-sm-8">
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-sm" ng-class="{true:'btn-success', false:'btn-default'}[includeFailed==null]" ng-click="includeFailed=null">Success + Failed</button>
+                                    <button type="button" class="btn btn-sm" ng-class="{true:'btn-success', false:'btn-default'}[includeFailed==false]" ng-click="includeFailed=false">Success Only</button>
+                                    <button type="button" class="btn btn-sm" ng-class="{true:'btn-success', false:'btn-default'}[includeFailed==true]" ng-click="includeFailed=true">Failed Only</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" ng-click="passingTransactionMap()">Filter</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ul ng-style="backgroundContextMenuStyle" class="backgroundContextMenu dropdown-menu" role="menu"
+        aria-labelledby="dropdownMenu" style="z-index:10">
+        <li class="dropdown-submenu">
+            <a tabindex="-1" href>Node Setting</a>
+            <ul class="dropdown-menu">
+                <li><a href ng-click="toggleMergeUnknowns()"><span class="glyphicon" style="width:14px"
+                                                                   ng-class="{'glyphicon-ok': mergeUnknowns}"></span>
+                    Merge Unknowns</a></li>
+            </ul>
+        </li>
+        <li class="dropdown-submenu">
+            <a tabindex="-1" href>Link Setting</a>
+            <ul class="dropdown-menu">
+                <li><a href class="labelTextType" ng-click="toggleLinkLableTextType('totalRequestCount')"><span
+                        class="glyphicon" style="width:14px" ng-class="{'glyphicon-ok': totalRequestCount}"></span> Call Count</a></li>
+                <li><a href class="labelTextType" ng-click="toggleLinkLableTextType('tps')"><span
+                        class="glyphicon" style="width:14px" ng-class="{'glyphicon-ok': tps}"></span> TPS</a></li>
+            </ul>
+        </li>
+        <li class="divider"></li>
+        <li class="dropdown-submenu">
+            <a tabindex="-1" href>Link Routing</a>
+            <ul class="dropdown-menu">
+                <li><a href ng-click="toggleLinkRouting('Normal')"><span class="glyphicon" style="width:14px"
+                                                                         ng-class="{'glyphicon-ok': linkRouting == 'Normal'}"></span>
+                    Normal</a></li>
+                <li><a href ng-click="toggleLinkRouting('Orthogonal')"><span class="glyphicon" style="width:14px"
+                                                                             ng-class="{'glyphicon-ok': linkRouting == 'Orthogonal'}"></span>
+                    Orthogonal</a></li>
+                <li><a href ng-click="toggleLinkRouting('AvoidsNodes')"><span class="glyphicon" style="width:14px"
+                                                                              ng-class="{'glyphicon-ok': linkRouting == 'AvoidsNodes'}"></span>
+                    AvoidsNodes</a></li>
+            </ul>
+        </li>
+        <li class="dropdown-submenu">
+            <a tabindex="-1" href>Link Curve</a>
+            <ul class="dropdown-menu">
+                <li><a href ng-click="toggleLinkCurve('None')"><span class="glyphicon" style="width:14px"
+                                                                     ng-class="{'glyphicon-ok': linkCurve == 'None'}"></span>
+                    None</a></li>
+                <li><a href ng-click="toggleLinkCurve('JumpOver')"><span class="glyphicon" style="width:14px"
+                                                                         ng-class="{'glyphicon-ok': linkCurve == 'JumpOver'}"></span>
+                    JumpOver</a></li>
+                <li><a href ng-click="toggleLinkCurve('JumpGap')"><span class="glyphicon" style="width:14px"
+                                                                        ng-class="{'glyphicon-ok': linkCurve == 'JumpGap'}"></span>
+                    JumpGap</a></li>
+                <li><a href ng-click="toggleLinkCurve('Bezier')"><span class="glyphicon" style="width:14px"
+                                                                       ng-class="{'glyphicon-ok': linkCurve == 'Bezier'}"></span>
+                    Bezier</a></li>
+            </ul>
+        </li>
+        <li class="divider"></li>
+        <li>
+            <a href ng-click="refresh()"><span class="glyphicon glyphicon-refresh"></span> Refresh</a>
+        </li>
+    </ul>
+</div>

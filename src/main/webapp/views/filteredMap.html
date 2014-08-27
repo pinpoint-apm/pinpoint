@@ -1,0 +1,18 @@
+<!-- Add your site or application content here -->
+<time-slider></time-slider>
+
+<!-- Add your site or application content here -->
+<div class="main-container" ng-class="getMainContainerClass()">
+    <div class="main">
+        <server-map></server-map>
+    </div>
+    <div class="sidebar" ng-class="sidebar" loading="sidebarLoading" loading-message="Loading...">
+        <sidebar-title namespace="forFilteredMap"></sidebar-title>
+        <filter-information namespace="forFilteredMap" ng-show="hasFilter"></filter-information>
+        <scatter ng-show="hasScatter"></scatter>
+        <div class="info-details" ng-class="getInfoDetailsClass()">
+            <node-info-details></node-info-details>
+            <link-info-details></link-info-details>
+        </div>
+    </div>
+</div>

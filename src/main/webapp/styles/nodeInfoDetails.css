@@ -1,0 +1,39 @@
+.nodeInfoDetails {
+    /*padding: 5px 15px 30px;*/
+    /*padding: 0;*/
+}
+
+.nodeInfoDetails .server-list,
+.nodeInfoDetails .server-list ul {
+    list-style: none;
+}
+.nodeInfoDetails .server-list li {
+    margin-bottom: 5px;
+    /*font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;*/
+    font-size: 12px;
+}
+.nodeInfoDetails .panel {
+    border: 1px solid #BDC3C7;
+}
+.nodeInfoDetails .panel-default>.panel-heading {
+    background-color: #E5F0FC;
+    border-bottom: 1px solid #BDC3C7;
+}
+.nodeInfoDetails .unknown-group .unknown-list {
+    position: absolute;
+    top: 40px;
+    bottom:0;
+    left:0;
+    right:0;
+    overflow:auto;
+    padding:0 15px;
+}
+.nodeInfoDetails .known-node {
+    position: absolute;
+    top: 0;
+    bottom:0;
+    left:0;
+    right:0;
+    overflow:auto;
+    padding:0 15px;
+}

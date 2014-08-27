@@ -1,0 +1,160 @@
+
+// Slide
+//
+
+@slide-duration: .3s;
+@slide-timing-function: ease-in-out;
+
+.am-slide-top {
+
+  animation-duration: @slide-duration;
+  animation-timing-function: @slide-timing-function;
+  animation-fill-mode: backwards;
+
+  &.am-fade-and-slide-top-add, &.ng-hide-remove, &.ng-move {
+    animation-name: slideFromTop;
+  }
+  &.am-fade-and-slide-top-remove, &.ng-hide {
+    animation-name: slideToTop;
+  }
+
+  &.ng-enter {
+    visibility: hidden;
+    animation-name: slideFromTop;
+    &.ng-enter-active {
+      visibility: visible;
+    }
+  }
+  &.ng-leave,  {
+    animation-name: slideToTop;
+  }
+
+}
+
+.am-slide-right {
+
+  animation-duration: @slide-duration;
+  animation-timing-function: @slide-timing-function;
+  animation-fill-mode: backwards;
+
+  &.am-fade-and-slide-right-add, &.ng-hide-remove, &.ng-move {
+    animation-name: slideFromRight;
+  }
+  &.am-fade-and-slide-right-remove, &.ng-hide {
+    animation-name: slideToRight;
+  }
+
+  &.ng-enter {
+    visibility: hidden;
+    animation-name: slideFromRight;
+    &.ng-enter-active {
+      visibility: visible;
+    }
+  }
+  &.ng-leave,  {
+    animation-name: slideToRight;
+  }
+
+}
+
+.am-slide-bottom {
+
+  animation-duration: @slide-duration;
+  animation-timing-function: @slide-timing-function;
+  animation-fill-mode: backwards;
+
+  &.am-fade-and-slide-bottom-add, &.ng-hide-remove, &.ng-move {
+    animation-name: slideFromBottom;
+  }
+  &.am-fade-and-slide-bottom-remove, &.ng-hide {
+    animation-name: slideToBottom;
+  }
+
+  &.ng-enter {
+    visibility: hidden;
+    animation-name: slideFromBottom;
+    &.ng-enter-active {
+      visibility: visible;
+    }
+  }
+  &.ng-leave,  {
+    animation-name: slideToBottom;
+  }
+
+}
+
+.am-slide-left {
+
+  animation-duration: @slide-duration;
+  animation-timing-function: @slide-timing-function;
+  animation-fill-mode: backwards;
+
+  &.am-fade-and-slide-left-add, &.ng-hide-remove, &.ng-move {
+    animation-name: slideFromLeft;
+  }
+  &.am-fade-and-slide-left-remove, &.ng-hide {
+    animation-name: slideToLeft;
+  }
+
+  &.ng-enter {
+    visibility: hidden;
+    animation-name: slideFromLeft;
+    &.ng-enter-active {
+      visibility: visible;
+    }
+  }
+  &.ng-leave,  {
+    animation-name: slideToLeft;
+  }
+
+}
+
+
+// Keyframes
+//
+
+@keyframes slideFromTop {
+  from {
+    transform: translateY(-100%);
+  }
+}
+
+@keyframes slideToTop {
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+@keyframes slideFromRight {
+  from {
+    transform: translateX(100%);
+  }
+}
+@keyframes slideToRight {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes slideFromBottom {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes slideToBottom {
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes slideFromLeft {
+  from {
+    transform: translateX(-100%);
+  }
+}
+@keyframes slideToLeft {
+  to {
+    transform: translateX(-100%);
+  }
+}

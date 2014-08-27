@@ -1,0 +1,53 @@
+/* servermap */
+.servermap .servermap-status {
+    position: absolute;
+    top: 8px;
+    left: 11px;
+    z-index: 9;
+    font-size: 12px;
+}
+.servermap .servermap-status .alert {
+    margin-bottom: 5px;
+    padding-right: 17px;
+}
+.servermap .servermap-status ul {
+    margin-bottom: 0;
+}
+.servermap .servermap-status h5,
+.servermap .servermap-status h6 {
+    margin: 0;
+}
+.servermap .servermap-status .controls .span2:first-child {
+    margin-left: 0 !important;
+}
+.servermap slider span.pointer:after{
+    top: 5px;
+    left: 5px;
+}
+
+.servermap .modal .modal-title {
+    text-align: center;
+}
+.servermap .modal .form-group label {
+}
+.servermap .sidebar-title {
+    margin: 0;
+}
+.servermap .sidebar-title h3 {
+    text-align: left;
+    border: 0;
+    background: none;
+    -webkit-box-shadow:none;
+    box-shadow: none;
+}
+.servermap .sidebar-title .tooltip {
+    display: none !important;
+}
+
+.servermap slider.auto span.pointer,
+.servermap slider.auto span.bar.selection {
+    -webkit-transition: all 0.1s ease;
+    -moz-transition: all 0.1s ease;
+    -o-transition: all 0.1s ease;
+    transition: all 0.1s ease;
+}

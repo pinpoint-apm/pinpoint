@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.nhn.pinpoint.web.dao.AlarmResourceDao">
+
+
+	<resultMap id="alarmMap" type="alarm">
+		<result property="id" column="id"/>
+		<result property="alarmGroupName" column="alrm_grp_nm" />
+		<result property="alarmGroupDescrption" column="alrm_grp_desc" />
+		<result property="agentId" column="agt_id" />
+		
+		<association property="alarmRuleGroup" column="alrm_rule_grp_id" javaType="alarmRuleGroup" select="selectAlarmRuleGroupList"/>
+		<association property="alarmContactGroup" column="alrm_cntt_grp_id" javaType="alarmContactGroup" select="selectAlarmContactGroupList"/>
+	</resultMap>
+
+	<resultMap id="alarmRuleMap" type="alarmRule">
+		<result property="id" column="id"/>
+		<result property="thresholdRule" column="thrhd_rule" />
+		<result property="compareRule" column="cmpr_rule" />
+		<result property="continuosTime" column="cntu_tm" />
+		<result property="alarmRuleName" column="alrm_rule_nm" />
+		<result property="alarmRuleDescrption" column="alrm_rule_desc" />
+		<result property="subCategory" column="sb_catg_nm" />
+		<result property="mainCategory" column="main_catg_nm" />
+	</resultMap>
+	
+	<resultMap id="alarmRuleGroupMap" type="alarmRuleGroup">
+		<result property="id" column="id"/>
+		<result property="alarmRuleGroupName" column="alrm_rule_grp_nm" />
+		<result property="alarmRuleGroupDescrption" column="alrm_rule_grp_desc" />
+		<collection property="alarmRuleList" javaType="ArrayList" column="id" ofType="alarmRule" select="selectAlarmRuleList"> </collection>
+	</resultMap>	
+	
+	<resultMap id="alarmContactMap" type="alarmContact">
+		<result property="id" column="id"/>
+		<result property="phoneNum" column="phn_no" />
+		<result property="emailAddress" column="mail_addr" />
+	</resultMap>
+
+	<resultMap id="alarmContactGroupMap" type="alarmContactGroup">
+		<result property="id" column="id"/>
+		<result property="alarmId" column="alrm_grp_id" />
+		<result property="alarmContactGroupName" column="alrm_cntt_grp_nm" />
+		<result property="alarmContactGroupDescrption" column="alrm_cntt_grp_desc" />
+	
+		<result property="registerTime" column="reg_ymd" />
+		<result property="registerEmployeeNumber" column="reg_emp_no" />
+		<result property="modifyTime" column="mod_ymd" />
+		<result property="modifyEmployeeNumber" column="mod_emp_no" />
+		
+		<collection property="alarmContactList" javaType="ArrayList" column="id" ofType="alarmContact" select="selectAlarmContactList"> </collection>
+	</resultMap>	
+	
+	<select id="selectAlarmList" resultMap="alarmMap">
+		SELECT 
+			*			
+		FROM alrm_grp
+	</select>
+	
+	<select id="selectAlarmRuleList" resultMap="alarmRuleMap" parameterType="int">
+		SELECT 
+			rule.id AS id,
+			rule.alrm_rule_grp_id AS alarmRuleGroupId,
+			rule.alrm_rule_sb_catg_id AS alrm_rule_sb_catg_id,
+			rule.thrhd_rule AS thrhd_rule,
+			rule.cmpr_rule AS cmpr_rule,
+			rule.cntu_tm AS cntu_tm,
+			rule.alrm_rule_nm AS alrm_rule_nm,
+			rule.alrm_rule_desc AS alrm_rule_desc,
+			sub_category.sb_catg_nm AS sb_catg_nm,
+			main_category.catg_nm AS main_catg_nm
+			
+		FROM alrm_rule_info AS rule 
+		INNER JOIN alrm_rule_sb_catg AS sub_category ON rule.alrm_rule_sb_catg_id = sub_category.id
+		INNER JOIN alrm_rule_catg AS main_category ON sub_category.prnt_catg_id = main_category.id
+		
+		WHERE rule.alrm_rule_grp_id = #{id}
+	</select>
+
+	<select id="selectAlarmRuleGroupList" resultMap="alarmRuleGroupMap" parameterType="int">
+		SELECT 
+			*			
+		FROM alrm_rule_grp 
+		
+		WHERE id = #{id}
+	</select>
+	
+	<select id="selectAlarmContactList" resultMap="alarmContactMap" parameterType="int">
+		SELECT 
+			*			
+		FROM alrm_cntt_info 
+		
+		WHERE alrm_cntt_grp_id = #{id}
+	</select>
+	
+	<select id="selectAlarmContactGroupList" resultMap="alarmContactGroupMap" parameterType="int">
+		SELECT 
+			*			
+		FROM alrm_cntt_grp
+		
+		WHERE id = #{id}
+	</select>
+	
+	<insert id="insertAlarmContact" parameterType="alarmContact" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO alrm_cntt_info (
+			alrm_cntt_grp_id, 
+			phn_no, 
+			mail_addr 
+		) VALUES (
+			#{alarmContactGroupId},
+			#{phoneNum},
+			#{emailAddress}
+		)
+	</insert>
+	
+	<update id="updateAlarmContact" parameterType="alarmContact">
+		UPDATE alrm_cntt_info 
+		SET	alrm_cntt_grp_id = #{alarmContactGroupId},
+			phn_no = #{phoneNum},
+			mail_addr = #{emailAddress}
+		WHERE id = #{id}
+	</update>
+	
+	<delete id="deleteAlarmContact" parameterType="int">
+		DELETE FROM alrm_cntt_info
+		WHERE id = #{id}
+	</delete>
+	
+	<insert id="insertAlarmContactGroup" parameterType="alarmContactGroup" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO alrm_cntt_grp (
+			alrm_cntt_grp_nm, 
+			alrm_cntt_grp_desc, 
+			reg_ymd,
+			reg_emp_no,
+			mod_ymd,
+			mod_emp_no
+		) VALUES (
+			#{alarmContactGroupName},
+			#{alarmContactGroupDescrption},
+			now(),
+			#{registerEmployeeNumber},
+			now(),
+			#{modifyEmployeeNumber}
+		)
+	</insert>
+	
+	<update id="updateAlarmContactGroup" parameterType="alarmContactGroup">
+		UPDATE alrm_cntt_grp 
+		SET	alrm_cntt_grp_nm = #{alarmContactGroupName},
+			alrm_cntt_grp_desc = #{alarmContactGroupDescrption},
+			mod_ymd = CURRENT_DATETIME,
+			mod_emp_no = #{modifyEmployeeNumber}
+		WHERE id = #{id}
+	</update>
+
+	<update id="deleteAlarmContactGroup" parameterType="int">
+		DELETE FROM alrm_cntt_grp
+		WHERE id = #{id}
+	</update>	
+	
+</mapper>

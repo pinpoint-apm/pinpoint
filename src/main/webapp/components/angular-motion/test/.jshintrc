@@ -1,0 +1,32 @@
+{
+  "node": true,
+  "browser": true,
+  "esnext": true,
+  "bitwise": true,
+  "camelcase": false,
+  "curly": false,
+  "eqeqeq": true,
+  "immed": true,
+  "indent": 2,
+  "latedef": true,
+  "newcap": true,
+  "noarg": true,
+  "quotmark": "single",
+  "regexp": true,
+  "undef": true,
+  "unused": false,
+  "strict": true,
+  "globalstrict": true,
+  "trailing": true,
+  "smarttabs": true,
+  "predef": [
+    "$",
+    "angular",
+    "describe",
+    "beforeEach",
+    "afterEach",
+    "inject",
+    "it",
+    "expect"
+  ]
+}

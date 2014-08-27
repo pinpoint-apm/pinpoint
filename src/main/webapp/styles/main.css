@@ -1,0 +1,172 @@
+@font-face{font-family:ng;src:url(../fonts/nanumgothic.eot);src:local('※'),url(../fonts/nanumgothic.woff) format('woff')}
+@font-face{font-family:nm;src:url(../fonts/nanummyeongjo.eot);src:local('※'),url(../fonts/nanummyeongjo.woff) format('woff')}
+/*@font-face{font-family:tjp;src:url(../fonts/trajanpro.eot);src:local('※'),url(../fonts/trajanpro.woff) format('woff')}*/
+/*@font-face{font-family:avn55;src:url(../fonts/avenir55.eot);src:local('※'),url(../fonts/avenir55.woff) format('woff')}*/
+/*@font-face{font-family:avn85;src:url(../fonts/avenir85.eot);src:local('※'),url(../fonts/avenir85.woff) format('woff')}*/
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+body,input,textarea,select,button,table{font-family:Lato,'나눔고딕',NanumGothic,ng,'돋움',dotum,AppleGothic,sans-serif}
+canvas {outline:none}
+
+/* if avn55, should be */
+.glyphicon {
+    top: 2px;
+}
+
+#wrapper {
+    padding: 40px 0 0 0; 
+    position:absolute; 
+    top:0; 
+    bottom:0; 
+    left:0; 
+    right:0;
+    min-width: 1050px;
+}
+#wrapper.no-navbar {
+    padding-top: 0;
+}
+.no-navbar .main-navbar {
+    display: none;
+}
+
+.mt8 {
+  margin-top: 8px;
+}
+
+.main-navbar .btn-group > .btn > input[type="radio"] {
+  display: none;
+}
+
+.main-container {
+  width: 100%;  
+  height: 100%;
+  position: relative;
+}
+
+.main {
+  margin-right: 422px;
+  height: 100%;
+}
+.main-container.no-data .main {
+    margin-right:0;
+}
+.main.fullsize {
+  margin-right: 12px;
+}
+
+/* sidebar */
+.sidebar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding-left: 12px;
+  padding-right: 10px;
+  width: 422px;
+  height: 100%;
+  border-left: 1px solid #ddd;
+}
+.sidebar.smallsize {
+  width: 0;
+}
+.main-container.no-data .sidebar {
+    display:none;
+}
+
+/* info-details */
+.info-details {
+    position: absolute;
+	top: 60px;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	overflow: auto;
+}
+.info-details.has-scatter {
+    top: 330px;
+    border-top: 1px solid #ddd;
+}
+.info-details.has-filter {
+    top: 175px;
+}
+.info-details.has-scatter.has-filter {
+    top: 455px;
+}
+
+.wait {
+    cursor: wait !important;
+    pointer-events: auto !important;
+}
+
+.tooltip-inner {
+    word-break:break-all;
+}
+
+/* dropdown-submenu, bootstrap 3.0 doesn't support submenu */
+.dropdown-submenu{position:relative;}
+.dropdown-submenu>.dropdown-menu{top:0;left:100%;margin-top:-6px;margin-left:-1px;-webkit-border-radius:0 6px 6px 6px;-moz-border-radius:0 6px 6px 6px;border-radius:0 6px 6px 6px;}
+.dropdown-submenu:hover>.dropdown-menu{display:block;}
+.dropdown-submenu>a:after{display:block;content:" ";float:right;width:0;height:0;border-color:transparent;border-style:solid;border-width:5px 0 5px 5px;border-left-color:#cccccc;margin-top:5px;margin-right:-10px;}
+.dropdown-submenu:hover>a:after{border-left-color:#ffffff;}
+.dropdown-submenu.pull-left{float:none;}.dropdown-submenu.pull-left>.dropdown-menu{left:-100%;margin-left:10px;-webkit-border-radius:6px 0 6px 6px;-moz-border-radius:6px 0 6px 6px;border-radius:6px 0 6px 6px;}
+
+.modal-backdrop.am-fade {
+    opacity: .5;
+    transition: opacity .15s linear;
+    &.ng-enter {
+        opacity: 0;
+        &.ng-enter-active {
+            opacity: .5;
+        }
+    }
+    &.ng-leave {
+        opacity: .5;
+        &.ng-leave-active {
+            opacity: 0;
+        }
+    }
+}
+
+.modal.center .modal-dialog {
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    /*margin-top: -320px; *//* height: 640px */
+    /*margin-left: -450px; *//* width : 900px */
+    /* amchart can't calculate with these */
+    -webkit-transform: translateX(-50%) translateY(-50%);
+    transform: translateX(-50%) translateY(-50%);
+}
+
+.login-modal.center .modal-dialog {
+    max-width: 550px;
+}
+.login-modal .modal-footer {
+    margin-top: 0;
+}
+
+.introjs-tooltip {
+    max-width: 500px;
+}
+
+#copyright {
+    position: fixed;
+    left: 10px;
+    bottom: 10px;
+    width: 250px;
+    z-index: 9999999;
+    display: none;
+}
+#copyright p {
+    padding: 10px;
+    font-size: 12px;
+}
+
+
+/*임시로 워터마크 숨김*/
+a[title="JavaScript charts"] {
+    display: none !important;
+}

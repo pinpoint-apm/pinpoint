@@ -1,0 +1,22 @@
+<div class="agent-chart-group" ng-show="showChartGroup">
+    <ul class="tabs">
+        <li><a href="#Heap_{{namespace}}">Heap</a></li>
+        <li><a href="#PermGen_{{namespace}}">PermGen</a></li>
+        <!--<li><a href="#example1-3">Tab 3</a></li>-->
+        <!--<li><a href="#example1-4">Tab 4</a></li>-->
+        <!--<li><a href="#example1-5">Tab 5</a></li>-->
+        <!--<li><a href="#example1-6">Tab 6</a></li>-->
+        <!--<li><a href="#example1-7">Tab 7</a></li>-->
+        <!--<li><a href="#example1-8">Tab 8</a></li>-->
+        <!--<li><a href="#example1-9">Tab 9</a></li>-->
+        <!--<li><a href="#example1-10">Tab 10</a></li>-->
+        <!--<li><a href="#example1-11">Tab 11</a></li>-->
+        <!--<li><a href="#example1-12">Tab 12</a></li>-->
+    </ul>
+    <div id="Heap_{{namespace}}" class="content">
+        <jvm-memory-chart namespace="forHeap_{{namespace}}"></jvm-memory-chart>
+    </div>
+    <div id="PermGen_{{namespace}}" class="content">
+        <jvm-memory-chart namespace="forNonHeap_{{namespace}}"></jvm-memory-chart>
+    </div>
+</div>

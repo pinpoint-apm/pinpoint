@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <meta content="A timepicker component for Twitter Bootstrap" name="description">
+    <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.0/css/bootstrap.min.css" type="text/css" media="screen" />
+    <link href="assets/pygments.css" type="text/css" rel="stylesheet" />
+    <link href="assets/prettify/prettify.css" type="text/css" rel="stylesheet" />
+    <link href="assets/bootstrap/css/bootstrap-responsive.css" type="text/css" rel="stylesheet" />
+    <link href="css/bootstrap-timepicker.min.css" type="text/css" rel="stylesheet" />
+    <style type="text/css">
+        body {
+            padding-bottom: 40px;
+            font-size: 16px;
+            background: url('assets/images/bg.png');
+        } 
+        hr {
+            border-color: #ddd;
+        }
+        hr.soften {
+            background-image: -moz-linear-gradient(left center , transparent, rgba(0, 0, 0, 0.1), transparent);
+            border: 0 none;
+            height: 1px;
+            margin: 15px 0;
+        }
+        .input-append {
+            display: inline-block;
+            vertical-align: middle;
+            margin-bottom: 10px;
+        }
+        .hero-unit {
+            color: #ffffff;
+            text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+            background-color: #363636;
+            *background-color: #222222;
+            background-image: -moz-linear-gradient(top, #444444, #222222);
+            background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#444444), to(#222222));
+            background-image: -webkit-linear-gradient(top, #444444, #222222);
+            background-image: -o-linear-gradient(top, #444444, #222222);
+            background-image: linear-gradient(to bottom, #444444, #222222);
+            background-repeat: repeat-x;
+            border-color: #222222 #222222 #000000;
+            border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff444444', endColorstr='#ff222222', GradientType=0);
+            filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+        }
+
+        @media (max-width: 480px) {
+            .hero-unit h1 {
+                font-size: 50px;
+            }
+            table.options-table td:nth-child(3), table th:nth-child(3) {
+                display: none;
+            }
+        }
+        .center {
+            text-align: center;
+        }
+        .span4.center {
+            padding-bottom: 20px;
+        }
+
+    </style>
+    <title>{{ page.title }}</title>
+<script type="text/javascript">
+/* <![CDATA[ */
+    (function() {
+        var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+        t.parentNode.insertBefore(s, t);
+    })();
+/* ]]> */</script>
+</head>
+<body onload="prettyPrint()" data-target=".subnav" data-spy="scroll" data-twttr-rendered="true" >
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="http://jdewit.github.com/bootstrap-timepicker">Bootstrap-Timepicker</a>
+          <div class="nav-collapse">
+            <ul class="nav">
+              <li><a href="index.html">Documentation</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+    <div class="container">
+        {{ content }}
+    </div> <!-- /container -->
+    <hr />
+
+    <footer class="container">
+        <p class="pull-right"><a href="#">Back to top</a></p>
+        <p>Created by <a href="http://twitter.com/joris_dewit" target="_blank">Joris de Wit</a> and many <a href="https://github.com/jdewit/bootstrap-timepicker/graphs/contributors">contributors</a></p> 
+    </footer>
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.2.2/bootstrap.min.js"></script>
+    <script type="text/javascript" src="assets/prettify/prettify.js"></script>
+    <script type="text/javascript" src="js/bootstrap-timepicker.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () { 
+            $('#timepicker1').timepicker();
+
+            $('#timepicker2').timepicker({
+                minuteStep: 1,
+                template: 'modal',
+                appendWidgetTo: 'body',
+                showSeconds: true,
+                showMeridian: false,
+                defaultTime: false
+            });
+
+            $('#timepicker3').timepicker({
+                minuteStep: 5,
+                showInputs: false,
+                disableFocus: true
+            });
+
+            $('#timepicker4').timepicker({
+                minuteStep: 1,
+                secondStep: 5,
+                showInputs: false,
+                modalBackdrop: true,
+                showSeconds: true,
+                showMeridian: false
+            });
+
+            $('#timepicker5').timepicker({
+                template: false,
+                showInputs: false,
+                minuteStep: 5
+            });
+
+            setTimeout(function() {
+              $('#timeDisplay').text($('#timepicker1').val());
+            }, 100);
+
+            $('#timepicker1').on('changeTime.timepicker', function(e) {
+              $('#timeDisplay').text(e.time.value);
+            });
+        });
+    </script>
+</body>
+</html>

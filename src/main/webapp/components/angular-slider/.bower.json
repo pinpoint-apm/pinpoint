@@ -1,0 +1,15 @@
+{
+  "name": "angular-slider",
+  "homepage": "https://github.com/prajwalkman/angular-slider",
+  "version": "0.1.6",
+  "_release": "0.1.6",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.1.6",
+    "commit": "e926b07531abc6cfa88961307a9ebdbcb1c33d9c"
+  },
+  "_source": "git://github.com/prajwalkman/angular-slider.git",
+  "_target": "~0.1.6",
+  "_originalSource": "angular-slider",
+  "_direct": true
+}

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans 
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p" 
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans 
+       	http://www.springframework.org/schema/beans/spring-beans.xsd
+       	http://www.springframework.org/schema/task
+       	http://www.springframework.org/schema/task/spring-task-3.0.xsd
+       	">
+
+	<description>Spring Batch infrastructure beans.</description>
+
+	<bean id="alarmScheduler" class="com.nhn.pinpoint.web.scheduler.DefaultAlarmScheduler" init-method="initialize"/>
+	<task:scheduler id="batchSchduler" pool-size="2" />
+
+	<task:scheduled-tasks scheduler="batchSchduler">
+		<task:scheduled ref="alarmScheduler" method="execute" fixed-delay="300000" />			<!-- 5분 -->
+		<task:scheduled ref="alarmScheduler" method="initialize" fixed-delay="1800000" />		<!-- 30분 -->
+	</task:scheduled-tasks>	
+
+</beans>
+	   	

@@ -1,0 +1,20 @@
+.agent-chart-group {
+    border: none;
+    font-size: 11px;
+    padding: 0;
+    height: 100%;
+}
+.agent-chart-group .tabs {
+    padding: 0 0 0 10px;
+    background: none;
+    border: none;
+    border-bottom: 1px solid #aaaaaa;
+    border-radius: 0;
+}
+.agent-chart-group .content {
+    position: absolute;
+    top: 27px;
+    bottom: 0;
+    left:0;
+    right:0;
+}

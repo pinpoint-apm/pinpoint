@@ -1,0 +1,17 @@
+.sidebar-title {
+    height: 64px;
+    padding-top: 10px;
+}
+.sidebar-title h3 {
+    margin: 0;
+    padding: 0 10px;
+    height: 44px;
+    line-height: 44px;
+    background-color: #f2f2f2;
+    border-radius: 10px;
+    font-size: 13px;
+    text-align: center;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}

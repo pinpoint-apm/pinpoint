@@ -1,0 +1,50 @@
+<div class="callStacks">
+    <table ng-show="transactionDetail">
+        <thead>
+        <tr>
+            <th width="400">Method</th>
+            <th width="400">Argument</th>
+            <th width="80">Exec Time</th>
+            <th width="50">Gap(ms)</th>
+            <th width="50">Time(ms)</th>
+            <th width="100">Time(%)</th>
+            <th>Class</th>
+            <th>ApiType</th>
+            <th>Agent</th>
+            <th>ApplicationName</th>
+            <!--<th width="520">Timeline</th>-->
+        </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="stack in transactionDetail.callStack" data-tt-id="{{stack[key.id]}}"
+                data-tt-parent-id="{{stack[key.parentId]}}" data-tt-branch="{{stack[key.hasChild]}}"
+                ng-class="getTrClass(stack, key, $index)">
+                <td class="method">
+                    <span class="glyphicon glyphicon-info-sign" ng-hide="stack[key.isMethod] || stack[key.hasException]"></span>
+                    <span class="glyphicon glyphicon-fire" ng-show="stack[key.hasException]"></span>
+                    {{stack[key.title]}}
+                    <label class="agent-divider" ng-class="stack.agentDividerClass"></label>
+                </td>
+                <td class="arguments">{{stack[key.arguments]}}</td>
+                <td class="exectime"><span ng-show="stack[key.isMethod]">{{stack[key.begin] | date:'HH:mm:ss sss'}}</span></td>
+                <td class="gap" style="text-align:right"><span ng-show="stack[key.isMethod]">{{stack[key.gap] | number}}</span></td>
+                <td class="time" style="text-align:right"><span ng-show="stack[key.isMethod]">{{stack[key.elapsedTime]}}</span></td>
+                <td class="bar"><div ng-show="stack[key.isMethod]"
+                                     style="height:8px;background-color:#69B2E9;padding:0px;
+                                        width:{{((stack[key.end] - stack[key.begin]) * barRatio) + 0.9}}px"></div></td>
+                <td class="simpleClassName">{{stack[key.simpleClassName]}}</td>
+                <td class="apiType">{{stack[key.apiType]}}</td>
+                <td class="agent">{{stack[key.agent]}}</td>
+                <td class="applicationName">{{stack[key.applicationName]}}</td>
+                <!--<td class="timeline" style="position:relative">-->
+                    <!--<div ng-if="stack[key.isMethod] && !stack[key.excludeFromTimeline] && stack[key.service] !== ''"-->
+                         <!--style="width:{{stack | timelineWidth:key:timelineRatio}}px; background-color:#69B2E9;-->
+                         <!--margin-left:{{stack | timelineMarginLeft:key:timelineRatio:transactionDetail.callStackStart}}px;"-->
+                         <!--title="{{stack | json}}">-->
+                        <!--<div style="width:100%;padding:0;">({{stack[key.end] - stack[key.begin] | number}}ms)</div>-->
+                    <!--</div>-->
+                <!--</td>-->
+            </tr>
+        </tbody>
+    </table>
+</div>

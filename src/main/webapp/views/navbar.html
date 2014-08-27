@@ -1,0 +1,70 @@
+<div class="navbar main-navbar bs-docs-nav">
+    <div class="nav-container">
+        <a href="/" class="navbar-brand"><img class="brand" src="/images/logo2.png" width="116" height="18"><div class="beta">beta</div></a>
+
+        <div class="nav-collapse">
+            <form class="navbar-form pull-left">
+                <ul class="nav navbar-nav">
+                    <li style="margin-top:0px;">
+                        <div ng-hide="showStaticApplication" style="margin-top:5px;" id="navbar_application">
+                            <select class="application" ng-disabled="disableApplication" id="navbar_application">
+                                <option ng-repeat="app in applications" value="{{app.value}}">{{app.text}}</option>
+                            </select>
+                            <img ng-hide="hideFakeApplication" src="images/navbar_application_fake.png" style="position:absolute;left:0;top:5px;">
+                        </div>
+                        <div ng-show="showStaticApplication" class="btn btn-sm disabled" style="margin-top:5px;background-color:#f5f5f5;opacity:1;filter:alpha(opacity=100);">{{applicationName}}</div>
+                    </li>
+                    <li class="divider-vertical"></li>
+                    <li class="for-datetimepicker" id="navbar_period">
+                        <div ng-show="periodType != 'range'">
+                            <div class="btn-group btn-group-sm" style="margin-top:0px;width:365px;float:left;">
+                                <button type="button" class="btn btn-success" ng-click="togglePeriod('range')"><span class="glyphicon glyphicon-th-list"></span></button>
+                                <button type="button" class="btn btn-default" ng-class="getPeriodClass('5m')" ng-click="setPeriod('5m')" ng-disabled="periodDelay">Last 5m</button>
+                                <button type="button" class="btn btn-default" ng-class="getPeriodClass('20m')" ng-click="setPeriod('20m')" ng-disabled="periodDelay">20m</button>
+                                <button type="button" class="btn btn-default" ng-class="getPeriodClass('1h')" ng-click="setPeriod('1h')" ng-disabled="periodDelay">1h</button>
+                                <button type="button" class="btn btn-default" ng-class="getPeriodClass('3h')" ng-click="setPeriod('3h')" ng-disabled="periodDelay">3h</button>
+                                <button type="button" class="btn btn-default" ng-class="getPeriodClass('6h')" ng-click="setPeriod('6h')" ng-disabled="periodDelay">6h</button>
+                                <button type="button" class="btn btn-default" ng-class="getPeriodClass('12h')" ng-click="setPeriod('12h')" ng-disabled="periodDelay">12h</button>
+                                <button type="button" class="btn btn-default" ng-class="getPeriodClass('1d')" ng-click="setPeriod('1d')" ng-disabled="periodDelay">1d</button>
+                                <button type="button" class="btn btn-default" ng-class="getPeriodClass('2d')" ng-click="setPeriod('2d')" ng-disabled="periodDelay">2d</button>
+                            </div>
+
+                            <div class="btn-group btn-group-sm input-group input-group-sm" style="margin-top:0px;width:146px;" ng-show="showUpdate()">
+                                <span class="input-group-addon">
+                                    <label style="margin:0;">
+                                        <input type="checkbox" ng-model="autoUpdate"> Update
+                                    </label>
+                                </span>
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                    {{timeLeft}} sec <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li ng-repeat="t in timeList">
+                                        <a href ng-click="setAutoUpdateTime(t.time)">{{t.label}}</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div ng-show="periodType == 'range'" class="datetimepicker input-group input-group-sm date" style="width:400px">
+                            <span class="input-group-btn">
+                                <button class="btn btn-success" ng-click="togglePeriod('last')">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </button>
+                            </span>
+                            <input id="from-picker" type="text" class="form-control ">
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-minus"></span>
+                            </span>
+                            <input id="to-picker" type="text" class="form-control">
+                            <span class="input-group-btn">
+                                <button class="btn" ng-click="search()">
+                                    <span class="glyphicon glyphicon-search"></span>
+                                </button>
+                            </span>
+                        </div>
+                    </li>
+                </ul>
+            </form>
+        </div>
+    </div>
+</div>

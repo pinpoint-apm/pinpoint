@@ -1,0 +1,31 @@
+{
+  "name": "bootstrap-select",
+	"title": "bootstrap-select",
+    "filename": "bootstrap-select.js",
+	"description": "A custom <select> for Bootstrap using button dropdown as replacement",
+	"version": "1.5.2",
+	"homepage": "http://silviomoreto.github.io/bootstrap-select/",
+	"author": {
+		"name": "Silvio Moreto",
+		"url": "https://github.com/silviomoreto/"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/antonellopasella/bootstrap-select.git"
+	},
+	"licenses": [
+		{
+			"type": "MIT",
+			"url": "https://github.com/silviomoreto/bootstrap-select/blob/master/README.md#copyright-and-license"
+		}
+	],
+	"dependencies": {
+		"jquery": "1.8"
+	},
+	"keywords": [
+		"form",
+		"bootstrap",
+		"select",
+		"replacement"
+	]
+}

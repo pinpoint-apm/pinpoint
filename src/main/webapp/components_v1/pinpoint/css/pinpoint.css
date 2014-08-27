@@ -1,0 +1,131 @@
+body {
+    padding-top: 60px;
+}
+.navbar-fixed-top {
+  position: fixed;
+}
+        
+#chart {
+    /* height: 500px; */
+}
+
+rect.extent {
+  fill: #000;
+  fill-opacity: .125;
+  stroke: #fff;
+}
+
+rect.frame {
+  fill: #fff;
+  fill-opacity: .7;
+  stroke: #aaa;
+}
+
+.node rect {
+    cursor: move;
+    fill-opacity: .9;
+    shape-rendering: crispEdges;
+}
+
+.node text {
+    pointer-events: none;
+    text-shadow: 0 1px 0 #fff;
+	font-size: 11px;
+}
+
+.link {
+    fill: none;
+    stroke: #000;
+    stroke-opacity: .2;
+}
+
+.linkOver {
+    stroke-opacity: .5;
+}
+
+.link:hover {
+    stroke-opacity: .5;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.dot.green{
+	// fill #2ca02c
+  //stroke: #347C17;
+}
+
+.dot.red{
+	// fill #d62728;
+  //stroke: #B93B8F;
+}
+
+.node circle {
+  cursor: pointer;
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+path.link {
+  fill: none;
+  stroke-width: 1.5px;
+}
+
+/*
+ * business transaction table
+ */
+#businessTransactions .calls {
+	text-align:right;	
+}
+
+#businessTransactions .time {
+	text-align:right;	
+}
+
+.pinpoint-action-icon {
+	cursor:pointer;
+}
+
+@media(min-width:1000px){
+  .chart-container {
+  	position:relative;
+  }
+  	
+  .chart-left {
+  	margin-right:430px;
+  }
+
+  .chart-right {
+  	position:absolute;
+  	top:0;
+  	right:0;
+  	width:410px;
+  }
+}
+@media(max-width:999px){
+  .chart-right {
+    padding-left:20px;
+  }
+}
+
+.servermap {
+	height:700px;
+	border:1px solid #DDDDDD;
+	overflow:hidden;
+	position:relative;
+	display:none;
+}
+
+#nodeInfoDetails a {
+	text-decoration:underline;
+}
+
+#linkInfoDetails a {
+	text-decoration:underline;
+}
+

@@ -1,0 +1,13 @@
+{
+	"name"        : "jdewit/bootstrap-timepicker",
+	"description" : "A simple timepicker component for Twitter Bootstrap.",
+	"version"     : "0.2.5",
+	"license"     : "MIT",
+	"authors": [
+		{
+	    "name" : "Joris de Wit",
+	    "email" : "joris.w.dewit@gmail.com"
+		}
+	]
+
+}
