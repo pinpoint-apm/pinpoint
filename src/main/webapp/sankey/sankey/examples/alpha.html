@@ -1,0 +1,295 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang='en' xml:lang='en' xmlns='http://www.w3.org/1999/xhtml'>
+<head>
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'/>
+    <title>Sankey Javascript Demo: Spread effort 2050 Pathway</title>
+    <script src="../ext/raphael.js" type="text/javascript"></script>
+    <script src="../ext/jquery.js" type="text/javascript"></script>
+    <script src="../js/sankey.js" type="text/javascript"></script>
+</head>
+<body>
+<script type='text/javascript'>
+$(document).ready(function () {
+    var raw_data = [
+        ["Coal reserves", 63.965, "Coal"],
+        ["Coal imports", 11.605761552073403, "Coal"],
+        ["Oil reserves", 107.70336000383915, "Oil"],
+        ["Oil imports", 504.28688593352877, "Oil"],
+        ["Gas reserves", 82.2325418852722, "Ngas"],
+        ["Gas imports", 40.71904824507425, "Ngas"],
+        ["UK land based bioenergy", 182.0095179564277, "Bio-conversion"],
+        ["Marine algae", 4.37535, "Bio-conversion"],
+        ["Agricultural 'waste'", 124.72944763257163, "Bio-conversion"],
+        ["Other waste", 77.8098784662769, "Bio-conversion"],
+        ["Other waste", 56.58710480856814, "Solid"],
+        ["Biomass imports", 35.0, "Solid"],
+        ["Biofuel imports", 35.0, "Liquid"],
+        ["Coal", 75.5707615520734, "Solid"],
+        ["Oil", 611.990245937368, "Liquid"],
+        ["Ngas", 122.95159013034645, "Gas"],
+        ["Solar", 59.90102327016994, "Solar PV"],
+        ["Solar PV", 59.90102327016994, "Electricity grid"],
+        ["Solar", 19.26344572552911, "Solar Thermal"],
+        [0.0, 0.0, 0.0],
+        ["Bio-conversion", 280.321719493768, "Solid"],
+        ["Bio-conversion", 0.5965046787991354, "Liquid"],
+        ["Bio-conversion", 81.14419419153347, "Gas"],
+        ["Bio-conversion", 26.861775691175637, "Losses"],
+        ["Solid", 0.0, "Over generation / exports"],
+        ["Liquid", 0.0, "Over generation / exports"],
+        ["Gas", 0.0, "Over generation / exports"],
+        ["Solid", 400.1202550368, "Thermal generation"],
+        ["Liquid", 0.0, "Thermal generation"],
+        ["Gas", 151.89074227938463, "Thermal generation"],
+        ["Nuclear", 839.9776000000002, "Thermal generation"],
+        ["Thermal generation", 79.3286488807059, "District heating"],
+        ["Thermal generation", 525.5312099919089, "Electricity grid"],
+        ["Thermal generation", 787.12873844357, "Losses"],
+        ["Solid", -0.0, "CHP"],
+        ["Liquid", -0.0, "CHP"],
+        ["Gas", -0.0, "CHP"],
+        ["CHP", 0.0, "Electricity grid"],
+        ["CHP", 0.0, "Losses"],
+        ["Electricity imports", 0.0, "Electricity grid"],
+        ["Wind", 289.36583532, "Electricity grid"],
+        ["Tidal", 9.45177738904111, "Electricity grid"],
+        ["Wave", 19.01301369863013, "Electricity grid"],
+        ["Geothermal", 7.012800000000001, "Electricity grid"],
+        ["Hydro", 6.995268000000001, "Electricity grid"],
+        ["Electricity grid", 27.139563172022903, "H2 conversion"],
+        ["Electricity grid", 104.45328119250553, "Over generation / exports"],
+        ["Electricity grid", 56.69122682205936, "Losses"],
+        ["Gas", 0.0, "H2 conversion"],
+        ["H2 conversion", 20.897463642457637, "H2"],
+        ["H2 conversion", 6.242099529565266, "Losses"],
+        ["Solar Thermal", 19.26344572552911, "Heating and cooling - homes"],
+        ["H2", 20.897463642457637, "Road transport"],
+        ["Pumped heat", 193.0258107414819, "Heating and cooling - homes"],
+        ["Pumped heat", 70.67214222147322, "Heating and cooling - commercial"],
+        ["CHP", 0.0, "Heating and cooling - homes"],
+        ["CHP", 0.0, "Heating and cooling - commercial"],
+        ["District heating", 46.183951046116405, "Heating and cooling - homes"],
+        ["District heating", 22.505306289554884, "Heating and cooling - commercial"],
+        ["District heating", 10.639391545034607, "Industry"],
+        ["District heating", 0.0, "Losses"],
+        ["Electricity grid", 113.72557076767055, "Heating and cooling - homes"],
+        ["Solid", -0.0, "Heating and cooling - homes"],
+        ["Liquid", -0.0, "Heating and cooling - homes"],
+        ["Gas", -0.0, "Heating and cooling - homes"],
+        ["Electricity grid", 40.857688549621756, "Heating and cooling - commercial"],
+        ["Solid", -0.0, "Heating and cooling - commercial"],
+        ["Liquid", -0.0, "Heating and cooling - commercial"],
+        ["Gas", 0.12881330059119592, "Heating and cooling - commercial"],
+        ["Electricity grid", 93.49442720413965, "Lighting & appliances - homes"],
+        ["Gas", 0.0, "Lighting & appliances - homes"],
+        ["Electricity grid", 90.00799168672461, "Lighting & appliances - commercial"],
+        ["Gas", 0.0, "Lighting & appliances - commercial"],
+        ["Electricity grid", 342.1650572285816, "Industry"],
+        ["Solid", 46.476993647439045, "Industry"],
+        ["Liquid", 121.0664998753947, "Industry"],
+        ["Gas", 48.57976264221968, "Industry"],
+        ["Electricity grid", 4.411685850852416, "Agriculture"],
+        ["Solid", 0.8823371701704832, "Agriculture"],
+        ["Liquid", 3.639640826953243, "Agriculture"],
+        ["Gas", 2.0955507791548977, "Agriculture"],
+        ["Electricity grid", 37.797485443866314, "Road transport"],
+        ["Liquid", 135.834627478089, "Road transport"],
+        ["Electricity grid", 7.862888151705466, "Rail transport"],
+        ["Liquid", 4.412924602532396, "Rail transport"],
+        ["Liquid", 14.45823092617519, "Domestic aviation"],
+        ["Liquid", 33.21784175138628, "National navigation"],
+        ["Liquid", 206.26698515563623, "International aviation"],
+        ["Liquid", 128.69, "International shipping"],
+        ["Electricity grid", 0.0, "Geosequestration"],
+        ["Gas", 1.4009153205295084, "Losses"]
+    ];
+    var sankey = new Sankey();
+
+    var name_conversions = {
+        "Ngas":"Natural gas",
+        "UK land based bioenergy":"Forests & biocrops",
+        "Bio-conversion":"Biomass processing",
+        "H2 conversion":"Hydrogen production",
+        "H2":"Hydrogen",
+        "Useful district heat":"Delivered heat",
+        "Heating and cooling - homes":"Home heating & cooling",
+        "Heating and cooling - commercial":"Office heating & cooling",
+        "Lighting & appliances - homes":"Home lighting & appliances",
+        "Lighting & appliances - commercial":"Office lighting & appliances",
+    }
+
+    sankey.convert_box_description_labels_callback = function (name) {
+        console.log(">" + name + "<");
+        var alternative_name = name_conversions[name];
+        if (alternative_name == null) alternative_name = name;
+        return alternative_name;
+    };
+
+    sankey.stack(0, [
+        "Pumped heat",
+        "Solar",
+        "Wind",
+        "Tidal",
+        "Wave",
+        "Geothermal",
+        "Hydro",
+        "Electricity imports",
+        "Nuclear",
+        "Coal reserves",
+        "Coal imports",
+        "Biomass imports",
+        "Oil reserves",
+        "Oil imports",
+        "Biofuel imports",
+        "Gas reserves",
+        "Gas imports",
+        "UK land based bioenergy",
+        "Agricultural 'waste'",
+        "Other waste",
+        "Marine algae"
+    ]);
+
+    sankey.stack(1, ["Coal"], "Coal reserves");
+    sankey.stack(1, ["Oil"], "Oil reserves");
+    sankey.stack(1, ["Ngas"], "Gas reserves");
+    sankey.stack(1, ["Bio-conversion"], "UK land based bioenergy");
+
+    sankey.stack(2, ["Solar Thermal", "Solar PV"], "Solar");
+    sankey.stack(2, [
+        "Solid",
+        "Liquid",
+        "Gas"
+    ], "Coal");
+
+    sankey.stack(3, [
+        "Thermal generation",
+        "CHP"
+    ], "Nuclear");
+
+    sankey.stack(4, ["Electricity grid", "District heating"], "Wind");
+
+    sankey.stack(5, ["H2 conversion"], "Electricity grid");
+
+    sankey.stack(6, ["H2"], "H2 conversion");
+
+    sankey.stack(7, [
+        "Heating and cooling - homes",
+        "Heating and cooling - commercial",
+        "Lighting & appliances - homes",
+        "Lighting & appliances - commercial",
+        "Industry",
+        "Road transport",
+        "Rail transport",
+        "Domestic aviation",
+        "International aviation",
+        "National navigation",
+        "International shipping",
+        "Agriculture",
+        "Geosequestration",
+        "Over generation / exports",
+        //"Exports",
+        "Losses"
+    ]);
+
+    // Nudge
+    sankey.nudge_boxes_callback = function () {
+        sankey.boxes["Losses"].y = (sankey.boxes["Marine algae"].b() - sankey.boxes["Losses"].size());
+        // sankey.boxes["Exports"].y = (sankey.boxes["Losses"].y - sankey.boxes["Exports"].size() - y_space);
+        // sankey.boxes["Over generation / exports"].y = (sankey.boxes["Exports"].y - sankey.boxes["Over generation / exports"].size() - y_space);
+    }
+
+    // Colours
+    sankey.setColors({
+        "Coal reserves":"#8F6F38",
+        "Coal":"#8F6F38",
+        "Coal imports":"#8F6F38",
+
+        "Oil reserves":"#A99268",
+        "Oil":"#A99268",
+        "Oil imports":"#A99268",
+
+        "Gas reserves":"#DDD4C4",
+        "Ngas":"#DDD4C4",
+        "Gas imports":"#DDD4C4",
+
+        "Solar":"#F6FF00",
+        "Solar Thermal":"#F6FF00",
+        "Solar PV":"#F6FF00",
+
+        "UK land based bioenergy":"#30FF00",
+        "Bio-conversion":"#30FF00",
+        "Marine algae":"#30FF00",
+        "Agricultural 'waste'":"#30FF00",
+        "Other waste":"#30FF00",
+        "Biomass imports":"#30FF00",
+        "Biofuel imports":"#30FF00",
+
+        "Solid":"#557731",
+        "Liquid":"#7D9763",
+        "Gas":"#BCC2AD",
+
+        "Electricity grid":"#0000FF",
+        "Thermal generation":"#0000FF",
+        "CHP":"#FF0000",
+        "Nuclear":"#E2ABDB",
+
+        "District heating":"#FF0000",
+        "Pumped heat":"#FF0000",
+        "Useful district heat":"#FF0000",
+        "CHP Heat":"#FF0000",
+
+        "Electricity imports":"#0000FF",
+        "Wind":"#C7E7E6",
+        "Tidal":"#C7E7E6",
+        "Wave":"#C7E7E6",
+        "Geothermal":"#C7E7E6",
+        "Hydro":"#C7E7E6",
+
+        "H2 conversion":"#FF6FCF",
+        "Final electricity":"#0000FF",
+        "Over generation / exports":"#0000FF",
+        "H2":"#FF6FCF"
+    });
+
+    // Add the emissions
+    // sankey.boxes["Thermal generation"].ghg = 100;
+    // sankey.boxes["CHP"].ghg = 10;
+    // sankey.boxes["UK land based bioenergy"].ghg = -100;
+    // sankey.boxes["Heating and cooling - homes"].ghg = 20;
+
+    // Fix some of the colours
+    sankey.nudge_colours_callback = function () {
+        this.recolour(this.boxes["Losses"].left_lines, "#AAAAAA");
+        this.recolour(this.boxes["District heating"].left_lines, "#FF0000");
+        this.recolour(this.boxes["Electricity grid"].left_lines, "#0000FF");
+    };
+
+    sankey.y_space = 20;
+    sankey.right_margin = 250;
+    sankey.left_margin = 150;
+
+    sankey.convert_flow_values_callback = function (flow) {
+        return flow * 0.05; // Pixels per TWh
+    };
+
+    sankey.convert_flow_labels_callback = function (flow) {
+        return Math.round(flow);
+    };
+
+    sankey.convert_box_value_labels_callback = function (flow) {
+        return ("" + Math.round(flow) + " TWh/y");
+    };
+
+    sankey.setData(raw_data);
+    sankey.draw();
+});
+
+</script>
+<h1 style='width:1000px; text-align: center; margin-bottom: 0'>A more complex Sankey Diagram</h1>
+
+<div style='width:1000px; text-align: center; margin-top: 0'>Move your mouse over the diagram to show values</div>
+<div id='sankey' style="width:1000px;height:1000px">
+    &nbsp;
+</div>
+</body>
+</html>

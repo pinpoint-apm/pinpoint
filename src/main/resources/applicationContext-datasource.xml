@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:lang="http://www.springframework.org/schema/lang"
+       xmlns:beans="http://www.springframework.org/schema/beans"
+       xmlns:util="http://www.springframework.org/schema/util" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
+
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--
+    <bean id="mysql" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+        <property name="driverClass" value="com.mysql.jdbc.Driver" />
+    -->
+
+    <bean id="mysqlDatasource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+
+        <!--<property name="url" value="jdbc:mysql://localhost:3306/hippo?characterEncoding=UTF-8"/>-->
+        <!--<property name="username" value="root"/>-->
+        <!--<property name="password" value="skdnsnfl"/>-->
+
+        <property name="url" value="jdbc:mysql://10.25.149.61:3306/MySQL?characterEncoding=UTF-8"/>
+        <property name="username" value="pinpoint"/>
+        <property name="password" value="nhn!@#123"/>
+
+        <property name="initialSize" value="30"></property>
+        <property name="maxActive" value="30"></property>
+        <property name="maxIdle" value="30"></property>
+        <property name="minIdle" value="30"></property>
+        <property name="maxWait" value="3000"></property>
+
+        <property name="testOnBorrow" value="false"></property>
+        <property name="testOnReturn" value="false"></property>
+        <!-- 원래는 true가 맞으나. 연결이 오래 지속되면 끊기는 상황에서 정상동작하는지 보기 위해서 false로 남겨두자.-->
+        <property name="testWhileIdle" value="false"></property>
+
+        <property name="timeBetweenEvictionRunsMillis" value="30000"></property>
+        <property name="numTestsPerEvictionRun" value="6"></property>
+        <property name="minEvictableIdleTimeMillis" value="-1"></property>
+        <property name="validationQuery" value="select 1 from db_root"></property>
+
+        <property name="poolPreparedStatements" value="true"></property>
+        <property name="maxOpenPreparedStatements" value="50"></property>
+
+    </bean>
+
+    <bean id="oracleDatasource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>
+
+        <!--<property name="url" value="jdbc:mysql://localhost:3306/pinpoint?characterEncoding=UTF-8"/>-->
+        <!--<property name="username" value="root"/>-->
+        <!--<property name="password" value="skdnsnfl"/>-->
+
+        <property name="url" value="jdbc:oracle:thin:@10.98.133.174:1725:INDEV"/>
+        <property name="username" value="lucy"/>
+        <property name="password" value="lucy"/>
+
+        <property name="initialSize" value="30"></property>
+        <property name="maxActive" value="30"></property>
+        <property name="maxIdle" value="30"></property>
+        <property name="minIdle" value="30"></property>
+        <property name="maxWait" value="3000"></property>
+
+        <property name="testOnBorrow" value="false"></property>
+        <property name="testOnReturn" value="false"></property>
+        <!-- 원래는 true가 맞으나. 연결이 오래 지속되면 끊기는 상황에서 정상동작하는지 보기 위해서 false로 남겨두자.-->
+        <property name="testWhileIdle" value="false"></property>
+
+        <property name="timeBetweenEvictionRunsMillis" value="30000"></property>
+        <property name="numTestsPerEvictionRun" value="6"></property>
+        <property name="minEvictableIdleTimeMillis" value="-1"></property>
+
+        <property name="validationQuery" value="select 1 from dual"></property>
+
+        <property name="poolPreparedStatements" value="true"></property>
+        <property name="maxOpenPreparedStatements" value="50"></property>
+    </bean>
+
+    <bean id="mssql" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+        <property name="url" value="jdbc:sqlserver://10.64.80.37:1433;DatabaseName=test"/>
+        <property name="username" value="netspider"/>
+        <property name="password" value="chitty!!"/>
+    </bean> 
+    
+	<bean id="cubridDatasource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="cubrid.jdbc.driver.CUBRIDDriver"/>
+		<property name="url" value="jdbc:cubrid:10.101.57.233:30102:pinpoint:::"/>
+		<property name="username" value="dba"/>
+		<property name="password" value="nhn!@#123"/>
+	</bean>
+</beans>

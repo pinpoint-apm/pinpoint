@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.2//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.nhn.pinpoint.testweb.repository.mybatis.MemberMapper">
+    
+    <select id="selectUser" parameterType="int" resultType="Member">
+        SELECT
+            id,
+            name,
+            joined
+        FROM member
+        WHERE id = #{id}
+    </select>
+    
+    <select id="selectAllUsersInvalid" resultType="Member">
+        SELECT
+            id,
+            name,
+            joined,
+            invalid_column
+        FROM member
+    </select>
+    
+    <insert id="insertUser" parameterType="Member">
+        INSERT INTO member (
+            id, name, joined
+        ) VALUES (
+            #{id}, #{name}, #{joined}
+        )
+    </insert>
+    
+    <update id="updateUser" parameterType="Member">
+        UPDATE member
+        SET name = #{name},
+            joined = #{joined}
+        WHERE id = #{id}
+    </update>
+    
+    <delete id="deleteUser" parameterType="int">
+        DELETE FROM member
+        WHERE id = #{id}
+    </delete>
+    
+</mapper>

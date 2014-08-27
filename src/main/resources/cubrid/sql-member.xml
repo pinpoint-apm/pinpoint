@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Member">
+	<typeAlias alias="Member" type="com.nhn.pinpoint.testweb.domain.Member" />
+
+	<delete id="delete" parameterClass="int">
+		delete from member where id = #id#
+	</delete>
+
+	<insert id="add" parameterClass="Member">
+		insert into member (id, name, joined) values(#id#, #name#, #joined#)
+	</insert>
+
+    <insert id="addStatement" parameterClass="Member">
+		insert into member (id, name, joined) values($id$, $name$, #joined#);
+	</insert>
+
+
+    <update id="update" parameterClass="Member">
+		update member set name = #name#, joined = #joined# where id = #id#
+	</update>
+
+	<select id="get" parameterClass="int" resultClass="Member">
+		select * from member where id = #id#
+	</select>
+
+	<select id="list" resultClass="Member">
+		select * from member order by id
+	</select>
+</sqlMap>
