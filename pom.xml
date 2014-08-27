@@ -628,6 +628,10 @@
                     </configuration>
                 </plugin>
                 <plugin>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>1.7</version>
+                </plugin>
+                <plugin>
                     <groupId>com.nhncorp.maven</groupId>
                     <artifactId>maven-revision-plugin</artifactId>
                     <version>1.0.0</version>
