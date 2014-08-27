@@ -1,0 +1,36 @@
+1. unzip hbase under ~/apps/pinpoint/
+2. make store under ~/apps/pinpoint/hbase
+3. add below tag at hbase/conf/hbase-site.xml
+<configuration>
+	<property>
+		<name>hbase.rootdir</name>
+		<value>/develop/hbase/store</value>
+	</property>
+</configuration>
+
+in here value is hbase/store directory.
+
+4. modify "hbase" file under hbase/bin/hbase
+JAVA_HEAP_MAX=-Xmx1000m
+==>
+JAVA_HEAP_MAX="-Xms1g -Xmx1g "
+
+5. start hbase at hbase/bin 
+./start-hbase.sh
+
+6. start hbase shell at hbase/bin
+./hbase shell
+and check hbase is running normally with 
+status
+list
+commands.
+If this two command return normal message, you can use hbase now.
+If not, please check configuration directory.
+
+
+7. start hbase thrift at hbase/bin
+./hbase thrift start
+If last message is 
+XX/XX/XX 00:00:00 INFO ThriftServer: starting HBase ThreadPool Thrift server on /0.0.0.0:9090
+hbase thrift is working !!!
+

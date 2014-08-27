@@ -1,0 +1,1 @@
+kill -9 `ps -ef | grep pinpoint-collector | grep -v grep | awk '{ print $2 }'`
