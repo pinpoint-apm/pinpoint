@@ -48,9 +48,9 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
     schemes.put(TupleScheme.class, new TAgentStatTupleSchemeFactory());
   }
 
-  private String agentId; // required
-  private long startTimestamp; // required
-  private long timestamp; // required
+  private String agentId; // optional
+  private long startTimestamp; // optional
+  private long timestamp; // optional
   private TJvmGc gc; // optional
   private TCpuLoad cpuLoad; // optional
   private String metadata; // optional
@@ -132,15 +132,15 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
   private static final int __STARTTIMESTAMP_ISSET_ID = 0;
   private static final int __TIMESTAMP_ISSET_ID = 1;
   private byte __isset_bitfield = 0;
-  private _Fields optionals[] = {_Fields.GC,_Fields.CPU_LOAD,_Fields.METADATA};
+  private _Fields optionals[] = {_Fields.AGENT_ID,_Fields.START_TIMESTAMP,_Fields.TIMESTAMP,_Fields.GC,_Fields.CPU_LOAD,_Fields.METADATA};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-    tmpMap.put(_Fields.AGENT_ID, new org.apache.thrift.meta_data.FieldMetaData("agentId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.AGENT_ID, new org.apache.thrift.meta_data.FieldMetaData("agentId", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.START_TIMESTAMP, new org.apache.thrift.meta_data.FieldMetaData("startTimestamp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.START_TIMESTAMP, new org.apache.thrift.meta_data.FieldMetaData("startTimestamp", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.TIMESTAMP, new org.apache.thrift.meta_data.FieldMetaData("timestamp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+    tmpMap.put(_Fields.TIMESTAMP, new org.apache.thrift.meta_data.FieldMetaData("timestamp", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.GC, new org.apache.thrift.meta_data.FieldMetaData("gc", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TJvmGc.class)));
@@ -153,19 +153,6 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
   }
 
   public TAgentStat() {
-  }
-
-  public TAgentStat(
-    String agentId,
-    long startTimestamp,
-    long timestamp)
-  {
-    this();
-    this.agentId = agentId;
-    this.startTimestamp = startTimestamp;
-    setStartTimestampIsSet(true);
-    this.timestamp = timestamp;
-    setTimestampIsSet(true);
   }
 
   /**
@@ -463,8 +450,8 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
         return false;
     }
 
-    boolean this_present_startTimestamp = true;
-    boolean that_present_startTimestamp = true;
+    boolean this_present_startTimestamp = true && this.isSetStartTimestamp();
+    boolean that_present_startTimestamp = true && that.isSetStartTimestamp();
     if (this_present_startTimestamp || that_present_startTimestamp) {
       if (!(this_present_startTimestamp && that_present_startTimestamp))
         return false;
@@ -472,8 +459,8 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
         return false;
     }
 
-    boolean this_present_timestamp = true;
-    boolean that_present_timestamp = true;
+    boolean this_present_timestamp = true && this.isSetTimestamp();
+    boolean that_present_timestamp = true && that.isSetTimestamp();
     if (this_present_timestamp || that_present_timestamp) {
       if (!(this_present_timestamp && that_present_timestamp))
         return false;
@@ -604,21 +591,27 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
     StringBuilder sb = new StringBuilder("TAgentStat(");
     boolean first = true;
 
-    sb.append("agentId:");
-    if (this.agentId == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.agentId);
+    if (isSetAgentId()) {
+      sb.append("agentId:");
+      if (this.agentId == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.agentId);
+      }
+      first = false;
     }
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("startTimestamp:");
-    sb.append(this.startTimestamp);
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("timestamp:");
-    sb.append(this.timestamp);
-    first = false;
+    if (isSetStartTimestamp()) {
+      if (!first) sb.append(", ");
+      sb.append("startTimestamp:");
+      sb.append(this.startTimestamp);
+      first = false;
+    }
+    if (isSetTimestamp()) {
+      if (!first) sb.append(", ");
+      sb.append("timestamp:");
+      sb.append(this.timestamp);
+      first = false;
+    }
     if (isSetGc()) {
       if (!first) sb.append(", ");
       sb.append("gc:");
@@ -764,16 +757,22 @@ public class TAgentStat implements org.apache.thrift.TBase<TAgentStat, TAgentSta
 
       oprot.writeStructBegin(STRUCT_DESC);
       if (struct.agentId != null) {
-        oprot.writeFieldBegin(AGENT_ID_FIELD_DESC);
-        oprot.writeString(struct.agentId);
+        if (struct.isSetAgentId()) {
+          oprot.writeFieldBegin(AGENT_ID_FIELD_DESC);
+          oprot.writeString(struct.agentId);
+          oprot.writeFieldEnd();
+        }
+      }
+      if (struct.isSetStartTimestamp()) {
+        oprot.writeFieldBegin(START_TIMESTAMP_FIELD_DESC);
+        oprot.writeI64(struct.startTimestamp);
         oprot.writeFieldEnd();
       }
-      oprot.writeFieldBegin(START_TIMESTAMP_FIELD_DESC);
-      oprot.writeI64(struct.startTimestamp);
-      oprot.writeFieldEnd();
-      oprot.writeFieldBegin(TIMESTAMP_FIELD_DESC);
-      oprot.writeI64(struct.timestamp);
-      oprot.writeFieldEnd();
+      if (struct.isSetTimestamp()) {
+        oprot.writeFieldBegin(TIMESTAMP_FIELD_DESC);
+        oprot.writeI64(struct.timestamp);
+        oprot.writeFieldEnd();
+      }
       if (struct.gc != null) {
         if (struct.isSetGc()) {
           oprot.writeFieldBegin(GC_FIELD_DESC);
