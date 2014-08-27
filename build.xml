@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="pinpoint-rpc-build" basedir="." default="deploy">
+
+    <property environment="env"/>
+
+    <!-- 버전은 맨날 변경해야 됨 -->
+    <property name="pinpoint.version" value="1.0.2"/>
+
+    <property name="pinpoint.rpc.jar" value="pinpoint-rpc-${pinpoint.version}.jar"/>
+
+    <property name="maven.dir" value="${env.M2_HOME}"/>
+    <property name="agent.lib.dir" value="${basedir}/../deploy/pinpoint-agent/lib"/>
+    <property name="target.dir" value="${basedir}/target/"/>
+
+    <target name="deploy" depends="mvn.build.install, copy.agent">
+    </target>
+
+    <target name="mvn.build.install">
+        <exec executable="${maven.dir}/bin/mvn.bat">
+            <arg value="-Dmaven.test.skip=true"/>
+            <arg value="clean"/>
+            <arg value="install"/>
+        </exec>
+    </target>
+
+    <target name="copy.agent">
+        <copy file="${target.dir}/${pinpoint.rpc.jar}"  todir="${agent.lib.dir}" overwrite="true">
+        </copy>
+    </target>
+
+    <target name="mvn.build.jar">
+        <exec executable="${maven.dir}/bin/mvn.bat">
+            <arg value="compile"/>
+            <arg value="jar:jar"/>
+        </exec>
+    </target>
+
+
+</project>
