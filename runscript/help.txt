@@ -1,0 +1,17 @@
+
+#
+# add below JVM options to TOMCAT-HOME/bin/catalina.sh
+#
+
+# pinpoint agent configuration
+PINPOINT_AGENT_HOME="/home1/irteam/apps/pinpoint/current"
+PINPOINT_AGENT_ID="Your Agent name (max 24)"
+PINPOINT_APPLICATION_NAME="Your application name (max 24)"
+CATALINA_OPTS="$CATALINA_OPTS -javaagent:$PINPOINT_AGENT_HOME/pinpoint-bootstrap-`cat $PINPOINT_AGENT_HOME/VERSION`.jar -Dpinpoint.agentId=$PINPOINT_AGENT_ID -Dpinpoint.applicationName=$PINPOINT_APPLICATION_NAME"
+
+
+-Dcom.sun.management.jmxremote
+-Dcom.sun.management.jmxremote.port=9991
+-Dcom.sun.management.jmxremote.local.only=false
+-Dcom.sun.management.jmxremote.authenticate=false
+-Dcom.sun.management.jmxremote.ssl=false
