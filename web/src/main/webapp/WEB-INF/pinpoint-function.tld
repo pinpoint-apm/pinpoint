@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <taglib	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		xmlns="http://java.sun.com/xml/ns/javaee"
-		xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_3_0.xsd"
-		version="3.0">
+		xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://www.oracle.com/webfolder/technetwork/jsc/xml/ns/javaee/web-jsptaglibrary_2_1.xsd"
+        version="2.1">
 
 	<description>pinpoint Custom Tag Library</description>
 	<tlib-version>1.0</tlib-version>

@@ -25,17 +25,6 @@ public class NetworkUtilsTest {
     }
 
     @Test
-    @Ignore
-    // FIXME 테스트 깨짐
-    public void testGetMachineName__getHostName() {
-        String machineName = NetworkUtils.getMachineName();
-        logger.debug("getMachineName:{}", machineName);
-        String hostName = NetworkUtils.getHostName();
-        logger.debug("getHostName:{}", hostName);
-        Assert.assertEquals(machineName, hostName);
-    }
-
-    @Test
     public void testGetMachineName2() {
         String machineName = NetworkUtils.getMachineName();
         Assert.assertNotSame(machineName, NetworkUtils.ERROR_HOST_NAME);

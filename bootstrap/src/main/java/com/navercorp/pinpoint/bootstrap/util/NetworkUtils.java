@@ -19,7 +19,8 @@ public final class NetworkUtils {
             final InetAddress localHost = InetAddress.getLocalHost();
             return localHost.getHostName();
 		} catch (UnknownHostException e) {
-			return ERROR_HOST_NAME;
+			// Try to get machine name from network interface.
+			return getMachineName();
 		}
 	}
 	
