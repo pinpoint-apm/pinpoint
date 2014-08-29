@@ -7,7 +7,7 @@
     </organization>
     <groupId>com.nhn.pinpoint</groupId>
     <artifactId>pom</artifactId>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>${pinpoint-version}</version>
     <name>pinpoint</name>
     <packaging>pom</packaging>
 
@@ -71,8 +71,10 @@
         <module>thrift</module>
         <module>web</module>
     </modules>
- 
+
     <properties>
+        <pinpoint-version>1.0.3-SNAPSHOT</pinpoint-version>
+
         <encoding>UTF-8</encoding>
         <jdk.version>1.6</jdk.version>
         <slf4j.version>1.7.5</slf4j.version>
@@ -610,7 +612,7 @@
                         <debug>true</debug>
                         <optimize>true</optimize>
                         <encoding>${encoding}</encoding>
-                        <showDeprecations>true</showDeprecations>
+                        <showDeprecation>true</showDeprecation>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -732,7 +734,7 @@
                 <artifactId>maven-pmd-plugin</artifactId>
                 <version>3.0.1</version>
                 <configuration>
-                    <linkXref>true</linkXref>
+                    <linkXRef>true</linkXRef>
                     <sourceEncoding>${encoding}</sourceEncoding>
                     <targetJdk>${jdk.version}</targetJdk>
                     <!-- <rulesets> <ruleset>/rulesets/unusedcode.xml</ruleset> 

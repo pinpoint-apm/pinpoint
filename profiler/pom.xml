@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.nhn.pinpoint</groupId>
         <artifactId>pom</artifactId>
-        <version>1.0.3-SNAPSHOT</version>
+        <version>${pinpoint-version}</version>
     </parent>
 
     <artifactId>pinpoint-profiler</artifactId>
@@ -295,6 +295,7 @@
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
+            <scope>compile</scope>
         </dependency>
 
         <!-- serving performance metrics -->
@@ -431,7 +432,7 @@
                 <executions>
                     <execution>
                         <id>copy-dependencies</id>
-                        <phase>compile</phase>
+                        <phase>package</phase>
                         <goals>
                             <goal>copy-dependencies</goal>
                         </goals>
@@ -447,7 +448,7 @@
                     </execution>
                     <execution>
                         <id>copy-bootstrap-dependencies</id>
-                        <phase>compile</phase>
+                        <phase>package</phase>
                         <goals>
                             <goal>copy-dependencies</goal>
                         </goals>
