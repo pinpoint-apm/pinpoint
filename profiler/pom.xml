@@ -258,6 +258,11 @@
             <artifactId>catalina</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>coyote</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>arcus</groupId>

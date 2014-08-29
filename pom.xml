@@ -409,6 +409,11 @@
                 <artifactId>catalina</artifactId>
                 <version>6.0.35</version>
             </dependency>
+	        <dependency>
+	            <groupId>org.apache.tomcat</groupId>
+	            <artifactId>coyote</artifactId>
+	            <version>6.0.35</version>
+	        </dependency>
             
             <dependency>
                 <groupId>arcus</groupId>
