@@ -40,6 +40,8 @@
         </property>
     </bean>
     
+    <util:properties id="pinpointWebProps" location="classpath:pinpoint-web.properties"/>
+    
     <!-- 
     <util:properties id="dataProps" location="classpath:data.properties"/>
     -->
@@ -66,6 +68,13 @@
     </bean>
 
     <bean id="timeSlot" class="com.nhn.pinpoint.common.util.DefaultTimeSlot">
+    </bean>
+
+    <bean id="config" class="com.nhn.pinpoint.web.config.WebConfig">
+    </bean>
+
+    <bean id="pinpointSocketManager" class="com.nhn.pinpoint.web.server.PinpointSocketManager">
+    	<constructor-arg ref="config" />
     </bean>
 
 	<!--

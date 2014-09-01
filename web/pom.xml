@@ -612,6 +612,14 @@
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
         </dependency>
+		<!-- for zookeeper test -->
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-test</artifactId>
+            <version>2.6.0</version>
+            <scope>test</scope>
+        </dependency>
+        
     </dependencies>
 
     <build>
