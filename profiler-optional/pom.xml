@@ -78,7 +78,7 @@
                     <fork>true</fork>
                     <verbose>true</verbose>
                     <compilerVersion>${jdk.version}</compilerVersion>
-                    <executable>${JAVA_7_HOME}/bin/javac</executable>
+                    <executable>${env.JAVA_7_HOME}/bin/javac</executable>
                 </configuration>
             </plugin>
             <plugin>
@@ -108,7 +108,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <jvm>${JAVA_7_HOME}/bin/java</jvm>
+                    <jvm>${env.JAVA_7_HOME}/bin/java</jvm>
                     <forkMode>once</forkMode>
                 </configuration>
             </plugin>
