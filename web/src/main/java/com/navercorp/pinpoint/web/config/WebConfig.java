@@ -3,6 +3,8 @@ package com.nhn.pinpoint.web.config;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 /**
@@ -10,6 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
  */
 public class WebConfig {
 
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
 	@Value("#{pinpointWebProps['cluster.enable'] ?: false}")
 	private boolean clusterEnable;
 	
@@ -35,6 +39,8 @@ public class WebConfig {
 			assertPositiveNumber(clusterZookeeperSessionTimeout);
 			assertPositiveNumber(clusterZookeeperRetryInterval);
 		}
+		
+		logger.info("{}", toString());
 	}
 
 	private boolean assertPort(int port) {

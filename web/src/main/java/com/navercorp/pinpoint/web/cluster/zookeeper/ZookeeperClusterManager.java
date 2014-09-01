@@ -56,7 +56,7 @@ public class ZookeeperClusterManager implements ClusterManager, Watcher {
 	public boolean registerWebCluster(String zNodeName, byte[] contents) {
 		String zNodePath = bindingPathAndZnode(PINPOINT_WEB_CLUSTER_PATh, zNodeName);
 
-		logger.info("Create Web Cluster Zookeeper UniqPath = " + zNodePath);
+		logger.info("Create Web Cluster Zookeeper UniqPath = {}", zNodePath);
 
 		RegisterJob job = new RegisterJob(zNodePath, contents, retryInterval);
 		if (!this.job.compareAndSet(null, job)) {
