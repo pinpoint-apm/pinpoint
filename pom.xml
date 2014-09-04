@@ -7,7 +7,7 @@
     </organization>
     <groupId>com.nhn.pinpoint</groupId>
     <artifactId>pom</artifactId>
-    <version>${pinpoint-version}</version>
+    <version>1.0.3-SNAPSHOT</version>
     <name>pinpoint</name>
     <packaging>pom</packaging>
 
