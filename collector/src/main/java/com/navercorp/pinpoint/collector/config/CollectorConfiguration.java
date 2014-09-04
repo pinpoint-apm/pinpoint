@@ -17,6 +17,9 @@ public class CollectorConfiguration implements InitializingBean {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+//    cluster.zookeeper.address=dev.zk.pinpoint.navercorp.com
+//    		cluster.zookeeper.sessiontimeout=3000
+    
     private static final String CONFIG_FILE_NAME = "pinpoint-collector.properties";
     private static final String DEFAULT_LISTEN_IP = "0.0.0.0";
 
@@ -44,6 +47,9 @@ public class CollectorConfiguration implements InitializingBean {
     private int udpSpanWorkerQueueSize;
     private int udpSpanSocketReceiveBufferSize;
 
+    private boolean clusterEnable;
+    private String clusterAddress;
+    private int clusterSessionTimeout;
 
     public String getTcpListenIp() {
         return tcpListenIp;
@@ -108,6 +114,29 @@ public class CollectorConfiguration implements InitializingBean {
         this.udpSpanSocketReceiveBufferSize = udpSpanSocketReceiveBufferSize;
     }
 
+	public boolean isClusterEnable() {
+		return clusterEnable;
+	}
+
+	public void setClusterEnable(boolean clusterEnable) {
+		this.clusterEnable = clusterEnable;
+	}
+
+	public String getClusterAddress() {
+		return clusterAddress;
+	}
+
+	public void setClusterAddress(String clusterAddress) {
+		this.clusterAddress = clusterAddress;
+	}
+	
+	public int getClusterSessionTimeout() {
+		return clusterSessionTimeout;
+	}
+
+	public void setClusterSessionTimeout(int clusterSessionTimeout) {
+		this.clusterSessionTimeout = clusterSessionTimeout;
+	}
 
     public void readConfigFile() {
         //    testcase와 같이 단독으로 사용할 경우 해당 api를 사용하면 좋을듯. testcase에서 쓸려면 classpath를 읽도록 고쳐야 될거임.
@@ -154,6 +183,10 @@ public class CollectorConfiguration implements InitializingBean {
         this.udpSpanWorkerThread = readInt(properties, "collector.udpSpanWorkerThread", 256);
         this.udpSpanWorkerQueueSize = readInt(properties, "collector.udpSpanWorkerQueueSize", 1024 * 5);
         this.udpSpanSocketReceiveBufferSize = readInt(properties, "collector.udpSpanSocketReceiveBufferSize", 1024 * 4096);
+        
+        this.clusterEnable = readBoolen(properties, "cluster.enable");
+        this.clusterAddress = readString(properties, "cluster.zookeeper.address", "");
+        this.clusterSessionTimeout = readInt(properties, "cluster.zookeeper.sessiontimeout", -1);
     }
 
     private String readString(Properties properties, String propertyName, String defaultValue) {
@@ -168,6 +201,18 @@ public class CollectorConfiguration implements InitializingBean {
     private int readInt(Properties properties, String propertyName, int defaultValue) {
         final String value = properties.getProperty(propertyName);
         int result = NumberUtils.toInt(value, defaultValue);
+        if (logger.isInfoEnabled()) {
+            logger.info("{}={}", propertyName, result);
+        }
+        return result;
+    }
+    
+    private boolean readBoolen(Properties properties, String propertyName) {
+    	final String value = properties.getProperty(propertyName);
+        
+    	// true 문자열인 경우만 true 그외는 모두 false 
+    	// 이후 default value가 필요할 경우, Utils 대신 문자열 매칭으로 해야할듯 현재는 필요없기 떄문에 그냥 둠
+        boolean result = Boolean.valueOf(value);
         if (logger.isInfoEnabled()) {
             logger.info("{}={}", propertyName, result);
         }
@@ -189,7 +234,12 @@ public class CollectorConfiguration implements InitializingBean {
         sb.append(", udpSpanWorkerThread=").append(udpSpanWorkerThread);
         sb.append(", udpSpanWorkerQueueSize=").append(udpSpanWorkerQueueSize);
         sb.append(", udpSpanSocketReceiveBufferSize=").append(udpSpanSocketReceiveBufferSize);
+        sb.append(", clusterEnable=").append(clusterEnable);
+        sb.append(", clusterAddress=").append(clusterAddress);
+        sb.append(", clusterSessionTimeout=").append(clusterSessionTimeout);
+        
         sb.append('}');
         return sb.toString();
     }
+
 }

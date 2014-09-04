@@ -289,7 +289,6 @@ public class ScatterChartController {
 			logger.debug("unified traceIdSet size={}", traceIdSet.size());
 
             List<Dot> dots = scatter.selectScatterData(traceIdSet, applicationName, filterBuilder.build(filterText));
-            System.out.println(dots);
 		}
 
         watch.stop();
