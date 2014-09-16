@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jboss.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,8 +13,6 @@ import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.client.MessageListener;
 import com.nhn.pinpoint.rpc.client.PinpointSocket;
 import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
-import com.nhn.pinpoint.rpc.packet.RequestPacket;
-import com.nhn.pinpoint.rpc.packet.SendPacket;
 
 /**
  * @author koo.taejin <kr14910>
@@ -25,13 +22,16 @@ public class WebClusterPoint implements ClusterPoint {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private final PinpointSocketFactory factory;
 
+	private final MessageListener messageListener;
 	// InetSocketAddress List로 전달 하는게 좋을거 같은데 이걸 Key로만들기가 쉽지 않네;
 
 	private final Map<InetSocketAddress, PinpointSocket> clusterRepository = new HashMap<InetSocketAddress, PinpointSocket>();
 
-	public WebClusterPoint(String id) {
-		factory = new PinpointSocketFactory();
-		factory.setTimeoutMillis(1000 * 5);
+	public WebClusterPoint(String id, MessageListener messageListener) {
+		this.messageListener = messageListener;
+		
+		this.factory = new PinpointSocketFactory();
+		this.factory.setTimeoutMillis(1000 * 5);
 
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put("id", id);
@@ -68,8 +68,6 @@ public class WebClusterPoint implements ClusterPoint {
 	}
 
 	private PinpointSocket createPinpointSocket(InetSocketAddress address) {
-		MessageListener messageListener = new SimpleMessageListener(address);
-		
 		String host = address.getHostName();
 		int port = address.getPort();
 
@@ -103,28 +101,6 @@ public class WebClusterPoint implements ClusterPoint {
 		if (factory != null) {
 			factory.release();
 		}
-	}
-
-	class SimpleMessageListener implements MessageListener {
-
-		private final InetSocketAddress address;
-
-		public SimpleMessageListener(InetSocketAddress address) {
-			this.address = address;
-		}
-
-		@Override
-		public void handleSend(SendPacket sendPacket, Channel channel) {
-			logger.info("{} receive send Message {}", address, sendPacket);
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void handleRequest(RequestPacket requestPacket, Channel channel) {
-			logger.info("{} receive Request Message {}", address, requestPacket);
-		}
-
 	}
 
 }

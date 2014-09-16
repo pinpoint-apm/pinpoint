@@ -195,6 +195,10 @@ public class ZookeeperLatestJobWorker implements Runnable {
 
 		// 동시성에 문제 없게 하자
 		String uniquePath = getUniquePath(channelContext, true);
+		if (uniquePath == null) {
+			logger.warn("Zookeeper UniqPath({}) may not be null.", uniquePath);
+			return false;
+		}
 
 		try {
 			if (zookeeperClient.exists(uniquePath)) {
@@ -352,6 +356,7 @@ public class ZookeeperLatestJobWorker implements Runnable {
 				final String agentId = MapUtils.getString(agentProperties, AgentPropertiesType.AGENT_ID.getName());
 
 				if (StringUtils.isEmpty(applicationName) || StringUtils.isEmpty(agentId)) {
+					logger.warn("ApplicationName({}) and AgnetId({}) may not be null.", applicationName, agentId);
 					return null;
 				}
 

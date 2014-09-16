@@ -195,7 +195,7 @@ public class ZookeeperClient {
 			}
 		}
 		
-		return Collections.EMPTY_LIST;
+		return Collections.emptyList();
 	}
 	
 //	public byte[] getData(String path) throws KeeperException, InterruptedException {

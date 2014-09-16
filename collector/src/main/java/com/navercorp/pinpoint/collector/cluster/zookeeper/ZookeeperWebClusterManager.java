@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.collector.cluster.zookeeper;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -9,7 +8,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,11 +49,10 @@ public class ZookeeperWebClusterManager implements Runnable {
 	// Job이 포함되면 실행. Job성공시 이후 Job 모두 삭제
 	// 먼가 이상한 형태의 자료구조가 필요한거 같은데....
 
-	public ZookeeperWebClusterManager(ZookeeperClient client, String zookeeperClusterPath, String serverIdentifier) throws KeeperException, IOException,
-			InterruptedException {
+	public ZookeeperWebClusterManager(ZookeeperClient client, String zookeeperClusterPath, String serverIdentifier, WebClusterPoint clusterPoint) {
 		this.client = client;
 
-		this.webClusterPoint = new WebClusterPoint(serverIdentifier);
+		this.webClusterPoint = clusterPoint;
 		this.zNodePath = zookeeperClusterPath;
 
 		this.workerState = new WorkerStateContext();
@@ -101,9 +98,6 @@ public class ZookeeperWebClusterManager implements Runnable {
 		logger.info("{} destorying started.", this.getClass().getSimpleName());
 
 		queue.offer(stopTask);
-		if (webClusterPoint != null) {
-			webClusterPoint.close();
-		}
 
 		boolean interrupted = false;
 		while (this.workerThread.isAlive()) {

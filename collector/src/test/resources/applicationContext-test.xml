@@ -20,7 +20,8 @@
             base-package="com.nhn.pinpoint.collector.dao.hbase,
                          com.nhn.pinpoint.collector.handler,
                          com.nhn.pinpoint.collector.mapper,
-                         com.nhn.pinpoint.collector.util" />
+                         com.nhn.pinpoint.collector.util
+                         com.nhn.pinpoint.collector.config" />
 
     <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
@@ -46,6 +47,9 @@
         <constructor-arg ref="metricRegistry" />
     </bean>
 
+	<!-- Cluster 관련된 Bean들 -->
+    <bean id="clusterPointRouter" class="com.nhn.pinpoint.collector.cluster.ClusterPointRouter">
+    </bean>
 
     <bean id="jsonObjectMapper" class="org.codehaus.jackson.map.ObjectMapper">
     </bean>
