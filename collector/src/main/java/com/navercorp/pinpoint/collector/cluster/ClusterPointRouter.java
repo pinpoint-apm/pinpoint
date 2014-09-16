@@ -128,6 +128,12 @@ public class ClusterPointRouter {
 				TBase command = deserialize(payload);
 				
 				ChannelContext channelContext = profilerClusterPoint.getChannelContext(applicationName, agentId, -1);
+				if (channelContext == null) {
+					TResult result = new TResult(false);
+					result.setMessage(applicationName + "/" + agentId + " can't find suitable ChannelContext.");
+					channel.write(new ResponsePacket(requestPacket.getRequestId(), serialize(result)));
+					return;
+				}
 				
 				Map<Object, Object> proeprties = channelContext.getChannelProperties();
 				String version = MapUtils.getString(proeprties, AgentPropertiesType.VERSION.getName());

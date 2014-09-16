@@ -50,7 +50,11 @@ public enum TCommandTypeVersion {
 		}
 		
 		for (TCommandType eachCommand : supportCommandList) {
-			if (command.getClass().isInstance(eachCommand)) {
+			if (eachCommand == null) {
+				continue;
+			}
+
+			if (eachCommand.getClazz() == command.getClass()) {
 				return true;
 			}
 		}

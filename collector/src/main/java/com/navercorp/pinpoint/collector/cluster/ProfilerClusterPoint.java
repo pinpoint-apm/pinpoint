@@ -75,7 +75,7 @@ public class ProfilerClusterPoint implements ClusterPoint  {
 		if (startTimestamp <= 0) {
 			// Fix Me 
 			// startTimestamp도 체크하게 변경해야함
-			return false;
+			return true;
 		}
 
 		return true;
