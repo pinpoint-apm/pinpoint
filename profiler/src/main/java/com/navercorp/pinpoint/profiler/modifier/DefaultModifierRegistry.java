@@ -62,10 +62,9 @@ import com.nhn.pinpoint.profiler.modifier.orm.mybatis.SqlSessionTemplateModifier
 import com.nhn.pinpoint.profiler.modifier.servlet.HttpServletModifier;
 import com.nhn.pinpoint.profiler.modifier.servlet.SpringFrameworkServletModifier;
 import com.nhn.pinpoint.profiler.modifier.spring.orm.ibatis.SqlMapClientTemplateModifier;
-import com.nhn.pinpoint.profiler.modifier.tomcat.CatalinaModifier;
 import com.nhn.pinpoint.profiler.modifier.tomcat.StandardHostValveInvokeModifier;
+import com.nhn.pinpoint.profiler.modifier.tomcat.StandardServiceModifier;
 import com.nhn.pinpoint.profiler.modifier.tomcat.TomcatConnectorModifier;
-import com.nhn.pinpoint.profiler.modifier.tomcat.TomcatStandardServiceModifier;
 
 /**
  * @author emeroad
@@ -203,14 +202,11 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		SpringFrameworkServletModifier springServletModifier = new SpringFrameworkServletModifier(byteCodeInstrumentor, agent);
 		addModifier(springServletModifier);
 
-		Modifier tomcatStandardServiceModifier = new TomcatStandardServiceModifier(byteCodeInstrumentor, agent);
+		Modifier tomcatStandardServiceModifier = new StandardServiceModifier(byteCodeInstrumentor, agent);
 		addModifier(tomcatStandardServiceModifier);
 
 		Modifier tomcatConnectorModifier = new TomcatConnectorModifier(byteCodeInstrumentor, agent);
 		addModifier(tomcatConnectorModifier);
-
-		Modifier tomcatCatalinaModifier = new CatalinaModifier(byteCodeInstrumentor, agent);
-		addModifier(tomcatCatalinaModifier);
 	}
 
 	public void addJdbcModifier() {
