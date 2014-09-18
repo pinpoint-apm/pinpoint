@@ -28,25 +28,8 @@ public class MySQLResultSetModifier extends AbstractModifier {
         if (logger.isInfoEnabled()) {
             logger.info("Modifing. {}", javassistClassName);
         }
-        this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
-        return changeMethod(javassistClassName, classFileBuffer);
-    }
-
-    private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
-        try {
-
-
-            if (this.logger.isInfoEnabled()) {
-                this.logger.info("{} class is converted.", javassistClassName);
-            }
-
-            return null;
-        } catch (Exception e) {
-            if (logger.isWarnEnabled()) {
-                logger.warn(e.getMessage(), e);
-            }
-        }
         return null;
     }
+
 
 }

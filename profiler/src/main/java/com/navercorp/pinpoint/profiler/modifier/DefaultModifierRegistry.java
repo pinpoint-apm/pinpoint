@@ -38,10 +38,7 @@ import com.nhn.pinpoint.profiler.modifier.db.cubrid.CubridResultSetModifier;
 import com.nhn.pinpoint.profiler.modifier.db.cubrid.CubridStatementModifier;
 import com.nhn.pinpoint.profiler.modifier.db.dbcp.DBCPBasicDataSourceModifier;
 import com.nhn.pinpoint.profiler.modifier.db.dbcp.DBCPPoolGuardConnectionWrapperModifier;
-import com.nhn.pinpoint.profiler.modifier.db.mssql.MSSQLConnectionModifier;
-import com.nhn.pinpoint.profiler.modifier.db.mssql.MSSQLPreparedStatementModifier;
-import com.nhn.pinpoint.profiler.modifier.db.mssql.MSSQLResultSetModifier;
-import com.nhn.pinpoint.profiler.modifier.db.mssql.MSSQLStatementModifier;
+import com.nhn.pinpoint.profiler.modifier.db.jtds.*;
 import com.nhn.pinpoint.profiler.modifier.db.mysql.MySQLConnectionImplModifier;
 import com.nhn.pinpoint.profiler.modifier.db.mysql.MySQLConnectionModifier;
 import com.nhn.pinpoint.profiler.modifier.db.mysql.MySQLNonRegisteringDriverModifier;
@@ -223,9 +220,8 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 			addMySqlDriver();
 		}
 
-		if (profilerConfig.isJdbcProfileMsSql()) {
-//            아직 개발이 안됨
-//			addMsSqlDriver();
+		if (profilerConfig.isJdbcProfileJtds()) {
+			addJtdsDriver();
 		}
 
 		if (profilerConfig.isJdbcProfileOracle()) {
@@ -269,18 +265,23 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 //		addModifier(mysqlResultSetModifier);
 	}
 
-	private void addMsSqlDriver() {
+	private void addJtdsDriver() {
+        JtdsDriverModifier jtdsDriverModifier = new JtdsDriverModifier(byteCodeInstrumentor, agent);
+        addModifier(jtdsDriverModifier);
 
-		Modifier mssqlConnectionModifier = new MSSQLConnectionModifier(byteCodeInstrumentor, agent);
-		addModifier(mssqlConnectionModifier);
+        Modifier jdbc2ConnectionModifier = new Jdbc2ConnectionModifier(byteCodeInstrumentor, agent);
+		addModifier(jdbc2ConnectionModifier);
 
-		Modifier mssqlStatementModifier = new MSSQLStatementModifier(byteCodeInstrumentor, agent);
+        Modifier jdbc4_1ConnectionModifier = new Jdbc4_1ConnectionModifier(byteCodeInstrumentor, agent);
+        addModifier(jdbc4_1ConnectionModifier);
+
+		Modifier mssqlStatementModifier = new JtdsStatementModifier(byteCodeInstrumentor, agent);
 		addModifier(mssqlStatementModifier);
 
-		Modifier mssqlPreparedStatementModifier = new MSSQLPreparedStatementModifier(byteCodeInstrumentor, agent);
+		Modifier mssqlPreparedStatementModifier = new JtdsPreparedStatementModifier(byteCodeInstrumentor, agent);
 		addModifier(mssqlPreparedStatementModifier);
 
-		Modifier mssqlResultSetModifier = new MSSQLResultSetModifier(byteCodeInstrumentor, agent);
+		Modifier mssqlResultSetModifier = new JtdsResultSetModifier(byteCodeInstrumentor, agent);
 		addModifier(mssqlResultSetModifier);
 
 	}
