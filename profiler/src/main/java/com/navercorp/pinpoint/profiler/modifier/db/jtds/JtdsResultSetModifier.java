@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.db.mssql;
+package com.nhn.pinpoint.profiler.modifier.db.jtds;
 
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
@@ -10,11 +10,11 @@ import java.security.ProtectionDomain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MSSQLResultSetModifier extends AbstractModifier {
+public class JtdsResultSetModifier extends AbstractModifier {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public MSSQLResultSetModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+    public JtdsResultSetModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);
     }
 
@@ -26,26 +26,11 @@ public class MSSQLResultSetModifier extends AbstractModifier {
         if (logger.isInfoEnabled()) {
             logger.info("Modifing. {}", javassistClassName);
         }
-        this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
-        return changeMethod(javassistClassName, classFileBuffer);
-    }
 
-    private byte[] changeMethod(String javassistClassName, byte[] classfileBuffer) {
-        try {
-            CtClass cc = null;
-
-            if (this.logger.isInfoEnabled()) {
-                this.logger.info("{} class is converted.", javassistClassName);
-            }
-
-            return null;
-        } catch (Exception e) {
-            if (logger.isWarnEnabled()) {
-                logger.warn(e.getMessage(), e);
-            }
-        }
         return null;
     }
+
+
 
 
 }
