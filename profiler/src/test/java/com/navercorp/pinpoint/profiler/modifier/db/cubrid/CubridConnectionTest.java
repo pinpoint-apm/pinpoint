@@ -6,6 +6,7 @@ import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.DefaultAgent;
+import com.nhn.pinpoint.profiler.junit4.BasePinpointTest;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.nhn.pinpoint.profiler.util.MockAgent;
 import com.nhn.pinpoint.profiler.util.TestClassLoader;
@@ -22,55 +23,38 @@ import java.util.Properties;
 /**
  * @author emeroad
  */
-public class CubridConnectionTest {
+public class CubridConnectionTest extends BasePinpointTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private TestClassLoader loader;
 
     @Test
-    public void executeQueryAndexecuteUpdate() throws SQLException {
-        CUBRIDDriver driver = new CUBRIDDriver();
-        Properties properties = new Properties();
-        properties.setProperty("user", "dba");
-        properties.setProperty("password", "nhn!@#123");
-        Connection connect = driver.connect("jdbc:cubrid:10.101.57.233:30102:pinpoint:::", properties);
+    public void executeQueryAndExecuteUpdate() throws SQLException {
+        Connection connection = connectDB();
 
-        PreparedStatement preparedStatement = connect.prepareStatement("select 1 from db_root where 1=?");
+        PreparedStatement preparedStatement = connection.prepareStatement("select 1 from db_root where 1=?");
         preparedStatement.setInt(1, 1);
         ResultSet resultSet = preparedStatement.executeQuery();
         if (resultSet.next()) {
-            System.out.println("---" + resultSet.getObject(1));
+            logger.debug("---{}", resultSet.getObject(1));
         }
+        connection.close();
     }
 
-    @Before
-    public void setUp() throws Exception {
-        PLoggerFactory.initialize(new Slf4jLoggerBinder());
-
-        ProfilerConfig profilerConfig = new ProfilerConfig();
-        // profiler config를 setter를 열어두는것도 괜찮을듯 하다.
-        String path = MockAgent.class.getClassLoader().getResource("pinpoint.config").getPath();
-        profilerConfig.readConfigFile(path);
-
-        profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE);
-        DefaultAgent agent = new MockAgent("", profilerConfig);
-        loader = new TestClassLoader(agent);
-        // agent가 로드한 모든 Modifier를 자동으로 찾도록 변경함.
-
-
-        loader.initialize();
+    private Connection connectDB() throws SQLException {
+        Driver driver = new CUBRIDDriver();
+        Properties properties = new Properties();
+        properties.setProperty("user", "dba");
+        properties.setProperty("password", "nhn!@#123");
+        return driver.connect("jdbc:cubrid:10.101.57.233:30102:pinpoint:::", properties);
     }
+
+
 
     @Test
     public void testModify() throws Exception {
 
-        Driver driver = loadClass();
-
-        Properties properties = new Properties();
-        properties.setProperty("user", "dba");
-        properties.setProperty("password", "nhn!@#123");
-        Connection connection = driver.connect("jdbc:cubrid:10.101.57.233:30102:pinpoint:::", properties);
+        Connection connection = connectDB();
 
         logger.info("Connection class name:{}", connection.getClass().getName());
         logger.info("Connection class cl:{}", connection.getClass().getClassLoader());
@@ -101,20 +85,6 @@ public class CubridConnectionTest {
         DatabaseInfo clearUrl = ((DatabaseInfoTraceValue)connection).__getTraceDatabaseInfo();
         Assert.assertNull(clearUrl);
 
-    }
-
-    private Driver loadClass() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        Class<Driver> driverClazz = (Class<Driver>) loader.loadClass("cubrid.jdbc.driver.CUBRIDDriver");
-
-        Driver driver = driverClazz.newInstance();
-        logger.info("Driver class name:{}", driverClazz.getName());
-        logger.info("Driver class cl:{}", driverClazz.getClassLoader());
-
-
-        Class<?> version = loader.loadClass("com.nhn.pinpoint.common.Version");
-        Assert.assertSame("check classLoader", this.getClass().getClassLoader(), version.getClassLoader());
-        logger.debug("common cl:{}", version.getClassLoader());
-        return driver;
     }
 
 
