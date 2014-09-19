@@ -24,15 +24,16 @@ public class JtdsConnectionTest extends BasePinpointTest {
 
 
     @Test
-    public void executeQueryAndexecuteUpdate() throws SQLException {
-        Connection connect = connectDB();
+    public void executeQueryAndExecuteUpdate() throws SQLException {
+        Connection connection = connectDB();
 
-        PreparedStatement preparedStatement = connect.prepareStatement("select 1 ");
+        PreparedStatement preparedStatement = connection.prepareStatement("select 1 ");
 //        preparedStatement.setInt(1, 1);
         ResultSet resultSet = preparedStatement.executeQuery();
         if (resultSet.next()) {
-            logger.debug("---" + resultSet.getObject(1));
+            logger.debug("---{}", resultSet.getObject(1));
         }
+        connection.close();
     }
 
     private Connection connectDB() throws SQLException {
