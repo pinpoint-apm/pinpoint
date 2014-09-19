@@ -3,6 +3,8 @@ package com.nhn.pinpoint.thrift.io;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.thrift.TBase;
+
 /**
  * @author koo.taejin
  */
@@ -10,6 +12,9 @@ public enum TCommandTypeVersion {
 
 	// Agent 버젼과 맞추면 좋을듯 일단은 Agent 버전과 맞춰놓음
 	V_1_0_2_SNAPSHOT("1.0.2-SNAPSHOT", TCommandType.RESULT, TCommandType.THREAD_DUMP),
+	V_1_0_2("1.0.2", V_1_0_2_SNAPSHOT),
+	V_1_0_3_SNAPSHOT("1.0.3-SNAPSHOT", V_1_0_2, TCommandType.ECHO, TCommandType.TRANSFER),
+	
 	UNKNOWN("UNKNOWN");
 
 	private final String versionName;
@@ -37,6 +42,24 @@ public enum TCommandTypeVersion {
 
 	public List<TCommandType> getSupportCommandList() {
 		return supportCommandList;
+	}
+	
+	public boolean isSupportCommand(TBase command) {
+		if (command == null) {
+			return false;
+		}
+		
+		for (TCommandType eachCommand : supportCommandList) {
+			if (eachCommand == null) {
+				continue;
+			}
+
+			if (eachCommand.getClazz() == command.getClass()) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public String getVersionName() {

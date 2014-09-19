@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.nhn.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
 import com.nhn.pinpoint.collector.receiver.DispatchHandler;
 import com.nhn.pinpoint.collector.util.PacketUtils;
 import com.nhn.pinpoint.common.util.ExecutorFactory;
@@ -70,13 +71,23 @@ public class TCPReceiver {
 
 
     public TCPReceiver(DispatchHandler dispatchHandler, String bindAddress, int port) {
+    	this(dispatchHandler, bindAddress, port, null);
+    }
+
+    public TCPReceiver(DispatchHandler dispatchHandler, String bindAddress, int port, ZookeeperClusterService service) {
         if (dispatchHandler == null) {
             throw new NullPointerException("dispatchHandler must not be null");
         }
         if (bindAddress == null) {
             throw new NullPointerException("bindAddress must not be null");
         }
-        this.pinpointServerSocket = new PinpointServerSocket();
+        
+        if (service == null) {
+        	this.pinpointServerSocket = new PinpointServerSocket();
+        } else {
+        	this.pinpointServerSocket = new PinpointServerSocket(service.getChannelStateChangeEventListener());
+        }
+        
         this.dispatchHandler = dispatchHandler;
         this.bindAddress = bindAddress;
         this.port = port;

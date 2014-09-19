@@ -20,7 +20,8 @@
             base-package="com.nhn.pinpoint.collector.dao.hbase,
                         com.nhn.pinpoint.collector.handler,
                         com.nhn.pinpoint.collector.mapper
-                        com.nhn.pinpoint.collector.util" />
+                        com.nhn.pinpoint.collector.util
+                        com.nhn.pinpoint.collector.config" />
 
     <bean id="propertyConfigurer"
           class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -63,11 +64,19 @@
     <bean id="collectorMetric" class="com.nhn.pinpoint.collector.monitor.CollectorMetric">
     </bean>
 
+	<!-- Cluster 관련된 Bean들 -->
+    <bean id="clusterPointRouter" class="com.nhn.pinpoint.collector.cluster.ClusterPointRouter">
+    </bean>
+    <bean id="clusterService" class="com.nhn.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService">
+        <constructor-arg ref="collectorConfiguration"/>
+        <constructor-arg ref="clusterPointRouter"/>
+    </bean>
 
     <bean id="tcpReceiver" class="com.nhn.pinpoint.collector.receiver.tcp.TCPReceiver">
         <constructor-arg type="com.nhn.pinpoint.collector.receiver.DispatchHandler" ref="tcpDispatchHandler"/>
         <constructor-arg value="#{collectorConfiguration.tcpListenIp}"/>
         <constructor-arg value="#{collectorConfiguration.tcpListenPort}"/>
+        <constructor-arg type="com.nhn.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService" ref="clusterService"/>
     </bean>
 
     <bean id="udpSpanReceiver" class="com.nhn.pinpoint.collector.receiver.udp.UDPReceiver">
@@ -111,12 +120,8 @@
         <constructor-arg value="#{hTable.MAP_STATISTICS_SELF_CF_COUNTER}"/>
     </bean>
 
-
     <bean id="timeSlot" class="com.nhn.pinpoint.common.util.DefaultTimeSlot">
     </bean>
     
-    <bean id="ClusterService" class="com.nhn.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService">
-        <constructor-arg ref="collectorConfiguration"/>
-    </bean>
     
 </beans>

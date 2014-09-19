@@ -3,7 +3,9 @@ package com.nhn.pinpoint.thrift.io;
 import org.apache.thrift.TBase;
 
 import com.nhn.pinpoint.thrift.dto.TResult;
+import com.nhn.pinpoint.thrift.dto.command.TCommandEcho;
 import com.nhn.pinpoint.thrift.dto.command.TCommandThreadDump;
+import com.nhn.pinpoint.thrift.dto.command.TCommandTransfer;
 
 /**
  * @author koo.taejin
@@ -17,6 +19,18 @@ public enum TCommandType {
 		@Override
 		public TBase newObject() {
 			return new TResult();
+		}
+	}, 
+	TRANSFER((short) 700, TCommandTransfer.class) {
+		@Override
+		public TBase newObject() {
+			return new TCommandTransfer();
+		}
+	}, 
+	ECHO((short) 710, TCommandEcho.class) {
+		@Override
+		public TBase newObject() {
+			return new TCommandEcho();
 		}
 	}, 
 	THREAD_DUMP((short) 720, TCommandThreadDump.class) {
