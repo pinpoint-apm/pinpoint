@@ -6,6 +6,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.apache.thrift.TBase;
+import org.junit.internal.runners.model.EachTestNotifier;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
@@ -21,8 +23,8 @@ import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.profiler.DummyInstrumentation;
-import com.nhn.pinpoint.profiler.context.DefaultTrace;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
+import com.nhn.pinpoint.profiler.sender.PeekableDataSender;
 import com.nhn.pinpoint.profiler.util.MockAgent;
 import com.nhn.pinpoint.profiler.util.TestClassLoader;
 
@@ -37,13 +39,16 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
     private final TestClassLoader testClassLoader;
     private final TestContext testContext;
     private final DefaultAgent testAgent;
+    private final PeekableDataSender<? extends TBase<?, ?>> testDataSender;
 
     public PinpointJUnit4ClassRunner(Class<?> clazz) throws InitializationError {
         super(clazz);
         if (logger.isDebugEnabled()) {
             logger.debug("PinpointJUnit4ClassRunner constructor called with [" + clazz + "].");
         }
-        this.testAgent = createTestAgent();
+        MockAgent testAgent = createTestAgent();
+        this.testAgent = testAgent;
+        this.testDataSender = testAgent.getPeekableSpanDataSender();
         this.testClassLoader = getTestClassLoader(clazz);
         this.testClassLoader.initialize();
         try {
@@ -64,7 +69,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
         }
     }
 
-    private DefaultAgent createTestAgent() throws InitializationError {
+    private MockAgent createTestAgent() throws InitializationError {
         PLoggerFactory.initialize(new Slf4jLoggerBinder());
 
         ProfilerConfig profilerConfig = new ProfilerConfig();
@@ -91,7 +96,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
     }
 
     private TestClassLoader getTestClassLoader(Class<?> testClass) throws InitializationError {
-        Class<?> classWithPinpointTestClassLoaderAnnotationSpecified = findPinpointTestClassLoaderAnnotationForClass(testClass); 
+        Class<?> classWithPinpointTestClassLoaderAnnotationSpecified = findPinpointTestClassLoaderAnnotationForClass(testClass);
         if (classWithPinpointTestClassLoaderAnnotationSpecified == null) {
             if (logger.isInfoEnabled()) {
                 logger.info(String.format("@PinpointTestClassLoader not found for class [%s]", testClass));
@@ -119,36 +124,56 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 
     @Override
     protected void runChild(FrameworkMethod method, RunNotifier notifier) {
-        TraceContext traceContext = this.testAgent.getTraceContext();
-        beginTracing(traceContext);
+        beginTracing(method);
         ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(this.testClassLoader);
             super.runChild(method, notifier);
         } finally {
             Thread.currentThread().setContextClassLoader(originalClassLoader);
-            endTracing(traceContext);
+            endTracing(method, notifier);
         }
     }
 
-    // TODO refine root trace parameters for test
-    private void beginTracing(TraceContext traceContext) {
-        Trace trace = traceContext.newTraceObject();
-        trace.markBeforeTime();
-        trace.recordServiceType(ServiceType.TEST);
+    private void beginTracing(FrameworkMethod method) {
+        if (shouldCreateNewTraceObject(method)) {
+            TraceContext traceContext = this.testAgent.getTraceContext();
+            Trace trace = traceContext.newTraceObject();
+            trace.markBeforeTime();
+            trace.recordServiceType(ServiceType.TEST);
+        }
     }
 
-    private void endTracing(TraceContext traceContext) {
-        try {
-            Trace trace = traceContext.currentRawTraceObject();
+    private void endTracing(FrameworkMethod method, RunNotifier notifier) {
+        if (shouldCreateNewTraceObject(method)) {
+            TraceContext traceContext = this.testAgent.getTraceContext();
             try {
-                trace.markAfterTime();
+                Trace trace = traceContext.currentRawTraceObject();
+                if (trace == null) {
+                    // Trace is already detached from the ThreadLocal storage.
+                    // Happens when root trace method is tested without @IsRootSpan.
+                    EachTestNotifier testMethodNotifier = new EachTestNotifier(notifier, super.describeChild(method));
+                    String traceObjectAlreadyDetachedMessage = "Trace object already detached. If you're testing a trace root, please add @IsRootSpan to the test method";
+                    testMethodNotifier.addFailure(new IllegalStateException(traceObjectAlreadyDetachedMessage));
+                } else {
+                    try {
+                        trace.markAfterTime();
+                    } finally {
+                        trace.traceRootBlockEnd();
+                    }
+                }
             } finally {
-                trace.traceRootBlockEnd();
+                traceContext.detachTraceObject();
             }
-        } finally {
-            traceContext.detachTraceObject();
         }
+    }
+
+    private boolean shouldCreateNewTraceObject(FrameworkMethod method) {
+        IsRootSpan isRootSpan = method.getAnnotation(IsRootSpan.class);
+        if (isRootSpan == null || !isRootSpan.value()) {
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -157,13 +182,14 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
         @SuppressWarnings("unchecked")
         Class<BasePinpointTest> baseTestClass = (Class<BasePinpointTest>)this.testContext.getBaseTestClass();
         if (baseTestClass.isInstance(test)) {
-            DefaultTrace currentTrace = (DefaultTrace)this.testAgent.getTraceContext().currentRawTraceObject();
             Method[] methods = baseTestClass.getDeclaredMethods();
             for (Method m : methods) {
-                if (m.getName().equals("setCurrentStorage")) {
+                if (m.getName().equals("setCurrentHolder")) {
                     try {
+                        // 각 테스트 메소드 마다 PeekableDataSender를 reset 함.
+                        this.testDataSender.clear();
                         m.setAccessible(true);
-                        m.invoke(test, currentTrace.getStorage());
+                        m.invoke(test, this.testDataSender);
                     } catch (IllegalAccessException e) {
                         throw new RuntimeException(e);
                     } catch (InvocationTargetException e) {
