@@ -47,6 +47,7 @@ import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 /**
  * @author emeroad
  * @author koo.taejin
+ * @author hyungil.jeong
  */
 public class DefaultAgent implements Agent {
 
@@ -66,7 +67,7 @@ public class DefaultAgent implements Agent {
 
     private final PinpointSocketFactory factory;
     private final PinpointSocket socket;
-    
+
     private final EnhancedDataSender tcpDataSender;
     private final DataSender statDataSender;
     private final DataSender spanDataSender;
@@ -86,7 +87,6 @@ public class DefaultAgent implements Agent {
         // rpc쪽 preload
         ClassPreLoader.preload();
     }
-
 
     public DefaultAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig) {
         if (instrumentation == null) {
@@ -123,17 +123,19 @@ public class DefaultAgent implements Agent {
         logger.info("agentInformation:{}", agentInformation);
 
         this.tAgentInfo = createTAgentInfo();
-        
-        this.factory = createPinpointSocketFactory();
-        this.socket = createPinpointSocket(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorTcpServerPort(), factory, this.profilerConfig.isTcpDataSenderCommandAcceptEnable());
-        
-        this.tcpDataSender = createTcpDataSender(socket);
-        
-        this.spanDataSender = createUdpDataSender(this.profilerConfig.getCollectorUdpSpanServerPort(), "Pinpoint-UdpSpanDataExecutor",
-                this.profilerConfig.getSpanDataSenderWriteQueueSize(), this.profilerConfig.getSpanDataSenderSocketTimeout(), this.profilerConfig.getSpanDataSenderSocketSendBufferSize());
-        this.statDataSender = createUdpDataSender(this.profilerConfig.getCollectorUdpServerPort(), "Pinpoint-UdpStatDataExecutor",
-                this.profilerConfig.getStatDataSenderWriteQueueSize(), this.profilerConfig.getStatDataSenderSocketTimeout(), this.profilerConfig.getStatDataSenderSocketSendBufferSize());
 
+        this.factory = createPinpointSocketFactory();
+        this.socket = createPinpointSocket(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorTcpServerPort(), factory,
+                this.profilerConfig.isTcpDataSenderCommandAcceptEnable());
+
+        this.tcpDataSender = createTcpDataSender(socket);
+
+        this.spanDataSender = createUdpDataSender(this.profilerConfig.getCollectorUdpSpanServerPort(), "Pinpoint-UdpSpanDataExecutor",
+                this.profilerConfig.getSpanDataSenderWriteQueueSize(), this.profilerConfig.getSpanDataSenderSocketTimeout(),
+                this.profilerConfig.getSpanDataSenderSocketSendBufferSize());
+        this.statDataSender = createUdpDataSender(this.profilerConfig.getCollectorUdpServerPort(), "Pinpoint-UdpStatDataExecutor",
+                this.profilerConfig.getStatDataSenderWriteQueueSize(), this.profilerConfig.getStatDataSenderSocketTimeout(),
+                this.profilerConfig.getStatDataSenderSocketSendBufferSize());
 
         this.traceContext = createTraceContext(agentInformation.getServerType());
 
@@ -143,15 +145,13 @@ public class DefaultAgent implements Agent {
         this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId(), this.agentInformation.getStartTime());
 
         preLoadClass();
-        
+
         /**
-         * FIXME
-         * tomcat의 경우에는 com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.CatalinaAwaitInterceptor가
-         * org/apache/catalina/startup/Catalina/await함수가 실행되기 전에 실행해주나.
-         * stand alone application은 그렇지 않으므로..
+         * FIXME tomcat의 경우에는 com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.CatalinaAwaitInterceptor가 org/apache/catalina/startup/Catalina/await함수가 실행되기
+         * 전에 실행해주나. stand alone application은 그렇지 않으므로..
          */
         if (typeResolver.isManuallyStartupRequired()) {
-        	started();
+            start();
         }
     }
 
@@ -167,8 +167,6 @@ public class DefaultAgent implements Agent {
     public ClassFileTransformer getClassFileTransformer() {
         return classFileTransformer;
     }
-
-
 
     private void dumpSystemProperties() {
         if (logger.isInfoEnabled()) {
@@ -191,7 +189,6 @@ public class DefaultAgent implements Agent {
         return profilerConfig;
     }
 
-
     private TAgentInfo createTAgentInfo() {
         final ServerInfo serverInfo = this.serverInfo;
         String ip = serverInfo.getHostip();
@@ -209,15 +206,13 @@ public class DefaultAgent implements Agent {
         agentInfo.setApplicationName(agentInformation.getApplicationName());
         agentInfo.setPid(agentInformation.getPid());
         agentInfo.setStartTimestamp(agentInformation.getStartTime());
-		agentInfo.setServiceType(agentInformation.getServerType());
+        agentInfo.setServiceType(agentInformation.getServerType());
         agentInfo.setVersion(Version.VERSION);
 
-//        agentInfo.setIsAlive(true);
+        // agentInfo.setIsAlive(true);
 
         return agentInfo;
     }
-
-
 
     private void changeStatus(AgentStatus status) {
         this.agentStatus = status;
@@ -235,7 +230,6 @@ public class DefaultAgent implements Agent {
         // shutdown hook이나 stop에 LoggerBinder의 연결을 풀어야 되는가?
     }
 
-
     private TraceContext createTraceContext(short serverType) {
         final StorageFactory storageFactory = createStorageFactory();
         logger.info("StorageFactoryType:{}", storageFactory);
@@ -248,9 +242,7 @@ public class DefaultAgent implements Agent {
         traceContext.setAgentInformation(this.agentInformation);
         traceContext.setPriorityDataSender(this.tcpDataSender);
 
-
         traceContext.setProfilerConfig(profilerConfig);
-
 
         return traceContext;
     }
@@ -274,33 +266,33 @@ public class DefaultAgent implements Agent {
     }
 
     protected PinpointSocketFactory createPinpointSocketFactory() {
-    	Map<String, Object> properties =  this.agentInformation.toMap();
-    	properties.put(AgentPropertiesType.IP.getName(), serverInfo.getHostip());
+        Map<String, Object> properties = this.agentInformation.toMap();
+        properties.put(AgentPropertiesType.IP.getName(), serverInfo.getHostip());
 
-    	PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
+        PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
         pinpointSocketFactory.setTimeoutMillis(1000 * 5);
         pinpointSocketFactory.setProperties(properties);
 
         return pinpointSocketFactory;
-	}
-    
-    protected PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory) {
-    	return createPinpointSocket(host, port, factory, false);
     }
-    
+
+    protected PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory) {
+        return createPinpointSocket(host, port, factory, false);
+    }
+
     protected PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory, boolean useMessageListener) {
-    	// 1.2 버전이 Tcp Data Command 허용하는 버전이 아니기 떄문에 true이던 false이던 무조건 SimpleLoggingMessageListener를 이용하게 함
-    	// SimpleLoggingMessageListener.LISTENER 는 서로 통신을 하지 않게 설정되어 있음 (테스트코드는 pinpoint-rpc에 존재)
-    	// 1.3 버전으로 할 경우 아래 분기에서 MessageListener 변경 필요
-    	MessageListener messageListener = null;
-    	if (useMessageListener) {
-    		messageListener = SimpleLoggingMessageListener.LISTENER;
-    	} else {
-    		messageListener = SimpleLoggingMessageListener.LISTENER;
-    	}
-    	
-    	PinpointSocket socket = null;
-    	for (int i = 0; i < 3; i++) {
+        // 1.2 버전이 Tcp Data Command 허용하는 버전이 아니기 떄문에 true이던 false이던 무조건 SimpleLoggingMessageListener를 이용하게 함
+        // SimpleLoggingMessageListener.LISTENER 는 서로 통신을 하지 않게 설정되어 있음 (테스트코드는 pinpoint-rpc에 존재)
+        // 1.3 버전으로 할 경우 아래 분기에서 MessageListener 변경 필요
+        MessageListener messageListener = null;
+        if (useMessageListener) {
+            messageListener = SimpleLoggingMessageListener.LISTENER;
+        } else {
+            messageListener = SimpleLoggingMessageListener.LISTENER;
+        }
+
+        PinpointSocket socket = null;
+        for (int i = 0; i < 3; i++) {
             try {
                 socket = factory.connect(host, port, messageListener);
                 logger.info("tcp connect success:{}/{}", host, port);
@@ -311,34 +303,33 @@ public class DefaultAgent implements Agent {
         }
         logger.warn("change background tcp connect mode  {}/{} ", host, port);
         socket = factory.scheduledConnect(host, port, messageListener);
-    	
+
         return socket;
     }
 
     protected EnhancedDataSender createTcpDataSender(PinpointSocket socket) {
         return new TcpDataSender(socket);
     }
-    
+
     protected DataSender createUdpDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize) {
         return new UdpDataSender(this.profilerConfig.getCollectorServerIp(), port, threadName, writeQueueSize, timeout, sendBufferSize);
     }
-    
-	protected EnhancedDataSender getTcpDataSender() {
-		return tcpDataSender;
-	}
 
-	protected DataSender getStatDataSender() {
-		return statDataSender;
-	}
-
-	protected DataSender getSpanDataSender() {
-		return spanDataSender;
-	}
-
-    public void addConnector(String protocol, int port){
-        this.serverInfo.addConnector(protocol, port);
+    protected EnhancedDataSender getTcpDataSender() {
+        return tcpDataSender;
     }
 
+    protected DataSender getStatDataSender() {
+        return statDataSender;
+    }
+
+    protected DataSender getSpanDataSender() {
+        return spanDataSender;
+    }
+
+    public void addConnector(String protocol, int port) {
+        this.serverInfo.addConnector(protocol, port);
+    }
 
     public ServerInfo getServerInfo() {
         return this.serverInfo;
@@ -352,28 +343,31 @@ public class DefaultAgent implements Agent {
         return agentInformation;
     }
 
-    public boolean isRunning() {
-        return agentStatus == AgentStatus.RUNNING;
-    }
-
-    // TODO 필요없을것 같음 started를 start로 바꿔도 될 듯...
     @Override
     public void start() {
+        synchronized (this) {
+            if (this.agentStatus == AgentStatus.INITIALIZING) {
+                changeStatus(AgentStatus.RUNNING);
+            } else {
+                logger.warn("Agent already started.");
+                return;
+            }
+        }
         logger.info("Starting {} Agent.", ProductInfo.CAMEL_NAME);
-    }
-
-    /**
-     * org/apache/catalina/startup/Catalina/await함수가 호출되기 전에 실행된다.
-     * Tomcat이 구동되고 context가 모두 로드 된 다음 사용자의 요청을 처리할 수 있게 되었을 때 실행됨.
-     */
-    public void started() {
-        changeStatus(AgentStatus.RUNNING);
         this.heartBitChecker.start();
         this.agentStatMonitor.start();
     }
 
     @Override
     public void stop() {
+        synchronized (this) {
+            if (this.agentStatus == AgentStatus.RUNNING) {
+                changeStatus(AgentStatus.STOPPED);
+            } else {
+                logger.warn("Cannot stop agent. Current status = [{}]", this.agentStatus);
+                return;
+            }
+        }
         logger.info("Stopping {} Agent.", ProductInfo.CAMEL_NAME);
 
         this.heartBitChecker.stop();
@@ -383,8 +377,6 @@ public class DefaultAgent implements Agent {
         this.tcpDataSender.send(tAgentInfo);
         // TODO send tAgentInfo alive false후 send 메시지의 처리가 정확하지 않음
 
-        changeStatus(AgentStatus.STOPPING);
-
         this.agentStatMonitor.stop();
 
         // 종료 처리 필요.
@@ -393,13 +385,11 @@ public class DefaultAgent implements Agent {
         this.tcpDataSender.stop();
 
         if (this.socket != null) {
-        	this.socket.close();
+            this.socket.close();
         }
         if (this.factory != null) {
-        	this.factory.release();
+            this.factory.release();
         }
-        
-        changeStatus(AgentStatus.STOPPED);
     }
 
 }

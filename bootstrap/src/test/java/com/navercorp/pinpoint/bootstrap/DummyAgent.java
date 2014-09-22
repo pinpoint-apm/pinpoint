@@ -7,6 +7,7 @@ import java.lang.instrument.Instrumentation;
 
 /**
  * @author emeroad
+ * @author hyungil.jeong
  */
 public class DummyAgent implements Agent {
 
@@ -16,10 +17,6 @@ public class DummyAgent implements Agent {
 
     @Override
     public void start() {
-    }
-
-    @Override
-    public void started() {
     }
 
     @Override
@@ -40,18 +37,18 @@ public class DummyAgent implements Agent {
         return null;
     }
 
-//    @Override
-//    public PLoggerBinder initializeLogger() {
-//        return new PLoggerBinder() {
-//            @Override
-//            public PLogger getLogger(String name) {
-//                return new DummyPLogger();
-//            }
-//
-//            @Override
-//            public void shutdown() {
-//
-//            }
-//        };
-//    }
+    // @Override
+    // public PLoggerBinder initializeLogger() {
+    // return new PLoggerBinder() {
+    // @Override
+    // public PLogger getLogger(String name) {
+    // return new DummyPLogger();
+    // }
+    //
+    // @Override
+    // public void shutdown() {
+    //
+    // }
+    // };
+    // }
 }
