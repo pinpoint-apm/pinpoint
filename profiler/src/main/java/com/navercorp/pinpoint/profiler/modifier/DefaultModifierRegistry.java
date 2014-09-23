@@ -59,6 +59,11 @@ import com.nhn.pinpoint.profiler.modifier.orm.ibatis.SqlMapClientImplModifier;
 import com.nhn.pinpoint.profiler.modifier.orm.ibatis.SqlMapSessionImplModifier;
 import com.nhn.pinpoint.profiler.modifier.orm.mybatis.DefaultSqlSessionModifier;
 import com.nhn.pinpoint.profiler.modifier.orm.mybatis.SqlSessionTemplateModifier;
+import com.nhn.pinpoint.profiler.modifier.redis.JedisClientModifier;
+import com.nhn.pinpoint.profiler.modifier.redis.JedisModifier;
+import com.nhn.pinpoint.profiler.modifier.redis.JedisPipelineModifier;
+import com.nhn.pinpoint.profiler.modifier.redis.RedisClusterModifier;
+import com.nhn.pinpoint.profiler.modifier.redis.RedisClusterPipelineModifier;
 import com.nhn.pinpoint.profiler.modifier.servlet.HttpServletModifier;
 import com.nhn.pinpoint.profiler.modifier.servlet.SpringFrameworkServletModifier;
 import com.nhn.pinpoint.profiler.modifier.spring.orm.ibatis.SqlMapClientTemplateModifier;
@@ -374,4 +379,22 @@ public class DefaultModifierRegistry implements ModifierRegistry {
             addModifier(new SqlSessionTemplateModifier(byteCodeInstrumentor, agent));
         }
 	}
+	
+	
+	public void addRedisSupport() {
+	    if (profilerConfig.isRedisEnabled()) {
+            addModifier(new JedisClientModifier(byteCodeInstrumentor, agent));
+            addModifier(new JedisModifier(byteCodeInstrumentor, agent));
+            addModifier(new JedisPipelineModifier(byteCodeInstrumentor, agent));
+        }
+	}
+
+	public void addNBaseArcSupport() {
+        if (profilerConfig.isNBaseArcEnabled()) {
+            addModifier(new RedisClusterModifier(byteCodeInstrumentor, agent));
+            addModifier(new RedisClusterPipelineModifier(byteCodeInstrumentor, agent));
+        }
+    }
+	
+	
 }

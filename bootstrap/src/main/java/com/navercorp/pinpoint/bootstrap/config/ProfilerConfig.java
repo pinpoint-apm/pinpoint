@@ -68,6 +68,9 @@ public class ProfilerConfig {
     
     private boolean mybatis = true;
     
+    private boolean redis = true;
+    private boolean nBaseArc = true;
+    
     /**
      * apache http client
      */
@@ -446,7 +449,15 @@ public class ProfilerConfig {
 		return mybatis;
 	}
 	
-	/**
+	public boolean isRedisEnabled() {
+        return redis;
+    }
+
+    public boolean isNBaseArcEnabled() {
+        return nBaseArc;
+    }
+
+    /**
      * TODO remove this. 테스트 장비에서 call stack view가 잘 보이는지 테스트 하려고 추가함.
      *
      * @param className
@@ -564,6 +575,10 @@ public class ProfilerConfig {
         this.ningAsyncHttpClientProfileParamDumpType = readDumpType(prop, "profiler.ning.asynchttpclient.param.dumptype", DumpType.EXCEPTION);
         this.ningAsyncHttpClientProfileParamDumpSize = readInt(prop, "profiler.ning.asynchttpclient.param.dumpsize", 1024);
         this.ningAsyncHttpClientProfileParamSamplingRate = readInt(prop, "profiler.asynchttpclient.param.sampling.rate", 1);
+
+        // redis & nBase-ARC
+        this.redis = readBoolean(prop, "profiler.redis", true);
+        this.nBaseArc = readBoolean(prop, "profiler.nBaseArc", true);
 
         //
         // FIXME 임시용, line game netty configuration
@@ -729,6 +744,8 @@ public class ProfilerConfig {
         sb.append("\n arucsKeyTrace=").append(arucsKeyTrace);
         sb.append("\n memcached=").append(memcached);
         sb.append("\n memcachedKeyTrace=").append(memcachedKeyTrace);
+        sb.append("\n redis=").append(redis);
+        sb.append("\n nBaseArc=").append(nBaseArc);
         sb.append("\n ibatis=").append(ibatis);
         sb.append("\n mybatis=").append(mybatis);
         sb.append("\n apacheHttpClient4Profile=").append(apacheHttpClient4Profile);
