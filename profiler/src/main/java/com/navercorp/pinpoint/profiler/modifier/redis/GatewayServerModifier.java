@@ -13,8 +13,6 @@ import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.Method;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
-import com.nhn.pinpoint.profiler.modifier.redis.filter.NameBasedMethodFilter;
-import com.nhn.pinpoint.profiler.modifier.redis.filter.RedisClusterMethodNames;
 
 /**
  * RedisCluster(nBase-ARC client) modifier
@@ -22,17 +20,17 @@ import com.nhn.pinpoint.profiler.modifier.redis.filter.RedisClusterMethodNames;
  * @author jaehong.kim
  *
  */
-public class RedisClusterModifier extends AbstractModifier {
+public class GatewayServerModifier extends AbstractModifier {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public RedisClusterModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+    public GatewayServerModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);
     }
 
     @Override
     public String getTargetClass() {
-        return "com/nhncorp/redis/cluster/RedisCluster";
+        return "com/nhncorp/redis/cluster/gateway/GatewayServer";
     }
 
     @Override
@@ -46,22 +44,20 @@ public class RedisClusterModifier extends AbstractModifier {
 
             // trace host & port
             instrumentClass.addTraceValue(MapTraceValue.class);
-            final Interceptor constructorInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.redis.interceptor.RedisClusterConstructorInterceptor");
-            instrumentClass.addConstructorInterceptor(new String[] { "java.lang.String" }, constructorInterceptor);
-            instrumentClass.addConstructorInterceptor(new String[] { "java.lang.String", "int" }, constructorInterceptor);
-            instrumentClass.addConstructorInterceptor(new String[] { "java.lang.String", "int", "int" }, constructorInterceptor);
 
             // method
-            final List<Method> declaredMethods = instrumentClass.getDeclaredMethods(new NameBasedMethodFilter(RedisClusterMethodNames.get()));
+            final List<Method> declaredMethods = instrumentClass.getDeclaredMethods();
             for (Method method : declaredMethods) {
-                final Interceptor methodInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.redis.interceptor.RedisClusterMethodInterceptor");
-                instrumentClass.addInterceptor(method.getMethodName(), method.getMethodParams(), methodInterceptor);
+                if (method.getMethodName().equals("getResource")) {
+                    final Interceptor methodInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.redis.interceptor.GatewayServerMethodInterceptor");
+                    instrumentClass.addInterceptor(method.getMethodName(), method.getMethodParams(), methodInterceptor);
+                }
             }
 
             return instrumentClass.toBytecode();
         } catch (Exception e) {
             if (logger.isWarnEnabled()) {
-                logger.warn("redis.RedisClusterModifier(nBase-ARC) fail. Target class is " + getTargetClass() + ", Caused " + e.getMessage(), e);
+                logger.warn("redis.GatewayModifier(nBase-ARC) fail. Target class is " + getTargetClass() + ", Caused " + e.getMessage(), e);
             }
         }
 

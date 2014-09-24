@@ -5,11 +5,11 @@ import java.util.Map;
 import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
 import com.nhn.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.MapTraceValue;
 import com.nhn.pinpoint.common.ServiceType;
 
 /**
- * Redis client(jedis) method interceptor
+ * Jedis Pipeline(redis client) method interceptor
  * 
  * @author jaehong.kim
  *
@@ -27,32 +27,17 @@ public class JedisPipelineMethodInterceptor extends SpanEventSimpleAroundInterce
 
     @Override
     public void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
-        trace.recordApi(getMethodDescriptor());
-
-        String destinationId = "Unknown";
-        String endPoint = "Unknown";
-
-        if (target instanceof ObjectTraceValue) {
-            // find host & port
-            final ObjectTraceValue traceValue = (ObjectTraceValue) target;
-            if (traceValue.__getTraceObject() != null) {
-                final Map<String, Object> map = (Map<String, Object>) traceValue.__getTraceObject();
-                final Object host = map.get("host");
-                final Object port = map.get("port");
-
-                if (host != null) {
-                    destinationId = (String) host;
-                    if (port != null) {
-                        endPoint = (String) host + ":" + port;
-                    } else {
-                        endPoint = (String) host;
-                    }
-                }
+        String endPoint = null;
+        if (target instanceof MapTraceValue) {
+            final Map<String, Object> traceValue = ((MapTraceValue) target).__getTraceBindValue();
+            if (traceValue != null) {
+                endPoint = (String) traceValue.get("endPoint");
             }
         }
 
-        trace.recordEndPoint(endPoint);
-        trace.recordDestinationId(destinationId);
+        trace.recordApi(getMethodDescriptor());
+        trace.recordEndPoint(endPoint != null ? endPoint : "Unknown");
+        trace.recordDestinationId(ServiceType.REDIS.toString());
         trace.recordServiceType(ServiceType.REDIS);
         trace.recordException(throwable);
         trace.markAfterTime();

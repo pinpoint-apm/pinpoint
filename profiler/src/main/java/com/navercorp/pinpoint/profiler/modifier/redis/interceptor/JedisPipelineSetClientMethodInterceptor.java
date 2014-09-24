@@ -5,12 +5,12 @@ import java.util.Map;
 
 import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.MapTraceValue;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 
 /**
- * Redis client(jedis) pipeline method interceptor
+ * Jedis pipeline (redis client) setClient method interceptor
  * 
  * @author jaehong.kim
  *
@@ -25,24 +25,20 @@ public class JedisPipelineSetClientMethodInterceptor implements SimpleAroundInte
             logger.beforeInterceptor(target, args);
         }
 
-        if (!(target instanceof ObjectTraceValue) || !(args[0] instanceof ObjectTraceValue)) {
+        // trace endPoint
+        if (!(target instanceof MapTraceValue) || !(args[0] instanceof MapTraceValue)) {
             return;
         }
 
-        // trace host & port
-        final ObjectTraceValue traceValue = (ObjectTraceValue) target;
-        final Map<String, Object> map = new HashMap<String, Object>();
-
         // first arg - redis.clients.jedis.Client
-        final ObjectTraceValue clientTraceValue = (ObjectTraceValue) args[0];
-        if (clientTraceValue.__getTraceObject() != null) {
-            final Map<String, Object> clientMap = (Map<String, Object>) clientTraceValue.__getTraceObject();
-            map.put("host", clientMap.get("host"));
-            map.put("port", clientMap.get("port"));
+        final Map<String, Object> clientTraceValue = ((MapTraceValue) args[0]).__getTraceBindValue();
+        if (clientTraceValue == null) {
+            return;
         }
-        traceValue.__setTraceObject(map);
 
-        return;
+        final Map<String, Object> traceValue = new HashMap<String, Object>();
+        traceValue.put("endPoint", clientTraceValue.get("endPoint"));
+        ((MapTraceValue) target).__setTraceBindValue(traceValue);
     }
 
     @Override

@@ -47,7 +47,7 @@ public class JedisModifierTest extends BasePinpointTest {
         SpanEventBo event = spanEvents.get(0);
         
         assertEquals(HOST + ":" + PORT, event.getEndPoint());
-        assertEquals(HOST, event.getDestinationId());
+        assertEquals("REDIS", event.getDestinationId());
         assertEquals(ServiceType.REDIS, event.getServiceType());
         assertNull(event.getExceptionMessage());
     }
