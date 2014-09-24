@@ -125,12 +125,13 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
     @Override
     protected void runChild(FrameworkMethod method, RunNotifier notifier) {
         beginTracing(method);
-        ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
+        final Thread thread = Thread.currentThread();
+        final ClassLoader originalClassLoader = thread.getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(this.testClassLoader);
+            thread.setContextClassLoader(this.testClassLoader);
             super.runChild(method, notifier);
         } finally {
-            Thread.currentThread().setContextClassLoader(originalClassLoader);
+            thread.setContextClassLoader(originalClassLoader);
             endTracing(method, notifier);
         }
     }
