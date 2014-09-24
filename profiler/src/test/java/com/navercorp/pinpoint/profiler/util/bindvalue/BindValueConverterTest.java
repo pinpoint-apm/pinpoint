@@ -2,19 +2,23 @@ package com.nhn.pinpoint.profiler.util.bindvalue;
 
 import junit.framework.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Date;
 
 public class BindValueConverterTest {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Test
     public void testBindValueToString() throws Exception {
         Date d = new Date();
-        System.out.println(d);
+        logger.debug("{}", d);
 
         byte[] bytes = new byte[] {1, 2, 4};
         String s = Arrays.toString(bytes);
-        System.out.println(s);
+        logger.debug(s);
     }
 
     @Test

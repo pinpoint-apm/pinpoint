@@ -5,8 +5,12 @@ import java.util.Arrays;
 import org.junit.Test;
 
 import com.nhn.pinpoint.common.util.BytesUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PrefixFilterTest {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 
 	@Test
 	public void prefixInt() {
@@ -17,11 +21,11 @@ public class PrefixFilterTest {
 			byte[] buffer = new byte[4];
 			BytesUtils.writeVar32(i, buffer, 0);
 
-			System.out.println(compare(before, buffer) + ", " + compare(buffer, before) + ", " + compare(buffer, buffer));
+			logger.debug(compare(before, buffer) + ", " + compare(buffer, before) + ", " + compare(buffer, buffer));
 
 			before = Arrays.copyOf(buffer, 4);
 
-			System.out.println(Arrays.toString(buffer));
+            logger.debug(Arrays.toString(buffer));
 		}
 	}
 

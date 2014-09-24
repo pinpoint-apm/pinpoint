@@ -2,6 +2,8 @@ package com.nhn.pinpoint.profiler.util;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -10,11 +12,14 @@ import java.util.List;
  * @author emeroad
  */
 public class PreparedStatementUtilsTest {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+
     @Test
     public void testBindSetMethod() {
         List<Method> bindVariableSetMethod = PreparedStatementUtils.findBindVariableSetMethod();
         for (Method method : bindVariableSetMethod) {
-            System.out.println(method);
+            logger.debug("{}", method);
         }
     }
 

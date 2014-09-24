@@ -92,10 +92,10 @@ public class AnnotationTranscoderTest {
     @Test
     public void testGetTypeCode() throws Exception {
         int i = 2 << 8;
-        System.out.println(i);
+        logger.debug("{}", i);
         write(i);
         int j = 3 << 8;
-        System.out.println(j);
+        logger.debug("{}", j);
         write(j);
         write(10);
         write(512);

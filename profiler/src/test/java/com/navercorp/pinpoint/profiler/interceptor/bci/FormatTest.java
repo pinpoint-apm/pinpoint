@@ -1,6 +1,9 @@
 package com.nhn.pinpoint.profiler.interceptor.bci;
 
+import junit.framework.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.Format;
 import java.util.Formatter;
@@ -9,22 +12,24 @@ import java.util.Formatter;
  * @author emeroad
  */
 public class FormatTest {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Test
     public void format() {
-        StringBuilder sb = new StringBuilder();
-        Formatter formatter = new Formatter(sb);
-        formatter.format("interceptor.after(%1s)", "tsest");
+        StringBuilder buffer = new StringBuilder();
+        Formatter formatter = new Formatter(buffer);
+        formatter.format("%1s", "ab");
 
-        formatter.format("interceptor.afteddddr(%1s)", "tsest", "dd");
-        System.out.println();
+        formatter.format("%3s", "a");
+        Assert.assertEquals(buffer.toString(), "ab  a");
     }
+
     @Test
     public void format2() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("dddd");
-        Formatter formatter = new Formatter(sb);
+        StringBuilder buffer = new StringBuilder();
+        Formatter formatter = new Formatter(buffer);
+        formatter.format("(%s, %s, %s)", 1, 2, 3);
 
-        formatter.format("interceptor.afteddddr(%s, %s, %s)", 16, 34234, 333);
-        System.out.println(sb.toString());
+        Assert.assertEquals(buffer.toString(), "(1, 2, 3)");
     }
 }

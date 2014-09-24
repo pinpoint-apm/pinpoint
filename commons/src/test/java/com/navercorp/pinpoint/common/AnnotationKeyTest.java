@@ -2,11 +2,15 @@ package com.nhn.pinpoint.common;
 
 import junit.framework.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author emeroad
  */
 public class AnnotationKeyTest {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 
     @Test
     public void getCode() {
@@ -18,9 +22,9 @@ public class AnnotationKeyTest {
 //    @Test
     public void intSize() {
 //        2147483647
-        System.out.println(Integer.MAX_VALUE);
+        logger.debug("{}", Integer.MAX_VALUE);
 //        -2147483648
-        System.out.println(Integer.MIN_VALUE);
+        logger.debug("{}", Integer.MIN_VALUE);
     }
 
     @Test

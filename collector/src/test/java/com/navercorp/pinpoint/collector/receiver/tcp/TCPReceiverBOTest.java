@@ -14,6 +14,8 @@ import org.jboss.netty.buffer.ChannelBuffers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -33,6 +35,8 @@ import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
 @ContextConfiguration("classpath:applicationContext-collector.xml")
 @RunWith(SpringJUnit4ClassRunner.class)
 public class TCPReceiverBOTest {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 
 	@Autowired
 	private TCPReceiver tcpReceiver;
@@ -99,7 +103,7 @@ public class TCPReceiverBOTest {
 				is.read(payload);
 
 				for (byte b : payload) {
-					System.out.print("!!" + b);
+					logger.warn("!!!{}", b);
 				}
 				
 				ChannelBuffer cb = ChannelBuffers.wrappedBuffer(payload);

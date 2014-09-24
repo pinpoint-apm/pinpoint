@@ -2,7 +2,6 @@ package com.nhn.pinpoint.web.dao.hbase.filter;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Properties;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -17,6 +16,8 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.hadoop.hbase.HbaseConfigurationFactoryBean;
 import org.springframework.data.hadoop.hbase.HbaseSystemException;
 
@@ -24,7 +25,6 @@ import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
 import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.hbase.HBaseTables;
 import com.nhn.pinpoint.common.hbase.HbaseTemplate2;
-import com.nhn.pinpoint.common.util.PropertyUtils;
 import com.nhn.pinpoint.common.util.SpanUtils;
 import com.nhn.pinpoint.web.mapper.TraceIndexScatterMapper;
 import com.nhn.pinpoint.web.vo.Range;
@@ -36,6 +36,8 @@ import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix.OneByteSimpleHash;
 
 public class HbaseFilterPerformanceTest {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 
 	private static HbaseConfigurationFactoryBean hbaseConfigurationFactoryBean;
 	private static AbstractRowKeyDistributor traceIdRowKeyDistributor;
@@ -125,8 +127,8 @@ public class HbaseFilterPerformanceTest {
 
 			long startTime = System.currentTimeMillis();
 			List<List<Dot>> dotListList = hbaseTemplate2.find(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, fetchLimit, new TraceIndexScatterMapper());
-			System.out.println("elapsed : " + (System.currentTimeMillis() - startTime) + "ms");
-			System.out.println("fetched size : " + dotListList.size());
+			logger.debug("elapsed : {}ms", (System.currentTimeMillis() - startTime));
+            logger.debug("fetched size : {}", dotListList.size());
 		} catch (HbaseSystemException e) {
 			e.printStackTrace();
 		} finally {

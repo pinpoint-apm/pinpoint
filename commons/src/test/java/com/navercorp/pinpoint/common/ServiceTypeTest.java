@@ -13,9 +13,9 @@ public class ServiceTypeTest {
 
     @Test
 	public void testIndexable() {
-		System.out.println(ServiceType.TOMCAT.isIndexable());
-		System.out.println(ServiceType.BLOC.isIndexable());
-		System.out.println(ServiceType.ARCUS.isIndexable());
+		logger.debug("{}", ServiceType.TOMCAT.isIndexable());
+        logger.debug("{}", ServiceType.BLOC.isIndexable());
+        logger.debug("{}", ServiceType.ARCUS.isIndexable());
 	}
 
     @Test
