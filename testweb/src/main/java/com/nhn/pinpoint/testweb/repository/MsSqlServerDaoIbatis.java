@@ -17,7 +17,7 @@ import java.sql.Statement;
 public class MsSqlServerDaoIbatis implements MsSqlServerDao {
 
     @Autowired
-    @Qualifier("mysqlSqlMapClientTemplate")
+    @Qualifier("msSqlServerSqlMapClientTemplate")
     private SqlMapClientTemplate sqlMapClientTemplate;
 
     @Autowired
