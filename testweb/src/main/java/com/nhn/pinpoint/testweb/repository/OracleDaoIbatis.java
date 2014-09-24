@@ -21,7 +21,7 @@ public class OracleDaoIbatis implements OracleDao {
     private SqlMapClientTemplate sqlMapClientTemplate;
 
     @Autowired
-    @Qualifier("oracleDatasource")
+    @Qualifier("oracleDataSource")
     private DataSource datasource;
 
     @Override
@@ -30,13 +30,13 @@ public class OracleDaoIbatis implements OracleDao {
     }
 
     @Override
-    public void createStatement() {
+    public boolean createStatement() {
         Connection connection = null;
         Statement statement = null;
         try {
             connection = datasource.getConnection();
             statement = connection.createStatement();
-            statement.execute("select 1 from dual");
+            return statement.execute("select 1 from dual");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
@@ -54,6 +54,5 @@ public class OracleDaoIbatis implements OracleDao {
             }
 
         }
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 }

@@ -27,8 +27,7 @@ public class HbaseTemplate2Test {
 
     @BeforeClass
     public static void beforeClass() throws IOException {
-        String path = HbaseTemplate2Test.class.getClassLoader().getResource("test-hbase.properties").getPath();
-        Properties properties = PropertyUtils.readProperties(path);
+        Properties properties = PropertyUtils.loadPropertyFromClassPath("test-hbase.properties");
 
         Configuration cfg = HBaseConfiguration.create();
         cfg.set("hbase.zookeeper.quorum", properties.getProperty("hbase.client.host"));

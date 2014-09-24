@@ -16,7 +16,7 @@
     <!-- root application context configuration -->
     <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-value>classpath:root-context.xml</param-value>
+        <param-value>classpath:applicationContext-testweb.xml</param-value>
     </context-param>
 
     <!-- root application context -->
@@ -55,6 +55,10 @@
         <filter-name>encodingFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
+
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
 
     <servlet-mapping>
         <servlet-name>default</servlet-name>

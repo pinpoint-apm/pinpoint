@@ -25,7 +25,7 @@ public class SqlMapClientMemberDao implements MemberDao {
 	@Override
 	public void add(Member member) {
 		try {
-			this.sqlMapClientTemplate.getSqlMapClient().insert("add", member);
+            this.sqlMapClientTemplate.getSqlMapClient().insert("add", member);
 		} catch (SQLException e) {
 			throw translateSqlException("SqlMapClient add", e);
 		}

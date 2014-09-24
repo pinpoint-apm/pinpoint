@@ -147,7 +147,7 @@ public class CollectorConfiguration implements InitializingBean {
         }
 
         try {
-            Properties prop = PropertyUtils.readProperties(configFileName);
+            Properties prop = PropertyUtils.loadProperty(configFileName);
             readPropertyValues(prop);
         } catch (FileNotFoundException fe) {
             logger.error("File '{}' is not exists. Please check configuration.", configFileName, fe);

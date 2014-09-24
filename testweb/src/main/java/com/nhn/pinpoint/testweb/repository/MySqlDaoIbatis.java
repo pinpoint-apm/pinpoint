@@ -21,7 +21,7 @@ public class MySqlDaoIbatis implements MySqlDao {
     private SqlMapClientTemplate sqlMapClientTemplate;
 
     @Autowired
-    @Qualifier("mysqlDatasource")
+    @Qualifier("mysqlDataSource")
     private DataSource datasource;
 
     @Override
@@ -30,13 +30,13 @@ public class MySqlDaoIbatis implements MySqlDao {
     }
 
     @Override
-    public void createStatement() {
+    public boolean createStatement() {
         Connection connection = null;
         Statement statement = null;
         try {
             connection = datasource.getConnection();
             statement = connection.createStatement();
-            statement.execute("select 1");
+            return statement.execute("select 1");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
@@ -54,6 +54,5 @@ public class MySqlDaoIbatis implements MySqlDao {
             }
 
         }
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 }

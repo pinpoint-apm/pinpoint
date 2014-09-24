@@ -1,128 +1,102 @@
 package com.nhn.pinpoint.testweb.controller;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-
+import com.nhn.pinpoint.testweb.domain.ControllerMappingInfo;
+import com.nhn.pinpoint.testweb.util.Description;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
-import com.nhn.pinpoint.testweb.vo.RequestMappingInfo;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.*;
 
 /**
- * 
  * @author netspider
- * 
  */
 @Controller
 public class MainController {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@RequestMapping(value = "/docs", method = RequestMethod.GET)
-	public String getEndPointsInView(Model model) {
-		model.addAttribute("mapping", getMappingInfo());
-		return "docs";
-	}
+    private final RequestMappingHandlerMapping handlerMapping;
 
-	public Map<String, List<RequestMappingInfo>> getMappingInfo() {
-		Map<String, List<RequestMappingInfo>> info = new HashMap<String, List<RequestMappingInfo>>();
-		try {
-			String packaze = "com.nhn.pinpoint.testweb.controller";
-			ArrayList<String> classNamesFromPackage = MainController.getClassNamesFromPackage(packaze);
+    @Autowired
+    public MainController(RequestMappingHandlerMapping handlerMapping) {
+        this.handlerMapping = handlerMapping;
+    }
 
-			for (String className : classNamesFromPackage) {
-				Class<?> clazz = Class.forName(packaze + "." + className);
 
-				List<RequestMappingInfo> requestInfo = new ArrayList<RequestMappingInfo>();
+    @RequestMapping(value = "/docs", method = RequestMethod.GET)
+    public String getEndPointsInView(Model model) {
+        model.addAttribute("mapping", getMappingInfo());
+        return "docs";
+    }
 
-				Method[] methods = clazz.getDeclaredMethods();
 
-				for (Method m : methods) {
-					Annotation[] annotations = m.getDeclaredAnnotations();
+    public Map<String, List<ControllerMappingInfo>> getMappingInfo() {
+        Map<String, List<ControllerMappingInfo>> info = new TreeMap<String, List<ControllerMappingInfo>>();
 
-					org.springframework.web.bind.annotation.RequestMapping mappingInfo = null;
-					com.nhn.pinpoint.testweb.util.Description description = null;
+        Map<RequestMappingInfo, HandlerMethod> handlerMethods = handlerMapping.getHandlerMethods();
+        for (Map.Entry<RequestMappingInfo, HandlerMethod> requestMappingInfoHandlerMethodEntry : handlerMethods.entrySet()) {
+            RequestMappingInfo requestMappingInfoKey = requestMappingInfoHandlerMethodEntry.getKey();
+            HandlerMethod handlerMethod = requestMappingInfoHandlerMethodEntry.getValue();
+            Method method = handlerMethod.getMethod();
+            Class<?> declaringClass = method.getDeclaringClass();
 
-					for (Annotation a : annotations) {
-						if (a instanceof org.springframework.web.bind.annotation.RequestMapping) {
-							mappingInfo = (org.springframework.web.bind.annotation.RequestMapping) a;
-						}
-						if (a instanceof com.nhn.pinpoint.testweb.util.Description) {
-							description = (com.nhn.pinpoint.testweb.util.Description) a;
-						}
-					}
+            List<ControllerMappingInfo> controllerMappingInfoList = info.get(declaringClass.getSimpleName());
+            if (controllerMappingInfoList == null) {
+                controllerMappingInfoList = new ArrayList<ControllerMappingInfo>();
+                info.put(declaringClass.getSimpleName(), controllerMappingInfoList);
+            }
 
-					if (mappingInfo != null) {
-						requestInfo.add(new RequestMappingInfo(mappingInfo.value()[0], (description == null) ? "" : description.value()));
-					}
-				}
+            List<ControllerMappingInfo> requestInfo = createRequestMappingInfo(requestMappingInfoKey, handlerMethod);
+            controllerMappingInfoList.addAll(requestInfo);
+        }
+        sort(info);
 
-				if (requestInfo.size() > 0) {
-					info.put(clazz.getSimpleName(), requestInfo);
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return info;
-	}
+        logger.debug("{}", info);
+        return info;
+    }
 
-	// spring에서 제공하는 기능이 있는것 같긴 하지만 그냥 구식으로.
-	public static ArrayList<String> getClassNamesFromPackage(String packageName) throws IOException, URISyntaxException {
-		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-		URL packageURL;
-		ArrayList<String> names = new ArrayList<String>();
+    private void sort(Map<String, List<ControllerMappingInfo>> info) {
+        for (List<ControllerMappingInfo> controllerMappingInfos : info.values()) {
+            Collections.sort(controllerMappingInfos, new Comparator<ControllerMappingInfo>() {
+                @Override
+                public int compare(ControllerMappingInfo o1, ControllerMappingInfo o2) {
+                    return o1.getUrl().compareTo(o2.getUrl());
+                }
+            });
+        }
+    }
 
-		packageName = packageName.replace(".", "/");
-		packageURL = classLoader.getResource(packageName);
+    private List<ControllerMappingInfo> createRequestMappingInfo(RequestMappingInfo requestMappingInfo, HandlerMethod handlerMethod) {
+        List<ControllerMappingInfo> requestInfo = new ArrayList<ControllerMappingInfo>();
 
-		if (packageURL.getProtocol().equals("jar")) {
-			String jarFileName;
-			JarFile jf;
-			Enumeration<JarEntry> jarEntries;
-			String entryName;
+        Set<String> patterns = requestMappingInfo.getPatternsCondition().getPatterns();
+        for (String pattern : patterns) {
+            Description description = getDescription(handlerMethod);
+            ControllerMappingInfo info = new ControllerMappingInfo(pattern, (description == null) ? "" : description.value());
+            requestInfo.add(info);
+        }
 
-			// build jar file name, then loop through zipped entries
-			jarFileName = URLDecoder.decode(packageURL.getFile(), "UTF-8");
-			jarFileName = jarFileName.substring(5, jarFileName.indexOf("!"));
-			System.out.println(">" + jarFileName);
-			jf = new JarFile(jarFileName);
-			jarEntries = jf.entries();
-			while (jarEntries.hasMoreElements()) {
-				entryName = jarEntries.nextElement().getName();
-				if (entryName.startsWith(packageName) && entryName.length() > packageName.length() + 5) {
-					entryName = entryName.substring(packageName.length(), entryName.lastIndexOf('.'));
-					names.add(entryName);
-				}
-			}
+        return requestInfo;
+    }
 
-			// loop through files in classpath
-		} else {
-			URI uri = new URI(packageURL.toString());
-			File folder = new File(uri.getPath());
-			// won't work with path which contains blank (%20)
-			// File folder = new File(packageURL.getFile());
-			File[] contenuti = folder.listFiles();
-			String entryName;
-			for (File actual : contenuti) {
-				entryName = actual.getName();
-				entryName = entryName.substring(0, entryName.lastIndexOf('.'));
-				names.add(entryName);
-			}
-		}
-		return names;
-	}
+    private Description getDescription(HandlerMethod handlerMethod) {
+        Annotation[] annotations = handlerMethod.getMethod().getAnnotations();
+        for (Annotation annotation : annotations) {
+            if (annotation instanceof com.nhn.pinpoint.testweb.util.Description) {
+                return (Description) annotation;
+            }
+        }
+
+        return null;
+    }
+
 }

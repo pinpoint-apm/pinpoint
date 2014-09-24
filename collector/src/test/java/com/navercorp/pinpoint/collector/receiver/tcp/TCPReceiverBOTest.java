@@ -30,7 +30,7 @@ import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
 /**
  * @author koo.taejin
  */
-@ContextConfiguration("classpath:applicationContext.xml")
+@ContextConfiguration("classpath:applicationContext-collector.xml")
 @RunWith(SpringJUnit4ClassRunner.class)
 public class TCPReceiverBOTest {
 

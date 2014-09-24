@@ -1,18 +1,14 @@
 package com.nhn.pinpoint.profiler.modifier.db.cubrid;
 
-import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
-import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.DefaultAgent;
+
+import com.nhn.pinpoint.common.util.PropertyUtils;
 import com.nhn.pinpoint.profiler.junit4.BasePinpointTest;
-import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
-import com.nhn.pinpoint.profiler.util.MockAgent;
-import com.nhn.pinpoint.profiler.util.TestClassLoader;
+
 import cubrid.jdbc.driver.CUBRIDDriver;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +23,12 @@ public class CubridConnectionTest extends BasePinpointTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private static Properties db;
+
+    @BeforeClass
+    public static void beforeClass() throws Exception {
+        db = PropertyUtils.loadPropertyFromClassPath("database.properties");
+    }
 
     @Test
     public void executeQueryAndExecuteUpdate() throws SQLException {
@@ -42,13 +44,16 @@ public class CubridConnectionTest extends BasePinpointTest {
     }
 
     private Connection connectDB() throws SQLException {
+        String url = db.getProperty("cubrid.url");
+        String user = db.getProperty("cubrid.user");
+        String password = db.getProperty("cubrid.password");
+
         Driver driver = new CUBRIDDriver();
         Properties properties = new Properties();
-        properties.setProperty("user", "dba");
-        properties.setProperty("password", "nhn!@#123");
-        return driver.connect("jdbc:cubrid:10.101.57.233:30102:pinpoint:::", properties);
+        properties.setProperty("user", user);
+        properties.setProperty("password", password);
+        return driver.connect(url, properties);
     }
-
 
 
     @Test
@@ -59,7 +64,7 @@ public class CubridConnectionTest extends BasePinpointTest {
         logger.info("Connection class name:{}", connection.getClass().getName());
         logger.info("Connection class cl:{}", connection.getClass().getClassLoader());
 
-        DatabaseInfo url = ((DatabaseInfoTraceValue)connection).__getTraceDatabaseInfo();
+        DatabaseInfo url = ((DatabaseInfoTraceValue) connection).__getTraceDatabaseInfo();
         Assert.assertNotNull(url);
 
         statement(connection);
@@ -82,7 +87,7 @@ public class CubridConnectionTest extends BasePinpointTest {
 
 
         connection.close();
-        DatabaseInfo clearUrl = ((DatabaseInfoTraceValue)connection).__getTraceDatabaseInfo();
+        DatabaseInfo clearUrl = ((DatabaseInfoTraceValue) connection).__getTraceDatabaseInfo();
         Assert.assertNull(clearUrl);
 
     }
@@ -148,7 +153,7 @@ public class CubridConnectionTest extends BasePinpointTest {
 
     private void preparedStatement6(Connection connection) throws SQLException {
 //        Statement.RETURN_GENERATED_KEYS or Statement.NO_GENERATED_KEYS
-        int[] columnIndex = {1,2,3};
+        int[] columnIndex = {1, 2, 3};
         PreparedStatement preparedStatement = connection.prepareStatement("select 1", columnIndex);
         logger.info("PreparedStatement className:{}", preparedStatement.getClass().getName());
         ResultSet resultSet = preparedStatement.executeQuery();
