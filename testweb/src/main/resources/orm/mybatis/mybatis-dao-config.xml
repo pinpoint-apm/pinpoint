@@ -10,7 +10,7 @@
 
     <!-- Transaction manager for a single JDBC DataSource -->
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="mysqlDatasource"/>
+        <property name="dataSource" ref="mysqlDataSource"/>
     </bean>
     
   	<tx:advice id="transactionAdvice" transaction-manager="transactionManager">
@@ -30,7 +30,7 @@
 
     <!-- SqlsessionFactory setup for MyBatis Database Layer -->
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-        <property name="dataSource" ref="mysqlDatasource"/>
+        <property name="dataSource" ref="mysqlDataSource"/>
 
         <!-- mybatis 기본설정 -->
         <property name="configLocation" value="classpath:orm/mybatis/mybatis-config.xml"/>

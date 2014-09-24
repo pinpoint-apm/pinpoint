@@ -67,8 +67,7 @@ public class ApacheClosableAsyncHttpClient {
 
 			return result;
 		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
+			throw new RuntimeException(e);
 		}
 	}
 }

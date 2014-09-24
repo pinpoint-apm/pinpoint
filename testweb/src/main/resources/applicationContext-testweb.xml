@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:lang="http://www.springframework.org/schema/lang"
+       xmlns:beans="http://www.springframework.org/schema/beans"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:util="http://www.springframework.org/schema/util" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
+
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+    <import resource="applicationContext-datasource.xml"/>
+    <import resource="classpath:orm/mybatis/mybatis-dao-config.xml"/>
+
+    <context:component-scan base-package="com.nhn.pinpoint.testweb.connector,
+                                        com.nhn.pinpoint.testweb.service,
+                                        com.nhn.pinpoint.testweb.repository,
+                                        com.nhn.pinpoint.testweb.nimm" />
+
+    <bean id="jdbcTemplateMysql" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
+        <constructor-arg name="dataSource" ref="mysqlDataSource"/>
+    </bean>
+
+    <bean id="jdbcTemplateCubrid" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
+        <constructor-arg name="dataSource" ref="cubridDataSource"/>
+    </bean>
+
+    <bean id="jdbcTemplateOracle" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
+        <constructor-arg name="dataSource" ref="oracleDataSource"/>
+    </bean>
+
+    <!-- ============================================================= -->
+    <!-- iBatis -->
+    <!-- ============================================================= -->
+    <bean id="mysqlSqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+        <property name="dataSource" ref="mysqlDataSource"/>
+        <property name="configLocation" value="classpath:mysql/SqlMapConfig.xml"/>
+    </bean>
+
+    <bean id="mysqlSqlMapClientTemplate" class="org.springframework.orm.ibatis.SqlMapClientTemplate">
+        <constructor-arg name="sqlMapClient" ref="mysqlSqlMapClient"/>
+    </bean>
+
+    <bean id="mysqlTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="mysqlDataSource"/>
+    </bean>
+
+    <!-- oracle -->
+    <bean id="oracleSqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+        <property name="dataSource" ref="oracleDataSource"/>
+        <property name="configLocation" value="classpath:oracle/SqlMapConfig.xml"/>
+    </bean>
+
+    <bean id="oracleSqlMapClientTemplate" class="org.springframework.orm.ibatis.SqlMapClientTemplate">
+        <constructor-arg name="sqlMapClient" ref="oracleSqlMapClient"/>
+    </bean>
+
+    <bean id="oracleTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="oracleDataSource"/>
+    </bean>
+
+    <!-- cubrid -->
+    <bean id="cubridSqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+        <property name="dataSource" ref="cubridDataSource"/>
+        <property name="configLocation" value="classpath:cubrid/SqlMapConfig.xml"/>
+    </bean>
+
+    <bean id="cubridSqlMapClientTemplate" class="org.springframework.orm.ibatis.SqlMapClientTemplate">
+        <constructor-arg name="sqlMapClient" ref="cubridSqlMapClient"/>
+    </bean>
+
+    <bean id="cubridTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="cubridDataSource"/>
+    </bean>
+
+    <!-- mssqlserver -->
+    <bean id="msSqlServerSqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+        <property name="dataSource" ref="jtdsDataSource"/>
+        <property name="configLocation" value="classpath:mssqlserver/SqlMapConfig.xml"/>
+    </bean>
+
+    <bean id="msSqlServerSqlMapClientTemplate" class="org.springframework.orm.ibatis.SqlMapClientTemplate">
+        <constructor-arg name="sqlMapClient" ref="msSqlServerSqlMapClient"/>
+    </bean>
+
+    <bean id="msSqlServerTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="jtdsDataSource"/>
+    </bean>
+
+    <tx:annotation-driven transaction-manager="mysqlTransactionManager"/>
+
+</beans>

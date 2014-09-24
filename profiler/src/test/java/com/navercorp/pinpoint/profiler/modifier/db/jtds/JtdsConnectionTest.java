@@ -3,15 +3,15 @@ package com.nhn.pinpoint.profiler.modifier.db.jtds;
 import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
 import com.nhn.pinpoint.common.bo.SpanEventBo;
+import com.nhn.pinpoint.common.util.PropertyUtils;
 import com.nhn.pinpoint.profiler.junit4.BasePinpointTest;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import java.sql.*;
-import java.sql.Driver;
 import java.util.List;
 import java.util.Properties;
 
@@ -22,6 +22,12 @@ public class JtdsConnectionTest extends BasePinpointTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private static Properties db;
+
+    @BeforeClass
+    public static void beforeClass() throws Exception {
+        db = PropertyUtils.loadPropertyFromClassPath("database.properties");
+    }
 
     @Test
     public void executeQueryAndExecuteUpdate() throws SQLException {
@@ -37,11 +43,15 @@ public class JtdsConnectionTest extends BasePinpointTest {
     }
 
     private Connection connectDB() throws SQLException {
+        String url = db.getProperty("mssqlserver.url");
+        String user = db.getProperty("mssqlserver.user");
+        String password = db.getProperty("mssqlserver.password");
+
         Driver driver = new net.sourceforge.jtds.jdbc.Driver();
         Properties properties = new Properties();
-        properties.setProperty("user", "pinpoint_user");
-        properties.setProperty("password", "pinpoint!234");
-        return driver.connect("jdbc:jtds:sqlserver://10.99.220.85:1433/pinpoint_test", properties);
+        properties.setProperty("user", user);
+        properties.setProperty("password", password);
+        return driver.connect(url, properties);
     }
 
 

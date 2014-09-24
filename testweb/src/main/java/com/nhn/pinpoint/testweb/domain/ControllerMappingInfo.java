@@ -1,10 +1,10 @@
-package com.nhn.pinpoint.testweb.vo;
+package com.nhn.pinpoint.testweb.domain;
 
-public class RequestMappingInfo {
+public class ControllerMappingInfo {
 	private String url;
 	private String description;
 
-	public RequestMappingInfo(String url, String description) {
+	public ControllerMappingInfo(String url, String description) {
 		this.url = url;
 		this.description = description;
 	}

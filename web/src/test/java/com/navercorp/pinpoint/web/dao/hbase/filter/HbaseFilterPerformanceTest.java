@@ -42,9 +42,7 @@ public class HbaseFilterPerformanceTest {
 
 	@BeforeClass
 	public static void beforeClass() throws IOException {
-		// String path =
-		// HbaseFilterPerformanceTest.class.getClassLoader().getResource("hbase.properties").getPath();
-		// Properties properties = PropertyUtils.readProperties(path);
+//		Properties properties = PropertyUtils.loadPropertyFromClassPath("hbase.properties");
 
 		Configuration cfg = HBaseConfiguration.create();
 		cfg.set("hbase.zookeeper.quorum", "dev.zk.pinpoint.navercorp.com");
