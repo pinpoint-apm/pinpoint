@@ -8,15 +8,16 @@ import com.nhn.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.MapTraceValue;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.nhncorp.redis.cluster.gateway.GatewayConfig;
 
 /**
- * Jedis Pipeline(redis client) constructor interceptor
- *   - trace endPoint
+ * Gateway(nBase-ARC client) constructor interceptor
+ *   - trace destinationId
  * 
  * @author jaehong.kim
  *
  */
-public class JedisPipelineConstructorInterceptor implements SimpleAroundInterceptor, TargetClassLoader {
+public class GatewayConstructorInterceptor implements SimpleAroundInterceptor, TargetClassLoader {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -27,19 +28,25 @@ public class JedisPipelineConstructorInterceptor implements SimpleAroundIntercep
             logger.beforeInterceptor(target, args);
         }
 
-        // trace endPoint
-        if (!(target instanceof MapTraceValue) || !(args[0] instanceof MapTraceValue)) {
+        if (!(target instanceof MapTraceValue)) {
             return;
         }
 
-        // first arg - redis.clients.jedis.Client
-        final Map<String, Object> clientTraceValue = ((MapTraceValue) args[0]).__getTraceBindValue();
-        if (clientTraceValue == null) {
-            return;
-        }
-
+        final GatewayConfig config = (GatewayConfig) args[0];
         final Map<String, Object> traceValue = new HashMap<String, Object>();
-        traceValue.put("endPoint", clientTraceValue.get("endPoint"));
+        try {
+            if (config.getDomainAddress() != null) {
+                traceValue.put("destinationId", config.getDomainAddress());
+            } else if (config.getIpAddress() != null) {
+                traceValue.put("destinationId", config.getIpAddress());
+            } else if (config.getClusterName() != null) {
+                // over 1.1.x
+                traceValue.put("destinationId", config.getClusterName());
+            }
+        } catch (Exception ignored) {
+            // backward compatibility error
+        }
+
         ((MapTraceValue) target).__setTraceBindValue(traceValue);
     }
 

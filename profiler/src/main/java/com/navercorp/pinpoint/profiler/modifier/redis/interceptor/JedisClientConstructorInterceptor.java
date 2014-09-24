@@ -5,12 +5,13 @@ import java.util.Map;
 
 import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.MapTraceValue;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 
 /**
- * Redis client(jedis) constructor interceptor
+ * Jedis client(redis client) constructor interceptor
+ *   - trace endPoint
  * 
  * @author jaehong.kim
  *
@@ -26,26 +27,28 @@ public class JedisClientConstructorInterceptor implements SimpleAroundIntercepto
             logger.beforeInterceptor(target, args);
         }
 
-        if (!(target instanceof ObjectTraceValue)) {
+        // trace endPoint
+        if (!(target instanceof MapTraceValue)) {
             return;
         }
 
-        // trace host & port
-        final ObjectTraceValue traceValue = (ObjectTraceValue) target;
-        final Map<String, Object> map = new HashMap<String, Object>();
+        final StringBuilder endPoint = new StringBuilder();
         // first arg - host
         if (args[0] instanceof String) {
-            map.put("host", args[0]);
-            // default port
-            map.put("port", 6379);
+            endPoint.append(args[0]);
+
+            // second arg - port
+            if (args.length >= 2 && args[1] instanceof Integer) {
+                endPoint.append(":").append(args[1]);
+            } else {
+                // default port
+                endPoint.append(":").append(6379);
+            }
         }
 
-        // second arg - port
-        if (args.length >= 2 && args[1] instanceof Integer) {
-            map.put("port", args[1]);
-        }
-
-        traceValue.__setTraceObject(map);
+        final Map<String, Object> traceValue = new HashMap<String, Object>();
+        traceValue.put("endPoint", endPoint.toString());
+        ((MapTraceValue) target).__setTraceBindValue(traceValue);
     }
 
     @Override

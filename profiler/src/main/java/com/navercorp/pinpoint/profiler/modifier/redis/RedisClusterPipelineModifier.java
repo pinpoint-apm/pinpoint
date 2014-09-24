@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.MapTraceValue;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.Method;
@@ -45,7 +45,7 @@ public class RedisClusterPipelineModifier extends AbstractModifier {
             final InstrumentClass instrumentClass = byteCodeInstrumentor.getClass(className);
 
             // trace host & port
-            instrumentClass.addTraceValue(ObjectTraceValue.class);
+            instrumentClass.addTraceValue(MapTraceValue.class);
             final Interceptor constructorInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.redis.interceptor.RedisClusterPipelineConstructorInterceptor");
             try {
                 instrumentClass.addConstructorInterceptor(new String[] { "com.nhncorp.redis.cluster.gateway.GatewayServer" }, constructorInterceptor);

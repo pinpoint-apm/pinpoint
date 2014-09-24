@@ -59,6 +59,8 @@ import com.nhn.pinpoint.profiler.modifier.orm.ibatis.SqlMapClientImplModifier;
 import com.nhn.pinpoint.profiler.modifier.orm.ibatis.SqlMapSessionImplModifier;
 import com.nhn.pinpoint.profiler.modifier.orm.mybatis.DefaultSqlSessionModifier;
 import com.nhn.pinpoint.profiler.modifier.orm.mybatis.SqlSessionTemplateModifier;
+import com.nhn.pinpoint.profiler.modifier.redis.GatewayModifier;
+import com.nhn.pinpoint.profiler.modifier.redis.GatewayServerModifier;
 import com.nhn.pinpoint.profiler.modifier.redis.JedisClientModifier;
 import com.nhn.pinpoint.profiler.modifier.redis.JedisModifier;
 import com.nhn.pinpoint.profiler.modifier.redis.JedisPipelineModifier;
@@ -391,6 +393,8 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 
 	public void addNBaseArcSupport() {
         if (profilerConfig.isNBaseArcEnabled()) {
+            addModifier(new GatewayModifier(byteCodeInstrumentor, agent));
+            addModifier(new GatewayServerModifier(byteCodeInstrumentor, agent));
             addModifier(new RedisClusterModifier(byteCodeInstrumentor, agent));
             addModifier(new RedisClusterPipelineModifier(byteCodeInstrumentor, agent));
         }

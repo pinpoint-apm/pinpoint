@@ -579,6 +579,7 @@ public class ProfilerConfig {
         // redis & nBase-ARC
         this.redis = readBoolean(prop, "profiler.redis", true);
         this.nBaseArc = readBoolean(prop, "profiler.nBaseArc", true);
+        
 
         //
         // FIXME 임시용, line game netty configuration

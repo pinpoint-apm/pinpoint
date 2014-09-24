@@ -13,7 +13,7 @@ public class InterceptorRegistry {
 
     public static final InterceptorRegistry REGISTRY = new InterceptorRegistry();
 
-    private final static int DEFAULT_MAX = 1024;
+    private final static int DEFAULT_MAX = 4096;
     private final int max;
 
     private final AtomicInteger id = new AtomicInteger(0);
@@ -38,8 +38,9 @@ public class InterceptorRegistry {
             return -1;
         }
         int newId = nextId();
+
         if (newId > max) {
-            throw new IndexOutOfBoundsException("size=" + index.length + " id=" + id);
+            throw new IndexOutOfBoundsException("size=" + index.length + ", id=" + id);
         }
 
         this.index[newId] = interceptor;
@@ -48,7 +49,9 @@ public class InterceptorRegistry {
     }
 
     private int nextId() {
-        return id.getAndIncrement();
+        int number =  id.getAndIncrement();
+        
+        return number;
     }
 
     int addSimpleInterceptor0(SimpleAroundInterceptor interceptor) {
@@ -56,8 +59,8 @@ public class InterceptorRegistry {
             return -1;
         }
         int newId = nextId();
-        if (newId > max) {
-            throw new IndexOutOfBoundsException("size=" + index.length + " id=" + id);
+        if (newId >= max) {
+            throw new IndexOutOfBoundsException("size=" + index.length + ", id=" + id);
         }
 
         this.simpleIndex[newId] = interceptor;

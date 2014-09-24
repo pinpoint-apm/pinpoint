@@ -8,12 +8,13 @@ import redis.clients.jedis.JedisShardInfo;
 
 import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.MapTraceValue;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 
 /**
- * Redis client(jedis) constructor interceptor
+ * Jedis (redis client) constructor interceptor
+ *   - trace endPoint
  * 
  * @author jaehong.kim
  *
@@ -22,45 +23,48 @@ public class JedisConstructorInterceptor implements SimpleAroundInterceptor, Tar
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    
+
     @Override
     public void before(Object target, Object[] args) {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
 
-        if (!(target instanceof ObjectTraceValue)) {
+        // trace endPoint
+        if (!(target instanceof MapTraceValue)) {
             return;
         }
 
-        // trace host & port
-        final ObjectTraceValue traceValue = (ObjectTraceValue) target;
-        final Map<String, Object> map = new HashMap<String, Object>();
-
+        final StringBuilder endPoint = new StringBuilder();
         try {
             // first arg - host
             if (args[0] instanceof String) {
-                map.put("host", args[0]);
-                // default port
-                map.put("port", 6379);
+                endPoint.append(args[0]);
+                // second arg - port
+                if (args.length >= 2 && args[1] instanceof Integer) {
+                    endPoint.append(":").append(args[1]);
+                } else {
+                    // default port
+                    endPoint.append(":").append(6379);
+                }
             } else if (args[0] instanceof URI) {
                 final URI uri = (URI) args[0];
-                map.put("host", uri.getHost());
-                map.put("port", uri.getPort());
+                endPoint.append(uri.getHost());
+                endPoint.append(":");
+                endPoint.append(uri.getPort());
             } else if (args[0] instanceof JedisShardInfo) {
                 final JedisShardInfo info = (JedisShardInfo) args[0];
-                map.put("host", info.getHost());
-                map.put("port", info.getPort());
+                endPoint.append(info.getHost());
+                endPoint.append(":");
+                endPoint.append(info.getPort());
             }
-
-            // second arg - port
-            if (args.length >= 2 && args[1] instanceof Integer) {
-                map.put("port", args[1]);
-            }
-            traceValue.__setTraceObject(map);
         } catch (Exception ignored) {
             // expect 'class not found exception - JedisShardInfo'
         }
+
+        final Map<String, Object> traceValue = new HashMap<String, Object>();
+        traceValue.put("endPoint", endPoint.toString());
+        ((MapTraceValue) target).__setTraceBindValue(traceValue);
     }
 
     @Override
