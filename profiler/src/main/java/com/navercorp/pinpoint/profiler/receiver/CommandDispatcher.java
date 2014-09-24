@@ -9,12 +9,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.common.Version;
+import com.nhn.pinpoint.profiler.receiver.bo.EchoBO;
 import com.nhn.pinpoint.profiler.receiver.bo.ThreadDumpBO;
 import com.nhn.pinpoint.rpc.client.MessageListener;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.ResponsePacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.thrift.dto.TResult;
+import com.nhn.pinpoint.thrift.dto.command.TCommandEcho;
 import com.nhn.pinpoint.thrift.dto.command.TCommandThreadDump;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
@@ -47,6 +49,7 @@ public class CommandDispatcher implements MessageListener {
 	public CommandDispatcher() {
 		TBaseBORegistry registry = new TBaseBORegistry();
 		registry.addBO(TCommandThreadDump.class, new ThreadDumpBO());
+		registry.addBO(TCommandEcho.class, new EchoBO());
 
 		this.locator = registry;
 	}
@@ -65,7 +68,7 @@ public class CommandDispatcher implements MessageListener {
 			response = tResult;
 		} else {
 			TBaseRequestBO bo = locator.getRequestBO(request);
-
+			
 			if (bo == null) {
 				TResult tResult = new TResult(false);
 				tResult.setMessage("Unsupported Listener.");

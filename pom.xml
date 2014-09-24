@@ -389,6 +389,11 @@
                 <artifactId>ojdbc6</artifactId>
                 <version>11.1.0.7.0</version>
             </dependency>
+            <dependency>
+                <groupId>net.sourceforge.jtds</groupId>
+                <artifactId>jtds</artifactId>
+                <version>1.2.5</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.ning</groupId>
@@ -411,6 +416,11 @@
                 <artifactId>catalina</artifactId>
                 <version>6.0.35</version>
             </dependency>
+	        <dependency>
+	            <groupId>org.apache.tomcat</groupId>
+	            <artifactId>coyote</artifactId>
+	            <version>6.0.35</version>
+	        </dependency>
             
             <dependency>
                 <groupId>arcus</groupId>
@@ -485,11 +495,6 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>3.3.2</version>
-            </dependency>
-            <dependency>
-                <groupId>net.sourceforge.jtds</groupId>
-                <artifactId>jtds</artifactId>
-                <version>1.2.4</version>
             </dependency>
             <dependency>
                 <groupId>commons-fileupload</groupId>

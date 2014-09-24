@@ -17,7 +17,7 @@
     <!-- root application context configuration -->
     <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-value>classpath:applicationContext.xml</param-value>
+        <param-value>classpath:applicationContext-web.xml</param-value>
     </context-param>
 
     <!-- servlet application context -->

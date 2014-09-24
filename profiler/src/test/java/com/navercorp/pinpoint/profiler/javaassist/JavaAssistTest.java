@@ -43,8 +43,8 @@ public class JavaAssistTest {
 //        ctClass.getMethod("valueOf", "(D)");
 
         CtMethod[] methods = ctClass.getMethods();
-//        for(CtMethod method :  methods) {
-//            System.out.println(method.getMethodInfo() +" " + method.getSignature());
+//        for (CtMethod method :  methods) {
+//            logger.debug("{} {}", method.getMethodInfo(), method.getSignature());
 //        }
 
         CtMethod endsWith = ctClass.getMethod("endsWith", "(Ljava/lang/String;)Z");

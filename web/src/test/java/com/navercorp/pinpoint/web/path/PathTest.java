@@ -5,12 +5,16 @@ import java.text.SimpleDateFormat;
 import org.junit.Test;
 
 import com.nhn.pinpoint.thrift.dto.TSpan;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  */
 public class PathTest {
-	int index;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    int index;
 	SimpleDateFormat format = new SimpleDateFormat("ss.SSS");
 
 	@Test
@@ -36,7 +40,7 @@ public class PathTest {
 		// System.out.println(msg + " id:" + span.getSpanID() + " pid:" +
 		// span.getParentSpanId() + " time:" + format.format(new
 		// Date(span.getTimestamp())));
-		System.out.println(msg + " id:" + span.getSpanId() + " pid:" + span.getParentSpanId() + " time:" + span.getStartTime());
+		logger.debug(msg + " id:" + span.getSpanId() + " pid:" + span.getParentSpanId() + " time:" + span.getStartTime());
 	}
 	// private Span root() {
 	// TraceID traceID = TraceID.newTraceId();

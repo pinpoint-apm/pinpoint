@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.profiler.monitor.metric;
 
-import com.nhn.pinpoint.common.IntHashMap;
+import com.nhn.pinpoint.common.util.apache.IntHashMap;
 import com.nhn.pinpoint.common.ServiceType;
 
 import java.util.concurrent.ConcurrentHashMap;

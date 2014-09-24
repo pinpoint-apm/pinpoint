@@ -27,7 +27,7 @@ import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.web.server.PinpointSocketManager;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:applicationContext.xml")
+@ContextConfiguration("classpath:applicationContext-web.xml")
 public class ClusterTest {
 
 	private static final int DEFAULT_ACCEPTOR_PORT = 9995;

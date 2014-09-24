@@ -4,9 +4,6 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.util.Map;
 
-import com.nhn.pinpoint.common.SystemPropertyKey;
-import com.nhn.pinpoint.common.JvmVersion;
-
 /**
  * @author hyungil.jeong
  */

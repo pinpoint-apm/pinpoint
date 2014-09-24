@@ -3,12 +3,15 @@ package com.nhn.pinpoint.profiler.monitor.metric;
 import com.nhn.pinpoint.common.ServiceType;
 import junit.framework.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class WasStaticAcceptHistogramTest {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Test
     public void testLookUp() throws Exception {
@@ -64,7 +67,7 @@ public class WasStaticAcceptHistogramTest {
             }
             latch.await();
         }
-        System.out.println(System.currentTimeMillis() - l);
+        logger.debug("{}", System.currentTimeMillis() - l);
         executors.shutdown();
     }
 

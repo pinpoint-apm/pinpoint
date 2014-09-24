@@ -3,6 +3,8 @@ package com.nhn.pinpoint.common.util;
 import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -10,6 +12,9 @@ import java.util.List;
  * @author emeroad
  */
 public class SqlParserTest {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private SqlParser sqlParser = new SqlParser();
     private OutputParameterParser outputParameterParser = new OutputParameterParser();
 
@@ -19,27 +24,26 @@ public class SqlParserTest {
         ParsingResult parsingResult = sqlParser.normalizedSql("select * from table a = 1 and b=50 and c=? and d='11'");
         String s = parsingResult.getSql();
 
-        System.out.println(s);
-        System.out.println(parsingResult.getOutput());
+        logger.debug(s);
+        logger.debug(parsingResult.getOutput());
 
         ParsingResult parsingResult2 = sqlParser.normalizedSql(" ");
         String s2 = parsingResult2.getSql();
-        System.out.println(s2);
+        logger.debug(s2);
 
-        System.out.println((char) -1);
+        logger.debug("{}", (char) -1);
         String str = "s";
-        System.out.println(str.codePointAt(0));
-        System.out.println((int) str.charAt(0));
-        System.out.println("high" + (char) Character.MAX_HIGH_SURROGATE);
-        System.out.println("low" + (char) Character.MIN_LOW_SURROGATE);
-
-        System.out.println((int) Character.MIN_LOW_SURROGATE);
-        System.out.println((int) Character.MAX_HIGH_SURROGATE);
+        logger.debug("{}", str.codePointAt(0));
+        logger.debug("{}", (int) str.charAt(0));
+        logger.debug("high:{}", Character.MAX_HIGH_SURROGATE);
+        logger.debug("low:{}", Character.MIN_LOW_SURROGATE);
+        logger.debug("{}", (int) Character.MIN_LOW_SURROGATE);
+        logger.debug("{}", (int) Character.MAX_HIGH_SURROGATE);
 
         ParsingResult parsingResult3 = sqlParser.normalizedSql("''");
         String s3 = parsingResult3.getSql();
-        System.out.println("s3:" + s3);
-        System.out.println("sb3:" + parsingResult3.getOutput());
+        logger.debug("s3:{}", s3);
+        logger.debug("sb3:{}", parsingResult3.getOutput());
     }
 
     @Test
@@ -178,7 +182,7 @@ public class SqlParserTest {
     //    @Test
     public void charout() {
         for (int i = 11; i < 67; i++) {
-            System.out.println((char) i);
+            logger.debug("{}", (char) i);
         }
     }
 
@@ -203,7 +207,7 @@ public class SqlParserTest {
 
         assertEqual("'1234''456,7'", "'0$'", "1234''456,,7");
         ParsingResult parsingResult2 = this.sqlParser.normalizedSql("'1234''456,7'");
-        System.out.println(parsingResult2);
+        logger.debug("{}", parsingResult2);
         // 문자열 토큰
 
 
@@ -255,7 +259,7 @@ public class SqlParserTest {
         try {
             Assert.assertEquals(expected, normalizedSql);
         } catch (AssertionFailedError e) {
-            System.err.println("Original :" + expected);
+            logger.warn("Original :{}", expected);
             throw e;
         }
     }
@@ -266,7 +270,7 @@ public class SqlParserTest {
         try {
             Assert.assertEquals(actual, normalizedSql);
         } catch (AssertionFailedError e) {
-            System.err.println("Original :" + expected);
+            logger.warn("Original :{}", expected);
             throw e;
         }
     }
@@ -277,11 +281,11 @@ public class SqlParserTest {
         String output = parsingResult.getOutput();
         List<String> outputParams = outputParameterParser.parseOutputParameter(output);
         String s = sqlParser.combineOutputParams(normalizedSql, outputParams);
-        System.out.println("combine:" + s);
+        logger.debug("combine:" + s);
         try {
             Assert.assertEquals("normalizedSql check", actual, normalizedSql);
         } catch (AssertionFailedError e) {
-            System.err.println("Original :" + expected);
+            logger.warn("Original :{}", expected);
             throw e;
         }
 
@@ -295,7 +299,7 @@ public class SqlParserTest {
             Assert.assertEquals("normalizedSql check", expected, normalizedSql);
             Assert.assertSame(expected, normalizedSql);
         } catch (AssertionFailedError e) {
-            System.err.println("Original :" + expected);
+            logger.warn("Original :{}", expected);
             throw e;
         }
 

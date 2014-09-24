@@ -21,7 +21,7 @@ public class CubridDaoIbatis implements CubridDao {
     private SqlMapClientTemplate sqlMapClientTemplate;
 
     @Autowired
-    @Qualifier("cubridDatasource")
+    @Qualifier("cubridDataSource")
     private DataSource datasource;
 
     @Override
@@ -30,13 +30,13 @@ public class CubridDaoIbatis implements CubridDao {
     }
 
     @Override
-    public void createStatement() {
+    public boolean createStatement() {
         Connection connection = null;
         Statement statement = null;
         try {
             connection = datasource.getConnection();
             statement = connection.createStatement();
-            statement.execute("select 1");
+            return statement.execute("select 1");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
@@ -54,17 +54,16 @@ public class CubridDaoIbatis implements CubridDao {
             }
 
         }
-        //To change body of implemented methods use File | Settings | File Templates.
     }
     
     @Override
-    public void createErrorStatement() {
+    public boolean createErrorStatement() {
     	Connection connection = null;
     	Statement statement = null;
     	try {
     		connection = datasource.getConnection();
     		statement = connection.createStatement();
-    		statement.execute("SELECT * FROM NOT_EXISTS_TABLE");
+    		return statement.execute("SELECT * FROM NOT_EXISTS_TABLE");
     	} catch (SQLException e) {
     		throw new RuntimeException(e);
     	} finally {
@@ -82,6 +81,5 @@ public class CubridDaoIbatis implements CubridDao {
     		}
     		
     	}
-    	//To change body of implemented methods use File | Settings | File Templates.
     }
 }

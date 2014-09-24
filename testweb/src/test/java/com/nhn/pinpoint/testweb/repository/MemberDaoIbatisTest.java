@@ -17,7 +17,7 @@ import com.nhn.pinpoint.testweb.DBUnitSupport;
 import com.nhn.pinpoint.testweb.domain.Member;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "/root-context.xml", "/servlet-context.xml" })
+@ContextConfiguration({"/applicationContext-testweb.xml", "/servlet-context.xml" })
 @Transactional
 public class MemberDaoIbatisTest extends DBUnitSupport {
 

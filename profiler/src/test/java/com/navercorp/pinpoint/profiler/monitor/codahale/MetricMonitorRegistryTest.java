@@ -21,8 +21,12 @@ import com.codahale.metrics.Snapshot;
 import com.nhn.pinpoint.thrift.dto.TAgentStat._Fields;
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricHistogramMonitor;
 import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MetricMonitorRegistryTest {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 
 	MetricMonitorRegistry registry = new MetricMonitorRegistry();
 
@@ -111,18 +115,18 @@ public class MetricMonitorRegistryTest {
 		MetricRegistry r = registry.getRegistry();
 		Map<String, Gauge> map = r.getGauges();
 //		for (Entry<String, Gauge> each : map.entrySet()) {
-//			System.out.println(each.getKey() + " : " + each.getValue().getValue().getClass());
+//			logger.debug(each.getKey() + " : " + each.getValue().getValue().getClass());
 //		}
 //		
 		for (Entry<_Fields, FieldMetaData> each : TAgentStat.metaDataMap.entrySet()) {
-			System.out.println(toMetricName(each.getKey().name()));
+			logger.debug(toMetricName(each.getKey().name()));
 			Gauge value = map.get(toMetricName(each.getKey().name()));
 			if (value != null) {
 				agentStat.setFieldValue(each.getKey(), value.getValue());
 			}
 		}
-		
-		System.out.println(agentStat);
+
+        logger.debug("{}", agentStat);
 	}
 	
 }

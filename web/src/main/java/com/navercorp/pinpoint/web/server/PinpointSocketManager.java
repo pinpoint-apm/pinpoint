@@ -76,6 +76,7 @@ public class PinpointSocketManager {
 
 			this.clusterManager = new ZookeeperClusterManager(config.getClusterZookeeperAddress(), config.getClusterZookeeperSessionTimeout(), config.getClusterZookeeperRetryInterval());
 
+			// TODO 여기서 수정이 필요함
 			// json list는 표준규칙이 아니기 때문에 ip\r\n으로 저장
 			this.clusterManager.registerWebCluster(nodeName, convertIpListToBytes(localIpList, "\r\n"));
 		}

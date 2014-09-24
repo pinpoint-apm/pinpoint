@@ -67,7 +67,7 @@ public class ProfilerConfigTest {
         profilerConfig.readConfigFile(path);
 
         Assert.assertEquals(profilerConfig.isIoBufferingEnable(), false);
-        Assert.assertEquals(profilerConfig.getIoBufferingBufferBufferSize(), 30);
+        Assert.assertEquals(profilerConfig.getIoBufferingBufferSize(), 30);
     }
 
     @Test
@@ -79,7 +79,7 @@ public class ProfilerConfigTest {
         profilerConfig.readConfigFile(path);
 
         Assert.assertEquals(profilerConfig.isIoBufferingEnable(), true);
-        Assert.assertEquals(profilerConfig.getIoBufferingBufferBufferSize(), 10);
+        Assert.assertEquals(profilerConfig.getIoBufferingBufferSize(), 10);
     }
     
     @Test

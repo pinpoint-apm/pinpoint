@@ -1,230 +1,207 @@
 package com.nhn.pinpoint.testweb.controller;
 
+import com.nhncorp.lucy.net.invoker.InvocationFuture;
+import com.nhncorp.lucy.net.invoker.InvocationFutureListener;
+import com.nhncorp.lucy.npc.connector.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import com.nhncorp.lucy.net.invoker.InvocationFuture;
-import com.nhncorp.lucy.net.invoker.InvocationFutureListener;
-import com.nhncorp.lucy.npc.connector.ConnectionFactory;
-import com.nhncorp.lucy.npc.connector.KeepAliveNpcHessianConnector;
-import com.nhncorp.lucy.npc.connector.NpcConnectionFactory;
-import com.nhncorp.lucy.npc.connector.NpcHessianConnector;
-
 /**
- * 
  * @author netspider
- * 
  */
 @Controller
 public class NPCController {
 
-	/**
-	 * using basic connector
-	 * 
-	 * @param model
-	 * @return
-	 */
-	@RequestMapping(value = "/npc/1")
-	public @ResponseBody
-	String npc(Model model) {
-		NpcHessianConnector connector = null;
-		try {
-			InetSocketAddress serverAddress = new InetSocketAddress("127.0.0.1", 5000);
-			connector = new NpcHessianConnector(serverAddress, true);
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("message", "hello pinpoint");
+    /**
+     * using basic connector
+     *
+     * @return
+     */
+    @RequestMapping(value = "/npc/1")
+    @ResponseBody
+    public String npc() throws Exception {
+        NpcHessianConnector connector = null;
+        try {
+            InetSocketAddress serverAddress = new InetSocketAddress("127.0.0.1", 5000);
+            connector = new NpcHessianConnector(serverAddress, true);
 
-			InvocationFuture future = connector.invoke("welcome/com.nhncorp.lucy.bloc.welcome.EchoBO", "execute", params);
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("message", "hello pinpoint");
 
-			future.await();
+            InvocationFuture future = connector.invoke("welcome/com.nhncorp.lucy.bloc.welcome.EchoBO", "execute", params);
 
-			// Object result = future.get();
-			Object result = future.getReturnValue();
-			System.out.println("npc result=" + result);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return e.getMessage();
-		} finally {
-			if (connector != null) {
-				connector.dispose();
-			}
-		}
-		return "OK";
-	}
+            future.await();
 
-	/**
-	 * using keepalive connector
-	 * 
-	 * @param model
-	 * @return
-	 */
-	@RequestMapping(value = "/npc/2")
-	public @ResponseBody
-	String npc2(Model model) {
-		KeepAliveNpcHessianConnector connector = null;
-		try {
-			InetSocketAddress serverAddress = new InetSocketAddress("127.0.0.1", 5000);
+            // Object result = future.get();
+            Object result = future.getReturnValue();
+            logger.debug("npc result={}", result);
+        } finally {
+            if (connector != null) {
+                connector.dispose();
+            }
+        }
+        return "OK";
+    }
 
-			connector = new KeepAliveNpcHessianConnector(serverAddress);
+    /**
+     * using keepalive connector
+     *
+     * @return
+     */
+    @RequestMapping(value = "/npc/2")
+    @ResponseBody
+    public String npc2() throws Exception {
+        KeepAliveNpcHessianConnector connector = null;
+        try {
+            InetSocketAddress serverAddress = new InetSocketAddress("127.0.0.1", 5000);
 
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("message", "hello pinpoint");
+            connector = new KeepAliveNpcHessianConnector(serverAddress);
 
-			InvocationFuture future = connector.invoke("welcome/com.nhncorp.lucy.bloc.welcome.EchoBO", "execute", params);
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("message", "hello pinpoint");
 
-			future.await();
+            InvocationFuture future = connector.invoke("welcome/com.nhncorp.lucy.bloc.welcome.EchoBO", "execute", params);
 
-			// Object result = future.get();
-			Object result = future.getReturnValue();
-			System.out.println("npc result=" + result);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return e.getMessage();
-		} finally {
-			if (connector != null) {
-				connector.dispose();
-			}
-		}
-		return "OK";
-	}
+            future.await();
 
-	/**
-	 * using connection factory
-	 * 
-	 * @param model
-	 * @return
-	 */
-	@RequestMapping(value = "/npc/3")
-	public @ResponseBody
-	String npc3(Model model) {
-		NpcHessianConnector connector = null;
-		try {
-			InetSocketAddress serverAddress = new InetSocketAddress("127.0.0.1", 5000);
+            // Object result = future.get();
+            Object result = future.getReturnValue();
+            logger.debug("npc result={}", result);
+        } finally {
+            if (connector != null) {
+                connector.dispose();
+            }
+        }
+        return "OK";
+    }
 
-			ConnectionFactory npcConnectionFactory = new NpcConnectionFactory();
+    /**
+     * using connection factory
+     *
+     * @return
+     */
+    @RequestMapping(value = "/npc/3")
+    @ResponseBody
+    public String npc3() throws Exception {
+        NpcHessianConnector connector = null;
+        try {
+            InetSocketAddress serverAddress = new InetSocketAddress("127.0.0.1", 5000);
 
-			npcConnectionFactory.setTimeout(1000L);
-			npcConnectionFactory.setAddress(serverAddress);
+            ConnectionFactory npcConnectionFactory = new NpcConnectionFactory();
 
-			connector = npcConnectionFactory.create();
+            npcConnectionFactory.setTimeout(1000L);
+            npcConnectionFactory.setAddress(serverAddress);
 
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("message", "hello pinpoint");
+            connector = npcConnectionFactory.create();
 
-			InvocationFuture future = connector.invoke("welcome/com.nhncorp.lucy.bloc.welcome.EchoBO", "execute", params);
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("message", "hello pinpoint");
 
-			future.await();
+            InvocationFuture future = connector.invoke("welcome/com.nhncorp.lucy.bloc.welcome.EchoBO", "execute", params);
 
-			// Object result = future.get();
-			Object result = future.getReturnValue();
-			System.out.println("npc result=" + result);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return e.getMessage();
-		} finally {
-			if (connector != null) {
-				connector.dispose();
-			}
-		}
-		return "OK";
-	}
+            future.await();
 
-	/**
-	 * using lightweight connector
-	 * 
-	 * @param model
-	 * @return
-	 */
-	@RequestMapping(value = "/npc/4")
-	public @ResponseBody
-	String npc4(Model model) {
-		NpcHessianConnector connector = null;
-		try {
-			InetSocketAddress serverAddress = new InetSocketAddress("127.0.0.1", 5000);
+            // Object result = future.get();
+            Object result = future.getReturnValue();
+            logger.debug("npc result={}", result);
+        } finally {
+            if (connector != null) {
+                connector.dispose();
+            }
+        }
+        return "OK";
+    }
 
-			ConnectionFactory npcConnectionFactory = new NpcConnectionFactory();
+    /**
+     * using lightweight connector
+     *
+     * @return
+     */
+    @RequestMapping(value = "/npc/4")
+    @ResponseBody
+    public String npc4() throws Exception {
+        NpcHessianConnector connector = null;
+        try {
+            InetSocketAddress serverAddress = new InetSocketAddress("127.0.0.1", 5000);
 
-			npcConnectionFactory.setTimeout(1000L);
-			npcConnectionFactory.setAddress(serverAddress);
-			npcConnectionFactory.setLightWeight(true);
+            ConnectionFactory npcConnectionFactory = new NpcConnectionFactory();
 
-			connector = npcConnectionFactory.create();
+            npcConnectionFactory.setTimeout(1000L);
+            npcConnectionFactory.setAddress(serverAddress);
+            npcConnectionFactory.setLightWeight(true);
 
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("message", "hello pinpoint");
+            connector = npcConnectionFactory.create();
 
-			InvocationFuture future = connector.invoke("welcome/com.nhncorp.lucy.bloc.welcome.EchoBO", "execute", params);
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("message", "hello pinpoint");
 
-			future.await();
+            InvocationFuture future = connector.invoke("welcome/com.nhncorp.lucy.bloc.welcome.EchoBO", "execute", params);
 
-			// Object result = future.get();
-			Object result = future.getReturnValue();
-			System.out.println("npc result=" + result);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return e.getMessage();
-		} finally {
-			if (connector != null) {
-				connector.dispose();
-			}
-		}
-		return "OK";
-	}
+            future.await();
 
-	/**
-	 * using lightweight connector and listener
-	 * 
-	 * @param model
-	 * @return
-	 */
-	@RequestMapping(value = "/npc/5")
-	public @ResponseBody
-	String npc5(Model model) {
-		NpcHessianConnector connector = null;
-		try {
-			InetSocketAddress serverAddress = new InetSocketAddress("127.0.0.1", 5000);
+            // Object result = future.get();
+            Object result = future.getReturnValue();
+            logger.debug("npc result={}", result);
+        } finally {
+            if (connector != null) {
+                connector.dispose();
+            }
+        }
+        return "OK";
+    }
 
-			ConnectionFactory npcConnectionFactory = new NpcConnectionFactory();
+    /**
+     * using lightweight connector and listener
+     *
+     * @return
+     */
+    @RequestMapping(value = "/npc/5")
+    @ResponseBody
+    public String npc5() throws NpcCallException {
+        NpcHessianConnector connector = null;
+        try {
+            InetSocketAddress serverAddress = new InetSocketAddress("127.0.0.1", 5000);
 
-			npcConnectionFactory.setTimeout(1000L);
-			npcConnectionFactory.setAddress(serverAddress);
-			npcConnectionFactory.setLightWeight(true);
+            ConnectionFactory npcConnectionFactory = new NpcConnectionFactory();
 
-			connector = npcConnectionFactory.create();
+            npcConnectionFactory.setTimeout(1000L);
+            npcConnectionFactory.setAddress(serverAddress);
+            npcConnectionFactory.setLightWeight(true);
 
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("message", "hello pinpoint");
+            connector = npcConnectionFactory.create();
 
-			InvocationFuture future = connector.invoke("welcome/com.nhncorp.lucy.bloc.welcome.EchoBO", "execute", params);
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("message", "hello pinpoint");
 
-			future.addListener(new InvocationFutureListener() {
-				@Override
-				public void invocationComplete(InvocationFuture future) throws Exception {
-					Object result = future.getReturnValue();
-					System.out.println("npc result=" + result);
-				}
-			});
-		} catch (Exception e) {
-			e.printStackTrace();
-			return e.getMessage();
-		} finally {
-			if (connector != null) {
-				connector.dispose();
-			}
-		}
-		return "OK";
-	}
+            InvocationFuture future = connector.invoke("welcome/com.nhncorp.lucy.bloc.welcome.EchoBO", "execute", params);
 
-	@RequestMapping(value = "/npc/6")
-	public @ResponseBody
-	String npcStream(Model model) {
-		return "NOT_IMPLEMENTED";
-	}
+            future.addListener(new InvocationFutureListener() {
+                @Override
+                public void invocationComplete(InvocationFuture future) throws Exception {
+                    Object result = future.getReturnValue();
+                    logger.debug("npc result={}", result);
+                }
+            });
+        } finally {
+            if (connector != null) {
+                connector.dispose();
+            }
+        }
+        return "OK";
+    }
+
+    @RequestMapping(value = "/npc/6")
+    @ResponseBody
+    public String npcStream() {
+        return "NOT_IMPLEMENTED";
+    }
 }

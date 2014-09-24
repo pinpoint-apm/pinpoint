@@ -44,7 +44,10 @@ public class ProfilerConfig {
     private boolean jdbcProfileMySqlCommit = false;
     private boolean jdbcProfileMySqlRollback = false;
 
-	private boolean jdbcProfileMsSql = true;
+	private boolean jdbcProfileJtds = true;
+    private boolean jdbcProfileJtdsSetAutoCommit = false;
+    private boolean jdbcProfileJtdsCommit = false;
+    private boolean jdbcProfileJtdsRollback = false;
 
 	private boolean jdbcProfileOracle = true;
     private boolean jdbcProfileOracleSetAutoCommit = false;
@@ -67,9 +70,6 @@ public class ProfilerConfig {
     private boolean ibatis = true;
     
     private boolean mybatis = true;
-    
-    private boolean redis = true;
-    private boolean nBaseArc = true;
     
     /**
      * apache http client
@@ -253,9 +253,21 @@ public class ProfilerConfig {
     }
     // mysql end-----------------------------------------------------
 
-    public boolean isJdbcProfileMsSql() {
-		return jdbcProfileMsSql;
+    public boolean isJdbcProfileJtds() {
+		return jdbcProfileJtds;
 	}
+
+    public boolean isJdbcProfileJtdsSetAutoCommit() {
+        return jdbcProfileJtdsSetAutoCommit;
+    }
+
+    public boolean isJdbcProfileJtdsCommit() {
+        return jdbcProfileJtdsCommit;
+    }
+
+    public boolean isJdbcProfileJtdsRollback() {
+        return jdbcProfileJtdsRollback;
+    }
 
     // oracle start -----------------------------------------------------
 	public boolean isJdbcProfileOracle() {
@@ -306,7 +318,7 @@ public class ProfilerConfig {
 		return ioBufferingEnable;
 	}
 
-	public int getIoBufferingBufferBufferSize() {
+	public int getIoBufferingBufferSize() {
 		return ioBufferingBufferSize;
 	}
 
@@ -449,15 +461,7 @@ public class ProfilerConfig {
 		return mybatis;
 	}
 	
-	public boolean isRedisEnabled() {
-        return redis;
-    }
-
-    public boolean isNBaseArcEnabled() {
-        return nBaseArc;
-    }
-
-    /**
+	/**
      * TODO remove this. 테스트 장비에서 call stack view가 잘 보이는지 테스트 하려고 추가함.
      *
      * @param className
@@ -517,7 +521,10 @@ public class ProfilerConfig {
         this.jdbcProfileMySqlRollback = readBoolean(prop, "profiler.jdbc.mysql.rollback", false);
 
 
-		this.jdbcProfileMsSql = readBoolean(prop, "profiler.jdbc.mssql", true);
+		this.jdbcProfileJtds = readBoolean(prop, "profiler.jdbc.jtds", true);
+        this.jdbcProfileJtdsSetAutoCommit = readBoolean(prop, "profiler.jdbc.jtds.setautocommit", false);
+        this.jdbcProfileJtdsCommit = readBoolean(prop, "profiler.jdbc.jtds.commit", false);
+        this.jdbcProfileJtdsRollback = readBoolean(prop, "profiler.jdbc.jtds.rollback", false);
 
 
 		this.jdbcProfileOracle = readBoolean(prop, "profiler.jdbc.oracle", true);
@@ -575,11 +582,6 @@ public class ProfilerConfig {
         this.ningAsyncHttpClientProfileParamDumpType = readDumpType(prop, "profiler.ning.asynchttpclient.param.dumptype", DumpType.EXCEPTION);
         this.ningAsyncHttpClientProfileParamDumpSize = readInt(prop, "profiler.ning.asynchttpclient.param.dumpsize", 1024);
         this.ningAsyncHttpClientProfileParamSamplingRate = readInt(prop, "profiler.asynchttpclient.param.sampling.rate", 1);
-
-        // redis & nBase-ARC
-        this.redis = readBoolean(prop, "profiler.redis", true);
-        this.nBaseArc = readBoolean(prop, "profiler.nBaseArc", true);
-        
 
         //
         // FIXME 임시용, line game netty configuration
@@ -708,83 +710,85 @@ public class ProfilerConfig {
 	}
 
 
+
+
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder(512);
-        sb.append("ProfilerConfig{");
+        final StringBuilder sb = new StringBuilder("ProfilerConfig{");
         sb.append("profileEnable=").append(profileEnable);
-        sb.append("\n collectorServerIp='").append(collectorServerIp).append('\'');
-        sb.append("\n collectorUdpSpanServerPort=").append(collectorUdpSpanServerPort);
-        sb.append("\n collectorUdpServerPort=").append(collectorUdpServerPort);
-        sb.append("\n collectorTcpServerPort=").append(collectorTcpServerPort);
-        sb.append("\n spanDataSenderWriteQueueSize=").append(spanDataSenderWriteQueueSize);
-        sb.append("\n spanDataSenderSocketSendBufferSize=").append(spanDataSenderSocketSendBufferSize);
-        sb.append("\n spanDataSenderSocketTimeout=").append(spanDataSenderSocketTimeout);
-        sb.append("\n statDataSenderWriteQueueSize=").append(statDataSenderWriteQueueSize);
-        sb.append("\n statDataSenderSocketSendBufferSize=").append(statDataSenderSocketSendBufferSize);
-        sb.append("\n statDataSenderSocketTimeout=").append(statDataSenderSocketTimeout);
-        sb.append("\n tcpCommandAcceptEnable=").append(tcpDataSenderCommandAcceptEnable);
-        sb.append("\n jdbcSqlCacheSize=").append(jdbcSqlCacheSize);
-        sb.append("\n jdbcProfile=").append(jdbcProfile);
-        sb.append("\n jdbcProfileMySql=").append(jdbcProfileMySql);
-        sb.append("\n jdbcProfileMySqlSetAutoCommit=").append(jdbcProfileMySqlSetAutoCommit);
-        sb.append("\n jdbcProfileMySqlCommit=").append(jdbcProfileMySqlCommit);
-        sb.append("\n jdbcProfileMySqlRollback=").append(jdbcProfileMySqlRollback);
-        sb.append("\n jdbcProfileMsSql=").append(jdbcProfileMsSql);
-        sb.append("\n jdbcProfileOracle=").append(jdbcProfileOracle);
-        sb.append("\n jdbcProfileOracleSetAutoCommit=").append(jdbcProfileOracleSetAutoCommit);
-        sb.append("\n jdbcProfileOracleCommit=").append(jdbcProfileOracleCommit);
-        sb.append("\n jdbcProfileOracleRollback=").append(jdbcProfileOracleRollback);
-        sb.append("\n jdbcProfileCubrid=").append(jdbcProfileCubrid);
-        sb.append("\n jdbcProfileCubridSetAutoCommit=").append(jdbcProfileCubridSetAutoCommit);
-        sb.append("\n jdbcProfileCubridCommit=").append(jdbcProfileCubridCommit);
-        sb.append("\n jdbcProfileCubridRollback=").append(jdbcProfileCubridRollback);
-        sb.append("\n jdbcProfileDbcp=").append(jdbcProfileDbcp);
-        sb.append("\n jdbcProfileDbcpConnectionClose=").append(jdbcProfileDbcpConnectionClose);
-        sb.append("\n arucs=").append(arucs);
-        sb.append("\n arucsKeyTrace=").append(arucsKeyTrace);
-        sb.append("\n memcached=").append(memcached);
-        sb.append("\n memcachedKeyTrace=").append(memcachedKeyTrace);
-        sb.append("\n redis=").append(redis);
-        sb.append("\n nBaseArc=").append(nBaseArc);
-        sb.append("\n ibatis=").append(ibatis);
-        sb.append("\n mybatis=").append(mybatis);
-        sb.append("\n apacheHttpClient4Profile=").append(apacheHttpClient4Profile);
-        sb.append("\n apacheHttpClient4ProfileCookie=").append(apacheHttpClient4ProfileCookie);
-        sb.append("\n apacheHttpClient4ProfileCookieDumpType=").append(apacheHttpClient4ProfileCookieDumpType);
-        sb.append("\n apacheHttpClient4ProfileCookieSamplingRate=").append(apacheHttpClient4ProfileCookieSamplingRate);
-        sb.append("\n apacheHttpClient4ProfileEntity=").append(apacheHttpClient4ProfileEntity);
-        sb.append("\n apacheHttpClient4ProfileEntityDumpType=").append(apacheHttpClient4ProfileEntityDumpType);
-        sb.append("\n apacheHttpClient4ProfileEntitySamplingRate=").append(apacheHttpClient4ProfileEntitySamplingRate);
-        sb.append("\n apacheNIOHttpClient4Profile=").append(apacheNIOHttpClient4Profile);
-        sb.append("\n ningAsyncHttpClientProfile=").append(ningAsyncHttpClientProfile);
-        sb.append("\n ningAsyncHttpClientProfileCookie=").append(ningAsyncHttpClientProfileCookie);
-        sb.append("\n ningAsyncHttpClientProfileCookieDumpType=").append(ningAsyncHttpClientProfileCookieDumpType);
-        sb.append("\n ningAsyncHttpClientProfileCookieDumpSize=").append(ningAsyncHttpClientProfileCookieDumpSize);
-        sb.append("\n ningAsyncHttpClientProfileCookieSamplingRate=").append(ningAsyncHttpClientProfileCookieSamplingRate);
-        sb.append("\n ningAsyncHttpClientProfileEntity=").append(ningAsyncHttpClientProfileEntity);
-        sb.append("\n ningAsyncHttpClientProfileEntityDumpType=").append(ningAsyncHttpClientProfileEntityDumpType);
-        sb.append("\n ningAsyncHttpClientProfileEntityDumpSize=").append(ningAsyncHttpClientProfileEntityDumpSize);
-        sb.append("\n ningAsyncHttpClientProfileEntitySamplingRate=").append(ningAsyncHttpClientProfileEntitySamplingRate);
-        sb.append("\n ningAsyncHttpClientProfileParam=").append(ningAsyncHttpClientProfileParam);
-        sb.append("\n ningAsyncHttpClientProfileParamDumpType=").append(ningAsyncHttpClientProfileParamDumpType);
-        sb.append("\n ningAsyncHttpClientProfileParamDumpSize=").append(ningAsyncHttpClientProfileParamDumpSize);
-        sb.append("\n ningAsyncHttpClientProfileParamSamplingRate=").append(ningAsyncHttpClientProfileParamSamplingRate);
-        sb.append("\n lineGameNettyParamDumpSize=").append(lineGameNettyParamDumpSize);
-        sb.append("\n lineGameNettyEntityDumpSize=").append(lineGameNettyEntityDumpSize);
-        sb.append("\n samplingEnable=").append(samplingEnable);
-        sb.append("\n samplingRate=").append(samplingRate);
-        sb.append("\n ioBufferingEnable=").append(ioBufferingEnable);
-        sb.append("\n ioBufferingBufferSize=").append(ioBufferingBufferSize);
-        sb.append("\n profileJvmCollectInterval=").append(profileJvmCollectInterval);
-        sb.append("\n profileInclude=").append(profileInclude);
-        sb.append("\n profileIncludeSub=").append(profileIncludeSub);
-        sb.append("\n heartbeatInterval=").append(heartbeatInterval);
-        sb.append("\n applicationServerType=").append(applicationServerType);
+        sb.append(", collectorServerIp='").append(collectorServerIp).append('\'');
+        sb.append(", collectorUdpSpanServerPort=").append(collectorUdpSpanServerPort);
+        sb.append(", collectorUdpServerPort=").append(collectorUdpServerPort);
+        sb.append(", collectorTcpServerPort=").append(collectorTcpServerPort);
+        sb.append(", spanDataSenderWriteQueueSize=").append(spanDataSenderWriteQueueSize);
+        sb.append(", spanDataSenderSocketSendBufferSize=").append(spanDataSenderSocketSendBufferSize);
+        sb.append(", spanDataSenderSocketTimeout=").append(spanDataSenderSocketTimeout);
+        sb.append(", statDataSenderWriteQueueSize=").append(statDataSenderWriteQueueSize);
+        sb.append(", statDataSenderSocketSendBufferSize=").append(statDataSenderSocketSendBufferSize);
+        sb.append(", statDataSenderSocketTimeout=").append(statDataSenderSocketTimeout);
+        sb.append(", tcpDataSenderCommandAcceptEnable=").append(tcpDataSenderCommandAcceptEnable);
+        sb.append(", jdbcSqlCacheSize=").append(jdbcSqlCacheSize);
+        sb.append(", jdbcMaxSqlBindValueSize=").append(jdbcMaxSqlBindValueSize);
+        sb.append(", jdbcProfile=").append(jdbcProfile);
+        sb.append(", jdbcProfileMySql=").append(jdbcProfileMySql);
+        sb.append(", jdbcProfileMySqlSetAutoCommit=").append(jdbcProfileMySqlSetAutoCommit);
+        sb.append(", jdbcProfileMySqlCommit=").append(jdbcProfileMySqlCommit);
+        sb.append(", jdbcProfileMySqlRollback=").append(jdbcProfileMySqlRollback);
+        sb.append(", jdbcProfileJtds=").append(jdbcProfileJtds);
+        sb.append(", jdbcProfileJtdsSetAutoCommit=").append(jdbcProfileJtdsSetAutoCommit);
+        sb.append(", jdbcProfileJtdsCommit=").append(jdbcProfileJtdsCommit);
+        sb.append(", jdbcProfileJtdsRollback=").append(jdbcProfileJtdsRollback);
+        sb.append(", jdbcProfileOracle=").append(jdbcProfileOracle);
+        sb.append(", jdbcProfileOracleSetAutoCommit=").append(jdbcProfileOracleSetAutoCommit);
+        sb.append(", jdbcProfileOracleCommit=").append(jdbcProfileOracleCommit);
+        sb.append(", jdbcProfileOracleRollback=").append(jdbcProfileOracleRollback);
+        sb.append(", jdbcProfileCubrid=").append(jdbcProfileCubrid);
+        sb.append(", jdbcProfileCubridSetAutoCommit=").append(jdbcProfileCubridSetAutoCommit);
+        sb.append(", jdbcProfileCubridCommit=").append(jdbcProfileCubridCommit);
+        sb.append(", jdbcProfileCubridRollback=").append(jdbcProfileCubridRollback);
+        sb.append(", jdbcProfileDbcp=").append(jdbcProfileDbcp);
+        sb.append(", jdbcProfileDbcpConnectionClose=").append(jdbcProfileDbcpConnectionClose);
+        sb.append(", arucs=").append(arucs);
+        sb.append(", arucsKeyTrace=").append(arucsKeyTrace);
+        sb.append(", memcached=").append(memcached);
+        sb.append(", memcachedKeyTrace=").append(memcachedKeyTrace);
+        sb.append(", ibatis=").append(ibatis);
+        sb.append(", mybatis=").append(mybatis);
+        sb.append(", apacheHttpClient4Profile=").append(apacheHttpClient4Profile);
+        sb.append(", apacheHttpClient4ProfileCookie=").append(apacheHttpClient4ProfileCookie);
+        sb.append(", apacheHttpClient4ProfileCookieDumpType=").append(apacheHttpClient4ProfileCookieDumpType);
+        sb.append(", apacheHttpClient4ProfileCookieSamplingRate=").append(apacheHttpClient4ProfileCookieSamplingRate);
+        sb.append(", apacheHttpClient4ProfileEntity=").append(apacheHttpClient4ProfileEntity);
+        sb.append(", apacheHttpClient4ProfileEntityDumpType=").append(apacheHttpClient4ProfileEntityDumpType);
+        sb.append(", apacheHttpClient4ProfileEntitySamplingRate=").append(apacheHttpClient4ProfileEntitySamplingRate);
+        sb.append(", apacheNIOHttpClient4Profile=").append(apacheNIOHttpClient4Profile);
+        sb.append(", ningAsyncHttpClientProfile=").append(ningAsyncHttpClientProfile);
+        sb.append(", ningAsyncHttpClientProfileCookie=").append(ningAsyncHttpClientProfileCookie);
+        sb.append(", ningAsyncHttpClientProfileCookieDumpType=").append(ningAsyncHttpClientProfileCookieDumpType);
+        sb.append(", ningAsyncHttpClientProfileCookieDumpSize=").append(ningAsyncHttpClientProfileCookieDumpSize);
+        sb.append(", ningAsyncHttpClientProfileCookieSamplingRate=").append(ningAsyncHttpClientProfileCookieSamplingRate);
+        sb.append(", ningAsyncHttpClientProfileEntity=").append(ningAsyncHttpClientProfileEntity);
+        sb.append(", ningAsyncHttpClientProfileEntityDumpType=").append(ningAsyncHttpClientProfileEntityDumpType);
+        sb.append(", ningAsyncHttpClientProfileEntityDumpSize=").append(ningAsyncHttpClientProfileEntityDumpSize);
+        sb.append(", ningAsyncHttpClientProfileEntitySamplingRate=").append(ningAsyncHttpClientProfileEntitySamplingRate);
+        sb.append(", ningAsyncHttpClientProfileParam=").append(ningAsyncHttpClientProfileParam);
+        sb.append(", ningAsyncHttpClientProfileParamDumpType=").append(ningAsyncHttpClientProfileParamDumpType);
+        sb.append(", ningAsyncHttpClientProfileParamDumpSize=").append(ningAsyncHttpClientProfileParamDumpSize);
+        sb.append(", ningAsyncHttpClientProfileParamSamplingRate=").append(ningAsyncHttpClientProfileParamSamplingRate);
+        sb.append(", lineGameNettyParamDumpSize=").append(lineGameNettyParamDumpSize);
+        sb.append(", lineGameNettyEntityDumpSize=").append(lineGameNettyEntityDumpSize);
+        sb.append(", samplingEnable=").append(samplingEnable);
+        sb.append(", samplingRate=").append(samplingRate);
+        sb.append(", ioBufferingEnable=").append(ioBufferingEnable);
+        sb.append(", ioBufferingBufferSize=").append(ioBufferingBufferSize);
+        sb.append(", profileJvmCollectInterval=").append(profileJvmCollectInterval);
+        sb.append(", profileInclude=").append(profileInclude);
+        sb.append(", profileIncludeSub=").append(profileIncludeSub);
+        sb.append(", DEFAULT_HEART_BEAT_INTERVAL=").append(DEFAULT_HEART_BEAT_INTERVAL);
+        sb.append(", heartbeatInterval=").append(heartbeatInterval);
+        sb.append(", applicationServerType=").append(applicationServerType);
         sb.append('}');
         return sb.toString();
     }
-
-
 }
 

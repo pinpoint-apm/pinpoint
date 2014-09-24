@@ -37,10 +37,9 @@ public class InterceptorRegistry {
         if (interceptor == null) {
             return -1;
         }
-        int newId = nextId();
-
-        if (newId > max) {
-            throw new IndexOutOfBoundsException("size=" + index.length + ", id=" + id);
+        final int newId = nextId();
+        if (newId >= max) {
+            throw new IndexOutOfBoundsException("size=" + index.length + " id=" + id);
         }
 
         this.index[newId] = interceptor;
@@ -49,18 +48,16 @@ public class InterceptorRegistry {
     }
 
     private int nextId() {
-        int number =  id.getAndIncrement();
-        
-        return number;
+        return id.getAndIncrement();
     }
 
     int addSimpleInterceptor0(SimpleAroundInterceptor interceptor) {
         if (interceptor == null) {
             return -1;
         }
-        int newId = nextId();
+        final int newId = nextId();
         if (newId >= max) {
-            throw new IndexOutOfBoundsException("size=" + index.length + ", id=" + id);
+            throw new IndexOutOfBoundsException("size=" + index.length + " id=" + id);
         }
 
         this.simpleIndex[newId] = interceptor;

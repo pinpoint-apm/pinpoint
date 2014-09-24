@@ -162,6 +162,11 @@
             <artifactId>ojdbc6</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>net.sourceforge.jtds</groupId>
+            <artifactId>jtds</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
             <groupId>com.nhncorp.lucy</groupId>
@@ -272,6 +277,11 @@
             <groupId>org.apache.tomcat</groupId>
             <artifactId>catalina</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>coyote</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>

@@ -42,7 +42,7 @@ public class TestBootstrapClass {
         defineClass(defineClass1, systemClassLoader, new Object[]{"com.test.Test", bytes, 0, bytes.length});
         Class<?> aClass = systemClassLoader.loadClass("com.test.Test");
 
-        logger.info("" + aClass.getClass().getClassLoader());
+        logger.info("{}", aClass.getClass().getClassLoader());
 
 
     }
@@ -65,14 +65,14 @@ public class TestBootstrapClass {
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 
         logger.info(urlConnection.toString());
-        logger.info("" + urlConnection.getClass().getClassLoader());
+        logger.info("{}", urlConnection.getClass().getClassLoader());
         ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
         ClassLoader parent = systemClassLoader.getParent();
-        logger.info("parent:" + parent);
-        logger.info("pparent:" + parent.getParent());
+        logger.info("parent:{}", parent);
+        logger.info("pparent:{}", parent.getParent());
 
-        logger.info("" + String.class.getClassLoader());
-        logger.info("" + TestBootstrapClass.class.getClassLoader());
+        logger.info("{}", String.class.getClassLoader());
+        logger.info("{}", TestBootstrapClass.class.getClassLoader());
 
 
         urlConnection.disconnect();

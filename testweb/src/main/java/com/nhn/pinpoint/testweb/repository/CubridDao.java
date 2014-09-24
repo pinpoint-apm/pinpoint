@@ -6,7 +6,7 @@ package com.nhn.pinpoint.testweb.repository;
 public interface CubridDao {
     int selectOne();
 
-    void createStatement();
+    boolean createStatement();
     
-    void createErrorStatement();
+    boolean createErrorStatement();
 }

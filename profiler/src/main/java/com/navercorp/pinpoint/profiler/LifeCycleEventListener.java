@@ -7,13 +7,13 @@ import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 
 /**
  * @author emeroad
+ * @author hyungil.jeong
  */
 public class LifeCycleEventListener {
 
     private final static PLogger logger = PLoggerFactory.getLogger(LifeCycleEventListener.class.getName());
 
-    private Agent agent;
-    private boolean started = false;
+    private final Agent agent;
 
     public LifeCycleEventListener(Agent agent) {
         if (agent == null) {
@@ -22,26 +22,13 @@ public class LifeCycleEventListener {
         this.agent = agent;
     }
 
-    public synchronized void start() {
+    public void start() {
         logger.info("LifeCycleEventListener start");
-
-        if (started) {
-            logger.info("already started");
-            return;
-        }
-
         agent.start();
-        started = true;
     }
 
-    public synchronized void stop() {
+    public void stop() {
         logger.info("LifeCycleEventListener stop");
-
-        if (!started) {
-            logger.info("already stopped");
-            return;
-        }
-        started = false;
         agent.stop();
     }
 }

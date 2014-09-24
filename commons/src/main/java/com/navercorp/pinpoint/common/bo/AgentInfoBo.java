@@ -5,7 +5,6 @@ import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
 import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.buffer.FixedBuffer;
 import com.nhn.pinpoint.thrift.dto.TAgentInfo;
-import org.apache.commons.lang.StringUtils;
 
 import java.util.Comparator;
 
@@ -18,9 +17,13 @@ public class AgentInfoBo  {
         @Override
         public int compare(AgentInfoBo that, AgentInfoBo other) {
             // null 일때 상황이 애매할수 있어서 그냥 ""으로 처리함.
-            final String thatAgentId = StringUtils.defaultString(that.agentId);
-            final String otherAgentId = StringUtils.defaultString(other.agentId);
+            final String thatAgentId = defaultString(that.agentId);
+            final String otherAgentId = defaultString(other.agentId);
             return thatAgentId.compareTo(otherAgentId);
+        }
+
+        private String defaultString(String string) {
+            return string == null ? "" : string;
         }
     };
 
@@ -150,7 +153,7 @@ public class AgentInfoBo  {
         buffer.putPrefixedString(this.getApplicationName());
         buffer.put(this.serviceType.getCode());
         buffer.put(this.getPid());
-        buffer.putPrefixedString(this.getVersion());;
+        buffer.putPrefixedString(this.getVersion());
 
         buffer.put(this.getStartTime());
         buffer.put(this.getEndTimeStamp());

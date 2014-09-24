@@ -68,7 +68,7 @@ public class HttpCustomServerHandler extends SimpleChannelUpstreamHandler {
 
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-		System.out.println("HttpCustomServerHandler.messageReceived (" + Thread.currentThread().getName() + ")");
+        logger.debug("HttpCustomServerHandler.messageReceived ({})", Thread.currentThread().getName());
 		this.listeningExecutorService.submit(new InvokeTask(ctx, e));
 	}
 
@@ -102,7 +102,7 @@ public class HttpCustomServerHandler extends SimpleChannelUpstreamHandler {
 		}
 
 		public void run() {
-			System.out.println("InvokeTask.run (" + Thread.currentThread().getName() + ")");
+			logger.debug("InvokeTask.run ({}}", Thread.currentThread().getName());
 
 			if (!(e.getMessage() instanceof HttpRequest)) {
 				logger.debug("[n/a] received message is illegal.");

@@ -1,6 +1,8 @@
 package com.nhn.pinpoint.collector.cluster.zookeeper;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.zookeeper.CreateMode;
@@ -12,7 +14,6 @@ import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.collector.cluster.zookeeper.ZookeeperEventWatcher;
 import com.nhn.pinpoint.collector.cluster.zookeeper.exception.AuthException;
 import com.nhn.pinpoint.collector.cluster.zookeeper.exception.BadOperationException;
 import com.nhn.pinpoint.collector.cluster.zookeeper.exception.ConnectionException;
@@ -46,6 +47,10 @@ public class ZookeeperClient {
 	 * @throws InterruptedException 
 	 */
 	public void createPath(String path) throws PinpointZookeeperException, InterruptedException {
+		createPath(path, false);
+	}
+
+	public void createPath(String path, boolean createEndNode) throws PinpointZookeeperException, InterruptedException {
 		checkState();
 
 		int pos = 1;
@@ -54,10 +59,15 @@ public class ZookeeperClient {
 
 			if (pos == -1) {
 				pos = path.length();
-				return;
 			}
 
 			try {
+				if (pos == path.length()) {
+					if (!createEndNode) {
+						return;
+					}
+				}
+				
 				String subPath = path.substring(0, pos);
 				if (zookeeper.exists(subPath, false) != null) {
 					continue;
@@ -73,6 +83,7 @@ public class ZookeeperClient {
 		} while (pos < path.length());
 	}
 
+	
 // 이미있는 노드가 괜찮은건지 검사 필요없을거 같긴한데, 혹시나 이건 일단 주석으로
 //	Stat stat = zookeeper.exists(node, false);
 //	if (stat != null) {
@@ -157,11 +168,36 @@ public class ZookeeperClient {
 	}
 
 	private void checkState() throws PinpointZookeeperException {
-		if (!watcher.isConnected() || !clientState.get()) {
+		if (!isConnected()) {
 			throw new ConnectionException("instance must be connected.");
 		}
 	}
 
+	public boolean isConnected() {
+		if (!watcher.isConnected() || !clientState.get()) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	public List<String> getChildrenNode(String path, boolean watch) throws PinpointZookeeperException, InterruptedException {
+		checkState();
+
+		try {
+			List<String> childNodeList = zookeeper.getChildren(path, watch, null);
+			
+			logger.info("ChildNode List = {}", childNodeList);
+			return childNodeList;
+		} catch (KeeperException exception) {
+			if (exception.code() != Code.NONODE) {
+				handleException(exception);
+			}
+		}
+		
+		return Collections.emptyList();
+	}
+	
 //	public byte[] getData(String path) throws KeeperException, InterruptedException {
 //		checkState();
 //

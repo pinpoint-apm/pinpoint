@@ -3,7 +3,7 @@ package com.nhn.pinpoint.profiler.monitor.codahale.cpu;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.common.JvmVersion;
+import com.nhn.pinpoint.common.util.JvmVersion;
 import com.nhn.pinpoint.common.util.JvmUtils;
 import com.nhn.pinpoint.profiler.monitor.codahale.cpu.metric.CpuLoadMetricSet;
 import com.nhn.pinpoint.profiler.monitor.codahale.cpu.metric.DefaultCpuLoadMetricSet;

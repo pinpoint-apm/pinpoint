@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler.modifier.db;
 
 /**
- * @author emeroad
+ * copy lucy 1.5
  */
 public class StringMaker {
 
@@ -252,6 +252,19 @@ public class StringMaker {
     public StringMaker beforeLast(char ch) {
         int index = indexing.lastIndexOf(ch, end);
 
+        if (index < begin) {
+            return this;
+        }
+
+        //end = index < begin ? begin : index;
+        //for Klocwork
+
+        end = index;
+        return this;
+    }
+
+    public StringMaker beforeLast(char ch1, char ch2) {
+        int index = lastIndexOf(indexing, end, ch1, ch2);
         if (index < begin) {
             return this;
         }

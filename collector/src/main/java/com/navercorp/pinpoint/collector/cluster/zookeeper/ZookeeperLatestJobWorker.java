@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.collector.cluster.zookeeper;
 
-import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,12 +14,14 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.nhn.pinpoint.collector.cluster.WorkerState;
+import com.nhn.pinpoint.collector.cluster.WorkerStateContext;
 import com.nhn.pinpoint.collector.cluster.zookeeper.exception.TimeoutException;
 import com.nhn.pinpoint.collector.cluster.zookeeper.job.DeleteJob;
 import com.nhn.pinpoint.collector.cluster.zookeeper.job.Job;
 import com.nhn.pinpoint.collector.cluster.zookeeper.job.UpdateJob;
-import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.collector.receiver.tcp.AgentPropertiesType;
+import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.rpc.server.ChannelContext;
 import com.nhn.pinpoint.rpc.server.PinpointServerSocketStateCode;
 import com.nhn.pinpoint.rpc.util.MapUtils;
@@ -30,17 +31,19 @@ import com.nhn.pinpoint.rpc.util.MapUtils;
  */
 public class ZookeeperLatestJobWorker implements Runnable {
 
-	private static final String PREFIX_ROOT_ZNODE = "/pinpoint-cluster";
+	private static final String PINPOINT_CLUSTER_PATH = "/pinpoint-cluster";
+	private static final String PINPOINT_PROFILER_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/profiler";
+
 	private static final String PATH_SEPRATOR = "/";
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private final Object lock = new Object();
 
-	private final AtomicInteger workerState;
+	private final WorkerStateContext workerState;
 	private final Thread workerThread;
 
-	private final String identifier = ManagementFactory.getRuntimeMXBean().getName();
+	private final String identifier;
 	private final AtomicInteger sequntialId = new AtomicInteger(0);
 
 	private final ZookeeperClient zookeeperClient;
@@ -56,42 +59,54 @@ public class ZookeeperLatestJobWorker implements Runnable {
 	// 등록순서
 	// 순서대로 작업은 반드시 Worker에서만 돌아가기 때문에 동시성은 보장됨
 
-	public ZookeeperLatestJobWorker(ZookeeperClient zookeeperClient) {
+	public ZookeeperLatestJobWorker(ZookeeperClient zookeeperClient, String serverIdentifier) {
 		// TODO Auto-generated constructor stub
 		this.zookeeperClient = zookeeperClient;
 
-		this.workerState = new AtomicInteger(0);
+		this.workerState = new WorkerStateContext();
+
+		this.identifier = serverIdentifier;
 
 		final ThreadFactory threadFactory = new PinpointThreadFactory(this.getClass().getSimpleName(), true);
 		this.workerThread = threadFactory.newThread(this);
 	}
 
 	public void start() {
-		switch (this.workerState.get()) {
-		case 0:
-			if (this.workerState.compareAndSet(0, 1))
-				logger.info("{} will be started", this.getClass().getSimpleName());
-			this.workerThread.start();
+		switch (this.workerState.getCurrentState()) {
+		case NEW:
+			if (this.workerState.changeStateInitializing()) {
+				logger.info("{} initialization started.", this.getClass().getSimpleName());
+				this.workerThread.start();
+
+				workerState.changeStateStarted();
+				logger.info("{} initialization completed.", this.getClass().getSimpleName());
+
+				break;
+			}
+		case INITIALIZING:
+			logger.info("{} already initializing.", this.getClass().getSimpleName());
 			break;
-		case 1:
+		case STARTED:
 			logger.info("{} already started.", this.getClass().getSimpleName());
 			break;
-		case 2:
-			throw new IllegalStateException("Already stopped");
-		default:
-			throw new Error("Invalid WorkerState");
+		case DESTROYING:
+			throw new IllegalStateException("Already destroying.");
+		case STOPPED:
+			throw new IllegalStateException("Already stopped.");
+		case ILLEGAL_STATE:
+			throw new IllegalStateException("Invalid State.");
 		}
 	}
 
 	public void stop() {
-		if (!(this.workerState.compareAndSet(1, 2))) {
-			logger.info("{} already stopped.", this.getClass().getSimpleName());
-			this.workerState.set(2);
+		if (!(this.workerState.changeStateDestroying())) {
+			WorkerState state = this.workerState.getCurrentState();
+
+			logger.info("{} already {}.", this.getClass().getSimpleName(), state.toString());
 			return;
 		}
 
-		logger.info("{} will be stopped", this.getClass().getSimpleName());
-
+		logger.info("{} destorying started.", this.getClass().getSimpleName());
 		boolean interrupted = false;
 		while (this.workerThread.isAlive()) {
 			this.workerThread.interrupt();
@@ -102,6 +117,9 @@ public class ZookeeperLatestJobWorker implements Runnable {
 			}
 		}
 
+		this.workerState.changeStateStoped();
+		logger.info("{} destorying completed.", this.getClass().getSimpleName());
+
 		return;
 	}
 
@@ -111,16 +129,14 @@ public class ZookeeperLatestJobWorker implements Runnable {
 		// 고민할 것
 		// 이벤트 삭제가 안될떄 spinlock 고민해야함
 		// 이벤트 발생시 처리가 안될 경우 실제 등록이 안되어이는 ChannelContext가 남아있을 수 있음 이 경우
-		// Manager에서
-		// 종료가 될 경우 처리해주긴 하지만 LeakDetector같은게 있으면 더 좋을듯 안되면 (1분마다 확인등도 괜찮을듯)
-		while (workerState.get() == 1) {
+		while (workerState.isStarted()) {
 			boolean eventCreated = await(60000, 200);
-			if (workerState.get() != 1) {
+			if (!workerState.isStarted()) {
 				break;
 			}
 
 			// 이벤트 발생시 이벤트 처리
-			// 이벤트 발생하지 않을 경우 leack ChannelContext 확인 및 처리
+			// 이벤트 발생하지 않을 경우 leak ChannelContext 확인 및 처리
 			if (eventCreated) {
 				// ConcurrentModificationException 발생 피하기 위해서
 				Iterator<ChannelContext> keyIterator = getLatestJobRepositoryKeyIterator();
@@ -140,15 +156,15 @@ public class ZookeeperLatestJobWorker implements Runnable {
 					}
 				}
 			} else {
-				logger.debug("LeackDetector Start.");
+				// 삭제 타이밍이 잘 안맞을 경우 메시지 유실이 발생할 가능성이 있어서 유실 Job 처리
+				logger.debug("LeakDetector Start.");
 
-				// while 걸자 
 				while (true) {
 					Job job = leakJobQueue.poll();
 					if (job == null) {
 						break;
 					}
-					
+
 					if (job instanceof UpdateJob) {
 						putJob(new UpdateJob(job.getChannelContext(), 0, ((UpdateJob) job).getContents()));
 					}
@@ -157,11 +173,11 @@ public class ZookeeperLatestJobWorker implements Runnable {
 				List<ChannelContext> currentChannelContextList = getRegisteredChannelContextList();
 				for (ChannelContext channelContext : currentChannelContextList) {
 					if (PinpointServerSocketStateCode.isFinished(channelContext.getCurrentStateCode())) {
-						logger.info("LeackDetector Find Leak ChannelContext={}.", channelContext);
+						logger.info("LeakDetector Find Leak ChannelContext={}.", channelContext);
 						putJob(new DeleteJob(channelContext));
 					}
 				}
-				
+
 			}
 		}
 
@@ -179,6 +195,10 @@ public class ZookeeperLatestJobWorker implements Runnable {
 
 		// 동시성에 문제 없게 하자
 		String uniquePath = getUniquePath(channelContext, true);
+		if (uniquePath == null) {
+			logger.warn("Zookeeper UniqPath({}) may not be null.", uniquePath);
+			return false;
+		}
 
 		try {
 			if (zookeeperClient.exists(uniquePath)) {
@@ -270,7 +290,7 @@ public class ZookeeperLatestJobWorker implements Runnable {
 
 			long startTimeMillis = System.currentTimeMillis();
 
-			while (latestJobRepository.size() == 0 && !isOverWaitTime(waitTime, startTimeMillis) && workerState.get() == 1) {
+			while (latestJobRepository.size() == 0 && !isOverWaitTime(waitTime, startTimeMillis) && workerState.isStarted()) {
 				try {
 					lock.wait(waitUnitTime);
 				} catch (InterruptedException e) {
@@ -336,10 +356,11 @@ public class ZookeeperLatestJobWorker implements Runnable {
 				final String agentId = MapUtils.getString(agentProperties, AgentPropertiesType.AGENT_ID.getName());
 
 				if (StringUtils.isEmpty(applicationName) || StringUtils.isEmpty(agentId)) {
+					logger.warn("ApplicationName({}) and AgnetId({}) may not be null.", applicationName, agentId);
 					return null;
 				}
 
-				String path = PREFIX_ROOT_ZNODE + "/" + applicationName + "/" + agentId;
+				String path = PINPOINT_PROFILER_CLUSTER_PATH + "/" + applicationName + "/" + agentId;
 				String zNodeName = createUniqueZnodeName();
 
 				zNodePath = bindingPathAndZnode(path, zNodeName);

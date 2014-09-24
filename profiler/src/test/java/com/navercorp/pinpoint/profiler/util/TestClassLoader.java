@@ -112,6 +112,11 @@ public class TestClassLoader extends Loader {
     private void addDefaultDelegateLoadingOf() {
         this.delegateLoadingOf("com.nhn.pinpoint.bootstrap.");
         this.delegateLoadingOf("com.nhn.pinpoint.common.");
+        this.delegateLoadingOf("com.nhn.pinpoint.thrift.");
+        this.delegateLoadingOf("com.nhn.pinpoint.profiler.context.");
+        this.delegateLoadingOf("com.nhn.pinpoint.profiler.sender.PeekableDataSender");
+        this.delegateLoadingOf("com.nhn.pinpoint.profiler.junit4.IsRootSpan");
+        this.delegateLoadingOf("org.apache.thrift.TBase");
         this.delegateLoadingOf("junit.");
         this.delegateLoadingOf("org.hamcrest.");
         this.delegateLoadingOf("org.junit.");
