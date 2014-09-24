@@ -10,14 +10,24 @@ import org.apache.curator.test.InstanceSpec;
 import org.apache.curator.test.TestingCluster;
 import org.apache.curator.test.TestingZooKeeperServer;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.nhn.pinpoint.collector.cluster.ClusterPointRouter;
 import com.nhn.pinpoint.collector.config.CollectorConfiguration;
 import com.nhn.pinpoint.collector.receiver.tcp.AgentProperties;
 import com.nhn.pinpoint.rpc.server.ChannelContext;
 import com.nhn.pinpoint.rpc.server.PinpointServerSocketStateCode;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("classpath:applicationContext-test.xml")
 public class ZookeeperEnsembleProfilerClusterServiceTest {
 
+	@Autowired
+	ClusterPointRouter clusterPointRouter;
+	
 	@Test
 	public void simpleTest1() throws Exception {
 		TestingCluster tcluster = null;
@@ -28,7 +38,9 @@ public class ZookeeperEnsembleProfilerClusterServiceTest {
 
 			CollectorConfiguration collectorConfig = createConfig(connectString);
 
-			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig);
+			
+			
+			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig, clusterPointRouter);
 			service.setUp();
 
 			ChannelContext channelContext = new ChannelContext(null, null, service.getChannelStateChangeEventListener());
@@ -69,7 +81,7 @@ public class ZookeeperEnsembleProfilerClusterServiceTest {
 
 			CollectorConfiguration collectorConfig = createConfig(connectString);
 
-			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig);
+			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig, clusterPointRouter);
 			service.setUp();
 
 			ChannelContext channelContext = new ChannelContext(null, null, service.getChannelStateChangeEventListener());
@@ -117,7 +129,7 @@ public class ZookeeperEnsembleProfilerClusterServiceTest {
 
 			CollectorConfiguration collectorConfig = createConfig(connectString);
 
-			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig);
+			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig, clusterPointRouter);
 			service.setUp();
 
 			ChannelContext channelContext = new ChannelContext(null, null, service.getChannelStateChangeEventListener());

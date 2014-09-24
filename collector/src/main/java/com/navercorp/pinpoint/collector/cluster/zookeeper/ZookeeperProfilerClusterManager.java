@@ -1,18 +1,17 @@
 package com.nhn.pinpoint.collector.cluster.zookeeper;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nhn.pinpoint.collector.cluster.ProfilerClusterPoint;
 import com.nhn.pinpoint.collector.cluster.WorkerState;
 import com.nhn.pinpoint.collector.cluster.WorkerStateContext;
 import com.nhn.pinpoint.collector.cluster.zookeeper.exception.PinpointZookeeperException;
@@ -36,6 +35,8 @@ public class ZookeeperProfilerClusterManager implements SocketChannelStateChange
 
 	private final WorkerStateContext workerState;
 
+	private final ProfilerClusterPoint clusterPoint;
+	
 	private final ObjectMapper objectmapper = new ObjectMapper();
 
 	// 단순하게 하자 그냥 RUN이면 등록 FINISHED면 경우 삭제 그외 skip
@@ -43,8 +44,9 @@ public class ZookeeperProfilerClusterManager implements SocketChannelStateChange
 	//
 	// RUN_DUPLEX에서만 생성할수 있게 해야한다.
 	// 지금은 RUN 상대방의 상태를 알수 없는 상태이기 때문에 이상황에서 등록
-	public ZookeeperProfilerClusterManager(ZookeeperClient client, String serverIdentifier) throws KeeperException, IOException, InterruptedException {
+	public ZookeeperProfilerClusterManager(ZookeeperClient client, String serverIdentifier, ProfilerClusterPoint clusterPoint) {
 		this.workerState = new WorkerStateContext();
+		this.clusterPoint = clusterPoint;
 		
 		this.client = client;
 		this.worker = new ZookeeperLatestJobWorker(client, serverIdentifier);
@@ -121,9 +123,13 @@ public class ZookeeperProfilerClusterManager implements SocketChannelStateChange
 				
 				UpdateJob job = new UpdateJob(channelContext, contents);
 				worker.putJob(job);
+				
+				clusterPoint.registerChannelContext(channelContext);
 			} else if (PinpointServerSocketStateCode.isFinished(stateCode)) {
 				DeleteJob job = new DeleteJob(channelContext);
 				worker.putJob(job);
+				
+				clusterPoint.unregisterChannelContext(channelContext);
 			} 
 		} else {
 			WorkerState state = this.workerState.getCurrentState();
@@ -137,7 +143,7 @@ public class ZookeeperProfilerClusterManager implements SocketChannelStateChange
 		byte[] contents = worker.getData(channelContext);
 		
 		if (contents == null) {
-			return Collections.EMPTY_MAP;
+			return Collections.emptyMap();
 		}
 		
 		return deserializeContents(contents);
@@ -188,7 +194,7 @@ public class ZookeeperProfilerClusterManager implements SocketChannelStateChange
 			logger.warn(e.getMessage(), e);
 		}
 
-		return Collections.EMPTY_MAP;
+		return Collections.emptyMap();
 	}
 
 }

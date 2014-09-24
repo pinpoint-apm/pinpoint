@@ -9,9 +9,14 @@ import org.apache.curator.test.TestingServer;
 import org.apache.zookeeper.WatchedEvent;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.nhn.pinpoint.collector.cluster.ClusterPointRouter;
 import com.nhn.pinpoint.collector.config.CollectorConfiguration;
 import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
@@ -24,6 +29,8 @@ import com.nhn.pinpoint.rpc.server.ServerMessageListener;
 import com.nhn.pinpoint.rpc.server.ServerStreamChannel;
 import com.nhn.pinpoint.rpc.server.SocketChannel;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("classpath:applicationContext-test.xml")
 public class ZookeeperWebClusterServiceTest {
 
 	private static final String PINPOINT_CLUSTER_PATH = "/pinpoint-cluster";
@@ -35,6 +42,9 @@ public class ZookeeperWebClusterServiceTest {
 	private static final int DEFAULT_ACCEPTOR_SOCKET_PORT = 22214;
 
 	private static CollectorConfiguration collectorConfig = null;
+
+	@Autowired
+	ClusterPointRouter clusterPointRouter;
 
 	@BeforeClass
 	public static void setUp() {
@@ -51,7 +61,7 @@ public class ZookeeperWebClusterServiceTest {
 		try {
 			ts = createZookeeperServer(DEFAULT_ZOOKEEPER_PORT);
 
-			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig);
+			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig, clusterPointRouter);
 			service.setUp();
 
 			PinpointServerSocket pinpointServerSocket = new PinpointServerSocket();

@@ -7,18 +7,28 @@ import org.apache.curator.test.TestingServer;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.nhn.pinpoint.collector.cluster.ClusterPointRouter;
 import com.nhn.pinpoint.collector.config.CollectorConfiguration;
 import com.nhn.pinpoint.collector.receiver.tcp.AgentProperties;
 import com.nhn.pinpoint.rpc.server.ChannelContext;
 import com.nhn.pinpoint.rpc.server.PinpointServerSocketStateCode;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("classpath:applicationContext-test.xml")
 public class ZookeeperProfilerClusterServiceTest {
 
 	private static final int DEFAULT_ACCEPTOR_PORT = 22213;
 
 	private static CollectorConfiguration collectorConfig = null;
 
+	@Autowired
+	ClusterPointRouter clusterPointRouter;
+	
 	@BeforeClass
 	public static void setUp() {
 		collectorConfig = new CollectorConfiguration();
@@ -34,7 +44,7 @@ public class ZookeeperProfilerClusterServiceTest {
 		try {
 			ts = createZookeeperServer(DEFAULT_ACCEPTOR_PORT);
 
-			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig);
+			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig, clusterPointRouter);
 			service.setUp();
 
 			ChannelContext channelContext = new ChannelContext(null, null, service.getChannelStateChangeEventListener());
@@ -70,7 +80,7 @@ public class ZookeeperProfilerClusterServiceTest {
 	public void simpleTest2() throws Exception {
 		TestingServer ts = null;
 		try {
-			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig);
+			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig, clusterPointRouter);
 			service.setUp();
 
 			ChannelContext channelContext = new ChannelContext(null, null, service.getChannelStateChangeEventListener());
@@ -113,7 +123,7 @@ public class ZookeeperProfilerClusterServiceTest {
 		try {
 			ts = createZookeeperServer(DEFAULT_ACCEPTOR_PORT);
 
-			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig);
+			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig, clusterPointRouter);
 			service.setUp();
 
 			ChannelContext channelContext = new ChannelContext(null, null, service.getChannelStateChangeEventListener());
@@ -156,7 +166,7 @@ public class ZookeeperProfilerClusterServiceTest {
 	public void simpleTest4() throws Exception {
 		TestingServer ts = null;
 		try {
-			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig);
+			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig, clusterPointRouter);
 			service.setUp();
 
 			ChannelContext channelContext = new ChannelContext(null, null, service.getChannelStateChangeEventListener());
@@ -200,7 +210,7 @@ public class ZookeeperProfilerClusterServiceTest {
 		try {
 			ts = createZookeeperServer(DEFAULT_ACCEPTOR_PORT);
 
-			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig);
+			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig, clusterPointRouter);
 			service.setUp();
 
 			ChannelContext channelContext = new ChannelContext(null, null, service.getChannelStateChangeEventListener());

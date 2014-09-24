@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.collector.cluster.zookeeper;
 
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -16,14 +15,16 @@ import org.apache.zookeeper.proto.WatcherEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.collector.cluster.ClusterService;
+import com.nhn.pinpoint.collector.cluster.AbstractClusterService;
+import com.nhn.pinpoint.collector.cluster.ClusterPointRouter;
 import com.nhn.pinpoint.collector.cluster.WorkerState;
 import com.nhn.pinpoint.collector.cluster.WorkerStateContext;
 import com.nhn.pinpoint.collector.config.CollectorConfiguration;
+import com.nhn.pinpoint.collector.util.CollectorUtils;
 import com.nhn.pinpoint.rpc.server.ChannelContext;
 import com.nhn.pinpoint.rpc.server.SocketChannelStateChangeEventListener;
 
-public class ZookeeperClusterService implements ClusterService {
+public class ZookeeperClusterService extends AbstractClusterService {
 
 	private static final String PINPOINT_CLUSTER_PATH = "/pinpoint-cluster";
 	private static final String PINPOINT_WEB_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/web";
@@ -33,22 +34,22 @@ public class ZookeeperClusterService implements ClusterService {
 
 	// 해당 값이 유일한 값이 아닌 경우 MAC주소나 IP주소 등으로 변경할 예정
 	// 요렇게 하면 pid@hostname 으로 나옴 (localhost 요런놈은 겹칠 가능성이 존재함)
-	private final String serverIdentifier = ManagementFactory.getRuntimeMXBean().getName();
-
-	private final CollectorConfiguration config;
+	private final String serverIdentifier = CollectorUtils.getServerIdentifier();
 
 	private final WorkerStateContext serviceState;
 
 	private ZookeeperClient client;
 
+
 	// ProfilerClusterManager는 프로파일러 -> 콜렉터 연결을 감지 및 관리하고, 쥬키퍼에 등록한다.
 	// private ZookeeperProfilerClusterManager profilerClusterManager;
 	// WebClusterManager는 웹 정보가 쥬키퍼에 등록되어 있는지 체크하고, 콜렉터 -> 웹 연결을 관리한다.
+	
 	private ZookeeperWebClusterManager webClusterManager;
 	private ZookeeperProfilerClusterManager profilerClusterManager;
 
-	public ZookeeperClusterService(CollectorConfiguration config) {
-		this.config = config;
+	public ZookeeperClusterService(CollectorConfiguration config, ClusterPointRouter clusterPointRouter) {
+		super(config, clusterPointRouter);
 		this.serviceState = new WorkerStateContext();
 	}
 
@@ -68,11 +69,11 @@ public class ZookeeperClusterService implements ClusterService {
 					// 이 상태값은 반드시 필요한것들인데.
 					ClusterManagerWatcher watcher = new ClusterManagerWatcher();
 					this.client = new ZookeeperClient(config.getClusterAddress(), config.getClusterSessionTimeout(), watcher);
-	
-					this.profilerClusterManager = new ZookeeperProfilerClusterManager(client, serverIdentifier);
+					
+					this.profilerClusterManager = new ZookeeperProfilerClusterManager(client, serverIdentifier, clusterPointRouter.getProfilerClusterPoint());
 					this.profilerClusterManager.start();
 	
-					this.webClusterManager = new ZookeeperWebClusterManager(client, PINPOINT_WEB_CLUSTER_PATH, serverIdentifier);
+					this.webClusterManager = new ZookeeperWebClusterManager(client, PINPOINT_WEB_CLUSTER_PATH, serverIdentifier, clusterPointRouter.getWebClusterPoint());
 					this.webClusterManager.start();
 	
 					this.serviceState.changeStateStarted();
@@ -98,7 +99,7 @@ public class ZookeeperClusterService implements ClusterService {
 				throw new IllegalStateException("Already stopped.");
 			case ILLEGAL_STATE:
 				throw new IllegalStateException("Invalid State.");
-			}
+		}
 	}
 
 	@PreDestroy
@@ -125,7 +126,7 @@ public class ZookeeperClusterService implements ClusterService {
 		if (this.webClusterManager != null) {
 			webClusterManager.stop();
 		}
-
+		
 		if (client != null) {
 			client.close();
 		}
@@ -183,10 +184,7 @@ public class ZookeeperClusterService implements ClusterService {
 					}
 
 					webClusterManager.handleAndRegisterWatcher(PINPOINT_WEB_CLUSTER_PATH);
-					return;
-				}
-
-				if (eventType == EventType.NodeChildrenChanged) {
+				} else if (eventType == EventType.NodeChildrenChanged) {
 					String path = event.getPath();
 
 					if (PINPOINT_WEB_CLUSTER_PATH.equals(path)) {
