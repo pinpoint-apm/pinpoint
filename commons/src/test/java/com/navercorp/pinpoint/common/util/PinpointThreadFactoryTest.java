@@ -15,20 +15,22 @@ public class PinpointThreadFactoryTest {
 
     @Test
     public void testCreateThreadFactory() throws Exception {
-        final AtomicInteger test = new AtomicInteger(0);
+        final AtomicInteger counter = new AtomicInteger(0);
 
         PinpointThreadFactory pinpoint = new PinpointThreadFactory("pinpoint");
         Thread thread = pinpoint.newThread(new Runnable() {
             @Override
             public void run() {
-                test.getAndIncrement();
+                counter.getAndIncrement();
             }
         });
         thread.start();
         thread.join();
-        Assert.assertEquals(test.get(), 1);
+
+        Assert.assertEquals(counter.get(), 1);
+
         String threadName = thread.getName();
-        logger.info(threadName);
+        logger.debug(threadName);
         Assert.assertTrue(threadName.startsWith("pinpoint("));
         Assert.assertTrue(threadName.endsWith(")"));
 
@@ -37,7 +39,7 @@ public class PinpointThreadFactoryTest {
             public void run() {
             }
         });
-        logger.info(thread2.getName());
+        logger.debug(thread2.getName());
 
     }
 }

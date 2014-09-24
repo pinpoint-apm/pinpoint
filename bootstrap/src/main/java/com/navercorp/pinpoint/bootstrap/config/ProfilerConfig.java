@@ -318,7 +318,7 @@ public class ProfilerConfig {
 		return ioBufferingEnable;
 	}
 
-	public int getIoBufferingBufferBufferSize() {
+	public int getIoBufferingBufferSize() {
 		return ioBufferingBufferSize;
 	}
 

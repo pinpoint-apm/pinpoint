@@ -7,6 +7,8 @@ import com.nhn.pinpoint.web.vo.Range;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -18,6 +20,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-web.xml")
 public class HbaseAgentStatDaoTest {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private HbaseAgentStatDao dao;
@@ -27,7 +30,7 @@ public class HbaseAgentStatDaoTest {
         long timestamp = System.currentTimeMillis();
         Range range = new Range(timestamp - 100000, timestamp);
         List<AgentStat> result = dao.scanAgentStatList("FRONT-WEB1", range);
-        System.out.println(result);
+        logger.debug("{}", result);
     }
 
 }

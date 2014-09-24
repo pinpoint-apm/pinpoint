@@ -39,7 +39,7 @@ public class NettyUdpReceiverTest {
             public void run() {
                 udpServer.bind(new InetSocketAddress("127.0.0.1", PORT));
                 try {
-                    System.out.println("server-await");
+                    logger.debug("server-await");
                     latch.await();
                 } catch (InterruptedException e) {
                 }
@@ -47,7 +47,7 @@ public class NettyUdpReceiverTest {
         });
         thread.start();
         Thread.sleep(1000);
-        System.out.println("start--------");
+        logger.debug("start--------");
 //        ExecutorService executorService = Executors.newFixedThreadPool(10);
 //        for (int i =0; i< 10; i++) {
 //            executorService.execute(new Runnable() {
@@ -90,7 +90,7 @@ public class NettyUdpReceiverTest {
                     @Override
                     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
                         String name = Thread.currentThread().getName();
-                        System.out.println("sleep-------------------" + name);
+                        logger.debug("sleep-------------------{}", name);
                         Thread.sleep(10000);
 //                        if (!name.equals("New I/O worker #1")) {
                             logger.info("messageReceived thread-{} message:", Thread.currentThread().getName());

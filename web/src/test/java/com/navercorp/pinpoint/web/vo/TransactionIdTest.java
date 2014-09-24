@@ -9,9 +9,13 @@ import java.util.TreeSet;
 import junit.framework.Assert;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TransactionIdTest {
-	@Test
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Test
 	public void sameAll() {
 		TransactionId id1 = new TransactionId("A1", 1, 1);
 		TransactionId id2 = new TransactionId("A1", 1, 1);
@@ -58,13 +62,13 @@ public class TransactionIdTest {
 		for (int i = 0; i < 10; i++) {
 			list.add(new TransactionId("A", 1, numbers.get(i)));
 		}
-		System.out.println(list);
+        logger.debug("{}", list);
 
 		SortedSet<TransactionId> set = new TreeSet<TransactionId>(list);
 		for (int i = 0; i < 10; i++) {
 			set.add(list.get(i));
 		}
 
-		System.out.println(set);
+		logger.debug("{}", set);
 	}
 }

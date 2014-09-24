@@ -259,7 +259,7 @@ public class MessageListenerTest {
 			sendPacketRepository.add(sendPacket);
 			
 			byte[] payload = sendPacket.getPayload();
-			System.out.println(new String(payload));
+            logger.debug(new String(payload));
 		}
 
 		@Override
@@ -267,7 +267,7 @@ public class MessageListenerTest {
 			requestPacketRepository.add(requestPacket);
 			
 			byte[] payload = requestPacket.getPayload();
-			System.out.println(new String(payload));
+			logger.debug(new String(payload));
 
 			channel.write(new ResponsePacket(requestPacket.getRequestId(), requestPacket.getPayload()));
 		}

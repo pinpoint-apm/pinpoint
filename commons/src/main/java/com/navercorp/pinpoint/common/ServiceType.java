@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.nhn.pinpoint.common.util.RpcCodeRange;
+import com.nhn.pinpoint.common.util.apache.IntHashMap;
 
 /**
  * @author emeroad

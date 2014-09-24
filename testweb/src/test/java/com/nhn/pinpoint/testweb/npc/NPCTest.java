@@ -10,8 +10,12 @@ import org.junit.Test;
 
 import com.nhncorp.lucy.net.invoker.InvocationFuture;
 import com.nhncorp.lucy.npc.connector.NpcHessianConnector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NPCTest {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
 
 	@Test
 	public void connect() {
@@ -29,7 +33,7 @@ public class NPCTest {
 			// Object result = future.get();
 			Object result = future.getReturnValue();
 
-			System.out.println(result);
+            logger.debug("{}", result);
 			Assert.assertNotNull(result);
 		} catch (Exception e) {
 			e.printStackTrace();

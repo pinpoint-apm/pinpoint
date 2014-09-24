@@ -21,13 +21,6 @@ public final class BytesUtils {
     private static final String UTF8 = "UTF-8";
     private static final Logger LOGGER = Logger.getLogger(BytesUtils.class.getName());
 
-    @Deprecated
-    public static byte[] longLongToBytes(final long value1, final long value2) {
-        final byte[] buffer = new byte[LONG_LONG_BYTE_LENGTH];
-        writeFirstLong0(value1, buffer);
-        writeSecondLong0(value2, buffer);
-        return buffer;
-    }
 
     public static byte[] stringLongLongToBytes(final String string, final int maxStringSize, final long value1, final long value2) {
         if (string == null) {
@@ -58,22 +51,6 @@ public final class BytesUtils {
             throw new IllegalArgumentException("negative offset:" + offset);
         }
         System.arraycopy(stringBytes, 0, buffer, offset, stringBytes.length);
-    }
-
-    @Deprecated
-    public static long[] bytesToLongLong(final byte[] buf) {
-        if (buf == null) {
-            throw new NullPointerException("buf must not be null");
-        }
-        if (buf.length < LONG_LONG_BYTE_LENGTH) {
-            throw new IllegalArgumentException("Illegal buf size.");
-        }
-        final long[] result = new long[2];
-
-        result[0] = bytesToFirstLong0(buf);
-        result[1] = bytesToSecondLong0(buf);
-
-        return result;
     }
 
     public static long bytesToLong(final byte[] buf, final int offset) {
@@ -137,51 +114,6 @@ public final class BytesUtils {
         return (short) (((byte1 & 0xff) << 8) | ((byte2 & 0xff)));
     }
 
-    public static long bytesToFirstLong(final byte[] buf) {
-        if (buf == null) {
-            throw new NullPointerException("buf must not be null");
-        }
-        if (buf.length < LONG_BYTE_LENGTH) {
-            throw new IllegalArgumentException("buf.length is too small(8). buf.length:" + buf.length);
-        }
-
-        return bytesToFirstLong0(buf);
-    }
-
-    private static long bytesToFirstLong0(byte[] buf) {
-        final long rv = (((long) buf[0] & 0xff) << 56)
-                | (((long) buf[1] & 0xff) << 48)
-                | (((long) buf[2] & 0xff) << 40)
-                | (((long) buf[3] & 0xff) << 32)
-                | (((long) buf[4] & 0xff) << 24)
-                | (((long) buf[5] & 0xff) << 16)
-                | (((long) buf[6] & 0xff) << 8)
-                | (((long) buf[7] & 0xff));
-        return rv;
-    }
-
-    public static long bytesToSecondLong(final byte[] buf) {
-        if (buf == null) {
-            throw new NullPointerException("buf must not be null");
-        }
-        if (buf.length < LONG_LONG_BYTE_LENGTH) {
-            throw new IllegalArgumentException("buf.length is too small(16). buf.length:" + buf.length);
-        }
-
-        return bytesToSecondLong0(buf);
-    }
-
-    private static long bytesToSecondLong0(final byte[] buf) {
-        final long rv = (((long) buf[8] & 0xff) << 56)
-                | (((long) buf[9] & 0xff) << 48)
-                | (((long) buf[10] & 0xff) << 40)
-                | (((long) buf[11] & 0xff) << 32)
-                | (((long) buf[12] & 0xff) << 24)
-                | (((long) buf[13] & 0xff) << 16)
-                | (((long) buf[14] & 0xff) << 8)
-                | (((long) buf[15] & 0xff));
-        return rv;
-    }
 
     public static int writeLong(final long value, final byte[] buf, int offset) {
         if (buf == null) {
@@ -284,30 +216,9 @@ public final class BytesUtils {
         }
     }
 
-    @Deprecated
-    public static void writeFirstLong(final long value, final byte[] buf) {
-        if (buf == null) {
-            throw new NullPointerException("buf must not be null");
-        }
-        if (buf.length < LONG_BYTE_LENGTH) {
-            throw new IllegalArgumentException("buf.length is too small(8). buf.length:" + buf.length);
-        }
-        writeFirstLong0(value, buf);
-    }
-
-    private static void writeFirstLong0(final long value, final byte[] buf) {
-        buf[0] = (byte) (value >> 56);
-        buf[1] = (byte) (value >> 48);
-        buf[2] = (byte) (value >> 40);
-        buf[3] = (byte) (value >> 32);
-        buf[4] = (byte) (value >> 24);
-        buf[5] = (byte) (value >> 16);
-        buf[6] = (byte) (value >> 8);
-        buf[7] = (byte) (value);
-    }
 
     private static void writeFirstLong0(final long value, final byte[] buf, int offset) {
-        buf[0 + offset] = (byte) (value >> 56);
+        buf[offset] = (byte) (value >> 56);
         buf[1 + offset] = (byte) (value >> 48);
         buf[2 + offset] = (byte) (value >> 40);
         buf[3 + offset] = (byte) (value >> 32);
@@ -317,32 +228,11 @@ public final class BytesUtils {
         buf[7 + offset] = (byte) (value);
     }
 
-    @Deprecated
-    public static void writeSecondLong(final long value, final byte[] buf) {
-        if (buf == null) {
-            throw new NullPointerException("buf must not be null");
-        }
-        if (buf.length < LONG_LONG_BYTE_LENGTH) {
-            throw new IllegalArgumentException("buf.length is too small(16). buf.length:" + buf.length);
-        }
-        writeSecondLong0(value, buf);
-    }
-
 
     private static Logger getLogger() {
         return Logger.getLogger(BytesUtils.class.getName());
     }
 
-    private static void writeSecondLong0(final long value, final byte[] buf) {
-        buf[8] = (byte) (value >> 56);
-        buf[9] = (byte) (value >> 48);
-        buf[10] = (byte) (value >> 40);
-        buf[11] = (byte) (value >> 32);
-        buf[12] = (byte) (value >> 24);
-        buf[13] = (byte) (value >> 16);
-        buf[14] = (byte) (value >> 8);
-        buf[15] = (byte) (value);
-    }
 
     private static void writeSecondLong0(final long value, final byte[] buf, int offset) {
         buf[8 + offset] = (byte) (value >> 56);
@@ -459,14 +349,15 @@ public final class BytesUtils {
 	public static byte[] concat(final byte[]... arrays) {
 		int totalLength = 0;
 
-		for (int i = 0; i < arrays.length; i++) {
+        final int length = arrays.length;
+        for (int i = 0; i < length; i++) {
 			totalLength += arrays[i].length;
 		}
 
 		byte[] result = new byte[totalLength];
 
 		int currentIndex = 0;
-		for (int i = 0; i < arrays.length; i++) {
+		for (int i = 0; i < length; i++) {
 			System.arraycopy(arrays[i], 0, result, currentIndex, arrays[i].length);
 			currentIndex += arrays[i].length;
 		}

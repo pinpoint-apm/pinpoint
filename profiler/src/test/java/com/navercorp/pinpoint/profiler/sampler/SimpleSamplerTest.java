@@ -4,11 +4,16 @@ package com.nhn.pinpoint.profiler.sampler;
 import com.nhn.pinpoint.profiler.sampler.SamplingRateSampler;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author emeroad
  */
 public class SimpleSamplerTest {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+
     @Test
     public void test() {
         SamplingRateSampler simpleSampler = new SamplingRateSampler(1);
@@ -27,10 +32,10 @@ public class SimpleSamplerTest {
     @Test
     public void mod() {
         int i = 0 % 101;
-        System.out.println("" + i);
+        logger.debug("{}", i);
 
         int j = Math.abs(-102) % 101;
-        System.out.println("" + j);
+        logger.debug("{}", j);
     }
 
     private void assertDrop(SamplingRateSampler simpleSampler) {

@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.common;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.nhn.pinpoint.common.util.apache.IntHashMap;
 
 /**
  * @author netspider

@@ -37,7 +37,7 @@ public class InterceptorRegistry {
         if (interceptor == null) {
             return -1;
         }
-        int newId = nextId();
+        final int newId = nextId();
         if (newId >= max) {
             throw new IndexOutOfBoundsException("size=" + index.length + " id=" + id);
         }
@@ -55,7 +55,7 @@ public class InterceptorRegistry {
         if (interceptor == null) {
             return -1;
         }
-        int newId = nextId();
+        final int newId = nextId();
         if (newId >= max) {
             throw new IndexOutOfBoundsException("size=" + index.length + " id=" + id);
         }
