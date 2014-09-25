@@ -16,6 +16,8 @@ var ServerMap = $.Class({
 				'QUEUE' : 'QUEUE.png',
 				'TOMCAT' : 'TOMCAT.png',
 				'UNKNOWN_CLOUD' : 'UNKNOWN_CLOUD.png',
+				'REDIS': 'REDIS.png',
+				'NBASE_ARC': 'NBASE_ARC.png',
 				'USER' : 'USER.png'
 			},
 			"htLinkType" : {

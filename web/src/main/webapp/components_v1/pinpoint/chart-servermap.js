@@ -417,6 +417,8 @@ var serverMapCallback = function(query, data, ignoreCache) {
 				'TOMCAT' : 'TOMCAT.png',
 				'UNKNOWN_CLOUD' : 'UNKNOWN_CLOUD.png',
 				'UNKNOWN_GROUP' : 'UNKNOWN_CLOUD.png',
+				'REDIS': 'REDIS.png',
+				'NBASE_ARC': 'NBASE_ARC.png',
 				'USER' : 'USER.png',
 				'ORACLE' : 'ORACLE.png'
 			},
