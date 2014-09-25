@@ -365,16 +365,29 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	}
 	
 	public void addRedisSupport() {
-        addModifier(new JedisClientModifier(byteCodeInstrumentor, agent));
-        addModifier(new JedisModifier(byteCodeInstrumentor, agent));
-        addModifier(new JedisPipelineModifier(byteCodeInstrumentor, agent));
+	    if(profilerConfig.isRedisEnabled()) {
+	        addModifier(new JedisModifier(byteCodeInstrumentor, agent));
+	    }
+	    
+        if(profilerConfig.isRedisPipelineEnabled()) {
+            addModifier(new JedisClientModifier(byteCodeInstrumentor, agent));
+            addModifier(new JedisPipelineModifier(byteCodeInstrumentor, agent));
+        }
 	}
 	
-	public void addNBaseArcSupport() {
-        addModifier(new GatewayModifier(byteCodeInstrumentor, agent));
-        addModifier(new GatewayServerModifier(byteCodeInstrumentor, agent));
-        addModifier(new RedisClusterModifier(byteCodeInstrumentor, agent));
-        addModifier(new RedisClusterPipelineModifier(byteCodeInstrumentor, agent));
+	public void addNbaseArcSupport() {
+	    if(profilerConfig.isNbaseArcEnabled() || profilerConfig.isNbaseArcPipelineEnabled()) {
+	        addModifier(new GatewayModifier(byteCodeInstrumentor, agent));
+	        addModifier(new GatewayServerModifier(byteCodeInstrumentor, agent));
+	        
+	        if(profilerConfig.isNbaseArcEnabled()) {
+	            addModifier(new RedisClusterModifier(byteCodeInstrumentor, agent));
+	        }
+
+	        if(profilerConfig.isNbaseArcPipelineEnabled()) {
+	            addModifier(new RedisClusterPipelineModifier(byteCodeInstrumentor, agent));
+	        }
+	    }
 	}
 	
 	private void addIBatisSupport() {
