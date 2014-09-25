@@ -1,0 +1,5 @@
+mvn package -Dmaven.test.skip
+이렇게 하면 그냥 패키징
+
+mvn package -Dmaven.test.skip -P withThrift
+antrun 하고 패키징

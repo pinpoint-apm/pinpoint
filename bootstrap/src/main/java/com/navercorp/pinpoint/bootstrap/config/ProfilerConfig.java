@@ -70,6 +70,11 @@ public class ProfilerConfig {
     private boolean ibatis = true;
     
     private boolean mybatis = true;
+
+    private boolean redis = true;
+    private boolean redisPipeline = true;
+    private boolean nbaseArc = true;
+    private boolean nbaseArcPipeline = true;
     
     /**
      * apache http client
@@ -460,6 +465,23 @@ public class ProfilerConfig {
 	public boolean isMyBatisEnabled() {
 		return mybatis;
 	}
+
+	public boolean isRedisEnabled() {
+	    return redis;
+	}
+	
+	public boolean isRedisPipelineEnabled() {
+	    return redisPipeline;
+	}
+	
+	public boolean isNbaseArcEnabled() {
+	    return nbaseArc;
+	}
+	
+	public boolean isNbaseArcPipelineEnabled() {
+	    return nbaseArcPipeline;
+	}
+	
 	
 	/**
      * TODO remove this. 테스트 장비에서 call stack view가 잘 보이는지 테스트 하려고 추가함.
@@ -583,6 +605,12 @@ public class ProfilerConfig {
         this.ningAsyncHttpClientProfileParamDumpSize = readInt(prop, "profiler.ning.asynchttpclient.param.dumpsize", 1024);
         this.ningAsyncHttpClientProfileParamSamplingRate = readInt(prop, "profiler.asynchttpclient.param.sampling.rate", 1);
 
+        // redis & nBase-ARC
+        this.redis = readBoolean(prop, "profiler.redis", true);
+        this.redisPipeline = readBoolean(prop, "profiler.redis.pipeline", true);
+        this.nbaseArc = readBoolean(prop, "profiler.nbase_arc", true);
+        this.nbaseArcPipeline = readBoolean(prop, "profiler.nbase_arc.pipeline", true);
+        
         //
         // FIXME 임시용, line game netty configuration
         //
@@ -595,7 +623,7 @@ public class ProfilerConfig {
         
         this.samplingEnable = readBoolean(prop, "profiler.sampling.enable", true);
         this.samplingRate = readInt(prop, "profiler.sampling.rate", 1);
-
+        
 		// 샘플링 + io 조절 bufferSize 결정
 		this.ioBufferingEnable = readBoolean(prop, "profiler.io.buffering.enable", true);
         // 버퍼 사이즈는 여기에 있는것은 문제가 있는것도 같음. 설정 조정의 필요성이 있음.
@@ -752,6 +780,10 @@ public class ProfilerConfig {
         sb.append(", arucsKeyTrace=").append(arucsKeyTrace);
         sb.append(", memcached=").append(memcached);
         sb.append(", memcachedKeyTrace=").append(memcachedKeyTrace);
+        sb.append(", redis=").append(redis);
+        sb.append(", redisPipeline=").append(redisPipeline);
+        sb.append(", nbaseArc=").append(nbaseArc);
+        sb.append(", nbaseArcPipeline=").append(nbaseArcPipeline);
         sb.append(", ibatis=").append(ibatis);
         sb.append(", mybatis=").append(mybatis);
         sb.append(", apacheHttpClient4Profile=").append(apacheHttpClient4Profile);

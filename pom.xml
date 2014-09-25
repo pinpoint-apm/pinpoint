@@ -203,7 +203,7 @@
                 <artifactId>spring-aspects</artifactId>
                 <version>${spring.version}</version>
             </dependency>
-
+            
             <!-- serving performance metrics -->
             <dependency>
                 <groupId>com.codahale.metrics</groupId>
@@ -443,9 +443,25 @@
                 <artifactId>ehcache</artifactId>
                 <version>1.6.2</version>
             </dependency>
+
             
+            <dependency>
+            	<groupId>com.nhncorp</groupId>
+	           <artifactId>triples-redis-client</artifactId>
+	           <version>1.3.3</version>
+            </dependency>
+
+            <dependency>
+	           <groupId>redis.clients</groupId>
+	           <artifactId>jedis</artifactId>
+	           <version>2.4.1</version>
+            </dependency>
             
-            
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-redis</artifactId>
+                <version>1.1.1.RELEASE</version>
+            </dependency>
             
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
