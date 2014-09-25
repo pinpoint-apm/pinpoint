@@ -47,6 +47,8 @@
                     'TOMCAT': 'TOMCAT.png',
                     'UNKNOWN': 'UNKNOWN.png',
                     'UNKNOWN_GROUP': 'UNKNOWN_GROUP.png',
+                    'REDIS': 'REDIS.png',
+                    'NBASE_ARC': 'NBASE_ARC.png',
                     'USER': 'USER.png'
                 },
                 "htNodeTheme": {

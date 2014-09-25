@@ -508,6 +508,8 @@
     				'UNKNOWN' : 'UNKNOWN.png',
     				'UNKNOWN_GROUP' : 'UNKNOWN.png',
     				'USER' : 'USER.png',
+    				'REDIS': 'REDIS.png',
+    				'NBASE_ARC': 'NBASE_ARC.png',
     				'ORACLE' : 'ORACLE.png'
     			},
     			"htLinkTheme" : {
