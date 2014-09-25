@@ -682,7 +682,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>findbugs-maven-plugin</artifactId>
-                    <version>2.5.2</version>
+                    <version>2.5.5</version>
                 </plugin>
                 <plugin>
                     <groupId>com.nhncorp.maven</groupId>
@@ -719,11 +719,10 @@
                     <aggregate>true</aggregate>
                     <inputEncoding>${encoding}</inputEncoding>
                     <outputEncoding>${encoding}</outputEncoding>
-                    <windowTitle>Pinpoint ${project.version} Cross
-                        Reference</windowTitle>
-                    <docTitle>Pinpoint ${project.version} Cross
-                        Reference</docTitle>
+                    <windowTitle>Pinpoint ${project.version} Cross Reference</windowTitle>
+                    <docTitle>Pinpoint ${project.version} Cross Reference</docTitle>
                 </configuration>
+                <version>2.3</version>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -733,6 +732,7 @@
                     <xmlOutput>true</xmlOutput>
                     <xmlOutputDirectory>${project.build.directory}/findbugs</xmlOutputDirectory>
                 </configuration>
+                <version>2.5.5</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -753,6 +753,7 @@
                 <configuration>
                     <includesTestSourceRoots>true</includesTestSourceRoots>
                 </configuration>
+                <version>3.1.6</version>
             </plugin>
         </plugins>
     </reporting>

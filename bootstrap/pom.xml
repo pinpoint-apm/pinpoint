@@ -156,7 +156,7 @@
                     <archive>
                         <manifestEntries>
                             <Premain-Class>com.nhn.pinpoint.bootstrap.PinpointBootStrap</Premain-Class>
-                            <Pinpiont-Version>${version}</Pinpiont-Version>
+                            <Pinpiont-Version>${project.version}</Pinpiont-Version>
                         </manifestEntries>
                     </archive>
                 </configuration>
