@@ -1,1 +1,0 @@
-﻿mvn package install -Dmaven.test.skip -Dthrift.executable=D:\workspace\thrift-win\thrift.exe
