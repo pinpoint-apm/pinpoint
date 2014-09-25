@@ -69,10 +69,12 @@ import com.nhn.pinpoint.profiler.modifier.spring.orm.ibatis.SqlMapClientTemplate
 import com.nhn.pinpoint.profiler.modifier.tomcat.StandardHostValveInvokeModifier;
 import com.nhn.pinpoint.profiler.modifier.tomcat.StandardServiceModifier;
 import com.nhn.pinpoint.profiler.modifier.tomcat.TomcatConnectorModifier;
+import com.nhn.pinpoint.profiler.modifier.tomcat.WebappLoaderModifier;
 
 /**
  * @author emeroad
  * @author netspider
+ * @author hyungil.jeong
  */
 public class DefaultModifierRegistry implements ModifierRegistry {
 
@@ -211,6 +213,9 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 
 		Modifier tomcatConnectorModifier = new TomcatConnectorModifier(byteCodeInstrumentor, agent);
 		addModifier(tomcatConnectorModifier);
+        
+        Modifier tomcatWebappLoaderModifier = new WebappLoaderModifier(byteCodeInstrumentor, agent);
+        addModifier(tomcatWebappLoaderModifier);
 	}
 
 	public void addJdbcModifier() {
