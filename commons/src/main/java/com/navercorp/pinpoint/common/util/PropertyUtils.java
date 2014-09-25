@@ -9,6 +9,13 @@ import java.util.Properties;
 public class PropertyUtils {
     public static final String DEFAULT_ENCODING = "UTF-8";
 
+    private static final ClassLoaderUtils.ClassLoaderCallable CLASS_LOADER_CALLABLE = new ClassLoaderUtils.ClassLoaderCallable() {
+        @Override
+        public ClassLoader getClassLoader() {
+            return PropertyUtils.class.getClassLoader();
+        }
+    };
+
     public static interface InputStreamFactory {
         InputStream openInputStream() throws IOException;
     }
@@ -33,7 +40,7 @@ public class PropertyUtils {
         final InputStreamFactory inputStreamFactory = new InputStreamFactory() {
             @Override
             public InputStream openInputStream() throws IOException {
-                return ClassLoaderUtils.getDefaultClassLoader(PropertyUtils.class.getClassLoader()).getResourceAsStream(classPath);
+                return ClassLoaderUtils.getDefaultClassLoader(CLASS_LOADER_CALLABLE).getResourceAsStream(classPath);
             }
         };
         return loadProperty(new Properties(), inputStreamFactory, DEFAULT_ENCODING);
