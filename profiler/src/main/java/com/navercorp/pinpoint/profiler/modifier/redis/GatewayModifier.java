@@ -16,6 +16,7 @@ import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 
 /**
  * Gateway(nBase-ARC client) modifier
+ * - trace destinationId
  * 
  * @author jaehong.kim
  *

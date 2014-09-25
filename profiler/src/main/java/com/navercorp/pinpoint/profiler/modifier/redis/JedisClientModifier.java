@@ -14,6 +14,7 @@ import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 
 /**
  * jedis(redis client) Client modifier
+ * - trace endPoint
  * 
  * @author jaehong.kim
  *
@@ -42,6 +43,7 @@ public class JedisClientModifier extends AbstractModifier {
 
             // trace endPoint
             instrumentClass.addTraceValue(MapTraceValue.class);
+            
             final Interceptor constructorInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.redis.interceptor.JedisClientConstructorInterceptor");
             instrumentClass.addConstructorInterceptor(new String[] { "java.lang.String" }, constructorInterceptor);
             instrumentClass.addConstructorInterceptor(new String[] { "java.lang.String", "int" }, constructorInterceptor);

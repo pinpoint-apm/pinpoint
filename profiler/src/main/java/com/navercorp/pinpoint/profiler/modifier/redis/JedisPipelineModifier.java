@@ -44,8 +44,9 @@ public class JedisPipelineModifier extends AbstractModifier {
         try {
             final InstrumentClass instrumentClass = byteCodeInstrumentor.getClass(className);
 
-            // trace host & port
+            // trace endPoint
             instrumentClass.addTraceValue(MapTraceValue.class);
+            
             final Interceptor constructorInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.redis.interceptor.JedisPipelineConstructorInterceptor");
             try {
                 // jedis 1.x

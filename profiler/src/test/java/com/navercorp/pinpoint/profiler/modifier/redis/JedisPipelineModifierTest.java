@@ -54,7 +54,6 @@ public class JedisPipelineModifierTest extends BasePinpointTest {
         assertNull(event.getExceptionMessage());
     }
 
-    @Ignore
     @Test
     public void traceMethodThrowException() {
         // 에러가 발생한 경우에 대한 event 결과를 확인한다.

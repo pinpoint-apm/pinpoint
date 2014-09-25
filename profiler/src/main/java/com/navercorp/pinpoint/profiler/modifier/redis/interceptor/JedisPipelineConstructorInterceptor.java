@@ -11,7 +11,7 @@ import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 
 /**
  * Jedis Pipeline(redis client) constructor interceptor
- *   - trace endPoint
+ * - trace endPoint
  * 
  * @author jaehong.kim
  *

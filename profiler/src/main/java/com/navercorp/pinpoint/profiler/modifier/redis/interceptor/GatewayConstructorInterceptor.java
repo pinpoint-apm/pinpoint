@@ -12,7 +12,7 @@ import com.nhncorp.redis.cluster.gateway.GatewayConfig;
 
 /**
  * Gateway(nBase-ARC client) constructor interceptor
- *   - trace destinationId
+ * - trace destinationId
  * 
  * @author jaehong.kim
  *
@@ -32,9 +32,9 @@ public class GatewayConstructorInterceptor implements SimpleAroundInterceptor, T
             return;
         }
 
-        final GatewayConfig config = (GatewayConfig) args[0];
         final Map<String, Object> traceValue = new HashMap<String, Object>();
         try {
+            final GatewayConfig config = (GatewayConfig) args[0];
             if (config.getDomainAddress() != null) {
                 traceValue.put("destinationId", config.getDomainAddress());
             } else if (config.getIpAddress() != null) {
@@ -44,7 +44,7 @@ public class GatewayConstructorInterceptor implements SimpleAroundInterceptor, T
                 traceValue.put("destinationId", config.getClusterName());
             }
         } catch (Exception ignored) {
-            // backward compatibility error
+            // backward compatibility error or expect 'class not found exception - GatewayConfig'
         }
 
         ((MapTraceValue) target).__setTraceBindValue(traceValue);

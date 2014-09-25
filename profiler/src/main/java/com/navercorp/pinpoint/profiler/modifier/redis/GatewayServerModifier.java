@@ -16,6 +16,7 @@ import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 
 /**
  * RedisCluster(nBase-ARC client) modifier
+ * - trace destinationId
  * 
  * @author jaehong.kim
  *
@@ -42,7 +43,7 @@ public class GatewayServerModifier extends AbstractModifier {
         try {
             final InstrumentClass instrumentClass = byteCodeInstrumentor.getClass(className);
 
-            // trace host & port
+            // trace destinationId
             instrumentClass.addTraceValue(MapTraceValue.class);
 
             // method
@@ -57,7 +58,7 @@ public class GatewayServerModifier extends AbstractModifier {
             return instrumentClass.toBytecode();
         } catch (Exception e) {
             if (logger.isWarnEnabled()) {
-                logger.warn("redis.GatewayModifier(nBase-ARC) fail. Target class is " + getTargetClass() + ", Caused " + e.getMessage(), e);
+                logger.warn("redis.GatewayServerModifier(nBase-ARC) fail. Target class is " + getTargetClass() + ", Caused " + e.getMessage(), e);
             }
         }
 

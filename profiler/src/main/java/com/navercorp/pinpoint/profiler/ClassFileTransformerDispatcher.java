@@ -154,7 +154,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
         // redis, nBase-ARC
         modifierRepository.addRedisSupport();
-        modifierRepository.addNBaseArcSupport();
+        modifierRepository.addNbaseArcSupport();
         
         return modifierRepository;
     }

@@ -11,7 +11,7 @@ import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 
 /**
  * Gateway(nBase-ARC client) getServer() method interceptor
- *   - trace destinationId
+ * - trace destinationId
  * 
  * @author jaehong.kim
  *

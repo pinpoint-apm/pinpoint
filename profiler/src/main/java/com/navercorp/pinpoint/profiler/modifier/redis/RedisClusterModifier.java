@@ -44,8 +44,9 @@ public class RedisClusterModifier extends AbstractModifier {
         try {
             final InstrumentClass instrumentClass = byteCodeInstrumentor.getClass(className);
 
-            // trace host & port
+            // trace destinationId, endPoint
             instrumentClass.addTraceValue(MapTraceValue.class);
+
             final Interceptor constructorInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.redis.interceptor.RedisClusterConstructorInterceptor");
             instrumentClass.addConstructorInterceptor(new String[] { "java.lang.String" }, constructorInterceptor);
             instrumentClass.addConstructorInterceptor(new String[] { "java.lang.String", "int" }, constructorInterceptor);

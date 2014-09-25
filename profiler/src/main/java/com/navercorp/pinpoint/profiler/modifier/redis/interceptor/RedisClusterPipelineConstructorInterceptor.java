@@ -12,7 +12,7 @@ import com.nhncorp.redis.cluster.gateway.GatewayServer;
 
 /**
  * RedisCluster pipeline(nBase-ARC client) constructor interceptor
- *   - trace destinationId & endPoint
+ * - trace destinationId & endPoint
  * 
  * @author jaehong.kim
  *
@@ -36,8 +36,12 @@ public class RedisClusterPipelineConstructorInterceptor implements SimpleAroundI
         final Map<String, Object> traceValue = new HashMap<String, Object>();
 
         // first arg : GatewayServer
-        final GatewayServer server = (GatewayServer) args[0];
-        traceValue.put("endPoint", server.getAddress().getHost() + ":" + server.getAddress().getPort());
+        try {
+            final GatewayServer server = (GatewayServer) args[0];
+            traceValue.put("endPoint", server.getAddress().getHost() + ":" + server.getAddress().getPort());
+        } catch(Exception ignored) {
+            // expect 'class not found exception - GatewayServer'
+        }
 
         if (args[0] instanceof MapTraceValue) {
             final Map<String, Object> gatewayServerTraceValue = ((MapTraceValue) args[0]).__getTraceBindValue();
