@@ -23,6 +23,7 @@ import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.profiler.DummyInstrumentation;
+import com.nhn.pinpoint.profiler.context.ResettableServerMetaDataHolder;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.nhn.pinpoint.profiler.sender.PeekableDataSender;
 import com.nhn.pinpoint.profiler.util.MockAgent;
@@ -125,13 +126,12 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
     @Override
     protected void runChild(FrameworkMethod method, RunNotifier notifier) {
         beginTracing(method);
-        final Thread thread = Thread.currentThread();
-        final ClassLoader originalClassLoader = thread.getContextClassLoader();
+        ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
         try {
-            thread.setContextClassLoader(this.testClassLoader);
+            Thread.currentThread().setContextClassLoader(this.testClassLoader);
             super.runChild(method, notifier);
         } finally {
-            thread.setContextClassLoader(originalClassLoader);
+            Thread.currentThread().setContextClassLoader(originalClassLoader);
             endTracing(method, notifier);
         }
     }
@@ -185,12 +185,26 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
         if (baseTestClass.isInstance(test)) {
             Method[] methods = baseTestClass.getDeclaredMethods();
             for (Method m : methods) {
+                // Inject testDataSender into the current Test instance. 
                 if (m.getName().equals("setCurrentHolder")) {
                     try {
                         // 각 테스트 메소드 마다 PeekableDataSender를 reset 함.
                         this.testDataSender.clear();
                         m.setAccessible(true);
                         m.invoke(test, this.testDataSender);
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    } catch (InvocationTargetException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                // Inject serverMetaDataHolder into the current Test instance.
+                if (m.getName().equals("setServerMetaDataHolder")) {
+                    try {
+                        ResettableServerMetaDataHolder serverMetaDataHolder = (ResettableServerMetaDataHolder)this.testAgent.getTraceContext().getServerMetaDataHolder();
+                        serverMetaDataHolder.reset();
+                        m.setAccessible(true);
+                        m.invoke(test, serverMetaDataHolder);
                     } catch (IllegalAccessException e) {
                         throw new RuntimeException(e);
                     } catch (InvocationTargetException e) {
