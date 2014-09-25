@@ -225,6 +225,21 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Redis -->
+		<!-- nBase-ARC -->
+        <dependency>
+            <groupId>com.nhncorp</groupId>
+            <artifactId>triples-redis-client</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Jedis -->
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- [End] Compile Interceptors -->
 
         <!-- 3.17.0 버전이 나왔으나 compile이 1.7로 되어 있어서 버전시 문제 있음 좀있음 1.6이하로 다시 

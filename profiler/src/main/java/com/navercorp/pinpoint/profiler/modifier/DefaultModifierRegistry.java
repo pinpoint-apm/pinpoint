@@ -56,6 +56,13 @@ import com.nhn.pinpoint.profiler.modifier.orm.ibatis.SqlMapClientImplModifier;
 import com.nhn.pinpoint.profiler.modifier.orm.ibatis.SqlMapSessionImplModifier;
 import com.nhn.pinpoint.profiler.modifier.orm.mybatis.DefaultSqlSessionModifier;
 import com.nhn.pinpoint.profiler.modifier.orm.mybatis.SqlSessionTemplateModifier;
+import com.nhn.pinpoint.profiler.modifier.redis.GatewayModifier;
+import com.nhn.pinpoint.profiler.modifier.redis.GatewayServerModifier;
+import com.nhn.pinpoint.profiler.modifier.redis.JedisClientModifier;
+import com.nhn.pinpoint.profiler.modifier.redis.JedisModifier;
+import com.nhn.pinpoint.profiler.modifier.redis.JedisPipelineModifier;
+import com.nhn.pinpoint.profiler.modifier.redis.RedisClusterModifier;
+import com.nhn.pinpoint.profiler.modifier.redis.RedisClusterPipelineModifier;
 import com.nhn.pinpoint.profiler.modifier.servlet.HttpServletModifier;
 import com.nhn.pinpoint.profiler.modifier.servlet.SpringFrameworkServletModifier;
 import com.nhn.pinpoint.profiler.modifier.spring.orm.ibatis.SqlMapClientTemplateModifier;
@@ -355,6 +362,32 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	public void addOrmModifier() {
 		addIBatisSupport();
 		addMyBatisSupport();
+	}
+	
+	public void addRedisSupport() {
+	    if(profilerConfig.isRedisEnabled()) {
+	        addModifier(new JedisModifier(byteCodeInstrumentor, agent));
+	    }
+	    
+        if(profilerConfig.isRedisPipelineEnabled()) {
+            addModifier(new JedisClientModifier(byteCodeInstrumentor, agent));
+            addModifier(new JedisPipelineModifier(byteCodeInstrumentor, agent));
+        }
+	}
+	
+	public void addNbaseArcSupport() {
+	    if(profilerConfig.isNbaseArcEnabled() || profilerConfig.isNbaseArcPipelineEnabled()) {
+	        addModifier(new GatewayModifier(byteCodeInstrumentor, agent));
+	        addModifier(new GatewayServerModifier(byteCodeInstrumentor, agent));
+	        
+	        if(profilerConfig.isNbaseArcEnabled()) {
+	            addModifier(new RedisClusterModifier(byteCodeInstrumentor, agent));
+	        }
+
+	        if(profilerConfig.isNbaseArcPipelineEnabled()) {
+	            addModifier(new RedisClusterPipelineModifier(byteCodeInstrumentor, agent));
+	        }
+	    }
 	}
 	
 	private void addIBatisSupport() {
