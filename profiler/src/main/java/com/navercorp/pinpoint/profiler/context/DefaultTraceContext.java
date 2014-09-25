@@ -25,6 +25,7 @@ import com.nhn.pinpoint.profiler.metadata.Result;
 import com.nhn.pinpoint.profiler.modifier.db.JDBCUrlParser;
 import com.nhn.pinpoint.bootstrap.sampler.Sampler;
 import com.nhn.pinpoint.thrift.dto.TStringMetaData;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +34,7 @@ import java.util.List;
 
 /**
  * @author emeroad
+ * @author hyungil.jeong
  */
 public class DefaultTraceContext implements TraceContext {
 
@@ -63,13 +65,15 @@ public class DefaultTraceContext implements TraceContext {
     private final JDBCUrlParser jdbcUrlParser = new JDBCUrlParser();
 
     private ProfilerConfig profilerConfig;
+    
+    private final ServerMetaDataHolder serverMetaDataHolder;
 
     // for test
     public DefaultTraceContext() {
-        this(LRUCache.DEFAULT_CACHE_SIZE, ServiceType.STAND_ALONE.getCode(), new LogStorageFactory(), new TrueSampler());
+        this(LRUCache.DEFAULT_CACHE_SIZE, ServiceType.STAND_ALONE.getCode(), new LogStorageFactory(), new TrueSampler(), new DefaultServerMetaDataHolder());
     }
 
-    public DefaultTraceContext(final int sqlCacheSize, final short contextServiceType, StorageFactory storageFactory, Sampler sampler) {
+    public DefaultTraceContext(final int sqlCacheSize, final short contextServiceType, StorageFactory storageFactory, Sampler sampler, ServerMetaDataHolder serverMetaDataHolder) {
         if (storageFactory == null) {
             throw new NullPointerException("storageFactory must not be null");
         }
@@ -81,6 +85,8 @@ public class DefaultTraceContext implements TraceContext {
         this.metricRegistry = new MetricRegistry(this.contextServiceType);
 
         this.traceFactory = new ThreadLocalTraceFactory(this, metricRegistry, storageFactory, sampler);
+        
+        this.serverMetaDataHolder = serverMetaDataHolder;
     }
 
     /**
@@ -304,5 +310,10 @@ public class DefaultTraceContext implements TraceContext {
     public void recordUserAcceptResponseTime(int elapsedTime) {
         final ContextMetric contextMetric = this.metricRegistry.getResponseMetric();
         contextMetric.addUserAcceptHistogram(elapsedTime);
+    }
+
+    @Override
+    public ServerMetaDataHolder getServerMetaDataHolder() {
+        return this.serverMetaDataHolder;
     }
 }

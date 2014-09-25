@@ -7,6 +7,7 @@ import com.nhn.pinpoint.common.util.ParsingResult;
 
 /**
  * @author emeroad
+ * @author hyungil.jeong
  */
 public class MockTraceContext implements TraceContext {
 
@@ -136,4 +137,9 @@ public class MockTraceContext implements TraceContext {
 	public void recordUserAcceptResponseTime(int elapsedTime) {
 		
 	}
+
+    @Override
+    public ServerMetaDataHolder getServerMetaDataHolder() {
+        return null;
+    }
 }

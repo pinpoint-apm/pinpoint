@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import com.nhn.pinpoint.ProductInfo;
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
+import com.nhn.pinpoint.bootstrap.context.ServerMetaData;
+import com.nhn.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerBinder;
@@ -20,6 +22,7 @@ import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.bootstrap.sampler.Sampler;
 import com.nhn.pinpoint.common.Version;
 import com.nhn.pinpoint.exception.PinpointException;
+import com.nhn.pinpoint.profiler.context.DefaultServerMetaDataHolder;
 import com.nhn.pinpoint.profiler.context.DefaultTraceContext;
 import com.nhn.pinpoint.profiler.context.storage.BufferedStorageFactory;
 import com.nhn.pinpoint.profiler.context.storage.SpanStorageFactory;
@@ -236,9 +239,10 @@ public class DefaultAgent implements Agent {
 
         final Sampler sampler = createSampler();
         logger.info("SamplerType:{}", sampler);
-
+        
         final int jdbcSqlCacheSize = profilerConfig.getJdbcSqlCacheSize();
-        final DefaultTraceContext traceContext = new DefaultTraceContext(jdbcSqlCacheSize, serverType, storageFactory, sampler);
+        final ServerMetaDataHolder serverMetaDataHolder = createServerMetaDataHolder();
+        final DefaultTraceContext traceContext = new DefaultTraceContext(jdbcSqlCacheSize, serverType, storageFactory, sampler, serverMetaDataHolder);
         traceContext.setAgentInformation(this.agentInformation);
         traceContext.setPriorityDataSender(this.tcpDataSender);
 
@@ -263,6 +267,10 @@ public class DefaultAgent implements Agent {
 
         SamplerFactory samplerFactory = new SamplerFactory();
         return samplerFactory.createSampler(samplingEnable, samplingRate);
+    }
+    
+    protected ServerMetaDataHolder createServerMetaDataHolder() {
+        return new DefaultServerMetaDataHolder();
     }
 
     protected PinpointSocketFactory createPinpointSocketFactory() {
@@ -354,6 +362,8 @@ public class DefaultAgent implements Agent {
             }
         }
         logger.info("Starting {} Agent.", ProductInfo.CAMEL_NAME);
+        ServerMetaData serverMetaData = this.traceContext.getServerMetaDataHolder().getServerMetaData();
+        logger.debug(serverMetaData.toString());
         this.heartBitChecker.start();
         this.agentStatMonitor.start();
     }
