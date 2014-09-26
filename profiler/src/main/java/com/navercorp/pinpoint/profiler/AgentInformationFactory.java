@@ -41,10 +41,13 @@ public class AgentInformationFactory {
     }
 
     private void validateId(String id, String idName, int maxlen) {
+		if (id == null) {
+			throw new NullPointerException("id must not be null");
+		}
         // 에러 체크 로직을 bootclass 앞단으로 이동시켜야 함.
         // 아니면 여기서 체크해서 실패시 agent동작을 하지 않도록 하던가 하는 추가 동작을 해야함.
-        byte[] bytes = BytesUtils.toBytes(id);
-        if (bytes.length > maxlen) {
+        final byte[] bytes = BytesUtils.toBytes(id);
+		if (bytes.length > maxlen) {
             logger.warn("{} is too long(1~24). value={}", idName, id);
         }
     }
