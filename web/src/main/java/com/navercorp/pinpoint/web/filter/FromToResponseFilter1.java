@@ -56,15 +56,15 @@ public class FromToResponseFilter1 implements Filter {
 		String[] conditions = condition.split(",");
 		if (conditions.length == 2) { // from,to
 			findError = false;
-			fromResponseTime = Long.valueOf(conditions[0]);
-			toResponseTime = Long.valueOf(conditions[1]);
+			fromResponseTime = Long.parseLong(conditions[0]);
+			toResponseTime = Long.parseLong(conditions[1]);
 		} else if (conditions.length == 3) { // error,from,to
 			findError = ERROR.equals(conditions[0]);
 			if (!findError) {
 				throw new IllegalArgumentException("invalid conditions:" + condition);
 			}
-			fromResponseTime = Long.valueOf(conditions[1]);
-			toResponseTime = Long.valueOf(conditions[2]);
+			fromResponseTime = Long.parseLong(conditions[1]);
+			toResponseTime = Long.parseLong(conditions[2]);
 		} else if (conditions.length == 1) { // error only
 			findError = ERROR.equals(conditions[0]);
 			if (!findError) {

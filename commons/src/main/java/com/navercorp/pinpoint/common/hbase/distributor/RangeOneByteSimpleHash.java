@@ -68,7 +68,7 @@ public class RangeOneByteSimpleHash implements RowKeyDistributorByHashPrefix.Has
 
     @Override
     public void init(String storedParams) {
-        this.mod = Integer.valueOf(storedParams);
+        this.mod = Integer.parseInt(storedParams);
     }
 
 }
