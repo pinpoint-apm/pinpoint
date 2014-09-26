@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.bootstrap.util.NumberUtils;
+import com.nhn.pinpoint.common.util.PropertyUtils;
 
 /**
  * @author emeroad
@@ -137,7 +138,7 @@ public class ProfilerConfig {
 
 	public void readConfigFile(String pinpiontConfigFileName) throws IOException {
 		try {
-			Properties properties = readProperties(pinpiontConfigFileName);
+			Properties properties = PropertyUtils.loadProperty(pinpiontConfigFileName);
 			readPropertyValues(properties);
 		} catch (FileNotFoundException fe) {
 			if (logger.isLoggable(Level.WARNING)) {
@@ -151,34 +152,6 @@ public class ProfilerConfig {
 			throw e;
 		}
 	}
-
-    private Properties readProperties(String configFileName) throws IOException {
-        if (configFileName == null) {
-            throw new NullPointerException("configFileName must not be null");
-        }
-        Properties properties = new Properties();
-        InputStream in = null;
-        Reader reader = null;
-        try {
-            in = new FileInputStream(configFileName);
-            reader = new InputStreamReader(in, "UTF-8");
-            properties.load(reader);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException ignore) {
-                }
-            }
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException ignore) {
-                }
-            }
-        }
-        return properties;
-    }
 
     public String getCollectorServerIp() {
 		return collectorServerIp;
