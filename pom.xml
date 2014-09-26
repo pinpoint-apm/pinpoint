@@ -613,97 +613,101 @@
     </dependencyManagement>
 
     <build>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-resources-plugin</artifactId>
-                    <version>2.6</version>
-                    <configuration>
-                        <encoding>${encoding}</encoding>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.0</version>
-                    <configuration>
-                        <source>${jdk.version}</source>
-                        <target>${jdk.version}</target>
-                        <debug>true</debug>
-                        <optimize>true</optimize>
-                        <encoding>${encoding}</encoding>
-                        <showDeprecation>true</showDeprecation>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>2.4</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-war-plugin</artifactId>
-                    <version>2.4</version>
-                    <configuration>
-                        <attachClasses>true</attachClasses>
-                        <classesClassifier>classes</classesClassifier>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-antrun-plugin</artifactId>
-                    <version>1.7</version>
-                </plugin>
-                <plugin>
-                    <groupId>com.nhncorp.maven</groupId>
-                    <artifactId>maven-revision-plugin</artifactId>
-                    <version>1.0.0</version>
-                    <executions>
-                        <execution>
-                            <phase>compile</phase>
-                            <goals>
-                                <goal>create</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.17</version>
-                    <configuration>
-                        <excludes>
-                            <exclude>**/Mock*</exclude>
-                            <exclude>**/Abstract*</exclude>
-                            <exclude>**/*Helper</exclude>
-                            <exclude>**/*$*</exclude>
-                        </excludes>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>com.atlassian.maven.plugins</groupId>
-                    <artifactId>maven-clover2-plugin</artifactId>
-                    <version>3.1.6</version>
-                    <configuration>
-                        <encoding>${encoding}</encoding>
-                        <jdk>${jdk.version}</jdk>
-                        <generateXml>true</generateXml>
-                        <generateHtml>true</generateHtml>
-                        <generateHistorical>false</generateHistorical>
-                        <licenseLocation>clover.license</licenseLocation>
-                        <singleCloverDatabase>false</singleCloverDatabase>
-                        <includesTestSourceRoots>false</includesTestSourceRoots>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>findbugs-maven-plugin</artifactId>
-                    <version>2.5.5</version>
-                </plugin>
-                <plugin>
-                    <groupId>com.nhncorp.maven</groupId>
-                    <artifactId>maven-klocwork-plugin</artifactId>
-                    <version>1.0.0</version>
-                </plugin>
+    	<pluginManagement>
+    		<plugins>
+	    		<plugin>
+	                <groupId>org.apache.maven.plugins</groupId>
+	                <artifactId>maven-war-plugin</artifactId>
+	                <version>2.4</version>
+	                <configuration>
+	                    <attachClasses>true</attachClasses>
+	                    <classesClassifier>classes</classesClassifier>
+	                </configuration>
+	            </plugin>
+    		</plugins>
+    	</pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <encoding>${encoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.0</version>
+                <configuration>
+                    <source>${jdk.version}</source>
+                    <target>${jdk.version}</target>
+                    <debug>true</debug>
+                    <optimize>true</optimize>
+                    <encoding>${encoding}</encoding>
+                    <showDeprecation>true</showDeprecation>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+            </plugin>
+            <plugin>
+                <groupId>com.nhncorp.maven</groupId>
+                <artifactId>maven-revision-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.17</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/Mock*</exclude>
+                        <exclude>**/Abstract*</exclude>
+                        <exclude>**/*Helper</exclude>
+                        <exclude>**/*$*</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.atlassian.maven.plugins</groupId>
+                <artifactId>maven-clover2-plugin</artifactId>
+                <version>3.1.6</version>
+                <configuration>
+                    <encoding>${encoding}</encoding>
+                    <jdk>${jdk.version}</jdk>
+                    <generateXml>true</generateXml>
+                    <generateHtml>true</generateHtml>
+                    <generateHistorical>false</generateHistorical>
+                    <licenseLocation>clover.license</licenseLocation>
+                    <singleCloverDatabase>false</singleCloverDatabase>
+                    <includesTestSourceRoots>false</includesTestSourceRoots>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>2.5.5</version>
+            </plugin>
+            <plugin>
+                <groupId>com.nhncorp.maven</groupId>
+                <artifactId>maven-klocwork-plugin</artifactId>
+                <version>1.0.0</version>
+            </plugin>
             </plugins>
     </build>
 
@@ -768,7 +772,6 @@
             </activation>
             <properties>
                 <env>local</env>
-                <compiler-debug>true</compiler-debug>
             </properties>
         </profile>
 
@@ -777,7 +780,6 @@
             <id>test</id>
             <properties>
                 <env>test</env>
-                <compiler-debug>true</compiler-debug>
             </properties>
         </profile>
 
@@ -786,7 +788,6 @@
             <id>dev</id>
             <properties>
                 <env>dev</env>
-                <compiler-debug>true</compiler-debug>
             </properties>
         </profile>
 
@@ -795,7 +796,6 @@
             <id>release</id>
             <properties>
                 <env>release</env>
-                <compiler-debug>true</compiler-debug>
             </properties>
         </profile>
         <profile>

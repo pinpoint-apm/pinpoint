@@ -68,22 +68,15 @@
         
         <plugins>
             <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <debug>${compiler-debug}</debug>
+                    <debug>true</debug>
                     <fork>true</fork>
                     <verbose>true</verbose>
                     <compilerVersion>${jdk.version}</compilerVersion>
                     <executable>${env.JAVA_7_HOME}/bin/javac</executable>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -111,14 +104,6 @@
                     <jvm>${env.JAVA_7_HOME}/bin/java</jvm>
                     <forkMode>once</forkMode>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>com.atlassian.maven.plugins</groupId>
-                <artifactId>maven-clover2-plugin</artifactId>
             </plugin>
         </plugins>
     </build>    
