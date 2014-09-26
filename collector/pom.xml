@@ -527,18 +527,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>klocwork</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.klocwork.ps</groupId>
-                        <artifactId>kwmaven</artifactId>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>

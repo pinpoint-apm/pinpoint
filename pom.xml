@@ -613,7 +613,6 @@
     </dependencyManagement>
 
     <build>
-        <pluginManagement>
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -705,24 +704,7 @@
                     <artifactId>maven-klocwork-plugin</artifactId>
                     <version>1.0.0</version>
                 </plugin>
-                <plugin>
-                    <groupId>com.klocwork.ps</groupId>
-                    <artifactId>kwmaven</artifactId>
-                    <version>2.1.1</version>
-                    <configuration>
-                        <buildspec_filename>${KWINJECT_OUT_PATH}</buildspec_filename>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <phase>validate</phase>
-                            <goals>
-                                <goal>run</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
             </plugins>
-        </pluginManagement>
     </build>
 
     <reporting>
@@ -786,6 +768,7 @@
             </activation>
             <properties>
                 <env>local</env>
+                <compiler-debug>true</compiler-debug>
             </properties>
         </profile>
 
@@ -794,6 +777,7 @@
             <id>test</id>
             <properties>
                 <env>test</env>
+                <compiler-debug>true</compiler-debug>
             </properties>
         </profile>
 
@@ -802,6 +786,7 @@
             <id>dev</id>
             <properties>
                 <env>dev</env>
+                <compiler-debug>true</compiler-debug>
             </properties>
         </profile>
 
@@ -810,7 +795,31 @@
             <id>release</id>
             <properties>
                 <env>release</env>
+                <compiler-debug>true</compiler-debug>
             </properties>
+        </profile>
+        <profile>
+            <id>klocwork</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.klocwork.ps</groupId>
+                        <artifactId>kwmaven</artifactId>
+                        <version>2.1.1</version>
+                        <configuration>
+                            <buildspec_filename>${KWINJECT_OUT_PATH}</buildspec_filename>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>
