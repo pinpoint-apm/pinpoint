@@ -12,10 +12,10 @@ import com.nhn.pinpoint.bootstrap.context.ServiceInfo;
 public class DefaultServerMetaData implements ServerMetaData {
     
     private final String serverInfo;
-    private final String vmArgs;
+    private final List<String> vmArgs;
     private final List<ServiceInfo> serviceInfo;
 
-    public DefaultServerMetaData(String serverInfo, String vmArgs, List<ServiceInfo> serviceInfo) {
+    public DefaultServerMetaData(String serverInfo, List<String> vmArgs, List<ServiceInfo> serviceInfo) {
         this.serverInfo = serverInfo;
         this.vmArgs = vmArgs;
         this.serviceInfo = serviceInfo;
@@ -27,8 +27,8 @@ public class DefaultServerMetaData implements ServerMetaData {
     }
 
     @Override
-    public String getVmArgs() {
-        return this.vmArgs;
+    public List<String> getVmArgs() {
+        return Collections.unmodifiableList(this.vmArgs);
     }
 
     @Override
@@ -40,7 +40,7 @@ public class DefaultServerMetaData implements ServerMetaData {
     public String toString() {
         final StringBuilder sb = new StringBuilder("DefaultServerMetaData{");
         sb.append("serverInfo='").append(serverInfo).append('\'');
-        sb.append(", vmArgs='").append(vmArgs).append('\'');
+        sb.append(", vmArgs=").append(vmArgs);
         sb.append(", serviceInfo=").append(serviceInfo).append('}');
         return sb.toString();
     }

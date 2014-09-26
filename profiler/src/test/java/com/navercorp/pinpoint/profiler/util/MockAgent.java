@@ -1,6 +1,8 @@
 package com.nhn.pinpoint.profiler.util;
 
 import java.lang.instrument.Instrumentation;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.thrift.TBase;
 
@@ -74,7 +76,8 @@ public class MockAgent extends DefaultAgent {
 
     @Override
     protected ServerMetaDataHolder createServerMetaDataHolder() {
-        return new ResettableServerMetaDataHolder();
+        List<String> vmArgs = RuntimeMXBeanUtils.getVmArgs();
+        return new ResettableServerMetaDataHolder(vmArgs);
     }
 
 }

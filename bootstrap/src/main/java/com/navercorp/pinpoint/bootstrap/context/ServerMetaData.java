@@ -8,7 +8,7 @@ import java.util.List;
 public interface ServerMetaData {
     String getServerInfo();
 
-    String getVmArgs();
+    List<String> getVmArgs();
 
     List<ServiceInfo> getServiceInfos();
 }

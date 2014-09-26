@@ -15,10 +15,11 @@ import com.nhn.pinpoint.bootstrap.context.ServiceInfo;
 public class ResettableServerMetaDataHolder implements ServerMetaDataHolder {
     
     private String serverName;
-    private String vmArgs;
+    private final List<String> vmArgs;
     private Queue<ServiceInfo> serviceInfos;
     
-    public ResettableServerMetaDataHolder() {
+    public ResettableServerMetaDataHolder(List<String> vmArgs) {
+        this.vmArgs = vmArgs;
         this.serviceInfos = new ConcurrentLinkedQueue<ServiceInfo>();
     }
 
@@ -28,24 +29,18 @@ public class ResettableServerMetaDataHolder implements ServerMetaDataHolder {
     }
 
     @Override
-    public void setVmArgs(String vmArgs) {
-        this.vmArgs = vmArgs;
-    }
-
-    @Override
     public void addServiceInfo(String serviceName, List<String> serviceLibs) {
         this.serviceInfos.add(new DefaultServiceInfo(serviceName, serviceLibs));
     }
 
     @Override
     public ServerMetaData getServerMetaData() {
-        ServerMetaData serverMetaData = new DefaultServerMetaData(this.serverName, this.vmArgs, new ArrayList<ServiceInfo>(this.serviceInfos));
+        ServerMetaData serverMetaData = new DefaultServerMetaData(this.serverName, new ArrayList<String>(this.vmArgs), new ArrayList<ServiceInfo>(this.serviceInfos));
         return serverMetaData;
     }
     
     public void reset() {
         this.serverName = null;
-        this.vmArgs = null;
         this.serviceInfos = new ConcurrentLinkedQueue<ServiceInfo>();
     }
 

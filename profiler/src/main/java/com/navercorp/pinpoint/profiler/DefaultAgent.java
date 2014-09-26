@@ -2,6 +2,7 @@ package com.nhn.pinpoint.profiler;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -39,6 +40,7 @@ import com.nhn.pinpoint.profiler.sender.TcpDataSender;
 import com.nhn.pinpoint.profiler.sender.UdpDataSender;
 import com.nhn.pinpoint.profiler.util.ApplicationServerTypeResolver;
 import com.nhn.pinpoint.profiler.util.PreparedStatementUtils;
+import com.nhn.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.nhn.pinpoint.rpc.ClassPreLoader;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.client.MessageListener;
@@ -270,7 +272,9 @@ public class DefaultAgent implements Agent {
     }
     
     protected ServerMetaDataHolder createServerMetaDataHolder() {
-        return new DefaultServerMetaDataHolder();
+        List<String> vmArgs = RuntimeMXBeanUtils.getVmArgs();
+        ServerMetaDataHolder serverMetaDataHolder = new DefaultServerMetaDataHolder(vmArgs);
+        return serverMetaDataHolder;
     }
 
     protected PinpointSocketFactory createPinpointSocketFactory() {

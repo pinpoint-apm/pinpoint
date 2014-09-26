@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler.context;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -15,21 +16,17 @@ import com.nhn.pinpoint.bootstrap.context.ServiceInfo;
 public class DefaultServerMetaDataHolder implements ServerMetaDataHolder {
 
     private String serverName;
-    private String vmArgs;
+    private final List<String> vmArgs;
     private final Queue<ServiceInfo> serviceInfos;
 
-    public DefaultServerMetaDataHolder() {
+    public DefaultServerMetaDataHolder(List<String> vmArgs) {
+        this.vmArgs = vmArgs;
         this.serviceInfos = new ConcurrentLinkedQueue<ServiceInfo>();
     }
 
     @Override
     public void setServerName(String serverName) {
         this.serverName = serverName;
-    }
-
-    @Override
-    public void setVmArgs(String vmArgs) {
-        this.vmArgs = vmArgs;
     }
 
     @Override
@@ -41,7 +38,7 @@ public class DefaultServerMetaDataHolder implements ServerMetaDataHolder {
     @Override
     public ServerMetaData getServerMetaData() {
         String serverName = this.serverName == null ? "" : this.serverName;
-        String vmArgs = this.vmArgs == null ? "" : this.vmArgs;
+        List<String> vmArgs = this.vmArgs == null ? Collections.<String>emptyList() : new ArrayList<String>(this.vmArgs);
         List<ServiceInfo> serviceInfos = new ArrayList<ServiceInfo>(this.serviceInfos);
         return new DefaultServerMetaData(serverName, vmArgs, serviceInfos);
     }

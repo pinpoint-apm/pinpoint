@@ -3,6 +3,7 @@ package com.nhn.pinpoint.profiler.context;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 import java.util.Vector;
@@ -27,7 +28,7 @@ public class DefaultServerMetaDataHolderTest {
     private static final int THREAD_COUNT = 1000;
 
     private static final String SERVER_INFO = "testContainerInfo";
-    private static final String VM_ARGS = "testVmArgs";
+    private static final List<String> VM_ARGS = Arrays.asList("testVmArgs");
 
     private ExecutorService executorService;
 
@@ -50,9 +51,8 @@ public class DefaultServerMetaDataHolderTest {
         final Queue<Throwable> exceptions = new ConcurrentLinkedQueue<Throwable>();
         
         final String serviceName = "/test";
-        final ServerMetaDataHolder metaDataContext = new DefaultServerMetaDataHolder();
+        final ServerMetaDataHolder metaDataContext = new DefaultServerMetaDataHolder(VM_ARGS);
         metaDataContext.setServerName(SERVER_INFO);
-        metaDataContext.setVmArgs(VM_ARGS);
         // When
         for (int i = 0; i < THREAD_COUNT; ++i) {
             final List<String> serviceLibs = new ArrayList<String>();
@@ -91,9 +91,8 @@ public class DefaultServerMetaDataHolderTest {
         final CountDownLatch endLatch = new CountDownLatch(THREAD_COUNT);
         final Queue<Throwable> exceptions = new ConcurrentLinkedQueue<Throwable>();
         
-        final ServerMetaDataHolder metaDataContext = new DefaultServerMetaDataHolder();
+        final ServerMetaDataHolder metaDataContext = new DefaultServerMetaDataHolder(VM_ARGS);
         metaDataContext.setServerName(SERVER_INFO);
-        metaDataContext.setVmArgs(VM_ARGS);
         // When
         final List<ServerMetaData> serverMetaDatas = new Vector<ServerMetaData>(THREAD_COUNT/2);
         for (int i = 0; i < THREAD_COUNT; ++i) {

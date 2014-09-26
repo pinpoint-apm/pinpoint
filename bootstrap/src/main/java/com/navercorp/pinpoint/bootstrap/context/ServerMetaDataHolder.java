@@ -8,8 +8,6 @@ import java.util.List;
 public interface ServerMetaDataHolder {
     void setServerName(String serverName);
     
-    void setVmArgs(String vmArgs);
-    
     void addServiceInfo(String serviceName, List<String> serviceLibs);
     
     ServerMetaData getServerMetaData();

@@ -15,6 +15,7 @@ import com.nhn.pinpoint.profiler.monitor.metric.ContextMetric;
 import com.nhn.pinpoint.profiler.monitor.metric.MetricRegistry;
 import com.nhn.pinpoint.profiler.sampler.TrueSampler;
 import com.nhn.pinpoint.profiler.sender.EnhancedDataSender;
+import com.nhn.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.nhn.pinpoint.thrift.dto.TApiMetaData;
 import com.nhn.pinpoint.thrift.dto.TSqlMetaData;
 import com.nhn.pinpoint.common.util.ParsingResult;
@@ -30,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -70,7 +72,7 @@ public class DefaultTraceContext implements TraceContext {
 
     // for test
     public DefaultTraceContext() {
-        this(LRUCache.DEFAULT_CACHE_SIZE, ServiceType.STAND_ALONE.getCode(), new LogStorageFactory(), new TrueSampler(), new DefaultServerMetaDataHolder());
+        this(LRUCache.DEFAULT_CACHE_SIZE, ServiceType.STAND_ALONE.getCode(), new LogStorageFactory(), new TrueSampler(), new DefaultServerMetaDataHolder(RuntimeMXBeanUtils.getVmArgs()));
     }
 
     public DefaultTraceContext(final int sqlCacheSize, final short contextServiceType, StorageFactory storageFactory, Sampler sampler, ServerMetaDataHolder serverMetaDataHolder) {

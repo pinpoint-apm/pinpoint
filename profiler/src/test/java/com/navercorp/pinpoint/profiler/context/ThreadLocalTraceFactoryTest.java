@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.profiler.context;
 
+import java.util.Collections;
+
 import com.nhn.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.nhn.pinpoint.bootstrap.context.Trace;
 import com.nhn.pinpoint.common.ServiceType;
@@ -16,7 +18,7 @@ public class ThreadLocalTraceFactoryTest {
     private ThreadLocalTraceFactory getTraceFactory() {
         LogStorageFactory logStorageFactory = new LogStorageFactory();
         TrueSampler trueSampler = new TrueSampler();
-        ServerMetaDataHolder serverMetaDataHolder = new DefaultServerMetaDataHolder();
+        ServerMetaDataHolder serverMetaDataHolder = new DefaultServerMetaDataHolder(Collections.<String>emptyList());
         DefaultTraceContext traceContext = new DefaultTraceContext(100, ServiceType.TOMCAT.getCode(), logStorageFactory, trueSampler, serverMetaDataHolder);
         MetricRegistry metricRegistry = new MetricRegistry(ServiceType.TOMCAT);
         return new ThreadLocalTraceFactory(traceContext, metricRegistry, logStorageFactory, trueSampler);
