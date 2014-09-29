@@ -13,6 +13,4 @@ public class DefaultAlarmEvent implements AlarmEvent {
     public long getEventStartTimeMillis() {
         return startEventTimeMillis;
     }
-    
-
 }
