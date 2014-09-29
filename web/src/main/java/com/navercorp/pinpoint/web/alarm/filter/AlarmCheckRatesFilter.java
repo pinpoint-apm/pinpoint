@@ -1,29 +1,35 @@
 package com.nhn.pinpoint.web.alarm.filter;
 
+import com.nhn.pinpoint.web.alarm.vo.Rule;
+
 
 public abstract class AlarmCheckRatesFilter extends AlarmCheckFilter {
 
-	protected boolean check(long count, long totalCount) {
-		int rates = getRates(count, totalCount);
+    protected AlarmCheckRatesFilter(Rule rule) {
+        super(rule, "%");
+    }
 
-		int threshold = getRule().getThresholdRule();
-		
-		if (rates >= threshold) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-	
-	private int getRates(long count, long totalCount) {
-		int percent = 0;
-		if (count == 0 || totalCount == 0) {
-			return percent;
-		} else {
-			percent = Math.round((count * 100) / totalCount);
-		}
+    protected boolean check(long count, long totalCount) {
+        int rates = getRates(count, totalCount);
 
-		return percent;
-	}
+        int threshold = getRule().getThreshold();
+        
+        if (rates >= threshold) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    private int getRates(long count, long totalCount) {
+        int percent = 0;
+        if (count == 0 || totalCount == 0) {
+            return percent;
+        } else {
+            percent = Math.round((count * 100) / totalCount);
+        }
+
+        return percent;
+    }
 
 }

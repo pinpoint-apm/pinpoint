@@ -1,82 +1,38 @@
 package com.nhn.pinpoint.web.alarm.filter;
 
-import java.util.Collection;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.web.alarm.AlarmEvent;
-import com.nhn.pinpoint.web.applicationmap.histogram.TimeHistogram;
-import com.nhn.pinpoint.web.applicationmap.rawdata.AgentHistogram;
-import com.nhn.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkData;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataMap;
-import com.nhn.pinpoint.web.dao.MapStatisticsCallerDao;
-import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.web.vo.Range;
+import com.nhn.pinpoint.web.alarm.collector.DataCollector;
+import com.nhn.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
+import com.nhn.pinpoint.web.alarm.vo.Rule;
 
 public class SlowCountFilter extends AlarmCheckCountFilter {
-	
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private final Application application;
+    private final ResponseTimeDataCollector dataCollector;
 
-	public SlowCountFilter(Application application) {
-		this.application = application;
-	}
-	
-	@Override
-	public boolean check(AlarmEvent event) {
-		logger.debug("{} check.", this.getClass().getSimpleName());
-		
-		MapStatisticsCallerDao dao = event.getMapStatisticsCallerDao();
-		if (dao == null) {
-			logger.warn("{} object is null.", MapStatisticsCallerDao.class.getSimpleName());
-			return false;
-		}
-		
-		long startEventTimeMillis = event.getEventStartTimeMillis();
+    public SlowCountFilter(DataCollector dataCollector, Rule rule) {
+        super(rule, "");
+        this.dataCollector = (ResponseTimeDataCollector)dataCollector;
+        
+    }
+    
+    @Override
+    public void check() {
+        logger.debug("{} check.", this.getClass().getSimpleName());
+        dataCollector.collect();
+        
+        if (decideResult(dataCollector.getSlowCount())) {
+            detected = true;
+        } else {
+            detected = false;
+        }
+    }
 
-		// 이것도 CheckTImeMillis의 시간이 길면 나누어야 함
-		// 추가적으로 시간이 범위에 있는 만큼 다 안들어 오면 ??
-		// 일단은 아주 단순하게
-		int continuationTime = getRule().getContinuosTime();
-		Range range = Range.createUncheckedRange(startEventTimeMillis - continuationTime, startEventTimeMillis);
-
-		LinkDataMap linkDataMap = dao.selectCaller(application, range);
-		for (LinkData linkData : linkDataMap.getLinkDataList()) {
-			Application toApplication = linkData.getToApplication();
-			if (toApplication.getServiceType().isTerminal() || toApplication.getServiceType().isUnknown()) {
-				logger.debug("Application({}) is invalid serviceType. this is skip.", toApplication.getName());
-				continue;
-			}
-
-			AgentHistogramList sourceList = linkData.getSourceList();
-			Collection<AgentHistogram> agentHistogramList = sourceList.getAgentHistogramList();
-
-			boolean isSatisFied = checkCounts(toApplication, agentHistogramList, event);
-			if (isSatisFied) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	private boolean checkCounts(Application toApplication, Collection<AgentHistogram> agentHistogramList, AlarmEvent event) {
-		long totalCount = 0;
-		long successCount = 0;
-		long slowCount = 0;
-
-		for (AgentHistogram agent : agentHistogramList) {
-			for (TimeHistogram time : agent.getTimeHistogram()) {
-				totalCount += time.getTotalCount();
-				slowCount += time.getSlowCount();
-			}
-		}
-		logger.info("{} -> {} {}/{}(slow={})", application.getName(), toApplication.getName(), successCount, totalCount, slowCount);
-
-		return check(slowCount);
-	}
-
+    @Override
+    public String getDetectedValue() {
+        return String.valueOf(dataCollector.getSlowCount());
+    }
 }

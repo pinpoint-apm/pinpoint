@@ -4,21 +4,23 @@
 
 <configuration>
 
-	<!-- default 옵션을 설정한다. -->
-	<settings>
-		<setting name="cacheEnabled" value="true" />
+    <!-- default 옵션을 설정한다. -->
+    <settings>
+        <setting name="cacheEnabled" value="true" />
 
-		<!-- lazy로딩 수행여부 -->
-		<setting name="lazyLoadingEnabled" value="true" />
-		<setting name="aggressiveLazyLoading" value="true" />
+        <!-- lazy로딩 수행여부 -->
+        <setting name="lazyLoadingEnabled" value="true" />
+        <setting name="aggressiveLazyLoading" value="true" />
 
-		<setting name="useGeneratedKeys" value="true" />
+        <setting name="useGeneratedKeys" value="true" />
 
-		<!-- dbcp에서 preparedStatement cache 를 수행하므로 REUSE를 사용할 필요는 없음. -->
-		<setting name="defaultExecutorType" value="SIMPLE" />
+        <!-- dbcp에서 preparedStatement cache 를 수행하므로 REUSE를 사용할 필요는 없음. -->
+        <setting name="defaultExecutorType" value="SIMPLE" />
 
-		<!--defaultQueryTiemout을 설정한다. 초단위 -->
-		<setting name="defaultStatementTimeout" value="5" />
-	</settings>
+        <!--defaultQueryTiemout을 설정한다. 초단위 -->
+        <setting name="defaultStatementTimeout" value="5" />
+        <!--DB table의 undersocre mapping 설정 추가 -->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
 
 </configuration>

@@ -159,4 +159,60 @@
 		WHERE id = #{id}
 	</update>	
 	
+	<select id="selectRules" resultType="rule" parameterType="String">
+		SELECT *
+		FROM alarm_rule
+		WHERE application_id = #{applicationId}
+	</select>
+	
+	<insert id="insertAppRule" parameterType="java.util.List">
+        INSERT INTO alarm_rule(application_id, checker_name, threshold, emp_group, sms_send, email_send)
+        VALUES
+		<foreach collection="list" item="rule" separator=",">
+			(#{rule.applicationId}, #{rule.checkerName}, #{rule.threshold}, #{rule.empGroup}, #{rule.smsSend}, #{rule.emailSend})
+		</foreach>
+	</insert>
+	
+	<delete id="deleteAppRule" parameterType="String">
+		DELETE
+		FROM alarm_rule
+		WHERE application_id = #{applicationId}
+	</delete>
+	
+	<select id="selectEmpGroupPhoneNumber" resultType="String" parameterType="String">
+		SELECT sms
+		FROM alarm_group
+		WHERE group_name = #{group_name}
+	</select>
+	
+	<select id="selectEmpGroupEmail" resultType="String" parameterType="String">
+		SELECT email
+		FROM alarm_group
+		WHERE group_name = #{group_name}
+	</select>
+	
+	<select id="selectAlarmGroupList" resultType="String" parameterType="String">
+		SELECT DISTINCT(group_name)
+		FROM alarm_group
+	</select>
+	
+	<select id="selectAlarmGroupMember" resultType="alarmEmp" parameterType="String">
+		SELECT *
+		FROM alarm_group
+		WHERE group_name = #{group_name}
+	</select>
+	
+	<insert id="insertAlarmGroupMember" parameterType="java.util.List">
+        INSERT INTO alarm_group(group_name, emp_name, sms, email)
+        VALUES
+		<foreach collection="list" item="alarmEmp" separator=",">
+			(#{alarmEmp.groupName}, #{alarmEmp.empName}, #{alarmEmp.sms}, #{alarmEmp.email})
+		</foreach>
+	</insert>
+	
+	<delete id="deleteAlarmGroupMember" parameterType="String">
+		DELETE
+		FROM alarm_group
+		WHERE group_name = #{group_name}
+	</delete>
 </mapper>

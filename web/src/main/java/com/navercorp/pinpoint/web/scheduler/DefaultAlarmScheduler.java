@@ -209,9 +209,8 @@ public class DefaultAlarmScheduler implements AlarmScheduler {
 	}
 
 	private AlarmEvent createAlarmEvent() {
-		DefaultAlarmEvent event = new DefaultAlarmEvent(System.currentTimeMillis());
-		event.setMapStatisticsCallerDao(mapStatisticsCallerDao);
-		
+//		DefaultAlarmEvent event = new DefaultAlarmEvent(System.currentTimeMillis(), mapStatisticsCallerDao);
+		DefaultAlarmEvent event = null;
 		return event;
 	}
 	

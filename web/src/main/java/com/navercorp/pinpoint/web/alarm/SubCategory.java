@@ -30,7 +30,7 @@ public enum SubCategory {
 			}
 
 			if (filter != null) {
-				filter.initialize(rule);
+//				filter.initialize(rule);
 			}
 			
 			return filter;
@@ -45,7 +45,7 @@ public enum SubCategory {
 			}
 
 			if (filter != null) {
-				filter.initialize(rule);
+//				filter.initialize(rule);
 			}
 
 			return filter;
@@ -60,7 +60,7 @@ public enum SubCategory {
 			}
 
 			if (filter != null) {
-				filter.initialize(rule);
+//				filter.initialize(rule);
 			}
 
 			return filter;
@@ -71,11 +71,11 @@ public enum SubCategory {
 		public AlarmCheckFilter createAlarmFilter(Application application, MainCategory parent, AlarmRuleResource rule) {
 			AlarmCheckFilter filter = null;
 			if (MainCategory.REQUEST_SENDED == parent) {
-				filter = new SlowCountFilter(application);
+//				filter = new SlowCountFilter(null, 0, false, false);
 			}
 
 			if (filter != null) {
-				filter.initialize(rule);
+//				filter.initialize(rule);
 			}
 
 			return filter;
