@@ -26,7 +26,7 @@ public class FailureRatesFilter extends AlarmCheckRatesFilter {
 	private final Application application;
 
 	public FailureRatesFilter(Application application) {
-		super(null);
+		super(null, null);
 		this.application = application;
 	}
 	
@@ -94,8 +94,8 @@ public class FailureRatesFilter extends AlarmCheckRatesFilter {
 	}
 
 	@Override
-	public String getDetectedValue() {
+	public long getDetectedValue() {
 		// TODO Auto-generated method stub
-		return null;
+		return 0;
 	}
 }

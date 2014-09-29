@@ -1,12 +1,13 @@
 package com.nhn.pinpoint.web.alarm.filter;
 
+import com.nhn.pinpoint.web.alarm.collector.DataCollector;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
 
 
 public abstract class AlarmCheckRatesFilter extends AlarmCheckFilter {
 
-    protected AlarmCheckRatesFilter(Rule rule) {
-        super(rule, "%");
+    protected AlarmCheckRatesFilter(Rule rule, DataCollector dataCollector) {
+        super(rule, "%", dataCollector);
     }
 
     protected boolean check(long count, long totalCount) {

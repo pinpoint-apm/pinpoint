@@ -56,7 +56,7 @@ public enum SubCategory {
 		public AlarmCheckFilter createAlarmFilter(Application application, MainCategory parent, AlarmRuleResource rule) {
 			AlarmCheckFilter filter = null;
 			if (MainCategory.REQUEST_SENDED == parent) {
-				filter = new SlowRatesFilter(application);
+//				filter = new SlowRatesFilter(application);
 			}
 
 			if (filter != null) {

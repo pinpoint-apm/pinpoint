@@ -1,6 +1,9 @@
 package com.nhn.pinpoint.web.alarm.filter;
 
-import com.nhn.pinpoint.web.alarm.vo.AlarmRuleResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.nhn.pinpoint.web.alarm.collector.DataCollector;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
 
 /**
@@ -9,13 +12,16 @@ import com.nhn.pinpoint.web.alarm.vo.Rule;
  */
 public abstract class AlarmCheckFilter implements AlarmFilter {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected final DataCollector dataCollector;
     protected final Rule rule;
     protected boolean detected = false;
     protected final String unit;
     
-    protected AlarmCheckFilter(Rule rule, String unit) {
+    protected AlarmCheckFilter(Rule rule, String unit, DataCollector dataCollector) {
         this.rule = rule;
         this.unit = unit;
+        this.dataCollector = dataCollector;
     }
     
     public boolean isDetected() {
@@ -42,12 +48,27 @@ public abstract class AlarmCheckFilter implements AlarmFilter {
     public String getUnit() {
         return unit;
     }
+    
+    protected boolean decideResult(long value) {
+        if (value >= rule.getThreshold()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-    abstract public void check();
+    public void check() {
+        logger.debug("{} check.", this.getClass().getSimpleName());
+        dataCollector.collect();
+        
+        if (decideResult(getDetectedValue())) {
+            detected = true;
+        } else {
+            detected = false;
+        }
+    }
     
-    abstract public String getDetectedValue();
-    
-    
+    abstract public long getDetectedValue();
 
     
 }

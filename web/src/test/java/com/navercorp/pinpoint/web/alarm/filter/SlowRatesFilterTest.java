@@ -11,7 +11,6 @@ import org.junit.Test;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.alarm.CheckerCategory;
-import com.nhn.pinpoint.web.alarm.collector.DataCollector;
 import com.nhn.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
 import com.nhn.pinpoint.web.applicationmap.histogram.TimeHistogram;
@@ -20,7 +19,7 @@ import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
 import com.nhn.pinpoint.web.vo.ResponseTime;
 
-public class SlowCountFilterTest {
+public class SlowRatesFilterTest {
     
     private static final String SERVICE_NAME = "local_service"; 
     
@@ -64,8 +63,8 @@ public class SlowCountFilterTest {
     public void checkTest1() {
         Application application = new Application(SERVICE_NAME, ServiceType.TOMCAT);
         ResponseTimeDataCollector collector = new ResponseTimeDataCollector(application, mockMapResponseDAO, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(SERVICE_NAME, CheckerCategory.SLOW_COUNT.getName(), 74, "testGroup", false, false);
-        SlowCountFilter filter = new SlowCountFilter(collector, rule);
+        Rule rule = new Rule(SERVICE_NAME, CheckerCategory.SLOW_RATE.getName(), 60, "testGroup", false, false);
+        SlowRatesFilter filter = new SlowRatesFilter(collector, rule);
     
         filter.check();
         assertTrue(filter.isDetected());
@@ -78,33 +77,11 @@ public class SlowCountFilterTest {
     public void checkTest2() {
         Application application = new Application(SERVICE_NAME, ServiceType.TOMCAT);
         ResponseTimeDataCollector collector = new ResponseTimeDataCollector(application, mockMapResponseDAO, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(SERVICE_NAME, CheckerCategory.SLOW_COUNT.getName(), 76, "testGroup", false, false);
-        SlowCountFilter filter = new SlowCountFilter(collector, rule);
+        Rule rule = new Rule(SERVICE_NAME, CheckerCategory.SLOW_RATE.getName(), 61, "testGroup", false, false);
+        SlowRatesFilter filter = new SlowRatesFilter(collector, rule);
     
         filter.check();
         assertFalse(filter.isDetected());
     }
-    
-    /*
-        직접 Nbase 서버에 접속해서 데이터 가져와서 테스트
-        계속 데이터가 보존되있지 않으므로 필요시 사용
-    */
-    /*
-    @Autowired
-    private HbaseMapResponseTimeDao hbaseMapResponseTimeDao;
-    
-    @Test
-    public void checkTest1() {
-        Application application = new Application(SERVICE_NAME, ServiceType.TOMCAT);
-        SlowCountFilter filter = new SlowCountFilter(application);
-        
-        AlarmRuleResource rule = new AlarmRuleResource();
-        rule.setThresholdRule(10);
-        rule.setContinuosTime(36000000);
-        filter.initialize(rule);
-        
-        DefaultAlarmEvent event = new DefaultAlarmEvent(System.currentTimeMillis(), hbaseMapResponseTimeDao);
-        assertTrue(filter.check(event));
-    }
-    */
+
 }

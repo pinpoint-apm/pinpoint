@@ -3,14 +3,14 @@ package com.nhn.pinpoint.web.alarm.filter;
 import com.nhn.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
 
-public class SlowCountFilter extends AlarmCheckFilter {
+public class ErrorCountChecker extends AlarmCheckFilter {
 
-    public SlowCountFilter(ResponseTimeDataCollector dataCollector, Rule rule) {
+    public ErrorCountChecker(ResponseTimeDataCollector dataCollector, Rule rule) {
         super(rule, "", dataCollector);
     }
 
     @Override
     public long getDetectedValue() {
-        return ((ResponseTimeDataCollector)dataCollector).getSlowCount();
+        return ((ResponseTimeDataCollector)dataCollector).getErrorCount();
     }
 }

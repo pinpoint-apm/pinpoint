@@ -5,8 +5,13 @@ import java.util.List;
 
 import com.nhn.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
 import com.nhn.pinpoint.web.alarm.collector.DataCollector;
+import com.nhn.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
 import com.nhn.pinpoint.web.alarm.filter.AlarmCheckFilter;
+import com.nhn.pinpoint.web.alarm.filter.ErrorCountChecker;
+import com.nhn.pinpoint.web.alarm.filter.ErrorRateChecker;
+import com.nhn.pinpoint.web.alarm.filter.ResponseCountChecker;
 import com.nhn.pinpoint.web.alarm.filter.SlowCountFilter;
+import com.nhn.pinpoint.web.alarm.filter.SlowRatesFilter;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
 
 public enum CheckerCategory {
@@ -14,10 +19,38 @@ public enum CheckerCategory {
     SLOW_COUNT("SLOW_COUNT", DataCollectorCategory.RESPONSE_TIME) {
         @Override
         public AlarmCheckFilter createChecker(DataCollector dataCollector, Rule rule) {
-            AlarmCheckFilter filter = new SlowCountFilter(dataCollector, rule);
-            return filter;
+            return new SlowCountFilter((ResponseTimeDataCollector)dataCollector, rule);
         }
-    };
+    },
+    
+    SLOW_RATE("SLOW_RATE", DataCollectorCategory.RESPONSE_TIME) {
+        @Override
+        public AlarmCheckFilter createChecker(DataCollector dataCollector, Rule rule) {
+            return new SlowRatesFilter((ResponseTimeDataCollector)dataCollector, rule);
+        }
+    },
+    
+    ERROR_COUNT("ERROR_COUNT", DataCollectorCategory.RESPONSE_TIME) {
+        @Override
+        public AlarmCheckFilter createChecker(DataCollector dataCollector, Rule rule) {
+            return new ErrorCountChecker((ResponseTimeDataCollector)dataCollector, rule);
+        }
+    },
+    
+    ERROR_RATE("ERROR_RATE", DataCollectorCategory.RESPONSE_TIME) {
+        @Override
+        public AlarmCheckFilter createChecker(DataCollector dataCollector, Rule rule) {
+            return new ErrorRateChecker((ResponseTimeDataCollector)dataCollector, rule);
+        }
+    },
+    
+    RESPONSE_COUNT("RESPONSE_RATE", DataCollectorCategory.RESPONSE_TIME) {
+        @Override
+        public AlarmCheckFilter createChecker(DataCollector dataCollector, Rule rule) {
+            return new ResponseCountChecker((ResponseTimeDataCollector)dataCollector, rule);
+        }
+    }
+    ;
     
     public static CheckerCategory getValue(String value) {
         for (CheckerCategory category : CheckerCategory.values()) {
@@ -28,7 +61,7 @@ public enum CheckerCategory {
         
         return null;
     }
-    
+
     public static List<String> getNames() {
         List<String> names = new LinkedList<String>();
         

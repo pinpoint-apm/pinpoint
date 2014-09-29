@@ -22,6 +22,8 @@ public class ResponseTimeDataCollector extends DataCollector {
     private long slowCount = 0;
     private long errorCount = 0;
     private long totalCount = 0;
+    private int slowRate = 0;
+    private int errorRate = 0;
     
     public ResponseTimeDataCollector(Application application, MapResponseDao responseDAO, long timeSlotEndTime, long slotInterval) {
         super(DataCollectorCategory.RESPONSE_TIME);
@@ -43,8 +45,27 @@ public class ResponseTimeDataCollector extends DataCollector {
         for (ResponseTime responseTime : responseTimes) {
             sum(responseTime.getAgentResponseHistogramList());
         }
+        
+        setSlowRate();
+        setErrorRate();
 
         init.set(true);
+    }
+
+    private void setSlowRate() {
+        slowRate = calculatePercent(slowCount);
+    }
+    
+    private void setErrorRate() {
+        errorRate = calculatePercent(errorCount);
+    }
+    
+    private int calculatePercent(long value) {
+        if (totalCount == 0 || value == 0) {
+            return 0;
+        } else {
+            return Math.round((value * 100) / totalCount);
+        }
     }
 
     private void sum(Collection<TimeHistogram> timeHistograms) {
@@ -66,6 +87,14 @@ public class ResponseTimeDataCollector extends DataCollector {
     
     public long getTotalCount() {
         return totalCount;
+    }
+
+    public long getSlowRate() {
+        return slowRate;
+    }
+
+    public long getErrorRate() {
+        return errorRate;
     }
 
 }

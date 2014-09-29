@@ -32,8 +32,8 @@ public class WriterTest {
             }
             
             @Override
-            public String getDetectedValue() {
-                return "10000";
+            public long getDetectedValue() {
+                return 10000;
             }
         };
         
@@ -53,8 +53,8 @@ public class WriterTest {
             }
             
             @Override
-            public String getDetectedValue() {
-                return "10000";
+            public long getDetectedValue() {
+                return 10000;
             }
         };
         

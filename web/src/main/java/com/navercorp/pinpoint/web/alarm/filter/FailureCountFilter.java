@@ -26,7 +26,7 @@ public class FailureCountFilter extends AlarmCheckCountFilter {
 	private final Application application;
 
 	public FailureCountFilter(Application application) {
-		super(null, null);
+		super(null, null, null);
 		this.application = application;
 	}
 	
@@ -93,8 +93,8 @@ public class FailureCountFilter extends AlarmCheckCountFilter {
 	}
 
 	@Override
-	public String getDetectedValue() {
-		return null;
+	public long getDetectedValue() {
+		return 0;
 	}
 
 }
