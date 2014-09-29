@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.web.alarm;
 
+
 public class DefaultAlarmEvent implements AlarmEvent {
 
     private final long startEventTimeMillis;
@@ -12,4 +13,6 @@ public class DefaultAlarmEvent implements AlarmEvent {
     public long getEventStartTimeMillis() {
         return startEventTimeMillis;
     }
+    
+
 }
