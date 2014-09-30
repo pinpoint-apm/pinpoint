@@ -1,14 +1,16 @@
 package com.nhn.pinpoint.collector.cluster.zookeeper;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -31,10 +33,13 @@ import com.nhn.pinpoint.rpc.util.MapUtils;
  */
 public class ZookeeperLatestJobWorker implements Runnable {
 
+	private static final Charset charset = Charset.forName("UTF-8");
+
 	private static final String PINPOINT_CLUSTER_PATH = "/pinpoint-cluster";
-	private static final String PINPOINT_PROFILER_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/profiler";
+	private static final String PINPOINT_COLLECTOR_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/collector";
 
 	private static final String PATH_SEPRATOR = "/";
+	private static final String PROFILER_SEPERATOR = "\r\n";
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -43,16 +48,15 @@ public class ZookeeperLatestJobWorker implements Runnable {
 	private final WorkerStateContext workerState;
 	private final Thread workerThread;
 
-	private final String identifier;
-	private final AtomicInteger sequntialId = new AtomicInteger(0);
-
+	private final String collectorUniqPath;
+	
 	private final ZookeeperClient zookeeperClient;
 
 	// 메시지가 사라지면 ChannelContext 역시 사라짐
-	private final Map<ChannelContext, Job> latestJobRepository = new HashMap<ChannelContext, Job>();
+	private final ConcurrentHashMap<ChannelContext, Job> latestJobRepository = new ConcurrentHashMap<ChannelContext, Job>();
 
-	// 들어온 ChannelContext는 계속 유지됨
-	private final Map<ChannelContext, String> znodeMappingRepository = new HashMap<ChannelContext, String>();
+	// Worker에 들어온 ChannelContext를 관리하는 저장소
+	private final CopyOnWriteArrayList<ChannelContext> channelContextRepository = new CopyOnWriteArrayList<ChannelContext>();
 
 	private final BlockingQueue<Job> leakJobQueue = new LinkedBlockingQueue<Job>();
 
@@ -65,8 +69,8 @@ public class ZookeeperLatestJobWorker implements Runnable {
 
 		this.workerState = new WorkerStateContext();
 
-		this.identifier = serverIdentifier;
-
+		this.collectorUniqPath = bindingPathAndZnode(PINPOINT_COLLECTOR_CLUSTER_PATH, serverIdentifier);
+		
 		final ThreadFactory threadFactory = new PinpointThreadFactory(this.getClass().getSimpleName(), true);
 		this.workerThread = threadFactory.newThread(this);
 	}
@@ -144,11 +148,12 @@ public class ZookeeperLatestJobWorker implements Runnable {
 				while (keyIterator.hasNext()) {
 					ChannelContext channelContext = keyIterator.next();
 					Job job = getJob(channelContext);
-
 					if (job == null) {
 						continue;
 					}
-
+					
+					logger.info("Worker execute job({}).", job);
+					
 					if (job instanceof UpdateJob) {
 						handleUpdate((UpdateJob) job);
 					} else if (job instanceof DeleteJob) {
@@ -166,12 +171,11 @@ public class ZookeeperLatestJobWorker implements Runnable {
 					}
 
 					if (job instanceof UpdateJob) {
-						putJob(new UpdateJob(job.getChannelContext(), 0, ((UpdateJob) job).getContents()));
+						putRetryJob(new UpdateJob(job.getChannelContext(), 1, ((UpdateJob) job).getContents()));
 					}
 				}
 
-				List<ChannelContext> currentChannelContextList = getRegisteredChannelContextList();
-				for (ChannelContext channelContext : currentChannelContextList) {
+				for (ChannelContext channelContext : channelContextRepository) {
 					if (PinpointServerSocketStateCode.isFinished(channelContext.getCurrentStateCode())) {
 						logger.info("LeakDetector Find Leak ChannelContext={}.", channelContext);
 						putJob(new DeleteJob(channelContext));
@@ -193,27 +197,25 @@ public class ZookeeperLatestJobWorker implements Runnable {
 			return false;
 		}
 
-		// 동시성에 문제 없게 하자
-		String uniquePath = getUniquePath(channelContext, true);
-		if (uniquePath == null) {
-			logger.warn("Zookeeper UniqPath({}) may not be null.", uniquePath);
-			return false;
-		}
-
 		try {
-			if (zookeeperClient.exists(uniquePath)) {
-				zookeeperClient.setData(uniquePath, job.getContents());
+			String addContents = createProfilerContents(channelContext);
+
+			if (zookeeperClient.exists(collectorUniqPath)) {
+				byte[] contents = zookeeperClient.getData(collectorUniqPath);
+				
+				String data = addIfAbsentContents(new String(contents, charset), addContents);
+				zookeeperClient.setData(collectorUniqPath, data.getBytes(charset));
 			} else {
-				zookeeperClient.createPath(uniquePath);
-				zookeeperClient.createNode(uniquePath, job.getContents());
-				logger.info("Registed Zookeeper UniqPath = {}", uniquePath);
+				zookeeperClient.createPath(collectorUniqPath);
+				
+				// data가 중요한 것이라면 NODE가 존재해도 에러를 반환해야 한다. 
+				zookeeperClient.createNode(collectorUniqPath, addContents.getBytes(charset));
 			}
 			return true;
 		} catch (Exception e) {
 			logger.warn(e.getMessage(), e);
 			if (e instanceof TimeoutException) {
-				job.incrementCurrentRetryCount();
-				putJob(job);
+				putRetryJob(job);
 			}
 		}
 
@@ -223,41 +225,30 @@ public class ZookeeperLatestJobWorker implements Runnable {
 	public boolean handleDelete(Job job) {
 		ChannelContext channelContext = job.getChannelContext();
 
-		String uniquePath = getUniquePath(channelContext, false);
-
-		if (uniquePath == null) {
-			logger.info("Already Delete Zookeeper UniqPath ChannelContext = {}.", channelContext);
-			return true;
-		}
-
 		try {
-			if (zookeeperClient.exists(uniquePath)) {
-				zookeeperClient.delete(uniquePath);
-				logger.info("Unregisted Zookeeper UniqPath = {}", uniquePath);
+			if (zookeeperClient.exists(collectorUniqPath)) {
+				byte[] contents = zookeeperClient.getData(collectorUniqPath);
+				
+				String removeContents = createProfilerContents(channelContext);
+				String data = removeIfExistContents(new String(contents, charset), removeContents);
+				
+				zookeeperClient.setData(collectorUniqPath, data.getBytes(charset));
 			}
-			removeUniquePath(channelContext);
+			channelContextRepository.remove(channelContext);
 			return true;
 		} catch (Exception e) {
 			logger.warn(e.getMessage(), e);
 			if (e instanceof TimeoutException) {
-				job.incrementCurrentRetryCount();
-				putJob(job);
+				putRetryJob(job);
 			}
 		}
 
 		return false;
 	}
 
-	public byte[] getData(ChannelContext channelContext) {
-		String uniquePath = getUniquePath(channelContext, false);
-
-		if (uniquePath == null) {
-			logger.info("Can't find suitable UniqPath ChannelContext = {}.", channelContext);
-			return null;
-		}
-
+	public byte[] getClusterData() {
 		try {
-			return zookeeperClient.getData(uniquePath);
+			return zookeeperClient.getData(collectorUniqPath);
 		} catch (Exception e) {
 			logger.warn(e.getMessage(), e);
 		}
@@ -266,11 +257,9 @@ public class ZookeeperLatestJobWorker implements Runnable {
 	}
 
 	public List<ChannelContext> getRegisteredChannelContextList() {
-		synchronized (znodeMappingRepository) {
-			return new ArrayList<ChannelContext>(znodeMappingRepository.keySet());
-		}
+		return new ArrayList<ChannelContext>(channelContextRepository);
 	}
-
+	
 	/**
 	 * 파라미터의 대기시간동안 이벤트가 일어날 경우 true 일어나지 않을 경우 false
 	 * 
@@ -322,68 +311,38 @@ public class ZookeeperLatestJobWorker implements Runnable {
 			Job job = latestJobRepository.remove(channelContext);
 			return job;
 		}
-
 	}
 
 	public void putJob(Job job) {
-		if (job.getMaxRetryCount() < job.getCurrentRetryCount()) {
-			if (logger.isInfoEnabled()) {
-				logger.warn("Leack Job Queue Register Job={}.", job);
-			}
-			leakJobQueue.add(job);
+		ChannelContext channelContext = job.getChannelContext();
+		if (!checkRequiredProperties(channelContext)) {
 			return;
 		}
-
+		
 		synchronized (lock) {
-			ChannelContext channelContext = job.getChannelContext();
-
+			channelContextRepository.addIfAbsent(channelContext);
 			latestJobRepository.put(channelContext, job);
 			lock.notifyAll();
 		}
 	}
+	
+	private void putRetryJob(Job job) {
+		job.incrementCurrentRetryCount();
 
-	private String getUniquePath(ChannelContext channelContext, boolean create) {
-		synchronized (znodeMappingRepository) {
-			String zNodePath = znodeMappingRepository.get(channelContext);
-
-			if (!create) {
-				return zNodePath;
+		if (job.getMaxRetryCount() < job.getCurrentRetryCount()) {
+			if (logger.isInfoEnabled()) {
+				logger.warn("Leak Job Queue Register Job={}.", job);
 			}
-
-			if (zNodePath == null) {
-				Map<Object, Object> agentProperties = channelContext.getChannelProperties();
-				final String applicationName = MapUtils.getString(agentProperties, AgentPropertiesType.APPLICATION_NAME.getName());
-				final String agentId = MapUtils.getString(agentProperties, AgentPropertiesType.AGENT_ID.getName());
-
-				if (StringUtils.isEmpty(applicationName) || StringUtils.isEmpty(agentId)) {
-					logger.warn("ApplicationName({}) and AgnetId({}) may not be null.", applicationName, agentId);
-					return null;
-				}
-
-				String path = PINPOINT_PROFILER_CLUSTER_PATH + "/" + applicationName + "/" + agentId;
-				String zNodeName = createUniqueZnodeName();
-
-				zNodePath = bindingPathAndZnode(path, zNodeName);
-				znodeMappingRepository.put(channelContext, zNodePath);
-
-				logger.info("Created Zookeeper UniqPath = {}", zNodePath);
-			}
-
-			return zNodePath;
+			leakJobQueue.add(job);
+			return;
 		}
-	}
+		
+		ChannelContext channelContext = job.getChannelContext();
 
-	private void removeUniquePath(ChannelContext channelContext) {
-		synchronized (znodeMappingRepository) {
-			String zNodePath = znodeMappingRepository.remove(channelContext);
-			if (zNodePath != null) {
-				logger.info("Deleted Zookeeper UniqPath = {}", zNodePath);
-			}
+		synchronized (lock) {
+			latestJobRepository.putIfAbsent(channelContext, job);
+			lock.notifyAll();
 		}
-	}
-
-	private String createUniqueZnodeName() {
-		return identifier + "_" + sequntialId.getAndIncrement();
 	}
 
 	private String bindingPathAndZnode(String path, String znodeName) {
@@ -398,4 +357,79 @@ public class ZookeeperLatestJobWorker implements Runnable {
 		return fullPath.toString();
 	}
 
+	private boolean checkRequiredProperties(ChannelContext channelContext) {
+		Map<Object, Object> agentProperties = channelContext.getChannelProperties();
+		final String applicationName = MapUtils.getString(agentProperties, AgentPropertiesType.APPLICATION_NAME.getName());
+		final String agentId = MapUtils.getString(agentProperties, AgentPropertiesType.AGENT_ID.getName());
+		final Long startTimeStampe = MapUtils.getLong(agentProperties, AgentPropertiesType.START_TIMESTAMP.getName());
+		
+		if (StringUtils.isBlank(applicationName) || StringUtils.isBlank(agentId) || startTimeStampe == null || startTimeStampe <= 0) {
+			logger.warn("ApplicationName({}) and AgnetId({}) and startTimeStampe({}) may not be null.", applicationName, agentId);
+			return false;
+		}
+		
+		return true;
+	}
+	
+	private String createProfilerContents(ChannelContext channelContext) {
+		StringBuilder profilerContents = new StringBuilder();
+		
+		Map<Object, Object> agentProperties = channelContext.getChannelProperties();
+		final String applicationName = MapUtils.getString(agentProperties, AgentPropertiesType.APPLICATION_NAME.getName());
+		final String agentId = MapUtils.getString(agentProperties, AgentPropertiesType.AGENT_ID.getName());
+		final Long startTimeStampe = MapUtils.getLong(agentProperties, AgentPropertiesType.START_TIMESTAMP.getName());
+		
+		if (StringUtils.isBlank(applicationName) || StringUtils.isBlank(agentId) || startTimeStampe == null || startTimeStampe <= 0) {
+			logger.warn("ApplicationName({}) and AgnetId({}) and startTimeStampe({}) may not be null.", applicationName, agentId);
+			return StringUtils.EMPTY;
+		}
+		
+		// 구분자 : 허용하지 않기 떄문 -,_,. 허용
+		profilerContents.append(applicationName);
+		profilerContents.append(":");
+		profilerContents.append(agentId);
+		profilerContents.append(":");
+		profilerContents.append(startTimeStampe);
+		
+		return profilerContents.toString();
+	}
+
+	private String addIfAbsentContents(String contents, String addContents) {
+		String[] allContents = contents.split(PROFILER_SEPERATOR);
+		
+		for (String eachContent : allContents) {
+			if (StringUtils.equals(eachContent.trim(), addContents.trim())) {
+				return contents;
+			}
+		}
+		
+		return contents + PROFILER_SEPERATOR + addContents;
+	}
+	
+	private String removeIfExistContents(String contents, String removeContents) {
+		StringBuilder newContents = new StringBuilder(contents.length());
+		
+		String[] allContents = contents.split(PROFILER_SEPERATOR);
+
+		Iterator<String> stringIterator = Arrays.asList(allContents).iterator();
+		
+		while (stringIterator.hasNext()) {
+			String eachContent = stringIterator.next();
+			
+			if (StringUtils.isBlank(eachContent)) {
+				continue;
+			}
+			
+			if (!StringUtils.equals(eachContent.trim(), removeContents.trim())) {
+				newContents.append(eachContent);
+
+				if (stringIterator.hasNext()) {
+					newContents.append(PROFILER_SEPERATOR);
+				}
+			}
+		}
+
+		return newContents.toString();
+	}
+	
 }

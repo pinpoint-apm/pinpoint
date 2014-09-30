@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.collector.cluster.zookeeper;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.curator.test.TestingServer;
@@ -42,7 +43,7 @@ public class ZookeeperProfilerClusterServiceTest {
 	public void simpleTest1() throws Exception {
 		TestingServer ts = null;
 		try {
-			ts = createZookeeperServer(DEFAULT_ACCEPTOR_PORT);
+			ts = ZookeeperTestUtils.createZookeeperServer(DEFAULT_ACCEPTOR_PORT);
 
 			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig, clusterPointRouter);
 			service.setUp();
@@ -55,18 +56,20 @@ public class ZookeeperProfilerClusterServiceTest {
 			channelContext.changeStateRun();
 			Thread.sleep(1000);
 
-			Map result = profilerClusterManager.getData(channelContext);
-			Assert.assertNull(getCode(result));
+			List<String> result = profilerClusterManager.getClusterData();
+			Assert.assertEquals(0, result.size());
 
 			channelContext.changeStateRunDuplexCommunication();
 			Thread.sleep(1000);
-			result = profilerClusterManager.getData(channelContext);
-			Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION, getCode(result));
+			result = profilerClusterManager.getClusterData();
+			Assert.assertEquals(1, result.size());
 
+			
+			
 			channelContext.changeStateShutdown();
 			Thread.sleep(1000);
-			result = profilerClusterManager.getData(channelContext);
-			Assert.assertNull(getCode(result));
+			result = profilerClusterManager.getClusterData();
+			Assert.assertEquals(0, result.size());
 
 			service.tearDown();
 		} finally {
@@ -90,23 +93,24 @@ public class ZookeeperProfilerClusterServiceTest {
 
 			channelContext.changeStateRun();
 			Thread.sleep(1000);
-			Map result = profilerClusterManager.getData(channelContext);
-			Assert.assertNull(getCode(result));
+			List<String> result = profilerClusterManager.getClusterData();
+			Assert.assertEquals(0, result.size());
 
 			channelContext.changeStateRunDuplexCommunication();
 			Thread.sleep(1000);
-			result = profilerClusterManager.getData(channelContext);
-			Assert.assertNull(getCode(result));
+			result = profilerClusterManager.getClusterData();
+			Assert.assertEquals(0, result.size());
 
-			ts = createZookeeperServer(DEFAULT_ACCEPTOR_PORT);
-			Thread.sleep(1000);
-			result = profilerClusterManager.getData(channelContext);
-			Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION, getCode(result));
+			ts = ZookeeperTestUtils.createZookeeperServer(DEFAULT_ACCEPTOR_PORT);
+			Thread.sleep(10000);
+			
+			result = profilerClusterManager.getClusterData();
+			Assert.assertEquals(1, result.size());
 
 			channelContext.changeStateShutdown();
 			Thread.sleep(1000);
-			result = profilerClusterManager.getData(channelContext);
-			Assert.assertNull(getCode(result));
+			result = profilerClusterManager.getClusterData();
+			Assert.assertEquals(0, result.size());
 
 			service.tearDown();
 		} finally {
@@ -121,7 +125,7 @@ public class ZookeeperProfilerClusterServiceTest {
 	public void simpleTest3() throws Exception {
 		TestingServer ts = null;
 		try {
-			ts = createZookeeperServer(DEFAULT_ACCEPTOR_PORT);
+			ts = ZookeeperTestUtils.createZookeeperServer(DEFAULT_ACCEPTOR_PORT);
 
 			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig, clusterPointRouter);
 			service.setUp();
@@ -133,26 +137,26 @@ public class ZookeeperProfilerClusterServiceTest {
 
 			channelContext.changeStateRun();
 			Thread.sleep(1000);
-			Map result = profilerClusterManager.getData(channelContext);
-			Assert.assertNull(getCode(result));
+			List<String> result = profilerClusterManager.getClusterData();
+			Assert.assertEquals(0, result.size());
 
 			channelContext.changeStateRunDuplexCommunication();
 			Thread.sleep(1000);
-			result = profilerClusterManager.getData(channelContext);
-			Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION, getCode(result));
+			result = profilerClusterManager.getClusterData();
+			Assert.assertEquals(1, result.size());
 
 			ts.stop();
 			Thread.sleep(1000);
 			ts.restart();
 			Thread.sleep(1000);
 
-			result = profilerClusterManager.getData(channelContext);
-			Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION, getCode(result));
+			result = profilerClusterManager.getClusterData();
+			Assert.assertEquals(1, result.size());
 
 			channelContext.changeStateShutdown();
 			Thread.sleep(1000);
-			result = profilerClusterManager.getData(channelContext);
-			Assert.assertNull(getCode(result));
+			result = profilerClusterManager.getClusterData();
+			Assert.assertEquals(0, result.size());
 
 			service.tearDown();
 		} finally {
@@ -176,23 +180,23 @@ public class ZookeeperProfilerClusterServiceTest {
 
 			channelContext.changeStateRun();
 			Thread.sleep(1000);
-			Map result = profilerClusterManager.getData(channelContext);
-			Assert.assertNull(getCode(result));
+			List<String> result = profilerClusterManager.getClusterData();
+			Assert.assertEquals(0, result.size());
 
 			channelContext.changeStateRunDuplexCommunication();
 			Thread.sleep(1000);
-			result = profilerClusterManager.getData(channelContext);
-			Assert.assertNull(getCode(result));
+			result = profilerClusterManager.getClusterData();
+			Assert.assertEquals(0, result.size());
 
 			channelContext.changeStateShutdown();
 			Thread.sleep(1000);
-			result = profilerClusterManager.getData(channelContext);
-			Assert.assertNull(getCode(result));
+			result = profilerClusterManager.getClusterData();
+			Assert.assertEquals(0, result.size());
 
-			ts = createZookeeperServer(DEFAULT_ACCEPTOR_PORT);
+			ts = ZookeeperTestUtils.createZookeeperServer(DEFAULT_ACCEPTOR_PORT);
 			Thread.sleep(1000);
-			result = profilerClusterManager.getData(channelContext);
-			Assert.assertNull(getCode(result));
+			result = profilerClusterManager.getClusterData();
+			Assert.assertEquals(0, result.size());
 
 			service.tearDown();
 		} finally {
@@ -208,7 +212,7 @@ public class ZookeeperProfilerClusterServiceTest {
 	public void simpleTest5() throws Exception {
 		TestingServer ts = null;
 		try {
-			ts = createZookeeperServer(DEFAULT_ACCEPTOR_PORT);
+			ts = ZookeeperTestUtils.createZookeeperServer(DEFAULT_ACCEPTOR_PORT);
 
 			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig, clusterPointRouter);
 			service.setUp();
@@ -220,38 +224,31 @@ public class ZookeeperProfilerClusterServiceTest {
 
 			channelContext.changeStateRun();
 			Thread.sleep(1000);
-			Map result = profilerClusterManager.getData(channelContext);
-			Assert.assertNull(getCode(result));
+			List<String> result = profilerClusterManager.getClusterData();
+			Assert.assertEquals(0, result.size());
 
 			channelContext.changeStateRunDuplexCommunication();
 			Thread.sleep(1000);
-			result = profilerClusterManager.getData(channelContext);
-			Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION, getCode(result));
+			result = profilerClusterManager.getClusterData();
+			Assert.assertEquals(1, result.size());
 
 			channelContext.changeStateShutdown();
 			Thread.sleep(1000);
-			result = profilerClusterManager.getData(channelContext);
-			Assert.assertNull(getCode(result));
+			result = profilerClusterManager.getClusterData();
+			Assert.assertEquals(0, result.size());
 
 			ts.stop();
 			Thread.sleep(1000);
 			ts.restart();
 			Thread.sleep(1000);
 
-			result = profilerClusterManager.getData(channelContext);
-			Assert.assertNull(getCode(result));
+			result = profilerClusterManager.getClusterData();
+			Assert.assertEquals(0, result.size());
 
 			service.tearDown();
 		} finally {
 			closeZookeeperServer(ts);
 		}
-	}
-
-	private TestingServer createZookeeperServer(int port) throws Exception {
-		TestingServer mockZookeeperServer = new TestingServer(port);
-		mockZookeeperServer.start();
-
-		return mockZookeeperServer;
 	}
 
 	private void closeZookeeperServer(TestingServer mockZookeeperServer) throws Exception {
@@ -260,11 +257,6 @@ public class ZookeeperProfilerClusterServiceTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	private PinpointServerSocketStateCode getCode(Map channelContextData) {
-		String state = (String) channelContextData.get("state");
-		return PinpointServerSocketStateCode.getStateCode(state);
 	}
 
 	private Map<Object, Object> getParams() {

@@ -25,7 +25,7 @@ public class ZookeeperWebClusterManager implements Runnable {
 
 	// 콜렉터 에서는 무한 retry를 해도됨
 	// RETRY_INTERVAL을 받게만 하면 될듯
-	private static final int DEFAULT_RETRY_INTERVAL = 10000;
+	private static final int DEFAULT_RETRY_INTERVAL = 60000;
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

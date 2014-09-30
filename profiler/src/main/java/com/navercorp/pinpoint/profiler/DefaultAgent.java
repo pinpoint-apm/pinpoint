@@ -29,6 +29,7 @@ import com.nhn.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.nhn.pinpoint.profiler.modifier.arcus.ArcusMethodFilter;
 import com.nhn.pinpoint.profiler.monitor.AgentStatMonitor;
+import com.nhn.pinpoint.profiler.receiver.CommandDispatcher;
 import com.nhn.pinpoint.profiler.sampler.SamplerFactory;
 import com.nhn.pinpoint.profiler.sender.DataSender;
 import com.nhn.pinpoint.profiler.sender.EnhancedDataSender;
@@ -286,7 +287,7 @@ public class DefaultAgent implements Agent {
         // 1.3 버전으로 할 경우 아래 분기에서 MessageListener 변경 필요
         MessageListener messageListener = null;
         if (useMessageListener) {
-            messageListener = SimpleLoggingMessageListener.LISTENER;
+            messageListener = new CommandDispatcher();
         } else {
             messageListener = SimpleLoggingMessageListener.LISTENER;
         }

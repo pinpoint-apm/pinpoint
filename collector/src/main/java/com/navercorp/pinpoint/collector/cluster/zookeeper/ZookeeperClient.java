@@ -106,9 +106,7 @@ public class ZookeeperClient {
 			String pathName = zookeeper.create(znodePath, data, Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
 			return pathName;
 		} catch (KeeperException exception) {
-			if (exception.code() != Code.NODEEXISTS) {
-				handleException(exception);
-			} 
+			handleException(exception);
 		}
 		return znodePath;
 	}
