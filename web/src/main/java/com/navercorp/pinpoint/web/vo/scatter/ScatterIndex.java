@@ -14,10 +14,10 @@ public class ScatterIndex {
 //          "type":3
 //     },
 
-    private final int x = 0;
-    private final int y = 1;
-    private final int transactionId = 2;
-    private final int type = 3;
+    private static final int x = 0;
+    private static final int y = 1;
+    private static final int transactionId = 2;
+    private static final int type = 3;
 
     @JsonProperty("x")
     public int getX() {

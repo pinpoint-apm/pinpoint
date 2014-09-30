@@ -24,7 +24,7 @@ public class JtdsConnectionStringParser implements ConnectionStringParser {
     @Override
     public DatabaseInfo parse(String url) {
         if (url == null) {
-            return JDBCUrlParser.createUnknownDataBase(ServiceType.MSSQL, ServiceType.MSSQL_EXECUTE_QUERY, url);
+            return JDBCUrlParser.createUnknownDataBase(ServiceType.MSSQL, ServiceType.MSSQL_EXECUTE_QUERY, null);
         }
 
 //        jdbc:jtds:sqlserver://10.xx.xx.xx:1433;DatabaseName=CAFECHAT;sendStringParametersAsUnicode=false;useLOBs=false;loginTimeout=3
