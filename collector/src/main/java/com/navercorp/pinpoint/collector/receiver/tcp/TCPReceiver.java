@@ -3,6 +3,7 @@ package com.nhn.pinpoint.collector.receiver.tcp;
 import java.net.InetAddress;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.RejectedExecutionException;
@@ -13,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
@@ -98,12 +100,21 @@ public class TCPReceiver {
             return;
         }
         try {
-
-            InetAddress[] inetAddressList = new InetAddress[l4ipList.size()];
-            for (int i = 0; i< l4ipList.size(); i++) {
-                inetAddressList[i] = InetAddress.getByName(l4ipList.get(i));
+        	List<InetAddress> inetAddressList = new ArrayList<InetAddress>();
+        	for (int i = 0; i < l4ipList.size(); i++) {
+        		String l4Ip = l4ipList.get(i);
+        		if (StringUtils.isBlank(l4Ip)) {
+        			continue;
+        		}
+        		
+        		InetAddress address = InetAddress.getByName(l4Ip);
+        		if (address != null) {
+        			inetAddressList.add(address);
+        		}
             }
-            pinpointServerSocket.setIgnoreAddressList(inetAddressList);
+            
+        	InetAddress[] inetAddressArray = new InetAddress[inetAddressList.size()];
+        	pinpointServerSocket.setIgnoreAddressList(inetAddressList.toArray(inetAddressArray));
         } catch (UnknownHostException e) {
             logger.warn("l4ipList error {}", l4ipList, e);
         }

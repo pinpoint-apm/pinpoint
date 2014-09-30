@@ -174,6 +174,12 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     	
     	logger.debug("messageReceived:{} channel:{}", message, channel);
     	
+    	ChannelContext channelContext = getChannelContext(channel);
+    	if (!PinpointServerSocketStateCode.isRun(channelContext.getCurrentStateCode())) {
+    		logger.warn("MessageReceived:{} from IllegalState Channel:{} this message will be ignore.", message, channel);
+    		return;
+    	}
+    	
 		final short packetType = getPacketType(message);
 		switch (packetType) {
 			case PacketType.APPLICATION_SEND: {
@@ -219,7 +225,6 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 					return;
 				}
 				
-				ChannelContext channelContext = getChannelContext(channel);
 				channelContext.setChannelProperties(properties);
 				
 				int returnCode = messageListener.handleEnableWorker(properties);
