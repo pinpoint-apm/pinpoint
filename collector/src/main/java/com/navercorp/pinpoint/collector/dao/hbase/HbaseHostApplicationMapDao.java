@@ -76,8 +76,9 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
                     host, bindApplicationName, bindServiceType, parentApplicationName, parentServiceType);
         }
         // 추후 추가를 다시 검토해볼것.
-        String parentAgentId = null;
-        final byte[] rowKey = createRowKey(parentApplicationName, parentServiceType, statisticsRowSlot, parentAgentId);
+//        String parentAgentId = null;
+//        final byte[] rowKey = createRowKey(parentApplicationName, parentServiceType, statisticsRowSlot, parentAgentId);
+		final byte[] rowKey = createRowKey(parentApplicationName, parentServiceType, statisticsRowSlot, null);
 
         byte[] columnName = createColumnName(host, bindApplicationName, bindServiceType);
 
