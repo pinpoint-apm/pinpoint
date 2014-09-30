@@ -8,12 +8,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.concurrent.Callable;
 
 /**
  * @author emeroad
  */
 public class AgentClassLoader {
+
+	private static final SecurityManager SECURITY_MANAGER = System.getSecurityManager();
 
     private URLClassLoader classLoader;
 
@@ -28,12 +32,24 @@ public class AgentClassLoader {
         }
 
         ClassLoader bootStrapClassLoader = AgentClassLoader.class.getClassLoader();
-        this.classLoader = new PinpointURLClassLoader(urls, bootStrapClassLoader);
+        this.classLoader = createClassLoader(urls, bootStrapClassLoader);
 
         this.executeTemplate = new ContextClassLoaderExecuteTemplate(classLoader);
     }
 
-    public void setBootClass(String bootClass) {
+	private PinpointURLClassLoader createClassLoader(final URL[] urls, final ClassLoader bootStrapClassLoader) {
+		if (SECURITY_MANAGER != null) {
+			return AccessController.doPrivileged(new PrivilegedAction<PinpointURLClassLoader>() {
+				public PinpointURLClassLoader run() {
+					return new PinpointURLClassLoader(urls, bootStrapClassLoader);
+				}
+			});
+		} else {
+			return new PinpointURLClassLoader(urls, bootStrapClassLoader);
+		}
+	}
+
+	public void setBootClass(String bootClass) {
         this.bootClass = bootClass;
     }
 
