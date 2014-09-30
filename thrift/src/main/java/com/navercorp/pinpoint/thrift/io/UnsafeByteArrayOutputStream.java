@@ -11,6 +11,7 @@ import java.util.Arrays;
  */
 public class UnsafeByteArrayOutputStream extends ByteArrayOutputStream {
 
+	private static final String UTF8 = "UTF8";
 
 	/**
 	 * Creates a new byte array output stream. The buffer capacity is
@@ -131,7 +132,11 @@ public class UnsafeByteArrayOutputStream extends ByteArrayOutputStream {
 	 * @since JDK1.1
 	 */
 	public String toString() {
-		return new String(buf, 0, count);
+		try {
+			return toString(UTF8);
+		} catch (UnsupportedEncodingException ex) {
+			throw new RuntimeException("toString() fail. Caused:" + ex.getMessage(), ex);
+		}
 	}
 
 	/**
