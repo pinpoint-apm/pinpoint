@@ -10,7 +10,7 @@ import org.apache.thrift.protocol.TProtocol;
  */
 public class L4Packet implements org.apache.thrift.TBase<L4Packet, org.apache.thrift.TFieldIdEnum>, java.io.Serializable, Cloneable, Comparable<L4Packet> {
 
-    private final Header header;
+    private final transient Header header;
 
     public L4Packet(Header header) {
         this.header = header;

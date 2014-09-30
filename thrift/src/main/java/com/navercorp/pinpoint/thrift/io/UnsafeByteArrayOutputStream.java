@@ -9,7 +9,7 @@ import java.util.Arrays;
 /**
  * @author emeroad
  */
-public class UnsafeByteArrayOutputStream extends ByteArrayOutputStream {
+public class UnsafeByteArrayOutputStream extends OutputStream {
 
     /**
      * The buffer where data is stored.

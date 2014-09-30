@@ -17,6 +17,8 @@ import org.apache.thrift.transport.TIOStreamTransport;
  */
 public class HeaderTBaseSerializer {
 
+	private static final String UTF8 = "UTF8";
+
     private final ByteArrayOutputStream baos;
     private final TProtocol protocol;
     private final TBaseLocator locator;
@@ -61,14 +63,14 @@ public class HeaderTBaseSerializer {
     }
 
     /**
-     * Serialize the Thrift object into a Java string, using the default JVM
+     * Serialize the Thrift object into a Java string, using the UTF8
      * charset encoding.
      *
      * @param base The object to serialize
      * @return Serialized object as a String
      */
     public String toString(TBase<?, ?> base) throws TException {
-        return new String(serialize(base));
+        return toString(base, UTF8);
     }
  
     /**

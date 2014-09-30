@@ -146,7 +146,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
             MemcachedClientModifier memcachedClientModifier = new MemcachedClientModifier(byteCodeInstrumentor, agent);
             addModifier(memcachedClientModifier);
 
-            FrontCacheMemcachedClientModifier frontCacheMemcachedClientModifier = new FrontCacheMemcachedClientModifier(byteCodeInstrumentor, agent);
+//            FrontCacheMemcachedClientModifier frontCacheMemcachedClientModifier = new FrontCacheMemcachedClientModifier(byteCodeInstrumentor, agent);
 //            관련 수정에 사이드 이펙트가 있이서 일단 disable함.
 //            addModifier(frontCacheMemcachedClientModifier);
 
@@ -169,7 +169,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
             OperationFutureModifier operationFutureModifier = new OperationFutureModifier(byteCodeInstrumentor, agent);
             addModifier(operationFutureModifier);
 
-            FrontCacheGetFutureModifier frontCacheGetFutureModifier = new FrontCacheGetFutureModifier(byteCodeInstrumentor, agent);
+//            FrontCacheGetFutureModifier frontCacheGetFutureModifier = new FrontCacheGetFutureModifier(byteCodeInstrumentor, agent);
             //            관련 수정에 사이드 이펙트가 있이서 일단 disable함.
 //            addModifier(frontCacheGetFutureModifier);
 
