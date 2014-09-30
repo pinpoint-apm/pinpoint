@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.collector.cluster.zookeeper;
 
 import java.util.List;
-import java.util.Map;
 
 import junit.framework.Assert;
 
@@ -18,16 +17,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.nhn.pinpoint.collector.cluster.ClusterPointRouter;
 import com.nhn.pinpoint.collector.config.CollectorConfiguration;
-import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
-import com.nhn.pinpoint.rpc.packet.RequestPacket;
-import com.nhn.pinpoint.rpc.packet.SendPacket;
-import com.nhn.pinpoint.rpc.packet.StreamPacket;
 import com.nhn.pinpoint.rpc.server.ChannelContext;
 import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
-import com.nhn.pinpoint.rpc.server.PinpointServerSocketStateCode;
-import com.nhn.pinpoint.rpc.server.ServerMessageListener;
-import com.nhn.pinpoint.rpc.server.ServerStreamChannel;
-import com.nhn.pinpoint.rpc.server.SocketChannel;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
@@ -59,13 +50,13 @@ public class ZookeeperWebClusterServiceTest {
 	public void simpleTest1() throws Exception {
 		TestingServer ts = null;
 		try {
-			ts = createZookeeperServer(DEFAULT_ZOOKEEPER_PORT);
+			ts = ZookeeperTestUtils.createZookeeperServer(DEFAULT_ZOOKEEPER_PORT);
 
 			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig, clusterPointRouter);
 			service.setUp();
 
 			PinpointServerSocket pinpointServerSocket = new PinpointServerSocket();
-			pinpointServerSocket.setMessageListener(new PinpointSocketManagerHandler());
+			pinpointServerSocket.setMessageListener(ZookeeperTestUtils.getServerMessageListener());
 			pinpointServerSocket.bind("127.0.0.1", DEFAULT_ACCEPTOR_SOCKET_PORT);
 
 			ZookeeperClient client = new ZookeeperClient("127.0.0.1:" + DEFAULT_ZOOKEEPER_PORT, 3000, new ZookeeperEventWatcher() {
@@ -100,46 +91,11 @@ public class ZookeeperWebClusterServiceTest {
 		}
 	}
 
-	private TestingServer createZookeeperServer(int port) throws Exception {
-		TestingServer mockZookeeperServer = new TestingServer(port);
-		mockZookeeperServer.start();
-
-		return mockZookeeperServer;
-	}
-
 	private void closeZookeeperServer(TestingServer mockZookeeperServer) throws Exception {
 		try {
 			mockZookeeperServer.close();
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-	}
-
-	private PinpointServerSocketStateCode getCode(Map channelContextData) {
-		String state = (String) channelContextData.get("state");
-		return PinpointServerSocketStateCode.getStateCode(state);
-	}
-
-	private class PinpointSocketManagerHandler implements ServerMessageListener {
-		@Override
-		public void handleSend(SendPacket sendPacket, SocketChannel channel) {
-			logger.warn("Unsupport send received {} {}", sendPacket, channel);
-		}
-
-		@Override
-		public void handleRequest(RequestPacket requestPacket, SocketChannel channel) {
-			logger.warn("Unsupport request received {} {}", requestPacket, channel);
-		}
-
-		@Override
-		public void handleStream(StreamPacket streamPacket, ServerStreamChannel streamChannel) {
-			logger.warn("unsupported streamPacket received {}", streamPacket);
-		}
-
-		@Override
-		public int handleEnableWorker(Map properties) {
-			logger.warn("do handleEnableWorker {}", properties);
-			return ControlEnableWorkerConfirmPacket.SUCCESS;
 		}
 	}
 

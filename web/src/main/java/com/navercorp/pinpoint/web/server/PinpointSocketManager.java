@@ -99,6 +99,32 @@ public class PinpointSocketManager {
 		return pinpointServerSocket.getDuplexCommunicationChannelContext();
 	}
 	
+	public ChannelContext getCollectorChannelContext(String applicationName, String agentId, long startTimeStamp) {
+		List<String> agentNameList = clusterManager.getRegisteredAgentList(applicationName, agentId, startTimeStamp);
+		
+		// AgentName은 중복되는 경우는 문제가 있는 경우임 
+		if (agentNameList.size() == 0) {
+			logger.warn("{}/{} Can't find agent.", applicationName, agentId);
+			return null;
+		} else if (agentNameList.size() > 1) {
+			logger.warn("{}/{} find dupplicate agent {}.", applicationName, agentId, agentNameList);
+			return null;
+		}
+		
+		String agentName = agentNameList.get(0);
+		
+		List<ChannelContext> channelContextList = getCollectorChannelContext();
+		
+		for (ChannelContext channelContext : channelContextList) {
+			String id = (String) channelContext.getChannelProperties().get("id");
+			if (agentName.startsWith(id)) {
+				return channelContext;
+			}
+		}
+		
+		return null;
+	}
+	
 	private String getRepresentationLocalV4Ip() {
 		String ip = NetUtils.getLocalV4Ip();
 		

@@ -30,6 +30,9 @@ import com.nhn.pinpoint.web.server.PinpointSocketManager;
 @ContextConfiguration("classpath:applicationContext-web.xml")
 public class ClusterTest {
 
+	// 해당 테스트를 로컬에서 실행할떄 resource profile 문제로 실패할수 있음
+	// 실패할 경우 resource-test의 pinpoint-web.properties파일을 resource-local의 pinpoint-web.properties에 복사하여 테스트하면 성공한다.
+	
 	private static final int DEFAULT_ACCEPTOR_PORT = 9995;
 	private static final int DEFAULT_ZOOKEEPER_PORT = 22213;
 

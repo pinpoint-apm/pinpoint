@@ -61,6 +61,14 @@ public enum PinpointServerSocketStateCode {
 
 		return false;
 	}
+
+	public static boolean isRunDuplexCommunication(PinpointServerSocketStateCode code) {
+		if (code == RUN_DUPLEX_COMMUNICATION) {
+			return true;
+		}
+
+		return false;
+	}
 	
 	public static boolean isFinished(PinpointServerSocketStateCode code) {
 		if (code == SHUTDOWN || code == UNEXPECTED_SHUTDOWN || code == ERROR_UNKOWN || code == ERROR_ILLEGAL_STATE_CHANGE) {

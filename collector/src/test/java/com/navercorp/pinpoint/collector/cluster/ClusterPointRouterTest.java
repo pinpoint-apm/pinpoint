@@ -29,7 +29,7 @@ import com.nhn.pinpoint.rpc.server.SocketChannel;
 @ContextConfiguration("classpath:applicationContext-test.xml")
 public class ClusterPointRouterTest {
 
-	private static final int DEFAULT_ACCEPTOR_SOCKET_PORT = 22214;
+	private static final int DEFAULT_ACCEPTOR_SOCKET_PORT = 22215;
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

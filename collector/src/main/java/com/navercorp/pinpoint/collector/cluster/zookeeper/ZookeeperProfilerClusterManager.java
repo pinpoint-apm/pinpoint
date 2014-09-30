@@ -1,7 +1,8 @@
 package com.nhn.pinpoint.collector.cluster.zookeeper;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,12 +10,9 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nhn.pinpoint.collector.cluster.ProfilerClusterPoint;
 import com.nhn.pinpoint.collector.cluster.WorkerState;
 import com.nhn.pinpoint.collector.cluster.WorkerStateContext;
-import com.nhn.pinpoint.collector.cluster.zookeeper.exception.PinpointZookeeperException;
 import com.nhn.pinpoint.collector.cluster.zookeeper.job.DeleteJob;
 import com.nhn.pinpoint.collector.cluster.zookeeper.job.UpdateJob;
 import com.nhn.pinpoint.collector.receiver.tcp.AgentPropertiesType;
@@ -28,6 +26,10 @@ import com.nhn.pinpoint.rpc.util.MapUtils;
  */
 public class ZookeeperProfilerClusterManager implements SocketChannelStateChangeEventListener  {
 
+	private static final Charset charset = Charset.forName("UTF-8");
+
+	private static final String PROFILER_SEPERATOR = "\r\n";
+
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private final ZookeeperClient client;
@@ -36,8 +38,6 @@ public class ZookeeperProfilerClusterManager implements SocketChannelStateChange
 	private final WorkerStateContext workerState;
 
 	private final ProfilerClusterPoint clusterPoint;
-	
-	private final ObjectMapper objectmapper = new ObjectMapper();
 
 	// 단순하게 하자 그냥 RUN이면 등록 FINISHED면 경우 삭제 그외 skip
 	// 만약 상태가 안맞으면(?) 보정 들어가야 하는데 leak detector 같은걸 worker내부에 둘 까도 고민중 
@@ -116,12 +116,7 @@ public class ZookeeperProfilerClusterManager implements SocketChannelStateChange
 			}
 			
 			if (PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION == stateCode) {
-				byte[] contents = serializeContents(agentProperties, stateCode);
-				if (contents == null) {
-					return;
-				}
-				
-				UpdateJob job = new UpdateJob(channelContext, contents);
+				UpdateJob job = new UpdateJob(channelContext, new byte[0]);
 				worker.putJob(job);
 				
 				clusterPoint.registerChannelContext(channelContext);
@@ -136,26 +131,25 @@ public class ZookeeperProfilerClusterManager implements SocketChannelStateChange
 			logger.info("{} invalid state {}.", this.getClass().getSimpleName(), state.toString());
 			return;
 		}
-		
 	}
 	
-	public Map getData(ChannelContext channelContext) {
-		byte[] contents = worker.getData(channelContext);
-		
+	public List<String> getClusterData() {
+		byte[] contents = worker.getClusterData();
 		if (contents == null) {
-			return Collections.emptyMap();
+			return Collections.emptyList();
+		}
+
+		List<String> result = new ArrayList<String>();
+
+		String clusterData = new String(contents, charset);
+		String[] allClusterData = clusterData.split(PROFILER_SEPERATOR);
+		for (String eachClusterData : allClusterData) {
+			if (!StringUtils.isBlank(eachClusterData)) {
+				result.add(eachClusterData);
+			}
 		}
 		
-		return deserializeContents(contents);
-	}
-	
-	public List<String> getChildrenNode(String path, boolean watch) throws PinpointZookeeperException, InterruptedException {
-		if (client.exists(path)) {
-			return client.getChildrenNode(path, watch);
-		} else {
-			client.createPath(path);
-			return client.getChildrenNode(path, watch);
-		}
+		return result;
 	}
 	
 	public List<ChannelContext> getRegisteredChannelContextList() {
@@ -166,35 +160,11 @@ public class ZookeeperProfilerClusterManager implements SocketChannelStateChange
 		String applicationName = MapUtils.getString(agentProperties, AgentPropertiesType.APPLICATION_NAME.getName());
 		String agentId = MapUtils.getString(agentProperties, AgentPropertiesType.AGENT_ID.getName());
 
-		if (StringUtils.isEmpty(applicationName) || StringUtils.isEmpty(agentId)) {
+		if (StringUtils.isBlank(applicationName) || StringUtils.isBlank(agentId)) {
 			return true;
 		}
 
 		return false;
-	}
-	
-	private byte[] serializeContents(Map agentProperties, PinpointServerSocketStateCode state) {
-		Map<Object, Object> contents = new HashMap<Object, Object>();
-		contents.put("agent", agentProperties);
-		contents.put("state", state.name());
-		
-		try {
-			return objectmapper.writeValueAsBytes(contents);
-		} catch (JsonProcessingException e) {
-			logger.warn(e.getMessage(), e);
-		}
-		
-		return null;
-	}
-
-	private Map deserializeContents(byte[] contents) {
-		try {
-			return objectmapper.readValue(contents, Map.class);
-		} catch (Exception e) {
-			logger.warn(e.getMessage(), e);
-		}
-
-		return Collections.emptyMap();
 	}
 
 }

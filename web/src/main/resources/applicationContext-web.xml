@@ -27,7 +27,8 @@
     <context:component-scan base-package="com.nhn.pinpoint.web.dao.hbase,
                                          com.nhn.pinpoint.web.service,
                                          com.nhn.pinpoint.web.mapper,
-                                         com.nhn.pinpoint.web.filter" />
+                                         com.nhn.pinpoint.web.filter,
+                                         com.nhn.pinpoint.web.config" />/>
 
     <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">

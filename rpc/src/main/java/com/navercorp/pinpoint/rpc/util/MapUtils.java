@@ -45,6 +45,22 @@ public class MapUtils {
 
         return null;
     }
+    
+    public static Long getLong(Map<Object, Object> map, String key) {
+    	return getLong(map, key, null);
+    }
 
+    public static Long getLong(Map<Object, Object> map, String key, Long defaultValue) {
+        if (map == null) {
+            return defaultValue;
+        }
+
+        final Object value = map.get(key);
+        if (value instanceof Long) {
+            return (Long) value;
+        }
+
+        return null;
+    }
 
 }

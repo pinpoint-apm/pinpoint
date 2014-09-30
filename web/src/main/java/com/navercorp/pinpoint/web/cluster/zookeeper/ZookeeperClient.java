@@ -2,6 +2,8 @@ package com.nhn.pinpoint.web.cluster.zookeeper;
 
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.zookeeper.CreateMode;
@@ -92,6 +94,37 @@ public class ZookeeperClient {
 		}
 		return znodePath;
 	}
+	
+	public List<String> getChildren(String path, boolean watch) throws PinpointZookeeperException, InterruptedException {
+		checkState();
+
+		try {
+			return zookeeper.getChildren(path, watch);
+		} catch (KeeperException exception) {
+			if (exception.code() != Code.NONODE) {
+				handleException(exception);
+			}
+		}
+		
+		return Collections.emptyList();
+	}
+	
+	public byte[] getData(String path) throws PinpointZookeeperException, InterruptedException {
+		return getData(path, false);
+	}
+
+	public byte[] getData(String path, boolean watch) throws PinpointZookeeperException, InterruptedException {
+		checkState();
+
+		try {
+			return zookeeper.getData(path, watch, null);
+		} catch (KeeperException exception) {
+			handleException(exception);
+		}
+		
+		throw new UnknownException("UnknownException.");
+	}
+
 	
 	public void delete(String path) throws PinpointZookeeperException, InterruptedException {
 		checkState();
