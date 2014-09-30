@@ -23,7 +23,7 @@ public class MySqlConnectionStringParser implements ConnectionStringParser {
     @Override
     public DatabaseInfo parse(String url) {
         if (url == null) {
-            return JDBCUrlParser.createUnknownDataBase(ServiceType.MYSQL, ServiceType.MYSQL_EXECUTE_QUERY, url);
+            return JDBCUrlParser.createUnknownDataBase(ServiceType.MYSQL, ServiceType.MYSQL_EXECUTE_QUERY, null);
         }
 
         if (isLoadbalanceUrl(url)) {

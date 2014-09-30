@@ -32,7 +32,7 @@ public class CubridConnectionStringParser implements ConnectionStringParser {
     @Override
     public DatabaseInfo parse(String url) {
         if (url == null) {
-            return JDBCUrlParser.createUnknownDataBase(ServiceType.CUBRID, ServiceType.CUBRID_EXECUTE_QUERY, url);
+            return JDBCUrlParser.createUnknownDataBase(ServiceType.CUBRID, ServiceType.CUBRID_EXECUTE_QUERY, null);
         }
 
         final Matcher matcher = PATTERN.matcher(url);
