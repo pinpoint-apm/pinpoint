@@ -10,4 +10,5 @@ public interface ClusterService {
 	
 	void tearDown() throws Exception;
 	
+	boolean isEnable();
 }

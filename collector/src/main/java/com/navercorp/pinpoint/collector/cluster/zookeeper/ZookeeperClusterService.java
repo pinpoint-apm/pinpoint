@@ -137,6 +137,11 @@ public class ZookeeperClusterService extends AbstractClusterService {
 		return;
 	}
 	
+	@Override
+	public boolean isEnable() {
+		return config.isClusterEnable();
+	}
+	
 	public SocketChannelStateChangeEventListener getChannelStateChangeEventListener() {
 		return profilerClusterManager;
 	}

@@ -84,7 +84,7 @@ public class TCPReceiver {
             throw new NullPointerException("bindAddress must not be null");
         }
         
-        if (service == null) {
+        if (service == null || !service.isEnable()) {
         	this.pinpointServerSocket = new PinpointServerSocket();
         } else {
         	this.pinpointServerSocket = new PinpointServerSocket(service.getChannelStateChangeEventListener());
