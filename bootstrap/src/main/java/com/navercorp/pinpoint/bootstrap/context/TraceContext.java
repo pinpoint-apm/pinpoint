@@ -7,6 +7,7 @@ import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
 
 /**
  * @author emeroad
+ * @author hyungil.jeong
  */
 public interface TraceContext {
 
@@ -61,4 +62,7 @@ public interface TraceContext {
     void recordAcceptResponseTime(String parentApplicationName, short parentApplicationType, int elapsedTime);
 
     void recordUserAcceptResponseTime(int elapsedTime);
+    
+    ServerMetaDataHolder getServerMetaDataHolder();
+    
 }

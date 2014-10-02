@@ -1,11 +1,16 @@
 package com.nhn.pinpoint.profiler.context;
 
+import java.util.Collections;
+
+import com.nhn.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.nhn.pinpoint.bootstrap.context.Trace;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.context.storage.LogStorageFactory;
 import com.nhn.pinpoint.profiler.monitor.metric.MetricRegistry;
 import com.nhn.pinpoint.profiler.sampler.TrueSampler;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
 
 public class ThreadLocalTraceFactoryTest {
@@ -13,7 +18,8 @@ public class ThreadLocalTraceFactoryTest {
     private ThreadLocalTraceFactory getTraceFactory() {
         LogStorageFactory logStorageFactory = new LogStorageFactory();
         TrueSampler trueSampler = new TrueSampler();
-        DefaultTraceContext traceContext = new DefaultTraceContext(100, ServiceType.TOMCAT.getCode(), logStorageFactory, trueSampler);
+        ServerMetaDataHolder serverMetaDataHolder = new DefaultServerMetaDataHolder(Collections.<String>emptyList());
+        DefaultTraceContext traceContext = new DefaultTraceContext(100, ServiceType.TOMCAT.getCode(), logStorageFactory, trueSampler, serverMetaDataHolder);
         MetricRegistry metricRegistry = new MetricRegistry(ServiceType.TOMCAT);
         return new ThreadLocalTraceFactory(traceContext, metricRegistry, logStorageFactory, trueSampler);
     }
@@ -36,9 +42,7 @@ public class ThreadLocalTraceFactoryTest {
 
         Trace trace = traceFactory.currentTraceObject();
 
-
     }
-
 
     @Test
     public void testCurrentRpcTraceObject() throws Exception {

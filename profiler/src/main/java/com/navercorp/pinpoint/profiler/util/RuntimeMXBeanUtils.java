@@ -2,6 +2,8 @@ package com.nhn.pinpoint.profiler.util;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,6 +26,14 @@ public final class RuntimeMXBeanUtils {
             PID = getPid0();
         }
         return PID;
+    }
+    
+    public static List<String> getVmArgs() {
+        List<String> vmArgs = RUNTIME_MBEAN.getInputArguments();
+        if (vmArgs == null) {
+            return Collections.emptyList();
+        }
+        return vmArgs;
     }
 
     private static int getPid0() {
