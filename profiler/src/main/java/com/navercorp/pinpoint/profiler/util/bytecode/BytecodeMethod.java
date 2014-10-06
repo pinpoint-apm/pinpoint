@@ -2,7 +2,12 @@ package com.nhn.pinpoint.profiler.util.bytecode;
 
 import java.util.List;
 
-public class BytecodeMethod {
+import org.objectweb.asm.Opcodes;
+
+public class BytecodeMethod implements Opcodes {
+    private static final String CONSTURCTOR_NAME = "<init>";
+    private static final int NON_TRANSFORMABLE_MODIFIER = ACC_ABSTRACT | ACC_NATIVE;
+    
     private final int access;
     private final String name;
     private final String descriptor;
@@ -17,6 +22,34 @@ public class BytecodeMethod {
         this.signature = signature;
         this.exceptions = exceptions;
         this.annotations = annotations;
+    }
+    
+    public boolean isTransformable() {
+        return (NON_TRANSFORMABLE_MODIFIER & access) == 0;
+    }
+    
+    public boolean isStatic() {
+        return (ACC_STATIC & access) != 0;
+    }
+    
+    public boolean isAbstract() {
+        return (ACC_ABSTRACT & access) != 0;
+    }
+    
+    public boolean isPublic() {
+        return (ACC_PUBLIC & access) != 0;
+    }
+    
+    public boolean isSynthetic() {
+        return (ACC_SYNTHETIC & access) != 0;
+    }
+    
+    public boolean isNative() {
+        return (ACC_NATIVE & access) != 0;
+    }
+    
+    public boolean isConstructor() {
+        return name.equals(CONSTURCTOR_NAME);
     }
 
     public int getAccess() {

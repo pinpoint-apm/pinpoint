@@ -4,7 +4,7 @@ import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.ScopeDelegateStaticInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.*;
-import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
+import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.PreparedStatementBindVariableInterceptor;
 import com.nhn.pinpoint.profiler.util.*;
 import org.slf4j.Logger;
@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * @author emeroad
  */
-public class MySQLPreparedStatementJDBC4Modifier extends DedicatedModifier {
+public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

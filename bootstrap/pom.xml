@@ -109,6 +109,7 @@
         </testResources>
 
         <plugins>
+        
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -142,6 +143,7 @@
                     <archive>
                         <manifestEntries>
                             <Premain-Class>com.nhn.pinpoint.bootstrap.PinpointBootStrap</Premain-Class>
+							<Can-Retransform-Classes>true</Can-Retransform-Classes>
                             <Pinpiont-Version>${project.version}</Pinpiont-Version>
                         </manifestEntries>
                     </archive>

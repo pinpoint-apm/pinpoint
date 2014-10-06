@@ -1,9 +1,13 @@
 package com.nhn.pinpoint.profiler.util.bytecode;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
@@ -14,7 +18,73 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.TypePath;
 
-public class BytecodeAnalyzer extends ClassVisitor implements Opcodes {
+import com.nhn.pinpoint.profiler.ProfilerException;
+
+public class BytecodeClassFactory extends ClassVisitor implements Opcodes {
+    private static final ConcurrentMap<ClassLoader, Map<String, BytecodeClass>> cache = new ConcurrentHashMap<ClassLoader, Map<String, BytecodeClass>>();
+    
+    public static BytecodeClass get(String internalName, ClassLoader loader) {
+        BytecodeClass bytecodeClass = getFromCache(internalName, loader);
+        
+        if (bytecodeClass != null) {
+            return bytecodeClass;
+        }
+        
+        bytecodeClass = load(internalName, loader);
+        addToCache(loader, bytecodeClass);
+        
+        return bytecodeClass;
+    }
+    
+    private static BytecodeClass getFromCache(String internalName, ClassLoader loader) {
+        Map<String, BytecodeClass> ofLoader = cache.get(loader);
+        
+        if (ofLoader == null) {
+            return null;
+        }
+        
+        return ofLoader.get(internalName);
+    }
+    
+    private static void addToCache(ClassLoader loader, BytecodeClass bytecodeClass) {
+        Map<String, BytecodeClass> ofLoader = cache.get(loader);
+        
+        if (ofLoader == null) {
+            synchronized (cache) {
+                ofLoader = cache.get(loader);
+                
+                if (ofLoader == null) {
+                    ofLoader = new ConcurrentHashMap<String, BytecodeClass>();
+                    cache.put(loader, ofLoader);
+                }
+            }
+        }
+        
+        ofLoader.put(bytecodeClass.getName(), bytecodeClass);
+    }
+
+    private static BytecodeClass load(String internalName, ClassLoader loader) {
+        InputStream is = loader.getResourceAsStream(internalName + ".class");
+        
+        if (is == null) {
+            throw new ProfilerException("Cannot find bytecode of " + internalName + " from " + loader);
+        }
+        
+        try {
+            return new BytecodeClassFactory().get(new ClassReader(is), loader);
+        } catch (IOException e) {
+            throw new ProfilerException("Fail to load bytecode: " + internalName, e);
+        }
+    }
+    
+    public static BytecodeClass from(byte[] bytecode, ClassLoader loader) {
+         // 일단 사용 용도가 같은 바이트코드를 여러 번 전달할 곳이 아니기 때문에 캐시에 넣을 필요가 없고,
+         // 또, bytecode를 직접 받는 것이기 때문에 같은 이름에 다른 바이트코드가 올 수도 있기도 하니 이 메서드를 통하는 경우는 캐시에 넣지 않는다.
+        return new BytecodeClassFactory().get(new ClassReader(bytecode), loader);
+    }
+    
+    
+    
     private int version;
     private int access;
     private String name;
@@ -24,15 +94,12 @@ public class BytecodeAnalyzer extends ClassVisitor implements Opcodes {
     private List<AnnotationAnalyzer> annotationAnalyzers;
     private final List<MethodAnalyzer> methodAnalyzers = new ArrayList<MethodAnalyzer>();
     
-    private BytecodeAnalyzer() {
+    private BytecodeClassFactory() {
         super(ASM5);
     }
     
-    public static BytecodeClass analyze(byte[] bytecode) {
-        return new BytecodeAnalyzer().analyze(new ClassReader(bytecode));
-    }
 
-    public BytecodeClass analyze(ClassReader reader) {
+    public BytecodeClass get(ClassReader reader, ClassLoader loader) {
         reader.accept(this, ClassReader.SKIP_CODE);
         
         List<BytecodeAnnotation> annotations = null;
@@ -51,7 +118,7 @@ public class BytecodeAnalyzer extends ClassVisitor implements Opcodes {
             methods.add(analyzer.toASMMethod());
         }
         
-        return new BytecodeClass(version, access, name, signature, superName, interfaces, annotations, methods);
+        return new BytecodeClass(version, access, name, signature, superName, interfaces, annotations, methods, loader);
     }
     
     @Override

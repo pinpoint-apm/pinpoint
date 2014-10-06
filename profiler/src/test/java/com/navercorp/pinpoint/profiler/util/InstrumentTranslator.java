@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler.util;
 
 import com.nhn.pinpoint.profiler.DefaultAgent;
-import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
+import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import javassist.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +20,7 @@ public class InstrumentTranslator implements Translator {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final DefaultAgent agent;
 
-    private ConcurrentMap<String, DedicatedModifier> modifierMap = new ConcurrentHashMap<String, DedicatedModifier>();
+    private ConcurrentMap<String, AbstractModifier> modifierMap = new ConcurrentHashMap<String, DedicatedModifier>();
 
     private ClassLoader loader;
 
@@ -29,7 +29,7 @@ public class InstrumentTranslator implements Translator {
         this.agent = agent;
     }
 
-    public DedicatedModifier addModifier(DedicatedModifier modifier) {
+    public AbstractModifier addModifier(AbstractModifier modifier) {
         return modifierMap.put(modifier.getTargetClass().replace('/', '.'), modifier);
     }
 
@@ -62,7 +62,7 @@ public class InstrumentTranslator implements Translator {
 
     }
     private void findModifierMap(ClassPool pool, String classname) throws NotFoundException, CannotCompileException {
-        DedicatedModifier modifier = modifierMap.get(classname);
+        AbstractModifier modifier = modifierMap.get(classname);
         if (modifier == null) {
             return;
         }

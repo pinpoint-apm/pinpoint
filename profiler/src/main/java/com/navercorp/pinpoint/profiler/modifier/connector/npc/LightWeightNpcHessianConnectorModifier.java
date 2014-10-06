@@ -6,7 +6,7 @@ import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
-import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
+import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.npc.interceptor.InvokeInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author netspider
  */
-public class LightWeightNpcHessianConnectorModifier extends DedicatedModifier {
+public class LightWeightNpcHessianConnectorModifier extends AbstractModifier {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

@@ -2,7 +2,7 @@ package com.nhn.pinpoint.profiler.modifier.db.mssql;
 
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
+import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import javassist.CtClass;
 
 import java.security.ProtectionDomain;
@@ -10,7 +10,7 @@ import java.security.ProtectionDomain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MSSQLStatementModifier extends DedicatedModifier {
+public class MSSQLStatementModifier extends AbstractModifier {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public MSSQLStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {

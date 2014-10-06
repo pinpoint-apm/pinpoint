@@ -5,7 +5,7 @@ import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
-import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
+import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 
 import java.security.ProtectionDomain;
 
@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author emeroad
  */
-public class MySQLNonRegisteringDriverModifier extends DedicatedModifier {
+public class MySQLNonRegisteringDriverModifier extends AbstractModifier {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

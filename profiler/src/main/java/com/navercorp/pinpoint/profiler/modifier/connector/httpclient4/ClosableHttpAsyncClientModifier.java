@@ -10,7 +10,7 @@ import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
-import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
+import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 
 /**
  * HTTP Client 4.3 이상 버전에 있는 클래스.
@@ -18,7 +18,7 @@ import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
  * @author netspider
  * 
  */
-public class ClosableHttpAsyncClientModifier extends DedicatedModifier {
+public class ClosableHttpAsyncClientModifier extends AbstractModifier {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

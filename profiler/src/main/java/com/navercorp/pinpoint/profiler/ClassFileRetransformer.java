@@ -2,91 +2,43 @@ package com.nhn.pinpoint.profiler;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
+import java.lang.instrument.Instrumentation;
+import java.lang.instrument.UnmodifiableClassException;
 import java.security.ProtectionDomain;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.nhn.pinpoint.bootstrap.Agent;
-import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.modifier.GeneralModifier;
-import com.nhn.pinpoint.profiler.util.bytecode.BytecodeAnalyzer;
-import com.nhn.pinpoint.profiler.util.bytecode.BytecodeClass;
+import com.nhn.pinpoint.profiler.modifier.Modifier;
 
 public class ClassFileRetransformer implements ClassFileTransformer {
-    private final ConcurrentHashMap<Target, Boolean> targets = new ConcurrentHashMap<Target, Boolean>();
+    private final Instrumentation instrumentation;
+    private final ConcurrentHashMap<Class<?>, Modifier> targets = new ConcurrentHashMap<Class<?>, Modifier>();
     
-    private final Agent agent;
-    private final ByteCodeInstrumentor byteCodeInstrumentor;
-    
-    private List<GeneralModifier> modifiers;
-
-    
-    public ClassFileRetransformer(Agent agent, ByteCodeInstrumentor byteCodeInstrumentor) {
-        if (agent == null) {
-            throw new NullPointerException("agent must not be null");
-        }
-        
-        if (byteCodeInstrumentor == null) {
-            throw new NullPointerException("byteCodeInstrumentor must not be null");
-        }
-        
-        this.agent = agent;
-        this.byteCodeInstrumentor = byteCodeInstrumentor;
+    public ClassFileRetransformer(Instrumentation instrumentation) {
+        this.instrumentation = instrumentation;
     }
 
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        if (targets.remove(new Target(loader, className)) == null) {
+        Modifier modifier = targets.remove(classBeingRedefined);
+        
+        if (modifier == null) {
             return null;
         }
         
-        BytecodeClass target = BytecodeAnalyzer.analyze(classfileBuffer);
-        
-        byte[] transformed = classfileBuffer;
-
-        for (GeneralModifier modifier : modifiers) {
-            if (modifier.canModify(target)) {
-                transformed = modifier.modify(loader, protectionDomain, target, transformed);
-            }
-        }
-        
-        return transformed;
+        return modifier.modify(loader, className.replace('/', '.'), protectionDomain, classfileBuffer);
     }
     
-    public void addTarget(ClassLoader loader, String className) {
-        targets.put(new Target(loader, className), Boolean.TRUE);
-    }
-    
-    private final static class Target {
-        private final ClassLoader loader;
-        private final String className;
+    public void retransform(Class<?> target, Modifier modifier) {
+        Modifier removed = targets.put(target, modifier);
+
+        if (removed != null) {
+            // TODO log
+        }
         
-        public Target(ClassLoader loader, String className) {
-            this.loader = loader;
-            this.className = className;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((className == null) ? 0 : className.hashCode());
-            result = prime * result + ((loader == null) ? 0 : loader.hashCode());
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            
-            if (obj == null) {
-                return false;
-            }
-            
-            Target other = (Target) obj;
-            return (this.loader == other.loader) && (this.className.equals(other.className));
+        try {
+            instrumentation.retransformClasses(target);
+        } catch (UnmodifiableClassException e) {
+            throw new ProfilerException(e);
         }
     }
 }

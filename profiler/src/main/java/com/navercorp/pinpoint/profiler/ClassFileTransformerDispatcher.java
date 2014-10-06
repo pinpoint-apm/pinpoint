@@ -4,7 +4,7 @@ import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.modifier.DefaultModifierRegistry;
-import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
+import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.ModifierRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +54,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
             return null;
         }
 
-        DedicatedModifier findModifier = this.modifierRegistry.findModifier(className);
+        AbstractModifier findModifier = this.modifierRegistry.findModifier(className);
         if (findModifier == null) {
             // TODO : 디버그 용도로 추가함
             // TODO : modifier가 중복 적용되면 어떻게 되지???
@@ -142,6 +142,9 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         // redis, nBase-ARC
         modifierRepository.addRedisSupport();
         modifierRepository.addNbaseArcSupport();
+        
+        // spring beans
+        modifierRepository.addSpringBeansModifier();
 
         return modifierRepository;
     }

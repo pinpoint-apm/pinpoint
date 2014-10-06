@@ -10,7 +10,7 @@ import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
 import com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.StandardServiceStartInterceptor;
 import com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.StandardServiceStopInterceptor;
 
-import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
+import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author cowboy93, netspider
  */
-public class TomcatStandardServiceModifier extends DedicatedModifier {
+public class TomcatStandardServiceModifier extends AbstractModifier {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

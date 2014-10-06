@@ -7,7 +7,7 @@ import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
-import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
+import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.interceptor.HttpClient4Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author netspider
  */
-public class ClosableHttpClientModifier extends DedicatedModifier {
+public class ClosableHttpClientModifier extends AbstractModifier {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

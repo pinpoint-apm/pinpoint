@@ -7,7 +7,7 @@ import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
-import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
+import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.*;
 import com.nhn.pinpoint.profiler.modifier.db.mysql.interceptor.MySQLConnectionCreateInterceptor;
 import org.slf4j.Logger;
@@ -18,7 +18,7 @@ import java.security.ProtectionDomain;
 /**
  * @author emeroad
  */
-public class MySQLConnectionModifier extends DedicatedModifier {
+public class MySQLConnectionModifier extends AbstractModifier {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

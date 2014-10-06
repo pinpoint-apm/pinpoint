@@ -3,14 +3,14 @@ package com.nhn.pinpoint.profiler.modifier.db.mssql;
 import com.nhn.pinpoint.bootstrap.Agent;
 
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
+import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import javassist.CtClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.ProtectionDomain;
 
-public class MSSQLConnectionModifier extends DedicatedModifier {
+public class MSSQLConnectionModifier extends AbstractModifier {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

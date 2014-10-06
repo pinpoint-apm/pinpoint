@@ -6,7 +6,7 @@ import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
-import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
+import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
  * 현재 사용하지 않고 있음. 일단 살려둠.
  * @author emeroad
  */
-public class CubridUStatementModifier extends DedicatedModifier {
+public class CubridUStatementModifier extends AbstractModifier {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

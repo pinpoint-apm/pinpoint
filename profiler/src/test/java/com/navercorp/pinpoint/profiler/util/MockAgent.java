@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.profiler.util;
 
+import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.util.Collections;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.List;
 import org.apache.thrift.TBase;
 
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
+import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.profiler.DummyInstrumentation;
@@ -26,6 +28,15 @@ import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
  * @author hyungil.jeong
  */
 public class MockAgent extends DefaultAgent {
+    
+    public static MockAgent of(String configPath) throws IOException {
+        ProfilerConfig profilerConfig = new ProfilerConfig();
+        String path = MockAgent.class.getClassLoader().getResource(configPath).getPath();
+        profilerConfig.readConfigFile(path);
+        profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE);
+        
+        return new MockAgent("", profilerConfig);
+    }
 
     public MockAgent(String agentArgs, ProfilerConfig profilerConfig) {
         this(agentArgs, new DummyInstrumentation(), profilerConfig);

@@ -5,7 +5,7 @@ import java.security.ProtectionDomain;
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
-import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
+import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author netspider
  */
-public class BaseOperationModifier extends DedicatedModifier {
+public class BaseOperationModifier extends AbstractModifier {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

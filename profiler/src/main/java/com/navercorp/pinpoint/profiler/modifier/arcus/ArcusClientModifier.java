@@ -8,7 +8,7 @@ import com.nhn.pinpoint.bootstrap.interceptor.ParameterExtractorSupport;
 import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.profiler.interceptor.bci.*;
-import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
+import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.arcus.interceptor.ArcusScope;
 import com.nhn.pinpoint.profiler.modifier.arcus.interceptor.IndexParameterExtractor;
 import org.slf4j.Logger;
@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  * @author netspider
  * @author emeroad
  */
-public class ArcusClientModifier extends DedicatedModifier {
+public class ArcusClientModifier extends AbstractModifier {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
