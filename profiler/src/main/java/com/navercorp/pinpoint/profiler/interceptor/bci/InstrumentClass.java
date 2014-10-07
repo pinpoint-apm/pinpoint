@@ -59,7 +59,7 @@ public interface InstrumentClass {
 
 	int addInterceptorCallByContextClassLoader(String methodName, String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException;
 
-	void weaving(String sourceClassName, String adviceClassName) throws InstrumentException;
+	void weaving(String adviceClassName) throws InstrumentException;
 
 	boolean addDebugLogBeforeAfterMethod();
 

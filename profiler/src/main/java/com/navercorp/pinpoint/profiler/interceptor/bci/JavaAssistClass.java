@@ -556,17 +556,21 @@ public class JavaAssistClass implements InstrumentClass {
     }
 
 	@Override
-	public void weaving(String sourceClassName, String adviceClassName) throws InstrumentException {
+	public void weaving(String adviceClassName) throws InstrumentException {
+		CtClass adviceClass;
 		try {
-			CtClass adviceClass = this.instrumentor.getClassPool().get(adviceClassName);
-			AspectWeaverClass weaverClass = new AspectWeaverClass();
-			weaverClass.weaving(ctClass, adviceClass);
+			adviceClass = this.instrumentor.getClassPool().get(adviceClassName);
 		} catch (NotFoundException e) {
 			throw new NotFoundInstrumentException(adviceClassName + " not found. Caused:" + e.getMessage(), e);
-		} catch (CannotCompileException e) {
-			throw new InstrumentException("weaving fail. sourceClassName:" + sourceClassName + " adviceClassName:" + adviceClassName + " Caused:" + e.getMessage(), e);
 		}
-
+		try {
+			AspectWeaverClass weaverClass = new AspectWeaverClass();
+			weaverClass.weaving(ctClass, adviceClass);
+		}  catch (CannotCompileException e) {
+			throw new InstrumentException("weaving fail. sourceClassName:" + ctClass.getName() + " adviceClassName:" + adviceClassName + " Caused:" + e.getMessage(), e);
+		} catch (NotFoundException e) {
+			throw new InstrumentException("weaving fail. sourceClassName:" + ctClass.getName() + " adviceClassName:" + adviceClassName + " Caused:" + e.getMessage(), e);
+		}
 	}
 
 
