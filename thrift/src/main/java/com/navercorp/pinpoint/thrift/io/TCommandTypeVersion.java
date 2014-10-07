@@ -13,7 +13,7 @@ public enum TCommandTypeVersion {
 	// Agent 버젼과 맞추면 좋을듯 일단은 Agent 버전과 맞춰놓음
 	V_1_0_2_SNAPSHOT("1.0.2-SNAPSHOT", TCommandType.RESULT, TCommandType.THREAD_DUMP),
 	V_1_0_2("1.0.2", V_1_0_2_SNAPSHOT),
-	V_1_0_3_SNAPSHOT("1.0.3-SNAPSHOT", V_1_0_2, TCommandType.ECHO, TCommandType.TRANSFER),
+	V_1_0_3_SNAPSHOT("1.0.3-SNAPSHOT", V_1_0_2, TCommandType.ECHO, TCommandType.TRANSFER, TCommandType.THREAD_DUMP_RESPONSE),
 	
 	UNKNOWN("UNKNOWN");
 

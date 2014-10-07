@@ -5,6 +5,7 @@ import org.apache.thrift.TBase;
 import com.nhn.pinpoint.thrift.dto.TResult;
 import com.nhn.pinpoint.thrift.dto.command.TCommandEcho;
 import com.nhn.pinpoint.thrift.dto.command.TCommandThreadDump;
+import com.nhn.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
 import com.nhn.pinpoint.thrift.dto.command.TCommandTransfer;
 
 /**
@@ -37,6 +38,12 @@ public enum TCommandType {
 		@Override
 		public TBase newObject() {
 			return new TCommandThreadDump();
+		}
+	},
+	THREAD_DUMP_RESPONSE((short) 721, TCommandThreadDumpResponse.class) {
+		@Override
+		public TBase newObject() {
+			return new TCommandThreadDumpResponse();
 		}
 	};
 
