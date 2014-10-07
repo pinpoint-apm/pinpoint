@@ -555,6 +555,7 @@ public class JavaAssistClass implements InstrumentClass {
         addAfterInterceptor(methodName, interceptorId, behavior, useContextClassLoader, SIMPLE_INTERCEPTOR);
     }
 
+	@Override
 	public void weaving(String sourceClassName, String adviceClassName) throws InstrumentException {
 		try {
 			CtClass adviceClass = this.instrumentor.getClassPool().get(adviceClassName);
