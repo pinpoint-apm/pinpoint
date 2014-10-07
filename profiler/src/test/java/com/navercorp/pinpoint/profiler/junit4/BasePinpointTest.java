@@ -13,13 +13,11 @@ import com.nhn.pinpoint.common.bo.SpanEventBo;
 import com.nhn.pinpoint.profiler.context.Span;
 import com.nhn.pinpoint.profiler.context.SpanEvent;
 import com.nhn.pinpoint.profiler.sender.PeekableDataSender;
-import com.nhn.pinpoint.profiler.util.TestClassLoader;
 
 /**
  * @author hyungil.jeong
  */
 @RunWith(value = PinpointJUnit4ClassRunner.class)
-@PinpointTestClassLoader(TestClassLoader.class)
 public abstract class BasePinpointTest {
     private ThreadLocal<PeekableDataSender<? extends TBase<?, ?>>> traceHolder = new ThreadLocal<PeekableDataSender<? extends TBase<?, ?>>>();
     private ThreadLocal<ServerMetaDataHolder> serverMetaDataHolder = new ThreadLocal<ServerMetaDataHolder>();
