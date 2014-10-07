@@ -26,8 +26,8 @@ public class JavaAssistClass implements InstrumentClass {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private JavaAssistByteCodeInstrumentor instrumentor;
-    private CtClass ctClass;
+    private final JavaAssistByteCodeInstrumentor instrumentor;
+    private final CtClass ctClass;
     private static final int STATIC_INTERCEPTOR = 0;
     private static final int SIMPLE_INTERCEPTOR = 1;
 
@@ -554,6 +554,19 @@ public class JavaAssistClass implements InstrumentClass {
     private void addSimpleAfterInterceptor(String methodName, int interceptorId, CtBehavior behavior, boolean useContextClassLoader) throws NotFoundException, CannotCompileException {
         addAfterInterceptor(methodName, interceptorId, behavior, useContextClassLoader, SIMPLE_INTERCEPTOR);
     }
+
+	public void weaving(String sourceClassName, String adviceClassName) throws InstrumentException {
+		try {
+			CtClass adviceClass = this.instrumentor.getClassPool().get(adviceClassName);
+			AspectWeaverClass weaverClass = new AspectWeaverClass();
+			weaverClass.weaving(ctClass, adviceClass);
+		} catch (NotFoundException e) {
+			throw new NotFoundInstrumentException(adviceClassName + " not found. Caused:" + e.getMessage(), e);
+		} catch (CannotCompileException e) {
+			throw new InstrumentException("weaving fail. sourceClassName:" + sourceClassName + " adviceClassName:" + adviceClassName + " Caused:" + e.getMessage(), e);
+		}
+
+	}
 
 
 

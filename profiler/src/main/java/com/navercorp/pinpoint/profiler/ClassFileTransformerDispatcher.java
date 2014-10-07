@@ -31,6 +31,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
     private ProfilerConfig profilerConfig;
 
+	private final ClassFileFilter skipFilter;
 
     public ClassFileTransformerDispatcher(Agent agent, ByteCodeInstrumentor byteCodeInstrumentor) {
         if (agent == null) {
@@ -43,27 +44,15 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         this.byteCodeInstrumentor = byteCodeInstrumentor;
         this.profilerConfig = agent.getProfilerConfig();
         this.modifierRegistry = createModifierRegistry();
+		this.skipFilter = new DefaultClassFileFilter(agentClassLoader);
     }
-
 
     @Override
     public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws IllegalClassFormatException {
-        // fast java class skip
-        if (className.startsWith("java")) {
-            if (className.startsWith("/", 4) || className.startsWith("x/", 4)) {
-                return classFileBuffer;
-            }
-        }
 
-        if (classLoader == agentClassLoader) {
-            // agent의 clssLoader에 로드된 클래스는 스킵한다.
-            return null;
-        }
-        // 자기 자신의 패키지도 제외
-        // 향후 패키지명 변경에 의해 코드 변경이 필요함.
-        if (className.startsWith("com/nhn/pinpoint/")) {
-            return null;
-        }
+		if (skipFilter.doFilter(classLoader, className, classBeingRedefined, protectionDomain, classFileBuffer)) {
+			return null;
+		}
 
         Modifier findModifier = this.modifierRegistry.findModifier(className);
         if (findModifier == null) {

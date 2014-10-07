@@ -46,6 +46,19 @@ public class PropertyUtils {
         return loadProperty(new Properties(), inputStreamFactory, DEFAULT_ENCODING);
     }
 
+	public static Properties loadPropertyFromClassLoader(final ClassLoader classLoader, final String classPath) throws IOException {
+		if (classLoader == null) {
+			throw new NullPointerException("classLoader must not be null");
+		}
+		final InputStreamFactory inputStreamFactory = new InputStreamFactory() {
+			@Override
+			public InputStream openInputStream() throws IOException {
+				return classLoader.getResourceAsStream(classPath);
+			}
+		};
+		return loadProperty(new Properties(), inputStreamFactory, DEFAULT_ENCODING);
+	}
+
 
     public static Properties loadProperty(Properties properties, InputStreamFactory inputStreamFactory, String encoding) throws IOException {
         if (properties == null) {
