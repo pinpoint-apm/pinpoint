@@ -1,0 +1,203 @@
+package com.nhn.pinpoint.profiler.interceptor.bci;
+
+import com.nhn.pinpoint.profiler.interceptor.aspect.Aspect;
+import com.nhn.pinpoint.profiler.interceptor.aspect.JointPoint;
+import com.nhn.pinpoint.profiler.interceptor.aspect.PointCut;
+import com.nhn.pinpoint.profiler.interceptor.bci.CodeBuilder;
+import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
+import javassist.*;
+import javassist.expr.ExprEditor;
+import javassist.expr.MethodCall;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @author emeroad
+ */
+public class AspectWeaverClass {
+
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	private static final MethodNameReplacer DEFAULT_METHOD_NAME_REPLACER = new DefaultMethodNameReplacer();
+
+	private final MethodNameReplacer methodNameReplacer;
+
+
+	public AspectWeaverClass() {
+		methodNameReplacer = DEFAULT_METHOD_NAME_REPLACER;
+	}
+
+	public void weaving(CtClass sourceClass, CtClass adviceClass) throws NotFoundException, CannotCompileException {
+		if (!isAspectClass(adviceClass)) {
+			throw new RuntimeException("@Aspect not found. adviceClass:" + adviceClass);
+		}
+
+
+		List<CtMethod> utilMethodList = findUtilMethod(adviceClass);
+		for (CtMethod method : utilMethodList) {
+			CtMethod copyMethod = CtNewMethod.copy(method, method.getName(), sourceClass, null);
+			sourceClass.addMethod(copyMethod);
+		}
+
+		final List<CtMethod> pointCutMethodList = findAnnotationMethod(adviceClass, PointCut.class);
+		final List<CtMethod> jointPointList = findAnnotationMethod(adviceClass, JointPoint.class);
+
+		for (CtMethod adviceMethod : pointCutMethodList) {
+			final CtMethod sourceMethod = sourceClass.getDeclaredMethod(adviceMethod.getName(), adviceMethod.getParameterTypes());
+			if (!sourceMethod.getSignature().equals(adviceMethod.getSignature())) {
+				throw new CannotCompileException("Signature miss match. method:" + adviceMethod.getName() + " source:" + sourceMethod.getSignature() + " advice:" + adviceMethod.getSignature());
+			}
+			weavingMethod(sourceClass, sourceMethod, adviceMethod, jointPointList);
+		}
+
+
+	}
+
+	private List<CtMethod> findUtilMethod(CtClass adviceClass) throws CannotCompileException {
+		List<CtMethod> utilMethodList = new ArrayList<CtMethod>();
+		for (CtMethod method : adviceClass.getDeclaredMethods()) {
+			if (method.hasAnnotation(PointCut.class) || method.hasAnnotation(JointPoint.class)) {
+				continue;
+			}
+			int modifiers = method.getModifiers();
+			if (!Modifier.isPrivate(modifiers)) {
+				throw new CannotCompileException("non private UtilMethod unsupported. method:" + method.getLongName());
+			}
+			utilMethodList.add(method);
+		}
+		return utilMethodList;
+	}
+
+	private boolean isAspectClass(CtClass aspectClass) {
+		return aspectClass.hasAnnotation(Aspect.class);
+	}
+
+	private void weavingMethod(CtClass sourceClass, CtMethod sourceMethod, CtMethod adviceMethod, List<CtMethod> jointPointList) throws CannotCompileException {
+		final CtMethod copyMethod = copyMethod(sourceClass, sourceMethod);
+		sourceClass.addMethod(copyMethod);
+
+		sourceMethod.setBody(adviceMethod, null);
+
+		sourceMethod.instrument(new JointPointMethodEditor(sourceClass, sourceMethod, copyMethod, jointPointList));
+	}
+
+	public class JointPointMethodEditor extends ExprEditor {
+		private final CtClass sourceClass;
+		private final CtMethod sourceMethod;
+		private final CtMethod replaceMethod;
+		private final List<CtMethod> jointPointList;
+
+		public JointPointMethodEditor(CtClass sourceClass, CtMethod sourceMethod, CtMethod replaceMethod, List<CtMethod> jointPointList) {
+			if (replaceMethod == null) {
+				throw new NullPointerException("replaceMethod must not be null");
+			}
+			this.sourceClass = sourceClass;
+			this.sourceMethod = sourceMethod;
+			this.replaceMethod = replaceMethod;
+			this.jointPointList = jointPointList;
+		}
+
+
+		@Override
+		public void edit(MethodCall methodCall) throws CannotCompileException {
+
+			final boolean joinPointMethod = isJoinPointMethod(jointPointList, methodCall.getMethodName(), methodCall.getSignature());
+			if (joinPointMethod) {
+				if (!methodCall.getSignature().equals(replaceMethod.getSignature())) {
+					throw new CannotCompileException("Signature miss match. method:" + sourceMethod.getName() + " source:" + sourceMethod.getSignature() + " jointPoint:" + replaceMethod.getSignature());
+				}
+				final String invokeSource = invokeSourceMethod();
+				if (logger.isInfoEnabled()) {
+					logger.info("{}{} -> invokeSource:{}", methodCall.getMethodName(), methodCall.getSignature(), invokeSource);
+				}
+				methodCall.replace(invokeSource);
+			} else {
+				try {
+					sourceClass.getMethod(methodCall.getMethodName(), methodCall.getSignature());
+				} catch (NotFoundException e) {
+					throw new CannotCompileException(e.getMessage(), e);
+				}
+			}
+		}
+
+		private boolean isJoinPointMethod(List<CtMethod> jointPointList, String methodName, String methodSignature) {
+			for (CtMethod method : jointPointList) {
+				if (method.getName().equals(methodName) && method.getSignature().equals(methodSignature)) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+
+		private String invokeSourceMethod() {
+			CodeBuilder builder = new CodeBuilder(32);
+			if (isVoid(replaceMethod.getSignature())) {
+				builder.append("$_=null;");
+			} else {
+				builder.append("$_=");
+			}
+
+			builder.format("%1$s($$);", methodNameReplacer.replaceMethodName(sourceMethod.getName()));
+			return builder.toString();
+		}
+
+		public boolean isVoid(String signature) {
+			return signature.endsWith("V");
+		}
+	}
+
+	private CtMethod copyMethod(CtClass sourceClass, CtMethod sourceMethod) throws CannotCompileException {
+
+		// id라도 더 줘야 될려나?
+
+		String copyMethodName = methodNameReplacer.replaceMethodName(sourceMethod.getName());
+
+		final CtMethod copy = CtNewMethod.copy(sourceMethod, copyMethodName, sourceClass, null);
+
+		// set private
+		final int modifiers = copy.getModifiers();
+		copy.setModifiers(Modifier.setPrivate(modifiers));
+
+		return copy;
+
+	}
+
+
+	private List<CtMethod> findAnnotationMethod(CtClass ctClass, Class annotation) {
+		if (ctClass == null) {
+			throw new NullPointerException("ctClass must not be null");
+		}
+		if (annotation == null) {
+			throw new NullPointerException("annotation must not be null");
+		}
+
+		final List<CtMethod> annotationList = new ArrayList<CtMethod>();
+
+		for (CtMethod method : ctClass.getDeclaredMethods()) {
+			if (method.hasAnnotation(annotation)) {
+				annotationList.add(method);
+			}
+		}
+		return annotationList;
+	}
+
+	public static interface MethodNameReplacer {
+		String replaceMethodName(String methodName);
+	}
+
+	public static class DefaultMethodNameReplacer implements MethodNameReplacer {
+		public static final String PREFIX = "__";
+		public static final String POSTFIX = "_$$pinpoint";
+
+		public String replaceMethodName(String methodName) {
+			if (methodName == null) {
+				throw new NullPointerException("methodName must not be null");
+			}
+			return  PREFIX + methodName + POSTFIX;
+		}
+	}
+}

@@ -1,0 +1,118 @@
+package com.nhn.pinpoint.profiler.interceptor.bci;
+
+import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
+import javassist.*;
+import javassist.expr.ExprEditor;
+import javassist.expr.MethodCall;
+import org.junit.Test;
+
+import java.lang.reflect.*;
+
+/**
+ * @author emeroad
+ */
+public class JavaAssistTest {
+
+	@Test
+	public void afterCatch() throws NotFoundException, CannotCompileException, NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
+		ClassPool pool = ClassPool.getDefault();
+		CtClass ctClass = pool.get("com.nhn.pinpoint.profiler.interceptor.bci.TestObject");
+		CtClass object = pool.get("java.lang.String");
+		System.out.println(ctClass);
+
+//		JavaAssistUtils.getCtParameter(new String[]]"java.lang", aDefault);
+
+		CtMethod callA = ctClass.getDeclaredMethod("callA", null);
+		System.out.println(callA);
+//		callA.addLocalVariable("__test", object);
+		final String before = "{ java.lang.Throwable __throwable = null; java.lang.String __test = \"abc\"; System.out.println(\"before\" + __test);";
+//		callA.insertBefore();
+//		callA.insertAfter("System.out.println(\"after\" + __test);");
+//		final String after =  "finally {System.out.println(\"after\" + __test);}}";
+		final String after = "}";
+//		callA.addCatch();       ?>
+
+//		callA.addCatch("System.out.println(\"after\");", pool.get("java.lang.Throwable"));
+		callA.instrument(new ExprEditor() {
+			@Override
+			public void edit(MethodCall m) throws CannotCompileException {
+				System.out.println(m.getClassName());
+				try {
+					System.out.println(m.getMethod().toString());
+				} catch (NotFoundException e) {
+					e.printStackTrace();
+				}
+				System.out.println(m.getMethodName());
+				m.replace(before + " try {$_ = $proceed($$); System.out.println(\"end---\"+ $_);} catch (java.lang.Throwable ex) { __throwable = ex; System.out.println(\"catch\"); } " + after);
+			}
+		});
+
+
+		Class aClass = ctClass.toClass();
+		java.lang.reflect.Method callA1 = aClass.getMethod("callA");
+		Object target = aClass.newInstance();
+		Object result = callA1.invoke(target);
+		System.out.println(result);
+	}
+
+	@Test
+	 public void afterCatch2() throws NotFoundException, CannotCompileException, NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
+		ClassPool pool = ClassPool.getDefault();
+		CtClass ctClass = pool.get("com.nhn.pinpoint.profiler.interceptor.bci.TestObject");
+		CtClass object = pool.get("java.lang.String");
+		System.out.println(ctClass);
+
+//		JavaAssistUtils.getCtParameter(new String[]]"java.lang", aDefault);
+
+		CtMethod callA = ctClass.getDeclaredMethod("callA", null);
+		System.out.println(callA);
+//		callA.addLocalVariable("__test", object);
+		callA.insertBefore("__test = \"abc\"; System.out.println(\"before\" + __test);");
+		callA.insertAfter("System.out.println(\"after\");");
+		callA.addCatch("{ System.out.println(\"\");}", pool.get("java.lang.Throwable"));
+
+		Class aClass = ctClass.toClass();
+		java.lang.reflect.Method callA1 = aClass.getMethod("callA");
+		Object target = aClass.newInstance();
+		Object result = callA1.invoke(target);
+		System.out.println(result);
+
+	}
+
+	@Test
+	public void around() throws NotFoundException, CannotCompileException, NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
+		ClassPool pool = ClassPool.getDefault();
+
+		CtClass ctClass = pool.get("com.nhn.pinpoint.profiler.interceptor.bci.TestObject");
+		CtClass object = pool.get("java.lang.String");
+		System.out.println(ctClass);
+
+//		JavaAssistUtils.getCtParameter(new String[]]"java.lang", aDefault);
+
+		CtMethod callA = ctClass.getDeclaredMethod("callA", null);
+		System.out.println(callA);
+		callA.addLocalVariable("__test", object);
+		String inti = "__test = \"abc\";";
+//		callA.insertBefore("__test = \"abc\";);
+		callA.insertBefore("{com.nhn.pinpoint.profiler.interceptor.bci.TestObject.before();}");
+		callA.insertAfter("{com.nhn.pinpoint.profiler.interceptor.bci.TestObject.after();}");
+		callA.addCatch("{ com.nhn.pinpoint.profiler.interceptor.bci.TestObject.callCatch(); throw $e; }", pool.get("java.lang.Throwable"));
+
+		Class aClass = ctClass.toClass();
+		java.lang.reflect.Method callA1 = aClass.getMethod("callA");
+		Object target = aClass.newInstance();
+		try {
+			Object result = callA1.invoke(target);
+			System.out.println(result);
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}
+
+		ctClass.debugWriteFile("./TestObjectAAA.class");
+
+	}
+}
