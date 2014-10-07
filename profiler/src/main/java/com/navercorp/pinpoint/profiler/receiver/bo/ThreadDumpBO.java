@@ -1,6 +1,8 @@
 package com.nhn.pinpoint.profiler.receiver.bo;
 
+import java.lang.management.LockInfo;
 import java.lang.management.ManagementFactory;
+import java.lang.management.MonitorInfo;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
@@ -12,9 +14,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.profiler.receiver.TBaseRequestBO;
-import com.nhn.pinpoint.thrift.dto.TResult;
 import com.nhn.pinpoint.thrift.dto.command.TCommandThreadDump;
+import com.nhn.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
+import com.nhn.pinpoint.thrift.dto.command.TMonitorInfo;
+import com.nhn.pinpoint.thrift.dto.command.TThreadDump;
 import com.nhn.pinpoint.thrift.dto.command.TThreadDumpType;
+import com.nhn.pinpoint.thrift.dto.command.TThreadState;
 
 /**
  * @author koo.taejin
@@ -26,10 +31,10 @@ public class ThreadDumpBO implements TBaseRequestBO {
 	@Override
 	public TBase<?, ?> handleRequest(TBase tbase) {
 		logger.info("{} execute {}.", this, tbase);
-		
+
 		TCommandThreadDump param = (TCommandThreadDump) tbase;
 		TThreadDumpType type = param.getType();
-		
+
 		List<ThreadInfo> threadInfoList = null;
 		if (TThreadDumpType.TARGET == type) {
 			threadInfoList = getThreadInfo(param.getName());
@@ -38,33 +43,70 @@ public class ThreadDumpBO implements TBaseRequestBO {
 		} else {
 			threadInfoList = Arrays.asList(getAllThreadInfo());
 		}
-		
-		StringBuilder dump = new StringBuilder();
+
+		TCommandThreadDumpResponse response = new TCommandThreadDumpResponse();
+
 		for (ThreadInfo info : threadInfoList) {
-			dump.append(info.getThreadName());
-			dump.append("\t Thread.State: ");
-            dump.append(info.getThreadState());
-			
-			StackTraceElement[] elements = info.getStackTrace();
-			for (StackTraceElement element : elements) {
-				dump.append("\r\n\t at");
-                dump.append(element);
+			TThreadDump dump = new TThreadDump();
+
+			dump.setThreadName(info.getThreadName());
+			dump.setThreadId(info.getThreadId());
+			dump.setBlockedTime(info.getBlockedTime());
+			dump.setBlockedCount(info.getBlockedCount());
+			dump.setWaitedTime(info.getWaitedTime());
+			dump.setWaitedCount(info.getWaitedCount());
+
+			dump.setLockName(info.getLockName());
+			dump.setLockOwnerId(info.getLockOwnerId());
+			dump.setLockOwnerName(info.getLockOwnerName());
+
+			dump.setInNative(info.isInNative());
+			dump.setSuspended(info.isSuspended());
+
+			dump.setThreadState(getThreadState(info));
+
+			StackTraceElement[] stackTraceElements = info.getStackTrace();
+			for (StackTraceElement each : stackTraceElements) {
+				dump.addToStackTrace(each.toString());
 			}
-			dump.append("\r\n");
-			dump.append("\r\n");
+
+			MonitorInfo[] monitorInfos = info.getLockedMonitors();
+			for (MonitorInfo each : monitorInfos) {
+				TMonitorInfo tMonitorInfo = new TMonitorInfo();
+
+				tMonitorInfo.setStackDepth(each.getLockedStackDepth());
+				tMonitorInfo.setStackFrame(each.getLockedStackFrame().toString());
+
+				dump.addToLockedMonitors(tMonitorInfo);
+			}
+
+			LockInfo[] lockInfos = info.getLockedSynchronizers();
+			for (LockInfo lockInfo : lockInfos) {
+				dump.addToLockedSynchronizers(lockInfo.toString());
+			}
+
+			response.addToThreadDumps(dump);
+		}
+
+		return response;
+	}
+
+	private TThreadState getThreadState(ThreadInfo info) {
+		
+		String stateName = info.getThreadState().name();
+		
+		for (TThreadState state : TThreadState.values()) {
+			if (state.name().equalsIgnoreCase(stateName)) {
+				return state;
+			}
 		}
 		
-		TResult result = new TResult(true);
-		result.setMessage(dump.toString());
-
-		logger.debug("Result = {}", result);
-		
-		return result;
+		return null;
 	}
 
 	private List<ThreadInfo> getThreadInfo(String threadName) {
 		List<ThreadInfo> result = new ArrayList<ThreadInfo>();
-		
+
 		if (threadName == null || threadName.trim().equals("")) {
 			return Arrays.asList(getAllThreadInfo());
 		}
@@ -92,7 +134,7 @@ public class ThreadDumpBO implements TBaseRequestBO {
 				result.add(threadInfo);
 				continue;
 			}
-			
+
 			if (threadInfo.getWaitedTime() >= pendingTimeMillis) {
 				result.add(threadInfo);
 				continue;
