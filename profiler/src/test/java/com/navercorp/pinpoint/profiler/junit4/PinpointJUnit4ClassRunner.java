@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.profiler.junit4;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -26,6 +25,7 @@ import com.nhn.pinpoint.profiler.DummyInstrumentation;
 import com.nhn.pinpoint.profiler.context.ResettableServerMetaDataHolder;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.nhn.pinpoint.profiler.sender.PeekableDataSender;
+import com.nhn.pinpoint.profiler.util.TestClassLoaderFactory;
 import com.nhn.pinpoint.profiler.util.MockAgent;
 import com.nhn.pinpoint.profiler.util.TestClassLoader;
 
@@ -35,7 +35,6 @@ import com.nhn.pinpoint.profiler.util.TestClassLoader;
 public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(PinpointJUnit4ClassRunner.class);
-    private static final Class<TestClassLoader> defaultTestClassLoader = TestClassLoader.class;
 
     private final TestClassLoader testClassLoader;
     private final TestContext testContext;
@@ -50,7 +49,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
         MockAgent testAgent = createTestAgent();
         this.testAgent = testAgent;
         this.testDataSender = testAgent.getPeekableSpanDataSender();
-        this.testClassLoader = getTestClassLoader(clazz);
+        this.testClassLoader = getTestClassLoader();
         this.testClassLoader.initialize();
         try {
             this.testContext = new TestContext(this.testClassLoader, clazz);
@@ -85,42 +84,9 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
         profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE);
         return new MockAgent("", new DummyInstrumentation(), profilerConfig);
     }
-
-    private Class<?> findPinpointTestClassLoaderAnnotationForClass(Class<?> testClass) {
-        if (testClass == null || testClass.equals(Object.class)) {
-            return null;
-        }
-        if (testClass.isAnnotationPresent(PinpointTestClassLoader.class)) {
-            return testClass;
-        }
-        return findPinpointTestClassLoaderAnnotationForClass(testClass.getSuperclass());
-    }
-
-    private TestClassLoader getTestClassLoader(Class<?> testClass) throws InitializationError {
-        Class<?> classWithPinpointTestClassLoaderAnnotationSpecified = findPinpointTestClassLoaderAnnotationForClass(testClass);
-        if (classWithPinpointTestClassLoaderAnnotationSpecified == null) {
-            if (logger.isInfoEnabled()) {
-                logger.info(String.format("@PinpointTestClassLoader not found for class [%s]", testClass));
-            }
-            return createTestClassLoader(defaultTestClassLoader);
-        } else {
-            PinpointTestClassLoader pinpointTestClassLoader = classWithPinpointTestClassLoaderAnnotationSpecified.getAnnotation(PinpointTestClassLoader.class);
-            if (logger.isTraceEnabled()) {
-                logger.trace(String.format("Retrieved @PinpointTestClassLoader [%s] for class [%s]", pinpointTestClassLoader, testClass));
-            }
-            return createTestClassLoader(pinpointTestClassLoader.value());
-        }
-    }
-
-    private <T extends TestClassLoader> TestClassLoader createTestClassLoader(Class<T> testClassLoader) throws InitializationError {
-        try {
-            Constructor<T> c = testClassLoader.getConstructor(DefaultAgent.class);
-            T classLoader = c.newInstance(this.testAgent);
-            return classLoader;
-        } catch (Exception e) {
-            // 어떤 exception이 발생하던 결국 InitializationError.
-            throw new InitializationError("Error instantiating Test");
-        }
+    
+    private TestClassLoader getTestClassLoader() {
+        return TestClassLoaderFactory.createTestClassLoader(this.testAgent);
     }
 
     @Override

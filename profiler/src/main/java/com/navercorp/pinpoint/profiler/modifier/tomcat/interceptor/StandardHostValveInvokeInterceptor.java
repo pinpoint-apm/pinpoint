@@ -5,7 +5,6 @@ import java.util.Enumeration;
 import com.nhn.pinpoint.bootstrap.context.*;
 import com.nhn.pinpoint.bootstrap.interceptor.*;
 import com.nhn.pinpoint.profiler.context.*;
-import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 
