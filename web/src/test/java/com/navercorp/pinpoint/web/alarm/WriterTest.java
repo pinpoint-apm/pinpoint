@@ -32,7 +32,7 @@ public class WriterTest {
             }
             
             @Override
-            public long getDetectedValue() {
+            protected long getDetectedValue() {
                 return 10000;
             }
         };
@@ -53,7 +53,7 @@ public class WriterTest {
             }
             
             @Override
-            public long getDetectedValue() {
+            protected long getDetectedValue() {
                 return 10000;
             }
         };

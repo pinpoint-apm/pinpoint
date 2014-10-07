@@ -14,6 +14,7 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.item.ExecutionContext;
 
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
 import com.nhn.pinpoint.web.alarm.collector.DataCollector;
 import com.nhn.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
@@ -124,8 +125,8 @@ public class ReaderTest {
         
         dataCollectorFactory = new DataCollectorFactory() {
             @Override
-            public DataCollector createDataCollector(CheckerCategory checker, Application application, long timeSlotEndTime, long slotInterval) {
-                return new ResponseTimeDataCollector(null, null, 0, 0);
+            public DataCollector createDataCollector(CheckerCategory checker, Application application, long timeSlotEndTime) {
+                return new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, null, null, 0, 0);
             }
         };
     }

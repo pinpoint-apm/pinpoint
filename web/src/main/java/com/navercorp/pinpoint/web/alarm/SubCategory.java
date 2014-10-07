@@ -118,7 +118,8 @@ public enum SubCategory {
 	AlarmFilter createAlarmFilter(Application application, AlarmRuleResource rule) throws Exception {
 		List<MainCategory> parentSupportCategoryList = getParentSupportCategoryList();
 		if (parentSupportCategoryList.size() == 1) {
-			return createAlarmFilter(application, parentSupportCategoryList.get(0), rule);
+//			return createAlarmFilter(application, parentSupportCategoryList.get(0), rule);
+		    return null;
 		} else {
 			throw new Exception("Ambiguous ParentCategory Exception");
 		}

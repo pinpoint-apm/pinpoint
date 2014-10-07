@@ -25,8 +25,8 @@ public class ResponseTimeDataCollector extends DataCollector {
     private int slowRate = 0;
     private int errorRate = 0;
     
-    public ResponseTimeDataCollector(Application application, MapResponseDao responseDAO, long timeSlotEndTime, long slotInterval) {
-        super(DataCollectorCategory.RESPONSE_TIME);
+    public ResponseTimeDataCollector(DataCollectorCategory category, Application application, MapResponseDao responseDAO, long timeSlotEndTime, long slotInterval) {
+        super(category);
         this.application = application;
         this.responseDao = responseDAO;
         this.timeSlotEndTime = timeSlotEndTime;

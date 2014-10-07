@@ -4,11 +4,15 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.nhn.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
+import com.nhn.pinpoint.web.alarm.collector.AgentStatDataCollector;
 import com.nhn.pinpoint.web.alarm.collector.DataCollector;
 import com.nhn.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
 import com.nhn.pinpoint.web.alarm.filter.AlarmCheckFilter;
 import com.nhn.pinpoint.web.alarm.filter.ErrorCountChecker;
 import com.nhn.pinpoint.web.alarm.filter.ErrorRateChecker;
+import com.nhn.pinpoint.web.alarm.filter.GcCountChecker;
+import com.nhn.pinpoint.web.alarm.filter.HeapUsageRateChecker;
+import com.nhn.pinpoint.web.alarm.filter.JvmCpuUsageRateChecker;
 import com.nhn.pinpoint.web.alarm.filter.ResponseCountChecker;
 import com.nhn.pinpoint.web.alarm.filter.SlowCountFilter;
 import com.nhn.pinpoint.web.alarm.filter.SlowRatesFilter;
@@ -49,8 +53,28 @@ public enum CheckerCategory {
         public AlarmCheckFilter createChecker(DataCollector dataCollector, Rule rule) {
             return new ResponseCountChecker((ResponseTimeDataCollector)dataCollector, rule);
         }
-    }
-    ;
+    },
+    
+    HEAP_USAGE_RATE("HEAP_USAGE_RATE", DataCollectorCategory.AGENT_STAT) {
+        @Override
+        public AlarmCheckFilter createChecker(DataCollector dataCollector, Rule rule) {
+            return new HeapUsageRateChecker((AgentStatDataCollector)dataCollector, rule);
+        }
+    },
+    
+    GC_COUNT("GC_COUNT", DataCollectorCategory.AGENT_STAT) {
+        @Override
+        public AlarmCheckFilter createChecker(DataCollector dataCollector, Rule rule) {
+            return new GcCountChecker((AgentStatDataCollector)dataCollector, rule);
+        }
+    },
+    
+    JVM_CPU_USAGE_RATE("JVM_CPU_USAGE_RATE", DataCollectorCategory.AGENT_STAT) {
+        @Override
+        public AlarmCheckFilter createChecker(DataCollector dataCollector, Rule rule) {
+            return new JvmCpuUsageRateChecker((AgentStatDataCollector)dataCollector, rule);
+        }
+    };
     
     public static CheckerCategory getValue(String value) {
         for (CheckerCategory category : CheckerCategory.values()) {

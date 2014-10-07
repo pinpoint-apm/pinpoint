@@ -21,8 +21,6 @@ import com.nhn.pinpoint.web.dao.ApplicationIndexDao;
 import com.nhn.pinpoint.web.vo.Application;
 
 public class AlarmReader implements ItemReader<AlarmCheckFilter>, StepExecutionListener {
-
-    private final static long SLOT_INTERVAL = 300000;
     
     @Autowired
     private DataCollectorFactory dataCollectorFactory;
@@ -79,7 +77,7 @@ public class AlarmReader implements ItemReader<AlarmCheckFilter>, StepExecutionL
             DataCollector collector = collectorMap.get(checkerCategory);
             
             if(collector == null) {
-                collector = dataCollectorFactory.createDataCollector(checkerCategory, application, timeSlotEndTime, SLOT_INTERVAL);
+                collector = dataCollectorFactory.createDataCollector(checkerCategory, application, timeSlotEndTime);
                 collectorMap.put(collector.getDataCollectorCategory(), collector);
             }
             

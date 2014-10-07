@@ -1,5 +1,8 @@
 package com.nhn.pinpoint.web.alarm.filter;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,9 +13,9 @@ import com.nhn.pinpoint.web.alarm.vo.Rule;
  * 
  * @author koo.taejin
  */
-public abstract class AlarmCheckFilter implements AlarmFilter {
+public abstract class AlarmCheckFilter {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     protected final DataCollector dataCollector;
     protected final Rule rule;
     protected boolean detected = false;
@@ -68,7 +71,17 @@ public abstract class AlarmCheckFilter implements AlarmFilter {
         }
     }
     
-    abstract public long getDetectedValue();
+    public List<String> getSmsMessage() {
+        List<String> messages = new LinkedList<String>();
+        messages.add(String.format("[PINPOINT Alarm - %s] %s is %s (Threshold : %s%s)", rule.getApplicationId(), rule.getCheckerName(), getDetectedValue(), rule.getThreshold(), unit));
+        return messages;
+    };
+    
+    public String getEmailMessage() {
+        return String.format("%s value is %s during the past 5 mins.(Threshold : %s%s)<br>", rule.getCheckerName(), getDetectedValue(), rule.getThreshold(), unit);
+    };
+    
+    protected abstract long getDetectedValue();
 
     
 }

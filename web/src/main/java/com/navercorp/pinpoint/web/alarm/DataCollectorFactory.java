@@ -3,28 +3,44 @@ package com.nhn.pinpoint.web.alarm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.nhn.pinpoint.web.alarm.collector.AgentStatDataCollector;
 import com.nhn.pinpoint.web.alarm.collector.DataCollector;
 import com.nhn.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
+import com.nhn.pinpoint.web.dao.hbase.HbaseAgentStatDao;
+import com.nhn.pinpoint.web.dao.hbase.HbaseApplicationIndexDao;
 import com.nhn.pinpoint.web.dao.hbase.HbaseMapResponseTimeDao;
 import com.nhn.pinpoint.web.vo.Application;
 
 @Component
 public class DataCollectorFactory {
+    
+    public final static long SLOT_INTERVAL_FIVE_MIN = 300000;
+    
+    public final static long SLOT_INTERVAL_THREE_MIN = 180000;
 
     @Autowired
     private HbaseMapResponseTimeDao hbaseMapResponseTimeDao;
     
-    public DataCollector createDataCollector(CheckerCategory checker, Application application, long timeSlotEndTime, long slotInterval) {
+    @Autowired
+    private HbaseAgentStatDao hbaseAgentStatDao;
+    
+    @Autowired
+    private HbaseApplicationIndexDao hbaseApplicationIndexDao;
+    
+    public DataCollector createDataCollector(CheckerCategory checker, Application application, long timeSlotEndTime) {
         switch (checker.getDataCollectorCategory()) {
         case RESPONSE_TIME:
-            return new ResponseTimeDataCollector(application, hbaseMapResponseTimeDao, timeSlotEndTime, slotInterval);
+            return new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, hbaseMapResponseTimeDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+        case AGENT_STAT:
+            return new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, hbaseAgentStatDao, hbaseApplicationIndexDao, timeSlotEndTime, SLOT_INTERVAL_THREE_MIN);
         }
         
-        throw new RuntimeException("not create DataCollector : " + checker.getName());
+        throw new IllegalArgumentException("not create DataCollector : " + checker.getName());
         
     }
     
     public enum DataCollectorCategory {
-        RESPONSE_TIME;
+        RESPONSE_TIME,
+        AGENT_STAT;
     }
 }

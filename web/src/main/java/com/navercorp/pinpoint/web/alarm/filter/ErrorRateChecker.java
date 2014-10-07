@@ -10,7 +10,7 @@ public class ErrorRateChecker extends AlarmCheckFilter {
     }
 
     @Override
-    public long getDetectedValue() {
+    protected long getDetectedValue() {
         return ((ResponseTimeDataCollector)dataCollector).getErrorRate();
     }
 }

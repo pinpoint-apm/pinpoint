@@ -30,8 +30,7 @@ public class AlarmMailTemplate {
         body.append(LINE_FEED);
         body.append(String.format("Rule : %s", rule.getCheckerName()));
         body.append(LINE_FEED);
-        body.append(String.format("%s value is %s during the past 5 mins.(Threshold : %s%s)", rule.getCheckerName(), checker.getDetectedValue(), rule.getThreshold(), checker.getUnit()));
-        body.append(LINE_FEED);
+        body.append(checker.getEmailMessage());
         body.append(String.format(LINK_FORMAT, pinpointUrl, pinpointUrl));
         
         return body.toString();

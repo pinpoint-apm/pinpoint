@@ -93,7 +93,7 @@ public class FailureCountFilter extends AlarmCheckCountFilter {
 	}
 
 	@Override
-	public long getDetectedValue() {
+	protected long getDetectedValue() {
 		return 0;
 	}
 

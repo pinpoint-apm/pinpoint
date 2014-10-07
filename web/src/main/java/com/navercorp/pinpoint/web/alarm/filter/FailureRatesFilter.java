@@ -94,7 +94,7 @@ public class FailureRatesFilter extends AlarmCheckRatesFilter {
 	}
 
 	@Override
-	public long getDetectedValue() {
+	protected long getDetectedValue() {
 		// TODO Auto-generated method stub
 		return 0;
 	}

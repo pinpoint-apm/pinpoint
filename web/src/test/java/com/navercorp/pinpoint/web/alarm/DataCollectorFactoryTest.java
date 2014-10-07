@@ -19,7 +19,7 @@ public class DataCollectorFactoryTest {
     
     @Test
     public void createDataCollector() {
-        DataCollector collector = factory.createDataCollector(CheckerCategory.SLOW_COUNT, null, 0, 0);
+        DataCollector collector = factory.createDataCollector(CheckerCategory.SLOW_COUNT, null, 0);
         assertNotNull(collector);
     }
 

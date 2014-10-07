@@ -84,16 +84,18 @@ public class AlarmWriter implements ItemWriter<AlarmCheckFilter> {
         CloseableHttpClient client = HttpClients.createDefault();
         
         try { 
-            List<NameValuePair> nvps = new ArrayList<NameValuePair>();
-            nvps.add(new BasicNameValuePair("serviceId", SMS_SERVICE_ID));
-            nvps.add(new BasicNameValuePair("sendMdn", QUOTATATION + SENDER_NUMBER + QUOTATATION));
-            nvps.add(new BasicNameValuePair("receiveMdnList",convertToReceiverFormat(receivers)));
-            nvps.add(new BasicNameValuePair("content", QUOTATATION + makeSmsMessage(checker) + QUOTATATION));
-        
-            HttpGet get = new HttpGet(smsServerUrl + "?" + URLEncodedUtils.format(nvps, "UTF-8"));
-            logger.debug("SMSServer url : {}", get.getURI());
-            HttpResponse response = client.execute(get);
-            logger.debug("SMSServer call result ={}", EntityUtils.toString(response.getEntity()));
+            for(String message : checker.getSmsMessage()) {
+                List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+                nvps.add(new BasicNameValuePair("serviceId", SMS_SERVICE_ID));
+                nvps.add(new BasicNameValuePair("sendMdn", QUOTATATION + SENDER_NUMBER + QUOTATATION));
+                nvps.add(new BasicNameValuePair("receiveMdnList",convertToReceiverFormat(receivers)));
+                nvps.add(new BasicNameValuePair("content", QUOTATATION + message + QUOTATATION));
+            
+                HttpGet get = new HttpGet(smsServerUrl + "?" + URLEncodedUtils.format(nvps, "UTF-8"));
+                logger.debug("SMSServer url : {}", get.getURI());
+                HttpResponse response = client.execute(get);
+                logger.debug("SMSServer call result ={}", EntityUtils.toString(response.getEntity()));
+            }
         } catch (Exception e) {
             logger.warn(e.getMessage(), e);
         } finally {
@@ -104,12 +106,6 @@ public class AlarmWriter implements ItemWriter<AlarmCheckFilter> {
             }
         }
     }
-
-    private String makeSmsMessage(AlarmCheckFilter checker) {
-        Rule rule = checker.getRule();
-        return String.format("[PINPOINT Alarm - %s] %s is %s (Threshold : %s%s)", rule.getApplicationId(), rule.getCheckerName(), checker.getDetectedValue(), rule.getThreshold(), checker.getUnit());
-    }
-
 
     private String convertToReceiverFormat(List<String> receivers) {
         List<String> result = new ArrayList<String>();

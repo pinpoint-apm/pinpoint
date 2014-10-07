@@ -10,6 +10,8 @@ import org.junit.Test;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.alarm.CheckerCategory;
+import com.nhn.pinpoint.web.alarm.DataCollectorFactory;
+import com.nhn.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
 import com.nhn.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
 import com.nhn.pinpoint.web.applicationmap.histogram.TimeHistogram;
@@ -62,7 +64,7 @@ public class ResponseCountCheckerTest {
     @Test
     public void checkTest1() {
         Application application = new Application(SERVICE_NAME, ServiceType.TOMCAT);
-        ResponseTimeDataCollector collector = new ResponseTimeDataCollector(application, mockMapResponseDAO, System.currentTimeMillis(), 300000);
+        ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
         Rule rule = new Rule(SERVICE_NAME, CheckerCategory.RESPONSE_COUNT.getName(), 125, "testGroup", false, false);
         ResponseCountChecker filter = new ResponseCountChecker(collector, rule);
     
@@ -76,11 +78,18 @@ public class ResponseCountCheckerTest {
     @Test
     public void checkTest2() {
         Application application = new Application(SERVICE_NAME, ServiceType.TOMCAT);
-        ResponseTimeDataCollector collector = new ResponseTimeDataCollector(application, mockMapResponseDAO, System.currentTimeMillis(), 300000);
+        ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, System.currentTimeMillis(), 300000);
         Rule rule = new Rule(SERVICE_NAME, CheckerCategory.RESPONSE_COUNT.getName(), 126, "testGroup", false, false);
         ResponseCountChecker filter = new ResponseCountChecker(collector, rule);
     
         filter.check();
         assertFalse(filter.isDetected());
+    }
+    
+    @Test
+    public void test() {
+        double val = -1;
+        int i = (int) val;
+        System.out.println(val);
     }
 }

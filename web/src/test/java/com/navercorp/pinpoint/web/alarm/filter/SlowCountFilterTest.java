@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.alarm.CheckerCategory;
+import com.nhn.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
 import com.nhn.pinpoint.web.alarm.collector.DataCollector;
 import com.nhn.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
@@ -63,7 +64,7 @@ public class SlowCountFilterTest {
     @Test
     public void checkTest1() {
         Application application = new Application(SERVICE_NAME, ServiceType.TOMCAT);
-        ResponseTimeDataCollector collector = new ResponseTimeDataCollector(application, mockMapResponseDAO, System.currentTimeMillis(), 300000);
+        ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, System.currentTimeMillis(), 300000);
         Rule rule = new Rule(SERVICE_NAME, CheckerCategory.SLOW_COUNT.getName(), 74, "testGroup", false, false);
         SlowCountFilter filter = new SlowCountFilter(collector, rule);
     
@@ -77,7 +78,7 @@ public class SlowCountFilterTest {
     @Test
     public void checkTest2() {
         Application application = new Application(SERVICE_NAME, ServiceType.TOMCAT);
-        ResponseTimeDataCollector collector = new ResponseTimeDataCollector(application, mockMapResponseDAO, System.currentTimeMillis(), 300000);
+        ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, System.currentTimeMillis(), 300000);
         Rule rule = new Rule(SERVICE_NAME, CheckerCategory.SLOW_COUNT.getName(), 76, "testGroup", false, false);
         SlowCountFilter filter = new SlowCountFilter(collector, rule);
     

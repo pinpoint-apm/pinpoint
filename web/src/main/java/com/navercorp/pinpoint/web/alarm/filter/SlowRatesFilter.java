@@ -13,8 +13,8 @@ public class SlowRatesFilter extends AlarmCheckFilter {
         super(rule, "%", dataCollector);
 	}
 
-    @Override
-    public long getDetectedValue() {
+	@Override
+    protected long getDetectedValue() {
         return ((ResponseTimeDataCollector)dataCollector).getSlowRate();
     }
 }

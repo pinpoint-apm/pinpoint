@@ -14,6 +14,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
 import com.nhn.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
 import com.nhn.pinpoint.web.alarm.filter.AlarmCheckFilter;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
@@ -27,7 +28,7 @@ import com.nhn.pinpoint.web.vo.ResponseTime;
 @ContextConfiguration("classpath:applicationContext-test.xml")
 public class ProcessorTest {
 
-    private static final String SERVICE_NAME = "minwoo_tomcat";
+    private static final String SERVICE_NAME = "local_tomcat";
     
     @Autowired
     AlarmProcessor processor;
@@ -68,7 +69,7 @@ public class ProcessorTest {
     @Test
     public void processTest() {
         Application application = new Application(SERVICE_NAME, ServiceType.TOMCAT);
-        ResponseTimeDataCollector collector = new ResponseTimeDataCollector(application, mockMapResponseDAO, 3000000, System.currentTimeMillis());
+        ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, 3000000, System.currentTimeMillis());
         Rule rule = new Rule(SERVICE_NAME, CheckerCategory.SLOW_COUNT.getName(), 74, "testGroup", false, false);
         AlarmCheckFilter filter = CheckerCategory.SLOW_COUNT.createChecker(collector, rule);
         
