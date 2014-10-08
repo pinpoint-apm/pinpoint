@@ -257,10 +257,6 @@
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-debug-all</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>org.apache.thrift</groupId>

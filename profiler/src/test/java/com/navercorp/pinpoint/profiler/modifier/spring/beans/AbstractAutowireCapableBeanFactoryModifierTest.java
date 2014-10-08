@@ -19,8 +19,7 @@ import com.nhn.pinpoint.profiler.modifier.spring.beans.interceptor.AbstractAutow
 import com.nhn.pinpoint.profiler.util.ClassTransformHelper;
 import com.nhn.pinpoint.profiler.util.MockAgent;
 
-@RunWith(PinpointJUnit4ClassRunner.class)
-public class AbstractAutowireCapableBeanFactoryModifierTest extends BasePinpointTest {
+public class AbstractAutowireCapableBeanFactoryModifierTest {
 
     @Test
     public void test() throws Exception {

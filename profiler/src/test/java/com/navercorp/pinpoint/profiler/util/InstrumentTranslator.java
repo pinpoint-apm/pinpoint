@@ -20,7 +20,7 @@ public class InstrumentTranslator implements Translator {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final DefaultAgent agent;
 
-    private ConcurrentMap<String, AbstractModifier> modifierMap = new ConcurrentHashMap<String, DedicatedModifier>();
+    private ConcurrentMap<String, AbstractModifier> modifierMap = new ConcurrentHashMap<String, AbstractModifier>();
 
     private ClassLoader loader;
 
