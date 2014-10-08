@@ -19,9 +19,12 @@ public class PacketType {
 
     public static final short APPLICATION_STREAM_CLOSE = 15;
 
-    public static final short APPLICATION_STREAM_RESPONSE = 20;
+    public static final short APPLICATION_STREAM_PING = 17;
+    public static final short APPLICATION_STREAM_PONG = 18;
+    
+    public static final short APPLICATION_STREAM_DATA = 20;
 
-
+    
     public static final short CONTROL_CLIENT_CLOSE = 100;
     public static final short CONTROL_SERVER_CLOSE = 110;
 

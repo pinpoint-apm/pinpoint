@@ -36,7 +36,7 @@ import com.nhn.pinpoint.rpc.packet.PingPacket;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.ResponsePacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
-import com.nhn.pinpoint.rpc.packet.StreamPacket;
+import com.nhn.pinpoint.rpc.packet.stream.StreamPacket;
 import com.nhn.pinpoint.rpc.util.AssertUtils;
 import com.nhn.pinpoint.rpc.util.ControlMessageEnDeconderUtils;
 import com.nhn.pinpoint.rpc.util.MapUtils;
@@ -404,7 +404,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
                 case PacketType.APPLICATION_STREAM_CLOSE:
                 case PacketType.APPLICATION_STREAM_CREATE_SUCCESS:
                 case PacketType.APPLICATION_STREAM_CREATE_FAIL:
-                case PacketType.APPLICATION_STREAM_RESPONSE:
+                case PacketType.APPLICATION_STREAM_DATA:
                     this.streamChannelManager.messageReceived((StreamPacket) message, e.getChannel());
                     return;
                 case PacketType.CONTROL_SERVER_CLOSE:

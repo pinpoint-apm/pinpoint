@@ -1,15 +1,16 @@
 package com.nhn.pinpoint.rpc.client;
 
-import com.nhn.pinpoint.rpc.PinpointSocketException;
-import com.nhn.pinpoint.rpc.packet.StreamPacket;
-import org.jboss.netty.channel.Channel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.jboss.netty.channel.Channel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.nhn.pinpoint.rpc.PinpointSocketException;
+import com.nhn.pinpoint.rpc.packet.stream.StreamPacket;
 
 /**
  * @author emeroad
@@ -69,10 +70,10 @@ public class StreamChannelManager {
 
 
     public boolean messageReceived(StreamPacket streamPacket, Channel channel) {
-        final int channelId = streamPacket.getChannelId();
+        final int channelId = streamPacket.getStreamChannelId();
         final StreamChannel streamChannel = findStreamChannel(channelId);
         if (streamChannel == null) {
-            logger.warn("streamChannel not found. channelId:{} ", streamPacket.getChannelId(), channel);
+            logger.warn("streamChannel not found. channelId:{} ", channelId, channel);
             return false;
         }
         return streamChannel.receiveStreamPacket(streamPacket);

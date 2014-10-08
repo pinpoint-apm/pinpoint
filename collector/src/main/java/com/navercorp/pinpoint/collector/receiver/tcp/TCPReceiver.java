@@ -29,7 +29,7 @@ import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
-import com.nhn.pinpoint.rpc.packet.StreamPacket;
+import com.nhn.pinpoint.rpc.packet.stream.StreamPacket;
 import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
 import com.nhn.pinpoint.rpc.server.ServerMessageListener;
 import com.nhn.pinpoint.rpc.server.ServerStreamChannel;

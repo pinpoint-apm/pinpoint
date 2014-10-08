@@ -1,18 +1,25 @@
 package com.nhn.pinpoint.rpc.client;
 
-import com.nhn.pinpoint.rpc.*;
-import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
-import com.nhn.pinpoint.rpc.server.TestSeverMessageListener;
+import java.io.IOException;
+import java.net.ConnectException;
+import java.net.InetSocketAddress;
+import java.util.List;
+
 import org.jboss.netty.channel.ChannelFuture;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.ConnectException;
-import java.net.InetSocketAddress;
-import java.util.List;
+import com.nhn.pinpoint.rpc.Future;
+import com.nhn.pinpoint.rpc.PinpointSocketException;
+import com.nhn.pinpoint.rpc.RecordedStreamChannelMessageListener;
+import com.nhn.pinpoint.rpc.RequestResponseServerMessageListener;
+import com.nhn.pinpoint.rpc.ResponseMessage;
+import com.nhn.pinpoint.rpc.StreamCreateResponse;
+import com.nhn.pinpoint.rpc.TestByteUtils;
+import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
+import com.nhn.pinpoint.rpc.server.TestSeverMessageListener;
 
 
 /**
@@ -199,7 +206,6 @@ public class PinpointSocketFactoryTest {
             open.await();
             StreamCreateResponse response = open.getResult();
             Assert.assertTrue(response.isSuccess());
-            Assert.assertArrayEquals(response.getMessage(), openBytes);
             // stream 메시지를 대기함.
             clientListener.getLatch().await();
             List<byte[]> receivedMessage = clientListener.getReceivedMessage();
