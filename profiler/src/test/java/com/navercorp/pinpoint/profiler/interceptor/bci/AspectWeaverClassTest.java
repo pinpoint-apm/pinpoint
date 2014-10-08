@@ -9,9 +9,11 @@ import java.lang.reflect.Method;
 public class AspectWeaverClassTest {
 
 	private final String ORIGINAL = "com.nhn.pinpoint.profiler.interceptor.bci.mock.Original";
+	private final String ORIGINAL_SUB = "com.nhn.pinpoint.profiler.interceptor.bci.mock.OriginalSub";
 
 	private final String ASPECT = "com.nhn.pinpoint.profiler.interceptor.bci.mock.TestAspect";
 	private final String ASPECT_NO_EXTENTS = "com.nhn.pinpoint.profiler.interceptor.bci.mock.TestAspect_NoExtents";
+	private final String ASPECT_EXTENTS_SUB = "com.nhn.pinpoint.profiler.interceptor.bci.mock.TestAspect_ExtentsSub";
 
 	private final String ERROR_ASPECT1 = "com.nhn.pinpoint.profiler.interceptor.bci.mock.ErrorAspect";
 	private final String ERROR_ASPECT2 = "com.nhn.pinpoint.profiler.interceptor.bci.mock.ErrorAspect2";
@@ -145,6 +147,15 @@ public class AspectWeaverClassTest {
 		Object returnValue = invoke(aspectObject, "testVoid");
 		Assert.assertEquals(null, returnValue);
 
+	}
+
+	@Test
+	public void testExtents_Sub() throws Exception {
+
+		Object aspectObject = createAspect(ORIGINAL_SUB, ASPECT_EXTENTS_SUB);
+
+		Object returnValue = invoke(aspectObject, "testVoid");
+		Assert.assertEquals(null, returnValue);
 
 	}
 
@@ -155,7 +166,6 @@ public class AspectWeaverClassTest {
 
 		Object returnValue = invoke(aspectObject, "testVoid");
 		Assert.assertEquals(null, returnValue);
-
 
 	}
 

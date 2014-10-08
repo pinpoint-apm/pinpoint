@@ -37,6 +37,7 @@ public class AspectWeaverClass {
 		if (!isAspectClass(adviceClass)) {
 			throw new RuntimeException("@Aspect not found. adviceClass:" + adviceClass);
 		}
+		// advice class hierarchy check,
 		final boolean isSubClass = adviceClass.subclassOf(sourceClass);
 		if (!isSubClass) {
 			final CtClass superClass = adviceClass.getSuperclass();
