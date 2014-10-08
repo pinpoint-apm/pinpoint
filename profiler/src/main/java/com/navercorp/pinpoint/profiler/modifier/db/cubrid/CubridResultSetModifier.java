@@ -4,14 +4,14 @@ import java.security.ProtectionDomain;
 
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author emeroad
  */
-public class CubridResultSetModifier extends AbstractModifier {
+public class CubridResultSetModifier extends DedicatedModifier {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

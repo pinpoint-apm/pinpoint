@@ -12,7 +12,7 @@ import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.Method;
 import com.nhn.pinpoint.profiler.interceptor.bci.MethodFilter;
-import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
 import com.nhn.pinpoint.profiler.modifier.orm.mybatis.filter.SqlSessionMethodFilter;
 import com.nhn.pinpoint.profiler.modifier.orm.mybatis.interceptor.MyBatisScope;
 import com.nhn.pinpoint.profiler.modifier.orm.mybatis.interceptor.MyBatisSqlMapOperationInterceptor;
@@ -21,7 +21,7 @@ import com.nhn.pinpoint.profiler.util.DepthScope;
 /**
  * @author Hyun Jeong
  */
-public abstract class MyBatisClientModifier extends AbstractModifier {
+public abstract class MyBatisClientModifier extends DedicatedModifier {
 
 	private static final ServiceType serviceType = ServiceType.MYBATIS;
 	private static final DepthScope scope = MyBatisScope.SCOPE;

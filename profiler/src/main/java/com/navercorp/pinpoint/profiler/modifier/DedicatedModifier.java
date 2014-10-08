@@ -1,12 +1,14 @@
 package com.nhn.pinpoint.profiler.modifier;
 
+import java.security.ProtectionDomain;
+
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 
 /**
  * @author emeroad
  */
-public abstract class AbstractModifier implements Modifier {
+public abstract class DedicatedModifier implements Modifier {
 
     protected final ByteCodeInstrumentor byteCodeInstrumentor;
     protected final Agent agent;
@@ -15,7 +17,7 @@ public abstract class AbstractModifier implements Modifier {
         return agent;
     }
 
-    public AbstractModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+    public DedicatedModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         if (byteCodeInstrumentor == null) {
             throw new NullPointerException("byteCodeInstrumentor must not be null");
         }
@@ -25,5 +27,8 @@ public abstract class AbstractModifier implements Modifier {
         this.byteCodeInstrumentor = byteCodeInstrumentor;
         this.agent = agent;
     }
+    
+    public abstract byte[] modify(ClassLoader classLoader, String className, ProtectionDomain protectedDomain, byte[] classFileBuffer);
 
+    public abstract String getTargetClass();
 }

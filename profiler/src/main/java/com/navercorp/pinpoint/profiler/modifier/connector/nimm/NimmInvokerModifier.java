@@ -9,14 +9,14 @@ import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
-import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
 
 /**
  * 
  * @author netspider
  * 
  */
-public class NimmInvokerModifier extends AbstractModifier {
+public class NimmInvokerModifier extends DedicatedModifier {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

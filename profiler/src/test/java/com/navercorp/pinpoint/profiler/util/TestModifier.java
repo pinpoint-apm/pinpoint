@@ -3,7 +3,7 @@ package com.nhn.pinpoint.profiler.util;
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
 
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * @author emeroad
  */
-public abstract class TestModifier extends AbstractModifier {
+public abstract class TestModifier extends DedicatedModifier {
 
     private String targetClass;
 

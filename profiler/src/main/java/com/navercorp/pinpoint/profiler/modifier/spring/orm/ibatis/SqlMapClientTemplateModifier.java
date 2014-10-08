@@ -13,7 +13,7 @@ import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.Method;
 import com.nhn.pinpoint.profiler.interceptor.bci.MethodFilter;
-import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
 import com.nhn.pinpoint.profiler.modifier.orm.ibatis.filter.SqlMapClientMethodFilter;
 import com.nhn.pinpoint.profiler.modifier.orm.ibatis.interceptor.IbatisScope;
 import com.nhn.pinpoint.profiler.modifier.orm.ibatis.interceptor.IbatisSqlMapOperationInterceptor;
@@ -28,7 +28,7 @@ import com.nhn.pinpoint.profiler.util.DepthScope;
  * @author Hyun Jeong
  * @see com.ibatis.sqlmap.client.SqlMapExecutor
  */
-public final class SqlMapClientTemplateModifier extends AbstractModifier {
+public final class SqlMapClientTemplateModifier extends DedicatedModifier {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

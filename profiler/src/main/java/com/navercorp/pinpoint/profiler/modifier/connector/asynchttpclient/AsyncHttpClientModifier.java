@@ -9,7 +9,7 @@ import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
-import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
 
 /**
  * 
@@ -18,7 +18,7 @@ import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
  * @author netspider
  * 
  */
-public class AsyncHttpClientModifier extends AbstractModifier {
+public class AsyncHttpClientModifier extends DedicatedModifier {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public AsyncHttpClientModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {

@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.profiler.interceptor.bci.Method;
-import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
 import com.nhn.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor;
 
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * @author emeroad
  * 
  */
-public class MethodModifier extends AbstractModifier {
+public class MethodModifier extends DedicatedModifier {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

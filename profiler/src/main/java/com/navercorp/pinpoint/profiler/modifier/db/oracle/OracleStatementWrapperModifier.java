@@ -6,7 +6,7 @@ import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
-import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.StatementExecuteQueryInterceptor;
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.StatementExecuteUpdateInterceptor;
 import org.slf4j.Logger;
@@ -17,7 +17,7 @@ import java.security.ProtectionDomain;
 /**
  * @author emeroad
  */
-public class OracleStatementWrapperModifier extends AbstractModifier {
+public class OracleStatementWrapperModifier extends DedicatedModifier {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

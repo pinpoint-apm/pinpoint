@@ -4,7 +4,7 @@ import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.modifier.DefaultModifierRegistry;
-import com.nhn.pinpoint.profiler.modifier.Modifier;
+import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
 import com.nhn.pinpoint.profiler.modifier.ModifierRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
     private ProfilerConfig profilerConfig;
 
-	private final ClassFileFilter skipFilter;
+    private final ClassFileFilter skipFilter;
 
     public ClassFileTransformerDispatcher(Agent agent, ByteCodeInstrumentor byteCodeInstrumentor) {
         if (agent == null) {
@@ -44,22 +44,22 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         this.byteCodeInstrumentor = byteCodeInstrumentor;
         this.profilerConfig = agent.getProfilerConfig();
         this.modifierRegistry = createModifierRegistry();
-		this.skipFilter = new DefaultClassFileFilter(agentClassLoader);
+        this.skipFilter = new DefaultClassFileFilter(agentClassLoader);
     }
 
     @Override
     public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws IllegalClassFormatException {
 
-		if (skipFilter.doFilter(classLoader, className, classBeingRedefined, protectionDomain, classFileBuffer)) {
-			return null;
-		}
+        if (skipFilter.doFilter(classLoader, className, classBeingRedefined, protectionDomain, classFileBuffer)) {
+            return null;
+        }
 
-        Modifier findModifier = this.modifierRegistry.findModifier(className);
+        DedicatedModifier findModifier = this.modifierRegistry.findModifier(className);
         if (findModifier == null) {
             // TODO : 디버그 용도로 추가함
             // TODO : modifier가 중복 적용되면 어떻게 되지???
             if (this.profilerConfig.isProfilableClass(className)) {
-                // 테스트 장비에서 callstack view가 잘 보이는지 확인하려고 추가함.
+                  // 테스트 장비에서 callstack view가 잘 보이는지 확인하려고 추가함.
                 findModifier = this.modifierRegistry.findModifier("*");
             } else {
                 return null;
@@ -79,13 +79,12 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
                 return findModifier.modify(classLoader, javassistClassName, protectionDomain, classFileBuffer);
             } finally {
                 // null일 경우도 다시 원복하는게 맞음.
-                // getContextClass 호출시 에러가 발생하였을 경우 여기서 호출당하지 않으므로 이부분에서 원복하는게 맞음.
+                // getContextClass 호출시 에러가 발생하였을 경우 여기서 호출당하지 않으므로 이부분에서 원복하는게
+                // 맞음.
                 thread.setContextClassLoader(before);
             }
-        }
-        catch (Throwable e) {
-            logger.error("Modifier:{} modify fail. cl:{} ctxCl:{} agentCl:{} Cause:{}",
-                    findModifier.getTargetClass(), classLoader, Thread.currentThread().getContextClassLoader(), agentClassLoader, e.getMessage(), e);
+        } catch (Throwable e) {
+            logger.error("Modifier:{} modify fail. cl:{} ctxCl:{} agentCl:{} Cause:{}", findModifier.getTargetClass(), classLoader, Thread.currentThread().getContextClassLoader(), agentClassLoader, e.getMessage(), e);
             return null;
         }
     }
@@ -102,7 +101,6 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
             throw th;
         }
     }
-
 
     private ModifierRegistry createModifierRegistry() {
         DefaultModifierRegistry modifierRepository = new DefaultModifierRegistry(agent, byteCodeInstrumentor);
@@ -122,29 +120,29 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
         // bloc 3.x
         modifierRepository.addBLOC3Modifier();
-        
+
         // bloc 4.x
         modifierRepository.addBLOC4Modifier();
 
         // npc
         modifierRepository.addNpcModifier();
-        
+
         // nimm
         modifierRepository.addNimmModifier();
-        
+
         // lucy-net
         modifierRepository.addLucyNetModifier();
-        
+
         // LINE Game baseframework
         modifierRepository.addLineGameBaseFrameworkModifier();
-        
+
         // orm
         modifierRepository.addOrmModifier();
 
         // redis, nBase-ARC
         modifierRepository.addRedisSupport();
         modifierRepository.addNbaseArcSupport();
-        
+
         return modifierRepository;
     }
 

@@ -2,7 +2,7 @@ package com.nhn.pinpoint.profiler.modifier.db.oracle;
 
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
 import javassist.CtClass;
 
 
@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author emeroad
  */
-public class OracleResultSetModifier extends AbstractModifier {
+public class OracleResultSetModifier extends DedicatedModifier {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

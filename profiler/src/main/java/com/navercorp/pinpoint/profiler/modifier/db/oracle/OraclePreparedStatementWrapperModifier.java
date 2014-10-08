@@ -10,7 +10,7 @@ import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
 import com.nhn.pinpoint.profiler.interceptor.bci.NotFoundInstrumentException;
-import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.*;
 import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
 import com.nhn.pinpoint.profiler.util.PreparedStatementUtils;
@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * @author emeroad
  */
-public class OraclePreparedStatementWrapperModifier extends AbstractModifier {
+public class OraclePreparedStatementWrapperModifier extends DedicatedModifier {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public OraclePreparedStatementWrapperModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {

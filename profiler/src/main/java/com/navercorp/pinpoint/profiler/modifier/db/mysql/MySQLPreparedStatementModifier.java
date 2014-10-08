@@ -10,7 +10,7 @@ import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
 import com.nhn.pinpoint.profiler.interceptor.bci.NotFoundInstrumentException;
-import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import com.nhn.pinpoint.profiler.modifier.DedicatedModifier;
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.*;
 import com.nhn.pinpoint.profiler.util.ExcludeBindVariableFilter;
 import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author emeroad
  */
-public class MySQLPreparedStatementModifier extends AbstractModifier {
+public class MySQLPreparedStatementModifier extends DedicatedModifier {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public MySQLPreparedStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {

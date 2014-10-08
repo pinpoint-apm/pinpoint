@@ -79,7 +79,7 @@ import com.nhn.pinpoint.profiler.modifier.tomcat.WebappLoaderModifier;
 public class DefaultModifierRegistry implements ModifierRegistry {
 
 	// 왠간해서는 동시성 상황이 안나올것으로 보임. 사이즈를 크게 잡아서 체인을 가능한 뒤지지 않도록함.
-	private final Map<String, Modifier> registry = new HashMap<String, Modifier>(512);
+	private final Map<String, DedicatedModifier> registry = new HashMap<String, DedicatedModifier>(512);
 
 	private final ByteCodeInstrumentor byteCodeInstrumentor;
 	private final ProfilerConfig profilerConfig;
@@ -97,7 +97,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		return registry.get(className);
 	}
 
-	private void addModifier(Modifier modifier) {
+	private void addModifier(DedicatedModifier modifier) {
         Modifier old = registry.put(modifier.getTargetClass(), modifier);
         if (old != null) {
             throw new IllegalStateException("Modifier already exist new:" + modifier.getClass() + " old:" + old.getTargetClass());
@@ -208,13 +208,13 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		SpringFrameworkServletModifier springServletModifier = new SpringFrameworkServletModifier(byteCodeInstrumentor, agent);
 		addModifier(springServletModifier);
 
-		Modifier tomcatStandardServiceModifier = new StandardServiceModifier(byteCodeInstrumentor, agent);
+		DedicatedModifier tomcatStandardServiceModifier = new StandardServiceModifier(byteCodeInstrumentor, agent);
 		addModifier(tomcatStandardServiceModifier);
 
-		Modifier tomcatConnectorModifier = new TomcatConnectorModifier(byteCodeInstrumentor, agent);
+		DedicatedModifier tomcatConnectorModifier = new TomcatConnectorModifier(byteCodeInstrumentor, agent);
 		addModifier(tomcatConnectorModifier);
         
-        Modifier tomcatWebappLoaderModifier = new WebappLoaderModifier(byteCodeInstrumentor, agent);
+        DedicatedModifier tomcatWebappLoaderModifier = new WebappLoaderModifier(byteCodeInstrumentor, agent);
         addModifier(tomcatWebappLoaderModifier);
 	}
 
@@ -248,22 +248,22 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 		// TODO MySqlDriver는 버전별로 Connection이 interface인지 class인지가 다름. 문제 없는지
 		// 확인필요.
 
-		Modifier mysqlNonRegisteringDriverModifier = new MySQLNonRegisteringDriverModifier(byteCodeInstrumentor, agent);
+		DedicatedModifier mysqlNonRegisteringDriverModifier = new MySQLNonRegisteringDriverModifier(byteCodeInstrumentor, agent);
 		addModifier(mysqlNonRegisteringDriverModifier);
 
         // Mysql Dirver가 5.0.x에서 5.1.x로 버전업되면서 MySql Driver가 호환성을 깨버려서 호환성 보정작업을 해야함.
         // MySql 5.1.x드라이버사용시 Driver가 리턴하는 Connection이 com.mysql.jdbc.Connection에서 com.mysql.jdbc.JDBC4Connection으로 변경되었음.
         // http://devcafe.nhncorp.com/Lucy/forum/342628
-		Modifier mysqlConnectionImplModifier = new MySQLConnectionImplModifier(byteCodeInstrumentor, agent);
+		DedicatedModifier mysqlConnectionImplModifier = new MySQLConnectionImplModifier(byteCodeInstrumentor, agent);
 		addModifier(mysqlConnectionImplModifier);
 
-        Modifier mysqlConnectionModifier = new MySQLConnectionModifier(byteCodeInstrumentor, agent);
+        DedicatedModifier mysqlConnectionModifier = new MySQLConnectionModifier(byteCodeInstrumentor, agent);
         addModifier(mysqlConnectionModifier);
 
-		Modifier mysqlStatementModifier = new MySQLStatementModifier(byteCodeInstrumentor, agent);
+		DedicatedModifier mysqlStatementModifier = new MySQLStatementModifier(byteCodeInstrumentor, agent);
 		addModifier(mysqlStatementModifier);
 
-		Modifier mysqlPreparedStatementModifier = new MySQLPreparedStatementModifier(byteCodeInstrumentor, agent);
+		DedicatedModifier mysqlPreparedStatementModifier = new MySQLPreparedStatementModifier(byteCodeInstrumentor, agent);
 		addModifier(mysqlPreparedStatementModifier);
 
 		MySQLPreparedStatementJDBC4Modifier myqlPreparedStatementJDBC4Modifier = new MySQLPreparedStatementJDBC4Modifier(byteCodeInstrumentor, agent);
@@ -277,36 +277,36 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         JtdsDriverModifier jtdsDriverModifier = new JtdsDriverModifier(byteCodeInstrumentor, agent);
         addModifier(jtdsDriverModifier);
 
-        Modifier jdbc2ConnectionModifier = new Jdbc2ConnectionModifier(byteCodeInstrumentor, agent);
+        DedicatedModifier jdbc2ConnectionModifier = new Jdbc2ConnectionModifier(byteCodeInstrumentor, agent);
 		addModifier(jdbc2ConnectionModifier);
 
-        Modifier jdbc4_1ConnectionModifier = new Jdbc4_1ConnectionModifier(byteCodeInstrumentor, agent);
+        DedicatedModifier jdbc4_1ConnectionModifier = new Jdbc4_1ConnectionModifier(byteCodeInstrumentor, agent);
         addModifier(jdbc4_1ConnectionModifier);
 
-		Modifier mssqlStatementModifier = new JtdsStatementModifier(byteCodeInstrumentor, agent);
+		DedicatedModifier mssqlStatementModifier = new JtdsStatementModifier(byteCodeInstrumentor, agent);
 		addModifier(mssqlStatementModifier);
 
-		Modifier mssqlPreparedStatementModifier = new JtdsPreparedStatementModifier(byteCodeInstrumentor, agent);
+		DedicatedModifier mssqlPreparedStatementModifier = new JtdsPreparedStatementModifier(byteCodeInstrumentor, agent);
 		addModifier(mssqlPreparedStatementModifier);
 
-		Modifier mssqlResultSetModifier = new JtdsResultSetModifier(byteCodeInstrumentor, agent);
+		DedicatedModifier mssqlResultSetModifier = new JtdsResultSetModifier(byteCodeInstrumentor, agent);
 		addModifier(mssqlResultSetModifier);
 
 	}
 
 	private void addOracleDriver() {
-        Modifier oracleDriverModifier = new OracleDriverModifier(byteCodeInstrumentor, agent);
+        DedicatedModifier oracleDriverModifier = new OracleDriverModifier(byteCodeInstrumentor, agent);
         addModifier(oracleDriverModifier);
 
         // TODO PhysicalConnection으로 하니 view에서 api가 phy로 나와 모양이 나쁘다.
         // 최상위인 클래스인 T4C T2C, OCI 따로 다 처리하는게 이쁠듯하다.
-        Modifier oracleConnectionModifier = new PhysicalConnectionModifier(byteCodeInstrumentor, agent);
+        DedicatedModifier oracleConnectionModifier = new PhysicalConnectionModifier(byteCodeInstrumentor, agent);
         addModifier(oracleConnectionModifier);
 
-		Modifier oraclePreparedStatementModifier = new OraclePreparedStatementWrapperModifier(byteCodeInstrumentor, agent);
+		DedicatedModifier oraclePreparedStatementModifier = new OraclePreparedStatementWrapperModifier(byteCodeInstrumentor, agent);
 		addModifier(oraclePreparedStatementModifier);
 
-		Modifier oracleStatement = new OracleStatementWrapperModifier(byteCodeInstrumentor, agent);
+		DedicatedModifier oracleStatement = new OracleStatementWrapperModifier(byteCodeInstrumentor, agent);
 		addModifier(oracleStatement);
 //
 //		Modifier oracleResultSetModifier = new OracleResultSetModifier(byteCodeInstrumentor, agent);
@@ -326,11 +326,11 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	private void addDbcpDriver() {
 
 		// TODO cubrid의 경우도 connection에 대한 impl이 없음. 확인필요.
-		Modifier dbcpBasicDataSourceModifier = new DBCPBasicDataSourceModifier(byteCodeInstrumentor, agent);
+		DedicatedModifier dbcpBasicDataSourceModifier = new DBCPBasicDataSourceModifier(byteCodeInstrumentor, agent);
 		addModifier(dbcpBasicDataSourceModifier);
 
         if (profilerConfig.isJdbcProfileDbcpConnectionClose()) {
-		    Modifier dbcpPoolModifier = new DBCPPoolGuardConnectionWrapperModifier(byteCodeInstrumentor, agent);
+		    DedicatedModifier dbcpPoolModifier = new DBCPPoolGuardConnectionWrapperModifier(byteCodeInstrumentor, agent);
 		    addModifier(dbcpPoolModifier);
         }
 	}
