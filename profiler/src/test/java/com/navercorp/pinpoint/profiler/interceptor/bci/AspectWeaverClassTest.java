@@ -8,6 +8,16 @@ import java.lang.reflect.Method;
 
 public class AspectWeaverClassTest {
 
+	private final String ORIGINAL = "com.nhn.pinpoint.profiler.interceptor.bci.mock.Original";
+
+	private final String ASPECT = "com.nhn.pinpoint.profiler.interceptor.bci.mock.TestAspect";
+	private final String ASPECT_NO_EXTENTS = "com.nhn.pinpoint.profiler.interceptor.bci.mock.TestAspect_NoExtents";
+
+	private final String ERROR_ASPECT1 = "com.nhn.pinpoint.profiler.interceptor.bci.mock.ErrorAspect";
+	private final String ERROR_ASPECT2 = "com.nhn.pinpoint.profiler.interceptor.bci.mock.ErrorAspect2";
+
+	private final String ERROR_ASPECT_INVALID_EXTENTS= "com.nhn.pinpoint.profiler.interceptor.bci.mock.ErrorAspect_InvalidExtents";
+
 	public Object createAspect(String originalName, String aspectName)  {
 		try {
 			ClassPool classPool = new ClassPool(true);
@@ -28,9 +38,7 @@ public class AspectWeaverClassTest {
 	}
 
 	private Object createDefaultAspect() {
-		String originalName = "com.nhn.pinpoint.profiler.interceptor.bci.mock.Original";
-		String aspectName = "com.nhn.pinpoint.profiler.interceptor.bci.mock.TestAspect";
-		return createAspect(originalName, aspectName);
+		return createAspect(ORIGINAL, ASPECT);
 	}
 
 	@Test
@@ -108,22 +116,50 @@ public class AspectWeaverClassTest {
 		assertAfterTouchCount(aspectObject, 1);
 	}
 
+	@Test
+	public void testMethodCall() throws Exception {
+
+		Object aspectObject = createDefaultAspect();
+
+		invoke(aspectObject, "testMethodCall");
+
+	}
+
 	@Test(expected = Exception.class)
 	public void testSignatureMiss() throws Exception {
-
-		String originalName = "com.nhn.pinpoint.profiler.interceptor.bci.mock.Original";
-		String aspectName = "com.nhn.pinpoint.profiler.interceptor.bci.mock.ErrorAspect";
-		createAspect(originalName, aspectName);
+		createAspect(ORIGINAL, ERROR_ASPECT1);
 	}
 
 	@Test(expected = Exception.class)
 	public void testInternalTypeMiss() throws Exception {
 
-		String originalName = "com.nhn.pinpoint.profiler.interceptor.bci.mock.Original";
-		String aspectName = "com.nhn.pinpoint.profiler.interceptor.bci.mock.ErrorAspect2";
-		createAspect(originalName, aspectName);
+		createAspect(ORIGINAL, ERROR_ASPECT2);
 
 	}
+
+	@Test
+	public void testNo_extents() throws Exception {
+
+		Object aspectObject = createAspect(ORIGINAL, ASPECT_NO_EXTENTS);
+
+		Object returnValue = invoke(aspectObject, "testVoid");
+		Assert.assertEquals(null, returnValue);
+
+
+	}
+
+	@Test(expected = Exception.class)
+	public void testInvalid_extents() throws Exception {
+
+		Object aspectObject = createAspect(ORIGINAL, ERROR_ASPECT_INVALID_EXTENTS);
+
+		Object returnValue = invoke(aspectObject, "testVoid");
+		Assert.assertEquals(null, returnValue);
+
+
+	}
+
+
 
 
 	private Object invoke(Object o, String methodName, Object... args) {
@@ -145,5 +181,6 @@ public class AspectWeaverClassTest {
 		int touchCount = (Integer)invoke(aspectObject, "getTouchAfter");
 		Assert.assertEquals(touchCount, count);
 	}
+
 
 }
