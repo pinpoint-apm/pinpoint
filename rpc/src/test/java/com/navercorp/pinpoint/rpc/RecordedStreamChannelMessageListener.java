@@ -1,17 +1,22 @@
 package com.nhn.pinpoint.rpc;
 
-import com.nhn.pinpoint.rpc.client.StreamChannel;
-import com.nhn.pinpoint.rpc.client.StreamChannelMessageListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.nhn.pinpoint.rpc.client.StreamChannel;
+import com.nhn.pinpoint.rpc.packet.stream.StreamClosePacket;
+import com.nhn.pinpoint.rpc.packet.stream.StreamCreatePacket;
+import com.nhn.pinpoint.rpc.packet.stream.StreamDataPacket;
+import com.nhn.pinpoint.rpc.stream.StreamChannelMessageListener;
+
 /**
  * @author emeroad
+ * @author koo.taejin <kr14910>
  */
 public class RecordedStreamChannelMessageListener implements StreamChannelMessageListener {
 
@@ -25,20 +30,26 @@ public class RecordedStreamChannelMessageListener implements StreamChannelMessag
         this.latch = new CountDownLatch(receiveMessageCount);
     }
 
+	@Override
+	public short handleStreamCreate(StreamChannel streamChannel, StreamCreatePacket packet) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
-    @Override
-    public void handleStreamResponse(StreamChannel streamChannel, byte[] bytes) {
-        logger.info("handleStreamResponse {}, {}", streamChannel, bytes.length);
-        receivedMessageList.add(bytes);
+	@Override
+	public void handleStreamData(StreamChannel streamChannel, StreamDataPacket packet) {
+        logger.info("handleStreamData {}, {}", streamChannel, packet);
+        receivedMessageList.add(packet.getPayload());
         latch.countDown();
-    }
+	}
 
-    @Override
-    public void handleClose(StreamChannel streamChannel, byte[] bytes) {
-        logger.info("handleClose {}, {}", streamChannel, bytes.length);
-        receivedMessageList.add(bytes);
+
+	@Override
+	public void handleStreamClose(StreamChannel streamChannel, StreamClosePacket packet) {
+        logger.info("handleClose {}, {}", streamChannel, packet);
+        receivedMessageList.add(packet.getPayload());
         latch.countDown();
-    }
+	}
 
     public CountDownLatch getLatch() {
         return latch;
@@ -47,5 +58,6 @@ public class RecordedStreamChannelMessageListener implements StreamChannelMessag
     public List<byte[]> getReceivedMessage() {
         return receivedMessageList;
     }
+
 }
 
