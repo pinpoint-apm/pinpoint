@@ -2,6 +2,10 @@ package com.nhn.pinpoint.profiler.interceptor.bci.mock;
 
 import com.nhn.pinpoint.profiler.interceptor.aspect.PointCut;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+
 /**
  * @author emeroad
  */
@@ -77,15 +81,17 @@ public class Original {
 		touchAfter();
 		//super
 		String s = toString();
-		System.out.println(s);
 	}
 
 	public int testSignatureMiss() {
 		return -1;
 	}
 
-	public int testInternalTypeMiss() {
-		return -1;
+	public void testMethodCall() {
+	}
+
+	public Map<String, String> testGeneric() {
+		return Collections.emptyMap();
 	}
 
 }

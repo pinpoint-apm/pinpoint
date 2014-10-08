@@ -31,16 +31,22 @@ public class AspectWeaverClass {
 	}
 
 	public void weaving(CtClass sourceClass, CtClass adviceClass) throws NotFoundException, CannotCompileException {
+		if (logger.isInfoEnabled()) {
+			logger.info("weaving sourceClass:{} advice:{}", sourceClass.getName(), adviceClass.getName());
+		}
 		if (!isAspectClass(adviceClass)) {
 			throw new RuntimeException("@Aspect not found. adviceClass:" + adviceClass);
 		}
-
-
-		List<CtMethod> utilMethodList = findUtilMethod(adviceClass);
-		for (CtMethod method : utilMethodList) {
-			CtMethod copyMethod = CtNewMethod.copy(method, method.getName(), sourceClass, null);
-			sourceClass.addMethod(copyMethod);
+		// advice class hierarchy check,
+		final boolean isSubClass = adviceClass.subclassOf(sourceClass);
+		if (!isSubClass) {
+			final CtClass superClass = adviceClass.getSuperclass();
+			if (!superClass.getName().equals("java.lang.Object")) {
+				throw new CannotCompileException("invalid class hierarchy. " + sourceClass.getName() + " adviceSuperClass:" + superClass.getName());
+			}
 		}
+
+		copyUtilMethod(sourceClass, adviceClass);
 
 		final List<CtMethod> pointCutMethodList = findAnnotationMethod(adviceClass, PointCut.class);
 		final List<CtMethod> jointPointList = findAnnotationMethod(adviceClass, JointPoint.class);
@@ -50,10 +56,21 @@ public class AspectWeaverClass {
 			if (!sourceMethod.getSignature().equals(adviceMethod.getSignature())) {
 				throw new CannotCompileException("Signature miss match. method:" + adviceMethod.getName() + " source:" + sourceMethod.getSignature() + " advice:" + adviceMethod.getSignature());
 			}
-			weavingMethod(sourceClass, sourceMethod, adviceMethod, jointPointList);
+			if (logger.isInfoEnabled()) {
+				logger.info("weaving method:{}{}", sourceMethod.getName(), sourceMethod.getSignature());
+			}
+			weavingMethod(sourceClass, sourceMethod, adviceMethod, jointPointList, isSubClass);
 		}
 
 
+	}
+
+	private void copyUtilMethod(CtClass sourceClass, CtClass adviceClass) throws CannotCompileException {
+		final List<CtMethod> utilMethodList = findUtilMethod(adviceClass);
+		for (CtMethod method : utilMethodList) {
+			final CtMethod copyMethod = CtNewMethod.copy(method, method.getName(), sourceClass, null);
+			sourceClass.addMethod(copyMethod);
+		}
 	}
 
 	private List<CtMethod> findUtilMethod(CtClass adviceClass) throws CannotCompileException {
@@ -75,13 +92,13 @@ public class AspectWeaverClass {
 		return aspectClass.hasAnnotation(Aspect.class);
 	}
 
-	private void weavingMethod(CtClass sourceClass, CtMethod sourceMethod, CtMethod adviceMethod, List<CtMethod> jointPointList) throws CannotCompileException {
+	private void weavingMethod(CtClass sourceClass, CtMethod sourceMethod, CtMethod adviceMethod, List<CtMethod> jointPointList, boolean isSubClass) throws CannotCompileException {
 		final CtMethod copyMethod = copyMethod(sourceClass, sourceMethod);
 		sourceClass.addMethod(copyMethod);
 
 		sourceMethod.setBody(adviceMethod, null);
 
-		sourceMethod.instrument(new JointPointMethodEditor(sourceClass, sourceMethod, copyMethod, jointPointList));
+		sourceMethod.instrument(new JointPointMethodEditor(sourceClass, sourceMethod, copyMethod, jointPointList, isSubClass));
 	}
 
 	public class JointPointMethodEditor extends ExprEditor {
@@ -89,8 +106,9 @@ public class AspectWeaverClass {
 		private final CtMethod sourceMethod;
 		private final CtMethod replaceMethod;
 		private final List<CtMethod> jointPointList;
+		private final boolean isSubClass;
 
-		public JointPointMethodEditor(CtClass sourceClass, CtMethod sourceMethod, CtMethod replaceMethod, List<CtMethod> jointPointList) {
+		public JointPointMethodEditor(CtClass sourceClass, CtMethod sourceMethod, CtMethod replaceMethod, List<CtMethod> jointPointList, boolean isSubClass) {
 			if (replaceMethod == null) {
 				throw new NullPointerException("replaceMethod must not be null");
 			}
@@ -98,11 +116,12 @@ public class AspectWeaverClass {
 			this.sourceMethod = sourceMethod;
 			this.replaceMethod = replaceMethod;
 			this.jointPointList = jointPointList;
+			this.isSubClass = isSubClass;
 		}
-
 
 		@Override
 		public void edit(MethodCall methodCall) throws CannotCompileException {
+
 
 			final boolean joinPointMethod = isJoinPointMethod(jointPointList, methodCall.getMethodName(), methodCall.getSignature());
 			if (joinPointMethod) {
@@ -110,15 +129,22 @@ public class AspectWeaverClass {
 					throw new CannotCompileException("Signature miss match. method:" + sourceMethod.getName() + " source:" + sourceMethod.getSignature() + " jointPoint:" + replaceMethod.getSignature());
 				}
 				final String invokeSource = invokeSourceMethod();
-				if (logger.isInfoEnabled()) {
-					logger.info("{}{} -> invokeSource:{}", methodCall.getMethodName(), methodCall.getSignature(), invokeSource);
+				if (logger.isDebugEnabled()) {
+					logger.debug("JointPoint method {}{} -> invokeOriginal:{}", methodCall.getMethodName(), methodCall.getSignature(), invokeSource);
 				}
 				methodCall.replace(invokeSource);
 			} else {
-				try {
-					sourceClass.getMethod(methodCall.getMethodName(), methodCall.getSignature());
-				} catch (NotFoundException e) {
-					throw new CannotCompileException(e.getMessage(), e);
+				if (isSubClass) {
+					// validate super class method
+					try {
+						CtMethod method = methodCall.getMethod();
+						CtClass declaringClass = method.getDeclaringClass();
+						if (sourceClass.subclassOf(declaringClass)) {
+							sourceClass.getMethod(methodCall.getMethodName(), methodCall.getSignature());
+						}
+					} catch (NotFoundException e) {
+						throw new CannotCompileException(e.getMessage(), e);
+					}
 				}
 			}
 		}
@@ -135,9 +161,7 @@ public class AspectWeaverClass {
 
 		private String invokeSourceMethod() {
 			CodeBuilder builder = new CodeBuilder(32);
-			if (isVoid(replaceMethod.getSignature())) {
-				builder.append("$_=null;");
-			} else {
+			if (!isVoid(replaceMethod.getSignature())) {
 				builder.append("$_=");
 			}
 
