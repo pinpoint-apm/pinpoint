@@ -1,11 +1,16 @@
 package com.nhn.pinpoint.rpc.server;
 
-import com.nhn.pinpoint.rpc.packet.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.jboss.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import com.nhn.pinpoint.rpc.packet.stream.StreamClosePacket;
+import com.nhn.pinpoint.rpc.packet.stream.StreamCreateFailPacket;
+import com.nhn.pinpoint.rpc.packet.stream.StreamCreatePacket;
+import com.nhn.pinpoint.rpc.packet.stream.StreamCreateSuccessPacket;
+import com.nhn.pinpoint.rpc.packet.stream.StreamDataPacket;
 
 /**
  * @author emeroad
@@ -67,14 +72,14 @@ public class ServerStreamChannel {
             if(!state.compareAndSet(OPEN_ARRIVED, RUN)) {
                 return false;
             }
-            StreamCreateSuccessPacket streamCreateSuccessPacket = new StreamCreateSuccessPacket(channelId, bytes);
+            StreamCreateSuccessPacket streamCreateSuccessPacket = new StreamCreateSuccessPacket(channelId);
             this.channel.write(streamCreateSuccessPacket);
             return true;
         } else {
             if(!state.compareAndSet(OPEN_ARRIVED, CLOSED)) {
                 return false;
             }
-            StreamCreateFailPacket streamCreateFailPacket = new StreamCreateFailPacket(channelId, bytes);
+            StreamCreateFailPacket streamCreateFailPacket = new StreamCreateFailPacket(channelId, StreamCreateFailPacket.UNKNWON_ERROR);
             this.channel.write(streamCreateFailPacket);
             return true;
         }
@@ -84,7 +89,7 @@ public class ServerStreamChannel {
         if (state.get() != RUN) {
             return false;
         }
-        StreamResponsePacket response = new StreamResponsePacket(bytes);
+        StreamDataPacket response = new StreamDataPacket(channelId, bytes);
         this.channel.write(response);
         return true;
     }
@@ -104,7 +109,7 @@ public class ServerStreamChannel {
         }
 
         if (safeClose) {
-            StreamClosePacket streamClosePacket = new StreamClosePacket(channelId);
+            StreamClosePacket streamClosePacket = new StreamClosePacket(channelId, StreamClosePacket.SUCCESS);
             this.channel.write(streamClosePacket);
 
             ServerStreamChannelManager serverStreamChannelManager = this.serverStreamChannelManager;

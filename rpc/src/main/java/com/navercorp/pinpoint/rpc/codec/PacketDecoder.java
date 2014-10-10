@@ -1,8 +1,5 @@
 package com.nhn.pinpoint.rpc.codec;
 
-import com.nhn.pinpoint.rpc.client.WriteFailFutureListener;
-import com.nhn.pinpoint.rpc.packet.*;
-
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -10,6 +7,25 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.frame.FrameDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.nhn.pinpoint.rpc.client.WriteFailFutureListener;
+import com.nhn.pinpoint.rpc.packet.ClientClosePacket;
+import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
+import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerPacket;
+import com.nhn.pinpoint.rpc.packet.PacketType;
+import com.nhn.pinpoint.rpc.packet.PingPacket;
+import com.nhn.pinpoint.rpc.packet.PongPacket;
+import com.nhn.pinpoint.rpc.packet.RequestPacket;
+import com.nhn.pinpoint.rpc.packet.ResponsePacket;
+import com.nhn.pinpoint.rpc.packet.SendPacket;
+import com.nhn.pinpoint.rpc.packet.ServerClosePacket;
+import com.nhn.pinpoint.rpc.packet.stream.StreamClosePacket;
+import com.nhn.pinpoint.rpc.packet.stream.StreamCreateFailPacket;
+import com.nhn.pinpoint.rpc.packet.stream.StreamCreatePacket;
+import com.nhn.pinpoint.rpc.packet.stream.StreamCreateSuccessPacket;
+import com.nhn.pinpoint.rpc.packet.stream.StreamDataPacket;
+import com.nhn.pinpoint.rpc.packet.stream.StreamPingPacket;
+import com.nhn.pinpoint.rpc.packet.stream.StreamPongPacket;
 
 /**
  * @author emeroad
@@ -42,8 +58,12 @@ public class PacketDecoder extends FrameDecoder {
                 return readStreamCreateSuccess(packetType, buffer);
             case PacketType.APPLICATION_STREAM_CREATE_FAIL:
                 return readStreamCreateFail(packetType, buffer);
-            case PacketType.APPLICATION_STREAM_RESPONSE:
-                return readStreamResponse(packetType, buffer);
+            case PacketType.APPLICATION_STREAM_DATA:
+                return readStreamData(packetType, buffer);
+            case PacketType.APPLICATION_STREAM_PING:
+            	return readStreamPing(packetType, buffer);
+            case PacketType.APPLICATION_STREAM_PONG:
+            	return readStreamPong(packetType, buffer);
             case PacketType.CONTROL_CLIENT_CLOSE:
                 return readControlClientClose(packetType, buffer);
             case PacketType.CONTROL_SERVER_CLOSE:
@@ -121,9 +141,19 @@ public class PacketDecoder extends FrameDecoder {
         return StreamCreateFailPacket.readBuffer(packetType, buffer);
     }
 
-    private Object readStreamResponse(short packetType, ChannelBuffer buffer) {
-        return StreamResponsePacket.readBuffer(packetType, buffer);
+    private Object readStreamData(short packetType, ChannelBuffer buffer) {
+        return StreamDataPacket.readBuffer(packetType, buffer);
     }
+    
+	private Object readStreamPong(short packetType, ChannelBuffer buffer) {
+        return StreamPongPacket.readBuffer(packetType, buffer);
+	}
+
+	private Object readStreamPing(short packetType, ChannelBuffer buffer) {
+        return StreamPingPacket.readBuffer(packetType, buffer);
+	}
+
+
 
     private Object readStreamClose(short packetType, ChannelBuffer buffer) {
         return StreamClosePacket.readBuffer(packetType, buffer);

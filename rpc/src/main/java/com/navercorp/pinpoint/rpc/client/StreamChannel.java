@@ -1,17 +1,23 @@
 package com.nhn.pinpoint.rpc.client;
 
-import com.nhn.pinpoint.rpc.DefaultFuture;
-import com.nhn.pinpoint.rpc.FailureEventHandler;
-import com.nhn.pinpoint.rpc.Future;
-import com.nhn.pinpoint.rpc.StreamCreateResponse;
-import com.nhn.pinpoint.rpc.packet.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import com.nhn.pinpoint.rpc.DefaultFuture;
+import com.nhn.pinpoint.rpc.FailureEventHandler;
+import com.nhn.pinpoint.rpc.Future;
+import com.nhn.pinpoint.rpc.StreamCreateResponse;
+import com.nhn.pinpoint.rpc.packet.PacketType;
+import com.nhn.pinpoint.rpc.packet.stream.StreamClosePacket;
+import com.nhn.pinpoint.rpc.packet.stream.StreamCreatePacket;
+import com.nhn.pinpoint.rpc.packet.stream.StreamDataPacket;
+import com.nhn.pinpoint.rpc.packet.stream.StreamPacket;
+import com.nhn.pinpoint.rpc.stream.StreamChannelMessageListener;
 
 /**
  * @author emeroad
@@ -100,13 +106,13 @@ public class StreamChannel {
                 failResult.setMessage(packet.getPayload());
                 return openChannel(CLOSED, failResult);
 
-            case PacketType.APPLICATION_STREAM_RESPONSE: {
+            case PacketType.APPLICATION_STREAM_DATA: {
                 logger.debug("APPLICATION_STREAM_RESPONSE {}", channel);
 
-                StreamResponsePacket streamResponsePacket = (StreamResponsePacket) packet;
+                StreamDataPacket streamResponsePacket = (StreamDataPacket) packet;
                 StreamChannelMessageListener streamChannelMessageListener = this.streamChannelMessageListener;
                 if (streamChannelMessageListener != null) {
-                    streamChannelMessageListener.handleStreamResponse(this, streamResponsePacket.getPayload());
+                	streamChannelMessageListener.handleStreamData(this, streamResponsePacket);
                 }
                 return true;
             }
@@ -118,7 +124,7 @@ public class StreamChannel {
                 StreamClosePacket streamClosePacket = (StreamClosePacket) packet;
                 StreamChannelMessageListener streamChannelMessageListener = this.streamChannelMessageListener;
                 if (streamChannelMessageListener != null) {
-                    streamChannelMessageListener.handleClose(this, streamClosePacket.getPayload());
+                	streamChannelMessageListener.handleStreamClose(this, streamClosePacket);
                 }
 
                 return true;
@@ -166,7 +172,7 @@ public class StreamChannel {
         }
 
         if (safeClose) {
-            StreamClosePacket closePacket = new StreamClosePacket(this.channelId);
+            StreamClosePacket closePacket = new StreamClosePacket(this.channelId, StreamClosePacket.SUCCESS);
             this.channel.write(closePacket);
 
             StreamChannelManager streamChannelManager = this.streamChannelManager;
