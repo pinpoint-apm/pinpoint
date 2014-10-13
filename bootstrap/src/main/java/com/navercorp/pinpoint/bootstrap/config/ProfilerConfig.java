@@ -63,6 +63,8 @@ public class ProfilerConfig {
 	private boolean jdbcProfileDbcp = true;
     private boolean jdbcProfileDbcpConnectionClose = false;
 
+	private boolean tomcatHidePinpointHeader = true;
+
     private boolean arucs = true;
     private boolean arucsKeyTrace = false;
     private boolean memcached = true;
@@ -316,7 +318,11 @@ public class ProfilerConfig {
         return jdbcProfileDbcpConnectionClose;
     }
 
-    public boolean isArucs() {
+	public boolean isTomcatHidePinpointHeader() {
+		return tomcatHidePinpointHeader;
+	}
+
+	public boolean isArucs() {
         return arucs;
     }
 
@@ -536,6 +542,9 @@ public class ProfilerConfig {
 
 		this.jdbcProfileDbcp = readBoolean(prop, "profiler.jdbc.dbcp", true);
         this.jdbcProfileDbcpConnectionClose = readBoolean(prop, "profiler.jdbc.dbcp.connectionclose", false);
+
+
+		this.tomcatHidePinpointHeader = readBoolean(prop, "profiler.tomcat.hidepinpointheader", true);
 
         this.arucs = readBoolean(prop, "profiler.arcus", true);
         this.arucsKeyTrace = readBoolean(prop, "profiler.arcus.keytrace", false);

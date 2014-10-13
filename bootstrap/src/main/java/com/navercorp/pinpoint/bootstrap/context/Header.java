@@ -1,5 +1,9 @@
 package com.nhn.pinpoint.bootstrap.context;
 
+import com.nhn.pinpoint.common.util.DelegateEnumeration;
+import com.nhn.pinpoint.common.util.EmptyEnumeration;
+
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,10 +42,48 @@ public enum Header {
 	}
 
 	public static Header getHeader(String name) {
+		if (name == null) {
+			return null;
+		}
+		if (!startWithPinpointHeader(name)) {
+			return null;
+		}
 		return NAME_SET.get(name);
 	}
 
-	public static boolean isHeaderName(String name) {
+
+
+	public static boolean hasHeader(String name) {
 		return getHeader(name) != null;
+	}
+
+	public static Enumeration getHeaders(String name) {
+		if (name == null) {
+			return null;
+		}
+		final Header header = getHeader(name);
+		if (header == null) {
+			return null;
+		}
+		// if pinpoint header
+		return new EmptyEnumeration();
+	}
+
+	public static Enumeration filteredHeaderNames(final Enumeration enumeration) {
+		return new DelegateEnumeration(enumeration, FILTER);
+	}
+
+	private static DelegateEnumeration.Filter FILTER = new DelegateEnumeration.Filter() {
+		@Override
+		public boolean filter(Object o) {
+			if (o instanceof String) {
+				return hasHeader((String )o);
+			}
+			return false;
+		}
+	};
+
+	private static boolean startWithPinpointHeader(String name) {
+		return name.startsWith("Pinpoint-");
 	}
 }
