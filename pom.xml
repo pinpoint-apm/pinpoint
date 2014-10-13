@@ -696,6 +696,9 @@
                     <licenseLocation>clover.license</licenseLocation>
                     <singleCloverDatabase>false</singleCloverDatabase>
                     <includesTestSourceRoots>false</includesTestSourceRoots>
+                    <excludes>
+                        <exclude>com/nhn/pinpoint/thrift/dto/**/*.java</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -747,6 +750,9 @@
                     <!-- <rulesets> <ruleset>/rulesets/unusedcode.xml</ruleset> 
                         <ruleset>/rulesets/basic.xml</ruleset> <ruleset>/rulesets/imports.xml</ruleset> 
                         <ruleset>/rulesets/design.xml</ruleset> </rulesets> -->
+                    <excludes>
+                        <exclude>com/nhn/pinpoint/thrift/dto/**/*.java</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
