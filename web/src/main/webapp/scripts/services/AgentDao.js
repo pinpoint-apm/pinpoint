@@ -39,12 +39,12 @@ pinpointApp.service('AgentDao', [ 'agentDaoConfig',
         };
 
         /**
-         * parse chart data for amcharts
+         * parse memory chart data for amcharts
          * @param info
          * @param agentStat
          * @returns {Array}
          */
-        this.parseChartDataForAmcharts = function (info, agentStat) {
+        this.parseMemoryChartDataForAmcharts = function (info, agentStat) {
             var newData = [],
                 POINTS_TIMESTAMP = 0, POINTS_MIN = 1, POINTS_MAX = 2, POINTS_AVG = 3,
                 pointsTime = agentStat.charts['jvmGcOldTime'].points,
@@ -81,7 +81,7 @@ pinpointApp.service('AgentDao', [ 'agentDaoConfig',
                         }
                         thisData[info.line[k].key] = GC;
                     } else {
-                        thisData[info.line[k].key] = agentStat.charts[info.line[k].id].points[i][POINTS_MAX]
+                        thisData[info.line[k].key] = agentStat.charts[info.line[k].id].points[i][POINTS_MAX];
                     }
 
                 }
@@ -90,6 +90,44 @@ pinpointApp.service('AgentDao', [ 'agentDaoConfig',
             }
 
             return newData;
+        };
+
+        /**
+         * parse cpudLoad chart data for amcharts
+         * @param cpuLoad
+         * @param agentStat
+         * @returns {Array}
+         */
+        this.parseCpuLoadChartDataForAmcharts = function (cpuLoad, agentStat) {
+            var newData = [],
+            TIME_STAMP_INDEX = 0, MIN_POINT_INDEX = 1, MAX_POINT_INDEX = 2, AVG_POINT_INDEX = 3,
+            pointsJvmCpuLoad = agentStat.charts['jvmCpuLoad'].points,
+            pointsSystemCpuLoad = agentStat.charts['systemCpuLoad'].points;
+
+	        if (pointsJvmCpuLoad.length !== pointsSystemCpuLoad.length) {
+	            throw new Error('assertion error', 'jvmCpuLoad.length != systemCpuLoad.length');
+	            return;
+	        }
+	
+	        for (var i = pointsJvmCpuLoad.length - 1; i >= 0; --i) {
+	        	if (pointsJvmCpuLoad[i][TIME_STAMP_INDEX] !== pointsSystemCpuLoad[i][TIME_STAMP_INDEX]) {
+	        		throw new Error('assertion error', 'timestamp mismatch between jvmCpuLoad and systemCpuLoad');
+	        		return;
+	        	}
+	            var thisData = {
+	                time: new Date(pointsJvmCpuLoad[i][TIME_STAMP_INDEX]).toString('yyyy-MM-dd HH:mm'),
+	                jvmCpuLoad: 0,
+	                systemCpuLoad: 0,
+	                maxCpuLoad: 100
+	            };
+	            for (var k in cpuLoad.line) {
+	                thisData[cpuLoad.line[k].key] = agentStat.charts[cpuLoad.line[k].id].points[i][MAX_POINT_INDEX].toFixed(2);
+	            }
+	
+	            newData.push(thisData);
+	        }
+
+	        return newData;
         };
 
     }

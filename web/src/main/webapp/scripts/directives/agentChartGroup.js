@@ -80,7 +80,7 @@ pinpointApp.directive('agentChartGroup', [ 'agentChartGroupConfig', '$timeout', 
                     { id: 'fgc', key: 'FGC', values: [], isFgc: true }
                 ]};
 
-                scope.$broadcast('jvmMemoryChart.initAndRenderWithData.forHeap_' + scope.namespace, AgentDao.parseChartDataForAmcharts(heap, agentStat), '100%', '100%');
+                scope.$broadcast('jvmMemoryChart.initAndRenderWithData.forHeap_' + scope.namespace, AgentDao.parseMemoryChartDataForAmcharts(heap, agentStat), '100%', '100%');
             };
 
             /**
@@ -95,7 +95,7 @@ pinpointApp.directive('agentChartGroup', [ 'agentChartGroupConfig', '$timeout', 
                     { id: 'fgc', key: 'FGC', values: [], isFgc: true }
                 ]};
 
-                scope.$broadcast('jvmMemoryChart.initAndRenderWithData.forNonHeap_' + scope.namespace, AgentDao.parseChartDataForAmcharts(nonheap, agentStat), '100%', '100%');
+                scope.$broadcast('jvmMemoryChart.initAndRenderWithData.forNonHeap_' + scope.namespace, AgentDao.parseMemoryChartDataForAmcharts(nonheap, agentStat), '100%', '100%');
             };
 
             /**
