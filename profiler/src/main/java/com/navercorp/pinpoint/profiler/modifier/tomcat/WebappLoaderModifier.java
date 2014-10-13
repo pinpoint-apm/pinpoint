@@ -38,12 +38,14 @@ public class WebappLoaderModifier extends AbstractModifier {
             
             boolean isHooked = false;
             // Tomcat 6 - org.apache.catalina.loader.WebappLoader.start()
-            if (isHooked = webappLoader.hasDeclaredMethod("start", null)) {
+            if (webappLoader.hasDeclaredMethod("start", null)) {
                 webappLoader.addInterceptor("start", null, webappLoaderStartInterceptor);
+				isHooked = true;
             }
             // Tomcat 7, 8 - org.apache.catalina.loader.WebappLoader.startInternal()
-            else if (isHooked = webappLoader.hasDeclaredMethod("startInternal", null)) {
+            else if (webappLoader.hasDeclaredMethod("startInternal", null)) {
                 webappLoader.addInterceptor("startInternal", null, webappLoaderStartInterceptor);
+				isHooked = true;
             }
 
             if (isHooked) {

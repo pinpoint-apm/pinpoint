@@ -47,7 +47,7 @@ public class HeartBitCheckerStressTest {
         PinpointSocket socket = createPinpointSocket(HOST, PORT, socketFactory);
 
 		TcpDataSender sender = new TcpDataSender(socket);
-		HeartBitChecker checker = new HeartBitChecker(sender, 1000L, getAgentInfo());
+		HeartBeatChecker checker = new HeartBeatChecker(sender, 1000L, getAgentInfo());
 
 		long strarTime = System.currentTimeMillis();
 		
@@ -99,7 +99,7 @@ public class HeartBitCheckerStressTest {
 		}
 	}
 
-	private void closeAll(PinpointServerSocket server, HeartBitChecker checker) {
+	private void closeAll(PinpointServerSocket server, HeartBeatChecker checker) {
 		if (server != null) {
 			server.close();
 		}
