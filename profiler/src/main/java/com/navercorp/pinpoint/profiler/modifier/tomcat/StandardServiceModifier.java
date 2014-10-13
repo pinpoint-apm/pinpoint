@@ -44,14 +44,16 @@ public class StandardServiceModifier extends AbstractModifier {
 
             boolean isHooked = false;
             // Tomcat 6 - org.apache.catalina.core.StandardService.start(), stop()
-            if (isHooked = (standardService.hasDeclaredMethod("start", null) && standardService.hasDeclaredMethod("stop", null))) {
+            if (standardService.hasDeclaredMethod("start", null) && standardService.hasDeclaredMethod("stop", null)) {
                 standardService.addInterceptor("start", null, standardServiceStartInterceptor);
                 standardService.addInterceptor("stop", null, standardServiceStopInterceptor);
+				isHooked = true;
             }
             // Tomcat 7, 8 - org.apache.catalina.core.StandardService.startInternal(), stopInternal()
-            else if (isHooked = (standardService.hasDeclaredMethod("startInternal", null) && standardService.hasDeclaredMethod("stopInternal", null))) {
+            else if (standardService.hasDeclaredMethod("startInternal", null) && standardService.hasDeclaredMethod("stopInternal", null)) {
                 standardService.addInterceptor("startInternal", null, standardServiceStartInterceptor);
                 standardService.addInterceptor("stopInternal", null, standardServiceStopInterceptor);
+				isHooked = true;
             }
             
             if (isHooked) {

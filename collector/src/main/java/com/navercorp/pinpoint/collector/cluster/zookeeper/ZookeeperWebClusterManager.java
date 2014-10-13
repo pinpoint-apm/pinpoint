@@ -216,7 +216,7 @@ public class ZookeeperWebClusterManager implements Runnable {
 		}
 	}
 
-	class StopTask implements Task {
+	static class StopTask implements Task {
 
 	}
 

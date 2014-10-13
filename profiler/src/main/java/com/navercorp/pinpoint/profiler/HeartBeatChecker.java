@@ -18,8 +18,8 @@ import com.nhn.pinpoint.thrift.dto.TAgentInfo;
  * @author emeroad
  * @author koo.taejin
  */
-public class HeartBitChecker {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HeartBitChecker.class);
+public class HeartBeatChecker {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HeartBeatChecker.class);
 
     private static final ThreadFactory THREAD_FACTORY = new PinpointThreadFactory("Pinpoint-Agent-Heartbeat-Thread", true);
     
@@ -34,7 +34,7 @@ public class HeartBitChecker {
 
     private Thread ioThread;
 
-    public HeartBitChecker(EnhancedDataSender dataSender, long heartBitInterVal, TAgentInfo agentInfo) {
+    public HeartBeatChecker(EnhancedDataSender dataSender, long heartBitInterVal, TAgentInfo agentInfo) {
         if (dataSender == null) {
             throw new NullPointerException("dataSender must not be null");
         }

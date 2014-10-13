@@ -30,7 +30,7 @@ import com.nhn.pinpoint.thrift.dto.TResult;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 
-public class HeartBitCheckerTest {
+public class HeartBeatCheckerTest {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -50,7 +50,7 @@ public class HeartBitCheckerTest {
         PinpointSocket socket = createPinpointSocket(HOST, PORT, socketFactory);
 
 		TcpDataSender sender = new TcpDataSender(socket);
-		HeartBitChecker checker = new HeartBitChecker(sender, 1000L, getAgentInfo());
+		HeartBeatChecker checker = new HeartBeatChecker(sender, 1000L, getAgentInfo());
 
 		try {
 			checker.start();
@@ -76,7 +76,7 @@ public class HeartBitCheckerTest {
         PinpointSocket socket = createPinpointSocket(HOST, PORT, socketFactory);
 
         TcpDataSender sender = new TcpDataSender(socket);
-		HeartBitChecker checker = new HeartBitChecker(sender, 1000L, getAgentInfo());
+		HeartBeatChecker checker = new HeartBeatChecker(sender, 1000L, getAgentInfo());
 
 		try {
 			checker.start();
@@ -101,7 +101,7 @@ public class HeartBitCheckerTest {
         PinpointSocket socket = createPinpointSocket(HOST, PORT, socketFactory);
 
 		TcpDataSender sender = new TcpDataSender(socket);
-		HeartBitChecker checker = new HeartBitChecker(sender, 1000L, getAgentInfo());
+		HeartBeatChecker checker = new HeartBeatChecker(sender, 1000L, getAgentInfo());
 
 		try {
 			checker.start();
@@ -140,7 +140,7 @@ public class HeartBitCheckerTest {
 		}
 	}
 
-	private void closeAll(PinpointServerSocket server, HeartBitChecker checker, PinpointSocket socket, PinpointSocketFactory factory) {
+	private void closeAll(PinpointServerSocket server, HeartBeatChecker checker, PinpointSocket socket, PinpointSocketFactory factory) {
 		if (server != null) {
 			server.close();
 		}

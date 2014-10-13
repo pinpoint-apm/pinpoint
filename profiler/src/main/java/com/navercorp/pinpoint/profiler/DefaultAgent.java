@@ -87,7 +87,7 @@ public class DefaultAgent implements Agent {
 
     // agent의 상태,
     private volatile AgentStatus agentStatus;
-    private HeartBitChecker heartBitChecker;
+    private HeartBeatChecker heartBeatChecker;
 
     static {
         // rpc쪽 preload
@@ -145,7 +145,7 @@ public class DefaultAgent implements Agent {
 
         this.traceContext = createTraceContext(agentInformation.getServerType());
 
-        this.heartBitChecker = new HeartBitChecker(tcpDataSender, profilerConfig.getHeartbeatInterval(), tAgentInfo);
+        this.heartBeatChecker = new HeartBeatChecker(tcpDataSender, profilerConfig.getHeartbeatInterval(), tAgentInfo);
 
         // JVM 통계 등을 주기적으로 수집하여 collector에 전송하는 monitor를 초기화한다.
         this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId(), this.agentInformation.getStartTime());
@@ -369,7 +369,7 @@ public class DefaultAgent implements Agent {
         logger.info("Starting {} Agent.", ProductInfo.CAMEL_NAME);
         ServerMetaData serverMetaData = this.traceContext.getServerMetaDataHolder().getServerMetaData();
         logger.debug(serverMetaData.toString());
-        this.heartBitChecker.start();
+        this.heartBeatChecker.start();
         this.agentStatMonitor.start();
     }
 
@@ -385,7 +385,7 @@ public class DefaultAgent implements Agent {
         }
         logger.info("Stopping {} Agent.", ProductInfo.CAMEL_NAME);
 
-        this.heartBitChecker.stop();
+        this.heartBeatChecker.stop();
 
         tAgentInfo.setEndStatus(0);
         tAgentInfo.setEndTimestamp(System.currentTimeMillis());
