@@ -1,8 +1,5 @@
 package com.nhn.pinpoint.collector.receiver.tcp;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -12,10 +9,7 @@ import java.net.Socket;
 import org.apache.thrift.TBase;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -24,13 +18,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.nhn.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
 import com.nhn.pinpoint.collector.receiver.TcpDispatchHandler;
 import com.nhn.pinpoint.rpc.packet.Packet;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.ResponsePacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
-import com.nhn.pinpoint.rpc.server.DoNothingChannelStateEventListener;
 import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 import com.nhn.pinpoint.thrift.dto.TResult;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
@@ -50,22 +42,10 @@ public class TCPReceiverBOTest {
 	@Autowired
 	TcpDispatchHandler handler;
 
+	@Autowired
 	private TCPReceiver tcpReceiver;
 	
-    @Before
-    public void setUp() {
-    	ZookeeperClusterService service = mock(ZookeeperClusterService.class);
-    	when(service.getChannelStateChangeEventListener()).thenReturn(DoNothingChannelStateEventListener.INSTANCE);
-    	
-    	tcpReceiver = new TCPReceiver(handler, "127.0.0.1", 9994, service);
-    	tcpReceiver.start();
-    }
-    
-    @After
-    public void tearDown() {
-    	tcpReceiver.stop();
-    }
-    
+	
 	@Test
 	public void agentInfoTest1() throws Exception {
 		Socket socket = connectTcpReceiver();
