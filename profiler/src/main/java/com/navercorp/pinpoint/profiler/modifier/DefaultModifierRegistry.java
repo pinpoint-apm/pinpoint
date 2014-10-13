@@ -66,10 +66,7 @@ import com.nhn.pinpoint.profiler.modifier.redis.RedisClusterPipelineModifier;
 import com.nhn.pinpoint.profiler.modifier.servlet.HttpServletModifier;
 import com.nhn.pinpoint.profiler.modifier.servlet.SpringFrameworkServletModifier;
 import com.nhn.pinpoint.profiler.modifier.spring.orm.ibatis.SqlMapClientTemplateModifier;
-import com.nhn.pinpoint.profiler.modifier.tomcat.StandardHostValveInvokeModifier;
-import com.nhn.pinpoint.profiler.modifier.tomcat.StandardServiceModifier;
-import com.nhn.pinpoint.profiler.modifier.tomcat.TomcatConnectorModifier;
-import com.nhn.pinpoint.profiler.modifier.tomcat.WebappLoaderModifier;
+import com.nhn.pinpoint.profiler.modifier.tomcat.*;
 
 /**
  * @author emeroad
@@ -216,6 +213,11 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         
         Modifier tomcatWebappLoaderModifier = new WebappLoaderModifier(byteCodeInstrumentor, agent);
         addModifier(tomcatWebappLoaderModifier);
+
+		if (profilerConfig.isTomcatHidePinpointHeader()) {
+			Modifier requestFacadeModifier = new RequestFacadeModifier(byteCodeInstrumentor, agent);
+			addModifier(requestFacadeModifier);
+		}
 	}
 
 	public void addJdbcModifier() {
