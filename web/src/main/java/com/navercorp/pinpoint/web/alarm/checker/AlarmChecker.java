@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.alarm.filter;
+package com.nhn.pinpoint.web.alarm.checker;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -13,7 +13,7 @@ import com.nhn.pinpoint.web.alarm.vo.Rule;
  * 
  * @author koo.taejin
  */
-public abstract class AlarmCheckFilter {
+public abstract class AlarmChecker {
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     protected final DataCollector dataCollector;
@@ -21,7 +21,7 @@ public abstract class AlarmCheckFilter {
     protected boolean detected = false;
     protected final String unit;
     
-    protected AlarmCheckFilter(Rule rule, String unit, DataCollector dataCollector) {
+    protected AlarmChecker(Rule rule, String unit, DataCollector dataCollector) {
         this.rule = rule;
         this.unit = unit;
         this.dataCollector = dataCollector;

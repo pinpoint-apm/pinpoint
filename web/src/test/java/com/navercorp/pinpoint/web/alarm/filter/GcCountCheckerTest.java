@@ -14,6 +14,8 @@ import com.nhn.pinpoint.common.bo.AgentStatMemoryGcBo.Builder;
 import com.nhn.pinpoint.web.alarm.CheckerCategory;
 import com.nhn.pinpoint.web.alarm.DataCollectorFactory;
 import com.nhn.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
+import com.nhn.pinpoint.web.alarm.checker.AgentChecker;
+import com.nhn.pinpoint.web.alarm.checker.GcCountChecker;
 import com.nhn.pinpoint.web.alarm.collector.AgentStatDataCollector;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
 import com.nhn.pinpoint.web.dao.AgentStatDao;

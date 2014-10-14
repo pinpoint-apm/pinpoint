@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.alarm.filter;
+package com.nhn.pinpoint.web.alarm.checker;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 import com.nhn.pinpoint.web.alarm.collector.DataCollector;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
 
-public abstract class AgentChecker extends AlarmCheckFilter {
+public abstract class AgentChecker extends AlarmChecker {
     
     protected Map<String, Long> detectedAgents = new HashMap<String, Long>();
 

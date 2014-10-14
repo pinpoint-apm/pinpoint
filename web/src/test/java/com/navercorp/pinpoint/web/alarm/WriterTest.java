@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.nhn.pinpoint.web.alarm.filter.AlarmCheckFilter;
-import com.nhn.pinpoint.web.alarm.filter.SlowCountFilter;
+import com.nhn.pinpoint.web.alarm.checker.AlarmChecker;
+import com.nhn.pinpoint.web.alarm.checker.SlowCountFilter;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -37,7 +37,7 @@ public class WriterTest {
             }
         };
         
-        List<AlarmCheckFilter> checkers = new LinkedList<AlarmCheckFilter>();
+        List<AlarmChecker> checkers = new LinkedList<AlarmChecker>();
         checkers.add(checker);
         writer.write(checkers);
     }
@@ -58,7 +58,7 @@ public class WriterTest {
             }
         };
         
-        List<AlarmCheckFilter> checkers = new LinkedList<AlarmCheckFilter>();
+        List<AlarmChecker> checkers = new LinkedList<AlarmChecker>();
         checkers.add(checker);
         writer.write(checkers);
     }

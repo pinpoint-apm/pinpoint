@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNotSame;
 
 import org.junit.Test;
 
-import com.nhn.pinpoint.web.alarm.filter.SlowCountFilter;
+import com.nhn.pinpoint.web.alarm.checker.SlowCountFilter;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
 
 public class CheckerCategoryTest {

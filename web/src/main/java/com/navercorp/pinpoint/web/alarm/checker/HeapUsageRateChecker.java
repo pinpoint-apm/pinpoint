@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.alarm.filter;
+package com.nhn.pinpoint.web.alarm.checker;
 
 import java.util.Map;
 

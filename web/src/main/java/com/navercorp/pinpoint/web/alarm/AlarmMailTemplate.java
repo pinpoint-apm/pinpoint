@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.web.alarm;
 
-import com.nhn.pinpoint.web.alarm.filter.AlarmCheckFilter;
+import com.nhn.pinpoint.web.alarm.checker.AlarmChecker;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
 
 public class AlarmMailTemplate {
@@ -9,9 +9,9 @@ public class AlarmMailTemplate {
     private static final String LINK_FORMAT = "<a href=\"%s\" >%s</a>";
 
     private final String pinpointUrl;
-    private final AlarmCheckFilter checker;
+    private final AlarmChecker checker;
     
-    public AlarmMailTemplate(AlarmCheckFilter checker, String pinpointUrl) {
+    public AlarmMailTemplate(AlarmChecker checker, String pinpointUrl) {
         this.checker = checker;
         this.pinpointUrl =pinpointUrl;
     }

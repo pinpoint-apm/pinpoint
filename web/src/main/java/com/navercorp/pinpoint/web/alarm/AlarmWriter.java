@@ -20,8 +20,7 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.nhn.pinpoint.web.alarm.filter.AlarmCheckFilter;
-import com.nhn.pinpoint.web.alarm.vo.Rule;
+import com.nhn.pinpoint.web.alarm.checker.AlarmChecker;
 import com.nhn.pinpoint.web.dao.mysql.MySqlAlarmResourceDao;
 import com.nhncorp.lucy.net.call.Fault;
 import com.nhncorp.lucy.net.call.Reply;
@@ -30,7 +29,7 @@ import com.nhncorp.lucy.net.invoker.InvocationFuture;
 import com.nhncorp.lucy.npc.connector.NpcConnectionFactory;
 import com.nhncorp.lucy.npc.connector.NpcHessianConnector;
 
-public class AlarmWriter implements ItemWriter<AlarmCheckFilter> {
+public class AlarmWriter implements ItemWriter<AlarmChecker> {
     
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     
@@ -56,13 +55,13 @@ public class AlarmWriter implements ItemWriter<AlarmCheckFilter> {
     private static final String SMS_SERVICE_ID = "EMG00058";
     
     @Override
-    public void write(List<? extends AlarmCheckFilter> checkers) throws Exception {
-        for(AlarmCheckFilter checker : checkers) {
+    public void write(List<? extends AlarmChecker> checkers) throws Exception {
+        for(AlarmChecker checker : checkers) {
             send(checker);
         }
     }
     
-    private void send(AlarmCheckFilter checker) {
+    private void send(AlarmChecker checker) {
         if (!checker.isDetected()) {
             return;
         }
@@ -74,7 +73,7 @@ public class AlarmWriter implements ItemWriter<AlarmCheckFilter> {
         }
     }
     
-    private void sendSms(AlarmCheckFilter checker) {
+    private void sendSms(AlarmChecker checker) {
         List<String> receivers = dao.selectEmpGroupPhoneNumber(checker.getEmpGroup());
 
         if (receivers.size() == 0) {
@@ -117,7 +116,7 @@ public class AlarmWriter implements ItemWriter<AlarmCheckFilter> {
         return result.toString();
     }
     
-    private void sendEmail(AlarmCheckFilter checker) {
+    private void sendEmail(AlarmChecker checker) {
         NpcConnectionFactory factory = new NpcConnectionFactory();
         factory.setBoxDirectoryServiceHostName(emailServerUrl);
         factory.setCharset(Charset.forName("UTF-8"));
@@ -150,7 +149,7 @@ public class AlarmWriter implements ItemWriter<AlarmCheckFilter> {
         }
     }
 
-    private Object[] createSendMailParams(AlarmCheckFilter checker) {
+    private Object[] createSendMailParams(AlarmChecker checker) {
         AlarmMailTemplate mailTemplate = new AlarmMailTemplate(checker, pinpointUrl);
         List<String> receivers = dao.selectEmpGroupEmail(checker.getEmpGroup());
         return new Object[] { EMAIL_SERVICE_ID, OPTION, SENDER_EMAIL_ADDRESS, "", joinAddresses(receivers), mailTemplate.createSubject(), mailTemplate.createBody()};

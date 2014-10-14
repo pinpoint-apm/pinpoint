@@ -2,11 +2,11 @@ package com.nhn.pinpoint.web.alarm;
 
 import org.springframework.batch.item.ItemProcessor;
 
-import com.nhn.pinpoint.web.alarm.filter.AlarmCheckFilter;
+import com.nhn.pinpoint.web.alarm.checker.AlarmChecker;
 
-public class AlarmProcessor implements ItemProcessor<AlarmCheckFilter, AlarmCheckFilter> {
+public class AlarmProcessor implements ItemProcessor<AlarmChecker, AlarmChecker> {
     
-    public AlarmCheckFilter process(AlarmCheckFilter checker) {
+    public AlarmChecker process(AlarmChecker checker) {
         checker.check();
         return checker;
     }
