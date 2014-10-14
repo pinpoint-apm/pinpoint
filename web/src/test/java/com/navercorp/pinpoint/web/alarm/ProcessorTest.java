@@ -15,8 +15,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
+import com.nhn.pinpoint.web.alarm.checker.AlarmChecker;
 import com.nhn.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
-import com.nhn.pinpoint.web.alarm.filter.AlarmCheckFilter;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
 import com.nhn.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.nhn.pinpoint.web.dao.MapResponseDao;
@@ -71,7 +71,7 @@ public class ProcessorTest {
         Application application = new Application(SERVICE_NAME, ServiceType.TOMCAT);
         ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, 3000000, System.currentTimeMillis());
         Rule rule = new Rule(SERVICE_NAME, CheckerCategory.SLOW_COUNT.getName(), 74, "testGroup", false, false);
-        AlarmCheckFilter filter = CheckerCategory.SLOW_COUNT.createChecker(collector, rule);
+        AlarmChecker filter = CheckerCategory.SLOW_COUNT.createChecker(collector, rule);
         
         filter = processor.process(filter);
         assertTrue(filter.isDetected());

@@ -1,9 +1,9 @@
-package com.nhn.pinpoint.web.alarm.filter;
+package com.nhn.pinpoint.web.alarm.checker;
 
 import com.nhn.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
 
-public class SlowCountFilter extends AlarmCheckFilter {
+public class SlowCountFilter extends AlarmChecker {
 
     public SlowCountFilter(ResponseTimeDataCollector dataCollector, Rule rule) {
         super(rule, "", dataCollector);

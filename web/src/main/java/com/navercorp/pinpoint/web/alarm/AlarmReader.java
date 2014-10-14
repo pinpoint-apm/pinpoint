@@ -13,14 +13,14 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.nhn.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
+import com.nhn.pinpoint.web.alarm.checker.AlarmChecker;
 import com.nhn.pinpoint.web.alarm.collector.DataCollector;
-import com.nhn.pinpoint.web.alarm.filter.AlarmCheckFilter;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
 import com.nhn.pinpoint.web.dao.AlarmResourceDao;
 import com.nhn.pinpoint.web.dao.ApplicationIndexDao;
 import com.nhn.pinpoint.web.vo.Application;
 
-public class AlarmReader implements ItemReader<AlarmCheckFilter>, StepExecutionListener {
+public class AlarmReader implements ItemReader<AlarmChecker>, StepExecutionListener {
     
     @Autowired
     private DataCollectorFactory dataCollectorFactory;
@@ -31,7 +31,7 @@ public class AlarmReader implements ItemReader<AlarmCheckFilter>, StepExecutionL
     @Autowired
     private AlarmResourceDao alarmResourceDao;
     
-    private final Queue<AlarmCheckFilter> checkers = new LinkedList<AlarmCheckFilter>();
+    private final Queue<AlarmChecker> checkers = new LinkedList<AlarmChecker>();
 
     public AlarmReader() {
     }
@@ -42,7 +42,7 @@ public class AlarmReader implements ItemReader<AlarmCheckFilter>, StepExecutionL
         this.alarmResourceDao = alarmResourceDao;
     }
     
-    public AlarmCheckFilter read() {
+    public AlarmChecker read() {
         return checkers.poll();
     }
 
@@ -81,7 +81,7 @@ public class AlarmReader implements ItemReader<AlarmCheckFilter>, StepExecutionL
                 collectorMap.put(collector.getDataCollectorCategory(), collector);
             }
             
-            AlarmCheckFilter checker = checkerCategory.createChecker(collector, rule);
+            AlarmChecker checker = checkerCategory.createChecker(collector, rule);
             checkers.add(checker);
         }
         
