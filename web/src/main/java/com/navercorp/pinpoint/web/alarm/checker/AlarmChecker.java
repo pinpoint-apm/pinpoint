@@ -61,7 +61,6 @@ public abstract class AlarmChecker {
     }
 
     public void check() {
-        logger.debug("{} check.", this.getClass().getSimpleName());
         dataCollector.collect();
         
         if (decideResult(getDetectedValue())) {
@@ -69,6 +68,8 @@ public abstract class AlarmChecker {
         } else {
             detected = false;
         }
+        
+        logger.info("{} result is {} for application ({}). value is {}. (threshold : {}).", this.getClass().getSimpleName(), detected, rule.getApplicationId(), getDetectedValue(), rule.getThreshold());
     }
     
     public List<String> getSmsMessage() {
