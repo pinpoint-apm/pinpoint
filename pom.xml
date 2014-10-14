@@ -698,6 +698,8 @@
                     <includesTestSourceRoots>false</includesTestSourceRoots>
                     <excludes>
                         <exclude>com/nhn/pinpoint/thrift/dto/**/*.java</exclude>
+                        <exclude>com/nhn/pinpoint/common/util/apache/**/*.java</exclude>
+                        <exclude>com/nhn/pinpoint/profiler/util/jdk/**/*.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -752,6 +754,8 @@
                         <ruleset>/rulesets/design.xml</ruleset> </rulesets> -->
                     <excludes>
                         <exclude>com/nhn/pinpoint/thrift/dto/**/*.java</exclude>
+                        <exclude>com/nhn/pinpoint/common/util/apache/**/*.java</exclude>
+                        <exclude>com/nhn/pinpoint/profiler/util/jdk/**/*.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
