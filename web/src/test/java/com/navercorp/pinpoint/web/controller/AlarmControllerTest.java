@@ -38,7 +38,7 @@ public class AlarmControllerTest {
         List<AlarmEmp> emps = new LinkedList<AlarmEmp>();
         
         for (int i = 0; i < 3; i++) {
-            emps.add(new AlarmEmp(groupName, "con_emp" + i, "sms", "email"));
+            emps.add(new AlarmEmp(groupName, "con_emp" + i));
         }
         
         EmpGroup empgroup = new EmpGroup();
@@ -61,7 +61,7 @@ public class AlarmControllerTest {
         List<AlarmEmp> emps = new LinkedList<AlarmEmp>();
         
         for (int i = 0; i < 3; i++) {
-            emps.add(new AlarmEmp(groupName, "con_emp" + i, "sms", "email"));
+            emps.add(new AlarmEmp(groupName, "con_emp" + i));
         }
         
         EmpGroup empgroup = new EmpGroup();
@@ -73,12 +73,12 @@ public class AlarmControllerTest {
 
         List<AlarmEmp> updateEmps = new LinkedList<AlarmEmp>();
         for (int i = 0; i < 3; i++) {
-            AlarmEmp emp = new AlarmEmp(groupName, "con_emp_" + i, "sms", "email");
+            AlarmEmp emp = new AlarmEmp(groupName, "con_emp_" + i);
             emp.setId(emps.get(i).getId());
             updateEmps.add(emp);
         }
         
-        updateEmps.add(new AlarmEmp(groupName, "con_emp_" + 4, "sms", "email"));
+        updateEmps.add(new AlarmEmp(groupName, "con_emp_" + 4));
         empgroup.setEmps(updateEmps);
         controller.updateMember(empgroup);
         mv = controller.getMember(groupName);

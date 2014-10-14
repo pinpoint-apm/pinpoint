@@ -5,7 +5,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Employee Group</title>
+<title>User Group</title>
 
 <SCRIPT type="text/javascript">
 
@@ -18,9 +18,7 @@
 		var row = table.insertRow(table.rows.length-2);
 		row.insertCell(0).innerHTML = '<input name="choose" type="checkbox"/>';
 		row.insertCell(1).innerHTML = '<input type="hidden" name=emps[' + groupSize + '].id value="0"/><input name=emps[' + groupSize + '].groupName type="text"/>';
-		row.insertCell(2).innerHTML = '<input name=emps[' + groupSize + '].empName type="text" />';
-		row.insertCell(3).innerHTML = '<input name=emps[' + groupSize + '].sms type="text"/>';
-		row.insertCell(4).innerHTML = '<input name=emps[' + groupSize + '].email type="text" size="40"/>';
+		row.insertCell(2).innerHTML = '<input name=emps[' + groupSize + '].empId type="text" />';
 	}
 	
 	//delete input form when clicked delete button
@@ -57,7 +55,7 @@
 <body>
 <!-- 화면 이름 -->
 <center>
-	<h1>사원 그룹 설정</h1>
+	<h1>사용자 그룹 설정</h1>
 </center>
 
 <!-- 사원 그룹 검색 -->
@@ -79,7 +77,7 @@
 		<table id="empGroup" frame="void" border="1">
 			<!-- 사원 추가 -->
 			<tr bordercolor="white">
-					<td align="left" colspan="5">
+					<td align="left" colspan="3">
 						<button type="button" onclick='append_member_input()'>행추가</button>
 						<button type="button" onclick='remove_member_input()'>행삭제</button>
 					</td>
@@ -91,17 +89,13 @@
 			<tr>
 				<th>삭제</th>
 				<th>그룹 이름</th>
-				<th>사원 명</th>
-				<th>SMS</th>
-				<th>E-Mail</th>
+				<th>사용자 아이디</th>
 			</tr>
 			<c:forEach var="emp" items="${groupMember}" varStatus="empIndex">
 					<tr>
 						<td><input name="choose" type="checkbox"/></td>
 	 					<td><input type="hidden" name="emps[${empIndex.index}].id" value="${emp.id}"/><input type="text" name="emps[${empIndex.index}].groupName" value="${emp.groupName}"/></td>
-						<td><input type="text" name="emps[${empIndex.index}].empName" value="${emp.empName}"/></td>
-						<td><input type="text" name="emps[${empIndex.index}].sms" value="${emp.sms}"/></td>
-						<td><input type="text" name="emps[${empIndex.index}].email" size="40" value="${emp.email}"/></td>
+						<td><input type="text" name="emps[${empIndex.index}].empId" value="${emp.empId}"/></td>
 					</tr>
 			</c:forEach>
 			<!-- 사원 정보 등록 & 수정 -->
@@ -110,7 +104,7 @@
 			<tr bordercolor="white">
 			</tr>
 			<tr bordercolor="white">
-				<td align="right" colspan="5">
+				<td align="right" colspan="3">
 					<button onclick="document.pressed=this.value" value="insert">신규등록</button>
 					<button onclick="document.pressed=this.value" value="update">저장</button>
 					<button onclick="document.pressed=this.value" value="delete">그룹삭제</button>

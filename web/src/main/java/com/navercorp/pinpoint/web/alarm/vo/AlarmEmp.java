@@ -7,18 +7,14 @@ public class AlarmEmp {
     
     private String id = "0";
     private String groupName;
-    private String empName;
-    private String sms;
-    private String email;
+    private String empId;
     
     public AlarmEmp() {
     }
     
-    public AlarmEmp(String groupName, String empName, String sms, String email) {
+    public AlarmEmp(String groupName, String empId) {
         this.groupName = groupName;
-        this.empName = empName;
-        this.sms = sms;
-        this.email = email;
+        this.empId = empId;
     }
 
     public String getId() {
@@ -37,29 +33,14 @@ public class AlarmEmp {
         this.groupName = groupName;
     }
 
-    public String getEmpName() {
-        return empName;
+    public String getEmpId() {
+        return empId;
     }
 
-    public void setEmpName(String empName) {
-        this.empName = empName;
+    public void setEmpId(String empId) {
+        this.empId = empId;
     }
 
-    public String getSms() {
-        return sms;
-    }
-
-    public void setSms(String sms) {
-        this.sms = sms;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
     
 
 }

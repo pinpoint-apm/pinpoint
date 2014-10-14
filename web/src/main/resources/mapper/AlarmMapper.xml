@@ -181,14 +181,22 @@
 	
 	<select id="selectEmpGroupPhoneNumber" resultType="String" parameterType="String">
 		SELECT sms
-		FROM alarm_group
-		WHERE group_name = #{group_name}
+		FROM user
+		WHERE id IN (
+			SELECT emp_id
+			FROM alarm_group
+			WHERE group_name = #{group_name}
+		)
 	</select>
 	
 	<select id="selectEmpGroupEmail" resultType="String" parameterType="String">
 		SELECT email
-		FROM alarm_group
-		WHERE group_name = #{group_name}
+		FROM user
+		WHERE id IN (
+			SELECT emp_id
+			FROM alarm_group
+			WHERE group_name = #{group_name}
+		)
 	</select>
 	
 	<select id="selectAlarmGroupList" resultType="String" parameterType="String">
@@ -203,10 +211,10 @@
 	</select>
 	
 	<insert id="insertAlarmGroupMember" parameterType="java.util.List">
-        INSERT INTO alarm_group(group_name, emp_name, sms, email)
+        INSERT INTO alarm_group(group_name, emp_id)
         VALUES
 		<foreach collection="list" item="alarmEmp" separator=",">
-			(#{alarmEmp.groupName}, #{alarmEmp.empName}, #{alarmEmp.sms}, #{alarmEmp.email})
+			(#{alarmEmp.groupName}, #{alarmEmp.empId})
 		</foreach>
 	</insert>
 	

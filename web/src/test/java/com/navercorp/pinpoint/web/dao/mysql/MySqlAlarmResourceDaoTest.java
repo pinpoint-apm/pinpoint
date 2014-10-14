@@ -65,7 +65,7 @@ public class MySqlAlarmResourceDaoTest {
         final String empName = "empName";
         
         for (int i = 0; i < 3; i++) {
-            emps.add(new AlarmEmp(groupName, empName + i, "sms", "email"));    
+            emps.add(new AlarmEmp(groupName, empName + i));    
         }
 
         dao.insertEmpGroupMember(emps);
