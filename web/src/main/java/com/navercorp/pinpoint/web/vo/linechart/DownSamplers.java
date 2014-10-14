@@ -64,7 +64,7 @@ public class DownSamplers {
 			if (doubles == null || doubles.length == 0) {
 				return 0.0;
 			}
-			Double max = Double.MIN_VALUE;
+			Double max = -1 * Double.MAX_VALUE;
 			for (Double each : doubles) {
 				if (max < each) {
 					max = each;
