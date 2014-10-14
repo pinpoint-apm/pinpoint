@@ -84,6 +84,7 @@ public class AlarmWriter implements ItemWriter<AlarmChecker> {
         
         try { 
             for(String message : checker.getSmsMessage()) {
+                logger.info("send SMS : {}", message);
                 List<NameValuePair> nvps = new ArrayList<NameValuePair>();
                 nvps.add(new BasicNameValuePair("serviceId", SMS_SERVICE_ID));
                 nvps.add(new BasicNameValuePair("sendMdn", QUOTATATION + SENDER_NUMBER + QUOTATATION));
@@ -152,7 +153,9 @@ public class AlarmWriter implements ItemWriter<AlarmChecker> {
     private Object[] createSendMailParams(AlarmChecker checker) {
         AlarmMailTemplate mailTemplate = new AlarmMailTemplate(checker, pinpointUrl);
         List<String> receivers = dao.selectEmpGroupEmail(checker.getEmpGroup());
-        return new Object[] { EMAIL_SERVICE_ID, OPTION, SENDER_EMAIL_ADDRESS, "", joinAddresses(receivers), mailTemplate.createSubject(), mailTemplate.createBody()};
+        String subject = mailTemplate.createSubject();
+        logger.info("send email : {}", subject);
+        return new Object[] { EMAIL_SERVICE_ID, OPTION, SENDER_EMAIL_ADDRESS, "", joinAddresses(receivers), subject, mailTemplate.createBody()};
     }
 
     private String joinAddresses(List<String> addresses) {

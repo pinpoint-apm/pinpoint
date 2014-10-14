@@ -19,7 +19,6 @@ public abstract class AgentChecker extends AlarmChecker {
     
     @Override
     public void check() {
-        logger.debug("{} check.", this.getClass().getSimpleName());
         dataCollector.collect();
 
         Map<String, Long> agents = getAgentValues();
@@ -29,6 +28,8 @@ public abstract class AgentChecker extends AlarmChecker {
                 detected = true;
                 detectedAgents.put(agent.getKey(), agent.getValue());
             }
+            
+            logger.info("{} result is {} for agent({}). value is {}. (threshold : {}).", this.getClass().getSimpleName(), detected, agent.getKey(), agent.getValue(), rule.getThreshold());
         }
     }
     
