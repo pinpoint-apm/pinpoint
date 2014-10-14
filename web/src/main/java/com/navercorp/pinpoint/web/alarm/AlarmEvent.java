@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.web.alarm;
 
-import com.nhn.pinpoint.web.dao.MapStatisticsCallerDao;
 
 /**
  * 
@@ -8,10 +7,6 @@ import com.nhn.pinpoint.web.dao.MapStatisticsCallerDao;
  */
 public interface AlarmEvent {
 
-	// 머가 더 들어가야 할까
-	
-	long getEventStartTimeMillis();
-	
-	MapStatisticsCallerDao getMapStatisticsCallerDao();
-
+    // 머가 더 들어가야 할까
+    long getEventStartTimeMillis();
 }

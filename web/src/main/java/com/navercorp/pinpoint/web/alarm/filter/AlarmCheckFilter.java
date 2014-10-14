@@ -1,24 +1,87 @@
 package com.nhn.pinpoint.web.alarm.filter;
 
-import com.nhn.pinpoint.web.alarm.AlarmEvent;
-import com.nhn.pinpoint.web.alarm.vo.AlarmRuleResource;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.nhn.pinpoint.web.alarm.collector.DataCollector;
+import com.nhn.pinpoint.web.alarm.vo.Rule;
 
 /**
  * 
  * @author koo.taejin
  */
-public abstract class AlarmCheckFilter implements AlarmFilter {
-	
-	private AlarmRuleResource rule;
-	
-	abstract public boolean check(AlarmEvent event);
+public abstract class AlarmCheckFilter {
 
-	public void initialize(AlarmRuleResource rule) {
-		this.rule = rule;
-	}
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected final DataCollector dataCollector;
+    protected final Rule rule;
+    protected boolean detected = false;
+    protected final String unit;
+    
+    protected AlarmCheckFilter(Rule rule, String unit, DataCollector dataCollector) {
+        this.rule = rule;
+        this.unit = unit;
+        this.dataCollector = dataCollector;
+    }
+    
+    public boolean isDetected() {
+        return detected;
+        
+    }
+    
+    public Rule getRule() {
+        return rule;
+    }
+    
+    public boolean isSMSSend() {
+        return rule.isSmsSend();
+    }
+    
+    public boolean isEmailSend() {
+        return rule.isEmailSend();
+    }
+    
+    public String getEmpGroup() {
+        return rule.getEmpGroup();
+    }
+    
+    public String getUnit() {
+        return unit;
+    }
+    
+    protected boolean decideResult(long value) {
+        if (value >= rule.getThreshold()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-	public AlarmRuleResource getRule() {
-		return rule;
-	}
+    public void check() {
+        logger.debug("{} check.", this.getClass().getSimpleName());
+        dataCollector.collect();
+        
+        if (decideResult(getDetectedValue())) {
+            detected = true;
+        } else {
+            detected = false;
+        }
+    }
+    
+    public List<String> getSmsMessage() {
+        List<String> messages = new LinkedList<String>();
+        messages.add(String.format("[PINPOINT Alarm - %s] %s is %s%s (Threshold : %s%s)", rule.getApplicationId(), rule.getCheckerName(), getDetectedValue(), unit, rule.getThreshold(), unit));
+        return messages;
+    };
+    
+    public String getEmailMessage() {
+        return String.format("%s value is %s%s during the past 5 mins.(Threshold : %s%s)<br>", rule.getCheckerName(), getDetectedValue(), unit, rule.getThreshold(), unit);
+    };
+    
+    protected abstract long getDetectedValue();
 
+    
 }

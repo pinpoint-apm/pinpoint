@@ -49,7 +49,8 @@ public class AlarmMailSendFilter extends AlarmSendFilter {
 		try {
 			connector = factory.create();
 			
-			AlarmMailTemplate mailTemplate = new AlarmMailTemplate(application, mailResource, event);
+//			AlarmMailTemplate mailTemplate = new AlarmMailTemplate(application, mailResource, event);
+			AlarmMailTemplate mailTemplate = new AlarmMailTemplate(null, null);
 			
 			Object[] params = createSendMailParams(alarmCheckFilterList, mailTemplate);
 
@@ -87,7 +88,7 @@ public class AlarmMailSendFilter extends AlarmSendFilter {
 				"", 									/* 답장 받을 주소 */
 				joinAddresses(receiverList), 			/* 받는이 */
 				mailTemplate.createSubject(), 
-				mailTemplate.createBody(alarmCheckFilterList)
+				mailTemplate.createBody()
 				};
 	}
 

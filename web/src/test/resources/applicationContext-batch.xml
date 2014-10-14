@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:batch="http://www.springframework.org/schema/batch"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+
+    <job id="alarmJob" xmlns="http://www.springframework.org/schema/batch" >
+        <step id="alarmPartitionStep">
+            <partition step="alarmStep" partitioner="alarmPartitioner">
+                <handler task-executor="poolTaskExecutorForPartition" />
+            </partition>
+        </step>
+    </job>
+
+    <step id="alarmStep" xmlns="http://www.springframework.org/schema/batch">
+        <tasklet>
+            <chunk reader="reader" processor="processor" writer="writer" commit-interval="1"/>
+        </tasklet>
+    </step>
+    
+    <bean id="alarmPartitioner" class="com.nhn.pinpoint.web.alarm.AlarmPartitioner" scope="step"/>
+    <bean id="reader" class="com.nhn.pinpoint.web.alarm.AlarmReader" scope="step"/>
+    <bean id="processor" class="com.nhn.pinpoint.web.alarm.AlarmProcessor" scope="step"/>
+    <bean id="writer" class="com.nhn.pinpoint.web.alarm.AlarmWriter" scope="step"/>
+
+    <bean id="jobLauncher"
+        class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+        <property name="jobRepository" ref="jobRepository" />
+    </bean>
+ 
+ 	<batch:job-repository id="jobRepository" data-source="dataSource"/>
+    
+    <task:executor id="poolTaskExecutorForPartition" pool-size="1" />
+    
+     <!--
+    <bean id="jobRepository" class="org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean">
+       <property name="transactionManager" ref="resourcelessTransactionManager"/>
+    </bean>
+
+    <bean id="resourcelessTransactionManager" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager"/>
+    -->
+</beans>

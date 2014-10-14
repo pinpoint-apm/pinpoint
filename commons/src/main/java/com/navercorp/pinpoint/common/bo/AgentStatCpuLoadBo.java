@@ -12,8 +12,8 @@ public class AgentStatCpuLoadBo {
 	private final String agentId;
 	private final long startTimestamp;
 	private final long timestamp;
-	private final double jvmCpuLoad;
-	private final double systemCpuLoad;
+	private final double jvmCpuLoad; // 범위는 1 >= X >=0 ex) 25% 라면 0.25로 저장됨
+	private final double systemCpuLoad; // 범위는 1 >= X >=0 ex) 25% 라면 0.25로 저장됨
 
 	private AgentStatCpuLoadBo(Builder builder) {
 		this.agentId = builder.agentId;

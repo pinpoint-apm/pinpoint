@@ -26,14 +26,20 @@ public class FailureRatesFilter extends AlarmCheckRatesFilter {
 	private final Application application;
 
 	public FailureRatesFilter(Application application) {
+		super(null, null);
 		this.application = application;
 	}
 	
-	@Override
+	public void check() {
+	}
+	
+//	@Override
 	public boolean check(AlarmEvent event) {
 		logger.debug("{} check.", this.getClass().getSimpleName());
 		
-		MapStatisticsCallerDao dao = event.getMapStatisticsCallerDao();
+//		MapStatisticsCallerDao dao = event.getMapStatisticsCallerDao();
+		MapStatisticsCallerDao dao = null;
+		
 		if (dao == null) {
 			logger.warn("{} object is null.", MapStatisticsCallerDao.class.getSimpleName());
 			return false;
@@ -44,7 +50,8 @@ public class FailureRatesFilter extends AlarmCheckRatesFilter {
 		// 이것도 CheckTImeMillis의 시간이 길면 나누어야 함
 		// 추가적으로 시간이 범위에 있는 만큼 다 안들어 오면 ??
 		// 일단은 아주 단순하게
-		int continuationTime = getRule().getContinuosTime();
+//		int continuationTime = getRule().getContinuosTime();
+		int continuationTime = 300000;
 		Range range = Range.createUncheckedRange(startEventTimeMillis - continuationTime, startEventTimeMillis);
 
 		LinkDataMap linkDataMap = dao.selectCaller(application, range);
@@ -84,5 +91,11 @@ public class FailureRatesFilter extends AlarmCheckRatesFilter {
 		logger.info("{} -> {} {}/{}(slow={}, error={})", application.getName(), toApplication.getName(), successCount, totalCount, slowCount, errorCount);
 
 		return check(errorCount, totalCount);
+	}
+
+	@Override
+	protected long getDetectedValue() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

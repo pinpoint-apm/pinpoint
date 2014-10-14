@@ -8,7 +8,6 @@
        xmlns:hdp="http://www.springframework.org/schema/hadoop"
        xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
 		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
-
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
@@ -78,8 +77,4 @@
     	<constructor-arg ref="config" />
     </bean>
 
-	<!--
-    <bean id="mailResource" class="com.nhn.pinpoint.web.alarm.resource.MailResourceImpl" />
-    <bean id="smsResource" class="com.nhn.pinpoint.web.alarm.resource.SmsResourceImpl" />
-	-->   
 </beans>

@@ -150,7 +150,7 @@ public class DefaultAlarmScheduler implements AlarmScheduler {
 		}
 		List<AlarmRuleResource> alarmRuleList = ruleGroup.getAlarmRuleList();
 		List<AlarmCheckFilter> alarmCheckFilterList = createAlarmCheckFilter(application, alarmRuleList);
-		alarmJob.addFilter(alarmCheckFilterList);
+//		alarmJob.addFilter(alarmCheckFilterList);
 		if (CollectionUtils.isEmpty(alarmCheckFilterList)) {
 			logger.warn("Application={}, Rule={} can't find valid rule resource.", applicationName, alarmName);
 			return null;
@@ -209,9 +209,8 @@ public class DefaultAlarmScheduler implements AlarmScheduler {
 	}
 
 	private AlarmEvent createAlarmEvent() {
-		DefaultAlarmEvent event = new DefaultAlarmEvent(System.currentTimeMillis());
-		event.setMapStatisticsCallerDao(mapStatisticsCallerDao);
-		
+//		DefaultAlarmEvent event = new DefaultAlarmEvent(System.currentTimeMillis(), mapStatisticsCallerDao);
+		DefaultAlarmEvent event = null;
 		return event;
 	}
 	

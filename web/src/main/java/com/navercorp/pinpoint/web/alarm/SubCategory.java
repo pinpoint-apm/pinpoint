@@ -30,7 +30,7 @@ public enum SubCategory {
 			}
 
 			if (filter != null) {
-				filter.initialize(rule);
+//				filter.initialize(rule);
 			}
 			
 			return filter;
@@ -45,7 +45,7 @@ public enum SubCategory {
 			}
 
 			if (filter != null) {
-				filter.initialize(rule);
+//				filter.initialize(rule);
 			}
 
 			return filter;
@@ -56,11 +56,11 @@ public enum SubCategory {
 		public AlarmCheckFilter createAlarmFilter(Application application, MainCategory parent, AlarmRuleResource rule) {
 			AlarmCheckFilter filter = null;
 			if (MainCategory.REQUEST_SENDED == parent) {
-				filter = new SlowRatesFilter(application);
+//				filter = new SlowRatesFilter(application);
 			}
 
 			if (filter != null) {
-				filter.initialize(rule);
+//				filter.initialize(rule);
 			}
 
 			return filter;
@@ -71,11 +71,11 @@ public enum SubCategory {
 		public AlarmCheckFilter createAlarmFilter(Application application, MainCategory parent, AlarmRuleResource rule) {
 			AlarmCheckFilter filter = null;
 			if (MainCategory.REQUEST_SENDED == parent) {
-				filter = new SlowCountFilter(application);
+//				filter = new SlowCountFilter(null, 0, false, false);
 			}
 
 			if (filter != null) {
-				filter.initialize(rule);
+//				filter.initialize(rule);
 			}
 
 			return filter;
@@ -118,7 +118,8 @@ public enum SubCategory {
 	AlarmFilter createAlarmFilter(Application application, AlarmRuleResource rule) throws Exception {
 		List<MainCategory> parentSupportCategoryList = getParentSupportCategoryList();
 		if (parentSupportCategoryList.size() == 1) {
-			return createAlarmFilter(application, parentSupportCategoryList.get(0), rule);
+//			return createAlarmFilter(application, parentSupportCategoryList.get(0), rule);
+		    return null;
 		} else {
 			throw new Exception("Ambiguous ParentCategory Exception");
 		}
