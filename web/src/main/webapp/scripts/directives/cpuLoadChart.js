@@ -49,8 +49,7 @@ angular.module('pinpointApp')
                                 "autoMargins": true,
                                 "align" : "right",
                                 "position": "top",
-                                "valueWidth": 60,
-                                "valueText" : "[[value]]%"
+                                "valueWidth": 60
                             },
                             "usePrefixes": true,
                             "dataProvider": chartData,
@@ -68,29 +67,32 @@ angular.module('pinpointApp')
                             "graphs": [
                                 {
                                     "valueAxis": "v1",
-                                    "balloonText": "[[value]]%",
+                                    "balloonText": "[[jvmCpuLoadValueText]]",
+                                    "legendValueText": "[[jvmCpuLoadValueText]]",
                                     "lineColor": "rgb(31, 119, 180)",
                                     "fillColor": "rgb(31, 119, 180)",
                                     "title": "JVM",
-                                    "valueField": "jvmCpuLoad",
+                                    "valueField": "jvmCpuLoadValue",
                                     "fillAlphas": 0.4
                                 },
                                 {
                                     "valueAxis": "v1",
-                                    "balloonText": "[[value]]%",
+                                    "balloonText": "[[systemCpuLoadValueText]]",
+                                    "legendValueText": "[[systemCpuLoadValueText]]",
                                     "lineColor": "rgb(174, 199, 232)",
                                     "fillColor": "rgb(174, 199, 232)",
                                     "title": "System",
-                                    "valueField": "systemCpuLoad",
+                                    "valueField": "systemCpuLoadValue",
                                     "fillAlphas": 0.4
                                 },
                                 {
                                     "valueAxis": "v1",
-                                    "balloonText": "[[value]]%",
+                                    "showBalloon": false,
                                     "lineColor": "#FF6600",
                                     "title": "Max",
                                     "valueField": "maxCpuLoad",
-                                    "fillAlphas": 0
+                                    "fillAlphas": 0,
+                                    "visibleInLegend": false
                                 }
                             ],
                             "chartCursor": {

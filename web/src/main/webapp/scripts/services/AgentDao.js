@@ -93,20 +93,53 @@ pinpointApp.service('AgentDao', [ 'agentDaoConfig',
         };
 
         /**
-         * parse cpudLoad chart data for amcharts
+         * parse cpuLoad chart data for amcharts
          * @param cpuLoad
          * @param agentStat
          * @returns {Array}
          */
         this.parseCpuLoadChartDataForAmcharts = function (cpuLoad, agentStat) {
+        	// Cpu Load data availability check
+        	var jvmCpuLoadData = agentStat.charts['jvmCpuLoad'];
+        	var systemCpuLoadData = agentStat.charts['systemCpuLoad'];
+        	if (jvmCpuLoadData || systemCpuLoadData) {
+        		cpuLoad.isAvailable = true;
+        	} else {
+        		return;
+        	}
             var newData = [],
             TIME_STAMP_INDEX = 0, MIN_POINT_INDEX = 1, MAX_POINT_INDEX = 2, AVG_POINT_INDEX = 3,
-            pointsJvmCpuLoad = agentStat.charts['jvmCpuLoad'].points,
-            pointsSystemCpuLoad = agentStat.charts['systemCpuLoad'].points;
+            DATA_UNAVAILABLE = -1,
+            pointsJvmCpuLoad = jvmCpuLoadData.points,
+            pointsSystemCpuLoad = systemCpuLoadData.points;
 
 	        if (pointsJvmCpuLoad.length !== pointsSystemCpuLoad.length) {
 	            throw new Error('assertion error', 'jvmCpuLoad.length != systemCpuLoad.length');
 	            return;
+	        }
+	        
+	        /**
+	         * Returns 0 if cpu load data is unavailable.
+	         * @param cpuLoad
+	         * @returns 0 for unavailable cpu load data, cpuLoad otherwise.
+	         */
+	        var processCpuLoadValue = function(cpuLoad) {
+	        	if (cpuLoad < 0) {
+	        		return 0;
+	        	}
+	        	return cpuLoad;
+	        }
+	        
+	        /**
+	         * Returns 'N/A' for unavailable cpu load data (negative value). Otherwise, round cpuLoad to 2 decimal places and return.
+	         * @param cpuLoad
+	         * @returns 'N/A' for unavailable cpu load data, positive double to 2 decimal places otherwise.
+	         */
+	        var processCpuLoadValueText = function(cpuLoad) {
+	        	if (cpuLoad < 0) {
+	        		return "N/A";
+	        	}
+	        	return cpuLoad+"%";
 	        }
 	
 	        for (var i = pointsJvmCpuLoad.length - 1; i >= 0; --i) {
@@ -116,19 +149,25 @@ pinpointApp.service('AgentDao', [ 'agentDaoConfig',
 	        	}
 	            var thisData = {
 	                time: new Date(pointsJvmCpuLoad[i][TIME_STAMP_INDEX]).toString('yyyy-MM-dd HH:mm'),
-	                jvmCpuLoad: 0,
-	                systemCpuLoad: 0,
+	                jvmCpuLoadValue: -1 * Number.MIN_VALUE,
+	                jvmCpuLoadValueText: "",
+	                systemCpuLoadValue: -1 * Number.MIN_VALUE,
+	                systemCpuLoadValueText: "",
 	                maxCpuLoad: 100
 	            };
-	            for (var k in cpuLoad.line) {
-	                thisData[cpuLoad.line[k].key] = agentStat.charts[cpuLoad.line[k].id].points[i][MAX_POINT_INDEX].toFixed(2);
-	            }
+	            var jvmCpuLoad = agentStat.charts['jvmCpuLoad'].points[i][AVG_POINT_INDEX].toFixed(2);
+	            var systemCpuLoad = agentStat.charts['systemCpuLoad'].points[i][AVG_POINT_INDEX].toFixed(2);
+            	thisData.jvmCpuLoadValue = processCpuLoadValue(jvmCpuLoad);
+            	thisData.jvmCpuLoadValueText = processCpuLoadValueText(jvmCpuLoad);
+            	thisData.systemCpuLoadValue = processCpuLoadValue(systemCpuLoad);
+            	thisData.systemCpuLoadValueText = processCpuLoadValueText(systemCpuLoad);
 	
 	            newData.push(thisData);
 	        }
 
 	        return newData;
         };
-
     }
+
+	
 ]);

@@ -122,7 +122,7 @@ angular.module('pinpointApp')
                             oChart = AmCharts.makeChart(sId, options);
                             oChart.chartCursor.addListener('changed', function (event) {
                                 scope.$emit('jvmMemoryChart.cursorChanged.' + scope.namespace, event);
-                                scope.$emit('cpuLoadChart.cursorChanged.' + scope.namespace, event);
+                                scope.$emit('cpuLoadChart.cursorChanged', event);
                             });
                             oChart.chartCursor.addListener('moved', function (type, x, y, zooming, chart) {
 //                                console.log('moved', type, x, y, zooming, chart);

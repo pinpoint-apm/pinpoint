@@ -16,7 +16,7 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                 var oNavbarVo, oAlert, oProgressBar;
 
                 // define private variables of methods
-                var getAgentStat, showCharts, parseMemoryChartDataForAmcharts, parseCpuLoadChartDataForAmcharts;
+                var getAgentStat, showCharts, parseMemoryChartDataForAmcharts, parseCpuLoadChartDataForAmcharts, broadcastToCpuLoadChart;
 
                 // initialize
                 scope.agentInfoTemplate = 'views/agentInfoReady.html';
@@ -72,19 +72,16 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                         { id: 'fgc', key: 'FGC', values: [], bar: true, isFgc: true }
                     ]};
                     
-                    var cpuLoad = { id: 'cpuLoad', title: 'CpuLoad', span: 'span12', line: [
-                        { id: 'jvmCpuLoad', key: 'jvmCpuLoad', values: []},
-                        { id: 'systemCpuLoad', key: 'systemCpuLoad', values: []}
-                    ]};
+                    var cpuLoad = { id: 'cpuLoad', title: 'CpuLoad', span: 'span12', isAvailable: false};
 
                     scope.memoryGroup = [ heap, nonheap ];
-                    scope.cpuLoadGroup = [ cpuLoad ];
+                    scope.cpuLoadChart = cpuLoad;
 
                     scope.$broadcast('jvmMemoryChart.initAndRenderWithData.forHeap', AgentDao.parseMemoryChartDataForAmcharts(heap, agentStat), '100%', '275px');
                     scope.$broadcast('jvmMemoryChart.initAndRenderWithData.forNonHeap', AgentDao.parseMemoryChartDataForAmcharts(nonheap, agentStat), '100%', '275px');
                     scope.$broadcast('cpuLoadChart.initAndRenderWithData.forCpuLoad', AgentDao.parseCpuLoadChartDataForAmcharts(cpuLoad, agentStat), '100%', '275px');
                 };
-
+                
                 /**
                  * get agent stat
                  * @param agentId
@@ -122,13 +119,19 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                         scope.$digest();
                     });
                 };
+                
+                broadcastToCpuLoadChart = function(e, event) {
+                	if (scope.cpuLoadChart.isAvailable) {
+                        scope.$broadcast('cpuLoadChart.showCursorAt.forCpuLoad', event.index);
+                	}
+                }
 
                 /**
                  * scope event on jvmMemoryChart.cursorChanged.forHeap
                  */
                 scope.$on('jvmMemoryChart.cursorChanged.forHeap', function (e, event) {
                     scope.$broadcast('jvmMemoryChart.showCursorAt.forNonHeap', event.index);
-                    scope.$broadcast('cpuLoadChart.showCursorAt.forCpuLoad', event.index);
+                    broadcastToCpuLoadChart(e, event);
                 });
 
                 /**
@@ -136,7 +139,7 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                  */
                 scope.$on('jvmMemoryChart.cursorChanged.forNonHeap', function (e, event) {
                     scope.$broadcast('jvmMemoryChart.showCursorAt.forHeap', event.index);
-                    scope.$broadcast('cpuLoadChart.showCursorAt.forCpuLoad', event.index);
+                    broadcastToCpuLoadChart(e, event);
                 });
 
                 /**
@@ -146,6 +149,7 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                     scope.$broadcast('jvmMemoryChart.showCursorAt.forHeap', event.index);
                     scope.$broadcast('jvmMemoryChart.showCursorAt.forNonHeap', event.index);
                 });
+                
             }
         };
     }]);
