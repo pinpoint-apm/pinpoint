@@ -6,7 +6,6 @@ import org.junit.Test;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import static org.junit.Assert.*;
 
 public class DefaultClassFileFilterTest {
 

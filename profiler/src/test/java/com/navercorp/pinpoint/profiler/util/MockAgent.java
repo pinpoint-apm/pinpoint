@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.profiler.util;
 
 import java.lang.instrument.Instrumentation;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.thrift.TBase;

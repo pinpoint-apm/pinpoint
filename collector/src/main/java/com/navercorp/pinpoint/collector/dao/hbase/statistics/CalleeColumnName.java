@@ -2,7 +2,6 @@ package com.nhn.pinpoint.collector.dao.hbase.statistics;
 
 import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
 import com.nhn.pinpoint.common.buffer.Buffer;
-import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
 
 /**
  * @author emeroad

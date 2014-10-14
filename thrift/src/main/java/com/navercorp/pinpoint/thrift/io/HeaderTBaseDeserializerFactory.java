@@ -1,7 +1,5 @@
 package com.nhn.pinpoint.thrift.io;
 
-import java.io.ByteArrayOutputStream;
-
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 

@@ -1,10 +1,6 @@
 package com.nhn.pinpoint.collector.dao.hbase.statistics;
 
-import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
-import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
-import com.nhn.pinpoint.common.util.TimeUtils;
-import org.apache.thrift.transport.TFileTransport;
 
 /**
  * @author emeroad

@@ -5,12 +5,10 @@ import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.context.TraceId;
 import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.common.AnnotationKey;
-import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.util.DefaultParsingResult;
 import com.nhn.pinpoint.common.util.ParsingResult;
 import com.nhn.pinpoint.exception.PinpointException;
-import com.nhn.pinpoint.profiler.monitor.metric.Histogram;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -7,7 +7,6 @@ import org.junit.Test;
 import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
 import com.nhn.pinpoint.common.buffer.Buffer;
 import com.nhn.pinpoint.common.buffer.OffsetFixedBuffer;
-import com.nhn.pinpoint.common.util.BytesUtils;
 
 /**
  * 

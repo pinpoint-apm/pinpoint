@@ -1,8 +1,5 @@
 package com.nhn.pinpoint.profiler.interceptor.bci.mock;
 
-import com.nhn.pinpoint.profiler.interceptor.aspect.PointCut;
-
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 

@@ -2,7 +2,6 @@ package com.nhn.pinpoint.web.applicationmap.rawdata;
 
 
 import com.nhn.pinpoint.web.vo.Application;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

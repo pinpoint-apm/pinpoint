@@ -3,8 +3,6 @@ package com.nhn.pinpoint.common.util;
 import junit.framework.Assert;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 public class RpcCodeRangeTest {
 
     @Test

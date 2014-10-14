@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.profiler.interceptor.bci;
 
-import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
 import javassist.*;
 import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;

@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.profiler.util;
 
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *

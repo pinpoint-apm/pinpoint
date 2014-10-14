@@ -5,7 +5,6 @@ import com.nhn.pinpoint.profiler.interceptor.aspect.Aspect;
 import com.nhn.pinpoint.profiler.interceptor.aspect.JointPoint;
 import com.nhn.pinpoint.profiler.interceptor.aspect.PointCut;
 
-import java.util.Collections;
 import java.util.Map;
 
 /**

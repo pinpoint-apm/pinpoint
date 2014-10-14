@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.web.mapper;
 
-import com.nhn.pinpoint.common.bo.SqlMetaDataBo;
 import com.nhn.pinpoint.common.bo.StringMetaDataBo;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.KeyValue;

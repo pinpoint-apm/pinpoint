@@ -8,12 +8,10 @@ import com.nhn.pinpoint.common.util.DefaultTimeSlot;
 import com.nhn.pinpoint.common.util.TimeSlot;
 import com.nhn.pinpoint.common.util.TimeUtils;
 import junit.framework.Assert;
-import org.apache.hadoop.hbase.client.HTable;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.*;
 
 public class HbaseHostApplicationMapDaoTest {
 

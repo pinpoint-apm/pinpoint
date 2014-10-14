@@ -2,7 +2,6 @@ package com.nhn.pinpoint.profiler.context;
 
 import com.nhn.pinpoint.bootstrap.context.Trace;
 import com.nhn.pinpoint.bootstrap.context.TraceId;
-import com.nhn.pinpoint.bootstrap.sampler.Sampler;
 
 /**
  * @author emeroad

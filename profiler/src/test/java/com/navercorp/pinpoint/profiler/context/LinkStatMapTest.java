@@ -1,8 +1,6 @@
 package com.nhn.pinpoint.profiler.context;
 
-import junit.framework.Assert;
 import org.junit.Test;
-import java.util.List;
 
 /**
  * @author emeroad
