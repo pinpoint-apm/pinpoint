@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 
 /**
@@ -22,11 +23,11 @@ public class HttpClient4Controller {
     @Description("에러시 cookie덤프")
     @RequestMapping(value = "/httpclient4/cookie")
     @ResponseBody
-    public String cookie(@RequestHeader(value = "Cookie", required = false) String cookie) {
+    public String cookie(@RequestHeader(value = "Cookie", required = false) String cookie, HttpServletRequest request) {
         logger.info("Cookie:{}", cookie);
 
         ApacheHttpClient4 client = new ApacheHttpClient4(new HttpConnectorOptions());
-        client.execute("http://localhost:" + 9999 + "/combination.pinpoint", new HashMap<String, Object>(), cookie);
+        client.execute("http://localhost:" + request.getLocalPort() + "/combination.pinpoint", new HashMap<String, Object>(), cookie);
 
         return "OK";
     }
@@ -34,7 +35,7 @@ public class HttpClient4Controller {
     @Description("에러시 post덤프")
     @RequestMapping(value = "/httpclient4/post")
     @ResponseBody
-    public String post() {
+    public String post(HttpServletRequest request) {
         logger.info("Post");
         // String[] ports = new String[] { "9080", "10080", "11080" };
         // Random random = new Random();
@@ -44,7 +45,7 @@ public class HttpClient4Controller {
         HashMap<String, Object> post = new HashMap<String, Object>();
         post.put("test", "1");
         post.put("test2", "2");
-        client.execute("http://localhost:" + 9999 + "/combination.pinpoint", post);
+        client.execute("http://localhost:" + request.getLocalPort() + "/combination.pinpoint", post);
 
         return "OK";
     }
