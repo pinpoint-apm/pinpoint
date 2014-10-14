@@ -113,7 +113,7 @@ public class ApacheHttpClient4 {
 
 			return Integer.parseInt(responseBody);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.warn("HttpClient.execute() error. Caused:{}", e.getMessage(), e);
 			return 0;
 		} finally {
 			if (null != httpClient && null != httpClient.getConnectionManager()) {
