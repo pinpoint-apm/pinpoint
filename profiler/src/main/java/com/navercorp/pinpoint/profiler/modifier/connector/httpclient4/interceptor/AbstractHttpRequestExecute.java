@@ -68,7 +68,7 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
                 logger.debug("set Sampling flag=false");
             }
             if (httpRequest != null) {
-                httpRequest.addHeader(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
+                httpRequest.setHeader(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
             }
             return;
         }
@@ -81,14 +81,14 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
         trace.recordServiceType(ServiceType.HTTP_CLIENT);
 
         if (httpRequest != null) {
-            httpRequest.addHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
-            httpRequest.addHeader(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
+            httpRequest.setHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
+            httpRequest.setHeader(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
 
-            httpRequest.addHeader(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
+            httpRequest.setHeader(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
 
-            httpRequest.addHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
-            httpRequest.addHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
-            httpRequest.addHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
+            httpRequest.setHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
+            httpRequest.setHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
+            httpRequest.setHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
         }
     }
 
