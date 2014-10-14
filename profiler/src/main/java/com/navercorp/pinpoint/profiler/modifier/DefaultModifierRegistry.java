@@ -10,8 +10,6 @@ import com.nhn.pinpoint.profiler.modifier.arcus.ArcusClientModifier;
 import com.nhn.pinpoint.profiler.modifier.arcus.BaseOperationModifier;
 import com.nhn.pinpoint.profiler.modifier.arcus.CacheManagerModifier;
 import com.nhn.pinpoint.profiler.modifier.arcus.CollectionFutureModifier;
-import com.nhn.pinpoint.profiler.modifier.arcus.FrontCacheGetFutureModifier;
-import com.nhn.pinpoint.profiler.modifier.arcus.FrontCacheMemcachedClientModifier;
 import com.nhn.pinpoint.profiler.modifier.arcus.GetFutureModifier;
 import com.nhn.pinpoint.profiler.modifier.arcus.ImmediateFutureModifier;
 import com.nhn.pinpoint.profiler.modifier.arcus.MemcachedClientModifier;

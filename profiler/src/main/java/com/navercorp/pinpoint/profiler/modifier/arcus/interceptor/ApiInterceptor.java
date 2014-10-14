@@ -7,11 +7,9 @@ import java.util.concurrent.Future;
 import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
 import com.nhn.pinpoint.bootstrap.interceptor.*;
 import net.spy.memcached.MemcachedNode;
-import net.spy.memcached.internal.OperationFuture;
 import net.spy.memcached.ops.Operation;
 
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.bootstrap.context.Trace;
 import com.nhn.pinpoint.bootstrap.util.MetaObject;
 
 /**

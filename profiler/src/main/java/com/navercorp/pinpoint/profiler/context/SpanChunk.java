@@ -1,15 +1,9 @@
 package com.nhn.pinpoint.profiler.context;
 
-import java.util.ArrayList;
+
 import java.util.List;
 
-import com.nhn.pinpoint.profiler.AgentInformation;
-import com.nhn.pinpoint.thrift.dto.TAnnotation;
 import com.nhn.pinpoint.thrift.dto.TSpanChunk;
-import com.nhn.pinpoint.thrift.dto.TSpanEvent;
-import org.apache.thrift.TBase;
-
-import com.nhn.pinpoint.profiler.DefaultAgent;
 
 /**
  * @author emeroad

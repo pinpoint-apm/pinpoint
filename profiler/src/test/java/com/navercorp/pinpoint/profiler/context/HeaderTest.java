@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.profiler.context;
 
 import com.nhn.pinpoint.bootstrap.context.Header;
-import com.nhn.pinpoint.profiler.interceptor.aspect.PointCut;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

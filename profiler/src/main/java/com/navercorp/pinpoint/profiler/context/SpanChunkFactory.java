@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.profiler.context;
 
 import com.nhn.pinpoint.profiler.AgentInformation;
-import com.nhn.pinpoint.thrift.dto.TSpanEvent;
 
 import java.util.List;
 

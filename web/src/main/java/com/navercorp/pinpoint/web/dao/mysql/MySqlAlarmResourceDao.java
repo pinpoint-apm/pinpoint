@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.web.dao.mysql;
 
-import java.util.Date;
 import java.util.List;
 
 import org.mybatis.spring.SqlSessionTemplate;

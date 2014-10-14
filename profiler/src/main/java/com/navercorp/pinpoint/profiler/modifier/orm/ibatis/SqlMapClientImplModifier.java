@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.profiler.modifier.orm.ibatis;
 
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.bootstrap.Agent;

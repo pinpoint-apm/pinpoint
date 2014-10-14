@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.web.filter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.Assert;

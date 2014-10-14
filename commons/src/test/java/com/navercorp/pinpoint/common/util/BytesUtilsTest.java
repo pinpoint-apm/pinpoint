@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.common.util;
 
 import java.util.Arrays;
-import java.util.UUID;
 
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.thrift.TException;

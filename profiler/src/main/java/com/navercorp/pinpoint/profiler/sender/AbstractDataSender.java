@@ -7,7 +7,6 @@ import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.rpc.Future;
 import com.nhn.pinpoint.rpc.FutureListener;
 import com.nhn.pinpoint.rpc.ResponseMessage;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;

@@ -1,10 +1,7 @@
 package com.nhn.pinpoint.common.util;
 
-import com.nhn.pinpoint.common.AnnotationKey;
-import com.nhn.pinpoint.thrift.dto.TAnnotation;
 import com.nhn.pinpoint.thrift.dto.TSpanEvent;
 
-import java.util.List;
 
 /**
  * @author emeroad

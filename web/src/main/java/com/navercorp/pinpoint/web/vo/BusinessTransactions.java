@@ -2,9 +2,7 @@ package com.nhn.pinpoint.web.vo;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import com.nhn.pinpoint.common.bo.SpanBo;
 

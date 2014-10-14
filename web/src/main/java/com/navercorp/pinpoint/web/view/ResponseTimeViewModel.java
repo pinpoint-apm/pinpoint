@@ -3,7 +3,6 @@ package com.nhn.pinpoint.web.view;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import java.io.IOException;
 import java.util.List;
 
 /**

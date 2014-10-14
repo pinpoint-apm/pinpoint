@@ -1,9 +1,7 @@
 package com.nhn.pinpoint.testweb;
 
 import oracle.jdbc.driver.OracleDriver;
-import org.junit.Test;
 
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 

@@ -1,7 +1,5 @@
 package com.nhn.pinpoint.profiler.util;
 
-import java.net.InetAddress;
-
 /**
  *
  */

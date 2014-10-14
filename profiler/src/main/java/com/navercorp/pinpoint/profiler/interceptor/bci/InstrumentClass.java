@@ -2,7 +2,6 @@ package com.nhn.pinpoint.profiler.interceptor.bci;
 
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
-import com.nhn.pinpoint.profiler.util.DepthScope;
 import com.nhn.pinpoint.profiler.util.Scope;
 
 import java.util.List;
