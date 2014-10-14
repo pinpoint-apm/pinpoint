@@ -44,7 +44,7 @@ public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCo
         // UUID format을 그대로.
         final boolean sampling = trace.canSampled();
         if (!sampling) {
-            request.addRequestProperty(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
+            request.setRequestProperty(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
             return;
         }
 

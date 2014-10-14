@@ -1,10 +1,7 @@
 package com.nhn.pinpoint.profiler.modifier.connector.asynchttpclient.interceptor;
 
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.ServiceType;
@@ -100,13 +97,19 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 
 		if (httpRequest != null) {
             final FluentCaseInsensitiveStringsMap httpRequestHeaders = httpRequest.getHeaders();
-			httpRequestHeaders.add(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
-			httpRequestHeaders.add(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
-			httpRequestHeaders.add(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
-			httpRequestHeaders.add(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
-			httpRequestHeaders.add(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
-			httpRequestHeaders.add(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
+			putHeader(httpRequestHeaders, Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
+			putHeader(httpRequestHeaders, Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
+			putHeader(httpRequestHeaders, Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
+			putHeader(httpRequestHeaders, Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
+			putHeader(httpRequestHeaders, Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
+			putHeader(httpRequestHeaders, Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
 		}
+	}
+
+	private void putHeader(FluentCaseInsensitiveStringsMap httpRequestHeaders, String key, String value) {
+		final List<String> valueList = new ArrayList<String>();
+		valueList.add(value);
+		httpRequestHeaders.put(key, valueList);
 	}
 
 	@Override
