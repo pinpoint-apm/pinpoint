@@ -48,7 +48,7 @@ public enum CheckerCategory {
         }
     },
     
-    RESPONSE_COUNT("RESPONSE_RATE", DataCollectorCategory.RESPONSE_TIME) {
+    RESPONSE_COUNT("RESPONSE_COUNT", DataCollectorCategory.RESPONSE_TIME) {
         @Override
         public AlarmCheckFilter createChecker(DataCollector dataCollector, Rule rule) {
             return new ResponseCountChecker((ResponseTimeDataCollector)dataCollector, rule);

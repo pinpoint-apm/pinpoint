@@ -77,8 +77,4 @@
     	<constructor-arg ref="config" />
     </bean>
 
-	<!--
-    <bean id="mailResource" class="com.nhn.pinpoint.web.alarm.resource.MailResourceImpl" />
-    <bean id="smsResource" class="com.nhn.pinpoint.web.alarm.resource.SmsResourceImpl" />
-	-->   
 </beans>

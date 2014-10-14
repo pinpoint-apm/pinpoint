@@ -41,7 +41,7 @@ public abstract class AgentChecker extends AlarmCheckFilter {
         List<String> messages = new LinkedList<String>();
         
         for (Entry<String, Long> detected : detectedAgents.entrySet()) {
-            messages.add(String.format("[PINPOINT Alarm - %s] %s is %s (Threshold : %s%s)", detected.getKey(), rule.getCheckerName(), detected.getValue(), rule.getThreshold(), unit));
+            messages.add(String.format("[PINPOINT Alarm - %s] %s is %s%s (Threshold : %s%s)", detected.getKey(), rule.getCheckerName(), detected.getValue(), unit, rule.getThreshold(), unit));
         }
         
         return messages;
@@ -52,7 +52,7 @@ public abstract class AgentChecker extends AlarmCheckFilter {
         StringBuilder message = new StringBuilder();
         
         for (Entry<String, Long> detected : detectedAgents.entrySet()) {
-            message.append(String.format(" Value of agent(%s) is %s during the past 5 mins.(Threshold : %s%s)", detected.getKey(), detected.getValue(), rule.getThreshold(), unit));
+            message.append(String.format(" Value of agent(%s) is %s%s during the past 5 mins.(Threshold : %s%s)", detected.getKey(), detected.getValue(), unit, rule.getThreshold(), unit));
             message.append("<br>");
         }
         

@@ -51,8 +51,8 @@ public class AlarmReader implements ItemReader<AlarmCheckFilter>, StepExecutionL
         List<Application> applicationList = applicationIndexDao.selectAllApplicationNames();
         int appSize = applicationList.size();
         int partitionNumber = (Integer) stepExecution.getExecutionContext().get(AlarmPartitioner.PARTITION_NUMBER);
-        int from = (partitionNumber - 1) * 5;
-        int to = partitionNumber * 5;
+        int from = (partitionNumber - 1) * AlarmPartitioner.APP_COUNT;
+        int to = partitionNumber * AlarmPartitioner.APP_COUNT;
         
         if (appSize < from) {
             return;

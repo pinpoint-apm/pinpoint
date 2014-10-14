@@ -20,7 +20,7 @@
     </job>
 
     <step id="alarmStep" xmlns="http://www.springframework.org/schema/batch">
-        <tasklet transaction-manager="resourcelessTransactionManager">
+        <tasklet>
             <chunk reader="reader" processor="processor" writer="writer" commit-interval="1"/>
         </tasklet>
     </step>
@@ -35,11 +35,15 @@
         <property name="jobRepository" ref="jobRepository" />
     </bean>
  
+ 	<batch:job-repository id="jobRepository" data-source="dataSource"/>
+    
+    <task:executor id="poolTaskExecutorForPartition" pool-size="1" />
+    
+     <!--
     <bean id="jobRepository" class="org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean">
        <property name="transactionManager" ref="resourcelessTransactionManager"/>
     </bean>
 
     <bean id="resourcelessTransactionManager" class="org.springframework.batch.support.transaction.ResourcelessTransactionManager"/>
-    
-    <task:executor id="poolTaskExecutorForPartition" pool-size="1" />
+    -->
 </beans>

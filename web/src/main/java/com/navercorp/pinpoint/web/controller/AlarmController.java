@@ -138,7 +138,7 @@ public class AlarmController {
         
         for(Rule rule : ruleList) {
             if (rule.getApplicationId() != null && !rule.getApplicationId().isEmpty()) {
-                if (rule.getThreshold() > 0) {
+                if (rule.getThreshold() >= 0) {
                     newRuleList.add(rule);
                 }
             }

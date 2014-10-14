@@ -54,19 +54,19 @@ public class AgentStatDataCollector extends DataCollector {
                 totalHeapSize += agentStat.getMemoryGc().getJvmMemoryHeapMax();
                 usedHeapSize += agentStat.getMemoryGc().getJvmMemoryHeapUsed();
                 
-                jvmCpuUsaged += agentStat.getCpuLoad().getJvmCpuLoad();
+                jvmCpuUsaged += agentStat.getCpuLoad().getJvmCpuLoad() * 100;
             }
             
-            long percent = 0;
-            percent = calculatePercent(usedHeapSize, totalHeapSize);
-            agentHeapUsageRate.put(agentId, percent);
-            
-            percent = calculatePercent(jvmCpuUsaged, 100*scanAgentStatList.size());
-            agentJvmCpuUsageRate.put(agentId, percent);
-            
             if(listSize > 0) {
-                long accruedFirstGCcount = scanAgentStatList.get(0).getMemoryGc().getJvmGcOldCount();
-                long accruedLastGCcount= scanAgentStatList.get(listSize - 1).getMemoryGc().getJvmGcOldCount();
+                long percent = 0;
+                percent = calculatePercent(usedHeapSize, totalHeapSize);
+                agentHeapUsageRate.put(agentId, percent);
+                
+                percent = calculatePercent(jvmCpuUsaged, 100*scanAgentStatList.size());
+                agentJvmCpuUsageRate.put(agentId, percent);
+                
+                long accruedLastGCcount = scanAgentStatList.get(0).getMemoryGc().getJvmGcOldCount();
+                long accruedFirstGCcount= scanAgentStatList.get(listSize - 1).getMemoryGc().getJvmGcOldCount();
                 agentGcCount.put(agentId, accruedLastGCcount - accruedFirstGCcount);    
             }
             
