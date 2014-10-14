@@ -2,6 +2,8 @@ package com.nhn.pinpoint.profiler.modifier.tomcat.interceptor;
 
 import java.util.Enumeration;
 
+import com.nhn.pinpoint.bootstrap.config.Filter;
+import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.bootstrap.context.*;
 import com.nhn.pinpoint.bootstrap.interceptor.*;
 import com.nhn.pinpoint.profiler.context.*;
@@ -19,6 +21,9 @@ import com.nhn.pinpoint.bootstrap.util.StringUtils;
  * @author emeroad
  */
 public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundInterceptor implements TargetClassLoader {
+
+	private final boolean isTrace = logger.isTraceEnabled();
+	private Filter<String> excludeUrlFilter;
 
     public StandardHostValveInvokeInterceptor() {
         super(StandardHostValveInvokeInterceptor.class);
@@ -50,6 +55,13 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     @Override
     protected Trace createTrace(Object target, Object[] args) {
         final HttpServletRequest request = (HttpServletRequest) args[0];
+		final String requestURI = request.getRequestURI();
+		if (excludeUrlFilter.filter(requestURI)) {
+			if (isTrace) {
+				logger.trace("filter requestURI:{}", requestURI);
+			}
+			return null;
+		}
         // remote call에 sampling flag가 설정되어있을 경우는 샘플링 대상으로 삼지 않는다.
         final boolean sampling = samplingEnable(request);
         if (!sampling) {
@@ -95,7 +107,8 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     }
 
 
-    private void recordParentInfo(RecordableTrace trace, HttpServletRequest request) {
+
+	private void recordParentInfo(RecordableTrace trace, HttpServletRequest request) {
         String parentApplicationName = request.getHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString());
         if (parentApplicationName != null) {
             trace.recordAcceptorHost(NetworkUtils.getHostFromURL(request.getRequestURL().toString()));
@@ -179,4 +192,12 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         return params.toString();
     }
 
+	@Override
+	public void setTraceContext(TraceContext traceContext) {
+		super.setTraceContext(traceContext);
+
+		ProfilerConfig profilerConfig = traceContext.getProfilerConfig();
+
+		this.excludeUrlFilter = profilerConfig.getTomcatExcludeUrlFilter();
+	}
 }
