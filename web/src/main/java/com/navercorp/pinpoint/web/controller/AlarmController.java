@@ -62,8 +62,8 @@ public class AlarmController {
         List<AlarmEmp> newEmps = new LinkedList<AlarmEmp>();
         
         for(AlarmEmp emp : emps) {
-            if (emp.getGroupName() != null && emp.getEmpName() != null) {
-                if (!emp.getGroupName().isEmpty() && !emp.getEmpName().isEmpty()) {
+            if (emp.getGroupName() != null && emp.getEmpId() != null) {
+                if (!emp.getGroupName().isEmpty() && !emp.getEmpId().isEmpty()) {
                     newEmps.add(emp);
                 }
             }

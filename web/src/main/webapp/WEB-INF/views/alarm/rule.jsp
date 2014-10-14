@@ -5,7 +5,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Employee Group</title>
+<title>Rule Group</title>
 
 <SCRIPT type="text/javascript">
 
