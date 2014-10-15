@@ -13,6 +13,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.bo.AgentStatCpuLoadBo;
 import com.nhn.pinpoint.common.bo.AgentStatMemoryGcBo;
 import com.nhn.pinpoint.common.bo.AgentStatMemoryGcBo.Builder;
 import com.nhn.pinpoint.web.alarm.CheckerCategory;
@@ -47,13 +48,16 @@ public class HeapUsageRateCheckerTest {
                 List<AgentStat> AgentStatList = new LinkedList<AgentStat>();
                 
                 for (int i = 0; i < 36; i++) {
-                    Builder builder = new Builder("AGETNT_NAME", 0L, 1L);
-                    builder.jvmMemoryHeapUsed(70L);
-                    builder.jvmMemoryHeapMax(100L);
-                    AgentStatMemoryGcBo memoryBo = builder.build();
+                    AgentStatMemoryGcBo.Builder memoryBuilder = new AgentStatMemoryGcBo.Builder("AGETNT_NAME", 0L, 1L);
+                    memoryBuilder.jvmMemoryHeapUsed(70L);
+                    memoryBuilder.jvmMemoryHeapMax(100L);
+                    AgentStatMemoryGcBo memoryBo = memoryBuilder.build();
+                    AgentStatCpuLoadBo.Builder cpuBuilder = new AgentStatCpuLoadBo.Builder("AGETNT_NAME", 0L, 1L);
+                    AgentStatCpuLoadBo cpuLoadBo = cpuBuilder.build();
                     
                     AgentStat stat = new AgentStat();
                     stat.setMemoryGc(memoryBo);
+                    stat.setCpuLoad(cpuLoadBo);
                     
                     AgentStatList.add(stat);
                 }
