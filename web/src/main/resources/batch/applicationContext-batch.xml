@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:batch="http://www.springframework.org/schema/batch"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd">
+
+	<bean id="batchJobLauncher" class="com.nhn.pinpoint.web.batch.BatchJobLauncher">
+		<property name="batchServerIp" value="#{batchProps['batch.server.ip']}"/>
+	</bean>
+
+    <bean id="jobLauncher"
+        class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+        <property name="jobRepository" ref="jobRepository" />
+    </bean>
+ 
+ 	<batch:job-repository id="jobRepository" data-source="dataSource"/>
+ 	
+ 	<task:scheduled-tasks scheduler="scheduler">
+    	<task:scheduled ref="batchJobLauncher" method="alarmJob" cron="0 0/2 * * * *" />
+	</task:scheduled-tasks>
+	
+	<task:scheduler id="scheduler" pool-size="1"/>
+	
+	<bean id="jobRegistry"	class="org.springframework.batch.core.configuration.support.MapJobRegistry" />
+	
+	<bean id="jobRegistryBeanPostProcessor" class="org.springframework.batch.core.configuration.support.JobRegistryBeanPostProcessor">
+    	<property name="jobRegistry" ref="jobRegistry"/>
+    </bean>
+    
+    <util:properties id="batchProps" location="classpath:batch.properties"/>
+	
+	<import resource="classpath:batch/applicationContext-alarmJob.xml" />
+</beans>

@@ -33,14 +33,14 @@ public class AlarmWriter implements ItemWriter<AlarmChecker> {
     
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     
-    @Value("#{dataProps['pinpoint.url']}")
+    @Value("#{batchProps['pinpoint.url']}")
     private String pinpointUrl;
     
     @Autowired
     private MySqlAlarmResourceDao dao;
     
     // Email config
-    @Value("#{dataProps['alarm.mail.url']}")
+    @Value("#{batchProps['alarm.mail.url']}")
     private String emailServerUrl;
     private static final String QUOTATATION = "\"";
     private static final String ADDR_SEPARATOR = ";";
@@ -49,9 +49,9 @@ public class AlarmWriter implements ItemWriter<AlarmChecker> {
     private static final String OPTION = "version=1;mimeCharset=utf-8;debugMode=false";
     
     // SMS config
-    @Value("#{dataProps['alarm.sms.url']}")
+    @Value("#{batchProps['alarm.sms.url']}")
     private String smsServerUrl;
-    private static final String SENDER_NUMBER = "1588820";
+    private static final String SENDER_NUMBER = "15883820";
     private static final String SMS_SERVICE_ID = "EMG00058";
     
     @Override
