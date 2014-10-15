@@ -37,5 +37,15 @@
     
     <util:properties id="batchProps" location="classpath:batch.properties"/>
 	
+	<bean id="jobFailListener" class="com.nhn.pinpoint.web.batch.JobFailListener">
+    	<constructor-arg index="0" value="#{batchProps['alarm.sms.url']}"/>
+    	<constructor-arg index="1" value="#{batchProps['alarm.sms.serviceId']}"/>
+    	<constructor-arg index="2">
+    		<list>
+    			<value>01073715625</value>
+    		</list>
+    	</constructor-arg>
+    </bean>
+	
 	<import resource="classpath:batch/applicationContext-alarmJob.xml" />
 </beans>

@@ -51,8 +51,9 @@ public class AlarmWriter implements ItemWriter<AlarmChecker> {
     // SMS config
     @Value("#{batchProps['alarm.sms.url']}")
     private String smsServerUrl;
+    @Value("#{batchProps['alarm.sms.serviceId']}")
+    private String smsServiceID;
     private static final String SENDER_NUMBER = "15883820";
-    private static final String SMS_SERVICE_ID = "EMG00058";
     
     @Override
     public void write(List<? extends AlarmChecker> checkers) throws Exception {
@@ -86,7 +87,7 @@ public class AlarmWriter implements ItemWriter<AlarmChecker> {
             for(String message : checker.getSmsMessage()) {
                 logger.info("send SMS : {}", message);
                 List<NameValuePair> nvps = new ArrayList<NameValuePair>();
-                nvps.add(new BasicNameValuePair("serviceId", SMS_SERVICE_ID));
+                nvps.add(new BasicNameValuePair("serviceId", smsServiceID));
                 nvps.add(new BasicNameValuePair("sendMdn", QUOTATATION + SENDER_NUMBER + QUOTATATION));
                 nvps.add(new BasicNameValuePair("receiveMdnList",convertToReceiverFormat(receivers)));
                 nvps.add(new BasicNameValuePair("content", QUOTATATION + message + QUOTATATION));

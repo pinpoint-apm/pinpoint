@@ -19,6 +19,9 @@
                 <handler task-executor="poolTaskExecutorForPartition" />
             </partition>
         </step>
+        <listeners>
+        	<listener ref="jobFailListener"/>
+        </listeners>
     </job>
 
     <step id="alarmStep" xmlns="http://www.springframework.org/schema/batch">
