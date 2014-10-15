@@ -27,11 +27,12 @@ public class AgentInformationFactory {
         // TODO 일단 임시로 호환성을 위해 agentid에 machinename을 넣도록 하자
         // TODO 박스 하나에 서버 인스턴스를 여러개 실행할 때에 문제가 될 수 있음.
         final String machineName = NetworkUtils.getHostName();
+        final String hostIp = NetworkUtils.getHostIp();
         final String agentId = getId("pinpoint.agentId", machineName, PinpointConstants.AGENT_NAME_MAX_LEN);
         final String applicationName = getId("pinpoint.applicationName", "UnknownApplicationName", PinpointConstants.APPLICATION_NAME_MAX_LEN);
         final long startTime = RuntimeMXBeanUtils.getVmStartTime();
         final int pid = RuntimeMXBeanUtils.getPid();
-        return new AgentInformation(agentId, applicationName, startTime, pid, machineName, serverType.getCode(), Version.VERSION);
+        return new AgentInformation(agentId, applicationName, startTime, pid, machineName, hostIp, serverType.getCode(), Version.VERSION);
     }
 
     private String getId(String key, String defaultValue, int maxlen) {

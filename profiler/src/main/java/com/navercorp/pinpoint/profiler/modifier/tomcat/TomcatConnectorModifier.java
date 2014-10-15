@@ -34,7 +34,7 @@ public class TomcatConnectorModifier extends AbstractModifier {
         try {
 			// initialize()할 때 protocol과 port번호를 저장해둔다.
 			Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain,
-                    "com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.ConnectorInitializeInterceptor", new Object[] { agent }, new Class[] { Agent.class });
+                    "com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.ConnectorInitializeInterceptor", null, null);
 			InstrumentClass connector = byteCodeInstrumentor.getClass(javassistClassName);
 
 			// Tomcat 6

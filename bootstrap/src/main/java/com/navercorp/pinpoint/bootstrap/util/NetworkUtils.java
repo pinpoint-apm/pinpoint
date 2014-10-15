@@ -23,6 +23,18 @@ public final class NetworkUtils {
 			return getMachineName();
 		}
 	}
+    
+    public static String getHostIp() {
+        String hostIp;
+        try {
+            final InetAddress thisIp = InetAddress.getLocalHost();
+            hostIp = thisIp.getHostAddress();
+        } catch (UnknownHostException e) {
+            Logger.getLogger(NetworkUtils.class.getClass().getName()).warning(e.getMessage());
+            hostIp = "127.0.0.1";
+        }
+        return hostIp;
+    }
 	
 	@Deprecated
     public static String getMachineName() {

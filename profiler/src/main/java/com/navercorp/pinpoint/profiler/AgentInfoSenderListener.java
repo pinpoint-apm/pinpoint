@@ -1,8 +1,9 @@
 package com.nhn.pinpoint.profiler;
 
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
+
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
@@ -14,32 +15,25 @@ import com.nhn.pinpoint.rpc.ResponseMessage;
 import com.nhn.pinpoint.thrift.dto.TResult;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
 
-public class HeartBitCheckerListener implements FutureListener<ResponseMessage> {
+public class AgentInfoSenderListener implements FutureListener<ResponseMessage> {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-	private final HeartBitStateContext state;
-	private final CountDownLatch latch;
-	private final long createTimeMillis;
-
-	public HeartBitCheckerListener(HeartBitStateContext state, CountDownLatch latch) {
-		this.state = state;
-		this.latch = latch;
-		this.createTimeMillis = System.currentTimeMillis();
+	private final AtomicBoolean isSuccessful;
+	
+	public AgentInfoSenderListener(AtomicBoolean isSuccessful) {
+	    this.isSuccessful = isSuccessful;
 	}
-
-	// Latch 타이밍 중요함 잘못 걸면 문제한 대기할수 있음
 
 	@Override
 	public void onComplete(Future<ResponseMessage> future) {
 		try {
 			if (future != null && future.isSuccess()) {
-				TBase tbase = deserialize(future);
+				TBase<?, ?> tbase = deserialize(future);
 				if (tbase instanceof TResult) {
 					TResult result = (TResult) tbase;
 					if (result.isSuccess()) {
 						logger.debug("result success");
-						state.changeStateToNeedNotRequest(createTimeMillis);
+						this.isSuccessful.set(true);
 						return;
 					} else {
 						logger.warn("request fail. Caused:{}", result.getMessage());
@@ -50,10 +44,7 @@ public class HeartBitCheckerListener implements FutureListener<ResponseMessage> 
 			}
 		} catch(Exception e) {
 			logger.warn("request fail. caused:{}", e.getMessage());
-		} finally {
-			latch.countDown();
 		}
-		state.changeStateToNeedRequest(System.currentTimeMillis());
 	}
 
 	private TBase<?, ?> deserialize(Future<ResponseMessage> future) {

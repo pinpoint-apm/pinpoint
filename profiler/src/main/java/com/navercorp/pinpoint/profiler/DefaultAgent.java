@@ -4,7 +4,6 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
@@ -14,14 +13,12 @@ import org.slf4j.LoggerFactory;
 import com.nhn.pinpoint.ProductInfo;
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
-import com.nhn.pinpoint.bootstrap.context.ServerMetaData;
 import com.nhn.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.bootstrap.sampler.Sampler;
-import com.nhn.pinpoint.common.Version;
 import com.nhn.pinpoint.exception.PinpointException;
 import com.nhn.pinpoint.profiler.context.DefaultServerMetaDataHolder;
 import com.nhn.pinpoint.profiler.context.DefaultTraceContext;
@@ -46,7 +43,6 @@ import com.nhn.pinpoint.rpc.ClassPreLoader;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.client.PinpointSocket;
 import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
-import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 
 /**
  * @author emeroad
@@ -64,7 +60,7 @@ public class DefaultAgent implements Agent {
     
     private final ProfilerConfig profilerConfig;
 
-    private final ServerInfo serverInfo;
+    private final AgentInfoSender agentInfoSender;
     private final AgentStatMonitor agentStatMonitor;
 
     private final TraceContext traceContext;
@@ -77,15 +73,10 @@ public class DefaultAgent implements Agent {
     private final DataSender spanDataSender;
 
     private final AgentInformation agentInformation;
-
-    // agent info는 heartbeat에서 매번 사용한다.
-    // TODO 잠재적 멀티Thread문제가 발생가능할수 있음
-    // datasend할때 따로 생성해서 보도록 한다.
-    private final TAgentInfo tAgentInfo;
+    private final ServerMetaDataHolder serverMetaDataHolder;
 
     // agent의 상태,
     private volatile AgentStatus agentStatus;
-    private HeartBeatChecker heartBeatChecker;
 
     static {
         // rpc쪽 preload
@@ -109,7 +100,6 @@ public class DefaultAgent implements Agent {
         changeStatus(AgentStatus.INITIALIZING);
 
         this.profilerConfig = profilerConfig;
-        this.serverInfo = new ServerInfo();
 
         final ApplicationServerTypeResolver typeResolver = new ApplicationServerTypeResolver(profilerConfig.getApplicationServerType());
         if (!typeResolver.resolve()) {
@@ -130,11 +120,11 @@ public class DefaultAgent implements Agent {
         this.agentInformation = agentInformationFactory.createAgentInformation(typeResolver.getServerType());
         logger.info("agentInformation:{}", agentInformation);
 
-        this.tAgentInfo = createTAgentInfo();
-
         this.factory = createPinpointSocketFactory(this.profilerConfig.isTcpDataSenderCommandAcceptEnable());
         this.socket = createPinpointSocket(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorTcpServerPort(), factory);
 
+        this.serverMetaDataHolder = createServerMetaDataHolder();
+        
         this.tcpDataSender = createTcpDataSender(socket);
 
         this.spanDataSender = createUdpDataSender(this.profilerConfig.getCollectorUdpSpanServerPort(), "Pinpoint-UdpSpanDataExecutor",
@@ -146,7 +136,7 @@ public class DefaultAgent implements Agent {
 
         this.traceContext = createTraceContext(agentInformation.getServerType());
 
-        this.heartBeatChecker = new HeartBeatChecker(tcpDataSender, profilerConfig.getHeartbeatInterval(), tAgentInfo);
+        this.agentInfoSender = new AgentInfoSender(tcpDataSender, profilerConfig.getAgentInfoSendRetryInterval(), this.agentInformation, this.serverMetaDataHolder);
 
         // JVM 통계 등을 주기적으로 수집하여 collector에 전송하는 monitor를 초기화한다.
         this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId(), this.agentInformation.getStartTime());
@@ -196,31 +186,6 @@ public class DefaultAgent implements Agent {
         return profilerConfig;
     }
 
-    private TAgentInfo createTAgentInfo() {
-        final ServerInfo serverInfo = this.serverInfo;
-        String ip = serverInfo.getHostip();
-        final StringBuilder ports = new StringBuilder();
-        for (Entry<Integer, String> entry : serverInfo.getConnectors().entrySet()) {
-            ports.append(" ");
-            ports.append(entry.getKey());
-        }
-
-        final TAgentInfo agentInfo = new TAgentInfo();
-        agentInfo.setIp(ip);
-        agentInfo.setHostname(this.agentInformation.getMachineName());
-        agentInfo.setPorts(ports.toString());
-        agentInfo.setAgentId(agentInformation.getAgentId());
-        agentInfo.setApplicationName(agentInformation.getApplicationName());
-        agentInfo.setPid(agentInformation.getPid());
-        agentInfo.setStartTimestamp(agentInformation.getStartTime());
-        agentInfo.setServiceType(agentInformation.getServerType());
-        agentInfo.setVersion(Version.VERSION);
-
-        // agentInfo.setIsAlive(true);
-
-        return agentInfo;
-    }
-
     private void changeStatus(AgentStatus status) {
         this.agentStatus = status;
         if (logger.isDebugEnabled()) {
@@ -245,8 +210,7 @@ public class DefaultAgent implements Agent {
         logger.info("SamplerType:{}", sampler);
         
         final int jdbcSqlCacheSize = profilerConfig.getJdbcSqlCacheSize();
-        final ServerMetaDataHolder serverMetaDataHolder = createServerMetaDataHolder();
-        final DefaultTraceContext traceContext = new DefaultTraceContext(jdbcSqlCacheSize, serverType, storageFactory, sampler, serverMetaDataHolder);
+        final DefaultTraceContext traceContext = new DefaultTraceContext(jdbcSqlCacheSize, serverType, storageFactory, sampler, this.serverMetaDataHolder);
         traceContext.setAgentInformation(this.agentInformation);
         traceContext.setPriorityDataSender(this.tcpDataSender);
 
@@ -281,8 +245,6 @@ public class DefaultAgent implements Agent {
 
     protected PinpointSocketFactory createPinpointSocketFactory(boolean isSupportServerMode) {
         Map<String, Object> properties = this.agentInformation.toMap();
-        properties.put(AgentPropertiesType.IP.getName(), serverInfo.getHostip());
-
         PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
         pinpointSocketFactory.setTimeoutMillis(1000 * 5);
         pinpointSocketFactory.setProperties(properties);
@@ -335,14 +297,6 @@ public class DefaultAgent implements Agent {
         return spanDataSender;
     }
 
-    public void addConnector(String protocol, int port) {
-        this.serverInfo.addConnector(protocol, port);
-    }
-
-    public ServerInfo getServerInfo() {
-        return this.serverInfo;
-    }
-
     public TraceContext getTraceContext() {
         return traceContext;
     }
@@ -362,9 +316,7 @@ public class DefaultAgent implements Agent {
             }
         }
         logger.info("Starting {} Agent.", ProductInfo.CAMEL_NAME);
-        ServerMetaData serverMetaData = this.traceContext.getServerMetaDataHolder().getServerMetaData();
-        logger.debug(serverMetaData.toString());
-        this.heartBeatChecker.start();
+        this.agentInfoSender.start();
         this.agentStatMonitor.start();
     }
 
@@ -380,13 +332,7 @@ public class DefaultAgent implements Agent {
         }
         logger.info("Stopping {} Agent.", ProductInfo.CAMEL_NAME);
 
-        this.heartBeatChecker.stop();
-
-        tAgentInfo.setEndStatus(0);
-        tAgentInfo.setEndTimestamp(System.currentTimeMillis());
-        this.tcpDataSender.send(tAgentInfo);
-        // TODO send tAgentInfo alive false후 send 메시지의 처리가 정확하지 않음
-
+        this.agentInfoSender.stop();
         this.agentStatMonitor.stop();
 
         // 종료 처리 필요.

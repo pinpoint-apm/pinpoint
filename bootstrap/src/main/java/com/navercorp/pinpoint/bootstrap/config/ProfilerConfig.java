@@ -134,8 +134,8 @@ public class ProfilerConfig {
 	
 	private Filter<String> profilableClassFilter = new SkipFilter<String>();
 
-    private final long DEFAULT_HEART_BEAT_INTERVAL = 5*60*1000L;
-	private long heartbeatInterval = DEFAULT_HEART_BEAT_INTERVAL;
+    private final long DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL = 5*60*1000L;
+	private long agentInfoSendRetryInterval = DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL;
 
 	private ServiceType applicationServerType;
 
@@ -310,8 +310,8 @@ public class ProfilerConfig {
 		return profileJvmCollectInterval;
 	}
 	
-	public long getHeartbeatInterval() {
-		return heartbeatInterval;
+	public long getAgentInfoSendRetryInterval() {
+		return agentInfoSendRetryInterval;
 	}
 
     public boolean isJdbcProfileDbcp() {
@@ -631,7 +631,7 @@ public class ProfilerConfig {
 		// JVM
 		this.profileJvmCollectInterval = readInt(prop, "profiler.jvm.collect.interval", 1000);
 
-		this.heartbeatInterval = readLong(prop, "profiler.heartbeat.interval", DEFAULT_HEART_BEAT_INTERVAL);
+		this.agentInfoSendRetryInterval = readLong(prop, "profiler.agentInfo.send.retry.interval", DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL);
 		
 		// service type
 		this.applicationServerType = readServiceType(prop, "profiler.applicationservertype");
@@ -805,8 +805,8 @@ public class ProfilerConfig {
 		sb.append(", ioBufferingBufferSize=").append(ioBufferingBufferSize);
 		sb.append(", profileJvmCollectInterval=").append(profileJvmCollectInterval);
 		sb.append(", profilableClassFilter=").append(profilableClassFilter);
-		sb.append(", DEFAULT_HEART_BEAT_INTERVAL=").append(DEFAULT_HEART_BEAT_INTERVAL);
-		sb.append(", heartbeatInterval=").append(heartbeatInterval);
+		sb.append(", DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL=").append(DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL);
+		sb.append(", agentInfoSendRetryInterval=").append(agentInfoSendRetryInterval);
 		sb.append(", applicationServerType=").append(applicationServerType);
 		sb.append('}');
 		return sb.toString();
