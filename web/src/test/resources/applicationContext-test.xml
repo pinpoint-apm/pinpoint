@@ -63,6 +63,14 @@
     <bean id="rangeFactory" class="com.nhn.pinpoint.web.vo.RangeFactory"/>
 
     <bean id="timeSlot" class="com.nhn.pinpoint.common.util.DefaultTimeSlot"/>
+    
+    <util:properties id="pinpointWebProps" location="classpath:pinpoint-web.properties"/>
+    
+    <bean id="config" class="com.nhn.pinpoint.web.config.WebConfig"/>
+    
+    <bean id="pinpointSocketManager" class="com.nhn.pinpoint.web.server.PinpointSocketManager">
+    	<constructor-arg ref="config" />
+    </bean>
 
     <bean id="jobLauncherTestUtils" class="org.springframework.batch.test.JobLauncherTestUtils"/>
 </beans>
