@@ -42,7 +42,7 @@ public class JvmCpuUsageRateCheckerTest {
                 
                 for (int i = 0; i < 36; i++) {
                     AgentStatCpuLoadBo.Builder cpuLoadBoBuilder = new AgentStatCpuLoadBo.Builder("AGETNT_NAME", 0L, 1L);
-                    cpuLoadBoBuilder.jvmCpuLoad(60);
+                    cpuLoadBoBuilder.jvmCpuLoad(0.6);
                     AgentStatCpuLoadBo cpuLoadBo = cpuLoadBoBuilder.build();
                     
                     AgentStatMemoryGcBo.Builder memoryGcBobuilder = new AgentStatMemoryGcBo.Builder("AGETNT_NAME", 0L, 1L);

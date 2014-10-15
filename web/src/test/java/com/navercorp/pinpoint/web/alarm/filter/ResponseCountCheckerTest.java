@@ -86,11 +86,4 @@ public class ResponseCountCheckerTest {
         filter.check();
         assertFalse(filter.isDetected());
     }
-    
-    @Test
-    public void test() {
-        double val = -1;
-        int i = (int) val;
-        System.out.println(val);
-    }
 }

@@ -9,8 +9,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.common.bo.AgentStatCpuLoadBo;
 import com.nhn.pinpoint.common.bo.AgentStatMemoryGcBo;
-import com.nhn.pinpoint.common.bo.AgentStatMemoryGcBo.Builder;
 import com.nhn.pinpoint.web.alarm.CheckerCategory;
 import com.nhn.pinpoint.web.alarm.DataCollectorFactory;
 import com.nhn.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
@@ -41,13 +41,16 @@ public class GcCountCheckerTest {
             public List<AgentStat> scanAgentStatList(String agentId, Range range) {
                 List<AgentStat> AgentStatList = new LinkedList<AgentStat>();
                 
-                for (int i = 1; i < 37; i++) {
-                    Builder builder = new Builder("AGETNT_NAME", 0L, 1L);
-                    builder.jvmGcOldCount(i);
-                    AgentStatMemoryGcBo memoryBo = builder.build();
+                for (int i = 36; i > 0; i--) {
+                    AgentStatMemoryGcBo.Builder memoryBuilder = new AgentStatMemoryGcBo.Builder("AGETNT_NAME", 0L, 1L);
+                    memoryBuilder.jvmGcOldCount(i);
+                    AgentStatMemoryGcBo memoryBo = memoryBuilder.build();
+                    AgentStatCpuLoadBo.Builder cpuBuilder = new AgentStatCpuLoadBo.Builder("AGETNT_NAME", 0L, 1L);
+                    AgentStatCpuLoadBo cpuLoadBo = cpuBuilder.build();
                     
                     AgentStat stat = new AgentStat();
                     stat.setMemoryGc(memoryBo);
+                    stat.setCpuLoad(cpuLoadBo);
                     
                     AgentStatList.add(stat);
                 }
