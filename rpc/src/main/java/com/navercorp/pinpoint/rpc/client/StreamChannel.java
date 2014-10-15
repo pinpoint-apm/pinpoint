@@ -15,7 +15,7 @@ import com.nhn.pinpoint.rpc.StreamCreateResponse;
 import com.nhn.pinpoint.rpc.packet.PacketType;
 import com.nhn.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.nhn.pinpoint.rpc.packet.stream.StreamCreatePacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamDataPacket;
+import com.nhn.pinpoint.rpc.packet.stream.StreamResponsePacket;
 import com.nhn.pinpoint.rpc.packet.stream.StreamPacket;
 import com.nhn.pinpoint.rpc.stream.StreamChannelMessageListener;
 
@@ -106,10 +106,10 @@ public class StreamChannel {
                 failResult.setMessage(packet.getPayload());
                 return openChannel(CLOSED, failResult);
 
-            case PacketType.APPLICATION_STREAM_DATA: {
+            case PacketType.APPLICATION_STREAM_RESPONSE: {
                 logger.debug("APPLICATION_STREAM_RESPONSE {}", channel);
 
-                StreamDataPacket streamResponsePacket = (StreamDataPacket) packet;
+                StreamResponsePacket streamResponsePacket = (StreamResponsePacket) packet;
                 StreamChannelMessageListener streamChannelMessageListener = this.streamChannelMessageListener;
                 if (streamChannelMessageListener != null) {
                 	streamChannelMessageListener.handleStreamData(this, streamResponsePacket);

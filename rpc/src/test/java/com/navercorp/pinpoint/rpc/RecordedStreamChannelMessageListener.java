@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.nhn.pinpoint.rpc.client.StreamChannel;
 import com.nhn.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.nhn.pinpoint.rpc.packet.stream.StreamCreatePacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamDataPacket;
+import com.nhn.pinpoint.rpc.packet.stream.StreamResponsePacket;
 import com.nhn.pinpoint.rpc.stream.StreamChannelMessageListener;
 
 /**
@@ -37,7 +37,7 @@ public class RecordedStreamChannelMessageListener implements StreamChannelMessag
 	}
 
 	@Override
-	public void handleStreamData(StreamChannel streamChannel, StreamDataPacket packet) {
+	public void handleStreamData(StreamChannel streamChannel, StreamResponsePacket packet) {
         logger.info("handleStreamData {}, {}", streamChannel, packet);
         receivedMessageList.add(packet.getPayload());
         latch.countDown();

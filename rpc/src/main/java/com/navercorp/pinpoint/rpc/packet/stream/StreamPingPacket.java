@@ -52,5 +52,16 @@ public class StreamPingPacket extends BasicStreamPacket {
 	public int getRequestId() {
 		return requestId;
 	}
+	
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append(this.getClass().getSimpleName());
+		sb.append("{streamChannelId=").append(getStreamChannelId());
+		sb.append(", ");
+		sb.append("streamChannelId=").append(getRequestId());
+		sb.append('}');
+		return sb.toString();
+	}
 
 }

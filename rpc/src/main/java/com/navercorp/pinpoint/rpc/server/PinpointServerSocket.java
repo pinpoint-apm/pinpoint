@@ -213,7 +213,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 			case PacketType.APPLICATION_STREAM_CLOSE:
 			case PacketType.APPLICATION_STREAM_CREATE_SUCCESS:
 			case PacketType.APPLICATION_STREAM_CREATE_FAIL:
-			case PacketType.APPLICATION_STREAM_DATA:
+			case PacketType.APPLICATION_STREAM_RESPONSE:
 				handleStreamPacket((StreamPacket) message, channel);
 				return;
 			case PacketType.CONTROL_ENABLE_WORKER:

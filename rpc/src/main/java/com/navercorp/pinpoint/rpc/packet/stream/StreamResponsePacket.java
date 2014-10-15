@@ -10,13 +10,13 @@ import com.nhn.pinpoint.rpc.util.AssertUtils;
 /**
  * @author koo.taejin <kr14910>
  */
-public class StreamDataPacket extends BasicStreamPacket {
+public class StreamResponsePacket extends BasicStreamPacket {
 
-	private final static short PACKET_TYPE = PacketType.APPLICATION_STREAM_DATA;
+	private final static short PACKET_TYPE = PacketType.APPLICATION_STREAM_RESPONSE;
 
 	private final byte[] payload;
 
-	public StreamDataPacket(int streamChannelId, byte[] payload) {
+	public StreamResponsePacket(int streamChannelId, byte[] payload) {
 		super(streamChannelId);
 
 		AssertUtils.assertNotNull(payload);
@@ -42,7 +42,7 @@ public class StreamDataPacket extends BasicStreamPacket {
 		return PayloadPacket.appendPayload(header, payload);
 	}
 
-	public static StreamDataPacket readBuffer(short packetType, ChannelBuffer buffer) {
+	public static StreamResponsePacket readBuffer(short packetType, ChannelBuffer buffer) {
 		assert packetType == PACKET_TYPE;
 
 		if (buffer.readableBytes() < 8) {
@@ -56,7 +56,7 @@ public class StreamDataPacket extends BasicStreamPacket {
 			return null;
 		}
 
-		final StreamDataPacket packet = new StreamDataPacket(streamChannelId, payload.array());
+		final StreamResponsePacket packet = new StreamResponsePacket(streamChannelId, payload.array());
 		return packet;
 	}
 
