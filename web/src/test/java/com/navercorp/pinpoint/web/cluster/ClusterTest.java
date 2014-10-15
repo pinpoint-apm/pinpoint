@@ -1,5 +1,8 @@
 package com.nhn.pinpoint.web.cluster;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -13,10 +16,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.nhn.pinpoint.common.util.NetUtils;
 import com.nhn.pinpoint.rpc.client.MessageListener;
@@ -24,16 +23,15 @@ import com.nhn.pinpoint.rpc.client.PinpointSocket;
 import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
+import com.nhn.pinpoint.web.config.WebConfig;
 import com.nhn.pinpoint.web.server.PinpointSocketManager;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:applicationContext-web.xml")
 public class ClusterTest {
 
 	// 해당 테스트를 로컬에서 실행할떄 resource profile 문제로 실패할수 있음
 	// 실패할 경우 resource-test의 pinpoint-web.properties파일을 resource-local의 pinpoint-web.properties에 복사하여 테스트하면 성공한다.
 	
-	private static final int DEFAULT_ACCEPTOR_PORT = 9995;
+	private static final int DEFAULT_ACCEPTOR_PORT = 9996;
 	private static final int DEFAULT_ZOOKEEPER_PORT = 22213;
 
 	private static final String DEFAULT_IP = NetUtils.getLocalV4Ip();
@@ -42,17 +40,28 @@ public class ClusterTest {
 
 	private static TestingServer ts = null;
 
-	@Autowired
-	PinpointSocketManager socketManager;
-
+	static PinpointSocketManager socketManager;
+	
 	@BeforeClass
 	public static void setUp() throws Exception {
+		WebConfig config = mock(WebConfig.class);
+		
+		when(config.isClusterEnable()).thenReturn(true);		
+		when(config.getClusterTcpPort()).thenReturn(DEFAULT_ACCEPTOR_PORT);
+		when(config.getClusterZookeeperAddress()).thenReturn("127.0.0.1:22213");
+		when(config.getClusterZookeeperRetryInterval()).thenReturn(60000);
+		when(config.getClusterZookeeperSessionTimeout()).thenReturn(3000);
+
+		socketManager = new PinpointSocketManager(config);
+		socketManager.start();
+		
 		ts = createZookeeperServer(DEFAULT_ZOOKEEPER_PORT);
 	}
 
 	@AfterClass
 	public static void tearDown() throws Exception {
 		closeZookeeperServer(ts);
+		socketManager.stop();
 	}
 
 	@Before
