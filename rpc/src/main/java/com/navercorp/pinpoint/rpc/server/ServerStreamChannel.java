@@ -10,7 +10,7 @@ import com.nhn.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.nhn.pinpoint.rpc.packet.stream.StreamCreateFailPacket;
 import com.nhn.pinpoint.rpc.packet.stream.StreamCreatePacket;
 import com.nhn.pinpoint.rpc.packet.stream.StreamCreateSuccessPacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamDataPacket;
+import com.nhn.pinpoint.rpc.packet.stream.StreamResponsePacket;
 
 /**
  * @author emeroad
@@ -89,7 +89,7 @@ public class ServerStreamChannel {
         if (state.get() != RUN) {
             return false;
         }
-        StreamDataPacket response = new StreamDataPacket(channelId, bytes);
+        StreamResponsePacket response = new StreamResponsePacket(channelId, bytes);
         this.channel.write(response);
         return true;
     }

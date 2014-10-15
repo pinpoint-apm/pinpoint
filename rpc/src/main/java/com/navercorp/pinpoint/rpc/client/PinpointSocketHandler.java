@@ -404,7 +404,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
                 case PacketType.APPLICATION_STREAM_CLOSE:
                 case PacketType.APPLICATION_STREAM_CREATE_SUCCESS:
                 case PacketType.APPLICATION_STREAM_CREATE_FAIL:
-                case PacketType.APPLICATION_STREAM_DATA:
+                case PacketType.APPLICATION_STREAM_RESPONSE:
                     this.streamChannelManager.messageReceived((StreamPacket) message, e.getChannel());
                     return;
                 case PacketType.CONTROL_SERVER_CLOSE:

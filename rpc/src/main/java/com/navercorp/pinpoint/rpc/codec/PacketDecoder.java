@@ -23,7 +23,7 @@ import com.nhn.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.nhn.pinpoint.rpc.packet.stream.StreamCreateFailPacket;
 import com.nhn.pinpoint.rpc.packet.stream.StreamCreatePacket;
 import com.nhn.pinpoint.rpc.packet.stream.StreamCreateSuccessPacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamDataPacket;
+import com.nhn.pinpoint.rpc.packet.stream.StreamResponsePacket;
 import com.nhn.pinpoint.rpc.packet.stream.StreamPingPacket;
 import com.nhn.pinpoint.rpc.packet.stream.StreamPongPacket;
 
@@ -58,7 +58,7 @@ public class PacketDecoder extends FrameDecoder {
                 return readStreamCreateSuccess(packetType, buffer);
             case PacketType.APPLICATION_STREAM_CREATE_FAIL:
                 return readStreamCreateFail(packetType, buffer);
-            case PacketType.APPLICATION_STREAM_DATA:
+            case PacketType.APPLICATION_STREAM_RESPONSE:
                 return readStreamData(packetType, buffer);
             case PacketType.APPLICATION_STREAM_PING:
             	return readStreamPing(packetType, buffer);
@@ -142,7 +142,7 @@ public class PacketDecoder extends FrameDecoder {
     }
 
     private Object readStreamData(short packetType, ChannelBuffer buffer) {
-        return StreamDataPacket.readBuffer(packetType, buffer);
+        return StreamResponsePacket.readBuffer(packetType, buffer);
     }
     
 	private Object readStreamPong(short packetType, ChannelBuffer buffer) {

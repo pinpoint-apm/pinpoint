@@ -12,15 +12,6 @@ public class StreamCreateFailPacket extends BasicStreamPacket {
 
 	private final static short PACKET_TYPE = PacketType.APPLICATION_STREAM_CREATE_FAIL;
 
-	public static final short UNKNWON_ERROR = -1;
-
-	public static final short SUCCESS = 0;
-	
-	public static final short ILLEGAL_STREAM_CHANNEL_ID = 101;
-	public static final short DUPLICATE_STREAM_CHANNEL_ID = 102;
-	
-	public static final short ILLEGAL_CHANNEL_STATE = 111;
-
 	private final short code;
 
 	public StreamCreateFailPacket(int streamChannelId, short code) {
@@ -61,6 +52,17 @@ public class StreamCreateFailPacket extends BasicStreamPacket {
 
 	public short getCode() {
 		return code;
+	}
+
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append(this.getClass().getSimpleName());
+		sb.append("{streamChannelId=").append(getStreamChannelId());
+		sb.append(", ");
+		sb.append("code=").append(getCode());
+		sb.append('}');
+		return sb.toString();
 	}
 
 }
