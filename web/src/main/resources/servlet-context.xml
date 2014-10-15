@@ -23,7 +23,9 @@
 
     <mvc:annotation-driven />
 	<tx:annotation-driven />
-	<context:component-scan base-package="com.nhn.pinpoint.web.controller, com.nhn.pinpoint.web.util" />
+	<context:component-scan base-package="com.nhn.pinpoint.web.controller, com.nhn.pinpoint.web.util">
+		<context:exclude-filter type="regex" expression="com.nhn.pinpoint.web.controller.AlarmController"/>
+	</context:component-scan>
 
     <bean id="jsonView" class="org.springframework.web.servlet.view.json.MappingJackson2JsonView">
         <!-- 별도 필터에서 하고 있음.-->

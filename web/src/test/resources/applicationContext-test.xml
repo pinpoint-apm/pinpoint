@@ -26,7 +26,8 @@
                                          com.nhn.pinpoint.web.service,
                                          com.nhn.pinpoint.web.mapper,
                                          com.nhn.pinpoint.web.filter,
-                                         com.nhn.pinpoint.web.alarm"
+                                         com.nhn.pinpoint.web.alarm,
+                                         com.nhn.pinpoint.web.config"
                                          />
 
     <util:properties id="dataProps" location="classpath:data.properties"/>
