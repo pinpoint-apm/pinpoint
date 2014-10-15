@@ -21,7 +21,7 @@ public class ExcludeUrlFilter implements Filter<String> {
 			return;
 		}
 		final String[] split = excludeFormat.split(separator);
-		final List<String> arrayList = new ArrayList<String>();
+		final List<String> buildList = new ArrayList<String>();
 		for (String value : split) {
 			if (isEmpty(value)) {
 				continue;
@@ -30,10 +30,10 @@ public class ExcludeUrlFilter implements Filter<String> {
 			if (value.isEmpty()) {
 				continue;
 			}
-			arrayList.add(value);
+			buildList.add(value);
 		}
 
-		this.excludeUrlList = Collections.unmodifiableList(arrayList);
+		this.excludeUrlList = buildList;
 	}
 
 	private boolean isEmpty(String string) {

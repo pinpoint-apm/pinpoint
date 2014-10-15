@@ -29,7 +29,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
     private final Agent agent;
     private final ByteCodeInstrumentor byteCodeInstrumentor;
 
-    private ProfilerConfig profilerConfig;
+    private final ProfilerConfig profilerConfig;
 
 	private final ClassFileFilter skipFilter;
 
@@ -58,7 +58,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         if (findModifier == null) {
             // TODO : 디버그 용도로 추가함
             // TODO : modifier가 중복 적용되면 어떻게 되지???
-            if (this.profilerConfig.isProfilableClass(className)) {
+            if (this.profilerConfig.getProfilableClassFilter().filter(className)) {
                 // 테스트 장비에서 callstack view가 잘 보이는지 확인하려고 추가함.
                 findModifier = this.modifierRegistry.findModifier("*");
             } else {
@@ -69,7 +69,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         if (isDebug) {
             logger.debug("[transform] cl:{} className:{} Modifier:{}", classLoader, className, findModifier.getClass().getName());
         }
-        String javassistClassName = className.replace('/', '.');
+        final String javassistClassName = className.replace('/', '.');
 
         try {
             final Thread thread = Thread.currentThread();

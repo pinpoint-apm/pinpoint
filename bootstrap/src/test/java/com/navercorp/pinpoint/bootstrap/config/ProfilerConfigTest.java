@@ -14,38 +14,13 @@ import org.slf4j.LoggerFactory;
 public class ProfilerConfigTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+
 	@Test
-	public void testIsProfilableClassWithNoConfiguration() throws IOException {
+	public void defaultProfilableClassFilter() throws IOException {
 		ProfilerConfig profilerConfig = new ProfilerConfig();
-		profilerConfig.setProfilableClass("com.nhn.pinpoint.testweb.controller.*,com.nhn.pinpoint.testweb.MyClass");
-
-		Assert.assertFalse(profilerConfig.isProfilableClass("com/nhn/pinpoint/testweb/controllers/MyController"));
-		Assert.assertFalse(profilerConfig.isProfilableClass("net/spider/king/wang/Jjang"));
-		Assert.assertFalse(profilerConfig.isProfilableClass("com/nhn/pinpoint/testweb2/controller/MyController"));
-		Assert.assertFalse(profilerConfig.isProfilableClass("com/nhn/pinpoint/testweb2/MyClass"));
+		Filter<String> profilableClassFilter = profilerConfig.getProfilableClassFilter();
+		Assert.assertFalse(profilableClassFilter.filter("net/spider/king/wang/Jjang"));
 	}
-	
-	/**
-	 * <pre>
-	 * configuration is 
-	 * profile.package.include=com.nhn.pinpoint.testweb.controller.*,com.nhn.pinpoint.testweb.MyClass
-	 * </pre>
-	 * 
-	 * @throws IOException
-	 */
-	@Test
-    public void testIsProfilableClass() throws IOException {
-
-        ProfilerConfig profilerConfig = new ProfilerConfig();
-        profilerConfig.setProfilableClass("com.nhn.pinpoint.testweb.controller.*,com.nhn.pinpoint.testweb.MyClass");
-
-        Assert.assertTrue(profilerConfig.isProfilableClass("com/nhn/pinpoint/testweb/MyClass"));
-        Assert.assertTrue(profilerConfig.isProfilableClass("com/nhn/pinpoint/testweb/controller/MyController"));
-        Assert.assertTrue(profilerConfig.isProfilableClass("com/nhn/pinpoint/testweb/controller/customcontroller/MyCustomController"));
-
-        Assert.assertFalse(profilerConfig.isProfilableClass("com/nhn/pinpoint/testweb/MyUnknownClass"));
-        Assert.assertFalse(profilerConfig.isProfilableClass("com/nhn/pinpoint/testweb/controller2/MyController"));
-    }
 
     @Test
     public void readProperty() throws IOException {
