@@ -274,11 +274,11 @@ public class AutomaticBufferTest {
 
     }
 
-    @Ignore
     @Test
     public void testUdp() throws Exception {
         // Signature:Header{signature=85, version=100, type=28704}
         Buffer buffer = new AutomaticBuffer(10);
+		// l4 Udp check payload
         buffer.put((byte)85);
         buffer.put((byte) 100);
         buffer.put((short)28704);

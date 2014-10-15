@@ -43,6 +43,8 @@ public class NettyUdpReceiverTest {
                     latch.await();
                 } catch (InterruptedException e) {
                 }
+				logger.debug("server-shutdown");
+				udpServer.shutdown();
             }
         });
         thread.start();
@@ -71,13 +73,14 @@ public class NettyUdpReceiverTest {
     private void start() throws IOException, InterruptedException {
         DatagramSocket so = new DatagramSocket();
         so.connect(new InetSocketAddress("127.0.0.1", PORT));
-        int count = 100000;
+        int count = 1000;
         for (int i = 0 ; i< count; i++) {
             byte[] bytes = new byte[100];
             DatagramPacket datagramPacket = new DatagramPacket(bytes, bytes.length);
             so.send(datagramPacket);
-            Thread.sleep(100);
+            Thread.sleep(10);
         }
+		so.close();
     }
 
     private ConnectionlessBootstrap createUdpServer() {

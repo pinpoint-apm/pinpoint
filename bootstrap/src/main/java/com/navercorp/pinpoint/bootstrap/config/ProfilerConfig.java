@@ -62,7 +62,7 @@ public class ProfilerConfig {
     private boolean jdbcProfileDbcpConnectionClose = false;
 
 	private boolean tomcatHidePinpointHeader = true;
-	private Filter<String> tomcatExcludeUrlFilter = new ExcludeUrlFilter("");
+	private Filter<String> tomcatExcludeUrlFilter = new SkipFilter<String>();
 
     private boolean arucs = true;
     private boolean arucsKeyTrace = false;
@@ -126,8 +126,7 @@ public class ProfilerConfig {
 
 	private int profileJvmCollectInterval;
 	
-	private Set<String> profileInclude = new HashSet<String>();
-	private Set<String> profileIncludeSub = new HashSet<String>();
+	private Filter<String> profilableClassFilter = new SkipFilter<String>();
 
     private final long DEFAULT_HEART_BEAT_INTERVAL = 5*60*1000L;
 	private long heartbeatInterval = DEFAULT_HEART_BEAT_INTERVAL;
@@ -465,24 +464,8 @@ public class ProfilerConfig {
 	}
 	
 	
-	/**
-     * TODO remove this. 테스트 장비에서 call stack view가 잘 보이는지 테스트 하려고 추가함.
-     *
-     * @param className
-     * @return
-     */
-    public boolean isProfilableClass(String className) {
-        if (profileInclude.contains(className)) {
-            return true;
-        } else {
-            String packageName = className.substring(0, className.lastIndexOf("/") + 1);
-            for (String pkg : profileIncludeSub) {
-                if (packageName.startsWith(pkg)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+    public Filter<String> getProfilableClassFilter() {
+		return profilableClassFilter;
     }
 	
 	public ServiceType getApplicationServerType() {
@@ -548,8 +531,10 @@ public class ProfilerConfig {
 
 
 		this.tomcatHidePinpointHeader = readBoolean(prop, "profiler.tomcat.hidepinpointheader", true);
-		final String tomcatExcludeURL = readString(prop, "profiler.tomcat.excludeurl", null);
-		this.tomcatExcludeUrlFilter = new ExcludeUrlFilter(tomcatExcludeURL);
+		final String tomcatExcludeURL = readString(prop, "profiler.tomcat.excludeurl", "");
+		if (!tomcatExcludeURL.isEmpty()) {
+			this.tomcatExcludeUrlFilter = new ExcludeUrlFilter(tomcatExcludeURL);
+		}
 
         this.arucs = readBoolean(prop, "profiler.arcus", true);
         this.arucsKeyTrace = readBoolean(prop, "profiler.arcus.keytrace", false);
@@ -628,27 +613,15 @@ public class ProfilerConfig {
 		// TODO 제거, 서비스 적용에 call stack view가 잘 보이는지 테스트하려고 추가함.
 		// 수집 데이터 크기 문제로 실 서비스에서는 사용 안함.
 		// 나중에 필요에 따라 정규식으로 바꿔도 되고...
-		String profileableClass = readString(prop, "profiler.include", "");
-        setProfilableClass(profileableClass);
+		final String profileableClass = readString(prop, "profiler.include", "");
+		if (!profileableClass.isEmpty()) {
+			this.profilableClassFilter = new ProfilableClassFilter(profileableClass);
+		}
 
         logger.info("configuration loaded successfully.");
 	}
 
 
-    public void setProfilableClass(String profilableClass) {
-        if (profilableClass == null || profilableClass.length() == 0) {
-            return;
-        }
-        String[] className = profilableClass.split(",");
-        for (String str : className) {
-            if (str.endsWith(".*")) {
-                this.profileIncludeSub.add(str.substring(0, str.length() - 2).replace('.', '/') + "/");
-            } else {
-                String replace = str.trim().replace('.', '/');
-                this.profileInclude.add(replace);
-            }
-        }
-    }
 
     private String readString(Properties prop, String propertyName, String defaultValue) {
 		String value = prop.getProperty(propertyName, defaultValue);
@@ -800,8 +773,7 @@ public class ProfilerConfig {
 		sb.append(", ioBufferingEnable=").append(ioBufferingEnable);
 		sb.append(", ioBufferingBufferSize=").append(ioBufferingBufferSize);
 		sb.append(", profileJvmCollectInterval=").append(profileJvmCollectInterval);
-		sb.append(", profileInclude=").append(profileInclude);
-		sb.append(", profileIncludeSub=").append(profileIncludeSub);
+		sb.append(", profilableClassFilter=").append(profilableClassFilter);
 		sb.append(", DEFAULT_HEART_BEAT_INTERVAL=").append(DEFAULT_HEART_BEAT_INTERVAL);
 		sb.append(", heartbeatInterval=").append(heartbeatInterval);
 		sb.append(", applicationServerType=").append(applicationServerType);
