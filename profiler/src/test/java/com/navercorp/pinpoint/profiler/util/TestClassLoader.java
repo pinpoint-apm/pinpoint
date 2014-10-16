@@ -4,7 +4,7 @@ import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.modifier.Modifier;
+import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import javassist.CannotCompileException;
 import javassist.Loader;
 import javassist.NotFoundException;
@@ -53,7 +53,7 @@ public class TestClassLoader extends Loader {
         return instrumentor;
     }
 
-    public Modifier addModifier(Modifier modifier) {
+    public AbstractModifier addModifier(AbstractModifier modifier) {
         if (this.instrumentTranslator == null) {
             throw new IllegalStateException("TestClassLoader is not initialized.");
         }

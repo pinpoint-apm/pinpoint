@@ -115,7 +115,13 @@ public class ProfilerConfig {
     // line game netty config
     private int lineGameNettyParamDumpSize = 512;
     private int lineGameNettyEntityDumpSize = 512;
-    
+
+    // Spring Beans
+    private boolean springBeans = false;
+    private String springBeansNamePatterns = null;
+    private String springBeansClassPatterns = null;
+    private String springBeansAnnotations = null;
+
     // 전역 샘플링
     private boolean samplingEnable = true;
     private int samplingRate = 1;
@@ -439,6 +445,22 @@ public class ProfilerConfig {
 		return lineGameNettyEntityDumpSize;
 	}
 
+    public boolean isSpringBeansEnabled() {
+        return springBeans;
+    }
+
+    public String getSpringBeansNamePatterns() {
+        return springBeansNamePatterns;
+    }
+
+    public String getSpringBeansClassPatterns() {
+        return springBeansClassPatterns;
+    }
+
+    public String getSpringBeansAnnotations() {
+        return springBeansAnnotations;
+    }
+    
 	public boolean isIBatisEnabled() {
 		return ibatis;
 	}
@@ -592,7 +614,12 @@ public class ProfilerConfig {
         this.ibatis = readBoolean(prop, "profiler.orm.ibatis", true);
         
         this.mybatis = readBoolean(prop, "profiler.orm.mybatis", true);
-        
+
+        this.springBeans = readBoolean(prop, "profiler.spring.beans", false);
+        this.springBeansNamePatterns = readString(prop, "profiler.spring.beans.name.pattern", null);
+        this.springBeansClassPatterns = readString(prop, "profiler.spring.beans.class.pattern", null);
+        this.springBeansAnnotations = readString(prop, "profiler.spring.beans.annotation", null);
+
         this.samplingEnable = readBoolean(prop, "profiler.sampling.enable", true);
         this.samplingRate = readInt(prop, "profiler.sampling.rate", 1);
         
@@ -768,6 +795,10 @@ public class ProfilerConfig {
 		sb.append(", ningAsyncHttpClientProfileParamSamplingRate=").append(ningAsyncHttpClientProfileParamSamplingRate);
 		sb.append(", lineGameNettyParamDumpSize=").append(lineGameNettyParamDumpSize);
 		sb.append(", lineGameNettyEntityDumpSize=").append(lineGameNettyEntityDumpSize);
+        sb.append(", springBeans=").append(springBeans);
+        sb.append(", springBeansNamePatterns=").append(springBeansNamePatterns);
+        sb.append(", springBeansClassPatterns=").append(springBeansClassPatterns);
+        sb.append(", springBeansAnnotations=").append(springBeansAnnotations);
 		sb.append(", samplingEnable=").append(samplingEnable);
 		sb.append(", samplingRate=").append(samplingRate);
 		sb.append(", ioBufferingEnable=").append(ioBufferingEnable);

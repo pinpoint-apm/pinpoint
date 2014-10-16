@@ -5,6 +5,6 @@ package com.nhn.pinpoint.profiler.modifier;
  */
 public interface ModifierRegistry {
 
-    Modifier findModifier(String className);
+    AbstractModifier findModifier(String className);
 
 }
