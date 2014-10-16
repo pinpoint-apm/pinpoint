@@ -11,10 +11,6 @@ public abstract class AbstractModifier implements Modifier {
     protected final ByteCodeInstrumentor byteCodeInstrumentor;
     protected final Agent agent;
 
-    public Agent getAgent() {
-        return agent;
-    }
-
     public AbstractModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         if (byteCodeInstrumentor == null) {
             throw new NullPointerException("byteCodeInstrumentor must not be null");
@@ -26,4 +22,9 @@ public abstract class AbstractModifier implements Modifier {
         this.agent = agent;
     }
 
+    public Agent getAgent() {
+        return agent;
+    }
+    
+    public abstract String getTargetClass();
 }

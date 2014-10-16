@@ -63,7 +63,8 @@ public class DefaultAgent implements Agent {
 
     private final ByteCodeInstrumentor byteCodeInstrumentor;
     private final ClassFileTransformer classFileTransformer;
-
+    private final ClassFileRetransformer retransformer;
+    
     private final ProfilerConfig profilerConfig;
 
     private final ServerInfo serverInfo;
@@ -121,8 +122,14 @@ public class DefaultAgent implements Agent {
         if (logger.isInfoEnabled()) {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
         }
+        
+        // retransform를 사용하는 modifier가 있기 때문에 retransformer를 classFileTransformer보다 먼저 생성해야 한다. 
+        this.retransformer = new ClassFileRetransformer(instrumentation);
+        instrumentation.addTransformer(retransformer, true);
+
         this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor);
         instrumentation.addTransformer(this.classFileTransformer);
+        
 
         final AgentInformationFactory agentInformationFactory = new AgentInformationFactory();
         this.agentInformation = agentInformationFactory.createAgentInformation(typeResolver.getServerType());
@@ -354,6 +361,10 @@ public class DefaultAgent implements Agent {
 
     public AgentInformation getAgentInformation() {
         return agentInformation;
+    }
+    
+    public ClassFileRetransformer getRetransformer() {
+        return retransformer;
     }
 
     @Override
