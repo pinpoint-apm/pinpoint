@@ -24,4 +24,20 @@ public final class AssertUtils {
 		}
 	}
 	
+	public static void assertTrue(boolean value) {
+		assertTrue(value, "value must be true.");
+	}
+
+	public static void assertTrue(boolean value, String message) {
+		if (!value) {
+			throw new IllegalArgumentException(message);
+		}
+	}
+	
+	public static <T extends Throwable> void assertTrue(boolean value, T throwable) throws T {
+		if (!value) {
+			throw throwable;
+		}
+	}
+	
 }
