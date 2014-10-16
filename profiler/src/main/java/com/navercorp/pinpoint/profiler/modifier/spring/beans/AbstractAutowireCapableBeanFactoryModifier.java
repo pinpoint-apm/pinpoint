@@ -14,6 +14,7 @@ import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.Modifier;
+import com.nhn.pinpoint.profiler.modifier.spring.beans.interceptor.CreateBeanInstanceInterceptor;
 import com.nhn.pinpoint.profiler.modifier.spring.beans.interceptor.PostProcessorInterceptor;
 import com.nhn.pinpoint.profiler.modifier.spring.beans.interceptor.TargetBeanFilter;
 
@@ -86,11 +87,7 @@ public class AbstractAutowireCapableBeanFactoryModifier extends AbstractModifier
         try {
             InstrumentClass aClass = byteCodeInstrumentor.getClass(className);
 
-            Interceptor createBeanInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, 
-                    "com.nhn.pinpoint.profiler.modifier.spring.beans.interceptor.CreateBeanInstanceInterceptor", 
-                    new Object[] { retransformer, modifier, filter }, 
-                    new Class<?>[] { ClassFileRetransformer.class, Modifier.class, TargetBeanFilter.class });
-            
+            Interceptor createBeanInterceptor = new CreateBeanInstanceInterceptor(retransformer, modifier, filter);
             aClass.addInterceptor("createBeanInstance",
                     new String[] { "java.lang.String", "org.springframework.beans.factory.support.RootBeanDefinition", "java.lang.Object[]" },
                     createBeanInterceptor);
