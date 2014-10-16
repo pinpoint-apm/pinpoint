@@ -9,6 +9,9 @@
     <!-- retransformed by class -->
     <bean id="morae" class="com.nhn.pinpoint.profiler.modifier.spring.beans.Morae"/>
     
+    <!-- retransformed by class. duplicated class -->
+    <bean id="duplicatedMorae" class="com.nhn.pinpoint.profiler.modifier.spring.beans.Morae"/>
+    
     <!-- retransformed by annotation -->
     <bean id="mozzi" class="com.nhn.pinpoint.profiler.modifier.spring.beans.Mozzi" scope="prototype"/>
     
@@ -24,6 +27,11 @@
     
     
     <!-- proxy -->
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator">
+        <property name="proxyTargetClass" value="true"></property>
+    </bean>
     
+    <bean id="testAdvisor" class="com.nhn.pinpoint.profiler.modifier.spring.beans.TestAdvisor"/>
     
+    <bean id="proxyTarget" class="com.nhn.pinpoint.profiler.modifier.spring.beans.ProxyTarget"/>
 </beans>

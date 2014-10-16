@@ -412,7 +412,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 
     public void addSpringBeansModifier() {
         if (profilerConfig.isSpringBeansEnabled()) {
-            addModifier(new AbstractAutowireCapableBeanFactoryModifier(byteCodeInstrumentor, agent));
+            addModifier(AbstractAutowireCapableBeanFactoryModifier.of(byteCodeInstrumentor, agent));
         }
     }
 
