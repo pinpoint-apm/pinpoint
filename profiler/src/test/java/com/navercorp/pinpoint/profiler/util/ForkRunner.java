@@ -116,7 +116,7 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
             try {
                 process.waitFor();
             } catch (InterruptedException e) {
-                process.destroyForcibly();
+                process.destroy();
             }
         }
 
