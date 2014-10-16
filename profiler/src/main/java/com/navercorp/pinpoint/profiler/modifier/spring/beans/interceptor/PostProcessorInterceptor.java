@@ -2,7 +2,6 @@ package com.nhn.pinpoint.profiler.modifier.spring.beans.interceptor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanWrapper;
 
 import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.profiler.ClassFileRetransformer;
