@@ -31,8 +31,6 @@
 	
 	<bean id="alarmController" class="com.nhn.pinpoint.web.controller.AlarmController"/>
 
-    <util:properties id="dataProps" location="classpath:data.properties"/>
-
     <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
             <list>
@@ -45,7 +43,7 @@
     <import resource="classpath:applicationContext-hbase.xml"/>
     <import resource="classpath:applicationContext-datasource.xml" />
     <import resource="classpath:applicationContext-dao-config.xml" />
-    <import resource="classpath:applicationContext-batch.xml" />
+    <import resource="classpath:batch/applicationContext-batch.xml" />
 
     <bean id="trace" class="com.nhn.pinpoint.collector.dao.hbase.HbaseTraceDao"/>
     <bean class="com.nhn.pinpoint.collector.dao.hbase.HbaseAgentInfoDao"/>
