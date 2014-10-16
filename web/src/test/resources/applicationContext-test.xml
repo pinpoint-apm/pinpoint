@@ -63,7 +63,7 @@
 
     <bean id="timeSlot" class="com.nhn.pinpoint.common.util.DefaultTimeSlot"/>
     
-    <util:properties id="pinpointWebProps" location="classpath:pinpoint-web.properties"/>
+    <util:properties id="pinpointWebProps" location="classpath:pinpoint-web-junit.properties"/>
     
     <bean id="config" class="com.nhn.pinpoint.web.config.WebConfig"/>
     
