@@ -6,6 +6,7 @@ import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.ResponseMessage;
 import com.nhn.pinpoint.rpc.stream.ClientStreamChannelContext;
 import com.nhn.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
+import com.nhn.pinpoint.rpc.stream.StreamChannelContext;
 
 import java.net.SocketAddress;
 
@@ -69,6 +70,11 @@ public class ReconnectStateSocketHandler implements SocketHandler {
 
     @Override
     public ClientStreamChannelContext createStreamChannel(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
+    	throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    public StreamChannelContext findStreamChannel(int streamChannelId) {
     	throw new UnsupportedOperationException();
     }
     
