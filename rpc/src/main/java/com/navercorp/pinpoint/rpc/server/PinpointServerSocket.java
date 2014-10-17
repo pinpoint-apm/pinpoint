@@ -47,11 +47,14 @@ import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.ResponsePacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.rpc.packet.ServerClosePacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamClosePacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamCreatePacket;
 import com.nhn.pinpoint.rpc.packet.stream.StreamPacket;
+import com.nhn.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListener;
+import com.nhn.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
+import com.nhn.pinpoint.rpc.stream.StreamChannelManager;
+import com.nhn.pinpoint.rpc.util.AssertUtils;
 import com.nhn.pinpoint.rpc.util.ControlMessageEnDeconderUtils;
 import com.nhn.pinpoint.rpc.util.CpuUtils;
+import com.nhn.pinpoint.rpc.util.IDGenerator;
 import com.nhn.pinpoint.rpc.util.LoggerFactorySetup;
 import com.nhn.pinpoint.rpc.util.TimerFactory;
 
@@ -76,6 +79,8 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     private final Timer requestManagerTimer;
 
     private ServerMessageListener messageListener = SimpleLoggingServerMessageListener.LISTENER;
+    private ServerStreamChannelMessageListener serverStreamChannelMessageListener = DisabledServerStreamChannelMessageListener.INSTANCE;
+    
     private WriteFailFutureListener traceSendAckWriteFailFutureListener = new  WriteFailFutureListener(logger, "TraceSendAckPacket send fail.", "TraceSendAckPacket send() success.");
     private InetAddress[] ignoreAddressList;
 
@@ -125,6 +130,12 @@ public class PinpointServerSocket extends SimpleChannelHandler {
             throw new NullPointerException("messageListener must not be null");
         }
         this.messageListener = messageListener;
+    }
+    
+    public void setServerStreamChannelMessageListener(ServerStreamChannelMessageListener serverStreamChannelMessageListener) {
+    	AssertUtils.assertNotNull(serverStreamChannelMessageListener, "serverStreamChannelMessageListener must not be null");
+    	
+        this.serverStreamChannelMessageListener = serverStreamChannelMessageListener;
     }
 
     private void setOptions(ServerBootstrap bootstrap) {
@@ -214,6 +225,8 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 			case PacketType.APPLICATION_STREAM_CREATE_SUCCESS:
 			case PacketType.APPLICATION_STREAM_CREATE_FAIL:
 			case PacketType.APPLICATION_STREAM_RESPONSE:
+			case PacketType.APPLICATION_STREAM_PING:
+			case PacketType.APPLICATION_STREAM_PONG:
 				handleStreamPacket((StreamPacket) message, channel);
 				return;
 			case PacketType.CONTROL_ENABLE_WORKER:
@@ -258,31 +271,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 
     private void handleStreamPacket(StreamPacket packet, Channel channel) {
         ChannelContext context = getChannelContext(channel);
-        if (packet instanceof StreamCreatePacket) {
-            logger.debug("StreamCreate {}, streamId:{}", channel, packet.getStreamChannelId());
-            try {
-                ServerStreamChannel streamChannel = context.createStreamChannel(packet.getStreamChannelId());
-                boolean success = streamChannel.receiveChannelCreate((StreamCreatePacket) packet);
-                if (success) {
-                    messageListener.handleStream(packet, streamChannel);
-                }
-
-            } catch (PinpointSocketException e) {
-                logger.warn("channel create fail. channel:{} Caused:{}", channel, e);
-            }
-        } else if (packet instanceof StreamClosePacket) {
-            logger.debug("StreamDestroy {}, streamId:{}", channel, packet.getStreamChannelId());
-            ServerStreamChannel streamChannel = context.getStreamChannel(packet.getStreamChannelId());
-            // null이 나올수 있음.
-            boolean close = streamChannel.close();
-            if (close) {
-                messageListener.handleStream(packet, streamChannel);
-            } else {
-                logger.warn("invalid streamClosePacket. already close. channel:{} Caused:{}", channel);
-            }
-        } else {
-            logger.warn("invalid streamPacket. channel:{}", channel);
-        }
+        context.getStreamChannelManager().messageReceived(packet);
     }
     
 	private Map<Object, Object> decodeSocketProperties(ControlEnableWorkerPacket message) {
@@ -439,7 +428,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 
     private void prepareChannel(Channel channel) {
     	SocketChannel socketChannel = new SocketChannel(channel, DEFAULT_TIMEOUTMILLIS, requestManagerTimer);
-    	ServerStreamChannelManager streamChannelManager = new ServerStreamChannelManager(channel);
+       	StreamChannelManager streamChannelManager = new StreamChannelManager(channel, IDGenerator.createEvenIdGenerator(), serverStreamChannelMessageListener);
     	
         ChannelContext channelContext = new ChannelContext(socketChannel, streamChannelManager, channelStateChangeEventListener);
 

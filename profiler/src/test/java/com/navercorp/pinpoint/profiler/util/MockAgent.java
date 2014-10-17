@@ -65,17 +65,7 @@ public class MockAgent extends DefaultAgent {
     }
 
     @Override
-    protected PinpointSocketFactory createPinpointSocketFactory() {
-        return null;
-    }
-
-    @Override
     protected PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory) {
-        return null;
-    }
-
-    @Override
-    protected PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory, boolean useMessageListener) {
         return null;
     }
 

@@ -10,6 +10,8 @@ import com.nhn.pinpoint.rpc.DefaultFuture;
 import com.nhn.pinpoint.rpc.Future;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.ResponseMessage;
+import com.nhn.pinpoint.rpc.stream.ClientStreamChannelContext;
+import com.nhn.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
 import com.nhn.pinpoint.rpc.util.AssertUtils;
 
 
@@ -21,7 +23,6 @@ import com.nhn.pinpoint.rpc.util.AssertUtils;
 public class PinpointSocket {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final MessageListener messageListener;
 
     private volatile SocketHandler socketHandler;
 
@@ -32,27 +33,18 @@ public class PinpointSocket {
     public PinpointSocket() {
     	this(new ReconnectStateSocketHandler());
     }
-    
-    public PinpointSocket(MessageListener messageListener) {
-    	this(new ReconnectStateSocketHandler(), messageListener);
-    }
 
     public PinpointSocket(SocketHandler socketHandler) {
-    	this(socketHandler, SimpleLoggingMessageListener.LISTENER);
-    }
-    
-    public PinpointSocket(SocketHandler socketHandler, MessageListener messageListener) {
         AssertUtils.assertNotNull(socketHandler, "socketHandler");
-        AssertUtils.assertNotNull(messageListener, "messageListener");
-        
-        this.messageListener = messageListener;
-        socketHandler.setMessageListener(this.messageListener);
+
+        if (socketHandler.isSupportServerMode()) {
+        	socketHandler.turnOnServerMode();
+        }
         
         this.socketHandler = socketHandler;
         
         socketHandler.setPinpointSocket(this);
     }
-
 
     void reconnectSocketHandler(SocketHandler socketHandler) {
         AssertUtils.assertNotNull(socketHandler, "socketHandler");
@@ -64,8 +56,11 @@ public class PinpointSocket {
         }
         logger.warn("reconnectSocketHandler:{}", socketHandler);
         
-        // Pinpoint 소켓 내부 객체가 되기전에 listener를 먼저 등록
-        socketHandler.setMessageListener(messageListener);
+        // Pinpoint 소켓 내부 객체가 되기전에 listener를 먼저 등록        
+        if (socketHandler.isSupportServerMode()) {
+        	socketHandler.turnOnServerMode();
+        }
+        
         this.socketHandler = socketHandler;
         
         notifyReconnectEvent();
@@ -118,12 +113,11 @@ public class PinpointSocket {
         return socketHandler.request(bytes);
     }
 
-
-    public StreamChannel createStreamChannel() {
+    public ClientStreamChannelContext createStreamChannel(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
         // 실패를 리턴하는 StreamChannel을 던져야 되는데. StreamChannel을 interface로 변경해야 됨.
         // 일단 그냥 ex를 던지도록 하겠음.
         ensureOpen();
-        return socketHandler.createStreamChannel();
+        return socketHandler.createStreamChannel(payload, clientStreamChannelMessageListener);
     }
 
     private Future<ResponseMessage> returnFailureFuture() {

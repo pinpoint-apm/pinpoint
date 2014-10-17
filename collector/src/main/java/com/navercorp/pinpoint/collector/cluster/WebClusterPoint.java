@@ -22,16 +22,12 @@ public class WebClusterPoint implements ClusterPoint {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private final PinpointSocketFactory factory;
 
-	private final MessageListener messageListener;
-	// InetSocketAddress List로 전달 하는게 좋을거 같은데 이걸 Key로만들기가 쉽지 않네;
-
 	private final Map<InetSocketAddress, PinpointSocket> clusterRepository = new HashMap<InetSocketAddress, PinpointSocket>();
 
 	public WebClusterPoint(String id, MessageListener messageListener) {
-		this.messageListener = messageListener;
-		
 		this.factory = new PinpointSocketFactory();
 		this.factory.setTimeoutMillis(1000 * 5);
+		this.factory.setMessageListener(messageListener);
 
 		Map<String, Object> properties = new HashMap<String, Object>();
 		properties.put("id", id);
@@ -74,7 +70,7 @@ public class WebClusterPoint implements ClusterPoint {
 		PinpointSocket socket = null;
 		for (int i = 0; i < 3; i++) {
 			try {
-				socket = factory.connect(host, port, messageListener);
+				socket = factory.connect(host, port);
 				logger.info("tcp connect success:{}/{}", host, port);
 				return socket;
 			} catch (PinpointSocketException e) {
@@ -82,7 +78,7 @@ public class WebClusterPoint implements ClusterPoint {
 			}
 		}
 		logger.warn("change background tcp connect mode  {}/{} ", host, port);
-		socket = factory.scheduledConnect(host, port, messageListener);
+		socket = factory.scheduledConnect(host, port);
 
 		return socket;
 	}

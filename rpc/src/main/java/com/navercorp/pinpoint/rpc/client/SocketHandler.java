@@ -1,9 +1,11 @@
 package com.nhn.pinpoint.rpc.client;
 
+import java.net.SocketAddress;
+
 import com.nhn.pinpoint.rpc.Future;
 import com.nhn.pinpoint.rpc.ResponseMessage;
-
-import java.net.SocketAddress;
+import com.nhn.pinpoint.rpc.stream.ClientStreamChannelContext;
+import com.nhn.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
 
 /**
  * @author emeroad
@@ -29,11 +31,14 @@ public interface SocketHandler {
 
     Future<ResponseMessage> request(byte[] bytes);
 
-    StreamChannel createStreamChannel();
+    ClientStreamChannelContext createStreamChannel(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener);
 
     void sendPing();
 
     boolean isConnected();
 
-	void setMessageListener(MessageListener messageListener);
+	boolean isSupportServerMode();
+	
+	void turnOnServerMode();
+	
 }

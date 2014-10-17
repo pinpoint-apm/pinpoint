@@ -32,12 +32,16 @@ public class MessageListenerTest {
 		PinpointServerSocket ss = new PinpointServerSocket();
 		ss.bind("127.0.0.1", 10234);
 
-		PinpointSocketFactory socketFactory = createPinpointSocketFactory();
+		PinpointSocketFactory socketFactory1 = createPinpointSocketFactory();
+		socketFactory1.setMessageListener(new EchoMessageListener());
+
+		PinpointSocketFactory socketFactory2 = createPinpointSocketFactory();
+
 		try {
 
 			// 리스터를 등록한 것만 RegisterAgent 로 나옴
-			PinpointSocket socket = socketFactory.connect("127.0.0.1", 10234, new EchoMessageListener());
-			PinpointSocket socket2 = socketFactory.connect("127.0.0.1", 10234);
+			PinpointSocket socket = socketFactory1.connect("127.0.0.1", 10234);
+			PinpointSocket socket2 = socketFactory2.connect("127.0.0.1", 10234);
 
 			Thread.sleep(500);
 
@@ -49,7 +53,9 @@ public class MessageListenerTest {
 			socket.close();
 			socket2.close();
 		} finally {
-			socketFactory.release();
+			socketFactory1.release();
+			socketFactory2.release();
+			
 			ss.close();
 		}
 	}
@@ -59,14 +65,14 @@ public class MessageListenerTest {
 		PinpointServerSocket ss = new PinpointServerSocket();
 		ss.bind("127.0.0.1", 10234);
 
+		EchoMessageListener echoMessageListener = new EchoMessageListener();
+
 		PinpointSocketFactory socketFactory = createPinpointSocketFactory();
+		socketFactory.setMessageListener(echoMessageListener);
 
 		try {
-
-			EchoMessageListener echoMessageListener = new EchoMessageListener();
-			
 			// 리스터를 등록한 것만 RegisterAgent 로 나옴
-			PinpointSocket socket = socketFactory.connect("127.0.0.1", 10234, echoMessageListener);
+			PinpointSocket socket = socketFactory.connect("127.0.0.1", 10234);
 			Thread.sleep(500);
 
 			List<ChannelContext> channelContextList = ss.getDuplexCommunicationChannelContext();
@@ -99,17 +105,18 @@ public class MessageListenerTest {
 		PinpointServerSocket ss = new PinpointServerSocket();
 		ss.bind("127.0.0.1", 10234);
 
-		PinpointSocketFactory socketFactory = createPinpointSocketFactory();
-
+		PinpointSocketFactory socketFactory1 = createPinpointSocketFactory();
+		EchoMessageListener echoMessageListener1 = new EchoMessageListener();
+		socketFactory1.setMessageListener(echoMessageListener1);
+		
+		PinpointSocketFactory socketFactory2 = createPinpointSocketFactory();
+		EchoMessageListener echoMessageListener2 = new EchoMessageListener();
+		socketFactory2.setMessageListener(echoMessageListener2);
+		
 		try {
-
-			EchoMessageListener echoMessageListener1 = new EchoMessageListener();
-			EchoMessageListener echoMessageListener2 = new EchoMessageListener();
-			
-			
 			// 리스터를 등록한 것만 RegisterAgent 로 나옴
-			PinpointSocket socket = socketFactory.connect("127.0.0.1", 10234, echoMessageListener1);
-			PinpointSocket socket2 = socketFactory.connect("127.0.0.1", 10234, echoMessageListener2);
+			PinpointSocket socket = socketFactory1.connect("127.0.0.1", 10234);
+			PinpointSocket socket2 = socketFactory2.connect("127.0.0.1", 10234);
 			
 			Thread.sleep(500);
 
@@ -131,7 +138,9 @@ public class MessageListenerTest {
 			socket.close();
 			socket2.close();
 		} finally {
-			socketFactory.release();
+			socketFactory1.release();
+			socketFactory2.release();
+			
 			ss.close();
 		}
 	}
@@ -143,12 +152,12 @@ public class MessageListenerTest {
 
 		Map params = getParams();
 		PinpointSocketFactory socketFactory = createPinpointSocketFactory(params);
+		socketFactory.setMessageListener(new EchoMessageListener());
 
 		try {
-			EchoMessageListener echoMessageListener1 = new EchoMessageListener();
 			
 			// 리스터를 등록한 것만 RegisterAgent 로 나옴
-			PinpointSocket socket = socketFactory.connect("127.0.0.1", 10234, echoMessageListener1);
+			PinpointSocket socket = socketFactory.connect("127.0.0.1", 10234);
 			
 			Thread.sleep(500);
 
@@ -171,10 +180,11 @@ public class MessageListenerTest {
 		ss.bind("127.0.0.1", 10234);
 
 		PinpointSocketFactory socketFactory = createPinpointSocketFactory();
+		socketFactory.setMessageListener(SimpleLoggingMessageListener.LISTENER);
 		try {
 
 			// Listener가 없을때 디폴트로 등록하는 SimpleLoggingMessageListener.LISTENER인 경우 상호 연결이 불가능함
-			PinpointSocket socket = socketFactory.connect("127.0.0.1", 10234, SimpleLoggingMessageListener.LISTENER);
+			PinpointSocket socket = socketFactory.connect("127.0.0.1", 10234);
 
 			Thread.sleep(500);
 
@@ -201,11 +211,12 @@ public class MessageListenerTest {
 
 		PinpointSocketFactory socketFactory = createPinpointSocketFactory();
 		socketFactory.setEnableWorkerPacketDelay(500);
+		socketFactory.setMessageListener(new EchoMessageListener());
 		
 		try {
 
 			// Listener가 없을때 디폴트로 등록하는 SimpleLoggingMessageListener.LISTENER인 경우 상호 연결이 불가능함
-			PinpointSocket socket = socketFactory.connect("127.0.0.1", 10234, new EchoMessageListener());
+			PinpointSocket socket = socketFactory.connect("127.0.0.1", 10234);
 			Thread.sleep(5000);
 
 			List<ChannelContext> channelContextList = ss.getDuplexCommunicationChannelContext();

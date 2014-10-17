@@ -7,13 +7,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.rpc.TestByteUtils;
 import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamClosePacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamCreatePacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamPacket;
 
 /**
  * @author emeroad
@@ -37,40 +33,10 @@ public class TestSeverMessageListener implements ServerMessageListener {
         channel.sendResponseMessage(requestPacket, requestPacket.getPayload());
     }
 
-
-    @Override
-    public void handleStream(StreamPacket streamPacket, ServerStreamChannel streamChannel) {
-        logger.debug("streamPacket:{} channel:{}", streamPacket, streamChannel);
-        if (streamPacket instanceof StreamCreatePacket) {
-            byte[] payload = streamPacket.getPayload();
-            this.open = payload;
-            streamChannel.sendOpenResult(true, payload);
-            sendStreamMessage(streamChannel);
-            sendStreamMessage(streamChannel);
-            sendStreamMessage(streamChannel);
-
-            sendClose(streamChannel);
-        }  else if(streamPacket instanceof StreamClosePacket) {
-            // 채널 종료해야 함.
-        }
-
-    }
-    
     @Override
     public int handleEnableWorker(Map properties) {
         logger.debug("handleEnableWorker properties:{} channel:{}", properties);
         return ControlEnableWorkerConfirmPacket.SUCCESS;
-    }
-
-    private void sendClose(ServerStreamChannel streamChannel) {
-        sendMessageList.add(new byte[0]);
-        streamChannel.close();
-    }
-
-    private void sendStreamMessage(ServerStreamChannel streamChannel) {
-        byte[] randomByte = TestByteUtils.createRandomByte(10);
-        streamChannel.sendStreamMessage(randomByte);
-        sendMessageList.add(randomByte);
     }
 
     public byte[] getOpen() {

@@ -6,11 +6,16 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.nhn.pinpoint.rpc.stream.ClientStreamChannelContext;
+import com.nhn.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
+import com.nhn.pinpoint.rpc.stream.StreamChannelContext;
+import com.nhn.pinpoint.rpc.stream.StreamChannelManager;
+
 public class ChannelContext {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private final ServerStreamChannelManager streamChannelManager;
+	private final StreamChannelManager streamChannelManager;
 
 	private final SocketChannel socketChannel;
 
@@ -20,11 +25,11 @@ public class ChannelContext {
 	
 	private volatile Map<Object, Object> channelProperties = Collections.emptyMap();
 
-	public ChannelContext(SocketChannel socketChannel, ServerStreamChannelManager streamChannelManager) {
+	public ChannelContext(SocketChannel socketChannel, StreamChannelManager streamChannelManager) {
 		this(socketChannel, streamChannelManager, DoNothingChannelStateEventListener.INSTANCE);
 	}
 	
-	public ChannelContext(SocketChannel socketChannel, ServerStreamChannelManager streamChannelManager, SocketChannelStateChangeEventListener stateChangeEventListener) {
+	public ChannelContext(SocketChannel socketChannel, StreamChannelManager streamChannelManager, SocketChannelStateChangeEventListener stateChangeEventListener) {
 		this.socketChannel = socketChannel;
 		this.streamChannelManager = streamChannelManager;
 
@@ -33,16 +38,16 @@ public class ChannelContext {
 		this.state = new PinpointServerSocketState();
 	}
 
-	public ServerStreamChannel getStreamChannel(int channelId) {
+	public StreamChannelContext getStreamChannel(int channelId) {
 		return streamChannelManager.findStreamChannel(channelId);
 	}
 
-	public ServerStreamChannel createStreamChannel(int channelId) {
-		return streamChannelManager.createStreamChannel(channelId);
+	public ClientStreamChannelContext createStreamChannel(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
+		return streamChannelManager.openStreamChannel(payload, clientStreamChannelMessageListener);
 	}
 
 	public void closeAllStreamChannel() {
-		streamChannelManager.closeInternal();
+		streamChannelManager.close();
 	}
 
 	public SocketChannel getSocketChannel() {
@@ -111,6 +116,10 @@ public class ChannelContext {
 
         this.channelProperties = Collections.unmodifiableMap(properties);
         return true;
+	}
+	
+	public StreamChannelManager getStreamChannelManager() {
+		return streamChannelManager;
 	}
 
 }

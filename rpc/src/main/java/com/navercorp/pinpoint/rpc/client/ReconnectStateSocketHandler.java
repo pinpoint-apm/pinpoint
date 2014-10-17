@@ -4,6 +4,8 @@ import com.nhn.pinpoint.rpc.DefaultFuture;
 import com.nhn.pinpoint.rpc.Future;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.ResponseMessage;
+import com.nhn.pinpoint.rpc.stream.ClientStreamChannelContext;
+import com.nhn.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
 
 import java.net.SocketAddress;
 
@@ -21,10 +23,6 @@ public class ReconnectStateSocketHandler implements SocketHandler {
     @Override
     public void open() {
         throw new IllegalStateException();
-    }
-    
-    @Override
-    public void setMessageListener(MessageListener messageListener) {
     }
 
     @Override
@@ -70,10 +68,10 @@ public class ReconnectStateSocketHandler implements SocketHandler {
     }
 
     @Override
-    public StreamChannel createStreamChannel() {
-        throw new UnsupportedOperationException();
+    public ClientStreamChannelContext createStreamChannel(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
+    	throw new UnsupportedOperationException();
     }
-
+    
     @Override
     public void sendPing() {
     }
@@ -82,4 +80,15 @@ public class ReconnectStateSocketHandler implements SocketHandler {
 	public boolean isConnected() {
 		return false;
 	}
+	
+	@Override
+	public boolean isSupportServerMode() {
+		return false;
+	}
+	
+	@Override
+	public void turnOnServerMode() {
+        throw new UnsupportedOperationException();
+	}
+	
 }

@@ -137,9 +137,8 @@ public class DefaultAgent implements Agent {
 
         this.tAgentInfo = createTAgentInfo();
 
-        this.factory = createPinpointSocketFactory();
-        this.socket = createPinpointSocket(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorTcpServerPort(), factory,
-                this.profilerConfig.isTcpDataSenderCommandAcceptEnable());
+        this.factory = createPinpointSocketFactory(this.profilerConfig.isTcpDataSenderCommandAcceptEnable());
+        this.socket = createPinpointSocket(this.profilerConfig.getCollectorServerIp(), this.profilerConfig.getCollectorTcpServerPort(), factory);
 
         this.tcpDataSender = createTcpDataSender(socket);
 
@@ -285,7 +284,7 @@ public class DefaultAgent implements Agent {
         return serverMetaDataHolder;
     }
 
-    protected PinpointSocketFactory createPinpointSocketFactory() {
+    protected PinpointSocketFactory createPinpointSocketFactory(boolean isSupportServerMode) {
         Map<String, Object> properties = this.agentInformation.toMap();
         properties.put(AgentPropertiesType.IP.getName(), serverInfo.getHostip());
 
@@ -293,28 +292,22 @@ public class DefaultAgent implements Agent {
         pinpointSocketFactory.setTimeoutMillis(1000 * 5);
         pinpointSocketFactory.setProperties(properties);
 
+        if (isSupportServerMode) {
+        	pinpointSocketFactory.setMessageListener(new CommandDispatcher());
+        }
+
         return pinpointSocketFactory;
     }
 
     protected PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory) {
-        return createPinpointSocket(host, port, factory, false);
-    }
-
-    protected PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory, boolean useMessageListener) {
         // 1.2 버전이 Tcp Data Command 허용하는 버전이 아니기 떄문에 true이던 false이던 무조건 SimpleLoggingMessageListener를 이용하게 함
         // SimpleLoggingMessageListener.LISTENER 는 서로 통신을 하지 않게 설정되어 있음 (테스트코드는 pinpoint-rpc에 존재)
         // 1.3 버전으로 할 경우 아래 분기에서 MessageListener 변경 필요
-        MessageListener messageListener = null;
-        if (useMessageListener) {
-            messageListener = new CommandDispatcher();
-        } else {
-            messageListener = SimpleLoggingMessageListener.LISTENER;
-        }
 
         PinpointSocket socket = null;
         for (int i = 0; i < 3; i++) {
             try {
-                socket = factory.connect(host, port, messageListener);
+                socket = factory.connect(host, port);
                 logger.info("tcp connect success:{}/{}", host, port);
                 return socket;
             } catch (PinpointSocketException e) {
@@ -322,7 +315,7 @@ public class DefaultAgent implements Agent {
             }
         }
         logger.warn("change background tcp connect mode  {}/{} ", host, port);
-        socket = factory.scheduledConnect(host, port, messageListener);
+        socket = factory.scheduledConnect(host, port);
 
         return socket;
     }

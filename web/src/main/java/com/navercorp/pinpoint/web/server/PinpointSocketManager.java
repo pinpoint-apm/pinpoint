@@ -22,8 +22,8 @@ import com.nhn.pinpoint.rpc.packet.stream.StreamPacket;
 import com.nhn.pinpoint.rpc.server.ChannelContext;
 import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
 import com.nhn.pinpoint.rpc.server.ServerMessageListener;
-import com.nhn.pinpoint.rpc.server.ServerStreamChannel;
 import com.nhn.pinpoint.rpc.server.SocketChannel;
+import com.nhn.pinpoint.rpc.stream.ServerStreamChannel;
 import com.nhn.pinpoint.web.cluster.ClusterManager;
 import com.nhn.pinpoint.web.cluster.zookeeper.ZookeeperClusterManager;
 import com.nhn.pinpoint.web.config.WebConfig;
@@ -166,11 +166,6 @@ public class PinpointSocketManager {
 		@Override
 		public void handleRequest(RequestPacket requestPacket, SocketChannel channel) {
 			logger.warn("Unsupport request received {} {}", requestPacket, channel);
-		}
-
-		@Override
-		public void handleStream(StreamPacket streamPacket, ServerStreamChannel streamChannel) {
-			logger.warn("unsupported streamPacket received {}", streamPacket);
 		}
 
 		@Override

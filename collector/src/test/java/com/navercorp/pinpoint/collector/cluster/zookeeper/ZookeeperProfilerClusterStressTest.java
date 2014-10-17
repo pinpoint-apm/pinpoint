@@ -216,6 +216,7 @@ public class ZookeeperProfilerClusterStressTest {
 
 			this.factory = new PinpointSocketFactory();
 			this.factory.setProperties(properties);
+			this.factory.setMessageListener(messageListener);
 		}
 
 		private void connect(InetSocketAddress address) {
@@ -249,7 +250,7 @@ public class ZookeeperProfilerClusterStressTest {
 		PinpointSocket socket = null;
 		for (int i = 0; i < 3; i++) {
 			try {
-				socket = factory.connect(host, port, messageListener);
+				socket = factory.connect(host, port);
 				logger.info("tcp connect success:{}/{}", host, port);
 				return socket;
 			} catch (PinpointSocketException e) {
@@ -257,7 +258,7 @@ public class ZookeeperProfilerClusterStressTest {
 			}
 		}
 		logger.warn("change background tcp connect mode  {}/{} ", host, port);
-		socket = factory.scheduledConnect(host, port, messageListener);
+		socket = factory.scheduledConnect(host, port);
 
 		return socket;
 	}

@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamPacket;
 
 /**
  * @author emeroad
@@ -29,12 +28,6 @@ public class SimpleLoggingServerMessageListener implements ServerMessageListener
         logger.info("handlerRequest {} {}", requestPacket, channel);
     }
 
-
-    @Override
-    public void handleStream(StreamPacket streamPacket, ServerStreamChannel streamChannel) {
-        logger.info("handlerStream {} {}", streamChannel, streamChannel);
-    }
-    
     @Override
     public int handleEnableWorker(Map properties) {
         logger.info("handleEnableWorker {}", properties);

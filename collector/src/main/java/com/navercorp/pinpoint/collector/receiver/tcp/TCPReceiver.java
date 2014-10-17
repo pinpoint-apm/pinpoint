@@ -29,10 +29,8 @@ import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamPacket;
 import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
 import com.nhn.pinpoint.rpc.server.ServerMessageListener;
-import com.nhn.pinpoint.rpc.server.ServerStreamChannel;
 import com.nhn.pinpoint.rpc.server.SocketChannel;
 import com.nhn.pinpoint.thrift.io.DeserializerFactory;
 import com.nhn.pinpoint.thrift.io.Header;
@@ -136,11 +134,6 @@ public class TCPReceiver {
                 requestResponse(requestPacket, channel);
             }
 
-            @Override
-            public void handleStream(StreamPacket streamPacket, ServerStreamChannel streamChannel) {
-                logger.warn("unsupported streamPacket received {}", streamPacket);
-            }
-            
             @Override
             public int handleEnableWorker(Map properties) {
     			if (properties == null) {
