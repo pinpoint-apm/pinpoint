@@ -175,7 +175,7 @@ public class StreamChannelManagerTest {
 		}
 	}
 
-	@Test(expected = PinpointSocketException.class)
+	@Test
 	public void streamClosedTest2() throws IOException, InterruptedException {
 		SimpleStreamBO bo = new SimpleStreamBO();
 
@@ -193,11 +193,12 @@ public class StreamChannelManagerTest {
 			ClientStreamChannelContext clientContext = socket.createStreamChannel(new byte[0], clientListener);
 			Thread.sleep(100);
 
+			Assert.assertEquals(1, bo.getStreamChannelContextSize());
+			
 			clientContext.getStreamChannel().close();
-
 			Thread.sleep(100);
 
-			sendRandomBytes(bo);
+			Assert.assertEquals(0, bo.getStreamChannelContextSize());
 
 		} finally {
 			if (socket != null) {
@@ -334,9 +335,11 @@ public class StreamChannelManagerTest {
 			for (ServerStreamChannelContext context : serverStreamChannelContextList) {
 				context.getStreamChannel().sendData(data);
 			}
-
 		}
 
+		int getStreamChannelContextSize() {
+			return serverStreamChannelContextList.size();
+		}
 	}
 
 }
