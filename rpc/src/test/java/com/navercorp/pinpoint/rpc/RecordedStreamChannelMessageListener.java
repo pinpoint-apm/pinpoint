@@ -8,17 +8,17 @@ import java.util.concurrent.CountDownLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.rpc.client.StreamChannel;
 import com.nhn.pinpoint.rpc.packet.stream.StreamClosePacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamCreatePacket;
 import com.nhn.pinpoint.rpc.packet.stream.StreamResponsePacket;
-import com.nhn.pinpoint.rpc.stream.StreamChannelMessageListener;
+import com.nhn.pinpoint.rpc.stream.ClientStreamChannelContext;
+import com.nhn.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
+import com.nhn.pinpoint.rpc.stream.StreamChannelContext;
 
 /**
  * @author emeroad
  * @author koo.taejin <kr14910>
  */
-public class RecordedStreamChannelMessageListener implements StreamChannelMessageListener {
+public class RecordedStreamChannelMessageListener implements ClientStreamChannelMessageListener {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -29,24 +29,17 @@ public class RecordedStreamChannelMessageListener implements StreamChannelMessag
     public RecordedStreamChannelMessageListener(int receiveMessageCount) {
         this.latch = new CountDownLatch(receiveMessageCount);
     }
-
+	
 	@Override
-	public short handleStreamCreate(StreamChannel streamChannel, StreamCreatePacket packet) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public void handleStreamData(StreamChannel streamChannel, StreamResponsePacket packet) {
-        logger.info("handleStreamData {}, {}", streamChannel, packet);
+	public void handleStreamData(ClientStreamChannelContext streamChannelContext, StreamResponsePacket packet) {
+		logger.info("handleStreamData {}, {}", streamChannelContext, packet);
         receivedMessageList.add(packet.getPayload());
         latch.countDown();
 	}
 
-
 	@Override
-	public void handleStreamClose(StreamChannel streamChannel, StreamClosePacket packet) {
-        logger.info("handleClose {}, {}", streamChannel, packet);
+	public void handleStreamClose(StreamChannelContext streamChannelContext, StreamClosePacket packet) {
+        logger.info("handleClose {}, {}", streamChannelContext, packet);
         receivedMessageList.add(packet.getPayload());
         latch.countDown();
 	}

@@ -93,18 +93,17 @@ public class NetworkAvailabilityChecker implements PinpointTools {
     	PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
         pinpointSocketFactory.setTimeoutMillis(1000 * 5);
         pinpointSocketFactory.setProperties(Collections.<String, Object>emptyMap());
+        pinpointSocketFactory.setMessageListener(new CommandDispatcher());
 
         return pinpointSocketFactory;
 	}
 
     
     private static PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory) {
-    	MessageListener messageListener = new CommandDispatcher();
-    	
     	PinpointSocket socket = null;
     	for (int i = 0; i < 3; i++) {
             try {
-                socket = factory.connect(host, port, messageListener);
+                socket = factory.connect(host, port);
                 LOGGER.info("tcp connect success:{}/{}", host, port);
                 return socket;
             } catch (PinpointSocketException e) {
@@ -112,7 +111,7 @@ public class NetworkAvailabilityChecker implements PinpointTools {
             }
         }
     	LOGGER.warn("change background tcp connect mode  {}/{} ", host, port);
-        socket = factory.scheduledConnect(host, port, messageListener);
+        socket = factory.scheduledConnect(host, port);
     	
         return socket;
     }

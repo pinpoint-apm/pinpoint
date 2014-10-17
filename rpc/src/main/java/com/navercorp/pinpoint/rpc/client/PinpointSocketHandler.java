@@ -37,8 +37,13 @@ import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.ResponsePacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.rpc.packet.stream.StreamPacket;
-import com.nhn.pinpoint.rpc.util.AssertUtils;
+import com.nhn.pinpoint.rpc.stream.ClientStreamChannelContext;
+import com.nhn.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
+import com.nhn.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListener;
+import com.nhn.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
+import com.nhn.pinpoint.rpc.stream.StreamChannelManager;
 import com.nhn.pinpoint.rpc.util.ControlMessageEnDeconderUtils;
+import com.nhn.pinpoint.rpc.util.IDGenerator;
 import com.nhn.pinpoint.rpc.util.MapUtils;
 import com.nhn.pinpoint.rpc.util.TimerFactory;
 
@@ -60,7 +65,6 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     private final State state = new State();
 
     private volatile Channel channel;
-    private volatile MessageListener messageListener = SimpleLoggingMessageListener.LISTENER;
 
     private long timeoutMillis = DEFAULT_TIMEOUTMILLIS;
     private long pingDelay = DEFAULT_PING_DELAY;
@@ -74,8 +78,10 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     private SocketAddress connectSocketAddress;
     private volatile PinpointSocket pinpointSocket;
 
+    private final MessageListener messageListener;
+    private final ServerStreamChannelMessageListener serverStreamChannelMessageListener;
+    
     private final RequestManager requestManager;
-    private final StreamChannelManager streamChannelManager;
 
     private final ChannelFutureListener pingWriteFailFutureListener = new WriteFailFutureListener(this.logger, "ping write fail.", "ping write success.");
     private final ChannelFutureListener sendWriteFailFutureListener = new WriteFailFutureListener(this.logger, "send() write fail.", "send() write fail.");
@@ -95,10 +101,25 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         this.channelTimer = timer;
         this.pinpointSocketFactory = pinpointSocketFactory;
         this.requestManager = new RequestManager(timer);
-        this.streamChannelManager = new StreamChannelManager();
         this.pingDelay = pingDelay;
         this.enableWorkerPacketDelay = enableWorkerPacketDelay;
         this.timeoutMillis = timeoutMillis;
+        
+        MessageListener messageLisener = pinpointSocketFactory.getMessageListener();
+        if (messageLisener != null) {
+        	this.messageListener = messageLisener;
+        } else {
+        	this.messageListener = SimpleLoggingMessageListener.LISTENER;
+        }
+        
+        ServerStreamChannelMessageListener serverStreamChannelMessageListener = pinpointSocketFactory.getServerStreamChannelMessageListener();
+        if (serverStreamChannelMessageListener != null) {
+        	this.serverStreamChannelMessageListener = serverStreamChannelMessageListener;
+        } else {
+        	this.serverStreamChannelMessageListener = DisabledServerStreamChannelMessageListener.INSTANCE;
+        }
+        
+        pinpointSocketFactory.getServerStreamChannelMessageListener();
 	}
 
     public Timer getChannelTimer() {
@@ -134,24 +155,25 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         if (!state.changeRun()) {
             throw new IllegalStateException("invalid open state:" + state.getString());
         }
+        
+        Channel channel = this.channel;
+        if (channel != null) {
+        	prepareChannel(channel);
+        }
     }
     
-    @Override
-	public void setMessageListener(MessageListener messageListener) {
-        AssertUtils.assertNotNull(messageListener, "messageListener");
-        
-        logger.info("{} registered Listner({}).", toString(), messageListener);
-        
-        if (messageListener != SimpleLoggingMessageListener.LISTENER) {
-            this.messageListener = messageListener;
-            
-            // MessageListener 등록시 EnableWorkerPacket전달
-            sendEnableWorkerPacket();
-            
-            RegisterEnableWorkerPacketJob job = new RegisterEnableWorkerPacketJob(enableWorkerPacketRetryCount);
-            reservationEnableWorkerPacketJob(job);
-        }
-	}
+    private void prepareChannel(Channel channel) {
+    	ServerStreamChannelMessageListener serverStreamChannelMessageListener = this.serverStreamChannelMessageListener;
+    	
+    	StreamChannelManager streamChannelManager = new StreamChannelManager(channel, IDGenerator.createOddIdGenerator(), serverStreamChannelMessageListener);
+    	
+    	SocketHandlerContext context = new SocketHandlerContext(channel, streamChannelManager);
+    	channel.setAttachment(context);
+    }
+
+    private SocketHandlerContext getChannelContext(Channel channel) {
+        return (SocketHandlerContext) channel.getAttachment();
+    }
 
     @Override
     public void initReconnect() {
@@ -373,13 +395,14 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 
         return messageFuture;
     }
-
-
-    public StreamChannel createStreamChannel() {
+    
+    @Override
+    public ClientStreamChannelContext createStreamChannel(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
         ensureOpen();
 
         final Channel channel = this.channel;
-        return this.streamChannelManager.createStreamChannel(channel);
+        SocketHandlerContext context = getChannelContext(channel);
+        return context.getStreamChannelManager().openStreamChannel(payload, clientStreamChannelMessageListener);
     }
 
 
@@ -405,7 +428,10 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
                 case PacketType.APPLICATION_STREAM_CREATE_SUCCESS:
                 case PacketType.APPLICATION_STREAM_CREATE_FAIL:
                 case PacketType.APPLICATION_STREAM_RESPONSE:
-                    this.streamChannelManager.messageReceived((StreamPacket) message, e.getChannel());
+                case PacketType.APPLICATION_STREAM_PING:
+                case PacketType.APPLICATION_STREAM_PONG:
+                	SocketHandlerContext context = getChannelContext(channel);
+                	context.getStreamChannelManager().messageReceived((StreamPacket) message);
                     return;
                 case PacketType.CONTROL_SERVER_CLOSE:
                     messageReceivedServerClosed(e.getChannel());
@@ -550,7 +576,12 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     private void releaseResource() {
         logger.debug("releaseResource()");
         this.requestManager.close();
-        this.streamChannelManager.close();
+        
+        if (this.channel != null) {
+        	SocketHandlerContext context = getChannelContext(channel);
+        	context.getStreamChannelManager().close();
+        }
+        
         this.channelTimer.stop();
     }
 
@@ -588,5 +619,37 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 	public boolean isConnected() {
 		return this.state.isRun();
 	}
+	
+	@Override
+	public boolean isSupportServerMode() {
+		return messageListener != SimpleLoggingMessageListener.LISTENER;
+	}
+	
+	@Override
+	public void turnOnServerMode() {
+        // MessageListener 등록시 EnableWorkerPacket전달
+        sendEnableWorkerPacket();
+        
+        RegisterEnableWorkerPacketJob job = new RegisterEnableWorkerPacketJob(enableWorkerPacketRetryCount);
+        reservationEnableWorkerPacketJob(job);
+	}
 
+	class SocketHandlerContext {
+		private final Channel channel;
+		private final StreamChannelManager streamChannelManager;
+		
+		public SocketHandlerContext(Channel channel, StreamChannelManager streamChannelManager) {
+			this.channel = channel;
+			this.streamChannelManager = streamChannelManager;
+		}
+
+		public Channel getChannel() {
+			return channel;
+		}
+
+		public StreamChannelManager getStreamChannelManager() {
+			return streamChannelManager;
+		}
+	}
+	
 }

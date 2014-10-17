@@ -15,15 +15,12 @@ import org.slf4j.LoggerFactory;
 import com.nhn.pinpoint.profiler.receiver.CommandDispatcher;
 import com.nhn.pinpoint.profiler.sender.TcpDataSender;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
-import com.nhn.pinpoint.rpc.client.MessageListener;
 import com.nhn.pinpoint.rpc.client.PinpointSocket;
 import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamPacket;
 import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
 import com.nhn.pinpoint.rpc.server.ServerMessageListener;
-import com.nhn.pinpoint.rpc.server.ServerStreamChannel;
 import com.nhn.pinpoint.rpc.server.SocketChannel;
 import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 import com.nhn.pinpoint.thrift.dto.TResult;
@@ -211,11 +208,6 @@ public class HeartBeatCheckerTest {
 		}
 
 		@Override
-		public void handleStream(StreamPacket streamPacket, ServerStreamChannel streamChannel) {
-			logger.info("handleStreamPacket:{}", streamPacket);
-		}
-
-		@Override
 		public int handleEnableWorker(Map arg0) {
 			return 0;
 		}
@@ -225,18 +217,17 @@ public class HeartBeatCheckerTest {
     	PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
         pinpointSocketFactory.setTimeoutMillis(1000 * 5);
         pinpointSocketFactory.setProperties(Collections.EMPTY_MAP);
+        pinpointSocketFactory.setMessageListener(new CommandDispatcher());
 
         return pinpointSocketFactory;
 	}
 
     
     private PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory) {
-    	MessageListener messageListener = new CommandDispatcher();
-    	
     	PinpointSocket socket = null;
     	for (int i = 0; i < 3; i++) {
             try {
-                socket = factory.connect(host, port, messageListener);
+                socket = factory.connect(host, port);
                 logger.info("tcp connect success:{}/{}", host, port);
                 return socket;
             } catch (PinpointSocketException e) {
@@ -244,7 +235,7 @@ public class HeartBeatCheckerTest {
             }
         }
     	logger.warn("change background tcp connect mode  {}/{} ", host, port);
-        socket = factory.scheduledConnect(host, port, messageListener);
+        socket = factory.scheduledConnect(host, port);
     	
         return socket;
     }

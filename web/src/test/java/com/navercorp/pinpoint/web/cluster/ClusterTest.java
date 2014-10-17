@@ -123,7 +123,9 @@ public class ClusterTest {
 			Assert.assertEquals(0, socketManager.getCollectorChannelContext().size());
 
 			factory = new PinpointSocketFactory();
-			socket = factory.connect(DEFAULT_IP, DEFAULT_ACCEPTOR_PORT, new SimpleListener());
+			factory.setMessageListener(new SimpleListener());
+			
+			socket = factory.connect(DEFAULT_IP, DEFAULT_ACCEPTOR_PORT);
 
 			Thread.sleep(1000);
 

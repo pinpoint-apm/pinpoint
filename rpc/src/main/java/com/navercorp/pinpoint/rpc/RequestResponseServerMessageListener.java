@@ -8,9 +8,7 @@ import org.slf4j.LoggerFactory;
 import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamPacket;
 import com.nhn.pinpoint.rpc.server.ServerMessageListener;
-import com.nhn.pinpoint.rpc.server.ServerStreamChannel;
 import com.nhn.pinpoint.rpc.server.SocketChannel;
 
 /**
@@ -32,12 +30,6 @@ public class RequestResponseServerMessageListener implements ServerMessageListen
     public void handleRequest(RequestPacket requestPacket, SocketChannel channel) {
         logger.info("handlerRequest {}", requestPacket, channel);
         channel.sendResponseMessage(requestPacket, requestPacket.getPayload());
-    }
-
-
-    @Override
-    public void handleStream(StreamPacket streamPacket, ServerStreamChannel streamChannel) {
-        logger.info("handlerStream {} {}", streamChannel, streamChannel);
     }
 
 	@Override

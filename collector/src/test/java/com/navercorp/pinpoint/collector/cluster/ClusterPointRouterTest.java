@@ -18,11 +18,9 @@ import com.nhn.pinpoint.collector.receiver.tcp.AgentProperties;
 import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamPacket;
 import com.nhn.pinpoint.rpc.server.ChannelContext;
 import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
 import com.nhn.pinpoint.rpc.server.ServerMessageListener;
-import com.nhn.pinpoint.rpc.server.ServerStreamChannel;
 import com.nhn.pinpoint.rpc.server.SocketChannel;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -86,11 +84,6 @@ public class ClusterPointRouterTest {
 		@Override
 		public void handleRequest(RequestPacket requestPacket, SocketChannel channel) {
 			logger.warn("Unsupport request received {} {}", requestPacket, channel);
-		}
-
-		@Override
-		public void handleStream(StreamPacket streamPacket, ServerStreamChannel streamChannel) {
-			logger.warn("unsupported streamPacket received {}", streamPacket);
 		}
 
 		@Override

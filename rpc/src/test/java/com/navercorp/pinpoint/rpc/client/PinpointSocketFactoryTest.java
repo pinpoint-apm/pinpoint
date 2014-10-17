@@ -180,55 +180,6 @@ public class PinpointSocketFactoryTest {
 
     }
 
-
-
-
-    @Test
-    public void stream() throws IOException, InterruptedException {
-        PinpointServerSocket ss = new PinpointServerSocket();
-
-        TestSeverMessageListener testSeverMessageListener = new TestSeverMessageListener();
-        ss.setMessageListener(testSeverMessageListener);
-        ss.bind("localhost", 10234);
-        PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
-        try {
-            PinpointSocket socket = pinpointSocketFactory.connect("127.0.0.1", 10234);
-
-
-            StreamChannel streamChannel = socket.createStreamChannel();
-            byte[] openBytes = TestByteUtils.createRandomByte(30);
-
-            // 현재 서버에서 3번 보내게 되어 있음.
-            RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
-            streamChannel.setStreamChannelMessageListener(clientListener);
-
-            Future<StreamCreateResponse> open = streamChannel.open(openBytes);
-            open.await();
-            StreamCreateResponse response = open.getResult();
-            Assert.assertTrue(response.isSuccess());
-            // stream 메시지를 대기함.
-            clientListener.getLatch().await();
-            List<byte[]> receivedMessage = clientListener.getReceivedMessage();
-            List<byte[]> sendMessage = testSeverMessageListener.getSendMessage();
-
-            // 한개는 close 패킷임.
-            Assert.assertEquals(receivedMessage.size(), sendMessage.size());
-            for(int i =0; i<receivedMessage.size(); i++) {
-                Assert.assertArrayEquals(receivedMessage.get(i), sendMessage.get(i));
-            }
-
-            socket.close();
-        } finally {
-            pinpointSocketFactory.release();
-            ss.close();
-        }
-
-    }
-
-
-
-
-
     @Test
     public void connectTimeout() {
         PinpointSocketFactory pinpointSocketFactory = null;

@@ -15,15 +15,12 @@ import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.profiler.receiver.CommandDispatcher;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
-import com.nhn.pinpoint.rpc.client.MessageListener;
 import com.nhn.pinpoint.rpc.client.PinpointSocket;
 import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamPacket;
 import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
 import com.nhn.pinpoint.rpc.server.ServerMessageListener;
-import com.nhn.pinpoint.rpc.server.ServerStreamChannel;
 import com.nhn.pinpoint.rpc.server.SocketChannel;
 import com.nhn.pinpoint.thrift.dto.TApiMetaData;
 
@@ -57,11 +54,6 @@ public class TcpDataSenderTest {
             public void handleRequest(RequestPacket requestPacket, SocketChannel channel) {
                 logger.info("handleRequest:{}", requestPacket);
             }
-
-            @Override
-            public void handleStream(StreamPacket streamPacket, ServerStreamChannel streamChannel) {
-                logger.info("handleStreamPacket:{}", streamPacket);
-            }
             
             @Override
             public int handleEnableWorker(Map arg0) {
@@ -83,6 +75,8 @@ public class TcpDataSenderTest {
         this.sendLatch = new CountDownLatch(2);
 
         PinpointSocketFactory socketFactory = createPinpointSocketFactory();
+        socketFactory.setMessageListener(new CommandDispatcher());
+        
         PinpointSocket socket = createPinpointSocket(HOST, PORT, socketFactory);
         
         TcpDataSender sender = new TcpDataSender(socket);
@@ -113,15 +107,12 @@ public class TcpDataSenderTest {
 
         return pinpointSocketFactory;
 	}
-
     
     private PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory) {
-    	MessageListener messageListener = new CommandDispatcher();
-    	
     	PinpointSocket socket = null;
     	for (int i = 0; i < 3; i++) {
             try {
-                socket = factory.connect(host, port, messageListener);
+                socket = factory.connect(host, port);
                 logger.info("tcp connect success:{}/{}", host, port);
                 return socket;
             } catch (PinpointSocketException e) {
@@ -129,7 +120,7 @@ public class TcpDataSenderTest {
             }
         }
     	logger.warn("change background tcp connect mode  {}/{} ", host, port);
-        socket = factory.scheduledConnect(host, port, messageListener);
+        socket = factory.scheduledConnect(host, port);
     	
         return socket;
     }
