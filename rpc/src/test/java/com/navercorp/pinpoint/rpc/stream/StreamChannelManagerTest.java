@@ -26,7 +26,7 @@ public class StreamChannelManagerTest {
 
 	// Client to Server Stream
 	@Test
-	public void stream1() throws IOException, InterruptedException {
+	public void streamSuccessTest1() throws IOException, InterruptedException {
 		SimpleStreamBO bo = new SimpleStreamBO();
 
 		PinpointServerSocket ss = createServerSocket(new TestSeverMessageListener(), new ServerListener(bo));
@@ -42,7 +42,7 @@ public class StreamChannelManagerTest {
 
 			int sendCount = 4;
 
-			for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < sendCount; i++) {
 				sendRandomBytes(bo);
 			}
 
@@ -58,8 +58,102 @@ public class StreamChannelManagerTest {
 		}
 	}
 
+	// Client to Server Stream
+	@Test
+	public void streamSuccessTest2() throws IOException, InterruptedException {
+		SimpleStreamBO bo = new SimpleStreamBO();
+
+		PinpointServerSocket ss = createServerSocket(new TestSeverMessageListener(), new ServerListener(bo));
+		ss.bind("localhost", 10234);
+
+		PinpointSocketFactory pinpointSocketFactory = createSocketFactory();
+		try {
+			PinpointSocket socket = pinpointSocketFactory.connect("127.0.0.1", 10234);
+
+			RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
+			ClientStreamChannelContext clientContext = socket.createStreamChannel(new byte[0], clientListener);
+
+			RecordedStreamChannelMessageListener clientListener2 = new RecordedStreamChannelMessageListener(4);
+			ClientStreamChannelContext clientContext2 = socket.createStreamChannel(new byte[0], clientListener2);
+
+			
+			int sendCount = 4;
+			for (int i = 0; i < sendCount; i++) {
+				sendRandomBytes(bo);
+			}
+
+			Thread.sleep(100);
+
+			Assert.assertEquals(sendCount, clientListener.getReceivedMessage().size());
+			Assert.assertEquals(sendCount, clientListener2.getReceivedMessage().size());
+
+			clientContext.getStreamChannel().close();
+
+			Thread.sleep(100);
+			
+			sendCount = 4;
+			for (int i = 0; i < sendCount; i++) {
+				sendRandomBytes(bo);
+			}
+
+			Thread.sleep(100);
+
+			Assert.assertEquals(sendCount, clientListener.getReceivedMessage().size());
+			Assert.assertEquals(8, clientListener2.getReceivedMessage().size());
+
+			
+			clientContext2.getStreamChannel().close();
+			
+			socket.close();
+		} finally {
+			pinpointSocketFactory.release();
+			ss.close();
+		}
+	}
+
+	@Test
+	public void streamSuccessTest3() throws IOException, InterruptedException {
+		PinpointServerSocket ss = createServerSocket(new TestSeverMessageListener(), null);
+		ss.bind("localhost", 10234);
+
+		SimpleStreamBO bo = new SimpleStreamBO();
+
+		PinpointSocketFactory pinpointSocketFactory = createSocketFactory(new TestListener(), new ServerListener(bo));
+
+		try {
+			PinpointSocket socket = pinpointSocketFactory.connect("127.0.0.1", 10234);
+
+			Thread.sleep(100);
+
+			List<ChannelContext> contextList = ss.getDuplexCommunicationChannelContext();
+			Assert.assertEquals(1, contextList.size());
+
+			ChannelContext context = contextList.get(0);
+
+			RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
+
+			ClientStreamChannelContext clientContext = context.createStreamChannel(new byte[0], clientListener);
+
+			int sendCount = 4;
+
+			for (int i = 0; i < sendCount; i++) {
+				sendRandomBytes(bo);
+			}
+
+			Thread.sleep(100);
+
+			Assert.assertEquals(sendCount, clientListener.getReceivedMessage().size());
+
+			clientContext.getStreamChannel().close();
+			socket.close();
+		} finally {
+			pinpointSocketFactory.release();
+			ss.close();
+		}
+	}
+	
 	@Test(expected = PinpointSocketException.class)
-	public void stream2() throws IOException, InterruptedException {
+	public void streamClosedTest1() throws IOException, InterruptedException {
 		PinpointServerSocket ss = createServerSocket(new TestSeverMessageListener(), null);
 		ss.bind("localhost", 10234);
 
@@ -82,7 +176,7 @@ public class StreamChannelManagerTest {
 	}
 
 	@Test(expected = PinpointSocketException.class)
-	public void stream3() throws IOException, InterruptedException {
+	public void streamClosedTest2() throws IOException, InterruptedException {
 		SimpleStreamBO bo = new SimpleStreamBO();
 
 		PinpointServerSocket ss = createServerSocket(new TestSeverMessageListener(), new ServerListener(bo));
@@ -114,10 +208,13 @@ public class StreamChannelManagerTest {
 			ss.close();
 		}
 	}
-
+	
 	// ServerSocket to Client Stream
-	@Test
-	public void stream4() throws IOException, InterruptedException {
+	
+	
+	// ServerStreamChannel first close.
+	@Test(expected = PinpointSocketException.class)
+	public void streamClosedTest3() throws IOException, InterruptedException {
 		PinpointServerSocket ss = createServerSocket(new TestSeverMessageListener(), null);
 		ss.bind("localhost", 10234);
 
@@ -125,9 +222,9 @@ public class StreamChannelManagerTest {
 
 		PinpointSocketFactory pinpointSocketFactory = createSocketFactory(new TestListener(), new ServerListener(bo));
 
+		PinpointSocket socket = pinpointSocketFactory.connect("127.0.0.1", 10234);
 		try {
-			PinpointSocket socket = pinpointSocketFactory.connect("127.0.0.1", 10234);
-
+			
 			Thread.sleep(100);
 
 			List<ChannelContext> contextList = ss.getDuplexCommunicationChannelContext();
@@ -139,23 +236,24 @@ public class StreamChannelManagerTest {
 
 			ClientStreamChannelContext clientContext = context.createStreamChannel(new byte[0], clientListener);
 
-			int sendCount = 4;
-
-			for (int i = 0; i < 4; i++) {
-				sendRandomBytes(bo);
-			}
+			
+			StreamChannelContext aaa = socket.findStreamChannel(2);
+			
+			aaa.getStreamChannel().close();
+			
+			sendRandomBytes(bo);
 
 			Thread.sleep(100);
 
-			Assert.assertEquals(sendCount, clientListener.getReceivedMessage().size());
 
 			clientContext.getStreamChannel().close();
-			socket.close();
 		} finally {
+			socket.close();
 			pinpointSocketFactory.release();
 			ss.close();
 		}
 	}
+	
 
 	private PinpointServerSocket createServerSocket(ServerMessageListener severMessageListener,
 			ServerStreamChannelMessageListener serverStreamChannelMessageListener) {
@@ -210,7 +308,7 @@ public class StreamChannelManagerTest {
 
 		@Override
 		public void handleStreamClose(StreamChannelContext streamChannelContext, StreamClosePacket packet) {
-
+			bo.removeServerStreamChannelContext((ServerStreamChannelContext) streamChannelContext);
 		}
 
 	}

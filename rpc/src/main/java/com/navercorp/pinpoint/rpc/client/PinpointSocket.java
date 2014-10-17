@@ -12,6 +12,7 @@ import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.ResponseMessage;
 import com.nhn.pinpoint.rpc.stream.ClientStreamChannelContext;
 import com.nhn.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
+import com.nhn.pinpoint.rpc.stream.StreamChannelContext;
 import com.nhn.pinpoint.rpc.util.AssertUtils;
 
 
@@ -118,6 +119,12 @@ public class PinpointSocket {
         // 일단 그냥 ex를 던지도록 하겠음.
         ensureOpen();
         return socketHandler.createStreamChannel(payload, clientStreamChannelMessageListener);
+    }
+    
+    public StreamChannelContext findStreamChannel(int streamChannelId) {
+
+    	ensureOpen();
+    	return socketHandler.findStreamChannel(streamChannelId);
     }
 
     private Future<ResponseMessage> returnFailureFuture() {

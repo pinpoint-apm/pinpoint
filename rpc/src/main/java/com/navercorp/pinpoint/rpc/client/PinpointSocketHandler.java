@@ -41,6 +41,7 @@ import com.nhn.pinpoint.rpc.stream.ClientStreamChannelContext;
 import com.nhn.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
 import com.nhn.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListener;
 import com.nhn.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
+import com.nhn.pinpoint.rpc.stream.StreamChannelContext;
 import com.nhn.pinpoint.rpc.stream.StreamChannelManager;
 import com.nhn.pinpoint.rpc.util.ControlMessageEnDeconderUtils;
 import com.nhn.pinpoint.rpc.util.IDGenerator;
@@ -404,7 +405,15 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         SocketHandlerContext context = getChannelContext(channel);
         return context.getStreamChannelManager().openStreamChannel(payload, clientStreamChannelMessageListener);
     }
+    
+    @Override
+    public StreamChannelContext findStreamChannel(int streamChannelId) {
+        ensureOpen();
 
+        final Channel channel = this.channel;
+        SocketHandlerContext context = getChannelContext(channel);
+        return context.getStreamChannelManager().findStreamChannel(streamChannelId);
+    }
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {

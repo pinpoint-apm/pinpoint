@@ -6,6 +6,7 @@ import com.nhn.pinpoint.rpc.Future;
 import com.nhn.pinpoint.rpc.ResponseMessage;
 import com.nhn.pinpoint.rpc.stream.ClientStreamChannelContext;
 import com.nhn.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
+import com.nhn.pinpoint.rpc.stream.StreamChannelContext;
 
 /**
  * @author emeroad
@@ -33,6 +34,8 @@ public interface SocketHandler {
 
     ClientStreamChannelContext createStreamChannel(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener);
 
+    StreamChannelContext findStreamChannel(int streamChannelId);
+    
     void sendPing();
 
     boolean isConnected();
