@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.alarm.filter;
+package com.nhn.pinpoint.web.alarm.checker;
 
 import static org.junit.Assert.*;
 
@@ -88,7 +88,7 @@ public class JvmCpuUsageRateCheckerTest {
     
     @Test
     public void checkTest1() {
-        Rule rule = new Rule(SERVICE_NAME, CheckerCategory.JVM_CPU_USAGE_RATE.getName(), 60, "testGroup", false, false);
+        Rule rule = new Rule(SERVICE_NAME, CheckerCategory.JVM_CPU_USAGE_RATE.getName(), 60, "testGroup", false, false, "");
         Application application = new Application(SERVICE_NAME, ServiceType.TOMCAT);
         AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, agentStatDao, applicationIndexDao, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
         AgentChecker checker = new JvmCpuUsageRateChecker(collector, rule);
@@ -99,7 +99,7 @@ public class JvmCpuUsageRateCheckerTest {
     
     @Test
     public void checkTest2() {
-        Rule rule = new Rule(SERVICE_NAME, CheckerCategory.JVM_CPU_USAGE_RATE.getName(), 61, "testGroup", false, false);
+        Rule rule = new Rule(SERVICE_NAME, CheckerCategory.JVM_CPU_USAGE_RATE.getName(), 61, "testGroup", false, false, "");
         Application application = new Application(SERVICE_NAME, ServiceType.TOMCAT);
         AgentStatDataCollector collector = new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, agentStatDao, applicationIndexDao, System.currentTimeMillis(), DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN);
         AgentChecker checker = new JvmCpuUsageRateChecker(collector, rule);

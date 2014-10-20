@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNotSame;
 
 import org.junit.Test;
 
-import com.nhn.pinpoint.web.alarm.checker.SlowCountFilter;
+import com.nhn.pinpoint.web.alarm.checker.SlowCountChecker;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
 
 public class CheckerCategoryTest {
@@ -15,10 +15,10 @@ public class CheckerCategoryTest {
     public void createCheckerTest() {
         CheckerCategory slowCount = CheckerCategory.getValue("slow_count");
         
-        Rule rule = new Rule(null, CheckerCategory.SLOW_COUNT.getName(), 75, "testGroup", false, false);
-        SlowCountFilter checker = (SlowCountFilter) slowCount.createChecker(null, rule);
-        rule = new Rule(null, CheckerCategory.SLOW_COUNT.getName(), 63, "testGroup", false, false);
-        SlowCountFilter checker2 = (SlowCountFilter) slowCount.createChecker(null, rule);
+        Rule rule = new Rule(null, CheckerCategory.SLOW_COUNT.getName(), 75, "testGroup", false, false, "");
+        SlowCountChecker checker = (SlowCountChecker) slowCount.createChecker(null, rule);
+        rule = new Rule(null, CheckerCategory.SLOW_COUNT.getName(), 63, "testGroup", false, false, "");
+        SlowCountChecker checker2 = (SlowCountChecker) slowCount.createChecker(null, rule);
         
         assertNotSame(checker, checker2);
         

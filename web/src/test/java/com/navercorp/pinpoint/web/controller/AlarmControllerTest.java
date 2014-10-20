@@ -98,7 +98,7 @@ public class AlarmControllerTest {
         List<Rule> rules = new LinkedList<Rule>();
         
         for (int i = 0; i < 3; i++) {
-            rules.add(new Rule(ApplicationName, CheckerCategory.SLOW_COUNT.getName(), 100, "test_group", true, true));
+            rules.add(new Rule(ApplicationName, CheckerCategory.SLOW_COUNT.getName(), 100, "test_group", true, true, ""));
         }
         
         RuleGroup ruleGroup = new RuleGroup();
@@ -121,7 +121,7 @@ public class AlarmControllerTest {
         List<Rule> rules = new LinkedList<Rule>();
         
         for (int i = 0; i < 3; i++) {
-            rules.add(new Rule(applicationName, CheckerCategory.SLOW_COUNT.getName(), 100, "test_group", true, true));
+            rules.add(new Rule(applicationName, CheckerCategory.SLOW_COUNT.getName(), 100, "test_group", true, true, ""));
         }
         
         RuleGroup ruleGroup = new RuleGroup();
@@ -133,12 +133,12 @@ public class AlarmControllerTest {
 
         List<Rule> updateRules = new LinkedList<Rule>();
         for (int i = 0; i < 3; i++) {
-            Rule rule = new Rule(applicationName, CheckerCategory.SLOW_COUNT.getName(), 1000, "test_group", true, true);
+            Rule rule = new Rule(applicationName, CheckerCategory.SLOW_COUNT.getName(), 1000, "test_group", true, true, "");
             rule.setId(rules.get(i).getId());
             updateRules.add(rule);
         }
         
-        updateRules.add(new Rule(applicationName, CheckerCategory.SLOW_COUNT.getName(), 1000, "test_group", true, true));
+        updateRules.add(new Rule(applicationName, CheckerCategory.SLOW_COUNT.getName(), 1000, "test_group", true, true, ""));
         
         ruleGroup.setRuleList(updateRules);
         controller.updateRule(ruleGroup);

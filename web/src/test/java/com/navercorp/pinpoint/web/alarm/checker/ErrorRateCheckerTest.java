@@ -1,7 +1,6 @@
-package com.nhn.pinpoint.web.alarm.filter;
+package com.nhn.pinpoint.web.alarm.checker;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -12,7 +11,7 @@ import org.junit.Test;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.alarm.CheckerCategory;
 import com.nhn.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
-import com.nhn.pinpoint.web.alarm.checker.ErrorCountChecker;
+import com.nhn.pinpoint.web.alarm.checker.ErrorRateChecker;
 import com.nhn.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
 import com.nhn.pinpoint.web.applicationmap.histogram.TimeHistogram;
@@ -21,7 +20,7 @@ import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
 import com.nhn.pinpoint.web.vo.ResponseTime;
 
-public class ErrorCountCheckerTest {
+public class ErrorRateCheckerTest {
     
     private static final String SERVICE_NAME = "local_service"; 
     
@@ -65,8 +64,8 @@ public class ErrorCountCheckerTest {
     public void checkTest1() {
         Application application = new Application(SERVICE_NAME, ServiceType.TOMCAT);
         ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(SERVICE_NAME, CheckerCategory.ERROR_COUNT.getName(), 74, "testGroup", false, false);
-        ErrorCountChecker filter = new ErrorCountChecker(collector, rule);
+        Rule rule = new Rule(SERVICE_NAME, CheckerCategory.ERROR_RATE.getName(), 60, "testGroup", false, false, "");
+        ErrorRateChecker filter = new ErrorRateChecker(collector, rule);
     
         filter.check();
         assertTrue(filter.isDetected());
@@ -79,8 +78,8 @@ public class ErrorCountCheckerTest {
     public void checkTest2() {
         Application application = new Application(SERVICE_NAME, ServiceType.TOMCAT);
         ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(SERVICE_NAME, CheckerCategory.ERROR_COUNT.getName(), 76, "testGroup", false, false);
-        ErrorCountChecker filter = new ErrorCountChecker(collector, rule);
+        Rule rule = new Rule(SERVICE_NAME, CheckerCategory.ERROR_RATE.getName(), 61, "testGroup", false, false, "");
+        ErrorRateChecker filter = new ErrorRateChecker(collector, rule);
     
         filter.check();
         assertFalse(filter.isDetected());

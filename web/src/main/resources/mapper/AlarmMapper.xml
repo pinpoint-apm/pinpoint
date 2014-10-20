@@ -10,10 +10,10 @@
 	</select>
 	
 	<insert id="insertAppRule" parameterType="java.util.List">
-        INSERT INTO alarm_rule(application_id, checker_name, threshold, emp_group, sms_send, email_send)
+        INSERT INTO alarm_rule(application_id, checker_name, threshold, emp_group, sms_send, email_send, notes)
         VALUES
 		<foreach collection="list" item="rule" separator=",">
-			(#{rule.applicationId}, #{rule.checkerName}, #{rule.threshold}, #{rule.empGroup}, #{rule.smsSend}, #{rule.emailSend})
+			(#{rule.applicationId}, #{rule.checkerName}, #{rule.threshold}, #{rule.empGroup}, #{rule.smsSend}, #{rule.emailSend}, #{rule.notes})
 		</foreach>
 	</insert>
 	
