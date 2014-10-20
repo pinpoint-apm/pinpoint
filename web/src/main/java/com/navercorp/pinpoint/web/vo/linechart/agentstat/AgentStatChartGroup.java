@@ -73,12 +73,8 @@ public class AgentStatChartGroup {
         long timestamp = data.getTimestamp();
         double jvmCpuLoadPercentage = data.getJvmCpuLoad() * 100;
         double systemCpuLoadPercentage = data.getSystemCpuLoad() * 100;
-        if (!(jvmCpuLoadPercentage < 0)) {
-            ((SampledDoubleLineChart)charts.get(CPU_LOAD_JVM_KEY)).addPoint(timestamp, jvmCpuLoadPercentage);
-        }
-        if (!(systemCpuLoadPercentage < 0)) {
-            ((SampledDoubleLineChart)charts.get(CPU_LOAD_SYSTEM_KEY)).addPoint(timestamp, systemCpuLoadPercentage);
-        }
+        ((SampledDoubleLineChart)charts.get(CPU_LOAD_JVM_KEY)).addPoint(timestamp, jvmCpuLoadPercentage);
+        ((SampledDoubleLineChart)charts.get(CPU_LOAD_SYSTEM_KEY)).addPoint(timestamp, systemCpuLoadPercentage);
     }
 
     private void removeUncollectedCharts() {

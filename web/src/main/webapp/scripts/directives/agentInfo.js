@@ -16,7 +16,7 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                 var oNavbarVo, oAlert, oProgressBar;
 
                 // define private variables of methods
-                var getAgentStat, showCharts, parseChartDataForAmcharts;
+                var getAgentStat, showCharts, parseMemoryChartDataForAmcharts, parseCpuLoadChartDataForAmcharts, broadcastToCpuLoadChart;
 
                 // initialize
                 scope.agentInfoTemplate = 'views/agentInfoReady.html';
@@ -30,7 +30,7 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                     scope.agentInfoTemplate = 'views/agentInfoMain.html';
                     scope.agent = agent;
                     oNavbarVo = navbarVo;
-                    scope.memoryGroup = null;
+                    scope.chartGroup = null;
 
                     scope.info = {
                         'agentId': agent.agentId,
@@ -71,13 +71,17 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                         { id: 'jvmMemoryNonHeapMax', key: 'Max', values: [], isFgc: false },
                         { id: 'fgc', key: 'FGC', values: [], bar: true, isFgc: true }
                     ]};
+                    
+                    var cpuLoad = { id: 'cpuLoad', title: 'CpuLoad', span: 'span12', isAvailable: false};
 
                     scope.memoryGroup = [ heap, nonheap ];
+                    scope.cpuLoadChart = cpuLoad;
 
-                    scope.$broadcast('jvmMemoryChart.initAndRenderWithData.forHeap', AgentDao.parseChartDataForAmcharts(heap, agentStat), '100%', '300px');
-                    scope.$broadcast('jvmMemoryChart.initAndRenderWithData.forNonHeap', AgentDao.parseChartDataForAmcharts(nonheap, agentStat), '100%', '300px');
+                    scope.$broadcast('jvmMemoryChart.initAndRenderWithData.forHeap', AgentDao.parseMemoryChartDataForAmcharts(heap, agentStat), '100%', '275px');
+                    scope.$broadcast('jvmMemoryChart.initAndRenderWithData.forNonHeap', AgentDao.parseMemoryChartDataForAmcharts(nonheap, agentStat), '100%', '275px');
+                    scope.$broadcast('cpuLoadChart.initAndRenderWithData.forCpuLoad', AgentDao.parseCpuLoadChartDataForAmcharts(cpuLoad, agentStat), '100%', '275px');
                 };
-
+                
                 /**
                  * get agent stat
                  * @param agentId
@@ -115,12 +119,19 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                         scope.$digest();
                     });
                 };
+                
+                broadcastToCpuLoadChart = function(e, event) {
+                	if (scope.cpuLoadChart.isAvailable) {
+                        scope.$broadcast('cpuLoadChart.showCursorAt.forCpuLoad', event.index);
+                	}
+                }
 
                 /**
                  * scope event on jvmMemoryChart.cursorChanged.forHeap
                  */
                 scope.$on('jvmMemoryChart.cursorChanged.forHeap', function (e, event) {
                     scope.$broadcast('jvmMemoryChart.showCursorAt.forNonHeap', event.index);
+                    broadcastToCpuLoadChart(e, event);
                 });
 
                 /**
@@ -128,7 +139,17 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                  */
                 scope.$on('jvmMemoryChart.cursorChanged.forNonHeap', function (e, event) {
                     scope.$broadcast('jvmMemoryChart.showCursorAt.forHeap', event.index);
+                    broadcastToCpuLoadChart(e, event);
                 });
+
+                /**
+                 * scope event on cpuLoadChart.cursorChanged.forCpuLoad
+                 */
+                scope.$on('cpuLoadChart.cursorChanged.forCpuLoad', function (e, event) {
+                    scope.$broadcast('jvmMemoryChart.showCursorAt.forHeap', event.index);
+                    scope.$broadcast('jvmMemoryChart.showCursorAt.forNonHeap', event.index);
+                });
+                
             }
         };
     }]);
