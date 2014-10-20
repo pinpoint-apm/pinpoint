@@ -1,6 +1,7 @@
-package com.nhn.pinpoint.web.alarm.filter;
+package com.nhn.pinpoint.web.alarm.checker;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -11,7 +12,7 @@ import org.junit.Test;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.alarm.CheckerCategory;
 import com.nhn.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
-import com.nhn.pinpoint.web.alarm.checker.ErrorRateChecker;
+import com.nhn.pinpoint.web.alarm.checker.SlowRatesChecker;
 import com.nhn.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
 import com.nhn.pinpoint.web.applicationmap.histogram.TimeHistogram;
@@ -20,7 +21,7 @@ import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
 import com.nhn.pinpoint.web.vo.ResponseTime;
 
-public class ErrorRateCheckerTest {
+public class SlowRatesCheckerTest {
     
     private static final String SERVICE_NAME = "local_service"; 
     
@@ -43,9 +44,9 @@ public class ErrorRateCheckerTest {
                         histogram = new TimeHistogram(ServiceType.TOMCAT, timeStamp);
                         histogram.addCallCountByElapsedTime(1000);
                         histogram.addCallCountByElapsedTime(3000);
-                        histogram.addCallCountByElapsedTime(-1);
-                        histogram.addCallCountByElapsedTime(-1);
-                        histogram.addCallCountByElapsedTime(-1);
+                        histogram.addCallCountByElapsedTime(5000);
+                        histogram.addCallCountByElapsedTime(6000);
+                        histogram.addCallCountByElapsedTime(7000);
                         responseTime.addResponseTime("agent_" + i + "_" + j, histogram);
                     }
                     
@@ -64,8 +65,8 @@ public class ErrorRateCheckerTest {
     public void checkTest1() {
         Application application = new Application(SERVICE_NAME, ServiceType.TOMCAT);
         ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(SERVICE_NAME, CheckerCategory.ERROR_RATE.getName(), 60, "testGroup", false, false);
-        ErrorRateChecker filter = new ErrorRateChecker(collector, rule);
+        Rule rule = new Rule(SERVICE_NAME, CheckerCategory.SLOW_RATE.getName(), 60, "testGroup", false, false, "");
+        SlowRatesChecker filter = new SlowRatesChecker(collector, rule);
     
         filter.check();
         assertTrue(filter.isDetected());
@@ -78,10 +79,11 @@ public class ErrorRateCheckerTest {
     public void checkTest2() {
         Application application = new Application(SERVICE_NAME, ServiceType.TOMCAT);
         ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(SERVICE_NAME, CheckerCategory.ERROR_RATE.getName(), 61, "testGroup", false, false);
-        ErrorRateChecker filter = new ErrorRateChecker(collector, rule);
+        Rule rule = new Rule(SERVICE_NAME, CheckerCategory.SLOW_RATE.getName(), 61, "testGroup", false, false, "");
+        SlowRatesChecker filter = new SlowRatesChecker(collector, rule);
     
         filter.check();
         assertFalse(filter.isDetected());
     }
+
 }

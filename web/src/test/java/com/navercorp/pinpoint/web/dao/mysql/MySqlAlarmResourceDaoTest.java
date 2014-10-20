@@ -41,7 +41,7 @@ public class MySqlAlarmResourceDaoTest {
         List<Rule> rules = new LinkedList<Rule>();
         
         for(int i = 0; i < 3; i++) {
-            rules.add(new Rule(applicationId, CheckerCategory.SLOW_COUNT.getName(), 100, "test_group", true, true));
+            rules.add(new Rule(applicationId, CheckerCategory.SLOW_COUNT.getName(), 100, "test_group", true, true, ""));
         }
         
         dao.insertAppRule(rules);

@@ -7,9 +7,9 @@ import com.nhn.pinpoint.web.alarm.vo.Rule;
  * 
  * @author koo.taejin
  */
-public class SlowRatesFilter extends AlarmChecker {
+public class SlowRatesChecker extends AlarmChecker {
 
-	public SlowRatesFilter(ResponseTimeDataCollector dataCollector, Rule rule) {
+	public SlowRatesChecker(ResponseTimeDataCollector dataCollector, Rule rule) {
         super(rule, "%", dataCollector);
 	}
 

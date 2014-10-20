@@ -68,13 +68,13 @@ public class ProcessorTest {
     public void processTest() {
         Application application = new Application(SERVICE_NAME, ServiceType.TOMCAT);
         ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, 3000000, System.currentTimeMillis());
-        Rule rule = new Rule(SERVICE_NAME, CheckerCategory.SLOW_COUNT.getName(), 74, "testGroup", false, false);
+        Rule rule = new Rule(SERVICE_NAME, CheckerCategory.SLOW_COUNT.getName(), 74, "testGroup", false, false, "");
         AlarmChecker filter = CheckerCategory.SLOW_COUNT.createChecker(collector, rule);
         
         filter = processor.process(filter);
         assertTrue(filter.isDetected());
         
-        rule = new Rule(SERVICE_NAME, CheckerCategory.SLOW_COUNT.getName(), 76, "testGroup", false, false);
+        rule = new Rule(SERVICE_NAME, CheckerCategory.SLOW_COUNT.getName(), 76, "testGroup", false, false, "");
         filter = CheckerCategory.SLOW_COUNT.createChecker(collector, rule);
         
         filter = processor.process(filter);

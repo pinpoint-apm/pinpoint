@@ -11,7 +11,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.nhn.pinpoint.web.alarm.checker.AlarmChecker;
-import com.nhn.pinpoint.web.alarm.checker.SlowCountFilter;
+import com.nhn.pinpoint.web.alarm.checker.SlowCountChecker;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -24,8 +24,8 @@ public class WriterTest {
     @Ignore
     @Test
     public void smsSendTest() throws Exception {
-        Rule rule = new Rule("testService", CheckerCategory.SLOW_COUNT.getName(), 100, "testGroup", true, false);
-        SlowCountFilter checker = new SlowCountFilter(null, rule) {
+        Rule rule = new Rule("testService", CheckerCategory.SLOW_COUNT.getName(), 100, "testGroup", true, false, "");
+        SlowCountChecker checker = new SlowCountChecker(null, rule) {
             @Override
             public boolean isDetected() {
                 return true;
@@ -45,8 +45,8 @@ public class WriterTest {
     @Ignore
     @Test
     public void emailSendTest() throws Exception {
-        Rule rule = new Rule("testService", CheckerCategory.SLOW_COUNT.getName(), 100, "testGroup", false, true);
-        SlowCountFilter checker = new SlowCountFilter(null, rule) {
+        Rule rule = new Rule("testService", CheckerCategory.SLOW_COUNT.getName(), 100, "testGroup", false, true, "");
+        SlowCountChecker checker = new SlowCountChecker(null, rule) {
             @Override
             public boolean isDetected() {
                 return true;

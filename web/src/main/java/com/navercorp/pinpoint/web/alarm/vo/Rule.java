@@ -12,17 +12,19 @@ public class Rule {
 	private String empGroup;
 	private boolean smsSend;
 	private boolean emailSend;
+	private String notes;
 	
 	public Rule() {
 	}
 	
-	public Rule(String applicationId, String checkerName, Integer Threshold, String empGroup, boolean smsSend, boolean emailSend) {
+	public Rule(String applicationId, String checkerName, Integer Threshold, String empGroup, boolean smsSend, boolean emailSend, String notes) {
 		this.applicationId = applicationId;
 		this.CheckerName = checkerName;
 		this.threshold = Threshold;
 		this.empGroup = empGroup;
 		this.smsSend = smsSend;
 		this.emailSend = emailSend;
+		this.notes = notes;
 	}
 	
 	public String getApplicationId() {
@@ -80,5 +82,12 @@ public class Rule {
 	public void setId(String id) {
 		this.id = id;
 	}
-	
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
 }

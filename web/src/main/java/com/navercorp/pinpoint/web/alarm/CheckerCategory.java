@@ -11,8 +11,8 @@ import com.nhn.pinpoint.web.alarm.checker.GcCountChecker;
 import com.nhn.pinpoint.web.alarm.checker.HeapUsageRateChecker;
 import com.nhn.pinpoint.web.alarm.checker.JvmCpuUsageRateChecker;
 import com.nhn.pinpoint.web.alarm.checker.ResponseCountChecker;
-import com.nhn.pinpoint.web.alarm.checker.SlowCountFilter;
-import com.nhn.pinpoint.web.alarm.checker.SlowRatesFilter;
+import com.nhn.pinpoint.web.alarm.checker.SlowCountChecker;
+import com.nhn.pinpoint.web.alarm.checker.SlowRatesChecker;
 import com.nhn.pinpoint.web.alarm.collector.AgentStatDataCollector;
 import com.nhn.pinpoint.web.alarm.collector.DataCollector;
 import com.nhn.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
@@ -23,14 +23,14 @@ public enum CheckerCategory {
     SLOW_COUNT("SLOW_COUNT", DataCollectorCategory.RESPONSE_TIME) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
-            return new SlowCountFilter((ResponseTimeDataCollector)dataCollector, rule);
+            return new SlowCountChecker((ResponseTimeDataCollector)dataCollector, rule);
         }
     },
     
     SLOW_RATE("SLOW_RATE", DataCollectorCategory.RESPONSE_TIME) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
-            return new SlowRatesFilter((ResponseTimeDataCollector)dataCollector, rule);
+            return new SlowRatesChecker((ResponseTimeDataCollector)dataCollector, rule);
         }
     },
     
@@ -52,6 +52,13 @@ public enum CheckerCategory {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
             return new ResponseCountChecker((ResponseTimeDataCollector)dataCollector, rule);
+        }
+    },
+    
+    SLOW_COUNT_TO_CALLE("SLOW_COUNT_TO_CALLE", DataCollectorCategory.CALLER_STAT) {
+        @Override
+        public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
+            return new SlowCountChecker((ResponseTimeDataCollector)dataCollector, rule);
         }
     },
     
