@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
+import com.nhn.pinpoint.profiler.ClassFileRetransformer;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.modifier.arcus.ArcusClientModifier;
 import com.nhn.pinpoint.profiler.modifier.arcus.BaseOperationModifier;
@@ -89,11 +90,13 @@ public class DefaultModifierRegistry implements ModifierRegistry {
     private final ByteCodeInstrumentor byteCodeInstrumentor;
     private final ProfilerConfig profilerConfig;
     private final Agent agent;
+    private final ClassFileRetransformer retransformer;
 
-    public DefaultModifierRegistry(Agent agent, ByteCodeInstrumentor byteCodeInstrumentor) {
+    public DefaultModifierRegistry(Agent agent, ByteCodeInstrumentor byteCodeInstrumentor, ClassFileRetransformer retransformer) {
         this.agent = agent;
         // classLoader계층 구조 때문에 직접 type을 넣기가 애매하여 그냥 casting
         this.byteCodeInstrumentor = byteCodeInstrumentor;
+        this.retransformer = retransformer;
         this.profilerConfig = agent.getProfilerConfig();
     }
 
@@ -422,7 +425,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 
     public void addSpringBeansModifier() {
         if (profilerConfig.isSpringBeansEnabled()) {
-            addModifier(AbstractAutowireCapableBeanFactoryModifier.of(byteCodeInstrumentor, agent));
+            addModifier(AbstractAutowireCapableBeanFactoryModifier.of(byteCodeInstrumentor, agent, retransformer));
         }
     }
 }

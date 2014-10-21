@@ -44,10 +44,8 @@ import com.nhn.pinpoint.profiler.util.PreparedStatementUtils;
 import com.nhn.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.nhn.pinpoint.rpc.ClassPreLoader;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
-import com.nhn.pinpoint.rpc.client.MessageListener;
 import com.nhn.pinpoint.rpc.client.PinpointSocket;
 import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
-import com.nhn.pinpoint.rpc.client.SimpleLoggingMessageListener;
 import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 
 /**
@@ -63,7 +61,6 @@ public class DefaultAgent implements Agent {
 
     private final ByteCodeInstrumentor byteCodeInstrumentor;
     private final ClassFileTransformer classFileTransformer;
-    private final ClassFileRetransformer retransformer;
     
     private final ProfilerConfig profilerConfig;
 
@@ -123,11 +120,9 @@ public class DefaultAgent implements Agent {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
         }
         
-        // retransform를 사용하는 modifier가 있기 때문에 retransformer를 classFileTransformer보다 먼저 생성해야 한다. 
-        this.retransformer = new ClassFileRetransformer(instrumentation);
+        ClassFileRetransformer retransformer = new ClassFileRetransformer(instrumentation);
         instrumentation.addTransformer(retransformer, true);
-
-        this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor);
+        this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor, retransformer);
         instrumentation.addTransformer(this.classFileTransformer);
         
 
@@ -356,10 +351,6 @@ public class DefaultAgent implements Agent {
         return agentInformation;
     }
     
-    public ClassFileRetransformer getRetransformer() {
-        return retransformer;
-    }
-
     @Override
     public void start() {
         synchronized (this) {
