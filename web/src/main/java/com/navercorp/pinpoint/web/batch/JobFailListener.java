@@ -31,7 +31,7 @@ public class JobFailListener implements JobExecutionListener {
 
 	@Override
 	public void afterJob(JobExecution jobExecution) {
-		if (jobExecution.getExitStatus() != ExitStatus.COMPLETED) {
+		if (!jobExecution.getExitStatus().equals(ExitStatus.COMPLETED)) {
 			sendSMS(jobExecution.getJobInstance().getJobName(), jobExecution.getStartTime(), jobExecution.getEndTime());
 		}
 	}

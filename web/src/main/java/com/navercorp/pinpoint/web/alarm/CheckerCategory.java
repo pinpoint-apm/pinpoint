@@ -6,15 +6,21 @@ import java.util.List;
 import com.nhn.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
 import com.nhn.pinpoint.web.alarm.checker.AlarmChecker;
 import com.nhn.pinpoint.web.alarm.checker.ErrorCountChecker;
+import com.nhn.pinpoint.web.alarm.checker.ErrorCountToCalleChecker;
 import com.nhn.pinpoint.web.alarm.checker.ErrorRateChecker;
+import com.nhn.pinpoint.web.alarm.checker.ErrorRateToCalleChecker;
 import com.nhn.pinpoint.web.alarm.checker.GcCountChecker;
 import com.nhn.pinpoint.web.alarm.checker.HeapUsageRateChecker;
 import com.nhn.pinpoint.web.alarm.checker.JvmCpuUsageRateChecker;
 import com.nhn.pinpoint.web.alarm.checker.ResponseCountChecker;
 import com.nhn.pinpoint.web.alarm.checker.SlowCountChecker;
-import com.nhn.pinpoint.web.alarm.checker.SlowRatesChecker;
+import com.nhn.pinpoint.web.alarm.checker.SlowCountToCalleChecker;
+import com.nhn.pinpoint.web.alarm.checker.SlowRateChecker;
+import com.nhn.pinpoint.web.alarm.checker.SlowRateToCalleChecker;
+import com.nhn.pinpoint.web.alarm.checker.TotalCountToCalleChecker;
 import com.nhn.pinpoint.web.alarm.collector.AgentStatDataCollector;
 import com.nhn.pinpoint.web.alarm.collector.DataCollector;
+import com.nhn.pinpoint.web.alarm.collector.MapStatisticsCallerCollector;
 import com.nhn.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
 
@@ -30,7 +36,7 @@ public enum CheckerCategory {
     SLOW_RATE("SLOW_RATE", DataCollectorCategory.RESPONSE_TIME) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
-            return new SlowRatesChecker((ResponseTimeDataCollector)dataCollector, rule);
+            return new SlowRateChecker((ResponseTimeDataCollector)dataCollector, rule);
         }
     },
     
@@ -58,7 +64,35 @@ public enum CheckerCategory {
     SLOW_COUNT_TO_CALLE("SLOW_COUNT_TO_CALLE", DataCollectorCategory.CALLER_STAT) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
-            return new SlowCountChecker((ResponseTimeDataCollector)dataCollector, rule);
+            return new SlowCountToCalleChecker((MapStatisticsCallerCollector)dataCollector, rule);
+        }
+    },
+    
+    SLOW_RATE_TO_CALLE("SLOW_RATE_TO_CALLE", DataCollectorCategory.CALLER_STAT) {
+        @Override
+        public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
+            return new SlowRateToCalleChecker((MapStatisticsCallerCollector)dataCollector, rule);
+        }
+    },
+    
+    ERROR_COUNT_TO_CALLE("ERROR_COUNT_TO_CALLE", DataCollectorCategory.CALLER_STAT) {
+        @Override
+        public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
+            return new ErrorCountToCalleChecker((MapStatisticsCallerCollector)dataCollector, rule);
+        }
+    },
+    
+    ERROR_RATE_TO_CALLE("ERROR_RATE_TO_CALLE", DataCollectorCategory.CALLER_STAT) {
+        @Override
+        public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
+            return new ErrorRateToCalleChecker((MapStatisticsCallerCollector)dataCollector, rule);
+        }
+    },
+    
+    TOTAL_COUNT_TO_CALLE("TOTAL_COUNT_TO_CALLE", DataCollectorCategory.CALLER_STAT) {
+        @Override
+        public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
+            return new TotalCountToCalleChecker((MapStatisticsCallerCollector)dataCollector, rule);
         }
     },
     

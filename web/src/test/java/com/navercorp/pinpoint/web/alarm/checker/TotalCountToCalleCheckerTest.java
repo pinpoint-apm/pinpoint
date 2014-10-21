@@ -22,7 +22,7 @@ import com.nhn.pinpoint.web.dao.MapStatisticsCallerDao;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
 
-public class SlowCountToCalleCheckerTest {
+public class TotalCountToCalleCheckerTest {
     
     private static final String FROM_SERVICE_NAME = "from_local_service";
     private static final String TO_SERVICE_NAME = "to_local_service";
@@ -67,8 +67,8 @@ public class SlowCountToCalleCheckerTest {
     public void checkTest() {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.TOMCAT);
         MapStatisticsCallerCollector dataCollector = new MapStatisticsCallerCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.SLOW_COUNT_TO_CALLE.getName(), 7, "testGroup", false, false, TO_SERVICE_NAME + 1);
-        SlowCountToCalleChecker checker = new SlowCountToCalleChecker(dataCollector, rule);
+        Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.TOTAL_COUNT_TO_CALLE.getName(), 10, "testGroup", false, false, TO_SERVICE_NAME + 1);
+        TotalCountToCalleChecker checker = new TotalCountToCalleChecker(dataCollector, rule);
         
         checker.check();
         assertTrue(checker.isDetected());
@@ -78,8 +78,8 @@ public class SlowCountToCalleCheckerTest {
     public void checkTest2() {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.TOMCAT);
         MapStatisticsCallerCollector dataCollector = new MapStatisticsCallerCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.SLOW_COUNT_TO_CALLE.getName(), 8, "testGroup", false, false, TO_SERVICE_NAME + 1);
-        SlowCountToCalleChecker checker = new SlowCountToCalleChecker(dataCollector, rule);
+        Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.TOTAL_COUNT_TO_CALLE.getName(), 11, "testGroup", false, false, TO_SERVICE_NAME + 1);
+        TotalCountToCalleChecker checker = new TotalCountToCalleChecker(dataCollector, rule);
         
         checker.check();
         assertFalse(checker.isDetected());
@@ -89,11 +89,10 @@ public class SlowCountToCalleCheckerTest {
     public void checkTest3() {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.TOMCAT);
         MapStatisticsCallerCollector dataCollector = new MapStatisticsCallerCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
-        Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.SLOW_COUNT_TO_CALLE.getName(), 9, "testGroup", false, false, TO_SERVICE_NAME + 2);
-        SlowCountToCalleChecker checker = new SlowCountToCalleChecker(dataCollector, rule);
+        Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.TOTAL_COUNT_TO_CALLE.getName(), 10, "testGroup", false, false, TO_SERVICE_NAME + 2);
+        TotalCountToCalleChecker checker = new TotalCountToCalleChecker(dataCollector, rule);
         
         checker.check();
         assertTrue(checker.isDetected());
     }
-
 }

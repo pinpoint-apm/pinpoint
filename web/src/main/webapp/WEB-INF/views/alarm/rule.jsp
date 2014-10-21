@@ -37,6 +37,7 @@
 										+ '    <option value="true">true</option>'
 										+ '    <option value="false">false</option>'
 									+ '</select>';
+		row.insertCell(7).innerHTML = '<input type="text" name="ruleList[' + ruleSize + '].notes" value="${rule.notes}"/>'
 	}
 	
 	//delete input form when clicked delete button
@@ -95,7 +96,7 @@
 		<table id="ruleGroup" frame="void" border="1">
 			<!-- 사원 추가 -->
 			<tr bordercolor="white">
-					<td align="left" colspan="7">
+					<td align="left" colspan="8">
 						<button type="button" onclick='append_rule_input()'>행추가</button>
 						<button type="button" onclick='remove_rule_input()'>행삭제</button>
 					</td>
@@ -112,6 +113,7 @@
 				<th>사원그룹</th>
 				<th>SMS전송</th>
 				<th>Email전송</th>
+				<th>비고</th>
 			</tr>
 			<c:forEach var="rule" items="${ruleList}" varStatus="ruleIndex">
 					<tr>
@@ -174,6 +176,9 @@
 								</c:choose>
 							</select>
 						</td>
+						<td>
+							<input type="text" name="ruleList[${ruleIndex.index}].notes" value="${rule.notes}"/>
+						</td>
 					</tr>
 			</c:forEach>
 			
@@ -181,7 +186,7 @@
 			<tr bordercolor="white">
 			</tr>
 			<tr bordercolor="white">
-				<td align="right" colspan="7">
+				<td align="right" colspan="8">
 					<button onclick="document.pressed=this.value" value="insert">신규등록</button>
 					<button onclick="document.pressed=this.value" value="update">저장</button>
 					<button onclick="document.pressed=this.value" value="delete">전체삭제</button>
