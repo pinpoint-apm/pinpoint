@@ -27,7 +27,7 @@ public class TargetBeanFilter {
     private final ConcurrentMap<ClassLoader, List<Class<? extends Annotation>>> targetAnnotationMap = new ConcurrentHashMap<ClassLoader, List<Class<? extends Annotation>>>();
     
     private final Cache<Class<?>, Boolean> transformed = CacheBuilder.newBuilder().concurrencyLevel(CACHE_CONCURRENCY_LEVEL).maximumSize(CACHE_SIZE).weakKeys().build();
-    private final Cache<Class<?>, Boolean> rejected = CacheBuilder.newBuilder().concurrencyLevel(CACHE_CONCURRENCY_LEVEL).maximumSize(1024).weakKeys().build();
+    private final Cache<Class<?>, Boolean> rejected = CacheBuilder.newBuilder().concurrencyLevel(CACHE_CONCURRENCY_LEVEL).maximumSize(CACHE_SIZE).weakKeys().build();
     
     public static TargetBeanFilter of(ProfilerConfig config) {
         List<String> targetNamePatternStrings = split(config.getSpringBeansNamePatterns());
