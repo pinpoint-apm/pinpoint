@@ -68,12 +68,11 @@ public class BeanMethodModifier implements Modifier {
 
             List<Method> methodList = clazz.getDeclaredMethods(METHOD_FILTER);
             for (Method method : methodList) {
-                // TODO bean 메서드 인터셉터를 메서드 별로 따로 만들면 객체가 너무 많아지는 문제가 생길 수도 있을 듯.
-                  // 일단은 {@link MethodInterceptor}를 쓰고 문제 생기면 StaticAroundInterceptor 구현체로 바꾸는 거 고려.
-                final Interceptor interceptor = new MethodInterceptor();
                 if (logger.isTraceEnabled()) {
                     logger.trace("### c={}, m={}, params={}", javassistClassName, method.getMethodName(), Arrays.toString(method.getMethodParams()));
                 }
+
+                Interceptor interceptor = new MethodInterceptor();
                 clazz.addInterceptor(method.getMethodName(), method.getMethodParams(), interceptor);
             }
 

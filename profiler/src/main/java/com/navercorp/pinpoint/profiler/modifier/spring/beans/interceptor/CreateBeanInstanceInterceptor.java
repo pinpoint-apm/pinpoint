@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import com.nhn.pinpoint.profiler.ClassFileRetransformer;
 import com.nhn.pinpoint.profiler.modifier.Modifier;
 
-public class CreateBeanInstanceInterceptor extends SpringBeanInterceptor {
+public class CreateBeanInstanceInterceptor extends AbstractSpringBeanCreationInterceptor {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     
     public CreateBeanInstanceInterceptor(ClassFileRetransformer retransformer, Modifier modifier, TargetBeanFilter filter) {

@@ -8,14 +8,14 @@ import com.nhn.pinpoint.profiler.ClassFileRetransformer;
 import com.nhn.pinpoint.profiler.ProfilerException;
 import com.nhn.pinpoint.profiler.modifier.Modifier;
 
-public abstract class SpringBeanInterceptor implements SimpleAroundInterceptor {
+public abstract class AbstractSpringBeanCreationInterceptor implements SimpleAroundInterceptor {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     
     private final ClassFileRetransformer retransformer;
     private final Modifier modifier;
     private final TargetBeanFilter filter;
     
-    protected SpringBeanInterceptor(ClassFileRetransformer retransformer, Modifier modifier, TargetBeanFilter filter) {
+    protected AbstractSpringBeanCreationInterceptor(ClassFileRetransformer retransformer, Modifier modifier, TargetBeanFilter filter) {
         this.retransformer = retransformer;
         this.modifier = modifier;
         this.filter = filter;
@@ -32,8 +32,7 @@ public abstract class SpringBeanInterceptor implements SimpleAroundInterceptor {
             return;
         }
         
-        // TODO 상속받은 메서드도 추적하고 싶다면, parent class들도 찾아서 retransform해야 한다.
-         // 우선은 자기 자신의 메서드들만 추적하도록 하고, 추후 요구사항이 생기면 구현한다.
+        // If you want to trace inherited methods, you have to retranform super classes, too.
         
         try {
             retransformer.retransform(clazz, modifier);
