@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.ClassFileRetransformer;
-import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
@@ -55,10 +54,8 @@ public class AbstractAutowireCapableBeanFactoryModifier extends AbstractModifier
     private final TargetBeanFilter filter;
     private final Modifier modifier;
     
-    public static AbstractAutowireCapableBeanFactoryModifier of(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+    public static AbstractAutowireCapableBeanFactoryModifier of(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent, ClassFileRetransformer retransformer) {
         Modifier modifier = new BeanMethodModifier(byteCodeInstrumentor);
-        ClassFileRetransformer retransformer = ((DefaultAgent)agent).getRetransformer();
-        
         return of(byteCodeInstrumentor, agent, retransformer, modifier);
     }
     

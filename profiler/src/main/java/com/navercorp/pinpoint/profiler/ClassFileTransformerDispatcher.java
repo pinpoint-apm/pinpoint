@@ -1,17 +1,18 @@
 package com.nhn.pinpoint.profiler;
 
-import com.nhn.pinpoint.bootstrap.Agent;
-import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
-import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.modifier.DefaultModifierRegistry;
-import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
-import com.nhn.pinpoint.profiler.modifier.ModifierRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.nhn.pinpoint.bootstrap.Agent;
+import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
+import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
+import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import com.nhn.pinpoint.profiler.modifier.DefaultModifierRegistry;
+import com.nhn.pinpoint.profiler.modifier.ModifierRegistry;
 
 /**
  * @author emeroad
@@ -28,20 +29,26 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
     private final Agent agent;
     private final ByteCodeInstrumentor byteCodeInstrumentor;
+    private final ClassFileRetransformer retransformer;
 
     private final ProfilerConfig profilerConfig;
 
     private final ClassFileFilter skipFilter;
 
-    public ClassFileTransformerDispatcher(Agent agent, ByteCodeInstrumentor byteCodeInstrumentor) {
+    public ClassFileTransformerDispatcher(Agent agent, ByteCodeInstrumentor byteCodeInstrumentor, ClassFileRetransformer retransformer) {
         if (agent == null) {
             throw new NullPointerException("agent must not be null");
         }
         if (byteCodeInstrumentor == null) {
             throw new NullPointerException("byteCodeInstrumentor must not be null");
         }
+        if (retransformer == null) {
+            throw new NullPointerException("retransformer must not be null");
+        }
+        
         this.agent = agent;
         this.byteCodeInstrumentor = byteCodeInstrumentor;
+        this.retransformer = retransformer;
         this.profilerConfig = agent.getProfilerConfig();
         this.modifierRegistry = createModifierRegistry();
         this.skipFilter = new DefaultClassFileFilter(agentClassLoader);
@@ -104,7 +111,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
     }
 
     private ModifierRegistry createModifierRegistry() {
-        DefaultModifierRegistry modifierRepository = new DefaultModifierRegistry(agent, byteCodeInstrumentor);
+        DefaultModifierRegistry modifierRepository = new DefaultModifierRegistry(agent, byteCodeInstrumentor, retransformer);
 
         modifierRepository.addMethodModifier();
 
