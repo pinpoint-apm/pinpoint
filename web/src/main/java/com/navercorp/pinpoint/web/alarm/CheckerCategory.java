@@ -20,7 +20,7 @@ import com.nhn.pinpoint.web.alarm.checker.SlowRateToCalleChecker;
 import com.nhn.pinpoint.web.alarm.checker.TotalCountToCalleChecker;
 import com.nhn.pinpoint.web.alarm.collector.AgentStatDataCollector;
 import com.nhn.pinpoint.web.alarm.collector.DataCollector;
-import com.nhn.pinpoint.web.alarm.collector.MapStatisticsCallerCollector;
+import com.nhn.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector;
 import com.nhn.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
 
@@ -64,35 +64,35 @@ public enum CheckerCategory {
     SLOW_COUNT_TO_CALLE("SLOW_COUNT_TO_CALLE", DataCollectorCategory.CALLER_STAT) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
-            return new SlowCountToCalleChecker((MapStatisticsCallerCollector)dataCollector, rule);
+            return new SlowCountToCalleChecker((MapStatisticsCallerDataCollector)dataCollector, rule);
         }
     },
     
     SLOW_RATE_TO_CALLE("SLOW_RATE_TO_CALLE", DataCollectorCategory.CALLER_STAT) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
-            return new SlowRateToCalleChecker((MapStatisticsCallerCollector)dataCollector, rule);
+            return new SlowRateToCalleChecker((MapStatisticsCallerDataCollector)dataCollector, rule);
         }
     },
     
     ERROR_COUNT_TO_CALLE("ERROR_COUNT_TO_CALLE", DataCollectorCategory.CALLER_STAT) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
-            return new ErrorCountToCalleChecker((MapStatisticsCallerCollector)dataCollector, rule);
+            return new ErrorCountToCalleChecker((MapStatisticsCallerDataCollector)dataCollector, rule);
         }
     },
     
     ERROR_RATE_TO_CALLE("ERROR_RATE_TO_CALLE", DataCollectorCategory.CALLER_STAT) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
-            return new ErrorRateToCalleChecker((MapStatisticsCallerCollector)dataCollector, rule);
+            return new ErrorRateToCalleChecker((MapStatisticsCallerDataCollector)dataCollector, rule);
         }
     },
     
     TOTAL_COUNT_TO_CALLE("TOTAL_COUNT_TO_CALLE", DataCollectorCategory.CALLER_STAT) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
-            return new TotalCountToCalleChecker((MapStatisticsCallerCollector)dataCollector, rule);
+            return new TotalCountToCalleChecker((MapStatisticsCallerDataCollector)dataCollector, rule);
         }
     },
     

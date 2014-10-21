@@ -1,8 +1,8 @@
 package com.nhn.pinpoint.web.alarm.checker;
 
 import com.nhn.pinpoint.web.alarm.collector.DataCollector;
-import com.nhn.pinpoint.web.alarm.collector.MapStatisticsCallerCollector;
-import com.nhn.pinpoint.web.alarm.collector.MapStatisticsCallerCollector.DataCategory;
+import com.nhn.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector;
+import com.nhn.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector.DataCategory;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
 
 public class SlowRateToCalleChecker extends AlarmChecker {
@@ -14,7 +14,7 @@ public class SlowRateToCalleChecker extends AlarmChecker {
     @Override
     protected long getDetectedValue() {
         String calleName = rule.getNotes();
-        return ((MapStatisticsCallerCollector)dataCollector).getCountRate(calleName, DataCategory.SLOW_RATE);
+        return ((MapStatisticsCallerDataCollector)dataCollector).getCountRate(calleName, DataCategory.SLOW_RATE);
     }
     
     @Override

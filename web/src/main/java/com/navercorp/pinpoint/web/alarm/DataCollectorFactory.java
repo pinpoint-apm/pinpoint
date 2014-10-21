@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 import com.nhn.pinpoint.web.alarm.collector.AgentStatDataCollector;
 import com.nhn.pinpoint.web.alarm.collector.DataCollector;
-import com.nhn.pinpoint.web.alarm.collector.MapStatisticsCallerCollector;
+import com.nhn.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector;
 import com.nhn.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
 import com.nhn.pinpoint.web.dao.hbase.HbaseAgentStatDao;
 import com.nhn.pinpoint.web.dao.hbase.HbaseApplicationIndexDao;
@@ -39,7 +39,7 @@ public class DataCollectorFactory {
         case AGENT_STAT:
             return new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, hbaseAgentStatDao, hbaseApplicationIndexDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
         case CALLER_STAT:
-            return new MapStatisticsCallerCollector(DataCollectorCategory.CALLER_STAT, application, mapStatisticsCallerDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+            return new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, mapStatisticsCallerDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
         }
         
         throw new IllegalArgumentException("not create DataCollector : " + checker.getName());
