@@ -12,7 +12,7 @@ import org.junit.Test;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.alarm.CheckerCategory;
 import com.nhn.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
-import com.nhn.pinpoint.web.alarm.checker.SlowRatesChecker;
+import com.nhn.pinpoint.web.alarm.checker.SlowRateChecker;
 import com.nhn.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
 import com.nhn.pinpoint.web.applicationmap.histogram.TimeHistogram;
@@ -21,7 +21,7 @@ import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
 import com.nhn.pinpoint.web.vo.ResponseTime;
 
-public class SlowRatesCheckerTest {
+public class SlowRateCheckerTest {
     
     private static final String SERVICE_NAME = "local_service"; 
     
@@ -66,7 +66,7 @@ public class SlowRatesCheckerTest {
         Application application = new Application(SERVICE_NAME, ServiceType.TOMCAT);
         ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, System.currentTimeMillis(), 300000);
         Rule rule = new Rule(SERVICE_NAME, CheckerCategory.SLOW_RATE.getName(), 60, "testGroup", false, false, "");
-        SlowRatesChecker filter = new SlowRatesChecker(collector, rule);
+        SlowRateChecker filter = new SlowRateChecker(collector, rule);
     
         filter.check();
         assertTrue(filter.isDetected());
@@ -80,7 +80,7 @@ public class SlowRatesCheckerTest {
         Application application = new Application(SERVICE_NAME, ServiceType.TOMCAT);
         ResponseTimeDataCollector collector = new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, mockMapResponseDAO, System.currentTimeMillis(), 300000);
         Rule rule = new Rule(SERVICE_NAME, CheckerCategory.SLOW_RATE.getName(), 61, "testGroup", false, false, "");
-        SlowRatesChecker filter = new SlowRatesChecker(collector, rule);
+        SlowRateChecker filter = new SlowRateChecker(collector, rule);
     
         filter.check();
         assertFalse(filter.isDetected());

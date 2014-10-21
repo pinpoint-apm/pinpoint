@@ -67,17 +67,61 @@ public class MapStatisticsCallerCollector extends DataCollector {
                     count += timeHistogram.getErrorCount();
                 }
                 break;
+            case TOTAL_COUNT:
+                for (TimeHistogram timeHistogram : linkCallData.getTimeHistogram()) {
+                    count += timeHistogram.getTotalCount();
+                }
+                break;
+            default :
+                throw new IllegalArgumentException("Can't count for " + dataCategory.toString());
             }
-            
             
             return count;
         }
         
         return 0;
     }
+    
+    public long getCountRate(String calleName, DataCategory dataCategory) {
+        LinkCallData linkCallData = calleStatMap.get(calleName);
+        long count = 0;
+        long totalCount = 0;
+        
+        if (linkCallData != null) {
+            switch (dataCategory) {
+            case SLOW_RATE:
+                for (TimeHistogram timeHistogram : linkCallData.getTimeHistogram()) {
+                    count += timeHistogram.getSlowCount();
+                    count += timeHistogram.getVerySlowCount();
+                    totalCount += timeHistogram.getTotalCount();
+                }
+                break;
+            case ERROR_RATE:
+                for (TimeHistogram timeHistogram : linkCallData.getTimeHistogram()) {
+                    count += timeHistogram.getErrorCount();
+                    totalCount += timeHistogram.getTotalCount();
+                }
+                break;
+            default :
+                throw new IllegalArgumentException("Can't calculate rate for " + dataCategory.toString());
+            }
+            
+            return calculatePercent(count, totalCount);
+        }            
+        
+        return 0;
+    }
+
+    private int calculatePercent(long count, long totalCount) {
+        if (totalCount == 0 || count == 0) {
+            return 0;
+        } else {
+            return Math.round((count * 100) / totalCount);
+        }
+    }
 
     public enum DataCategory {
-        SLOW_COUNT, 
-        ERROR_COUNT;
+        SLOW_COUNT, ERROR_COUNT, TOTAL_COUNT,
+        SLOW_RATE, ERROR_RATE;
     }
 }
