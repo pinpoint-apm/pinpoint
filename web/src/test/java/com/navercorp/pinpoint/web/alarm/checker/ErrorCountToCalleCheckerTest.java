@@ -12,7 +12,7 @@ import org.junit.Test;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.web.alarm.CheckerCategory;
 import com.nhn.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
-import com.nhn.pinpoint.web.alarm.collector.MapStatisticsCallerCollector;
+import com.nhn.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
 import com.nhn.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
@@ -72,7 +72,7 @@ public class ErrorCountToCalleCheckerTest {
     @Test
     public void checkTest() {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.TOMCAT);
-        MapStatisticsCallerCollector dataCollector = new MapStatisticsCallerCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
+        MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
         Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.ERROR_COUNT_TO_CALLE.getName(), 5, "testGroup", false, false, TO_SERVICE_NAME + 1);
         ErrorCountToCalleChecker checker = new ErrorCountToCalleChecker(dataCollector, rule);
         
@@ -83,7 +83,7 @@ public class ErrorCountToCalleCheckerTest {
     @Test
     public void checkTest2() {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.TOMCAT);
-        MapStatisticsCallerCollector dataCollector = new MapStatisticsCallerCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
+        MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
         Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.ERROR_COUNT_TO_CALLE.getName(), 6, "testGroup", false, false, TO_SERVICE_NAME + 1);
         ErrorCountToCalleChecker checker = new ErrorCountToCalleChecker(dataCollector, rule);
         
@@ -94,7 +94,7 @@ public class ErrorCountToCalleCheckerTest {
     @Test
     public void checkTest3() {
         Application application = new Application(FROM_SERVICE_NAME, ServiceType.TOMCAT);
-        MapStatisticsCallerCollector dataCollector = new MapStatisticsCallerCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
+        MapStatisticsCallerDataCollector dataCollector = new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, dao, System.currentTimeMillis(), 300000);
         Rule rule = new Rule(FROM_SERVICE_NAME, CheckerCategory.ERROR_COUNT_TO_CALLE.getName(), 5, "testGroup", false, false, TO_SERVICE_NAME + 2);
         ErrorCountToCalleChecker checker = new ErrorCountToCalleChecker(dataCollector, rule);
         

@@ -1,19 +1,19 @@
 package com.nhn.pinpoint.web.alarm.checker;
 
-import com.nhn.pinpoint.web.alarm.collector.MapStatisticsCallerCollector;
-import com.nhn.pinpoint.web.alarm.collector.MapStatisticsCallerCollector.DataCategory;
+import com.nhn.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector;
+import com.nhn.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector.DataCategory;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
 
 public class SlowCountToCalleChecker extends AlarmChecker {
     
-    public SlowCountToCalleChecker(MapStatisticsCallerCollector dataCollector, Rule rule) {
+    public SlowCountToCalleChecker(MapStatisticsCallerDataCollector dataCollector, Rule rule) {
         super(rule, "", dataCollector);
     }
     
     @Override
     protected long getDetectedValue() {
         String calleName = rule.getNotes();
-        return ((MapStatisticsCallerCollector)dataCollector).getCount(calleName, DataCategory.SLOW_COUNT);
+        return ((MapStatisticsCallerDataCollector)dataCollector).getCount(calleName, DataCategory.SLOW_COUNT);
     }
     
     @Override

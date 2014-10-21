@@ -14,7 +14,7 @@ import com.nhn.pinpoint.web.dao.MapStatisticsCallerDao;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
 
-public class MapStatisticsCallerCollector extends DataCollector {
+public class MapStatisticsCallerDataCollector extends DataCollector {
 
     private Application application;
     private MapStatisticsCallerDao mapStatisticsCallerDao; 
@@ -23,7 +23,7 @@ public class MapStatisticsCallerCollector extends DataCollector {
     private Map<String, LinkCallData> calleStatMap = new HashMap<String, LinkCallData>();
     private final AtomicBoolean init =new AtomicBoolean(false);// 동시에 checker들이 동작 되면 동시성 고려가 필요함
     
-    public MapStatisticsCallerCollector(DataCollectorCategory category, Application application, MapStatisticsCallerDao mapStatisticsCallerDao, long timeSlotEndTime, long slotInterval) {
+    public MapStatisticsCallerDataCollector(DataCollectorCategory category, Application application, MapStatisticsCallerDao mapStatisticsCallerDao, long timeSlotEndTime, long slotInterval) {
         super(category);
         this.application = application;
         this.mapStatisticsCallerDao = mapStatisticsCallerDao;

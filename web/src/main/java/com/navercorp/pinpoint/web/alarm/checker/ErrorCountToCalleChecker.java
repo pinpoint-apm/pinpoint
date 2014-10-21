@@ -1,20 +1,20 @@
 package com.nhn.pinpoint.web.alarm.checker;
 
-import com.nhn.pinpoint.web.alarm.collector.MapStatisticsCallerCollector;
-import com.nhn.pinpoint.web.alarm.collector.MapStatisticsCallerCollector.DataCategory;
+import com.nhn.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector;
+import com.nhn.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector.DataCategory;
 import com.nhn.pinpoint.web.alarm.vo.Rule;
 
 
 public class ErrorCountToCalleChecker extends AlarmChecker {
 
-    public ErrorCountToCalleChecker(MapStatisticsCallerCollector dataCollector, Rule rule) {
+    public ErrorCountToCalleChecker(MapStatisticsCallerDataCollector dataCollector, Rule rule) {
         super(rule, "", dataCollector);
     }
 
     @Override
     protected long getDetectedValue() {
         String calleName = rule.getNotes();
-        return ((MapStatisticsCallerCollector)dataCollector).getCount(calleName, DataCategory.ERROR_COUNT);
+        return ((MapStatisticsCallerDataCollector)dataCollector).getCount(calleName, DataCategory.ERROR_COUNT);
     }
     
     @Override
