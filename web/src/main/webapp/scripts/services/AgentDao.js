@@ -155,8 +155,8 @@ pinpointApp.service('AgentDao', [ 'agentDaoConfig',
 	                systemCpuLoadValueText: "",
 	                maxCpuLoad: 100
 	            };
-	            var jvmCpuLoad = agentStat.charts['jvmCpuLoad'].points[i][AVG_POINT_INDEX].toFixed(2);
-	            var systemCpuLoad = agentStat.charts['systemCpuLoad'].points[i][AVG_POINT_INDEX].toFixed(2);
+	            var jvmCpuLoad = agentStat.charts['jvmCpuLoad'].points[i][MAX_POINT_INDEX].toFixed(2);
+	            var systemCpuLoad = agentStat.charts['systemCpuLoad'].points[i][MAX_POINT_INDEX].toFixed(2);
             	thisData.jvmCpuLoadValue = processCpuLoadValue(jvmCpuLoad);
             	thisData.jvmCpuLoadValueText = processCpuLoadValueText(jvmCpuLoad);
             	thisData.systemCpuLoadValue = processCpuLoadValue(systemCpuLoad);
