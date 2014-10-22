@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
+import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.interceptor.bci.Method;
@@ -72,7 +73,9 @@ public class BeanMethodModifier implements Modifier {
                     logger.trace("### c={}, m={}, params={}", javassistClassName, method.getMethodName(), Arrays.toString(method.getMethodParams()));
                 }
 
-                Interceptor interceptor = new MethodInterceptor();
+                MethodInterceptor interceptor = new MethodInterceptor();
+                interceptor.setServiceType(ServiceType.SPRING_BEAN);
+                
                 clazz.addInterceptor(method.getMethodName(), method.getMethodParams(), interceptor);
             }
 
