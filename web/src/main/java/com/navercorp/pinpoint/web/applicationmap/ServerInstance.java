@@ -34,7 +34,7 @@ public class ServerInstance {
         if (agentInfo == null) {
             throw new NullPointerException("agentInfo must not be null");
         }
-        this.hostName = agentInfo.getHostname();
+        this.hostName = agentInfo.getHostName();
         this.name = agentInfo.getAgentId();
 		this.serviceType = agentInfo.getServiceType();
 		this.agentInfo = agentInfo;
