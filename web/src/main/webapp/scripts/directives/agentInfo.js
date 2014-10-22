@@ -35,7 +35,7 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                     scope.info = {
                         'agentId': agent.agentId,
                         'applicationName': agent.applicationName,
-                        'hostname': agent.hostname,
+                        'hostName': agent.hostName,
                         'ip': agent.ip,
                         'serviceType': agent.serviceType,
                         'pid': agent.pid,

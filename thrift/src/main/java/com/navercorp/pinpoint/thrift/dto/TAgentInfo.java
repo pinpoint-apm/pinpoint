@@ -46,6 +46,7 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
   private static final org.apache.thrift.protocol.TField START_TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("startTimestamp", org.apache.thrift.protocol.TType.I64, (short)10);
   private static final org.apache.thrift.protocol.TField END_TIMESTAMP_FIELD_DESC = new org.apache.thrift.protocol.TField("endTimestamp", org.apache.thrift.protocol.TType.I64, (short)11);
   private static final org.apache.thrift.protocol.TField END_STATUS_FIELD_DESC = new org.apache.thrift.protocol.TField("endStatus", org.apache.thrift.protocol.TType.I32, (short)12);
+  private static final org.apache.thrift.protocol.TField SERVER_META_DATA_FIELD_DESC = new org.apache.thrift.protocol.TField("serverMetaData", org.apache.thrift.protocol.TType.STRUCT, (short)20);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -64,6 +65,7 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
   private long startTimestamp; // required
   private long endTimestamp; // optional
   private int endStatus; // optional
+  private TServerMetaData serverMetaData; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -77,7 +79,8 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
     VERSION((short)8, "version"),
     START_TIMESTAMP((short)10, "startTimestamp"),
     END_TIMESTAMP((short)11, "endTimestamp"),
-    END_STATUS((short)12, "endStatus");
+    END_STATUS((short)12, "endStatus"),
+    SERVER_META_DATA((short)20, "serverMetaData");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -114,6 +117,8 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
           return END_TIMESTAMP;
         case 12: // END_STATUS
           return END_STATUS;
+        case 20: // SERVER_META_DATA
+          return SERVER_META_DATA;
         default:
           return null;
       }
@@ -160,7 +165,7 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
   private static final int __ENDTIMESTAMP_ISSET_ID = 3;
   private static final int __ENDSTATUS_ISSET_ID = 4;
   private byte __isset_bitfield = 0;
-  private _Fields optionals[] = {_Fields.END_TIMESTAMP,_Fields.END_STATUS};
+  private _Fields optionals[] = {_Fields.END_TIMESTAMP,_Fields.END_STATUS,_Fields.SERVER_META_DATA};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -186,6 +191,8 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     tmpMap.put(_Fields.END_STATUS, new org.apache.thrift.meta_data.FieldMetaData("endStatus", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+    tmpMap.put(_Fields.SERVER_META_DATA, new org.apache.thrift.meta_data.FieldMetaData("serverMetaData", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, TServerMetaData.class)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(TAgentInfo.class, metaDataMap);
   }
@@ -247,6 +254,9 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
     this.startTimestamp = other.startTimestamp;
     this.endTimestamp = other.endTimestamp;
     this.endStatus = other.endStatus;
+    if (other.isSetServerMetaData()) {
+      this.serverMetaData = new TServerMetaData(other.serverMetaData);
+    }
   }
 
   public TAgentInfo deepCopy() {
@@ -271,6 +281,7 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
     this.endTimestamp = 0;
     setEndStatusIsSet(false);
     this.endStatus = 0;
+    this.serverMetaData = null;
   }
 
   public String getHostname() {
@@ -521,6 +532,29 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __ENDSTATUS_ISSET_ID, value);
   }
 
+  public TServerMetaData getServerMetaData() {
+    return this.serverMetaData;
+  }
+
+  public void setServerMetaData(TServerMetaData serverMetaData) {
+    this.serverMetaData = serverMetaData;
+  }
+
+  public void unsetServerMetaData() {
+    this.serverMetaData = null;
+  }
+
+  /** Returns true if field serverMetaData is set (has been assigned a value) and false otherwise */
+  public boolean isSetServerMetaData() {
+    return this.serverMetaData != null;
+  }
+
+  public void setServerMetaDataIsSet(boolean value) {
+    if (!value) {
+      this.serverMetaData = null;
+    }
+  }
+
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
     case HOSTNAME:
@@ -611,6 +645,14 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
       }
       break;
 
+    case SERVER_META_DATA:
+      if (value == null) {
+        unsetServerMetaData();
+      } else {
+        setServerMetaData((TServerMetaData)value);
+      }
+      break;
+
     }
   }
 
@@ -649,6 +691,9 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
     case END_STATUS:
       return Integer.valueOf(getEndStatus());
 
+    case SERVER_META_DATA:
+      return getServerMetaData();
+
     }
     throw new IllegalStateException();
   }
@@ -682,6 +727,8 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
       return isSetEndTimestamp();
     case END_STATUS:
       return isSetEndStatus();
+    case SERVER_META_DATA:
+      return isSetServerMetaData();
     }
     throw new IllegalStateException();
   }
@@ -795,6 +842,15 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
       if (!(this_present_endStatus && that_present_endStatus))
         return false;
       if (this.endStatus != that.endStatus)
+        return false;
+    }
+
+    boolean this_present_serverMetaData = true && this.isSetServerMetaData();
+    boolean that_present_serverMetaData = true && that.isSetServerMetaData();
+    if (this_present_serverMetaData || that_present_serverMetaData) {
+      if (!(this_present_serverMetaData && that_present_serverMetaData))
+        return false;
+      if (!this.serverMetaData.equals(that.serverMetaData))
         return false;
     }
 
@@ -924,6 +980,16 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
         return lastComparison;
       }
     }
+    lastComparison = Boolean.valueOf(isSetServerMetaData()).compareTo(other.isSetServerMetaData());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetServerMetaData()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.serverMetaData, other.serverMetaData);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     return 0;
   }
 
@@ -1015,6 +1081,16 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
       sb.append(this.endStatus);
       first = false;
     }
+    if (isSetServerMetaData()) {
+      if (!first) sb.append(", ");
+      sb.append("serverMetaData:");
+      if (this.serverMetaData == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.serverMetaData);
+      }
+      first = false;
+    }
     sb.append(")");
     return sb.toString();
   }
@@ -1022,6 +1098,9 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
   public void validate() throws org.apache.thrift.TException {
     // check for required fields
     // check for sub-struct validity
+    if (serverMetaData != null) {
+      serverMetaData.validate();
+    }
   }
 
   private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
@@ -1148,6 +1227,15 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
+          case 20: // SERVER_META_DATA
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRUCT) {
+              struct.serverMetaData = new TServerMetaData();
+              struct.serverMetaData.read(iprot);
+              struct.setServerMetaDataIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
           default:
             org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
         }
@@ -1210,6 +1298,13 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
         oprot.writeI32(struct.endStatus);
         oprot.writeFieldEnd();
       }
+      if (struct.serverMetaData != null) {
+        if (struct.isSetServerMetaData()) {
+          oprot.writeFieldBegin(SERVER_META_DATA_FIELD_DESC);
+          struct.serverMetaData.write(oprot);
+          oprot.writeFieldEnd();
+        }
+      }
       oprot.writeFieldStop();
       oprot.writeStructEnd();
     }
@@ -1261,7 +1356,10 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
       if (struct.isSetEndStatus()) {
         optionals.set(10);
       }
-      oprot.writeBitSet(optionals, 11);
+      if (struct.isSetServerMetaData()) {
+        optionals.set(11);
+      }
+      oprot.writeBitSet(optionals, 12);
       if (struct.isSetHostname()) {
         oprot.writeString(struct.hostname);
       }
@@ -1295,12 +1393,15 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
       if (struct.isSetEndStatus()) {
         oprot.writeI32(struct.endStatus);
       }
+      if (struct.isSetServerMetaData()) {
+        struct.serverMetaData.write(oprot);
+      }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, TAgentInfo struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(11);
+      BitSet incoming = iprot.readBitSet(12);
       if (incoming.get(0)) {
         struct.hostname = iprot.readString();
         struct.setHostnameIsSet(true);
@@ -1344,6 +1445,11 @@ public class TAgentInfo implements org.apache.thrift.TBase<TAgentInfo, TAgentInf
       if (incoming.get(10)) {
         struct.endStatus = iprot.readI32();
         struct.setEndStatusIsSet(true);
+      }
+      if (incoming.get(11)) {
+        struct.serverMetaData = new TServerMetaData();
+        struct.serverMetaData.read(iprot);
+        struct.setServerMetaDataIsSet(true);
       }
     }
   }

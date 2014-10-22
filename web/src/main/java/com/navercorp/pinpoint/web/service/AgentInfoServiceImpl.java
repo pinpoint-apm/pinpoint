@@ -62,7 +62,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
 			// FIXME 지금은 그냥 첫 번재꺼 사용. 여러개 검사?는 나중에 생각해볼 예정.
 			AgentInfoBo agentInfo = agentInfoList.get(0);
-			String hostname = agentInfo.getHostname();
+			String hostname = agentInfo.getHostName();
 
 			if (result.containsKey(hostname)) {
 				result.get(hostname).add(agentInfo);

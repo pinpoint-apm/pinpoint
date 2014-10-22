@@ -24,10 +24,6 @@ public class DummyAgent implements Agent {
     }
 
     @Override
-    public void addConnector(String protocol, int port) {
-    }
-
-    @Override
     public TraceContext getTraceContext() {
         return null;
     }

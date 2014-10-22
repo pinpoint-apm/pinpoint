@@ -23,10 +23,7 @@ public class ServerInstanceListSerializerTest {
     @Test
     public void testSerialize() throws Exception {
         ServerBuilder builder = new ServerBuilder();
-        AgentInfoBo agentInfoBo = new AgentInfoBo();
-        agentInfoBo.setAgentId("agentId");
-        agentInfoBo.setServiceType(ServiceType.TOMCAT);
-        agentInfoBo.setHostname("testcomputer");
+        AgentInfoBo agentInfoBo = new AgentInfoBo.Builder().agentId("agentId").serviceType(ServiceType.TOMCAT).hostName("testcomputer").build();
         HashSet<AgentInfoBo> set = new HashSet<AgentInfoBo>();
         set.add(agentInfoBo);
         builder.addAgentInfo(set);

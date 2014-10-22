@@ -13,8 +13,6 @@ public interface Agent {
 
     void stop();
     
-    void addConnector(String protocol, int port);
-
     TraceContext getTraceContext();
 
     ProfilerConfig getProfilerConfig();

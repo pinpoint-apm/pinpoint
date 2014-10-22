@@ -6,6 +6,7 @@ import java.util.Map;
 /**
  * @author emeroad
  * @author koo.taejin
+ * @author hyungil.jeong
  */
 public class AgentInformation {
     private final String agentId;
@@ -13,10 +14,11 @@ public class AgentInformation {
     private final long startTime;
     private final int pid;
     private final String machineName;
+    private final String hostIp;
     private final short serverType;
     private final String version;
 
-    public AgentInformation(String agentId, String applicationName, long startTime, int pid, String machineName, short serverType, String version) {
+    public AgentInformation(String agentId, String applicationName, long startTime, int pid, String machineName, String hostIp, short serverType, String version) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
@@ -34,6 +36,7 @@ public class AgentInformation {
         this.startTime = startTime;
         this.pid = pid;
         this.machineName = machineName;
+        this.hostIp = hostIp;
         this.serverType = serverType;
         this.version = version;
     }
@@ -59,6 +62,10 @@ public class AgentInformation {
     public String getMachineName() {
         return machineName;
     }
+    
+    public String getHostIp() {
+        return hostIp;
+    }
 
     public short getServerType() {
         return serverType;
@@ -74,6 +81,7 @@ public class AgentInformation {
     	map.put(AgentPropertiesType.AGENT_ID.getName(), this.agentId);
     	map.put(AgentPropertiesType.APPLICATION_NAME.getName(), this.applicationName);
     	map.put(AgentPropertiesType.HOSTNAME.getName(), this.machineName);
+    	map.put(AgentPropertiesType.IP.getName(), this.hostIp);
     	map.put(AgentPropertiesType.PID.getName(), this.pid);
     	map.put(AgentPropertiesType.SERVICE_TYPE.getName(), this.serverType);
     	map.put(AgentPropertiesType.START_TIMESTAMP.getName(), this.startTime);
@@ -90,6 +98,7 @@ public class AgentInformation {
         sb.append(", startTime=").append(startTime);
         sb.append(", pid=").append(pid);
         sb.append(", machineName='").append(machineName).append('\'');
+        sb.append(", hostIp='").append(hostIp).append('\'');
         sb.append(", serverType=").append(serverType);
         sb.append(", version='").append(version).append('\'');
         sb.append('}');

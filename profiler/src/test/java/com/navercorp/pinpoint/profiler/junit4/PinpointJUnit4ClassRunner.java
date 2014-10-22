@@ -168,7 +168,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
                 if (m.getName().equals("setServerMetaDataHolder")) {
                     try {
                         ResettableServerMetaDataHolder serverMetaDataHolder = (ResettableServerMetaDataHolder)this.testAgent.getTraceContext().getServerMetaDataHolder();
-                        serverMetaDataHolder.reset();
+//                        serverMetaDataHolder.reset();
                         m.setAccessible(true);
                         m.invoke(test, serverMetaDataHolder);
                     } catch (IllegalAccessException e) {

@@ -1,5 +1,16 @@
 namespace java com.nhn.pinpoint.thrift.dto
 
+struct TServiceInfo {
+    1: optional string          serviceName
+    2: optional list<string>    serviceLibs
+}
+
+struct TServerMetaData {
+    1: optional string              serverInfo
+    2: optional list<string>        vmArgs
+    10: optional list<TServiceInfo>  serviceInfos
+}
+
 struct TAgentInfo {
 	1: string	hostname
 	2: string	ip
@@ -12,9 +23,10 @@ struct TAgentInfo {
 
 	10: i64	    startTimestamp
 
-	11: optional i64      endTimestamp
+	11: optional i64     endTimestamp
 	12: optional i32     endStatus
-
+	
+	20: optional TServerMetaData   serverMetaData
 }
 
 enum TJvmGcType {

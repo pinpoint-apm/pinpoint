@@ -1,18 +1,18 @@
 package com.nhn.pinpoint.web.dao.hbase;
 
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
+import com.nhn.pinpoint.common.bo.ServerMetaDataBo;
 import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.util.RowKeyUtils;
 import com.nhn.pinpoint.common.util.TimeUtils;
-import com.nhn.pinpoint.web.mapper.AgentInfoMapper;
 import com.nhn.pinpoint.web.vo.Range;
+
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.hadoop.hbase.ResultsExtractor;
-import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import com.nhn.pinpoint.web.dao.AgentInfoDao;
@@ -32,8 +32,6 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
     @Autowired
     private HbaseOperations2 hbaseOperations2;
-
-    private RowMapper<List<AgentInfoBo>> agentInfoMapper = new AgentInfoMapper();
 
     /**
      * agentId, startTime을 기반으로 유니크한 AgentInfo를 찾아낸다.
@@ -77,8 +75,9 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 					byte[] row = next.getRow();
 					long reverseStartTime = BytesUtils.bytesToLong(row, HBaseTables.AGENT_NAME_MAX_LEN);
 					long startTime = TimeUtils.recoveryTimeMillis(reverseStartTime);
-					byte[] value = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_IDENTIFIER);
-					
+					byte[] serializedAgentInfo = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_IDENTIFIER);
+					byte[] serializedServerMetaData = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_SERVER_META_DATA);
+					        
 					logger.debug("found={}, {}, start={}", found, range, startTime);
 					
 					if (found > 1 && startTime <= range.getFrom()) {
@@ -86,10 +85,11 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 						break;
 					}
 					
-					final AgentInfoBo agentInfoBo = new AgentInfoBo();
-					agentInfoBo.setAgentId(agentId);
-					agentInfoBo.setStartTime(startTime);
-					agentInfoBo.readValue(value);
+					final AgentInfoBo.Builder agentInfoBoBuilder = new AgentInfoBo.Builder(serializedAgentInfo).agentId(agentId).startTime(startTime);
+					if (serializedServerMetaData != null) {
+					    agentInfoBoBuilder.serverMetaData(new ServerMetaDataBo.Builder(serializedServerMetaData).build());
+					}
+					final AgentInfoBo agentInfoBo = agentInfoBoBuilder.build();
 					
 					logger.debug("found agentInfoBo {}", agentInfoBo);
 					result.add(agentInfoBo);
@@ -102,24 +102,6 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         logger.debug("get agentInfo result, {}", found);
         
         return found;
-        
-//        F 1382320380000
-//        S 1382579080389
-//        T 1382579580000
-        
-//        F 1382557980000
-//        S 1382579080389
-//        T 1382579580000
-        
-//		byte[] agentIdBytes = Bytes.toBytes(agentId);
-//		long reverseStartTime = TimeUtils.reverseTimeMillis(from);
-//		byte[] rowKey = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, reverseStartTime);
-//
-//		Get get = new Get(rowKey);
-//		get.addFamily(HBaseTables.AGENTINFO_CF_INFO);
-//
-//		List<AgentInfoBo> agentInfoBoList = hbaseOperations2.get(HBaseTables.AGENTINFO, get, agentInfoMapper);
-//		return agentInfoBoList;
     }
 
     /**
@@ -148,11 +130,14 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
                     logger.debug("agent:{} startTime value {}", agentId, startTime);
                     // 바로 전 시작 시간을 찾아야 한다.
                     if (startTime < currentTime) {
-                        byte[] value = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_IDENTIFIER);
-                        AgentInfoBo agentInfoBo = new AgentInfoBo();
-                        agentInfoBo.setAgentId(agentId);
-                        agentInfoBo.setStartTime(startTime);
-                        agentInfoBo.readValue(value);
+                        byte[] serializedAgentInfo = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_IDENTIFIER);
+                        byte[] serializedServerMetaData = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_SERVER_META_DATA);
+                        
+                        final AgentInfoBo.Builder agentInfoBoBuilder = new AgentInfoBo.Builder(serializedAgentInfo).agentId(agentId).startTime(startTime);
+                        if (serializedServerMetaData != null) {
+                            agentInfoBoBuilder.serverMetaData(new ServerMetaDataBo.Builder(serializedServerMetaData).build());
+                        }
+                        final AgentInfoBo agentInfoBo = agentInfoBoBuilder.build();
                         
                         logger.debug("agent:{} startTime find {}", agentId, startTime);
 

@@ -42,19 +42,13 @@ public class AgentInfoMapper implements RowMapper<List<AgentInfoBo>> {
     }
 
     private AgentInfoBo mappingAgentInfo(KeyValue keyValue) {
-        AgentInfoBo agentInfoBo = new AgentInfoBo();
-        agentInfoBo.readValue(keyValue.getValue());
-
         byte[] rowKey = keyValue.getRow();
         String agentId = Bytes.toString(rowKey, 0, PinpointConstants.AGENT_NAME_MAX_LEN - 1).trim();
-        agentInfoBo.setAgentId(agentId);
-
         long reverseStartTime = BytesUtils.bytesToLong(rowKey, PinpointConstants.AGENT_NAME_MAX_LEN);
         long startTime = TimeUtils.recoveryTimeMillis(reverseStartTime);
-        agentInfoBo.setStartTime(startTime);
 
+        AgentInfoBo agentInfoBo = new AgentInfoBo.Builder(keyValue.getValue()).agentId(agentId).startTime(startTime).build();
         logger.debug("agentInfo:{}", agentInfoBo);
-
         return agentInfoBo;
     }
 }
