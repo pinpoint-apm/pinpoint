@@ -679,6 +679,7 @@
                             </includes>
                         </resource>
                     </webResources>
+         			<webappDirectory>target/deploy</webappDirectory>
                 </configuration>
             </plugin>
             <plugin>
