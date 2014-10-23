@@ -26,6 +26,7 @@ import com.nhn.pinpoint.thrift.io.SerializerFactory;
 import com.nhn.pinpoint.thrift.io.TBaseLocator;
 import com.nhn.pinpoint.thrift.io.TCommandRegistry;
 import com.nhn.pinpoint.thrift.io.TCommandTypeVersion;
+import com.nhn.pinpoint.thrift.io.ThreadLocalHeaderTBaseSerializerFactory;
 
 /**
  * @author koo.taejin
@@ -43,8 +44,9 @@ public class CommandDispatcher implements MessageListener {
 	
 	private final TBaseBOLocator locator;
 
-    private final SerializerFactory serializerFactory = new HeaderTBaseSerializerFactory(true, HeaderTBaseSerializerFactory.DEFAULT_UDP_STREAM_MAX_SIZE, DEFAULT_PROTOCOL_FACTORY, commandTbaseLocator);
-	private final HeaderTBaseDeserializerFactory deserializerFactory = new HeaderTBaseDeserializerFactory(DEFAULT_PROTOCOL_FACTORY, commandTbaseLocator);
+    private final SerializerFactory serializerFactory = new ThreadLocalHeaderTBaseSerializerFactory(new HeaderTBaseSerializerFactory(true, HeaderTBaseSerializerFactory.DEFAULT_UDP_STREAM_MAX_SIZE, DEFAULT_PROTOCOL_FACTORY, commandTbaseLocator));
+    
+    private final HeaderTBaseDeserializerFactory deserializerFactory = new HeaderTBaseDeserializerFactory(DEFAULT_PROTOCOL_FACTORY, commandTbaseLocator);
 	
 	public CommandDispatcher() {
 		TBaseBORegistry registry = new TBaseBORegistry();
