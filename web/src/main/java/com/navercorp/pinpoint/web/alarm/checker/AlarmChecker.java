@@ -53,22 +53,12 @@ public abstract class AlarmChecker {
     }
     
     protected boolean decideResult(long value) {
-        if (value >= rule.getThreshold()) {
-            return true;
-        } else {
-            return false;
-        }
+        return value >= rule.getThreshold();
     }
 
     public void check() {
         dataCollector.collect();
-        
-        if (decideResult(getDetectedValue())) {
-            detected = true;
-        } else {
-            detected = false;
-        }
-        
+        detected = decideResult(getDetectedValue());
         logger.info("{} result is {} for application ({}). value is {}. (threshold : {}).", this.getClass().getSimpleName(), detected, rule.getApplicationId(), getDetectedValue(), rule.getThreshold());
     }
     
