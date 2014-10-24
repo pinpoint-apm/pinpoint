@@ -8,8 +8,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.nhn.pinpoint.bootstrap.logging.PLogger;
+import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -19,7 +19,7 @@ public class TargetBeanFilter {
     private static final int CACHE_SIZE = 1024;
     private static final int CACHE_CONCURRENCY_LEVEL = Runtime.getRuntime().availableProcessors() * 2;
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final PLogger logger = PLoggerFactory.getLogger(getClass());
     
     private final List<Pattern> targetNamePatterns;
     private final List<Pattern> targetClassPatterns;
@@ -39,9 +39,9 @@ public class TargetBeanFilter {
         if (!targetNamePatternStrings.isEmpty()) {
             beanNamePatterns = new ArrayList<Pattern>(targetNamePatternStrings.size());
             
-            for (String s : targetNamePatternStrings) {
-                Pattern p = Pattern.compile(s);
-                beanNamePatterns.add(p);
+            for (String namePattern : targetNamePatternStrings) {
+                Pattern pattern = Pattern.compile(namePattern);
+                beanNamePatterns.add(pattern);
             }
         }
         
@@ -51,9 +51,9 @@ public class TargetBeanFilter {
         if (!targetClassPatternStrings.isEmpty()) {
             beanClassPatterns = new ArrayList<Pattern>(targetClassPatternStrings.size());
             
-            for (String s : targetClassPatternStrings) {
-                Pattern p = Pattern.compile(s);
-                beanClassPatterns.add(p);
+            for (String classPattern : targetClassPatternStrings) {
+                Pattern pattern = Pattern.compile(classPattern);
+                beanClassPatterns.add(pattern);
             }
         }
         
@@ -67,7 +67,7 @@ public class TargetBeanFilter {
     }
 
     public boolean isTarget(String beanName, Class<?> clazz) {
-        if (transformed.getIfPresent(clazz) == Boolean.TRUE) {
+        if (Boolean.TRUE.equals(transformed.getIfPresent(clazz))) {
             return false;
         }
         
@@ -87,7 +87,7 @@ public class TargetBeanFilter {
     }
     
     private boolean isTarget(Class<?> clazz) {
-        if (rejected.getIfPresent(clazz) == Boolean.TRUE) {
+        if (Boolean.TRUE.equals(rejected.getIfPresent(clazz))) {
             return false;
         }
 
@@ -144,15 +144,15 @@ public class TargetBeanFilter {
         if (!targetAnnotationNames.isEmpty()) {
             targetAnnotationClasses = new ArrayList<Class<? extends Annotation>>(targetAnnotationNames.size());
             
-            for (String s : targetAnnotationNames) {
+            for (String annotationName : targetAnnotationNames) {
                 try {
-                    Class<?> c = loader.loadClass(s);
-                    Class<? extends Annotation> ac = c.asSubclass(Annotation.class);
+                    Class<?> clazz = loader.loadClass(annotationName);
+                    Class<? extends Annotation> ac = clazz.asSubclass(Annotation.class);
                     targetAnnotationClasses.add(ac);
-                } catch (ClassNotFoundException e) {
-                    logger.warn("Cannot find Spring beans profile target annotation class: " + s + ". This configuration will be ignored.", e);
-                } catch (ClassCastException e) {
-                    logger.warn("Given Spring beans profile target annotation class is not subclass of Annotation: " + s + ". This configuration will be ignored.", e);
+                } catch (ClassNotFoundException ex) {
+                    logger.warn("Cannot find Spring beans profile target annotation class: {}. This configuration will be ignored.", annotationName, ex);
+                } catch (ClassCastException ex) {
+                    logger.warn("Given Spring beans profile target annotation class is not subclass of Annotation: {}. This configuration will be ignored.", annotationName, ex);
                 }
             }
         }
@@ -162,7 +162,7 @@ public class TargetBeanFilter {
     
     private static List<String> split(String values) {
         if (values == null) {
-            return Collections.<String>emptyList();
+            return Collections.emptyList();
         }
         
         String[] tokens = values.split(",");
