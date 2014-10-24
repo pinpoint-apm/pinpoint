@@ -16,7 +16,8 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                 var oNavbarVo, oAlert, oProgressBar;
 
                 // define private variables of methods
-                var getAgentStat, showCharts, parseMemoryChartDataForAmcharts, parseCpuLoadChartDataForAmcharts, broadcastToCpuLoadChart;
+                var getAgentStat, showCharts, parseMemoryChartDataForAmcharts, parseCpuLoadChartDataForAmcharts,
+                broadcastToCpuLoadChart, resetServerMetaDataDiv, openServerMetaDataDiv;
 
                 // initialize
                 scope.agentInfoTemplate = 'views/agentInfoReady.html';
@@ -31,7 +32,6 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                     scope.agent = agent;
                     oNavbarVo = navbarVo;
                     scope.chartGroup = null;
-
                     scope.info = {
                         'agentId': agent.agentId,
                         'applicationName': agent.applicationName,
@@ -40,7 +40,8 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                         'serviceType': agent.serviceType,
                         'pid': agent.pid,
                         'agentVersion': agent.version,
-                        'jvmGcType': ''
+                        'jvmGcType': '',
+                        'serverMetaData': agent.serverMetaData
                     };
 
                     $timeout(function () {
@@ -48,6 +49,22 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                         scope.$apply();
                     });
                 });
+                
+                resetServerMetaDataDiv = function() {
+                	$('#serverMetaDataDiv').modal('hide');
+                }
+                
+                openServerMetaDataDiv = function() {
+                	resetServerMetaDataDiv();
+                	$('#serverMetaDataDiv').modal('show');
+                }
+                
+                /**
+                 * open server meta data div
+                 */
+                scope.openServerMetaDataDiv = function() {
+                	openServerMetaDataDiv();
+                }
 
                 /**
                  * show charts
@@ -148,6 +165,10 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                 scope.$on('cpuLoadChart.cursorChanged.forCpuLoad', function (e, event) {
                     scope.$broadcast('jvmMemoryChart.showCursorAt.forHeap', event.index);
                     scope.$broadcast('jvmMemoryChart.showCursorAt.forNonHeap', event.index);
+                });
+                
+                scope.$on('agentInfo.openServerMetaDataDiv', function (event) {
+                	openServerMetaDataDiv();
                 });
                 
             }
