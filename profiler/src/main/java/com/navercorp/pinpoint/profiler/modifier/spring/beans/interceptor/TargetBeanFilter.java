@@ -34,33 +34,27 @@ public class TargetBeanFilter {
         List<String> targetClassPatternStrings = split(config.getSpringBeansClassPatterns());
         List<String> targetAnnotationNames = split(config.getSpringBeansAnnotations());
 
-        List<Pattern> beanNamePatterns = null;
-        
-        if (!targetNamePatternStrings.isEmpty()) {
-            beanNamePatterns = new ArrayList<Pattern>(targetNamePatternStrings.size());
-            
-            for (String namePattern : targetNamePatternStrings) {
-                Pattern pattern = Pattern.compile(namePattern);
-                beanNamePatterns.add(pattern);
-            }
-        }
-        
-        
-        List<Pattern> beanClassPatterns = null;
-        
-        if (!targetClassPatternStrings.isEmpty()) {
-            beanClassPatterns = new ArrayList<Pattern>(targetClassPatternStrings.size());
-            
-            for (String classPattern : targetClassPatternStrings) {
-                Pattern pattern = Pattern.compile(classPattern);
-                beanClassPatterns.add(pattern);
-            }
-        }
+		List<Pattern> beanNamePatterns = compilePattern(targetNamePatternStrings);
+		List<Pattern> beanClassPatterns = compilePattern(targetClassPatternStrings);
         
         return new TargetBeanFilter(beanNamePatterns, beanClassPatterns, targetAnnotationNames);
     }
-    
-    private TargetBeanFilter(List<Pattern> targetNamePatterns, List<Pattern> targetClassPatterns, List<String> targetAnnotationNames) {
+
+	private static List<Pattern> compilePattern(List<String> patternStringList) {
+		List<Pattern> compiledPatternList = null;
+
+		if (!patternStringList.isEmpty()) {
+			compiledPatternList = new ArrayList<Pattern>(patternStringList.size());
+
+			for (String namePattern : patternStringList) {
+				Pattern pattern = Pattern.compile(namePattern);
+				compiledPatternList.add(pattern);
+			}
+		}
+		return compiledPatternList;
+	}
+
+	private TargetBeanFilter(List<Pattern> targetNamePatterns, List<Pattern> targetClassPatterns, List<String> targetAnnotationNames) {
         this.targetNamePatterns = targetNamePatterns;
         this.targetClassPatterns = targetClassPatterns;
         this.targetAnnotationNames = targetAnnotationNames;
