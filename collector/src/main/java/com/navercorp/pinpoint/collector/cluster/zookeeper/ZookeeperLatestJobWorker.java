@@ -80,9 +80,9 @@ public class ZookeeperLatestJobWorker implements Runnable {
 		case NEW:
 			if (this.workerState.changeStateInitializing()) {
 				logger.info("{} initialization started.", this.getClass().getSimpleName());
-				this.workerThread.start();
-
 				workerState.changeStateStarted();
+
+				this.workerThread.start();
 				logger.info("{} initialization completed.", this.getClass().getSimpleName());
 
 				break;
