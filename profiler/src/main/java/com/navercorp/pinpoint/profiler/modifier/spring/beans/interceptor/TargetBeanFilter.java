@@ -139,21 +139,21 @@ public class TargetBeanFilter {
     }
 
     private List<Class<? extends Annotation>> loadTargetAnnotations(ClassLoader loader) {
-        List<Class<? extends Annotation>> targetAnnotationClasses = null;
+        if (targetAnnotationNames.isEmpty()) {
+            return Collections.<Class<? extends Annotation>>emptyList();
+        }
         
-        if (!targetAnnotationNames.isEmpty()) {
-            targetAnnotationClasses = new ArrayList<Class<? extends Annotation>>(targetAnnotationNames.size());
-            
-            for (String s : targetAnnotationNames) {
-                try {
-                    Class<?> c = loader.loadClass(s);
-                    Class<? extends Annotation> ac = c.asSubclass(Annotation.class);
-                    targetAnnotationClasses.add(ac);
-                } catch (ClassNotFoundException e) {
-                    logger.warn("Cannot find Spring beans profile target annotation class: " + s + ". This configuration will be ignored.", e);
-                } catch (ClassCastException e) {
-                    logger.warn("Given Spring beans profile target annotation class is not subclass of Annotation: " + s + ". This configuration will be ignored.", e);
-                }
+        List<Class<? extends Annotation>> targetAnnotationClasses = new ArrayList<Class<? extends Annotation>>(targetAnnotationNames.size());
+        
+        for (String s : targetAnnotationNames) {
+            try {
+                Class<?> c = loader.loadClass(s);
+                Class<? extends Annotation> ac = c.asSubclass(Annotation.class);
+                targetAnnotationClasses.add(ac);
+            } catch (ClassNotFoundException e) {
+                logger.warn("Cannot find Spring beans profile target annotation class: " + s + ". This configuration will be ignored.", e);
+            } catch (ClassCastException e) {
+                logger.warn("Given Spring beans profile target annotation class is not subclass of Annotation: " + s + ". This configuration will be ignored.", e);
             }
         }
         
