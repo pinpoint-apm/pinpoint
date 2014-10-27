@@ -50,6 +50,9 @@ class DefaultTBaseLocator implements TBaseLocator {
     private static final short STRINGMETADATA = 330;
     private static final Header STRINGMETADATA_HEADER = createHeader(STRINGMETADATA);
     
+    private static final short CHUNK = 400;
+    private static final Header CHUNK_HEADER = createHeader(CHUNK);
+    
     @Override
     public TBase<?, ?> tBaseLookup(short type) throws TException {
         switch (type) {
@@ -166,5 +169,15 @@ class DefaultTBaseLocator implements TBaseLocator {
         Header header = new Header();
         header.setType(type);
         return header;
+    }
+
+    @Override
+    public Header getChunkHeader() {
+        return CHUNK_HEADER;
+    }
+
+    @Override
+    public boolean isChunkHeader(short type) {
+        return CHUNK == type;
     }
 }
