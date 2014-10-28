@@ -2,7 +2,7 @@ package com.nhn.pinpoint.profiler.modifier.orm.ibatis.filter;
 
 import java.lang.reflect.Modifier;
 
-import com.nhn.pinpoint.bootstrap.instrument.Method;
+import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
 import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
 
 /**
@@ -16,7 +16,7 @@ public abstract class IbatisMethodFilter implements MethodFilter {
 	protected abstract boolean shouldTrackMethod(String methodName);
 
 	@Override
-	public boolean filter(Method ctMethod) {
+	public boolean filter(MethodInfo ctMethod) {
 		final int modifiers = ctMethod.getModifiers();
 		if (!Modifier.isPublic(modifiers) || Modifier.isStatic(modifiers) || Modifier.isAbstract(modifiers) || Modifier.isNative(modifiers)) {
 			return DO_NOT_TRACK;
@@ -24,7 +24,7 @@ public abstract class IbatisMethodFilter implements MethodFilter {
 		return filterApiForTracking(ctMethod);
 	}
 
-	private boolean filterApiForTracking(Method ctMethod) {
+	private boolean filterApiForTracking(MethodInfo ctMethod) {
 		if (!shouldTrackMethod(ctMethod.getName())) {
 			return DO_NOT_TRACK;
 		}

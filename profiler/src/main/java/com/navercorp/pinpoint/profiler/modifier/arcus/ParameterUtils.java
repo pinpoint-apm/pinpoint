@@ -1,13 +1,13 @@
 package com.nhn.pinpoint.profiler.modifier.arcus;
 
-import com.nhn.pinpoint.bootstrap.instrument.Method;
+import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
 
 /**
  * @author emeroad
  */
 public class ParameterUtils {
 
-    public static int findFirstString(Method method, int maxIndex) {
+    public static int findFirstString(MethodInfo method, int maxIndex) {
         if (method == null) {
             return -1;
         }

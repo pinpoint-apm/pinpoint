@@ -4,7 +4,7 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.nhn.pinpoint.bootstrap.instrument.Method;
+import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
 import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
 
 /**
@@ -59,7 +59,7 @@ public class ArcusMethodFilter implements MethodFilter {
     }
 
     @Override
-    public boolean filter(Method ctMethod) {
+    public boolean filter(MethodInfo ctMethod) {
         final int modifiers = ctMethod.getModifiers();
         if (!Modifier.isPublic(modifiers) || Modifier.isStatic(modifiers) || Modifier.isAbstract(modifiers) || Modifier.isNative(modifiers)) {
             return true;

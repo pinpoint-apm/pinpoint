@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.nhn.pinpoint.bootstrap.instrument.Method;
+import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.MapTraceValue;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
@@ -59,8 +59,8 @@ public class JedisModifier extends AbstractModifier {
             }
 
             // method
-            final List<Method> declaredMethods = instrumentClass.getDeclaredMethods(new NameBasedMethodFilter(JedisMethodNames.get()));
-            for (Method method : declaredMethods) {
+            final List<MethodInfo> declaredMethods = instrumentClass.getDeclaredMethods(new NameBasedMethodFilter(JedisMethodNames.get()));
+            for (MethodInfo method : declaredMethods) {
                 final Interceptor methodInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.redis.interceptor.JedisMethodInterceptor");
                 instrumentClass.addInterceptor(method.getName(), method.getParameterTypes(), methodInterceptor);
             }

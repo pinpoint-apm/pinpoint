@@ -4,17 +4,15 @@ import java.security.ProtectionDomain;
 import java.util.Arrays;
 import java.util.List;
 
-import javassist.CtMethod;
 import javassist.bytecode.AccessFlag;
-import javassist.bytecode.MethodInfo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.nhn.pinpoint.bootstrap.instrument.Method;
 import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
+import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.modifier.Modifier;
 import com.nhn.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor;
@@ -32,7 +30,7 @@ public class BeanMethodModifier implements Modifier {
                 AccessFlag.PROTECTED | AccessFlag.SYNTHETIC | AccessFlag.STATIC;
 
         @Override
-        public boolean filter(Method ctMethod) {
+        public boolean filter(MethodInfo ctMethod) {
             if (ctMethod.isConstructor()) {
                 return false;
             }
@@ -64,8 +62,8 @@ public class BeanMethodModifier implements Modifier {
                 return null;
             }
 
-            List<Method> methodList = clazz.getDeclaredMethods(METHOD_FILTER);
-            for (Method method : methodList) {
+            List<MethodInfo> methodList = clazz.getDeclaredMethods(METHOD_FILTER);
+            for (MethodInfo method : methodList) {
                 if (logger.isTraceEnabled()) {
                     logger.trace("### c={}, m={}, params={}", javassistClassName, method.getName(), Arrays.toString(method.getParameterTypes()));
                 }

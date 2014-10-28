@@ -9,7 +9,7 @@ import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor;
 import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.nhn.pinpoint.bootstrap.instrument.Method;
+import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 
 import org.slf4j.Logger;
@@ -47,8 +47,8 @@ public class MethodModifier extends AbstractModifier {
 				return null;
 			}
 
-			List<Method> methodList = clazz.getDeclaredMethods(EmptyMethodFilter.FILTER);
-			for (Method method : methodList) {
+			List<MethodInfo> methodList = clazz.getDeclaredMethods(EmptyMethodFilter.FILTER);
+			for (MethodInfo method : methodList) {
 				final Interceptor interceptor = new MethodInterceptor();
                 if (logger.isTraceEnabled()) {
                     logger.trace("### c={}, m={}, params={}", javassistClassName, method.getName(), Arrays.toString(method.getParameterTypes()));

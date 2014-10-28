@@ -9,7 +9,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.client.methods.HttpUriRequest;
 
 /**
- * Method interceptor
+ * MethodInfo interceptor
  * <p/>
  * <p/>
  * 
