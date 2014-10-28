@@ -11,11 +11,11 @@ import javassist.bytecode.MethodInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.nhn.pinpoint.bootstrap.instrument.Method;
+import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
-import com.nhn.pinpoint.profiler.interceptor.bci.Method;
-import com.nhn.pinpoint.profiler.interceptor.bci.MethodFilter;
 import com.nhn.pinpoint.profiler.modifier.Modifier;
 import com.nhn.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor;
 
@@ -32,14 +32,12 @@ public class BeanMethodModifier implements Modifier {
                 AccessFlag.PROTECTED | AccessFlag.SYNTHETIC | AccessFlag.STATIC;
 
         @Override
-        public boolean filter(CtMethod ctMethod) {
-            MethodInfo methodInfo = ctMethod.getMethodInfo();
-
-            if (methodInfo.isConstructor()) {
+        public boolean filter(Method ctMethod) {
+            if (ctMethod.isConstructor()) {
                 return false;
             }
 
-            int access = methodInfo.getAccessFlags();
+            int access = ctMethod.getModifiers();
 
             return ((access & REQUIRED_ACCESS_FLAG) == 0) || ((access & REJECTED_ACCESS_FLAG) != 0);
         }
@@ -69,13 +67,13 @@ public class BeanMethodModifier implements Modifier {
             List<Method> methodList = clazz.getDeclaredMethods(METHOD_FILTER);
             for (Method method : methodList) {
                 if (logger.isTraceEnabled()) {
-                    logger.trace("### c={}, m={}, params={}", javassistClassName, method.getMethodName(), Arrays.toString(method.getMethodParams()));
+                    logger.trace("### c={}, m={}, params={}", javassistClassName, method.getName(), Arrays.toString(method.getParameterTypes()));
                 }
 
                 MethodInterceptor interceptor = new MethodInterceptor();
                 interceptor.setServiceType(ServiceType.SPRING_BEAN);
                 
-                clazz.addInterceptor(method.getMethodName(), method.getMethodParams(), interceptor);
+                clazz.addInterceptor(method.getName(), method.getParameterTypes(), interceptor);
             }
 
             return clazz.toBytecode();

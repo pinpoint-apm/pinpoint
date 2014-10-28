@@ -5,13 +5,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.nhn.pinpoint.bootstrap.instrument.InstrumentException;
+import com.nhn.pinpoint.bootstrap.instrument.Method;
+import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
+import com.nhn.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
+import com.nhn.pinpoint.bootstrap.instrument.Scope;
+import com.nhn.pinpoint.bootstrap.instrument.Type;
 import com.nhn.pinpoint.bootstrap.interceptor.*;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
 import com.nhn.pinpoint.profiler.util.ApiUtils;
 import com.nhn.pinpoint.profiler.interceptor.*;
 import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
 
-import com.nhn.pinpoint.profiler.util.Scope;
 import javassist.*;
 
 import org.slf4j.Logger;
@@ -901,13 +907,15 @@ public class JavaAssistClass implements InstrumentClass {
             final CtMethod[] declaredMethod = ctClass.getDeclaredMethods();
             final List<Method> candidateList = new ArrayList<Method>(declaredMethod.length);
             for (CtMethod ctMethod : declaredMethod) {
-                if (methodFilter.filter(ctMethod)) {
-                    continue;
-                }
                 String methodName = ctMethod.getName();
                 CtClass[] paramTypes = ctMethod.getParameterTypes();
                 String[] parameterType = JavaAssistUtils.getParameterType(paramTypes);
-                Method method = new Method(methodName, parameterType);
+                Method method = new Method(methodName, parameterType, ctMethod.getModifiers());
+                
+                if (methodFilter.filter(method)) {
+                    continue;
+                }
+
                 candidateList.add(method);
             }
             return candidateList;

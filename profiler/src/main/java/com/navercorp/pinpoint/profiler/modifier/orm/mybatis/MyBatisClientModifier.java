@@ -6,12 +6,12 @@ import java.util.List;
 import org.slf4j.Logger;
 
 import com.nhn.pinpoint.bootstrap.Agent;
+import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.nhn.pinpoint.bootstrap.instrument.Method;
+import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
-import com.nhn.pinpoint.profiler.interceptor.bci.Method;
-import com.nhn.pinpoint.profiler.interceptor.bci.MethodFilter;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.orm.mybatis.filter.SqlSessionMethodFilter;
 import com.nhn.pinpoint.profiler.modifier.orm.mybatis.interceptor.MyBatisScope;
@@ -48,7 +48,7 @@ public abstract class MyBatisClientModifier extends AbstractModifier {
 			List<Method> declaredMethods = myBatisClientImpl.getDeclaredMethods(getSqlSessionMethodFilter());			
 			for (Method method : declaredMethods) {
 				Interceptor sqlSessionInterceptor = new MyBatisSqlMapOperationInterceptor(serviceType);
-				myBatisClientImpl.addScopeInterceptor(method.getMethodName(), method.getMethodParams(), sqlSessionInterceptor, scope);
+				myBatisClientImpl.addScopeInterceptor(method.getName(), method.getParameterTypes(), sqlSessionInterceptor, scope);
 			}
 			
 			return myBatisClientImpl.toBytecode();

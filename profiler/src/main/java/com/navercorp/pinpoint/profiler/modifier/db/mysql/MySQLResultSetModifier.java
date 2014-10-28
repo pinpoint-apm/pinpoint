@@ -1,11 +1,11 @@
 package com.nhn.pinpoint.profiler.modifier.db.mysql;
 
 import com.nhn.pinpoint.bootstrap.Agent;
-import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-
+import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 
 import java.security.ProtectionDomain;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

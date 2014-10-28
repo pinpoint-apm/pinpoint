@@ -1,10 +1,10 @@
 package com.nhn.pinpoint.profiler.interceptor;
 
 import com.nhn.pinpoint.bootstrap.context.TraceContext;
+import com.nhn.pinpoint.bootstrap.instrument.Scope;
 import com.nhn.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.nhn.pinpoint.profiler.util.DepthScope;
-import com.nhn.pinpoint.profiler.util.Scope;
 
 /**
  * @author emeroad

@@ -3,9 +3,8 @@ package com.nhn.pinpoint.profiler.modifier.redis.filter;
 import java.lang.reflect.Modifier;
 import java.util.Set;
 
-import javassist.CtMethod;
-
-import com.nhn.pinpoint.profiler.interceptor.bci.MethodFilter;
+import com.nhn.pinpoint.bootstrap.instrument.Method;
+import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
 
 /**
  * Name based on method filter
@@ -21,7 +20,7 @@ public class NameBasedMethodFilter implements MethodFilter {
     }
     
     @Override
-    public boolean filter(CtMethod ctMethod) {
+    public boolean filter(Method ctMethod) {
         final int modifiers = ctMethod.getModifiers();
         if (!Modifier.isPublic(modifiers) || Modifier.isStatic(modifiers) || Modifier.isAbstract(modifiers) || Modifier.isNative(modifiers)) {
             return true;

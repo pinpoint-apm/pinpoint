@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.interceptor.bci;
+package com.nhn.pinpoint.bootstrap.instrument;
 
 /**
  * @author emeroad

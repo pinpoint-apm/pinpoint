@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.profiler.modifier.arcus;
 
-import com.nhn.pinpoint.profiler.interceptor.bci.Method;
+import com.nhn.pinpoint.bootstrap.instrument.Method;
 
 /**
  * @author emeroad
@@ -11,7 +11,7 @@ public class ParameterUtils {
         if (method == null) {
             return -1;
         }
-        final String[] methodParams = method.getMethodParams();
+        final String[] methodParams = method.getParameterTypes();
         final int minIndex = Math.min(methodParams.length, maxIndex);
         for(int i =0; i < minIndex; i++) {
             if ("java.lang.String".equals(methodParams[i])) {

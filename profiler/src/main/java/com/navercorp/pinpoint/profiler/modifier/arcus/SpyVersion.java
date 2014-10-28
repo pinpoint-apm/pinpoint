@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.profiler.modifier.arcus;
 
-import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
+import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
 
 public enum SpyVersion {
 
