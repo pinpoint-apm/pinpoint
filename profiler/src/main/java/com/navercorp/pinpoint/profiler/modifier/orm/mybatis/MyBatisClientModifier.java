@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.nhn.pinpoint.bootstrap.instrument.Method;
+import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
 import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.common.ServiceType;
@@ -45,8 +45,8 @@ public abstract class MyBatisClientModifier extends AbstractModifier {
 		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 		try {
 			InstrumentClass myBatisClientImpl = byteCodeInstrumentor.getClass(javassistClassName);
-			List<Method> declaredMethods = myBatisClientImpl.getDeclaredMethods(getSqlSessionMethodFilter());			
-			for (Method method : declaredMethods) {
+			List<MethodInfo> declaredMethods = myBatisClientImpl.getDeclaredMethods(getSqlSessionMethodFilter());			
+			for (MethodInfo method : declaredMethods) {
 				Interceptor sqlSessionInterceptor = new MyBatisSqlMapOperationInterceptor(serviceType);
 				myBatisClientImpl.addScopeInterceptor(method.getName(), method.getParameterTypes(), sqlSessionInterceptor, scope);
 			}

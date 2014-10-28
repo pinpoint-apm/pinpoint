@@ -3,7 +3,7 @@ package com.nhn.pinpoint.profiler.modifier.arcus;
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.nhn.pinpoint.bootstrap.instrument.Method;
+import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
 import com.nhn.pinpoint.bootstrap.interceptor.ParameterExtractorSupport;
 import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
@@ -42,9 +42,9 @@ public class FrontCacheMemcachedClientModifier extends AbstractModifier {
             }
 
             // 모든 public 메소드에 ApiInterceptor를 적용한다.
-            final List<Method> declaredMethods = aClass.getDeclaredMethods(new FrontCacheMemcachedMethodFilter());
+            final List<MethodInfo> declaredMethods = aClass.getDeclaredMethods(new FrontCacheMemcachedMethodFilter());
 
-            for (Method method : declaredMethods) {
+            for (MethodInfo method : declaredMethods) {
                 SimpleAroundInterceptor apiInterceptor = (SimpleAroundInterceptor) byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.arcus.interceptor.ApiInterceptor");
                 if (agent.getProfilerConfig().isMemcachedKeyTrace()) {
                     final int index = ParameterUtils.findFirstString(method, 3);

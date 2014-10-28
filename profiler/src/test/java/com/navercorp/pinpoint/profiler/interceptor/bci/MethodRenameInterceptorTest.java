@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
 public class MethodRenameInterceptorTest {
     @Test
     public void methodRename() {
-        // Method rename을 사용해서 local 변수를 공유하는 방법의 경우 call stack이 변경되는 문제점이있다.
+        // MethodInfo rename을 사용해서 local 변수를 공유하는 방법의 경우 call stack이 변경되는 문제점이있다.
         try {
             String methodName = "callA";
             String objectName = "TestObject";

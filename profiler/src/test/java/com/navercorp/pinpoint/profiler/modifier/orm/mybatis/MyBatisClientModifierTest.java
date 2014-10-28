@@ -48,7 +48,7 @@ public abstract class MyBatisClientModifierTest extends BasePinpointTest {
 		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
 		assertThat(spanEvents.size(), is(1));
 		
-		// Check Method
+		// Check MethodInfo
 		final SpanEventBo insertSpanEventBo = spanEvents.get(0);
 		assertThat(insertSpanEventBo.getApiId(), not(NOT_CACHED));
 		
@@ -133,7 +133,7 @@ public abstract class MyBatisClientModifierTest extends BasePinpointTest {
 		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
 		assertThat(spanEvents.size(), is(2));
 		
-		// Check Method
+		// Check MethodInfo
 		final SpanEventBo commitWith0ArgSpanEvent = spanEvents.get(0);
 		final SpanEventBo commitWith1ArgSpanEvent = spanEvents.get(1);
 		assertThat(commitWith0ArgSpanEvent.getApiId(), not(NOT_CACHED));
@@ -155,7 +155,7 @@ public abstract class MyBatisClientModifierTest extends BasePinpointTest {
 		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
 		assertThat(spanEvents.size(), is(2));
 		
-		// Check Method
+		// Check MethodInfo
 		final SpanEventBo rollbackWith0ArgSpanEvent = spanEvents.get(0);
 		final SpanEventBo rollbackWith1ArgSpanEvent = spanEvents.get(1);
 		assertThat(rollbackWith0ArgSpanEvent.getApiId(), not(NOT_CACHED));
@@ -176,7 +176,7 @@ public abstract class MyBatisClientModifierTest extends BasePinpointTest {
 		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
 		assertThat(spanEvents.size(), is(1));
 		
-		// Check Method
+		// Check MethodInfo
 		final SpanEventBo flushStatementsSpanEvent = spanEvents.get(0);
 		assertThat(flushStatementsSpanEvent.getApiId(), not(NOT_CACHED));
 
@@ -193,7 +193,7 @@ public abstract class MyBatisClientModifierTest extends BasePinpointTest {
 		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
 		assertThat(spanEvents.size(), is(1));
 		
-		// Check Method
+		// Check MethodInfo
 		final SpanEventBo closeSpanEvent = spanEvents.get(0);
 		assertThat(closeSpanEvent.getApiId(), not(NOT_CACHED));
 		
@@ -210,7 +210,7 @@ public abstract class MyBatisClientModifierTest extends BasePinpointTest {
 		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
 		assertThat(spanEvents.size(), is(1));
 		
-		// Check Method
+		// Check MethodInfo
 		final SpanEventBo getConfigurationSpanEvent = spanEvents.get(0);
 		assertThat(getConfigurationSpanEvent.getApiId(), not(NOT_CACHED));
 		
@@ -229,7 +229,7 @@ public abstract class MyBatisClientModifierTest extends BasePinpointTest {
 		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
 		assertThat(spanEvents.size(), is(1));
 		
-		// Check Method
+		// Check MethodInfo
 		final SpanEventBo getConnectionSpanEvent = spanEvents.get(0);
 		assertThat(getConnectionSpanEvent.getApiId(), not(NOT_CACHED));
 		
@@ -246,7 +246,7 @@ public abstract class MyBatisClientModifierTest extends BasePinpointTest {
 		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
 		assertThat(spanEvents.size(), is(1));
 		
-		// Check Method
+		// Check MethodInfo
 		final SpanEventBo getConnectionSpanEvent = spanEvents.get(0);
 		assertThat(getConnectionSpanEvent.getApiId(), not(NOT_CACHED));
 		
@@ -262,7 +262,7 @@ public abstract class MyBatisClientModifierTest extends BasePinpointTest {
 		for (int n = 0; n < numOperations; ++n) {
 			final SpanEventBo apiSpanEvent = spanEvents.get(n);
 			uniqueApiIds.add(apiSpanEvent.getApiId());
-			// Check Method
+			// Check MethodInfo
 			assertThat(apiSpanEvent.getApiId(), not(NOT_CACHED));
 			// Check Parameter
 			final List<AnnotationBo> apiAnnotations = apiSpanEvent.getAnnotationBoList();

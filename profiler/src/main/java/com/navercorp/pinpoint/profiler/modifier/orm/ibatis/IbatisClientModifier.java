@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.nhn.pinpoint.bootstrap.instrument.Method;
+import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
 import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.common.ServiceType;
@@ -43,9 +43,9 @@ public abstract class IbatisClientModifier extends AbstractModifier {
 		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 		try {
 			InstrumentClass ibatisClientImpl = byteCodeInstrumentor.getClass(javassistClassName);
-			List<Method> declaredMethods = ibatisClientImpl.getDeclaredMethods(getIbatisApiMethodFilter());
+			List<MethodInfo> declaredMethods = ibatisClientImpl.getDeclaredMethods(getIbatisApiMethodFilter());
 
-			for (Method method : declaredMethods) {
+			for (MethodInfo method : declaredMethods) {
 				Interceptor ibatisApiInterceptor = new IbatisSqlMapOperationInterceptor(serviceType);
 				ibatisClientImpl.addScopeInterceptor(method.getName(), method.getParameterTypes(), ibatisApiInterceptor, scope);
 			}

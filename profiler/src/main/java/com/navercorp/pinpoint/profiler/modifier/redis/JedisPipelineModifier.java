@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.nhn.pinpoint.bootstrap.instrument.Method;
+import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.MapTraceValue;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
@@ -55,7 +55,7 @@ public class JedisPipelineModifier extends AbstractModifier {
                 // backward compatibility error
             }
 
-            for (Method method : instrumentClass.getDeclaredMethods()) {
+            for (MethodInfo method : instrumentClass.getDeclaredMethods()) {
                 if (method.getName().equals("setClient")) {
                     // jedis 2.x
                     final Interceptor methodInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.redis.interceptor.JedisPipelineSetClientMethodInterceptor");
@@ -64,8 +64,8 @@ public class JedisPipelineModifier extends AbstractModifier {
             }
 
             // method
-            final List<Method> declaredMethods = instrumentClass.getDeclaredMethods(new NameBasedMethodFilter(JedisPipelineMethodNames.get()));
-            for (Method method : declaredMethods) {
+            final List<MethodInfo> declaredMethods = instrumentClass.getDeclaredMethods(new NameBasedMethodFilter(JedisPipelineMethodNames.get()));
+            for (MethodInfo method : declaredMethods) {
                 final Interceptor methodInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.redis.interceptor.JedisPipelineMethodInterceptor");
                 instrumentClass.addInterceptor(method.getName(), method.getParameterTypes(), methodInterceptor);
             }

@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.nhn.pinpoint.bootstrap.instrument.Method;
+import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
 import com.nhn.pinpoint.bootstrap.instrument.Type;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.ParameterExtractorSupport;
@@ -53,8 +53,8 @@ public class ArcusClientModifier extends AbstractModifier {
             final String[] args = {"net.spy.memcached.CacheManager"};
             arcusClient.addInterceptor("setCacheManager", args, setCacheManagerInterceptor, Type.before);
 
-            List<Method> declaredMethods = arcusClient.getDeclaredMethods(new ArcusMethodFilter());
-            for (Method method : declaredMethods) {
+            List<MethodInfo> declaredMethods = arcusClient.getDeclaredMethods(new ArcusMethodFilter());
+            for (MethodInfo method : declaredMethods) {
 
                 SimpleAroundInterceptor apiInterceptor = (SimpleAroundInterceptor) byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain,
 								"com.nhn.pinpoint.profiler.modifier.arcus.interceptor.ApiInterceptor");

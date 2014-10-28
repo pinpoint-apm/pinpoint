@@ -85,7 +85,7 @@ public class SqlMapSessionImplModifierTest extends BasePinpointTest {
 		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
 		assertThat(spanEvents.size(), is(2));
 		
-		// Check Method
+		// Check MethodInfo
 		final SpanEventBo insertSpanEventBo = spanEvents.get(0);
 		final SpanEventBo queryForListSpanEventBo = spanEvents.get(1);
 		assertThat(insertSpanEventBo.getApiId(), not(0));
@@ -108,7 +108,7 @@ public class SqlMapSessionImplModifierTest extends BasePinpointTest {
 		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
 		assertThat(spanEvents.size(), is(2));
 		
-		// Check Method
+		// Check MethodInfo
 		final SpanEventBo insertASpanEventBo = spanEvents.get(0);
 		final SpanEventBo insertBSpanEventBo = spanEvents.get(1);
 		assertThat(insertASpanEventBo.getApiId(), not(0));
@@ -128,7 +128,7 @@ public class SqlMapSessionImplModifierTest extends BasePinpointTest {
 		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
 		assertThat(spanEvents.size(), is(2));
 
-		// Check Method
+		// Check MethodInfo
 		final SpanEventBo insertWith1ArgSpanEventBo = spanEvents.get(0);
 		final SpanEventBo insertWith2ArgSpanEventBo = spanEvents.get(1);
 		assertThat(insertWith1ArgSpanEventBo.getApiId(), not(0));
@@ -159,7 +159,7 @@ public class SqlMapSessionImplModifierTest extends BasePinpointTest {
 		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
 		assertThat(spanEvents.size(), is(2));
 
-		// Check Method
+		// Check MethodInfo
 		final SpanEventBo deleteWith1ArgSpanEvent = spanEvents.get(0);
 		final SpanEventBo deleteWith2ArgSpanEvent = spanEvents.get(1);
 		assertThat(deleteWith1ArgSpanEvent.getApiId(), not(0));
@@ -189,7 +189,7 @@ public class SqlMapSessionImplModifierTest extends BasePinpointTest {
 		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
 		assertThat(spanEvents.size(), is(2));
 
-		// Check Method
+		// Check MethodInfo
 		final SpanEventBo updateWith1ArgSpanEvent = spanEvents.get(0);
 		final SpanEventBo updateWith2ArgSpanEvent = spanEvents.get(1);
 		assertThat(updateWith1ArgSpanEvent.getApiId(), not(0));
@@ -219,7 +219,7 @@ public class SqlMapSessionImplModifierTest extends BasePinpointTest {
 		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
 		assertThat(spanEvents.size(), is(1));
 
-		// Check Method
+		// Check MethodInfo
 		final SpanEventBo apiCallSpanEventBo = spanEvents.get(0);
 		assertThat(apiCallSpanEventBo.getApiId(), not(0));
 
@@ -241,7 +241,7 @@ public class SqlMapSessionImplModifierTest extends BasePinpointTest {
 		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
 		assertThat(spanEvents.size(), is(1));
 
-		// Check Method
+		// Check MethodInfo
 		final SpanEventBo apiCallSpanEventBo = spanEvents.get(0);
 		assertThat(apiCallSpanEventBo.getApiId(), not(0));
 
@@ -266,7 +266,7 @@ public class SqlMapSessionImplModifierTest extends BasePinpointTest {
 		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
 		assertThat(spanEvents.size(), is(3));
 		
-		// Check Method
+		// Check MethodInfo
 		final SpanEventBo startTransactionSpanEventBo = spanEvents.get(0);
 		final SpanEventBo commitTransactionSpanEventBo = spanEvents.get(1);
 		final SpanEventBo endTransactionSpanEventBo = spanEvents.get(2);
@@ -296,7 +296,7 @@ public class SqlMapSessionImplModifierTest extends BasePinpointTest {
 		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
 		assertThat(spanEvents.size(), is(1));
 		
-		// Check Method
+		// Check MethodInfo
 		final SpanEventBo closeSpanEventBo = spanEvents.get(0);
 		assertThat(closeSpanEventBo.getApiId(), not(0));
 		

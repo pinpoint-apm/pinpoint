@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.nhn.pinpoint.bootstrap.instrument.Method;
+import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
 import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
 
 /**
@@ -37,7 +37,7 @@ public class SqlSessionMethodFilter implements MethodFilter {
 	}
 
 	@Override
-	public boolean filter(Method ctMethod) {
+	public boolean filter(MethodInfo ctMethod) {
 		if (WHITE_LIST_API.contains(ctMethod.getName())) {
 			return TRACK;
 		}

@@ -7,7 +7,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 
 /**
- * Method interceptor
+ * MethodInfo interceptor
  * <p/>
  * <pre>
  * org.apache.http.impl.client.AbstractHttpClient.
