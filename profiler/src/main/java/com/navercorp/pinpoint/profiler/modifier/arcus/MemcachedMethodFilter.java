@@ -1,11 +1,11 @@
 package com.nhn.pinpoint.profiler.modifier.arcus;
 
-import com.nhn.pinpoint.profiler.interceptor.bci.MethodFilter;
-import javassist.CtMethod;
-
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.nhn.pinpoint.bootstrap.instrument.Method;
+import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
 
 /**
  * @author emeroad
@@ -50,7 +50,7 @@ public class MemcachedMethodFilter implements MethodFilter {
     }
 
     @Override
-    public boolean filter(CtMethod ctMethod) {
+    public boolean filter(Method ctMethod) {
         final int modifiers = ctMethod.getModifiers();
         if (!Modifier.isPublic(modifiers) || Modifier.isStatic(modifiers) || Modifier.isAbstract(modifiers) || Modifier.isNative(modifiers)) {
             return true;

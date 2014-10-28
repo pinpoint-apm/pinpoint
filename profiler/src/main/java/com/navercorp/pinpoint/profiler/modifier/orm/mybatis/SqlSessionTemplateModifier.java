@@ -3,7 +3,7 @@ package com.nhn.pinpoint.profiler.modifier.orm.mybatis;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.bootstrap.Agent;
-import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
+import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 
 /**
  * @author Hyun Jeong

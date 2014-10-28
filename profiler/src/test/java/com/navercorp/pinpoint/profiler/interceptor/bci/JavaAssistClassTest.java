@@ -1,6 +1,8 @@
 package com.nhn.pinpoint.profiler.interceptor.bci;
 
 import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
+import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.nhn.pinpoint.bootstrap.instrument.InstrumentException;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.BindValueTraceValue;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.IntTraceValue;
@@ -15,7 +17,9 @@ import com.nhn.pinpoint.profiler.modifier.db.interceptor.UnKnownDatabaseInfo;
 import com.nhn.pinpoint.profiler.util.MockAgent;
 import com.nhn.pinpoint.profiler.util.TestClassLoader;
 import com.nhn.pinpoint.profiler.util.TestModifier;
+
 import javassist.bytecode.Descriptor;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

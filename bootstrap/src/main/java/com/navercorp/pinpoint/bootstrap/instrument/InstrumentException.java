@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.interceptor.bci;
+package com.nhn.pinpoint.bootstrap.instrument;
 
 // TODO 추후 별도 계층구조가 필요하면 분화 필요.
 /**

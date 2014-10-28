@@ -3,11 +3,12 @@ package com.nhn.pinpoint.profiler.modifier.connector.npc;
 import java.security.ProtectionDomain;
 
 import com.nhn.pinpoint.bootstrap.Agent;
+import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
-import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.npc.interceptor.InvokeInterceptor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

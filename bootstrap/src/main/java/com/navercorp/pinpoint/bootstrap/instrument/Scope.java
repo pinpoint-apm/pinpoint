@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.util;
+package com.nhn.pinpoint.bootstrap.instrument;
 
 /**
  * @author emeroad

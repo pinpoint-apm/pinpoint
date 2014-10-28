@@ -3,8 +3,8 @@ package com.nhn.pinpoint.profiler.modifier.orm.ibatis;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.bootstrap.Agent;
-import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.interceptor.bci.MethodFilter;
+import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
 import com.nhn.pinpoint.profiler.modifier.orm.ibatis.filter.SqlMapSessionMethodFilter;
 
 /**

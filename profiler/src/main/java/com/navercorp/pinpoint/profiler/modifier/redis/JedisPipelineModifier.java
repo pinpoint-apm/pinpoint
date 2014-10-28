@@ -7,11 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.bootstrap.Agent;
+import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.nhn.pinpoint.bootstrap.instrument.Method;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.MapTraceValue;
-import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
-import com.nhn.pinpoint.profiler.interceptor.bci.Method;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.redis.filter.JedisPipelineMethodNames;
 import com.nhn.pinpoint.profiler.modifier.redis.filter.NameBasedMethodFilter;
@@ -56,7 +56,7 @@ public class JedisPipelineModifier extends AbstractModifier {
             }
 
             for (Method method : instrumentClass.getDeclaredMethods()) {
-                if (method.getMethodName().equals("setClient")) {
+                if (method.getName().equals("setClient")) {
                     // jedis 2.x
                     final Interceptor methodInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.redis.interceptor.JedisPipelineSetClientMethodInterceptor");
                     instrumentClass.addInterceptor("setClient", new String[] { "redis.clients.jedis.Client" }, methodInterceptor);
@@ -67,7 +67,7 @@ public class JedisPipelineModifier extends AbstractModifier {
             final List<Method> declaredMethods = instrumentClass.getDeclaredMethods(new NameBasedMethodFilter(JedisPipelineMethodNames.get()));
             for (Method method : declaredMethods) {
                 final Interceptor methodInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.redis.interceptor.JedisPipelineMethodInterceptor");
-                instrumentClass.addInterceptor(method.getMethodName(), method.getMethodParams(), methodInterceptor);
+                instrumentClass.addInterceptor(method.getName(), method.getParameterTypes(), methodInterceptor);
             }
 
             return instrumentClass.toBytecode();

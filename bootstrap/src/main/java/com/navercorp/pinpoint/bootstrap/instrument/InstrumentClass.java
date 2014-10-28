@@ -1,10 +1,9 @@
-package com.nhn.pinpoint.profiler.interceptor.bci;
+package com.nhn.pinpoint.bootstrap.instrument;
+
+import java.util.List;
 
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
-import com.nhn.pinpoint.profiler.util.Scope;
-
-import java.util.List;
 
 /**
  * @author emeroad
