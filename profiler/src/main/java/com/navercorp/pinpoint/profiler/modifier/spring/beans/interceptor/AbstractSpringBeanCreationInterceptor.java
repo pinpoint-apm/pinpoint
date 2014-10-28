@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler.modifier.spring.beans.interceptor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.nhn.pinpoint.bootstrap.logging.PLogger;
+import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 
 import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.profiler.ClassFileRetransformer;
@@ -9,7 +9,7 @@ import com.nhn.pinpoint.profiler.ProfilerException;
 import com.nhn.pinpoint.profiler.modifier.Modifier;
 
 public abstract class AbstractSpringBeanCreationInterceptor implements SimpleAroundInterceptor {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final PLogger logger = PLoggerFactory.getLogger(getClass());
     
     private final ClassFileRetransformer retransformer;
     private final Modifier modifier;
@@ -26,7 +26,7 @@ public abstract class AbstractSpringBeanCreationInterceptor implements SimpleAro
             return;
         }
         
-        Class<? extends Object> clazz = bean.getClass();
+        Class<?> clazz = bean.getClass();
         
         if (!filter.isTarget(beanName, clazz)) {
             return;
@@ -38,10 +38,10 @@ public abstract class AbstractSpringBeanCreationInterceptor implements SimpleAro
             retransformer.retransform(clazz, modifier);
 
             if (logger.isInfoEnabled()) {
-                logger.info("Retransform " + clazz.getName());
+                logger.info("Retransform {}", clazz.getName());
             }
         } catch (ProfilerException e) {
-            logger.warn("Fail to retransform: " + clazz.getName(), e);
+            logger.warn("Fail to retransform: {}", clazz.getName(), e);
             return;
         }
         
