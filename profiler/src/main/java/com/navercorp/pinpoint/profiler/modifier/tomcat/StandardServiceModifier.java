@@ -31,6 +31,8 @@ public class StandardServiceModifier extends AbstractModifier {
     @Override
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
         logger.info("Modifying. {}", javassistClassName);
+        
+        byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         try {
             InstrumentClass standardService = byteCodeInstrumentor.getClass(javassistClassName);
             LifeCycleEventListener lifeCycleEventListener = new LifeCycleEventListener(agent);
