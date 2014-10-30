@@ -75,7 +75,7 @@ public class TcpDataSenderTest {
         this.sendLatch = new CountDownLatch(2);
 
         PinpointSocketFactory socketFactory = createPinpointSocketFactory();
-        socketFactory.setMessageListener(new CommandDispatcher());
+        socketFactory.setMessageListener(new CommandDispatcher.Builder().build());
         
         PinpointSocket socket = createPinpointSocket(HOST, PORT, socketFactory);
         
