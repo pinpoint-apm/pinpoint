@@ -229,7 +229,6 @@ public class DefaultAgent implements Agent {
     }
 
     private Sampler createSampler() {
-
         boolean samplingEnable = this.profilerConfig.isSamplingEnable();
         int samplingRate = this.profilerConfig.getSamplingRate();
 
@@ -250,7 +249,9 @@ public class DefaultAgent implements Agent {
         pinpointSocketFactory.setProperties(properties);
 
         if (isSupportServerMode) {
-        	pinpointSocketFactory.setMessageListener(new CommandDispatcher());
+        	CommandDispatcher.Builder builder = new CommandDispatcher.Builder();
+        	
+        	pinpointSocketFactory.setMessageListener(builder.build());
         }
 
         return pinpointSocketFactory;

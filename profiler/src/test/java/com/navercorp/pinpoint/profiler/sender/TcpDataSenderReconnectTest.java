@@ -87,7 +87,7 @@ public class TcpDataSenderReconnectTest {
     	PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
         pinpointSocketFactory.setTimeoutMillis(1000 * 5);
         pinpointSocketFactory.setProperties(Collections.EMPTY_MAP);
-        pinpointSocketFactory.setMessageListener(new CommandDispatcher());
+        pinpointSocketFactory.setMessageListener(new CommandDispatcher.Builder().build());
 
         return pinpointSocketFactory;
 	}

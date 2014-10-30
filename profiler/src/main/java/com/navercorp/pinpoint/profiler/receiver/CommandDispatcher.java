@@ -1,5 +1,8 @@
 package com.nhn.pinpoint.profiler.receiver;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
@@ -9,15 +12,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.common.Version;
-import com.nhn.pinpoint.profiler.receiver.bo.EchoBO;
-import com.nhn.pinpoint.profiler.receiver.bo.ThreadDumpBO;
+import com.nhn.pinpoint.profiler.receiver.service.EchoService;
+import com.nhn.pinpoint.profiler.receiver.service.ThreadDumpService;
 import com.nhn.pinpoint.rpc.client.MessageListener;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.ResponsePacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
+import com.nhn.pinpoint.rpc.util.AssertUtils;
 import com.nhn.pinpoint.thrift.dto.TResult;
-import com.nhn.pinpoint.thrift.dto.command.TCommandEcho;
-import com.nhn.pinpoint.thrift.dto.command.TCommandThreadDump;
 import com.nhn.pinpoint.thrift.io.DeserializerFactory;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
@@ -30,39 +32,50 @@ import com.nhn.pinpoint.thrift.io.TCommandTypeVersion;
 import com.nhn.pinpoint.thrift.io.ThreadLocalHeaderTBaseDeserializerFactory;
 import com.nhn.pinpoint.thrift.io.ThreadLocalHeaderTBaseSerializerFactory;
 
-/**
- * @author koo.taejin
- */
-public class CommandDispatcher implements MessageListener {
+public class CommandDispatcher implements MessageListener  {
 
-	// 일단은 현재 스레드가 워커스레드로 되는 것을 등록 (이후에 변경하자.)
-	
-	private static final TProtocolFactory DEFAULT_PROTOCOL_FACTORY = new TCompactProtocol.Factory();
-	private static final TBaseLocator commandTbaseLocator = new TCommandRegistry(TCommandTypeVersion.getVersion(Version.VERSION));
-	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	// 여기만 따로 TBaseLocator를 상속받아 만들어주는 것이 좋을듯 
-	
-	private final TBaseBOLocator locator;
+	private final ProfilerCommandServiceLocator locator;
 
-    private final SerializerFactory serializerFactory = new ThreadLocalHeaderTBaseSerializerFactory(new HeaderTBaseSerializerFactory(true, HeaderTBaseSerializerFactory.DEFAULT_UDP_STREAM_MAX_SIZE, DEFAULT_PROTOCOL_FACTORY, commandTbaseLocator));
-    private final DeserializerFactory deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory(new HeaderTBaseDeserializerFactory(DEFAULT_PROTOCOL_FACTORY, commandTbaseLocator));
-    
-	public CommandDispatcher() {
-		TBaseBORegistry registry = new TBaseBORegistry();
-		
-		registry.addBO(TCommandThreadDump.class, new ThreadDumpBO());
-		registry.addBO(TCommandEcho.class, new EchoBO());
+	private final SerializerFactory serializerFactory;
+	private final DeserializerFactory deserializerFactory;
 
+	public CommandDispatcher(Builder builder) {
+		ProfilerCommandServiceRegistry registry = new ProfilerCommandServiceRegistry();
+		for (ProfilerCommandService service : builder.serviceList) {
+			registry.addService(service);
+		}
 		this.locator = registry;
+		
+		SerializerFactory serializerFactory = new HeaderTBaseSerializerFactory(true, builder.serializationMaxSize, builder.protocolFactory, builder.commandTbaseLocator);
+		this.serializerFactory = wrappedThreadLocalSerializerFactory(serializerFactory);
+		AssertUtils.assertNotNull(this.serializerFactory);
+		
+		DeserializerFactory deserializerFactory = new HeaderTBaseDeserializerFactory(builder.protocolFactory, builder.commandTbaseLocator);
+		this.deserializerFactory = wrappedThreadLocalDeserializerFactory(deserializerFactory);
+		AssertUtils.assertNotNull(this.deserializerFactory);
 	}
 
+	private SerializerFactory wrappedThreadLocalSerializerFactory(SerializerFactory serializerFactory) {
+		return new ThreadLocalHeaderTBaseSerializerFactory(serializerFactory);
+	}
+	
+	private DeserializerFactory wrappedThreadLocalDeserializerFactory(DeserializerFactory deserializerFactory) {
+		return new ThreadLocalHeaderTBaseDeserializerFactory(deserializerFactory);
+	}
+	
 	@Override
-	public void handleRequest(RequestPacket packet, Channel channel) {
-		logger.info("MessageReceive {} {}", packet, channel);
+	public void handleSend(SendPacket sendPacket, Channel channel) {
+		logger.info("MessageReceive {} {}", sendPacket, channel);
+	}
 
-		TBase<?, ?> request = deserialize(packet.getPayload());
+	
+	@Override
+	public void handleRequest(RequestPacket requestPacket, Channel channel) {
+		logger.info("MessageReceive {} {}", requestPacket, channel);
+
+		TBase<?, ?> request = deserialize(requestPacket.getPayload());
 		
 		TBase response = null;
 		if (request == null) {
@@ -71,27 +84,39 @@ public class CommandDispatcher implements MessageListener {
 			
 			response = tResult;
 		} else {
-			TBaseRequestBO bo = locator.getRequestBO(request);
+			ProfilerRequestCommandService service = locator.getRequestService(request);
 			
-			if (bo == null) {
+			if (service == null) {
 				TResult tResult = new TResult(false);
 				tResult.setMessage("Unsupported Listener.");
 
 				response = tResult;
 			} else {
-				response = bo.handleRequest(request);
+				response = service.requestCommandService(request);
 			}
 		}
 		
 		byte[] payload = serialize(response);
 		if (payload != null) {
-			channel.write(new ResponsePacket(packet.getRequestId(), payload));
-		}
+			channel.write(new ResponsePacket(requestPacket.getRequestId(), payload));
+		}		
 	}
 
-	@Override
-	public void handleSend(SendPacket packet, Channel channel) {
-		logger.info("MessageReceive {} {}", packet, channel);
+	private byte[] serialize(TBase result) {
+		if (result == null) {
+			logger.warn("tBase may not be null.");
+			return null;
+		}
+		
+    	try {
+			HeaderTBaseSerializer serializer = serializerFactory.createSerializer();
+			byte[] payload = serializer.serialize(result);
+			return payload;
+		} catch (TException e) {
+			logger.warn(e.getMessage(), e);
+		}
+    	
+    	return null;
 	}
 	
 	private TBase deserialize(byte[] payload) {
@@ -111,21 +136,46 @@ public class CommandDispatcher implements MessageListener {
     	return null;
 	}
 	
-	private byte[] serialize(TBase result) {
-		if (result == null) {
-			logger.warn("tBase may not be null.");
-			return null;
+	public static class Builder {
+		private List<ProfilerCommandService> serviceList = new ArrayList<ProfilerCommandService>();
+
+		private int serializationMaxSize = HeaderTBaseSerializerFactory.DEFAULT_UDP_STREAM_MAX_SIZE;
+		private TProtocolFactory protocolFactory = new TCompactProtocol.Factory();
+		private TBaseLocator commandTbaseLocator = new TCommandRegistry(TCommandTypeVersion.getVersion(Version.VERSION));
+		
+		public Builder() {
+			serviceList.add(new ThreadDumpService());
+			serviceList.add(new EchoService());
 		}
 		
-    	try {
-			HeaderTBaseSerializer serializer = serializerFactory.createSerializer();
-			byte[] payload = serializer.serialize(result);
-			return payload;
-		} catch (TException e) {
-			logger.warn(e.getMessage(), e);
+		public Builder addService(ProfilerCommandService service) {
+			serviceList.add(service);
+			return this;
 		}
-    	
-    	return null;
-	}
 
+		public Builder setProtocolFactory(TProtocolFactory protocolFactory) {
+			this.protocolFactory = protocolFactory;
+			return this;
+		}
+
+		public Builder setCommandTbaseLocator(TBaseLocator commandTbaseLocator) {
+			this.commandTbaseLocator = commandTbaseLocator;
+			return this;
+		}
+
+		public void setSerializationMaxSize(int serializationMaxSize) {
+			this.serializationMaxSize = serializationMaxSize;
+		}
+
+		public CommandDispatcher build() {
+			AssertUtils.assertNotNull(protocolFactory, "protocolFactory may note be null.");
+			AssertUtils.assertNotNull(commandTbaseLocator, "commandTbaseLocator may note be null.");
+			AssertUtils.assertTrue(serializationMaxSize > 0, "serializationMaxSize must grater than zero.");
+			AssertUtils.assertTrue(serviceList.size() > 0, "serializationMaxSize must grater than zero.");
+			
+			return new CommandDispatcher(this);
+		}
+		
+	}
+	
 }
