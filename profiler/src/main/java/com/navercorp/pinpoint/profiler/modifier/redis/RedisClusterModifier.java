@@ -41,6 +41,7 @@ public class RedisClusterModifier extends AbstractModifier {
             logger.info("Modifing. {}", className);
         }
 
+        byteCodeInstrumentor.checkLibrary(classLoader, className);
         try {
             final InstrumentClass instrumentClass = byteCodeInstrumentor.getClass(className);
 
