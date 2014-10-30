@@ -30,6 +30,7 @@ public class FrontCacheGetFutureModifier extends AbstractModifier {
             logger.info("Modifying. {}", javassistClassName);
         }
 
+        byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         try {
             InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
 
