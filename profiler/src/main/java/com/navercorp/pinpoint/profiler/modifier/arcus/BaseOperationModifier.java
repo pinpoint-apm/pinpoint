@@ -30,6 +30,7 @@ public class BaseOperationModifier extends AbstractModifier {
             logger.info("Modifing. {}", javassistClassName);
         }
 
+        byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         try {
             InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
 

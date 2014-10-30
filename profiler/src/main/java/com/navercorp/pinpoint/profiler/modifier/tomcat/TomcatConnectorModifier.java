@@ -31,6 +31,8 @@ public class TomcatConnectorModifier extends AbstractModifier {
         if (logger.isInfoEnabled()) {
             logger.info("Modifing. {}", javassistClassName);
         }
+        
+        byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         try {
 			// initialize()할 때 protocol과 port번호를 저장해둔다.
 			Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain,
