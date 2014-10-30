@@ -3,18 +3,18 @@ package com.nhn.pinpoint.thrift.io;
 /**
  * @author emeroad
  */
-public class ThreadLocalHeaderTBaseDeserializerFactory implements DeserializerFactory {
+public class ThreadLocalHeaderTBaseDeserializerFactory<E> implements DeserializerFactory<E> {
 
-    private final ThreadLocal<HeaderTBaseDeserializer> cache = new ThreadLocal<HeaderTBaseDeserializer>() {
+    private final ThreadLocal<E> cache = new ThreadLocal<E>() {
         @Override
-        protected HeaderTBaseDeserializer initialValue() {
+        protected E initialValue() {
             return factory.createDeserializer();
         }
     };
 
-    private final DeserializerFactory factory;
+    private final DeserializerFactory<E> factory;
 
-    public ThreadLocalHeaderTBaseDeserializerFactory(DeserializerFactory factory) {
+    public ThreadLocalHeaderTBaseDeserializerFactory(DeserializerFactory<E> factory) {
         if (factory == null) {
             throw new NullPointerException("factory must not be null");
         }
@@ -22,7 +22,7 @@ public class ThreadLocalHeaderTBaseDeserializerFactory implements DeserializerFa
     }
 
     @Override
-    public HeaderTBaseDeserializer createDeserializer() {
+    public E createDeserializer() {
         return cache.get();
     }
 }

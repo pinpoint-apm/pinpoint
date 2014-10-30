@@ -72,7 +72,7 @@ public class UDPReceiver implements DataReceiver {
 
     private AtomicBoolean state = new AtomicBoolean(true);
 
-    private final DeserializerFactory deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory(new HeaderTBaseDeserializerFactory());
+    private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<HeaderTBaseDeserializer>(new HeaderTBaseDeserializerFactory());
 
 
     public UDPReceiver() {

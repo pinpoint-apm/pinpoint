@@ -6,7 +6,7 @@ import org.apache.thrift.protocol.TProtocolFactory;
 /**
  * @author koo.taejin
  */
-public final class HeaderTBaseDeserializerFactory implements DeserializerFactory {
+public final class HeaderTBaseDeserializerFactory implements DeserializerFactory<HeaderTBaseDeserializer> {
 
     private static final TBaseLocator DEFAULT_TBASE_LOCATOR = new DefaultTBaseLocator();
 

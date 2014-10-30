@@ -46,7 +46,7 @@ public class CommandController {
 	private SerializerFactory commandSerializerFactory;
 
 	@Autowired
-	private DeserializerFactory commandDeserializerFactory;
+	private DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory;
 
 	@Autowired
 	private PinpointSocketManager socketManager;

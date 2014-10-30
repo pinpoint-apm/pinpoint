@@ -45,7 +45,7 @@ public class ClusterPointRouter {
 	private SerializerFactory commandSerializerFactory;
 
 	@Autowired
-	private DeserializerFactory commandDeserializerFactory;
+	private DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory;
 
 	public ClusterPointRouter() {
 		this.profilerClusterPoint = new ProfilerClusterPoint();
