@@ -2,8 +2,6 @@ package com.nhn.pinpoint.thrift.io;
 
 import static org.junit.Assert.*;
 
-import java.util.Arrays;
-
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
@@ -25,7 +23,7 @@ public class ChunkHeaderTBaseDeserializerTest {
             @Override
             public void handle(byte[] buffer, int offset, int length) {
                 try {
-                    deserializer.deserialize(Arrays.copyOfRange(buffer, offset, length));
+                    deserializer.deserialize(buffer, offset, length);
                 } catch (TException e) {
                     fail("Failed to deserialize. " + e.getMessage());
                 }
@@ -36,5 +34,4 @@ public class ChunkHeaderTBaseDeserializerTest {
         serializer.add(chunk);
         serializer.flush();
     }
-
 }
