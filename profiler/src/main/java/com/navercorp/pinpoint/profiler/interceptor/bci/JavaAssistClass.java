@@ -899,7 +899,7 @@ public class JavaAssistClass implements InstrumentClass {
         }
         try {
             final CtMethod[] declaredMethod = ctClass.getDeclaredMethods();
-            final List<Method> candidateList = new ArrayList<Method>(declaredMethod.length);
+			final List<Method> candidateList = new ArrayList<Method>(declaredMethod.length);
             for (CtMethod ctMethod : declaredMethod) {
                 if (methodFilter.filter(ctMethod)) {
                     continue;
@@ -915,21 +915,53 @@ public class JavaAssistClass implements InstrumentClass {
             throw new NotFoundInstrumentException("getDeclaredMethods(), Caused:" + e.getMessage(), e);
         }
     }
-	
-	public boolean isInterceptable() {
-		return !ctClass.isInterface() && !ctClass.isAnnotation() && !ctClass.isModified();
-	}
 
-	@Override
-	public boolean hasDeclaredMethod(String methodName, String[] args) {
-		try {
-			CtClass[] params = JavaAssistUtils.getCtParameter(args, instrumentor.getClassPool());
-			CtMethod m = ctClass.getDeclaredMethod(methodName, params);
-			return m != null;
-		} catch (NotFoundException e) {
-			return false;
-		}
-	}
+
+    public DeclaredMethodsForce getDeclaredMethodsForce() {
+        return getDeclaredMethodsForce(SkipMethodFilter.FILTER);
+    }
+
+    public DeclaredMethodsForce getDeclaredMethodsForce(MethodFilter methodFilter) {
+        if (methodFilter == null) {
+            throw new NullPointerException("methodFilter must not be null");
+        }
+        final CtMethod[] declaredMethod = ctClass.getDeclaredMethods();
+        final List<Method> candidateList = new ArrayList<Method>(declaredMethod.length);
+        final List<DeclaredMethodsForce.FailMethod> failList = new ArrayList<DeclaredMethodsForce.FailMethod>();
+        for (CtMethod ctMethod : declaredMethod) {
+            if (methodFilter.filter(ctMethod)) {
+                continue;
+            }
+            String methodName = ctMethod.getName();
+            try {
+                CtClass[] paramTypes = ctMethod.getParameterTypes();
+                String[] parameterType = JavaAssistUtils.getParameterType(paramTypes);
+                Method method = new Method(methodName, parameterType);
+                candidateList.add(method);
+            } catch (NotFoundException ex) {
+                String[] parameterTypes = JavaAssistUtils.parseParameterDescriptor(ctMethod.getSignature());
+                DeclaredMethodsForce.FailMethod fail = new DeclaredMethodsForce.FailMethod(methodName, parameterTypes, ex);
+                failList.add(fail);
+            }
+        }
+        return new DeclaredMethodsForce(candidateList, failList);
+
+    }
+
+    public boolean isInterceptable() {
+        return !ctClass.isInterface() && !ctClass.isAnnotation() && !ctClass.isModified();
+    }
+
+    @Override
+    public boolean hasDeclaredMethod(String methodName, String[] args) {
+        try {
+            CtClass[] params = JavaAssistUtils.getCtParameter(args, instrumentor.getClassPool());
+            CtMethod m = ctClass.getDeclaredMethod(methodName, params);
+            return m != null;
+        } catch (NotFoundException e) {
+            return false;
+        }
+    }
 
     /**
      * 가능한 String methodName, String desc을 사용하자. 편한대신에 속도가 상대적으로 좀 느리다.
