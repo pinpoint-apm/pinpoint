@@ -4,6 +4,10 @@ import java.security.ProtectionDomain;
 import java.util.List;
 
 import com.nhn.pinpoint.bootstrap.Agent;
+import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
+import com.nhn.pinpoint.bootstrap.instrument.Type;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.ParameterExtractorSupport;
 import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
@@ -11,6 +15,7 @@ import com.nhn.pinpoint.profiler.interceptor.bci.*;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.arcus.interceptor.ArcusScope;
 import com.nhn.pinpoint.profiler.modifier.arcus.interceptor.IndexParameterExtractor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +41,7 @@ public class MemcachedClientModifier extends AbstractModifier {
 			logger.info("Modifing. {}", javassistClassName);
 		}
 
+		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 		try {
 			InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
 
@@ -50,9 +56,9 @@ public class MemcachedClientModifier extends AbstractModifier {
             aClass.addInterceptor("addOp", args, addOpInterceptor, Type.before);
 
 			// 모든 public 메소드에 ApiInterceptor를 적용한다.
-            final List<Method> declaredMethods = aClass.getDeclaredMethods(new MemcachedMethodFilter());
+            final List<MethodInfo> declaredMethods = aClass.getDeclaredMethods(new MemcachedMethodFilter());
 
-            for (Method method : declaredMethods) {
+            for (MethodInfo method : declaredMethods) {
                 SimpleAroundInterceptor apiInterceptor = (SimpleAroundInterceptor) byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.arcus.interceptor.ApiInterceptor");
                 if (agent.getProfilerConfig().isMemcachedKeyTrace()) {
                     final int index = ParameterUtils.findFirstString(method, 3);
@@ -60,7 +66,7 @@ public class MemcachedClientModifier extends AbstractModifier {
                         ((ParameterExtractorSupport)apiInterceptor).setParameterExtractor(new IndexParameterExtractor(index));
                     }
                 }
-				aClass.addScopeInterceptor(method.getMethodName(), method.getMethodParams(), apiInterceptor, ArcusScope.SCOPE);
+				aClass.addScopeInterceptor(method.getName(), method.getParameterTypes(), apiInterceptor, ArcusScope.SCOPE);
 			}
 			return aClass.toBytecode();
 		} catch (Exception e) {

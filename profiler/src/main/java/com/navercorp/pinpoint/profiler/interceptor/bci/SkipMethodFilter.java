@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler.interceptor.bci;
 
-import javassist.CtMethod;
+import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
+import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
 
 /**
  * @author emeroad
@@ -9,7 +10,7 @@ public class SkipMethodFilter implements MethodFilter {
     public static final MethodFilter FILTER = new SkipMethodFilter();
 
     @Override
-    public boolean filter(CtMethod ctMethod) {
+    public boolean filter(MethodInfo ctMethod) {
         return false;
     }
 }

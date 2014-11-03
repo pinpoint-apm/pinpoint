@@ -6,12 +6,12 @@ import java.util.List;
 import org.slf4j.Logger;
 
 import com.nhn.pinpoint.bootstrap.Agent;
+import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
+import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
-import com.nhn.pinpoint.profiler.interceptor.bci.Method;
-import com.nhn.pinpoint.profiler.interceptor.bci.MethodFilter;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.orm.ibatis.interceptor.IbatisSqlMapOperationInterceptor;
 import com.nhn.pinpoint.profiler.modifier.orm.ibatis.interceptor.IbatisScope;
@@ -43,11 +43,11 @@ public abstract class IbatisClientModifier extends AbstractModifier {
 		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 		try {
 			InstrumentClass ibatisClientImpl = byteCodeInstrumentor.getClass(javassistClassName);
-			List<Method> declaredMethods = ibatisClientImpl.getDeclaredMethods(getIbatisApiMethodFilter());
+			List<MethodInfo> declaredMethods = ibatisClientImpl.getDeclaredMethods(getIbatisApiMethodFilter());
 
-			for (Method method : declaredMethods) {
+			for (MethodInfo method : declaredMethods) {
 				Interceptor ibatisApiInterceptor = new IbatisSqlMapOperationInterceptor(serviceType);
-				ibatisClientImpl.addScopeInterceptor(method.getMethodName(), method.getMethodParams(), ibatisApiInterceptor, scope);
+				ibatisClientImpl.addScopeInterceptor(method.getName(), method.getParameterTypes(), ibatisApiInterceptor, scope);
 			}
 			
 			return ibatisClientImpl.toBytecode();

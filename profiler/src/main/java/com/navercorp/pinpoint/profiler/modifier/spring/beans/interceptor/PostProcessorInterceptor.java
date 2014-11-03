@@ -1,13 +1,13 @@
 package com.nhn.pinpoint.profiler.modifier.spring.beans.interceptor;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.nhn.pinpoint.bootstrap.logging.PLogger;
+import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 
 import com.nhn.pinpoint.profiler.ClassFileRetransformer;
 import com.nhn.pinpoint.profiler.modifier.Modifier;
 
 public class PostProcessorInterceptor extends AbstractSpringBeanCreationInterceptor {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final PLogger logger = PLoggerFactory.getLogger(getClass());
     
     public PostProcessorInterceptor(ClassFileRetransformer retransformer, Modifier modifier, TargetBeanFilter filter) {
         super(retransformer, modifier, filter);

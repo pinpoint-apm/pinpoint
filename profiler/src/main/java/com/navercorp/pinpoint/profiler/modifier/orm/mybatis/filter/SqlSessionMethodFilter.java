@@ -4,9 +4,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import javassist.CtMethod;
-
-import com.nhn.pinpoint.profiler.interceptor.bci.MethodFilter;
+import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
+import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
 
 /**
  * @author Hyun Jeong
@@ -38,7 +37,7 @@ public class SqlSessionMethodFilter implements MethodFilter {
 	}
 
 	@Override
-	public boolean filter(CtMethod ctMethod) {
+	public boolean filter(MethodInfo ctMethod) {
 		if (WHITE_LIST_API.contains(ctMethod.getName())) {
 			return TRACK;
 		}

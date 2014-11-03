@@ -3,6 +3,8 @@ package com.nhn.pinpoint.profiler.util;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.nhn.pinpoint.bootstrap.instrument.Scope;
+
 /**
  * @author emeroad
  */

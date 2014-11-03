@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler.modifier.db.jtds;
 
 import com.nhn.pinpoint.bootstrap.Agent;
-import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
+import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 
 /**
  * 1.2.x -> jdk 1.5

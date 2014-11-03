@@ -5,8 +5,8 @@ import org.apache.thrift.TBase;
 /**
  * @author koo.taejin
  */
-public interface TBaseSimpleBO extends TBaseBO {
+public interface ProfilerCommandService {
 
-	void handleSimple(TBase<?, ?> tbase);
+	Class<? extends TBase> getCommandClazz();
 	
 }

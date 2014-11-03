@@ -7,12 +7,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.bootstrap.Agent;
+import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
+import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
-import com.nhn.pinpoint.profiler.interceptor.bci.Method;
-import com.nhn.pinpoint.profiler.interceptor.bci.MethodFilter;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.orm.ibatis.filter.SqlMapClientMethodFilter;
 import com.nhn.pinpoint.profiler.modifier.orm.ibatis.interceptor.IbatisScope;
@@ -50,11 +50,11 @@ public final class SqlMapClientTemplateModifier extends AbstractModifier {
 		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 		try {
 			InstrumentClass sqlMapClientTemplate = byteCodeInstrumentor.getClass(javassistClassName);
-			List<Method> declaredMethods = sqlMapClientTemplate.getDeclaredMethods(sqlMapClientMethodFilter);
+			List<MethodInfo> declaredMethods = sqlMapClientTemplate.getDeclaredMethods(sqlMapClientMethodFilter);
 			
-			for (Method method : declaredMethods) {
+			for (MethodInfo method : declaredMethods) {
 				Interceptor sqlMapClientTemplateInterceptor = new IbatisSqlMapOperationInterceptor(serviceType);
-				sqlMapClientTemplate.addScopeInterceptor(method.getMethodName(), method.getMethodParams(), sqlMapClientTemplateInterceptor, scope);
+				sqlMapClientTemplate.addScopeInterceptor(method.getName(), method.getParameterTypes(), sqlMapClientTemplateInterceptor, scope);
 			}
 			
 			return sqlMapClientTemplate.toBytecode();

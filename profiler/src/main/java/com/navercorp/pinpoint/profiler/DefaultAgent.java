@@ -15,6 +15,7 @@ import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.nhn.pinpoint.bootstrap.context.TraceContext;
+import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -25,7 +26,6 @@ import com.nhn.pinpoint.profiler.context.DefaultTraceContext;
 import com.nhn.pinpoint.profiler.context.storage.BufferedStorageFactory;
 import com.nhn.pinpoint.profiler.context.storage.SpanStorageFactory;
 import com.nhn.pinpoint.profiler.context.storage.StorageFactory;
-import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.nhn.pinpoint.profiler.modifier.arcus.ArcusMethodFilter;
@@ -230,7 +230,6 @@ public class DefaultAgent implements Agent {
     }
 
     private Sampler createSampler() {
-
         boolean samplingEnable = this.profilerConfig.isSamplingEnable();
         int samplingRate = this.profilerConfig.getSamplingRate();
 
@@ -251,7 +250,9 @@ public class DefaultAgent implements Agent {
         pinpointSocketFactory.setProperties(properties);
 
         if (isSupportServerMode) {
-        	pinpointSocketFactory.setMessageListener(new CommandDispatcher());
+        	CommandDispatcher.Builder builder = new CommandDispatcher.Builder();
+        	
+        	pinpointSocketFactory.setMessageListener(builder.build());
         }
 
         return pinpointSocketFactory;

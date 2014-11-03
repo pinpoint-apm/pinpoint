@@ -31,36 +31,29 @@ public class TargetBeanFilter {
     
     public static TargetBeanFilter of(ProfilerConfig config) {
         List<String> targetNamePatternStrings = split(config.getSpringBeansNamePatterns());
-        List<String> targetClassPatternStrings = split(config.getSpringBeansClassPatterns());
+		List<Pattern> beanNamePatterns = compilePattern(targetNamePatternStrings);
+
+		List<String> targetClassPatternStrings = split(config.getSpringBeansClassPatterns());
+		List<Pattern> beanClassPatterns = compilePattern(targetClassPatternStrings);
+
         List<String> targetAnnotationNames = split(config.getSpringBeansAnnotations());
 
-        List<Pattern> beanNamePatterns = null;
-        
-        if (!targetNamePatternStrings.isEmpty()) {
-            beanNamePatterns = new ArrayList<Pattern>(targetNamePatternStrings.size());
-            
-            for (String s : targetNamePatternStrings) {
-                Pattern p = Pattern.compile(s);
-                beanNamePatterns.add(p);
-            }
-        }
-        
-        
-        List<Pattern> beanClassPatterns = null;
-        
-        if (!targetClassPatternStrings.isEmpty()) {
-            beanClassPatterns = new ArrayList<Pattern>(targetClassPatternStrings.size());
-            
-            for (String s : targetClassPatternStrings) {
-                Pattern p = Pattern.compile(s);
-                beanClassPatterns.add(p);
-            }
-        }
-        
         return new TargetBeanFilter(beanNamePatterns, beanClassPatterns, targetAnnotationNames);
     }
-    
-    private TargetBeanFilter(List<Pattern> targetNamePatterns, List<Pattern> targetClassPatterns, List<String> targetAnnotationNames) {
+
+	private static List<Pattern> compilePattern(List<String> patternStrings) {
+		if (patternStrings == null || patternStrings.isEmpty()) {
+			return null;
+		}
+		List<Pattern> beanNamePatterns = new ArrayList<Pattern>(patternStrings.size());
+		for (String patternString : patternStrings) {
+			Pattern pattern = Pattern.compile(patternString);
+			beanNamePatterns.add(pattern);
+		}
+		return beanNamePatterns;
+	}
+
+	private TargetBeanFilter(List<Pattern> targetNamePatterns, List<Pattern> targetClassPatterns, List<String> targetAnnotationNames) {
         this.targetNamePatterns = targetNamePatterns;
         this.targetClassPatterns = targetClassPatterns;
         this.targetAnnotationNames = targetAnnotationNames;
@@ -111,7 +104,7 @@ public class TargetBeanFilter {
 
         if (targetClassPatterns != null) {
             String className = clazz.getName();
-            
+
             for (Pattern pattern : targetClassPatterns) {
                 if (pattern.matcher(className).matches()) {
                     return true;
@@ -122,7 +115,7 @@ public class TargetBeanFilter {
         rejected.put(clazz, Boolean.TRUE);
         return false;
     }
-    
+
     public void addTransformed(Class<?> clazz) {
         transformed.put(clazz, Boolean.TRUE);
     }
@@ -139,21 +132,20 @@ public class TargetBeanFilter {
     }
 
     private List<Class<? extends Annotation>> loadTargetAnnotations(ClassLoader loader) {
-        List<Class<? extends Annotation>> targetAnnotationClasses = null;
+        if (targetAnnotationNames.isEmpty()) {
+            return Collections.emptyList();
+        }
         
-        if (!targetAnnotationNames.isEmpty()) {
-            targetAnnotationClasses = new ArrayList<Class<? extends Annotation>>(targetAnnotationNames.size());
-            
-            for (String s : targetAnnotationNames) {
-                try {
-                    Class<?> c = loader.loadClass(s);
-                    Class<? extends Annotation> ac = c.asSubclass(Annotation.class);
-                    targetAnnotationClasses.add(ac);
-                } catch (ClassNotFoundException e) {
-                    logger.warn("Cannot find Spring beans profile target annotation class: " + s + ". This configuration will be ignored.", e);
-                } catch (ClassCastException e) {
-                    logger.warn("Given Spring beans profile target annotation class is not subclass of Annotation: " + s + ". This configuration will be ignored.", e);
-                }
+        List<Class<? extends Annotation>> targetAnnotationClasses = new ArrayList<Class<? extends Annotation>>(targetAnnotationNames.size());
+        for (String targetAnnotationName : targetAnnotationNames) {
+            try {
+                Class<?> clazz = loader.loadClass(targetAnnotationName);
+                Class<? extends Annotation> ac = clazz.asSubclass(Annotation.class);
+                targetAnnotationClasses.add(ac);
+            } catch (ClassNotFoundException e) {
+                logger.warn("Cannot find Spring beans profile target annotation class: {}. This configuration will be ignored.", targetAnnotationName, e);
+            } catch (ClassCastException e) {
+                logger.warn("Given Spring beans profile target annotation class is not subclass of Annotation: {}. This configuration will be ignored.", targetAnnotationName, e);
             }
         }
         
@@ -162,7 +154,7 @@ public class TargetBeanFilter {
     
     private static List<String> split(String values) {
         if (values == null) {
-            return Collections.<String>emptyList();
+            return Collections.emptyList();
         }
         
         String[] tokens = values.split(",");

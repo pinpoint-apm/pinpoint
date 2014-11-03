@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
-import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
+import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.DefaultModifierRegistry;
 import com.nhn.pinpoint.profiler.modifier.ModifierRegistry;

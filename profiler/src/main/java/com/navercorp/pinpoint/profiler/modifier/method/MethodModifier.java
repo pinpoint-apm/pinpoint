@@ -5,13 +5,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.nhn.pinpoint.bootstrap.Agent;
-import com.nhn.pinpoint.profiler.interceptor.bci.Method;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor;
-
+import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
-import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,13 +47,13 @@ public class MethodModifier extends AbstractModifier {
 				return null;
 			}
 
-			List<Method> methodList = clazz.getDeclaredMethods(EmptyMethodFilter.FILTER);
-			for (Method method : methodList) {
+			List<MethodInfo> methodList = clazz.getDeclaredMethods(EmptyMethodFilter.FILTER);
+			for (MethodInfo method : methodList) {
 				final Interceptor interceptor = new MethodInterceptor();
                 if (logger.isTraceEnabled()) {
-                    logger.trace("### c={}, m={}, params={}", javassistClassName, method.getMethodName(), Arrays.toString(method.getMethodParams()));
+                    logger.trace("### c={}, m={}, params={}", javassistClassName, method.getName(), Arrays.toString(method.getParameterTypes()));
                 }
-				clazz.addInterceptor(method.getMethodName(), method.getMethodParams(), interceptor);
+				clazz.addInterceptor(method.getName(), method.getParameterTypes(), interceptor);
 			}
 
 			return clazz.toBytecode();

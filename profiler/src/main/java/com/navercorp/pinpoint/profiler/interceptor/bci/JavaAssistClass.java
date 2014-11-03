@@ -5,13 +5,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.nhn.pinpoint.bootstrap.instrument.InstrumentException;
+import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
+import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
+import com.nhn.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
+import com.nhn.pinpoint.bootstrap.instrument.Scope;
+import com.nhn.pinpoint.bootstrap.instrument.Type;
 import com.nhn.pinpoint.bootstrap.interceptor.*;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
 import com.nhn.pinpoint.profiler.util.ApiUtils;
 import com.nhn.pinpoint.profiler.interceptor.*;
 import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
 
-import com.nhn.pinpoint.profiler.util.Scope;
 import javassist.*;
 
 import org.slf4j.Logger;
@@ -366,7 +372,7 @@ public class JavaAssistClass implements InstrumentClass {
     		return addInterceptor(methodName, args, interceptor);
     	} else {
 			if (logger.isWarnEnabled()) {
-				logger.warn("Method is not declared. class={}, methodName={}, args={}", ctClass.getName(), methodName, Arrays.toString(args));
+				logger.warn("MethodInfo is not declared. class={}, methodName={}, args={}", ctClass.getName(), methodName, Arrays.toString(args));
 			}
     		return -1;
     	}
@@ -888,26 +894,28 @@ public class JavaAssistClass implements InstrumentClass {
         }
     }
 
-    public List<Method> getDeclaredMethods() throws NotFoundInstrumentException {
+    public List<MethodInfo> getDeclaredMethods() throws NotFoundInstrumentException {
         return getDeclaredMethods(SkipMethodFilter.FILTER);
     }
 
 
-	public List<Method> getDeclaredMethods(MethodFilter methodFilter) throws NotFoundInstrumentException {
+	public List<MethodInfo> getDeclaredMethods(MethodFilter methodFilter) throws NotFoundInstrumentException {
         if (methodFilter == null) {
             throw new NullPointerException("methodFilter must not be null");
         }
         try {
             final CtMethod[] declaredMethod = ctClass.getDeclaredMethods();
-            final List<Method> candidateList = new ArrayList<Method>(declaredMethod.length);
+            final List<MethodInfo> candidateList = new ArrayList<MethodInfo>(declaredMethod.length);
             for (CtMethod ctMethod : declaredMethod) {
-                if (methodFilter.filter(ctMethod)) {
-                    continue;
-                }
                 String methodName = ctMethod.getName();
                 CtClass[] paramTypes = ctMethod.getParameterTypes();
                 String[] parameterType = JavaAssistUtils.getParameterType(paramTypes);
-                Method method = new Method(methodName, parameterType);
+                MethodInfo method = new MethodInfo(methodName, parameterType, ctMethod.getModifiers());
+                
+                if (methodFilter.filter(method)) {
+                    continue;
+                }
+
                 candidateList.add(method);
             }
             return candidateList;

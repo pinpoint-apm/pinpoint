@@ -1,10 +1,11 @@
 package com.nhn.pinpoint.profiler.util;
 
 import com.nhn.pinpoint.bootstrap.Agent;
+import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.DefaultAgent;
-import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+
 import javassist.CannotCompileException;
 import javassist.Loader;
 import javassist.NotFoundException;

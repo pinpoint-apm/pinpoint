@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.receiver.bo;
+package com.nhn.pinpoint.profiler.receiver.service;
 
 import java.lang.management.LockInfo;
 import java.lang.management.ManagementFactory;
@@ -13,7 +13,7 @@ import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.profiler.receiver.TBaseRequestBO;
+import com.nhn.pinpoint.profiler.receiver.ProfilerRequestCommandService;
 import com.nhn.pinpoint.thrift.dto.command.TCommandThreadDump;
 import com.nhn.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
 import com.nhn.pinpoint.thrift.dto.command.TMonitorInfo;
@@ -24,12 +24,12 @@ import com.nhn.pinpoint.thrift.dto.command.TThreadState;
 /**
  * @author koo.taejin
  */
-public class ThreadDumpBO implements TBaseRequestBO {
+public class ThreadDumpService implements ProfilerRequestCommandService {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Override
-	public TBase<?, ?> handleRequest(TBase tbase) {
+	public TBase<?, ?> requestCommandService(TBase tbase) {
 		logger.info("{} execute {}.", this, tbase);
 
 		TCommandThreadDump param = (TCommandThreadDump) tbase;
@@ -149,6 +149,11 @@ public class ThreadDumpBO implements TBaseRequestBO {
 		ThreadInfo[] threadInfos = threadMxBean.getThreadInfo(threadMxBean.getAllThreadIds(), 100);
 
 		return threadInfos;
+	}
+	
+	@Override
+	public Class<? extends TBase> getCommandClazz() {
+		return TCommandThreadDump.class;
 	}
 
 }

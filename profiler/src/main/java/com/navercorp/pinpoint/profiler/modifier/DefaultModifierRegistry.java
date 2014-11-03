@@ -5,8 +5,8 @@ import java.util.Map;
 
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
+import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.ClassFileRetransformer;
-import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.modifier.arcus.ArcusClientModifier;
 import com.nhn.pinpoint.profiler.modifier.arcus.BaseOperationModifier;
 import com.nhn.pinpoint.profiler.modifier.arcus.CacheManagerModifier;

@@ -3,6 +3,10 @@ package com.nhn.pinpoint.profiler.modifier.arcus;
 import java.security.ProtectionDomain;
 import java.util.List;
 
+import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
+import com.nhn.pinpoint.bootstrap.instrument.Type;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.ParameterExtractorSupport;
 import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
@@ -11,6 +15,7 @@ import com.nhn.pinpoint.profiler.interceptor.bci.*;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.arcus.interceptor.ArcusScope;
 import com.nhn.pinpoint.profiler.modifier.arcus.interceptor.IndexParameterExtractor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +42,7 @@ public class ArcusClientModifier extends AbstractModifier {
             logger.info("Modifing. {}", javassistClassName);
 		}
 
+		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 		try {
 			InstrumentClass arcusClient = byteCodeInstrumentor.getClass(javassistClassName);
 
@@ -48,8 +54,8 @@ public class ArcusClientModifier extends AbstractModifier {
             final String[] args = {"net.spy.memcached.CacheManager"};
             arcusClient.addInterceptor("setCacheManager", args, setCacheManagerInterceptor, Type.before);
 
-            List<Method> declaredMethods = arcusClient.getDeclaredMethods(new ArcusMethodFilter());
-            for (Method method : declaredMethods) {
+            List<MethodInfo> declaredMethods = arcusClient.getDeclaredMethods(new ArcusMethodFilter());
+            for (MethodInfo method : declaredMethods) {
 
                 SimpleAroundInterceptor apiInterceptor = (SimpleAroundInterceptor) byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain,
 								"com.nhn.pinpoint.profiler.modifier.arcus.interceptor.ApiInterceptor");
@@ -59,7 +65,7 @@ public class ArcusClientModifier extends AbstractModifier {
                         ((ParameterExtractorSupport)apiInterceptor).setParameterExtractor(new IndexParameterExtractor(index));
                     }
                 }
-                arcusClient.addScopeInterceptor(method.getMethodName(), method.getMethodParams(), apiInterceptor, ArcusScope.SCOPE);
+                arcusClient.addScopeInterceptor(method.getName(), method.getParameterTypes(), apiInterceptor, ArcusScope.SCOPE);
 			}
 
 			return arcusClient.toBytecode();

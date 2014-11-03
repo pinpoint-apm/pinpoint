@@ -7,11 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.bootstrap.Agent;
+import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.MapTraceValue;
-import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
-import com.nhn.pinpoint.profiler.interceptor.bci.Method;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 
 /**
@@ -40,6 +40,7 @@ public class GatewayServerModifier extends AbstractModifier {
             logger.info("Modifing. {}", className);
         }
 
+        byteCodeInstrumentor.checkLibrary(classLoader, className);
         try {
             final InstrumentClass instrumentClass = byteCodeInstrumentor.getClass(className);
 
@@ -47,11 +48,11 @@ public class GatewayServerModifier extends AbstractModifier {
             instrumentClass.addTraceValue(MapTraceValue.class);
 
             // method
-            final List<Method> declaredMethods = instrumentClass.getDeclaredMethods();
-            for (Method method : declaredMethods) {
-                if (method.getMethodName().equals("getResource")) {
+            final List<MethodInfo> declaredMethods = instrumentClass.getDeclaredMethods();
+            for (MethodInfo method : declaredMethods) {
+                if (method.getName().equals("getResource")) {
                     final Interceptor methodInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.redis.interceptor.GatewayServerMethodInterceptor");
-                    instrumentClass.addInterceptor(method.getMethodName(), method.getMethodParams(), methodInterceptor);
+                    instrumentClass.addInterceptor(method.getName(), method.getParameterTypes(), methodInterceptor);
                 }
             }
 

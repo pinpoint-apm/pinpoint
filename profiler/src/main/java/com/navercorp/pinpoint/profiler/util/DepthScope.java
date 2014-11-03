@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.profiler.util;
 
+import com.nhn.pinpoint.bootstrap.instrument.Scope;
+
 /**
  * @author emeroad
  */
