@@ -37,15 +37,11 @@ public class ChunkHeaderTBaseDeserializer {
         try {
             trans.reset(bytes, offset, length);
 
-            System.out.println(Thread.currentThread().getName() + " length" + trans.getBytesRemainingInBuffer());
             Header header = readHeader();
-            System.out.println(Thread.currentThread().getName() + " first header=" + header);
             if (locator.isChunkHeader(header.getType())) {
 
                 TBase<?, ?> base = null;
                 while ((base = deserialize()) != null) {
-                    System.out.println(Thread.currentThread().getName() + " deserialized=" + base);
-                    System.out.println(Thread.currentThread().getName() + " emain buffer" + trans.getBytesRemainingInBuffer());
                     trans.getBufferPosition();
                     list.add(base);
                 }
@@ -69,7 +65,6 @@ public class ChunkHeaderTBaseDeserializer {
         if (header == null) {
             return null;
         }
-        System.out.println(Thread.currentThread().getName() + " inner header=" + header);
 
         final int validate = validate(header);
         if (validate == HeaderUtils.PASS_L4) {
@@ -83,7 +78,6 @@ public class ChunkHeaderTBaseDeserializer {
 
     private int validate(Header header) throws TException {
         final byte signature = header.getSignature();
-        System.out.println(Thread.currentThread().getName() + " validate signature=" + signature);
         final int result = HeaderUtils.validateSignature(signature);
         if (result == HeaderUtils.FAIL) {
             throw new TException("Invalid Signature:" + header);
@@ -97,7 +91,6 @@ public class ChunkHeaderTBaseDeserializer {
         }
 
         final byte signature = protocol.readByte();
-        System.out.println(Thread.currentThread().getName() + " signature=" + signature);
         final byte version = protocol.readByte();
         // 프로토콜 변경에 관계 없이 고정 사이즈의 데이터로 인코딩 하도록 변경.
         final byte type1 = protocol.readByte();

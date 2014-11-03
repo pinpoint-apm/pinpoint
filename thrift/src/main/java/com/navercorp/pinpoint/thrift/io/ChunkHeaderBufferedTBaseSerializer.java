@@ -1,14 +1,12 @@
 package com.nhn.pinpoint.thrift.io;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.transport.TTransportException;
 
 import com.nhn.pinpoint.thrift.dto.TSpan;
 import com.nhn.pinpoint.thrift.dto.TSpanChunk;
@@ -16,7 +14,6 @@ import com.nhn.pinpoint.thrift.dto.TSpanEvent;
 
 public class ChunkHeaderBufferedTBaseSerializer {
     private static final String FIELD_NAME_SPAN_EVENT_LIST = "spanEventList";
-    private static final int HEADER_SIZE = 4;
 
     // reuse byte buffer
     private final ByteArrayOutputStream out;
@@ -83,7 +80,7 @@ public class ChunkHeaderBufferedTBaseSerializer {
             }
             write(span, FIELD_NAME_SPAN_EVENT_LIST, eventStream.split(flushSize));
             while (!eventStream.isEmpty()) {
-                TSpanChunk spanChunk = toSpanChunk(span);
+                final TSpanChunk spanChunk = toSpanChunk(span);
                 write(spanChunk, FIELD_NAME_SPAN_EVENT_LIST, eventStream.split(flushSize));
             }
         } finally {
@@ -96,17 +93,14 @@ public class ChunkHeaderBufferedTBaseSerializer {
 
         // write chunk header
         writeChunkHeader(protocol);
-        System.out.println(this);
         
         // write header
         writeHeader(protocol, locator.headerLookup(base));
-        System.out.println(this);
         if (list != null && list.size() > 0) {
             protocol.addReplaceField(fieldName, list);
         }
 
         base.write(protocol);
-        System.out.println(this);
         
         if (isOverflow()) {
             flush();
@@ -118,14 +112,11 @@ public class ChunkHeaderBufferedTBaseSerializer {
 
         // write chunk header
         writeChunkHeader(protocol);
-        System.out.println(this);
 
         // write header
         writeHeader(protocol, locator.headerLookup(base));
-        System.out.println(this);
 
         base.write(protocol);
-        System.out.println(this);
         
         if (isOverflow()) {
             flush();
@@ -148,21 +139,17 @@ public class ChunkHeaderBufferedTBaseSerializer {
 
     private void writeHeader(final TProtocol protocol, final Header header) throws TException {
         protocol.writeByte(header.getSignature());
-        System.out.println(this);
         protocol.writeByte(header.getVersion());
-        System.out.println(this);
         // 프로토콜 변경에 관계 없이 고정 사이즈의 데이터로 인코딩 하도록 변경.
         short type = header.getType();
         protocol.writeByte(BytesUtils.writeShort1(type));
-        System.out.println(this);
         protocol.writeByte(BytesUtils.writeShort2(type));
-        System.out.println(this);
     }
 
     // flush & clear
     public void flush() {
         synchronized (out) {
-            if (flushHandler != null && out.size() > HEADER_SIZE) {
+            if (flushHandler != null && out.size() > Header.HEADER_SIZE) {
                 flushHandler.handle(out.toByteArray(), 0, out.size());
             }
             out.reset();
@@ -191,6 +178,7 @@ public class ChunkHeaderBufferedTBaseSerializer {
     }
 
     TSpanChunk toSpanChunk(TSpan span) {
+        // create TSpanChunk
         final TSpanChunk spanChunk = new TSpanChunk();
         spanChunk.setSpanEventList(span.getSpanEventList());
         spanChunk.setSpanEventListIsSet(true);

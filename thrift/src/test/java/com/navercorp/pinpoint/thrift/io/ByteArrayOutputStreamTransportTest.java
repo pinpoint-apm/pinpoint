@@ -6,17 +6,22 @@ import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 
 import org.apache.thrift.transport.TTransportException;
+import org.junit.Before;
 import org.junit.Test;
 
 public class ByteArrayOutputStreamTransportTest {
+    private ByteArrayOutputStream out;
+    private ByteArrayOutputStreamTransport transport;
+    private byte[] buf = "foo".getBytes();
+
+    @Before
+    public void before() {
+        out = new ByteArrayOutputStream();
+        transport = new ByteArrayOutputStreamTransport(out);
+    }
 
     @Test
-    public void test() throws TTransportException {
-        byte[] buf = "foo".getBytes();
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ByteArrayOutputStreamTransport transport = new ByteArrayOutputStreamTransport(out);
-
+    public void write() throws TTransportException {
         transport.write(buf, 0, buf.length);
         assertTrue(Arrays.equals(buf, out.toByteArray()));
         assertTrue(Arrays.equals(buf, transport.getBuffer()));
@@ -31,7 +36,6 @@ public class ByteArrayOutputStreamTransportTest {
 
         // unsupported operation
         try {
-            transport.read(buf, 0, 1);
             fail("passed unsupported operation");
         } catch (Exception e) {
         }
@@ -42,4 +46,12 @@ public class ByteArrayOutputStreamTransportTest {
         } catch (Exception e) {
         }
     }
+
+    @Test(expected = TTransportException.class)
+    public void read() throws TTransportException {
+        transport.read(buf, 0, 1);
+    }
+    
+    
+
 }

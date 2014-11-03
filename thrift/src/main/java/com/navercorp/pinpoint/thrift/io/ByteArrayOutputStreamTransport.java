@@ -6,6 +6,12 @@ import java.io.IOException;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 
+/**
+ * ByteArrayOutputStreamTransport
+ * - unsupported read operation
+ * 
+ * @author jaehong.kim
+ */
 public class ByteArrayOutputStreamTransport extends TTransport {
 
     private final ByteArrayOutputStream out;
