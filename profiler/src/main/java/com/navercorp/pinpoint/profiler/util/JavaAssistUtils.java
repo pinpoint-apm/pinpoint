@@ -5,6 +5,12 @@ import javassist.bytecode.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * @author emeroad
  */
@@ -13,6 +19,8 @@ public final class JavaAssistUtils {
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
     private static final Logger logger = LoggerFactory.getLogger(JavaAssistUtils.class);
+
+    private static final Pattern PARAMETER_SIGNATURE_PATTERN = Pattern.compile("\\[*L[^;]+;|\\[*[ZBCSIFDJ]|[ZBCSIFDJ]");
 
     private JavaAssistUtils() {
     }
@@ -41,21 +49,21 @@ public final class JavaAssistUtils {
         return sb.toString();
     }
 
-    public static String[] parseParameterDescriptor(String descriptor) {
-        if (descriptor == null) {
-            throw new NullPointerException("descriptor must not be null");
+    public static String[] parseParameterSignature(String signature) {
+        if (signature == null) {
+            throw new NullPointerException("signature must not be null");
         }
-        final String[] parameterDesc = splitParameterDesc(descriptor);
-        final String[] objectType = new String[parameterDesc.length];
-        for (int i = 0; i < parameterDesc.length; i++) {
-            String description = parameterDesc[i];
-            objectType[i] = byteCodeDescToObjectType(description);
+        final List<String> parameterSignatureList = splitParameterSignature(signature);
+        final String[] objectType = new String[parameterSignatureList.size()];
+        for (int i = 0; i < parameterSignatureList.size(); i++) {
+            final String parameterSignature = parameterSignatureList.get(i);
+            objectType[i] = byteCodeSignatureToObjectType(parameterSignature);
         }
         return objectType;
     }
 
-    private static String byteCodeDescToObjectType(String description) {
-        final char scheme = description.charAt(0);
+    private static String byteCodeSignatureToObjectType(String signature) {
+        final char scheme = signature.charAt(0);
         switch (scheme) {
             case 'B':
                 return "byte";
@@ -76,12 +84,12 @@ public final class JavaAssistUtils {
             case 'Z':
                 return "boolean";
             case 'L':
-                return toObjectType(description, 1);
+                return toObjectType(signature, 1);
             case '[': {
-                return toArrayType(description);
+                return toArrayType(signature);
             }
         }
-        throw new IllegalArgumentException("invalid description :" + description);
+        throw new IllegalArgumentException("invalid signature :" + signature);
     }
 
     private static String toArrayType(String description) {
@@ -111,10 +119,10 @@ public final class JavaAssistUtils {
                 final String objectType = toObjectType(description, arraySize + 1);
                 return arrayType(objectType, arraySize);
             case '[': {
-                throw new IllegalArgumentException("invalid description" + description);
+                throw new IllegalArgumentException("invalid signature" + description);
             }
         }
-        throw new IllegalArgumentException("invalid description :" + description);
+        throw new IllegalArgumentException("invalid signature :" + description);
     }
 
     private static String arrayType(String objectType, int arraySize) {
@@ -141,34 +149,46 @@ public final class JavaAssistUtils {
         return arraySize;
     }
 
-    private static String toObjectType(String description, int startIndex) {
-        final String assistClass = description.substring(startIndex, description.length());
+    private static String toObjectType(String signature, int startIndex) {
+        // Ljava/lang/String;
+        final String assistClass = signature.substring(startIndex, signature.length() - 1);
         final String objectName = assistClass.replace('/', '.');
         if (objectName.isEmpty()) {
-            throw new IllegalArgumentException("invalid description. objectName not found :" + description);
+            throw new IllegalArgumentException("invalid signature. objectName not found :" + signature);
         }
         return objectName;
     }
 
-    private static String[] splitParameterDesc(String descriptor) {
-        final String parameterDesc = getParameterDesc(descriptor);
-        if (parameterDesc.isEmpty()) {
-            return EMPTY_STRING_ARRAY;
+
+
+    private static List<String> splitParameterSignature(String signature) {
+        final String parameterSignature = getParameterSignature(signature);
+        if (parameterSignature.isEmpty()) {
+            return Collections.emptyList();
         }
-        return parameterDesc.split(";");
+        final Matcher matcher = PARAMETER_SIGNATURE_PATTERN.matcher(parameterSignature);
+        final List<String> parameterTypeList = new ArrayList<String>();
+        while (matcher.find()) {
+            parameterTypeList.add(matcher.group());
+        }
+        return parameterTypeList;
     }
 
 
-    private static String getParameterDesc(String descriptor) {
-        final int start = descriptor.indexOf('(');
+    private static String getParameterSignature(String signature) {
+        int start = signature.indexOf('(');
         if (start == -1) {
-            throw new IllegalArgumentException("'(' not found. descriptor:" + descriptor);
+            throw new IllegalArgumentException("'(' not found. signature:" + signature);
         }
-        final int end = descriptor.indexOf(')', start + 1);
+        final int end = signature.indexOf(')', start + 1);
         if (end == -1) {
-            throw new IllegalArgumentException("')' not found. descriptor:" + descriptor);
+            throw new IllegalArgumentException("')' not found. signature:" + signature);
         }
-        return descriptor.substring(start + 1, end);
+        start = start + 1;
+        if (start == end) {
+            return "";
+        }
+        return signature.substring(start, end);
     }
 
 	public static String[] getParameterType(Class[] paramsClass) {
