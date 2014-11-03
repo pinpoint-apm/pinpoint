@@ -52,6 +52,25 @@ public class RedisClusterPipelineModifierTest extends BasePinpointTest {
     }
     
     @Test
+    public void traceBinaryMethod() {
+        pipeline.get("foo".getBytes());
+        pipeline.syncAndReturnAll();
+
+        final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
+        for (SpanEventBo bo : spanEvents) {
+            System.out.println("### " + bo);
+        }
+
+        assertEquals(2, spanEvents.size());
+        SpanEventBo event = spanEvents.get(0);
+
+        assertEquals("NBASE_ARC", event.getDestinationId());
+        assertEquals(HOST + ":" + PORT, event.getEndPoint());
+        assertEquals(ServiceType.NBASE_ARC, event.getServiceType());
+        assertNull(event.getExceptionMessage());
+    }
+    
+    @Test
     public void traceDestinationId() {
         GatewayConfig config = new GatewayConfig();
         config.setZkAddress(ZK_ADDRESS);

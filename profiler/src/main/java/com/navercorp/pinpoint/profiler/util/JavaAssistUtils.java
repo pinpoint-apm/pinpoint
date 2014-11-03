@@ -41,8 +41,137 @@ public final class JavaAssistUtils {
         return sb.toString();
     }
 
+    public static String[] parseParameterDescriptor(String descriptor) {
+        if (descriptor == null) {
+            throw new NullPointerException("descriptor must not be null");
+        }
+        final String[] parameterDesc = splitParameterDesc(descriptor);
+        final String[] objectType = new String[parameterDesc.length];
+        for (int i = 0; i < parameterDesc.length; i++) {
+            String description = parameterDesc[i];
+            objectType[i] = byteCodeDescToObjectType(description);
+        }
+        return objectType;
+    }
 
-    public static String[] getParameterType(Class[] paramsClass) {
+    private static String byteCodeDescToObjectType(String description) {
+        final char scheme = description.charAt(0);
+        switch (scheme) {
+            case 'B':
+                return "byte";
+            case 'C':
+                return "char";
+            case 'D':
+                return "double";
+            case 'F':
+                return "float";
+            case 'I':
+                return "int";
+            case 'J':
+                return "long";
+            case 'S':
+                return "short";
+            case 'V':
+                return "void";
+            case 'Z':
+                return "boolean";
+            case 'L':
+                return toObjectType(description, 1);
+            case '[': {
+                return toArrayType(description);
+            }
+        }
+        throw new IllegalArgumentException("invalid description :" + description);
+    }
+
+    private static String toArrayType(String description) {
+        final int arraySize = getArraySize(description);
+
+        final char scheme = description.charAt(arraySize);
+        switch (scheme) {
+            case 'B':
+                return arrayType("byte", arraySize);
+            case 'C':
+                return arrayType("char", arraySize);
+            case 'D':
+                return arrayType("double", arraySize);
+            case 'F':
+                return arrayType("float", arraySize);
+            case 'I':
+                return arrayType("int", arraySize);
+            case 'J':
+                return arrayType("long", arraySize);
+            case 'S':
+                return arrayType("short", arraySize);
+            case 'V':
+                return arrayType("void", arraySize);
+            case 'Z':
+                return arrayType("boolean", arraySize);
+            case 'L':
+                final String objectType = toObjectType(description, arraySize + 1);
+                return arrayType(objectType, arraySize);
+            case '[': {
+                throw new IllegalArgumentException("invalid description" + description);
+            }
+        }
+        throw new IllegalArgumentException("invalid description :" + description);
+    }
+
+    private static String arrayType(String objectType, int arraySize) {
+        final String array = "[]";
+        final int arrayStringLength = array.length() * arraySize;
+        StringBuilder sb = new StringBuilder(objectType.length() + arrayStringLength);
+        sb.append(objectType);
+        for (int i = 0; i < arraySize; i++) {
+            sb.append(array);
+        }
+        return sb.toString();
+    }
+
+    private static int getArraySize(String description) {
+        int arraySize = 0;
+        for (int i = 0; i < description.length(); i++) {
+            final char c = description.charAt(i);
+            if (c == '[') {
+                arraySize++;
+            } else {
+                break;
+            }
+        }
+        return arraySize;
+    }
+
+    private static String toObjectType(String description, int startIndex) {
+        final String assistClass = description.substring(startIndex, description.length());
+        final String objectName = assistClass.replace('/', '.');
+        if (objectName.isEmpty()) {
+            throw new IllegalArgumentException("invalid description. objectName not found :" + description);
+        }
+        return objectName;
+    }
+
+    private static String[] splitParameterDesc(String descriptor) {
+        final String parameterDesc = getParameterDesc(descriptor);
+        if (parameterDesc.isEmpty()) {
+            return EMPTY_STRING_ARRAY;
+        }
+        return parameterDesc.split(";");
+    }
+
+
+    private static String getParameterDesc(String descriptor) {
+        final int start = descriptor.indexOf('(');
+        if (start == -1) {
+            throw new IllegalArgumentException("'(' not found. descriptor:" + descriptor);
+        }
+        final int end = descriptor.indexOf(')', start + 1);
+        if (end == -1) {
+            throw new IllegalArgumentException("')' not found. descriptor:" + descriptor);
+        }
+        return descriptor.substring(start + 1, end);
+    }
+
+	public static String[] getParameterType(Class[] paramsClass) {
         if (paramsClass == null) {
             return null;
         }

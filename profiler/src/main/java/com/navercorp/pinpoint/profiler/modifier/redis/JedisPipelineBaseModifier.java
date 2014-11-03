@@ -14,26 +14,26 @@ import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
 import com.nhn.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
-import com.nhn.pinpoint.profiler.modifier.redis.filter.JedisMethodNames;
+import com.nhn.pinpoint.profiler.modifier.redis.filter.JedisPipelineMethodNames;
 import com.nhn.pinpoint.profiler.modifier.redis.filter.NameBasedMethodFilter;
 
 /**
- * jedis(redis client) modifier
+ * jedis(redis client) pipeline modifier
  * 
  * @author jaehong.kim
  *
  */
-public class JedisModifier extends AbstractModifier {
+public class JedisPipelineBaseModifier extends AbstractModifier {
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public JedisModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+    public JedisPipelineBaseModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
         super(byteCodeInstrumentor, agent);
     }
 
     @Override
     public String getTargetClass() {
-        return "redis/clients/jedis/Jedis";
+        return "redis/clients/jedis/PipelineBase";
     }
 
     @Override
@@ -47,11 +47,8 @@ public class JedisModifier extends AbstractModifier {
             final InstrumentClass instrumentClass = byteCodeInstrumentor.getClass(className);
 
             beforeAddInterceptor(classLoader, protectedDomain, instrumentClass);
-
-            // add constructor
-            addConstructorInterceptor(classLoader, protectedDomain, instrumentClass);
-
-            // add method
+            
+            // method
             addMethodInterceptor(classLoader, protectedDomain, instrumentClass);
 
             return instrumentClass.toBytecode();
@@ -68,26 +65,10 @@ public class JedisModifier extends AbstractModifier {
         // nothing
     }
 
-    protected void addConstructorInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, final InstrumentClass instrumentClass) throws InstrumentException, NotFoundInstrumentException {
-        final Interceptor constructorInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.redis.interceptor.JedisConstructorInterceptor");
-        instrumentClass.addConstructorInterceptor(new String[] { "java.lang.String" }, constructorInterceptor);
-        try {
-            instrumentClass.addConstructorInterceptor(new String[] { "java.lang.String", "int" }, constructorInterceptor);
-            instrumentClass.addConstructorInterceptor(new String[] { "java.lang.String", "int", "int" }, constructorInterceptor);
-            instrumentClass.addConstructorInterceptor(new String[] { "java.net.URI" }, constructorInterceptor);
-            instrumentClass.addConstructorInterceptor(new String[] { "redis.clients.jedis.JedisShardInfo" }, constructorInterceptor);
-        } catch (Exception e) {
-            // backward compatibility error
-            if (logger.isWarnEnabled()) {
-                logger.warn("Failed to add constructor interceptor('not found redis.clients.jedis.JedisShardInfo' is compatibility error). caused={}", e.getMessage(), e);
-            }
-        }
-    }
-
     protected void addMethodInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, final InstrumentClass instrumentClass) throws NotFoundInstrumentException, InstrumentException {
-        final List<MethodInfo> declaredMethods = instrumentClass.getDeclaredMethods(new NameBasedMethodFilter(JedisMethodNames.get()));
+        final List<MethodInfo> declaredMethods = instrumentClass.getDeclaredMethods(new NameBasedMethodFilter(JedisPipelineMethodNames.get()));
         for (MethodInfo method : declaredMethods) {
-            final Interceptor methodInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.redis.interceptor.JedisMethodInterceptor");
+            final Interceptor methodInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.redis.interceptor.JedisPipelineMethodInterceptor");
             instrumentClass.addInterceptor(method.getName(), method.getParameterTypes(), methodInterceptor);
         }
     }
