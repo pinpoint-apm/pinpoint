@@ -22,6 +22,7 @@ import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.BasicFutureModif
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.ClosableHttpAsyncClientModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.ClosableHttpClientModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.HttpClient4Modifier;
+import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.DefaultHttpRequestRetryHandlerModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.jdkhttpconnector.HttpURLConnectionModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.lucynet.CompositeInvocationFutureModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.lucynet.DefaultInvocationFutureModifier;
@@ -143,6 +144,9 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         addModifier(new ClosableHttpAsyncClientModifier(byteCodeInstrumentor, agent));
         addModifier(new ClosableHttpClientModifier(byteCodeInstrumentor, agent));
         addModifier(new BasicFutureModifier(byteCodeInstrumentor, agent));
+        
+        //apache http client retry
+        addModifier(new DefaultHttpRequestRetryHandlerModifier(byteCodeInstrumentor, agent));
     }
 
     public void addArcusModifier() {
