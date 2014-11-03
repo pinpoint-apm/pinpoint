@@ -61,7 +61,7 @@ public class GatewayModifier extends AbstractModifier {
             return instrumentClass.toBytecode();
         } catch (Exception e) {
             if (logger.isWarnEnabled()) {
-                logger.warn("redis.GatewayModifier(nBase-ARC) fail. Target class is " + getTargetClass() + ", Caused " + e.getMessage(), e);
+                logger.warn("Failed to modifier. caused={}", e.getMessage(), e);
             }
         }
 

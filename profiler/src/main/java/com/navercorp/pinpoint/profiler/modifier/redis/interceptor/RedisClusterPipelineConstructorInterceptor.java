@@ -11,8 +11,7 @@ import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhncorp.redis.cluster.gateway.GatewayServer;
 
 /**
- * RedisCluster pipeline(nBase-ARC client) constructor interceptor
- * - trace destinationId & endPoint
+ * RedisCluster pipeline(nBase-ARC client) constructor interceptor - trace destinationId & endPoint
  * 
  * @author jaehong.kim
  *
@@ -39,8 +38,11 @@ public class RedisClusterPipelineConstructorInterceptor implements SimpleAroundI
         try {
             final GatewayServer server = (GatewayServer) args[0];
             traceValue.put("endPoint", server.getAddress().getHost() + ":" + server.getAddress().getPort());
-        } catch(Exception ignored) {
+        } catch (Exception e) {
             // expect 'class not found exception - GatewayServer'
+            if (logger.isWarnEnabled()) {
+                logger.warn("Failed to trace endPoint('not found GatewayServer' is compatibility error). caused={}", e.getMessage(), e);
+            }
         }
 
         if (args[0] instanceof MapTraceValue) {
