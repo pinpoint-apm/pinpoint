@@ -38,35 +38,38 @@ public class JavaAssistUtilsTest {
 
     @Test
     public void testParseParameterDescriptor() throws Exception {
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterDescriptor("()V"), new String[]{});
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("()V"), new String[]{});
 
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterDescriptor("(I)I"), new String[]{"int"});
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterDescriptor("(I;D)I"), new String[]{"int", "double"});
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterDescriptor("(B;F;S)I"), new String[]{"byte", "float", "short"});
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(I)I"), new String[]{"int"});
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(ID)I"), new String[]{"int", "double"});
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(BFS)I"), new String[]{"byte", "float", "short"});
 
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterDescriptor("(Ljava/lang/String)I"), new String[]{"java.lang.String"});
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterDescriptor("(Ljava/lang/String;J)I"), new String[]{"java.lang.String", "long"});
 
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterDescriptor("(J;Ljava/lang/Object;Z)I"), new String[]{"long", "java.lang.Object", "boolean"});
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(Ljava/lang/String;)I"), new String[]{"java.lang.String"});
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(Ljava/lang/String;J)I"), new String[]{"java.lang.String", "long"});
+
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(JLjava/lang/Object;Z)I"), new String[]{"long", "java.lang.Object", "boolean"});
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(CJLjava/lang/Object;Z)I"), new String[]{"char", "long", "java.lang.Object", "boolean"});
 
     }
 
     @Test
     public void testParseParameterDescriptor_array() throws Exception {
 
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterDescriptor("([I)I"), new String[]{"int[]"});
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterDescriptor("([I;J)I"), new String[]{"int[]", "long"});
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterDescriptor("([J;[I)I"), new String[]{"long[]", "int[]"});
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([I)I"), new String[]{"int[]"});
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([IJ)I"), new String[]{"int[]", "long"});
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([J[I)I"), new String[]{"long[]", "int[]"});
 
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterDescriptor("([Ljava/lang/String)"), new String[]{"java.lang.String[]"});
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([Ljava/lang/String;)"), new String[]{"java.lang.String[]"});
 
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterDescriptor("(Ljava/lang/String;[[J)"), new String[]{"java.lang.String", "long[][]"});
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterDescriptor("(Ljava/lang/Object;[[Ljava/lang/String)"), new String[]{"java.lang.Object", "java.lang.String[][]"});
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(Ljava/lang/String;[[J)"), new String[]{"java.lang.String", "long[][]"});
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(Ljava/lang/Object;[[Ljava/lang/String;)"), new String[]{"java.lang.Object", "java.lang.String[][]"});
 
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterDescriptor("([[[Ljava/lang/String)"), new String[]{"java.lang.String[][][]"});
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([[[Ljava/lang/String;)"), new String[]{"java.lang.String[][][]"});
 
-        Assert.assertArrayEquals(JavaAssistUtils.parseParameterDescriptor("([[[I)"), new String[]{"int[][][]"});
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([[[I)"), new String[]{"int[][][]"});
     }
+
 
     @Test
     public void testGetLineNumber() throws Exception {

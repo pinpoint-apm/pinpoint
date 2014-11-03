@@ -87,9 +87,9 @@ public interface InstrumentClass {
 
 	boolean insertCodeBeforeConstructor(String[] args, String code);
 
-    List<MethodInfo> getDeclaredMethods() throws NotFoundInstrumentException;
+    List<MethodInfo> getDeclaredMethods();
 	
-	List<MethodInfo> getDeclaredMethods(MethodFilter methodFilter) throws NotFoundInstrumentException;
+	List<MethodInfo> getDeclaredMethods(MethodFilter methodFilter);
 	
 	public boolean isInterceptable();
 	

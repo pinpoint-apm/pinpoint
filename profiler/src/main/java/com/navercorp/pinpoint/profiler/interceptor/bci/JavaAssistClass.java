@@ -894,36 +894,31 @@ public class JavaAssistClass implements InstrumentClass {
         }
     }
 
-    public List<MethodInfo> getDeclaredMethods() throws NotFoundInstrumentException {
+    public List<MethodInfo> getDeclaredMethods() {
         return getDeclaredMethods(SkipMethodFilter.FILTER);
     }
 
 
-	public List<MethodInfo> getDeclaredMethods(MethodFilter methodFilter) throws NotFoundInstrumentException {
+	public List<MethodInfo> getDeclaredMethods(MethodFilter methodFilter) {
         if (methodFilter == null) {
             throw new NullPointerException("methodFilter must not be null");
         }
-        try {
-            final CtMethod[] declaredMethod = ctClass.getDeclaredMethods();
-            final List<MethodInfo> candidateList = new ArrayList<MethodInfo>(declaredMethod.length);
-            for (CtMethod ctMethod : declaredMethod) {
-                String methodName = ctMethod.getName();
-                CtClass[] paramTypes = ctMethod.getParameterTypes();
-                String[] parameterType = JavaAssistUtils.getParameterType(paramTypes);
-                MethodInfo method = new MethodInfo(methodName, parameterType, ctMethod.getModifiers());
-                
-                if (methodFilter.filter(method)) {
-                    continue;
-                }
+        final CtMethod[] declaredMethod = ctClass.getDeclaredMethods();
+        final List<MethodInfo> candidateList = new ArrayList<MethodInfo>(declaredMethod.length);
+        for (CtMethod ctMethod : declaredMethod) {
+            final String methodName = ctMethod.getName();
+            final String[] parameterType = JavaAssistUtils.parseParameterSignature(ctMethod.getSignature());
+            final MethodInfo method = new MethodInfo(methodName, parameterType, ctMethod.getModifiers());
 
-                candidateList.add(method);
+            if (methodFilter.filter(method)) {
+                continue;
             }
-            return candidateList;
-        } catch (NotFoundException e) {
-            throw new NotFoundInstrumentException("getDeclaredMethods(), Caused:" + e.getMessage(), e);
+
+            candidateList.add(method);
         }
+        return candidateList;
     }
-	
+
 	public boolean isInterceptable() {
 		return !ctClass.isInterface() && !ctClass.isAnnotation() && !ctClass.isModified();
 	}
