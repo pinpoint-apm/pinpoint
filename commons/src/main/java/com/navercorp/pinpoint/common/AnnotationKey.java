@@ -18,6 +18,7 @@ public enum AnnotationKey {
 //   api를 string으로 덤프하는 anntation 최초 개발시 사용함. 추후 이것도 없애야 될듯.
     API(12, "API"),
     API_METADATA(13, "API-METADATA"),
+    RETURN_DATA(14, "RETRUN_DATA", true),
 
     // 정확한 에러 원인을 모를 경우.
     ERROR_API_METADATA_ERROR(10000010, "API-METADATA-ERROR"),
@@ -45,6 +46,7 @@ public enum AnnotationKey {
     HTTP_PARAM(41, "http.param", true),
     HTTP_PARAM_ENTITY(42, "http.entity", true),
     HTTP_COOKIE(45, "http.cookie", true),
+    HTTP_CALL_RETRY_COUNT(48, "retryCount"),
     // httpclient일때 post 파라미터
 
 	// ARCUS_COMMAND(50, "arcus.command"),
