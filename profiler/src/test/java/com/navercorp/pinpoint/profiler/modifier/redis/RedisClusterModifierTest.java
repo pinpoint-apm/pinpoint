@@ -29,12 +29,25 @@ public class RedisClusterModifierTest extends BasePinpointTest {
     @Before
     public void before() {
         redis = new RedisCluster(HOST, PORT);
-
     }
 
     @Test
     public void traceMethod() {
         redis.get("foo");
+
+        final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
+        assertEquals(1, spanEvents.size());
+        SpanEventBo event = spanEvents.get(0);
+
+        assertEquals("NBASE_ARC", event.getDestinationId());
+        assertEquals(HOST + ":" + PORT, event.getEndPoint());
+        assertEquals(ServiceType.NBASE_ARC, event.getServiceType());
+        assertNull(event.getExceptionMessage());
+    }
+    
+    @Test
+    public void traceBinaryMethod() {
+        redis.get("foo".getBytes());
 
         final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
         assertEquals(1, spanEvents.size());

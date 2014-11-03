@@ -52,7 +52,7 @@ public class JedisClientModifier extends AbstractModifier {
             return instrumentClass.toBytecode();
         } catch (Exception e) {
             if (logger.isWarnEnabled()) {
-                logger.warn("redis.JedisClientModifier(Jedis) fail. Target class is " + getTargetClass() + ". Caused " + e.getMessage(), e);
+                logger.warn("Failed to modifier. caused={}", e.getMessage(), e);
             }
         }
 

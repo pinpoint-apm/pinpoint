@@ -51,6 +51,22 @@ public class JedisModifierTest extends BasePinpointTest {
     }
 
     @Test
+    public void traceBinaryMethod() {
+        // get 명령을 실행하고 event 결과를 확인한다.
+        jedis.get("foo".getBytes());
+
+        final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
+        assertEquals(1, spanEvents.size());
+        SpanEventBo event = spanEvents.get(0);
+        
+        assertEquals(HOST + ":" + PORT, event.getEndPoint());
+        assertEquals("REDIS", event.getDestinationId());
+        assertEquals(ServiceType.REDIS, event.getServiceType());
+        assertNull(event.getExceptionMessage());
+    }
+
+    
+    @Test
     public void traceMethodThrowException() {
         // 에러가 발생한 경우에 대한 event 결과를 확인한다.
         String key = null;

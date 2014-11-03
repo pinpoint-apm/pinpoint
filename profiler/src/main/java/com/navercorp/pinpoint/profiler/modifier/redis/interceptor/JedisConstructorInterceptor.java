@@ -58,8 +58,11 @@ public class JedisConstructorInterceptor implements SimpleAroundInterceptor, Tar
                 endPoint.append(":");
                 endPoint.append(info.getPort());
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
             // expect 'class not found exception - JedisShardInfo'
+            if (logger.isWarnEnabled()) {
+                logger.warn("Failed to trace endPoint('not found JedisShardInfo' is compatibility error). caused={}", e.getMessage(), e);
+            }
         }
 
         final Map<String, Object> traceValue = new HashMap<String, Object>();
