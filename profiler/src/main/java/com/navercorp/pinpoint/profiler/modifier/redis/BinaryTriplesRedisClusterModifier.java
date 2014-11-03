@@ -3,11 +3,11 @@ package com.nhn.pinpoint.profiler.modifier.redis;
 import java.security.ProtectionDomain;
 
 import com.nhn.pinpoint.bootstrap.Agent;
+import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.nhn.pinpoint.bootstrap.instrument.InstrumentException;
+import com.nhn.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.MapTraceValue;
-import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
-import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
-import com.nhn.pinpoint.profiler.interceptor.bci.NotFoundInstrumentException;
 
 /**
  * RedisCluster(nBase-ARC client) modifier

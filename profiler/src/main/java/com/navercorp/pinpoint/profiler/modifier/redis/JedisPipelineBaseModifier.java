@@ -7,12 +7,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.bootstrap.Agent;
+import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.nhn.pinpoint.bootstrap.instrument.InstrumentException;
+import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
+import com.nhn.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
-import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass;
-import com.nhn.pinpoint.profiler.interceptor.bci.InstrumentException;
-import com.nhn.pinpoint.profiler.interceptor.bci.Method;
-import com.nhn.pinpoint.profiler.interceptor.bci.NotFoundInstrumentException;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.redis.filter.JedisPipelineMethodNames;
 import com.nhn.pinpoint.profiler.modifier.redis.filter.NameBasedMethodFilter;
@@ -66,10 +66,10 @@ public class JedisPipelineBaseModifier extends AbstractModifier {
     }
 
     protected void addMethodInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, final InstrumentClass instrumentClass) throws NotFoundInstrumentException, InstrumentException {
-        final List<Method> declaredMethods = instrumentClass.getDeclaredMethods(new NameBasedMethodFilter(JedisPipelineMethodNames.get()));
-        for (Method method : declaredMethods) {
+        final List<MethodInfo> declaredMethods = instrumentClass.getDeclaredMethods(new NameBasedMethodFilter(JedisPipelineMethodNames.get()));
+        for (MethodInfo method : declaredMethods) {
             final Interceptor methodInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.redis.interceptor.JedisPipelineMethodInterceptor");
-            instrumentClass.addInterceptor(method.getMethodName(), method.getMethodParams(), methodInterceptor);
+            instrumentClass.addInterceptor(method.getName(), method.getParameterTypes(), methodInterceptor);
         }
     }
 }

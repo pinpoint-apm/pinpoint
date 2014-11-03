@@ -1,7 +1,7 @@
 package com.nhn.pinpoint.profiler.modifier.redis;
 
 import com.nhn.pinpoint.bootstrap.Agent;
-import com.nhn.pinpoint.profiler.interceptor.bci.ByteCodeInstrumentor;
+import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 
 /**
  * RedisCluster(nBase-ARC client) modifier
