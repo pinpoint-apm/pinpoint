@@ -37,7 +37,25 @@ public class JedisPipelineModifierTest extends BasePinpointTest {
     }
 
     @Test
-    public void traceMethod() {
+    public void traceMultikeyMethod() {
+        // get 명령을 실행하고 event 결과를 확인한다.
+        Pipeline pipeline = jedis.pipelined();
+        pipeline.mget("foo");
+        pipeline.syncAndReturnAll();
+
+        final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
+        assertEquals(2, spanEvents.size());
+        SpanEventBo event = spanEvents.get(0);
+        
+        System.out.println(event);
+        assertEquals(HOST + ":" + PORT, event.getEndPoint());
+        assertEquals("REDIS", event.getDestinationId());
+        assertEquals(ServiceType.REDIS, event.getServiceType());
+        assertNull(event.getExceptionMessage());
+    }
+    
+    @Test
+    public void traceBaseMethod() {
         // get 명령을 실행하고 event 결과를 확인한다.
         Pipeline pipeline = jedis.pipelined();
         pipeline.get("foo");
@@ -46,12 +64,13 @@ public class JedisPipelineModifierTest extends BasePinpointTest {
         final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
         assertEquals(2, spanEvents.size());
         SpanEventBo event = spanEvents.get(0);
-        
+        System.out.println(event);
         assertEquals(HOST + ":" + PORT, event.getEndPoint());
         assertEquals("REDIS", event.getDestinationId());
         assertEquals(ServiceType.REDIS, event.getServiceType());
         assertNull(event.getExceptionMessage());
     }
+
 
     @Test
     public void traceMethodThrowException() {

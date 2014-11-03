@@ -11,8 +11,7 @@ import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhncorp.redis.cluster.gateway.GatewayConfig;
 
 /**
- * Gateway(nBase-ARC client) constructor interceptor
- * - trace destinationId
+ * Gateway(nBase-ARC client) constructor interceptor - trace destinationId
  * 
  * @author jaehong.kim
  *
@@ -43,8 +42,11 @@ public class GatewayConstructorInterceptor implements SimpleAroundInterceptor, T
                 // over 1.1.x
                 traceValue.put("destinationId", config.getClusterName());
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
             // backward compatibility error or expect 'class not found exception - GatewayConfig'
+            if (logger.isWarnEnabled()) {
+                logger.warn("Failed to trace destinationId('not found getClusterName' is compatibility error). caused={}", e.getMessage(), e);
+            }
         }
 
         ((MapTraceValue) target).__setTraceBindValue(traceValue);
