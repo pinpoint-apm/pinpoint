@@ -31,27 +31,27 @@ public class TargetBeanFilter {
     
     public static TargetBeanFilter of(ProfilerConfig config) {
         List<String> targetNamePatternStrings = split(config.getSpringBeansNamePatterns());
-		List<Pattern> beanNamePatterns = compilePattern(targetNamePatternStrings);
+        List<Pattern> beanNamePatterns = compilePattern(targetNamePatternStrings);
 
-		List<String> targetClassPatternStrings = split(config.getSpringBeansClassPatterns());
-		List<Pattern> beanClassPatterns = compilePattern(targetClassPatternStrings);
+        List<String> targetClassPatternStrings = split(config.getSpringBeansClassPatterns());
+        List<Pattern> beanClassPatterns = compilePattern(targetClassPatternStrings);
 
         List<String> targetAnnotationNames = split(config.getSpringBeansAnnotations());
 
         return new TargetBeanFilter(beanNamePatterns, beanClassPatterns, targetAnnotationNames);
     }
 
-	private static List<Pattern> compilePattern(List<String> patternStrings) {
-		if (patternStrings == null || patternStrings.isEmpty()) {
-			return null;
-		}
-		List<Pattern> beanNamePatterns = new ArrayList<Pattern>(patternStrings.size());
-		for (String patternString : patternStrings) {
-			Pattern pattern = Pattern.compile(patternString);
-			beanNamePatterns.add(pattern);
-		}
-		return beanNamePatterns;
-	}
+    private static List<Pattern> compilePattern(List<String> patternStrings) {
+        if (patternStrings == null || patternStrings.isEmpty()) {
+            return null;
+        }
+        List<Pattern> beanNamePatterns = new ArrayList<Pattern>(patternStrings.size());
+        for (String patternString : patternStrings) {
+            Pattern pattern = Pattern.compile(patternString);
+            beanNamePatterns.add(pattern);
+        }
+        return beanNamePatterns;
+    }
 
 	private TargetBeanFilter(List<Pattern> targetNamePatterns, List<Pattern> targetClassPatterns, List<String> targetAnnotationNames) {
         this.targetNamePatterns = targetNamePatterns;
