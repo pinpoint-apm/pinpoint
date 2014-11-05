@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * One or more variables that together maintain an initially zero
  * {@code long} sum.  When updates (method {@link #add}) are contended
  * across threads, the set of variables may grow dynamically to reduce
- * contention. MethodInfo {@link #sum} (or, equivalently, {@link
+ * contention. Method {@link #sum} (or, equivalently, {@link
  * #longValue}) returns the current total combined across the
  * variables maintaining the sum.
  *
