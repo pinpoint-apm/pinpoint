@@ -8,7 +8,7 @@ import org.apache.thrift.transport.TTransportException;
 
 /**
  * ByteArrayOutputStreamTransport
- * - unsupported read operation
+ * - write only
  * 
  * @author jaehong.kim
  */

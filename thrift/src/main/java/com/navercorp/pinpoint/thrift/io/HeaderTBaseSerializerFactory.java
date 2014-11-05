@@ -8,7 +8,7 @@ import java.io.ByteArrayOutputStream;
 /**
  * @author koo.taejin
  */
-public final class HeaderTBaseSerializerFactory implements SerializerFactory {
+public final class HeaderTBaseSerializerFactory implements SerializerFactory<HeaderTBaseSerializer> {
 
     private static final TBaseLocator DEFAULT_TBASE_LOCATOR = new DefaultTBaseLocator();
 

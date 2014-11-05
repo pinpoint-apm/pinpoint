@@ -38,7 +38,7 @@ public class CommandDispatcher implements MessageListener  {
 
 	private final ProfilerCommandServiceLocator locator;
 
-	private final SerializerFactory serializerFactory;
+	private final SerializerFactory<HeaderTBaseSerializer> serializerFactory;
 	private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory;
 
 	public CommandDispatcher(Builder builder) {
@@ -48,7 +48,7 @@ public class CommandDispatcher implements MessageListener  {
 		}
 		this.locator = registry;
 		
-		SerializerFactory serializerFactory = new HeaderTBaseSerializerFactory(true, builder.serializationMaxSize, builder.protocolFactory, builder.commandTbaseLocator);
+		SerializerFactory<HeaderTBaseSerializer> serializerFactory = new HeaderTBaseSerializerFactory(true, builder.serializationMaxSize, builder.protocolFactory, builder.commandTbaseLocator);
 		this.serializerFactory = wrappedThreadLocalSerializerFactory(serializerFactory);
 		AssertUtils.assertNotNull(this.serializerFactory);
 		
@@ -57,8 +57,8 @@ public class CommandDispatcher implements MessageListener  {
 		AssertUtils.assertNotNull(this.deserializerFactory);
 	}
 
-	private SerializerFactory wrappedThreadLocalSerializerFactory(SerializerFactory serializerFactory) {
-		return new ThreadLocalHeaderTBaseSerializerFactory(serializerFactory);
+	private SerializerFactory<HeaderTBaseSerializer> wrappedThreadLocalSerializerFactory(SerializerFactory<HeaderTBaseSerializer> serializerFactory) {
+		return new ThreadLocalHeaderTBaseSerializerFactory<HeaderTBaseSerializer>(serializerFactory);
 	}
 	
 	private DeserializerFactory<HeaderTBaseDeserializer> wrappedThreadLocalDeserializerFactory(DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory) {

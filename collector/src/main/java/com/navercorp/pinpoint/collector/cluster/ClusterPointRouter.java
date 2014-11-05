@@ -42,7 +42,7 @@ public class ClusterPointRouter {
 	private final WebClusterPoint webClusterPoint;
 
 	@Autowired
-	private SerializerFactory commandSerializerFactory;
+	private SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory;
 
 	@Autowired
 	private DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory;

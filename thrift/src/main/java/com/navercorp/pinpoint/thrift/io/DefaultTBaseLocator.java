@@ -18,6 +18,8 @@ import com.nhn.pinpoint.thrift.dto.TStringMetaData;
  * @author koo.taejin
  * @author netspider
  * @author hyungil.jeong
+ * @author jaehong.kim
+ *   - add CHUNK_HEADER
  */
 class DefaultTBaseLocator implements TBaseLocator {
 

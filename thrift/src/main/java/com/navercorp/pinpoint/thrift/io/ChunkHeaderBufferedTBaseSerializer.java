@@ -12,6 +12,12 @@ import com.nhn.pinpoint.thrift.dto.TSpan;
 import com.nhn.pinpoint.thrift.dto.TSpanChunk;
 import com.nhn.pinpoint.thrift.dto.TSpanEvent;
 
+/**
+ * ChunkHeaderBufferedTBaseSerializer
+ * - need flush handler
+ * 
+ * @author jaehong.kim
+ */
 public class ChunkHeaderBufferedTBaseSerializer {
     private static final String FIELD_NAME_SPAN_EVENT_LIST = "spanEventList";
 
@@ -47,6 +53,7 @@ public class ChunkHeaderBufferedTBaseSerializer {
         }
     }
 
+    // TSpanChunk = TSpanChunk + TSpanChunk
     private void addTSpanChunk(TBase<?, ?> base) throws TException {
         final TSpanChunk chunk = (TSpanChunk) base;
         if (chunk.getSpanEventList() == null) {
@@ -67,6 +74,7 @@ public class ChunkHeaderBufferedTBaseSerializer {
         }
     }
 
+    // TSpan = TSpan + TSpanChunk
     private void addTSpan(TBase<?, ?> base) throws TException {
         final TSpan span = (TSpan) base;
         if (span.getSpanEventList() == null) {
@@ -88,12 +96,13 @@ public class ChunkHeaderBufferedTBaseSerializer {
         }
     }
 
+    // write chunk header + header + body
     private void write(final TBase<?, ?> base, final String fieldName, final List<TBaseStreamNode> list) throws TException {
         final ReplaceListCompactProtocol protocol = new ReplaceListCompactProtocol(new ByteArrayOutputStreamTransport(out));
 
         // write chunk header
         writeChunkHeader(protocol);
-        
+
         // write header
         writeHeader(protocol, locator.headerLookup(base));
         if (list != null && list.size() > 0) {
@@ -101,12 +110,13 @@ public class ChunkHeaderBufferedTBaseSerializer {
         }
 
         base.write(protocol);
-        
+
         if (isOverflow()) {
             flush();
         }
     }
 
+    // write chunk header + header + body
     private void write(final TBase<?, ?> base) throws TException {
         final TCompactProtocol protocol = new TCompactProtocol(new ByteArrayOutputStreamTransport(out));
 
@@ -117,7 +127,7 @@ public class ChunkHeaderBufferedTBaseSerializer {
         writeHeader(protocol, locator.headerLookup(base));
 
         base.write(protocol);
-        
+
         if (isOverflow()) {
             flush();
         }
@@ -140,7 +150,6 @@ public class ChunkHeaderBufferedTBaseSerializer {
     private void writeHeader(final TProtocol protocol, final Header header) throws TException {
         protocol.writeByte(header.getSignature());
         protocol.writeByte(header.getVersion());
-        // 프로토콜 변경에 관계 없이 고정 사이즈의 데이터로 인코딩 하도록 변경.
         short type = header.getType();
         protocol.writeByte(BytesUtils.writeShort1(type));
         protocol.writeByte(BytesUtils.writeShort2(type));
@@ -166,15 +175,13 @@ public class ChunkHeaderBufferedTBaseSerializer {
     }
 
     public String toString() {
-        
-        return toStringBinary(out.toByteArray(), 0, out.size());
-//        StringBuilder sb = new StringBuilder();
-//        sb.append("{");
-//        sb.append("bufferSize=").append(out.size()).append(", ");
-//        sb.append("flushSize=").append(flushSize);
-//        sb.append("}");
-//
-//        return sb.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        sb.append("bufferSize=").append(out.size()).append(", ");
+        sb.append("flushSize=").append(flushSize);
+        sb.append("}");
+
+        return sb.toString();
     }
 
     TSpanChunk toSpanChunk(TSpan span) {
@@ -199,20 +206,4 @@ public class ChunkHeaderBufferedTBaseSerializer {
 
         return spanChunk;
     }
-    
-    
-    
-    static String toStringBinary(final byte[] b, int off, int len) {
-        StringBuilder result = new StringBuilder();
-        for (int i = off; i < off + len; ++i) {
-            int ch = b[i] & 0xFF;
-            if ((ch >= '0' && ch <= '9') || (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || " `~!@#$%^&*()-_=+[]{}|;:'\",.<>/?".indexOf(ch) >= 0) {
-                result.append((char) ch);
-            } else {
-                result.append(String.format("\\x%02X", ch));
-            }
-        }
-        return result.toString();
-    }
-
 }

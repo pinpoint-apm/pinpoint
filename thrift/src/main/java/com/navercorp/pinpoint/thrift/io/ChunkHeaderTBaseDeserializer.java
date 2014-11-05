@@ -14,30 +14,18 @@ public class ChunkHeaderTBaseDeserializer {
     private final TMemoryInputTransport trans;
     private final TBaseLocator locator;
 
-    /**
-     * Create a new TDeserializer. It will use the TProtocol specified by the factory that is passed in.
-     *
-     * @param protocolFactory
-     *            Factory to create a protocol
-     */
     ChunkHeaderTBaseDeserializer(TProtocolFactory protocolFactory, TBaseLocator locator) {
         this.trans = new TMemoryInputTransport();
         this.protocol = protocolFactory.getProtocol(trans);
         this.locator = locator;
     }
 
-    /**
-     * Deserialize the Thrift object from a byte array.
-     *
-     * @param bytes
-     *            The array to read from
-     */
     public List<TBase<?, ?>> deserialize(byte[] bytes, int offset, int length) throws TException {
         List<TBase<?, ?>> list = new ArrayList<TBase<?, ?>>();
         try {
             trans.reset(bytes, offset, length);
 
-            Header header = readHeader();
+            final Header header = readHeader();
             if (locator.isChunkHeader(header.getType())) {
 
                 TBase<?, ?> base = null;
@@ -92,7 +80,6 @@ public class ChunkHeaderTBaseDeserializer {
 
         final byte signature = protocol.readByte();
         final byte version = protocol.readByte();
-        // 프로토콜 변경에 관계 없이 고정 사이즈의 데이터로 인코딩 하도록 변경.
         final byte type1 = protocol.readByte();
         final byte type2 = protocol.readByte();
         final short type = bytesToShort(type1, type2);

@@ -3,7 +3,6 @@ package com.nhn.pinpoint.thrift.io;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.thrift.TException;
 import org.junit.Test;
@@ -16,7 +15,6 @@ public class ChunkHeaderBufferedTBaseSerializerTest {
 
     @Test
     public void add() throws TException {
-        System.out.println("add");
         ChunkHeaderBufferedTBaseSerializer serializer = new ChunkHeaderBufferedTBaseSerializer(1024);
         serializer.setFlushHandler(new ChunkHeaderBufferedTBaseSerializerFlushHandler() {
 
@@ -27,24 +25,28 @@ public class ChunkHeaderBufferedTBaseSerializerTest {
             }
         });
 
+        // add and flush
         flush = false;
         TSpanChunk chunk = new TSpanMockBuilder().buildChunk(1, 1024);
         serializer.add(chunk);
         System.out.println(serializer);
         assertTrue(flush);
 
+        // add and flush * 3
         flush = false;
         chunk = new TSpanMockBuilder().buildChunk(3, 1024);
         serializer.add(chunk);
         System.out.println(serializer);
         assertTrue(flush);
 
+        // add
         flush = false;
         chunk = new TSpanMockBuilder().buildChunk(3, 10);
         serializer.add(chunk);
         System.out.println(serializer);
         assertFalse(flush);
 
+        // flush
         serializer.flush();
         assertTrue(flush);
     }
