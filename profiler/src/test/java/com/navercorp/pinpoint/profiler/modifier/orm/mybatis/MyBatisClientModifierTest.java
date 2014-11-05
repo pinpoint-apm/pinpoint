@@ -48,7 +48,7 @@ public abstract class MyBatisClientModifierTest extends BasePinpointTest {
 		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
 		assertThat(spanEvents.size(), is(1));
 		
-		// Check MethodInfo
+		// Check Method
 		final SpanEventBo insertSpanEventBo = spanEvents.get(0);
 		assertThat(insertSpanEventBo.getApiId(), not(NOT_CACHED));
 		
