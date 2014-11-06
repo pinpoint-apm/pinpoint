@@ -96,8 +96,10 @@ public class JavaAssistUtilsTest {
         Assert.assertEquals(paramName.length, 1);
         Assert.assertEquals(paramName[0], "params");
 
-        String[] parameterType = JavaAssistUtils.getParameterType(setParams.getParameterTypes());
+        String[] parameterType = JavaAssistUtils.parseParameterSignature(setParams.getSignature());
+        String[] parameterType2 = JavaAssistUtils.getParameterType(setParams.getParameterTypes());
         logger.info(Arrays.toString(parameterType));
+        Assert.assertArrayEquals(parameterType, parameterType2);
 
         String s = ApiUtils.mergeParameterVariableNameDescription(parameterType, paramName);
         logger.info(s);
@@ -119,8 +121,10 @@ public class JavaAssistUtilsTest {
         Assert.assertEquals(paramName.length, 1);
         Assert.assertEquals(paramName[0], "autoCommitFlag");
 
-        String[] parameterType = JavaAssistUtils.getParameterType(setParams.getParameterTypes());
+        String[] parameterType = JavaAssistUtils.parseParameterSignature(setParams.getSignature());
+        String[] parameterType2 = JavaAssistUtils.getParameterType(setParams.getParameterTypes());
         logger.info(Arrays.toString(parameterType));
+        Assert.assertArrayEquals(parameterType, parameterType2);
 
         String s = ApiUtils.mergeParameterVariableNameDescription(parameterType, paramName);
         logger.info(s);
@@ -141,8 +145,10 @@ public class JavaAssistUtilsTest {
         Assert.assertEquals(paramName.length, 1);
         Assert.assertEquals(paramName[0], "sql");
 
-        String[] parameterType = JavaAssistUtils.getParameterType(setParams.getParameterTypes());
+        String[] parameterType = JavaAssistUtils.parseParameterSignature(setParams.getSignature());
+        String[] parameterType2 = JavaAssistUtils.getParameterType(setParams.getParameterTypes());
         logger.info(Arrays.toString(parameterType));
+        Assert.assertArrayEquals(parameterType, parameterType2);
 
         String s = ApiUtils.mergeParameterVariableNameDescription(parameterType, paramName);
         logger.info(s);

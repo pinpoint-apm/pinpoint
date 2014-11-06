@@ -50,12 +50,24 @@ public class JavaAssistClass implements InstrumentClass {
         this.ctClass = ctClass;
     }
 
+    @Override
     public boolean isInterface() {
         return this.ctClass.isInterface();
     }
 
+    @Override
     public String getName() {
         return this.ctClass.getName();
+    }
+
+    @Override
+    public String getSuperClass() {
+        return this.ctClass.getClassFile2().getSuperclass();
+    }
+
+    @Override
+    public String[] getInterfaces() {
+        return this.ctClass.getClassFile2().getInterfaces();
     }
 
     @Override
@@ -149,10 +161,12 @@ public class JavaAssistClass implements InstrumentClass {
         }
     }
 
+    @Override
     public void addTraceValue(Class<? extends TraceValue> traceValue) throws InstrumentException {
         addTraceValue0(traceValue, null);
     }
 
+    @Override
     public void addTraceValue(Class<? extends TraceValue> traceValue, String initValue) throws InstrumentException {
         addTraceValue0(traceValue, initValue);
     }
@@ -258,6 +272,7 @@ public class JavaAssistClass implements InstrumentClass {
         return new CtField(type, variableName, ctClass);
     }
 
+    @Override
     public int addConstructorInterceptor(String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
@@ -266,6 +281,7 @@ public class JavaAssistClass implements InstrumentClass {
         return addInterceptor0(behavior, null, interceptor, NOT_DEFINE_INTERCEPTOR_ID, Type.around, false);
     }
 
+    @Override
     public int addConstructorInterceptor(String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
@@ -274,10 +290,12 @@ public class JavaAssistClass implements InstrumentClass {
         return addInterceptor0(behavior, null, interceptor, NOT_DEFINE_INTERCEPTOR_ID, type, false);
     }
 
+    @Override
     public int addAllConstructorInterceptor(Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException{
         return addAllConstructorInterceptor(interceptor, Type.around);
     }
 
+    @Override
     public int addAllConstructorInterceptor(Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
@@ -358,24 +376,24 @@ public class JavaAssistClass implements InstrumentClass {
 	 */
     @Override
     public int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, Scope scope) throws InstrumentException {
-    	if (methodName == null) {
-    		throw new NullPointerException("methodName must not be null");
-    	}
-    	if (interceptor == null) {
-    		throw new IllegalArgumentException("interceptor is null");
-    	}
-    	if (scope == null) {
-    		throw new NullPointerException("scope must not be null");
-    	}
-    	if (hasDeclaredMethod(methodName, args)) {
-    		interceptor = wrapScopeInterceptor(interceptor, scope);
-    		return addInterceptor(methodName, args, interceptor);
-    	} else {
-			if (logger.isWarnEnabled()) {
-				logger.warn("Method is not declared. class={}, methodName={}, args={}", ctClass.getName(), methodName, Arrays.toString(args));
-			}
-    		return -1;
-    	}
+        if (methodName == null) {
+            throw new NullPointerException("methodName must not be null");
+        }
+        if (interceptor == null) {
+            throw new IllegalArgumentException("interceptor is null");
+        }
+        if (scope == null) {
+            throw new NullPointerException("scope must not be null");
+        }
+        if (hasDeclaredMethod(methodName, args)) {
+            interceptor = wrapScopeInterceptor(interceptor, scope);
+            return addInterceptor(methodName, args, interceptor);
+        } else {
+            if (logger.isWarnEnabled()) {
+                logger.warn("Method is not declared. class={}, methodName={}, args={}", ctClass.getName(), methodName, Arrays.toString(args));
+            }
+            return -1;
+        }
     }
 
     @Override
@@ -458,13 +476,8 @@ public class JavaAssistClass implements InstrumentClass {
                 } else {
                     throw new InstrumentException("unsupported Interceptor Type:" + interceptor);
                 }
-                // traceContext는 가장먼제 inject되어야 한다.
-                if (interceptor instanceof TraceContextSupport) {
-                    ((TraceContextSupport)interceptor).setTraceContext(instrumentor.getAgent().getTraceContext());
-                }
-                if (interceptor instanceof ByteCodeMethodDescriptorSupport) {
-                    setMethodDescriptor(behavior, (ByteCodeMethodDescriptorSupport) interceptor);
-                }
+                injectInterceptor(behavior, interceptor);
+
             } else {
                 interceptor = InterceptorRegistry.findInterceptor(interceptorId);
             }
@@ -508,7 +521,17 @@ public class JavaAssistClass implements InstrumentClass {
         }
     }
 
-    private void setMethodDescriptor(CtBehavior behavior, ByteCodeMethodDescriptorSupport interceptor) throws NotFoundException {
+    private void injectInterceptor(CtBehavior behavior, Interceptor interceptor) throws NotFoundException {
+        // traceContext는 가장먼제 inject되어야 한다.
+        if (interceptor instanceof TraceContextSupport) {
+            ((TraceContextSupport)interceptor).setTraceContext(instrumentor.getAgent().getTraceContext());
+        }
+        if (interceptor instanceof ByteCodeMethodDescriptorSupport) {
+            setMethodDescriptor(behavior, (ByteCodeMethodDescriptorSupport) interceptor);
+        }
+    }
+
+    private void setMethodDescriptor(CtBehavior behavior, ByteCodeMethodDescriptorSupport interceptor)  {
         DefaultMethodDescriptor methodDescriptor = new DefaultMethodDescriptor();
 
         String methodName = behavior.getName();
@@ -516,8 +539,7 @@ public class JavaAssistClass implements InstrumentClass {
 
         methodDescriptor.setClassName(ctClass.getName());
 
-        CtClass[] ctParameterTypes = behavior.getParameterTypes();
-        String[] parameterTypes = JavaAssistUtils.getParameterType(ctParameterTypes);
+        String[] parameterTypes = JavaAssistUtils.parseParameterSignature(behavior.getSignature());
         methodDescriptor.setParameterTypes(parameterTypes);
 
         String[] parameterVariableName = JavaAssistUtils.getParameterVariableName(behavior);
@@ -561,36 +583,37 @@ public class JavaAssistClass implements InstrumentClass {
         addAfterInterceptor(methodName, interceptorId, behavior, useContextClassLoader, SIMPLE_INTERCEPTOR);
     }
 
-	@Override
-	public void weaving(String adviceClassName) throws InstrumentException {
-		CtClass adviceClass;
-		try {
-			adviceClass = this.instrumentor.getClassPool().get(adviceClassName);
-		} catch (NotFoundException e) {
-			throw new NotFoundInstrumentException(adviceClassName + " not found. Caused:" + e.getMessage(), e);
-		}
-		try {
-			AspectWeaverClass weaverClass = new AspectWeaverClass();
-			weaverClass.weaving(ctClass, adviceClass);
-		}  catch (CannotCompileException e) {
-			throw new InstrumentException("weaving fail. sourceClassName:" + ctClass.getName() + " adviceClassName:" + adviceClassName + " Caused:" + e.getMessage(), e);
-		} catch (NotFoundException e) {
-			throw new InstrumentException("weaving fail. sourceClassName:" + ctClass.getName() + " adviceClassName:" + adviceClassName + " Caused:" + e.getMessage(), e);
-		}
-	}
+    @Override
+    public void weaving(String adviceClassName) throws InstrumentException {
+        CtClass adviceClass;
+        try {
+            adviceClass = this.instrumentor.getClassPool().get(adviceClassName);
+        } catch (NotFoundException e) {
+            throw new NotFoundInstrumentException(adviceClassName + " not found. Caused:" + e.getMessage(), e);
+        }
+        try {
+            AspectWeaverClass weaverClass = new AspectWeaverClass();
+            weaverClass.weaving(ctClass, adviceClass);
+        } catch (CannotCompileException e) {
+            throw new InstrumentException("weaving fail. sourceClassName:" + ctClass.getName() + " adviceClassName:" + adviceClassName + " Caused:" + e.getMessage(), e);
+        } catch (NotFoundException e) {
+            throw new InstrumentException("weaving fail. sourceClassName:" + ctClass.getName() + " adviceClassName:" + adviceClassName + " Caused:" + e.getMessage(), e);
+        }
+    }
 
 
 
 
     private void addAfterInterceptor(String methodName, int id, CtBehavior behavior, boolean useContextClassLoader, int interceptorType) throws NotFoundException, CannotCompileException {
-        String returnType = getReturnType(behavior);
-        String target = getTarget(behavior);
+        final String returnType = getReturnType(behavior);
+        final String target = getTargetIdentifier(behavior);
 
+        final String[] parameterType = JavaAssistUtils.parseParameterSignature(behavior.getSignature());
         String parameterTypeString = null;
         if (interceptorType == STATIC_INTERCEPTOR) {
-            parameterTypeString = JavaAssistUtils.getParameterDescription(behavior.getParameterTypes());
+            parameterTypeString = JavaAssistUtils.getParameterDescription(parameterType);
         }
-        final String parameter = getParameter(behavior);
+        final String parameterIdentifier = getParameterIdentifier(parameterType);
 
         final CodeBuilder after = new CodeBuilder();
         if (useContextClassLoader) {
@@ -604,9 +627,9 @@ public class JavaAssistClass implements InstrumentClass {
             }
             after.format("  java.lang.reflect.Method method = interceptor.getClass().getMethod(\"%1$s\", methodArgsClassParams);", "after");
             if (interceptorType == STATIC_INTERCEPTOR) {
-                after.format("  java.lang.Object[] methodParams = new java.lang.Object[] { %1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, %6$s, null };", target, ctClass.getName(), methodName, parameterTypeString, parameter, returnType);
+                after.format("  java.lang.Object[] methodParams = new java.lang.Object[] { %1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, %6$s, null };", target, ctClass.getName(), methodName, parameterTypeString, parameterIdentifier, returnType);
             } else {
-                after.format("  java.lang.Object[] methodParams = new java.lang.Object[] { %1$s, %2$s, %3$s, null };", target, parameter, returnType);
+                after.format("  java.lang.Object[] methodParams = new java.lang.Object[] { %1$s, %2$s, %3$s, null };", target, parameterIdentifier, returnType);
             }
             after.append("  method.invoke(interceptor, methodParams);");
             endAddFindInterceptorCode(after);
@@ -616,10 +639,10 @@ public class JavaAssistClass implements InstrumentClass {
 
             if (interceptorType == STATIC_INTERCEPTOR) {
                 after.format("  %1$s interceptor = com.nhn.pinpoint.bootstrap.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticAroundInterceptor.class.getName(), id);
-                after.format("  interceptor.after(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, %6$s, null);", target, ctClass.getName(), methodName, parameterTypeString, parameter, returnType);
+                after.format("  interceptor.after(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, %6$s, null);", target, ctClass.getName(), methodName, parameterTypeString, parameterIdentifier, returnType);
             } else {
                 after.format("  %1$s interceptor = com.nhn.pinpoint.bootstrap.interceptor.InterceptorRegistry.getSimpleInterceptor(%2$d);", SimpleAroundInterceptor.class.getName(), id);
-                after.format("  interceptor.after(%1$s, %2$s, %3$s, null);", target, parameter, returnType);
+                after.format("  interceptor.after(%1$s, %2$s, %3$s, null);", target, parameterIdentifier, returnType);
             }
             after.end();
         }
@@ -641,9 +664,9 @@ public class JavaAssistClass implements InstrumentClass {
             }
             catchCode.format("  java.lang.reflect.Method method = interceptor.getClass().getMethod(\"%1$s\", methodArgsClassParams);", "after");
             if (interceptorType == STATIC_INTERCEPTOR) {
-                catchCode.format("  java.lang.Object[] methodParams = new java.lang.Object[] { %1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, null, $e };", target, ctClass.getName(), methodName, parameterTypeString, parameter);
+                catchCode.format("  java.lang.Object[] methodParams = new java.lang.Object[] { %1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, null, $e };", target, ctClass.getName(), methodName, parameterTypeString, parameterIdentifier);
             } else {
-                catchCode.format("  java.lang.Object[] methodParams = new java.lang.Object[] { %1$s, %2$s, null, $e };", target, parameter);
+                catchCode.format("  java.lang.Object[] methodParams = new java.lang.Object[] { %1$s, %2$s, null, $e };", target, parameterIdentifier);
             }
             catchCode.append("  method.invoke(interceptor, methodParams);");
             endAddFindInterceptorCode(catchCode);
@@ -653,10 +676,10 @@ public class JavaAssistClass implements InstrumentClass {
             catchCode.begin();
             if (interceptorType == STATIC_INTERCEPTOR) {
                 catchCode.format("  %1$s interceptor = com.nhn.pinpoint.bootstrap.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticAroundInterceptor.class.getName(), id);
-                catchCode.format("  interceptor.after(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, null, $e);", target, ctClass.getName(), methodName, parameterTypeString, parameter);
+                catchCode.format("  interceptor.after(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, null, $e);", target, ctClass.getName(), methodName, parameterTypeString, parameterIdentifier);
             } else {
                 catchCode.format("  %1$s interceptor = com.nhn.pinpoint.bootstrap.interceptor.InterceptorRegistry.getSimpleInterceptor(%2$d);", SimpleAroundInterceptor.class.getName(), id);
-                catchCode.format("  interceptor.after(%1$s, %2$s, null, $e);", target, parameter);
+                catchCode.format("  interceptor.after(%1$s, %2$s, null, $e);", target, parameterIdentifier);
             }
             catchCode.append("  throw $e;");
             catchCode.end();
@@ -687,7 +710,7 @@ public class JavaAssistClass implements InstrumentClass {
         after.format("  java.lang.Object interceptor = getInterceptorMethod.invoke(interceptorRegistryClass, interceptorParams);");
     }
 
-    private String getTarget(CtBehavior behavior) {
+    private String getTargetIdentifier(CtBehavior behavior) {
         boolean staticMethod = JavaAssistUtils.isStaticBehavior(behavior);
         if (staticMethod) {
             return "null";
@@ -696,25 +719,31 @@ public class JavaAssistClass implements InstrumentClass {
         }
     }
 
-    public String getReturnType(CtBehavior behavior) throws NotFoundException {
+    public String getReturnType(CtBehavior behavior) {
         if (behavior instanceof CtMethod) {
-            CtClass returnType = ((CtMethod) behavior).getReturnType();
-            if (CtClass.voidType == returnType) {
+            final String signature = behavior.getSignature();
+            if (isVoid(signature)) {
                 return "null";
             }
         }
         return "($w)$_";
     }
 
+    public boolean isVoid(String signature) {
+        return signature.endsWith("V");
+    }
+
 
     private void addBeforeInterceptor(String methodName, int id, CtBehavior behavior, boolean useContextClassLoader, int interceptorType) throws CannotCompileException, NotFoundException {
-        String target = getTarget(behavior);
+        final String target = getTargetIdentifier(behavior);
+
+        final String[] parameterType = JavaAssistUtils.parseParameterSignature(behavior.getSignature());
         // 인터셉터 호출시 최대한 연산량을 줄이기 위해서 정보는 가능한 정적 데이터로 생성한다.
         String parameterDescription = null;
         if (interceptorType == STATIC_INTERCEPTOR) {
-            parameterDescription = JavaAssistUtils.getParameterDescription(behavior.getParameterTypes());
+            parameterDescription = JavaAssistUtils.getParameterDescription(parameterType);
         }
-        String parameter = getParameter(behavior);
+        final String parameterIdentifier = getParameterIdentifier(parameterType);
 
         CodeBuilder code = new CodeBuilder();
         if (useContextClassLoader) {
@@ -734,9 +763,9 @@ public class JavaAssistClass implements InstrumentClass {
             }
             code.format("  java.lang.reflect.Method beforeMethod = interceptor.getClass().getMethod(\"%1$s\", beforeMethodParams);", "before");
             if(interceptorType == STATIC_INTERCEPTOR) {
-                code.format("  java.lang.Object[] beforeParams = new java.lang.Object[] { %1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s };", target, ctClass.getName(), methodName, parameterDescription, parameter);
+                code.format("  java.lang.Object[] beforeParams = new java.lang.Object[] { %1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s };", target, ctClass.getName(), methodName, parameterDescription, parameterIdentifier);
             } else {
-                code.format("  java.lang.Object[] beforeParams = new java.lang.Object[] { %1$s, %2$s };", target, parameter);
+                code.format("  java.lang.Object[] beforeParams = new java.lang.Object[] { %1$s, %2$s };", target, parameterIdentifier);
             }
             code.append("  beforeMethod.invoke(interceptor, beforeParams);");
             code.append("}");
@@ -745,11 +774,11 @@ public class JavaAssistClass implements InstrumentClass {
             code.begin();
             if (interceptorType == STATIC_INTERCEPTOR) {
                 code.format("  %1$s interceptor = com.nhn.pinpoint.bootstrap.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticAroundInterceptor.class.getName(), id);
-                code.format("  interceptor.before(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s);", target, ctClass.getName(), methodName, parameterDescription, parameter);
+                code.format("  interceptor.before(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s);", target, ctClass.getName(), methodName, parameterDescription, parameterIdentifier);
             } else {
                 // simpleInterceptor인덱스에서 검색하여 typecasting을 제거한다.
                 code.format("  %1$s interceptor = com.nhn.pinpoint.bootstrap.interceptor.InterceptorRegistry.getSimpleInterceptor(%2$d);", SimpleAroundInterceptor.class.getName(), id);
-                code.format("  interceptor.before(%1$s, %2$s);", target, parameter);
+                code.format("  interceptor.before(%1$s, %2$s);", target, parameterIdentifier);
             }
             code.end();
         }
@@ -765,14 +794,14 @@ public class JavaAssistClass implements InstrumentClass {
         }
     }
 
-    private String getParameter(CtBehavior behavior) throws NotFoundException {
-        CtClass[] parameterTypes = behavior.getParameterTypes();
+    private String getParameterIdentifier(String[] parameterTypes) {
         if (parameterTypes.length == 0) {
             return "null";
         }
         return "$args";
     }
 
+    @Override
     public boolean addDebugLogBeforeAfterMethod() {
         String className = this.ctClass.getName();
         LoggingInterceptor loggingInterceptor = new LoggingInterceptor(className);
@@ -790,8 +819,6 @@ public class JavaAssistClass implements InstrumentClass {
                 }
                 String methodName = method.getName();
 
-                // TODO method의 prameter type을 interceptor에 별도 추가해야 될것으로 보임.
-                String params = getParamsToString(method.getParameterTypes());
                 addStaticAroundInterceptor(methodName, id, method, false);
             }
             return true;
@@ -825,7 +852,6 @@ public class JavaAssistClass implements InstrumentClass {
                     continue;
                 }
                 String constructorName = constructor.getName();
-                String params = getParamsToString(constructor.getParameterTypes());
 
                 // constructor.insertAfter("{System.out.println(\"*****" +
                 // constructorName + " Constructor:Param=(" + params +
@@ -845,20 +871,6 @@ public class JavaAssistClass implements InstrumentClass {
         return false;
     }
 
-    private String getParamsToString(CtClass[] params) throws NotFoundException {
-        StringBuilder sb = new StringBuilder(512);
-        if (params.length != 0) {
-            int paramsLength = params.length;
-            for (int loop = paramsLength - 1; loop > 0; loop--) {
-                sb.append(params[loop].getName()).append(",");
-            }
-        }
-        String paramsStr = sb.toString();
-        if (isDebug) {
-            logger.debug("params type:{}", paramsStr);
-        }
-        return paramsStr;
-    }
 
     private CtMethod getMethod(String methodName, String[] args) throws NotFoundException {
         CtClass[] params = JavaAssistUtils.getCtParameter(args, instrumentor.getClassPool());
@@ -962,38 +974,40 @@ public class JavaAssistClass implements InstrumentClass {
             return false;
         }
     }
-	
-	@Override
-	public InstrumentClass getNestedClass(String className) {
-		try {
-			CtClass[] nestedClasses = ctClass.getNestedClasses();
 
-			if (nestedClasses == null || nestedClasses.length == 0) {
-				return null;
-			}
-			
-			for (CtClass nested : nestedClasses) {
-				if (nested.getName().equals(className)) {
-					return new JavaAssistClass(this.instrumentor, nested);
-				}
-			}
-		} catch (NotFoundException e) {
-			return null;
-		}
-		return null;
-	}
-	
-	@Override
-	public void addGetter(String getterName, String variableName, String variableType) throws InstrumentException {
-		try {
-			// FIXME getField, getDeclaredField둘 중 뭐가 나을지. 자식 클래스에 getter를 만들려면 getField가 나을 것 같기도 하고.
-			CtField traceVariable = ctClass.getField(variableName);
-			CtMethod getterMethod = CtNewMethod.getter(getterName, traceVariable);
-			ctClass.addMethod(getterMethod);
-		} catch (NotFoundException ex) {
-			throw new InstrumentException(variableName + " addVariableAccessor fail. Cause:" + ex.getMessage(), ex);
-		} catch (CannotCompileException ex) {
+    @Override
+    public InstrumentClass getNestedClass(String className) {
+        CtClass[] nestedClasses;
+        try {
+            nestedClasses = ctClass.getNestedClasses();
+        } catch (NotFoundException ex) {
+            logger.warn("{} NestedClass Not Found {}", className, ex.getMessage(), ex);
+            return null;
+        }
+
+        if (nestedClasses == null || nestedClasses.length == 0) {
+            return null;
+        }
+
+        for (CtClass nested : nestedClasses) {
+            if (nested.getName().equals(className)) {
+                return new JavaAssistClass(this.instrumentor, nested);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void addGetter(String getterName, String variableName, String variableType) throws InstrumentException {
+        try {
+            // FIXME getField, getDeclaredField둘 중 뭐가 나을지. 자식 클래스에 getter를 만들려면 getField가 나을 것 같기도 하고.
+            CtField traceVariable = ctClass.getField(variableName);
+            CtMethod getterMethod = CtNewMethod.getter(getterName, traceVariable);
+            ctClass.addMethod(getterMethod);
+        } catch (NotFoundException ex) {
+            throw new InstrumentException(variableName + " addVariableAccessor fail. Cause:" + ex.getMessage(), ex);
+        } catch (CannotCompileException ex) {
             throw new InstrumentException(variableName + " addVariableAccessor fail. Cause:" + ex.getMessage(), ex);
         }
-	}
+    }
 }
