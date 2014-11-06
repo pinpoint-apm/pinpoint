@@ -372,7 +372,7 @@ public class JavaAssistClass implements InstrumentClass {
     		return addInterceptor(methodName, args, interceptor);
     	} else {
 			if (logger.isWarnEnabled()) {
-				logger.warn("MethodInfo is not declared. class={}, methodName={}, args={}", ctClass.getName(), methodName, Arrays.toString(args));
+				logger.warn("Method is not declared. class={}, methodName={}, args={}", ctClass.getName(), methodName, Arrays.toString(args));
 			}
     		return -1;
     	}
