@@ -15,9 +15,13 @@ public interface InstrumentClass {
 
     String getName();
 
-	boolean insertCodeBeforeMethod(String methodName, String[] args, String code);
+    String getSuperClass();
 
-	boolean insertCodeAfterMethod(String methodName, String[] args, String code);
+    String[] getInterfaces();
+
+    boolean insertCodeBeforeMethod(String methodName, String[] args, String code);
+
+    boolean insertCodeAfterMethod(String methodName, String[] args, String code);
 
     int addAllConstructorInterceptor(Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
 

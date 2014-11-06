@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler.interceptor.bci;
 
 import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
+import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.nhn.pinpoint.bootstrap.instrument.InstrumentException;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.BindValueTraceValue;
@@ -37,6 +38,34 @@ import java.util.Map;
  */
 public class JavaAssistClassTest {
     private Logger logger = LoggerFactory.getLogger(JavaAssistByteCodeInstrumentor.class.getName());
+
+    @Test
+    public void testClassHierarchy() throws InstrumentException {
+
+        ByteCodeInstrumentor byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor();
+
+        String testObjectName = "com.nhn.pinpoint.profiler.interceptor.bci.TestObject";
+        InstrumentClass testObject = byteCodeInstrumentor.getClass(testObjectName);
+
+        Assert.assertEquals(testObject.getName(), testObjectName);
+
+        String testObjectSuperClass = testObject.getSuperClass();
+        Assert.assertEquals("java.lang.Object", testObjectSuperClass);
+
+        String[] testObjectSuperClassInterfaces = testObject.getInterfaces();
+        Assert.assertEquals(testObjectSuperClassInterfaces.length, 0);
+
+        InstrumentClass classHierarchyObject = byteCodeInstrumentor.getClass("com.nhn.pinpoint.profiler.interceptor.bci.ClassHierarchyObject");
+        String hierarchySuperClass = classHierarchyObject.getSuperClass();
+        Assert.assertEquals("java.util.HashMap", hierarchySuperClass);
+
+        String[] hierarchyInterfaces = classHierarchyObject.getInterfaces();
+        Assert.assertEquals(hierarchyInterfaces.length, 2);
+        Assert.assertEquals(hierarchyInterfaces[0], "java.lang.Runnable");
+        Assert.assertEquals(hierarchyInterfaces[1], "java.lang.Comparable");
+    }
+
+
 
     @Test
     public void addTraceValue() throws Exception {

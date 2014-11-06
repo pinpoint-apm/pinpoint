@@ -202,18 +202,8 @@ public final class JavaAssistUtils {
         return paramsString;
     }
 
-    public static String[] getParameterSimpleType(CtClass[] paramsClass) {
-        if (paramsClass == null) {
-            return null;
-        }
-        String[] paramsString = new String[paramsClass.length];
-        for (int i = 0; i < paramsClass.length; i++) {
-            paramsString[i] = paramsClass[i].getSimpleName();
-        }
-        return paramsString;
-    }
-
-    public static String[] getParameterType(CtClass[] paramsClass) {
+    @Deprecated
+    static String[] getParameterType(CtClass[] paramsClass) {
         if (paramsClass == null) {
             return null;
         }
@@ -306,7 +296,7 @@ public final class JavaAssistUtils {
     }
 
 
-    public static String[] getParameterVariableName(CtBehavior method) throws NotFoundException {
+    public static String[] getParameterVariableName(CtBehavior method) {
         if (method == null) {
             throw new NullPointerException("method must not be null");
         }
@@ -334,7 +324,7 @@ public final class JavaAssistUtils {
         return local;
     }
 
-    public static String[] getParameterVariableName(CtBehavior method, LocalVariableAttribute localVariableAttribute) throws NotFoundException {
+    public static String[] getParameterVariableName(CtBehavior method, LocalVariableAttribute localVariableAttribute)  {
         // http://www.jarvana.com/jarvana/view/org/jboss/weld/servlet/weld-servlet/1.0.1-Final/weld-servlet-1.0.1-Final-sources.jar!/org/slf4j/instrumentation/JavassistHelper.java?format=ok
         // http://grepcode.com/file/repo1.maven.org/maven2/jp.objectfanatics/assertion-weaver/0.0.30/jp/objectfanatics/commons/javassist/JavassistUtils.java
         // 이거 참고함.
@@ -345,7 +335,7 @@ public final class JavaAssistUtils {
         }
 
         dump(localVariableAttribute);
-        CtClass[] parameterTypes = method.getParameterTypes();
+        String[] parameterTypes = JavaAssistUtils.parseParameterSignature(method.getSignature());
         if (parameterTypes.length == 0) {
             return EMPTY_STRING_ARRAY;
         }
@@ -399,15 +389,24 @@ public final class JavaAssistUtils {
     }
 
 
-    public static String[] getParameterDefaultVariableName(CtBehavior method) throws NotFoundException {
+    public static String[] getParameterDefaultVariableName(CtBehavior method) {
         if (method == null) {
             throw new NullPointerException("method must not be null");
         }
-        CtClass[] parameterTypes = method.getParameterTypes();
+        String[] parameterTypes = JavaAssistUtils.parseParameterSignature(method.getSignature());
         String[] variableName = new String[parameterTypes.length];
         for (int i = 0; i < variableName.length; i++) {
-            variableName[i] = parameterTypes[i].getSimpleName().toLowerCase();
+            variableName[i] = getSimpleName(parameterTypes[i]).toLowerCase();
         }
         return variableName;
+    }
+
+    private static String getSimpleName(String parameterName) {
+        final int findIndex = parameterName.lastIndexOf('.');
+        if (findIndex == -1) {
+            return parameterName;
+        } else {
+            return parameterName.substring(findIndex + 1);
+        }
     }
 }
