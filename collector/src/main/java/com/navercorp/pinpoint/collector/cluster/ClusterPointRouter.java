@@ -5,7 +5,6 @@ import java.util.Map;
 import javax.annotation.PreDestroy;
 
 import org.apache.thrift.TBase;
-import org.apache.thrift.TException;
 import org.jboss.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +23,9 @@ import com.nhn.pinpoint.rpc.util.MapUtils;
 import com.nhn.pinpoint.thrift.dto.TResult;
 import com.nhn.pinpoint.thrift.dto.command.TCommandTransfer;
 import com.nhn.pinpoint.thrift.io.DeserializerFactory;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.nhn.pinpoint.thrift.io.SerializerFactory;
 import com.nhn.pinpoint.thrift.io.TCommandTypeVersion;
+import com.nhn.pinpoint.thrift.util.SerializationUtils;
 
 /**
  * @author koo.taejin <kr14910>
@@ -66,39 +64,14 @@ public class ClusterPointRouter {
 	public WebClusterPoint getWebClusterPoint() {
 		return webClusterPoint;
 	}
-
+	
+	
 	private byte[] serialize(TBase result) {
-		if (result == null) {
-			logger.warn("tBase may not be null.");
-			return null;
-		}
-
-		try {
-			HeaderTBaseSerializer serializer = commandSerializerFactory.createSerializer();
-			byte[] payload = serializer.serialize(result);
-			return payload;
-		} catch (TException e) {
-			logger.warn(e.getMessage(), e);
-		}
-
-		return null;
+		return SerializationUtils.serialize(result, commandSerializerFactory, null);
 	}
-
-	private TBase deserialize(byte[] payload) {
-		if (payload == null) {
-			logger.warn("Payload may not be null.");
-			return null;
-		}
-
-		try {
-			final HeaderTBaseDeserializer deserializer = commandDeserializerFactory.createDeserializer();
-			TBase<?, ?> tBase = deserializer.deserialize(payload);
-			return tBase;
-		} catch (TException e) {
-			logger.warn(e.getMessage(), e);
-		}
-
-		return null;
+	
+	private TBase deserialize(byte[] objectData) {
+		return SerializationUtils.deserialize(objectData, commandDeserializerFactory, null);
 	}
 
 	class WebPointMessageListener implements MessageListener {
@@ -113,7 +86,7 @@ public class ClusterPointRouter {
 			logger.info("Received RequestPacket {} {}.", requestPacket, channel);
 
 			TBase<?, ?> request = deserialize(requestPacket.getPayload());
-
+			
 			if (request == null) {
 				TResult tResult = new TResult(false);
 				tResult.setMessage("Unexpected decode result.");
