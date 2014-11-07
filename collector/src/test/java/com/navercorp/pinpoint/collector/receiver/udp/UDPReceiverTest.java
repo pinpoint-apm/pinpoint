@@ -23,7 +23,7 @@ public class UDPReceiverTest {
     @Ignore
 	public void startStop() {
 		try {
-			DataReceiver receiver = new UDPReceiver("test", new DispatchHandler() {
+			DataReceiver receiver = new BaseUDPReceiver("test", new DispatchHandler() {
                 @Override
                 public void dispatchSendMessage(TBase<?, ?> tBase, byte[] packet, int offset, int length) {
                 }

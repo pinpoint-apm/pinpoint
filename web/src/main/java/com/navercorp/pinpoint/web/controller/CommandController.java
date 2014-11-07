@@ -43,7 +43,7 @@ public class CommandController {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
-	private SerializerFactory commandSerializerFactory;
+	private SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory;
 
 	@Autowired
 	private DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory;

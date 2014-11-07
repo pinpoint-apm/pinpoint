@@ -14,8 +14,10 @@ public class TBaseStreamNodeTest {
         final byte[] buf = "foo".getBytes();
 
         UnsafeByteArrayOutputStream out = new UnsafeByteArrayOutputStream();
+        ByteArrayOutputStreamTransport transport = new ByteArrayOutputStreamTransport(out);
+        
         out.write(buf);
-        TBaseStreamNode node = new TBaseStreamNode(out);
+        TBaseStreamNode node = new TBaseStreamNode(transport);
 
         node.setBeginPosition(0);
         node.setEndPosition(buf.length);

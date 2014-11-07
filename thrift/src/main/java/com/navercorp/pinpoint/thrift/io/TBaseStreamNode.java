@@ -6,15 +6,21 @@ import java.net.DatagramPacket;
 
 import com.nhn.pinpoint.thrift.io.UnsafeByteArrayOutputStream;
 
-public class TBaseStreamNode {
+/**
+ * 
+ * 
+ * @author jaehong.kim
+ *
+ */
+public class TBaseStreamNode implements ByteArrayOutput {
 
-    private final UnsafeByteArrayOutputStream stream;
+    private ByteArrayOutputStreamTransport transport;
     private int beginPosition;
     private int endPosition;
     private String className;
 
-    public TBaseStreamNode(final UnsafeByteArrayOutputStream stream) {
-        this.stream = stream;
+    public TBaseStreamNode(final ByteArrayOutputStreamTransport transport) {
+        this.transport = transport;
     }
 
     public int getBeginPosition() {
@@ -46,11 +52,11 @@ public class TBaseStreamNode {
     }
 
     public void writeTo(OutputStream out) throws IOException {
-        out.write(stream.toByteArray(), beginPosition, size());
+        out.write(transport.getBuffer(), beginPosition, size());
     }
 
     public void writeTo(DatagramPacket packet) {
-        packet.setData(stream.toByteArray(), beginPosition, size());
+        packet.setData(transport.getBuffer(), beginPosition, size());
     }
 
     @Override

@@ -30,28 +30,24 @@ public class ByteArrayOutputStreamTransportTest {
         assertEquals(out.size(), transport.getBufferPosition());
 
         assertEquals(-1, transport.getBytesRemainingInBuffer());
+    }
 
+    @Test
+    public void flush() throws TTransportException {
+        transport.write(buf, 0, buf.length);
+        assertEquals(buf.length, out.size());
+        
         transport.flush();
         assertEquals(0, out.size());
-
-        // unsupported operation
-        try {
-            fail("passed unsupported operation");
-        } catch (Exception e) {
-        }
-
-        try {
-            transport.consumeBuffer(1);
-            fail("passed unsupported operation");
-        } catch (Exception e) {
-        }
     }
 
     @Test(expected = TTransportException.class)
     public void read() throws TTransportException {
         transport.read(buf, 0, 1);
     }
-    
-    
 
+    @Test(expected = UnsupportedOperationException.class)
+    public void consumeBuffer() throws TTransportException {
+        transport.consumeBuffer(1);
+    }
 }

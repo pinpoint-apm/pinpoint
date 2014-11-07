@@ -36,7 +36,6 @@ import com.nhn.pinpoint.profiler.sender.BufferedUdpDataSender;
 import com.nhn.pinpoint.profiler.sender.DataSender;
 import com.nhn.pinpoint.profiler.sender.EnhancedDataSender;
 import com.nhn.pinpoint.profiler.sender.TcpDataSender;
-import com.nhn.pinpoint.profiler.sender.UdpDataSender;
 import com.nhn.pinpoint.profiler.util.ApplicationServerTypeResolver;
 import com.nhn.pinpoint.profiler.util.PreparedStatementUtils;
 import com.nhn.pinpoint.profiler.util.RuntimeMXBeanUtils;
@@ -130,10 +129,10 @@ public class DefaultAgent implements Agent {
 
         this.spanDataSender = createUdpDataSender(this.profilerConfig.getCollectorUdpSpanServerPort(), "Pinpoint-UdpSpanDataExecutor",
                 this.profilerConfig.getSpanDataSenderWriteQueueSize(), this.profilerConfig.getSpanDataSenderSocketTimeout(),
-                this.profilerConfig.getSpanDataSenderSocketSendBufferSize());
+                this.profilerConfig.getSpanDataSenderSocketSendBufferSize(), this.profilerConfig.getSpanDataSenderChunkSize());
         this.statDataSender = createUdpDataSender(this.profilerConfig.getCollectorUdpServerPort(), "Pinpoint-UdpStatDataExecutor",
                 this.profilerConfig.getStatDataSenderWriteQueueSize(), this.profilerConfig.getStatDataSenderSocketTimeout(),
-                this.profilerConfig.getStatDataSenderSocketSendBufferSize());
+                this.profilerConfig.getStatDataSenderSocketSendBufferSize(), this.profilerConfig.getStatDataSenderChunkSize());
 
         this.traceContext = createTraceContext(agentInformation.getServerType());
 
@@ -283,8 +282,8 @@ public class DefaultAgent implements Agent {
         return new TcpDataSender(socket);
     }
 
-    protected DataSender createUdpDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize) {
-        return new BufferedUdpDataSender(this.profilerConfig.getCollectorServerIp(), port, threadName, writeQueueSize, timeout, sendBufferSize);
+    protected DataSender createUdpDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize, int chunkSize) {
+        return new BufferedUdpDataSender(this.profilerConfig.getCollectorServerIp(), port, threadName, writeQueueSize, timeout, sendBufferSize, chunkSize);
     }
 
     protected EnhancedDataSender getTcpDataSender() {

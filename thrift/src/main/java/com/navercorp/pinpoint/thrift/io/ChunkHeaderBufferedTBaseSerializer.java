@@ -5,8 +5,9 @@ import java.util.List;
 
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.protocol.TProtocolFactory;
+import org.apache.thrift.transport.TTransport;
 
 import com.nhn.pinpoint.thrift.dto.TSpan;
 import com.nhn.pinpoint.thrift.dto.TSpanChunk;
@@ -20,29 +21,32 @@ import com.nhn.pinpoint.thrift.dto.TSpanEvent;
  */
 public class ChunkHeaderBufferedTBaseSerializer {
     private static final String FIELD_NAME_SPAN_EVENT_LIST = "spanEventList";
-
-    // reuse byte buffer
-    private final ByteArrayOutputStream out;
+    private static final int DEFAULT_CHUNK_SIZE = 1024 * 16;
+    
     // span event list serialized buffer
     private final TBaseStream eventStream;
     // header
     private final TBaseLocator locator;
+    private final TProtocolFactory protocolFactory;
+    private final ByteArrayOutputStreamTransport transport;
+
     // reset chunk header
     private boolean writeChunkHeader = false;
     // flush size
-    private final int flushSize;
+    private int chunkSize = DEFAULT_CHUNK_SIZE;
     // flush handler
     private ChunkHeaderBufferedTBaseSerializerFlushHandler flushHandler;
 
-    public ChunkHeaderBufferedTBaseSerializer(int flushSize) {
-        out = new UnsafeByteArrayOutputStream(flushSize);
-        eventStream = new TBaseStream(flushSize);
-        locator = new DefaultTBaseLocator();
-        this.flushSize = flushSize;
+    public ChunkHeaderBufferedTBaseSerializer(final ByteArrayOutputStream out, final TProtocolFactory protocolFactory, final TBaseLocator locator) {
+        transport = new ByteArrayOutputStreamTransport(out);
+        eventStream = new TBaseStream(protocolFactory);
+
+        this.protocolFactory = protocolFactory;
+        this.locator = locator;
     }
 
     public void add(TBase<?, ?> base) throws TException {
-        synchronized (out) {
+        synchronized (transport) {
             if (base instanceof TSpan) {
                 addTSpan(base);
             } else if (base instanceof TSpanChunk) {
@@ -65,9 +69,9 @@ public class ChunkHeaderBufferedTBaseSerializer {
             for (TSpanEvent e : chunk.getSpanEventList()) {
                 eventStream.write(e);
             }
-            write(chunk, FIELD_NAME_SPAN_EVENT_LIST, eventStream.split(flushSize));
+            write(chunk, FIELD_NAME_SPAN_EVENT_LIST, eventStream.split(chunkSize));
             while (!eventStream.isEmpty()) {
-                write(chunk, FIELD_NAME_SPAN_EVENT_LIST, eventStream.split(flushSize));
+                write(chunk, FIELD_NAME_SPAN_EVENT_LIST, eventStream.split(chunkSize));
             }
         } finally {
             eventStream.clear();
@@ -86,10 +90,10 @@ public class ChunkHeaderBufferedTBaseSerializer {
             for (TSpanEvent e : span.getSpanEventList()) {
                 eventStream.write(e);
             }
-            write(span, FIELD_NAME_SPAN_EVENT_LIST, eventStream.split(flushSize));
+            write(span, FIELD_NAME_SPAN_EVENT_LIST, eventStream.split(chunkSize));
             while (!eventStream.isEmpty()) {
                 final TSpanChunk spanChunk = toSpanChunk(span);
-                write(spanChunk, FIELD_NAME_SPAN_EVENT_LIST, eventStream.split(flushSize));
+                write(spanChunk, FIELD_NAME_SPAN_EVENT_LIST, eventStream.split(chunkSize));
             }
         } finally {
             eventStream.clear();
@@ -97,8 +101,8 @@ public class ChunkHeaderBufferedTBaseSerializer {
     }
 
     // write chunk header + header + body
-    private void write(final TBase<?, ?> base, final String fieldName, final List<TBaseStreamNode> list) throws TException {
-        final ReplaceListCompactProtocol protocol = new ReplaceListCompactProtocol(new ByteArrayOutputStreamTransport(out));
+    private void write(final TBase<?, ?> base, final String fieldName, final List<ByteArrayOutput> list) throws TException {
+        final TReplaceListProtocol protocol = new TReplaceListProtocol(protocolFactory.getProtocol(transport));
 
         // write chunk header
         writeChunkHeader(protocol);
@@ -111,14 +115,14 @@ public class ChunkHeaderBufferedTBaseSerializer {
 
         base.write(protocol);
 
-        if (isOverflow()) {
+        if (needAuthFlush()) {
             flush();
         }
     }
 
     // write chunk header + header + body
     private void write(final TBase<?, ?> base) throws TException {
-        final TCompactProtocol protocol = new TCompactProtocol(new ByteArrayOutputStreamTransport(out));
+        final TProtocol protocol = protocolFactory.getProtocol(transport);
 
         // write chunk header
         writeChunkHeader(protocol);
@@ -128,13 +132,13 @@ public class ChunkHeaderBufferedTBaseSerializer {
 
         base.write(protocol);
 
-        if (isOverflow()) {
+        if (needAuthFlush()) {
             flush();
         }
     }
 
-    private boolean isOverflow() {
-        return out.size() > flushSize;
+    private boolean needAuthFlush() {
+        return flushHandler != null && transport.getBufferPosition() > chunkSize;
     }
 
     private void writeChunkHeader(TProtocol protocol) throws TException {
@@ -156,12 +160,12 @@ public class ChunkHeaderBufferedTBaseSerializer {
     }
 
     // flush & clear
-    public void flush() {
-        synchronized (out) {
-            if (flushHandler != null && out.size() > Header.HEADER_SIZE) {
-                flushHandler.handle(out.toByteArray(), 0, out.size());
+    public void flush() throws TException {
+        synchronized (transport) {
+            if (flushHandler != null && transport.getBufferPosition() > Header.HEADER_SIZE) {
+                flushHandler.handle(transport.getBuffer(), 0, transport.getBufferPosition());
             }
-            out.reset();
+            transport.flush();
             writeChunkHeader = false;
         }
     }
@@ -170,15 +174,27 @@ public class ChunkHeaderBufferedTBaseSerializer {
         return flushHandler;
     }
 
-    public void setFlushHandler(ChunkHeaderBufferedTBaseSerializerFlushHandler flushHandler) {
+    public void setFlushHandler(final ChunkHeaderBufferedTBaseSerializerFlushHandler flushHandler) {
         this.flushHandler = flushHandler;
+    }
+
+    public TTransport getTransport() {
+        return transport;
+    }
+    
+    public int getChunkSize() {
+        return chunkSize;
+    }
+
+    public void setChunkSize(int chunkSize) {
+        this.chunkSize = chunkSize;
     }
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("{");
-        sb.append("bufferSize=").append(out.size()).append(", ");
-        sb.append("flushSize=").append(flushSize);
+        sb.append("transport=").append(transport).append(", ");
+        sb.append("chunkSize=").append(chunkSize);
         sb.append("}");
 
         return sb.toString();

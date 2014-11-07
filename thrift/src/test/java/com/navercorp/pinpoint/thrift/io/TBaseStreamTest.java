@@ -3,16 +3,13 @@ package com.nhn.pinpoint.thrift.io;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TCompactProtocol;
+import org.apache.thrift.protocol.TProtocolFactory;
 import org.junit.Test;
 
-import com.nhn.pinpoint.thrift.dto.TAnnotation;
-import com.nhn.pinpoint.thrift.dto.TAnnotationValue;
 import com.nhn.pinpoint.thrift.dto.TSpan;
 import com.nhn.pinpoint.thrift.dto.TSpanChunk;
 import com.nhn.pinpoint.thrift.dto.TSpanEvent;
@@ -24,9 +21,11 @@ public class TBaseStreamTest {
     private static final long START_TIME = System.currentTimeMillis();
     private static final short SERVICE_TYPE = Short.valueOf("1");
 
+    private static final TProtocolFactory DEFAULT_PROTOCOL_FACTORY = new TCompactProtocol.Factory();
+    
     @Test
     public void clear() throws Exception {
-        TBaseStream stream = new TBaseStream(1024);
+        TBaseStream stream = new TBaseStream(DEFAULT_PROTOCOL_FACTORY);
         TSpanEvent spanEvent = newSpanEvent();
         stream.write(spanEvent);
         assertTrue(stream.size() > 0);
@@ -37,7 +36,7 @@ public class TBaseStreamTest {
 
     @Test
     public void write() throws Exception {
-        TBaseStream stream = new TBaseStream(1024);
+        TBaseStream stream = new TBaseStream(DEFAULT_PROTOCOL_FACTORY);
 
         // single span event
         TSpanEvent spanEvent = newSpanEvent();
@@ -51,7 +50,7 @@ public class TBaseStreamTest {
 
     @Test
     public void splite() throws Exception {
-        TBaseStream stream = new TBaseStream(1024);
+        TBaseStream stream = new TBaseStream(DEFAULT_PROTOCOL_FACTORY);
 
         TSpanEvent spanEvent = newSpanEvent();
         stream.write(spanEvent);
@@ -63,7 +62,7 @@ public class TBaseStreamTest {
         stream.write(spanEvent);
 
         // split 1
-        List<TBaseStreamNode> nodes = stream.split(size);
+        List<ByteArrayOutput> nodes = stream.split(size);
         assertEquals(1, nodes.size());
 
         // split 2
@@ -80,7 +79,7 @@ public class TBaseStreamTest {
 
     @Test
     public void chunk() throws Exception {
-        TBaseStream stream = new TBaseStream(1024 * 16);
+        TBaseStream stream = new TBaseStream(DEFAULT_PROTOCOL_FACTORY);
 
         final String str1k = RandomStringUtils.randomAlphabetic(1024);
 
@@ -105,9 +104,9 @@ public class TBaseStreamTest {
         System.out.println("event " + stream);
 
         // split 1k
-        TBaseStream chunkStream = new TBaseStream(1024 * 64);
+        TBaseStream chunkStream = new TBaseStream(DEFAULT_PROTOCOL_FACTORY);
 
-        List<TBaseStreamNode> nodes = stream.split(1024);
+        List<ByteArrayOutput> nodes = stream.split(1024);
         System.out.println("nodes " + nodes);
 //        chunkStream.write(spanChunk, "spanEventList", nodes);
 //        while (!stream.isEmpty()) {

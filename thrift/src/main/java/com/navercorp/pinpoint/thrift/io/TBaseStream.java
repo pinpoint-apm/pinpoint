@@ -1,26 +1,28 @@
 package com.nhn.pinpoint.thrift.io;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.DatagramPacket;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.protocol.TProtocolFactory;
 
 import com.nhn.pinpoint.thrift.io.UnsafeByteArrayOutputStream;
 
+/**
+ * 
+ * @author jaehong.kim
+ */
 public class TBaseStream {
+    private final TProtocolFactory protocolFactory;
+    private final ByteArrayOutputStreamTransport transport;
+    private final LinkedList<TBaseStreamNode> nodes = new LinkedList<TBaseStreamNode>();
 
-    protected final LinkedList<TBaseStreamNode> nodes = new LinkedList<TBaseStreamNode>();
-    protected final UnsafeByteArrayOutputStream out;
-    
-    public TBaseStream(final int size) {
-        out = new UnsafeByteArrayOutputStream(size);
+    public TBaseStream(final TProtocolFactory protocolFactory) {
+        this.protocolFactory = protocolFactory;
+        this.transport = new ByteArrayOutputStreamTransport(new UnsafeByteArrayOutputStream());
     }
 
     public void write(final List<TBase<?, ?>> list) throws TException {
@@ -30,17 +32,16 @@ public class TBaseStream {
     }
 
     public void write(final TBase<?, ?> base) throws TException {
-        final TBaseStreamNode node = new TBaseStreamNode(out);
+        final TBaseStreamNode node = new TBaseStreamNode(transport);
         node.setClassName(base.getClass().getName());
-        node.setBeginPosition(out.size());
+        node.setBeginPosition(transport.getBufferPosition());
 
-        final TProtocol protocol = new TCompactProtocol(new ByteArrayOutputStreamTransport(out));
+        final TProtocol protocol = protocolFactory.getProtocol(transport);
         base.write(protocol);
 
-        node.setEndPosition(out.size());
+        node.setEndPosition(transport.getBufferPosition());
         nodes.add(node);
     }
-
 
     public boolean isEmpty() {
         return nodes.isEmpty();
@@ -55,8 +56,8 @@ public class TBaseStream {
         return size;
     }
 
-    public List<TBaseStreamNode> splitAll() {
-        final List<TBaseStreamNode> list = new ArrayList<TBaseStreamNode>();
+    public List<ByteArrayOutput> splitAll() {
+        final List<ByteArrayOutput> list = new ArrayList<ByteArrayOutput>();
         TBaseStreamNode node = null;
         while ((node = nodes.peek()) != null) {
             list.add(node);
@@ -66,8 +67,8 @@ public class TBaseStream {
         return list;
     }
 
-    public List<TBaseStreamNode> split(final int maxSize) {
-        final List<TBaseStreamNode> list = new ArrayList<TBaseStreamNode>();
+    public List<ByteArrayOutput> split(final int maxSize) {
+        final List<ByteArrayOutput> list = new ArrayList<ByteArrayOutput>();
         int currentSize = 0;
         TBaseStreamNode node = null;
         while ((node = nodes.peek()) != null) {
@@ -92,16 +93,16 @@ public class TBaseStream {
         return list;
     }
 
-    public void clear() {
+    public void clear() throws TException {
         nodes.clear();
-        out.reset();
+        transport.flush();
     }
-    
+
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append("{");
         sb.append("nodes=").append(nodes).append(", ");
-        sb.append("size=").append(out.size());
+        sb.append("transport=").append(transport);
         sb.append("}");
 
         return nodes.toString();

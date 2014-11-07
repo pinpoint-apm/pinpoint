@@ -4,10 +4,13 @@ import static org.junit.Assert.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.thrift.protocol.TCompactProtocol;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,35 +37,32 @@ public class ReplaceListCompactProtocolTest {
 
     @Test
     public void replace() throws Exception {
+        List<ByteArrayOutput> nodes01 = new ArrayList<ByteArrayOutput>();
+        final AtomicInteger writeTo01 = new AtomicInteger(0);
+        nodes01.add(new ByteArrayOutput() {
+            public void writeTo(OutputStream out) throws IOException {
+                writeTo01.incrementAndGet();
+            }
+        });
+
+        final AtomicInteger writeTo02 = new AtomicInteger(0);
+        List<ByteArrayOutput> nodes02 = new ArrayList<ByteArrayOutput>();
+        nodes02.add(new ByteArrayOutput() {
+            public void writeTo(OutputStream out) throws IOException {
+                writeTo02.incrementAndGet();
+            }
+        });
+
         ByteArrayOutputStreamTransport transport = new ByteArrayOutputStreamTransport(new ByteArrayOutputStream());
-
-        UnsafeByteArrayOutputStream out = new UnsafeByteArrayOutputStream();
-        out.write(buf);
-
-        List<TBaseStreamNode> nodes01 = new ArrayList<TBaseStreamNode>();
-        TBaseStreamNode node01 = new TBaseStreamNode(out);
-        node01.setBeginPosition(0);
-        node01.setEndPosition(1);
-
-        nodes01.add(node01);
-
-        List<TBaseStreamNode> nodes02 = new ArrayList<TBaseStreamNode>();
-        TBaseStreamNode node02 = new TBaseStreamNode(out);
-        node02.setBeginPosition(1);
-        node02.setEndPosition(2);
-
-        nodes02.add(node02);
-
-        ReplaceListCompactProtocol protocol01 = new ReplaceListCompactProtocol(transport);
+        TReplaceListProtocol protocol01 = new TReplaceListProtocol(new TCompactProtocol(transport));
         protocol01.addReplaceField("spanEventList", nodes01);
         span.write(protocol01);
+        assertEquals(1, writeTo01.get());
+        
 
-        System.out.println("size: " + transport.getBufferPosition());
-
-        ReplaceListCompactProtocol protocol02 = new ReplaceListCompactProtocol(transport);
+        TReplaceListProtocol protocol02 = new TReplaceListProtocol(new TCompactProtocol(transport));
         protocol02.addReplaceField("spanEventList", nodes02);
         span.write(protocol02);
-
-        System.out.println("size: " + transport.getBufferPosition());
+        assertEquals(1, writeTo02.get());
     }
 }

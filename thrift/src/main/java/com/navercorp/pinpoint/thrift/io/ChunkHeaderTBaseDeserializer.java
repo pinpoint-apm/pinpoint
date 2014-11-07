@@ -30,7 +30,6 @@ public class ChunkHeaderTBaseDeserializer {
 
                 TBase<?, ?> base = null;
                 while ((base = deserialize()) != null) {
-                    trans.getBufferPosition();
                     list.add(base);
                 }
             } else {
