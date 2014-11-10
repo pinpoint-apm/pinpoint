@@ -7,7 +7,7 @@
     </organization>
     <groupId>com.nhn.pinpoint</groupId>
     <artifactId>pom</artifactId>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.0.4-SNAPSHOT</version>
     <name>pinpoint</name>
     <packaging>pom</packaging>
 
@@ -73,7 +73,7 @@
     </modules>
 
     <properties>
-        <pinpoint-version>1.0.3-SNAPSHOT</pinpoint-version>
+        <pinpoint-version>1.0.4-SNAPSHOT</pinpoint-version>
 
         <encoding>UTF-8</encoding>
         <jdk.version>1.6</jdk.version>
