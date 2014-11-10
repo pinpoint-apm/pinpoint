@@ -17,14 +17,14 @@ import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
 /**
  * @author koo.taejin <kr14910>
  */
-public class WebClusterPoint implements ClusterPoint {
+public class WebCluster implements Cluster {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private final PinpointSocketFactory factory;
 
 	private final Map<InetSocketAddress, PinpointSocket> clusterRepository = new HashMap<InetSocketAddress, PinpointSocket>();
 
-	public WebClusterPoint(String id, MessageListener messageListener) {
+	public WebCluster(String id, MessageListener messageListener) {
 		this.factory = new PinpointSocketFactory();
 		this.factory.setTimeoutMillis(1000 * 5);
 		this.factory.setMessageListener(messageListener);

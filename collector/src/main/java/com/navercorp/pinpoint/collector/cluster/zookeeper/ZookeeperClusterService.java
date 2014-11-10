@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.collector.cluster.AbstractClusterService;
 import com.nhn.pinpoint.collector.cluster.ClusterPointRouter;
+import com.nhn.pinpoint.collector.cluster.WebCluster;
 import com.nhn.pinpoint.collector.cluster.WorkerState;
 import com.nhn.pinpoint.collector.cluster.WorkerStateContext;
 import com.nhn.pinpoint.collector.config.CollectorConfiguration;
@@ -36,6 +37,8 @@ public class ZookeeperClusterService extends AbstractClusterService {
 	// 요렇게 하면 pid@hostname 으로 나옴 (localhost 요런놈은 겹칠 가능성이 존재함)
 	private final String serverIdentifier = CollectorUtils.getServerIdentifier();
 
+	private final WebCluster webCluster;
+	
 	private final WorkerStateContext serviceState;
 
 	private ZookeeperClient client;
@@ -51,6 +54,7 @@ public class ZookeeperClusterService extends AbstractClusterService {
 	public ZookeeperClusterService(CollectorConfiguration config, ClusterPointRouter clusterPointRouter) {
 		super(config, clusterPointRouter);
 		this.serviceState = new WorkerStateContext();
+		this.webCluster = new WebCluster(serverIdentifier, clusterPointRouter);
 	}
 
 	@PostConstruct
@@ -70,10 +74,10 @@ public class ZookeeperClusterService extends AbstractClusterService {
 					ClusterManagerWatcher watcher = new ClusterManagerWatcher();
 					this.client = new ZookeeperClient(config.getClusterAddress(), config.getClusterSessionTimeout(), watcher);
 					
-					this.profilerClusterManager = new ZookeeperProfilerClusterManager(client, serverIdentifier, clusterPointRouter.getProfilerClusterPoint());
+					this.profilerClusterManager = new ZookeeperProfilerClusterManager(client, serverIdentifier, clusterPointRouter.getTargetClusterPointRepository());
 					this.profilerClusterManager.start();
-	
-					this.webClusterManager = new ZookeeperWebClusterManager(client, PINPOINT_WEB_CLUSTER_PATH, serverIdentifier, clusterPointRouter.getWebClusterPoint());
+					
+					this.webClusterManager = new ZookeeperWebClusterManager(client, PINPOINT_WEB_CLUSTER_PATH, serverIdentifier, webCluster);
 					this.webClusterManager.start();
 	
 					this.serviceState.changeStateStarted();
@@ -131,6 +135,10 @@ public class ZookeeperClusterService extends AbstractClusterService {
 			client.close();
 		}
 
+		if (webCluster != null) {
+			webCluster.close();
+		}
+		
 		this.serviceState.changeStateStoped();
 		logger.info("{} destroying completed.", this.getClass().getSimpleName());
 
