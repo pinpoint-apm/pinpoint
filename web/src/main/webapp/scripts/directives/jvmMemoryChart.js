@@ -44,6 +44,11 @@ angular.module('pinpointApp')
                         var options = {
                             "type": "serial",
                             "theme": "light",
+                            "autoMargins": false,
+                            "marginTop": 10,
+                            "marginLeft": 70,
+                            "marginRight": 70,
+                            "marginBottom": 30,
                             "legend": {
                                 "useGraphSettings": true,
                                 "autoMargins": false,
@@ -122,16 +127,6 @@ angular.module('pinpointApp')
                             oChart = AmCharts.makeChart(sId, options);
                             oChart.chartCursor.addListener('changed', function (event) {
                                 scope.$emit('jvmMemoryChart.cursorChanged.' + scope.namespace, event);
-                                scope.$emit('cpuLoadChart.cursorChanged', event);
-                            });
-                            oChart.chartCursor.addListener('moved', function (type, x, y, zooming, chart) {
-//                                console.log('moved', type, x, y, zooming, chart);
-                            });
-                            oChart.chartCursor.addListener('selected', function (type, start, end) {
-//                                console.log('selected', type, start, end);
-                            });
-                            oChart.chartCursor.addListener('zoomed', function (type, start, end) {
-//                                console.log('zoomed', type, start, end);
                             });
                         });
                     };
