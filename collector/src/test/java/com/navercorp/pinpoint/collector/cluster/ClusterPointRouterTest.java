@@ -1,10 +1,13 @@
 package com.nhn.pinpoint.collector.cluster;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import junit.framework.Assert;
+import static org.mockito.Mockito.*;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +18,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.nhn.pinpoint.collector.receiver.tcp.AgentProperties;
+import com.nhn.pinpoint.collector.util.CollectorUtils;
+import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
@@ -31,48 +36,64 @@ public class ClusterPointRouterTest {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+	private final long currentTime = System.currentTimeMillis();
+	
 	@Autowired
 	ClusterPointRouter clusterPointRouter;
 
 	@Test
 	public void webClusterPointtest() {
-		WebClusterPoint webClusterPoint = clusterPointRouter.getWebClusterPoint();
+		WebCluster webClusterPoint = new WebCluster(CollectorUtils.getServerIdentifier(), clusterPointRouter);
 
-		PinpointServerSocket pinpointServerSocket = new PinpointServerSocket();
-		pinpointServerSocket.setMessageListener(new PinpointSocketManagerHandler());
-		pinpointServerSocket.bind("127.0.0.1", DEFAULT_ACCEPTOR_SOCKET_PORT);
+		try {
+			PinpointServerSocket pinpointServerSocket = new PinpointServerSocket();
+			pinpointServerSocket.setMessageListener(new PinpointSocketManagerHandler());
+			pinpointServerSocket.bind("127.0.0.1", DEFAULT_ACCEPTOR_SOCKET_PORT);
 
-		InetSocketAddress address = new InetSocketAddress("127.0.0.1", DEFAULT_ACCEPTOR_SOCKET_PORT);
+			InetSocketAddress address = new InetSocketAddress("127.0.0.1", DEFAULT_ACCEPTOR_SOCKET_PORT);
 
-		Assert.assertEquals(0, webClusterPoint.getWebClusterList().size());
-		webClusterPoint.connectPointIfAbsent(address);
-		Assert.assertEquals(1, webClusterPoint.getWebClusterList().size());
-		webClusterPoint.connectPointIfAbsent(address);
-		Assert.assertEquals(1, webClusterPoint.getWebClusterList().size());
+			Assert.assertEquals(0, webClusterPoint.getWebClusterList().size());
+			webClusterPoint.connectPointIfAbsent(address);
+			Assert.assertEquals(1, webClusterPoint.getWebClusterList().size());
+			webClusterPoint.connectPointIfAbsent(address);
+			Assert.assertEquals(1, webClusterPoint.getWebClusterList().size());
 
-		webClusterPoint.disconnectPoint(address);
-		Assert.assertEquals(0, webClusterPoint.getWebClusterList().size());
-		webClusterPoint.disconnectPoint(address);
-		Assert.assertEquals(0, webClusterPoint.getWebClusterList().size());
+			webClusterPoint.disconnectPoint(address);
+			Assert.assertEquals(0, webClusterPoint.getWebClusterList().size());
+			webClusterPoint.disconnectPoint(address);
+			Assert.assertEquals(0, webClusterPoint.getWebClusterList().size());
+		} finally {
+			webClusterPoint.close();
+		}
 	}
 
 	@Test
 	public void profilerClusterPointtest() {
-		ProfilerClusterPoint profilerClusterPoint = clusterPointRouter.getProfilerClusterPoint();
+		ClusterPointRepository clusterPointRepository = clusterPointRouter.getTargetClusterPointRepository();
 
-		ChannelContext channelContext = new ChannelContext(null, null);
+		SocketChannel socketChannel = mock(SocketChannel.class);
+		
+		ChannelContext channelContext = new ChannelContext(socketChannel, null);
 		channelContext.setChannelProperties(getParams());
 
-		profilerClusterPoint.registerChannelContext(channelContext);
-		Assert.assertEquals(1, profilerClusterPoint.getChannelContext().size());
-
-		Assert.assertNull(profilerClusterPoint.getChannelContext("a", "a"));
-		Assert.assertNull(profilerClusterPoint.getChannelContext("application", "a"));
-		Assert.assertEquals(channelContext, profilerClusterPoint.getChannelContext("application", "agent"));
+		ClusterPoint clusterPoint = new ChannelContextClusterPoint(channelContext);
 		
-		profilerClusterPoint.unregisterChannelContext(channelContext);
-		Assert.assertEquals(0, profilerClusterPoint.getChannelContext().size());
-		Assert.assertNull(profilerClusterPoint.getChannelContext("application", "agent"));
+		clusterPointRepository.addClusterPoint(clusterPoint);
+		List<TargetClusterPoint> clusterPointList = clusterPointRepository.getClusterPointList();
+		
+		Assert.assertEquals(1, clusterPointList.size());
+		Assert.assertNull(findClusterPoint("a", "a", -1L, clusterPointList));
+		Assert.assertNull(findClusterPoint("application", "a", -1L, clusterPointList));
+		Assert.assertEquals(clusterPoint, findClusterPoint("application", "agent", currentTime, clusterPointList));
+		
+		boolean isAdd = clusterPointRepository.addClusterPoint(new ChannelContextClusterPoint(channelContext));
+		Assert.assertFalse(isAdd);
+
+		clusterPointRepository.removeClusterPoint(new ChannelContextClusterPoint(channelContext));
+		clusterPointList = clusterPointRepository.getClusterPointList();
+		
+		Assert.assertEquals(0, clusterPointList.size());
+		Assert.assertNull(findClusterPoint("application", "agent", currentTime, clusterPointList));
 	}
 	
 	private class PinpointSocketManagerHandler implements ServerMessageListener {
@@ -102,10 +123,42 @@ public class ClusterPointRouterTest {
 		properties.put(AgentProperties.KEY_IP, "ip");
 		properties.put(AgentProperties.KEY_PID, 1111);
 		properties.put(AgentProperties.KEY_SERVICE_TYPE, 10);
-		properties.put(AgentProperties.KEY_START_TIME_MILLIS, System.currentTimeMillis());
+		properties.put(AgentProperties.KEY_START_TIME_MILLIS, currentTime);
 		properties.put(AgentProperties.KEY_VERSION, "1.0.3-SNAPSHOT");
 
 		return properties;
+	}
+	
+	private TargetClusterPoint findClusterPoint(String applicationName, String agentId, long startTimeStamp, List<TargetClusterPoint> targetClusterPointList) {
+
+		List<TargetClusterPoint> result = new ArrayList<TargetClusterPoint>();
+		
+		for (TargetClusterPoint targetClusterPoint : targetClusterPointList) {
+			if (!targetClusterPoint.getApplicationName().equals(applicationName)) {
+				continue;
+			}
+			
+			if (!targetClusterPoint.getAgentId().equals(agentId)) {
+				continue;
+			}
+			
+			if (!(targetClusterPoint.getStartTimeStamp() == startTimeStamp)) {
+				continue;
+			}
+
+			result.add(targetClusterPoint);
+		}
+		
+		if (result.size() == 1) {
+			return result.get(0);
+		}
+		
+		if (result.size() > 1) {
+    		logger.warn("Ambiguous ClusterPoint {}, {}, {} (Valid Agent list={}).", applicationName, agentId, startTimeStamp, result);
+			return null;
+		}
+		
+		return null;
 	}
 
 }

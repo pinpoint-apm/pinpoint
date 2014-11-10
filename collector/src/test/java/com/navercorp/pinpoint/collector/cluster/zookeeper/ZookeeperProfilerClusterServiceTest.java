@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.collector.cluster.zookeeper;
 
+import static org.mockito.Mockito.mock;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +19,7 @@ import com.nhn.pinpoint.collector.cluster.ClusterPointRouter;
 import com.nhn.pinpoint.collector.config.CollectorConfiguration;
 import com.nhn.pinpoint.collector.receiver.tcp.AgentProperties;
 import com.nhn.pinpoint.rpc.server.ChannelContext;
+import com.nhn.pinpoint.rpc.server.SocketChannel;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
@@ -47,7 +50,7 @@ public class ZookeeperProfilerClusterServiceTest {
 			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig, clusterPointRouter);
 			service.setUp();
 
-			ChannelContext channelContext = new ChannelContext(null, null, service.getChannelStateChangeEventListener());
+			ChannelContext channelContext = new ChannelContext(mock(SocketChannel.class), null, service.getChannelStateChangeEventListener());
 			channelContext.setChannelProperties(getParams());
 
 			ZookeeperProfilerClusterManager profilerClusterManager = service.getProfilerClusterManager();
@@ -85,7 +88,7 @@ public class ZookeeperProfilerClusterServiceTest {
 			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig, clusterPointRouter);
 			service.setUp();
 
-			ChannelContext channelContext = new ChannelContext(null, null, service.getChannelStateChangeEventListener());
+			ChannelContext channelContext = new ChannelContext(mock(SocketChannel.class), null, service.getChannelStateChangeEventListener());
 			channelContext.setChannelProperties(getParams());
 
 			ZookeeperProfilerClusterManager profilerClusterManager = service.getProfilerClusterManager();
@@ -129,7 +132,7 @@ public class ZookeeperProfilerClusterServiceTest {
 			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig, clusterPointRouter);
 			service.setUp();
 
-			ChannelContext channelContext = new ChannelContext(null, null, service.getChannelStateChangeEventListener());
+			ChannelContext channelContext = new ChannelContext(mock(SocketChannel.class), null, service.getChannelStateChangeEventListener());
 			channelContext.setChannelProperties(getParams());
 
 			ZookeeperProfilerClusterManager profilerClusterManager = service.getProfilerClusterManager();
@@ -172,7 +175,7 @@ public class ZookeeperProfilerClusterServiceTest {
 			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig, clusterPointRouter);
 			service.setUp();
 
-			ChannelContext channelContext = new ChannelContext(null, null, service.getChannelStateChangeEventListener());
+			ChannelContext channelContext = new ChannelContext(mock(SocketChannel.class), null, service.getChannelStateChangeEventListener());
 			channelContext.setChannelProperties(getParams());
 
 			ZookeeperProfilerClusterManager profilerClusterManager = service.getProfilerClusterManager();
@@ -216,7 +219,7 @@ public class ZookeeperProfilerClusterServiceTest {
 			ZookeeperClusterService service = new ZookeeperClusterService(collectorConfig, clusterPointRouter);
 			service.setUp();
 
-			ChannelContext channelContext = new ChannelContext(null, null, service.getChannelStateChangeEventListener());
+			ChannelContext channelContext = new ChannelContext(mock(SocketChannel.class), null, service.getChannelStateChangeEventListener());
 			channelContext.setChannelProperties(getParams());
 
 			ZookeeperProfilerClusterManager profilerClusterManager = service.getProfilerClusterManager();
