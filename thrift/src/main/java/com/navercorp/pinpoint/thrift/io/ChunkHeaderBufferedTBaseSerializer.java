@@ -22,7 +22,7 @@ import com.nhn.pinpoint.thrift.dto.TSpanEvent;
 public class ChunkHeaderBufferedTBaseSerializer {
     private static final String FIELD_NAME_SPAN_EVENT_LIST = "spanEventList";
     private static final int DEFAULT_CHUNK_SIZE = 1024 * 16;
-    
+
     // span event list serialized buffer
     private final TBaseStream eventStream;
     // header
@@ -115,7 +115,7 @@ public class ChunkHeaderBufferedTBaseSerializer {
 
         base.write(protocol);
 
-        if (needAuthFlush()) {
+        if (isNeedFlush()) {
             flush();
         }
     }
@@ -132,12 +132,12 @@ public class ChunkHeaderBufferedTBaseSerializer {
 
         base.write(protocol);
 
-        if (needAuthFlush()) {
+        if (isNeedFlush()) {
             flush();
         }
     }
 
-    private boolean needAuthFlush() {
+    private boolean isNeedFlush() {
         return flushHandler != null && transport.getBufferPosition() > chunkSize;
     }
 
@@ -181,7 +181,7 @@ public class ChunkHeaderBufferedTBaseSerializer {
     public TTransport getTransport() {
         return transport;
     }
-    
+
     public int getChunkSize() {
         return chunkSize;
     }
