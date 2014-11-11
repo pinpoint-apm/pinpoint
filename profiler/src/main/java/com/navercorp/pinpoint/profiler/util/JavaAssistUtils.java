@@ -5,9 +5,7 @@ import javassist.bytecode.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,10 +15,27 @@ import java.util.regex.Pattern;
 public final class JavaAssistUtils {
     private final static String EMTPY_ARRAY = "()";
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
+    private static final String ARRAY = "[]";
 
     private static final Logger logger = LoggerFactory.getLogger(JavaAssistUtils.class);
 
     private static final Pattern PARAMETER_SIGNATURE_PATTERN = Pattern.compile("\\[*L[^;]+;|\\[*[ZBCSIFDJ]|[ZBCSIFDJ]");
+
+    private static final Map<String, String> PRIMITIVE_JAVA_TO_JVM = createPrimitiveJavaToJvmMap();
+
+    private static Map<String, String> createPrimitiveJavaToJvmMap() {
+        final Map<String, String> primitiveJavaToJvm = new HashMap<String, String>();
+        primitiveJavaToJvm.put("byte", "B");
+        primitiveJavaToJvm.put("char", "C");
+        primitiveJavaToJvm.put("double", "D");
+        primitiveJavaToJvm.put("float", "F");
+        primitiveJavaToJvm.put("int", "I");
+        primitiveJavaToJvm.put("long", "J");
+        primitiveJavaToJvm.put("short", "S");
+        primitiveJavaToJvm.put("void", "V");
+        primitiveJavaToJvm.put("boolean", "Z");
+        return primitiveJavaToJvm;
+    }
 
     private JavaAssistUtils() {
     }
@@ -49,6 +64,122 @@ public final class JavaAssistUtils {
         return sb.toString();
     }
 
+    public static String javaTypeToJvmSignature(String[] javaTypeArray) {
+        if (javaTypeArray == null || javaTypeArray.length == 0) {
+            return "()";
+        }
+        final StringBuilder buffer = new StringBuilder();
+        buffer.append('(');
+        for (String javaType : javaTypeArray) {
+            final String jvmSignature = toJvmSignature(javaType);
+            buffer.append(jvmSignature);
+        }
+        buffer.append(')');
+        return buffer.toString();
+
+    }
+
+
+    //for test
+    static String toJvmSignature(String javaType) {
+        if (javaType == null) {
+            throw new NullPointerException("javaType must not be null");
+        }
+        if (javaType.isEmpty()) {
+            return "";
+        }
+
+        final int javaObjectArraySize = getJavaObjectArraySize(javaType);
+        final int javaArrayLength = javaObjectArraySize * 2;
+        String pureJavaType;
+        if (javaObjectArraySize != 0) {
+            // pure java
+            pureJavaType = javaType.substring(0, javaType.length() - javaArrayLength);
+        } else {
+            pureJavaType = javaType;
+        }
+        final String signature = PRIMITIVE_JAVA_TO_JVM.get(pureJavaType);
+        if (signature != null) {
+            // primitive type
+            return appendJvmArray(signature, javaObjectArraySize);
+        }
+        return toJvmObject(javaObjectArraySize, pureJavaType);
+
+    }
+
+    private static String toJvmObject(int javaObjectArraySize, String pureJavaType) {
+        //        "java.lang.String[][]"->"[[Ljava.lang.String;"
+        final StringBuilder buffer = new StringBuilder(pureJavaType.length() + javaObjectArraySize + 2);
+        for (int i = 0; i < javaObjectArraySize; i++) {
+            buffer.append('[');
+        }
+        buffer.append('L');
+        buffer.append(javaNameToJvmName(pureJavaType));
+        buffer.append(';');
+        return buffer.toString();
+    }
+
+    /**
+     * java.lang.String -> java/lang/String
+     * @param javaName
+     * @return
+     */
+    public static String javaNameToJvmName(String javaName) {
+        if (javaName == null) {
+            return "";
+        }
+        return javaName.replace('.', '/');
+    }
+
+    /**
+     * java/lang/String -> java.lang.String
+     * @param javaName
+     * @return
+     */
+    public static String jvmNameToJavaName(String javaName) {
+        if (javaName == null) {
+            return "";
+        }
+        return javaName.replace('/', '.');
+    }
+
+    private static String appendJvmArray(String signature, int javaObjectArraySize) {
+        if (javaObjectArraySize == 0) {
+            return signature;
+        }
+        StringBuilder sb = new StringBuilder(signature.length() + javaObjectArraySize);
+        for (int i = 0; i < javaObjectArraySize; i++) {
+            sb.append('[');
+        }
+        sb.append(signature);
+        return sb.toString();
+    }
+
+    static int getJavaObjectArraySize(String javaType) {
+        if (javaType == null) {
+            throw new NullPointerException("javaType must not be null");
+        }
+        if (javaType.isEmpty()) {
+            return 0;
+        }
+        final int endIndex = javaType.length() - 1;
+        final char checkEndArrayExist = javaType.charAt(endIndex);
+        if (checkEndArrayExist != ']') {
+            return 0;
+        }
+        int arraySize = 0;
+        for (int i = endIndex; i > 0; i = i - 2) {
+            final char arrayEnd = javaType.charAt(i);
+            final char arrayStart = javaType.charAt(i - 1);
+            if (arrayStart == '[' && arrayEnd == ']') {
+                arraySize++;
+            } else {
+                return arraySize;
+            }
+        }
+        return arraySize;
+    }
+
     public static String[] parseParameterSignature(String signature) {
         if (signature == null) {
             throw new NullPointerException("signature must not be null");
@@ -57,13 +188,13 @@ public final class JavaAssistUtils {
         final String[] objectType = new String[parameterSignatureList.size()];
         for (int i = 0; i < parameterSignatureList.size(); i++) {
             final String parameterSignature = parameterSignatureList.get(i);
-            objectType[i] = byteCodeSignatureToObjectType(parameterSignature);
+            objectType[i] = byteCodeSignatureToObjectType(parameterSignature, 0);
         }
         return objectType;
     }
 
-    private static String byteCodeSignatureToObjectType(String signature) {
-        final char scheme = signature.charAt(0);
+    private static String byteCodeSignatureToObjectType(String signature, int startIndex) {
+        final char scheme = signature.charAt(startIndex);
         switch (scheme) {
             case 'B':
                 return "byte";
@@ -84,7 +215,7 @@ public final class JavaAssistUtils {
             case 'Z':
                 return "boolean";
             case 'L':
-                return toObjectType(signature, 1);
+                return toObjectType(signature, startIndex + 1);
             case '[': {
                 return toArrayType(signature);
             }
@@ -94,49 +225,24 @@ public final class JavaAssistUtils {
 
     private static String toArrayType(String description) {
         final int arraySize = getArraySize(description);
-
-        final char scheme = description.charAt(arraySize);
-        switch (scheme) {
-            case 'B':
-                return arrayType("byte", arraySize);
-            case 'C':
-                return arrayType("char", arraySize);
-            case 'D':
-                return arrayType("double", arraySize);
-            case 'F':
-                return arrayType("float", arraySize);
-            case 'I':
-                return arrayType("int", arraySize);
-            case 'J':
-                return arrayType("long", arraySize);
-            case 'S':
-                return arrayType("short", arraySize);
-            case 'V':
-                return arrayType("void", arraySize);
-            case 'Z':
-                return arrayType("boolean", arraySize);
-            case 'L':
-                final String objectType = toObjectType(description, arraySize + 1);
-                return arrayType(objectType, arraySize);
-            case '[': {
-                throw new IllegalArgumentException("invalid signature" + description);
-            }
-        }
-        throw new IllegalArgumentException("invalid signature :" + description);
+        final String objectType = byteCodeSignatureToObjectType(description, arraySize);
+        return arrayType(objectType, arraySize);
     }
 
     private static String arrayType(String objectType, int arraySize) {
-        final String array = "[]";
-        final int arrayStringLength = array.length() * arraySize;
+        final int arrayStringLength = ARRAY.length() * arraySize;
         StringBuilder sb = new StringBuilder(objectType.length() + arrayStringLength);
         sb.append(objectType);
         for (int i = 0; i < arraySize; i++) {
-            sb.append(array);
+            sb.append(ARRAY);
         }
         return sb.toString();
     }
 
     private static int getArraySize(String description) {
+        if (description == null || description.isEmpty()) {
+            return 0;
+        }
         int arraySize = 0;
         for (int i = 0; i < description.length(); i++) {
             final char c = description.charAt(i);
@@ -152,13 +258,12 @@ public final class JavaAssistUtils {
     private static String toObjectType(String signature, int startIndex) {
         // Ljava/lang/String;
         final String assistClass = signature.substring(startIndex, signature.length() - 1);
-        final String objectName = assistClass.replace('/', '.');
+        final String objectName = jvmNameToJavaName(assistClass);
         if (objectName.isEmpty()) {
             throw new IllegalArgumentException("invalid signature. objectName not found :" + signature);
         }
         return objectName;
     }
-
 
 
     private static List<String> splitParameterSignature(String signature) {
@@ -191,7 +296,7 @@ public final class JavaAssistUtils {
         return signature.substring(start, end);
     }
 
-	public static String[] getParameterType(Class[] paramsClass) {
+    public static String[] getParameterType(Class[] paramsClass) {
         if (paramsClass == null) {
             return null;
         }
@@ -324,7 +429,7 @@ public final class JavaAssistUtils {
         return local;
     }
 
-    public static String[] getParameterVariableName(CtBehavior method, LocalVariableAttribute localVariableAttribute)  {
+    public static String[] getParameterVariableName(CtBehavior method, LocalVariableAttribute localVariableAttribute) {
         // http://www.jarvana.com/jarvana/view/org/jboss/weld/servlet/weld-servlet/1.0.1-Final/weld-servlet-1.0.1-Final-sources.jar!/org/slf4j/instrumentation/JavassistHelper.java?format=ok
         // http://grepcode.com/file/repo1.maven.org/maven2/jp.objectfanatics/assertion-weaver/0.0.30/jp/objectfanatics/commons/javassist/JavassistUtils.java
         // 이거 참고함.

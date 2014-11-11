@@ -37,6 +37,54 @@ public class JavaAssistUtilsTest {
 
 
     @Test
+    public void javaArraySize() {
+        Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize(""), 0);
+        Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize("[]"), 1);
+        Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize("[][][]"), 3);
+
+        Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize("int"), 0);
+        Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize("int[]"), 1);
+        Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize("int[][][]"), 3);
+
+
+        Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize("java.lang.String"), 0);
+        Assert.assertEquals(JavaAssistUtils.getJavaObjectArraySize("java.lang.String[][]"), 2);
+    }
+
+
+    @Test
+    public void toJvmSignature() {
+        Assert.assertEquals(JavaAssistUtils.toJvmSignature(""), "");
+
+        Assert.assertEquals(JavaAssistUtils.toJvmSignature("int"), "I");
+        Assert.assertEquals(JavaAssistUtils.toJvmSignature("int[]"), "[I");
+        Assert.assertEquals(JavaAssistUtils.toJvmSignature("int[][][]"), "[[[I");
+
+        Assert.assertEquals(JavaAssistUtils.toJvmSignature("void"), "V");
+
+        Assert.assertEquals(JavaAssistUtils.toJvmSignature("java.lang.String"), "Ljava/lang/String;");
+        Assert.assertEquals(JavaAssistUtils.toJvmSignature("java.lang.String[][]"), "[[Ljava/lang/String;");
+
+    }
+
+    @Test
+    public void javaTypeToJvmSignature() {
+        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{}), "()");
+
+        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"int"}), "(I)");
+        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"int", "double"}), "(ID)");
+        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature( new String[]{"byte", "float", "short"}), "(BFS)");
+
+
+        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"java.lang.String"}), "(Ljava/lang/String;)");
+        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"java.lang.String", "long"}), "(Ljava/lang/String;J)");
+
+        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"long", "java.lang.Object", "boolean"}), "(JLjava/lang/Object;Z)");
+        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"char", "long", "java.lang.Object", "boolean"}), "(CJLjava/lang/Object;Z)");
+    }
+
+
+    @Test
     public void testParseParameterDescriptor() throws Exception {
         Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("()V"), new String[]{});
 

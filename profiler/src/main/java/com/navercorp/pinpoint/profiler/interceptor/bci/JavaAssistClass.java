@@ -277,7 +277,7 @@ public class JavaAssistClass implements InstrumentClass {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        final CtBehavior behavior = getBehavior(null, args, interceptor, NOT_DEFINE_INTERCEPTOR_ID);
+        final CtBehavior behavior = getConstructor(args);
         return addInterceptor0(behavior, null, interceptor, NOT_DEFINE_INTERCEPTOR_ID, Type.around, false);
     }
 
@@ -286,7 +286,7 @@ public class JavaAssistClass implements InstrumentClass {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        final CtBehavior behavior = getBehavior(null, args, interceptor, NOT_DEFINE_INTERCEPTOR_ID);
+        final CtBehavior behavior = getConstructor(args);
         return addInterceptor0(behavior, null, interceptor, NOT_DEFINE_INTERCEPTOR_ID, type, false);
     }
 
@@ -323,7 +323,7 @@ public class JavaAssistClass implements InstrumentClass {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        final CtBehavior behavior = getBehavior(methodName, args, interceptor, NOT_DEFINE_INTERCEPTOR_ID);
+        final CtBehavior behavior = getMethod(methodName, args);
         return addInterceptor0(behavior, methodName, interceptor, NOT_DEFINE_INTERCEPTOR_ID, Type.around, true);
     }
 
@@ -332,7 +332,7 @@ public class JavaAssistClass implements InstrumentClass {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        final CtBehavior behavior = getBehavior(methodName, args, interceptor, NOT_DEFINE_INTERCEPTOR_ID);
+        final CtBehavior behavior = getMethod(methodName, args);
         return addInterceptor0(behavior, methodName, interceptor, NOT_DEFINE_INTERCEPTOR_ID, type, true);
     }
 
@@ -344,7 +344,7 @@ public class JavaAssistClass implements InstrumentClass {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        final CtBehavior behavior = getBehavior(methodName, args, interceptor, NOT_DEFINE_INTERCEPTOR_ID);
+        final CtBehavior behavior = getMethod(methodName, args);
         return addInterceptor0(behavior, methodName, interceptor, NOT_DEFINE_INTERCEPTOR_ID, Type.around, false);
     }
 
@@ -425,13 +425,13 @@ public class JavaAssistClass implements InstrumentClass {
 
     @Override
     public int reuseInterceptor(String methodName, String[] args, int interceptorId) throws InstrumentException, NotFoundInstrumentException {
-        final CtBehavior behavior = getBehavior(methodName, args, null, interceptorId);
+        final CtBehavior behavior = getMethod(methodName, args);
         return addInterceptor0(behavior, methodName, null, interceptorId, Type.around, false);
     }
 
     @Override
     public int reuseInterceptor(String methodName, String[] args, int interceptorId, Type type) throws InstrumentException, NotFoundInstrumentException {
-        final CtBehavior behavior = getBehavior(methodName, args, null, interceptorId);
+        final CtBehavior behavior = getMethod(methodName, args);
         return addInterceptor0(behavior, methodName, null, interceptorId, type, false);
     }
 
@@ -440,29 +440,10 @@ public class JavaAssistClass implements InstrumentClass {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        final CtBehavior behavior = getBehavior(methodName, args, interceptor, NOT_DEFINE_INTERCEPTOR_ID);
+        final CtBehavior behavior = getMethod(methodName, args);
         return addInterceptor0(behavior, methodName, interceptor, NOT_DEFINE_INTERCEPTOR_ID, type, false);
     }
 
-    private CtBehavior getBehavior(String methodName, String[] args) throws NotFoundException {
-        if (methodName == null) {
-            return getConstructor(args);
-        }
-        return getMethod(methodName, args);
-    }
-
-    private CtBehavior getBehavior(String methodName, String[] args, Interceptor interceptor, int interceptorId) throws NotFoundInstrumentException {
-        try {
-            return getBehavior(methodName, args);
-        } catch (NotFoundException e) {
-            // target method나 constructor를 차지 못했을 경우는 NotFoundInstrumentException을 던진다.
-            if (interceptor == null) {
-                throw new NotFoundInstrumentException(interceptorId + " add fail. Cause:" + e.getMessage(), e);
-            } else {
-                throw new NotFoundInstrumentException(interceptor.getClass().getSimpleName() + " add fail. Cause:" + e.getMessage(), e);
-            }
-        }
-    }
 
     private int addInterceptor0(CtBehavior behavior, String methodName, Interceptor interceptor, int interceptorId, Type type, boolean useContextClassLoader) throws InstrumentException, NotFoundInstrumentException {
         try {
@@ -871,16 +852,33 @@ public class JavaAssistClass implements InstrumentClass {
         return false;
     }
 
-
-    private CtMethod getMethod(String methodName, String[] args) throws NotFoundException {
-        CtClass[] params = JavaAssistUtils.getCtParameter(args, instrumentor.getClassPool());
-        // cttime에는 직접 구현클래스를 조작해야 되므로 상속관계의 method를 찾으면 안됨.
-        return ctClass.getDeclaredMethod(methodName, params);
+    private CtMethod getMethod(String methodName, String[] args) throws NotFoundInstrumentException {
+        final String jvmSignature = JavaAssistUtils.javaTypeToJvmSignature(args);
+        for (CtMethod method : ctClass.getDeclaredMethods()) {
+            if (!method.getName().equals(methodName)) {
+                continue;
+            }
+            final String descriptor = method.getMethodInfo2().getDescriptor();
+            // skip return type check
+            if (descriptor.startsWith(jvmSignature)) {
+                return method;
+            }
+        }
+        throw new NotFoundInstrumentException(methodName + Arrays.toString(args) + " is not found in " + this.getName());
     }
 
-    private CtConstructor getConstructor(String[] args) throws NotFoundException {
-        CtClass[] params = JavaAssistUtils.getCtParameter(args, instrumentor.getClassPool());
-        return ctClass.getDeclaredConstructor(params);
+    private CtConstructor getConstructor(String[] args) throws NotFoundInstrumentException {
+        final String jvmSignature = JavaAssistUtils.javaTypeToJvmSignature(args);
+        // constructor return type is void
+
+        for (CtConstructor constructor : ctClass.getDeclaredConstructors()) {
+            final String descriptor = constructor.getMethodInfo2().getDescriptor();
+            // skip return type check
+            if (descriptor.startsWith(jvmSignature) && constructor.isConstructor()) {
+                return constructor;
+            }
+        }
+        throw new NotFoundInstrumentException("Constructor" + Arrays.toString(args) + " is not found in " + this.getName());
     }
 
 
