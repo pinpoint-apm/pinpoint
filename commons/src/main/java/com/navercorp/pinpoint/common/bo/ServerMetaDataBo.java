@@ -40,13 +40,17 @@ public class ServerMetaDataBo {
         buffer.put2PrefixedString(this.serverInfo);
         final int numVmArgs = this.vmArgs == null ? 0 : this.vmArgs.size();
         buffer.putVar(numVmArgs);
-        for (String vmArg : this.vmArgs) {
-            buffer.put2PrefixedString(vmArg);
+        if (this.vmArgs != null) {
+            for (String vmArg : this.vmArgs) {
+                buffer.put2PrefixedString(vmArg);
+            }
         }
         final int numServiceInfos = this.serviceInfos == null ? 0 : this.serviceInfos.size();
         buffer.putVar(numServiceInfos);
-        for (ServiceInfoBo serviceInfo : this.serviceInfos) {
-            buffer.putPrefixedBytes(serviceInfo.writeValue());
+        if (this.serviceInfos != null) {
+            for (ServiceInfoBo serviceInfo : this.serviceInfos) {
+                buffer.putPrefixedBytes(serviceInfo.writeValue());
+            }
         }
         return buffer.getBuffer();
     }

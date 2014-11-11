@@ -46,10 +46,12 @@ public class AgentStatMapper implements RowMapper<List<AgentStat>> {
 
         AgentStat agentStat = new AgentStat();
         if (qualifierMap.containsKey(AGENT_STAT_CF_STATISTICS_MEMORY_GC)) {
-            agentStat.setMemoryGc(new AgentStatMemoryGcBo.Builder(qualifierMap.get(AGENT_STAT_CF_STATISTICS_MEMORY_GC)).build());
+            AgentStatMemoryGcBo.Builder builder = new AgentStatMemoryGcBo.Builder(qualifierMap.get(AGENT_STAT_CF_STATISTICS_MEMORY_GC));
+            agentStat.setMemoryGc(builder.build());
         }
         if (qualifierMap.containsKey(AGENT_STAT_CF_STATISTICS_CPU_LOAD)) {
-            agentStat.setCpuLoad(new AgentStatCpuLoadBo.Builder(qualifierMap.get(AGENT_STAT_CF_STATISTICS_CPU_LOAD)).build());
+            AgentStatCpuLoadBo.Builder builder = new AgentStatCpuLoadBo.Builder(qualifierMap.get(AGENT_STAT_CF_STATISTICS_CPU_LOAD));
+            agentStat.setCpuLoad(builder.build());
         }
         List<AgentStat> agentStats = new ArrayList<AgentStat>();
         agentStats.add(agentStat);
@@ -63,15 +65,21 @@ public class AgentStatMapper implements RowMapper<List<AgentStat>> {
         TAgentStat tAgentStat = new TAgentStat();
         deserializer.deserialize(tAgentStat, tAgentStatByteArray);
         TJvmGc gc = tAgentStat.getGc();
-
+        if (gc == null) {
+            return Collections.emptyList();
+        }
         AgentStatMemoryGcBo.Builder memoryGcBoBuilder = new AgentStatMemoryGcBo.Builder(tAgentStat.getAgentId(), tAgentStat.getStartTimestamp(), tAgentStat.getTimestamp());
         memoryGcBoBuilder.gcType(gc.getType().name());
-        memoryGcBoBuilder.jvmMemoryHeapUsed(gc.getJvmMemoryHeapUsed()).jvmMemoryHeapMax(gc.getJvmMemoryHeapMax());
-        memoryGcBoBuilder.jvmMemoryNonHeapUsed(gc.getJvmMemoryNonHeapUsed()).jvmMemoryNonHeapMax(gc.getJvmMemoryNonHeapMax());
-        memoryGcBoBuilder.jvmGcOldCount(gc.getJvmGcOldCount()).jvmGcOldTime(gc.getJvmGcOldTime());
+        memoryGcBoBuilder.jvmMemoryHeapUsed(gc.getJvmMemoryHeapUsed());
+        memoryGcBoBuilder.jvmMemoryHeapMax(gc.getJvmMemoryHeapMax());
+        memoryGcBoBuilder.jvmMemoryNonHeapUsed(gc.getJvmMemoryNonHeapUsed());
+        memoryGcBoBuilder.jvmMemoryNonHeapMax(gc.getJvmMemoryNonHeapMax());
+        memoryGcBoBuilder.jvmGcOldCount(gc.getJvmGcOldCount());
+        memoryGcBoBuilder.jvmGcOldTime(gc.getJvmGcOldTime());
 
         AgentStat agentStat = new AgentStat();
         agentStat.setMemoryGc(memoryGcBoBuilder.build());
+
         List<AgentStat> result = new ArrayList<AgentStat>(1);
         result.add(agentStat);
         return result;
