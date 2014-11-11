@@ -81,4 +81,13 @@ public class TCommandRegistry implements TBaseLocator {
         return false;
 	}
 
+    @Override
+    public Header getChunkHeader() {
+        return null;
+    }
+
+    @Override
+    public boolean isChunkHeader(short type) {
+        return false;
+    }
 }

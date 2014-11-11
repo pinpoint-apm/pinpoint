@@ -27,10 +27,12 @@ public class ProfilerConfig {
     private int spanDataSenderWriteQueueSize = 1024 * 5;
     private int spanDataSenderSocketSendBufferSize = 1024 * 64 * 16;
     private int spanDataSenderSocketTimeout = 1000 * 3;
+    private int spanDataSenderChunkSize = 1024 * 16;
 
     private int statDataSenderWriteQueueSize = 1024 * 5;
     private int statDataSenderSocketSendBufferSize = 1024 * 64 * 16;
     private int statDataSenderSocketTimeout = 1000 * 3;
+    private int statDataSenderChunkSize = 1024 * 16;
 
     private boolean tcpDataSenderCommandAcceptEnable = false;
     
@@ -201,6 +203,14 @@ public class ProfilerConfig {
 
     public int getSpanDataSenderSocketTimeout() {
         return spanDataSenderSocketTimeout;
+    }
+
+    public int getSpanDataSenderChunkSize() {
+        return spanDataSenderChunkSize;
+    }
+
+    public int getStatDataSenderChunkSize() {
+        return statDataSenderChunkSize;
     }
 
     public boolean isProfileEnable() {
@@ -511,10 +521,12 @@ public class ProfilerConfig {
         this.spanDataSenderWriteQueueSize = readInt(prop, "profiler.spandatasender.write.queue.size", 1024 * 5);
         this.spanDataSenderSocketSendBufferSize = readInt(prop, "profiler.spandatasender.socket.sendbuffersize", 1024 * 64 * 16);
         this.spanDataSenderSocketTimeout = readInt(prop, "profiler.spandatasender.socket.timeout", 1000 * 3);
+        this.spanDataSenderChunkSize = readInt(prop, "profiler.spandatasender.chunk.size", 1024 * 16);
 
         this.statDataSenderWriteQueueSize = readInt(prop, "profiler.statdatasender.write.queue.size", 1024 * 5);
         this.statDataSenderSocketSendBufferSize = readInt(prop, "profiler.statdatasender.socket.sendbuffersize", 1024 * 64 * 16);
         this.statDataSenderSocketTimeout = readInt(prop, "profiler.statdatasender.socket.timeout", 1000 * 3);
+        this.statDataSenderChunkSize = readInt(prop, "profiler.statdatasender.chunk.size", 1024 * 16);
 
         this.tcpDataSenderCommandAcceptEnable = readBoolean(prop, "profiler.tcpdatasender.command.accept.enable", false);
 

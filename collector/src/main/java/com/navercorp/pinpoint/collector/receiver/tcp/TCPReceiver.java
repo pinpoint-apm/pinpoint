@@ -42,6 +42,7 @@ import com.nhn.pinpoint.thrift.io.L4Packet;
 import com.nhn.pinpoint.thrift.io.SerializerFactory;
 import com.nhn.pinpoint.thrift.io.ThreadLocalHeaderTBaseDeserializerFactory;
 import com.nhn.pinpoint.thrift.io.ThreadLocalHeaderTBaseSerializerFactory;
+import com.nhn.pinpoint.thrift.util.SerializationUtils;
 
 /**
  * @author emeroad
@@ -65,9 +66,9 @@ public class TCPReceiver {
 
     private final ThreadPoolExecutor worker = ExecutorFactory.newFixedThreadPool(threadSize, workerQueueSize, THREAD_FACTORY);
 
-    private final SerializerFactory serializerFactory = new ThreadLocalHeaderTBaseSerializerFactory(new HeaderTBaseSerializerFactory(true, HeaderTBaseSerializerFactory.DEFAULT_UDP_STREAM_MAX_SIZE));
+    private final SerializerFactory<HeaderTBaseSerializer> serializerFactory = new ThreadLocalHeaderTBaseSerializerFactory<HeaderTBaseSerializer>(new HeaderTBaseSerializerFactory(true, HeaderTBaseSerializerFactory.DEFAULT_UDP_STREAM_MAX_SIZE));
 
-    private final DeserializerFactory deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory(new HeaderTBaseDeserializerFactory());
+    private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new ThreadLocalHeaderTBaseDeserializerFactory<HeaderTBaseDeserializer>(new HeaderTBaseDeserializerFactory());
 
 
     public TCPReceiver(DispatchHandler dispatchHandler, String bindAddress, int port) {
@@ -187,8 +188,7 @@ public class TCPReceiver {
         @Override
         public void run() {
             try {
-                final HeaderTBaseDeserializer deserializer = deserializerFactory.createDeserializer();
-                TBase<?, ?> tBase = deserializer.deserialize(bytes);
+            	TBase<?, ?> tBase = SerializationUtils.deserialize(bytes, deserializerFactory);
                 dispatchHandler.dispatchSendMessage(tBase, bytes, Header.HEADER_SIZE, bytes.length);
             } catch (TException e) {
                 if (logger.isWarnEnabled()) {
@@ -228,8 +228,7 @@ public class TCPReceiver {
             byte[] bytes = requestPacket.getPayload();
             SocketAddress remoteAddress = socketChannel.getRemoteAddress();
             try {
-                final HeaderTBaseDeserializer deserializer = deserializerFactory.createDeserializer();
-                TBase<?, ?> tBase = deserializer.deserialize(bytes);
+            	TBase<?, ?> tBase = SerializationUtils.deserialize(bytes, deserializerFactory);
                 if (tBase instanceof L4Packet) {
                     // 동적으로 패스가 가능하도록 보완해야 될듯 하다.
                     if (logger.isDebugEnabled()) {
@@ -240,8 +239,7 @@ public class TCPReceiver {
                 }
                 TBase result = dispatchHandler.dispatchRequestMessage(tBase, bytes, Header.HEADER_SIZE, bytes.length);
                 if (result != null) {
-                    HeaderTBaseSerializer serializer = serializerFactory.createSerializer();
-                    byte[] resultBytes = serializer.serialize(result);
+                	byte[] resultBytes = SerializationUtils.serialize(result, serializerFactory);
                     socketChannel.sendResponseMessage(requestPacket, resultBytes);
                 }
             } catch (TException e) {

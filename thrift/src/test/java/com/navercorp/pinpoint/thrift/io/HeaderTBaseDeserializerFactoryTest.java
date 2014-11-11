@@ -24,6 +24,4 @@ public class HeaderTBaseDeserializerFactoryTest {
         HeaderTBaseSerializerFactory factory = new HeaderTBaseSerializerFactory(false, 1);
     	Assert.assertFalse(factory.isSafetyGuranteed());
 	}
-	
-	
 }

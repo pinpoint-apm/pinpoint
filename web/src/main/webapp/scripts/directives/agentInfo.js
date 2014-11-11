@@ -94,9 +94,9 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                     scope.memoryGroup = [ heap, nonheap ];
                     scope.cpuLoadChart = cpuLoad;
 
-                    scope.$broadcast('jvmMemoryChart.initAndRenderWithData.forHeap', AgentDao.parseMemoryChartDataForAmcharts(heap, agentStat), '100%', '275px');
-                    scope.$broadcast('jvmMemoryChart.initAndRenderWithData.forNonHeap', AgentDao.parseMemoryChartDataForAmcharts(nonheap, agentStat), '100%', '275px');
-                    scope.$broadcast('cpuLoadChart.initAndRenderWithData.forCpuLoad', AgentDao.parseCpuLoadChartDataForAmcharts(cpuLoad, agentStat), '100%', '275px');
+                    scope.$broadcast('jvmMemoryChart.initAndRenderWithData.forHeap', AgentDao.parseMemoryChartDataForAmcharts(heap, agentStat), '100%', '270px');
+                    scope.$broadcast('jvmMemoryChart.initAndRenderWithData.forNonHeap', AgentDao.parseMemoryChartDataForAmcharts(nonheap, agentStat), '100%', '270px');
+                    scope.$broadcast('cpuLoadChart.initAndRenderWithData.forCpuLoad', AgentDao.parseCpuLoadChartDataForAmcharts(cpuLoad, agentStat), '100%', '270px');
                 };
                 
                 /**

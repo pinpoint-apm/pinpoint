@@ -17,4 +17,8 @@ public interface TBaseLocator {
 	boolean isSupport(short type);
 
 	boolean isSupport(Class<? extends TBase> clazz);
+	
+	Header getChunkHeader();
+	
+	boolean isChunkHeader(short type);
 }

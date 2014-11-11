@@ -22,7 +22,7 @@ import com.nhn.pinpoint.thrift.io.NetworkAvailabilityCheckPacket;
  */
 public class UdpDataSender extends AbstractDataSender implements DataSender {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isTrace = logger.isTraceEnabled();
     private final boolean isDebug = logger.isDebugEnabled();
 
@@ -31,9 +31,9 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
     public static final int UDP_MAX_PACKET_LENGTH = 65507;
 
     // 주의 single thread용임
-    private DatagramPacket reusePacket = new DatagramPacket(new byte[1], 1);
+    protected DatagramPacket reusePacket = new DatagramPacket(new byte[1], 1);
 
-	private final DatagramSocket udpSocket;
+	protected final DatagramSocket udpSocket;
 
 	// 주의 single thread용임
 	private final HeaderTBaseSerializer serializer = new HeaderTBaseSerializerFactory(false, HeaderTBaseSerializerFactory.DEFAULT_UDP_STREAM_MAX_SIZE).createSerializer();

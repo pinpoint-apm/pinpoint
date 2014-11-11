@@ -10,6 +10,7 @@ import com.nhn.pinpoint.collector.util.ObjectPool;
 import com.nhn.pinpoint.collector.util.PacketUtils;
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.thrift.io.*;
+import com.nhn.pinpoint.thrift.util.SerializationUtils;
 import com.nhn.pinpoint.common.util.ExecutorFactory;
 import com.nhn.pinpoint.rpc.util.CpuUtils;
 
@@ -269,10 +270,9 @@ public class UDPReceiver implements DataReceiver {
         public void run() {
         	Timer.Context time = timer.time();
         	
-            final HeaderTBaseDeserializer deserializer = deserializerFactory.createDeserializer();
             TBase<?, ?> tBase = null;
             try {
-                tBase = deserializer.deserialize(packet.getData());
+            	tBase = SerializationUtils.deserialize(packet.getData(), deserializerFactory);
                 if (tBase instanceof L4Packet) {
                     // 동적으로 패스가 가능하도록 보완해야 될듯 하다.
                     if (logger.isDebugEnabled()) {
