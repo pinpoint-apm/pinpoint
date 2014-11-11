@@ -46,17 +46,6 @@ public class Header {
         this.type = type;
     }
 
-    public byte[] getBytes() {
-        final byte[] buffer = new byte[HEADER_SIZE];
-        buffer[0] = signature;
-        buffer[1] = version;
-        buffer[2] = BytesUtils.writeShort1(type);
-        buffer[3] = BytesUtils.writeShort2(type);
-
-        return buffer;
-    }
-    
-    
     @Override
     public String toString() {
         return "Header{" +

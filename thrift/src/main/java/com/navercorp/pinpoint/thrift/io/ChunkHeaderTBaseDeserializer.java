@@ -9,6 +9,12 @@ import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.transport.TMemoryInputTransport;
 
+/**
+ * Deserialize chunked packets 
+ * 
+ * @author jaehong.kim
+ *
+ */
 public class ChunkHeaderTBaseDeserializer {
     private final TProtocol protocol;
     private final TMemoryInputTransport trans;

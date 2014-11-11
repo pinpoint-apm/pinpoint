@@ -7,7 +7,7 @@ import java.net.DatagramPacket;
 import com.nhn.pinpoint.thrift.io.UnsafeByteArrayOutputStream;
 
 /**
- * 
+ * byte arrays position
  * 
  * @author jaehong.kim
  *

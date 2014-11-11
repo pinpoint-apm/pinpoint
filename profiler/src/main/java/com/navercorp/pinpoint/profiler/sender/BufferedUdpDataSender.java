@@ -16,7 +16,9 @@ import com.nhn.pinpoint.thrift.io.ChunkHeaderBufferedTBaseSerializerFlushHandler
 import com.nhn.pinpoint.thrift.io.TBaseLocator;
 
 /**
+ * split & buffering
  * 
+ * only use pair collector-ChunkedUDPReceiver
  * 
  * @author jaehong.kim
  *

@@ -12,6 +12,7 @@ import org.apache.thrift.protocol.TProtocolFactory;
 import com.nhn.pinpoint.thrift.io.UnsafeByteArrayOutputStream;
 
 /**
+ * TBase stream(byte arrays)
  * 
  * @author jaehong.kim
  */
