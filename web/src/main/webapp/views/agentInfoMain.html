@@ -8,54 +8,42 @@
         <h3>Information</h3>
 
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <table class="table table-striped table-condensed" style="font-size:12px;">
                     <tbody>
                     <tr>
-                        <td class="text-right">Application Name :</td>
-                        <td>{{info.applicationName}}</td>
+                        <td class="col-md-3 text-right"><strong>Application Name</strong></td>
+                        <td class="col-md-2 text-left">{{info.applicationName}}</td>
+                        <td class="col-md-2 text-right"><strong>Agent Version</strong></td>
+                        <td class="col-md-5 text-left">{{info.agentVersion}}</td>
                     </tr>
                     <tr>
-                        <td class="text-right">Agent Id :</td>
-                        <td>{{info.agentId}}</td>
+                        <td class="text-right"><strong>Agent Id</strong></td>
+                        <td class="text-left">{{info.agentId}}</td>
+                        <td class="text-right"><strong>PID</strong></td>
+                        <td class="text-left">{{info.pid}}</td>
                     </tr>
                     <tr>
-                        <td class="text-right">Hostname :</td>
-                        <td>{{info.hostName}}</td>
+                        <td class="text-right"><strong>Hostname</strong></td>
+                        <td class="text-left">{{info.hostName}}</td>
+                        <td class="text-right"><strong>JVM GC Type</strong></td>
+                        <td class="text-left">{{info.jvmGcType}}</td>
                     </tr>
                     <tr>
-                        <td class="text-right">IP :</td>
-                        <td>{{info.ip}} <a class="btn btn-default btn-xs" href="http://nsight.nhncorp.com/dashboard_server/{{info.ip}}" target="_blank" title="System resource monitoring site">NSight</a>
+                        <td class="text-right"><strong>IP</strong></td>
+                        <td class="text-left">
+                            <div>{{info.ip}} <a class="btn btn-default btn-xs" href="http://nsight.nhncorp.com/dashboard_server/{{info.ip}}" target="_blank" title="System resource monitoring site">NSight</a></div>
+                        </td>
+                        <td class="text-right"><strong>Start Time</strong></td>
+                        <td class="text-left">{{agent.startTime | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
                     </tr>
                     <tr>
-                        <td class="text-right">Service Type :</td>
-                        <td>{{info.serviceType}} <a href tabindex="-1" ng-click="openServerMetaDataDiv()" class="btn btn-default btn-xs" ng-show="info.serverMetaData && (info.serverMetaData.serverInfo.length || info.serverMetaData.vmArgs.length || info.serverMetaData.serviceInfos.length)"><span class="glyphicon glyphicon-plus"></span></a></td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="col-md-6">
-                <table class="table table-striped table-condensed" style="font-size:12px;">
-                    <tbody>
-                    <tr>
-                        <td class="text-right">Agent Version :</td>
-                        <td>{{info.agentVersion}}</td>
-                    </tr>
-                    <tr>
-                        <td class="text-right">PID :</td>
-                        <td>{{info.pid}}</td>
-                    </tr>
-                    <tr>
-                        <td class="text-right">JVM GC Type :</td>
-                        <td>{{info.jvmGcType}}</td>
-                    </tr>
-                    <tr>
-                        <td class="text-right">Start Time :</td>
-                        <td>{{agent.startTime | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
-                    </tr>
-                    <tr>
-                        <td class="text-right">End Status :</td>
-                        <td>{{agent.endStatus}} (last checked : {{agent.endTimeStamp | date:'yyyy-MM-dd HH:mm:ss Z'}})</td>
+                        <td class="text-right"><strong>Service Type</strong></td>
+                        <td class="text-left">
+                            <div>{{info.serviceType}} <a href tabindex="-1" ng-click="openServerMetaDataDiv()" class="btn btn-default btn-xs" ng-show="info.serverMetaData && (info.serverMetaData.serverInfo.length || info.serverMetaData.vmArgs.length || info.serverMetaData.serviceInfos.length)"><span class="glyphicon glyphicon-plus"></span></a></div>
+                        </td>
+                        <td class="text-right"><strong>End Status</strong></td>
+                        <td class="text-left">{{agent.endStatus}} (last checked : {{agent.endTimeStamp | date:'yyyy-MM-dd HH:mm:ss Z'}})</td>
                     </tr>
                     </tbody>
                 </table>
