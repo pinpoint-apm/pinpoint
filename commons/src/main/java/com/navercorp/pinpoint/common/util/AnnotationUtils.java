@@ -59,7 +59,10 @@ public class AnnotationUtils {
         if (serviceType == ServiceType.HTTP_CLIENT || serviceType == ServiceType.JDK_HTTPURLCONNECTOR) {
             return findAnnotationBo(list, AnnotationKey.HTTP_URL);
         }
-
+        
+        if (serviceType == ServiceType.HTTP_CLIENT_INTERNAL) {
+            return findAnnotationBo(list, AnnotationKey.HTTP_CALL_RETRY_COUNT);
+        }
 
 //        span에 해당하는 Tomcat의 경우 Span에 포함된 rpc 필드를 사용하므로 annotation에서 찾을필요가 없음.
 //        if (span.getServiceType() == ServiceType.TOMCAT) {

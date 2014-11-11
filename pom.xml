@@ -7,7 +7,7 @@
     </organization>
     <groupId>com.nhn.pinpoint</groupId>
     <artifactId>pom</artifactId>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.0.4-SNAPSHOT</version>
     <name>pinpoint</name>
     <packaging>pom</packaging>
 
@@ -73,7 +73,7 @@
     </modules>
 
     <properties>
-        <pinpoint-version>1.0.3-SNAPSHOT</pinpoint-version>
+        <pinpoint-version>1.0.4-SNAPSHOT</pinpoint-version>
 
         <encoding>UTF-8</encoding>
         <jdk.version>1.6</jdk.version>
@@ -84,6 +84,7 @@
         <codehaus.jackson.version>1.9.13</codehaus.jackson.version>
         <fastxml.jackson.version>2.3.1</fastxml.jackson.version>
         <httpcomponents.version>4.3</httpcomponents.version>
+        <cloverLicenseLocation>${basedir}/clover.license</cloverLicenseLocation>
     </properties>
 
     <dependencies>
@@ -693,7 +694,7 @@
                     <generateXml>true</generateXml>
                     <generateHtml>true</generateHtml>
                     <generateHistorical>false</generateHistorical>
-                    <licenseLocation>clover.license</licenseLocation>
+                    <licenseLocation>${cloverLicenseLocation}</licenseLocation>
                     <singleCloverDatabase>false</singleCloverDatabase>
                     <includesTestSourceRoots>false</includesTestSourceRoots>
                     <excludes>

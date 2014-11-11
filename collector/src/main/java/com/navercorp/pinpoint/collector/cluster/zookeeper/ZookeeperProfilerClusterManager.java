@@ -10,7 +10,8 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.collector.cluster.ProfilerClusterPoint;
+import com.nhn.pinpoint.collector.cluster.ChannelContextClusterPoint;
+import com.nhn.pinpoint.collector.cluster.ClusterPointRepository;
 import com.nhn.pinpoint.collector.cluster.WorkerState;
 import com.nhn.pinpoint.collector.cluster.WorkerStateContext;
 import com.nhn.pinpoint.collector.cluster.zookeeper.job.DeleteJob;
@@ -37,16 +38,16 @@ public class ZookeeperProfilerClusterManager implements SocketChannelStateChange
 
 	private final WorkerStateContext workerState;
 
-	private final ProfilerClusterPoint clusterPoint;
+	private final ClusterPointRepository clusterPointRepository;
 
 	// 단순하게 하자 그냥 RUN이면 등록 FINISHED면 경우 삭제 그외 skip
 	// 만약 상태가 안맞으면(?) 보정 들어가야 하는데 leak detector 같은걸 worker내부에 둘 까도 고민중 
 	//
 	// RUN_DUPLEX에서만 생성할수 있게 해야한다.
 	// 지금은 RUN 상대방의 상태를 알수 없는 상태이기 때문에 이상황에서 등록
-	public ZookeeperProfilerClusterManager(ZookeeperClient client, String serverIdentifier, ProfilerClusterPoint clusterPoint) {
+	public ZookeeperProfilerClusterManager(ZookeeperClient client, String serverIdentifier, ClusterPointRepository clusterPoint) {
 		this.workerState = new WorkerStateContext();
-		this.clusterPoint = clusterPoint;
+		this.clusterPointRepository = clusterPoint;
 		
 		this.client = client;
 		this.worker = new ZookeeperLatestJobWorker(client, serverIdentifier);
@@ -119,12 +120,12 @@ public class ZookeeperProfilerClusterManager implements SocketChannelStateChange
 				UpdateJob job = new UpdateJob(channelContext, new byte[0]);
 				worker.putJob(job);
 				
-				clusterPoint.registerChannelContext(channelContext);
+				clusterPointRepository.addClusterPoint(new ChannelContextClusterPoint(channelContext));
 			} else if (PinpointServerSocketStateCode.isFinished(stateCode)) {
 				DeleteJob job = new DeleteJob(channelContext);
 				worker.putJob(job);
-				
-				clusterPoint.unregisterChannelContext(channelContext);
+
+				clusterPointRepository.removeClusterPoint(new ChannelContextClusterPoint(channelContext));
 			} 
 		} else {
 			WorkerState state = this.workerState.getCurrentState();

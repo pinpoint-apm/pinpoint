@@ -2,8 +2,8 @@ package com.nhn.pinpoint.profiler.modifier.spring.beans;
 
 import java.security.ProtectionDomain;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.nhn.pinpoint.bootstrap.logging.PLogger;
+import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
@@ -48,7 +48,7 @@ import com.nhn.pinpoint.profiler.modifier.spring.beans.interceptor.TargetBeanFil
  * We have checked Spring versions from 2.5.6 to 4.1.0.
  */
 public class AbstractAutowireCapableBeanFactoryModifier extends AbstractModifier {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final PLogger logger = PLoggerFactory.getLogger(getClass());
     
     private final ClassFileRetransformer retransformer;
     private final TargetBeanFilter filter;

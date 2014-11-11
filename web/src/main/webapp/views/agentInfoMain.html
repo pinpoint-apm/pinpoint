@@ -29,7 +29,7 @@
                     </tr>
                     <tr>
                         <td class="text-right">Service Type :</td>
-                        <td>{{info.serviceType}} <a href tabindex="-1" ng-click="openServerMetaDataDiv()" class="btn btn-default btn-xs" ng-show="{{info.serverMetaData}} && ({{info.serverMetaData.serverInfo.length}} || {{info.serverMetaData.vmArgs.length}} || {{info.serverMetaData.serviceInfos.length}})"><span class="glyphicon glyphicon-plus"></span></a></td>
+                        <td>{{info.serviceType}} <a href tabindex="-1" ng-click="openServerMetaDataDiv()" class="btn btn-default btn-xs" ng-show="info.serverMetaData && (info.serverMetaData.serverInfo.length || info.serverMetaData.vmArgs.length || info.serverMetaData.serviceInfos.length)"><span class="glyphicon glyphicon-plus"></span></a></td>
                     </tr>
                     </tbody>
                 </table>
@@ -123,23 +123,25 @@
                     <h4 class="modal-title" id="myServerMetaDataDiv">Server Details</h4>
                 </div>
                 <div class="modal-body">
-			        <div class="row">
-			            <div class="col-md-12" style="overflow-x:auto;">
-			                <table class="table table-striped table-condensed" style="font-size:12px;">
-			                    <tbody>
-			                    <tr ng-show="info.serverMetaData.serverInfo.length">
+                    <div class="row">
+                        <div class="col-md-12" style="overflow-x:auto;">
+                            <table class="table table-striped table-condensed" style="font-size:12px;">
+                                <tbody>
+                                <tr>
                                     <td>
                                         <dl class="dl-horizontal">
                                             <dt>Server Info</dt>
-                                            <dd>{{info.serverMetaData.serverInfo}}</dd>
+                                            <dd ng-show="info.serverMetaData.serverInfo.length">{{info.serverMetaData.serverInfo}}</dd>
+                                            <dd ng-hide="info.serverMetaData.serverInfo.length">N/A</dd>
                                         </dl>
                                     </td>
-			                    </tr>
-                                <tr ng-show="info.serverMetaData.vmArgs.length">
+                                </tr>
+                                <tr>
                                     <td>
                                         <dl class="dl-horizontal pre-scrollable">
                                             <dt>VM Arguments</dt>
-                                            <dd ng-repeat="vmArg in info.serverMetaData.vmArgs">{{vmArg}}</dd>
+                                            <dd ng-show="info.serverMetaData.vmArgs.length" ng-repeat="vmArg in info.serverMetaData.vmArgs">{{vmArg}}</dd>
+                                            <dd ng-hide="info.serverMetaData.vmArgs.length">N/A</dd>
                                         </dl>
                                     </td>
                                 </tr>
@@ -152,14 +154,14 @@
                                         </dl>
                                     </td>
                                 </tr>
-			                    </tbody>
-			                </table>
-			            </div>
-			        </div>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-	            <div class="modal-footer">
-	                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-	            </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
     </div>

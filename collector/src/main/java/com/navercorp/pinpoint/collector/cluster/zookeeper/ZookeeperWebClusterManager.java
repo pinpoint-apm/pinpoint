@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.collector.cluster.WebClusterPoint;
+import com.nhn.pinpoint.collector.cluster.WebCluster;
 import com.nhn.pinpoint.collector.cluster.WorkerState;
 import com.nhn.pinpoint.collector.cluster.WorkerStateContext;
 import com.nhn.pinpoint.collector.cluster.zookeeper.exception.ConnectionException;
@@ -33,7 +33,7 @@ public class ZookeeperWebClusterManager implements Runnable {
 	private final StopTask stopTask = new StopTask();
 
 	private final ZookeeperClient client;
-	private final WebClusterPoint webClusterPoint;
+	private final WebCluster webClusterPoint;
 	private final String zNodePath;
 
 	private final AtomicBoolean retryMode = new AtomicBoolean(false);
@@ -49,7 +49,7 @@ public class ZookeeperWebClusterManager implements Runnable {
 	// Job이 포함되면 실행. Job성공시 이후 Job 모두 삭제
 	// 먼가 이상한 형태의 자료구조가 필요한거 같은데....
 
-	public ZookeeperWebClusterManager(ZookeeperClient client, String zookeeperClusterPath, String serverIdentifier, WebClusterPoint clusterPoint) {
+	public ZookeeperWebClusterManager(ZookeeperClient client, String zookeeperClusterPath, String serverIdentifier, WebCluster clusterPoint) {
 		this.client = client;
 
 		this.webClusterPoint = clusterPoint;

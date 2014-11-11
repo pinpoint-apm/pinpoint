@@ -22,6 +22,7 @@ import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.BasicFutureModif
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.ClosableHttpAsyncClientModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.ClosableHttpClientModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.HttpClient4Modifier;
+import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.DefaultHttpRequestRetryHandlerModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.jdkhttpconnector.HttpURLConnectionModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.lucynet.CompositeInvocationFutureModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.lucynet.DefaultInvocationFutureModifier;
@@ -60,13 +61,19 @@ import com.nhn.pinpoint.profiler.modifier.orm.ibatis.SqlMapClientImplModifier;
 import com.nhn.pinpoint.profiler.modifier.orm.ibatis.SqlMapSessionImplModifier;
 import com.nhn.pinpoint.profiler.modifier.orm.mybatis.DefaultSqlSessionModifier;
 import com.nhn.pinpoint.profiler.modifier.orm.mybatis.SqlSessionTemplateModifier;
+import com.nhn.pinpoint.profiler.modifier.redis.BinaryJedisModifier;
+import com.nhn.pinpoint.profiler.modifier.redis.BinaryRedisClusterModifier;
+import com.nhn.pinpoint.profiler.modifier.redis.BinaryTriplesRedisClusterModifier;
 import com.nhn.pinpoint.profiler.modifier.redis.GatewayModifier;
 import com.nhn.pinpoint.profiler.modifier.redis.GatewayServerModifier;
 import com.nhn.pinpoint.profiler.modifier.redis.JedisClientModifier;
 import com.nhn.pinpoint.profiler.modifier.redis.JedisModifier;
+import com.nhn.pinpoint.profiler.modifier.redis.JedisMultiKeyPipelineBaseModifier;
+import com.nhn.pinpoint.profiler.modifier.redis.JedisPipelineBaseModifier;
 import com.nhn.pinpoint.profiler.modifier.redis.JedisPipelineModifier;
 import com.nhn.pinpoint.profiler.modifier.redis.RedisClusterModifier;
 import com.nhn.pinpoint.profiler.modifier.redis.RedisClusterPipelineModifier;
+import com.nhn.pinpoint.profiler.modifier.redis.TriplesRedisClusterModifier;
 import com.nhn.pinpoint.profiler.modifier.servlet.HttpServletModifier;
 import com.nhn.pinpoint.profiler.modifier.servlet.SpringFrameworkServletModifier;
 import com.nhn.pinpoint.profiler.modifier.spring.beans.AbstractAutowireCapableBeanFactoryModifier;
@@ -137,6 +144,9 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         addModifier(new ClosableHttpAsyncClientModifier(byteCodeInstrumentor, agent));
         addModifier(new ClosableHttpClientModifier(byteCodeInstrumentor, agent));
         addModifier(new BasicFutureModifier(byteCodeInstrumentor, agent));
+        
+        //apache http client retry
+        addModifier(new DefaultHttpRequestRetryHandlerModifier(byteCodeInstrumentor, agent));
     }
 
     public void addArcusModifier() {
@@ -384,11 +394,14 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	
 	public void addRedisSupport() {
 	    if(profilerConfig.isRedisEnabled()) {
+	        addModifier(new BinaryJedisModifier(byteCodeInstrumentor, agent));
 	        addModifier(new JedisModifier(byteCodeInstrumentor, agent));
 	    }
 	    
         if(profilerConfig.isRedisPipelineEnabled()) {
             addModifier(new JedisClientModifier(byteCodeInstrumentor, agent));
+            addModifier(new JedisPipelineBaseModifier(byteCodeInstrumentor, agent));
+            addModifier(new JedisMultiKeyPipelineBaseModifier(byteCodeInstrumentor, agent));
             addModifier(new JedisPipelineModifier(byteCodeInstrumentor, agent));
         }
 	}
@@ -400,6 +413,9 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	        
 	        if(profilerConfig.isNbaseArcEnabled()) {
 	            addModifier(new RedisClusterModifier(byteCodeInstrumentor, agent));
+	            addModifier(new BinaryRedisClusterModifier(byteCodeInstrumentor, agent));
+	            addModifier(new TriplesRedisClusterModifier(byteCodeInstrumentor, agent));
+	            addModifier(new BinaryTriplesRedisClusterModifier(byteCodeInstrumentor, agent));
 	        }
 
 	        if(profilerConfig.isNbaseArcPipelineEnabled()) {

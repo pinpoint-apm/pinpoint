@@ -15,9 +15,13 @@ public interface InstrumentClass {
 
     String getName();
 
-	boolean insertCodeBeforeMethod(String methodName, String[] args, String code);
+    String getSuperClass();
 
-	boolean insertCodeAfterMethod(String methodName, String[] args, String code);
+    String[] getInterfaces();
+
+    boolean insertCodeBeforeMethod(String methodName, String[] args, String code);
+
+    boolean insertCodeAfterMethod(String methodName, String[] args, String code);
 
     int addAllConstructorInterceptor(Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
 
@@ -87,9 +91,9 @@ public interface InstrumentClass {
 
 	boolean insertCodeBeforeConstructor(String[] args, String code);
 
-    List<MethodInfo> getDeclaredMethods() throws NotFoundInstrumentException;
+    List<MethodInfo> getDeclaredMethods();
 	
-	List<MethodInfo> getDeclaredMethods(MethodFilter methodFilter) throws NotFoundInstrumentException;
+	List<MethodInfo> getDeclaredMethods(MethodFilter methodFilter);
 	
 	public boolean isInterceptable();
 	

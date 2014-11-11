@@ -33,9 +33,43 @@ public class JavaAssistUtilsTest {
         String clsDescription = JavaAssistUtils.getParameterDescription(new Class[]{int.class});
         logger.info(clsDescription);
         Assert.assertEquals(ctDescription, clsDescription);
+    }
 
+
+    @Test
+    public void testParseParameterDescriptor() throws Exception {
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("()V"), new String[]{});
+
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(I)I"), new String[]{"int"});
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(ID)I"), new String[]{"int", "double"});
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(BFS)I"), new String[]{"byte", "float", "short"});
+
+
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(Ljava/lang/String;)I"), new String[]{"java.lang.String"});
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(Ljava/lang/String;J)I"), new String[]{"java.lang.String", "long"});
+
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(JLjava/lang/Object;Z)I"), new String[]{"long", "java.lang.Object", "boolean"});
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(CJLjava/lang/Object;Z)I"), new String[]{"char", "long", "java.lang.Object", "boolean"});
 
     }
+
+    @Test
+    public void testParseParameterDescriptor_array() throws Exception {
+
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([I)I"), new String[]{"int[]"});
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([IJ)I"), new String[]{"int[]", "long"});
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([J[I)I"), new String[]{"long[]", "int[]"});
+
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([Ljava/lang/String;)"), new String[]{"java.lang.String[]"});
+
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(Ljava/lang/String;[[J)"), new String[]{"java.lang.String", "long[][]"});
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("(Ljava/lang/Object;[[Ljava/lang/String;)"), new String[]{"java.lang.Object", "java.lang.String[][]"});
+
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([[[Ljava/lang/String;)"), new String[]{"java.lang.String[][][]"});
+
+        Assert.assertArrayEquals(JavaAssistUtils.parseParameterSignature("([[[I)"), new String[]{"int[][][]"});
+    }
+
 
     @Test
     public void testGetLineNumber() throws Exception {
@@ -62,8 +96,10 @@ public class JavaAssistUtilsTest {
         Assert.assertEquals(paramName.length, 1);
         Assert.assertEquals(paramName[0], "params");
 
-        String[] parameterType = JavaAssistUtils.getParameterType(setParams.getParameterTypes());
+        String[] parameterType = JavaAssistUtils.parseParameterSignature(setParams.getSignature());
+        String[] parameterType2 = JavaAssistUtils.getParameterType(setParams.getParameterTypes());
         logger.info(Arrays.toString(parameterType));
+        Assert.assertArrayEquals(parameterType, parameterType2);
 
         String s = ApiUtils.mergeParameterVariableNameDescription(parameterType, paramName);
         logger.info(s);
@@ -85,8 +121,10 @@ public class JavaAssistUtilsTest {
         Assert.assertEquals(paramName.length, 1);
         Assert.assertEquals(paramName[0], "autoCommitFlag");
 
-        String[] parameterType = JavaAssistUtils.getParameterType(setParams.getParameterTypes());
+        String[] parameterType = JavaAssistUtils.parseParameterSignature(setParams.getSignature());
+        String[] parameterType2 = JavaAssistUtils.getParameterType(setParams.getParameterTypes());
         logger.info(Arrays.toString(parameterType));
+        Assert.assertArrayEquals(parameterType, parameterType2);
 
         String s = ApiUtils.mergeParameterVariableNameDescription(parameterType, paramName);
         logger.info(s);
@@ -107,8 +145,10 @@ public class JavaAssistUtilsTest {
         Assert.assertEquals(paramName.length, 1);
         Assert.assertEquals(paramName[0], "sql");
 
-        String[] parameterType = JavaAssistUtils.getParameterType(setParams.getParameterTypes());
+        String[] parameterType = JavaAssistUtils.parseParameterSignature(setParams.getSignature());
+        String[] parameterType2 = JavaAssistUtils.getParameterType(setParams.getParameterTypes());
         logger.info(Arrays.toString(parameterType));
+        Assert.assertArrayEquals(parameterType, parameterType2);
 
         String s = ApiUtils.mergeParameterVariableNameDescription(parameterType, paramName);
         logger.info(s);

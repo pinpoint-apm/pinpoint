@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.nhn.pinpoint.bootstrap.instrument.InstrumentException;
 import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.MapTraceValue;
@@ -47,28 +48,45 @@ public class RedisClusterPipelineModifier extends AbstractModifier {
 
             // trace destinationId, endPoint
             instrumentClass.addTraceValue(MapTraceValue.class);
-            
-            final Interceptor constructorInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.redis.interceptor.RedisClusterPipelineConstructorInterceptor");
-            try {
-                instrumentClass.addConstructorInterceptor(new String[] { "com.nhncorp.redis.cluster.gateway.GatewayServer" }, constructorInterceptor);
-            } catch (Exception ignored) {
-                // backward compatibility error
-            }
+
+            addConstructorInterceptor(classLoader, protectedDomain, instrumentClass);
 
             // method
-            final List<MethodInfo> declaredMethods = instrumentClass.getDeclaredMethods(new NameBasedMethodFilter(RedisClusterPipelineMethodNames.get()));
-            for (MethodInfo method : declaredMethods) {
-                final Interceptor methodInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.redis.interceptor.RedisClusterPipelineMethodInterceptor");
-                instrumentClass.addInterceptor(method.getName(), method.getParameterTypes(), methodInterceptor);
-            }
+            addMethodInterceptor(classLoader, protectedDomain, instrumentClass);
 
             return instrumentClass.toBytecode();
         } catch (Exception e) {
             if (logger.isWarnEnabled()) {
-                logger.warn("redis.RedisClusterPipelineModifier(nBase-ARC) fail. Target class is " + getTargetClass() + ", Caused " + e.getMessage(), e);
+                logger.warn("Failed to modifier. caused={}", e.getMessage(), e);
             }
         }
 
         return null;
+    }
+
+    protected void addConstructorInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, final InstrumentClass instrumentClass) throws InstrumentException {
+        final Interceptor constructorInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.redis.interceptor.RedisClusterPipelineConstructorInterceptor");
+        try {
+            instrumentClass.addConstructorInterceptor(new String[] { "com.nhncorp.redis.cluster.gateway.GatewayServer" }, constructorInterceptor);
+        } catch (Exception e) {
+            // backward compatibility error
+            if (logger.isWarnEnabled()) {
+                logger.warn("Failed to add constructor interceptor. caused={}", e.getMessage(), e);
+            }
+        }
+    }
+
+    protected void addMethodInterceptor(ClassLoader classLoader, ProtectionDomain protectedDomain, final InstrumentClass instrumentClass) throws InstrumentException {
+        final List<MethodInfo> declaredMethods = instrumentClass.getDeclaredMethods(new NameBasedMethodFilter(RedisClusterPipelineMethodNames.get()));
+        for (MethodInfo method : declaredMethods) {
+            try {
+                final Interceptor methodInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.redis.interceptor.RedisClusterPipelineMethodInterceptor");
+                instrumentClass.addInterceptor(method.getName(), method.getParameterTypes(), methodInterceptor);
+            } catch (Exception e) {
+                if (logger.isWarnEnabled()) {
+                    logger.warn("Failed to add method interceptor('not found ...' is jedis compatibility error). caused={}", e.getMessage(), e);
+                }
+            }
+        }
     }
 }

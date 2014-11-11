@@ -3,7 +3,6 @@ package com.nhn.pinpoint.profiler.sender;
 import java.util.Collection;
 
 import org.apache.thrift.TBase;
-import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +10,7 @@ import com.nhn.pinpoint.rpc.FutureListener;
 import com.nhn.pinpoint.rpc.ResponseMessage;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.nhn.pinpoint.thrift.util.SerializationUtils;
 
 /**
  * 
@@ -58,27 +58,13 @@ public abstract class AbstractDataSender implements DataSender {
     }
 
 	protected byte[] serialize(HeaderTBaseSerializer serializer, TBase tBase) {
-		try {
-			return serializer.serialize(tBase);
-		} catch (TException e) {
-			if (logger.isWarnEnabled()) {
-				logger.warn("Serialize fail:{} Caused:{}", tBase, e.getMessage(), e);
-			}
-			return null;
-		}
-	}
-	protected TBase<?, ?> deserialize(HeaderTBaseDeserializer deserializer, ResponseMessage responseMessage) {
-		byte[] message = responseMessage.getMessage();
-		try {
-			return deserializer.deserialize(message);
-		} catch (TException e) {
-			if (logger.isWarnEnabled()) {
-				logger.warn("Deserialize fail. Caused:{}", e.getMessage(), e);
-			}
-			return null;
-		}
+		return SerializationUtils.serialize(tBase, serializer, null);
 	}
 	
+	protected TBase<?, ?> deserialize(HeaderTBaseDeserializer deserializer, ResponseMessage responseMessage) {
+		byte[] message = responseMessage.getMessage();
+		return SerializationUtils.deserialize(message, deserializer, null);
+	}
 	
 	protected static class RequestMarker {
 		private final TBase tBase;
