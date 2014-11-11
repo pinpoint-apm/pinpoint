@@ -28,6 +28,8 @@ import com.nhn.pinpoint.thrift.dto.command.TMonitorInfo;
 import com.nhn.pinpoint.thrift.dto.command.TThreadDump;
 import com.nhn.pinpoint.thrift.dto.command.TThreadState;
 import com.nhn.pinpoint.thrift.io.DeserializerFactory;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.nhn.pinpoint.thrift.io.SerializerFactory;
 import com.nhn.pinpoint.thrift.util.SerializationUtils;
 import com.nhn.pinpoint.web.server.PinpointSocketManager;
@@ -42,10 +44,10 @@ public class CommandController {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
-	private SerializerFactory commandSerializerFactory;
+	private SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory;
 
 	@Autowired
-	private DeserializerFactory commandDeserializerFactory;
+	private DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory;
 
 	@Autowired
 	private PinpointSocketManager socketManager;

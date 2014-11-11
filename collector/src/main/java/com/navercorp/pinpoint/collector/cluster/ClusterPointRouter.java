@@ -21,6 +21,8 @@ import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.thrift.dto.TResult;
 import com.nhn.pinpoint.thrift.dto.command.TCommandTransfer;
 import com.nhn.pinpoint.thrift.io.DeserializerFactory;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.nhn.pinpoint.thrift.io.SerializerFactory;
 import com.nhn.pinpoint.thrift.io.TCommandTypeVersion;
 import com.nhn.pinpoint.thrift.util.SerializationUtils;
@@ -35,10 +37,10 @@ public class ClusterPointRouter implements MessageListener {
 	private final ClusterPointRepository<TargetClusterPoint> targetClusterPointRepository;
 
 	@Autowired
-	private SerializerFactory commandSerializerFactory;
+	private SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory;
 
 	@Autowired
-	private DeserializerFactory commandDeserializerFactory;
+	private DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory;
 
 	public ClusterPointRouter() {
 		this.targetClusterPointRepository = new ClusterPointRepository<TargetClusterPoint>();

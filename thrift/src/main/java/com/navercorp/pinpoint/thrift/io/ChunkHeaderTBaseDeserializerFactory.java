@@ -6,18 +6,18 @@ import org.apache.thrift.protocol.TProtocolFactory;
 /**
  * @author koo.taejin
  */
-public final class HeaderTBaseDeserializerFactory implements DeserializerFactory<HeaderTBaseDeserializer> {
+public final class ChunkHeaderTBaseDeserializerFactory implements DeserializerFactory<ChunkHeaderTBaseDeserializer> {
 
     private static final TBaseLocator DEFAULT_TBASE_LOCATOR = new DefaultTBaseLocator();
 
     private static final TProtocolFactory DEFAULT_PROTOCOL_FACTORY = new TCompactProtocol.Factory();
 
-    public static final HeaderTBaseDeserializerFactory DEFAULT_FACTORY = new HeaderTBaseDeserializerFactory();
+    public static final ChunkHeaderTBaseDeserializerFactory DEFAULT_FACTORY = new ChunkHeaderTBaseDeserializerFactory();
 
     private final TProtocolFactory protocolFactory;
     private TBaseLocator locator;
 
-    public HeaderTBaseDeserializerFactory() {
+    public ChunkHeaderTBaseDeserializerFactory() {
         this(DEFAULT_PROTOCOL_FACTORY, DEFAULT_TBASE_LOCATOR);
     }
 
@@ -29,7 +29,7 @@ public final class HeaderTBaseDeserializerFactory implements DeserializerFactory
         return protocolFactory;
     }
 
-    public HeaderTBaseDeserializerFactory(TProtocolFactory protocolFactory, TBaseLocator locator) {
+    public ChunkHeaderTBaseDeserializerFactory(TProtocolFactory protocolFactory, TBaseLocator locator) {
         if (protocolFactory == null) {
             throw new NullPointerException("protocolFactory must not be null");
         }
@@ -42,8 +42,8 @@ public final class HeaderTBaseDeserializerFactory implements DeserializerFactory
 
 
     @Override
-	public HeaderTBaseDeserializer createDeserializer() {
-        return new HeaderTBaseDeserializer(protocolFactory, locator);
+	public ChunkHeaderTBaseDeserializer createDeserializer() {
+        return new ChunkHeaderTBaseDeserializer(protocolFactory, locator);
 	}
 
 }

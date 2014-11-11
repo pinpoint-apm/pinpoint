@@ -79,7 +79,7 @@
         <constructor-arg type="com.nhn.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService" ref="clusterService"/>
     </bean>
 
-    <bean id="udpSpanReceiver" class="com.nhn.pinpoint.collector.receiver.udp.UDPReceiver">
+    <bean id="udpSpanReceiver" class="com.nhn.pinpoint.collector.receiver.udp.ChunkedUDPReceiver">
         <constructor-arg value="Pinpoint-UDP-Span"/>
         <constructor-arg type="com.nhn.pinpoint.collector.receiver.DispatchHandler" ref="udpSpanDispatchHandler"/>
         <constructor-arg value="#{collectorConfiguration.udpSpanListenIp}"/>
@@ -89,7 +89,7 @@
         <constructor-arg value="#{collectorConfiguration.udpSpanWorkerQueueSize}"/>
     </bean>
 
-    <bean id="udpStatReceiver" class="com.nhn.pinpoint.collector.receiver.udp.UDPReceiver">
+    <bean id="udpStatReceiver" class="com.nhn.pinpoint.collector.receiver.udp.BaseUDPReceiver">
         <constructor-arg value="Pinpoint-UDP-Stat"/>
         <constructor-arg type="com.nhn.pinpoint.collector.receiver.DispatchHandler" ref="udpDispatchHandler"/>
         <constructor-arg value="#{collectorConfiguration.udpStatListenIp}"/>

@@ -20,7 +20,9 @@ import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.rpc.util.AssertUtils;
 import com.nhn.pinpoint.thrift.dto.TResult;
 import com.nhn.pinpoint.thrift.io.DeserializerFactory;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
+import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 import com.nhn.pinpoint.thrift.io.SerializerFactory;
 import com.nhn.pinpoint.thrift.io.TBaseLocator;
@@ -36,8 +38,8 @@ public class CommandDispatcher implements MessageListener  {
 
 	private final ProfilerCommandServiceLocator locator;
 
-	private final SerializerFactory serializerFactory;
-	private final DeserializerFactory deserializerFactory;
+	private final SerializerFactory<HeaderTBaseSerializer> serializerFactory;
+	private final DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory;
 
 	public CommandDispatcher(Builder builder) {
 		ProfilerCommandServiceRegistry registry = new ProfilerCommandServiceRegistry();
@@ -46,21 +48,21 @@ public class CommandDispatcher implements MessageListener  {
 		}
 		this.locator = registry;
 		
-		SerializerFactory serializerFactory = new HeaderTBaseSerializerFactory(true, builder.serializationMaxSize, builder.protocolFactory, builder.commandTbaseLocator);
+		SerializerFactory<HeaderTBaseSerializer> serializerFactory = new HeaderTBaseSerializerFactory(true, builder.serializationMaxSize, builder.protocolFactory, builder.commandTbaseLocator);
 		this.serializerFactory = wrappedThreadLocalSerializerFactory(serializerFactory);
 		AssertUtils.assertNotNull(this.serializerFactory);
 		
-		DeserializerFactory deserializerFactory = new HeaderTBaseDeserializerFactory(builder.protocolFactory, builder.commandTbaseLocator);
+		DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory = new HeaderTBaseDeserializerFactory(builder.protocolFactory, builder.commandTbaseLocator);
 		this.deserializerFactory = wrappedThreadLocalDeserializerFactory(deserializerFactory);
 		AssertUtils.assertNotNull(this.deserializerFactory);
 	}
 
-	private SerializerFactory wrappedThreadLocalSerializerFactory(SerializerFactory serializerFactory) {
-		return new ThreadLocalHeaderTBaseSerializerFactory(serializerFactory);
+	private SerializerFactory<HeaderTBaseSerializer> wrappedThreadLocalSerializerFactory(SerializerFactory<HeaderTBaseSerializer> serializerFactory) {
+		return new ThreadLocalHeaderTBaseSerializerFactory<HeaderTBaseSerializer>(serializerFactory);
 	}
 	
-	private DeserializerFactory wrappedThreadLocalDeserializerFactory(DeserializerFactory deserializerFactory) {
-		return new ThreadLocalHeaderTBaseDeserializerFactory(deserializerFactory);
+	private DeserializerFactory<HeaderTBaseDeserializer> wrappedThreadLocalDeserializerFactory(DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory) {
+		return new ThreadLocalHeaderTBaseDeserializerFactory<HeaderTBaseDeserializer>(deserializerFactory);
 	}
 	
 	@Override
