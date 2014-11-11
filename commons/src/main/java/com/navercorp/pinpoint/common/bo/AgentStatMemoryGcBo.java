@@ -9,202 +9,202 @@ import com.nhn.pinpoint.common.buffer.FixedBuffer;
  */
 public class AgentStatMemoryGcBo {
 
-	private final String agentId;
-	private final long startTimestamp;
-	private final long timestamp;
-	private final String gcType;
-	private final long jvmMemoryHeapUsed;
-	private final long jvmMemoryHeapMax;
-	private final long jvmMemoryNonHeapUsed;
-	private final long jvmMemoryNonHeapMax;
-	private final long jvmGcOldCount;
-	private final long jvmGcOldTime;
+    private final String agentId;
+    private final long startTimestamp;
+    private final long timestamp;
+    private final String gcType;
+    private final long jvmMemoryHeapUsed;
+    private final long jvmMemoryHeapMax;
+    private final long jvmMemoryNonHeapUsed;
+    private final long jvmMemoryNonHeapMax;
+    private final long jvmGcOldCount;
+    private final long jvmGcOldTime;
 
-	private AgentStatMemoryGcBo(Builder builder) {
-		this.agentId = builder.agentId;
-		this.startTimestamp = builder.startTimestamp;
-		this.timestamp = builder.timestamp;
-		this.gcType = builder.gcType;
-		this.jvmMemoryHeapUsed = builder.jvmMemoryHeapUsed;
-		this.jvmMemoryHeapMax = builder.jvmMemoryHeapMax;
-		this.jvmMemoryNonHeapUsed = builder.jvmMemoryNonHeapUsed;
-		this.jvmMemoryNonHeapMax = builder.jvmMemoryNonHeapMax;
-		this.jvmGcOldCount = builder.jvmGcOldCount;
-		this.jvmGcOldTime = builder.jvmGcOldTime;
-	}
+    private AgentStatMemoryGcBo(Builder builder) {
+        this.agentId = builder.agentId;
+        this.startTimestamp = builder.startTimestamp;
+        this.timestamp = builder.timestamp;
+        this.gcType = builder.gcType;
+        this.jvmMemoryHeapUsed = builder.jvmMemoryHeapUsed;
+        this.jvmMemoryHeapMax = builder.jvmMemoryHeapMax;
+        this.jvmMemoryNonHeapUsed = builder.jvmMemoryNonHeapUsed;
+        this.jvmMemoryNonHeapMax = builder.jvmMemoryNonHeapMax;
+        this.jvmGcOldCount = builder.jvmGcOldCount;
+        this.jvmGcOldTime = builder.jvmGcOldTime;
+    }
 
-	public String getAgentId() {
-		return agentId;
-	}
+    public String getAgentId() {
+        return agentId;
+    }
 
-	public long getStartTimestamp() {
-		return startTimestamp;
-	}
+    public long getStartTimestamp() {
+        return startTimestamp;
+    }
 
-	public long getTimestamp() {
-		return timestamp;
-	}
+    public long getTimestamp() {
+        return timestamp;
+    }
 
-	public String getGcType() {
-		return gcType;
-	}
+    public String getGcType() {
+        return gcType;
+    }
 
-	public long getJvmMemoryHeapUsed() {
-		return jvmMemoryHeapUsed;
-	}
+    public long getJvmMemoryHeapUsed() {
+        return jvmMemoryHeapUsed;
+    }
 
-	public long getJvmMemoryHeapMax() {
-		return jvmMemoryHeapMax;
-	}
+    public long getJvmMemoryHeapMax() {
+        return jvmMemoryHeapMax;
+    }
 
-	public long getJvmMemoryNonHeapUsed() {
-		return jvmMemoryNonHeapUsed;
-	}
+    public long getJvmMemoryNonHeapUsed() {
+        return jvmMemoryNonHeapUsed;
+    }
 
-	public long getJvmMemoryNonHeapMax() {
-		return jvmMemoryNonHeapMax;
-	}
+    public long getJvmMemoryNonHeapMax() {
+        return jvmMemoryNonHeapMax;
+    }
 
-	public long getJvmGcOldCount() {
-		return jvmGcOldCount;
-	}
+    public long getJvmGcOldCount() {
+        return jvmGcOldCount;
+    }
 
-	public long getJvmGcOldTime() {
-		return jvmGcOldTime;
-	}
+    public long getJvmGcOldTime() {
+        return jvmGcOldTime;
+    }
 
-	public byte[] writeValue() {
-		final Buffer buffer = new AutomaticBuffer();
-		buffer.putPrefixedString(this.agentId);
-		buffer.put(this.startTimestamp);
-		buffer.put(this.timestamp);
-		buffer.putPrefixedString(this.gcType);
-		buffer.put(this.jvmMemoryHeapUsed);
-		buffer.put(this.jvmMemoryHeapMax);
-		buffer.put(this.jvmMemoryNonHeapUsed);
-		buffer.put(this.jvmMemoryNonHeapMax);
-		buffer.put(this.jvmGcOldCount);
-		buffer.put(this.jvmGcOldTime);
-		return buffer.getBuffer();
-	}
+    public byte[] writeValue() {
+        final Buffer buffer = new AutomaticBuffer();
+        buffer.putPrefixedString(this.agentId);
+        buffer.put(this.startTimestamp);
+        buffer.put(this.timestamp);
+        buffer.putPrefixedString(this.gcType);
+        buffer.put(this.jvmMemoryHeapUsed);
+        buffer.put(this.jvmMemoryHeapMax);
+        buffer.put(this.jvmMemoryNonHeapUsed);
+        buffer.put(this.jvmMemoryNonHeapMax);
+        buffer.put(this.jvmGcOldCount);
+        buffer.put(this.jvmGcOldTime);
+        return buffer.getBuffer();
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((agentId == null) ? 0 : agentId.hashCode());
-		result = prime * result + (int)(startTimestamp ^ (startTimestamp >>> 32));
-		result = prime * result + (int)(timestamp ^ (timestamp >>> 32));
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((agentId == null) ? 0 : agentId.hashCode());
+        result = prime * result + (int) (startTimestamp ^ (startTimestamp >>> 32));
+        result = prime * result + (int) (timestamp ^ (timestamp >>> 32));
+        return result;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		AgentStatMemoryGcBo other = (AgentStatMemoryGcBo)obj;
-		if (agentId == null) {
-			if (other.agentId != null)
-				return false;
-		} else if (!agentId.equals(other.agentId))
-			return false;
-		if (startTimestamp != other.startTimestamp)
-			return false;
-		if (timestamp != other.timestamp)
-			return false;
-		return true;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        AgentStatMemoryGcBo other = (AgentStatMemoryGcBo) obj;
+        if (agentId == null) {
+            if (other.agentId != null)
+                return false;
+        } else if (!agentId.equals(other.agentId))
+            return false;
+        if (startTimestamp != other.startTimestamp)
+            return false;
+        if (timestamp != other.timestamp)
+            return false;
+        return true;
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder("AgentStatMemoryGcBo{");
-		sb.append("agentId='").append(this.agentId).append('\'');
-		sb.append(", startTimestamp=").append(this.startTimestamp);
-		sb.append(", timestamp=").append(this.timestamp);
-		sb.append(", gcType='").append(this.gcType).append('\'');
-		sb.append(", jvmMemoryHeapUsed=").append(this.jvmMemoryHeapUsed);
-		sb.append(", jvmMemoryHeapMax=").append(this.jvmMemoryHeapMax);
-		sb.append(", jvmMemoryNonHeapUsed=").append(this.jvmMemoryNonHeapUsed);
-		sb.append(", jvmMemoryNonHeapMax=").append(this.jvmMemoryNonHeapMax);
-		sb.append(", jvmGcOldCount=").append(this.jvmGcOldCount);
-		sb.append(", jvmGcOldTime=").append(this.jvmGcOldTime);
-		sb.append('}');
-		return sb.toString();
-	}
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("AgentStatMemoryGcBo{");
+        sb.append("agentId='").append(this.agentId).append('\'');
+        sb.append(", startTimestamp=").append(this.startTimestamp);
+        sb.append(", timestamp=").append(this.timestamp);
+        sb.append(", gcType='").append(this.gcType).append('\'');
+        sb.append(", jvmMemoryHeapUsed=").append(this.jvmMemoryHeapUsed);
+        sb.append(", jvmMemoryHeapMax=").append(this.jvmMemoryHeapMax);
+        sb.append(", jvmMemoryNonHeapUsed=").append(this.jvmMemoryNonHeapUsed);
+        sb.append(", jvmMemoryNonHeapMax=").append(this.jvmMemoryNonHeapMax);
+        sb.append(", jvmGcOldCount=").append(this.jvmGcOldCount);
+        sb.append(", jvmGcOldTime=").append(this.jvmGcOldTime);
+        sb.append('}');
+        return sb.toString();
+    }
 
-	public static class Builder {
-		private final String agentId;
-		private final long startTimestamp;
-		private final long timestamp;
-		private String gcType;
-		private long jvmMemoryHeapUsed;
-		private long jvmMemoryHeapMax;
-		private long jvmMemoryNonHeapUsed;
-		private long jvmMemoryNonHeapMax;
-		private long jvmGcOldCount;
-		private long jvmGcOldTime;
+    public static class Builder {
+        private final String agentId;
+        private final long startTimestamp;
+        private final long timestamp;
+        private String gcType;
+        private long jvmMemoryHeapUsed;
+        private long jvmMemoryHeapMax;
+        private long jvmMemoryNonHeapUsed;
+        private long jvmMemoryNonHeapMax;
+        private long jvmGcOldCount;
+        private long jvmGcOldTime;
 
-		public Builder(final byte[] value) {
-			final Buffer buffer = new FixedBuffer(value);
-			this.agentId = buffer.readPrefixedString();
-			this.startTimestamp = buffer.readLong();
-			this.timestamp = buffer.readLong();
-			this.gcType = buffer.readPrefixedString();
-			this.jvmMemoryHeapUsed = buffer.readLong();
-			this.jvmMemoryHeapMax = buffer.readLong();
-			this.jvmMemoryNonHeapUsed = buffer.readLong();
-			this.jvmMemoryNonHeapMax = buffer.readLong();
-			this.jvmGcOldCount = buffer.readLong();
-			this.jvmGcOldTime = buffer.readLong();
-		}
-		
-		public Builder(String agentId, long startTimestamp, long timestamp) {
-			this.agentId = agentId;
-			this.startTimestamp = startTimestamp;
-			this.timestamp = timestamp;
-		}
+        public Builder(final byte[] value) {
+            final Buffer buffer = new FixedBuffer(value);
+            this.agentId = buffer.readPrefixedString();
+            this.startTimestamp = buffer.readLong();
+            this.timestamp = buffer.readLong();
+            this.gcType = buffer.readPrefixedString();
+            this.jvmMemoryHeapUsed = buffer.readLong();
+            this.jvmMemoryHeapMax = buffer.readLong();
+            this.jvmMemoryNonHeapUsed = buffer.readLong();
+            this.jvmMemoryNonHeapMax = buffer.readLong();
+            this.jvmGcOldCount = buffer.readLong();
+            this.jvmGcOldTime = buffer.readLong();
+        }
 
-		public Builder gcType(String gcType) {
-			this.gcType = gcType;
-			return this;
-		}
+        public Builder(String agentId, long startTimestamp, long timestamp) {
+            this.agentId = agentId;
+            this.startTimestamp = startTimestamp;
+            this.timestamp = timestamp;
+        }
 
-		public Builder jvmMemoryHeapUsed(long jvmMemoryHeapUsed) {
-			this.jvmMemoryHeapUsed = jvmMemoryHeapUsed;
-			return this;
-		}
+        public Builder gcType(String gcType) {
+            this.gcType = gcType;
+            return this;
+        }
 
-		public Builder jvmMemoryHeapMax(long jvmMemoryHeapMax) {
-			this.jvmMemoryHeapMax = jvmMemoryHeapMax;
-			return this;
-		}
+        public Builder jvmMemoryHeapUsed(long jvmMemoryHeapUsed) {
+            this.jvmMemoryHeapUsed = jvmMemoryHeapUsed;
+            return this;
+        }
 
-		public Builder jvmMemoryNonHeapUsed(long jvmMemoryNonHeapUsed) {
-			this.jvmMemoryNonHeapUsed = jvmMemoryNonHeapUsed;
-			return this;
-		}
+        public Builder jvmMemoryHeapMax(long jvmMemoryHeapMax) {
+            this.jvmMemoryHeapMax = jvmMemoryHeapMax;
+            return this;
+        }
 
-		public Builder jvmMemoryNonHeapMax(long jvmMemoryNonHeapMax) {
-			this.jvmMemoryNonHeapMax = jvmMemoryNonHeapMax;
-			return this;
-		}
+        public Builder jvmMemoryNonHeapUsed(long jvmMemoryNonHeapUsed) {
+            this.jvmMemoryNonHeapUsed = jvmMemoryNonHeapUsed;
+            return this;
+        }
 
-		public Builder jvmGcOldCount(long jvmGcOldCount) {
-			this.jvmGcOldCount = jvmGcOldCount;
-			return this;
-		}
+        public Builder jvmMemoryNonHeapMax(long jvmMemoryNonHeapMax) {
+            this.jvmMemoryNonHeapMax = jvmMemoryNonHeapMax;
+            return this;
+        }
 
-		public Builder jvmGcOldTime(long jvmGcOldTime) {
-			this.jvmGcOldTime = jvmGcOldTime;
-			return this;
-		}
+        public Builder jvmGcOldCount(long jvmGcOldCount) {
+            this.jvmGcOldCount = jvmGcOldCount;
+            return this;
+        }
 
-		public AgentStatMemoryGcBo build() {
-			return new AgentStatMemoryGcBo(this);
-		}
-	}
+        public Builder jvmGcOldTime(long jvmGcOldTime) {
+            this.jvmGcOldTime = jvmGcOldTime;
+            return this;
+        }
+
+        public AgentStatMemoryGcBo build() {
+            return new AgentStatMemoryGcBo(this);
+        }
+    }
 }
