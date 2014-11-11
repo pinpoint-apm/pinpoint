@@ -32,9 +32,12 @@ public class ChunkHeaderTBaseDeserializer {
             trans.reset(bytes, offset, length);
 
             final Header header = readHeader();
+            if(header == null) {
+                return list;
+            }
+            
             if (locator.isChunkHeader(header.getType())) {
-
-                TBase<?, ?> base = null;
+                TBase<?, ?> base;
                 while ((base = deserialize()) != null) {
                     list.add(base);
                 }
