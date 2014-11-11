@@ -4,7 +4,8 @@ import com.nhn.pinpoint.common.HistogramSchema;
 import com.nhn.pinpoint.common.bo.SpanBo;
 import com.nhn.pinpoint.web.applicationmap.histogram.TimeHistogram;
 import com.nhn.pinpoint.web.util.TimeWindow;
-import com.nhn.pinpoint.web.util.TimeWindowOneMinuteSampler;
+import com.nhn.pinpoint.web.util.TimeWindowDownSampler;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +28,7 @@ public class ResponseHistogramBuilder {
             throw new NullPointerException("range must not be null");
         }
         // 일단 샘플링을 하지 않도록한다.
-        this.window = new TimeWindow(range, TimeWindowOneMinuteSampler.SAMPLER);
+        this.window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
 
     }
 

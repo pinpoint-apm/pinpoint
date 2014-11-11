@@ -2,10 +2,11 @@ package com.nhn.pinpoint.web.applicationmap.histogram;
 
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkCallData;
 import com.nhn.pinpoint.web.util.TimeWindow;
-import com.nhn.pinpoint.web.util.TimeWindowOneMinuteSampler;
+import com.nhn.pinpoint.web.util.TimeWindowDownSampler;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
 import com.nhn.pinpoint.web.vo.ResponseTime;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +33,7 @@ public class ApplicationTimeHistogramBuilder {
         }
         this.application = application;
         this.range = range;
-        this.window = new TimeWindow(range, TimeWindowOneMinuteSampler.SAMPLER);
+        this.window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
     }
 
     public ApplicationTimeHistogram build(List<ResponseTime> responseHistogramList) {

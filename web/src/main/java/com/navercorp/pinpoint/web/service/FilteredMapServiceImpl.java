@@ -14,10 +14,11 @@ import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.nhn.pinpoint.web.util.TimeWindow;
-import com.nhn.pinpoint.web.util.TimeWindowOneMinuteSampler;
+import com.nhn.pinpoint.web.util.TimeWindowDownSampler;
 import com.nhn.pinpoint.web.dao.*;
 import com.nhn.pinpoint.web.vo.*;
 import com.nhn.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -205,7 +206,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     private ApplicationMap createMap(Range range, Range scanRange, List<List<SpanBo>> filterList) {
 
         // Window의 설정은 따로 inject받던지 해야 될듯함.
-        final TimeWindow window = new TimeWindow(range, TimeWindowOneMinuteSampler.SAMPLER);
+        final TimeWindow window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
 
 
         final LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();

@@ -6,11 +6,12 @@ import com.nhn.pinpoint.common.SlotType;
 import com.nhn.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.nhn.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.nhn.pinpoint.web.util.TimeWindow;
-import com.nhn.pinpoint.web.util.TimeWindowOneMinuteSampler;
+import com.nhn.pinpoint.web.util.TimeWindowDownSampler;
 import com.nhn.pinpoint.web.view.AgentResponseTimeViewModel;
 import com.nhn.pinpoint.web.view.ResponseTimeViewModel;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +41,7 @@ public class AgentTimeHistogram {
         }
         this.application = application;
         this.range = range;
-        this.window = new TimeWindow(range, TimeWindowOneMinuteSampler.SAMPLER);
+        this.window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
         this.agentHistogramList = new AgentHistogramList();
     }
 
@@ -56,7 +57,7 @@ public class AgentTimeHistogram {
         }
         this.application = application;
         this.range = range;
-        this.window = new TimeWindow(range, TimeWindowOneMinuteSampler.SAMPLER);
+        this.window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
         this.agentHistogramList = agentHistogramList;
     }
 

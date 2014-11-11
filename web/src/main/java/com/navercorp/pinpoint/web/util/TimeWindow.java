@@ -12,11 +12,6 @@ import java.util.NoSuchElementException;
  */
 public class TimeWindow implements Iterable<Long> {
 
-	private static final int ONE_MINUTE = 60000;
-	private static final int ONE_HOUR = ONE_MINUTE * 60;
-	private static final int SIX_HOURS = ONE_HOUR * 6;
-	private static final int ONE_DAY = SIX_HOURS * 4;
-
     private final long windowSlotSize;
 
     private final Range range;
@@ -34,7 +29,7 @@ public class TimeWindow implements Iterable<Long> {
         if (sampler == null) {
             throw new NullPointerException("sampler must not be null");
         }
-        this.windowSlotSize = TimeWindowDownSampler.SAMPLER.getWindowSize(range);
+        this.windowSlotSize = sampler.getWindowSize(range);
         this.range = range;
         this.windowRange = createWindowRange();
     }
@@ -43,18 +38,16 @@ public class TimeWindow implements Iterable<Long> {
         return new Itr();
     }
 
-
-
     /**
-	 * timestamp를 윈도우 사이즈에 맞는 timestamp로 변환.
-	 * 
-	 * @param timestamp
-	 * @return
-	 */
-	public long refineTimestamp(long timestamp) {
-		long time = (timestamp / windowSlotSize) * windowSlotSize;
-		return time;
-	}
+     * timestamp를 윈도우 사이즈에 맞는 timestamp로 변환.
+     * 
+     * @param timestamp
+     * @return
+     */
+    public long refineTimestamp(long timestamp) {
+        long time = (timestamp / windowSlotSize) * windowSlotSize;
+        return time;
+    }
 
     public Range getWindowRange() {
         return windowRange;
@@ -73,7 +66,6 @@ public class TimeWindow implements Iterable<Long> {
         long to = refineTimestamp(range.getTo());
         return new Range(from, to);
     }
-
 
     public int getWindowIndex(long time) {
         long index = (time - windowRange.getFrom()) / this.windowSlotSize;
@@ -95,7 +87,6 @@ public class TimeWindow implements Iterable<Long> {
             }
             return true;
         }
-
 
         @Override
         public Long next() {
