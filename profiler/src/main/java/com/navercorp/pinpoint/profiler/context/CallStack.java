@@ -16,9 +16,13 @@ public class CallStack {
     // 추적 depth크기 제한을 위해서 필요. 해당 사이즈를 넘어갈경우 부드럽게 트레이스를 무시하는 로직이 필요함.
     private static final int TRACE_STACK_MAX_SIZE = 64;
 
+    private static final int STACK_SIZE = 8;
+    private static final int STACK_INCREASE_SIZE = 8;
+
     private final Span span;
     // CallStack을 동시성 환경에서 복사해서 볼수 있는 방법이 필요함.
-    private StackFrame[] stack = new StackFrame[8];
+    private StackFrame[] stack = new StackFrame[STACK_SIZE];
+
 
     private int index = -1;
 
@@ -60,16 +64,17 @@ public class CallStack {
     }
 
     public synchronized int push() {
-        index++;
-        checkExpentStack();
-        return index;
+        checkExtend(index + 1);
+        return ++index;
     }
 
-    private void checkExpentStack() {
-        if (index > stack.length - 1) {
-            StackFrame[] old = stack;
-            stack = new StackFrame[index + 4];
-            System.arraycopy(old, 0, stack, 0, old.length);
+    private void checkExtend(final int index) {
+        final StackFrame[] originalStack = this.stack;
+        if (index >= originalStack.length) {
+            final int copyStackSize = originalStack.length + STACK_INCREASE_SIZE;
+            final StackFrame[] copyStack = new StackFrame[copyStackSize];
+            System.arraycopy(originalStack, 0, copyStack, 0, originalStack.length);
+            this.stack = copyStack;
         }
     }
 
@@ -78,35 +83,45 @@ public class CallStack {
     }
 
     public synchronized void popRoot() {
-        if (index >= 0) {
-            // stack 전체를 정리하는게 더 좋은가?
-            stack[index] = null;
-            index--;
-        } else {
-            PinpointException ex = new PinpointTraceException("Profiler CallStack check. index:" + index + "");
-            if (logger.isWarnEnabled()) {
-                // 자체 stack dump 필요.
-                logger.warn("invalid callStack found stack dump:{}", this, ex);
-            }
+        pop("popRoot");
+        // check empty root index
+        if (index != -1) {
+            PinpointException ex = createStackException("invalid root stack found", this.index);
             throw ex;
         }
     }
 
     public synchronized StackFrame pop() {
-        if (index >= 0) {
-            stack[index] = null;
-            this.index--;
-            // TODO 점검해볼것. klocwork 지적 사항임.
-            return stack[index];
+        pop("pop");
+        if (index == -1) {
+            return null;
         } else {
-            PinpointException ex = new PinpointException("Profiler CallStack check. index:" + index + "");
-            if (logger.isWarnEnabled()) {
-                // 자체 stack dump 필요.
-                logger.warn("invalid callStack found stack dump:{}", this, ex);
-            }
+            return getCurrentStackFrame();
+        }
+    }
+
+    private synchronized void pop(String stackApiPoint) {
+        final int currentIndex = this.index;
+        final StackFrame[] currentStack = this.stack;
+        if (currentIndex >= 0) {
+            currentStack[currentIndex] = null;
+            this.index = currentIndex - 1;
+        } else {
+            PinpointException ex = createStackException(stackApiPoint, this.index);
             throw ex;
         }
     }
+
+
+    private PinpointException createStackException(String stackApiPoint, final int index) {
+        final PinpointException ex = new PinpointException("Profiler CallStack check. index:" + index + " stackApiPoint:" + stackApiPoint);
+        if (logger.isWarnEnabled()) {
+            // 자체 stack dump 필요.
+            logger.warn("invalid callStack found stack dump:{}", this, ex);
+        }
+        return ex;
+    }
+
 
     public synchronized void currentStackFrameClear() {
         stack[index] = null;
@@ -128,7 +143,7 @@ public class CallStack {
     @Override
     public String toString() {
         return "CallStack{" +
-                "stack=" + (stack == null ? null : Arrays.asList(stack)) +
+                "stack=" + (stack == null ? null : Arrays.toString(stack)) +
                 ", index=" + index +
                 '}';
     }
