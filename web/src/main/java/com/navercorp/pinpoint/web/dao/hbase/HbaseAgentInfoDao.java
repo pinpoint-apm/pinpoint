@@ -84,8 +84,11 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 						logger.debug("stop finding agentInfo.");
 						break;
 					}
-					
-					final AgentInfoBo.Builder agentInfoBoBuilder = new AgentInfoBo.Builder(serializedAgentInfo).agentId(agentId).startTime(startTime);
+
+                    final AgentInfoBo.Builder agentInfoBoBuilder = new AgentInfoBo.Builder(serializedAgentInfo);
+                    agentInfoBoBuilder.agentId(agentId);
+                    agentInfoBoBuilder.startTime(startTime);
+
 					if (serializedServerMetaData != null) {
 					    agentInfoBoBuilder.serverMetaData(new ServerMetaDataBo.Builder(serializedServerMetaData).build());
 					}
@@ -132,8 +135,10 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
                     if (startTime < currentTime) {
                         byte[] serializedAgentInfo = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_IDENTIFIER);
                         byte[] serializedServerMetaData = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_SERVER_META_DATA);
-                        
-                        final AgentInfoBo.Builder agentInfoBoBuilder = new AgentInfoBo.Builder(serializedAgentInfo).agentId(agentId).startTime(startTime);
+
+                        final AgentInfoBo.Builder agentInfoBoBuilder = new AgentInfoBo.Builder(serializedAgentInfo);
+                        agentInfoBoBuilder.agentId(agentId);
+                        agentInfoBoBuilder.startTime(startTime);
                         if (serializedServerMetaData != null) {
                             agentInfoBoBuilder.serverMetaData(new ServerMetaDataBo.Builder(serializedServerMetaData).build());
                         }
