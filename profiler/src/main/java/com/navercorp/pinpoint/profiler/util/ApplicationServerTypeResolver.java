@@ -24,7 +24,7 @@ public class ApplicationServerTypeResolver {
      * Application에 별도 acceptor가 없어서 startup함수를 agent 초기화 할 때 해주어야하는 경우.
      * 예를 들어 서비스타입이 BLOC, STAND_ALONE인 경우.
      */
-    private boolean manuallyStartupRequired = false;
+    private boolean manuallyStartupRequired = true;
     
     public ApplicationServerTypeResolver(ServiceType defaultType) {
         this.defaultType = defaultType;
@@ -42,83 +42,111 @@ public class ApplicationServerTypeResolver {
     }
     
     public boolean isManuallyStartupRequired() {
-		return manuallyStartupRequired;
-	}
+        return manuallyStartupRequired;
+    }
 
-	public boolean resolve() {
-        String applicationHome = System.getProperty("catalina.home");
-
-        if (applicationHome == null) {
-        	// FIXME BLOC_HOME, BLOC_BASE가 있을 듯.
-        	applicationHome = System.getProperty("user.dir");
+    public boolean resolve() {
+        String applicationHome = null;
+        
+        applicationHome = applicationHomePath();
+                
+        if (blocResolve(applicationHome)) {
+            return initializeApplicationInfo(applicationHome, ServiceType.BLOC);
+        }
+        
+        if (tomcatResolve(applicationHome)) {
+            return initializeApplicationInfo(applicationHome, ServiceType.TOMCAT);
         }
 
-        if (logger.isInfoEnabled()) {
-        	logger.info("Resolved ApplicationHome:{}", applicationHome);
-        }
-
-        /**
-         * application type이 설정파일에 지정되어있는 경우.
-         */
         if (defaultType != null) {
-            logger.info("Configured applicationServerType:{}", defaultType);
+            if (logger.isInfoEnabled()) {
+                logger.info("Configured applicationServerType:{}", defaultType);
+            }
+            
             return initializeApplicationInfo(applicationHome, defaultType);
         }
+        
+        return initializeApplicationInfo(applicationHome, ServiceType.STAND_ALONE);
+    }
 
-		/**
-		 * application type이 설정파일에 없으면 자동 검색
-		 */
-		final File bloc3CatalinaJar = new File(applicationHome + "/server/lib/catalina.jar");
-		final File bloc3ServletApiJar = new File(applicationHome + "/common/lib/servlet-api.jar");
-		final File bloc4LibDir = new File(applicationHome + "/libs");
+    private String applicationHomePath() {
+        String path = null;
+        
+        if (System.getProperty("catalina.home") != null) {
+            path = System.getProperty("catalina.home");
+        } else if (System.getProperty("bloc.home") != null) {
+            path = System.getProperty("bloc.home");
+        } else {
+            path = System.getProperty("user.dir");
+        }
+        
+        if (logger.isInfoEnabled()) {
+            logger.info("Resolved ApplicationHome : {}", path);
+        }
+        
+        return path;
+    }
 
-		if (isFileExist(bloc3CatalinaJar) && isFileExist(bloc3ServletApiJar)) {
-			this.manuallyStartupRequired = false;
-			return initializeApplicationInfo(applicationHome, ServiceType.BLOC);
-		} else if (isFileExist(bloc4LibDir)) {
-			this.manuallyStartupRequired = true;
-			return initializeApplicationInfo(applicationHome, ServiceType.BLOC);
-		} else if (isFileExist(new File(applicationHome + "/lib/catalina.jar"))) {
-			this.manuallyStartupRequired = false;
-			return initializeApplicationInfo(applicationHome, ServiceType.TOMCAT);
-		} else {
-			this.manuallyStartupRequired = true;
-			return initializeApplicationInfo(applicationHome, ServiceType.STAND_ALONE);
-		}
-	}
+    private boolean tomcatResolve(String applicationHome) {
+        boolean isTomcat = false;
+        
+        if (isFileExist(new File(applicationHome + "/lib/catalina.jar"))) {
+            this.manuallyStartupRequired = false;
+            isTomcat = true;
+        }
+        
+        return isTomcat;
+    }
 
-	private boolean initializeApplicationInfo(String applicationHome, ServiceType serviceType) {
-		if (applicationHome == null) {
-			logger.warn("applicationHome is null");
-			return false;
-		}
+    private boolean blocResolve(final String applicationHome) {
+        final File bloc3CatalinaJar = new File(applicationHome + "/server/lib/catalina.jar");
+        final File bloc3ServletApiJar = new File(applicationHome + "/common/lib/servlet-api.jar");
+        final File bloc4LibDir = new File(applicationHome + "/libs");
+        boolean isBloc = false;
+        
+        if (isFileExist(bloc3CatalinaJar) && isFileExist(bloc3ServletApiJar)) {
+            manuallyStartupRequired = false;
+            isBloc = true;
+        } else if (isFileExist(bloc4LibDir)) {
+            manuallyStartupRequired = true;
+            isBloc = true;
+        } 
+        
+        return isBloc;
+    }
 
-		if (ServiceType.TOMCAT.equals(serviceType)) {
-			this.serverLibPath = new String[] { applicationHome + "/lib/servlet-api.jar", applicationHome + "/lib/catalina.jar" };
-		} else if (ServiceType.BLOC.equals(serviceType)) {
-			// FIXME serverLibPath지정 방법을 개선할 수 있을 듯.
-			if (manuallyStartupRequired) {
-				// BLOC 4.x
-				this.serverLibPath = new String[] {};
-			} else {
-				// BLOC 3.x
-				this.serverLibPath = new String[] { applicationHome + "/server/lib/catalina.jar", applicationHome + "/common/lib/servlet-api.jar" };
-			}
-		} else if (ServiceType.STAND_ALONE.equals(serviceType)) {
-			this.serverLibPath = new String[] {};
-		} else if (ServiceType.TEST_STAND_ALONE.equals(serviceType)) {
-			this.serverLibPath = new String[] {};
-		} else {
-			logger.warn("Invalid Default ApplicationServiceType:{} ", defaultType);
-			return false;
-		}
+    private boolean initializeApplicationInfo(String applicationHome, ServiceType serviceType) {
+        if (applicationHome == null) {
+            logger.warn("applicationHome is null");
+            return false;
+        }
 
-		this.serverType = serviceType;
+        if (ServiceType.TOMCAT.equals(serviceType)) {
+            this.serverLibPath = new String[] { applicationHome + "/lib/servlet-api.jar", applicationHome + "/lib/catalina.jar" };
+        } else if (ServiceType.BLOC.equals(serviceType)) {
+            // FIXME serverLibPath지정 방법을 개선할 수 있을 듯.
+            if (manuallyStartupRequired) {
+                // BLOC 4.x
+                this.serverLibPath = new String[] {"/libs"};
+            } else {
+                // BLOC 3.x
+                this.serverLibPath = new String[] { applicationHome + "/server/lib/catalina.jar", applicationHome + "/common/lib/servlet-api.jar" };
+            }
+        } else if (ServiceType.STAND_ALONE.equals(serviceType)) {
+            this.serverLibPath = new String[] {};
+        } else if (ServiceType.TEST_STAND_ALONE.equals(serviceType)) {
+            this.serverLibPath = new String[] {};
+        } else {
+            logger.warn("Invalid Default ApplicationServiceType:{} ", defaultType);
+            return false;
+        }
 
-		logger.info("ApplicationServerType:{}, RequiredServerLibraryPath:{}", serverType, serverLibPath);
+        this.serverType = serviceType;
 
-		return true;
-	}
+        logger.info("ApplicationServerType:{}, RequiredServerLibraryPath:{}", serverType, serverLibPath);
+
+        return true;
+    }
 
     private boolean isFileExist(File libFile) {
         final boolean found = libFile.exists(); // && libFile.isFile();
