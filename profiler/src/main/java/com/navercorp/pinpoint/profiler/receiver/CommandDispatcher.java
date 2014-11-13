@@ -115,19 +115,16 @@ public class CommandDispatcher implements MessageListener  {
 			serviceList.add(new EchoService());
 		}
 		
-		public Builder addService(ProfilerCommandService service) {
+		public void addService(ProfilerCommandService service) {
 			serviceList.add(service);
-			return this;
 		}
 
-		public Builder setProtocolFactory(TProtocolFactory protocolFactory) {
+		public void setProtocolFactory(TProtocolFactory protocolFactory) {
 			this.protocolFactory = protocolFactory;
-			return this;
 		}
 
-		public Builder setCommandTbaseLocator(TBaseLocator commandTbaseLocator) {
+		public void setCommandTbaseLocator(TBaseLocator commandTbaseLocator) {
 			this.commandTbaseLocator = commandTbaseLocator;
-			return this;
 		}
 
 		public void setSerializationMaxSize(int serializationMaxSize) {
