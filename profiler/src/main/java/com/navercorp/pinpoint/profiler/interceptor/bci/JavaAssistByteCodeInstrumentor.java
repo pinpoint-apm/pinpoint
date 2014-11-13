@@ -127,6 +127,12 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
             throw new InstrumentException(javassistClassName + " class not found. Cause:" + e.getMessage(), e);
         }
     }
+    
+    @Override
+    public InstrumentClass getClass(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) throws InstrumentException {
+        checkLibrary(classLoader, javassistClassName);
+        return getClass(javassistClassName);
+    }
 
     @Override
     public Class<?> defineClass(ClassLoader classLoader, String defineClass, ProtectionDomain protectedDomain) throws InstrumentException {

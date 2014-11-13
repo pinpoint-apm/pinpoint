@@ -5,23 +5,40 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.nhn.pinpoint.bootstrap.instrument.InstrumentException;
-import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
-import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
-import com.nhn.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
-import com.nhn.pinpoint.bootstrap.instrument.Scope;
-import com.nhn.pinpoint.bootstrap.instrument.Type;
-import com.nhn.pinpoint.bootstrap.interceptor.*;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
-import com.nhn.pinpoint.profiler.util.ApiUtils;
-import com.nhn.pinpoint.profiler.interceptor.*;
-import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
-
-import javassist.*;
+import javassist.CannotCompileException;
+import javassist.CtBehavior;
+import javassist.CtClass;
+import javassist.CtConstructor;
+import javassist.CtField;
+import javassist.CtMethod;
+import javassist.CtNewMethod;
+import javassist.NotFoundException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.nhn.pinpoint.bootstrap.instrument.InstrumentException;
+import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
+import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
+import com.nhn.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
+import com.nhn.pinpoint.bootstrap.instrument.Scope;
+import com.nhn.pinpoint.bootstrap.instrument.Type;
+import com.nhn.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
+import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
+import com.nhn.pinpoint.bootstrap.interceptor.InterceptorRegistry;
+import com.nhn.pinpoint.bootstrap.interceptor.LoggingInterceptor;
+import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.nhn.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
+import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
+import com.nhn.pinpoint.profiler.interceptor.DebugScopeDelegateSimpleInterceptor;
+import com.nhn.pinpoint.profiler.interceptor.DebugScopeDelegateStaticInterceptor;
+import com.nhn.pinpoint.profiler.interceptor.DefaultMethodDescriptor;
+import com.nhn.pinpoint.profiler.interceptor.ScopeDelegateSimpleInterceptor;
+import com.nhn.pinpoint.profiler.interceptor.ScopeDelegateStaticInterceptor;
+import com.nhn.pinpoint.profiler.util.ApiUtils;
+import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
 
 /**
  * @author emeroad
@@ -73,7 +90,7 @@ public class JavaAssistClass implements InstrumentClass {
     @Override
     public boolean insertCodeBeforeConstructor(String[] args, String code) {
         try {
-            CtConstructor constructor = getConstructor(args);
+            CtConstructor constructor = getCtConstructor(args);
             constructor.insertBefore(code);
             return true;
         } catch (Exception e) {
@@ -87,7 +104,7 @@ public class JavaAssistClass implements InstrumentClass {
     @Override
     public boolean insertCodeAfterConstructor(String[] args, String code) {
         try {
-            CtConstructor constructor = getConstructor(args);
+            CtConstructor constructor = getCtConstructor(args);
             constructor.insertAfter(code);
             return true;
         } catch (Exception e) {
@@ -277,7 +294,7 @@ public class JavaAssistClass implements InstrumentClass {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        final CtBehavior behavior = getConstructor(args);
+        final CtBehavior behavior = getCtConstructor(args);
         return addInterceptor0(behavior, null, interceptor, NOT_DEFINE_INTERCEPTOR_ID, Type.around, false);
     }
 
@@ -286,7 +303,7 @@ public class JavaAssistClass implements InstrumentClass {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        final CtBehavior behavior = getConstructor(args);
+        final CtBehavior behavior = getCtConstructor(args);
         return addInterceptor0(behavior, null, interceptor, NOT_DEFINE_INTERCEPTOR_ID, type, false);
     }
 
@@ -867,7 +884,7 @@ public class JavaAssistClass implements InstrumentClass {
         throw new NotFoundInstrumentException(methodName + Arrays.toString(args) + " is not found in " + this.getName());
     }
 
-    private CtConstructor getConstructor(String[] args) throws NotFoundInstrumentException {
+    private CtConstructor getCtConstructor(String[] args) throws NotFoundInstrumentException {
         final String jvmSignature = JavaAssistUtils.javaTypeToJvmSignature(args);
         // constructor return type is void
 
@@ -916,9 +933,7 @@ public class JavaAssistClass implements InstrumentClass {
         final CtMethod[] declaredMethod = ctClass.getDeclaredMethods();
         final List<MethodInfo> candidateList = new ArrayList<MethodInfo>(declaredMethod.length);
         for (CtMethod ctMethod : declaredMethod) {
-            final String methodName = ctMethod.getName();
-            final String[] parameterType = JavaAssistUtils.parseParameterSignature(ctMethod.getSignature());
-            final MethodInfo method = new MethodInfo(methodName, parameterType, ctMethod.getModifiers());
+            final MethodInfo method = new JavassistMethodInfo(ctMethod);
 
             if (methodFilter.filter(method)) {
                 continue;
@@ -926,9 +941,33 @@ public class JavaAssistClass implements InstrumentClass {
 
             candidateList.add(method);
         }
+        
         return candidateList;
     }
+	
+	public MethodInfo getDeclaredMethod(String name, String[] parameterTypes) {
+        try {
+            CtClass[] params = JavaAssistUtils.getCtParameter(parameterTypes, instrumentor.getClassPool());
+            CtMethod ctMethod = ctClass.getDeclaredMethod(name, params);
 
+            return new JavassistMethodInfo(ctMethod);
+        } catch (NotFoundException e) {
+            return null;
+        }
+	}
+	
+   public MethodInfo getConstructor(String[] parameterTypes) {
+       try {
+            CtClass[] params = JavaAssistUtils.getCtParameter(parameterTypes, instrumentor.getClassPool());
+            CtConstructor ctConstructor = ctClass.getDeclaredConstructor(params);
+
+            return new JavassistMethodInfo(ctConstructor);
+       } catch (NotFoundException e) {
+           return null;
+       }
+    }
+
+	
 	public boolean isInterceptable() {
 		return !ctClass.isInterface() && !ctClass.isAnnotation() && !ctClass.isModified();
 	}
