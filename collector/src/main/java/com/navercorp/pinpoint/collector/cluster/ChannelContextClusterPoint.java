@@ -55,13 +55,11 @@ public class ChannelContextClusterPoint implements TargetClusterPoint {
 
 	@Override
 	public String getApplicationName() {
-		// TODO Auto-generated method stub
 		return applicationName;
 	}
 
 	@Override
 	public String getAgentId() {
-		// TODO Auto-generated method stub
 		return agentId;
 	}
 

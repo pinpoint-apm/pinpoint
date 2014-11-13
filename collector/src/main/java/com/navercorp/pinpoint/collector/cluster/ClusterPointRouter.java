@@ -1,8 +1,5 @@
 package com.nhn.pinpoint.collector.cluster;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.annotation.PreDestroy;
 
 import org.apache.thrift.TBase;
@@ -11,9 +8,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.nhn.pinpoint.collector.util.CollectorUtils;
-import com.nhn.pinpoint.rpc.Future;
-import com.nhn.pinpoint.rpc.ResponseMessage;
+import com.nhn.pinpoint.collector.cluster.route.DefaultRouteHandler;
+import com.nhn.pinpoint.collector.cluster.route.LoggingFilter;
+import com.nhn.pinpoint.collector.cluster.route.RequestEvent;
+import com.nhn.pinpoint.collector.cluster.route.RouteHandler;
+import com.nhn.pinpoint.collector.cluster.route.RouteResult;
+import com.nhn.pinpoint.collector.cluster.route.RouteStatus;
 import com.nhn.pinpoint.rpc.client.MessageListener;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.ResponsePacket;
@@ -24,7 +24,6 @@ import com.nhn.pinpoint.thrift.io.DeserializerFactory;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.nhn.pinpoint.thrift.io.SerializerFactory;
-import com.nhn.pinpoint.thrift.io.TCommandTypeVersion;
 import com.nhn.pinpoint.thrift.util.SerializationUtils;
 
 /**
@@ -36,6 +35,8 @@ public class ClusterPointRouter implements MessageListener {
 
 	private final ClusterPointRepository<TargetClusterPoint> targetClusterPointRepository;
 
+	private final RouteHandler routeHandler;
+	
 	@Autowired
 	private SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory;
 
@@ -44,6 +45,11 @@ public class ClusterPointRouter implements MessageListener {
 
 	public ClusterPointRouter() {
 		this.targetClusterPointRepository = new ClusterPointRepository<TargetClusterPoint>();
+		this.routeHandler = new DefaultRouteHandler(targetClusterPointRepository);
+
+		LoggingFilter loggingFilter = new LoggingFilter();
+		this.routeHandler.addRequestFilter(loggingFilter.getRequestFilter());
+		this.routeHandler.addResponseFilter(loggingFilter.getResponseFilter());
 	}
 
 	@PreDestroy
@@ -67,33 +73,16 @@ public class ClusterPointRouter implements MessageListener {
 
 			channel.write(new ResponsePacket(requestPacket.getRequestId(), serialize(tResult)));
 		} else if (request instanceof TCommandTransfer) {
-
-			String applicationName = ((TCommandTransfer) request).getApplicationName();
-			String agentId = ((TCommandTransfer) request).getAgentId();
-			long startTimeStamp = ((TCommandTransfer) request).getStartTime();
-
 			byte[] payload = ((TCommandTransfer) request).getPayload();
-
-			List<TargetClusterPoint> clusterPointList = targetClusterPointRepository.getClusterPointList();
-			TargetClusterPoint clusterPoint = findClusterPoint(applicationName, agentId, startTimeStamp, clusterPointList);
-			if (clusterPoint == null) {
-				TResult result = new TResult(false);
-				result.setMessage(applicationName + "/" + agentId + " can't find suitable ChannelContext.");
-				channel.write(new ResponsePacket(requestPacket.getRequestId(), serialize(result)));
-				return;
-			}
-
 			TBase command = deserialize(payload);
-			TCommandTypeVersion commandVersion = TCommandTypeVersion.getVersion(clusterPoint.gerVersion());
-			if (commandVersion.isSupportCommand(command)) {
-				Future<ResponseMessage> future = clusterPoint.request(payload);
-				future.await();
-				ResponseMessage responseMessage = future.getResult();
-
-				channel.write(new ResponsePacket(requestPacket.getRequestId(), responseMessage.getMessage()));
+			
+			RouteResult routeResult = routeHandler.onRoute(new RequestEvent((TCommandTransfer) request, requestPacket.getRequestId(), channel, command));
+			
+			if (RouteStatus.OK == routeResult.getStatus()) {
+				channel.write(new ResponsePacket(requestPacket.getRequestId(), routeResult.getResponseMessage().getMessage()));
 			} else {
 				TResult result = new TResult(false);
-				result.setMessage(applicationName + "/" + agentId + " unsupported command(" + command + ") type.");
+				result.setMessage(routeResult.getStatus().getReasonPhrase());
 
 				channel.write(new ResponsePacket(requestPacket.getRequestId(), serialize(result)));
 			}
@@ -105,7 +94,6 @@ public class ClusterPointRouter implements MessageListener {
 		}
 
 	}
-
 	
 	public ClusterPointRepository<TargetClusterPoint> getTargetClusterPointRepository() {
 		return targetClusterPointRepository;
@@ -117,39 +105,6 @@ public class ClusterPointRouter implements MessageListener {
 	
 	private TBase deserialize(byte[] objectData) {
 		return SerializationUtils.deserialize(objectData, commandDeserializerFactory, null);
-	}
-
-	
-	private TargetClusterPoint findClusterPoint(String applicationName, String agentId, long startTimeStamp, List<TargetClusterPoint> targetClusterPointList) {
-
-		List<TargetClusterPoint> result = new ArrayList<TargetClusterPoint>();
-		
-		for (TargetClusterPoint targetClusterPoint : targetClusterPointList) {
-			if (!targetClusterPoint.getApplicationName().equals(applicationName)) {
-				continue;
-			}
-			
-			if (!targetClusterPoint.getAgentId().equals(agentId)) {
-				continue;
-			}
-			
-			if (!(targetClusterPoint.getStartTimeStamp() == startTimeStamp)) {
-				continue;
-			}
-
-			result.add(targetClusterPoint);
-		}
-		
-		if (result.size() == 1) {
-			return result.get(0);
-		}
-		
-		if (result.size() > 1) {
-    		logger.warn("Ambiguous ClusterPoint {}, {}, {} (Valid Agent list={}).", applicationName, agentId, startTimeStamp, result);
-			return null;
-		}
-		
-		return null;
 	}
 
 }
