@@ -101,7 +101,10 @@ public class DefaultInterceptorFactory implements InterceptorFactory {
 
         @Override
         public int compare(Constructor<?> o1, Constructor<?> o2) {
-            return Integer.compare(o2.getParameterCount(), o1.getParameterCount());
+            int p1 = o1.getParameterCount();
+            int p2 = o2.getParameterCount();
+            
+            return (p1 < p2) ? 1 : ((p1 == p2) ? 0 : -1);
         }
         
     };
