@@ -1,10 +1,9 @@
 package com.nhn.pinpoint.collector.mapper.thrift;
 
-import org.springframework.stereotype.Component;
-
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
 import com.nhn.pinpoint.thrift.dto.TAgentInfo;
+import org.springframework.stereotype.Component;
 
 /**
  * @author hyungil.jeong
@@ -25,8 +24,21 @@ public class AgentInfoBoMapper implements ThriftBoMapper<AgentInfoBo, TAgentInfo
         final long startTime = thriftObject.getStartTimestamp();
         final long endTimeStamp = thriftObject.getEndTimestamp();
         final int endStatus = thriftObject.getEndStatus();
-        return new AgentInfoBo.Builder().hostName(hostName).ip(ip).ports(ports).agentId(agentId).applicationName(applicationName).serviceType(serviceType)
-                .pid(pid).version(version).startTime(startTime).endTimeStamp(endTimeStamp).endStatus(endStatus).build();
+
+        AgentInfoBo.Builder builder = new AgentInfoBo.Builder();
+        builder.hostName(hostName);
+        builder.ip(ip);
+        builder.ports(ports);
+        builder.agentId(agentId);
+        builder.applicationName(applicationName);
+        builder.serviceType(serviceType);
+        builder.pid(pid);
+        builder.version(version);
+        builder.startTime(startTime);
+        builder.endTimeStamp(endTimeStamp);
+        builder.endStatus(endStatus);
+
+        return builder.build();
     }
 
 }
