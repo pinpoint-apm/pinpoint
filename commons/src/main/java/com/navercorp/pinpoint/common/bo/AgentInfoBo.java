@@ -202,64 +202,52 @@ public class AgentInfoBo {
             this.endStatus = buffer.readInt();
         }
 
-        public Builder hostName(String hostName) {
+        public void hostName(String hostName) {
             this.hostName = hostName;
-            return this;
         }
 
-        public Builder ip(String ip) {
+        public void ip(String ip) {
             this.ip = ip;
-            return this;
         }
 
-        public Builder ports(String ports) {
+        public void ports(String ports) {
             this.ports = ports;
-            return this;
         }
 
-        public Builder agentId(String agentId) {
+        public void agentId(String agentId) {
             this.agentId = agentId;
-            return this;
         }
 
-        public Builder applicationName(String applicationName) {
+        public void applicationName(String applicationName) {
             this.applicationName = applicationName;
-            return this;
         }
 
-        public Builder serviceType(ServiceType serviceType) {
+        public void serviceType(ServiceType serviceType) {
             this.serviceType = serviceType;
-            return this;
         }
 
-        public Builder pid(int pid) {
+        public void pid(int pid) {
             this.pid = pid;
-            return this;
         }
 
-        public Builder version(String version) {
+        public void version(String version) {
             this.version = version;
-            return this;
         }
 
-        public Builder startTime(long startTime) {
+        public void startTime(long startTime) {
             this.startTime = startTime;
-            return this;
         }
 
-        public Builder endTimeStamp(long endTimeStamp) {
+        public void endTimeStamp(long endTimeStamp) {
             this.endTimeStamp = endTimeStamp;
-            return this;
         }
 
-        public Builder endStatus(int endStatus) {
+        public void endStatus(int endStatus) {
             this.endStatus = endStatus;
-            return this;
         }
         
-        public Builder serverMetaData(ServerMetaDataBo serverMetaData) {
+        public void serverMetaData(ServerMetaDataBo serverMetaData) {
             this.serverMetaData = serverMetaData;
-            return this;
         }
 
         public AgentInfoBo build() {

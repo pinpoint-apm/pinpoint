@@ -168,39 +168,32 @@ public class AgentStatMemoryGcBo {
             this.timestamp = timestamp;
         }
 
-        public Builder gcType(String gcType) {
+        public void gcType(String gcType) {
             this.gcType = gcType;
-            return this;
         }
 
-        public Builder jvmMemoryHeapUsed(long jvmMemoryHeapUsed) {
+        public void jvmMemoryHeapUsed(long jvmMemoryHeapUsed) {
             this.jvmMemoryHeapUsed = jvmMemoryHeapUsed;
-            return this;
         }
 
-        public Builder jvmMemoryHeapMax(long jvmMemoryHeapMax) {
+        public void jvmMemoryHeapMax(long jvmMemoryHeapMax) {
             this.jvmMemoryHeapMax = jvmMemoryHeapMax;
-            return this;
         }
 
-        public Builder jvmMemoryNonHeapUsed(long jvmMemoryNonHeapUsed) {
+        public void jvmMemoryNonHeapUsed(long jvmMemoryNonHeapUsed) {
             this.jvmMemoryNonHeapUsed = jvmMemoryNonHeapUsed;
-            return this;
         }
 
-        public Builder jvmMemoryNonHeapMax(long jvmMemoryNonHeapMax) {
+        public void jvmMemoryNonHeapMax(long jvmMemoryNonHeapMax) {
             this.jvmMemoryNonHeapMax = jvmMemoryNonHeapMax;
-            return this;
         }
 
-        public Builder jvmGcOldCount(long jvmGcOldCount) {
+        public void jvmGcOldCount(long jvmGcOldCount) {
             this.jvmGcOldCount = jvmGcOldCount;
-            return this;
         }
 
-        public Builder jvmGcOldTime(long jvmGcOldTime) {
+        public void jvmGcOldTime(long jvmGcOldTime) {
             this.jvmGcOldTime = jvmGcOldTime;
-            return this;
         }
 
         public AgentStatMemoryGcBo build() {

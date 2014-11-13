@@ -125,19 +125,16 @@ public class ServerMetaDataBo {
             }
         }
 
-        public Builder serverInfo(String serverInfo) {
+        public void serverInfo(String serverInfo) {
             this.serverInfo = serverInfo;
-            return this;
         }
 
-        public Builder vmArgs(List<String> vmArgs) {
+        public void vmArgs(List<String> vmArgs) {
             this.vmArgs = vmArgs;
-            return this;
         }
 
-        public Builder serviceInfos(List<ServiceInfoBo> serviceInfos) {
+        public void serviceInfos(List<ServiceInfoBo> serviceInfos) {
             this.serviceInfos = serviceInfos;
-            return this;
         }
 
         public ServerMetaDataBo build() {
@@ -145,10 +142,10 @@ public class ServerMetaDataBo {
                 this.serverInfo = "";
             }
             if (this.vmArgs == null) {
-                this.vmArgs = Collections.<String> emptyList();
+                this.vmArgs = Collections.emptyList();
             }
             if (this.serviceInfos == null) {
-                this.serviceInfos = Collections.<ServiceInfoBo> emptyList();
+                this.serviceInfos = Collections.emptyList();
             }
             return new ServerMetaDataBo(this);
         }

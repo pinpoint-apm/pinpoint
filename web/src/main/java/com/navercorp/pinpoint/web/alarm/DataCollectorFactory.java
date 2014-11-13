@@ -49,6 +49,6 @@ public class DataCollectorFactory {
     public enum DataCollectorCategory {
         RESPONSE_TIME,
         AGENT_STAT,
-        CALLER_STAT;
+        CALLER_STAT
     }
 }

@@ -21,16 +21,20 @@ public class ServerMetaDataBoMapper implements ThriftBoMapper<ServerMetaDataBo, 
     public ServerMetaDataBo map(TServerMetaData thriftObject) {
         final String serverInfo = thriftObject.getServerInfo();
         final List<String> vmArgs = thriftObject.getVmArgs();
-        ServerMetaDataBo.Builder builder = new ServerMetaDataBo.Builder().serverInfo(serverInfo).vmArgs(vmArgs);
+        ServerMetaDataBo.Builder builder = new ServerMetaDataBo.Builder();
+        builder.serverInfo(serverInfo);
+        builder.vmArgs(vmArgs);
         if (thriftObject.isSetServiceInfos()) {
             final List<ServiceInfoBo> serviceInfos = new ArrayList<ServiceInfoBo>(thriftObject.getServiceInfosSize());
             for (TServiceInfo tServiceInfo : thriftObject.getServiceInfos()) {
                 final ServiceInfoBo serviceInfoBo = mapServiceInfo(tServiceInfo);
                 serviceInfos.add(serviceInfoBo);
             }
-            return builder.serviceInfos(serviceInfos).build();
+            builder.serviceInfos(serviceInfos);
+            return builder.build();
         } else {
-            return builder.serviceInfos(Collections.<ServiceInfoBo> emptyList()).build();
+            builder.serviceInfos(Collections.<ServiceInfoBo> emptyList());
+            return builder.build();
         }
     }
 

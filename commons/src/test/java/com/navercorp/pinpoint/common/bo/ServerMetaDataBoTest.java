@@ -37,7 +37,10 @@ public class ServerMetaDataBoTest {
     
     static ServerMetaDataBo createTestBo(String serverInfo, List<String> vmArgs, List<ServiceInfoBo> serviceInfos) {
         final ServerMetaDataBo.Builder builder = new ServerMetaDataBo.Builder();
-        return builder.serverInfo(serverInfo).vmArgs(vmArgs).serviceInfos(serviceInfos).build();
+        builder.serverInfo(serverInfo);
+        builder.vmArgs(vmArgs);
+        builder.serviceInfos(serviceInfos);
+        return builder.build();
     }
 
 }

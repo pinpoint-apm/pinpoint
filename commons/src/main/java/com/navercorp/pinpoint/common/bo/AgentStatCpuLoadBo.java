@@ -119,14 +119,12 @@ public class AgentStatCpuLoadBo {
             this.timestamp = timestamp;
         }
 
-        public Builder jvmCpuLoad(double jvmCpuLoad) {
+        public void jvmCpuLoad(double jvmCpuLoad) {
             this.jvmCpuLoad = jvmCpuLoad;
-            return this;
         }
 
-        public Builder systemCpuLoad(double systemCpuLoad) {
+        public void systemCpuLoad(double systemCpuLoad) {
             this.systemCpuLoad = systemCpuLoad;
-            return this;
         }
 
         public AgentStatCpuLoadBo build() {
