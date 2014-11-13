@@ -17,6 +17,7 @@ import com.nhn.pinpoint.profiler.modifier.arcus.MemcachedClientModifier;
 import com.nhn.pinpoint.profiler.modifier.arcus.OperationFutureModifier;
 import com.nhn.pinpoint.profiler.modifier.bloc.handler.HTTPHandlerModifier;
 import com.nhn.pinpoint.profiler.modifier.bloc4.NettyInboundHandlerModifier;
+import com.nhn.pinpoint.profiler.modifier.bloc4.NpcHandlerModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.asynchttpclient.AsyncHttpClientModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.BasicFutureModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.ClosableHttpAsyncClientModifier;
@@ -214,6 +215,9 @@ public class DefaultModifierRegistry implements ModifierRegistry {
     public void addBLOC4Modifier() {
         NettyInboundHandlerModifier nettyInboundHandlerModifier = new NettyInboundHandlerModifier(byteCodeInstrumentor, agent);
         addModifier(nettyInboundHandlerModifier);
+        
+        NpcHandlerModifier npcHandlerModifier = new NpcHandlerModifier(byteCodeInstrumentor, agent);
+        addModifier(npcHandlerModifier);
     }
 
 	public void addTomcatModifier() {

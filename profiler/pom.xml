@@ -83,12 +83,6 @@
             <groupId>com.nhncorp.lucy</groupId>
             <artifactId>lucy-npc</artifactId>
             <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <artifactId>mina-core</artifactId>
-                    <groupId>external.org.apache.mina</groupId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.nhncorp.lucy</groupId>
