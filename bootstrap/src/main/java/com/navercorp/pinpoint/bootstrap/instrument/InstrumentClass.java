@@ -86,7 +86,7 @@ public interface InstrumentClass {
     void addTraceValue(Class<? extends TraceValue> traceValue, String initValue) throws InstrumentException;
 
     void addTraceValue(Class<? extends TraceValue> traceValue) throws InstrumentException;
-
+    
 	boolean insertCodeAfterConstructor(String[] args, String code);
 
 	boolean insertCodeBeforeConstructor(String[] args, String code);
@@ -94,6 +94,10 @@ public interface InstrumentClass {
     List<MethodInfo> getDeclaredMethods();
 	
 	List<MethodInfo> getDeclaredMethods(MethodFilter methodFilter);
+	
+	MethodInfo getDeclaredMethod(String name, String[] parameterTypes);
+	
+	MethodInfo getConstructor(String[] parameterTypes);
 	
 	public boolean isInterceptable();
 	

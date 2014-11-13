@@ -12,7 +12,9 @@ public interface ByteCodeInstrumentor {
 
     void checkLibrary(ClassLoader classLoader, String javassistClassName);
 
-    InstrumentClass getClass(String javassistClassName) throws InstrumentException;
+    InstrumentClass getClass(String className) throws InstrumentException;
+    
+    InstrumentClass getClass(ClassLoader classLoader, String className, byte[] classFileBuffer) throws InstrumentException;
 
     Scope getScope(String scopeName);
 
