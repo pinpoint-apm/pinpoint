@@ -71,25 +71,21 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                  * @param agentStat
                  */
                 showCharts = function (agentStat) {
-                    var total = { id: 'total', title: 'Total (Heap + PermGen)', span: 'span12', line: [
-                        { id: 'jvmMemoryTotalUsed', key: 'Used', values: [], isFgc: false },
-                        { id: 'jvmMemoryTotalMax', key: 'Max', values: [], isFgc: false },
-                        { id: 'fgc', key: 'FGC', values: [], bar: true, isFgc: true }
-                    ]};
+                	console.log(agentStat);
 
                     var heap = { id: 'heap', title: 'Heap', span: 'span12', line: [
-                        { id: 'jvmMemoryHeapUsed', key: 'Used', values: [], isFgc: false },
-                        { id: 'jvmMemoryHeapMax', key: 'Max', values: [], isFgc: false },
+                        { id: 'JVM_MEMORY_HEAP_USED', key: 'Used', values: [], isFgc: false },
+                        { id: 'JVM_MEMORY_HEAP_MAX', key: 'Max', values: [], isFgc: false },
                         { id: 'fgc', key: 'FGC', values: [], bar: true, isFgc: true }
                     ]};
 
                     var nonheap = { id: 'nonheap', title: 'PermGen', span: 'span12', line: [
-                        { id: 'jvmMemoryNonHeapUsed', key: 'Used', values: [], isFgc: false },
-                        { id: 'jvmMemoryNonHeapMax', key: 'Max', values: [], isFgc: false },
+                        { id: 'JVM_MEMORY_NON_HEAP_USED', key: 'Used', values: [], isFgc: false },
+                        { id: 'JVM_MEMORY_NON_HEAP_MAX', key: 'Max', values: [], isFgc: false },
                         { id: 'fgc', key: 'FGC', values: [], bar: true, isFgc: true }
                     ]};
                     
-                    var cpuLoad = { id: 'cpuLoad', title: 'CpuLoad', span: 'span12', isAvailable: false};
+                    var cpuLoad = { id: 'cpuLoad', title: 'JVM/System Cpu Usage', span: 'span12', isAvailable: false};
 
                     scope.memoryGroup = [ heap, nonheap ];
                     scope.cpuLoadChart = cpuLoad;

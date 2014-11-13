@@ -1,10 +1,19 @@
 package com.nhn.pinpoint.web.vo.linechart;
 
+import static org.apache.commons.lang3.math.NumberUtils.LONG_ZERO;
+import static org.apache.commons.lang3.math.NumberUtils.DOUBLE_ZERO;
+
+import java.util.Collection;
+import java.util.Collections;
+
+import org.apache.commons.collections.CollectionUtils;
+
 
 /**
  * Time-series 처럼 연속된 데이터를 다운 샘플링한다.
  * 
  * @author harebox
+ * @author hyungil.jeong
  */
 public class DownSamplers {
 
@@ -17,88 +26,68 @@ public class DownSamplers {
 	
 	static class Min implements DownSampler {
 
-		public long sampleLong(Long[] longs) {
-			if (longs == null || longs.length == 0) {
-				return 0;
-			}
-			Long min = Long.MAX_VALUE;
-			for (Long each : longs) {
-				if (min > each) {
-					min = each;
-				}
-			}
-			return min;
-		}
+        @Override
+        public long sampleLong(Collection<Long> values) {
+            if (CollectionUtils.isEmpty(values)) {
+                return LONG_ZERO;
+            }
+            return Collections.min(values);
+        }
 
-		public double sampleDouble(Double[] doubles) {
-			if (doubles == null || doubles.length == 0) {
-				return 0.0;
-			}
-			Double min = Double.MAX_VALUE;
-			for (Double each : doubles) {
-				if (min > each) {
-					min = each;
-				}
-			}
-			return min;
-		}
+        @Override
+        public double sampleDouble(Collection<Double> values) {
+            if (CollectionUtils.isEmpty(values)) {
+                return DOUBLE_ZERO;
+            }
+            return Collections.min(values);
+        }
 
 	}
 
 	static class Max implements DownSampler {
 
-		public long sampleLong(Long[] longs) {
-			if (longs == null || longs.length == 0) {
-				return 0;
-			}
-			Long max = Long.MIN_VALUE;
-			for (Long each : longs) {
-				if (max < each) {
-					max = each;
-				}
-			}
-			return max;
-		}
+        @Override
+        public long sampleLong(Collection<Long> values) {
+            if (CollectionUtils.isEmpty(values)) {
+                return LONG_ZERO;
+            }
+            return Collections.max(values);
+        }
 
-		public double sampleDouble(Double[] doubles) {
-			if (doubles == null || doubles.length == 0) {
-				return 0.0;
-			}
-			Double max = -1 * Double.MAX_VALUE;
-			for (Double each : doubles) {
-				if (max < each) {
-					max = each;
-				}
-			}
-			return max;
-		}
-
+        @Override
+        public double sampleDouble(Collection<Double> values) {
+            if (CollectionUtils.isEmpty(values)) {
+                return DOUBLE_ZERO;
+            }
+            return Collections.max(values);
+        }
 	}
 
 	static class Avg implements DownSampler {
-		
-		public long sampleLong(Long[] longs) {
-			if (longs == null || longs.length == 0) {
-				return 0;
-			}
-			long total = 0;
-			for (Long each : longs) {
-				total += each;
-			}
-			return total / longs.length;
-		}
 
-		public double sampleDouble(Double[] doubles) {
-			if (doubles == null || doubles.length == 0) {
-				return 0.0;
-			}
-			double total = 0.0;
-			for (Double each : doubles) {
-				total += each;
-			}
-			return total / doubles.length;
-		}
+        @Override
+        public long sampleLong(Collection<Long> values) {
+            if (CollectionUtils.isEmpty(values)) {
+                return LONG_ZERO;
+            }
+            long total = 0L;
+            for (long value : values) {
+                total += value;
+            }
+            return total / values.size();
+        }
 
+        @Override
+        public double sampleDouble(Collection<Double> values) {
+            if (CollectionUtils.isEmpty(values)) {
+                return DOUBLE_ZERO;
+            }
+            double total = 0D;
+            for (double value : values) {
+                total += value;
+            }
+            return total / values.size();
+        }
 	}
 
 }

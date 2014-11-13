@@ -1,13 +1,16 @@
 package com.nhn.pinpoint.web.vo.linechart;
 
+import java.util.Collection;
+
 
 /**
  * @author harebox
+ * @author hyungil.jeong
  */
 public interface DownSampler {
 
-	long sampleLong(Long[] longs);
+	long sampleLong(Collection<Long> values);
 	
-	double sampleDouble(Double[] doubles);
+	double sampleDouble(Collection<Double> values);
 	
 }

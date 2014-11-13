@@ -55,10 +55,11 @@ public class AgentStatController {
             sampleRate = nPoints < 300 ? 1 : nPoints / 300;
         }
 
-        AgentStatChartGroup chart = new AgentStatChartGroup(sampleRate);
-        chart.addAgentStats(agentStatList);
+        AgentStatChartGroup chartGroup = new AgentStatChartGroup(sampleRate);
+        chartGroup.addAgentStats(agentStatList);
+        chartGroup.buildCharts();
 
-        return chart;
+        return chartGroup;
     }
 
     @RequestMapping(value = "/getAgentList", method = RequestMethod.GET)

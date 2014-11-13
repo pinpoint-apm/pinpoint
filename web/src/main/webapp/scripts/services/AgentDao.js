@@ -46,9 +46,8 @@ pinpointApp.service('AgentDao', [ 'agentDaoConfig',
          */
         this.parseMemoryChartDataForAmcharts = function (info, agentStat) {
             var newData = [],
-                POINTS_TIMESTAMP = 0, POINTS_MIN = 1, POINTS_MAX = 2, POINTS_AVG = 3,
-                pointsTime = agentStat.charts['jvmGcOldTime'].points,
-                pointsCount = agentStat.charts['jvmGcOldCount'].points;
+                pointsTime = agentStat.charts['JVM_GC_OLD_TIME'].points,
+                pointsCount = agentStat.charts['JVM_GC_OLD_COUNT'].points;
 
             if (pointsTime.length !== pointsCount.length) {
                 throw new Error('assertion error', 'time.length != count.length');
@@ -59,7 +58,7 @@ pinpointApp.service('AgentDao', [ 'agentDaoConfig',
 
             for (var i = pointsCount.length - 1; i >= 0; --i) {
                 var thisData = {
-                    time: new Date(pointsTime[i][POINTS_TIMESTAMP]).toString('yyyy-MM-dd HH:mm'),
+                    time: new Date(pointsTime[i].timestamp).toString('yyyy-MM-dd HH:mm'),
                     Used: 0,
                     Max: 0,
                     GC: 0
@@ -67,8 +66,8 @@ pinpointApp.service('AgentDao', [ 'agentDaoConfig',
                 for (var k in info.line) {
                     if (info.line[k].isFgc) {
                         var GC = 0;
-                        currTime = pointsTime[i][POINTS_MAX];
-                        currCount = pointsCount[i][POINTS_MAX];
+                        currTime = pointsTime[i].maxVal;
+                        currCount = pointsCount[i].maxVal;
                         if (!prevTime || !prevCount) {
                             prevTime = currTime;
                             prevCount = currCount;
@@ -81,7 +80,7 @@ pinpointApp.service('AgentDao', [ 'agentDaoConfig',
                         }
                         thisData[info.line[k].key] = GC;
                     } else {
-                        thisData[info.line[k].key] = agentStat.charts[info.line[k].id].points[i][POINTS_MAX];
+                        thisData[info.line[k].key] = agentStat.charts[info.line[k].id].points[i].maxVal;
                     }
 
                 }
@@ -100,15 +99,14 @@ pinpointApp.service('AgentDao', [ 'agentDaoConfig',
          */
         this.parseCpuLoadChartDataForAmcharts = function (cpuLoad, agentStat) {
         	// Cpu Load data availability check
-        	var jvmCpuLoadData = agentStat.charts['jvmCpuLoad'];
-        	var systemCpuLoadData = agentStat.charts['systemCpuLoad'];
+        	var jvmCpuLoadData = agentStat.charts['CPU_LOAD_JVM'];
+        	var systemCpuLoadData = agentStat.charts['CPU_LOAD_SYSTEM'];
         	if (jvmCpuLoadData || systemCpuLoadData) {
         		cpuLoad.isAvailable = true;
         	} else {
         		return;
         	}
             var newData = [],
-            TIME_STAMP_INDEX = 0, MIN_POINT_INDEX = 1, MAX_POINT_INDEX = 2, AVG_POINT_INDEX = 3,
             DATA_UNAVAILABLE = -1,
             pointsJvmCpuLoad = jvmCpuLoadData.points,
             pointsSystemCpuLoad = systemCpuLoadData.points;
@@ -143,20 +141,20 @@ pinpointApp.service('AgentDao', [ 'agentDaoConfig',
 	        }
 	
 	        for (var i = pointsJvmCpuLoad.length - 1; i >= 0; --i) {
-	        	if (pointsJvmCpuLoad[i][TIME_STAMP_INDEX] !== pointsSystemCpuLoad[i][TIME_STAMP_INDEX]) {
+	        	if (pointsJvmCpuLoad[i].timestamp !== pointsSystemCpuLoad[i].timestamp) {
 	        		throw new Error('assertion error', 'timestamp mismatch between jvmCpuLoad and systemCpuLoad');
 	        		return;
 	        	}
 	            var thisData = {
-	                time: new Date(pointsJvmCpuLoad[i][TIME_STAMP_INDEX]).toString('yyyy-MM-dd HH:mm'),
+	                time: new Date(pointsJvmCpuLoad[i].timestamp).toString('yyyy-MM-dd HH:mm'),
 	                jvmCpuLoadValue: -1 * Number.MIN_VALUE,
 	                jvmCpuLoadValueText: "",
 	                systemCpuLoadValue: -1 * Number.MIN_VALUE,
 	                systemCpuLoadValueText: "",
 	                maxCpuLoad: 100
 	            };
-	            var jvmCpuLoad = agentStat.charts['jvmCpuLoad'].points[i][MAX_POINT_INDEX].toFixed(2);
-	            var systemCpuLoad = agentStat.charts['systemCpuLoad'].points[i][MAX_POINT_INDEX].toFixed(2);
+	            var jvmCpuLoad = agentStat.charts['CPU_LOAD_JVM'].points[i].maxVal.toFixed(2);
+	            var systemCpuLoad = agentStat.charts['CPU_LOAD_SYSTEM'].points[i].maxVal.toFixed(2);
             	thisData.jvmCpuLoadValue = processCpuLoadValue(jvmCpuLoad);
             	thisData.jvmCpuLoadValueText = processCpuLoadValueText(jvmCpuLoad);
             	thisData.systemCpuLoadValue = processCpuLoadValue(systemCpuLoad);

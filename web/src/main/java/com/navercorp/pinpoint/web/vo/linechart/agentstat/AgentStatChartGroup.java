@@ -1,18 +1,18 @@
 package com.nhn.pinpoint.web.vo.linechart.agentstat;
 
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.util.CollectionUtils;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nhn.pinpoint.common.bo.AgentStatCpuLoadBo;
 import com.nhn.pinpoint.common.bo.AgentStatMemoryGcBo;
 import com.nhn.pinpoint.web.vo.AgentStat;
-import com.nhn.pinpoint.web.vo.linechart.LineChart;
-import com.nhn.pinpoint.web.vo.linechart.SampledDoubleLineChart;
-import com.nhn.pinpoint.web.vo.linechart.SampledLongLineChart;
+import com.nhn.pinpoint.web.vo.linechart.DataPoint;
+import com.nhn.pinpoint.web.vo.linechart.Chart;
+import com.nhn.pinpoint.web.vo.linechart.Chart.LineChartBuilder;
+import com.nhn.pinpoint.web.vo.linechart.SampledDataDoubleChartBuilder;
+import com.nhn.pinpoint.web.vo.linechart.SampledDataLongChartBuilder;
 
 /**
  * @author harebox
@@ -20,28 +20,35 @@ import com.nhn.pinpoint.web.vo.linechart.SampledLongLineChart;
  */
 public class AgentStatChartGroup {
 
-    private static final String JVM_MEMORY_HEAP_USED_KEY = "jvmMemoryHeapUsed";
-    private static final String JVM_MEMORY_HEAP_MAX_KEY = "jvmMemoryHeapMax";
-    private static final String JVM_MEMORY_NON_HEAP_USED_KEY = "jvmMemoryNonHeapUsed";
-    private static final String JVM_MEMORY_NON_HEAP_MAX_KEY = "jvmMemoryNonHeapMax";
-    private static final String JVM_GC_OLD_COUNT_KEY = "jvmGcOldCount";
-    private static final String JVM_GC_OLD_TIME_KEY = "jvmGcOldTime";
-
-    private static final String CPU_LOAD_JVM_KEY = "jvmCpuLoad";
-    private static final String CPU_LOAD_SYSTEM_KEY = "systemCpuLoad";
+    private static enum ChartType {
+        JVM_MEMORY_HEAP_USED,
+        JVM_MEMORY_HEAP_MAX, 
+        JVM_MEMORY_NON_HEAP_USED, 
+        JVM_MEMORY_NON_HEAP_MAX, 
+        JVM_GC_OLD_COUNT, 
+        JVM_GC_OLD_TIME, 
+        CPU_LOAD_JVM, 
+        CPU_LOAD_SYSTEM;
+    }
 
     private String type;
-    private Map<String, LineChart<?, ?>> charts = new HashMap<String, LineChart<? extends Number, ? extends Number>>();
+
+    @JsonIgnore
+    private final Map<ChartType, LineChartBuilder<? extends Number, ? extends Number>> chartBuilders;
+
+    private final Map<ChartType, Chart> charts;
 
     public AgentStatChartGroup(int sampleRate) {
-        charts.put(JVM_MEMORY_HEAP_USED_KEY, new SampledLongLineChart(sampleRate));
-        charts.put(JVM_MEMORY_HEAP_MAX_KEY, new SampledLongLineChart(sampleRate));
-        charts.put(JVM_MEMORY_NON_HEAP_USED_KEY, new SampledLongLineChart(sampleRate));
-        charts.put(JVM_MEMORY_NON_HEAP_MAX_KEY, new SampledLongLineChart(sampleRate));
-        charts.put(JVM_GC_OLD_COUNT_KEY, new SampledLongLineChart(sampleRate));
-        charts.put(JVM_GC_OLD_TIME_KEY, new SampledLongLineChart(sampleRate));
-        charts.put(CPU_LOAD_JVM_KEY, new SampledDoubleLineChart(sampleRate));
-        charts.put(CPU_LOAD_SYSTEM_KEY, new SampledDoubleLineChart(sampleRate));
+        this.chartBuilders = new EnumMap<ChartType, LineChartBuilder<? extends Number, ? extends Number>>(ChartType.class);
+        this.chartBuilders.put(ChartType.JVM_MEMORY_HEAP_USED, new SampledDataLongChartBuilder(sampleRate));
+        this.chartBuilders.put(ChartType.JVM_MEMORY_HEAP_MAX, new SampledDataLongChartBuilder(sampleRate));
+        this.chartBuilders.put(ChartType.JVM_MEMORY_NON_HEAP_USED, new SampledDataLongChartBuilder(sampleRate));
+        this.chartBuilders.put(ChartType.JVM_MEMORY_NON_HEAP_MAX, new SampledDataLongChartBuilder(sampleRate));
+        this.chartBuilders.put(ChartType.JVM_GC_OLD_COUNT, new SampledDataLongChartBuilder(sampleRate));
+        this.chartBuilders.put(ChartType.JVM_GC_OLD_TIME, new SampledDataLongChartBuilder(sampleRate));
+        this.chartBuilders.put(ChartType.CPU_LOAD_JVM, new SampledDataDoubleChartBuilder(sampleRate));
+        this.chartBuilders.put(ChartType.CPU_LOAD_SYSTEM, new SampledDataDoubleChartBuilder(sampleRate));
+        this.charts = new EnumMap<ChartType, Chart>(ChartType.class);
     }
 
     public void addAgentStats(List<AgentStat> agentStats) {
@@ -49,7 +56,12 @@ public class AgentStatChartGroup {
             addMemoryGcData(agentStat.getMemoryGc());
             addCpuLoadData(agentStat.getCpuLoad());
         }
-        removeUncollectedCharts();
+    }
+
+    public void buildCharts() {
+        for (ChartType chartType : ChartType.values()) {
+            this.charts.put(chartType, this.chartBuilders.get(chartType).buildChart());
+        }
     }
 
     private void addMemoryGcData(AgentStatMemoryGcBo data) {
@@ -58,12 +70,12 @@ public class AgentStatChartGroup {
         }
         this.type = data.getGcType();
         long timestamp = data.getTimestamp();
-        ((SampledLongLineChart)charts.get(JVM_MEMORY_HEAP_USED_KEY)).addPoint(timestamp, data.getJvmMemoryHeapUsed());
-        ((SampledLongLineChart)charts.get(JVM_MEMORY_HEAP_MAX_KEY)).addPoint(timestamp, data.getJvmMemoryHeapMax());
-        ((SampledLongLineChart)charts.get(JVM_MEMORY_NON_HEAP_USED_KEY)).addPoint(timestamp, data.getJvmMemoryNonHeapUsed());
-        ((SampledLongLineChart)charts.get(JVM_MEMORY_NON_HEAP_MAX_KEY)).addPoint(timestamp, data.getJvmMemoryNonHeapMax());
-        ((SampledLongLineChart)charts.get(JVM_GC_OLD_COUNT_KEY)).addPoint(timestamp, data.getJvmGcOldCount());
-        ((SampledLongLineChart)charts.get(JVM_GC_OLD_TIME_KEY)).addPoint(timestamp, data.getJvmGcOldTime());
+        ((SampledDataLongChartBuilder)this.chartBuilders.get(ChartType.JVM_MEMORY_HEAP_USED)).addDataPoint(new DataPoint<Long, Long>(timestamp, data.getJvmMemoryHeapUsed()));
+        ((SampledDataLongChartBuilder)this.chartBuilders.get(ChartType.JVM_MEMORY_HEAP_MAX)).addDataPoint(new DataPoint<Long, Long>(timestamp, data.getJvmMemoryHeapMax()));
+        ((SampledDataLongChartBuilder)this.chartBuilders.get(ChartType.JVM_MEMORY_NON_HEAP_USED)).addDataPoint(new DataPoint<Long, Long>(timestamp, data.getJvmMemoryNonHeapUsed()));
+        ((SampledDataLongChartBuilder)this.chartBuilders.get(ChartType.JVM_MEMORY_NON_HEAP_MAX)).addDataPoint(new DataPoint<Long, Long>(timestamp, data.getJvmMemoryNonHeapMax()));
+        ((SampledDataLongChartBuilder)this.chartBuilders.get(ChartType.JVM_GC_OLD_COUNT)).addDataPoint(new DataPoint<Long, Long>(timestamp, data.getJvmGcOldCount()));
+        ((SampledDataLongChartBuilder)this.chartBuilders.get(ChartType.JVM_GC_OLD_TIME)).addDataPoint(new DataPoint<Long, Long>(timestamp, data.getJvmGcOldTime()));
     }
 
     private void addCpuLoadData(AgentStatCpuLoadBo data) {
@@ -73,17 +85,8 @@ public class AgentStatChartGroup {
         long timestamp = data.getTimestamp();
         double jvmCpuLoadPercentage = data.getJvmCpuLoad() * 100;
         double systemCpuLoadPercentage = data.getSystemCpuLoad() * 100;
-        ((SampledDoubleLineChart)charts.get(CPU_LOAD_JVM_KEY)).addPoint(timestamp, jvmCpuLoadPercentage);
-        ((SampledDoubleLineChart)charts.get(CPU_LOAD_SYSTEM_KEY)).addPoint(timestamp, systemCpuLoadPercentage);
-    }
-
-    private void removeUncollectedCharts() {
-        for (Iterator<Map.Entry<String, LineChart<?, ?>>> iter = charts.entrySet().iterator(); iter.hasNext();) {
-            Map.Entry<String, LineChart<?, ?>> chartEntry = iter.next();
-            if (CollectionUtils.isEmpty(chartEntry.getValue().getPoints())) {
-                iter.remove();
-            }
-        }
+        ((SampledDataDoubleChartBuilder)this.chartBuilders.get(ChartType.CPU_LOAD_JVM)).addDataPoint(new DataPoint<Long, Double>(timestamp, jvmCpuLoadPercentage));
+        ((SampledDataDoubleChartBuilder)this.chartBuilders.get(ChartType.CPU_LOAD_SYSTEM)).addDataPoint(new DataPoint<Long, Double>(timestamp, systemCpuLoadPercentage));
     }
 
     public String getType() {
@@ -94,12 +97,8 @@ public class AgentStatChartGroup {
         this.type = type;
     }
 
-    public Map<String, LineChart<?, ?>> getCharts() {
+    public Map<ChartType, Chart> getCharts() {
         return charts;
-    }
-
-    public void setCharts(Map<String, LineChart<?, ?>> charts) {
-        this.charts = charts;
     }
 
 }

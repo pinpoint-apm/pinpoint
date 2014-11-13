@@ -64,7 +64,7 @@ angular.module('pinpointApp')
                                     "gridAlpha": 0,
                                     "axisAlpha": 1,
                                     "position": "left",
-                                    "title": "Cpu Load (%)",
+                                    "title": "Cpu Usage (%)",
                                     "maximum" : 100,
                                     "minimum" : 0
                                 },
