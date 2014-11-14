@@ -40,9 +40,8 @@ public abstract class IbatisClientModifier extends AbstractModifier {
 		if (logger.isInfoEnabled()) {
             logger.info("Modifying. {}", javassistClassName);
 		}
-		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 		try {
-			InstrumentClass ibatisClientImpl = byteCodeInstrumentor.getClass(javassistClassName);
+			InstrumentClass ibatisClientImpl = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 			List<MethodInfo> declaredMethods = ibatisClientImpl.getDeclaredMethods(getIbatisApiMethodFilter());
 
 			for (MethodInfo method : declaredMethods) {

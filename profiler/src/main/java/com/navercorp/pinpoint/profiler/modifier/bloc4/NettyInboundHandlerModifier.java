@@ -32,10 +32,8 @@ public class NettyInboundHandlerModifier extends AbstractModifier {
 			logger.info("Modifing. {}", javassistClassName);
 		}
 
-		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
-
 		try {
-			InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
+			InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
 			aClass.addGetter("__getUriEncoding", "uriEncoding", "java.nio.charset.Charset");
 			

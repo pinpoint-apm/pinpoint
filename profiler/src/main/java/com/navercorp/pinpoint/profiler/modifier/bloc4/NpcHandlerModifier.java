@@ -26,10 +26,8 @@ public class NpcHandlerModifier extends AbstractModifier {
             logger.info("Modifing. {}", javassistClassName);
         }
         
-        byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
-        
         try {
-            InstrumentClass npcHandler = byteCodeInstrumentor.getClass(javassistClassName);
+            InstrumentClass npcHandler = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
             Interceptor messageReceivedInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.bloc4.interceptor.MessageReceivedInterceptor");
             npcHandler.addInterceptor("messageReceived", new String[] {"external.org.apache.mina.common.IoFilter$NextFilter", "external.org.apache.mina.common.IoSession", "java.lang.Object"}, messageReceivedInterceptor);
 

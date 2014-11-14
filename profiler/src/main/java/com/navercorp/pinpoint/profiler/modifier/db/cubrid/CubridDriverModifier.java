@@ -29,9 +29,8 @@ public class CubridDriverModifier extends AbstractModifier {
 		if (logger.isInfoEnabled()) {
 			logger.info("Modifing. {}", javassistClassName);
 		}
-		this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 		try {
-			InstrumentClass mysqlConnection = byteCodeInstrumentor.getClass(javassistClassName);
+			InstrumentClass mysqlConnection = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             final Scope scope = byteCodeInstrumentor.getScope(CubridScope.SCOPE_NAME);
             DriverConnectInterceptor driverConnectInterceptor = new DriverConnectInterceptor(scope);

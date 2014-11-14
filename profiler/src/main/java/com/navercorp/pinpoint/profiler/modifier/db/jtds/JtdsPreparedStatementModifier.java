@@ -42,9 +42,8 @@ public class JtdsPreparedStatementModifier extends AbstractModifier {
         if (logger.isInfoEnabled()) {
             logger.info("Modifing. {}", javassistClassName);
         }
-        this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         try {
-            InstrumentClass preparedStatementClass = byteCodeInstrumentor.getClass(javassistClassName);
+            InstrumentClass preparedStatementClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             Interceptor executeInterceptor = new PreparedStatementExecuteQueryInterceptor();
             preparedStatementClass.addScopeInterceptor("execute", null, executeInterceptor, JtdsScope.SCOPE_NAME);

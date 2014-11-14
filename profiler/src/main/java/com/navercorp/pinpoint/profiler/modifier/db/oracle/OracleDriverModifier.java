@@ -35,9 +35,8 @@ public class OracleDriverModifier  extends AbstractModifier {
         if (logger.isInfoEnabled()) {
             logger.info("Modifing. {}", javassistClassName);
         }
-        this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         try {
-            InstrumentClass oracleDriver = byteCodeInstrumentor.getClass(javassistClassName);
+            InstrumentClass oracleDriver = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             final Scope scope = byteCodeInstrumentor.getScope(OracleScope.SCOPE_NAME);
             Interceptor createConnection = new DriverConnectInterceptor(scope);

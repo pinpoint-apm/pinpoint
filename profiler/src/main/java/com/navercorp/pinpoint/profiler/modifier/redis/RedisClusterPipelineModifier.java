@@ -42,9 +42,8 @@ public class RedisClusterPipelineModifier extends AbstractModifier {
             logger.info("Modifing. {}", className);
         }
 
-        byteCodeInstrumentor.checkLibrary(classLoader, className);
         try {
-            final InstrumentClass instrumentClass = byteCodeInstrumentor.getClass(className);
+            final InstrumentClass instrumentClass = byteCodeInstrumentor.getClass(classLoader, className, classFileBuffer);
 
             // trace destinationId, endPoint
             instrumentClass.addTraceValue(MapTraceValue.class);

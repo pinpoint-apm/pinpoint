@@ -47,9 +47,8 @@ public final class SqlMapClientTemplateModifier extends AbstractModifier {
 		if (this.logger.isInfoEnabled()) {
 			this.logger.info("Modifying. {}", javassistClassName);
 		}
-		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 		try {
-			InstrumentClass sqlMapClientTemplate = byteCodeInstrumentor.getClass(javassistClassName);
+			InstrumentClass sqlMapClientTemplate = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 			List<MethodInfo> declaredMethods = sqlMapClientTemplate.getDeclaredMethods(sqlMapClientMethodFilter);
 			
 			for (MethodInfo method : declaredMethods) {

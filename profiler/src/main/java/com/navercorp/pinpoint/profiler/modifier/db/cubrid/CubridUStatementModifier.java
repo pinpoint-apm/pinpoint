@@ -31,9 +31,9 @@ public class CubridUStatementModifier extends AbstractModifier {
 		if (logger.isInfoEnabled()) {
 			logger.info("Modifing. {}", javassistClassName);
 		}
-		this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
+
 		try {
-			InstrumentClass ustatementClass = byteCodeInstrumentor.getClass(javassistClassName);
+			InstrumentClass ustatementClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
 			return ustatementClass.toBytecode();
 		} catch (InstrumentException e) {

@@ -41,9 +41,8 @@ public class MemcachedClientModifier extends AbstractModifier {
 			logger.info("Modifing. {}", javassistClassName);
 		}
 
-		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 		try {
-			InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
+			InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             String[] args = {"java.lang.String", "net.spy.memcached.ops.Operation"};
             if (!checkCompatibility(aClass, args)) {

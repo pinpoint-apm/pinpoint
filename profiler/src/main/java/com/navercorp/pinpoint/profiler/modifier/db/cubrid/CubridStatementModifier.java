@@ -34,9 +34,8 @@ public class CubridStatementModifier extends AbstractModifier {
 		if (logger.isInfoEnabled()) {
 			logger.info("Modifing. {}", javassistClassName);
 		}
-		this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 		try {
-			InstrumentClass statementClass = byteCodeInstrumentor.getClass(javassistClassName);
+			InstrumentClass statementClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             Interceptor executeQueryInterceptor = new StatementExecuteQueryInterceptor();
             statementClass.addScopeInterceptor("executeQuery", new String[]{"java.lang.String"}, executeQueryInterceptor, CubridScope.SCOPE_NAME);

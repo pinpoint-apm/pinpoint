@@ -33,9 +33,8 @@ public class FrontCacheMemcachedClientModifier extends AbstractModifier {
             logger.info("Modifing. {}", javassistClassName);
         }
 
-        byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         try {
-            InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
+            InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             String[] args = {"java.lang.String", "java.util.concurrent.Future", Long.TYPE.toString()};
             if (!checkCompatibility(aClass, args)) {

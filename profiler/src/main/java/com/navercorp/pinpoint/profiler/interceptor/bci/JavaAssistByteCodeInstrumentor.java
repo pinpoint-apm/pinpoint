@@ -98,17 +98,13 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         }
     }
 
-    public void checkLibrary(ClassLoader classLoader, String javassistClassName) {
-        checkLibrary(classLoader, this.childClassPool, javassistClassName);
-    }
-
     public void checkLibrary(ClassLoader classLoader, NamedClassPool classPool, String javassistClassName) {
         // 최상위 classLoader일 경우 null이라 찾을필요가 없음.
         if (classLoader == null) {
             return;
         }
         // TODO Util로 뽑을까?
-        boolean findClass = findClass(javassistClassName, classPool);
+        final boolean findClass = findClass(javassistClassName, classPool);
         if (findClass) {
             if (isDebug) {
                 logger.debug("checkLibrary cl:{} clPool:{}, class:{} found.", classLoader, classPool.getName(), javassistClassName);
@@ -118,20 +114,27 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         loadClassLoaderLibraries(classLoader, classPool);
     }
 
+
     @Override
-    public InstrumentClass getClass(String javassistClassName) throws InstrumentException {
+    public InstrumentClass getClass(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) throws InstrumentException {
+        // for asm : classFileBuffer
+        final NamedClassPool classPool = findClassPool(classLoader, javassistClassName);
+        checkLibrary(classLoader, classPool, javassistClassName);
         try {
-            CtClass cc = childClassPool.get(javassistClassName);
+            CtClass cc = classPool.get(javassistClassName);
             return new JavaAssistClass(this, cc);
         } catch (NotFoundException e) {
             throw new InstrumentException(javassistClassName + " class not found. Cause:" + e.getMessage(), e);
         }
     }
-    
-    @Override
-    public InstrumentClass getClass(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) throws InstrumentException {
-        checkLibrary(classLoader, javassistClassName);
-        return getClass(javassistClassName);
+
+    private NamedClassPool findClassPool(ClassLoader classLoader, String javassistClassName) {
+        if (classLoader == null) {
+            // SystemClassLoader
+            logger.debug("ClassLoader is null. {}", javassistClassName);
+        }
+        // TODO fix find classPool
+        return childClassPool;
     }
 
     @Override

@@ -35,9 +35,8 @@ public class JtdsDriverModifier extends AbstractModifier {
         if (logger.isInfoEnabled()) {
             logger.info("Modifing. {}", javassistClassName);
         }
-        this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         try {
-            InstrumentClass jtdsDriver = byteCodeInstrumentor.getClass(javassistClassName);
+            InstrumentClass jtdsDriver = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             final Scope scope = byteCodeInstrumentor.getScope(JtdsScope.SCOPE_NAME);
             Interceptor createConnection = new DriverConnectInterceptor(scope);

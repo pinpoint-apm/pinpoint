@@ -36,10 +36,8 @@ public class HandlerInvokeTaskModifier extends AbstractModifier {
 			logger.info("Modifing. {} @ {}", javassistClassName, classLoader);
 		}
 
-		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
-
 		try {
-			InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
+			InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
 			// constructor parameter trace object
 			aClass.addTraceVariable("__channelHandlerContext", "__setChannelHandlerContext", "__getChannelHandlerContext", "org.jboss.netty.channel.ChannelHandlerContext");

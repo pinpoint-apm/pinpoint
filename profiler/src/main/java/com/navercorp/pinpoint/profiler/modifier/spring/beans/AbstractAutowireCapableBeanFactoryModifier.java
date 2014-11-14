@@ -79,10 +79,8 @@ public class AbstractAutowireCapableBeanFactoryModifier extends AbstractModifier
             logger.info("Modifing. {}", className);
         }
         
-        byteCodeInstrumentor.checkLibrary(classLoader, className);
-
         try {
-            InstrumentClass aClass = byteCodeInstrumentor.getClass(className);
+            InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, className, classFileBuffer);
 
             Interceptor createBeanInterceptor = new CreateBeanInstanceInterceptor(retransformer, modifier, filter);
             aClass.addInterceptor("createBeanInstance",

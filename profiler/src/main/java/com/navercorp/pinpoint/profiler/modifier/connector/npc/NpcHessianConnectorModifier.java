@@ -36,9 +36,8 @@ public class NpcHessianConnectorModifier extends AbstractModifier {
 			logger.info("Modifing. {}", javassistClassName);
 		}
 
-		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 		try {
-			InstrumentClass connectorClass = byteCodeInstrumentor.getClass(javassistClassName);
+			InstrumentClass connectorClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
 			// create connector
 			if (connectorClass.hasDeclaredMethod("createConnecor", new String[] { "com.nhncorp.lucy.npc.connector.NpcConnectorOption" })) {

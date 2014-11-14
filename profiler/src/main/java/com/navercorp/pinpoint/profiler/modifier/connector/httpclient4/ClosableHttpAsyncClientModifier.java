@@ -37,10 +37,9 @@ public class ClosableHttpAsyncClientModifier extends AbstractModifier {
 			logger.info("Modifing. {} @ {}", javassistClassName, classLoader);
 		}
 
-		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 
 		try {
-			InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
+			InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
  
 			/**
 			 * 아래 두 메소드는 오버로드 되었으나 호출 관계가 없어 scope 없어도 됨.

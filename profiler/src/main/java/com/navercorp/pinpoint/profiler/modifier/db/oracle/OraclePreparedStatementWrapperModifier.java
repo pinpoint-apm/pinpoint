@@ -43,9 +43,8 @@ public class OraclePreparedStatementWrapperModifier extends AbstractModifier {
             logger.info("Modifing. {}", javassistClassName);
         }
 
-        this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         try {
-            InstrumentClass preparedStatement = byteCodeInstrumentor.getClass(javassistClassName);
+            InstrumentClass preparedStatement = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             Interceptor execute = new PreparedStatementExecuteQueryInterceptor();
             preparedStatement.addScopeInterceptor("execute", null, execute, OracleScope.SCOPE_NAME);

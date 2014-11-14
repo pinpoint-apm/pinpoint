@@ -25,11 +25,10 @@ public class DefaultHttpRequestRetryHandlerModifier extends AbstractModifier {
             logger.info("Modifing. {}", javassistClassName);
         }
         
-        byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         RetryRequestInterceptor retryRequestInterceptor = new RetryRequestInterceptor();
         
         try {
-            InstrumentClass httpRequestRetryHandler = byteCodeInstrumentor.getClass(javassistClassName);
+            InstrumentClass httpRequestRetryHandler = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
             httpRequestRetryHandler.addInterceptor("retryRequest", new String[]{"java.io.IOException", "int", "org.apache.http.protocol.HttpContext"}, retryRequestInterceptor);
 
             return httpRequestRetryHandler.toBytecode();

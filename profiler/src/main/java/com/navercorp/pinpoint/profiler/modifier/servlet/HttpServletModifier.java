@@ -35,10 +35,9 @@ public class HttpServletModifier extends AbstractModifier {
 			logger.info("Modifing. {}", javassistClassName);
 		}
 
-		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 
 		try {
-			InstrumentClass servlet = byteCodeInstrumentor.getClass(javassistClassName);
+			InstrumentClass servlet = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
             Interceptor doGetInterceptor = new MethodInterceptor();
 			servlet.addInterceptor("doGet", new String[] { "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse" }, doGetInterceptor);
 

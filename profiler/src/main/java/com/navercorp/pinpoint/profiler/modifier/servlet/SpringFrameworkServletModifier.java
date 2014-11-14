@@ -37,8 +37,6 @@ public class SpringFrameworkServletModifier extends AbstractModifier {
 			logger.info("Modifing. {}", javassistClassName);
 		}
 
-		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
-
 		try {
 			Interceptor doGetInterceptor = new MethodInterceptor();
             setServiceType(doGetInterceptor, ServiceType.SPRING_MVC);
@@ -48,7 +46,7 @@ public class SpringFrameworkServletModifier extends AbstractModifier {
 
 
 
-			InstrumentClass servlet = byteCodeInstrumentor.getClass(javassistClassName);
+			InstrumentClass servlet = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 			servlet.addInterceptor("doGet", new String[] { "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse" }, doGetInterceptor);
 
 			servlet.addInterceptor("doPost", new String[] { "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse" }, doPostInterceptor);

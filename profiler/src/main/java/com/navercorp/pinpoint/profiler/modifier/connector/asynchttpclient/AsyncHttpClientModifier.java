@@ -34,9 +34,8 @@ public class AsyncHttpClientModifier extends AbstractModifier {
 			logger.info("Modifing. {}", javassistClassName);
 		}
 
-		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 		try {
-			InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
+			InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
 			Interceptor executeRequestInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.connector.asynchttpclient.interceptor.ExecuteRequestInterceptor");
 			aClass.addInterceptor("executeRequest", new String[] { "com.ning.http.client.Request", "com.ning.http.client.AsyncHandler" }, executeRequestInterceptor);

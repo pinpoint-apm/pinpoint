@@ -32,10 +32,9 @@ public class HTTPHandlerModifier extends AbstractModifier {
             logger.info("Modifing. {}", javassistClassName);
         }
 
-        byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         try {
             Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.bloc.handler.interceptor.ExecuteMethodInterceptor");
-            InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
+            InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
             aClass.addInterceptor("execute", new String[]{"external.org.apache.coyote.Request", "external.org.apache.coyote.Response"}, interceptor);
             return aClass.toBytecode();
         } catch (InstrumentException e) {

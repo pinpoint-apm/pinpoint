@@ -41,9 +41,8 @@ public class ClosableHttpClientModifier extends AbstractModifier {
             logger.info("Modifing. {}", javassistClassName);
         }
 
-        byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         try {
-            InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
+            InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             addHttpRequestApi(classLoader, protectedDomain, aClass);
 

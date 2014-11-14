@@ -33,10 +33,8 @@ public class HttpCustomServerHandlerModifier extends AbstractModifier {
 			logger.info("Modifing. {} @ {}", javassistClassName, classLoader);
 		}
 
-		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
-
 		try {
-			InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
+			InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
 //			/**
 //			 * modify inner class

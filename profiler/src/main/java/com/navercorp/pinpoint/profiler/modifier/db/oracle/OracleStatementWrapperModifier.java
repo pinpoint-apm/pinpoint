@@ -35,10 +35,9 @@ public class OracleStatementWrapperModifier extends AbstractModifier {
             logger.info("Modifing. {}", javassistClassName);
         }
 
-        byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 
         try {
-            InstrumentClass statementClass = byteCodeInstrumentor.getClass(javassistClassName);
+            InstrumentClass statementClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
             Interceptor executeQuery = new StatementExecuteQueryInterceptor();
             statementClass.addScopeInterceptor("executeQuery", new String[]{"java.lang.String"}, executeQuery, OracleScope.SCOPE_NAME);
 

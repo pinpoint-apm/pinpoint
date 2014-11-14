@@ -34,9 +34,8 @@ public class MySQLNonRegisteringDriverModifier extends AbstractModifier {
         if (logger.isInfoEnabled()) {
             logger.info("Modifing. {}", javassistClassName);
         }
-        this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         try {
-            InstrumentClass mysqlConnection = byteCodeInstrumentor.getClass(javassistClassName);
+            InstrumentClass mysqlConnection = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             final Scope scope = byteCodeInstrumentor.getScope(MYSQLScope.SCOPE_NAME);
             Interceptor createConnection = new DriverConnectInterceptor(false, scope);

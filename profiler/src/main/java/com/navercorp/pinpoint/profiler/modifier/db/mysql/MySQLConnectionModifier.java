@@ -36,9 +36,8 @@ public class MySQLConnectionModifier extends AbstractModifier {
         if (logger.isInfoEnabled()) {
             logger.info("Modifing. {}", javassistClassName);
         }
-        this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         try {
-            InstrumentClass mysqlConnection = byteCodeInstrumentor.getClass(javassistClassName);
+            InstrumentClass mysqlConnection = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
             if (mysqlConnection.isInterface()) {
                 // 최신버전의 mysql dirver를 사용했을 경우의 호환성 작업.
                 return null;

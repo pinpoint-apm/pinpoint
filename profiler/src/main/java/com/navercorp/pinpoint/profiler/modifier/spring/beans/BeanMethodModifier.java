@@ -53,10 +53,9 @@ public class BeanMethodModifier implements Modifier {
             logger.info("Modify {}", javassistClassName);
         }
 
-        byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 
         try {
-            InstrumentClass clazz = byteCodeInstrumentor.getClass(javassistClassName);
+            InstrumentClass clazz = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             if (!clazz.isInterceptable()) {
                 return null;

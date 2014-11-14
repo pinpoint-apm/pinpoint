@@ -31,9 +31,8 @@ public class BaseOperationModifier extends AbstractModifier {
             logger.info("Modifing. {}", javassistClassName);
         }
 
-        byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         try {
-            InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
+            InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             aClass.addTraceVariable("__serviceCode", "__setServiceCode", "__getServiceCode", "java.lang.String");
 

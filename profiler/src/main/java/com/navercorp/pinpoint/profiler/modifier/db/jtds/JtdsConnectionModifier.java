@@ -30,9 +30,8 @@ public abstract class JtdsConnectionModifier extends AbstractModifier {
         if (logger.isInfoEnabled()) {
             logger.info("Modifing. {}", javassistClassName);
         }
-        this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         try {
-            InstrumentClass jtdsConnection = byteCodeInstrumentor.getClass(javassistClassName);
+            InstrumentClass jtdsConnection = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
 
             jtdsConnection.addTraceValue(DatabaseInfoTraceValue.class);

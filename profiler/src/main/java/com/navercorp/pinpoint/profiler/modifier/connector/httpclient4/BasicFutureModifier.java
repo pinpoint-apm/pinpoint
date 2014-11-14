@@ -36,10 +36,8 @@ public class BasicFutureModifier extends AbstractModifier {
 			logger.info("Modifing. {} @ {}", javassistClassName, classLoader);
 		}
 
-		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
-
 		try {
-			InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
+			InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
 			Interceptor futureGetInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.modifier.connector.httpclient4.interceptor.BasicFutureGetInterceptor");
 			aClass.addInterceptor("get", null, futureGetInterceptor);

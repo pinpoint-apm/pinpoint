@@ -46,9 +46,8 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
             logger.info("Modifing. {}", javassistClassName);
         }
 
-        this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         try {
-            InstrumentClass preparedStatement = byteCodeInstrumentor.getClass(javassistClassName);
+            InstrumentClass preparedStatement = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             Interceptor execute = new PreparedStatementExecuteQueryInterceptor();
             preparedStatement.addScopeInterceptor("execute", null, execute, MYSQLScope.SCOPE_NAME);
