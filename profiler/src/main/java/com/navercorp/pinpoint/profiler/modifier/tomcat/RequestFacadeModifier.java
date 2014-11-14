@@ -31,10 +31,9 @@ public class RequestFacadeModifier extends AbstractModifier {
 			logger.info("Modifing. {}", javassistClassName);
 		}
 
-		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 
 		try {
-			InstrumentClass requestFacade = byteCodeInstrumentor.getClass(javassistClassName);
+			InstrumentClass requestFacade = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 			requestFacade.weaving("com.nhn.pinpoint.profiler.modifier.tomcat.aspect.RequestFacadeAspect");
 			return requestFacade.toBytecode();
 		} catch (InstrumentException e) {

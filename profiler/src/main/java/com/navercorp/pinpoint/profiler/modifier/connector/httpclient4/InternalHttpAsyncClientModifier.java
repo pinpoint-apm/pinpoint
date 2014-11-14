@@ -37,10 +37,8 @@ public class InternalHttpAsyncClientModifier extends AbstractModifier {
 			logger.info("Modifing. {} @ {}", javassistClassName, classLoader);
 		}
 
-		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
-
 		try {
-			InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
+			InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
 			Interceptor internalExecuteInterceptor = byteCodeInstrumentor.newInterceptor(classLoader,
 					protectedDomain,

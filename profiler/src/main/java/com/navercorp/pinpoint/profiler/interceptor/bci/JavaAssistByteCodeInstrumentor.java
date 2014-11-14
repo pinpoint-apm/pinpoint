@@ -98,11 +98,6 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         }
     }
 
-    @Deprecated
-    public void checkLibrary(ClassLoader classLoader, String javassistClassName) {
-        checkLibrary(classLoader, this.childClassPool, javassistClassName);
-    }
-
     public void checkLibrary(ClassLoader classLoader, NamedClassPool classPool, String javassistClassName) {
         // 최상위 classLoader일 경우 null이라 찾을필요가 없음.
         if (classLoader == null) {
@@ -119,20 +114,11 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         loadClassLoaderLibraries(classLoader, classPool);
     }
 
-    @Deprecated
-    @Override
-    public InstrumentClass getClass(String javassistClassName) throws InstrumentException {
-        try {
-            final CtClass cc = childClassPool.get(javassistClassName);
-            return new JavaAssistClass(this, cc);
-        } catch (NotFoundException e) {
-            throw new InstrumentException(javassistClassName + " class not found. Cause:" + e.getMessage(), e);
-        }
-    }
-    
+
     @Override
     public InstrumentClass getClass(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) throws InstrumentException {
-        final NamedClassPool classPool = findClassPool(classLoader);
+        // for asm : classFileBuffer
+        final NamedClassPool classPool = findClassPool(classLoader, javassistClassName);
         checkLibrary(classLoader, classPool, javassistClassName);
         try {
             CtClass cc = classPool.get(javassistClassName);
@@ -142,7 +128,11 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         }
     }
 
-    private NamedClassPool findClassPool(ClassLoader classLoader) {
+    private NamedClassPool findClassPool(ClassLoader classLoader, String javassistClassName) {
+        if (classLoader == null) {
+            // SystemClassLoader
+            logger.debug("ClassLoader is null. {}", javassistClassName);
+        }
         // TODO fix find classPool
         return childClassPool;
     }

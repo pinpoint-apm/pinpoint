@@ -42,9 +42,8 @@ public abstract class MyBatisClientModifier extends AbstractModifier {
 		if (logger.isInfoEnabled()) {
             logger.info("Modifying. {}", javassistClassName);
 		}
-		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 		try {
-			InstrumentClass myBatisClientImpl = byteCodeInstrumentor.getClass(javassistClassName);
+			InstrumentClass myBatisClientImpl = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 			List<MethodInfo> declaredMethods = myBatisClientImpl.getDeclaredMethods(getSqlSessionMethodFilter());			
 			for (MethodInfo method : declaredMethods) {
 				Interceptor sqlSessionInterceptor = new MyBatisSqlMapOperationInterceptor(serviceType);

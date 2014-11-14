@@ -32,14 +32,13 @@ public class DBCPPoolGuardConnectionWrapperModifier extends AbstractModifier {
         if (logger.isInfoEnabled()) {
             logger.info("Modifing. {}", javassistClassName);
         }
-        this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
-        return changeMethod(javassistClassName, classFileBuffer);
+        return changeMethod(classLoader, javassistClassName, classFileBuffer);
     }
 
-    private byte[] changeMethod(String javassistClassName, byte[] classFileBuffer) {
+    private byte[] changeMethod(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) {
 
         try {
-            InstrumentClass wrapper = byteCodeInstrumentor.getClass(javassistClassName);
+            InstrumentClass wrapper = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
             Interceptor close = new DataSourceCloseInterceptor();
             wrapper.addScopeInterceptor("close", null, close, DBCPScope.SCOPE_NAME);
 

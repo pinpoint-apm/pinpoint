@@ -92,25 +92,25 @@ public class TraceTest {
             return send(data);
         }
 
-		@Override
-		public boolean request(TBase<?, ?> data, FutureListener<ResponseMessage> listener) {
+        @Override
+        public boolean request(TBase<?, ?> data, FutureListener<ResponseMessage> listener) {
             return send(data);
-		}
-		
-		@Override
-		public boolean addReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
-			return false;
-		}
-		
-		@Override
-		public boolean removeReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
-			return false;
-		}
+        }
 
-		@Override
-		public boolean isNetworkAvailable() {
-			return true;
-		}
+        @Override
+        public boolean addReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
+            return false;
+        }
+
+        @Override
+        public boolean removeReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
+            return false;
+        }
+
+        @Override
+        public boolean isNetworkAvailable() {
+            return true;
+        }
     }
 
     private void getDataFromDB(Trace trace) {

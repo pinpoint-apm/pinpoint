@@ -31,9 +31,8 @@ public class FrontCacheGetFutureModifier extends AbstractModifier {
             logger.info("Modifying. {}", javassistClassName);
         }
 
-        byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         try {
-            InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
+            InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             aClass.addTraceVariable("__cacheName", "__setCacheName", "__getCacheName", "java.lang.String");
             aClass.addTraceVariable("__cacheKey", "__setCacheKey", "__getCacheKey", "java.lang.String");

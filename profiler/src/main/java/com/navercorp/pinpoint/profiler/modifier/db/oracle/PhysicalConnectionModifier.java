@@ -36,9 +36,8 @@ public class PhysicalConnectionModifier extends AbstractModifier {
         if (logger.isInfoEnabled()) {
             logger.info("Modifing. {}", javassistClassName);
         }
-        this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         try {
-            InstrumentClass oracleConnection = byteCodeInstrumentor.getClass(javassistClassName);
+            InstrumentClass oracleConnection = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
 
             oracleConnection.addTraceValue(DatabaseInfoTraceValue.class);

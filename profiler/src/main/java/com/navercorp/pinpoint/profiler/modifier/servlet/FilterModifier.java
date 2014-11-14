@@ -35,14 +35,12 @@ public class FilterModifier extends AbstractModifier {
 			logger.info("Modifing. {}", javassistClassName);
 		}
 
-		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
-
 		try {
 			Interceptor doFilterInterceptor = new MethodInterceptor();
 
 //			setTraceContext(doFilterInterceptor);
 
-			InstrumentClass servlet = byteCodeInstrumentor.getClass(javassistClassName);
+			InstrumentClass servlet = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
 			servlet.addInterceptor("doFilter", new String[] { "javax.servlet.ServletRequest", "javax.servlet.ServletResponse", "javax.servlet.FilterChain" }, doFilterInterceptor);
 

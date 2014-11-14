@@ -33,9 +33,8 @@ public class NimmInvokerModifier extends AbstractModifier {
 			logger.info("Modifing. {}", javassistClassName);
 		}
 
-		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 		try {
-			InstrumentClass aClass = byteCodeInstrumentor.getClass(javassistClassName);
+			InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
 			// trace variable
 			aClass.addTraceVariable("_nimmAddress", "__setNimmAddress", "__getNimmAddress", "java.lang.String");

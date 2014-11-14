@@ -40,11 +40,10 @@ public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier {
     @Override
     public byte[] modify(ClassLoader classLoader, String className, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
         if (logger.isInfoEnabled()) {
-            logger.info("Modifing. " + className);
+            logger.info("Modifing. {}", className);
         }
-        this.byteCodeInstrumentor.checkLibrary(classLoader, className);
         try {
-            InstrumentClass preparedStatement = byteCodeInstrumentor.getClass(className);
+            InstrumentClass preparedStatement = byteCodeInstrumentor.getClass(classLoader, className, classFileBuffer);
 
             bindVariableIntercept(preparedStatement, classLoader, protectedDomain);
 

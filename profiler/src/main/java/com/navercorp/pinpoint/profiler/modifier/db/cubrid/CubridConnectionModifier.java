@@ -34,9 +34,8 @@ public class CubridConnectionModifier extends AbstractModifier {
 		if (logger.isInfoEnabled()) {
 			logger.info("Modifing. {}", javassistClassName);
 		}
-		this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 		try {
-			InstrumentClass cubridConnection = byteCodeInstrumentor.getClass(javassistClassName);
+			InstrumentClass cubridConnection = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             cubridConnection.addTraceValue(DatabaseInfoTraceValue.class);
 

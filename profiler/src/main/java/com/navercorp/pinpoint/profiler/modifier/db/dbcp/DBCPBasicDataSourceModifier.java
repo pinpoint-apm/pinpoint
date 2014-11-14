@@ -32,10 +32,9 @@ public class DBCPBasicDataSourceModifier extends AbstractModifier {
         if (logger.isInfoEnabled()) {
             logger.info("Modifing. {}", javassistClassName);
         }
-        this.byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 
         try {
-            InstrumentClass basicDataSource = byteCodeInstrumentor.getClass(javassistClassName);
+            InstrumentClass basicDataSource = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
             Interceptor getConnection0 = new DataSourceGetConnectionInterceptor();
             basicDataSource.addScopeInterceptor("getConnection", null, getConnection0, DBCPScope.SCOPE_NAME);
 

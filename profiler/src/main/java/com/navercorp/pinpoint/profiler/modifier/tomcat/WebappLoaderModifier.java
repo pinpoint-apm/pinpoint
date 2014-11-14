@@ -31,9 +31,8 @@ public class WebappLoaderModifier extends AbstractModifier {
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
         logger.info("Modifying. {}", javassistClassName);
         
-        byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
         try {
-            InstrumentClass webappLoader = byteCodeInstrumentor.getClass(javassistClassName);
+            InstrumentClass webappLoader = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             Interceptor webappLoaderStartInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain,
                     "com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.WebappLoaderStartInterceptor", null, null);

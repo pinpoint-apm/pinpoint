@@ -42,9 +42,8 @@ public class ArcusClientModifier extends AbstractModifier {
             logger.info("Modifing. {}", javassistClassName);
 		}
 
-		byteCodeInstrumentor.checkLibrary(classLoader, javassistClassName);
 		try {
-			InstrumentClass arcusClient = byteCodeInstrumentor.getClass(javassistClassName);
+			InstrumentClass arcusClient = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             if (!checkCompatibility(arcusClient)) {
                 return null;
