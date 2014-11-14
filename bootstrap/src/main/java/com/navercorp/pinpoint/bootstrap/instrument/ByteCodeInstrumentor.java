@@ -9,9 +9,10 @@ import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
  */
 public interface ByteCodeInstrumentor {
 
-
+    @Deprecated
     void checkLibrary(ClassLoader classLoader, String javassistClassName);
 
+    @Deprecated
     InstrumentClass getClass(String className) throws InstrumentException;
     
     InstrumentClass getClass(ClassLoader classLoader, String className, byte[] classFileBuffer) throws InstrumentException;

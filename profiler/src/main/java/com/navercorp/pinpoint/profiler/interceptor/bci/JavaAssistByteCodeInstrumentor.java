@@ -98,6 +98,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         }
     }
 
+    @Deprecated
     public void checkLibrary(ClassLoader classLoader, String javassistClassName) {
         checkLibrary(classLoader, this.childClassPool, javassistClassName);
     }
@@ -108,7 +109,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
             return;
         }
         // TODO Util로 뽑을까?
-        boolean findClass = findClass(javassistClassName, classPool);
+        final boolean findClass = findClass(javassistClassName, classPool);
         if (findClass) {
             if (isDebug) {
                 logger.debug("checkLibrary cl:{} clPool:{}, class:{} found.", classLoader, classPool.getName(), javassistClassName);
@@ -118,10 +119,11 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         loadClassLoaderLibraries(classLoader, classPool);
     }
 
+    @Deprecated
     @Override
     public InstrumentClass getClass(String javassistClassName) throws InstrumentException {
         try {
-            CtClass cc = childClassPool.get(javassistClassName);
+            final CtClass cc = childClassPool.get(javassistClassName);
             return new JavaAssistClass(this, cc);
         } catch (NotFoundException e) {
             throw new InstrumentException(javassistClassName + " class not found. Cause:" + e.getMessage(), e);
@@ -130,8 +132,19 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     
     @Override
     public InstrumentClass getClass(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) throws InstrumentException {
-        checkLibrary(classLoader, javassistClassName);
-        return getClass(javassistClassName);
+        final NamedClassPool classPool = findClassPool(classLoader);
+        checkLibrary(classLoader, classPool, javassistClassName);
+        try {
+            CtClass cc = classPool.get(javassistClassName);
+            return new JavaAssistClass(this, cc);
+        } catch (NotFoundException e) {
+            throw new InstrumentException(javassistClassName + " class not found. Cause:" + e.getMessage(), e);
+        }
+    }
+
+    private NamedClassPool findClassPool(ClassLoader classLoader) {
+        // TODO fix find classPool
+        return childClassPool;
     }
 
     @Override
