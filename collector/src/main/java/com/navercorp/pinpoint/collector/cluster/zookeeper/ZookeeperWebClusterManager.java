@@ -33,7 +33,7 @@ public class ZookeeperWebClusterManager implements Runnable {
 	private final StopTask stopTask = new StopTask();
 
 	private final ZookeeperClient client;
-	private final WebCluster webClusterPoint;
+	private final WebCluster webCluster;
 	private final String zNodePath;
 
 	private final AtomicBoolean retryMode = new AtomicBoolean(false);
@@ -49,10 +49,10 @@ public class ZookeeperWebClusterManager implements Runnable {
 	// Job이 포함되면 실행. Job성공시 이후 Job 모두 삭제
 	// 먼가 이상한 형태의 자료구조가 필요한거 같은데....
 
-	public ZookeeperWebClusterManager(ZookeeperClient client, String zookeeperClusterPath, String serverIdentifier, WebCluster clusterPoint) {
+	public ZookeeperWebClusterManager(ZookeeperClient client, String zookeeperClusterPath, String serverIdentifier, WebCluster webCluster) {
 		this.client = client;
 
-		this.webClusterPoint = clusterPoint;
+		this.webCluster = webCluster;
 		this.zNodePath = zookeeperClusterPath;
 
 		this.workerState = new WorkerStateContext();
@@ -188,19 +188,19 @@ public class ZookeeperWebClusterManager implements Runnable {
 				List<String> childNodeList = client.getChildrenNode(zNodePath, true);
 				List<InetSocketAddress> clusterAddressList = NetUtils.toInetSocketAddressLIst(childNodeList);
 
-				List<InetSocketAddress> addressList = webClusterPoint.getWebClusterList();
+				List<InetSocketAddress> addressList = webCluster.getWebClusterList();
 
 				logger.info("Handle register and remove Task. Current Address List = {}, Cluster Address List = {}", addressList, clusterAddressList);
 				
 				for (InetSocketAddress clusterAddress : clusterAddressList) {
 					if (!addressList.contains(clusterAddress)) {
-						webClusterPoint.connectPointIfAbsent(clusterAddress);
+						webCluster.connectPointIfAbsent(clusterAddress);
 					}
 				}
 
 				for (InetSocketAddress address : addressList) {
 					if (!clusterAddressList.contains(address)) {
-						webClusterPoint.disconnectPoint(address);
+						webCluster.disconnectPoint(address);
 					}
 				}
 

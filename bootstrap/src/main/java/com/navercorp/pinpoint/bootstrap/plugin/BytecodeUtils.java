@@ -17,13 +17,13 @@ public abstract class BytecodeUtils {
         
         try {
             method = ClassLoader.class.getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class);
+            method.setAccessible(true);
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         } catch (SecurityException e) {
             e.printStackTrace();
         }
-        
-        method.setAccessible(true);
+
         DEFINE_CLASS = method;
     }
 
@@ -34,9 +34,16 @@ public abstract class BytecodeUtils {
             return null;
         }
     }
+
     public static byte[] getClassFile(ClassLoader classLoader, String className) {
-        InputStream is = classLoader.getResourceAsStream(className.replace('.', '/') + ".class");
-        
+        if (classLoader == null) {
+            classLoader = ClassLoader.getSystemClassLoader();
+        }
+        if (className == null) {
+            throw new NullPointerException("className must not be null");
+        }
+
+        final InputStream is = classLoader.getResourceAsStream(className.replace('.', '/') + ".class");
         if (is == null) {
             throw new RuntimeException("No such class file: " + className);
         }
@@ -57,8 +64,20 @@ public abstract class BytecodeUtils {
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            close(is);
         }
         
         return buffer.array();
+    }
+
+    private static void close(InputStream is) {
+        if (is != null) {
+            try {
+                is.close();
+            } catch (IOException e) {
+                // skip
+            }
+        }
     }
 }
