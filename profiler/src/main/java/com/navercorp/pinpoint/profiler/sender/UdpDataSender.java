@@ -23,8 +23,8 @@ import com.nhn.pinpoint.thrift.io.NetworkAvailabilityCheckPacket;
 public class UdpDataSender extends AbstractDataSender implements DataSender {
 
 	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final boolean isTrace = logger.isTraceEnabled();
-    private final boolean isDebug = logger.isDebugEnabled();
+    protected final boolean isTrace = logger.isTraceEnabled();
+    protected final boolean isDebug = logger.isDebugEnabled();
 
     public static final int SOCKET_TIMEOUT = 1000 * 5;
     public static final int SEND_BUFFER_SIZE = 1024 * 64 * 16;

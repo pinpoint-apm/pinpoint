@@ -6,14 +6,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.apache.thrift.protocol.TCompactProtocol;
-import org.apache.thrift.protocol.TProtocolFactory;
 
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.thrift.io.ChunkHeaderBufferedTBaseSerializer;
 import com.nhn.pinpoint.thrift.io.ChunkHeaderBufferedTBaseSerializerFactory;
 import com.nhn.pinpoint.thrift.io.ChunkHeaderBufferedTBaseSerializerFlushHandler;
-import com.nhn.pinpoint.thrift.io.TBaseLocator;
 
 /**
  * split & buffering
@@ -25,9 +22,13 @@ import com.nhn.pinpoint.thrift.io.TBaseLocator;
  */
 public class BufferedUdpDataSender extends UdpDataSender {
     private static final int CHUNK_SIZE = 1024 * 16;
-    private static final String SCHEDULED_FLUSH = "ScheduledFlush";
+
+    private static final String SCHEDULED_FLUSH = "BufferedUdpDataSender-ScheduledFlush";
 
     private final ChunkHeaderBufferedTBaseSerializer chunkHeaderBufferedSerializer = new ChunkHeaderBufferedTBaseSerializerFactory().createSerializer();
+
+    private final Thread flushThread;
+
 
     public BufferedUdpDataSender(String host, int port, String threadName, int queueSize) {
         this(host, port, threadName, queueSize, SOCKET_TIMEOUT, SEND_BUFFER_SIZE, CHUNK_SIZE);
@@ -55,22 +56,30 @@ public class BufferedUdpDataSender extends UdpDataSender {
 
                 try {
                     udpSocket.send(reusePacket);
-                    logger.debug("Data sent. {size={}}", internalBufferSize);
+                    if (isDebug) {
+                        logger.debug("Data sent. {size={}}", internalBufferSize);
+                    }
                 } catch (IOException e) {
                     logger.warn("packet send error. size:{}", internalBufferSize, e);
                 }
             }
         });
 
-        startScheduledFlush();
+        flushThread = startScheduledFlush();
     }
 
-    private void startScheduledFlush() {
+    // for test
+    String getFlushThreadName() {
+        return flushThread.getName();
+    }
+
+    private Thread startScheduledFlush() {
         final ThreadFactory threadFactory = new PinpointThreadFactory(SCHEDULED_FLUSH, true);
         final Thread thread = threadFactory.newThread(new Runnable() {
             @Override
             public void run() {
-                while (true) {
+                final Thread currentThread = Thread.currentThread();
+                while (!currentThread.isInterrupted()) {
                     try {
                         chunkHeaderBufferedSerializer.flush();
                     } catch (TException e) {
@@ -79,12 +88,17 @@ public class BufferedUdpDataSender extends UdpDataSender {
                     try {
                         TimeUnit.MILLISECONDS.sleep(1000);
                     } catch (InterruptedException ignored) {
+                        currentThread.interrupt();
                     }
                 }
+                logger.info("stop ScheduledFlush {} - {}", currentThread.getName(), currentThread.getId());
             }
         });
+        logger.info("stop ScheduledFlush {} - {}", thread.getName(), thread.getId());
         thread.start();
+        return thread;
     }
+
 
     @Override
     protected void sendPacket(Object message) {
@@ -100,5 +114,23 @@ public class BufferedUdpDataSender extends UdpDataSender {
             logger.warn("sendPacket fail. invalid type:{}", message != null ? message.getClass() : null);
             return;
         }
+    }
+
+    @Override
+    public void stop() {
+        super.stop();
+        stopFlushThread();
+    }
+
+    private void stopFlushThread() {
+        final Thread flushThread = this.flushThread;
+        // terminate thread
+        flushThread.interrupt();
+        try {
+            flushThread.join(5000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
     }
 }

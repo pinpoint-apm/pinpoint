@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.nhn.pinpoint.common.util.ThreadMXBeanUtils;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -145,8 +146,7 @@ public class ThreadDumpService implements ProfilerRequestCommandService {
 	}
 
 	private ThreadInfo[] getAllThreadInfo() {
-		ThreadMXBean threadMxBean = ManagementFactory.getThreadMXBean();
-		ThreadInfo[] threadInfos = threadMxBean.getThreadInfo(threadMxBean.getAllThreadIds(), 100);
+		ThreadInfo[] threadInfos = ThreadMXBeanUtils.dumpAllThread();
 
 		return threadInfos;
 	}
