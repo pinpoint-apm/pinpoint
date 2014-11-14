@@ -15,19 +15,17 @@ import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.bootstrap.context.Trace;
 import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.DefaultAgent;
-import com.nhn.pinpoint.profiler.DummyInstrumentation;
 import com.nhn.pinpoint.profiler.context.ResettableServerMetaDataHolder;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.nhn.pinpoint.profiler.sender.PeekableDataSender;
-import com.nhn.pinpoint.profiler.util.TestClassLoaderFactory;
 import com.nhn.pinpoint.profiler.util.MockAgent;
 import com.nhn.pinpoint.profiler.util.TestClassLoader;
+import com.nhn.pinpoint.profiler.util.TestClassLoaderFactory;
 
 /**
  * @author hyungil.jeong
@@ -72,17 +70,11 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
     private MockAgent createTestAgent() throws InitializationError {
         PLoggerFactory.initialize(new Slf4jLoggerBinder());
 
-        ProfilerConfig profilerConfig = new ProfilerConfig();
-
-        String path = MockAgent.class.getClassLoader().getResource("pinpoint.config").getPath();
         try {
-            profilerConfig.readConfigFile(path);
+            return MockAgent.of("pinpoint.config");
         } catch (IOException e) {
             throw new InitializationError("Unable to read pinpoint.config");
         }
-
-        profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE);
-        return new MockAgent("", new DummyInstrumentation(), profilerConfig);
     }
     
     private TestClassLoader getTestClassLoader() {

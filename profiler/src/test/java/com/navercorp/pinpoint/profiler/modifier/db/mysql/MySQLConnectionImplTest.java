@@ -21,18 +21,8 @@ public class MySQLConnectionImplTest {
 //    @Before
     public void setUp() throws Exception {
         PLoggerFactory.initialize(new Slf4jLoggerBinder());
-
-        ProfilerConfig profilerConfig = new ProfilerConfig();
-        // profiler config를 setter를 열어두는것도 괜찮을듯 하다.
-        String path = MockAgent.class.getClassLoader().getResource("pinpoint.config").getPath();
-        profilerConfig.readConfigFile(path);
-
-        profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE);
-        DefaultAgent agent = new MockAgent("", profilerConfig);
+        DefaultAgent agent = MockAgent.of("pinpoint.config");
         loader = new TestClassLoader(agent);
-        // agent가 로드한 모든 Modifier를 자동으로 찾도록 변경함.
-
-
         loader.initialize();
     }
 

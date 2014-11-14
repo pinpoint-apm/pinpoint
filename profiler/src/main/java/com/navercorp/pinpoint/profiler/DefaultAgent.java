@@ -59,6 +59,7 @@ public class DefaultAgent implements Agent {
     private final ByteCodeInstrumentor byteCodeInstrumentor;
     private final ClassFileTransformer classFileTransformer;
     
+    private final String agentPath;
     private final ProfilerConfig profilerConfig;
 
     private final AgentInfoSender agentInfoSender;
@@ -84,14 +85,17 @@ public class DefaultAgent implements Agent {
         ClassPreLoader.preload();
     }
 
-    public DefaultAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig) {
+    public DefaultAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig) {
+        if (agentPath == null) {
+            throw new NullPointerException("agentPath must not be null");
+        }
         if (instrumentation == null) {
             throw new NullPointerException("instrumentation must not be null");
         }
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
-
+        
         this.binder = new Slf4jLoggerBinder();
         bindPLoggerFactory(this.binder);
 
@@ -100,6 +104,7 @@ public class DefaultAgent implements Agent {
 
         changeStatus(AgentStatus.INITIALIZING);
 
+        this.agentPath = agentPath;
         this.profilerConfig = profilerConfig;
 
         final ApplicationServerTypeResolver typeResolver = new ApplicationServerTypeResolver(profilerConfig.getApplicationServerType());
@@ -309,6 +314,10 @@ public class DefaultAgent implements Agent {
 
     public AgentInformation getAgentInformation() {
         return agentInformation;
+    }
+    
+    public String getAgentPath() {
+        return agentPath;
     }
     
     @Override

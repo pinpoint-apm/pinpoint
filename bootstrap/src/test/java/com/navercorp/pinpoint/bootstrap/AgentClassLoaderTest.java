@@ -23,7 +23,7 @@ public class AgentClassLoaderTest {
     public void boot() throws IOException, ClassNotFoundException {
         AgentClassLoader agentClassLoader = new AgentClassLoader(new URL[0]);
         agentClassLoader.setBootClass("com.nhn.pinpoint.bootstrap.DummyAgent");
-        agentClassLoader.boot("test", new DummyInstrumentation(), new ProfilerConfig());
+        agentClassLoader.boot("agentPath", "test", new DummyInstrumentation(), new ProfilerConfig());
         // TODO logger가져오는 기능이 달라져서 확인이 필요함.
 //        PLoggerBinder loggerBinder = (PLoggerBinder) agentClassLoader.initializeLoggerBinder();
 //        PLogger test = loggerBinder.getLogger("test");

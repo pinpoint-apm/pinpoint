@@ -73,7 +73,7 @@ public class PinpointBootStrap {
 
         try {
             // 설정파일 로드 이게 bootstrap에 있어야 되나는게 맞나?
-            ProfilerConfig profilerConfig = new ProfilerConfig(classPathResolver.getAgentDirPath());
+            ProfilerConfig profilerConfig = new ProfilerConfig();
             profilerConfig.readConfigFile(configPath);
 
             // 이게 로드할 lib List임.
@@ -81,7 +81,7 @@ public class PinpointBootStrap {
             AgentClassLoader agentClassLoader = new AgentClassLoader(libUrlList.toArray(new URL[libUrlList.size()]));
             agentClassLoader.setBootClass(BOOT_CLASS);
             logger.info("pinpoint agent start.");
-            agentClassLoader.boot(agentArgs, instrumentation, profilerConfig);
+            agentClassLoader.boot(classPathResolver.getAgentDirPath(), agentArgs, instrumentation, profilerConfig);
             logger.info("pinpoint agent start success.");
             loadStateChange(BOOT_STRAP_LOAD_STATE_COMPLETE);
         } catch (Exception e) {

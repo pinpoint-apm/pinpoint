@@ -53,7 +53,7 @@ public class AgentClassLoader {
         this.bootClass = bootClass;
     }
 
-    public void boot(final String agentArgs, final Instrumentation instrumentation, final ProfilerConfig profilerConfig) {
+    public void boot(final String agentPath, final String agentArgs, final Instrumentation instrumentation, final ProfilerConfig profilerConfig) {
 
         final Class<?> bootStrapClazz = getBootStrapClass();
 
@@ -61,8 +61,8 @@ public class AgentClassLoader {
             @Override
             public Object call() throws Exception {
                 try {
-                    Constructor<?> constructor = bootStrapClazz.getConstructor(String.class, Instrumentation.class, ProfilerConfig.class);
-                    return constructor.newInstance(agentArgs, instrumentation, profilerConfig);
+                    Constructor<?> constructor = bootStrapClazz.getConstructor(String.class, String.class, Instrumentation.class, ProfilerConfig.class);
+                    return constructor.newInstance(agentPath, agentArgs, instrumentation, profilerConfig);
                 } catch (InstantiationException e) {
                     throw new BootStrapException("boot create fail. Caused:" + e.getMessage(), e);
                 } catch (IllegalAccessException e) {

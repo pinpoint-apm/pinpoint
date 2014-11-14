@@ -35,7 +35,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
     private final ModifierRegistry modifierRegistry;
 
-    private final Agent agent;
+    private final DefaultAgent agent;
     private final ByteCodeInstrumentor byteCodeInstrumentor;
     private final ClassFileRetransformer retransformer;
 
@@ -43,7 +43,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
     private final ClassFileFilter skipFilter;
 
-    public ClassFileTransformerDispatcher(Agent agent, ByteCodeInstrumentor byteCodeInstrumentor, ClassFileRetransformer retransformer) {
+    public ClassFileTransformerDispatcher(DefaultAgent agent, ByteCodeInstrumentor byteCodeInstrumentor, ClassFileRetransformer retransformer) {
         if (agent == null) {
             throw new NullPointerException("agent must not be null");
         }
@@ -162,7 +162,6 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         // spring beans
         modifierRepository.addSpringBeansModifier();
 
-        
         loadPlugins(modifierRepository);
         
         return modifierRepository;
@@ -170,7 +169,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
     private void loadPlugins(DefaultModifierRegistry modifierRepository) {
         ProfilerPluginContext pluginContext = new ProfilerPluginContext(byteCodeInstrumentor, agent.getTraceContext());
-        List<ProfilerPlugin> plugins = new PluginLoader().load(profilerConfig.getAgentPath() + File.separatorChar + "plugin");
+        List<ProfilerPlugin> plugins = new PluginLoader().load(agent.getAgentPath() + File.separatorChar + "plugin");
         
         for (ProfilerPlugin plugin : plugins) {
             for (ClassEditor editor : plugin.getClassEditors(pluginContext)) {
