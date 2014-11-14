@@ -3,11 +3,11 @@ package com.nhn.pinpoint.bootstrap.plugin;
 import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 
-public class ProfilerPluginHelper {
+public class ProfilerPluginContext {
     private final ByteCodeInstrumentor instrumentor;
     private final TraceContext traceContext;
     
-    public ProfilerPluginHelper(ByteCodeInstrumentor instrumentor, TraceContext traceContext) {
+    public ProfilerPluginContext(ByteCodeInstrumentor instrumentor, TraceContext traceContext) {
         this.instrumentor = instrumentor;
         this.traceContext = traceContext;
     }

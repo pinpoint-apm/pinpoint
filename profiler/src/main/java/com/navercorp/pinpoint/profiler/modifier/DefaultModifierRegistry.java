@@ -1,11 +1,13 @@
 package com.nhn.pinpoint.profiler.modifier;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.nhn.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.nhn.pinpoint.profiler.ClassFileRetransformer;
 import com.nhn.pinpoint.profiler.modifier.arcus.ArcusClientModifier;
 import com.nhn.pinpoint.profiler.modifier.arcus.BaseOperationModifier;
@@ -114,13 +116,13 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         return registry.get(className);
     }
 
-    private void addModifier(AbstractModifier modifier) {
+    public void addModifier(AbstractModifier modifier) {
         AbstractModifier old = registry.put(modifier.getTargetClass(), modifier);
         if (old != null) {
             throw new IllegalStateException("Modifier already exist new:" + modifier.getClass() + " old:" + old.getTargetClass());
         }
     }
-
+    
     public void addMethodModifier() {
         MethodModifier methodModifier = new MethodModifier(byteCodeInstrumentor, agent);
         addModifier(methodModifier);

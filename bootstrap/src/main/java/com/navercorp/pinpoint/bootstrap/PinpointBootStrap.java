@@ -73,7 +73,7 @@ public class PinpointBootStrap {
 
         try {
             // 설정파일 로드 이게 bootstrap에 있어야 되나는게 맞나?
-            ProfilerConfig profilerConfig = new ProfilerConfig();
+            ProfilerConfig profilerConfig = new ProfilerConfig(classPathResolver.getAgentDirPath());
             profilerConfig.readConfigFile(configPath);
 
             // 이게 로드할 lib List임.

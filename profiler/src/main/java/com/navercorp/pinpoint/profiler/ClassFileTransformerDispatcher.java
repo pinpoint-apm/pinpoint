@@ -1,8 +1,10 @@
 package com.nhn.pinpoint.profiler;
 
+import java.io.File;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,9 +12,15 @@ import org.slf4j.LoggerFactory;
 import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.nhn.pinpoint.bootstrap.plugin.ClassEditor;
+import com.nhn.pinpoint.bootstrap.plugin.DedicatedClassEditor;
+import com.nhn.pinpoint.bootstrap.plugin.ProfilerPlugin;
+import com.nhn.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.DefaultModifierRegistry;
 import com.nhn.pinpoint.profiler.modifier.ModifierRegistry;
+import com.nhn.pinpoint.profiler.plugin.ClassEditorAdaptor;
+import com.nhn.pinpoint.profiler.plugin.PluginLoader;
 
 /**
  * @author emeroad
@@ -154,7 +162,23 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         // spring beans
         modifierRepository.addSpringBeansModifier();
 
+        
+        loadPlugins(modifierRepository);
+        
         return modifierRepository;
+    }
+
+    private void loadPlugins(DefaultModifierRegistry modifierRepository) {
+        ProfilerPluginContext pluginContext = new ProfilerPluginContext(byteCodeInstrumentor, agent.getTraceContext());
+        List<ProfilerPlugin> plugins = new PluginLoader().load(profilerConfig.getAgentPath() + File.separatorChar + "plugin");
+        
+        for (ProfilerPlugin plugin : plugins) {
+            for (ClassEditor editor : plugin.getClassEditors(pluginContext)) {
+                if (editor instanceof DedicatedClassEditor) {
+                    modifierRepository.addModifier(new ClassEditorAdaptor(byteCodeInstrumentor, agent, (DedicatedClassEditor)editor));
+                }
+            }
+        }
     }
 
 }
