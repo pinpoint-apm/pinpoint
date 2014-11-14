@@ -45,7 +45,7 @@ public class PinpointThreadFactory implements ThreadFactory {
         String newThreadName = createThreadName();
         Thread thread = new Thread(job, newThreadName);
         if (daemon) {
-            thread.setDaemon(daemon);
+            thread.setDaemon(true);
         }
         return thread;
     }
