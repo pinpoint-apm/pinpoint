@@ -97,7 +97,7 @@ public final class JavaAssistUtils {
             throw new NullPointerException("javaType must not be null");
         }
         if (javaType.isEmpty()) {
-            return "";
+            throw new IllegalArgumentException("invalid javaType. \"\"");
         }
 
         final int javaObjectArraySize = getJavaObjectArraySize(javaType);
@@ -137,21 +137,21 @@ public final class JavaAssistUtils {
      */
     public static String javaNameToJvmName(String javaName) {
         if (javaName == null) {
-            return "";
+            throw new NullPointerException("javaName must not be null");
         }
         return javaName.replace('.', '/');
     }
 
     /**
      * java/lang/String -> java.lang.String
-     * @param javaName
+     * @param jvmName
      * @return
      */
-    public static String jvmNameToJavaName(String javaName) {
-        if (javaName == null) {
-            return "";
+    public static String jvmNameToJavaName(String jvmName) {
+        if (jvmName == null) {
+            throw new NullPointerException("jvmName must not be null");
         }
-        return javaName.replace('/', '.');
+        return jvmName.replace('/', '.');
     }
 
     private static String appendJvmArray(String signature, int javaObjectArraySize) {
