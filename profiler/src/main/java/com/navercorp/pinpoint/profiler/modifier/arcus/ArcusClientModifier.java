@@ -78,7 +78,8 @@ public class ArcusClientModifier extends AbstractModifier {
 
     private boolean checkCompatibility(InstrumentClass arcusClient) {
         // 하위 memcached class에 addOp가 있는지 체크
-        final boolean addOp = arcusClient.hasMethod("addOp", "(Ljava/lang/String;Lnet/spy/memcached/ops/Operation;)Lnet/spy/memcached/ops/Operation;");
+//        final boolean addOp = arcusClient.hasMethod("addOp", new String[]{"(Ljava/lang/String;Lnet/spy/memcached/ops/Operation;)Lnet/spy/memcached/ops/Operation;");
+        final boolean addOp = arcusClient.hasMethod("addOp", new String[]{"java.lang.String", "net.spy.memcached.ops.Operation"}, "net.spy.memcached.ops.Operation");
         if (!addOp) {
             logger.warn("addOp() not found. skip ArcusClientModifier");
         }

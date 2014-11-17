@@ -64,6 +64,17 @@ public final class JavaAssistUtils {
         return sb.toString();
     }
 
+    public static String javaTypeToJvmSignature(String[] javaTypeArray, String returnType) {
+        if (returnType == null) {
+            throw new NullPointerException("returnType must not be null");
+        }
+        final String parameterSignature = javaTypeToJvmSignature(javaTypeArray);
+        final StringBuilder sb = new StringBuilder(parameterSignature.length() + 8);
+        sb.append(parameterSignature);
+        sb.append(toJvmSignature(returnType));
+        return sb.toString();
+    }
+
     public static String javaTypeToJvmSignature(String[] javaTypeArray) {
         if (javaTypeArray == null || javaTypeArray.length == 0) {
             return "()";
@@ -319,6 +330,7 @@ public final class JavaAssistUtils {
         return paramsString;
     }
 
+    @Deprecated
     public static String getParameterDescription(Class[] params) {
         if (params == null) {
             return EMTPY_ARRAY;
@@ -354,17 +366,6 @@ public final class JavaAssistUtils {
         return sb.toString();
     }
 
-    public static CtClass[] getCtParameter(String[] args, ClassPool pool) throws NotFoundException {
-        if (args == null) {
-            return null;
-        }
-        CtClass[] params = new CtClass[args.length];
-        for (int i = 0; i < args.length; i++) {
-            params[i] = pool.getCtClass(args[i]);
-        }
-        return params;
-    }
-
 
     public static int getLineNumber(CtBehavior method) {
         if (method == null) {
@@ -373,24 +374,6 @@ public final class JavaAssistUtils {
         return method.getMethodInfo().getLineNumber(0);
     }
 
-
-    public CtMethod findAllMethod(CtClass ctClass, String methodName, String[] args) throws NotFoundException {
-        if (ctClass == null) {
-            throw new NullPointerException("ctClass must not be null");
-        }
-        if (methodName == null) {
-            throw new NullPointerException("methodName must not be null");
-        }
-        CtClass[] params = getCtParameter(args, ctClass.getClassPool());
-        String paramDescriptor = Descriptor.ofParameters(params);
-        CtMethod[] methods = ctClass.getMethods();
-        for (CtMethod method : methods) {
-            if (method.getName().equals(methodName) && method.getMethodInfo2().getDescriptor().startsWith(paramDescriptor)) {
-                return method;
-            }
-        }
-        throw new NotFoundException(methodName + "(..) is not found in " + ctClass.getName());
-    }
 
     public static boolean isStaticBehavior(CtBehavior behavior) {
         if (behavior == null) {

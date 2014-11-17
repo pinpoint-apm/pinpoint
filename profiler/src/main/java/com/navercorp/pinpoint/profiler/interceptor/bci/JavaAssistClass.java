@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.nhn.pinpoint.bootstrap.context.TraceContext;
+import com.nhn.pinpoint.bootstrap.interceptor.*;
 import javassist.CannotCompileException;
 import javassist.CtBehavior;
 import javassist.CtClass;
@@ -24,13 +26,6 @@ import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
 import com.nhn.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.nhn.pinpoint.bootstrap.instrument.Scope;
 import com.nhn.pinpoint.bootstrap.instrument.Type;
-import com.nhn.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
-import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
-import com.nhn.pinpoint.bootstrap.interceptor.InterceptorRegistry;
-import com.nhn.pinpoint.bootstrap.interceptor.LoggingInterceptor;
-import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
-import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
 import com.nhn.pinpoint.profiler.interceptor.DebugScopeDelegateSimpleInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.DebugScopeDelegateStaticInterceptor;
@@ -294,7 +289,7 @@ public class JavaAssistClass implements InstrumentClass {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        final CtBehavior behavior = getCtConstructor(args);
+        final CtConstructor behavior = getCtConstructor(args);
         return addInterceptor0(behavior, null, interceptor, NOT_DEFINE_INTERCEPTOR_ID, Type.around, false);
     }
 
@@ -303,7 +298,7 @@ public class JavaAssistClass implements InstrumentClass {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
-        final CtBehavior behavior = getCtConstructor(args);
+        final CtConstructor behavior = getCtConstructor(args);
         return addInterceptor0(behavior, null, interceptor, NOT_DEFINE_INTERCEPTOR_ID, type, false);
     }
 
@@ -522,14 +517,16 @@ public class JavaAssistClass implements InstrumentClass {
     private void injectInterceptor(CtBehavior behavior, Interceptor interceptor) throws NotFoundException {
         // traceContext는 가장먼제 inject되어야 한다.
         if (interceptor instanceof TraceContextSupport) {
-            ((TraceContextSupport)interceptor).setTraceContext(instrumentor.getAgent().getTraceContext());
+            final TraceContext traceContext = instrumentor.getAgent().getTraceContext();
+            ((TraceContextSupport)interceptor).setTraceContext(traceContext);
         }
         if (interceptor instanceof ByteCodeMethodDescriptorSupport) {
-            setMethodDescriptor(behavior, (ByteCodeMethodDescriptorSupport) interceptor);
+            final MethodDescriptor methodDescriptor = createMethodDescriptor(behavior);
+            ((ByteCodeMethodDescriptorSupport)interceptor).setMethodDescriptor(methodDescriptor);
         }
     }
 
-    private void setMethodDescriptor(CtBehavior behavior, ByteCodeMethodDescriptorSupport interceptor)  {
+    private MethodDescriptor createMethodDescriptor(CtBehavior behavior)  {
         DefaultMethodDescriptor methodDescriptor = new DefaultMethodDescriptor();
 
         String methodName = behavior.getName();
@@ -552,7 +549,7 @@ public class JavaAssistClass implements InstrumentClass {
         String apiDescriptor = ApiUtils.mergeApiDescriptor(ctClass.getName(), methodName, parameterDescriptor);
         methodDescriptor.setApiDescriptor(apiDescriptor);
 
-        interceptor.setMethodDescriptor(methodDescriptor);
+        return methodDescriptor;
     }
 
     private void addStaticAroundInterceptor(String methodName, int id, CtBehavior method, boolean useContextClassLoader) throws NotFoundException, CannotCompileException {
@@ -887,7 +884,6 @@ public class JavaAssistClass implements InstrumentClass {
     private CtConstructor getCtConstructor(String[] args) throws NotFoundInstrumentException {
         final String jvmSignature = JavaAssistUtils.javaTypeToJvmSignature(args);
         // constructor return type is void
-
         for (CtConstructor constructor : ctClass.getDeclaredConstructors()) {
             final String descriptor = constructor.getMethodInfo2().getDescriptor();
             // skip return type check
@@ -934,7 +930,6 @@ public class JavaAssistClass implements InstrumentClass {
         final List<MethodInfo> candidateList = new ArrayList<MethodInfo>(declaredMethod.length);
         for (CtMethod ctMethod : declaredMethod) {
             final MethodInfo method = new JavassistMethodInfo(ctMethod);
-
             if (methodFilter.filter(method)) {
                 continue;
             }
@@ -944,107 +939,92 @@ public class JavaAssistClass implements InstrumentClass {
         
         return candidateList;
     }
-	
-	public MethodInfo getDeclaredMethod(String name, String[] parameterTypes) {
-        try {
-            CtClass[] params = JavaAssistUtils.getCtParameter(parameterTypes, instrumentor.getClassPool());
-            CtMethod ctMethod = ctClass.getDeclaredMethod(name, params);
 
-            return new JavassistMethodInfo(ctMethod);
-        } catch (NotFoundException e) {
-            return null;
-        }
-	}
-	
-   public MethodInfo getConstructor(String[] parameterTypes) {
-       try {
-            CtClass[] params = JavaAssistUtils.getCtParameter(parameterTypes, instrumentor.getClassPool());
-            CtConstructor ctConstructor = ctClass.getDeclaredConstructor(params);
-
-            return new JavassistMethodInfo(ctConstructor);
-       } catch (NotFoundException e) {
-           return null;
-       }
-    }
-
-	
-	public boolean isInterceptable() {
-		return !ctClass.isInterface() && !ctClass.isAnnotation() && !ctClass.isModified();
-	}
-
-	@Override
-	public boolean hasDeclaredMethod(String methodName, String[] args) {
-		try {
-			CtClass[] params = JavaAssistUtils.getCtParameter(args, instrumentor.getClassPool());
-			CtMethod m = ctClass.getDeclaredMethod(methodName, params);
-			return m != null;
-		} catch (NotFoundException e) {
-			return false;
-		}
-	}
-
-    /**
-     * 가능한 String methodName, String desc을 사용하자. 편한대신에 속도가 상대적으로 좀 느리다.
-     * @param methodName
-     * @param args
-     * @return
-     */
-    @Override
-    public boolean hasMethod(String methodName, String[] args) {
-        final String parameterDescription = JavaAssistUtils.getParameterDescription(args);
-        final CtMethod[] methods = ctClass.getMethods();
-        for (CtMethod method : methods) {
-            if (methodName.equals(method.getName()) && method.getMethodInfo2().getDescriptor().startsWith(parameterDescription)) {
-                return true;
-            }
-
-        }
-        return false;
-    }
-
-    @Override
-    public boolean hasMethod(String methodName, String desc) {
-        try {
-            CtMethod m = ctClass.getMethod(methodName, desc);
-            return m != null;
-        } catch (NotFoundException e) {
-            return false;
-        }
-    }
-
-    @Override
-    public InstrumentClass getNestedClass(String className) {
-        CtClass[] nestedClasses;
-        try {
-            nestedClasses = ctClass.getNestedClasses();
-        } catch (NotFoundException ex) {
-            logger.warn("{} NestedClass Not Found {}", className, ex.getMessage(), ex);
-            return null;
-        }
-
-        if (nestedClasses == null || nestedClasses.length == 0) {
-            return null;
-        }
-
-        for (CtClass nested : nestedClasses) {
-            if (nested.getName().equals(className)) {
-                return new JavaAssistClass(this.instrumentor, nested);
+    public MethodInfo getDeclaredMethod(String name, String[] parameterTypes) {
+        final String methodSignature = JavaAssistUtils.javaTypeToJvmSignature(parameterTypes);
+        for (CtMethod ctMethod : ctClass.getDeclaredMethods()) {
+            final String descriptor = ctMethod.getMethodInfo2().getDescriptor();
+            final boolean findMethod = descriptor.startsWith(methodSignature);
+            if (findMethod) {
+                return new JavassistMethodInfo(ctMethod);
             }
         }
         return null;
     }
 
+    public MethodInfo getConstructor(String[] parameterTypes) {
+        // Constructor signature
+        final String constructorSignature = JavaAssistUtils.javaTypeToJvmSignature(parameterTypes);
+        for (CtConstructor ctConstructor : ctClass.getDeclaredConstructors()) {
+           final String descriptor = ctConstructor.getMethodInfo2().getDescriptor();
+           // end ()V
+           final boolean findConstructor = descriptor.startsWith(constructorSignature);
+           if (findConstructor) {
+               return new JavassistMethodInfo(ctConstructor);
+           }
+        }
+        return null;
+    }
+
+
+    public boolean isInterceptable() {
+        return !ctClass.isInterface() && !ctClass.isAnnotation() && !ctClass.isModified();
+    }
+
     @Override
-    public void addGetter(String getterName, String variableName, String variableType) throws InstrumentException {
-        try {
-            // FIXME getField, getDeclaredField둘 중 뭐가 나을지. 자식 클래스에 getter를 만들려면 getField가 나을 것 같기도 하고.
-            CtField traceVariable = ctClass.getField(variableName);
-            CtMethod getterMethod = CtNewMethod.getter(getterName, traceVariable);
-            ctClass.addMethod(getterMethod);
-        } catch (NotFoundException ex) {
-            throw new InstrumentException(variableName + " addVariableAccessor fail. Cause:" + ex.getMessage(), ex);
-        } catch (CannotCompileException ex) {
-            throw new InstrumentException(variableName + " addVariableAccessor fail. Cause:" + ex.getMessage(), ex);
+    public boolean hasDeclaredMethod(String methodName, String[] args) {
+        MethodInfo declaredMethod = getDeclaredMethod(methodName, args);
+        if (declaredMethod == null) {
+            return false;
+        } else {
+            return true;
         }
     }
+
+   @Override
+   public boolean hasMethod(String methodName, String[] parameterTypeArray, String returnType) {
+       final String signature = JavaAssistUtils.javaTypeToJvmSignature(parameterTypeArray, returnType);
+       try {
+           CtMethod m = ctClass.getMethod(methodName, signature);
+           return m != null;
+       } catch (NotFoundException e) {
+           return false;
+       }
+   }
+
+   @Override
+   public InstrumentClass getNestedClass(String className) {
+       CtClass[] nestedClasses;
+       try {
+           nestedClasses = ctClass.getNestedClasses();
+       } catch (NotFoundException ex) {
+           logger.warn("{} NestedClass Not Found {}", className, ex.getMessage(), ex);
+           return null;
+       }
+
+       if (nestedClasses == null || nestedClasses.length == 0) {
+           return null;
+       }
+
+       for (CtClass nested : nestedClasses) {
+           if (nested.getName().equals(className)) {
+               return new JavaAssistClass(this.instrumentor, nested);
+           }
+       }
+       return null;
+   }
+
+    @Override
+   public void addGetter(String getterName, String variableName, String variableType) throws InstrumentException {
+       try {
+           // FIXME getField, getDeclaredField둘 중 뭐가 나을지. 자식 클래스에 getter를 만들려면 getField가 나을 것 같기도 하고.
+           CtField traceVariable = ctClass.getField(variableName);
+           CtMethod getterMethod = CtNewMethod.getter(getterName, traceVariable);
+           ctClass.addMethod(getterMethod);
+       } catch (NotFoundException ex) {
+           throw new InstrumentException(variableName + " addVariableAccessor fail. Cause:" + ex.getMessage(), ex);
+       } catch (CannotCompileException ex) {
+           throw new InstrumentException(variableName + " addVariableAccessor fail. Cause:" + ex.getMessage(), ex);
+       }
+   }
 }

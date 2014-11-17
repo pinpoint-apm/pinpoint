@@ -68,7 +68,7 @@ public class JavaAssistUtilsTest {
     }
 
     @Test
-    public void javaTypeToJvmSignature() {
+     public void javaTypeToJvmSignature() {
         Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{}), "()");
 
         Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"int"}), "(I)");
@@ -81,6 +81,22 @@ public class JavaAssistUtilsTest {
 
         Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"long", "java.lang.Object", "boolean"}), "(JLjava/lang/Object;Z)");
         Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"char", "long", "java.lang.Object", "boolean"}), "(CJLjava/lang/Object;Z)");
+    }
+
+    @Test
+    public void javaTypeToJvmSignatureReturnType() {
+        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{}, "void"), "()V");
+
+        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"int"}, "int"), "(I)I");
+        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"int", "double"}, "double"), "(ID)D");
+        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature( new String[]{"byte", "float", "short"}, "float"), "(BFS)F");
+
+
+        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"java.lang.String"}, "java.lang.String"), "(Ljava/lang/String;)Ljava/lang/String;");
+        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"java.lang.String", "long"}, "long"), "(Ljava/lang/String;J)J");
+
+        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"long", "java.lang.Object", "boolean"}, "boolean"), "(JLjava/lang/Object;Z)Z");
+        Assert.assertEquals(JavaAssistUtils.javaTypeToJvmSignature(new String[]{"char", "long", "java.lang.Object", "boolean"}, "java.lang.Object"), "(CJLjava/lang/Object;Z)Ljava/lang/Object;");
     }
 
 

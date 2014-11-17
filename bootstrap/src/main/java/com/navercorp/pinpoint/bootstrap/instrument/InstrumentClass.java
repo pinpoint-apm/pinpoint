@@ -19,12 +19,16 @@ public interface InstrumentClass {
 
     String[] getInterfaces();
 
+    @Deprecated
     boolean insertCodeBeforeMethod(String methodName, String[] args, String code);
 
+    @Deprecated
     boolean insertCodeAfterMethod(String methodName, String[] args, String code);
 
+    @Deprecated
     int addAllConstructorInterceptor(Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
 
+    @Deprecated
     int addAllConstructorInterceptor(Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException;
 
     int addConstructorInterceptor(String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
@@ -103,12 +107,9 @@ public interface InstrumentClass {
 	
 	boolean hasDeclaredMethod(String methodName, String[] args);
 
-    @Deprecated
-    boolean hasMethod(String methodName, String[] args);
+    boolean hasMethod(String methodName, String[] parameterTypeArray, String returnType);
 
-    boolean hasMethod(String methodName, String desc);
-	
-	InstrumentClass getNestedClass(String className);
+    InstrumentClass getNestedClass(String className);
 
-	void addGetter(String getterName, String fieldName, String fieldType) throws InstrumentException;
+    void addGetter(String getterName, String fieldName, String fieldType) throws InstrumentException;
 }
