@@ -19,6 +19,10 @@ public enum AnnotationKey {
     API(12, "API"),
     API_METADATA(13, "API-METADATA"),
     RETURN_DATA(14, "RETRUN_DATA", true),
+    
+    CAll_URL(15, "CALL_URL"),
+    CAll_PARAM(16, "CALL_PARAM", true),
+    PROTOCAL(17, "PROTOCAL", true),
 
     // 정확한 에러 원인을 모를 경우.
     ERROR_API_METADATA_ERROR(10000010, "API-METADATA-ERROR"),

@@ -349,6 +349,11 @@
                 <artifactId>lucy-bloc-http11</artifactId>
                 <version>5.5.23</version>
             </dependency>
+            <dependency>
+                <groupId>com.nhncorp.lucy</groupId>
+                <artifactId>bloc-core</artifactId>
+                <version>4.0.3</version>
+            </dependency>
 
             
             
