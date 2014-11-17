@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.bootstrap.plugin;
 
+import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 
@@ -12,8 +13,12 @@ public class ProfilerPluginContext {
         this.traceContext = traceContext;
     }
 
-    public ClassEditorBuilder getClassEditorBuilderFor(String targetClassName) {
-        return new ClassEditorBuilder(instrumentor, traceContext, targetClassName); 
+    public ClassEditorBuilder newClassEditorBuilder() {
+        return new ClassEditorBuilder(instrumentor, traceContext); 
+    }
+    
+    public ProfilerConfig getConfig() {
+        return traceContext.getProfilerConfig();
     }
     
 }

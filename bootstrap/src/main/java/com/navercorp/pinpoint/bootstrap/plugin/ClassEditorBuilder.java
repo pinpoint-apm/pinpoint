@@ -6,6 +6,7 @@ import java.util.List;
 import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
+import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
 import com.nhn.pinpoint.bootstrap.plugin.MetadataInitializationStrategy.ByConstructor;
 
@@ -13,18 +14,22 @@ public class ClassEditorBuilder {
     private final ByteCodeInstrumentor instrumentor;
     private final TraceContext traceContext;
     
-    private final String targetClassName;
-
     private final List<InterceptorBuilder> interceptorBuilders = new ArrayList<InterceptorBuilder>();
     private final List<MetadataBuilder> metadataBuilders = new ArrayList<MetadataBuilder>();
     
-    public ClassEditorBuilder(ByteCodeInstrumentor instrumentor, TraceContext traceContext, String targetClassName) {
+    private Condition condition;
+    
+    public ClassEditorBuilder(ByteCodeInstrumentor instrumentor, TraceContext traceContext) {
         this.instrumentor = instrumentor;
         this.traceContext = traceContext;
-        this.targetClassName = targetClassName;
+    }
+    
+    public ClassEditorBuilder editWhen(Condition condition) {
+        this.condition = condition;
+        return this;
     }
 
-    public InterceptorBuilder intercept(String methodName, String... parameterTypes) {
+    public InterceptorBuilder intercept(String methodName, Class<?>... parameterTypes) {
         InterceptorBuilder interceptorBuilder = new InterceptorBuilder(methodName, parameterTypes, null);
         interceptorBuilders.add(interceptorBuilder);
         return interceptorBuilder;
@@ -36,14 +41,14 @@ public class ClassEditorBuilder {
         return interceptorBuilder;
     }
     
-    public InterceptorBuilder interceptConstructor(String... parameterTypes) {
+    public InterceptorBuilder interceptConstructor(Class<?>... parameterTypes) {
         InterceptorBuilder interceptorBuilder = new InterceptorBuilder(null, parameterTypes, null);
         interceptorBuilders.add(interceptorBuilder);
         return interceptorBuilder;
     }
     
-    public MetadataBuilder inject(Class<? extends TraceValue> metadataAccessor) {
-        MetadataBuilder metadataBuilder = new MetadataBuilder(metadataAccessor);
+    public MetadataBuilder inject(Class<? extends TraceValue> metadataType) {
+        MetadataBuilder metadataBuilder = new MetadataBuilder(metadataType);
         metadataBuilders.add(metadataBuilder);
         return metadataBuilder;
     }
@@ -61,7 +66,13 @@ public class ClassEditorBuilder {
             interceptorInjectors.add(builder.build());
         }
         
-        return new BasicClassEditor(instrumentor, targetClassName, metadataInjectors, interceptorInjectors);
+        ClassEditor editor = new BasicClassEditor(metadataInjectors, interceptorInjectors);
+        
+        if (condition != null) {
+            editor = new ConditionalClassEditor(condition, editor);
+        }
+        
+        return editor;
     }
     
     public class InterceptorBuilder {
@@ -69,15 +80,16 @@ public class ClassEditorBuilder {
         private final String[] parameterTypes;
         private final MethodFilter filter;
         
-        private String interceptorClassName;
+        private Class<? extends Interceptor> interceptorClass;
+        private Condition condition;
         private String scopeName;
         private Object[] constructorArguments;
         private ParameterExtractorFactory parameterExtractorFactory;
         private boolean singleton;
         
-        public InterceptorBuilder(String methodName, String[] parameterTypes, MethodFilter filter) {
+        public InterceptorBuilder(String methodName, Class<?>[] parameterTypes, MethodFilter filter) {
             this.methodName = methodName;
-            this.parameterTypes = parameterTypes;
+            this.parameterTypes = TypeUtils.toClassNames(parameterTypes);
             this.filter = filter;
         }
 
@@ -86,8 +98,8 @@ public class ClassEditorBuilder {
             return this;
         }
 
-        public InterceptorBuilder with(String interceptorClassName) {
-            this.interceptorClassName = interceptorClassName;
+        public InterceptorBuilder with(Class<? extends Interceptor> interceptorClass) {
+            this.interceptorClass = interceptorClass;
             return this;
         }
         
@@ -106,25 +118,38 @@ public class ClassEditorBuilder {
             return this;
         }
         
+        public InterceptorBuilder when(Condition condition) {
+            this.condition = condition;
+            return this;
+        }
+        
         private InterceptorInjector build() {
-            InterceptorFactory interceptorFactory = new DefaultInterceptorFactory(instrumentor, traceContext, interceptorClassName, constructorArguments, parameterExtractorFactory, scopeName);
+            InterceptorFactory interceptorFactory = new DefaultInterceptorFactory(instrumentor, traceContext, interceptorClass, constructorArguments, parameterExtractorFactory, scopeName);
+            
+            InterceptorInjector injector;
             
             if (filter != null) {
-                return new FilteringInterceptorInjector(filter, interceptorFactory, singleton);
+                injector = new FilteringInterceptorInjector(filter, interceptorFactory, singleton);
             } else if (methodName != null) {
-                return new DedicatedInterceptorInjector(methodName, parameterTypes, interceptorFactory);
+                injector = new DedicatedInterceptorInjector(methodName, parameterTypes, interceptorFactory);
             } else {
-                return new ConstructorInterceptorInjector(parameterTypes, interceptorFactory);
+                injector = new ConstructorInterceptorInjector(parameterTypes, interceptorFactory);
             }
+            
+            if (condition != null) {
+                injector = new ConditionalInterceptorInjector(condition, injector);
+            }
+            
+            return injector;
         }
     }
     
     public class MetadataBuilder {
-        private final Class<? extends TraceValue> metadataAccessor;
+        private final Class<? extends TraceValue> metadataType;
         private MetadataInitializationStrategy initializationStrategy;
         
-        public MetadataBuilder(Class<? extends TraceValue> metadataAccessor) {
-            this.metadataAccessor = metadataAccessor;
+        public MetadataBuilder(Class<? extends TraceValue> metadataType) {
+            this.metadataType = metadataType;
         }
         
         public MetadataBuilder initializeWithDefaultConstructorOf(String className) {
@@ -133,7 +158,7 @@ public class ClassEditorBuilder {
         }
         
         private MetadataInjector build() {
-            return new DefaultMetadataInjector(metadataAccessor, initializationStrategy);
+            return new DefaultMetadataInjector(metadataType, initializationStrategy);
         }
     }
 }

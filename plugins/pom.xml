@@ -1,0 +1,22 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.nhn.pinpoint</groupId>
+        <artifactId>pom</artifactId>
+        <version>1.0.4-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>pinpoint-plugins</artifactId>
+    <name>pinpoint-plugins</name>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>arcus</module>
+    </modules>
+    <dependencies>
+    </dependencies>
+
+    <build>
+    </build>
+</project>

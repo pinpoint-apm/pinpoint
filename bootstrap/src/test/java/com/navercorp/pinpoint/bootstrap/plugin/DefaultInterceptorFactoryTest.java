@@ -16,6 +16,9 @@ import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.bootstrap.interceptor.ParameterExtractor;
+import com.nhn.pinpoint.bootstrap.plugin.TestInterceptors.TestInterceptor0;
+import com.nhn.pinpoint.bootstrap.plugin.TestInterceptors.TestInterceptor1;
+import com.nhn.pinpoint.bootstrap.plugin.TestInterceptors.TestInterceptor2;
 import com.nhn.pinpoint.exception.PinpointException;
 
 public class DefaultInterceptorFactoryTest {
@@ -36,44 +39,39 @@ public class DefaultInterceptorFactoryTest {
 
     @Test
     public void test0() throws Exception {
-        String interceptorClassName = "com.nhn.pinpoint.bootstrap.plugin.TestInterceptors$TestInterceptor0";
-        
-        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, interceptorClassName, null, null, null);
+        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, TestInterceptor0.class, null, null, null);
         Interceptor interceptor = factory.getInterceptor(getClass().getClassLoader(), aClass, aMethod);
         
-        assertEquals(interceptorClassName, interceptor.getClass().getName());
+        assertEquals(TestInterceptor0.class, interceptor.getClass());
     }
     
     @Test
     public void test1() throws Exception {
-        String interceptorClassName = "com.nhn.pinpoint.bootstrap.plugin.TestInterceptors$TestInterceptor0";
         Object[] args = new Object[] { "arg0" };
         
-        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, interceptorClassName, args, null, null);
+        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, TestInterceptor0.class, args, null, null);
         Interceptor interceptor = factory.getInterceptor(getClass().getClassLoader(), aClass, aMethod);
         
-        assertEquals(interceptorClassName, interceptor.getClass().getName());
+        assertEquals(TestInterceptor0.class, interceptor.getClass());
         assertEquals(args[0], getField(interceptor, "field0"));
     }
     
     @Test(expected = PinpointException.class)
     public void test2() throws Exception {
-        String interceptorClassName = "com.nhn.pinpoint.bootstrap.plugin.TestInterceptors$TestInterceptor0";
         Object[] args = new Object[] { 1 };
         
-        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, interceptorClassName, args, null, null);
+        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, TestInterceptor0.class, args, null, null);
         factory.getInterceptor(getClass().getClassLoader(), aClass, aMethod);
     }
 
     @Test
     public void test3() throws Exception {
-        String interceptorClassName = "com.nhn.pinpoint.bootstrap.plugin.TestInterceptors$TestInterceptor1";
         Object[] args = new Object[] { "arg0", (byte)1, (short)2, (float)3.0 };
         
-        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, interceptorClassName, args, null, null);
+        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, TestInterceptor1.class, args, null, null);
         Interceptor interceptor = factory.getInterceptor(getClass().getClassLoader(), aClass, aMethod);
         
-        assertEquals(interceptorClassName, interceptor.getClass().getName());
+        assertEquals(TestInterceptor1.class, interceptor.getClass());
         assertEquals(args[0], getField(interceptor, "field0"));
         assertEquals(args[1], getField(interceptor, "field1"));
         assertEquals(args[2], getField(interceptor, "field2"));
@@ -82,13 +80,12 @@ public class DefaultInterceptorFactoryTest {
 
     @Test
     public void test4() throws Exception {
-        String interceptorClassName = "com.nhn.pinpoint.bootstrap.plugin.TestInterceptors$TestInterceptor1";
         Object[] args = new Object[] { (byte)1, (short)2, (float)3.0, "arg0" };
         
-        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, interceptorClassName, args, null, null);
+        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, TestInterceptor1.class, args, null, null);
         Interceptor interceptor = factory.getInterceptor(getClass().getClassLoader(), aClass, aMethod);
         
-        assertEquals(interceptorClassName, interceptor.getClass().getName());
+        assertEquals(TestInterceptor1.class, interceptor.getClass());
         assertEquals(args[3], getField(interceptor, "field0"));
         assertEquals(args[0], getField(interceptor, "field1"));
         assertEquals(args[1], getField(interceptor, "field2"));
@@ -97,13 +94,12 @@ public class DefaultInterceptorFactoryTest {
 
     @Test
     public void test5() throws Exception {
-        String interceptorClassName = "com.nhn.pinpoint.bootstrap.plugin.TestInterceptors$TestInterceptor1";
         Object[] args = new Object[] { (short)2, (float)3.0, "arg0", (byte)1 };
         
-        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, interceptorClassName, args, null, null);
+        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, TestInterceptor1.class, args, null, null);
         Interceptor interceptor = factory.getInterceptor(getClass().getClassLoader(), aClass, aMethod);
         
-        assertEquals(interceptorClassName, interceptor.getClass().getName());
+        assertEquals(TestInterceptor1.class, interceptor.getClass());
         assertEquals(args[2], getField(interceptor, "field0"));
         assertEquals(args[3], getField(interceptor, "field1"));
         assertEquals(args[0], getField(interceptor, "field2"));
@@ -112,13 +108,12 @@ public class DefaultInterceptorFactoryTest {
     
     @Test
     public void test6() throws Exception {
-        String interceptorClassName = "com.nhn.pinpoint.bootstrap.plugin.TestInterceptors$TestInterceptor1";
         Object[] args = new Object[] { (float)3.0, (short)2, (byte)1, "arg0" };
         
-        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, interceptorClassName, args, null, null);
+        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, TestInterceptor1.class, args, null, null);
         Interceptor interceptor = factory.getInterceptor(getClass().getClassLoader(), aClass, aMethod);
         
-        assertEquals(interceptorClassName, interceptor.getClass().getName());
+        assertEquals(TestInterceptor1.class, interceptor.getClass());
         assertEquals(args[3], getField(interceptor, "field0"));
         assertEquals(args[2], getField(interceptor, "field1"));
         assertEquals(args[1], getField(interceptor, "field2"));
@@ -127,30 +122,26 @@ public class DefaultInterceptorFactoryTest {
 
     @Test(expected=PinpointException.class)
     public void test7() throws Exception {
-        String interceptorClassName = "com.nhn.pinpoint.bootstrap.plugin.TestInterceptors$TestInterceptor1";
         Object[] args = new Object[] { (double)3.0, (short)2, (byte)1, "arg0" };
         
-        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, interceptorClassName, args, null, null);
+        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, TestInterceptor1.class, args, null, null);
         factory.getInterceptor(getClass().getClassLoader(), aClass, aMethod);
     }
 
     @Test(expected=PinpointException.class)
     public void test8() throws Exception {
-        String interceptorClassName = "com.nhn.pinpoint.bootstrap.plugin.TestInterceptors$TestInterceptor1";
-        
-        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, interceptorClassName, null, null, null);
+        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, TestInterceptor1.class, null, null, null);
         factory.getInterceptor(getClass().getClassLoader(), aClass, aMethod);
     }
     
     @Test
     public void test9() throws Exception {
-        String interceptorClassName = "com.nhn.pinpoint.bootstrap.plugin.TestInterceptors$TestInterceptor2";
         Object[] args = new Object[] { "arg0", 1, 2.0, true, 3L };
         
-        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, interceptorClassName, args, extractorFactory, null);
+        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, TestInterceptor2.class, args, extractorFactory, null);
         Interceptor interceptor = factory.getInterceptor(getClass().getClassLoader(), aClass, aMethod);
         
-        assertEquals(interceptorClassName, interceptor.getClass().getName());
+        assertEquals(TestInterceptor2.class, interceptor.getClass());
         assertEquals(args[0], getField(interceptor, "field0"));
         assertEquals(args[1], getField(interceptor, "field1"));
         assertEquals(args[2], getField(interceptor, "field2"));
@@ -163,13 +154,12 @@ public class DefaultInterceptorFactoryTest {
 
     @Test
     public void test10() throws Exception {
-        String interceptorClassName = "com.nhn.pinpoint.bootstrap.plugin.TestInterceptors$TestInterceptor2";
         Object[] args = new Object[] { "arg0", 1, 2.0 };
         
-        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, interceptorClassName, args, extractorFactory, null);
+        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, TestInterceptor2.class, args, extractorFactory, null);
         Interceptor interceptor = factory.getInterceptor(getClass().getClassLoader(), aClass, aMethod);
         
-        assertEquals(interceptorClassName, interceptor.getClass().getName());
+        assertEquals(TestInterceptor2.class, interceptor.getClass());
         assertEquals(args[0], getField(interceptor, "field0"));
         assertEquals(args[1], getField(interceptor, "field1"));
         assertEquals(args[2], getField(interceptor, "field2"));
@@ -182,13 +172,12 @@ public class DefaultInterceptorFactoryTest {
 
     @Test
     public void test11() throws Exception {
-        String interceptorClassName = "com.nhn.pinpoint.bootstrap.plugin.TestInterceptors$TestInterceptor2";
         Object[] args = new Object[] { "arg0", 1 };
         
-        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, interceptorClassName, args, extractorFactory, null);
+        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, TestInterceptor2.class, args, extractorFactory, null);
         Interceptor interceptor = factory.getInterceptor(getClass().getClassLoader(), aClass, aMethod);
         
-        assertEquals(interceptorClassName, interceptor.getClass().getName());
+        assertEquals(TestInterceptor2.class, interceptor.getClass());
         assertEquals(args[0], getField(interceptor, "field0"));
         assertEquals(args[1], getField(interceptor, "field1"));
         assertEquals(0.0, getField(interceptor, "field2"));
@@ -201,12 +190,10 @@ public class DefaultInterceptorFactoryTest {
     
     @Test
     public void test12() throws Exception {
-        String interceptorClassName = "com.nhn.pinpoint.bootstrap.plugin.TestInterceptors$TestInterceptor2";
-        
-        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, interceptorClassName, null, extractorFactory, null);
+        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, TestInterceptor2.class, null, extractorFactory, null);
         Interceptor interceptor = factory.getInterceptor(getClass().getClassLoader(), aClass, aMethod);
         
-        assertEquals(interceptorClassName, interceptor.getClass().getName());
+        assertEquals(TestInterceptor2.class, interceptor.getClass());
         assertEquals(null, getField(interceptor, "field0"));
         assertEquals(0, getField(interceptor, "field1"));
         assertEquals(0.0, getField(interceptor, "field2"));
@@ -219,12 +206,10 @@ public class DefaultInterceptorFactoryTest {
 
     @Test
     public void test13() throws Exception {
-        String interceptorClassName = "com.nhn.pinpoint.bootstrap.plugin.TestInterceptors$TestInterceptor2";
-        
-        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, interceptorClassName, null, null, null);
+        DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, TestInterceptor2.class, null, null, null);
         Interceptor interceptor = factory.getInterceptor(getClass().getClassLoader(), aClass, aMethod);
         
-        assertEquals(interceptorClassName, interceptor.getClass().getName());
+        assertEquals(TestInterceptor2.class, interceptor.getClass());
         assertEquals(null, getField(interceptor, "field0"));
         assertEquals(0, getField(interceptor, "field1"));
         assertEquals(0.0, getField(interceptor, "field2"));

@@ -11,21 +11,27 @@ import java.util.List;
 import java.util.ServiceLoader;
 
 import com.nhn.pinpoint.bootstrap.plugin.ProfilerPlugin;
+import com.nhn.pinpoint.exception.PinpointException;
 
 public class PluginLoader {
-    public List<ProfilerPlugin> load(String pluginPath) {
-        File[] jars = findJars(pluginPath);
-        URLClassLoader classLoader = getClassLoader(jars);
-        List<ProfilerPlugin> plugins = loadPlugins(jars, classLoader);
-        
-        return plugins;
+    private final URL[] jars;;
+    
+    public static PluginLoader get(String pluginPath) {
+        URL[] jars = findJars(pluginPath);
+        return new PluginLoader(jars);
+    }
+    
+
+    public PluginLoader(URL[] jars) {
+        this.jars = jars;
     }
 
-    private List<ProfilerPlugin> loadPlugins(File[] jars, URLClassLoader classLoader) {
-        List<ProfilerPlugin> plugins = new ArrayList<ProfilerPlugin>(jars.length);
-        
+    public List<ProfilerPlugin> loadPlugins() {
+        URLClassLoader classLoader = new URLClassLoader(jars, ClassLoader.getSystemClassLoader());
         ServiceLoader<ProfilerPlugin> loader = ServiceLoader.load(ProfilerPlugin.class, classLoader);
+        
         Iterator<ProfilerPlugin> iterator = loader.iterator();
+        List<ProfilerPlugin> plugins = new ArrayList<ProfilerPlugin>(jars.length);
         
         while (iterator.hasNext()) {
             plugins.add(iterator.next());
@@ -33,24 +39,12 @@ public class PluginLoader {
         
         return plugins;
     }
-
-    private URLClassLoader getClassLoader(File[] jars) {
-        URL[] urls = new URL[jars.length];
-        
-        for (int i = 0; i < jars.length; i++) {
-            try {
-                urls[i] = jars[i].toURI().toURL();
-            } catch (MalformedURLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        
-        URLClassLoader classLoader = new URLClassLoader(urls, ClassLoader.getSystemClassLoader());
-        return classLoader;
+    
+    public URL[] getPluginJars() {
+        return jars;
     }
 
-    private File[] findJars(String pluginPath) {
+    private static URL[] findJars(String pluginPath) {
         File file = new File(pluginPath);
         
         File[] jars = file.listFiles(new FilenameFilter() {
@@ -60,6 +54,18 @@ public class PluginLoader {
                 return name.endsWith(".jar");
             }
         });
-        return jars;
+        
+        
+        URL[] urls = new URL[jars.length];
+        
+        for (int i = 0; i < jars.length; i++) {
+            try {
+                urls[i] = jars[i].toURI().toURL();
+            } catch (MalformedURLException e) {
+                throw new PinpointException("Fail to load plugin jars", e);
+            }
+        }
+        
+        return urls;
     }
 }

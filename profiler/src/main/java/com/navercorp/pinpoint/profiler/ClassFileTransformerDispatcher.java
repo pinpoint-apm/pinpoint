@@ -9,11 +9,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.nhn.pinpoint.bootstrap.plugin.ClassEditor;
-import com.nhn.pinpoint.bootstrap.plugin.DedicatedClassEditor;
+import com.nhn.pinpoint.bootstrap.plugin.ClassEditorFactoryMapping;
+import com.nhn.pinpoint.bootstrap.plugin.PluginClassLoaderFactory;
 import com.nhn.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.nhn.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
@@ -131,9 +130,6 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         // rpc
         modifierRepository.addConnectorModifier();
 
-        // arcus, memcached
-        modifierRepository.addArcusModifier();
-
         // bloc 3.x
         modifierRepository.addBLOC3Modifier();
 
@@ -168,14 +164,15 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
     }
 
     private void loadPlugins(DefaultModifierRegistry modifierRepository) {
+        String pluginPath = agent.getAgentPath() + File.separatorChar + "plugin";
+        PluginLoader loader = PluginLoader.get(pluginPath);
+        PluginClassLoaderFactory classLoaderFactory = new PluginClassLoaderFactory(loader.getPluginJars());
+        List<ProfilerPlugin> plugins = loader.loadPlugins();
         ProfilerPluginContext pluginContext = new ProfilerPluginContext(byteCodeInstrumentor, agent.getTraceContext());
-        List<ProfilerPlugin> plugins = new PluginLoader().load(agent.getAgentPath() + File.separatorChar + "plugin");
         
         for (ProfilerPlugin plugin : plugins) {
-            for (ClassEditor editor : plugin.getClassEditors(pluginContext)) {
-                if (editor instanceof DedicatedClassEditor) {
-                    modifierRepository.addModifier(new ClassEditorAdaptor(byteCodeInstrumentor, agent, (DedicatedClassEditor)editor));
-                }
+            for (ClassEditorFactoryMapping mapping : plugin.getClassEditorMappings(pluginContext)) {
+                modifierRepository.addModifier(new ClassEditorAdaptor(byteCodeInstrumentor, agent, mapping, pluginContext, classLoaderFactory));
             }
         }
     }

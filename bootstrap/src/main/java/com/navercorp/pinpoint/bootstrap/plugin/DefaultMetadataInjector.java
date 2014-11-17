@@ -7,22 +7,22 @@ import com.nhn.pinpoint.bootstrap.plugin.MetadataInitializationStrategy.ByConstr
 
 public class DefaultMetadataInjector implements MetadataInjector {
     
-    private final Class<? extends TraceValue> metadataAccessorType;
+    private final Class<? extends TraceValue> metadataType;
     private final MetadataInitializationStrategy strategy;
     
-    public DefaultMetadataInjector(Class<? extends TraceValue> metadataAccessorType, MetadataInitializationStrategy strategy) {
-        this.metadataAccessorType = metadataAccessorType;
+    public DefaultMetadataInjector(Class<? extends TraceValue> metadataType, MetadataInitializationStrategy strategy) {
+        this.metadataType = metadataType;
         this.strategy = strategy;
     }
 
     @Override
     public void inject(ClassLoader classLoader, InstrumentClass target) throws InstrumentException {
         if (strategy == null) {
-            target.addTraceValue(metadataAccessorType);
+            target.addTraceValue(metadataType);
         } else {
             if (strategy instanceof ByConstructor) {
                 String javaExpression = "new " + ((ByConstructor)strategy).getClassName() + "();";
-                target.addTraceValue(metadataAccessorType, javaExpression);
+                target.addTraceValue(metadataType, javaExpression);
             } else {
                 throw new IllegalArgumentException("Unsupported strategy: " + strategy);
             }

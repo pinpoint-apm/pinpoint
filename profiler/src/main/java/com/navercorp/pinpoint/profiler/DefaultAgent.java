@@ -28,7 +28,6 @@ import com.nhn.pinpoint.profiler.context.storage.SpanStorageFactory;
 import com.nhn.pinpoint.profiler.context.storage.StorageFactory;
 import com.nhn.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
-import com.nhn.pinpoint.profiler.modifier.arcus.ArcusMethodFilter;
 import com.nhn.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.nhn.pinpoint.profiler.receiver.CommandDispatcher;
 import com.nhn.pinpoint.profiler.sampler.SamplerFactory;
@@ -159,7 +158,6 @@ public class DefaultAgent implements Agent {
     }
 
     private void preLoadClass() {
-        logger.debug("preLoadClass:{}", new ArcusMethodFilter().getClass().getName());
         logger.debug("preLoadClass:{}", PreparedStatementUtils.class.getName(), PreparedStatementUtils.findBindVariableSetMethod());
     }
 

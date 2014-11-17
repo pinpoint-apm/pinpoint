@@ -22,17 +22,17 @@ public class DefaultInterceptorFactory implements InterceptorFactory {
     private final ByteCodeInstrumentor instrumentor;
     private final TraceContext traceContext;
     
-    private final String interceptorClassName;
+    private final Class<? extends Interceptor> interceptorClass;
     private final Object[] providedArguments;
     
     private final ParameterExtractorFactory parameterExtractorFactory;
     private final String scopeName;
     
     
-    public DefaultInterceptorFactory(ByteCodeInstrumentor instrumentor, TraceContext traceContext, String interceptorClassName, Object[] providedArguments, ParameterExtractorFactory parameterExtractorFactory, String scopeName) {
+    public DefaultInterceptorFactory(ByteCodeInstrumentor instrumentor, TraceContext traceContext, Class<? extends Interceptor> interceptorClass, Object[] providedArguments, ParameterExtractorFactory parameterExtractorFactory, String scopeName) {
         this.instrumentor = instrumentor;
         this.traceContext = traceContext;
-        this.interceptorClassName = interceptorClassName;
+        this.interceptorClass = interceptorClass;
         this.providedArguments = providedArguments == null ? NO_ARGS : providedArguments;
         this.parameterExtractorFactory = parameterExtractorFactory;
         this.scopeName = scopeName;
@@ -50,17 +50,6 @@ public class DefaultInterceptorFactory implements InterceptorFactory {
     }
 
     private Interceptor createInstance(TraceContext traceContext, ClassLoader classLoader, InstrumentClass target, MethodInfo targetMethod) {
-        Class<?> interceptorClass;
-        try {
-            interceptorClass = classLoader.loadClass(interceptorClassName);
-        } catch (ClassNotFoundException e) {
-            throw new PinpointException("Cannot find interceptor class: " + interceptorClassName, e);
-        }
-        
-        if (!Interceptor.class.isAssignableFrom(interceptorClass)) {
-            throw new PinpointException("Given class " + interceptorClassName + " is not implementing Interceptor");
-        }
-        
         Constructor<?>[] constructors = interceptorClass.getConstructors();
         Arrays.sort(constructors, CONSTRUCTOR_COMPARATOR);
         
@@ -73,7 +62,7 @@ public class DefaultInterceptorFactory implements InterceptorFactory {
             }
         }
         
-        throw new PinpointException("Cannot find suitable constructor for " + interceptorClassName);
+        throw new PinpointException("Cannot find suitable constructor for " + interceptorClass.getName());
     }
     
     private Object invokeConstructor(Constructor<?> constructor, Object[] arguments) {
