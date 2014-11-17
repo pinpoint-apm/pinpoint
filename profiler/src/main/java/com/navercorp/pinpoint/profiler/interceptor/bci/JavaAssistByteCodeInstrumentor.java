@@ -118,7 +118,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     @Override
     public InstrumentClass getClass(ClassLoader classLoader, String javassistClassName, byte[] classFileBuffer) throws InstrumentException {
         // for asm : classFileBuffer
-        final NamedClassPool classPool = findClassPool(classLoader, javassistClassName);
+        final NamedClassPool classPool = findClassPool(classLoader);
         checkLibrary(classLoader, classPool, javassistClassName);
         try {
             CtClass cc = classPool.get(javassistClassName);
@@ -128,10 +128,9 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         }
     }
 
-    private NamedClassPool findClassPool(ClassLoader classLoader, String javassistClassName) {
+    private NamedClassPool findClassPool(ClassLoader classLoader) {
         if (classLoader == null) {
             // SystemClassLoader
-            logger.debug("ClassLoader is null. {}", javassistClassName);
         }
         // TODO fix find classPool
         return childClassPool;
@@ -143,6 +142,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
             logger.info("defineClass class:{}, cl:{}", defineClass, classLoader);
         }
         try {
+            final NamedClassPool classPool = findClassPool(classLoader);
             // classLoader로 락을 잡는게 안전함.
             // 어차피 classLoader에서 락을 잡고 들어오는점도 있고. 예외 사항이 발생할수 있기 때문에.
             // classLoader의 재진입 락을 잡고 들어오는게 무난함.
@@ -150,7 +150,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
                 if (this.classLoadChecker.exist(classLoader, defineClass)) {
                     return classLoader.loadClass(defineClass);
                 } else {
-                    final CtClass clazz = childClassPool.get(defineClass);
+                    final CtClass clazz = classPool.get(defineClass);
 
                     // 로그 레벨을 debug로 하니 개발때 제대로 체크 안하는 사람이 있어서 수정함.
                     checkTargetClassInterface(clazz);
