@@ -54,8 +54,6 @@ public class JavaAssistUtilsTest {
 
     @Test
     public void toJvmSignature() {
-        Assert.assertEquals(JavaAssistUtils.toJvmSignature(""), "");
-
         Assert.assertEquals(JavaAssistUtils.toJvmSignature("int"), "I");
         Assert.assertEquals(JavaAssistUtils.toJvmSignature("int[]"), "[I");
         Assert.assertEquals(JavaAssistUtils.toJvmSignature("int[][][]"), "[[[I");
@@ -65,6 +63,17 @@ public class JavaAssistUtilsTest {
         Assert.assertEquals(JavaAssistUtils.toJvmSignature("java.lang.String"), "Ljava/lang/String;");
         Assert.assertEquals(JavaAssistUtils.toJvmSignature("java.lang.String[][]"), "[[Ljava/lang/String;");
 
+        try {
+            Assert.assertEquals(JavaAssistUtils.toJvmSignature(""), "");
+            Assert.fail("empty string");
+        } catch (Exception e) {
+        }
+
+        try {
+            Assert.assertEquals(JavaAssistUtils.toJvmSignature(null), null);
+            Assert.fail("null");
+        } catch (Exception e) {
+        }
     }
 
     @Test
