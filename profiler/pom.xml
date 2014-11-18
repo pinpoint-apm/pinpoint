@@ -182,6 +182,12 @@
             <groupId>com.nhncorp.lucy</groupId>
             <artifactId>bloc-core</artifactId>
             <scope>provided</scope>
+            <exclusions>
+            	<exclusion>
+            		<groupId>javax.servlet</groupId>
+                	<artifactId>javax.servlet-api</artifactId>
+            	</exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
