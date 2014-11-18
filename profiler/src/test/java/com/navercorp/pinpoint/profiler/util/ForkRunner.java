@@ -4,10 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 import org.junit.runner.Description;
 import org.junit.runner.Result;
@@ -18,30 +15,45 @@ import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 
 import com.nhn.pinpoint.common.Version;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ForkRunner extends BlockJUnit4ClassRunner {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final String agentJar;
     private final String configPath;
 
-    public ForkRunner(Class<?> klass) throws InitializationError {
-        super(klass);
+    public ForkRunner(Class<?> testClass) throws InitializationError {
+        super(testClass);
+        final String property = System.getProperty("user.dir");
+        logger.debug("user.dir:{}", property);
 
-        PinpointAgent path = klass.getAnnotation(PinpointAgent.class);
- 
+        ProjectPathResolver projectPathResolver = new ProjectPathResolver();
+        ProjectPathResolver.ProjectPath projectPath = projectPathResolver.resolvePathFromTestClass(testClass);
+        logger.debug("path:{}", projectPath);
+
+        PinpointAgent path = testClass.getAnnotation(PinpointAgent.class);
         if (path != null && path.value() != null) {
-            agentJar = path.value();
+            agentJar = projectPath.getPinpointAgentPath() + path.value();
         } else {
-            agentJar = "target/pinpoint-agent/pinpoint-bootstrap-" + Version.VERSION + ".jar";
+            agentJar = projectPath.getPinpointAgentPath() + "pinpoint-bootstrap-" + Version.VERSION + ".jar";
         }
+        logger.debug("agentJar:{}", agentJar);
 
-        PinpointConfig config = klass.getAnnotation(PinpointConfig.class);
+        PinpointConfig config = testClass.getAnnotation(PinpointConfig.class);
 
         if (config != null && config.value() != null) {
-            configPath = config.value();
+            configPath = projectPath.getTestClassPath() + "/" + config.value();
         } else {
-            configPath = null;
+            configPath = projectPath.getPinpointAgentPath() + "/" + "pinpoint.config";
         }
+        logger.debug("configPath:{}", configPath);
+
     }
+
+
+
 
     @Override
     protected Statement classBlock(RunNotifier notifier) {
@@ -136,7 +148,7 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
 
             list.add(ForkedJUnit.class.getName());
             list.add(getTestClass().getName());
-
+            logger.debug("command:{}", list);
             return list.toArray(new String[list.size()]);
         }
 

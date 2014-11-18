@@ -9,7 +9,7 @@ import com.nhn.pinpoint.profiler.util.ForkRunner;
 import com.nhn.pinpoint.profiler.util.PinpointConfig;
 
 @RunWith(ForkRunner.class)
-@PinpointConfig("target/test-classes/pinpoint-spring-bean-test.config")
+@PinpointConfig("pinpoint-spring-bean-test.config")
 public class AbstractAutowireCapableBeanFactoryModifierIT {
 
     @Test
