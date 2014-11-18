@@ -21,10 +21,10 @@ public class ArcusClientEditorFactory implements ClassEditorFactory {
         ClassEditorBuilder builder = context.newClassEditorBuilder();
 
         builder.editWhen(new Condition() {
-
+            
             @Override
             public boolean check(InstrumentClass target) {
-                return target.hasMethod("addOp", "(Ljava/lang/String;Lnet/spy/memcached/ops/OperationAccessor;)Lnet/spy/memcached/ops/OperationAccessor;");
+                return target.hasMethod("addOp", new String[] {"java.lang.String", "net.spy.memcached.ops.Operation"}, "net.spy.memcached.ops.Operation");
             }
             
         });
