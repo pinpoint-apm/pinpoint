@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.profiler.modifier.tomcat;
 
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
 
 import java.util.Enumeration;
 import java.util.UUID;
@@ -33,9 +34,6 @@ public class InvokeMethodInterceptorTest {
     @Mock
     public HttpServletResponse response;
     
-    @Mock
-    public Enumeration<String> enumeration;
-    
     @BeforeClass
     public static void before() {
         PLoggerFactory.initialize(new Slf4jLoggerBinder());
@@ -56,6 +54,7 @@ public class InvokeMethodInterceptorTest {
         when(request.getHeader(Header.HTTP_SPAN_ID.toString())).thenReturn(null);
         when(request.getHeader(Header.HTTP_SAMPLED.toString())).thenReturn(null);
         when(request.getHeader(Header.HTTP_FLAGS.toString())).thenReturn(null);
+        Enumeration<?> enumeration = mock(Enumeration.class);
         when(request.getParameterNames()).thenReturn(enumeration);
 
         StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor();
@@ -79,6 +78,7 @@ public class InvokeMethodInterceptorTest {
         when(request.getHeader(Header.HTTP_SPAN_ID.toString())).thenReturn("SPANID");
         when(request.getHeader(Header.HTTP_SAMPLED.toString())).thenReturn("false");
         when(request.getHeader(Header.HTTP_FLAGS.toString())).thenReturn("0");
+        Enumeration<?> enumeration = mock(Enumeration.class);
         when(request.getParameterNames()).thenReturn(enumeration);
 
         TraceContext traceContext = new MockTraceContextFactory().create();
@@ -101,6 +101,7 @@ public class InvokeMethodInterceptorTest {
         when(request.getHeader(Header.HTTP_SPAN_ID.toString())).thenReturn("SPANID");
         when(request.getHeader(Header.HTTP_SAMPLED.toString())).thenReturn("false");
         when(request.getHeader(Header.HTTP_FLAGS.toString())).thenReturn("0");
+        Enumeration<?> enumeration = mock(Enumeration.class);
         when(request.getParameterNames()).thenReturn(enumeration);
 
         TraceContext traceContext = new MockTraceContextFactory().create();
