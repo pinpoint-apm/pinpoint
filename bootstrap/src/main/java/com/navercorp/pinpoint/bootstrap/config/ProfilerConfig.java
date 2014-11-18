@@ -19,9 +19,13 @@ public class ProfilerConfig {
 
 	private boolean profileEnable = false;
 
-	private String collectorServerIp = "127.0.0.1";
-    private int collectorUdpSpanServerPort = 9996;
-    private int collectorUdpServerPort = 9995;
+	private String collectorSpanServerIp = "127.0.0.1";
+    private int collectorSpanServerPort = 9996;
+
+    private String collectorStatServerIp = "127.0.0.1";
+    private int collectorStatServerPort = 9995;
+
+    private String collectorTcpServerIp = "127.0.0.1";
     private int collectorTcpServerPort = 9994;
 
     private int spanDataSenderWriteQueueSize = 1024 * 5;
@@ -161,17 +165,25 @@ public class ProfilerConfig {
 		}
 	}
 
-    public String getCollectorServerIp() {
-		return collectorServerIp;
+    public String getCollectorSpanServerIp() {
+		return collectorSpanServerIp;
 	}
 
-    public int getCollectorUdpSpanServerPort() {
-        return collectorUdpSpanServerPort;
+    public int getCollectorSpanServerPort() {
+        return collectorSpanServerPort;
     }
 
-    public int getCollectorUdpServerPort() {
-		return collectorUdpServerPort;
+    public String getCollectorStatServerIp() {
+        return collectorStatServerIp;
+    }
+
+    public int getCollectorStatServerPort() {
+		return collectorStatServerPort;
 	}
+
+    public String getCollectorTcpServerIp() {
+        return collectorTcpServerIp;
+    }
 
     public int getCollectorTcpServerPort() {
         return collectorTcpServerPort;
@@ -513,9 +525,13 @@ public class ProfilerConfig {
 
 		this.profileEnable = readBoolean(prop, "profiler.enable", true);
 
-		this.collectorServerIp = readString(prop, "profiler.collector.ip", "127.0.0.1");
-        this.collectorUdpSpanServerPort = readInt(prop, "profiler.collector.udpspan.port", 9996);
-		this.collectorUdpServerPort = readInt(prop, "profiler.collector.udp.port", 9995);
+		this.collectorSpanServerIp = readString(prop, "profiler.collector.span.ip", "127.0.0.1");
+        this.collectorSpanServerPort = readInt(prop, "profiler.collector.span.port", 9996);
+
+        this.collectorStatServerIp = readString(prop, "profiler.collector.stat.ip", "127.0.0.1");
+		this.collectorStatServerPort = readInt(prop, "profiler.collector.stat.port", 9995);
+
+        this.collectorTcpServerIp = readString(prop, "profiler.collector.tcp.ip", "127.0.0.1");
         this.collectorTcpServerPort = readInt(prop, "profiler.collector.tcp.port", 9994);
 
         this.spanDataSenderWriteQueueSize = readInt(prop, "profiler.spandatasender.write.queue.size", 1024 * 5);
@@ -736,92 +752,97 @@ public class ProfilerConfig {
 		return result;
 	}
 
-	@Override
-	public String toString() {
-		final StringBuilder sb = new StringBuilder("ProfilerConfig{");
-		sb.append("profileEnable=").append(profileEnable);
-		sb.append(", collectorServerIp='").append(collectorServerIp).append('\'');
-		sb.append(", collectorUdpSpanServerPort=").append(collectorUdpSpanServerPort);
-		sb.append(", collectorUdpServerPort=").append(collectorUdpServerPort);
-		sb.append(", collectorTcpServerPort=").append(collectorTcpServerPort);
-		sb.append(", spanDataSenderWriteQueueSize=").append(spanDataSenderWriteQueueSize);
-		sb.append(", spanDataSenderSocketSendBufferSize=").append(spanDataSenderSocketSendBufferSize);
-		sb.append(", spanDataSenderSocketTimeout=").append(spanDataSenderSocketTimeout);
-		sb.append(", statDataSenderWriteQueueSize=").append(statDataSenderWriteQueueSize);
-		sb.append(", statDataSenderSocketSendBufferSize=").append(statDataSenderSocketSendBufferSize);
-		sb.append(", statDataSenderSocketTimeout=").append(statDataSenderSocketTimeout);
-		sb.append(", tcpDataSenderCommandAcceptEnable=").append(tcpDataSenderCommandAcceptEnable);
-		sb.append(", jdbcSqlCacheSize=").append(jdbcSqlCacheSize);
-		sb.append(", jdbcMaxSqlBindValueSize=").append(jdbcMaxSqlBindValueSize);
-		sb.append(", jdbcProfile=").append(jdbcProfile);
-		sb.append(", jdbcProfileMySql=").append(jdbcProfileMySql);
-		sb.append(", jdbcProfileMySqlSetAutoCommit=").append(jdbcProfileMySqlSetAutoCommit);
-		sb.append(", jdbcProfileMySqlCommit=").append(jdbcProfileMySqlCommit);
-		sb.append(", jdbcProfileMySqlRollback=").append(jdbcProfileMySqlRollback);
-		sb.append(", jdbcProfileJtds=").append(jdbcProfileJtds);
-		sb.append(", jdbcProfileJtdsSetAutoCommit=").append(jdbcProfileJtdsSetAutoCommit);
-		sb.append(", jdbcProfileJtdsCommit=").append(jdbcProfileJtdsCommit);
-		sb.append(", jdbcProfileJtdsRollback=").append(jdbcProfileJtdsRollback);
-		sb.append(", jdbcProfileOracle=").append(jdbcProfileOracle);
-		sb.append(", jdbcProfileOracleSetAutoCommit=").append(jdbcProfileOracleSetAutoCommit);
-		sb.append(", jdbcProfileOracleCommit=").append(jdbcProfileOracleCommit);
-		sb.append(", jdbcProfileOracleRollback=").append(jdbcProfileOracleRollback);
-		sb.append(", jdbcProfileCubrid=").append(jdbcProfileCubrid);
-		sb.append(", jdbcProfileCubridSetAutoCommit=").append(jdbcProfileCubridSetAutoCommit);
-		sb.append(", jdbcProfileCubridCommit=").append(jdbcProfileCubridCommit);
-		sb.append(", jdbcProfileCubridRollback=").append(jdbcProfileCubridRollback);
-		sb.append(", jdbcProfileDbcp=").append(jdbcProfileDbcp);
-		sb.append(", jdbcProfileDbcpConnectionClose=").append(jdbcProfileDbcpConnectionClose);
-		sb.append(", tomcatHidePinpointHeader=").append(tomcatHidePinpointHeader);
-		sb.append(", tomcatExcludeUrlFilter=").append(tomcatExcludeUrlFilter);
-		sb.append(", arucs=").append(arucs);
-		sb.append(", arucsKeyTrace=").append(arucsKeyTrace);
-		sb.append(", memcached=").append(memcached);
-		sb.append(", memcachedKeyTrace=").append(memcachedKeyTrace);
-		sb.append(", ibatis=").append(ibatis);
-		sb.append(", mybatis=").append(mybatis);
-		sb.append(", redis=").append(redis);
-		sb.append(", redisPipeline=").append(redisPipeline);
-		sb.append(", nbaseArc=").append(nbaseArc);
-		sb.append(", nbaseArcPipeline=").append(nbaseArcPipeline);
-		sb.append(", apacheHttpClient4Profile=").append(apacheHttpClient4Profile);
-		sb.append(", apacheHttpClient4ProfileCookie=").append(apacheHttpClient4ProfileCookie);
-		sb.append(", apacheHttpClient4ProfileCookieDumpType=").append(apacheHttpClient4ProfileCookieDumpType);
-		sb.append(", apacheHttpClient4ProfileCookieSamplingRate=").append(apacheHttpClient4ProfileCookieSamplingRate);
-		sb.append(", apacheHttpClient4ProfileEntity=").append(apacheHttpClient4ProfileEntity);
-		sb.append(", apacheHttpClient4ProfileEntityDumpType=").append(apacheHttpClient4ProfileEntityDumpType);
-		sb.append(", apacheHttpClient4ProfileEntitySamplingRate=").append(apacheHttpClient4ProfileEntitySamplingRate);
-		sb.append(", apacheNIOHttpClient4Profile=").append(apacheNIOHttpClient4Profile);
-		sb.append(", ningAsyncHttpClientProfile=").append(ningAsyncHttpClientProfile);
-		sb.append(", ningAsyncHttpClientProfileCookie=").append(ningAsyncHttpClientProfileCookie);
-		sb.append(", ningAsyncHttpClientProfileCookieDumpType=").append(ningAsyncHttpClientProfileCookieDumpType);
-		sb.append(", ningAsyncHttpClientProfileCookieDumpSize=").append(ningAsyncHttpClientProfileCookieDumpSize);
-		sb.append(", ningAsyncHttpClientProfileCookieSamplingRate=").append(ningAsyncHttpClientProfileCookieSamplingRate);
-		sb.append(", ningAsyncHttpClientProfileEntity=").append(ningAsyncHttpClientProfileEntity);
-		sb.append(", ningAsyncHttpClientProfileEntityDumpType=").append(ningAsyncHttpClientProfileEntityDumpType);
-		sb.append(", ningAsyncHttpClientProfileEntityDumpSize=").append(ningAsyncHttpClientProfileEntityDumpSize);
-		sb.append(", ningAsyncHttpClientProfileEntitySamplingRate=").append(ningAsyncHttpClientProfileEntitySamplingRate);
-		sb.append(", ningAsyncHttpClientProfileParam=").append(ningAsyncHttpClientProfileParam);
-		sb.append(", ningAsyncHttpClientProfileParamDumpType=").append(ningAsyncHttpClientProfileParamDumpType);
-		sb.append(", ningAsyncHttpClientProfileParamDumpSize=").append(ningAsyncHttpClientProfileParamDumpSize);
-		sb.append(", ningAsyncHttpClientProfileParamSamplingRate=").append(ningAsyncHttpClientProfileParamSamplingRate);
-		sb.append(", lineGameNettyParamDumpSize=").append(lineGameNettyParamDumpSize);
-		sb.append(", lineGameNettyEntityDumpSize=").append(lineGameNettyEntityDumpSize);
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("ProfilerConfig{");
+        sb.append("profileEnable=").append(profileEnable);
+        sb.append(", collectorSpanServerIp='").append(collectorSpanServerIp).append('\'');
+        sb.append(", collectorSpanServerPort=").append(collectorSpanServerPort);
+        sb.append(", collectorStatServerIp='").append(collectorStatServerIp).append('\'');
+        sb.append(", collectorStatServerPort=").append(collectorStatServerPort);
+        sb.append(", collectorTcpServerIp='").append(collectorTcpServerIp).append('\'');
+        sb.append(", collectorTcpServerPort=").append(collectorTcpServerPort);
+        sb.append(", spanDataSenderWriteQueueSize=").append(spanDataSenderWriteQueueSize);
+        sb.append(", spanDataSenderSocketSendBufferSize=").append(spanDataSenderSocketSendBufferSize);
+        sb.append(", spanDataSenderSocketTimeout=").append(spanDataSenderSocketTimeout);
+        sb.append(", spanDataSenderChunkSize=").append(spanDataSenderChunkSize);
+        sb.append(", statDataSenderWriteQueueSize=").append(statDataSenderWriteQueueSize);
+        sb.append(", statDataSenderSocketSendBufferSize=").append(statDataSenderSocketSendBufferSize);
+        sb.append(", statDataSenderSocketTimeout=").append(statDataSenderSocketTimeout);
+        sb.append(", statDataSenderChunkSize=").append(statDataSenderChunkSize);
+        sb.append(", tcpDataSenderCommandAcceptEnable=").append(tcpDataSenderCommandAcceptEnable);
+        sb.append(", jdbcSqlCacheSize=").append(jdbcSqlCacheSize);
+        sb.append(", jdbcMaxSqlBindValueSize=").append(jdbcMaxSqlBindValueSize);
+        sb.append(", jdbcProfile=").append(jdbcProfile);
+        sb.append(", jdbcProfileMySql=").append(jdbcProfileMySql);
+        sb.append(", jdbcProfileMySqlSetAutoCommit=").append(jdbcProfileMySqlSetAutoCommit);
+        sb.append(", jdbcProfileMySqlCommit=").append(jdbcProfileMySqlCommit);
+        sb.append(", jdbcProfileMySqlRollback=").append(jdbcProfileMySqlRollback);
+        sb.append(", jdbcProfileJtds=").append(jdbcProfileJtds);
+        sb.append(", jdbcProfileJtdsSetAutoCommit=").append(jdbcProfileJtdsSetAutoCommit);
+        sb.append(", jdbcProfileJtdsCommit=").append(jdbcProfileJtdsCommit);
+        sb.append(", jdbcProfileJtdsRollback=").append(jdbcProfileJtdsRollback);
+        sb.append(", jdbcProfileOracle=").append(jdbcProfileOracle);
+        sb.append(", jdbcProfileOracleSetAutoCommit=").append(jdbcProfileOracleSetAutoCommit);
+        sb.append(", jdbcProfileOracleCommit=").append(jdbcProfileOracleCommit);
+        sb.append(", jdbcProfileOracleRollback=").append(jdbcProfileOracleRollback);
+        sb.append(", jdbcProfileCubrid=").append(jdbcProfileCubrid);
+        sb.append(", jdbcProfileCubridSetAutoCommit=").append(jdbcProfileCubridSetAutoCommit);
+        sb.append(", jdbcProfileCubridCommit=").append(jdbcProfileCubridCommit);
+        sb.append(", jdbcProfileCubridRollback=").append(jdbcProfileCubridRollback);
+        sb.append(", jdbcProfileDbcp=").append(jdbcProfileDbcp);
+        sb.append(", jdbcProfileDbcpConnectionClose=").append(jdbcProfileDbcpConnectionClose);
+        sb.append(", tomcatHidePinpointHeader=").append(tomcatHidePinpointHeader);
+        sb.append(", tomcatExcludeUrlFilter=").append(tomcatExcludeUrlFilter);
+        sb.append(", arucs=").append(arucs);
+        sb.append(", arucsKeyTrace=").append(arucsKeyTrace);
+        sb.append(", memcached=").append(memcached);
+        sb.append(", memcachedKeyTrace=").append(memcachedKeyTrace);
+        sb.append(", ibatis=").append(ibatis);
+        sb.append(", mybatis=").append(mybatis);
+        sb.append(", redis=").append(redis);
+        sb.append(", redisPipeline=").append(redisPipeline);
+        sb.append(", nbaseArc=").append(nbaseArc);
+        sb.append(", nbaseArcPipeline=").append(nbaseArcPipeline);
+        sb.append(", apacheHttpClient4Profile=").append(apacheHttpClient4Profile);
+        sb.append(", apacheHttpClient4ProfileCookie=").append(apacheHttpClient4ProfileCookie);
+        sb.append(", apacheHttpClient4ProfileCookieDumpType=").append(apacheHttpClient4ProfileCookieDumpType);
+        sb.append(", apacheHttpClient4ProfileCookieSamplingRate=").append(apacheHttpClient4ProfileCookieSamplingRate);
+        sb.append(", apacheHttpClient4ProfileEntity=").append(apacheHttpClient4ProfileEntity);
+        sb.append(", apacheHttpClient4ProfileEntityDumpType=").append(apacheHttpClient4ProfileEntityDumpType);
+        sb.append(", apacheHttpClient4ProfileEntitySamplingRate=").append(apacheHttpClient4ProfileEntitySamplingRate);
+        sb.append(", apacheNIOHttpClient4Profile=").append(apacheNIOHttpClient4Profile);
+        sb.append(", ningAsyncHttpClientProfile=").append(ningAsyncHttpClientProfile);
+        sb.append(", ningAsyncHttpClientProfileCookie=").append(ningAsyncHttpClientProfileCookie);
+        sb.append(", ningAsyncHttpClientProfileCookieDumpType=").append(ningAsyncHttpClientProfileCookieDumpType);
+        sb.append(", ningAsyncHttpClientProfileCookieDumpSize=").append(ningAsyncHttpClientProfileCookieDumpSize);
+        sb.append(", ningAsyncHttpClientProfileCookieSamplingRate=").append(ningAsyncHttpClientProfileCookieSamplingRate);
+        sb.append(", ningAsyncHttpClientProfileEntity=").append(ningAsyncHttpClientProfileEntity);
+        sb.append(", ningAsyncHttpClientProfileEntityDumpType=").append(ningAsyncHttpClientProfileEntityDumpType);
+        sb.append(", ningAsyncHttpClientProfileEntityDumpSize=").append(ningAsyncHttpClientProfileEntityDumpSize);
+        sb.append(", ningAsyncHttpClientProfileEntitySamplingRate=").append(ningAsyncHttpClientProfileEntitySamplingRate);
+        sb.append(", ningAsyncHttpClientProfileParam=").append(ningAsyncHttpClientProfileParam);
+        sb.append(", ningAsyncHttpClientProfileParamDumpType=").append(ningAsyncHttpClientProfileParamDumpType);
+        sb.append(", ningAsyncHttpClientProfileParamDumpSize=").append(ningAsyncHttpClientProfileParamDumpSize);
+        sb.append(", ningAsyncHttpClientProfileParamSamplingRate=").append(ningAsyncHttpClientProfileParamSamplingRate);
+        sb.append(", lineGameNettyParamDumpSize=").append(lineGameNettyParamDumpSize);
+        sb.append(", lineGameNettyEntityDumpSize=").append(lineGameNettyEntityDumpSize);
         sb.append(", springBeans=").append(springBeans);
-        sb.append(", springBeansNamePatterns=").append(springBeansNamePatterns);
-        sb.append(", springBeansClassPatterns=").append(springBeansClassPatterns);
-        sb.append(", springBeansAnnotations=").append(springBeansAnnotations);
-		sb.append(", samplingEnable=").append(samplingEnable);
-		sb.append(", samplingRate=").append(samplingRate);
-		sb.append(", ioBufferingEnable=").append(ioBufferingEnable);
-		sb.append(", ioBufferingBufferSize=").append(ioBufferingBufferSize);
-		sb.append(", profileJvmCollectInterval=").append(profileJvmCollectInterval);
-		sb.append(", profilableClassFilter=").append(profilableClassFilter);
-		sb.append(", DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL=").append(DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL);
-		sb.append(", agentInfoSendRetryInterval=").append(agentInfoSendRetryInterval);
-		sb.append(", applicationServerType=").append(applicationServerType);
-		sb.append('}');
-		return sb.toString();
-	}
+        sb.append(", springBeansNamePatterns='").append(springBeansNamePatterns).append('\'');
+        sb.append(", springBeansClassPatterns='").append(springBeansClassPatterns).append('\'');
+        sb.append(", springBeansAnnotations='").append(springBeansAnnotations).append('\'');
+        sb.append(", samplingEnable=").append(samplingEnable);
+        sb.append(", samplingRate=").append(samplingRate);
+        sb.append(", ioBufferingEnable=").append(ioBufferingEnable);
+        sb.append(", ioBufferingBufferSize=").append(ioBufferingBufferSize);
+        sb.append(", profileJvmCollectInterval=").append(profileJvmCollectInterval);
+        sb.append(", profilableClassFilter=").append(profilableClassFilter);
+        sb.append(", DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL=").append(DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL);
+        sb.append(", agentInfoSendRetryInterval=").append(agentInfoSendRetryInterval);
+        sb.append(", applicationServerType=").append(applicationServerType);
+        sb.append('}');
+        return sb.toString();
+    }
 }
 

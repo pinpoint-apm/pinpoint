@@ -11,7 +11,6 @@ import com.nhn.pinpoint.profiler.sender.DataSender;
 import com.nhn.pinpoint.profiler.sender.TcpDataSender;
 import com.nhn.pinpoint.profiler.sender.UdpDataSender;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
-import com.nhn.pinpoint.rpc.client.MessageListener;
 import com.nhn.pinpoint.rpc.client.PinpointSocket;
 import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
 
@@ -43,8 +42,8 @@ public class NetworkAvailabilityChecker implements PinpointTools {
 			profilerConfig.readConfigFile(configPath);
 
 			String collector = profilerConfig.getCollectorServerIp();
-			int uPort = profilerConfig.getCollectorUdpServerPort();
-			int usPort = profilerConfig.getCollectorUdpSpanServerPort();
+			int uPort = profilerConfig.getCollectorStatServerPort();
+			int usPort = profilerConfig.getCollectorSpanServerPort();
 			int tPort = profilerConfig.getCollectorTcpServerPort();
 
 			udpSender = new UdpDataSender(collector, uPort, "UDP", 10);
