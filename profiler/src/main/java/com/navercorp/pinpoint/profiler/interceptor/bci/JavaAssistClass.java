@@ -7,14 +7,7 @@ import java.util.List;
 
 import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.interceptor.*;
-import javassist.CannotCompileException;
-import javassist.CtBehavior;
-import javassist.CtClass;
-import javassist.CtConstructor;
-import javassist.CtField;
-import javassist.CtMethod;
-import javassist.CtNewMethod;
-import javassist.NotFoundException;
+import javassist.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -798,14 +791,11 @@ public class JavaAssistClass implements InstrumentClass {
 
     @Override
     public boolean addDebugLogBeforeAfterMethod() {
-        String className = this.ctClass.getName();
-        LoggingInterceptor loggingInterceptor = new LoggingInterceptor(className);
-        int id = InterceptorRegistry.addInterceptor(loggingInterceptor);
+        final String className = this.ctClass.getName();
+        final LoggingInterceptor loggingInterceptor = new LoggingInterceptor(className);
+        final int id = InterceptorRegistry.addInterceptor(loggingInterceptor);
         try {
-            CtClass cc = this.instrumentor.getClassPool().get(className);
-            CtMethod[] methods = cc.getDeclaredMethods();
-
-            for (CtMethod method : methods) {
+            for (CtMethod method : ctClass.getDeclaredMethods()) {
                 if (method.isEmpty()) {
                     if (isDebug) {
                         logger.debug("{} is empty.", method.getLongName());
@@ -813,7 +803,6 @@ public class JavaAssistClass implements InstrumentClass {
                     continue;
                 }
                 String methodName = method.getName();
-
                 addStaticAroundInterceptor(methodName, id, method, false);
             }
             return true;
@@ -832,14 +821,11 @@ public class JavaAssistClass implements InstrumentClass {
      */
     @Deprecated
     public boolean addDebugLogBeforeAfterConstructor() {
-        String className = this.ctClass.getName();
-        LoggingInterceptor loggingInterceptor = new LoggingInterceptor(className);
-        int id = InterceptorRegistry.addInterceptor(loggingInterceptor);
+        final String className = this.ctClass.getName();
+        final LoggingInterceptor loggingInterceptor = new LoggingInterceptor(className);
+        final int id = InterceptorRegistry.addInterceptor(loggingInterceptor);
         try {
-            CtClass cc = this.instrumentor.getClassPool().get(className);
-            CtConstructor[] constructors = cc.getConstructors();
-
-            for (CtConstructor constructor : constructors) {
+            for (CtConstructor constructor : ctClass.getConstructors()) {
                 if (constructor.isEmpty()) {
                     if (isDebug) {
                         logger.debug("{} is empty.", constructor.getLongName());
@@ -847,14 +833,6 @@ public class JavaAssistClass implements InstrumentClass {
                     continue;
                 }
                 String constructorName = constructor.getName();
-
-                // constructor.insertAfter("{System.out.println(\"*****" +
-                // constructorName + " Constructor:Param=(" + params +
-                // ") is finished. \" + $args);}");
-                // constructor.addCatch("{System.out.println(\"*****" +
-                // constructorName + " Constructor:Param=(" + params +
-                // ") is finished.\"); throw $e; }"
-                // , instrumentor.getClassPool().get("java.lang.Throwable"));
                 addStaticAroundInterceptor(constructorName, id, constructor, false);
             }
             return true;

@@ -60,6 +60,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         return agent;
     }
 
+//    @Deprecated
     public ClassPool getClassPool() {
         return this.childClassPool;
     }
