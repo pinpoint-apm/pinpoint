@@ -35,9 +35,9 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
 
         PinpointAgent path = testClass.getAnnotation(PinpointAgent.class);
         if (path != null && path.value() != null) {
-            agentJar = projectPath.getPinpointAgentPath() + path.value();
+            agentJar = projectPath.getPinpointAgentPath() + "/" + path.value();
         } else {
-            agentJar = projectPath.getPinpointAgentPath() + "pinpoint-bootstrap-" + Version.VERSION + ".jar";
+            agentJar = projectPath.getPinpointAgentPath() + "/" + "pinpoint-bootstrap-" + Version.VERSION + ".jar";
         }
         logger.debug("agentJar:{}", agentJar);
 
