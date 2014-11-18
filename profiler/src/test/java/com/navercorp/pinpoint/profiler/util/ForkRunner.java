@@ -4,10 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 import org.junit.runner.Description;
 import org.junit.runner.Result;
@@ -18,30 +15,91 @@ import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 
 import com.nhn.pinpoint.common.Version;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ForkRunner extends BlockJUnit4ClassRunner {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final String agentJar;
     private final String configPath;
 
-    public ForkRunner(Class<?> klass) throws InitializationError {
-        super(klass);
+    public ForkRunner(Class<?> testClass) throws InitializationError {
+        super(testClass);
 
-        PinpointAgent path = klass.getAnnotation(PinpointAgent.class);
- 
+        String testClassDir = getAbsoluteTestPath(testClass);
+        // /D:/pinpoint_project/pinpoint/profiler/target/test-classes/
+        String pinpointAgentDir = getPinpointAgentDir(testClassDir);
+
+        PinpointAgent path = testClass.getAnnotation(PinpointAgent.class);
         if (path != null && path.value() != null) {
-            agentJar = path.value();
+            agentJar = pinpointAgentDir + path.value();
         } else {
-            agentJar = "target/pinpoint-agent/pinpoint-bootstrap-" + Version.VERSION + ".jar";
+            agentJar = pinpointAgentDir + "pinpoint-bootstrap-" + Version.VERSION + ".jar";
         }
 
-        PinpointConfig config = klass.getAnnotation(PinpointConfig.class);
+        PinpointConfig config = testClass.getAnnotation(PinpointConfig.class);
 
         if (config != null && config.value() != null) {
-            configPath = config.value();
+            configPath = testClassDir + config.value();
         } else {
-            configPath = null;
+            configPath = pinpointAgentDir + "pinpoint.config";
         }
+
     }
+
+    private String getPinpointAgentDir(String testClassDir) {
+        if (testClassDir == null) {
+            throw new NullPointerException("testClassDir must not be null");
+        }
+        // remove first, last '/'
+        // /D:/pinpoint_project/pinpoint/profiler/target/test-classes/ -> D:/pinpoint_project/pinpoint/profiler/target/test-classes
+        testClassDir = testClassDir.substring(1, testClassDir.length()-1);
+        logger.debug("normalized testClassDir:{}", testClassDir);
+
+        final String target = "target";
+        int targetFound = testClassDir.lastIndexOf(target);
+        if (targetFound == -1) {
+            throw new NullPointerException("targetDir not found.");
+        }
+
+        String targetDir = testClassDir.substring(0, targetFound + target.length());
+        logger.debug("target:{}", targetDir);
+
+        String pinpointAgentDir = targetDir + "/pinpoint-agent/";
+        logger.debug("pinpointAgentDir:{}", pinpointAgentDir);
+        return pinpointAgentDir;
+
+    }
+
+    private String getAbsoluteTestPath(Class<?> testClass) {
+        logger.debug("testClass:{}", testClass);
+        final ClassLoader classLoader = getDefaultClassLoader(testClass);
+        final String testClassName = JavaAssistUtils.javaNameToJvmName(testClass.getName()) + ".class";
+        final URL testClassResource = classLoader.getResource(testClassName);
+        if (testClassResource == null) {
+            throw new IllegalArgumentException("testClassName not found." + testClassName);
+        }
+        logger.debug("url TestClass={}", testClassResource);
+
+        final String testClassPath = testClassResource.getPath();
+        final int classClassDirFind = testClassPath.indexOf(testClassName);
+        if (classClassDirFind == -1) {
+            throw new IllegalArgumentException(testClassName + "not found.");
+        }
+        final String testClassesDir = testClassPath.substring(0, classClassDirFind);
+        logger.debug("testClassesDir:{}", testClassesDir);
+        return testClassesDir;
+    }
+
+    private ClassLoader getDefaultClassLoader(Class<?> klass) {
+        ClassLoader classLoader = klass.getClassLoader();
+        if (classLoader == null) {
+            classLoader = ClassLoader.getSystemClassLoader();
+        }
+        return classLoader;
+    }
+
 
     @Override
     protected Statement classBlock(RunNotifier notifier) {
@@ -136,7 +194,7 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
 
             list.add(ForkedJUnit.class.getName());
             list.add(getTestClass().getName());
-
+            logger.debug("command:{}", list);
             return list.toArray(new String[list.size()]);
         }
 
