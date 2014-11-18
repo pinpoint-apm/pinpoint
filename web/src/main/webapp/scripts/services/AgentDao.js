@@ -56,12 +56,9 @@ pinpointApp.service('AgentDao', [ 'agentDaoConfig',
 
             var currTime, currCount, prevTime, prevCount; // for gc
 
-            for (var i = pointsCount.length - 1; i >= 0; --i) {
+            for (var i = 0; i < pointsCount.length; ++i) {
                 var thisData = {
-                    time: new Date(pointsTime[i].timestamp).toString('yyyy-MM-dd HH:mm'),
-                    Used: 0,
-                    Max: 0,
-                    GC: 0
+                    time: new Date(pointsTime[i].timestamp).toString('yyyy-MM-dd HH:mm:ss')
                 };
                 for (var k in info.line) {
                     if (info.line[k].isFgc) {
@@ -78,16 +75,20 @@ pinpointApp.service('AgentDao', [ 'agentDaoConfig',
                                 prevCount = currCount;
                             }
                         }
-                        thisData[info.line[k].key] = GC;
+                        if (GC > 0) {
+                        	thisData[info.line[k].key] = GC;
+                        }
                     } else {
-                        thisData[info.line[k].key] = agentStat.charts[info.line[k].id].points[i].maxVal;
+                    	var value = agentStat.charts[info.line[k].id].points[i].maxVal;
+                    	if (!(value < 0)) {
+                    		thisData[info.line[k].key] = value;
+                    	}
                     }
 
                 }
 
                 newData.push(thisData);
             }
-
             return newData;
         };
 
@@ -115,51 +116,24 @@ pinpointApp.service('AgentDao', [ 'agentDaoConfig',
 	            throw new Error('assertion error', 'jvmCpuLoad.length != systemCpuLoad.length');
 	            return;
 	        }
-	        
-	        /**
-	         * Returns 0 if cpu load data is unavailable.
-	         * @param cpuLoad
-	         * @returns 0 for unavailable cpu load data, cpuLoad otherwise.
-	         */
-	        var processCpuLoadValue = function(cpuLoad) {
-	        	if (cpuLoad < 0) {
-	        		return 0;
-	        	}
-	        	return cpuLoad;
-	        }
-	        
-	        /**
-	         * Returns 'N/A' for unavailable cpu load data (negative value). Otherwise, round cpuLoad to 2 decimal places and return.
-	         * @param cpuLoad
-	         * @returns 'N/A' for unavailable cpu load data, positive double to 2 decimal places otherwise.
-	         */
-	        var processCpuLoadValueText = function(cpuLoad) {
-	        	if (cpuLoad < 0) {
-	        		return "N/A";
-	        	}
-	        	return cpuLoad+"%";
-	        }
 	
-	        for (var i = pointsJvmCpuLoad.length - 1; i >= 0; --i) {
+	        for (var i = 0; i < pointsJvmCpuLoad.length; ++i) {
 	        	if (pointsJvmCpuLoad[i].timestamp !== pointsSystemCpuLoad[i].timestamp) {
 	        		throw new Error('assertion error', 'timestamp mismatch between jvmCpuLoad and systemCpuLoad');
 	        		return;
 	        	}
 	            var thisData = {
-	                time: new Date(pointsJvmCpuLoad[i].timestamp).toString('yyyy-MM-dd HH:mm'),
-	                jvmCpuLoadValue: -1 * Number.MIN_VALUE,
-	                jvmCpuLoadValueText: "",
-	                systemCpuLoadValue: -1 * Number.MIN_VALUE,
-	                systemCpuLoadValueText: "",
+	                time: new Date(pointsJvmCpuLoad[i].timestamp).toString('yyyy-MM-dd HH:mm:ss'),
 	                maxCpuLoad: 100
 	            };
 	            var jvmCpuLoad = agentStat.charts['CPU_LOAD_JVM'].points[i].maxVal.toFixed(2);
 	            var systemCpuLoad = agentStat.charts['CPU_LOAD_SYSTEM'].points[i].maxVal.toFixed(2);
-            	thisData.jvmCpuLoadValue = processCpuLoadValue(jvmCpuLoad);
-            	thisData.jvmCpuLoadValueText = processCpuLoadValueText(jvmCpuLoad);
-            	thisData.systemCpuLoadValue = processCpuLoadValue(systemCpuLoad);
-            	thisData.systemCpuLoadValueText = processCpuLoadValueText(systemCpuLoad);
-	
+	            if (!(jvmCpuLoad < 0)) {
+	            	thisData.jvmCpuLoad = jvmCpuLoad;
+	            }
+	            if (!(systemCpuLoad < 0)) {
+	            	thisData.systemCpuLoad = systemCpuLoad;
+	            }
 	            newData.push(thisData);
 	        }
 

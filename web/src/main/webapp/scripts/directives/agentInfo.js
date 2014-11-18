@@ -71,7 +71,6 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                  * @param agentStat
                  */
                 showCharts = function (agentStat) {
-                	console.log(agentStat);
 
                     var heap = { id: 'heap', title: 'Heap', span: 'span12', line: [
                         { id: 'JVM_MEMORY_HEAP_USED', key: 'Used', values: [], isFgc: false },
@@ -119,15 +118,16 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                         scope.agentStat = result;
                         if (angular.isDefined(result.type) && result.type) {
                             scope.info['jvmGcType'] =  result.type;
-                            oProgressBar.setLoading(80);
-                            showCharts(result);
-                            $timeout(function () {
-                                oProgressBar.setLoading(100);
-                                oProgressBar.stopLoading();
-                            }, 700);
-                        } else {
-                            oProgressBar.stopLoading();
                         }
+                        oProgressBar.setLoading(80);
+                        showCharts(result);
+                        $timeout(function () {
+                            oProgressBar.setLoading(100);
+                            oProgressBar.stopLoading();
+                        }, 700);
+//                        } else {
+//                            oProgressBar.stopLoading();
+//                        }
 
                         scope.$digest();
                     });
