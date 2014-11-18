@@ -26,79 +26,33 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
 
     public ForkRunner(Class<?> testClass) throws InitializationError {
         super(testClass);
+        final String property = System.getProperty("user.dir");
+        logger.debug("user.dir:{}", property);
 
-        String testClassDir = getAbsoluteTestPath(testClass);
-        // /D:/pinpoint_project/pinpoint/profiler/target/test-classes/
-        String pinpointAgentDir = getPinpointAgentDir(testClassDir);
+        ProjectPathResolver projectPathResolver = new ProjectPathResolver();
+        ProjectPathResolver.ProjectPath projectPath = projectPathResolver.resolvePathFromTestClass(testClass);
+        logger.debug("path:{}", projectPath);
 
         PinpointAgent path = testClass.getAnnotation(PinpointAgent.class);
         if (path != null && path.value() != null) {
-            agentJar = pinpointAgentDir + path.value();
+            agentJar = projectPath.getPinpointAgentPath() + path.value();
         } else {
-            agentJar = pinpointAgentDir + "pinpoint-bootstrap-" + Version.VERSION + ".jar";
+            agentJar = projectPath.getPinpointAgentPath() + "pinpoint-bootstrap-" + Version.VERSION + ".jar";
         }
+        logger.debug("agentJar:{}", agentJar);
 
         PinpointConfig config = testClass.getAnnotation(PinpointConfig.class);
 
         if (config != null && config.value() != null) {
-            configPath = testClassDir + config.value();
+            configPath = projectPath.getTestClassPath() + "/" + config.value();
         } else {
-            configPath = pinpointAgentDir + "pinpoint.config";
+            configPath = projectPath.getPinpointAgentPath() + "/" + "pinpoint.config";
         }
+        logger.debug("configPath:{}", configPath);
 
     }
 
-    private String getPinpointAgentDir(String testClassDir) {
-        if (testClassDir == null) {
-            throw new NullPointerException("testClassDir must not be null");
-        }
-        // remove first, last '/'
-        // /D:/pinpoint_project/pinpoint/profiler/target/test-classes/ -> D:/pinpoint_project/pinpoint/profiler/target/test-classes
-        testClassDir = testClassDir.substring(1, testClassDir.length()-1);
-        logger.debug("normalized testClassDir:{}", testClassDir);
 
-        final String target = "target";
-        int targetFound = testClassDir.lastIndexOf(target);
-        if (targetFound == -1) {
-            throw new NullPointerException("targetDir not found.");
-        }
-
-        String targetDir = testClassDir.substring(0, targetFound + target.length());
-        logger.debug("target:{}", targetDir);
-
-        String pinpointAgentDir = targetDir + "/pinpoint-agent/";
-        logger.debug("pinpointAgentDir:{}", pinpointAgentDir);
-        return pinpointAgentDir;
-
-    }
-
-    private String getAbsoluteTestPath(Class<?> testClass) {
-        logger.debug("testClass:{}", testClass);
-        final ClassLoader classLoader = getDefaultClassLoader(testClass);
-        final String testClassName = JavaAssistUtils.javaNameToJvmName(testClass.getName()) + ".class";
-        final URL testClassResource = classLoader.getResource(testClassName);
-        if (testClassResource == null) {
-            throw new IllegalArgumentException("testClassName not found." + testClassName);
-        }
-        logger.debug("url TestClass={}", testClassResource);
-
-        final String testClassPath = testClassResource.getPath();
-        final int classClassDirFind = testClassPath.indexOf(testClassName);
-        if (classClassDirFind == -1) {
-            throw new IllegalArgumentException(testClassName + "not found.");
-        }
-        final String testClassesDir = testClassPath.substring(0, classClassDirFind);
-        logger.debug("testClassesDir:{}", testClassesDir);
-        return testClassesDir;
-    }
-
-    private ClassLoader getDefaultClassLoader(Class<?> klass) {
-        ClassLoader classLoader = klass.getClassLoader();
-        if (classLoader == null) {
-            classLoader = ClassLoader.getSystemClassLoader();
-        }
-        return classLoader;
-    }
 
 
     @Override
