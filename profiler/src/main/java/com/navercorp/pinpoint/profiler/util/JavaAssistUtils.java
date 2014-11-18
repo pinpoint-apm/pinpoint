@@ -196,6 +196,9 @@ public final class JavaAssistUtils {
             throw new NullPointerException("signature must not be null");
         }
         final List<String> parameterSignatureList = splitParameterSignature(signature);
+        if (parameterSignatureList.isEmpty()) {
+            return EMPTY_STRING_ARRAY;
+        }
         final String[] objectType = new String[parameterSignatureList.size()];
         for (int i = 0; i < parameterSignatureList.size(); i++) {
             final String parameterSignature = parameterSignatureList.get(i);

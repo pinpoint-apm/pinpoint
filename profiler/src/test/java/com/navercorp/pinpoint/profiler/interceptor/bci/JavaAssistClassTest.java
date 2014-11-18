@@ -4,6 +4,7 @@ import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
 import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.nhn.pinpoint.bootstrap.instrument.InstrumentException;
+import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.BindValueTraceValue;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.IntTraceValue;
@@ -30,7 +31,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -66,6 +69,46 @@ public class JavaAssistClassTest {
         Assert.assertEquals(hierarchyInterfaces.length, 2);
         Assert.assertEquals(hierarchyInterfaces[0], "java.lang.Runnable");
         Assert.assertEquals(hierarchyInterfaces[1], "java.lang.Comparable");
+    }
+
+
+    @Test
+    public void testDeclaredMethod() throws InstrumentException {
+
+        ByteCodeInstrumentor byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor();
+
+        String testObjectName = "com.nhn.pinpoint.profiler.interceptor.bci.TestObject";
+
+        InstrumentClass testObject = byteCodeInstrumentor.getClass(null, testObjectName, null);
+
+        Assert.assertEquals(testObject.getName(), testObjectName);
+
+        MethodInfo declaredMethod = testObject.getDeclaredMethod("callA", null);
+        Assert.assertNotNull(declaredMethod);
+
+    }
+
+    @Test
+    public void testDeclaredMethods() throws InstrumentException {
+
+        ByteCodeInstrumentor byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor();
+
+        String testObjectName = "com.nhn.pinpoint.profiler.interceptor.bci.TestObject";
+
+        InstrumentClass testObject = byteCodeInstrumentor.getClass(null, testObjectName, null);
+        Assert.assertEquals(testObject.getName(), testObjectName);
+
+        int findMethodCount = 0;
+        for (MethodInfo methodInfo : testObject.getDeclaredMethods()) {
+            if (!methodInfo.getName().equals("callA")) {
+                continue;
+            }
+            String[] parameterTypes = methodInfo.getParameterTypes();
+            if (parameterTypes == null || parameterTypes.length == 0) {
+                findMethodCount++;
+            }
+        }
+        Assert.assertEquals(findMethodCount, 1);
     }
 
 
