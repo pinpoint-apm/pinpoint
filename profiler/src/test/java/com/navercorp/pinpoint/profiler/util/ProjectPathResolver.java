@@ -79,7 +79,7 @@ public class ProjectPathResolver {
             throw new NullPointerException("projectPath must not be null");
         }
 
-        String pinpointAgentDir = projectPath + "/profiler/target/pinpoint-agent/";
+        String pinpointAgentDir = projectPath + "/profiler/target/pinpoint-agent";
         logger.debug("pinpointAgentDir:{}", pinpointAgentDir);
         return pinpointAgentDir;
 

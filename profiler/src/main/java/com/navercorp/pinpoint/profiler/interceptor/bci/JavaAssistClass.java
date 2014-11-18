@@ -921,6 +921,9 @@ public class JavaAssistClass implements InstrumentClass {
     public MethodInfo getDeclaredMethod(String name, String[] parameterTypes) {
         final String methodSignature = JavaAssistUtils.javaTypeToJvmSignature(parameterTypes);
         for (CtMethod ctMethod : ctClass.getDeclaredMethods()) {
+            if (!ctMethod.getName().equals(name)) {
+                continue;
+            }
             final String descriptor = ctMethod.getMethodInfo2().getDescriptor();
             final boolean findMethod = descriptor.startsWith(methodSignature);
             if (findMethod) {
