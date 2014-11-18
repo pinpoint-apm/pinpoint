@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.profiler.modifier.tomcat;
 
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Enumeration;
@@ -14,8 +13,12 @@ import com.nhn.pinpoint.profiler.context.MockTraceContextFactory;
 import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
+
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.StandardHostValveInvokeInterceptor;
 
@@ -23,16 +26,28 @@ import com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.StandardHostValveIn
  * @author emeroad
  */
 public class InvokeMethodInterceptorTest {
+    
+    @Mock
+    public HttpServletRequest request;
+    
+    @Mock
+    public HttpServletResponse response;
+    
+    @Mock
+    public Enumeration<String> enumeration;
+    
     @BeforeClass
     public static void before() {
         PLoggerFactory.initialize(new Slf4jLoggerBinder());
     }
+    
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+    }
 
     @Test
     public void testHeaderNOTExists() {
-
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
 
         when(request.getRequestURI()).thenReturn("/hellotest.nhn");
         when(request.getRemoteAddr()).thenReturn("10.0.0.1");
@@ -41,8 +56,6 @@ public class InvokeMethodInterceptorTest {
         when(request.getHeader(Header.HTTP_SPAN_ID.toString())).thenReturn(null);
         when(request.getHeader(Header.HTTP_SAMPLED.toString())).thenReturn(null);
         when(request.getHeader(Header.HTTP_FLAGS.toString())).thenReturn(null);
-
-        Enumeration<?> enumeration = mock(Enumeration.class);
         when(request.getParameterNames()).thenReturn(enumeration);
 
         StandardHostValveInvokeInterceptor interceptor = new StandardHostValveInvokeInterceptor();
@@ -59,10 +72,6 @@ public class InvokeMethodInterceptorTest {
     @Test
     public void testInvalidHeaderExists() {
 
-        // TODO 결과값 검증 필요.
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-
         when(request.getRequestURI()).thenReturn("/hellotest.nhn");
         when(request.getRemoteAddr()).thenReturn("10.0.0.1");
         when(request.getHeader(Header.HTTP_TRACE_ID.toString())).thenReturn("TRACEID");
@@ -70,8 +79,6 @@ public class InvokeMethodInterceptorTest {
         when(request.getHeader(Header.HTTP_SPAN_ID.toString())).thenReturn("SPANID");
         when(request.getHeader(Header.HTTP_SAMPLED.toString())).thenReturn("false");
         when(request.getHeader(Header.HTTP_FLAGS.toString())).thenReturn("0");
-
-        Enumeration<?> enumeration = mock(Enumeration.class);
         when(request.getParameterNames()).thenReturn(enumeration);
 
         TraceContext traceContext = new MockTraceContextFactory().create();
@@ -87,10 +94,6 @@ public class InvokeMethodInterceptorTest {
     @Test
     public void testValidHeaderExists() {
 
-        // TODO 결과값 검증 필요.
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
-
         when(request.getRequestURI()).thenReturn("/hellotest.nhn");
         when(request.getRemoteAddr()).thenReturn("10.0.0.1");
         when(request.getHeader(Header.HTTP_TRACE_ID.toString())).thenReturn(UUID.randomUUID().toString());
@@ -98,8 +101,6 @@ public class InvokeMethodInterceptorTest {
         when(request.getHeader(Header.HTTP_SPAN_ID.toString())).thenReturn("SPANID");
         when(request.getHeader(Header.HTTP_SAMPLED.toString())).thenReturn("false");
         when(request.getHeader(Header.HTTP_FLAGS.toString())).thenReturn("0");
-
-        Enumeration<?> enumeration = mock(Enumeration.class);
         when(request.getParameterNames()).thenReturn(enumeration);
 
         TraceContext traceContext = new MockTraceContextFactory().create();
