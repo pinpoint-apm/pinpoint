@@ -69,10 +69,19 @@ pinpointApp.service('AgentDao', [ 'agentDaoConfig',
                             prevTime = currTime;
                             prevCount = currCount;
                         } else {
-                            if ((currCount - prevCount > 0) && (currTime - prevTime > 0)) {
-                                GC = currTime - prevTime;
-                                prevTime = currTime;
+                            var countDelta = currCount - prevCount;
+                            var timeDelta = currTime - prevTime;
+                            var fgcOccurred = (Math.abs(countDelta) > 0) && (Math.abs(timeDelta) > 0);
+                            var jvmRestarted = countDelta < 0 && timeDelta < 0;
+                            
+                            if (fgcOccurred) {
+                                if (jvmRestarted) {
+                                    GC = currTime;
+                                } else {
+                                    GC = currTime - prevTime;
+                                }
                                 prevCount = currCount;
+                                prevTime = currTime;
                             }
                         }
                         if (GC > 0) {
@@ -99,45 +108,45 @@ pinpointApp.service('AgentDao', [ 'agentDaoConfig',
          * @returns {Array}
          */
         this.parseCpuLoadChartDataForAmcharts = function (cpuLoad, agentStat) {
-        	// Cpu Load data availability check
-        	var jvmCpuLoadData = agentStat.charts['CPU_LOAD_JVM'];
-        	var systemCpuLoadData = agentStat.charts['CPU_LOAD_SYSTEM'];
-        	if (jvmCpuLoadData || systemCpuLoadData) {
-        		cpuLoad.isAvailable = true;
-        	} else {
-        		return;
-        	}
+            // Cpu Load data availability check
+            var jvmCpuLoadData = agentStat.charts['CPU_LOAD_JVM'];
+            var systemCpuLoadData = agentStat.charts['CPU_LOAD_SYSTEM'];
+            if (jvmCpuLoadData || systemCpuLoadData) {
+            	cpuLoad.isAvailable = true;
+            } else {
+            	return;
+            }
             var newData = [],
             DATA_UNAVAILABLE = -1,
             pointsJvmCpuLoad = jvmCpuLoadData.points,
             pointsSystemCpuLoad = systemCpuLoadData.points;
-
-	        if (pointsJvmCpuLoad.length !== pointsSystemCpuLoad.length) {
-	            throw new Error('assertion error', 'jvmCpuLoad.length != systemCpuLoad.length');
-	            return;
-	        }
-	
-	        for (var i = 0; i < pointsJvmCpuLoad.length; ++i) {
-	        	if (pointsJvmCpuLoad[i].timestamp !== pointsSystemCpuLoad[i].timestamp) {
-	        		throw new Error('assertion error', 'timestamp mismatch between jvmCpuLoad and systemCpuLoad');
-	        		return;
-	        	}
-	            var thisData = {
-	                time: new Date(pointsJvmCpuLoad[i].timestamp).toString('yyyy-MM-dd HH:mm:ss'),
-	                maxCpuLoad: 100
-	            };
-	            var jvmCpuLoad = agentStat.charts['CPU_LOAD_JVM'].points[i].maxVal.toFixed(2);
-	            var systemCpuLoad = agentStat.charts['CPU_LOAD_SYSTEM'].points[i].maxVal.toFixed(2);
-	            if (!(jvmCpuLoad < 0)) {
-	            	thisData.jvmCpuLoad = jvmCpuLoad;
-	            }
-	            if (!(systemCpuLoad < 0)) {
-	            	thisData.systemCpuLoad = systemCpuLoad;
-	            }
-	            newData.push(thisData);
-	        }
-
-	        return newData;
+            
+            if (pointsJvmCpuLoad.length !== pointsSystemCpuLoad.length) {
+                throw new Error('assertion error', 'jvmCpuLoad.length != systemCpuLoad.length');
+                return;
+            }
+            
+            for (var i = 0; i < pointsJvmCpuLoad.length; ++i) {
+                if (pointsJvmCpuLoad[i].timestamp !== pointsSystemCpuLoad[i].timestamp) {
+                	throw new Error('assertion error', 'timestamp mismatch between jvmCpuLoad and systemCpuLoad');
+                	return;
+                }
+                var thisData = {
+                    time: new Date(pointsJvmCpuLoad[i].timestamp).toString('yyyy-MM-dd HH:mm:ss'),
+                    maxCpuLoad: 100
+                };
+                var jvmCpuLoad = agentStat.charts['CPU_LOAD_JVM'].points[i].maxVal.toFixed(2);
+                var systemCpuLoad = agentStat.charts['CPU_LOAD_SYSTEM'].points[i].maxVal.toFixed(2);
+                if (!(jvmCpuLoad < 0)) {
+                    thisData.jvmCpuLoad = jvmCpuLoad;
+                }
+                if (!(systemCpuLoad < 0)) {
+                    thisData.systemCpuLoad = systemCpuLoad;
+                }
+                newData.push(thisData);
+            }
+            
+            return newData;
         };
     }
 
