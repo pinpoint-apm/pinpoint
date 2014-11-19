@@ -1,6 +1,7 @@
 package com.nhn.pinpoint.bootstrap.config;
 
 import java.io.IOException;
+import java.util.Properties;
 
 import junit.framework.Assert;
 
@@ -29,7 +30,25 @@ public class ProfilerConfigTest {
 
         ProfilerConfig profilerConfig = new ProfilerConfig();
         profilerConfig.readConfigFile(path);
+    }
 
+    @Test
+    public void testPlaceHolder() throws IOException {
+        Properties properties = new Properties();
+        properties.setProperty("profiler.collector.span.ip", "${test1}");
+        properties.setProperty("profiler.collector.stat.ip", "${test1}");
+        properties.setProperty("profiler.collector.tcp.ip", "${test2}");
+        // placeHolderValue
+        properties.setProperty("test1", "placeHolder1");
+        properties.setProperty("test2", "placeHolder2");
+
+
+        ProfilerConfig profilerConfig = new ProfilerConfig();
+        profilerConfig.readPropertyValues(properties);
+
+        Assert.assertEquals(profilerConfig.getCollectorSpanServerIp(), "placeHolder1");
+        Assert.assertEquals(profilerConfig.getCollectorStatServerIp(), "placeHolder1");
+        Assert.assertEquals(profilerConfig.getCollectorTcpServerIp(), "placeHolder2");
     }
 
 

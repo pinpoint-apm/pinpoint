@@ -20,99 +20,110 @@ import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
  * 
  */
 public class NetworkAvailabilityChecker implements PinpointTools {
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(NetworkAvailabilityChecker.class);
-	
-	public static void main(String[] args) {
-		if (args.length != 1) {
-			System.out.println("usage : " + NetworkAvailabilityChecker.class.getSimpleName() + " AGENT_CONFIG_FILE");
-			return;
-		}
 
-		String configPath = args[0];
+    private static final Logger LOGGER = LoggerFactory.getLogger(NetworkAvailabilityChecker.class);
 
-        DataSender udpSender = null;
+    public static void main(String[] args) {
+        if (args.length != 1) {
+            System.out.println("usage : " + NetworkAvailabilityChecker.class.getSimpleName() + " AGENT_CONFIG_FILE");
+            return;
+        }
+
+        String configPath = args[0];
+
+        DataSender udpStatSender = null;
         DataSender udpSpanSender = null;
         DataSender tcpSender = null;
-        
+
         PinpointSocketFactory socketFactory = null;
         PinpointSocket socket = null;
-		try {
-			ProfilerConfig profilerConfig = new ProfilerConfig();
-			profilerConfig.readConfigFile(configPath);
+        try {
+            ProfilerConfig profilerConfig = new ProfilerConfig();
+            profilerConfig.readConfigFile(configPath);
 
-			String collector = profilerConfig.getCollectorServerIp();
-			int uPort = profilerConfig.getCollectorStatServerPort();
-			int usPort = profilerConfig.getCollectorSpanServerPort();
-			int tPort = profilerConfig.getCollectorTcpServerPort();
+            String collectorStatIp = profilerConfig.getCollectorStatServerIp();
+            int collectorStatPort = profilerConfig.getCollectorStatServerPort();
+            udpStatSender = new UdpDataSender(collectorStatIp, collectorStatPort, "UDP-STAT", 10);
 
-			udpSender = new UdpDataSender(collector, uPort, "UDP", 10);
-			udpSpanSender = new UdpDataSender(collector, usPort, "UDP-SPAN", 10);
-			
-			socketFactory = createPinpointSocketFactory();
-			socket = createPinpointSocket(collector, tPort, socketFactory);
-			
-			tcpSender = new TcpDataSender(socket);
+            String collectorSpanIp = profilerConfig.getCollectorSpanServerIp();
+            int collectorSpanPort = profilerConfig.getCollectorSpanServerPort();
+            udpSpanSender = new UdpDataSender(collectorSpanIp, collectorSpanPort, "UDP-SPAN", 10);
 
-			boolean udpSenderResult = udpSender.isNetworkAvailable();
-			boolean udpSpanSenderResult = udpSpanSender.isNetworkAvailable();
-			boolean tcpSenderResult = tcpSender.isNetworkAvailable();
+            String collectorTcpIp = profilerConfig.getCollectorTcpServerIp();
+            int collectorTcpPort = profilerConfig.getCollectorTcpServerPort();
+            socketFactory = createPinpointSocketFactory();
+            socket = createPinpointSocket(collectorTcpIp, collectorTcpPort, socketFactory);
 
-			StringBuilder sb = new StringBuilder();
-			sb.append("\nTEST RESULT\n");
-			sb.append("UDP://").append(collector).append(":").append(uPort).append("=").append((udpSenderResult) ? "OK" : "FAILED").append("\n");
-			sb.append("UDP://").append(collector).append(":").append(usPort).append("=").append((udpSpanSenderResult) ? "OK" : "FAILED").append("\n");
-			sb.append("TCP://").append(collector).append(":").append(tPort).append("=").append((tcpSenderResult) ? "OK" : "FAILED").append("\n");
+            tcpSender = new TcpDataSender(socket);
 
-			System.out.println(sb.toString());
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-            closeDataSender(udpSender);
+            boolean udpSenderResult = udpStatSender.isNetworkAvailable();
+            boolean udpSpanSenderResult = udpSpanSender.isNetworkAvailable();
+            boolean tcpSenderResult = tcpSender.isNetworkAvailable();
+
+            StringBuilder buffer = new StringBuilder();
+            buffer.append("\nTEST RESULT\n");
+            write(buffer, "UDP-STAT://", collectorStatIp, collectorStatPort, udpSenderResult);
+            write(buffer, "UDP-SPAN://", collectorSpanIp, collectorSpanPort, udpSpanSenderResult);
+            write(buffer, "TCP://", collectorTcpIp, collectorTcpPort, tcpSenderResult);
+
+            System.out.println(buffer.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeDataSender(udpStatSender);
             closeDataSender(udpSpanSender);
             closeDataSender(tcpSender);
-			System.out.println("END.");
-			
-			if (socket != null) {
-				socket.close();
-			}
-			if (socketFactory != null) {
-				socketFactory.release();
-			}
-		}
+            System.out.println("END.");
+
+            if (socket != null) {
+                socket.close();
+            }
+            if (socketFactory != null) {
+                socketFactory.release();
+            }
+        }
     }
 
-    private static void closeDataSender(DataSender dataSender) {
+	private static void write(StringBuilder buffer, String protcol, String collectorStatIp, int collectorStatPort, boolean udpSenderResult) {
+        buffer.append(protcol);
+        buffer.append(collectorStatIp);
+        buffer.append(":");
+        buffer.append(collectorStatPort);
+        buffer.append("=");
+        buffer.append((udpSenderResult) ? "OK" : "FAILED");
+        buffer.append("\n");
+    }
+
+	private static void closeDataSender(DataSender dataSender) {
         if (dataSender != null) {
             dataSender.stop();
         }
     }
     
     private static PinpointSocketFactory createPinpointSocketFactory() {
-    	PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
+        PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
         pinpointSocketFactory.setTimeoutMillis(1000 * 5);
         pinpointSocketFactory.setProperties(Collections.<String, Object>emptyMap());
         pinpointSocketFactory.setMessageListener(new CommandDispatcher.Builder().build());
 
         return pinpointSocketFactory;
-	}
+    }
 
     
     private static PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory) {
-    	PinpointSocket socket = null;
-    	for (int i = 0; i < 3; i++) {
+
+        RuntimeException lastException = null;
+        for (int i = 0; i < 3; i++) {
             try {
-                socket = factory.connect(host, port);
+                PinpointSocket socket = factory.connect(host, port);
                 LOGGER.info("tcp connect success:{}/{}", host, port);
                 return socket;
             } catch (PinpointSocketException e) {
-            	LOGGER.warn("tcp connect fail:{}/{} try reconnect, retryCount:{}", host, port, i);
+                LOGGER.warn("tcp connect fail:{}/{} try reconnect, retryCount:{}", host, port, i);
+                lastException = e;
             }
         }
-    	LOGGER.warn("change background tcp connect mode  {}/{} ", host, port);
-        socket = factory.scheduledConnect(host, port);
-    	
-        return socket;
+        throw lastException;
     }
     
 }

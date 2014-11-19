@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.nhn.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.bootstrap.util.NumberUtils;
 import com.nhn.pinpoint.common.util.PropertyUtils;
@@ -15,11 +16,35 @@ import com.nhn.pinpoint.common.util.PropertyUtils;
  */
 public class ProfilerConfig {
 
-	private static final Logger logger = Logger.getLogger(ProfilerConfig.class.getName());
+    private final Logger logger = Logger.getLogger(ProfilerConfig.class.getName());
 
-	private boolean profileEnable = false;
+    private final PropertyPlaceholderHelper propertyPlaceholderHelper = new PropertyPlaceholderHelper("${", "}");
 
-	private String collectorSpanServerIp = "127.0.0.1";
+    public static interface ValueResolver {
+        String resolve(String value, Properties properties);
+    }
+
+    private static class BypassResolver implements ValueResolver {
+        public static final ValueResolver RESOLVER = new BypassResolver();
+        @Override
+        public String resolve(String value, Properties properties) {
+            return value;
+        }
+    }
+
+    private class PlaceHolderResolver implements ValueResolver {
+        @Override
+        public String resolve(String value, Properties properties) {
+            if (value == null) {
+                return null;
+            }
+            return propertyPlaceholderHelper.replacePlaceholders(value, properties);
+        }
+    }
+
+    private boolean profileEnable = false;
+
+    private String collectorSpanServerIp = "127.0.0.1";
     private int collectorSpanServerPort = 9996;
 
     private String collectorStatServerIp = "127.0.0.1";
@@ -520,18 +545,21 @@ public class ProfilerConfig {
         this.applicationServerType = applicationServerType;
     }
 
-    private void readPropertyValues(Properties prop) {
-		// TODO : use Properties defaultvalue instead of using temp variable.
+    // fortest
+    void readPropertyValues(Properties prop) {
+        // TODO : use Properties defaultvalue instead of using temp variable.
+        final ValueResolver placeHolderResolver = new PlaceHolderResolver();
 
-		this.profileEnable = readBoolean(prop, "profiler.enable", true);
+        this.profileEnable = readBoolean(prop, "profiler.enable", true);
 
-		this.collectorSpanServerIp = readString(prop, "profiler.collector.span.ip", "127.0.0.1");
+
+        this.collectorSpanServerIp = readString(prop, "profiler.collector.span.ip", "127.0.0.1", placeHolderResolver);
         this.collectorSpanServerPort = readInt(prop, "profiler.collector.span.port", 9996);
 
-        this.collectorStatServerIp = readString(prop, "profiler.collector.stat.ip", "127.0.0.1");
-		this.collectorStatServerPort = readInt(prop, "profiler.collector.stat.port", 9995);
+        this.collectorStatServerIp = readString(prop, "profiler.collector.stat.ip", "127.0.0.1", placeHolderResolver);
+        this.collectorStatServerPort = readInt(prop, "profiler.collector.stat.port", 9995);
 
-        this.collectorTcpServerIp = readString(prop, "profiler.collector.tcp.ip", "127.0.0.1");
+        this.collectorTcpServerIp = readString(prop, "profiler.collector.tcp.ip", "127.0.0.1", placeHolderResolver);
         this.collectorTcpServerPort = readInt(prop, "profiler.collector.tcp.port", 9994);
 
         this.spanDataSenderWriteQueueSize = readInt(prop, "profiler.spandatasender.write.queue.size", 1024 * 5);
@@ -677,14 +705,21 @@ public class ProfilerConfig {
 	}
 
 
+    private String readString(Properties properties, String propertyName, String defaultValue) {
+        return readString(properties, propertyName, defaultValue, BypassResolver.RESOLVER);
+    }
 
-    private String readString(Properties prop, String propertyName, String defaultValue) {
-		String value = prop.getProperty(propertyName, defaultValue);
-		if (logger.isLoggable(Level.INFO)) {
-			logger.info(propertyName + "=" + value);
-		}
-		return value;
-	}
+    private String readString(Properties properties, String propertyName, String defaultValue, ValueResolver valueResolver) {
+        if (valueResolver == null) {
+            throw new NullPointerException("valueResolver must not be null");
+        }
+        String value = properties.getProperty(propertyName, defaultValue);
+        value = valueResolver.resolve(value, properties);
+        if (logger.isLoggable(Level.INFO)) {
+            logger.info(propertyName + "=" + value);
+        }
+        return value;
+    }
 
 	private int readInt(Properties prop, String propertyName, int defaultValue) {
 		String value = prop.getProperty(propertyName);
