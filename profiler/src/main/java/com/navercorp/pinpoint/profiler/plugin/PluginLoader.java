@@ -20,7 +20,6 @@ public class PluginLoader {
         URL[] jars = findJars(pluginPath);
         return new PluginLoader(jars);
     }
-    
 
     public PluginLoader(URL[] jars) {
         this.jars = jars;
@@ -46,6 +45,10 @@ public class PluginLoader {
 
     private static URL[] findJars(String pluginPath) {
         File file = new File(pluginPath);
+        
+        if (!file.exists() || !file.isDirectory()) {
+            return new URL[0];
+        }
         
         File[] jars = file.listFiles(new FilenameFilter() {
             
