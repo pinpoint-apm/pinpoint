@@ -26,27 +26,25 @@ public class ClassEditorBuilderTest {
         Scope aScope = mock(Scope.class);
         
         ClassLoader classLoader = getClass().getClassLoader();
-        String targetClassName = "com.nhn.pinpoint.bootstrap.plugin.Foo";
         String methodName = "someMethod";
-        String[] parameterTypes = new String[] { "java.lang.String" };
+        Class<?>[] parameterTypes = new Class<?>[] { String.class };
+        String[] parameterTypeNames = TypeUtils.toClassNames(parameterTypes);
         String scopeName = "test";
-        byte[] classFileBuffer = BytecodeUtils.getClassFile(classLoader, targetClassName);
-
-        when(instrumentor.getClass(classLoader, targetClassName, classFileBuffer)).thenReturn(aClass);
+        
         when(instrumentor.getScope(scopeName)).thenReturn(aScope);
-        when(aClass.getDeclaredMethod(methodName, parameterTypes)).thenReturn(aMethod);
+        when(aClass.getDeclaredMethod(methodName, parameterTypeNames)).thenReturn(aMethod);
         when(aMethod.getName()).thenReturn(methodName);
-        when(aMethod.getParameterTypes()).thenReturn(parameterTypes);
-        when(aClass.addInterceptor(eq(methodName), eq(parameterTypes), isA(Interceptor.class))).thenReturn(0);
+        when(aMethod.getParameterTypes()).thenReturn(parameterTypeNames);
+        when(aClass.addInterceptor(eq(methodName), eq(parameterTypeNames), isA(Interceptor.class))).thenReturn(0);
         
         
-        ProfilerPluginHelper helper = new ProfilerPluginHelper(instrumentor, traceContext);
-        ClassEditorBuilder builder = helper.getClassEditorBuilderFor(targetClassName);
-        builder.intercept(methodName, parameterTypes).with("com.nhn.pinpoint.bootstrap.plugin.TestInterceptor").constructedWith("provided").in(scopeName);
-        builder.inject(TestMetadata.class).initializeWithDefaultConstructorOf("java.util.HashMap");
+        ProfilerPluginContext helper = new ProfilerPluginContext(instrumentor, traceContext);
+        ClassEditorBuilder builder = helper.newClassEditorBuilder();
+        builder.intercept(methodName, parameterTypeNames).with("com.nhn.pinpoint.bootstrap.plugin.TestInterceptor").constructedWith("provided").in(scopeName);
+        builder.inject("com.nhn.pinpoint.bootstrap.plugin.ClassEditorBuilderTest.TestMetadata").initializeWithDefaultConstructorOf("java.util.HashMap");
         ClassEditor editor = builder.build();
         
-        editor.edit(classLoader, targetClassName, null, classFileBuffer);
+        editor.edit(classLoader, aClass);
         
         verify(aClass).addInterceptor(eq(methodName), isA(String[].class), isA(Interceptor.class));
         verify(aClass).addTraceValue(TestMetadata.class, "new java.util.HashMap();");

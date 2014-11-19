@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.profiler.modifier.tomcat;
 
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 import java.util.Enumeration;
 import java.util.UUID;
@@ -9,18 +8,16 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.nhn.pinpoint.bootstrap.context.Header;
-import com.nhn.pinpoint.profiler.context.MockTraceContextFactory;
-import com.nhn.pinpoint.bootstrap.context.TraceContext;
-import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
-
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.nhn.pinpoint.bootstrap.context.Header;
+import com.nhn.pinpoint.bootstrap.context.TraceContext;
+import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.StandardHostValveInvokeInterceptor;
 
 /**

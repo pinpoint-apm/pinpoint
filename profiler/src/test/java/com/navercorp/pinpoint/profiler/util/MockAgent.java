@@ -7,8 +7,8 @@ import java.util.List;
 import org.apache.thrift.TBase;
 
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
-import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.bootstrap.context.ServerMetaDataHolder;
+import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.profiler.DummyInstrumentation;
 import com.nhn.pinpoint.profiler.context.ResettableServerMetaDataHolder;
@@ -34,15 +34,19 @@ public class MockAgent extends DefaultAgent {
         profilerConfig.readConfigFile(path);
         profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE);
         
-        return new MockAgent("", profilerConfig);
+        return new MockAgent("", "", profilerConfig);
+    }
+    
+    public static MockAgent of(ProfilerConfig config) {
+        return new MockAgent("", "", config);
     }
 
-    public MockAgent(String agentArgs, ProfilerConfig profilerConfig) {
-        this(agentArgs, new DummyInstrumentation(), profilerConfig);
+    public MockAgent(String agentPath, String agentArgs, ProfilerConfig profilerConfig) {
+        this(agentPath, agentArgs, new DummyInstrumentation(), profilerConfig);
     }
 
-    public MockAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig) {
-        super(agentArgs, instrumentation, profilerConfig);
+    public MockAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig) {
+        super(agentPath, agentArgs, instrumentation, profilerConfig);
     }
 
     @Override

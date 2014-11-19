@@ -40,7 +40,7 @@ public class DefaultInterceptorFactory implements InterceptorFactory {
 
     @Override
     public Interceptor getInterceptor(ClassLoader classLoader, InstrumentClass target, MethodInfo targetMethod) {
-        Interceptor interceptor = createInstance(traceContext, classLoader, target, targetMethod);
+        Interceptor interceptor = createInstance(classLoader, traceContext, target, targetMethod);
         
         if (scopeName != null) {
             interceptor = wrapWithScope(interceptor);
@@ -48,17 +48,14 @@ public class DefaultInterceptorFactory implements InterceptorFactory {
         
         return interceptor;
     }
-
-    private Interceptor createInstance(TraceContext traceContext, ClassLoader classLoader, InstrumentClass target, MethodInfo targetMethod) {
+    
+    private Interceptor createInstance(ClassLoader classLoader, TraceContext traceContext, InstrumentClass target, MethodInfo targetMethod) {
         Class<?> interceptorClass;
+        
         try {
             interceptorClass = classLoader.loadClass(interceptorClassName);
         } catch (ClassNotFoundException e) {
-            throw new PinpointException("Cannot find interceptor class: " + interceptorClassName, e);
-        }
-        
-        if (!Interceptor.class.isAssignableFrom(interceptorClass)) {
-            throw new PinpointException("Given class " + interceptorClassName + " is not implementing Interceptor");
+            throw new PinpointException("Cannot load interceptor class: " + interceptorClassName, e);
         }
         
         Constructor<?>[] constructors = interceptorClass.getConstructors();
@@ -73,7 +70,7 @@ public class DefaultInterceptorFactory implements InterceptorFactory {
             }
         }
         
-        throw new PinpointException("Cannot find suitable constructor for " + interceptorClassName);
+        throw new PinpointException("Cannot find suitable constructor for " + interceptorClass.getName());
     }
     
     private Object invokeConstructor(Constructor<?> constructor, Object[] arguments) {

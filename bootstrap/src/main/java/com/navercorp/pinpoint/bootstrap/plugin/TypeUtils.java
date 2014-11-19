@@ -24,4 +24,15 @@ public abstract class TypeUtils {
         
         throw new IllegalArgumentException("Unexpected argument: " + primitive);
     }
+    
+    public static String[] toClassNames(Class<?>... classes) {
+        int length = classes.length;
+        String[] result = new String[length];
+        
+        for (int i = 0; i < length; i++) {
+            result[i] = classes[i].getName();
+        }
+        
+        return result;
+    }
 }

@@ -7,14 +7,6 @@ import com.nhn.pinpoint.bootstrap.Agent;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.ClassFileRetransformer;
-import com.nhn.pinpoint.profiler.modifier.arcus.ArcusClientModifier;
-import com.nhn.pinpoint.profiler.modifier.arcus.BaseOperationModifier;
-import com.nhn.pinpoint.profiler.modifier.arcus.CacheManagerModifier;
-import com.nhn.pinpoint.profiler.modifier.arcus.CollectionFutureModifier;
-import com.nhn.pinpoint.profiler.modifier.arcus.GetFutureModifier;
-import com.nhn.pinpoint.profiler.modifier.arcus.ImmediateFutureModifier;
-import com.nhn.pinpoint.profiler.modifier.arcus.MemcachedClientModifier;
-import com.nhn.pinpoint.profiler.modifier.arcus.OperationFutureModifier;
 import com.nhn.pinpoint.profiler.modifier.bloc.handler.HTTPHandlerModifier;
 import com.nhn.pinpoint.profiler.modifier.bloc4.NettyInboundHandlerModifier;
 import com.nhn.pinpoint.profiler.modifier.bloc4.NpcHandlerModifier;
@@ -114,13 +106,13 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         return registry.get(className);
     }
 
-    private void addModifier(AbstractModifier modifier) {
+    public void addModifier(AbstractModifier modifier) {
         AbstractModifier old = registry.put(modifier.getTargetClass(), modifier);
         if (old != null) {
             throw new IllegalStateException("Modifier already exist new:" + modifier.getClass() + " old:" + old.getTargetClass());
         }
     }
-
+    
     public void addMethodModifier() {
         MethodModifier methodModifier = new MethodModifier(byteCodeInstrumentor, agent);
         addModifier(methodModifier);
@@ -149,57 +141,6 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         
         //apache http client retry
         addModifier(new DefaultHttpRequestRetryHandlerModifier(byteCodeInstrumentor, agent));
-    }
-
-    public void addArcusModifier() {
-        final boolean arcus = profilerConfig.isArucs();
-        boolean memcached;
-        if (arcus) {
-            // arcus가 true일 경우 memcached는 자동으로 true가 되야 한다.
-            memcached = true;
-        } else {
-            memcached = profilerConfig.isMemcached();
-        }
-
-        if (memcached) {
-            BaseOperationModifier baseOperationModifier = new BaseOperationModifier(byteCodeInstrumentor, agent);
-            addModifier(baseOperationModifier);
-
-            MemcachedClientModifier memcachedClientModifier = new MemcachedClientModifier(byteCodeInstrumentor, agent);
-            addModifier(memcachedClientModifier);
-
-//            FrontCacheMemcachedClientModifier frontCacheMemcachedClientModifier = new FrontCacheMemcachedClientModifier(byteCodeInstrumentor, agent);
-//            관련 수정에 사이드 이펙트가 있이서 일단 disable함.
-//            addModifier(frontCacheMemcachedClientModifier);
-
-            if (arcus) {
-                ArcusClientModifier arcusClientModifier = new ArcusClientModifier(byteCodeInstrumentor, agent);
-                addModifier(arcusClientModifier);
-                // arcus의 Future임
-                CollectionFutureModifier collectionFutureModifier = new CollectionFutureModifier(byteCodeInstrumentor, agent);
-                addModifier(collectionFutureModifier);
-            }
-
-            // future modifier start ---------------------------------------------------
-
-            GetFutureModifier getFutureModifier = new GetFutureModifier(byteCodeInstrumentor, agent);
-            addModifier(getFutureModifier);
-
-            ImmediateFutureModifier immediateFutureModifier = new ImmediateFutureModifier(byteCodeInstrumentor, agent);
-            addModifier(immediateFutureModifier);
-
-            OperationFutureModifier operationFutureModifier = new OperationFutureModifier(byteCodeInstrumentor, agent);
-            addModifier(operationFutureModifier);
-
-//            FrontCacheGetFutureModifier frontCacheGetFutureModifier = new FrontCacheGetFutureModifier(byteCodeInstrumentor, agent);
-            //            관련 수정에 사이드 이펙트가 있이서 일단 disable함.
-//            addModifier(frontCacheGetFutureModifier);
-
-            // future modifier end ---------------------------------------------------
-
-            CacheManagerModifier cacheManagerModifier = new CacheManagerModifier(byteCodeInstrumentor, agent);
-            addModifier(cacheManagerModifier);
-        }
     }
 
     /**

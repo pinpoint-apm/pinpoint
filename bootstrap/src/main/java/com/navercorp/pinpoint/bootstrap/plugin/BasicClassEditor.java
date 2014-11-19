@@ -1,33 +1,25 @@
 package com.nhn.pinpoint.bootstrap.plugin;
 
-import java.security.ProtectionDomain;
 import java.util.List;
 
-import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.nhn.pinpoint.exception.PinpointException;
 
 public class BasicClassEditor implements DedicatedClassEditor {
-    private final ByteCodeInstrumentor instrumentor;
-    
     private final String targetClassName;
-    
     private final List<MetadataInjector> metadataInjectors;
     private final List<InterceptorInjector> interceptorInjectors;
     
 
-    public BasicClassEditor(ByteCodeInstrumentor instrumentor, String targetClassName, List<MetadataInjector> metadataInjectors, List<InterceptorInjector> interceptorInjectors) {
-        this.instrumentor = instrumentor;
+    public BasicClassEditor(String targetClassName, List<MetadataInjector> metadataInjectors, List<InterceptorInjector> interceptorInjectors) {
         this.targetClassName = targetClassName;
         this.metadataInjectors = metadataInjectors;
         this.interceptorInjectors = interceptorInjectors;
     }
 
     @Override
-    public byte[] edit(ClassLoader classLoader, String className, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+    public byte[] edit(ClassLoader classLoader, InstrumentClass target) {
         try {
-            InstrumentClass target = instrumentor.getClass(classLoader, className, classFileBuffer);
-            
             for (MetadataInjector injector : metadataInjectors) {
                 injector.inject(classLoader, target); 
             }
@@ -46,4 +38,6 @@ public class BasicClassEditor implements DedicatedClassEditor {
     public String getTargetClassName() {
         return targetClassName;
     }
+    
+    
 }

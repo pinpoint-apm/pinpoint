@@ -81,7 +81,7 @@ public class PinpointBootStrap {
             AgentClassLoader agentClassLoader = new AgentClassLoader(libUrlList.toArray(new URL[libUrlList.size()]));
             agentClassLoader.setBootClass(BOOT_CLASS);
             logger.info("pinpoint agent start.");
-            agentClassLoader.boot(agentArgs, instrumentation, profilerConfig);
+            agentClassLoader.boot(classPathResolver.getAgentDirPath(), agentArgs, instrumentation, profilerConfig);
             logger.info("pinpoint agent start success.");
             loadStateChange(BOOT_STRAP_LOAD_STATE_COMPLETE);
         } catch (Exception e) {

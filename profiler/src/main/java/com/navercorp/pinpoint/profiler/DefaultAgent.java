@@ -28,7 +28,6 @@ import com.nhn.pinpoint.profiler.context.storage.SpanStorageFactory;
 import com.nhn.pinpoint.profiler.context.storage.StorageFactory;
 import com.nhn.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
-import com.nhn.pinpoint.profiler.modifier.arcus.ArcusMethodFilter;
 import com.nhn.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.nhn.pinpoint.profiler.receiver.CommandDispatcher;
 import com.nhn.pinpoint.profiler.sampler.SamplerFactory;
@@ -59,6 +58,7 @@ public class DefaultAgent implements Agent {
     private final ByteCodeInstrumentor byteCodeInstrumentor;
     private final ClassFileTransformer classFileTransformer;
     
+    private final String agentPath;
     private final ProfilerConfig profilerConfig;
 
     private final AgentInfoSender agentInfoSender;
@@ -84,14 +84,17 @@ public class DefaultAgent implements Agent {
         ClassPreLoader.preload();
     }
 
-    public DefaultAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig) {
+    public DefaultAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig) {
+        if (agentPath == null) {
+            throw new NullPointerException("agentPath must not be null");
+        }
         if (instrumentation == null) {
             throw new NullPointerException("instrumentation must not be null");
         }
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
-
+        
         this.binder = new Slf4jLoggerBinder();
         bindPLoggerFactory(this.binder);
 
@@ -100,6 +103,7 @@ public class DefaultAgent implements Agent {
 
         changeStatus(AgentStatus.INITIALIZING);
 
+        this.agentPath = agentPath;
         this.profilerConfig = profilerConfig;
 
         final ApplicationServerTypeResolver typeResolver = new ApplicationServerTypeResolver(profilerConfig.getApplicationServerType());
@@ -111,12 +115,6 @@ public class DefaultAgent implements Agent {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
         }
         
-        ClassFileRetransformer retransformer = new ClassFileRetransformer(instrumentation);
-        instrumentation.addTransformer(retransformer, true);
-        this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor, retransformer);
-        instrumentation.addTransformer(this.classFileTransformer);
-        
-
         final AgentInformationFactory agentInformationFactory = new AgentInformationFactory();
         this.agentInformation = agentInformationFactory.createAgentInformation(typeResolver.getServerType());
         logger.info("agentInformation:{}", agentInformation);
@@ -141,6 +139,13 @@ public class DefaultAgent implements Agent {
 
         // JVM 통계 등을 주기적으로 수집하여 collector에 전송하는 monitor를 초기화한다.
         this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId(), this.agentInformation.getStartTime());
+        
+        
+        ClassFileRetransformer retransformer = new ClassFileRetransformer(instrumentation);
+        instrumentation.addTransformer(retransformer, true);
+        this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor, retransformer);
+        instrumentation.addTransformer(this.classFileTransformer);
+
 
         preLoadClass();
 
@@ -154,7 +159,6 @@ public class DefaultAgent implements Agent {
     }
 
     private void preLoadClass() {
-        logger.debug("preLoadClass:{}", new ArcusMethodFilter().getClass().getName());
         logger.debug("preLoadClass:{}", PreparedStatementUtils.class.getName(), PreparedStatementUtils.findBindVariableSetMethod());
     }
 
@@ -309,6 +313,10 @@ public class DefaultAgent implements Agent {
 
     public AgentInformation getAgentInformation() {
         return agentInformation;
+    }
+    
+    public String getAgentPath() {
+        return agentPath;
     }
     
     @Override
