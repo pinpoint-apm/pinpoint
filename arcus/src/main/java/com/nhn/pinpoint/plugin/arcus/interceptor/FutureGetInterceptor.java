@@ -8,14 +8,10 @@ import net.spy.memcached.ops.Operation;
 
 import com.nhn.pinpoint.bootstrap.context.Trace;
 import com.nhn.pinpoint.bootstrap.context.TraceContext;
-import com.nhn.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
 import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.nhn.pinpoint.bootstrap.util.MetaObject;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.plugin.arcus.accessor.OperationAccessor;
 import com.nhn.pinpoint.plugin.arcus.accessor.ServiceCodeAccessor;

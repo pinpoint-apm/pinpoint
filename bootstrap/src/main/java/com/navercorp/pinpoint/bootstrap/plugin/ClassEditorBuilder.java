@@ -6,8 +6,6 @@ import java.util.List;
 import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
-import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
 import com.nhn.pinpoint.bootstrap.plugin.MetadataInitializationStrategy.ByConstructor;
 
 public class ClassEditorBuilder {
@@ -17,6 +15,7 @@ public class ClassEditorBuilder {
     private final List<InterceptorBuilder> interceptorBuilders = new ArrayList<InterceptorBuilder>();
     private final List<MetadataBuilder> metadataBuilders = new ArrayList<MetadataBuilder>();
     
+    private String targetClassName;
     private Condition condition;
     
     public ClassEditorBuilder(ByteCodeInstrumentor instrumentor, TraceContext traceContext) {
@@ -24,13 +23,18 @@ public class ClassEditorBuilder {
         this.traceContext = traceContext;
     }
     
-    public ClassEditorBuilder editWhen(Condition condition) {
+    public ClassEditorBuilder edit(String targetClassName) {
+        this.targetClassName = targetClassName;
+        return this;
+    }
+    
+    public ClassEditorBuilder when(Condition condition) {
         this.condition = condition;
         return this;
     }
 
-    public InterceptorBuilder intercept(String methodName, Class<?>... parameterTypes) {
-        InterceptorBuilder interceptorBuilder = new InterceptorBuilder(methodName, parameterTypes, null);
+    public InterceptorBuilder intercept(String methodName, String... parameterTypeNames) {
+        InterceptorBuilder interceptorBuilder = new InterceptorBuilder(methodName, parameterTypeNames, null);
         interceptorBuilders.add(interceptorBuilder);
         return interceptorBuilder;
     }
@@ -41,19 +45,19 @@ public class ClassEditorBuilder {
         return interceptorBuilder;
     }
     
-    public InterceptorBuilder interceptConstructor(Class<?>... parameterTypes) {
-        InterceptorBuilder interceptorBuilder = new InterceptorBuilder(null, parameterTypes, null);
+    public InterceptorBuilder interceptConstructor(String... parameterTypeNames) {
+        InterceptorBuilder interceptorBuilder = new InterceptorBuilder(null, parameterTypeNames, null);
         interceptorBuilders.add(interceptorBuilder);
         return interceptorBuilder;
     }
     
-    public MetadataBuilder inject(Class<? extends TraceValue> metadataType) {
-        MetadataBuilder metadataBuilder = new MetadataBuilder(metadataType);
+    public MetadataBuilder inject(String metadataAccessorName) {
+        MetadataBuilder metadataBuilder = new MetadataBuilder(metadataAccessorName);
         metadataBuilders.add(metadataBuilder);
         return metadataBuilder;
     }
     
-    public ClassEditor build() {
+    public DedicatedClassEditor build() {
         List<MetadataInjector> metadataInjectors = new ArrayList<MetadataInjector>(metadataBuilders.size());
         
         for (MetadataBuilder builder : metadataBuilders) {
@@ -66,7 +70,7 @@ public class ClassEditorBuilder {
             interceptorInjectors.add(builder.build());
         }
         
-        ClassEditor editor = new BasicClassEditor(metadataInjectors, interceptorInjectors);
+        DedicatedClassEditor editor = new BasicClassEditor(targetClassName, metadataInjectors, interceptorInjectors);
         
         if (condition != null) {
             editor = new ConditionalClassEditor(condition, editor);
@@ -80,16 +84,16 @@ public class ClassEditorBuilder {
         private final String[] parameterTypes;
         private final MethodFilter filter;
         
-        private Class<? extends Interceptor> interceptorClass;
+        private String interceptorClassName;
         private Condition condition;
         private String scopeName;
         private Object[] constructorArguments;
         private ParameterExtractorFactory parameterExtractorFactory;
         private boolean singleton;
         
-        public InterceptorBuilder(String methodName, Class<?>[] parameterTypes, MethodFilter filter) {
+        public InterceptorBuilder(String methodName, String[] parameterTypeNames, MethodFilter filter) {
             this.methodName = methodName;
-            this.parameterTypes = TypeUtils.toClassNames(parameterTypes);
+            this.parameterTypes = parameterTypeNames;
             this.filter = filter;
         }
 
@@ -98,8 +102,8 @@ public class ClassEditorBuilder {
             return this;
         }
 
-        public InterceptorBuilder with(Class<? extends Interceptor> interceptorClass) {
-            this.interceptorClass = interceptorClass;
+        public InterceptorBuilder with(String interceptorClassName) {
+            this.interceptorClassName = interceptorClassName;
             return this;
         }
         
@@ -124,7 +128,7 @@ public class ClassEditorBuilder {
         }
         
         private InterceptorInjector build() {
-            InterceptorFactory interceptorFactory = new DefaultInterceptorFactory(instrumentor, traceContext, interceptorClass, constructorArguments, parameterExtractorFactory, scopeName);
+            InterceptorFactory interceptorFactory = new DefaultInterceptorFactory(instrumentor, traceContext, interceptorClassName, constructorArguments, parameterExtractorFactory, scopeName);
             
             InterceptorInjector injector;
             
@@ -145,11 +149,11 @@ public class ClassEditorBuilder {
     }
     
     public class MetadataBuilder {
-        private final Class<? extends TraceValue> metadataType;
+        private final String metadataAccessorTypeName;
         private MetadataInitializationStrategy initializationStrategy;
         
-        public MetadataBuilder(Class<? extends TraceValue> metadataType) {
-            this.metadataType = metadataType;
+        public MetadataBuilder(String metadataAccessorTypeName) {
+            this.metadataAccessorTypeName = metadataAccessorTypeName;
         }
         
         public MetadataBuilder initializeWithDefaultConstructorOf(String className) {
@@ -158,7 +162,7 @@ public class ClassEditorBuilder {
         }
         
         private MetadataInjector build() {
-            return new DefaultMetadataInjector(metadataType, initializationStrategy);
+            return new DefaultMetadataInjector(metadataAccessorTypeName, initializationStrategy);
         }
     }
 }

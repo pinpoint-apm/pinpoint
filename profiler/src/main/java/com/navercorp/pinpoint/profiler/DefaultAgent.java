@@ -115,12 +115,6 @@ public class DefaultAgent implements Agent {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
         }
         
-        ClassFileRetransformer retransformer = new ClassFileRetransformer(instrumentation);
-        instrumentation.addTransformer(retransformer, true);
-        this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor, retransformer);
-        instrumentation.addTransformer(this.classFileTransformer);
-        
-
         final AgentInformationFactory agentInformationFactory = new AgentInformationFactory();
         this.agentInformation = agentInformationFactory.createAgentInformation(typeResolver.getServerType());
         logger.info("agentInformation:{}", agentInformation);
@@ -145,6 +139,13 @@ public class DefaultAgent implements Agent {
 
         // JVM 통계 등을 주기적으로 수집하여 collector에 전송하는 monitor를 초기화한다.
         this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId(), this.agentInformation.getStartTime());
+        
+        
+        ClassFileRetransformer retransformer = new ClassFileRetransformer(instrumentation);
+        instrumentation.addTransformer(retransformer, true);
+        this.classFileTransformer = new ClassFileTransformerDispatcher(this, byteCodeInstrumentor, retransformer);
+        instrumentation.addTransformer(this.classFileTransformer);
+
 
         preLoadClass();
 

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.arcus.interceptor;
+package com.nhn.pinpoint.plugin.arcus.interceptor;
 
 import static org.mockito.Mockito.*;
 

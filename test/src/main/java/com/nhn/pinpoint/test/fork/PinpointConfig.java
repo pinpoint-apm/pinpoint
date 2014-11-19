@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.util;
+package com.nhn.pinpoint.test.fork;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

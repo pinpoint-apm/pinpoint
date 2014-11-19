@@ -68,13 +68,20 @@
         <module>profiler</module>
         <module>profiler-optional</module>
         <module>rpc</module>
+        <module>test</module>
         <module>thrift</module>
         <module>web</module>
+        
+        <!-- plugins -->
+        <module>arcus</module>
     </modules>
 
     <properties>
         <pinpoint-version>1.0.4-SNAPSHOT</pinpoint-version>
-
+        
+        <pinpoint.agent.directory>build/pinpoint-agent</pinpoint.agent.directory>
+        <pinpoint.agent.plugin.directory>${pinpoint.agent.directory}/plugin</pinpoint.agent.plugin.directory>
+        
         <encoding>UTF-8</encoding>
         <jdk.version>1.6</jdk.version>
         <slf4j.version>1.7.5</slf4j.version>
@@ -669,19 +676,6 @@
                 <version>1.7</version>
             </plugin>
             <plugin>
-                <groupId>com.nhncorp.maven</groupId>
-                <artifactId>maven-revision-plugin</artifactId>
-                <version>1.0.0</version>
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>create</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.17</version>
@@ -724,7 +718,7 @@
                 <artifactId>maven-klocwork-plugin</artifactId>
                 <version>1.0.0</version>
             </plugin>
-            </plugins>
+        </plugins>
     </build>
 
     <reporting>

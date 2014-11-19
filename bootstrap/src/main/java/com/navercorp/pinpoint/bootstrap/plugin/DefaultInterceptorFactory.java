@@ -22,17 +22,17 @@ public class DefaultInterceptorFactory implements InterceptorFactory {
     private final ByteCodeInstrumentor instrumentor;
     private final TraceContext traceContext;
     
-    private final Class<? extends Interceptor> interceptorClass;
+    private final String interceptorClassName;
     private final Object[] providedArguments;
     
     private final ParameterExtractorFactory parameterExtractorFactory;
     private final String scopeName;
     
     
-    public DefaultInterceptorFactory(ByteCodeInstrumentor instrumentor, TraceContext traceContext, Class<? extends Interceptor> interceptorClass, Object[] providedArguments, ParameterExtractorFactory parameterExtractorFactory, String scopeName) {
+    public DefaultInterceptorFactory(ByteCodeInstrumentor instrumentor, TraceContext traceContext, String interceptorClassName, Object[] providedArguments, ParameterExtractorFactory parameterExtractorFactory, String scopeName) {
         this.instrumentor = instrumentor;
         this.traceContext = traceContext;
-        this.interceptorClass = interceptorClass;
+        this.interceptorClassName = interceptorClassName;
         this.providedArguments = providedArguments == null ? NO_ARGS : providedArguments;
         this.parameterExtractorFactory = parameterExtractorFactory;
         this.scopeName = scopeName;
@@ -40,7 +40,7 @@ public class DefaultInterceptorFactory implements InterceptorFactory {
 
     @Override
     public Interceptor getInterceptor(ClassLoader classLoader, InstrumentClass target, MethodInfo targetMethod) {
-        Interceptor interceptor = createInstance(traceContext, classLoader, target, targetMethod);
+        Interceptor interceptor = createInstance(classLoader, traceContext, target, targetMethod);
         
         if (scopeName != null) {
             interceptor = wrapWithScope(interceptor);
@@ -48,8 +48,16 @@ public class DefaultInterceptorFactory implements InterceptorFactory {
         
         return interceptor;
     }
-
-    private Interceptor createInstance(TraceContext traceContext, ClassLoader classLoader, InstrumentClass target, MethodInfo targetMethod) {
+    
+    private Interceptor createInstance(ClassLoader classLoader, TraceContext traceContext, InstrumentClass target, MethodInfo targetMethod) {
+        Class<?> interceptorClass;
+        
+        try {
+            interceptorClass = classLoader.loadClass(interceptorClassName);
+        } catch (ClassNotFoundException e) {
+            throw new PinpointException("Cannot load interceptor class: " + interceptorClassName, e);
+        }
+        
         Constructor<?>[] constructors = interceptorClass.getConstructors();
         Arrays.sort(constructors, CONSTRUCTOR_COMPARATOR);
         

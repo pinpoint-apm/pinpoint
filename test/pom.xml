@@ -8,13 +8,19 @@
     </parent>
 
     <artifactId>pinpoint-test</artifactId>
-    <name>pinpoint test helper libraries</name>
+    <name>pinpoint test helper</name>
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
             <groupId>com.nhn.pinpoint</groupId>
             <artifactId>pinpoint-profiler</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>compile</scope>
         </dependency>
 
         <!-- Logging depedencies -->

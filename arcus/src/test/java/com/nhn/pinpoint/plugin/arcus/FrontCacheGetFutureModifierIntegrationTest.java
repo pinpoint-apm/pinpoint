@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.arcus;
+package com.nhn.pinpoint.plugin.arcus;
 
 import com.nhn.pinpoint.common.bo.SpanEventBo;
 import com.nhn.pinpoint.profiler.junit4.BasePinpointTest;

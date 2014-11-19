@@ -1,12 +1,5 @@
-package com.nhn.pinpoint.test.fork;
+package com.nhn.pinpoint.profiler.util;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.regex.Pattern;
 
 import org.junit.runner.Description;
@@ -16,7 +9,6 @@ import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
 
 public class ForkedJUnit {
-    static final String CHILD_CLASS_PATH_PREFIX = "-child=";
     static final String JUNIT_OUTPUT_DELIMETER = "#####";
     static final String JUNIT_OUTPUT_DELIMETER_REGEXP = Pattern.quote(JUNIT_OUTPUT_DELIMETER);
     private static boolean forked = false;
@@ -26,60 +18,20 @@ public class ForkedJUnit {
     }
     
 
-    public static void main(String[] args) throws ClassNotFoundException, MalformedURLException {
+    public static void main(String[] args) throws ClassNotFoundException {
         forked = true;
         
-        int from = 0;
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        Class<?>[] classes = new Class<?>[args.length];
         
-        if (args[0].startsWith(CHILD_CLASS_PATH_PREFIX)) {
-            String jars = args[0].substring(CHILD_CLASS_PATH_PREFIX.length());
-            List<URL> urls = getJarUrls(jars);
-            classLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]), classLoader);
-            from = 1;
+        for (int i = 0; i < args.length; i++) {
+            classes[i] = Class.forName(args[i]);
         }
         
-        List<String> testClassNames = Arrays.asList(args).subList(from, args.length);
-        List<Class<?>> classes = loadTestClasses(classLoader, testClassNames);
-        
-        Result result = runTests(classes);
-        
-        System.exit(result.getFailureCount());
-    }
-
-
-    private static Result runTests(List<Class<?>> classes) {
         JUnitCore junit = new JUnitCore();
         junit.addListener(new PrintListener());
-        Result result = junit.run(classes.toArray(new Class<?>[classes.size()]));
-        return result;
-    }
-
-
-    private static List<URL> getJarUrls(String jars) throws MalformedURLException {
-        String[] tokens = jars.split(File.pathSeparator);
+        Result result = junit.run(classes);
         
-        List<URL> urls = new ArrayList<URL>(tokens.length);
-        for (String token : tokens) {
-            File file = new File(token);
-            urls.add(file.toURI().toURL());
-        }
-        return urls;
-    }
-
-
-    private static List<Class<?>> loadTestClasses(ClassLoader classLoader, List<String> testClassNames) throws ClassNotFoundException {
-        List<Class<?>> classes = new ArrayList<Class<?>>(testClassNames.size());
-
-        ClassLoader old = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(classLoader);
-        
-        for (String testClassName : testClassNames) {
-            classes.add(classLoader.loadClass(testClassName));
-        }
-
-        Thread.currentThread().setContextClassLoader(old);
-        return classes;
+        System.exit(result.getFailureCount());
     }
     
     private static class PrintListener extends RunListener {

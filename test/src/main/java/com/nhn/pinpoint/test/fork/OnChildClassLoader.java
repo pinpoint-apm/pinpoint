@@ -7,6 +7,5 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface PinpointAgentPath {
-    String value() default "target/pinpoint-agent";
+public @interface OnChildClassLoader {
 }

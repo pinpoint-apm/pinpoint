@@ -1,13 +1,14 @@
 package com.nhn.pinpoint.bootstrap.interceptor;
 
-import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
-import com.nhn.pinpoint.bootstrap.context.Trace;
+import static org.mockito.Mockito.*;
 import junit.framework.Assert;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.mockito.Mockito.*;
+import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
+import com.nhn.pinpoint.bootstrap.context.Trace;
 
 
 public class SpanSimpleAroundInterceptorTest {

@@ -11,7 +11,8 @@ import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.nhn.pinpoint.bootstrap.plugin.ClassEditorFactoryMapping;
+import com.nhn.pinpoint.bootstrap.plugin.ClassEditor;
+import com.nhn.pinpoint.bootstrap.plugin.DedicatedClassEditor;
 import com.nhn.pinpoint.bootstrap.plugin.PluginClassLoaderFactory;
 import com.nhn.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.nhn.pinpoint.bootstrap.plugin.ProfilerPluginContext;
@@ -63,13 +64,22 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
 
     @Override
     public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws IllegalClassFormatException {
-
+        if (className.contains("CacheManager")) {
+            logger.debug("Start CacheManager");
+        }
+        
         if (skipFilter.doFilter(classLoader, className, classBeingRedefined, protectionDomain, classFileBuffer)) {
+            if (className.equals("net/spy/memcached/CacheManager")) {
+                logger.debug("skip CacheManager");
+            }
             return null;
         }
 
         AbstractModifier findModifier = this.modifierRegistry.findModifier(className);
         if (findModifier == null) {
+            if (className.equals("net/spy/memcached/CacheManager")) {
+                logger.debug("no modifier for CacheManager");
+            }
             // TODO : 디버그 용도로 추가함
             // TODO : modifier가 중복 적용되면 어떻게 되지???
             if (this.profilerConfig.getProfilableClassFilter().filter(className)) {
@@ -171,8 +181,16 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         ProfilerPluginContext pluginContext = new ProfilerPluginContext(byteCodeInstrumentor, agent.getTraceContext());
         
         for (ProfilerPlugin plugin : plugins) {
-            for (ClassEditorFactoryMapping mapping : plugin.getClassEditorMappings(pluginContext)) {
-                modifierRepository.addModifier(new ClassEditorAdaptor(byteCodeInstrumentor, agent, mapping, pluginContext, classLoaderFactory));
+            logger.info("Loading plugin: {}", plugin.getClass().getName());
+            
+            for (ClassEditor editor : plugin.getClassEditors(pluginContext)) {
+                if (editor instanceof DedicatedClassEditor) {
+                    DedicatedClassEditor dedicated = (DedicatedClassEditor)editor;
+                    logger.info("Registering class editor {} for {} ", dedicated.getClass().getName(), dedicated.getTargetClassName());
+                    modifierRepository.addModifier(new ClassEditorAdaptor(byteCodeInstrumentor, agent, dedicated, classLoaderFactory));
+                } else {
+                    logger.warn("Ignore class editor {}", editor.getClass().getName());
+                }
             }
         }
     }

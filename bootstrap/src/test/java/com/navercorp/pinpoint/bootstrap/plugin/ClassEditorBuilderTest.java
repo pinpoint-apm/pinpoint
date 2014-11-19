@@ -40,8 +40,8 @@ public class ClassEditorBuilderTest {
         
         ProfilerPluginContext helper = new ProfilerPluginContext(instrumentor, traceContext);
         ClassEditorBuilder builder = helper.newClassEditorBuilder();
-        builder.intercept(methodName, parameterTypes).with(TestInterceptor.class).constructedWith("provided").in(scopeName);
-        builder.inject(TestMetadata.class).initializeWithDefaultConstructorOf("java.util.HashMap");
+        builder.intercept(methodName, parameterTypeNames).with("com.nhn.pinpoint.bootstrap.plugin.TestInterceptor").constructedWith("provided").in(scopeName);
+        builder.inject("com.nhn.pinpoint.bootstrap.plugin.ClassEditorBuilderTest.TestMetadata").initializeWithDefaultConstructorOf("java.util.HashMap");
         ClassEditor editor = builder.build();
         
         editor.edit(classLoader, aClass);

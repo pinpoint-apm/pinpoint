@@ -19,7 +19,11 @@ import com.nhn.pinpoint.plugin.arcus.accessor.ServiceCodeAccessor;
  */
 public class ApiInterceptor extends SpanEventSimpleAroundInterceptor {
     private final ParameterExtractor parameterExtractor;
-
+    
+    public ApiInterceptor() {
+        this(null);
+    }
+    
     public ApiInterceptor(ParameterExtractor parameterExtractor) {
         super(ApiInterceptor.class);
         this.parameterExtractor = parameterExtractor;

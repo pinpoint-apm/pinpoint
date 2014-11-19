@@ -1,7 +1,9 @@
-package com.nhn.pinpoint.profiler.util;
+package com.nhn.pinpoint.test.fork;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -20,19 +22,24 @@ import org.junit.runners.model.Statement;
 import com.nhn.pinpoint.common.Version;
 
 public class ForkRunner extends BlockJUnit4ClassRunner {
+    private static final String[] REQUIRED_CLASS_PATHS = new String[] {
+        "junit",
+        "pinpoint-test",
+        "pinpoint/test"
+    };
+    
     private final String agentJar;
     private final String configPath;
+    private final boolean testOnChildClassLoader;
+    private final String[] excludedLibraries;
+    private final String[] includedLibraries;
 
     public ForkRunner(Class<?> klass) throws InitializationError {
         super(klass);
 
-        PinpointAgent path = klass.getAnnotation(PinpointAgent.class);
- 
-        if (path != null && path.value() != null) {
-            agentJar = path.value();
-        } else {
-            agentJar = "target/pinpoint-agent/pinpoint-bootstrap-" + Version.VERSION + ".jar";
-        }
+        PinpointAgentPath path = klass.getAnnotation(PinpointAgentPath.class);
+        String agentPath = (path != null && path.value() != null) ? path.value() : "target/pinpoint-agent";
+        agentJar = agentPath + "/pinpoint-bootstrap-" + Version.VERSION + ".jar";
 
         PinpointConfig config = klass.getAnnotation(PinpointConfig.class);
 
@@ -41,6 +48,14 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
         } else {
             configPath = null;
         }
+        
+        testOnChildClassLoader = klass.isAnnotationPresent(OnChildClassLoader.class);
+        
+        ExcludeLibraries exclude = klass.getAnnotation(ExcludeLibraries.class);
+        excludedLibraries = exclude == null ? new String[0] : exclude.value();
+        
+        WithLibraries include = klass.getAnnotation(WithLibraries.class);
+        includedLibraries = include == null ? new String[0] : include.value();
     }
 
     @Override
@@ -67,6 +82,9 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
 
             builder.command(buildCommand());
             builder.redirectErrorStream(true);
+            
+            System.out.println("Working directory: " + System.getProperty("user.dir"));
+            System.out.println("Command: " + builder.command());
 
             Process process;
             try {
@@ -120,26 +138,44 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
             }
         }
 
-        private String[] buildCommand() {
+        private String[] buildCommand() throws URISyntaxException {
             List<String> list = new ArrayList<String>();
 
             list.add(getJavaExecutable());
             list.add("-cp");
             list.add(getClassPath());
             list.add(getAgent());
+            
             list.add("-Dpinpoint.agentId=build.test.0");
             list.add("-Dpinpoint.applicationName=test");
+            
+            if (isDebugMode()) {
+                list.addAll(getDebugOptions());
+            }
 
             if (configPath != null) {
                 list.add("-Dpinpoint.config=" + configPath);
             }
 
             list.add(ForkedJUnit.class.getName());
+            
+            if (testOnChildClassLoader) {
+                list.add(getChildClassPath());
+            }
+            
             list.add(getTestClass().getName());
 
             return list.toArray(new String[list.size()]);
         }
-
+        
+        private boolean isDebugMode() {
+            return ManagementFactory.getRuntimeMXBean().getInputArguments().toString().contains("jdwp");
+        }
+        
+        private List<String> getDebugOptions() {
+            return Arrays.asList("-Xdebug", "-agentlib:jdwp=transport=dt_socket,address=1296,server=y,suspend=y");
+        }
+        
         private String getAgent() {
             return "-javaagent:" + agentJar;
         }
@@ -159,19 +195,63 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
 
             return builder.toString();
         }
-
-        private String getClassPath() {
-            URLClassLoader cl = (URLClassLoader) ClassLoader.getSystemClassLoader();
+        
+        private String getClassPath() throws URISyntaxException {
             StringBuilder classPath = new StringBuilder();
 
-            for (URL url : cl.getURLs()) {
-                classPath.append(url.getPath());
-                classPath.append(File.pathSeparatorChar);
+            if (testOnChildClassLoader) {
+                URLClassLoader cl = (URLClassLoader) ClassLoader.getSystemClassLoader();
+
+                outer:
+                for (URL url : cl.getURLs()) {
+                    for (String required : REQUIRED_CLASS_PATHS) {
+                        if (url.getFile().contains(required)) {
+                            classPath.append(new File(url.toURI()).getAbsolutePath());
+                            classPath.append(File.pathSeparatorChar);
+                            continue outer;
+                        }
+                    }
+                }
+            } else {
+                appendClassPath(classPath);
             }
 
             return classPath.toString();
         }
+        
+        private void appendClassPath(StringBuilder classPath) throws URISyntaxException {
+            URLClassLoader cl = (URLClassLoader) ClassLoader.getSystemClassLoader();
+            
+            outer:
+            for (URL url : cl.getURLs()) {
+                String urlAsString = url.toString();
 
+                for (String exclude : excludedLibraries) {
+                    if (urlAsString.contains(exclude)) {
+                        continue outer;
+                    }
+                }
+                
+                classPath.append(new File(url.toURI()).getAbsolutePath());
+                classPath.append(File.pathSeparatorChar);
+            }
+            
+            for (String include : includedLibraries) {
+                classPath.append(include);
+                classPath.append(File.pathSeparatorChar);
+            }
+            
+        }
+
+        private String getChildClassPath() throws URISyntaxException {
+            StringBuilder classPath = new StringBuilder();
+            
+            classPath.append(ForkedJUnit.CHILD_CLASS_PATH_PREFIX);
+            appendClassPath(classPath);
+            
+            return classPath.toString();
+        }
+        
         private Description findDescription(Description description, String displayName) {
             if (displayName.equals(description.getDisplayName())) {
                 return description;
@@ -201,7 +281,6 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
 
             for (int i = 0; i < traceInText.size(); i++) {
                 String trace = traceInText.get(i);
-                System.out.println(trace);
                 String[] tokens = trace.split(",");
 
                 stackTrace[i] = new StackTraceElement(tokens[0], tokens[1], tokens[2], Integer.valueOf(tokens[3]));

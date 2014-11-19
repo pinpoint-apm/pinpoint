@@ -2,11 +2,11 @@ package com.nhn.pinpoint.bootstrap.plugin;
 
 import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
 
-public class ConditionalClassEditor implements ClassEditor {
+public class ConditionalClassEditor implements DedicatedClassEditor {
     private final Condition condition;
-    private final ClassEditor delegate;
+    private final DedicatedClassEditor delegate;
     
-    public ConditionalClassEditor(Condition condition, ClassEditor delegate) {
+    public ConditionalClassEditor(Condition condition, DedicatedClassEditor delegate) {
         this.condition = condition;
         this.delegate = delegate;
     }
@@ -18,5 +18,10 @@ public class ConditionalClassEditor implements ClassEditor {
         }
         
         return null;
+    }
+
+    @Override
+    public String getTargetClassName() {
+        return delegate.getTargetClassName();
     }
 }

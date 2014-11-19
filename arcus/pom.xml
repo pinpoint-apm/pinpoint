@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.nhn.pinpoint</groupId>
-        <artifactId>pinpoint-plugins</artifactId>
+        <artifactId>pom</artifactId>
         <version>1.0.4-SNAPSHOT</version>
     </parent>
 
-    <artifactId>pinpoint-arcus-plugin</artifactId>
+    <artifactId>pinpoint-arcus</artifactId>
     <name>pinpoint arcus plugin</name>
     <packaging>jar</packaging>
 
@@ -92,8 +92,9 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                
                 <configuration>
-                    <outputDirectory>${pinpiont-plugin-dir}</outputDirectory>
+                    <outputDirectory>../${pinpoint.agent.plugin.directory}</outputDirectory>
                 </configuration>
             </plugin>
         </plugins>
