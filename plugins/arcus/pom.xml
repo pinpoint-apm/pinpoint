@@ -21,9 +21,11 @@
             <artifactId>pinpoint-test</artifactId>
             <scope>test</scope>
         </dependency>
+        
         <dependency>
             <groupId>arcus</groupId>
             <artifactId>arcus-client</artifactId>
+            <version>1.6.2.1</version>
             <scope>provided</scope>
         </dependency>
 
@@ -83,16 +85,7 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <inherited>true</inherited>
-                <configuration>
-                    <debug>true</debug>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                
                 <configuration>
                     <outputDirectory>../../${pinpoint.agent.plugin.directory}</outputDirectory>
                 </configuration>
