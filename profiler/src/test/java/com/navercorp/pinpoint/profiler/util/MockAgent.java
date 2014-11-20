@@ -29,9 +29,8 @@ import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
 public class MockAgent extends DefaultAgent {
     
     public static MockAgent of(String configPath) throws IOException {
-        ProfilerConfig profilerConfig = new ProfilerConfig();
         String path = MockAgent.class.getClassLoader().getResource(configPath).getPath();
-        profilerConfig.readConfigFile(path);
+        ProfilerConfig profilerConfig = ProfilerConfig.load(path);
         profilerConfig.setApplicationServerType(ServiceType.TEST_STAND_ALONE);
         
         return new MockAgent("", "", profilerConfig);

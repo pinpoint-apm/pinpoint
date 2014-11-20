@@ -85,7 +85,7 @@ public class DefaultInterceptorFactory implements InterceptorFactory {
         Scope scope = instrumentor.getScope(scopeName);
         
         if (interceptor instanceof SimpleAroundInterceptor) {
-            return new ScopedSimpleInterceptor((SimpleAroundInterceptor)interceptor, scope);
+            return new ScopedSimpleAroundInterceptor((SimpleAroundInterceptor)interceptor, scope);
         } else if (interceptor instanceof StaticAroundInterceptor) {
             return new ScopedStaticInterceptor((StaticAroundInterceptor)interceptor, scope);
         }

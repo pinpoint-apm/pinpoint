@@ -15,9 +15,9 @@ import com.nhn.pinpoint.common.util.PropertyUtils;
  * @author netspider
  */
 public class ProfilerConfig {
+    private static final Logger logger = Logger.getLogger(ProfilerConfig.class.getName());
 
-    private final Logger logger = Logger.getLogger(ProfilerConfig.class.getName());
-
+    private final Properties properties;
     private final PropertyPlaceholderHelper propertyPlaceholderHelper = new PropertyPlaceholderHelper("${", "}");
 
     public static interface ValueResolver {
@@ -39,6 +39,23 @@ public class ProfilerConfig {
                 return null;
             }
             return propertyPlaceholderHelper.replacePlaceholders(value, properties);
+        }
+    }
+    
+    public static ProfilerConfig load(String pinpiontConfigFileName) throws IOException {
+        try {
+            Properties properties = PropertyUtils.loadProperty(pinpiontConfigFileName);
+            return new ProfilerConfig(properties);
+        } catch (FileNotFoundException fe) {
+            if (logger.isLoggable(Level.WARNING)) {
+                logger.log(Level.WARNING, pinpiontConfigFileName + " file is not exists. Please check configuration.");
+            }
+            throw fe;
+        } catch (IOException e) {
+            if (logger.isLoggable(Level.WARNING)) {
+                logger.log(Level.WARNING, pinpiontConfigFileName + " file read error. Cause:" + e.getMessage(), e);
+            }
+            throw e;
         }
     }
 
@@ -94,11 +111,6 @@ public class ProfilerConfig {
 
 	private boolean tomcatHidePinpointHeader = true;
 	private Filter<String> tomcatExcludeUrlFilter = new SkipFilter<String>();
-
-    private boolean arucs = true;
-    private boolean arucsKeyTrace = false;
-    private boolean memcached = true;
-    private boolean memcachedKeyTrace = false;
 
     private boolean ibatis = true;
     
@@ -169,25 +181,14 @@ public class ProfilerConfig {
 	private long agentInfoSendRetryInterval = DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL;
 
 	private ServiceType applicationServerType;
-
-    public ProfilerConfig() {
+	
+	public ProfilerConfig() {
+	    this.properties = new Properties();
 	}
 
-	public void readConfigFile(String pinpiontConfigFileName) throws IOException {
-		try {
-			Properties properties = PropertyUtils.loadProperty(pinpiontConfigFileName);
-			readPropertyValues(properties);
-		} catch (FileNotFoundException fe) {
-			if (logger.isLoggable(Level.WARNING)) {
-				logger.log(Level.WARNING, pinpiontConfigFileName + " file is not exists. Please check configuration.");
-			}
-			throw fe;
-		} catch (IOException e) {
-			if (logger.isLoggable(Level.WARNING)) {
-				logger.log(Level.WARNING, pinpiontConfigFileName + " file read error. Cause:" + e.getMessage(), e);
-			}
-			throw e;
-		}
+    public ProfilerConfig(Properties properties) {
+        this.properties = properties;
+        readPropertyValues();
 	}
 
     public String getCollectorSpanServerIp() {
@@ -377,22 +378,6 @@ public class ProfilerConfig {
 		return tomcatExcludeUrlFilter;
 	}
 
-	public boolean isArucs() {
-        return arucs;
-    }
-
-    public boolean isArucsKeyTrace() {
-        return arucsKeyTrace;
-    }
-
-    public boolean isMemcached() {
-        return memcached;
-    }
-
-    public boolean isMemcachedKeyTrace() {
-        return memcachedKeyTrace;
-    }
-
     //-----------------------------------------
     // http apache client
 
@@ -546,157 +531,152 @@ public class ProfilerConfig {
     }
 
     // fortest
-    void readPropertyValues(Properties prop) {
+    void readPropertyValues() {
         // TODO : use Properties defaultvalue instead of using temp variable.
         final ValueResolver placeHolderResolver = new PlaceHolderResolver();
 
-        this.profileEnable = readBoolean(prop, "profiler.enable", true);
+        this.profileEnable = readBoolean("profiler.enable", true);
 
 
-        this.collectorSpanServerIp = readString(prop, "profiler.collector.span.ip", "127.0.0.1", placeHolderResolver);
-        this.collectorSpanServerPort = readInt(prop, "profiler.collector.span.port", 9996);
+        this.collectorSpanServerIp = readString("profiler.collector.span.ip", "127.0.0.1", placeHolderResolver);
+        this.collectorSpanServerPort = readInt("profiler.collector.span.port", 9996);
 
-        this.collectorStatServerIp = readString(prop, "profiler.collector.stat.ip", "127.0.0.1", placeHolderResolver);
-        this.collectorStatServerPort = readInt(prop, "profiler.collector.stat.port", 9995);
+        this.collectorStatServerIp = readString("profiler.collector.stat.ip", "127.0.0.1", placeHolderResolver);
+        this.collectorStatServerPort = readInt("profiler.collector.stat.port", 9995);
 
-        this.collectorTcpServerIp = readString(prop, "profiler.collector.tcp.ip", "127.0.0.1", placeHolderResolver);
-        this.collectorTcpServerPort = readInt(prop, "profiler.collector.tcp.port", 9994);
+        this.collectorTcpServerIp = readString("profiler.collector.tcp.ip", "127.0.0.1", placeHolderResolver);
+        this.collectorTcpServerPort = readInt("profiler.collector.tcp.port", 9994);
 
-        this.spanDataSenderWriteQueueSize = readInt(prop, "profiler.spandatasender.write.queue.size", 1024 * 5);
-        this.spanDataSenderSocketSendBufferSize = readInt(prop, "profiler.spandatasender.socket.sendbuffersize", 1024 * 64 * 16);
-        this.spanDataSenderSocketTimeout = readInt(prop, "profiler.spandatasender.socket.timeout", 1000 * 3);
-        this.spanDataSenderChunkSize = readInt(prop, "profiler.spandatasender.chunk.size", 1024 * 16);
+        this.spanDataSenderWriteQueueSize = readInt("profiler.spandatasender.write.queue.size", 1024 * 5);
+        this.spanDataSenderSocketSendBufferSize = readInt("profiler.spandatasender.socket.sendbuffersize", 1024 * 64 * 16);
+        this.spanDataSenderSocketTimeout = readInt("profiler.spandatasender.socket.timeout", 1000 * 3);
+        this.spanDataSenderChunkSize = readInt("profiler.spandatasender.chunk.size", 1024 * 16);
 
-        this.statDataSenderWriteQueueSize = readInt(prop, "profiler.statdatasender.write.queue.size", 1024 * 5);
-        this.statDataSenderSocketSendBufferSize = readInt(prop, "profiler.statdatasender.socket.sendbuffersize", 1024 * 64 * 16);
-        this.statDataSenderSocketTimeout = readInt(prop, "profiler.statdatasender.socket.timeout", 1000 * 3);
-        this.statDataSenderChunkSize = readInt(prop, "profiler.statdatasender.chunk.size", 1024 * 16);
+        this.statDataSenderWriteQueueSize = readInt("profiler.statdatasender.write.queue.size", 1024 * 5);
+        this.statDataSenderSocketSendBufferSize = readInt("profiler.statdatasender.socket.sendbuffersize", 1024 * 64 * 16);
+        this.statDataSenderSocketTimeout = readInt("profiler.statdatasender.socket.timeout", 1000 * 3);
+        this.statDataSenderChunkSize = readInt("profiler.statdatasender.chunk.size", 1024 * 16);
 
-        this.tcpDataSenderCommandAcceptEnable = readBoolean(prop, "profiler.tcpdatasender.command.accept.enable", false);
+        this.tcpDataSenderCommandAcceptEnable = readBoolean("profiler.tcpdatasender.command.accept.enable", false);
 
 		// JDBC
-		this.jdbcProfile = readBoolean(prop, "profiler.jdbc", true);
+		this.jdbcProfile = readBoolean("profiler.jdbc", true);
 
-        this.jdbcSqlCacheSize = readInt(prop, "profiler.jdbc.sqlcachesize", 1024);
-        this.jdbcMaxSqlBindValueSize = readInt(prop, "profiler.jdbc.maxsqlbindvaluesize", 1024);
+        this.jdbcSqlCacheSize = readInt("profiler.jdbc.sqlcachesize", 1024);
+        this.jdbcMaxSqlBindValueSize = readInt("profiler.jdbc.maxsqlbindvaluesize", 1024);
 
-		this.jdbcProfileMySql = readBoolean(prop, "profiler.jdbc.mysql", true);
-        this.jdbcProfileMySqlSetAutoCommit = readBoolean(prop, "profiler.jdbc.mysql.setautocommit", false);
-        this.jdbcProfileMySqlCommit = readBoolean(prop, "profiler.jdbc.mysql.commit", false);
-        this.jdbcProfileMySqlRollback = readBoolean(prop, "profiler.jdbc.mysql.rollback", false);
-
-
-		this.jdbcProfileJtds = readBoolean(prop, "profiler.jdbc.jtds", true);
-        this.jdbcProfileJtdsSetAutoCommit = readBoolean(prop, "profiler.jdbc.jtds.setautocommit", false);
-        this.jdbcProfileJtdsCommit = readBoolean(prop, "profiler.jdbc.jtds.commit", false);
-        this.jdbcProfileJtdsRollback = readBoolean(prop, "profiler.jdbc.jtds.rollback", false);
+		this.jdbcProfileMySql = readBoolean("profiler.jdbc.mysql", true);
+        this.jdbcProfileMySqlSetAutoCommit = readBoolean("profiler.jdbc.mysql.setautocommit", false);
+        this.jdbcProfileMySqlCommit = readBoolean("profiler.jdbc.mysql.commit", false);
+        this.jdbcProfileMySqlRollback = readBoolean("profiler.jdbc.mysql.rollback", false);
 
 
-		this.jdbcProfileOracle = readBoolean(prop, "profiler.jdbc.oracle", true);
-        this.jdbcProfileOracleSetAutoCommit = readBoolean(prop, "profiler.jdbc.oracle.setautocommit", false);
-        this.jdbcProfileOracleCommit = readBoolean(prop, "profiler.jdbc.oracle.commit", false);
-        this.jdbcProfileOracleRollback = readBoolean(prop, "profiler.jdbc.oracle.rollback", false);
+		this.jdbcProfileJtds = readBoolean("profiler.jdbc.jtds", true);
+        this.jdbcProfileJtdsSetAutoCommit = readBoolean("profiler.jdbc.jtds.setautocommit", false);
+        this.jdbcProfileJtdsCommit = readBoolean("profiler.jdbc.jtds.commit", false);
+        this.jdbcProfileJtdsRollback = readBoolean("profiler.jdbc.jtds.rollback", false);
 
 
-		this.jdbcProfileCubrid = readBoolean(prop, "profiler.jdbc.cubrid", true);
-        this.jdbcProfileCubridSetAutoCommit = readBoolean(prop, "profiler.jdbc.cubrid.setautocommit", false);
-        this.jdbcProfileCubridCommit = readBoolean(prop, "profiler.jdbc.cubrid.commit", false);
-        this.jdbcProfileCubridRollback = readBoolean(prop, "profiler.jdbc.cubrid.rollback", false);
+		this.jdbcProfileOracle = readBoolean("profiler.jdbc.oracle", true);
+        this.jdbcProfileOracleSetAutoCommit = readBoolean("profiler.jdbc.oracle.setautocommit", false);
+        this.jdbcProfileOracleCommit = readBoolean("profiler.jdbc.oracle.commit", false);
+        this.jdbcProfileOracleRollback = readBoolean("profiler.jdbc.oracle.rollback", false);
 
 
-		this.jdbcProfileDbcp = readBoolean(prop, "profiler.jdbc.dbcp", true);
-        this.jdbcProfileDbcpConnectionClose = readBoolean(prop, "profiler.jdbc.dbcp.connectionclose", false);
+		this.jdbcProfileCubrid = readBoolean("profiler.jdbc.cubrid", true);
+        this.jdbcProfileCubridSetAutoCommit = readBoolean("profiler.jdbc.cubrid.setautocommit", false);
+        this.jdbcProfileCubridCommit = readBoolean("profiler.jdbc.cubrid.commit", false);
+        this.jdbcProfileCubridRollback = readBoolean("profiler.jdbc.cubrid.rollback", false);
 
 
-		this.tomcatHidePinpointHeader = readBoolean(prop, "profiler.tomcat.hidepinpointheader", true);
-		final String tomcatExcludeURL = readString(prop, "profiler.tomcat.excludeurl", "");
+		this.jdbcProfileDbcp = readBoolean("profiler.jdbc.dbcp", true);
+        this.jdbcProfileDbcpConnectionClose = readBoolean("profiler.jdbc.dbcp.connectionclose", false);
+
+
+		this.tomcatHidePinpointHeader = readBoolean("profiler.tomcat.hidepinpointheader", true);
+		final String tomcatExcludeURL = readString("profiler.tomcat.excludeurl", "");
 		if (!tomcatExcludeURL.isEmpty()) {
 			this.tomcatExcludeUrlFilter = new ExcludeUrlFilter(tomcatExcludeURL);
 		}
 
-        this.arucs = readBoolean(prop, "profiler.arcus", true);
-        this.arucsKeyTrace = readBoolean(prop, "profiler.arcus.keytrace", false);
-        this.memcached = readBoolean(prop, "profiler.memcached", true);
-        this.memcachedKeyTrace = readBoolean(prop, "profiler.memcached.keytrace", false);
-
 		/**
 		 * apache http client 4
 		 */
-        this.apacheHttpClient4Profile = readBoolean(prop, "profiler.apache.httpclient4", true);
-        this.apacheHttpClient4ProfileCookie = readBoolean(prop, "profiler.apache.httpclient4.cookie", false);
-        this.apacheHttpClient4ProfileCookieDumpType = readDumpType(prop, "profiler.apache.httpclient4.cookie.dumptype", DumpType.EXCEPTION);
-        this.apacheHttpClient4ProfileCookieSamplingRate = readInt(prop, "profiler.apache.httpclient4.cookie.sampling.rate", 1);
+        this.apacheHttpClient4Profile = readBoolean("profiler.apache.httpclient4", true);
+        this.apacheHttpClient4ProfileCookie = readBoolean("profiler.apache.httpclient4.cookie", false);
+        this.apacheHttpClient4ProfileCookieDumpType = readDumpType("profiler.apache.httpclient4.cookie.dumptype", DumpType.EXCEPTION);
+        this.apacheHttpClient4ProfileCookieSamplingRate = readInt("profiler.apache.httpclient4.cookie.sampling.rate", 1);
 
-        this.apacheHttpClient4ProfileEntity = readBoolean(prop, "profiler.apache.httpclient4.entity", false);
-        this.apacheHttpClient4ProfileEntityDumpType = readDumpType(prop, "profiler.apache.httpclient4.entity.dumptype", DumpType.EXCEPTION);
-        this.apacheHttpClient4ProfileEntitySamplingRate = readInt(prop, "profiler.apache.httpclient4.entity.sampling.rate", 1);
+        this.apacheHttpClient4ProfileEntity = readBoolean("profiler.apache.httpclient4.entity", false);
+        this.apacheHttpClient4ProfileEntityDumpType = readDumpType("profiler.apache.httpclient4.entity.dumptype", DumpType.EXCEPTION);
+        this.apacheHttpClient4ProfileEntitySamplingRate = readInt("profiler.apache.httpclient4.entity.sampling.rate", 1);
 
         /**
          * apache nio http client
          */
-        this.apacheNIOHttpClient4Profile = readBoolean(prop, "profiler.apache.nio.httpclient4", true);
+        this.apacheNIOHttpClient4Profile = readBoolean("profiler.apache.nio.httpclient4", true);
         
         /**
          * ning.async http client
          */
-        this.ningAsyncHttpClientProfile = readBoolean(prop, "profiler.ning.asynchttpclient", true);
-        this.ningAsyncHttpClientProfileCookie = readBoolean(prop, "profiler.ning.asynchttpclient.cookie", false);
-        this.ningAsyncHttpClientProfileCookieDumpType = readDumpType(prop, "profiler.ning.asynchttpclient.cookie.dumptype", DumpType.EXCEPTION);
-        this.ningAsyncHttpClientProfileCookieDumpSize = readInt(prop, "profiler.ning.asynchttpclient.cookie.dumpsize", 1024);
-        this.ningAsyncHttpClientProfileCookieSamplingRate = readInt(prop, "profiler.ning.asynchttpclient.cookie.sampling.rate", 1);
+        this.ningAsyncHttpClientProfile = readBoolean("profiler.ning.asynchttpclient", true);
+        this.ningAsyncHttpClientProfileCookie = readBoolean("profiler.ning.asynchttpclient.cookie", false);
+        this.ningAsyncHttpClientProfileCookieDumpType = readDumpType("profiler.ning.asynchttpclient.cookie.dumptype", DumpType.EXCEPTION);
+        this.ningAsyncHttpClientProfileCookieDumpSize = readInt("profiler.ning.asynchttpclient.cookie.dumpsize", 1024);
+        this.ningAsyncHttpClientProfileCookieSamplingRate = readInt("profiler.ning.asynchttpclient.cookie.sampling.rate", 1);
         
-        this.ningAsyncHttpClientProfileEntity = readBoolean(prop, "profiler.ning.asynchttpclient.entity", false);
-        this.ningAsyncHttpClientProfileEntityDumpType = readDumpType(prop, "profiler.ning.asynchttpclient.entity.dumptype", DumpType.EXCEPTION);
-        this.ningAsyncHttpClientProfileEntityDumpSize = readInt(prop, "profiler.ning.asynchttpclient.entity.dumpsize", 1024);
-        this.ningAsyncHttpClientProfileEntitySamplingRate = readInt(prop, "profiler.asynchttpclient.entity.sampling.rate", 1);
+        this.ningAsyncHttpClientProfileEntity = readBoolean("profiler.ning.asynchttpclient.entity", false);
+        this.ningAsyncHttpClientProfileEntityDumpType = readDumpType("profiler.ning.asynchttpclient.entity.dumptype", DumpType.EXCEPTION);
+        this.ningAsyncHttpClientProfileEntityDumpSize = readInt("profiler.ning.asynchttpclient.entity.dumpsize", 1024);
+        this.ningAsyncHttpClientProfileEntitySamplingRate = readInt("profiler.asynchttpclient.entity.sampling.rate", 1);
 
-        this.ningAsyncHttpClientProfileParam = readBoolean(prop, "profiler.ning.asynchttpclient.param", false);
-        this.ningAsyncHttpClientProfileParamDumpType = readDumpType(prop, "profiler.ning.asynchttpclient.param.dumptype", DumpType.EXCEPTION);
-        this.ningAsyncHttpClientProfileParamDumpSize = readInt(prop, "profiler.ning.asynchttpclient.param.dumpsize", 1024);
-        this.ningAsyncHttpClientProfileParamSamplingRate = readInt(prop, "profiler.asynchttpclient.param.sampling.rate", 1);
+        this.ningAsyncHttpClientProfileParam = readBoolean("profiler.ning.asynchttpclient.param", false);
+        this.ningAsyncHttpClientProfileParamDumpType = readDumpType("profiler.ning.asynchttpclient.param.dumptype", DumpType.EXCEPTION);
+        this.ningAsyncHttpClientProfileParamDumpSize = readInt("profiler.ning.asynchttpclient.param.dumpsize", 1024);
+        this.ningAsyncHttpClientProfileParamSamplingRate = readInt("profiler.asynchttpclient.param.sampling.rate", 1);
 
         // redis & nBase-ARC
-        this.redis = readBoolean(prop, "profiler.redis", true);
-        this.redisPipeline = readBoolean(prop, "profiler.redis.pipeline", true);
-        this.nbaseArc = readBoolean(prop, "profiler.nbase_arc", true);
-        this.nbaseArcPipeline = readBoolean(prop, "profiler.nbase_arc.pipeline", true);
+        this.redis = readBoolean("profiler.redis", true);
+        this.redisPipeline = readBoolean("profiler.redis.pipeline", true);
+        this.nbaseArc = readBoolean("profiler.nbase_arc", true);
+        this.nbaseArcPipeline = readBoolean("profiler.nbase_arc.pipeline", true);
         
         //
         // FIXME 임시용, line game netty configuration
         //
-        this.lineGameNettyParamDumpSize = readInt(prop, "profiler.line.game.netty.param.dumpsize", 512);
-        this.lineGameNettyEntityDumpSize = readInt(prop, "profiler.line.game.netty.entity.dumpsize", 512);
+        this.lineGameNettyParamDumpSize = readInt("profiler.line.game.netty.param.dumpsize", 512);
+        this.lineGameNettyEntityDumpSize = readInt("profiler.line.game.netty.entity.dumpsize", 512);
         
-        this.ibatis = readBoolean(prop, "profiler.orm.ibatis", true);
+        this.ibatis = readBoolean("profiler.orm.ibatis", true);
         
-        this.mybatis = readBoolean(prop, "profiler.orm.mybatis", true);
+        this.mybatis = readBoolean("profiler.orm.mybatis", true);
 
-        this.springBeans = readBoolean(prop, "profiler.spring.beans", false);
-        this.springBeansNamePatterns = readString(prop, "profiler.spring.beans.name.pattern", null);
-        this.springBeansClassPatterns = readString(prop, "profiler.spring.beans.class.pattern", null);
-        this.springBeansAnnotations = readString(prop, "profiler.spring.beans.annotation", null);
+        this.springBeans = readBoolean("profiler.spring.beans", false);
+        this.springBeansNamePatterns = readString("profiler.spring.beans.name.pattern", null);
+        this.springBeansClassPatterns = readString("profiler.spring.beans.class.pattern", null);
+        this.springBeansAnnotations = readString("profiler.spring.beans.annotation", null);
 
-        this.samplingEnable = readBoolean(prop, "profiler.sampling.enable", true);
-        this.samplingRate = readInt(prop, "profiler.sampling.rate", 1);
+        this.samplingEnable = readBoolean("profiler.sampling.enable", true);
+        this.samplingRate = readInt("profiler.sampling.rate", 1);
         
 		// 샘플링 + io 조절 bufferSize 결정
-		this.ioBufferingEnable = readBoolean(prop, "profiler.io.buffering.enable", true);
+		this.ioBufferingEnable = readBoolean("profiler.io.buffering.enable", true);
         // 버퍼 사이즈는 여기에 있는것은 문제가 있는것도 같음. 설정 조정의 필요성이 있음.
-		this.ioBufferingBufferSize = readInt(prop, "profiler.io.buffering.buffersize", 20);
+		this.ioBufferingBufferSize = readInt("profiler.io.buffering.buffersize", 20);
 
 		// JVM
-		this.profileJvmCollectInterval = readInt(prop, "profiler.jvm.collect.interval", 1000);
+		this.profileJvmCollectInterval = readInt("profiler.jvm.collect.interval", 1000);
 
-		this.agentInfoSendRetryInterval = readLong(prop, "profiler.agentInfo.send.retry.interval", DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL);
+		this.agentInfoSendRetryInterval = readLong("profiler.agentInfo.send.retry.interval", DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL);
 		
 		// service type
-		this.applicationServerType = readServiceType(prop, "profiler.applicationservertype");
+		this.applicationServerType = readServiceType("profiler.applicationservertype");
 		
 		// profile package include
 		// TODO 제거, 서비스 적용에 call stack view가 잘 보이는지 테스트하려고 추가함.
 		// 수집 데이터 크기 문제로 실 서비스에서는 사용 안함.
 		// 나중에 필요에 따라 정규식으로 바꿔도 되고...
-		final String profileableClass = readString(prop, "profiler.include", "");
+		final String profileableClass = readString("profiler.include", "");
 		if (!profileableClass.isEmpty()) {
 			this.profilableClassFilter = new ProfilableClassFilter(profileableClass);
 		}
@@ -705,11 +685,11 @@ public class ProfilerConfig {
 	}
 
 
-    private String readString(Properties properties, String propertyName, String defaultValue) {
-        return readString(properties, propertyName, defaultValue, BypassResolver.RESOLVER);
+    public String readString(String propertyName, String defaultValue) {
+        return readString(propertyName, defaultValue, BypassResolver.RESOLVER);
     }
 
-    private String readString(Properties properties, String propertyName, String defaultValue, ValueResolver valueResolver) {
+    public String readString(String propertyName, String defaultValue, ValueResolver valueResolver) {
         if (valueResolver == null) {
             throw new NullPointerException("valueResolver must not be null");
         }
@@ -721,8 +701,8 @@ public class ProfilerConfig {
         return value;
     }
 
-	private int readInt(Properties prop, String propertyName, int defaultValue) {
-		String value = prop.getProperty(propertyName);
+    public int readInt(String propertyName, int defaultValue) {
+		String value = properties.getProperty(propertyName);
 		int result = NumberUtils.parseInteger(value, defaultValue);
 		if (logger.isLoggable(Level.INFO)) {
 			logger.info(propertyName + "=" + result);
@@ -730,8 +710,8 @@ public class ProfilerConfig {
 		return result;
 	}
 
-    private DumpType readDumpType(Properties prop, String propertyName, DumpType defaultDump) {
-        String propertyValue = prop.getProperty(propertyName);
+	public DumpType readDumpType(String propertyName, DumpType defaultDump) {
+        String propertyValue = properties.getProperty(propertyName);
         if (propertyValue == null) {
             propertyValue = defaultDump.name();
         }
@@ -748,8 +728,8 @@ public class ProfilerConfig {
         return result;
     }
 
-	private long readLong(Properties prop, String propertyName, long defaultValue) {
-		String value = prop.getProperty(propertyName);
+    public long readLong(String propertyName, long defaultValue) {
+		String value = properties.getProperty(propertyName);
 		long result = NumberUtils.parseLong(value, defaultValue);
 		if (logger.isLoggable(Level.INFO)) {
 			logger.info(propertyName + "=" + result);
@@ -757,8 +737,8 @@ public class ProfilerConfig {
 		return result;
 	}
 	
-	private ServiceType readServiceType(Properties prop, String propertyName) {
-		String value = prop.getProperty(propertyName);
+	public ServiceType readServiceType(String propertyName) {
+		String value = properties.getProperty(propertyName);
         if (value == null) {
             return null;
         }
@@ -769,7 +749,7 @@ public class ProfilerConfig {
 		return serviceType;
 	}
 
-    private ServiceType getServiceType(String defaultValue) {
+    public ServiceType getServiceType(String defaultValue) {
         try {
             return ServiceType.valueOf(defaultValue);
         } catch (IllegalArgumentException e) {
@@ -778,8 +758,8 @@ public class ProfilerConfig {
         }
     }
 
-    private boolean readBoolean(Properties prop, String propertyName, boolean defaultValue) {
-		String value = prop.getProperty(propertyName, Boolean.toString(defaultValue));
+    public boolean readBoolean(String propertyName, boolean defaultValue) {
+		String value = properties.getProperty(propertyName, Boolean.toString(defaultValue));
 		boolean result = Boolean.parseBoolean(value);
 		if (logger.isLoggable(Level.INFO)) {
 			logger.info(propertyName + "=" + result);
@@ -830,10 +810,6 @@ public class ProfilerConfig {
         sb.append(", jdbcProfileDbcpConnectionClose=").append(jdbcProfileDbcpConnectionClose);
         sb.append(", tomcatHidePinpointHeader=").append(tomcatHidePinpointHeader);
         sb.append(", tomcatExcludeUrlFilter=").append(tomcatExcludeUrlFilter);
-        sb.append(", arucs=").append(arucs);
-        sb.append(", arucsKeyTrace=").append(arucsKeyTrace);
-        sb.append(", memcached=").append(memcached);
-        sb.append(", memcachedKeyTrace=").append(memcachedKeyTrace);
         sb.append(", ibatis=").append(ibatis);
         sb.append(", mybatis=").append(mybatis);
         sb.append(", redis=").append(redis);
