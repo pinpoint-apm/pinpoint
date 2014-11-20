@@ -89,7 +89,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
-                    <outputDirectory>${pinpiont-plugin-dir}</outputDirectory>
+                    <outputDirectory>${pinpoint-plugin-dir}</outputDirectory>
                 </configuration>
             </plugin>
         </plugins>
