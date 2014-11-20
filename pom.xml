@@ -65,15 +65,13 @@
         <module>bootstrap</module>
         <module>collector</module>
         <module>commons</module>
+        <module>plugins</module>
         <module>profiler</module>
         <module>profiler-optional</module>
         <module>rpc</module>
         <module>test</module>
         <module>thrift</module>
         <module>web</module>
-        
-        <!-- plugins -->
-        <module>arcus</module>
     </modules>
 
     <properties>
