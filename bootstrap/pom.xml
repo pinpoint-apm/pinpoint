@@ -143,7 +143,7 @@
                         <manifestEntries>
                             <Premain-Class>com.nhn.pinpoint.bootstrap.PinpointBootStrap</Premain-Class>
                             <Can-Retransform-Classes>true</Can-Retransform-Classes>
-                            <Pinpiont-Version>${project.version}</Pinpiont-Version>
+                            <Pinpoint-Version>${project.version}</Pinpoint-Version>
                         </manifestEntries>
                     </archive>
                 </configuration>

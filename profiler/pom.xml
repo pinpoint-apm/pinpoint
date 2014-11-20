@@ -12,7 +12,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <pinpiont-agent-dir>../${pinpoint.agent.directory}</pinpiont-agent-dir>
+        <pinpoint-agent-dir>../${pinpoint.agent.directory}</pinpoint-agent-dir>
     </properties>
 
     <dependencies>
@@ -402,7 +402,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${pinpiont-agent-dir}/lib</outputDirectory>
+                            <outputDirectory>${pinpoint-agent-dir}/lib</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>${basedir}/src/main/resources-${env}</directory>
@@ -421,7 +421,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${pinpiont-agent-dir}</outputDirectory>
+                            <outputDirectory>${pinpoint-agent-dir}</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>${basedir}/src/main/resources-${env}</directory>
@@ -451,7 +451,7 @@
                         <exclude>**/pinpoint.config</exclude>
                         <exclude>**/log4j.xml</exclude>
                     </excludes>
-                    <outputDirectory>${pinpiont-agent-dir}/lib</outputDirectory>
+                    <outputDirectory>${pinpoint-agent-dir}/lib</outputDirectory>
                 </configuration>
             </plugin>
             <plugin>
@@ -469,7 +469,7 @@
                             <!-- pinpoint-bootstrap 은 하위에 있어야 한다. pinpoint-commons는 
                                 bootstrap에 포함됨. -->
                             <excludeArtifactIds>pinpoint-bootstrap,pinpoint-commons</excludeArtifactIds>
-                            <outputDirectory>${pinpiont-agent-dir}/lib</outputDirectory>
+                            <outputDirectory>${pinpoint-agent-dir}/lib</outputDirectory>
                             <overWriteReleases>true</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
                         </configuration>
@@ -482,7 +482,7 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>pinpoint-bootstrap</includeArtifactIds>
-                            <outputDirectory>${pinpiont-agent-dir}</outputDirectory>
+                            <outputDirectory>${pinpoint-agent-dir}</outputDirectory>
                             <overWriteReleases>true</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
                         </configuration>
