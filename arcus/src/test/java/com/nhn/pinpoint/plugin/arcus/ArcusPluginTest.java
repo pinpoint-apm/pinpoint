@@ -11,14 +11,14 @@ import com.nhn.pinpoint.plugin.arcus.accessor.OperationAccessor;
 import com.nhn.pinpoint.plugin.arcus.accessor.ServiceCodeAccessor;
 import com.nhn.pinpoint.test.fork.ForkRunner;
 import com.nhn.pinpoint.test.fork.OnChildClassLoader;
-import com.nhn.pinpoint.test.fork.PinpointAgentPath;
+import com.nhn.pinpoint.test.fork.PinpointAgent;
 import com.nhn.pinpoint.test.fork.PinpointConfig;
 
 @RunWith(ForkRunner.class)
-@PinpointConfig("target/test-classes/pinpoint-test.config")
-@PinpointAgentPath("../build/pinpoint-agent")
+@PinpointConfig("pinpoint-test.config")
+@PinpointAgent("build/pinpoint-agent")
 @OnChildClassLoader
-public class ArcusPluginIT {
+public class ArcusPluginTest {
 
     // TODO how to test intercpetor?
     

@@ -18,7 +18,14 @@ import com.nhn.pinpoint.common.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory; 
 
-
+/**
+ * 
+ * @author lioolli
+ * 
+ * @see {@link com.nhn.pinpoint.test.fork.ForkRunner}
+ *
+ */
+@Deprecated
 public class ForkRunner extends BlockJUnit4ClassRunner {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
