@@ -20,6 +20,7 @@ import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 
 import com.nhn.pinpoint.common.Version;
+import com.nhn.pinpoint.exception.PinpointException;
 
 public class ForkRunner extends BlockJUnit4ClassRunner {
     private static final String[] REQUIRED_CLASS_PATHS = new String[] {
@@ -29,33 +30,49 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
     };
     
     private final String agentJar;
-    private final String configPath;
+    private final String configFile;
     private final boolean testOnChildClassLoader;
     private final String[] excludedLibraries;
     private final String[] includedLibraries;
 
-    public ForkRunner(Class<?> klass) throws InitializationError {
-        super(klass);
-
-        PinpointAgentPath path = klass.getAnnotation(PinpointAgentPath.class);
-        String agentPath = (path != null && path.value() != null) ? path.value() : "target/pinpoint-agent";
-        agentJar = agentPath + "/pinpoint-bootstrap-" + Version.VERSION + ".jar";
-
-        PinpointConfig config = klass.getAnnotation(PinpointConfig.class);
-
-        if (config != null && config.value() != null) {
-            configPath = config.value();
-        } else {
-            configPath = null;
-        }
+    public ForkRunner(Class<?> testClass) throws InitializationError {
+        super(testClass);
         
-        testOnChildClassLoader = klass.isAnnotationPresent(OnChildClassLoader.class);
+        PinpointAgent agent = testClass.getAnnotation(PinpointAgent.class);
+        this.agentJar = resolveAgentPath(agent); 
+
         
-        ExcludeLibraries exclude = klass.getAnnotation(ExcludeLibraries.class);
+        PinpointConfig config = testClass.getAnnotation(PinpointConfig.class);
+        this.configFile = config == null ? null : config.value();
+        
+        testOnChildClassLoader = testClass.isAnnotationPresent(OnChildClassLoader.class);
+        
+        ExcludedLibraries exclude = testClass.getAnnotation(ExcludedLibraries.class);
         excludedLibraries = exclude == null ? new String[0] : exclude.value();
         
-        WithLibraries include = klass.getAnnotation(WithLibraries.class);
+        WithLibraries include = testClass.getAnnotation(WithLibraries.class);
         includedLibraries = include == null ? new String[0] : include.value();
+    }
+    
+    private String resolveAgentPath(PinpointAgent agent) {
+        String path = agent == null ? "build/pinpoint-agent" : agent.value();
+        String version = agent == null ? Version.VERSION : agent.version(); 
+        String relativePath = path + (!path.endsWith("/") ? "/" : "") + "pinpoint-bootstrap-" + version + ".jar";
+
+        File parent = new File(".").getAbsoluteFile();
+        
+        while (true) {
+            File candidate = new File(parent, relativePath);
+            if (candidate.exists()) {
+                return candidate.getAbsolutePath();
+            }
+            
+            parent = parent.getParentFile();
+            
+            if (parent == null) {
+                throw new IllegalArgumentException("Cannot find agent path: " + relativePath);
+            }
+        }
     }
 
     @Override
@@ -153,8 +170,8 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
                 list.addAll(getDebugOptions());
             }
 
-            if (configPath != null) {
-                list.add("-Dpinpoint.config=" + configPath);
+            if (configFile != null) {
+                list.add("-Dpinpoint.config=" + resolveConfigFileLocation());
             }
 
             list.add(ForkedJUnit.class.getName());
@@ -166,6 +183,25 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
             list.add(getTestClass().getName());
 
             return list.toArray(new String[list.size()]);
+        }
+        
+        private String resolveConfigFileLocation() {
+            URL url = getClass().getResource(configFile.startsWith("/") ? configFile : "/" + configFile);
+            
+            if (url != null) {
+                try {
+                    return new File(url.toURI()).getAbsolutePath();
+                } catch (URISyntaxException e) {
+                    throw new PinpointException("Cannot find pinpoint configuration file: " + configFile, e);
+                }
+            }
+            
+            File config = new File(configFile);
+            if (config.exists()) {
+                return config.getAbsolutePath();
+            }
+            
+            throw new PinpointException("Cannot find pinpoint configuration file: " + configFile);
         }
         
         private boolean isDebugMode() {

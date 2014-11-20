@@ -11,7 +11,7 @@ import java.lang.instrument.Instrumentation;
  */
 public class DummyAgent implements Agent {
 
-    public DummyAgent(String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig) {
+    public DummyAgent(String agentPath, String agentArgs, Instrumentation instrumentation, ProfilerConfig profilerConfig) {
 
     }
 

@@ -5,8 +5,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.nhn.pinpoint.common.Version;
+
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface PinpointAgentPath {
-    String value() default "target/pinpoint-agent";
+public @interface PinpointAgent {
+    String value() default "build/pinpoint-agent";
+    String version() default Version.VERSION; 
 }
