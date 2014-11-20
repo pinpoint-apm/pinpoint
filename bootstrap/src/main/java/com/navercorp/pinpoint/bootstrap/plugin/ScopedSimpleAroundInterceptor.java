@@ -6,12 +6,12 @@ import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 /**
  * @author emeroad
  */
-public class ScopedSimpleInterceptor implements SimpleAroundInterceptor {
+public class ScopedSimpleAroundInterceptor implements SimpleAroundInterceptor {
 
     private final SimpleAroundInterceptor delegate;
     private final Scope scope;
 
-    public ScopedSimpleInterceptor(SimpleAroundInterceptor delegate, Scope scope) {
+    public ScopedSimpleAroundInterceptor(SimpleAroundInterceptor delegate, Scope scope) {
         if (delegate == null) {
             throw new NullPointerException("delegate must not be null");
         }

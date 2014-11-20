@@ -38,8 +38,7 @@ public class NetworkAvailabilityChecker implements PinpointTools {
         PinpointSocketFactory socketFactory = null;
         PinpointSocket socket = null;
         try {
-            ProfilerConfig profilerConfig = new ProfilerConfig();
-            profilerConfig.readConfigFile(configPath);
+            ProfilerConfig profilerConfig = ProfilerConfig.load(configPath);
 
             String collectorStatIp = profilerConfig.getCollectorStatServerIp();
             int collectorStatPort = profilerConfig.getCollectorStatServerPort();

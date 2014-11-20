@@ -28,8 +28,7 @@ public class ProfilerConfigTest {
         String path = ProfilerConfig.class.getResource("/com/nhn/pinpoint/bootstrap/config/test.property").getPath();
         logger.debug("path:{}", path);
 
-        ProfilerConfig profilerConfig = new ProfilerConfig();
-        profilerConfig.readConfigFile(path);
+        ProfilerConfig profilerConfig = ProfilerConfig.load(path);
     }
 
     @Test
@@ -43,8 +42,7 @@ public class ProfilerConfigTest {
         properties.setProperty("test2", "placeHolder2");
 
 
-        ProfilerConfig profilerConfig = new ProfilerConfig();
-        profilerConfig.readPropertyValues(properties);
+        ProfilerConfig profilerConfig = new ProfilerConfig(properties);
 
         Assert.assertEquals(profilerConfig.getCollectorSpanServerIp(), "placeHolder1");
         Assert.assertEquals(profilerConfig.getCollectorStatServerIp(), "placeHolder1");
@@ -57,8 +55,7 @@ public class ProfilerConfigTest {
         String path = ProfilerConfig.class.getResource("/com/nhn/pinpoint/bootstrap/config/test.property").getPath();
         logger.debug("path:{}", path);
 
-        ProfilerConfig profilerConfig = new ProfilerConfig();
-        profilerConfig.readConfigFile(path);
+        ProfilerConfig profilerConfig = ProfilerConfig.load(path);
 
         Assert.assertEquals(profilerConfig.isIoBufferingEnable(), false);
         Assert.assertEquals(profilerConfig.getIoBufferingBufferSize(), 30);
@@ -69,8 +66,7 @@ public class ProfilerConfigTest {
         String path = ProfilerConfig.class.getResource("/com/nhn/pinpoint/bootstrap/config/default.property").getPath();
         logger.debug("path:{}", path);
 
-        ProfilerConfig profilerConfig = new ProfilerConfig();
-        profilerConfig.readConfigFile(path);
+        ProfilerConfig profilerConfig = ProfilerConfig.load(path);
 
         Assert.assertEquals(profilerConfig.isIoBufferingEnable(), true);
         Assert.assertEquals(profilerConfig.getIoBufferingBufferSize(), 10);
@@ -81,8 +77,7 @@ public class ProfilerConfigTest {
         String path = ProfilerConfig.class.getResource("/com/nhn/pinpoint/bootstrap/config/test.property").getPath();
         logger.debug("path:{}", path);
 
-        ProfilerConfig profilerConfig = new ProfilerConfig();
-        profilerConfig.readConfigFile(path);
+        ProfilerConfig profilerConfig = ProfilerConfig.load(path);
         
         Assert.assertFalse(profilerConfig.isTcpDataSenderCommandAcceptEnable());
     }
@@ -92,8 +87,7 @@ public class ProfilerConfigTest {
         String path = ProfilerConfig.class.getResource("/com/nhn/pinpoint/bootstrap/config/test2.property").getPath();
         logger.debug("path:{}", path);
 
-        ProfilerConfig profilerConfig = new ProfilerConfig();
-        profilerConfig.readConfigFile(path);
+        ProfilerConfig profilerConfig = ProfilerConfig.load(path);
         
         Assert.assertTrue(profilerConfig.isTcpDataSenderCommandAcceptEnable());
     }

@@ -17,13 +17,15 @@ import com.nhn.pinpoint.plugin.arcus.filter.MemcachedMethodFilter;
 public class ArcusPlugin implements ProfilerPlugin {
     @Override
     public List<ClassEditor> getClassEditors(ProfilerPluginContext context) {
-        boolean arcus = context.getConfig().isArucs();
-        boolean memcached = context.getConfig().isMemcached();
+        ArcusPluginConfig config = new ArcusPluginConfig(context.getConfig());
+        
+        boolean arcus = config.isArcus();
+        boolean memcached = config.isMemcached();
 
         List<ClassEditor> editors = new ArrayList<ClassEditor>();
 
          if (arcus) {
-            editors.add(getArcusClientEditor(context));
+            editors.add(getArcusClientEditor(context, config));
             editors.add(getCollectionFutureEditor(context));
         }
         
@@ -37,15 +39,15 @@ public class ArcusPlugin implements ProfilerPlugin {
             editors.add(getOperationFutureEditor(context));
             
             editors.add(getFrontCacheGetFutureEditor(context));
-            editors.add(getFrontCacheMemcachedClientEditor(context));
-            editors.add(getMemcachedClientEditor(context));
+            editors.add(getFrontCacheMemcachedClientEditor(context, config));
+            editors.add(getMemcachedClientEditor(context, config));
         }
 
         return editors;
     }
     
-    private ClassEditor getArcusClientEditor(ProfilerPluginContext context) {
-        boolean traceArcusKey = context.getConfig().isArucsKeyTrace();
+    private ClassEditor getArcusClientEditor(ProfilerPluginContext context, ArcusPluginConfig config) {
+        boolean traceArcusKey = config.isArcusKeyTrace();
         ClassEditorBuilder builder = context.newClassEditorBuilder();
 
         builder.edit("net.spy.memcached.ArcusClient");
@@ -111,8 +113,8 @@ public class ArcusPlugin implements ProfilerPlugin {
         return builder.build();
     }
     
-    private ClassEditor getFrontCacheMemcachedClientEditor(ProfilerPluginContext context) {
-        boolean traceArcusKey = context.getConfig().isArucsKeyTrace();
+    private ClassEditor getFrontCacheMemcachedClientEditor(ProfilerPluginContext context, ArcusPluginConfig config) {
+        boolean traceArcusKey = config.isMemcachedKeyTrace();
         ClassEditorBuilder builder = context.newClassEditorBuilder();
         
         builder.edit("net.spy.memcached.plugin.FrontCacheMemcachedClient");
@@ -134,8 +136,8 @@ public class ArcusPlugin implements ProfilerPlugin {
     }
 
 
-    private ClassEditor getMemcachedClientEditor(ProfilerPluginContext context) {
-        boolean traceArcusKey = context.getConfig().isArucsKeyTrace();
+    private ClassEditor getMemcachedClientEditor(ProfilerPluginContext context, ArcusPluginConfig config) {
+        boolean traceArcusKey = config.isMemcachedKeyTrace();
         ClassEditorBuilder builder = context.newClassEditorBuilder();
         
         builder.edit("net.spy.memcached.MemcachedClient");
