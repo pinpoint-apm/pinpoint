@@ -55,12 +55,12 @@ import com.nhn.pinpoint.rpc.util.TimerFactory;
  */
 public class PinpointSocketHandler extends SimpleChannelHandler implements SocketHandler {
 
-	private static final long DEFAULT_PING_DELAY = 60 * 1000 * 5;
-	private static final long DEFAULT_TIMEOUTMILLIS = 3 * 1000;
-	
-	private static final long DEFAULT_ENABLE_WORKER_PACKET_DELAY = 60 * 1000 * 1;
-	private static final int DEFAULT_ENABLE_WORKER_PACKET_RETRY_COUNT = 3;
-	
+    private static final long DEFAULT_PING_DELAY = 60 * 1000 * 5;
+    private static final long DEFAULT_TIMEOUTMILLIS = 3 * 1000;
+
+    private static final long DEFAULT_ENABLE_WORKER_PACKET_DELAY = 60 * 1000 * 1;
+    private static final int DEFAULT_ENABLE_WORKER_PACKET_RETRY_COUNT = 3;
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final State state = new State();
@@ -108,20 +108,20 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         
         MessageListener messageLisener = pinpointSocketFactory.getMessageListener();
         if (messageLisener != null) {
-        	this.messageListener = messageLisener;
+            this.messageListener = messageLisener;
         } else {
-        	this.messageListener = SimpleLoggingMessageListener.LISTENER;
+            this.messageListener = SimpleLoggingMessageListener.LISTENER;
         }
-        
+
         ServerStreamChannelMessageListener serverStreamChannelMessageListener = pinpointSocketFactory.getServerStreamChannelMessageListener();
         if (serverStreamChannelMessageListener != null) {
-        	this.serverStreamChannelMessageListener = serverStreamChannelMessageListener;
+            this.serverStreamChannelMessageListener = serverStreamChannelMessageListener;
         } else {
-        	this.serverStreamChannelMessageListener = DisabledServerStreamChannelMessageListener.INSTANCE;
+            this.serverStreamChannelMessageListener = DisabledServerStreamChannelMessageListener.INSTANCE;
         }
         
         pinpointSocketFactory.getServerStreamChannelMessageListener();
-	}
+    }
 
     public Timer getChannelTimer() {
         return channelTimer;
@@ -159,17 +159,17 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         
         Channel channel = this.channel;
         if (channel != null) {
-        	prepareChannel(channel);
+            prepareChannel(channel);
         }
     }
     
     private void prepareChannel(Channel channel) {
-    	ServerStreamChannelMessageListener serverStreamChannelMessageListener = this.serverStreamChannelMessageListener;
-    	
-    	StreamChannelManager streamChannelManager = new StreamChannelManager(channel, IDGenerator.createOddIdGenerator(), serverStreamChannelMessageListener);
-    	
-    	SocketHandlerContext context = new SocketHandlerContext(channel, streamChannelManager);
-    	channel.setAttachment(context);
+        ServerStreamChannelMessageListener serverStreamChannelMessageListener = this.serverStreamChannelMessageListener;
+
+        StreamChannelManager streamChannelManager = new StreamChannelManager(channel, IDGenerator.createOddIdGenerator(), serverStreamChannelMessageListener);
+
+        SocketHandlerContext context = new SocketHandlerContext(channel, streamChannelManager);
+        channel.setAttachment(context);
     }
 
     private SocketHandlerContext getChannelContext(Channel channel) {
@@ -226,71 +226,71 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 
     private class RegisterEnableWorkerPacketJob implements TimerTask {
 
-    	private final int maxRetryCount;
-    	private final AtomicInteger currentCount;
-    	
-    	public RegisterEnableWorkerPacketJob(int maxRetryCount) {
-    		this.maxRetryCount = maxRetryCount;
-    		this.currentCount = new AtomicInteger(0);
-		}
+        private final int maxRetryCount;
+        private final AtomicInteger currentCount;
 
-		@Override
-		public void run(Timeout timeout) throws Exception {
-			if (timeout.isCancelled()) {
-				reservationEnableWorkerPacketJob(this);
-				return;
-			}
-			if (isClosed()) {
-				return;
-			}
-			
-			if (state.getState() == State.RUN) {
-				incrementCurrentRetryCount();
-				
-				sendEnableWorkerPacket();
-				reservationEnableWorkerPacketJob(this);
-			}
-		}
+        public RegisterEnableWorkerPacketJob(int maxRetryCount) {
+            this.maxRetryCount = maxRetryCount;
+            this.currentCount = new AtomicInteger(0);
+        }
 
-    	public int getMaxRetryCount() {
-    		return maxRetryCount;
-    	}
+        @Override
+        public void run(Timeout timeout) throws Exception {
+            if (timeout.isCancelled()) {
+                reservationEnableWorkerPacketJob(this);
+                return;
+            }
+            if (isClosed()) {
+                return;
+            }
 
-    	public int getCurrentRetryCount() {
-    		return currentCount.get();
-    	}
-    	
-    	public void incrementCurrentRetryCount() {
-    		currentCount.incrementAndGet();
-    	}
-    	
+            if (state.getState() == State.RUN) {
+                incrementCurrentRetryCount();
+
+                sendEnableWorkerPacket();
+                reservationEnableWorkerPacketJob(this);
+            }
+        }
+
+        public int getMaxRetryCount() {
+            return maxRetryCount;
+        }
+
+        public int getCurrentRetryCount() {
+            return currentCount.get();
+        }
+
+        public void incrementCurrentRetryCount() {
+            currentCount.incrementAndGet();
+        }
+
     }
 
     private void reservationEnableWorkerPacketJob(RegisterEnableWorkerPacketJob task) {
-    	if (task.getCurrentRetryCount() >= task.getMaxRetryCount()) {
-    		return;
-    	}
+        if (task.getCurrentRetryCount() >= task.getMaxRetryCount()) {
+            return;
+        }
 
-		this.channelTimer.newTimeout(task, enableWorkerPacketDelay, TimeUnit.MILLISECONDS);
+        this.channelTimer.newTimeout(task, enableWorkerPacketDelay, TimeUnit.MILLISECONDS);
     }
 
-	void sendEnableWorkerPacket() {
-		if (!isRun()) {
-			return;
-		}
+    void sendEnableWorkerPacket() {
+        if (!isRun()) {
+            return;
+        }
 
-		logger.debug("write EnableWorkerPacket {}", channel);
+        logger.debug("write EnableWorkerPacket {}", channel);
 
-		try {
-			Map<String, Object> properties = this.pinpointSocketFactory.getProperties();
+        try {
+            Map<String, Object> properties = this.pinpointSocketFactory.getProperties();
             byte[] payload = ControlMessageEnDeconderUtils.encode(properties);
-			ControlEnableWorkerPacket packet = new ControlEnableWorkerPacket(payload);
-			final ChannelFuture write = this.channel.write(packet);
+            ControlEnableWorkerPacket packet = new ControlEnableWorkerPacket(payload);
+            final ChannelFuture write = this.channel.write(packet);
             write.addListener(enableWorkerWriteFailFutureListener);
-		} catch (ProtocolException e) {
-			logger.warn(e.getMessage(), e);
-		}
-	}
+        } catch (ProtocolException e) {
+            logger.warn(e.getMessage(), e);
+        }
+    }
 
     public void sendPing() {
         if (!isRun()) {
@@ -427,10 +427,10 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
                     return;
                     // connector로 들어오는 request 메시지를 핸들링을 해야 함.
                 case PacketType.APPLICATION_REQUEST:
-                	this.messageListener.handleRequest((RequestPacket) message, e.getChannel());
+                    this.messageListener.handleRequest((RequestPacket) message, e.getChannel());
                     return;
                 case PacketType.APPLICATION_SEND:
-                	this.messageListener.handleSend((SendPacket) message, e.getChannel());
+                    this.messageListener.handleSend((SendPacket) message, e.getChannel());
                     return;
                 case PacketType.APPLICATION_STREAM_CREATE:
                 case PacketType.APPLICATION_STREAM_CLOSE:
@@ -456,32 +456,32 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         }
     }
 
-	private void messageReceivedServerClosed(Channel channel) {
+    private void messageReceivedServerClosed(Channel channel) {
         logger.info("ServerClosed Packet received. {}", channel);
         // reconnect 상태로 변경한다.
         state.setState(State.RECONNECT);
     }
 
     private void messageReceivedEnableWorkerConfirm(ControlEnableWorkerConfirmPacket message, Channel channel) {
-    	int code = getRegisterAgentConfirmPacketCode(message.getPayload());
+        int code = getRegisterAgentConfirmPacketCode(message.getPayload());
 
-    	logger.info("EnableWorkerConfirm Packet({}) code={} received. {}", message, code, channel);
+        logger.info("EnableWorkerConfirm Packet({}) code={} received. {}", message, code, channel);
         // reconnect 상태로 변경한다.
 
-    	if (code == ControlEnableWorkerConfirmPacket.SUCCESS || code == ControlEnableWorkerConfirmPacket.ALREADY_REGISTER) {
-    		state.changeRunDuplexCommunication();
+        if (code == ControlEnableWorkerConfirmPacket.SUCCESS || code == ControlEnableWorkerConfirmPacket.ALREADY_REGISTER) {
+            state.changeRunDuplexCommunication();
         } else {
-        	logger.warn("Invalid EnableWorkerConfirm Packet ({}) code={} received. {}", message, code, channel);
+            logger.warn("Invalid EnableWorkerConfirm Packet ({}) code={} received. {}", message, code, channel);
         }
     }
     
     private int getRegisterAgentConfirmPacketCode(byte[] payload) {
-    	Map result = null;
+        Map result = null;
         try {
-			result = (Map) ControlMessageEnDeconderUtils.decode(payload);
-		} catch (ProtocolException e) {
-			logger.warn(e.getMessage(), e);
-		}
+            result = (Map) ControlMessageEnDeconderUtils.decode(payload);
+        } catch (ProtocolException e) {
+            logger.warn(e.getMessage(), e);
+        }
 
         int code = MapUtils.getInteger(result, "code", -1);
 
@@ -587,8 +587,10 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         this.requestManager.close();
         
         if (this.channel != null) {
-        	SocketHandlerContext context = getChannelContext(channel);
-        	context.getStreamChannelManager().close();
+            SocketHandlerContext context = getChannelContext(channel);
+            if (context != null) {
+                context.getStreamChannelManager().close();
+            }
         }
         
         this.channelTimer.stop();
@@ -624,41 +626,47 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         return sb.toString();
     }
 
-	@Override
-	public boolean isConnected() {
-		return this.state.isRun();
-	}
-	
-	@Override
-	public boolean isSupportServerMode() {
-		return messageListener != SimpleLoggingMessageListener.LISTENER;
-	}
-	
-	@Override
-	public void turnOnServerMode() {
+    @Override
+    public boolean isConnected() {
+        return this.state.isRun();
+    }
+
+    @Override
+    public boolean isSupportServerMode() {
+        return messageListener != SimpleLoggingMessageListener.LISTENER;
+    }
+
+    @Override
+    public void turnOnServerMode() {
         // MessageListener 등록시 EnableWorkerPacket전달
         sendEnableWorkerPacket();
-        
+
         RegisterEnableWorkerPacketJob job = new RegisterEnableWorkerPacketJob(enableWorkerPacketRetryCount);
         reservationEnableWorkerPacketJob(job);
-	}
+    }
 
-	class SocketHandlerContext {
-		private final Channel channel;
-		private final StreamChannelManager streamChannelManager;
-		
-		public SocketHandlerContext(Channel channel, StreamChannelManager streamChannelManager) {
-			this.channel = channel;
-			this.streamChannelManager = streamChannelManager;
-		}
+    class SocketHandlerContext {
+        private final Channel channel;
+        private final StreamChannelManager streamChannelManager;
 
-		public Channel getChannel() {
-			return channel;
-		}
+        public SocketHandlerContext(Channel channel, StreamChannelManager streamChannelManager) {
+            if (channel == null) {
+                throw new NullPointerException("channel must not be null");
+            }
+            if (streamChannelManager == null) {
+                throw new NullPointerException("streamChannelManager must not be null");
+            }
+            this.channel = channel;
+            this.streamChannelManager = streamChannelManager;
+        }
 
-		public StreamChannelManager getStreamChannelManager() {
-			return streamChannelManager;
-		}
-	}
-	
+        public Channel getChannel() {
+            return channel;
+        }
+
+        public StreamChannelManager getStreamChannelManager() {
+            return streamChannelManager;
+        }
+    }
+
 }
