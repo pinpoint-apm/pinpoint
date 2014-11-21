@@ -1,14 +1,15 @@
 package com.nhn.pinpoint.bootstrap.config;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import com.nhn.pinpoint.bootstrap.util.NumberUtils;
 import com.nhn.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
 import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.bootstrap.util.NumberUtils;
 import com.nhn.pinpoint.common.util.PropertyUtils;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author emeroad
@@ -26,6 +27,7 @@ public class ProfilerConfig {
 
     private static class BypassResolver implements ValueResolver {
         public static final ValueResolver RESOLVER = new BypassResolver();
+
         @Override
         public String resolve(String value, Properties properties) {
             return value;
@@ -41,19 +43,19 @@ public class ProfilerConfig {
             return propertyPlaceholderHelper.replacePlaceholders(value, properties);
         }
     }
-    
-    public static ProfilerConfig load(String pinpiontConfigFileName) throws IOException {
+
+    public static ProfilerConfig load(String pinpointConfigFileName) throws IOException {
         try {
-            Properties properties = PropertyUtils.loadProperty(pinpiontConfigFileName);
+            Properties properties = PropertyUtils.loadProperty(pinpointConfigFileName);
             return new ProfilerConfig(properties);
         } catch (FileNotFoundException fe) {
             if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, pinpiontConfigFileName + " file is not exists. Please check configuration.");
+                logger.log(Level.WARNING, pinpointConfigFileName + " file is not exists. Please check configuration.");
             }
             throw fe;
         } catch (IOException e) {
             if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, pinpiontConfigFileName + " file read error. Cause:" + e.getMessage(), e);
+                logger.log(Level.WARNING, pinpointConfigFileName + " file read error. Cause:" + e.getMessage(), e);
             }
             throw e;
         }
@@ -81,46 +83,46 @@ public class ProfilerConfig {
     private int statDataSenderChunkSize = 1024 * 16;
 
     private boolean tcpDataSenderCommandAcceptEnable = false;
-    
+
     private int jdbcSqlCacheSize = 1024;
     private int jdbcMaxSqlBindValueSize = 1024;
-	private boolean jdbcProfile = true;
+    private boolean jdbcProfile = true;
 
-	private boolean jdbcProfileMySql = true;
+    private boolean jdbcProfileMySql = true;
     private boolean jdbcProfileMySqlSetAutoCommit = false;
     private boolean jdbcProfileMySqlCommit = false;
     private boolean jdbcProfileMySqlRollback = false;
 
-	private boolean jdbcProfileJtds = true;
+    private boolean jdbcProfileJtds = true;
     private boolean jdbcProfileJtdsSetAutoCommit = false;
     private boolean jdbcProfileJtdsCommit = false;
     private boolean jdbcProfileJtdsRollback = false;
 
-	private boolean jdbcProfileOracle = true;
+    private boolean jdbcProfileOracle = true;
     private boolean jdbcProfileOracleSetAutoCommit = false;
     private boolean jdbcProfileOracleCommit = false;
     private boolean jdbcProfileOracleRollback = false;
 
-	private boolean jdbcProfileCubrid = true;
+    private boolean jdbcProfileCubrid = true;
     private boolean jdbcProfileCubridSetAutoCommit = false;
     private boolean jdbcProfileCubridCommit = false;
     private boolean jdbcProfileCubridRollback = false;
 
-	private boolean jdbcProfileDbcp = true;
+    private boolean jdbcProfileDbcp = true;
     private boolean jdbcProfileDbcpConnectionClose = false;
 
-	private boolean tomcatHidePinpointHeader = true;
-	private Filter<String> tomcatExcludeUrlFilter = new SkipFilter<String>();
+    private boolean tomcatHidePinpointHeader = true;
+    private Filter<String> tomcatExcludeUrlFilter = new SkipFilter<String>();
 
     private boolean ibatis = true;
-    
+
     private boolean mybatis = true;
 
     private boolean redis = true;
     private boolean redisPipeline = true;
     private boolean nbaseArc = true;
     private boolean nbaseArcPipeline = true;
-    
+
     /**
      * apache http client
      */
@@ -131,12 +133,12 @@ public class ProfilerConfig {
     private boolean apacheHttpClient4ProfileEntity = false;
     private DumpType apacheHttpClient4ProfileEntityDumpType = DumpType.EXCEPTION;
     private int apacheHttpClient4ProfileEntitySamplingRate = 1;
-    
+
     /**
      * apache nio http client
      */
     private boolean apacheNIOHttpClient4Profile = true;
-    
+
     /**
      * ning async http client
      */
@@ -170,30 +172,33 @@ public class ProfilerConfig {
     private int samplingRate = 1;
 
     // span buffering에 대한 설정.
-	private boolean ioBufferingEnable;
-	private int ioBufferingBufferSize;
+    private boolean ioBufferingEnable;
+    private int ioBufferingBufferSize;
 
-	private int profileJvmCollectInterval;
-	
-	private Filter<String> profilableClassFilter = new SkipFilter<String>();
+    private int profileJvmCollectInterval;
 
-    private final long DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL = 5*60*1000L;
-	private long agentInfoSendRetryInterval = DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL;
+    private Filter<String> profilableClassFilter = new SkipFilter<String>();
 
-	private ServiceType applicationServerType;
-	
-	public ProfilerConfig() {
-	    this.properties = new Properties();
-	}
+    private final long DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL = 5 * 60 * 1000L;
+    private long agentInfoSendRetryInterval = DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL;
+
+    private ServiceType applicationServerType;
+
+    public ProfilerConfig() {
+        this.properties = new Properties();
+    }
 
     public ProfilerConfig(Properties properties) {
+        if (properties == null) {
+            throw new NullPointerException("properties must not be null");
+        }
         this.properties = properties;
         readPropertyValues();
-	}
+    }
 
     public String getCollectorSpanServerIp() {
-		return collectorSpanServerIp;
-	}
+        return collectorSpanServerIp;
+    }
 
     public int getCollectorSpanServerPort() {
         return collectorSpanServerPort;
@@ -204,8 +209,8 @@ public class ProfilerConfig {
     }
 
     public int getCollectorStatServerPort() {
-		return collectorStatServerPort;
-	}
+        return collectorStatServerPort;
+    }
 
     public String getCollectorTcpServerIp() {
         return collectorTcpServerIp;
@@ -234,9 +239,9 @@ public class ProfilerConfig {
     public int getSpanDataSenderSocketSendBufferSize() {
         return spanDataSenderSocketSendBufferSize;
     }
-    
+
     public boolean isTcpDataSenderCommandAcceptEnable() {
-    	return tcpDataSenderCommandAcceptEnable;
+        return tcpDataSenderCommandAcceptEnable;
     }
 
     public int getSpanDataSenderSocketTimeout() {
@@ -252,12 +257,12 @@ public class ProfilerConfig {
     }
 
     public boolean isProfileEnable() {
-		return profileEnable;
-	}
+        return profileEnable;
+    }
 
-	public boolean isJdbcProfile() {
-		return jdbcProfile;
-	}
+    public boolean isJdbcProfile() {
+        return jdbcProfile;
+    }
 
     public int getJdbcSqlCacheSize() {
         return jdbcSqlCacheSize;
@@ -268,9 +273,9 @@ public class ProfilerConfig {
     }
 
     // mysql start -----------------------------------------------------
-	public boolean isJdbcProfileMySql() {
-		return jdbcProfileMySql;
-	}
+    public boolean isJdbcProfileMySql() {
+        return jdbcProfileMySql;
+    }
 
     public boolean isJdbcProfileMySqlSetAutoCommit() {
         return jdbcProfileMySqlSetAutoCommit;
@@ -286,8 +291,8 @@ public class ProfilerConfig {
     // mysql end-----------------------------------------------------
 
     public boolean isJdbcProfileJtds() {
-		return jdbcProfileJtds;
-	}
+        return jdbcProfileJtds;
+    }
 
     public boolean isJdbcProfileJtdsSetAutoCommit() {
         return jdbcProfileJtdsSetAutoCommit;
@@ -302,9 +307,9 @@ public class ProfilerConfig {
     }
 
     // oracle start -----------------------------------------------------
-	public boolean isJdbcProfileOracle() {
-		return jdbcProfileOracle;
-	}
+    public boolean isJdbcProfileOracle() {
+        return jdbcProfileOracle;
+    }
 
     public boolean isJdbcProfileOracleSetAutoCommit() {
         return jdbcProfileOracleSetAutoCommit;
@@ -321,8 +326,8 @@ public class ProfilerConfig {
 
     // cubrid start -----------------------------------------------------
     public boolean isJdbcProfileCubrid() {
-		return jdbcProfileCubrid;
-	}
+        return jdbcProfileCubrid;
+    }
 
     public boolean isJdbcProfileCubridSetAutoCommit() {
         return jdbcProfileCubridSetAutoCommit;
@@ -347,20 +352,20 @@ public class ProfilerConfig {
     }
 
     public boolean isIoBufferingEnable() {
-		return ioBufferingEnable;
-	}
+        return ioBufferingEnable;
+    }
 
-	public int getIoBufferingBufferSize() {
-		return ioBufferingBufferSize;
-	}
+    public int getIoBufferingBufferSize() {
+        return ioBufferingBufferSize;
+    }
 
-	public int getProfileJvmCollectInterval() {
-		return profileJvmCollectInterval;
-	}
-	
-	public long getAgentInfoSendRetryInterval() {
-		return agentInfoSendRetryInterval;
-	}
+    public int getProfileJvmCollectInterval() {
+        return profileJvmCollectInterval;
+    }
+
+    public long getAgentInfoSendRetryInterval() {
+        return agentInfoSendRetryInterval;
+    }
 
     public boolean isJdbcProfileDbcp() {
         return jdbcProfileDbcp;
@@ -370,13 +375,13 @@ public class ProfilerConfig {
         return jdbcProfileDbcpConnectionClose;
     }
 
-	public boolean isTomcatHidePinpointHeader() {
-		return tomcatHidePinpointHeader;
-	}
+    public boolean isTomcatHidePinpointHeader() {
+        return tomcatHidePinpointHeader;
+    }
 
-	public Filter<String> getTomcatExcludeUrlFilter() {
-		return tomcatExcludeUrlFilter;
-	}
+    public Filter<String> getTomcatExcludeUrlFilter() {
+        return tomcatExcludeUrlFilter;
+    }
 
     //-----------------------------------------
     // http apache client
@@ -412,70 +417,70 @@ public class ProfilerConfig {
     //-----------------------------------------
     // org/apache/http/impl/nio/*
     public boolean getApacheNIOHttpClient4Profile() {
-    	return apacheNIOHttpClient4Profile;
+        return apacheNIOHttpClient4Profile;
     }
-    
+
     //-----------------------------------------
     // com/ning/http/client/AsyncHttpClient
-	public boolean isNingAsyncHttpClientProfile() {
-		return ningAsyncHttpClientProfile;
-	}
+    public boolean isNingAsyncHttpClientProfile() {
+        return ningAsyncHttpClientProfile;
+    }
 
-	public boolean isNingAsyncHttpClientProfileCookie() {
-		return ningAsyncHttpClientProfileCookie;
-	}
+    public boolean isNingAsyncHttpClientProfileCookie() {
+        return ningAsyncHttpClientProfileCookie;
+    }
 
-	public DumpType getNingAsyncHttpClientProfileCookieDumpType() {
-		return ningAsyncHttpClientProfileCookieDumpType;
-	}
-	
-	public int getNingAsyncHttpClientProfileCookieDumpSize() {
-		return ningAsyncHttpClientProfileCookieDumpSize;
-	}
+    public DumpType getNingAsyncHttpClientProfileCookieDumpType() {
+        return ningAsyncHttpClientProfileCookieDumpType;
+    }
 
-	public int getNingAsyncHttpClientProfileCookieSamplingRate() {
-		return ningAsyncHttpClientProfileCookieSamplingRate;
-	}
+    public int getNingAsyncHttpClientProfileCookieDumpSize() {
+        return ningAsyncHttpClientProfileCookieDumpSize;
+    }
 
-	public boolean isNingAsyncHttpClientProfileEntity() {
-		return ningAsyncHttpClientProfileEntity;
-	}
+    public int getNingAsyncHttpClientProfileCookieSamplingRate() {
+        return ningAsyncHttpClientProfileCookieSamplingRate;
+    }
 
-	public DumpType getNingAsyncHttpClientProfileEntityDumpType() {
-		return ningAsyncHttpClientProfileEntityDumpType;
-	}
-	
-	public int getNingAsyncHttpClientProfileEntityDumpSize() {
-		return ningAsyncHttpClientProfileEntityDumpSize;
-	}
+    public boolean isNingAsyncHttpClientProfileEntity() {
+        return ningAsyncHttpClientProfileEntity;
+    }
 
-	public int getNingAsyncHttpClientProfileEntitySamplingRate() {
-		return ningAsyncHttpClientProfileEntitySamplingRate;
-	}
-	
-	public boolean isNingAsyncHttpClientProfileParam() {
-		return ningAsyncHttpClientProfileParam;
-	}
-	
-	public DumpType getNingAsyncHttpClientProfileParamDumpType() {
-		return ningAsyncHttpClientProfileParamDumpType;
-	}
-	
-	public int getNingAsyncHttpClientProfileParamDumpSize() {
-		return ningAsyncHttpClientProfileParamDumpSize;
-	}
-	
-	public int getNingAsyncHttpClientProfileParamSamplingRate() {
-		return ningAsyncHttpClientProfileParamSamplingRate;
-	}
-	
+    public DumpType getNingAsyncHttpClientProfileEntityDumpType() {
+        return ningAsyncHttpClientProfileEntityDumpType;
+    }
+
+    public int getNingAsyncHttpClientProfileEntityDumpSize() {
+        return ningAsyncHttpClientProfileEntityDumpSize;
+    }
+
+    public int getNingAsyncHttpClientProfileEntitySamplingRate() {
+        return ningAsyncHttpClientProfileEntitySamplingRate;
+    }
+
+    public boolean isNingAsyncHttpClientProfileParam() {
+        return ningAsyncHttpClientProfileParam;
+    }
+
+    public DumpType getNingAsyncHttpClientProfileParamDumpType() {
+        return ningAsyncHttpClientProfileParamDumpType;
+    }
+
+    public int getNingAsyncHttpClientProfileParamDumpSize() {
+        return ningAsyncHttpClientProfileParamDumpSize;
+    }
+
+    public int getNingAsyncHttpClientProfileParamSamplingRate() {
+        return ningAsyncHttpClientProfileParamSamplingRate;
+    }
+
     public int getLineGameNettyParamDumpSize() {
-		return lineGameNettyParamDumpSize;
-	}
+        return lineGameNettyParamDumpSize;
+    }
 
-	public int getLineGameNettyEntityDumpSize() {
-		return lineGameNettyEntityDumpSize;
-	}
+    public int getLineGameNettyEntityDumpSize() {
+        return lineGameNettyEntityDumpSize;
+    }
 
     public boolean isSpringBeansEnabled() {
         return springBeans;
@@ -492,39 +497,39 @@ public class ProfilerConfig {
     public String getSpringBeansAnnotations() {
         return springBeansAnnotations;
     }
-    
-	public boolean isIBatisEnabled() {
-		return ibatis;
-	}
-	
-	public boolean isMyBatisEnabled() {
-		return mybatis;
-	}
 
-	public boolean isRedisEnabled() {
-	    return redis;
-	}
-	
-	public boolean isRedisPipelineEnabled() {
-	    return redisPipeline;
-	}
-	
-	public boolean isNbaseArcEnabled() {
-	    return nbaseArc;
-	}
-	
-	public boolean isNbaseArcPipelineEnabled() {
-	    return nbaseArcPipeline;
-	}
-	
-	
-    public Filter<String> getProfilableClassFilter() {
-		return profilableClassFilter;
+    public boolean isIBatisEnabled() {
+        return ibatis;
     }
-	
-	public ServiceType getApplicationServerType() {
-		return applicationServerType;
-	}
+
+    public boolean isMyBatisEnabled() {
+        return mybatis;
+    }
+
+    public boolean isRedisEnabled() {
+        return redis;
+    }
+
+    public boolean isRedisPipelineEnabled() {
+        return redisPipeline;
+    }
+
+    public boolean isNbaseArcEnabled() {
+        return nbaseArc;
+    }
+
+    public boolean isNbaseArcPipelineEnabled() {
+        return nbaseArcPipeline;
+    }
+
+
+    public Filter<String> getProfilableClassFilter() {
+        return profilableClassFilter;
+    }
+
+    public ServiceType getApplicationServerType() {
+        return applicationServerType;
+    }
 
     public void setApplicationServerType(ServiceType applicationServerType) {
         this.applicationServerType = applicationServerType;
@@ -559,49 +564,49 @@ public class ProfilerConfig {
 
         this.tcpDataSenderCommandAcceptEnable = readBoolean("profiler.tcpdatasender.command.accept.enable", false);
 
-		// JDBC
-		this.jdbcProfile = readBoolean("profiler.jdbc", true);
+        // JDBC
+        this.jdbcProfile = readBoolean("profiler.jdbc", true);
 
         this.jdbcSqlCacheSize = readInt("profiler.jdbc.sqlcachesize", 1024);
         this.jdbcMaxSqlBindValueSize = readInt("profiler.jdbc.maxsqlbindvaluesize", 1024);
 
-		this.jdbcProfileMySql = readBoolean("profiler.jdbc.mysql", true);
+        this.jdbcProfileMySql = readBoolean("profiler.jdbc.mysql", true);
         this.jdbcProfileMySqlSetAutoCommit = readBoolean("profiler.jdbc.mysql.setautocommit", false);
         this.jdbcProfileMySqlCommit = readBoolean("profiler.jdbc.mysql.commit", false);
         this.jdbcProfileMySqlRollback = readBoolean("profiler.jdbc.mysql.rollback", false);
 
 
-		this.jdbcProfileJtds = readBoolean("profiler.jdbc.jtds", true);
+        this.jdbcProfileJtds = readBoolean("profiler.jdbc.jtds", true);
         this.jdbcProfileJtdsSetAutoCommit = readBoolean("profiler.jdbc.jtds.setautocommit", false);
         this.jdbcProfileJtdsCommit = readBoolean("profiler.jdbc.jtds.commit", false);
         this.jdbcProfileJtdsRollback = readBoolean("profiler.jdbc.jtds.rollback", false);
 
 
-		this.jdbcProfileOracle = readBoolean("profiler.jdbc.oracle", true);
+        this.jdbcProfileOracle = readBoolean("profiler.jdbc.oracle", true);
         this.jdbcProfileOracleSetAutoCommit = readBoolean("profiler.jdbc.oracle.setautocommit", false);
         this.jdbcProfileOracleCommit = readBoolean("profiler.jdbc.oracle.commit", false);
         this.jdbcProfileOracleRollback = readBoolean("profiler.jdbc.oracle.rollback", false);
 
 
-		this.jdbcProfileCubrid = readBoolean("profiler.jdbc.cubrid", true);
+        this.jdbcProfileCubrid = readBoolean("profiler.jdbc.cubrid", true);
         this.jdbcProfileCubridSetAutoCommit = readBoolean("profiler.jdbc.cubrid.setautocommit", false);
         this.jdbcProfileCubridCommit = readBoolean("profiler.jdbc.cubrid.commit", false);
         this.jdbcProfileCubridRollback = readBoolean("profiler.jdbc.cubrid.rollback", false);
 
 
-		this.jdbcProfileDbcp = readBoolean("profiler.jdbc.dbcp", true);
+        this.jdbcProfileDbcp = readBoolean("profiler.jdbc.dbcp", true);
         this.jdbcProfileDbcpConnectionClose = readBoolean("profiler.jdbc.dbcp.connectionclose", false);
 
 
-		this.tomcatHidePinpointHeader = readBoolean("profiler.tomcat.hidepinpointheader", true);
-		final String tomcatExcludeURL = readString("profiler.tomcat.excludeurl", "");
-		if (!tomcatExcludeURL.isEmpty()) {
-			this.tomcatExcludeUrlFilter = new ExcludeUrlFilter(tomcatExcludeURL);
-		}
+        this.tomcatHidePinpointHeader = readBoolean("profiler.tomcat.hidepinpointheader", true);
+        final String tomcatExcludeURL = readString("profiler.tomcat.excludeurl", "");
+        if (!tomcatExcludeURL.isEmpty()) {
+            this.tomcatExcludeUrlFilter = new ExcludeUrlFilter(tomcatExcludeURL);
+        }
 
-		/**
-		 * apache http client 4
-		 */
+        /**
+         * apache http client 4
+         */
         this.apacheHttpClient4Profile = readBoolean("profiler.apache.httpclient4", true);
         this.apacheHttpClient4ProfileCookie = readBoolean("profiler.apache.httpclient4.cookie", false);
         this.apacheHttpClient4ProfileCookieDumpType = readDumpType("profiler.apache.httpclient4.cookie.dumptype", DumpType.EXCEPTION);
@@ -615,7 +620,7 @@ public class ProfilerConfig {
          * apache nio http client
          */
         this.apacheNIOHttpClient4Profile = readBoolean("profiler.apache.nio.httpclient4", true);
-        
+
         /**
          * ning.async http client
          */
@@ -624,7 +629,7 @@ public class ProfilerConfig {
         this.ningAsyncHttpClientProfileCookieDumpType = readDumpType("profiler.ning.asynchttpclient.cookie.dumptype", DumpType.EXCEPTION);
         this.ningAsyncHttpClientProfileCookieDumpSize = readInt("profiler.ning.asynchttpclient.cookie.dumpsize", 1024);
         this.ningAsyncHttpClientProfileCookieSamplingRate = readInt("profiler.ning.asynchttpclient.cookie.sampling.rate", 1);
-        
+
         this.ningAsyncHttpClientProfileEntity = readBoolean("profiler.ning.asynchttpclient.entity", false);
         this.ningAsyncHttpClientProfileEntityDumpType = readDumpType("profiler.ning.asynchttpclient.entity.dumptype", DumpType.EXCEPTION);
         this.ningAsyncHttpClientProfileEntityDumpSize = readInt("profiler.ning.asynchttpclient.entity.dumpsize", 1024);
@@ -640,15 +645,15 @@ public class ProfilerConfig {
         this.redisPipeline = readBoolean("profiler.redis.pipeline", true);
         this.nbaseArc = readBoolean("profiler.nbase_arc", true);
         this.nbaseArcPipeline = readBoolean("profiler.nbase_arc.pipeline", true);
-        
+
         //
         // FIXME 임시용, line game netty configuration
         //
         this.lineGameNettyParamDumpSize = readInt("profiler.line.game.netty.param.dumpsize", 512);
         this.lineGameNettyEntityDumpSize = readInt("profiler.line.game.netty.entity.dumpsize", 512);
-        
+
         this.ibatis = readBoolean("profiler.orm.ibatis", true);
-        
+
         this.mybatis = readBoolean("profiler.orm.mybatis", true);
 
         this.springBeans = readBoolean("profiler.spring.beans", false);
@@ -658,31 +663,31 @@ public class ProfilerConfig {
 
         this.samplingEnable = readBoolean("profiler.sampling.enable", true);
         this.samplingRate = readInt("profiler.sampling.rate", 1);
-        
-		// 샘플링 + io 조절 bufferSize 결정
-		this.ioBufferingEnable = readBoolean("profiler.io.buffering.enable", true);
+
+        // 샘플링 + io 조절 bufferSize 결정
+        this.ioBufferingEnable = readBoolean("profiler.io.buffering.enable", true);
         // 버퍼 사이즈는 여기에 있는것은 문제가 있는것도 같음. 설정 조정의 필요성이 있음.
-		this.ioBufferingBufferSize = readInt("profiler.io.buffering.buffersize", 20);
+        this.ioBufferingBufferSize = readInt("profiler.io.buffering.buffersize", 20);
 
-		// JVM
-		this.profileJvmCollectInterval = readInt("profiler.jvm.collect.interval", 1000);
+        // JVM
+        this.profileJvmCollectInterval = readInt("profiler.jvm.collect.interval", 1000);
 
-		this.agentInfoSendRetryInterval = readLong("profiler.agentInfo.send.retry.interval", DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL);
-		
-		// service type
-		this.applicationServerType = readServiceType("profiler.applicationservertype");
-		
-		// profile package include
-		// TODO 제거, 서비스 적용에 call stack view가 잘 보이는지 테스트하려고 추가함.
-		// 수집 데이터 크기 문제로 실 서비스에서는 사용 안함.
-		// 나중에 필요에 따라 정규식으로 바꿔도 되고...
-		final String profileableClass = readString("profiler.include", "");
-		if (!profileableClass.isEmpty()) {
-			this.profilableClassFilter = new ProfilableClassFilter(profileableClass);
-		}
+        this.agentInfoSendRetryInterval = readLong("profiler.agentInfo.send.retry.interval", DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL);
+
+        // service type
+        this.applicationServerType = readServiceType("profiler.applicationservertype");
+
+        // profile package include
+        // TODO 제거, 서비스 적용에 call stack view가 잘 보이는지 테스트하려고 추가함.
+        // 수집 데이터 크기 문제로 실 서비스에서는 사용 안함.
+        // 나중에 필요에 따라 정규식으로 바꿔도 되고...
+        final String profileableClass = readString("profiler.include", "");
+        if (!profileableClass.isEmpty()) {
+            this.profilableClassFilter = new ProfilableClassFilter(profileableClass);
+        }
 
         logger.info("configuration loaded successfully.");
-	}
+    }
 
 
     public String readString(String propertyName, String defaultValue) {
@@ -702,15 +707,15 @@ public class ProfilerConfig {
     }
 
     public int readInt(String propertyName, int defaultValue) {
-		String value = properties.getProperty(propertyName);
-		int result = NumberUtils.parseInteger(value, defaultValue);
-		if (logger.isLoggable(Level.INFO)) {
-			logger.info(propertyName + "=" + result);
-		}
-		return result;
-	}
+        String value = properties.getProperty(propertyName);
+        int result = NumberUtils.parseInteger(value, defaultValue);
+        if (logger.isLoggable(Level.INFO)) {
+            logger.info(propertyName + "=" + result);
+        }
+        return result;
+    }
 
-	public DumpType readDumpType(String propertyName, DumpType defaultDump) {
+    public DumpType readDumpType(String propertyName, DumpType defaultDump) {
         String propertyValue = properties.getProperty(propertyName);
         if (propertyValue == null) {
             propertyValue = defaultDump.name();
@@ -729,25 +734,25 @@ public class ProfilerConfig {
     }
 
     public long readLong(String propertyName, long defaultValue) {
-		String value = properties.getProperty(propertyName);
-		long result = NumberUtils.parseLong(value, defaultValue);
-		if (logger.isLoggable(Level.INFO)) {
-			logger.info(propertyName + "=" + result);
-		}
-		return result;
-	}
-	
-	public ServiceType readServiceType(String propertyName) {
-		String value = properties.getProperty(propertyName);
+        String value = properties.getProperty(propertyName);
+        long result = NumberUtils.parseLong(value, defaultValue);
+        if (logger.isLoggable(Level.INFO)) {
+            logger.info(propertyName + "=" + result);
+        }
+        return result;
+    }
+
+    public ServiceType readServiceType(String propertyName) {
+        String value = properties.getProperty(propertyName);
         if (value == null) {
             return null;
         }
-		ServiceType serviceType = getServiceType(value);
-		if (logger.isLoggable(Level.INFO)) {
-			logger.info(propertyName + "=" + serviceType);
-		}
-		return serviceType;
-	}
+        ServiceType serviceType = getServiceType(value);
+        if (logger.isLoggable(Level.INFO)) {
+            logger.info(propertyName + "=" + serviceType);
+        }
+        return serviceType;
+    }
 
     public ServiceType getServiceType(String defaultValue) {
         try {
@@ -759,13 +764,13 @@ public class ProfilerConfig {
     }
 
     public boolean readBoolean(String propertyName, boolean defaultValue) {
-		String value = properties.getProperty(propertyName, Boolean.toString(defaultValue));
-		boolean result = Boolean.parseBoolean(value);
-		if (logger.isLoggable(Level.INFO)) {
-			logger.info(propertyName + "=" + result);
-		}
-		return result;
-	}
+        String value = properties.getProperty(propertyName, Boolean.toString(defaultValue));
+        boolean result = Boolean.parseBoolean(value);
+        if (logger.isLoggable(Level.INFO)) {
+            logger.info(propertyName + "=" + result);
+        }
+        return result;
+    }
 
 
     @Override

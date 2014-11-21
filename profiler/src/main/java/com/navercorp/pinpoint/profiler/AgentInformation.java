@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.profiler;
 
+import com.nhn.pinpoint.common.ServiceType;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,6 +18,7 @@ public class AgentInformation {
     private final String machineName;
     private final String hostIp;
     private final short serverType;
+    private final ServiceType serverServiceType;
     private final String version;
 
     public AgentInformation(String agentId, String applicationName, long startTime, int pid, String machineName, String hostIp, short serverType, String version) {
@@ -38,6 +41,7 @@ public class AgentInformation {
         this.machineName = machineName;
         this.hostIp = hostIp;
         this.serverType = serverType;
+        this.serverServiceType =  ServiceType.findServiceType(serverType);
         this.version = version;
     }
 
@@ -69,6 +73,10 @@ public class AgentInformation {
 
     public short getServerType() {
         return serverType;
+    }
+
+    public ServiceType getServerServiceType() {
+        return serverServiceType;
     }
 
     public String getVersion() {

@@ -133,7 +133,8 @@ public class InvokeTaskRunInterceptor extends SpanSimpleAroundInterceptor implem
             // 한다.
             // sampling 대상이 아닐경우 rpc 호출에서 sampling 대상이 아닌 것에 rpc호출 파라미터에
             // sampling disable 파라미터를 박을수 있다.
-            final Trace trace = getTraceContext().disableSampling();
+            final TraceContext traceContext = getTraceContext();
+            final Trace trace = traceContext.disableSampling();
             if (isDebug) {
                 String requestURL = request.getUri();
                 String remoteAddr = getRemoteAddress(channel);
@@ -146,7 +147,8 @@ public class InvokeTaskRunInterceptor extends SpanSimpleAroundInterceptor implem
         if (traceId != null) {
             // TODO remote에서 sampling flag로 마크가되는 대상으로 왔을 경우도 추가로 샘플링 칠수 있어야
             // 할것으로 보임.
-            final Trace trace = getTraceContext().continueTraceObject(traceId);
+            final TraceContext traceContext = getTraceContext();
+            final Trace trace = traceContext.continueTraceObject(traceId);
             if (trace.canSampled()) {
                 if (isDebug) {
                     String requestURL = request.getUri();
@@ -164,7 +166,8 @@ public class InvokeTaskRunInterceptor extends SpanSimpleAroundInterceptor implem
                 return trace;
             }
         } else {
-            final Trace trace = getTraceContext().newTraceObject();
+            TraceContext traceContext = getTraceContext();
+            final Trace trace = traceContext.newTraceObject();
             if (trace.canSampled()) {
                 if (isDebug) {
                     String requestURL = request.getUri();
