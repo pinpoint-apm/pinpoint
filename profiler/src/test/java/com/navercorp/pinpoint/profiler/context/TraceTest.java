@@ -26,7 +26,7 @@ public class TraceTest {
     @Test
     public void trace() {
         DefaultTraceId traceID = new DefaultTraceId("agent", 0, 1);
-        DefaultTraceContext defaultTraceConetxt = getDefaultTraceConetxt();
+        DefaultTraceContext defaultTraceConetxt = getDefaultTraceContext();
         DefaultTrace trace = new DefaultTrace(defaultTraceConetxt , traceID);
         trace.setStorage(new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
         trace.traceBlockBegin();
@@ -50,7 +50,7 @@ public class TraceTest {
     @Test
     public void popEventTest() {
         DefaultTraceId traceID = new DefaultTraceId("agent", 0, 1);
-        DefaultTraceContext defaultTraceConetxt = getDefaultTraceConetxt();
+        DefaultTraceContext defaultTraceConetxt = getDefaultTraceContext();
         DefaultTrace trace = new DefaultTrace(defaultTraceConetxt, traceID);
         TestDataSender dataSender = new TestDataSender();
         trace.setStorage(new SpanStorage(LoggingDataSender.DEFAULT_LOGGING_DATA_SENDER));
@@ -63,7 +63,7 @@ public class TraceTest {
         logger.info(String.valueOf(dataSender.event));
     }
 
-    private DefaultTraceContext getDefaultTraceConetxt() {
+    private DefaultTraceContext getDefaultTraceContext() {
         DefaultTraceContext defaultTraceContext = new DefaultTraceContext();
         defaultTraceContext.setAgentInformation(new AgentInformation("agentId", "applicationName", System.currentTimeMillis(), 10, "test", "127.0.0.1", ServiceType.TOMCAT.getCode(), Version.VERSION));
         return defaultTraceContext;

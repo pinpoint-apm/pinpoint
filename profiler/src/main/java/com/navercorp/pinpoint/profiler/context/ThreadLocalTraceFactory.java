@@ -94,7 +94,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         threadLocal.set(metricTrace);
 //        return metricTrace;
         // TODO STATDISABLE 잠시 통계기능을 disable시키기 위해서 null리턴
-        return null;
+        return metricTrace;
     }
 
     // remote 에서 샘플링 대상으로 선정된 경우.

@@ -55,19 +55,20 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     @Override
     protected Trace createTrace(Object target, Object[] args) {
         final HttpServletRequest request = (HttpServletRequest) args[0];
-		final String requestURI = request.getRequestURI();
-		if (excludeUrlFilter.filter(requestURI)) {
-			if (isTrace) {
-				logger.trace("filter requestURI:{}", requestURI);
-			}
-			return null;
-		}
+        final String requestURI = request.getRequestURI();
+        if (excludeUrlFilter.filter(requestURI)) {
+            if (isTrace) {
+                logger.trace("filter requestURI:{}", requestURI);
+            }
+            return null;
+        }
         // remote call에 sampling flag가 설정되어있을 경우는 샘플링 대상으로 삼지 않는다.
         final boolean sampling = samplingEnable(request);
         if (!sampling) {
             // 샘플링 대상이 아닐 경우도 TraceObject를 생성하여, sampling 대상이 아니라는것을 명시해야 한다.
             // sampling 대상이 아닐경우 rpc 호출에서 sampling 대상이 아닌 것에 rpc호출 파라미터에 sampling disable 파라미터를 박을수 있다.
-            final Trace trace = getTraceContext().disableSampling();
+            final TraceContext traceContext = getTraceContext();
+            final Trace trace = traceContext.disableSampling();
             if (isDebug) {
                 logger.debug("remotecall sampling flag found. skip trace requestUrl:{}, remoteAddr:{}", request.getRequestURI(), request.getRemoteAddr());
             }
@@ -78,7 +79,8 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
         final TraceId traceId = populateTraceIdFromRequest(request);
         if (traceId != null) {
             // TODO remote에서 sampling flag로 마크가되는 대상으로 왔을 경우도 추가로 샘플링 칠수 있어야 할것으로 보임.
-            final Trace trace = getTraceContext().continueTraceObject(traceId);
+            final TraceContext traceContext = getTraceContext();
+            final Trace trace = traceContext.continueTraceObject(traceId);
             // 서버 맵을 통계정보에서 조회하려면 remote로 호출되는 WAS의 관계를 알아야해서 부모의 application name을 전달받음.
 
             if (trace.canSampled()) {
@@ -92,7 +94,8 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
             }
             return trace;
         } else {
-            final Trace trace = getTraceContext().newTraceObject();
+            final TraceContext traceContext = getTraceContext();
+            final Trace trace = traceContext.newTraceObject();
             if (trace.canSampled()) {
                 if (isDebug) {
                     logger.debug("TraceID not exist. start new trace. requestUrl:{}, remoteAddr:{}", request.getRequestURI(), request.getRemoteAddr());

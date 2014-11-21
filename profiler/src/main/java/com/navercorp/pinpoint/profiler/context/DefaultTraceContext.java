@@ -113,12 +113,14 @@ public class DefaultTraceContext implements TraceContext {
 
     @Override
     public Trace disableSampling() {
-        return null;
-//        TODO STATDISABLE 통계 코드 일단 제거
-//        return traceFactory.disableSampling();
+        // return null; is bug.  #93
+        return traceFactory.disableSampling();
     }
 
     public void setProfilerConfig(final ProfilerConfig profilerConfig) {
+        if (profilerConfig == null) {
+            throw new NullPointerException("profilerConfig must not be null");
+        }
         this.profilerConfig = profilerConfig;
     }
 
@@ -174,7 +176,7 @@ public class DefaultTraceContext implements TraceContext {
 
     @Override
     public String getServerType() {
-        return ServiceType.findServiceType(this.agentInformation.getServerType()).getDesc();
+        return this.agentInformation.getServerServiceType().getDesc();
     }
 
 
