@@ -16,8 +16,8 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                 var oNavbarVo, oAlert, oProgressBar;
 
                 // define private variables of methods
-                var getAgentStat, showCharts, parseMemoryChartDataForAmcharts, parseCpuLoadChartDataForAmcharts,
-                broadcastToCpuLoadChart, resetServerMetaDataDiv, openServerMetaDataDiv;
+                var getAgentStat, initServiceInfo, showCharts, parseMemoryChartDataForAmcharts, parseCpuLoadChartDataForAmcharts,
+                broadcastToCpuLoadChart, resetServerMetaDataDiv;
 
                 // initialize
                 scope.agentInfoTemplate = 'views/agentInfoReady.html';
@@ -43,6 +43,7 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                         'jvmGcType': '',
                         'serverMetaData': agent.serverMetaData
                     };
+                    scope.currentServiceInfo = initServiceInfo(agent);
 
                     $timeout(function () {
                         getAgentStat(agent.agentId, oNavbarVo.getQueryStartTime(), oNavbarVo.getQueryEndTime(), oNavbarVo.getPeriod());
@@ -50,20 +51,22 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                     });
                 });
                 
-                resetServerMetaDataDiv = function() {
-                	$('#serverMetaDataDiv').modal('hide');
-                }
+                scope.selectServiceInfo = function(serviceInfo) {
+                    if (serviceInfo.serviceLibs.length > 0) {
+                        scope.currentServiceInfo = serviceInfo;
+                    }
+                };
                 
-                openServerMetaDataDiv = function() {
-                	resetServerMetaDataDiv();
-                	$('#serverMetaDataDiv').modal('show');
-                }
-                
-                /**
-                 * open server meta data div
-                 */
-                scope.openServerMetaDataDiv = function() {
-                	openServerMetaDataDiv();
+                initServiceInfo = function (agent) {
+                    if (agent.serverMetaData && agent.serverMetaData.serviceInfos) {
+                        var serviceInfos = agent.serverMetaData.serviceInfos;
+                        for (var i = 0; i < serviceInfos.length; ++i) {
+                            if (serviceInfos[i].serviceLibs.length > 0) {
+                                return serviceInfos[i];
+                            }
+                        } 
+                    }
+                    return;
                 }
 
                 /**
@@ -71,25 +74,20 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                  * @param agentStat
                  */
                 showCharts = function (agentStat) {
-                    var total = { id: 'total', title: 'Total (Heap + PermGen)', span: 'span12', line: [
-                        { id: 'jvmMemoryTotalUsed', key: 'Used', values: [], isFgc: false },
-                        { id: 'jvmMemoryTotalMax', key: 'Max', values: [], isFgc: false },
-                        { id: 'fgc', key: 'FGC', values: [], bar: true, isFgc: true }
-                    ]};
 
                     var heap = { id: 'heap', title: 'Heap', span: 'span12', line: [
-                        { id: 'jvmMemoryHeapUsed', key: 'Used', values: [], isFgc: false },
-                        { id: 'jvmMemoryHeapMax', key: 'Max', values: [], isFgc: false },
+                        { id: 'JVM_MEMORY_HEAP_USED', key: 'Used', values: [], isFgc: false },
+                        { id: 'JVM_MEMORY_HEAP_MAX', key: 'Max', values: [], isFgc: false },
                         { id: 'fgc', key: 'FGC', values: [], bar: true, isFgc: true }
                     ]};
 
                     var nonheap = { id: 'nonheap', title: 'PermGen', span: 'span12', line: [
-                        { id: 'jvmMemoryNonHeapUsed', key: 'Used', values: [], isFgc: false },
-                        { id: 'jvmMemoryNonHeapMax', key: 'Max', values: [], isFgc: false },
+                        { id: 'JVM_MEMORY_NON_HEAP_USED', key: 'Used', values: [], isFgc: false },
+                        { id: 'JVM_MEMORY_NON_HEAP_MAX', key: 'Max', values: [], isFgc: false },
                         { id: 'fgc', key: 'FGC', values: [], bar: true, isFgc: true }
                     ]};
                     
-                    var cpuLoad = { id: 'cpuLoad', title: 'CpuLoad', span: 'span12', isAvailable: false};
+                    var cpuLoad = { id: 'cpuLoad', title: 'JVM/System Cpu Usage', span: 'span12', isAvailable: false};
 
                     scope.memoryGroup = [ heap, nonheap ];
                     scope.cpuLoadChart = cpuLoad;
@@ -123,16 +121,13 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                         scope.agentStat = result;
                         if (angular.isDefined(result.type) && result.type) {
                             scope.info['jvmGcType'] =  result.type;
-                            oProgressBar.setLoading(80);
-                            showCharts(result);
-                            $timeout(function () {
-                                oProgressBar.setLoading(100);
-                                oProgressBar.stopLoading();
-                            }, 700);
-                        } else {
-                            oProgressBar.stopLoading();
                         }
-
+                        oProgressBar.setLoading(80);
+                        showCharts(result);
+                        $timeout(function () {
+                            oProgressBar.setLoading(100);
+                            oProgressBar.stopLoading();
+                        }, 700);
                         scope.$digest();
                     });
                 };
@@ -166,11 +161,6 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                     scope.$broadcast('jvmMemoryChart.showCursorAt.forHeap', event.index);
                     scope.$broadcast('jvmMemoryChart.showCursorAt.forNonHeap', event.index);
                 });
-                
-                scope.$on('agentInfo.openServerMetaDataDiv', function (event) {
-                	openServerMetaDataDiv();
-                });
-                
             }
         };
     }]);

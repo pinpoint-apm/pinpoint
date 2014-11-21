@@ -3,6 +3,8 @@ package com.nhn.pinpoint.web.controller;
 import java.util.List;
 import java.util.SortedMap;
 
+import com.nhn.pinpoint.web.util.TimeWindow;
+import com.nhn.pinpoint.web.util.TimeWindowSlotCentricSampler;
 import com.nhn.pinpoint.web.vo.AgentStat;
 import com.nhn.pinpoint.web.vo.Range;
 
@@ -41,8 +43,11 @@ public class AgentStatController {
             @RequestParam(value = "sampleRate", required = false) Integer sampleRate) throws Exception {
         StopWatch watch = new StopWatch();
         watch.start("agentStatService.selectAgentStatList");
-        Range range = new Range(from, to);
-        List<AgentStat> agentStatList = agentStatService.selectAgentStatList(agentId, range);
+        TimeWindow timeWindow = new TimeWindow(new Range(from, to), new TimeWindowSlotCentricSampler());
+        long scanFrom = timeWindow.getWindowRange().getFrom();
+        long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
+        Range rangeToScan = new Range(scanFrom, scanTo);
+        List<AgentStat> agentStatList = agentStatService.selectAgentStatList(agentId, rangeToScan);
         watch.stop();
 
         if (logger.isInfoEnabled()) {
@@ -50,15 +55,16 @@ public class AgentStatController {
         }
 
         // FIXME dummy
-        int nPoints = (int) (to - from) / 5000;
-        if (sampleRate == null) {
-            sampleRate = nPoints < 300 ? 1 : nPoints / 300;
-        }
+//        int nPoints = (int) (to - from) / 5000;
+//        if (sampleRate == null) {
+//            sampleRate = nPoints < 300 ? 1 : nPoints / 300;
+//        }
 
-        AgentStatChartGroup chart = new AgentStatChartGroup(sampleRate);
-        chart.addAgentStats(agentStatList);
+        AgentStatChartGroup chartGroup = new AgentStatChartGroup(timeWindow);
+        chartGroup.addAgentStats(agentStatList);
+        chartGroup.buildCharts();
 
-        return chart;
+        return chartGroup;
     }
 
     @RequestMapping(value = "/getAgentList", method = RequestMethod.GET)

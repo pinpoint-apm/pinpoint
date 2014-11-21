@@ -54,7 +54,7 @@ angular.module('pinpointApp')
                                 "autoMargins": false,
                                 "align" : "right",
                                 "position": "top",
-                                "valueWidth": 60
+                                "valueWidth": 70
                             },
                             "usePrefixes": true,
                             "dataProvider": chartData,
@@ -63,49 +63,59 @@ angular.module('pinpointApp')
                                     "id": "v1",
                                     "gridAlpha": 0,
                                     "axisAlpha": 1,
-                                    "position": "left",
-//                                    "labelFunction": function (value, valueText, valueAxis) {
-//                                        return valueText + 'ms';
-//                                    }
-                                    "title": "Full GC (ms)"
+                                    "position": "right",
+                                    "title": "Full GC (ms)",
+                                    "minimum": 0
                                 },
                                 {
                                     "id": "v2",
                                     "gridAlpha": 0,
                                     "axisAlpha": 1,
-                                    "position": "right",
-//                                    "labelFunction": function (value, valueText, valueAxis) {
-//                                        return valueText + 'B';
-//                                    }
-                                    "title": "Memory (bytes)"
+                                    "position": "left",
+                                    "title": "Memory (bytes)",
+                                    "minimum": 0
                                 }
                             ],
                             "graphs": [
                                 {
                                     "valueAxis": "v2",
                                     "balloonText": "[[value]]B",
+                                    "legendValueText": "[[value]]B",
                                     "lineColor": "rgb(174, 199, 232)",
                                     "title": "Max",
                                     "valueField": "Max",
-                                    "fillAlphas": 0
+                                    "fillAlphas": 0,
+                                    "connect": false
                                 },
                                 {
                                     "valueAxis": "v2",
                                     "balloonText": "[[value]]B",
+                                    "legendValueText": "[[value]]B",
                                     "lineColor": "rgb(31, 119, 180)",
                                     "fillColor": "rgb(31, 119, 180)",
                                     "title": "Used",
                                     "valueField": "Used",
-                                    "fillAlphas": 0.4
+                                    "fillAlphas": 0.4,
+                                    "connect": false
                                 },
                                 {
                                     "valueAxis": "v1",
-                                    "balloonText": "[[value]]ms",
+                                    "balloonFunction": function(item, graph) {
+                                        var data = item.serialDataItem.dataContext;
+                                        var balloonText = data.FGCTime + "ms";
+                                        var fgcCount = data.FGCCount;
+                                        if (fgcCount > 1) {
+                                            balloonText += " (" + fgcCount + ")";
+                                        }
+                                        return balloonText;
+                                    },
+                                    "legendValueText": "[[value]]ms",
                                     "lineColor": "#FF6600",
                                     "title": "FGC",
-                                    "valueField": "FGC",
+                                    "valueField": "FGCTime",
                                     "type": "column",
-                                    "fillAlphas": 0.3
+                                    "fillAlphas": 0.3,
+                                    "connect": false
                                 }
                             ],
                             "chartCursor": {
@@ -119,7 +129,7 @@ angular.module('pinpointApp')
                                 "startOnAxis": true,
                                 "gridPosition": "start",
                                 "labelFunction": function (valueText, serialDataItem, categoryAxis) {
-                                    return new Date(valueText).toString('hh:mm');
+                                    return new Date(valueText).toString('HH:mm:ss');
                                 }
                             }
                         };
@@ -162,7 +172,6 @@ angular.module('pinpointApp')
                     scope.$on('jvmMemoryChart.initAndRenderWithData.' + scope.namespace, function (event, data, w, h) {
                         setIdAutomatically();
                         setWidthHeight(w, h);
-                        //render(parseTimeSeriesHistogramForAmcharts(data), useChartCursor);
                         render(data);
                     });
 

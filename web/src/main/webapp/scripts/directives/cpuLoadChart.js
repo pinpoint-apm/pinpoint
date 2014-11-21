@@ -54,7 +54,7 @@ angular.module('pinpointApp')
                                 "autoMargins": true,
                                 "align" : "right",
                                 "position": "top",
-                                "valueWidth": 60
+                                "valueWidth": 70
                             },
                             "usePrefixes": true,
                             "dataProvider": chartData,
@@ -64,7 +64,7 @@ angular.module('pinpointApp')
                                     "gridAlpha": 0,
                                     "axisAlpha": 1,
                                     "position": "left",
-                                    "title": "Cpu Load (%)",
+                                    "title": "Cpu Usage (%)",
                                     "maximum" : 100,
                                     "minimum" : 0
                                 },
@@ -72,23 +72,25 @@ angular.module('pinpointApp')
                             "graphs": [
                                 {
                                     "valueAxis": "v1",
-                                    "balloonText": "[[jvmCpuLoadValueText]]",
-                                    "legendValueText": "[[jvmCpuLoadValueText]]",
+                                    "balloonText": "[[value]]%",
+                                    "legendValueText": "[[value]]%",
                                     "lineColor": "rgb(31, 119, 180)",
                                     "fillColor": "rgb(31, 119, 180)",
                                     "title": "JVM",
-                                    "valueField": "jvmCpuLoadValue",
-                                    "fillAlphas": 0.4
+                                    "valueField": "jvmCpuLoad",
+                                    "fillAlphas": 0.4,
+                                    "connect": false
                                 },
                                 {
                                     "valueAxis": "v1",
-                                    "balloonText": "[[systemCpuLoadValueText]]",
-                                    "legendValueText": "[[systemCpuLoadValueText]]",
+                                    "balloonText": "[[value]]%",
+                                    "legendValueText": "[[value]]%",
                                     "lineColor": "rgb(174, 199, 232)",
                                     "fillColor": "rgb(174, 199, 232)",
                                     "title": "System",
-                                    "valueField": "systemCpuLoadValue",
-                                    "fillAlphas": 0.4
+                                    "valueField": "systemCpuLoad",
+                                    "fillAlphas": 0.4,
+                                    "connect": false
                                 },
                                 {
                                     "valueAxis": "v1",
@@ -111,7 +113,7 @@ angular.module('pinpointApp')
                                 "startOnAxis": true,
                                 "gridPosition": "start",
                                 "labelFunction": function (valueText, serialDataItem, categoryAxis) {
-                                    return new Date(valueText).toString('hh:mm');
+                                    return new Date(valueText).toString('HH:mm:ss');
                                 }
                             }
                         };
@@ -154,7 +156,6 @@ angular.module('pinpointApp')
                     scope.$on('cpuLoadChart.initAndRenderWithData.' + scope.namespace, function (event, data, w, h) {
                         setIdAutomatically();
                         setWidthHeight(w, h);
-                        //render(parseTimeSeriesHistogramForAmcharts(data), useChartCursor);
                         render(data);
                     });
 

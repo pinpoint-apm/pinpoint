@@ -5,10 +5,11 @@ import com.nhn.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.nhn.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.nhn.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.nhn.pinpoint.web.util.TimeWindow;
-import com.nhn.pinpoint.web.util.TimeWindowOneMinuteSampler;
+import com.nhn.pinpoint.web.util.TimeWindowDownSampler;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
 import com.nhn.pinpoint.web.vo.ResponseTime;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,7 @@ public class AgentTimeHistogramBuilder {
         }
         this.application = application;
         this.range = range;
-        this.window = new TimeWindow(range, TimeWindowOneMinuteSampler.SAMPLER);
+        this.window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
     }
 
 
