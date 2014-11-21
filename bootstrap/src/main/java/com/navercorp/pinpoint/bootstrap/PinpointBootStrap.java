@@ -1,17 +1,17 @@
 package com.nhn.pinpoint.bootstrap;
 
 import com.nhn.pinpoint.ProductInfo;
+import com.nhn.pinpoint.bootstrap.util.IdValidateUtils;
 import com.nhn.pinpoint.common.PinpointConstants;
+import com.nhn.pinpoint.common.util.BytesUtils;
 import com.nhn.pinpoint.common.util.TransactionIdUtils;
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
 
-import java.io.UnsupportedEncodingException;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 /**
  * @author emeroad
@@ -30,8 +30,7 @@ public class PinpointBootStrap {
     public static final String BOOT_STRAP_LOAD_STATE_LOADING = "LOADING";
     public static final String BOOT_STRAP_LOAD_STATE_COMPLETE = "COMPLETE";
     public static final String BOOT_STRAP_LOAD_STATE_ERROR = "ERROR";
-    
-    private static final Pattern validIdPattern = Pattern.compile("[^a-zA-Z0-9._(\\-)]");
+
 
     public static void premain(String agentArgs, Instrumentation instrumentation) {
         if (agentArgs != null) {
@@ -111,41 +110,26 @@ public class PinpointBootStrap {
     private static boolean isValidId(String propertyName, int maxSize) {
         logger.info("check -D" + propertyName);
         String value = System.getProperty(propertyName);
-        if (value != null) {
-            // 문자열 앞뒤에 공백은 허용되지 않음.
-            value = value.trim();
-
-			if (validIdPattern.matcher(value).find()) {
-				logger.severe("invalid Id. " + propertyName + " can only contain alphanumeric, dot, dash and underscore. value:" + value);
-				return false;
-			}
-            
-            final byte[] bytes;
-            try {
-                bytes = toBytes(value);
-            } catch (UnsupportedEncodingException e) {
-                logger.severe("toBytes() fail. propertyName:" + propertyName + " propertyValue:" + value);
-                return false;
-            }
-            if (bytes.length == 0) {
-                logger.severe("invalid " + propertyName + ". agentId is empty. length:" + bytes.length + " value:" + value);
-                return false;
-            }
-            if (bytes.length > maxSize) {
-                logger.severe("invalid " + propertyName + ". too large bytes. length:" + bytes.length + " value:" + value);
-                return false;
-            }
-            logger.info("check success. -D" + propertyName + ":" + value + " length:" + bytes.length);
-            return true;
-        } else {
-            logger.severe("-D" + propertyName + " is null.");
+        if (value == null){
+            logger.severe("-D" + propertyName + " is null. value:null");
             return false;
         }
+        // 문자열 앞뒤에 공백은 허용되지 않음.
+        value = value.trim();
+        if (value.isEmpty()) {
+            logger.severe("-D" + propertyName + " is empty. value:''");
+            return false;
+        }
+
+        if (IdValidateUtils.validateId(value, maxSize)) {
+            logger.severe("invalid Id. " + propertyName + " can only contain alphanumeric, dot, dash and underscore. maxLength:" + maxSize + " value:" + value);
+            return false;
+        }
+
+        logger.info("check success. -D" + propertyName + ":" + value + " length:" + BytesUtils.toBytes(value));
+        return true;
     }
 
-    private static byte[] toBytes(String property) throws UnsupportedEncodingException {
-        return property.getBytes("UTF-8");
-    }
 
     private static void saveLogFilePath(ClassPathResolver classPathResolver) {
         String agentLogFilePath = classPathResolver.getAgentLogFilePath();
