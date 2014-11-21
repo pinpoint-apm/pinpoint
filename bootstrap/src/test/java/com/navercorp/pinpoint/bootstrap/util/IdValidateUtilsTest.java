@@ -8,11 +8,12 @@ public class IdValidateUtilsTest  {
     @Test
     public void testValidateId() throws Exception {
         Assert.assertTrue(IdValidateUtils.validateId("abcd"));
-        Assert.assertTrue(IdValidateUtils.validateId("()"));
         Assert.assertTrue(IdValidateUtils.validateId("ab-_bc"));
         Assert.assertTrue(IdValidateUtils.validateId("test.abc"));
 
-        Assert.assertTrue(IdValidateUtils.validateId("--__()"));
+        Assert.assertTrue(IdValidateUtils.validateId("--__"));
+
+        Assert.assertFalse(IdValidateUtils.validateId("()"));
 
         Assert.assertTrue(IdValidateUtils.validateId("."));
         Assert.assertFalse(IdValidateUtils.validateId(""));

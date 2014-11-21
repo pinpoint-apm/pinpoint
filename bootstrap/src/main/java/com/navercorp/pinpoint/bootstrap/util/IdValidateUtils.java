@@ -14,8 +14,8 @@ public class IdValidateUtils {
 
     private static final int DEFAULT_MAX_LENGTH = PinpointConstants.AGENT_NAME_MAX_LEN;
 
-//    private static final Pattern ID_PATTERN = Pattern.compile("[a-zA-Z0-9\\._\\-()]{1,24}");
-    private static final Pattern ID_PATTERN = Pattern.compile("[a-zA-Z0-9\\._\\-()]+");
+//    private static final Pattern ID_PATTERN = Pattern.compile("[a-zA-Z0-9\\._\\-]{1,24}");
+    private static final Pattern ID_PATTERN = Pattern.compile("[a-zA-Z0-9\\._\\-]+");
 
     private IdValidateUtils() {
     }
