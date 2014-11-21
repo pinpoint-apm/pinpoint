@@ -33,4 +33,18 @@ public class AdminController {
 			return e.getMessage();
 		}
 	}
+	
+	@RequestMapping(value = "/admin/removeAgentId", method = RequestMethod.GET)
+	@ResponseBody
+	public String removeAgentId(
+	        @RequestParam(value = "applicationName", required = true) String applicationName,
+	        @RequestParam(value = "agentId", required = true) String agentId) {
+	    logger.info("remove {}'s agentId [{}]", applicationName, agentId);
+	    try {
+	        adminService.removeAgentId(applicationName, agentId);
+	        return "OK";
+	    } catch (Exception e) {
+	        return e.getMessage();
+	    }
+	}
 }

@@ -20,4 +20,10 @@ public class AdminServiceImpl implements AdminService {
 	public void removeApplicationName(String applicationName) {
 		applicationIndexDao.deleteApplicationName(applicationName);
 	}
+
+    @Override
+    public void removeAgentId(String applicationName, String agentId) {
+        applicationIndexDao.deleteAgentId(applicationName, agentId);
+    }
+	
 }

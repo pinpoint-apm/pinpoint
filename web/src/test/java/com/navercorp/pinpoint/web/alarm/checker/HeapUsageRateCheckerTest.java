@@ -8,14 +8,10 @@ import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.AgentStatCpuLoadBo;
 import com.nhn.pinpoint.common.bo.AgentStatMemoryGcBo;
-import com.nhn.pinpoint.common.bo.AgentStatMemoryGcBo.Builder;
 import com.nhn.pinpoint.web.alarm.CheckerCategory;
 import com.nhn.pinpoint.web.alarm.DataCollectorFactory;
 import com.nhn.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
@@ -29,8 +25,6 @@ import com.nhn.pinpoint.web.vo.AgentStat;
 import com.nhn.pinpoint.web.vo.Application;
 import com.nhn.pinpoint.web.vo.Range;
 
-//@RunWith(SpringJUnit4ClassRunner.class)
-//@ContextConfiguration("classpath:applicationContext-test.xml")
 public class HeapUsageRateCheckerTest {
 
     private static final String SERVICE_NAME = "local_service";
@@ -86,6 +80,11 @@ public class HeapUsageRateCheckerTest {
 
             @Override
             public void deleteApplicationName(String applicationName) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public void deleteAgentId(String applicationName, String agentId) {
                 throw new UnsupportedOperationException();
             }
             
