@@ -15,7 +15,6 @@ import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.bootstrap.interceptor.ParameterExtractor;
 import com.nhn.pinpoint.bootstrap.plugin.TestInterceptors.TestInterceptor0;
 import com.nhn.pinpoint.bootstrap.plugin.TestInterceptors.TestInterceptor1;
 import com.nhn.pinpoint.bootstrap.plugin.TestInterceptors.TestInterceptor2;
@@ -27,7 +26,6 @@ public class DefaultInterceptorFactoryTest {
     private final InstrumentClass aClass = mock(InstrumentClass.class);
     private final MethodInfo aMethod = mock(MethodInfo.class);
     private final MethodDescriptor descriptor = mock(MethodDescriptor.class);
-    private final ParameterExtractor extractor = mock(ParameterExtractor.class);
     
     @Before
     public void setUp() {
@@ -120,8 +118,6 @@ public class DefaultInterceptorFactoryTest {
 
     @Test(expected=PinpointException.class)
     public void test7() throws Exception {
-        Object[] args = new Object[] { (double)3.0, (short)2, (byte)1, "arg0" };
-        
         DefaultInterceptorFactory factory = new DefaultInterceptorFactory(instrumentor, traceContext, "com.nhn.pinpoint.bootstrap.plugin.TestInterceptors$TestInterceptor1", null, null);
         factory.getInterceptor(getClass().getClassLoader(), aClass, aMethod);
     }
