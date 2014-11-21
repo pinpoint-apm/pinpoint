@@ -88,7 +88,6 @@ public class ClassEditorBuilder {
         private Condition condition;
         private String scopeName;
         private Object[] constructorArguments;
-        private ParameterExtractorFactory parameterExtractorFactory;
         private boolean singleton;
         
         public InterceptorBuilder(String methodName, String[] parameterTypeNames, MethodFilter filter) {
@@ -112,11 +111,6 @@ public class ClassEditorBuilder {
             return this;
         }
         
-        public InterceptorBuilder using(ParameterExtractorFactory factory) {
-            this.parameterExtractorFactory = factory;
-            return this;
-        }
-        
         public InterceptorBuilder singleton(boolean singleton) {
             this.singleton = singleton;
             return this;
@@ -128,7 +122,7 @@ public class ClassEditorBuilder {
         }
         
         private InterceptorInjector build() {
-            InterceptorFactory interceptorFactory = new DefaultInterceptorFactory(instrumentor, traceContext, interceptorClassName, constructorArguments, parameterExtractorFactory, scopeName);
+            InterceptorFactory interceptorFactory = new DefaultInterceptorFactory(instrumentor, traceContext, interceptorClassName, constructorArguments, scopeName);
             
             InterceptorInjector injector;
             

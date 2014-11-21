@@ -47,7 +47,7 @@ public class ArcusPlugin implements ProfilerPlugin {
     }
     
     private ClassEditor getArcusClientEditor(ProfilerPluginContext context, ArcusPluginConfig config) {
-        boolean traceArcusKey = config.isArcusKeyTrace();
+        boolean traceKey = config.isArcusKeyTrace();
         ClassEditorBuilder builder = context.newClassEditorBuilder();
 
         builder.edit("net.spy.memcached.ArcusClient");
@@ -63,8 +63,8 @@ public class ArcusPlugin implements ProfilerPlugin {
         
         builder.interceptMethodsFilteredBy(new ArcusMethodFilter())
                 .with("com.nhn.pinpoint.plugin.arcus.interceptor.ApiInterceptor")
-                .in(Commons.ARCUS_SCOPE)
-                .using(traceArcusKey ? Commons.ARCUS_KEY_EXTRACTOR_FACTORY : null);
+                .constructedWith(traceKey)
+                .in(Constants.ARCUS_SCOPE);
         
         return builder.build();
     }
@@ -105,16 +105,16 @@ public class ArcusPlugin implements ProfilerPlugin {
                 .with("com.nhn.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureConstructInterceptor");
         builder.intercept("get", "long", "java.util.concurrent.TimeUnit")
                 .with("com.nhn.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureGetInterceptor")
-                .in(Commons.ARCUS_SCOPE);
+                .in(Constants.ARCUS_SCOPE);
         builder.intercept("get")
                 .with("com.nhn.pinpoint.plugin.arcus.interceptor.FrontCacheGetFutureGetInterceptor")
-                .in(Commons.ARCUS_SCOPE);
+                .in(Constants.ARCUS_SCOPE);
         
         return builder.build();
     }
     
     private ClassEditor getFrontCacheMemcachedClientEditor(ProfilerPluginContext context, ArcusPluginConfig config) {
-        boolean traceArcusKey = config.isMemcachedKeyTrace();
+        boolean traceKey = config.isMemcachedKeyTrace();
         ClassEditorBuilder builder = context.newClassEditorBuilder();
         
         builder.edit("net.spy.memcached.plugin.FrontCacheMemcachedClient");
@@ -129,15 +129,15 @@ public class ArcusPlugin implements ProfilerPlugin {
         
         builder.interceptMethodsFilteredBy(new FrontCacheMemcachedMethodFilter())
             .with("com.nhn.pinpoint.plugin.arcus.interceptor.ApiInterceptor")
-            .in(Commons.ARCUS_SCOPE)
-            .using(traceArcusKey ? Commons.ARCUS_KEY_EXTRACTOR_FACTORY : null);
+            .in(Constants.ARCUS_SCOPE)
+            .constructedWith(traceKey);
                         
         return builder.build();
     }
 
 
     private ClassEditor getMemcachedClientEditor(ProfilerPluginContext context, ArcusPluginConfig config) {
-        boolean traceArcusKey = config.isMemcachedKeyTrace();
+        boolean traceKey = config.isMemcachedKeyTrace();
         ClassEditorBuilder builder = context.newClassEditorBuilder();
         
         builder.edit("net.spy.memcached.MemcachedClient");
@@ -158,8 +158,8 @@ public class ArcusPlugin implements ProfilerPlugin {
         
         builder.interceptMethodsFilteredBy(new MemcachedMethodFilter())
             .with("com.nhn.pinpoint.plugin.arcus.interceptor.ApiInterceptor")
-            .in(Commons.ARCUS_SCOPE)
-            .using(traceArcusKey ? Commons.ARCUS_KEY_EXTRACTOR_FACTORY : null);
+            .in(Constants.ARCUS_SCOPE)
+            .constructedWith(traceKey);
                         
         return builder.build();
     }
@@ -172,7 +172,7 @@ public class ArcusPlugin implements ProfilerPlugin {
         
         builder.intercept("get", "long", "java.util.concurrent.TimeUnit")
                 .with("com.nhn.pinpoint.plugin.arcus.interceptor.FutureGetInterceptor")
-                .in(Commons.ARCUS_SCOPE);
+                .in(Constants.ARCUS_SCOPE);
         
         return builder.build();
     }

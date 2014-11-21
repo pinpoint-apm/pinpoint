@@ -2,63 +2,35 @@ package com.nhn.pinpoint.plugin.arcus.interceptor;
 
 import static org.mockito.Mockito.*;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.List;
-
-import net.spy.memcached.ConnectionFactory;
-import net.spy.memcached.MemcachedClient;
-
-import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import com.nhn.pinpoint.bootstrap.context.TraceContext;
+import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
 import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.plugin.arcus.IndexParameterExtractor;
-import com.nhn.pinpoint.plugin.arcus.interceptor.ApiInterceptor;
+import com.nhn.pinpoint.plugin.arcus.accessor.ServiceCodeAccessor;
 import com.nhn.pinpoint.profiler.interceptor.DefaultMethodDescriptor;
-import com.nhn.pinpoint.test.interceptor.BaseInterceptorTest;
 
-public class ApiInterceptorTest extends BaseInterceptorTest {
+public class ApiInterceptorTest {
 
-	static final Logger logger = LoggerFactory.getLogger(ApiInterceptorTest.class);
+    @Test
+    public void testAround() {
+        String[] parameterTypes = new String[] { "java.lang.String", "int", "java.lang.Object" };
+        String[] parameterNames = new String[] { "key", "exptime", "value" };
+        Object[] args = new Object[] { "key", 10, "my_value" };
 
-	ApiInterceptor interceptor = new ApiInterceptor(new IndexParameterExtractor(0));
-	MemcachedClient client = mock(MockMemcachedClient.class);
+        TraceContext traceContext = mock(TraceContext.class);
+        MethodDescriptor methodDescriptor = new DefaultMethodDescriptor(Object.class.getName(), "set", parameterTypes, parameterNames);
+        MethodInfo methodInfo = mock(MethodInfo.class);
+        ServiceCodeAccessor target = mock(ServiceCodeAccessor.class);
 
-	@Before
-	public void beforeEach() {
-		setInterceptor(interceptor);
-		MethodDescriptor methodDescriptor = new DefaultMethodDescriptor(
-				MockMemcachedClient.class.getName(), "set", new String[] {
-						"java.lang.String", "int", "java.lang.Object" },
-				new String[] { "key", "exptime", "value" });
-		/* NPE 때문에 일단 빼기로 함.
-		setMethodDescriptor(methodDescriptor);
-		*/
-		super.beforeEach();
-	}
+        when(methodInfo.getDescriptor()).thenReturn(methodDescriptor);
+        when(methodInfo.getParameterTypes()).thenReturn(parameterTypes);
+        when(target.__getServiceCode()).thenReturn("serviceCode");
 
-	@Test
-	public void testAround() {
-		Object[] args = new Object[] {"key", 10, "my_value"};
-		interceptor.before(client, args);
-		interceptor.after(client, args, null, null);
-	}
+        ApiInterceptor interceptor = new ApiInterceptor(traceContext, methodInfo, true);
 
-	/**
-	 * Fake MemcachedClient
-	 */
-	class MockMemcachedClient extends MemcachedClient {
-		public MockMemcachedClient(ConnectionFactory cf,
-				List<InetSocketAddress> addrs) throws IOException {
-			super(cf, addrs);
-		}
 
-		public String __getServiceCode() {
-			return "MEMCACHED";
-		}
-	}
-
+        interceptor.before(target, args);
+        interceptor.after(target, args, null, null);
+    }
 }

@@ -8,9 +8,11 @@ import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.ops.Operation;
 
 import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
-import com.nhn.pinpoint.bootstrap.interceptor.ParameterExtractor;
+import com.nhn.pinpoint.bootstrap.context.TraceContext;
+import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
 import com.nhn.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptor;
 import com.nhn.pinpoint.common.ServiceType;
+import com.nhn.pinpoint.plugin.arcus.ParameterUtils;
 import com.nhn.pinpoint.plugin.arcus.accessor.OperationAccessor;
 import com.nhn.pinpoint.plugin.arcus.accessor.ServiceCodeAccessor;
 
@@ -18,15 +20,29 @@ import com.nhn.pinpoint.plugin.arcus.accessor.ServiceCodeAccessor;
  * @author emeroad
  */
 public class ApiInterceptor extends SpanEventSimpleAroundInterceptor {
-    private final ParameterExtractor parameterExtractor;
+    private final boolean traceKey;
+    private final int keyIndex;
     
-    public ApiInterceptor() {
-        this(null);
-    }
-    
-    public ApiInterceptor(ParameterExtractor parameterExtractor) {
+    public ApiInterceptor(TraceContext context, MethodInfo targetMethod, boolean traceKey) {
         super(ApiInterceptor.class);
-        this.parameterExtractor = parameterExtractor;
+        
+        if (traceKey) {
+            int index = ParameterUtils.findFirstString(targetMethod, 3);
+        
+            if (index != -1) {
+                this.traceKey = true;
+                this.keyIndex = index; 
+            } else {
+                this.traceKey = false;
+                this.keyIndex = -1;
+            }
+        } else {
+            this.traceKey = false;
+            this.keyIndex = -1;
+        }
+        
+        this.setTraceContext(context);
+        this.setMethodDescriptor(targetMethod.getDescriptor());
     }
 
     @Override
@@ -36,11 +52,9 @@ public class ApiInterceptor extends SpanEventSimpleAroundInterceptor {
 
     @Override
     public void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
-
-        if (parameterExtractor != null) {
-            final int index = parameterExtractor.getIndex();
-            final Object recordObject = parameterExtractor.extractObject(args);
-            trace.recordApi(getMethodDescriptor(), recordObject, index);
+        if (traceKey) {
+            final Object recordObject = args[keyIndex];
+            trace.recordApi(getMethodDescriptor(), recordObject, keyIndex);
         } else {
             trace.recordApi(getMethodDescriptor());
         }
@@ -52,6 +66,7 @@ public class ApiInterceptor extends SpanEventSimpleAroundInterceptor {
             if (op != null) {
                 MemcachedNode handlingNode = op.getHandlingNode();
                 SocketAddress socketAddress = handlingNode.getSocketAddress();
+     
                 if (socketAddress instanceof InetSocketAddress) {
                     InetSocketAddress address = (InetSocketAddress) socketAddress;
                     trace.recordEndPoint(address.getHostName() + ":" + address.getPort());
