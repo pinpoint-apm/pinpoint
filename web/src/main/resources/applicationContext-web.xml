@@ -72,6 +72,14 @@
 
     <bean id="config" class="com.nhn.pinpoint.web.config.WebConfig">
     </bean>
+    
+    <bean id="commandHeaderTBaseSerializerFactory" class="com.nhn.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory">
+    	<constructor-arg value="#{T(com.nhn.pinpoint.common.Version).VERSION}" />
+    </bean>
+
+    <bean id="commandHeaderTBaseDeserializerFactory" class="com.nhn.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory">
+    	<constructor-arg value="#{T(com.nhn.pinpoint.common.Version).VERSION}" />
+    </bean>
 
     <bean id="pinpointSocketManager" class="com.nhn.pinpoint.web.server.PinpointSocketManager">
     	<constructor-arg ref="config" />
