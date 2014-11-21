@@ -40,6 +40,7 @@ public class PinpointBootStrap {
         if (duplicated) {
             // 중복 케이스는 내가 처리하면 안됨. 아래와 같은 코드는 없어야 한다.
             //loadStateChange(BOOT_STRAP_LOAD_STATE_ERROR);
+            logPinpointAgentLoadFail();
             return;
         }
 
@@ -49,15 +50,18 @@ public class PinpointBootStrap {
             // TODO 이거 변경해야 함.
             logger.severe("pinpoint-bootstrap-x.x.x.jar not found.");
             loadStateChange(BOOT_STRAP_LOAD_STATE_ERROR);
+            logPinpointAgentLoadFail();
             return;
         }
 
         if (!isValidId("pinpoint.agentId", PinpointConstants.AGENT_NAME_MAX_LEN)) {
             loadStateChange(BOOT_STRAP_LOAD_STATE_ERROR);
+            logPinpointAgentLoadFail();
             return;
         }
         if (!isValidId("pinpoint.applicationName", PinpointConstants.APPLICATION_NAME_MAX_LEN)) {
             loadStateChange(BOOT_STRAP_LOAD_STATE_ERROR);
+            logPinpointAgentLoadFail();
             return;
         }
 
@@ -65,6 +69,7 @@ public class PinpointBootStrap {
         if (configPath == null ) {
             loadStateChange(BOOT_STRAP_LOAD_STATE_ERROR);
             // 설정파일을 못찾으므로 종료.
+            logPinpointAgentLoadFail();
             return;
         }
         // 로그가 저장될 위치를 시스템 properties로 저장한다.
@@ -86,12 +91,21 @@ public class PinpointBootStrap {
             logger.log(Level.SEVERE, ProductInfo.CAMEL_NAME + " start fail. Caused:" + e.getMessage(), e);
             // 위에서 리턴하는거에서 세는게 이
             loadStateChange(BOOT_STRAP_LOAD_STATE_ERROR);
+            logPinpointAgentLoadFail();
         }
 
     }
 
     private static void loadStateChange(String loadState) {
         System.setProperty(BOOT_STRAP_LOAD_STATE, loadState);
+    }
+
+    private static void logPinpointAgentLoadFail() {
+        final String errorLog =
+            "*****************************************************************************\n" +
+            "* PinpointAgent load fail\n" +
+            "*****************************************************************************";
+        System.err.println(errorLog);
     }
 
     private static boolean checkDuplicateLoadState() {
@@ -121,12 +135,12 @@ public class PinpointBootStrap {
             return false;
         }
 
-        if (IdValidateUtils.validateId(value, maxSize)) {
-            logger.severe("invalid Id. " + propertyName + " can only contain alphanumeric, dot, dash and underscore. maxLength:" + maxSize + " value:" + value);
+        if (!IdValidateUtils.validateId(value, maxSize)) {
+            logger.severe("invalid Id. " + propertyName + " can only contain [a-zA-Z0-9], '.', '-', '_'. maxLength:" + maxSize + " value:" + value);
             return false;
         }
 
-        logger.info("check success. -D" + propertyName + ":" + value + " length:" + BytesUtils.toBytes(value));
+        logger.info("check success. -D" + propertyName + ":" + value + " length:" + BytesUtils.toBytes(value).length);
         return true;
     }
 
