@@ -13,8 +13,8 @@
                     <tbody>
                     <tr>
                         <td class="col-md-3 text-right"><strong>Application Name</strong></td>
-                        <td class="col-md-2 text-left">{{info.applicationName}}</td>
-                        <td class="col-md-2 text-right"><strong>Agent Version</strong></td>
+                        <td class="col-md-3 text-left">{{info.applicationName}}</td>
+                        <td class="col-md-1 text-right"><strong>Agent Version</strong></td>
                         <td class="col-md-5 text-left">{{info.agentVersion}}</td>
                     </tr>
                     <tr>
@@ -32,7 +32,7 @@
                     <tr>
                         <td class="text-right"><strong>IP</strong></td>
                         <td class="text-left">
-                            <div>{{info.ip}} <a class="btn btn-default btn-xs" href="http://nsight.nhncorp.com/dashboard_server/{{info.ip}}" target="_blank" title="System resource monitoring site">NSight</a></div>
+                            <div>{{info.ip}}&nbsp;<a class="btn btn-default btn-xs" href="http://nsight.nhncorp.com/dashboard_server/{{info.ip}}" target="_blank" title="System resource monitoring site">NSight</a></div>
                         </td>
                         <td class="text-right"><strong>Start Time</strong></td>
                         <td class="text-left">{{agent.startTime | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>
@@ -40,7 +40,13 @@
                     <tr>
                         <td class="text-right"><strong>Service Type</strong></td>
                         <td class="text-left">
-                            <div>{{info.serviceType}} <a href tabindex="-1" ng-click="openServerMetaDataDiv()" class="btn btn-default btn-xs" ng-show="info.serverMetaData && (info.serverMetaData.serverInfo.length || info.serverMetaData.vmArgs.length || info.serverMetaData.serviceInfos.length)"><span class="glyphicon glyphicon-plus"></span></a></div>
+                            {{info.serviceType}}
+                            <span ng-show="info.serverMetaData">
+                                <span ng-show="info.serverMetaData.serverInfo.length">&nbsp;({{info.serverMetaData.serverInfo}})&nbsp;</span>
+                                    <button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#serverMetaDataDiv" ng-show="info.serverMetaData.vmArgs.length || info.serverMetaData.serviceInfos.length">
+                                        Details
+                                    </button>
+                            </span>
                         </td>
                         <td class="text-right"><strong>End Status</strong></td>
                         <td class="text-left">{{agent.endStatus}} (last checked : {{agent.endTimeStamp | date:'yyyy-MM-dd HH:mm:ss Z'}})</td>
@@ -52,17 +58,6 @@
     </div>
     <div>
         <h3>Memory & Garbage Collection</h3>
-
-        <!--<div class="row">-->
-            <!--<div class="col-md-6">-->
-                <!--<h5>{{memoryGroup[0].title}}</h5>-->
-                <!--<svg id="line_{{memoryGroup[0].id}}" style="height:220px;" />-->
-            <!--</div>-->
-            <!--<div class="col-md-6">-->
-                <!--<h5>{{memoryGroup[1].title}}</h5>-->
-                <!--<svg id="line_{{memoryGroup[1].id}}" style="height:220px;" />-->
-            <!--</div>-->
-        <!--</div>-->
         <div class="row">
             <div class="col-md-6">
                 <h5>{{memoryGroup[0].title}}</h5>
@@ -83,25 +78,6 @@
             </div>
         </div>
     </div>
-    <!--div class="row">
-        <div class="span12">
-            <h5>Data Table <small>(updated : {{timestamp}})</small></h5>
-            <table class="table table-striped table-condensed">
-                <thead>
-                <tr>
-                    <th>Key</th>
-                    <th>Value</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr ng-repeat="(k, v) in agent_stats">
-                    <td><small>{{k}}</small></td>
-                    <td><small>{{v.value}}</small></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div-->
     <div class="modal fade bs-modal-lg center" id="serverMetaDataDiv" tabindex="-1" role="dialog" aria-labelledby="myServerMetaDataDiv"
          aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -113,33 +89,46 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-12" style="overflow-x:auto;">
-                            <table class="table table-striped table-condensed" style="font-size:12px;">
+                            <table class="table table-condensed" style="font-size:12px;">
                                 <tbody>
                                 <tr>
-                                    <td>
-                                        <dl class="dl-horizontal">
-                                            <dt>Server Info</dt>
-                                            <dd ng-show="info.serverMetaData.serverInfo.length">{{info.serverMetaData.serverInfo}}</dd>
-                                            <dd ng-hide="info.serverMetaData.serverInfo.length">N/A</dd>
-                                        </dl>
+                                    <td class="col-md-2 text-right"><strong>Server Info</strong></td>
+                                    <td class="col-md-10 text-left">
+                                        <span ng-show="info.serverMetaData.serverInfo.length">{{info.serverMetaData.serverInfo}}</span>
+                                        <span ng-hide="info.serverMetaData.serverInfo.length">N/A</span>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>
-                                        <dl class="dl-horizontal pre-scrollable">
-                                            <dt>VM Arguments</dt>
-                                            <dd ng-show="info.serverMetaData.vmArgs.length" ng-repeat="vmArg in info.serverMetaData.vmArgs">{{vmArg}}</dd>
-                                            <dd ng-hide="info.serverMetaData.vmArgs.length">N/A</dd>
-                                        </dl>
+                                    <td class="text-right"><strong>JVM Arguments</strong></td>
+                                    <td class="text-left">
+                                        <div class="pre-scrollable" style="max-height:200px;" ng-show="info.serverMetaData.vmArgs.length">
+	                                        <ul class="list-unstyled">
+	                                            <li ng-repeat="vmArg in info.serverMetaData.vmArgs">{{vmArg}}</li>
+	                                        </ul>
+                                        </div>
+                                        <span ng-hide="info.serverMetaData.vmArgs.length">N/A</span>
                                     </td>
                                 </tr>
-                                <tr ng-show="info.serverMetaData.serviceInfos.length">
-                                    <td>
-                                        <dl class="dl-horizontal pre-scrollable">
-                                            <dt ng-repeat-start="serviceInfo in info.serverMetaData.serviceInfos" title="{{serviceInfo.serviceName}}">{{serviceInfo.serviceName}}</dt>
-                                            <dd ng-repeat="serviceLib in serviceInfo.serviceLibs">{{serviceLib}}</dd>
-                                            <dd ng-repeat-end>&nbsp;</dd>
-                                        </dl>
+                                <tr>
+                                    <td class="text-right"><strong>Services</strong></td>
+                                    <td class="text-left">
+                                        <div class="row" ng-show="info.serverMetaData.serviceInfos.length">
+	                                        <div class="col-md-4 service-list">
+	                                           <div class="list-group">
+	                                               <a href="" class="list-group-item clearfix" ng-class="{active: currentServiceInfo == serviceInfo, disabled: serviceInfo.serviceLibs.length == 0}" 
+	                                                  ng-repeat="serviceInfo in info.serverMetaData.serviceInfos" ng-click="selectServiceInfo(serviceInfo)">
+	                                                   {{serviceInfo.serviceName}}
+	                                                   <span class="pull-right" ng-show="serviceInfo.serviceLibs.length > 0">&gt;</span>
+	                                               </a>
+	                                           </div>
+	                                        </div>
+	                                        <div class="col-md-8 service-libs">
+	                                           <ul class="list-unstyled">
+	                                               <li ng-repeat="serviceLib in currentServiceInfo.serviceLibs">{{serviceLib}}</li>
+	                                           </ul>
+	                                        </div>
+                                        </div>
+                                        <span ng-hide="info.serverMetaData.serviceInfos.length">N/A</span>
                                     </td>
                                 </tr>
                                 </tbody>

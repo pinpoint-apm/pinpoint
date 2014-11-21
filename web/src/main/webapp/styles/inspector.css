@@ -62,3 +62,50 @@
     text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
     background-color: #0088cc;
 }
+
+#serverMetaDataDiv .modal-body table > tbody > tr > td > div.row {
+	margin-left: 0px;
+	margin-right: 0px;
+}
+
+#serverMetaDataDiv .modal-body div.row > div.service-list,
+#serverMetaDataDiv .modal-body div.row > div.service-libs {
+	overflow-x: auto;
+	overflow-y: auto;
+	height: 240px;
+}
+
+#serverMetaDataDiv .modal-body div.row > div.service-list {
+    padding-left: 0px;	
+    padding-right: 0px;  
+}
+
+#serverMetaDataDiv .modal-body div.row > div.service-libs {
+    border: 1px solid #ddd;
+}
+
+#serverMetaDataDiv .modal-body .list-group > a {
+    padding: 3px 3px;
+    word-wrap: break-word;
+}
+
+#serverMetaDataDiv .modal-body .list-group > a.disabled {
+    color: #999999;
+}
+
+#serverMetaDataDiv .modal-body .list-group > a.disabled:hover,
+#serverMetaDataDiv .modal-body .list-group > a.disabled:focus {
+	color: #999999;
+	text-decoration: none;
+	background-color: transparent;
+	cursor: not-allowed;
+}
+
+#serverMetaDataDiv .modal-body .list-group > .list-group-item:first-child {
+	border-top-right-radius: 0px;
+	border-top-left-radius: 0px;
+}
+#serverMetaDataDiv .modal-body .list-group > .list-group-item:last-child {
+    border-top-right-radius: 0px;
+    border-top-left-radius: 0px;
+}

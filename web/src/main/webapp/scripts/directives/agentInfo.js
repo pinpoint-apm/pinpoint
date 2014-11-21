@@ -16,8 +16,8 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                 var oNavbarVo, oAlert, oProgressBar;
 
                 // define private variables of methods
-                var getAgentStat, showCharts, parseMemoryChartDataForAmcharts, parseCpuLoadChartDataForAmcharts,
-                broadcastToCpuLoadChart, resetServerMetaDataDiv, openServerMetaDataDiv;
+                var getAgentStat, initServiceInfo, showCharts, parseMemoryChartDataForAmcharts, parseCpuLoadChartDataForAmcharts,
+                broadcastToCpuLoadChart, resetServerMetaDataDiv;
 
                 // initialize
                 scope.agentInfoTemplate = 'views/agentInfoReady.html';
@@ -43,6 +43,7 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                         'jvmGcType': '',
                         'serverMetaData': agent.serverMetaData
                     };
+                    scope.currentServiceInfo = initServiceInfo(agent);
 
                     $timeout(function () {
                         getAgentStat(agent.agentId, oNavbarVo.getQueryStartTime(), oNavbarVo.getQueryEndTime(), oNavbarVo.getPeriod());
@@ -50,20 +51,22 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                     });
                 });
                 
-                resetServerMetaDataDiv = function() {
-                	$('#serverMetaDataDiv').modal('hide');
-                }
+                scope.selectServiceInfo = function(serviceInfo) {
+                    if (serviceInfo.serviceLibs.length > 0) {
+                        scope.currentServiceInfo = serviceInfo;
+                    }
+                };
                 
-                openServerMetaDataDiv = function() {
-                	resetServerMetaDataDiv();
-                	$('#serverMetaDataDiv').modal('show');
-                }
-                
-                /**
-                 * open server meta data div
-                 */
-                scope.openServerMetaDataDiv = function() {
-                	openServerMetaDataDiv();
+                initServiceInfo = function (agent) {
+                    if (agent.serverMetaData && agent.serverMetaData.serviceInfos) {
+                        var serviceInfos = agent.serverMetaData.serviceInfos;
+                        for (var i = 0; i < serviceInfos.length; ++i) {
+                            if (serviceInfos[i].serviceLibs.length > 0) {
+                                return serviceInfos[i];
+                            }
+                        } 
+                    }
+                    return;
                 }
 
                 /**
@@ -125,10 +128,6 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                             oProgressBar.setLoading(100);
                             oProgressBar.stopLoading();
                         }, 700);
-//                        } else {
-//                            oProgressBar.stopLoading();
-//                        }
-
                         scope.$digest();
                     });
                 };
@@ -162,11 +161,6 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                     scope.$broadcast('jvmMemoryChart.showCursorAt.forHeap', event.index);
                     scope.$broadcast('jvmMemoryChart.showCursorAt.forNonHeap', event.index);
                 });
-                
-                scope.$on('agentInfo.openServerMetaDataDiv', function (event) {
-                	openServerMetaDataDiv();
-                });
-                
             }
         };
     }]);
