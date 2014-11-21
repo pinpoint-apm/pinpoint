@@ -62,7 +62,8 @@ pinpointApp.service('AgentDao', [ 'agentDaoConfig',
                 };
                 for (var k in info.line) {
                     if (info.line[k].isFgc) {
-                        var GC = 0;
+                        var gcCount = 0;
+                        var gcTime = 0;
                         currTime = pointsTime[i].maxVal;
                         currCount = pointsCount[i].maxVal;
                         if (!prevTime || !prevCount) {
@@ -76,16 +77,19 @@ pinpointApp.service('AgentDao', [ 'agentDaoConfig',
                             
                             if (fgcOccurred) {
                                 if (jvmRestarted) {
-                                    GC = currTime;
+                                    gcCount = currCount;
+                                    gcTime = currTime;
                                 } else {
-                                    GC = currTime - prevTime;
+                                    gcCount = currCount - prevCount;
+                                    gcTime = currTime - prevTime;
                                 }
                                 prevCount = currCount;
                                 prevTime = currTime;
                             }
                         }
-                        if (GC > 0) {
-                        	thisData[info.line[k].key] = GC;
+                        if (gcCount > 0 && gcTime > 0) {
+                            thisData[info.line[k].key+"Count"] = gcCount;
+                        	thisData[info.line[k].key+"Time"] = gcTime;
                         }
                     } else {
                     	var value = agentStat.charts[info.line[k].id].points[i].maxVal;

@@ -100,11 +100,19 @@ angular.module('pinpointApp')
                                 },
                                 {
                                     "valueAxis": "v1",
-                                    "balloonText": "[[value]]ms",
+                                    "balloonFunction": function(item, graph) {
+                                        var data = item.serialDataItem.dataContext;
+                                        var balloonText = data.FGCTime + "ms";
+                                        var fgcCount = data.FGCCount;
+                                        if (fgcCount > 1) {
+                                            balloonText += " (" + fgcCount + ")";
+                                        }
+                                        return balloonText;
+                                    },
                                     "legendValueText": "[[value]]ms",
                                     "lineColor": "#FF6600",
                                     "title": "FGC",
-                                    "valueField": "FGC",
+                                    "valueField": "FGCTime",
                                     "type": "column",
                                     "fillAlphas": 0.3,
                                     "connect": false
