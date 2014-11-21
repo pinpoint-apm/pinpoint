@@ -11,7 +11,6 @@ import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
 import com.nhn.pinpoint.bootstrap.instrument.Scope;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.bootstrap.interceptor.ParameterExtractor;
 import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 import com.nhn.pinpoint.exception.PinpointException;
@@ -25,16 +24,14 @@ public class DefaultInterceptorFactory implements InterceptorFactory {
     private final String interceptorClassName;
     private final Object[] providedArguments;
     
-    private final ParameterExtractorFactory parameterExtractorFactory;
     private final String scopeName;
     
     
-    public DefaultInterceptorFactory(ByteCodeInstrumentor instrumentor, TraceContext traceContext, String interceptorClassName, Object[] providedArguments, ParameterExtractorFactory parameterExtractorFactory, String scopeName) {
+    public DefaultInterceptorFactory(ByteCodeInstrumentor instrumentor, TraceContext traceContext, String interceptorClassName, Object[] providedArguments, String scopeName) {
         this.instrumentor = instrumentor;
         this.traceContext = traceContext;
         this.interceptorClassName = interceptorClassName;
         this.providedArguments = providedArguments == null ? NO_ARGS : providedArguments;
-        this.parameterExtractorFactory = parameterExtractorFactory;
         this.scopeName = scopeName;
     }
 
@@ -178,14 +175,12 @@ public class DefaultInterceptorFactory implements InterceptorFactory {
                 return traceContext;
             } else if (type == MethodDescriptor.class) {
                 return targetMethod.getDescriptor();
-            } else if (type == ParameterExtractor.class) {
-                if (parameterExtractorFactory == null) {
-                    return null;
-                }
-                
-                return parameterExtractorFactory.get(target, targetMethod);
             } else if (type == ByteCodeInstrumentor.class) {
                 return instrumentor;
+            } else if (type == MethodInfo.class) {
+                return targetMethod;
+            } else if (type == InstrumentClass.class) {
+                return target;
             }
             
             return null;
