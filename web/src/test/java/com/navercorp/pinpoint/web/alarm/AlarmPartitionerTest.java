@@ -47,6 +47,10 @@ public class AlarmPartitionerTest {
             @Override
             public void deleteApplicationName(String applicationName) {
             }
+
+            @Override
+            public void deleteAgentId(String applicationName, String agentId) {
+            }
         };
     }
 

@@ -15,4 +15,6 @@ public interface ApplicationIndexDao {
 	List<String> selectAgentIds(String applicationName);
 	
 	void deleteApplicationName(String applicationName);
+	
+	void deleteAgentId(String applicationName, String agentId);
 }

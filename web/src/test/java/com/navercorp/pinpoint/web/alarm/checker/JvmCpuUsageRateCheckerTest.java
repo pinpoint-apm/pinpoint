@@ -81,6 +81,11 @@ public class JvmCpuUsageRateCheckerTest {
             public void deleteApplicationName(String applicationName) {
                 throw new UnsupportedOperationException();
             }
+
+            @Override
+            public void deleteAgentId(String applicationName, String agentId) {
+                throw new UnsupportedOperationException();
+            }
             
         };
     }

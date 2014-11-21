@@ -2,6 +2,7 @@ package com.nhn.pinpoint.web.dao.hbase;
 
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Scan;
@@ -58,7 +59,21 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
 	public void deleteApplicationName(String applicationName) {
 		byte[] rowKey = Bytes.toBytes(applicationName);
 		Delete delete = new Delete(rowKey);
-		delete.setWriteToWAL(false);
 		hbaseOperations2.delete(HBaseTables.APPLICATION_INDEX, delete);
 	}
+
+    @Override
+    public void deleteAgentId(String applicationName, String agentId) {
+        if (StringUtils.isEmpty(applicationName)) {
+            throw new IllegalArgumentException("applicationName cannot be empty");
+        }
+        if (StringUtils.isEmpty(agentId)) {
+            throw new IllegalArgumentException("agentId cannot be empty");
+        }
+        byte[] rowKey = Bytes.toBytes(applicationName);
+        Delete delete = new Delete(rowKey);
+        byte[] qualifier = Bytes.toBytes(agentId);
+        delete.deleteColumn(HBaseTables.APPLICATION_INDEX_CF_AGENTS, qualifier);
+        hbaseOperations2.delete(HBaseTables.APPLICATION_INDEX, delete);
+    }
 }
