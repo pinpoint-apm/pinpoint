@@ -18,7 +18,7 @@ public class InterceptorRegistry {
 
     private final AtomicInteger id = new AtomicInteger(0);
     private final StaticAroundInterceptor[] index;
-    private final SimpleInterceptor[] simpleIndex;
+    private final SimpleAroundInterceptor[] simpleIndex;
 
 //    private final ConcurrentMap<String, Integer> nameIndex = new ConcurrentHashMap<String, Integer>();
 
@@ -29,7 +29,7 @@ public class InterceptorRegistry {
     InterceptorRegistry(int max) {
         this.max = max;
         this.index = new StaticAroundInterceptor[max];
-        this.simpleIndex = new SimpleInterceptor[max];
+        this.simpleIndex = new SimpleAroundInterceptor[max];
     }
 
 
@@ -51,7 +51,7 @@ public class InterceptorRegistry {
         return id.getAndIncrement();
     }
 
-    int addSimpleInterceptor0(SimpleInterceptor interceptor) {
+    int addSimpleInterceptor0(SimpleAroundInterceptor interceptor) {
         if (interceptor == null) {
             return -1;
         }
@@ -59,7 +59,7 @@ public class InterceptorRegistry {
         if (newId >= max) {
             throw new IndexOutOfBoundsException("size=" + index.length + " id=" + id);
         }
-        
+
         this.simpleIndex[newId] = interceptor;
 //        this.nameIndex.put(interceptor.getClass().getName(), newId);
         return newId;
@@ -74,8 +74,8 @@ public class InterceptorRegistry {
         return interceptor;
     }
 
-    SimpleInterceptor getSimpleInterceptor0(int key) {
-        SimpleInterceptor interceptor = simpleIndex[key];
+    SimpleAroundInterceptor getSimpleInterceptor0(int key) {
+        SimpleAroundInterceptor interceptor = simpleIndex[key];
         if (interceptor == null) {
             // 로직이 잘못되었을경우  에러가 발생하지 않도록 더미를 리턴.
             return DUMMY;
@@ -109,7 +109,7 @@ public class InterceptorRegistry {
 
 
     public static Interceptor findInterceptor(int key) {
-        SimpleInterceptor simpleInterceptor = REGISTRY.getSimpleInterceptor0(key);
+        SimpleAroundInterceptor simpleInterceptor = REGISTRY.getSimpleInterceptor0(key);
         if (simpleInterceptor != null) {
             return simpleInterceptor;
         }
@@ -124,12 +124,12 @@ public class InterceptorRegistry {
         return DUMMY;
     }
 
-    public static int addSimpleInterceptor(SimpleInterceptor interceptor) {
+    public static int addSimpleInterceptor(SimpleAroundInterceptor interceptor) {
         return REGISTRY.addSimpleInterceptor0(interceptor);
     }
 
 
-    public static SimpleInterceptor getSimpleInterceptor(int key) {
+    public static SimpleAroundInterceptor getSimpleInterceptor(int key) {
         return REGISTRY.getSimpleInterceptor0(key);
     }
 
