@@ -114,6 +114,11 @@ public class ProfilerConfig {
     private boolean tomcatHidePinpointHeader = true;
     private Filter<String> tomcatExcludeUrlFilter = new SkipFilter<String>();
 
+    private boolean arucs = true;
+    private boolean arucsKeyTrace = false;
+    private boolean memcached = true;
+    private boolean memcachedKeyTrace = false;
+    
     private boolean ibatis = true;
 
     private boolean mybatis = true;
@@ -383,6 +388,22 @@ public class ProfilerConfig {
         return tomcatExcludeUrlFilter;
     }
 
+    public boolean isArucs() {
+        return arucs;
+    }
+
+    public boolean isArucsKeyTrace() {
+        return arucsKeyTrace;
+    }
+
+    public boolean isMemcached() {
+        return memcached;
+    }
+
+    public boolean isMemcachedKeyTrace() {
+        return memcachedKeyTrace;
+    }
+    
     //-----------------------------------------
     // http apache client
 
@@ -604,6 +625,11 @@ public class ProfilerConfig {
             this.tomcatExcludeUrlFilter = new ExcludeUrlFilter(tomcatExcludeURL);
         }
 
+        this.arucs = readBoolean("profiler.arcus", true);
+        this.arucsKeyTrace = readBoolean("profiler.arcus.keytrace", false);
+        this.memcached = readBoolean("profiler.memcached", true);
+        this.memcachedKeyTrace = readBoolean("profiler.memcached.keytrace", false);
+
         /**
          * apache http client 4
          */
@@ -815,6 +841,10 @@ public class ProfilerConfig {
         sb.append(", jdbcProfileDbcpConnectionClose=").append(jdbcProfileDbcpConnectionClose);
         sb.append(", tomcatHidePinpointHeader=").append(tomcatHidePinpointHeader);
         sb.append(", tomcatExcludeUrlFilter=").append(tomcatExcludeUrlFilter);
+        sb.append(", arucs=").append(arucs);
+        sb.append(", arucsKeyTrace=").append(arucsKeyTrace);
+        sb.append(", memcached=").append(memcached);
+        sb.append(", memcachedKeyTrace=").append(memcachedKeyTrace);
         sb.append(", ibatis=").append(ibatis);
         sb.append(", mybatis=").append(mybatis);
         sb.append(", redis=").append(redis);
