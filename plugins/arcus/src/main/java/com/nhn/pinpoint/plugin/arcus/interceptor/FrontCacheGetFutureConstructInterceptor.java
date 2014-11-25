@@ -2,7 +2,7 @@ package com.nhn.pinpoint.plugin.arcus.interceptor;
 
 import net.sf.ehcache.Element;
 
-import com.nhn.pinpoint.bootstrap.interceptor.SimpleAfterInterceptor;
+import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.nhn.pinpoint.bootstrap.logging.PLogger;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.plugin.arcus.accessor.CacheKeyAccessor;
@@ -11,13 +11,19 @@ import com.nhn.pinpoint.plugin.arcus.accessor.CacheNameAccessor;
 /**
  * @author harebox
  */
-public class FrontCacheGetFutureConstructInterceptor implements SimpleAfterInterceptor {
+public class FrontCacheGetFutureConstructInterceptor implements SimpleAroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     // TODO This should be extracted from FrontCacheMemcachedClient.
     private static final String DEFAULT_FRONTCACHE_NAME = "front";
+
+    @Override
+    public void before(Object target, Object[] args) {
+        // do nothing
+        
+    }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {

@@ -5,12 +5,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.nhn.pinpoint.bootstrap.context.TraceContext;
+import com.nhn.pinpoint.bootstrap.interceptor.*;
 import javassist.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.nhn.pinpoint.bootstrap.instrument.InstrumentException;
 import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
@@ -18,17 +19,6 @@ import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
 import com.nhn.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.nhn.pinpoint.bootstrap.instrument.Scope;
 import com.nhn.pinpoint.bootstrap.instrument.Type;
-import com.nhn.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
-import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
-import com.nhn.pinpoint.bootstrap.interceptor.InterceptorRegistry;
-import com.nhn.pinpoint.bootstrap.interceptor.LoggingInterceptor;
-import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.bootstrap.interceptor.SimpleAfterInterceptor;
-import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.bootstrap.interceptor.SimpleBeforeInterceptor;
-import com.nhn.pinpoint.bootstrap.interceptor.SimpleInterceptor;
-import com.nhn.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
-import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
 import com.nhn.pinpoint.profiler.interceptor.DebugScopeDelegateSimpleInterceptor;
 import com.nhn.pinpoint.profiler.interceptor.DebugScopeDelegateStaticInterceptor;
@@ -293,17 +283,16 @@ public class JavaAssistClass implements InstrumentClass {
             throw new IllegalArgumentException("interceptor is null");
         }
         final CtConstructor behavior = getCtConstructor(args);
-        return addInterceptor0(behavior, null, interceptor, NOT_DEFINE_INTERCEPTOR_ID, false);
+        return addInterceptor0(behavior, null, interceptor, NOT_DEFINE_INTERCEPTOR_ID, Type.around, false);
     }
 
     @Override
- // TODO remove parameter type
     public int addConstructorInterceptor(String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
         final CtConstructor behavior = getCtConstructor(args);
-        return addInterceptor0(behavior, null, interceptor, NOT_DEFINE_INTERCEPTOR_ID, false);
+        return addInterceptor0(behavior, null, interceptor, NOT_DEFINE_INTERCEPTOR_ID, type, false);
     }
 
     @Override
@@ -312,7 +301,6 @@ public class JavaAssistClass implements InstrumentClass {
     }
 
     @Override
- // TODO remove parameter type
     public int addAllConstructorInterceptor(Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
@@ -324,11 +312,11 @@ public class JavaAssistClass implements InstrumentClass {
         }
         int interceptorId = 0;
         if (length > 0) {
-            interceptorId = addInterceptor0(constructorList[0], null, interceptor, NOT_DEFINE_INTERCEPTOR_ID, false);
+            interceptorId = addInterceptor0(constructorList[0], null, interceptor, NOT_DEFINE_INTERCEPTOR_ID, type, false);
         }
         if (length > 1) {
             for (int i = 1; i< length; i++) {
-                addInterceptor0(constructorList[i], null, null, interceptorId, false);
+                addInterceptor0(constructorList[i], null, null, interceptorId, Type.around, false);
             }
         }
         return interceptorId;
@@ -341,17 +329,16 @@ public class JavaAssistClass implements InstrumentClass {
             throw new IllegalArgumentException("interceptor is null");
         }
         final CtBehavior behavior = getMethod(methodName, args);
-        return addInterceptor0(behavior, methodName, interceptor, NOT_DEFINE_INTERCEPTOR_ID, true);
+        return addInterceptor0(behavior, methodName, interceptor, NOT_DEFINE_INTERCEPTOR_ID, Type.around, true);
     }
 
     @Override
-    // TODO remove parameter type
     public int addInterceptorCallByContextClassLoader(String methodName, String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
         final CtBehavior behavior = getMethod(methodName, args);
-        return addInterceptor0(behavior, methodName, interceptor, NOT_DEFINE_INTERCEPTOR_ID, true);
+        return addInterceptor0(behavior, methodName, interceptor, NOT_DEFINE_INTERCEPTOR_ID, type, true);
     }
 
     @Override
@@ -363,7 +350,7 @@ public class JavaAssistClass implements InstrumentClass {
             throw new IllegalArgumentException("interceptor is null");
         }
         final CtBehavior behavior = getMethod(methodName, args);
-        return addInterceptor0(behavior, methodName, interceptor, NOT_DEFINE_INTERCEPTOR_ID, false);
+        return addInterceptor0(behavior, methodName, interceptor, NOT_DEFINE_INTERCEPTOR_ID, Type.around, false);
     }
 
     @Override
@@ -388,10 +375,10 @@ public class JavaAssistClass implements InstrumentClass {
         return addInterceptor(methodName, args, interceptor);
     }
     
-	/*
-	 * (non-Javadoc)
-	 * @see com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass#addScopeInterceptorIfDeclared(java.lang.String, java.lang.String[], com.nhn.pinpoint.bootstrap.interceptor.Interceptor, com.nhn.pinpoint.profiler.util.DepthScope)
-	 */
+    /*
+     * (non-Javadoc)
+     * @see com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass#addScopeInterceptorIfDeclared(java.lang.String, java.lang.String[], com.nhn.pinpoint.bootstrap.interceptor.Interceptor, com.nhn.pinpoint.profiler.util.DepthScope)
+     */
     @Override
     public int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, Scope scope) throws InstrumentException {
         if (methodName == null) {
@@ -444,35 +431,33 @@ public class JavaAssistClass implements InstrumentClass {
     @Override
     public int reuseInterceptor(String methodName, String[] args, int interceptorId) throws InstrumentException, NotFoundInstrumentException {
         final CtBehavior behavior = getMethod(methodName, args);
-        return addInterceptor0(behavior, methodName, null, interceptorId, false);
+        return addInterceptor0(behavior, methodName, null, interceptorId, Type.around, false);
     }
 
     @Override
- // TODO remove parameter type
     public int reuseInterceptor(String methodName, String[] args, int interceptorId, Type type) throws InstrumentException, NotFoundInstrumentException {
         final CtBehavior behavior = getMethod(methodName, args);
-        return addInterceptor0(behavior, methodName, null, interceptorId, false);
+        return addInterceptor0(behavior, methodName, null, interceptorId, type, false);
     }
 
     @Override
- // TODO remove parameter type
     public int addInterceptor(String methodName, String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException {
         if (interceptor == null) {
             throw new IllegalArgumentException("interceptor is null");
         }
         final CtBehavior behavior = getMethod(methodName, args);
-        return addInterceptor0(behavior, methodName, interceptor, NOT_DEFINE_INTERCEPTOR_ID, false);
+        return addInterceptor0(behavior, methodName, interceptor, NOT_DEFINE_INTERCEPTOR_ID, type, false);
     }
 
 
-    private int addInterceptor0(CtBehavior behavior, String methodName, Interceptor interceptor, int interceptorId, boolean useContextClassLoader) throws InstrumentException, NotFoundInstrumentException {
+    private int addInterceptor0(CtBehavior behavior, String methodName, Interceptor interceptor, int interceptorId, Type type, boolean useContextClassLoader) throws InstrumentException, NotFoundInstrumentException {
         try {
             if (interceptor != null) {
                 if(interceptor instanceof StaticAroundInterceptor) {
                     StaticAroundInterceptor staticAroundInterceptor = (StaticAroundInterceptor) interceptor;
                     interceptorId = InterceptorRegistry.addInterceptor(staticAroundInterceptor);
-                } else if(interceptor instanceof SimpleInterceptor) {
-                    SimpleInterceptor simpleAroundInterceptor = (SimpleInterceptor) interceptor;
+                } else if(interceptor instanceof SimpleAroundInterceptor) {
+                    SimpleAroundInterceptor simpleAroundInterceptor = (SimpleAroundInterceptor) interceptor;
                     interceptorId = InterceptorRegistry.addSimpleInterceptor(simpleAroundInterceptor);
                 } else {
                     throw new InstrumentException("unsupported Interceptor Type:" + interceptor);
@@ -484,28 +469,32 @@ public class JavaAssistClass implements InstrumentClass {
             }
             // 이제는 aroundType 인터셉터만 받고 코드 인젝션을 별도 type으로 받아야 함.
             if (interceptor instanceof StaticAroundInterceptor) {
-//                switch (type) {
-//                    case around:
+                switch (type) {
+                    case around:
                         addStaticAroundInterceptor(methodName, interceptorId, behavior, useContextClassLoader);
-//                        break;
-//                    case before:
-//                        addStaticBeforeInterceptor(methodName, interceptorId, behavior, useContextClassLoader);
-//                        break;
-//                    case after:
-//                        addStaticAfterInterceptor(methodName, interceptorId, behavior, useContextClassLoader);
-//                        break;
-//                    default:
-//                        throw new UnsupportedOperationException("unsupport type");
-//                }
-            } else if(interceptor instanceof SimpleInterceptor) {
-                if (interceptor instanceof SimpleAroundInterceptor) {
-                    addSimpleAroundInterceptor(methodName, interceptorId, behavior, useContextClassLoader);
-                } else if (interceptor instanceof SimpleBeforeInterceptor) {
-                    addSimpleBeforeInterceptor(methodName, interceptorId, behavior, useContextClassLoader);
-                } else if (interceptor instanceof SimpleAfterInterceptor) {
-                    addSimpleAfterInterceptor(methodName, interceptorId, behavior, useContextClassLoader);
-                } else {
-                    throw new UnsupportedOperationException("unsupport type");
+                        break;
+                    case before:
+                        addStaticBeforeInterceptor(methodName, interceptorId, behavior, useContextClassLoader);
+                        break;
+                    case after:
+                        addStaticAfterInterceptor(methodName, interceptorId, behavior, useContextClassLoader);
+                        break;
+                    default:
+                        throw new UnsupportedOperationException("unsupport type");
+                }
+            } else if(interceptor instanceof SimpleAroundInterceptor) {
+                switch (type) {
+                    case around:
+                        addSimpleAroundInterceptor(methodName, interceptorId, behavior, useContextClassLoader);
+                        break;
+                    case before:
+                        addSimpleBeforeInterceptor(methodName, interceptorId, behavior, useContextClassLoader);
+                        break;
+                    case after:
+                        addSimpleAfterInterceptor(methodName, interceptorId, behavior, useContextClassLoader);
+                        break;
+                    default:
+                        throw new UnsupportedOperationException("unsupport type");
                 }
             } else {
                 throw new IllegalArgumentException("unsupported");
@@ -640,7 +629,7 @@ public class JavaAssistClass implements InstrumentClass {
                 after.format("  %1$s interceptor = com.nhn.pinpoint.bootstrap.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticAroundInterceptor.class.getName(), id);
                 after.format("  interceptor.after(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, %6$s, null);", target, ctClass.getName(), methodName, parameterTypeString, parameterIdentifier, returnType);
             } else {
-                after.format("  %1$s interceptor = (%1$s)com.nhn.pinpoint.bootstrap.interceptor.InterceptorRegistry.getSimpleInterceptor(%2$d);", SimpleAroundInterceptor.class.getName(), id);
+                after.format("  %1$s interceptor = com.nhn.pinpoint.bootstrap.interceptor.InterceptorRegistry.getSimpleInterceptor(%2$d);", SimpleAroundInterceptor.class.getName(), id);
                 after.format("  interceptor.after(%1$s, %2$s, %3$s, null);", target, parameterIdentifier, returnType);
             }
             after.end();
@@ -776,14 +765,14 @@ public class JavaAssistClass implements InstrumentClass {
                 code.format("  interceptor.before(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s);", target, ctClass.getName(), methodName, parameterDescription, parameterIdentifier);
             } else {
                 // simpleInterceptor인덱스에서 검색하여 typecasting을 제거한다.
-                code.format("  %1$s interceptor = (%1$s)com.nhn.pinpoint.bootstrap.interceptor.InterceptorRegistry.getSimpleInterceptor(%2$d);", SimpleBeforeInterceptor.class.getName(), id);
+                code.format("  %1$s interceptor = com.nhn.pinpoint.bootstrap.interceptor.InterceptorRegistry.getSimpleInterceptor(%2$d);", SimpleAroundInterceptor.class.getName(), id);
                 code.format("  interceptor.before(%1$s, %2$s);", target, parameterIdentifier);
             }
             code.end();
         }
         String buildBefore = code.toString();
         if (isDebug) {
-            logger.debug("addBeforeInterceptor catch behavior:{} code:{}", behavior.getLongName(), buildBefore);
+            logger.debug("addStaticBeforeInterceptor catch behavior:{} code:{}", behavior.getLongName(), buildBefore);
         }
 
         if (behavior instanceof CtConstructor) {
@@ -911,7 +900,7 @@ public class JavaAssistClass implements InstrumentClass {
     }
 
 
-	public List<MethodInfo> getDeclaredMethods(MethodFilter methodFilter) {
+    public List<MethodInfo> getDeclaredMethods(MethodFilter methodFilter) {
         if (methodFilter == null) {
             throw new NullPointerException("methodFilter must not be null");
         }
