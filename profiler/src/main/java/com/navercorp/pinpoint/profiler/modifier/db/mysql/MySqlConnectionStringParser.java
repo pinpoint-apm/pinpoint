@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class MySqlConnectionStringParser implements ConnectionStringParser {
 
-    // jdbc:mysql:loadbalance://10.25.149.62:3306,10.25.149.61:3306/MySQL?characterEncoding=UTF-8
+    // jdbc:mysql:loadbalance://10.25.141.70:3306,10.25.141.69:3306/MySQL?characterEncoding=UTF-8
     private static final String JDBC_MYSQL_LOADBALANCE = "jdbc:mysql:loadbalance:";
 
     @Override

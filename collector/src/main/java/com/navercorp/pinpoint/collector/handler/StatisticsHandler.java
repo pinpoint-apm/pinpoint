@@ -25,7 +25,7 @@ public class StatisticsHandler {
 
     /**
      * tomcat에서 mysql을 호출하였을 경우 아래와 같이 로그가 남는다. <br/>
-     * emeroad-app (TOMCAT) -> MySQL_DB_ID (MYSQL)[10.25.149.61:3306] <br/>
+     * emeroad-app (TOMCAT) -> MySQL_DB_ID (MYSQL)[10.25.141.69:3306] <br/>
      * <br/>
      * callee에서는 <br/>
      * MySQL (MYSQL) <- emeroad-app (TOMCAT)[localhost:8080]
@@ -46,7 +46,7 @@ public class StatisticsHandler {
      * MySQL_DB_ID (MYSQL) <- emeroad-app (TOMCAT)[localhost:8080] <br/>
      * <br/><br/>
      * caller에서는 <br/>
-     * emeroad-app (TOMCAT) -> MySQL (MYSQL)[10.25.149.61:3306]
+     * emeroad-app (TOMCAT) -> MySQL (MYSQL)[10.25.141.69:3306]
      * @param callerApplicationName
      * @param callerServiceType
      * @param calleeApplicationName
