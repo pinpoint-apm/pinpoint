@@ -16,8 +16,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.rpc.control.ProtocolException;
-import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
-import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerPacket;
+import com.nhn.pinpoint.rpc.packet.ControlHandShakeResponsePacket;
+import com.nhn.pinpoint.rpc.packet.ControlHandShakePacket;
+import com.nhn.pinpoint.rpc.packet.HandShakeResponseCode;
+import com.nhn.pinpoint.rpc.packet.HandShakeResponseType;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.ResponsePacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
@@ -63,7 +65,7 @@ public class EventListnerTest {
 
 	private int sendAndReceiveRegisterPacket(Socket socket, Map<String, Object> properties) throws ProtocolException, IOException {
 		sendRegisterPacket(socket.getOutputStream(), properties);
-		ControlEnableWorkerConfirmPacket packet = receiveRegisterConfirmPacket(socket.getInputStream());
+		ControlHandShakeResponsePacket packet = receiveRegisterConfirmPacket(socket.getInputStream());
 		Map<Object, Object> result = (Map<Object, Object>) ControlMessageEnDeconderUtils.decode(packet.getPayload());
 		
 		return MapUtils.getInteger(result, "code", -1);
@@ -77,7 +79,7 @@ public class EventListnerTest {
 
 	private void sendRegisterPacket(OutputStream outputStream, Map<String, Object> properties) throws ProtocolException, IOException {
 		byte[] payload = ControlMessageEnDeconderUtils.encode(properties);
-		ControlEnableWorkerPacket packet = new ControlEnableWorkerPacket(1, payload);
+		ControlHandShakePacket packet = new ControlHandShakePacket(1, payload);
 
 		ByteBuffer bb = packet.toBuffer().toByteBuffer(0, packet.toBuffer().writerIndex());
 		sendData(outputStream, bb.array());
@@ -96,14 +98,14 @@ public class EventListnerTest {
 		outputStream.flush();
 	}
 
-	private ControlEnableWorkerConfirmPacket receiveRegisterConfirmPacket(InputStream inputStream) throws ProtocolException, IOException {
+	private ControlHandShakeResponsePacket receiveRegisterConfirmPacket(InputStream inputStream) throws ProtocolException, IOException {
 
 		byte[] payload = readData(inputStream);
 		ChannelBuffer cb = ChannelBuffers.wrappedBuffer(payload);
 
 		short packetType = cb.readShort();
 
-		ControlEnableWorkerConfirmPacket packet = ControlEnableWorkerConfirmPacket.readBuffer(packetType, cb);
+		ControlHandShakeResponsePacket packet = ControlHandShakeResponsePacket.readBuffer(packetType, cb);
 		return packet;
 	}
 
@@ -169,9 +171,9 @@ public class EventListnerTest {
 		}
 		
 		@Override
-		public int handleEnableWorker(Map properties) {
-			logger.info("handleEnableWorker {}", properties);
-	        return ControlEnableWorkerConfirmPacket.SUCCESS;
+		public HandShakeResponseCode handleHandShake(Map properties) {
+			logger.info("handle HandShake {}", properties);
+	        return HandShakeResponseType.Success.DUPLEX_COMMUNICATION;
 		}
 	}
 

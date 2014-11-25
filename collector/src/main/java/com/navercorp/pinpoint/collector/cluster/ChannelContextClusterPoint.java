@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.nhn.pinpoint.collector.receiver.tcp.AgentPropertiesType;
+import com.nhn.pinpoint.collector.receiver.tcp.AgentHandShakePropertyType;
 import com.nhn.pinpoint.rpc.Future;
 import com.nhn.pinpoint.rpc.server.ChannelContext;
 import com.nhn.pinpoint.rpc.server.SocketChannel;
@@ -30,16 +30,16 @@ public class ChannelContextClusterPoint implements TargetClusterPoint {
 		AssertUtils.assertNotNull(socketChannel, "SocketChannel may not be null.");
 
 		Map<Object, Object> properties = channelContext.getChannelProperties();
-		this.version = MapUtils.getString(properties, AgentPropertiesType.VERSION.getName());
+		this.version = MapUtils.getString(properties, AgentHandShakePropertyType.VERSION.getName());
 		AssertUtils.assertTrue(!StringUtils.isBlank(version), "Version may not be null or empty.");
 
-		this.applicationName = MapUtils.getString(properties, AgentPropertiesType.APPLICATION_NAME.getName());
+		this.applicationName = MapUtils.getString(properties, AgentHandShakePropertyType.APPLICATION_NAME.getName());
 		AssertUtils.assertTrue(!StringUtils.isBlank(applicationName), "ApplicationName may not be null or empty.");
 
-		this.agentId = MapUtils.getString(properties, AgentPropertiesType.AGENT_ID.getName());
+		this.agentId = MapUtils.getString(properties, AgentHandShakePropertyType.AGENT_ID.getName());
 		AssertUtils.assertTrue(!StringUtils.isBlank(agentId), "AgentId may not be null or empty.");
 
-		this.startTimeStamp = MapUtils.getLong(properties, AgentPropertiesType.START_TIMESTAMP.getName());
+		this.startTimeStamp = MapUtils.getLong(properties, AgentHandShakePropertyType.START_TIMESTAMP.getName());
 		AssertUtils.assertTrue(startTimeStamp > 0, "StartTimeStamp is must greater than zero.");
 	}
 

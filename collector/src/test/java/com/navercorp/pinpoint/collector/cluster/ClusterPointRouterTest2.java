@@ -24,9 +24,9 @@ import com.nhn.pinpoint.collector.receiver.tcp.AgentProperties;
 import com.nhn.pinpoint.collector.util.CollectorUtils;
 import com.nhn.pinpoint.rpc.DefaultFuture;
 import com.nhn.pinpoint.rpc.Future;
-import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.ResponseMessage;
-import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
+import com.nhn.pinpoint.rpc.packet.HandShakeResponseCode;
+import com.nhn.pinpoint.rpc.packet.HandShakeResponseType;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.rpc.server.ChannelContext;
@@ -153,9 +153,9 @@ public class ClusterPointRouterTest2 {
 		}
 
 		@Override
-		public int handleEnableWorker(Map properties) {
+		public HandShakeResponseCode handleHandShake(Map properties) {
 			logger.warn("do handleEnableWorker {}", properties);
-			return ControlEnableWorkerConfirmPacket.SUCCESS;
+			return HandShakeResponseType.Success.DUPLEX_COMMUNICATION;
 		}
 	}
 

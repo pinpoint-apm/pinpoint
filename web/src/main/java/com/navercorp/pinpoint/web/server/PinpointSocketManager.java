@@ -15,15 +15,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.common.util.NetUtils;
-import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
+import com.nhn.pinpoint.rpc.packet.HandShakeResponseCode;
+import com.nhn.pinpoint.rpc.packet.HandShakeResponseType;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamPacket;
 import com.nhn.pinpoint.rpc.server.ChannelContext;
 import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
 import com.nhn.pinpoint.rpc.server.ServerMessageListener;
 import com.nhn.pinpoint.rpc.server.SocketChannel;
-import com.nhn.pinpoint.rpc.stream.ServerStreamChannel;
 import com.nhn.pinpoint.web.cluster.ClusterManager;
 import com.nhn.pinpoint.web.cluster.zookeeper.ZookeeperClusterManager;
 import com.nhn.pinpoint.web.config.WebConfig;
@@ -169,9 +168,9 @@ public class PinpointSocketManager {
 		}
 
 		@Override
-		public int handleEnableWorker(Map properties) {
-			logger.warn("do handleEnableWorker {}", properties);
-			return ControlEnableWorkerConfirmPacket.SUCCESS;
+		public HandShakeResponseCode handleHandShake(Map properties) {
+			logger.warn("do handShake {}", properties);
+			return HandShakeResponseType.Success.DUPLEX_COMMUNICATION;
 		}
 	}
 

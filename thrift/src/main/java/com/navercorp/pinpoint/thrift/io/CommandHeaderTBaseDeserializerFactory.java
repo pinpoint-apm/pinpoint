@@ -11,8 +11,6 @@ public final class CommandHeaderTBaseDeserializerFactory implements Deserializer
 	private final DeserializerFactory<HeaderTBaseDeserializer> factory;
 
 	public CommandHeaderTBaseDeserializerFactory(String version) {
-		System.out.println(version);
-		
 		TBaseLocator commandTbaseLocator = new TCommandRegistry(TCommandTypeVersion.getVersion(version));
 
 		TProtocolFactory protocolFactory = new TCompactProtocol.Factory();

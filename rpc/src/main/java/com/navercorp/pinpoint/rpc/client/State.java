@@ -20,9 +20,10 @@ public class State {
     public static final int INIT = 0;
     public static final int RUN = 1;
     public static final int RUN_DUPLEX_COMMUNICATION = 2;
-    public static final int CLOSED = 3;
+    public static final int RUN_SIMPLEX_COMMUNICATION = 3;
+    public static final int CLOSED = 4;
 //    이 상태가 있어야 되나?
-    public static final int RECONNECT = 4;
+    public static final int RECONNECT = 5;
 
 
     private final AtomicInteger state = new AtomicInteger(INIT);
@@ -33,11 +34,11 @@ public class State {
 
     public boolean isRun() {
     	int code = state.get();
-        return code == RUN || code == RUN_DUPLEX_COMMUNICATION;
+    	return isRun(code);
     }
     
     public boolean isRun(int code) {
-        return code == RUN || code == RUN_DUPLEX_COMMUNICATION;
+        return code == RUN || code == RUN_DUPLEX_COMMUNICATION || code == RUN_SIMPLEX_COMMUNICATION;
     }
 
     public boolean isClosed() {
@@ -69,6 +70,22 @@ public class State {
         }
         throw new IllegalStateException("InvalidState current:"  + getString(current) + " change:" + getString(RUN_DUPLEX_COMMUNICATION));
     }
+    
+    public boolean changeRunSimplexCommunication() {
+        logger.debug("State Will Be Changed {}.", getString(RUN_SIMPLEX_COMMUNICATION));
+        final int current = state.get();
+        if (current == INIT) {
+            return this.state.compareAndSet(INIT, RUN_SIMPLEX_COMMUNICATION);
+        } else if(current == INIT_RECONNECT) {
+            return this.state.compareAndSet(INIT_RECONNECT, RUN_SIMPLEX_COMMUNICATION);
+        } else if (current == RUN) {
+            return this.state.compareAndSet(RUN, RUN_SIMPLEX_COMMUNICATION);
+        } else if (current == RUN_SIMPLEX_COMMUNICATION) {
+            return true;
+        }
+        throw new IllegalStateException("InvalidState current:"  + getString(current) + " change:" + getString(RUN_SIMPLEX_COMMUNICATION));
+        
+    }
 
     public boolean changeClosed(int before) {
     	logger.debug("State Will Be Changed {} -> {}.", getString(before), getString(CLOSED));
@@ -97,6 +114,8 @@ public class State {
                 return "RUN";
             case RUN_DUPLEX_COMMUNICATION:
                 return "RUN_DUPLEX_COMMUNICATION";
+            case RUN_SIMPLEX_COMMUNICATION:
+                return "RUN_SIMPLEX_COMMUNICATION";
             case CLOSED:
                 return "CLOSED";
             case RECONNECT:

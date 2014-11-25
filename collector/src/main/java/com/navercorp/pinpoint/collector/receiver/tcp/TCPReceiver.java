@@ -26,12 +26,14 @@ import com.nhn.pinpoint.collector.receiver.DispatchHandler;
 import com.nhn.pinpoint.collector.util.PacketUtils;
 import com.nhn.pinpoint.common.util.ExecutorFactory;
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
-import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
+import com.nhn.pinpoint.rpc.packet.HandShakeResponseCode;
+import com.nhn.pinpoint.rpc.packet.HandShakeResponseType;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
 import com.nhn.pinpoint.rpc.server.ServerMessageListener;
 import com.nhn.pinpoint.rpc.server.SocketChannel;
+import com.nhn.pinpoint.rpc.util.MapUtils;
 import com.nhn.pinpoint.thrift.io.DeserializerFactory;
 import com.nhn.pinpoint.thrift.io.Header;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
@@ -136,17 +138,22 @@ public class TCPReceiver {
             }
 
             @Override
-            public int handleEnableWorker(Map properties) {
+            public HandShakeResponseCode handleHandShake(Map properties) {
     			if (properties == null) {
-    				return ControlEnableWorkerConfirmPacket.ILLEGAL_PROTOCOL;
+    				return HandShakeResponseType.ProtocolError.PROTOCOL_ERROR;
     			}
     			
-    			boolean hasAllType = AgentPropertiesType.hasAllType(properties);
+    			boolean hasAllType = AgentHandShakePropertyType.hasAllType(properties);
     			if (!hasAllType) {
-    				return ControlEnableWorkerConfirmPacket.INVALID_PROPERTIES;
+    				return HandShakeResponseType.PropertyError.PROPERTY_ERROR;
     			}
-
-    			return ControlEnableWorkerConfirmPacket.SUCCESS;
+    			
+				boolean supportServer = MapUtils.getBoolean(properties, AgentHandShakePropertyType.SUPPORT_SERVER.getName(), true);
+				if (supportServer) {
+				    return HandShakeResponseType.Success.DUPLEX_COMMUNICATION;
+				} else {
+                    return HandShakeResponseType.Success.SIMPLEX_COMMUNICATION;
+				}
             }
         });
         this.pinpointServerSocket.bind(bindAddress, port);

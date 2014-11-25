@@ -16,7 +16,7 @@ import com.nhn.pinpoint.collector.cluster.WorkerState;
 import com.nhn.pinpoint.collector.cluster.WorkerStateContext;
 import com.nhn.pinpoint.collector.cluster.zookeeper.job.DeleteJob;
 import com.nhn.pinpoint.collector.cluster.zookeeper.job.UpdateJob;
-import com.nhn.pinpoint.collector.receiver.tcp.AgentPropertiesType;
+import com.nhn.pinpoint.collector.receiver.tcp.AgentHandShakePropertyType;
 import com.nhn.pinpoint.rpc.server.ChannelContext;
 import com.nhn.pinpoint.rpc.server.PinpointServerSocketStateCode;
 import com.nhn.pinpoint.rpc.server.SocketChannelStateChangeEventListener;
@@ -158,8 +158,8 @@ public class ZookeeperProfilerClusterManager implements SocketChannelStateChange
 	}
 
 	private boolean skipAgent(Map<Object, Object> agentProperties) {
-		String applicationName = MapUtils.getString(agentProperties, AgentPropertiesType.APPLICATION_NAME.getName());
-		String agentId = MapUtils.getString(agentProperties, AgentPropertiesType.AGENT_ID.getName());
+		String applicationName = MapUtils.getString(agentProperties, AgentHandShakePropertyType.APPLICATION_NAME.getName());
+		String agentId = MapUtils.getString(agentProperties, AgentHandShakePropertyType.AGENT_ID.getName());
 
 		if (StringUtils.isBlank(applicationName) || StringUtils.isBlank(agentId)) {
 			return true;

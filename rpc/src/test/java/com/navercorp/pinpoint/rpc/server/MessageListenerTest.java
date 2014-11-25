@@ -17,8 +17,10 @@ import com.nhn.pinpoint.rpc.ResponseMessage;
 import com.nhn.pinpoint.rpc.client.MessageListener;
 import com.nhn.pinpoint.rpc.client.PinpointSocket;
 import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
+import com.nhn.pinpoint.rpc.client.PinpointSocketReconnectEventListener;
 import com.nhn.pinpoint.rpc.client.SimpleLoggingMessageListener;
-import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
+import com.nhn.pinpoint.rpc.packet.HandShakeResponseCode;
+import com.nhn.pinpoint.rpc.packet.HandShakeResponseType;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.ResponsePacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
@@ -31,6 +33,7 @@ public class MessageListenerTest {
 	public void serverMessageListenerTest1() throws InterruptedException {
 		PinpointServerSocket ss = new PinpointServerSocket();
 		ss.bind("127.0.0.1", 10234);
+		ss.setMessageListener(new SimpleListener());
 
 		PinpointSocketFactory socketFactory1 = createPinpointSocketFactory();
 		socketFactory1.setMessageListener(new EchoMessageListener());
@@ -46,7 +49,7 @@ public class MessageListenerTest {
 			Thread.sleep(500);
 
 			List<ChannelContext> channelContextList = ss.getDuplexCommunicationChannelContext();
-			if (channelContextList.size() != 1) {
+			if (channelContextList.size() != 2) {
 				Assert.fail();
 			}
 
@@ -64,6 +67,7 @@ public class MessageListenerTest {
 	public void serverMessageListenerTest2() throws InterruptedException {
 		PinpointServerSocket ss = new PinpointServerSocket();
 		ss.bind("127.0.0.1", 10234);
+        ss.setMessageListener(new SimpleListener());
 
 		EchoMessageListener echoMessageListener = new EchoMessageListener();
 
@@ -104,6 +108,7 @@ public class MessageListenerTest {
 	public void serverMessageListenerTest3() throws InterruptedException {
 		PinpointServerSocket ss = new PinpointServerSocket();
 		ss.bind("127.0.0.1", 10234);
+        ss.setMessageListener(new SimpleListener());
 
 		PinpointSocketFactory socketFactory1 = createPinpointSocketFactory();
 		EchoMessageListener echoMessageListener1 = new EchoMessageListener();
@@ -149,6 +154,7 @@ public class MessageListenerTest {
 	public void serverMessageListenerTest4() throws InterruptedException {
 		PinpointServerSocket ss = new PinpointServerSocket();
 		ss.bind("127.0.0.1", 10234);
+        ss.setMessageListener(new SimpleListener());
 
 		Map params = getParams();
 		PinpointSocketFactory socketFactory = createPinpointSocketFactory(params);
@@ -161,10 +167,10 @@ public class MessageListenerTest {
 			
 			Thread.sleep(500);
 
-			ChannelContext channelContext = getChannelContext("application", "agent", (Long) params.get(AgentPropertiesType.START_TIMESTAMP.getName()), ss.getDuplexCommunicationChannelContext());
+			ChannelContext channelContext = getChannelContext("application", "agent", (Long) params.get(AgentHandShakePropertyType.START_TIMESTAMP.getName()), ss.getDuplexCommunicationChannelContext());
 			Assert.assertNotNull(channelContext);
 
-			channelContext = getChannelContext("application", "agent", (Long) params.get(AgentPropertiesType.START_TIMESTAMP.getName()) + 1, ss.getDuplexCommunicationChannelContext());
+			channelContext = getChannelContext("application", "agent", (Long) params.get(AgentHandShakePropertyType.START_TIMESTAMP.getName()) + 1, ss.getDuplexCommunicationChannelContext());
 			Assert.assertNull(channelContext);
 
 			socket.close();
@@ -178,6 +184,7 @@ public class MessageListenerTest {
 	public void serverMessageListenerTest5() throws InterruptedException {
 		PinpointServerSocket ss = new PinpointServerSocket();
 		ss.bind("127.0.0.1", 10234);
+        ss.setMessageListener(new SimpleListener());
 
 		PinpointSocketFactory socketFactory = createPinpointSocketFactory();
 		socketFactory.setMessageListener(SimpleLoggingMessageListener.LISTENER);
@@ -189,7 +196,7 @@ public class MessageListenerTest {
 			Thread.sleep(500);
 
 			List<ChannelContext> channelContextList = ss.getDuplexCommunicationChannelContext();
-			if (channelContextList.size() != 0) {
+			if (channelContextList.size() != 1) {
 				Assert.fail();
 			}
 
@@ -224,7 +231,8 @@ public class MessageListenerTest {
 				Assert.fail();
 			}
 			
-			if (serverListener.getReceiveEnableWorkerPacketCount() != 4) {
+			System.out.println(serverListener.getReceiveEnableWorkerPacketCount());
+			if (serverListener.getReceiveEnableWorkerPacketCount() < 8) {
 				Assert.fail();
 			}
 
@@ -297,9 +305,9 @@ public class MessageListenerTest {
 		private final AtomicInteger receiveEnableWorkerPacketCount = new AtomicInteger();
 		
 		@Override
-		public int handleEnableWorker(Map properties) {
+		public HandShakeResponseCode handleHandShake(Map properties) {
 			receiveEnableWorkerPacketCount.incrementAndGet();
-			return ControlEnableWorkerConfirmPacket.UNKNOWN_ERROR;
+            return HandShakeResponseType.Error.UNKNOWN_ERROR;
 		}
 
 		public int getReceiveEnableWorkerPacketCount() {
@@ -327,15 +335,15 @@ public class MessageListenerTest {
             if (eachContext.getCurrentStateCode() == PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION) {
                 Map agentProperties = eachContext.getChannelProperties();
 
-                if (!applicationName.equals(agentProperties.get(AgentPropertiesType.APPLICATION_NAME.getName()))) {
+                if (!applicationName.equals(agentProperties.get(AgentHandShakePropertyType.APPLICATION_NAME.getName()))) {
                     continue;
                 }
 
-                if (!agentId.equals(agentProperties.get(AgentPropertiesType.AGENT_ID.getName()))) {
+                if (!agentId.equals(agentProperties.get(AgentHandShakePropertyType.AGENT_ID.getName()))) {
                     continue;
                 }
 
-                if (startTimeMillis != (Long) agentProperties.get(AgentPropertiesType.START_TIMESTAMP.getName())) {
+                if (startTimeMillis != (Long) agentProperties.get(AgentHandShakePropertyType.START_TIMESTAMP.getName())) {
                     continue;
                 }
 
@@ -356,6 +364,16 @@ public class MessageListenerTest {
     	}
     }
 	
+	private class SimpleListener extends SimpleLoggingServerMessageListener {
+
+        @Override
+        public HandShakeResponseCode handleHandShake(Map properties) {
+            logger.info("handleEnableWorker {}", properties);
+            return HandShakeResponseType.Success.DUPLEX_COMMUNICATION;
+
+        }
+	    
+	}
 	
 
 }

@@ -17,8 +17,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.rpc.control.ProtocolException;
-import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
-import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerPacket;
+import com.nhn.pinpoint.rpc.packet.ControlHandShakePacket;
+import com.nhn.pinpoint.rpc.packet.ControlHandShakeResponsePacket;
+import com.nhn.pinpoint.rpc.packet.HandShakeResponseCode;
+import com.nhn.pinpoint.rpc.packet.HandShakeResponseType;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.ResponsePacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
@@ -117,7 +119,7 @@ public class ControlPacketServerTest {
 	}
 
 	// RegisterPacket 등록 성공 메시지를 여러번 보낼 경우 최초는 성공, 두번쨰는  이미 성공 code를 받는지 확인
-	// 이후 메시지 전달 가능 확인 
+	// 이후 메시지 전달 가능 확인 이후도 똑같은 메시지 전달하는 것으로 변경 
 	@Test
 	public void registerAgentTest4() throws Exception {
 		PinpointServerSocket pinpointServerSocket = new PinpointServerSocket();
@@ -156,7 +158,7 @@ public class ControlPacketServerTest {
 
 	private int sendAndReceiveRegisterPacket(Socket socket, Map properties) throws ProtocolException, IOException {
 		sendRegisterPacket(socket.getOutputStream(), properties);
-		ControlEnableWorkerConfirmPacket packet = receiveRegisterConfirmPacket(socket.getInputStream());
+		ControlHandShakeResponsePacket packet = receiveRegisterConfirmPacket(socket.getInputStream());
 		Map<Object, Object> result = (Map<Object, Object>) ControlMessageEnDeconderUtils.decode(packet.getPayload());
 		
 		return MapUtils.getInteger(result, "code", -1);
@@ -170,7 +172,7 @@ public class ControlPacketServerTest {
 
 	private void sendRegisterPacket(OutputStream outputStream, Map properties) throws ProtocolException, IOException {
 		byte[] payload = ControlMessageEnDeconderUtils.encode(properties);
-		ControlEnableWorkerPacket packet = new ControlEnableWorkerPacket(1, payload);
+		ControlHandShakePacket packet = new ControlHandShakePacket(1, payload);
 
 		ByteBuffer bb = packet.toBuffer().toByteBuffer(0, packet.toBuffer().writerIndex());
 		sendData(outputStream, bb.array());
@@ -189,14 +191,14 @@ public class ControlPacketServerTest {
 		outputStream.flush();
 	}
 
-	private ControlEnableWorkerConfirmPacket receiveRegisterConfirmPacket(InputStream inputStream) throws ProtocolException, IOException {
+	private ControlHandShakeResponsePacket receiveRegisterConfirmPacket(InputStream inputStream) throws ProtocolException, IOException {
 
 		byte[] payload = readData(inputStream);
 		ChannelBuffer cb = ChannelBuffers.wrappedBuffer(payload);
 
 		short packetType = cb.readShort();
 
-		ControlEnableWorkerConfirmPacket packet = ControlEnableWorkerConfirmPacket.readBuffer(packetType, cb);
+		ControlHandShakeResponsePacket packet = ControlHandShakeResponsePacket.readBuffer(packetType, cb);
 		return packet;
 	}
 
@@ -247,17 +249,17 @@ public class ControlPacketServerTest {
 		}
 		
 		@Override
-		public int handleEnableWorker(Map properties) {
+		public HandShakeResponseCode handleHandShake(Map properties) {
 			if (properties == null) {
-				return ControlEnableWorkerConfirmPacket.ILLEGAL_PROTOCOL;
+			    return HandShakeResponseType.ProtocolError.PROTOCOL_ERROR;
 			}
 			
-			boolean hasAllType = AgentPropertiesType.hasAllType(properties);
+			boolean hasAllType = AgentHandShakePropertyType.hasAllType(properties);
 			if (!hasAllType) {
-				return ControlEnableWorkerConfirmPacket.INVALID_PROPERTIES;
+				return HandShakeResponseType.PropertyError.PROPERTY_ERROR;
 			}
 
-			return ControlEnableWorkerConfirmPacket.SUCCESS;
+			return HandShakeResponseType.Success.DUPLEX_COMMUNICATION;
 		}
 	}
 	

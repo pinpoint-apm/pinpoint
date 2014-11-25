@@ -38,8 +38,10 @@ import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.client.WriteFailFutureListener;
 import com.nhn.pinpoint.rpc.control.ProtocolException;
-import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
-import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerPacket;
+import com.nhn.pinpoint.rpc.packet.ControlHandShakePacket;
+import com.nhn.pinpoint.rpc.packet.ControlHandShakeResponsePacket;
+import com.nhn.pinpoint.rpc.packet.HandShakeResponseCode;
+import com.nhn.pinpoint.rpc.packet.HandShakeResponseType;
 import com.nhn.pinpoint.rpc.packet.Packet;
 import com.nhn.pinpoint.rpc.packet.PacketType;
 import com.nhn.pinpoint.rpc.packet.PingPacket;
@@ -229,26 +231,35 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 			case PacketType.APPLICATION_STREAM_PONG:
 				handleStreamPacket((StreamPacket) message, channel);
 				return;
-			case PacketType.CONTROL_ENABLE_WORKER:
-				int requestId = ((ControlEnableWorkerPacket)message).getRequestId();
+			case PacketType.CONTROL_HANDSHAKE:
+				int requestId = ((ControlHandShakePacket)message).getRequestId();
 				
-				Map<Object, Object> properties = decodeSocketProperties((ControlEnableWorkerPacket) message);
+				Map<Object, Object> properties = decodeSocketProperties((ControlHandShakePacket) message);
 				if (properties == null) {
-					sendEnableWorkerConfirmMessage(requestId, ControlEnableWorkerConfirmPacket.ILLEGAL_PROTOCOL, channel);
+					sendHandShakeResponseMessage(requestId, HandShakeResponseType.ProtocolError.PROTOCOL_ERROR, channel);
 					return;
 				}
 				
-				channelContext.setChannelProperties(properties);
+				HandShakeResponseCode code = messageListener.handleHandShake(properties);
 				
-				int returnCode = messageListener.handleEnableWorker(properties);
-				if (returnCode == ControlEnableWorkerConfirmPacket.SUCCESS) {
-					if (changeStateToRunDuplexCommunication(returnCode, channel)) {
-						sendEnableWorkerConfirmMessage(requestId, ControlEnableWorkerConfirmPacket.SUCCESS, channel);
-					} else {
-						sendEnableWorkerConfirmMessage(requestId, ControlEnableWorkerConfirmPacket.ALREADY_REGISTER, channel);
-					}
+				if (code.getCode() != HandShakeResponseType.Success.CODE) {
+					sendHandShakeResponseMessage(requestId, code, channel);
 				} else {
-					sendEnableWorkerConfirmMessage(requestId, returnCode, channel);
+					boolean isSet = channelContext.setChannelProperties(properties);
+					
+					if (isSet) {
+	                    if (code == HandShakeResponseCode.DUPLEX_COMMUNICATION) {
+	                        changeStateToRunDuplexCommunication(code, channel);
+	                    }
+	                    sendHandShakeResponseMessage(requestId, code, channel);
+					} else {
+                        if (code == HandShakeResponseCode.DUPLEX_COMMUNICATION) {
+                            sendHandShakeResponseMessage(requestId, HandShakeResponseCode.ALREADY_DUPLEX_COMMUNICATION, channel);
+                        } else {
+                            sendHandShakeResponseMessage(requestId, HandShakeResponseCode.ALREADY_SIMPLEX_COMMUNICATION, channel);
+                        }
+					}
+					
 				}
 				return;
 			case PacketType.CONTROL_CLIENT_CLOSE: {
@@ -274,7 +285,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         context.getStreamChannelManager().messageReceived(packet);
     }
     
-	private Map<Object, Object> decodeSocketProperties(ControlEnableWorkerPacket message) {
+	private Map<Object, Object> decodeSocketProperties(ControlHandShakePacket message) {
 		try {
 			byte[] payload = message.getPayload();
             Map<Object, Object> properties = (Map) ControlMessageEnDeconderUtils.decode(payload);
@@ -286,10 +297,10 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 		return null;
 	}
     
-	private boolean changeStateToRunDuplexCommunication(int returnCode, Channel channel) {
+	private boolean changeStateToRunDuplexCommunication(HandShakeResponseCode returnCode, Channel channel) {
 		ChannelContext context = getChannelContext(channel);
 
-		if (returnCode == ControlEnableWorkerConfirmPacket.SUCCESS) {
+		if (returnCode == HandShakeResponseType.Success.DUPLEX_COMMUNICATION) {
 			if (context.getCurrentStateCode() != PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION) {
 				context.changeStateRunDuplexCommunication();
 				return true;
@@ -299,19 +310,21 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 		return false;
 	}
 	
-    private void sendEnableWorkerConfirmMessage(int requestId, int returnCode, Channel channel) {
+    private void sendHandShakeResponseMessage(int requestId, HandShakeResponseCode handShakeResponseCode, Channel channel) {
 		try {
+	        logger.info("write HandShakeResponsePakcet channel:{}, HandShakeResponseCode:{}.", channel, handShakeResponseCode);
+		    
 			Map<String, Object> result = new HashMap<String, Object>();
-			result.put("code", returnCode);
+			result.put(ControlHandShakeResponsePacket.CODE, handShakeResponseCode.getCode());
+            result.put(ControlHandShakeResponsePacket.SUB_CODE, handShakeResponseCode.getSubCode());
 			
 			byte[] resultPayload = ControlMessageEnDeconderUtils.encode(result);
-			ControlEnableWorkerConfirmPacket packet = new ControlEnableWorkerConfirmPacket(requestId, resultPayload);
+			ControlHandShakeResponsePacket packet = new ControlHandShakeResponsePacket(requestId, resultPayload);
 	
 			channel.write(packet);
 		} catch (ProtocolException e) {
 			logger.warn(e.getMessage(), e);
 		}
-    	
     }
 
     @Override

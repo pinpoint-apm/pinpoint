@@ -77,7 +77,6 @@ public class ClusterTest {
 
 		ZooKeeper zookeeper = new ZooKeeper("127.0.0.1:22213", 5000, null);
 		getNodeAndCompareContents(zookeeper);
-
 	}
 
 	// ApplicationContext 설정에 맞게 등록이 되는지

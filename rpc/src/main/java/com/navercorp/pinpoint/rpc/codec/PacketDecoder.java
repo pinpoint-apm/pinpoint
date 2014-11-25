@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.rpc.client.WriteFailFutureListener;
 import com.nhn.pinpoint.rpc.packet.ClientClosePacket;
-import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
-import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerPacket;
+import com.nhn.pinpoint.rpc.packet.ControlHandShakeResponsePacket;
+import com.nhn.pinpoint.rpc.packet.ControlHandShakePacket;
 import com.nhn.pinpoint.rpc.packet.PacketType;
 import com.nhn.pinpoint.rpc.packet.PingPacket;
 import com.nhn.pinpoint.rpc.packet.PongPacket;
@@ -78,9 +78,9 @@ public class PacketDecoder extends FrameDecoder {
                 readPong(packetType, buffer);
                 // pong 도 그냥 버리자.
                 return null;
-            case PacketType.CONTROL_ENABLE_WORKER:
+            case PacketType.CONTROL_HANDSHAKE:
             	return readEnableWorker(packetType, buffer);
-            case PacketType.CONTROL_ENABLE_WORKER_CONFIRM:
+            case PacketType.CONTROL_HANDSHAKE_RESPONSE:
             	return readEnableWorkerConfirm(packetType, buffer);
         }
         logger.error("invalid packetType received. packetType:{}, channel:{}", packetType, channel);
@@ -160,11 +160,11 @@ public class PacketDecoder extends FrameDecoder {
     }
 
     private Object readEnableWorker(short packetType, ChannelBuffer buffer) {
-        return ControlEnableWorkerPacket.readBuffer(packetType, buffer);
+        return ControlHandShakePacket.readBuffer(packetType, buffer);
 	}
 
     private Object readEnableWorkerConfirm(short packetType, ChannelBuffer buffer) {
-        return ControlEnableWorkerConfirmPacket.readBuffer(packetType, buffer);
+        return ControlHandShakeResponsePacket.readBuffer(packetType, buffer);
 	}
 
 }

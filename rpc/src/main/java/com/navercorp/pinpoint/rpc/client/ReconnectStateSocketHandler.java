@@ -93,8 +93,8 @@ public class ReconnectStateSocketHandler implements SocketHandler {
 	}
 	
 	@Override
-	public void turnOnServerMode() {
-        throw new UnsupportedOperationException();
+	public void doHandShake() {
+//        throw new UnsupportedOperationException();
 	}
 	
 }

@@ -6,34 +6,37 @@ import org.jboss.netty.buffer.ChannelBuffers;
 /**
  * @author koo.taejin
  */
-public class ControlEnableWorkerPacket extends ControlPacket {
+public class ControlHandShakeResponsePacket extends ControlPacket {
 
-	public ControlEnableWorkerPacket(byte[] payload) {
+    public static final String CODE = "code";
+    public static final String SUB_CODE = "subCode";
+    
+	public ControlHandShakeResponsePacket(byte[] payload) {
 		super(payload);
 	}
 
-	public ControlEnableWorkerPacket(int requestId, byte[] payload) {
+	public ControlHandShakeResponsePacket(int requestId, byte[] payload) {
 		super(payload);
 		setRequestId(requestId);
 	}
 
 	@Override
 	public short getPacketType() {
-		return PacketType.CONTROL_ENABLE_WORKER;
+		return PacketType.CONTROL_HANDSHAKE_RESPONSE;
 	}
 
 	@Override
 	public ChannelBuffer toBuffer() {
 
 		ChannelBuffer header = ChannelBuffers.buffer(2 + 4 + 4);
-		header.writeShort(PacketType.CONTROL_ENABLE_WORKER);
+		header.writeShort(PacketType.CONTROL_HANDSHAKE_RESPONSE);
 		header.writeInt(getRequestId());
 
 		return PayloadPacket.appendPayload(header, payload);
 	}
 
-	public static ControlEnableWorkerPacket readBuffer(short packetType, ChannelBuffer buffer) {
-		assert packetType == PacketType.CONTROL_ENABLE_WORKER;
+	public static ControlHandShakeResponsePacket readBuffer(short packetType, ChannelBuffer buffer) {
+		assert packetType == PacketType.CONTROL_HANDSHAKE_RESPONSE;
 
 		if (buffer.readableBytes() < 8) {
 			buffer.resetReaderIndex();
@@ -45,7 +48,7 @@ public class ControlEnableWorkerPacket extends ControlPacket {
 		if (payload == null) {
 			return null;
 		}
-		final ControlEnableWorkerPacket helloPacket = new ControlEnableWorkerPacket(payload.array());
+		final ControlHandShakeResponsePacket helloPacket = new ControlHandShakeResponsePacket(payload.array());
 		helloPacket.setRequestId(messageId);
 		return helloPacket;
 	}
