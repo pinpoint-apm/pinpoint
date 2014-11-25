@@ -1,7 +1,8 @@
-package com.nhn.pinpoint.plugin.arcus.interceptor;
+package com.nhn.pinpoint.profiler.modifier.arcus.interceptor;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -23,18 +24,16 @@ import net.spy.memcached.protocol.ascii.AsciiMemcachedNodeImpl;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import com.nhn.pinpoint.profiler.modifier.BaseInterceptorTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.nhn.pinpoint.plugin.arcus.interceptor.FutureGetInterceptor;
-import com.nhn.pinpoint.profiler.modifier.BaseInterceptorTest;
-import com.nhn.pinpoint.test.mock.MockTraceContextFactory;
 
 public class FutureGetInterceptorTest extends BaseInterceptorTest {
 
 	private final Logger logger = LoggerFactory.getLogger(FutureGetInterceptorTest.class);
 
-	FutureGetInterceptor interceptor = new FutureGetInterceptor(null, new MockTraceContextFactory().create());
+	FutureGetInterceptor interceptor = new FutureGetInterceptor();
 
 	@Before
 	public void beforeEach() {
@@ -43,22 +42,26 @@ public class FutureGetInterceptorTest extends BaseInterceptorTest {
 	}
 
 	@Test
-	public void testSuccessful() throws IOException {
+	public void testSuccessful() {
 		Long timeout = 1000L;
 		TimeUnit unit = TimeUnit.MILLISECONDS;
 		
 		MockOperationFuture future = mock(MockOperationFuture.class);
 		MockOperation operation = mock(MockOperation.class);
 		
-		when(operation.getException()).thenReturn(null);
-		when(operation.isCancelled()).thenReturn(false);
-		when(future.__getOperation()).thenReturn(operation);
+		try {
+			when(operation.getException()).thenReturn(null);
+			when(operation.isCancelled()).thenReturn(false);
+			when(future.__getOperation()).thenReturn(operation);
 
-        MemcachedNode node = getMockMemcachedNode();
-		when(operation.getHandlingNode()).thenReturn(node);
-		
-		interceptor.before(future, new Object[] { timeout, unit });
-		interceptor.after(future, new Object[] { timeout, unit }, null, null);
+            MemcachedNode node = getMockMemcachedNode();
+			when(operation.getHandlingNode()).thenReturn(node);
+			
+			interceptor.before(future, new Object[] { timeout, unit });
+			interceptor.after(future, new Object[] { timeout, unit }, null, null);
+		} catch (Exception e) {
+			fail(e.getMessage());
+		}
 	}
 
     private MemcachedNode getMockMemcachedNode() throws IOException {

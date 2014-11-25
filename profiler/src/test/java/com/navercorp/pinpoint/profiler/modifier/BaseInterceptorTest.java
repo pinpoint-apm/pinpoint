@@ -1,6 +1,4 @@
-package com.nhn.pinpoint.test.interceptor;
-
-import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
+package com.nhn.pinpoint.profiler.modifier;
 
 import junit.framework.Assert;
 
@@ -12,8 +10,9 @@ import com.nhn.pinpoint.bootstrap.interceptor.ByteCodeMethodDescriptorSupport;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.nhn.pinpoint.bootstrap.interceptor.TraceContextSupport;
+import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
-import com.nhn.pinpoint.test.mock.MockTraceContextFactory;
+import com.nhn.pinpoint.profiler.modifier.tomcat.MockTraceContextFactory;
 
 public class BaseInterceptorTest {
 
