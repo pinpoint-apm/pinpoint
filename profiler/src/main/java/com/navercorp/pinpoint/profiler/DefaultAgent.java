@@ -248,17 +248,21 @@ public class DefaultAgent implements Agent {
     }
 
     protected PinpointSocketFactory createPinpointSocketFactory(boolean isSupportServerMode) {
-        Map<String, Object> properties = this.agentInformation.toMap();
-        PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
-        pinpointSocketFactory.setTimeoutMillis(1000 * 5);
-        pinpointSocketFactory.setProperties(properties);
 
+    	PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
+        pinpointSocketFactory.setTimeoutMillis(1000 * 5);
+
+        Map<String, Object> properties = this.agentInformation.toMap();
         if (isSupportServerMode) {
         	CommandDispatcher.Builder builder = new CommandDispatcher.Builder();
-        	
         	pinpointSocketFactory.setMessageListener(builder.build());
+
+        	properties.put(AgentHandShakePropertyType.SUPPORT_SERVER.getName(), true);
+        } else {
+        	properties.put(AgentHandShakePropertyType.SUPPORT_SERVER.getName(), false);
         }
 
+        pinpointSocketFactory.setProperties(properties);
         return pinpointSocketFactory;
     }
 

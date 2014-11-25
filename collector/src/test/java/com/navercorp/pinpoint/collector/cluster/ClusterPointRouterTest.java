@@ -1,5 +1,7 @@
 package com.nhn.pinpoint.collector.cluster;
 
+import static org.mockito.Mockito.mock;
+
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.Assert;
-import static org.mockito.Mockito.*;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,8 +20,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.nhn.pinpoint.collector.receiver.tcp.AgentProperties;
 import com.nhn.pinpoint.collector.util.CollectorUtils;
-import com.nhn.pinpoint.rpc.PinpointSocketException;
-import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
+import com.nhn.pinpoint.rpc.packet.HandShakeResponseCode;
+import com.nhn.pinpoint.rpc.packet.HandShakeResponseType;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.rpc.server.ChannelContext;
@@ -108,9 +109,9 @@ public class ClusterPointRouterTest {
 		}
 
 		@Override
-		public int handleEnableWorker(Map properties) {
-			logger.warn("do handleEnableWorker {}", properties);
-			return ControlEnableWorkerConfirmPacket.SUCCESS;
+		public HandShakeResponseCode handleHandShake(Map properties) {
+			logger.warn("do HandShake {}", properties);
+			return HandShakeResponseType.Success.DUPLEX_COMMUNICATION;
 		}
 	}
 

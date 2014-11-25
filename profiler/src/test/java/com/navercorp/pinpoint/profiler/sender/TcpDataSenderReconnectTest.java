@@ -11,6 +11,8 @@ import com.nhn.pinpoint.profiler.receiver.CommandDispatcher;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.client.PinpointSocket;
 import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
+import com.nhn.pinpoint.rpc.packet.HandShakeResponseCode;
+import com.nhn.pinpoint.rpc.packet.HandShakeResponseType;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
@@ -46,8 +48,8 @@ public class TcpDataSenderReconnectTest {
             }
 
 			@Override
-			public int handleEnableWorker(Map properties) {
-				return 0;
+			public HandShakeResponseCode handleHandShake(Map properties) {
+				return HandShakeResponseType.Success.DUPLEX_COMMUNICATION;
 			}
         });
         server.bind(HOST, PORT);

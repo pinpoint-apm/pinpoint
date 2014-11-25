@@ -37,13 +37,9 @@ public class PinpointSocket {
 
     public PinpointSocket(SocketHandler socketHandler) {
         AssertUtils.assertNotNull(socketHandler, "socketHandler");
-
-        if (socketHandler.isSupportServerMode()) {
-        	socketHandler.turnOnServerMode();
-        }
-        
+       	socketHandler.doHandShake();
+       	
         this.socketHandler = socketHandler;
-        
         socketHandler.setPinpointSocket(this);
     }
 
@@ -58,9 +54,7 @@ public class PinpointSocket {
         logger.warn("reconnectSocketHandler:{}", socketHandler);
         
         // Pinpoint 소켓 내부 객체가 되기전에 listener를 먼저 등록        
-        if (socketHandler.isSupportServerMode()) {
-        	socketHandler.turnOnServerMode();
-        }
+        socketHandler.doHandShake();
         
         this.socketHandler = socketHandler;
         

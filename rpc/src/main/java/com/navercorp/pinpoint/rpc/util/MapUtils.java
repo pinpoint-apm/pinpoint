@@ -25,9 +25,26 @@ public class MapUtils {
             return (String) value;
         }
 
-		return null;	
+		return defaultValue;	
 	}
+	
+	public static Boolean getBoolean(Map<Object, Object> map, String key) {
+		return getBoolean(map, key, false);
+	}
+	
+	public static Boolean getBoolean(Map<Object, Object> map, String key, Boolean defaultValue) {
+		if (map == null) {
+			return defaultValue;
+		}
+		
+		final Object value = map.get(key);
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        }
 
+		return defaultValue;	
+	}
+	
 
     public static Integer getInteger(Map<Object, Object> map, String key) {
         return getInteger(map, key, null);
@@ -43,7 +60,7 @@ public class MapUtils {
             return (Integer) value;
         }
 
-        return null;
+        return defaultValue;
     }
     
     public static Long getLong(Map<Object, Object> map, String key) {
@@ -60,7 +77,7 @@ public class MapUtils {
             return (Long) value;
         }
 
-        return null;
+        return defaultValue;
     }
 
 }

@@ -17,9 +17,6 @@ public final class CommandHeaderTBaseSerializerFactory implements SerializerFact
 	}
 
 	public CommandHeaderTBaseSerializerFactory(String version, int outputStreamSize) {
-		System.out.println(version);
-
-		
 		TBaseLocator commandTbaseLocator = new TCommandRegistry(TCommandTypeVersion.getVersion(version));
 
 		TProtocolFactory protocolFactory = new TCompactProtocol.Factory();

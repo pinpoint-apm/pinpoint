@@ -22,7 +22,7 @@ import com.nhn.pinpoint.collector.cluster.zookeeper.exception.TimeoutException;
 import com.nhn.pinpoint.collector.cluster.zookeeper.job.DeleteJob;
 import com.nhn.pinpoint.collector.cluster.zookeeper.job.Job;
 import com.nhn.pinpoint.collector.cluster.zookeeper.job.UpdateJob;
-import com.nhn.pinpoint.collector.receiver.tcp.AgentPropertiesType;
+import com.nhn.pinpoint.collector.receiver.tcp.AgentHandShakePropertyType;
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.rpc.server.ChannelContext;
 import com.nhn.pinpoint.rpc.server.PinpointServerSocketStateCode;
@@ -359,9 +359,9 @@ public class ZookeeperLatestJobWorker implements Runnable {
 
 	private boolean checkRequiredProperties(ChannelContext channelContext) {
 		Map<Object, Object> agentProperties = channelContext.getChannelProperties();
-		final String applicationName = MapUtils.getString(agentProperties, AgentPropertiesType.APPLICATION_NAME.getName());
-		final String agentId = MapUtils.getString(agentProperties, AgentPropertiesType.AGENT_ID.getName());
-		final Long startTimeStampe = MapUtils.getLong(agentProperties, AgentPropertiesType.START_TIMESTAMP.getName());
+		final String applicationName = MapUtils.getString(agentProperties, AgentHandShakePropertyType.APPLICATION_NAME.getName());
+		final String agentId = MapUtils.getString(agentProperties, AgentHandShakePropertyType.AGENT_ID.getName());
+		final Long startTimeStampe = MapUtils.getLong(agentProperties, AgentHandShakePropertyType.START_TIMESTAMP.getName());
 		
 		if (StringUtils.isBlank(applicationName) || StringUtils.isBlank(agentId) || startTimeStampe == null || startTimeStampe <= 0) {
 			logger.warn("ApplicationName({}) and AgnetId({}) and startTimeStampe({}) may not be null.", applicationName, agentId);
@@ -375,9 +375,9 @@ public class ZookeeperLatestJobWorker implements Runnable {
 		StringBuilder profilerContents = new StringBuilder();
 		
 		Map<Object, Object> agentProperties = channelContext.getChannelProperties();
-		final String applicationName = MapUtils.getString(agentProperties, AgentPropertiesType.APPLICATION_NAME.getName());
-		final String agentId = MapUtils.getString(agentProperties, AgentPropertiesType.AGENT_ID.getName());
-		final Long startTimeStampe = MapUtils.getLong(agentProperties, AgentPropertiesType.START_TIMESTAMP.getName());
+		final String applicationName = MapUtils.getString(agentProperties, AgentHandShakePropertyType.APPLICATION_NAME.getName());
+		final String agentId = MapUtils.getString(agentProperties, AgentHandShakePropertyType.AGENT_ID.getName());
+		final Long startTimeStampe = MapUtils.getLong(agentProperties, AgentHandShakePropertyType.START_TIMESTAMP.getName());
 		
 		if (StringUtils.isBlank(applicationName) || StringUtils.isBlank(agentId) || startTimeStampe == null || startTimeStampe <= 0) {
 			logger.warn("ApplicationName({}) and AgnetId({}) and startTimeStampe({}) may not be null.", applicationName, agentId);

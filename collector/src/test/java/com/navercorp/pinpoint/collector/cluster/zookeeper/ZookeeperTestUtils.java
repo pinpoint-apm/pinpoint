@@ -10,7 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.collector.receiver.tcp.AgentProperties;
 import com.nhn.pinpoint.rpc.client.MessageListener;
-import com.nhn.pinpoint.rpc.packet.ControlEnableWorkerConfirmPacket;
+import com.nhn.pinpoint.rpc.packet.HandShakeResponseCode;
+import com.nhn.pinpoint.rpc.packet.HandShakeResponseType;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.rpc.server.ServerMessageListener;
@@ -85,9 +86,9 @@ final class ZookeeperTestUtils {
 		}
 
 		@Override
-		public int handleEnableWorker(Map properties) {
+		public HandShakeResponseCode handleHandShake(Map properties) {
 			LOGGER.warn("do handleEnableWorker {}", properties);
-			return ControlEnableWorkerConfirmPacket.SUCCESS;
+			return HandShakeResponseType.Success.DUPLEX_COMMUNICATION;
 		}
 	}
 
