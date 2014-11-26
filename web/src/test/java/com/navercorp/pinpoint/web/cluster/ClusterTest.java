@@ -77,6 +77,10 @@ public class ClusterTest {
 
 		ZooKeeper zookeeper = new ZooKeeper("127.0.0.1:22213", 5000, null);
 		getNodeAndCompareContents(zookeeper);
+		
+		if (zookeeper != null) {
+		    zookeeper.close();
+		}
 	}
 
 	// ApplicationContext 설정에 맞게 등록이 되는지
@@ -98,12 +102,15 @@ public class ClusterTest {
 			Assert.assertEquals(KeeperException.Code.CONNECTIONLOSS, e.code());
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		} 
 
 		ts.restart();
 
 		getNodeAndCompareContents(zookeeper);
 
+		if (zookeeper != null) {
+		    zookeeper.close();
+		}
 	}
 
 	// ApplicationContext 설정에 맞게 등록이 되는지
@@ -113,10 +120,12 @@ public class ClusterTest {
 
 		PinpointSocketFactory factory = null;
 		PinpointSocket socket = null;
+		
+		ZooKeeper zookeeper = null;
 		try {
 			Thread.sleep(5000);
 
-			ZooKeeper zookeeper = new ZooKeeper("127.0.0.1:22213", 5000, null);
+			zookeeper = new ZooKeeper("127.0.0.1:22213", 5000, null);
 			getNodeAndCompareContents(zookeeper);
 
 			Assert.assertEquals(0, socketManager.getCollectorChannelContext().size());
@@ -133,6 +142,9 @@ public class ClusterTest {
 		} finally {
 			closePinpointSocket(factory, socket);
 
+			if (zookeeper != null) {
+			    zookeeper.close();
+			}
 		}
 	}
 
