@@ -29,7 +29,7 @@ import com.nhn.pinpoint.rpc.util.MapUtils;
 /**
  * @author koo.taejin
  */
-public class EventListnerTest {
+public class EventListenerTest {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -146,14 +146,14 @@ public class EventListnerTest {
 	private Map<String, Object> getParams() {
 		Map<String, Object> properties = new HashMap<String, Object>();
 		
-		properties.put(AgentProperties.KEY_AGENTID, "agent");
-		properties.put(AgentProperties.KEY_APPLICATION_NAME, "application");
-		properties.put(AgentProperties.KEY_HOSTNAME, "hostname");
-		properties.put(AgentProperties.KEY_IP, "ip");
-		properties.put(AgentProperties.KEY_PID, 1111);
-		properties.put(AgentProperties.KEY_SERVICE_TYPE, 10);
-		properties.put(AgentProperties.KEY_START_TIME_MILLIS, System.currentTimeMillis());
-		properties.put(AgentProperties.KEY_VERSION, "1.0");
+        properties.put(AgentHandShakePropertyType.AGENT_ID.getName(), "agent");
+        properties.put(AgentHandShakePropertyType.APPLICATION_NAME.getName(), "application");
+        properties.put(AgentHandShakePropertyType.HOSTNAME.getName(), "hostname");
+        properties.put(AgentHandShakePropertyType.IP.getName(), "ip");
+        properties.put(AgentHandShakePropertyType.PID.getName(), 1111);
+        properties.put(AgentHandShakePropertyType.SERVICE_TYPE.getName(), 10);
+        properties.put(AgentHandShakePropertyType.START_TIMESTAMP.getName(), System.currentTimeMillis());
+        properties.put(AgentHandShakePropertyType.VERSION.getName(), "1.0");
 		
 		return properties;
 	}

@@ -17,7 +17,6 @@ import com.nhn.pinpoint.rpc.ResponseMessage;
 import com.nhn.pinpoint.rpc.client.MessageListener;
 import com.nhn.pinpoint.rpc.client.PinpointSocket;
 import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
-import com.nhn.pinpoint.rpc.client.PinpointSocketReconnectEventListener;
 import com.nhn.pinpoint.rpc.client.SimpleLoggingMessageListener;
 import com.nhn.pinpoint.rpc.packet.HandShakeResponseCode;
 import com.nhn.pinpoint.rpc.packet.HandShakeResponseType;
@@ -257,15 +256,15 @@ public class MessageListenerTest {
 	private Map getParams() {
 		Map properties = new HashMap();
 
-		properties.put(AgentProperties.KEY_AGENTID, "agent");
-		properties.put(AgentProperties.KEY_APPLICATION_NAME, "application");
-		properties.put(AgentProperties.KEY_HOSTNAME, "hostname");
-		properties.put(AgentProperties.KEY_IP, "ip");
-		properties.put(AgentProperties.KEY_PID, 1111);
-		properties.put(AgentProperties.KEY_SERVICE_TYPE, 10);
-		properties.put(AgentProperties.KEY_START_TIME_MILLIS, System.currentTimeMillis());
-		properties.put(AgentProperties.KEY_VERSION, "1.0");
-
+        properties.put(AgentHandShakePropertyType.AGENT_ID.getName(), "agent");
+        properties.put(AgentHandShakePropertyType.APPLICATION_NAME.getName(), "application");
+        properties.put(AgentHandShakePropertyType.HOSTNAME.getName(), "hostname");
+        properties.put(AgentHandShakePropertyType.IP.getName(), "ip");
+        properties.put(AgentHandShakePropertyType.PID.getName(), 1111);
+        properties.put(AgentHandShakePropertyType.SERVICE_TYPE.getName(), 10);
+        properties.put(AgentHandShakePropertyType.START_TIMESTAMP.getName(), System.currentTimeMillis());
+        properties.put(AgentHandShakePropertyType.VERSION.getName(), "1.0");
+        
 		return properties;
 	}
 

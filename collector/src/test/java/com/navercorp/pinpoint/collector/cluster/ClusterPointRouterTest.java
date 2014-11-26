@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.nhn.pinpoint.collector.receiver.tcp.AgentProperties;
+import com.nhn.pinpoint.collector.receiver.tcp.AgentHandShakePropertyType;
 import com.nhn.pinpoint.collector.util.CollectorUtils;
 import com.nhn.pinpoint.rpc.packet.HandShakeResponseCode;
 import com.nhn.pinpoint.rpc.packet.HandShakeResponseType;
@@ -118,14 +118,14 @@ public class ClusterPointRouterTest {
 	private Map<Object, Object> getParams() {
 		Map<Object, Object> properties = new HashMap<Object, Object>();
 
-		properties.put(AgentProperties.KEY_AGENTID, "agent");
-		properties.put(AgentProperties.KEY_APPLICATION_NAME, "application");
-		properties.put(AgentProperties.KEY_HOSTNAME, "hostname");
-		properties.put(AgentProperties.KEY_IP, "ip");
-		properties.put(AgentProperties.KEY_PID, 1111);
-		properties.put(AgentProperties.KEY_SERVICE_TYPE, 10);
-		properties.put(AgentProperties.KEY_START_TIME_MILLIS, currentTime);
-		properties.put(AgentProperties.KEY_VERSION, "1.0.3-SNAPSHOT");
+        properties.put(AgentHandShakePropertyType.AGENT_ID.getName(), "agent");
+        properties.put(AgentHandShakePropertyType.APPLICATION_NAME.getName(), "application");
+        properties.put(AgentHandShakePropertyType.HOSTNAME.getName(), "hostname");
+        properties.put(AgentHandShakePropertyType.IP.getName(), "ip");
+        properties.put(AgentHandShakePropertyType.PID.getName(), 1111);
+        properties.put(AgentHandShakePropertyType.SERVICE_TYPE.getName(), 10);
+        properties.put(AgentHandShakePropertyType.START_TIMESTAMP.getName(), currentTime);
+        properties.put(AgentHandShakePropertyType.VERSION.getName(), "1.0.3-SNAPSHOT");
 
 		return properties;
 	}
