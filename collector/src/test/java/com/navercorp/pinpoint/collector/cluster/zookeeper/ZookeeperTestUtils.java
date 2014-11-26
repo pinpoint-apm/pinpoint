@@ -8,7 +8,7 @@ import org.jboss.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.collector.receiver.tcp.AgentProperties;
+import com.nhn.pinpoint.collector.receiver.tcp.AgentHandShakePropertyType;
 import com.nhn.pinpoint.rpc.client.MessageListener;
 import com.nhn.pinpoint.rpc.packet.HandShakeResponseCode;
 import com.nhn.pinpoint.rpc.packet.HandShakeResponseType;
@@ -39,14 +39,14 @@ final class ZookeeperTestUtils {
 	static Map<String, Object> getParams(String applicationName, String agentId, long startTimeMillis) {
 		Map<String, Object> properties = new HashMap<String, Object>();
 
-		properties.put(AgentProperties.KEY_AGENTID, agentId);
-		properties.put(AgentProperties.KEY_APPLICATION_NAME, applicationName);
-		properties.put(AgentProperties.KEY_HOSTNAME, "hostname");
-		properties.put(AgentProperties.KEY_IP, "ip");
-		properties.put(AgentProperties.KEY_PID, 1111);
-		properties.put(AgentProperties.KEY_SERVICE_TYPE, 10);
-		properties.put(AgentProperties.KEY_START_TIME_MILLIS, startTimeMillis);
-		properties.put(AgentProperties.KEY_VERSION, "1.0");
+        properties.put(AgentHandShakePropertyType.AGENT_ID.getName(), agentId);
+        properties.put(AgentHandShakePropertyType.APPLICATION_NAME.getName(), applicationName);
+        properties.put(AgentHandShakePropertyType.HOSTNAME.getName(), "hostname");
+        properties.put(AgentHandShakePropertyType.IP.getName(), "ip");
+        properties.put(AgentHandShakePropertyType.PID.getName(), 1111);
+        properties.put(AgentHandShakePropertyType.SERVICE_TYPE.getName(), 10);
+        properties.put(AgentHandShakePropertyType.START_TIMESTAMP.getName(), startTimeMillis);
+        properties.put(AgentHandShakePropertyType.VERSION.getName(), "1.0");
 
 		return properties;
 	}
