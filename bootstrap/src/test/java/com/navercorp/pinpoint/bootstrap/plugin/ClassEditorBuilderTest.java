@@ -14,6 +14,8 @@ import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
 import com.nhn.pinpoint.bootstrap.instrument.Scope;
 import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
+import com.nhn.pinpoint.bootstrap.plugin.ClassEditorBuilder.InterceptorBuilder;
+import com.nhn.pinpoint.bootstrap.plugin.ClassEditorBuilder.MetadataBuilder;
 
 public class ClassEditorBuilderTest {
 
@@ -40,8 +42,16 @@ public class ClassEditorBuilderTest {
         
         ProfilerPluginContext helper = new ProfilerPluginContext(instrumentor, traceContext);
         ClassEditorBuilder builder = helper.newClassEditorBuilder();
-        builder.intercept(methodName, parameterTypeNames).with("com.nhn.pinpoint.bootstrap.plugin.TestInterceptor").constructedWith("provided").in(scopeName);
-        builder.inject("com.nhn.pinpoint.bootstrap.plugin.ClassEditorBuilderTest$TestMetadata").initializeWithDefaultConstructorOf("java.util.HashMap");
+        MetadataBuilder mb = builder.newMetadataBuilder();
+        mb.inject("com.nhn.pinpoint.bootstrap.plugin.ClassEditorBuilderTest$TestMetadata");
+        mb.initializeWithDefaultConstructorOf("java.util.HashMap");
+        
+        InterceptorBuilder ib = builder.newInterceptorBuilder();
+        ib.intercept(methodName, parameterTypeNames);
+        ib.with("com.nhn.pinpoint.bootstrap.plugin.TestInterceptor");
+        ib.constructedWith("provided");
+        ib.in(scopeName);
+        
         ClassEditor editor = builder.build();
         
         editor.edit(classLoader, aClass);

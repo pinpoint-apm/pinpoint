@@ -23,36 +23,22 @@ public class ClassEditorBuilder {
         this.traceContext = traceContext;
     }
     
-    public ClassEditorBuilder edit(String targetClassName) {
+    public void edit(String targetClassName) {
         this.targetClassName = targetClassName;
-        return this;
     }
     
-    public ClassEditorBuilder when(Condition condition) {
+    public void when(Condition condition) {
         this.condition = condition;
-        return this;
+    }
+    
+    public InterceptorBuilder newInterceptorBuilder() {
+        InterceptorBuilder interceptorBuilder = new InterceptorBuilder();
+        interceptorBuilders.add(interceptorBuilder);
+        return interceptorBuilder;
     }
 
-    public InterceptorBuilder intercept(String methodName, String... parameterTypeNames) {
-        InterceptorBuilder interceptorBuilder = new InterceptorBuilder(methodName, parameterTypeNames, null);
-        interceptorBuilders.add(interceptorBuilder);
-        return interceptorBuilder;
-    }
-    
-    public InterceptorBuilder interceptMethodsFilteredBy(MethodFilter filter) {
-        InterceptorBuilder interceptorBuilder = new InterceptorBuilder(null, null, filter);
-        interceptorBuilders.add(interceptorBuilder);
-        return interceptorBuilder;
-    }
-    
-    public InterceptorBuilder interceptConstructor(String... parameterTypeNames) {
-        InterceptorBuilder interceptorBuilder = new InterceptorBuilder(null, parameterTypeNames, null);
-        interceptorBuilders.add(interceptorBuilder);
-        return interceptorBuilder;
-    }
-    
-    public MetadataBuilder inject(String metadataAccessorName) {
-        MetadataBuilder metadataBuilder = new MetadataBuilder(metadataAccessorName);
+    public MetadataBuilder newMetadataBuilder() {
+        MetadataBuilder metadataBuilder = new MetadataBuilder();
         metadataBuilders.add(metadataBuilder);
         return metadataBuilder;
     }
@@ -80,9 +66,9 @@ public class ClassEditorBuilder {
     }
     
     public class InterceptorBuilder {
-        private final String methodName;
-        private final String[] parameterTypes;
-        private final MethodFilter filter;
+        private String methodName;
+        private String[] parameterNames;
+        private MethodFilter filter;
         
         private String interceptorClassName;
         private Condition condition;
@@ -90,35 +76,37 @@ public class ClassEditorBuilder {
         private Object[] constructorArguments;
         private boolean singleton;
         
-        public InterceptorBuilder(String methodName, String[] parameterTypeNames, MethodFilter filter) {
+        public void intercept(String methodName, String... parameterTypeNames) {
             this.methodName = methodName;
-            this.parameterTypes = parameterTypeNames;
+            this.parameterNames = parameterTypeNames;
+        }
+        
+        public void interceptMethodsFilteredBy(MethodFilter filter) {
             this.filter = filter;
         }
+        
+        public void interceptConstructor(String... parameterTypeNames) {
+            this.parameterNames = parameterTypeNames;
+        }
 
-        public InterceptorBuilder in(String scopeName) {
+        public void in(String scopeName) {
             this.scopeName = scopeName;
-            return this;
         }
 
-        public InterceptorBuilder with(String interceptorClassName) {
+        public void with(String interceptorClassName) {
             this.interceptorClassName = interceptorClassName;
-            return this;
         }
         
-        public InterceptorBuilder constructedWith(Object... args) {
+        public void constructedWith(Object... args) {
             this.constructorArguments = args;
-            return this;
         }
         
-        public InterceptorBuilder singleton(boolean singleton) {
+        public void singleton(boolean singleton) {
             this.singleton = singleton;
-            return this;
         }
         
-        public InterceptorBuilder when(Condition condition) {
+        public void when(Condition condition) {
             this.condition = condition;
-            return this;
         }
         
         private InterceptorInjector build() {
@@ -129,9 +117,9 @@ public class ClassEditorBuilder {
             if (filter != null) {
                 injector = new FilteringInterceptorInjector(filter, interceptorFactory, singleton);
             } else if (methodName != null) {
-                injector = new DedicatedInterceptorInjector(methodName, parameterTypes, interceptorFactory);
+                injector = new DedicatedInterceptorInjector(methodName, parameterNames, interceptorFactory);
             } else {
-                injector = new ConstructorInterceptorInjector(parameterTypes, interceptorFactory);
+                injector = new ConstructorInterceptorInjector(parameterNames, interceptorFactory);
             }
             
             if (condition != null) {
@@ -143,16 +131,15 @@ public class ClassEditorBuilder {
     }
     
     public class MetadataBuilder {
-        private final String metadataAccessorTypeName;
+        private String metadataAccessorTypeName;
         private MetadataInitializationStrategy initializationStrategy;
         
-        public MetadataBuilder(String metadataAccessorTypeName) {
+        public void inject(String metadataAccessorTypeName) {
             this.metadataAccessorTypeName = metadataAccessorTypeName;
         }
         
-        public MetadataBuilder initializeWithDefaultConstructorOf(String className) {
+        public void initializeWithDefaultConstructorOf(String className) {
             this.initializationStrategy = new ByConstructor(className);
-            return this;
         }
         
         private MetadataInjector build() {
