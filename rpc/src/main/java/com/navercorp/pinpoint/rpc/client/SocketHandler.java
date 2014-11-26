@@ -42,6 +42,6 @@ public interface SocketHandler {
 
 	boolean isSupportServerMode();
 	
-	void doHandShake();
+	void doHandshake();
 	
 }

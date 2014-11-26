@@ -9,12 +9,12 @@ import com.nhn.pinpoint.rpc.control.ProtocolException;
 /**
  * @author koo.taejin
  */
-public class ControlMessageEnDeconderUtils {
+public class ControlMessageEncodingUtils {
 
 	private static final ControlMessageEncoder encoder = new ControlMessageEncoder();
 	private static final ControlMessageDecoder decoder = new ControlMessageDecoder();
 
-	private ControlMessageEnDeconderUtils() {
+	private ControlMessageEncodingUtils() {
 	}
 
 	public static byte[] encode(Map<String, Object> value) throws ProtocolException {

@@ -38,10 +38,10 @@ import com.nhn.pinpoint.common.util.PinpointThreadFactory;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.client.WriteFailFutureListener;
 import com.nhn.pinpoint.rpc.control.ProtocolException;
-import com.nhn.pinpoint.rpc.packet.ControlHandShakePacket;
-import com.nhn.pinpoint.rpc.packet.ControlHandShakeResponsePacket;
-import com.nhn.pinpoint.rpc.packet.HandShakeResponseCode;
-import com.nhn.pinpoint.rpc.packet.HandShakeResponseType;
+import com.nhn.pinpoint.rpc.packet.ControlHandshakePacket;
+import com.nhn.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
+import com.nhn.pinpoint.rpc.packet.HandshakeResponseCode;
+import com.nhn.pinpoint.rpc.packet.HandshakeResponseType;
 import com.nhn.pinpoint.rpc.packet.Packet;
 import com.nhn.pinpoint.rpc.packet.PacketType;
 import com.nhn.pinpoint.rpc.packet.PingPacket;
@@ -54,7 +54,7 @@ import com.nhn.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListener;
 import com.nhn.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
 import com.nhn.pinpoint.rpc.stream.StreamChannelManager;
 import com.nhn.pinpoint.rpc.util.AssertUtils;
-import com.nhn.pinpoint.rpc.util.ControlMessageEnDeconderUtils;
+import com.nhn.pinpoint.rpc.util.ControlMessageEncodingUtils;
 import com.nhn.pinpoint.rpc.util.CpuUtils;
 import com.nhn.pinpoint.rpc.util.IDGenerator;
 import com.nhn.pinpoint.rpc.util.LoggerFactorySetup;
@@ -232,31 +232,31 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 				handleStreamPacket((StreamPacket) message, channel);
 				return;
 			case PacketType.CONTROL_HANDSHAKE:
-				int requestId = ((ControlHandShakePacket)message).getRequestId();
+				int requestId = ((ControlHandshakePacket)message).getRequestId();
 				
-				Map<Object, Object> properties = decodeSocketProperties((ControlHandShakePacket) message);
+				Map<Object, Object> properties = decodeSocketProperties((ControlHandshakePacket) message);
 				if (properties == null) {
-					sendHandShakeResponseMessage(requestId, HandShakeResponseType.ProtocolError.PROTOCOL_ERROR, channel);
+					sendHandshakeResponseMessage(requestId, HandshakeResponseType.ProtocolError.PROTOCOL_ERROR, channel);
 					return;
 				}
 				
-				HandShakeResponseCode code = messageListener.handleHandShake(properties);
+				HandshakeResponseCode code = messageListener.handleHandshake(properties);
 				
-				if (code.getCode() != HandShakeResponseType.Success.CODE) {
-					sendHandShakeResponseMessage(requestId, code, channel);
+				if (code.getCode() != HandshakeResponseType.Success.CODE) {
+					sendHandshakeResponseMessage(requestId, code, channel);
 				} else {
 					boolean isSet = channelContext.setChannelProperties(properties);
 					
 					if (isSet) {
-	                    if (code == HandShakeResponseCode.DUPLEX_COMMUNICATION) {
+	                    if (code == HandshakeResponseCode.DUPLEX_COMMUNICATION) {
 	                        changeStateToRunDuplexCommunication(code, channel);
 	                    }
-	                    sendHandShakeResponseMessage(requestId, code, channel);
+	                    sendHandshakeResponseMessage(requestId, code, channel);
 					} else {
-                        if (code == HandShakeResponseCode.DUPLEX_COMMUNICATION) {
-                            sendHandShakeResponseMessage(requestId, HandShakeResponseCode.ALREADY_DUPLEX_COMMUNICATION, channel);
+                        if (code == HandshakeResponseCode.DUPLEX_COMMUNICATION) {
+                            sendHandshakeResponseMessage(requestId, HandshakeResponseCode.ALREADY_DUPLEX_COMMUNICATION, channel);
                         } else {
-                            sendHandShakeResponseMessage(requestId, HandShakeResponseCode.ALREADY_SIMPLEX_COMMUNICATION, channel);
+                            sendHandshakeResponseMessage(requestId, HandshakeResponseCode.ALREADY_SIMPLEX_COMMUNICATION, channel);
                         }
 					}
 					
@@ -285,10 +285,10 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         context.getStreamChannelManager().messageReceived(packet);
     }
     
-	private Map<Object, Object> decodeSocketProperties(ControlHandShakePacket message) {
+	private Map<Object, Object> decodeSocketProperties(ControlHandshakePacket message) {
 		try {
 			byte[] payload = message.getPayload();
-            Map<Object, Object> properties = (Map) ControlMessageEnDeconderUtils.decode(payload);
+            Map<Object, Object> properties = (Map) ControlMessageEncodingUtils.decode(payload);
 			return properties;
 		} catch (ProtocolException e) {
 			logger.warn(e.getMessage(), e);
@@ -297,10 +297,10 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 		return null;
 	}
     
-	private boolean changeStateToRunDuplexCommunication(HandShakeResponseCode returnCode, Channel channel) {
+	private boolean changeStateToRunDuplexCommunication(HandshakeResponseCode returnCode, Channel channel) {
 		ChannelContext context = getChannelContext(channel);
 
-		if (returnCode == HandShakeResponseType.Success.DUPLEX_COMMUNICATION) {
+		if (returnCode == HandshakeResponseType.Success.DUPLEX_COMMUNICATION) {
 			if (context.getCurrentStateCode() != PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION) {
 				context.changeStateRunDuplexCommunication();
 				return true;
@@ -310,16 +310,16 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 		return false;
 	}
 	
-    private void sendHandShakeResponseMessage(int requestId, HandShakeResponseCode handShakeResponseCode, Channel channel) {
+    private void sendHandshakeResponseMessage(int requestId, HandshakeResponseCode handShakeResponseCode, Channel channel) {
 		try {
-	        logger.info("write HandShakeResponsePakcet channel:{}, HandShakeResponseCode:{}.", channel, handShakeResponseCode);
+	        logger.info("write HandshakeResponsePakcet channel:{}, HandshakeResponseCode:{}.", channel, handShakeResponseCode);
 		    
 			Map<String, Object> result = new HashMap<String, Object>();
-			result.put(ControlHandShakeResponsePacket.CODE, handShakeResponseCode.getCode());
-            result.put(ControlHandShakeResponsePacket.SUB_CODE, handShakeResponseCode.getSubCode());
+			result.put(ControlHandshakeResponsePacket.CODE, handShakeResponseCode.getCode());
+            result.put(ControlHandshakeResponsePacket.SUB_CODE, handShakeResponseCode.getSubCode());
 			
-			byte[] resultPayload = ControlMessageEnDeconderUtils.encode(result);
-			ControlHandShakeResponsePacket packet = new ControlHandShakeResponsePacket(requestId, resultPayload);
+			byte[] resultPayload = ControlMessageEncodingUtils.encode(result);
+			ControlHandshakeResponsePacket packet = new ControlHandshakeResponsePacket(requestId, resultPayload);
 	
 			channel.write(packet);
 		} catch (ProtocolException e) {

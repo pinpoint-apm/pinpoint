@@ -8,10 +8,10 @@ import org.jboss.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.collector.receiver.tcp.AgentHandShakePropertyType;
+import com.nhn.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
 import com.nhn.pinpoint.rpc.client.MessageListener;
-import com.nhn.pinpoint.rpc.packet.HandShakeResponseCode;
-import com.nhn.pinpoint.rpc.packet.HandShakeResponseType;
+import com.nhn.pinpoint.rpc.packet.HandshakeResponseCode;
+import com.nhn.pinpoint.rpc.packet.HandshakeResponseType;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.rpc.server.ServerMessageListener;
@@ -39,14 +39,14 @@ final class ZookeeperTestUtils {
 	static Map<String, Object> getParams(String applicationName, String agentId, long startTimeMillis) {
 		Map<String, Object> properties = new HashMap<String, Object>();
 
-        properties.put(AgentHandShakePropertyType.AGENT_ID.getName(), agentId);
-        properties.put(AgentHandShakePropertyType.APPLICATION_NAME.getName(), applicationName);
-        properties.put(AgentHandShakePropertyType.HOSTNAME.getName(), "hostname");
-        properties.put(AgentHandShakePropertyType.IP.getName(), "ip");
-        properties.put(AgentHandShakePropertyType.PID.getName(), 1111);
-        properties.put(AgentHandShakePropertyType.SERVICE_TYPE.getName(), 10);
-        properties.put(AgentHandShakePropertyType.START_TIMESTAMP.getName(), startTimeMillis);
-        properties.put(AgentHandShakePropertyType.VERSION.getName(), "1.0");
+        properties.put(AgentHandshakePropertyType.AGENT_ID.getName(), agentId);
+        properties.put(AgentHandshakePropertyType.APPLICATION_NAME.getName(), applicationName);
+        properties.put(AgentHandshakePropertyType.HOSTNAME.getName(), "hostname");
+        properties.put(AgentHandshakePropertyType.IP.getName(), "ip");
+        properties.put(AgentHandshakePropertyType.PID.getName(), 1111);
+        properties.put(AgentHandshakePropertyType.SERVICE_TYPE.getName(), 10);
+        properties.put(AgentHandshakePropertyType.START_TIMESTAMP.getName(), startTimeMillis);
+        properties.put(AgentHandshakePropertyType.VERSION.getName(), "1.0");
 
 		return properties;
 	}
@@ -86,9 +86,9 @@ final class ZookeeperTestUtils {
 		}
 
 		@Override
-		public HandShakeResponseCode handleHandShake(Map properties) {
+		public HandshakeResponseCode handleHandshake(Map properties) {
 			LOGGER.warn("do handleEnableWorker {}", properties);
-			return HandShakeResponseType.Success.DUPLEX_COMMUNICATION;
+			return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
 		}
 	}
 

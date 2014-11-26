@@ -18,8 +18,8 @@ import com.nhn.pinpoint.rpc.client.MessageListener;
 import com.nhn.pinpoint.rpc.client.PinpointSocket;
 import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
 import com.nhn.pinpoint.rpc.client.SimpleLoggingMessageListener;
-import com.nhn.pinpoint.rpc.packet.HandShakeResponseCode;
-import com.nhn.pinpoint.rpc.packet.HandShakeResponseType;
+import com.nhn.pinpoint.rpc.packet.HandshakeResponseCode;
+import com.nhn.pinpoint.rpc.packet.HandshakeResponseType;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.ResponsePacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
@@ -166,10 +166,10 @@ public class MessageListenerTest {
 			
 			Thread.sleep(500);
 
-			ChannelContext channelContext = getChannelContext("application", "agent", (Long) params.get(AgentHandShakePropertyType.START_TIMESTAMP.getName()), ss.getDuplexCommunicationChannelContext());
+			ChannelContext channelContext = getChannelContext("application", "agent", (Long) params.get(AgentHandshakePropertyType.START_TIMESTAMP.getName()), ss.getDuplexCommunicationChannelContext());
 			Assert.assertNotNull(channelContext);
 
-			channelContext = getChannelContext("application", "agent", (Long) params.get(AgentHandShakePropertyType.START_TIMESTAMP.getName()) + 1, ss.getDuplexCommunicationChannelContext());
+			channelContext = getChannelContext("application", "agent", (Long) params.get(AgentHandshakePropertyType.START_TIMESTAMP.getName()) + 1, ss.getDuplexCommunicationChannelContext());
 			Assert.assertNull(channelContext);
 
 			socket.close();
@@ -256,14 +256,14 @@ public class MessageListenerTest {
 	private Map getParams() {
 		Map properties = new HashMap();
 
-        properties.put(AgentHandShakePropertyType.AGENT_ID.getName(), "agent");
-        properties.put(AgentHandShakePropertyType.APPLICATION_NAME.getName(), "application");
-        properties.put(AgentHandShakePropertyType.HOSTNAME.getName(), "hostname");
-        properties.put(AgentHandShakePropertyType.IP.getName(), "ip");
-        properties.put(AgentHandShakePropertyType.PID.getName(), 1111);
-        properties.put(AgentHandShakePropertyType.SERVICE_TYPE.getName(), 10);
-        properties.put(AgentHandShakePropertyType.START_TIMESTAMP.getName(), System.currentTimeMillis());
-        properties.put(AgentHandShakePropertyType.VERSION.getName(), "1.0");
+        properties.put(AgentHandshakePropertyType.AGENT_ID.getName(), "agent");
+        properties.put(AgentHandshakePropertyType.APPLICATION_NAME.getName(), "application");
+        properties.put(AgentHandshakePropertyType.HOSTNAME.getName(), "hostname");
+        properties.put(AgentHandshakePropertyType.IP.getName(), "ip");
+        properties.put(AgentHandshakePropertyType.PID.getName(), 1111);
+        properties.put(AgentHandshakePropertyType.SERVICE_TYPE.getName(), 10);
+        properties.put(AgentHandshakePropertyType.START_TIMESTAMP.getName(), System.currentTimeMillis());
+        properties.put(AgentHandshakePropertyType.VERSION.getName(), "1.0");
         
 		return properties;
 	}
@@ -304,9 +304,9 @@ public class MessageListenerTest {
 		private final AtomicInteger receiveEnableWorkerPacketCount = new AtomicInteger();
 		
 		@Override
-		public HandShakeResponseCode handleHandShake(Map properties) {
+		public HandshakeResponseCode handleHandshake(Map properties) {
 			receiveEnableWorkerPacketCount.incrementAndGet();
-            return HandShakeResponseType.Error.UNKNOWN_ERROR;
+            return HandshakeResponseType.Error.UNKNOWN_ERROR;
 		}
 
 		public int getReceiveEnableWorkerPacketCount() {
@@ -334,15 +334,15 @@ public class MessageListenerTest {
             if (eachContext.getCurrentStateCode() == PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION) {
                 Map agentProperties = eachContext.getChannelProperties();
 
-                if (!applicationName.equals(agentProperties.get(AgentHandShakePropertyType.APPLICATION_NAME.getName()))) {
+                if (!applicationName.equals(agentProperties.get(AgentHandshakePropertyType.APPLICATION_NAME.getName()))) {
                     continue;
                 }
 
-                if (!agentId.equals(agentProperties.get(AgentHandShakePropertyType.AGENT_ID.getName()))) {
+                if (!agentId.equals(agentProperties.get(AgentHandshakePropertyType.AGENT_ID.getName()))) {
                     continue;
                 }
 
-                if (startTimeMillis != (Long) agentProperties.get(AgentHandShakePropertyType.START_TIMESTAMP.getName())) {
+                if (startTimeMillis != (Long) agentProperties.get(AgentHandshakePropertyType.START_TIMESTAMP.getName())) {
                     continue;
                 }
 
@@ -366,9 +366,9 @@ public class MessageListenerTest {
 	private class SimpleListener extends SimpleLoggingServerMessageListener {
 
         @Override
-        public HandShakeResponseCode handleHandShake(Map properties) {
+        public HandshakeResponseCode handleHandshake(Map properties) {
             logger.info("handleEnableWorker {}", properties);
-            return HandShakeResponseType.Success.DUPLEX_COMMUNICATION;
+            return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
 
         }
 	    

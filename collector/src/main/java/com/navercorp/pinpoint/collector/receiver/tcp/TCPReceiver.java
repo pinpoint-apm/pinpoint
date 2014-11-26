@@ -26,8 +26,8 @@ import com.nhn.pinpoint.collector.receiver.DispatchHandler;
 import com.nhn.pinpoint.collector.util.PacketUtils;
 import com.nhn.pinpoint.common.util.ExecutorFactory;
 import com.nhn.pinpoint.common.util.PinpointThreadFactory;
-import com.nhn.pinpoint.rpc.packet.HandShakeResponseCode;
-import com.nhn.pinpoint.rpc.packet.HandShakeResponseType;
+import com.nhn.pinpoint.rpc.packet.HandshakeResponseCode;
+import com.nhn.pinpoint.rpc.packet.HandshakeResponseType;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
@@ -138,21 +138,21 @@ public class TCPReceiver {
             }
 
             @Override
-            public HandShakeResponseCode handleHandShake(Map properties) {
+            public HandshakeResponseCode handleHandshake(Map properties) {
     			if (properties == null) {
-    				return HandShakeResponseType.ProtocolError.PROTOCOL_ERROR;
+    				return HandshakeResponseType.ProtocolError.PROTOCOL_ERROR;
     			}
     			
-    			boolean hasAllType = AgentHandShakePropertyType.hasAllType(properties);
+    			boolean hasAllType = AgentHandshakePropertyType.hasAllType(properties);
     			if (!hasAllType) {
-    				return HandShakeResponseType.PropertyError.PROPERTY_ERROR;
+    				return HandshakeResponseType.PropertyError.PROPERTY_ERROR;
     			}
     			
-				boolean supportServer = MapUtils.getBoolean(properties, AgentHandShakePropertyType.SUPPORT_SERVER.getName(), true);
+				boolean supportServer = MapUtils.getBoolean(properties, AgentHandshakePropertyType.SUPPORT_SERVER.getName(), true);
 				if (supportServer) {
-				    return HandShakeResponseType.Success.DUPLEX_COMMUNICATION;
+				    return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
 				} else {
-                    return HandShakeResponseType.Success.SIMPLEX_COMMUNICATION;
+                    return HandshakeResponseType.Success.SIMPLEX_COMMUNICATION;
 				}
             }
         });

@@ -257,9 +257,9 @@ public class DefaultAgent implements Agent {
         	CommandDispatcher.Builder builder = new CommandDispatcher.Builder();
         	pinpointSocketFactory.setMessageListener(builder.build());
 
-        	properties.put(AgentHandShakePropertyType.SUPPORT_SERVER.getName(), true);
+        	properties.put(AgentHandshakePropertyType.SUPPORT_SERVER.getName(), true);
         } else {
-        	properties.put(AgentHandShakePropertyType.SUPPORT_SERVER.getName(), false);
+        	properties.put(AgentHandshakePropertyType.SUPPORT_SERVER.getName(), false);
         }
 
         pinpointSocketFactory.setProperties(properties);

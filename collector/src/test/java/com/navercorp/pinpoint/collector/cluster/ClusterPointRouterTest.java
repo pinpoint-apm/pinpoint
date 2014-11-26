@@ -18,10 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.nhn.pinpoint.collector.receiver.tcp.AgentHandShakePropertyType;
+import com.nhn.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
 import com.nhn.pinpoint.collector.util.CollectorUtils;
-import com.nhn.pinpoint.rpc.packet.HandShakeResponseCode;
-import com.nhn.pinpoint.rpc.packet.HandShakeResponseType;
+import com.nhn.pinpoint.rpc.packet.HandshakeResponseCode;
+import com.nhn.pinpoint.rpc.packet.HandshakeResponseType;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
 import com.nhn.pinpoint.rpc.server.ChannelContext;
@@ -109,23 +109,23 @@ public class ClusterPointRouterTest {
 		}
 
 		@Override
-		public HandShakeResponseCode handleHandShake(Map properties) {
-			logger.warn("do HandShake {}", properties);
-			return HandShakeResponseType.Success.DUPLEX_COMMUNICATION;
+		public HandshakeResponseCode handleHandshake(Map properties) {
+			logger.warn("do Handshake {}", properties);
+			return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
 		}
 	}
 
 	private Map<Object, Object> getParams() {
 		Map<Object, Object> properties = new HashMap<Object, Object>();
 
-        properties.put(AgentHandShakePropertyType.AGENT_ID.getName(), "agent");
-        properties.put(AgentHandShakePropertyType.APPLICATION_NAME.getName(), "application");
-        properties.put(AgentHandShakePropertyType.HOSTNAME.getName(), "hostname");
-        properties.put(AgentHandShakePropertyType.IP.getName(), "ip");
-        properties.put(AgentHandShakePropertyType.PID.getName(), 1111);
-        properties.put(AgentHandShakePropertyType.SERVICE_TYPE.getName(), 10);
-        properties.put(AgentHandShakePropertyType.START_TIMESTAMP.getName(), currentTime);
-        properties.put(AgentHandShakePropertyType.VERSION.getName(), "1.0.3-SNAPSHOT");
+        properties.put(AgentHandshakePropertyType.AGENT_ID.getName(), "agent");
+        properties.put(AgentHandshakePropertyType.APPLICATION_NAME.getName(), "application");
+        properties.put(AgentHandshakePropertyType.HOSTNAME.getName(), "hostname");
+        properties.put(AgentHandshakePropertyType.IP.getName(), "ip");
+        properties.put(AgentHandshakePropertyType.PID.getName(), 1111);
+        properties.put(AgentHandshakePropertyType.SERVICE_TYPE.getName(), 10);
+        properties.put(AgentHandshakePropertyType.START_TIMESTAMP.getName(), currentTime);
+        properties.put(AgentHandshakePropertyType.VERSION.getName(), "1.0.3-SNAPSHOT");
 
 		return properties;
 	}

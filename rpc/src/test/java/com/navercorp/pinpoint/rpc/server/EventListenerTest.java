@@ -16,14 +16,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.rpc.control.ProtocolException;
-import com.nhn.pinpoint.rpc.packet.ControlHandShakeResponsePacket;
-import com.nhn.pinpoint.rpc.packet.ControlHandShakePacket;
-import com.nhn.pinpoint.rpc.packet.HandShakeResponseCode;
-import com.nhn.pinpoint.rpc.packet.HandShakeResponseType;
+import com.nhn.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
+import com.nhn.pinpoint.rpc.packet.ControlHandshakePacket;
+import com.nhn.pinpoint.rpc.packet.HandshakeResponseCode;
+import com.nhn.pinpoint.rpc.packet.HandshakeResponseType;
 import com.nhn.pinpoint.rpc.packet.RequestPacket;
 import com.nhn.pinpoint.rpc.packet.ResponsePacket;
 import com.nhn.pinpoint.rpc.packet.SendPacket;
-import com.nhn.pinpoint.rpc.util.ControlMessageEnDeconderUtils;
+import com.nhn.pinpoint.rpc.util.ControlMessageEncodingUtils;
 import com.nhn.pinpoint.rpc.util.MapUtils;
 
 /**
@@ -65,8 +65,8 @@ public class EventListenerTest {
 
 	private int sendAndReceiveRegisterPacket(Socket socket, Map<String, Object> properties) throws ProtocolException, IOException {
 		sendRegisterPacket(socket.getOutputStream(), properties);
-		ControlHandShakeResponsePacket packet = receiveRegisterConfirmPacket(socket.getInputStream());
-		Map<Object, Object> result = (Map<Object, Object>) ControlMessageEnDeconderUtils.decode(packet.getPayload());
+		ControlHandshakeResponsePacket packet = receiveRegisterConfirmPacket(socket.getInputStream());
+		Map<Object, Object> result = (Map<Object, Object>) ControlMessageEncodingUtils.decode(packet.getPayload());
 		
 		return MapUtils.getInteger(result, "code", -1);
 	}
@@ -78,8 +78,8 @@ public class EventListenerTest {
 	}
 
 	private void sendRegisterPacket(OutputStream outputStream, Map<String, Object> properties) throws ProtocolException, IOException {
-		byte[] payload = ControlMessageEnDeconderUtils.encode(properties);
-		ControlHandShakePacket packet = new ControlHandShakePacket(1, payload);
+		byte[] payload = ControlMessageEncodingUtils.encode(properties);
+		ControlHandshakePacket packet = new ControlHandshakePacket(1, payload);
 
 		ByteBuffer bb = packet.toBuffer().toByteBuffer(0, packet.toBuffer().writerIndex());
 		sendData(outputStream, bb.array());
@@ -98,14 +98,14 @@ public class EventListenerTest {
 		outputStream.flush();
 	}
 
-	private ControlHandShakeResponsePacket receiveRegisterConfirmPacket(InputStream inputStream) throws ProtocolException, IOException {
+	private ControlHandshakeResponsePacket receiveRegisterConfirmPacket(InputStream inputStream) throws ProtocolException, IOException {
 
 		byte[] payload = readData(inputStream);
 		ChannelBuffer cb = ChannelBuffers.wrappedBuffer(payload);
 
 		short packetType = cb.readShort();
 
-		ControlHandShakeResponsePacket packet = ControlHandShakeResponsePacket.readBuffer(packetType, cb);
+		ControlHandshakeResponsePacket packet = ControlHandshakeResponsePacket.readBuffer(packetType, cb);
 		return packet;
 	}
 
@@ -146,14 +146,14 @@ public class EventListenerTest {
 	private Map<String, Object> getParams() {
 		Map<String, Object> properties = new HashMap<String, Object>();
 		
-        properties.put(AgentHandShakePropertyType.AGENT_ID.getName(), "agent");
-        properties.put(AgentHandShakePropertyType.APPLICATION_NAME.getName(), "application");
-        properties.put(AgentHandShakePropertyType.HOSTNAME.getName(), "hostname");
-        properties.put(AgentHandShakePropertyType.IP.getName(), "ip");
-        properties.put(AgentHandShakePropertyType.PID.getName(), 1111);
-        properties.put(AgentHandShakePropertyType.SERVICE_TYPE.getName(), 10);
-        properties.put(AgentHandShakePropertyType.START_TIMESTAMP.getName(), System.currentTimeMillis());
-        properties.put(AgentHandShakePropertyType.VERSION.getName(), "1.0");
+        properties.put(AgentHandshakePropertyType.AGENT_ID.getName(), "agent");
+        properties.put(AgentHandshakePropertyType.APPLICATION_NAME.getName(), "application");
+        properties.put(AgentHandshakePropertyType.HOSTNAME.getName(), "hostname");
+        properties.put(AgentHandshakePropertyType.IP.getName(), "ip");
+        properties.put(AgentHandshakePropertyType.PID.getName(), 1111);
+        properties.put(AgentHandshakePropertyType.SERVICE_TYPE.getName(), 10);
+        properties.put(AgentHandshakePropertyType.START_TIMESTAMP.getName(), System.currentTimeMillis());
+        properties.put(AgentHandshakePropertyType.VERSION.getName(), "1.0");
 		
 		return properties;
 	}
@@ -171,9 +171,9 @@ public class EventListenerTest {
 		}
 		
 		@Override
-		public HandShakeResponseCode handleHandShake(Map properties) {
-			logger.info("handle HandShake {}", properties);
-	        return HandShakeResponseType.Success.DUPLEX_COMMUNICATION;
+		public HandshakeResponseCode handleHandshake(Map properties) {
+			logger.info("handle Handshake {}", properties);
+	        return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
 		}
 	}
 

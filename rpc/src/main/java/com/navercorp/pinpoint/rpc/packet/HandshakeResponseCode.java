@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.rpc.packet;
 
-public enum HandShakeResponseCode {
+public enum HandshakeResponseCode {
 
     SUCCESS(0, 0, "Success."), 
     SIMPLEX_COMMUNICATION(0, 1, "Simplex Connection successfully established."), 
@@ -22,7 +22,7 @@ public enum HandShakeResponseCode {
     private final int subCode;
     private final String codeMessage;
 
-    private HandShakeResponseCode(int code, int subCode, String codeMessage) {
+    private HandshakeResponseCode(int code, int subCode, String codeMessage) {
         this.code = code;
         this.subCode = subCode;
         this.codeMessage = codeMessage;
@@ -40,8 +40,8 @@ public enum HandShakeResponseCode {
         return codeMessage;
     }
 
-    public static HandShakeResponseCode getValue(int code, int subCode) {
-        for (HandShakeResponseCode value : HandShakeResponseCode.values()) {
+    public static HandshakeResponseCode getValue(int code, int subCode) {
+        for (HandshakeResponseCode value : HandshakeResponseCode.values()) {
             if (code != value.getCode()) {
                 continue;
             }
@@ -53,7 +53,7 @@ public enum HandShakeResponseCode {
             return value;
         }
         
-        for (HandShakeResponseCode value : HandShakeResponseCode.values()) {
+        for (HandshakeResponseCode value : HandshakeResponseCode.values()) {
             if (code != value.getCode()) {
                 continue;
             }
