@@ -17,7 +17,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.nhn.pinpoint.collector.cluster.ClusterPointRouter;
 import com.nhn.pinpoint.collector.config.CollectorConfiguration;
-import com.nhn.pinpoint.collector.receiver.tcp.AgentHandShakePropertyType;
+import com.nhn.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
 import com.nhn.pinpoint.rpc.server.ChannelContext;
 import com.nhn.pinpoint.rpc.server.SocketChannel;
 
@@ -264,14 +264,14 @@ public class ZookeeperProfilerClusterServiceTest {
 	private Map<Object, Object> getParams() {
 		Map<Object, Object> properties = new HashMap<Object, Object>();
 
-        properties.put(AgentHandShakePropertyType.AGENT_ID.getName(), "agent");
-        properties.put(AgentHandShakePropertyType.APPLICATION_NAME.getName(), "application");
-        properties.put(AgentHandShakePropertyType.HOSTNAME.getName(), "hostname");
-        properties.put(AgentHandShakePropertyType.IP.getName(), "ip");
-        properties.put(AgentHandShakePropertyType.PID.getName(), 1111);
-        properties.put(AgentHandShakePropertyType.SERVICE_TYPE.getName(), 10);
-        properties.put(AgentHandShakePropertyType.START_TIMESTAMP.getName(), System.currentTimeMillis());
-        properties.put(AgentHandShakePropertyType.VERSION.getName(), "1.0");
+        properties.put(AgentHandshakePropertyType.AGENT_ID.getName(), "agent");
+        properties.put(AgentHandshakePropertyType.APPLICATION_NAME.getName(), "application");
+        properties.put(AgentHandshakePropertyType.HOSTNAME.getName(), "hostname");
+        properties.put(AgentHandshakePropertyType.IP.getName(), "ip");
+        properties.put(AgentHandshakePropertyType.PID.getName(), 1111);
+        properties.put(AgentHandshakePropertyType.SERVICE_TYPE.getName(), 10);
+        properties.put(AgentHandshakePropertyType.START_TIMESTAMP.getName(), System.currentTimeMillis());
+        properties.put(AgentHandshakePropertyType.VERSION.getName(), "1.0");
 
 		return properties;
 	}

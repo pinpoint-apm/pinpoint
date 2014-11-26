@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.rpc.client.WriteFailFutureListener;
 import com.nhn.pinpoint.rpc.packet.ClientClosePacket;
-import com.nhn.pinpoint.rpc.packet.ControlHandShakeResponsePacket;
-import com.nhn.pinpoint.rpc.packet.ControlHandShakePacket;
+import com.nhn.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
+import com.nhn.pinpoint.rpc.packet.ControlHandshakePacket;
 import com.nhn.pinpoint.rpc.packet.PacketType;
 import com.nhn.pinpoint.rpc.packet.PingPacket;
 import com.nhn.pinpoint.rpc.packet.PongPacket;
@@ -160,11 +160,11 @@ public class PacketDecoder extends FrameDecoder {
     }
 
     private Object readEnableWorker(short packetType, ChannelBuffer buffer) {
-        return ControlHandShakePacket.readBuffer(packetType, buffer);
+        return ControlHandshakePacket.readBuffer(packetType, buffer);
 	}
 
     private Object readEnableWorkerConfirm(short packetType, ChannelBuffer buffer) {
-        return ControlHandShakeResponsePacket.readBuffer(packetType, buffer);
+        return ControlHandshakeResponsePacket.readBuffer(packetType, buffer);
 	}
 
 }

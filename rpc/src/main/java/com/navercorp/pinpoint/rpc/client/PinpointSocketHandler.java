@@ -28,9 +28,9 @@ import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.ResponseMessage;
 import com.nhn.pinpoint.rpc.control.ProtocolException;
 import com.nhn.pinpoint.rpc.packet.ClientClosePacket;
-import com.nhn.pinpoint.rpc.packet.ControlHandShakePacket;
-import com.nhn.pinpoint.rpc.packet.ControlHandShakeResponsePacket;
-import com.nhn.pinpoint.rpc.packet.HandShakeResponseCode;
+import com.nhn.pinpoint.rpc.packet.ControlHandshakePacket;
+import com.nhn.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
+import com.nhn.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.nhn.pinpoint.rpc.packet.Packet;
 import com.nhn.pinpoint.rpc.packet.PacketType;
 import com.nhn.pinpoint.rpc.packet.PingPacket;
@@ -44,7 +44,7 @@ import com.nhn.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListener;
 import com.nhn.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
 import com.nhn.pinpoint.rpc.stream.StreamChannelContext;
 import com.nhn.pinpoint.rpc.stream.StreamChannelManager;
-import com.nhn.pinpoint.rpc.util.ControlMessageEnDeconderUtils;
+import com.nhn.pinpoint.rpc.util.ControlMessageEncodingUtils;
 import com.nhn.pinpoint.rpc.util.IDGenerator;
 import com.nhn.pinpoint.rpc.util.MapUtils;
 import com.nhn.pinpoint.rpc.util.TimerFactory;
@@ -87,7 +87,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 
     private final ChannelFutureListener pingWriteFailFutureListener = new WriteFailFutureListener(this.logger, "ping write fail.", "ping write success.");
     private final ChannelFutureListener sendWriteFailFutureListener = new WriteFailFutureListener(this.logger, "send() write fail.", "send() write fail.");
-    private final ChannelFutureListener handShakeFailFutureListener = new WriteFailFutureListener(this.logger, "handShake write fail.", "handShake write success.");
+    private final ChannelFutureListener handShakeFailFutureListener = new WriteFailFutureListener(this.logger, "HandShakePacket write fail.", "HandShakePacket write success.");
 
     public PinpointSocketHandler(PinpointSocketFactory pinpointSocketFactory) {
     	this(pinpointSocketFactory, DEFAULT_PING_DELAY, DEFAULT_ENABLE_WORKER_PACKET_DELAY, DEFAULT_TIMEOUTMILLIS);
@@ -225,31 +225,41 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         write.addListener(pingWriteFailFutureListener);
     }
 
-    private class HandShakeJob implements TimerTask {
+    private class HandshakeJob implements TimerTask {
 
+        private final Map<String, Object> properties;
         private final int maxRetryCount;
         private final AtomicInteger currentCount;
 
-        public HandShakeJob(int maxRetryCount) {
+        public HandshakeJob(Map<String, Object> properties, int maxRetryCount) {
+            this.properties = properties;
             this.maxRetryCount = maxRetryCount;
             this.currentCount = new AtomicInteger(0);
         }
 
         @Override
         public void run(Timeout timeout) throws Exception {
+            logger.info("Handshake retried({}/{}). channel:{}.", currentCount.get(), maxRetryCount, channel);
             if (timeout.isCancelled()) {
-                reservationHandShakeJob(this);
+                reservationHandshakeJob(this);
                 return;
             }
-            if (isClosed()) {
-                return;
-            }
+            
+            int currentState = state.getState();
 
-            if (state.getState() == State.RUN) {
+            if (currentState == State.RUN) {
                 incrementCurrentRetryCount();
 
-                sendHandShakePacket();
-                reservationHandShakeJob(this);
+                try {
+                    sendHandshakePacket(properties);
+                    reservationHandshakeJob(this);
+                } catch (ProtocolException e) {
+                    if (logger.isWarnEnabled()) {
+                        logger.warn("Handshake retry failed. channel:" + channel + ", caused:" + e.getMessage() + ".", e);
+                    }
+                }
+            } else {
+                logger.warn("Handshake retry completed. caused socket state {}.", state.getString(currentState));
             }
         }
 
@@ -267,7 +277,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 
     }
 
-    private void reservationHandShakeJob(HandShakeJob task) {
+    private void reservationHandshakeJob(HandshakeJob task) {
         if (task.getCurrentRetryCount() >= task.getMaxRetryCount()) {
             return;
         }
@@ -275,23 +285,18 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         this.channelTimer.newTimeout(task, enableWorkerPacketDelay, TimeUnit.MILLISECONDS);
     }
 
-    void sendHandShakePacket() {
+    private void sendHandshakePacket(Map<String, Object> properties) throws ProtocolException {
         if (!isRun()) {
             return;
         }
 
-        Map<String, Object> properties = this.pinpointSocketFactory.getProperties();
-        logger.debug("write HandShakePakcet channel:{}, property:{}..", channel, properties);
+        byte[] payload = ControlMessageEncodingUtils.encode(properties);
+        ControlHandshakePacket packet = new ControlHandshakePacket(payload);
 
-        try {
-            byte[] payload = ControlMessageEnDeconderUtils.encode(properties);
-            
-            ControlHandShakePacket packet = new ControlHandShakePacket(payload);
-            final ChannelFuture write = this.channel.write(packet);
-            write.addListener(handShakeFailFutureListener);
-        } catch (ProtocolException e) {
-            logger.warn(e.getMessage(), e);
-        }
+        final ChannelFuture write = this.channel.write(packet);
+        logger.debug("HandshakePacket sended. channel:{}, packet:{}.", channel, packet);
+
+        write.addListener(handShakeFailFutureListener);
     }
 
     public void sendPing() {
@@ -448,7 +453,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
                     messageReceivedServerClosed(e.getChannel());
                     return;
                 case PacketType.CONTROL_HANDSHAKE_RESPONSE:
-                    messageReceivedHandShakeResponse((ControlHandShakeResponsePacket)message, e.getChannel());
+                    messageReceivedHandshakeResponse((ControlHandshakeResponsePacket)message, e.getChannel());
                     return;
                 default:
                     logger.warn("unexpectedMessage received:{} address:{}", message, e.getRemoteAddress());
@@ -464,36 +469,38 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         state.setState(State.RECONNECT);
     }
 
-    private void messageReceivedHandShakeResponse(ControlHandShakeResponsePacket message, Channel channel) {
-        HandShakeResponseCode code = getHandShakeResponseCode(message.getPayload());
+    private void messageReceivedHandshakeResponse(ControlHandshakeResponsePacket message, Channel channel) {
+        HandshakeResponseCode code = getHandshakeResponseCode(message.getPayload());
 
-        logger.info("HandShake Response Packet({}) code={} received. {}", message, code, channel);
-        // reconnect 상태로 변경한다.
+        logger.debug("Handshake Response Packet({}) code={} received. {}", message, code, channel);
 
-        if (code == HandShakeResponseCode.SUCCESS || code == HandShakeResponseCode.ALREADY_KNOWN) {
+        if (code == HandshakeResponseCode.SUCCESS || code == HandshakeResponseCode.ALREADY_KNOWN) {
             state.changeRunSimplexCommunication();
-        } else if (code == HandShakeResponseCode.DUPLEX_COMMUNICATION || code == HandShakeResponseCode.ALREADY_DUPLEX_COMMUNICATION) {
+        } else if (code == HandshakeResponseCode.DUPLEX_COMMUNICATION || code == HandshakeResponseCode.ALREADY_DUPLEX_COMMUNICATION) {
             state.changeRunDuplexCommunication();
-        } else if (code == HandShakeResponseCode.SIMPLEX_COMMUNICATION || code == HandShakeResponseCode.ALREADY_SIMPLEX_COMMUNICATION) {
+        } else if (code == HandshakeResponseCode.SIMPLEX_COMMUNICATION || code == HandshakeResponseCode.ALREADY_SIMPLEX_COMMUNICATION) {
             state.changeRunSimplexCommunication();
         } else {
-            logger.warn("Invalid HandShake Packet ({}) code={} received. {}", message, code, channel);
+            logger.warn("Invalid Handshake Packet ({}) code={} received. {}", message, code, channel);
+            return;
         }
+
+        logger.info("Handshake completed. channel:{}, state:{}.", channel, state.getString());
     }
     
-    private HandShakeResponseCode getHandShakeResponseCode(byte[] payload) {
+    private HandshakeResponseCode getHandshakeResponseCode(byte[] payload) {
         try {
-            Map result = (Map) ControlMessageEnDeconderUtils.decode(payload);
+            Map result = (Map) ControlMessageEncodingUtils.decode(payload);
 
-            int code = MapUtils.getInteger(result, ControlHandShakeResponsePacket.CODE, -1);
-            int subCode = MapUtils.getInteger(result, ControlHandShakeResponsePacket.SUB_CODE, -1);
+            int code = MapUtils.getInteger(result, ControlHandshakeResponsePacket.CODE, -1);
+            int subCode = MapUtils.getInteger(result, ControlHandshakeResponsePacket.SUB_CODE, -1);
             
-            return HandShakeResponseCode.getValue(code, subCode);
+            return HandshakeResponseCode.getValue(code, subCode);
         } catch (ProtocolException e) {
             logger.warn(e.getMessage(), e);
         }
         
-        return HandShakeResponseCode.UNKOWN_CODE;
+        return HandshakeResponseCode.UNKOWN_CODE;
     }
 
     @Override
@@ -645,12 +652,20 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     }
 
     @Override
-    public void doHandShake() {
-        // MessageListener 등록시 EnableWorkerPacket전달
-        sendHandShakePacket();
+    public void doHandshake() {
+        Map<String, Object> properties = this.pinpointSocketFactory.getProperties();
 
-        HandShakeJob job = new HandShakeJob(enableWorkerPacketRetryCount);
-        reservationHandShakeJob(job);
+        logger.info("Handshake started. channel:{}, data:{}.", channel, properties);
+        try {
+            sendHandshakePacket(properties);
+
+            HandshakeJob job = new HandshakeJob(properties, enableWorkerPacketRetryCount);
+            reservationHandshakeJob(job);
+        } catch (ProtocolException e) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("Handshake failed. channel:" + channel + ", caused:" + e.getMessage() + ".", e);
+            }
+        }
     }
 
     class SocketHandlerContext {

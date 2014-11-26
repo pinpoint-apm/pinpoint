@@ -86,14 +86,14 @@ public class AgentInformation {
     public Map<String, Object> toMap() {
     	Map<String, Object> map = new HashMap<String, Object>();
     	
-    	map.put(AgentHandShakePropertyType.AGENT_ID.getName(), this.agentId);
-    	map.put(AgentHandShakePropertyType.APPLICATION_NAME.getName(), this.applicationName);
-    	map.put(AgentHandShakePropertyType.HOSTNAME.getName(), this.machineName);
-    	map.put(AgentHandShakePropertyType.IP.getName(), this.hostIp);
-    	map.put(AgentHandShakePropertyType.PID.getName(), this.pid);
-    	map.put(AgentHandShakePropertyType.SERVICE_TYPE.getName(), this.serverType);
-    	map.put(AgentHandShakePropertyType.START_TIMESTAMP.getName(), this.startTime);
-    	map.put(AgentHandShakePropertyType.VERSION.getName(), this.version);
+    	map.put(AgentHandshakePropertyType.AGENT_ID.getName(), this.agentId);
+    	map.put(AgentHandshakePropertyType.APPLICATION_NAME.getName(), this.applicationName);
+    	map.put(AgentHandshakePropertyType.HOSTNAME.getName(), this.machineName);
+    	map.put(AgentHandshakePropertyType.IP.getName(), this.hostIp);
+    	map.put(AgentHandshakePropertyType.PID.getName(), this.pid);
+    	map.put(AgentHandshakePropertyType.SERVICE_TYPE.getName(), this.serverType);
+    	map.put(AgentHandshakePropertyType.START_TIMESTAMP.getName(), this.startTime);
+    	map.put(AgentHandshakePropertyType.VERSION.getName(), this.version);
     	
     	return map;
     }

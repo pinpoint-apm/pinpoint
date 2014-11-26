@@ -6,34 +6,37 @@ import org.jboss.netty.buffer.ChannelBuffers;
 /**
  * @author koo.taejin
  */
-public class ControlHandShakePacket extends ControlPacket {
+public class ControlHandshakeResponsePacket extends ControlPacket {
 
-	public ControlHandShakePacket(byte[] payload) {
+    public static final String CODE = "code";
+    public static final String SUB_CODE = "subCode";
+    
+	public ControlHandshakeResponsePacket(byte[] payload) {
 		super(payload);
 	}
 
-	public ControlHandShakePacket(int requestId, byte[] payload) {
+	public ControlHandshakeResponsePacket(int requestId, byte[] payload) {
 		super(payload);
 		setRequestId(requestId);
 	}
 
 	@Override
 	public short getPacketType() {
-		return PacketType.CONTROL_HANDSHAKE;
+		return PacketType.CONTROL_HANDSHAKE_RESPONSE;
 	}
 
 	@Override
 	public ChannelBuffer toBuffer() {
 
 		ChannelBuffer header = ChannelBuffers.buffer(2 + 4 + 4);
-		header.writeShort(PacketType.CONTROL_HANDSHAKE);
+		header.writeShort(PacketType.CONTROL_HANDSHAKE_RESPONSE);
 		header.writeInt(getRequestId());
 
 		return PayloadPacket.appendPayload(header, payload);
 	}
 
-	public static ControlHandShakePacket readBuffer(short packetType, ChannelBuffer buffer) {
-		assert packetType == PacketType.CONTROL_HANDSHAKE;
+	public static ControlHandshakeResponsePacket readBuffer(short packetType, ChannelBuffer buffer) {
+		assert packetType == PacketType.CONTROL_HANDSHAKE_RESPONSE;
 
 		if (buffer.readableBytes() < 8) {
 			buffer.resetReaderIndex();
@@ -45,7 +48,7 @@ public class ControlHandShakePacket extends ControlPacket {
 		if (payload == null) {
 			return null;
 		}
-		final ControlHandShakePacket helloPacket = new ControlHandShakePacket(payload.array());
+		final ControlHandshakeResponsePacket helloPacket = new ControlHandshakeResponsePacket(payload.array());
 		helloPacket.setRequestId(messageId);
 		return helloPacket;
 	}

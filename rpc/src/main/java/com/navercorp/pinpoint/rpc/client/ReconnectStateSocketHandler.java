@@ -93,7 +93,7 @@ public class ReconnectStateSocketHandler implements SocketHandler {
 	}
 	
 	@Override
-	public void doHandShake() {
+	public void doHandshake() {
 //        throw new UnsupportedOperationException();
 	}
 	
