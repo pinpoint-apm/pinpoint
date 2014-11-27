@@ -25,7 +25,8 @@ import net.spy.memcached.protocol.ascii.AsciiMemcachedNodeImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.nhn.pinpoint.profiler.modifier.BaseInterceptorTest;
+import com.nhn.pinpoint.test.BaseInterceptorTest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

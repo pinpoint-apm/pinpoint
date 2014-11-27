@@ -5,7 +5,8 @@ import com.mysql.jdbc.NonRegisteringDriver;
 import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
 import com.nhn.pinpoint.common.util.PropertyUtils;
-import com.nhn.pinpoint.profiler.junit4.BasePinpointTest;
+import com.nhn.pinpoint.test.junit4.BasePinpointTest;
+
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;

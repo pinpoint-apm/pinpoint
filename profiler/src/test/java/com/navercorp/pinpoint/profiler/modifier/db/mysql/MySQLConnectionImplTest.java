@@ -5,8 +5,9 @@ import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
-import com.nhn.pinpoint.profiler.util.MockAgent;
-import com.nhn.pinpoint.profiler.util.TestClassLoader;
+import com.nhn.pinpoint.test.MockAgent;
+import com.nhn.pinpoint.test.TestClassLoader;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -21,7 +21,7 @@ import com.ibatis.sqlmap.engine.scope.SessionScope;
 import com.nhn.pinpoint.common.AnnotationKey;
 import com.nhn.pinpoint.common.bo.AnnotationBo;
 import com.nhn.pinpoint.common.bo.SpanEventBo;
-import com.nhn.pinpoint.profiler.junit4.BasePinpointTest;
+import com.nhn.pinpoint.test.junit4.BasePinpointTest;
 
 /**
  * @author Hyun Jeong

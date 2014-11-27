@@ -2,7 +2,7 @@ package com.nhn.pinpoint.profiler.monitor;
 
 import static org.junit.Assert.*;
 
-import com.nhn.pinpoint.profiler.sender.PeekableDataSender;
+import com.nhn.pinpoint.test.PeekableDataSender;
 import com.nhn.pinpoint.thrift.dto.TAgentStatBatch;
 
 import org.junit.Before;

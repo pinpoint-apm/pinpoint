@@ -11,7 +11,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.nhn.pinpoint.bootstrap.context.ServerMetaData;
-import com.nhn.pinpoint.profiler.junit4.BasePinpointTest;
+import com.nhn.pinpoint.test.junit4.BasePinpointTest;
 
 /**
  * @author hyungil.jeong

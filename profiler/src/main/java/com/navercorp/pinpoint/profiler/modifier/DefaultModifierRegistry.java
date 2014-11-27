@@ -16,9 +16,6 @@ import com.nhn.pinpoint.profiler.modifier.arcus.ImmediateFutureModifier;
 import com.nhn.pinpoint.profiler.modifier.arcus.MemcachedClientModifier;
 import com.nhn.pinpoint.profiler.modifier.arcus.OperationFutureModifier;
 import com.nhn.pinpoint.profiler.modifier.bloc.handler.HTTPHandlerModifier;
-import com.nhn.pinpoint.profiler.modifier.bloc4.NettyInboundHandlerModifier;
-import com.nhn.pinpoint.profiler.modifier.bloc4.NpcHandlerModifier;
-import com.nhn.pinpoint.profiler.modifier.bloc4.RequestProcessorModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.asynchttpclient.AsyncHttpClientModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.BasicFutureModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.ClosableHttpAsyncClientModifier;
@@ -26,13 +23,6 @@ import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.ClosableHttpClie
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.DefaultHttpRequestRetryHandlerModifier;
 import com.nhn.pinpoint.profiler.modifier.connector.httpclient4.HttpClient4Modifier;
 import com.nhn.pinpoint.profiler.modifier.connector.jdkhttpconnector.HttpURLConnectionModifier;
-import com.nhn.pinpoint.profiler.modifier.connector.lucynet.CompositeInvocationFutureModifier;
-import com.nhn.pinpoint.profiler.modifier.connector.lucynet.DefaultInvocationFutureModifier;
-import com.nhn.pinpoint.profiler.modifier.connector.nimm.NimmInvokerModifier;
-import com.nhn.pinpoint.profiler.modifier.connector.npc.KeepAliveNpcHessianConnectorModifier;
-import com.nhn.pinpoint.profiler.modifier.connector.npc.LightWeightConnectorModifier;
-import com.nhn.pinpoint.profiler.modifier.connector.npc.NioNpcHessianConnectorModifier;
-import com.nhn.pinpoint.profiler.modifier.connector.npc.NpcHessianConnectorModifier;
 import com.nhn.pinpoint.profiler.modifier.db.cubrid.CubridConnectionModifier;
 import com.nhn.pinpoint.profiler.modifier.db.cubrid.CubridDriverModifier;
 import com.nhn.pinpoint.profiler.modifier.db.cubrid.CubridPreparedStatementModifier;
@@ -56,26 +46,11 @@ import com.nhn.pinpoint.profiler.modifier.db.oracle.OracleDriverModifier;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.OraclePreparedStatementWrapperModifier;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.OracleStatementWrapperModifier;
 import com.nhn.pinpoint.profiler.modifier.db.oracle.PhysicalConnectionModifier;
-import com.nhn.pinpoint.profiler.modifier.linegame.HandlerInvokeTaskModifier;
-import com.nhn.pinpoint.profiler.modifier.linegame.HttpCustomServerHandlerModifier;
 import com.nhn.pinpoint.profiler.modifier.method.MethodModifier;
 import com.nhn.pinpoint.profiler.modifier.orm.ibatis.SqlMapClientImplModifier;
 import com.nhn.pinpoint.profiler.modifier.orm.ibatis.SqlMapSessionImplModifier;
 import com.nhn.pinpoint.profiler.modifier.orm.mybatis.DefaultSqlSessionModifier;
 import com.nhn.pinpoint.profiler.modifier.orm.mybatis.SqlSessionTemplateModifier;
-import com.nhn.pinpoint.profiler.modifier.redis.BinaryJedisModifier;
-import com.nhn.pinpoint.profiler.modifier.redis.BinaryRedisClusterModifier;
-import com.nhn.pinpoint.profiler.modifier.redis.BinaryTriplesRedisClusterModifier;
-import com.nhn.pinpoint.profiler.modifier.redis.GatewayModifier;
-import com.nhn.pinpoint.profiler.modifier.redis.GatewayServerModifier;
-import com.nhn.pinpoint.profiler.modifier.redis.JedisClientModifier;
-import com.nhn.pinpoint.profiler.modifier.redis.JedisModifier;
-import com.nhn.pinpoint.profiler.modifier.redis.JedisMultiKeyPipelineBaseModifier;
-import com.nhn.pinpoint.profiler.modifier.redis.JedisPipelineBaseModifier;
-import com.nhn.pinpoint.profiler.modifier.redis.JedisPipelineModifier;
-import com.nhn.pinpoint.profiler.modifier.redis.RedisClusterModifier;
-import com.nhn.pinpoint.profiler.modifier.redis.RedisClusterPipelineModifier;
-import com.nhn.pinpoint.profiler.modifier.redis.TriplesRedisClusterModifier;
 import com.nhn.pinpoint.profiler.modifier.servlet.HttpServletModifier;
 import com.nhn.pinpoint.profiler.modifier.servlet.SpringFrameworkServletModifier;
 import com.nhn.pinpoint.profiler.modifier.spring.beans.AbstractAutowireCapableBeanFactoryModifier;
@@ -208,20 +183,6 @@ public class DefaultModifierRegistry implements ModifierRegistry {
     public void addBLOC3Modifier() {
         HTTPHandlerModifier httpHandlerModifier = new HTTPHandlerModifier(byteCodeInstrumentor, agent);
         addModifier(httpHandlerModifier);
-    }
-
-    /**
-     * BLOC 4.x
-     */
-    public void addBLOC4Modifier() {
-        NettyInboundHandlerModifier nettyInboundHandlerModifier = new NettyInboundHandlerModifier(byteCodeInstrumentor, agent);
-        addModifier(nettyInboundHandlerModifier);
-        
-        NpcHandlerModifier npcHandlerModifier = new NpcHandlerModifier(byteCodeInstrumentor, agent);
-        addModifier(npcHandlerModifier);
-        
-        RequestProcessorModifier requestProcessorModifier = new RequestProcessorModifier(byteCodeInstrumentor, agent);
-        addModifier(requestProcessorModifier);
     }
 
 	public void addTomcatModifier() {
@@ -366,70 +327,12 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         }
 	}
 	
-	public void addNpcModifier() {
-		addModifier(new KeepAliveNpcHessianConnectorModifier(byteCodeInstrumentor, agent));
-		// addModifier(new LightWeightNbfpConnectorModifier(byteCodeInstrumentor, agent));
-		// addModifier(new LightWeightNpcHessianConnectorModifier(byteCodeInstrumentor, agent));
-		addModifier(new LightWeightConnectorModifier(byteCodeInstrumentor, agent));
-		addModifier(new NioNpcHessianConnectorModifier(byteCodeInstrumentor, agent));
-		addModifier(new NpcHessianConnectorModifier(byteCodeInstrumentor, agent));
-	}
-	
-	public void addNimmModifier() {
-		addModifier(new NimmInvokerModifier(byteCodeInstrumentor, agent));
-	}
-	
-	public void addLucyNetModifier() {
-		addModifier(new DefaultInvocationFutureModifier(byteCodeInstrumentor, agent));
-		addModifier(new CompositeInvocationFutureModifier(byteCodeInstrumentor, agent));
-	}
-	
-	/**
-	 * line game에서 사용하는 baseframework의 http handler를 지원.
-	 */
-	public void addLineGameBaseFrameworkModifier() {
-		addModifier(new HandlerInvokeTaskModifier(byteCodeInstrumentor, agent));
-		addModifier(new HttpCustomServerHandlerModifier(byteCodeInstrumentor, agent));
-	}
-	
 	/**
 	 * orm (iBatis, myBatis 등) 지원.
 	 */
 	public void addOrmModifier() {
 		addIBatisSupport();
 		addMyBatisSupport();
-	}
-	
-	public void addRedisSupport() {
-	    if(profilerConfig.isRedisEnabled()) {
-	        addModifier(new BinaryJedisModifier(byteCodeInstrumentor, agent));
-	        addModifier(new JedisModifier(byteCodeInstrumentor, agent));
-	    }
-	    
-        if(profilerConfig.isRedisPipelineEnabled()) {
-            addModifier(new JedisClientModifier(byteCodeInstrumentor, agent));
-            addModifier(new JedisPipelineBaseModifier(byteCodeInstrumentor, agent));
-            addModifier(new JedisMultiKeyPipelineBaseModifier(byteCodeInstrumentor, agent));
-            addModifier(new JedisPipelineModifier(byteCodeInstrumentor, agent));
-        }
-	}
-	
-	public void addNbaseArcSupport() {
-	    if(profilerConfig.isNbaseArcEnabled() || profilerConfig.isNbaseArcPipelineEnabled()) {
-	        addModifier(new GatewayModifier(byteCodeInstrumentor, agent));
-	        addModifier(new GatewayServerModifier(byteCodeInstrumentor, agent));
-	        
-	        if(profilerConfig.isNbaseArcEnabled()) {
-	            addModifier(new RedisClusterModifier(byteCodeInstrumentor, agent));
-	            addModifier(new BinaryRedisClusterModifier(byteCodeInstrumentor, agent));
-	            addModifier(new TriplesRedisClusterModifier(byteCodeInstrumentor, agent));
-	            addModifier(new BinaryTriplesRedisClusterModifier(byteCodeInstrumentor, agent));
-	        }
-
-	        if(profilerConfig.isNbaseArcPipelineEnabled()) {
-	            addModifier(new RedisClusterPipelineModifier(byteCodeInstrumentor, agent));
-	        }
-	    }
 	}
 	
 	private void addIBatisSupport() {

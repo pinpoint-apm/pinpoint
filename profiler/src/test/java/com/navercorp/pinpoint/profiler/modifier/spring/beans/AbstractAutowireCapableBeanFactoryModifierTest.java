@@ -10,8 +10,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.nhn.pinpoint.profiler.ClassFileRetransformer;
 import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.profiler.modifier.Modifier;
-import com.nhn.pinpoint.profiler.util.ClassTransformHelper;
-import com.nhn.pinpoint.profiler.util.MockAgent;
+import com.nhn.pinpoint.test.ClassTransformHelper;
+import com.nhn.pinpoint.test.MockAgent;
 
 public class AbstractAutowireCapableBeanFactoryModifierTest {
 

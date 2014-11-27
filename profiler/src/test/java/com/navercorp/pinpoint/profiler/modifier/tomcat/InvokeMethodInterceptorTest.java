@@ -19,6 +19,7 @@ import com.nhn.pinpoint.bootstrap.context.TraceContext;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.StandardHostValveInvokeInterceptor;
+import com.nhn.pinpoint.test.MockTraceContextFactory;
 
 /**
  * @author emeroad

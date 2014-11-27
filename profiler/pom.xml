@@ -78,36 +78,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- [Start] Compile Interceptors -->
-        <dependency>
-            <groupId>com.nhncorp.lucy</groupId>
-            <artifactId>lucy-npc</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.nhncorp.lucy</groupId>
-            <artifactId>lucy-nimmconnector</artifactId>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <artifactId>cglib-nodep</artifactId>
-                    <groupId>cglib</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jaxen</artifactId>
-                    <groupId>jaxen</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>dom4j</artifactId>
-                    <groupId>dom4j</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>mina-core</artifactId>
-                    <groupId>external.org.apache.mina</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
         <!-- HTTP Client -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -178,18 +148,6 @@
             </exclusions>
         </dependency>
         
-		<dependency>
-            <groupId>com.nhncorp.lucy</groupId>
-            <artifactId>bloc-core</artifactId>
-            <scope>provided</scope>
-            <exclusions>
-            	<exclusion>
-            		<groupId>javax.servlet</groupId>
-                	<artifactId>javax.servlet-api</artifactId>
-            	</exclusion>
-            </exclusions>
-        </dependency>
-
         <dependency>
             <groupId>com.ibatis</groupId>
             <artifactId>ibatis2-sqlmap</artifactId>
@@ -241,20 +199,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Redis -->
-		<!-- nBase-ARC -->
-        <dependency>
-            <groupId>com.nhncorp</groupId>
-            <artifactId>triples-redis-client</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- Jedis -->
-        <dependency>
-            <groupId>redis.clients</groupId>
-            <artifactId>jedis</artifactId>
-            <scope>provided</scope>
-        </dependency>
 
         <!-- [End] Compile Interceptors -->
 
@@ -358,6 +302,12 @@
         <!--<artifactId>metrics-healthchecks</artifactId> -->
         <!--<version>${metrics.version}</version> -->
         <!--</dependency> -->
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
 

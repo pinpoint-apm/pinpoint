@@ -10,27 +10,29 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ServiceLoader;
 
-import com.nhn.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.nhn.pinpoint.exception.PinpointException;
 
-public class PluginLoader {
-    private final URL[] jars;;
+public class PluginLoader<T> {
+    private final Class<T> serviceType;
+    private final ClassLoader classLoader;;
     
-    public static PluginLoader get(String pluginPath) {
+    public static <T> PluginLoader<T> get(Class<T> serviceType, String pluginPath) {
         URL[] jars = findJars(pluginPath);
-        return new PluginLoader(jars);
-    }
-
-    public PluginLoader(URL[] jars) {
-        this.jars = jars;
-    }
-
-    public List<ProfilerPlugin> loadPlugins() {
         URLClassLoader classLoader = new URLClassLoader(jars, ClassLoader.getSystemClassLoader());
-        ServiceLoader<ProfilerPlugin> loader = ServiceLoader.load(ProfilerPlugin.class, classLoader);
         
-        Iterator<ProfilerPlugin> iterator = loader.iterator();
-        List<ProfilerPlugin> plugins = new ArrayList<ProfilerPlugin>(jars.length);
+        return new PluginLoader<T>(serviceType, classLoader);
+    }
+    
+    public PluginLoader(Class<T> serviceType, ClassLoader classLoader) {
+        this.serviceType = serviceType;
+        this.classLoader = classLoader;
+    }
+
+    public List<T> loadPlugins() {
+        ServiceLoader<T> loader = ServiceLoader.load(serviceType, classLoader);
+        
+        Iterator<T> iterator = loader.iterator();
+        List<T> plugins = new ArrayList<T>();
         
         while (iterator.hasNext()) {
             plugins.add(iterator.next());
@@ -40,7 +42,11 @@ public class PluginLoader {
     }
     
     public URL[] getPluginJars() {
-        return jars;
+        if (classLoader instanceof URLClassLoader) {
+            return ((URLClassLoader)classLoader).getURLs();
+        } else {
+            return new URL[0];
+        }
     }
 
     private static URL[] findJars(String pluginPath) {
