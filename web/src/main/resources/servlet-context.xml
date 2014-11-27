@@ -44,10 +44,9 @@
 		<property name="suffix" value=".jsp" />
 	</bean>
 
-
 	<bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping" />
 	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" />
-	
+        
 	<mvc:interceptors>
         <bean id="webContentInterceptor" class="org.springframework.web.servlet.mvc.WebContentInterceptor">
             <property name="cacheSeconds" value="0"/>
@@ -55,5 +54,9 @@
             <property name="useCacheControlHeader" value="true"/>
             <property name="useCacheControlNoStore" value="true"/>
         </bean>
+        <mvc:interceptor>
+            <mvc:mapping path="/admin/**" />
+            <bean class="com.nhn.pinpoint.web.interceptor.AdminAuthInterceptor" />
+        </mvc:interceptor>
 	</mvc:interceptors>
 </beans>

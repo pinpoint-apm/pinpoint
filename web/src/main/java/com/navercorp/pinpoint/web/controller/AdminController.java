@@ -15,6 +15,7 @@ import com.nhn.pinpoint.web.service.AdminService;
  * @author netspider
  */
 @Controller
+@RequestMapping("/admin")
 public class AdminController {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -22,7 +23,7 @@ public class AdminController {
 	@Autowired
 	private AdminService adminService;
 
-	@RequestMapping(value = "/admin/removeApplicationName", method = RequestMethod.GET)
+	@RequestMapping(value = "/removeApplicationName", method = RequestMethod.GET)
 	@ResponseBody
 	public String removeApplicationName(@RequestParam("applicationName") String applicationName) {
 		logger.info("remove application name. {}", applicationName);
@@ -30,20 +31,22 @@ public class AdminController {
 			adminService.removeApplicationName(applicationName);
 			return "OK";
 		} catch (Exception e) {
+		    logger.error("error while removing applicationName", e);
 			return e.getMessage();
 		}
 	}
 	
-	@RequestMapping(value = "/admin/removeAgentId", method = RequestMethod.GET)
+	@RequestMapping(value = "/removeAgentId", method = RequestMethod.GET)
 	@ResponseBody
 	public String removeAgentId(
 	        @RequestParam(value = "applicationName", required = true) String applicationName,
 	        @RequestParam(value = "agentId", required = true) String agentId) {
-	    logger.info("remove {}'s agentId [{}]", applicationName, agentId);
+	    logger.info("remove agent id - ApplicationName: [{}], Agent ID: [{}]", applicationName, agentId);
 	    try {
 	        adminService.removeAgentId(applicationName, agentId);
 	        return "OK";
 	    } catch (Exception e) {
+	        logger.error("error while removing agentId", e);
 	        return e.getMessage();
 	    }
 	}
