@@ -10,7 +10,7 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.junit.Test;
 
-import com.nhn.pinpoint.profiler.junit4.BasePinpointTest;
+import com.nhn.pinpoint.test.junit4.BasePinpointTest;
 
 public class DefaultHttpRequestRetryHandlerModifierTest extends BasePinpointTest {
 

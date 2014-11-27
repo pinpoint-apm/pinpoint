@@ -1,9 +1,11 @@
 package com.nhn.pinpoint.profiler.modifier.arcus;
 
 import com.nhn.pinpoint.common.bo.SpanEventBo;
-import com.nhn.pinpoint.profiler.junit4.BasePinpointTest;
+import com.nhn.pinpoint.test.junit4.BasePinpointTest;
+
 import net.spy.memcached.ArcusClient;
 import net.spy.memcached.ConnectionFactoryBuilder;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

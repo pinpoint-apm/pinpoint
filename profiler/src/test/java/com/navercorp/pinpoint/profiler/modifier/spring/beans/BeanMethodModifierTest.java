@@ -4,13 +4,14 @@ import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 import com.nhn.pinpoint.bootstrap.plugin.BytecodeUtils;
+
 import org.junit.Test;
 
 import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.nhn.pinpoint.profiler.DefaultAgent;
 import com.nhn.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor;
-import com.nhn.pinpoint.profiler.util.MockAgent;
+import com.nhn.pinpoint.test.MockAgent;
 
 public class BeanMethodModifierTest {
 

@@ -16,9 +16,9 @@ import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
 import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.nhn.pinpoint.profiler.modifier.db.interceptor.UnKnownDatabaseInfo;
-import com.nhn.pinpoint.profiler.util.MockAgent;
-import com.nhn.pinpoint.profiler.util.TestClassLoader;
-import com.nhn.pinpoint.profiler.util.TestModifier;
+import com.nhn.pinpoint.test.MockAgent;
+import com.nhn.pinpoint.test.TestClassLoader;
+import com.nhn.pinpoint.test.TestModifier;
 
 import javassist.bytecode.Descriptor;
 

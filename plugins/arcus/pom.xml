@@ -13,16 +13,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.nhn.pinpoint</groupId>
-            <artifactId>pinpoint-bootstrap</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.nhn.pinpoint</groupId>
-            <artifactId>pinpoint-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        
-        <dependency>
             <groupId>arcus</groupId>
             <artifactId>arcus-client</artifactId>
             <version>1.6.2.1</version>

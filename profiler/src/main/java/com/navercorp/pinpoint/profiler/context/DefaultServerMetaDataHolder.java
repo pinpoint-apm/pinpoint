@@ -18,10 +18,10 @@ import com.nhn.pinpoint.bootstrap.context.ServiceInfo;
  */
 public class DefaultServerMetaDataHolder implements ServerMetaDataHolder {
 
-    String serverName;
-    final List<String> vmArgs;
-    final Map<Integer, String> connectors = new ConcurrentHashMap<Integer, String>();
-    final Queue<ServiceInfo> serviceInfos = new ConcurrentLinkedQueue<ServiceInfo>();
+    protected String serverName;
+    private final List<String> vmArgs;
+    private final Map<Integer, String> connectors = new ConcurrentHashMap<Integer, String>();
+    protected final Queue<ServiceInfo> serviceInfos = new ConcurrentLinkedQueue<ServiceInfo>();
 
     public DefaultServerMetaDataHolder(List<String> vmArgs) {
         this.vmArgs = vmArgs;

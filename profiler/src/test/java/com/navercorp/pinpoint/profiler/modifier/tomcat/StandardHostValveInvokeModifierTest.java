@@ -18,8 +18,8 @@ import com.nhn.pinpoint.bootstrap.context.Header;
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.SpanBo;
 import com.nhn.pinpoint.common.util.TransactionIdUtils;
-import com.nhn.pinpoint.profiler.junit4.BasePinpointTest;
-import com.nhn.pinpoint.profiler.junit4.IsRootSpan;
+import com.nhn.pinpoint.test.junit4.BasePinpointTest;
+import com.nhn.pinpoint.test.junit4.IsRootSpan;
 
 /**
  * @author hyungil.jeong

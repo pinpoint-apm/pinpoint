@@ -18,6 +18,8 @@ import com.nhn.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.nhn.pinpoint.bootstrap.plugin.ProfilerPluginContext;
 import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
 import com.nhn.pinpoint.profiler.modifier.DefaultModifierRegistry;
+import com.nhn.pinpoint.profiler.modifier.Modifier;
+import com.nhn.pinpoint.profiler.modifier.ModifierProvider;
 import com.nhn.pinpoint.profiler.modifier.ModifierRegistry;
 import com.nhn.pinpoint.profiler.plugin.ClassEditorAdaptor;
 import com.nhn.pinpoint.profiler.plugin.PluginLoader;
@@ -146,39 +148,39 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         // bloc 3.x
         modifierRepository.addBLOC3Modifier();
 
-        // bloc 4.x
-        modifierRepository.addBLOC4Modifier();
-
-        // npc
-        modifierRepository.addNpcModifier();
-
-        // nimm
-        modifierRepository.addNimmModifier();
-
-        // lucy-net
-        modifierRepository.addLucyNetModifier();
-
-        // LINE Game baseframework
-        modifierRepository.addLineGameBaseFrameworkModifier();
-
         // orm
         modifierRepository.addOrmModifier();
 
-        // redis, nBase-ARC
-        modifierRepository.addRedisSupport();
-        modifierRepository.addNbaseArcSupport();
-        
         // spring beans
         modifierRepository.addSpringBeansModifier();
 
-        loadPlugins(modifierRepository);
+        loadModifiers(modifierRepository);
         
         return modifierRepository;
     }
+    
+    private void loadModifiers(DefaultModifierRegistry modifierRepository) {
+        PluginLoader<ModifierProvider> loader = new PluginLoader<ModifierProvider>(ModifierProvider.class, getClass().getClassLoader());
+        
+        for (ModifierProvider provider : loader.loadPlugins()) {
+            for (Modifier modifier : provider.getModifiers(byteCodeInstrumentor, agent)) {
+                if (modifier instanceof AbstractModifier) {
+                    AbstractModifier abstractModifier = (AbstractModifier)modifier;
+                    modifierRepository.addModifier(abstractModifier);
+                    logger.info("Registering modifier {} from {} for {} ", abstractModifier.getClass().getName(), abstractModifier.getClass().getProtectionDomain().getCodeSource(), abstractModifier.getTargetClass());
+                } else {
+                    logger.warn("Ignore modifier {} from {}", modifier.getClass().getName(), modifier.getClass().getProtectionDomain().getCodeSource());
+                }
+            }
+        }
+    }
 
+    /*
+     * for plugins. This method is not used now because plugin feature is not completed yet.
+     */
     private void loadPlugins(DefaultModifierRegistry modifierRepository) {
         String pluginPath = agent.getAgentPath() + File.separatorChar + "plugin";
-        PluginLoader loader = PluginLoader.get(pluginPath);
+        PluginLoader<ProfilerPlugin> loader = PluginLoader.get(ProfilerPlugin.class, pluginPath);
         PluginClassLoaderFactory classLoaderFactory = new PluginClassLoaderFactory(loader.getPluginJars());
         List<ProfilerPlugin> plugins = loader.loadPlugins();
         ProfilerPluginContext pluginContext = new ProfilerPluginContext(byteCodeInstrumentor, agent.getTraceContext());

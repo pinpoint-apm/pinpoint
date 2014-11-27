@@ -5,8 +5,8 @@ import org.junit.runner.RunWith;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.nhn.pinpoint.profiler.util.ForkRunner;
-import com.nhn.pinpoint.profiler.util.PinpointConfig;
+import com.nhn.pinpoint.test.fork.ForkRunner;
+import com.nhn.pinpoint.test.fork.PinpointConfig;
 
 @RunWith(ForkRunner.class)
 @PinpointConfig("pinpoint-spring-bean-test.config")

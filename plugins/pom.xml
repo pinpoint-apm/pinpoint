@@ -16,7 +16,12 @@
     </modules>
 
     <dependencies>
-        <dependency>
+        <!-- should be replaced with below dependencies after pinpoint-test project is completed -->
+         <dependency>
+            <groupId>com.nhn.pinpoint</groupId>
+            <artifactId>pinpoint-profiler</artifactId>
+        </dependency>
+<!--         <dependency>
             <groupId>com.nhn.pinpoint</groupId>
             <artifactId>pinpoint-bootstrap</artifactId>
         </dependency>
@@ -24,6 +29,6 @@
             <groupId>com.nhn.pinpoint</groupId>
             <artifactId>pinpoint-test</artifactId>
             <scope>test</scope>
-        </dependency>
+        </dependency> -->
     </dependencies>
 </project>
