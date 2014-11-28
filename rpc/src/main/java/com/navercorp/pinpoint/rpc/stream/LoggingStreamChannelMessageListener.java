@@ -26,7 +26,7 @@ public class LoggingStreamChannelMessageListener {
 		}
 
 		@Override
-		public void handleStreamClose(StreamChannelContext streamChannelContext, StreamClosePacket packet) {
+		public void handleStreamClose(ServerStreamChannelContext streamChannelContext, StreamClosePacket packet) {
 			LOGGER.info("handleStreamClose StreamChannel:{}, Packet:{}", streamChannelContext, packet);
 		}
 
@@ -40,7 +40,7 @@ public class LoggingStreamChannelMessageListener {
 		}
 
 		@Override
-		public void handleStreamClose(StreamChannelContext streamChannelContext, StreamClosePacket packet) {
+		public void handleStreamClose(ClientStreamChannelContext streamChannelContext, StreamClosePacket packet) {
 			LOGGER.info("handleStreamClose StreamChannel:{}, Packet:{}", streamChannelContext, packet);
 		}
 
