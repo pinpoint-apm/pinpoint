@@ -1,8 +1,8 @@
 package com.nhn.pinpoint.web.dao.hbase;
 
-import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,13 +10,15 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.nhn.pinpoint.common.bo.AgentInfoBo;
+import com.nhn.pinpoint.thrift.dto.TAgentInfo;
 
 /**
  * @author emeroad
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
-public class HbaseAgentInfoDaoTest {
+@Ignore
+public class HbaseAgentInfoDaoIT {
 
 	@Autowired
 	private HbaseAgentInfoDao selectDao;

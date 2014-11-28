@@ -12,6 +12,7 @@ import junit.framework.Assert;
 import org.apache.curator.test.InstanceSpec;
 import org.apache.curator.test.TestingCluster;
 import org.apache.curator.test.TestingZooKeeperServer;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,8 @@ import com.nhn.pinpoint.rpc.server.SocketChannel;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
-public class ZookeeperEnsembleProfilerClusterServiceTest {
+@Ignore
+public class ZookeeperEnsembleProfilerClusterServiceIT {
 
 	@Autowired
 	ClusterPointRouter clusterPointRouter;

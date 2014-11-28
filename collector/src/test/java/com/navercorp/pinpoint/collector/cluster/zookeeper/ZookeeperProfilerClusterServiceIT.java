@@ -9,6 +9,7 @@ import java.util.Map;
 import org.apache.curator.test.TestingServer;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,8 @@ import com.nhn.pinpoint.rpc.server.SocketChannel;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
-public class ZookeeperProfilerClusterServiceTest {
+@Ignore
+public class ZookeeperProfilerClusterServiceIT {
 
 	private static final int DEFAULT_ACCEPTOR_PORT = 22213;
 

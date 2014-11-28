@@ -3,19 +3,21 @@ package com.nhn.pinpoint.collector.regionsplit;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sematext.hbase.wd.AbstractRowKeyDistributor;
+import org.junit.Ignore;
 import org.junit.Test;
-
-import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix.OneByteSimpleHash;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.sematext.hbase.wd.AbstractRowKeyDistributor;
+import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix.OneByteSimpleHash;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
-public class PreSplitRegionsTest {
+@Ignore
+public class PreSplitRegionsIT {
 
     int acceptApplictaion = 4;
     int metaDataNumber = 8;

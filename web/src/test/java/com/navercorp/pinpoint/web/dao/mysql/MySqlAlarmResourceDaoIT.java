@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,8 @@ import com.nhn.pinpoint.web.alarm.vo.Rule;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
-public class MySqlAlarmResourceDaoTest {
+@Ignore
+public class MySqlAlarmResourceDaoIT {
 
     @Autowired
     MySqlAlarmResourceDao dao;

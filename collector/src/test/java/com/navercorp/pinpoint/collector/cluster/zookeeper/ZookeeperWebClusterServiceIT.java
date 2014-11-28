@@ -7,6 +7,7 @@ import junit.framework.Assert;
 import org.apache.curator.test.TestingServer;
 import org.apache.zookeeper.WatchedEvent;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -22,7 +23,8 @@ import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
-public class ZookeeperWebClusterServiceTest {
+@Ignore
+public class ZookeeperWebClusterServiceIT {
 
 	private static final String PINPOINT_CLUSTER_PATH = "/pinpoint-cluster";
 	private static final String PINPOINT_WEB_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/web";

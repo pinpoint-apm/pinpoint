@@ -16,7 +16,7 @@ import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.SpanEventBo;
 import com.nhn.pinpoint.test.junit4.BasePinpointTest;
 
-public class JedisPipelineModifierTest extends BasePinpointTest {
+public class JedisPipelineModifierIT extends BasePinpointTest {
     private static final String HOST = "10.99.116.91";
     private static final int PORT = 6390;
 
