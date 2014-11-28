@@ -10,6 +10,6 @@ public interface ServerStreamChannelMessageListener {
 
 	short handleStreamCreate(ServerStreamChannelContext streamChannelContext, StreamCreatePacket packet);
 
-	void handleStreamClose(StreamChannelContext streamChannelContext, StreamClosePacket packet);
+	void handleStreamClose(ServerStreamChannelContext streamChannelContext, StreamClosePacket packet);
 
 }

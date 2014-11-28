@@ -2,6 +2,7 @@ package com.nhn.pinpoint.rpc.server;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,7 @@ public class ChannelContext {
 
 	private final SocketChannelStateChangeEventListener stateChangeEventListener;
 	
-	private volatile Map<Object, Object> channelProperties = Collections.emptyMap();
+	private final AtomicReference<Map<Object, Object>> properties = new AtomicReference<Map<Object,Object>>();
 
 	public ChannelContext(SocketChannel socketChannel, StreamChannelManager streamChannelManager) {
 		this(socketChannel, streamChannelManager, DoNothingChannelStateEventListener.INSTANCE);
@@ -101,21 +102,16 @@ public class ChannelContext {
 	}
 
 	public Map<Object, Object> getChannelProperties() {
-		return channelProperties;
+	    Map<Object, Object> properties = this.properties.get();
+	    return properties == null ? Collections.emptyMap() : properties;
 	}
 
-	public boolean setChannelProperties(Map<Object, Object> properties) {
-		if (properties == null) {
+	public boolean setChannelProperties(Map<Object, Object> value) {
+		if (value == null) {
 			return false;
 		}
 		
-        if (this.channelProperties != Collections.emptyMap()) {
-            logger.warn("Already Register ChannelProperties.({}).", this.channelProperties);
-            return false;
-        }
-
-        this.channelProperties = Collections.unmodifiableMap(properties);
-        return true;
+		return this.properties.compareAndSet(null, Collections.unmodifiableMap(value));
 	}
 	
 	public StreamChannelManager getStreamChannelManager() {

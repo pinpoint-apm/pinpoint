@@ -20,7 +20,7 @@ public class DisabledServerStreamChannelMessageListener implements ServerStreamC
 	}
 
 	@Override
-	public void handleStreamClose(StreamChannelContext streamChannelContext, StreamClosePacket packet) {
+	public void handleStreamClose(ServerStreamChannelContext streamChannelContext, StreamClosePacket packet) {
 		logger.info("{} handleStreamClose unsupported operation. StreamChannel:{}, Packet:{}", this.getClass().getSimpleName(), streamChannelContext, packet);
 	}
 

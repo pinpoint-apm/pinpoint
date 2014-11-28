@@ -308,8 +308,8 @@ public class StreamChannelManagerTest {
 		}
 
 		@Override
-		public void handleStreamClose(StreamChannelContext streamChannelContext, StreamClosePacket packet) {
-			bo.removeServerStreamChannelContext((ServerStreamChannelContext) streamChannelContext);
+		public void handleStreamClose(ServerStreamChannelContext streamChannelContext, StreamClosePacket packet) {
+			bo.removeServerStreamChannelContext(streamChannelContext);
 		}
 
 	}

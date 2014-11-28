@@ -29,7 +29,21 @@ public abstract class BasicStreamPacket implements StreamPacket {
 	public static final short PACKET_UNSUPPORT = 142;
 	
 	public static final short UNKNWON_ERROR = 200;
+
 	
+	public static final short ROUTE_TYPE_ERROR = 330;
+    public static final short ROUTE_TYPE_SERVER_UNSUPPORT = 331;
+    public static final short ROUTE_TYPE_CLIENT = 336;
+    public static final short ROUTE_TYPE_UNKOWN = 339;
+    
+    public static final short ROUTE_PACKET_ERROR = 340;
+    public static final short ROUTE_PACKET_UNKNOWN = 341;
+    public static final short ROUTE_PACKET_UNSUPPORT = 342;
+	
+    public static final short ROUTE_NOT_FOUND = 350;
+
+    public static final short ROUTE_CONNECTION_ERROR = 360;
+
 	
 	private static final byte[] EMPTY_PAYLOAD = new byte[0];
 

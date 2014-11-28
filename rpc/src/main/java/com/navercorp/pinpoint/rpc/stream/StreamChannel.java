@@ -100,11 +100,11 @@ public abstract class StreamChannel {
 		this.streamChannelManager.clearResourceAndSendClose(getStreamId(), BasicStreamPacket.CHANNEL_CLOSE);
 	}
 
-	protected Channel getChannel() {
+	public Channel getChannel() {
 		return channel;
 	}
 
-	protected int getStreamId() {
+	public int getStreamId() {
 		return streamChannelId;
 	}
 

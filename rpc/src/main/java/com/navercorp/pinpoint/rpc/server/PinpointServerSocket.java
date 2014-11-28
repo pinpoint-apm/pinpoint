@@ -312,7 +312,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
 	
     private void sendHandshakeResponseMessage(int requestId, HandshakeResponseCode handShakeResponseCode, Channel channel) {
 		try {
-	        logger.info("write HandshakeResponsePakcet channel:{}, HandshakeResponseCode:{}.", channel, handShakeResponseCode);
+	        logger.info("write HandshakeResponsePakcet. channel:{}, HandshakeResponseCode:{}.", channel, handShakeResponseCode);
 		    
 			Map<String, Object> result = new HashMap<String, Object>();
 			result.put(ControlHandshakeResponsePacket.CODE, handShakeResponseCode.getCode());

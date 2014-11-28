@@ -12,7 +12,6 @@ import com.nhn.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.nhn.pinpoint.rpc.packet.stream.StreamResponsePacket;
 import com.nhn.pinpoint.rpc.stream.ClientStreamChannelContext;
 import com.nhn.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
-import com.nhn.pinpoint.rpc.stream.StreamChannelContext;
 
 /**
  * @author emeroad
@@ -38,7 +37,7 @@ public class RecordedStreamChannelMessageListener implements ClientStreamChannel
 	}
 
 	@Override
-	public void handleStreamClose(StreamChannelContext streamChannelContext, StreamClosePacket packet) {
+	public void handleStreamClose(ClientStreamChannelContext streamChannelContext, StreamClosePacket packet) {
         logger.info("handleClose {}, {}", streamChannelContext, packet);
         receivedMessageList.add(packet.getPayload());
         latch.countDown();
