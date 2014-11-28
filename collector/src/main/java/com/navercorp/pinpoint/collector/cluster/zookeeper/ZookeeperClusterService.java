@@ -25,6 +25,9 @@ import com.nhn.pinpoint.collector.util.CollectorUtils;
 import com.nhn.pinpoint.rpc.server.ChannelContext;
 import com.nhn.pinpoint.rpc.server.SocketChannelStateChangeEventListener;
 
+/**
+ * @author koo.taejin <kr14910>
+ */
 public class ZookeeperClusterService extends AbstractClusterService {
 
 	private static final String PINPOINT_CLUSTER_PATH = "/pinpoint-cluster";
@@ -54,7 +57,7 @@ public class ZookeeperClusterService extends AbstractClusterService {
 	public ZookeeperClusterService(CollectorConfiguration config, ClusterPointRouter clusterPointRouter) {
 		super(config, clusterPointRouter);
 		this.serviceState = new WorkerStateContext();
-		this.webCluster = new WebCluster(serverIdentifier, clusterPointRouter);
+		this.webCluster = new WebCluster(serverIdentifier, clusterPointRouter, clusterPointRouter);
 	}
 
 	@PostConstruct

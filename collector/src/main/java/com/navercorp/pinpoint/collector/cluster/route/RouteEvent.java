@@ -4,11 +4,13 @@ import org.jboss.netty.channel.Channel;
 
 import com.nhn.pinpoint.thrift.dto.command.TCommandTransfer;
 
+/**
+ * @author koo.taejin <kr14910>
+ */
 public interface RouteEvent {
 
 	TCommandTransfer getDeliveryCommand();
 	
-	int getRequestId();
 	Channel getSourceChannel();
 	
 }

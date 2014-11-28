@@ -3,6 +3,9 @@ package com.nhn.pinpoint.collector.cluster.route;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author koo.taejin <kr14910>
+ */
 public class LoggingFilter {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -14,6 +17,15 @@ public class LoggingFilter {
 			logger.warn("{} doEvent {}.", this.getClass().getSimpleName(), event);
 		}
 
+	}
+	
+	class StreamCreateFilter implements RouteFilter<StreamEvent> {
+
+        @Override
+        public void doEvent(StreamEvent event) {
+            logger.warn("{} doEvent {}.", this.getClass().getSimpleName(), event);
+        }
+	    
 	}
 
 	class ResponseFilter implements RouteFilter<ResponseEvent> {
@@ -27,6 +39,10 @@ public class LoggingFilter {
 
 	public RequestFilter getRequestFilter() {
 		return new RequestFilter();
+	}
+	
+	public StreamCreateFilter getStreamCreateFilter() {
+	    return new StreamCreateFilter();
 	}
 
 	public ResponseFilter getResponseFilter() {

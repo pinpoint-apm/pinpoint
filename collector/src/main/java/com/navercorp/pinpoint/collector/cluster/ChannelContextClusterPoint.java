@@ -11,6 +11,9 @@ import com.nhn.pinpoint.rpc.server.SocketChannel;
 import com.nhn.pinpoint.rpc.util.AssertUtils;
 import com.nhn.pinpoint.rpc.util.MapUtils;
 
+/**
+ * @author koo.taejin <kr14910>
+ */
 public class ChannelContextClusterPoint implements TargetClusterPoint {
 
 	private final ChannelContext channelContext;
@@ -72,6 +75,15 @@ public class ChannelContextClusterPoint implements TargetClusterPoint {
 		return version;
 	}
 
+    public ChannelContext getChannelContext() {
+        return channelContext;
+    }
+    
+    @Override
+    public String toString() {
+        return socketChannel.toString();
+    }
+    
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -82,10 +94,11 @@ public class ChannelContextClusterPoint implements TargetClusterPoint {
 			return false;
 		}
 
-		if (this.channelContext == ((ChannelContextClusterPoint) obj).channelContext) {
+		if (this.getChannelContext() == ((ChannelContextClusterPoint) obj).getChannelContext()) {
 			return true;
 		}
 
 		return false;
 	}
+
 }

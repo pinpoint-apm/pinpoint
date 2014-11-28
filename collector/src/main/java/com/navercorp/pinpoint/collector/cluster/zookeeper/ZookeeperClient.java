@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.nhn.pinpoint.collector.cluster.zookeeper.exception.AuthException;
 import com.nhn.pinpoint.collector.cluster.zookeeper.exception.BadOperationException;
 import com.nhn.pinpoint.collector.cluster.zookeeper.exception.ConnectionException;
+import com.nhn.pinpoint.collector.cluster.zookeeper.exception.NoNodeException;
 import com.nhn.pinpoint.collector.cluster.zookeeper.exception.PinpointZookeeperException;
 import com.nhn.pinpoint.collector.cluster.zookeeper.exception.TimeoutException;
 import com.nhn.pinpoint.collector.cluster.zookeeper.exception.UnknownException;
@@ -82,17 +83,6 @@ public class ZookeeperClient {
 
 		} while (pos < path.length());
 	}
-
-	
-// 이미있는 노드가 괜찮은건지 검사 필요없을거 같긴한데, 혹시나 이건 일단 주석으로
-//	Stat stat = zookeeper.exists(node, false);
-//	if (stat != null) {
-//		byte[] result = zookeeper.getData(node, false, stat);
-//		if (byte[] array같은지 검사) {
-//			return node;
-//		}
-//	}
-
 
 	// 데이터를 어떤식으로 넣지?
 	public String createNode(String znodePath, byte[] data) throws PinpointZookeeperException, InterruptedException {
@@ -224,8 +214,9 @@ public class ZookeeperClient {
 			case NOCHILDRENFOREPHEMERALS:
 			case NOTEMPTY:
 			case NODEEXISTS:
-			case NONODE:
 				throw new BadOperationException(keeperException.getMessage(), keeperException);
+			case NONODE:
+			    throw new NoNodeException(keeperException.getMessage(), keeperException);
 			case OPERATIONTIMEOUT:
 				throw new TimeoutException(keeperException.getMessage(), keeperException);
 			default:
