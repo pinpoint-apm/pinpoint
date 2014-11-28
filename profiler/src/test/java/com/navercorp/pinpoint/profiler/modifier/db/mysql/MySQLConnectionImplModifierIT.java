@@ -1,11 +1,16 @@
 package com.nhn.pinpoint.profiler.modifier.db.mysql;
 
-import com.mysql.jdbc.JDBC4PreparedStatement;
-import com.mysql.jdbc.NonRegisteringDriver;
-import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
-import com.nhn.pinpoint.common.util.PropertyUtils;
-import com.nhn.pinpoint.test.junit4.BasePinpointTest;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.NClob;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Properties;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -14,16 +19,18 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
-import java.sql.*;
-import java.util.Properties;
+import com.mysql.jdbc.JDBC4PreparedStatement;
+import com.mysql.jdbc.NonRegisteringDriver;
+import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
+import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
+import com.nhn.pinpoint.common.util.PropertyUtils;
+import com.nhn.pinpoint.test.junit4.BasePinpointTest;
 
 /**
  * @author emeroad
  */
-public class MySQLConnectionImplModifierTest extends BasePinpointTest {
+@Ignore
+public class MySQLConnectionImplModifierIT extends BasePinpointTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

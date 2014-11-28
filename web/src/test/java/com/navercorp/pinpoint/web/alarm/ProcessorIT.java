@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -25,7 +26,8 @@ import com.nhn.pinpoint.web.vo.ResponseTime;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
-public class ProcessorTest {
+@Ignore
+public class ProcessorIT {
 
     private static final String SERVICE_NAME = "local_tomcat";
     

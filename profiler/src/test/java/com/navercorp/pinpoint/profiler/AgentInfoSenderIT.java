@@ -1,13 +1,15 @@
 package com.nhn.pinpoint.profiler;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
-
 import org.apache.thrift.TException;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +32,8 @@ import com.nhn.pinpoint.thrift.dto.TResult;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 
-public class AgentInfoSenderTest {
+@Ignore
+public class AgentInfoSenderIT {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

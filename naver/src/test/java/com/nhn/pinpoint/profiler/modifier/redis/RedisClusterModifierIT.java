@@ -16,7 +16,7 @@ import com.nhncorp.redis.cluster.RedisCluster;
 import com.nhncorp.redis.cluster.gateway.GatewayClient;
 import com.nhncorp.redis.cluster.gateway.GatewayConfig;
 
-public class RedisClusterModifierTest extends BasePinpointTest {
+public class RedisClusterModifierIT extends BasePinpointTest {
     private static final String HOST = "10.99.116.91";
     private static final int PORT = 6390;
     private static final String ZK_ADDRESS = "dev.xnbasearc.navercorp.com:2181";

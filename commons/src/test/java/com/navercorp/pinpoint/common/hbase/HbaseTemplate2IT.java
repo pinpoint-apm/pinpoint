@@ -1,26 +1,29 @@
 package com.nhn.pinpoint.common.hbase;
 
-import com.nhn.pinpoint.common.util.PropertyUtils;
+import java.io.IOException;
+import java.util.Properties;
+
 import junit.framework.Assert;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableNotFoundException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.hadoop.hbase.HbaseConfigurationFactoryBean;
 import org.springframework.data.hadoop.hbase.HbaseSystemException;
 
-import java.io.IOException;
-import java.util.Properties;
+import com.nhn.pinpoint.common.util.PropertyUtils;
 
 
 /**
  * @author emeroad
  */
-public class HbaseTemplate2Test {
+public class HbaseTemplate2IT {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static HbaseConfigurationFactoryBean hbaseConfigurationFactoryBean;
@@ -47,6 +50,7 @@ public class HbaseTemplate2Test {
 
 
     @Test
+    @Ignore
     public void notExist() throws Exception {
 
         HbaseTemplate2 hbaseTemplate2 = new HbaseTemplate2();

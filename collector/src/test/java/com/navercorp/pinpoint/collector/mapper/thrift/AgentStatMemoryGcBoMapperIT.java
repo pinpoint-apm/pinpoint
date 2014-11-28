@@ -1,7 +1,9 @@
 package com.nhn.pinpoint.collector.mapper.thrift;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +20,8 @@ import com.nhn.pinpoint.thrift.dto.TJvmGcType;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
-public class AgentStatMemoryGcBoMapperTest {
+@Ignore
+public class AgentStatMemoryGcBoMapperIT {
 
     @Autowired
     private AgentStatMemoryGcBoMapper mapper;

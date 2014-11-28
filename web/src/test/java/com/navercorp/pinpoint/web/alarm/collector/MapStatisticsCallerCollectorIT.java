@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.web.alarm.collector;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,8 @@ import com.nhn.pinpoint.web.vo.Range;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
-public class MapStatisticsCallerCollectorTest {
+@Ignore
+public class MapStatisticsCallerCollectorIT {
     
     @Autowired
     HbaseMapStatisticsCallerDao callerDao;

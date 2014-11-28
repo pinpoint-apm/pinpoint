@@ -10,6 +10,7 @@ import java.util.Map;
 
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -31,7 +32,8 @@ import com.nhn.pinpoint.rpc.server.SocketChannel;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
-public class ClusterPointRouterTest {
+@Ignore
+public class ClusterPointRouterIT {
 
 	private static final int DEFAULT_ACCEPTOR_SOCKET_PORT = 22215;
 

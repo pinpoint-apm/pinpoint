@@ -1,25 +1,32 @@
 package com.nhn.pinpoint.profiler.modifier.db.jtds;
 
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.List;
+import java.util.Properties;
+
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
 import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
 import com.nhn.pinpoint.common.bo.SpanEventBo;
 import com.nhn.pinpoint.common.util.PropertyUtils;
 import com.nhn.pinpoint.test.junit4.BasePinpointTest;
 
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.sql.*;
-import java.util.List;
-import java.util.Properties;
-
 /**
  * @author emeroad
  */
-public class JtdsConnectionTest extends BasePinpointTest {
+@Ignore
+public class JtdsConnectionIT extends BasePinpointTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
