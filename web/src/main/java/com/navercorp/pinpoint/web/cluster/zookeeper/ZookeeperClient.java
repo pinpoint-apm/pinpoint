@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.nhn.pinpoint.web.cluster.zookeeper.exception.AuthException;
 import com.nhn.pinpoint.web.cluster.zookeeper.exception.BadOperationException;
 import com.nhn.pinpoint.web.cluster.zookeeper.exception.ConnectionException;
+import com.nhn.pinpoint.web.cluster.zookeeper.exception.NoNodeException;
 import com.nhn.pinpoint.web.cluster.zookeeper.exception.PinpointZookeeperException;
 import com.nhn.pinpoint.web.cluster.zookeeper.exception.TimeoutException;
 import com.nhn.pinpoint.web.cluster.zookeeper.exception.UnknownException;
@@ -174,8 +175,9 @@ public class ZookeeperClient {
 			case NOCHILDRENFOREPHEMERALS:
 			case NOTEMPTY:
 			case NODEEXISTS:
+			    throw new BadOperationException(keeperException.getMessage(), keeperException);
 			case NONODE:
-				throw new BadOperationException(keeperException.getMessage(), keeperException);
+			    throw new NoNodeException(keeperException.getMessage(), keeperException);
 			case OPERATIONTIMEOUT:
 				throw new TimeoutException(keeperException.getMessage(), keeperException);
 			default:

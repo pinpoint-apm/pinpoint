@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import com.nhn.pinpoint.rpc.util.TimerFactory;
 import com.nhn.pinpoint.web.cluster.ClusterManager;
 import com.nhn.pinpoint.web.cluster.CollectorClusterInfoRepository;
+import com.nhn.pinpoint.web.cluster.zookeeper.exception.NoNodeException;
 
 /**
  * @author koo.taejin <kr14910>
@@ -279,13 +280,16 @@ public class ZookeeperClusterManager implements ClusterManager, Watcher {
 	}
 	
 	private boolean syncCollectorCluster(String id) {
+	    String path = bindingPathAndZnode(PINPOINT_COLLECTOR_CLUSTER_PATH, id);
 		synchronized (this) {
 			try {
-				String key = bindingPathAndZnode(PINPOINT_COLLECTOR_CLUSTER_PATH, id);
-				byte[] data = client.getData(key, true);
+				byte[] data = client.getData(path, true);
 				
 				collectorClusterInfo.put(id, data);
 				return true;
+			} catch(NoNodeException e) {
+                logger.warn("No node path({}).", path);
+			    collectorClusterInfo.remove(id);
 			} catch (Exception e) {
 				logger.warn(e.getMessage(), e);
 			}
