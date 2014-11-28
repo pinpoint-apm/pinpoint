@@ -13,6 +13,8 @@ import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.client.MessageListener;
 import com.nhn.pinpoint.rpc.client.PinpointSocket;
 import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
+import com.nhn.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListener;
+import com.nhn.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
 
 /**
  * @author koo.taejin <kr14910>
@@ -25,15 +27,20 @@ public class WebCluster implements Cluster {
 	private final Map<InetSocketAddress, PinpointSocket> clusterRepository = new HashMap<InetSocketAddress, PinpointSocket>();
 
 	public WebCluster(String id, MessageListener messageListener) {
-		this.factory = new PinpointSocketFactory();
-		this.factory.setTimeoutMillis(1000 * 5);
-		this.factory.setMessageListener(messageListener);
-
-		Map<String, Object> properties = new HashMap<String, Object>();
-		properties.put("id", id);
-		
-		factory.setProperties(properties);
+	    this(id, messageListener, DisabledServerStreamChannelMessageListener.INSTANCE);
 	}
+
+    public WebCluster(String id, MessageListener messageListener, ServerStreamChannelMessageListener serverStreamChannelMessageListener) {
+        this.factory = new PinpointSocketFactory();
+        this.factory.setTimeoutMillis(1000 * 5);
+        this.factory.setMessageListener(messageListener);
+        this.factory.setServerStreamChannelMessageListener(serverStreamChannelMessageListener);
+        
+        Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put("id", id);
+
+        factory.setProperties(properties);
+    }
 
 	// Not safe for use by multiple threads.
 	public void connectPointIfAbsent(InetSocketAddress address) {

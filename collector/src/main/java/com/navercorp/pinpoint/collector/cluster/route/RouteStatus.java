@@ -1,5 +1,8 @@
 package com.nhn.pinpoint.collector.cluster.route;
 
+/**
+ * @author koo.taejin <kr14910>
+ */
 public enum RouteStatus {
 
 	OK(0, "OK"),
@@ -8,9 +11,15 @@ public enum RouteStatus {
 
 	NOT_FOUND(404, " Target Route Agent Not Found."),
 
-	NOT_ACCEPTABLE(406, "Target Route Agent Not Acceptable Command."),
+	NOT_ACCEPTABLE(406, "Target Route Agent Not Acceptable."),
 	
-	AGENT_TIMEOUT(504, "Target Route Agent Timeout");
+	NOT_ACCEPTABLE_UNKNOWN(450, "Target Route Agent Not Acceptable."),
+    NOT_ACCEPTABLE_COMMAND(451, "Target Route Agent Not Acceptable command."),
+    NOT_ACCEPTABLE_AGENT_TYPE(452, "Target Route Agent Not Acceptable agent type.."),
+	
+	AGENT_TIMEOUT(504, "Target Route Agent Timeout"),
+	
+	CLOSED(606, "Target Route Agent Closed.");
 
 	private final int value;
 

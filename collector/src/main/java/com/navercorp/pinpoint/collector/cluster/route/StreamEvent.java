@@ -1,38 +1,41 @@
 package com.nhn.pinpoint.collector.cluster.route;
 
 import org.apache.thrift.TBase;
-import org.jboss.netty.channel.Channel;
 
+import com.nhn.pinpoint.rpc.stream.ServerStreamChannelContext;
 import com.nhn.pinpoint.thrift.dto.command.TCommandTransfer;
 
 /**
  * @author koo.taejin <kr14910>
  */
-public class RequestEvent extends DefaultRouteEvent {
+public class StreamEvent extends DefaultRouteEvent {
 
-    private final int requestId;
-
+    private final ServerStreamChannelContext streamChannelContext;
     private final TBase requestObject;
-
-    public RequestEvent(RouteEvent routeEvent, int requestId, TBase requestObject) {
-        this(routeEvent.getDeliveryCommand(), routeEvent.getSourceChannel(), requestId, requestObject);
+    
+    public StreamEvent(RouteEvent routeEvent, ServerStreamChannelContext streamChannelContext, TBase requestObject) {
+        this(routeEvent.getDeliveryCommand(), streamChannelContext, requestObject);
     }
 
-    public RequestEvent(TCommandTransfer deliveryCommand, Channel sourceChannel, int requestId, TBase requestObject) {
-        super(deliveryCommand, sourceChannel);
+    public StreamEvent(TCommandTransfer deliveryCommand, ServerStreamChannelContext streamChannelContext, TBase requestObject) {
+        super(deliveryCommand, streamChannelContext.getStreamChannel().getChannel());
 
-        this.requestId = requestId;
+        this.streamChannelContext = streamChannelContext;
         this.requestObject = requestObject;
     }
 
-    public int getRequestId() {
-        return requestId;
+    public ServerStreamChannelContext getStreamChannelContext() {
+        return streamChannelContext;
+    }
+    
+    public int getStreamChannelId() {
+        return getStreamChannelContext().getStreamId();
     }
 
     public TBase getRequestObject() {
         return requestObject;
     }
-
+    
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
@@ -42,7 +45,8 @@ public class RequestEvent extends DefaultRouteEvent {
         sb.append("applicationName=").append(getDeliveryCommand().getApplicationName()).append(",");
         sb.append("agentId=").append(getDeliveryCommand().getAgentId()).append(",");
         sb.append("startTimeStamp=").append(getDeliveryCommand().getStartTime());
-        sb.append("requestId=").append(requestId);
+        sb.append("streamChannelContext=").append(getStreamChannelContext());
+        sb.append("streamChannelId=").append(getStreamChannelId());
         sb.append("requestObject=").append(requestObject);
         sb.append('}');
         return sb.toString();

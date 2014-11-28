@@ -1,8 +1,10 @@
 package com.nhn.pinpoint.collector.cluster.route;
 
 import com.nhn.pinpoint.rpc.ResponseMessage;
-import com.nhn.pinpoint.rpc.util.AssertUtils;
 
+/**
+ * @author koo.taejin <kr14910>
+ */
 public class RouteResult {
 
 	private final RouteStatus status;
@@ -15,10 +17,6 @@ public class RouteResult {
 	public RouteResult(RouteStatus status, ResponseMessage responseMessage) {
 		this.status = status;
 		this.responseMessage = responseMessage;
-
-		if (RouteStatus.OK == status) {
-			AssertUtils.assertNotNull(responseMessage, "ResponseMessage may not be null.");
-		}
 	}
 
 	public RouteStatus getStatus() {
