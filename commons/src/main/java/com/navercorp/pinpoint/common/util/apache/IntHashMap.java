@@ -35,7 +35,6 @@ package com.nhn.pinpoint.common.util.apache;
  * @version $Revision$
  * @see java.util.HashMap
  */
-// 내부 튜닝용 가져다 사용하지 말것
 public class IntHashMap<T> {
 
     /**
