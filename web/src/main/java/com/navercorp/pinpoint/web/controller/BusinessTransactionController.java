@@ -17,6 +17,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
@@ -61,8 +62,10 @@ public class BusinessTransactionController {
 	 * @param to
 	 * @return
 	 */
+    @Deprecated
 	@RequestMapping(value = "/transactionList", method = RequestMethod.GET)
-	public String getBusinessTransactionsData(Model model,
+    @ResponseBody
+	public Model getBusinessTransactionsData(Model model,
 											@RequestParam("application") String applicationName,
 											@RequestParam("from") long from, 
 											@RequestParam("to") long to,
@@ -87,12 +90,14 @@ public class BusinessTransactionController {
 		model.addAttribute("totalCount", selectBusinessTransactions.getTotalCallCount());
 		model.addAttribute("filterText", filterText);
 		model.addAttribute("filter", filter);
-		
-		return "transactionList";
+        // Deprecated jsp -> need json dump
+		return model;
 	}
 
+    @Deprecated
 	@RequestMapping(value = "/lastTransactionList", method = RequestMethod.GET)
-	public String getLastBusinessTransactionsData(Model model, HttpServletResponse response,
+    @ResponseBody
+	public Model getLastBusinessTransactionsData(Model model, HttpServletResponse response,
 											@RequestParam("application") String applicationName, 
 											@RequestParam("period") long period,
 											@RequestParam(value = "filter", required = false) String filterText,
@@ -111,61 +116,55 @@ public class BusinessTransactionController {
      * @return
      */
     @RequestMapping(value = "/transactionInfo", method = RequestMethod.GET)
-    public ModelAndView transactionInfo(@RequestParam("traceId") String traceIdParam, @RequestParam("focusTimestamp") long focusTimestamp,
-                                        // FIXME jsonResult는 UI 개발 편의를 위해 임시로 추가된 변수 임. 나중에 제거.
-                                        // 기존 html view에서 json을 넘어가는 중임.
-                                        @RequestParam(value = "jsonResult", required = false, defaultValue = "false") boolean jsonResult,
-                                        @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion) {
+    public ModelAndView transactionInfo(@RequestParam("traceId") String traceIdParam,
+                                        @RequestParam(value = "focusTimestamp", required = false, defaultValue = "0") long focusTimestamp,
+                                        @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion,
+                                        HttpServletResponse response) {
         logger.debug("traceId:{}", traceIdParam);
 
         final TransactionId traceId = new TransactionId(traceIdParam);
 
-        ModelAndView mv = new ModelAndView("transactionInfo");
+        // select spans
+        final SpanResult spanResult = this.spanService.selectSpan(traceId, focusTimestamp);
+        List<SpanAlign> spanAligns = spanResult.getSpanAlignList();
 
-        try {
-            // select spans
-            final SpanResult spanResult = this.spanService.selectSpan(traceId, focusTimestamp);
-            List<SpanAlign> spanAligns = spanResult.getSpanAlignList();
-
-            if (spanAligns.isEmpty()) {
-                mv.addObject("errorCode", 9);
-                mv.setViewName("error");
-                return mv;
-            }
-
-            // debug
-            mv.addObject("spanList", spanAligns);
-
-            mv.addObject("traceId", traceId);
-
-			// application map
-			ApplicationMap map = filteredMapService.selectApplicationMap(traceId);
-			mv.addObject("nodes", map.getNodes());
-			mv.addObject("links", map.getLinks());
-
-            // call stacks
-            RecordSet recordSet = this.transactionInfoService.createRecordSet(spanAligns, focusTimestamp);
-            mv.addObject("recordSet", recordSet);
-
-            mv.addObject("applicationName", recordSet.getApplicationName());
-            mv.addObject("callstack", recordSet.getRecordList());
-            mv.addObject("timeline", recordSet.getRecordList());
-            mv.addObject("callstackStart", recordSet.getStartTime());
-            mv.addObject("callstackEnd", recordSet.getEndTime());
-            mv.addObject("completeState", spanResult.getCompleteTypeString());
-        } catch (Exception e) {
-            logger.warn("BusinessTransactionController Error Cause" + e.getMessage(), e);
-            // TODO 아무래도 다시 던져야 될듯한데. Exception처리 정책을 생각해봐야 한다.
-            // throw e;
+        if (spanAligns.isEmpty()) {
+            // TODO fix error page.
+            final ModelAndView error = new ModelAndView();
+            // redefine errorCode.???
+            error.addObject("errorCode", 9);
+            error.addObject("message", "Trace not found. traceId:" + traceId);
+            error.setViewName("error");
+            return error;
         }
 
-        // FIXME jsonResult는 UI 개발 편의를 위해 임시로 추가된 변수 임. 나중에 제거.
-        if (jsonResult) {
-            if (viewVersion == 2) {
-                mv.setViewName("transactionInfoJsonHash");
-            } else {
-                mv.setViewName("transactionInfoJson");
-            }
+        final ModelAndView mv = new ModelAndView();
+        // debug
+        mv.addObject("spanList", spanAligns);
+
+        mv.addObject("traceId", traceId);
+
+        // application map
+        ApplicationMap map = filteredMapService.selectApplicationMap(traceId);
+        mv.addObject("nodes", map.getNodes());
+        mv.addObject("links", map.getLinks());
+
+        // call stacks
+        RecordSet recordSet = this.transactionInfoService.createRecordSet(spanAligns, focusTimestamp);
+        mv.addObject("recordSet", recordSet);
+
+        mv.addObject("applicationName", recordSet.getApplicationName());
+        mv.addObject("callstack", recordSet.getRecordList());
+        mv.addObject("timeline", recordSet.getRecordList());
+        mv.addObject("callstackStart", recordSet.getStartTime());
+        mv.addObject("callstackEnd", recordSet.getEndTime());
+        mv.addObject("completeState", spanResult.getCompleteTypeString());
+
+
+        if (viewVersion == 2) {
+            mv.setViewName("transactionInfoJsonHash");
+        } else {
+            mv.setViewName("transactionInfoJson");
         }
         return mv;
     }

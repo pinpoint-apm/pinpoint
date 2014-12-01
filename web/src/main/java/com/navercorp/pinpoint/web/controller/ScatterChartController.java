@@ -53,6 +53,7 @@ public class ScatterChartController {
     private static final String PREFIX_TIME = "T";
     private static final String PREFIX_RESPONSE_TIME = "R";
 
+    @Deprecated
 	@RequestMapping(value = "/scatterpopup", method = RequestMethod.GET)
 	public String scatterPopup(Model model,
 								@RequestParam("application") String applicationName,
