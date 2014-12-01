@@ -103,7 +103,6 @@ pinpointApp.service('TransactionDao', [ 'TransactionDaoConfig','$timeout', 'WebS
                 cache: false,
                 dataType: 'json',
                 data: {
-                    jsonResult: true,
                     traceId: traceId,
                     focusTimestamp: focusTimestamp
                 },
