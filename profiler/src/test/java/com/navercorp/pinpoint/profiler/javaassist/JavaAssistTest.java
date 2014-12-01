@@ -69,9 +69,7 @@ public class JavaAssistTest {
 
     private void sout(String str) {
         URL resource = this.getClass().getClassLoader().getResource(str);
-        logger.info("" + resource);
-
-//        new URLClassLoader()
+        logger.info("{}", resource);
     }
 
     @Test
@@ -105,13 +103,13 @@ public class JavaAssistTest {
         logger.debug(testClass.toString());
         CtClass[] nestedClasses = testClass.getNestedClasses();
         for(CtClass nested : nestedClasses) {
-            logger.debug("nestedClass:" + nested);
+            logger.debug("nestedClass:{}", nested);
         }
 
         CtClass innerClass = pool.get("com.nhn.pinpoint.profiler.javaassist.TestClass$InnerClass");
-        logger.debug(""+ innerClass);
+        logger.debug("{}", innerClass);
 
         CtClass class1 = pool.get("com.nhn.pinpoint.profiler.javaassist.TestClass$1");
-        logger.debug(""+ class1);
+        logger.debug("{}", class1);
     }
 }

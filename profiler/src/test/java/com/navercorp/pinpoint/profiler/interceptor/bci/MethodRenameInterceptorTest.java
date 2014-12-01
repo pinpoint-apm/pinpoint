@@ -1,55 +1,52 @@
 package com.nhn.pinpoint.profiler.interceptor.bci;
 
+import com.nhn.pinpoint.profiler.util.LoaderUtils;
 import javassist.*;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
  * @author emeroad
  */
 public class MethodRenameInterceptorTest {
-    @Test
-    public void methodRename() {
-        // Method rename을 사용해서 local 변수를 공유하는 방법의 경우 call stack이 변경되는 문제점이있다.
-        try {
-            String methodName = "callA";
-            String objectName = "TestObject";
-            // start by getting the class file and method
-            CtClass clas = ClassPool.getDefault().get(objectName);
-            if (clas == null) {
-                System.err.println("Class " + objectName + " not found");
-            } else {
-                // add timing interceptor to the class
-                addTiming(clas, methodName);
-                clas.writeFile("debug");
-                System.out.println("Added timing to method " + objectName + "." + methodName);
 
-            }
-            Class aClass = clas.toClass();
-            Object o = aClass.newInstance();
-            Method method = o.getClass().getMethod(methodName);
-            Object invoke = method.invoke(o);
-        } catch (CannotCompileException ex) {
-            ex.printStackTrace();
-        } catch (NotFoundException ex) {
-            ex.printStackTrace();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (InstantiationException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+
+    @Test
+    public void methodRename() throws Exception {
+        // Method rename을 사용해서 local 변수를 공유하는 방법의 경우 call stack이 변경되는 문제점이있다.
+        String methodName = "callA";
+        String objectName = "com.nhn.pinpoint.profiler.interceptor.bci.TestObject";
+        // start by getting the class file and method
+
+        final ClassPool classPool = new ClassPool(true);
+        final Loader loader = getLoader(classPool);
+
+        CtClass ctClazz = classPool.get(objectName);
+
+        // add timing interceptor to the class
+        addTiming(ctClazz, methodName);
+        logger.debug("Added timing to method {}.{}", objectName, methodName);
+
+        Class aClass = loader.loadClass(objectName);
+        Object o = aClass.newInstance();
+        Method method = o.getClass().getMethod(methodName);
+        Object result = method.invoke(o);
+
     }
 
-    private static void addTiming(CtClass clas, String mname)
+    /**
+     * https://github.com/yangwm/JavaLearn/blob/master/reflect.src/jdyn/javassist/JassistTiming.java
+     * @param clas
+     * @param mname
+     * @throws NotFoundException
+     * @throws CannotCompileException
+     */
+    private void addTiming(CtClass clas, String mname)
             throws NotFoundException, CannotCompileException {
 
         //  get the method information (throws exception if method with
@@ -90,9 +87,12 @@ public class MethodRenameInterceptorTest {
         mnew.setBody(body.toString());
         clas.addMethod(mnew);
         //  print the generated code block just to show what was done
-        System.out.println("Interceptor method body:");
-        System.out.println(body.toString());
+        logger.debug("Interceptor method body:");
+        logger.debug("body:{}", body.toString());
+    }
 
+    private Loader getLoader(ClassPool pool) {
+        return LoaderUtils.createLoader(pool);
     }
 
 }

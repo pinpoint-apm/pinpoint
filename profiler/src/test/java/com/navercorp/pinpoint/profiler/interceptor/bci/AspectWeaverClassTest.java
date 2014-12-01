@@ -1,5 +1,6 @@
 package com.nhn.pinpoint.profiler.interceptor.bci;
 
+import com.nhn.pinpoint.profiler.util.LoaderUtils;
 import javassist.*;
 import junit.framework.Assert;
 import org.junit.Test;
@@ -23,7 +24,7 @@ public class AspectWeaverClassTest {
 	public Object createAspect(String originalName, String aspectName)  {
 		try {
 			ClassPool classPool = new ClassPool(true);
-			Loader loader = new Loader(classPool);
+			Loader loader = getLoader(classPool);
 
 			CtClass ctOriginal = classPool.get(originalName);
 			CtClass ctAdvice = classPool.get(aspectName);
@@ -38,6 +39,10 @@ public class AspectWeaverClassTest {
 			throw new RuntimeException(e.getMessage(), e);
 		}
 	}
+
+    private Loader getLoader(ClassPool pool) {
+        return LoaderUtils.createLoader(pool);
+    }
 
 	private Object createDefaultAspect() {
 		return createAspect(ORIGINAL, ASPECT);
