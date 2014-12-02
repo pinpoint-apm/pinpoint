@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.nhn.pinpoint.bootstrap.util.spring;
 
 import java.util.HashMap;
@@ -29,6 +28,8 @@ import java.util.logging.Logger;
  * {@code ${name}}. Using {@code PropertyPlaceholderHelper} these placeholders can be substituted for
  * user-supplied values. <p> Values for substitution can be supplied using a {@link Properties} instance or
  * using a {@link PlaceholderResolver}.
+ *
+ * pinpoint copy : https://github.com/spring-projects/spring-framework/blob/master/spring-core/src/main/java/org/springframework/util/PropertyPlaceholderHelper.java
  *
  * @author Juergen Hoeller
  * @author Rob Harrop
