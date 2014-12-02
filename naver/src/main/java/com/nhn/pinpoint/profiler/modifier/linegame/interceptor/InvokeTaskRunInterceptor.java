@@ -364,7 +364,6 @@ public class InvokeTaskRunInterceptor extends SpanSimpleAroundInterceptor implem
      * request uri에서 query string 추출 (복잡한 처리 없이 그냥 ? 뒤로 붙어있는 문자열만 추출.)
      *
      * @param request
-     * @param eachLimit
      * @param totalLimit
      * @return
      */
