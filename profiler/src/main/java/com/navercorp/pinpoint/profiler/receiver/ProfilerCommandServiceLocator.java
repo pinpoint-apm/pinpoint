@@ -12,5 +12,7 @@ public interface ProfilerCommandServiceLocator {
 	ProfilerSimpleCommandService getSimpleService(TBase tBase);
 
 	ProfilerRequestCommandService getRequestService(TBase tBase);
+	
+	ProfilerStreamCommandService getStreamService(TBase tBase);
 
 }

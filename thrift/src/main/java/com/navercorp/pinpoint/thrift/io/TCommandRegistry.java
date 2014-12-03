@@ -1,9 +1,8 @@
 package com.nhn.pinpoint.thrift.io;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
@@ -13,15 +12,13 @@ import org.apache.thrift.TException;
  */
 public class TCommandRegistry implements TBaseLocator {
 
-	private final Map<Short, TCommandType> commandTBaseRepository;
+	private final ConcurrentHashMap<Short, TCommandType> commandTBaseRepository = new ConcurrentHashMap<Short, TCommandType>();
 
 	public TCommandRegistry(TCommandTypeVersion version) {
 		this(version.getSupportCommandList());
 	}
 	
 	public TCommandRegistry(List<TCommandType> supportCommandList) {
-		commandTBaseRepository = new HashMap<Short, TCommandType>(supportCommandList.size());
-
 		for (TCommandType type : supportCommandList) {
 			commandTBaseRepository.put(type.getType(), type);
 		}
@@ -30,7 +27,6 @@ public class TCommandRegistry implements TBaseLocator {
 	@Override
 	public TBase<?, ?> tBaseLookup(short type) throws TException {
 		TCommandType commandTBaseType = commandTBaseRepository.get(type);
-
 		if (commandTBaseType == null) {
 	        throw new TException("Unsupported type:" + type);
 		}

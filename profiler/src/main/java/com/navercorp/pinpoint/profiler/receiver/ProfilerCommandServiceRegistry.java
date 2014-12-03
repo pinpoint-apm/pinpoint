@@ -1,7 +1,6 @@
 package com.nhn.pinpoint.profiler.receiver;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
@@ -14,27 +13,24 @@ public class ProfilerCommandServiceRegistry implements ProfilerCommandServiceLoc
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private final Map<Class<? extends TBase>, ProfilerCommandService> profilerCommandServiceRepository;
+	private final ConcurrentHashMap<Class<? extends TBase>, ProfilerCommandService> profilerCommandServiceRepository;
 
 	public ProfilerCommandServiceRegistry() {
-		profilerCommandServiceRepository = new HashMap<Class<? extends TBase>, ProfilerCommandService>();
+		profilerCommandServiceRepository = new ConcurrentHashMap<Class<? extends TBase>, ProfilerCommandService>();
 	}
-
-	/**
-	 * not guarantee thread safe.
-	 */
 	
 	public boolean addService(ProfilerCommandService service) {
 		return addService(service.getCommandClazz(), service);
 	}
 	
 	public boolean addService(Class<? extends TBase> clazz, ProfilerCommandService service) {
-		if (profilerCommandServiceRepository.containsKey(clazz)) {
-			logger.warn("Already Register Type({}).", clazz.getName());
-			return false;
-		}
-
-		profilerCommandServiceRepository.put(clazz, service);
+	    ProfilerCommandService inValue = profilerCommandServiceRepository.putIfAbsent(clazz, service);
+	    
+	    if (inValue != null) {
+            logger.warn("Already Register Type({}).", clazz.getName());
+            return false;
+	    }
+	    
 		return true;
 	}
 
@@ -63,6 +59,17 @@ public class ProfilerCommandServiceRegistry implements ProfilerCommandServiceLoc
 		}
 		
 		return null;
+	}
+	
+	@Override
+	public ProfilerStreamCommandService getStreamService(TBase tBase) {
+        ProfilerCommandService service = profilerCommandServiceRepository.get(tBase.getClass());
+        
+        if (service instanceof ProfilerStreamCommandService) {
+            return (ProfilerStreamCommandService) service;
+        }
+        
+        return null;
 	}
 
 }
