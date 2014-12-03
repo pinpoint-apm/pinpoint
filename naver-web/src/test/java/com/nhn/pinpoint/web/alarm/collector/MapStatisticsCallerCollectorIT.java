@@ -19,7 +19,6 @@ import com.nhn.pinpoint.web.vo.Range;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
-@Ignore
 public class MapStatisticsCallerCollectorIT {
     
     @Autowired

@@ -18,7 +18,6 @@ import com.nhn.pinpoint.web.alarm.vo.Rule;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
-@Ignore
 public class MySqlAlarmResourceDaoIT {
 
     @Autowired

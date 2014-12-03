@@ -26,7 +26,6 @@ import com.nhn.pinpoint.web.vo.ResponseTime;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
-@Ignore
 public class ProcessorIT {
 
     private static final String SERVICE_NAME = "local_tomcat";
