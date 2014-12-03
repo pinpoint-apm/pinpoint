@@ -20,7 +20,6 @@ import com.nhn.pinpoint.web.vo.Range;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-web.xml")
-@Ignore
 public class HbaseAgentStatDaoIT {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
