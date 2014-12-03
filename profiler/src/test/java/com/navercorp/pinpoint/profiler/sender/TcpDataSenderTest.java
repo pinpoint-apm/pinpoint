@@ -13,7 +13,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.profiler.receiver.CommandDispatcher;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.client.PinpointSocket;
 import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
@@ -77,7 +76,6 @@ public class TcpDataSenderTest {
         this.sendLatch = new CountDownLatch(2);
 
         PinpointSocketFactory socketFactory = createPinpointSocketFactory();
-        socketFactory.setMessageListener(new CommandDispatcher.Builder().build());
         
         PinpointSocket socket = createPinpointSocket(HOST, PORT, socketFactory);
         

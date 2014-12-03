@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.bootstrap.context.ServerMetaDataHolder;
 import com.nhn.pinpoint.profiler.context.DefaultServerMetaDataHolder;
-import com.nhn.pinpoint.profiler.receiver.CommandDispatcher;
 import com.nhn.pinpoint.profiler.sender.TcpDataSender;
 import com.nhn.pinpoint.rpc.PinpointSocketException;
 import com.nhn.pinpoint.rpc.client.PinpointSocket;
@@ -290,7 +289,6 @@ public class AgentInfoSenderIT {
         PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
         pinpointSocketFactory.setTimeoutMillis(1000 * 5);
         pinpointSocketFactory.setProperties(Collections.<String, Object>emptyMap());
-        pinpointSocketFactory.setMessageListener(new CommandDispatcher.Builder().build());
 
         return pinpointSocketFactory;
     }
