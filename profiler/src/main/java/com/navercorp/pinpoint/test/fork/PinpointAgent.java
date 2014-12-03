@@ -10,6 +10,6 @@ import com.nhn.pinpoint.common.Version;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface PinpointAgent {
-    String value() default "build/pinpoint-agent";
+    String value() default "target/pinpoint-agent";
     String version() default Version.VERSION; 
 }

@@ -55,7 +55,7 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
     }
     
     private String resolveAgentPath(PinpointAgent agent) {
-        String path = agent == null ? "build/pinpoint-agent" : agent.value();
+        String path = agent == null ? "target/pinpoint-agent" : agent.value();
         String version = agent == null ? Version.VERSION : agent.version(); 
         String relativePath = path + (!path.endsWith("/") ? "/" : "") + "pinpoint-bootstrap-" + version + ".jar";
 
