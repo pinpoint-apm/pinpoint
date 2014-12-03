@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
-import com.nhn.pinpoint.profiler.receiver.CommandDispatcher;
 import com.nhn.pinpoint.profiler.sender.DataSender;
 import com.nhn.pinpoint.profiler.sender.TcpDataSender;
 import com.nhn.pinpoint.profiler.sender.UdpDataSender;
@@ -103,7 +102,6 @@ public class NetworkAvailabilityChecker implements PinpointTools {
         PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
         pinpointSocketFactory.setTimeoutMillis(1000 * 5);
         pinpointSocketFactory.setProperties(Collections.<String, Object>emptyMap());
-        pinpointSocketFactory.setMessageListener(new CommandDispatcher.Builder().build());
 
         return pinpointSocketFactory;
     }
