@@ -7,8 +7,8 @@
         <version>1.0.4-SNAPSHOT</version>
     </parent>
 
-    <artifactId>pinpoint-agent</artifactId>
-    <name>pinpoint agent distribution</name>
+    <artifactId>pinpoint-naver-agent</artifactId>
+    <name>pinpoint agent distribution for Naver</name>
     <packaging>jar</packaging>
     
     <properties>
@@ -18,22 +18,13 @@
     <dependencies>
         <dependency>
             <groupId>com.nhn.pinpoint</groupId>
-            <artifactId>pinpoint-profiler</artifactId>
+            <artifactId>pinpoint-agent</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.nhn.pinpoint</groupId>
-            <artifactId>pinpoint-profiler-optional</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <scope>test</scope>
+            <artifactId>pinpoint-naver</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
@@ -107,7 +98,7 @@
                             <outputDirectory>${distribution.directory}</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>${basedir}/src/main/resources</directory>
+                                    <directory>${basedir}/src/main/resources-${env}</directory>
                                 </resource>
                             </resources>
                         </configuration>
