@@ -30,6 +30,8 @@ import com.nhn.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
 import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.nhn.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.nhn.pinpoint.profiler.receiver.CommandDispatcher;
+import com.nhn.pinpoint.profiler.receiver.service.EchoService;
+import com.nhn.pinpoint.profiler.receiver.service.ThreadDumpService;
 import com.nhn.pinpoint.profiler.sampler.SamplerFactory;
 import com.nhn.pinpoint.profiler.sender.BufferedUdpDataSender;
 import com.nhn.pinpoint.profiler.sender.DataSender;
@@ -119,7 +121,11 @@ public class DefaultAgent implements Agent {
         this.agentInformation = agentInformationFactory.createAgentInformation(typeResolver.getServerType());
         logger.info("agentInformation:{}", agentInformation);
 
-        this.factory = createPinpointSocketFactory(this.profilerConfig.isTcpDataSenderCommandAcceptEnable());
+        CommandDispatcher commandDispatcher = new CommandDispatcher();
+        commandDispatcher.registerCommandService(new ThreadDumpService());
+        commandDispatcher.registerCommandService(new EchoService());
+        
+        this.factory = createPinpointSocketFactory(commandDispatcher);
         this.socket = createPinpointSocket(this.profilerConfig.getCollectorTcpServerIp(), this.profilerConfig.getCollectorTcpServerPort(), factory);
 
         this.serverMetaDataHolder = createServerMetaDataHolder();
@@ -247,15 +253,17 @@ public class DefaultAgent implements Agent {
         return serverMetaDataHolder;
     }
 
-    protected PinpointSocketFactory createPinpointSocketFactory(boolean isSupportServerMode) {
-
+    protected PinpointSocketFactory createPinpointSocketFactory(CommandDispatcher commandDispatcher) {
     	PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
         pinpointSocketFactory.setTimeoutMillis(1000 * 5);
 
         Map<String, Object> properties = this.agentInformation.toMap();
+        
+        boolean isSupportServerMode = this.profilerConfig.isTcpDataSenderCommandAcceptEnable();
+        
         if (isSupportServerMode) {
-        	CommandDispatcher.Builder builder = new CommandDispatcher.Builder();
-        	pinpointSocketFactory.setMessageListener(builder.build());
+        	pinpointSocketFactory.setMessageListener(commandDispatcher);
+        	pinpointSocketFactory.setServerStreamChannelMessageListener(commandDispatcher);
 
         	properties.put(AgentHandshakePropertyType.SUPPORT_SERVER.getName(), true);
         } else {
