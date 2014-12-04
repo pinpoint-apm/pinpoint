@@ -41,7 +41,6 @@
         <module>rpc</module>
         <module>thrift</module>
         <module>web</module>
-        <module>naver</module>
     </modules>
 
     <properties>
