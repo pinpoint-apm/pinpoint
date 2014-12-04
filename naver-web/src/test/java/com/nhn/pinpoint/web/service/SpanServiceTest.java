@@ -38,7 +38,7 @@ import com.nhn.pinpoint.common.util.SpanUtils;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
-public class SpanServiceIT {
+public class SpanServiceTest {
 
 	@Autowired
 	private TracesDao traceDao;

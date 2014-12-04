@@ -22,7 +22,7 @@ import com.nhn.pinpoint.web.controller.AlarmController.RuleGroup;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:servlet-context.xml", "classpath:applicationContext-test.xml"})
-public class AlarmControllerIT {
+public class AlarmControllerTest {
 
     @Autowired
     AlarmController controller;

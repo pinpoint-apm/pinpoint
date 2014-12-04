@@ -13,7 +13,7 @@ import com.nhn.pinpoint.web.alarm.collector.DataCollector;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
-public class DataCollectorFactoryIT {
+public class DataCollectorFactoryTest {
 
     @Autowired
     private DataCollectorFactory factory;

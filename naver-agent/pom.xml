@@ -23,8 +23,14 @@
         </dependency>
         <dependency>
             <groupId>com.nhn.pinpoint</groupId>
-            <artifactId>pinpoint-naver</artifactId>
+            <artifactId>pinpoint-naver-plugin</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.nhncorp</groupId>
+            <artifactId>triples-redis-client</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

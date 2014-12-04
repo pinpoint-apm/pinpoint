@@ -19,7 +19,7 @@ import com.nhn.pinpoint.web.vo.Range;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
-public class MapStatisticsCallerCollectorIT {
+public class MapStatisticsCallerCollectorTest {
     
     @Autowired
     HbaseMapStatisticsCallerDao callerDao;
