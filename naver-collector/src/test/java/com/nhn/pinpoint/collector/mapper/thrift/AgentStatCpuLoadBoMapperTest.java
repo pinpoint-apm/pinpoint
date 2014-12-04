@@ -1,10 +1,7 @@
 package com.nhn.pinpoint.collector.mapper.thrift;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +17,7 @@ import com.nhn.pinpoint.thrift.dto.TCpuLoad;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
-@Ignore
-public class AgentStatCpuLoadBoMapperIT {
+public class AgentStatCpuLoadBoMapperTest {
 
     // CPU 사용량 소수점 2자리 표시
     private static final double DELTA = 1e-4;

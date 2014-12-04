@@ -10,7 +10,6 @@ import org.apache.thrift.TBase;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -37,8 +36,7 @@ import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
  */
 @ContextConfiguration("classpath:applicationContext-collector.xml")
 @RunWith(SpringJUnit4ClassRunner.class)
-@Ignore
-public class TCPReceiverBOIT {
+public class TCPReceiverBOTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired

@@ -12,7 +12,6 @@ import junit.framework.Assert;
 
 import org.apache.curator.test.TestingServer;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -31,10 +30,9 @@ import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
-@Ignore
-public class ZookeeperProfilerClusterStressIT {
+public class ZookeeperProfilerClusterStressTest {
 
-	private static final Logger logger = LoggerFactory.getLogger(ZookeeperProfilerClusterStressIT.class);
+	private static final Logger logger = LoggerFactory.getLogger(ZookeeperProfilerClusterStressTest.class);
 
 	private static final int DEFAULT_ACCEPTOR_PORT = 22313;
 	private static final int DEFAULT_ACCEPTOR_SOCKET_PORT = 22315;
@@ -59,7 +57,7 @@ public class ZookeeperProfilerClusterStressIT {
 
 	@Test
 	public void simpleTest1() throws Exception {
-		List<TestSocket> socketList = new ArrayList<ZookeeperProfilerClusterStressIT.TestSocket>();
+		List<TestSocket> socketList = new ArrayList<ZookeeperProfilerClusterStressTest.TestSocket>();
 
 		PinpointServerSocket pinpointServerSocket = null;
 		
@@ -140,7 +138,7 @@ public class ZookeeperProfilerClusterStressIT {
 			
 			latch.await();
 
-			List<TestSocket> socketList = new ArrayList<ZookeeperProfilerClusterStressIT.TestSocket>();
+			List<TestSocket> socketList = new ArrayList<ZookeeperProfilerClusterStressTest.TestSocket>();
 			socketList.addAll(job1.getSocketList());
 			socketList.addAll(job2.getSocketList());
 			

@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +22,7 @@ import com.nhn.pinpoint.thrift.dto.TServiceInfo;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
-@Ignore
-public class ServerMetaDataBoMapperIT {
+public class ServerMetaDataBoMapperTest {
 
     @Autowired
     private ServerMetaDataBoMapper mapper;

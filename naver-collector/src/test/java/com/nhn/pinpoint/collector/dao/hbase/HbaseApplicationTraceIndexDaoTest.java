@@ -1,6 +1,5 @@
 package com.nhn.pinpoint.collector.dao.hbase;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +14,7 @@ import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
-@Ignore
-public class HbaseApplicationTraceIndexDaoIT {
+public class HbaseApplicationTraceIndexDaoTest {
 
     @Autowired
     @Qualifier("applicationTraceIndexDistributor")

@@ -7,8 +7,8 @@
         <version>1.0.4-SNAPSHOT</version>
     </parent>
 
-    <artifactId>pinpoint-naver-web</artifactId>
-    <name>pinpoint naver web</name>
+    <artifactId>pinpoint-naver-collector</artifactId>
+    <name>pinpoint naver collector</name>
     <packaging>war</packaging>
 
     <properties>
@@ -17,31 +17,31 @@
     <dependencies>
         <dependency>
             <groupId>com.nhn.pinpoint</groupId>
-            <artifactId>pinpoint-web</artifactId>
+            <artifactId>pinpoint-collector</artifactId>
             <type>war</type>
         </dependency>
 
-        <dependency>
-            <groupId>com.nhn.pinpoint</groupId>
-            <artifactId>pinpoint-web</artifactId>
-            <classifier>classes</classifier>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>com.nhn.pinpoint</groupId>
             <artifactId>pinpoint-collector</artifactId>
             <classifier>classes</classifier>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>servlet-api</artifactId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- for zookeeper test -->
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-test</artifactId>
+            <version>2.6.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>servlet-api</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -84,7 +84,7 @@
                     <overlays>
                         <overlay>
                             <groupId>com.nhn.pinpoint</groupId>
-                            <artifactId>pinpoint-web</artifactId>
+                            <artifactId>pinpoint-collector</artifactId>
                         </overlay>
                     </overlays>
                     <webappDirectory>target/deploy</webappDirectory>

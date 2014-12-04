@@ -66,8 +66,9 @@
         <module>bootstrap</module>
         <module>collector</module>
         <module>commons</module>
-        <module>naver-plugin</module>
         <module>naver-agent</module>
+        <module>naver-collector</module>
+        <module>naver-plugin</module>
         <module>naver-web</module>
         <module>profiler</module>
         <module>profiler-optional</module>
@@ -77,10 +78,6 @@
     </modules>
 
     <properties>
-        <pinpoint-version>1.0.4-SNAPSHOT</pinpoint-version>
-        
-        <pinpoint.agent.plugin.directory>${pinpoint.agent.directory}/plugin</pinpoint.agent.plugin.directory>
-        
         <encoding>UTF-8</encoding>
         <jdk.version>1.6</jdk.version>
         <slf4j.version>1.7.5</slf4j.version>
@@ -146,12 +143,25 @@
             <dependency>
                 <groupId>com.nhn.pinpoint</groupId>
                 <artifactId>pinpoint-collector</artifactId>
+                <type>war</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.nhn.pinpoint</groupId>
+                <artifactId>pinpoint-collector</artifactId>
                 <classifier>classes</classifier>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.nhn.pinpoint</groupId>
-                <artifactId>pinpoint-test</artifactId>
+                <artifactId>pinpoint-web</artifactId>
+                <version>${project.version}</version>
+                <type>war</type>
+            </dependency>
+            <dependency>
+                <groupId>com.nhn.pinpoint</groupId>
+                <artifactId>pinpoint-web</artifactId>
+                <classifier>classes</classifier>
                 <version>${project.version}</version>
             </dependency>
 
@@ -220,7 +230,7 @@
                 <artifactId>spring-aspects</artifactId>
                 <version>${spring.version}</version>
             </dependency>
-            
+
             <!-- serving performance metrics -->
             <dependency>
                 <groupId>com.codahale.metrics</groupId>
@@ -279,10 +289,10 @@
                 <artifactId>json-simple</artifactId>
                 <version>1.1.1</version>
             </dependency>
-            
 
 
-            
+
+
             <dependency>
                 <groupId>org.apache.hadoop</groupId>
                 <artifactId>hadoop-common</artifactId>
@@ -305,14 +315,14 @@
                 <artifactId>hbasewd</artifactId>
                 <version>0.1.0</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.springframework.data</groupId>
                 <artifactId>spring-data-hadoop</artifactId>
                 <version>1.0.2.RELEASE</version>
             </dependency>
 
-            
+
 
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -335,7 +345,7 @@
                 <artifactId>log4j</artifactId>
                 <version>1.2.16</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.nhncorp.nelo2</groupId>
                 <artifactId>nelo2-java-sdk-log4j</artifactId>
@@ -343,7 +353,7 @@
             </dependency>
 
 
-            
+
             <dependency>
                 <groupId>com.nhncorp.lucy</groupId>
                 <artifactId>lucy-core</artifactId>
@@ -370,9 +380,9 @@
                 <version>4.0.3</version>
             </dependency>
 
-            
-            
-            
+
+
+
             <dependency>
                 <groupId>commons-dbcp</groupId>
                 <artifactId>commons-dbcp</artifactId>
@@ -393,13 +403,13 @@
                 <artifactId>mybatis-spring</artifactId>
                 <version>1.2.2</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
                 <version>5.1.20</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>cubrid</groupId>
                 <artifactId>cubrid-jdbc</artifactId>
@@ -421,7 +431,7 @@
                 <artifactId>async-http-client</artifactId>
                 <version>1.8.3</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty</artifactId>
@@ -437,13 +447,13 @@
                 <artifactId>catalina</artifactId>
                 <version>6.0.35</version>
             </dependency>
-	        <dependency>
-	            <groupId>org.apache.tomcat</groupId>
-	            <artifactId>coyote</artifactId>
-	            <version>6.0.35</version>
-	        </dependency>
-            
-			<dependency>
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>coyote</artifactId>
+                <version>6.0.35</version>
+            </dependency>
+
+            <dependency>
                 <groupId>arcus</groupId>
                 <artifactId>arcus-client</artifactId>
                 <version>1.6.2.1</version>
@@ -464,25 +474,25 @@
                 <version>1.6.2</version>
             </dependency>
 
-            
+
             <dependency>
-            	<groupId>com.nhncorp</groupId>
-	           <artifactId>triples-redis-client</artifactId>
-	           <version>1.3.3</version>
+                <groupId>com.nhncorp</groupId>
+                <artifactId>triples-redis-client</artifactId>
+                <version>1.3.3</version>
             </dependency>
 
             <dependency>
-	           <groupId>redis.clients</groupId>
-	           <artifactId>jedis</artifactId>
-	           <version>2.4.1</version>
+                <groupId>redis.clients</groupId>
+                <artifactId>jedis</artifactId>
+                <version>2.4.1</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.springframework.data</groupId>
                 <artifactId>spring-data-redis</artifactId>
                 <version>1.1.1.RELEASE</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
@@ -503,9 +513,9 @@
                 <artifactId>httpasyncclient</artifactId>
                 <version>4.0</version>
             </dependency>
-            
-            
-            
+
+
+
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
@@ -535,7 +545,7 @@
 
 
 
-            
+
             <dependency>
                 <groupId>org.javassist</groupId>
                 <artifactId>javassist</artifactId>
@@ -546,7 +556,7 @@
                 <artifactId>cglib-nodep</artifactId>
                 <version>2.2</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjrt</artifactId>
@@ -558,14 +568,14 @@
                 <version>1.6.12</version>
             </dependency>
 
-            
-            
+
+
             <dependency>
                 <groupId>org.apache.tomcat</groupId>
                 <artifactId>servlet-api</artifactId>
                 <version>6.0.35</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>javax.servlet-api</artifactId>
@@ -586,9 +596,9 @@
                 <artifactId>standard</artifactId>
                 <version>1.1.2</version>
             </dependency>
-            
-            
-            
+
+
+
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
@@ -609,8 +619,8 @@
                 <artifactId>dbunit</artifactId>
                 <version>2.4.3</version>
             </dependency>
-            
-            
+
+
             <dependency>
                 <groupId>org.apache.zookeeper</groupId>
                 <artifactId>zookeeper</artifactId>
@@ -622,30 +632,30 @@
                 <artifactId>libthrift</artifactId>
                 <version>0.9.1</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>17.0</version>
             </dependency>
-            
+
         </dependencies>
     </dependencyManagement>
 
     <build>
-    	<pluginManagement>
-    		<plugins>
-	    		<plugin>
-	                <groupId>org.apache.maven.plugins</groupId>
-	                <artifactId>maven-war-plugin</artifactId>
-	                <version>2.4</version>
-	                <configuration>
-	                    <attachClasses>true</attachClasses>
-	                    <classesClassifier>classes</classesClassifier>
-	                </configuration>
-	            </plugin>
-    		</plugins>
-    	</pluginManagement>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>2.4</version>
+                    <configuration>
+                        <attachClasses>true</attachClasses>
+                        <classesClassifier>classes</classesClassifier>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -733,8 +743,10 @@
                     <aggregate>true</aggregate>
                     <inputEncoding>${encoding}</inputEncoding>
                     <outputEncoding>${encoding}</outputEncoding>
-                    <windowTitle>Pinpoint ${project.version} Cross Reference</windowTitle>
-                    <docTitle>Pinpoint ${project.version} Cross Reference</docTitle>
+                    <windowTitle>Pinpoint ${project.version} Cross
+                        Reference</windowTitle>
+                    <docTitle>Pinpoint ${project.version} Cross
+                        Reference</docTitle>
                 </configuration>
                 <version>2.3</version>
             </plugin>
@@ -781,40 +793,6 @@
     </reporting>
 
     <profiles>
-        <!-- Local server -->
-        <profile>
-            <id>local</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <env>local</env>
-            </properties>
-        </profile>
-
-        <!-- Test server -->
-        <profile>
-            <id>test</id>
-            <properties>
-                <env>test</env>
-            </properties>
-        </profile>
-
-        <!-- Development server -->
-        <profile>
-            <id>dev</id>
-            <properties>
-                <env>dev</env>
-            </properties>
-        </profile>
-
-        <!-- real server -->
-        <profile>
-            <id>release</id>
-            <properties>
-                <env>release</env>
-            </properties>
-        </profile>
         <profile>
             <id>klocwork</id>
             <build>
