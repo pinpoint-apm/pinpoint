@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.nhn.pinpoint</groupId>
-        <artifactId>pom</artifactId>
+        <artifactId>pinpoint-naver</artifactId>
         <version>1.0.4-SNAPSHOT</version>
     </parent>
 
