@@ -8,7 +8,7 @@
     </parent>
 
     <artifactId>pinpoint-naver-web</artifactId>
-    <name>pinpoint naver web</name>
+    <name>Pinpoint web for Naver</name>
     <packaging>war</packaging>
 
     <properties>

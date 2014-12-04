@@ -8,7 +8,7 @@
     </parent>
 
     <artifactId>pinpoint-naver-agent</artifactId>
-    <name>pinpoint agent distribution for Naver</name>
+    <name>Pinpoint agent distribution for Naver</name>
     <packaging>jar</packaging>
     
     <properties>

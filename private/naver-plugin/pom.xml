@@ -8,7 +8,7 @@
     </parent>
 
     <artifactId>pinpoint-naver-plugin</artifactId>
-    <name>pinpoint profiler plugin for naver</name>
+    <name>Pinpoint profiler plugin for Naver</name>
     <packaging>jar</packaging>
 
     <dependencies>
