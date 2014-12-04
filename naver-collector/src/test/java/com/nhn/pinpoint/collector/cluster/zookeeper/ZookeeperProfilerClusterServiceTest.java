@@ -1,6 +1,6 @@
 package com.nhn.pinpoint.collector.cluster.zookeeper;
 
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -9,7 +9,6 @@ import java.util.Map;
 import org.apache.curator.test.TestingServer;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +23,7 @@ import com.nhn.pinpoint.rpc.server.SocketChannel;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
-@Ignore
-public class ZookeeperProfilerClusterServiceIT {
+public class ZookeeperProfilerClusterServiceTest {
 
 	private static final int DEFAULT_ACCEPTOR_PORT = 22213;
 

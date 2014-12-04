@@ -1,12 +1,10 @@
 package com.nhn.pinpoint.collector.dao.hbase;
 
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 import org.apache.hadoop.hbase.client.Put;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -35,8 +33,7 @@ import com.sematext.hbase.wd.AbstractRowKeyDistributor;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
-@Ignore
-public class HbaseAgentStatDaoIT {
+public class HbaseAgentStatDaoTest {
 
     @Mock
     private HbaseOperations2 hbaseTemplate;
