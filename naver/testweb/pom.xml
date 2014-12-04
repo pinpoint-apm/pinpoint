@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.nhn.pinpoint</groupId>
-        <artifactId>pom</artifactId>
+        <artifactId>pinpoint-naver</artifactId>
         <version>1.0.4-SNAPSHOT</version>
     </parent>
 
@@ -88,8 +88,8 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>arcus</groupId>
-            <artifactId>arcus-client</artifactId>
+            <groupId>com.navercorp.arcus</groupId>
+            <artifactId>arcus-java-client</artifactId>
         </dependency>
 
 
@@ -144,8 +144,8 @@
 
         <!-- ORM dependencies -->
         <dependency>
-            <groupId>com.ibatis</groupId>
-            <artifactId>ibatis2-sqlmap</artifactId>
+            <groupId>org.apache.ibatis</groupId>
+            <artifactId>ibatis-sqlmap</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mybatis</groupId>

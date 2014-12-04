@@ -11,6 +11,26 @@
     <name>pinpoint-web</name>
     <packaging>war</packaging>
 
+    <!-- 오픈소스 배포 전에 삭제해야 함 -->
+    <repositories>
+        <repository>
+            <id>nhn.snapshot.repository</id>
+            <name>NHN Snapshot Repository</name>
+            <url>http://repo.nhncorp.com/m2-snapshot-repository/</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>nhn.release.repository</id>
+            <url>http://repo.nhncorp.com/maven2</url>
+        </repository>
+    </repositories>
+
     <properties>
         <buildTime>${maven.build.timestamp}</buildTime>
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
@@ -286,6 +306,7 @@
         <dependency>
             <groupId>com.nhncorp.lucy</groupId>
             <artifactId>lucy-core</artifactId>
+            <version>1.7.7</version>
             <exclusions>
                 <exclusion>
                     <artifactId>freemarker</artifactId>
@@ -545,10 +566,6 @@
             <artifactId>log4j</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
-            <groupId>com.nhncorp.nelo2</groupId>
-            <artifactId>nelo2-java-sdk-log4j</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>com.googlecode.json-simple</groupId>
@@ -587,6 +604,7 @@
         <dependency>
             <groupId>com.nhncorp.lucy</groupId>
             <artifactId>lucy-npc</artifactId>
+            <version>1.5.19</version>
         </dependency>
 
         <!-- Test dependencies -->

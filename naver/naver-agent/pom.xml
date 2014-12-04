@@ -3,12 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.nhn.pinpoint</groupId>
-        <artifactId>pom</artifactId>
+        <artifactId>pinpoint-naver</artifactId>
         <version>1.0.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-naver-agent</artifactId>
-    <name>pinpoint agent distribution for Naver</name>
+    <name>Pinpoint agent distribution for Naver</name>
     <packaging>jar</packaging>
     
     <properties>

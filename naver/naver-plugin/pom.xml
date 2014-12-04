@@ -3,12 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.nhn.pinpoint</groupId>
-        <artifactId>pom</artifactId>
+        <artifactId>pinpoint-naver</artifactId>
         <version>1.0.4-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-naver-plugin</artifactId>
-    <name>pinpoint profiler plugin for naver</name>
+    <name>Pinpoint profiler plugin for Naver</name>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -16,8 +16,8 @@
             <groupId>com.nhn.pinpoint</groupId>
             <artifactId>pinpoint-profiler</artifactId>
         </dependency>
-        
-        
+
+
         <dependency>
             <groupId>com.nhncorp.lucy</groupId>
             <artifactId>lucy-npc</artifactId>
@@ -46,7 +46,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        
+
         <!-- Redis -->
         <!-- nBase-ARC -->
         <dependency>
@@ -54,7 +54,7 @@
             <artifactId>triples-redis-client</artifactId>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>com.nhncorp.lucy</groupId>
             <artifactId>bloc-core</artifactId>
@@ -66,7 +66,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        
+
 
         <!-- Logging depedencies -->
         <dependency>
@@ -117,16 +117,5 @@
                 <directory>${basedir}/src/test/resources</directory>
             </testResource>
         </testResources>
-
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <inherited>true</inherited>
-                <configuration>
-                    <debug>true</debug>
-                </configuration>
-            </plugin>
-        </plugins>
     </build>
 </project>
