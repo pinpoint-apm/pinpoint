@@ -33,7 +33,7 @@ public class FrontCacheGetFutureModifierIntegrationTest extends BasePinpointTest
         ConnectionFactoryBuilder cfb = new ConnectionFactoryBuilder();
         cfb.setMaxFrontCacheElements(100);
         cfb.setFrontCacheExpireTime(100);
-        ArcusClient client = ArcusClient.createArcusClient("dev.arcuscloud.nhncorp.com:17288", "dev1.6", cfb);
+        ArcusClient client = ArcusClient.createArcusClient("ncloud.arcuscloud.nhncorp.com:17288", "ff31ddb85e9b431c8c0e5e50a4315c27", cfb);
 
         // when
         try {

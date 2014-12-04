@@ -62,7 +62,7 @@ public class HttpCustomServerHandler extends SimpleChannelUpstreamHandler {
 
 	public HttpCustomServerHandler() {
 		this.listeningExecutorService = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool());
-		this.arcus = ArcusClient.createArcusClient("dev.arcuscloud.nhncorp.com:17288", "dev", new ConnectionFactoryBuilder());
+		this.arcus = ArcusClient.createArcusClient("ncloud.arcuscloud.nhncorp.com:17288", "ff31ddb85e9b431c8c0e5e50a4315c27", new ConnectionFactoryBuilder());
 	}
 
 	@Override
