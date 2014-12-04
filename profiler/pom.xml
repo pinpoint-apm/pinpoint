@@ -118,11 +118,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>oracle</groupId>
-            <artifactId>ojdbc6</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>net.sourceforge.jtds</groupId>
             <artifactId>jtds</artifactId>
             <scope>provided</scope>
@@ -145,8 +140,8 @@
         </dependency>
         
         <dependency>
-            <groupId>com.ibatis</groupId>
-            <artifactId>ibatis2-sqlmap</artifactId>
+            <groupId>org.apache.ibatis</groupId>
+            <artifactId>ibatis-sqlmap</artifactId>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
@@ -241,8 +236,9 @@
         </dependency>
 
         <dependency>
-            <groupId>arcus</groupId>
-            <artifactId>arcus-client</artifactId>
+            <groupId>com.navercorp.arcus</groupId>
+            <artifactId>arcus-java-client</artifactId>
+            <version>1.7.0</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
