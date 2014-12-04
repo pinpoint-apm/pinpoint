@@ -17,7 +17,7 @@ import com.nhn.pinpoint.thrift.dto.TAgentInfo;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
-public class HbaseAgentInfoDaoIT {
+public class HbaseAgentInfoDaoTest {
 
 	@Autowired
 	private HbaseAgentInfoDao selectDao;

@@ -7,34 +7,40 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import redis.clients.jedis.exceptions.JedisDataException;
-
 import com.nhn.pinpoint.common.ServiceType;
 import com.nhn.pinpoint.common.bo.SpanEventBo;
 import com.nhn.pinpoint.test.junit4.BasePinpointTest;
-import com.nhncorp.redis.cluster.RedisCluster;
+import com.nhncorp.redis.cluster.gateway.GatewayAddress;
 import com.nhncorp.redis.cluster.gateway.GatewayClient;
 import com.nhncorp.redis.cluster.gateway.GatewayConfig;
+import com.nhncorp.redis.cluster.gateway.GatewayServer;
+import com.nhncorp.redis.cluster.pipeline.RedisClusterPipeline;
 
-public class RedisClusterModifierIT extends BasePinpointTest {
+public class RedisClusterPipelineModifierTest extends BasePinpointTest {
     private static final String HOST = "10.99.116.91";
     private static final int PORT = 6390;
     private static final String ZK_ADDRESS = "dev.xnbasearc.navercorp.com:2181";
     private static final String CLUSTER_NAME = "java_client_test";
 
-    private RedisCluster redis;
+    private RedisClusterPipeline pipeline;
 
     @Before
     public void before() {
-        redis = new RedisCluster(HOST, PORT);
+        GatewayServer server = new GatewayServer(new GatewayAddress(HOST, PORT));
+        pipeline = new RedisClusterPipeline(server);
     }
 
     @Test
     public void traceMethod() {
-        redis.get("foo");
+        pipeline.get("foo");
+        pipeline.syncAndReturnAll();
 
         final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
-        assertEquals(1, spanEvents.size());
+        for (SpanEventBo bo : spanEvents) {
+            System.out.println("### " + bo);
+        }
+
+        assertEquals(2, spanEvents.size());
         SpanEventBo event = spanEvents.get(0);
 
         assertEquals("NBASE_ARC", event.getDestinationId());
@@ -45,10 +51,15 @@ public class RedisClusterModifierIT extends BasePinpointTest {
     
     @Test
     public void traceBinaryMethod() {
-        redis.get("foo".getBytes());
+        pipeline.get("foo".getBytes());
+        pipeline.syncAndReturnAll();
 
         final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
-        assertEquals(1, spanEvents.size());
+        for (SpanEventBo bo : spanEvents) {
+            System.out.println("### " + bo);
+        }
+
+        assertEquals(2, spanEvents.size());
         SpanEventBo event = spanEvents.get(0);
 
         assertEquals("NBASE_ARC", event.getDestinationId());
@@ -56,7 +67,7 @@ public class RedisClusterModifierIT extends BasePinpointTest {
         assertEquals(ServiceType.NBASE_ARC, event.getServiceType());
         assertNull(event.getExceptionMessage());
     }
-
+    
     @Test
     public void traceDestinationId() {
         GatewayConfig config = new GatewayConfig();
@@ -64,8 +75,10 @@ public class RedisClusterModifierIT extends BasePinpointTest {
         config.setClusterName(CLUSTER_NAME);
 
         GatewayClient client = new GatewayClient(config);
+        RedisClusterPipeline pipeline = client.pipeline();
 
-        client.get("foo");
+        pipeline.get("foo");
+        pipeline.syncAndReturnAll();
 
         final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
         SpanEventBo event = spanEvents.get(spanEvents.size() - 1);
@@ -76,22 +89,5 @@ public class RedisClusterModifierIT extends BasePinpointTest {
         assertNull(event.getExceptionMessage());
 
         client.destroy();
-    }
-
-    @Test
-    public void traceMethodThrowException() {
-        // 에러가 발생한 경우에 대한 event 결과를 확인한다.
-        String key = null;
-        try {
-            redis.get(key);
-        } catch (JedisDataException e) {
-            // 값이 null인 것에 대한 에러를 던진다.
-        }
-
-        final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
-        assertEquals(1, spanEvents.size());
-        SpanEventBo event = spanEvents.get(0);
-
-        assertNotNull(event.getExceptionMessage());
     }
 }
