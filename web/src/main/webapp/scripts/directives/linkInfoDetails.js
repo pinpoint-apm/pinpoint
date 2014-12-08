@@ -6,8 +6,8 @@ pinpointApp.constant('linkInfoDetailsConfig', {
     maxTimeToShowLoadAsDefaultForUnknown:  60 * 60 * 12 // 12h
 });
 
-pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', 'HelixChartVo', '$filter', 'ServerMapFilterVo',  'filteredMapUtil', 'humanReadableNumberFormatFilter', '$timeout', 'isVisible', 'ServerMapHintVo', '$window',
-    function (cfg, HelixChartVo, $filter, ServerMapFilterVo, filteredMapUtil, humanReadableNumberFormatFilter, $timeout, isVisible, ServerMapHintVo, $window) {
+pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', '$filter', 'ServerMapFilterVo',  'filteredMapUtil', 'humanReadableNumberFormatFilter', '$timeout', 'isVisible', 'ServerMapHintVo', '$window',
+    function (cfg, $filter, ServerMapFilterVo, filteredMapUtil, humanReadableNumberFormatFilter, $timeout, isVisible, ServerMapHintVo, $window) {
         return {
             restrict: 'EA',
             replace: true,
