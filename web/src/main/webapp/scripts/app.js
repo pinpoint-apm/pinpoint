@@ -1,6 +1,6 @@
 'use strict';
 
-nv.dev = false;
+//nv.dev = false;
 var pinpointApp = angular.module('pinpointApp', [ 'ngRoute', 'ngResource', 'ngSanitize', 'webStorageModule', 'uiSlider', 'base64', 'mgcrea.ngStrap', 'ngCookies', 'angular-intro-plus', 'ngAnimate']);
 
 pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', function ($routeProvider, $locationProvider, $modalProvider) {
