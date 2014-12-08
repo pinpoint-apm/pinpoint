@@ -51,7 +51,7 @@ public class MockAgent extends DefaultAgent {
     }
 
     @Override
-    protected DataSender createBufferedUdpSpanDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize, int chunkSize) {
+    protected DataSender createUdpSpanDataSender(int port, String threadName, int writeQueueSize, int timeout, int sendBufferSize, int chunkSize) {
         return new PeekableDataSender<TBase<?, ?>>();
     }
 
