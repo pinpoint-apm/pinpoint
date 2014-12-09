@@ -59,39 +59,11 @@
 
     </dependencies>
 
-    <build>
-        <resources>
-            <resource>
-                <directory>${basedir}/src/main/java</directory>
-                <excludes>
-                    <exclude>**/*.java</exclude>
-                </excludes>
-            </resource>
-            <resource>
-                <filtering>true</filtering>
-                <directory>${basedir}/src/main/resources</directory>
-            </resource>
-        </resources>
-
-        <testResources>
-            <testResource>
-                <directory>${basedir}/src/test/java</directory>
-                <excludes>
-                    <exclude>**/*.java</exclude>
-                </excludes>
-            </testResource>
-            <testResource>
-                <filtering>true</filtering>
-                <directory>${basedir}/src/test/resources</directory>
-            </testResource>
-        </testResources>
-    </build>
-
     <profiles>
         <profile>
             <id>with-thrift</id>
             <properties>
-                <thrift.executable>${thrift.executable}</thrift.executable>
+                <thrift.executable>${your.thrift.executable}</thrift.executable>
             </properties>
             <build>
                 <plugins>
@@ -104,52 +76,36 @@
                                 <phase>generate-sources</phase>
                                 <configuration>
                                     <target>
-                                        <mkdir
-                                            dir="${basedir}/generated-sources/thrift" />
+                                        <mkdir dir="${basedir}/generated-sources/thrift" />
                                         <delete>
-                                            <fileset
-                                                dir="${basedir}/generated-sources/thrift"
-                                                includes="**/*" />
+                                            <fileset dir="${basedir}/generated-sources/thrift" includes="**/*" />
                                         </delete>
-                                        <mkdir
-                                            dir="${basedir}/generated-sources/thrift" />
-                                        <exec executable="${thrift.executable}"
-                                            failonerror="true">
+                                        <mkdir dir="${basedir}/generated-sources/thrift" />
+                                        <exec executable="${thrift.executable}" failonerror="true">
                                             <arg value="--gen" />
                                             <arg value="java:beans" />
                                             <arg value="-o" />
-                                            <arg
-                                                value="${basedir}/generated-sources/thrift" />
-                                            <arg
-                                                value="${basedir}/src/main/thrift/Pinpoint.thrift" />
+                                            <arg value="${basedir}/generated-sources/thrift" />
+                                            <arg value="${basedir}/src/main/thrift/Pinpoint.thrift" />
                                         </exec>
-                                        <exec executable="${thrift.executable}"
-                                            failonerror="true">
+                                        <exec executable="${thrift.executable}" failonerror="true">
                                             <arg value="--gen" />
                                             <arg value="java:beans" />
                                             <arg value="-o" />
-                                            <arg
-                                                value="${basedir}/generated-sources/thrift" />
-                                            <arg
-                                                value="${basedir}/src/main/thrift/Trace.thrift" />
+                                            <arg value="${basedir}/generated-sources/thrift" />
+                                            <arg value="${basedir}/src/main/thrift/Trace.thrift" />
                                         </exec>
-                                        <exec executable="${thrift.executable}"
-                                            failonerror="true">
+                                        <exec executable="${thrift.executable}" failonerror="true">
                                             <arg value="--gen" />
                                             <arg value="java:beans" />
                                             <arg value="-o" />
-                                            <arg
-                                                value="${basedir}/generated-sources/thrift" />
-                                            <arg
-                                                value="${basedir}/src/main/thrift/Command.thrift" />
+                                            <arg value="${basedir}/generated-sources/thrift" />
+                                            <arg value="${basedir}/src/main/thrift/Command.thrift" />
                                         </exec>
-                                        <copy todir="src/main/java"
-                                            overwrite="true">
-                                            <fileset
-                                                dir="${basedir}/generated-sources/thrift/gen-javabean" />
+                                        <copy todir="src/main/java" overwrite="true">
+                                            <fileset dir="${basedir}/generated-sources/thrift/gen-javabean" />
                                         </copy>
-                                        <delete
-                                            dir="${basedir}/generated-sources" />
+                                        <delete dir="${basedir}/generated-sources" />
                                     </target>
                                 </configuration>
                                 <goals>
