@@ -1,9 +1,9 @@
-package com.nhn.pinpoint.profiler.modifier.orm.ibatis.filter;
+package com.navercorp.pinpoint.profiler.modifier.orm.ibatis.filter;
 
 import java.lang.reflect.Modifier;
 
-import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
-import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 
 /**
  * @author Hyun Jeong

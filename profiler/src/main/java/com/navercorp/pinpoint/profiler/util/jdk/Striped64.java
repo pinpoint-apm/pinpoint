@@ -9,7 +9,7 @@
  * http://gee.cs.oswego.edu/cgi-bin/viewcvs.cgi/jsr166/src/jsr166e/Striped64.java?revision=1.7
  */
 
-package com.nhn.pinpoint.profiler.util.jdk;
+package com.navercorp.pinpoint.profiler.util.jdk;
 
 import java.util.Random;
 

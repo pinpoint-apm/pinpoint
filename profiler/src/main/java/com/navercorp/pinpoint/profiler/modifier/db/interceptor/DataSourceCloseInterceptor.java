@@ -1,8 +1,8 @@
-package com.nhn.pinpoint.profiler.modifier.db.interceptor;
+package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
 
-import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
-import com.nhn.pinpoint.bootstrap.interceptor.*;
-import com.nhn.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
+import com.navercorp.pinpoint.bootstrap.interceptor.*;
+import com.navercorp.pinpoint.common.ServiceType;
 
 /**
  * Datasource의 get을 추적해야 될것으로 예상됨.

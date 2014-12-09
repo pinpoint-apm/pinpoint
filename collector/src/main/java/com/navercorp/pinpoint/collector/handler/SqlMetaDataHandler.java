@@ -1,13 +1,13 @@
-package com.nhn.pinpoint.collector.handler;
+package com.navercorp.pinpoint.collector.handler;
 
-import com.nhn.pinpoint.thrift.dto.TResult;
-import com.nhn.pinpoint.thrift.dto.TSqlMetaData;
+import com.navercorp.pinpoint.collector.dao.SqlMetaDataDao;
+import com.navercorp.pinpoint.thrift.dto.TResult;
+import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
+
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.nhn.pinpoint.collector.dao.SqlMetaDataDao;
 import org.springframework.stereotype.Service;
 
 /**

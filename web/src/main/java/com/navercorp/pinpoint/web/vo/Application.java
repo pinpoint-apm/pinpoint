@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.web.vo;
+package com.navercorp.pinpoint.web.vo;
 
-import com.nhn.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.ServiceType;
 
 /**
  * 

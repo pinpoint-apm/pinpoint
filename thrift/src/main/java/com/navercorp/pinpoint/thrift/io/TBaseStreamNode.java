@@ -1,10 +1,10 @@
-package com.nhn.pinpoint.thrift.io;
+package com.navercorp.pinpoint.thrift.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.DatagramPacket;
 
-import com.nhn.pinpoint.thrift.io.UnsafeByteArrayOutputStream;
+import com.navercorp.pinpoint.thrift.io.UnsafeByteArrayOutputStream;
 
 /**
  * byte arrays position

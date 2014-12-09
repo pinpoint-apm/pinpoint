@@ -1,11 +1,12 @@
-package com.nhn.pinpoint.profiler;
+package com.navercorp.pinpoint.profiler;
 
-import com.nhn.pinpoint.bootstrap.util.NetworkUtils;
-import com.nhn.pinpoint.common.PinpointConstants;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.Version;
-import com.nhn.pinpoint.common.util.BytesUtils;
-import com.nhn.pinpoint.profiler.util.RuntimeMXBeanUtils;
+import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
+import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

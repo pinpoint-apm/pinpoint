@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.javaassist;
+package com.navercorp.pinpoint.profiler.javaassist;
 
 import java.util.List;
 

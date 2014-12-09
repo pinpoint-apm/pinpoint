@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.alarm.vo;
+package com.navercorp.pinpoint.web.alarm.vo;
 
 import org.apache.ibatis.type.Alias;
 

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler;
+package com.navercorp.pinpoint.profiler;
 
 import java.security.ProtectionDomain;
 
@@ -31,7 +31,7 @@ public class DefaultClassFileFilter implements ClassFileFilter {
 		}
 		// 자기 자신의 패키지도 제외
 		// 향후 패키지명 변경에 의해 코드 변경이 필요함.
-		if (className.startsWith("com/nhn/pinpoint/")) {
+		if (className.startsWith("com/navercorp/pinpoint/")) {
 			return SKIP;
 		}
 		return CONTINUE;

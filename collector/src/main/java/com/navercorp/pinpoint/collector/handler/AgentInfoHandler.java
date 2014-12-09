@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector.handler;
+package com.navercorp.pinpoint.collector.handler;
 
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
@@ -6,10 +6,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.nhn.pinpoint.collector.dao.AgentInfoDao;
-import com.nhn.pinpoint.collector.dao.ApplicationIndexDao;
-import com.nhn.pinpoint.thrift.dto.TAgentInfo;
-import com.nhn.pinpoint.thrift.dto.TResult;
+import com.navercorp.pinpoint.collector.dao.AgentInfoDao;
+import com.navercorp.pinpoint.collector.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
+import com.navercorp.pinpoint.thrift.dto.TResult;
 
 /**
  * @author emeroad

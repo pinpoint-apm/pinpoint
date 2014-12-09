@@ -1,8 +1,9 @@
-package com.nhn.pinpoint.collector.mapper.thrift;
+package com.navercorp.pinpoint.collector.mapper.thrift;
 
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.thrift.dto.TAgentInfo;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.bo.AgentInfoBo;
+import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
+
 import org.springframework.stereotype.Component;
 
 /**

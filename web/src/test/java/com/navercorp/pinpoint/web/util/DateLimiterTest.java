@@ -1,7 +1,11 @@
-package com.nhn.pinpoint.web.util;
+package com.navercorp.pinpoint.web.util;
 
-import com.nhn.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.util.DateLimiter;
+import com.navercorp.pinpoint.web.util.Limiter;
+import com.navercorp.pinpoint.web.vo.Range;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;

@@ -1,13 +1,14 @@
-package com.nhn.pinpoint.collector.dao.hbase;
+package com.navercorp.pinpoint.collector.dao.hbase;
 
-import com.nhn.pinpoint.collector.dao.MapResponseTimeDao;
-import com.nhn.pinpoint.collector.dao.hbase.statistics.*;
-import com.nhn.pinpoint.collector.util.AcceptedTimeService;
-import com.nhn.pinpoint.collector.util.ConcurrentCounterMap;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.hbase.HbaseOperations2;
-import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
-import com.nhn.pinpoint.common.util.TimeSlot;
+import com.navercorp.pinpoint.collector.dao.MapResponseTimeDao;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.*;
+import com.navercorp.pinpoint.collector.util.AcceptedTimeService;
+import com.navercorp.pinpoint.collector.util.ConcurrentCounterMap;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
+import com.navercorp.pinpoint.common.util.TimeSlot;
+
 import org.apache.hadoop.hbase.client.Increment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Map;
 
-import static com.nhn.pinpoint.common.hbase.HBaseTables.*;
+import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 
 /**
  * was의 응답시간 데이터를 저장한다.

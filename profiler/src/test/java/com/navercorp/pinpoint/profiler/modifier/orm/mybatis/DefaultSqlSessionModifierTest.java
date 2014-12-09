@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.orm.mybatis;
+package com.navercorp.pinpoint.profiler.modifier.orm.mybatis;
 
 import static org.mockito.Mockito.*;
 

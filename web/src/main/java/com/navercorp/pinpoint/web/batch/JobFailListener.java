@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.batch;
+package com.navercorp.pinpoint.web.batch;
 
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;

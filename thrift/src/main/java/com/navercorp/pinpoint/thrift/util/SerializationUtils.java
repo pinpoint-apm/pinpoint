@@ -1,14 +1,14 @@
-package com.nhn.pinpoint.thrift.util;
+package com.navercorp.pinpoint.thrift.util;
 
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.thrift.io.DeserializerFactory;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.nhn.pinpoint.thrift.io.SerializerFactory;
+import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 
 public final class SerializationUtils {
 

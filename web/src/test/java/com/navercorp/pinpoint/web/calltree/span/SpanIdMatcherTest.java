@@ -1,7 +1,10 @@
-package com.nhn.pinpoint.web.calltree.span;
+package com.navercorp.pinpoint.web.calltree.span;
 
-import com.nhn.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.web.calltree.span.SpanIdMatcher;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
 
 import java.util.ArrayList;

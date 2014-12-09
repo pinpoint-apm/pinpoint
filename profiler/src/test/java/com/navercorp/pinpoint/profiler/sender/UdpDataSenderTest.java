@@ -1,8 +1,11 @@
-package com.nhn.pinpoint.profiler.sender;
+package com.navercorp.pinpoint.profiler.sender;
 
-import com.nhn.pinpoint.thrift.dto.TAgentInfo;
-import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinderInitializer;
+import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinderInitializer;
+import com.navercorp.pinpoint.profiler.sender.UdpDataSender;
+import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
+
 import junit.framework.Assert;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.thrift.TBase;
 import org.junit.AfterClass;

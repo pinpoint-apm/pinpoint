@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.thrift.io;
+package com.navercorp.pinpoint.thrift.io;
 
 import static org.junit.Assert.*;
 
@@ -6,6 +6,10 @@ import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 
 import org.junit.Test;
+
+import com.navercorp.pinpoint.thrift.io.ByteArrayOutputStreamTransport;
+import com.navercorp.pinpoint.thrift.io.TBaseStreamNode;
+import com.navercorp.pinpoint.thrift.io.UnsafeByteArrayOutputStream;
 
 public class TBaseStreamNodeTest {
 

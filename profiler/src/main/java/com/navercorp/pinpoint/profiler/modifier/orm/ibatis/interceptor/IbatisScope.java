@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.profiler.modifier.orm.ibatis.interceptor;
+package com.navercorp.pinpoint.profiler.modifier.orm.ibatis.interceptor;
 
-import com.nhn.pinpoint.profiler.util.DepthScope;
+import com.navercorp.pinpoint.profiler.util.DepthScope;
 
 /**
  * @author Hyun Jeong

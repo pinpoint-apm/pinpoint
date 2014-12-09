@@ -1,8 +1,8 @@
-package com.nhn.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin;
 
-import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
-import com.nhn.pinpoint.bootstrap.context.TraceContext;
-import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 
 public class ProfilerPluginContext {
     private final ByteCodeInstrumentor instrumentor;

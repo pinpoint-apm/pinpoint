@@ -1,15 +1,16 @@
-package com.nhn.pinpoint.web.view;
+package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.web.applicationmap.Link;
-import com.nhn.pinpoint.web.applicationmap.CreateType;
-import com.nhn.pinpoint.web.applicationmap.Node;
-import com.nhn.pinpoint.web.applicationmap.rawdata.AgentHistogram;
-import com.nhn.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
-import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.CreateType;
+import com.navercorp.pinpoint.web.applicationmap.Link;
+import com.navercorp.pinpoint.web.applicationmap.Node;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
+import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Range;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

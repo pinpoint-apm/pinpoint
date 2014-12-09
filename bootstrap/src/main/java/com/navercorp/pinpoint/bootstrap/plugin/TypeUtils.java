@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin;
 
 public abstract class TypeUtils {
     public static Class<?> getWrapperOf(Class<?> primitive) {

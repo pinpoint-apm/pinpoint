@@ -1,9 +1,9 @@
-package com.nhn.pinpoint.rpc.client;
+package com.navercorp.pinpoint.rpc.client;
 
 import org.jboss.netty.channel.Channel;
 
-import com.nhn.pinpoint.rpc.packet.RequestPacket;
-import com.nhn.pinpoint.rpc.packet.SendPacket;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.packet.SendPacket;
 
 /**
  * @author koo.taejin

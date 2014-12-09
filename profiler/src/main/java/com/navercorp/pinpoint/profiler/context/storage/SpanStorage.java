@@ -1,9 +1,9 @@
-package com.nhn.pinpoint.profiler.context.storage;
+package com.navercorp.pinpoint.profiler.context.storage;
 
-import com.nhn.pinpoint.profiler.context.Span;
-import com.nhn.pinpoint.profiler.context.SpanEvent;
-import com.nhn.pinpoint.profiler.sender.DataSender;
-import com.nhn.pinpoint.thrift.dto.TSpanEvent;
+import com.navercorp.pinpoint.profiler.context.Span;
+import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.sender.DataSender;
+import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 
 import java.util.ArrayList;
 import java.util.List;

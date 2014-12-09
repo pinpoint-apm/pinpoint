@@ -1,9 +1,9 @@
-package com.nhn.pinpoint.collector.cluster.route;
+package com.navercorp.pinpoint.collector.cluster.route;
 
 import org.apache.thrift.TBase;
 
-import com.nhn.pinpoint.rpc.stream.ServerStreamChannelContext;
-import com.nhn.pinpoint.thrift.dto.command.TCommandTransfer;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 
 /**
  * @author koo.taejin <kr14910>

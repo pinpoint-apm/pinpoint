@@ -1,24 +1,25 @@
-package com.nhn.pinpoint.profiler.interceptor.bci;
+package com.navercorp.pinpoint.profiler.interceptor.bci;
 
-import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
-import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.nhn.pinpoint.bootstrap.instrument.InstrumentException;
-import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.BindValueTraceValue;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.IntTraceValue;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.DefaultAgent;
-import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
-import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
-import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
-import com.nhn.pinpoint.profiler.modifier.db.interceptor.UnKnownDatabaseInfo;
-import com.nhn.pinpoint.test.MockAgent;
-import com.nhn.pinpoint.test.TestClassLoader;
-import com.nhn.pinpoint.test.TestModifier;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.BindValueTraceValue;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.IntTraceValue;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ObjectTraceValue;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.profiler.DefaultAgent;
+import com.navercorp.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
+import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
+import com.navercorp.pinpoint.profiler.modifier.db.interceptor.UnKnownDatabaseInfo;
+import com.navercorp.pinpoint.test.MockAgent;
+import com.navercorp.pinpoint.test.TestClassLoader;
+import com.navercorp.pinpoint.test.TestModifier;
 
 import javassist.bytecode.Descriptor;
 
@@ -47,7 +48,7 @@ public class JavaAssistClassTest {
 
         ByteCodeInstrumentor byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor();
 
-        String testObjectName = "com.nhn.pinpoint.profiler.interceptor.bci.TestObject";
+        String testObjectName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject";
 
 //        final CallLoader loader = null; // systemClassLoader
 //        final ClassLoader loader = ClassLoader.getSystemClassLoader();
@@ -61,7 +62,7 @@ public class JavaAssistClassTest {
         String[] testObjectSuperClassInterfaces = testObject.getInterfaces();
         Assert.assertEquals(testObjectSuperClassInterfaces.length, 0);
 
-        InstrumentClass classHierarchyObject = byteCodeInstrumentor.getClass(null, "com.nhn.pinpoint.profiler.interceptor.bci.ClassHierarchyObject", null);
+        InstrumentClass classHierarchyObject = byteCodeInstrumentor.getClass(null, "com.navercorp.pinpoint.profiler.interceptor.bci.ClassHierarchyObject", null);
         String hierarchySuperClass = classHierarchyObject.getSuperClass();
         Assert.assertEquals("java.util.HashMap", hierarchySuperClass);
 
@@ -77,7 +78,7 @@ public class JavaAssistClassTest {
 
         ByteCodeInstrumentor byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor();
 
-        String testObjectName = "com.nhn.pinpoint.profiler.interceptor.bci.TestObject";
+        String testObjectName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject";
 
         InstrumentClass testObject = byteCodeInstrumentor.getClass(null, testObjectName, null);
 
@@ -93,7 +94,7 @@ public class JavaAssistClassTest {
 
         ByteCodeInstrumentor byteCodeInstrumentor = new JavaAssistByteCodeInstrumentor();
 
-        String testObjectName = "com.nhn.pinpoint.profiler.interceptor.bci.TestObject";
+        String testObjectName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject";
 
         InstrumentClass testObject = byteCodeInstrumentor.getClass(null, testObjectName, null);
         Assert.assertEquals(testObject.getName(), testObjectName);
@@ -116,7 +117,7 @@ public class JavaAssistClassTest {
     @Test
     public void addTraceValue() throws Exception {
         final TestClassLoader loader = getTestClassLoader();
-        final String javassistClassName = "com.nhn.pinpoint.profiler.interceptor.bci.TestObject";
+        final String javassistClassName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject";
         final TestModifier testModifier = new TestModifier(loader.getInstrumentor(), loader.getAgent()) {
 
             @Override
@@ -126,7 +127,7 @@ public class JavaAssistClassTest {
 
                     InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
-                    Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.interceptor.TestBeforeInterceptor");
+                    Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.interceptor.TestBeforeInterceptor");
                     addInterceptor(interceptor);
                     aClass.addTraceValue(ObjectTraceValue.class);
                     aClass.addTraceValue(IntTraceValue.class);
@@ -197,7 +198,7 @@ public class JavaAssistClassTest {
     @Test
     public void testBeforeAddInterceptor() throws Exception {
         final TestClassLoader loader = getTestClassLoader();
-        final String javassistClassName = "com.nhn.pinpoint.profiler.interceptor.bci.TestObject";
+        final String javassistClassName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject";
 
         final TestModifier testModifier = new TestModifier(loader.getInstrumentor(), loader.getAgent()) {
 
@@ -208,7 +209,7 @@ public class JavaAssistClassTest {
 
                     InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
-                    Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.interceptor.TestBeforeInterceptor");
+                    Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.interceptor.TestBeforeInterceptor");
                     addInterceptor(interceptor);
                     logger.info(interceptor.getClass().getClassLoader().toString());
                     String methodName = "callA";
@@ -236,7 +237,7 @@ public class JavaAssistClassTest {
 
         Interceptor interceptor = testModifier.getInterceptor(0);
         assertEqualsIntField(interceptor, "call", 1);
-        assertEqualsObjectField(interceptor, "className", "com.nhn.pinpoint.profiler.interceptor.bci.TestObject");
+        assertEqualsObjectField(interceptor, "className", "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject");
         assertEqualsObjectField(interceptor, "methodName", methodName);
         assertEqualsObjectField(interceptor, "args", null);
 
@@ -271,7 +272,7 @@ public class JavaAssistClassTest {
     @Test
     public void testBeforeAddInterceptorFormContextClassLoader() throws Exception {
         final TestClassLoader loader = getTestClassLoader();
-        final String testClassObject = "com.nhn.pinpoint.profiler.interceptor.bci.TestObjectContextClassLoader";
+        final String testClassObject = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObjectContextClassLoader";
         final TestModifier testModifier = new TestModifier(loader.getInstrumentor(), loader.getAgent()) {
 
             @Override
@@ -280,7 +281,7 @@ public class JavaAssistClassTest {
                     logger.info("modify cl:{}", classLoader);
                     InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, testClassObject, classFileBuffer);
 
-                    Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.interceptor.TestBeforeInterceptor");
+                    Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.interceptor.TestBeforeInterceptor");
                     addInterceptor(interceptor);
                     logger.info(interceptor.getClass().getClassLoader().toString());
                     String methodName = "callA";
@@ -297,7 +298,7 @@ public class JavaAssistClassTest {
 
 
 
-        Class testObjectClazz = loader.loadClass("com.nhn.pinpoint.profiler.interceptor.bci.TestObjectContextClassLoader");
+        Class testObjectClazz = loader.loadClass("com.navercorp.pinpoint.profiler.interceptor.bci.TestObjectContextClassLoader");
         final String methodName = "callA";
         logger.info("class:{}", testObjectClazz.toString());
         final Object testObject = testObjectClazz.newInstance();
@@ -307,7 +308,7 @@ public class JavaAssistClassTest {
 
         final Interceptor interceptor = testModifier.getInterceptor(0);
         assertEqualsIntField(interceptor, "call", 1);
-        assertEqualsObjectField(interceptor, "className", "com.nhn.pinpoint.profiler.interceptor.bci.TestObjectContextClassLoader");
+        assertEqualsObjectField(interceptor, "className", "com.navercorp.pinpoint.profiler.interceptor.bci.TestObjectContextClassLoader");
         assertEqualsObjectField(interceptor, "methodName", methodName);
         assertEqualsObjectField(interceptor, "args", null);
 
@@ -322,7 +323,7 @@ public class JavaAssistClassTest {
 
 
         final TestClassLoader loader = getTestClassLoader();
-        final String testClassObject = "com.nhn.pinpoint.profiler.interceptor.bci.TestObject2";
+        final String testClassObject = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject2";
         final TestModifier testModifier = new TestModifier(loader.getInstrumentor(), loader.getAgent()) {
 
             @Override
@@ -331,13 +332,13 @@ public class JavaAssistClassTest {
                     logger.info("modify cl:{}", classLoader);
                     InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, testClassObject, classFileBuffer);
 
-                    Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.interceptor.TestAfterInterceptor");
+                    Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.interceptor.TestAfterInterceptor");
                     addInterceptor(interceptor);
                     logger.info(interceptor.getClass().getClassLoader().toString());
                     String methodName = "callA";
                     aClass.addInterceptor(methodName, null, interceptor);
 
-                    Interceptor interceptor2 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.nhn.pinpoint.profiler.interceptor.TestAfterInterceptor");
+                    Interceptor interceptor2 = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain, "com.navercorp.pinpoint.profiler.interceptor.TestAfterInterceptor");
                     addInterceptor(interceptor2);
                     String methodName2 = "callB";
                     aClass.addInterceptor(methodName2, null, interceptor2);
@@ -398,7 +399,7 @@ public class JavaAssistClassTest {
     public void testLog() throws Exception {
 
         final TestClassLoader loader = getTestClassLoader();
-        final String testClassObject = "com.nhn.pinpoint.profiler.interceptor.bci.TestLog";
+        final String testClassObject = "com.navercorp.pinpoint.profiler.interceptor.bci.TestLog";
         final TestModifier testModifier = new TestModifier(loader.getInstrumentor(), loader.getAgent()) {
 
             @Override

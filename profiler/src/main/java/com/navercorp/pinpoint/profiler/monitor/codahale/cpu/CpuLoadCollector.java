@@ -1,14 +1,14 @@
-package com.nhn.pinpoint.profiler.monitor.codahale.cpu;
+package com.navercorp.pinpoint.profiler.monitor.codahale.cpu;
 
-import static com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues.*;
+import static com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValues.*;
 
 import java.util.Map;
 
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Metric;
-import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
-import com.nhn.pinpoint.profiler.monitor.codahale.cpu.metric.CpuLoadMetricSet;
-import com.nhn.pinpoint.thrift.dto.TCpuLoad;
+import com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
+import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.CpuLoadMetricSet;
+import com.navercorp.pinpoint.thrift.dto.TCpuLoad;
 
 /**
  * @author hyungil.jeong

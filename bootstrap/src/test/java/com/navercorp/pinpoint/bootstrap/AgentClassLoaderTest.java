@@ -1,7 +1,8 @@
-package com.nhn.pinpoint.bootstrap;
+package com.navercorp.pinpoint.bootstrap;
 
 
-import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.AgentClassLoader;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -22,7 +23,7 @@ public class AgentClassLoaderTest {
     @Test
     public void boot() throws IOException, ClassNotFoundException {
         AgentClassLoader agentClassLoader = new AgentClassLoader(new URL[0]);
-        agentClassLoader.setBootClass("com.nhn.pinpoint.bootstrap.DummyAgent");
+        agentClassLoader.setBootClass("com.navercorp.pinpoint.bootstrap.DummyAgent");
         agentClassLoader.boot("agentPath", "test", new DummyInstrumentation(), new ProfilerConfig());
         // TODO logger가져오는 기능이 달라져서 확인이 필요함.
 //        PLoggerBinder loggerBinder = (PLoggerBinder) agentClassLoader.initializeLoggerBinder();

@@ -1,17 +1,17 @@
-package com.nhn.pinpoint.web.alarm;
+package com.navercorp.pinpoint.web.alarm;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.nhn.pinpoint.web.alarm.collector.AgentStatDataCollector;
-import com.nhn.pinpoint.web.alarm.collector.DataCollector;
-import com.nhn.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector;
-import com.nhn.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
-import com.nhn.pinpoint.web.dao.hbase.HbaseAgentStatDao;
-import com.nhn.pinpoint.web.dao.hbase.HbaseApplicationIndexDao;
-import com.nhn.pinpoint.web.dao.hbase.HbaseMapResponseTimeDao;
-import com.nhn.pinpoint.web.dao.hbase.HbaseMapStatisticsCallerDao;
-import com.nhn.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.alarm.collector.AgentStatDataCollector;
+import com.navercorp.pinpoint.web.alarm.collector.DataCollector;
+import com.navercorp.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector;
+import com.navercorp.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
+import com.navercorp.pinpoint.web.dao.hbase.HbaseAgentStatDao;
+import com.navercorp.pinpoint.web.dao.hbase.HbaseApplicationIndexDao;
+import com.navercorp.pinpoint.web.dao.hbase.HbaseMapResponseTimeDao;
+import com.navercorp.pinpoint.web.dao.hbase.HbaseMapStatisticsCallerDao;
+import com.navercorp.pinpoint.web.vo.Application;
 
 @Component
 public class DataCollectorFactory {

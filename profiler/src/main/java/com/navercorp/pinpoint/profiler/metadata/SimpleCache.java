@@ -1,8 +1,8 @@
-package com.nhn.pinpoint.profiler.metadata;
+package com.navercorp.pinpoint.profiler.metadata;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.nhn.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;

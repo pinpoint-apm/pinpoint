@@ -1,12 +1,11 @@
-package com.nhn.pinpoint.profiler.modifier.method.interceptor;
+package com.navercorp.pinpoint.profiler.modifier.method.interceptor;
 
-import com.nhn.pinpoint.bootstrap.interceptor.*;
-import com.nhn.pinpoint.bootstrap.logging.PLogger;
-import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
-
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.bootstrap.context.Trace;
-import com.nhn.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.*;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.ServiceType;
 
 /**
  * 

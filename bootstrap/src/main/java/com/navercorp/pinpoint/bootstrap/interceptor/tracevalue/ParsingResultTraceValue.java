@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.bootstrap.interceptor.tracevalue;
+package com.navercorp.pinpoint.bootstrap.interceptor.tracevalue;
 
-import com.nhn.pinpoint.common.util.ParsingResult;
+import com.navercorp.pinpoint.common.util.ParsingResult;
 
 /**
  * @author emeroad

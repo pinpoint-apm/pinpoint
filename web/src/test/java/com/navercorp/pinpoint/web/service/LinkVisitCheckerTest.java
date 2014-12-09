@@ -1,8 +1,11 @@
-package com.nhn.pinpoint.web.service;
+package com.navercorp.pinpoint.web.service;
 
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.web.service.LinkVisitChecker;
+import com.navercorp.pinpoint.web.vo.Application;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
 
 /**

@@ -1,7 +1,11 @@
-package com.nhn.pinpoint.common.util;
+package com.navercorp.pinpoint.common.util;
 
 import junit.framework.Assert;
+
 import org.junit.Test;
+
+import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 
 /**
  * @author emeroad

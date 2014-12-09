@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.profiler;
+package com.navercorp.pinpoint.profiler;
 
-import com.nhn.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.ServiceType;
 
 import java.util.HashMap;
 import java.util.Map;

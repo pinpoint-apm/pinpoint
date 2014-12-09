@@ -1,7 +1,11 @@
-package com.nhn.pinpoint.profiler.metadata;
+package com.navercorp.pinpoint.profiler.metadata;
 
 import junit.framework.Assert;
+
 import org.junit.Test;
+
+import com.navercorp.pinpoint.profiler.metadata.Result;
+import com.navercorp.pinpoint.profiler.metadata.SimpleCache;
 
 /**
  * @author emeroad

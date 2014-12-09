@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector.receiver.udp;
+package com.navercorp.pinpoint.collector.receiver.udp;
 
 import org.jboss.netty.bootstrap.ConnectionlessBootstrap;
 import org.jboss.netty.channel.*;

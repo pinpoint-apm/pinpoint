@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.profiler.modifier.arcus.interceptor;
+package com.navercorp.pinpoint.profiler.modifier.arcus.interceptor;
 
-import com.nhn.pinpoint.bootstrap.interceptor.ParameterExtractor;
+import com.navercorp.pinpoint.bootstrap.interceptor.ParameterExtractor;
 
 /**
  * @author emeroad

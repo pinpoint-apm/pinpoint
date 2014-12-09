@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector.dao.hbase.statistics;
+package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
 /**
  * @author emeroad

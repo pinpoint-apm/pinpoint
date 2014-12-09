@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.monitor.metric;
+package com.navercorp.pinpoint.profiler.monitor.metric;
 
 /**
  * @author emeroad

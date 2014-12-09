@@ -1,11 +1,15 @@
-package com.nhn.pinpoint.profiler.util;
+package com.navercorp.pinpoint.profiler.util;
 
 import javassist.*;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.navercorp.pinpoint.profiler.util.ApiUtils;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 import java.util.Arrays;
 

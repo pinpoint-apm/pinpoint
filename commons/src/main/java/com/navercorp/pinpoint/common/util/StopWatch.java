@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.common.util;
+package com.navercorp.pinpoint.common.util;
 
 /**
  * 단순한 stopwatch

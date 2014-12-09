@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.tomcat;
+package com.navercorp.pinpoint.profiler.modifier.tomcat;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -14,12 +14,12 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.nhn.pinpoint.bootstrap.context.Header;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.bo.SpanBo;
-import com.nhn.pinpoint.common.util.TransactionIdUtils;
-import com.nhn.pinpoint.test.junit4.BasePinpointTest;
-import com.nhn.pinpoint.test.junit4.IsRootSpan;
+import com.navercorp.pinpoint.bootstrap.context.Header;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.common.util.TransactionIdUtils;
+import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
+import com.navercorp.pinpoint.test.junit4.IsRootSpan;
 
 /**
  * @author hyungil.jeong

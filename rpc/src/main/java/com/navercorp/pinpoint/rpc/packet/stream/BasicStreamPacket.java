@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.rpc.packet.stream;
+package com.navercorp.pinpoint.rpc.packet.stream;
 
 /**
  * @author koo.taejin <kr14910>

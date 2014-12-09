@@ -1,11 +1,11 @@
-package com.nhn.pinpoint.common.util;
+package com.navercorp.pinpoint.common.util;
 
-import static com.nhn.pinpoint.common.PinpointConstants.AGENT_NAME_MAX_LEN;
+import static com.navercorp.pinpoint.common.PinpointConstants.*;
 
-import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
-import com.nhn.pinpoint.common.buffer.Buffer;
-import com.nhn.pinpoint.thrift.dto.TSpan;
-import com.nhn.pinpoint.thrift.dto.TSpanChunk;
+import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.thrift.dto.TSpan;
+import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 
 /**
  * @author emeroad

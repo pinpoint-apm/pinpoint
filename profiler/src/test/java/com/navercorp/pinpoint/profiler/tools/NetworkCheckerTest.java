@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.tools;
+package com.navercorp.pinpoint.profiler.tools;
 
 /**
  * 

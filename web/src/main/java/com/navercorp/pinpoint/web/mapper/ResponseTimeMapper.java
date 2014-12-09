@@ -1,11 +1,11 @@
-package com.nhn.pinpoint.web.mapper;
+package com.navercorp.pinpoint.web.mapper;
 
-import com.nhn.pinpoint.common.buffer.Buffer;
-import com.nhn.pinpoint.common.buffer.FixedBuffer;
-import com.nhn.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.util.TimeUtils;
+import com.navercorp.pinpoint.web.vo.ResponseTime;
 
-import com.nhn.pinpoint.common.util.TimeUtils;
-import com.nhn.pinpoint.web.vo.ResponseTime;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;

@@ -1,8 +1,8 @@
-package com.nhn.pinpoint.profiler.modifier.orm;
+package com.navercorp.pinpoint.profiler.modifier.orm;
 
-import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
-import com.nhn.pinpoint.bootstrap.interceptor.*;
-import com.nhn.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
+import com.navercorp.pinpoint.bootstrap.interceptor.*;
+import com.navercorp.pinpoint.common.ServiceType;
 
 /**
  * @author Hyun Jeong

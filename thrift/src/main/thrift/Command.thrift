@@ -1,4 +1,4 @@
-namespace java com.nhn.pinpoint.thrift.dto.command
+namespace java com.navercorp.pinpoint.thrift.dto.command
 
 enum TThreadDumpType {
     TARGET,

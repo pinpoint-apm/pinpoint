@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.sender;
+package com.navercorp.pinpoint.profiler.sender;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

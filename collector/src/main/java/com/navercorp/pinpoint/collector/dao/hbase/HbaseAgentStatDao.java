@@ -1,25 +1,21 @@
-package com.nhn.pinpoint.collector.dao.hbase;
+package com.navercorp.pinpoint.collector.dao.hbase;
 
-import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENT_NAME_MAX_LEN;
-import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENT_STAT;
-import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENT_STAT_CF_STATISTICS;
-import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENT_STAT_CF_STATISTICS_MEMORY_GC;
-import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENT_STAT_CF_STATISTICS_CPU_LOAD;
+import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 
 import org.apache.hadoop.hbase.client.Put;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
-import com.nhn.pinpoint.collector.dao.AgentStatDao;
-import com.nhn.pinpoint.collector.mapper.thrift.ThriftBoMapper;
-import com.nhn.pinpoint.common.bo.AgentStatCpuLoadBo;
-import com.nhn.pinpoint.common.bo.AgentStatMemoryGcBo;
-import com.nhn.pinpoint.common.hbase.HbaseOperations2;
-import com.nhn.pinpoint.common.util.BytesUtils;
-import com.nhn.pinpoint.common.util.RowKeyUtils;
-import com.nhn.pinpoint.common.util.TimeUtils;
-import com.nhn.pinpoint.thrift.dto.TAgentStat;
+import com.navercorp.pinpoint.collector.dao.AgentStatDao;
+import com.navercorp.pinpoint.collector.mapper.thrift.ThriftBoMapper;
+import com.navercorp.pinpoint.common.bo.AgentStatCpuLoadBo;
+import com.navercorp.pinpoint.common.bo.AgentStatMemoryGcBo;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.RowKeyUtils;
+import com.navercorp.pinpoint.common.util.TimeUtils;
+import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 
 /**

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.thrift.io;
+package com.navercorp.pinpoint.thrift.io;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -9,7 +9,7 @@ import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 
-import com.nhn.pinpoint.thrift.io.UnsafeByteArrayOutputStream;
+import com.navercorp.pinpoint.thrift.io.UnsafeByteArrayOutputStream;
 
 /**
  * TBase stream(byte arrays)

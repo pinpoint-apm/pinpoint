@@ -1,8 +1,8 @@
-package com.nhn.pinpoint.web.dao;
+package com.navercorp.pinpoint.web.dao;
 
-import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.web.vo.Range;
-import com.nhn.pinpoint.web.vo.ResponseTime;
+import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.ResponseTime;
 
 import java.util.List;
 

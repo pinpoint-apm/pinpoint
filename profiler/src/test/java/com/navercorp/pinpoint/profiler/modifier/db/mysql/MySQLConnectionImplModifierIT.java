@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.db.mysql;
+package com.navercorp.pinpoint.profiler.modifier.db.mysql;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
@@ -21,10 +21,10 @@ import org.slf4j.LoggerFactory;
 
 import com.mysql.jdbc.JDBC4PreparedStatement;
 import com.mysql.jdbc.NonRegisteringDriver;
-import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
-import com.nhn.pinpoint.common.util.PropertyUtils;
-import com.nhn.pinpoint.test.junit4.BasePinpointTest;
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
+import com.navercorp.pinpoint.common.util.PropertyUtils;
+import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
 
 /**
  * @author emeroad

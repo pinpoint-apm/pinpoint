@@ -1,6 +1,7 @@
-package com.nhn.pinpoint.collector.mapper;
+package com.navercorp.pinpoint.collector.mapper;
 
-import com.nhn.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.BytesUtils;
+
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.springframework.data.hadoop.hbase.RowMapper;

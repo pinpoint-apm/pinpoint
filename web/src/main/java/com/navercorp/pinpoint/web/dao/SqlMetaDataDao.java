@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.web.dao;
+package com.navercorp.pinpoint.web.dao;
 
-import com.nhn.pinpoint.common.bo.SqlMetaDataBo;
+import com.navercorp.pinpoint.common.bo.SqlMetaDataBo;
 
 import java.util.List;
 

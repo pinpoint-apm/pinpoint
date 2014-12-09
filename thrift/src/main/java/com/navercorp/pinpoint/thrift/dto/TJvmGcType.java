@@ -4,7 +4,7 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  *  @generated
  */
-package com.nhn.pinpoint.thrift.dto;
+package com.navercorp.pinpoint.thrift.dto;
 
 
 import java.util.Map;

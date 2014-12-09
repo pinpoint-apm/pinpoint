@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.interceptor.bci.mock;
+package com.navercorp.pinpoint.profiler.interceptor.bci.mock;
 
 import java.util.Collections;
 import java.util.Map;

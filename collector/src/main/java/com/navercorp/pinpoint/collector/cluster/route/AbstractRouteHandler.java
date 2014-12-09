@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector.cluster.route;
+package com.navercorp.pinpoint.collector.cluster.route;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,9 +6,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.collector.cluster.ClusterPointLocator;
-import com.nhn.pinpoint.collector.cluster.TargetClusterPoint;
-import com.nhn.pinpoint.thrift.dto.command.TCommandTransfer;
+import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
+import com.navercorp.pinpoint.collector.cluster.TargetClusterPoint;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 
 /**
  * @author koo.taejin <kr14910>

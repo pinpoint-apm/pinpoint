@@ -1,16 +1,16 @@
-package com.nhn.pinpoint.collector.receiver.udp;
+package com.navercorp.pinpoint.collector.receiver.udp;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import com.nhn.pinpoint.collector.receiver.DataReceiver;
-import com.nhn.pinpoint.collector.receiver.DispatchHandler;
-import com.nhn.pinpoint.collector.util.DatagramPacketFactory;
-import com.nhn.pinpoint.collector.util.ObjectPool;
-import com.nhn.pinpoint.collector.util.PacketUtils;
-import com.nhn.pinpoint.common.util.PinpointThreadFactory;
-import com.nhn.pinpoint.common.util.ExecutorFactory;
-import com.nhn.pinpoint.rpc.util.CpuUtils;
+import com.navercorp.pinpoint.collector.receiver.DataReceiver;
+import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.collector.util.DatagramPacketFactory;
+import com.navercorp.pinpoint.collector.util.ObjectPool;
+import com.navercorp.pinpoint.collector.util.PacketUtils;
+import com.navercorp.pinpoint.common.util.ExecutorFactory;
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.rpc.util.CpuUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,14 +1,13 @@
-package com.nhn.pinpoint.web.service;
+package com.navercorp.pinpoint.web.service;
 
 import java.util.List;
 
-import com.nhn.pinpoint.web.vo.AgentStat;
-import com.nhn.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.dao.AgentStatDao;
+import com.navercorp.pinpoint.web.vo.AgentStat;
+import com.navercorp.pinpoint.web.vo.Range;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.nhn.pinpoint.web.dao.AgentStatDao;
 
 /**
  * @author harebox

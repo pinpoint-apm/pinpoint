@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.bootstrap.instrument;
+package com.navercorp.pinpoint.bootstrap.instrument;
 
-import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 
 /**
  * @author emeroad

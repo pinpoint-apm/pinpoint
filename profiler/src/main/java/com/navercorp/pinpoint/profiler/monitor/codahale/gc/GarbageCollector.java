@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.profiler.monitor.codahale.gc;
+package com.navercorp.pinpoint.profiler.monitor.codahale.gc;
 
-import com.nhn.pinpoint.thrift.dto.TJvmGc;
+import com.navercorp.pinpoint.thrift.dto.TJvmGc;
 
 /**
  * @author harebox

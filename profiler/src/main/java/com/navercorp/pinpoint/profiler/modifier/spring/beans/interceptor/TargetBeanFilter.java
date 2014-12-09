@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.spring.beans.interceptor;
+package com.navercorp.pinpoint.profiler.modifier.spring.beans.interceptor;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 public class TargetBeanFilter {
     private static final int CACHE_SIZE = 1024;

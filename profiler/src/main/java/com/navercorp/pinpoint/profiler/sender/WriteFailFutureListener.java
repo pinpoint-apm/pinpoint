@@ -1,7 +1,8 @@
-package com.nhn.pinpoint.profiler.sender;
+package com.navercorp.pinpoint.profiler.sender;
 
-import com.nhn.pinpoint.rpc.Future;
-import com.nhn.pinpoint.rpc.FutureListener;
+import com.navercorp.pinpoint.rpc.Future;
+import com.navercorp.pinpoint.rpc.FutureListener;
+
 import org.slf4j.Logger;
 
 /**

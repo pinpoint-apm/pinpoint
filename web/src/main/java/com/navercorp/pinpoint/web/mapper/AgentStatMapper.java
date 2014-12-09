@@ -1,20 +1,17 @@
-package com.nhn.pinpoint.web.mapper;
+package com.navercorp.pinpoint.web.mapper;
 
-import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENT_STAT_CF_STATISTICS;
-import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENT_STAT_CF_STATISTICS_V1;
-import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENT_STAT_CF_STATISTICS_MEMORY_GC;
-import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENT_STAT_CF_STATISTICS_CPU_LOAD;
+import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.nhn.pinpoint.common.bo.AgentStatCpuLoadBo;
-import com.nhn.pinpoint.common.bo.AgentStatMemoryGcBo;
-import com.nhn.pinpoint.thrift.dto.TAgentStat;
-import com.nhn.pinpoint.thrift.dto.TJvmGc;
-import com.nhn.pinpoint.web.vo.AgentStat;
+import com.navercorp.pinpoint.common.bo.AgentStatCpuLoadBo;
+import com.navercorp.pinpoint.common.bo.AgentStatMemoryGcBo;
+import com.navercorp.pinpoint.thrift.dto.TAgentStat;
+import com.navercorp.pinpoint.thrift.dto.TJvmGc;
+import com.navercorp.pinpoint.web.vo.AgentStat;
 
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.thrift.TDeserializer;

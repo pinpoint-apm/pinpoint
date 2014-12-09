@@ -1,8 +1,9 @@
-package com.nhn.pinpoint.web.mapper;
+package com.navercorp.pinpoint.web.mapper;
 
-import com.nhn.pinpoint.common.buffer.Buffer;
-import com.nhn.pinpoint.common.buffer.FixedBuffer;
-import com.nhn.pinpoint.web.service.map.AcceptApplication;
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.web.service.map.AcceptApplication;
+
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.slf4j.Logger;

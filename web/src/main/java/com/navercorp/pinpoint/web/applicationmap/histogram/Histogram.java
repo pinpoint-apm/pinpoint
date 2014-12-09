@@ -1,13 +1,11 @@
-package com.nhn.pinpoint.web.applicationmap.histogram;
+package com.navercorp.pinpoint.web.applicationmap.histogram;
 
-import com.nhn.pinpoint.common.HistogramSchema;
-import com.nhn.pinpoint.common.SlotType;
-import com.nhn.pinpoint.web.view.HistogramSerializer;
-
+import com.navercorp.pinpoint.common.HistogramSchema;
+import com.navercorp.pinpoint.common.HistogramSlot;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.SlotType;
+import com.navercorp.pinpoint.web.view.HistogramSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
-import com.nhn.pinpoint.common.HistogramSlot;
-import com.nhn.pinpoint.common.ServiceType;
 
 
 /**

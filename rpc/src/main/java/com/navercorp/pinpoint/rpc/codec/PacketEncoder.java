@@ -1,6 +1,7 @@
-package com.nhn.pinpoint.rpc.codec;
+package com.navercorp.pinpoint.rpc.codec;
 
-import com.nhn.pinpoint.rpc.packet.Packet;
+import com.navercorp.pinpoint.rpc.packet.Packet;
+
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;

@@ -1,11 +1,14 @@
-package com.nhn.pinpoint.rpc.client;
+package com.navercorp.pinpoint.rpc.client;
 
-import com.nhn.pinpoint.rpc.Future;
-import com.nhn.pinpoint.rpc.PinpointSocketException;
-import com.nhn.pinpoint.rpc.ResponseMessage;
-import com.nhn.pinpoint.rpc.TestByteUtils;
-import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
-import com.nhn.pinpoint.rpc.server.TestSeverMessageListener;
+import com.navercorp.pinpoint.rpc.Future;
+import com.navercorp.pinpoint.rpc.PinpointSocketException;
+import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.TestByteUtils;
+import com.navercorp.pinpoint.rpc.client.PinpointSocket;
+import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
+import com.navercorp.pinpoint.rpc.client.PinpointSocketReconnectEventListener;
+import com.navercorp.pinpoint.rpc.server.PinpointServerSocket;
+import com.navercorp.pinpoint.rpc.server.TestSeverMessageListener;
 
 import org.junit.Assert;
 import org.junit.Test;

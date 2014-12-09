@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector.monitor;
+package com.navercorp.pinpoint.collector.monitor;
 
 import com.codahale.metrics.JvmAttributeGaugeSet;
 import com.codahale.metrics.MetricRegistry;
@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class CollectorMetric {
 
-    public static final String REPOTER_LOGGER_NAME = "com.nhn.pinpoint.collector.StateReport";
+    public static final String REPOTER_LOGGER_NAME = "com.navercorp.pinpoint.collector.StateReport";
 
     private final Logger reporterLogger = LoggerFactory.getLogger(REPOTER_LOGGER_NAME);
 

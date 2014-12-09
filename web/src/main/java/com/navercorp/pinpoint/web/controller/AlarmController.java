@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.controller;
+package com.navercorp.pinpoint.web.controller;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -8,12 +8,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.nhn.pinpoint.web.alarm.CheckerCategory;
-import com.nhn.pinpoint.web.alarm.vo.AlarmEmp;
-import com.nhn.pinpoint.web.alarm.vo.Rule;
-import com.nhn.pinpoint.web.dao.mysql.MySqlAlarmResourceDao;
-import com.nhn.pinpoint.web.service.CommonService;
-import com.nhn.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.alarm.CheckerCategory;
+import com.navercorp.pinpoint.web.alarm.vo.AlarmEmp;
+import com.navercorp.pinpoint.web.alarm.vo.Rule;
+import com.navercorp.pinpoint.web.dao.mysql.MySqlAlarmResourceDao;
+import com.navercorp.pinpoint.web.service.CommonService;
+import com.navercorp.pinpoint.web.vo.Application;
 
 @Controller
 public class AlarmController {

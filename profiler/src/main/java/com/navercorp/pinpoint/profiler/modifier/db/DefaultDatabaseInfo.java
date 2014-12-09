@@ -1,7 +1,7 @@
-package com.nhn.pinpoint.profiler.modifier.db;
+package com.navercorp.pinpoint.profiler.modifier.db;
 
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.common.ServiceType;
 
 import java.util.List;
 

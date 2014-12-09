@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.bootstrap.context;
+package com.navercorp.pinpoint.bootstrap.context;
 
 import java.util.List;
 import java.util.Map;

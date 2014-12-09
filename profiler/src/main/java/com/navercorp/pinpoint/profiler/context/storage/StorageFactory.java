@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.context.storage;
+package com.navercorp.pinpoint.profiler.context.storage;
 
 /**
  * @author emeroad

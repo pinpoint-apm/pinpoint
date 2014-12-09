@@ -1,7 +1,7 @@
-package com.nhn.pinpoint.web.applicationmap.histogram;
+package com.navercorp.pinpoint.web.applicationmap.histogram;
 
-import com.nhn.pinpoint.common.HistogramSchema;
-import com.nhn.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.HistogramSchema;
+import com.navercorp.pinpoint.common.ServiceType;
 
 import java.util.Comparator;
 

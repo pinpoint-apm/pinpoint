@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.web.applicationmap.rawdata;
+package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
-import com.nhn.pinpoint.web.vo.LinkKey;
+import com.navercorp.pinpoint.web.vo.LinkKey;
 
 import java.util.Collection;
 

@@ -1,8 +1,12 @@
-package com.nhn.pinpoint.profiler.modifier.db.oracle.parser;
+package com.navercorp.pinpoint.profiler.modifier.db.oracle.parser;
 
 
 import junit.framework.Assert;
+
 import org.junit.Test;
+
+import com.navercorp.pinpoint.profiler.modifier.db.oracle.parser.OracleNetConnectionDescriptorTokenizer;
+import com.navercorp.pinpoint.profiler.modifier.db.oracle.parser.Token;
 
 /**
  * @author emeroad

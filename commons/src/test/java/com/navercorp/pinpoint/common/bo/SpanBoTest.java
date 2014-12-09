@@ -1,8 +1,11 @@
-package com.nhn.pinpoint.common.bo;
+package com.navercorp.pinpoint.common.bo;
 
 
-import com.nhn.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.bo.SpanBo;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

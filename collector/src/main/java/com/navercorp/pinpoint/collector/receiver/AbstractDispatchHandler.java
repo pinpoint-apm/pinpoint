@@ -1,9 +1,10 @@
-package com.nhn.pinpoint.collector.receiver;
+package com.navercorp.pinpoint.collector.receiver;
 
-import com.nhn.pinpoint.collector.handler.Handler;
-import com.nhn.pinpoint.collector.handler.RequestResponseHandler;
-import com.nhn.pinpoint.collector.handler.SimpleHandler;
-import com.nhn.pinpoint.collector.util.AcceptedTimeService;
+import com.navercorp.pinpoint.collector.handler.Handler;
+import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
+import com.navercorp.pinpoint.collector.handler.SimpleHandler;
+import com.navercorp.pinpoint.collector.util.AcceptedTimeService;
+
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

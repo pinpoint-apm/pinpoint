@@ -1,7 +1,10 @@
-package com.nhn.pinpoint.web.util;
+package com.navercorp.pinpoint.web.util;
 
 import junit.framework.Assert;
+
 import org.junit.Test;
+
+import com.navercorp.pinpoint.web.util.LimitUtils;
 
 /**
  * @author emeroad

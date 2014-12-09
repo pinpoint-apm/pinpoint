@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.spring.beans;
+package com.navercorp.pinpoint.profiler.modifier.spring.beans;
 
 import java.security.ProtectionDomain;
 import java.util.Arrays;
@@ -9,13 +9,13 @@ import javassist.bytecode.AccessFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
-import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.modifier.Modifier;
-import com.nhn.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor;
+import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.profiler.modifier.Modifier;
+import com.navercorp.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor;
 
 /**
  * 

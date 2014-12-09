@@ -1,21 +1,21 @@
-package com.nhn.pinpoint.profiler.monitor.codahale;
+package com.navercorp.pinpoint.profiler.monitor.codahale;
 
-import com.nhn.pinpoint.profiler.monitor.MonitorName;
-import com.nhn.pinpoint.profiler.monitor.codahale.cpu.CpuLoadCollector;
-import com.nhn.pinpoint.profiler.monitor.codahale.cpu.metric.CpuLoadMetricSet;
-import com.nhn.pinpoint.profiler.monitor.codahale.gc.CmsCollector;
-import com.nhn.pinpoint.profiler.monitor.codahale.gc.G1Collector;
-import com.nhn.pinpoint.profiler.monitor.codahale.gc.GarbageCollector;
-import com.nhn.pinpoint.profiler.monitor.codahale.gc.ParallelCollector;
-import com.nhn.pinpoint.profiler.monitor.codahale.gc.SerialCollector;
-import com.nhn.pinpoint.profiler.monitor.codahale.gc.UnknownGarbageCollector;
+import com.navercorp.pinpoint.profiler.monitor.MonitorName;
+import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.CpuLoadCollector;
+import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.CpuLoadMetricSet;
+import com.navercorp.pinpoint.profiler.monitor.codahale.gc.CmsCollector;
+import com.navercorp.pinpoint.profiler.monitor.codahale.gc.G1Collector;
+import com.navercorp.pinpoint.profiler.monitor.codahale.gc.GarbageCollector;
+import com.navercorp.pinpoint.profiler.monitor.codahale.gc.ParallelCollector;
+import com.navercorp.pinpoint.profiler.monitor.codahale.gc.SerialCollector;
+import com.navercorp.pinpoint.profiler.monitor.codahale.gc.UnknownGarbageCollector;
 
 import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues.*;
+import static com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValues.*;
 
 /**
  * @author emeroad

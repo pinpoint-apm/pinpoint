@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier;
+package com.navercorp.pinpoint.profiler.modifier;
 
 /**
  * @author emeroad

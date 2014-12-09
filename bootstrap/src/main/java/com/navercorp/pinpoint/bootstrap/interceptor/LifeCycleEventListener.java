@@ -1,8 +1,8 @@
-package com.nhn.pinpoint.bootstrap.interceptor;
+package com.navercorp.pinpoint.bootstrap.interceptor;
 
-import com.nhn.pinpoint.bootstrap.Agent;
-import com.nhn.pinpoint.bootstrap.logging.PLogger;
-import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.Agent;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
 /**
  * @author emeroad

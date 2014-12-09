@@ -1,7 +1,10 @@
-package com.nhn.pinpoint.profiler.modifier.db.interceptor;
+package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
 
 import junit.framework.Assert;
+
 import org.junit.Test;
+
+import com.navercorp.pinpoint.profiler.modifier.db.interceptor.BindValueUtils;
 
 public class BindValueUtilsTest {
 

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector.cluster.zookeeper;
+package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
 import java.io.IOException;
 import java.util.List;
@@ -15,15 +15,15 @@ import org.apache.zookeeper.proto.WatcherEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.collector.cluster.AbstractClusterService;
-import com.nhn.pinpoint.collector.cluster.ClusterPointRouter;
-import com.nhn.pinpoint.collector.cluster.WebCluster;
-import com.nhn.pinpoint.collector.cluster.WorkerState;
-import com.nhn.pinpoint.collector.cluster.WorkerStateContext;
-import com.nhn.pinpoint.collector.config.CollectorConfiguration;
-import com.nhn.pinpoint.collector.util.CollectorUtils;
-import com.nhn.pinpoint.rpc.server.ChannelContext;
-import com.nhn.pinpoint.rpc.server.SocketChannelStateChangeEventListener;
+import com.navercorp.pinpoint.collector.cluster.AbstractClusterService;
+import com.navercorp.pinpoint.collector.cluster.ClusterPointRouter;
+import com.navercorp.pinpoint.collector.cluster.WebCluster;
+import com.navercorp.pinpoint.collector.cluster.WorkerState;
+import com.navercorp.pinpoint.collector.cluster.WorkerStateContext;
+import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
+import com.navercorp.pinpoint.collector.util.CollectorUtils;
+import com.navercorp.pinpoint.rpc.server.ChannelContext;
+import com.navercorp.pinpoint.rpc.server.SocketChannelStateChangeEventListener;
 
 /**
  * @author koo.taejin <kr14910>

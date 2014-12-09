@@ -1,10 +1,10 @@
-package com.nhn.pinpoint.profiler.context;
+package com.navercorp.pinpoint.profiler.context;
 
-import com.nhn.pinpoint.profiler.util.AnnotationValueMapper;
-import com.nhn.pinpoint.thrift.dto.TAnnotation;
-import com.nhn.pinpoint.thrift.dto.TAnnotationValue;
-import com.nhn.pinpoint.thrift.dto.TIntStringStringValue;
-import com.nhn.pinpoint.thrift.dto.TIntStringValue;
+import com.navercorp.pinpoint.profiler.util.AnnotationValueMapper;
+import com.navercorp.pinpoint.thrift.dto.TAnnotation;
+import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
+import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
+import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
 
 /**
  * @author netspider

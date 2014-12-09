@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.rpc.packet.stream;
+package com.navercorp.pinpoint.rpc.packet.stream;
 
-import com.nhn.pinpoint.rpc.packet.Packet;
+import com.navercorp.pinpoint.rpc.packet.Packet;
 
 /**
  * @author koo.taejin <kr14910>

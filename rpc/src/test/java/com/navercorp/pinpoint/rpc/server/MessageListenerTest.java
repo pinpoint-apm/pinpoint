@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.rpc.server;
+package com.navercorp.pinpoint.rpc.server;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,17 +12,21 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.rpc.Future;
-import com.nhn.pinpoint.rpc.ResponseMessage;
-import com.nhn.pinpoint.rpc.client.MessageListener;
-import com.nhn.pinpoint.rpc.client.PinpointSocket;
-import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
-import com.nhn.pinpoint.rpc.client.SimpleLoggingMessageListener;
-import com.nhn.pinpoint.rpc.packet.HandshakeResponseCode;
-import com.nhn.pinpoint.rpc.packet.HandshakeResponseType;
-import com.nhn.pinpoint.rpc.packet.RequestPacket;
-import com.nhn.pinpoint.rpc.packet.ResponsePacket;
-import com.nhn.pinpoint.rpc.packet.SendPacket;
+import com.navercorp.pinpoint.rpc.Future;
+import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.client.MessageListener;
+import com.navercorp.pinpoint.rpc.client.PinpointSocket;
+import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
+import com.navercorp.pinpoint.rpc.client.SimpleLoggingMessageListener;
+import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
+import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
+import com.navercorp.pinpoint.rpc.packet.SendPacket;
+import com.navercorp.pinpoint.rpc.server.ChannelContext;
+import com.navercorp.pinpoint.rpc.server.PinpointServerSocket;
+import com.navercorp.pinpoint.rpc.server.PinpointServerSocketStateCode;
+import com.navercorp.pinpoint.rpc.server.SimpleLoggingServerMessageListener;
 
 public class MessageListenerTest {
 

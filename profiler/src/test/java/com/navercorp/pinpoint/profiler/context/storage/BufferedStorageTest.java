@@ -1,14 +1,16 @@
-package com.nhn.pinpoint.profiler.context.storage;
+package com.navercorp.pinpoint.profiler.context.storage;
 
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.Version;
-import com.nhn.pinpoint.profiler.AgentInformation;
-import com.nhn.pinpoint.profiler.context.Span;
-import com.nhn.pinpoint.profiler.context.SpanChunkFactory;
-import com.nhn.pinpoint.profiler.context.SpanEvent;
-import com.nhn.pinpoint.profiler.context.storage.BufferedStorage;
-import com.nhn.pinpoint.profiler.sender.CountingDataSender;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.context.Span;
+import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
+import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.storage.BufferedStorage;
+import com.navercorp.pinpoint.profiler.sender.CountingDataSender;
+
 import junit.framework.Assert;
+
 import org.junit.Before;
 import org.junit.Test;
 

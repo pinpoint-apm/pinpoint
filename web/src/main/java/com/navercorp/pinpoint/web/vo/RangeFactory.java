@@ -1,6 +1,7 @@
-package com.nhn.pinpoint.web.vo;
+package com.navercorp.pinpoint.web.vo;
 
-import com.nhn.pinpoint.common.util.TimeSlot;
+import com.navercorp.pinpoint.common.util.TimeSlot;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**

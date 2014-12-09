@@ -1,12 +1,12 @@
-package com.nhn.pinpoint.profiler.modifier.db.mysql;
+package com.navercorp.pinpoint.profiler.modifier.db.mysql;
 
-import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
-import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.DefaultAgent;
-import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
-import com.nhn.pinpoint.test.MockAgent;
-import com.nhn.pinpoint.test.TestClassLoader;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.profiler.DefaultAgent;
+import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
+import com.navercorp.pinpoint.test.MockAgent;
+import com.navercorp.pinpoint.test.TestClassLoader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,7 @@ public class MySQLConnectionImplTest {
 //    @Test
     public void test() throws Throwable {
 //      간접 참조로 실행할 경우의 샘플용으로 commit함.
-//        loader.runTest("com.nhn.pinpoint.profiler.modifier.db.mysql.MySQLConnectionImplModifierTest", "testModify");
+//        loader.runTest("com.navercorp.pinpoint.profiler.modifier.db.mysql.MySQLConnectionImplModifierTest", "testModify");
     }
 
 

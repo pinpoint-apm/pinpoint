@@ -1,15 +1,16 @@
-package com.nhn.pinpoint.profiler.context;
+package com.navercorp.pinpoint.profiler.context;
 
-import com.nhn.pinpoint.bootstrap.context.*;
-import com.nhn.pinpoint.common.AnnotationKey;
-import com.nhn.pinpoint.common.HistogramSchema;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.util.ParsingResult;
-import com.nhn.pinpoint.exception.PinpointException;
-import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.bootstrap.util.StringUtils;
-import com.nhn.pinpoint.profiler.context.storage.Storage;
-import com.nhn.pinpoint.thrift.dto.TIntStringStringValue;
+import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.util.StringUtils;
+import com.navercorp.pinpoint.common.AnnotationKey;
+import com.navercorp.pinpoint.common.HistogramSchema;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.util.ParsingResult;
+import com.navercorp.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.profiler.context.storage.Storage;
+import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

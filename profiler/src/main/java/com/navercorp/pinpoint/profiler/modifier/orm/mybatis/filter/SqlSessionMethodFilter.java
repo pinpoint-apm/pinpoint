@@ -1,11 +1,11 @@
-package com.nhn.pinpoint.profiler.modifier.orm.mybatis.filter;
+package com.navercorp.pinpoint.profiler.modifier.orm.mybatis.filter;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
-import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 
 /**
  * @author Hyun Jeong

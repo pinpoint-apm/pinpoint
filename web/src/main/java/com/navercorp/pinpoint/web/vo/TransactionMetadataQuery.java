@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.vo;
+package com.navercorp.pinpoint.web.vo;
 
 import java.util.*;
 import java.util.Map.Entry;

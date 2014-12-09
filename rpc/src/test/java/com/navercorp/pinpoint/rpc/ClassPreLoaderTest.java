@@ -1,6 +1,8 @@
-package com.nhn.pinpoint.rpc;
+package com.navercorp.pinpoint.rpc;
 
 import org.junit.Test;
+
+import com.navercorp.pinpoint.rpc.ClassPreLoader;
 
 /**
  * @author emeroad

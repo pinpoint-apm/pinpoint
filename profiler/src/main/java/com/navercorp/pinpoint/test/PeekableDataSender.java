@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.test;
+package com.navercorp.pinpoint.test;
 
 import java.util.Iterator;
 import java.util.Queue;
@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.thrift.TBase;
 
-import com.nhn.pinpoint.profiler.sender.DataSender;
+import com.navercorp.pinpoint.profiler.sender.DataSender;
 
 /**
  * @author hyungil.jeong

@@ -1,17 +1,17 @@
-package com.nhn.pinpoint.web.applicationmap;
+package com.navercorp.pinpoint.web.applicationmap;
 
 import java.io.IOException;
 
-import com.nhn.pinpoint.web.applicationmap.histogram.NodeHistogram;
-import com.nhn.pinpoint.web.view.NodeSerializer;
-import com.nhn.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
+import com.navercorp.pinpoint.web.view.NodeSerializer;
+import com.navercorp.pinpoint.web.vo.Application;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.nhn.pinpoint.common.ServiceType;
 
 /**
  * node map에서 application을 나타낸다.

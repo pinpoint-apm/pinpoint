@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.logger;
+package com.navercorp.pinpoint.profiler.logger;
 
 import org.junit.Test;
 

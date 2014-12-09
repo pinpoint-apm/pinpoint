@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector.util;
+package com.navercorp.pinpoint.collector.util;
 
 import java.net.DatagramPacket;
 

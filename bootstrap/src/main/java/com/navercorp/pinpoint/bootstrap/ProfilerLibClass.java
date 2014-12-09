@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.bootstrap;
+package com.navercorp.pinpoint.bootstrap;
 
 /**
  * @author emeroad
@@ -6,9 +6,9 @@ package com.nhn.pinpoint.bootstrap;
 public class ProfilerLibClass {
 
     private static final String[] PINPOINT_PROFILER_CLASS = new String[] {
-            "com.nhn.pinpoint.profiler",
-            "com.nhn.pinpoint.thrift",
-            "com.nhn.pinpoint.rpc",
+            "com.navercorp.pinpoint.profiler",
+            "com.navercorp.pinpoint.thrift",
+            "com.navercorp.pinpoint.rpc",
             "javassist",
             "org.slf4j",
             "org.apache.thrift",

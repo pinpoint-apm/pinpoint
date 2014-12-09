@@ -1,12 +1,12 @@
-package com.nhn.pinpoint.profiler.interceptor.bci;
+package com.navercorp.pinpoint.profiler.interceptor.bci;
 
 import javassist.CtBehavior;
 import javassist.CtConstructor;
 
-import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
-import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.profiler.interceptor.DefaultMethodDescriptor;
-import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.navercorp.pinpoint.profiler.interceptor.DefaultMethodDescriptor;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 public class JavassistMethodInfo implements MethodInfo {
     private final CtBehavior behavior;

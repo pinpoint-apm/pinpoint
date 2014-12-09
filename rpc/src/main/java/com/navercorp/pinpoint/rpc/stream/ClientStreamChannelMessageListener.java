@@ -1,7 +1,7 @@
-package com.nhn.pinpoint.rpc.stream;
+package com.navercorp.pinpoint.rpc.stream;
 
-import com.nhn.pinpoint.rpc.packet.stream.StreamClosePacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamResponsePacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
 
 /**
  * @author koo.taejin <kr14910>

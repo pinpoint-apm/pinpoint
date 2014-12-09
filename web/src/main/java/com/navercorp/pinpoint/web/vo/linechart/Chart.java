@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.vo.linechart;
+package com.navercorp.pinpoint.web.vo.linechart;
 
 import java.util.ArrayList;
 import java.util.Collections;

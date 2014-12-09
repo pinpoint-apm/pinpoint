@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.common.util;
+package com.navercorp.pinpoint.common.util;
 
 import java.util.Collections;
 import java.util.LinkedList;

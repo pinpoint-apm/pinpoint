@@ -1,7 +1,10 @@
-package com.nhn.pinpoint.bootstrap.util.spring;
+package com.navercorp.pinpoint.bootstrap.util.spring;
 
 import junit.framework.Assert;
+
 import org.junit.Test;
+
+import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
 
 import java.util.Properties;
 

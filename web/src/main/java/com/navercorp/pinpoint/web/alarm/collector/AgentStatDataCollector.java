@@ -1,16 +1,16 @@
-package com.nhn.pinpoint.web.alarm.collector;
+package com.navercorp.pinpoint.web.alarm.collector;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.nhn.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
-import com.nhn.pinpoint.web.dao.AgentStatDao;
-import com.nhn.pinpoint.web.dao.ApplicationIndexDao;
-import com.nhn.pinpoint.web.vo.AgentStat;
-import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
+import com.navercorp.pinpoint.web.dao.AgentStatDao;
+import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.web.vo.AgentStat;
+import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Range;
 
 public class AgentStatDataCollector extends DataCollector {
 

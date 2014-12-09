@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.monitor.codahale;
+package com.navercorp.pinpoint.profiler.monitor.codahale;
 
 import java.util.Map;
 import java.util.SortedMap;

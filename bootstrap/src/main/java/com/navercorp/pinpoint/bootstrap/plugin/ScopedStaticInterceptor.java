@@ -1,7 +1,7 @@
-package com.nhn.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin;
 
-import com.nhn.pinpoint.bootstrap.instrument.Scope;
-import com.nhn.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.instrument.Scope;
+import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
 
 /**
  * @author emeroad

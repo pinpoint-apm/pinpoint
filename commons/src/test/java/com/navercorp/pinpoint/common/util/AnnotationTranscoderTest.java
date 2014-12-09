@@ -1,8 +1,10 @@
-package com.nhn.pinpoint.common.util;
+package com.navercorp.pinpoint.common.util;
 
 
-import com.nhn.pinpoint.common.bo.IntStringValue;
-import com.nhn.pinpoint.thrift.dto.TIntStringValue;
+import com.navercorp.pinpoint.common.bo.IntStringValue;
+import com.navercorp.pinpoint.common.util.AnnotationTranscoder;
+import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
+
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.rpc;
+package com.navercorp.pinpoint.rpc;
 
 /**
  * @author emeroad

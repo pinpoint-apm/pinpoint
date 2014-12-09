@@ -1,8 +1,8 @@
-package com.nhn.pinpoint.web.alarm.checker;
+package com.navercorp.pinpoint.web.alarm.checker;
 
-import com.nhn.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector;
-import com.nhn.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector.DataCategory;
-import com.nhn.pinpoint.web.alarm.vo.Rule;
+import com.navercorp.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector;
+import com.navercorp.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector.DataCategory;
+import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
 
 public class ErrorCountToCalleChecker extends AlarmChecker {

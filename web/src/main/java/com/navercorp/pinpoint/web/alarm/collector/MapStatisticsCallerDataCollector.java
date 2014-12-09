@@ -1,18 +1,18 @@
-package com.nhn.pinpoint.web.alarm.collector;
+package com.navercorp.pinpoint.web.alarm.collector;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.nhn.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
-import com.nhn.pinpoint.web.applicationmap.histogram.TimeHistogram;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkCallData;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkData;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataMap;
-import com.nhn.pinpoint.web.dao.MapStatisticsCallerDao;
-import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
+import com.navercorp.pinpoint.web.dao.MapStatisticsCallerDao;
+import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Range;
 
 public class MapStatisticsCallerDataCollector extends DataCollector {
 

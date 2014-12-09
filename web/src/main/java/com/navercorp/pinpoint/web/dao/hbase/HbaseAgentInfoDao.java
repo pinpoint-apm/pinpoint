@@ -1,11 +1,14 @@
-package com.nhn.pinpoint.web.dao.hbase;
+package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.common.bo.ServerMetaDataBo;
-import com.nhn.pinpoint.common.util.BytesUtils;
-import com.nhn.pinpoint.common.util.RowKeyUtils;
-import com.nhn.pinpoint.common.util.TimeUtils;
-import com.nhn.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.bo.AgentInfoBo;
+import com.navercorp.pinpoint.common.bo.ServerMetaDataBo;
+import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.RowKeyUtils;
+import com.navercorp.pinpoint.common.util.TimeUtils;
+import com.navercorp.pinpoint.web.dao.AgentInfoDao;
+import com.navercorp.pinpoint.web.vo.Range;
 
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -14,10 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.hadoop.hbase.ResultsExtractor;
 import org.springframework.stereotype.Repository;
-
-import com.nhn.pinpoint.web.dao.AgentInfoDao;
-import com.nhn.pinpoint.common.hbase.HBaseTables;
-import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 
 import java.util.ArrayList;
 import java.util.List;

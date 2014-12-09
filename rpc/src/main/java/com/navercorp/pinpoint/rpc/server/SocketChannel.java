@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.rpc.server;
+package com.navercorp.pinpoint.rpc.server;
 
 import java.net.SocketAddress;
 
@@ -9,13 +9,13 @@ import org.jboss.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.rpc.ChannelWriteFailListenableFuture;
-import com.nhn.pinpoint.rpc.Future;
-import com.nhn.pinpoint.rpc.ResponseMessage;
-import com.nhn.pinpoint.rpc.client.RequestManager;
-import com.nhn.pinpoint.rpc.packet.RequestPacket;
-import com.nhn.pinpoint.rpc.packet.ResponsePacket;
-import com.nhn.pinpoint.rpc.packet.SendPacket;
+import com.navercorp.pinpoint.rpc.ChannelWriteFailListenableFuture;
+import com.navercorp.pinpoint.rpc.Future;
+import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.client.RequestManager;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
+import com.navercorp.pinpoint.rpc.packet.SendPacket;
 
 /**
  * @author emeroad

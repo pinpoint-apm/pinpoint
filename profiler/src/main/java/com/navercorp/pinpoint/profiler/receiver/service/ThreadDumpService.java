@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.receiver.service;
+package com.navercorp.pinpoint.profiler.receiver.service;
 
 import java.lang.management.LockInfo;
 import java.lang.management.ManagementFactory;
@@ -9,18 +9,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.nhn.pinpoint.common.util.ThreadMXBeanUtils;
+import com.navercorp.pinpoint.common.util.ThreadMXBeanUtils;
+import com.navercorp.pinpoint.profiler.receiver.ProfilerRequestCommandService;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDump;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
+import com.navercorp.pinpoint.thrift.dto.command.TMonitorInfo;
+import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
+import com.navercorp.pinpoint.thrift.dto.command.TThreadDumpType;
+import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
+
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.nhn.pinpoint.profiler.receiver.ProfilerRequestCommandService;
-import com.nhn.pinpoint.thrift.dto.command.TCommandThreadDump;
-import com.nhn.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
-import com.nhn.pinpoint.thrift.dto.command.TMonitorInfo;
-import com.nhn.pinpoint.thrift.dto.command.TThreadDump;
-import com.nhn.pinpoint.thrift.dto.command.TThreadDumpType;
-import com.nhn.pinpoint.thrift.dto.command.TThreadState;
 
 /**
  * @author koo.taejin

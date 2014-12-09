@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.bootstrap.interceptor;
+package com.navercorp.pinpoint.bootstrap.interceptor;
 
-import com.nhn.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.ServiceType;
 
 /**
  * @author emeroad

@@ -1,18 +1,19 @@
-package com.nhn.pinpoint.web.dao.hbase;
+package com.navercorp.pinpoint.web.dao.hbase;
 
 import java.util.List;
 
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
+
 import org.apache.hadoop.hbase.client.Get;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import com.nhn.pinpoint.web.dao.ApiMetaDataDao;
-import com.nhn.pinpoint.common.bo.ApiMetaDataBo;
-import com.nhn.pinpoint.common.hbase.HBaseTables;
-import com.nhn.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.bo.ApiMetaDataBo;
+import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.web.dao.ApiMetaDataDao;
 
 /**
  * @author emeroad

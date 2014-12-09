@@ -1,12 +1,12 @@
-package com.nhn.pinpoint.profiler.modifier.spring.beans;
+package com.navercorp.pinpoint.profiler.modifier.spring.beans;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.nhn.pinpoint.test.fork.ForkRunner;
-import com.nhn.pinpoint.test.fork.PinpointConfig;
+import com.navercorp.pinpoint.test.fork.ForkRunner;
+import com.navercorp.pinpoint.test.fork.PinpointConfig;
 
 @RunWith(ForkRunner.class)
 @PinpointConfig("pinpoint-spring-bean-test.config")

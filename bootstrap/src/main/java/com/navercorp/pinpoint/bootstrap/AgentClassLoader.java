@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.bootstrap;
+package com.navercorp.pinpoint.bootstrap;
 
-import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.sender;
+package com.navercorp.pinpoint.profiler.sender;
 
 
 import java.util.Set;
@@ -14,17 +14,17 @@ import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.rpc.Future;
-import com.nhn.pinpoint.rpc.FutureListener;
-import com.nhn.pinpoint.rpc.ResponseMessage;
-import com.nhn.pinpoint.rpc.client.PinpointSocket;
-import com.nhn.pinpoint.rpc.client.PinpointSocketReconnectEventListener;
-import com.nhn.pinpoint.rpc.util.TimerFactory;
-import com.nhn.pinpoint.thrift.dto.TResult;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
+import com.navercorp.pinpoint.rpc.Future;
+import com.navercorp.pinpoint.rpc.FutureListener;
+import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.client.PinpointSocket;
+import com.navercorp.pinpoint.rpc.client.PinpointSocketReconnectEventListener;
+import com.navercorp.pinpoint.rpc.util.TimerFactory;
+import com.navercorp.pinpoint.thrift.dto.TResult;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 
 /**
  * @author emeroad

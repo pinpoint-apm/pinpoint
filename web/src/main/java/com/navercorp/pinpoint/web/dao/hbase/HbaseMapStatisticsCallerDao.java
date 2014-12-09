@@ -1,13 +1,17 @@
-package com.nhn.pinpoint.web.dao.hbase;
+package com.navercorp.pinpoint.web.dao.hbase;
 
 import java.util.*;
 
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataMap;
-import com.nhn.pinpoint.web.dao.MapStatisticsCallerDao;
-import com.nhn.pinpoint.web.mapper.*;
-import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.web.vo.Range;
-import com.nhn.pinpoint.web.vo.RangeFactory;
+import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
+import com.navercorp.pinpoint.web.dao.MapStatisticsCallerDao;
+import com.navercorp.pinpoint.web.mapper.*;
+import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.RangeFactory;
+
 import org.apache.hadoop.hbase.client.Scan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,10 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
-
-import com.nhn.pinpoint.common.hbase.HBaseTables;
-import com.nhn.pinpoint.common.hbase.HbaseOperations2;
-import com.nhn.pinpoint.common.util.ApplicationMapStatisticsUtils;
 
 /**
  * 

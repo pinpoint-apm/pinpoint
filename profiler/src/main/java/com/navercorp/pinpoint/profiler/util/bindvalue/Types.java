@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.util.bindvalue;
+package com.navercorp.pinpoint.profiler.util.bindvalue;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;

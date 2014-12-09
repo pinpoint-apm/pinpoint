@@ -1,11 +1,11 @@
-package com.nhn.pinpoint.profiler.modifier.orm.ibatis;
+package com.navercorp.pinpoint.profiler.modifier.orm.ibatis;
 
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.bootstrap.Agent;
-import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
-import com.nhn.pinpoint.profiler.modifier.orm.ibatis.filter.SqlMapClientMethodFilter;
+import com.navercorp.pinpoint.bootstrap.Agent;
+import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
+import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.filter.SqlMapClientMethodFilter;
 
 /**
  * iBatis SqlMapClientImpl Modifier

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.receiver;
+package com.navercorp.pinpoint.profiler.receiver;
 
 import org.apache.thrift.TBase;
 import org.apache.thrift.protocol.TCompactProtocol;
@@ -7,29 +7,29 @@ import org.jboss.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.common.Version;
-import com.nhn.pinpoint.rpc.client.MessageListener;
-import com.nhn.pinpoint.rpc.packet.RequestPacket;
-import com.nhn.pinpoint.rpc.packet.ResponsePacket;
-import com.nhn.pinpoint.rpc.packet.SendPacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamClosePacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamCreateFailPacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamCreatePacket;
-import com.nhn.pinpoint.rpc.stream.ServerStreamChannelContext;
-import com.nhn.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
-import com.nhn.pinpoint.rpc.util.AssertUtils;
-import com.nhn.pinpoint.thrift.dto.TResult;
-import com.nhn.pinpoint.thrift.io.DeserializerFactory;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
-import com.nhn.pinpoint.thrift.io.SerializerFactory;
-import com.nhn.pinpoint.thrift.io.TCommandRegistry;
-import com.nhn.pinpoint.thrift.io.TCommandTypeVersion;
-import com.nhn.pinpoint.thrift.io.ThreadLocalHeaderTBaseDeserializerFactory;
-import com.nhn.pinpoint.thrift.io.ThreadLocalHeaderTBaseSerializerFactory;
-import com.nhn.pinpoint.thrift.util.SerializationUtils;
+import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.rpc.client.MessageListener;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
+import com.navercorp.pinpoint.rpc.packet.SendPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCreateFailPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.util.AssertUtils;
+import com.navercorp.pinpoint.thrift.dto.TResult;
+import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
+import com.navercorp.pinpoint.thrift.io.SerializerFactory;
+import com.navercorp.pinpoint.thrift.io.TCommandRegistry;
+import com.navercorp.pinpoint.thrift.io.TCommandTypeVersion;
+import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseDeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseSerializerFactory;
+import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 
 public class CommandDispatcher implements MessageListener, ServerStreamChannelMessageListener  {
 

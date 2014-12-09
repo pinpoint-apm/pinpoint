@@ -1,7 +1,10 @@
-package com.nhn.pinpoint.web.util;
+package com.navercorp.pinpoint.web.util;
 
-import com.nhn.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.util.TimeWindow;
+import com.navercorp.pinpoint.web.vo.Range;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

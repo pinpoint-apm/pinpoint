@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.bootstrap.config;
+package com.navercorp.pinpoint.bootstrap.config;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -8,6 +8,9 @@ import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.navercorp.pinpoint.bootstrap.config.Filter;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 /**
  * @author emeroad
@@ -25,7 +28,7 @@ public class ProfilerConfigTest {
 
     @Test
     public void readProperty() throws IOException {
-        String path = ProfilerConfig.class.getResource("/com/nhn/pinpoint/bootstrap/config/test.property").getPath();
+        String path = ProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/test.property").getPath();
         logger.debug("path:{}", path);
 
         ProfilerConfig profilerConfig = ProfilerConfig.load(path);
@@ -52,7 +55,7 @@ public class ProfilerConfigTest {
 
     @Test
     public void ioBuffering_test() throws IOException {
-        String path = ProfilerConfig.class.getResource("/com/nhn/pinpoint/bootstrap/config/test.property").getPath();
+        String path = ProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/test.property").getPath();
         logger.debug("path:{}", path);
 
         ProfilerConfig profilerConfig = ProfilerConfig.load(path);
@@ -63,7 +66,7 @@ public class ProfilerConfigTest {
 
     @Test
     public void ioBuffering_default() throws IOException {
-        String path = ProfilerConfig.class.getResource("/com/nhn/pinpoint/bootstrap/config/default.property").getPath();
+        String path = ProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/default.property").getPath();
         logger.debug("path:{}", path);
 
         ProfilerConfig profilerConfig = ProfilerConfig.load(path);
@@ -74,7 +77,7 @@ public class ProfilerConfigTest {
     
     @Test
     public void tcpCommandAcceptrConfigTest1() throws IOException {
-        String path = ProfilerConfig.class.getResource("/com/nhn/pinpoint/bootstrap/config/test.property").getPath();
+        String path = ProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/test.property").getPath();
         logger.debug("path:{}", path);
 
         ProfilerConfig profilerConfig = ProfilerConfig.load(path);
@@ -84,7 +87,7 @@ public class ProfilerConfigTest {
     
     @Test
     public void tcpCommandAcceptrConfigTest2() throws IOException {
-        String path = ProfilerConfig.class.getResource("/com/nhn/pinpoint/bootstrap/config/test2.property").getPath();
+        String path = ProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/test2.property").getPath();
         logger.debug("path:{}", path);
 
         ProfilerConfig profilerConfig = ProfilerConfig.load(path);

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.common.util;
+package com.navercorp.pinpoint.common.util;
 
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;

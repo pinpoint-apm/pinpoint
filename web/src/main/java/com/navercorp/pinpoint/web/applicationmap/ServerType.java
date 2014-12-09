@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.applicationmap;
+package com.navercorp.pinpoint.web.applicationmap;
 
 /**
  * @author emeroad

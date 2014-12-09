@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.profiler.modifier.db.interceptor;
+package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
 
-import com.nhn.pinpoint.bootstrap.util.StringUtils;
+import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 
 /**
  * @author emeroad

@@ -1,9 +1,9 @@
-package com.nhn.pinpoint.profiler.modifier.tomcat.aspect;
+package com.navercorp.pinpoint.profiler.modifier.tomcat.aspect;
 
-import com.nhn.pinpoint.bootstrap.context.Header;
-import com.nhn.pinpoint.profiler.interceptor.aspect.Aspect;
-import com.nhn.pinpoint.profiler.interceptor.aspect.JointPoint;
-import com.nhn.pinpoint.profiler.interceptor.aspect.PointCut;
+import com.navercorp.pinpoint.bootstrap.context.Header;
+import com.navercorp.pinpoint.profiler.interceptor.aspect.Aspect;
+import com.navercorp.pinpoint.profiler.interceptor.aspect.JointPoint;
+import com.navercorp.pinpoint.profiler.interceptor.aspect.PointCut;
 
 import java.util.Enumeration;
 

@@ -1,15 +1,16 @@
-package com.nhn.pinpoint.profiler.modifier.db.oracle;
+package com.navercorp.pinpoint.profiler.modifier.db.oracle;
 
-import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.modifier.db.ConnectionStringParser;
-import com.nhn.pinpoint.profiler.modifier.db.DefaultDatabaseInfo;
-import com.nhn.pinpoint.profiler.modifier.db.JDBCUrlParser;
-import com.nhn.pinpoint.profiler.modifier.db.StringMaker;
-import com.nhn.pinpoint.profiler.modifier.db.oracle.parser.Description;
-import com.nhn.pinpoint.profiler.modifier.db.oracle.parser.KeyValue;
-import com.nhn.pinpoint.profiler.modifier.db.oracle.parser.OracleConnectionStringException;
-import com.nhn.pinpoint.profiler.modifier.db.oracle.parser.OracleNetConnectionDescriptorParser;
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.profiler.modifier.db.ConnectionStringParser;
+import com.navercorp.pinpoint.profiler.modifier.db.DefaultDatabaseInfo;
+import com.navercorp.pinpoint.profiler.modifier.db.JDBCUrlParser;
+import com.navercorp.pinpoint.profiler.modifier.db.StringMaker;
+import com.navercorp.pinpoint.profiler.modifier.db.oracle.parser.Description;
+import com.navercorp.pinpoint.profiler.modifier.db.oracle.parser.KeyValue;
+import com.navercorp.pinpoint.profiler.modifier.db.oracle.parser.OracleConnectionStringException;
+import com.navercorp.pinpoint.profiler.modifier.db.oracle.parser.OracleNetConnectionDescriptorParser;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

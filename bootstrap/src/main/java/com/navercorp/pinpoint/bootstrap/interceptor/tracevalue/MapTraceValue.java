@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.bootstrap.interceptor.tracevalue;
+package com.navercorp.pinpoint.bootstrap.interceptor.tracevalue;
 
 import java.util.Map;
 

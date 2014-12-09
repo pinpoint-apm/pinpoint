@@ -1,8 +1,8 @@
-package com.nhn.pinpoint.profiler.receiver;
+package com.navercorp.pinpoint.profiler.receiver;
 
 import org.apache.thrift.TBase;
 
-import com.nhn.pinpoint.rpc.stream.ServerStreamChannelContext;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
 
 public interface ProfilerStreamCommandService extends ProfilerCommandService {
 

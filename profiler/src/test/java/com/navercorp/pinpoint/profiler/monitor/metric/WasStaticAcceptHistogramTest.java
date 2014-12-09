@@ -1,7 +1,11 @@
-package com.nhn.pinpoint.profiler.monitor.metric;
+package com.navercorp.pinpoint.profiler.monitor.metric;
 
-import com.nhn.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.profiler.monitor.metric.DynamicAcceptHistogram;
+import com.navercorp.pinpoint.profiler.monitor.metric.StaticAcceptHistogram;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

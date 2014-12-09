@@ -1,10 +1,11 @@
-package com.nhn.pinpoint.common.util;
+package com.navercorp.pinpoint.common.util;
 
 import static org.mockito.Mockito.*;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.navercorp.pinpoint.common.util.DelegateEnumeration;
 
 import java.util.*;
 

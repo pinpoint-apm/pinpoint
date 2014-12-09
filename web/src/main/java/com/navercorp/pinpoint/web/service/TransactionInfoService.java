@@ -1,13 +1,13 @@
-package com.nhn.pinpoint.web.service;
+package com.navercorp.pinpoint.web.service;
 
 import java.util.List;
 
-import com.nhn.pinpoint.web.calltree.span.SpanAlign;
-import com.nhn.pinpoint.web.filter.Filter;
-import com.nhn.pinpoint.web.vo.BusinessTransactions;
-import com.nhn.pinpoint.web.vo.Range;
-import com.nhn.pinpoint.web.vo.TransactionId;
-import com.nhn.pinpoint.web.vo.callstacks.RecordSet;
+import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
+import com.navercorp.pinpoint.web.filter.Filter;
+import com.navercorp.pinpoint.web.vo.BusinessTransactions;
+import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.TransactionId;
+import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 
 /**
  *

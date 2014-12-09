@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.monitor.codahale.cpu.metric;
+package com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric;
 
 import com.codahale.metrics.MetricSet;
 

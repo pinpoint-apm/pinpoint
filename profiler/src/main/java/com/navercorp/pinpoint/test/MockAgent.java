@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.test;
+package com.navercorp.pinpoint.test;
 
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
@@ -6,17 +6,17 @@ import java.util.List;
 
 import org.apache.thrift.TBase;
 
-import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
-import com.nhn.pinpoint.bootstrap.context.ServerMetaDataHolder;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.DefaultAgent;
-import com.nhn.pinpoint.profiler.context.storage.StorageFactory;
-import com.nhn.pinpoint.profiler.sender.DataSender;
-import com.nhn.pinpoint.profiler.sender.EnhancedDataSender;
-import com.nhn.pinpoint.profiler.sender.LoggingDataSender;
-import com.nhn.pinpoint.profiler.util.RuntimeMXBeanUtils;
-import com.nhn.pinpoint.rpc.client.PinpointSocket;
-import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.profiler.DefaultAgent;
+import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
+import com.navercorp.pinpoint.profiler.sender.DataSender;
+import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
+import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
+import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
+import com.navercorp.pinpoint.rpc.client.PinpointSocket;
+import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
 
 /**
  * @author emeroad

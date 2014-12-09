@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.vo.linechart;
+package com.navercorp.pinpoint.web.vo.linechart;
 
 import static org.junit.Assert.assertTrue;
 
@@ -7,7 +7,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.web.vo.linechart.Chart.ChartBuilder;
+import com.navercorp.pinpoint.web.vo.linechart.Chart;
+import com.navercorp.pinpoint.web.vo.linechart.DataPoint;
+import com.navercorp.pinpoint.web.vo.linechart.SampledDataDoubleChartBuilder;
+import com.navercorp.pinpoint.web.vo.linechart.SampledDataLongChartBuilder;
+import com.navercorp.pinpoint.web.vo.linechart.Chart.ChartBuilder;
 
 public class SampledDataChartBuilderTest {
 

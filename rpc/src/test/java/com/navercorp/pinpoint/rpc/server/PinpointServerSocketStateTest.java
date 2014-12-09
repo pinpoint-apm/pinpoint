@@ -1,7 +1,10 @@
-package com.nhn.pinpoint.rpc.server;
+package com.navercorp.pinpoint.rpc.server;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.navercorp.pinpoint.rpc.server.PinpointServerSocketState;
+import com.navercorp.pinpoint.rpc.server.PinpointServerSocketStateCode;
 
 /**
  * @author koo.taejin

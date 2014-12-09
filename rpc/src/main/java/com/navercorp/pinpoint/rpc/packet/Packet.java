@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.rpc.packet;
+package com.navercorp.pinpoint.rpc.packet;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 

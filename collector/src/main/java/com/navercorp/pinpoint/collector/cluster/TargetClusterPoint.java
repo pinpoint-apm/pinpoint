@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector.cluster;
+package com.navercorp.pinpoint.collector.cluster;
 
 public interface TargetClusterPoint extends ClusterPoint {
 

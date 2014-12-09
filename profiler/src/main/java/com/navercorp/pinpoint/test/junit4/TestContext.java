@@ -1,8 +1,8 @@
-package com.nhn.pinpoint.test.junit4;
+package com.navercorp.pinpoint.test.junit4;
 
 import org.junit.runners.model.TestClass;
 
-import com.nhn.pinpoint.test.TestClassLoader;
+import com.navercorp.pinpoint.test.TestClassLoader;
 
 /**
  * @author hyungil.jeong

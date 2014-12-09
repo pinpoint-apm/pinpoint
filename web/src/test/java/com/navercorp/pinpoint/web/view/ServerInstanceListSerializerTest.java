@@ -1,9 +1,10 @@
-package com.nhn.pinpoint.web.view;
+package com.navercorp.pinpoint.web.view;
 
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.web.applicationmap.ServerBuilder;
-import com.nhn.pinpoint.web.applicationmap.ServerInstanceList;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.bo.AgentInfoBo;
+import com.navercorp.pinpoint.web.applicationmap.ServerBuilder;
+import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
+
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
 import org.junit.Test;

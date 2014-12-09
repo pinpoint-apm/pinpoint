@@ -1,7 +1,7 @@
-package com.nhn.pinpoint.web.alarm.checker;
+package com.navercorp.pinpoint.web.alarm.checker;
 
-import com.nhn.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
-import com.nhn.pinpoint.web.alarm.vo.Rule;
+import com.navercorp.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
+import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
 /**
  * 

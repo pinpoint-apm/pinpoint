@@ -1,11 +1,12 @@
-package com.nhn.pinpoint.collector.dao.hbase;
+package com.navercorp.pinpoint.collector.dao.hbase;
 
-import com.nhn.pinpoint.collector.dao.StringMetaDataDao;
-import com.nhn.pinpoint.common.bo.StringMetaDataBo;
-import com.nhn.pinpoint.common.hbase.HBaseTables;
-import com.nhn.pinpoint.common.hbase.HbaseOperations2;
-import com.nhn.pinpoint.thrift.dto.TStringMetaData;
+import com.navercorp.pinpoint.collector.dao.StringMetaDataDao;
+import com.navercorp.pinpoint.common.bo.StringMetaDataBo;
+import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
+
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;

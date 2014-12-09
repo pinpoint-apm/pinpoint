@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector;
+package com.navercorp.pinpoint.collector;
 
 import org.junit.Test;
 import org.slf4j.Logger;

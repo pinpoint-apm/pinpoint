@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.orm.ibatis.filter;
+package com.navercorp.pinpoint.profiler.modifier.orm.ibatis.filter;
 
 import java.util.Arrays;
 import java.util.HashSet;

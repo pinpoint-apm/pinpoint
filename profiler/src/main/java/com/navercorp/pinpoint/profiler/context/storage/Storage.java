@@ -1,7 +1,7 @@
-package com.nhn.pinpoint.profiler.context.storage;
+package com.navercorp.pinpoint.profiler.context.storage;
 
-import com.nhn.pinpoint.profiler.context.Span;
-import com.nhn.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.Span;
+import com.navercorp.pinpoint.profiler.context.SpanEvent;
 
 /**
  * @author emeroad

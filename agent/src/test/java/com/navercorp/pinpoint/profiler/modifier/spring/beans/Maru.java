@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.spring.beans;
+package com.navercorp.pinpoint.profiler.modifier.spring.beans;
 
 public class Maru implements Comparable<Maru> {
     private static final String staticField;

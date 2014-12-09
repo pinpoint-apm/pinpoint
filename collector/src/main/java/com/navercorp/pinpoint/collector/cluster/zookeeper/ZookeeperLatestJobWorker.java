@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector.cluster.zookeeper;
+package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -16,17 +16,17 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.collector.cluster.WorkerState;
-import com.nhn.pinpoint.collector.cluster.WorkerStateContext;
-import com.nhn.pinpoint.collector.cluster.zookeeper.exception.TimeoutException;
-import com.nhn.pinpoint.collector.cluster.zookeeper.job.DeleteJob;
-import com.nhn.pinpoint.collector.cluster.zookeeper.job.Job;
-import com.nhn.pinpoint.collector.cluster.zookeeper.job.UpdateJob;
-import com.nhn.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
-import com.nhn.pinpoint.common.util.PinpointThreadFactory;
-import com.nhn.pinpoint.rpc.server.ChannelContext;
-import com.nhn.pinpoint.rpc.server.PinpointServerSocketStateCode;
-import com.nhn.pinpoint.rpc.util.MapUtils;
+import com.navercorp.pinpoint.collector.cluster.WorkerState;
+import com.navercorp.pinpoint.collector.cluster.WorkerStateContext;
+import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.TimeoutException;
+import com.navercorp.pinpoint.collector.cluster.zookeeper.job.DeleteJob;
+import com.navercorp.pinpoint.collector.cluster.zookeeper.job.Job;
+import com.navercorp.pinpoint.collector.cluster.zookeeper.job.UpdateJob;
+import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.rpc.server.ChannelContext;
+import com.navercorp.pinpoint.rpc.server.PinpointServerSocketStateCode;
+import com.navercorp.pinpoint.rpc.util.MapUtils;
 
 /**
  * @author koo.taejin

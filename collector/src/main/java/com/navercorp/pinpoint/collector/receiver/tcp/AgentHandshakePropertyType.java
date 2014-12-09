@@ -1,8 +1,8 @@
-package com.nhn.pinpoint.collector.receiver.tcp;
+package com.navercorp.pinpoint.collector.receiver.tcp;
 
 import java.util.Map;
 
-import com.nhn.pinpoint.rpc.util.ClassUtils;
+import com.navercorp.pinpoint.rpc.util.ClassUtils;
 
 public enum AgentHandshakePropertyType {
 

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.vo;
+package com.navercorp.pinpoint.web.vo;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,6 +11,8 @@ import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.navercorp.pinpoint.web.vo.TransactionId;
 
 public class TransactionIdTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

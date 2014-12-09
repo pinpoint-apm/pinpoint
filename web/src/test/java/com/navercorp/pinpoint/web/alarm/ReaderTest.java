@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.alarm;
+package com.navercorp.pinpoint.web.alarm;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -13,14 +13,18 @@ import org.junit.Test;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.item.ExecutionContext;
 
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.web.alarm.collector.DataCollector;
-import com.nhn.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
-import com.nhn.pinpoint.web.alarm.vo.Rule;
-import com.nhn.pinpoint.web.dao.AlarmResourceDao;
-import com.nhn.pinpoint.web.dao.ApplicationIndexDao;
-import com.nhn.pinpoint.web.dao.mysql.MySqlAlarmResourceDao;
-import com.nhn.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.web.alarm.AlarmPartitioner;
+import com.navercorp.pinpoint.web.alarm.AlarmReader;
+import com.navercorp.pinpoint.web.alarm.CheckerCategory;
+import com.navercorp.pinpoint.web.alarm.DataCollectorFactory;
+import com.navercorp.pinpoint.web.alarm.collector.DataCollector;
+import com.navercorp.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
+import com.navercorp.pinpoint.web.alarm.vo.Rule;
+import com.navercorp.pinpoint.web.dao.AlarmResourceDao;
+import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.web.dao.mysql.MySqlAlarmResourceDao;
+import com.navercorp.pinpoint.web.vo.Application;
 
 public class ReaderTest {
 

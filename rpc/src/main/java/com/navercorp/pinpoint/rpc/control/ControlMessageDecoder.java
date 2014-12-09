@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.rpc.control;
+package com.navercorp.pinpoint.rpc.control;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;

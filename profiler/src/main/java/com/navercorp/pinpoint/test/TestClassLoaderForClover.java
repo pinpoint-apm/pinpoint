@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.test;
+package com.navercorp.pinpoint.test;
 
-import com.nhn.pinpoint.profiler.DefaultAgent;
+import com.navercorp.pinpoint.profiler.DefaultAgent;
 
 /**
  * @author hyungil.jeong

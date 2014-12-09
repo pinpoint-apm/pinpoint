@@ -1,28 +1,28 @@
-package com.nhn.pinpoint.web.alarm;
+package com.navercorp.pinpoint.web.alarm;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import com.nhn.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
-import com.nhn.pinpoint.web.alarm.checker.AlarmChecker;
-import com.nhn.pinpoint.web.alarm.checker.ErrorCountChecker;
-import com.nhn.pinpoint.web.alarm.checker.ErrorCountToCalleChecker;
-import com.nhn.pinpoint.web.alarm.checker.ErrorRateChecker;
-import com.nhn.pinpoint.web.alarm.checker.ErrorRateToCalleChecker;
-import com.nhn.pinpoint.web.alarm.checker.GcCountChecker;
-import com.nhn.pinpoint.web.alarm.checker.HeapUsageRateChecker;
-import com.nhn.pinpoint.web.alarm.checker.JvmCpuUsageRateChecker;
-import com.nhn.pinpoint.web.alarm.checker.ResponseCountChecker;
-import com.nhn.pinpoint.web.alarm.checker.SlowCountChecker;
-import com.nhn.pinpoint.web.alarm.checker.SlowCountToCalleChecker;
-import com.nhn.pinpoint.web.alarm.checker.SlowRateChecker;
-import com.nhn.pinpoint.web.alarm.checker.SlowRateToCalleChecker;
-import com.nhn.pinpoint.web.alarm.checker.TotalCountToCalleChecker;
-import com.nhn.pinpoint.web.alarm.collector.AgentStatDataCollector;
-import com.nhn.pinpoint.web.alarm.collector.DataCollector;
-import com.nhn.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector;
-import com.nhn.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
-import com.nhn.pinpoint.web.alarm.vo.Rule;
+import com.navercorp.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
+import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
+import com.navercorp.pinpoint.web.alarm.checker.ErrorCountChecker;
+import com.navercorp.pinpoint.web.alarm.checker.ErrorCountToCalleChecker;
+import com.navercorp.pinpoint.web.alarm.checker.ErrorRateChecker;
+import com.navercorp.pinpoint.web.alarm.checker.ErrorRateToCalleChecker;
+import com.navercorp.pinpoint.web.alarm.checker.GcCountChecker;
+import com.navercorp.pinpoint.web.alarm.checker.HeapUsageRateChecker;
+import com.navercorp.pinpoint.web.alarm.checker.JvmCpuUsageRateChecker;
+import com.navercorp.pinpoint.web.alarm.checker.ResponseCountChecker;
+import com.navercorp.pinpoint.web.alarm.checker.SlowCountChecker;
+import com.navercorp.pinpoint.web.alarm.checker.SlowCountToCalleChecker;
+import com.navercorp.pinpoint.web.alarm.checker.SlowRateChecker;
+import com.navercorp.pinpoint.web.alarm.checker.SlowRateToCalleChecker;
+import com.navercorp.pinpoint.web.alarm.checker.TotalCountToCalleChecker;
+import com.navercorp.pinpoint.web.alarm.collector.AgentStatDataCollector;
+import com.navercorp.pinpoint.web.alarm.collector.DataCollector;
+import com.navercorp.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector;
+import com.navercorp.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
+import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
 public enum CheckerCategory {
 

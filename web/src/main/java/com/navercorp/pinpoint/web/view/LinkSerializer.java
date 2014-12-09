@@ -1,11 +1,11 @@
-package com.nhn.pinpoint.web.view;
+package com.navercorp.pinpoint.web.view;
 
-import com.nhn.pinpoint.web.applicationmap.Link;
-import com.nhn.pinpoint.web.applicationmap.Node;
-import com.nhn.pinpoint.web.applicationmap.rawdata.AgentHistogram;
-import com.nhn.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
-import com.nhn.pinpoint.web.applicationmap.histogram.Histogram;
-import com.nhn.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.applicationmap.Link;
+import com.navercorp.pinpoint.web.applicationmap.Node;
+import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
+import com.navercorp.pinpoint.web.vo.Application;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin;
 
 import java.io.IOException;
 import java.io.InputStream;

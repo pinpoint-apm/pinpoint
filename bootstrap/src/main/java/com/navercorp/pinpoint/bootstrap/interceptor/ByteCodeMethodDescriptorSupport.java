@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.bootstrap.interceptor;
+package com.navercorp.pinpoint.bootstrap.interceptor;
 
 /**
  * precompile level의 methodDescriptor를 setting 받을수 있게 한다.

@@ -1,7 +1,8 @@
-package com.nhn.pinpoint.web.applicationmap.rawdata;
+package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
 
-import com.nhn.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Application;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,17 +1,16 @@
-package com.nhn.pinpoint.collector.dao.hbase;
+package com.navercorp.pinpoint.collector.dao.hbase;
 
-import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_INDEX;
-import static com.nhn.pinpoint.common.hbase.HBaseTables.APPLICATION_INDEX_CF_AGENTS;
+import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 
-import com.nhn.pinpoint.collector.dao.ApplicationIndexDao;
-import com.nhn.pinpoint.thrift.dto.TAgentInfo;
+import com.navercorp.pinpoint.collector.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
+
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 import org.springframework.stereotype.Repository;
 
 /**

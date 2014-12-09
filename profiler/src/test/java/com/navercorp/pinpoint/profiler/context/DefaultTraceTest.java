@@ -1,11 +1,14 @@
-package com.nhn.pinpoint.profiler.context;
+package com.navercorp.pinpoint.profiler.context;
 
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.Version;
-import com.nhn.pinpoint.profiler.AgentInformation;
-import com.nhn.pinpoint.profiler.context.storage.SpanStorage;
-import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinderInitializer;
-import com.nhn.pinpoint.profiler.sender.LoggingDataSender;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.context.DefaultTrace;
+import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
+import com.navercorp.pinpoint.profiler.context.storage.SpanStorage;
+import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinderInitializer;
+import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
+
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

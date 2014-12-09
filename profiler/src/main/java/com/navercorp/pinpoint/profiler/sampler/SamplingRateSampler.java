@@ -1,7 +1,7 @@
-package com.nhn.pinpoint.profiler.sampler;
+package com.navercorp.pinpoint.profiler.sampler;
 
-import com.nhn.pinpoint.bootstrap.sampler.Sampler;
-import com.nhn.pinpoint.common.util.MathUtils;
+import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
+import com.navercorp.pinpoint.common.util.MathUtils;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

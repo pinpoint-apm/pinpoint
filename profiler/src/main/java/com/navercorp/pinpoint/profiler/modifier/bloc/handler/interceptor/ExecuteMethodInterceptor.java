@@ -1,16 +1,15 @@
-package com.nhn.pinpoint.profiler.modifier.bloc.handler.interceptor;
+package com.navercorp.pinpoint.profiler.modifier.bloc.handler.interceptor;
 
 import java.util.Enumeration;
 
-import com.nhn.pinpoint.bootstrap.context.*;
-import com.nhn.pinpoint.bootstrap.interceptor.*;
-import com.nhn.pinpoint.profiler.context.*;
-
-import com.nhn.pinpoint.common.AnnotationKey;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.bootstrap.sampler.SamplingFlagUtils;
-import com.nhn.pinpoint.bootstrap.util.NumberUtils;
-import com.nhn.pinpoint.bootstrap.util.StringUtils;
+import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.interceptor.*;
+import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
+import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
+import com.navercorp.pinpoint.bootstrap.util.StringUtils;
+import com.navercorp.pinpoint.common.AnnotationKey;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.profiler.context.*;
 
 /**
  * @author netspider

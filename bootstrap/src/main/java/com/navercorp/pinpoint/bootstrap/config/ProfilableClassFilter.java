@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.bootstrap.config;
+package com.navercorp.pinpoint.bootstrap.config;
 
 import java.util.HashSet;
 import java.util.Set;

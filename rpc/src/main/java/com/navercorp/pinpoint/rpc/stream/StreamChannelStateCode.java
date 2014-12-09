@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.rpc.stream;
+package com.navercorp.pinpoint.rpc.stream;
 
 import java.util.HashSet;
 import java.util.Set;

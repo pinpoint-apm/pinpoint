@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.rpc.server;
+package com.navercorp.pinpoint.rpc.server;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -34,31 +34,31 @@ import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.common.util.PinpointThreadFactory;
-import com.nhn.pinpoint.rpc.PinpointSocketException;
-import com.nhn.pinpoint.rpc.client.WriteFailFutureListener;
-import com.nhn.pinpoint.rpc.control.ProtocolException;
-import com.nhn.pinpoint.rpc.packet.ControlHandshakePacket;
-import com.nhn.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
-import com.nhn.pinpoint.rpc.packet.HandshakeResponseCode;
-import com.nhn.pinpoint.rpc.packet.HandshakeResponseType;
-import com.nhn.pinpoint.rpc.packet.Packet;
-import com.nhn.pinpoint.rpc.packet.PacketType;
-import com.nhn.pinpoint.rpc.packet.PingPacket;
-import com.nhn.pinpoint.rpc.packet.RequestPacket;
-import com.nhn.pinpoint.rpc.packet.ResponsePacket;
-import com.nhn.pinpoint.rpc.packet.SendPacket;
-import com.nhn.pinpoint.rpc.packet.ServerClosePacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamPacket;
-import com.nhn.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListener;
-import com.nhn.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
-import com.nhn.pinpoint.rpc.stream.StreamChannelManager;
-import com.nhn.pinpoint.rpc.util.AssertUtils;
-import com.nhn.pinpoint.rpc.util.ControlMessageEncodingUtils;
-import com.nhn.pinpoint.rpc.util.CpuUtils;
-import com.nhn.pinpoint.rpc.util.IDGenerator;
-import com.nhn.pinpoint.rpc.util.LoggerFactorySetup;
-import com.nhn.pinpoint.rpc.util.TimerFactory;
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.rpc.PinpointSocketException;
+import com.navercorp.pinpoint.rpc.client.WriteFailFutureListener;
+import com.navercorp.pinpoint.rpc.control.ProtocolException;
+import com.navercorp.pinpoint.rpc.packet.ControlHandshakePacket;
+import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
+import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
+import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
+import com.navercorp.pinpoint.rpc.packet.Packet;
+import com.navercorp.pinpoint.rpc.packet.PacketType;
+import com.navercorp.pinpoint.rpc.packet.PingPacket;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
+import com.navercorp.pinpoint.rpc.packet.SendPacket;
+import com.navercorp.pinpoint.rpc.packet.ServerClosePacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
+import com.navercorp.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.stream.StreamChannelManager;
+import com.navercorp.pinpoint.rpc.util.AssertUtils;
+import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
+import com.navercorp.pinpoint.rpc.util.CpuUtils;
+import com.navercorp.pinpoint.rpc.util.IDGenerator;
+import com.navercorp.pinpoint.rpc.util.LoggerFactorySetup;
+import com.navercorp.pinpoint.rpc.util.TimerFactory;
 
 /**
  * @author emeroad

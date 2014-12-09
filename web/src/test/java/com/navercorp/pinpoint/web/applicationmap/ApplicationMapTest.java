@@ -1,6 +1,10 @@
-package com.nhn.pinpoint.web.applicationmap;
+package com.navercorp.pinpoint.web.applicationmap;
 
-import com.nhn.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
+import com.navercorp.pinpoint.web.applicationmap.LinkList;
+import com.navercorp.pinpoint.web.applicationmap.NodeList;
+import com.navercorp.pinpoint.web.vo.Range;
+
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 import org.slf4j.Logger;

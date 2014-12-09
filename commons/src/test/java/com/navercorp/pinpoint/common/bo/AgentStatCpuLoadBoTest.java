@@ -1,8 +1,10 @@
-package com.nhn.pinpoint.common.bo;
+package com.navercorp.pinpoint.common.bo;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+
+import com.navercorp.pinpoint.common.bo.AgentStatCpuLoadBo;
 
 /**
  * @author hyungil.jeong

@@ -1,14 +1,15 @@
-package com.nhn.pinpoint.profiler.context;
+package com.navercorp.pinpoint.profiler.context;
 
-import com.nhn.pinpoint.bootstrap.context.Trace;
-import com.nhn.pinpoint.bootstrap.context.TraceContext;
-import com.nhn.pinpoint.bootstrap.context.TraceId;
-import com.nhn.pinpoint.bootstrap.sampler.Sampler;
-import com.nhn.pinpoint.exception.PinpointException;
-import com.nhn.pinpoint.profiler.context.storage.Storage;
-import com.nhn.pinpoint.profiler.context.storage.StorageFactory;
-import com.nhn.pinpoint.profiler.monitor.metric.MetricRegistry;
-import com.nhn.pinpoint.profiler.util.NamedThreadLocal;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
+import com.navercorp.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.profiler.context.storage.Storage;
+import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
+import com.navercorp.pinpoint.profiler.monitor.metric.MetricRegistry;
+import com.navercorp.pinpoint.profiler.util.NamedThreadLocal;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.collector.cluster.route;
+package com.navercorp.pinpoint.collector.cluster.route;
 
-import com.nhn.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.ResponseMessage;
 
 /**
  * @author koo.taejin <kr14910>

@@ -1,7 +1,7 @@
-package com.nhn.pinpoint.profiler.logging;
+package com.navercorp.pinpoint.profiler.logging;
 
-import com.nhn.pinpoint.bootstrap.logging.PLoggerBinder;
-import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
 /**
  * TestCase용의 쉽게 loggerBinder를 등록삭제할수 있는 api

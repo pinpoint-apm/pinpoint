@@ -1,6 +1,11 @@
-package com.nhn.pinpoint.thrift.io;
+package com.navercorp.pinpoint.thrift.io;
 
-import com.nhn.pinpoint.thrift.dto.TAgentInfo;
+import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
+import com.navercorp.pinpoint.thrift.io.Header;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 
 import org.apache.thrift.TException;
 import org.junit.Assert;

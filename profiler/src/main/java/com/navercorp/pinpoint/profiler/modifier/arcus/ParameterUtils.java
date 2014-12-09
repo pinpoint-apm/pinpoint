@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.profiler.modifier.arcus;
+package com.navercorp.pinpoint.profiler.modifier.arcus;
 
-import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 
 /**
  * @author emeroad

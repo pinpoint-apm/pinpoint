@@ -1,14 +1,15 @@
-package com.nhn.pinpoint.web.util;
+package com.navercorp.pinpoint.web.util;
 
 import static org.junit.Assert.*;
-import static com.nhn.pinpoint.web.util.TimeWindowSlotCentricSampler.DEFAULT_MINIMUM_TIMESLOT;
-import static com.nhn.pinpoint.web.util.TimeWindowSlotCentricSampler.DEFAULT_IDEAL_NUM_TIMESLOTS;
+import static com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler.*;
 
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
-import com.nhn.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.util.TimeWindowSampler;
+import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
+import com.navercorp.pinpoint.web.vo.Range;
 
 /**
  * @author hyungil.jeong

@@ -1,10 +1,10 @@
-package com.nhn.pinpoint.profiler.monitor.metric;
+package com.navercorp.pinpoint.profiler.monitor.metric;
 
-import com.nhn.pinpoint.common.HistogramSchema;
-import com.nhn.pinpoint.common.HistogramSlot;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.SlotType;
-import com.nhn.pinpoint.profiler.util.jdk.LongAdder;
+import com.navercorp.pinpoint.common.HistogramSchema;
+import com.navercorp.pinpoint.common.HistogramSlot;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.SlotType;
+import com.navercorp.pinpoint.profiler.util.jdk.LongAdder;
 
 /**
  * @author emeroad

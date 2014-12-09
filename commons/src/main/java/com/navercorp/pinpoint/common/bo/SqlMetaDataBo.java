@@ -1,12 +1,13 @@
-package com.nhn.pinpoint.common.bo;
+package com.navercorp.pinpoint.common.bo;
 
-import com.nhn.pinpoint.common.util.BytesUtils;
-import com.nhn.pinpoint.common.util.RowKeyUtils;
-import com.nhn.pinpoint.common.util.TimeUtils;
+import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.RowKeyUtils;
+import com.navercorp.pinpoint.common.util.TimeUtils;
+
 import org.apache.hadoop.hbase.util.Bytes;
 
-import static com.nhn.pinpoint.common.PinpointConstants.AGENT_NAME_MAX_LEN;
-import static com.nhn.pinpoint.common.util.BytesUtils.LONG_BYTE_LENGTH;
+import static com.navercorp.pinpoint.common.PinpointConstants.*;
+import static com.navercorp.pinpoint.common.util.BytesUtils.*;
 
 /**
  * @author emeroad

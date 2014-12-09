@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin;
 
-import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 
 public class TestInterceptor implements SimpleAroundInterceptor {
     private final String field;

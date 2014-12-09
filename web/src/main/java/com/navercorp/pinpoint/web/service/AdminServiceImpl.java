@@ -1,9 +1,9 @@
-package com.nhn.pinpoint.web.service;
+package com.navercorp.pinpoint.web.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.nhn.pinpoint.web.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 
 /**
  * 

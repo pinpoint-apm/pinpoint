@@ -1,6 +1,7 @@
-package com.nhn.pinpoint.web.util;
+package com.navercorp.pinpoint.web.util;
 
-import com.nhn.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.Range;
+
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;

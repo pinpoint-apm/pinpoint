@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.thrift.io;
+package com.navercorp.pinpoint.thrift.io;
 
 /**
  * @author emeroad

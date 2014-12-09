@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.config;
+package com.navercorp.pinpoint.web.config;
 
 import javax.annotation.PostConstruct;
 

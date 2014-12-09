@@ -1,21 +1,21 @@
-package com.nhn.pinpoint.web.service;
+package com.navercorp.pinpoint.web.service;
 
 import java.util.*;
 
-import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
-import com.nhn.pinpoint.web.applicationmap.histogram.NodeHistogram;
-import com.nhn.pinpoint.web.applicationmap.histogram.TimeHistogram;
-import com.nhn.pinpoint.web.applicationmap.rawdata.*;
-import com.nhn.pinpoint.web.dao.*;
-import com.nhn.pinpoint.web.vo.*;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
+import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.*;
+import com.navercorp.pinpoint.web.dao.*;
+import com.navercorp.pinpoint.web.vo.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
-
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
 
 /**
  * @author netspider

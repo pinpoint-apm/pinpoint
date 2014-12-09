@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.bootstrap;
+package com.navercorp.pinpoint.bootstrap;
 
-import com.nhn.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.exception.PinpointException;
 
 /**
  * @author emeroad

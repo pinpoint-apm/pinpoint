@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.spring.beans;
+package com.navercorp.pinpoint.profiler.modifier.spring.beans;
 
 import org.springframework.stereotype.Controller;
 

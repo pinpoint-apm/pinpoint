@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.db.jtds;
+package com.navercorp.pinpoint.profiler.modifier.db.jtds;
 
 /**
  * @author emeroad

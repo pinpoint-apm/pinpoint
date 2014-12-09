@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector.dao;
+package com.navercorp.pinpoint.collector.dao;
 
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.nhn.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 
 /**
  * 

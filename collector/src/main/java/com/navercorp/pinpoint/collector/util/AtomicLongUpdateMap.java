@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector.util;
+package com.navercorp.pinpoint.collector.util;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;

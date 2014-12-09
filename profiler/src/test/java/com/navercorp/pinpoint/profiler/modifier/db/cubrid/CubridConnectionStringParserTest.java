@@ -1,9 +1,12 @@
-package com.nhn.pinpoint.profiler.modifier.db.cubrid;
+package com.navercorp.pinpoint.profiler.modifier.db.cubrid;
 
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
-import com.nhn.pinpoint.profiler.modifier.db.ConnectionStringParser;
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.profiler.modifier.db.ConnectionStringParser;
+import com.navercorp.pinpoint.profiler.modifier.db.cubrid.CubridConnectionStringParser;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
 
 /**

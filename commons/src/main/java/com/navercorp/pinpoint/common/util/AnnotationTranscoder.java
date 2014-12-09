@@ -1,15 +1,15 @@
-package com.nhn.pinpoint.common.util;
+package com.navercorp.pinpoint.common.util;
 
 
-import com.nhn.pinpoint.common.bo.IntStringStringValue;
-import com.nhn.pinpoint.common.bo.IntStringValue;
-import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
-import com.nhn.pinpoint.common.buffer.Buffer;
-import com.nhn.pinpoint.common.buffer.FixedBuffer;
-import com.nhn.pinpoint.thrift.dto.TAnnotation;
-import com.nhn.pinpoint.thrift.dto.TAnnotationValue;
-import com.nhn.pinpoint.thrift.dto.TIntStringStringValue;
-import com.nhn.pinpoint.thrift.dto.TIntStringValue;
+import com.navercorp.pinpoint.common.bo.IntStringStringValue;
+import com.navercorp.pinpoint.common.bo.IntStringValue;
+import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.thrift.dto.TAnnotation;
+import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
+import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
+import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
 
 /**
  * @author emeroad

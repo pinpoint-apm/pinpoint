@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.common;
+package com.navercorp.pinpoint.common;
 
 
 public enum SlotType {

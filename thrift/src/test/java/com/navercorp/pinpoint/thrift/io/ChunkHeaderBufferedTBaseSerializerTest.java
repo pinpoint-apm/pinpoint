@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.thrift.io;
+package com.navercorp.pinpoint.thrift.io;
 
 import static org.junit.Assert.*;
 
@@ -9,7 +9,12 @@ import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.junit.Test;
 
-import com.nhn.pinpoint.thrift.dto.TSpanChunk;
+import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
+import com.navercorp.pinpoint.thrift.io.ChunkHeaderBufferedTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.ChunkHeaderBufferedTBaseSerializerFlushHandler;
+import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
+import com.navercorp.pinpoint.thrift.io.TBaseLocator;
+import com.navercorp.pinpoint.thrift.io.UnsafeByteArrayOutputStream;
 
 public class ChunkHeaderBufferedTBaseSerializerTest {
     private static final TBaseLocator DEFAULT_TBASE_LOCATOR = new DefaultTBaseLocator();

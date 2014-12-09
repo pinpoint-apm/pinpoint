@@ -1,8 +1,8 @@
-package com.nhn.pinpoint.test;
+package com.navercorp.pinpoint.test;
 
-import com.nhn.pinpoint.profiler.context.storage.Storage;
-import com.nhn.pinpoint.profiler.context.storage.StorageFactory;
-import com.nhn.pinpoint.profiler.sender.DataSender;
+import com.navercorp.pinpoint.profiler.context.storage.Storage;
+import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
+import com.navercorp.pinpoint.profiler.sender.DataSender;
 
 /**
  * @author hyungil.jeong

@@ -1,7 +1,7 @@
-package com.nhn.pinpoint.collector.dao;
+package com.navercorp.pinpoint.collector.dao;
 
-import com.nhn.pinpoint.thrift.dto.TSpan;
-import com.nhn.pinpoint.thrift.dto.TSpanChunk;
+import com.navercorp.pinpoint.thrift.dto.TSpan;
+import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 
 /**
  * @author emeroad

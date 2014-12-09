@@ -1,9 +1,9 @@
-package com.nhn.pinpoint.profiler.modifier.orm.mybatis;
+package com.navercorp.pinpoint.profiler.modifier.orm.mybatis;
 
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.bootstrap.Agent;
-import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.Agent;
+import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 
 /**
  * @author Hyun Jeong

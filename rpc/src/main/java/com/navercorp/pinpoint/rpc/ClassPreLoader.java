@@ -1,8 +1,9 @@
-package com.nhn.pinpoint.rpc;
+package com.navercorp.pinpoint.rpc;
 
-import com.nhn.pinpoint.rpc.client.PinpointSocket;
-import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
-import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
+import com.navercorp.pinpoint.rpc.client.PinpointSocket;
+import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
+import com.navercorp.pinpoint.rpc.server.PinpointServerSocket;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

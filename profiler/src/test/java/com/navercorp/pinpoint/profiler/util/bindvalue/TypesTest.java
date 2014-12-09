@@ -1,6 +1,7 @@
-package com.nhn.pinpoint.profiler.util.bindvalue;
+package com.navercorp.pinpoint.profiler.util.bindvalue;
 
-import com.nhn.pinpoint.profiler.util.bindvalue.Types;
+import com.navercorp.pinpoint.profiler.util.bindvalue.Types;
+
 import org.junit.Assert;
 import org.junit.Test;
 

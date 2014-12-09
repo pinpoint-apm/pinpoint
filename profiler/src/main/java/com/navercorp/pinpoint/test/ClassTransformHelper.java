@@ -1,7 +1,7 @@
-package com.nhn.pinpoint.test;
+package com.navercorp.pinpoint.test;
 
-import com.nhn.pinpoint.bootstrap.plugin.BytecodeUtils;
-import com.nhn.pinpoint.profiler.modifier.Modifier;
+import com.navercorp.pinpoint.bootstrap.plugin.BytecodeUtils;
+import com.navercorp.pinpoint.profiler.modifier.Modifier;
 
 public class ClassTransformHelper {
 

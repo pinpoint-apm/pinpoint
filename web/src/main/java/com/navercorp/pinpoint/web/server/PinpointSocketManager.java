@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.server;
+package com.navercorp.pinpoint.web.server;
 
 import java.io.IOException;
 import java.net.SocketException;
@@ -14,18 +14,18 @@ import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.common.util.NetUtils;
-import com.nhn.pinpoint.rpc.packet.HandshakeResponseCode;
-import com.nhn.pinpoint.rpc.packet.HandshakeResponseType;
-import com.nhn.pinpoint.rpc.packet.RequestPacket;
-import com.nhn.pinpoint.rpc.packet.SendPacket;
-import com.nhn.pinpoint.rpc.server.ChannelContext;
-import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
-import com.nhn.pinpoint.rpc.server.ServerMessageListener;
-import com.nhn.pinpoint.rpc.server.SocketChannel;
-import com.nhn.pinpoint.web.cluster.ClusterManager;
-import com.nhn.pinpoint.web.cluster.zookeeper.ZookeeperClusterManager;
-import com.nhn.pinpoint.web.config.WebConfig;
+import com.navercorp.pinpoint.common.util.NetUtils;
+import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
+import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.packet.SendPacket;
+import com.navercorp.pinpoint.rpc.server.ChannelContext;
+import com.navercorp.pinpoint.rpc.server.PinpointServerSocket;
+import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
+import com.navercorp.pinpoint.rpc.server.SocketChannel;
+import com.navercorp.pinpoint.web.cluster.ClusterManager;
+import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterManager;
+import com.navercorp.pinpoint.web.config.WebConfig;
 
 /**
  * @author koo.taejin <kr14910>

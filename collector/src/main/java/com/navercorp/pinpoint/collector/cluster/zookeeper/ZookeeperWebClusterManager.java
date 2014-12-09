@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector.cluster.zookeeper;
+package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -11,12 +11,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.collector.cluster.WebCluster;
-import com.nhn.pinpoint.collector.cluster.WorkerState;
-import com.nhn.pinpoint.collector.cluster.WorkerStateContext;
-import com.nhn.pinpoint.collector.cluster.zookeeper.exception.ConnectionException;
-import com.nhn.pinpoint.common.util.NetUtils;
-import com.nhn.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.collector.cluster.WebCluster;
+import com.navercorp.pinpoint.collector.cluster.WorkerState;
+import com.navercorp.pinpoint.collector.cluster.WorkerStateContext;
+import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.ConnectionException;
+import com.navercorp.pinpoint.common.util.NetUtils;
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 
 /**
  * @author koo.taejin <kr14910>

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.util;
+package com.navercorp.pinpoint.profiler.util;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

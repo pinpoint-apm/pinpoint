@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.alarm.checker;
+package com.navercorp.pinpoint.web.alarm.checker;
 
 import static org.junit.Assert.*;
 
@@ -8,18 +8,18 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.web.alarm.CheckerCategory;
-import com.nhn.pinpoint.web.alarm.DataCollectorFactory;
-import com.nhn.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
-import com.nhn.pinpoint.web.alarm.checker.ResponseCountChecker;
-import com.nhn.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
-import com.nhn.pinpoint.web.alarm.vo.Rule;
-import com.nhn.pinpoint.web.applicationmap.histogram.TimeHistogram;
-import com.nhn.pinpoint.web.dao.MapResponseDao;
-import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.web.vo.Range;
-import com.nhn.pinpoint.web.vo.ResponseTime;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.web.alarm.CheckerCategory;
+import com.navercorp.pinpoint.web.alarm.DataCollectorFactory;
+import com.navercorp.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
+import com.navercorp.pinpoint.web.alarm.checker.ResponseCountChecker;
+import com.navercorp.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
+import com.navercorp.pinpoint.web.alarm.vo.Rule;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
+import com.navercorp.pinpoint.web.dao.MapResponseDao;
+import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.ResponseTime;
 
 public class ResponseCountCheckerTest {
 

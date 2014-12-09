@@ -1,9 +1,13 @@
-package com.nhn.pinpoint.rpc;
+package com.navercorp.pinpoint.rpc;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.navercorp.pinpoint.rpc.DefaultFuture;
+import com.navercorp.pinpoint.rpc.Future;
+import com.navercorp.pinpoint.rpc.FutureListener;
 
 /**
  * @author emeroad

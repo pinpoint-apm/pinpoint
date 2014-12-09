@@ -1,8 +1,8 @@
-package com.nhn.pinpoint.bootstrap.instrument;
+package com.navercorp.pinpoint.bootstrap.instrument;
 
 import java.security.ProtectionDomain;
 
-import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 
 /**
  * @author emeroad

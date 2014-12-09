@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler;
+package com.navercorp.pinpoint.profiler;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
@@ -7,7 +7,7 @@ import java.lang.instrument.UnmodifiableClassException;
 import java.security.ProtectionDomain;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.nhn.pinpoint.profiler.modifier.Modifier;
+import com.navercorp.pinpoint.profiler.modifier.Modifier;
 
 public class ClassFileRetransformer implements ClassFileTransformer {
     private final Instrumentation instrumentation;

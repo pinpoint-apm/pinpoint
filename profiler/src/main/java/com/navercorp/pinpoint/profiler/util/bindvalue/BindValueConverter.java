@@ -1,10 +1,9 @@
-package com.nhn.pinpoint.profiler.util.bindvalue;
+package com.navercorp.pinpoint.profiler.util.bindvalue;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.nhn.pinpoint.profiler.util.bindvalue.converter.*;
-import com.nhn.pinpoint.profiler.util.bindvalue.converter.NullTypeConverter;
+import com.navercorp.pinpoint.profiler.util.bindvalue.converter.*;
 
 public class BindValueConverter {
     private static final BindValueConverter converter;

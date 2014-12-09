@@ -1,10 +1,10 @@
-package com.nhn.pinpoint.rpc.server;
+package com.navercorp.pinpoint.rpc.server;
 
 import java.util.Map;
 
-import com.nhn.pinpoint.rpc.packet.HandshakeResponseCode;
-import com.nhn.pinpoint.rpc.packet.RequestPacket;
-import com.nhn.pinpoint.rpc.packet.SendPacket;
+import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.packet.SendPacket;
 
 /**
  * @author emeroad

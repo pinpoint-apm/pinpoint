@@ -1,7 +1,7 @@
-package com.nhn.pinpoint.web.alarm;
+package com.navercorp.pinpoint.web.alarm;
 
-import com.nhn.pinpoint.web.alarm.checker.AlarmChecker;
-import com.nhn.pinpoint.web.alarm.vo.Rule;
+import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
+import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
 public class AlarmMailTemplate {
 

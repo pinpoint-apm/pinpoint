@@ -1,7 +1,8 @@
-package com.nhn.pinpoint.profiler.sampler;
+package com.navercorp.pinpoint.profiler.sampler;
 
 
-import com.nhn.pinpoint.profiler.sampler.SamplingRateSampler;
+import com.navercorp.pinpoint.profiler.sampler.SamplingRateSampler;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

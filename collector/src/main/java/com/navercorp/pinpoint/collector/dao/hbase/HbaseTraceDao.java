@@ -1,21 +1,22 @@
-package com.nhn.pinpoint.collector.dao.hbase;
+package com.navercorp.pinpoint.collector.dao.hbase;
 
-import com.nhn.pinpoint.common.bo.AnnotationBo;
-import com.nhn.pinpoint.common.bo.AnnotationBoList;
-import com.nhn.pinpoint.common.bo.SpanBo;
-import com.nhn.pinpoint.common.bo.SpanEventBo;
-import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
-import com.nhn.pinpoint.thrift.dto.TAnnotation;
-import com.nhn.pinpoint.thrift.dto.TSpan;
-import com.nhn.pinpoint.thrift.dto.TSpanChunk;
-import com.nhn.pinpoint.thrift.dto.TSpanEvent;
-import com.nhn.pinpoint.common.hbase.HbaseOperations2;
-import com.nhn.pinpoint.common.buffer.Buffer;
-import com.nhn.pinpoint.common.util.BytesUtils;
-import com.nhn.pinpoint.common.util.SpanUtils;
-import com.nhn.pinpoint.collector.dao.TracesDao;
-import com.nhn.pinpoint.collector.util.AcceptedTimeService;
+import com.navercorp.pinpoint.collector.dao.TracesDao;
+import com.navercorp.pinpoint.collector.util.AcceptedTimeService;
+import com.navercorp.pinpoint.common.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.bo.AnnotationBoList;
+import com.navercorp.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.SpanUtils;
+import com.navercorp.pinpoint.thrift.dto.TAnnotation;
+import com.navercorp.pinpoint.thrift.dto.TSpan;
+import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
+import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -28,7 +29,7 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.nhn.pinpoint.common.hbase.HBaseTables.*;
+import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 
 /**
  * @author emeroad

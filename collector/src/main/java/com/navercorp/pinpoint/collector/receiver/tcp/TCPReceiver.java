@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector.receiver.tcp;
+package com.navercorp.pinpoint.collector.receiver.tcp;
 
 import java.net.InetAddress;
 import java.net.SocketAddress;
@@ -21,30 +21,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.nhn.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
-import com.nhn.pinpoint.collector.receiver.DispatchHandler;
-import com.nhn.pinpoint.collector.util.PacketUtils;
-import com.nhn.pinpoint.common.util.ExecutorFactory;
-import com.nhn.pinpoint.common.util.PinpointThreadFactory;
-import com.nhn.pinpoint.rpc.packet.HandshakeResponseCode;
-import com.nhn.pinpoint.rpc.packet.HandshakeResponseType;
-import com.nhn.pinpoint.rpc.packet.RequestPacket;
-import com.nhn.pinpoint.rpc.packet.SendPacket;
-import com.nhn.pinpoint.rpc.server.PinpointServerSocket;
-import com.nhn.pinpoint.rpc.server.ServerMessageListener;
-import com.nhn.pinpoint.rpc.server.SocketChannel;
-import com.nhn.pinpoint.rpc.util.MapUtils;
-import com.nhn.pinpoint.thrift.io.DeserializerFactory;
-import com.nhn.pinpoint.thrift.io.Header;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
-import com.nhn.pinpoint.thrift.io.L4Packet;
-import com.nhn.pinpoint.thrift.io.SerializerFactory;
-import com.nhn.pinpoint.thrift.io.ThreadLocalHeaderTBaseDeserializerFactory;
-import com.nhn.pinpoint.thrift.io.ThreadLocalHeaderTBaseSerializerFactory;
-import com.nhn.pinpoint.thrift.util.SerializationUtils;
+import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
+import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.collector.util.PacketUtils;
+import com.navercorp.pinpoint.common.util.ExecutorFactory;
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
+import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.packet.SendPacket;
+import com.navercorp.pinpoint.rpc.server.PinpointServerSocket;
+import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
+import com.navercorp.pinpoint.rpc.server.SocketChannel;
+import com.navercorp.pinpoint.rpc.util.MapUtils;
+import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.Header;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
+import com.navercorp.pinpoint.thrift.io.L4Packet;
+import com.navercorp.pinpoint.thrift.io.SerializerFactory;
+import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseDeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.ThreadLocalHeaderTBaseSerializerFactory;
+import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 
 /**
  * @author emeroad

@@ -1,17 +1,17 @@
-package com.nhn.pinpoint.thrift.io;
+package com.navercorp.pinpoint.thrift.io;
 
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
-import com.nhn.pinpoint.thrift.dto.TAgentInfo;
-import com.nhn.pinpoint.thrift.dto.TAgentStat;
-import com.nhn.pinpoint.thrift.dto.TAgentStatBatch;
-import com.nhn.pinpoint.thrift.dto.TApiMetaData;
-import com.nhn.pinpoint.thrift.dto.TResult;
-import com.nhn.pinpoint.thrift.dto.TSpan;
-import com.nhn.pinpoint.thrift.dto.TSpanChunk;
-import com.nhn.pinpoint.thrift.dto.TSqlMetaData;
-import com.nhn.pinpoint.thrift.dto.TStringMetaData;
+import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
+import com.navercorp.pinpoint.thrift.dto.TAgentStat;
+import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
+import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
+import com.navercorp.pinpoint.thrift.dto.TResult;
+import com.navercorp.pinpoint.thrift.dto.TSpan;
+import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
+import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
+import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
 
 /**
  * @author emeroad

@@ -1,10 +1,10 @@
-package com.nhn.pinpoint.rpc.stream;
+package com.navercorp.pinpoint.rpc.stream;
 
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 
-import com.nhn.pinpoint.rpc.packet.stream.StreamCreateSuccessPacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamResponsePacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCreateSuccessPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
 
 /**
  * @author koo.taejin <kr14910>

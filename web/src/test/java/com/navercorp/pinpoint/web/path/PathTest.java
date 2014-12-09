@@ -1,10 +1,11 @@
-package com.nhn.pinpoint.web.path;
+package com.navercorp.pinpoint.web.path;
 
 import java.text.SimpleDateFormat;
 
 import org.junit.Test;
 
-import com.nhn.pinpoint.thrift.dto.TSpan;
+import com.navercorp.pinpoint.thrift.dto.TSpan;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

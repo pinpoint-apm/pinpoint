@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.alarm;
+package com.navercorp.pinpoint.web.alarm;
 
 import junit.framework.Assert;
 

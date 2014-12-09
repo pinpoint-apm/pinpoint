@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.vo.callstacks;
+package com.navercorp.pinpoint.web.vo.callstacks;
 
 import java.util.List;
 

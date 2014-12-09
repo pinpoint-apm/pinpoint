@@ -1,14 +1,18 @@
-package com.nhn.pinpoint.profiler.context;
+package com.navercorp.pinpoint.profiler.context;
 
-import com.nhn.pinpoint.bootstrap.context.Trace;
-import com.nhn.pinpoint.bootstrap.context.TraceId;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.Version;
-import com.nhn.pinpoint.common.util.TransactionId;
-import com.nhn.pinpoint.common.util.TransactionIdUtils;
-import com.nhn.pinpoint.profiler.AgentInformation;
-import com.nhn.pinpoint.profiler.util.RuntimeMXBeanUtils;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.common.util.TransactionIdUtils;
+import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
+import com.navercorp.pinpoint.profiler.context.DefaultTraceId;
+import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

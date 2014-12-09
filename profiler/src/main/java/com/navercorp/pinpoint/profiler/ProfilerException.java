@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler;
+package com.navercorp.pinpoint.profiler;
 
 public class ProfilerException extends RuntimeException {
     /**

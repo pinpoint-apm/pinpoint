@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin;
 
 public class ClassEditorFactoryMapping {
     private final String targetClassName;

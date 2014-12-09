@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler;
+package com.navercorp.pinpoint.profiler;
 
 public enum AgentStatus {
 	INITIALIZING,

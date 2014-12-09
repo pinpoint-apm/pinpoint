@@ -1,7 +1,7 @@
-package com.nhn.pinpoint.profiler.monitor.codahale;
+package com.navercorp.pinpoint.profiler.monitor.codahale;
 
 import com.codahale.metrics.Counter;
-import com.nhn.pinpoint.profiler.monitor.CounterMonitor;
+import com.navercorp.pinpoint.profiler.monitor.CounterMonitor;
 
 public class MetricCounterMonitor implements CounterMonitor {
 

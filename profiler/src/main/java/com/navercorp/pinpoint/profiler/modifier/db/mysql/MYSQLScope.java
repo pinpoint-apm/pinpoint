@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.db.mysql;
+package com.navercorp.pinpoint.profiler.modifier.db.mysql;
 
 /**
  * @author emeroad

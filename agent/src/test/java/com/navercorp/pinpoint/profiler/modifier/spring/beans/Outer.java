@@ -1,4 +1,5 @@
-package com.nhn.pinpoint.profiler.modifier.spring.beans;
+package com.navercorp.pinpoint.profiler.modifier.spring.beans;
+
 
 public class Outer {
     private Inner inner;

@@ -1,8 +1,13 @@
-package com.nhn.pinpoint.web.service.map;
+package com.navercorp.pinpoint.web.service.map;
 
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.web.service.map.AcceptApplication;
+import com.navercorp.pinpoint.web.service.map.AcceptApplicationLocalCache;
+import com.navercorp.pinpoint.web.service.map.RpcApplication;
+import com.navercorp.pinpoint.web.vo.Application;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
 
 import java.util.HashSet;

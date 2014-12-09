@@ -1,7 +1,7 @@
-package com.nhn.pinpoint.bootstrap.config;
+package com.navercorp.pinpoint.bootstrap.config;
 
-import com.nhn.pinpoint.bootstrap.util.SimpleSampler;
-import com.nhn.pinpoint.bootstrap.util.SimpleSamplerFactory;
+import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
+import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
 
 /**
  * 

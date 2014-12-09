@@ -1,11 +1,12 @@
-package com.nhn.pinpoint.common.util;
+package com.navercorp.pinpoint.common.util;
 
-import com.nhn.pinpoint.common.HistogramSchema;
-import com.nhn.pinpoint.common.HistogramSlot;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
-import com.nhn.pinpoint.common.buffer.Buffer;
-import com.nhn.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.HistogramSchema;
+import com.navercorp.pinpoint.common.HistogramSlot;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.hbase.HBaseTables;
+
 import org.apache.hadoop.hbase.util.Bytes;
 
 

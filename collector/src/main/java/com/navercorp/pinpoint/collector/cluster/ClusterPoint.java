@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.collector.cluster;
+package com.navercorp.pinpoint.collector.cluster;
 
-import com.nhn.pinpoint.rpc.Future;
+import com.navercorp.pinpoint.rpc.Future;
 
 public interface ClusterPoint {
 

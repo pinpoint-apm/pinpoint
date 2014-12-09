@@ -1,11 +1,11 @@
-package com.nhn.pinpoint.web.applicationmap.rawdata;
+package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
-import com.nhn.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
+import com.navercorp.pinpoint.web.vo.Application;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.nhn.pinpoint.web.applicationmap.histogram.Histogram;
-import com.nhn.pinpoint.web.applicationmap.histogram.TimeHistogram;
-import com.nhn.pinpoint.web.vo.Application;
 
 import java.util.Collection;
 import java.util.HashMap;

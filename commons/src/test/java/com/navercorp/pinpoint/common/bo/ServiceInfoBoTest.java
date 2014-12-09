@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.common.bo;
+package com.navercorp.pinpoint.common.bo;
 
 import static org.junit.Assert.*;
 
@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
+
+import com.navercorp.pinpoint.common.bo.ServiceInfoBo;
 
 /**
  * @author hyungil.jeong

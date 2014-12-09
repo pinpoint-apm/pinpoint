@@ -1,6 +1,7 @@
-package com.nhn.pinpoint.profiler.monitor.codahale.cpu.metric;
+package com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric;
 
 import com.codahale.metrics.Gauge;
+import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.AbstractCpuLoadMetricSet;
 import com.sun.management.OperatingSystemMXBean;
 
 /**

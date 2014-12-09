@@ -1,9 +1,9 @@
-package com.nhn.pinpoint.profiler.context;
+package com.navercorp.pinpoint.profiler.context;
 
 import java.util.Collections;
 import java.util.List;
 
-import com.nhn.pinpoint.bootstrap.context.ServiceInfo;
+import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
 
 /**
  * @author hyungil.jeong

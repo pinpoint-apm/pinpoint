@@ -2,7 +2,7 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.nhn.pinpoint</groupId>
+        <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pom</artifactId>
         <version>1.0.4-SNAPSHOT</version>
     </parent>
@@ -39,15 +39,15 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.nhn.pinpoint</groupId>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-commons</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.nhn.pinpoint</groupId>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-rpc</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.nhn.pinpoint</groupId>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-thrift</artifactId>
         </dependency>
         <dependency>
@@ -609,12 +609,12 @@
 
         <!-- Test dependencies -->
         <dependency>
-            <groupId>com.nhn.pinpoint</groupId>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-profiler</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.nhn.pinpoint</groupId>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-collector</artifactId>
             <classifier>classes</classifier>
             <scope>test</scope>

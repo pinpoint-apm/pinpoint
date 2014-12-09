@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.rpc.client;
+package com.navercorp.pinpoint.rpc.client;
 
 public class DummyPinpointSocketReconnectEventListener implements PinpointSocketReconnectEventListener {
 

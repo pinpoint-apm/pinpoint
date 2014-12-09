@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.service;
+package com.navercorp.pinpoint.web.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,16 +8,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.nhn.pinpoint.common.HistogramSchema;
-import com.nhn.pinpoint.common.HistogramSlot;
-import com.nhn.pinpoint.web.applicationmap.ApplicationMapBuilder;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkDataMap;
-import com.nhn.pinpoint.web.util.TimeWindow;
-import com.nhn.pinpoint.web.util.TimeWindowDownSampler;
-import com.nhn.pinpoint.web.dao.*;
-import com.nhn.pinpoint.web.vo.*;
-import com.nhn.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
+import com.navercorp.pinpoint.common.HistogramSchema;
+import com.navercorp.pinpoint.common.HistogramSlot;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
+import com.navercorp.pinpoint.web.dao.*;
+import com.navercorp.pinpoint.web.filter.Filter;
+import com.navercorp.pinpoint.web.util.TimeWindow;
+import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
+import com.navercorp.pinpoint.web.vo.*;
+import com.navercorp.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,12 +31,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
-
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.bo.SpanBo;
-import com.nhn.pinpoint.common.bo.SpanEventBo;
-import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
-import com.nhn.pinpoint.web.filter.Filter;
 
 /**
  * @author netspider

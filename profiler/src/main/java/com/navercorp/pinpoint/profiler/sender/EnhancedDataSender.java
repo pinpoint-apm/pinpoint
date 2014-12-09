@@ -1,10 +1,10 @@
-package com.nhn.pinpoint.profiler.sender;
+package com.navercorp.pinpoint.profiler.sender;
 
-import com.nhn.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.FutureListener;
+import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.client.PinpointSocketReconnectEventListener;
+
 import org.apache.thrift.TBase;
-
-import com.nhn.pinpoint.rpc.FutureListener;
-import com.nhn.pinpoint.rpc.client.PinpointSocketReconnectEventListener;
 
 /**
  * @author emeroad

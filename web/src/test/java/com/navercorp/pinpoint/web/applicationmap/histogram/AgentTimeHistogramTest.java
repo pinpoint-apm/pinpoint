@@ -1,13 +1,16 @@
-package com.nhn.pinpoint.web.applicationmap.histogram;
+package com.navercorp.pinpoint.web.applicationmap.histogram;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.web.view.AgentResponseTimeViewModel;
-import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.web.vo.Range;
-import com.nhn.pinpoint.web.vo.ResponseTime;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogramBuilder;
+import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModel;
+import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.ResponseTime;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

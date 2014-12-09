@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.alarm;
+package com.navercorp.pinpoint.web.alarm;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -20,8 +20,8 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.nhn.pinpoint.web.alarm.checker.AlarmChecker;
-import com.nhn.pinpoint.web.dao.mysql.MySqlAlarmResourceDao;
+import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
+import com.navercorp.pinpoint.web.dao.mysql.MySqlAlarmResourceDao;
 import com.nhncorp.lucy.net.call.Fault;
 import com.nhncorp.lucy.net.call.Reply;
 import com.nhncorp.lucy.net.call.ReturnValue;

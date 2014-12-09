@@ -1,8 +1,8 @@
-package com.nhn.pinpoint.web.vo.scatter;
+package com.navercorp.pinpoint.web.vo.scatter;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.nhn.pinpoint.web.view.DotSerializer;
-import com.nhn.pinpoint.web.vo.TransactionId;
+import com.navercorp.pinpoint.web.view.DotSerializer;
+import com.navercorp.pinpoint.web.vo.TransactionId;
 
 @JsonSerialize(using = DotSerializer.class)
 public class Dot {

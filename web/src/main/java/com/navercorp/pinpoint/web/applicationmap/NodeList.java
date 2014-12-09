@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.web.applicationmap;
+package com.navercorp.pinpoint.web.applicationmap;
 
-import com.nhn.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.*;
 

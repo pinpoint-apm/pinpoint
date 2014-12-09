@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.orm.mybatis;
+package com.navercorp.pinpoint.profiler.modifier.orm.mybatis;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mybatis.spring.SqlSessionTemplate;
 
-import com.nhn.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.bo.SpanEventBo;
 
 /**
  * @author Hyun Jeong

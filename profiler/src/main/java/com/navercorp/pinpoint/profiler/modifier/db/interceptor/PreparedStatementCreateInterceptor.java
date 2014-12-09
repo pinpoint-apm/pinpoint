@@ -1,14 +1,13 @@
-package com.nhn.pinpoint.profiler.modifier.db.interceptor;
+package com.navercorp.pinpoint.profiler.modifier.db.interceptor;
 
-import com.nhn.pinpoint.bootstrap.context.RecordableTrace;
-import com.nhn.pinpoint.bootstrap.interceptor.*;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.ParsingResultTraceValue;
-import com.nhn.pinpoint.common.util.ParsingResult;
-
-import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
-import com.nhn.pinpoint.bootstrap.util.InterceptorUtils;
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.context.RecordableTrace;
+import com.navercorp.pinpoint.bootstrap.interceptor.*;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValueUtils;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.ParsingResultTraceValue;
+import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
+import com.navercorp.pinpoint.common.util.ParsingResult;
 
 /**
  * @author emeroad

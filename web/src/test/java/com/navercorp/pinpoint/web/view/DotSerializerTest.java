@@ -1,9 +1,11 @@
-package com.nhn.pinpoint.web.view;
+package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nhn.pinpoint.web.vo.TransactionId;
-import com.nhn.pinpoint.web.vo.scatter.Dot;
+import com.navercorp.pinpoint.web.vo.TransactionId;
+import com.navercorp.pinpoint.web.vo.scatter.Dot;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

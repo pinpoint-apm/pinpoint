@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.plugin;
+package com.navercorp.pinpoint.profiler.plugin;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ServiceLoader;
 
-import com.nhn.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.exception.PinpointException;
 
 public class PluginLoader<T> {
     private final Class<T> serviceType;

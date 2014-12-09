@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.db.cubrid;
+package com.navercorp.pinpoint.profiler.modifier.db.cubrid;
 
 /**
  * @author emeroad

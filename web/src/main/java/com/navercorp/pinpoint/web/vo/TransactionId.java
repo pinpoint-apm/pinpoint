@@ -1,8 +1,8 @@
-package com.nhn.pinpoint.web.vo;
+package com.navercorp.pinpoint.web.vo;
 
-import com.nhn.pinpoint.common.PinpointConstants;
-import com.nhn.pinpoint.common.util.BytesUtils;
-import com.nhn.pinpoint.common.util.TransactionIdUtils;
+import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 
 /**
  * @author emeroad
@@ -56,7 +56,7 @@ public class TransactionId implements Comparable<TransactionId> {
             throw new NullPointerException("transactionId must not be null");
         }
 
-        com.nhn.pinpoint.common.util.TransactionId parsedId = TransactionIdUtils.parseTransactionId(transactionId);
+        com.navercorp.pinpoint.common.util.TransactionId parsedId = TransactionIdUtils.parseTransactionId(transactionId);
         this.agentId = parsedId.getAgentId();
         this.agentStartTime = parsedId.getAgentStartTime();
         this.transactionSequence = parsedId.getTransactionSequence();

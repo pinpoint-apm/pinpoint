@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.interceptor.bci;
+package com.navercorp.pinpoint.profiler.interceptor.bci;
 
 import java.util.Formatter;
 

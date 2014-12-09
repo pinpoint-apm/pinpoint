@@ -1,9 +1,10 @@
-package com.nhn.pinpoint.web.mapper;
+package com.navercorp.pinpoint.web.mapper;
 
-import com.nhn.pinpoint.common.PinpointConstants;
-import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.common.util.BytesUtils;
-import com.nhn.pinpoint.common.util.TimeUtils;
+import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.bo.AgentInfoBo;
+import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.TimeUtils;
+
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;

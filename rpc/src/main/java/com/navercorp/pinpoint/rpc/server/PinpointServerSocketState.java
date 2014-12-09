@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.rpc.server;
+package com.navercorp.pinpoint.rpc.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

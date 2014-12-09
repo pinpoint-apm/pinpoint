@@ -1,11 +1,11 @@
-package com.nhn.pinpoint.web.applicationmap.histogram;
+package com.navercorp.pinpoint.web.applicationmap.histogram;
 
-import com.nhn.pinpoint.web.view.AgentResponseTimeViewModelList;
-import com.nhn.pinpoint.web.view.ResponseTimeViewModel;
-import com.nhn.pinpoint.web.vo.*;
+import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModelList;
+import com.navercorp.pinpoint.web.view.ResponseTimeViewModel;
+import com.navercorp.pinpoint.web.vo.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 import java.util.*;
 

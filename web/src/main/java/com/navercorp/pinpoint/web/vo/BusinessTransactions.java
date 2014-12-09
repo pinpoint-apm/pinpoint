@@ -1,10 +1,10 @@
-package com.nhn.pinpoint.web.vo;
+package com.navercorp.pinpoint.web.vo;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.nhn.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.common.bo.SpanBo;
 
 /**
  * @author netspider

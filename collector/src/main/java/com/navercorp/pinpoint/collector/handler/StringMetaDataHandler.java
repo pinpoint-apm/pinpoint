@@ -1,8 +1,9 @@
-package com.nhn.pinpoint.collector.handler;
+package com.navercorp.pinpoint.collector.handler;
 
-import com.nhn.pinpoint.collector.dao.StringMetaDataDao;
-import com.nhn.pinpoint.thrift.dto.TResult;
-import com.nhn.pinpoint.thrift.dto.TStringMetaData;
+import com.navercorp.pinpoint.collector.dao.StringMetaDataDao;
+import com.navercorp.pinpoint.thrift.dto.TResult;
+import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
+
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

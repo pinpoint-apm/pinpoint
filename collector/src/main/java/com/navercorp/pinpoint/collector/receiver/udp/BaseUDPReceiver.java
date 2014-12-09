@@ -1,9 +1,9 @@
-package com.nhn.pinpoint.collector.receiver.udp;
+package com.navercorp.pinpoint.collector.receiver.udp;
 
 import com.codahale.metrics.Timer;
-import com.nhn.pinpoint.collector.receiver.DispatchHandler;
-import com.nhn.pinpoint.collector.util.PacketUtils;
-import com.nhn.pinpoint.thrift.io.*;
+import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.collector.util.PacketUtils;
+import com.navercorp.pinpoint.thrift.io.*;
 
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;

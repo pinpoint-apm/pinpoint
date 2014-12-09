@@ -4,24 +4,24 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <!-- retransformed by bean name -->
-    <bean id="maru" class="com.nhn.pinpoint.profiler.modifier.spring.beans.Maru"/>
+    <bean id="maru" class="com.navercorp.pinpoint.profiler.modifier.spring.beans.Maru"/>
     
     <!-- retransformed by class -->
-    <bean id="morae" class="com.nhn.pinpoint.profiler.modifier.spring.beans.Morae"/>
+    <bean id="morae" class="com.navercorp.pinpoint.profiler.modifier.spring.beans.Morae"/>
     
     <!-- retransformed by class. duplicated class -->
-    <bean id="duplicatedMorae" class="com.nhn.pinpoint.profiler.modifier.spring.beans.Morae"/>
+    <bean id="duplicatedMorae" class="com.navercorp.pinpoint.profiler.modifier.spring.beans.Morae"/>
     
     <!-- retransformed by annotation -->
-    <bean id="mozzi" class="com.nhn.pinpoint.profiler.modifier.spring.beans.Mozzi" scope="prototype"/>
+    <bean id="mozzi" class="com.navercorp.pinpoint.profiler.modifier.spring.beans.Mozzi" scope="prototype"/>
     
     <!-- excluded -->
-    <bean id="excluded" class="com.nhn.pinpoint.profiler.modifier.spring.beans.Excluded"/>
+    <bean id="excluded" class="com.navercorp.pinpoint.profiler.modifier.spring.beans.Excluded"/>
     
     <!-- inner bean -->
-    <bean id="outer" class="com.nhn.pinpoint.profiler.modifier.spring.beans.Outer">
+    <bean id="outer" class="com.navercorp.pinpoint.profiler.modifier.spring.beans.Outer">
         <property name="inner">
-            <bean class="com.nhn.pinpoint.profiler.modifier.spring.beans.Inner"/>
+            <bean class="com.navercorp.pinpoint.profiler.modifier.spring.beans.Inner"/>
         </property>
     </bean>
     
@@ -31,7 +31,7 @@
         <property name="proxyTargetClass" value="true"></property>
     </bean>
     
-    <bean id="testAdvisor" class="com.nhn.pinpoint.profiler.modifier.spring.beans.TestAdvisor"/>
+    <bean id="testAdvisor" class="com.navercorp.pinpoint.profiler.modifier.spring.beans.TestAdvisor"/>
     
-    <bean id="proxyTarget" class="com.nhn.pinpoint.profiler.modifier.spring.beans.ProxyTarget"/>
+    <bean id="proxyTarget" class="com.navercorp.pinpoint.profiler.modifier.spring.beans.ProxyTarget"/>
 </beans>

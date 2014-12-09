@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.collector.cluster;
+package com.navercorp.pinpoint.collector.cluster;
 
-import com.nhn.pinpoint.collector.config.CollectorConfiguration;
+import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 
 /**
  * @author koo.taejin <kr14910>

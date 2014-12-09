@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.rpc.util;
+package com.navercorp.pinpoint.rpc.util;
 
 import org.jboss.netty.logging.InternalLoggerFactory;
 import org.jboss.netty.logging.Slf4JLoggerFactory;

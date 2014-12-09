@@ -1,9 +1,9 @@
-package com.nhn.pinpoint.bootstrap.context;
+package com.navercorp.pinpoint.bootstrap.context;
 
-import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.common.AnnotationKey;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.util.ParsingResult;
+import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.navercorp.pinpoint.common.AnnotationKey;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.util.ParsingResult;
 
 /**
  * @author emeroad

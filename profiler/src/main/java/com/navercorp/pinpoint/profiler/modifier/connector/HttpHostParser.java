@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.connector;
+package com.navercorp.pinpoint.profiler.modifier.connector;
 
 /**
  *

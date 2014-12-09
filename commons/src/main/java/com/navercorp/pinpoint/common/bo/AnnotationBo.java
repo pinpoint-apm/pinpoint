@@ -1,9 +1,9 @@
-package com.nhn.pinpoint.common.bo;
+package com.navercorp.pinpoint.common.bo;
 
-import com.nhn.pinpoint.common.AnnotationKey;
-import com.nhn.pinpoint.thrift.dto.TAnnotation;
-import com.nhn.pinpoint.common.util.AnnotationTranscoder;
-import com.nhn.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.AnnotationKey;
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.util.AnnotationTranscoder;
+import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 
 /**
  * @author emeroad

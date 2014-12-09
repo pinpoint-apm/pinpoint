@@ -1,14 +1,14 @@
-package com.nhn.pinpoint.collector.cluster.route;
+package com.navercorp.pinpoint.collector.cluster.route;
 
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.collector.cluster.ClusterPointLocator;
-import com.nhn.pinpoint.collector.cluster.TargetClusterPoint;
-import com.nhn.pinpoint.rpc.Future;
-import com.nhn.pinpoint.rpc.ResponseMessage;
-import com.nhn.pinpoint.thrift.io.TCommandTypeVersion;
+import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
+import com.navercorp.pinpoint.collector.cluster.TargetClusterPoint;
+import com.navercorp.pinpoint.rpc.Future;
+import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.thrift.io.TCommandTypeVersion;
 
 /**
  * @author koo.taejin <kr14910>

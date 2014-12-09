@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.profiler.context;
+package com.navercorp.pinpoint.profiler.context;
 
-import com.nhn.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.exception.PinpointException;
 
 /**
  * @author emeroad

@@ -28,7 +28,7 @@
     </bean>
 
 
-    <bean id="hbaseTemplate" class="com.nhn.pinpoint.common.hbase.HbaseTemplate2">
+    <bean id="hbaseTemplate" class="com.navercorp.pinpoint.common.hbase.HbaseTemplate2">
         <property name="configuration" ref="hbaseConfiguration"/>
         <property name="poolSize" value="${hbase.hTablePoolSize}"/>
     </bean>
@@ -57,7 +57,7 @@
         <constructor-arg ref="agentStatRangeHasher"/>
     </bean>
 
-    <bean id="agentStatRangeHasher" class="com.nhn.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
+    <bean id="agentStatRangeHasher" class="com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
         <constructor-arg type="int" value="0"/>
         <constructor-arg type="int" value="24"/>
         <constructor-arg type="int" value="32"/>
@@ -67,7 +67,7 @@
         <constructor-arg ref="metadataRangeHasher"/>
     </bean>
 
-    <bean id="metadataRangeHasher" class="com.nhn.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
+    <bean id="metadataRangeHasher" class="com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
         <constructor-arg type="int" value="0"/>
         <constructor-arg type="int" value="32"/>
         <constructor-arg type="int" value="8"/>
@@ -77,7 +77,7 @@
         <constructor-arg ref="acceptApplicationHasher"/>
     </bean>
 
-    <bean id="acceptApplicationHasher" class="com.nhn.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
+    <bean id="acceptApplicationHasher" class="com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash">
         <!-- parentApplicationName 을 해쉬한다. -->
         <constructor-arg type="int" value="0"/>
         <constructor-arg type="int" value="24"/>

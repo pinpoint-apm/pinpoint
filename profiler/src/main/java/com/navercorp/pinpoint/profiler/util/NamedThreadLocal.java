@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.util;
+package com.navercorp.pinpoint.profiler.util;
 
 /**
  * NamedThreadLocal 사용시 thread local leak 발생시 추적이 쉬움

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.test;
+package com.navercorp.pinpoint.test;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -7,8 +7,8 @@ import java.lang.reflect.UndeclaredThrowableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.common.util.ClassUtils;
-import com.nhn.pinpoint.profiler.DefaultAgent;
+import com.navercorp.pinpoint.common.util.ClassUtils;
+import com.navercorp.pinpoint.profiler.DefaultAgent;
 
 /**
  * @author hyungil.jeong

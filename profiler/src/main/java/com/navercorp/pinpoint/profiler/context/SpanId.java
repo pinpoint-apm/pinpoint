@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.profiler.context;
+package com.navercorp.pinpoint.profiler.context;
 
-import com.nhn.pinpoint.profiler.util.jdk.ThreadLocalRandom;
+import com.navercorp.pinpoint.profiler.util.jdk.ThreadLocalRandom;
 
 import java.util.Random;
 

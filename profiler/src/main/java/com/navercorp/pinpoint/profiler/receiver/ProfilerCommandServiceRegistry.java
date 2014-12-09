@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.receiver;
+package com.navercorp.pinpoint.profiler.receiver;
 
 import java.util.concurrent.ConcurrentHashMap;
 

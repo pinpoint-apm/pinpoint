@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.test.junit4;
+package com.navercorp.pinpoint.test.junit4;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -15,17 +15,17 @@ import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.bootstrap.context.Trace;
-import com.nhn.pinpoint.bootstrap.context.TraceContext;
-import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.DefaultAgent;
-import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
-import com.nhn.pinpoint.test.MockAgent;
-import com.nhn.pinpoint.test.PeekableDataSender;
-import com.nhn.pinpoint.test.ResettableServerMetaDataHolder;
-import com.nhn.pinpoint.test.TestClassLoader;
-import com.nhn.pinpoint.test.TestClassLoaderFactory;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.profiler.DefaultAgent;
+import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
+import com.navercorp.pinpoint.test.MockAgent;
+import com.navercorp.pinpoint.test.PeekableDataSender;
+import com.navercorp.pinpoint.test.ResettableServerMetaDataHolder;
+import com.navercorp.pinpoint.test.TestClassLoader;
+import com.navercorp.pinpoint.test.TestClassLoaderFactory;
 
 /**
  * @author hyungil.jeong

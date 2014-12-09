@@ -1,13 +1,16 @@
-package com.nhn.pinpoint.collector.dao.hbase;
+package com.navercorp.pinpoint.collector.dao.hbase;
 
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.buffer.Buffer;
-import com.nhn.pinpoint.common.buffer.FixedBuffer;
-import com.nhn.pinpoint.common.hbase.HBaseTables;
-import com.nhn.pinpoint.common.util.DefaultTimeSlot;
-import com.nhn.pinpoint.common.util.TimeSlot;
-import com.nhn.pinpoint.common.util.TimeUtils;
+import com.navercorp.pinpoint.collector.dao.hbase.HbaseHostApplicationMapDao;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.util.DefaultTimeSlot;
+import com.navercorp.pinpoint.common.util.TimeSlot;
+import com.navercorp.pinpoint.common.util.TimeUtils;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

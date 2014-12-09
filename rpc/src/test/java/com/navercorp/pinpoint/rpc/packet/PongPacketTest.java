@@ -1,8 +1,12 @@
-package com.nhn.pinpoint.rpc.packet;
+package com.navercorp.pinpoint.rpc.packet;
 
 import junit.framework.Assert;
+
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.junit.Test;
+
+import com.navercorp.pinpoint.rpc.packet.PacketType;
+import com.navercorp.pinpoint.rpc.packet.PongPacket;
 
 /**
  * @author emeroad

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector.handler;
+package com.navercorp.pinpoint.collector.handler;
 
 import java.util.List;
 
@@ -8,13 +8,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.nhn.pinpoint.collector.dao.ApplicationTraceIndexDao;
-import com.nhn.pinpoint.collector.dao.HostApplicationMapDao;
-import com.nhn.pinpoint.collector.dao.TracesDao;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.thrift.dto.TSpan;
-import com.nhn.pinpoint.thrift.dto.TSpanEvent;
-import com.nhn.pinpoint.common.util.SpanEventUtils;
+import com.navercorp.pinpoint.collector.dao.ApplicationTraceIndexDao;
+import com.navercorp.pinpoint.collector.dao.HostApplicationMapDao;
+import com.navercorp.pinpoint.collector.dao.TracesDao;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.util.SpanEventUtils;
+import com.navercorp.pinpoint.thrift.dto.TSpan;
+import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
+
 import org.springframework.stereotype.Service;
 
 /**

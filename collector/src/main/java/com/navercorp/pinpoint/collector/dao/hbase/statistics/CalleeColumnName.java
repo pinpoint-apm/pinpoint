@@ -1,7 +1,7 @@
-package com.nhn.pinpoint.collector.dao.hbase.statistics;
+package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
-import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
-import com.nhn.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
+import com.navercorp.pinpoint.common.buffer.Buffer;
 
 /**
  * @author emeroad

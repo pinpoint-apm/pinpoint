@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.rpc.control;
+package com.navercorp.pinpoint.rpc.control;
 
 /**
  * @author koo.taejin

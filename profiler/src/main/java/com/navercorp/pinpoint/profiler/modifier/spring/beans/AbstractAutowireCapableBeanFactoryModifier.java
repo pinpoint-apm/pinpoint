@@ -1,21 +1,20 @@
-package com.nhn.pinpoint.profiler.modifier.spring.beans;
+package com.navercorp.pinpoint.profiler.modifier.spring.beans;
 
 import java.security.ProtectionDomain;
 
-import com.nhn.pinpoint.bootstrap.logging.PLogger;
-import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
-
-import com.nhn.pinpoint.bootstrap.Agent;
-import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.nhn.pinpoint.bootstrap.instrument.InstrumentException;
-import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
-import com.nhn.pinpoint.profiler.ClassFileRetransformer;
-import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
-import com.nhn.pinpoint.profiler.modifier.Modifier;
-import com.nhn.pinpoint.profiler.modifier.spring.beans.interceptor.CreateBeanInstanceInterceptor;
-import com.nhn.pinpoint.profiler.modifier.spring.beans.interceptor.PostProcessorInterceptor;
-import com.nhn.pinpoint.profiler.modifier.spring.beans.interceptor.TargetBeanFilter;
+import com.navercorp.pinpoint.bootstrap.Agent;
+import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.profiler.ClassFileRetransformer;
+import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
+import com.navercorp.pinpoint.profiler.modifier.Modifier;
+import com.navercorp.pinpoint.profiler.modifier.spring.beans.interceptor.CreateBeanInstanceInterceptor;
+import com.navercorp.pinpoint.profiler.modifier.spring.beans.interceptor.PostProcessorInterceptor;
+import com.navercorp.pinpoint.profiler.modifier.spring.beans.interceptor.TargetBeanFilter;
 
 /*
  * Spring beans are created by AbstractAutowireCapableBeanFactory#createBean(String, RootBeanDefinition, Object[]).

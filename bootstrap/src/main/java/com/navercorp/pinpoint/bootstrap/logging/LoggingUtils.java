@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.bootstrap.logging;
+package com.navercorp.pinpoint.bootstrap.logging;
 
 import java.util.Arrays;
 

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.dao.mysql;
+package com.navercorp.pinpoint.web.dao.mysql;
 
 import java.util.List;
 
@@ -7,9 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
-import com.nhn.pinpoint.web.alarm.vo.AlarmEmp;
-import com.nhn.pinpoint.web.alarm.vo.Rule;
-import com.nhn.pinpoint.web.dao.AlarmResourceDao;
+import com.navercorp.pinpoint.web.alarm.vo.AlarmEmp;
+import com.navercorp.pinpoint.web.alarm.vo.Rule;
+import com.navercorp.pinpoint.web.dao.AlarmResourceDao;
 
 @Repository
 public class MySqlAlarmResourceDao implements AlarmResourceDao {

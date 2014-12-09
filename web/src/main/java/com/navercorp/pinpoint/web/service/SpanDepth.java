@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.web.service;
+package com.navercorp.pinpoint.web.service;
 
-import com.nhn.pinpoint.web.calltree.span.SpanAlign;
+import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
 
 /**
  * @author emeroad

@@ -1,4 +1,4 @@
-namespace java com.nhn.pinpoint.thrift.dto
+namespace java com.navercorp.pinpoint.thrift.dto
 
 
 struct TIntStringValue {

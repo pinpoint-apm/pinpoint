@@ -23,8 +23,8 @@
 
     <mvc:annotation-driven />
 	<tx:annotation-driven />
-	<context:component-scan base-package="com.nhn.pinpoint.web.controller, com.nhn.pinpoint.web.util">
-		<context:exclude-filter type="regex" expression="com.nhn.pinpoint.web.controller.AlarmController"/>
+	<context:component-scan base-package="com.navercorp.pinpoint.web.controller, com.navercorp.pinpoint.web.util">
+		<context:exclude-filter type="regex" expression="com.navercorp.pinpoint.web.controller.AlarmController"/>
 	</context:component-scan>
 
     <bean id="jsonView" class="org.springframework.web.servlet.view.json.MappingJackson2JsonView">
@@ -32,7 +32,7 @@
         <property name="disableCaching" value="false"/>
     </bean>
 
-    <bean id="jsonpView" class="com.nhn.pinpoint.web.util.MappingJackson2JsonpView">
+    <bean id="jsonpView" class="com.navercorp.pinpoint.web.util.MappingJackson2JsonpView">
         <!-- 별도 필터에서 하고 있음.-->
         <property name="disableCaching" value="false"/>
     </bean>
@@ -56,7 +56,7 @@
         </bean>
         <mvc:interceptor>
             <mvc:mapping path="/admin/**" />
-            <bean class="com.nhn.pinpoint.web.interceptor.AdminAuthInterceptor" />
+            <bean class="com.navercorp.pinpoint.web.interceptor.AdminAuthInterceptor" />
         </mvc:interceptor>
 	</mvc:interceptors>
 </beans>

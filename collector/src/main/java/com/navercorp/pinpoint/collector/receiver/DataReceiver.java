@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector.receiver;
+package com.navercorp.pinpoint.collector.receiver;
 
 /**
  * @author emeroad

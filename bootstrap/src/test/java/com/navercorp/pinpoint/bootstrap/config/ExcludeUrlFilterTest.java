@@ -1,7 +1,11 @@
-package com.nhn.pinpoint.bootstrap.config;
+package com.navercorp.pinpoint.bootstrap.config;
 
 import junit.framework.Assert;
+
 import org.junit.Test;
+
+import com.navercorp.pinpoint.bootstrap.config.ExcludeUrlFilter;
+import com.navercorp.pinpoint.bootstrap.config.Filter;
 
 import static org.junit.Assert.*;
 

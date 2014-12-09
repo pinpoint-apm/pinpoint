@@ -1,9 +1,9 @@
-package com.nhn.pinpoint.profiler.util;
+package com.navercorp.pinpoint.profiler.util;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.nhn.pinpoint.bootstrap.instrument.Scope;
+import com.navercorp.pinpoint.bootstrap.instrument.Scope;
 
 /**
  * @author emeroad

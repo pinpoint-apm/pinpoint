@@ -1,8 +1,6 @@
-package com.nhn.pinpoint.collector.dao.hbase;
+package com.navercorp.pinpoint.collector.dao.hbase;
 
-import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENTID_APPLICATION_INDEX;
-
-import static com.nhn.pinpoint.common.hbase.HBaseTables.AGENTID_APPLICATION_INDEX_CF_APPLICATION;
+import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
@@ -11,8 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.hadoop.hbase.RowMapper;
 
-import com.nhn.pinpoint.common.hbase.HbaseOperations2;
-import com.nhn.pinpoint.collector.dao.AgentIdApplicationIndexDao;
+import com.navercorp.pinpoint.collector.dao.AgentIdApplicationIndexDao;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+
 import org.springframework.stereotype.Repository;
 
 /**

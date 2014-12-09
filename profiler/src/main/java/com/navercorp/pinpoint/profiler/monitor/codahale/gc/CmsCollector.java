@@ -1,18 +1,13 @@
-package com.nhn.pinpoint.profiler.monitor.codahale.gc;
+package com.navercorp.pinpoint.profiler.monitor.codahale.gc;
 
-import static com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues.JVM_GC_CMS_COUNT;
-import static com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues.JVM_GC_CMS_TIME;
-import static com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues.JVM_MEMORY_HEAP_MAX;
-import static com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues.JVM_MEMORY_HEAP_USED;
-import static com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues.JVM_MEMORY_NONHEAP_MAX;
-import static com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues.JVM_MEMORY_NONHEAP_USED;
+import static com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValues.*;
 
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
-import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
-import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
-import com.nhn.pinpoint.thrift.dto.TJvmGc;
-import com.nhn.pinpoint.thrift.dto.TJvmGcType;
+import com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
+import com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
+import com.navercorp.pinpoint.thrift.dto.TJvmGc;
+import com.navercorp.pinpoint.thrift.dto.TJvmGcType;
 
 import java.util.SortedMap;
 

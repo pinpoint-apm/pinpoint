@@ -1,8 +1,9 @@
-package com.nhn.pinpoint.rpc.client;
+package com.navercorp.pinpoint.rpc.client;
 
-import com.nhn.pinpoint.rpc.*;
-import com.nhn.pinpoint.rpc.packet.RequestPacket;
-import com.nhn.pinpoint.rpc.packet.ResponsePacket;
+import com.navercorp.pinpoint.rpc.*;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
+
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;

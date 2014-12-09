@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.monitor.codahale.cpu.metric;
+package com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric;
 
 import java.lang.management.ManagementFactory;
 import java.util.Collections;
@@ -7,7 +7,7 @@ import java.util.Map;
 
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Metric;
-import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
+import com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
 
 /**
  * @author hyungil.jeong

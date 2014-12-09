@@ -1,10 +1,11 @@
-package com.nhn.pinpoint.profiler.modifier.connector.httpclient4.interceptor;
+package com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor;
 
 import java.net.URI;
 
-import com.nhn.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.nhn.pinpoint.bootstrap.pair.NameIntValuePair;
+import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
+
 import org.apache.http.HttpRequest;
 import org.apache.http.client.methods.HttpUriRequest;
 

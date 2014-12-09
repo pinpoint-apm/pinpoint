@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.bootstrap.sampler;
+package com.navercorp.pinpoint.bootstrap.sampler;
 
 /**
  * @author emeroad

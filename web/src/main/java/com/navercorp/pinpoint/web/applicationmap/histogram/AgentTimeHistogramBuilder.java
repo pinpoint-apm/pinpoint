@@ -1,14 +1,14 @@
-package com.nhn.pinpoint.web.applicationmap.histogram;
+package com.navercorp.pinpoint.web.applicationmap.histogram;
 
-import com.nhn.pinpoint.common.SlotType;
-import com.nhn.pinpoint.web.applicationmap.rawdata.AgentHistogram;
-import com.nhn.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
-import com.nhn.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
-import com.nhn.pinpoint.web.util.TimeWindow;
-import com.nhn.pinpoint.web.util.TimeWindowDownSampler;
-import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.web.vo.Range;
-import com.nhn.pinpoint.web.vo.ResponseTime;
+import com.navercorp.pinpoint.common.SlotType;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
+import com.navercorp.pinpoint.web.util.TimeWindow;
+import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
+import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.ResponseTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

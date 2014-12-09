@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.context;
+package com.navercorp.pinpoint.profiler.context;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,9 +9,9 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import com.nhn.pinpoint.bootstrap.context.ServerMetaData;
-import com.nhn.pinpoint.bootstrap.context.ServerMetaDataHolder;
-import com.nhn.pinpoint.bootstrap.context.ServiceInfo;
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
+import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
 
 /**
  * @author hyungil.jeong

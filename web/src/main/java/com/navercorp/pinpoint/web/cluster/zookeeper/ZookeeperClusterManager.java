@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.cluster.zookeeper;
+package com.navercorp.pinpoint.web.cluster.zookeeper;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -21,10 +21,10 @@ import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.rpc.util.TimerFactory;
-import com.nhn.pinpoint.web.cluster.ClusterManager;
-import com.nhn.pinpoint.web.cluster.CollectorClusterInfoRepository;
-import com.nhn.pinpoint.web.cluster.zookeeper.exception.NoNodeException;
+import com.navercorp.pinpoint.rpc.util.TimerFactory;
+import com.navercorp.pinpoint.web.cluster.ClusterManager;
+import com.navercorp.pinpoint.web.cluster.CollectorClusterInfoRepository;
+import com.navercorp.pinpoint.web.cluster.zookeeper.exception.NoNodeException;
 
 /**
  * @author koo.taejin <kr14910>

@@ -1,12 +1,12 @@
-package com.nhn.pinpoint.thrift.io;
+package com.navercorp.pinpoint.thrift.io;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.nhn.pinpoint.thrift.dto.TSpan;
-import com.nhn.pinpoint.thrift.dto.TSpanChunk;
-import com.nhn.pinpoint.thrift.dto.TSpanEvent;
+import com.navercorp.pinpoint.thrift.dto.TSpan;
+import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
+import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 
 public class TSpanMockBuilder {
     private static final String AGENT_ID = "agentId";

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.bootstrap.interceptor;
+package com.navercorp.pinpoint.bootstrap.interceptor;
 
 /**
  * @author emeroad

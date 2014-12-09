@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.bootstrap.util;
+package com.navercorp.pinpoint.bootstrap.util;
 
 public final class NumberUtils {
     private NumberUtils() {

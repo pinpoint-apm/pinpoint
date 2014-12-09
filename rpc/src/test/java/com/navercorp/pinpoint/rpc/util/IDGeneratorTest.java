@@ -1,8 +1,10 @@
-package com.nhn.pinpoint.rpc.util;
+package com.navercorp.pinpoint.rpc.util;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
+
+import com.navercorp.pinpoint.rpc.util.IDGenerator;
 
 public class IDGeneratorTest {
 

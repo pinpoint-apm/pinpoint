@@ -1,12 +1,12 @@
-package com.nhn.pinpoint.web.dao;
+package com.navercorp.pinpoint.web.dao;
 
 import java.util.List;
 
-import com.nhn.pinpoint.web.vo.LimitedScanResult;
-import com.nhn.pinpoint.web.vo.Range;
-import com.nhn.pinpoint.web.vo.SelectedScatterArea;
-import com.nhn.pinpoint.web.vo.TransactionId;
-import com.nhn.pinpoint.web.vo.scatter.Dot;
+import com.navercorp.pinpoint.web.vo.LimitedScanResult;
+import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.SelectedScatterArea;
+import com.navercorp.pinpoint.web.vo.TransactionId;
+import com.navercorp.pinpoint.web.vo.scatter.Dot;
 
 /**
  * @author emeroad

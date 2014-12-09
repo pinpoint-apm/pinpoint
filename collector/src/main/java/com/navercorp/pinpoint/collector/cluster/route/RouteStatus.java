@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector.cluster.route;
+package com.navercorp.pinpoint.collector.cluster.route;
 
 /**
  * @author koo.taejin <kr14910>

@@ -1,8 +1,8 @@
-package com.nhn.pinpoint.collector.cluster.zookeeper.job;
+package com.navercorp.pinpoint.collector.cluster.zookeeper.job;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.nhn.pinpoint.rpc.server.ChannelContext;
+import com.navercorp.pinpoint.rpc.server.ChannelContext;
 
 public class AbstractJob implements Job {
 

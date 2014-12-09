@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector.config;
+package com.navercorp.pinpoint.collector.config;
 
 import org.junit.Test;
 

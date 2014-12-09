@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.bootstrap.config;
+package com.navercorp.pinpoint.bootstrap.config;
 
 /**
  * @author emeroad

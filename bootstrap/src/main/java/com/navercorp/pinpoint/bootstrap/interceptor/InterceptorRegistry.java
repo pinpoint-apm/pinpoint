@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.bootstrap.interceptor;
+package com.navercorp.pinpoint.bootstrap.interceptor;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -9,7 +9,7 @@ import java.util.logging.Logger;
  */
 public class InterceptorRegistry {
 
-    private static final LoggingInterceptor DUMMY = new LoggingInterceptor("com.nhn.pinpoint.profiler.interceptor.DUMMY");
+    private static final LoggingInterceptor DUMMY = new LoggingInterceptor("com.navercorp.pinpoint.profiler.interceptor.DUMMY");
 
     public static final InterceptorRegistry REGISTRY = new InterceptorRegistry();
 

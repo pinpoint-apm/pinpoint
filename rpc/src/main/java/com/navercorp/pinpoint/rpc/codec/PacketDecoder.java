@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.rpc.codec;
+package com.navercorp.pinpoint.rpc.codec;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
@@ -8,24 +8,24 @@ import org.jboss.netty.handler.codec.frame.FrameDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.rpc.client.WriteFailFutureListener;
-import com.nhn.pinpoint.rpc.packet.ClientClosePacket;
-import com.nhn.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
-import com.nhn.pinpoint.rpc.packet.ControlHandshakePacket;
-import com.nhn.pinpoint.rpc.packet.PacketType;
-import com.nhn.pinpoint.rpc.packet.PingPacket;
-import com.nhn.pinpoint.rpc.packet.PongPacket;
-import com.nhn.pinpoint.rpc.packet.RequestPacket;
-import com.nhn.pinpoint.rpc.packet.ResponsePacket;
-import com.nhn.pinpoint.rpc.packet.SendPacket;
-import com.nhn.pinpoint.rpc.packet.ServerClosePacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamClosePacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamCreateFailPacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamCreatePacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamCreateSuccessPacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamResponsePacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamPingPacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamPongPacket;
+import com.navercorp.pinpoint.rpc.client.WriteFailFutureListener;
+import com.navercorp.pinpoint.rpc.packet.ClientClosePacket;
+import com.navercorp.pinpoint.rpc.packet.ControlHandshakePacket;
+import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
+import com.navercorp.pinpoint.rpc.packet.PacketType;
+import com.navercorp.pinpoint.rpc.packet.PingPacket;
+import com.navercorp.pinpoint.rpc.packet.PongPacket;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
+import com.navercorp.pinpoint.rpc.packet.SendPacket;
+import com.navercorp.pinpoint.rpc.packet.ServerClosePacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCreateFailPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCreateSuccessPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamPingPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamPongPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
 
 /**
  * @author emeroad

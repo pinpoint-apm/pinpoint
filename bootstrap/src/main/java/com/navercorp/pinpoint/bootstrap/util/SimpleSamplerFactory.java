@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.bootstrap.util;
+package com.navercorp.pinpoint.bootstrap.util;
 
-import com.nhn.pinpoint.common.util.MathUtils;
+import com.navercorp.pinpoint.common.util.MathUtils;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

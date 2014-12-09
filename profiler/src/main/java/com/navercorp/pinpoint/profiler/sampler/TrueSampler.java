@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.profiler.sampler;
+package com.navercorp.pinpoint.profiler.sampler;
 
-import com.nhn.pinpoint.bootstrap.sampler.Sampler;
+import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 
 /**
  * @author emeroad

@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.web.vo.callstacks;
+package com.navercorp.pinpoint.web.vo.callstacks;
 
-import com.nhn.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.ServiceType;
 
 /**
  * each stack

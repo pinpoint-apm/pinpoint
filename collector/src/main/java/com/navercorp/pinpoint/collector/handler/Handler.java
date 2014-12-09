@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector.handler;
+package com.navercorp.pinpoint.collector.handler;
 
 import org.apache.thrift.TBase;
 

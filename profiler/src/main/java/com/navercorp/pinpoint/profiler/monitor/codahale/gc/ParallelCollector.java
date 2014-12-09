@@ -1,15 +1,15 @@
-package com.nhn.pinpoint.profiler.monitor.codahale.gc;
+package com.navercorp.pinpoint.profiler.monitor.codahale.gc;
 
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.MetricRegistry;
-import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
-import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
-import com.nhn.pinpoint.thrift.dto.TJvmGc;
-import com.nhn.pinpoint.thrift.dto.TJvmGcType;
+import com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
+import com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValues;
+import com.navercorp.pinpoint.thrift.dto.TJvmGc;
+import com.navercorp.pinpoint.thrift.dto.TJvmGcType;
 
 import java.util.SortedMap;
 
-import static com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorValues.*;
+import static com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorValues.*;
 
 /**
  * HotSpot's Parallel (Old) collector

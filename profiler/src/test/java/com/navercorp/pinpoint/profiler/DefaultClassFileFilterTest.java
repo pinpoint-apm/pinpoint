@@ -1,7 +1,11 @@
-package com.nhn.pinpoint.profiler;
+package com.navercorp.pinpoint.profiler;
 
 import junit.framework.Assert;
+
 import org.junit.Test;
+
+import com.navercorp.pinpoint.profiler.ClassFileFilter;
+import com.navercorp.pinpoint.profiler.DefaultClassFileFilter;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -15,7 +19,7 @@ public class DefaultClassFileFilterTest {
 
 		Assert.assertTrue(filter.doFilter(null, "java/test", null, null, null));
 		Assert.assertTrue(filter.doFilter(null, "javax/test", null, null, null));
-		Assert.assertTrue(filter.doFilter(null, "com/nhn/pinpoint/", null, null, null));
+		Assert.assertTrue(filter.doFilter(null, "com/navercorp/pinpoint/", null, null, null));
 
 		Assert.assertFalse(filter.doFilter(null, "test", null, null, null));
 	}

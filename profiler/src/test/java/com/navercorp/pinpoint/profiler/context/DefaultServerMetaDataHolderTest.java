@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.context;
+package com.navercorp.pinpoint.profiler.context;
 
 import static org.junit.Assert.*;
 
@@ -17,8 +17,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.nhn.pinpoint.bootstrap.context.ServerMetaData;
-import com.nhn.pinpoint.bootstrap.context.ServerMetaDataHolder;
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
+import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
 
 /**
  * @author hyungil.jeong

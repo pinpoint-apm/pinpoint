@@ -1,7 +1,7 @@
-package com.nhn.pinpoint.web.view;
+package com.navercorp.pinpoint.web.view;
 
-import com.nhn.pinpoint.web.applicationmap.ServerInstance;
-import com.nhn.pinpoint.web.applicationmap.ServerInstanceList;
+import com.navercorp.pinpoint.web.applicationmap.ServerInstance;
+import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;

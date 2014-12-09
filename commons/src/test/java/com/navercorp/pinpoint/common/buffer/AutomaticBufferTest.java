@@ -1,6 +1,10 @@
-package com.nhn.pinpoint.common.buffer;
+package com.navercorp.pinpoint.common.buffer;
 
-import com.nhn.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.util.BytesUtils;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Assert;

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.common.hbase;
+package com.navercorp.pinpoint.common.hbase;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -17,7 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.hadoop.hbase.HbaseConfigurationFactoryBean;
 import org.springframework.data.hadoop.hbase.HbaseSystemException;
 
-import com.nhn.pinpoint.common.util.PropertyUtils;
+import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
+import com.navercorp.pinpoint.common.util.PropertyUtils;
 
 
 /**

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler;
+package com.navercorp.pinpoint.profiler;
 
 import java.io.File;
 import java.lang.instrument.ClassFileTransformer;
@@ -9,20 +9,20 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
-import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.nhn.pinpoint.bootstrap.plugin.ClassEditor;
-import com.nhn.pinpoint.bootstrap.plugin.DedicatedClassEditor;
-import com.nhn.pinpoint.bootstrap.plugin.PluginClassLoaderFactory;
-import com.nhn.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import com.nhn.pinpoint.bootstrap.plugin.ProfilerPluginContext;
-import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
-import com.nhn.pinpoint.profiler.modifier.DefaultModifierRegistry;
-import com.nhn.pinpoint.profiler.modifier.Modifier;
-import com.nhn.pinpoint.profiler.modifier.ModifierProvider;
-import com.nhn.pinpoint.profiler.modifier.ModifierRegistry;
-import com.nhn.pinpoint.profiler.plugin.ClassEditorAdaptor;
-import com.nhn.pinpoint.profiler.plugin.PluginLoader;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.plugin.ClassEditor;
+import com.navercorp.pinpoint.bootstrap.plugin.DedicatedClassEditor;
+import com.navercorp.pinpoint.bootstrap.plugin.PluginClassLoaderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
+import com.navercorp.pinpoint.profiler.modifier.DefaultModifierRegistry;
+import com.navercorp.pinpoint.profiler.modifier.Modifier;
+import com.navercorp.pinpoint.profiler.modifier.ModifierProvider;
+import com.navercorp.pinpoint.profiler.modifier.ModifierRegistry;
+import com.navercorp.pinpoint.profiler.plugin.ClassEditorAdaptor;
+import com.navercorp.pinpoint.profiler.plugin.PluginLoader;
 
 /**
  * @author emeroad

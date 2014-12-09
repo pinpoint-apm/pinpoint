@@ -1,8 +1,8 @@
-package com.nhn.pinpoint.collector.cluster.route;
+package com.navercorp.pinpoint.collector.cluster.route;
 
-import com.nhn.pinpoint.rpc.stream.ClientStreamChannelContext;
-import com.nhn.pinpoint.rpc.stream.ServerStreamChannelContext;
-import com.nhn.pinpoint.thrift.dto.command.TCommandTransfer;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 
 /**
  * @author koo.taejin <kr14910>

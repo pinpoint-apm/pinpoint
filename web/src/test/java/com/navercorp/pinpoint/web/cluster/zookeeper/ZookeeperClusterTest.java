@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.cluster.zookeeper;
+package com.navercorp.pinpoint.web.cluster.zookeeper;
 
 import java.io.IOException;
 import java.util.List;
@@ -18,14 +18,14 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.collector.cluster.zookeeper.exception.PinpointZookeeperException;
-import com.nhn.pinpoint.common.util.NetUtils;
-import com.nhn.pinpoint.rpc.client.MessageListener;
-import com.nhn.pinpoint.rpc.client.PinpointSocket;
-import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
-import com.nhn.pinpoint.rpc.packet.RequestPacket;
-import com.nhn.pinpoint.rpc.packet.SendPacket;
-import com.nhn.pinpoint.web.cluster.zookeeper.ZookeeperClusterManager;
+import com.navercorp.pinpoint.collector.cluster.zookeeper.exception.PinpointZookeeperException;
+import com.navercorp.pinpoint.common.util.NetUtils;
+import com.navercorp.pinpoint.rpc.client.MessageListener;
+import com.navercorp.pinpoint.rpc.client.PinpointSocket;
+import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.packet.SendPacket;
+import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterManager;
 
 public class ZookeeperClusterTest {
 

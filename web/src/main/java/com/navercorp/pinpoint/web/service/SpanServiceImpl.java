@@ -1,26 +1,26 @@
-package com.nhn.pinpoint.web.service;
+package com.navercorp.pinpoint.web.service;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.nhn.pinpoint.common.bo.*;
-import com.nhn.pinpoint.web.dao.StringMetaDataDao;
-import com.nhn.pinpoint.web.vo.TransactionId;
+import com.navercorp.pinpoint.common.AnnotationKey;
+import com.navercorp.pinpoint.common.bo.*;
+import com.navercorp.pinpoint.common.util.OutputParameterParser;
+import com.navercorp.pinpoint.common.util.SqlParser;
+import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
+import com.navercorp.pinpoint.web.calltree.span.SpanAligner2;
+import com.navercorp.pinpoint.web.dao.ApiMetaDataDao;
+import com.navercorp.pinpoint.web.dao.SqlMetaDataDao;
+import com.navercorp.pinpoint.web.dao.StringMetaDataDao;
+import com.navercorp.pinpoint.web.dao.TraceDao;
+import com.navercorp.pinpoint.web.vo.TransactionId;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.nhn.pinpoint.web.calltree.span.SpanAlign;
-import com.nhn.pinpoint.web.calltree.span.SpanAligner2;
-import com.nhn.pinpoint.web.dao.ApiMetaDataDao;
-import com.nhn.pinpoint.web.dao.SqlMetaDataDao;
-import com.nhn.pinpoint.web.dao.TraceDao;
-import com.nhn.pinpoint.common.AnnotationKey;
-import com.nhn.pinpoint.common.util.OutputParameterParser;
-import com.nhn.pinpoint.common.util.SqlParser;
 
 /**
  * @author emeroad

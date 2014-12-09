@@ -1,6 +1,7 @@
-package com.nhn.pinpoint.rpc.message;
+package com.navercorp.pinpoint.rpc.message;
 
-import com.nhn.pinpoint.rpc.packet.SendPacket;
+import com.navercorp.pinpoint.rpc.packet.SendPacket;
+
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.junit.Assert;
 import org.junit.Test;

@@ -1,6 +1,7 @@
-package com.nhn.pinpoint.collector.config;
+package com.navercorp.pinpoint.collector.config;
 
-import com.nhn.pinpoint.common.util.PropertyUtils;
+import com.navercorp.pinpoint.common.util.PropertyUtils;
+
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,18 +1,18 @@
-package com.nhn.pinpoint.web.vo.linechart.agentstat;
+package com.navercorp.pinpoint.web.vo.linechart.agentstat;
 
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-import com.nhn.pinpoint.common.bo.AgentStatCpuLoadBo;
-import com.nhn.pinpoint.common.bo.AgentStatMemoryGcBo;
-import com.nhn.pinpoint.web.util.TimeWindow;
-import com.nhn.pinpoint.web.vo.AgentStat;
-import com.nhn.pinpoint.web.vo.linechart.DataPoint;
-import com.nhn.pinpoint.web.vo.linechart.Chart;
-import com.nhn.pinpoint.web.vo.linechart.Chart.ChartBuilder;
-import com.nhn.pinpoint.web.vo.linechart.SampledTimeSeriesDoubleChartBuilder;
-import com.nhn.pinpoint.web.vo.linechart.SampledTimeSeriesLongChartBuilder;
+import com.navercorp.pinpoint.common.bo.AgentStatCpuLoadBo;
+import com.navercorp.pinpoint.common.bo.AgentStatMemoryGcBo;
+import com.navercorp.pinpoint.web.util.TimeWindow;
+import com.navercorp.pinpoint.web.vo.AgentStat;
+import com.navercorp.pinpoint.web.vo.linechart.Chart;
+import com.navercorp.pinpoint.web.vo.linechart.DataPoint;
+import com.navercorp.pinpoint.web.vo.linechart.SampledTimeSeriesDoubleChartBuilder;
+import com.navercorp.pinpoint.web.vo.linechart.SampledTimeSeriesLongChartBuilder;
+import com.navercorp.pinpoint.web.vo.linechart.Chart.ChartBuilder;
 
 /**
  * @author harebox

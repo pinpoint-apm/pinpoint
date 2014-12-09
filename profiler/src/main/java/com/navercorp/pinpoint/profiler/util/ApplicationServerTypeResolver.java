@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.profiler.util;
+package com.navercorp.pinpoint.profiler.util;
 
-import com.nhn.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.ServiceType;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

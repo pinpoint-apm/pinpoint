@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.alarm;
+package com.navercorp.pinpoint.web.alarm;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -6,8 +6,9 @@ import static org.junit.Assert.assertNotSame;
 
 import org.junit.Test;
 
-import com.nhn.pinpoint.web.alarm.checker.SlowCountChecker;
-import com.nhn.pinpoint.web.alarm.vo.Rule;
+import com.navercorp.pinpoint.web.alarm.CheckerCategory;
+import com.navercorp.pinpoint.web.alarm.checker.SlowCountChecker;
+import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
 public class CheckerCategoryTest {
 

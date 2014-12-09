@@ -1,9 +1,9 @@
-package com.nhn.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin;
 
 import java.util.List;
 
-import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.nhn.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.exception.PinpointException;
 
 public class BasicClassEditor implements DedicatedClassEditor {
     private final String targetClassName;

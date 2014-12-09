@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.applicationmap.link;
+package com.navercorp.pinpoint.web.applicationmap.link;
 
 import java.util.ArrayList;
 import java.util.List;

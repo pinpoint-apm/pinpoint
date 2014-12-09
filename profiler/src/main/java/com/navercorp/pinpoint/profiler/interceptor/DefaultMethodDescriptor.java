@@ -1,7 +1,7 @@
-package com.nhn.pinpoint.profiler.interceptor;
+package com.navercorp.pinpoint.profiler.interceptor;
 
-import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.profiler.util.ApiUtils;
+import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.navercorp.pinpoint.profiler.util.ApiUtils;
 
 import java.util.Arrays;
 

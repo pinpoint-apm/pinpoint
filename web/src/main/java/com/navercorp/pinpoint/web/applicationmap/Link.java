@@ -1,15 +1,16 @@
-package com.nhn.pinpoint.web.applicationmap;
+package com.navercorp.pinpoint.web.applicationmap;
 
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.web.applicationmap.histogram.*;
-import com.nhn.pinpoint.web.applicationmap.rawdata.*;
-import com.nhn.pinpoint.web.view.AgentResponseTimeViewModelList;
-import com.nhn.pinpoint.web.view.LinkSerializer;
-import com.nhn.pinpoint.web.view.ResponseTimeViewModel;
-import com.nhn.pinpoint.web.vo.*;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.histogram.*;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.*;
+import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModelList;
+import com.navercorp.pinpoint.web.view.LinkSerializer;
+import com.navercorp.pinpoint.web.view.ResponseTimeViewModel;
+import com.navercorp.pinpoint.web.vo.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

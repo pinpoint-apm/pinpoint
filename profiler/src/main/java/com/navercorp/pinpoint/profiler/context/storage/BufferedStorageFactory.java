@@ -1,9 +1,9 @@
-package com.nhn.pinpoint.profiler.context.storage;
+package com.navercorp.pinpoint.profiler.context.storage;
 
-import com.nhn.pinpoint.profiler.AgentInformation;
-import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
-import com.nhn.pinpoint.profiler.context.SpanChunkFactory;
-import com.nhn.pinpoint.profiler.sender.DataSender;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
+import com.navercorp.pinpoint.profiler.sender.DataSender;
 
 /**
  * @author emeroad

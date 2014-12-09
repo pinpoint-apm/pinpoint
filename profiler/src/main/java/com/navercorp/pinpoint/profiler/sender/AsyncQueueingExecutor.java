@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.sender;
+package com.navercorp.pinpoint.profiler.sender;
 
 import java.util.Collection;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 
 /**
  * @author emeroad

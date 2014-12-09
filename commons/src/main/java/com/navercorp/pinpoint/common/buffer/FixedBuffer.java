@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.common.buffer;
+package com.navercorp.pinpoint.common.buffer;
 
-import com.nhn.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 
 import java.io.UnsupportedEncodingException;
 

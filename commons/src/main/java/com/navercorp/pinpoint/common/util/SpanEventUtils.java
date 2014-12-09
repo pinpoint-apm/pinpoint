@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.common.util;
+package com.navercorp.pinpoint.common.util;
 
-import com.nhn.pinpoint.thrift.dto.TSpanEvent;
+import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 
 
 /**

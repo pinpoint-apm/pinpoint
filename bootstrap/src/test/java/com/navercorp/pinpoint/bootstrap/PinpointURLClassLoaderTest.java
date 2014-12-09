@@ -1,7 +1,10 @@
-package com.nhn.pinpoint.bootstrap;
+package com.navercorp.pinpoint.bootstrap;
 
 import junit.framework.Assert;
+
 import org.junit.Test;
+
+import com.navercorp.pinpoint.bootstrap.PinpointURLClassLoader;
 
 import java.net.URL;
 
@@ -21,13 +24,13 @@ public class PinpointURLClassLoaderTest {
         }
 
 //        try {
-//            cl.loadClass("com.nhn.pinpoint.profiler.DefaultAgent");
+//            cl.loadClass("com.navercorp.pinpoint.profiler.DefaultAgent");
 //        } catch (ClassNotFoundException e) {
 //
 //        }
 //      사실 위에 코드로 정상 테스트가 가능해야 겠지만  bootstrap testcase에서는 jar라서 찾을수 없음
 //      아래 코드로 로드 하는 클래스인지 체크 정도만 하자.
 //      URL에 다가 pinpoint.jar를 걸면 되긴하겠지만. 관리가 힘들듯함.
-        Assert.assertTrue(cl.onLoadClass("com.nhn.pinpoint.profiler.DefaultAgent"));
+        Assert.assertTrue(cl.onLoadClass("com.navercorp.pinpoint.profiler.DefaultAgent"));
     }
 }

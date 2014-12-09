@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.thrift.io;
+package com.navercorp.pinpoint.thrift.io;
 
 import static org.junit.Assert.*;
 
@@ -10,9 +10,11 @@ import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.junit.Test;
 
-import com.nhn.pinpoint.thrift.dto.TSpan;
-import com.nhn.pinpoint.thrift.dto.TSpanChunk;
-import com.nhn.pinpoint.thrift.dto.TSpanEvent;
+import com.navercorp.pinpoint.thrift.dto.TSpan;
+import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
+import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
+import com.navercorp.pinpoint.thrift.io.ByteArrayOutput;
+import com.navercorp.pinpoint.thrift.io.TBaseStream;
 
 public class TBaseStreamTest {
     private static final String AGENT_ID = "agentId";

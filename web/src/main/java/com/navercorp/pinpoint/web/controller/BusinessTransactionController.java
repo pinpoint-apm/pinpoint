@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.controller;
+package com.navercorp.pinpoint.web.controller;
 
 
 import java.util.Date;
@@ -6,9 +6,22 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.nhn.pinpoint.web.service.FilteredMapService;
-import com.nhn.pinpoint.web.util.LimitUtils;
-import com.nhn.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
+import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
+import com.navercorp.pinpoint.web.filter.Filter;
+import com.navercorp.pinpoint.web.filter.FilterBuilder;
+import com.navercorp.pinpoint.web.service.FilteredMapService;
+import com.navercorp.pinpoint.web.service.SpanResult;
+import com.navercorp.pinpoint.web.service.SpanService;
+import com.navercorp.pinpoint.web.service.TransactionInfoService;
+import com.navercorp.pinpoint.web.util.LimitUtils;
+import com.navercorp.pinpoint.web.util.TimeUtils;
+import com.navercorp.pinpoint.web.vo.BusinessTransactions;
+import com.navercorp.pinpoint.web.vo.LimitedScanResult;
+import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.TransactionId;
+import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,19 +32,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
-
-import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
-import com.nhn.pinpoint.web.calltree.span.SpanAlign;
-import com.nhn.pinpoint.web.filter.Filter;
-import com.nhn.pinpoint.web.filter.FilterBuilder;
-import com.nhn.pinpoint.web.service.TransactionInfoService;
-import com.nhn.pinpoint.web.service.SpanResult;
-import com.nhn.pinpoint.web.service.SpanService;
-import com.nhn.pinpoint.web.util.TimeUtils;
-import com.nhn.pinpoint.web.vo.BusinessTransactions;
-import com.nhn.pinpoint.web.vo.LimitedScanResult;
-import com.nhn.pinpoint.web.vo.TransactionId;
-import com.nhn.pinpoint.web.vo.callstacks.RecordSet;
 
 /**
  * @author emeroad

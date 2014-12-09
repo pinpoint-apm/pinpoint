@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.vo.linechart;
+package com.navercorp.pinpoint.web.vo.linechart;
 
 import static org.apache.commons.lang3.math.NumberUtils.LONG_ZERO;
 import static org.apache.commons.lang3.math.NumberUtils.DOUBLE_ZERO;

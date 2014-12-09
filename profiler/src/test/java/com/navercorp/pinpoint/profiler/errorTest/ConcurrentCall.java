@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.errorTest;
+package com.navercorp.pinpoint.profiler.errorTest;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;

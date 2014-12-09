@@ -1,9 +1,10 @@
-package com.nhn.pinpoint.web.calltree.span;
+package com.navercorp.pinpoint.web.calltree.span;
 
 import java.util.*;
 
-import com.nhn.pinpoint.common.bo.SpanBo;
-import com.nhn.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.common.bo.SpanEventBo;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

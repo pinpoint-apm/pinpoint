@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.db.dbcp;
+package com.navercorp.pinpoint.profiler.modifier.db.dbcp;
 
 /**
  * @author emeroad

@@ -21,16 +21,16 @@
 
     <context:annotation-config/>
 
-    <context:component-scan base-package="com.nhn.pinpoint.web.dao.hbase,
-                                         com.nhn.pinpoint.web.dao.mysql,
-                                         com.nhn.pinpoint.web.service,
-                                         com.nhn.pinpoint.web.mapper,
-                                         com.nhn.pinpoint.web.filter,
-                                         com.nhn.pinpoint.web.alarm,
-                                         com.nhn.pinpoint.web.config,
-                                         com.nhn.pinpoint.collector.mapper.thrift" />
+    <context:component-scan base-package="com.navercorp.pinpoint.web.dao.hbase,
+                                         com.navercorp.pinpoint.web.dao.mysql,
+                                         com.navercorp.pinpoint.web.service,
+                                         com.navercorp.pinpoint.web.mapper,
+                                         com.navercorp.pinpoint.web.filter,
+                                         com.navercorp.pinpoint.web.alarm,
+                                         com.navercorp.pinpoint.web.config,
+                                         com.navercorp.pinpoint.collector.mapper.thrift" />
 	
-	<bean id="alarmController" class="com.nhn.pinpoint.web.controller.AlarmController"/>
+	<bean id="alarmController" class="com.navercorp.pinpoint.web.controller.AlarmController"/>
 
     <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
@@ -46,37 +46,37 @@
     <import resource="classpath:applicationContext-dao-config.xml" />
     <import resource="classpath:batch/applicationContext-batch.xml" />
 
-    <bean id="trace" class="com.nhn.pinpoint.collector.dao.hbase.HbaseTraceDao"/>
-    <bean class="com.nhn.pinpoint.collector.dao.hbase.HbaseAgentInfoDao"/>
+    <bean id="trace" class="com.navercorp.pinpoint.collector.dao.hbase.HbaseTraceDao"/>
+    <bean class="com.navercorp.pinpoint.collector.dao.hbase.HbaseAgentInfoDao"/>
 
 
-    <bean id="spanMapper" class="com.nhn.pinpoint.web.mapper.SpanMapper"/>
-    <bean id="annotationMapper" class="com.nhn.pinpoint.web.mapper.AnnotationMapper"/>
-    <bean id="spanAnnotationMapper" class="com.nhn.pinpoint.web.mapper.SpanMapper">
+    <bean id="spanMapper" class="com.navercorp.pinpoint.web.mapper.SpanMapper"/>
+    <bean id="annotationMapper" class="com.navercorp.pinpoint.web.mapper.AnnotationMapper"/>
+    <bean id="spanAnnotationMapper" class="com.navercorp.pinpoint.web.mapper.SpanMapper">
         <property name="annotationMapper" ref="annotationMapper"/>
     </bean>
 
     <bean id="jsonObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper"/>
 
-    <bean class="com.nhn.pinpoint.collector.util.ThreadLocalAcceptedTimeService"/>
+    <bean class="com.navercorp.pinpoint.collector.util.ThreadLocalAcceptedTimeService"/>
 
-    <bean id="rangeFactory" class="com.nhn.pinpoint.web.vo.RangeFactory"/>
+    <bean id="rangeFactory" class="com.navercorp.pinpoint.web.vo.RangeFactory"/>
 
-    <bean id="timeSlot" class="com.nhn.pinpoint.common.util.DefaultTimeSlot"/>
+    <bean id="timeSlot" class="com.navercorp.pinpoint.common.util.DefaultTimeSlot"/>
     
     <util:properties id="pinpointWebProps" location="classpath:pinpoint-web-junit.properties"/>
     
-    <bean id="config" class="com.nhn.pinpoint.web.config.WebConfig"/>
+    <bean id="config" class="com.navercorp.pinpoint.web.config.WebConfig"/>
     
-    <bean id="commandHeaderTBaseSerializerFactory" class="com.nhn.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory">
-    	<constructor-arg value="#{T(com.nhn.pinpoint.common.Version).VERSION}" />
+    <bean id="commandHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory">
+    	<constructor-arg value="#{T(com.navercorp.pinpoint.common.Version).VERSION}" />
     </bean>
 
-    <bean id="commandHeaderTBaseDeserializerFactory" class="com.nhn.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory">
-    	<constructor-arg value="#{T(com.nhn.pinpoint.common.Version).VERSION}" />
+    <bean id="commandHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory">
+    	<constructor-arg value="#{T(com.navercorp.pinpoint.common.Version).VERSION}" />
     </bean>
     
-    <bean id="pinpointSocketManager" class="com.nhn.pinpoint.web.server.PinpointSocketManager">
+    <bean id="pinpointSocketManager" class="com.navercorp.pinpoint.web.server.PinpointSocketManager">
     	<constructor-arg ref="config" />
     </bean>
 

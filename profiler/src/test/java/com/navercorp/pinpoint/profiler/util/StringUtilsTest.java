@@ -1,7 +1,9 @@
-package com.nhn.pinpoint.profiler.util;
+package com.navercorp.pinpoint.profiler.util;
 
-import com.nhn.pinpoint.bootstrap.util.StringUtils;
+import com.navercorp.pinpoint.bootstrap.util.StringUtils;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
 
 /**

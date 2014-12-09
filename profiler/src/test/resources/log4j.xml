@@ -8,7 +8,7 @@
         </layout>
     </appender>
 
-    <logger name="com.nhn.pinpoint" additivity="false">
+    <logger name="com.navercorp.pinpoint" additivity="false">
         <level value="DEBUG" />
         <appender-ref ref="console" />
     </logger>

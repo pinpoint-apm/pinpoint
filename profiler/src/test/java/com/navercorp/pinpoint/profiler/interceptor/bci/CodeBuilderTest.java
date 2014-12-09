@@ -1,7 +1,9 @@
-package com.nhn.pinpoint.profiler.interceptor.bci;
+package com.navercorp.pinpoint.profiler.interceptor.bci;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.navercorp.pinpoint.profiler.interceptor.bci.CodeBuilder;
 
 /**
  * @author emeroad

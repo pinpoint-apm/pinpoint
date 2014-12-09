@@ -1,14 +1,17 @@
-package com.nhn.pinpoint.web.controller;
+package com.navercorp.pinpoint.web.controller;
 
-import com.nhn.pinpoint.web.applicationmap.MapWrap;
-import com.nhn.pinpoint.web.applicationmap.histogram.Histogram;
-import com.nhn.pinpoint.web.service.MapService;
-import com.nhn.pinpoint.web.util.Limiter;
-import com.nhn.pinpoint.web.view.ResponseTimeViewModel;
-import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.web.applicationmap.histogram.NodeHistogram;
-import com.nhn.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
+import com.navercorp.pinpoint.web.applicationmap.MapWrap;
+import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
+import com.navercorp.pinpoint.web.service.MapService;
+import com.navercorp.pinpoint.web.util.Limiter;
+import com.navercorp.pinpoint.web.util.TimeUtils;
+import com.navercorp.pinpoint.web.view.ResponseTimeViewModel;
+import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Range;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +20,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
-import com.nhn.pinpoint.web.util.TimeUtils;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.IOException;

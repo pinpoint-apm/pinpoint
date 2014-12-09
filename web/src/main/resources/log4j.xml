@@ -9,53 +9,53 @@
     </appender>
 
 
-    <logger name="com.nhn.pinpoint" additivity="false">
+    <logger name="com.navercorp.pinpoint" additivity="false">
         <level value="DEBUG"/>
         <appender-ref ref="console"/>
     </logger>
     
-    <logger name="com.nhn.pinpoint.web.filter" additivity="false">
+    <logger name="com.navercorp.pinpoint.web.filter" additivity="false">
         <level value="DEBUG"/>
         <appender-ref ref="console"/>
     </logger>
     
-    <logger name="com.nhn.pinpoint.web.controller" additivity="false">
+    <logger name="com.navercorp.pinpoint.web.controller" additivity="false">
         <level value="DEBUG"/>
         <appender-ref ref="console"/>
     </logger>
     
-    <logger name="com.nhn.pinpoint.web.applicationmap" additivity="false">
+    <logger name="com.navercorp.pinpoint.web.applicationmap" additivity="false">
         <level value="DEBUG"/>
         <appender-ref ref="console"/>
     </logger>
     
-    <logger name="com.nhn.pinpoint.web.calltree.server" additivity="false">
+    <logger name="com.navercorp.pinpoint.web.calltree.server" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="console"/>
     </logger>
 
-    <logger name="com.nhn.pinpoint.web.mapper" additivity="false">
+    <logger name="com.navercorp.pinpoint.web.mapper" additivity="false">
         <level value="DEBUG"/>
         <appender-ref ref="console"/>
     </logger>
     
-    <logger name="com.nhn.pinpoint.web.service" additivity="false">
+    <logger name="com.navercorp.pinpoint.web.service" additivity="false">
         <level value="DEBUG"/>
         <appender-ref ref="console"/>
     </logger>
     
-    <logger name="com.nhn.pinpoint.web.dao" additivity="false">
+    <logger name="com.navercorp.pinpoint.web.dao" additivity="false">
         <level value="DEBUG"/>
         <appender-ref ref="console"/>
     </logger>
 
-    <logger name="com.nhn.pinpoint.collector.handler.AgentStatHandler" additivity="false">
+    <logger name="com.navercorp.pinpoint.collector.handler.AgentStatHandler" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="console"/>
     </logger>
 
 
-    <logger name="com.nhn.pinpoint.web.mapper.ApiMetaDataMapper" additivity="false">
+    <logger name="com.navercorp.pinpoint.web.mapper.ApiMetaDataMapper" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="console"/>
     </logger>

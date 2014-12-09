@@ -1,10 +1,10 @@
-package com.nhn.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin;
 
-import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.nhn.pinpoint.bootstrap.instrument.InstrumentException;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
-import com.nhn.pinpoint.bootstrap.plugin.MetadataInitializationStrategy.ByConstructor;
-import com.nhn.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
+import com.navercorp.pinpoint.bootstrap.plugin.MetadataInitializationStrategy.ByConstructor;
+import com.navercorp.pinpoint.exception.PinpointException;
 
 public class DefaultMetadataInjector implements MetadataInjector {
     

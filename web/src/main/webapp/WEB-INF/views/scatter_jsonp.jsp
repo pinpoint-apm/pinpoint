@@ -3,7 +3,7 @@
 	"resultFrom" : ${resultFrom},
 	"resultTo" : ${resultTo},
 	"scatter" : [
-    <jsp:useBean id="scatter" scope="request" type="java.util.List<com.nhn.pinpoint.web.vo.scatter.Dot>"/>
+    <jsp:useBean id="scatter" scope="request" type="java.util.List<com.navercorp.pinpoint.web.vo.scatter.Dot>"/>
 	<c:forEach items="${scatter}" var="dot" varStatus="status">
 		{
 			"x" : ${dot.acceptedTime},

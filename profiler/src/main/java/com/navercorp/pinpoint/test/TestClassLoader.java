@@ -1,10 +1,10 @@
-package com.nhn.pinpoint.test;
+package com.navercorp.pinpoint.test;
 
-import com.nhn.pinpoint.bootstrap.Agent;
-import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.DefaultAgent;
-import com.nhn.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import com.navercorp.pinpoint.bootstrap.Agent;
+import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.profiler.DefaultAgent;
+import com.navercorp.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
+import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 
 import javassist.CannotCompileException;
 import javassist.Loader;
@@ -62,12 +62,12 @@ public class TestClassLoader extends Loader {
     }
 
     private void addDefaultDelegateLoadingOf() {
-        this.delegateLoadingOf("com.nhn.pinpoint.bootstrap.");
-        this.delegateLoadingOf("com.nhn.pinpoint.common.");
-        this.delegateLoadingOf("com.nhn.pinpoint.thrift.");
-        this.delegateLoadingOf("com.nhn.pinpoint.profiler.context.");
-        this.delegateLoadingOf("com.nhn.pinpoint.test.PeekableDataSender");
-        this.delegateLoadingOf("com.nhn.pinpoint.test.junit4.IsRootSpan");
+        this.delegateLoadingOf("com.navercorp.pinpoint.bootstrap.");
+        this.delegateLoadingOf("com.navercorp.pinpoint.common.");
+        this.delegateLoadingOf("com.navercorp.pinpoint.thrift.");
+        this.delegateLoadingOf("com.navercorp.pinpoint.profiler.context.");
+        this.delegateLoadingOf("com.navercorp.pinpoint.test.PeekableDataSender");
+        this.delegateLoadingOf("com.navercorp.pinpoint.test.junit4.IsRootSpan");
         this.delegateLoadingOf("org.apache.thrift.TBase");
         this.delegateLoadingOf("junit.");
         this.delegateLoadingOf("org.hamcrest.");

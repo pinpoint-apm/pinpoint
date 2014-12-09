@@ -1,7 +1,7 @@
-package com.nhn.pinpoint.profiler.modifier.orm.mybatis.interceptor;
+package com.navercorp.pinpoint.profiler.modifier.orm.mybatis.interceptor;
 
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.modifier.orm.SqlMapOperationInterceptor;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.profiler.modifier.orm.SqlMapOperationInterceptor;
 
 /**
  * @author Hyun Jeong

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.servletfilter;
+package com.navercorp.pinpoint.web.servletfilter;
 
 import java.io.IOException;
 

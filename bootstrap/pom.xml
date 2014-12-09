@@ -3,7 +3,7 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.nhn.pinpoint</groupId>
+        <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pom</artifactId>
         <version>1.0.4-SNAPSHOT</version>
     </parent>
@@ -14,7 +14,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.nhn.pinpoint</groupId>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-commons</artifactId>
             <exclusions>
                 <exclusion>
@@ -122,7 +122,7 @@
                             <dependencyReducedPomLocation>${basedir}/target/dependency-reduced-pom.xml</dependencyReducedPomLocation>
                             <artifactSet>
                                 <includes>
-                                    <include>com.nhn.pinpoint:pinpoint-commons</include>
+                                    <include>com.navercorp.pinpoint:pinpoint-commons</include>
                                 </includes>
                             </artifactSet>
                         </configuration>
@@ -140,7 +140,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Premain-Class>com.nhn.pinpoint.bootstrap.PinpointBootStrap</Premain-Class>
+                            <Premain-Class>com.navercorp.pinpoint.bootstrap.PinpointBootStrap</Premain-Class>
                             <Can-Retransform-Classes>true</Can-Retransform-Classes>
                             <Pinpoint-Version>${project.version}</Pinpoint-Version>
                         </manifestEntries>

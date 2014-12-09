@@ -1,7 +1,7 @@
-package com.nhn.pinpoint.bootstrap.util;
+package com.navercorp.pinpoint.bootstrap.util;
 
-import com.nhn.pinpoint.common.PinpointConstants;
-import com.nhn.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.util.regex.Matcher;

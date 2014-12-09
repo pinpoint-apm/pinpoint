@@ -1,10 +1,11 @@
-package com.nhn.pinpoint.web.mapper;
+package com.navercorp.pinpoint.web.mapper;
 
-import com.nhn.pinpoint.common.bo.AnnotationBo;
-import com.nhn.pinpoint.common.bo.SpanBo;
-import com.nhn.pinpoint.common.bo.SpanEventBo;
-import com.nhn.pinpoint.common.hbase.HBaseTables;
-import com.nhn.pinpoint.web.vo.TransactionId;
+import com.navercorp.pinpoint.common.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.web.vo.TransactionId;
+
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;

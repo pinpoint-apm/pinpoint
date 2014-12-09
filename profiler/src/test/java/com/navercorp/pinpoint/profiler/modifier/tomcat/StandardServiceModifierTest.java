@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.tomcat;
+package com.navercorp.pinpoint.profiler.modifier.tomcat;
 
 import static org.junit.Assert.*;
 
@@ -10,8 +10,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.nhn.pinpoint.bootstrap.context.ServerMetaData;
-import com.nhn.pinpoint.test.junit4.BasePinpointTest;
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
+import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
 
 /**
  * @author hyungil.jeong

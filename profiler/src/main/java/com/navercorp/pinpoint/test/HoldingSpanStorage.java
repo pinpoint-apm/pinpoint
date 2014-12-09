@@ -1,10 +1,10 @@
-package com.nhn.pinpoint.test;
+package com.navercorp.pinpoint.test;
 
 import org.apache.thrift.TBase;
 
-import com.nhn.pinpoint.profiler.context.Span;
-import com.nhn.pinpoint.profiler.context.SpanEvent;
-import com.nhn.pinpoint.profiler.context.storage.Storage;
+import com.navercorp.pinpoint.profiler.context.Span;
+import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.profiler.context.storage.Storage;
 
 /**
  * @author hyungil.jeong

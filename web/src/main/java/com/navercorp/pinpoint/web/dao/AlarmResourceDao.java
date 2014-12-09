@@ -1,9 +1,9 @@
-package com.nhn.pinpoint.web.dao;
+package com.navercorp.pinpoint.web.dao;
 
 import java.util.List;
 
-import com.nhn.pinpoint.web.alarm.vo.AlarmEmp;
-import com.nhn.pinpoint.web.alarm.vo.Rule;
+import com.navercorp.pinpoint.web.alarm.vo.AlarmEmp;
+import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
 
 public interface AlarmResourceDao {

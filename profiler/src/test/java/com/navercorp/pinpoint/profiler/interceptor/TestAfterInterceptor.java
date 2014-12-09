@@ -1,7 +1,8 @@
-package com.nhn.pinpoint.profiler.interceptor;
+package com.navercorp.pinpoint.profiler.interceptor;
 
-import com.nhn.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
-import com.nhn.pinpoint.bootstrap.interceptor.TargetClassLoader;
+import com.navercorp.pinpoint.bootstrap.interceptor.StaticAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

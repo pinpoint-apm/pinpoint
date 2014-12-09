@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.profiler.modifier.db.oracle.parser;
+package com.navercorp.pinpoint.profiler.modifier.db.oracle.parser;
 
-import com.nhn.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.exception.PinpointException;
 
 /**
  * @author emeroad

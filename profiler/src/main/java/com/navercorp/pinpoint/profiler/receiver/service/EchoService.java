@@ -1,11 +1,11 @@
-package com.nhn.pinpoint.profiler.receiver.service;
+package com.navercorp.pinpoint.profiler.receiver.service;
 
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.profiler.receiver.ProfilerRequestCommandService;
-import com.nhn.pinpoint.thrift.dto.command.TCommandEcho;
+import com.navercorp.pinpoint.profiler.receiver.ProfilerRequestCommandService;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
 
 /**
  * @author koo.taejin <kr14910>

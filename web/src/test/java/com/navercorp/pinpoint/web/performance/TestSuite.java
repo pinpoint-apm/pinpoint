@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.performance;
+package com.navercorp.pinpoint.web.performance;
 
 import java.io.IOException;
 

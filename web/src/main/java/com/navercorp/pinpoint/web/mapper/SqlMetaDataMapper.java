@@ -1,10 +1,11 @@
-package com.nhn.pinpoint.web.mapper;
+package com.navercorp.pinpoint.web.mapper;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
+
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -13,7 +14,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
-import com.nhn.pinpoint.common.bo.SqlMetaDataBo;
+import com.navercorp.pinpoint.common.bo.SqlMetaDataBo;
 
 /**
  * @author emeroad

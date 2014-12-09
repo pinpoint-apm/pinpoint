@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.test;
+package com.navercorp.pinpoint.test;
 
 import java.lang.instrument.ClassDefinition;
 import java.lang.instrument.ClassFileTransformer;

@@ -1,12 +1,12 @@
-package com.nhn.pinpoint.rpc.client;
+package com.navercorp.pinpoint.rpc.client;
 
 import java.net.SocketAddress;
 
-import com.nhn.pinpoint.rpc.Future;
-import com.nhn.pinpoint.rpc.ResponseMessage;
-import com.nhn.pinpoint.rpc.stream.ClientStreamChannelContext;
-import com.nhn.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
-import com.nhn.pinpoint.rpc.stream.StreamChannelContext;
+import com.navercorp.pinpoint.rpc.Future;
+import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.stream.StreamChannelContext;
 
 /**
  * @author emeroad

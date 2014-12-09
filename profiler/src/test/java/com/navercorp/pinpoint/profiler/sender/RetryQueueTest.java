@@ -1,7 +1,11 @@
-package com.nhn.pinpoint.profiler.sender;
+package com.navercorp.pinpoint.profiler.sender;
 
 import junit.framework.Assert;
+
 import org.junit.Test;
+
+import com.navercorp.pinpoint.profiler.sender.RetryMessage;
+import com.navercorp.pinpoint.profiler.sender.RetryQueue;
 
 /**
  * @author emeroad

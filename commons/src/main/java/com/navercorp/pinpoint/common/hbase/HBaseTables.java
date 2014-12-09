@@ -1,6 +1,7 @@
-package com.nhn.pinpoint.common.hbase;
+package com.navercorp.pinpoint.common.hbase;
 
-import com.nhn.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.PinpointConstants;
+
 import org.apache.hadoop.hbase.util.Bytes;
 
 /**

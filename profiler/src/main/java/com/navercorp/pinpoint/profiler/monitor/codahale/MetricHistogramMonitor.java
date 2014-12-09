@@ -1,7 +1,7 @@
-package com.nhn.pinpoint.profiler.monitor.codahale;
+package com.navercorp.pinpoint.profiler.monitor.codahale;
 
 import com.codahale.metrics.Histogram;
-import com.nhn.pinpoint.profiler.monitor.HistogramMonitor;
+import com.navercorp.pinpoint.profiler.monitor.HistogramMonitor;
 
 public class MetricHistogramMonitor implements HistogramMonitor {
 

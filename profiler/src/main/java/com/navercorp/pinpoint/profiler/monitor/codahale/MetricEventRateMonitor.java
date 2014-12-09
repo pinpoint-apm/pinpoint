@@ -1,7 +1,7 @@
-package com.nhn.pinpoint.profiler.monitor.codahale;
+package com.navercorp.pinpoint.profiler.monitor.codahale;
 
 import com.codahale.metrics.Meter;
-import com.nhn.pinpoint.profiler.monitor.EventRateMonitor;
+import com.navercorp.pinpoint.profiler.monitor.EventRateMonitor;
 
 public class MetricEventRateMonitor implements EventRateMonitor {
 

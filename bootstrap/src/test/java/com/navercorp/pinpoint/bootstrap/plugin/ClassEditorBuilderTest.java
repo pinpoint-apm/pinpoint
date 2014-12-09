@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin;
 
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
@@ -7,15 +7,19 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.nhn.pinpoint.bootstrap.context.TraceContext;
-import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
-import com.nhn.pinpoint.bootstrap.instrument.Scope;
-import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
-import com.nhn.pinpoint.bootstrap.plugin.ClassEditorBuilder.InterceptorBuilder;
-import com.nhn.pinpoint.bootstrap.plugin.ClassEditorBuilder.MetadataBuilder;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.instrument.Scope;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
+import com.navercorp.pinpoint.bootstrap.plugin.ClassEditor;
+import com.navercorp.pinpoint.bootstrap.plugin.ClassEditorBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginContext;
+import com.navercorp.pinpoint.bootstrap.plugin.TypeUtils;
+import com.navercorp.pinpoint.bootstrap.plugin.ClassEditorBuilder.InterceptorBuilder;
+import com.navercorp.pinpoint.bootstrap.plugin.ClassEditorBuilder.MetadataBuilder;
 
 public class ClassEditorBuilderTest {
 
@@ -43,12 +47,12 @@ public class ClassEditorBuilderTest {
         ProfilerPluginContext helper = new ProfilerPluginContext(instrumentor, traceContext);
         ClassEditorBuilder builder = helper.newClassEditorBuilder();
         MetadataBuilder mb = builder.newMetadataBuilder();
-        mb.inject("com.nhn.pinpoint.bootstrap.plugin.ClassEditorBuilderTest$TestMetadata");
+        mb.inject("com.navercorp.pinpoint.bootstrap.plugin.ClassEditorBuilderTest$TestMetadata");
         mb.initializeWithDefaultConstructorOf("java.util.HashMap");
         
         InterceptorBuilder ib = builder.newInterceptorBuilder();
         ib.intercept(methodName, parameterTypeNames);
-        ib.with("com.nhn.pinpoint.bootstrap.plugin.TestInterceptor");
+        ib.with("com.navercorp.pinpoint.bootstrap.plugin.TestInterceptor");
         ib.constructedWith("provided");
         ib.in(scopeName);
         

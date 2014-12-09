@@ -1,8 +1,9 @@
-package com.nhn.pinpoint.profiler.util;
+package com.navercorp.pinpoint.profiler.util;
 
 
-import com.nhn.pinpoint.bootstrap.util.StringUtils;
-import com.nhn.pinpoint.thrift.dto.*;
+import com.navercorp.pinpoint.bootstrap.util.StringUtils;
+import com.navercorp.pinpoint.thrift.dto.*;
+
 import org.apache.thrift.TBase;
 
 /**

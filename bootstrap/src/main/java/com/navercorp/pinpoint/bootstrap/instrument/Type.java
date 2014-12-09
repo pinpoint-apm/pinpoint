@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.bootstrap.instrument;
+package com.navercorp.pinpoint.bootstrap.instrument;
 
 /**
  * @author emeroad

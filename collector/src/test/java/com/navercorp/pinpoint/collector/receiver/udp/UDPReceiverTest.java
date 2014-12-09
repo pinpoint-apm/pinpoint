@@ -1,10 +1,12 @@
-package com.nhn.pinpoint.collector.receiver.udp;
+package com.navercorp.pinpoint.collector.receiver.udp;
 
 import java.io.IOException;
 import java.net.*;
 
-import com.nhn.pinpoint.collector.receiver.DataReceiver;
-import com.nhn.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.DataReceiver;
+import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.udp.BaseUDPReceiver;
+
 import junit.framework.Assert;
 
 import org.apache.thrift.TBase;

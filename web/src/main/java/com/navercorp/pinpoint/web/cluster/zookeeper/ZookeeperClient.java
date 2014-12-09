@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.cluster.zookeeper;
+package com.navercorp.pinpoint.web.cluster.zookeeper;
 
 
 import java.io.IOException;
@@ -15,13 +15,13 @@ import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.web.cluster.zookeeper.exception.AuthException;
-import com.nhn.pinpoint.web.cluster.zookeeper.exception.BadOperationException;
-import com.nhn.pinpoint.web.cluster.zookeeper.exception.ConnectionException;
-import com.nhn.pinpoint.web.cluster.zookeeper.exception.NoNodeException;
-import com.nhn.pinpoint.web.cluster.zookeeper.exception.PinpointZookeeperException;
-import com.nhn.pinpoint.web.cluster.zookeeper.exception.TimeoutException;
-import com.nhn.pinpoint.web.cluster.zookeeper.exception.UnknownException;
+import com.navercorp.pinpoint.web.cluster.zookeeper.exception.AuthException;
+import com.navercorp.pinpoint.web.cluster.zookeeper.exception.BadOperationException;
+import com.navercorp.pinpoint.web.cluster.zookeeper.exception.ConnectionException;
+import com.navercorp.pinpoint.web.cluster.zookeeper.exception.NoNodeException;
+import com.navercorp.pinpoint.web.cluster.zookeeper.exception.PinpointZookeeperException;
+import com.navercorp.pinpoint.web.cluster.zookeeper.exception.TimeoutException;
+import com.navercorp.pinpoint.web.cluster.zookeeper.exception.UnknownException;
 
 /**
  * @author koo.taejin <kr14910>

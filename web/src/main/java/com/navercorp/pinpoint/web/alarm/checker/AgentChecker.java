@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.alarm.checker;
+package com.navercorp.pinpoint.web.alarm.checker;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.nhn.pinpoint.web.alarm.collector.DataCollector;
-import com.nhn.pinpoint.web.alarm.vo.Rule;
+import com.navercorp.pinpoint.web.alarm.collector.DataCollector;
+import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
 public abstract class AgentChecker extends AlarmChecker {
     

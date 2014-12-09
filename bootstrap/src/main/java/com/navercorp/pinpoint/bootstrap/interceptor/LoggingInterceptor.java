@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.bootstrap.interceptor;
+package com.navercorp.pinpoint.bootstrap.interceptor;
 
-import com.nhn.pinpoint.bootstrap.util.StringUtils;
+import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.logging.Level;

@@ -1,6 +1,7 @@
-package com.nhn.pinpoint.rpc.util;
+package com.navercorp.pinpoint.rpc.util;
 
-import com.nhn.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.ThreadNameDeterminer;
 

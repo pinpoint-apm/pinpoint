@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.exception;
+package com.navercorp.pinpoint.exception;
 
 /**
  * @author emeroad

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.vo.linechart;
+package com.navercorp.pinpoint.web.vo.linechart;
 
 /**
  * @author hyungil.jeong

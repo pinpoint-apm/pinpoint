@@ -1,10 +1,11 @@
-package com.nhn.pinpoint.common.bo;
+package com.navercorp.pinpoint.common.bo;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import com.nhn.pinpoint.thrift.dto.TJvmGcType;
+import com.navercorp.pinpoint.common.bo.AgentStatMemoryGcBo;
+import com.navercorp.pinpoint.thrift.dto.TJvmGcType;
 
 /**
  * @author hyungil.jeong

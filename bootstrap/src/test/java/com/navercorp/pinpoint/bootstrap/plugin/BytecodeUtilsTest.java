@@ -1,7 +1,10 @@
-package com.nhn.pinpoint.bootstrap.plugin;
+package com.navercorp.pinpoint.bootstrap.plugin;
 
 import junit.framework.Assert;
+
 import org.junit.Test;
+
+import com.navercorp.pinpoint.bootstrap.plugin.BytecodeUtils;
 
 import static org.junit.Assert.*;
 

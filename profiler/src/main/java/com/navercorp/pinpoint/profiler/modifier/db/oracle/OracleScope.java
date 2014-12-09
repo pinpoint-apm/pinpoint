@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.db.oracle;
+package com.navercorp.pinpoint.profiler.modifier.db.oracle;
 
 /**
  * @author emeroad

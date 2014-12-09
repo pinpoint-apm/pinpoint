@@ -1,7 +1,8 @@
-package com.nhn.pinpoint.collector.receiver;
+package com.navercorp.pinpoint.collector.receiver;
 
-import com.nhn.pinpoint.collector.handler.Handler;
-import com.nhn.pinpoint.thrift.dto.*;
+import com.navercorp.pinpoint.collector.handler.Handler;
+import com.navercorp.pinpoint.thrift.dto.*;
+
 import org.apache.thrift.TBase;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

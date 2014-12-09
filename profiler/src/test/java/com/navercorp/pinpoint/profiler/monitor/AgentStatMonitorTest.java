@@ -1,9 +1,10 @@
-package com.nhn.pinpoint.profiler.monitor;
+package com.navercorp.pinpoint.profiler.monitor;
 
 import static org.junit.Assert.*;
 
-import com.nhn.pinpoint.test.PeekableDataSender;
-import com.nhn.pinpoint.thrift.dto.TAgentStatBatch;
+import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
+import com.navercorp.pinpoint.test.PeekableDataSender;
+import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 
 import org.junit.Before;
 import org.junit.Test;

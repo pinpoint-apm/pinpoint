@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.applicationmap;
+package com.navercorp.pinpoint.web.applicationmap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.nhn.pinpoint.web.view.ServerInstanceListSerializer;
+import com.navercorp.pinpoint.web.view.ServerInstanceListSerializer;
 
 /**
  * @author emeroad

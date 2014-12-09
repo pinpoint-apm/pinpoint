@@ -1,7 +1,12 @@
-package com.nhn.pinpoint.common.buffer;
+package com.navercorp.pinpoint.common.buffer;
 
 import junit.framework.Assert;
+
 import org.junit.Test;
+
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.buffer.OffsetAutomaticBuffer;
 
 /**
  * @author emeroad

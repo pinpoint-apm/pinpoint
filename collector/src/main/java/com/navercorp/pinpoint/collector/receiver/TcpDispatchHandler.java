@@ -1,9 +1,9 @@
-package com.nhn.pinpoint.collector.receiver;
+package com.navercorp.pinpoint.collector.receiver;
 
-import com.nhn.pinpoint.collector.handler.AgentInfoHandler;
-import com.nhn.pinpoint.collector.handler.RequestResponseHandler;
-import com.nhn.pinpoint.collector.handler.SimpleHandler;
-import com.nhn.pinpoint.thrift.dto.*;
+import com.navercorp.pinpoint.collector.handler.AgentInfoHandler;
+import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
+import com.navercorp.pinpoint.collector.handler.SimpleHandler;
+import com.navercorp.pinpoint.thrift.dto.*;
 
 import org.apache.thrift.TBase;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.cluster;
+package com.navercorp.pinpoint.web.cluster;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -17,14 +17,14 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.nhn.pinpoint.common.util.NetUtils;
-import com.nhn.pinpoint.rpc.client.MessageListener;
-import com.nhn.pinpoint.rpc.client.PinpointSocket;
-import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
-import com.nhn.pinpoint.rpc.packet.RequestPacket;
-import com.nhn.pinpoint.rpc.packet.SendPacket;
-import com.nhn.pinpoint.web.config.WebConfig;
-import com.nhn.pinpoint.web.server.PinpointSocketManager;
+import com.navercorp.pinpoint.common.util.NetUtils;
+import com.navercorp.pinpoint.rpc.client.MessageListener;
+import com.navercorp.pinpoint.rpc.client.PinpointSocket;
+import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.packet.SendPacket;
+import com.navercorp.pinpoint.web.config.WebConfig;
+import com.navercorp.pinpoint.web.server.PinpointSocketManager;
 
 public class ClusterTest {
 

@@ -1,17 +1,17 @@
-package com.nhn.pinpoint.profiler.modifier.spring.beans;
+package com.navercorp.pinpoint.profiler.modifier.spring.beans;
 
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
-import com.nhn.pinpoint.bootstrap.plugin.BytecodeUtils;
+import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.plugin.BytecodeUtils;
+import com.navercorp.pinpoint.profiler.DefaultAgent;
+import com.navercorp.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor;
+import com.navercorp.pinpoint.profiler.modifier.spring.beans.BeanMethodModifier;
+import com.navercorp.pinpoint.test.MockAgent;
 
 import org.junit.Test;
-
-import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.nhn.pinpoint.profiler.DefaultAgent;
-import com.nhn.pinpoint.profiler.modifier.method.interceptor.MethodInterceptor;
-import com.nhn.pinpoint.test.MockAgent;
 
 public class BeanMethodModifierTest {
 

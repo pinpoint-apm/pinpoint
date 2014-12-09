@@ -1,8 +1,8 @@
-package com.nhn.pinpoint.test;
+package com.navercorp.pinpoint.test;
 
 import java.util.List;
 
-import com.nhn.pinpoint.profiler.context.DefaultServerMetaDataHolder;
+import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
 
 /**
  * @author hyungil.jeong

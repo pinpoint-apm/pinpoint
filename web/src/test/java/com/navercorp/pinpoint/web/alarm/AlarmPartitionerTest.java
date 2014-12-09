@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.alarm;
+package com.navercorp.pinpoint.web.alarm;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -9,9 +9,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.batch.item.ExecutionContext;
 
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.web.dao.ApplicationIndexDao;
-import com.nhn.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.web.alarm.AlarmPartitioner;
+import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.web.vo.Application;
 
 public class AlarmPartitionerTest {
 

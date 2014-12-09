@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.util;
+package com.navercorp.pinpoint.profiler.util;
 
 import java.lang.reflect.Method;
 

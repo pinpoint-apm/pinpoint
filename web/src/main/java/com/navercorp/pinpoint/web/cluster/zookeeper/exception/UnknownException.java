@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.cluster.zookeeper.exception;
+package com.navercorp.pinpoint.web.cluster.zookeeper.exception;
 
 /**
  * @author koo.taejin <kr14910>

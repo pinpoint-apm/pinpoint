@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector.handler;
+package com.navercorp.pinpoint.collector.handler;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -12,12 +12,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.nhn.pinpoint.collector.dao.AgentStatDao;
-import com.nhn.pinpoint.thrift.dto.TAgentInfo;
-import com.nhn.pinpoint.thrift.dto.TAgentStat;
-import com.nhn.pinpoint.thrift.dto.TAgentStatBatch;
-import com.nhn.pinpoint.thrift.dto.TCpuLoad;
-import com.nhn.pinpoint.thrift.dto.TJvmGc;
+import com.navercorp.pinpoint.collector.dao.AgentStatDao;
+import com.navercorp.pinpoint.collector.handler.AgentStatHandler;
+import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
+import com.navercorp.pinpoint.thrift.dto.TAgentStat;
+import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
+import com.navercorp.pinpoint.thrift.dto.TCpuLoad;
+import com.navercorp.pinpoint.thrift.dto.TJvmGc;
 
 /**
  * @author hyungil.jeong

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.test.junit4;
+package com.navercorp.pinpoint.test.junit4;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,13 +6,13 @@ import java.util.List;
 import org.apache.thrift.TBase;
 import org.junit.runner.RunWith;
 
-import com.nhn.pinpoint.bootstrap.context.ServerMetaData;
-import com.nhn.pinpoint.bootstrap.context.ServerMetaDataHolder;
-import com.nhn.pinpoint.common.bo.SpanBo;
-import com.nhn.pinpoint.common.bo.SpanEventBo;
-import com.nhn.pinpoint.profiler.context.Span;
-import com.nhn.pinpoint.profiler.context.SpanEvent;
-import com.nhn.pinpoint.test.PeekableDataSender;
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
+import com.navercorp.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.profiler.context.Span;
+import com.navercorp.pinpoint.profiler.context.SpanEvent;
+import com.navercorp.pinpoint.test.PeekableDataSender;
 
 /**
  * @author hyungil.jeong

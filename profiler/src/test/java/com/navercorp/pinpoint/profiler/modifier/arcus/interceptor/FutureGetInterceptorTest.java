@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.arcus.interceptor;
+package com.navercorp.pinpoint.profiler.modifier.arcus.interceptor;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -25,7 +25,8 @@ import net.spy.memcached.protocol.ascii.AsciiMemcachedNodeImpl;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.nhn.pinpoint.test.BaseInterceptorTest;
+import com.navercorp.pinpoint.profiler.modifier.arcus.interceptor.FutureGetInterceptor;
+import com.navercorp.pinpoint.test.BaseInterceptorTest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,10 +1,12 @@
-package com.nhn.pinpoint.profiler.util;
+package com.navercorp.pinpoint.profiler.util;
 
 /**
  * @author emeroad
  */
 import org.junit.Test;
 import org.junit.Assert;
+
+import com.navercorp.pinpoint.profiler.util.DepthScope;
 
 /**
  * @author emeroad

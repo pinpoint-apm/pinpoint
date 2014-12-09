@@ -1,12 +1,11 @@
-package com.nhn.pinpoint.profiler.modifier.spring.beans.interceptor;
+package com.navercorp.pinpoint.profiler.modifier.spring.beans.interceptor;
 
-import com.nhn.pinpoint.bootstrap.logging.PLogger;
-import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
-
-import com.nhn.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.nhn.pinpoint.profiler.ClassFileRetransformer;
-import com.nhn.pinpoint.profiler.ProfilerException;
-import com.nhn.pinpoint.profiler.modifier.Modifier;
+import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.profiler.ClassFileRetransformer;
+import com.navercorp.pinpoint.profiler.ProfilerException;
+import com.navercorp.pinpoint.profiler.modifier.Modifier;
 
 public abstract class AbstractSpringBeanCreationInterceptor implements SimpleAroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());

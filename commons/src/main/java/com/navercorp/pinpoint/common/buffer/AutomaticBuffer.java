@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.common.buffer;
+package com.navercorp.pinpoint.common.buffer;
 
-import com.nhn.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 
 /**
  * 버퍼사이즈가 자동으로 확장되는 buffer

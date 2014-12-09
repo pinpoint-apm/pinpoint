@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector.cluster.route;
+package com.navercorp.pinpoint.collector.cluster.route;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

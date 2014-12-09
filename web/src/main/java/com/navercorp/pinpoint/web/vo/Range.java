@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.web.vo;
+package com.navercorp.pinpoint.web.vo;
 
-import com.nhn.pinpoint.common.util.DateUtils;
+import com.navercorp.pinpoint.common.util.DateUtils;
 
 import java.util.concurrent.TimeUnit;
 

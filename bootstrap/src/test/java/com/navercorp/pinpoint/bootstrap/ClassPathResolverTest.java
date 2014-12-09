@@ -1,6 +1,7 @@
-package com.nhn.pinpoint.bootstrap;
+package com.navercorp.pinpoint.bootstrap;
 
-import com.nhn.pinpoint.bootstrap.ClassPathResolver;
+import com.navercorp.pinpoint.bootstrap.ClassPathResolver;
+
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;

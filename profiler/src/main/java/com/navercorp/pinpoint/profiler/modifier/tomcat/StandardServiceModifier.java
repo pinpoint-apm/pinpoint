@@ -1,13 +1,13 @@
-package com.nhn.pinpoint.profiler.modifier.tomcat;
+package com.navercorp.pinpoint.profiler.modifier.tomcat;
 
 import java.security.ProtectionDomain;
 
-import com.nhn.pinpoint.bootstrap.Agent;
-import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
-import com.nhn.pinpoint.bootstrap.interceptor.LifeCycleEventListener;
-import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import com.navercorp.pinpoint.bootstrap.Agent;
+import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.LifeCycleEventListener;
+import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,10 +37,10 @@ public class StandardServiceModifier extends AbstractModifier {
             LifeCycleEventListener lifeCycleEventListener = new LifeCycleEventListener(agent);
             
             Interceptor standardServiceStartInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain,
-                    "com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.StandardServiceStartInterceptor",
+                    "com.navercorp.pinpoint.profiler.modifier.tomcat.interceptor.StandardServiceStartInterceptor",
                     new Object[] { lifeCycleEventListener }, new Class[] { LifeCycleEventListener.class });
             Interceptor standardServiceStopInterceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain,
-                    "com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.StandardServiceStopInterceptor",
+                    "com.navercorp.pinpoint.profiler.modifier.tomcat.interceptor.StandardServiceStopInterceptor",
                     new Object[] { lifeCycleEventListener }, new Class[] { LifeCycleEventListener.class });
 
             boolean isHooked = false;

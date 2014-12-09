@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.rpc.stream;
+package com.navercorp.pinpoint.rpc.stream;
 
-import com.nhn.pinpoint.rpc.util.AssertUtils;
+import com.navercorp.pinpoint.rpc.util.AssertUtils;
 
 /**
  * @author koo.taejin <kr14910>

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.spring.beans;
+package com.navercorp.pinpoint.profiler.modifier.spring.beans;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -7,11 +7,12 @@ import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.nhn.pinpoint.profiler.ClassFileRetransformer;
-import com.nhn.pinpoint.profiler.DefaultAgent;
-import com.nhn.pinpoint.profiler.modifier.Modifier;
-import com.nhn.pinpoint.test.ClassTransformHelper;
-import com.nhn.pinpoint.test.MockAgent;
+import com.navercorp.pinpoint.profiler.ClassFileRetransformer;
+import com.navercorp.pinpoint.profiler.DefaultAgent;
+import com.navercorp.pinpoint.profiler.modifier.Modifier;
+import com.navercorp.pinpoint.profiler.modifier.spring.beans.AbstractAutowireCapableBeanFactoryModifier;
+import com.navercorp.pinpoint.test.ClassTransformHelper;
+import com.navercorp.pinpoint.test.MockAgent;
 
 public class AbstractAutowireCapableBeanFactoryModifierTest {
 

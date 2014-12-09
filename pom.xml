@@ -5,7 +5,7 @@
         <name>Naver Corporation</name>
         <url>http://www.navercorp.com/</url>
     </organization>
-    <groupId>com.nhn.pinpoint</groupId>
+    <groupId>com.navercorp.pinpoint</groupId>
     <artifactId>pom</artifactId>
     <version>1.0.4-SNAPSHOT</version>
     <name>pinpoint</name>
@@ -76,55 +76,55 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.nhn.pinpoint</groupId>
+                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-commons</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.nhn.pinpoint</groupId>
+                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-rpc</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.nhn.pinpoint</groupId>
+                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-thrift</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.nhn.pinpoint</groupId>
+                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-bootstrap</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.nhn.pinpoint</groupId>
+                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-profiler</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.nhn.pinpoint</groupId>
+                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-profiler-optional</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.nhn.pinpoint</groupId>
+                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-collector</artifactId>
                 <type>war</type>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.nhn.pinpoint</groupId>
+                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-collector</artifactId>
                 <classifier>classes</classifier>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.nhn.pinpoint</groupId>
+                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-web</artifactId>
                 <version>${project.version}</version>
                 <type>war</type>
             </dependency>
             <dependency>
-                <groupId>com.nhn.pinpoint</groupId>
+                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-web</artifactId>
                 <classifier>classes</classifier>
                 <version>${project.version}</version>
@@ -622,9 +622,9 @@
                     <singleCloverDatabase>false</singleCloverDatabase>
                     <includesTestSourceRoots>false</includesTestSourceRoots>
                     <excludes>
-                        <exclude>com/nhn/pinpoint/thrift/dto/**/*.java</exclude>
-                        <exclude>com/nhn/pinpoint/common/util/apache/**/*.java</exclude>
-                        <exclude>com/nhn/pinpoint/profiler/util/jdk/**/*.java</exclude>
+                        <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
+                        <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
+                        <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -680,9 +680,9 @@
                         <ruleset>/rulesets/basic.xml</ruleset> <ruleset>/rulesets/imports.xml</ruleset> 
                         <ruleset>/rulesets/design.xml</ruleset> </rulesets> -->
                     <excludes>
-                        <exclude>com/nhn/pinpoint/thrift/dto/**/*.java</exclude>
-                        <exclude>com/nhn/pinpoint/common/util/apache/**/*.java</exclude>
-                        <exclude>com/nhn/pinpoint/profiler/util/jdk/**/*.java</exclude>
+                        <exclude>com/navercorp/pinpoint/thrift/dto/**/*.java</exclude>
+                        <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
+                        <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>

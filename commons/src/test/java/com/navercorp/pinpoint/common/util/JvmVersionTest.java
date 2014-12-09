@@ -1,9 +1,11 @@
-package com.nhn.pinpoint.common.util;
+package com.navercorp.pinpoint.common.util;
 
 import static org.junit.Assert.*;
-import static com.nhn.pinpoint.common.util.JvmVersion.*;
+import static com.navercorp.pinpoint.common.util.JvmVersion.*;
 
 import org.junit.Test;
+
+import com.navercorp.pinpoint.common.util.JvmVersion;
 
 /**
  * @author hyungil.jeong

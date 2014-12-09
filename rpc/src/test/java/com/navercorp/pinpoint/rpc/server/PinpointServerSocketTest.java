@@ -1,6 +1,8 @@
-package com.nhn.pinpoint.rpc.server;
+package com.navercorp.pinpoint.rpc.server;
 
-import com.nhn.pinpoint.rpc.DiscardPipelineFactory;
+import com.navercorp.pinpoint.rpc.DiscardPipelineFactory;
+import com.navercorp.pinpoint.rpc.server.PinpointServerSocket;
+
 import org.junit.Test;
 
 import java.net.Socket;

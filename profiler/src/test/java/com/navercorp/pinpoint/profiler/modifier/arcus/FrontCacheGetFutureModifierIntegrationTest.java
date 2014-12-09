@@ -1,7 +1,7 @@
-package com.nhn.pinpoint.profiler.modifier.arcus;
+package com.navercorp.pinpoint.profiler.modifier.arcus;
 
-import com.nhn.pinpoint.common.bo.SpanEventBo;
-import com.nhn.pinpoint.test.junit4.BasePinpointTest;
+import com.navercorp.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
 
 import net.spy.memcached.ArcusClient;
 import net.spy.memcached.ConnectionFactoryBuilder;

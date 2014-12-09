@@ -1,8 +1,11 @@
-package com.nhn.pinpoint.rpc.stream;
+package com.navercorp.pinpoint.rpc.stream;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
+
+import com.navercorp.pinpoint.rpc.stream.StreamChannelState;
+import com.navercorp.pinpoint.rpc.stream.StreamChannelStateCode;
 
 public class StreamChannelStateTest {
 

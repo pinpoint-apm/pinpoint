@@ -1,10 +1,12 @@
-package com.nhn.pinpoint.profiler.modifier.db.oracle.parser;
+package com.navercorp.pinpoint.profiler.modifier.db.oracle.parser;
 
-import com.nhn.pinpoint.profiler.modifier.db.oracle.parser.Description;
-import com.nhn.pinpoint.profiler.modifier.db.oracle.parser.KeyValue;
-import com.nhn.pinpoint.profiler.modifier.db.oracle.parser.OracleConnectionStringException;
-import com.nhn.pinpoint.profiler.modifier.db.oracle.parser.OracleNetConnectionDescriptorParser;
+import com.navercorp.pinpoint.profiler.modifier.db.oracle.parser.Description;
+import com.navercorp.pinpoint.profiler.modifier.db.oracle.parser.KeyValue;
+import com.navercorp.pinpoint.profiler.modifier.db.oracle.parser.OracleConnectionStringException;
+import com.navercorp.pinpoint.profiler.modifier.db.oracle.parser.OracleNetConnectionDescriptorParser;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

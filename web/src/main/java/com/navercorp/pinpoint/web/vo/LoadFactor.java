@@ -1,9 +1,10 @@
-package com.nhn.pinpoint.web.vo;
+package com.navercorp.pinpoint.web.vo;
 
 import java.util.*;
 
-import com.nhn.pinpoint.common.HistogramSchema;
-import com.nhn.pinpoint.web.util.TimeWindow;
+import com.navercorp.pinpoint.common.HistogramSchema;
+import com.navercorp.pinpoint.web.util.TimeWindow;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

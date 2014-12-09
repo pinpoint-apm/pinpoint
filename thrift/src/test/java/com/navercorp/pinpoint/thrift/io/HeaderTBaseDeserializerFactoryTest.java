@@ -1,8 +1,10 @@
-package com.nhn.pinpoint.thrift.io;
+package com.navercorp.pinpoint.thrift.io;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
+
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 
 public class HeaderTBaseDeserializerFactoryTest {
 

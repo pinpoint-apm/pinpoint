@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.profiler.context.storage;
+package com.navercorp.pinpoint.profiler.context.storage;
 
-import com.nhn.pinpoint.profiler.sender.DataSender;
+import com.navercorp.pinpoint.profiler.sender.DataSender;
 
 /**
  * @author emeroad

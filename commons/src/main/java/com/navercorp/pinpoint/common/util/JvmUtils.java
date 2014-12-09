@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.common.util;
+package com.navercorp.pinpoint.common.util;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;

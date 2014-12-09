@@ -1,9 +1,9 @@
-package com.nhn.pinpoint.bootstrap.config;
+package com.navercorp.pinpoint.bootstrap.config;
 
-import com.nhn.pinpoint.bootstrap.util.NumberUtils;
-import com.nhn.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.util.PropertyUtils;
+import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
+import com.navercorp.pinpoint.bootstrap.util.spring.PropertyPlaceholderHelper;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.util.PropertyUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

@@ -1,13 +1,13 @@
-package com.nhn.pinpoint.profiler.monitor.codahale.cpu;
+package com.navercorp.pinpoint.profiler.monitor.codahale.cpu;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.common.util.JvmVersion;
-import com.nhn.pinpoint.common.util.JvmUtils;
-import com.nhn.pinpoint.profiler.monitor.codahale.cpu.metric.CpuLoadMetricSet;
-import com.nhn.pinpoint.profiler.monitor.codahale.cpu.metric.DefaultCpuLoadMetricSet;
-import com.nhn.pinpoint.profiler.monitor.codahale.cpu.metric.EmptyCpuLoadMetricSet;
+import com.navercorp.pinpoint.common.util.JvmUtils;
+import com.navercorp.pinpoint.common.util.JvmVersion;
+import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.CpuLoadMetricSet;
+import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.DefaultCpuLoadMetricSet;
+import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.EmptyCpuLoadMetricSet;
 
 /**
  * @author hyungil.jeong
@@ -16,7 +16,7 @@ public class CpuLoadMetricSetSelector {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CpuLoadMetricSetSelector.class);
 
-    private static final String OPTIONAL_CPU_LOAD_METRIC_SET_CLASSPATH = "com.nhn.pinpoint.profiler.monitor.codahale.cpu.metric.EnhancedCpuLoadMetricSet";
+    private static final String OPTIONAL_CPU_LOAD_METRIC_SET_CLASSPATH = "com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.EnhancedCpuLoadMetricSet";
 
     private CpuLoadMetricSetSelector() {
         throw new IllegalAccessError();

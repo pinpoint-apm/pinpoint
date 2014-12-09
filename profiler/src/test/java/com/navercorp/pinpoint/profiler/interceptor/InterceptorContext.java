@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.interceptor;
+package com.navercorp.pinpoint.profiler.interceptor;
 
 import java.util.Arrays;
 

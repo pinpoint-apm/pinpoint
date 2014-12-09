@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.sender;
+package com.navercorp.pinpoint.profiler.sender;
 
 import java.io.IOException;
 import java.util.concurrent.ThreadFactory;
@@ -7,10 +7,10 @@ import java.util.concurrent.TimeUnit;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 
-import com.nhn.pinpoint.common.util.PinpointThreadFactory;
-import com.nhn.pinpoint.thrift.io.ChunkHeaderBufferedTBaseSerializer;
-import com.nhn.pinpoint.thrift.io.ChunkHeaderBufferedTBaseSerializerFactory;
-import com.nhn.pinpoint.thrift.io.ChunkHeaderBufferedTBaseSerializerFlushHandler;
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.thrift.io.ChunkHeaderBufferedTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.ChunkHeaderBufferedTBaseSerializerFactory;
+import com.navercorp.pinpoint.thrift.io.ChunkHeaderBufferedTBaseSerializerFlushHandler;
 
 /**
  * split & buffering

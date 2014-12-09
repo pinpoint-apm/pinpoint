@@ -1,9 +1,9 @@
-package com.nhn.pinpoint.web.alarm.checker;
+package com.navercorp.pinpoint.web.alarm.checker;
 
 import java.util.Map;
 
-import com.nhn.pinpoint.web.alarm.collector.AgentStatDataCollector;
-import com.nhn.pinpoint.web.alarm.vo.Rule;
+import com.navercorp.pinpoint.web.alarm.collector.AgentStatDataCollector;
+import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
 public class GcCountChecker extends AgentChecker {
     

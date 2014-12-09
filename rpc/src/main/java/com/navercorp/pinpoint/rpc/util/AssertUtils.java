@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.rpc.util;
+package com.navercorp.pinpoint.rpc.util;
 
 /**
  * @author koo.taejin

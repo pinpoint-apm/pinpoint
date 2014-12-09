@@ -1,8 +1,8 @@
-package com.nhn.pinpoint.web.vo.linechart;
+package com.navercorp.pinpoint.web.vo.linechart;
 
 import java.util.List;
 
-import com.nhn.pinpoint.web.util.TimeWindow;
+import com.navercorp.pinpoint.web.util.TimeWindow;
 
 /**
  * @author hyungil.jeong

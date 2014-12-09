@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.common.hbase.filter;
+package com.navercorp.pinpoint.common.hbase.filter;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -8,8 +8,8 @@ import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.filter.FilterBase;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import com.nhn.pinpoint.common.buffer.Buffer;
-import com.nhn.pinpoint.common.buffer.OffsetFixedBuffer;
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 
 /**
  * value filter보다 column name에 prefix 붙여 filter하는것이 나을 듯하여 일단 deprecated 처리 함.

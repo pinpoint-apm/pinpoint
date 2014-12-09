@@ -1,7 +1,9 @@
-package com.nhn.pinpoint.common.util;
+package com.navercorp.pinpoint.common.util;
 
-import com.nhn.pinpoint.common.bo.SqlMetaDataBo;
+import com.navercorp.pinpoint.common.bo.SqlMetaDataBo;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
 
 /**

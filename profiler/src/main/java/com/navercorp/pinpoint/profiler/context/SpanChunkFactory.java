@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.profiler.context;
+package com.navercorp.pinpoint.profiler.context;
 
-import com.nhn.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.AgentInformation;
 
 import java.util.List;
 

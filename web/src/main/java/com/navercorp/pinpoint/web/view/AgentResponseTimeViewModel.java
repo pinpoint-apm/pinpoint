@@ -1,7 +1,7 @@
-package com.nhn.pinpoint.web.view;
+package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.nhn.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.List;
 

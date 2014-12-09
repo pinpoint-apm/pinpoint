@@ -1,7 +1,7 @@
-package com.nhn.pinpoint.web.vo;
+package com.navercorp.pinpoint.web.vo;
 
-import com.nhn.pinpoint.common.bo.AgentStatCpuLoadBo;
-import com.nhn.pinpoint.common.bo.AgentStatMemoryGcBo;
+import com.navercorp.pinpoint.common.bo.AgentStatCpuLoadBo;
+import com.navercorp.pinpoint.common.bo.AgentStatMemoryGcBo;
 
 /**
  * @author hyungil.jeong

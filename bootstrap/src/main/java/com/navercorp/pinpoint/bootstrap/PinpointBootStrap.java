@@ -1,11 +1,11 @@
-package com.nhn.pinpoint.bootstrap;
+package com.navercorp.pinpoint.bootstrap;
 
-import com.nhn.pinpoint.ProductInfo;
-import com.nhn.pinpoint.bootstrap.util.IdValidateUtils;
-import com.nhn.pinpoint.common.PinpointConstants;
-import com.nhn.pinpoint.common.util.BytesUtils;
-import com.nhn.pinpoint.common.util.TransactionIdUtils;
-import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.ProductInfo;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.util.IdValidateUtils;
+import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
@@ -24,9 +24,9 @@ public class PinpointBootStrap {
     private static final int LIMIT_LENGTH = 24;
     private static final String DELIMITER = TransactionIdUtils.TRANSACTION_ID_DELIMITER;
 
-    public static final String BOOT_CLASS = "com.nhn.pinpoint.profiler.DefaultAgent";
+    public static final String BOOT_CLASS = "com.navercorp.pinpoint.profiler.DefaultAgent";
 
-    public static final String BOOT_STRAP_LOAD_STATE = "com.nhn.pinpoint.bootstrap.load.state";
+    public static final String BOOT_STRAP_LOAD_STATE = "com.navercorp.pinpoint.bootstrap.load.state";
     public static final String BOOT_STRAP_LOAD_STATE_LOADING = "LOADING";
     public static final String BOOT_STRAP_LOAD_STATE_COMPLETE = "COMPLETE";
     public static final String BOOT_STRAP_LOAD_STATE_ERROR = "ERROR";

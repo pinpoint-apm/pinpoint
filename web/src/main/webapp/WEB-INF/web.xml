@@ -49,7 +49,7 @@
     <filter>
 	    <description>NoCacheFilter</description>
     	<filter-name>NoCacheFilter</filter-name>
-    	<filter-class>com.nhn.pinpoint.web.servletfilter.NoCacheFilter</filter-class>
+    	<filter-class>com.navercorp.pinpoint.web.servletfilter.NoCacheFilter</filter-class>
 	</filter>
 
     <filter-mapping>

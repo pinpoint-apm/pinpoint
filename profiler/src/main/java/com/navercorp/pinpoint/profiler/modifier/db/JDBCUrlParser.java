@@ -1,11 +1,12 @@
-package com.nhn.pinpoint.profiler.modifier.db;
+package com.navercorp.pinpoint.profiler.modifier.db;
 
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
-import com.nhn.pinpoint.profiler.modifier.db.cubrid.CubridConnectionStringParser;
-import com.nhn.pinpoint.profiler.modifier.db.jtds.JtdsConnectionStringParser;
-import com.nhn.pinpoint.profiler.modifier.db.mysql.MySqlConnectionStringParser;
-import com.nhn.pinpoint.profiler.modifier.db.oracle.OracleConnectionStringParser;
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.profiler.modifier.db.cubrid.CubridConnectionStringParser;
+import com.navercorp.pinpoint.profiler.modifier.db.jtds.JtdsConnectionStringParser;
+import com.navercorp.pinpoint.profiler.modifier.db.mysql.MySqlConnectionStringParser;
+import com.navercorp.pinpoint.profiler.modifier.db.oracle.OracleConnectionStringParser;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

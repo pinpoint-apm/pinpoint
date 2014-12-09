@@ -1,7 +1,11 @@
-package com.nhn.pinpoint.web.applicationmap.link;
+package com.navercorp.pinpoint.web.applicationmap.link;
 
 import junit.framework.Assert;
+
 import org.junit.Test;
+
+import com.navercorp.pinpoint.web.applicationmap.link.NSightMatcher;
+import com.navercorp.pinpoint.web.applicationmap.link.ServerMatcher;
 
 public class NSightMatcherTest {
 

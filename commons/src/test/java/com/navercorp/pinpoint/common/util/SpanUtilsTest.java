@@ -1,9 +1,12 @@
-package com.nhn.pinpoint.common.util;
+package com.navercorp.pinpoint.common.util;
 
-import com.nhn.pinpoint.common.PinpointConstants;
-import com.nhn.pinpoint.thrift.dto.TSpan;
+import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.util.SpanUtils;
+import com.navercorp.pinpoint.common.util.TimeUtils;
+import com.navercorp.pinpoint.thrift.dto.TSpan;
 
 import junit.framework.Assert;
+
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Test;
 

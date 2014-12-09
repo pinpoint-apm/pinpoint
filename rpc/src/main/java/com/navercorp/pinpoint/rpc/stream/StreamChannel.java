@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.rpc.stream;
+package com.navercorp.pinpoint.rpc.stream;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -8,11 +8,11 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.rpc.PinpointSocketException;
-import com.nhn.pinpoint.rpc.packet.stream.BasicStreamPacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamPingPacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamPongPacket;
-import com.nhn.pinpoint.rpc.util.AssertUtils;
+import com.navercorp.pinpoint.rpc.PinpointSocketException;
+import com.navercorp.pinpoint.rpc.packet.stream.BasicStreamPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamPingPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamPongPacket;
+import com.navercorp.pinpoint.rpc.util.AssertUtils;
 
 /**
  * @author koo.taejin <kr14910>

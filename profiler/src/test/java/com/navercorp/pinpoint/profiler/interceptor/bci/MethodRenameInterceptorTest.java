@@ -1,7 +1,9 @@
-package com.nhn.pinpoint.profiler.interceptor.bci;
+package com.navercorp.pinpoint.profiler.interceptor.bci;
 
-import com.nhn.pinpoint.profiler.util.LoaderUtils;
+import com.navercorp.pinpoint.profiler.util.LoaderUtils;
+
 import javassist.*;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +22,7 @@ public class MethodRenameInterceptorTest {
     public void methodRename() throws Exception {
         // Method rename을 사용해서 local 변수를 공유하는 방법의 경우 call stack이 변경되는 문제점이있다.
         String methodName = "callA";
-        String objectName = "com.nhn.pinpoint.profiler.interceptor.bci.TestObject";
+        String objectName = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject";
         // start by getting the class file and method
 
         final ClassPool classPool = new ClassPool(true);

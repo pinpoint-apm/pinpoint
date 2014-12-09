@@ -1,17 +1,17 @@
-package com.nhn.pinpoint.profiler.plugin;
+package com.navercorp.pinpoint.profiler.plugin;
 
 import java.security.ProtectionDomain;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.bootstrap.Agent;
-import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.nhn.pinpoint.bootstrap.plugin.DedicatedClassEditor;
-import com.nhn.pinpoint.bootstrap.plugin.PluginClassLoaderFactory;
-import com.nhn.pinpoint.exception.PinpointException;
-import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import com.navercorp.pinpoint.bootstrap.Agent;
+import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.plugin.DedicatedClassEditor;
+import com.navercorp.pinpoint.bootstrap.plugin.PluginClassLoaderFactory;
+import com.navercorp.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 
 public class ClassEditorAdaptor extends AbstractModifier {
     private final Logger logger = LoggerFactory.getLogger(getClass());

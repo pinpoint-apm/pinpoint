@@ -1,10 +1,10 @@
-package com.nhn.pinpoint.web.service;
+package com.navercorp.pinpoint.web.service;
 
 import java.util.List;
 
-import com.nhn.pinpoint.web.applicationmap.ApplicationMap;
-import com.nhn.pinpoint.web.filter.Filter;
-import com.nhn.pinpoint.web.vo.*;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
+import com.navercorp.pinpoint.web.filter.Filter;
+import com.navercorp.pinpoint.web.vo.*;
 
 /**
  * @author netspider

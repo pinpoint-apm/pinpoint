@@ -4,7 +4,7 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  *  @generated
  */
-package com.nhn.pinpoint.thrift.dto;
+package com.navercorp.pinpoint.thrift.dto;
 
 import org.apache.thrift.scheme.IScheme;
 import org.apache.thrift.scheme.SchemeFactory;
@@ -167,7 +167,7 @@ public class TJvmGc implements org.apache.thrift.TBase<TJvmGc, TJvmGc._Fields>, 
   }
 
   public TJvmGc() {
-    this.type = com.nhn.pinpoint.thrift.dto.TJvmGcType.UNKNOWN;
+    this.type = com.navercorp.pinpoint.thrift.dto.TJvmGcType.UNKNOWN;
 
   }
 
@@ -218,7 +218,7 @@ public class TJvmGc implements org.apache.thrift.TBase<TJvmGc, TJvmGc._Fields>, 
 
   @Override
   public void clear() {
-    this.type = com.nhn.pinpoint.thrift.dto.TJvmGcType.UNKNOWN;
+    this.type = com.navercorp.pinpoint.thrift.dto.TJvmGcType.UNKNOWN;
 
     setJvmMemoryHeapUsedIsSet(false);
     this.jvmMemoryHeapUsed = 0;

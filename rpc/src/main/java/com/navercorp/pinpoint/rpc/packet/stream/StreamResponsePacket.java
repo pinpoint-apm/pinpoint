@@ -1,11 +1,11 @@
-package com.nhn.pinpoint.rpc.packet.stream;
+package com.navercorp.pinpoint.rpc.packet.stream;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 
-import com.nhn.pinpoint.rpc.packet.PacketType;
-import com.nhn.pinpoint.rpc.packet.PayloadPacket;
-import com.nhn.pinpoint.rpc.util.AssertUtils;
+import com.navercorp.pinpoint.rpc.packet.PacketType;
+import com.navercorp.pinpoint.rpc.packet.PayloadPacket;
+import com.navercorp.pinpoint.rpc.util.AssertUtils;
 
 /**
  * @author koo.taejin <kr14910>

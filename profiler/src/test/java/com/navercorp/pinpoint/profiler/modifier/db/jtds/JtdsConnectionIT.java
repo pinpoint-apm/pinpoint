@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.db.jtds;
+package com.navercorp.pinpoint.profiler.modifier.db.jtds;
 
 import java.sql.Connection;
 import java.sql.Driver;
@@ -16,11 +16,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
-import com.nhn.pinpoint.common.bo.SpanEventBo;
-import com.nhn.pinpoint.common.util.PropertyUtils;
-import com.nhn.pinpoint.test.junit4.BasePinpointTest;
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.DatabaseInfoTraceValue;
+import com.navercorp.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.util.PropertyUtils;
+import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
 
 /**
  * @author emeroad

@@ -1,8 +1,8 @@
-package com.nhn.pinpoint.test;
+package com.navercorp.pinpoint.test;
 
-import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
-import com.nhn.pinpoint.bootstrap.context.TraceContext;
-import com.nhn.pinpoint.profiler.context.DefaultTraceContext;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
 
 /**
  * @author emeroad

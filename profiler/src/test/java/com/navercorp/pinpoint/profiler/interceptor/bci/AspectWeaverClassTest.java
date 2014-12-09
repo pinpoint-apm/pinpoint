@@ -1,25 +1,28 @@
-package com.nhn.pinpoint.profiler.interceptor.bci;
+package com.navercorp.pinpoint.profiler.interceptor.bci;
 
-import com.nhn.pinpoint.profiler.util.LoaderUtils;
+import com.navercorp.pinpoint.profiler.interceptor.bci.AspectWeaverClass;
+import com.navercorp.pinpoint.profiler.util.LoaderUtils;
+
 import javassist.*;
 import junit.framework.Assert;
+
 import org.junit.Test;
 
 import java.lang.reflect.Method;
 
 public class AspectWeaverClassTest {
 
-	private final String ORIGINAL = "com.nhn.pinpoint.profiler.interceptor.bci.mock.Original";
-	private final String ORIGINAL_SUB = "com.nhn.pinpoint.profiler.interceptor.bci.mock.OriginalSub";
+	private final String ORIGINAL = "com.navercorp.pinpoint.profiler.interceptor.bci.mock.Original";
+	private final String ORIGINAL_SUB = "com.navercorp.pinpoint.profiler.interceptor.bci.mock.OriginalSub";
 
-	private final String ASPECT = "com.nhn.pinpoint.profiler.interceptor.bci.mock.TestAspect";
-	private final String ASPECT_NO_EXTENTS = "com.nhn.pinpoint.profiler.interceptor.bci.mock.TestAspect_NoExtents";
-	private final String ASPECT_EXTENTS_SUB = "com.nhn.pinpoint.profiler.interceptor.bci.mock.TestAspect_ExtentsSub";
+	private final String ASPECT = "com.navercorp.pinpoint.profiler.interceptor.bci.mock.TestAspect";
+	private final String ASPECT_NO_EXTENTS = "com.navercorp.pinpoint.profiler.interceptor.bci.mock.TestAspect_NoExtents";
+	private final String ASPECT_EXTENTS_SUB = "com.navercorp.pinpoint.profiler.interceptor.bci.mock.TestAspect_ExtentsSub";
 
-	private final String ERROR_ASPECT1 = "com.nhn.pinpoint.profiler.interceptor.bci.mock.ErrorAspect";
-	private final String ERROR_ASPECT2 = "com.nhn.pinpoint.profiler.interceptor.bci.mock.ErrorAspect2";
+	private final String ERROR_ASPECT1 = "com.navercorp.pinpoint.profiler.interceptor.bci.mock.ErrorAspect";
+	private final String ERROR_ASPECT2 = "com.navercorp.pinpoint.profiler.interceptor.bci.mock.ErrorAspect2";
 
-	private final String ERROR_ASPECT_INVALID_EXTENTS= "com.nhn.pinpoint.profiler.interceptor.bci.mock.ErrorAspect_InvalidExtents";
+	private final String ERROR_ASPECT_INVALID_EXTENTS= "com.navercorp.pinpoint.profiler.interceptor.bci.mock.ErrorAspect_InvalidExtents";
 
 	public Object createAspect(String originalName, String aspectName)  {
 		try {

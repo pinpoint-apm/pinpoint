@@ -1,19 +1,18 @@
-package com.nhn.pinpoint.web.controller;
+package com.navercorp.pinpoint.web.controller;
 
 import java.util.List;
 
+import com.navercorp.pinpoint.web.service.CommonService;
+import com.navercorp.pinpoint.web.view.ApplicationGroup;
+import com.navercorp.pinpoint.web.view.ServerTime;
+import com.navercorp.pinpoint.web.vo.Application;
 
-import com.nhn.pinpoint.web.view.ApplicationGroup;
-import com.nhn.pinpoint.web.view.ServerTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
-import com.nhn.pinpoint.web.service.CommonService;
-import com.nhn.pinpoint.web.vo.Application;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**

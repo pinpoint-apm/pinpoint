@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.test.fork;
+package com.navercorp.pinpoint.test.fork;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,8 +19,8 @@ import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 
-import com.nhn.pinpoint.common.Version;
-import com.nhn.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.exception.PinpointException;
 
 public class ForkRunner extends BlockJUnit4ClassRunner {
     private static final String[] REQUIRED_CLASS_PATHS = new String[] {

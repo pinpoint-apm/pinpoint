@@ -1,9 +1,9 @@
-package com.nhn.pinpoint.bootstrap.instrument;
+package com.navercorp.pinpoint.bootstrap.instrument;
 
 import java.util.List;
 
-import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
 
 /**
  * @author emeroad

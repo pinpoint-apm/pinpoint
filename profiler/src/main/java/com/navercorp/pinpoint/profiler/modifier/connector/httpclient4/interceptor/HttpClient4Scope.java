@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.profiler.modifier.connector.httpclient4.interceptor;
+package com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor;
 
-import com.nhn.pinpoint.profiler.util.DepthScope;
+import com.navercorp.pinpoint.profiler.util.DepthScope;
 
 /**
  * @author emeroad

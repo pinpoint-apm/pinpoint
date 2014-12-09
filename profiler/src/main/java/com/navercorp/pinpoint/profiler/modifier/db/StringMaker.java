@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.db;
+package com.navercorp.pinpoint.profiler.modifier.db;
 
 /**
  * copy lucy 1.5

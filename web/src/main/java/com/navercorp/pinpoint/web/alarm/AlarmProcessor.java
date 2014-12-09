@@ -1,8 +1,8 @@
-package com.nhn.pinpoint.web.alarm;
+package com.navercorp.pinpoint.web.alarm;
 
 import org.springframework.batch.item.ItemProcessor;
 
-import com.nhn.pinpoint.web.alarm.checker.AlarmChecker;
+import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
 
 public class AlarmProcessor implements ItemProcessor<AlarmChecker, AlarmChecker> {
     

@@ -1,10 +1,15 @@
-package com.nhn.pinpoint.common.util;
+package com.navercorp.pinpoint.common.util;
 
 import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.navercorp.pinpoint.common.util.OutputParameterParser;
+import com.navercorp.pinpoint.common.util.ParsingResult;
+import com.navercorp.pinpoint.common.util.SqlParser;
 
 import java.util.List;
 

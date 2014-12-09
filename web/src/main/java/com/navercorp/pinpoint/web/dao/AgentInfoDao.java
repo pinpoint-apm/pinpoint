@@ -1,7 +1,7 @@
-package com.nhn.pinpoint.web.dao;
+package com.navercorp.pinpoint.web.dao;
 
-import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.bo.AgentInfoBo;
+import com.navercorp.pinpoint.web.vo.Range;
 
 import java.util.List;
 

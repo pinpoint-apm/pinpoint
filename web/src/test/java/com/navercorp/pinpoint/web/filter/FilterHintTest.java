@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.filter;
+package com.navercorp.pinpoint.web.filter;
 
 import junit.framework.Assert;
 
@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.web.filter.FilterHint;
 
 /**
  * 

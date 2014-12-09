@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.test.junit4;
+package com.navercorp.pinpoint.test.junit4;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

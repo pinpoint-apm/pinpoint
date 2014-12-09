@@ -1,31 +1,31 @@
-package com.nhn.pinpoint.web.service;
+package com.navercorp.pinpoint.web.service;
 
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.nhn.pinpoint.web.util.Stack;
-import com.nhn.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.AnnotationKey;
+import com.navercorp.pinpoint.common.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.util.AnnotationUtils;
+import com.navercorp.pinpoint.common.util.ApiDescription;
+import com.navercorp.pinpoint.common.util.ApiDescriptionParser;
+import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
+import com.navercorp.pinpoint.web.dao.TraceDao;
+import com.navercorp.pinpoint.web.filter.Filter;
+import com.navercorp.pinpoint.web.util.Stack;
+import com.navercorp.pinpoint.web.vo.BusinessTransactions;
+import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.TransactionId;
+import com.navercorp.pinpoint.web.vo.callstacks.Record;
+import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.nhn.pinpoint.common.AnnotationKey;
-import com.nhn.pinpoint.common.bo.AnnotationBo;
-import com.nhn.pinpoint.common.bo.SpanBo;
-import com.nhn.pinpoint.common.bo.SpanEventBo;
-import com.nhn.pinpoint.common.util.AnnotationUtils;
-import com.nhn.pinpoint.common.util.ApiDescription;
-import com.nhn.pinpoint.common.util.ApiDescriptionParser;
-import com.nhn.pinpoint.web.calltree.span.SpanAlign;
-import com.nhn.pinpoint.web.dao.TraceDao;
-import com.nhn.pinpoint.web.filter.Filter;
-import com.nhn.pinpoint.web.vo.BusinessTransactions;
-import com.nhn.pinpoint.web.vo.TransactionId;
-import com.nhn.pinpoint.web.vo.callstacks.Record;
-import com.nhn.pinpoint.web.vo.callstacks.RecordSet;
 
 /**
  *

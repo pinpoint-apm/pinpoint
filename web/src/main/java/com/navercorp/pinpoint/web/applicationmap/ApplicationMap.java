@@ -1,11 +1,12 @@
-package com.nhn.pinpoint.web.applicationmap;
+package com.navercorp.pinpoint.web.applicationmap;
 
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.nhn.pinpoint.web.vo.*;
+import com.navercorp.pinpoint.web.vo.*;
+import com.navercorp.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.nhn.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

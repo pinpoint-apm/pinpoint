@@ -1,15 +1,15 @@
-package com.nhn.pinpoint.collector.cluster;
+package com.navercorp.pinpoint.collector.cluster;
 
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.nhn.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
-import com.nhn.pinpoint.rpc.Future;
-import com.nhn.pinpoint.rpc.server.ChannelContext;
-import com.nhn.pinpoint.rpc.server.SocketChannel;
-import com.nhn.pinpoint.rpc.util.AssertUtils;
-import com.nhn.pinpoint.rpc.util.MapUtils;
+import com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType;
+import com.navercorp.pinpoint.rpc.Future;
+import com.navercorp.pinpoint.rpc.server.ChannelContext;
+import com.navercorp.pinpoint.rpc.server.SocketChannel;
+import com.navercorp.pinpoint.rpc.util.AssertUtils;
+import com.navercorp.pinpoint.rpc.util.MapUtils;
 
 /**
  * @author koo.taejin <kr14910>

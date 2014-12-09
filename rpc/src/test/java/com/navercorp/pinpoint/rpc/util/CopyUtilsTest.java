@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.rpc.util;
+package com.navercorp.pinpoint.rpc.util;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,6 +6,8 @@ import java.util.Map;
 import junit.framework.Assert;
 
 import org.junit.Test;
+
+import com.navercorp.pinpoint.rpc.util.CopyUtils;
 
 public class CopyUtilsTest {
 

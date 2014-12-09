@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.util;
+package com.navercorp.pinpoint.profiler.util;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;

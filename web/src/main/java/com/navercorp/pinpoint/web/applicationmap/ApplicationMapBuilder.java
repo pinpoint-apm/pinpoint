@@ -1,12 +1,13 @@
-package com.nhn.pinpoint.web.applicationmap;
+package com.navercorp.pinpoint.web.applicationmap;
 
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.bo.AgentInfoBo;
-import com.nhn.pinpoint.web.applicationmap.histogram.*;
-import com.nhn.pinpoint.web.applicationmap.rawdata.*;
-import com.nhn.pinpoint.web.dao.MapResponseDao;
-import com.nhn.pinpoint.web.service.AgentInfoService;
-import com.nhn.pinpoint.web.vo.*;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.bo.AgentInfoBo;
+import com.navercorp.pinpoint.web.applicationmap.histogram.*;
+import com.navercorp.pinpoint.web.applicationmap.rawdata.*;
+import com.navercorp.pinpoint.web.dao.MapResponseDao;
+import com.navercorp.pinpoint.web.service.AgentInfoService;
+import com.navercorp.pinpoint.web.vo.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

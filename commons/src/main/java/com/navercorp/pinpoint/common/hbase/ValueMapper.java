@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.common.hbase;
+package com.navercorp.pinpoint.common.hbase;
 
 /**
  * @author emeroad

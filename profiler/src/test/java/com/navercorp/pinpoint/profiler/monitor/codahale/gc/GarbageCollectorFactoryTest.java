@@ -1,11 +1,10 @@
-package com.nhn.pinpoint.profiler.monitor.codahale.gc;
+package com.navercorp.pinpoint.profiler.monitor.codahale.gc;
 
-import com.nhn.pinpoint.thrift.dto.TJvmGc;
+import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
+import com.navercorp.pinpoint.profiler.monitor.codahale.gc.GarbageCollector;
+import com.navercorp.pinpoint.thrift.dto.TJvmGc;
 
 import org.junit.Test;
-
-import com.nhn.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

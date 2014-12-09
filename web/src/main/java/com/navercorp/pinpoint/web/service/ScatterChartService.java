@@ -1,15 +1,15 @@
-package com.nhn.pinpoint.web.service;
+package com.navercorp.pinpoint.web.service;
 
 import java.util.Collection;
 import java.util.List;
 
-import com.nhn.pinpoint.common.bo.SpanBo;
-import com.nhn.pinpoint.web.filter.Filter;
-import com.nhn.pinpoint.web.vo.Range;
-import com.nhn.pinpoint.web.vo.SelectedScatterArea;
-import com.nhn.pinpoint.web.vo.TransactionId;
-import com.nhn.pinpoint.web.vo.TransactionMetadataQuery;
-import com.nhn.pinpoint.web.vo.scatter.Dot;
+import com.navercorp.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.web.filter.Filter;
+import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.SelectedScatterArea;
+import com.navercorp.pinpoint.web.vo.TransactionId;
+import com.navercorp.pinpoint.web.vo.TransactionMetadataQuery;
+import com.navercorp.pinpoint.web.vo.scatter.Dot;
 
 public interface ScatterChartService {
 

@@ -1,12 +1,12 @@
-package com.nhn.pinpoint.thrift.io;
+package com.navercorp.pinpoint.thrift.io;
 
 import org.apache.thrift.TBase;
 
-import com.nhn.pinpoint.thrift.dto.TResult;
-import com.nhn.pinpoint.thrift.dto.command.TCommandEcho;
-import com.nhn.pinpoint.thrift.dto.command.TCommandThreadDump;
-import com.nhn.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
-import com.nhn.pinpoint.thrift.dto.command.TCommandTransfer;
+import com.navercorp.pinpoint.thrift.dto.TResult;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDump;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 
 /**
  * @author koo.taejin

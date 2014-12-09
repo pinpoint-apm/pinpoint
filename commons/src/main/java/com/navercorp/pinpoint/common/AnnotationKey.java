@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.common;
+package com.navercorp.pinpoint.common;
 
-import com.nhn.pinpoint.common.util.apache.IntHashMap;
+import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 
 /**
  * @author netspider

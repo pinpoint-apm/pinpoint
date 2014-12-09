@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.common.bo;
+package com.navercorp.pinpoint.common.bo;
 
 /**
  * @author emeroad

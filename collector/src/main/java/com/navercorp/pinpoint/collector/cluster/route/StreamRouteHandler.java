@@ -1,23 +1,23 @@
-package com.nhn.pinpoint.collector.cluster.route;
+package com.navercorp.pinpoint.collector.cluster.route;
 
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.collector.cluster.ChannelContextClusterPoint;
-import com.nhn.pinpoint.collector.cluster.ClusterPointLocator;
-import com.nhn.pinpoint.collector.cluster.TargetClusterPoint;
-import com.nhn.pinpoint.rpc.ResponseMessage;
-import com.nhn.pinpoint.rpc.packet.stream.StreamClosePacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamResponsePacket;
-import com.nhn.pinpoint.rpc.server.ChannelContext;
-import com.nhn.pinpoint.rpc.stream.ClientStreamChannel;
-import com.nhn.pinpoint.rpc.stream.ClientStreamChannelContext;
-import com.nhn.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
-import com.nhn.pinpoint.rpc.stream.ServerStreamChannel;
-import com.nhn.pinpoint.rpc.stream.ServerStreamChannelContext;
-import com.nhn.pinpoint.rpc.stream.StreamChannelStateCode;
-import com.nhn.pinpoint.thrift.io.TCommandTypeVersion;
+import com.navercorp.pinpoint.collector.cluster.ChannelContextClusterPoint;
+import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
+import com.navercorp.pinpoint.collector.cluster.TargetClusterPoint;
+import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
+import com.navercorp.pinpoint.rpc.server.ChannelContext;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannel;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
+import com.navercorp.pinpoint.rpc.stream.StreamChannelStateCode;
+import com.navercorp.pinpoint.thrift.io.TCommandTypeVersion;
 
 /**
  * @author koo.taejin <kr14910>

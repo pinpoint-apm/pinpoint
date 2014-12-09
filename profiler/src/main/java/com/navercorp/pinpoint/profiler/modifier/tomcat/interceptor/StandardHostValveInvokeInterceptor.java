@@ -1,21 +1,20 @@
-package com.nhn.pinpoint.profiler.modifier.tomcat.interceptor;
+package com.navercorp.pinpoint.profiler.modifier.tomcat.interceptor;
 
 import java.util.Enumeration;
 
-import com.nhn.pinpoint.bootstrap.config.Filter;
-import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
-import com.nhn.pinpoint.bootstrap.context.*;
-import com.nhn.pinpoint.bootstrap.interceptor.*;
-import com.nhn.pinpoint.profiler.context.*;
+import com.navercorp.pinpoint.bootstrap.config.Filter;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.interceptor.*;
+import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
+import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
+import com.navercorp.pinpoint.bootstrap.util.NumberUtils;
+import com.navercorp.pinpoint.bootstrap.util.StringUtils;
+import com.navercorp.pinpoint.common.AnnotationKey;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.profiler.context.*;
 
 import javax.servlet.http.HttpServletRequest;
-
-import com.nhn.pinpoint.common.AnnotationKey;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.bootstrap.sampler.SamplingFlagUtils;
-import com.nhn.pinpoint.bootstrap.util.NetworkUtils;
-import com.nhn.pinpoint.bootstrap.util.NumberUtils;
-import com.nhn.pinpoint.bootstrap.util.StringUtils;
 
 /**
  * @author emeroad

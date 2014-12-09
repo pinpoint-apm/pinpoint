@@ -1,9 +1,9 @@
-package com.nhn.pinpoint.profiler.modifier.connector.httpclient4.interceptor;
+package com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor;
 
 import org.apache.http.HttpHost;
 
-import com.nhn.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.nhn.pinpoint.bootstrap.pair.NameIntValuePair;
+import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
+import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
 
 /**
  * 

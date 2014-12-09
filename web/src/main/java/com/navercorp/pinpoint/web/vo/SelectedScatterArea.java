@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.vo;
+package com.navercorp.pinpoint.web.vo;
 
 /**
  * scatter chart에서 마우스로 드래그해서 선택한 영역의 정보

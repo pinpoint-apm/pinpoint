@@ -1,8 +1,10 @@
-package com.nhn.pinpoint.test;
+package com.navercorp.pinpoint.test;
 
-import com.nhn.pinpoint.profiler.DefaultAgent;
-import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
+import com.navercorp.pinpoint.profiler.DefaultAgent;
+import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
+
 import javassist.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

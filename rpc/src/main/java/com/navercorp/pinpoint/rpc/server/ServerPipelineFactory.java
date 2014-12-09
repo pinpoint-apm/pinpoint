@@ -1,8 +1,9 @@
-package com.nhn.pinpoint.rpc.server;
+package com.navercorp.pinpoint.rpc.server;
 
 
-import com.nhn.pinpoint.rpc.codec.PacketDecoder;
-import com.nhn.pinpoint.rpc.codec.PacketEncoder;
+import com.navercorp.pinpoint.rpc.codec.PacketDecoder;
+import com.navercorp.pinpoint.rpc.codec.PacketEncoder;
+
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;

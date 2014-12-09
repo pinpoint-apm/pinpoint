@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.monitor.codahale;
+package com.navercorp.pinpoint.profiler.monitor.codahale;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Histogram;
@@ -8,13 +8,13 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
-import com.nhn.pinpoint.profiler.monitor.CounterMonitor;
-import com.nhn.pinpoint.profiler.monitor.EventRateMonitor;
-import com.nhn.pinpoint.profiler.monitor.HistogramMonitor;
-import com.nhn.pinpoint.profiler.monitor.MonitorName;
-import com.nhn.pinpoint.profiler.monitor.MonitorRegistry;
-import com.nhn.pinpoint.profiler.monitor.codahale.cpu.CpuLoadMetricSetSelector;
-import com.nhn.pinpoint.profiler.monitor.codahale.cpu.metric.CpuLoadMetricSet;
+import com.navercorp.pinpoint.profiler.monitor.CounterMonitor;
+import com.navercorp.pinpoint.profiler.monitor.EventRateMonitor;
+import com.navercorp.pinpoint.profiler.monitor.HistogramMonitor;
+import com.navercorp.pinpoint.profiler.monitor.MonitorName;
+import com.navercorp.pinpoint.profiler.monitor.MonitorRegistry;
+import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.CpuLoadMetricSetSelector;
+import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.CpuLoadMetricSet;
 
 /**
  * 모니터링을 위해 <a href="http://metrics.codahale.com/">Codahale</a>

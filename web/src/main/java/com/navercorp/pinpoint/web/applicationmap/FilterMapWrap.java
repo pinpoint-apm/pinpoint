@@ -1,8 +1,8 @@
-package com.nhn.pinpoint.web.applicationmap;
+package com.navercorp.pinpoint.web.applicationmap;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.nhn.pinpoint.web.view.FilterMapWrapSerializer;
-import com.nhn.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
+import com.navercorp.pinpoint.web.view.FilterMapWrapSerializer;
+import com.navercorp.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
 
 import java.util.List;
 

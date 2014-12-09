@@ -1,8 +1,8 @@
-package com.nhn.pinpoint.profiler;
+package com.navercorp.pinpoint.profiler;
 
 import java.util.Map;
 
-import com.nhn.pinpoint.rpc.util.ClassUtils;
+import com.navercorp.pinpoint.rpc.util.ClassUtils;
 
 /**
  * @author koo.taejin

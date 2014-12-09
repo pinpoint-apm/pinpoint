@@ -1,11 +1,13 @@
-package com.nhn.pinpoint.profiler.interceptor.bci;
+package com.navercorp.pinpoint.profiler.interceptor.bci;
 
-import com.nhn.pinpoint.profiler.interceptor.aspect.Aspect;
-import com.nhn.pinpoint.profiler.interceptor.aspect.JointPoint;
-import com.nhn.pinpoint.profiler.interceptor.aspect.PointCut;
+import com.navercorp.pinpoint.profiler.interceptor.aspect.Aspect;
+import com.navercorp.pinpoint.profiler.interceptor.aspect.JointPoint;
+import com.navercorp.pinpoint.profiler.interceptor.aspect.PointCut;
+
 import javassist.*;
 import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

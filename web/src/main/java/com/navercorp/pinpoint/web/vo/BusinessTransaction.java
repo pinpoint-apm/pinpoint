@@ -1,10 +1,10 @@
-package com.nhn.pinpoint.web.vo;
+package com.navercorp.pinpoint.web.vo;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.nhn.pinpoint.common.bo.SpanBo;
-import com.nhn.pinpoint.common.util.TransactionIdUtils;
+import com.navercorp.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 
 /**
  * @author emeroad

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector.mapper.thrift;
+package com.navercorp.pinpoint.collector.mapper.thrift;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -6,10 +6,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.nhn.pinpoint.common.bo.ServerMetaDataBo;
-import com.nhn.pinpoint.common.bo.ServiceInfoBo;
-import com.nhn.pinpoint.thrift.dto.TServerMetaData;
-import com.nhn.pinpoint.thrift.dto.TServiceInfo;
+import com.navercorp.pinpoint.common.bo.ServerMetaDataBo;
+import com.navercorp.pinpoint.common.bo.ServiceInfoBo;
+import com.navercorp.pinpoint.thrift.dto.TServerMetaData;
+import com.navercorp.pinpoint.thrift.dto.TServiceInfo;
 
 /**
  * @author hyungil.jeong

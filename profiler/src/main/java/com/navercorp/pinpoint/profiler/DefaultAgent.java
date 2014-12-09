@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler;
+package com.navercorp.pinpoint.profiler;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
@@ -10,41 +10,41 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.ProductInfo;
-import com.nhn.pinpoint.bootstrap.Agent;
-import com.nhn.pinpoint.bootstrap.config.ProfilerConfig;
-import com.nhn.pinpoint.bootstrap.context.ServerMetaDataHolder;
-import com.nhn.pinpoint.bootstrap.context.TraceContext;
-import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.nhn.pinpoint.bootstrap.logging.PLogger;
-import com.nhn.pinpoint.bootstrap.logging.PLoggerBinder;
-import com.nhn.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.nhn.pinpoint.bootstrap.sampler.Sampler;
-import com.nhn.pinpoint.exception.PinpointException;
-import com.nhn.pinpoint.profiler.context.DefaultServerMetaDataHolder;
-import com.nhn.pinpoint.profiler.context.DefaultTraceContext;
-import com.nhn.pinpoint.profiler.context.storage.BufferedStorageFactory;
-import com.nhn.pinpoint.profiler.context.storage.SpanStorageFactory;
-import com.nhn.pinpoint.profiler.context.storage.StorageFactory;
-import com.nhn.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
-import com.nhn.pinpoint.profiler.logging.Slf4jLoggerBinder;
-import com.nhn.pinpoint.profiler.monitor.AgentStatMonitor;
-import com.nhn.pinpoint.profiler.receiver.CommandDispatcher;
-import com.nhn.pinpoint.profiler.receiver.service.EchoService;
-import com.nhn.pinpoint.profiler.receiver.service.ThreadDumpService;
-import com.nhn.pinpoint.profiler.sampler.SamplerFactory;
-import com.nhn.pinpoint.profiler.sender.BufferedUdpDataSender;
-import com.nhn.pinpoint.profiler.sender.DataSender;
-import com.nhn.pinpoint.profiler.sender.EnhancedDataSender;
-import com.nhn.pinpoint.profiler.sender.TcpDataSender;
-import com.nhn.pinpoint.profiler.sender.UdpDataSender;
-import com.nhn.pinpoint.profiler.util.ApplicationServerTypeResolver;
-import com.nhn.pinpoint.profiler.util.PreparedStatementUtils;
-import com.nhn.pinpoint.profiler.util.RuntimeMXBeanUtils;
-import com.nhn.pinpoint.rpc.ClassPreLoader;
-import com.nhn.pinpoint.rpc.PinpointSocketException;
-import com.nhn.pinpoint.rpc.client.PinpointSocket;
-import com.nhn.pinpoint.rpc.client.PinpointSocketFactory;
+import com.navercorp.pinpoint.ProductInfo;
+import com.navercorp.pinpoint.bootstrap.Agent;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
+import com.navercorp.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
+import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
+import com.navercorp.pinpoint.profiler.context.storage.BufferedStorageFactory;
+import com.navercorp.pinpoint.profiler.context.storage.SpanStorageFactory;
+import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
+import com.navercorp.pinpoint.profiler.interceptor.bci.JavaAssistByteCodeInstrumentor;
+import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
+import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
+import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
+import com.navercorp.pinpoint.profiler.receiver.service.EchoService;
+import com.navercorp.pinpoint.profiler.receiver.service.ThreadDumpService;
+import com.navercorp.pinpoint.profiler.sampler.SamplerFactory;
+import com.navercorp.pinpoint.profiler.sender.BufferedUdpDataSender;
+import com.navercorp.pinpoint.profiler.sender.DataSender;
+import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
+import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
+import com.navercorp.pinpoint.profiler.sender.UdpDataSender;
+import com.navercorp.pinpoint.profiler.util.ApplicationServerTypeResolver;
+import com.navercorp.pinpoint.profiler.util.PreparedStatementUtils;
+import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
+import com.navercorp.pinpoint.rpc.ClassPreLoader;
+import com.navercorp.pinpoint.rpc.PinpointSocketException;
+import com.navercorp.pinpoint.rpc.client.PinpointSocket;
+import com.navercorp.pinpoint.rpc.client.PinpointSocketFactory;
 
 /**
  * @author emeroad
@@ -156,7 +156,7 @@ public class DefaultAgent implements Agent {
         preLoadClass();
 
         /**
-         * FIXME tomcat의 경우에는 com.nhn.pinpoint.profiler.modifier.tomcat.interceptor.CatalinaAwaitInterceptor가 org/apache/catalina/startup/Catalina/await함수가 실행되기
+         * FIXME tomcat의 경우에는 com.navercorp.pinpoint.profiler.modifier.tomcat.interceptor.CatalinaAwaitInterceptor가 org/apache/catalina/startup/Catalina/await함수가 실행되기
          * 전에 실행해주나. stand alone application은 그렇지 않으므로..
          */
         if (typeResolver.isManuallyStartupRequired()) {

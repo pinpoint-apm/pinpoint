@@ -1,10 +1,7 @@
-package com.nhn.pinpoint.common;
+package com.navercorp.pinpoint.common;
 
-import static com.nhn.pinpoint.common.HistogramSchema.FAST_SCHEMA;
-import static com.nhn.pinpoint.common.HistogramSchema.NORMAL_SCHEMA;
-import static com.nhn.pinpoint.common.ServiceTypeConstants.INCLUDE_DESTINATION;
-import static com.nhn.pinpoint.common.ServiceTypeConstants.RECORD_STATISTICS;
-import static com.nhn.pinpoint.common.ServiceTypeConstants.TERMINAL;
+import static com.navercorp.pinpoint.common.HistogramSchema.*;
+import static com.navercorp.pinpoint.common.ServiceTypeConstants.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,8 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.nhn.pinpoint.common.util.RpcCodeRange;
-import com.nhn.pinpoint.common.util.apache.IntHashMap;
+import com.navercorp.pinpoint.common.util.RpcCodeRange;
+import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 
 /**
  * @author emeroad

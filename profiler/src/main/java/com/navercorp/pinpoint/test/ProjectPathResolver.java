@@ -1,9 +1,9 @@
-package com.nhn.pinpoint.test;
+package com.navercorp.pinpoint.test;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 
 import java.net.URL;
 

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector.cluster;
+package com.navercorp.pinpoint.collector.cluster;
 
 import javax.annotation.PreDestroy;
 
@@ -8,30 +8,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.nhn.pinpoint.collector.cluster.route.DefaultRouteHandler;
-import com.nhn.pinpoint.collector.cluster.route.LoggingFilter;
-import com.nhn.pinpoint.collector.cluster.route.RequestEvent;
-import com.nhn.pinpoint.collector.cluster.route.RouteResult;
-import com.nhn.pinpoint.collector.cluster.route.RouteStatus;
-import com.nhn.pinpoint.collector.cluster.route.StreamEvent;
-import com.nhn.pinpoint.collector.cluster.route.StreamRouteHandler;
-import com.nhn.pinpoint.rpc.client.MessageListener;
-import com.nhn.pinpoint.rpc.packet.RequestPacket;
-import com.nhn.pinpoint.rpc.packet.ResponsePacket;
-import com.nhn.pinpoint.rpc.packet.SendPacket;
-import com.nhn.pinpoint.rpc.packet.stream.BasicStreamPacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamClosePacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamCreateFailPacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamCreatePacket;
-import com.nhn.pinpoint.rpc.stream.ServerStreamChannelContext;
-import com.nhn.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
-import com.nhn.pinpoint.thrift.dto.TResult;
-import com.nhn.pinpoint.thrift.dto.command.TCommandTransfer;
-import com.nhn.pinpoint.thrift.io.DeserializerFactory;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.nhn.pinpoint.thrift.io.SerializerFactory;
-import com.nhn.pinpoint.thrift.util.SerializationUtils;
+import com.navercorp.pinpoint.collector.cluster.route.DefaultRouteHandler;
+import com.navercorp.pinpoint.collector.cluster.route.LoggingFilter;
+import com.navercorp.pinpoint.collector.cluster.route.RequestEvent;
+import com.navercorp.pinpoint.collector.cluster.route.RouteResult;
+import com.navercorp.pinpoint.collector.cluster.route.RouteStatus;
+import com.navercorp.pinpoint.collector.cluster.route.StreamEvent;
+import com.navercorp.pinpoint.collector.cluster.route.StreamRouteHandler;
+import com.navercorp.pinpoint.rpc.client.MessageListener;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
+import com.navercorp.pinpoint.rpc.packet.SendPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.BasicStreamPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCreateFailPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
+import com.navercorp.pinpoint.thrift.dto.TResult;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
+import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.SerializerFactory;
+import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 
 /**
  * @author koo.taejin <kr14910>

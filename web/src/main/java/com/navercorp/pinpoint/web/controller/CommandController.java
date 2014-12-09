@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.controller;
+package com.navercorp.pinpoint.web.controller;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,23 +16,23 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.nhn.pinpoint.rpc.Future;
-import com.nhn.pinpoint.rpc.ResponseMessage;
-import com.nhn.pinpoint.rpc.server.ChannelContext;
-import com.nhn.pinpoint.thrift.dto.TResult;
-import com.nhn.pinpoint.thrift.dto.command.TCommandEcho;
-import com.nhn.pinpoint.thrift.dto.command.TCommandThreadDump;
-import com.nhn.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
-import com.nhn.pinpoint.thrift.dto.command.TCommandTransfer;
-import com.nhn.pinpoint.thrift.dto.command.TMonitorInfo;
-import com.nhn.pinpoint.thrift.dto.command.TThreadDump;
-import com.nhn.pinpoint.thrift.dto.command.TThreadState;
-import com.nhn.pinpoint.thrift.io.DeserializerFactory;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.nhn.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.nhn.pinpoint.thrift.io.SerializerFactory;
-import com.nhn.pinpoint.thrift.util.SerializationUtils;
-import com.nhn.pinpoint.web.server.PinpointSocketManager;
+import com.navercorp.pinpoint.rpc.Future;
+import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.server.ChannelContext;
+import com.navercorp.pinpoint.thrift.dto.TResult;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDump;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDumpResponse;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
+import com.navercorp.pinpoint.thrift.dto.command.TMonitorInfo;
+import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
+import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
+import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
+import com.navercorp.pinpoint.thrift.io.SerializerFactory;
+import com.navercorp.pinpoint.thrift.util.SerializationUtils;
+import com.navercorp.pinpoint.web.server.PinpointSocketManager;
 
 @Controller
 @RequestMapping("/command")

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.rpc.stream;
+package com.navercorp.pinpoint.rpc.stream;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -9,18 +9,18 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.rpc.PinpointSocketException;
-import com.nhn.pinpoint.rpc.packet.PacketType;
-import com.nhn.pinpoint.rpc.packet.stream.BasicStreamPacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamClosePacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamCreateFailPacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamCreatePacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamCreateSuccessPacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamPacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamPingPacket;
-import com.nhn.pinpoint.rpc.packet.stream.StreamResponsePacket;
-import com.nhn.pinpoint.rpc.util.AssertUtils;
-import com.nhn.pinpoint.rpc.util.IDGenerator;
+import com.navercorp.pinpoint.rpc.PinpointSocketException;
+import com.navercorp.pinpoint.rpc.packet.PacketType;
+import com.navercorp.pinpoint.rpc.packet.stream.BasicStreamPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCreateFailPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCreateSuccessPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamPingPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
+import com.navercorp.pinpoint.rpc.util.AssertUtils;
+import com.navercorp.pinpoint.rpc.util.IDGenerator;
 
 /**
  * @author koo.taejin <kr14910>

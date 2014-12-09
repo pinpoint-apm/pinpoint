@@ -1,8 +1,8 @@
-package com.nhn.pinpoint.web.service;
+package com.navercorp.pinpoint.web.service;
 
 import java.util.List;
 
-import com.nhn.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Application;
 
 /**
  * @author netspider

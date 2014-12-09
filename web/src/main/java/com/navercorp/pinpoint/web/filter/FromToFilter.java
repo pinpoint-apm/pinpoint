@@ -1,10 +1,10 @@
-package com.nhn.pinpoint.web.filter;
+package com.navercorp.pinpoint.web.filter;
 
 import java.util.List;
 
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.bo.SpanBo;
-import com.nhn.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.common.bo.SpanEventBo;
 
 /**
  * 

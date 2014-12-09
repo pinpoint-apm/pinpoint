@@ -4,7 +4,7 @@
  * DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
  *  @generated
  */
-package com.nhn.pinpoint.thrift.dto.command;
+package com.navercorp.pinpoint.thrift.dto.command;
 
 import org.apache.thrift.scheme.IScheme;
 import org.apache.thrift.scheme.SchemeFactory;
@@ -135,7 +135,7 @@ public class TCommandThreadDump implements org.apache.thrift.TBase<TCommandThrea
   }
 
   public TCommandThreadDump() {
-    this.type = com.nhn.pinpoint.thrift.dto.command.TThreadDumpType.TARGET;
+    this.type = com.navercorp.pinpoint.thrift.dto.command.TThreadDumpType.TARGET;
 
   }
 
@@ -166,7 +166,7 @@ public class TCommandThreadDump implements org.apache.thrift.TBase<TCommandThrea
 
   @Override
   public void clear() {
-    this.type = com.nhn.pinpoint.thrift.dto.command.TThreadDumpType.TARGET;
+    this.type = com.navercorp.pinpoint.thrift.dto.command.TThreadDumpType.TARGET;
 
     this.name = null;
     setPendingTimeMillisIsSet(false);

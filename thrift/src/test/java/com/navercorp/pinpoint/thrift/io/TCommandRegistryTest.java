@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.thrift.io;
+package com.navercorp.pinpoint.thrift.io;
 
 import junit.framework.Assert;
 
@@ -6,8 +6,12 @@ import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.junit.Test;
 
-import com.nhn.pinpoint.thrift.dto.TResult;
-import com.nhn.pinpoint.thrift.dto.command.TCommandThreadDump;
+import com.navercorp.pinpoint.thrift.dto.TResult;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandThreadDump;
+import com.navercorp.pinpoint.thrift.io.Header;
+import com.navercorp.pinpoint.thrift.io.TCommandRegistry;
+import com.navercorp.pinpoint.thrift.io.TCommandType;
+import com.navercorp.pinpoint.thrift.io.TCommandTypeVersion;
 
 /**
  * @author koo.taejin

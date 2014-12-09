@@ -1,9 +1,9 @@
-package com.nhn.pinpoint.web.applicationmap.rawdata;
+package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.web.applicationmap.histogram.TimeHistogram;
-import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.web.vo.LinkKey;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
+import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.LinkKey;
 
 import java.util.*;
 

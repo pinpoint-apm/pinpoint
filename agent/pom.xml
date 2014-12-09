@@ -2,7 +2,7 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.nhn.pinpoint</groupId>
+        <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pom</artifactId>
         <version>1.0.4-SNAPSHOT</version>
     </parent>
@@ -17,11 +17,11 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.nhn.pinpoint</groupId>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-profiler</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.nhn.pinpoint</groupId>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-profiler-optional</artifactId>
         </dependency>
         

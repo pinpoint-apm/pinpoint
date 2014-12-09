@@ -1,10 +1,13 @@
-package com.nhn.pinpoint.thrift.io;
+package com.navercorp.pinpoint.thrift.io;
 
 import java.util.List;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
+
+import com.navercorp.pinpoint.thrift.io.TCommandType;
+import com.navercorp.pinpoint.thrift.io.TCommandTypeVersion;
 
 /**
  * @author koo.taejin

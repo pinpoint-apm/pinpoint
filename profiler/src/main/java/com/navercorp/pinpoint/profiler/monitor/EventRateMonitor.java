@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.monitor;
+package com.navercorp.pinpoint.profiler.monitor;
 
 public interface EventRateMonitor {
 

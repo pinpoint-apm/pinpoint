@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.cluster;
+package com.navercorp.pinpoint.web.cluster;
 
 import java.util.List;
 

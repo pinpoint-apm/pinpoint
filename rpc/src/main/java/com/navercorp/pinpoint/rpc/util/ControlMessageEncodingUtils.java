@@ -1,10 +1,10 @@
-package com.nhn.pinpoint.rpc.util;
+package com.navercorp.pinpoint.rpc.util;
 
 import java.util.Map;
 
-import com.nhn.pinpoint.rpc.control.ControlMessageDecoder;
-import com.nhn.pinpoint.rpc.control.ControlMessageEncoder;
-import com.nhn.pinpoint.rpc.control.ProtocolException;
+import com.navercorp.pinpoint.rpc.control.ControlMessageDecoder;
+import com.navercorp.pinpoint.rpc.control.ControlMessageEncoder;
+import com.navercorp.pinpoint.rpc.control.ProtocolException;
 
 /**
  * @author koo.taejin

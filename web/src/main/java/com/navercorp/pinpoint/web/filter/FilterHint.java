@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.filter;
+package com.navercorp.pinpoint.web.filter;
 
 import java.util.HashMap;
 import java.util.List;

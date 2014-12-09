@@ -1,9 +1,15 @@
-package com.nhn.pinpoint.web.applicationmap;
+package com.navercorp.pinpoint.web.applicationmap;
 
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.CreateType;
+import com.navercorp.pinpoint.web.applicationmap.Link;
+import com.navercorp.pinpoint.web.applicationmap.LinkList;
+import com.navercorp.pinpoint.web.applicationmap.Node;
+import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Range;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
 
 import java.util.List;

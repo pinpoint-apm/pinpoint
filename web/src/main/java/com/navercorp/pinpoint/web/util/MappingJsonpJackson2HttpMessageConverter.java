@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.util;
+package com.navercorp.pinpoint.web.util;
 
 import java.io.IOException;
 import java.util.ArrayList;

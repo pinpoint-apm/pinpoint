@@ -1,32 +1,32 @@
-package com.nhn.pinpoint.profiler.interceptor.bci;
+package com.navercorp.pinpoint.profiler.interceptor.bci;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.nhn.pinpoint.bootstrap.context.TraceContext;
-import com.nhn.pinpoint.bootstrap.interceptor.*;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.Scope;
+import com.navercorp.pinpoint.bootstrap.instrument.Type;
+import com.navercorp.pinpoint.bootstrap.interceptor.*;
+import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
+import com.navercorp.pinpoint.profiler.interceptor.DebugScopeDelegateSimpleInterceptor;
+import com.navercorp.pinpoint.profiler.interceptor.DebugScopeDelegateStaticInterceptor;
+import com.navercorp.pinpoint.profiler.interceptor.DefaultMethodDescriptor;
+import com.navercorp.pinpoint.profiler.interceptor.ScopeDelegateSimpleInterceptor;
+import com.navercorp.pinpoint.profiler.interceptor.ScopeDelegateStaticInterceptor;
+import com.navercorp.pinpoint.profiler.util.ApiUtils;
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
+
 import javassist.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.nhn.pinpoint.bootstrap.instrument.InstrumentException;
-import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
-import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
-import com.nhn.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
-import com.nhn.pinpoint.bootstrap.instrument.Scope;
-import com.nhn.pinpoint.bootstrap.instrument.Type;
-import com.nhn.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
-import com.nhn.pinpoint.profiler.interceptor.DebugScopeDelegateSimpleInterceptor;
-import com.nhn.pinpoint.profiler.interceptor.DebugScopeDelegateStaticInterceptor;
-import com.nhn.pinpoint.profiler.interceptor.DefaultMethodDescriptor;
-import com.nhn.pinpoint.profiler.interceptor.ScopeDelegateSimpleInterceptor;
-import com.nhn.pinpoint.profiler.interceptor.ScopeDelegateStaticInterceptor;
-import com.nhn.pinpoint.profiler.util.ApiUtils;
-import com.nhn.pinpoint.profiler.util.JavaAssistUtils;
 
 /**
  * @author emeroad
@@ -47,7 +47,7 @@ public class JavaAssistClass implements InstrumentClass {
     private static final String FIELD_PREFIX = "__p";
     private static final String SETTER_PREFIX = "__set";
     private static final String GETTER_PREFIX = "__get";
-    private static final String MARKER_CLASS_NAME = "com.nhn.pinpoint.bootstrap.interceptor.tracevalue.TraceValue";
+    private static final String MARKER_CLASS_NAME = "com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.TraceValue";
 
 
     public JavaAssistClass(JavaAssistByteCodeInstrumentor instrumentor, CtClass ctClass) {
@@ -377,7 +377,7 @@ public class JavaAssistClass implements InstrumentClass {
     
     /*
      * (non-Javadoc)
-     * @see com.nhn.pinpoint.profiler.interceptor.bci.InstrumentClass#addScopeInterceptorIfDeclared(java.lang.String, java.lang.String[], com.nhn.pinpoint.bootstrap.interceptor.Interceptor, com.nhn.pinpoint.profiler.util.DepthScope)
+     * @see com.navercorp.pinpoint.profiler.interceptor.bci.InstrumentClass#addScopeInterceptorIfDeclared(java.lang.String, java.lang.String[], com.navercorp.pinpoint.bootstrap.interceptor.Interceptor, com.navercorp.pinpoint.profiler.util.DepthScope)
      */
     @Override
     public int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, Scope scope) throws InstrumentException {
@@ -626,10 +626,10 @@ public class JavaAssistClass implements InstrumentClass {
             after.begin();
 
             if (interceptorType == STATIC_INTERCEPTOR) {
-                after.format("  %1$s interceptor = com.nhn.pinpoint.bootstrap.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticAroundInterceptor.class.getName(), id);
+                after.format("  %1$s interceptor = com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticAroundInterceptor.class.getName(), id);
                 after.format("  interceptor.after(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, %6$s, null);", target, ctClass.getName(), methodName, parameterTypeString, parameterIdentifier, returnType);
             } else {
-                after.format("  %1$s interceptor = com.nhn.pinpoint.bootstrap.interceptor.InterceptorRegistry.getSimpleInterceptor(%2$d);", SimpleAroundInterceptor.class.getName(), id);
+                after.format("  %1$s interceptor = com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry.getSimpleInterceptor(%2$d);", SimpleAroundInterceptor.class.getName(), id);
                 after.format("  interceptor.after(%1$s, %2$s, %3$s, null);", target, parameterIdentifier, returnType);
             }
             after.end();
@@ -663,10 +663,10 @@ public class JavaAssistClass implements InstrumentClass {
         } else {
             catchCode.begin();
             if (interceptorType == STATIC_INTERCEPTOR) {
-                catchCode.format("  %1$s interceptor = com.nhn.pinpoint.bootstrap.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticAroundInterceptor.class.getName(), id);
+                catchCode.format("  %1$s interceptor = com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticAroundInterceptor.class.getName(), id);
                 catchCode.format("  interceptor.after(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, null, $e);", target, ctClass.getName(), methodName, parameterTypeString, parameterIdentifier);
             } else {
-                catchCode.format("  %1$s interceptor = com.nhn.pinpoint.bootstrap.interceptor.InterceptorRegistry.getSimpleInterceptor(%2$d);", SimpleAroundInterceptor.class.getName(), id);
+                catchCode.format("  %1$s interceptor = com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry.getSimpleInterceptor(%2$d);", SimpleAroundInterceptor.class.getName(), id);
                 catchCode.format("  interceptor.after(%1$s, %2$s, null, $e);", target, parameterIdentifier);
             }
             catchCode.append("  throw $e;");
@@ -688,7 +688,7 @@ public class JavaAssistClass implements InstrumentClass {
     private void beginAddFindInterceptorCode(int id, CodeBuilder after, int interceptorType) {
         after.append("java.lang.ClassLoader contextClassLoader = java.lang.Thread.currentThread().getContextClassLoader();");
         after.append("if (contextClassLoader != null) {");
-        after.append("  java.lang.Class interceptorRegistryClass = contextClassLoader.loadClass(\"com.nhn.pinpoint.bootstrap.interceptor.InterceptorRegistry\");");
+        after.append("  java.lang.Class interceptorRegistryClass = contextClassLoader.loadClass(\"com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry\");");
         if (interceptorType == STATIC_INTERCEPTOR) {
             after.append("  java.lang.reflect.Method getInterceptorMethod = interceptorRegistryClass.getMethod(\"getInterceptor\", new java.lang.Class[]{ int.class });");
         } else {
@@ -737,7 +737,7 @@ public class JavaAssistClass implements InstrumentClass {
         if (useContextClassLoader) {
             code.begin();
 //            java.lang.ClassLoader contextClassLoader = java.lang.Thread.currentThread().getContextClassLoader();
-//            java.lang.Class<?> interceptorRegistryClass = contextClassLoader.loadClass("com.nhn.pinpoint.bootstrap.interceptor.InterceptorRegistry");
+//            java.lang.Class<?> interceptorRegistryClass = contextClassLoader.loadClass("com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry");
 //            java.lang.reflect.Method getInterceptorMethod = interceptorRegistryClass.getMethod("getInterceptor", int.class);
 //            java.lang.Object interceptor = getInterceptorMethod.invoke(interceptorRegistryClass, 1);
 //            java.lang.reflect.Method beforeMethod = interceptor.getClass().getMethod("before", java.lang.Object.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object[].class);
@@ -761,11 +761,11 @@ public class JavaAssistClass implements InstrumentClass {
         } else {
             code.begin();
             if (interceptorType == STATIC_INTERCEPTOR) {
-                code.format("  %1$s interceptor = com.nhn.pinpoint.bootstrap.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticAroundInterceptor.class.getName(), id);
+                code.format("  %1$s interceptor = com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticAroundInterceptor.class.getName(), id);
                 code.format("  interceptor.before(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s);", target, ctClass.getName(), methodName, parameterDescription, parameterIdentifier);
             } else {
                 // simpleInterceptor인덱스에서 검색하여 typecasting을 제거한다.
-                code.format("  %1$s interceptor = com.nhn.pinpoint.bootstrap.interceptor.InterceptorRegistry.getSimpleInterceptor(%2$d);", SimpleAroundInterceptor.class.getName(), id);
+                code.format("  %1$s interceptor = com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry.getSimpleInterceptor(%2$d);", SimpleAroundInterceptor.class.getName(), id);
                 code.format("  interceptor.before(%1$s, %2$s);", target, parameterIdentifier);
             }
             code.end();

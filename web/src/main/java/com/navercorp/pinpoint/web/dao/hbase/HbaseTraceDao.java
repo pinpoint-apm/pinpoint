@@ -1,21 +1,21 @@
-package com.nhn.pinpoint.web.dao.hbase;
+package com.navercorp.pinpoint.web.dao.hbase;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.nhn.pinpoint.web.vo.TransactionId;
+import com.navercorp.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.web.dao.TraceDao;
+import com.navercorp.pinpoint.web.vo.TransactionId;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
+
 import org.apache.hadoop.hbase.client.Get;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Repository;
-
-import com.nhn.pinpoint.web.dao.TraceDao;
-import com.nhn.pinpoint.common.bo.SpanBo;
-import com.nhn.pinpoint.common.hbase.HBaseTables;
-import com.nhn.pinpoint.common.hbase.HbaseOperations2;
 
 /**
  * @author emeroad

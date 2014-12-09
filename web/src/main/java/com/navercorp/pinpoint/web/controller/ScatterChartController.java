@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.controller;
+package com.navercorp.pinpoint.web.controller;
 
 import java.util.List;
 import java.util.SortedSet;
@@ -7,14 +7,18 @@ import java.util.TreeSet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.nhn.pinpoint.common.util.DateUtils;
-import com.nhn.pinpoint.web.service.FilteredMapService;
-import com.nhn.pinpoint.web.util.LimitUtils;
-import com.nhn.pinpoint.web.filter.Filter;
-import com.nhn.pinpoint.web.filter.FilterBuilder;
-import com.nhn.pinpoint.web.vo.*;
-import com.nhn.pinpoint.web.vo.scatter.Dot;
-import com.nhn.pinpoint.web.vo.scatter.ScatterIndex;
+import com.navercorp.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.common.util.DateUtils;
+import com.navercorp.pinpoint.web.filter.Filter;
+import com.navercorp.pinpoint.web.filter.FilterBuilder;
+import com.navercorp.pinpoint.web.service.FilteredMapService;
+import com.navercorp.pinpoint.web.service.ScatterChartService;
+import com.navercorp.pinpoint.web.util.LimitUtils;
+import com.navercorp.pinpoint.web.util.TimeUtils;
+import com.navercorp.pinpoint.web.vo.*;
+import com.navercorp.pinpoint.web.vo.scatter.Dot;
+import com.navercorp.pinpoint.web.vo.scatter.ScatterIndex;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +28,6 @@ import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import com.nhn.pinpoint.common.bo.SpanBo;
-import com.nhn.pinpoint.web.service.ScatterChartService;
-import com.nhn.pinpoint.web.util.TimeUtils;
 import org.springframework.web.servlet.ModelAndView;
 
 /**

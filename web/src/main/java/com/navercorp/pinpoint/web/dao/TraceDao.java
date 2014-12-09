@@ -1,11 +1,11 @@
-package com.nhn.pinpoint.web.dao;
+package com.navercorp.pinpoint.web.dao;
 
 
 import java.util.Collection;
 import java.util.List;
 
-import com.nhn.pinpoint.web.vo.TransactionId;
-import com.nhn.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.common.bo.SpanBo;
+import com.navercorp.pinpoint.web.vo.TransactionId;
 
 /**
  * @author emeroad

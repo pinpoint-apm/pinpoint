@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.interceptor.aspect;
+package com.navercorp.pinpoint.profiler.interceptor.aspect;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

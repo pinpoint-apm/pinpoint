@@ -1,7 +1,7 @@
-package com.nhn.pinpoint.profiler.modifier.method;
+package com.navercorp.pinpoint.profiler.modifier.method;
 
-import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
-import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 
 /**
  * @author emeroad

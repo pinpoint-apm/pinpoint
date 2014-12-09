@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.arcus.interceptor;
+package com.navercorp.pinpoint.profiler.modifier.arcus.interceptor;
 
 import static org.mockito.Mockito.mock;
 
@@ -12,9 +12,10 @@ import net.spy.memcached.MemcachedClient;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.nhn.pinpoint.profiler.interceptor.DefaultMethodDescriptor;
-import com.nhn.pinpoint.bootstrap.interceptor.MethodDescriptor;
-import com.nhn.pinpoint.test.BaseInterceptorTest;
+import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
+import com.navercorp.pinpoint.profiler.interceptor.DefaultMethodDescriptor;
+import com.navercorp.pinpoint.profiler.modifier.arcus.interceptor.ApiInterceptor;
+import com.navercorp.pinpoint.test.BaseInterceptorTest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

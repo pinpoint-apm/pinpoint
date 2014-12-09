@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.monitor.codahale;
+package com.navercorp.pinpoint.profiler.monitor.codahale;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -6,11 +6,15 @@ import static org.junit.Assert.assertTrue;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.nhn.pinpoint.profiler.monitor.CounterMonitor;
-import com.nhn.pinpoint.profiler.monitor.EventRateMonitor;
-import com.nhn.pinpoint.profiler.monitor.HistogramMonitor;
-import com.nhn.pinpoint.profiler.monitor.MonitorName;
-import com.nhn.pinpoint.thrift.dto.TAgentStat;
+import com.navercorp.pinpoint.profiler.monitor.CounterMonitor;
+import com.navercorp.pinpoint.profiler.monitor.EventRateMonitor;
+import com.navercorp.pinpoint.profiler.monitor.HistogramMonitor;
+import com.navercorp.pinpoint.profiler.monitor.MonitorName;
+import com.navercorp.pinpoint.profiler.monitor.codahale.MetricHistogramMonitor;
+import com.navercorp.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
+import com.navercorp.pinpoint.thrift.dto.TAgentStat;
+import com.navercorp.pinpoint.thrift.dto.TAgentStat._Fields;
+
 import org.apache.thrift.meta_data.FieldMetaData;
 import org.junit.Test;
 
@@ -18,9 +22,7 @@ import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Snapshot;
-import com.nhn.pinpoint.thrift.dto.TAgentStat._Fields;
-import com.nhn.pinpoint.profiler.monitor.codahale.MetricHistogramMonitor;
-import com.nhn.pinpoint.profiler.monitor.codahale.MetricMonitorRegistry;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

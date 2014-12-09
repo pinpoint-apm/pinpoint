@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.bootstrap.interceptor.tracevalue;
+package com.navercorp.pinpoint.bootstrap.interceptor.tracevalue;
 
-import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 
 /**
  * @author emeroad

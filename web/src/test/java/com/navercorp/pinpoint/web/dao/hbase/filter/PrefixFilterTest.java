@@ -1,10 +1,11 @@
-package com.nhn.pinpoint.web.dao.hbase.filter;
+package com.navercorp.pinpoint.web.dao.hbase.filter;
 
 import java.util.Arrays;
 
 import org.junit.Test;
 
-import com.nhn.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.BytesUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

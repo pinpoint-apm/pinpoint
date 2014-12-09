@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.context;
+package com.navercorp.pinpoint.profiler.context;
 
 import org.junit.Test;
 

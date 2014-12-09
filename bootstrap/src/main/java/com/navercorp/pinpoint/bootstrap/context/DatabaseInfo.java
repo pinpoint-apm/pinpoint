@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.bootstrap.context;
+package com.navercorp.pinpoint.bootstrap.context;
 
-import com.nhn.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.ServiceType;
 
 import java.util.List;
 

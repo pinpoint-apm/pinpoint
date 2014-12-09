@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.mapper;
+package com.navercorp.pinpoint.web.mapper;
 
 import java.util.Arrays;
 
@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.hadoop.hbase.RowMapper;
 import org.springframework.stereotype.Component;
 
-import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.web.vo.Application;
 
 /**
  * 

@@ -1,10 +1,10 @@
-package com.nhn.pinpoint.web.vo.linechart;
+package com.navercorp.pinpoint.web.vo.linechart;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.nhn.pinpoint.web.vo.linechart.Chart.Point;
-import com.nhn.pinpoint.web.vo.linechart.Chart.Points;
+import com.navercorp.pinpoint.web.vo.linechart.Chart.Point;
+import com.navercorp.pinpoint.web.vo.linechart.Chart.Points;
 
 /**
  * @author hyungil.jeong

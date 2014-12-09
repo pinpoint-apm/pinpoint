@@ -1,7 +1,7 @@
-package com.nhn.pinpoint.bootstrap.context;
+package com.navercorp.pinpoint.bootstrap.context;
 
-import com.nhn.pinpoint.common.util.DelegateEnumeration;
-import com.nhn.pinpoint.common.util.EmptyEnumeration;
+import com.navercorp.pinpoint.common.util.DelegateEnumeration;
+import com.navercorp.pinpoint.common.util.EmptyEnumeration;
 
 import java.util.Enumeration;
 import java.util.HashMap;

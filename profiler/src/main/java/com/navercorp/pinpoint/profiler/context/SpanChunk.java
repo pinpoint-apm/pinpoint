@@ -1,9 +1,9 @@
-package com.nhn.pinpoint.profiler.context;
+package com.navercorp.pinpoint.profiler.context;
 
 
 import java.util.List;
 
-import com.nhn.pinpoint.thrift.dto.TSpanChunk;
+import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 
 /**
  * @author emeroad

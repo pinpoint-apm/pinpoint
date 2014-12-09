@@ -1,7 +1,10 @@
-package com.nhn.pinpoint.collector.util;
+package com.navercorp.pinpoint.collector.util;
 
 import junit.framework.Assert;
+
 import org.junit.Test;
+
+import com.navercorp.pinpoint.collector.util.ConcurrentCounterMap;
 
 import java.util.Map;
 

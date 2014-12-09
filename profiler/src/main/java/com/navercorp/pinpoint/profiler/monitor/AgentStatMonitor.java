@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.monitor;
+package com.navercorp.pinpoint.profiler.monitor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,19 +6,18 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import com.nhn.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
-import com.nhn.pinpoint.profiler.monitor.codahale.cpu.CpuLoadCollector;
-import com.nhn.pinpoint.profiler.monitor.codahale.gc.GarbageCollector;
-import com.nhn.pinpoint.thrift.dto.TAgentStat;
-import com.nhn.pinpoint.thrift.dto.TAgentStatBatch;
-import com.nhn.pinpoint.thrift.dto.TCpuLoad;
-import com.nhn.pinpoint.thrift.dto.TJvmGc;
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.profiler.monitor.codahale.AgentStatCollectorFactory;
+import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.CpuLoadCollector;
+import com.navercorp.pinpoint.profiler.monitor.codahale.gc.GarbageCollector;
+import com.navercorp.pinpoint.profiler.sender.DataSender;
+import com.navercorp.pinpoint.thrift.dto.TAgentStat;
+import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
+import com.navercorp.pinpoint.thrift.dto.TCpuLoad;
+import com.navercorp.pinpoint.thrift.dto.TJvmGc;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.nhn.pinpoint.common.util.PinpointThreadFactory;
-import com.nhn.pinpoint.profiler.sender.DataSender;
 
 /**
  * AgentStat monitor

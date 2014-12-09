@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.profiler.monitor.metric;
+package com.navercorp.pinpoint.profiler.monitor.metric;
 
-import com.nhn.pinpoint.bootstrap.context.Metric;
+import com.navercorp.pinpoint.bootstrap.context.Metric;
 
 import java.util.Collection;
 

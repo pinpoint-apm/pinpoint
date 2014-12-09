@@ -1,11 +1,11 @@
-package com.nhn.pinpoint.profiler.modifier.db.mysql;
+package com.navercorp.pinpoint.profiler.modifier.db.mysql;
 
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.bootstrap.context.DatabaseInfo;
-import com.nhn.pinpoint.profiler.modifier.db.ConnectionStringParser;
-import com.nhn.pinpoint.profiler.modifier.db.DefaultDatabaseInfo;
-import com.nhn.pinpoint.profiler.modifier.db.JDBCUrlParser;
-import com.nhn.pinpoint.profiler.modifier.db.StringMaker;
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.profiler.modifier.db.ConnectionStringParser;
+import com.navercorp.pinpoint.profiler.modifier.db.DefaultDatabaseInfo;
+import com.navercorp.pinpoint.profiler.modifier.db.JDBCUrlParser;
+import com.navercorp.pinpoint.profiler.modifier.db.StringMaker;
 
 import java.util.ArrayList;
 import java.util.Arrays;

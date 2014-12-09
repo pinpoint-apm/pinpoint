@@ -1,8 +1,8 @@
-package com.nhn.pinpoint.collector.dao.hbase.statistics;
+package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
-import com.nhn.pinpoint.collector.util.ConcurrentCounterMap;
+import com.navercorp.pinpoint.collector.util.ConcurrentCounterMap;
+
 import org.apache.hadoop.hbase.client.Increment;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

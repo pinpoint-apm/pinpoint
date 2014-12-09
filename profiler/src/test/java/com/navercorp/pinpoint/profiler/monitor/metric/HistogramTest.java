@@ -1,7 +1,10 @@
-package com.nhn.pinpoint.profiler.monitor.metric;
+package com.navercorp.pinpoint.profiler.monitor.metric;
 
-import com.nhn.pinpoint.common.HistogramSchema;
-import com.nhn.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.HistogramSchema;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.profiler.monitor.metric.HistogramSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.LongAdderHistogram;
+
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector.dao;
+package com.navercorp.pinpoint.collector.dao;
 
 /**
  * 

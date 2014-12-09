@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.bootstrap;
+package com.navercorp.pinpoint.bootstrap;
 
 import java.util.regex.Pattern;
 

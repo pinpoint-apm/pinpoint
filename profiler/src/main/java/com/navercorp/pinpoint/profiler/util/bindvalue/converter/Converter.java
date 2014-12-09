@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.util.bindvalue.converter;
+package com.navercorp.pinpoint.profiler.util.bindvalue.converter;
 
 /**
  * @author emeroad

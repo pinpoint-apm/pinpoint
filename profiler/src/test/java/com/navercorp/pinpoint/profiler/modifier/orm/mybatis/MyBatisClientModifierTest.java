@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.orm.mybatis;
+package com.navercorp.pinpoint.profiler.modifier.orm.mybatis;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -16,10 +16,10 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 
-import com.nhn.pinpoint.common.AnnotationKey;
-import com.nhn.pinpoint.common.bo.AnnotationBo;
-import com.nhn.pinpoint.common.bo.SpanEventBo;
-import com.nhn.pinpoint.test.junit4.BasePinpointTest;
+import com.navercorp.pinpoint.common.AnnotationKey;
+import com.navercorp.pinpoint.common.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.bo.SpanEventBo;
+import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
 
 /**
  * @author Hyun Jeong

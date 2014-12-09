@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.test.fork;
+package com.navercorp.pinpoint.test.fork;
 
 import java.io.File;
 import java.net.MalformedURLException;

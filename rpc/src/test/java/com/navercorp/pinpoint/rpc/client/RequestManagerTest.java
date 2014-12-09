@@ -1,8 +1,10 @@
-package com.nhn.pinpoint.rpc.client;
+package com.navercorp.pinpoint.rpc.client;
 
-import com.nhn.pinpoint.rpc.DefaultFuture;
-import com.nhn.pinpoint.rpc.Future;
-import com.nhn.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.DefaultFuture;
+import com.navercorp.pinpoint.rpc.Future;
+import com.navercorp.pinpoint.rpc.client.RequestManager;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+
 import org.jboss.netty.util.HashedWheelTimer;
 import org.junit.Assert;
 import org.junit.Test;

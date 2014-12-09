@@ -1,13 +1,16 @@
-package com.nhn.pinpoint.profiler.context;
+package com.navercorp.pinpoint.profiler.context;
 
 import java.util.Collections;
 
-import com.nhn.pinpoint.bootstrap.context.ServerMetaDataHolder;
-import com.nhn.pinpoint.bootstrap.context.Trace;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.context.storage.LogStorageFactory;
-import com.nhn.pinpoint.profiler.monitor.metric.MetricRegistry;
-import com.nhn.pinpoint.profiler.sampler.TrueSampler;
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataHolder;
+import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
+import com.navercorp.pinpoint.profiler.context.ThreadLocalTraceFactory;
+import com.navercorp.pinpoint.profiler.context.storage.LogStorageFactory;
+import com.navercorp.pinpoint.profiler.monitor.metric.MetricRegistry;
+import com.navercorp.pinpoint.profiler.sampler.TrueSampler;
 
 import junit.framework.Assert;
 

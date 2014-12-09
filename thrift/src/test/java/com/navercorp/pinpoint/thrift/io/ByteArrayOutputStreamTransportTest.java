@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.thrift.io;
+package com.navercorp.pinpoint.thrift.io;
 
 import static org.junit.Assert.*;
 
@@ -8,6 +8,8 @@ import java.util.Arrays;
 import org.apache.thrift.transport.TTransportException;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.navercorp.pinpoint.thrift.io.ByteArrayOutputStreamTransport;
 
 public class ByteArrayOutputStreamTransportTest {
     private ByteArrayOutputStream out;

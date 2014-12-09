@@ -1,8 +1,9 @@
-package com.nhn.pinpoint.collector.handler;
+package com.navercorp.pinpoint.collector.handler;
 
-import com.nhn.pinpoint.collector.dao.MapStatisticsCalleeDao;
-import com.nhn.pinpoint.collector.dao.MapStatisticsCallerDao;
-import com.nhn.pinpoint.collector.dao.MapResponseTimeDao;
+import com.navercorp.pinpoint.collector.dao.MapResponseTimeDao;
+import com.navercorp.pinpoint.collector.dao.MapStatisticsCalleeDao;
+import com.navercorp.pinpoint.collector.dao.MapStatisticsCallerDao;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,8 +1,10 @@
-package com.nhn.pinpoint.thrift.io;
+package com.navercorp.pinpoint.thrift.io;
 
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.navercorp.pinpoint.thrift.io.PacketUtils;
 
 import java.net.DatagramPacket;
 import java.util.Arrays;

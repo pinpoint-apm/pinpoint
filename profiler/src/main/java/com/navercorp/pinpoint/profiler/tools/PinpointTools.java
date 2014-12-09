@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.tools;
+package com.navercorp.pinpoint.profiler.tools;
 
 /**
  * 이 인터페이스를 구현하면 난독화 하지 않음.

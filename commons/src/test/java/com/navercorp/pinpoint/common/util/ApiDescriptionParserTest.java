@@ -1,8 +1,11 @@
-package com.nhn.pinpoint.common.util;
+package com.navercorp.pinpoint.common.util;
 
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.navercorp.pinpoint.common.util.ApiDescription;
+import com.navercorp.pinpoint.common.util.ApiDescriptionParser;
 
 
 /**

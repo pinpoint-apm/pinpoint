@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.collector.mapper.thrift;
+package com.navercorp.pinpoint.collector.mapper.thrift;
 
 import org.apache.thrift.TBase;
 

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.service;
+package com.navercorp.pinpoint.web.service;
 
 /**
  * @author emeroad

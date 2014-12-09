@@ -1,22 +1,22 @@
-package com.nhn.pinpoint.profiler.modifier.orm.mybatis;
+package com.navercorp.pinpoint.profiler.modifier.orm.mybatis;
 
 import java.security.ProtectionDomain;
 import java.util.List;
 
 import org.slf4j.Logger;
 
-import com.nhn.pinpoint.bootstrap.Agent;
-import com.nhn.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import com.nhn.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.nhn.pinpoint.bootstrap.instrument.MethodInfo;
-import com.nhn.pinpoint.bootstrap.instrument.MethodFilter;
-import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.profiler.modifier.AbstractModifier;
-import com.nhn.pinpoint.profiler.modifier.orm.mybatis.filter.SqlSessionMethodFilter;
-import com.nhn.pinpoint.profiler.modifier.orm.mybatis.interceptor.MyBatisScope;
-import com.nhn.pinpoint.profiler.modifier.orm.mybatis.interceptor.MyBatisSqlMapOperationInterceptor;
-import com.nhn.pinpoint.profiler.util.DepthScope;
+import com.navercorp.pinpoint.bootstrap.Agent;
+import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
+import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
+import com.navercorp.pinpoint.profiler.modifier.orm.mybatis.filter.SqlSessionMethodFilter;
+import com.navercorp.pinpoint.profiler.modifier.orm.mybatis.interceptor.MyBatisScope;
+import com.navercorp.pinpoint.profiler.modifier.orm.mybatis.interceptor.MyBatisSqlMapOperationInterceptor;
+import com.navercorp.pinpoint.profiler.util.DepthScope;
 
 /**
  * @author Hyun Jeong

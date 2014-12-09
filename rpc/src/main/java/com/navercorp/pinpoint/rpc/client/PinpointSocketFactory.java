@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.rpc.client;
+package com.navercorp.pinpoint.rpc.client;
 
 
 import java.net.InetSocketAddress;
@@ -27,13 +27,13 @@ import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nhn.pinpoint.common.util.PinpointThreadFactory;
-import com.nhn.pinpoint.rpc.PinpointSocketException;
-import com.nhn.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListener;
-import com.nhn.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
-import com.nhn.pinpoint.rpc.util.AssertUtils;
-import com.nhn.pinpoint.rpc.util.LoggerFactorySetup;
-import com.nhn.pinpoint.rpc.util.TimerFactory;
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.rpc.PinpointSocketException;
+import com.navercorp.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.util.AssertUtils;
+import com.navercorp.pinpoint.rpc.util.LoggerFactorySetup;
+import com.navercorp.pinpoint.rpc.util.TimerFactory;
 
 /**
  * @author emeroad

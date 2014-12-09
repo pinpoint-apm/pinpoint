@@ -9,7 +9,7 @@
  * http://gee.cs.oswego.edu/cgi-bin/viewcvs.cgi/jsr166/src/jsr166e/LongAdder.java?revision=1.8
  */
 
-package com.nhn.pinpoint.profiler.util.jdk;
+package com.navercorp.pinpoint.profiler.util.jdk;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

@@ -1,9 +1,11 @@
-package com.nhn.pinpoint.profiler.interceptor;
+package com.navercorp.pinpoint.profiler.interceptor;
 
-import com.nhn.pinpoint.bootstrap.interceptor.Interceptor;
-import com.nhn.pinpoint.bootstrap.interceptor.InterceptorRegistry;
-import com.nhn.pinpoint.profiler.interceptor.bci.TestObject;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
+import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry;
+import com.navercorp.pinpoint.profiler.interceptor.bci.TestObject;
+
 import javassist.*;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

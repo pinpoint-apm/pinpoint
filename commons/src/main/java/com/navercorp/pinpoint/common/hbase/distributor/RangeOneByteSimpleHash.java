@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.nhn.pinpoint.common.hbase.distributor;
+package com.navercorp.pinpoint.common.hbase.distributor;
 
 
-import com.nhn.pinpoint.common.util.MathUtils;
+import com.navercorp.pinpoint.common.util.MathUtils;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 
 import java.util.Arrays;

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.modifier.connector.httpclient4;
+package com.navercorp.pinpoint.profiler.modifier.connector.httpclient4;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -10,7 +10,7 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.junit.Test;
 
-import com.nhn.pinpoint.test.junit4.BasePinpointTest;
+import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
 
 public class DefaultHttpRequestRetryHandlerModifierTest extends BasePinpointTest {
 

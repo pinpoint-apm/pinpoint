@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.web.alarm.collector;
+package com.navercorp.pinpoint.web.alarm.collector;
 
-import com.nhn.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
+import com.navercorp.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
 
 public abstract class DataCollector {
     

@@ -1,22 +1,22 @@
-package com.nhn.pinpoint.common.bo;
+package com.navercorp.pinpoint.common.bo;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.nhn.pinpoint.common.ServiceType;
-import com.nhn.pinpoint.common.buffer.AutomaticBuffer;
-import com.nhn.pinpoint.common.buffer.OffsetFixedBuffer;
-import com.nhn.pinpoint.common.util.TransactionId;
-import com.nhn.pinpoint.common.util.TransactionIdUtils;
-import com.nhn.pinpoint.thrift.dto.TAnnotation;
-import com.nhn.pinpoint.thrift.dto.TIntStringValue;
-import com.nhn.pinpoint.thrift.dto.TSpan;
-import com.nhn.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
+import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.common.util.TransactionIdUtils;
+import com.navercorp.pinpoint.thrift.dto.TAnnotation;
+import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
+import com.navercorp.pinpoint.thrift.dto.TSpan;
 
 /**
  * @author emeroad
  */
-public class SpanBo implements com.nhn.pinpoint.common.bo.Span {
+public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
 
     private static final int VERSION_SIZE = 1;
     // version 0 = prefix의 사이즈를 int로

@@ -1,9 +1,9 @@
-package com.nhn.pinpoint.web.applicationmap.rawdata;
+package com.navercorp.pinpoint.web.applicationmap.rawdata;
 
 import java.util.*;
 
-import com.nhn.pinpoint.web.vo.Application;
-import com.nhn.pinpoint.web.vo.LinkKey;
+import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.LinkKey;
 
 public class LinkDataMap {
     private final Map<LinkKey, LinkData> linkDataMap = new HashMap<LinkKey, LinkData>();

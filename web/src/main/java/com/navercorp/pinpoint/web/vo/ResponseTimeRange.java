@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.web.vo;
+package com.navercorp.pinpoint.web.vo;
 
 /**
  * FIXME 그냥 Range를 활용해도 될 듯..

@@ -1,4 +1,4 @@
-package com.nhn.pinpoint.profiler.javaassist;
+package com.navercorp.pinpoint.profiler.javaassist;
 
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -74,7 +74,7 @@ public class JavaAssistTest {
 
     @Test
     public void genericTest() throws NotFoundException {
-        CtClass testClass = pool.get("com.nhn.pinpoint.profiler.javaassist.TestClass");
+        CtClass testClass = pool.get("com.navercorp.pinpoint.profiler.javaassist.TestClass");
 //        CtMethod setb = testClass.getMethod("setb");
         CtMethod[] declaredMethods = testClass.getDeclaredMethods();
         for (CtMethod declaredMethod : declaredMethods) {
@@ -99,17 +99,17 @@ public class JavaAssistTest {
 
     @Test
     public void innerClass() throws NotFoundException {
-        CtClass testClass = pool.get("com.nhn.pinpoint.profiler.javaassist.TestClass");
+        CtClass testClass = pool.get("com.navercorp.pinpoint.profiler.javaassist.TestClass");
         logger.debug(testClass.toString());
         CtClass[] nestedClasses = testClass.getNestedClasses();
         for(CtClass nested : nestedClasses) {
             logger.debug("nestedClass:{}", nested);
         }
 
-        CtClass innerClass = pool.get("com.nhn.pinpoint.profiler.javaassist.TestClass$InnerClass");
+        CtClass innerClass = pool.get("com.navercorp.pinpoint.profiler.javaassist.TestClass$InnerClass");
         logger.debug("{}", innerClass);
 
-        CtClass class1 = pool.get("com.nhn.pinpoint.profiler.javaassist.TestClass$1");
+        CtClass class1 = pool.get("com.navercorp.pinpoint.profiler.javaassist.TestClass$1");
         logger.debug("{}", class1);
     }
 }

@@ -1,6 +1,6 @@
-package com.nhn.pinpoint.web.service.map;
+package com.navercorp.pinpoint.web.service.map;
 
-import com.nhn.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Application;
 
 /**
  * @author emeroad

@@ -1,7 +1,10 @@
-package com.nhn.pinpoint.profiler.modifier.tomcat.aspect;
+package com.navercorp.pinpoint.profiler.modifier.tomcat.aspect;
 
-import com.nhn.pinpoint.bootstrap.context.Header;
+import com.navercorp.pinpoint.bootstrap.context.Header;
+import com.navercorp.pinpoint.profiler.modifier.tomcat.aspect.RequestFacadeAspect;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
 
 import java.util.ArrayList;
