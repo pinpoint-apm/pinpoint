@@ -1,9 +1,13 @@
 package com.navercorp.pinpoint.web.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
 
 import com.navercorp.pinpoint.common.bo.AgentInfoBo;
+import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
+import com.navercorp.pinpoint.web.applicationmap.link.ServerMatcher;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.AgentStatService;
 import com.navercorp.pinpoint.web.util.TimeWindow;
@@ -22,6 +26,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+/**
+ * @author emeroad
+ * @author minwoo.jung
+ */
 @Controller
 public class AgentStatController {
 
@@ -33,6 +41,23 @@ public class AgentStatController {
     @Autowired
     private AgentInfoService agentInfoService;
 
+    @Autowired(required=false)
+    private MatcherGroup matcherGroup;
+    
+    @RequestMapping(value = "/getLink", method = RequestMethod.GET)
+    @ResponseBody
+    public Map<String, String> getLink(final @RequestParam("value") String value) throws Exception {
+        Map<String, String> map = new HashMap<String, String>();
+
+        if(matcherGroup != null) {
+            ServerMatcher serverMatcher = matcherGroup.match(value);
+            map.put("linkName", serverMatcher.getLinkName());
+            map.put("linkURL", serverMatcher.getLink(value));
+        }
+        
+        return map;
+    }
+    
     @RequestMapping(value = "/getAgentStat", method = RequestMethod.GET)
     @ResponseBody
     public AgentStatChartGroup getAgentStat(

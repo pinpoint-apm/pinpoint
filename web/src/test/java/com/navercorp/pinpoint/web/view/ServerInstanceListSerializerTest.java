@@ -33,7 +33,7 @@ public class ServerInstanceListSerializerTest {
         HashSet<AgentInfoBo> set = new HashSet<AgentInfoBo>();
         set.add(agentInfoBo);
 
-        ServerBuilder builder = new ServerBuilder();
+        ServerBuilder builder = new ServerBuilder(null);
         builder.addAgentInfo(set);
         ServerInstanceList serverInstanceList = builder.build();
         ObjectWriter objectWriter = mapper.writerWithDefaultPrettyPrinter();

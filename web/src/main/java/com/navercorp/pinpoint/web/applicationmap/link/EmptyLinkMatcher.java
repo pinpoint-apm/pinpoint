@@ -1,9 +1,10 @@
 package com.navercorp.pinpoint.web.applicationmap.link;
 
 /**
- * @author emeroad
+ * @author minwoo.jung<minwoo.jung@navercorp.com>
+ *
  */
-public class DefaultNSightMatcher implements ServerMatcher {
+public class EmptyLinkMatcher implements ServerMatcher{
 
     @Override
     public boolean isMatched(String serverName) {
@@ -12,11 +13,12 @@ public class DefaultNSightMatcher implements ServerMatcher {
 
     @Override
     public String getLinkName() {
-        return "NSight";
+        return null;
     }
 
     @Override
     public String getLink(String serverName) {
-        return NSightMatcher.URL + serverName;
+        return null;
     }
+
 }

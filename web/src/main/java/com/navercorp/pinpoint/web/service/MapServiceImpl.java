@@ -7,6 +7,7 @@ import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.*;
 import com.navercorp.pinpoint.web.dao.*;
 import com.navercorp.pinpoint.web.vo.*;
@@ -20,6 +21,7 @@ import org.springframework.util.StopWatch;
 /**
  * @author netspider
  * @author emeroad
+ * @author minwoo.jung
  */
 @Service
 public class MapServiceImpl implements MapService {
@@ -41,7 +43,8 @@ public class MapServiceImpl implements MapService {
     @Autowired
     private HostApplicationMapDao hostApplicationMapDao;
 
-
+    @Autowired(required=false)
+    private MatcherGroup matcherGroup;
 
 
     /**
@@ -62,7 +65,7 @@ public class MapServiceImpl implements MapService {
         LinkDataSelector linkDataSelector = new LinkDataSelector(this.mapStatisticsCalleeDao, this.mapStatisticsCallerDao, hostApplicationMapDao);
         LinkDataDuplexMap linkDataDuplexMap = linkDataSelector.select(sourceApplication, range);
 
-        ApplicationMapBuilder builder = new ApplicationMapBuilder(range);
+        ApplicationMapBuilder builder = new ApplicationMapBuilder(range, matcherGroup);
         ApplicationMap map = builder.build(linkDataDuplexMap, agentInfoService, this.mapResponseDao);
 
         watch.stop();

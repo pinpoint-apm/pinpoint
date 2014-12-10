@@ -32,7 +32,7 @@
                     <tr>
                         <td class="text-right"><strong>IP</strong></td>
                         <td class="text-left">
-                            <div>{{info.ip}}&nbsp;<a class="btn btn-default btn-xs" href="http://nsight.nhncorp.com/dashboard_server/{{info.ip}}" target="_blank" title="System resource monitoring site">NSight</a></div>
+                            <div>{{info.ip}}&nbsp;<a ng-if="info.linkName" class="btn btn-default btn-xs" href="{{info.linkURL}}" target="_blank" title="System resource monitoring site">{{info.linkName}}</a></div>
                         </td>
                         <td class="text-right"><strong>Start Time</strong></td>
                         <td class="text-left">{{agent.startTime | date:'yyyy-MM-dd HH:mm:ss Z'}}</td>

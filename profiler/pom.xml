@@ -123,21 +123,21 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.nhncorp.lucy</groupId>
-            <artifactId>lucy-bloc-http11</artifactId>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-modeler</groupId>
-                    <artifactId>commons-modeler</artifactId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>commons-logging</artifactId>
-                    <groupId>commons-logging</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+<!--         <dependency> -->
+<!--             <groupId>com.nhncorp.lucy</groupId> -->
+<!--             <artifactId>lucy-bloc-http11</artifactId> -->
+<!--             <scope>provided</scope> -->
+<!--             <exclusions> -->
+<!--                 <exclusion> -->
+<!--                     <groupId>commons-modeler</groupId> -->
+<!--                     <artifactId>commons-modeler</artifactId> -->
+<!--                 </exclusion> -->
+<!--                 <exclusion> -->
+<!--                     <artifactId>commons-logging</artifactId> -->
+<!--                     <groupId>commons-logging</groupId> -->
+<!--                 </exclusion> -->
+<!--             </exclusions> -->
+<!--         </dependency> -->
         
         <dependency>
             <groupId>org.apache.ibatis</groupId>

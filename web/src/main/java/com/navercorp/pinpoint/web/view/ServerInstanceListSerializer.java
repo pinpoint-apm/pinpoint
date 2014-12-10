@@ -13,6 +13,7 @@ import java.util.Map;
 
 /**
  * @author emeroad
+ * @author minwoo.jung
  */
 public class ServerInstanceListSerializer extends JsonSerializer<ServerInstanceList> {
 
@@ -29,6 +30,11 @@ public class ServerInstanceListSerializer extends JsonSerializer<ServerInstanceL
             jgen.writeStringField("name", entry.getKey());
             jgen.writeStringField("status", null);
 
+            
+            Map<String, String> linkInfo = serverInstanceList.getLink(entry.getKey());
+            jgen.writeStringField("linkName", linkInfo.get("linkName"));
+            jgen.writeStringField("linkURL", linkInfo.get("linkURL"));
+            
             jgen.writeFieldName("instanceList");
             writeInstanceList(jgen, entry.getValue());
 

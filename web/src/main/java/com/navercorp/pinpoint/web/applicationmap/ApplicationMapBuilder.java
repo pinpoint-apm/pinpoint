@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.web.applicationmap;
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import com.navercorp.pinpoint.web.applicationmap.histogram.*;
+import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.*;
 import com.navercorp.pinpoint.web.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
@@ -15,19 +16,23 @@ import java.util.*;
 
 /**
  * @author emeroad
+ * @author minwoo.jung
  */
 public class ApplicationMapBuilder {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Range range;
-
-    public ApplicationMapBuilder(Range range) {
+    
+    private MatcherGroup matcherGroup;
+    
+    public ApplicationMapBuilder(Range range, MatcherGroup matcherGroup) {
         if (range == null) {
             throw new NullPointerException("range must not be null");
         }
 
         this.range = range;
+        this.matcherGroup = matcherGroup;
     }
 
     public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService, NodeHistogramDataSource nodeHistogramDataSource) {
@@ -352,7 +357,7 @@ public class ApplicationMapBuilder {
 
         if (nodeServiceType.isTerminal()) {
             // terminal노드에 설치되어 있는 정보를 유추한다.
-            ServerBuilder builder = new ServerBuilder();
+            ServerBuilder builder = new ServerBuilder(matcherGroup);
             for (LinkData linkData : linkDataDuplexMap.getSourceLinkDataList()) {
                 Application toApplication = linkData.getToApplication();
                 if (node.getApplication().equals(toApplication)) {
@@ -367,7 +372,7 @@ public class ApplicationMapBuilder {
                 return;
             }
             logger.debug("add agentInfo. {}, {}", node.getApplication(), agentList);
-            ServerBuilder builder = new ServerBuilder();
+            ServerBuilder builder = new ServerBuilder(matcherGroup);
             agentList = filterAgentInfoByResponseData(agentList, node);
             builder.addAgentInfo(agentList);
             ServerInstanceList serverInstanceList = builder.build();

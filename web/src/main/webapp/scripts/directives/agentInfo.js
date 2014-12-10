@@ -16,7 +16,7 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                 var oNavbarVo, oAlert, oProgressBar;
 
                 // define private variables of methods
-                var getAgentStat, initServiceInfo, showCharts, parseMemoryChartDataForAmcharts, parseCpuLoadChartDataForAmcharts,
+                var getAgentStat, getLink, initServiceInfo, showCharts, parseMemoryChartDataForAmcharts, parseCpuLoadChartDataForAmcharts,
                 broadcastToCpuLoadChart, resetServerMetaDataDiv;
 
                 // initialize
@@ -45,6 +45,11 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                     };
                     scope.currentServiceInfo = initServiceInfo(agent);
 
+                    $timeout(function () {
+                        getLink(agent.ip);
+                        scope.$apply();
+                    });
+                    
                     $timeout(function () {
                         getAgentStat(agent.agentId, oNavbarVo.getQueryStartTime(), oNavbarVo.getQueryEndTime(), oNavbarVo.getPeriod());
                         scope.$apply();
@@ -96,6 +101,23 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                     scope.$broadcast('jvmMemoryChart.initAndRenderWithData.forNonHeap', AgentDao.parseMemoryChartDataForAmcharts(nonheap, agentStat), '100%', '270px');
                     scope.$broadcast('cpuLoadChart.initAndRenderWithData.forCpuLoad', AgentDao.parseCpuLoadChartDataForAmcharts(cpuLoad, agentStat), '100%', '270px');
                 };
+                
+                getLink = function(agentIp) {
+                	var query = {
+                			value : agentIp
+                	}
+                	
+                	AgentDao.getLink(query,  function (err, result) {
+                        if (err) {
+                            oAlert.showError('There is some error while make link');
+                            return;
+                        }
+                        
+                        scope.info.linkName = result.linkName;
+                        scope.info.linkURL = result.linkURL;
+                        scope.$digest();
+                    });
+                }
                 
                 /**
                  * get agent stat

@@ -76,7 +76,7 @@
                 <li ng-repeat="(key, server) in serverList">
                     <span class="glyphicon glyphicon-home"></span>
                     {{server.name.split(':')[0]}}
-                    <a class="btn btn-default btn-xs" href="http://nsight.nhncorp.com/dashboard_server/{{server.name.split(':')[0].replace('.nhnsystem.com','')}}" target="_blank" title="System resource monitoring site">NSight</a>
+                    <a ng-if="server.linkName" class="btn btn-default btn-xs" href="{{server.linkURL}}" target="_blank" title="System resource monitoring site">{{server.linkName}}</a>
                     <ul style="padding-left: 15px;padding-top:5px;">
                         <li ng-repeat="instance in server.instanceList" ng-init="instance.showChart=false">
                             <span class="glyphicon glyphicon-hdd"></span>

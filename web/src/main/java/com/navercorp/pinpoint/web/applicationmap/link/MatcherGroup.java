@@ -9,10 +9,9 @@ import java.util.List;
 public class MatcherGroup {
 
     private final List<ServerMatcher> serverMatcherList = new ArrayList<ServerMatcher>();
-    private ServerMatcher defaultMatcher = new DefaultNSightMatcher();
+    private ServerMatcher defaultMatcher = new EmptyLinkMatcher();
 
     public MatcherGroup() {
-        setAddDefaultMatcher();
     }
 
     public void setDefaultMatcher(ServerMatcher defaultMatcher) {
@@ -21,6 +20,10 @@ public class MatcherGroup {
         }
         this.defaultMatcher = defaultMatcher;
     }
+    
+    public ServerMatcher getDefaultMatcher() {
+        return this.defaultMatcher;
+    }
 
     public void addServerMatcher(ServerMatcher serverMatcher) {
         if (serverMatcher == null) {
@@ -28,14 +31,16 @@ public class MatcherGroup {
         }
         serverMatcherList.add(serverMatcher);
     }
-
-    public void setAddDefaultMatcher() {
-        // 시간되면 spring에서 찾아 오게 하던지??
-        // 그냥 빨랑 할려고 코드로 함.
-        serverMatcherList.add(new NSightMatcher());
-        serverMatcherList.add(new JapanNSightMatcher());
+    
+    public void addMatcherGroup(MatcherGroup MatcherGroup) {
+        serverMatcherList.addAll(MatcherGroup.getServerMatcherList());
+        defaultMatcher = MatcherGroup.getDefaultMatcher();
     }
-
+    
+    public List<ServerMatcher> getServerMatcherList() {
+        return serverMatcherList;
+    }
+    
     public ServerMatcher match(String serverName) {
         if (serverName == null) {
             throw new NullPointerException("serverName must not be null");

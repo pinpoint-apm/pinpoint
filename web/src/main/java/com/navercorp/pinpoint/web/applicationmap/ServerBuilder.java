@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.web.applicationmap;
 
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.bo.AgentInfoBo;
+import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 
@@ -12,6 +13,7 @@ import java.util.*;
 
 /**
  * @author emeroad
+ * @author minwoo.jung
  */
 public class ServerBuilder {
 
@@ -19,10 +21,12 @@ public class ServerBuilder {
 
     private final AgentHistogramList agentHistogramList;
     private final Set<AgentInfoBo> agentSet;
+    private MatcherGroup matcherGroup = null;
 
-    public ServerBuilder() {
+    public ServerBuilder(MatcherGroup matcherGroup) {
         this.agentHistogramList = new AgentHistogramList();
         this.agentSet = new HashSet<AgentInfoBo>();
+        this.matcherGroup = matcherGroup;
     }
 
     public void addCallHistogramList(AgentHistogramList agentHistogramList) {
@@ -77,7 +81,7 @@ public class ServerBuilder {
     }
 
     public ServerInstanceList buildPhysicalServer(final Set<AgentInfoBo> agentSet) {
-        final ServerInstanceList serverInstanceList = new ServerInstanceList();
+        final ServerInstanceList serverInstanceList = new ServerInstanceList(matcherGroup);
         for (AgentInfoBo agent : agentSet) {
             final ServerInstance serverInstance = new ServerInstance(agent);
             serverInstanceList.addServerInstance(serverInstance);

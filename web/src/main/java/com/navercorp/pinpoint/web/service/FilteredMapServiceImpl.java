@@ -15,6 +15,7 @@ import com.navercorp.pinpoint.common.bo.SpanBo;
 import com.navercorp.pinpoint.common.bo.SpanEventBo;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMapBuilder;
+import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.dao.*;
@@ -35,6 +36,7 @@ import org.springframework.util.StopWatch;
 /**
  * @author netspider
  * @author emeroad
+ * @author minwoo.jung
  */
 @Service
 public class FilteredMapServiceImpl implements FilteredMapService {
@@ -49,7 +51,9 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
     @Autowired
     private AgentInfoService agentInfoService;
-
+    
+    @Autowired(required=false)
+    private MatcherGroup matcherGroup;
 
     private static final Object V = new Object();
 
@@ -266,7 +270,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         }
         List<ApplicationScatterScanResult> applicationScatterScanResult = dotExtractor.getApplicationScatterScanResult();
 
-        ApplicationMapBuilder applicationMapBuilder = new ApplicationMapBuilder(range);
+        ApplicationMapBuilder applicationMapBuilder = new ApplicationMapBuilder(range, matcherGroup);
         mapHistogramSummary.build();
         ApplicationMap map = applicationMapBuilder.build(linkDataDuplexMap, agentInfoService, mapHistogramSummary);
 
