@@ -4,7 +4,7 @@ HBASE_VERSION=hbase-0.94.24
 HBASE_FILE=$HBASE_VERSION.tar.gz
 HBASE_DL_URL=http://apache.mirror.cdnetworks.com/hbase/$HBASE_VERSION/$HBASE_FILE
 
-his="${BASH_SOURCE-$0}"
+this="${BASH_SOURCE-$0}"
 while [ -h "$this" ]; do
   ls=`ls -ld "$this"`
   link=`expr "$ls" : '.*-> \(.*\)$'`
