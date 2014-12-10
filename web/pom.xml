@@ -304,49 +304,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.nhncorp.lucy</groupId>
-            <artifactId>lucy-core</artifactId>
-            <version>1.7.7</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>freemarker</artifactId>
-                    <groupId>org.freemarker</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>lucy-xss</artifactId>
-                    <groupId>com.nhncorp.lucy</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-security-taglibs</artifactId>
-                    <groupId>org.springframework.security</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-security-config</artifactId>
-                    <groupId>org.springframework.security</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-security-web</artifactId>
-                    <groupId>org.springframework.security</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-security-core</artifactId>
-                    <groupId>org.springframework.security</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>xercesImpl</artifactId>
-                    <groupId>xerces</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jaxen</artifactId>
-                    <groupId>jaxen</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>xalan</artifactId>
-                    <groupId>xalan</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
         </dependency>
