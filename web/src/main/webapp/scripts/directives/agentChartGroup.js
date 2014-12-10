@@ -75,8 +75,8 @@ pinpointApp.directive('agentChartGroup', [ 'agentChartGroupConfig', '$timeout', 
             showHeapChart = function (agentStat) {
                 htChartCache.Heap = true;
                 var heap = { id: 'heap', title: 'Heap', span: 'span12', line: [
-                    { id: 'jvmMemoryHeapUsed', key: 'Used', values: [], isFgc: false },
-                    { id: 'jvmMemoryHeapMax', key: 'Max', values: [], isFgc: false },
+                    { id: 'JVM_MEMORY_HEAP_USED', key: 'Used', values: [], isFgc: false },
+                    { id: 'JVM_MEMORY_HEAP_MAX', key: 'Max', values: [], isFgc: false },
                     { id: 'fgc', key: 'FGC', values: [], isFgc: true }
                 ]};
 
@@ -90,8 +90,8 @@ pinpointApp.directive('agentChartGroup', [ 'agentChartGroupConfig', '$timeout', 
             showPermGenChart = function (agentStat) {
                 htChartCache.PermGen = true;
                 var nonheap = { id: 'nonheap', title: 'PermGen', span: 'span12', line: [
-                    { id: 'jvmMemoryNonHeapUsed', key: 'Used', values: [], isFgc: false },
-                    { id: 'jvmMemoryNonHeapMax', key: 'Max', values: [], isFgc: false },
+                    { id: 'JVM_MEMORY_NON_HEAP_USED', key: 'Used', values: [], isFgc: false },
+                    { id: 'JVM_MEMORY_NON_HEAP_MAX', key: 'Max', values: [], isFgc: false },
                     { id: 'fgc', key: 'FGC', values: [], isFgc: true }
                 ]};
 
