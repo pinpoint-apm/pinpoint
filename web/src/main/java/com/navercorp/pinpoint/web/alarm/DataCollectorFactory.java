@@ -13,6 +13,9 @@ import com.navercorp.pinpoint.web.dao.hbase.HbaseMapResponseTimeDao;
 import com.navercorp.pinpoint.web.dao.hbase.HbaseMapStatisticsCallerDao;
 import com.navercorp.pinpoint.web.vo.Application;
 
+/**
+ * @author minwoo.jung
+ */
 @Component
 public class DataCollectorFactory {
     

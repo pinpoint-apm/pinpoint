@@ -5,6 +5,9 @@ import com.navercorp.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollect
 import com.navercorp.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector.DataCategory;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
+/**
+ * @author minwoo.jung
+ */
 public class SlowRateToCalleChecker extends AlarmChecker {
 
     public SlowRateToCalleChecker(DataCollector dataCollector, Rule rule) {

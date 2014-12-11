@@ -5,6 +5,9 @@ import java.util.Map;
 import com.navercorp.pinpoint.web.alarm.collector.AgentStatDataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
+/**
+ * @author minwoo.jung
+ */
 public class HeapUsageRateChecker extends AgentChecker {
     
     public HeapUsageRateChecker(AgentStatDataCollector dataCollector, Rule rule) {

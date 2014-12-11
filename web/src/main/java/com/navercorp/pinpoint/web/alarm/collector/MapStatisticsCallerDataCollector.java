@@ -14,6 +14,9 @@ import com.navercorp.pinpoint.web.dao.MapStatisticsCallerDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 
+/**
+ * @author minwoo.jung
+ */
 public class MapStatisticsCallerDataCollector extends DataCollector {
 
     private Application application;

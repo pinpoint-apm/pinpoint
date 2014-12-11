@@ -10,8 +10,8 @@ import com.navercorp.pinpoint.web.alarm.collector.DataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
 /**
- * 
  * @author koo.taejin
+ * @author minwoo.jung
  */
 public abstract class AlarmChecker {
 

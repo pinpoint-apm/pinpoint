@@ -5,6 +5,7 @@ import java.util.List;
 
 /**
  * @author emeroad
+ * @author minwoo.jung
  */
 public class MatcherGroup {
 
@@ -41,13 +42,13 @@ public class MatcherGroup {
         return serverMatcherList;
     }
     
-    public ServerMatcher match(String serverName) {
-        if (serverName == null) {
+    public ServerMatcher match(String value) {
+        if (value == null) {
             throw new NullPointerException("serverName must not be null");
         }
 
         for (ServerMatcher serverMatcher : serverMatcherList) {
-            if(serverMatcher.isMatched(serverName)) {
+            if(serverMatcher.isMatched(value)) {
                 return serverMatcher;
             }
         }

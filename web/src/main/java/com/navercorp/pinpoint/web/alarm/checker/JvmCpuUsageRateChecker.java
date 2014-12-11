@@ -5,6 +5,9 @@ import java.util.Map;
 import com.navercorp.pinpoint.web.alarm.collector.AgentStatDataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
+/**
+ * @author minwoo.jung
+ */
 public class JvmCpuUsageRateChecker extends AgentChecker {
     
     public JvmCpuUsageRateChecker(AgentStatDataCollector dataCollector, Rule rule) {

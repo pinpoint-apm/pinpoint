@@ -1,32 +1,11 @@
 'use strict';
 
 pinpointApp.constant('agentDaoConfig', {
-    agentStatUrl: '/getAgentStat.pinpoint',
-    link: 'getLink.pinpoint'
+    agentStatUrl: '/getAgentStat.pinpoint'
 });
 
 pinpointApp.service('AgentDao', [ 'agentDaoConfig',
     function AgentDao(cfg) {
-
-		this.getLink = function (query, cb) {
-	        jQuery.ajax({
-	            type: 'GET',
-	            url: cfg.link,
-	            cache: false,
-	            dataType: 'json',
-	            data: query,
-	            success: function (result) {
-	                if (angular.isFunction(cb)) {
-	                    cb(null, result);
-	                }
-	            },
-	            error: function (xhr, status, error) {
-	                if (angular.isFunction(cb)) {
-	                    cb(error, {});
-	                }
-	            }
-	        });
-	    };
 	
         this.getAgentStat = function (query, cb) {
             jQuery.ajax({

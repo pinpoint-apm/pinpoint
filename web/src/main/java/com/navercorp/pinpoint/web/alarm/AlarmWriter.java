@@ -29,6 +29,9 @@ import com.nhncorp.lucy.net.invoker.InvocationFuture;
 import com.nhncorp.lucy.npc.connector.NpcConnectionFactory;
 import com.nhncorp.lucy.npc.connector.NpcHessianConnector;
 
+/**
+ * @author minwoo.jung
+ */
 public class AlarmWriter implements ItemWriter<AlarmChecker> {
     
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

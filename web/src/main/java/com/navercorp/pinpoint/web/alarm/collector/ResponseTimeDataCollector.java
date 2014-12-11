@@ -11,6 +11,9 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 
+/**
+ * @author minwoo.jung
+ */
 public class ResponseTimeDataCollector extends DataCollector {
 
     private final Application application;

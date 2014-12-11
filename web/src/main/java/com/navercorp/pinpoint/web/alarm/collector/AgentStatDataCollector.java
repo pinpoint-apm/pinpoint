@@ -12,6 +12,9 @@ import com.navercorp.pinpoint.web.vo.AgentStat;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 
+/**
+ * @author minwoo.jung
+ */
 public class AgentStatDataCollector extends DataCollector {
 
     private final Application application;

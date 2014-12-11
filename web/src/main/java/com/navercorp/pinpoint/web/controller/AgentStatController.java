@@ -13,6 +13,7 @@ import com.navercorp.pinpoint.web.service.AgentStatService;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.web.vo.AgentStat;
+import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.linechart.agentstat.AgentStatChartGroup;
 
@@ -43,21 +44,7 @@ public class AgentStatController {
 
     @Autowired(required=false)
     private MatcherGroup matcherGroup;
-    
-    @RequestMapping(value = "/getLink", method = RequestMethod.GET)
-    @ResponseBody
-    public Map<String, String> getLink(final @RequestParam("value") String value) throws Exception {
-        Map<String, String> map = new HashMap<String, String>();
-
-        if(matcherGroup != null) {
-            ServerMatcher serverMatcher = matcherGroup.match(value);
-            map.put("linkName", serverMatcher.getLinkName());
-            map.put("linkURL", serverMatcher.getLink(value));
-        }
         
-        return map;
-    }
-    
     @RequestMapping(value = "/getAgentStat", method = RequestMethod.GET)
     @ResponseBody
     public AgentStatChartGroup getAgentStat(
@@ -93,12 +80,11 @@ public class AgentStatController {
 
     @RequestMapping(value = "/getAgentList", method = RequestMethod.GET)
     @ResponseBody
-    public SortedMap<String, List<AgentInfoBo>> getApplicationAgentList(
+    public ApplicationAgentList getApplicationAgentList(
             @RequestParam("application") String applicationName,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
         Range range = new Range(from, to);
-        SortedMap<String, List<AgentInfoBo>> applicationAgentList = agentInfoService.getApplicationAgentList(applicationName, range);
-        return applicationAgentList;
+        return new ApplicationAgentList(agentInfoService.getApplicationAgentList(applicationName, range), matcherGroup);
     }
 }

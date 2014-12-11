@@ -4,7 +4,7 @@ import com.navercorp.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
 /**
- * 
+ * @author minwoo.jung
  * @author koo.taejin
  */
 public class SlowRateChecker extends AlarmChecker {

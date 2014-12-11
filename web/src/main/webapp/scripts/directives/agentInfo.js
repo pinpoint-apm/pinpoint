@@ -41,14 +41,11 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                         'pid': agent.pid,
                         'agentVersion': agent.version,
                         'jvmGcType': '',
-                        'serverMetaData': agent.serverMetaData
+                        'serverMetaData': agent.serverMetaData,
+                        'linkName' : agent.linkName,
+                        'linkURL' : agent.linkURL
                     };
                     scope.currentServiceInfo = initServiceInfo(agent);
-
-                    $timeout(function () {
-                        getLink(agent.ip);
-                        scope.$apply();
-                    });
                     
                     $timeout(function () {
                         getAgentStat(agent.agentId, oNavbarVo.getQueryStartTime(), oNavbarVo.getQueryEndTime(), oNavbarVo.getPeriod());
@@ -101,23 +98,6 @@ pinpointApp.directive('agentInfo', [ 'agentInfoConfig', '$timeout', 'Alerts', 'P
                     scope.$broadcast('jvmMemoryChart.initAndRenderWithData.forNonHeap', AgentDao.parseMemoryChartDataForAmcharts(nonheap, agentStat), '100%', '270px');
                     scope.$broadcast('cpuLoadChart.initAndRenderWithData.forCpuLoad', AgentDao.parseCpuLoadChartDataForAmcharts(cpuLoad, agentStat), '100%', '270px');
                 };
-                
-                getLink = function(agentIp) {
-                	var query = {
-                			value : agentIp
-                	}
-                	
-                	AgentDao.getLink(query,  function (err, result) {
-                        if (err) {
-                            oAlert.showError('There is some error while make link');
-                            return;
-                        }
-                        
-                        scope.info.linkName = result.linkName;
-                        scope.info.linkURL = result.linkURL;
-                        scope.$digest();
-                    });
-                }
                 
                 /**
                  * get agent stat

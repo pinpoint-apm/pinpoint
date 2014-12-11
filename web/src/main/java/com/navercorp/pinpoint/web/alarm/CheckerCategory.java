@@ -24,6 +24,9 @@ import com.navercorp.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollect
 import com.navercorp.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
+/**
+ * @author minwoo.jung
+ */
 public enum CheckerCategory {
 
     SLOW_COUNT("SLOW_COUNT", DataCollectorCategory.RESPONSE_TIME) {

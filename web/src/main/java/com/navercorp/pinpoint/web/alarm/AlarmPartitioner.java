@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
 
+/**
+ * @author minwoo.jung
+ */
 public class AlarmPartitioner implements Partitioner {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     public static final int APP_COUNT = 5;

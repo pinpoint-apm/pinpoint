@@ -2,6 +2,9 @@ package com.navercorp.pinpoint.web.alarm.vo;
 
 import org.apache.ibatis.type.Alias;
 
+/**
+ * @author minwoo.jung
+ */
 @Alias(value = "alarmEmp")
 public class AlarmEmp {
     

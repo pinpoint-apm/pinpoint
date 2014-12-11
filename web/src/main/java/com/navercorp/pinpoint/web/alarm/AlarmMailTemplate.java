@@ -3,6 +3,9 @@ package com.navercorp.pinpoint.web.alarm;
 import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
+/**
+ * @author minwoo.jung
+ */
 public class AlarmMailTemplate {
 
     private static final String LINE_FEED = "<br>";

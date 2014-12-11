@@ -9,6 +9,9 @@ import java.util.Map.Entry;
 import com.navercorp.pinpoint.web.alarm.collector.DataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
+/**
+ * @author minwoo.jung
+ */
 public abstract class AgentChecker extends AlarmChecker {
     
     protected Map<String, Long> detectedAgents = new HashMap<String, Long>();

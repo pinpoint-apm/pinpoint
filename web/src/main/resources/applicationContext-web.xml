@@ -81,8 +81,6 @@
     	<constructor-arg value="#{T(com.navercorp.pinpoint.common.Version).VERSION}" />
     </bean>
 
-<!-- 	<bean id="matcherGroup" class="com.navercorp.pinpoint.web.applicationmap.link.NaverMatcherGroup"/> -->
-
     <bean id="pinpointSocketManager" class="com.navercorp.pinpoint.web.server.PinpointSocketManager">
     	<constructor-arg ref="config" />
     </bean>

@@ -20,6 +20,9 @@ import com.navercorp.pinpoint.web.dao.AlarmResourceDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
 
+/**
+ * @author minwoo.jung
+ */
 public class AlarmReader implements ItemReader<AlarmChecker>, StepExecutionListener {
     
     @Autowired

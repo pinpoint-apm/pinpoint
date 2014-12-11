@@ -7,7 +7,7 @@ package com.navercorp.pinpoint.web.applicationmap.link;
 public class EmptyLinkMatcher implements ServerMatcher{
 
     @Override
-    public boolean isMatched(String serverName) {
+    public boolean isMatched(String value) {
         return true;
     }
 
@@ -17,7 +17,7 @@ public class EmptyLinkMatcher implements ServerMatcher{
     }
 
     @Override
-    public String getLink(String serverName) {
+    public String getLink(String value) {
         return null;
     }
 
