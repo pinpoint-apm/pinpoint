@@ -47,11 +47,11 @@
         <property name="plugins">
             <list>
                 <!-- mybatis 3.2 에서 호환성이 깨진 부분이 있어 패치 버전을 끼워 넣음-->
-                <bean class="com.nhncorp.lucy.spring.db.mybatis.plugin.BindingLogPlugin32"/>
-                <bean class="com.nhncorp.lucy.spring.db.mybatis.plugin.SlowQueryPlugin">
+                <bean class="com.navercorp.pinpoint.web.dao.ibatis.BindingLogPlugin32"/>
+                <bean class="com.navercorp.pinpoint.web.dao.ibatis.SlowQueryPlugin">
                     <property name="slowQueryTime" value="3000"></property>
                 </bean>
-                <bean class="com.nhncorp.lucy.spring.db.mybatis.plugin.StatementIdAppenderPlugin"/>
+                <bean class="com.navercorp.pinpoint.web.dao.ibatis.StatementIdAppenderPlugin"/>
             </list>
         </property>
     </bean>
