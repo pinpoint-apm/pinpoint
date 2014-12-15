@@ -29,9 +29,11 @@ canvas {outline:none}
 #wrapper.no-navbar {
     padding-top: 0;
 }
+
 .no-navbar .main-navbar {
     display: none;
 }
+
 
 .mt8 {
   margin-top: 8px;
@@ -72,9 +74,12 @@ canvas {outline:none}
 .sidebar.smallsize {
   width: 0;
 }
+
+
 .main-container.no-data .sidebar {
     display:none;
 }
+
 
 /* info-details */
 .info-details {
@@ -160,13 +165,10 @@ canvas {outline:none}
     z-index: 9999999;
     display: none;
 }
+
 #copyright p {
     padding: 10px;
     font-size: 12px;
 }
 
 
-/*임시로 워터마크 숨김*/
-a[title="JavaScript charts"] {
-    display: none !important;
-}
