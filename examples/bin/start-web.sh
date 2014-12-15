@@ -30,16 +30,20 @@ PID_FILE=examples.web.pid
 WEB_IDENTIFIER=pinpoint-example-web
 IDENTIFIER=maven.pinpoint.identifier=$WEB_IDENTIFIER
 
+UNIT_TIME=5
+CHECK_COUNT=24
+CLOSE_WAIT_TIME=`expr $UNIT_TIME \* $CHECK_COUNT`
+
 function func_check_process
 {
         echo "---check $WEB_IDENTIFIER process status.---"
-        PID=`cat $PID_DIR/$PID_FILE 2>/dev/null`
+        pid=`cat $PID_DIR/$PID_FILE 2>/dev/null`
         process_status=0
-        if [ ! -z $PID ]; then
-                process_status=`ps aux | grep $PID | grep $IDENTIFIER | grep -v grep | wc -l`
+        if [ ! -z $pid ]; then
+                process_status=`ps aux | grep $pid | grep $IDENTIFIER | grep -v grep | wc -l`
 
                 if [ ! $process_status -eq 0 ]; then
-                        echo "already running $WEB_IDENTIFIER process. pid=$PID."
+                        echo "already running $WEB_IDENTIFIER process. pid=$pid."
                 fi
         fi
 
@@ -86,32 +90,33 @@ function func_init_log
 
 function func_start_pinpoint_web
 {
-        PID=`nohup mvn -f $WEB_DIR/pom.xml clean package tomcat7:run -D$IDENTIFIER > $LOGS_DIR/$LOG_FILE 2>&1 & echo $!`
-        echo $PID > $PID_DIR/$PID_FILE
+        pid=`nohup mvn -f $WEB_DIR/pom.xml clean package tomcat7:run -D$IDENTIFIER > $LOGS_DIR/$LOG_FILE 2>&1 & echo $!`
+        echo $pid > $PID_DIR/$PID_FILE
 
-        echo "---$WEB_IDENTIFIER initialization started. pid=$PID.---"
+        echo "---$WEB_IDENTIFIER initialization started. pid=$pid.---"
 
         process_status=`curl 'http://localhost:28080/serverTime.pinpoint' 2>/dev/null | grep 'currentServerTime'`
         end_count=0
 
         while [ -z $process_status ]
         do
-                echo "starting $WEB_IDENTIFIER. wait($end_count/40)."
-
-                if [ $end_count -ge 40 ]; then
+				wait_time=`expr $end_count \* $UNIT_TIME`
+				echo "starting $WEB_IDENTIFIER. $wait_time sec/$CLOSE_WAIT_TIME sec(close wait limit)."
+				
+                if [ $end_count -ge $CHECK_COUNT ]; then
                         break
                 fi
 
-                sleep 3
+                sleep $UNIT_TIME
                 end_count=`expr $end_count + 1`
                 process_status=`curl 'http://localhost:28080/serverTime.pinpoint' 2>/dev/null | grep 'currentServerTime'`
         done
 
         if [ -z $process_status ]; then
-                echo "---$WEB_IDENTIFIER initialization failed. pid=$PID.---"
-                kill -9 $PID
+                echo "---$WEB_IDENTIFIER initialization failed. pid=$pid.---"
+                kill -9 $pid
         else
-                echo "---$WEB_IDENTIFIER initialization completed. pid=$PID.---"
+                echo "---$WEB_IDENTIFIER initialization completed. pid=$pid.---"
                 tail -f  $LOGS_DIR/$LOG_FILE
         fi
 }
