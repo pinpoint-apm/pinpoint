@@ -2,7 +2,7 @@
 .servermap .servermap-status {
     position: absolute;
     top: 8px;
-    left: 11px;
+    right: 11px;
     z-index: 9;
     font-size: 12px;
 }
@@ -27,6 +27,7 @@
 
 .servermap .modal .modal-title {
     text-align: center;
+    
 }
 .servermap .modal .form-group label {
 }
