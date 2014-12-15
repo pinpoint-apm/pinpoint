@@ -97,7 +97,7 @@ function func_init_log
 
 function func_check_running_pinpoint_collector()
 {
-		if [[ "$OS_TYPE" == 'mac' ]]; then
+        if [[ "$OS_TYPE" == 'mac' ]]; then
                 process_tcp_port_num=`lsof -p $pid | grep TCP | wc -l `
                 process_udp_port_num=`lsof -p $pid |  grep UDP | wc -l `
         else
@@ -123,17 +123,17 @@ function func_start_pinpoint_collector
 		check_running_pinpoint_collector=$( func_check_running_pinpoint_collector )
         while [ "$check_running_pinpoint_collector" == "false" ]
         do
-				wait_time=`expr $end_count \* $UNIT_TIME`
+                wait_time=`expr $end_count \* $UNIT_TIME`
                 echo "starting $COLLECTOR_IDENTIFIER. $wait_time sec/$CLOSE_WAIT_TIME sec(close wait limit)."
 				
                 if [ $end_count -ge $CHECK_COUNT ]; then
                         break
                 fi
 
-                sleep 3
+                sleep $UNIT_TIME
                 end_count=`expr $end_count + 1`
 				
-				check_running_pinpoint_collector=$( func_check_running_pinpoint_collector )
+               check_running_pinpoint_collector=$( func_check_running_pinpoint_collector )
         done
 
         if [[ "$check_running_pinpoint_collector" == "true" ]]; then

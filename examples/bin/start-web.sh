@@ -100,9 +100,9 @@ function func_start_pinpoint_web
 
         while [ -z $process_status ]
         do
-				wait_time=`expr $end_count \* $UNIT_TIME`
-				echo "starting $WEB_IDENTIFIER. $wait_time sec/$CLOSE_WAIT_TIME sec(close wait limit)."
-				
+                wait_time=`expr $end_count \* $UNIT_TIME`
+                echo "starting $WEB_IDENTIFIER. $wait_time sec/$CLOSE_WAIT_TIME sec(close wait limit)."
+
                 if [ $end_count -ge $CHECK_COUNT ]; then
                         break
                 fi
