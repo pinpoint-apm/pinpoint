@@ -1,4 +1,4 @@
-package com.nhncorp.lucy.spring.db.mybatis.plugin.util;
+package com.navercorp.pinpoint.web.dao.ibatis;
 
 import java.io.InputStream;
 import java.io.Reader;

@@ -1,4 +1,4 @@
-package com.nhncorp.lucy.spring.db.mybatis.plugin;
+package com.navercorp.pinpoint.web.dao.ibatis;
 
 import java.util.List;
 import java.util.Properties;
@@ -8,7 +8,7 @@ import java.util.Properties;
  *
  * @author Web Platform Development Lab
  * @author emeroad
- * @see com.nhncorp.lucy.spring.db.mybatis.plugin.util.DefaultBindingLogFormatter
+ * @see com.navercorp.pinpoint.web.dao.ibatis.DefaultBindingLogFormatter
  * @since 1.7.4
  */
 public interface BindLogFormatter {

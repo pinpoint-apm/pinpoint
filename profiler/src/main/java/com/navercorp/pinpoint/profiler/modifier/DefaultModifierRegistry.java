@@ -15,7 +15,6 @@ import com.navercorp.pinpoint.profiler.modifier.arcus.GetFutureModifier;
 import com.navercorp.pinpoint.profiler.modifier.arcus.ImmediateFutureModifier;
 import com.navercorp.pinpoint.profiler.modifier.arcus.MemcachedClientModifier;
 import com.navercorp.pinpoint.profiler.modifier.arcus.OperationFutureModifier;
-import com.navercorp.pinpoint.profiler.modifier.bloc.handler.HTTPHandlerModifier;
 import com.navercorp.pinpoint.profiler.modifier.connector.asynchttpclient.AsyncHttpClientModifier;
 import com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.BasicFutureModifier;
 import com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.ClosableHttpAsyncClientModifier;
@@ -175,14 +174,6 @@ public class DefaultModifierRegistry implements ModifierRegistry {
             CacheManagerModifier cacheManagerModifier = new CacheManagerModifier(byteCodeInstrumentor, agent);
             addModifier(cacheManagerModifier);
         }
-    }
-
-    /**
-     * BLOC 3.x
-     */
-    public void addBLOC3Modifier() {
-        HTTPHandlerModifier httpHandlerModifier = new HTTPHandlerModifier(byteCodeInstrumentor, agent);
-        addModifier(httpHandlerModifier);
     }
 
 	public void addTomcatModifier() {

@@ -1,4 +1,4 @@
-package com.nhncorp.lucy.spring.db.mybatis.plugin;
+package com.navercorp.pinpoint.web.dao.ibatis;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -24,23 +24,20 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.springframework.util.Assert;
 
-import com.nhncorp.lucy.spring.db.mybatis.plugin.util.DefaultBindingLogFormatter;
-import com.nhncorp.lucy.spring.db.mybatis.plugin.util.PreparedStatementParameterLogger;
-
 /**
  * Binding Log 출력 Plugin
  * <p>
  * {@link java.sql.PreparedStatement}, {@link java.sql.CallableStatement} 의 바인딩 변수를 Query와 같이 출력해 주는 plugin.
  * </p>
  * Query문의 format을 {@link BindLogFormatter}을 통해 변경할 수 있다.
- * 기본구현체는 {@link com.nhncorp.lucy.spring.db.mybatis.plugin.util.DefaultBindingLogFormatter} 이다.
+ * 기본구현체는 {@link com.navercorp.pinpoint.web.dao.ibatis.DefaultBindingLogFormatter} 이다.
  * 공백 제거 옵션인 removeWhitespace옵션이 지원된다.
  *
  * @author Web Platform Development Lab
  * @author emeroad
  * @see Interceptor
  * @see BindLogFormatter
- * @see com.nhncorp.lucy.spring.db.mybatis.plugin.util.DefaultBindingLogFormatter
+ * @see com.navercorp.pinpoint.web.dao.ibatis.DefaultBindingLogFormatter
  * @since 1.7.4
  */
 @Intercepts({
@@ -124,7 +121,7 @@ public class BindingLogPlugin32 implements Interceptor {
     }
 
     /**
-     * {@link BindLogFormatter}의 구현체인 {@link com.nhncorp.lucy.spring.db.mybatis.plugin.util.DefaultBindingLogFormatter} 는 removeWhitespace 옵션을 지원한다.
+     * {@link BindLogFormatter}의 구현체인 {@link com.navercorp.pinpoint.web.dao.ibatis.DefaultBindingLogFormatter} 는 removeWhitespace 옵션을 지원한다.
      * removeWhitespace : query 포멧을 한줄로 출력되도록 설정한다.
      *
      * @param properties 옵션 properties

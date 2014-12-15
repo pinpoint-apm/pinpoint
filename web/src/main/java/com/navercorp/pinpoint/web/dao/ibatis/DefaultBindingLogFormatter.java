@@ -1,6 +1,5 @@
-package com.nhncorp.lucy.spring.db.mybatis.plugin.util;
+package com.navercorp.pinpoint.web.dao.ibatis;
 
-import com.nhncorp.lucy.spring.db.mybatis.plugin.BindLogFormatter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
