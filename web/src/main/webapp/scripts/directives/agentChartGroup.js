@@ -21,7 +21,7 @@ pinpointApp.directive('agentChartGroup', [ 'agentChartGroupConfig', '$timeout', 
             var htChartCache, htLastAgentStat;
 
             // define private variables of methods
-            var initialize, showHeapChart, showPermGenChart, showCursorAt, resize;
+            var initialize, showHeapChart, showPermGenChart, showCpuLoadChart, showCursorAt, resize;
 
             // bootstrap
             scope.showChartGroup = false;
@@ -33,7 +33,8 @@ pinpointApp.directive('agentChartGroup', [ 'agentChartGroupConfig', '$timeout', 
             initialize = function (query) {
                 htChartCache = {
                     'Heap': false,
-                    'PermGen': false
+                    'PermGen': false,
+                    'CpuLoad': false
                 };
                 htLastAgentStat = null;
                 scope.showChartGroup = true;
@@ -52,15 +53,28 @@ pinpointApp.directive('agentChartGroup', [ 'agentChartGroupConfig', '$timeout', 
                 });
                 element.tabs({
                     activate: function (event, ui) {
-//                        console.log(ui.newTab.text(), ui.newTab.index());
-                        if (ui.newTab.text() === 'PermGen' && htChartCache.PermGen === false) {
-                            showPermGenChart(htLastAgentStat);
+                        var activatedTabText = ui.newTab.text();
+                        if (activatedTabText == 'Heap') {
+                            if (htChartCache.Heap === false) {
+                                showHeapChart(htLastAgentStat);
+                            } else {
+                                scope.$broadcast('jvmMemoryChart.resize.forHeap_' + scope.namespace);
+                            }
                             return;
-                        }
-                        if (ui.newTab.text() === 'PermGen') {
-                            scope.$broadcast('jvmMemoryChart.resize.forNonHeap_' + scope.namespace);
-                        } else {
-                            scope.$broadcast('jvmMemoryChart.resize.forHeap_' + scope.namespace);
+                        } else if (activatedTabText == 'PermGen') {
+                            if (htChartCache.PermGen === false) {
+                                showPermGenChart(htLastAgentStat);
+                            } else {
+                                scope.$broadcast('jvmMemoryChart.resize.forNonHeap_' + scope.namespace);
+                            }
+                            return;
+                        } else if (activatedTabText == 'CpuLoad') {
+                            if (htChartCache.CpuLoad === false) {
+                                showCpuLoadChart(htLastAgentStat);
+                            } else {
+                                scope.$broadcast('cpuLoadChart.resize.forCpuLoad_' + scope.namespace);
+                            }
+                            return;
                         }
                     }
                 });
@@ -97,6 +111,19 @@ pinpointApp.directive('agentChartGroup', [ 'agentChartGroupConfig', '$timeout', 
 
                 scope.$broadcast('jvmMemoryChart.initAndRenderWithData.forNonHeap_' + scope.namespace, AgentDao.parseMemoryChartDataForAmcharts(nonheap, agentStat), '100%', '100%');
             };
+            
+            /**
+             * show cpu load chart
+             * @param agentStat
+             */
+            showCpuLoadChart = function (agentStat) {
+                htChartCache.CpuLoad = true;
+                var cpuLoad = { 
+                    id: 'cpuLoad', title: 'JVM/System Cpu Usage', 
+                    span: 'span12', isAvailable: false
+                };
+                scope.$broadcast('cpuLoadChart.initAndRenderWithData.forCpuLoad_' + scope.namespace, AgentDao.parseCpuLoadChartDataForAmcharts(cpuLoad, agentStat), '100%', '100%');
+            }
 
             /**
              * show cursor at
@@ -109,6 +136,9 @@ pinpointApp.directive('agentChartGroup', [ 'agentChartGroupConfig', '$timeout', 
                 if (htChartCache.PermGen) {
                     scope.$broadcast('jvmMemoryChart.showCursorAt.forNonHeap_' + scope.namespace, category);
                 }
+                if (htChartCache.CpuLoad) {
+                    scope.$broadcast('cpuLoadChart.showCursorAt.forCpuLoad_' + scope.namespace, category);
+                }
             };
 
             /**
@@ -120,6 +150,9 @@ pinpointApp.directive('agentChartGroup', [ 'agentChartGroupConfig', '$timeout', 
                 }
                 if (htChartCache.PermGen) {
                     scope.$broadcast('jvmMemoryChart.resize.forNonHeap_' + scope.namespace);
+                }
+                if (htChartCache.CpuLoad) {
+                    scope.$broadcast('cpuLoadChart.resize.forCpuLoad_' + scope.namespace);
                 }
             };
 
