@@ -301,12 +301,13 @@ pinpointApp
                      */
                     scope.$on('nodeInfoDetails.initialize', function (event, e, query, node, mapData, navbarVo, reloadOnly) {
                         show();
-                        if (angular.equals(sLastKey, node.key) && !reloadOnly) {
-                            if (htLastNode.category === 'UNKNOWN_GROUP') {
-                                renderAllChartWhichIsVisible(htLastNode);
-                            }
-                            return;
-                        }
+                        // DISABLE node Cache
+                        //if (angular.equals(sLastKey, node.key) && !reloadOnly) {
+                        //    if (htLastNode.category === 'UNKNOWN_GROUP') {
+                        //        renderAllChartWhichIsVisible(htLastNode);
+                        //    }
+                        //    return;
+                        //}
                         reset();
                         htQuery = query;
                         sLastKey = node.key;

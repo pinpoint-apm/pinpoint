@@ -12,7 +12,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', '$filter', '
             restrict: 'EA',
             replace: true,
             templateUrl: 'views/linkInfoDetails.html',
-            scope: {},
+            scope: true,
             link: function postLink(scope, element, attrs) {
 
                 // define private variables
@@ -413,7 +413,8 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', '$filter', '
                     if (link.sourceInfo.isWas && link.targetInfo.isWas) {
                         oServerMapHintVo.setHint(link.toNode.applicationName, link.filterTargetRpcList)
                     }
-                    scope.$broadcast('linkInfoDetails.openFilteredMap', oServerMapFilterVo, oServerMapHintVo);
+                    //scope.$broadcast('linkInfoDetails.openFilteredMap', oServerMapFilterVo, oServerMapHintVo);
+                    scope.$emit('linkInfoDetails.openFilteredMap', oServerMapFilterVo, oServerMapHintVo);
                 };
 
                 /**
@@ -422,7 +423,8 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', '$filter', '
                  */
                 scope.openFilterWizard = function (index) {
                     var link = htLastLink.unknownLinkGroup[index];
-                    scope.$broadcast('linkInfoDetails.openFilterWizard', link);
+                    //scope.$broadcast('linkInfoDetails.openFilterWizard', link);
+                    scope.$emit('linkInfoDetails.openFilterWizard', link);
                 };
 
                 /**
@@ -455,12 +457,12 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', '$filter', '
                  */
                 scope.$on('linkInfoDetails.initialize', function (event, e, query, link, linkData, navbarVo, reloadOnly) {
                     show();
-                    if (angular.equals(sLastKey, link.key) && !reloadOnly) {
-                        if (htLastLink.targetRawData) {
-                            renderAllChartWhichIsVisible(htLastLink);
-                        }
-                        return;
-                    }
+                    //if (angular.equals(sLastKey, link.key)) {
+                    //    //if (htLastLink.targetRawData) {
+                    //        renderAllChartWhichIsVisible(htLastLink);
+                    //    //}
+                    //    return;
+                    //}
                     reset();
                     htQuery = query;
                     sLastKey = link.key;
