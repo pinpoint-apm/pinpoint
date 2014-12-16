@@ -24,8 +24,10 @@ bin=`cd "$bin">/dev/null; pwd`
 this="$bin/$script"
 
 BASE_DIR=`dirname "$bin"`
-
 COLLECTOR_DIR=$BASE_DIR/collector
+
+CONF_DIR=$BASE_DIR/conf
+CONF_FILE=examples.properties
 
 LOGS_DIR=$BASE_DIR/logs
 LOG_FILE=examples.collector.log
@@ -39,6 +41,24 @@ IDENTIFIER=maven.pinpoint.identifier=$COLLECTOR_IDENTIFIER
 UNIT_TIME=5
 CHECK_COUNT=24
 CLOSE_WAIT_TIME=`expr $UNIT_TIME \* $CHECK_COUNT`
+
+PROPERTIES=`cat $CONF_DIR/$CONF_FILE 2>/dev/null`
+PORT_KEY="example.collector.port"
+
+function func_read_properties
+{
+        key="^"$1"="
+
+        for entry in $PROPERTIES;
+        do
+                value=`echo $entry | grep $key`
+
+                if [ ! -z $value ]; then
+                        echo $entry | cut -d '=' -f2
+                        break
+                fi
+        done
+}
 
 function func_check_process
 {
@@ -97,18 +117,22 @@ function func_init_log
 
 function func_check_running_pinpoint_collector()
 {
+	port=$( func_read_properties "$PORT_KEY" )
+
         if [[ "$OS_TYPE" == 'mac' ]]; then
+		main_port_num=`lsof -p $pid | grep TCP | grep $port | wc -l `
                 process_tcp_port_num=`lsof -p $pid | grep TCP | wc -l `
                 process_udp_port_num=`lsof -p $pid |  grep UDP | wc -l `
         else
-                process_tcp_port_num=`netstat -anp 2>/dev/null | grep $pid | grep tcp | wc -l `
-                process_udp_port_num=`netstat -anp 2>/dev/null | grep $pid | grep udp | wc -l `
+		main_port_num=`netstat -anp 2>/dev/null | grep $pid/java | grep tcp | grep $port | wc -l `
+                process_tcp_port_num=`netstat -anp 2>/dev/null | grep $pid/java | grep tcp | wc -l `
+                process_udp_port_num=`netstat -anp 2>/dev/null | grep $pid/java | grep udp | wc -l `
         fi
-
-        if [[ $process_tcp_port_num -ne 2 || $process_udp_port_num -ne 2 ]]; then
-                echo "false"
-        else
+	
+        if [[ $main_port_num -eq 1 && $process_tcp_port_num -ge 2 && $process_udp_port_num -eq 2 ]]; then
                 echo "true"
+        else
+                echo "false"
         fi
 }
 
@@ -120,7 +144,7 @@ function func_start_pinpoint_collector
         echo "---$COLLECTOR_IDENTIFIER initialization started. pid=$pid.---"
 
         end_count=0
-		check_running_pinpoint_collector=$( func_check_running_pinpoint_collector )
+	check_running_pinpoint_collector=$( func_check_running_pinpoint_collector )
         while [ "$check_running_pinpoint_collector" == "false" ]
         do
                 wait_time=`expr $end_count \* $UNIT_TIME`
