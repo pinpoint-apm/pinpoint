@@ -12,7 +12,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', '$filter', '
             restrict: 'EA',
             replace: true,
             templateUrl: 'views/linkInfoDetails.html',
-//            scope: {},
+            scope: {},
             link: function postLink(scope, element, attrs) {
 
                 // define private variables
@@ -453,9 +453,9 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', '$filter', '
                 /**
                  * scope event on linkInfoDetails.linkClicked
                  */
-                scope.$on('linkInfoDetails.initialize', function (event, e, query, link) {
+                scope.$on('linkInfoDetails.initialize', function (event, e, query, link, linkData, navbarVo, reloadOnly) {
                     show();
-                    if (angular.equals(sLastKey, link.key)) {
+                    if (angular.equals(sLastKey, link.key) && !reloadOnly) {
                         if (htLastLink.targetRawData) {
                             renderAllChartWhichIsVisible(htLastLink);
                         }
@@ -466,6 +466,7 @@ pinpointApp.directive('linkInfoDetails', [ 'linkInfoDetailsConfig', '$filter', '
                     sLastKey = link.key;
                     htLastLink = link;
                     scope.htLastUnknownLink = false;
+                    scope.oNavbarVo = navbarVo;
                     showDetailInformation(link);
                 });
 
