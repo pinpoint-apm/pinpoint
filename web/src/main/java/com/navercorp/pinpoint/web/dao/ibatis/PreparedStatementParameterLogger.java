@@ -522,4 +522,14 @@ public class PreparedStatementParameterLogger implements PreparedStatement {
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         throw new UnsupportedOperationException();
     }
+
+    // for JDK 7 and above
+    public void closeOnCompletion() throws SQLException {
+        throw new UnsupportedOperationException();
+    }
+
+    // for JDK 7 and above
+    public boolean isCloseOnCompletion() throws SQLException {
+        throw new UnsupportedOperationException();
+    }
 }
