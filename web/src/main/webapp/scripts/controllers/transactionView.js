@@ -134,8 +134,14 @@ pinpointApp.controller('TransactionViewCtrl', [ 'TransactionViewConfig', '$scope
          * scope event on distributedCallFlow.rowSelected.forTransactionView
          */
         $scope.$on('distributedCallFlow.rowSelected.forTransactionView', function (e, item) {
-            //console.log('distributedCallFlow.rowSelected.forTransactionView', item);
-            var category = item.execTime ? new Date(item.execTime).toString('yyyy-MM-dd HH:mm:ss') : false;
+            var category;
+            if (item.execTime) {
+                var coeff = 1000 * 5;   // round to nearest multiple of 5 seconds
+                var execTime = new Date(item.execTime);
+                category = new Date(Math.floor(execTime.getTime() / coeff) * coeff).toString('yyyy-MM-dd HH:mm:ss');
+            } else {
+                category = false;
+            }
             showChartCursorAt(category);
 
         });
