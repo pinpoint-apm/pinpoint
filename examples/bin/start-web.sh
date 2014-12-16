@@ -18,8 +18,10 @@ bin=`cd "$bin">/dev/null; pwd`
 this="$bin/$script"
 
 BASE_DIR=`dirname "$bin"`
-
 WEB_DIR=$BASE_DIR/web
+
+CONF_DIR=$BASE_DIR/conf
+CONF_FILE=examples.properties
 
 LOGS_DIR=$BASE_DIR/logs
 LOG_FILE=examples.web.log
@@ -33,6 +35,24 @@ IDENTIFIER=maven.pinpoint.identifier=$WEB_IDENTIFIER
 UNIT_TIME=5
 CHECK_COUNT=24
 CLOSE_WAIT_TIME=`expr $UNIT_TIME \* $CHECK_COUNT`
+
+PROPERTIES=`cat $CONF_DIR/$CONF_FILE 2>/dev/null`
+PORT_KEY="example.web.port"
+
+function func_read_properties
+{
+        key="^"$1"="
+
+        for entry in $PROPERTIES;
+        do
+                value=`echo $entry | grep $key`
+
+                if [ ! -z $value ]; then
+                        echo $entry | cut -d '=' -f2
+                        break
+                fi
+        done
+}
 
 function func_check_process
 {
@@ -90,12 +110,14 @@ function func_init_log
 
 function func_start_pinpoint_web
 {
+	port=$( func_read_properties "$PORT_KEY" ) 
         pid=`nohup mvn -f $WEB_DIR/pom.xml clean package tomcat7:run -D$IDENTIFIER > $LOGS_DIR/$LOG_FILE 2>&1 & echo $!`
+	check_url="http://localhost:"$port"/serverTime.pinpoint"
         echo $pid > $PID_DIR/$PID_FILE
 
         echo "---$WEB_IDENTIFIER initialization started. pid=$pid.---"
 
-        process_status=`curl 'http://localhost:28080/serverTime.pinpoint' 2>/dev/null | grep 'currentServerTime'`
+        process_status=`curl $check_url 2>/dev/null | grep 'currentServerTime'`
         end_count=0
 
         while [ -z $process_status ]
@@ -109,7 +131,7 @@ function func_start_pinpoint_web
 
                 sleep $UNIT_TIME
                 end_count=`expr $end_count + 1`
-                process_status=`curl 'http://localhost:28080/serverTime.pinpoint' 2>/dev/null | grep 'currentServerTime'`
+                process_status=`curl $check_url 2>/dev/null | grep 'currentServerTime'`
         done
 
         if [ -z $process_status ]; then
