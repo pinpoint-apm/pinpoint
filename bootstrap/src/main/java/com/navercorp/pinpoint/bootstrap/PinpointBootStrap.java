@@ -139,9 +139,19 @@ public class PinpointBootStrap {
             logger.severe("invalid Id. " + propertyName + " can only contain [a-zA-Z0-9], '.', '-', '_'. maxLength:" + maxSize + " value:" + value);
             return false;
         }
-
-        logger.info("check success. -D" + propertyName + ":" + value + " length:" + BytesUtils.toBytes(value).length);
+        if (logger.isLoggable(Level.INFO)) {
+            logger.info("check success. -D" + propertyName + ":" + value + " length:" + getLength(value));
+        }
         return true;
+    }
+
+    private static int getLength(String value) {
+        final byte[] bytes = BytesUtils.toBytes(value);
+        if (bytes == null) {
+            return 0;
+        } else {
+            return bytes.length;
+        }
     }
 
 
