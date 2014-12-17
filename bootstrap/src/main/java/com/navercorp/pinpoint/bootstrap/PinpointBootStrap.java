@@ -38,8 +38,9 @@ public class PinpointBootStrap {
         }
         final boolean duplicated = checkDuplicateLoadState();
         if (duplicated) {
-            // 중복 케이스는 내가 처리하면 안됨. 아래와 같은 코드는 없어야 한다.
-            //loadStateChange(BOOT_STRAP_LOAD_STATE_ERROR);
+            // Don't handle the duplicated state. Don't use it as bellow.
+
+            //changeLoadState(BOOT_STRAP_LOAD_STATE_ERROR);
             logPinpointAgentLoadFail();
             return;
         }
@@ -47,56 +48,56 @@ public class PinpointBootStrap {
         ClassPathResolver classPathResolver = new ClassPathResolver();
         boolean agentJarNotFound = classPathResolver.findAgentJar();
         if (!agentJarNotFound) {
-            // TODO 이거 변경해야 함.
+            // TODO must modify this
             logger.severe("pinpoint-bootstrap-x.x.x.jar not found.");
-            loadStateChange(BOOT_STRAP_LOAD_STATE_ERROR);
+            changeLoadState(BOOT_STRAP_LOAD_STATE_ERROR);
             logPinpointAgentLoadFail();
             return;
         }
 
         if (!isValidId("pinpoint.agentId", PinpointConstants.AGENT_NAME_MAX_LEN)) {
-            loadStateChange(BOOT_STRAP_LOAD_STATE_ERROR);
+            changeLoadState(BOOT_STRAP_LOAD_STATE_ERROR);
             logPinpointAgentLoadFail();
             return;
         }
         if (!isValidId("pinpoint.applicationName", PinpointConstants.APPLICATION_NAME_MAX_LEN)) {
-            loadStateChange(BOOT_STRAP_LOAD_STATE_ERROR);
+            changeLoadState(BOOT_STRAP_LOAD_STATE_ERROR);
             logPinpointAgentLoadFail();
             return;
         }
 
         String configPath = getConfigPath(classPathResolver);
         if (configPath == null ) {
-            loadStateChange(BOOT_STRAP_LOAD_STATE_ERROR);
-            // 설정파일을 못찾으므로 종료.
+            changeLoadState(BOOT_STRAP_LOAD_STATE_ERROR);
             logPinpointAgentLoadFail();
             return;
         }
-        // 로그가 저장될 위치를 시스템 properties로 저장한다.
+
+        // set  the path of log file as a system property
         saveLogFilePath(classPathResolver);
 
         try {
-            // 설정파일 로드 이게 bootstrap에 있어야 되나는게 맞나?
+            // Is it right to load the configuration in the bootstrap?
             ProfilerConfig profilerConfig = ProfilerConfig.load(configPath);
 
-            // 이게 로드할 lib List임.
+            // this is the library list that must be loaded
             List<URL> libUrlList = resolveLib(classPathResolver);
             AgentClassLoader agentClassLoader = new AgentClassLoader(libUrlList.toArray(new URL[libUrlList.size()]));
             agentClassLoader.setBootClass(BOOT_CLASS);
             logger.info("pinpoint agent start.");
             agentClassLoader.boot(classPathResolver.getAgentDirPath(), agentArgs, instrumentation, profilerConfig);
             logger.info("pinpoint agent start success.");
-            loadStateChange(BOOT_STRAP_LOAD_STATE_COMPLETE);
+            changeLoadState(BOOT_STRAP_LOAD_STATE_COMPLETE);
         } catch (Exception e) {
+            // unexpected exception that did not be checked above
             logger.log(Level.SEVERE, ProductInfo.CAMEL_NAME + " start fail. Caused:" + e.getMessage(), e);
-            // 위에서 리턴하는거에서 세는게 이
-            loadStateChange(BOOT_STRAP_LOAD_STATE_ERROR);
+            changeLoadState(BOOT_STRAP_LOAD_STATE_ERROR);
             logPinpointAgentLoadFail();
         }
 
     }
 
-    private static void loadStateChange(String loadState) {
+    private static void changeLoadState(String loadState) {
         System.setProperty(BOOT_STRAP_LOAD_STATE, loadState);
     }
 
@@ -111,7 +112,7 @@ public class PinpointBootStrap {
     private static boolean checkDuplicateLoadState() {
         final String exist = System.getProperty(BOOT_STRAP_LOAD_STATE);
         if (exist == null) {
-            loadStateChange(BOOT_STRAP_LOAD_STATE_LOADING);
+            changeLoadState(BOOT_STRAP_LOAD_STATE_LOADING);
         } else {
             if (logger.isLoggable(Level.SEVERE)) {
                 logger.severe("pinpoint-bootstrap already started. skip agent loading. loadState:" + exist);
@@ -128,7 +129,7 @@ public class PinpointBootStrap {
             logger.severe("-D" + propertyName + " is null. value:null");
             return false;
         }
-        // 문자열 앞뒤에 공백은 허용되지 않음.
+        // blanks not permitted around value
         value = value.trim();
         if (value.isEmpty()) {
             logger.severe("-D" + propertyName + " is empty. value:''");
@@ -182,7 +183,7 @@ public class PinpointBootStrap {
 
 
     private static List<URL> resolveLib(ClassPathResolver classPathResolver)  {
-        // 절대경로만 처리되지 않나함. 상대 경로(./../agentlib/lib등)일 경우의 처리가 있어야 될것 같음.
+        // this method may handle only absolute path,  need to handle relative path (./..agentlib/lib)
         String agentJarFullPath = classPathResolver.getAgentJarFullPath();
         String agentLibPath = classPathResolver.getAgentLibPath();
         List<URL> urlList = classPathResolver.resolveLib();

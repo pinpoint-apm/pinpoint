@@ -558,7 +558,7 @@ public class ProfilerConfig {
 
     // fortest
     void readPropertyValues() {
-        // TODO : use Properties defaultvalue instead of using temp variable.
+        // TODO : use  Properties's defaultvalue instead of using temp variable.
         final ValueResolver placeHolderResolver = new PlaceHolderResolver();
 
         this.profileEnable = readBoolean("profiler.enable", true);
@@ -673,7 +673,7 @@ public class ProfilerConfig {
         this.nbaseArcPipeline = readBoolean("profiler.nbase_arc.pipeline", true);
 
         //
-        // FIXME 임시용, line game netty configuration
+        // FIXME For temporary, netty configuration of Line Game
         //
         this.lineGameNettyParamDumpSize = readInt("profiler.line.game.netty.param.dumpsize", 512);
         this.lineGameNettyEntityDumpSize = readInt("profiler.line.game.netty.entity.dumpsize", 512);
@@ -690,7 +690,7 @@ public class ProfilerConfig {
         this.samplingEnable = readBoolean("profiler.sampling.enable", true);
         this.samplingRate = readInt("profiler.sampling.rate", 1);
 
-        // 샘플링 + io 조절 bufferSize 결정
+        // configuration for sampling and IO buffer 
         this.ioBufferingEnable = readBoolean("profiler.io.buffering.enable", true);
         // 버퍼 사이즈는 여기에 있는것은 문제가 있는것도 같음. 설정 조정의 필요성이 있음.
         this.ioBufferingBufferSize = readInt("profiler.io.buffering.buffersize", 20);
@@ -703,10 +703,11 @@ public class ProfilerConfig {
         // service type
         this.applicationServerType = readServiceType("profiler.applicationservertype");
 
-        // profile package include
-        // TODO 제거, 서비스 적용에 call stack view가 잘 보이는지 테스트하려고 추가함.
-        // 수집 데이터 크기 문제로 실 서비스에서는 사용 안함.
-        // 나중에 필요에 따라 정규식으로 바꿔도 되고...
+        
+        // TODO have to remove        
+        // profile package include to  test "call stack view".
+        // this config must not be used in service environment because the size of  profiling information get heavy.
+        // We need change configuration to regular expression.
         final String profileableClass = readString("profiler.include", "");
         if (!profileableClass.isEmpty()) {
             this.profilableClassFilter = new ProfilableClassFilter(profileableClass);

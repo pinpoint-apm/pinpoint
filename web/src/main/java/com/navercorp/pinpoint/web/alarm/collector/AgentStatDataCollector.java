@@ -22,7 +22,7 @@ public class AgentStatDataCollector extends DataCollector {
     private final ApplicationIndexDao applicationIndexDao;
     private final long timeSlotEndTime;
     private final long slotInterval;
-    private final AtomicBoolean init =new AtomicBoolean(false);// 동시에 checker들이 동작 되면 동시성 고려가 필요함
+    private final AtomicBoolean init =new AtomicBoolean(false); // need to consider the concurrency situation when checkers start simultaneously.
    
     private final Map<String, Long> agentHeapUsageRate = new HashMap<String, Long>();
     private final Map<String, Long> agentGcCount = new HashMap<String, Long>();
