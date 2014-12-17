@@ -37,7 +37,7 @@ CHECK_COUNT=24
 CLOSE_WAIT_TIME=`expr $UNIT_TIME \* $CHECK_COUNT`
 
 PROPERTIES=`cat $CONF_DIR/$CONF_FILE 2>/dev/null`
-PORT_KEY="example.web.port"
+KEY_PORT="example.web.port"
 
 function func_read_properties
 {
@@ -96,12 +96,12 @@ function func_init_log
         fi
 
         if [ -f  $LOGS_DIR/$LOG_FILE ]; then
-                echo "clear log=$LOGS_DIR/$LOG_FILE."
+                echo "rm $LOGS_DIR/$LOG_FILE."
                 rm $LOGS_DIR/$LOG_FILE
         fi
 
         if [ -f  $PID_DIR/$PID_FILE ]; then
-                echo "clear pid=$PID_DIR/$PID_FILE."
+                echo "rm $PID_DIR/$PID_FILE."
                 rm $PID_DIR/$PID_FILE
         fi
 
@@ -110,7 +110,7 @@ function func_init_log
 
 function func_start_pinpoint_web
 {
-	port=$( func_read_properties "$PORT_KEY" ) 
+	port=$( func_read_properties "$KEY_PORT" ) 
         pid=`nohup mvn -f $WEB_DIR/pom.xml clean package tomcat7:run -D$IDENTIFIER > $LOGS_DIR/$LOG_FILE 2>&1 & echo $!`
 	check_url="http://localhost:"$port"/serverTime.pinpoint"
         echo $pid > $PID_DIR/$PID_FILE
