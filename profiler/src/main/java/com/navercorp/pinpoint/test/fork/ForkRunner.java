@@ -1,7 +1,9 @@
 package com.navercorp.pinpoint.test.fork;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -107,11 +109,13 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
             try {
                 process = builder.start();
             } catch (IOException e) {
+                System.out.println("builder start fail Caused:" + e.getMessage());
+                e.printStackTrace();
                 return;
             }
 
-            Scanner out = new Scanner(process.getInputStream());
-
+            final InputStream inputStream = process.getInputStream();
+            final Scanner out = new Scanner(inputStream);
             try {
                 while (out.hasNextLine()) {
                     String line = out.nextLine();
@@ -146,6 +150,7 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
                 }
             } finally {
                 out.close();
+                close(inputStream);
             }
 
             try {
@@ -323,6 +328,17 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
             }
 
             return new ChildProcessException(exceptionClass + ": " + message, stackTrace);
+        }
+    }
+
+    private void close(Closeable closeable) {
+        if (closeable == null) {
+            return;
+        }
+        try {
+            closeable.close();
+        } catch (IOException e) {
+            // skip
         }
     }
 
