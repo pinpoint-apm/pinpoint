@@ -30,6 +30,8 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
         "pinpoint-profiler",
         "pinpoint/profiler"
     };
+
+    private static final String DEFAULT_ENCODING = "UTF-8";
     
     private final String agentJar;
     private final String configFile;
@@ -115,7 +117,7 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
             }
 
             final InputStream inputStream = process.getInputStream();
-            final Scanner out = new Scanner(inputStream);
+            final Scanner out = new Scanner(inputStream, DEFAULT_ENCODING);
             try {
                 while (out.hasNextLine()) {
                     String line = out.nextLine();
@@ -170,6 +172,8 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
             
             list.add("-Dpinpoint.agentId=build.test.0");
             list.add("-Dpinpoint.applicationName=test");
+
+            list.add("-Dfile.encoding=" + DEFAULT_ENCODING);
             
             if (isDebugMode()) {
                 list.addAll(getDebugOptions());
