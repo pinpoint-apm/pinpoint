@@ -25,7 +25,7 @@ this="$bin/$script"
 
 BASE_DIR=`dirname "$bin"`
 PINPOINT_BASE_DIR=`dirname "$BASE_DIR"`
-AGENT_DIR=$BASE_DIR/agent2
+AGENT_DIR=$BASE_DIR/agent
 TESTAPP_DIR=$BASE_DIR/testapp
 
 CONF_DIR=$BASE_DIR/conf
@@ -179,11 +179,11 @@ function func_start_pinpoint_testapp
 {
         maven_opt=$MAVEN_OPTS
         pinpoint_agent=`find $AGENT_DIR -name pinpoint-bootstrap-*.jar`
-        pinpoint_opt="-javaagent:$pinpoint_agent -Dpinpoint.agentId=testapp -Dpinpoint.applicationName=TESTAPP.TTTTEST"
+        pinpoint_opt="-javaagent:$pinpoint_agent -Dpinpoint.agentId=test-agent -Dpinpoint.applicationName=TESTAPP"
         export MAVEN_OPTS=$pinpoint_opt
 
         port=$( func_read_properties "$KEY_PORT" )
-        check_url="http://localhost:"$port"/httpclient4/queryNaver.pinpoint"
+        check_url="http://localhost:"$port"/getCurrentTimestamp.pinpoint"
 
         pid=`nohup mvn -f $TESTAPP_DIR/pom.xml clean package tomcat7:run -D$IDENTIFIER > $LOGS_DIR/$LOG_FILE 2>&1 & echo $!`
         echo $pid > $PID_DIR/$PID_FILE
@@ -192,9 +192,9 @@ function func_start_pinpoint_testapp
         echo "---$TESTAPP_IDENTIFIER initialization started. pid=$pid.---"
 
         end_count=0
-        process_status=`curl $check_url 2>/dev/null | grep 'queryNaver'`
+        process_status=`curl $check_url 2>/dev/null`
 
-        while [ -z $process_status ]
+        until [[ $process_status =~ ^-?[0-9]+$ ]];
         do
                 wait_time=`expr $end_count \* $UNIT_TIME`
                 echo "starting $TESTAPP_IDENTIFIER. $wait_time sec/$CLOSE_WAIT_TIME sec(close wait limit)."
@@ -205,7 +205,8 @@ function func_start_pinpoint_testapp
 
                 sleep $UNIT_TIME
                 end_count=`expr $end_count + 1`
-                process_status=`curl $check_url 2>/dev/null | grep 'queryNaver'`
+                process_status=`curl $check_url 2>/dev/null`
+
         done
 
         if [ -z $process_status ]; then
