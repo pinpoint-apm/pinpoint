@@ -328,7 +328,7 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
                 String trace = traceInText.get(i);
                 String[] tokens = trace.split(",");
 
-                stackTrace[i] = new StackTraceElement(tokens[0], tokens[1], tokens[2], Integer.valueOf(tokens[3]));
+                stackTrace[i] = new StackTraceElement(tokens[0], tokens[1], tokens[2], Integer.parseInt(tokens[3]));
             }
 
             return new ChildProcessException(exceptionClass + ": " + message, stackTrace);
