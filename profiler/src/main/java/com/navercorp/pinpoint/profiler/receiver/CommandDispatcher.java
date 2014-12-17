@@ -70,17 +70,17 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
     public void handleRequest(RequestPacket requestPacket, Channel channel) {
         logger.info("MessageReceive {} {}", requestPacket, channel);
 
-        TBase<?, ?> request = SerializationUtils.deserialize(requestPacket.getPayload(), deserializerFactory, null);
+        final TBase<?, ?> request = SerializationUtils.deserialize(requestPacket.getPayload(), deserializerFactory, null);
         
-        TBase response = null;
+        TBase response;
         if (request == null) {
-            TResult tResult = new TResult(false);
+
+            final TResult tResult = new TResult(false);
             tResult.setMessage("Unsupported Type.");
             
             response = tResult;
         } else {
-            ProfilerRequestCommandService service = commandServiceRegistry.getRequestService(request);
-            
+            final ProfilerRequestCommandService service = commandServiceRegistry.getRequestService(request);
             if (service == null) {
                 TResult tResult = new TResult(false);
                 tResult.setMessage("Unsupported Listener.");
@@ -91,19 +91,19 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
             }
         }
         
-        byte[] payload = SerializationUtils.serialize(response, serializerFactory, null);
+        final byte[] payload = SerializationUtils.serialize(response, serializerFactory, null);
         if (payload != null) {
             channel.write(new ResponsePacket(requestPacket.getRequestId(), payload));
-        }       
+        }
     }
 
     @Override
     public short handleStreamCreate(ServerStreamChannelContext streamChannelContext, StreamCreatePacket packet) {
         logger.info("MessageReceived handleStreamCreate {} {}", packet, streamChannelContext);
 
-        TBase<?, ?> request = SerializationUtils.deserialize(packet.getPayload(), deserializerFactory, null);
+        final TBase<?, ?> request = SerializationUtils.deserialize(packet.getPayload(), deserializerFactory, null);
         
-        ProfilerStreamCommandService service = commandServiceRegistry.getStreamService(request);
+        final ProfilerStreamCommandService service = commandServiceRegistry.getStreamService(request);
         if (service == null) {
             return StreamCreateFailPacket.PACKET_UNSUPPORT;
         }
@@ -118,6 +118,9 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
     }
 
     public boolean registerCommandService(ProfilerCommandService commandService) {
+        if (commandService == null) {
+            throw new NullPointerException("commandService must not be null");
+        }
         return this.commandServiceRegistry.addService(commandService);
     }
 
