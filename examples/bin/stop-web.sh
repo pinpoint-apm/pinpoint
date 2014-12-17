@@ -61,12 +61,12 @@ function func_clear_log
         echo "---clear $WEB_IDENTIFIER logs.---"
 
         if [ -f  $LOGS_DIR/$LOG_FILE ]; then
-                echo "clear log=$LOGS_DIR/$LOG_FILE."
+                echo "rm $LOGS_DIR/$LOG_FILE."
                 rm $LOGS_DIR/$LOG_FILE
         fi
 
         if [ -f  $PID_DIR/$PID_FILE ]; then
-                echo "clear pid=$PID_DIR/$PID_FILE."
+                echo "rm $PID_DIR/$PID_FILE."
                 rm $PID_DIR/$PID_FILE
         fi
 
