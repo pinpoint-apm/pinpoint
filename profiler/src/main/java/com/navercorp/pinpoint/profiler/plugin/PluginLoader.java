@@ -13,6 +13,9 @@ import java.util.ServiceLoader;
 import com.navercorp.pinpoint.exception.PinpointException;
 
 public class PluginLoader<T> {
+
+    public static final URL[] EMPTY_URL = new URL[0];
+
     private final Class<T> serviceType;
     private final ClassLoader classLoader;;
     
@@ -45,27 +48,30 @@ public class PluginLoader<T> {
         if (classLoader instanceof URLClassLoader) {
             return ((URLClassLoader)classLoader).getURLs();
         } else {
-            return new URL[0];
+            return EMPTY_URL;
         }
     }
 
     private static URL[] findJars(String pluginPath) {
-        File file = new File(pluginPath);
+        final File file = new File(pluginPath);
         
         if (!file.exists() || !file.isDirectory()) {
-            return new URL[0];
+            return EMPTY_URL;
         }
         
-        File[] jars = file.listFiles(new FilenameFilter() {
+        final File[] jars = file.listFiles(new FilenameFilter() {
             
             @Override
             public boolean accept(File dir, String name) {
                 return name.endsWith(".jar");
             }
         });
+
+        if (jars == null || jars.length == 0) {
+            return EMPTY_URL;
+        }
         
-        
-        URL[] urls = new URL[jars.length];
+        final URL[] urls = new URL[jars.length];
         
         for (int i = 0; i < jars.length; i++) {
             try {
