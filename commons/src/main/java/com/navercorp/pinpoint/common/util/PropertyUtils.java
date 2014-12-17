@@ -88,6 +88,7 @@ public class PropertyUtils {
             try {
                 closeable.close();
             } catch (IOException ignore) {
+                // skip
             }
         }
     }

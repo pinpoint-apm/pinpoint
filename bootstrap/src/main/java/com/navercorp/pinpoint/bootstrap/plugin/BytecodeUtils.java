@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.bootstrap.plugin;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -71,10 +72,10 @@ public abstract class BytecodeUtils {
         return buffer.array();
     }
 
-    private static void close(InputStream is) {
-        if (is != null) {
+    private static void close(Closeable closeable) {
+        if (closeable != null) {
             try {
-                is.close();
+                closeable.close();
             } catch (IOException e) {
                 // skip
             }
