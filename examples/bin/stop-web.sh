@@ -28,8 +28,6 @@ PID_FILE=examples.web.pid
 WEB_IDENTIFIER=pinpoint-example-web
 IDENTIFIER=maven.pinpoint.identifier=$WEB_IDENTIFIER
 
-process_status=0
-
 function func_close_process
 {
         echo "---$WEB_IDENTIFIER destroy started..---"
