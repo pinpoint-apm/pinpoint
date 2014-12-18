@@ -20,7 +20,7 @@ public class ResponseTimeDataCollector extends DataCollector {
     private final MapResponseDao responseDao;
     private final long timeSlotEndTime;
     private final long slotInterval;
-    private final AtomicBoolean init =new AtomicBoolean(false);// 동시에 checker들이 동작 되면 동시성 고려가 필요함
+    private final AtomicBoolean init =new AtomicBoolean(false); // need to consider the concurrency situation when checkers start simultaneously.
     
     private long slowCount = 0;
     private long errorCount = 0;

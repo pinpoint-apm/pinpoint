@@ -24,7 +24,7 @@ public class MapStatisticsCallerDataCollector extends DataCollector {
     private long timeSlotEndTime;
     private long slotInterval;
     private Map<String, LinkCallData> calleStatMap = new HashMap<String, LinkCallData>();
-    private final AtomicBoolean init =new AtomicBoolean(false);// 동시에 checker들이 동작 되면 동시성 고려가 필요함
+    private final AtomicBoolean init =new AtomicBoolean(false); // need to consider the concurrency situation when checkers start simultaneously.
     
     public MapStatisticsCallerDataCollector(DataCollectorCategory category, Application application, MapStatisticsCallerDao mapStatisticsCallerDao, long timeSlotEndTime, long slotInterval) {
         super(category);

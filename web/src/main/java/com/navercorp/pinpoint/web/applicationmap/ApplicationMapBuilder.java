@@ -48,7 +48,6 @@ public class ApplicationMapBuilder {
 
 
         appendNodeResponseTime(nodeList, linkList, nodeHistogramDataSource);
-        // agentInfo를 넣는다.
         appendAgentInfo(nodeList, linkDataDuplexMap, agentInfoService);
 
         final ApplicationMap map = new ApplicationMap(range, nodeList, linkList);
