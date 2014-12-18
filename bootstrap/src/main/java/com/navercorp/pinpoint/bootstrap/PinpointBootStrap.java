@@ -39,7 +39,6 @@ public class PinpointBootStrap {
         final boolean duplicated = checkDuplicateLoadState();
         if (duplicated) {
             // Don't handle the duplicated state. Don't use it as bellow.
-
             //changeLoadState(BOOT_STRAP_LOAD_STATE_ERROR);
             logPinpointAgentLoadFail();
             return;
@@ -73,7 +72,7 @@ public class PinpointBootStrap {
             return;
         }
 
-        // set  the path of log file as a system property
+        // set the path of log file as a system property
         saveLogFilePath(classPathResolver);
 
         try {

@@ -26,9 +26,9 @@ public class AsyncQueueingExecutor<T> implements Runnable {
     private final Thread executeThread;
     private final String executorName;
 
-    private final int maxDrainSize = 10;
+    private final int maxDrainSize;
     // 주의 single thread용임. ArrayList보다 더 단순한 오퍼레이션을 수행하는 Collection.
-    private final Collection<T> drain = new UnsafeArrayCollection<T>(maxDrainSize);
+    private final Collection<T> drain;
 
     private AsyncQueueingExecutorListener<T> listener = EMPTY_LISTENER;
 
@@ -44,6 +44,9 @@ public class AsyncQueueingExecutor<T> implements Runnable {
         this.queue = new LinkedBlockingQueue<T>(queueSize);
         this.executeThread = this.createExecuteThread(executorName);
         this.executorName = executeThread.getName();
+
+        this.maxDrainSize = 10;
+        this.drain = new UnsafeArrayCollection<T>(maxDrainSize);
     }
 
     private Thread createExecuteThread(String executorName) {
