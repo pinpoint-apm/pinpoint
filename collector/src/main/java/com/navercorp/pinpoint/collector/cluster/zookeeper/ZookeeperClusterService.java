@@ -144,8 +144,6 @@ public class ZookeeperClusterService extends AbstractClusterService {
 		
 		this.serviceState.changeStateStoped();
 		logger.info("{} destroying completed.", this.getClass().getSimpleName());
-
-		return;
 	}
 	
 	@Override
