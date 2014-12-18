@@ -3,6 +3,6 @@
 # + included_path_patterns
 # - excluded_path_patterns
 * default
-- \com\nhn\pinpoint\thrift\dto
-- \com\nhn\pinpoint\common\util\apache
-- \com\nhn\pinpoint\profiler\util\jdk
+- \com\navercorp\pinpoint\thrift\dto
+- \com\navercorp\pinpoint\common\util\apache
+- \com\navercorp\pinpoint\profiler\util\jdk
