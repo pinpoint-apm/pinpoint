@@ -83,7 +83,7 @@ function func_check_process
 
 function func_init_log
 {
-        echo "---initilize $WEB_IDENTIFIER logs.---"
+        echo "---initialize $WEB_IDENTIFIER logs.---"
 
         if [ ! -d $LOGS_DIR ]; then
                 echo "mkdir $LOGS_DIR"

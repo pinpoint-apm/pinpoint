@@ -34,14 +34,14 @@ function func_close_process
 
         PID=`cat $PID_DIR/$PID_FILE 2>/dev/null`
         if [ ! -z $PID ]; then
-                echo "$TESTAPP_IDENTIFIER shutdowning. pid=$PID."
+                echo "shutting down $TESTAPP_IDENTIFIER. pid=$PID."
                 ps aux | grep $PID | grep $IDENTIFIER | grep -v grep | awk '{print $2}' | xargs kill -9
         fi
 
         process_status=`ps aux | grep $IDENTIFIER | grep -v grep | wc -l`
 
         if [ ! $process_status -eq 0 ]; then
-                echo "$TESTAPP_IDENTIFIER shutdowning. idnetifier=$TESTAPP_IDENTIFIER."
+                echo "shutting down $TESTAPP_IDENTIFIER. identifier=$TESTAPP_IDENTIFIER."
                 ps aux | grep $IDENTIFIER | grep -v grep | awk '{print $2}' | xargs kill -9
         fi
 
