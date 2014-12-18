@@ -110,16 +110,16 @@ public class MapStatisticsCallerDataCollector extends DataCollector {
             }
             
             return calculatePercent(count, totalCount);
-        }            
+        }
         
         return 0;
     }
 
-    private int calculatePercent(long count, long totalCount) {
+    private long calculatePercent(long count, long totalCount) {
         if (totalCount == 0 || count == 0) {
             return 0;
         } else {
-            return Math.round((count * 100) / totalCount);
+            return (count * 100L) / totalCount;
         }
     }
 
