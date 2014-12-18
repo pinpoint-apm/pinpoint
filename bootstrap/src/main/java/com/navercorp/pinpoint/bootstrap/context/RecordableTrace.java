@@ -68,6 +68,8 @@ public interface RecordableTrace {
      * 이 데이터는 서버맵에서 WAS끼리 호출관계를 알아낼 떄 필요하다.
      * 
      * @param host host 값은 WAS를 호출한 URL상의 host를 가져와야 한다.
+     * 
+     * WAS_A -> WAS_B
      */
     void recordAcceptorHost(String host);
 

@@ -27,7 +27,7 @@ public class ProfilableClassFilter implements Filter<String> {
 	}
 
 	/**
-	 * TODO remove this. 테스트 장비에서 call stack view가 잘 보이는지 테스트 하려고 추가함.
+	 * TODO remove this. Added this method to test the "call stack view" on a test server
 	 *
 	 * @param className
 	 * @return
