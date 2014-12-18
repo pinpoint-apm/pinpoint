@@ -21,9 +21,6 @@ public class PinpointBootStrap {
 
     private static final Logger logger = Logger.getLogger(PinpointBootStrap.class.getName());
 
-    private static final int LIMIT_LENGTH = 24;
-    private static final String DELIMITER = TransactionIdUtils.TRANSACTION_ID_DELIMITER;
-
     public static final String BOOT_CLASS = "com.navercorp.pinpoint.profiler.DefaultAgent";
 
     public static final String BOOT_STRAP_LOAD_STATE = "com.navercorp.pinpoint.bootstrap.load.state";
