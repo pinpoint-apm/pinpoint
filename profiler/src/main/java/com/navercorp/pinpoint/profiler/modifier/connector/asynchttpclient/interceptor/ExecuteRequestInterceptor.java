@@ -15,6 +15,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
@@ -37,8 +38,8 @@ import com.ning.http.client.cookie.Cookie;
  */
 public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
 
-	protected PLogger logger;
-	protected boolean isDebug;
+	protected final PLogger logger = PLoggerFactory.getLogger(ExecuteRequestInterceptor.class);;
+	protected final boolean isDebug = logger.isDebugEnabled();
 
 	protected TraceContext traceContext;
 	protected MethodDescriptor descriptor;
@@ -58,7 +59,8 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 	protected SimpleSampler paramSampler;
 	protected int paramDumpSize;
 
-	@Override
+
+    @Override
 	public void before(Object target, Object[] args) {
 		if (isDebug) {
 			logger.beforeInterceptor(target, args);
@@ -156,7 +158,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 		if (port < 0) {
 			return host;
 		}
-		StringBuilder sb = new StringBuilder(host.length() + 8);
+		final StringBuilder sb = new StringBuilder(host.length() + 8);
 		sb.append(host);
 		sb.append(':');
 		sb.append(port);

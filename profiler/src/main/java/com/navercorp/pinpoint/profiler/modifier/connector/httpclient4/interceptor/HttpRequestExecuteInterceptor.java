@@ -27,8 +27,7 @@ public class HttpRequestExecuteInterceptor extends AbstractHttpRequestExecute im
     private static final int HTTP_REQUEST_INDEX = 1;
 
     public HttpRequestExecuteInterceptor() {
-        this.logger = PLoggerFactory.getLogger(this.getClass());
-        this.isDebug = logger.isDebugEnabled();
+        super(HttpRequestExecuteInterceptor.class);
     }
 
     @Override

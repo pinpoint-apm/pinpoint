@@ -36,7 +36,7 @@ public enum JvmVersion {
 	
 	public static JvmVersion getFromVersion(double javaVersion) {
 		for (JvmVersion version : JvmVersion.values()) {
-			if (version.version == javaVersion) {
+			if (Double.compare(version.version, javaVersion) == 0) {
 				return version;
 			}
 		}

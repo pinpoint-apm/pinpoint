@@ -69,7 +69,11 @@ import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
  */
 public class AsyncInternalClientExecuteInterceptor extends AbstractHttpRequestExecute implements TargetClassLoader {
 
-	@Override
+    public AsyncInternalClientExecuteInterceptor() {
+        super(AsyncInternalClientExecuteInterceptor.class);
+    }
+
+    @Override
 	protected NameIntValuePair<String> getHost(Object[] args) {
 		if (!(args[0] instanceof org.apache.http.nio.protocol.HttpAsyncRequestProducer)) {
 			return null;
