@@ -2,8 +2,6 @@ package com.navercorp.pinpoint.web.util;
 
 import com.navercorp.pinpoint.web.vo.Range;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  * @author emeroad
  */
