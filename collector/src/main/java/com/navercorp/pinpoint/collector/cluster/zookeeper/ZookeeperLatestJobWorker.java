@@ -123,8 +123,6 @@ public class ZookeeperLatestJobWorker implements Runnable {
 
 		this.workerState.changeStateStoped();
 		logger.info("{} destorying completed.", this.getClass().getSimpleName());
-
-		return;
 	}
 
 	@Override

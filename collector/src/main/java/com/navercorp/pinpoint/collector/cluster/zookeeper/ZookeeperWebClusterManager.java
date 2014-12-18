@@ -111,8 +111,6 @@ public class ZookeeperWebClusterManager implements Runnable {
 
 		this.workerState.changeStateStoped();
 		logger.info("{} destorying completed.", this.getClass().getSimpleName());
-
-		return;
 	}
 
 	// NoNode인 경우 Node생성후 재 호출

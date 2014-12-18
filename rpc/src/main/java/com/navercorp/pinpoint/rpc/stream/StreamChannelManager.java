@@ -125,7 +125,7 @@ public class StreamChannelManager {
 
 		switch (packetType) {
 			case PacketType.APPLICATION_STREAM_CLOSE:
-				handleStreamClose(context, (StreamClosePacket)packet);;
+				handleStreamClose(context, (StreamClosePacket)packet);
 				break;
 			case PacketType.APPLICATION_STREAM_PING:
 				handlePing(context, (StreamPingPacket) packet);
