@@ -5,9 +5,12 @@ import java.util.Random;
 /**
  * @author emeroad
  */
-public class TestByteUtils {
+public final class TestByteUtils {
 
     private static final Random RANDOM = new Random();
+
+    private TestByteUtils() {
+    }
 
     public static byte[] createRandomByte(int size) {
         byte[] bytes = new byte[size];

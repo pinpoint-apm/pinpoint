@@ -12,6 +12,9 @@ public final class ClassLoaderUtils {
         }
     };
 
+    private ClassLoaderUtils() {
+    }
+
     public static ClassLoader getDefaultClassLoader() {
         return getDefaultClassLoader(DEFAULT_CLASS_LOADER_CALLABLE);
     }

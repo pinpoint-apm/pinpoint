@@ -40,7 +40,7 @@ public class ControlMessageEncoder {
 	}
 
 	private void encode(Object value, ChannelBuffer cb) throws ProtocolException {
-		try {
+//		try {
 			if (value == null) {
 				encodeNull(cb);
 			} else if (value instanceof String) {
@@ -75,9 +75,9 @@ public class ControlMessageEncoder {
 			} else {
 				throw new ProtocolException("Unsupported type : " + value.getClass().getName());
 			}
-		} catch (Exception e) {
-			throw new ProtocolException(e);
-		}
+//		} catch (Exception e) {
+//			throw new ProtocolException(e);
+//		}
 	}
 
 	private void encodeNull(ChannelBuffer out) {

@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * @author koo.taejin
  */
-public class MapUtils {
+public final class MapUtils {
 
 	private MapUtils() {
 	}

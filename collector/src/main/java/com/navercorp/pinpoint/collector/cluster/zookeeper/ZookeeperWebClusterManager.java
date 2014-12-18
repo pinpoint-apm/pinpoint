@@ -97,9 +97,12 @@ public class ZookeeperWebClusterManager implements Runnable {
 
 		logger.info("{} destorying started.", this.getClass().getSimpleName());
 
-		queue.offer(stopTask);
+        final boolean stopOffer = queue.offer(stopTask);
+        if (!stopOffer) {
+            logger.warn("stopTask offer fail. Message Queue.");
+        }
 
-		boolean interrupted = false;
+        boolean interrupted = false;
 		while (this.workerThread.isAlive()) {
 			this.workerThread.interrupt();
 			try {
@@ -119,8 +122,7 @@ public class ZookeeperWebClusterManager implements Runnable {
 	public void handleAndRegisterWatcher(String path) {
 		if (workerState.isStarted()) {
 			if (zNodePath.equals(path)) {
-				boolean offerSuccess = queue.offer(getAndRegisterTask);
-
+				final boolean offerSuccess = queue.offer(getAndRegisterTask);
 				if (!offerSuccess) {
 					logger.info("Message Queue is Full.");
 				}
@@ -130,7 +132,6 @@ public class ZookeeperWebClusterManager implements Runnable {
 		} else {
 			WorkerState state = this.workerState.getCurrentState();
 			logger.info("{} invalid state {}.", this.getClass().getSimpleName(), state.toString());
-			return;
 		}
 	}
 

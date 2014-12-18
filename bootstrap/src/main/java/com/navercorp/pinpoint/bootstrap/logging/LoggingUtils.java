@@ -5,8 +5,10 @@ import java.util.Arrays;
 /**
  * @author emeroad
  */
-public class LoggingUtils {
+public final class LoggingUtils {
 
+    private LoggingUtils() {
+    }
 
     public static void logBefore(PLogger logger, Object target, String className, String methodName, String parameterDescription, Object[] args) {
         StringBuilder sb = new StringBuilder(512);

@@ -10,10 +10,10 @@ public final class SystemUtils {
     }
 
     public static long getCurrentThreadCpuTime() {
-		return THREAD_MX_BEAN.getCurrentThreadCpuTime();
-	}
+        return THREAD_MX_BEAN.getCurrentThreadCpuTime();
+    }
 
     public static long getCurrentThreadUserTime() {
-        return  THREAD_MX_BEAN.getCurrentThreadUserTime();
+        return THREAD_MX_BEAN.getCurrentThreadUserTime();
     }
 }

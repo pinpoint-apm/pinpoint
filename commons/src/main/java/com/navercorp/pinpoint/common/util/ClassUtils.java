@@ -3,11 +3,14 @@ package com.navercorp.pinpoint.common.util;
 /**
  * @author hyungil.jeong
  */
-public class ClassUtils {
+public final class ClassUtils {
     
     private static final Object CLASS_NOT_LOADED = null;
     private static final char PACKAGE_SEPARATOR = '.';
-    
+
+    private ClassUtils() {
+    }
+
     public static boolean isLoaded(String name) {
         return isLoaded(name, ClassLoaderUtils.getDefaultClassLoader());
     }

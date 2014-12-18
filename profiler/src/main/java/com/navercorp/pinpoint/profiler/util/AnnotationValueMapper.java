@@ -51,7 +51,6 @@ public final class AnnotationValueMapper {
         }
         String str = StringUtils.drop(value.toString());
         annotation.setValue(TAnnotationValue.stringValue(str));
-        return;
     }
 
 }

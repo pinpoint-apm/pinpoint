@@ -10,7 +10,10 @@ import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 /**
  * @author emeroad
  */
-public class SpanUtils {
+public final class SpanUtils {
+    private SpanUtils() {
+    }
+
     @Deprecated
 	public static byte[] getAgentIdTraceIndexRowKey(String agentId, long timestamp) {
 		if (agentId == null) {

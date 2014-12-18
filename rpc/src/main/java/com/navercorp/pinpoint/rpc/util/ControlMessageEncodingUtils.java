@@ -9,7 +9,7 @@ import com.navercorp.pinpoint.rpc.control.ProtocolException;
 /**
  * @author koo.taejin
  */
-public class ControlMessageEncodingUtils {
+public final class ControlMessageEncodingUtils {
 
 	private static final ControlMessageEncoder encoder = new ControlMessageEncoder();
 	private static final ControlMessageDecoder decoder = new ControlMessageDecoder();

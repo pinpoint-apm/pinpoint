@@ -668,7 +668,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         }
     }
 
-    class SocketHandlerContext {
+    static class SocketHandlerContext {
         private final Channel channel;
         private final StreamChannelManager streamChannelManager;
 

@@ -9,7 +9,10 @@ import java.util.StringTokenizer;
  * @author emeroad
  * @since 1.7.4
  */
-public class SqlUtils {
+public final class SqlUtils {
+    private SqlUtils() {
+    }
+
     /**
      * query의 빈줄<code>"&nbsp;&#92;t&#92;n&#92;r&#92;f"</code>을 모두 제거하여 한줄로 만든다.
      * @param original 원본 query

@@ -130,7 +130,7 @@ public class ClassEditorBuilder {
         }
     }
     
-    public class MetadataBuilder {
+    public static class MetadataBuilder {
         private String metadataAccessorTypeName;
         private MetadataInitializationStrategy initializationStrategy;
         

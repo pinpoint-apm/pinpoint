@@ -184,7 +184,6 @@ public class OracleNetConnectionDescriptorTokenizer {
         if (!(token == TOKEN_EQUAL_OBJECT)) {
             throw new OracleConnectionStringException("Syntax error. Expected token='=' :" + token.getToken());
         }
-        return ;
     }
 
     public void checkEndToken() {
@@ -196,7 +195,6 @@ public class OracleNetConnectionDescriptorTokenizer {
         if (!(token == TOKEN_KEY_END_OBJECT)) {
             throw new OracleConnectionStringException("Syntax error. Expected token=')' :" + token.getToken());
         }
-        return;
     }
 
     public Token getLiteralToken() {

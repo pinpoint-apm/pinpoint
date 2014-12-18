@@ -8,29 +8,31 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
-public abstract class BytecodeUtils {
-    private BytecodeUtils() { }
+public final class BytecodeUtils {
 
-    private static final Method DEFINE_CLASS;
-    
-    static {
-        Method method = null;
-        
+    private static final Method DEFINE_CLASS = getDefineClassMethod();
+
+    private BytecodeUtils() {
+    }
+
+
+    private static Method getDefineClassMethod() {
         try {
-            method = ClassLoader.class.getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class);
+            final Method method = ClassLoader.class.getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class);
             method.setAccessible(true);
+            return method;
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+            // link error
+            throw new RuntimeException("defineClass not found. Caused:" + e.getMessage(), e);
         } catch (SecurityException e) {
-            e.printStackTrace();
+            // link error
+            throw new RuntimeException("defineClass error. Caused:" + e.getMessage(), e);
         }
-
-        DEFINE_CLASS = method;
     }
 
     public static Class<?> defineClass(ClassLoader classLoader, String className, byte[] classFile) {
         try {
-            return (Class<?>)DEFINE_CLASS.invoke(classLoader, className, classFile, 0, classFile.length);
+            return (Class<?>) DEFINE_CLASS.invoke(classLoader, className, classFile, 0, classFile.length);
         } catch (Exception e) {
             return null;
         }
@@ -48,13 +50,13 @@ public abstract class BytecodeUtils {
         if (is == null) {
             throw new RuntimeException("No such class file: " + className);
         }
-        
+
         ReadableByteChannel channel = Channels.newChannel(is);
         ByteBuffer buffer;
-        
+
         try {
             buffer = ByteBuffer.allocate(is.available());
-        
+
             while (channel.read(buffer) >= 0) {
                 if (buffer.remaining() == 0) {
                     buffer.flip();
@@ -68,7 +70,7 @@ public abstract class BytecodeUtils {
         } finally {
             close(is);
         }
-        
+
         return buffer.array();
     }
 

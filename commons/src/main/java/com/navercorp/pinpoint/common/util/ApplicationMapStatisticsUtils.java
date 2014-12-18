@@ -19,6 +19,8 @@ import org.apache.hadoop.hbase.util.Bytes;
  * @author emeroad
  */
 public class ApplicationMapStatisticsUtils {
+    private ApplicationMapStatisticsUtils() {
+    }
 
     public static byte[] makeColumnName(short serviceType, String applicationName, String destHost, short slotNumber) {
         if (applicationName == null) {

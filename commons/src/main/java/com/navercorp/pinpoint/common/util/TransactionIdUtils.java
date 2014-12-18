@@ -12,6 +12,9 @@ public final class TransactionIdUtils {
     public static final String TRANSACTION_ID_DELIMITER = "^";
     public static final byte VERSION = 0;
 
+    private TransactionIdUtils() {
+    }
+
     public static String formatString(String agentId, long agentStartTime, long transactionSequence) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");

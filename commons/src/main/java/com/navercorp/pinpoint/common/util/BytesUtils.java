@@ -21,6 +21,8 @@ public final class BytesUtils {
     private static final String UTF8 = "UTF-8";
     private static final Logger LOGGER = Logger.getLogger(BytesUtils.class.getName());
 
+    private BytesUtils() {
+    }
 
     public static byte[] stringLongLongToBytes(final String string, final int maxStringSize, final long value1, final long value2) {
         if (string == null) {
