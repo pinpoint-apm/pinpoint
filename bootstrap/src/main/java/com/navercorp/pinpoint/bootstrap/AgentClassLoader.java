@@ -24,7 +24,7 @@ public class AgentClassLoader {
     private String bootClass;
 
     private Agent agentBootStrap;
-    private ContextClassLoaderExecuteTemplate executeTemplate;
+    private ContextClassLoaderExecuteTemplate<Object> executeTemplate;
 
     public AgentClassLoader(URL[] urls) {
         if (urls == null) {
@@ -34,7 +34,7 @@ public class AgentClassLoader {
         ClassLoader bootStrapClassLoader = AgentClassLoader.class.getClassLoader();
         this.classLoader = createClassLoader(urls, bootStrapClassLoader);
 
-        this.executeTemplate = new ContextClassLoaderExecuteTemplate(classLoader);
+        this.executeTemplate = new ContextClassLoaderExecuteTemplate<Object>(classLoader);
     }
 
 	private PinpointURLClassLoader createClassLoader(final URL[] urls, final ClassLoader bootStrapClassLoader) {
@@ -57,7 +57,7 @@ public class AgentClassLoader {
 
         final Class<?> bootStrapClazz = getBootStrapClass();
 
-        agentBootStrap = (Agent) executeTemplate.execute(new Callable<Object>() {
+        final Object agent = executeTemplate.execute(new Callable<Object>() {
             @Override
             public Object call() throws Exception {
                 try {
@@ -70,6 +70,18 @@ public class AgentClassLoader {
                 }
             }
         });
+
+        if (agent instanceof Agent) {
+            this.agentBootStrap = (Agent) agent;
+        } else {
+            String agentClassName;
+            if (agent == null) {
+                agentClassName = "Agent is null";
+            } else {
+                agentClassName = agent.getClass().getName();
+            }
+            throw new BootStrapException("Invalid AgentType. boot fail. AgentClass:" + agentClassName);
+        }
     }
 
 
@@ -77,7 +89,7 @@ public class AgentClassLoader {
         try {
             return this.classLoader.loadClass(bootClass);
         } catch (ClassNotFoundException e) {
-            throw new BootStrapException("boot class not found. Caused:" + e.getMessage(), e);
+            throw new BootStrapException("boot class not found. bootClass:" + bootClass + " Caused:" + e.getMessage(), e);
         }
     }
 
@@ -91,7 +103,7 @@ public class AgentClassLoader {
 
     private Object reflectionInvoke(Object target, String method, Class[] type, final Object[] args) {
         final Method findMethod = findMethod(target.getClass(), method, type);
-        return executeTemplate.execute(new Callable() {
+        return executeTemplate.execute(new Callable<Object>() {
             @Override
             public Object call() {
                 try {
