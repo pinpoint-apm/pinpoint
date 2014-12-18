@@ -43,7 +43,7 @@ CHECK_COUNT=24
 CLOSE_WAIT_TIME=`expr $UNIT_TIME \* $CHECK_COUNT`
 
 PROPERTIES=`cat $CONF_DIR/$CONF_FILE 2>/dev/null`
-PORT_KEY="example.collector.port"
+KEY_PORT="example.collector.port"
 
 function func_read_properties
 {
@@ -103,12 +103,12 @@ function func_init_log
         fi
 
         if [ -f  $LOGS_DIR/$LOG_FILE ]; then
-                echo "clear log=$LOGS_DIR/$LOG_FILE."
+                echo "rm $LOGS_DIR/$LOG_FILE."
                 rm $LOGS_DIR/$LOG_FILE
         fi
 
         if [ -f  $PID_DIR/$PID_FILE ]; then
-                echo "clear pid=$PID_DIR/$PID_FILE."
+                echo "rm $PID_DIR/$PID_FILE."
                 rm $PID_DIR/$PID_FILE
         fi
 
@@ -117,7 +117,7 @@ function func_init_log
 
 function func_check_running_pinpoint_collector()
 {
-	port=$( func_read_properties "$PORT_KEY" )
+	port=$( func_read_properties "$KEY_PORT" )
 
         if [[ "$OS_TYPE" == 'mac' ]]; then
 		main_port_num=`lsof -p $pid | grep TCP | grep $port | wc -l `
@@ -161,10 +161,10 @@ function func_start_pinpoint_collector
         done
 
         if [[ "$check_running_pinpoint_collector" == "true" ]]; then
-                echo "---$WEB_IDENTIFIER initialization completed. pid=$pid.---"
+                echo "---$COLLECTOR_IDENTIFIER initialization completed. pid=$pid.---"
                 tail -f  $LOGS_DIR/$LOG_FILE
         else
-                echo "---$WEB_IDENTIFIER initialization failed. pid=$pid.---"
+                echo "---$COLLECTOR_IDENTIFIER initialization failed. pid=$pid.---"
                 kill -9 $pid
         fi
 }

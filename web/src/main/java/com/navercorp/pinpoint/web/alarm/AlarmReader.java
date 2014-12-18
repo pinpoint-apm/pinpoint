@@ -77,7 +77,7 @@ public class AlarmReader implements ItemReader<AlarmChecker>, StepExecutionListe
         
         for (Rule rule : rules) {
             CheckerCategory checkerCategory = CheckerCategory.getValue(rule.getCheckerName());
-            DataCollector collector = collectorMap.get(checkerCategory);
+            DataCollector collector = collectorMap.get(checkerCategory.getDataCollectorCategory());
             
             if(collector == null) {
                 collector = dataCollectorFactory.createDataCollector(checkerCategory, application, timeSlotEndTime);

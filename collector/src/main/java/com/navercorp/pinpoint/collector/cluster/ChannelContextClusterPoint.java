@@ -84,6 +84,18 @@ public class ChannelContextClusterPoint implements TargetClusterPoint {
         return socketChannel.toString();
     }
     
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 17;
+        
+        result = prime * result + ((applicationName == null) ? 0 : applicationName.hashCode());
+        result = prime * result + ((agentId == null) ? 0 : agentId.hashCode());
+        result = prime * result + (int) (startTimeStamp ^ (startTimeStamp >>> 32));
+        result = prime * result + ((version == null) ? 0 : version.hashCode());
+        return result;
+    }
+    
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {

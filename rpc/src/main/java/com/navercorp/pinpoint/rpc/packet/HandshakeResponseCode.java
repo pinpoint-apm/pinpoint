@@ -42,27 +42,15 @@ public enum HandshakeResponseCode {
 
     public static HandshakeResponseCode getValue(int code, int subCode) {
         for (HandshakeResponseCode value : HandshakeResponseCode.values()) {
-            if (code != value.getCode()) {
-                continue;
+            if (code == value.getCode() && subCode != value.getSubCode()) {
+                return value;
             }
-
-            if (subCode != value.getSubCode()) {
-                continue;
-            }
-
-            return value;
         }
         
         for (HandshakeResponseCode value : HandshakeResponseCode.values()) {
-            if (code != value.getCode()) {
-                continue;
+            if (code == value.getCode() && 0 != value.getSubCode()) {
+                return value;
             }
-
-            if (0 != value.getSubCode()) {
-                continue;
-            }
-
-            return value;
         }
 
         return UNKOWN_CODE;

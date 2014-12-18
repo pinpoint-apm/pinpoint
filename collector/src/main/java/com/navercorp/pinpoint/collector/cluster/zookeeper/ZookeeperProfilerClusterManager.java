@@ -33,7 +33,6 @@ public class ZookeeperProfilerClusterManager implements SocketChannelStateChange
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private final ZookeeperClient client;
 	private final ZookeeperLatestJobWorker worker;
 
 	private final WorkerStateContext workerState;
@@ -49,7 +48,6 @@ public class ZookeeperProfilerClusterManager implements SocketChannelStateChange
 		this.workerState = new WorkerStateContext();
 		this.profileCluster = profileCluster;
 		
-		this.client = client;
 		this.worker = new ZookeeperLatestJobWorker(client, serverIdentifier);
 	}
 
@@ -99,9 +97,6 @@ public class ZookeeperProfilerClusterManager implements SocketChannelStateChange
 
 		this.workerState.changeStateStoped();
 		logger.info("{} destorying completed.", this.getClass().getSimpleName());
-
-		return;
-
 	}
 	
 	@Override
