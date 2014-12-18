@@ -230,7 +230,8 @@ public class ZookeeperClient {
 				try {
 					zookeeper.close();
 				} catch (InterruptedException ignore) {
-					logger.debug(ignore.getMessage(), ignore);
+					logger.info("Interrupted zookeeper.close(). Caused:" + ignore.getMessage(), ignore);
+                    Thread.currentThread().interrupt();
 				}
 			}
 		}
