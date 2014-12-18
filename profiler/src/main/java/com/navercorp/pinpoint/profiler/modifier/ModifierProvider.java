@@ -15,5 +15,5 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
  */
 @Deprecated
 public interface ModifierProvider {
-    public List<Modifier> getModifiers(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent);
+    List<Modifier> getModifiers(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent);
 }

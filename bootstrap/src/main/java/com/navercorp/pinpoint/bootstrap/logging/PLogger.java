@@ -36,87 +36,87 @@ public interface PLogger {
 
 
 
-    public boolean isDebugEnabled();
+    boolean isDebugEnabled();
 
 
 
-    public void debug(String msg);
+    void debug(String msg);
 
 
 
-    public void debug(String format, Object arg);
-
-
-
-
-    public void debug(String format, Object arg1, Object arg2);
-
-
-    public void debug(String format, Object[] argArray);
-
-
-    public void debug(String msg, Throwable t);
+    void debug(String format, Object arg);
 
 
 
 
-
-    public boolean isInfoEnabled();
-
-
-    public void info(String msg);
+    void debug(String format, Object arg1, Object arg2);
 
 
+    void debug(String format, Object[] argArray);
 
-    public void info(String format, Object arg);
+
+    void debug(String msg, Throwable t);
 
 
 
-    public void info(String format, Object arg1, Object arg2);
 
 
-    public void info(String format, Object[] argArray);
+    boolean isInfoEnabled();
 
 
-    public void info(String msg, Throwable t);
-
-
-
-    public boolean isWarnEnabled();
-
-
-    public void warn(String msg);
-
-
-    public void warn(String format, Object arg);
-
-
-    public void warn(String format, Object[] argArray);
-
-
-    public void warn(String format, Object arg1, Object arg2);
-
-
-    public void warn(String msg, Throwable t);
+    void info(String msg);
 
 
 
-    public boolean isErrorEnabled();
+    void info(String format, Object arg);
 
 
-    public void error(String msg);
+
+    void info(String format, Object arg1, Object arg2);
 
 
-    public void error(String format, Object arg);
+    void info(String format, Object[] argArray);
 
 
-    public void error(String format, Object arg1, Object arg2);
+    void info(String msg, Throwable t);
 
 
-    public void error(String format, Object[] argArray);
+
+    boolean isWarnEnabled();
 
 
-    public void error(String msg, Throwable t);
+    void warn(String msg);
+
+
+    void warn(String format, Object arg);
+
+
+    void warn(String format, Object[] argArray);
+
+
+    void warn(String format, Object arg1, Object arg2);
+
+
+    void warn(String msg, Throwable t);
+
+
+
+    boolean isErrorEnabled();
+
+
+    void error(String msg);
+
+
+    void error(String format, Object arg);
+
+
+    void error(String format, Object arg1, Object arg2);
+
+
+    void error(String format, Object[] argArray);
+
+
+    void error(String msg, Throwable t);
 
 
 
