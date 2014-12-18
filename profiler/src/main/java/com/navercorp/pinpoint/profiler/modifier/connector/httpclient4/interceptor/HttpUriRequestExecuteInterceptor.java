@@ -25,8 +25,7 @@ public class HttpUriRequestExecuteInterceptor extends AbstractHttpRequestExecute
     private static final int HTTP_URI_REQUEST_INDEX = 0;
 
     public HttpUriRequestExecuteInterceptor() {
-        this.logger = PLoggerFactory.getLogger(this.getClass());
-        this.isDebug = logger.isDebugEnabled();
+        super(HttpUriRequestExecuteInterceptor.class);
     }
 
     @Override

@@ -11,6 +11,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
@@ -33,8 +34,8 @@ import java.io.Reader;
  */
 public abstract class AbstractHttpRequestExecute implements TraceContextSupport, ByteCodeMethodDescriptorSupport, SimpleAroundInterceptor {
 
-    protected PLogger logger;
-    protected boolean isDebug;
+    protected final PLogger logger;
+    protected final boolean isDebug;
 
     protected TraceContext traceContext;
     protected MethodDescriptor descriptor;
@@ -46,6 +47,11 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
     protected boolean entity;
     protected DumpType entityDumpType;
     protected SimpleSampler entitySampler;
+
+    public AbstractHttpRequestExecute(Class<? extends AbstractHttpRequestExecute> childClazz) {
+        this.logger = PLoggerFactory.getLogger(childClazz);
+        this.isDebug = logger.isDebugEnabled();
+    }
 
     abstract NameIntValuePair<String> getHost(Object[] args);
 
