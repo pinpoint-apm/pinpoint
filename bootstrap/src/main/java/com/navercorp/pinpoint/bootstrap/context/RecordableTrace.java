@@ -69,7 +69,7 @@ public interface RecordableTrace {
      * 
      * @param host host 값은 WAS를 호출한 URL상의 host를 가져와야 한다.
      * 
-     * WAS_A -> WAS_B
+     *
      */
     void recordAcceptorHost(String host);
 
