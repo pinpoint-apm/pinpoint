@@ -4,6 +4,8 @@ package com.navercorp.pinpoint.common.util;
  * @author emeroad
  */
 public final class TimeUtils {
+    private TimeUtils() {
+    }
 
     public static long reverseTimeMillis(long currentTimeMillis) {
         return Long.MAX_VALUE - currentTimeMillis;

@@ -3,7 +3,11 @@ package com.navercorp.pinpoint.thrift.io;
 /**
  * @author emeroad
  */
-class BytesUtils {
+final class BytesUtils {
+
+    private BytesUtils() {
+    }
+
     public static byte writeShort1(final short value) {
         return (byte) (value >> 8);
     }

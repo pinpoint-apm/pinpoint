@@ -5,7 +5,10 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
 /**
  * @author emeroad
  */
-public class ParameterUtils {
+public final class ParameterUtils {
+
+    private ParameterUtils() {
+    }
 
     public static int findFirstString(MethodInfo method, int maxIndex) {
         if (method == null) {

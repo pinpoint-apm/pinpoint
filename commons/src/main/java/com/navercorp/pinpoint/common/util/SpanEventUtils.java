@@ -6,9 +6,15 @@ import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 /**
  * @author emeroad
  */
-public class SpanEventUtils {
+public final class SpanEventUtils {
+
+    private SpanEventUtils() {
+    }
 
     public static boolean hasException(TSpanEvent spanEvent) {
+        if (spanEvent == null) {
+            throw new NullPointerException("spanEvent must not be null");
+        }
         if (spanEvent.isSetExceptionInfo()) {
             return true;
         }

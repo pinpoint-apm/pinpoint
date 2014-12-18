@@ -175,7 +175,6 @@ public class Slf4jPLoggerAdapter implements PLogger {
             }
             sb.append(')');
         }
-        return;
     }
 
     private static String normalizedParameter(Object arg) {

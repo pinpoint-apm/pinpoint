@@ -5,7 +5,10 @@ import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 /**
  * @author emeroad
  */
-public class DatabaseInfoTraceValueUtils {
+public final class DatabaseInfoTraceValueUtils {
+
+    private DatabaseInfoTraceValueUtils() {
+    }
 
     public static DatabaseInfo __getTraceDatabaseInfo(Object target, DatabaseInfo defaultValue) {
         if (target == null) {

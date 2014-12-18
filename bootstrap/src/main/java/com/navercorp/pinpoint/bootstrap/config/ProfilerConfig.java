@@ -17,6 +17,7 @@ import java.util.logging.Logger;
  */
 public class ProfilerConfig {
     private static final Logger logger = Logger.getLogger(ProfilerConfig.class.getName());
+    private static final String DEFAULT_IP = "127.0.0.1";
 
     private final Properties properties;
     private final PropertyPlaceholderHelper propertyPlaceholderHelper = new PropertyPlaceholderHelper("${", "}");
@@ -63,13 +64,13 @@ public class ProfilerConfig {
 
     private boolean profileEnable = false;
 
-    private String collectorSpanServerIp = "127.0.0.1";
+    private String collectorSpanServerIp = DEFAULT_IP;
     private int collectorSpanServerPort = 9996;
 
-    private String collectorStatServerIp = "127.0.0.1";
+    private String collectorStatServerIp = DEFAULT_IP;
     private int collectorStatServerPort = 9995;
 
-    private String collectorTcpServerIp = "127.0.0.1";
+    private String collectorTcpServerIp = DEFAULT_IP;
     private int collectorTcpServerPort = 9994;
 
     private int spanDataSenderWriteQueueSize = 1024 * 5;
@@ -564,13 +565,13 @@ public class ProfilerConfig {
         this.profileEnable = readBoolean("profiler.enable", true);
 
 
-        this.collectorSpanServerIp = readString("profiler.collector.span.ip", "127.0.0.1", placeHolderResolver);
+        this.collectorSpanServerIp = readString("profiler.collector.span.ip", DEFAULT_IP, placeHolderResolver);
         this.collectorSpanServerPort = readInt("profiler.collector.span.port", 9996);
 
-        this.collectorStatServerIp = readString("profiler.collector.stat.ip", "127.0.0.1", placeHolderResolver);
+        this.collectorStatServerIp = readString("profiler.collector.stat.ip", DEFAULT_IP, placeHolderResolver);
         this.collectorStatServerPort = readInt("profiler.collector.stat.port", 9995);
 
-        this.collectorTcpServerIp = readString("profiler.collector.tcp.ip", "127.0.0.1", placeHolderResolver);
+        this.collectorTcpServerIp = readString("profiler.collector.tcp.ip", DEFAULT_IP, placeHolderResolver);
         this.collectorTcpServerPort = readInt("profiler.collector.tcp.port", 9994);
 
         this.spanDataSenderWriteQueueSize = readInt("profiler.spandatasender.write.queue.size", 1024 * 5);

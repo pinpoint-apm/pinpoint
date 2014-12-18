@@ -1,13 +1,11 @@
 package com.navercorp.pinpoint.common.bo;
 
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 
 import org.apache.hadoop.hbase.util.Bytes;
-
-import static com.navercorp.pinpoint.common.PinpointConstants.*;
-import static com.navercorp.pinpoint.common.util.BytesUtils.*;
 
 /**
  * @author emeroad
@@ -67,18 +65,18 @@ public class StringMetaDataBo {
     }
 
     public void readRowKey(byte[] rowKey) {
-        this.agentId = Bytes.toString(rowKey, 0, AGENT_NAME_MAX_LEN).trim();
+        this.agentId = Bytes.toString(rowKey, 0, PinpointConstants.AGENT_NAME_MAX_LEN).trim();
         this.startTime = TimeUtils.recoveryTimeMillis(readTime(rowKey));
         this.stringId = readKeyCode(rowKey);
     }
 
 
     private static long readTime(byte[] rowKey) {
-        return BytesUtils.bytesToLong(rowKey, AGENT_NAME_MAX_LEN);
+        return BytesUtils.bytesToLong(rowKey, PinpointConstants.AGENT_NAME_MAX_LEN);
     }
 
     private static int readKeyCode(byte[] rowKey) {
-        return BytesUtils.bytesToInt(rowKey, AGENT_NAME_MAX_LEN + LONG_BYTE_LENGTH);
+        return BytesUtils.bytesToInt(rowKey, PinpointConstants.AGENT_NAME_MAX_LEN + BytesUtils.LONG_BYTE_LENGTH);
     }
 
     public byte[] toRowKey() {

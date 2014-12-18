@@ -13,11 +13,14 @@ import java.util.regex.Pattern;
 /**
  * @author emeroad
  */
-public class PreparedStatementUtils {
+public final class PreparedStatementUtils {
 
     private static final Pattern BIND_SETTER = Pattern.compile("set[A-Z]([a-zA-Z]+)");
 
     private static final List<Method> bindMethod;
+
+    private PreparedStatementUtils() {
+    }
 
     static {
         bindMethod = findBindVariableSetMethod0();

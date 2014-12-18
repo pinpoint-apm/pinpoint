@@ -7,14 +7,13 @@ import java.util.Map;
 /**
  * @author hyungil.jeong
  */
-public class JvmUtils {
+public final class JvmUtils {
 	private static final RuntimeMXBean RUNTIME_MX_BEAN = ManagementFactory.getRuntimeMXBean();
 	private static final Map<String, String> SYSTEM_PROPERTIES = RUNTIME_MX_BEAN.getSystemProperties();
 	
 	private static final JvmVersion JVM_VERSION = _getVersion();
 	
 	private JvmUtils() {
-		throw new IllegalAccessError();
 	}
 	
 	public static JvmVersion getVersion() {

@@ -29,7 +29,7 @@ public final class RuntimeMXBeanUtils {
     }
     
     public static List<String> getVmArgs() {
-        List<String> vmArgs = RUNTIME_MBEAN.getInputArguments();
+        final List<String> vmArgs = RUNTIME_MBEAN.getInputArguments();
         if (vmArgs == null) {
             return Collections.emptyList();
         }
@@ -74,6 +74,10 @@ public final class RuntimeMXBeanUtils {
             logger.log(Level.WARNING, "RuntimeMXBean.getStartTime() unsupported. Caused:" + e.getMessage(), e);
             return System.currentTimeMillis();
         }
+    }
+
+    public static String getName() {
+        return RUNTIME_MBEAN.getName();
     }
 
     private static Logger getLogger() {

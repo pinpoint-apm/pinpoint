@@ -51,7 +51,7 @@ public abstract class AbstractDispatchHandler implements DispatchHandler {
         throw new UnsupportedOperationException("Handler not found. Unknown type of data received. tBase=" + tBase);
     }
     
-    public TBase dispatchRequestMessage(org.apache.thrift.TBase<?,?> tBase, byte[] packet, int offset, int length) {
+    public TBase dispatchRequestMessage(TBase<?,?> tBase, byte[] packet, int offset, int length) {
         // accepted time 마크
         acceptedTimeService.accept();
 

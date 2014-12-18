@@ -9,6 +9,9 @@ final class HeaderUtils {
     public static final int PASS_L4 = 85; // Udp
     public static final int FAIL = 0;
 
+    private HeaderUtils() {
+    }
+
     public static int validateSignature(byte signature) {
         if (Header.SIGNATURE == signature) {
             return OK;

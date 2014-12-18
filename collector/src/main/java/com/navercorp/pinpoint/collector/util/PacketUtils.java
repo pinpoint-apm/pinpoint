@@ -7,7 +7,9 @@ import java.net.DatagramPacket;
 /**
  * @author emeroad
  */
-public class PacketUtils {
+public final class PacketUtils {
+    private PacketUtils() {
+    }
 
     public static String dumpDatagramPacket(DatagramPacket datagramPacket) {
         if (datagramPacket == null) {

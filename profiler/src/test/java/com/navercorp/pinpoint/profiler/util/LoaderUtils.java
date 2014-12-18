@@ -8,6 +8,9 @@ import javassist.Loader;
  */
 public final class LoaderUtils {
 
+    private LoaderUtils() {
+    }
+
     public static Loader createLoader(ClassPool classPool) {
         if (classPool == null) {
             throw new NullPointerException("classPool must not be null");

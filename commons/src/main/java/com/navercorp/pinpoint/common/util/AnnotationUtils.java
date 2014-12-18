@@ -10,7 +10,9 @@ import com.navercorp.pinpoint.common.bo.Span;
 /**
  * @author emeroad
  */
-public class AnnotationUtils {
+public final class AnnotationUtils {
+    private AnnotationUtils() {
+    }
 
     public static String findApiAnnotation(List<AnnotationBo> list) {
         if (list == null) {

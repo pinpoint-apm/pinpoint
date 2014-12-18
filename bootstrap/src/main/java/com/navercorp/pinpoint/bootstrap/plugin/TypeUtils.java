@@ -1,6 +1,10 @@
 package com.navercorp.pinpoint.bootstrap.plugin;
 
-public abstract class TypeUtils {
+public final class TypeUtils {
+
+    private TypeUtils() {
+    }
+
     public static Class<?> getWrapperOf(Class<?> primitive) {
         if (primitive == boolean.class) {
             return Boolean.class;

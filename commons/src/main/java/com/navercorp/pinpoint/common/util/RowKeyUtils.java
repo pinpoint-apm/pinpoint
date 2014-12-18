@@ -8,9 +8,11 @@ import org.apache.hadoop.hbase.util.Bytes;
 /**
  * @author emeroad
  */
-public class RowKeyUtils {
+public final class RowKeyUtils {
+    private RowKeyUtils() {
+    }
 
-	public static byte[] concatFixedByteAndLong(byte[] fixedBytes, int maxFixedLength, long l) {
+    public static byte[] concatFixedByteAndLong(byte[] fixedBytes, int maxFixedLength, long l) {
 		if (fixedBytes == null) {
 			throw new NullPointerException("fixedBytes must not null");
 		}

@@ -3,11 +3,14 @@ package com.navercorp.pinpoint.common.util;
 /**
  * @author emeroad
  */
-public class HttpUtils {
+public final class HttpUtils {
 
     private static final String UTF8 = "UTF-8";
 
     private static final String CHARSET = "charset=";
+
+    private HttpUtils() {
+    }
 
     public static String parseContentTypeCharset(String contentType) {
         return parseContentTypeCharset(contentType, UTF8);

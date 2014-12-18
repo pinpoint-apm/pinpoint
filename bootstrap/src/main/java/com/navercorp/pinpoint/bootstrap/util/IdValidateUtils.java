@@ -3,14 +3,13 @@ package com.navercorp.pinpoint.bootstrap.util;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
-import java.io.UnsupportedEncodingException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * @author emeroad
  */
-public class IdValidateUtils {
+public final class IdValidateUtils {
 
     private static final int DEFAULT_MAX_LENGTH = PinpointConstants.AGENT_NAME_MAX_LEN;
 
