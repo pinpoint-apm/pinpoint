@@ -32,15 +32,12 @@ public class PluginLoader<T> {
     }
 
     public List<T> loadPlugins() {
-        ServiceLoader<T> loader = ServiceLoader.load(serviceType, classLoader);
+        ServiceLoader<T> serviceLoader = ServiceLoader.load(serviceType, classLoader);
         
-        Iterator<T> iterator = loader.iterator();
         List<T> plugins = new ArrayList<T>();
-        
-        while (iterator.hasNext()) {
-            plugins.add(iterator.next());
+        for (T plugin : serviceLoader) {
+            plugins.add(plugin);
         }
-        
         return plugins;
     }
     

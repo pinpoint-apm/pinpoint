@@ -16,8 +16,8 @@ public class FrontCacheGetFutureGetInterceptor implements SimpleAroundIntercepto
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private MetaObject<Object> getCacheName = new MetaObject<Object>("__getCacheName");
-    private MetaObject<Object> getCacheKey = new MetaObject<Object>("__getCacheKey");
+    private final MetaObject<Object> getCacheName = new MetaObject<Object>("__getCacheName");
+//    private final MetaObject<Object> getCacheKey = new MetaObject<Object>("__getCacheKey");
 
     private MethodDescriptor methodDescriptor;
     private TraceContext traceContext;
