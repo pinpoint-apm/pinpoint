@@ -28,8 +28,6 @@ PID_FILE=examples.collector.pid
 COLLECTOR_IDENTIFIER=pinpoint-example-collector
 IDENTIFIER=maven.pinpoint.identifier=$COLLECTOR_IDENTIFIER
 
-process_status=0
-
 function func_close_process
 {
         echo "---$COLLECTOR_IDENTIFIER destroy started..---"

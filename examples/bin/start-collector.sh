@@ -115,7 +115,7 @@ function func_init_log
         # will add validation log file.
 }
 
-function func_check_running_pinpoint_collector()
+function func_check_running_pinpoint_collector
 {
 	port=$( func_read_properties "$KEY_PORT" )
 

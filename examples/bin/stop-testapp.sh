@@ -28,8 +28,6 @@ PID_FILE=examples.testapp.pid
 TESTAPP_IDENTIFIER=pinpoint-example-testapp
 IDENTIFIER=maven.pinpoint.identifier=$TESTAPP_IDENTIFIER
 
-process_status=0
-
 function func_close_process
 {
         echo "---$TESTAPP_IDENTIFIER destroy started..---"
