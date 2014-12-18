@@ -1,13 +1,7 @@
 package com.navercorp.pinpoint.web.controller;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
 
-import com.navercorp.pinpoint.common.bo.AgentInfoBo;
 import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
-import com.navercorp.pinpoint.web.applicationmap.link.ServerMatcher;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
 import com.navercorp.pinpoint.web.service.AgentStatService;
 import com.navercorp.pinpoint.web.util.TimeWindow;
@@ -16,7 +10,6 @@ import com.navercorp.pinpoint.web.vo.AgentStat;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.linechart.agentstat.AgentStatChartGroup;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.List;
 
 /**
  * @author emeroad
@@ -42,9 +37,9 @@ public class AgentStatController {
     @Autowired
     private AgentInfoService agentInfoService;
 
-    @Autowired(required=false)
+    @Autowired(required = false)
     private MatcherGroup matcherGroup;
-        
+
     @RequestMapping(value = "/getAgentStat", method = RequestMethod.GET)
     @ResponseBody
     public AgentStatChartGroup getAgentStat(

@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.DatagramPacket;
 
-import com.navercorp.pinpoint.thrift.io.UnsafeByteArrayOutputStream;
-
 /**
  * byte arrays position
  * 
