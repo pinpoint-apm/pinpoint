@@ -47,15 +47,10 @@ public interface InstrumentClass {
     int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, Scope scope) throws InstrumentException, NotFoundInstrumentException;
 
     int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException;
+
     /**
-     * methodName, args가 일치하는 메소드가 클래스에 구현되어있는 경우에만 scope interceptor를 적용합니다.
-     * 
-     * @param methodName
-     * @param args
-     * @param interceptor
-     * @param scope
-     * @return
-     * @throws InstrumentException
+     * Adds a scope interceptor to a method with matching methodName, and arguments.
+     * Note that the scope interceptor is added only if the method is actually implemented in the instrumented class.
      */
     int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, Scope scope) throws InstrumentException;
 
@@ -76,13 +71,13 @@ public interface InstrumentClass {
 	Class<?> toClass() throws InstrumentException;
 
     /**
-     * 대신 addTraceValue 를 사용하라.
+     * Use addTraceValue instead of this method.
      */
     @Deprecated
     void addTraceVariable(String variableName, String setterName, String getterName, String variableType, String initValue) throws InstrumentException;
 
     /**
-     * 대신 addTraceValue 를 사용하라.
+     * Use addTraceValue instead of this method.
      */
     @Deprecated
 	void addTraceVariable(String variableName, String setterName, String getterName, String variableType) throws InstrumentException;

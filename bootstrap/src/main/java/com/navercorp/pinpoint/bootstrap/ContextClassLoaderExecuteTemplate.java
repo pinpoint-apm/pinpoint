@@ -3,8 +3,8 @@ package com.navercorp.pinpoint.bootstrap;
 import java.util.concurrent.Callable;
 
 /**
- * This template is used for changing the current thread's classloader to assigned one and execute callable.
- * 
+ * This template is used for changing the current thread's classloader to the assigned one and executing a callable.
+ *
  * @author emeroad
  */
 public class ContextClassLoaderExecuteTemplate<V> {
@@ -25,9 +25,9 @@ public class ContextClassLoaderExecuteTemplate<V> {
             try {
                 return callable.call();
             } finally {
-                // even though  the before classloader  is null, rollback  is needed.
+                // even though  the "before" classloader  is null, rollback  is needed.
                 // if an exception occurs before callable.call(), the call flow can't reach here.
-                // so rollback here is right.
+                // so  rollback  here is right.
                 currentThread.setContextClassLoader(before);
             }
         } catch (BootStrapException ex){
