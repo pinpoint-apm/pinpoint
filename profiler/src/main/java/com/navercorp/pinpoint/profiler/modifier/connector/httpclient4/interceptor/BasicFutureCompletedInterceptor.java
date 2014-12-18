@@ -8,6 +8,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import com.navercorp.pinpoint.bootstrap.interceptor.TraceContextSupport;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.ServiceType;
 
 /**
@@ -42,8 +43,8 @@ import com.navercorp.pinpoint.common.ServiceType;
  */
 public class BasicFutureCompletedInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
 
-	protected PLogger logger;
-	protected boolean isDebug;
+	protected final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+	protected final boolean isDebug = logger.isDebugEnabled();
 
 	protected TraceContext traceContext;
 	protected MethodDescriptor descriptor;

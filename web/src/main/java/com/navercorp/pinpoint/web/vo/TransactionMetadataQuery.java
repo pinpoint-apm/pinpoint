@@ -1,10 +1,9 @@
 package com.navercorp.pinpoint.web.vo;
 
-import java.util.*;
-import java.util.Map.Entry;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * 
  * @author netspider
  * @author emeroad
  */
@@ -12,31 +11,31 @@ public class TransactionMetadataQuery {
 
     private final List<QueryCondition> queryConditionList;
 
-	public TransactionMetadataQuery() {
+    public TransactionMetadataQuery() {
         this.queryConditionList = new ArrayList<QueryCondition>();
-	}
+    }
 
-	public void addQueryCondition(String transactionId, long collectorAcceptTime, int responseTime) {
+    public void addQueryCondition(String transactionId, long collectorAcceptTime, int responseTime) {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }
         TransactionId traceId = new TransactionId(transactionId);
         QueryCondition condition = new QueryCondition(traceId, collectorAcceptTime, responseTime);
         queryConditionList.add(condition);
-	}
+    }
 
 
-	public List<TransactionId> getTransactionIdList() {
-		final List<TransactionId> result = new ArrayList<TransactionId>(queryConditionList.size());
-		for (QueryCondition queryCondition : queryConditionList) {
-			result.add(queryCondition.getTransactionId());
-		}
-		return result;
-	}
+    public List<TransactionId> getTransactionIdList() {
+        final List<TransactionId> result = new ArrayList<TransactionId>(queryConditionList.size());
+        for (QueryCondition queryCondition : queryConditionList) {
+            result.add(queryCondition.getTransactionId());
+        }
+        return result;
+    }
 
-	public int size() {
-		return queryConditionList.size();
-	}
+    public int size() {
+        return queryConditionList.size();
+    }
 
     @Override
     public String toString() {
@@ -51,30 +50,30 @@ public class TransactionMetadataQuery {
     }
 
     public static final class QueryCondition {
-		private final TransactionId transactionId;
-		private final long collectorAcceptorTime;
-		private final int responseTime;
+        private final TransactionId transactionId;
+        private final long collectorAcceptorTime;
+        private final int responseTime;
 
-		public QueryCondition(TransactionId transactionId, long collectorAcceptorTime, int responseTime) {
+        public QueryCondition(TransactionId transactionId, long collectorAcceptorTime, int responseTime) {
             if (transactionId == null) {
                 throw new NullPointerException("transactionId must not be null");
             }
             this.transactionId = transactionId;
-			this.collectorAcceptorTime = collectorAcceptorTime;
-			this.responseTime = responseTime;
-		}
+            this.collectorAcceptorTime = collectorAcceptorTime;
+            this.responseTime = responseTime;
+        }
 
-		public TransactionId getTransactionId() {
-			return transactionId;
-		}
+        public TransactionId getTransactionId() {
+            return transactionId;
+        }
 
-		public long getCollectorAcceptorTime() {
-			return collectorAcceptorTime;
-		}
+        public long getCollectorAcceptorTime() {
+            return collectorAcceptorTime;
+        }
 
-		public int getResponseTime() {
-			return responseTime;
-		}
+        public int getResponseTime() {
+            return responseTime;
+        }
 
         @Override
         public boolean equals(Object o) {
@@ -99,8 +98,8 @@ public class TransactionMetadataQuery {
         }
 
         @Override
-		public String toString() {
-			return "QueryCondition [transactionId=" + transactionId + ", collectorAcceptorTime=" + collectorAcceptorTime + ", responseTime=" + responseTime + "]";
-		}
-	}
+        public String toString() {
+            return "QueryCondition [transactionId=" + transactionId + ", collectorAcceptorTime=" + collectorAcceptorTime + ", responseTime=" + responseTime + "]";
+        }
+    }
 }

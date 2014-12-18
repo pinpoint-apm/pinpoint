@@ -9,6 +9,6 @@ import com.navercorp.pinpoint.web.vo.Application;
  */
 public interface CommonService {
 
-	public List<Application> selectAllApplicationNames();
+    List<Application> selectAllApplicationNames();
 
 }

@@ -14,7 +14,7 @@ public class UnKnownDatabaseInfo {
     public static final DatabaseInfo INSTANCE;
 
     static{
-        final List<String> urls = new ArrayList();
+        final List<String> urls = new ArrayList<String>();
         urls.add("unknown");
         INSTANCE = new DefaultDatabaseInfo(ServiceType.UNKNOWN_DB, ServiceType.UNKNOWN_DB_EXECUTE_QUERY, "unknown", "unknown", urls, "unknown");
     }

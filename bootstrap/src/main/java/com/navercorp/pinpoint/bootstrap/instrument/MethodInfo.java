@@ -6,13 +6,13 @@ import com.navercorp.pinpoint.bootstrap.interceptor.MethodDescriptor;
  * @author emeroad
  */
 public interface MethodInfo {
-    public String getName();
+    String getName();
 
-    public String[] getParameterTypes();
+    String[] getParameterTypes();
 
-    public int getModifiers();
+    int getModifiers();
     
-    public boolean isConstructor();
+    boolean isConstructor();
     
-    public MethodDescriptor getDescriptor();
+    MethodDescriptor getDescriptor();
 }

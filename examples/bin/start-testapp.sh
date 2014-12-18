@@ -116,13 +116,12 @@ function func_init_agent
         echo "---initilize $TESTAPP_IDENTIFIER agent.---"
 
         source_path=$( func_get_original_path )
-        if [ $source_path = "" ]; then
+        if [ -z $source_path ]; then
                 echo "illegal pinpoint-agent path($path)."
                 exit 1
         fi
 
-        if [ ! -f $CONF_DIR/$PINPOINT_CONF_FILE ];
-        then
+        if [ ! -f $CONF_DIR/$PINPOINT_CONF_FILE ]; then
                 echo "illegal pinpoint-agent config file($CONF_DIR/$PINPOINT_CONF_FILE)."
                 exit 1
         fi

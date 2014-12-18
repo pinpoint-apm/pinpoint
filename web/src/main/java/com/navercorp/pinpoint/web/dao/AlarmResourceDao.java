@@ -8,21 +8,21 @@ import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
 public interface AlarmResourceDao {
     
-    public List<Rule> selectAppRule(String applicationName);
+    List<Rule> selectAppRule(String applicationName);
     
-    public void insertAppRule(List<Rule> rules);
+    void insertAppRule(List<Rule> rules);
 
-    public void deleteAppRule(String applicationName);
+    void deleteAppRule(String applicationName);
     
-    public List<String> selectEmpGroupPhoneNumber(String empGroup);
+    List<String> selectEmpGroupPhoneNumber(String empGroup);
     
-    public List<String> selectEmpGroupEmail(String empGroup);
+    List<String> selectEmpGroupEmail(String empGroup);
     
-    public List<String> selectEmpGroupName();
+    List<String> selectEmpGroupName();
 
-    public List<AlarmEmp> selectEmpGroupMember(String alarmGroup);
+    List<AlarmEmp> selectEmpGroupMember(String alarmGroup);
 
-    public void insertEmpGroupMember(List<AlarmEmp> emps);
+    void insertEmpGroupMember(List<AlarmEmp> emps);
 
-    public void deleteEmpGroupMember(String groupName);
+    void deleteEmpGroupMember(String groupName);
 }

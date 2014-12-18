@@ -33,7 +33,6 @@ import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.receiver.service.EchoService;
 import com.navercorp.pinpoint.profiler.receiver.service.ThreadDumpService;
 import com.navercorp.pinpoint.profiler.sampler.SamplerFactory;
-import com.navercorp.pinpoint.profiler.sender.BufferedUdpDataSender;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
