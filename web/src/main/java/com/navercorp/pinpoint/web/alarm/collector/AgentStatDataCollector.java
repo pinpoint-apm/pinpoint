@@ -61,8 +61,7 @@ public class AgentStatDataCollector extends DataCollector {
             }
             
             if(listSize > 0) {
-                long percent = 0;
-                percent = calculatePercent(usedHeapSize, totalHeapSize);
+                long percent = calculatePercent(usedHeapSize, totalHeapSize);
                 agentHeapUsageRate.put(agentId, percent);
                 
                 percent = calculatePercent(jvmCpuUsaged, 100*scanAgentStatList.size());
@@ -83,7 +82,7 @@ public class AgentStatDataCollector extends DataCollector {
         if (total == 0 || used == 0) {
             return 0;
         } else {
-            return Math.round((used * 100) / total);
+            return (used * 100L) / total;
         }
     }
 

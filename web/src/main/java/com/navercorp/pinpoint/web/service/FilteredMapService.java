@@ -1,10 +1,10 @@
 package com.navercorp.pinpoint.web.service;
 
-import java.util.List;
-
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.vo.*;
+
+import java.util.List;
 
 /**
  * @author netspider
@@ -12,13 +12,13 @@ import com.navercorp.pinpoint.web.vo.*;
  */
 public interface FilteredMapService {
 
-	public LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, Range range, int limit);
-	
-	public LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, SelectedScatterArea area, int limit);
+    LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, Range range, int limit);
 
-	public LoadFactor linkStatistics(Range range, List<TransactionId> traceIdSet, Application sourceApplication, Application destinationApplication, Filter filter);
+    LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, SelectedScatterArea area, int limit);
 
-	public ApplicationMap selectApplicationMap(List<TransactionId> traceIdList, Range originalRange, Range scanRange, Filter filter);
+    LoadFactor linkStatistics(Range range, List<TransactionId> traceIdSet, Application sourceApplication, Application destinationApplication, Filter filter);
 
-	public ApplicationMap selectApplicationMap(TransactionId transactionId);
+    ApplicationMap selectApplicationMap(List<TransactionId> traceIdList, Range originalRange, Range scanRange, Filter filter);
+
+    ApplicationMap selectApplicationMap(TransactionId transactionId);
 }

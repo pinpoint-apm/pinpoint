@@ -1,9 +1,9 @@
 package com.navercorp.pinpoint.bootstrap.instrument;
 
-import java.util.List;
-
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
+
+import java.util.List;
 
 /**
  * @author emeroad
@@ -40,16 +40,17 @@ public interface InstrumentClass {
     int reuseInterceptor(String methodName, String[] args, int interceptorId, Type type) throws InstrumentException, NotFoundInstrumentException;
 
 
-	int addInterceptor(String methodName, String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
+    int addInterceptor(String methodName, String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
 
     int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException, NotFoundInstrumentException;
 
     int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, Scope scope) throws InstrumentException, NotFoundInstrumentException;
 
     int addScopeInterceptorIfDeclared(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException;
+
     /**
      * methodName, args가 일치하는 메소드가 클래스에 구현되어있는 경우에만 scope interceptor를 적용합니다.
-     * 
+     *
      * @param methodName
      * @param args
      * @param interceptor
@@ -63,17 +64,17 @@ public interface InstrumentClass {
 
     int addInterceptorCallByContextClassLoader(String methodName, String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
 
-	int addInterceptorCallByContextClassLoader(String methodName, String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException;
+    int addInterceptorCallByContextClassLoader(String methodName, String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException;
 
-	void weaving(String adviceClassName) throws InstrumentException;
+    void weaving(String adviceClassName) throws InstrumentException;
 
-	boolean addDebugLogBeforeAfterMethod();
+    boolean addDebugLogBeforeAfterMethod();
 
-	boolean addDebugLogBeforeAfterConstructor();
+    boolean addDebugLogBeforeAfterConstructor();
 
-	byte[] toBytecode() throws InstrumentException ;
+    byte[] toBytecode() throws InstrumentException;
 
-	Class<?> toClass() throws InstrumentException;
+    Class<?> toClass() throws InstrumentException;
 
     /**
      * 대신 addTraceValue 를 사용하라.
@@ -85,27 +86,27 @@ public interface InstrumentClass {
      * 대신 addTraceValue 를 사용하라.
      */
     @Deprecated
-	void addTraceVariable(String variableName, String setterName, String getterName, String variableType) throws InstrumentException;
+    void addTraceVariable(String variableName, String setterName, String getterName, String variableType) throws InstrumentException;
 
     void addTraceValue(Class<? extends TraceValue> traceValue, String initValue) throws InstrumentException;
 
     void addTraceValue(Class<? extends TraceValue> traceValue) throws InstrumentException;
-    
-	boolean insertCodeAfterConstructor(String[] args, String code);
 
-	boolean insertCodeBeforeConstructor(String[] args, String code);
+    boolean insertCodeAfterConstructor(String[] args, String code);
+
+    boolean insertCodeBeforeConstructor(String[] args, String code);
 
     List<MethodInfo> getDeclaredMethods();
-	
-	List<MethodInfo> getDeclaredMethods(MethodFilter methodFilter);
-	
-	MethodInfo getDeclaredMethod(String name, String[] parameterTypes);
-	
-	MethodInfo getConstructor(String[] parameterTypes);
-	
-	public boolean isInterceptable();
-	
-	boolean hasDeclaredMethod(String methodName, String[] args);
+
+    List<MethodInfo> getDeclaredMethods(MethodFilter methodFilter);
+
+    MethodInfo getDeclaredMethod(String name, String[] parameterTypes);
+
+    MethodInfo getConstructor(String[] parameterTypes);
+
+    boolean isInterceptable();
+
+    boolean hasDeclaredMethod(String methodName, String[] args);
 
     boolean hasMethod(String methodName, String[] parameterTypeArray, String returnType);
 
