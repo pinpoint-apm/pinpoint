@@ -43,7 +43,7 @@ function func_close_process
         process_status=`ps aux | grep $IDENTIFIER | grep -v grep | wc -l`
 
         if [ ! $process_status -eq 0 ]; then
-                echo "$WEB_IDENTIFIER shutdowning. idnetifier=WEB_IDENTIFIER."
+                echo "$WEB_IDENTIFIER shutdowning. idnetifier=$WEB_IDENTIFIER."
                 ps aux | grep $IDENTIFIER | grep -v grep | awk '{print $2}' | xargs kill -9
         fi
 
