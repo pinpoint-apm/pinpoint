@@ -113,7 +113,7 @@ function func_get_original_path
 
 function func_init_agent
 {
-        echo "---initilize $TESTAPP_IDENTIFIER agent.---"
+        echo "---initialize $TESTAPP_IDENTIFIER agent.---"
 
         source_path=$( func_get_original_path )
         if [ -z $source_path ]; then

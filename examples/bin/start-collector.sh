@@ -90,7 +90,7 @@ function func_check_process
 
 function func_init_log
 {
-        echo "---initilize $COLLECTOR_IDENTIFIER logs.---"
+        echo "---initialize $COLLECTOR_IDENTIFIER logs.---"
 
         if [ ! -d $LOGS_DIR ]; then
                 echo "mkdir $LOGS_DIR"

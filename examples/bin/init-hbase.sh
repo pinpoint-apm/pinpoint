@@ -1,4 +1,4 @@
-exec ../hbase/hbase-0.94.24/bin/hbase shell <<EOF
+exec ../hbase/hbase/bin/hbase shell <<EOF
 
 
 create 'AgentInfo', { NAME => 'Info' }
