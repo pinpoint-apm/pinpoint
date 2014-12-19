@@ -6,8 +6,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 

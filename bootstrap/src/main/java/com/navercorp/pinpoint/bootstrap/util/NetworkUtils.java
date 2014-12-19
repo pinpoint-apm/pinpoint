@@ -15,15 +15,15 @@ public final class NetworkUtils {
     }
 
     public static String getHostName() {
-		try {
+        try {
             final InetAddress localHost = InetAddress.getLocalHost();
             return localHost.getHostName();
-		} catch (UnknownHostException e) {
-			// Try to get machine name from network interface.
-			return getMachineName();
-		}
-	}
-    
+        } catch (UnknownHostException e) {
+            // Try to get machine name from network interface.
+            return getMachineName();
+        }
+    }
+
     public static String getHostIp() {
         String hostIp;
         try {
@@ -35,18 +35,17 @@ public final class NetworkUtils {
         }
         return hostIp;
     }
-	
-	@Deprecated
+
+    @Deprecated
     public static String getMachineName() {
         try {
-            String name = null;
             Enumeration<NetworkInterface> enet = NetworkInterface.getNetworkInterfaces();
+            while (enet.hasMoreElements()) {
 
-            while (enet.hasMoreElements() && (name == null)) {
                 NetworkInterface net = enet.nextElement();
-
-                if (net.isLoopback())
+                if (net.isLoopback()) {
                     continue;
+                }
 
                 Enumeration<InetAddress> eaddr = net.getInetAddresses();
 
@@ -55,15 +54,14 @@ public final class NetworkUtils {
 
                     final String canonicalHostName = inet.getCanonicalHostName();
                     if (!canonicalHostName.equalsIgnoreCase(inet.getHostAddress())) {
-                        name = canonicalHostName;
-                        break;
+                        return canonicalHostName;
                     }
                 }
             }
-            return name;
+            return ERROR_HOST_NAME;
         } catch (SocketException e) {
             Logger.getLogger(NetworkUtils.class.getClass().getName()).warning(e.getMessage());
-            return "UNKNOWN-HOST";
+            return ERROR_HOST_NAME;
         }
     }
 
