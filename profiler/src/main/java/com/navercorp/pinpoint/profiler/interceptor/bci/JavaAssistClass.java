@@ -501,10 +501,17 @@ public class JavaAssistClass implements InstrumentClass {
             }
             return interceptorId;
         } catch (NotFoundException e) {
-            throw new InstrumentException(interceptor.getClass().getSimpleName() + " add fail. Cause:" + e.getMessage(), e);
+            throw new InstrumentException(getInterceptorName(interceptor) + " add fail. Cause:" + e.getMessage(), e);
         } catch (CannotCompileException e) {
-            throw new InstrumentException(interceptor.getClass().getSimpleName() + "add fail. Cause:" + e.getMessage(), e);
+            throw new InstrumentException(getInterceptorName(interceptor) + "add fail. Cause:" + e.getMessage(), e);
         }
+    }
+
+    private String getInterceptorName(Interceptor interceptor) {
+        if (interceptor == null) {
+            return "null";
+        }
+        return interceptor.getClass().getSimpleName();
     }
 
     private void injectInterceptor(CtBehavior behavior, Interceptor interceptor) throws NotFoundException {

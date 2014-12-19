@@ -6,6 +6,6 @@ import com.navercorp.pinpoint.profiler.util.DepthScope;
  * @author Hyun Jeong
  */
 public class IbatisScope {
-    public static final DepthScope SCOPE = new DepthScope("iBatisScope");
+    public static final String SCOPE = "iBatisScope";
 
 }

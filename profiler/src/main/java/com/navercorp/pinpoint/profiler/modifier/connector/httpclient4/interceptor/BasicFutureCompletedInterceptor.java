@@ -43,11 +43,11 @@ import com.navercorp.pinpoint.common.ServiceType;
  */
 public class BasicFutureCompletedInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
 
-	protected final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-	protected final boolean isDebug = logger.isDebugEnabled();
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
 
-	protected TraceContext traceContext;
-	protected MethodDescriptor descriptor;
+    private TraceContext traceContext;
+    private MethodDescriptor descriptor;
 
 	@Override
 	public void before(Object target, Object[] args) {

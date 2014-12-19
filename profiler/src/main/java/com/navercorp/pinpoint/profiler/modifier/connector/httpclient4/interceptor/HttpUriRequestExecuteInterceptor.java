@@ -3,7 +3,6 @@ package com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.intercept
 import java.net.URI;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
 
 import org.apache.http.HttpRequest;

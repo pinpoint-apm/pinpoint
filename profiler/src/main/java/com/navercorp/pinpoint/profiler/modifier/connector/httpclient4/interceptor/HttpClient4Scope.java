@@ -6,5 +6,5 @@ import com.navercorp.pinpoint.profiler.util.DepthScope;
  * @author emeroad
  */
 public class HttpClient4Scope {
-    public static final DepthScope SCOPE = new DepthScope("HTTPClient4Scope");
+    public static final String SCOPE = "HTTPClient4Scope";
 }

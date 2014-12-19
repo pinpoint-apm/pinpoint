@@ -1,5 +1,11 @@
 package com.navercorp.pinpoint.profiler.modifier.spring.beans.interceptor;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,27 +14,29 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-
 public class TargetBeanFilter {
     private static final int CACHE_SIZE = 1024;
     private static final int CACHE_CONCURRENCY_LEVEL = Runtime.getRuntime().availableProcessors() * 2;
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    
+
     private final List<Pattern> targetNamePatterns;
     private final List<Pattern> targetClassPatterns;
     private final List<String> targetAnnotationNames;
     private final ConcurrentMap<ClassLoader, List<Class<? extends Annotation>>> targetAnnotationMap = new ConcurrentHashMap<ClassLoader, List<Class<? extends Annotation>>>();
-    
-    private final Cache<Class<?>, Boolean> transformed = CacheBuilder.newBuilder().concurrencyLevel(CACHE_CONCURRENCY_LEVEL).maximumSize(CACHE_SIZE).weakKeys().build();
-    private final Cache<Class<?>, Boolean> rejected = CacheBuilder.newBuilder().concurrencyLevel(CACHE_CONCURRENCY_LEVEL).maximumSize(CACHE_SIZE).weakKeys().build();
-    
+
+    private final Cache<Class<?>, Boolean> transformed = createCache();
+
+    private final Cache<Class<?>, Boolean> rejected = createCache();
+
+    private Cache<Class<?>, Boolean> createCache() {
+        final CacheBuilder<Object, Object> builder = CacheBuilder.newBuilder();
+        builder.concurrencyLevel(CACHE_CONCURRENCY_LEVEL);
+        builder.maximumSize(CACHE_SIZE);
+        builder.weakKeys();
+        return builder.build();
+    }
+
     public static TargetBeanFilter of(ProfilerConfig config) {
         List<String> targetNamePatternStrings = split(config.getSpringBeansNamePatterns());
         List<Pattern> beanNamePatterns = compilePattern(targetNamePatternStrings);
@@ -53,7 +61,7 @@ public class TargetBeanFilter {
         return beanNamePatterns;
     }
 
-	private TargetBeanFilter(List<Pattern> targetNamePatterns, List<Pattern> targetClassPatterns, List<String> targetAnnotationNames) {
+    private TargetBeanFilter(List<Pattern> targetNamePatterns, List<Pattern> targetClassPatterns, List<String> targetAnnotationNames) {
         this.targetNamePatterns = targetNamePatterns;
         this.targetClassPatterns = targetClassPatterns;
         this.targetAnnotationNames = targetAnnotationNames;
@@ -63,7 +71,7 @@ public class TargetBeanFilter {
         if (transformed.getIfPresent(clazz) == Boolean.TRUE) {
             return false;
         }
-        
+
         return isTarget(beanName) || isTarget(clazz);
     }
 
@@ -75,10 +83,10 @@ public class TargetBeanFilter {
                 }
             }
         }
-        
+
         return false;
     }
-    
+
     private boolean isTarget(Class<?> clazz) {
         if (rejected.getIfPresent(clazz) == Boolean.TRUE) {
             return false;
@@ -86,19 +94,19 @@ public class TargetBeanFilter {
 
         if (targetAnnotationNames != null) {
             List<Class<? extends Annotation>> targetAnnotations = getTargetAnnotations(clazz.getClassLoader());
-            
+
             for (Class<? extends Annotation> a : targetAnnotations) {
                 if (clazz.isAnnotationPresent(a)) {
                     return true;
                 }
             }
-            
+
             for (Annotation a : clazz.getAnnotations()) {
                 for (Class<? extends Annotation> ac : targetAnnotations) {
                     if (a.annotationType().isAnnotationPresent(ac)) {
                         return true;
                     }
-                } 
+                }
             }
         }
 
@@ -122,12 +130,12 @@ public class TargetBeanFilter {
 
     private List<Class<? extends Annotation>> getTargetAnnotations(ClassLoader loader) {
         List<Class<? extends Annotation>> targetAnnotations = targetAnnotationMap.get(loader);
-        
+
         if (targetAnnotations == null) {
             targetAnnotations = loadTargetAnnotations(loader);
             targetAnnotationMap.put(loader, targetAnnotations);
         }
-        
+
         return targetAnnotations;
     }
 
@@ -135,7 +143,7 @@ public class TargetBeanFilter {
         if (targetAnnotationNames.isEmpty()) {
             return Collections.emptyList();
         }
-        
+
         List<Class<? extends Annotation>> targetAnnotationClasses = new ArrayList<Class<? extends Annotation>>(targetAnnotationNames.size());
         for (String targetAnnotationName : targetAnnotationNames) {
             try {
@@ -148,26 +156,26 @@ public class TargetBeanFilter {
                 logger.warn("Given Spring beans profile target annotation class is not subclass of Annotation: {}. This configuration will be ignored.", targetAnnotationName, e);
             }
         }
-        
+
         return targetAnnotationClasses;
     }
-    
+
     private static List<String> split(String values) {
         if (values == null) {
             return Collections.emptyList();
         }
-        
+
         String[] tokens = values.split(",");
-        List<String> result = new ArrayList<String>(tokens.length); 
+        List<String> result = new ArrayList<String>(tokens.length);
 
         for (String token : tokens) {
             String trimmed = token.trim();
-            
+
             if (!trimmed.isEmpty()) {
                 result.add(trimmed);
             }
         }
-        
+
         return result;
     }
 }

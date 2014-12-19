@@ -17,7 +17,6 @@ import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.filter.SqlMapClientMethodFilter;
 import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.interceptor.IbatisScope;
 import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.interceptor.IbatisSqlMapOperationInterceptor;
-import com.navercorp.pinpoint.profiler.util.DepthScope;
 
 /**
  * SqlMapClientTemplate Modifier
@@ -33,7 +32,7 @@ public final class SqlMapClientTemplateModifier extends AbstractModifier {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private static final ServiceType serviceType = ServiceType.SPRING_ORM_IBATIS;
-	private static final DepthScope scope = IbatisScope.SCOPE;
+	private static final String SCOPE = IbatisScope.SCOPE;
 	private static final MethodFilter sqlMapClientMethodFilter = new SqlMapClientMethodFilter();
 
 	public static final String TARGET_CLASS_NAME = "org/springframework/orm/ibatis/SqlMapClientTemplate";
@@ -53,7 +52,7 @@ public final class SqlMapClientTemplateModifier extends AbstractModifier {
 			
 			for (MethodInfo method : declaredMethods) {
 				Interceptor sqlMapClientTemplateInterceptor = new IbatisSqlMapOperationInterceptor(serviceType);
-				sqlMapClientTemplate.addScopeInterceptor(method.getName(), method.getParameterTypes(), sqlMapClientTemplateInterceptor, scope);
+				sqlMapClientTemplate.addScopeInterceptor(method.getName(), method.getParameterTypes(), sqlMapClientTemplateInterceptor, SCOPE);
 			}
 			
 			return sqlMapClientTemplate.toBytecode();

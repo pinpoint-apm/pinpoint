@@ -15,7 +15,6 @@ import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.interceptor.IbatisScope;
 import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.interceptor.IbatisSqlMapOperationInterceptor;
-import com.navercorp.pinpoint.profiler.util.DepthScope;
 
 /**
  * Base class for modifying iBatis client classes
@@ -25,7 +24,7 @@ import com.navercorp.pinpoint.profiler.util.DepthScope;
 public abstract class IbatisClientModifier extends AbstractModifier {
 
 	private static final ServiceType serviceType = ServiceType.IBATIS;
-	private static final DepthScope scope = IbatisScope.SCOPE;
+	private static final String SCOPE = IbatisScope.SCOPE;
 
     protected Logger logger;
 
@@ -46,7 +45,7 @@ public abstract class IbatisClientModifier extends AbstractModifier {
 
 			for (MethodInfo method : declaredMethods) {
 				Interceptor ibatisApiInterceptor = new IbatisSqlMapOperationInterceptor(serviceType);
-				ibatisClientImpl.addScopeInterceptor(method.getName(), method.getParameterTypes(), ibatisApiInterceptor, scope);
+				ibatisClientImpl.addScopeInterceptor(method.getName(), method.getParameterTypes(), ibatisApiInterceptor, SCOPE);
 			}
 			
 			return ibatisClientImpl.toBytecode();
