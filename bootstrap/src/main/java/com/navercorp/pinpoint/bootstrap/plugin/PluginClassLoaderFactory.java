@@ -1,9 +1,12 @@
 package com.navercorp.pinpoint.bootstrap.plugin;
 
+import com.navercorp.pinpoint.bootstrap.PinpointURLClassLoader;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLClassLoader;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,6 +15,7 @@ public class PluginClassLoaderFactory {
 
     private final Logger logger = Logger.getLogger(PluginClassLoaderFactory.class.getName());
 
+    private static final SecurityManager SECURITY_MANAGER = System.getSecurityManager();
 
     private final URL[] pluginJars;
     private final ConcurrentHashMap<ClassLoader, ClassLoader> cache = new ConcurrentHashMap<ClassLoader, ClassLoader>();
@@ -26,7 +30,7 @@ public class PluginClassLoaderFactory {
             return forPlugin;
         }
         
-        final ClassLoader newInstance = new URLClassLoader(pluginJars, loader);
+        final ClassLoader newInstance = createPluginClassLoader(pluginJars, loader);
         final ClassLoader before = cache.putIfAbsent(loader, newInstance);
         if (before == null) {
             return newInstance;
@@ -34,6 +38,18 @@ public class PluginClassLoaderFactory {
         else {
             close (newInstance);
             return before;
+        }
+    }
+
+    private PluginClassLoader createPluginClassLoader(final URL[] urls, final ClassLoader parent) {
+        if (SECURITY_MANAGER != null) {
+            return AccessController.doPrivileged(new PrivilegedAction<PluginClassLoader>() {
+                public PluginClassLoader run() {
+                    return new PluginClassLoader(urls, parent);
+                }
+            });
+        } else {
+            return new PluginClassLoader(urls, parent);
         }
     }
 
