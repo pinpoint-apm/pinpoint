@@ -191,9 +191,9 @@ function func_start_pinpoint_testapp
         echo "---$TESTAPP_IDENTIFIER initialization started. pid=$pid.---"
 
         end_count=0
-        process_status=`curl $check_url 2>/dev/null`
+        process_status=`curl $check_url 2>/dev/null | grep 'getCurrentTimestamp'`
 
-        until [[ $process_status =~ ^-?[0-9]+$ ]];
+        while [ -z $process_status];
         do
                 wait_time=`expr $end_count \* $UNIT_TIME`
                 echo "starting $TESTAPP_IDENTIFIER. $wait_time sec/$CLOSE_WAIT_TIME sec(close wait limit)."
@@ -204,7 +204,7 @@ function func_start_pinpoint_testapp
 
                 sleep $UNIT_TIME
                 end_count=`expr $end_count + 1`
-                process_status=`curl $check_url 2>/dev/null`
+                process_status=`curl $check_url 2>/dev/null | grep 'getCurrentTimestamp'`
 
         done
 
