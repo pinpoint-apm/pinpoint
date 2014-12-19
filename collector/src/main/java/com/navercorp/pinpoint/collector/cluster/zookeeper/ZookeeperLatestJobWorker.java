@@ -280,8 +280,9 @@ public class ZookeeperLatestJobWorker implements Runnable {
 			while (latestJobRepository.size() == 0 && !isOverWaitTime(waitTime, startTimeMillis) && workerState.isStarted()) {
 				try {
 					lock.wait(waitUnitTime);
-				} catch (InterruptedException e) {
-
+				} catch (InterruptedException ignore) {
+//                    Thread.currentThread().interrupt();
+//                    TODO check Interrupted state
 				}
 			}
 

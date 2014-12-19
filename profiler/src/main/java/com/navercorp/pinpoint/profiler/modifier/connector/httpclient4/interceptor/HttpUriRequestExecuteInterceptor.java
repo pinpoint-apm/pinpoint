@@ -94,7 +94,8 @@ public class HttpUriRequestExecuteInterceptor extends AbstractHttpRequestExecute
 							if (len > 0) {
 								try {
 									port = Integer.parseInt(host.substring(pos, pos + len));
-								} catch (NumberFormatException ex) {
+								} catch (NumberFormatException ignore) {
+                                    // skip
 								}
 							}
 							host = host.substring(0, colon);

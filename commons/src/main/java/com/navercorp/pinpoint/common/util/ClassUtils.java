@@ -25,7 +25,7 @@ public final class ClassUtils {
         }
         try {
             return (classLoaderToUse.loadClass(name) != CLASS_NOT_LOADED);
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException ignore) {
             // Swallow
         }
         return false;

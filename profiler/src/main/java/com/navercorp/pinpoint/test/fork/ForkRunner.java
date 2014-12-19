@@ -341,7 +341,7 @@ public class ForkRunner extends BlockJUnit4ClassRunner {
         }
         try {
             closeable.close();
-        } catch (IOException e) {
+        } catch (IOException ignore) {
             // skip
         }
     }

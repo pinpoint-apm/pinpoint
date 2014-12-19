@@ -16,7 +16,8 @@ public final class ClassPreLoader {
     public static void preload() {
         try {
             preload(65535);
-        } catch (Exception e) {
+        } catch (Exception ignore) {
+            // skip
         }
     }
 

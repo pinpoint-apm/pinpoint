@@ -29,7 +29,8 @@ public class ByteArrayOutputStreamTransport extends TTransport {
         if (out != null) {
             try {
                 out.close();
-            } catch (IOException e) {
+            } catch (IOException ignore) {
+                // skip
             }
         }
     }
