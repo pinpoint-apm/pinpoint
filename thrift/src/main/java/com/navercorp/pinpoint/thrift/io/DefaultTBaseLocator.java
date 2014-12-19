@@ -125,7 +125,8 @@ class DefaultTBaseLocator implements TBaseLocator {
     	try {
 			tBaseLookup(type);
 			return true;
-		} catch (TException e) {
+		} catch (TException ignore) {
+            // skip
 		}
     	
     	return false;

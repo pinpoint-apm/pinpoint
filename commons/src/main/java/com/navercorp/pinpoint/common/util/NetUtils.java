@@ -41,7 +41,8 @@ public final class NetUtils {
 			URI uri = new URI("pinpoint://" + address);
 
 			return new InetSocketAddress(uri.getHost(), uri.getPort());
-		} catch (URISyntaxException e) {
+		} catch (URISyntaxException ignore) {
+            // skip
 		}
 
 		return null;
@@ -54,7 +55,8 @@ public final class NetUtils {
 			if (validationIpV4FormatAddress(localIp)) {
 				return localIp;
 			}
-		} catch (UnknownHostException e) {
+		} catch (UnknownHostException ignore) {
+            // skip
 		}
 		return LOOPBACK_ADDRESS_V4;
 	}
@@ -69,7 +71,8 @@ public final class NetUtils {
 		Enumeration<NetworkInterface> interfaces = null;
 		try {
 			interfaces = NetworkInterface.getNetworkInterfaces();
-		} catch (SocketException e) {
+		} catch (SocketException ignore) {
+            // skip
 		}
 
 		if (interfaces == null) {
@@ -104,7 +107,8 @@ public final class NetUtils {
 				return true;
 			}
 			return false;
-		} catch (Exception e) {
+		} catch (Exception ignore) {
+            // skip
 		}
 		return true;
 	}
@@ -130,7 +134,8 @@ public final class NetUtils {
 			}
 
 			return true;
-		} catch (Exception e) {
+		} catch (Exception ignore) {
+            //skip
 		}
 
 		return false;
@@ -149,7 +154,8 @@ public final class NetUtils {
 				}
 			}
 			return true;
-		} catch (NumberFormatException e) {
+		} catch (NumberFormatException ignore) {
+            // skip
 		}
 
 		return false;
