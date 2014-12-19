@@ -12,12 +12,6 @@
     <context:component-scan base-package="com.navercorp.pinpoint.testapp.controller" />
     <context:component-scan base-package="com.navercorp.pinpoint.testapp.service" />
     
-    <bean id="httpComponentsClientHttpRequestFactory" class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory" />
-    
-    <bean id="closeableHttpClientRestTemplate" class="org.springframework.web.client.RestTemplate">
-        <constructor-arg ref="httpComponentsClientHttpRequestFactory" />
-    </bean>
-    
     <bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
         <property name="mappings">
             <props>
