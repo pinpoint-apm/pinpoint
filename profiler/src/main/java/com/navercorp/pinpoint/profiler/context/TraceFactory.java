@@ -7,7 +7,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
  * @author emeroad
  */
 public interface TraceFactory {
-    Trace currentTraceObject();
+    Trace  currentTraceObject();
 
     Trace currentRpcTraceObject();
 
