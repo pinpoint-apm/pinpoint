@@ -4,8 +4,10 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 /**
- * profiler lib 디렉토리의 jar의 경우 delegation하지 않고 자기 자신에게 로드하도록 함.
- * standalone java 일 경우 dead lock문제가 발생할수 있어, 자기자신이 load할 class일 경우 parent로 넘기지 않음.
+ * PinpointURLClassLoader loads a class in the profiler lib directory and delegates to load the other classes to parent classloader
+ * Dead lock could happen in case of standalone java application.
+ * Don't delegate to parents classlaoder if classes are in the profiler lib directory
+ *
  * @author emeroad
  */
 public class PinpointURLClassLoader extends URLClassLoader {
@@ -20,7 +22,6 @@ public class PinpointURLClassLoader extends URLClassLoader {
         if (parent == null) {
             throw new NullPointerException("parent must not be null");
         }
-        // parent가 null인 케이스는 지원하지 않는다.
         this.parent = parent;
     }
 
@@ -31,17 +32,16 @@ public class PinpointURLClassLoader extends URLClassLoader {
         Class clazz = findLoadedClass(name);
         if (clazz == null) {
             if (onLoadClass(name)) {
-                // 나한테 있어야 하는 class의 경우 그냥 로드.
+                // load a class used for Pinpoint itself by this PinpointURLClassLoader
                 clazz = findClass(name);
             } else {
                 try {
-                    // 부모를 찾고.
+                    // load a class by parent ClassLoader
                     clazz = parent.loadClass(name);
                 } catch (ClassNotFoundException ignore) {
-                    // class를 못찾음.
                 }
                 if (clazz == null) {
-                    // 없으면 나한테 로드 시도.
+                    // if not found, try to load a class by this PinpointURLClassLoader
                     clazz = findClass(name);
                 }
             }

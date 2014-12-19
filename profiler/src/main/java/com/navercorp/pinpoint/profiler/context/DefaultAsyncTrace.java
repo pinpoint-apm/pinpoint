@@ -162,7 +162,7 @@ public class DefaultAsyncTrace implements AsyncTrace {
         this.spanEvent.setDestinationId(destinationId);
     }
 
-    // TODO: final String... endPoint로 받으면 합치는데 비용이 들어가 그냥 한번에 받는게 나을것 같음.
+    // TODO: endPoint로 받으면 합치는데 비용이 들어가 그냥 한번에 받는게 나을것 같음.
     @Override
     public void recordEndPoint(final String endPoint) {
         this.spanEvent.setEndPoint(endPoint);

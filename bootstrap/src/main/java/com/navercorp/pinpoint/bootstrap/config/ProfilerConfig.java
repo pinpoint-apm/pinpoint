@@ -162,7 +162,7 @@ public class ProfilerConfig {
     private int ningAsyncHttpClientProfileParamDumpSize = 1024;
     private int ningAsyncHttpClientProfileParamSamplingRate = 1;
 
-    // FIXME 임시
+    // FIXME temporary
     // line game netty config
     private int lineGameNettyParamDumpSize = 512;
     private int lineGameNettyEntityDumpSize = 512;
@@ -173,11 +173,11 @@ public class ProfilerConfig {
     private String springBeansClassPatterns = null;
     private String springBeansAnnotations = null;
 
-    // 전역 샘플링
+    // Sampling
     private boolean samplingEnable = true;
     private int samplingRate = 1;
 
-    // span buffering에 대한 설정.
+    // span buffering
     private boolean ioBufferingEnable;
     private int ioBufferingBufferSize;
 
@@ -557,7 +557,7 @@ public class ProfilerConfig {
         this.applicationServerType = applicationServerType;
     }
 
-    // fortest
+    // for test
     void readPropertyValues() {
         // TODO : use  Properties's defaultvalue instead of using temp variable.
         final ValueResolver placeHolderResolver = new PlaceHolderResolver();
@@ -693,7 +693,8 @@ public class ProfilerConfig {
 
         // configuration for sampling and IO buffer 
         this.ioBufferingEnable = readBoolean("profiler.io.buffering.enable", true);
-        // 버퍼 사이즈는 여기에 있는것은 문제가 있는것도 같음. 설정 조정의 필요성이 있음.
+
+        // it may be a problem to be here.  need to modify(delete or move or .. )  this configuration.
         this.ioBufferingBufferSize = readInt("profiler.io.buffering.buffersize", 20);
 
         // JVM
@@ -706,9 +707,9 @@ public class ProfilerConfig {
 
         
         // TODO have to remove        
-        // profile package include to  test "call stack view".
-        // this config must not be used in service environment because the size of  profiling information get heavy.
-        // We need change configuration to regular expression.
+        // profile package included in order to test "call stack view".
+        // this config must not be used in service environment because the size of  profiling information will get heavy.
+        // We may need to change this configuration to regular expression.
         final String profileableClass = readString("profiler.include", "");
         if (!profileableClass.isEmpty()) {
             this.profilableClassFilter = new ProfilableClassFilter(profileableClass);
