@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
  * @author harebox
  * @author hyungil.jeong
  */
-public class MetricMonitorValues {
+public final class MetricMonitorValues {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MetricMonitorValues.class);
 
@@ -81,6 +81,9 @@ public class MetricMonitorValues {
     public static final String CPU_LOAD_JVM = CPU_LOAD + ".jvm";
     // CPU Load (System)
     public static final String CPU_LOAD_SYSTEM = CPU_LOAD + ".system";
+
+    private MetricMonitorValues() {
+    }
 
     public static long getLong(Gauge<Long> gauge) {
         if (gauge == null) {
