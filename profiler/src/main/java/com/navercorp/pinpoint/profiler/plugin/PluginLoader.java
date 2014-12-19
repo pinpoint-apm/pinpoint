@@ -5,25 +5,40 @@ import java.io.FilenameFilter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ServiceLoader;
 
+import com.navercorp.pinpoint.bootstrap.plugin.PluginClassLoader;
 import com.navercorp.pinpoint.exception.PinpointException;
 
 public class PluginLoader<T> {
 
     public static final URL[] EMPTY_URL = new URL[0];
+    private static final SecurityManager SECURITY_MANAGER = System.getSecurityManager();
 
     private final Class<T> serviceType;
     private final ClassLoader classLoader;;
     
     public static <T> PluginLoader<T> get(Class<T> serviceType, String pluginPath) {
         URL[] jars = findJars(pluginPath);
-        URLClassLoader classLoader = new URLClassLoader(jars, ClassLoader.getSystemClassLoader());
+        URLClassLoader classLoader = createPluginClassLoader(jars, ClassLoader.getSystemClassLoader());
         
         return new PluginLoader<T>(serviceType, classLoader);
+    }
+
+    private static PluginClassLoader createPluginClassLoader(final URL[] urls, final ClassLoader parent) {
+        if (SECURITY_MANAGER != null) {
+            return AccessController.doPrivileged(new PrivilegedAction<PluginClassLoader>() {
+                public PluginClassLoader run() {
+                    return new PluginClassLoader(urls, parent);
+                }
+            });
+        } else {
+            return new PluginClassLoader(urls, parent);
+        }
     }
     
     public PluginLoader(Class<T> serviceType, ClassLoader classLoader) {
