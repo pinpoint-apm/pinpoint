@@ -37,7 +37,7 @@ public class PinpointURLClassLoader extends URLClassLoader {
                 try {
                     // 부모를 찾고.
                     clazz = parent.loadClass(name);
-                } catch (ClassNotFoundException e) {
+                } catch (ClassNotFoundException ignore) {
                     // class를 못찾음.
                 }
                 if (clazz == null) {
