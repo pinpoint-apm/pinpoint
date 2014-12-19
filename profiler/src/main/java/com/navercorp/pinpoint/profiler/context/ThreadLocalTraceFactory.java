@@ -30,8 +30,9 @@ public class ThreadLocalTraceFactory implements TraceFactory {
     private final StorageFactory storageFactory;
     private final Sampler sampler;
 
-    // internal stacktrace 추적때 필요한 unique 아이디, activethreadcount의  slow 타임 계산의 위해서도 필요할듯 함.
-    // 일단 소스를 좀더 단순화 하기 위해서 옮김.
+
+    // Unique id for tracing a internal stacktrace and calculating a slow time of activethreadcount
+    // moved here in order to make codes simpler for now
     private final AtomicLong transactionId = new AtomicLong(0);
 
     public ThreadLocalTraceFactory(TraceContext traceContext, MetricRegistry metricRegistry, StorageFactory storageFactory, Sampler sampler) {
@@ -55,8 +56,8 @@ public class ThreadLocalTraceFactory implements TraceFactory {
 
 
     /**
-     * sampling 여부까지 체크하여 유효성을 검증한 후 Trace를 리턴한다.
-     * @return
+     * Return Trace object after validating whether it can be sampled or not.
+     * @return Trace
      */
     @Override
     public Trace currentTraceObject() {
@@ -70,6 +71,10 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         return null;
     }
 
+    /**
+     * Return Trace object without validating
+     * @return
+     */
     @Override
     public Trace currentRpcTraceObject() {
         final Trace trace = threadLocal.get();
@@ -79,10 +84,6 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         return trace;
     }
 
-    /**
-     * 유효성을 검증하지 않고 Trace를 리턴한다.
-     * @return
-     */
     @Override
     public Trace currentRawTraceObject() {
         return threadLocal.get();
