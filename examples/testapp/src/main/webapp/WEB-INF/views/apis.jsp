@@ -14,11 +14,12 @@
                 <div class="thumbnail">
                     <div class="caption">
                         <h5>${apiMapping.key}</h5>
-                        <ul class="list-unstyled">
+                        <dl>
                             <c:forEach items="${apiMapping.value}" var="api">
-                            <li><a href="${api}.pinpoint">${api}</a></li>
+                            <dt><a href="${api.mappedUri}.pinpoint">${api.mappedUri}</a></dt>
+                            <dd><small>${api.description}</small></dd>
                             </c:forEach>
-                        </ul>
+                        </dl>
                     </div>
                 </div>
             </div>
