@@ -140,7 +140,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
      * Pupulate source trace from HTTP Header.
      *
      * @param request
-     * @return
+     * @return TraceId when it is possible to get a transactionId from Http header. if not possible return null
      */
     private TraceId populateTraceIdFromRequest(HttpServletRequest request) {
 
@@ -162,7 +162,7 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
     }
 
     private boolean samplingEnable(HttpServletRequest request) {
-        // optional 값.
+        // optional value
         final String samplingFlag = request.getHeader(Header.HTTP_SAMPLED.toString());
         if (isDebug) {
             logger.debug("SamplingFlag:{}", samplingFlag);
@@ -178,8 +178,8 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
             if (params.length() != 0 ) {
                 params.append('&');
             }
+            // skip appending parameters if parameter size is bigger than totalLimit
             if (params.length() > totalLimit) {
-                // 데이터 사이즈가 너무 클 경우 뒷 파라미터 생략.
                 params.append("...");
                 return  params.toString();
             }
