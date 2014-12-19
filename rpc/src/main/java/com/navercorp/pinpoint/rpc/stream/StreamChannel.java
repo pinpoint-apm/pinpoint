@@ -66,6 +66,7 @@ public abstract class StreamChannel {
 		try {
 			openLatch.await();
 		} catch (InterruptedException e) {
+            // check Interrupted state
 		}
 	}
 
@@ -73,6 +74,7 @@ public abstract class StreamChannel {
 		try {
 			return openLatch.await(timeoutMillis, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
+            // check Interrupted state
 		}
 
 		return false;

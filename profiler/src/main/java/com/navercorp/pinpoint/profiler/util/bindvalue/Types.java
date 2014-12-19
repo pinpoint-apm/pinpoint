@@ -23,7 +23,8 @@ public class Types {
             try {
                 Integer value = (Integer) field.get(java.sql.Types.class);
                 map.put(value, name);
-            } catch (IllegalAccessException e) {
+            } catch (IllegalAccessException ignore) {
+                // skip
             }
         }
         return map;

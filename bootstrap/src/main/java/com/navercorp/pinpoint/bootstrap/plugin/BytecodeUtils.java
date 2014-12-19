@@ -78,7 +78,7 @@ public final class BytecodeUtils {
         if (closeable != null) {
             try {
                 closeable.close();
-            } catch (IOException e) {
+            } catch (IOException ignore) {
                 // skip
             }
         }

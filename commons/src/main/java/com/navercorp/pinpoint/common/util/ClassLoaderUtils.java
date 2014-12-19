@@ -30,7 +30,7 @@ public final class ClassLoaderUtils {
             if (contextClassLoader != null) {
                 return contextClassLoader;
             }
-        } catch (Throwable e) {
+        } catch (Throwable ignore) {
             // skip
         }
         // 파라미터로 ClassLoader를 전달 받으면 security exception 의 발생타이밍이 다르다.
