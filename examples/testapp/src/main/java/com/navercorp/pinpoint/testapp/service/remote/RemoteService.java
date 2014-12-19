@@ -1,10 +1,16 @@
 package com.navercorp.pinpoint.testapp.service.remote;
 
-import java.util.Map;
+import org.springframework.util.MultiValueMap;
 
+/**
+ * @author koo.taejin
+ */
 public interface RemoteService {
 
-    public Map<String, Object> getGeoCode(String address);
-    
-    public Map<String, Object> getTwitterUrlCount(String url);
+    <R> R get(String url, Class<R> responseType) throws Exception;
+    <R> R get(String url, MultiValueMap<String, String> params, Class<R> responseType) throws Exception;;
+
+    <R> R post(String url, Class<R> responseType) throws Exception;;
+    <R> R post(String url, MultiValueMap<String, String> params, Class<R> responseType) throws Exception;;
+
 }

@@ -12,7 +12,8 @@ public interface StackOperation {
 
     void traceBlockBegin(int stackId);
 
-    // traceRootBlockBegin을 명시적으로 빼내야 되듯함.
+    // TODO consider to make a interface as below
+    // traceRootBlockBegin
 
     void traceRootBlockEnd();
 

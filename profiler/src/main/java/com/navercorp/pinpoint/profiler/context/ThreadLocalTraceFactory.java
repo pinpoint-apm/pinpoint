@@ -30,8 +30,9 @@ public class ThreadLocalTraceFactory implements TraceFactory {
     private final StorageFactory storageFactory;
     private final Sampler sampler;
 
-    // internal stacktrace 추적때 필요한 unique 아이디, activethreadcount의  slow 타임 계산의 위해서도 필요할듯 함.
-    // 일단 소스를 좀더 단순화 하기 위해서 옮김.
+
+    // Unique id for tracing a internal stacktrace and calculating a slow time of activethreadcount
+    // moved here in order to make codes simpler for now
     private final AtomicLong transactionId = new AtomicLong(0);
 
     public ThreadLocalTraceFactory(TraceContext traceContext, MetricRegistry metricRegistry, StorageFactory storageFactory, Sampler sampler) {
@@ -55,8 +56,8 @@ public class ThreadLocalTraceFactory implements TraceFactory {
 
 
     /**
-     * sampling 여부까지 체크하여 유효성을 검증한 후 Trace를 리턴한다.
-     * @return
+     * Return Trace object after validating whether it can be sampled or not.
+     * @return Trace
      */
     @Override
     public Trace currentTraceObject() {
@@ -70,6 +71,10 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         return null;
     }
 
+    /**
+     * Return Trace object without validating
+     * @return
+     */
     @Override
     public Trace currentRpcTraceObject() {
         final Trace trace = threadLocal.get();
@@ -79,10 +84,6 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         return trace;
     }
 
-    /**
-     * 유효성을 검증하지 않고 Trace를 리턴한다.
-     * @return
-     */
     @Override
     public Trace currentRawTraceObject() {
         return threadLocal.get();
@@ -93,22 +94,23 @@ public class ThreadLocalTraceFactory implements TraceFactory {
         checkBeforeTraceObject();
         final Trace metricTrace = createMetricTrace();
         threadLocal.set(metricTrace);
-//        return metricTrace;
-        // TODO STATDISABLE 잠시 통계기능을 disable시키기 위해서 null리턴
+
+        // TODO STATDISABLE, disabled to store statistics for now. createMetricTrace() returns DisableTrace.INSTANCE.
         return metricTrace;
     }
 
-    // remote 에서 샘플링 대상으로 선정된 경우.
+    // continue to trace the request that has been determined to be sampled on previous nodes
     @Override
     public Trace continueTraceObject(final TraceId traceID) {
         checkBeforeTraceObject();
 
-        // datasender연결 부분 수정 필요.
+        // TODO need to modify how to bind a datasender
         final DefaultTrace trace = new DefaultTrace(traceContext, traceID);
         final Storage storage = storageFactory.createStorage();
         trace.setStorage(storage);
-        // remote에 의해 trace가 continue될때는  sampling flag를 좀더 상위에서 하므로 무조껀 true여야함.
-        // TODO remote에서 sampling flag로 마크가되는 대상으로 왔을 경우도 추가로 샘플링 칠수 있어야 할것으로 보임.
+
+        // always set true because the decision of sampling has been  made on previous nodes
+        // TODO need to consider as a target to sample in case Trace object has a sampling flag (true) marked on previous node.
         trace.setSampling(true);
 
         threadLocal.set(trace);
@@ -129,7 +131,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
     @Override
     public Trace newTraceObject() {
         checkBeforeTraceObject();
-        // datasender연결 부분 수정 필요.
+        // TODO need to modify how to inject a datasender
         final boolean sampling = sampler.isSampling();
         if (sampling) {
             final Storage storage = storageFactory.createStorage();
@@ -147,7 +149,7 @@ public class ThreadLocalTraceFactory implements TraceFactory {
 
     private Trace createMetricTrace() {
         return DisableTrace.INSTANCE;
-//        TODO STATDISABLE 일단 통게 저장기능은 disable한다.
+//        TODO STATDISABLE ,  disabled to store statistics for now
 //        return new MetricTrace(traceContext, nextTransactionId());
     }
 
