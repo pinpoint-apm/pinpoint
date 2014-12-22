@@ -48,7 +48,8 @@ public class Span extends TSpan {
             throw new PinpointTraceException("startTime is not set");
         }
         final int after = (int)(System.currentTimeMillis() - this.getStartTime());
-        // long으로 바꿀것.
+
+        // TODO  have to change int to long
         if (after != 0) {
             this.setElapsed(after);
         }

@@ -62,7 +62,8 @@ public final class DefaultTrace implements Trace {
         span.setAgentId(traceContext.getAgentId());
         span.setApplicationName(traceContext.getApplicationName());
         span.setAgentStartTime(traceContext.getAgentStartTime());
-        // traceId 레코드를 나중에 해야 된다.
+
+        // have to recode traceId latter.
         span.recordTraceId(traceId);
         return span;
     }
@@ -164,7 +165,7 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public void traceRootBlockEnd() {
-//        TODO STATDISABLE 통계 코드 일단 제거
+//        TODO STATDISABLE remove stat code for now
 //        metricResponseTime();
         pop(ROOT_STACKID);
         callStack.popRoot();
