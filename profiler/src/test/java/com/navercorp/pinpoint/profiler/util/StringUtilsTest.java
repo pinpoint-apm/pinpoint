@@ -45,7 +45,8 @@ public class StringUtilsTest {
         try {
             StringUtils.drop(string, -1);
             Assert.fail();
-        } catch (Exception e) {
+        } catch (Exception ignore) {
+            // skip
         }
     }
 }

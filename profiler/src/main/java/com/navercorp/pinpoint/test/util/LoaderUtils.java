@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.profiler.util;
+package com.navercorp.pinpoint.test.util;
 
 import javassist.ClassPool;
 import javassist.Loader;

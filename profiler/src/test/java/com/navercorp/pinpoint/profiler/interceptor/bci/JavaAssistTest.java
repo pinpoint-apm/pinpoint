@@ -1,6 +1,6 @@
 package com.navercorp.pinpoint.profiler.interceptor.bci;
 
-import com.navercorp.pinpoint.profiler.util.LoaderUtils;
+import com.navercorp.pinpoint.test.util.LoaderUtils;
 
 import javassist.*;
 import javassist.expr.ExprEditor;
