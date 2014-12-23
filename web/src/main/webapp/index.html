@@ -107,7 +107,10 @@
     <script src="components/angular-timer/dist/angular-timer.min.js?v=${buildTime}"></script>
     <script src="components/angular-intro-plus.js/build/angular-intro-plus.min.js?v=${buildTime}"></script>
     <!-- endbuild -->
-
+	
+	<!-- analytics -->
+	<script src="scripts/extra/google-analytics.js"></script>
+	<!-- end -->
 </head>
 <body ng-app="pinpointApp">
 <!--[if lt IE 7]>
@@ -238,6 +241,7 @@
 
 <!-- build:js({.tmp,app}) scripts/scripts.js -->
 <script src="scripts/app.js?v=${buildTime}"></script>
+<script src="scripts/extra/checkLoginSession.js"></script>
 <script src="scripts/controllers/main.js?v=${buildTime}"></script>
 <script src="scripts/controllers/inspector.js?v=${buildTime}"></script>
 <script src="scripts/directives/navbar.js?v=${buildTime}"></script>
