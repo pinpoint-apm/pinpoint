@@ -73,7 +73,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
         byte[] rowKey = Bytes.toBytes(applicationName);
         Delete delete = new Delete(rowKey);
         byte[] qualifier = Bytes.toBytes(agentId);
-        delete.deleteColumn(HBaseTables.APPLICATION_INDEX_CF_AGENTS, qualifier);
+        delete.deleteColumns(HBaseTables.APPLICATION_INDEX_CF_AGENTS, qualifier);
         hbaseOperations2.delete(HBaseTables.APPLICATION_INDEX, delete);
     }
 }
