@@ -29,16 +29,16 @@ AGENT_DIR=$BASE_DIR/agent
 TESTAPP_DIR=$BASE_DIR/testapp
 
 CONF_DIR=$BASE_DIR/conf
-CONF_FILE=examples.properties
+CONF_FILE=quickstart.properties
 PINPOINT_CONF_FILE=pinpoint.config
 
 LOGS_DIR=$BASE_DIR/logs
-LOG_FILE=examples.testapp.log
+LOG_FILE=quickstart.testapp.log
 
 PID_DIR=$BASE_DIR/logs/pid
-PID_FILE=examples.testapp.pid
+PID_FILE=quickstart.testapp.pid
 
-TESTAPP_IDENTIFIER=pinpoint-example-testapp
+TESTAPP_IDENTIFIER=pinpoint-quickstart-testapp
 IDENTIFIER=maven.pinpoint.identifier=$TESTAPP_IDENTIFIER
 
 UNIT_TIME=5
@@ -46,7 +46,7 @@ CHECK_COUNT=24
 CLOSE_WAIT_TIME=`expr $UNIT_TIME \* $CHECK_COUNT`
 
 PROPERTIES=`cat $CONF_DIR/$CONF_FILE 2>/dev/null`
-KEY_PORT="example.testapp.port"
+KEY_PORT="quickstart.testapp.port"
 
 function func_read_properties
 {

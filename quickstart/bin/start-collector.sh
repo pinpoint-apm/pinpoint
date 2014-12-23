@@ -27,15 +27,15 @@ BASE_DIR=`dirname "$bin"`
 COLLECTOR_DIR=$BASE_DIR/collector
 
 CONF_DIR=$BASE_DIR/conf
-CONF_FILE=examples.properties
+CONF_FILE=quickstart.properties
 
 LOGS_DIR=$BASE_DIR/logs
-LOG_FILE=examples.collector.log
+LOG_FILE=quickstart.collector.log
 
 PID_DIR=$BASE_DIR/logs/pid
-PID_FILE=examples.collector.pid
+PID_FILE=quickstart.collector.pid
 
-COLLECTOR_IDENTIFIER=pinpoint-example-collector
+COLLECTOR_IDENTIFIER=pinpoint-quickstart-collector
 IDENTIFIER=maven.pinpoint.identifier=$COLLECTOR_IDENTIFIER
 
 UNIT_TIME=5
@@ -43,7 +43,7 @@ CHECK_COUNT=24
 CLOSE_WAIT_TIME=`expr $UNIT_TIME \* $CHECK_COUNT`
 
 PROPERTIES=`cat $CONF_DIR/$CONF_FILE 2>/dev/null`
-KEY_PORT="example.collector.port"
+KEY_PORT="quickstart.collector.port"
 
 function func_read_properties
 {

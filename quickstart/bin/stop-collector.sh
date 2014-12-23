@@ -20,12 +20,12 @@ this="$bin/$script"
 BASE_DIR=`dirname "$bin"`
 
 LOGS_DIR=$BASE_DIR/logs
-LOG_FILE=examples.collector.log
+LOG_FILE=quickstart.collector.log
 
 PID_DIR=$BASE_DIR/logs/pid
-PID_FILE=examples.collector.pid
+PID_FILE=quickstart.collector.pid
 
-COLLECTOR_IDENTIFIER=pinpoint-example-collector
+COLLECTOR_IDENTIFIER=pinpoint-quickstart-collector
 IDENTIFIER=maven.pinpoint.identifier=$COLLECTOR_IDENTIFIER
 
 function func_close_process

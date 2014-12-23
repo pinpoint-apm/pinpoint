@@ -21,15 +21,15 @@ BASE_DIR=`dirname "$bin"`
 WEB_DIR=$BASE_DIR/web
 
 CONF_DIR=$BASE_DIR/conf
-CONF_FILE=examples.properties
+CONF_FILE=quickstart.properties
 
 LOGS_DIR=$BASE_DIR/logs
-LOG_FILE=examples.web.log
+LOG_FILE=quickstart.web.log
 
 PID_DIR=$BASE_DIR/logs/pid
-PID_FILE=examples.web.pid
+PID_FILE=quickstart.web.pid
 
-WEB_IDENTIFIER=pinpoint-example-web
+WEB_IDENTIFIER=pinpoint-quickstart-web
 IDENTIFIER=maven.pinpoint.identifier=$WEB_IDENTIFIER
 
 UNIT_TIME=5
@@ -37,7 +37,7 @@ CHECK_COUNT=24
 CLOSE_WAIT_TIME=`expr $UNIT_TIME \* $CHECK_COUNT`
 
 PROPERTIES=`cat $CONF_DIR/$CONF_FILE 2>/dev/null`
-KEY_PORT="example.web.port"
+KEY_PORT="quickstart.web.port"
 
 function func_read_properties
 {

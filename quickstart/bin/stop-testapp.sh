@@ -20,12 +20,12 @@ this="$bin/$script"
 BASE_DIR=`dirname "$bin"`
 
 LOGS_DIR=$BASE_DIR/logs
-LOG_FILE=examples.testapp.log
+LOG_FILE=quickstart.testapp.log
 
 PID_DIR=$BASE_DIR/logs/pid
-PID_FILE=examples.testapp.pid
+PID_FILE=quickstart.testapp.pid
 
-TESTAPP_IDENTIFIER=pinpoint-example-testapp
+TESTAPP_IDENTIFIER=pinpoint-quickstart-testapp
 IDENTIFIER=maven.pinpoint.identifier=$TESTAPP_IDENTIFIER
 
 function func_close_process
