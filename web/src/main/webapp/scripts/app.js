@@ -1,7 +1,7 @@
 'use strict';
 
 //nv.dev = false;
-var pinpointApp = angular.module('pinpointApp', [ 'ngRoute', 'ngResource', 'ngSanitize', 'webStorageModule', 'uiSlider', 'base64', 'mgcrea.ngStrap', 'ngCookies', 'angular-intro-plus', 'ngAnimate']);
+var pinpointApp = angular.module('pinpointApp', [ 'ngRoute', 'ngResource', 'ngSanitize', 'webStorageModule', 'uiSlider', 'base64', 'mgcrea.ngStrap', 'ngCookies', 'angular-intro-plus', 'ngAnimate', 'timer']);
 
 pinpointApp.config(['$routeProvider', '$locationProvider', '$modalProvider', function ($routeProvider, $locationProvider, $modalProvider) {
     $locationProvider.html5Mode(false).hashPrefix(''); // 해쉬뱅을 사용 안할 수 있다.
@@ -61,36 +61,5 @@ pinpointApp.run([ '$rootScope', '$timeout', '$modal', '$location', '$cookies', '
                 $('#supported-browsers').modal();
             }, 500);
         }
-
-        // initialize variables
-        var bIsLoginModalOpened, oLoginModal;
-
-        // initialize variables of methods
-        var checkLoginSession;
-
-        if ($location.host() === 'pinpoint.nhncorp.com') {
-            $timeout(function () {
-                if (checkLoginSession() === false && bIsLoginModalOpened === false) {
-                    oLoginModal.show();
-                    bIsLoginModalOpened = true;
-                }
-            }, 700);
-            $interval(function () {
-                if (checkLoginSession() === false && bIsLoginModalOpened === false) {
-                    oLoginModal.show();
-                    bIsLoginModalOpened = true;
-                } else if (checkLoginSession() === true && bIsLoginModalOpened === true) {
-                    oLoginModal.hide();
-                    bIsLoginModalOpened = false;
-                }
-            }, 3000);
-        }
-
-        checkLoginSession = function () {
-            return angular.isDefined($cookies.SMSESSION);
-        };
-
-        oLoginModal = $modal({template: 'views/login.modal.html', backdrop: 'static', placement: 'center', show: false});
-
     }
 ]);
