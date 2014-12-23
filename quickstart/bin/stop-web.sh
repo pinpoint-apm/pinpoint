@@ -20,12 +20,12 @@ this="$bin/$script"
 BASE_DIR=`dirname "$bin"`
 
 LOGS_DIR=$BASE_DIR/logs
-LOG_FILE=examples.web.log
+LOG_FILE=quickstart.web.log
 
 PID_DIR=$BASE_DIR/logs/pid
-PID_FILE=examples.web.pid
+PID_FILE=quickstart.web.pid
 
-WEB_IDENTIFIER=pinpoint-example-web
+WEB_IDENTIFIER=pinpoint-quickstart-web
 IDENTIFIER=maven.pinpoint.identifier=$WEB_IDENTIFIER
 
 function func_close_process

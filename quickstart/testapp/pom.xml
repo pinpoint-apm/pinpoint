@@ -6,8 +6,8 @@
         <url>http://www.navercorp.com/</url>
     </organization>
     <groupId>com.navercorp.pinpoint</groupId>
-    <artifactId>pinpoint-example-testapp</artifactId>
-    <name>Pinpoint TestApp Example</name>
+    <artifactId>pinpoint-quickstart-testapp</artifactId>
+    <name>Pinpoint TestApp QuickStart</name>
     <version>1.0.4-SNAPSHOT</version>
     <packaging>war</packaging>
     
@@ -179,7 +179,7 @@
                         </goals>
                         <configuration>
                             <files>
-                                <file>${basedir}/../conf/examples.properties</file>
+                                <file>${basedir}/../conf/quickstart.properties</file>
                             </files>
                         </configuration>
                     </execution>
@@ -190,8 +190,8 @@
                 <artifactId>tomcat7-maven-plugin</artifactId>
                 <version>2.2</version>
                 <configuration>
-                    <path>${example.testapp.context.path}</path>
-                    <port>${example.testapp.port}</port>
+                    <path>${quickstart.testapp.context.path}</path>
+                    <port>${quickstart.testapp.port}</port>
                     <uriEncoding>utf-8</uriEncoding>
                     <warSourceDirectory>${basedir}/target/deploy</warSourceDirectory>
                 </configuration>
