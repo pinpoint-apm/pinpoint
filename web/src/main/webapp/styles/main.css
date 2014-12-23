@@ -157,6 +157,10 @@ canvas {outline:none}
     max-width: 500px;
 }
 
+.introjs-tooltip ul {
+	padding-left: 20px;
+}
+
 #copyright {
     position: fixed;
     left: 10px;
