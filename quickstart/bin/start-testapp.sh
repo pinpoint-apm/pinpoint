@@ -46,6 +46,7 @@ CHECK_COUNT=24
 CLOSE_WAIT_TIME=`expr $UNIT_TIME \* $CHECK_COUNT`
 
 PROPERTIES=`cat $CONF_DIR/$CONF_FILE 2>/dev/null`
+KEY_VERSION="quickstart.version"
 KEY_PORT="quickstart.testapp.port"
 
 function func_read_properties
@@ -176,6 +177,7 @@ function func_init_log
 
 function func_start_pinpoint_testapp
 {
+		version=$( func_read_properties "$KEY_VERSION" )
         maven_opt=$MAVEN_OPTS
         pinpoint_agent=`find $AGENT_DIR -name pinpoint-bootstrap-*.jar`
         pinpoint_opt="-javaagent:$pinpoint_agent -Dpinpoint.agentId=test-agent -Dpinpoint.applicationName=TESTAPP"
@@ -184,7 +186,7 @@ function func_start_pinpoint_testapp
         port=$( func_read_properties "$KEY_PORT" )
         check_url="http://localhost:"$port"/getCurrentTimestamp.pinpoint"
 
-        pid=`nohup mvn -f $TESTAPP_DIR/pom.xml clean package tomcat7:run -D$IDENTIFIER > $LOGS_DIR/$LOG_FILE 2>&1 & echo $!`
+        pid=`nohup mvn -f $TESTAPP_DIR/pom.xml clean package tomcat7:run -D$IDENTIFIER -Dmaven.pinpoint.version=$version > $LOGS_DIR/$LOG_FILE 2>&1 & echo $!`
         echo $pid > $PID_DIR/$PID_FILE
         export MAVEN_OPTS=$maven_opt
 
