@@ -8,7 +8,7 @@
     </parent>
 
     <artifactId>pinpoint-agent</artifactId>
-    <name>pinpoint agent distribution</name>
+    <name>pinpoint-agent-distribution</name>
     <packaging>jar</packaging>
     
     <properties>

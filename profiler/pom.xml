@@ -8,7 +8,7 @@
     </parent>
 
     <artifactId>pinpoint-profiler</artifactId>
-    <name>pinpoint profiler</name>
+    <name>pinpoint-profiler</name>
     <packaging>jar</packaging>
 
     <dependencies>

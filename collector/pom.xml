@@ -8,7 +8,7 @@
     </parent>
 
     <artifactId>pinpoint-collector</artifactId>
-    <name>pinpoint collector</name>
+    <name>pinpoint-collector</name>
     <packaging>war</packaging>
 
     <dependencies>

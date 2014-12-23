@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>pinpoint-bootstrap</artifactId>
-    <name>pinpoint bootstrap</name>
+    <name>pinpoint-bootstrap</name>
     <packaging>jar</packaging>
 
     <dependencies>

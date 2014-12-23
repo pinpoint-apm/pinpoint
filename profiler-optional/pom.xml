@@ -7,7 +7,7 @@
     </parent>
     
     <artifactId>pinpoint-profiler-optional</artifactId>
-    <name>pinpoint profiler optional</name>
+    <name>pinpoint-profiler-optional</name>
     <description>pinpoint profiler optional package</description>
     
     <properties>
