@@ -93,25 +93,6 @@ function func_check_process
         fi
 }
 
-function func_init_agent
-{
-        echo "---initialize $TESTAPP_IDENTIFIER agent.---"
-
-        version=$( func_read_properties "$KEY_VERSION" )
-
-        if [ ! -d $AGENT_DIR ]; then
-                echo "can't find agent path($AGENT_DIR)."
-                exit 1
-        fi
-
-        `mvn -f $AGENT_DIR/pom.xml clean package -Dmaven.pinpoint.version=$version > $LOGS_DIR/$LOG_FILE 2>/dev/null`
-
-        if [ ! -f $AGENT_BOOTSTRAP_DIR/pinpoint-bootstrap-$version.jar ]; then
-                echo "can't find agent file($AGENT_BOOTSTRAP_DIR/pinpoint-bootstrap-$version.jar)."
-                exit 1
-        fi
-}
-
 function func_init_log
 {
         echo "---initilize $TESTAPP_IDENTIFIER logs.---"
@@ -139,6 +120,25 @@ function func_init_log
         # will add validation log file.
 }
 
+function func_init_agent
+{
+        echo "---initialize $TESTAPP_IDENTIFIER agent.---"
+
+        version=$( func_read_properties "$KEY_VERSION" )
+
+        if [ ! -d $AGENT_DIR ]; then
+                echo "can't find agent path($AGENT_DIR)."
+                exit 1
+        fi
+
+        `mvn -f $AGENT_DIR/pom.xml clean package -Dmaven.pinpoint.version=$version > $LOGS_DIR/$LOG_FILE 2>/dev/null`
+
+        if [ ! -f $AGENT_BOOTSTRAP_DIR/pinpoint-bootstrap-$version.jar ]; then
+                echo "can't find agent file($AGENT_BOOTSTRAP_DIR/pinpoint-bootstrap-$version.jar)."
+                exit 1
+        fi
+}
+
 function func_start_pinpoint_testapp
 {
 		version=$( func_read_properties "$KEY_VERSION" )
@@ -150,7 +150,7 @@ function func_start_pinpoint_testapp
         port=$( func_read_properties "$KEY_PORT" )
         check_url="http://localhost:"$port"/getCurrentTimestamp.pinpoint"
 
-        pid=`nohup mvn -f $TESTAPP_DIR/pom.xml clean package tomcat7:run -D$IDENTIFIER -Dmaven.pinpoint.version=$version > $LOGS_DIR/$LOG_FILE 2>&1 & echo $!`
+        pid=`nohup mvn -f $TESTAPP_DIR/pom.xml clean package tomcat7:run -D$IDENTIFIER -Dmaven.pinpoint.version=$version >> $LOGS_DIR/$LOG_FILE 2>&1 & echo $!`
         echo $pid > $PID_DIR/$PID_FILE
         export MAVEN_OPTS=$maven_opt
 
@@ -186,6 +186,6 @@ function func_start_pinpoint_testapp
 
 
 func_check_process
-func_init_agent
 func_init_log
+func_init_agent
 func_start_pinpoint_testapp
