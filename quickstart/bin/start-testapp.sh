@@ -26,6 +26,7 @@ this="$bin/$script"
 BASE_DIR=`dirname "$bin"`
 PINPOINT_BASE_DIR=`dirname "$BASE_DIR"`
 AGENT_DIR=$BASE_DIR/agent
+AGENT_BOOTSTRAP_DIR=$AGENT_DIR/target/pinpoint-agent
 TESTAPP_DIR=$BASE_DIR/testapp
 
 CONF_DIR=$BASE_DIR/conf
@@ -42,7 +43,7 @@ TESTAPP_IDENTIFIER=pinpoint-quickstart-testapp
 IDENTIFIER=maven.pinpoint.identifier=$TESTAPP_IDENTIFIER
 
 UNIT_TIME=5
-CHECK_COUNT=24
+CHECK_COUNT=36
 CLOSE_WAIT_TIME=`expr $UNIT_TIME \* $CHECK_COUNT`
 
 PROPERTIES=`cat $CONF_DIR/$CONF_FILE 2>/dev/null`
@@ -92,60 +93,23 @@ function func_check_process
         fi
 }
 
-function func_get_original_path
-{
-        source_path=""
-        source_path_canditate=`find $PINPOINT_BASE_DIR -name "pinpoint-agent"`
-        for path in $source_path_canditate;
-        do
-                if [ -d $path ]; then
-                        bootstap_jar_num=`find $path -name pinpoint-bootstrap-*.jar | grep $path/pinpoint-bootstrap | wc -l`
-                        lib_num=`find $path -name lib | grep $path/lib | wc -l`
-
-                        if [[ $bootstap_jar_num -eq 1 && $lib_num -eq 1 && -d $path ]]; then
-                                source_path=$path
-                                break
-                        fi
-                fi
-        done
-
-        echo $source_path
-}
-
 function func_init_agent
 {
         echo "---initialize $TESTAPP_IDENTIFIER agent.---"
 
-        source_path=$( func_get_original_path )
-        if [ -z $source_path ]; then
-                echo "illegal pinpoint-agent path($path)."
-                exit 1
-        fi
-
-        if [ ! -f $CONF_DIR/$PINPOINT_CONF_FILE ]; then
-                echo "illegal pinpoint-agent config file($CONF_DIR/$PINPOINT_CONF_FILE)."
-                exit 1
-        fi
-
-        if [ -d $AGENT_DIR ]; then
-                echo "rmdir $AGENT_DIR."
-                rm -rf $AGENT_DIR
-        fi
-
-        echo "mkdir $AGENT_DIR"
-        mkdir $AGENT_DIR
+        version=$( func_read_properties "$KEY_VERSION" )
 
         if [ ! -d $AGENT_DIR ]; then
-                echo "mkdir $AGENT_DIR fail."
+                echo "can't find agent path($AGENT_DIR)."
                 exit 1
         fi
 
-        echo "copy pinpoint-agent from $source_path to $AGENT_DIR."
-        cp -r $source_path/* $AGENT_DIR
+        `mvn -f $AGENT_DIR/pom.xml clean package -Dmaven.pinpoint.version=$version > $LOGS_DIR/$LOG_FILE 2>/dev/null`
 
-        echo "copy pinpoint.config from $CONF_DIR/$PINPOINT_CONF_FILE to $AGENT_DIR."
-        cp -f $CONF_DIR/$PINPOINT_CONF_FILE $AGENT_DIR
-
+        if [ ! -f $AGENT_BOOTSTRAP_DIR/pinpoint-bootstrap-$version.jar ]; then
+                echo "can't find agent file($AGENT_BOOTSTRAP_DIR/pinpoint-bootstrap-$version.jar)."
+                exit 1
+        fi
 }
 
 function func_init_log
@@ -179,7 +143,7 @@ function func_start_pinpoint_testapp
 {
 		version=$( func_read_properties "$KEY_VERSION" )
         maven_opt=$MAVEN_OPTS
-        pinpoint_agent=`find $AGENT_DIR -name pinpoint-bootstrap-*.jar`
+		pinpoint_agent=$AGENT_BOOTSTRAP_DIR/pinpoint-bootstrap-$version.jar
         pinpoint_opt="-javaagent:$pinpoint_agent -Dpinpoint.agentId=test-agent -Dpinpoint.applicationName=TESTAPP"
         export MAVEN_OPTS=$pinpoint_opt
 
@@ -198,7 +162,7 @@ function func_start_pinpoint_testapp
         while [ -z $process_status];
         do
                 wait_time=`expr $end_count \* $UNIT_TIME`
-                echo "starting $TESTAPP_IDENTIFIER. $wait_time sec/$CLOSE_WAIT_TIME sec(close wait limit)."
+                echo "starting $TESTAPP_IDENTIFIER. $wait_time /$CLOSE_WAIT_TIME sec(close wait limit)."
 
                 if [ $end_count -ge $CHECK_COUNT ]; then
                         break

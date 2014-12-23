@@ -39,7 +39,7 @@ COLLECTOR_IDENTIFIER=pinpoint-quickstart-collector
 IDENTIFIER=maven.pinpoint.identifier=$COLLECTOR_IDENTIFIER
 
 UNIT_TIME=5
-CHECK_COUNT=24
+CHECK_COUNT=36
 CLOSE_WAIT_TIME=`expr $UNIT_TIME \* $CHECK_COUNT`
 
 PROPERTIES=`cat $CONF_DIR/$CONF_FILE 2>/dev/null`
@@ -150,7 +150,7 @@ function func_start_pinpoint_collector
         while [ "$check_running_pinpoint_collector" == "false" ]
         do
                 wait_time=`expr $end_count \* $UNIT_TIME`
-                echo "starting $COLLECTOR_IDENTIFIER. $wait_time sec/$CLOSE_WAIT_TIME sec(close wait limit)."
+                echo "starting $COLLECTOR_IDENTIFIER. $wait_time /$CLOSE_WAIT_TIME sec(close wait limit)."
 				
                 if [ $end_count -ge $CHECK_COUNT ]; then
                         break
