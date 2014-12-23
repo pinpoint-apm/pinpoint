@@ -8,7 +8,7 @@
     <groupId>com.navercorp.pinpoint</groupId>
     <artifactId>pinpoint-quickstart-collector</artifactId>
     <name>Pinpoint Collector QuickStart </name>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>${maven.pinpoint.version}</version>
     <packaging>war</packaging>
 
     <properties>

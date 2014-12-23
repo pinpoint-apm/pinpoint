@@ -43,6 +43,7 @@ CHECK_COUNT=24
 CLOSE_WAIT_TIME=`expr $UNIT_TIME \* $CHECK_COUNT`
 
 PROPERTIES=`cat $CONF_DIR/$CONF_FILE 2>/dev/null`
+KEY_VERSION="quickstart.version"
 KEY_PORT="quickstart.collector.port"
 
 function func_read_properties
@@ -138,7 +139,8 @@ function func_check_running_pinpoint_collector
 
 function func_start_pinpoint_collector
 {
-        pid=`nohup mvn -f $COLLECTOR_DIR/pom.xml clean package tomcat7:run -D$IDENTIFIER > $LOGS_DIR/$LOG_FILE 2>&1 & echo $!`
+		version=$( func_read_properties "$KEY_VERSION" )
+        pid=`nohup mvn -f $COLLECTOR_DIR/pom.xml clean package tomcat7:run -D$IDENTIFIER -Dmaven.pinpoint.version=$version > $LOGS_DIR/$LOG_FILE 2>&1 & echo $!`
         echo $pid > $PID_DIR/$PID_FILE
 
         echo "---$COLLECTOR_IDENTIFIER initialization started. pid=$pid.---"
