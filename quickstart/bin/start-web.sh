@@ -122,8 +122,7 @@ function func_start_pinpoint_web
         process_status=`curl $check_url 2>/dev/null | grep 'currentServerTime'`
         end_count=0
 
-        while [ -z $process_status ]
-        do
+        while [ -z $process_status ]; do
                 wait_time=`expr $end_count \* $UNIT_TIME`
                 echo "starting $WEB_IDENTIFIER. $wait_time /$CLOSE_WAIT_TIME sec(close wait limit)."
 

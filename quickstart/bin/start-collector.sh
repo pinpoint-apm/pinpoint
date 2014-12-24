@@ -147,8 +147,7 @@ function func_start_pinpoint_collector
 
         end_count=0
 	check_running_pinpoint_collector=$( func_check_running_pinpoint_collector )
-        while [ "$check_running_pinpoint_collector" == "false" ]
-        do
+        while [ "$check_running_pinpoint_collector" == "false" ]; do
                 wait_time=`expr $end_count \* $UNIT_TIME`
                 echo "starting $COLLECTOR_IDENTIFIER. $wait_time /$CLOSE_WAIT_TIME sec(close wait limit)."
 				
