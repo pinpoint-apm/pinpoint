@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.rpc.packet.PayloadPacket;
 import com.navercorp.pinpoint.rpc.util.AssertUtils;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class StreamResponsePacket extends BasicStreamPacket {
 

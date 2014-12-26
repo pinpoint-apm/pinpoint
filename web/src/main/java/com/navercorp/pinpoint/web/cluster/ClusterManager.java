@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.cluster;
 import java.util.List;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public interface ClusterManager {
 

@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.cluster;
 
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public interface ClusterService {
 

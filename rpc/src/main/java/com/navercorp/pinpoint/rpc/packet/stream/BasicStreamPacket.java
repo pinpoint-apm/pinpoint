@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.rpc.packet.stream;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public abstract class BasicStreamPacket implements StreamPacket {
 

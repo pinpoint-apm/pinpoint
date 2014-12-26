@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.rpc.stream;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public abstract class StreamChannelContext {
 

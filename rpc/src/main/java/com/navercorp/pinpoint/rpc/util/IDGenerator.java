@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.rpc.util;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class IDGenerator {
 

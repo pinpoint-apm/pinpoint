@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public interface ServerStreamChannelMessageListener {
 

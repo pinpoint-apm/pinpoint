@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.rpc.stream;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class ServerStreamChannelContext extends StreamChannelContext {
 

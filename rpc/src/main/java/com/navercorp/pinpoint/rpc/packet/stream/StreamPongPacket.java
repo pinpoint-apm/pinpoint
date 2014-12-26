@@ -22,7 +22,7 @@ import org.jboss.netty.buffer.ChannelBuffers;
 import com.navercorp.pinpoint.rpc.packet.PacketType;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class StreamPongPacket extends BasicStreamPacket {
 

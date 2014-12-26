@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
 
 /**
  * @author emeroad
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class RecordedStreamChannelMessageListener implements ClientStreamChannelMessageListener {
 

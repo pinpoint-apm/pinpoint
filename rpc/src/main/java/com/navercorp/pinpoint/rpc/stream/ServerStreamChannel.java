@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamCreateSuccessPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class ServerStreamChannel extends StreamChannel {
 

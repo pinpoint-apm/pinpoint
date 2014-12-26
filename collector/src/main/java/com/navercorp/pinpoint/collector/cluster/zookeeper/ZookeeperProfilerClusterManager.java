@@ -39,7 +39,7 @@ import com.navercorp.pinpoint.rpc.server.SocketChannelStateChangeEventListener;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class ZookeeperProfilerClusterManager implements SocketChannelStateChangeEventListener  {
 

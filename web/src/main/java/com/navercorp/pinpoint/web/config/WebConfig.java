@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class WebConfig {
 
