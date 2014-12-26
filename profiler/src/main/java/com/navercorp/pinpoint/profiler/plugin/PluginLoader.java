@@ -36,7 +36,7 @@ public class PluginLoader<T> {
     private static final SecurityManager SECURITY_MANAGER = System.getSecurityManager();
 
     private final Class<T> serviceType;
-    private final ClassLoader classLoader;;
+    private final ClassLoader classLoader;
     
     public static <T> PluginLoader<T> get(Class<T> serviceType, String pluginPath) {
         URL[] jars = findJars(pluginPath);
