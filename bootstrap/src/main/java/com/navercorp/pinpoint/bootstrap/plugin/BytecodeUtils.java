@@ -49,8 +49,8 @@ public final class BytecodeUtils {
     public static Class<?> defineClass(ClassLoader classLoader, String className, byte[] classFile) {
         try {
             return (Class<?>) DEFINE_CLASS.invoke(classLoader, className, classFile, 0, classFile.length);
-        } catch (Exception e) {
-            return null;
+        } catch (Exception ex) {
+            throw new RuntimeException("defineClass error. Caused:" + ex.getMessage(), ex);
         }
     }
 

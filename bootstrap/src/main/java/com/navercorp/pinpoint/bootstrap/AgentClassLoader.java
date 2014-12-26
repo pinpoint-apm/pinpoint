@@ -33,7 +33,7 @@ import java.util.concurrent.Callable;
  */
 public class AgentClassLoader {
 
-	private static final SecurityManager SECURITY_MANAGER = System.getSecurityManager();
+    private static final SecurityManager SECURITY_MANAGER = System.getSecurityManager();
 
     private URLClassLoader classLoader;
 
@@ -53,19 +53,19 @@ public class AgentClassLoader {
         this.executeTemplate = new ContextClassLoaderExecuteTemplate<Object>(classLoader);
     }
 
-	private PinpointURLClassLoader createClassLoader(final URL[] urls, final ClassLoader bootStrapClassLoader) {
-		if (SECURITY_MANAGER != null) {
-			return AccessController.doPrivileged(new PrivilegedAction<PinpointURLClassLoader>() {
-				public PinpointURLClassLoader run() {
-					return new PinpointURLClassLoader(urls, bootStrapClassLoader);
-				}
-			});
-		} else {
-			return new PinpointURLClassLoader(urls, bootStrapClassLoader);
-		}
-	}
+    private PinpointURLClassLoader createClassLoader(final URL[] urls, final ClassLoader bootStrapClassLoader) {
+        if (SECURITY_MANAGER != null) {
+            return AccessController.doPrivileged(new PrivilegedAction<PinpointURLClassLoader>() {
+                public PinpointURLClassLoader run() {
+                    return new PinpointURLClassLoader(urls, bootStrapClassLoader);
+                }
+            });
+        } else {
+            return new PinpointURLClassLoader(urls, bootStrapClassLoader);
+        }
+    }
 
-	public void setBootClass(String bootClass) {
+    public void setBootClass(String bootClass) {
         this.bootClass = bootClass;
     }
 
