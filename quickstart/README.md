@@ -10,9 +10,9 @@ In order to build Pinpoint and run QuickStart, the following requirements must b
 * Maven installed
 * JAVA_7_HOME environment variable set to JDK 7 installation directory.
 
-JDK 7+ and JAVA_7_HOME environment variable are required to build profiler-optional. If you choose to build each modules separately, you may do so with JDK 6.
+JDK 7+ and JAVA_7_HOME environment variable are required to build profiler-optional. If you choose to build each module separately, you may do so with JDK 6.
 
-QuickStart currently only supports Linux, and OSX.
+QuickStart supports Linux, and OSX.
 
 
 ## Starting 
@@ -34,6 +34,14 @@ The following script downloads HBase standalone from [Apache download site](http
 **Web UI** - Run ```quickstart/bin/start-web.sh```
 
 **TestApp** - Run ```quickstart/bin/start-testapp.sh```
+
+Once the startup scripts are completed, the last 10 lines of the Tomcat log are tailed to the console:
+
+**Collector** ![Collector quick start successful](../doc/img/ss_quickstart-collector-log.png)
+
+**Web UI** ![Web quick start successful](../doc/img/ss_quickstart-web-log.png)
+
+**TestApp** ![TestApp quick start successful](../doc/img/ss_quickstart-testapp-log.png)
 
 ### Check Status
 Once HBase and the 3 daemons are running, you may visit the following addresses to test out your very own Pinpoint instance.
