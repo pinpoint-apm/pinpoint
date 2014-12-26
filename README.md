@@ -22,7 +22,7 @@ Services nowadays often consist of many different components, communicating amon
   ![Inspector](doc/img/ss_inspector.png)
   
 ## Architecture
-To be included.
+![Pinpoint Architecture](doc/img/pinpoint-architecture.png)
 
 ## Quick Start
 You may run a sample Pinpoint instance in your own machine by running four simple scripts for each components: Collector, Web, Sample TestApp, HBase.
@@ -31,11 +31,15 @@ Once the components are running, you should be able to visit http://localhost:28
 
 For details, please refer to the [quick-start guide](quickstart/README.md "Pinpoint quick-start guide").
 
-## Get Involved
-To be included.
-
 ## Issues
-To be included.
+For feature requests and bug reports, feel free to post them [here](https://github.com/naver/pinpoint/issues).
+
+## Contribution
+We welcome any and all suggestions. Our development guide is currently WIP so check back often for any updates.
+
+For contributions, please make a pull-request against our ```master``` branch.
+
+We would love to see additional tracing support for libraries such as [Storm](https://storm.apache.org/), [HBase](http://hbase.apache.org/), as well as profiler support for additional languages (.NET, C++).
 
 ## License
 Pinpoint is licensed under the Apache License, Version 2.0.
