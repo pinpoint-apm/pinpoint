@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 나를 호출한 application 통계 갱신
+ * Update statistics of caller node
  * 
  * @author netspider
  * @author emeroad
@@ -89,10 +89,10 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
                     calleeApplicationName, ServiceType.findServiceType(calleeServiceType), calleeHost);
 		}
 
-        // httpclient와 같은 경우는 endpoint가 없을수 있다.
+        // there may be no endpoint in case of httpclient
         calleeHost = StringUtils.defaultString(calleeHost);
 
-        // make row key. rowkey는 나.
+        // make row key. rowkey is me
 		final long acceptedTime = acceptedTimeService.getAcceptedTime();
 		final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
         final RowKey callerRowKey = new CallRowKey(callerApplicationName, callerServiceType, rowTimeSlot);
@@ -104,7 +104,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
             this.counter.increment(rowInfo, 1L);
 		} else {
             final byte[] rowKey = callerRowKey.getRowKey();
-            // column name은 나를 호출한 app
+            // column name is the name of caller app.
             byte[] columnName = calleeColumnName.getColumnName();
             increment(rowKey, columnName, 1L);
         }
@@ -126,7 +126,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 		if (!useBulk) {
 			throw new IllegalStateException();
 		}
-        // 일단 rowkey and column 별로 업데이트 치게 함. rowkey 별로 묶어서 보내야 될듯.
+        // update statistics by rowkey and column for now. need to update it by rowkey later.
         Map<RowInfo,ConcurrentCounterMap.LongAdder> remove = this.counter.remove();
         List<Increment> merge = rowKeyMerge.createBulkIncrement(remove);
         if (!merge.isEmpty()) {

@@ -56,7 +56,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     @Qualifier("acceptApplicationRowKeyDistributor")
     private AbstractRowKeyDistributor rowKeyDistributor;
 
-	// FIXME 매핑정보 매번 저장하지 말고 30~50초 주기로 한 개만 저장되도록 변경.
+    // FIXME should modify to save a cachekey at each 30~50 seconds instead of saving at each time
     private final AtomicLongUpdateMap<CacheKey> updater = new AtomicLongUpdateMap<CacheKey>();
 
 
@@ -91,9 +91,10 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
             logger.debug("Insert host-application map. host={}, bindApplicationName={}, bindServiceType={}, parentApplicationName={}, parentServiceType={}",
                     host, bindApplicationName, bindServiceType, parentApplicationName, parentServiceType);
         }
-        // 추후 추가를 다시 검토해볼것.
-//        String parentAgentId = null;
-//        final byte[] rowKey = createRowKey(parentApplicationName, parentServiceType, statisticsRowSlot, parentAgentId);
+
+        // TODO should consider to add bellow codes again later.
+        //String parentAgentId = null;
+        //final byte[] rowKey = createRowKey(parentApplicationName, parentServiceType, statisticsRowSlot, parentAgentId);
 		final byte[] rowKey = createRowKey(parentApplicationName, parentServiceType, statisticsRowSlot, null);
 
         byte[] columnName = createColumnName(host, bindApplicationName, bindServiceType);
@@ -121,13 +122,15 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     }
 
     byte[] createRowKey0(String parentApplicationName, short parentServiceType, long statisticsRowSlot, String parentAgentId) {
-        // 향후 이 뒤에다가 추가적인 스펙이 추가되어 agentId을 붙여도 스캔에 안전한것으로 판단됨. + 근데 parentAgentServiceType도 넣어야 되나???
+
+        // even if  a agentId be added for additional specifications, it may be safe to scan rows.
+        // But is it needed to add parentAgentServiceType?
         final int SIZE = HBaseTables.APPLICATION_NAME_MAX_LEN + 2 + 8;
         final Buffer rowKeyBuffer = new AutomaticBuffer(SIZE);
         rowKeyBuffer.putPadString(parentApplicationName, HBaseTables.APPLICATION_NAME_MAX_LEN);
         rowKeyBuffer.put(parentServiceType);
         rowKeyBuffer.put(TimeUtils.reverseTimeMillis(statisticsRowSlot));
-        // parentAgentId는 아직 없는데. 나중을 추가되면 살려서 호환성 처리가 필요함.
+        // there is no parentAgentId for now.  if it added later, need to comment out below code for compatibility.
 //        rowKeyBuffer.putPadString(parentAgentId, HBaseTables.AGENT_NAME_MAX_LEN);
         return rowKeyBuffer.getBuffer();
     }
@@ -150,7 +153,8 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
             this.host = host;
             this.applicationName = applicationName;
             this.serviceType = serviceType;
-            // 아래 두 parent 값은 null이 나올수 있음.
+
+            // may be null for below two parent values.
             this.parentApplicationName = parentApplicationName;
             this.parentServiceType = parentServiceType;
         }

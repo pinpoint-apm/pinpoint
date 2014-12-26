@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 내가 호출한 appllication 통계 갱신
+ * Update statistics of callee node
  * 
  * @author netspider
  * @author emeroad
@@ -90,11 +90,11 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
                     callerApplicationName, ServiceType.findServiceType(callerServiceType), callerHost);
 		}
 
-		// httpclient와 같은 경우는 endpoint가 없을수 있다.
+        // there may be no endpoint in case of httpclient
 		callerHost = StringUtils.defaultString(callerHost);
 
 
-		// make row key. rowkey는 나.
+		// make row key. rowkey is me
 		final long acceptedTime = acceptedTimeService.getAcceptedTime();
 		final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
         final RowKey calleeRowKey = new CallRowKey(calleeApplicationName, calleeServiceType, rowTimeSlot);
@@ -107,7 +107,8 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
             counter.increment(rowInfo, 1L);
 		} else {
             final byte[] rowKey = calleeRowKey.getRowKey();
-            // 컬럼 이름은 내가 호출한 app.
+
+            // column name is the name of caller app.
             byte[] columnName = callerColumnName.getColumnName();
             increment(rowKey, columnName, 1L);
         }

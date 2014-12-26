@@ -64,7 +64,7 @@ public class SpanChunkHandler implements SimpleHandler {
 			List<TSpanEvent> spanEventList = spanChunk.getSpanEventList();
 			if (spanEventList != null) {
 				logger.debug("SpanChunk Size:{}", spanEventList.size());
-				// TODO 껀바이 껀인데. 나중에 뭔가 한번에 업데이트 치는걸로 변경해야 될듯.
+				// TODO need to batch update later.
 				for (TSpanEvent spanEvent : spanEventList) {
 					final ServiceType serviceType = ServiceType.findServiceType(spanEvent.getServiceType());
 
@@ -77,12 +77,12 @@ public class SpanChunkHandler implements SimpleHandler {
 					final boolean hasException = SpanEventUtils.hasException(spanEvent);
 
 					/**
-					 * 통계정보에 기반한 서버맵을 그리기 위한 정보 저장.
+					 * save information to draw a server map based on statistics
 					 */
-					// 내가 호출한 정보 저장. (span이 호출한 spanevent)
+					// save the information of caller (the spanevent that span called)
 					statisticsHandler.updateCaller(spanChunk.getApplicationName(), spanChunk.getServiceType(), spanChunk.getAgentId(), spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getEndPoint(), elapsed, hasException);
 
-					// 나를 호출한 정보 저장 (spanevent를 호출한 span)
+					// save the information of callee (the span that called spanevent)
 					statisticsHandler.updateCallee(spanEvent.getDestinationId(), spanEvent.getServiceType(), spanChunk.getApplicationName(), spanChunk.getServiceType(), spanChunk.getEndPoint(), elapsed, hasException);
 				}
 			}

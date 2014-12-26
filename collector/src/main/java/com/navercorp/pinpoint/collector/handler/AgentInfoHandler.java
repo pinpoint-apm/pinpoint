@@ -50,8 +50,8 @@ public class AgentInfoHandler implements SimpleHandler, RequestResponseHandler {
 	public TBase<?, ?> handleRequest(TBase<?, ?> tbase) {
 		if (!(tbase instanceof TAgentInfo)) {
 			logger.warn("invalid tbase:{}", tbase);
-			// 해당 BO뿐만 아니라 다른 BO에서도 null을 반환하는 경우가 있음
-			// 이 경우 Req/Res 방식을 경우 상대방에게 응답이 안가는데 이게 정상인지 잘모르겠네 문의 필요.
+			// it happens to return null  not only at this BO(Business Object) but also at other BOs.
+
 			return null;
 		}
 
@@ -63,11 +63,12 @@ public class AgentInfoHandler implements SimpleHandler, RequestResponseHandler {
 			// agent info
 			agentInfoDao.insert(agentInfo);
 
-			// applicationname으로 agentid를 조회하기위한 용도.
+			// for querying agentid using applicationname
 			applicationIndexDao.insert(agentInfo);
 			
 			return new TResult(true);
-			// agentid로 applicationname을 조회하기 위한 용도
+
+			// for querying applicationname using agentid
 //			agentIdApplicationIndexDao.insert(agentInfo.getAgentId(), agentInfo.getApplicationName());
 		} catch (Exception e) {
 			logger.warn("AgentInfo handle error. Caused:{}", e.getMessage(), e);

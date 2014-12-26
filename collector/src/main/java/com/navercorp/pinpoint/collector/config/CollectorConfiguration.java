@@ -156,7 +156,8 @@ public class CollectorConfiguration implements InitializingBean {
 	}
 
     public void readConfigFile() {
-        //    testcase와 같이 단독으로 사용할 경우 해당 api를 사용하면 좋을듯. testcase에서 쓸려면 classpath를 읽도록 고쳐야 될거임.
+
+        // may be useful for some kind of standalone like testcase. It should be modified to read a classpath for testcase.
         String configFileName = System.getProperty(CONFIG_FILE_NAME);
         if (configFileName == null) {
             logger.warn("Property is not set. Using default values. PROPERTY_NAME={}, defaultValue={}", CONFIG_FILE_NAME, this);
@@ -227,8 +228,9 @@ public class CollectorConfiguration implements InitializingBean {
     private boolean readBoolen(Properties properties, String propertyName) {
     	final String value = properties.getProperty(propertyName);
         
-    	// true 문자열인 경우만 true 그외는 모두 false 
-    	// 이후 default value가 필요할 경우, Utils 대신 문자열 매칭으로 해야할듯 현재는 필요없기 떄문에 그냥 둠
+        // if a default value will be needed afterwards, may match string value instead of Utils.
+        // for now stay unmodified because of no need.
+
         boolean result = Boolean.valueOf(value);
         if (logger.isInfoEnabled()) {
             logger.info("{}={}", propertyName, result);
