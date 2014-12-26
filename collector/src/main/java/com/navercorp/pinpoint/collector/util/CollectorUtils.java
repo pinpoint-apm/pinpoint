@@ -28,8 +28,8 @@ public final class CollectorUtils {
 
 	public static String getServerIdentifier() {
 
-		// 해당 값이 유일한 값이 아닌 경우 MAC주소나 IP주소 등으로 변경할 예정
-		// 요렇게 하면 pid@hostname 으로 나옴 (localhost 요런놈은 겹칠 가능성이 존재함)
+		// if the return value is not unique, it will be changed to MAC address or IP address.
+		// It means that the return value has format of "pid@hostname" (it is possible to be duplicate for "localhost")
 		return ManagementFactory.getRuntimeMXBean().getName();
 	}
 	

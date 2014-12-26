@@ -43,9 +43,10 @@ public abstract class AbstractDispatchHandler implements DispatchHandler {
 
     @Override
     public void dispatchSendMessage(TBase<?, ?> tBase, byte[] packet, int offset, int length) {
-        // accepted time 마크
+
+        // mark accepted time
         acceptedTimeService.accept();
-        // TODO 수정시 dispatch table은 자동으로 바뀌게 변경해도 될듯하다.
+        // TODO consider to change dispatch table automatically
         SimpleHandler simpleHandler = getSimpleHandler(tBase);
         if (simpleHandler != null) {
             if (logger.isTraceEnabled()) {
@@ -68,7 +69,7 @@ public abstract class AbstractDispatchHandler implements DispatchHandler {
     }
     
     public TBase dispatchRequestMessage(TBase<?,?> tBase, byte[] packet, int offset, int length) {
-        // accepted time 마크
+        // mark accepted time
         acceptedTimeService.accept();
 
         RequestResponseHandler requestResponseHandler = getRequestResponseHandler(tBase);
