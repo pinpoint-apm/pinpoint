@@ -20,7 +20,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public enum StreamChannelStateCode {
 

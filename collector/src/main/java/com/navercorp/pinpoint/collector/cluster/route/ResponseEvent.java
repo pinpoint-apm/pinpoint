@@ -21,7 +21,7 @@ import org.jboss.netty.channel.Channel;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class ResponseEvent extends DefaultRouteEvent {
 

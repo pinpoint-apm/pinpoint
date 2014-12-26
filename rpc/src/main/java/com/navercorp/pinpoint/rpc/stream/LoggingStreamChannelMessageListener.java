@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class LoggingStreamChannelMessageListener {
 

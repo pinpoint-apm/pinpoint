@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.collector.cluster.TargetClusterPoint;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public abstract class AbstractRouteHandler<T extends RouteEvent> implements RouteHandler<T> {
 

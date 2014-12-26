@@ -50,7 +50,7 @@ import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class ClusterPointRouter implements MessageListener, ServerStreamChannelMessageListener {
 

@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  *
  */
 public class CollectorClusterInfoRepository {

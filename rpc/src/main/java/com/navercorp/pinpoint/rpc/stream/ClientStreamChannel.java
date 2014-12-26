@@ -22,7 +22,7 @@ import org.jboss.netty.channel.ChannelFuture;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class ClientStreamChannel extends StreamChannel {
 

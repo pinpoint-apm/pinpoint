@@ -33,7 +33,7 @@ import com.navercorp.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListe
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class WebCluster implements Cluster {
 

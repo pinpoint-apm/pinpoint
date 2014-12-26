@@ -42,7 +42,7 @@ import com.navercorp.pinpoint.rpc.server.ChannelContext;
 import com.navercorp.pinpoint.rpc.server.SocketChannelStateChangeEventListener;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class ZookeeperClusterService extends AbstractClusterService {
 

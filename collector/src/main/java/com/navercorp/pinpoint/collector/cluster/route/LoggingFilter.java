@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class LoggingFilter {
 
