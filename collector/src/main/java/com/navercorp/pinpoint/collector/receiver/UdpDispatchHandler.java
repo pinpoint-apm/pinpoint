@@ -41,7 +41,8 @@ public class UdpDispatchHandler extends AbstractDispatchHandler {
 
     @Override
     Handler getHandler(TBase<?, ?> tBase) {
-        // code값을 기반으로 switch table로 바꾸면 눈꼽만큼 빨라짐.
+
+        // To change below code to switch table make it a little bit faster.
         // FIXME (2014.08) Legacy - TAgentStats should not be sent over the wire.
         if (tBase instanceof TAgentStat || tBase instanceof TAgentStatBatch) {
             return agentStatHandler;
