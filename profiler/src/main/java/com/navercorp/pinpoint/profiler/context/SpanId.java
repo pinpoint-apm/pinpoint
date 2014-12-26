@@ -30,13 +30,13 @@ public class SpanId {
 //    private static final Random seed = new Random();
 
     public static long newSpanId() {
-        // thread 마다 가능한 겹치지 않는 값이 생성되면 문제 없으므로 ThreadLocalRandom으로 변경함.
         final Random random = getRandom();
 
         return createSpanId(random);
     }
 
-    // 이거 구현 바꾸면 다른 random 사용이 가능함.
+    // Changed to ThreadLocalRandom because unique value per thread will be enough.
+    // If you need to change Random implementation, modify this method.
     private static Random getRandom() {
         return ThreadLocalRandom.current();
     }

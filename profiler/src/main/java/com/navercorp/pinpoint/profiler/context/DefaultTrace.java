@@ -124,8 +124,8 @@ public final class DefaultTrace implements Trace {
 
     private StackFrame createSpanEventStackFrame(int stackId) {
         SpanEvent spanEvent = new SpanEvent(callStack.getSpan());
-        // Span내부의 SpanEvent로 들어가지 않을 경우 사용하기 위해 set한다.
 
+        // Set properties for the case when stackFrame is not used as part of Span.
         SpanEventStackFrame stackFrame = new SpanEventStackFrame(spanEvent);
         stackFrame.setStackFrameId(stackId);
         stackFrame.setSequence(nextSequence());
@@ -185,7 +185,8 @@ public final class DefaultTrace implements Trace {
 //        metricResponseTime();
         pop(ROOT_STACKID);
         callStack.popRoot();
-        // 잘못된 stack 조작시 다음부터 그냥 nullPointerException이 발생할건데 괜찮은가?
+        
+        // If the stack is not handled properly, NullPointerException will be thrown after this. Is it OK?
         this.currentStackFrame = null;
     }
 
@@ -227,7 +228,7 @@ public final class DefaultTrace implements Trace {
     public void traceBlockEnd(int stackId) {
         pop(stackId);
         StackFrame popStackFrame = callStack.pop();
-        // pop 할때 frame위치를 원복해야 한다.
+        // When pop, current frame have to be recovered.
         this.currentStackFrame = popStackFrame;
     }
 
@@ -235,7 +236,7 @@ public final class DefaultTrace implements Trace {
         final StackFrame currentStackFrame = this.currentStackFrame;
         int stackFrameId = currentStackFrame.getStackFrameId();
         if (stackFrameId != stackId) {
-            // 자체 stack dump를 하면 오류발견이 쉬울것으로 생각됨
+            // stack dump will make debugging easy.
             if (logger.isWarnEnabled()) {
                 PinpointException exception = new PinpointException("Corrupted CallStack found");
                 logger.warn("Corrupted CallStack found. StackId not matched. expected:{} current:{}", stackId, stackFrameId, exception);
@@ -296,7 +297,7 @@ public final class DefaultTrace implements Trace {
             return;
         }
         final String drop = StringUtils.drop(th.getMessage(), 256);
-        // exception class가 proxy라서 class Name이 불규칙하면 문제가 발생할수 있다.
+        // An exception that is an instance of a proxy class could make something wrong becuase the class name will vary.  
         final int exceptionId = traceContext.cacheString(th.getClass().getName());
         this.currentStackFrame.setExceptionInfo(exceptionId, drop);
 
@@ -320,7 +321,7 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public void recordApi(MethodDescriptor methodDescriptor, Object[] args) {
-        // API 저장 방법의 개선 필요.                                                                                        
+        // Need to improve the way of storing APIs.                                                                                        
         recordApi(methodDescriptor);
         recordArgs(args);
     }
@@ -350,7 +351,7 @@ public final class DefaultTrace implements Trace {
             for (int i = start; i < max; i++) {
                 recordAttribute(AnnotationKey.getArgs(i), args[i]);
             }
-            // TODO MAX 사이즈를 넘는건 마크만 해줘야 하나?
+            // TODO How to handle if args length is greater than MAX_ARGS_SIZE?
         }
     }
 
@@ -373,7 +374,7 @@ public final class DefaultTrace implements Trace {
             for (int i = 0; i < max; i++) {
                 recordAttribute(AnnotationKey.getArgs(i), args[i]);
             }
-            // TODO MAX 사이즈를 넘는건 마크만 해줘야 하나?                                                                  
+         // TODO How to handle if args length is greater than MAX_ARGS_SIZE?                                                                  
         }
     }
 
@@ -468,14 +469,14 @@ public final class DefaultTrace implements Trace {
 
     @Override
     public void recordEndPoint(final String endPoint) {
-        // TODO API 단일화 필요.                                                                                             
+        // TODO Need to unify API                                                                                           
         StackFrame currentStackFrame = this.currentStackFrame;
         currentStackFrame.setEndPoint(endPoint);
     }
 
     @Override
     public void recordRemoteAddress(final String remoteAddress) {
-        // TODO API 단일화 필요.
+        // TODO Need to unify API
         StackFrame currentStackFrame = this.currentStackFrame;
         if (currentStackFrame instanceof RootStackFrame) {
             ((RootStackFrame) currentStackFrame).setRemoteAddress(remoteAddress);

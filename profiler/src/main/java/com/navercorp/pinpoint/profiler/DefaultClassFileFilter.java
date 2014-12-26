@@ -34,7 +34,7 @@ public class DefaultClassFileFilter implements ClassFileFilter {
 
 	@Override
 	public boolean doFilter(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) {
-		// fast java class skip
+		// fast skip java classes
 		if (className.startsWith("java")) {
 			if (className.startsWith("/", 4) || className.startsWith("x/", 4)) {
 				return SKIP;
@@ -42,11 +42,11 @@ public class DefaultClassFileFilter implements ClassFileFilter {
 		}
 
 		if (classLoader == agentLoader) {
-			// agent의 clssLoader에 로드된 클래스는 스킵한다.
+			// skip classes loaded by agent class loader.
 			return SKIP;
 		}
-		// 자기 자신의 패키지도 제외
-		// 향후 패키지명 변경에 의해 코드 변경이 필요함.
+		
+		// Skip pinpoint packages too.
 		if (className.startsWith("com/navercorp/pinpoint/")) {
 			return SKIP;
 		}

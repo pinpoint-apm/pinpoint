@@ -38,7 +38,7 @@ public class SpanChunkFactory {
         if (flushData == null) {
             throw new NullPointerException("flushData must not be null");
         }
-        // TODO 반드시 1개 이상이라는 조건을 충족해야 된다.
+        // TODO must be equals to or greater than 1
         final int size = flushData.size();
         if (size < 1) {
             throw new IllegalArgumentException("flushData.size() < 1 size:" + size);

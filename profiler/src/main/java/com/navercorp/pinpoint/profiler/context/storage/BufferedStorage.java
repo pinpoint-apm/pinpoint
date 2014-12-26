@@ -85,8 +85,8 @@ public class BufferedStorage implements Storage {
             if (logger.isErrorEnabled()) {
                 logger.error("storage is null. discard spanEvent:{}", spanEvent);
             }
-            // 이미 span이 와서 flush된 상황임.
-            // 비동기를 이쪽에 포함시키면 이렇게 될수 있으나. 현재 구조를 변경할 계획임.
+            
+            // Already flushed. This could happen with async processing.
             return;
         }
         storage.add(spanEvent);
