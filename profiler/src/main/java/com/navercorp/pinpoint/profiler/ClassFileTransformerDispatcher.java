@@ -22,6 +22,7 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.List;
 
+import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,26 +82,16 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
     }
 
     @Override
-    public byte[] transform(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws IllegalClassFormatException {
-        if (className.contains("CacheManager")) {
-            logger.debug("Start CacheManager");
-        }
-        
-        if (skipFilter.doFilter(classLoader, className, classBeingRedefined, protectionDomain, classFileBuffer)) {
-            if (className.equals("net/spy/memcached/CacheManager")) {
-                logger.debug("skip CacheManager");
-            }
+    public byte[] transform(ClassLoader classLoader, String jvmClassName, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws IllegalClassFormatException {
+        if (skipFilter.doFilter(classLoader, jvmClassName, classBeingRedefined, protectionDomain, classFileBuffer)) {
             return null;
         }
 
-        AbstractModifier findModifier = this.modifierRegistry.findModifier(className);
+        AbstractModifier findModifier = this.modifierRegistry.findModifier(jvmClassName);
         if (findModifier == null) {
-            if (className.equals("net/spy/memcached/CacheManager")) {
-                logger.debug("no modifier for CacheManager");
-            }
             // TODO For debug
             // TODO What if a modifier is duplicated?
-            if (this.profilerConfig.getProfilableClassFilter().filter(className)) {
+            if (this.profilerConfig.getProfilableClassFilter().filter(jvmClassName)) {
                 // Added to see if call stack view is OK on a test machine.
                 findModifier = this.modifierRegistry.findModifier("*");
             } else {
@@ -109,16 +100,16 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
         }
 
         if (isDebug) {
-            logger.debug("[transform] cl:{} className:{} Modifier:{}", classLoader, className, findModifier.getClass().getName());
+            logger.debug("[transform] cl:{} className:{} Modifier:{}", classLoader, jvmClassName, findModifier.getClass().getName());
         }
-        final String javassistClassName = className.replace('/', '.');
+        final String javaClassName = JavaAssistUtils.jvmNameToJavaName(jvmClassName);
 
         try {
             final Thread thread = Thread.currentThread();
             final ClassLoader before = getContextClassLoader(thread);
             thread.setContextClassLoader(this.agentClassLoader);
             try {
-                return findModifier.modify(classLoader, javassistClassName, protectionDomain, classFileBuffer);
+                return findModifier.modify(classLoader, javaClassName, protectionDomain, classFileBuffer);
             } finally {
                 // The context class loader have to be recovered even if it was null.
                 thread.setContextClassLoader(before);
