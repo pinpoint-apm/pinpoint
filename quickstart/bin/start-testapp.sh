@@ -95,7 +95,7 @@ function func_check_process
 
 function func_init_log
 {
-        echo "---initilize $TESTAPP_IDENTIFIER logs.---"
+        echo "---initialize $TESTAPP_IDENTIFIER logs.---"
 
         if [ ! -d $LOGS_DIR ]; then
                 echo "mkdir $LOGS_DIR"
