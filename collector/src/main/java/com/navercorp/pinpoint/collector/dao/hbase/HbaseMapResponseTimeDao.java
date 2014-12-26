@@ -38,7 +38,7 @@ import java.util.Map;
 import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 
 /**
- * was의 응답시간 데이터를 저장한다.
+ * Save response time data of WAS
  * 
  * @author netspider
  * @author emeroad
@@ -88,7 +88,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
 		}
 
 
-        // make row key. rowkey는 나.
+        // make row key. rowkey is me
 		final long acceptedTime = acceptedTimeService.getAcceptedTime();
 		final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
         final RowKey selfRowKey = new CallRowKey(applicationName, applicationServiceType, rowTimeSlot);
@@ -100,7 +100,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
             this.counter.increment(rowInfo, 1L);
 		} else {
             final byte[] rowKey = selfRowKey.getRowKey();
-            // column name은 나를 호출한 app
+            // column name is the name of caller app.
             byte[] columnName = selfColumnName.getColumnName();
             increment(rowKey, columnName, 1L);
         }
@@ -122,7 +122,8 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
 		if (!useBulk) {
 			throw new IllegalStateException("useBulk is " + useBulk);
 		}
-        // 일단 rowkey and column 별로 업데이트 치게 함. rowkey 별로 묶어서 보내야 될듯.
+
+        // update statistics by rowkey and column for now. need to update it by rowkey later.
         Map<RowInfo,ConcurrentCounterMap.LongAdder> remove = this.counter.remove();
         List<Increment> merge = rowKeyMerge.createBulkIncrement(remove);
         if (!merge.isEmpty()) {

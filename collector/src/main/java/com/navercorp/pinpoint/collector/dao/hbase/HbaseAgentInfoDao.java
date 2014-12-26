@@ -69,7 +69,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 		byte[] rowKey = RowKeyUtils.concatFixedByteAndLong(agentId, HBaseTables.AGENT_NAME_MAX_LEN, reverseKey);
 		Put put = new Put(rowKey);
 
-		// 추가 agent 정보를 넣어야 됨. 일단 sqlMetaData에 필요한 starttime만 넣음.
+		// should add additional agent informations. for now added only starttime for sqlMetaData
 		AgentInfoBo agentInfoBo = this.agentInfoBoMapper.map(agentInfo);
 		byte[] agentInfoBoValue = agentInfoBo.writeValue();
 		put.add(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_IDENTIFIER, agentInfoBoValue);

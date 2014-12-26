@@ -62,7 +62,7 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
         Put put = new Put(rowKey);
         String stringValue = stringMetaData.getStringValue();
         byte[] sqlBytes = Bytes.toBytes(stringValue);
-        // hashCode가 충돌날수 있으므로 일부러 qualifier에 넣음.
+        // added sqlBytes into qualifier intentionally not to conflict hashcode
         put.add(HBaseTables.STRING_METADATA_CF_STR, sqlBytes, null);
 
         hbaseTemplate.put(HBaseTables.STRING_METADATA, put);

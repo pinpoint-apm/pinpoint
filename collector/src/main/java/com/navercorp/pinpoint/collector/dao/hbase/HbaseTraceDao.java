@@ -76,7 +76,9 @@ public class HbaseTraceDao implements TracesDao {
         Put put = new Put(rowKey);
 
         byte[] spanValue = spanBo.writeValue();
-        // TODO columName이 중복일 경우를 확인가능하면 span id 중복 발급을 알수 있음.
+
+        // TODO  if we can identify whether the columName is duplicate or not,
+        // we can also know whether the span id is duplicated or not.
         byte[] spanId = Bytes.toBytes(spanBo.getSpanId());
 
         long acceptedTime = acceptedTimeService.getAcceptedTime();

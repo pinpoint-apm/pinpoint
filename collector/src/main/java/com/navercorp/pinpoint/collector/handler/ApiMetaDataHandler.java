@@ -45,7 +45,8 @@ public class ApiMetaDataHandler implements RequestResponseHandler {
 		}
 		
 		TApiMetaData apiMetaData = (TApiMetaData) tbase;
-        // api 데이터는 중요한거니 그냥 info로 찍음.
+
+		// Because api meta data is important , logging it at info level.
 		if (logger.isInfoEnabled()) {
 			logger.info("Received ApiMetaData={}", apiMetaData);
 		}
