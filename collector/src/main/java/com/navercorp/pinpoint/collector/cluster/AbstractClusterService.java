@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.collector.cluster;
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public abstract class AbstractClusterService implements ClusterService {
 

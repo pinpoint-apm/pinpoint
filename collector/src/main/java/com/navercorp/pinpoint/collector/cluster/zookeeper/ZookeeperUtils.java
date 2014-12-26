@@ -21,7 +21,7 @@ import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public final class ZookeeperUtils {
 

@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.collector.cluster.route;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public enum RouteStatus {
 

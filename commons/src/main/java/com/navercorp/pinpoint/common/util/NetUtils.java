@@ -30,7 +30,7 @@ import java.util.Enumeration;
 import java.util.List;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public final class NetUtils {
 

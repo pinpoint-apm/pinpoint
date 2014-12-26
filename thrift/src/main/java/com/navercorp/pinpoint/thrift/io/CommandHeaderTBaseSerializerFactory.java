@@ -20,7 +20,7 @@ import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public final class CommandHeaderTBaseSerializerFactory implements SerializerFactory<HeaderTBaseSerializer> {
 

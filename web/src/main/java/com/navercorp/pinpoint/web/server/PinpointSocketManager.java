@@ -44,7 +44,7 @@ import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterManager;
 import com.navercorp.pinpoint.web.config.WebConfig;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class PinpointSocketManager {
 

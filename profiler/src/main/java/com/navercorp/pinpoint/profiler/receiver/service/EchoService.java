@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.profiler.receiver.ProfilerRequestCommandService;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class EchoService implements ProfilerRequestCommandService  {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());

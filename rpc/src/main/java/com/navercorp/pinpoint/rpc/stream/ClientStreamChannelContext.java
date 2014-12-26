@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.rpc.stream;
 import com.navercorp.pinpoint.rpc.util.AssertUtils;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class ClientStreamChannelContext extends StreamChannelContext {
 

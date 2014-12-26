@@ -40,7 +40,7 @@ import com.navercorp.pinpoint.web.cluster.zookeeper.exception.TimeoutException;
 import com.navercorp.pinpoint.web.cluster.zookeeper.exception.UnknownException;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class ZookeeperClient {
 

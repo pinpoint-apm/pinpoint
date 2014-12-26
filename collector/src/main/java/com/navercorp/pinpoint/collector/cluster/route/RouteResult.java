@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.collector.cluster.route;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class RouteResult {
 

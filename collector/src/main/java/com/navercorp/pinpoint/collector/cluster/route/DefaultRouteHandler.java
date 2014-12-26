@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.thrift.io.TCommandTypeVersion;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class DefaultRouteHandler extends AbstractRouteHandler<RequestEvent> {
 

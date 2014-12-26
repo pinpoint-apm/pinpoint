@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.collector.util;
 import java.lang.management.ManagementFactory;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public final class CollectorUtils {
 

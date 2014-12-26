@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.rpc.stream;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class StreamChannelState {
 

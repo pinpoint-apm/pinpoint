@@ -43,7 +43,7 @@ import com.navercorp.pinpoint.web.cluster.CollectorClusterInfoRepository;
 import com.navercorp.pinpoint.web.cluster.zookeeper.exception.NoNodeException;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class ZookeeperClusterManager implements ClusterManager, Watcher {
 
