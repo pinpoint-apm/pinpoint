@@ -56,7 +56,7 @@ public class ClassLoadChecker {
             if (className == null) {
                 throw new NullPointerException("className must not be null");
             }
-            // classLoader는 null일수도 있을거 같음. 몇몇 java reference의 최상위 로더의 경우 null 이 나옴.
+            // classLoader could be null (some jdk classes)
             this.classLoader = classLoader;
             this.className = className;
         }

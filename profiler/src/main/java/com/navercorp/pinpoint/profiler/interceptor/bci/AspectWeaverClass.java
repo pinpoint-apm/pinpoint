@@ -192,7 +192,7 @@ public class AspectWeaverClass {
 
 	private CtMethod copyMethod(CtClass sourceClass, CtMethod sourceMethod) throws CannotCompileException {
 
-		// id라도 더 줘야 될려나?
+		// need id?
 
 		String copyMethodName = methodNameReplacer.replaceMethodName(sourceMethod.getName());
 

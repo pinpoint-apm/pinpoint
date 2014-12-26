@@ -107,8 +107,8 @@ public class MetricTrace implements Trace {
 
     private StackFrame createSpanEventStackFrame(int stackId) {
         SpanEvent spanEvent = new SpanEvent(callStack.getSpan());
-        // Span내부의 SpanEvent로 들어가지 않을 경우 사용하기 위해 set한다.
-
+        
+        // Set properties for the case when stackFrame is not used as part of Span.
         SpanEventStackFrame stackFrame = new SpanEventStackFrame(spanEvent);
         stackFrame.setStackFrameId(stackId);
 
@@ -167,7 +167,8 @@ public class MetricTrace implements Trace {
         metricResponseTime();
         checkStackId(ROOT_STACKID);
         callStack.popRoot();
-        // 잘못된 stack 조작시 다음부터 그냥 nullPointerException이 발생할건데 괜찮은가?
+
+        // If the stack is not handled properly, NullPointerException will be thrown after this. Is it OK?
         this.currentStackFrame = null;
     }
 
@@ -193,7 +194,7 @@ public class MetricTrace implements Trace {
     public void traceBlockEnd(int stackId) {
         checkStackId(stackId);
         StackFrame popStackFrame = callStack.pop();
-        // pop 할때 frame위치를 원복해야 한다.
+        // When pop, current frame have to be recovered.
         this.currentStackFrame = popStackFrame;
     }
 
@@ -201,7 +202,7 @@ public class MetricTrace implements Trace {
         final StackFrame currentStackFrame = this.currentStackFrame;
         int stackFrameId = currentStackFrame.getStackFrameId();
         if (stackFrameId != stackId) {
-            // 자체 stack dump를 하면 오류발견이 쉬울것으로 생각됨
+            // stack dump will make debugging easy.
             if (logger.isWarnEnabled()) {
                 PinpointException exception = new PinpointException("Corrupted CallStack found");
                 logger.warn("Corrupted CallStack found. StackId not matched. expected:{} current:{}", stackId, stackFrameId, exception);
@@ -239,7 +240,7 @@ public class MetricTrace implements Trace {
         if (th == null) {
             return;
         }
-        // TODO 추가적인 객체를 생성하지 않도록 MARK Exception이 있으면 좋을것 같음.
+        // TODO We'd better having MARK Exception to prevent more objects being created.
         this.currentStackFrame.setExceptionInfo(EXCEPTION_MARK, "");
 
         final Span span = getCallStack().getSpan();

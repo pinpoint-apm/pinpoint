@@ -40,11 +40,6 @@ public class DefaultAsyncTrace implements AsyncTrace {
 
 
     public static final int NON_REGIST = -1;
-    // private int id;
-    // 비동기일 경우 traceenable의 경우 애매함. span을 보내는것으로 데이터를 생성하므로 약간 이상.
-    // private boolean tracingEnabled;
-
-
 
     private final AtomicInteger state = new AtomicInteger(STATE_INIT);
 
@@ -136,12 +131,6 @@ public class DefaultAsyncTrace implements AsyncTrace {
             String drop = StringUtils.drop(th.getMessage());
 
             recordAttribute(AnnotationKey.EXCEPTION, drop);
-
-//            TODO 비동기 api일 경우, span에 exception을 마크하기가 까다로움
-//            AnnotationKey span = getCallStack().getSpan();
-//            if (span.getErrCode() == 0) {
-//                span.setErrCode(1);
-//            }
         }
     }
 
@@ -178,7 +167,6 @@ public class DefaultAsyncTrace implements AsyncTrace {
         this.spanEvent.setDestinationId(destinationId);
     }
 
-    // TODO: endPoint로 받으면 합치는데 비용이 들어가 그냥 한번에 받는게 나을것 같음.
     @Override
     public void recordEndPoint(final String endPoint) {
         this.spanEvent.setEndPoint(endPoint);
@@ -202,15 +190,13 @@ public class DefaultAsyncTrace implements AsyncTrace {
 
     public void timeout() {
         if (state.compareAndSet(STATE_INIT, STATE_TIMEOUT)) {
-            // TODO timeout spanEvent log 던지기.
-            // 뭘 어떤 내용을 던져야 되는지 아직 모르겠음????
+            // TODO 
         }
     }
 
     public boolean fire() {
         if (state.compareAndSet(STATE_INIT, STATE_FIRE)) {
             if (timeoutTask != null) {
-                // timeout이 걸려 있는 asynctrace일 경우 호출해 준다.
                 this.timeoutTask.cancel();
             }
             return true;

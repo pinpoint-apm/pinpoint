@@ -25,8 +25,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * 뭔가 복잡한 비동기 call trace시 객체 등록용으로 쓰자.
- * 근데 손좀봐야 될듯.뭔가 좀 구림.
  * @author emeroad
  */
 @Deprecated
@@ -38,12 +36,9 @@ public class GlobalCallTrace {
 
     private ConcurrentMap<Integer, AsyncTrace> trace = new ConcurrentHashMap<Integer, AsyncTrace>(32);
     private AtomicInteger idGenerator = new AtomicInteger(0);
-    // stop을 해줘야 할듯.
     private Timer timer = new Timer("Pinpoint-GlobalCallTrace-Timer-" + timerId.getAndIncrement(), true);
 
     public int registerTraceObject(AsyncTrace asyncTrace) {
-        // TODO 연관관계가 전달부분이 영 별로임.
-
         TimeoutTask timeoutTask = new TimeoutTask(trace, asyncTrace.getAsyncId());
         asyncTrace.setTimeoutTask(timeoutTask);
 
@@ -68,7 +63,6 @@ public class GlobalCallTrace {
         if (asyncTrace != null) {
             boolean result = ((DefaultAsyncTrace)asyncTrace).fire();
             if (!result) {
-                // 이미 timeout된 asyncTrace임.
                 return null;
             }
         }

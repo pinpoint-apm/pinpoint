@@ -21,13 +21,12 @@ import java.util.Map;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 
 /**
+ * You must modify {@link com.navercorp.pinpoint.collector.receiver.tcp.AgentHandshakePropertyType} when you modify this enum type.
+ * But There is no compatibility issue if you only add some properties.   
+ * 
  * @author koo.taejin
  */
 public enum AgentHandshakePropertyType {
-
-	// 해당 객체는 profiler, collector 양쪽에 함꼐 있음 
-	// 변경시 함께 변경 필요
-	// map으로 처리하기 때문에 이전 파라미터 제거 대신 추가할 경우 확장성에는 문제가 없음
 
 	SUPPORT_SERVER("supportServer", Boolean.class),
 	

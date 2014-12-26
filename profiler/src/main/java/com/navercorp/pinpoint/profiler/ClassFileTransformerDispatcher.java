@@ -98,10 +98,10 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
             if (className.equals("net/spy/memcached/CacheManager")) {
                 logger.debug("no modifier for CacheManager");
             }
-            // TODO : 디버그 용도로 추가함
-            // TODO : modifier가 중복 적용되면 어떻게 되지???
+            // TODO For debug
+            // TODO What if a modifier is duplicated?
             if (this.profilerConfig.getProfilableClassFilter().filter(className)) {
-                  // 테스트 장비에서 callstack view가 잘 보이는지 확인하려고 추가함.
+                // Added to see if call stack view is OK on a test machine.
                 findModifier = this.modifierRegistry.findModifier("*");
             } else {
                 return null;
@@ -120,8 +120,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
             try {
                 return findModifier.modify(classLoader, javassistClassName, protectionDomain, classFileBuffer);
             } finally {
-                // null일 경우도 다시 원복하는게 맞음.
-                // getContextClass 호출시 에러가 발생하였을 경우 여기서 호출당하지 않으므로 이부분에서 원복하는게 맞음.
+                // The context class loader have to be recovered even if it was null.
                 thread.setContextClassLoader(before);
             }
         }
@@ -189,7 +188,7 @@ public class ClassFileTransformerDispatcher implements ClassFileTransformer {
     }
 
     /*
-     * for plugins. This method is not used now because plugin feature is not completed yet.
+     * for plugins. This method is not used yet because plugin feature is not completed.
      */
     private void loadPlugins(DefaultModifierRegistry modifierRepository) {
         String pluginPath = agent.getAgentPath() + File.separatorChar + "plugin";
