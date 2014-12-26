@@ -38,4 +38,4 @@ To be included.
 To be included.
 
 ## License
-To be included.
+Pinpoint is licensed under the Apache License, Version 2.0. See LICENSE for full license text.
