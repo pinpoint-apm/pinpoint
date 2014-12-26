@@ -178,11 +178,6 @@ public class ProfilerConfig {
     private int ningAsyncHttpClientProfileParamDumpSize = 1024;
     private int ningAsyncHttpClientProfileParamSamplingRate = 1;
 
-    // FIXME temporary
-    // line game netty config
-    private int lineGameNettyParamDumpSize = 512;
-    private int lineGameNettyEntityDumpSize = 512;
-
     // Spring Beans
     private boolean springBeans = false;
     private String springBeansNamePatterns = null;
@@ -512,14 +507,6 @@ public class ProfilerConfig {
         return ningAsyncHttpClientProfileParamSamplingRate;
     }
 
-    public int getLineGameNettyParamDumpSize() {
-        return lineGameNettyParamDumpSize;
-    }
-
-    public int getLineGameNettyEntityDumpSize() {
-        return lineGameNettyEntityDumpSize;
-    }
-
     public boolean isSpringBeansEnabled() {
         return springBeans;
     }
@@ -688,12 +675,6 @@ public class ProfilerConfig {
         this.redisPipeline = readBoolean("profiler.redis.pipeline", true);
         this.nbaseArc = readBoolean("profiler.nbase_arc", true);
         this.nbaseArcPipeline = readBoolean("profiler.nbase_arc.pipeline", true);
-
-        //
-        // FIXME For temporary, netty configuration of Line Game
-        //
-        this.lineGameNettyParamDumpSize = readInt("profiler.line.game.netty.param.dumpsize", 512);
-        this.lineGameNettyEntityDumpSize = readInt("profiler.line.game.netty.entity.dumpsize", 512);
 
         this.ibatis = readBoolean("profiler.orm.ibatis", true);
 
@@ -891,8 +872,6 @@ public class ProfilerConfig {
         sb.append(", ningAsyncHttpClientProfileParamDumpType=").append(ningAsyncHttpClientProfileParamDumpType);
         sb.append(", ningAsyncHttpClientProfileParamDumpSize=").append(ningAsyncHttpClientProfileParamDumpSize);
         sb.append(", ningAsyncHttpClientProfileParamSamplingRate=").append(ningAsyncHttpClientProfileParamSamplingRate);
-        sb.append(", lineGameNettyParamDumpSize=").append(lineGameNettyParamDumpSize);
-        sb.append(", lineGameNettyEntityDumpSize=").append(lineGameNettyEntityDumpSize);
         sb.append(", springBeans=").append(springBeans);
         sb.append(", springBeansNamePatterns='").append(springBeansNamePatterns).append('\'');
         sb.append(", springBeansClassPatterns='").append(springBeansClassPatterns).append('\'');
