@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.common.buffer;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
 /**
- * 버퍼사이즈가 자동으로 확장되는 buffer
+ * Buffer that can be expanded automatically
  * @author emeroad
  */
 public class AutomaticBuffer extends FixedBuffer {
@@ -37,7 +37,7 @@ public class AutomaticBuffer extends FixedBuffer {
     }
 
 
-    private void checkExpend(final int size) {
+    private void checkExpand(final int size) {
         int length = buffer.length;
         final int remain = length - offset;
         if (remain >= size) {
@@ -48,27 +48,27 @@ public class AutomaticBuffer extends FixedBuffer {
             length = 1;
         }
 
-        // 사이즈 계산을 먼저한 후에 buffer를 한번만 할당하도록 변경.
-        final int expendBufferSize = computeExpendBufferSize(size, length, remain);
+        // after compute the buffer size, allocate it once for ado.
+        final int expandedBufferSize = computeExpandedBufferSize(size, length, remain);
         // allocate buffer
-        final byte[] expendBuffer = new byte[expendBufferSize];
-        System.arraycopy(buffer, 0, expendBuffer, 0, buffer.length);
-        buffer = expendBuffer;
+        final byte[] expandedBuffer = new byte[expandedBufferSize];
+        System.arraycopy(buffer, 0, expandedBuffer, 0, buffer.length);
+        buffer = expandedBuffer;
     }
 
-    private int computeExpendBufferSize(final int size, int length, int remain) {
-        int expendBufferSize = 0;
+    private int computeExpandedBufferSize(final int size, int length, int remain) {
+        int expandedBufferSize = 0;
         while (remain < size) {
             length <<= 2;
-            expendBufferSize = length;
-            remain = expendBufferSize - offset;
+            expandedBufferSize = length;
+            remain = expandedBufferSize - offset;
         }
-        return expendBufferSize;
+        return expandedBufferSize;
     }
 
     @Override
     public void putPadBytes(byte[] bytes, int totalLength) {
-        checkExpend(totalLength);
+        checkExpand(totalLength);
         super.putPadBytes(bytes, totalLength);
     }
 
@@ -76,10 +76,10 @@ public class AutomaticBuffer extends FixedBuffer {
     @Override
     public void putPrefixedBytes(final byte[] bytes) {
         if (bytes == null) {
-            checkExpend(1);
+            checkExpand(1);
             super.putSVar(NULL);
         } else {
-            checkExpend(bytes.length + BytesUtils.VINT_MAX_SIZE);
+            checkExpand(bytes.length + BytesUtils.VINT_MAX_SIZE);
             super.putSVar(bytes.length);
             super.put(bytes);
         }
@@ -88,13 +88,13 @@ public class AutomaticBuffer extends FixedBuffer {
     @Override
     public void put2PrefixedBytes(final byte[] bytes) {
         if (bytes == null) {
-            checkExpend(BytesUtils.SHORT_BYTE_LENGTH);
+            checkExpand(BytesUtils.SHORT_BYTE_LENGTH);
             super.put((short)NULL);
         } else {
             if (bytes.length > Short.MAX_VALUE) {
                 throw new IllegalArgumentException("too large bytes length:" + bytes.length);
             }
-            checkExpend(bytes.length + BytesUtils.SHORT_BYTE_LENGTH);
+            checkExpand(bytes.length + BytesUtils.SHORT_BYTE_LENGTH);
             super.put((short)bytes.length);
             super.put(bytes);
         }
@@ -103,10 +103,10 @@ public class AutomaticBuffer extends FixedBuffer {
     @Override
     public void put4PrefixedBytes(final byte[] bytes) {
         if (bytes == null) {
-            checkExpend(BytesUtils.INT_BYTE_LENGTH);
+            checkExpand(BytesUtils.INT_BYTE_LENGTH);
             super.put(NULL);
         } else {
-            checkExpend(bytes.length + BytesUtils.INT_BYTE_LENGTH);
+            checkExpand(bytes.length + BytesUtils.INT_BYTE_LENGTH);
             super.put(bytes.length);
             super.put(bytes);
         }
@@ -114,7 +114,7 @@ public class AutomaticBuffer extends FixedBuffer {
 
     @Override
     public void putPadString(String string, int totalLength) {
-        checkExpend(totalLength);
+        checkExpand(totalLength);
         super.putPadString(string, totalLength);
     }
 
@@ -139,51 +139,51 @@ public class AutomaticBuffer extends FixedBuffer {
 
     @Override
     public void put(final byte v) {
-        checkExpend(1);
+        checkExpand(1);
         super.put(v);
     }
 
     @Override
     public void put(final boolean v) {
-        checkExpend(1);
+        checkExpand(1);
         super.put(v);
     }
 
     @Override
     public void put(final short v) {
-        checkExpend(2);
+        checkExpand(2);
         super.put(v);
     }
 
     @Override
     public void put(final int v) {
-        checkExpend(4);
+        checkExpand(4);
         super.put(v);
     }
 
     public void putVar(final int v) {
-        checkExpend(BytesUtils.VLONG_MAX_SIZE);
+        checkExpand(BytesUtils.VLONG_MAX_SIZE);
         super.putVar(v);
     }
 
     public void putSVar(final int v) {
-        checkExpend(BytesUtils.VINT_MAX_SIZE);
+        checkExpand(BytesUtils.VINT_MAX_SIZE);
         super.putSVar(v);
     }
 
     public void putVar(final long v) {
-        checkExpend(BytesUtils.VLONG_MAX_SIZE);
+        checkExpand(BytesUtils.VLONG_MAX_SIZE);
         super.putVar(v);
     }
 
     public void putSVar(final long v) {
-        checkExpend(BytesUtils.VLONG_MAX_SIZE);
+        checkExpand(BytesUtils.VLONG_MAX_SIZE);
         super.putSVar(v);
     }
 
     @Override
     public void put(final long v) {
-        checkExpend(8);
+        checkExpand(8);
         super.put(v);
     }
 
@@ -192,7 +192,7 @@ public class AutomaticBuffer extends FixedBuffer {
         if (v == null) {
             throw new NullPointerException("v must not be null");
         }
-        checkExpend(v.length);
+        checkExpand(v.length);
         super.put(v);
     }
 }

@@ -23,15 +23,18 @@ import com.navercorp.pinpoint.common.util.apache.IntHashMap;
  * @author emeroad
  */
 public enum AnnotationKey {
-    // 가변 인코딩을 사용하므로, 작은 숫자는 패킷에 전송 되는 데이터로 위주로 사용하고 내부 사용 코드는 숫자를 크게 잡아야 한다.
+
+    // because of using variable-length encoding,
+    // a small number should be used mainly for data contained in network packets and a big number for internal used code.
+
 //    2147483647
 //    -2147483648
 
-//    @Deprecated // spanEvent와 span으로 apiId를 직접 이동 시킴. int 로 덤프
+//    @Deprecated  // moved apiId to spanEvent and span. dump by int
 //    API_DID(10, "API-DID"),
-//    @Deprecated // 정적 api 코드를 제거해야 한다. API-DID만 사용할것. int로 덤프
+//    @Deprecated  // you should remove static API code. Use only API-DID. dump by int
 //    API_ID(11, "API-ID"),
-//   api를 string으로 덤프하는 anntation 최초 개발시 사용함. 추후 이것도 없애야 될듯.
+    // used for developing the annotation that dumps api by string. you also consider to remove it later.
     API(12, "API"),
     API_METADATA(13, "API-METADATA"),
     RETURN_DATA(14, "RETRUN_DATA", true),
@@ -40,18 +43,19 @@ public enum AnnotationKey {
     CAll_PARAM(16, "CALL_PARAM", true),
     PROTOCAL(17, "PROTOCAL", true),
 
-    // 정확한 에러 원인을 모를 경우.
+    // when you don't know the correct cause of errors.
     ERROR_API_METADATA_ERROR(10000010, "API-METADATA-ERROR"),
-    // agentInfo를 못찾앗을 경우
+    // when agentInfo not found
     ERROR_API_METADATA_AGENT_INFO_NOT_FOUND(10000011, "API-METADATA-AGENT-INFO-NOT-FOUND"),
-    // agentInfo를 찾았으나 체크섬이 맞지 않는경우
+    // when checksum is not correct even if agentInfo exists
     ERROR_API_METADATA_IDENTIFIER_CHECK_ERROR(10000012, "API-METADATA-IDENTIFIER-CHECK_ERROR"),
-    // meta data자체를 못찾은 경우.
+    // when  meta data itself not found
     ERROR_API_METADATA_NOT_FOUND(10000013, "API-METADATA-NOT-FOUND"),
-    // meta data의 동일 hashid가 존재할 경우
+    // when the same hashId of meta data exists
     ERROR_API_METADATA_DID_COLLSION(10000014, "API-METADATA-DID-COLLSION"),
-    // ERROR code 처리가 애매한데 ERROR_API_META_DATA_을 검색해서 ApiMetaDataError로 처리하였음.
-    // 자동 id
+
+    // it's not clear to handle a error code.  so ApiMetaDataError with searching ERROR_API_META_DATA has been used.
+    // automatically generated id
 
     SQL_ID(20, "SQL-ID"),
     SQL(21, "SQL", true),
@@ -61,15 +65,15 @@ public enum AnnotationKey {
 
     STRING_ID(30, "STRING_ID"),
 
-    // HTTP_URL은 argument로 치환되므로 true가 아님..
+    // HTTP_URL is replaced by argument. So viewInRecordSet parameter value is not true.
     HTTP_URL(40, "http.url"),
     HTTP_PARAM(41, "http.param", true),
     HTTP_PARAM_ENTITY(42, "http.entity", true),
     HTTP_COOKIE(45, "http.cookie", true),
     HTTP_CALL_RETRY_COUNT(48, "retryCount"),
-    // httpclient일때 post 파라미터
+    // post method parameter of httpclient
 
-	// ARCUS_COMMAND(50, "arcus.command"),
+    // ARCUS_COMMAND(50, "arcus.command"),
     
     NPC_URL(60, "npc.url"),
     NPC_PARAM(61, "npc.param"),
@@ -240,7 +244,7 @@ public enum AnnotationKey {
         }
 
         final int cachedIndex = CACHE_ARGS0.getCode() - ARGS0.getCode();
-        // 음수라서 -해야 된다.
+        // you have to - (minus) operation because of negative value
         return index - cachedIndex;
     }
 }

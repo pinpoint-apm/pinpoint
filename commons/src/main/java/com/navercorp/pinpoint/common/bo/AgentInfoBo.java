@@ -32,7 +32,6 @@ public class AgentInfoBo {
     public static final Comparator<AgentInfoBo> AGENT_NAME_ASC_COMPARATOR = new Comparator<AgentInfoBo>() {
         @Override
         public int compare(AgentInfoBo that, AgentInfoBo other) {
-            // null 일때 상황이 애매할수 있어서 그냥 ""으로 처리함.
             final String thatAgentId = defaultString(that.agentId);
             final String otherAgentId = defaultString(other.agentId);
             return thatAgentId.compareTo(otherAgentId);

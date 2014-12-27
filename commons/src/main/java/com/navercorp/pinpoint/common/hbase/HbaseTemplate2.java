@@ -184,8 +184,8 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
 //    }
 //
 //    /**
-//     * sanner를 병렬로 돌리기 위한 api
-//     * scanner 구현 자체가 얼마나 병렬인지 애매해서 무조껀 만들기도 그러니 일단 주석처리.
+//     * API for running a scanner in parallel
+//     * for now comment out, you don't know how scanner's implementation can execute in parallel.
 //     * @return
 //     */
 //    public <T> List<Future<List<T>>> findParallel(final ParallelScan<T> parallelScans) {
@@ -490,7 +490,7 @@ public class HbaseTemplate2 extends HbaseTemplate implements HbaseOperations2, I
         for(int i = 0; i < length; i++) {
             Scan scan = scans[i];
             scan.setId(originalScan.getId() + "-" + i);
-            // caching만 넣으면 되나?
+            // is it okay to set only a caching?
             scan.setCaching(originalScan.getCaching());
         }
 
