@@ -35,12 +35,11 @@ import com.navercorp.pinpoint.thrift.dto.TSpan;
 public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
 
     private static final int VERSION_SIZE = 1;
-    // version 0 = prefix의 사이즈를 int로
 
+    // version 0 means that the type of prefix's size is int
     private byte version = 0;
 
-
-//    private AgentKeyBo agentKeyBo;
+//  private AgentKeyBo agentKeyBo;
     private String agentId;
     private String applicationId;
     private long agentStartTime;
@@ -109,8 +108,8 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
         this.remoteAddr = span.getRemoteAddr();
         
 
-        // FIXME span.errCode는 span과 spanEvent의 에러를 모두 포함한 값.
-        // exceptionInfo는 span자체의 에러정보이기 때문에 errCode가 0이 아니더라도 exceptionInfo는 null일 수 있음.
+        // FIXME span.errCode contains error of span and spanEvent
+        // because exceptionInfo is the error information of span itself, exceptionInfo can be null even if errCode is not 0
         final TIntStringValue exceptionInfo = span.getExceptionInfo();
         if (exceptionInfo != null) {
             this.hasException = true;
@@ -146,7 +145,7 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
         if (version < 0 || version > 255) {
             throw new IllegalArgumentException("out of range (0~255)");
         }
-        // range 체크
+        // check range
         this.version = (byte) (version & 0xFF);
     }
 
@@ -361,11 +360,13 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
     }
 
 
-    // io wirte시 variable encoding을 추가함.
-    // 약 10%정도 byte 사이즈가 줄어드는 효과가 있음.
+    // Variable encoding has been added in case of write io operation. The data size can be reduced by about 10%.
     public byte[] writeValue() {
-        // var encoding 사용시 사이즈를 측정하기 어려움. 안되는것음 아님 편의상 그냥 자동 증가 buffer를 사용한다.
-        // 향후 더 효율적으로 메모리를 사용하게 한다면 getBufferLength를 다시 부활 시키는것을 고려한다.
+        /*
+           It is difficult to calculate the size of buffer. It's not impossible.
+           However just use automatic incremental buffer for convenience's sake.
+           Consider to reuse getBufferLength when memory can be used more efficiently later.
+        */
         final Buffer buffer = new AutomaticBuffer(256);
 
         buffer.put(version);
@@ -374,14 +375,15 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
         // buffer.put(leastTraceID);
 
         buffer.putPrefixedString(agentId);
-        // time의 경우도 현재 시간을 기준으로 var를 사용하는게 사이즈가 더 작음 6byte를 먹음.
+
+        // Using var makes the sie of time smaller based on the present time. That consumes only 6 bytes.
         buffer.putVar(agentStartTime);
 
-        // rowkey에 들어감.
+        // insert for rowkey
         // buffer.put(spanID);
         buffer.put(parentSpanId);
 
-        // 현재 시간이 기준이므로 var encoding
+        // use var encoding because of based on the present time
         buffer.putVar(startTime);
         buffer.putVar(elapsed);
 
@@ -392,7 +394,7 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
         buffer.putPrefixedString(remoteAddr);
         buffer.putSVar(apiId);
 
-        // errCode code는 음수가 될수 있음.
+        // errCode value may be negative
         buffer.putSVar(errCode);
 
         if (hasException){

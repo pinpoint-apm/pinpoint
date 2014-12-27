@@ -34,34 +34,23 @@ import com.navercorp.pinpoint.common.util.apache.IntHashMap;
  */
 public enum ServiceType {
 
-	/**
-	 * 정의되지 않은 서비스 코드,
-	 */
+
+    // Undefined Service Code
 	UNDEFINED((short) -1, "UNDEFINED", TERMINAL, !RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
 	
-	/**
-	 * agent가 설치되지 않은 피호출자.
-	 */
+    // Callee node that agent hasn't been installed
     UNKNOWN((short) 1, "UNKNOWN", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
-    
-    /**
-     * 사용자
-     */
+
+    // User
     USER((short) 2, "USER", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
-    
-    /**
-     * UNKNOWN의 그룹, UI에서만 사용함.
-     */
+
+    // Group of UNKNOWN,  used only for UI
     UNKNOWN_GROUP((short) 3, "UNKNOWN_GROUP", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
     
-    /**
-     * TEST의 그룹 - 테스트 실행 시 사용
-     */
+    // Group of TEST, used for running tests
     TEST((short) 5, "TEST", !TERMINAL, !RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
 
-    /**
-     * Java applications, WAS
-     */
+    // Java applications, WAS
     STAND_ALONE((short) 1000, "STAND_ALONE", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
     TEST_STAND_ALONE((short) 1005, "TEST_STAND_ALONE", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
     TOMCAT((short) 1010, "TOMCAT", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
@@ -88,51 +77,37 @@ public enum ServiceType {
     CUBRID((short) 2400, "CUBRID", TERMINAL, !RECORD_STATISTICS, INCLUDE_DESTINATION, NORMAL_SCHEMA),
     CUBRID_EXECUTE_QUERY((short) 2401, "CUBRID", TERMINAL, RECORD_STATISTICS, true, NORMAL_SCHEMA),
 
-    /**
-     * Internal method
-     */
-    // FIXME internal method를 여기에 넣기 애매하긴 하나.. 일단 그대로 둠.
+    // Internal method
+    // FIXME it's not clear to put internal method here. but do that for now.
     INTERNAL_METHOD((short) 5000, "INTERNAL_METHOD", !TERMINAL, !RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
 
-    /**
-     * Spring framework
-     */
+    // Spring framework
     SPRING((short) 5050, "SPRING", !TERMINAL, !RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
     SPRING_MVC((short) 5051, "SPRING", !TERMINAL, !RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
-    // FIXME 스프링 관련 코드들 어떻게 가져갈지 정리 필요
+    // FIXME need to define how to handle spring related codes
     SPRING_ORM_IBATIS((short) 5061, "SPRING", !TERMINAL, !RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
     SPRING_BEAN((short) 5071, "SPRING_BEAN", !TERMINAL, !RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
-    
-    /**
-     * xBatis
-     */
+
+    // xBatis
     IBATIS((short) 5500, "IBATIS", !TERMINAL, !RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
     MYBATIS((short) 5510, "MYBATIS", !TERMINAL, !RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
     
-    /**
-     * DBCP
-     */
+    // DBCP
     DBCP((short) 6050, "DBCP", !TERMINAL, !RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
 
-    /**
-     * Memory cache
-     */
+    // Memory cache
     MEMCACHED((short) 8050, "MEMCACHED", TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, FAST_SCHEMA),
     MEMCACHED_FUTURE_GET((short) 8051, "MEMCACHED", TERMINAL, !RECORD_STATISTICS, !INCLUDE_DESTINATION, FAST_SCHEMA),
     ARCUS((short) 8100, "ARCUS", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION, FAST_SCHEMA),
     ARCUS_FUTURE_GET((short) 8101, "ARCUS", TERMINAL, !RECORD_STATISTICS, INCLUDE_DESTINATION, FAST_SCHEMA),
     ARCUS_EHCACHE_FUTURE_GET((short) 8102, "ARCUS-EHCACHE", TERMINAL, !RECORD_STATISTICS, INCLUDE_DESTINATION, FAST_SCHEMA),
 
-    /**
-     * Redis & nBase-ARC
-     */
+    // Redis & nBase-ARC
     REDIS((short) 8200, "REDIS", TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, FAST_SCHEMA),
     NBASE_ARC((short) 8250, "NBASE_ARC", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION, FAST_SCHEMA),
     
     
-    /**
-     * Connector, Client
-     */
+    // Connector, Client
     HTTP_CLIENT((short) 9050, "HTTP_CLIENT", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
     HTTP_CLIENT_INTERNAL((short) 9051, "HTTP_CLIENT", !TERMINAL, !RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
     JDK_HTTPURLCONNECTOR((short) 9055, "JDK_HTTPCONNECTOR", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
@@ -146,10 +121,10 @@ public enum ServiceType {
     private final String desc;
     private final boolean terminal;
     
-    // FIXME rpc 호출에 대해서만 통계정보를 남길 것이니, isRecordRpc()로 바꾸는건 어떨지???
+    // FIXME record statistics of only rpc call currently. so is it all right to chane into isRecordRpc()
     private final boolean recordStatistics;
     
-    // DetinationId를 포함시켜 api를 출력하지 여부
+    // whether or not print out api including destinationId
     private final boolean includeDestinationId;
     private final HistogramSchema histogramSchema;
 
@@ -162,7 +137,7 @@ public enum ServiceType {
         this.histogramSchema = histogramSchema;
     }
 
-    // FIXME 이 메소드를 사용해서 ServiceType을 찾는건 좋지 않을 듯.
+    // FIXME it may be not good to find serviceType by using this api
     public static List<ServiceType> findDesc(String desc) {
         if (desc == null) {
             throw new NullPointerException("desc must not be null");
@@ -182,25 +157,17 @@ public enum ServiceType {
         return !terminal && !isRpcClient() && code > 1000;
     }
 
-    // FIXME rpc 호출에 대해서만 통계정보를 남길 것이니, isRecordRpc()로 바꾸는건 어떨지???
+    // FIXME record statistics of only rpc call currently. so is it all right to chane into isRecordRpc()
     public boolean isRecordStatistics() {
         return recordStatistics;
     }
 
-	/**
-	 * agent가 설치되어있지 않은 피호출자인가?
-	 * 
-	 * @return
-	 */
 	public boolean isUnknown() {
 		return this == ServiceType.UNKNOWN; // || this == ServiceType.UNKNOWN_CLOUD;
 	}
     
-    /**
-     * 사용자 또는 알 수 없는 호출자인가?
-     * 
-     * @return
-     */
+
+    // return true when the service type is USER or can not be identified
     public boolean isUser() {
     	return this == ServiceType.USER;
     }
@@ -268,7 +235,8 @@ public enum ServiceType {
                 serviceTypeList.add(serviceType);
             }
         }
-        // 수정하지 못하도록 한다.
+
+        // Don't modify
         for (Map.Entry<String, List<ServiceType>> entry : temp.entrySet()) {
             List<ServiceType> serviceTypes = Collections.unmodifiableList(entry.getValue());
             STATISTICS_LOOKUP_TABLE.put(entry.getKey(), serviceTypes);

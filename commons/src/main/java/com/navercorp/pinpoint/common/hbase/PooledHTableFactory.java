@@ -25,7 +25,7 @@ import org.springframework.beans.factory.DisposableBean;
 import java.io.IOException;
 
 /**
- * HTablePool 기반의 HTableInterfaceFactory.
+ * HTableInterfaceFactory based on HTablePool.
  * @author emeroad
  */
 public class PooledHTableFactory implements HTableInterfaceFactory, DisposableBean {

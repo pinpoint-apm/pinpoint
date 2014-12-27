@@ -68,7 +68,7 @@ public class AnnotationBo {
         if (version < 0 || version > 255) {
             throw new IllegalArgumentException("out of range (0~255) " + version);
         }
-        // range 체크
+        // check range
         this.version = (byte) (version & 0xFF);
     }
 
@@ -110,11 +110,11 @@ public class AnnotationBo {
     }
 
     public void writeValue(Buffer buffer) {
-        // long timestamp; // required 8
-        // long duration; // optional 8
-        // int key; // required 4
+        // long timestamp;    // required 8
+        // long duration;     // optional 8
+        // int key;           // required 4
         // int valueTypeCode; // required 4
-        // ByteBuffer value; // optional 4 + buf.length
+        // ByteBuffer value;  // optional 4 + buf.length
         buffer.put(this.version);
         buffer.putSVar(this.key);
         buffer.put(this.valueType);
