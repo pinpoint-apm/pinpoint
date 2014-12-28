@@ -95,13 +95,13 @@ public class PinpointBootStrap {
             List<URL> libUrlList = resolveLib(classPathResolver);
             AgentClassLoader agentClassLoader = new AgentClassLoader(libUrlList.toArray(new URL[libUrlList.size()]));
             agentClassLoader.setBootClass(BOOT_CLASS);
-            logger.info("pinpoint agent start.");
+            logger.info("pinpoint agent starting...");
             agentClassLoader.boot(classPathResolver.getAgentDirPath(), agentArgs, instrumentation, profilerConfig);
-            logger.info("pinpoint agent start success.");
+            logger.info("pinpoint agent started normally.");
             changeLoadState(BOOT_STRAP_LOAD_STATE_COMPLETE);
         } catch (Exception e) {
             // unexpected exception that did not be checked above
-            logger.log(Level.SEVERE, ProductInfo.CAMEL_NAME + " start fail. Caused:" + e.getMessage(), e);
+            logger.log(Level.SEVERE, ProductInfo.CAMEL_NAME + " start failed. Error:" + e.getMessage(), e);
             changeLoadState(BOOT_STRAP_LOAD_STATE_ERROR);
             logPinpointAgentLoadFail();
         }
@@ -115,7 +115,7 @@ public class PinpointBootStrap {
     private static void logPinpointAgentLoadFail() {
         final String errorLog =
             "*****************************************************************************\n" +
-            "* PinpointAgent load fail\n" +
+            "* Pinpoint Agent load failure\n" +
             "*****************************************************************************";
         System.err.println(errorLog);
     }
@@ -126,7 +126,7 @@ public class PinpointBootStrap {
             changeLoadState(BOOT_STRAP_LOAD_STATE_LOADING);
         } else {
             if (logger.isLoggable(Level.SEVERE)) {
-                logger.severe("pinpoint-bootstrap already started. skip agent loading. loadState:" + exist);
+                logger.severe("pinpoint-bootstrap already started. skipping agent loading. loadState:" + exist);
             }
             return true;
         }

@@ -67,12 +67,12 @@ public class ProfilerConfig {
             return new ProfilerConfig(properties);
         } catch (FileNotFoundException fe) {
             if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, pinpointConfigFileName + " file is not exists. Please check configuration.");
+                logger.log(Level.WARNING, pinpointConfigFileName + " file does not exist. Please check your configuration.");
             }
             throw fe;
         } catch (IOException e) {
             if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, pinpointConfigFileName + " file read error. Cause:" + e.getMessage(), e);
+                logger.log(Level.WARNING, pinpointConfigFileName + " file I/O error. Error:" + e.getMessage(), e);
             }
             throw e;
         }
@@ -575,7 +575,7 @@ public class ProfilerConfig {
 
     // for test
     void readPropertyValues() {
-        // TODO : use  Properties's defaultvalue instead of using temp variable.
+        // TODO : use Properties's default value instead of using a temp variable.
         final ValueResolver placeHolderResolver = new PlaceHolderResolver();
 
         this.profileEnable = readBoolean("profiler.enable", true);

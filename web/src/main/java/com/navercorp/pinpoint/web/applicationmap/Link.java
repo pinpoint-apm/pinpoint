@@ -37,8 +37,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * application map에서 application간의 관계를 담은 클래스
- * 
+ * A class that describes relationship between apps in application map
+ *
  * @author netspider
  * @author emeroad
  */
@@ -48,8 +48,8 @@ public class Link {
 
     public static final String LINK_DELIMITER = "~";
 
-    // 링크를 생성한 데이터의 주체가 누구인가를 나타냄
-    // source에 의해서 먼저 생성된것인지, target에 의해서 수동적으로 생성된것인지 나타낸다.
+    // specified who created a link.
+    // indicates whether created by a source or manually created by a target
     private final CreateType createType;
     private final Node fromNode;
     private final Node toNode;
@@ -92,8 +92,8 @@ public class Link {
     }
 
     public Application getFilterApplication() {
-        // User 링크일 경우 from을 보면 안되고 was를 봐야 한다.
-        // User는 가상의 링크이기 때문에, User로 필터링을 칠수 없음.
+        // User link: need to look at WAS, not from
+        // Since User is a virtual link, we cannot filter by User
         if (fromNode.getServiceType() == ServiceType.USER) {
             return toNode.getApplication();
         }
@@ -147,8 +147,8 @@ public class Link {
 	}
 
     private Histogram createHistogram0() {
-        // 내가 호출하는 대상의 serviceType을 가져와야 한다.
-        // tomcat -> arcus를 호출한다고 하였을 경우 arcus의 타입을 가져와야함.
+        // need serviceType of target (callee)
+        // ie. Tomcat -> Arcus: we need arcus type
         final LinkCallDataMap findMap = getLinkCallDataMap();
         AgentHistogramList targetList = findMap.getTargetList();
         return targetList.mergeHistogram(toNode.getServiceType());
@@ -174,8 +174,8 @@ public class Link {
     }
 
     public Histogram getTargetHistogram() {
-        // 내가 호출하는 대상의 serviceType을 가져와야 한다.
-        // tomcat -> arcus를 호출한다고 하였을 경우 arcus의 타입을 가져와야함.
+        // need serviceType of target (callee)
+        // ie. Tomcat -> Arcus: we need Arcus type
         AgentHistogramList targetList = targetLinkCallDataMap.getTargetList();
         return targetList.mergeHistogram(toNode.getServiceType());
 
@@ -201,20 +201,20 @@ public class Link {
     }
 
     private ApplicationTimeHistogram getSourceApplicationTimeSeriesHistogramData() {
-        // form인것 같지만 link의 시간은 rpc를 기준으로 삼아야 하기 때문에. to를 기준으로 삼아야 한다.
+        // we need Target (to)'s time since time in link is RPC-based
         ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(toNode.getApplication(), range);
         return builder.build(sourceLinkCallDataMap.getLinkDataList());
     }
 
     public ApplicationTimeHistogram getTargetApplicationTimeSeriesHistogramData() {
-        // form인것 같지만 link의 시간은 rpc를 기준으로 삼아야 하기 때문에. to를 기준으로 삼아야 한다.
+        // we need Target (to)'s time since time in link is RPC-based
         ApplicationTimeHistogramBuilder builder = new ApplicationTimeHistogramBuilder(toNode.getApplication(), range);
         return builder.build(targetLinkCallDataMap.getLinkDataList());
     }
 
     public AgentResponseTimeViewModelList getSourceAgentTimeSeriesHistogram() {
 
-        // form인것 같지만 link의 시간은 rpc를 기준으로 삼아야 하기 때문에. to를 기준으로 삼아야 한다.
+        // we need Target (to)'s time since time in link is RPC-based
         AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(toNode.getApplication(), range);
         AgentTimeHistogram applicationTimeSeriesHistogram = builder.buildSource(sourceLinkCallDataMap);
         AgentResponseTimeViewModelList agentResponseTimeViewModelList = new AgentResponseTimeViewModelList(applicationTimeSeriesHistogram.createViewModel());

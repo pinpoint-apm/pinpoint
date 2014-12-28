@@ -39,10 +39,10 @@ public final class BytecodeUtils {
             return method;
         } catch (NoSuchMethodException e) {
             // link error
-            throw new RuntimeException("defineClass not found. Caused:" + e.getMessage(), e);
+            throw new RuntimeException("defineClass not found. Error:" + e.getMessage(), e);
         } catch (SecurityException e) {
             // link error
-            throw new RuntimeException("defineClass error. Caused:" + e.getMessage(), e);
+            throw new RuntimeException("defineClass error. Error:" + e.getMessage(), e);
         }
     }
 

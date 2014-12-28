@@ -69,6 +69,6 @@ public interface AsyncTrace {
 
     void recordDestinationId(String destinationId);
 
-    // TODO: final String... endPoint로 받으면 합치는데 비용이 들어가 그냥 한번에 받는게 나을것 같음.
+    // TODO: final String... an aggregated input needed so we don't have to sum up endPoints
     void recordEndPoint(String endPoint);
 }

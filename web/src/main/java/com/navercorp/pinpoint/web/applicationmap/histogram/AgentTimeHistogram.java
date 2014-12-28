@@ -34,8 +34,8 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * 리팩토링하면서 AgentHistogramList에 기능이 거의 위임되었음.
- * viewCreate정도로 기능이 한정되서 추후 삭제하거나. 이름을 변경해야 될듯하다.
+ * most of the features have been delegated to AgentHistorgramList upon refactoring
+ * TODO: limited to viewCreate. need to be renamed or removed
  * @author emeroad
  */
 public class AgentTimeHistogram {

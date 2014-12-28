@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.web.applicationmap.link.MatcherGroup;
 import com.navercorp.pinpoint.web.applicationmap.link.ServerMatcher;
 
 /**
- * 
+ *
  * @author netspider
  * @author emeroad
  */
@@ -40,7 +40,8 @@ public class ServerInstance {
 	private final AgentInfoBo agentInfo;
 
 
-    // 모양세는 어디선가 inject받던지 하는게 좋은데. 일단 그냥 한다. 로직에서 new하는 부분이라. 이걸 inject받을려니 힘듬.
+    // it is better for something else to inject this.
+    // it's difficult to do that since it is new'ed within logic
     private static final MatcherGroup MATCHER_GROUP = new MatcherGroup();
 
     private ServerMatcher match;
@@ -56,7 +57,7 @@ public class ServerInstance {
         this.serverType = ServerType.Physical;
         this.match = MATCHER_GROUP.match(hostName);
 	}
-	
+
 	public ServerInstance(String hostName, String physicalName, ServiceType serviceType) {
         if (hostName == null) {
             throw new NullPointerException("hostName must not be null");

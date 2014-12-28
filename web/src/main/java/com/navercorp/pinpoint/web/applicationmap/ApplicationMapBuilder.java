@@ -39,9 +39,9 @@ public class ApplicationMapBuilder {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Range range;
-    
+
     private MatcherGroup matcherGroup;
-    
+
     public ApplicationMapBuilder(Range range, MatcherGroup matcherGroup) {
         if (range == null) {
             throw new NullPointerException("range must not be null");
@@ -115,8 +115,8 @@ public class ApplicationMapBuilder {
 
         for (LinkData linkData : linkDataMap.getLinkDataList()) {
             final Application fromApplication = linkData.getFromApplication();
-            // FROM -> TO에서 FROM이 CLIENT가 아니면 FROM은 node
-            // rpc가 나올수가 없음. 이미 unknown으로 치환을 하기 때문에. 만약 rpc가 나온다면 이상한 케이스임
+            // FROM is either a CLIENT or a node
+            // cannot be RPC. Already converted to unknown.
             if (!fromApplication.getServiceType().isRpcClient()) {
                 final boolean success = addNode(nodeList, fromApplication);
                 if (success) {

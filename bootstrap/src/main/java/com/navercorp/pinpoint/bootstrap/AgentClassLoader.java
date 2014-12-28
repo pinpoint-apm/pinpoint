@@ -80,9 +80,9 @@ public class AgentClassLoader {
                     Constructor<?> constructor = bootStrapClazz.getConstructor(String.class, String.class, Instrumentation.class, ProfilerConfig.class);
                     return constructor.newInstance(agentPath, agentArgs, instrumentation, profilerConfig);
                 } catch (InstantiationException e) {
-                    throw new BootStrapException("boot create fail. Caused:" + e.getMessage(), e);
+                    throw new BootStrapException("boot create failed. Error:" + e.getMessage(), e);
                 } catch (IllegalAccessException e) {
-                    throw new BootStrapException("boot method invoke fail. Caused:" + e.getMessage(), e);
+                    throw new BootStrapException("boot method invoke failed. Error:" + e.getMessage(), e);
                 }
             }
         });
@@ -96,7 +96,7 @@ public class AgentClassLoader {
             } else {
                 agentClassName = agent.getClass().getName();
             }
-            throw new BootStrapException("Invalid AgentType. boot fail. AgentClass:" + agentClassName);
+            throw new BootStrapException("Invalid AgentType. boot failed. AgentClass:" + agentClassName);
         }
     }
 
@@ -105,7 +105,7 @@ public class AgentClassLoader {
         try {
             return this.classLoader.loadClass(bootClass);
         } catch (ClassNotFoundException e) {
-            throw new BootStrapException("boot class not found. bootClass:" + bootClass + " Caused:" + e.getMessage(), e);
+            throw new BootStrapException("boot class not found. bootClass:" + bootClass + " Error:" + e.getMessage(), e);
         }
     }
 
@@ -125,9 +125,9 @@ public class AgentClassLoader {
                 try {
                     return findMethod.invoke(agentBootStrap, args);
                 } catch (InvocationTargetException e) {
-                    throw new BootStrapException(findMethod.getName() + "() fail.  Caused:" + e.getMessage(), e);
+                    throw new BootStrapException(findMethod.getName() + "() failed. Error:" + e.getMessage(), e);
                 } catch (IllegalAccessException e) {
-                    throw new BootStrapException("boot method invoke fail. Caused:" + e.getMessage(), e);
+                    throw new BootStrapException("boot method invoke failed. Error:" + e.getMessage(), e);
                 }
             }
         });
@@ -138,7 +138,7 @@ public class AgentClassLoader {
         try {
             return clazz.getDeclaredMethod(method, type);
         } catch (NoSuchMethodException e) {
-            throw new BootStrapException("(" + method + ") boot method not found. Caused:" + e.getMessage(), e);
+            throw new BootStrapException("(" + method + ") boot method not found. Error:" + e.getMessage(), e);
         }
     }
 

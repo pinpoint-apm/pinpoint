@@ -66,7 +66,7 @@ public class ApplicationTimeHistogramBuilder {
                 timeHistogram = new TimeHistogram(application.getServiceType(), timeStamp);
                 applicationLevelHistogram.put(timeStamp, timeHistogram);
             }
-            // 개별 agent 레벨 데이터를 합친다.
+            // add each agent's level data
             Histogram applicationResponseHistogram = responseTime.getApplicationResponseHistogram();
             timeHistogram.add(applicationResponseHistogram);
         }
@@ -109,7 +109,7 @@ public class ApplicationTimeHistogramBuilder {
     }
 
     private List<TimeHistogram> interpolation(Collection<TimeHistogram> histogramList) {
-        // span에 대한 개별 조회시 window time만 가지고 보간하는것에 한계가 있을수 있음.
+        // upon individual span query, "window time" alone may not be enough
         //
         Map<Long, TimeHistogram> resultMap = new HashMap<Long, TimeHistogram>();
         for (Long time : window) {

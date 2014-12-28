@@ -23,8 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * DB에서 조회한 application호출 관계 정보.
- * 
+ * application caller/callee relationship stored in DB
+ *
  * @author netspider
  * @author emeroad
  */
@@ -50,7 +50,7 @@ public class LinkData {
         this.linkCallDataMap = new LinkCallDataMap();
 	}
 
-    // 이건 일부러 복사 생성자로 구현안함.
+    // deliberaly didn't implement copy constructor
     public LinkData(Application fromApplication, Application toApplication, LinkCallDataMap linkCallDataMap) {
         if (fromApplication == null) {
             throw new NullPointerException("fromApplication must not be null");
@@ -65,9 +65,9 @@ public class LinkData {
     }
 
     /**
-	 * 
+	 *
 	 * @param hostname
-	 *            host이름 또는 endpoint
+	 *            host name or endpoint
 	 * @param slot
 	 * @param count
 	 */

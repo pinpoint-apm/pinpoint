@@ -36,18 +36,18 @@ import com.navercorp.pinpoint.web.vo.Range;
 public class MapStatisticsCallerDataCollector extends DataCollector {
 
     private Application application;
-    private MapStatisticsCallerDao mapStatisticsCallerDao; 
+    private MapStatisticsCallerDao mapStatisticsCallerDao;
     private long timeSlotEndTime;
     private long slotInterval;
     private Map<String, LinkCallData> calleStatMap = new HashMap<String, LinkCallData>();
-    private final AtomicBoolean init =new AtomicBoolean(false); // need to consider the concurrency situation when checkers start simultaneously.
-    
+    private final AtomicBoolean init =new AtomicBoolean(false); // need to consider a trace condition when checkers start simultaneously.
+
     public MapStatisticsCallerDataCollector(DataCollectorCategory category, Application application, MapStatisticsCallerDao mapStatisticsCallerDao, long timeSlotEndTime, long slotInterval) {
         super(category);
         this.application = application;
         this.mapStatisticsCallerDao = mapStatisticsCallerDao;
         this.timeSlotEndTime = timeSlotEndTime;
-        this.slotInterval = slotInterval; 
+        this.slotInterval = slotInterval;
     }
 
     @Override
@@ -55,24 +55,24 @@ public class MapStatisticsCallerDataCollector extends DataCollector {
         if (init.get()) {
             return;
         }
-        
+
         LinkDataMap callerDataMap = mapStatisticsCallerDao.selectCaller(application, new Range(timeSlotEndTime - slotInterval, timeSlotEndTime));
 
         for (LinkData linkData : callerDataMap.getLinkDataList()) {
             LinkCallDataMap linkCallDataMap = linkData.getLinkCallDataMap();
-       
+
             for (LinkCallData linkCallData : linkCallDataMap.getLinkDataList()) {
                 calleStatMap.put(linkCallData.getTarget(), linkCallData);
             }
         }
-        
+
         init.set(true);
     }
 
     public long getCount(String calleName, DataCategory dataCategory) {
         LinkCallData linkCallData = calleStatMap.get(calleName);
         long count = 0;
-        
+
         if (linkCallData != null) {
             switch (dataCategory) {
             case SLOW_COUNT:
@@ -94,18 +94,18 @@ public class MapStatisticsCallerDataCollector extends DataCollector {
             default :
                 throw new IllegalArgumentException("Can't count for " + dataCategory.toString());
             }
-            
+
             return count;
         }
-        
+
         return 0;
     }
-    
+
     public long getCountRate(String calleName, DataCategory dataCategory) {
         LinkCallData linkCallData = calleStatMap.get(calleName);
         long count = 0;
         long totalCount = 0;
-        
+
         if (linkCallData != null) {
             switch (dataCategory) {
             case SLOW_RATE:
@@ -124,10 +124,10 @@ public class MapStatisticsCallerDataCollector extends DataCollector {
             default :
                 throw new IllegalArgumentException("Can't calculate rate for " + dataCategory.toString());
             }
-            
+
             return calculatePercent(count, totalCount);
         }
-        
+
         return 0;
     }
 

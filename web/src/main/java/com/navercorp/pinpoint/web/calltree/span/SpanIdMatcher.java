@@ -39,7 +39,7 @@ public class SpanIdMatcher {
     }
 
     public SpanBo approximateMatch(long spanEventBoStartTime) {
-        // 매칭 알고리즘이 있어야 함.
+        // TODO: we need mathing algorithm
         List<WeightSpanBo> weightSpanList = computeWeight(spanEventBoStartTime);
         if (weightSpanList.size() == 0) {
             return null;
@@ -82,8 +82,9 @@ public class SpanIdMatcher {
         if (minValue.size() == 1) {
             return minValue.get(0);
         }
-        // 2개 이상일 경우일단 그냥 앞선 데이터를 던짐.
-        // 뭔가 로그 필요.
+
+        // returns the first data when more than one
+        // TODO: we probably log this
         return minValue.get(0);
     }
 
@@ -94,7 +95,7 @@ public class SpanIdMatcher {
             long distance = startTime - spanEventBoStartTime;
             long weightDistance = getWeightDistance(distance);
             if (weightDistance > MAX_EXCLUDE_WEIGHT) {
-                // MAX WEIGHT보다 가중치가 높을 경우. 분실된 케이스 일수 있으므로 그냥 버린다.
+                // if higher than MAX WEIGHT, most likely missing case. just drop it
                 continue;
             }
             weightSpanList.add(new WeightSpanBo(weightDistance, next));
@@ -104,12 +105,13 @@ public class SpanIdMatcher {
 
     private long getWeightDistance(long distance) {
         if (distance >= 0) {
-            // 양수일 경우
+            // positive number
             return distance;
         } else {
-            // 음수일 경우 패널티를 둔다. 네트워크 타임 동기화 시간이 길지 않을 경우 음수가  매치될 확율은 매우 적어야 한다.
-            // 차라리 jvm gc등으로 인해 양수 값이 많이 차이 날수 있지. 음수값이 매치될 가능성은 매우낮다고 봐야 한다.
-            // 네트워크 싱크 시간?? 오차 등을 추가로 더하면 될거 같은데. 모르니깐 대충 더하자. 패널티는 1초
+            // give a penalty when negative
+            // if time skew due to network time sync problem is not big, it is highly unlikely to match a negative number
+            // it actually is more likely to get higher positive number diff due to JVM GC.
+            // TODO: need to adjust for network sync time diff. penalty is just set to 1 second
             distance = Math.abs(distance);
             return (distance * 2) + 1000;
         }

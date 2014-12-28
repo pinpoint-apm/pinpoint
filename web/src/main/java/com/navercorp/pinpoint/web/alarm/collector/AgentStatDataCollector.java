@@ -38,19 +38,19 @@ public class AgentStatDataCollector extends DataCollector {
     private final ApplicationIndexDao applicationIndexDao;
     private final long timeSlotEndTime;
     private final long slotInterval;
-    private final AtomicBoolean init = new AtomicBoolean(false); // need to consider the concurrency situation when checkers start simultaneously.
-   
+    private final AtomicBoolean init = new AtomicBoolean(false); // need to consider a race condition when checkers start simultaneously.
+
     private final Map<String, Long> agentHeapUsageRate = new HashMap<String, Long>();
     private final Map<String, Long> agentGcCount = new HashMap<String, Long>();
     private final Map<String, Long> agentJvmCpuUsageRate = new HashMap<String, Long>();
-    
+
     public AgentStatDataCollector(DataCollectorCategory category, Application application, AgentStatDao agentStatDao, ApplicationIndexDao applicationIndexDao, long timeSlotEndTime, long slotInterval) {
         super(category);
         this.application = application;
         this.agentStatDao = agentStatDao;
         this.applicationIndexDao = applicationIndexDao;
         this.timeSlotEndTime = timeSlotEndTime;
-        this.slotInterval = slotInterval; 
+        this.slotInterval = slotInterval;
     }
 
     @Override
@@ -58,40 +58,40 @@ public class AgentStatDataCollector extends DataCollector {
         if (init.get()) {
             return;
         }
-        
+
         Range range = Range.createUncheckedRange(timeSlotEndTime - slotInterval, timeSlotEndTime);
         List<String> agentIds = applicationIndexDao.selectAgentIds(application.getName());
-        
+
         for(String agentId : agentIds) {
             List<AgentStat> scanAgentStatList = agentStatDao.scanAgentStatList(agentId, range);
             int listSize = scanAgentStatList.size();
             long totalHeapSize = 0;
             long usedHeapSize = 0;
             long jvmCpuUsaged = 0;
-            
+
             for (AgentStat agentStat : scanAgentStatList) {
                 totalHeapSize += agentStat.getMemoryGc().getJvmMemoryHeapMax();
                 usedHeapSize += agentStat.getMemoryGc().getJvmMemoryHeapUsed();
-                
+
                 jvmCpuUsaged += agentStat.getCpuLoad().getJvmCpuLoad() * 100;
             }
-            
+
             if(listSize > 0) {
                 long percent = calculatePercent(usedHeapSize, totalHeapSize);
                 agentHeapUsageRate.put(agentId, percent);
-                
+
                 percent = calculatePercent(jvmCpuUsaged, 100*scanAgentStatList.size());
                 agentJvmCpuUsageRate.put(agentId, percent);
-                
+
                 long accruedLastGCcount = scanAgentStatList.get(0).getMemoryGc().getJvmGcOldCount();
                 long accruedFirstGCcount= scanAgentStatList.get(listSize - 1).getMemoryGc().getJvmGcOldCount();
-                agentGcCount.put(agentId, accruedLastGCcount - accruedFirstGCcount);    
+                agentGcCount.put(agentId, accruedLastGCcount - accruedFirstGCcount);
             }
-            
+
         }
 
         init.set(true);
-        
+
     }
 
     private long calculatePercent(long used, long total) {
@@ -113,5 +113,5 @@ public class AgentStatDataCollector extends DataCollector {
     public Map<String, Long> getJvmCpuUsageRate() {
         return agentJvmCpuUsageRate;
     }
-    
+
 }

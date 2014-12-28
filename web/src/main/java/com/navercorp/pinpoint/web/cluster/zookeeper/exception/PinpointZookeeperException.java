@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.web.cluster.zookeeper.exception;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class PinpointZookeeperException extends Exception {
-	
+
 	public PinpointZookeeperException() {
 	}
 

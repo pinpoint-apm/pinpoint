@@ -21,8 +21,7 @@ package com.navercorp.pinpoint.bootstrap.sampler;
  */
 public final class SamplingFlagUtils {
 
-    // 향후 다른 샘플링 스펙이 추가될수 있으므로
-    // 일부러 1개 byte를 소비하여 sampling마크 한다.
+    // 1 byte dummy mark for further expansion of sampling specs
     public static final String SAMPLING_RATE_PREFIX = "s";
 
 
@@ -36,8 +35,8 @@ public final class SamplingFlagUtils {
         if (samplingFlag == null) {
             return true;
         }
-        // 정확하게 하지 말란 flag가 세팅되었을 경우만 샘플링을 하지 않는다.
-        // prefix를 보고 뭔가 더 정확하게 동작되어야 필요성이 있음.
+        // we turn off sampling only when a specific flag was given
+        // XXX needs better detection mechanism through prefix parsing
         if (samplingFlag.startsWith(SAMPLING_RATE_PREFIX)) {
             return !SAMPLING_RATE_FALSE.equals(samplingFlag);
         }

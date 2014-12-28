@@ -30,7 +30,7 @@ public interface TraceContext {
     Trace currentTraceObject();
 
     /**
-     * sampling rate를 추가적으로 확인해야 되는 trace를 리턴한다.
+     * return a trace whose sampling rate should be further verified
      * @return
      */
     Trace currentRawTraceObject();

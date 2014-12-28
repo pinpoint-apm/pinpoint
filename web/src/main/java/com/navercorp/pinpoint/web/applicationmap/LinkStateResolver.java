@@ -29,7 +29,8 @@ public class LinkStateResolver {
         if (link == null) {
             throw new NullPointerException("link must not be null");
         }
-        // Histogram이 중복으로 생성되고 있어 그냥 인자로 받음 수정 요망.
+        // since Histogram dup gets created, we simply accepts as a parameter
+        // XXX need to fix this 
         final long error = getErrorRate(link.getHistogram());
         if (error * 100 > 10) {
             return BAD;

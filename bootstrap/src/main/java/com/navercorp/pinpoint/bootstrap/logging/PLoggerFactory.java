@@ -35,8 +35,8 @@ public final class PLoggerFactory {
     }
 
     public static void unregister(PLoggerBinder loggerBinder) {
-        // 등록한 놈만  제거 가능하도록 제한
-        // testcase 작성시 가능한 logger를 등록했다가 삭제하는 로직은 beforeClass, afterClass에 넣어야 한다.
+        // Limited to remove only the ones already registered
+        // when writing a test case, logger register/unregister logic must be located in beforeClass and afterClass
         if (loggerBinder == PLoggerFactory.loggerBinder) {
             PLoggerFactory.loggerBinder = null;
         }
@@ -44,7 +44,7 @@ public final class PLoggerFactory {
 
     public static PLogger getLogger(String name) {
         if (loggerBinder == null) {
-            // 바인딩 되지 않은 상태에서 getLogger를 호출시 null ex가 발생하므로 dummy logger를 리턴하도록 함.
+            // this prevents null exception: need to return Dummy until a Binder is assigned
             return DummyPLogger.INSTANCE;
         }
         return loggerBinder.getLogger(name);

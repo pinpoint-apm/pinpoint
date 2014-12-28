@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  *
  */
 public class CollectorClusterInfoRepository {
@@ -35,7 +35,7 @@ public class CollectorClusterInfoRepository {
 	private final Map<String, Map<String, String>> repository = new HashMap<String, Map<String, String>>();
 
 	private final Object lock = new Object();
-	
+
 	public void put(String id, byte[] data) {
 		synchronized (lock) {
 			Map<String, String> newMap = new HashMap<String, String>();
@@ -49,7 +49,7 @@ public class CollectorClusterInfoRepository {
 
 				newMap.put(profilerInfo, id);
 			}
-			
+
 			repository.put(id, newMap);
 		}
 	}
@@ -93,7 +93,7 @@ public class CollectorClusterInfoRepository {
 
 		return key.toString();
 	}
-	
+
 	@Override
 	public String toString() {
 		return repository.toString();

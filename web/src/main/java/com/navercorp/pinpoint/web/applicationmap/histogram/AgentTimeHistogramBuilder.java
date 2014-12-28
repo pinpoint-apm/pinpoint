@@ -87,9 +87,9 @@ public class AgentTimeHistogramBuilder {
             return new AgentHistogramList();
         }
 
-        // window 공간생성. AgentHistogramList 사용이전에는 그냥 생짜 자료구조를 사용함.
-        // list로 할수도 있으나, filter일 경우 range를 초과하는 경우가 발생할 가능성이 있어 map으로 생성한다.
-        // 좀더 나은 방인이 있으면 변경하는게 좋을듯.
+        // window space. before AgentHistogramList, we used a raw data structure.
+        // could've been a list, but a map is more suitable since range overflow occurs in case of filter.
+        // TODO: find better structure
         final AgentHistogramList resultAgentHistogramList = new AgentHistogramList();
         for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
             List<TimeHistogram> timeHistogramList = new ArrayList<TimeHistogram>();
