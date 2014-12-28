@@ -87,12 +87,12 @@ public class PacketDecoder extends FrameDecoder {
             case PacketType.CONTROL_PING:
                 readPing(packetType, buffer);
                 sendPong(channel);
-                // 그냥 ping은 버리자.
+                // just drop ping
                 return null;
             case PacketType.CONTROL_PONG:
                 logger.debug("receive pong. {}", channel);
                 readPong(packetType, buffer);
-                // pong 도 그냥 버리자.
+                // just also drop pong.
                 return null;
             case PacketType.CONTROL_HANDSHAKE:
             	return readEnableWorker(packetType, buffer);
@@ -105,8 +105,9 @@ public class PacketDecoder extends FrameDecoder {
     }
 
 	private void sendPong(Channel channel) {
-        // ping에 대한 응답으로 pong은 자동으로 응답한다.
-        logger.debug("receive ping. send pong. {}", channel);
+
+        // a "pong" responds to a "ping" automatically.
+        logger.debug("received ping. sending pong. {}", channel);
         ChannelFuture write = channel.write(PongPacket.PONG_PACKET);
         write.addListener(pongWriteFutureListener);
     }

@@ -52,11 +52,10 @@ public class PayloadPacket {
 
     public static ChannelBuffer appendPayload(final ChannelBuffer header, final byte[] payload) {
         if (payload == null) {
-            // 이건 payload 헤더이긴하다.
+            // this is also payload header
             header.writeInt(-1);
             return header;
         } else {
-            // 이건 payload 헤더이긴하다.
             header.writeInt(payload.length);
             ChannelBuffer payloadWrap = ChannelBuffers.wrappedBuffer(payload);
             return ChannelBuffers.wrappedBuffer(true, header, payloadWrap);
