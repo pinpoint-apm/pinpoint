@@ -73,8 +73,9 @@ public class PinpointSocketFactory {
     private long reconnectDelay = 3 * 1000;
     private final Timer timer;
 
-    // 이 값이 짧아야 될 필요가 없음. client에서 server로 가는 핑 주기를 짧게 유지한다고 해서.
-    // 연결끊김이 빨랑 디텍트 되는게 아님. 오히려 server에서 client의 ping주기를 짧게 해야 디텍트 속도가 빨라짐.
+    // it's better to be a long value. even though keeping ping period from client to server short,
+    // disconnection between them dose not be detected quickly.
+    // rather keeping it from server to client short help detect disconnection as soon as possible.
     private long pingDelay = DEFAULT_PING_DELAY;
     private long enableWorkerPacketDelay = DEFAULT_ENABLE_WORKER_PACKET_DELAY;
     private long timeoutMillis = DEFAULT_TIMEOUTMILLIS;
@@ -94,7 +95,8 @@ public class PinpointSocketFactory {
         if (bossCount < 1) {
             throw new IllegalArgumentException("bossCount is negative: " + bossCount);
         }
-        // timer를 connect timeout으로 쓰므로 먼저 만들어야 됨.
+
+        // create a timer earlier because it is used for connectTimeout
         Timer timer = createTimer();
         ClientBootstrap bootstrap = createBootStrap(bossCount, workerCount, timer);
         setOptions(bootstrap);
@@ -118,12 +120,13 @@ public class PinpointSocketFactory {
     private void setOptions(ClientBootstrap bootstrap) {
         // connectTimeout
         bootstrap.setOption(CONNECT_TIMEOUT_MILLIS, DEFAULT_CONNECT_TIMEOUT);
-        // read write timeout이 있어야 되나? nio라서 없어도 되던가?
+        // read write timeout이 있어야 되나?
+        // read write timeout needed?  isn't it needed because of nio?
 
-        // tcp 세팅
+        // tcp setting
         bootstrap.setOption("tcpNoDelay", true);
         bootstrap.setOption("keepAlive", true);
-        // buffer
+        // buffer setting
         bootstrap.setOption("sendBufferSize", 1024 * 64);
         bootstrap.setOption("receiveBufferSize", 1024 * 64);
 
@@ -219,10 +222,13 @@ public class PinpointSocketFactory {
         traceSocket(pinpointSocket);
         return pinpointSocket;
     }
-    
+
+    /*
+        trace mechanism is needed in case of calling close without closing socket
+        it is okay to make that later because this is a exceptional case.
+     */
     private void traceSocket(PinpointSocket pinpointSocket) {
-        // socket을 닫지 않고 clsoe했을 경우의 추적 로직이 필요함
-        // 예외 케이스 이므로 나중에 만들어도 될듯.
+
     }
 
     public PinpointSocket scheduledConnect(String host, int port) {
@@ -318,7 +324,8 @@ public class PinpointSocketFactory {
             if (timeout.isCancelled()) {
                 return;
             }
-            // 이벤트는 fire됬지만 close됬을 경우 reconnect를 시도 하지 않음.
+
+            // Just return not to try reconnection when event has been fired but pinpointSocket already closed.
             if (pinpointSocket.isClosed()) {
                 logger.debug("pinpointSocket is already closed.");
                 return;
@@ -341,11 +348,14 @@ public class PinpointSocketFactory {
                         pinpointSocket.reconnectSocketHandler(socketHandler);
                     } else {
                          if (!pinpointSocket.isClosed()) {
-//                              구지 여기서 안찍어도 exceptionCought에서 메시지가 발생하므로 생략
-//                            if (logger.isWarnEnabled()) {
-//                                Throwable cause = future.getCause();
-//                                logger.warn("reconnect fail. {} Caused:{}", socketAddress, cause.getMessage());
-//                            }
+
+                         /*
+                            // comment out because exception message can be taken at exceptionCought
+                            if (logger.isWarnEnabled()) {
+                                Throwable cause = future.getCause();
+                                logger.warn("reconnect fail. {} Caused:{}", socketAddress, cause.getMessage());
+                            }
+                          */
                             reconnect(pinpointSocket, socketAddress);
                         } else {
                             logger.info("pinpointSocket is closed. stop reconnect.");
@@ -372,7 +382,8 @@ public class PinpointSocketFactory {
         if (!stop.isEmpty()) {
             logger.info("stop Timeout:{}", stop.size());
         }
-//        stop 뭔가 취소를 해야 되나??
+
+        // stop, cancel something?
     }
 
 	Map<String, Object> getProperties() {

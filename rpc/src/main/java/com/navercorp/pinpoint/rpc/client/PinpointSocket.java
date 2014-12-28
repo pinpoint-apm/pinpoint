@@ -69,7 +69,7 @@ public class PinpointSocket {
         }
         logger.warn("reconnectSocketHandler:{}", socketHandler);
         
-        // Pinpoint 소켓 내부 객체가 되기전에 listener를 먼저 등록        
+        // register listener before becoming internal object of Pinpoint socket.
         socketHandler.doHandshake();
         
         this.socketHandler = socketHandler;
@@ -77,8 +77,11 @@ public class PinpointSocket {
         notifyReconnectEvent();
     }
     
-	// reconnectEventListener의 경우 직접 생성자 호출시에 Dummy를 포함하고 있으며, 
-    // setter를 통해서도 접근을 못하게 하기 때문에 null이 아닌 것이 보장됨
+
+    /*
+        because reconnectEventListener's constructor contains Dummy and can't be access through setter,
+        guarantee it is not null.
+    */
     public boolean addPinpointSocketReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
     	if (eventListener == null) {
     		return false;
@@ -125,8 +128,8 @@ public class PinpointSocket {
     }
 
     public ClientStreamChannelContext createStreamChannel(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
-        // 실패를 리턴하는 StreamChannel을 던져야 되는데. StreamChannel을 interface로 변경해야 됨.
-        // 일단 그냥 ex를 던지도록 하겠음.
+        // StreamChannel must be changed into interface in order to throw the StreamChannel that returns failure.
+        // fow now throw just exception
         ensureOpen();
         return socketHandler.createStreamChannel(payload, clientStreamChannelMessageListener);
     }
@@ -150,8 +153,9 @@ public class PinpointSocket {
     }
 
     /**
-     * ping packet을 tcp 채널에 write한다.
-     * write 실패시 PinpointSocketException이 throw 된다.
+     * write pinng packet on tcp channel
+     * PinpointSocketException throws when writing fails.
+     *
      */
     public void sendPing() {
         SocketHandler socketHandler = this.socketHandler;

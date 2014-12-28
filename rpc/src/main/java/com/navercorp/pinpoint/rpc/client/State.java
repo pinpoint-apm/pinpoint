@@ -29,16 +29,16 @@ public class State {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	// 프로파일러에서 동작하는 것들은 최대한 가볍게 함 
+    // operations on profiler should be light as much possible
 	
-    // 0 핸드쉐이크 안함.. 1은 동작중, 2는 closed
+    // 0 : no handshake, 1: running
     public static final int INIT_RECONNECT = -1;
     public static final int INIT = 0;
     public static final int RUN = 1;
     public static final int RUN_DUPLEX_COMMUNICATION = 2;
     public static final int RUN_SIMPLEX_COMMUNICATION = 3;
     public static final int CLOSED = 4;
-//    이 상태가 있어야 되나?
+    // need this state?
     public static final int RECONNECT = 5;
 
 

@@ -27,12 +27,14 @@ import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 
 /**
+   be simple. this is similar to NPC but use "bit" operation instead of Chunk in String.
+   permit only utf-8 encoding.
+
  * @author koo.taejin
  */
 public class ControlMessageEncoder {
 
-	// 단순하게 가자 NPC랑 비슷 단) String에서 Chunk대신 bit 연산 사용하게 함
-	// UTF-8만 사용하게 함
+
 	private Charset charset;
 
 	public ControlMessageEncoder() {

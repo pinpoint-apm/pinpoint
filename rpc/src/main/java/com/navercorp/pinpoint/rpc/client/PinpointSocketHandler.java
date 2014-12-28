@@ -375,10 +375,10 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         } else {
             boolean cancel = channelFuture.cancel();
             if (cancel) {
-                // 3초에도 io가 안끝나면 일단 timeout인가?
+                // if IO not finished in 3 seconds, dose it mean timeout?
                 throw new PinpointSocketException("io timeout");
             } else {
-                // 성공했으니. 위와 로직이 동일할듯.
+                // same logic as above because of success
                 boolean success = channelFuture.isSuccess();
                 if (success) {
                     return;
@@ -448,7 +448,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
                 case PacketType.APPLICATION_RESPONSE:
                     this.requestManager.messageReceived((ResponsePacket) message, e.getChannel());
                     return;
-                    // connector로 들어오는 request 메시지를 핸들링을 해야 함.
+                // have to handle a request message through connector
                 case PacketType.APPLICATION_REQUEST:
                     this.messageListener.handleRequest((RequestPacket) message, e.getChannel());
                     return;
@@ -481,7 +481,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
 
     private void messageReceivedServerClosed(Channel channel) {
         logger.info("ServerClosed Packet received. {}", channel);
-        // reconnect 상태로 변경한다.
+
         state.setState(State.RECONNECT);
     }
 
@@ -523,13 +523,14 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
         Throwable cause = e.getCause();
         if (state.getState() == State.INIT_RECONNECT) {
-            // 재접속시 stackTrace는 제거하였음. 로그가 너무 많이 나옴.
-            logger.info("exceptionCaught() reconnect fail. state:{} {} Caused:{}", state.getString(), e.getChannel(), cause.getMessage());
+            // removed stackTrace when reconnect. so many logs.
+            logger.info("exceptionCaught() reconnect failed. state:{} {} Caused:{}", state.getString(), e.getChannel(), cause.getMessage());
         } else {
             logger.warn("exceptionCaught() UnexpectedError happened. state:{} {} Caused:{}", state.getString(), e.getChannel(), cause.getMessage(), cause);
         }
-        // error가 발생하였을 경우의 동작을 더 정확히 해야 될듯함.
-//          아래처럼 하면 상대방이 그냥 죽었을때 reconnet가 안됨.
+        // need to handle a error more precisely.
+        // below code dose not reconnect when node on channel is just hang up or dead without specific reasons.
+
 //        state.setClosed();
 //        Channel channel = e.getChannel();
 //        if (channel.isConnected()) {
@@ -547,7 +548,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         } else if(currentState == State.INIT_RECONNECT){
             logger.debug("channelClosed() reconnect fail. state:{} {}", state.getString(currentState), e.getChannel());
         } else if (state.isRun(currentState) || currentState == State.RECONNECT) {
-            // 여기서 부터 비정상 closed라고 볼수 있다.
+            // abnormal closed from here
             if (state.isRun(currentState)) {
                 logger.debug("change state=reconnect");
                 state.setState(State.RECONNECT);
@@ -600,9 +601,10 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         logger.debug("close() state change complete");
         // hand shake close
         final Channel channel = this.channel;
-        // close packet을 먼저 날리고 resource를 정리해야 되나?
-        // resource 정리시 request response 메시지에 대한 에러 처리나, stream 채널의 정리가 필요하니 반대로 해야 되나??  이게 맞는거 같긴한데. timer가 헤깔리네.
-        // 헤깔리니. 일단 만들고 추후 수정.
+        // is it correct that send a "close packet" first and release resources?
+        // when you release resources, you need to clear messages about request/response and stream channel. need to handle reversely?
+        // handling timer is unclear so just make and enhance later.
+
         sendClosedPacket(channel);
         releaseResource();
         logger.debug("channel.close()");
@@ -639,7 +641,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
                 if (!future.isSuccess()) {
-                    logger.warn("ClientClosePacket write fail. channel:{}", future.getCause(), future.getCause());
+                    logger.warn("ClientClosePacket write failed. channel:{}", future.getCause(), future.getCause());
                 } else {
                     logger.debug("ClientClosePacket write success. channel:{}", future.getChannel());
                 }

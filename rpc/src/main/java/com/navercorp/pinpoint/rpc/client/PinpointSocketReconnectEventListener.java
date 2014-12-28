@@ -17,9 +17,11 @@
 package com.navercorp.pinpoint.rpc.client;
 
 public interface PinpointSocketReconnectEventListener {
-	
-	// 현재는 Reconnect를 제외한 별다른 Event가 없음 
-	// 이후에 별다른 Event가 있을 경우 Event와 함께 넘겨주면 좋을듯함
+
+	/*
+		there is no event except "reconnect" currently.
+	    when additional events are needed, it will be useful to pass with Event
+	*/
 	void reconnectPerformed(PinpointSocket socket);
 	
 }
