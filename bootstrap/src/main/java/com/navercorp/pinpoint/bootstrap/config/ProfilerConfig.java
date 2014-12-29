@@ -142,8 +142,6 @@ public class ProfilerConfig {
 
     private boolean redis = true;
     private boolean redisPipeline = true;
-    private boolean nbaseArc = true;
-    private boolean nbaseArcPipeline = true;
 
     /**
      * apache http client
@@ -552,15 +550,6 @@ public class ProfilerConfig {
         return redisPipeline;
     }
 
-    public boolean isNbaseArcEnabled() {
-        return nbaseArc;
-    }
-
-    public boolean isNbaseArcPipelineEnabled() {
-        return nbaseArcPipeline;
-    }
-
-
     public Filter<String> getProfilableClassFilter() {
         return profilableClassFilter;
     }
@@ -686,8 +675,6 @@ public class ProfilerConfig {
         // redis & nBase-ARC
         this.redis = readBoolean("profiler.redis", true);
         this.redisPipeline = readBoolean("profiler.redis.pipeline", true);
-        this.nbaseArc = readBoolean("profiler.nbase_arc", true);
-        this.nbaseArcPipeline = readBoolean("profiler.nbase_arc.pipeline", true);
 
         //
         // FIXME For temporary, netty configuration of Line Game
@@ -868,8 +855,6 @@ public class ProfilerConfig {
         sb.append(", mybatis=").append(mybatis);
         sb.append(", redis=").append(redis);
         sb.append(", redisPipeline=").append(redisPipeline);
-        sb.append(", nbaseArc=").append(nbaseArc);
-        sb.append(", nbaseArcPipeline=").append(nbaseArcPipeline);
         sb.append(", apacheHttpClient4Profile=").append(apacheHttpClient4Profile);
         sb.append(", apacheHttpClient4ProfileCookie=").append(apacheHttpClient4ProfileCookie);
         sb.append(", apacheHttpClient4ProfileCookieDumpType=").append(apacheHttpClient4ProfileCookieDumpType);

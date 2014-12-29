@@ -237,6 +237,12 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- Logging depedencies -->
         <dependency>
             <groupId>org.slf4j</groupId>
