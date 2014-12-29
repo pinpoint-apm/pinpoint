@@ -24,11 +24,9 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * {@link org.apache.ibatis.mapping.BoundSql} 을 중간에 가로체 {@link org.apache.ibatis.mapping.BoundSql#getSql()} 의 동작을 변경하기 위한 proxy
- *
- * @author Web Platform Development Lab
+ * proxy for intercepting {@link org.apache.ibatis.mapping.BoundSql} and changing operations of {@link org.apache.ibatis.mapping.BoundSql#getSql()}
+
  * @author emeroad
- * @since 1.7.4
  */
 public class DefaultBindingLogFormatter implements BindLogFormatter {
 

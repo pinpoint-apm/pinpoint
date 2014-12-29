@@ -66,7 +66,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 		if (foundList.isEmpty()) {
 			logger.debug("There's no caller data. {}, {}", callerApplication, range);
 		}
-		// 시계열 데이터가 토탈 머지 데이터로 변경되는듯함.
+
         return merge(foundList);
 	}
 
@@ -79,8 +79,8 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
     }
 
     /**
-	 * 메인페이지 서버 맵에서 연결선을 선택했을 때 보여주는 통계정보.
-	 * 
+	 * statistics information used when a link between nodes is clicked at the server map
+	 *
 	 * @return <pre>
 	 * list [
 	 *     map {
@@ -113,7 +113,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 			logger.debug("scan Time:{}", range.prettyToString());
 		}
 
-		// timestamp가 reverse되었기 때문에 start, end를 바꿔서 조회.
+		// start key is replaced by end key because timestamp has been reversed
 		byte[] startKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), range.getTo());
 		byte[] endKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), range.getFrom());
 

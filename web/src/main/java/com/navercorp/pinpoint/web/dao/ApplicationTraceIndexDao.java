@@ -37,7 +37,8 @@ public interface ApplicationTraceIndexDao {
 	List<Dot> scanTraceScatter(String applicationName, Range range, int limit);
 
 	/**
-	 * scatter chart에서 선택한 영역에 속하는 transaction 조회
+	 *
+	 * select transactions in a selection range(box) in the scatter chart.
 	 * 
 	 * @param applicationName
 	 * @param area

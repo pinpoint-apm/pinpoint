@@ -73,7 +73,7 @@ public class AgentStatMapper implements RowMapper<List<AgentStat>> {
 
     // FIXME (2014.08) Legacy support for TAgentStat Thrift DTO stored directly into hbase.
     private List<AgentStat> readAgentStatThriftDto(byte[] tAgentStatByteArray) throws TException {
-        // CompactProtocol을 사용하고 있음.
+        // CompactProtocol used
         TDeserializer deserializer = new TDeserializer(factory);
         TAgentStat tAgentStat = new TAgentStat();
         deserializer.deserialize(tAgentStat, tAgentStatByteArray);

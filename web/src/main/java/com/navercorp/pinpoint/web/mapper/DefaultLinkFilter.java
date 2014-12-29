@@ -48,7 +48,7 @@ public class DefaultLinkFilter implements LinkFilter {
         }
         if (this.calleeApplication.getServiceType().isWas() && this.callerApplication.getServiceType().isWas()) {
             logger.debug("check was to was.");
-            // src가 같지 않으면 버림.
+            // if not from same source, drop
             if (!this.callerApplication.equals(foundApplication)) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("  DROP THE ROW,1, DIFFERENT SRC. fetched={} , params={}", foundApplication, calleeApplication);
@@ -57,7 +57,7 @@ public class DefaultLinkFilter implements LinkFilter {
             }
         } else if (this.callerApplication.getServiceType().isUser()) {
             logger.debug("check client to was");
-            // dest가 해당 was가 아니면 버림.
+            // if dest not equals to that WAS, drop
             if (!this.calleeApplication.getName().equals(foundApplication.getName())) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("  DROP THE ROW,2, DIFFERENT DEST. fetched={}, params={}", foundApplication, this.calleeApplication);
@@ -66,10 +66,9 @@ public class DefaultLinkFilter implements LinkFilter {
             }
         } else {
             logger.debug("check any to any.");
-            // dest가 같지 않으면 버림.
             if (this.calleeApplication.getServiceType().isUnknown()) {
-                // dest가 unknown인 경우 application name만 비교.
-                // TODO 다른 좋은 비교 방법 없을까??
+                //  compare just only application name when dest is unknown.
+                // TODO need more nice way to compare
                 if (!this.calleeApplication.getName().equals(foundApplication.getName())) {
                     if (logger.isDebugEnabled()) {
                         logger.debug("  DROP THE ROW,3, DIFFERENT DEST. fetched={}, params={}", foundApplication, calleeApplication);
@@ -77,7 +76,7 @@ public class DefaultLinkFilter implements LinkFilter {
                     return true;
                 }
             } else {
-                // dest가 unknown이 아니면 applicaiton name, type 둘 다 비교.
+                // compare all of application name and type when dest is not unknown.
                 if (!this.calleeApplication.equals(foundApplication)) {
                     if (logger.isDebugEnabled()) {
                         logger.debug("  DROP THE ROW,4, DIFFERENT DEST. fetched={}, params={}", foundApplication, this.calleeApplication);

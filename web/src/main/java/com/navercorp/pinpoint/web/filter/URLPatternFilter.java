@@ -25,7 +25,7 @@ import org.springframework.util.AntPathMatcher;
 import com.navercorp.pinpoint.common.bo.SpanBo;
 
 /**
- * URL filter, URL은 사용자가 요청한 URL, backend를 호출할 때 URL이 있다.
+ * There are two kinds of URL. ( URL requested by user, URL requesting a backend server)
  * 
  * @author netspider
  * 

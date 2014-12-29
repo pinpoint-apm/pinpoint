@@ -49,7 +49,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
     private HbaseOperations2 hbaseOperations2;
 
     /**
-     * agentId, startTime을 기반으로 유니크한 AgentInfo를 찾아낸다.
+     * get a unique id based on agentId and startTime
      * @param agentId
      * @param range
      * @return
@@ -123,7 +123,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
     }
 
     /**
-     * currentTime에서 가장 근접한 시간의 agent startTime을 find한다.
+     * find the closest agent startTime from current time
      *
      * @param agentId
      * @param currentTime
@@ -136,7 +136,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
             throw new NullPointerException("agentId must not be null");
         }
 
-        // TODO cache를 걸어야 될듯 하다.
+        // TODO need to be cached
         Scan scan = createScan(agentId, currentTime);
         AgentInfoBo agentInfoBo = hbaseOperations2.find(HBaseTables.AGENTINFO, scan, new ResultsExtractor<AgentInfoBo>() {
             @Override
@@ -146,7 +146,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
                     long reverseStartTime = BytesUtils.bytesToLong(row, HBaseTables.AGENT_NAME_MAX_LEN);
                     long startTime = TimeUtils.recoveryTimeMillis(reverseStartTime);
                     logger.debug("agent:{} startTime value {}", agentId, startTime);
-                    // 바로 전 시작 시간을 찾아야 한다.
+                    // should find just before the start time
                     if (startTime < currentTime) {
                         byte[] serializedAgentInfo = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_IDENTIFIER);
                         byte[] serializedServerMetaData = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_SERVER_META_DATA);

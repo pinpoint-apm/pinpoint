@@ -83,7 +83,7 @@ public class HbaseAgentStatDao implements AgentStatDao {
 
         List<List<AgentStat>> intermediate = hbaseOperations2.find(HBaseTables.AGENT_STAT, scan, rowKeyDistributor, agentStatMapper);
 
-        int expectedSize = (int)(range.getRange() / 5000); // 5초간 데이터
+        int expectedSize = (int)(range.getRange() / 5000); // data for 5 seconds
         List<AgentStat> merged = new ArrayList<AgentStat>(expectedSize);
 
         for(List<AgentStat> each : intermediate) {
@@ -94,8 +94,8 @@ public class HbaseAgentStatDao implements AgentStatDao {
     }
 
     /**
-     * timestamp 기반의 row key를 만든다.
-     * FIXME collector에 있는 DAO에도 동일한 코드가 중복되어 있으니 참고.
+     * make a row key based on timestamp
+     * FIXME there is the same duplicate code at collector's dao module
      */
     private byte[] getRowKey(String agentId, long timestamp) {
         if (agentId == null) {
@@ -112,7 +112,7 @@ public class HbaseAgentStatDao implements AgentStatDao {
         byte[] startKey = getRowKey(agentId, range.getFrom());
         byte[] endKey = getRowKey(agentId, range.getTo());
 
-        // key가 reverse되었기 떄문에 start, end가 뒤바뀌게 된다.
+        // start key is replaced by end key because key has been reversed
         scan.setStartRow(endKey);
         scan.setStopRow(startKey);
 
@@ -120,7 +120,7 @@ public class HbaseAgentStatDao implements AgentStatDao {
         scan.addFamily(HBaseTables.AGENT_STAT_CF_STATISTICS);
         scan.setId("AgentStatScan");
 
-        // json으로 변화해서 로그를 찍어서. 최초 변환 속도가 느림.
+        // toString() method of Scan converts a message to json format so it is slow for the first time.
         logger.debug("create scan:{}", scan);
         return scan;
     }

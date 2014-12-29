@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.common.bo.SpanEventBo;
  */
 public class FromToFilter implements Filter {
 
-	// FIXME from, to serviceCode가 왜 List로 되어있는지 기억이 안나네. ServiceType으로 해도 될 듯 한데.
+	// FIXME couldn't remember why  from, to serviceCode should be List. just ServiceType may be okay. right?
 	private final List<ServiceType> fromServiceCode;
     private final String fromApplicationName;
     private final List<ServiceType> toServiceCode;
@@ -72,7 +72,7 @@ public class FromToFilter implements Filter {
 						continue;
 					}
 					for (SpanEventBo event : eventBoList) {
-						// client가 있는지만 확인.
+						// check only whether client exists or not
 						if (event.getServiceType().isRpcClient() && toApplicationName.equals(event.getDestinationId())) {
 							return true;
 						}
@@ -81,9 +81,8 @@ public class FromToFilter implements Filter {
 			}
 		} else if (includeWas(toServiceCode)) {
 			/**
-			 * destination이 was인 경우 src, dest의 span이 모두 존재하겠지... 그리고 circular
-			 * check. find src first. from, to와 같은 span이 두 개 이상 존재할 수 있다. 때문에
-			 * spanId == parentSpanId도 확인해야함.
+			 * if destination is a "WAS", the span of src and dest may exists. need to check if be circular or not.
+			 * find src first. span (from, to) may exist more than one. so (spanId == parentSpanID) should be checked.
 			 */
 			for (SpanBo srcSpan : transaction) {
 				if (includeServiceType(fromServiceCode, srcSpan.getServiceType()) && fromApplicationName.equals(srcSpan.getApplicationId())) {

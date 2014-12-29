@@ -63,6 +63,8 @@ public class TransactionIdMapper implements RowMapper<List<TransactionId>> {
 	}
 	
     // 중복시킴. TraceIndexScatterMapper랑 동일하므로 같이 변경하거나 리팩토링 할것.
+	// TODO : Duplicated with TraceIndexScatterMapper.  you should modify both at the same time or need to refactor
+
     public static TransactionId parseVarTransactionId(byte[] bytes, int offset) {
         if (bytes == null) {
             throw new NullPointerException("bytes must not be null");

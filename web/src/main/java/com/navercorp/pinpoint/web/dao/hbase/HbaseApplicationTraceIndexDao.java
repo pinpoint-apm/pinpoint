@@ -216,14 +216,14 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 		byte[] traceIndexStartKey = SpanUtils.getTraceIndexRowKey(bAgent, range.getFrom());
 		byte[] traceIndexEndKey = SpanUtils.getTraceIndexRowKey(bAgent, range.getTo());
 
-		// key가 reverse되었기 떄문에 start, end가 뒤바뀌게 된다.
+        // start key is replaced by end key because key has been reversed
 		scan.setStartRow(traceIndexEndKey);
 		scan.setStopRow(traceIndexStartKey);
 
 		scan.addFamily(HBaseTables.APPLICATION_TRACE_INDEX_CF_TRACE);
 		scan.setId("ApplicationTraceIndexScan");
-		
-		// json으로 변화해서 로그를 찍어서. 최초 변환 속도가 느림.
+
+        // toString() method of Scan converts a message to json format so it is slow for the first time.
 		logger.trace("create scan:{}", scan);
 		return scan;
 	}
@@ -268,7 +268,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 		Scan scan = createScan(applicationName, area.getTimeRange());
 
 		// method 1
-		// 아직 사용하지 않음. 대신 row mapper를 다른것을 사용. (테스트.)
+        // not used yet. instead, use another row mapper (testing)
 		// scan.setFilter(makeResponseTimeFilter(area, offsetTransactionId, offsetTransactionElapsed));
 		
 		// method 2
@@ -286,10 +286,9 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 	}
 	
 	/**
-	 * scatter chart에 속하는 트랜잭션을 구하기위해 선택된 y축영역(response time) 내에 속하는 값을 필터하기 위한
-	 * hbase filter를 생성한다. 이 필터를 사용하려면 column qualifier의 prefix로 elapsed time 4byte를
-	 * 붙여두어야 한다.
-	 * 
+     * make the hbase filter for selecting values of y-axis(response time) in order to select transactions in scatter chart.
+     * 4 bytes for elapsed time should be attached for the prefix of column qualifier for to use this filter.
+	 *
 	 * @param area
 	 * @param offsetTransactionId
 	 * @param offsetTransactionElapsed
