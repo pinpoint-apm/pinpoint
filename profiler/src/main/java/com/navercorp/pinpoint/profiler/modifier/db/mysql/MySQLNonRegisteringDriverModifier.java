@@ -57,7 +57,8 @@ public class MySQLNonRegisteringDriverModifier extends AbstractModifier {
             String[] params = new String[]{
                     "java.lang.String", "java.util.Properties"
             };
-//            Driver에서는 scopeInterceptor를 걸면안된다. trace thread가 아닌곳에서 connection이 생성될수 있다.
+            
+            // Don't use scope at Driver. Connection can be made at thread which is not being traced. 
             mysqlConnection.addInterceptor("connect", params, createConnection);
 
             if (this.logger.isInfoEnabled()) {

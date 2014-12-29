@@ -57,7 +57,7 @@ public class FrontCacheMemcachedClientModifier extends AbstractModifier {
                 return null;
             }
 
-            // 모든 public 메소드에 ApiInterceptor를 적용한다.
+            // Inject ApiInterceptor to all public methods.
             final List<MethodInfo> declaredMethods = aClass.getDeclaredMethods(new FrontCacheMemcachedMethodFilter());
 
             for (MethodInfo method : declaredMethods) {

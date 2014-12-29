@@ -196,8 +196,10 @@ public class JavaAssistClass implements InstrumentClass {
         if (traceValue == null) {
             throw new NullPointerException("traceValue must not be null");
         }
-        // testcase에서 classLoader가 다를수 있어서 isAssignableFrom으로 안함.
-        // 추가로 수정하긴해야 될듯함.
+        
+        // TODO In unit test, we cannot use isAssignableFrom() because same class is loaded by different class loaders.
+        // So we compare interface names implemented by traceValue.
+        // We'd better find better solution.
         final boolean marker = checkTraceValueMarker(traceValue);
         if (!marker) {
             throw new InstrumentException(traceValue + " marker interface  not implements" );
@@ -213,14 +215,12 @@ public class JavaAssistClass implements InstrumentClass {
 
             boolean requiredField = false;
             for (java.lang.reflect.Method method : declaredMethods) {
-                // 2개 이상의 중복일때를 체크하지 않았음.
+                // TODO need to check duplicated getter/setter for the same type.
                 if (isSetter(method)) {
-                    // setter
                     CtMethod setterMethod = CtNewMethod.setter(method.getName(), traceVariableType);
                     ctClass.addMethod(setterMethod);
                     requiredField = true;
                 } else if(isGetter(method)) {
-                    // getter
                     CtMethod getterMethod = CtNewMethod.getter(method.getName(), traceVariableType);
                     ctClass.addMethod(getterMethod);
                     requiredField = true;
@@ -483,7 +483,7 @@ public class JavaAssistClass implements InstrumentClass {
             } else {
                 interceptor = InterceptorRegistry.findInterceptor(interceptorId);
             }
-            // 이제는 aroundType 인터셉터만 받고 코드 인젝션을 별도 type으로 받아야 함.
+
             if (interceptor instanceof StaticAroundInterceptor) {
                 switch (type) {
                     case around:
@@ -531,7 +531,7 @@ public class JavaAssistClass implements InstrumentClass {
     }
 
     private void injectInterceptor(CtBehavior behavior, Interceptor interceptor) throws NotFoundException {
-        // traceContext는 가장먼제 inject되어야 한다.
+        // First of all, traceContext must be injected.
         if (interceptor instanceof TraceContextSupport) {
             final TraceContext traceContext = instrumentor.getAgent().getTraceContext();
             ((TraceContextSupport)interceptor).setTraceContext(traceContext);
@@ -630,12 +630,12 @@ public class JavaAssistClass implements InstrumentClass {
         if (useContextClassLoader) {
             after.begin();
             beginAddFindInterceptorCode(id, after, interceptorType);
-            // TODO getMethod는 느림 캐쉬로 대체하던가 아니면 추가적인 방안이 필요함.
             if (interceptorType == STATIC_INTERCEPTOR) {
                 after.append("  java.lang.Class[] methodArgsClassParams = new Class[]{java.lang.Object.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object[].class, java.lang.Object.class, java.lang.Throwable.class};");
             } else {
                 after.append("  java.lang.Class[] methodArgsClassParams = new Class[]{java.lang.Object.class, java.lang.Object[].class, java.lang.Object.class, java.lang.Throwable.class};");
             }
+            // TODO need to find better way than reflection because it's slow.
             after.format("  java.lang.reflect.Method method = interceptor.getClass().getMethod(\"%1$s\", methodArgsClassParams);", "after");
             if (interceptorType == STATIC_INTERCEPTOR) {
                 after.format("  java.lang.Object[] methodParams = new java.lang.Object[] { %1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s, %6$s, null };", target, ctClass.getName(), methodName, parameterTypeString, parameterIdentifier, returnType);
@@ -749,7 +749,8 @@ public class JavaAssistClass implements InstrumentClass {
         final String target = getTargetIdentifier(behavior);
 
         final String[] parameterType = JavaAssistUtils.parseParameterSignature(behavior.getSignature());
-        // 인터셉터 호출시 최대한 연산량을 줄이기 위해서 정보는 가능한 정적 데이터로 생성한다.
+        
+        // If possible, use static data to reduce interceptor overhead.
         String parameterDescription = null;
         if (interceptorType == STATIC_INTERCEPTOR) {
             parameterDescription = JavaAssistUtils.getParameterDescription(parameterType);
@@ -787,7 +788,7 @@ public class JavaAssistClass implements InstrumentClass {
                 code.format("  %1$s interceptor = com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry.getInterceptor(%2$d);", StaticAroundInterceptor.class.getName(), id);
                 code.format("  interceptor.before(%1$s, \"%2$s\", \"%3$s\", \"%4$s\", %5$s);", target, ctClass.getName(), methodName, parameterDescription, parameterIdentifier);
             } else {
-                // simpleInterceptor인덱스에서 검색하여 typecasting을 제거한다.
+                // Separated getInterceptor() with getSimpleInterceptor() to remove type casting cost.
                 code.format("  %1$s interceptor = com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry.getSimpleInterceptor(%2$d);", SimpleAroundInterceptor.class.getName(), id);
                 code.format("  interceptor.before(%1$s, %2$s);", target, parameterIdentifier);
             }
@@ -838,7 +839,7 @@ public class JavaAssistClass implements InstrumentClass {
     }
 
     /**
-     * 제대로 동작안함 다시 봐야 될것 같음. 생성자일경우의 bytecode 수정시 에러가 남.
+     * Does not work properly. Cannot modify bytecode of constructor
      *
      * @return
      */
@@ -1021,7 +1022,7 @@ public class JavaAssistClass implements InstrumentClass {
     @Override
    public void addGetter(String getterName, String variableName, String variableType) throws InstrumentException {
        try {
-           // FIXME getField, getDeclaredField둘 중 뭐가 나을지. 자식 클래스에 getter를 만들려면 getField가 나을 것 같기도 하고.
+           // FIXME Which is better? getField() or getDeclaredField()? getFiled() seems like better chioce if we want to add getter to child classes.
            CtField traceVariable = ctClass.getField(variableName);
            CtMethod getterMethod = CtNewMethod.getter(getterName, traceVariable);
            ctClass.addMethod(getterMethod);

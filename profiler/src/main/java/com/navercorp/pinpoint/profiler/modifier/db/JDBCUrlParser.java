@@ -55,7 +55,7 @@ public class JDBCUrlParser {
     }
 
     private DatabaseInfo doParse(String url) {
-        // jdbc 체크
+        // check jdbc
         String lowCaseURL = url.toLowerCase().trim();
         if (!lowCaseURL.startsWith("jdbc:")) {
             return createUnknownDataBase(url);

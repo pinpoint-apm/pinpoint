@@ -133,7 +133,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 	@Override
 	public void after(Object target, Object[] args, Object result, Throwable throwable) {
 		if (isDebug) {
-			// result는 로깅하지 않는다.
+			// Do not log result
 			logger.afterInterceptor(target, args);
 		}
 
@@ -150,7 +150,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 			final com.ning.http.client.Request httpRequest = (com.ning.http.client.Request) args[0];
 
 			if (httpRequest != null) {
-				// httpRequest에 뭔가 access하는 작업은 위험이 있으므로 after에서 작업한다.
+				// Accessing httpRequest here not before() becuase it can cause side effect.
 				trace.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getUrl());
 
 				String endpoint = getEndpoint(httpRequest.getURI().getHost(), httpRequest.getURI().getPort());
@@ -236,8 +236,8 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 
 	/**
 	 * <pre>
-	 * body는 string, byte, stream, entitywriter 중 하나가 입력된다.
-	 * 여기에서는 stringdata만 수집하고 나머지는 일단 수집 안함.
+	 * Body could be String, byte array, Stream or EntityWriter.
+	 * We collect String data only.
 	 * </pre>
 	 * 
 	 * @param httpRequest
@@ -305,8 +305,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 				} else if (part instanceof com.ning.http.multipart.StringPart) {
 					com.ning.http.multipart.StringPart p = (com.ning.http.multipart.StringPart) part;
 					sb.append(part.getName());
-					// string을 꺼내오는 방법이 없고, apache http client의 adaptation
-					// class라 무시.
+					// Ignore value because there's no way to get string value and StringPart is an adaptation class of Apache HTTP client.
 					sb.append("=STRING");
 				}
 
@@ -339,7 +338,7 @@ public class ExecuteRequestInterceptor implements SimpleAroundInterceptor, ByteC
 	}
 
 	/**
-	 * com.ning.http.client.FluentStringsMap.toString()에서 큰따옴표, 공백, 세미콜론을 제거한 버전
+	 * Returns string without double quotations marks, spaces, semi-colons from com.ning.http.client.FluentStringsMap.toString()
 	 * 
 	 * @param params
 	 * @param limit

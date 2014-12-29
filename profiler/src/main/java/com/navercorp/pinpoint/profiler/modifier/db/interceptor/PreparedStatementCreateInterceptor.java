@@ -50,7 +50,7 @@ public class PreparedStatementCreateInterceptor extends SpanEventSimpleAroundInt
         final boolean success = InterceptorUtils.isSuccess(throwable);
         if (success) {
             if (target instanceof DatabaseInfoTraceValue) {
-                // preparedStatement의 생성이 성공하였을 경우만 PreparedStatement에 databaseInfo를 세팅해야 한다.
+                // set databaeInfo to PreparedStatement only when preparedStatment is generated successfully. 
                 DatabaseInfo databaseInfo = ((DatabaseInfoTraceValue) target).__getTraceDatabaseInfo();
                 if (databaseInfo != null) {
                     if (result instanceof DatabaseInfoTraceValue) {
@@ -59,8 +59,8 @@ public class PreparedStatementCreateInterceptor extends SpanEventSimpleAroundInt
                 }
             }
             if (result instanceof ParsingResultTraceValue) {
-                // 1. traceContext를 체크하면 안됨. traceContext에서 즉 같은 thread에서 prearedStatement에서 안만들수도 있음.
-                // 2. sampling 동작이 동작할 경우 preparedStatement를 create하는 thread가 trace 대상이 아닐수 있음. 먼제 sql을 저장해야 한다.
+                // 1. Don't check traceContext. preparedStatement can be created in other thread.
+                // 2. While sampling is active, the thread which creates preparedStatement could not be a sampling target. So record sql anyway. 
                 String sql = (String) args[0];
                 ParsingResult parsingResult = getTraceContext().parseSql(sql);
                 if (parsingResult != null) {

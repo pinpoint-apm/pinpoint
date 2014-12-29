@@ -53,7 +53,7 @@ public class BaseOperationConstructInterceptor implements SimpleAroundIntercepto
 			return;
 		}
 
-		// 일단 이벤트가 세지 않는다는 가정하에 별도 timeout처리가 없음.
+		// Assuming no events are missed, do not process timeout.
 //		AsyncTrace asyncTrace = trace.createAsyncTrace();
 //		asyncTrace.markBeforeTime();
 //

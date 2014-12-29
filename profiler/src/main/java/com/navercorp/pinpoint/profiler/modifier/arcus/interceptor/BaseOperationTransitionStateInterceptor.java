@@ -68,7 +68,7 @@ public class BaseOperationTransitionStateInterceptor implements SimpleAroundInte
             }
 			return;
 		}
-        // TODO null 체크가 필요하지 않나하는데? 일단 사용하지 않는 interceptor이므로 TODO만 붙여 둔다.
+        // TODO Don't we have to check null? Don't fix now because this interceptor is deprecated.
 		OperationState newState = (OperationState) args[0];
 
 		BaseOperationImpl baseOperation = (BaseOperationImpl) target;
@@ -144,7 +144,8 @@ public class BaseOperationTransitionStateInterceptor implements SimpleAroundInte
         if (newState == null) {
             return false;
         }
-        // arcus에만 추가된 타입이라. 따로 처리함.
+        
+        // Check Arcus only state 
         return "TIMEDOUT".equals(newState.toString());
     }
 

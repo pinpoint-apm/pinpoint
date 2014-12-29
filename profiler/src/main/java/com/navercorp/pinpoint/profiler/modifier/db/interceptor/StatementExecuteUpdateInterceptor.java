@@ -58,7 +58,7 @@ public class StatementExecuteUpdateInterceptor extends SpanEventSimpleAroundInte
     public void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {
         trace.recordException(throwable);
 
-        // TODO 결과, 수행시간을.알수 있어야 될듯.
+        // TODO need to find result, execution time
         trace.markAfterTime();
     }
 

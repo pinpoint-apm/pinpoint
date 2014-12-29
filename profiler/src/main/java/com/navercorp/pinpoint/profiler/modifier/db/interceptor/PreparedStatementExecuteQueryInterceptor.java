@@ -84,9 +84,10 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
 
             trace.recordApi(descriptor);
 //            trace.recordApi(apiId);
-            // clean 타이밍을 변경해야 될듯 하다.
-            // clearParameters api가 따로 있으나, 구지 캡쳐 하지 않아도 될듯함.시간남으면 하면 좋기는 함.
-            // ibatis 등에서 확인해봐도 cleanParameters 의 경우 대부분의 경우 일부러 호출하지 않음.
+            
+            // Need to change where to invoke clean().
+            // There is cleanParameters method but it's not necessary to intercept that method.
+            // iBatis intentionally does not invoke it in most cases. 
             clean(target);
 
 
@@ -130,7 +131,7 @@ public class PreparedStatementExecuteQueryInterceptor implements SimpleAroundInt
         }
 
         try {
-            // TODO 일단 테스트로 실패일경우 종료 아닐경우 resultset fetch까지 계산. fetch count는 옵션으로 빼는게 좋을듯.
+            // TODO Test if it's success. if failed terminate. else calcaulte resultset fetch too. we'd better make resultset fetch optional.
             trace.recordException(throwable);
             trace.markAfterTime();
         } finally {

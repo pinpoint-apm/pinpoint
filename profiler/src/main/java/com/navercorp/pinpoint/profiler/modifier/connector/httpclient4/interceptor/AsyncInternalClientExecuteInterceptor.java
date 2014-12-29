@@ -109,8 +109,7 @@ public class AsyncInternalClientExecuteInterceptor extends AbstractHttpRequestEx
 		final org.apache.http.nio.protocol.HttpAsyncRequestProducer producer = (org.apache.http.nio.protocol.HttpAsyncRequestProducer) args[0];
 		try {
 			/**
-			 * FIXME org.apache.http.nio.protocol.BasicAsyncRequestProducer.
-			 * generateRequest() 는 문제가 되지 않지만 다른 구현체는 문제가 될 수 있다.
+			 * FIXME Implementations other than org.apache.http.nio.protocol.BasicAsyncRequestProducer.generateRequest() can cause some trouble.
 			 */
 			return producer.generateRequest();
 		} catch (Exception e) {

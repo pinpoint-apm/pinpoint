@@ -102,7 +102,7 @@ public class CubridPreparedStatementModifier extends AbstractModifier {
 					preparedStatement.reuseInterceptor(methodName, parameterType, interceptorId);
 				}
 			} catch (NotFoundInstrumentException e) {
-				// bind variable setter메소드를 못찾을 경우는 그냥 경고만 표시, 에러 아님.
+				// Cannot find bind variable setter method. This is not an error. Just some log will be enough.
                 if (logger.isDebugEnabled()) {
                     logger.debug("bindVariable api not found. method:{} param:{} Cause:{}", methodName, Arrays.toString(parameterType), e.getMessage());
                 }

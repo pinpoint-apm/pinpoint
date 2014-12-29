@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentMap;
 
 
 /**
- * concurrent lru cache
+ * Concurrent LRU cache
  * @author emeroad
  */
 public class LRUCache<T> {

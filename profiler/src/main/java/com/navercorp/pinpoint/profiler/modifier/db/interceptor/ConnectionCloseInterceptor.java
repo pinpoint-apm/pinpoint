@@ -35,7 +35,7 @@ public class ConnectionCloseInterceptor implements SimpleAroundInterceptor {
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
-        // close의 경우 호출이 실패하더라도 데이터를 삭제해야함.
+        // In case of close, we have to delete data even if the invocation failed.
         DatabaseInfoTraceValueUtils.__setTraceDatabaseInfo(target, null);
     }
 

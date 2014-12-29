@@ -65,7 +65,7 @@ public class PreparedStatementBindVariableInterceptor implements StaticAroundInt
         }
         Integer index = NumberUtils.toInteger(args[0]);
         if (index == null) {
-            // 어딘가 잘못됨.
+            // something is wrong
             return;
         }
         String value = BindValueConverter.convert(methodName, args);

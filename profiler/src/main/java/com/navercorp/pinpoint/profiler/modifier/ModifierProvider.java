@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 
 /**
  * ModifierProvider is a temporary interface to provide additional modifiers to Pinpoint profiler.
- * This will be replaced {@link ProfilerPlugin} later.
+ * This will be replaced by {@link ProfilerPlugin} later.
  * 
  * @deprecated
  * @author lioolli

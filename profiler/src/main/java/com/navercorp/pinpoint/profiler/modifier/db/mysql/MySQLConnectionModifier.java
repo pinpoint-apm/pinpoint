@@ -44,7 +44,7 @@ public class MySQLConnectionModifier extends AbstractModifier {
     }
 
     public String getTargetClass() {
-        // mysql의 과거버전의 경우 Connection class에 직접 구현이 되어있다.
+        // Connection has implementation in old versions of MySQL
         return "com/mysql/jdbc/Connection";
     }
 
@@ -55,14 +55,14 @@ public class MySQLConnectionModifier extends AbstractModifier {
         try {
             InstrumentClass mysqlConnection = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
             if (mysqlConnection.isInterface()) {
-                // 최신버전의 mysql dirver를 사용했을 경우의 호환성 작업.
+                // Newer version of MySQL
                 return null;
             }
 
 
             mysqlConnection.addTraceValue(DatabaseInfoTraceValue.class);
 
-            // 해당 Interceptor를 공통클래스 만들경우 system에 로드해야 된다.
+            // If you want to make this common intercepter class, it has to be loaded to system.
 //            Interceptor createConnection  = new ConnectionCreateInterceptor();
 //            String[] params = new String[] {
 //                "java.lang.String", "int", "java.util.Properties", "java.lang.String", "java.lang.String"

@@ -72,7 +72,7 @@ public class FutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMe
 
         try {
             trace.recordApi(methodDescriptor);
-//            중요한 파라미터가 아님 레코딩 안함.
+//            Do not record because it's not important.
 //            String annotation = "future.get() timeout:" + args[0] + " " + ((TimeUnit)args[1]).name();
 //            trace.recordAttribute(AnnotationKey.ARCUS_COMMAND, annotation);
 
@@ -106,7 +106,7 @@ public class FutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMe
             if (op != null) {
                 trace.recordException(op.getException());
             }
-//            cancel일때 exception은 안던지는 것인가?
+//            When it's canceled, doen't it throw exception?
 //            if (op.isCancelled()) {
 //                trace.recordAttribute(AnnotationKey.EXCEPTION, "cancelled by user");
 //            }

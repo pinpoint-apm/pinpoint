@@ -56,7 +56,7 @@ public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCo
         }
 
         HttpURLConnection request = (HttpURLConnection) target;
-        // UUID format을 그대로.
+
         final boolean sampling = trace.canSampled();
         if (!sampling) {
             request.setRequestProperty(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
@@ -85,12 +85,11 @@ public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCo
         final String host = url.getHost();
 		final int port = url.getPort();
 
-		// TODO protocol은 어떻게 표기하지???
+		// TODO How to represent protocol?
         String endpoint = getEndpoint(host, port);
-//      DestinationId와 동일하므로 없는게 맞음.
-//        trace.recordEndPoint(endpoint);
+        
+        // Don't record end point because it's same with destination id.
 		trace.recordDestinationId(endpoint);
-
 		trace.recordAttribute(AnnotationKey.HTTP_URL, url.toString());
 	}
 
@@ -108,7 +107,7 @@ public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCo
     @Override
 	public void after(Object target, Object[] args, Object result, Throwable throwable) {
 		if (isDebug) {
-			// result는 로깅하지 않는다.
+			// do not log result
 			logger.afterInterceptor(target, args);
 		}
 

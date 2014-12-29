@@ -42,14 +42,14 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptor {
         if (scope == null) {
             throw new NullPointerException("scope must not be null");
         }
-        // mysql loadbalance 전용옵션 실제 destination은 하위의 구현체에서 레코딩한다.
+        // option for mysql loadbalance only. Destination is recored at lower implementations.
         this.recordConnection = recordConnection;
         this.scope = scope;
     }
 
     @Override
     protected void logBeforeInterceptor(Object target, Object[] args) {
-        // parameter에 암호가 포함되어 있음 로깅하면 안됨.
+        // Must not log args because it contains a password
         logger.beforeInterceptor(target, null);
     }
 
@@ -71,11 +71,11 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptor {
 
     @Override
     protected void prepareAfterTrace(Object target, Object[] args, Object result, Throwable throwable) {
-        // 여기서는 trace context인지 아닌지 확인하면 안된다. trace 대상 thread가 아닌곳에서 connection이 생성될수 있음.
+        // Must not check if current transaction is trace target or not. Connection can be made by other thread. 
         scope.pop();
 
         final boolean success = InterceptorUtils.isSuccess(throwable);
-        // 여기서는 trace context인지 아닌지 확인하면 안된다. trace 대상 thread가 아닌곳에서 connection이 생성될수 있음.
+        // Must not check if current transaction is trace target or not. Connection can be made by other thread.
         final String driverUrl = (String) args[0];
         DatabaseInfo databaseInfo = createDatabaseInfo(driverUrl);
         if (success) {
@@ -90,13 +90,13 @@ public class DriverConnectInterceptor extends SpanEventSimpleAroundInterceptor {
 
         if (recordConnection) {
             final DatabaseInfo databaseInfo = DatabaseInfoTraceValueUtils.__getTraceDatabaseInfo(result, UnKnownDatabaseInfo.INSTANCE);
-            // database connect도 매우 무거운 액션이므로 카운트로 친다.
+            // Count database connect too because it's very heavy operation
             trace.recordServiceType(databaseInfo.getExecuteQueryType());
             trace.recordEndPoint(databaseInfo.getMultipleHost());
             trace.recordDestinationId(databaseInfo.getDatabaseId());
         }
         final String driverUrl = (String) args[0];
-        // 여기서 databaseInfo.getRealUrl을 하면 위험하다. loadbalance connection일때 원본 url이 아닌 url이 오게 되어 있음.
+        // Invoking databaseInfo.getRealUrl() here is dangerous. It doesn't return real URL if it's a loadbalance connection.  
         trace.recordApiCachedString(getMethodDescriptor(), driverUrl, 0);
 
         trace.recordException(throwable);

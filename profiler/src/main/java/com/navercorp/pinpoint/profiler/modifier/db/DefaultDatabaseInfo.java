@@ -29,8 +29,7 @@ public class DefaultDatabaseInfo implements DatabaseInfo {
 	private ServiceType type = ServiceType.UNKNOWN_DB;
     private ServiceType executeQueryType = ServiceType.UNKNOWN_DB_EXECUTE_QUERY;
     private String databaseId;
-	// 입력된 url을 보정하지 않은 값
-    private String realUrl;
+	private String realUrl; // URL before refinement
     private String normalizedUrl;
     private List<String> host;
     private String multipleHost;
@@ -68,7 +67,7 @@ public class DefaultDatabaseInfo implements DatabaseInfo {
 
     @Override
     public List<String> getHost() {
-		// host와 port의 경우 replication 설정등으로 n개가 될수 있어 애매하다.
+        // With replication, this is not simple because there could be multiple hosts or ports.
 		return host;
 	}
 

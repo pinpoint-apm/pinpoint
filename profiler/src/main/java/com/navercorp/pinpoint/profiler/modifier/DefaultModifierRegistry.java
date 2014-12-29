@@ -91,7 +91,8 @@ import com.navercorp.pinpoint.profiler.modifier.tomcat.WebappLoaderModifier;
  */
 public class DefaultModifierRegistry implements ModifierRegistry {
 
-    // 왠간해서는 동시성 상황이 안나올것으로 보임. 사이즈를 크게 잡아서 체인을 가능한 뒤지지 않도록함.
+    // No concurrent issue because only one thread put entries to the map and get operations are started after the map is completely build.
+    // Set the map size big intentionally to keep hash collision low.
     private final Map<String, AbstractModifier> registry = new HashMap<String, AbstractModifier>(512);
 
     private final ByteCodeInstrumentor byteCodeInstrumentor;
@@ -101,7 +102,6 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 
     public DefaultModifierRegistry(Agent agent, ByteCodeInstrumentor byteCodeInstrumentor, ClassFileRetransformer retransformer) {
         this.agent = agent;
-        // classLoader계층 구조 때문에 직접 type을 넣기가 애매하여 그냥 casting
         this.byteCodeInstrumentor = byteCodeInstrumentor;
         this.retransformer = retransformer;
         this.profilerConfig = agent.getProfilerConfig();
@@ -125,14 +125,10 @@ public class DefaultModifierRegistry implements ModifierRegistry {
     }
 
     public void addConnectorModifier() {
-        // TODO FilterModifier는 인터페이스라서 변경못할 것으로 보임 확인 필요.
-        // FilterModifier filterModifier = new FilterModifier(byteCodeInstrumentor, agent);
-        // addModifier(filterModifier);
-
         HttpClient4Modifier httpClient4Modifier = new HttpClient4Modifier(byteCodeInstrumentor, agent);
         addModifier(httpClient4Modifier);
 
-        // jdk HTTPUrlConnector
+        // JDK HTTPUrlConnector
         HttpURLConnectionModifier httpURLConnectionModifier = new HttpURLConnectionModifier(byteCodeInstrumentor, agent);
         addModifier(httpURLConnectionModifier);
 
@@ -153,7 +149,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         final boolean arcus = profilerConfig.isArucs();
         boolean memcached;
         if (arcus) {
-            // arcus가 true일 경우 memcached는 자동으로 true가 되야 한다.
+            // memcached is true if arcus is true.
             memcached = true;
         } else {
             memcached = profilerConfig.isMemcached();
@@ -166,14 +162,14 @@ public class DefaultModifierRegistry implements ModifierRegistry {
             MemcachedClientModifier memcachedClientModifier = new MemcachedClientModifier(byteCodeInstrumentor, agent);
             addModifier(memcachedClientModifier);
 
+//            Not working properly. commented out for now.
 //            FrontCacheMemcachedClientModifier frontCacheMemcachedClientModifier = new FrontCacheMemcachedClientModifier(byteCodeInstrumentor, agent);
-//            관련 수정에 사이드 이펙트가 있이서 일단 disable함.
 //            addModifier(frontCacheMemcachedClientModifier);
 
             if (arcus) {
                 ArcusClientModifier arcusClientModifier = new ArcusClientModifier(byteCodeInstrumentor, agent);
                 addModifier(arcusClientModifier);
-                // arcus의 Future임
+                // Future of Arcus
                 CollectionFutureModifier collectionFutureModifier = new CollectionFutureModifier(byteCodeInstrumentor, agent);
                 addModifier(collectionFutureModifier);
             }
@@ -189,8 +185,8 @@ public class DefaultModifierRegistry implements ModifierRegistry {
             OperationFutureModifier operationFutureModifier = new OperationFutureModifier(byteCodeInstrumentor, agent);
             addModifier(operationFutureModifier);
 
+//            Not working properly. commented out for now.
 //            FrontCacheGetFutureModifier frontCacheGetFutureModifier = new FrontCacheGetFutureModifier(byteCodeInstrumentor, agent);
-            //            관련 수정에 사이드 이펙트가 있이서 일단 disable함.
 //            addModifier(frontCacheGetFutureModifier);
 
             // future modifier end ---------------------------------------------------
@@ -226,7 +222,8 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	}
 
 	public void addJdbcModifier() {
-		// TODO 드라이버 존재 체크 로직을 앞단으로 이동 시킬수 없는지 검토
+		// TODO Can we check if JDBC driver exists here?
+	    
 		if (!profilerConfig.isJdbcProfile()) {
 			return;
 		}
@@ -252,15 +249,13 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	}
 
 	private void addMySqlDriver() {
-		// TODO MySqlDriver는 버전별로 Connection이 interface인지 class인지가 다름. 문제 없는지
-		// 확인필요.
+		// TODO In some MySQL drivers Connection is an interface and in the others it's a class. Is this OK?
 
         AbstractModifier mysqlNonRegisteringDriverModifier = new MySQLNonRegisteringDriverModifier(byteCodeInstrumentor, agent);
         addModifier(mysqlNonRegisteringDriverModifier);
 
-        // Mysql Dirver가 5.0.x에서 5.1.x로 버전업되면서 MySql Driver가 호환성을 깨버려서 호환성 보정작업을 해야함.
-        // MySql 5.1.x드라이버사용시 Driver가 리턴하는 Connection이 com.mysql.jdbc.Connection에서 com.mysql.jdbc.JDBC4Connection으로 변경되었음.
-        // http://devcafe.nhncorp.com/Lucy/forum/342628
+        // From MySQL driver 5.1.x, backward compatibility is broken.
+        // Driver returns not com.mysql.jdbc.Connection but com.mysql.jdbc.JDBC4Connection which extends com.mysql.jdbc.ConnectionImpl from 5.1.x
         AbstractModifier mysqlConnectionImplModifier = new MySQLConnectionImplModifier(byteCodeInstrumentor, agent);
         addModifier(mysqlConnectionImplModifier);
 
@@ -275,7 +270,8 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 
 		MySQLPreparedStatementJDBC4Modifier myqlPreparedStatementJDBC4Modifier = new MySQLPreparedStatementJDBC4Modifier(byteCodeInstrumentor, agent);
 		addModifier(myqlPreparedStatementJDBC4Modifier);
-//      result set fectch counter를 만들어야 될듯.
+
+//      TODO Need to create result set fetch counter
 //		Modifier mysqlResultSetModifier = new MySQLResultSetModifier(byteCodeInstrumentor, agent);
 //		addModifier(mysqlResultSetModifier);
 	}
@@ -305,8 +301,8 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         AbstractModifier oracleDriverModifier = new OracleDriverModifier(byteCodeInstrumentor, agent);
         addModifier(oracleDriverModifier);
 
-        // TODO PhysicalConnection으로 하니 view에서 api가 phy로 나와 모양이 나쁘다.
-        // 최상위인 클래스인 T4C T2C, OCI 따로 다 처리하는게 이쁠듯하다.
+        // TODO Intercepting PhysicalConnection makes view ugly.
+        // We'd better intercept top-level classes T4C, T2C and OCI each to makes view more readable.
         AbstractModifier oracleConnectionModifier = new PhysicalConnectionModifier(byteCodeInstrumentor, agent);
         addModifier(oracleConnectionModifier);
 
@@ -321,7 +317,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
     }
 
 	private void addCubridDriver() {
-		// TODO cubrid의 경우도 connection에 대한 impl이 없음. 확인필요.
+		// TODO Cubrid doesn't have connection impl too. Check it out.
 		addModifier(new CubridConnectionModifier(byteCodeInstrumentor, agent));
 		addModifier(new CubridDriverModifier(byteCodeInstrumentor, agent));
 		addModifier(new CubridStatementModifier(byteCodeInstrumentor, agent));
@@ -332,7 +328,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 
 	private void addDbcpDriver() {
 
-        // TODO cubrid의 경우도 connection에 대한 impl이 없음. 확인필요.
+        // TODO Cubrid doesn't have connection impl too. Check it out.
         AbstractModifier dbcpBasicDataSourceModifier = new DBCPBasicDataSourceModifier(byteCodeInstrumentor, agent);
         addModifier(dbcpBasicDataSourceModifier);
 
@@ -343,7 +339,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	}
 	
 	/**
-	 * orm (iBatis, myBatis 등) 지원.
+	 * Support ORM(iBatis, myBatis, etc.)
 	 */
 	public void addOrmModifier() {
 		addIBatisSupport();
