@@ -104,7 +104,7 @@ public class StreamChannelManager {
 			newStreamChannel.changeStateClose();
 			channelMap.remove(streamChannelId);
 
-			throw new PinpointSocketException("Create Channel:" + channel + ", StreamChannelId:" + streamChannelId + " fail.");
+			throw new PinpointSocketException("Create StreamChannel failed.(channel:" + channel + ", StreamChannelId:" + streamChannelId + ")");
 		}
 	}
 

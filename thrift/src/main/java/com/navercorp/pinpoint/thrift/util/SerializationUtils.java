@@ -51,7 +51,7 @@ public final class SerializationUtils {
             return serialize(object, factory);
         } catch (Exception e) {
             if (LOGGER.isWarnEnabled()) {
-                LOGGER.warn("Serialize " + object + " fail. caused=" + e.getMessage(), e);
+                LOGGER.warn("Serialize " + object + " failed. Error:" + e.getMessage(), e);
             }
         }
 
@@ -63,7 +63,7 @@ public final class SerializationUtils {
             return serialize(object, serializer);
         } catch (Exception e) {
             if (LOGGER.isWarnEnabled()) {
-                LOGGER.warn("Serialize " + object + " fail. caused=" + e.getMessage(), e);
+                LOGGER.warn("Serialize " + object + " failed. Error:" + e.getMessage(), e);
             }
         }
 
@@ -88,7 +88,7 @@ public final class SerializationUtils {
             return deserialize(objectData, factory);
         } catch (Exception e) {
             if (LOGGER.isWarnEnabled()) {
-                LOGGER.warn("Deserialize fail. caused=" + e.getMessage(), e);
+                LOGGER.warn("Deserialize failed. Error:" + e.getMessage(), e);
             }
         }
 
@@ -100,7 +100,7 @@ public final class SerializationUtils {
             return deserialize(objectData, deserializer);
         } catch (Exception e) {
             if (LOGGER.isWarnEnabled()) {
-                LOGGER.warn("Deserialize fail. caused=" + e.getMessage(), e);
+                LOGGER.warn("Deserialize failed. Error:" + e.getMessage(), e);
             }
         }
 

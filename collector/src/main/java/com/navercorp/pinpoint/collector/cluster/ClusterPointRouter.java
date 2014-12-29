@@ -96,7 +96,7 @@ public class ClusterPointRouter implements MessageListener, ServerStreamChannelM
 
         TBase<?, ?> request = deserialize(packet.getPayload());
         if (request == null) {
-            handleRouteRequestFail("Protocol decoding fail.", packet, channel);
+            handleRouteRequestFail("Protocol decoding failed.", packet, channel);
         } else if (request instanceof TCommandTransfer) {
             handleRouteRequest((TCommandTransfer) request, packet, channel);
         } else {
