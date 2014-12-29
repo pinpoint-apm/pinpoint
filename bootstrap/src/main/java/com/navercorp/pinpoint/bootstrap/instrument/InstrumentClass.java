@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.bootstrap.instrument;
 
-import java.util.List;
-
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.TraceValue;
+
+import java.util.List;
 
 /**
  * @author emeroad
@@ -56,7 +56,7 @@ public interface InstrumentClass {
     int reuseInterceptor(String methodName, String[] args, int interceptorId, Type type) throws InstrumentException, NotFoundInstrumentException;
 
 
-	int addInterceptor(String methodName, String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
+    int addInterceptor(String methodName, String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
 
     int addScopeInterceptor(String methodName, String[] args, Interceptor interceptor, String scopeName) throws InstrumentException, NotFoundInstrumentException;
 
@@ -72,21 +72,15 @@ public interface InstrumentClass {
 
     int addInterceptor(String methodName, String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException;
 
-    @Deprecated
-    int addInterceptorCallByContextClassLoader(String methodName, String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
+    void weaving(String adviceClassName) throws InstrumentException;
 
-    @Deprecated
-	int addInterceptorCallByContextClassLoader(String methodName, String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException;
+    boolean addDebugLogBeforeAfterMethod();
 
-	void weaving(String adviceClassName) throws InstrumentException;
+    boolean addDebugLogBeforeAfterConstructor();
 
-	boolean addDebugLogBeforeAfterMethod();
+    byte[] toBytecode() throws InstrumentException;
 
-	boolean addDebugLogBeforeAfterConstructor();
-
-	byte[] toBytecode() throws InstrumentException ;
-
-	Class<?> toClass() throws InstrumentException;
+    Class<?> toClass() throws InstrumentException;
 
     /**
      * Use addTraceValue instead of this method.
@@ -98,27 +92,27 @@ public interface InstrumentClass {
      * Use addTraceValue instead of this method.
      */
     @Deprecated
-	void addTraceVariable(String variableName, String setterName, String getterName, String variableType) throws InstrumentException;
+    void addTraceVariable(String variableName, String setterName, String getterName, String variableType) throws InstrumentException;
 
     void addTraceValue(Class<? extends TraceValue> traceValue, String initValue) throws InstrumentException;
 
     void addTraceValue(Class<? extends TraceValue> traceValue) throws InstrumentException;
-    
-	boolean insertCodeAfterConstructor(String[] args, String code);
 
-	boolean insertCodeBeforeConstructor(String[] args, String code);
+    boolean insertCodeAfterConstructor(String[] args, String code);
+
+    boolean insertCodeBeforeConstructor(String[] args, String code);
 
     List<MethodInfo> getDeclaredMethods();
-	
-	List<MethodInfo> getDeclaredMethods(MethodFilter methodFilter);
-	
-	MethodInfo getDeclaredMethod(String name, String[] parameterTypes);
-	
-	MethodInfo getConstructor(String[] parameterTypes);
-	
-	public boolean isInterceptable();
-	
-	boolean hasDeclaredMethod(String methodName, String[] args);
+
+    List<MethodInfo> getDeclaredMethods(MethodFilter methodFilter);
+
+    MethodInfo getDeclaredMethod(String name, String[] parameterTypes);
+
+    MethodInfo getConstructor(String[] parameterTypes);
+
+    public boolean isInterceptable();
+
+    boolean hasDeclaredMethod(String methodName, String[] args);
 
     boolean hasMethod(String methodName, String[] parameterTypeArray, String returnType);
 
