@@ -65,10 +65,10 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
 
         logger.debug("get agentInfo with, agentId={}, {}", agentId, range);
-    	
+
         Scan scan = new Scan();
         scan.setCaching(20);
-        
+
 		long fromTime = TimeUtils.reverseTimeMillis(range.getTo());
 		long toTime = TimeUtils.reverseTimeMillis(1);
 
@@ -92,9 +92,9 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 					long startTime = TimeUtils.recoveryTimeMillis(reverseStartTime);
 					byte[] serializedAgentInfo = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_IDENTIFIER);
 					byte[] serializedServerMetaData = next.getValue(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_SERVER_META_DATA);
-					        
+
 					logger.debug("found={}, {}, start={}", found, range, startTime);
-					
+
 					if (found > 1 && startTime <= range.getFrom()) {
 						logger.debug("stop finding agentInfo.");
 						break;
@@ -108,7 +108,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 					    agentInfoBoBuilder.serverMetaData(new ServerMetaDataBo.Builder(serializedServerMetaData).build());
 					}
 					final AgentInfoBo agentInfoBo = agentInfoBoBuilder.build();
-					
+
 					logger.debug("found agentInfoBo {}", agentInfoBo);
 					result.add(agentInfoBo);
 				}
@@ -116,9 +116,9 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 				return result;
 			}
 		});
-        
+
         logger.debug("get agentInfo result, {}", found);
-        
+
         return found;
     }
 
@@ -158,15 +158,15 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
                             agentInfoBoBuilder.serverMetaData(new ServerMetaDataBo.Builder(serializedServerMetaData).build());
                         }
                         final AgentInfoBo agentInfoBo = agentInfoBoBuilder.build();
-                        
+
                         logger.debug("agent:{} startTime find {}", agentId, startTime);
 
                         return agentInfoBo;
                     }
                 }
-                
+
                 logger.warn("agentInfo not found. agentId={}, time={}", agentId, currentTime);
-                
+
                 return null;
             }
         });

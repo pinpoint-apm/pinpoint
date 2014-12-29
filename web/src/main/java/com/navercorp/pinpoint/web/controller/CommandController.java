@@ -54,8 +54,8 @@ import com.navercorp.pinpoint.web.server.PinpointSocketManager;
 @RequestMapping("/command")
 public class CommandController {
 
-	// FIX ME: 단순히 연동 테스트를 위해서 만든것
-	// 나중에 api같은게 정해지면 그때 이를 이용해서 정상적으로 api를 만들면 될듯
+	// FIX ME: created for a simple ping/pong test for now
+	// need a formal set of APIs and proper code
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

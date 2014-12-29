@@ -26,11 +26,11 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
+ * this class is a collection of
  * applicationHistogram
  * agentHistogram
  * applicationTimeHistogram
  * agentTimeHistogram
- * 의 집합
  * @author emeroad
  */
 public class NodeHistogram {
@@ -44,7 +44,7 @@ public class NodeHistogram {
     // ApplicationLevelHistogram
     private Histogram applicationHistogram;
 
-    // key는 agentId이다.
+    // key is agentId
     private Map<String, Histogram> agentHistogramMap;
 
     private ApplicationTimeHistogram applicationTimeHistogram;

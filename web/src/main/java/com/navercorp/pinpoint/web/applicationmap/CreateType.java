@@ -17,7 +17,8 @@
 package com.navercorp.pinpoint.web.applicationmap;
 
 /**
- * 호출한 정보에 의해서 생성된거면 Source, 호출당한 정보에 의해서 생성되면 Target
+ * Source if created with caller information
+ * Target if created with callee information
  * @author emeroad
  */
 public enum CreateType {

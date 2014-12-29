@@ -29,10 +29,10 @@ import org.springframework.beans.factory.annotation.Value;
 public class WebConfig {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	
+
 	@Value("#{pinpointWebProps['cluster.enable'] ?: false}")
 	private boolean clusterEnable;
-	
+
 	@Value("#{pinpointWebProps['cluster.web.tcp.port'] ?: 0}")
 	private int clusterTcpPort;
 
@@ -44,7 +44,7 @@ public class WebConfig {
 
 	@Value("#{pinpointWebProps['cluster.zookeeper.retry.interval'] ?: 60000}")
 	private int clusterZookeeperRetryInterval;
-	
+
 	@PostConstruct
 	public void validation() {
 		if (isClusterEnable()) {
@@ -55,7 +55,7 @@ public class WebConfig {
 			assertPositiveNumber(clusterZookeeperSessionTimeout);
 			assertPositiveNumber(clusterZookeeperRetryInterval);
 		}
-		
+
 		logger.info("{}", toString());
 	}
 
@@ -63,15 +63,15 @@ public class WebConfig {
 		if (port > 0 && 65535 > port) {
 			return true;
 		}
-		
+
 		throw new IllegalArgumentException("Invalid Port =" + port);
 	}
-	
+
 	private boolean assertPositiveNumber(int number) {
 		if (number >= 0) {
 			return true;
 		}
-		
+
 		throw new IllegalArgumentException("Invalid Positive Number =" + number);
 	}
 
@@ -90,7 +90,7 @@ public class WebConfig {
 	public int getClusterZookeeperSessionTimeout() {
 		return clusterZookeeperSessionTimeout;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "WebConfig [clusterEnable=" + clusterEnable

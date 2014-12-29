@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
 /**
- * 객체 생성을 줄이기 위해서 객체를 리턴하지 않고 c 스타일 api로 디자인함.
+ * C-style API (doesn't return an object) in order to reduce the number of object instantiating 
  * @author emeroad
  */
 public interface ParameterExtractor {

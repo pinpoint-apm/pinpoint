@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.web.vo.LinkKey;
 import java.util.*;
 
 /**
- * 호출관계의 양방향 데이터를 표현
+ * representation of caller/callee relationship 
  * @author emeroad
  */
 public class LinkCallData {

@@ -43,7 +43,7 @@ public class LinkList {
     }
 
     /**
-     * toApplication을 가리키는(호출당하는) 모든 link를 찾음.
+     * find all callers of toApplication
      * @param toApplication
      * @return
      */
@@ -55,7 +55,7 @@ public class LinkList {
         List<Link> findList = new ArrayList<Link>();
         for (Link link : linkMap.values()) {
             Node toNode = link.getTo();
-            // destnation이 자신을 가리키는 모든 Link를 찾음.
+            // find all the callers of toApplication/destination
             if (toNode.getApplication().equals(toApplication)) {
                 findList.add(link);
             }
@@ -64,7 +64,7 @@ public class LinkList {
     }
 
     /**
-     * fromApplication 에서 나가는(호출하는) link를 모두 찾음.
+     * find all callees of fromApplication
      * @param fromApplication
      * @return
      */

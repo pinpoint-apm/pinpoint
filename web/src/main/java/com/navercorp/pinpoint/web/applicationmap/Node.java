@@ -30,8 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * node map에서 application을 나타낸다.
- * 
+ * class for application in node map
+ *
  * @author netspider
  * @author emeroad
  */
@@ -47,7 +47,8 @@ public class Node {
     private ServerInstanceList serverInstanceList;
 
     private NodeHistogram nodeHistogram;
-    // 임시로 생성.
+
+    // temporary
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
 

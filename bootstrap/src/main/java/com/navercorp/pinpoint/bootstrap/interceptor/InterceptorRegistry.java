@@ -93,7 +93,7 @@ public class InterceptorRegistry {
     SimpleAroundInterceptor getSimpleInterceptor0(int key) {
         SimpleAroundInterceptor interceptor = simpleIndex[key];
         if (interceptor == null) {
-            // 로직이 잘못되었을경우  에러가 발생하지 않도록 더미를 리턴.
+            // return DUMMY upon wrong logic
             return DUMMY;
         }
         return interceptor;
@@ -102,7 +102,7 @@ public class InterceptorRegistry {
 //    SimpleAroundInterceptor getInterceptor0(int key) {
 //        StaticAfterInterceptor interceptor = index[key];
 //        if (interceptor == null) {
-//            // 로직이 잘못되었을 경우 에러가 발생하지 않도록 더미를 리턴.
+//            // return DUMMY upon wrong logic
 //            return DUMMY;
 //        }
 //        return interceptor;

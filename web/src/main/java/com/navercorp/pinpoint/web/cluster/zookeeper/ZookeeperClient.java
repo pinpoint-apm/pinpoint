@@ -46,23 +46,23 @@ public class ZookeeperClient {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	// 쥬키퍼 클라이언트는 스레드 세이프함
+	// ZK client is thread-safe
 	private final ZookeeperClusterManager manager;
 
 	private final ZooKeeper zookeeper;
 	private final AtomicBoolean clientState = new AtomicBoolean(true);
 
-	// 데이터를 이친구가 다가지고 있어야 할 거 같은데;
+	// hmm this structure should contain all necessary information
 	public ZookeeperClient(String hostPort, int sessionTimeout, ZookeeperClusterManager manager) throws KeeperException, IOException, InterruptedException {
 		this.manager = manager;
 		zookeeper = new ZooKeeper(hostPort, sessionTimeout, this.manager); // server
 	}
-	
+
 	/**
-	 * path의 가장마지막에 있는 node는 생성하지 않는다. 
-	 * 
-	 * @throws PinpointZookeeperException 
-	 * @throws InterruptedException 
+	 * do not create node in path suffix
+	 *
+	 * @throws PinpointZookeeperException
+	 * @throws InterruptedException
 	 */
 	public void createPath(String path) throws PinpointZookeeperException, InterruptedException {
 		checkState();
@@ -86,14 +86,13 @@ public class ZookeeperClient {
 			} catch (KeeperException exception) {
 				if (exception.code() != Code.NODEEXISTS) {
 					handleException(exception);
-				} 
+				}
 			}
 
 		} while (pos < path.length());
 	}
 
-	// 정확히 동일한 노드가 생성되어 있는지 확인하려면
-	// 내부의 컨텐츠 검사도 해야됨
+	// we need deep node inspection for verification purpose (node content)
 	public String createNode(String znodePath, byte[] data, CreateMode createMode) throws PinpointZookeeperException, InterruptedException {
 		checkState();
 
@@ -107,11 +106,11 @@ public class ZookeeperClient {
 		} catch (KeeperException exception) {
 			if (exception.code() != Code.NODEEXISTS) {
 				handleException(exception);
-			} 
+			}
 		}
 		return znodePath;
 	}
-	
+
 	public List<String> getChildren(String path, boolean watch) throws PinpointZookeeperException, InterruptedException {
 		checkState();
 
@@ -122,10 +121,10 @@ public class ZookeeperClient {
 				handleException(exception);
 			}
 		}
-		
+
 		return Collections.emptyList();
 	}
-	
+
 	public byte[] getData(String path) throws PinpointZookeeperException, InterruptedException {
 		return getData(path, false);
 	}
@@ -138,11 +137,11 @@ public class ZookeeperClient {
 		} catch (KeeperException exception) {
 			handleException(exception);
 		}
-		
+
 		throw new UnknownException("UnknownException.");
 	}
 
-	
+
 	public void delete(String path) throws PinpointZookeeperException, InterruptedException {
 		checkState();
 
@@ -151,7 +150,7 @@ public class ZookeeperClient {
 		} catch (KeeperException exception) {
 			if (exception.code() != Code.NONODE) {
 				handleException(exception);
-			} 
+			}
 		}
 	}
 
@@ -166,7 +165,7 @@ public class ZookeeperClient {
 		} catch (KeeperException exception) {
 			if (exception.code() != Code.NODEEXISTS) {
 				handleException(exception);
-			} 
+			}
 		}
 		return true;
 	}
@@ -200,7 +199,7 @@ public class ZookeeperClient {
 				throw new UnknownException(keeperException.getMessage(), keeperException);
 			}
 	}
-	
+
 	public void close() {
 		if (clientState.compareAndSet(true, false)) {
 			if (zookeeper != null) {
