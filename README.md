@@ -28,7 +28,7 @@ Services nowadays often consist of many different components, communicating amon
 * Tomcat 6/7
 * Spring
 * Apache HTTP Client 4.x, JDK HttpConnector
-* MySQL, Oracle, MSSQL, CUBRID
+* MySQL, Oracle, MSSQL, CUBRID, DBCP
 * iBATIS, MyBatis
 * Arcus, Memcached, Redis
 
