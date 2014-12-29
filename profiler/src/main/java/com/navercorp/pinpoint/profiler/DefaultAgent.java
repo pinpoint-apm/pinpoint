@@ -382,6 +382,7 @@ public class DefaultAgent implements Agent {
         if (this.factory != null) {
             this.factory.release();
         }
+        PLoggerFactory.unregister(this.binder);
     }
 
 }
