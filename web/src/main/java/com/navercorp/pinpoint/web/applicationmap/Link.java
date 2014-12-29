@@ -48,8 +48,8 @@ public class Link {
 
     public static final String LINK_DELIMITER = "~";
 
-    // specified who created a link.
-    // indicates whether created by a source or manually created by a target
+    // specifies who created the link.
+    // indicates whether it was automatically created by the source, or if it was manually created by the target.
     private final CreateType createType;
     private final Node fromNode;
     private final Node toNode;

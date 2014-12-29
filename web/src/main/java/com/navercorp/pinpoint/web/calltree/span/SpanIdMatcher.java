@@ -39,7 +39,7 @@ public class SpanIdMatcher {
     }
 
     public SpanBo approximateMatch(long spanEventBoStartTime) {
-        // TODO: we need mathing algorithm
+        // TODO: need algorithm for matching
         List<WeightSpanBo> weightSpanList = computeWeight(spanEventBoStartTime);
         if (weightSpanList.size() == 0) {
             return null;
@@ -84,7 +84,7 @@ public class SpanIdMatcher {
         }
 
         // returns the first data when more than one
-        // TODO: we probably log this
+        // TODO: we probably need to log this
         return minValue.get(0);
     }
 

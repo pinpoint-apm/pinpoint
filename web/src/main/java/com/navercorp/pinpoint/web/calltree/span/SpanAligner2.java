@@ -86,8 +86,8 @@ public class SpanAligner2 {
                 collectorAcceptTimeMatcher.add(span);
             }
         }
-        // a match based on startTime. a further accurate match when additional informations (below) are given
-        // which one of these leads to a best match?  possibly agentId.
+        // a match based on startTime. a more accurate matching is possible when additional information is given (see below)
+        // which one of these leads to a best match? probably agentId.
         // "applicationName" : "/httpclient4/post.pinpoint",
         // "transactionId" : "emeroad-pc^1382955966412^16",
         // "agentId" : "emeroad-pc",
@@ -105,8 +105,7 @@ public class SpanAligner2 {
             logger.warn("collectorAcceptTime match collision. size:{} collectorAcceptTime:{} allSpan:{}", startMatchSize, collectorAcceptTime, spanList);
             throw new IllegalStateException("startTime match collision size:" + startMatchSize + " collectorAcceptTime:" + collectorAcceptTime);
         }
-        // can we do better match like below?
-        // there is no definitive answer for do call stack rendering
+        // can we do better? There doesn't seem to be a definitive answer for rendering the call stack
         logger.warn("collectorAcceptTime match not found. size:{} collectorAcceptTime:{} allSpan:{}", startMatchSize, collectorAcceptTime, spanList);
         throw new IllegalStateException("startTime match not found startTime size:" + startMatchSize + " collectorAcceptTime:" + collectorAcceptTime);
     }
@@ -198,7 +197,7 @@ public class SpanAligner2 {
         if (nextSpanBoList.size() == 1) {
             return nextSpanBoList.get(0);
         } else if(nextSpanBoList.size() > 1) {
-            // try best similar match
+            // attempt matching based on similarity
 //            return spanBos.get(0);
             long spanEventBoStartTime = span.getStartTime() + beforeSpanEventBo.getStartElapsed();
 

@@ -87,8 +87,8 @@ public class AgentTimeHistogramBuilder {
             return new AgentHistogramList();
         }
 
-        // window space. before AgentHistogramList, we used a raw data structure.
-        // could've been a list, but a map is more suitable since range overflow occurs in case of filter.
+        // create window space. Prior to using a AgentHistogramList, we used a raw data structure.
+        // could've been a list, but since range overflow may occur when applying filters, we use a map instead.
         // TODO: find better structure
         final AgentHistogramList resultAgentHistogramList = new AgentHistogramList();
         for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {

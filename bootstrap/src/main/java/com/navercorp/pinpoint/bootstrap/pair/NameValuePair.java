@@ -17,7 +17,8 @@
 package com.navercorp.pinpoint.bootstrap.pair;
 
 /**
- * need to use common data structure when classLoading intercepter is in parent and, at the same time, multiple "value access" data are needed.
+ * Class encapsulating a name/value pair. 
+ * <p>Used as the common data structure when sharing multiple "value access" data with an interceptor loaded by the parent class loader.
  * @author emeroad
  */
 public class NameValuePair<T, V> {
