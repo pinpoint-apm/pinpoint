@@ -115,7 +115,7 @@ public class AgentHistogram {
         final StringBuilder sb = new StringBuilder("AgentHistogram{");
         sb.append("agent='").append(agentId.getName()).append('\'');
         sb.append(", serviceType=").append(agentId.getServiceType());
-				// temporarily hard-coded due to a change in the data structure
+        // FIXME temporarily hard-coded due to a change in the data structure
         sb.append(", ").append(timeHistogramMap);
         sb.append('}');
         return sb.toString();

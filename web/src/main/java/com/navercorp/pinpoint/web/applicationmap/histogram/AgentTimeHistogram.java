@@ -35,7 +35,7 @@ import java.util.*;
 
 /**
  * most of the features have been delegated to AgentHistorgramList upon refactoring
- * TODO: limited to viewCreate. need to be renamed or removed
+ * TODO: functionality reduced to creating views - need to be renamed or removed
  * @author emeroad
  */
 public class AgentTimeHistogram {

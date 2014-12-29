@@ -110,11 +110,11 @@ public class ServerBuilder {
 
     public ServerInstanceList build() {
         if (!agentSet.isEmpty()) {
-            // only when agent name exists or real server exists
+            // if agent name exists (physical server exists)
             this.logger.debug("buildPhysicalServer:{}", agentSet);
             return buildPhysicalServer(agentSet);
         } else {
-            // otherwise, logical name
+            // otherwise, create logical name
             this.logger.debug("buildLogicalServer");
             return buildLogicalServer(agentHistogramList);
         }

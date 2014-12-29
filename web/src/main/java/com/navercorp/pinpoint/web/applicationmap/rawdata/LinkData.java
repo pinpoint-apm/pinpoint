@@ -50,7 +50,7 @@ public class LinkData {
         this.linkCallDataMap = new LinkCallDataMap();
 	}
 
-    // deliberaly didn't implement copy constructor
+    // deliberately not implemented as a copy constructor
     public LinkData(Application fromApplication, Application toApplication, LinkCallDataMap linkCallDataMap) {
         if (fromApplication == null) {
             throw new NullPointerException("fromApplication must not be null");

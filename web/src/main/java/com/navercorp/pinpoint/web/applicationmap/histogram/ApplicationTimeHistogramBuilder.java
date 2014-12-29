@@ -66,7 +66,7 @@ public class ApplicationTimeHistogramBuilder {
                 timeHistogram = new TimeHistogram(application.getServiceType(), timeStamp);
                 applicationLevelHistogram.put(timeStamp, timeHistogram);
             }
-            // add each agent's level data
+            // add each agent-level data
             Histogram applicationResponseHistogram = responseTime.getApplicationResponseHistogram();
             timeHistogram.add(applicationResponseHistogram);
         }
