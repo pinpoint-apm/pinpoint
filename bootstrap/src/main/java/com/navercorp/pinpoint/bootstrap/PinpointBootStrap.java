@@ -22,10 +22,12 @@ import com.navercorp.pinpoint.bootstrap.util.IdValidateUtils;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
+import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -79,8 +81,15 @@ public class PinpointBootStrap {
         // set the path of log file as a system property
         saveLogFilePath(classPathResolver);
 
-//      TODO append (InterceptorRegistry & Interceptor)
-//      instrumentation.appendToSystemClassLoaderSearch("interceptor.jar");
+        final String bootStrapCoreJar = classPathResolver.getBootStrapCoreJar();
+        JarFile bootStrapCoreJarFile = getBootStrapJarFile(bootStrapCoreJar);
+        if (bootStrapCoreJar == null || bootStrapCoreJarFile == null) {
+            logger.severe("pinpoint-bootstrap-core.jar not found");
+            logPinpointAgentLoadFail();
+            return;
+        }
+        logger.info("load pinpoint-bootstrap-core.jar :" + bootStrapCoreJar);
+        instrumentation.appendToBootstrapClassLoaderSearch(bootStrapCoreJarFile);
 
         try {
             // Is it right to load the configuration in the bootstrap?
@@ -101,6 +110,14 @@ public class PinpointBootStrap {
 
     }
 
+    private static JarFile getBootStrapJarFile(String bootStrapCoreJar) {
+        try {
+            return new JarFile(bootStrapCoreJar);
+        } catch (IOException ioe) {
+            logger.log(Level.SEVERE, bootStrapCoreJar + " file not found.", ioe);
+            return null;
+        }
+    }
 
     private static void logPinpointAgentLoadFail() {
         final String errorLog =

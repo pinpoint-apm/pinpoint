@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.interceptor.bci;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.ref.WeakReference;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -49,15 +50,20 @@ public class ClassLoadChecker {
     }
 
     private static class LoadClass {
-        private final ClassLoader classLoader;
+        private final WeakReference<ClassLoader> classLoaderReference;
+        private final int classLoaderHash;
         private final String className;
+
 
         private LoadClass(ClassLoader classLoader, String className) {
             if (className == null) {
                 throw new NullPointerException("className must not be null");
             }
-            // classLoader could be null (some jdk classes)
-            this.classLoader = classLoader;
+            if (classLoader == null) {
+                classLoader = ClassLoader.getSystemClassLoader();
+            }
+            this.classLoaderReference = new WeakReference<ClassLoader>(classLoader);
+            classLoaderHash = classLoader.hashCode();
             this.className = className;
         }
 
@@ -67,8 +73,13 @@ public class ClassLoadChecker {
             if (o == null || getClass() != o.getClass()) return false;
 
             LoadClass loadClass = (LoadClass) o;
+            ClassLoader thisClassLoader = classLoaderReference.get();
+            ClassLoader thatClassLoader = loadClass.classLoaderReference.get();
+            if (thisClassLoader == null || thatClassLoader == null) {
+                return false;
+            }
 
-            if (classLoader != null ? !classLoader.equals(loadClass.classLoader) : loadClass.classLoader != null) return false;
+            if (!thisClassLoader.equals(thatClassLoader)) return false;
             if (!className.equals(loadClass.className)) return false;
 
             return true;
@@ -76,7 +87,7 @@ public class ClassLoadChecker {
 
         @Override
         public int hashCode() {
-            int result = classLoader != null ? classLoader.hashCode() : 0;
+            int result = classLoaderHash;
             result = 31 * result + className.hashCode();
             return result;
         }

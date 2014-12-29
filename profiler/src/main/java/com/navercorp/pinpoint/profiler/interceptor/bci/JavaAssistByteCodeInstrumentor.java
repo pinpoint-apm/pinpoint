@@ -32,10 +32,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.TargetClassLoader;
 import com.navercorp.pinpoint.profiler.util.ScopePool;
 
-import javassist.CannotCompileException;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.NotFoundException;
+import javassist.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,11 +87,12 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     private NamedClassPool createClassPool(String[] pathNames, String classPoolName) {
         NamedClassPool classPool = new NamedClassPool(null, classPoolName);
         classPool.appendSystemPath();
-        if (pathNames != null) {
-            for (String path : pathNames) {
-                appendClassPath(classPool, path);
-            }
-        }
+//        if (pathNames != null) {
+//            for (String path : pathNames) {
+//                appendClassPath(classPool, path);
+//            }
+//        }
+        classPool.appendClassPath(new LoaderClassPath(this.getClass().getClassLoader()));
         return classPool;
     }
 
@@ -122,15 +120,17 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
             return;
         }
         
-        // TODO extract to Util?
-        final boolean findClass = findClass(javassistClassName, classPool);
-        if (findClass) {
-            if (isDebug) {
-                logger.debug("checkLibrary cl:{} clPool:{}, class:{} found.", classLoader, classPool.getName(), javassistClassName);
+        // synchronized ??
+//        synchronized (classPool) {
+            final boolean findClass = findClass(javassistClassName, classPool);
+            if (findClass) {
+                if (isDebug) {
+                    logger.debug("checkLibrary cl:{} clPool:{}, class:{} found.", classLoader, classPool.getName(), javassistClassName);
+                }
+                return;
             }
-            return;
-        }
-        loadClassLoaderLibraries(classLoader, classPool);
+            loadClassLoaderLibraries(classLoader, classPool);
+//        }
     }
 
 
@@ -275,25 +275,21 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     }
 
     private void loadClassLoaderLibraries(ClassLoader classLoader, NamedClassPool classPool) {
-        if (classLoader instanceof URLClassLoader) {
-            URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
-            // We have to add every class path URLs to classPool.
-            // To load bytecode of a class, ClassPool requires every classes referenced by the class. 
-            URL[] urlList = urlClassLoader.getURLs();
-            for (URL tempURL : urlList) {
-                String filePath = tempURL.getFile();
-                try {
-                    classPool.appendClassPath(filePath);
-
-                    if (isInfo) {
-                        logger.info("Loaded cl:{} classPool:{} {} ", classLoader.getClass().getName(), classPool.getName(), filePath);
-                    }
-                } catch (NotFoundException e) {
-                    if (logger.isWarnEnabled()) {
-                        logger.warn("lib load fail. path:{} cl:{} clPool:{}, Cause:{}", filePath, classLoader, classPool.getName(), e.getMessage(), e);
+        if (isInfo) {
+            if (classLoader instanceof URLClassLoader) {
+                URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
+                URL[] urlList = urlClassLoader.getURLs();
+                if (urlList != null) {
+                    final String classLoaderName = classLoader.getClass().getName();
+                    final String classPoolName = classPool.getName();
+                    for (URL tempURL : urlList) {
+                        String filePath = tempURL.getFile();
+                        logger.info("classLoader lib cl:{} classPool:{} {} ", classLoaderName, classPoolName, filePath);
                     }
                 }
             }
         }
+        logger.info("appendClassPath. classPool:{} ClassLoader:{}", classPool.getName(), classLoader);
+        classPool.appendClassPath(new LoaderClassPath(classLoader));
     }
 }

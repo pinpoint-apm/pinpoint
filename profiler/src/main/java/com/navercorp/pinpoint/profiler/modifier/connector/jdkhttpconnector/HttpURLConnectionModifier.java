@@ -53,7 +53,7 @@ public class HttpURLConnectionModifier extends AbstractModifier {
 		try {
 			InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
             ConnectMethodInterceptor connectMethodInterceptor = new ConnectMethodInterceptor();
-            aClass.addInterceptorCallByContextClassLoader("connect", null, connectMethodInterceptor);
+            aClass.addInterceptor("connect", null, connectMethodInterceptor);
 
 			return aClass.toBytecode();
 		} catch (InstrumentException e) {

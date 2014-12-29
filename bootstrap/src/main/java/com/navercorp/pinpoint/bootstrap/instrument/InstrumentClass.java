@@ -72,8 +72,10 @@ public interface InstrumentClass {
 
     int addInterceptor(String methodName, String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException;
 
+    @Deprecated
     int addInterceptorCallByContextClassLoader(String methodName, String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException;
 
+    @Deprecated
 	int addInterceptorCallByContextClassLoader(String methodName, String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException;
 
 	void weaving(String adviceClassName) throws InstrumentException;

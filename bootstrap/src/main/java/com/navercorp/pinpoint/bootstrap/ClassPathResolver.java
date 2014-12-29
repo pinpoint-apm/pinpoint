@@ -19,10 +19,12 @@ package com.navercorp.pinpoint.bootstrap;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FilenameFilter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
@@ -46,6 +48,7 @@ public class ClassPathResolver {
     private String agentDirPath;
     private Pattern agentPattern;
     private List<String> fileExtensionList;
+    private String bootStrapCoreJar;
 
     public ClassPathResolver() {
         this(getClassPathFromSystemProperty());
@@ -94,9 +97,43 @@ public class ClassPathResolver {
             return false;
         }
         this.agentDirPath = parseAgentDirPath(agentJarFullPath);
+
+        this.bootStrapCoreJar = findBootStrapCore();
         return true;
     }
 
+    private String findBootStrapCore() {
+        String bootDir = agentDirPath + File.separator + "boot";
+        File file = new File(bootDir);
+        File[] files = file.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                boolean isBootStrapCore = name.startsWith("pinpoint-bootstrap-core");
+                if (!isBootStrapCore) {
+                    return false;
+                }
+                int isJar = name.lastIndexOf(".jar");
+                if (isJar == -1) {
+                    return false;
+                }
+                logger.info("found bootStrapCore. " + name);
+                return true;
+            }
+        });
+        if (files.length == 1) {
+            return files[0].getAbsolutePath();
+        } else if(files.length == 0) {
+            logger.info("bootStrapCore not found.");
+            return null;
+        } else {
+            logger.info("too many bootStrapCore found. " + Arrays.toString(files));
+            return null;
+        }
+    }
+
+    public String getBootStrapCoreJar() {
+        return bootStrapCoreJar;
+    }
 
     private String parseAgentJar(Matcher matcher) {
         int start = matcher.start();
@@ -161,6 +198,9 @@ public class ClassPathResolver {
         if (agentDirUri != null) {
             jarURLList.add(agentDirUri);
         }
+
+        // hot fix. boot-strap-core.jar not found from classPool ??
+        jarURLList.add(toURI(new File(getBootStrapCoreJar())));
 
         return jarURLList;
     }
