@@ -32,7 +32,7 @@ import java.util.List;
  */
 public class MySqlConnectionStringParser implements ConnectionStringParser {
 
-    // jdbc:mysql:loadbalance://10.25.141.70:3306,10.25.141.69:3306/MySQL?characterEncoding=UTF-8
+    // jdbc:mysql:loadbalance://10.22.33.44:3306,10.22.33.55:3306/MySQL?characterEncoding=UTF-8
     private static final String JDBC_MYSQL_LOADBALANCE = "jdbc:mysql:loadbalance:";
 
     @Override
@@ -48,14 +48,14 @@ public class MySqlConnectionStringParser implements ConnectionStringParser {
     }
 
     private DatabaseInfo parseLoadbalancedUrl(String url) {
-        // jdbc:mysql://10.98.133.22:3306/test_lucy_db
+        // jdbc:mysql://1.2.3.4:5678/test_db
         StringMaker maker = new StringMaker(url);
         maker.after("jdbc:mysql:");
-        // 10.98.133.22:3306 replacation driver같은 경우 n개가 가능할듯.
-        // mm db? 의 경우도 고려해야 될듯하다.
+        // 1.2.3.4:5678 In case of replication driver could have multiple values
+        // We have to consider mm db too.
         String host = maker.after("//").before('/').value();
 
-        // regex cache코드 삭제. 자주 호출되는 api가 아니라 메모리에 안가지고있는게 좋을듯함하다.
+        // Decided not to cache regex. This is not invoked often so don't waste memory.
         String[] parsedHost = host.split(",");
         List<String> hostList = Arrays.asList(parsedHost);
 
@@ -70,11 +70,11 @@ public class MySqlConnectionStringParser implements ConnectionStringParser {
     }
 
     private DatabaseInfo parseNormal(String url) {
-        // jdbc:mysql://10.98.133.22:3306/test_lucy_db
+     // jdbc:mysql://1.2.3.4:5678/test_db
         StringMaker maker = new StringMaker(url);
         maker.after("jdbc:mysql:");
-        // 10.98.133.22:3306 replacation driver같은 경우 n개가 가능할듯.
-        // mm db? 의 경우도 고려해야 될듯하다.
+        // 1.2.3.4:5678 In case of replication driver could have multiple values
+        // We have to consider mm db too.
         String host = maker.after("//").before('/').value();
         List<String> hostList = new ArrayList<String>(1);
         hostList.add(host);

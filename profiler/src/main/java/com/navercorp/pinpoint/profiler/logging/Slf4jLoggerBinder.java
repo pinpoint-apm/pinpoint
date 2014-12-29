@@ -51,7 +51,7 @@ public class Slf4jLoggerBinder implements PLoggerBinder {
 
     @Override
     public void shutdown() {
-        // 안해도 될것도 같고. LoggerFactory의unregister만  해도 될려나?
+        // Maybe we don't need to do this. Unregistering LoggerFactory would be enough.
         loggerCache = null;
     }
 }

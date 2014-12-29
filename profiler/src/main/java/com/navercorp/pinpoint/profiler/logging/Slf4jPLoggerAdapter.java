@@ -165,7 +165,7 @@ public class Slf4jPLoggerAdapter implements PLogger {
     }
 
     private static String getTarget(Object target) {
-        // toString의 경우 sideeffect가 발생할수 있으므로 className을 호출하는것으로 변경함.
+        // Use class name instead of target.toString() becuase latter could cause side effects.
         if (target == null) {
             return "target=null";
         } else {
@@ -194,12 +194,12 @@ public class Slf4jPLoggerAdapter implements PLogger {
     }
 
     private static String normalizedParameter(Object arg) {
-        // toString을 막 호출할 경우 사이드 이펙트가 있을수 있어 수정함.
+        // Do not call toString() because it could cause some side effects.
         if (arg == null) {
             return "null";
         } else {
+            // Check if arg is simple type which is safe to invoke toString()  
             if (isSimpleType(arg)) {
-                // 안전한 타임에 대해서만 toString을 호출하도록 SimpleType 검사
                 return arg.toString();
             } else {
                 return arg.getClass().getSimpleName();

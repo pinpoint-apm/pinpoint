@@ -50,7 +50,7 @@ public class BaseOperationCancelInterceptor implements SimpleAroundInterceptor {
 		}
 
 		if (asyncTrace.getState() != DefaultAsyncTrace.STATE_INIT) {
-			// 이미 동작 완료된 상태임.
+			// Operation already completed.
 			return;
 		}
 

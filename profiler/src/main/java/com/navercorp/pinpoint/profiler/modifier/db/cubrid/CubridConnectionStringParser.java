@@ -100,7 +100,7 @@ public class CubridConnectionStringParser implements ConnectionStringParser {
         final String hostAndPort = host + ":" + portString;
         hostList.add(hostAndPort);
 
-        // alt host는 제외.
+        // skip alt host
 
         return new DefaultDatabaseInfo(ServiceType.CUBRID, ServiceType.CUBRID_EXECUTE_QUERY, url, normalizedUrl, hostList, db);
     }
@@ -108,11 +108,11 @@ public class CubridConnectionStringParser implements ConnectionStringParser {
 
     /*
 	private DatabaseInfo parseCubrid(String url) {
-		// jdbc:cubrid:10.101.57.233:30102:pinpoint:::
+		// jdbc:cubrid:10.20.30.40:12345:pinpoint:::
 		StringMaker maker = new StringMaker(url);
 		maker.after("jdbc:cubrid:");
-		// 10.98.133.22:3306 replacation driver같은 경우 n개가 가능할듯.
-		// mm db? 의 경우도 고려해야 될듯하다.
+		// 10.11.12.13:3306 In case of replication driver could have multiple values
+		// We have to consider mm db too.
 		String host = maker.after("//").before('/').value();
 		List<String> hostList = new ArrayList<String>(1);
 		hostList.add(host);

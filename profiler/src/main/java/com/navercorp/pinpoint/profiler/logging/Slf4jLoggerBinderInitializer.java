@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 
 /**
- * TestCase용의 쉽게 loggerBinder를 등록삭제할수 있는 api
+ * For unit test to register/unregister loggerBinder.
  *
  * @author emeroad
  */

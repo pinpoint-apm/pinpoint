@@ -134,7 +134,7 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
-            // result는 로깅하지 않는다.
+            // Do not log result
             logger.afterInterceptor(target, args);
         }
 
@@ -145,7 +145,7 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
         try {
             final HttpRequest httpRequest = getHttpRequest(args);
             if (httpRequest != null) {
-                // httpRequest에 뭔가 access하는 작업은 위험이 있으므로 after에서 작업한다.
+             // Accessing httpRequest here not before() becuase it can cause side effect.
                 trace.recordAttribute(AnnotationKey.HTTP_URL, httpRequest.getRequestLine().getUri());
                 final NameIntValuePair<String> host = getHost(args);
                 if (host != null) {
@@ -191,8 +191,9 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
                 if (cookieSampler.isSampling()) {
                     trace.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, 1024));
                 }
-                // Cookie값이 2개 이상일수가 있나?
-                // 밑에서 break 를 쓰니 PMD에서 걸려서 수정함.
+                
+                // Can a cookie have 2 or more values?
+                // PMD complains if we use break here
                 return;
             }
         }
@@ -258,7 +259,6 @@ public abstract class AbstractHttpRequestExecute implements TraceContextSupport,
             int l;
             while((l = reader.read(tmp)) != -1) {
                 buffer.append(tmp, 0, l);
-                // maxLength 이상 읽었을 경우 stream을 그만 읽는다.
                 if (buffer.length() >= maxLength) {
                     break;
                 }

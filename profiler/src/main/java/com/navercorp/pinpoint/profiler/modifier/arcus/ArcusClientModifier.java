@@ -19,6 +19,9 @@ package com.navercorp.pinpoint.profiler.modifier.arcus;
 import java.security.ProtectionDomain;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
@@ -27,13 +30,9 @@ import com.navercorp.pinpoint.bootstrap.instrument.Type;
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.ParameterExtractorSupport;
 import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
-import com.navercorp.pinpoint.profiler.interceptor.bci.*;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 import com.navercorp.pinpoint.profiler.modifier.arcus.interceptor.ArcusScope;
 import com.navercorp.pinpoint.profiler.modifier.arcus.interceptor.IndexParameterExtractor;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author netspider
@@ -93,8 +92,7 @@ public class ArcusClientModifier extends AbstractModifier {
 	}
 
     private boolean checkCompatibility(InstrumentClass arcusClient) {
-        // 하위 memcached class에 addOp가 있는지 체크
-//        final boolean addOp = arcusClient.hasMethod("addOp", new String[]{"(Ljava/lang/String;Lnet/spy/memcached/ops/Operation;)Lnet/spy/memcached/ops/Operation;");
+        // Check if the class has addOp method
         final boolean addOp = arcusClient.hasMethod("addOp", new String[]{"java.lang.String", "net.spy.memcached.ops.Operation"}, "net.spy.memcached.ops.Operation");
         if (!addOp) {
             logger.warn("addOp() not found. skip ArcusClientModifier");

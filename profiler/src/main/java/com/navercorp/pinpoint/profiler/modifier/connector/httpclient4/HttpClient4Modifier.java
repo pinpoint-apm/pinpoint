@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Apache httpclient4 modifier (4.2이하 버전에서만 사용 가능)
+ * Apache httpclient4 modifier (version 4.2 or before)
  * <p/>
  * <p/>
  * <pre>

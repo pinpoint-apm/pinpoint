@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 
 /**
- * HTTP Client 4.3 이상 버전에 있는 클래스.
+ * For HTTP Client 4.3 or later.
  * 
  * @author netspider
  * 
@@ -58,7 +58,7 @@ public class ClosableHttpAsyncClientModifier extends AbstractModifier {
 			InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
  
 			/**
-			 * 아래 두 메소드는 오버로드 되었으나 호출 관계가 없어 scope 없어도 됨.
+			 * Below two methods are overloaded, but they don't call each other. No Scope required.
 			 */
 			Interceptor executeInterceptor = byteCodeInstrumentor.newInterceptor(classLoader,
 					protectedDomain,

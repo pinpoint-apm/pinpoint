@@ -56,7 +56,7 @@ public class StatementExecuteQueryInterceptor extends SpanEventSimpleAroundInter
             Object arg = args[0];
             if (arg instanceof String) {
                 trace.recordSqlInfo((String) arg);
-                // TODO parsing result 추가 처리 고려
+                // TODO more parsing result processing
             }
         }
         trace.recordException(throwable);

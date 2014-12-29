@@ -70,7 +70,7 @@ public class MemcachedClientModifier extends AbstractModifier {
                     "com.navercorp.pinpoint.profiler.modifier.arcus.interceptor.AddOpInterceptor");
             aClass.addInterceptor("addOp", args, addOpInterceptor, Type.before);
 
-			// 모든 public 메소드에 ApiInterceptor를 적용한다.
+            // Inject ApiInterceptor to all public methods.
             final List<MethodInfo> declaredMethods = aClass.getDeclaredMethods(new MemcachedMethodFilter());
 
             for (MethodInfo method : declaredMethods) {

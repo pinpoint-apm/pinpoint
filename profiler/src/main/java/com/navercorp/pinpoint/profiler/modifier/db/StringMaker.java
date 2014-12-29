@@ -213,7 +213,7 @@ public class StringMaker {
 
 
     /**
-     * ch1이나 ch2중 하나가 발견될때까지 역으로 스캔
+     * Find last ch1 or ch2
      * @param ch1
      * @param ch2
      * @return
@@ -238,7 +238,7 @@ public class StringMaker {
                 return i-1;
             }
         }
-        // 찾지 못함..
+        // Not found
         return -1;
     }
 
