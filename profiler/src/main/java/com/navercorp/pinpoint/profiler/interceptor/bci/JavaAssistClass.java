@@ -338,7 +338,7 @@ public class JavaAssistClass implements InstrumentClass {
         return interceptorId;
     }
 
-
+    @Deprecated
     @Override
     public int addInterceptorCallByContextClassLoader(String methodName, String[] args, Interceptor interceptor) throws InstrumentException, NotFoundInstrumentException {
         if (interceptor == null) {
@@ -348,6 +348,7 @@ public class JavaAssistClass implements InstrumentClass {
         return addInterceptor0(behavior, methodName, interceptor, NOT_DEFINE_INTERCEPTOR_ID, Type.around, true);
     }
 
+    @Deprecated
     @Override
     public int addInterceptorCallByContextClassLoader(String methodName, String[] args, Interceptor interceptor, Type type) throws InstrumentException, NotFoundInstrumentException {
         if (interceptor == null) {

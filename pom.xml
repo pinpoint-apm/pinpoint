@@ -32,6 +32,7 @@
 
     <modules>
         <module>agent</module>
+        <module>bootstrap-core</module>
         <module>bootstrap</module>
         <module>collector</module>
         <module>commons</module>
@@ -89,6 +90,16 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-thrift</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-bootstrap-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-bootstrap</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
