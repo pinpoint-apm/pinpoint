@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.util.BytesUtils;
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,11 +39,9 @@ public class PinpointBootStrap {
 
     public static final String BOOT_CLASS = "com.navercorp.pinpoint.profiler.DefaultAgent";
 
-    public static final String BOOT_STRAP_LOAD_STATE = "com.navercorp.pinpoint.bootstrap.load.state";
-    public static final String BOOT_STRAP_LOAD_STATE_LOADING = "LOADING";
-    public static final String BOOT_STRAP_LOAD_STATE_COMPLETE = "COMPLETE";
-    public static final String BOOT_STRAP_LOAD_STATE_ERROR = "ERROR";
-
+    private static final boolean STATE_NONE = false;
+    private static final boolean STATE_STARTED = true;
+    private static final AtomicBoolean LOAD_STATE = new AtomicBoolean(STATE_NONE);
 
     public static void premain(String agentArgs, Instrumentation instrumentation) {
         if (agentArgs != null) {
@@ -50,42 +49,38 @@ public class PinpointBootStrap {
         }
         final boolean duplicated = checkDuplicateLoadState();
         if (duplicated) {
-            // Don't handle the duplicated state. Don't use it as bellow.
-            //changeLoadState(BOOT_STRAP_LOAD_STATE_ERROR);
             logPinpointAgentLoadFail();
             return;
         }
 
-        ClassPathResolver classPathResolver = new ClassPathResolver();
+        final ClassPathResolver classPathResolver = new ClassPathResolver();
         boolean agentJarNotFound = classPathResolver.findAgentJar();
         if (!agentJarNotFound) {
-            // TODO must modify this
-            logger.severe("pinpoint-bootstrap-x.x.x.jar not found.");
-            changeLoadState(BOOT_STRAP_LOAD_STATE_ERROR);
+            logger.severe("pinpoint-bootstrap-x.x.x(-SNAPSHOT).jar not found.");
             logPinpointAgentLoadFail();
             return;
         }
 
         if (!isValidId("pinpoint.agentId", PinpointConstants.AGENT_NAME_MAX_LEN)) {
-            changeLoadState(BOOT_STRAP_LOAD_STATE_ERROR);
             logPinpointAgentLoadFail();
             return;
         }
         if (!isValidId("pinpoint.applicationName", PinpointConstants.APPLICATION_NAME_MAX_LEN)) {
-            changeLoadState(BOOT_STRAP_LOAD_STATE_ERROR);
             logPinpointAgentLoadFail();
             return;
         }
 
         String configPath = getConfigPath(classPathResolver);
         if (configPath == null ) {
-            changeLoadState(BOOT_STRAP_LOAD_STATE_ERROR);
             logPinpointAgentLoadFail();
             return;
         }
 
         // set the path of log file as a system property
         saveLogFilePath(classPathResolver);
+
+//      TODO append (InterceptorRegistry & Interceptor)
+//      instrumentation.appendToSystemClassLoaderSearch("interceptor.jar");
 
         try {
             // Is it right to load the configuration in the bootstrap?
@@ -98,19 +93,14 @@ public class PinpointBootStrap {
             logger.info("pinpoint agent starting...");
             agentClassLoader.boot(classPathResolver.getAgentDirPath(), agentArgs, instrumentation, profilerConfig);
             logger.info("pinpoint agent started normally.");
-            changeLoadState(BOOT_STRAP_LOAD_STATE_COMPLETE);
         } catch (Exception e) {
             // unexpected exception that did not be checked above
             logger.log(Level.SEVERE, ProductInfo.CAMEL_NAME + " start failed. Error:" + e.getMessage(), e);
-            changeLoadState(BOOT_STRAP_LOAD_STATE_ERROR);
             logPinpointAgentLoadFail();
         }
 
     }
 
-    private static void changeLoadState(String loadState) {
-        System.setProperty(BOOT_STRAP_LOAD_STATE, loadState);
-    }
 
     private static void logPinpointAgentLoadFail() {
         final String errorLog =
@@ -120,17 +110,21 @@ public class PinpointBootStrap {
         System.err.println(errorLog);
     }
 
+    // for test
+    static boolean getLoadState() {
+        return LOAD_STATE.get();
+    }
+
     private static boolean checkDuplicateLoadState() {
-        final String exist = System.getProperty(BOOT_STRAP_LOAD_STATE);
-        if (exist == null) {
-            changeLoadState(BOOT_STRAP_LOAD_STATE_LOADING);
+        final boolean startSuccess = LOAD_STATE.compareAndSet(STATE_NONE, STATE_STARTED);
+        if (startSuccess) {
+            return false;
         } else {
             if (logger.isLoggable(Level.SEVERE)) {
-                logger.severe("pinpoint-bootstrap already started. skipping agent loading. loadState:" + exist);
+                logger.severe("pinpoint-bootstrap already started. skipping agent loading.");
             }
             return true;
         }
-        return false;
     }
     
     private static boolean isValidId(String propertyName, int maxSize) {
