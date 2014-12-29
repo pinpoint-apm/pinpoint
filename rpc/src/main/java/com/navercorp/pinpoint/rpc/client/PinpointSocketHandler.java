@@ -271,11 +271,11 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
                     reservationHandshakeJob(this);
                 } catch (ProtocolException e) {
                     if (logger.isWarnEnabled()) {
-                        logger.warn("Handshake retry failed. channel:" + channel + ", caused:" + e.getMessage() + ".", e);
+                        logger.warn("Handshake retry failed. channel:" + channel + ", Error:" + e.getMessage() + ".", e);
                     }
                 }
             } else {
-                logger.warn("Handshake retry completed. caused socket state {}.", state.getString(currentState));
+                logger.warn("Handshake retry completed. Socket state {}.", state.getString(currentState));
             }
         }
 
@@ -324,7 +324,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         write.awaitUninterruptibly();
         if (!write.isSuccess()) {
             Throwable cause = write.getCause();
-            throw new PinpointSocketException("send ping fail. Caused:" + cause.getMessage(), cause);
+            throw new PinpointSocketException("send ping failed. Error:" + cause.getMessage(), cause);
         }
         logger.debug("sendPing success {}", channel);
     }
@@ -610,7 +610,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
         logger.debug("channel.close()");
 
         ChannelFuture channelFuture = channel.close();
-        channelFuture.addListener(new WriteFailFutureListener(logger, "close() event fail.", "close() event success."));
+        channelFuture.addListener(new WriteFailFutureListener(logger, "close() event failed.", "close() event success."));
         channelFuture.awaitUninterruptibly();
         logger.debug("close() complete");
     }
@@ -681,7 +681,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
             reservationHandshakeJob(job);
         } catch (ProtocolException e) {
             if (logger.isWarnEnabled()) {
-                logger.warn("Handshake failed. channel:" + channel + ", caused:" + e.getMessage() + ".", e);
+                logger.warn("Handshake failed(channel:" + channel + "). Error:" + e.getMessage() + ".", e);
             }
         }
     }

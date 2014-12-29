@@ -110,7 +110,7 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
             }
         } catch (Exception e) {
             if (logger.isWarnEnabled()) {
-                logger.warn("Create StreamChannel(" + clusterPoint  + ") failed. caused:" + e.getMessage(), e);
+                logger.warn("Create StreamChannel(" + clusterPoint  + ") failed. Error:" + e.getMessage(), e);
             }
         }
         

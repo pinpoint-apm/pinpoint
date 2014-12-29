@@ -39,7 +39,7 @@ public class DefaultRouteFilterChain<T extends RouteEvent> implements RouteFilte
 				filter.doEvent(event);
 			} catch (Exception e) {
 				if (logger.isWarnEnabled()) {
-					logger.warn(filter.getClass().getSimpleName() + " filter occured exception. caused=" + e.getMessage() + ".", e);
+					logger.warn(filter.getClass().getSimpleName() + " filter occured exception. Error:" + e.getMessage() + ".", e);
 				}
 			}
 		}

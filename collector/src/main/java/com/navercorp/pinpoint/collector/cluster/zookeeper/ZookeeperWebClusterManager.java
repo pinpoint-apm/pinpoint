@@ -115,7 +115,7 @@ public class ZookeeperWebClusterManager implements Runnable {
 
         final boolean stopOffer = queue.offer(stopTask);
         if (!stopOffer) {
-            logger.warn("stopTask offer fail. Message Queue.");
+            logger.warn("Insert stopTask failed.");
         }
 
         boolean interrupted = false;
