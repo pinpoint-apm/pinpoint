@@ -24,6 +24,14 @@ Services nowadays often consist of many different components, communicating amon
 ## Architecture
 ![Pinpoint Architecture](doc/img/pinpoint-architecture.png)
 
+## Supported Modules
+* Tomcat 6/7
+* Spring
+* Apache HTTP Client 4.x, JDK HttpConnector
+* MySQL, Oracle, MSSQL, CUBRID
+* iBATIS, MyBatis
+* Arcus, Memcached, Redis
+
 ## Quick Start
 You may run a sample Pinpoint instance in your own machine by running four simple scripts for each components: Collector, Web, Sample TestApp, HBase.
 
