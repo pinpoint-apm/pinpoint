@@ -35,12 +35,14 @@ public class ClassFileRetransformer implements ClassFileTransformer {
 
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
-        Modifier modifier = targets.remove(classBeingRedefined);
-        
+        if (classBeingRedefined == null) {
+            return null;
+        }
+        final Modifier modifier = targets.remove(classBeingRedefined);
         if (modifier == null) {
             return null;
         }
-        
+
         return modifier.modify(loader, className.replace('/', '.'), protectionDomain, classfileBuffer);
     }
     

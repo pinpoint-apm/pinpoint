@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 public class TargetBeanFilter {
     private static final int CACHE_SIZE = 1024;
     private static final int CACHE_CONCURRENCY_LEVEL = Runtime.getRuntime().availableProcessors() * 2;
+    private static final Object EXIST = new Object();
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -41,11 +42,11 @@ public class TargetBeanFilter {
     private final List<String> targetAnnotationNames;
     private final ConcurrentMap<ClassLoader, List<Class<? extends Annotation>>> targetAnnotationMap = new ConcurrentHashMap<ClassLoader, List<Class<? extends Annotation>>>();
 
-    private final Cache<Class<?>, Boolean> transformed = createCache();
+    private final Cache<Class<?>, Object> transformed = createCache();
 
-    private final Cache<Class<?>, Boolean> rejected = createCache();
+    private final Cache<Class<?>, Object> rejected = createCache();
 
-    private Cache<Class<?>, Boolean> createCache() {
+    private Cache<Class<?>, Object> createCache() {
         final CacheBuilder<Object, Object> builder = CacheBuilder.newBuilder();
         builder.concurrencyLevel(CACHE_CONCURRENCY_LEVEL);
         builder.maximumSize(CACHE_SIZE);
@@ -84,7 +85,7 @@ public class TargetBeanFilter {
     }
 
     public boolean isTarget(String beanName, Class<?> clazz) {
-        if (transformed.getIfPresent(clazz) == Boolean.TRUE) {
+        if (transformed.getIfPresent(clazz) == EXIST) {
             return false;
         }
 
@@ -104,7 +105,7 @@ public class TargetBeanFilter {
     }
 
     private boolean isTarget(Class<?> clazz) {
-        if (rejected.getIfPresent(clazz) == Boolean.TRUE) {
+        if (rejected.getIfPresent(clazz) == EXIST) {
             return false;
         }
 
@@ -136,12 +137,12 @@ public class TargetBeanFilter {
             }
         }
 
-        rejected.put(clazz, Boolean.TRUE);
+        rejected.put(clazz, EXIST);
         return false;
     }
 
     public void addTransformed(Class<?> clazz) {
-        transformed.put(clazz, Boolean.TRUE);
+        transformed.put(clazz, EXIST);
     }
 
     private List<Class<? extends Annotation>> getTargetAnnotations(ClassLoader loader) {

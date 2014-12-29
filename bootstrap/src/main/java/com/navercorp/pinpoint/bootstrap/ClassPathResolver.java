@@ -170,7 +170,7 @@ public class ClassPathResolver {
         try {
             return uri.toURL();
         } catch (MalformedURLException e) {
-            logger.log(Level.WARNING, file.getName() + ".toURL() fail. Caused:" + e.getMessage(), e);
+            logger.log(Level.WARNING, file.getName() + ".toURL() failed. Error:" + e.getMessage(), e);
             return null;
         }
     }

@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.cluster.route;
 
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public interface RouteHandler<T extends RouteEvent> {
 

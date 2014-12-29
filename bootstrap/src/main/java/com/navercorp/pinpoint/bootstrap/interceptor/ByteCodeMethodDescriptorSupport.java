@@ -17,7 +17,8 @@
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
 /**
- * precompile level의 methodDescriptor를 setting 받을수 있게 한다.
+ * this enables assigning "precompiled" methodDescriptor 
+ * 
  * @author emeroad
  */
 public interface ByteCodeMethodDescriptorSupport {

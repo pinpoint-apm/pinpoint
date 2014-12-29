@@ -33,7 +33,8 @@ import java.util.*;
 public class AgentHistogramList {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    // agent별 Time 시리즈 데이터를 가지고 있음.
+
+    // stores times series data per agent
     private final Map<Application, AgentHistogram> agentHistogramMap = new HashMap<Application, AgentHistogram>();
 
     public AgentHistogramList() {

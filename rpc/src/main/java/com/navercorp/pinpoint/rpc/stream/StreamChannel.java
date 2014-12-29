@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamPongPacket;
 import com.navercorp.pinpoint.rpc.util.AssertUtils;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public abstract class StreamChannel {
 

@@ -93,11 +93,10 @@ public class DefaultAgent implements Agent {
     private final AgentInformation agentInformation;
     private final ServerMetaDataHolder serverMetaDataHolder;
 
-    // agent의 상태,
     private volatile AgentStatus agentStatus;
 
     static {
-        // rpc쪽 preload
+        // Preload classes related to pinpoint-rpc module.
         ClassPreLoader.preload();
     }
 
@@ -158,7 +157,6 @@ public class DefaultAgent implements Agent {
 
         this.agentInfoSender = new AgentInfoSender(tcpDataSender, profilerConfig.getAgentInfoSendRetryInterval(), this.agentInformation, this.serverMetaDataHolder);
 
-        // JVM 통계 등을 주기적으로 수집하여 collector에 전송하는 monitor를 초기화한다.
         this.agentStatMonitor = new AgentStatMonitor(this.statDataSender, this.agentInformation.getAgentId(), this.agentInformation.getStartTime());
         
         
@@ -171,8 +169,9 @@ public class DefaultAgent implements Agent {
         preLoadClass();
 
         /**
-         * FIXME tomcat의 경우에는 com.navercorp.pinpoint.profiler.modifier.tomcat.interceptor.CatalinaAwaitInterceptor가 org/apache/catalina/startup/Catalina/await함수가 실행되기
-         * 전에 실행해주나. stand alone application은 그렇지 않으므로..
+         * FIXME
+         * In case of Tomcat, com.navercorp.pinpoint.profiler.modifier.tomcat.interceptor.CatalinaAwaitInterceptor invokes start() method 
+         * before entering await() method of org.apache.catalina.startup.Catalina. But for other applications, it must be invoked directly. 
          */
         if (typeResolver.isManuallyStartupRequired()) {
             start();
@@ -223,9 +222,9 @@ public class DefaultAgent implements Agent {
         final String binderClassName = binder.getClass().getName();
         PLogger pLogger = binder.getLogger(binder.getClass().getName());
         pLogger.info("PLoggerFactory.initialize() bind:{} cl:{}", binderClassName, binder.getClass().getClassLoader());
-        // static LoggerFactory에 binder를 붙임.
+        // Set binder to static LoggerFactory
+        // Should we unset binder at shutdonw hook or stop()?
         PLoggerFactory.initialize(binder);
-        // shutdown hook이나 stop에 LoggerBinder의 연결을 풀어야 되는가?
     }
 
     private TraceContext createTraceContext(short serverType) {
@@ -290,10 +289,6 @@ public class DefaultAgent implements Agent {
     }
 
     protected PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory) {
-        // 1.2 버전이 Tcp Data Command 허용하는 버전이 아니기 떄문에 true이던 false이던 무조건 SimpleLoggingMessageListener를 이용하게 함
-        // SimpleLoggingMessageListener.LISTENER 는 서로 통신을 하지 않게 설정되어 있음 (테스트코드는 pinpoint-rpc에 존재)
-        // 1.3 버전으로 할 경우 아래 분기에서 MessageListener 변경 필요
-
         PinpointSocket socket = null;
         for (int i = 0; i < 3; i++) {
             try {
@@ -376,7 +371,7 @@ public class DefaultAgent implements Agent {
         this.agentInfoSender.stop();
         this.agentStatMonitor.stop();
 
-        // 종료 처리 필요.
+        // Need to process stop
         this.spanDataSender.stop();
         this.statDataSender.stop();
         this.tcpDataSender.stop();

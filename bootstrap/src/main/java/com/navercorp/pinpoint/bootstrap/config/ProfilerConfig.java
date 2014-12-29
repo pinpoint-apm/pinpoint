@@ -67,12 +67,12 @@ public class ProfilerConfig {
             return new ProfilerConfig(properties);
         } catch (FileNotFoundException fe) {
             if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, pinpointConfigFileName + " file is not exists. Please check configuration.");
+                logger.log(Level.WARNING, pinpointConfigFileName + " file does not exist. Please check your configuration.");
             }
             throw fe;
         } catch (IOException e) {
             if (logger.isLoggable(Level.WARNING)) {
-                logger.log(Level.WARNING, pinpointConfigFileName + " file read error. Cause:" + e.getMessage(), e);
+                logger.log(Level.WARNING, pinpointConfigFileName + " file I/O error. Error:" + e.getMessage(), e);
             }
             throw e;
         }
@@ -175,11 +175,6 @@ public class ProfilerConfig {
     private DumpType ningAsyncHttpClientProfileParamDumpType = DumpType.EXCEPTION;
     private int ningAsyncHttpClientProfileParamDumpSize = 1024;
     private int ningAsyncHttpClientProfileParamSamplingRate = 1;
-
-    // FIXME temporary
-    // line game netty config
-    private int lineGameNettyParamDumpSize = 512;
-    private int lineGameNettyEntityDumpSize = 512;
 
     // Spring Beans
     private boolean springBeans = false;
@@ -510,14 +505,6 @@ public class ProfilerConfig {
         return ningAsyncHttpClientProfileParamSamplingRate;
     }
 
-    public int getLineGameNettyParamDumpSize() {
-        return lineGameNettyParamDumpSize;
-    }
-
-    public int getLineGameNettyEntityDumpSize() {
-        return lineGameNettyEntityDumpSize;
-    }
-
     public boolean isSpringBeansEnabled() {
         return springBeans;
     }
@@ -564,7 +551,7 @@ public class ProfilerConfig {
 
     // for test
     void readPropertyValues() {
-        // TODO : use  Properties's defaultvalue instead of using temp variable.
+        // TODO : use Properties's default value instead of using a temp variable.
         final ValueResolver placeHolderResolver = new PlaceHolderResolver();
 
         this.profileEnable = readBoolean("profiler.enable", true);
@@ -675,12 +662,6 @@ public class ProfilerConfig {
         // redis & nBase-ARC
         this.redis = readBoolean("profiler.redis", true);
         this.redisPipeline = readBoolean("profiler.redis.pipeline", true);
-
-        //
-        // FIXME For temporary, netty configuration of Line Game
-        //
-        this.lineGameNettyParamDumpSize = readInt("profiler.line.game.netty.param.dumpsize", 512);
-        this.lineGameNettyEntityDumpSize = readInt("profiler.line.game.netty.entity.dumpsize", 512);
 
         this.ibatis = readBoolean("profiler.orm.ibatis", true);
 
@@ -876,8 +857,6 @@ public class ProfilerConfig {
         sb.append(", ningAsyncHttpClientProfileParamDumpType=").append(ningAsyncHttpClientProfileParamDumpType);
         sb.append(", ningAsyncHttpClientProfileParamDumpSize=").append(ningAsyncHttpClientProfileParamDumpSize);
         sb.append(", ningAsyncHttpClientProfileParamSamplingRate=").append(ningAsyncHttpClientProfileParamSamplingRate);
-        sb.append(", lineGameNettyParamDumpSize=").append(lineGameNettyParamDumpSize);
-        sb.append(", lineGameNettyEntityDumpSize=").append(lineGameNettyEntityDumpSize);
         sb.append(", springBeans=").append(springBeans);
         sb.append(", springBeansNamePatterns='").append(springBeansNamePatterns).append('\'');
         sb.append(", springBeansClassPatterns='").append(springBeansClassPatterns).append('\'');

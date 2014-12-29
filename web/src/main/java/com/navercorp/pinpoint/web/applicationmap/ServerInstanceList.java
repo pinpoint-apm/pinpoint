@@ -41,12 +41,12 @@ public class ServerInstanceList {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private final Map<String, List<ServerInstance>> serverInstanceList = new TreeMap<String, List<ServerInstance>>();
-	   
+
     private MatcherGroup matcherGroup = new MatcherGroup();
-	
+
 	public ServerInstanceList() {
 	}
-	   
+
     public ServerInstanceList(MatcherGroup matcherGroup) {
         if (matcherGroup != null) {
             this.matcherGroup.addMatcherGroup(matcherGroup);
@@ -54,7 +54,7 @@ public class ServerInstanceList {
     }
 
 	public Map<String, List<ServerInstance>> getServerInstanceList() {
-		// list의 소트가 안되 있는 문제가 있음.
+		// XXX list sorting problem exist
 		return serverInstanceList;
 	}
 
@@ -89,14 +89,14 @@ public class ServerInstanceList {
 		List<ServerInstance> find = getServerInstanceList(serverInstance.getHostName());
 		addServerInstance(find, serverInstance);
 	}
-	
+
     public Map<String, String> getLink(String serverName) {
         ServerMatcher serverMatcher = matcherGroup.match(serverName);
-        
+
         Map<String, String> linkInfo = new HashMap<String, String>();
         linkInfo.put("linkName", serverMatcher.getLinkName());
         linkInfo.put("linkURL", serverMatcher.getLink(serverName));
-        
+
         return linkInfo;
     }
 

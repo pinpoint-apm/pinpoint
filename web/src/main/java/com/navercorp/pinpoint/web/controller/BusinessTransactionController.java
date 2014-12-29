@@ -70,8 +70,8 @@ public class BusinessTransactionController {
     private FilterBuilder filterBuilder;
 
     /**
-	 * applicationname에서 from ~ to 시간대에 수행된 URL을 조회한다.
-	 * 
+	 * executed URLs in applicationname query within from ~ to timeframe
+	 *
 	 * @param model
 	 * @param applicationName
 	 * @param from
@@ -83,13 +83,13 @@ public class BusinessTransactionController {
     @ResponseBody
 	public Model getBusinessTransactionsData(Model model,
 											@RequestParam("application") String applicationName,
-											@RequestParam("from") long from, 
+											@RequestParam("from") long from,
 											@RequestParam("to") long to,
 											@RequestParam(value = "filter", required = false) String filterText,
 											@RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
         limit = LimitUtils.checkRange(limit);
 		Range range = new Range(from, to);
-		// TOOD 구조개선을 위해 server map조회 로직 분리함, 임시로 분리한 상태이고 개선이 필요하다.
+		// TODO more refactoring needed: partially separated out server map lookup logic.
 		LimitedScanResult<List<TransactionId>> traceIdList = filteredMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
 
 		Filter filter = filterBuilder.build(filterText);
@@ -114,7 +114,7 @@ public class BusinessTransactionController {
 	@RequestMapping(value = "/lastTransactionList", method = RequestMethod.GET)
     @ResponseBody
 	public Model getLastBusinessTransactionsData(Model model, HttpServletResponse response,
-											@RequestParam("application") String applicationName, 
+											@RequestParam("application") String applicationName,
 											@RequestParam("period") long period,
 											@RequestParam(value = "filter", required = false) String filterText,
 											@RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
@@ -125,7 +125,7 @@ public class BusinessTransactionController {
 	}
 
     /**
-     * 선택한 하나의 Transaction 정보 조회.
+		 * info lookup for a selected transaction
      *
      * @param traceIdParam
      * @param focusTimestamp

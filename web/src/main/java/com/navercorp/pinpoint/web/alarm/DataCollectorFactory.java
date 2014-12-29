@@ -34,23 +34,23 @@ import com.navercorp.pinpoint.web.vo.Application;
  */
 @Component
 public class DataCollectorFactory {
-    
+
     public final static long SLOT_INTERVAL_FIVE_MIN = 300000;
-    
+
     public final static long SLOT_INTERVAL_THREE_MIN = 180000;
 
     @Autowired
     private HbaseMapResponseTimeDao hbaseMapResponseTimeDao;
-    
+
     @Autowired
     private HbaseAgentStatDao hbaseAgentStatDao;
-    
+
     @Autowired
     private HbaseApplicationIndexDao hbaseApplicationIndexDao;
-    
+
     @Autowired
     private HbaseMapStatisticsCallerDao mapStatisticsCallerDao;
-    
+
     public DataCollector createDataCollector(CheckerCategory checker, Application application, long timeSlotEndTime) {
         switch (checker.getDataCollectorCategory()) {
         case RESPONSE_TIME:
@@ -60,11 +60,11 @@ public class DataCollectorFactory {
         case CALLER_STAT:
             return new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, mapStatisticsCallerDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
         }
-        
-        throw new IllegalArgumentException("not create DataCollector : " + checker.getName());
-        
+
+        throw new IllegalArgumentException("unable to create DataCollector : " + checker.getName());
+
     }
-    
+
     public enum DataCollectorCategory {
         RESPONSE_TIME,
         AGENT_STAT,

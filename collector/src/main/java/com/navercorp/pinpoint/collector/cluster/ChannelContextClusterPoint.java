@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.rpc.util.AssertUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class ChannelContextClusterPoint implements TargetClusterPoint {
 

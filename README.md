@@ -6,36 +6,42 @@
 * Minimal impact on performance (approximately 3% increase in resource usage)
 
 ## Overview
-Services nowadays often consists of many different components, communicating amongst themselves as well as making API calls to external services. How each and every transaction gets executed is often left as a blackbox. Pinpoint traces transaction flows between these components and provides a clear view to identify problem areas and potential bottlenecks.
+Services nowadays often consist of many different components, communicating amongst themselves as well as making API calls to external services. How each and every transaction gets executed is often left as a blackbox. Pinpoint traces transaction flows between these components and provides a clear view to identify problem areas and potential bottlenecks.
 
 * **ServerMap** - Understand the topology of any distributed systems by visualizing how their components are interconnected. Clicking on a node reveals details about the component, such as its current status, and transaction count.
 * **Request/Response Scatter Chart** - Visualize request count and response patterns over time to identify potential problems. Transactions can be selected for additional detail by dragging over the chart.
  
-  [Image]
+  ![Server Map](doc/img/ss_server-map.png)
 
 * **CallStack** - Gain code-level visibility to every transaction in a distributed environment, identifying bottlenecks and points of failure in a single view.
 
-  [Image]
+  ![Call Stack](doc/img/ss_call-stack.png)
   
 * **Inspector** - View additional details on the application such as CPU usage, Memory/Garbage Collection, and JVM arguments.
 
-  [Image]
+  ![Inspector](doc/img/ss_inspector.png)
   
 ## Architecture
-To be included.
+![Pinpoint Architecture](doc/img/pinpoint-architecture.png)
 
 ## Quick Start
-You may run a sample Pinpoint instance in your own machine by running four simple scripts for each components : Collector, Web, Sample TestApp, HBase.
+You may run a sample Pinpoint instance in your own machine by running four simple scripts for each components: Collector, Web, Sample TestApp, HBase.
 
 Once the components are running, you should be able to visit http://localhost:28080 to view the Pinpoint Web UI, and http://localhost:28081 to generate transactions on the Sample TestApp.
 
 For details, please refer to the [quick-start guide](quickstart/README.md "Pinpoint quick-start guide").
 
-## Get Involved
-To be included.
-
 ## Issues
-To be included.
+For feature requests and bug reports, feel free to post them [here](https://github.com/naver/pinpoint/issues).
+
+## Contribution
+We welcome any and all suggestions. Our development guide is currently WIP so check back often for any updates.
+
+For contributions, please make a pull-request against our ```master``` branch.
+
+We would love to see additional tracing support for libraries such as [Storm](https://storm.apache.org/), [HBase](http://hbase.apache.org/), as well as profiler support for additional languages (.NET, C++).
 
 ## License
-To be included.
+Pinpoint is licensed under the Apache License, Version 2.0.
+
+See [LICENSE](LICENSE) for full license text.

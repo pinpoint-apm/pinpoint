@@ -107,7 +107,7 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     /**
-     * sampling 여부까지 체크하여 유효성을 검증한 후 Trace를 리턴한다.
+     * Return trace only if current transaction can be sampled.
      * @return
      */
     public Trace currentTraceObject() {
@@ -119,7 +119,7 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     /**
-     * 유효성을 검증하지 않고 Trace를 리턴한다.
+     * Return trace without sampling check.
      * @return
      */
     @Override
@@ -145,7 +145,7 @@ public class DefaultTraceContext implements TraceContext {
         return profilerConfig;
     }
 
-    // remote 에서 샘플링 대상으로 선정된 경우.
+    // Will be invoked when current transaction is picked as sampling target at remote.
     public Trace continueTraceObject(final TraceId traceID) {
         return traceFactory.continueTraceObject(traceID);
     }
@@ -239,7 +239,7 @@ public class DefaultTraceContext implements TraceContext {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }
-        // TODO parse error 때 예외 처리 필요.
+        // TODO Should handle exception when parsing failed.
         return DefaultTraceId.parse(transactionId, parentSpanID, spanID, flags);
     }
 
@@ -254,13 +254,12 @@ public class DefaultTraceContext implements TraceContext {
         final Result cachingResult = this.sqlCache.put(normalizedSql);
         if (cachingResult.isNewValue()) {
             if (isDebug) {
-                // TODO hit% 로그를 남겨야 문제 발생시 도움이 될듯 하다.
+                // TODO logging hit ratio could help debugging
                 logger.debug("NewSQLParsingResult:{}", parsingResult);
             }
-            // newValue란 의미는 cache에 인입됬다는 의미이고 이는 신규 sql문일 가능성이 있다는 의미임.
-            // 그러므로 메타데이터를 서버로 전송해야 한다.
-
-
+            
+            // isNewValue means that the value is newly cached.  
+            // So the sql could be new one. We have to send sql metadata to collector.
             final TSqlMetaData sqlMetaData = new TSqlMetaData();
             sqlMetaData.setAgentId(getAgentId());
             sqlMetaData.setAgentStartTime(getAgentStartTime());
@@ -268,7 +267,7 @@ public class DefaultTraceContext implements TraceContext {
             sqlMetaData.setSqlId(cachingResult.getId());
             sqlMetaData.setSql(normalizedSql);
 
-            // 좀더 신뢰성이 있는 tcp connection이 필요함.
+            // Need more reliable tcp connection
             this.priorityDataSender.request(sqlMetaData);
         }
         parsingResult.setId(cachingResult.getId());

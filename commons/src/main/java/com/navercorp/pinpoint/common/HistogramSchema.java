@@ -42,7 +42,7 @@ public class HistogramSchema {
     private final HistogramSlot verySlowSlot;
     private final HistogramSlot errorSlot;
 
-    // 내부에서 생성한 FAST_SCHEMA, NORMAL등의 참조만 사용할것
+    // Should use the reference of FAST_SCHEMA, NORMAL created internally
     private HistogramSchema(int typeCode, short fast, String fastName, short normal, String normalName, short slow, String slowName, String verySlowName, String errorName) {
     	this.typeCode = typeCode;
         this.fastSlot = new HistogramSlot(fast, SlotType.FAST, fastName);
@@ -57,7 +57,7 @@ public class HistogramSchema {
     }
 
     /**
-     * elapsedTime 기준으로 가장 적합한 슬롯을 찾는다.
+     * find the most appropriate slot based on elapsedTime
      * @param elapsedTime
      * @return
      */

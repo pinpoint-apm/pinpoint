@@ -31,7 +31,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  */
 @JsonSerialize(using=HistogramSerializer.class)
 public class Histogram {
-	
+
 	private final HistogramSchema schema;
 
     private long fastCount;
@@ -67,7 +67,7 @@ public class Histogram {
         this(ServiceType.findServiceType(serviceType));
     }
 
-	// TODO slot번호를 이 클래스에서 추출해야 할 것 같긴 함.
+	// TODO one may extract slot number from this class
 	public void addCallCount(final short slotTime, final long count) {
         final HistogramSchema schema = this.schema;
 		if (slotTime == schema.getVerySlowSlot().getSlotTime()) { // 0 is slow slotTime
@@ -78,7 +78,7 @@ public class Histogram {
 			this.errorCount += count;
 			return;
 		}
-        // TODO slotTime 은 <= 아니고 ==으로 수정되어야함.
+				// TODO if clause condition should be "==", not "<="
         if (slotTime <= schema.getFastSlot().getSlotTime()) {
             this.fastCount += count;
             return;

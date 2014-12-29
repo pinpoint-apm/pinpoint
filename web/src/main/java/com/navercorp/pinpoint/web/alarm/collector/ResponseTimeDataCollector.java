@@ -36,20 +36,20 @@ public class ResponseTimeDataCollector extends DataCollector {
     private final MapResponseDao responseDao;
     private final long timeSlotEndTime;
     private final long slotInterval;
-    private final AtomicBoolean init =new AtomicBoolean(false); // need to consider the concurrency situation when checkers start simultaneously.
-    
+    private final AtomicBoolean init =new AtomicBoolean(false); // need to consider a race condition when checkers start simultaneously.
+
     private long slowCount = 0;
     private long errorCount = 0;
     private long totalCount = 0;
     private long slowRate = 0;
     private long errorRate = 0;
-    
+
     public ResponseTimeDataCollector(DataCollectorCategory category, Application application, MapResponseDao responseDAO, long timeSlotEndTime, long slotInterval) {
         super(category);
         this.application = application;
         this.responseDao = responseDAO;
         this.timeSlotEndTime = timeSlotEndTime;
-        this.slotInterval = slotInterval; 
+        this.slotInterval = slotInterval;
     }
 
     @Override
@@ -57,14 +57,14 @@ public class ResponseTimeDataCollector extends DataCollector {
         if (init.get()) {
             return;
         }
-        
+
         Range range = Range.createUncheckedRange(timeSlotEndTime - slotInterval, timeSlotEndTime);
         List<ResponseTime> responseTimes = responseDao.selectResponseTime(application, range);
-        
+
         for (ResponseTime responseTime : responseTimes) {
             sum(responseTime.getAgentResponseHistogramList());
         }
-        
+
         setSlowRate();
         setErrorRate();
 
@@ -74,11 +74,11 @@ public class ResponseTimeDataCollector extends DataCollector {
     private void setSlowRate() {
         slowRate = calculatePercent(slowCount);
     }
-    
+
     private void setErrorRate() {
         errorRate = calculatePercent(errorCount);
     }
-    
+
     private long calculatePercent(long value) {
         if (totalCount == 0 || value == 0) {
             return 0;
@@ -95,15 +95,15 @@ public class ResponseTimeDataCollector extends DataCollector {
             totalCount += timeHistogram.getTotalCount();
         }
     }
-    
+
     public long getSlowCount() {
         return slowCount;
     }
-    
+
     public long getErrorCount() {
         return errorCount;
     }
-    
+
     public long getTotalCount() {
         return totalCount;
     }

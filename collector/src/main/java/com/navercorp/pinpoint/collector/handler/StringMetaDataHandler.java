@@ -45,7 +45,7 @@ public class StringMetaDataHandler implements RequestResponseHandler {
 		}
 		
 		TStringMetaData stringMetaData = (TStringMetaData) tbase;
-        // api 데이터는 중요한거니 그냥 info로 찍음.
+		// because api data is important, logging it at info level
 		if (logger.isInfoEnabled()) {
 			logger.info("Received StringMetaData={}", stringMetaData);
 		}

@@ -28,14 +28,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
+ *
  * @author netspider
  * @author emeroad
  */
 
 public class AgentHistogram {
 	/**
-	 * UI에서 호스트를 구분하기 위한 목적으로 hostname, agentid, endpoint등 구분할 수 있는 아무거나 넣으면 됨.
+	 * to uniquely identify a host from UI, we can use things like hostname, agentId, endpoint, etc
 	 */
 	private final Application agentId;
 
@@ -115,7 +115,7 @@ public class AgentHistogram {
         final StringBuilder sb = new StringBuilder("AgentHistogram{");
         sb.append("agent='").append(agentId.getName()).append('\'');
         sb.append(", serviceType=").append(agentId.getServiceType());
-        // 자료 구조가 변경되어 잠시 땜빵.
+				// temporarily hard-coded due to a change in the data structure
         sb.append(", ").append(timeHistogramMap);
         sb.append('}');
         return sb.toString();

@@ -64,8 +64,8 @@ public class AgentInfoSenderListener implements FutureListener<ResponseMessage> 
 	private TBase<?, ?> deserialize(Future<ResponseMessage> future) {
         final ResponseMessage responseMessage = future.getResult();
 
-        // TODO theradlocalcache로 변경해야 되는지 검토 자주 생성이 될수 있는 객체라서 life cycle이 상이함.
-        // caching해야 될려나?
+        // TODO Should we change this to thread local cache? This object's life cycle is different because it could be created many times.
+        // Should we cache this?
         byte[] message = responseMessage.getMessage();
         return SerializationUtils.deserialize(message, HeaderTBaseDeserializerFactory.DEFAULT_FACTORY, null);
         

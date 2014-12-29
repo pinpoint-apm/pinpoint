@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.cluster.zookeeper.exception;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class BadOperationException extends PinpointZookeeperException {
 

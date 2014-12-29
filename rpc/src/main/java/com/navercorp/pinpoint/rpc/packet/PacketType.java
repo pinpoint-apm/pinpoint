@@ -44,11 +44,11 @@ public class PacketType {
     public static final short CONTROL_CLIENT_CLOSE = 100;
     public static final short CONTROL_SERVER_CLOSE = 110;
 
-    // 컨트롤 패킷
+    // control packet
     public static final short CONTROL_HANDSHAKE = 150;
     public static final short CONTROL_HANDSHAKE_RESPONSE = 151;
 
-    // ping, pong의 경우 성능상 두고 다른 CONTROL은 이걸로 뺌
+    // keep stay because of performance in case of ping and pong. others removed.
     public static final short CONTROL_PING = 200;
     public static final short CONTROL_PONG = 201;
 

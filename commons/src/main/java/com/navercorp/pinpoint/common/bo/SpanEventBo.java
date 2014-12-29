@@ -32,7 +32,7 @@ import com.navercorp.pinpoint.thrift.dto.*;
  */
 public class SpanEventBo implements Span {
 	private static final int VERSION_SIZE = 1;
-	// version 0 = prefix의 사이즈를 int로
+   // version 0 means that the type of prefix's size is int
 
 	private byte version = 0;
 
@@ -65,7 +65,8 @@ public class SpanEventBo implements Span {
     private boolean hasException;
     private int exceptionId;
     private String exceptionMessage;
-    // dao에서 찾아야 함.
+
+    // should get exceptionClass from dao
     private String exceptionClass;
 
 
@@ -367,7 +368,8 @@ public class SpanEventBo implements Span {
 
         buffer.putVar(startElapsed);
         buffer.putVar(endElapsed);
-        // Qualifier에서 읽어서 set하므로 필요 없음.
+
+        // don't need to put sequence because it is set at Qualifier
         // buffer.put(sequence);
 
         buffer.putPrefixedString(rpc);
@@ -415,7 +417,8 @@ public class SpanEventBo implements Span {
 
 		this.startElapsed = buffer.readVarInt();
 		this.endElapsed = buffer.readVarInt();
-		// Qualifier에서 읽어서 가져오므로 하지 않아도 됨.
+
+        // don't need to get sequence because it can be got at Qualifier
 		// this.sequence = buffer.readShort();
 
 

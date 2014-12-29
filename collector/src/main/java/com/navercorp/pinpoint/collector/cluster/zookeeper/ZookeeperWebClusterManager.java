@@ -35,7 +35,7 @@ import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class ZookeeperWebClusterManager implements Runnable {
 

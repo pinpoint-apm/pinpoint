@@ -23,7 +23,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * @author emeroad
  */
 public class ObjectPool<T> {
-    // 구지 blocking 할 필요가 없음. queue안에 충분한 양이 무조껀 있어야 됨. 없으면 뭔가 릭임.
+
+    // you don't need a blocking queue. There must be enough objects in a queue. if not, it means leakage.
     private final Queue<T> queue = new ConcurrentLinkedQueue<T>();
 
     private final ObjectPoolFactory<T> factory;
@@ -46,7 +47,7 @@ public class ObjectPool<T> {
     public T getObject() {
         T object = queue.poll();
         if (object == null) {
-            // 동적생성wm.
+            // create dynamically
             return factory.create();
         }
         return object;

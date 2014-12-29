@@ -37,13 +37,13 @@ public class PinpointServerSocketState {
 			this.currentState = state;
 			return true;
 		} else if (PinpointServerSocketStateCode.isFinished(this.currentState)) {
-			// 상태가 더 이상 변경할수 없는 것들은 로그만 출력
-			// 이미 종료 상태이기 때문에 이렇게 처리해도 큰 문제가 없음
+			// if state can't be changed, just log.
+			// no problem because the state of socket has been already closed.
 			PinpointServerSocketStateCode checkBefore = this.beforeState;
 			PinpointServerSocketStateCode checkCurrent = this.currentState;
 
 			String errorMessage = cannotChangeMessage(checkBefore, checkCurrent, state);
-			
+
 			this.beforeState = this.currentState;
 			this.currentState = PinpointServerSocketStateCode.ERROR_ILLEGAL_STATE_CHANGE;
 				

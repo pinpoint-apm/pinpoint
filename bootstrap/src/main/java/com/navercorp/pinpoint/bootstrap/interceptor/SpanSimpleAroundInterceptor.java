@@ -49,7 +49,7 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
             if (trace == null) {
                 return;
             }
-            // TODO STATDISABLE 일단 통계 저장기능을 disable하기 위해 아래 로직을 추가함.
+            // TODO STATDISABLE this logic was added to disable statstics tracing
             if (!trace.canSampled()) {
                 return;
             }
@@ -77,7 +77,7 @@ public abstract class SpanSimpleAroundInterceptor implements SimpleAroundInterce
             return;
         }
         traceContext.detachTraceObject();
-        // TODO STATDISABLE 일단 통계 저장기능을 disable하기 위해 아래 로직을 추가함.
+        // TODO STATDISABLE this logic was added to disable statstics tracing
         if (!trace.canSampled()) {
             return;
         }

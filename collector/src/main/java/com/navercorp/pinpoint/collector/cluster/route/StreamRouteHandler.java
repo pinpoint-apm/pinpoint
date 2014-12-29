@@ -36,7 +36,7 @@ import com.navercorp.pinpoint.rpc.stream.StreamChannelStateCode;
 import com.navercorp.pinpoint.thrift.io.TCommandTypeVersion;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
 

@@ -41,8 +41,8 @@ public class AgentInformationFactory {
         if (serverType == null) {
             throw new NullPointerException("serverType must not be null");
         }
-        // TODO 일단 임시로 호환성을 위해 agentid에 machinename을 넣도록 하자
-        // TODO 박스 하나에 서버 인스턴스를 여러개 실행할 때에 문제가 될 수 있음.
+        // For compatibility issue, use machineName as agentId when agengId is not provided.
+        // This could be a problem if more than one server instances run on a box.
         final String machineName = NetworkUtils.getHostName();
         final String hostIp = NetworkUtils.getHostIp();
         final String agentId = getId("pinpoint.agentId", machineName, PinpointConstants.AGENT_NAME_MAX_LEN);
@@ -62,8 +62,9 @@ public class AgentInformationFactory {
 		if (id == null) {
 			throw new NullPointerException("id must not be null");
 		}
-        // 에러 체크 로직을 bootclass 앞단으로 이동시켜야 함.
-        // 아니면 여기서 체크해서 실패시 agent동작을 하지 않도록 하던가 하는 추가 동작을 해야함.
+		
+		// TODO AgengId should be validated before bootclass.
+		// or agent should stop when validataion is failed here. 
         final byte[] bytes = BytesUtils.toBytes(id);
 		if (bytes.length > maxlen) {
             logger.warn("{} is too long(1~24). value={}", idName, id);

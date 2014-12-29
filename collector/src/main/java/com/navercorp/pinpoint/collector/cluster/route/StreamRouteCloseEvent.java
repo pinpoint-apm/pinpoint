@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 
 /**
- * @author koo.taejin <kr14910>
+ * @author koo.taejin
  */
 public class StreamRouteCloseEvent extends DefaultRouteEvent {
 

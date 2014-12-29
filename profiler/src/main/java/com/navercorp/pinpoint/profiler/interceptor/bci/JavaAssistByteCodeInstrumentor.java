@@ -50,7 +50,8 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final NamedClassPool rootClassPool;
-    // classPool의 수평적 확장이 필요할수 있음. was에 여러개의 webapp가 있을 경우 충돌방지.
+    
+    // TODO Need to separate childClassPool per class space to prevent collision(ex: multiple web applications on a Tomcat server)
     private final NamedClassPool childClassPool;
 
     private Agent agent;
@@ -68,7 +69,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         this.rootClassPool = createClassPool(pathNames, "rootClassPool");
         this.childClassPool = createChildClassPool(rootClassPool, "childClassPool");
         this.agent = agent;
-        // agent의 class는 rootClassPool에 넣는다.
+        // Add Pinpoint classes to rootClassPool
         checkLibrary(this.getClass().getClassLoader(), this.rootClassPool, this.getClass().getName());
     }
 
@@ -116,11 +117,12 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     }
 
     public void checkLibrary(ClassLoader classLoader, NamedClassPool classPool, String javassistClassName) {
-        // 최상위 classLoader일 경우 null이라 찾을필요가 없음.
+        // if it's loaded by boot class loader, classLoader is null.
         if (classLoader == null) {
             return;
         }
-        // TODO Util로 뽑을까?
+        
+        // TODO extract to Util?
         final boolean findClass = findClass(javassistClassName, classPool);
         if (findClass) {
             if (isDebug) {
@@ -160,16 +162,15 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
         }
         try {
             final NamedClassPool classPool = findClassPool(classLoader);
-            // classLoader로 락을 잡는게 안전함.
-            // 어차피 classLoader에서 락을 잡고 들어오는점도 있고. 예외 사항이 발생할수 있기 때문에.
-            // classLoader의 재진입 락을 잡고 들어오는게 무난함.
+            
+            // It's safe to synchronize on classLoader because current thread already hold lock on classLoader.
+            // Without lock, maybe something could go wrong.
             synchronized (classLoader)  {
                 if (this.classLoadChecker.exist(classLoader, defineClass)) {
                     return classLoader.loadClass(defineClass);
                 } else {
                     final CtClass clazz = classPool.get(defineClass);
 
-                    // 로그 레벨을 debug로 하니 개발때 제대로 체크 안하는 사람이 있어서 수정함.
                     checkTargetClassInterface(clazz);
 
                     defineAbstractSuperClass(clazz, classLoader, protectedDomain);
@@ -200,20 +201,22 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     private void defineAbstractSuperClass(CtClass clazz, ClassLoader classLoader, ProtectionDomain protectedDomain) throws NotFoundException, CannotCompileException {
         final CtClass superClass = clazz.getSuperclass();
         if (superClass == null) {
-            // java.lang.Object가 아닌 경우 null은 안나올듯.
+            // maybe java.lang.Object
             return;
         }
         final int modifiers = superClass.getModifiers();
         if (Modifier.isAbstract(modifiers)) {
             if (this.classLoadChecker.exist(classLoader, superClass.getName())) {
-                // nestedClass는 자기 자신에게만 속해 있으므로 로드 여부 체크가 필요 없으나 abstractClass는 같이 사용할수 있으므로 체크해야 된다.
+                // We have to check if abstract super classes is already loaded because it could be used by other classes unlike nested classes.
                 return;
             }
+            
             if (isInfo) {
                 logger.info("defineAbstractSuperClass class:{} cl:{}", superClass.getName(), classLoader);
             }
-            // 좀더 정확하게 java 스펙처럼 하려면 제귀를 돌면서 추가로 super를 확인해야 되나. 구지 그래야 되나 싶다. 패스.
-            // 스펙상 1차원 abstractClass만 지원하는 것으로..
+            
+            // If it was more strict we had to make a recursive call to check super class of super class.
+            // But it seems like too much. We'll check direct super class only.
             superClass.toClass(classLoader, protectedDomain);
         }
     }
@@ -224,7 +227,7 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
             return;
         }
         for (CtClass nested : nestedClasses) {
-            // 재귀하면서 최하위부터 로드
+            // load from inner-most to outer.
             defineNestedClass(nested, classLoader, protectedDomain);
             if (isInfo) {
                 logger.info("defineNestedClass class:{} cl:{}", nested.getName(), classLoader);
@@ -274,14 +277,14 @@ public class JavaAssistByteCodeInstrumentor implements ByteCodeInstrumentor {
     private void loadClassLoaderLibraries(ClassLoader classLoader, NamedClassPool classPool) {
         if (classLoader instanceof URLClassLoader) {
             URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
-            // classLoader가 가지고 있는 전체 리소스를 가능한 패스로 다 걸어야 됨
-            // 임의의 class가 없을 경우 class의 byte code를 classpool에 적재 할 수 없음.
+            // We have to add every class path URLs to classPool.
+            // To load bytecode of a class, ClassPool requires every classes referenced by the class. 
             URL[] urlList = urlClassLoader.getURLs();
             for (URL tempURL : urlList) {
                 String filePath = tempURL.getFile();
                 try {
                     classPool.appendClassPath(filePath);
-                    // 만약 한개만 로딩해도 된다면. return true 할것
+
                     if (isInfo) {
                         logger.info("Loaded cl:{} classPool:{} {} ", classLoader.getClass().getName(), classPool.getName(), filePath);
                     }

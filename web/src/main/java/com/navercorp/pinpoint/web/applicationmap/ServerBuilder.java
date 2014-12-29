@@ -79,7 +79,7 @@ public class ServerBuilder {
     }
 
     /**
-     * 어플리케이션에 속한 물리서버와 서버 인스턴스 정보를 채운다.
+     * filled with application information of physical server and service instance
      *
      * @param hostHistogram
      */
@@ -110,11 +110,11 @@ public class ServerBuilder {
 
     public ServerInstanceList build() {
         if (!agentSet.isEmpty()) {
-            // agent이름이 존재할 경우. 실제 리얼 서버가 존재할 경우
+            // only when agent name exists or real server exists
             this.logger.debug("buildPhysicalServer:{}", agentSet);
             return buildPhysicalServer(agentSet);
         } else {
-            // 논리 이름으로 구성.
+            // otherwise, logical name
             this.logger.debug("buildLogicalServer");
             return buildLogicalServer(agentHistogramList);
         }

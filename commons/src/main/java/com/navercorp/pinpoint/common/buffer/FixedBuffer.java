@@ -246,7 +246,7 @@ public class FixedBuffer implements Buffer {
 
     @Override
     public int readVarInt() {
-        // protocol buffer의 var encoding 차용.
+        // borrowing the protocol buffer's concept of variable-length encoding
         byte v = readByte();
         if (v >= 0) {
             return v;
@@ -450,7 +450,8 @@ public class FixedBuffer implements Buffer {
     }
 
     /**
-     * 암묵적으로 성능을 내부 buffe length와 offset의 사이즈가 같으면 메모리 copy를 하지 않고 그냥 internal buffer를 리턴하므로 주의해야 한다.
+     * Be careful that if internal buffer's length is as same as offset,
+     * then just return internal buffer without copying memory for improving performance.
      * @return
      */
     @Override
@@ -470,7 +471,7 @@ public class FixedBuffer implements Buffer {
     }
 
     /**
-     * 내부 buffer를 리턴한다.
+     * return internal buffer
      * @return
      */
     @Override

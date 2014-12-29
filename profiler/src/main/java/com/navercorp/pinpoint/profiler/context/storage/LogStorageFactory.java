@@ -31,7 +31,7 @@ public class LogStorageFactory implements StorageFactory {
 
     @Override
     public Storage createStorage() {
-        // 상태 없음 그냥 재활용하면 됨.
+         // reuse because it has no states.
         return DEFAULT_STORAGE;
     }
 

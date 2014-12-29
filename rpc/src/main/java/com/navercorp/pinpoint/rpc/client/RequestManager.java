@@ -42,7 +42,7 @@ public class RequestManager {
     private final AtomicInteger requestId = new AtomicInteger(1);
 
     private final ConcurrentMap<Integer, DefaultFuture<ResponseMessage>> requestMap = new ConcurrentHashMap<Integer, DefaultFuture<ResponseMessage>>();
-    // Timer를 factory로 옮겨야 되나?
+    // Have to move Timer into factory?
     private final Timer timer;
 
 
@@ -61,7 +61,7 @@ public class RequestManager {
             public boolean fireFailure() {
                 DefaultFuture<ResponseMessage> future = removeMessageFuture(requestId);
                 if (future != null) {
-                    // 정확하게 지워짐.
+                    // removed perfectly.
                     return true;
                 }
                 return false;
@@ -79,7 +79,7 @@ public class RequestManager {
             Timeout timeout = timer.newTimeout(future, timeoutMillis, TimeUnit.MILLISECONDS);
             future.setTimeout(timeout);
         } catch (IllegalStateException e) {
-            // timer가 shutdown되었을 경우인데. 이것은 socket이 closed되었다는 의미뿐이 없을거임..
+            // this case is that timer has been shutdown. That maybe just means that socket has been closed.
             future.setFailure(new PinpointSocketException("socket closed")) ;
         }
     }
@@ -125,7 +125,8 @@ public class RequestManager {
         if (old != null) {
             throw new PinpointSocketException("unexpected error. old future exist:" + old + " id:" + requestId);
         }
-        // future가 실패하였을 경우 requestMap에서 빠르게 지울수 있도록 핸들을 넣는다.
+
+        // when future fails, put a handle in order to remove a failed future in the requestMap.
         FailureEventHandler removeTable = createFailureEventHandler(requestId);
         future.setFailureEventHandler(removeTable);
 
@@ -138,7 +139,7 @@ public class RequestManager {
         logger.debug("close()");
         final PinpointSocketException closed = new PinpointSocketException("socket closed");
 
-        // close의 동시성 타이밍을 좀더 좋게 맞출수는 없나?
+        // Could you handle race conditions of "close" more precisely?
 //        final Timer timer = this.timer;
 //        if (timer != null) {
 //            Set<Timeout> stop = timer.stop();

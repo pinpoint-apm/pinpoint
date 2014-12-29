@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.common.util.ParsingResult;
 public class DisableTrace  implements Trace {
 
     public static final DisableTrace INSTANCE = new DisableTrace();
-    // 구지 객체를 생성하여 사용할 필요가 없을듯.
+
     private DisableTrace() {
     }
 
@@ -86,7 +86,7 @@ public class DisableTrace  implements Trace {
 
     @Override
     public boolean canSampled() {
-        // sampling false를 항상 false를 리턴한다.
+        // always return false
         return false;
     }
 

@@ -157,13 +157,13 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     }
 
     private void setOptions(ServerBootstrap bootstrap) {
-        // read write timeout이 있어야 되나? nio라서 없어도 되던가?
-        // write timeout은 별도 interceptor를 통해서 이루어 져야 함. write timeout은 있음.
+        // is read/write timeout necessary? don't need it because of NIO?
+        // write timeout should be set through additional interceptor. write timeout exists.
 
-        // tcp 세팅
+        // tcp setting
         bootstrap.setOption("child.tcpNoDelay", true);
         bootstrap.setOption("child.keepAlive", true);
-        // buffer
+        // buffer setting
         bootstrap.setOption("child.sendBufferSize", 1024 * 64);
         bootstrap.setOption("child.receiveBufferSize", 1024 * 64);
 
@@ -185,7 +185,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
     }
 
     private ServerBootstrap createBootStrap(int bossCount, int workerCount) {
-        // profiler, collector,
+        // profiler, collector
         ExecutorService boss = Executors.newCachedThreadPool(new PinpointThreadFactory("Pinpoint-Server-Boss"));
         NioServerBossPool nioServerBossPool = new NioServerBossPool(boss, bossCount, ThreadNameDeterminer.CURRENT);
 
@@ -291,9 +291,9 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         logger.debug("received ClientClosePacket {}", channel);
         ChannelContext channelContext = getChannelContext(channel);
         channelContext.changeStateBeingShutdown();
-        
-//      상대방이 닫는거에 반응해서 socket을 닫도록 하자.
-//        channel.close();
+
+        // close socket when the node on channel close socket
+        // channel.close();
     }
 
     private void handleStreamPacket(StreamPacket packet, Channel channel) {
@@ -404,8 +404,8 @@ public class PinpointServerSocket extends SimpleChannelHandler {
         super.channelDisconnected(ctx, e);
     }
 
-    // 참고 ChannelClose 이벤트는 상대방이 먼저 연결을 끊어 Disconnected가 발생했을 경우에도 발생이 가능함
-    // 이부분 염두하고 코드 작성이 필요함 
+    // ChannelClose event may also happen when the other party close socket first and Disconnected occurs
+    // Should consider that.
     @Override
     public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         final Channel channel = e.getChannel();
@@ -520,7 +520,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
             logger.debug("newPingTimeout");
             pingTimer.newTimeout(pintTask, 1000 * 60 * 5, TimeUnit.MILLISECONDS);
         } catch (IllegalStateException e) {
-            // timer가 stop일 경우 정지.
+            // stop in case of timer stopped
             logger.debug("timer stopped. Caused:{}", e.getMessage());
         }
     }
@@ -547,7 +547,7 @@ public class PinpointServerSocket extends SimpleChannelHandler {
             bootstrap = null;
         }
         
-        // 요청을 죽인뒤에 timer를 제거함
+        // clear the request first and remove timer
         requestManagerTimer.stop();
     }
 

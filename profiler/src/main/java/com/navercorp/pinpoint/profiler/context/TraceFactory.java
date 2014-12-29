@@ -31,7 +31,7 @@ public interface TraceFactory {
 
     Trace disableSampling();
 
-    // remote 에서 샘플링 대상으로 선정된 경우.
+    // picked as sampling target at remote
     Trace continueTraceObject(TraceId traceID);
 
     Trace newTraceObject();

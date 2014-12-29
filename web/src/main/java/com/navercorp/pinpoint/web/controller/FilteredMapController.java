@@ -56,8 +56,8 @@ public class FilteredMapController {
     private FilterBuilder filterBuilder;
 
 	/**
-	 * 필터가 적용된 서버맵의 FROM ~ TO기간의 데이터 조회
-	 * 
+   * filtered server map data query within from ~ to timeframe
+	 *
 	 * @param applicationName
 	 * @param serviceTypeCode
 	 * @param from
@@ -79,18 +79,17 @@ public class FilteredMapController {
 											@RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
         limit = LimitUtils.checkRange(limit);
         final Filter filter = filterBuilder.build(filterText, filterHint);
-        // scan을 해야 될 토탈 범위
         final Range range = new Range(from, to);
         final LimitedScanResult<List<TransactionId>> limitedScanResult = filteredMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
 
         final long lastScanTime = limitedScanResult.getLimitedTime();
-        // 원본 범위, 시계열 차트의 sampling을 하려면 필요함.
+        // original range: needed for visual chart data sampling
         final Range originalRange = new Range(from, originTo);
-        // 정확히 스캔된 범위가 어디까지 인지 알기 위해서 필요함.
+        // needed to figure out already scanned ranged
         final Range scannerRange = new Range(lastScanTime, to);
         logger.debug("originalRange:{} scannerRange:{} ", originalRange, scannerRange);
         ApplicationMap map = filteredMapService.selectApplicationMap(limitedScanResult.getScanData(), originalRange, scannerRange, filter);
-		
+
         if (logger.isDebugEnabled()) {
             logger.debug("getFilteredServerMapData range scan(limit:{}) range:{} lastFetchedTimestamp:{}", limit, range.prettyToString(), DateUtils.longToDateStr(lastScanTime));
         }
@@ -99,10 +98,11 @@ public class FilteredMapController {
         mapWrap.setLastFetchedTimestamp(lastScanTime);
         return mapWrap;
 	}
-	
+
 	/**
-	 * 필터가 적용된 서버맵의 Period before 부터 현재시간까지의 데이터 조회.
-	 * 
+   * filtered server map data query for the last "Period" up to now
+   *
+	 *
 	 * @param applicationName
 	 * @param serviceTypeCode
 	 * @param filterText
@@ -122,7 +122,8 @@ public class FilteredMapController {
 
 		long to = TimeUtils.getDelayLastTime();
 		long from = to - period;
-        // TODO 실시간 조회가 현재 disable이므로 to to로 수정하였음. 이것도 추가적으로 @RequestParam("originTo")가 필요할수 있음.
+    // TODO: since realtime query is enabled for now, calling parameters are fixed as "..., to, to, ..."
+    // may need additional @RequestParam("originTo")
 		return getFilteredServerMapData(applicationName, serviceTypeCode, from, to, to, filterText, filterHint, limit);
 	}
 
