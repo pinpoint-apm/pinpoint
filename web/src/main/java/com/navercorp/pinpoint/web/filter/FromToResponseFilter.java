@@ -146,7 +146,7 @@ public class FromToResponseFilter implements Filter {
 					}
 					
 					for (SpanEventBo event : eventBoList) {
-						// client가 있는지만 확인.
+						// check only whether a client exists or not.
 						if (event.getServiceType().isRpcClient() && toApplicationName.equals(event.getDestinationId())) {
 							return checkResponseCondition(event.getEndElapsed(), event.hasException());
 						}
@@ -156,9 +156,8 @@ public class FromToResponseFilter implements Filter {
 		} else if (includeWas(toServiceCode)) {
 			/**
 			 * WAS -> WAS
-			 * destination이 was인 경우 src, dest의 span이 모두 존재하겠지... 그리고 circular
-			 * check. find src first. from, to와 같은 span이 두 개 이상 존재할 수 있다. 때문에
-			 * spanId == parentSpanId도 확인해야함.
+			 * if destination is a "WAS", the span of src and dest may exists. need to check if be circular or not.
+			 * find src first. span (from, to) may exist more than one. so (spanId == parentSpanID) should be checked.
 			 */
 			if (hint.containApplicationHint(toApplicationName)) {
 				for (SpanBo srcSpan : transaction) {
@@ -178,13 +177,14 @@ public class FromToResponseFilter implements Filter {
 						return checkResponseCondition(event.getEndElapsed(), event.hasException());
 						
 						// FIXME agent filter가 제대로 적용되려면 아래 기능이 추가되어야 함.
+						// FIXME below code should be added for agent filter to work properly
 						// && checkPinPointAgentName(srcSpan.getAgentId(), destSpan.getAgentId());
 					}
 				}
 			} else {
 				/**
-				 * hint가 들어가기 전 코드. hint를 사용했을 때 문제가 있으면 UI에서 hint를 주지 않거나.
-				 * 아래 코드로 동작하도록 수정하면 됨.
+				 * codes before hint added.
+				 * if problems happen because of hint, don't use hint at front end (UI) or use below code in order to work properly.
 				 */
 				for (SpanBo srcSpan : transaction) {
 					if (includeServiceType(fromServiceCode, srcSpan.getServiceType()) && fromApplicationName.equals(srcSpan.getApplicationId())) {

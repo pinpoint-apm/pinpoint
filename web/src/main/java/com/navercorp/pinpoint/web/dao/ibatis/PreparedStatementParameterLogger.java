@@ -26,12 +26,10 @@ import java.util.Calendar;
 import java.util.List;
 
 /**
- * {@link PreparedStatement} 에 사용된 바인딩 변수를 추출하는 util
+ * utils for extracting bind variables to {@link PreparedStatement}
  *
- * @author Web Platform Development Lab
  * @author emeroad
  * @see PreparedStatement
- * @since 1.7.4
  */
 public class PreparedStatementParameterLogger implements PreparedStatement {
 

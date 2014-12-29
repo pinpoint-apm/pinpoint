@@ -27,9 +27,9 @@ public enum PinpointServerSocketStateCode {
 	// NONE : No event
 	// RUN  : can send message only to server
 	// RUN_DUPLEX_COMMUNICATION : can communicate each other by full-duplex
-	// BEING_SHUTDOWN : waiting to close connection      CLOSE 등의 명령을 받고 연결을 종료를 대기하는 상태
-	// SHUTDOWN : 내가 끊거나 종료대기가 되어있는 상태일때 종료  
-	// UNEXPECTED_SHUTDOWN : CLOSE 등의 명령을 받지 못한 상태에서 상대방이 연결을 종료하였을떄 
+	// BEING_SHUTDOWN :  received a close packet from a peer first and releasing resources
+	// SHUTDOWN : has been closed
+	// UNEXPECTED_SHUTDOWN : has not received a close packet from a peer but a peer has been shutdown
 	
 	NONE(), 
 	RUN(NONE), //Simplex Communication
@@ -38,9 +38,10 @@ public enum PinpointServerSocketStateCode {
 	SHUTDOWN(RUN_DUPLEX_COMMUNICATION, RUN, BEING_SHUTDOWN),
 	UNEXPECTED_SHUTDOWN(RUN_DUPLEX_COMMUNICATION, RUN),
 	
-	// 서버쪽에서 먼저 연결을 끊자는 메시지도 필요하다. 
-	// 예를 들어 HELLO 이후 다 확인했는데, 같은 Agent명이 있으면(?) 이걸 사용자에게 말해야 할까? 아닐까? 알림 등
-	ERROR_UNKOWN(RUN_DUPLEX_COMMUNICATION, RUN), 
+
+	// need  messages to close a connection from server to agent
+	// for example, checked all of needed things followed by HELLO, if a same agent name exists, have to notify that to agent or not?
+	ERROR_UNKOWN(RUN_DUPLEX_COMMUNICATION, RUN),
 	ERROR_ILLEGAL_STATE_CHANGE(NONE, RUN_DUPLEX_COMMUNICATION, RUN, BEING_SHUTDOWN);
 
 	private final Set<PinpointServerSocketStateCode> validBeforeStateSet;

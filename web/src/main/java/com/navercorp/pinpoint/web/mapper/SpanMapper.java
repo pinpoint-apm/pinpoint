@@ -64,7 +64,7 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
         Map<Long, SpanBo> spanMap = new HashMap<Long, SpanBo>();
         List<SpanEventBo> spanEventBoList = new ArrayList<SpanEventBo>();
         for (KeyValue kv : keyList) {
-            // family name "span"일때로만 한정.
+            // only if family name is "span"
             byte[] family = kv.getFamily();
             if (Bytes.equals(family, HBaseTables.TRACES_CF_SPAN)) {
 
@@ -88,7 +88,8 @@ public class SpanMapper implements RowMapper<List<SpanBo>> {
                 spanEventBo.setTraceTransactionSequence(transactionId.getTransactionSequence());
 
                 long spanId = Bytes.toLong(kv.getBuffer(), kv.getQualifierOffset());
-                // 앞의 spanid가 int이므로 4.
+
+                // because above spanId type is "long", so offset is 8
                 final int spanIdOffset = 8;
                 short sequence = Bytes.toShort(kv.getBuffer(), kv.getQualifierOffset() + spanIdOffset);
                 spanEventBo.setSpanId(spanId);

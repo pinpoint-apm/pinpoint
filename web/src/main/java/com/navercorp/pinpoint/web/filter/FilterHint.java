@@ -20,12 +20,12 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * filter할 때 필요한 힌트 들.
+ * Hint for fitering
  * 
  * @author netspider
  * 
  */
-// FIXME 이런 deserializer 만드는 방법을 모르겠다 ㅡㅡ;
+// FIXME don't know how to implement deserializer like this.
 public class FilterHint extends HashMap<String, List<Object>> {
 
 	private static final long serialVersionUID = -8765645836014210889L;

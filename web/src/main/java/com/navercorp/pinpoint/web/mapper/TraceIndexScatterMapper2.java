@@ -84,7 +84,8 @@ public class TraceIndexScatterMapper2 implements RowMapper<List<Dot>> {
 
 		// TransactionId transactionId = new TransactionId(buffer,
 		// qualifierOffset);
-		// 잠시 TransactionIdMapper의 것을 사용하도록 함.
+
+		// for temporary, used TransactionIdMapper
 		TransactionId transactionId = TransactionIdMapper.parseVarTransactionId(buffer, qualifierOffset);
 
 		return new Dot(transactionId, acceptedTime, elapsed, exceptionCode, agentId);

@@ -88,7 +88,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
 
     /**
-	 * 메인페이지 서버 맵에서 연결선을 선택했을 때 보여주는 통계정보.
+	 * statistics information used when a link between nodes is clicked at the server map
 	 * 
 	 * @return <pre>
 	 * list [
@@ -122,7 +122,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 			logger.debug("scan time:{} ", range.prettyToString());
 		}
 		
-		// timestamp가 reverse되었기 때문에 start, end를 바꿔서 조회.
+		// start key is replaced by end key because timestamp has been reversed
 		byte[] startKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), range.getTo());
 		byte[] endKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), range.getFrom());
 

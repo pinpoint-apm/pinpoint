@@ -41,20 +41,12 @@ import org.apache.ibatis.session.RowBounds;
 import org.springframework.util.Assert;
 
 /**
- * Binding Log 출력 Plugin
- * <p>
- * {@link java.sql.PreparedStatement}, {@link java.sql.CallableStatement} 의 바인딩 변수를 Query와 같이 출력해 주는 plugin.
- * </p>
- * Query문의 format을 {@link BindLogFormatter}을 통해 변경할 수 있다.
- * 기본구현체는 {@link com.navercorp.pinpoint.web.dao.ibatis.DefaultBindingLogFormatter} 이다.
- * 공백 제거 옵션인 removeWhitespace옵션이 지원된다.
+ * Plugin for printing out the bind variables of {@link java.sql.PreparedStatement} and {@link java.sql.CallableStatement} with Query.
+ * format of Query statement can be changed with {@link BindLogFormatter}.
+ * base implementation is {@link com.navercorp.pinpoint.web.dao.ibatis.DefaultBindingLogFormatter}.
+ * removeWhitespace option is supported
  *
- * @author Web Platform Development Lab
  * @author emeroad
- * @see Interceptor
- * @see BindLogFormatter
- * @see com.navercorp.pinpoint.web.dao.ibatis.DefaultBindingLogFormatter
- * @since 1.7.4
  */
 @Intercepts({
         @Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class}),
@@ -122,8 +114,8 @@ public class BindingLogPlugin32 implements Interceptor {
     }
 
     private List<String> getParameters(MappedStatement ms, Object parameterObject, BoundSql boundSql) throws SQLException {
-        // 현재 parameterHandler의 구현체는 DefaultParameterHandler가 유일함 추후 변경될수 있음
-        // 이경우 구현체를 탐색하는 추가 코드가 필요함.
+        // DefaultParameterHandler is the only implementation of parameterHandler interface currently. it may be changed later.
+        // need additional codes to find a appropriate implementation in that case.
         ParameterHandler parameterHandler = new DefaultParameterHandler(ms, parameterObject, boundSql);
         PreparedStatementParameterLogger parameterLogger = new PreparedStatementParameterLogger();
         parameterHandler.setParameters(parameterLogger);
@@ -137,10 +129,10 @@ public class BindingLogPlugin32 implements Interceptor {
     }
 
     /**
-     * {@link BindLogFormatter}의 구현체인 {@link com.navercorp.pinpoint.web.dao.ibatis.DefaultBindingLogFormatter} 는 removeWhitespace 옵션을 지원한다.
-     * removeWhitespace : query 포멧을 한줄로 출력되도록 설정한다.
+     * {@link com.navercorp.pinpoint.web.dao.ibatis.DefaultBindingLogFormatter} is the implementation of {@link BindLogFormatter} supports removeWhitespace option.
+     * removeWhitespace : setting for printing out query format in a row.
      *
-     * @param properties 옵션 properties
+     * @param properties option properties
      */
     @Override
     public void setProperties(Properties properties) {

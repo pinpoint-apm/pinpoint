@@ -85,8 +85,7 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
             logger.debug("scan time:{} ", range.prettyToString());
         }
 
-        // timestamp가 reverse되었기 때문에 start, end를 바꿔서 조회.
-
+        // start key is replaced by end key because timestamp has been reversed
         byte[] startKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), range.getTo());
         byte[] endKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), range.getFrom());
 
