@@ -39,14 +39,12 @@ public abstract class AbstractDataSender implements DataSender {
 	abstract protected void sendPacket(Object dto);	
 	
     protected void sendPacketN(Collection<Object> messageList) {
-    	// 자체적인 List를 사용하고 있어서 toArray(T[] array] 사용이 불가능 ㅠ_ㅠ
+        // Cannot use toArray(T[] array) because passed messageList doesn't implement it properly. 
         Object[] dataList = messageList.toArray();
         
-		// 일단 single thread에서 하는거라 구지 복사 안해도 될것 같음.
+        // No need to copy because this runs with single thread.
 		// Object[] copy = Arrays.copyOf(original, original.length);
 
-		// for (Object data : dataList) {
-		// 이렇게 바꾸지 말것. copy해서 return 하는게 아니라 항상 max치가 나옴.
 		final int size = messageList.size();
 		for (int i = 0; i < size; i++) {
 			try {

@@ -45,9 +45,6 @@ public class AgentStatCollectorFactory {
     private final GarbageCollector garbageCollector;
     private final CpuLoadCollector cpuLoadCollector;
 
-    /**
-     * Metrics 통계 데이터를 이용하여 가비지 컬렉터 타입을 지정한다.
-     */
     public AgentStatCollectorFactory() {
         this.monitorRegistry = createRegistry();
         this.garbageCollector = createGarbageCollector();
@@ -60,7 +57,7 @@ public class AgentStatCollectorFactory {
     }
 
     /**
-     * 통계 키를 기반으로 생성
+     * create with garbage collector types based on metric registry keys
      */
     private GarbageCollector createGarbageCollector() {
         MetricMonitorRegistry registry = this.monitorRegistry;

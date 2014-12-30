@@ -30,6 +30,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 
+/**
+ * 
+ * @author Jongho Moon <jongho.moon@navercorp.com>
+ *
+ */
 public class TargetBeanFilter {
     private static final int CACHE_SIZE = 1024;
     private static final int CACHE_CONCURRENCY_LEVEL = Runtime.getRuntime().availableProcessors() * 2;

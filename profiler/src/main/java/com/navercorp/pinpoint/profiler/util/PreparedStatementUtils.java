@@ -76,7 +76,6 @@ public final class PreparedStatementUtils {
                 if (method.getReturnType() != void.class) {
                     continue;
                 }
-                // sql exception을 던지는지 본다.
                 if (!throwSqlException(method)) {
                     continue;
                 }

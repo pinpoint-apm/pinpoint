@@ -67,7 +67,7 @@ public class BufferedUdpDataSender extends UdpDataSender {
                     logger.warn("discard packet. Caused:too large message. size:{}", internalBufferSize);
                     return;
                 }
-                // single thread이므로 그냥 재활용한다.
+                // We can reuse this because this runs in single thread
                 reusePacket.setData(buffer, 0, internalBufferSize);
 
                 try {

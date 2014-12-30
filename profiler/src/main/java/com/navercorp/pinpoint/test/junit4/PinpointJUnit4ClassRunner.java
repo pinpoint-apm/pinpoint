@@ -70,8 +70,9 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
         } catch (ClassNotFoundException e) {
             throw new InitializationError(e);
         }
-        // 테스트 대상을 TestClassLoader로 로드된 테스트 객체로 바꿔치기 한다.
-        // JUnit Runner에서 내부적으로 getTestClass()를 호출하여 사용하는데 이게 final이어서 override 불가.
+        
+        // Replace test target with a class loaded by TestClassLoader
+        // Cannot override getTestClass() which is used to get test class by JUnit because it's final.
         try {
             // PinpointJunit4ClassRunner -> BlockJUnit4ClassRunner -> ParentRunner.fTestClass
             Field testClassField = this.getClass().getSuperclass().getSuperclass().getDeclaredField("fTestClass");
@@ -153,7 +154,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 
     @Override
     protected Statement methodInvoker(FrameworkMethod method, Object test) {
-        // TestContext의 baseTestClass는 BasePinpointTest이므로, 캐스팅해도 된다.
+        // It's safe to cast
         @SuppressWarnings("unchecked")
         Class<BasePinpointTest> baseTestClass = (Class<BasePinpointTest>)this.testContext.getBaseTestClass();
         if (baseTestClass.isInstance(test)) {
@@ -162,7 +163,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
                 // Inject testDataSender into the current Test instance. 
                 if (m.getName().equals("setCurrentHolder")) {
                     try {
-                        // 각 테스트 메소드 마다 PeekableDataSender를 reset 함.
+                        // reset PeekableDataSender for each test method
                         this.testDataSender.clear();
                         m.setAccessible(true);
                         m.invoke(test, this.testDataSender);

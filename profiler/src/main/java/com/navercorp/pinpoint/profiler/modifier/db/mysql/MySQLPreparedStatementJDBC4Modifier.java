@@ -73,13 +73,13 @@ public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier {
     }
 
     private void bindVariableIntercept(InstrumentClass preparedStatement, ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
-        // TODO Need to add paramter type to filter arguments
+        // TODO Need to add parameter type to filter arguments
         // Cannot specify methods without parameter type information because each JDBC driver has different API.
         BindVariableFilter exclude = new IncludeBindVariableFilter(new String[]{"setRowId", "setNClob", "setSQLXML"});
         List<Method> bindMethod = PreparedStatementUtils.findBindVariableSetMethod(exclude);
         
-        // TODO 해당 로직 공통화 필요?
-        // bci 쪽에 multi api 스펙에 대한 자동으로 인터셉터를 n개 걸어주는 api가 더 좋지 않을까한다.
+        // TODO Do we have to utilize this logic?
+        // It would be better to create util api in bci package which adds interceptors to multiple methods. 
         final Scope scope = byteCodeInstrumentor.getScope(MYSQLScope.SCOPE_NAME);
         Interceptor interceptor = new ScopeDelegateStaticInterceptor(new PreparedStatementBindVariableInterceptor(), scope);
         int interceptorId = -1;
@@ -93,8 +93,8 @@ public class MySQLPreparedStatementJDBC4Modifier extends AbstractModifier {
                     preparedStatement.reuseInterceptor(methodName, parameterType, interceptorId, Type.after);
                 }
             } catch (NotFoundInstrumentException e) {
-                // bind variable setter메소드를 못찾을 경우는 그냥 경고만 표시, 에러 아님.
-                // stack trace는 일부러 안찍음.
+                // Cannot find bind variable setter method. This is not an error. logging will be enough.
+                // Did not log stack trace intentionally
                 if (logger.isDebugEnabled()) {
                     logger.debug("bindVariable api not found. method:{} param:{} Cause:{}", methodName, Arrays.toString(parameterType), e.getMessage());
                 }

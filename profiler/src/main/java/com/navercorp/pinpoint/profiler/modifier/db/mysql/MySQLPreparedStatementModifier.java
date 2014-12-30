@@ -53,8 +53,6 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
 
     public String getTargetClass() {
         return "com/mysql/jdbc/PreparedStatement";
-        // 상속관계일 경우 byte코드를 수정할 객체를 타겟으로해야 됨.
-//        return "com/mysql/jdbc/JDBC4PreparedStatement";
     }
 
     public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
@@ -106,7 +104,7 @@ public class MySQLPreparedStatementModifier extends AbstractModifier {
                     preparedStatement.reuseInterceptor(methodName, parameterType, interceptorId);
                 }
             } catch (NotFoundInstrumentException e) {
-                // bind variable setter메소드를 못찾을 경우는 그냥 경고만 표시, 에러 아님.
+                // Cannot find bind variable setter method. This is not an error. logging will be enough.
                 if (logger.isDebugEnabled()) {
                     logger.debug("bindVariable api not found. method:{} param:{} Cause:{}", methodName, Arrays.toString(parameterType), e.getMessage());
                 }

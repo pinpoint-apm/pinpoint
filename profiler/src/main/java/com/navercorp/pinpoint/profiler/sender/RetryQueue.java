@@ -16,18 +16,19 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author emeroad
  */
 public class RetryQueue {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    // 우선순위 큐로 재전송 횟수가 적은것 순으로 남기고 싶지만. 갯수제한이 안되니 그냥 만듬.
+    // Want to make message with less retry count higher priority.
+    // But PriorityQueue of JDK has no size limit, so let's do it without priority for now.
     private final BlockingQueue<RetryMessage> queue;
     private final int capacity;
     private final int maxRetry;

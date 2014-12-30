@@ -22,14 +22,14 @@ import com.navercorp.pinpoint.common.ServiceType;
  * @author emeroad
  */
 public class ContextMetric {
-    // 실제 WAS 응답속도.
+    // Response time of WAS
     private final Histogram responseMetric;
-    // 모르는 user의 속도.
+    // Response time to unknown user
     private final Histogram userHistogram;
 
     private final ServiceType contextServiceType;
 
-    // 어떤놈이 호출했는지 아는 경우.
+    // Response time to known peer
     private final AcceptHistogram acceptHistogram = new DefaultAcceptHistogram();
 
     public ContextMetric(ServiceType contextServiceType) {

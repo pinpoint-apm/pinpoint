@@ -23,6 +23,11 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.profiler.ClassFileRetransformer;
 import com.navercorp.pinpoint.profiler.modifier.Modifier;
 
+/**
+ * 
+ * @author Jongho Moon <jongho.moon@navercorp.com>
+ *
+ */
 public class CreateBeanInstanceInterceptor extends AbstractSpringBeanCreationInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     

@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.profiler.util.jdk.LongAdder;
  * @author emeroad
  */
 public class LongAdderHistogram implements Histogram {
-    // fastCounter만 LongAdder를 사용하고 나머지는 AtomicLong을 사용하는 방법도 있음.
+    // We could use LongAdder only for fastCounter and AtomicLong for the others.
     private final LongAdder fastCounter = new LongAdder();
     private final LongAdder normalCounter = new LongAdder();
     private final LongAdder slowCounter = new LongAdder();

@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Tomcat connector 정보를 수집하기 위한 modifier
+ * Modifier to collect Tomcat connector information
  *
  * @author netspider
  */
@@ -50,7 +50,7 @@ public class TomcatConnectorModifier extends AbstractModifier {
         }
         
         try {
-			// initialize()할 때 protocol과 port번호를 저장해둔다.
+			// Get protocol and port by intercepting initialize()
 			Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain,
                     "com.navercorp.pinpoint.profiler.modifier.tomcat.interceptor.ConnectorInitializeInterceptor", null, null);
 			InstrumentClass connector = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);

@@ -35,8 +35,9 @@ public final class ArrayUtils {
         if (limit < 0) {
             throw new IllegalArgumentException("negative limit:" + limit);
         }
-        // TODO limit음수일 경우 예외처리 필요.
-        // size 4인 배열의 경 3에서 멈춰야 하므로 -1
+        // TODO handle negative limit
+        
+        // Last valid index is length - 1
         int bytesMaxLength = bytes.length - 1;
         final int maxLimit = limit - 1;
         if (bytesMaxLength > maxLimit) {

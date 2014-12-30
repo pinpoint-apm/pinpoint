@@ -68,7 +68,7 @@ public class CpuLoadMetricSetSelector {
     }
 
     private static boolean canLoadOptionalPackage() {
-        // JDK 1.7 이상인지만 확인
+        // Check if JDK version is >= 1.7
         return JvmUtils.supportsVersion(JvmVersion.JAVA_7);
     }
 

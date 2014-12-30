@@ -62,7 +62,9 @@ public class OracleConnectionStringParser implements ConnectionStringParser {
 //    thin driver url
 //    jdbc:oracle:thin:@hostname:port:SID
 //    "jdbc:oracle:thin:MYWORKSPACE/qwerty@localhost:1521:XE";
-//    들여 쓰기를 통해 token을 보기 좋게 나눈경우.
+    
+//    With proper indentation and line break, 
+    
 //    jdbc:oracle:thin:
 //    @(
 //         Description=(LOAD_BALANCE=on)
@@ -78,21 +80,21 @@ public class OracleConnectionStringParser implements ConnectionStringParser {
 //    )
     private DatabaseInfo parseNetConnectionUrl(String url) {
         try {
-            // oracle new URL : rac용
+            // oracle new URL : for rac
             OracleNetConnectionDescriptorParser parser = new OracleNetConnectionDescriptorParser(url);
             KeyValue keyValue = parser.parse();
-            // TODO oci 드라이버 일경우의 추가 처리가 필요함. nhn말고 왠간한데는 oci를 더 많이 씀.
+            // TODO Need to handle oci driver. It's more popular.
 //                parser.getDriverType();
             return createOracleDatabaseInfo(keyValue, url);
         } catch (OracleConnectionStringException ex) {
             logger.warn("OracleConnectionString parse error. url:{} Caused:", url, ex.getMessage(), ex);
 
-            // 에러찍고 그냥 unknownDataBase 생성
+            // Log error and just create unknownDataBase
             return JDBCUrlParser.createUnknownDataBase(ServiceType.ORACLE, ServiceType.ORACLE_EXECUTE_QUERY, url);
         } catch (Throwable ex) {
-            // 나중에 좀더 정교하게 exception을 던지게 되면 OracleConnectionStringException 만 잡는것으로 바꿔야 될듯하다.
+            // If we throw exception more precisely later, catch OracleConnectionStringException only. 
             logger.warn("OracleConnectionString parse error. url:{} Caused:", url, ex.getMessage(), ex);
-            // 에러찍고 그냥 unknownDataBase 생성
+            // Log error and just create unknownDataBase
             return JDBCUrlParser.createUnknownDataBase(ServiceType.ORACLE, ServiceType.ORACLE_EXECUTE_QUERY, url);
         }
     }

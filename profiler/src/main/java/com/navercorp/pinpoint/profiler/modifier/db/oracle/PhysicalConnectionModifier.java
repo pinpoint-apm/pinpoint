@@ -43,8 +43,8 @@ public class PhysicalConnectionModifier extends AbstractModifier {
     }
 
     public String getTargetClass() {
-        // T4C , T2C (OCI: T2C를 상속해서 만듬) 의 최상위 구현체가 있으나,
-        // 해당 클래스는 PhysicalConnection 를 base로 하므로 PhysicalConnection 만 해도 될듯하다.
+        // There is a common super class of T4C, T2C (OCI subclasses T2C), which is based on PhysicalConnection.
+        // So modifying PhysicalConnection will be enough.
         return "oracle/jdbc/driver/PhysicalConnection";
     }
 
@@ -58,7 +58,7 @@ public class PhysicalConnectionModifier extends AbstractModifier {
 
             oracleConnection.addTraceValue(DatabaseInfoTraceValue.class);
 
-            // 해당 Interceptor를 공통클래스 만들경우 system에 로드해야 된다.
+            // If we make this as common interceptor, it has to be loaded to system.
 //            Interceptor createConnection  = new ConnectionCreateInterceptor();
 //            String[] params = new String[] {
 //                "java.lang.String", "int", "java.util.Properties", "java.lang.String", "java.lang.String"

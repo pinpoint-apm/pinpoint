@@ -165,7 +165,7 @@ public final class MetricMonitorValues {
             LOGGER.warn("key:{} not found", key);
             return LONG_ZERO;
         }
-        // type check getValue() 더 좋은 타입을 알아내는 방안이 없나?
+        // Is there better way to check type of value?
         Object value = gauge.getValue();
         if (value instanceof Long) {
             return gauge;

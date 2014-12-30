@@ -57,7 +57,7 @@ public class MySQLStatementModifier extends AbstractModifier {
             Interceptor interceptor = new StatementExecuteQueryInterceptor();
             statementClass.addScopeInterceptor("executeQuery", new String[]{"java.lang.String"}, interceptor, MYSQLScope.SCOPE_NAME);
 
-            // TODO 이거 고쳐야 됨.
+            // FIXME
             Interceptor executeUpdateInterceptor1 = new StatementExecuteUpdateInterceptor();
             statementClass.addScopeInterceptor("executeUpdate", new String[]{"java.lang.String"}, executeUpdateInterceptor1, MYSQLScope.SCOPE_NAME);
 

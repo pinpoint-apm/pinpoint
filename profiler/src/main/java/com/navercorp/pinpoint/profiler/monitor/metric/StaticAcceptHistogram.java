@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentMap;
  * @author emeroad
  */
 public class StaticAcceptHistogram implements AcceptHistogram {
-    // 동적으로 데이터 등록이 가능하지 않음. thread safe하지 않으므로 절대 put을 하지 말것.
+    // Cannot add data dynamically. Never put to this map because it's not thread safe. 
     private final IntHashMap<ConcurrentMap<String, Histogram>> map;
 
     public StaticAcceptHistogram() {

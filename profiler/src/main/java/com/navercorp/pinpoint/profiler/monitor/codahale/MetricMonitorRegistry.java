@@ -33,8 +33,8 @@ import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.CpuLoadMetricSetSele
 import com.navercorp.pinpoint.profiler.monitor.codahale.cpu.metric.CpuLoadMetricSet;
 
 /**
- * 모니터링을 위해 <a href="http://metrics.codahale.com/">Codahale</a>
- * {@link MetricRegistry}를 활용한다. 인터페이스는 netty에서 정의한 MonitorRegistry를 참고하였음.
+ * Use <a href="http://metrics.codahale.com/">Codahale</a> {@link MetricRegistry} for monitoring.
+ * We have refered MointorRegistry MonitorRegistry of Netty.
  *
  * @author emeroad
  * @author harebox

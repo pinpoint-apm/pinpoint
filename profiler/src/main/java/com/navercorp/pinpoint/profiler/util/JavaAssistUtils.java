@@ -57,8 +57,7 @@ public final class JavaAssistUtils {
     }
 
     /**
-     * test(int, java.lang.String) 일경우
-     * (int, java.lang.String)로 생성된다.
+     * example return value: (int, java.lang.String)
      *
      * @param params
      * @return
@@ -415,10 +414,10 @@ public final class JavaAssistUtils {
     }
 
     /**
-     * LocalVariable 메모리 공간을 얻어 온다.
+     * get LocalVariableAttribute
      *
      * @param method
-     * @return null일 경우 debug모드로 컴파일 되지 않아서 그럼.
+     * @return null if the class is not compiled with debug option
      */
     public static LocalVariableAttribute lookupLocalVariableAttribute(CtBehavior method) {
         if (method == null) {
@@ -432,12 +431,11 @@ public final class JavaAssistUtils {
     }
 
     public static String[] getParameterVariableName(CtBehavior method, LocalVariableAttribute localVariableAttribute) {
+        // Inspired by
         // http://www.jarvana.com/jarvana/view/org/jboss/weld/servlet/weld-servlet/1.0.1-Final/weld-servlet-1.0.1-Final-sources.jar!/org/slf4j/instrumentation/JavassistHelper.java?format=ok
         // http://grepcode.com/file/repo1.maven.org/maven2/jp.objectfanatics/assertion-weaver/0.0.30/jp/objectfanatics/commons/javassist/JavassistUtils.java
-        // 이거 참고함.
         if (localVariableAttribute == null) {
-            // null이라는건 debug모드로 컴파일 되지 않았다는 의미이다.
-            // parameter class명을 default로 넘기는 건 아래 메소드가 함. getParameterDefaultVariableName.
+            // null means that the class is not compiled with debug option.
             return null;
         }
 
@@ -451,13 +449,13 @@ public final class JavaAssistUtils {
 
         int paramIndex = 0;
         for (int i = 0; i < localVariableAttribute.tableLength(); i++) {
-            // start pc가 0이 아닐경우 parameter를 나타내는 localVariableName이 아님.
+            // if start pc is not 0, it's not a parameter.
             if (localVariableAttribute.startPc(i) != 0) {
                 continue;
             }
             int index = localVariableAttribute.index(i);
             if (index == 0 && thisExist) {
-                // this 변수임. skip
+                // variable this. skip.
                 continue;
             }
             String variablename = localVariableAttribute.variableName(i);
@@ -471,7 +469,6 @@ public final class JavaAssistUtils {
         if (Modifier.isStatic(modifiers)) {
             return false;
         } else {
-            // this 포함이므로 1;
             return true;
         }
     }

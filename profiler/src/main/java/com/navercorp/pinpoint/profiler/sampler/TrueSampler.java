@@ -30,7 +30,7 @@ public class TrueSampler implements Sampler {
 
     @Override
     public String toString() {
-        // getClass하면 class명이 변경되어 다르게 나올수 있음.
+        // To fix sampler name even if the class name is changed.
         return "TrueSampler";
     }
 }
