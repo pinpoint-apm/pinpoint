@@ -63,7 +63,7 @@ public class LinkSerializer extends JsonSerializer<Link> {
 
         jgen.writeObjectField("histogram", histogram);
 
-        // 링크별 각 agent가 어떻게 호출했는지 데이터
+        // data showing how agents call each of their respective links
         writeAgentHistogram("sourceHistogram", link.getSourceList(), jgen);
         writeAgentHistogram("targetHistogram", link.getTargetList(), jgen);
 
@@ -79,7 +79,7 @@ public class LinkSerializer extends JsonSerializer<Link> {
     }
 
     private void writeWasToWasTargetRpcList(Link link, JsonGenerator jgen) throws IOException {
-        // was -> was 연결일 경우 호출실패시의 이벤트를 filtering 하기 위한 추가적인 호출정보를 알려준다.
+        // write additional information to be used for filtering failed WAS -> WAS call events.
         jgen.writeFieldName("filterTargetRpcList");
         jgen.writeStartArray();
         Collection<Application> sourceLinkTargetAgentList = link.getSourceLinkTargetAgentList();

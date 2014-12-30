@@ -79,7 +79,7 @@ public class SpanServiceImpl implements SpanService {
 		transitionSqlId(order);
         transitionCachedString(order);
         transitionException(order);
-		// TODO root span not found시 row data라도 보여줘야 됨.
+        // TODO need to at least show the row data when root span is not found. 
 		return result;
 	}
 
@@ -117,7 +117,7 @@ public class SpanServiceImpl implements SpanService {
 
                 final AgentKey agentKey = getAgentKey(spanAlign);
 
-                // sqlId에 대한 annotation은 멀티 value가 날라옴.
+                // value of sqlId's annotation contains multiple values.
                 final IntStringStringValue sqlValue = (IntStringStringValue) sqlIdAnnotation.getValue();
                 final int hashCode = sqlValue.getIntValue();
                 final String sqlParam = sqlValue.getStringValue1();
@@ -138,7 +138,7 @@ public class SpanServiceImpl implements SpanService {
 
 //						AnnotationBo checkFail = checkIdentifier(spanAlign, sqlMetaDataBo);
 //						if (checkFail != null) {
-//							// 실패
+//							// fail
 //							annotationBoList.add(checkFail);
 //							return;
 //						}
@@ -168,13 +168,13 @@ public class SpanServiceImpl implements SpanService {
 
 					}
 				} else {
-					// TODO 보완해야됨.
+					// TODO need improvement
 					AnnotationBo api = new AnnotationBo();
 					api.setKey(AnnotationKey.SQL.getCode());
 					api.setValue(collisionSqlHashCodeMessage(hashCode, sqlMetaDataList));
 					annotationBoList.add(api);
 				}
-                // bindValue가 존재할 경우 따라 넣어준다.
+				// add if bindValue exists
                 final String bindValue = sqlValue.getStringValue2();
                 if (StringUtils.isNotEmpty(bindValue)) {
                     AnnotationBo bindValueAnnotation = new AnnotationBo();
@@ -198,7 +198,7 @@ public class SpanServiceImpl implements SpanService {
 	}
 
 	private String collisionSqlHashCodeMessage(int hashCode, List<SqlMetaDataBo> sqlMetaDataList) {
-		// TODO 이거 체크하는 테스트를 따로 만들어야 될듯 하다. 왠간하면 확율상 hashCode 충돌 케이스를 쉽게 만들수 없음.
+	    // TODO need a separate test case to test for hashCode collision (probability way too low for easy replication)
 		StringBuilder sb = new StringBuilder(64);
 		sb.append("Collision Sql hashCode:");
 		sb.append(hashCode);
@@ -220,7 +220,7 @@ public class SpanServiceImpl implements SpanService {
 			public void replacement(SpanAlign spanAlign, List<AnnotationBo> annotationBoList) {
                 final AgentKey key = getAgentKey(spanAlign);
                 final int apiId = getApiId(spanAlign);
-                // agentIdentifer를 기준으로 좀더 정확한 데이터를 찾을수 있을 듯 하다.
+                // may be able to get a more accurate data using agentIdentifier.
 				List<ApiMetaDataBo> apiMetaDataList = apiMetaDataDao.getApiMetaData(key.getAgentId(), key.getAgentStartTime(), apiId);
 				int size = apiMetaDataList.size();
 				if (size == 0) {
@@ -270,12 +270,11 @@ public class SpanServiceImpl implements SpanService {
                     if (size == 0) {
                         logger.warn("StringMetaData not Found {}/{}/{}", key.getAgentId(), stringMetaDataId, key.getAgentStartTime());
                         AnnotationBo api = new AnnotationBo();
-                        // API METADATA ERROR가 아님. 추후 수정.
                         api.setKey(AnnotationKey.ERROR_API_METADATA_NOT_FOUND.getCode());
                         api.setValue("CACHED-STRING-ID not found. stringId:" + cachedArgsKey);
                         annotationBoList.add(api);
                     } else if (size >= 1) {
-                        // key 충돌 경우는 후추 처리한다. 실제 상황에서는 일부러 만들지 않는한 발생할수 없다.
+                        // key collision shouldn't really happen (probability too low)
                         StringMetaDataBo stringMetaDataBo = stringMetaList.get(0);
 
                         AnnotationBo stringMetaData = new AnnotationBo();
@@ -334,7 +333,6 @@ public class SpanServiceImpl implements SpanService {
         if (metaDataList.size() == 1) {
             return metaDataList.get(0);
         } else {
-            // 일단 로그 찍고 처리.
             logger.warn("stringMetaData size not 1 :{}", metaDataList);
             return metaDataList.get(0);
         }
@@ -359,7 +357,7 @@ public class SpanServiceImpl implements SpanService {
     }
 
 	private String collisionApiDidMessage(int apidId, List<ApiMetaDataBo> apiMetaDataList) {
-		// TODO 이거 체크하는 테스트를 따로 만들어야 될듯 하다. 왠간하면 확율상 hashCode 충돌 케이스를 쉽게 만들수 없음.
+        // TODO need a separate test case to test for hashCode collision (probability way too low for easy replication)
 		StringBuilder sb = new StringBuilder(64);
 		sb.append("Collision Api DynamicId:");
 		sb.append(apidId);

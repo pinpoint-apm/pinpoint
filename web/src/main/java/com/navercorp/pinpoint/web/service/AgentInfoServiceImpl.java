@@ -46,8 +46,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 	private AgentInfoDao agentInfoDao;
 	
 	/**
-	 * FIXME 인터페이스에 from, to가 있으나 실제로 사용되지 않음. 나중에 agent list snapshot기능이 추가되면
-	 * 사용될 것임.
+	 * FIXME from/to present in the interface but these values are not currently used. They should be used when agent list snapshot is implemented
 	 */
 	@Override
 	public SortedMap<String, List<AgentInfoBo>> getApplicationAgentList(String applicationName, Range range) {
@@ -76,7 +75,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 				continue;
 			}
 
-			// FIXME 지금은 그냥 첫 번재꺼 사용. 여러개 검사?는 나중에 생각해볼 예정.
+			// FIXME just using the first value for now. Might need to check and pick which one to use.
 			AgentInfoBo agentInfo = agentInfoList.get(0);
 			String hostname = agentInfo.getHostName();
 
@@ -106,8 +105,8 @@ public class AgentInfoServiceImpl implements AgentInfoService {
         List<String> agentIds = applicationIndexDao.selectAgentIds(applicationId);
         Set<AgentInfoBo> agentSet = new HashSet<AgentInfoBo>();
         for (String agentId : agentIds) {
-            // TODO 조회 시간대에 따라서 agent info row timestamp를 변경하여 조회해야하는지는 모르겠음.
-            // 과거에 조회하였을 경우 이를 과거 시간을 기준으로 거슬러 올라가도록 to를 넣어서 조회하도록 임시 수정.
+            // TODO Temporarily scans for the most recent AgentInfo row starting from range's to value.
+            // (As we do not yet have a way to accurately record the agent's lifecycle.)
             AgentInfoBo info = agentInfoDao.findAgentInfoBeforeStartTime(agentId, range.getTo());
             if (info != null) {
                 agentSet.add(info);

@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
 public class SpanDepth {
     private final SpanAlign spanAlign;
     private final int id;
-    // gap 을 구하기 위해 바로 전 lastExecuteTime을 구함
+    // needed for finding gap
     private final long lastExecuteTime;
 
     public SpanDepth(SpanAlign spanAlign, int id, long lastExecuteTime) {

@@ -43,7 +43,6 @@ public final class RowKeyUtils {
 
 
 	public static byte[] getMetaInfoRowKey(String agentId, long agentStartTime, int keyCode) {
-		// TODO 일단 agent의 조회 시간 로직을 따로 만들어야 되므로 그냥0으로 하자.
 		if (agentId == null) {
 			throw new NullPointerException("agentId must not be null");
 		}

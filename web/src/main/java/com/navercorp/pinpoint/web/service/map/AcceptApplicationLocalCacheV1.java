@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * 나중에 삭제하면 됨.
+ * remove later
  * @author emeroad
  */
 @Deprecated
@@ -46,7 +46,7 @@ public class AcceptApplicationLocalCacheV1 {
     public void put(String host, Set<AcceptApplication> acceptApplicationSet) {
 
         if (CollectionUtils.isEmpty(acceptApplicationSet)) {
-            // 비어 있는 값에 대해서도 생성해야 함.
+            // initialize for empty value
             Set<AcceptApplication> emptySet = Collections.emptySet();
             acceptApplicationLocalCacheV1.put(host, emptySet);
             return ;

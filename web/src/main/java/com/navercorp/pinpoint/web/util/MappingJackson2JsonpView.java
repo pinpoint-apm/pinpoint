@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 /**
- * modify renderMergedOutputModel만 수정함.
+ * only modifies renderMergedOutputModel
  * @author emeroad
  */
 public class MappingJackson2JsonpView extends MappingJackson2JsonView {

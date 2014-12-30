@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.util.regex.Pattern;
 
 /**
- * MethodDescriptor 과 비슷한데. 문자열을 기반으로 parsing하여 생성하므로 따로 만들었음.
+ * Similar to MethodDescriptor, but instead parses string-based values.
  * @author emeroad
  */
 public class ApiDescriptionParser {
@@ -69,7 +69,7 @@ public class ApiDescriptionParser {
         api.setSimpleParameter(simpleParameterList);
 
         int lineIndex = apiDescriptionString.lastIndexOf(':');
-        // 일단 땜방으로 lineNumber체크해서 lineNumber를 뿌려주도록 하자.
+        // TODO for now, check and display the lineNumber
         if (lineIndex != -1) {
             try {
                 int line = Integer.parseInt(apiDescriptionString.substring(lineIndex + 1, apiDescriptionString.length()));
@@ -96,7 +96,7 @@ public class ApiDescriptionParser {
     private String simepleParameter(String parameter) {
         int packageIndex = parameter.lastIndexOf(DOT);
         if (packageIndex == -1) {
-            // 없을 경우 아래 로직가 동일하나 추후 뭔가 변경사항이 생길수 있어 명시적으로 체크하는 로직으로 구현.
+            // same logic as below (-1 + 1 == 0) - explicitly checks as there may be changes in the future.
             packageIndex = 0;
         } else {
             packageIndex += 1;

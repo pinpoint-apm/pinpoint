@@ -42,10 +42,10 @@ public class TimeWindowSlotCentricSampler implements TimeWindowSampler {
     }
 
     /**
-     * <p>This implementation returns the window size that generates a 
-     * <tt>MINIMUM_TIMESLOT. 
-     * Additionally, the window size is calculated in multiples of a 
-     * <tt>IDEAL_NUM_TIMESLOTS</tt>.
+     * <p>This implementation returns the window size that would generate the number of timeslots closest to 
+     * <tt>idealNumTimeslots</tt> for a given <tt>range</tt>.
+     * <p>Additionally, the window size is generated in multiples of
+     * <tt>minTimeslot</tt>.
      * 
      * @param range range to calculate the time window over 
      * @return size of the ideal time window

@@ -70,7 +70,7 @@ public class LoadFactor {
 	}
 
 	/**
-	 * timeseries 기본값 채운다. 빈 공간은 그냥 적당히 채워준다. 모두 채우면 느리니까..
+	 * initialize timeseries with default value. 
 	 * 
 	 * @return
 	 */
@@ -83,8 +83,8 @@ public class LoadFactor {
 	}
 
 	/**
-	 * histogram slot을 설정하면 view에서 값이 없는 slot의 값을 0으로 보여줄 수 있다. 설정되지 않으면 key를
-	 * 몰라서 보여주지 못함. 입력된 값만 보이게 됨.
+	 * Empty slots in the view is shown as 0 if the histogram slot is set.
+	 * If not, value cannot be shown as the key is unknown.
 	 * 
 	 * @param schema
 	 */
@@ -129,7 +129,6 @@ public class LoadFactor {
 			successCount += callCount;
 		}
 
-		// TODO 이렇게 하는게 뭔가 좋지 않은것 같음.
 		if (responseTimeslot == -1) {
 			responseTimeslot = SLOT_ERROR;
 		} else if (responseTimeslot == 0) {
@@ -142,7 +141,7 @@ public class LoadFactor {
 
 		/**
 		 * <pre>
-		 * timeseriesValueList의 구조는..
+		 * timeseriesValueList : 
 		 * list[respoinse_slot_no + 0] = value<timestamp, call count> 
 		 * list[respoinse_slot_no + 1] = value<timestamp, call count> 
 		 * list[respoinse_slot_no + N] = value<timestamp, call count>
@@ -151,8 +150,8 @@ public class LoadFactor {
 		for (int i = 0; i < timeseriesValueList.size(); i++) {
 			Map<Long, Long> map = timeseriesValueList.get(i);
 
-			// 다른 slot에도 같은 시간이 존재해야한다.
-			// FIXME responseTimeSlot의 자료형을 short으로 변경할 것.
+			// the same time should exist in different slots.
+			// FIXME change responseTimeSlot's data type to short
             Integer slotNumber = timeseriesSlotIndex.get(responseTimeslot);
             if (i == slotNumber) {
                 long v = map.containsKey(timestamp) ? map.get(timestamp) + callCount : callCount;

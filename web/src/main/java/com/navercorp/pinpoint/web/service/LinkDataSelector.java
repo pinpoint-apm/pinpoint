@@ -75,14 +75,14 @@ public class LinkDataSelector {
     }
 
     /**
-     * callerApplicationName이 호출한 callee를 모두 조회
+     * Queries for all applications(callee) called by the callerApplication
      *
      * @param callerApplication
      * @param range
      * @return
      */
     private LinkDataDuplexMap selectCaller(Application callerApplication, Range range) {
-        // 이미 조회된 구간이면 skip
+        // skip if the callerApplication has already been checked
         if (linkVisitChecker.visitCaller(callerApplication)) {
             return new LinkDataDuplexMap();
         }
@@ -106,7 +106,7 @@ public class LinkDataSelector {
             resultCaller.addSourceLinkData(link);
 
             final Application toApplication = link.getToApplication();
-            // terminal, unknowncloud 인 경우에는 skip
+            // skip if toApplication is a terminal or an unknown cloud
             if (toApplication.getServiceType().isTerminal() || toApplication.getServiceType().isUnknown()) {
                 continue;
             }
@@ -117,7 +117,7 @@ public class LinkDataSelector {
 
             resultCaller.addLinkDataDuplexMap(callerSub);
 
-            // 찾아진 녀석들에 대한 caller도 찾는다.
+            // find all callers of queried subCallers as well
             for (LinkData eachCaller : callerSub.getSourceLinkDataList()) {
                 logger.debug("     Find callee of {}", eachCaller.getFromApplication());
                 LinkDataDuplexMap calleeSub = selectCallee(eachCaller.getFromApplication(), range);
@@ -129,14 +129,14 @@ public class LinkDataSelector {
     }
 
     /**
-     * callee applicationname을 호출한 caller 조회.
+     * Queries for all applications(caller) that called calleeApplication
      *
      * @param calleeApplication
      * @param range
      * @return
      */
     private LinkDataDuplexMap selectCallee(Application calleeApplication, Range range) {
-        // 이미 조회된 구간이면 skip
+        // skip if the calleeApplication has already been checked
         if (linkVisitChecker.visitCallee(calleeApplication)) {
             return new LinkDataDuplexMap();
         }
@@ -148,11 +148,11 @@ public class LinkDataSelector {
         for (LinkData stat : callee.getLinkDataList()) {
             calleeSet.addTargetLinkData(stat);
 
-            // 나를 부른 application을 찾아야 하기 떄문에 to를 입력.
+            // need to find the applications that called me
             LinkDataDuplexMap calleeSub = selectCallee(stat.getFromApplication(), range);
             calleeSet.addLinkDataDuplexMap(calleeSub);
 
-            // 찾아진 녀석들에 대한 callee도 찾는다.
+            // find all callees of queried subCallees as well
             for (LinkData eachCallee : calleeSub.getTargetLinkDataList()) {
                 // terminal이면 skip
                 final Application eachCalleeToApplication = eachCallee.getToApplication();
@@ -169,7 +169,7 @@ public class LinkDataSelector {
 
 
     private List<LinkData> checkRpcCallAccepted(LinkData linkData, Range range) {
-        // rpc client의 목적지가 agent가 설치되어 application name이 존재한다면 replace.
+        // replace if the rpc client's destination has an agent installed and thus has an application name
         final Application toApplication = linkData.getToApplication();
         if (!toApplication.getServiceType().isRpcClient()) {
             return Arrays.asList(linkData);
@@ -187,7 +187,7 @@ public class LinkDataSelector {
                 final LinkData acceptedLinkData = new LinkData(linkData.getFromApplication(), first.getApplication(), linkData.getLinkCallDataMap());
                 return Arrays.asList(acceptedLinkData);
             } else {
-                // specialcase 한개의 url에 2개의 노드가 묶여 있다.
+                // special case - there are more than 2 nodes grouped by a single url
                 return createVirtualLinkData(linkData, toApplication, acceptApplicationList);
             }
         } else {
@@ -203,8 +203,7 @@ public class LinkDataSelector {
 
         List<LinkData> emulationLink = new ArrayList<LinkData>();
         for (AcceptApplication acceptApplication : acceptApplicationList) {
-            // linkCallData를 바꿔야 한다.
-            // 일부러 callhistogram을 빼버린다.
+            // linkCallData needs to be modified - remove callHistogram on purpose
             final LinkData acceptedLinkData = new LinkData(linkData.getFromApplication(), acceptApplication.getApplication(), linkData.getLinkCallDataMap());
             emulationLink.add(acceptedLinkData);
             traceEmulationLink(acceptedLinkData);
@@ -226,6 +225,8 @@ public class LinkDataSelector {
         try {
             // 호환성을 위해 일단 2번 뒤진다.
             // 신데이터를 먼저 뒤지고 이후 구데이터를 뒤진다. 6개월 뒤에는 어차피 데이터가 없어지므로 호환성 코드를 지울것. 2014.07월 개발
+            // queries twice for backward compatibility - queries for the more recent version first
+            // FIXME Remove compatibility code after 6 monthes (from 2014.07)
             acceptApplicationVer2 = findAcceptApplicationVer2(fromApplication, host, range);
             logger.debug("findAcceptApplication2 {}->{} result:{}", fromApplication, host, acceptApplicationVer2);
         } catch (HbaseSystemException ex) {
@@ -269,10 +270,8 @@ public class LinkDataSelector {
     }
 
     private void fillEmulationLink(LinkDataDuplexMap linkDataDuplexMap) {
-        // TODO 이쪽 부분은 추후에 ui가 들어오면 다시 구현이 필요하다.
-        // http://yobi.navercorp.com/Pinpoint/pinpoint-web/issue/193
-        // 현재는 역치환 관계 노드를 펼쳐만 놓았고, virtual node를 생성하여 rpc 데이터를 치환하는 로직은 넣지 못했음.
-        // virtual node 생성에 관련해서 추가적으로 많은 고민이 필요할듯하다.
+        // TODO need to be reimplemented - virtual node creation logic needs an overhaul.
+        // Currently, only the reversed relationship node is displayed. We need to create a virtual node and convert the rpc data appropriately.
         logger.debug("this.emulationLinkMarker:{}", this.emulationLinkMarker);
         List<LinkData> emulationLinkDataList = findEmulationLinkData(linkDataDuplexMap);
 
@@ -284,13 +283,13 @@ public class LinkDataSelector {
             LinkKey findLinkKey = new LinkKey(emulationLinkData.getFromApplication(), emulationLinkData.getToApplication());
             LinkData targetLinkData = linkDataDuplexMap.getTargetLinkData(findLinkKey);
             if (targetLinkData == null) {
-                // 예외 케이스가 발생한적이 있는데. 정확한 이벤트를 캡쳐하지 못했음.
-                // 일단 error로 해둔후 문제 케이스를 추가로 잡아야 될듯함.
+                // There has been a case where targetLinkData was null, but exact event could not be captured for analysis.
+                // Logging the case for further analysis should it happen again in the future.
                 logger.error("targetLinkData not found findLinkKey:{}", findLinkKey);
                 continue;
             }
 
-            // 역치환 데이터 생성. target이 accept한 데이터를 반대로 호출 데이터로 바꾼다.
+            // create reversed link data - convert data accepted by the target to target's call data
             LinkCallDataMap targetList = targetLinkData.getLinkCallDataMap();
             Collection<LinkCallData> beforeLinkDataList = beforeImage.getLinkDataList();
 
@@ -329,8 +328,8 @@ public class LinkDataSelector {
     }
 
     private List<LinkData> findEmulationLinkData(LinkDataDuplexMap linkDataDuplexMap) {
-        // emulationLinkMarker의 데이터를 직접 수정해도 LinkDataDuplexMap에서는 이미 데이터를 copy하여 사용하기 때문에 수정해도 효과가 없음.
-        // LinkDataDuplexMap에서 데이터를 다시 찾아야 한다.
+        // LinkDataDuplexMap already has a copy of the data - modifying emulationLinkMarker's data has no effect.
+        // We must get the data from LinkDataDuplexMap again.
         List<LinkData> searchList = new ArrayList<LinkData>();
         for (LinkData emulationLinkData : this.emulationLinkMarker) {
             LinkKey search = getLinkKey(emulationLinkData);

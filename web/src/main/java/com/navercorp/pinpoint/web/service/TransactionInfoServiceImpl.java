@@ -66,7 +66,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             throw new NullPointerException("filter must not be null");
         }
         if (range == null) {
-            // TODO 레인지를 사용하지 않네. 확인필요.
+            // TODO range is not used - check the logic again
             throw new NullPointerException("range must not be null");
         }
 
@@ -86,7 +86,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 			}
 
 			for (SpanBo spanBo : trace) {
-				// 해당 application으로 인입된 요청만 보여준다.
+			    // show application's incoming requests
 				if (applicationName.equals(spanBo.getApplicationId())) {
 					businessTransactions.add(spanBo);
 				}
@@ -104,12 +104,12 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
         RecordSet recordSet = new RecordSet();
 
-        // focusTimeStamp 를 찾아서 마크한다.
-        // span이 2개 이상으로 구성되었을 경우, 내가 어떤 span을 기준으로 보는지 알려면 focus시점을 찾아야 한다.
-        // 오류로 인해 foucs를 못찾을수 도있으므로, 없을 경우 별도 mark가 추가적으로 있어야 함.
-        // TODO 잘못 될수 있는점 foucusTime은 실제로 2개 이상 나올수 잇음. 서버의 time을 사용하므로 오차로 인해 2개가 나올수도 있음.
+        // finds and marks the focusTimestamp.
+        // focusTimestamp is needed to determine which span to use as reference when there are more than 2 spans making up a transaction.
+        // for cases where focus cannot be found due to an error, a separate marker is needed.
+        // TODO potential error - because server time is used, there may be more than 2 focusTime due to differences in server times.  
         SpanBo focusTimeSpanBo = findFocusTimeSpanBo(spanAlignList, focusTimestamp);
-        // focusTimeSpanBO를 못찾을 경우에 대한 임시 패치를 하였으나 근본적으로 해결된게 아님.
+        // FIXME patched temporarily for cases where focusTimeSpanBo is not found. Need a more complete solution.
         if (focusTimeSpanBo != null) {
             recordSet.setAgentId(focusTimeSpanBo.getAgentId());
             recordSet.setApplicationId(focusTimeSpanBo.getApplicationId());
@@ -119,11 +119,11 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         }
 
 
-        // 기준이 되는 시작시간을 찾는다.
+        // find the startTime to use as reference
         long startTime = getStartTime(spanAlignList);
         recordSet.setStartTime(startTime);
 
-        // 기준이 되는 종료 시간을 찾는다.
+        // find the endTime to use as reference
         long endTime = getEndTime(spanAlignList);
         recordSet.setEndTime(endTime);
 
@@ -132,7 +132,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         logger.debug("RecordList:{}", recordList);
 
         if (focusTimeSpanBo != null) {
-            // focus 대상 record를 체크한다.
+            // mark the record to be used as focus
             long beginTimeStamp = focusTimeSpanBo.getStartTime();
             markFocusRecord(recordList, beginTimeStamp);
             recordSet.setBeginTimestamp(beginTimeStamp);
@@ -196,7 +196,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                 }
             }
         }
-        // foucus된 Span을 찾지 못할 경우 firstSpan을 리턴한다.
+        // return firstSpan when focus Span could not be found.
         return firstSpan;
     }
 
@@ -205,7 +205,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
         private final ApiDescriptionParser apiDescriptionParser = new ApiDescriptionParser();
 
-        // id가 0일 경우 root로 취급하는 문제가 있어 1부터 시작하도록 함.
+        // spans with id = 0 are regarded as root - start at 1
         private int idGen = 1;
         private final Stack<SpanDepth> stack = new Stack<SpanDepth>();
 
@@ -219,14 +219,13 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             }
             final List<Record> recordList = new ArrayList<Record>(spanAlignList.size() * 2);
 
-            // annotation id는 spanalign의 seq와 무관하게 순서대로 따도 됨. 겹치지만 않으면 됨.
+            // annotation id has nothing to do with spanAlign's seq and thus may be incremented as long as they don't overlap. 
             for (int i = 0; i < spanAlignList.size(); i++) {
                 final SpanAlign spanAlign = spanAlignList.get(i);
                 if (i == 0) {
                     if (!spanAlign.isSpan()) {
                         throw new IllegalArgumentException("root is not span");
                     }
-                    // spanAlign의 startTime을 넣을 경우 동일 시간으로 빼면 0이 나오므로 동일 값을 넣는다..
                     final SpanDepth spanDepth = new SpanDepth(spanAlign, getNextId(), spanAlign.getSpanBo().getStartTime());
                     stack.push(spanDepth);
                 } else {
@@ -236,15 +235,15 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                     logger.debug("parentDepth:{} currentDepth:{} sequence:{}", parentDepth, currentDepth, lastSpanDepth.getId());
 
                     if (parentDepth < spanAlign.getDepth()) {
-                        // 부모의 깊이가 더 작을 경우 push해야 한다.
+                        // push if parentDepth is smaller
                         final SpanDepth last = stack.getLast();
                         final long beforeStartTime = getStartTime(last.getSpanAlign());
                         final SpanDepth spanDepth = new SpanDepth(spanAlign, getNextId(), beforeStartTime);
                         stack.push(spanDepth);
                     } else {
                         if (parentDepth > currentDepth) {
-                            // 부모의 깊이가 클 경우 pop해야 한다.
-                            // 단 depth차가 1depth이상 날수 있기 때문에. depth를 확인하면서 pop을 해야 한다.
+                            // pop if parentDepth is larger
+                            // difference in depth may be greater than 1, so pop and check the depth repeatedly until appropriate
                             SpanDepth lastPopSpanDepth;
                             while (true) {
                                 logger.trace("pop");
@@ -257,7 +256,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                             final long beforeLastEndTime = getLastTime(lastPopSpanDepth.getSpanAlign());
                             stack.push(new SpanDepth(spanAlign, getNextId(), beforeLastEndTime));
                         } else {
-                            // 바로 앞 동일 depth의 object는 버려야 한다.
+                            // throw away the object right infront if it has the same depth
                             final SpanDepth before = stack.pop();
                             final long beforeLastEndTime = getLastTime(before.getSpanAlign());
                             stack.push(new SpanDepth(spanAlign, getNextId(), beforeLastEndTime));
@@ -276,7 +275,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                     int parentSequence;
                     final SpanDepth parent = stack.getParent();
                     if (parent == null) {
-                        // 자기 자신이 root인 경우
+                        // root span
                         parentSequence = 0;
                     } else {
                         parentSequence = parent.getId();
@@ -326,7 +325,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                         record.setFullApiDescription("");
                         recordList.add(record);
                     }
-                    // exception이 발생했을 경우 record추가.
+                    // add exception record
                     final Record exceptionRecord = getExceptionRecord(spanAlign, spanBoSequence);
                     if (exceptionRecord != null) {
                         recordList.add(exceptionRecord);
@@ -359,7 +358,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                         long begin = spanAlign.getSpanBo().getStartTime() + spanEventBo.getStartElapsed();
                         long elapsed = spanEventBo.getEndElapsed();
 
-                        // stacktrace에 호출한 application name을 보여주기 위해서 eventbo.destinationid 대신에 spanbo.applicaitonid를 넣어줌.
+                        // use spanBo's applicationId instead of spanEventBo's destinationId to display the name of the calling application on the call stack.
                         Record record = new Record(spanAlign.getDepth(), 
 													spanBoEventSequence,
 													parentSequence, 
@@ -387,7 +386,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                         long begin = spanAlign.getSpanBo().getStartTime() + spanEventBo.getStartElapsed();
                         long elapsed = spanEventBo.getEndElapsed();
 
-                        // stacktrace에 호출한 application name을 보여주기 위해서 eventbo.destinationid 대신에 spanbo.applicaitonid를 넣어줌.
+                     // use spanBo's applicationId instead of spanEventBo's destinationId to display the name of the calling application on the call stack.
                         Record record = new Record(spanAlign.getDepth(),
 													spanBoEventSequence, 
 													parentSequence, 
@@ -409,7 +408,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
                         recordList.add(record);
                     }
-                    // exception이 발생했을 경우 record추가.
+                    // add exception record
                     final Record exceptionRecord = getExceptionRecord(spanAlign, spanBoEventSequence);
                     if (exceptionRecord != null) {
                         recordList.add(exceptionRecord);

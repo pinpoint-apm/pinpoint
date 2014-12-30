@@ -120,7 +120,7 @@ public class AnnotationTranscoder {
         } else if (o instanceof Short) {
             return CODE_SHORT;
         } else if (o instanceof Float) {
-            // thrift에서 지원안함.
+            // not supported by thrift
             return CODE_FLOAT;
         } else if (o instanceof Double) {
             return CODE_DOUBLE;
@@ -201,7 +201,7 @@ public class AnnotationTranscoder {
         final TIntStringValue tIntStringValue = (TIntStringValue) value;
         final int intValue = tIntStringValue.getIntValue();
         final byte[] stringValue = BytesUtils.toBytes(tIntStringValue.getStringValue());
-        // 대충 크기 더함. 나중에 좀더 정교하게 계산하자.
+        // TODO increase by a more precise value
         final int bufferSize = getBufferSize(stringValue, 4 + 8);
         final Buffer buffer = new AutomaticBuffer(bufferSize);
         buffer.putSVar(intValue);
@@ -230,7 +230,7 @@ public class AnnotationTranscoder {
         final int intValue = tIntStringStringValue.getIntValue();
         final byte[] stringValue1 = BytesUtils.toBytes(tIntStringStringValue.getStringValue1());
         final byte[] stringValue2 = BytesUtils.toBytes(tIntStringStringValue.getStringValue2());
-        // 대충 크기 더함. 나중에 좀더 정교하게 계산하자.
+        // TODO increase by a more precise value
         final int bufferSize = getBufferSize(stringValue1, stringValue2, 4 + 8);
         final Buffer buffer = new AutomaticBuffer(bufferSize);
         buffer.putSVar(intValue);

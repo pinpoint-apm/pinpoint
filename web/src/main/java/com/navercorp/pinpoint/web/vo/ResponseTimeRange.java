@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.vo;
 
 /**
- * FIXME 그냥 Range를 활용해도 될 듯..
+ * FIXME could just use Range..
  * 
  * @author netspider
  * 

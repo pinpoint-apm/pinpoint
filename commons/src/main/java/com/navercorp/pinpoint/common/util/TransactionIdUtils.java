@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.common.buffer.FixedBuffer;
  * @author emeroad
  */
 public final class TransactionIdUtils {
-    // html 에서 표시되는 값이라. html 상에서 해석이 다르게 되는 문자열은 사용하면 안됨.
+    // value is displayed as html - should not use html syntax
     public static final String TRANSACTION_ID_DELIMITER = "^";
     public static final byte VERSION = 0;
 
@@ -45,7 +45,7 @@ public final class TransactionIdUtils {
     }
 
     public static byte[] formatBytes(String agentId, long agentStartTime, long transactionSequence) {
-        // agentId는 null이 될수 있음.
+        // agentId may be null
         // vesion + prefixed size + string + long + long
         final Buffer buffer = new AutomaticBuffer(1 + 5 + 24 + 10 + 10);
         buffer.put(VERSION);
@@ -94,7 +94,8 @@ public final class TransactionIdUtils {
 
         int transactionSequenceIndex = nextIndex(transactionId, agentStartTimeIndex + 1);
         if (transactionSequenceIndex == -1) {
-            // 이거는 없을수 있음. transactionSequence 다음에 델리미터가 일단 없는게 기본값임. 향후 추가 아이디 스펙이 확장가능하므로 보완한다.
+            // next index may not exist since default value does not have a delimiter after transactionSequence.
+            // may need fixing when id spec changes 
             transactionSequenceIndex = transactionId.length();
         }
         final long transactionSequence = parseLong(transactionId, agentStartTimeIndex + 1, transactionSequenceIndex);

@@ -81,7 +81,7 @@ public class SqlParser {
                         break;
                     }
 //                case '#'
-//                    mysql 에서는 #도 한줄 짜리 comment이다.
+//                    # is a single line comment in mysql
                 case '-':
                     // single line comment state
                     if (lookAhead1(sql, i) == '-') {
@@ -101,7 +101,7 @@ public class SqlParser {
                     // empty symbol
                     if (lookAhead1(sql, i) == '\'') {
                         normalized.append("''");
-                        // $로 치환하지 않으므로 output에 파라미터를 넣을필요가 없다
+                        // no need to add parameter to output as $ is not converted
                         i += 2;
                         break;
                     } else {
@@ -112,7 +112,7 @@ public class SqlParser {
                         for (; i < length; i++) {
                             char stateCh = sql.charAt(i);
                             if (stateCh == '\'') {
-                                // '' 이 연속으로 나왔을 경우는 \' 이므로 그대로 넣는다.
+                                // a consecutive ' is the same as \'
                                 if (lookAhead1(sql, i) == '\'') {
                                     i++;
                                     parsingResult.appendOutputParam("''");
@@ -141,7 +141,7 @@ public class SqlParser {
                 case '7':
                 case '8':
                 case '9':
-                    // http://www.h2database.com/html/grammar.html 추가로 state machine을 더볼것.
+                    // http://www.h2database.com/html/grammar.html look at the state machine more
                     if (numberTokenStartEnable) {
                         change = true;
                         normalized.append(replaceIndex++);
@@ -170,7 +170,7 @@ public class SqlParser {
                                     parsingResult.appendOutputParam(stateCh);
                                     break;
                                 default:
-                                    // 여기서 처리하지 말고 루프 바깥으로 나가서 다시 token을 봐야 된다.
+                                    // should look at the token outside the loop - not here
 //                                    outputParam.append(SEPARATOR);
                                     i--;
                                     break tokenEnd;
@@ -182,7 +182,7 @@ public class SqlParser {
                         break;
                     }
 
-                    // 공백 space를 만남
+                    // empty space
                 case ' ':
                 case '\t':
                 case '\n':
@@ -190,7 +190,7 @@ public class SqlParser {
                     numberTokenStartEnable = true;
                     normalized.append(ch);
                     break;
-                // http://msdn.microsoft.com/en-us/library/ms174986.aspx 참조.
+                // http://msdn.microsoft.com/en-us/library/ms174986.aspx
                 case '*':
                 case '+':
                 case '%':
@@ -217,13 +217,13 @@ public class SqlParser {
                 case '.':
                 case '_':
                 case '@': // Assignment Operator
-                case ':': // 오라클쪽의 bind 변수는 :bindvalue로도 가능.
+                case ':': // Oracle's bind variable is possible with :bindvalue
                     numberTokenStartEnable = false;
                     normalized.append(ch);
                     break;
 
                 default:
-                    // 한글이면 ??
+                    // what if it's in a different language??
                     if (ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z') {
                         numberTokenStartEnable = false;
                     } else {
@@ -237,9 +237,9 @@ public class SqlParser {
             parsingResult.setSql(normalized.toString());
             return parsingResult;
         } else {
-            // 수정되지 않았을 경우의 재활용.
-            // 1. 성능향상을 위해 string을 생성하지 않도록.
-            // 2. hash code재활용.
+            // Reuse if not modified.
+            // 1. new strings are not generated
+            // 2. reuse hashcodes
             parsingResult.setSql(sql);
             return parsingResult;
         }
@@ -258,7 +258,7 @@ public class SqlParser {
     }
 
     /**
-     * 미리 다음 문자열 하나를 까본다.
+     * look up the next character in a string
      *
      * @param sql
      * @param index
@@ -314,7 +314,7 @@ public class SqlParser {
                         break;
                     }
 //                case '#'
-//                    mysql 에서는 #도 한줄 짜리 comment이다.
+//                  # is a single line comment in mysql
                 case '-':
                     // single line comment state
                     if (lookAhead1(sql, i) == '-') {
@@ -340,7 +340,7 @@ public class SqlParser {
                 case '7':
                 case '8':
                 case '9':
-                    // http://www.h2database.com/html/grammar.html 추가로 state machine을 더볼것.
+                    // http://www.h2database.com/html/grammar.html look at the state machine more
                     if (lookAhead1(sql, i) == NEXT_TOKEN_NOT_EXIST) {
                         normalized.append(ch);
                         break;
@@ -375,7 +375,7 @@ public class SqlParser {
                                 try {
                                     numberIndex = Integer.parseInt(outputIndex.toString());
                                 } catch (NumberFormatException e) {
-                                    // 잘못된 파라미터일 경우 그냥 쓰자.
+                                    // just append for invalid parameters
                                     normalized.append(outputIndex.toString());
                                     normalized.append(NUMBER_REPLACE);
                                     break tokenEnd;
@@ -384,7 +384,7 @@ public class SqlParser {
                                     String replaceNumber = outputParams.get(numberIndex);
                                     normalized.append(replaceNumber);
                                 } catch (IndexOutOfBoundsException e) {
-                                    // 잘못된 파라미터일 경우 그냥 쓰자.
+                                    // just append for invalid parameters
                                     normalized.append(outputIndex.toString());
                                     normalized.append(NUMBER_REPLACE);
                                     break tokenEnd;
@@ -396,7 +396,7 @@ public class SqlParser {
                                 try {
                                     symbolIndex = Integer.parseInt(outputIndex.toString());
                                 } catch (NumberFormatException e) {
-                                    // 잘못된 파라미터일 경우 그냥 쓰자.
+                                    // just append for invalid parameters
                                     normalized.append(outputIndex.toString());
                                     normalized.append(SYMBOL_REPLACE);
                                 }
@@ -410,7 +410,7 @@ public class SqlParser {
                                 break tokenEnd;
 
                             default:
-                                // 여기서 처리하지 말고 루프 바깥으로 나가서 다시 token을 봐야 된다.
+                                // should look at the token outside the loop - not here
 //                                    outputParam.append(SEPARATOR);
                                 normalized.append(outputIndex.toString());
                                 i--;

@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 
 /**
- * value filter보다 column name에 prefix 붙여 filter하는것이 나을 듯하여 일단 deprecated 처리 함.
+ * @deprecated it is better to filter by adding prefix to the column name, than to filter by value
  * 
  * @author netspider
  * 
@@ -50,7 +50,7 @@ public class ApplicationTraceIndexResponseTimeFilter extends FilterBase {
 
 	@Override
 	public void reset() {
-		// 새로운 값을 비교할 때마다 플래그 재설정.
+	    // reset flag when comparing with a new value
 		this.filterRow = true;
 	}
 
@@ -63,17 +63,17 @@ public class ApplicationTraceIndexResponseTimeFilter extends FilterBase {
 		int elapsed = valueBuffer.readVarInt();
 
 		if (elapsed < responseTimeFrom || elapsed > responseTimeTo) {
-			// 조건에 맞지 않으면 row를 통과
+		    // skip row if conditions are not met
 			filterRow = false;
 		}
 
-		// 실제 결정은 나중에 하기 때문에 항상 이 값을 반환
+		// always return this value as the actual decision for filtering happens later
 		return ReturnCode.INCLUDE;
 	}
 
 	@Override
 	public boolean filterRow() {
-		// 실제 결정은 플래그 상태에 따라 이곳에서 이루어진다.
+	    // the actual decision for filtering happens here depending on the flag
 		return filterRow;
 	}
 

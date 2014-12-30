@@ -49,7 +49,7 @@ public final class ClassLoaderUtils {
         } catch (Throwable ignore) {
             // skip
         }
-        // 파라미터로 ClassLoader를 전달 받으면 security exception 의 발생타이밍이 다르다.
+        // Timing for security exceptions is different when the ClassLoader is received as an argument
         return defaultClassLoaderCallable.getClassLoader();
     }
 

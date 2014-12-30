@@ -51,7 +51,7 @@ public class PinpointSocketManager {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 	private final Charset charset = Charset.forName("UTF-8");
 
-	// 로컬 ip
+	// local ip
 	// @Value("#{pinpointWebProps['web.tcpListenI']}")
 	private String representationLocalIp;
 	private List<String> localIpList;
@@ -76,7 +76,7 @@ public class PinpointSocketManager {
 
 			logger.info("Representation_Ip = {}, Ip_List = {}", representationLocalIp, localIpList);
 			
-			// 옵션으로 지정할수 있게 하면 좋을듯 뛰울껀지 말껀지
+			// TODO might be better to make it configurable whether to keep the process alive or to kill
 			if (representationLocalIp.equals(NetUtils.LOOPBACK_ADDRESS_V4) || localIpList.size() == 0) {
 				throw new SocketException("Can't find Local Ip.");
 			}
@@ -91,8 +91,7 @@ public class PinpointSocketManager {
 
 			this.clusterManager = new ZookeeperClusterManager(config.getClusterZookeeperAddress(), config.getClusterZookeeperSessionTimeout(), config.getClusterZookeeperRetryInterval());
 
-			// TODO 여기서 수정이 필요함
-			// json list는 표준규칙이 아니기 때문에 ip\r\n으로 저장
+			// TODO need modification - storing ip list using \r\n as delimiter since json list is not supported natively
 			this.clusterManager.registerWebCluster(nodeName, convertIpListToBytes(localIpList, "\r\n"));
 		}
 	}
@@ -117,12 +116,12 @@ public class PinpointSocketManager {
 	public ChannelContext getCollectorChannelContext(String applicationName, String agentId, long startTimeStamp) {
 		List<String> agentNameList = clusterManager.getRegisteredAgentList(applicationName, agentId, startTimeStamp);
 		
-		// AgentName은 중복되는 경우는 문제가 있는 경우임 
+		// having duplicate AgentName registered is an exceptional case
 		if (agentNameList.size() == 0) {
-			logger.warn("{}/{} Can't find agent.", applicationName, agentId);
+			logger.warn("{}/{} couldn't find agent.", applicationName, agentId);
 			return null;
 		} else if (agentNameList.size() > 1) {
-			logger.warn("{}/{} find dupplicate agent {}.", applicationName, agentId, agentNameList);
+			logger.warn("{}/{} found duplicate agent {}.", applicationName, agentId, agentNameList);
 			return null;
 		}
 		
@@ -147,7 +146,7 @@ public class PinpointSocketManager {
 			return ip;
 		}
 		
-		// LOOPBACK Addess 다 제거하고 나옴
+		// local ip addresses with all LOOPBACK addresses removed
 		List<String> ipList = NetUtils.getLocalV4IpList();
 		if (ipList.size() > 0) {
 			return ipList.get(0);

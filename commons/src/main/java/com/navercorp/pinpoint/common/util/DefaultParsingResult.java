@@ -63,7 +63,7 @@ public class DefaultParsingResult implements ParsingResult {
     }
 
     /**
-     * 최초 한번은 불려야 된다 안불리고 appendOutputParam을 호출하면 nullpointer exception
+     * Must be invoked at least once. If not, generates a NullPointerException upon invoking appendOutputParam.
      */
     void appendOutputSeparator() {
         if (output == null) {
