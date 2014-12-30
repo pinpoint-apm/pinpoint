@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.web.vo.Range;
  */
 public interface MapService {
     /**
-     * 메인 화면의 서버 맵 조회.
+     * Queries for the Server Map
      *
      * @param sourceApplication
      * @param range

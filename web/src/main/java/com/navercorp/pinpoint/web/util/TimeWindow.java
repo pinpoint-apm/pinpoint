@@ -55,7 +55,7 @@ public class TimeWindow implements Iterable<Long> {
     }
 
     /**
-     * timestamp를 윈도우 사이즈에 맞는 timestamp로 변환.
+     * converts the timestamp to the matching window slot's reference timestamp
      * 
      * @param timestamp
      * @return

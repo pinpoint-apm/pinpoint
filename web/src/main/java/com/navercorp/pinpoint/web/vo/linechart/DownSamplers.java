@@ -26,7 +26,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 
 /**
- * Time-series 처럼 연속된 데이터를 다운 샘플링한다.
+ * Down samples consecutive data points, such as a time-series dataset.
  * 
  * @author harebox
  * @author hyungil.jeong

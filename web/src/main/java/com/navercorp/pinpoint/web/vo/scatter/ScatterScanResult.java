@@ -24,7 +24,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 나중에 @ResponseBody로 변경시 사용.
+ * To be used with @ResponseBody.
+ * 
  * @author emeroad
  */
 public class ScatterScanResult {

@@ -30,7 +30,7 @@ import java.util.List;
 public interface ScatterChartService {
 
     /**
-     * 필터를 사용한 검색.
+     * Queries for data using filter
      *
      * @param traceIds
      * @param applicationName
@@ -40,7 +40,7 @@ public interface ScatterChartService {
     List<Dot> selectScatterData(Collection<TransactionId> traceIds, String applicationName, Filter filter);
 
     /**
-     * 전체 데이터 검색.
+     * Queries for data using time range.
      *
      * @param applicationName
      * @param range
@@ -60,7 +60,7 @@ public interface ScatterChartService {
     List<Dot> selectScatterData(String applicationName, SelectedScatterArea area, TransactionId offsetTransactionId, int offsetTransactionElapsed, int limit);
 
     /**
-     * scatter dot을 limit 개수만큼 잘라서 조회하기 위해서 사용된다.
+     * Queries for scatter dots limited by the given limit.
      *
      * @param applicationName
      * @param from

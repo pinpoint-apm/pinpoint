@@ -39,7 +39,6 @@ public class TimeWindowDownSampler implements TimeWindowSampler {
     public long getWindowSize(Range range) {
         final long diff = range.getRange();
         long size;
-        // 구간 설정 부분은 제고의 여지가 있음.
         if (diff <= ONE_HOUR) {
             size = ONE_MINUTE;
         } else if (diff <= SIX_HOURS) {

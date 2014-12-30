@@ -128,7 +128,7 @@ public class ApplicationMapBuilder {
 
 
             final Application toApplication = linkData.getToApplication();
-            // FROM -> TO에서 TO가 CLIENT가 아니면 TO는 node
+            // FROM -> TO : TO is either a CLIENT or a node
             if (!toApplication.getServiceType().isRpcClient()) {
                 final boolean success = addNode(nodeList, toApplication);
                 if (success) {
@@ -187,14 +187,14 @@ public class ApplicationMapBuilder {
             final Application toApplicationId = linkData.getToApplication();
             Node toNode = nodeList.findNode(toApplicationId);
 
-            // rpc client가 빠진경우임.
+            // rpc client missing
             if (toNode == null) {
                 logger.warn("toNode rcp client not found:{}", toApplicationId);
                 continue;
             }
 
-            // RPC client인 경우 dest application이 이미 있으면 삭제, 없으면 unknown cloud로 변경
-            // 여기서 RPC가 나올일이 없지 않나하는데. 먼저 앞단에서 Unknown노드로 변경시킴.
+            // for RPC clients: skip if there is a dest application, convert to "unknown cloud" if not
+            // shouldn't really be necessary as rpc client toNodes are converted to unknown nodes beforehand.
             if (toNode.getServiceType().isRpcClient()) {
                 if (!nodeList.containsNode(toNode.getApplication())) {
                     final Link link = addLink(linkList, fromNode, toNode, CreateType.Source);
@@ -226,17 +226,17 @@ public class ApplicationMapBuilder {
         for (LinkData linkData : linkDataMap.getLinkDataList()) {
             final Application fromApplicationId = linkData.getFromApplication();
             Node fromNode = nodeList.findNode(fromApplicationId);
-            // TODO
+
             final Application toApplicationId = linkData.getToApplication();
             Node toNode = nodeList.findNode(toApplicationId);
 
-            // rpc client가 빠진경우임.
+            // rpc client missing
             if (fromNode == null) {
                 logger.warn("fromNode rcp client not found:{}", toApplicationId);
                 continue;
             }
 
-            // RPC client인 경우 dest application이 이미 있으면 삭제, 없으면 unknown cloud로 변경.
+            // for RPC clients: skip if there is a dest application, convert to "unknown cloud" if not
             if (toNode.getServiceType().isRpcClient()) {
                 // to 노드가 존재하는지 검사?
                 if (!nodeList.containsNode(toNode.getApplication())) {
@@ -263,7 +263,7 @@ public class ApplicationMapBuilder {
         for (Node node : nodes) {
             final ServiceType nodeType = node.getServiceType();
             if (nodeType.isWas()) {
-                // was일 경우 자신의 response 히스토그램을 조회하여 채운다.
+                // for WAS nodes, set their own response time histogram
                 final Application wasNode = node.getApplication();
                 final NodeHistogram nodeHistogram = nodeHistogramDataSource.createNodeHistogram(wasNode);
                 node.setNodeHistogram(nodeHistogram);
@@ -272,7 +272,7 @@ public class ApplicationMapBuilder {
                 final NodeHistogram nodeHistogram = createTerminalNodeHistogram(node, linkList);
                 node.setNodeHistogram(nodeHistogram);
             } else if (nodeType.isUser()) {
-                // User노드인 경우 source 링크를 찾아 histogram을 생성한다.
+                // for User nodes, find its source link and create the histogram
                 Application userNode = node.getApplication();
 
                 final NodeHistogram nodeHistogram = new NodeHistogram(userNode, range);
@@ -292,7 +292,7 @@ public class ApplicationMapBuilder {
 
                 node.setNodeHistogram(nodeHistogram);
             } else {
-                // 그냥 데미 데이터
+                // dummy data
                 NodeHistogram dummy = new NodeHistogram(node.getApplication(), range);
                 node.setNodeHistogram(dummy);
             }
@@ -302,11 +302,11 @@ public class ApplicationMapBuilder {
     }
 
     private NodeHistogram createTerminalNodeHistogram(Node node, LinkList linkList) {
-        // 터미널 노드인경우, 자신을 가리키는 link값을 합하여 histogram을 생성한다.
+        // for Terminal nodes, add all links pointing to iself and create the histogram
         final Application nodeApplication = node.getApplication();
         final NodeHistogram nodeHistogram = new NodeHistogram(nodeApplication, range);
 
-        // appclicationHistogram 생성.
+        // create applicationHistogram
         final List<Link> toLinkList = linkList.findToLink(nodeApplication);
         final Histogram applicationHistogram = new Histogram(node.getServiceType());
         for (Link link : toLinkList) {
@@ -314,7 +314,7 @@ public class ApplicationMapBuilder {
         }
         nodeHistogram.setApplicationHistogram(applicationHistogram);
 
-        // applicationTimeHistogram 생성.
+        // create applicationTimeHistogram
         LinkCallDataMap linkCallDataMap = new LinkCallDataMap();
         for (Link link : toLinkList) {
             LinkCallDataMap sourceLinkCallDataMap = link.getSourceLinkCallDataMap();
@@ -324,7 +324,7 @@ public class ApplicationMapBuilder {
         ApplicationTimeHistogram applicationTimeHistogram = builder.build(linkCallDataMap.getLinkDataList());
         nodeHistogram.setApplicationTimeHistogram(applicationTimeHistogram);
 
-        // terminal일 경우 node의 AgentLevel histogram을 추가로 생성한다.
+        // for Terminal nodes, create AgentLevel histogram
         if (nodeApplication.getServiceType().isTerminal()) {
             final Map<String, Histogram> agentHistogramMap = new HashMap<String, Histogram>();
 
@@ -366,12 +366,12 @@ public class ApplicationMapBuilder {
     private void appendServerInfo(Node node, LinkDataDuplexMap linkDataDuplexMap, AgentInfoService agentInfoService) {
         final ServiceType nodeServiceType = node.getServiceType();
         if (nodeServiceType.isUnknown()) {
-            // unknown노드는 무엇이 설치되어있는지 알수가 없음.
+            // we do not know the server info for unknown nodes 
             return;
         }
 
         if (nodeServiceType.isTerminal()) {
-            // terminal노드에 설치되어 있는 정보를 유추한다.
+            // extract information about the terminal node
             ServerBuilder builder = new ServerBuilder(matcherGroup);
             for (LinkData linkData : linkDataDuplexMap.getSourceLinkDataList()) {
                 Application toApplication = linkData.getToApplication();
@@ -392,19 +392,19 @@ public class ApplicationMapBuilder {
             builder.addAgentInfo(agentList);
             ServerInstanceList serverInstanceList = builder.build();
 
-            // destination이 WAS이고 agent가 설치되어있으면 agentSet이 존재한다.
+            // agentSet exists if the destination is a WAS, and has agent installed
             node.setServerInstanceList(serverInstanceList);
         } else {
-            // 기타 해당 되지 않는 상황일 경우 empty 정보를 넣는다.
+            // add empty information 
             node.setServerInstanceList(new ServerInstanceList());
         }
 
     }
 
     /**
-     * 실제 응답속도 정보가 있는 데이터를 기반으로 AgentInfo를 필터링 친다.
-     * 정공이라고 말할 수 있는 코드는 아님.
-     * 나중에 실제 서버가 살아 있는 정보를 기반으로 이를 유추할수 있게 해야한다.
+     * Filters AgentInfo by whether they actually have response data. 
+     * This is only a temporary solution until we implement agent life cycle management.
+     * FIXME Use the actual agent status (once implemented) to filter out AgentInfo
      */
     private Set<AgentInfoBo> filterAgentInfoByResponseData(Set<AgentInfoBo> agentList, Node node) {
         Set<AgentInfoBo> filteredAgentInfo = new HashSet<AgentInfoBo>();

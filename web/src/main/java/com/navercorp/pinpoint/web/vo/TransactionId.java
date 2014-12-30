@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 /**
  * @author emeroad
  */
-// FIXME Comparable 인터페이스 제거.
+// FIXME Remove Comparable interface
 public class TransactionId implements Comparable<TransactionId> {
     public static final int AGENT_NAME_MAX_LEN = PinpointConstants.AGENT_NAME_MAX_LEN;
     public static final int DISTRIBUTE_HASH_SIZE = 1;
@@ -126,7 +126,7 @@ public class TransactionId implements Comparable<TransactionId> {
         return TransactionIdUtils.formatString(agentId, agentStartTime, transactionSequence);
     }
 
-    // FIXME 제거.
+    // FIXME remove
 	@Override
 	public int compareTo(TransactionId transactionId) {
 		int r1 = this.agentId.compareTo(transactionId.agentId);

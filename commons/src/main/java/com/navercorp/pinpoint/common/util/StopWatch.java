@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.common.util;
 
 /**
- * 단순한 stopwatch
+ * A simple stopwatch
  * @author emeroad
  */
 public class StopWatch {

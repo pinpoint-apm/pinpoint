@@ -78,8 +78,8 @@ public final class NetUtils {
 	}
 	
 	/**
-	 * 가지고 있는 외부에서 접근할수 있는 ip를 모두 반환합니다. 
-	 * 만약 로컬 ip가 획득하지 못할 경우 Empty List를 반환합니다. 
+	 * Returns a list of ip addreses on this machine that is accessible from a remote source.
+	 * If no network interfaces can be found on this machine, returns an empty List.
 	 */
 	public static List<String> getLocalV4IpList() {
 		List<String> result = new ArrayList<String>();

@@ -38,7 +38,7 @@ public class Dot {
      * @param transactionId
      * @param acceptedTime
      * @param elapsedTime
-     * @param exceptionCode 0 : 정상, 1 : error
+     * @param exceptionCode 0 : success, 1 : error
      */
 	public Dot(TransactionId transactionId, long acceptedTime, int elapsedTime, int exceptionCode, String agentId) {
         if (transactionId == null) {
@@ -63,12 +63,13 @@ public class Dot {
 	}
 
     /**
-     * ui에서 사용할 계층 화 되지 않은 단순 stateCode. 추후 계층화된 좀더 복잡한 코드 계층이 필요함.
+     * Simple stateCode used in the UI. May need to be fleshed out with state transitions in the future. 
+     * 
      * @return
      */
     public int getSimpleExceptionCode() {
         if (getExceptionCode() == Dot.EXCEPTION_NONE) {
-            // 뭔가 fail이 1이상이어야 코드 추가가 되면서 정리가 될듯한데. 성공이 1이라 코드 정의가 애매함. 추후 수정이 필요함.
+            // feels like a failure should be a value greater 1
             return Dot.SUCCESS_STATE;
         } else {
             return Dot.FAILED_STATE;

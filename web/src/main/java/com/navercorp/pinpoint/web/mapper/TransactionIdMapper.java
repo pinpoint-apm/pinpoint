@@ -53,7 +53,7 @@ public class TransactionIdMapper implements RowMapper<List<TransactionId>> {
 		for (KeyValue kv : raw) {
 			byte[] buffer = kv.getBuffer();
 			int qualifierOffset = kv.getQualifierOffset();
-			// key값만큼 1증가 시킴
+			// increment by value of key 
 			TransactionId traceId = parseVarTransactionId(buffer, qualifierOffset);
 			traceIdList.add(traceId);
 			
@@ -62,17 +62,14 @@ public class TransactionIdMapper implements RowMapper<List<TransactionId>> {
 		return traceIdList;
 	}
 	
-    // 중복시킴. TraceIndexScatterMapper랑 동일하므로 같이 변경하거나 리팩토링 할것.
-	// TODO : Duplicated with TraceIndexScatterMapper.  you should modify both at the same time or need to refactor
-
     public static TransactionId parseVarTransactionId(byte[] bytes, int offset) {
         if (bytes == null) {
             throw new NullPointerException("bytes must not be null");
         }
         final Buffer buffer = new OffsetFixedBuffer(bytes, offset);
         
-		// skip elapsed time (not used) hbase column prefix filter에서 filter용도로만 사용함.
-        // 데이터 사이즈를 줄일 수 있는지 모르겠음.
+		// skip elapsed time (not used) hbase column prefix - only used for filtering.
+        // Not sure if we can reduce the data size any further.
 		// buffer.readInt();
         
         String agentId = buffer.readPrefixedString();

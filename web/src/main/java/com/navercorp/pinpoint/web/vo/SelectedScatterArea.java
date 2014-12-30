@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.vo;
 
 /**
- * scatter chart에서 마우스로 드래그해서 선택한 영역의 정보
+ * Class representing the area selected in the scatter chart
  * 
  * @author netspider
  * 

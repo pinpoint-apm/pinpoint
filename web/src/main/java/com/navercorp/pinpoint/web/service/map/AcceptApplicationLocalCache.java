@@ -49,16 +49,16 @@ public class AcceptApplicationLocalCache {
 
     public void put(RpcApplication findKey, Set<AcceptApplication> acceptApplicationSet) {
         if (CollectionUtils.isEmpty(acceptApplicationSet)) {
-            // 비어 있는 값에 대해서도 생성해야 함.
+            // initialize for empty value
             this.acceptApplicationLocalCache.put(findKey, acceptApplicationSet);
             return;
         }
         logger.debug("findAcceptApplication:{}", acceptApplicationSet);
         // build cache
-        // url 별로 AcceptApplicationData를 모은다.
+        // set AcceptApplication for each url
         for (AcceptApplication acceptApplication : acceptApplicationSet) {
-            // acceptApplicationSet 데이터는 받은 url과 accept node의 applicationName을 저장하고 있음.
-            // 호출 application과 url을 기준으로 조회 키를 다시 생성해야 한다.
+            // acceptApplicationSet data contains the url and the accept node's applicationName.
+            // we need to recreate the key set based on the url and the calling application.
             RpcApplication newKey = new RpcApplication(acceptApplication.getHost(), findKey.getApplication());
             Set<AcceptApplication> findSet = this.acceptApplicationLocalCache.get(newKey);
             if (findSet == null) {

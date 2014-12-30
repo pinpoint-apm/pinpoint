@@ -61,19 +61,19 @@ public final class AnnotationUtils {
     }
 
     public static AnnotationBo getDisplayArgument(Span span) {
-        // arcus 관련 일반화 필요.
+        // TODO needs a more generalized implementation for Arcus
         List<AnnotationBo> list = span.getAnnotationBoList();
         if (list == null) {
             return null;
         }
         final ServiceType serviceType = span.getServiceType();
         if (serviceType == ServiceType.ARCUS || serviceType == ServiceType.MEMCACHED) {
-            // 첫번째 args아무거나 하나를 디스플레이에 뿌린다.
-            // TODO 2개 이상일 경우의 케이스 일때 비기는 하나, 현재 arucs쪽 파라미터 덤프키는 일단 1개뿐이라 괜찮을듯하다.
+            // Displays any value within the first argument.
+            // TODO Values may be missing when there are 2+ parameters - since there is only 1 parameter dump key for Arcus, it migth be okay for now.
             return findArgsAnnotationBo(list);
         }
 
-        // rpc connector의 경우 보여주는 code일반화 필요.
+        // TODO needs a more generalized implementation for rpc connectors
         if (serviceType == ServiceType.HTTP_CLIENT || serviceType == ServiceType.JDK_HTTPURLCONNECTOR) {
             return findAnnotationBo(list, AnnotationKey.HTTP_URL);
         }
@@ -86,18 +86,18 @@ public final class AnnotationUtils {
             return findAnnotationBo(list, AnnotationKey.CAll_URL);
         }
 
-//        span에 해당하는 Tomcat의 경우 Span에 포함된 rpc 필드를 사용하므로 annotation에서 찾을필요가 없음.
+//        For Tomcat spans, there is no need to lookup using annotation as they can just use the rpc field within the Span
 //        if (span.getServiceType() == ServiceType.TOMCAT) {
 //            return findAnnotationBo(list, AnnotationKey.HTTP_URL);
 //        }
 //
-        // TODO 먼가 고쳐야 함.
+        // TODO something needs fixing
         if (serviceType == ServiceType.MYSQL || serviceType == ServiceType.MYSQL_EXECUTE_QUERY
                 || serviceType == ServiceType.ORACLE || serviceType == ServiceType.ORACLE_EXECUTE_QUERY
                 || serviceType == ServiceType.MSSQL || serviceType == ServiceType.MSSQL_EXECUTE_QUERY
                 || serviceType == ServiceType.CUBRID || serviceType == ServiceType.CUBRID_EXECUTE_QUERY) {
-            // args 0의 경우 연결string이다
-            // 구현 방법이 매우 구림 좀더 개선 필요.
+            // args0 is a string
+            // TODO needs better implementation
             return findAnnotationBo(list, AnnotationKey.ARGS0);
         }
         
@@ -135,6 +135,7 @@ public final class AnnotationUtils {
             }
         }
         // 정확한 에러 코드를 못찾음. 퉁쳐서 에러 처리
+        // could not find a more specific error - returns generalized error
         return AnnotationKey.ERROR_API_METADATA_ERROR;
     }
 

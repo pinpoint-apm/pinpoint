@@ -124,7 +124,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
         LoadFactor statistics = new LoadFactor(range);
 
-        // TODO fromToFilter처럼. node의 타입에 따른 처리 필요함.
+        // TODO need to handle these separately by node type (like fromToFilter)
 
         // scan transaction list
         for (SpanBo span : filteredTransactionList) {
@@ -140,7 +140,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
                         // find exception
                         boolean hasException = spanEventBo.hasException();
                         // add sample
-                        // TODO : 실제값 대신 slot값을 넣어야 함.
+                        // TODO : need timeslot value instead of the actual value
                         statistics.addSample(span.getStartTime() + spanEventBo.getStartElapsed(), spanEventBo.getEndElapsed(), 1, hasException);
                         break;
                     }
@@ -181,7 +181,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         }
         List<TransactionId> transactionIdList = new ArrayList<TransactionId>();
         transactionIdList.add(transactionId);
-        // FIXME from,to -1 땜방임.
+        // FIXME from,to -1
         Range range = new Range(-1, -1);
         return selectApplicationMap(transactionIdList, range, range, Filter.NONE);
     }
@@ -212,11 +212,11 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     }
 
     private List<List<SpanBo>> selectFilteredSpan(List<TransactionId> transactionIdList, Filter filter) {
-        // 개별 객체를 각각 보고 재귀 내용을 삭제함.
-        // 향후 tree base로 충돌구간을 점검하여 없앨 경우 여기서 filter를 치면 안됨.
+        // filters out recursive calls by looking at each objects
+        // do not filter here if we change to a tree-based collision check in the future. 
         final Collection<TransactionId> recursiveFilterList = recursiveCallFilter(transactionIdList);
 
-        // FIXME 나중에 List<Span>을 순회하면서 실행할 process chain을 두는것도 괜찮을듯.
+        // FIXME might be better to simply traverse the List<Span> and create a process chain for execution
         final List<List<SpanBo>> originalList = this.traceDao.selectAllSpans(recursiveFilterList);
 
         return filterList2(originalList, filter);
@@ -224,7 +224,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
     private ApplicationMap createMap(Range range, Range scanRange, List<List<SpanBo>> filterList) {
 
-        // Window의 설정은 따로 inject받던지 해야 될듯함.
+        // TODO inject TimeWindow from elsewhere 
         final TimeWindow window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
 
 
@@ -233,7 +233,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         final DotExtractor dotExtractor = new DotExtractor(scanRange);
         final ResponseHistogramBuilder mapHistogramSummary = new ResponseHistogramBuilder(range);
         /**
-         * 통계정보로 변환한다.
+         * Convert to statistical data
          */
         for (List<SpanBo> transaction : filterList) {
             final Map<Long, SpanBo> transactionSpanMap = checkDuplicatedSpanId(transaction);
@@ -242,22 +242,22 @@ public class FilteredMapServiceImpl implements FilteredMapService {
                 final Application parentApplication = createParentApplication(span, transactionSpanMap);
                 final Application spanApplication = new Application(span.getApplicationId(), span.getServiceType());
 
-                // SPAN의 respoinseTime의 통계를 저장한다.
+                // records the Span's response time statistics
                 recordSpanResponseTime(spanApplication, span, mapHistogramSummary, span.getCollectorAcceptTime());
 
-                // 사실상 여기서 걸리는것은 span의 serviceType이 잘못되었다고 할수 있음.
                 if (!spanApplication.getServiceType().isRecordStatistics() || spanApplication.getServiceType().isRpcClient()) {
+                    // span's serviceType is probably not set correctly
                     logger.warn("invalid span application:{}", spanApplication);
                     continue;
                 }
 
                 final short slotTime = getHistogramSlotTime(span, spanApplication.getServiceType());
-                // link의 통계값에 collector acceptor time을 넣는것이 맞는것인지는 다시 생각해볼 필요가 있음.
-                // 통계값의 window의 time으로 전환해야함. 안그러면 slot이 맞지 않아 oom이 발생할수 있음.
+                // might need to reconsider using collector's accept time for link statistics.
+                // we need to convert to time window's timestamp. If not, it may lead to OOM due to mismatch in timeslots. 
                 long timestamp = window.refineTimestamp(span.getCollectorAcceptTime());
 
                 if (parentApplication.getServiceType() == ServiceType.USER) {
-                    // 정방향 데이터
+                    // Outbound data
                     if (logger.isTraceEnabled()) {
                         logger.trace("span user:{} {} -> span:{} {}", parentApplication, span.getAgentId(), spanApplication, span.getAgentId());
                     }
@@ -267,11 +267,11 @@ public class FilteredMapServiceImpl implements FilteredMapService {
                     if (logger.isTraceEnabled()) {
                         logger.trace("span target user:{} {} -> span:{} {}", parentApplication, span.getAgentId(), spanApplication, span.getAgentId());
                     }
-                    // 역관계 데이터
+                    // Inbound data
                     final LinkDataMap targetLinkDataMap = linkDataDuplexMap.getTargetLinkDataMap();
                     targetLinkDataMap.addLinkData(parentApplication, span.getAgentId(), spanApplication, span.getAgentId(), timestamp, slotTime, 1);
                 } else {
-                    // 역관계 데이터
+                    // Inbound data
                     if (logger.isTraceEnabled()) {
                         logger.trace("span target parent:{} {} -> span:{} {}", parentApplication, span.getAgentId(), spanApplication, span.getAgentId());
                     }
@@ -313,7 +313,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
     private void addNodeFromSpanEvent(SpanBo span, TimeWindow window, LinkDataDuplexMap linkDataDuplexMap, Map<Long, SpanBo> transactionSpanMap) {
         /**
-         * span event의 statistics추가.
+         * add span event statistics
          */
         final List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
         if (CollectionUtils.isEmpty(spanEventBoList)) {
@@ -326,12 +326,12 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
             ServiceType destServiceType = spanEvent.getServiceType();
             if (!destServiceType.isRecordStatistics()) {
-                // internal 메소드
+                // internal method
                 continue;
             }
-            // rpc client이면서 acceptor가 없으면 unknown으로 변환시킨다.
-            // 내가 아는 next spanid를 spanid로 가진 span이 있으면 acceptor가 존재하는 셈.
-            // acceptor check로직
+            // convert to Unknown if destServiceType is a rpc client and there is no acceptor.
+            // acceptor exists if there is a span with spanId identical to the current spanEvent's next spanId.
+            // logic for checking acceptor
             if (destServiceType.isRpcClient()) {
                 if (!transactionSpanMap.containsKey(spanEvent.getNextSpanId())) {
                     destServiceType = ServiceType.UNKNOWN;
@@ -348,7 +348,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
             if (logger.isTraceEnabled()) {
                 logger.trace("spanEvent  src:{} {} -> dest:{} {}", srcApplication, span.getAgentId(), destApplication, spanEvent.getEndPoint());
             }
-            // endPoint는 null이 될수 있음.
+            // endPoint may be null
             final String destinationAgentId = StringUtils.defaultString(spanEvent.getEndPoint());
             sourceLinkDataMap.addLinkData(srcApplication, span.getAgentId(), destApplication, destinationAgentId, spanEventTimeStamp, slotTime, 1);
         }

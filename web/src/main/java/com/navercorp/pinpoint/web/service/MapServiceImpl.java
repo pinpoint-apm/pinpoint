@@ -64,7 +64,7 @@ public class MapServiceImpl implements MapService {
 
 
     /**
-     * 메인화면에서 사용. 시간별로 TimeSlot을 조회하여 서버 맵을 그릴 때 사용한다.
+     * Used in the main UI - draws the server map by querying the timeslot by time.
      */
     @Override
     public ApplicationMap selectApplicationMap(Application sourceApplication, Range range) {
@@ -130,19 +130,18 @@ public class MapServiceImpl implements MapService {
     private List<LinkDataMap> selectLink(Application sourceApplication, Application destinationApplication, Range range) {
         if (sourceApplication.getServiceType().isUser()) {
             logger.debug("Find 'client -> any' link statistics");
-            // client는 applicatinname + servicetype.client로 기록된다.
-            // 그래서 src, dest가 둘 다 dest로 같음.
+            // client is recorded as applicationName + serviceType.client
+            // Therefore, src and dest are both identical to dest
             Application userApplication = new Application(destinationApplication.getName(), sourceApplication.getServiceTypeCode());
             return mapStatisticsCallerDao.selectCallerStatistics(userApplication, destinationApplication, range);
         } else if (destinationApplication.getServiceType().isWas()) {
             logger.debug("Find 'any -> was' link statistics");
-            // destination이 was인 경우에는 중간에 client event가 끼어있기 때문에 callee에서
-            // caller가
-            // 같은녀석을 찾아야 한다.
+            // for cases where the destination is a WAS, client events may be weaved in the middle.
+            // we therefore need to look through the list of callees with the same caller.
             return mapStatisticsCalleeDao.selectCalleeStatistics(sourceApplication, destinationApplication, range);
         } else {
             logger.debug("Find 'was -> terminal' link statistics");
-            // 일반적으로 was -> terminal 간의 통계정보 조회.
+            // query for WAS -> Terminal statistics
             return mapStatisticsCallerDao.selectCallerStatistics(sourceApplication, destinationApplication, range);
         }
     }
