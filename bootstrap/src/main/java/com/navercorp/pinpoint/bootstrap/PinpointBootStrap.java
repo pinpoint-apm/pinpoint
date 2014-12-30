@@ -73,7 +73,7 @@ public class PinpointBootStrap {
         }
 
         String configPath = getConfigPath(classPathResolver);
-        if (configPath == null ) {
+        if (configPath == null) {
             logPinpointAgentLoadFail();
             return;
         }
@@ -82,13 +82,18 @@ public class PinpointBootStrap {
         saveLogFilePath(classPathResolver);
 
         final String bootStrapCoreJar = classPathResolver.getBootStrapCoreJar();
-        JarFile bootStrapCoreJarFile = getBootStrapJarFile(bootStrapCoreJar);
-        if (bootStrapCoreJar == null || bootStrapCoreJarFile == null) {
-            logger.severe("pinpoint-bootstrap-core.jar not found");
+        if (bootStrapCoreJar == null) {
+            logger.severe("pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar not found");
             logPinpointAgentLoadFail();
             return;
         }
-        logger.info("load pinpoint-bootstrap-core.jar :" + bootStrapCoreJar);
+        JarFile bootStrapCoreJarFile = getBootStrapJarFile(bootStrapCoreJar);
+        if (bootStrapCoreJarFile == null) {
+            logger.severe("pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar not found");
+            logPinpointAgentLoadFail();
+            return;
+        }
+        logger.info("load pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar :" + bootStrapCoreJar);
         instrumentation.appendToBootstrapClassLoaderSearch(bootStrapCoreJarFile);
 
         try {

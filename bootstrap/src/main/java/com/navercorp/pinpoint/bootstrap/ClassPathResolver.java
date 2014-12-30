@@ -40,6 +40,7 @@ public class ClassPathResolver {
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     private static final Pattern DEFAULT_AGENT_PATTERN = Pattern.compile("pinpoint-bootstrap(-[0-9]+\\.[0-9]+\\.[0-9]+(\\-SNAPSHOT)?)?\\.jar");
+    private static final Pattern DEFAULT_AGENT_CORE_PATTERN = Pattern.compile("pinpoint-bootstrap-core(-[0-9]+\\.[0-9]+\\.[0-9]+(\\-SNAPSHOT)?)?\\.jar");
 
     private String classPath;
 
@@ -47,6 +48,7 @@ public class ClassPathResolver {
     private String agentJarFullPath;
     private String agentDirPath;
     private Pattern agentPattern;
+    private Pattern agentCorePattern;
     private List<String> fileExtensionList;
     private String bootStrapCoreJar;
 
@@ -58,6 +60,7 @@ public class ClassPathResolver {
     public ClassPathResolver(String classPath) {
         this.classPath = classPath;
         this.agentPattern = DEFAULT_AGENT_PATTERN;
+        this.agentCorePattern = DEFAULT_AGENT_CORE_PATTERN;
         this.fileExtensionList = getDefaultFileExtensionList();
     }
 
@@ -108,16 +111,12 @@ public class ClassPathResolver {
         File[] files = file.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                boolean isBootStrapCore = name.startsWith("pinpoint-bootstrap-core");
-                if (!isBootStrapCore) {
-                    return false;
+                Matcher matcher = agentCorePattern.matcher(name);
+                if (matcher.matches()) {
+                    logger.info("found bootStrapCore. " + name);
+                    return true;
                 }
-                int isJar = name.lastIndexOf(".jar");
-                if (isJar == -1) {
-                    return false;
-                }
-                logger.info("found bootStrapCore. " + name);
-                return true;
+                return false;
             }
         });
         if (files== null || files.length == 0) {
