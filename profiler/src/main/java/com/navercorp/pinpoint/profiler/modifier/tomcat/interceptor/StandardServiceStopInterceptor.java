@@ -46,7 +46,7 @@ public class StandardServiceStopInterceptor implements SimpleAroundInterceptor, 
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
-        // TODO 시작이 실패했을때 stop이 불러 지는가?
+        // TODO Is stop() invoked when start failed?
         // if (!InterceptorUtils.isSuccess(result)) {
         // return;
         // }

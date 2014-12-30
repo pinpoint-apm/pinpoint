@@ -36,9 +36,8 @@ public class ApplicationServerTypeResolver {
     private ServiceType defaultType;
 
     /**
-     * Agent를 수동으로 startup해야하는가 여부.
-     * Application에 별도 acceptor가 없어서 startup함수를 agent 초기화 할 때 해주어야하는 경우.
-     * 예를 들어 서비스타입이 BLOC, STAND_ALONE인 경우.
+     * If we have to invoke startup() during agent initialization.
+     * Some service types like BLOC or STAND_ALONE don't have an acceptor to do this.
      */
     private boolean manuallyStartupRequired = true;
     
@@ -140,7 +139,7 @@ public class ApplicationServerTypeResolver {
         if (ServiceType.TOMCAT.equals(serviceType)) {
             this.serverLibPath = new String[] { applicationHome + "/lib/servlet-api.jar", applicationHome + "/lib/catalina.jar" };
         } else if (ServiceType.BLOC.equals(serviceType)) {
-            // FIXME serverLibPath지정 방법을 개선할 수 있을 듯.
+            // FIXME enhance how to specify serverLibPath
             if (manuallyStartupRequired) {
                 // BLOC 4.x
                 this.serverLibPath = new String[] {"/libs"};

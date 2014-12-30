@@ -23,6 +23,10 @@ import com.navercorp.pinpoint.profiler.ClassFileRetransformer;
 import com.navercorp.pinpoint.profiler.ProfilerException;
 import com.navercorp.pinpoint.profiler.modifier.Modifier;
 
+/**
+ * 
+ * @author Jongho Moon <jongho.moon@navercorp.com>
+ */
 public abstract class AbstractSpringBeanCreationInterceptor implements SimpleAroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     

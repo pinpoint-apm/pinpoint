@@ -84,8 +84,8 @@ public class HttpServletInterceptor implements SimpleAroundInterceptor, ByteCode
             HttpServletRequest request = (HttpServletRequest) args[0];
             boolean sampling = samplingEnable(request);
             if (!sampling) {
-                // 샘플링 대상이 아닐 경우도 TraceObject를 생성하여, sampling 대상이 아니라는것을 명시해야 한다.
-                // sampling 대상이 아닐경우 rpc 호출에서 sampling 대상이 아닌 것에 rpc호출 파라미터에 sampling disable 파라미터를 박을수 있다.
+                // Even if this transaction is not a sampling target, we have to create Trace object to mark 'not sampling'.
+                // For example, if this transaction invokes rpc call, we can add parameter to tell remote node 'don't sample this transaction'  
                 traceContext.disableSampling();
                 return;
             }
@@ -125,7 +125,7 @@ public class HttpServletInterceptor implements SimpleAroundInterceptor, ByteCode
             }
 
             trace.markBeforeTime();
-            // TODO 잘못됬음 Servlet가 되어야함
+            // TODO Wrong. should be Servlet
             trace.recordServiceType(ServiceType.TOMCAT);
             trace.recordRpcName(requestURL);
 

@@ -34,8 +34,8 @@ public class UnknownGarbageCollector implements GarbageCollector {
 
     @Override
     public TJvmGc collect() {
-        // 아예 전송을 안하려고 null을 리턴한다.
-        //(Thrift DTO에서 gc 필드는 optional)
+        // return null to prevent data send.
+        // (gc field of Thrift DTO is optional)
         return null;
     }
 

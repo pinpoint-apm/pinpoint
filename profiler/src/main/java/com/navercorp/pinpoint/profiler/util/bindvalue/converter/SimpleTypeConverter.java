@@ -30,7 +30,7 @@ public class SimpleTypeConverter implements Converter {
         if (args.length == 2) {
             return StringUtils.drop(StringUtils.toString(args[1]));
         } else if (args.length == 3) {
-            // TODO 3일때 추가 처리?
+            // need to handle 3rd arg?
             return StringUtils.drop(StringUtils.toString(args[1]));
         }
         return "error";

@@ -32,7 +32,7 @@ import com.navercorp.pinpoint.profiler.modifier.spring.beans.interceptor.CreateB
 import com.navercorp.pinpoint.profiler.modifier.spring.beans.interceptor.PostProcessorInterceptor;
 import com.navercorp.pinpoint.profiler.modifier.spring.beans.interceptor.TargetBeanFilter;
 
-/*
+/**
  * Spring beans are created by AbstractAutowireCapableBeanFactory#createBean(String, RootBeanDefinition, Object[]).
  * If we intercept the return value of this method, we can check every beans created by Spring bean container.
  * 
@@ -61,6 +61,8 @@ import com.navercorp.pinpoint.profiler.modifier.spring.beans.interceptor.TargetB
  * 
  * Spring source code related to bean creation remains almost same.
  * We have checked Spring versions from 2.5.6 to 4.1.0.
+ * 
+ * @author Jongho Moon <jongho.moon@navercorp.com>
  */
 public class AbstractAutowireCapableBeanFactoryModifier extends AbstractModifier {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());

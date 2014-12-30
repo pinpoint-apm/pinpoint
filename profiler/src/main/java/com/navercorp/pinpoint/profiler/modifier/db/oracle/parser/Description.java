@@ -103,7 +103,7 @@ public class Description {
             String host = address.getHost();
             String port = address.getPort();
             if(port == null) {
-                // default port를 세팅한다.
+                // set default port
                 port = "1521";
             }
             hostList.add(host + ":" + port);
@@ -112,12 +112,12 @@ public class Description {
     }
 
     public String getDatabaseId() {
-        // 전체 집합에 해당하는 servcieName 먼저 검색
+        // Find serviceName first
         String serviceName = getServiceName();
         if(serviceName != null) {
             return serviceName;
         }
-        // serviceName이 없으면 대안으로 sid 사용.
+        // Use sid if serviceName is not available
         String sid = getSid();
         if (sid != null) {
             return sid;

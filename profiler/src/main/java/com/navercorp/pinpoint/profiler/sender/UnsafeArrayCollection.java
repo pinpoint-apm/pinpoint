@@ -37,7 +37,7 @@ class UnsafeArrayCollection<E> extends AbstractCollection<E> {
         if (array.length < size) {
             throw new IndexOutOfBoundsException("size:" + this.size + " array.length:" + array.length);
         }
-        // array index 체크 안함.
+        // do not check array bound
         array[size] = o;
         size++;
         return true;
@@ -45,7 +45,7 @@ class UnsafeArrayCollection<E> extends AbstractCollection<E> {
 
     @Override
     public void clear() {
-        // array의 값은 지워줘야 함. 지우지 않으면 cpu는 덜쓰나 나머지 값이 메모리에 계속 있음.
+        // Need to clear values in array. It costs CPU but prevent memory leak.
         for (int i = 0; i < size; i++) {
             this.array[i] = null;
         }
@@ -69,7 +69,7 @@ class UnsafeArrayCollection<E> extends AbstractCollection<E> {
 
     @Override
     public Object[] toArray() {
-        // internal buf를 그대로 전달
+        // return internal array
         return array;
     }
 }

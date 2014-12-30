@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentMap;
 public class DefaultRpcMetric implements RpcMetric {
 
     private final ServiceType serviceType;
-    // TODO lru cache로 변경할것. lru로 변경할 경우 counting이 틀려질 가능성이 있으나, oom이 발생하는것을 막을수 있음.
+    // TODO Change to LRU cach. It could makes numbers incorrect but prevents OOM.
     private final ConcurrentMap<String, Histogram> histogramMap = new ConcurrentHashMap<String, Histogram>();
 
     public DefaultRpcMetric(ServiceType serviceType) {

@@ -54,8 +54,8 @@ public class PeekableDataSender<T extends TBase<?, ?>> implements DataSender, It
 
     @Override
     public boolean send(TBase<?, ?> data) {
-        // deepCopy 안 함. 실제로도 네트워크 전송이 늦게되면 다른 datasender 들도 
-        // send 할 객체들의 레퍼런스를 그대로 가지고 있기 때문.
+        // don't do deep copy. 
+        // because other datasenders preserve references of objects to send if network transmission is delayed
         @SuppressWarnings("unchecked")
         T dataToAdd = (T)data;
         return this.queue.offer(dataToAdd);

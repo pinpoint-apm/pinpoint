@@ -38,9 +38,9 @@ public class OracleNetConnectionDescriptorParser {
     }
 
     public KeyValue parse() {
-        // 드라이버 스펙을 좀더 확인하려면 아래 참조. 10g 용이므로 11g도 거의 커버 될듯.
-        // http://docs.oracle.com/cd/B14117_01/java.101/b10979/urls.htm
-
+        // You can find driver spec here: http://docs.oracle.com/cd/B14117_01/java.101/b10979/urls.htm
+        // It's for 10g but maybe 11g would be same.
+        
         int position;
         if (normalizedUrl.startsWith(THIN)) {
             position = nextPosition(THIN);
@@ -49,15 +49,13 @@ public class OracleNetConnectionDescriptorParser {
             position = nextPosition(OCI);
             driverType = DriverType.OCI;
         } else {
-            // 파싱할 대상이 아님
             throw new IllegalArgumentException("invalid oracle jdbc url. expected token:(" + THIN + " or " + OCI + ") url:" + url);
         }
 
-        // thin 문자열 스킵
+        // skip thin string
         this.tokenizer.setPosition(position);
-        // token으로 분리.
+
         this.tokenizer.parse();
-        // 구분분석.
         KeyValue keyValue = parseKeyValue();
 
         checkEof();
@@ -103,12 +101,12 @@ public class OracleNetConnectionDescriptorParser {
         // =
         this.tokenizer.checkEqualToken();
 
-        // value 비교 reduce
+        // value compare reduce
         boolean nonTerminalValue = false;
         while(true) {
             final Token token = this.tokenizer.lookAheadToken();
             if (token == null) {
-                // EOF하고는 다른 비정상적 종료인것으로 판단됨.
+                // Abnormal termination.
                 throw new OracleConnectionStringException("Syntax error. lookAheadToken is null");
             }
             if (token.getType() == OracleNetConnectionDescriptorTokenizer.TYPE_KEY_START) {
@@ -116,7 +114,7 @@ public class OracleNetConnectionDescriptorParser {
                 KeyValue child = parseKeyValue();
                 keyValue.addKeyValueList(child);
 
-                // 다음 토큰을 더 까보고 )면 value 완성으로 종료.
+                // if next token is ')', value is completed.
                 Token endCheck = this.tokenizer.lookAheadToken();
                 if (endCheck == OracleNetConnectionDescriptorTokenizer.TOKEN_KEY_END_OBJECT) {
                     this.tokenizer.nextPosition();
@@ -126,7 +124,7 @@ public class OracleNetConnectionDescriptorParser {
                 if (nonTerminalValue) {
                     throw new OracleConnectionStringException("Syntax error. expected token:'(' or ')' :" + token.getToken());
                 }
-                // lookahead로 봤으므로 토큰 버림.
+                // We already have checked current token by lookAheadToken(). Proceed to next token.
                 this.tokenizer.nextPosition();
 
                 keyValue.setValue(token.getToken());
@@ -134,13 +132,13 @@ public class OracleNetConnectionDescriptorParser {
                 return keyValue;
             } else if(token.getType() == OracleNetConnectionDescriptorTokenizer.TYPE_KEY_END){
                 this.tokenizer.nextPosition();
-                // 빈칸이면 가능할듯 한데 뭔가 예외를 둬야 될듯하다.
-                // empty value가 가능한가??
+                // This could happen if value is empty.
+                // Does it allow empty value?
                 return keyValue;
             } else {
-                // START, END, LITERAL 을 다 체크하므로 불가능한거 같긴한데.
-                // 향후 추가 토큰이 발생하면 에러 발생이 가능함.
-                // 문법이 잘못됬을 경우 EOF가 오거나 할 수있음.
+                // Cannot reach here because we checked all those possible cases, START, END and LITERAL.
+                // Adding new token type could cause error.
+                // In case of syntax error, EOF can come to here. 
                 throw new OracleConnectionStringException("Syntax error. " + token.getToken());
             }
         }

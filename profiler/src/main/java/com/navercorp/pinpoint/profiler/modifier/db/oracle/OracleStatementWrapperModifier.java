@@ -57,7 +57,7 @@ public class OracleStatementWrapperModifier extends AbstractModifier {
             Interceptor executeQuery = new StatementExecuteQueryInterceptor();
             statementClass.addScopeInterceptor("executeQuery", new String[]{"java.lang.String"}, executeQuery, OracleScope.SCOPE_NAME);
 
-            // TODO 이거 고쳐야 됨.
+            // FIXME
             Interceptor executeUpdateInterceptor1 = new StatementExecuteUpdateInterceptor();
             statementClass.addScopeInterceptor("executeUpdate", new String[]{"java.lang.String"}, executeUpdateInterceptor1, OracleScope.SCOPE_NAME);
 

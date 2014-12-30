@@ -154,7 +154,6 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
                 return;
         	}
         } catch (Exception e) {
-            // 일단 exception 계층이 좀 엉터리라 Exception으로 그냥 잡음.
             logger.warn("tcp send fail. Caused:{}", e.getMessage(), e);
         }
     }
@@ -169,7 +168,7 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
             @Override
             public void onComplete(Future<ResponseMessage> future) {
                 if (future.isSuccess()) {
-            		// caching해야 될려나?
+            		// Should cache?
                 	HeaderTBaseDeserializer deserializer = HeaderTBaseDeserializerFactory.DEFAULT_FACTORY.createDeserializer();
                     TBase<?, ?> response = deserialize(deserializer, future.getResult());
                     if (response instanceof TResult) {
@@ -182,8 +181,8 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
                         }
                     } else {
                         logger.warn("Invalid ResponseMessage. {}", response);
-//                         response가 이상하게 오는 케이스는 재전송 케이스가 아니고 로그를 통한 정확한 원인 분석이 필요한 케이스이다.
-//                        null이 떨어질수도 있음.
+                        // This is not retransmission. need to log for debugging
+                        // it could be null
 //                        retryRequest(requestPacket);
                     }
                 } else {
@@ -206,7 +205,7 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
                     while(true) {
                         RetryMessage retryMessage = retryQueue.get();
                         if (retryMessage == null) {
-                            // 동시성이 약간 안맞을 가능성 있는거 같기는 하나. 크게 문제 없을거 같아서 일단 패스.
+                            // Maybe concurrency issue. But ignore it because it's unlikely.
                             fireComplete();
                             return;
                         }

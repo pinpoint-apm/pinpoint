@@ -46,12 +46,12 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
     public static final int SEND_BUFFER_SIZE = 1024 * 64 * 16;
     public static final int UDP_MAX_PACKET_LENGTH = 65507;
 
-    // 주의 single thread용임
+    // Caution. not thread safe
     protected DatagramPacket reusePacket = new DatagramPacket(new byte[1], 1);
 
 	protected final DatagramSocket udpSocket;
 
-	// 주의 single thread용임
+    // Caution. not thread safe
 	private final HeaderTBaseSerializer serializer = new HeaderTBaseSerializerFactory(false, HeaderTBaseSerializerFactory.DEFAULT_UDP_STREAM_MAX_SIZE).createSerializer();
 
     private AsyncQueueingExecutor<Object> executor;
@@ -77,7 +77,7 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
             throw new IllegalArgumentException("sendBufferSize");
         }
 
-        // Socket 생성에 에러가 발생하면 Agent start가 안되게 변경.
+        // TODO If fail to create socket, stop agent start
         logger.info("UdpDataSender initialized. host={}, port={}", host, port);
 		this.udpSocket = createSocket(host, port, timeout, sendBufferSize);
 
@@ -145,7 +145,7 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
 	protected void sendPacket(Object message) {
 		if (message instanceof TBase) {
 			final TBase dto = (TBase) message;
-            // single thread이므로 데이터 array를 nocopy해서 보냄.
+            // do not copy bytes because it's single threaded
             final byte[] internalBufferData = serialize(this.serializer, dto);
             if (internalBufferData == null) {
                 logger.warn("interBufferData is null");
@@ -154,11 +154,11 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
 
             final int internalBufferSize = this.serializer.getInterBufferSize();
             if (isLimit(internalBufferSize)) {
-                // udp 데이터 제한일 경우 error을 socket레벨에서 내는것보다는 먼저 체크하여 discard하는게 더 바람직함.
+                // When packet size is greater than UDP packet size limit, it's better to discard packet than let the socket API fails.
                 logger.warn("discard packet. Caused:too large message. size:{}, {}", internalBufferSize, dto);
                 return;
             }
-            // single thread이므로 그냥 재활용한다.
+            // it's safe to reuse becaus it's single threaded
             reusePacket.setData(internalBufferData, 0, internalBufferSize);
 
             try {

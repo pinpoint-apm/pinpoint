@@ -77,11 +77,13 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
             }
             return null;
         }
-        // remote call에 sampling flag가 설정되어있을 경우는 샘플링 대상으로 삼지 않는다.
+        
+        
+        // check sampling flag from client. If the flag is false, do not sample this request. 
         final boolean sampling = samplingEnable(request);
         if (!sampling) {
-            // 샘플링 대상이 아닐 경우도 TraceObject를 생성하여, sampling 대상이 아니라는것을 명시해야 한다.
-            // sampling 대상이 아닐경우 rpc 호출에서 sampling 대상이 아닌 것에 rpc호출 파라미터에 sampling disable 파라미터를 박을수 있다.
+            // Even if this transaction is not a sampling target, we have to create Trace object to mark 'not sampling'.
+            // For example, if this transaction invokes rpc call, we can add parameter to tell remote node 'don't sample this transaction'  
             final TraceContext traceContext = getTraceContext();
             final Trace trace = traceContext.disableSampling();
             if (isDebug) {
@@ -93,11 +95,10 @@ public class StandardHostValveInvokeInterceptor extends SpanSimpleAroundIntercep
 
         final TraceId traceId = populateTraceIdFromRequest(request);
         if (traceId != null) {
-            // TODO remote에서 sampling flag로 마크가되는 대상으로 왔을 경우도 추가로 샘플링 칠수 있어야 할것으로 보임.
+            // TODO Maybe we should decide to trace or not even if the sampling flag is true to prevent too many requests are traced.
             final TraceContext traceContext = getTraceContext();
             final Trace trace = traceContext.continueTraceObject(traceId);
-            // 서버 맵을 통계정보에서 조회하려면 remote로 호출되는 WAS의 관계를 알아야해서 부모의 application name을 전달받음.
-
+            
             if (trace.canSampled()) {
                 if (isDebug) {
                     logger.debug("TraceID exist. continue trace. traceId:{}, requestUrl:{}, remoteAddr:{}", new Object[] {traceId, request.getRequestURI(), request.getRemoteAddr()});

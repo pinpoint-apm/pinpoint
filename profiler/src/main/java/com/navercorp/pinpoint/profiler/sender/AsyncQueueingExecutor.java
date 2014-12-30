@@ -43,7 +43,7 @@ public class AsyncQueueingExecutor<T> implements Runnable {
     private final String executorName;
 
     private final int maxDrainSize;
-    // 주의 single thread용임. ArrayList보다 더 단순한 오퍼레이션을 수행하는 Collection.
+    // Caution. single thread only. this Collection is simpler than ArrayList.
     private final Collection<T> drain;
 
     private AsyncQueueingExecutorListener<T> listener = EMPTY_LISTENER;

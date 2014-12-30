@@ -61,7 +61,7 @@ public class InstrumentTranslator implements Translator {
         logger.debug("loading className:{}", classname);
 
         try {
-            // agent가 등록한 Modifier를 찾아서 트랜스 폼 시도를 한다.
+            // Find Modifier from agent and try transforming
             String replace = classname.replace('.', '/');
             ClassFileTransformer classFileTransformer = agent.getClassFileTransformer();
             byte[] transform = classFileTransformer.transform(this.loader, replace, null, null, null);
@@ -74,7 +74,8 @@ public class InstrumentTranslator implements Translator {
         } catch (IllegalClassFormatException ex) {
             throw new RuntimeException(classname + " not found. Caused:" + ex.getMessage(), ex);
         }
-        // 자체적으로 등록한 ModifierMap 을 찾는다.
+        
+         // find from modifierMap
         findModifierMap(pool, classname);
 
 

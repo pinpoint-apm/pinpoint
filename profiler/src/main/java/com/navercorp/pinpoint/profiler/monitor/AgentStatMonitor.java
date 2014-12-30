@@ -98,8 +98,8 @@ public class AgentStatMonitor {
 
         private final GarbageCollector garbageCollector;
         private final CpuLoadCollector cpuLoadCollector;
-        // 어차피 한 개의 쓰레드에서 한 개의 객체만 사용.
-        // 멀티쓰레드로 돌릴 일이 생긴다면 바꿔야 함. (그럴 일은 없을 것 같음)
+        // Will be used by single thread.
+        // I don't think this object would run with multi threads.
         private final int numStatsPerBatch;
         private int collectCount = 0;
         private List<TAgentStat> agentStats;
@@ -138,15 +138,15 @@ public class AgentStatMonitor {
         }
 
         private void sendAgentStats() {
-            // TAgentStat 객체를 준비한다.
-            // TODO TAgentStat을 재활용시 datasender가 별도의 thread이기 때문에.
-            // multithread문제가 생길수 있음.
+            // prepare TAgentStat object.
+            // TODO multi thread issue.
+            // If we reuse TAgentStat, there could be concurrency issue because data sender runs in a different thread.
             final TAgentStatBatch agentStatBatch = new TAgentStatBatch();
             agentStatBatch.setAgentId(agentId);
             agentStatBatch.setStartTimestamp(agentStartTime);
             agentStatBatch.setAgentStats(this.agentStats);
-            // 위와 마찬가지로 agentStats 리스트 재활용시, datasender가 별도의 thread이기 때문에,
-            // send하기 전에 리스트가 변경될 수 있음. 따라서 새로운 리스트를 만들어준다.
+            // If we reuse agentStats list, there could be concurrency issue because data sender runs in a different thread.
+            // So create new list.
             this.agentStats = new ArrayList<TAgentStat>(this.numStatsPerBatch);
             if (isTrace) {
                 logger.trace("collect agentStat:{}", agentStatBatch);

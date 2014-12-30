@@ -37,7 +37,7 @@ import com.navercorp.pinpoint.profiler.modifier.method.interceptor.MethodInterce
  * 
  * @author netspider
  * @author emeroad
- * 
+ * @author Jongho Moon <jongho.moon@navercorp.com>
  */
 public class BeanMethodModifier implements Modifier {
     static final MethodFilter METHOD_FILTER = new MethodFilter() {
