@@ -120,11 +120,11 @@ public class ClassPathResolver {
                 return true;
             }
         });
-        if (files.length == 1) {
-            return files[0].getAbsolutePath();
-        } else if(files.length == 0) {
+        if (files== null || files.length == 0) {
             logger.info("bootStrapCore not found.");
             return null;
+        } else if (files.length == 1) {
+            return files[0].getAbsolutePath();
         } else {
             logger.info("too many bootStrapCore found. " + Arrays.toString(files));
             return null;
