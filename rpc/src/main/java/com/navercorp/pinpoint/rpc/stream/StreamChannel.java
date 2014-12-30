@@ -16,184 +16,186 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
+import com.navercorp.pinpoint.rpc.PinpointSocketException;
+import com.navercorp.pinpoint.rpc.packet.stream.BasicStreamPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamPingPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamPongPacket;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.rpc.PinpointSocketException;
-import com.navercorp.pinpoint.rpc.packet.stream.BasicStreamPacket;
-import com.navercorp.pinpoint.rpc.packet.stream.StreamPingPacket;
-import com.navercorp.pinpoint.rpc.packet.stream.StreamPongPacket;
-import com.navercorp.pinpoint.rpc.util.AssertUtils;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author koo.taejin
  */
 public abstract class StreamChannel {
 
-	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
-	
-	private final Channel channel;
-	private final int streamChannelId;
-	private final StreamChannelManager streamChannelManager;
-	
-	private final StreamChannelState state;
-	private final CountDownLatch openLatch = new CountDownLatch(1);
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	public StreamChannel(Channel channel, int streamId, StreamChannelManager streamChannelManager) {
-		this.channel = channel;
-		this.streamChannelId = streamId;
-		this.streamChannelManager = streamChannelManager;
+    private final Channel channel;
+    private final int streamChannelId;
+    private final StreamChannelManager streamChannelManager;
 
-		this.state = new StreamChannelState();
-	}
+    private final StreamChannelState state;
+    private final CountDownLatch openLatch = new CountDownLatch(1);
 
-	boolean changeStateRun() {
-		try {
-			boolean result = state.changeStateRun();
+    public StreamChannel(Channel channel, int streamId, StreamChannelManager streamChannelManager) {
+        this.channel = channel;
+        this.streamChannelId = streamId;
+        this.streamChannelManager = streamChannelManager;
 
-			logger.info(makeStateChangeMessage(StreamChannelStateCode.RUN, result));
-			return result;
-		} finally {
-			openLatch.countDown();
-		}
-	}
+        this.state = new StreamChannelState();
+    }
 
-	boolean changeStateClose() {
-		try {
-			if (checkState(StreamChannelStateCode.CLOSED)) {
-				return true;
-			}
+    boolean changeStateRun() {
+        try {
+            boolean result = state.changeStateRun();
 
-			boolean result = state.changeStateClose();
+            logger.info(makeStateChangeMessage(StreamChannelStateCode.RUN, result));
+            return result;
+        } finally {
+            openLatch.countDown();
+        }
+    }
 
-			logger.info(makeStateChangeMessage(StreamChannelStateCode.CLOSED, result));
-			return result;
-		} finally {
-			openLatch.countDown();
-		}
-	}
-	
-	public void awaitOpen() {
-		try {
-			openLatch.await();
-		} catch (InterruptedException e) {
-            // check Interrupted state
-		}
-	}
+    boolean changeStateClose() {
+        try {
+            if (checkState(StreamChannelStateCode.CLOSED)) {
+                return true;
+            }
 
-	public boolean awaitOpen(long timeoutMillis) {
-		try {
-			return openLatch.await(timeoutMillis, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e) {
-            // check Interrupted state
-		}
+            boolean result = state.changeStateClose();
 
-		return false;
-	}
+            logger.info(makeStateChangeMessage(StreamChannelStateCode.CLOSED, result));
+            return result;
+        } finally {
+            openLatch.countDown();
+        }
+    }
 
-	public StreamChannelStateCode getCurrentState() {
-		return state.getCurrentState();
-	}
-	
-	public ChannelFuture sendPing(int requestId) {
-		assertState(StreamChannelStateCode.RUN);
-		
-		StreamPingPacket packet = new StreamPingPacket(streamChannelId, requestId);
-		return this.channel.write(packet);
-	}
+    public boolean awaitOpen() {
+        try {
+            openLatch.await();
+            return true;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return false;
+    }
 
-	public ChannelFuture sendPong(int requestId) {
-		assertState(StreamChannelStateCode.RUN);
-		
-		StreamPongPacket packet = new StreamPongPacket(streamChannelId, requestId);
-		return this.channel.write(packet);
-	}
-	
-	public void close() {
-		this.streamChannelManager.clearResourceAndSendClose(getStreamId(), BasicStreamPacket.CHANNEL_CLOSE);
-	}
+    public boolean awaitOpen(long timeoutMillis) {
+        try {
+            return openLatch.await(timeoutMillis, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
 
-	public Channel getChannel() {
-		return channel;
-	}
+        return false;
+    }
 
-	public int getStreamId() {
-		return streamChannelId;
-	}
+    public StreamChannelStateCode getCurrentState() {
+        return state.getCurrentState();
+    }
 
-	protected StreamChannelState getState() {
-		return state;
-	}
-	
-	protected String makeStateChangeMessage(StreamChannelStateCode change, boolean result) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(this.getClass().getSimpleName());
-		
-		sb.append(" change state to ");
-		sb.append(change.name());
-		sb.append("(");
-		sb.append(result ? "SUCCESS" : "FAIL");
-		sb.append(")");
+    public ChannelFuture sendPing(int requestId) {
+        assertState(StreamChannelStateCode.RUN);
 
-		sb.append("[Channel:");
-		sb.append(channel);
+        StreamPingPacket packet = new StreamPingPacket(streamChannelId, requestId);
+        return this.channel.write(packet);
+    }
 
-		sb.append(", StreamId:");
-		sb.append(getStreamId());
+    public ChannelFuture sendPong(int requestId) {
+        assertState(StreamChannelStateCode.RUN);
 
-		sb.append(".");
-		
-		return sb.toString();
-	}
+        StreamPongPacket packet = new StreamPongPacket(streamChannelId, requestId);
+        return this.channel.write(packet);
+    }
 
-	public boolean isServer() {
-		if (this instanceof ServerStreamChannel) {
-			return true;
-		}
-		
-		return false;
-	}
+    public void close() {
+        this.streamChannelManager.clearResourceAndSendClose(getStreamId(), BasicStreamPacket.CHANNEL_CLOSE);
+    }
 
-	void assertState(StreamChannelStateCode stateCode) {
-		StreamChannelStateCode currentCode = getCurrentState();
-		AssertUtils.assertTrue(checkState(currentCode, stateCode), new PinpointSocketException("expected:<" + stateCode + "> but was:<" + currentCode + ">;"));
-	}
-	
-	boolean checkState(StreamChannelStateCode expectedCode) {
-		return checkState(getCurrentState(), expectedCode);
-	}
-	
-	boolean checkState(StreamChannelStateCode currentCode, StreamChannelStateCode expectedCode) {
-		if (currentCode == expectedCode) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-	
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(this.getClass().getSimpleName());
-		
-		sb.append("[Channel:");
-		sb.append(channel);
+    public Channel getChannel() {
+        return channel;
+    }
 
-		sb.append(", StreamId:");
-		sb.append(getStreamId());
-		
-		sb.append(", State:");
-		sb.append(getCurrentState());
+    public int getStreamId() {
+        return streamChannelId;
+    }
 
-		sb.append("].");
-		
-		
-		return super.toString();
-	}
+    protected StreamChannelState getState() {
+        return state;
+    }
+
+    protected String makeStateChangeMessage(StreamChannelStateCode change, boolean result) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.getClass().getSimpleName());
+
+        sb.append(" change state to ");
+        sb.append(change.name());
+        sb.append("(");
+        sb.append(result ? "SUCCESS" : "FAIL");
+        sb.append(")");
+
+        sb.append("[Channel:");
+        sb.append(channel);
+
+        sb.append(", StreamId:");
+        sb.append(getStreamId());
+
+        sb.append(".");
+
+        return sb.toString();
+    }
+
+    public boolean isServer() {
+        if (this instanceof ServerStreamChannel) {
+            return true;
+        }
+
+        return false;
+    }
+
+    void assertState(StreamChannelStateCode stateCode) {
+        final StreamChannelStateCode currentCode = getCurrentState();
+        if (!checkState(currentCode, stateCode)) {
+            throw new PinpointSocketException("expected:<" + stateCode + "> but was:<" + currentCode + ">;");
+        }
+    }
+
+    boolean checkState(StreamChannelStateCode expectedCode) {
+        return checkState(getCurrentState(), expectedCode);
+    }
+
+    boolean checkState(StreamChannelStateCode currentCode, StreamChannelStateCode expectedCode) {
+        if (currentCode == expectedCode) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.getClass().getSimpleName());
+
+        sb.append("[Channel:");
+        sb.append(channel);
+
+        sb.append(", StreamId:");
+        sb.append(getStreamId());
+
+        sb.append(", State:");
+        sb.append(getCurrentState());
+
+        sb.append("].");
+
+
+        return super.toString();
+    }
 
 }
