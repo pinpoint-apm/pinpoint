@@ -49,8 +49,7 @@ import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 
-@Ignore
-public class AgentInfoSenderIT {
+public class AgentInfoSenderTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
