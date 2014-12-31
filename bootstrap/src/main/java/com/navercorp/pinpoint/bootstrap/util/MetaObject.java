@@ -23,7 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
- * TraceValue interface를 구현하여 사용하라
+ * @deprecated Use {@link com.navercorp.pinpoint.bootstrap.interceptor.tracevalue.TraceValue TraceValue} instead.
  */
 @Deprecated
 public final class MetaObject<R> {
@@ -34,7 +34,7 @@ public final class MetaObject<R> {
     private final Class<?>[] args;
     private final R defaultReturnValue;
 
-    // 이것을 class loading시 정적 타임에서 생성해 둘수 없는가?
+    // could we not instantiate this at class load time instead?
     private Method methodRef;
 
 
@@ -58,7 +58,7 @@ public final class MetaObject<R> {
 
         Method method = this.methodRef;
         if (method == null) {
-            // 멀티쓰레드에서 중복 엑세스해도 별 문제 없을것임.
+            // should be thread-safe
             final Class<?> aClass = target.getClass();
             method = findMethod(aClass);
             this.methodRef = method;
@@ -85,7 +85,6 @@ public final class MetaObject<R> {
         try {
             final Method method = aClass.getMethod(this.methodName, this.args);
             if (!method.isAccessible()) {
-                // package등과 같이 access 제한이 걸려 있을 경우 강 푼다.
                 method.setAccessible(true);
             }
             return method;

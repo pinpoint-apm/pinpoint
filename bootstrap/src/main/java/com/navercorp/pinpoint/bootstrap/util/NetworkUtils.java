@@ -94,7 +94,7 @@ public final class NetworkUtils {
             if (port == -1) {
                 return host;
             } else {
-                // TODO defualt port일 경우 아래와 같이 url을 만들어야 하는지 애매함.
+                // TODO should we still specify the port number if default port is used?
                 return host + ":" + port;
             }
         } catch (MalformedURLException e) {

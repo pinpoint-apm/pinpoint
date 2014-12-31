@@ -51,7 +51,6 @@ public abstract class SpanEventSimpleAroundInterceptor implements SimpleAroundIn
             return;
         }
         try {
-            // blockBegin 인터페이스 분리가 필요함.
             trace.traceBlockBegin();
             doInBeforeTrace(trace, target, args);
         } catch (Throwable th) {
