@@ -50,7 +50,7 @@ public class ApiInterceptorTest extends BaseInterceptorTest {
 				MockMemcachedClient.class.getName(), "set", new String[] {
 						"java.lang.String", "int", "java.lang.Object" },
 				new String[] { "key", "exptime", "value" });
-		/* NPE 때문에 일단 빼기로 함.
+		/* FIXME NPE. Skip for now.
 		setMethodDescriptor(methodDescriptor);
 		*/
 		super.beforeEach();

@@ -102,8 +102,10 @@ public class MySQLConnectionImplModifierIT extends BasePinpointTest {
 
         logger.info("Connection class name:{}", connection.getClass().getName());
         logger.info("Connection class cl:{}", connection.getClass().getClassLoader());
-        // loadbalanced 타입을때 가져올수 있는 reflection을 쓰지 않으면
-        // 그리고 LoadBalancingConnectionProxy으로 캐스팅할 경우 classLoader가 달라서 문제가 생김. 일단 그냥둔다.
+        
+        // If loadbalanced, connection is instanceof LoadBalancingConnectionProxy.
+        // But we cannot cast to the type because it's loaded by another classLoader.
+        // So use reflection to get currentConn field.
         InvocationHandler invocationHandler = Proxy.getInvocationHandler(connection);
         Class<? extends InvocationHandler> aClass = invocationHandler.getClass();
 

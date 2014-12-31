@@ -66,7 +66,7 @@ public class RetryQueueTest {
 
         RetryQueue retryQueue = new RetryQueue(3, 2);
         retryQueue.add(new RetryMessage(0, new byte[0]));
-        // 하나 넣고.실패한 메시지 넣으면 반이상이라서 버려야됨.
+        // If we add a failed message and it makes the queue filled more than half, the queue must discard it.
         RetryMessage retryMessage = new RetryMessage(0, new byte[0]);
         retryMessage.fail();
         retryQueue.add(retryMessage);

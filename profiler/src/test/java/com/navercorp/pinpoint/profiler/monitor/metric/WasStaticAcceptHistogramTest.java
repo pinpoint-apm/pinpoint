@@ -48,10 +48,11 @@ public class WasStaticAcceptHistogramTest {
     public void performanceTest () throws InterruptedException {
 //        63519 static table
 //        72350 dynamic table
-//        로 static table 빠름.
-        // InthashMap ConcurrentHashMap의 성능 차이 비교;
-        // 차이는 미비한데. 이중구조로 할지 아니면. single data로 할지.
-        // dynamic table의 경우 추가 ResponseKey객체도 추가로 생성함.
+//        static version is faster.
+        
+        // Comparing InthashMap with ConcurrentHashMap
+         // There's no big difference. double histogram? or single?
+        // In addition, dynamic table creates ResponseKey objects.
         final StaticAcceptHistogram table = new StaticAcceptHistogram();
         execute(new Runnable() {
             @Override

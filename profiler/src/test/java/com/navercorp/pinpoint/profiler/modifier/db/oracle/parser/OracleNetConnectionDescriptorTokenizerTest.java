@@ -108,7 +108,7 @@ public class OracleNetConnectionDescriptorTokenizerTest {
         int index = 0;
         while(true) {
             Token t = tokenizer.nextToken();
-            // EOF 오브젝트가 추가되서 테스트가 깨짐.
+            // EOF makes test broken.
             if (t != null && t == OracleNetConnectionDescriptorTokenizer.TOKEN_EOF_OBJECT) {
                 return;
             }

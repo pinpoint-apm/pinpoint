@@ -88,7 +88,7 @@ public class SqlSessionTemplateModifierTest extends MyBatisClientModifierTest {
 		// Should not manually close SqlSessionTemplate
 	}
 
-	@Ignore // 쿼리 작업만 tracing 하도록 변경
+	@Ignore // Changed to trace only query operations
 	@Override
 	@Test
 	public void commitShouldBeTraced() throws Exception {
@@ -104,7 +104,7 @@ public class SqlSessionTemplateModifierTest extends MyBatisClientModifierTest {
 		}
 	}
 
-	@Ignore // 쿼리 작업만 tracing 하도록 변경
+	@Ignore // Changed to trace only query operations
 	@Override
 	@Test
 	public void rollbackShouldBeTraced() throws Exception {
@@ -120,7 +120,7 @@ public class SqlSessionTemplateModifierTest extends MyBatisClientModifierTest {
 		}
 	}
 
-	@Ignore // 쿼리 작업만 tracing 하도록 변경
+	@Ignore // Changed to trace only query operations
 	@Override
 	@Test
 	public void closeShouldBeTraced() throws Exception {

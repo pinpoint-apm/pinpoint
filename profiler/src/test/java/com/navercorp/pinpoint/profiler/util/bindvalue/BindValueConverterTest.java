@@ -48,7 +48,7 @@ public class BindValueConverterTest {
 
     @Test
     public void testBindValueNotSupport() throws Exception {
-        // 지원되지 않는 api 라도 Exception이 발생하면 안됨.
+        // Should not throw even if given arguments are not supported value
         String setBoolean = BindValueConverter.convert("setXxxx", new Object[]{null, "XXX"});
         Assert.assertEquals(setBoolean, "");
     }

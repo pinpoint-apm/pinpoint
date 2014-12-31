@@ -24,20 +24,21 @@ public class BaseOperationTransitionStateInterceptorTest {
 
     @Test
     public void testComplete() throws Exception {
-        // 타입비교를 Arcus의 경우 TIMEDOUT state가 별도로 추가되어 정적 타입비교를 할수 있는 상황이 아님.
-        // toString()을 호출하여, 문자열 비교를 해야 함.
+        // Arcus added TIMEOUT to OperationState of memcached. 
+        // So you cannot just compare enum values but have to compare by their string representation.
         String complete = OperationState.COMPLETE.toString();
         Assert.assertEquals("COMPLETE", complete);
     }
 
     @Test
     public void existArcusTimeoutState() throws Exception {
-        // 클래스가 강제 로딩되서 다른 test에 영향을 줄수 있음.
+        // Could affects other tests because this test forces to load a class
         if (!isArcusExist()) {
-            // arcus만의 state체크를 위한 것이므로 없으면 패스한다.
+            // Skip test if Arcus is not present.
             return;
         }
-        // Arcus OperationState.timedout에 변경이 있는지 체크한다.
+        
+        // Test if OperationState contains TIMEDOUT value.
         OperationState[] values = OperationState.values();
         for (OperationState value : values) {
             if (value.toString().equals("TIMEDOUT")) {

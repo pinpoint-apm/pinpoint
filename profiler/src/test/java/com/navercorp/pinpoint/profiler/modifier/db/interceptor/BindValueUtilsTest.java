@@ -70,7 +70,7 @@ public class BindValueUtilsTest {
     @Test
     public void testBindValueToString_limit6() throws Exception {
         String[] bindValue = {"a", "b", "1234567891012"};
-        // limit를 3번째 문자열 길이보다는 작게한다.
+        // limit is smaller than 3rd arg.
         String result = BindValueUtils.bindValueToString(bindValue, 10);
         Assert.assertEquals("a, b, 1234567891...(13)", result);
     }
@@ -78,7 +78,7 @@ public class BindValueUtilsTest {
     @Test
     public void testBindValueToString_limit7() throws Exception {
         String[] bindValue = {"a", "12345678901", "c"};
-        // limit를 2번째 문자열 길이보다는 작게한다.
+        // limit is smaller than 2nd arg.
         String result = BindValueUtils.bindValueToString(bindValue, 10);
         Assert.assertEquals("a, 1234567890...(11), ...(3)", result);
     }

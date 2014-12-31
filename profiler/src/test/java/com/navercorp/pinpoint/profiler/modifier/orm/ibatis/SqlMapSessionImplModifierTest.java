@@ -269,7 +269,7 @@ public class SqlMapSessionImplModifierTest extends BasePinpointTest {
 		assertThat(parameterAnnotationBo.getKey(), is(AnnotationKey.CACHE_ARGS0.getCode()));
 	}
 
-	@Ignore // 쿼리 작업만 tracing 하도록 변경
+	@Ignore // Changed to trace only query operations
 	@Test
 	public void transactionsShouldBeTraced() throws Exception {
 		// Given
@@ -301,7 +301,7 @@ public class SqlMapSessionImplModifierTest extends BasePinpointTest {
 		assertNull(endTransactionSpanEventBo.getAnnotationBoList());
 	}
 
-	@Ignore // 쿼리 작업만 tracing 하도록 변경
+	@Ignore // Changed to trace only query operations
 	@Test
 	public void closeShouldBeTraced() throws Exception {
 		// Given
