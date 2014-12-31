@@ -57,7 +57,7 @@ public interface Buffer {
      * instead use putSVar in that case.
      * putVar compared to putSVar has a little benefit to use a less cpu due to no zigzag operation.
      * it has more benefit to use putSVar whenever v is negative.
-     * consume 1~10 bytes
+     * consume 1~10 bytes ( integer's max value consumes 5 bytes, integer's min value consumes 10 bytes)
      * @param v
      */
     void putVar(int v);
@@ -65,7 +65,7 @@ public interface Buffer {
     /**
      * put value using variable-length encoding
      * useful for same distribution of constants and negatives value
-     * consume 1~5 bytes
+     * consume 1~5 bytes ( integer's max value consumes 5 bytes, integer's min value consumes 5 bytes)
 
      * @param v
      */

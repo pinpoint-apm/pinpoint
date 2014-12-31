@@ -43,7 +43,8 @@ public class ResponseHistogramBuilder {
         if (range == null) {
             throw new NullPointerException("range must not be null");
         }
-        // 일단 샘플링을 하지 않도록한다.
+
+        // don't sample for now
         this.window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
 
     }

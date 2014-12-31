@@ -36,7 +36,7 @@ public class UdpSocketTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
-    // 기본포트와 충돌나서 + 5함
+    // port conflict against base port. so increased 5
     private int PORT = 10000;
     // The correct maximum UDP message size is 65507, as determined by the following formula:
     // 0xffff - (sizeof(IP Header) + sizeof(UDP Header)) = 65535-(20+8) = 65507
@@ -57,7 +57,7 @@ public class UdpSocketTest {
     public void setDown() throws InterruptedException {
         close(sender);
         close(receiver);
-        // testcase가 연속적으로 돌면 포트 충돌이 발생하여 증가시킴
+        // port conflict happens when testcases run continuously so port number is increased.
         PORT++;
     }
 
@@ -98,9 +98,9 @@ public class UdpSocketTest {
         DatagramPacket packet1 = newDatagramPacket(size);
         try {
             sender.send(packet1);
-            Assert.fail("실패해야 정상인데 성공.");
+            Assert.fail("expected fail, but succeed");
         } catch (IOException e) {
-            logger.info("메시지가 너무 크다. " + e.getMessage(), e);
+            logger.info("message is too large " + e.getMessage(), e);
         }
     }
 
@@ -131,8 +131,8 @@ public class UdpSocketTest {
 
     }
 
-    // 원격지 테스트시 풀어서 확인한다.
-    //@Test
+    // uncomment when remote test
+    // @Test
     public void testRemoteReceive() {
         while (true) {
             DatagramPacket datagramPacket = newDatagramPacket(70000);
@@ -145,7 +145,7 @@ public class UdpSocketTest {
         }
     }
 
-    //    @Test
+    // @Test
     public void testRemoteSend() throws IOException, InterruptedException {
         DatagramSocket so = new DatagramSocket();
         so.connect(new InetSocketAddress("10.66.18.78", PORT));
@@ -165,13 +165,13 @@ public class UdpSocketTest {
 
         try {
             so.send(newDatagramPacket(AcceptedSize + 1));
-            Assert.fail("실패");
+            Assert.fail("failed");
         } catch (IOException e) {
         }
 
         try {
             so.send(newDatagramPacket(70000));
-            Assert.fail("실패");
+            Assert.fail("failed");
         } catch (IOException e) {
         }
 

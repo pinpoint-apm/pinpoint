@@ -44,8 +44,8 @@ import com.navercorp.pinpoint.web.server.PinpointSocketManager;
 
 public class ClusterTest {
 
-	// 해당 테스트를 로컬에서 실행할떄 resource profile 문제로 실패할수 있음
-	// 실패할 경우 resource-test의 pinpoint-web.properties파일을 resource-local의 pinpoint-web.properties에 복사하여 테스트하면 성공한다.
+	// some tests may fail when executed in local environment
+	// when failures happen, you have to copy pinpoint-web.properties of resource-test to resource-local. Tests will succeed.
 	
 	private static final int DEFAULT_ACCEPTOR_PORT = 9996;
 	private static final int DEFAULT_ZOOKEEPER_PORT = 22213;
@@ -85,7 +85,6 @@ public class ClusterTest {
 		ts.stop();
 	}
 
-	// ApplicationContext 설정에 맞게 등록이 되는지
 	@Test
 	public void clusterTest1() throws Exception {
 		ts.restart();
@@ -99,7 +98,6 @@ public class ClusterTest {
 		}
 	}
 
-	// ApplicationContext 설정에 맞게 등록이 되는지
 	@Test
 	public void clusterTest2() throws Exception {
 		ts.restart();
@@ -129,7 +127,6 @@ public class ClusterTest {
 		}
 	}
 
-	// ApplicationContext 설정에 맞게 등록이 되는지
 	@Test
 	public void clusterTest3() throws Exception {
 		ts.restart();

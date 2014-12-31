@@ -176,14 +176,13 @@ public class FromToResponseFilter implements Filter {
 
 						return checkResponseCondition(event.getEndElapsed(), event.hasException());
 						
-						// FIXME agent filter가 제대로 적용되려면 아래 기능이 추가되어야 함.
 						// FIXME below code should be added for agent filter to work properly
 						// && checkPinPointAgentName(srcSpan.getAgentId(), destSpan.getAgentId());
 					}
 				}
 			} else {
 				/**
-				 * codes before hint added.
+				 * codes before hint has been added.
 				 * if problems happen because of hint, don't use hint at front end (UI) or use below code in order to work properly.
 				 */
 				for (SpanBo srcSpan : transaction) {

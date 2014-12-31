@@ -74,7 +74,7 @@ public class ZookeeperClusterTest {
 		ts.stop();
 	}
 
-	// ApplicationContext 설정에 맞게 등록이 되는지
+	// test for zookeeper agents to be registered correctly at the cluster as expected
 	@Test
 	public void clusterTest1() throws Exception {
 		ts.restart();

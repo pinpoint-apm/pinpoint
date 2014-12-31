@@ -75,7 +75,7 @@ public class SlowRateCheckerTest {
     }
 
     /*
-     * 알람 조건 만족함
+     * not satisfied with alert condition
      */
     @Test
     public void checkTest1() {
@@ -89,7 +89,7 @@ public class SlowRateCheckerTest {
     }
     
     /*
-     * 알람 조건 만족못함.
+     * not satisfied with alert condition
      */
     @Test
     public void checkTest2() {
