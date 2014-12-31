@@ -1,1 +1,1 @@
-# pinpoint-tomcat-profiler
+# pinpoint-profiler
