@@ -46,7 +46,6 @@ public class RowKeyMerge {
         final Map<RowKey, List<ColumnName>> rowkeyMerge = rowKeyBaseMerge(data);
 
         List<Increment> incrementList = new ArrayList<Increment>();
-        //합쳐서 flush 뭔가 로직이 복잡함.
         for (Map.Entry<RowKey, List<ColumnName>> rowKeyEntry : rowkeyMerge.entrySet()) {
             Increment increment = createIncrement(rowKeyEntry);
             incrementList.add(increment);
@@ -69,11 +68,10 @@ public class RowKeyMerge {
 
         for (Map.Entry<RowInfo, ConcurrentCounterMap.LongAdder> entry : data.entrySet()) {
             final RowInfo rowInfo = entry.getKey();
-            // callcount는 columnName에 저장하고 버린다.
+            // write callCount to columnName and throw away
             long callCount = entry.getValue().get();
             rowInfo.getColumnName().setCallCount(callCount);
 
-            // 흠 괜히 복잡한게 class로 빼야 될듯.
             RowKey rowKey = rowInfo.getRowKey();
             List<ColumnName> oldList = merge.get(rowKey);
             if (oldList == null) {

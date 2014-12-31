@@ -45,20 +45,19 @@ public class ZookeeperClient {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	// 쥬키퍼 클라이언트는 스레드 세이프함
+	// Zookeeper clients are thread-safe
 	private final ZooKeeper zookeeper;
 	private final AtomicBoolean clientState = new AtomicBoolean(true);
 	
 	private final ZookeeperEventWatcher watcher;
 
-	// 데이터를 이친구가 다가지고 있어야 할 거 같은데;
 	public ZookeeperClient(String hostPort, int sessionTimeout, ZookeeperEventWatcher watcher) throws KeeperException, IOException, InterruptedException {
 		this.watcher = watcher;
 		zookeeper = new ZooKeeper(hostPort, sessionTimeout, this.watcher); // server
 	}
 	
 	/**
-	 * path의 가장마지막에 있는 node는 생성하지 않는다. 
+	 * do not create the final node in the given path.
 	 * 
 	 * @throws PinpointZookeeperException 
 	 * @throws InterruptedException 
@@ -100,7 +99,6 @@ public class ZookeeperClient {
 		} while (pos < path.length());
 	}
 
-	// 데이터를 어떤식으로 넣지?
 	public String createNode(String znodePath, byte[] data) throws PinpointZookeeperException, InterruptedException {
 		checkState();
 

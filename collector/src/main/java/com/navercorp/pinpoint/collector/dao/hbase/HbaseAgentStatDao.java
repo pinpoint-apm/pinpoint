@@ -77,7 +77,7 @@ public class HbaseAgentStatDao implements AgentStatDao {
     }
 
     /**
-     * timestamp 기반의 row key를 만든다.
+     * Create row key based on the timestamp
      */
     private byte[] getRowKey(String agentId, long timestamp) {
         if (agentId == null) {
@@ -88,7 +88,7 @@ public class HbaseAgentStatDao implements AgentStatDao {
     }
 
     /**
-     * row key를 bucket 단위로 분산시킨다.  
+     * Create row key based on the timestamp and distribute it into different buckets 
      */
     private byte[] getDistributedRowKey(TAgentStat agentStat, long timestamp) {
         byte[] key = getRowKey(agentStat.getAgentId(), timestamp);

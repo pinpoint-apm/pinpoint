@@ -140,8 +140,8 @@ public class TCPReceiver {
     @PostConstruct
 	public void start() {
         setL4TcpChannel(pinpointServerSocket);
-        // message handler를 붙일 경우 주의점
-        // iothread에서 올라오는 이벤트 이기 때문에. queue에 넣던가. 별도 thread처리등을 해야 한다.
+        // take care when attaching message handlers as events are generated from the IO thread.
+        // pass them to a separate queue and handle them in a different thread.
         this.pinpointServerSocket.setMessageListener(new ServerMessageListener() {
             @Override
             public void handleSend(SendPacket sendPacket, SocketChannel channel) {
@@ -181,7 +181,7 @@ public class TCPReceiver {
         try {
             worker.execute(new Dispatch(sendPacket.getPayload(), channel.getRemoteAddress()));
         } catch (RejectedExecutionException e) {
-            // 이건 stack trace찍어 봤자임. 원인이 명확함. 어떤 메시지 에러인지 좀더 알기 쉽게 찍을 필요성이 있음.
+            // cause is clear - full stack trace not necessary 
             logger.warn("RejectedExecutionException Caused:{}", e.getMessage());
         }
     }
@@ -190,7 +190,7 @@ public class TCPReceiver {
         try {
             worker.execute(new RequestResponseDispatch(requestPacket, channel));
         } catch (RejectedExecutionException e) {
-            // 이건 stack trace찍어 봤자임. 원인이 명확함. 어떤 메시지 에러인지 좀더 알기 쉽게 찍을 필요성이 있음.
+            // cause is clear - full stack trace not necessary
             logger.warn("RejectedExecutionException Caused:{}", e.getMessage());
         }
     }
@@ -221,7 +221,7 @@ public class TCPReceiver {
                     logger.debug("packet dump hex:{}", PacketUtils.dumpByteArray(bytes));
                 }
             } catch (Exception e) {
-                // 잘못된 header가 도착할 경우 발생하는 케이스가 있음.
+                // there are cases where invalid headers are received
                 if (logger.isWarnEnabled()) {
                     logger.warn("Unexpected error. SendSocketAddress:{} Cause:{}", remoteAddress, e.getMessage(), e);
                 }
@@ -253,7 +253,6 @@ public class TCPReceiver {
             try {
             	TBase<?, ?> tBase = SerializationUtils.deserialize(bytes, deserializerFactory);
                 if (tBase instanceof L4Packet) {
-                    // 동적으로 패스가 가능하도록 보완해야 될듯 하다.
                     if (logger.isDebugEnabled()) {
                         L4Packet packet = (L4Packet) tBase;
                         logger.debug("tcp l4 packet {}", packet.getHeader());
@@ -273,7 +272,7 @@ public class TCPReceiver {
                     logger.debug("packet dump hex:{}", PacketUtils.dumpByteArray(bytes));
                 }
             } catch (Exception e) {
-                // 잘못된 header가 도착할 경우 발생하는 케이스가 있음.
+                // there are cases where invalid headers are received
                 if (logger.isWarnEnabled()) {
                     logger.warn("Unexpected error. SendSocketAddress:{} Cause:{}", remoteAddress, e.getMessage(), e);
                 }

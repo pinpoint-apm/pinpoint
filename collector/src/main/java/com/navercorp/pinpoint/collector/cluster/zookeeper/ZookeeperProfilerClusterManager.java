@@ -55,11 +55,8 @@ public class ZookeeperProfilerClusterManager implements SocketChannelStateChange
 
 	private final ClusterPointRepository profileCluster;
 
-	// 단순하게 하자 그냥 RUN이면 등록 FINISHED면 경우 삭제 그외 skip
-	// 만약 상태가 안맞으면(?) 보정 들어가야 하는데 leak detector 같은걸 worker내부에 둘 까도 고민중 
-	//
-	// RUN_DUPLEX에서만 생성할수 있게 해야한다.
-	// 지금은 RUN 상대방의 상태를 알수 없는 상태이기 때문에 이상황에서 등록
+	// keep it simple - register on RUN, remove on FINISHED, skip otherwise
+	// should only be instantiated when cluster is enabled.
 	public ZookeeperProfilerClusterManager(ZookeeperClient client, String serverIdentifier, ClusterPointRepository profileCluster) {
 		this.workerState = new WorkerStateContext();
 		this.profileCluster = profileCluster;
@@ -122,7 +119,7 @@ public class ZookeeperProfilerClusterManager implements SocketChannelStateChange
 
 			Map agentProperties = channelContext.getChannelProperties();
 			
-			// 현재는 AgentProperties에 값을 모를 경우 skip 
+			// skip when applicationName and agentId is unknown 
 			if (skipAgent(agentProperties)) {
 				return;
 			}

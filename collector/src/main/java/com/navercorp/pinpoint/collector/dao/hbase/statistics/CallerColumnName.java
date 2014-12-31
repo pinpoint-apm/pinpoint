@@ -24,11 +24,11 @@ import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
 public class CallerColumnName implements ColumnName {
     private short callerServiceType;
     private String callerApplicationName;
-    //  호출당하거나, 호출한 host,
+    // called or calling host
     private String callHost;
     private short columnSlotNumber;
 
-    // 주의 hash 값 캐시는 equals/hashCode 생성시 넣으면 안됨.
+    // WARNING - cached hash value should not be included for equals/hashCode
     private int hash;
 
     private long callCount;
@@ -73,12 +73,9 @@ public class CallerColumnName implements ColumnName {
         return true;
     }
 
-    /**
-     * hashCode수정시 주의할겻 hbasekey 캐쉬값이 있음.
-     * @return
-     */
     @Override
     public int hashCode() {
+        // take care when modifying this method - contains hashCodes for hbasekeys 
         if (hash != 0) {
             return hash;
         }

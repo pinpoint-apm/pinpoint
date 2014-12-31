@@ -64,7 +64,6 @@ public class BaseUDPReceiver extends AbstractUDPReceiver {
             try {
                 tBase = deserializer.deserialize(packet.getData());
                 if (tBase instanceof L4Packet) {
-                    // 동적으로 패스가 가능하도록 보완해야 될듯 하다.
                     if (logger.isDebugEnabled()) {
                         L4Packet packet = (L4Packet) tBase;
                         logger.debug("udp l4 packet {}", packet.getHeader());
@@ -79,7 +78,7 @@ public class BaseUDPReceiver extends AbstractUDPReceiver {
                     responseOK();
                     return;
                 }
-                // dispatch는 비지니스 로직 실행을 의미.
+                // dispatch signifies business logic execution
                 receiver.getDispatchHandler().dispatchSendMessage(tBase, packet.getData(), Header.HEADER_SIZE, packet.getLength());
             } catch (TException e) {
                 if (logger.isWarnEnabled()) {
@@ -89,7 +88,7 @@ public class BaseUDPReceiver extends AbstractUDPReceiver {
                     logger.debug("packet dump hex:{}", PacketUtils.dumpDatagramPacket(packet));
                 }
             } catch (Exception e) {
-                // 잘못된 header가 도착할 경우 발생하는 케이스가 있음.
+                // there are cases where invalid headers are received
                 if (logger.isWarnEnabled()) {
                     logger.warn("Unexpected error. SendSocketAddress:{} Cause:{} tBase:{}", packet.getSocketAddress(), e.getMessage(), tBase, e);
                 }
@@ -98,7 +97,7 @@ public class BaseUDPReceiver extends AbstractUDPReceiver {
                 }
             } finally {
                 receiver.getDatagramPacketPool().returnObject(packet);
-                // exception 난 경우는 어떻게 해야 하지?
+                // what should we do when an exception is thrown?
                 time.stop();
             }
         }

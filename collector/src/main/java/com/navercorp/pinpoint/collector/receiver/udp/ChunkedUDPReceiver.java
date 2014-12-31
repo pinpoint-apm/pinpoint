@@ -86,7 +86,7 @@ public class ChunkedUDPReceiver extends AbstractUDPReceiver {
                         responseOK();
                         continue;
                     }
-                    // dispatch는 비지니스 로직 실행을 의미.
+                    // dispatch signifies business logic execution
                     receiver.getDispatchHandler().dispatchSendMessage(tBase, packet.getData(), Header.HEADER_SIZE, packet.getLength());
                 }
             } catch (TException e) {

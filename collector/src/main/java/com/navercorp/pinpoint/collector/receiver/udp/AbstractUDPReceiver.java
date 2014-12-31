@@ -64,17 +64,18 @@ public abstract class AbstractUDPReceiver implements DataReceiver {
     private Timer timer;
     private Counter rejectedCounter;
 
-    // ioThread 사이즈를 늘리거는 생각보다 효용이 별로임.
+    // increasing ioThread size wasn't very effective
     private int ioThreadSize = CpuUtils.cpuCount();
     private ThreadPoolExecutor io;
 
-    // queue에 적체 해야 되는 max 사이즈 변경을 위해  thread pool을 조정해야함.
+    // modify thread pool size appropriately when modifying queue capacity 
     private ThreadPoolExecutor worker;
     private int workerThreadSize = 128;
     private int workerThreadQueueSize = 1024;
 
-    // udp 패킷의 경우 맥스 사이즈가 얼마일지 알수 없어서 메모리를 할당해서 쓰기가 그럼. 내가 모르는걸수도 있음. 이럴경우 더 좋은방법으로 수정.
-    // 최대치로 동적할당해서 사용하면 jvm이 얼마 버티지 못하므로 packet을 캐쉬할 필요성이 있음.
+    // can't really allocate memory as max udp packet sizes are unknown.
+    // not allocating memory in advance as I am unsure of the max udp packet size.
+    // packet cache is necessary as the JVM does not last long if they are dynamically created with the maximum size.
     private ObjectPool<DatagramPacket> datagramPacketPool;
 
 
@@ -133,7 +134,7 @@ public abstract class AbstractUDPReceiver implements DataReceiver {
         final SocketAddress localSocketAddress = socket.getLocalSocketAddress();
         final boolean debugEnabled = logger.isDebugEnabled();
 
-        // 종료 처리필요.
+        // need shutdown logic
         while (state.get()) {
             DatagramPacket packet = read0();
             if (packet == null) {
@@ -181,7 +182,7 @@ public abstract class AbstractUDPReceiver implements DataReceiver {
             if (logger.isDebugEnabled()) {
                 logger.debug("DatagramPacket SocketAddress:{} read size:{}", packet.getSocketAddress(), packet.getLength());
                 if (logger.isTraceEnabled()) {
-                    // dump packet은 데이터가 많을것이니 trace로
+                    // use trace as packet dump may be large
                     logger.trace("dump packet:{}", PacketUtils.dumpDatagramPacket(packet));
                 }
             }
@@ -211,7 +212,7 @@ public abstract class AbstractUDPReceiver implements DataReceiver {
                 }
             }
             so.setSoTimeout(1000 * 5);
-            // 바인드 타이밍이 약간 빠름.
+            // bind timing feels a bit early
             so.bind(new InetSocketAddress(bindAddress, port));
             return so;
         } catch (SocketException ex) {
@@ -249,7 +250,7 @@ public abstract class AbstractUDPReceiver implements DataReceiver {
     public void shutdown() {
         logger.info("{} shutdown.", this.receiverName);
         state.set(false);
-        // 그냥 닫으면 되는건지?
+        // is it okay to just close here?
         socket.close();
         shutdownExecutor(io, "IoExecutor");
         shutdownExecutor(worker, "WorkerExecutor");
