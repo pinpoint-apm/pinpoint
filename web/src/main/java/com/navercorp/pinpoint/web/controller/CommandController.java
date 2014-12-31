@@ -86,6 +86,7 @@ public class CommandController {
 		TCommandTransfer transfer = new TCommandTransfer();
 		transfer.setApplicationName(applicationName);
 		transfer.setAgentId(agentId);
+		transfer.setStartTime(startTimeStamp);
 		transfer.setPayload(payload);
 
 		Future<ResponseMessage> future = context.getSocketChannel().sendRequestMessage(serialize(transfer));
@@ -131,6 +132,7 @@ public class CommandController {
 		TCommandTransfer transfer = new TCommandTransfer();
 		transfer.setApplicationName(applicationName);
 		transfer.setAgentId(agentId);
+	    transfer.setStartTime(startTimeStamp);
 		transfer.setPayload(payload);
 
 		Future<ResponseMessage> future = context.getSocketChannel().sendRequestMessage(serialize(transfer));
