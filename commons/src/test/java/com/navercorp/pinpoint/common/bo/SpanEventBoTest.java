@@ -66,7 +66,7 @@ public class SpanEventBoTest {
         Assert.assertEquals(spanEventBo.getStartElapsed(), newSpanEventBo.getStartElapsed());
 
 
-        // 아래는 rowKeye에서 가져 오는값.
+        // we get these from the row key
         spanEventBo.setSpanId(1);
         newSpanEventBo.setSpanId(1);
         Assert.assertEquals(spanEventBo.getSpanId(), newSpanEventBo.getSpanId());

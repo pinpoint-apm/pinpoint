@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.common.bo.AgentStatCpuLoadBo;
  */
 public class AgentStatCpuLoadBoTest {
 	
-	// CPU 사용량 소수점 2자리 표시
+	// for comparing CPU Usage up to 2 decimal places
 	private static final double DELTA = 1e-4;
 
 	@Test

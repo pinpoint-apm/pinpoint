@@ -87,7 +87,7 @@ public class SpanBoTest {
         Assert.assertEquals(newSpanBo.getErrCode(), spanBo.getErrCode());
         Assert.assertEquals(newSpanBo.getFlag(), spanBo.getFlag());
 
-//        이건 serialize에서 안가져옴.
+//        not included for serialization
 //        Assert.assertEquals(newSpanBo.getTraceAgentStartTime(), spanBo.getTraceAgentStartTime());
 //        Assert.assertEquals(newSpanBo.getTraceTransactionSequence(), spanBo.getTraceTransactionSequence());
         Assert.assertEquals(newSpanBo.getParentSpanId(), spanBo.getParentSpanId());
