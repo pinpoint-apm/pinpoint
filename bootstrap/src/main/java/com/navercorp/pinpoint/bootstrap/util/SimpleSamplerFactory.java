@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author emeroad
  */
 public class SimpleSamplerFactory {
-//    profiler에 있는 Sampler와 기능이 동일하지만. profiler에 있는 sampler의 경우 좀더 파생 모델이 나와야 되므로 별도로 분리한다.
+    // functionally identical to profiler's Sampler  
     public static final SimpleSampler FALSE_SAMPLER = new SimpleFalseSampler();
     public static final SimpleSampler TRUE_SAMPLER = new SimpleTrueSampler();
 

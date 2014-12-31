@@ -192,7 +192,6 @@ public class ClassPathResolver {
             }
         }
 
-        // agentDir 패스도 넣어야 xml을 찾을 때 해당 패스에서 찾음.
         URL agentDirUri = toURI(new File(agentLibPath));
         if (agentDirUri != null) {
             jarURLList.add(agentDirUri);

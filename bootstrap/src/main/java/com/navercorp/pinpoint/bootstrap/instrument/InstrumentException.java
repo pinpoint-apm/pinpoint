@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap.instrument;
 
-// TODO 추후 별도 계층구조가 필요하면 분화 필요.
 // TODO Separate this class when hierarchical layers are needed
 /**
  * @author emeroad
