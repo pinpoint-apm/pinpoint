@@ -31,14 +31,14 @@ public class JdkLoggerTest {
 
         logger.info("tset");
 
-        // format does not work.
+        // formatting is not supported
         logger.log(Level.INFO, "Test %s", "sdfsdf");
 
         logger.log(Level.INFO, "Test ", new Exception());
 
         logger.logp(Level.INFO, JdkLoggerTest.class.getName(), "test()", "tsdd");
 
-        // logs shouldn't be printed when log level is set to "fine" in logging.properties
+        // Should not log this because log level for test defined in logging.properties is "fine".
         logger.finest("logged?");
 
     }

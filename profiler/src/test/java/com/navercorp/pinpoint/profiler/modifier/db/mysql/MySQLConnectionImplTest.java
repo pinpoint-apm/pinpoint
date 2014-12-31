@@ -45,7 +45,7 @@ public class MySQLConnectionImplTest {
 
 //    @Test
     public void test() throws Throwable {
-//      간접 참조로 실행할 경우의 샘플용으로 commit함.
+        // This is an example of test which loads test class indirectly.  
 //        loader.runTest("com.navercorp.pinpoint.profiler.modifier.db.mysql.MySQLConnectionImplModifierTest", "testModify");
     }
 

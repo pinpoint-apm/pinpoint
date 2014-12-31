@@ -43,7 +43,7 @@ public class JDBCUrlParserTest {
         logger.debug(uri.toString());
         logger.debug(uri.getScheme());
 
-        // URI로 파싱하는건 제한적임 한계가 있음.
+        // URI parsing has limitation.
         try {
             URI oracleRac = URI.create("jdbc:oracle:thin:@(DESCRIPTION=(LOAD_BALANCE=on)" +
                     "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.4) (PORT=1521))" +
