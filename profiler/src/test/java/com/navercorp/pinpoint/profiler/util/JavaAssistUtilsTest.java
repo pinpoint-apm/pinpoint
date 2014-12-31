@@ -179,7 +179,7 @@ public class JavaAssistUtilsTest {
 
         CtMethod setParams = ctClass.getDeclaredMethod("setParams", new CtClass[]{params});
         int lineNumber = JavaAssistUtils.getLineNumber(setParams);
-        logger.info("line:" + lineNumber);
+        logger.info("line:{}", lineNumber);
 
         logger.info(setParams.getName());
         logger.info(setParams.getLongName());
@@ -201,10 +201,9 @@ public class JavaAssistUtilsTest {
     @Test
     public void testVariableNameError1() throws Exception {
         CtClass ctClass = pool.get("com.mysql.jdbc.ConnectionImpl");
-        CtClass params = pool.get("org.apache.http.params.HttpParams");
         CtMethod setParams = ctClass.getDeclaredMethod("setAutoCommit", new CtClass[]{CtClass.booleanType});
         int lineNumber = JavaAssistUtils.getLineNumber(setParams);
-        logger.info("line:" + lineNumber);
+        logger.info("line:{}", lineNumber);
 
         logger.info(setParams.getName());
         logger.info(setParams.getLongName());
