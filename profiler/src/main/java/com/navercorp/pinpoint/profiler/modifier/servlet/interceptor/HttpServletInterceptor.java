@@ -171,7 +171,7 @@ public class HttpServletInterceptor implements SimpleAroundInterceptor, ByteCode
     }
 
     private boolean samplingEnable(HttpServletRequest request) {
-        // optional 값.
+        // optional value.
         String samplingFlag = request.getHeader(Header.HTTP_SAMPLED.toString());
         return SamplingFlagUtils.isSamplingFlag(samplingFlag);
     }

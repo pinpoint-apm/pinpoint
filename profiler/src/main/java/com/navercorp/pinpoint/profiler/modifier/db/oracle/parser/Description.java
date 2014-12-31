@@ -65,7 +65,7 @@ public class Description {
                     if (compare("service_name", connectData)) {
                         this.serviceName = connectData.getValue();
                     } else if(compare("sid", connectData)) {
-                        // sid도 호환을 위해서 봐야 한다.
+                        // sid also needed to check compatibility.
                         this.sid = connectData.getValue();
                     }
                 }

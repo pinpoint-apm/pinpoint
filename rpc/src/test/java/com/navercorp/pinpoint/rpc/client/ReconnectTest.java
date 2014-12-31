@@ -77,7 +77,7 @@ public class ReconnectTest {
                 ResponseMessage result = response.getResult();
                 Assert.fail("expected:exception");
             } catch (Exception e) {
-                // 기대된 에러라 skip
+                // skip because of expected error
             }
 
             newServerSocket = new PinpointServerSocket();
@@ -196,8 +196,7 @@ public class ReconnectTest {
 
     @Test
     public void serverFirstClose() throws IOException, InterruptedException {
-        // 서버가 먼저 닫힌 상황에서 비정상적인 상황에서 client socket이 잘 닫히는지 테스트
-
+        // when abnormal case in which server has been closed first, confirm that a socket should be closed properly.
         PinpointServerSocket ss = new PinpointServerSocket();
         ss.bind("127.0.0.1", 10234);
         PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
@@ -214,7 +213,7 @@ public class ReconnectTest {
             } catch (Exception e) {
                 logger.debug("timeout.", e);
             }
-            //  강제로 서버를 close함.
+            // close server by force
             ss.close();
             Thread.sleep(1000*2);
 
@@ -227,7 +226,7 @@ public class ReconnectTest {
 
     @Test
     public void serverCloseAndWrite() throws IOException, InterruptedException {
-        // 서버가 먼저 닫힌 상황에서 비정상적인 상황에서 client socket이 잘 닫히는지 테스트
+        // when abnormal case in which server has been closed first, confirm that a client socket should be closed properly.
 
         PinpointServerSocket ss = new PinpointServerSocket();
         ss.bind("127.0.0.1", 10234);
@@ -238,7 +237,7 @@ public class ReconnectTest {
             PinpointSocket socket = pinpointSocketFactory.connect("127.0.0.1", 10234);
 
             byte[] randomByte = TestByteUtils.createRandomByte(10);
-            // 서버를 그냥 닫고 request
+            // just close server and request
             ss.close();
             Future<ResponseMessage> response = socket.request(randomByte);
             response.await();

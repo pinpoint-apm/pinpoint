@@ -229,9 +229,8 @@ public class SqlParserTest {
         assertEqual("'1234''456,7'", "'0$'", "1234''456,,7");
         ParsingResult parsingResult2 = this.sqlParser.normalizedSql("'1234''456,7'");
         logger.debug("{}", parsingResult2);
-        // 문자열 토큰
 
-
+        // for string token
         assertEqual("'1234' '456,7'", "'0$' '1$'", "1234,456,,7");
     }
 

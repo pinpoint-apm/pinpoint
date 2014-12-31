@@ -93,11 +93,11 @@ public class MemcachedClientModifier extends AbstractModifier {
 	}
 
     private boolean checkCompatibility(InstrumentClass aClass, String[] args) {
-        // 일단 addOp 존재유무로 체크
+		// if addOp exists, compatibility is okay for now.
         final boolean addOp = aClass.hasDeclaredMethod("addOp", args);
         if (!addOp) {
             logger.warn("addOp() not found. skip MemcachedClientModifier");
-        }
+         }
         return addOp;
     }
 

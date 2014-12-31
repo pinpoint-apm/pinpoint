@@ -63,7 +63,7 @@ public class PinpointSocketFactoryTest {
     public void reconnectFail() throws InterruptedException {
         PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
         try {
-            // api 호출시 error 메시지 간략화 확인용.
+            // confirm simplified error message when api called.
             InetSocketAddress remoteAddress = new InetSocketAddress("127.0.0.1", 10234);
             ChannelFuture reconnect = pinpointSocketFactory.reconnect(remoteAddress);
             reconnect.await();

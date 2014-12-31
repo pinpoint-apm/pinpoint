@@ -79,7 +79,6 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
             testClassField.setAccessible(true);
             testClassField.set(this, this.testContext.getTestClass());
         } catch (Exception e) {
-            // InitializationError로 퉁치자.
             throw new InitializationError(e);
         }
     }

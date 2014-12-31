@@ -55,7 +55,7 @@ public class EventListenerTest {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	// RegisterPacket 등록 실패한 경우에도 메시지 전달 가능 확인 (return code : 2 파라미터 부족)
+	// Test for being possible to send messages in case of failure of registering packet ( return code : 2, lack of parameter)
 	@Test
 	public void registerAgentTest1() throws Exception {
 		EventListener eventListner = new EventListener();

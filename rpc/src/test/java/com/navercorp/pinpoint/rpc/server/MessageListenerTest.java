@@ -61,7 +61,6 @@ public class MessageListenerTest {
 
 		try {
 
-			// 리스터를 등록한 것만 RegisterAgent 로 나옴
 			PinpointSocket socket = socketFactory1.connect("127.0.0.1", 10234);
 			PinpointSocket socket2 = socketFactory2.connect("127.0.0.1", 10234);
 
@@ -94,7 +93,7 @@ public class MessageListenerTest {
 		socketFactory.setMessageListener(echoMessageListener);
 
 		try {
-			// 리스터를 등록한 것만 RegisterAgent 로 나옴
+
 			PinpointSocket socket = socketFactory.connect("127.0.0.1", 10234);
 			Thread.sleep(500);
 
@@ -138,7 +137,7 @@ public class MessageListenerTest {
 		socketFactory2.setMessageListener(echoMessageListener2);
 		
 		try {
-			// 리스터를 등록한 것만 RegisterAgent 로 나옴
+
 			PinpointSocket socket = socketFactory1.connect("127.0.0.1", 10234);
 			PinpointSocket socket2 = socketFactory2.connect("127.0.0.1", 10234);
 			
@@ -181,7 +180,6 @@ public class MessageListenerTest {
 
 		try {
 			
-			// 리스터를 등록한 것만 RegisterAgent 로 나옴
 			PinpointSocket socket = socketFactory.connect("127.0.0.1", 10234);
 			
 			Thread.sleep(500);
@@ -208,8 +206,7 @@ public class MessageListenerTest {
 		PinpointSocketFactory socketFactory = createPinpointSocketFactory();
 		socketFactory.setMessageListener(SimpleLoggingMessageListener.LISTENER);
 		try {
-
-			// Listener가 없을때 디폴트로 등록하는 SimpleLoggingMessageListener.LISTENER인 경우 상호 연결이 불가능함
+			// SimpleLoggingMessageListener.LISTENER as default listener can't connect by duplex mode.
 			PinpointSocket socket = socketFactory.connect("127.0.0.1", 10234);
 
 			Thread.sleep(500);
@@ -226,7 +223,7 @@ public class MessageListenerTest {
 		}
 	}
 
-	// 받지 않을 경우 몇번이나 재시도 하는지 확인
+	// confirm how many times retry when packet has not been received.
 	@Test
 	public void serverMessageListenerTest6() throws InterruptedException {
 		DuplexCheckListener serverListener = new DuplexCheckListener();
@@ -241,7 +238,7 @@ public class MessageListenerTest {
 		
 		try {
 
-			// Listener가 없을때 디폴트로 등록하는 SimpleLoggingMessageListener.LISTENER인 경우 상호 연결이 불가능함
+			// SimpleLoggingMessageListener.LISTENER as default listener can't connect by duplex mode.
 			PinpointSocket socket = socketFactory.connect("127.0.0.1", 10234);
 			Thread.sleep(5000);
 
