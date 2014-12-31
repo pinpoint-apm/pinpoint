@@ -37,7 +37,6 @@ public class TimeSlotTest {
     @Test
     public void testGetTimeSlot() throws Exception {
         long currentTime = System.currentTimeMillis();
-        // 슬롯 넘버를 알아온다.
         long timeSlot = this.timeSlot.getTimeSlot(currentTime);
 
         logger.info("{} currentTime ", currentTime);
@@ -48,8 +47,6 @@ public class TimeSlotTest {
     @Test
     public void testSlotTime1() throws Exception {
         int slotTest = 60 * 1000;
-
-        // 슬롯 넘버를 알아온다.
         long timeSlot = this.timeSlot.getTimeSlot(slotTest);
 
         logger.info("{} slotTest ", slotTest);
@@ -61,9 +58,6 @@ public class TimeSlotTest {
     public void testSlotTime2() throws Exception {
         int sourceTest = 60 * 1000;
         int slotTest = sourceTest + 1;
-
-
-        // 슬롯 넘버를 알아온다.
         long timeSlot = this.timeSlot.getTimeSlot(slotTest);
 
         logger.info("{} slotTest ", slotTest);

@@ -85,7 +85,6 @@ public class RequestManagerTest {
     public void testTimerStartTiming() throws InterruptedException {
         HashedWheelTimer timer = new HashedWheelTimer(1000, TimeUnit.MILLISECONDS);
         timer.start();
-        // start해야 타이머가 thread가 동작한다.
         timer.stop();
     }
 

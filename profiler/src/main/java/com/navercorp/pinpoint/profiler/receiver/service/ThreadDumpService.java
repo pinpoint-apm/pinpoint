@@ -130,7 +130,7 @@ public class ThreadDumpService implements ProfilerRequestCommandService {
         return result;
     }
 
-    // 이건 나중에 수정이 필요함
+    // TODO : need to modify later
     private List<ThreadInfo> getThreadInfo(long pendingTimeMillis) {
         List<ThreadInfo> result = new ArrayList<ThreadInfo>();
 

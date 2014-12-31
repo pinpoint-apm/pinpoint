@@ -120,7 +120,6 @@ public class PinpointSocketFactory {
     private void setOptions(ClientBootstrap bootstrap) {
         // connectTimeout
         bootstrap.setOption(CONNECT_TIMEOUT_MILLIS, DEFAULT_CONNECT_TIMEOUT);
-        // read write timeout이 있어야 되나?
         // read write timeout needed?  isn't it needed because of nio?
 
         // tcp setting

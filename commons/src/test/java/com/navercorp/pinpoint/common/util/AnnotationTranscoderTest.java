@@ -130,8 +130,6 @@ public class AnnotationTranscoderTest {
         testIntString(1, "");
         testIntString(Integer.MAX_VALUE, "test");
         testIntString(Integer.MIN_VALUE, "test");
-
-        // null일때 0인자열로 생각하는 문제점이 있음.
         testIntString(2, null);
     }
 

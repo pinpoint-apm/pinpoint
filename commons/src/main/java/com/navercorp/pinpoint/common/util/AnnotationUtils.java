@@ -134,7 +134,6 @@ public final class AnnotationUtils {
                 return apiErrorCode;
             }
         }
-        // 정확한 에러 코드를 못찾음. 퉁쳐서 에러 처리
         // could not find a more specific error - returns generalized error
         return AnnotationKey.ERROR_API_METADATA_ERROR;
     }

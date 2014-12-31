@@ -50,7 +50,7 @@ public final class AnnotationValueMapper {
             annotation.setValue(TAnnotationValue.byteValue((Byte) value));
             return;
         } else if (value instanceof Float) {
-            // thrift는 float가 없음.
+            // thrift does not contain "float" type
             annotation.setValue(TAnnotationValue.doubleValue((Float) value));
             return;
         } else if (value instanceof Double) {

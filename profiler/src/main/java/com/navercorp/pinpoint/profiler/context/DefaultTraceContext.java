@@ -249,7 +249,6 @@ public class DefaultTraceContext implements TraceContext {
 
         final DefaultParsingResult parsingResult = this.sqlParser.normalizedSql(sql);
         final String normalizedSql = parsingResult.getSql();
-        // 파싱시 변경되지 않았다면 동일 객체를 리턴하므로 그냥 ==비교를 하면 됨
 
         final Result cachingResult = this.sqlCache.put(normalizedSql);
         if (cachingResult.isNewValue()) {

@@ -22,24 +22,20 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
+ * used DeepCopy for basic type. ex) like Map, List.
+ * used ShallCopy for Bean.
+ *
+ * There are functional limitations because this class made only for copying securely something like Map.
+ * Be careful.
+ *
  * @author koo.taejin
  */
+
 public final class CopyUtils {
 
 	private CopyUtils() {
 	}
 
-	/**
-	 * Map, List 등의 기본 타입들은 DeepCopy를 하고, Bean등은 ShallowCopy를 함 
-	 * Pinpoint의 Map등을 안전하게 복사할때만 사용하려고 하기 떄문에 기능에 제약이 있음 
-	 * 사용하려면 기능제약을 확실히 알고 사용하기를 권함
-	 *
-	 * DeepCopy for basic type like Map, List.
-	 * ShallCopy for Bean.
-	 *
-	 * Copy 
-	 *
-	 */
 	public static Map<Object, Object> mediumCopyMap(Map<Object, Object> original) {
 		Map<Object, Object> result = new LinkedHashMap<Object, Object>();
 
@@ -52,11 +48,6 @@ public final class CopyUtils {
 		return result;
 	}
 
-	/**
-	 * Map, List 등의 기본 타입들은 DeepCopy를 하고, Bean등은 ShallowCopy를 함 
-	 * Pinpoint의 Map등을 안전하게 복사할때만 사용하려고 하기 떄문에 기능에 제약이 있음 
-	 * 사용하려면 기능제약을 확실히 알고 사용하기를 권함
-	 */
 	public static Collection<Object> mediumCopyCollection(Collection<Object> original) {
 		return new ArrayList<Object>(original);
 	}

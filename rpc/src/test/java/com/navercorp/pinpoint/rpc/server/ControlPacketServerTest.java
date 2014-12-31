@@ -53,7 +53,7 @@ public class ControlPacketServerTest {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	// RegisterPacket 등록 실패한 경우에도 메시지 전달 가능 확인 (return code : 2 파라미터 부족)
+	// Test for being possible to send messages in case of failure of registering packet ( return code : 2, lack of parameter)
 	@Test
 	public void registerAgentTest1() throws Exception {
 		PinpointServerSocket pinpointServerSocket = new PinpointServerSocket();
@@ -81,7 +81,7 @@ public class ControlPacketServerTest {
 		}
 	}
 
-	// RegisterPacket 등록 성공시 메시지 전달 가능 확인 (return code : 0)
+	// Test for being possible to send messages in case of success of registering packet ( return code : 0)
 	@Test
 	public void registerAgentTest2() throws Exception {
 		PinpointServerSocket pinpointServerSocket = new PinpointServerSocket();
@@ -109,7 +109,7 @@ public class ControlPacketServerTest {
 		}
 	}
 
-	// RegisterPacket 등록 실패한 경우 다시 Register Packet을 보낼 경우 동일한 메시지 던지는지 확인 (return code : 2 파라미터 부족)
+	// when failure of registering and retrying to register, confirm to return same code ( return code : 2
 	@Test
 	public void registerAgentTest3() throws Exception {
 		PinpointServerSocket pinpointServerSocket = new PinpointServerSocket();
@@ -137,8 +137,8 @@ public class ControlPacketServerTest {
 		}
 	}
 
-	// RegisterPacket 등록 성공 메시지를 여러번 보낼 경우 최초는 성공, 두번쨰는  이미 성공 code를 받는지 확인
-	// 이후 메시지 전달 가능 확인 이후도 똑같은 메시지 전달하는 것으로 변경 
+	// after success of registering, when success message are sent repeatedly.
+	// test 1) confirm to return success code, 2) confirm to return already success code.
 	@Test
 	public void registerAgentTest4() throws Exception {
 		PinpointServerSocket pinpointServerSocket = new PinpointServerSocket();

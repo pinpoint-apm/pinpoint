@@ -123,7 +123,7 @@ public class DefaultFuture<T> implements TimerTask, Future<T> {
                 notifyAll();
             }
         }
-        // 이미 timeout 되서 들어오기 때문에 tieout.cancel시킬필요가 없음.
+        // don't need timeout.cancel because of already being timeout.
         notifyFailureHandle();
         notifyListener();
         return true;

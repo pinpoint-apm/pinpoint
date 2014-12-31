@@ -426,7 +426,8 @@ public final class BytesUtils {
         }
         final int length = string.length();
         int index = length;
-//        Character.isWhitespace() 로 해야 하는 의문이 생김?? 안해도 될것 같기는 함.
+
+        // need to use Character.isWhitespace()? may not needed.
         while (string.charAt(index - 1) <= ' ') {
             index--;
         }

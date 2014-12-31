@@ -91,7 +91,7 @@ public class StreamChannelManager {
 			throw new PinpointSocketException("already streamChannelId exist:" + streamChannelId + " streamChannel:" + old);
 		}
 
-		// 이타이밍이 중요함 해당 로직보다 메시지가 빨리 도착하면 상태값이 꺠짐
+		// the order of below code is very important.
 		newStreamChannel.changeStateOpenAwait();
 		newStreamChannel.sendCreate(payload);
 
@@ -245,8 +245,7 @@ public class StreamChannelManager {
 		if (StreamChannelStateCode.RUN == currentCode) {
 			context.getClientStreamChannelMessageListener().handleStreamData(context, packet);
 		} else if (StreamChannelStateCode.OPEN_AWAIT == currentCode) {
-			// 타이밍상 발생 가능
-			
+			// may happen in the timing
 		} else {
 			clearResourceAndSendClose(streamChannelId, StreamClosePacket.STATE_NOT_RUN);
 		}

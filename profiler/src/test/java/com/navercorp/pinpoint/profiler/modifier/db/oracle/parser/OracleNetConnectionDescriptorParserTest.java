@@ -178,7 +178,7 @@ public class OracleNetConnectionDescriptorParserTest {
         String rac = "jdbc:oracle:thin:@(DESCRIPTION=(LOAD_BALANCE = off )" +
                 "(ADDRESS  =  ( PROTOCOL = TCP) (HOST = 1.2.3.4 ) ( = 1521 ))" +
                 " ( CONNECT_DATA = ( SID = sid ) ) )";
-        // port 제거
+        // removed port
 
         OracleNetConnectionDescriptorParser parser = new OracleNetConnectionDescriptorParser(rac);
         try {
