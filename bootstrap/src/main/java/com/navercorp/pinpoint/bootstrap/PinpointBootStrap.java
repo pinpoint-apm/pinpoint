@@ -54,7 +54,7 @@ public class PinpointBootStrap {
             logPinpointAgentLoadFail();
             return;
         }
-
+        // 1st find boot-strap.jar
         final ClassPathResolver classPathResolver = new ClassPathResolver();
         boolean agentJarNotFound = classPathResolver.findAgentJar();
         if (!agentJarNotFound) {
@@ -62,6 +62,21 @@ public class PinpointBootStrap {
             logPinpointAgentLoadFail();
             return;
         }
+        // 2st find boot-strap-core.jar
+        final String bootStrapCoreJar = classPathResolver.getBootStrapCoreJar();
+        if (bootStrapCoreJar == null) {
+            logger.severe("pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar not found");
+            logPinpointAgentLoadFail();
+            return;
+        }
+        JarFile bootStrapCoreJarFile = getBootStrapJarFile(bootStrapCoreJar);
+        if (bootStrapCoreJarFile == null) {
+            logger.severe("pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar not found");
+            logPinpointAgentLoadFail();
+            return;
+        }
+        logger.info("load pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar :" + bootStrapCoreJar);
+        instrumentation.appendToBootstrapClassLoaderSearch(bootStrapCoreJarFile);
 
         if (!isValidId("pinpoint.agentId", PinpointConstants.AGENT_NAME_MAX_LEN)) {
             logPinpointAgentLoadFail();
@@ -80,21 +95,6 @@ public class PinpointBootStrap {
 
         // set the path of log file as a system property
         saveLogFilePath(classPathResolver);
-
-        final String bootStrapCoreJar = classPathResolver.getBootStrapCoreJar();
-        if (bootStrapCoreJar == null) {
-            logger.severe("pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar not found");
-            logPinpointAgentLoadFail();
-            return;
-        }
-        JarFile bootStrapCoreJarFile = getBootStrapJarFile(bootStrapCoreJar);
-        if (bootStrapCoreJarFile == null) {
-            logger.severe("pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar not found");
-            logPinpointAgentLoadFail();
-            return;
-        }
-        logger.info("load pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar :" + bootStrapCoreJar);
-        instrumentation.appendToBootstrapClassLoaderSearch(bootStrapCoreJarFile);
 
         try {
             // Is it right to load the configuration in the bootstrap?
