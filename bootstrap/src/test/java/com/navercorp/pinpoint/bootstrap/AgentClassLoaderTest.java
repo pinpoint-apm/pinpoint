@@ -41,7 +41,7 @@ public class AgentClassLoaderTest {
         AgentClassLoader agentClassLoader = new AgentClassLoader(new URL[0]);
         agentClassLoader.setBootClass("com.navercorp.pinpoint.bootstrap.DummyAgent");
         agentClassLoader.boot("agentPath", "test", new DummyInstrumentation(), new ProfilerConfig());
-        // TODO logger가져오는 기능이 달라져서 확인이 필요함.
+        // TODO need verification - implementation for obtaining logger changed
 //        PLoggerBinder loggerBinder = (PLoggerBinder) agentClassLoader.initializeLoggerBinder();
 //        PLogger test = loggerBinder.getLogger("test");
 //        test.info("slf4j logger test");
@@ -49,7 +49,7 @@ public class AgentClassLoaderTest {
     }
 
     private String getProjectLibDir() {
-        // 필요는 없으나 protectionDomain을 테스트하기 좋아 내비둠.
+        // not really necessary, but useful for testing protectionDomain
         ProtectionDomain protectionDomain = AgentClassLoader.class.getProtectionDomain();
         CodeSource codeSource = protectionDomain.getCodeSource();
         URL location = codeSource.getLocation();

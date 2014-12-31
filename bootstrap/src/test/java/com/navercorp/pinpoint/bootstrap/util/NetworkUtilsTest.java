@@ -61,7 +61,7 @@ public class NetworkUtilsTest {
         Assert.assertEquals("www.naver.com", hostFromURL1_1);
 
 
-        // TODO default port가 기본값으로 들어갔을 경우 어떤 처리가 맞는건가?
+        // TODO how should we resolve host when the url includes the default port?
         String hostFromURL2 = NetworkUtils.getHostFromURL("http://www.naver.com:80");
         Assert.assertEquals("www.naver.com:80", hostFromURL2);
 

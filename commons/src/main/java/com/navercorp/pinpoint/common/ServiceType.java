@@ -59,7 +59,7 @@ public enum ServiceType {
 
     /**
      * Database
-     * xxx_EXECUTE_QUERY만 server map통계정보에 집계된다.
+     * shown only as xxx_EXECUTE_QUERY at the statistics info section in the server map 
      */
     // DB 2000
     UNKNOWN_DB((short) 2050, "UNKNOWN_DB", TERMINAL, !RECORD_STATISTICS, INCLUDE_DESTINATION, NORMAL_SCHEMA),
