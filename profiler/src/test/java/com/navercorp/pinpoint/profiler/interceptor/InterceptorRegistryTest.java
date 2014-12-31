@@ -18,10 +18,9 @@ package com.navercorp.pinpoint.profiler.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.InterceptorRegistry;
-import com.navercorp.pinpoint.profiler.interceptor.bci.TestObject;
-
+import com.navercorp.pinpoint.bootstrap.interceptor.SimpleAroundInterceptor;
+import com.navercorp.pinpoint.test.util.LoaderUtils;
 import javassist.*;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -29,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -50,89 +50,81 @@ public class InterceptorRegistryTest {
         Assert.assertEquals(interceptor, find);
     }
 
-//    @Test
+    //    @Test
     public void methodName() throws NoSuchMethodException {
         Method[] toString = Map.class.getDeclaredMethods();
-        for(Method m : toString) {
-            logger.info("methodObject:" + m);
-            logger.info("methodObject" + m.toGenericString());
+        for (Method m : toString) {
+            logger.info("methodObject:{}", m);
+            logger.info("methodObject:{}", m.toGenericString());
         }
     }
 
-//    @Test
+    //    @Test
     public void ctClassName() throws NotFoundException {
-        ClassPool pool = new ClassPool();
-        pool.appendSystemPath();
+        ClassPool pool = new ClassPool(true);
+
         CtClass ctClass = pool.get("java.lang.String");
-        logger.info("ctClass:" + ctClass);
-        logger.info("ctClass:" + ctClass.getName());
-        logger.info("ctClass:" + ctClass.getSimpleName());
+        logger.info("ctClass:{}", ctClass);
+        logger.info("ctClass:{}", ctClass.getName());
+        logger.info("ctClass:{}", ctClass.getSimpleName());
     }
 
-    @Deprecated
-    public void interceptor() throws NotFoundException, CannotCompileException, IllegalAccessException, InstantiationException, IOException {
-       AroundInterceptor aroundInterceptor = new AroundInterceptor() {
-           @Override
-           public void before(InterceptorContext ctx) {
-               System.out.println("before ctx:" + ctx);
-           }
+    //    @Deprecated
+    public void interceptor() throws NotFoundException, CannotCompileException, IllegalAccessException, InstantiationException, IOException, ClassNotFoundException, NoSuchMethodException {
+        SimpleAroundInterceptor aroundInterceptor = new SimpleAroundInterceptor() {
 
-           @Override
-           public void after(InterceptorContext ctx) {
-               System.out.println("after ctx:" + ctx);
-           }
-       };
-//       int i = InterceptorRegistry.addInterceptor(aroundInterceptor);
+            @Override
+            public void before(Object target, Object[] args) {
+                logger.info("before target:" + target + " args:" + Arrays.toString(args));
+            }
 
-
-       ClassPool p = ClassPool.getDefault();
-       CtClass throwable = p.get(Throwable.class.getName());
+            @Override
+            public void after(Object target, Object[] args, Object result, Throwable throwable) {
+                logger.info("after target: " + target + " args:" + Arrays.toString(args) + " result:" + result + " throwalbe:" + throwable);
+            }
+        };
+        int interceptorId = InterceptorRegistry.addSimpleInterceptor(aroundInterceptor);
 
 
+        final ClassPool classPool = new ClassPool(true);
+        CtClass throwable = classPool.get(Throwable.class.getName());
 
-       CtClass ctClass = p.get("TestObject");
-       System.out.println(ctClass);
-       final CtMethod hello = ctClass.getMethod("hello", "(Ljava/lang/String;)Ljava/lang/String;");
-       System.out.println("langname:" + hello.getLongName());
-       System.out.println("name:" + hello.getName());
-       CtClass ctx = p.get(InterceptorContext.class.getName());
-       hello.addLocalVariable("ctx", ctx);
+        CtClass ctClass = classPool.get("com.navercorp.pinpoint.profiler.interceptor.JavaAssistTestObject");
 
-       CtClass interceptor = p.get(AroundInterceptor.class.getName());
+        final CtMethod hello = ctClass.getMethod("hello", "(Ljava/lang/String;)Ljava/lang/String;");
+        logger.debug("longName:{}", hello.getLongName());
+        logger.debug("name:{}", hello.getName());
 
-       hello.addLocalVariable("interceptor", interceptor);
+        String interceptorClassName = SimpleAroundInterceptor.class.getName();
+        CtClass interceptor = classPool.get(interceptorClassName);
+        hello.addLocalVariable("interceptor", interceptor);
 
-       CtClass object = p.get(Object.class.getName());
-       hello.addLocalVariable("result", object);
+        CtClass object = classPool.get(Object.class.getName());
+        hello.addLocalVariable("result", object);
 
-       hello.insertBefore("{" +
-               "ctx = new InterceptorContext();" +
-               "ctx.setParameter($args);" +
-//               InterceptorRegistry.class.getName() + ".getInterceptor(\"a\").before(ctx);" +
-               "interceptor = (AroundInterceptor) " + InterceptorRegistry.class.getName() + ".getInterceptor(1);"+
-               "interceptor.before(ctx);" +
-               "}");
-        hello.addCatch("{" +
-//            " interceptor.after(ctx);"+
-//           " AroundInterceptor a = (AroundInterceptor) " + InterceptorRegistry.class.getName() + ".getInterceptor(\"a\");"+
-           " throw $e;" +
-           "}", throwable);
-       hello.insertAfter("{" +
-                "interceptor.after(ctx); " +
-               "}");
-
-
-//
+//        hello.insertBefore("{ System.out.println(\"before\"); }");
+        hello.insertBefore("{" +
+                "interceptor = (" + interceptorClassName + ") " + InterceptorRegistry.class.getName() + ".getSimpleInterceptor(" + interceptorId + ");" +
+                "interceptor.before(this, $args);" +
+        "}");
+//        hello.addCatch("{" +
+////            " interceptor.after(ctx);"+
+////           " AroundInterceptor a = (AroundInterceptor) " + InterceptorRegistry.class.getName() + ".getInterceptor(\"a\");"+
+//                " throw $e;" +
+//                "}", throwable);
+//        hello.insertAfter("{" +
+//                "interceptor.after(this,  $args, ($w)$_, null); " +
+//                "}");
 
 //       hello.setBody(generatedAroundInterceptor("TestObject", "hello"));
 //       hello.setBody("{ System.out.println(\"ddd\");  }", ClassMap map );
-       hello.insertBefore(" System.out.println(\" before +  \");");
-       hello.insertAfter(" System.out.println($_);");
+//       hello.insertBefore(" System.out.println(\" before +  \");");
+//       hello.insertAfter(" System.out.println($_);");
 //       hello.insertAfter(" System.out.println($r);");
 //       hello.insertAfter(" System.out.println($w);");
-       hello.insertAfter(" System.out.println($sig);");
-       hello.insertAfter(" System.out.println($type);");
-       hello.insertAfter(" System.out.println($class);");
+//       hello.insertAfter(" System.out.println($sig);");
+//       hello.insertAfter(" System.out.println($type);");
+//       hello.insertAfter(" System.out.println($class);");
 //       hello.instrument(new ExprEditor() {
 //         public void edit(MethodCall m)
 //         throws CannotCompileException
@@ -157,24 +149,25 @@ public class InterceptorRegistryTest {
 //       ctClass.addMethod(method);
 
 
-
-       ctClass.freeze();
+//        ctClass.freeze();
 //       ctClass.writeFile("./debug");
-       ctClass.debugWriteFile("./debug");
-       Class aClass = ctClass.toClass();
-       TestObject o = (TestObject) aClass.newInstance();
+//       ctClass.debugWriteFile("./debug");
+        Loader loader = LoaderUtils.createLoader(classPool);
+        loader.delegateLoadingOf("com.navercorp.pinpoint.bootstrap.");
 
-//       ctClass.getMethod("toString", null);
-//       ctClass.getDeclaredMethod("toString", null);
+        Class aClass = loader.loadClass(ctClass.getName());
+        Object testObject = aClass.newInstance();
 
-       try {
-           o.hello("aaaaaa");
-       } catch (Exception e) {
-           e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-       }
+        Method helloMethod = testObject.getClass().getDeclaredMethod("hello", String.class);
+
+        try {
+            helloMethod.invoke(testObject, "hello~~");
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
 
 //       o.hello();
-   }
+    }
 
     private String generatedAroundInterceptor(String className, String methodName) {
         StringBuilder sb = new StringBuilder();
@@ -215,6 +208,7 @@ public class InterceptorRegistryTest {
 //        System.out.println(sb);
         return sb.toString();
     }
+
     public void println(StringBuilder sb, String out) {
         sb.append("System.out.println(\"" + out.replace("\"", "\\\"") + "\");");
     }
