@@ -122,7 +122,7 @@ public class SqlParserTest {
     @Test
     public void numberState() {
         assertEqual("123", "0#", "123");
-        // -가 진짜 숫자의 -인지 알려면 구문분석이 필요하므로 그냥 숫자만 치환한다.
+        // just converting numbers as it is too much work to find out if '-' represents a negative number, or is part of the SQL expression
         assertEqual("-123", "-0#", "123");
         assertEqual("+123", "+0#", "123");
         assertEqual("1.23", "0#", "1.23");
@@ -146,7 +146,7 @@ public class SqlParserTest {
         assertEqual("test_123", "test_123", "");
         assertEqual("test_ 123", "test_ 0#", "123");
 
-        // 사실 이건 불가능한 토큰임.
+        // this is effectively an impossible token
         assertEqual("123tst", "0#tst", "123");
     }
 
@@ -154,7 +154,7 @@ public class SqlParserTest {
     public void numberState2() {
         assertEqual("1.23e", "0#", "1.23e");
         assertEqual("1.23E", "0#", "1.23E");
-        // -가 진짜 숫자의 -인지 알려면 구문분석이 필요하므로 그냥 숫자만 치환한다.
+        // just converting numbers as it is too much work to find out if '-' represents a negative number, or is part of the SQL expression
         assertEqual("1.4e-10", "0#-1#", "1.4e,10");
 
     }

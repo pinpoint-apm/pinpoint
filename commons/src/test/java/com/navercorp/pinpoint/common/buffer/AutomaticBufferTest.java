@@ -196,7 +196,6 @@ public class AutomaticBufferTest {
         Buffer buffer = new AutomaticBuffer(1);
         buffer.putPrefixedString(null);
         byte[] internalBuffer = buffer.getInternalBuffer();
-        // 상속 관계에 의해서 강제로 버퍼 사이즈를 늘어나지 않아도 되는데 사이즈가 늘어남.
         Assert.assertEquals(1, internalBuffer.length);
     }
 

@@ -364,9 +364,9 @@ public class FixedBufferTest {
 
     @Test
     public void testPutSVar32() throws Exception {
-        // 63이 1바이트 경계.
+        // 63 is the boundary for a 1 byte number
         checkSVarInt(63, -1);
-        // 8191이 2바이트 경계
+        // 8191 is the boundary for a 2 byte number
         checkSVarInt((1024*8)-1, -1);
 
         checkSVarInt(3, -1);
