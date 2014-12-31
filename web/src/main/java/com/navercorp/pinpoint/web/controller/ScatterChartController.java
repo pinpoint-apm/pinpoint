@@ -293,7 +293,6 @@ public class ScatterChartController {
 			}
 
 			// query data up to limit
-			// XXX extraMetadata.size() <= limit????
 			if (extraMetadata == null || extraMetadata.size() < limit) {
 				int newlimit = limit - ((extraMetadata == null) ? 0 : extraMetadata.size());
 				List<Dot> selectedDotList = scatter.selectScatterData(applicationName, area, null, -1, newlimit);

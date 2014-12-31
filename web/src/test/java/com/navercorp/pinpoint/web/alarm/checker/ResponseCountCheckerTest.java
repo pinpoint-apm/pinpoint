@@ -76,7 +76,7 @@ public class ResponseCountCheckerTest {
     }
 
     /*
-     * 알람 조건 만족함
+     * alert conditions not satisfied
      */
     @Test
     public void checkTest1() {
@@ -90,7 +90,7 @@ public class ResponseCountCheckerTest {
     }
     
     /*
-     * 알람 조건 만족못함.
+     * alert conditions not satisfied
      */
     @Test
     public void checkTest2() {

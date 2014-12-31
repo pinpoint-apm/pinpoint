@@ -41,8 +41,8 @@ import org.apache.ibatis.session.RowBounds;
 import org.springframework.util.Assert;
 
 /**
- * Plugin for printing out the bind variables of {@link java.sql.PreparedStatement} and {@link java.sql.CallableStatement} with Query.
- * format of Query statement can be changed with {@link BindLogFormatter}.
+ * Plugin for printing out the bind variables of {@link java.sql.PreparedStatement} and {@link java.sql.CallableStatement} with Query string.
+ * format of Query string can be changed with {@link BindLogFormatter}.
  * base implementation is {@link com.navercorp.pinpoint.web.dao.ibatis.DefaultBindingLogFormatter}.
  * removeWhitespace option is supported
  *

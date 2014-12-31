@@ -151,7 +151,7 @@ public class ApplicationMapBuilder {
     }
 
     private LinkList buildLink(NodeList nodeList, LinkDataDuplexMap linkDataDuplexMap) {
-        // 변경하면 안됨.
+        // don't change
         LinkList linkList = new LinkList();
         createSourceLink(nodeList, linkList, linkDataDuplexMap.getSourceLinkDataMap());
         logger.debug("link size:{}", linkList.size());
@@ -238,7 +238,7 @@ public class ApplicationMapBuilder {
 
             // for RPC clients: skip if there is a dest application, convert to "unknown cloud" if not
             if (toNode.getServiceType().isRpcClient()) {
-                // to 노드가 존재하는지 검사?
+                // check if "to" node exists
                 if (!nodeList.containsNode(toNode.getApplication())) {
                     final Link link = addLink(linkList, fromNode, toNode, CreateType.Target);
                     if(link != null) {

@@ -46,7 +46,7 @@ public class ValidIdCheckerTest {
 
 	@Test
 	public void checkInvalidId() {
-		Assert.assertTrue(p.matcher("P1NPOINT가").find());
+		Assert.assertTrue(p.matcher("P1NPOINT가").find()); //include Korean character for test
 		Assert.assertTrue(p.matcher("P1NPOINT ").find());
 		Assert.assertTrue(p.matcher("P1NPOINT+").find());
 		Assert.assertTrue(p.matcher("PINPO+INT").find());

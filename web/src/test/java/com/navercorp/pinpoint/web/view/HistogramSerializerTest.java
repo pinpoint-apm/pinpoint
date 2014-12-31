@@ -61,7 +61,7 @@ public class HistogramSerializerTest {
     }
 
     /**
-     * 과거 버전의 histogam에 손으로 작성한 json코드를 테스트를 위해 testcase로 이동시킴.
+     * moved this testcase for testing the old version histogram with manually created json code
      * @param histogram
      * @return
      */
@@ -76,7 +76,8 @@ public class HistogramSerializerTest {
         sb.append(", ");
         appendSlotTimeAndCount(sb, histogramSchema.getSlowSlot().getSlotName(), histogram.getSlowCount());
         sb.append(", ");
-        // very slow는 0값이라 slow 값을 사용해야 한다.
+
+        // very slow means 0, so should use slow
         appendSlotTimeAndCount(sb, histogramSchema.getVerySlowSlot().getSlotName(), histogram.getVerySlowCount());
         sb.append(", ");
         appendSlotTimeAndCount(sb, histogramSchema.getErrorSlot().getSlotName(), histogram.getErrorCount());

@@ -60,7 +60,7 @@ public class AgentHistogramTest {
 
     @Test
     public void testJsonCompatibility() throws Exception {
-        // json구현을 Jackson으로 변경시 호환성 테스트
+        // compatibility test for changing to Jackson
         AgentHistogram agentHistogram = new AgentHistogram(new Application("test", ServiceType.TOMCAT));
         TimeHistogram histogram = new TimeHistogram(ServiceType.TOMCAT, 0);
         histogram.addCallCount(ServiceType.TOMCAT.getHistogramSchema().getErrorSlot().getSlotTime(), 1);
@@ -87,7 +87,7 @@ public class AgentHistogramTest {
 
 
     public String originalJson(AgentHistogram agentHistogram) throws IOException {
-        //이전구현
+        //old implementation
         StringBuilder sb = new StringBuilder();
         sb.append("{");
         sb.append("\"name\":\"").append(agentHistogram.getId()).append("\",");

@@ -75,7 +75,7 @@ public class SlowCountCheckerTest {
     }
 
     /*
-     * 알람 조건 만족함
+     * alert conditions not satisfied
      */
     @Test
     public void checkTest1() {
@@ -89,7 +89,7 @@ public class SlowCountCheckerTest {
     }
     
     /*
-     * 알람 조건 만족못함.
+     * alert conditions not satisfied
      */
     @Test
     public void checkTest2() {
@@ -103,8 +103,8 @@ public class SlowCountCheckerTest {
     }
     
     /*
-        직접 Nbase 서버에 접속해서 데이터 가져와서 테스트
-        계속 데이터가 보존되있지 않으므로 필요시 사용
+        the test data fetched directly from Hbase server.
+        use this in case of need because the data is not kept usually.
     */
     /*
     @Autowired

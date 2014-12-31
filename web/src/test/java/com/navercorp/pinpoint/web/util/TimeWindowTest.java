@@ -106,7 +106,7 @@ public class TimeWindowTest {
         Range range = new Range(1L, TimeUnit.MINUTES.toMillis(1)+1);
         TimeWindow window = new TimeWindow(range);
         Range windowRange = window.getWindowRange();
-        // 1은 0으로 치환 되어야 한다.
+        // 1 should be replace by 0.
         logger.debug("{}", windowRange);
         Assert.assertEquals(windowRange.getFrom(), 0);
         Assert.assertEquals(windowRange.getTo(), TimeUnit.MINUTES.toMillis(1));

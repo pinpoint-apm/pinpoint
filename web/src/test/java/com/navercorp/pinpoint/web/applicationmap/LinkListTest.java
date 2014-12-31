@@ -50,7 +50,7 @@ public class LinkListTest {
         original.addLinkList(copy);
         Assert.assertEquals(original.size(), 1);
 
-        // 중복 노드는 copy하면 안됨
+        // don't copy in case of duplicated node
         original.addLinkList(copy);
         Assert.assertEquals(original.size(), 1);
 
@@ -80,7 +80,7 @@ public class LinkListTest {
         Link tomcatToTomcatLink = createTomcatToTomcatLink();
         list.addLink(tomcatToTomcatLink);
 
-        // to를 호출하는 모든 링크를 찾음.
+        // find all links requesting "to"
         Application toBloc = new Application("to", ServiceType.BLOC);
         List<Link> findToLink = list.findToLink(toBloc);
         Assert.assertEquals(findToLink.size(), 1);
@@ -102,7 +102,7 @@ public class LinkListTest {
         Link tomcatToTomcatLink = createTomcatToTomcatLink();
         list.addLink(tomcatToTomcatLink);
 
-        // from에서 호출하는 링크를 모두 찾음.
+        // find all links for "from" to request
         Application tomcat = new Application("from", ServiceType.TOMCAT);
         List<Link> findFromLink = list.findFromLink(tomcat);
         Assert.assertEquals(findFromLink.size(), 2);

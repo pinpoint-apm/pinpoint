@@ -127,7 +127,7 @@ public class Record {
     public String getApiType() {
         if (destinationId == null) {
             if (serviceType == null) {
-                // parameter일 경우 serviceType이 없음.
+                // no ServiceType when parameter
                 return "";
             }
             return serviceType.getDesc();

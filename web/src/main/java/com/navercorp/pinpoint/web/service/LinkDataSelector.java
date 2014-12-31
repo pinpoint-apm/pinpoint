@@ -154,7 +154,7 @@ public class LinkDataSelector {
 
             // find all callees of queried subCallees as well
             for (LinkData eachCallee : calleeSub.getTargetLinkDataList()) {
-                // terminal이면 skip
+                // skip if terminal node
                 final Application eachCalleeToApplication = eachCallee.getToApplication();
                 if (eachCalleeToApplication.getServiceType().isTerminal() || eachCalleeToApplication.getServiceType().isUnknown()) {
                     continue;
@@ -223,8 +223,6 @@ public class LinkDataSelector {
         logger.debug("findAcceptApplication {} {}", fromApplication, host);
         Set<AcceptApplication> acceptApplicationVer2;
         try {
-            // 호환성을 위해 일단 2번 뒤진다.
-            // 신데이터를 먼저 뒤지고 이후 구데이터를 뒤진다. 6개월 뒤에는 어차피 데이터가 없어지므로 호환성 코드를 지울것. 2014.07월 개발
             // queries twice for backward compatibility - queries for the more recent version first
             // FIXME Remove compatibility code after 6 monthes (from 2014.07)
             acceptApplicationVer2 = findAcceptApplicationVer2(fromApplication, host, range);

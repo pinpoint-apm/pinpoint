@@ -130,7 +130,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
                 // pick only the spans with the same transactionId, collectorAcceptor, and responseTime
                 for (SpanBo span : spans) {
 
-                    // 정확히 인덱스에 맞는 필터링 조건을 찾아야 함.
+                    // should find the filtering condition with the correct index
                     final TransactionMetadataQuery.QueryCondition filterQueryCondition = query.getQueryConditionByIndex(index);
 
                     final TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
