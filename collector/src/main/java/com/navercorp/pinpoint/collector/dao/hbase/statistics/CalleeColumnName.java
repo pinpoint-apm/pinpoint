@@ -26,11 +26,11 @@ public class CalleeColumnName implements ColumnName {
     private final String callerAgentId;
     private final short calleeServiceType;
     private final String calleeApplicationName;
-    //  호출당하거나, 호출한 host,
+    // called or calling host
     private final String callHost;
     private final short columnSlotNumber;
 
-    // 주의 hash 값 캐시는 equals/hashCode 생성시 넣으면 안됨.
+    // WARNING - cached hash value should not be included for equals/hashCode
     private int hash;
 
     private long callCount;
@@ -89,6 +89,7 @@ public class CalleeColumnName implements ColumnName {
 
     @Override
     public int hashCode() {
+        // take care when modifying this method - contains hashCodes for hbasekeys
         if (hash != 0) {
             return hash;
         }
@@ -102,12 +103,6 @@ public class CalleeColumnName implements ColumnName {
         this.hash = result;
         return result;
     }
-
-    /**
-     * hashCode수정시 주의할겻 hbasekey 캐쉬값이 있음.
-     * @return
-     */
-
 
     @Override
     public String toString() {

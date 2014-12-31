@@ -25,7 +25,7 @@ import org.apache.zookeeper.Watcher.Event.KeeperState;
  */
 public final class ZookeeperUtils {
 
-	// 나중에 commons-hbase 같은것이 생기면 그쪽에 포함하는 것도 방법일듯
+    // would be a good idea to move to commons-hbase (if implemented) in the future
 	private ZookeeperUtils() {
 	}
 

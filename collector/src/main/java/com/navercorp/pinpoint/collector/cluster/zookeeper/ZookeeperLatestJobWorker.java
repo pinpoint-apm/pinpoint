@@ -45,6 +45,8 @@ import com.navercorp.pinpoint.rpc.server.PinpointServerSocketStateCode;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 
 /**
+ * Class should be thread-safe as jobs are only executed in-order inside the class
+ * 
  * @author koo.taejin
  */
 public class ZookeeperLatestJobWorker implements Runnable {
@@ -68,19 +70,14 @@ public class ZookeeperLatestJobWorker implements Runnable {
 	
 	private final ZookeeperClient zookeeperClient;
 
-	// 메시지가 사라지면 ChannelContext 역시 사라짐
 	private final ConcurrentHashMap<ChannelContext, Job> latestJobRepository = new ConcurrentHashMap<ChannelContext, Job>();
 
-	// Worker에 들어온 ChannelContext를 관리하는 저장소
+	// Storage for managing ChannelContexts received by Worker
 	private final CopyOnWriteArrayList<ChannelContext> channelContextRepository = new CopyOnWriteArrayList<ChannelContext>();
 
 	private final BlockingQueue<Job> leakJobQueue = new LinkedBlockingQueue<Job>();
 
-	// 등록순서
-	// 순서대로 작업은 반드시 Worker에서만 돌아가기 때문에 동시성은 보장됨
-
 	public ZookeeperLatestJobWorker(ZookeeperClient zookeeperClient, String serverIdentifier) {
-		// TODO Auto-generated constructor stub
 		this.zookeeperClient = zookeeperClient;
 
 		this.workerState = new WorkerStateContext();
@@ -144,19 +141,19 @@ public class ZookeeperLatestJobWorker implements Runnable {
 	@Override
 	public void run() {
 
-		// 고민할 것
-		// 이벤트 삭제가 안될떄 spinlock 고민해야함
-		// 이벤트 발생시 처리가 안될 경우 실제 등록이 안되어이는 ChannelContext가 남아있을 수 있음 이 경우
+		// Things to consider
+	    // spinlock possible when events are not deleted
+	    // may lead to ChannelContext leak when events are left unresolved
 		while (workerState.isStarted()) {
 			boolean eventCreated = await(60000, 200);
 			if (!workerState.isStarted()) {
 				break;
 			}
 
-			// 이벤트 발생시 이벤트 처리
-			// 이벤트 발생하지 않을 경우 leak ChannelContext 확인 및 처리
+			// handle events
+			// check and handle ChannelContext leak if events are not triggered
 			if (eventCreated) {
-				// ConcurrentModificationException 발생 피하기 위해서
+				// to avoid ConcurrentModificationException
 				Iterator<ChannelContext> keyIterator = getLatestJobRepositoryKeyIterator();
 
 				while (keyIterator.hasNext()) {
@@ -175,7 +172,7 @@ public class ZookeeperLatestJobWorker implements Runnable {
 					}
 				}
 			} else {
-				// 삭제 타이밍이 잘 안맞을 경우 메시지 유실이 발생할 가능성이 있어서 유실 Job 처리
+			    // take care of leaked jobs - jobs may leak due to timing mismatch while deleting jobs
 				logger.debug("LeakDetector Start.");
 
 				while (true) {
@@ -222,7 +219,7 @@ public class ZookeeperLatestJobWorker implements Runnable {
 			} else {
 				zookeeperClient.createPath(collectorUniqPath);
 				
-				// data가 중요한 것이라면 NODE가 존재해도 에러를 반환해야 한다. 
+				// should return error even if NODE exists if the data is important
 				zookeeperClient.createNode(collectorUniqPath, addContents.getBytes(charset));
 			}
 			return true;
@@ -275,10 +272,11 @@ public class ZookeeperLatestJobWorker implements Runnable {
 	}
 	
 	/**
-	 * 파라미터의 대기시간동안 이벤트가 일어날 경우 true 일어나지 않을 경우 false
+	 * Waits for events to trigger for a given time.
 	 * 
-	 * @param waitTimeMillis
-	 * @return
+	 * @param waitTimeMillis total time to wait for events to trigger in milliseconds
+	 * @param waitUnitTimeMillis time to wait for each wait attempt in milliseconds
+	 * @return true if event triggered, false otherwise
 	 */
 	private boolean await(long waitTimeMillis, long waitUnitTimeMillis) {
 		synchronized (lock) {
@@ -320,7 +318,7 @@ public class ZookeeperLatestJobWorker implements Runnable {
 		}
 	}
 
-	// 상당히 민감한 api임 Runnable에서만 사용해야함
+	// must be invoked within a Runnable only
 	private Job getJob(ChannelContext channelContext) {
 		synchronized (lock) {
 			Job job = latestJobRepository.remove(channelContext);
@@ -399,7 +397,6 @@ public class ZookeeperLatestJobWorker implements Runnable {
 			return StringUtils.EMPTY;
 		}
 		
-		// 구분자 : 허용하지 않기 떄문 -,_,. 허용
 		profilerContents.append(applicationName);
 		profilerContents.append(":");
 		profilerContents.append(agentId);

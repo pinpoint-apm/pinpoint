@@ -26,7 +26,7 @@ public class CallRowKey implements RowKey {
     private final short callServiceType;
     private final long rowTimeSlot;
 
-    // 주의 hash 값 캐시는 equals/hashCode 생성시 넣으면 안됨.
+    // WARNING - cached hash value should not be included for equals/hashCode
     private int hash;
 
     public CallRowKey(String callApplicationName, short callServiceType, long rowTimeSlot) {
@@ -38,11 +38,6 @@ public class CallRowKey implements RowKey {
         this.rowTimeSlot = rowTimeSlot;
     }
     public byte[] getRowKey() {
-//        final Buffer buffer = new AutomaticBuffer();
-//        buffer.putPrefixedString(callApplicationName);
-//        buffer.put(callServiceType);
-//        buffer.put(TimeUtils.reverseTimeMillis(rowTimeSlot));
-//        마지막에 buffer.getBuffer()를 호출하지 않음. 이미 데이터가 들어가 있는 상황이므로, 그냥 가고 추후 수정한다..
         return ApplicationMapStatisticsUtils.makeRowKey(callApplicationName, callServiceType, rowTimeSlot);
     }
 

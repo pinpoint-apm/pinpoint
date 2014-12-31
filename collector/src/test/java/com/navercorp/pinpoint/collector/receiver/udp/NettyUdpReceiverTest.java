@@ -43,8 +43,8 @@ public class NettyUdpReceiverTest {
 
     CountDownLatch latch = new CountDownLatch(1);
     /*
-    * netty io thread는 udp에서도 single뿐이 안됨.
-    * worker를 multi로 돌려서 하라고 되있음.
+    * netty io thread is single-threaded even for udp.
+    * this is for running multiple workers.
     * */
     @Test
     public void server() throws IOException, InterruptedException {

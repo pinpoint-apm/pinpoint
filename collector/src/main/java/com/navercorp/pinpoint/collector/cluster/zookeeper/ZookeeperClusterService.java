@@ -52,8 +52,8 @@ public class ZookeeperClusterService extends AbstractClusterService {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	// 해당 값이 유일한 값이 아닌 경우 MAC주소나 IP주소 등으로 변경할 예정
-	// 요렇게 하면 pid@hostname 으로 나옴 (localhost 요런놈은 겹칠 가능성이 존재함)
+	// represented as pid@hostname (identifiers may overlap for services hosted on localhost if pids are identical)
+	// shouldn't be too big of a problem, but will change to MAC or IP if it becomes problematic.
 	private final String serverIdentifier = CollectorUtils.getServerIdentifier();
 
 	private final WebCluster webCluster;
@@ -62,13 +62,11 @@ public class ZookeeperClusterService extends AbstractClusterService {
 
 	private ZookeeperClient client;
 
-
-	// ProfilerClusterManager는 프로파일러 -> 콜렉터 연결을 감지 및 관리하고, 쥬키퍼에 등록한다.
-	// private ZookeeperProfilerClusterManager profilerClusterManager;
-	// WebClusterManager는 웹 정보가 쥬키퍼에 등록되어 있는지 체크하고, 콜렉터 -> 웹 연결을 관리한다.
-	
+	// WebClusterManager checks Zookeeper for the Web data, and manages collector -> web connections. 
 	private ZookeeperWebClusterManager webClusterManager;
-	private ZookeeperProfilerClusterManager profilerClusterManager;
+	
+	// ProfilerClusterManager detects/manages profiler -> collector connections, and saves their information in Zookeeper.
+    private ZookeeperProfilerClusterManager profilerClusterManager;
 
 	public ZookeeperClusterService(CollectorConfiguration config, ClusterPointRouter clusterPointRouter) {
 		super(config, clusterPointRouter);
@@ -89,7 +87,6 @@ public class ZookeeperClusterService extends AbstractClusterService {
 				if (this.serviceState.changeStateInitializing()) {
 					logger.info("{} initialization started.", this.getClass().getSimpleName());
 	
-					// 이 상태값은 반드시 필요한것들인데.
 					ClusterManagerWatcher watcher = new ClusterManagerWatcher();
 					this.client = new ZookeeperClient(config.getClusterAddress(), config.getClusterSessionTimeout(), watcher);
 					
@@ -190,24 +187,22 @@ public class ZookeeperClusterService extends AbstractClusterService {
 			KeeperState state = event.getState();
 			EventType eventType = event.getType();
 
-			// 상태가 되면 ephemeral 노드가 사라짐
-			// 문서에 따라 자동으로 연결이 되고, 연결되는 이벤트는 process에서 감지가 됨
+			// ephemeral node is removed on disconnect event (leave node management exclusively to zookeeper) 
 			if (ZookeeperUtils.isDisconnectedEvent(state, eventType)) {
 				connected.compareAndSet(true, false);
 				return;
 			}
 
+			// on connect/reconnect event
 			if (ZookeeperUtils.isConnectedEvent(state, eventType)) {
-				// 이전상태가 RUN일수 있기 때문에 유지해도 됨
+			    // could already be connected (failure to compareAndSet doesn't really matter)
 				boolean changed = connected.compareAndSet(false, true);
 			}
 
 			if (serviceState.isStarted() && connected.get()) {
 
-				// 중복 요청이 있을수 있음 일단은 중복 로직 감안함
+			    // duplicate event possible - but the logic does not change
 				if (ZookeeperUtils.isConnectedEvent(state, eventType)) {
-					// 이전상태가 RUN일수 있기 때문에 유지해도 됨
-					// 여기서 데이터가 있으면 다 넣어줘야함
 					List<ChannelContext> currentChannelContextList = profilerClusterManager.getRegisteredChannelContextList();
 					for (ChannelContext channelContext : currentChannelContextList) {
 						profilerClusterManager.eventPerformed(channelContext, channelContext.getCurrentStateCode());

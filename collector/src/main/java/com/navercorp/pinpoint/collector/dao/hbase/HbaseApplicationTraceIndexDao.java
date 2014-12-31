@@ -78,7 +78,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
 		if (useIndexedQualifier) {
 			final Buffer columnName = new AutomaticBuffer(16);
-			// FIXME hbase column prefix filter를 사용하기 위해서 putVar를 사용하지 않음.
+			// FIXME putVar not used in order to utilize hbase column prefix filter
 			columnName.put(span.getElapsed());
 			columnName.put(SpanUtils.getVarTransactionId(span));
 			qualifier = columnName.getBuffer();
@@ -91,7 +91,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 	}
 	
     private byte[] crateRowKey(TSpan span, long acceptedTime) {
-        // key를 n빵한다.
+        // distribute key evenly
         byte[] applicationTraceIndexRowKey = SpanUtils.getApplicationTraceIndexRowKey(span.getApplicationName(), acceptedTime);
         return rowKeyDistributor.getDistributedKey(applicationTraceIndexRowKey);
     }

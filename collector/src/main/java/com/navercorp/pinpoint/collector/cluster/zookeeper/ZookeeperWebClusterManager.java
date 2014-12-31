@@ -39,8 +39,7 @@ import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
  */
 public class ZookeeperWebClusterManager implements Runnable {
 
-	// 콜렉터 에서는 무한 retry를 해도됨
-	// RETRY_INTERVAL을 받게만 하면 될듯
+    // it is okay for the collector to retry indefinitely, as long as RETRY_INTERVAL is set reasonably
 	private static final int DEFAULT_RETRY_INTERVAL = 60000;
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -61,10 +60,9 @@ public class ZookeeperWebClusterManager implements Runnable {
 
 	// private final Timer timer;
 
-	// Worker + Job 등록
-	// Job이 포함되면 실행. Job성공시 이후 Job 모두 삭제
-	// 먼가 이상한 형태의 자료구조가 필요한거 같은데....
-
+	// Register Worker + Job
+	// synchronize current status with Zookeeper when an event(job) is triggered.
+	// (the number of events does not matter as long as a single event is triggered - subsequent events may be ignored)
 	public ZookeeperWebClusterManager(ZookeeperClient client, String zookeeperClusterPath, String serverIdentifier, WebCluster webCluster) {
 		this.client = client;
 
@@ -132,9 +130,6 @@ public class ZookeeperWebClusterManager implements Runnable {
 		logger.info("{} destorying completed.", this.getClass().getSimpleName());
 	}
 
-	// NoNode인 경우 Node생성후 재 호출
-	// Timeout인 경우 스케쥴 걸어서 재요청
-	// 그외는 그대로 둠
 	public void handleAndRegisterWatcher(String path) {
 		if (workerState.isStarted()) {
 			if (zNodePath.equals(path)) {
@@ -153,6 +148,8 @@ public class ZookeeperWebClusterManager implements Runnable {
 
 	@Override
 	public void run() {
+	    // if the node does not exist, create a node and retry.
+	    // retry on timeout as well.
 		while (workerState.isStarted()) {
 			Task task = null;
 

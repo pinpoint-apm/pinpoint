@@ -68,7 +68,7 @@ public class ConcurrentCounterMap<T> {
     }
 
     public Map<T, LongAdder> remove() {
-        // copy 최대한 근처의 정합성을 맞추가 위해서 먼저 한번에 copy한다.
+        // make a copy of the current snapshot of the entries for consistency
         final List<Map<T, LongAdder>> copy = removeAll();
 
         // merge
