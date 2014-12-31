@@ -56,7 +56,7 @@ public class TCommandRegistry implements TBaseLocator {
             throw new IllegalArgumentException("tbase must not be null");
         }
 
-        // 성능 때문에 이거 그냥 먼저 만들어 놓을까? 
+        // Should we preload commandTBaseList for performance? 
         Collection<TCommandType> commandTBaseList = commandTBaseRepository.values();
 		
         for (TCommandType commandTBase : commandTBaseList) {
@@ -81,7 +81,7 @@ public class TCommandRegistry implements TBaseLocator {
 	
 	@Override
 	public boolean isSupport(Class<? extends TBase> clazz) {
-        // 성능 때문에 이거 그냥 먼저 만들어 놓을까? 
+        // Should we preload commandTBaseList for performance? 
         Collection<TCommandType> commandTBaseList = commandTBaseRepository.values();
 		
         for (TCommandType commandTBase : commandTBaseList) {

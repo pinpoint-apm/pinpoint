@@ -21,7 +21,7 @@ package com.navercorp.pinpoint.thrift.io;
  */
 final class HeaderUtils {
     public static final int OK = Header.SIGNATURE;
-    // TODO L4 상수화 시켜 놓았는데. 변경이 가능하도록 해야 될듯 하다.
+    // TODO Maybe PASS_L4 should be a modifiable variable
     public static final int PASS_L4 = 85; // Udp
     public static final int FAIL = 0;
 

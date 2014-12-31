@@ -72,7 +72,7 @@ public class HeaderTBaseSerializer {
     private void writeHeader(Header header) throws TException {
     	protocol.writeByte(header.getSignature());
     	protocol.writeByte(header.getVersion());
-        // 프로토콜 변경에 관계 없이 고정 사이즈의 데이터로 인코딩 하도록 변경.
+    	// fixed size regardless protocol
         short type = header.getType();
         protocol.writeByte(BytesUtils.writeShort1(type));
         protocol.writeByte(BytesUtils.writeShort2(type));

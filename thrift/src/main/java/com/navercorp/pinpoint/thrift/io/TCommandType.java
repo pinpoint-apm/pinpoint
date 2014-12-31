@@ -29,8 +29,8 @@ import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
  */
 public enum TCommandType {
 
-	// 그냥 Reflection으로 하는게 훨씬 깔끔한데 고민끝에 이렇게 함 
-	// 예외 처리, 생성자 문제, Registry에서 성능 문제 등등 그냥 코드좀 더럽게 함
+    // Using reflection would make code cleaner.
+    // But it also makes it hard to handle exception, constructor and will show relatively low performance.
 
 	RESULT((short) 320, TResult.class) {
 		@Override
@@ -89,8 +89,6 @@ public enum TCommandType {
 		return header;
 	}
 	
-	// 그냥 Reflection으로 하는게 훨씬 깔끔한데 고민끝에 이렇게 함 
-	// 예외 처리, 생성자 문제, Registry에서 성능 문제 등등 그냥 코드좀 더럽게 함
 	public abstract TBase newObject();
 	
 	private static Header createHeader(short type) {
