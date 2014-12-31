@@ -57,7 +57,7 @@ public class HeaderTBaseSerializerTest {
     private void test(HeaderTBaseSerializer serializer, HeaderTBaseDeserializer deserializer) throws TException {
 
         Header header = new Header();
-        // 10 을 JVMInfoThriftDTO type
+        // 10 is JVMInfoThriftDTO type
         header.setType((short) 10);
 
         TAgentInfo tAgentInfo = new TAgentInfo();
