@@ -44,9 +44,9 @@ public class PinpointURLClassLoaderTest {
 //        } catch (ClassNotFoundException e) {
 //
 //        }
-//      사실 위에 코드로 정상 테스트가 가능해야 겠지만  bootstrap testcase에서는 jar라서 찾을수 없음
-//      아래 코드로 로드 하는 클래스인지 체크 정도만 하자.
-//      URL에 다가 pinpoint.jar를 걸면 되긴하겠지만. 관리가 힘들듯함.
+        // should be able to test using the above code, but it is not possible from bootstrap testcase.
+        // it could be possible by specifying the full path to the URL classloader, but it would be harder to maintain.
+        // for now, just test if DefaultAgent is specified to be loaded
         Assert.assertTrue(cl.onLoadClass("com.navercorp.pinpoint.profiler.DefaultAgent"));
     }
 }

@@ -34,7 +34,7 @@ public class PinpointBootStrapTest {
         Assert.assertTrue(PinpointBootStrap.getLoadState());
 
         PinpointBootStrap.premain("test", new DummyInstrumentation());
-        // 중복 된경우를 체크 할수 있는 방법이 로그 확인 뿐이 없나??
+        // is leaving a log the only way to test for duplicate loading? 
         // ? check
     }
 }

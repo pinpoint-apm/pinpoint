@@ -84,7 +84,7 @@ public class InterceptorRegistry {
     public StaticAroundInterceptor getInterceptor0(int key) {
         StaticAroundInterceptor interceptor = index[key];
         if (interceptor == null) {
-            // 로직이 잘못되었을 경우 에러가 발생하지 않도록 더미를 리턴.
+            // return DUMMY upon wrong logic
             return DUMMY;
         }
         return interceptor;
