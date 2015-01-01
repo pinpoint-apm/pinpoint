@@ -53,121 +53,121 @@ import com.navercorp.pinpoint.rpc.util.MapUtils;
  */
 public class EventListenerTest {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	// Test for being possible to send messages in case of failure of registering packet ( return code : 2, lack of parameter)
-	@Test
-	public void registerAgentTest1() throws Exception {
-		EventListener eventListner = new EventListener();
-		
-		PinpointServerSocket pinpointServerSocket = new PinpointServerSocket(eventListner);
-		pinpointServerSocket.setMessageListener(new SimpleListener());
-		pinpointServerSocket.bind("127.0.0.1", 22234);
+    // Test for being possible to send messages in case of failure of registering packet ( return code : 2, lack of parameter)
+    @Test
+    public void registerAgentTest1() throws Exception {
+        EventListener eventListner = new EventListener();
 
-		Socket socket = null;
-		try {
-			socket = new Socket("127.0.0.1", 22234);
-			sendAndReceiveSimplePacket(socket);
-			Assert.assertEquals(eventListner.getCode(), PinpointServerSocketStateCode.RUN);
-			
-			int code = sendAndReceiveRegisterPacket(socket, getParams());
-			Assert.assertEquals(eventListner.getCode(), PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION);
+        PinpointServerSocket pinpointServerSocket = new PinpointServerSocket(eventListner);
+        pinpointServerSocket.setMessageListener(new SimpleListener());
+        pinpointServerSocket.bind("127.0.0.1", 22234);
 
-			sendAndReceiveSimplePacket(socket);
-		} finally {
-			if (socket != null) {
-				socket.close();
-			}
+        Socket socket = null;
+        try {
+            socket = new Socket("127.0.0.1", 22234);
+            sendAndReceiveSimplePacket(socket);
+            Assert.assertEquals(eventListner.getCode(), PinpointServerSocketStateCode.RUN);
 
-			if (pinpointServerSocket != null) {
-				pinpointServerSocket.close();
-			}
-		}
-	}
+            int code = sendAndReceiveRegisterPacket(socket, getParams());
+            Assert.assertEquals(eventListner.getCode(), PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION);
 
-	private int sendAndReceiveRegisterPacket(Socket socket, Map<String, Object> properties) throws ProtocolException, IOException {
-		sendRegisterPacket(socket.getOutputStream(), properties);
-		ControlHandshakeResponsePacket packet = receiveRegisterConfirmPacket(socket.getInputStream());
-		Map<Object, Object> result = (Map<Object, Object>) ControlMessageEncodingUtils.decode(packet.getPayload());
-		
-		return MapUtils.getInteger(result, "code", -1);
-	}
+            sendAndReceiveSimplePacket(socket);
+        } finally {
+            if (socket != null) {
+                socket.close();
+            }
 
-	private void sendAndReceiveSimplePacket(Socket socket) throws ProtocolException, IOException {
-		sendSimpleRequestPacket(socket.getOutputStream());
-		ResponsePacket responsePacket = readSimpleResponsePacket(socket.getInputStream());
-		Assert.assertNotNull(responsePacket);
-	}
+            if (pinpointServerSocket != null) {
+                pinpointServerSocket.close();
+            }
+        }
+    }
 
-	private void sendRegisterPacket(OutputStream outputStream, Map<String, Object> properties) throws ProtocolException, IOException {
-		byte[] payload = ControlMessageEncodingUtils.encode(properties);
-		ControlHandshakePacket packet = new ControlHandshakePacket(1, payload);
+    private int sendAndReceiveRegisterPacket(Socket socket, Map<String, Object> properties) throws ProtocolException, IOException {
+        sendRegisterPacket(socket.getOutputStream(), properties);
+        ControlHandshakeResponsePacket packet = receiveRegisterConfirmPacket(socket.getInputStream());
+        Map<Object, Object> result = (Map<Object, Object>) ControlMessageEncodingUtils.decode(packet.getPayload());
 
-		ByteBuffer bb = packet.toBuffer().toByteBuffer(0, packet.toBuffer().writerIndex());
-		sendData(outputStream, bb.array());
-	}
+        return MapUtils.getInteger(result, "code", -1);
+    }
 
-	private void sendSimpleRequestPacket(OutputStream outputStream) throws ProtocolException, IOException {
-		RequestPacket packet = new RequestPacket(new byte[0]);
-		packet.setRequestId(10);
+    private void sendAndReceiveSimplePacket(Socket socket) throws ProtocolException, IOException {
+        sendSimpleRequestPacket(socket.getOutputStream());
+        ResponsePacket responsePacket = readSimpleResponsePacket(socket.getInputStream());
+        Assert.assertNotNull(responsePacket);
+    }
 
-		ByteBuffer bb = packet.toBuffer().toByteBuffer(0, packet.toBuffer().writerIndex());
-		sendData(outputStream, bb.array());
-	}
+    private void sendRegisterPacket(OutputStream outputStream, Map<String, Object> properties) throws ProtocolException, IOException {
+        byte[] payload = ControlMessageEncodingUtils.encode(properties);
+        ControlHandshakePacket packet = new ControlHandshakePacket(1, payload);
 
-	private void sendData(OutputStream outputStream, byte[] payload) throws IOException {
-		outputStream.write(payload);
-		outputStream.flush();
-	}
+        ByteBuffer bb = packet.toBuffer().toByteBuffer(0, packet.toBuffer().writerIndex());
+        sendData(outputStream, bb.array());
+    }
 
-	private ControlHandshakeResponsePacket receiveRegisterConfirmPacket(InputStream inputStream) throws ProtocolException, IOException {
+    private void sendSimpleRequestPacket(OutputStream outputStream) throws ProtocolException, IOException {
+        RequestPacket packet = new RequestPacket(new byte[0]);
+        packet.setRequestId(10);
 
-		byte[] payload = readData(inputStream);
-		ChannelBuffer cb = ChannelBuffers.wrappedBuffer(payload);
+        ByteBuffer bb = packet.toBuffer().toByteBuffer(0, packet.toBuffer().writerIndex());
+        sendData(outputStream, bb.array());
+    }
 
-		short packetType = cb.readShort();
+    private void sendData(OutputStream outputStream, byte[] payload) throws IOException {
+        outputStream.write(payload);
+        outputStream.flush();
+    }
 
-		ControlHandshakeResponsePacket packet = ControlHandshakeResponsePacket.readBuffer(packetType, cb);
-		return packet;
-	}
+    private ControlHandshakeResponsePacket receiveRegisterConfirmPacket(InputStream inputStream) throws ProtocolException, IOException {
 
-	private ResponsePacket readSimpleResponsePacket(InputStream inputStream) throws ProtocolException, IOException {
-		byte[] payload = readData(inputStream);
-		ChannelBuffer cb = ChannelBuffers.wrappedBuffer(payload);
+        byte[] payload = readData(inputStream);
+        ChannelBuffer cb = ChannelBuffers.wrappedBuffer(payload);
 
-		short packetType = cb.readShort();
+        short packetType = cb.readShort();
 
-		ResponsePacket packet = ResponsePacket.readBuffer(packetType, cb);
-		return packet;
-	}
+        ControlHandshakeResponsePacket packet = ControlHandshakeResponsePacket.readBuffer(packetType, cb);
+        return packet;
+    }
 
-	private byte[] readData(InputStream inputStream) throws IOException {
-		int availableSize = 0;
+    private ResponsePacket readSimpleResponsePacket(InputStream inputStream) throws ProtocolException, IOException {
+        byte[] payload = readData(inputStream);
+        ChannelBuffer cb = ChannelBuffers.wrappedBuffer(payload);
 
-		for (int i = 0; i < 3; i++) {
-			availableSize = inputStream.available();
+        short packetType = cb.readShort();
 
-			if (availableSize > 0) {
-				break;
-			}
+        ResponsePacket packet = ResponsePacket.readBuffer(packetType, cb);
+        return packet;
+    }
 
-			try {
-				Thread.sleep(50);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+    private byte[] readData(InputStream inputStream) throws IOException {
+        int availableSize = 0;
 
-		byte[] payload = new byte[availableSize];
-		inputStream.read(payload);
+        for (int i = 0; i < 3; i++) {
+            availableSize = inputStream.available();
 
-		return payload;
-	}
-	
-	private Map<String, Object> getParams() {
-		Map<String, Object> properties = new HashMap<String, Object>();
-		
+            if (availableSize > 0) {
+                break;
+            }
+
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+        byte[] payload = new byte[availableSize];
+        inputStream.read(payload);
+
+        return payload;
+    }
+
+    private Map<String, Object> getParams() {
+        Map<String, Object> properties = new HashMap<String, Object>();
+
         properties.put(AgentHandshakePropertyType.AGENT_ID.getName(), "agent");
         properties.put(AgentHandshakePropertyType.APPLICATION_NAME.getName(), "application");
         properties.put(AgentHandshakePropertyType.HOSTNAME.getName(), "hostname");
@@ -176,43 +176,43 @@ public class EventListenerTest {
         properties.put(AgentHandshakePropertyType.SERVICE_TYPE.getName(), 10);
         properties.put(AgentHandshakePropertyType.START_TIMESTAMP.getName(), System.currentTimeMillis());
         properties.put(AgentHandshakePropertyType.VERSION.getName(), "1.0");
-		
-		return properties;
-	}
 
-	class SimpleListener implements ServerMessageListener {
-		@Override
-		public void handleSend(SendPacket sendPacket, SocketChannel channel) {
+        return properties;
+    }
 
-		}
+    class SimpleListener implements ServerMessageListener {
+        @Override
+        public void handleSend(SendPacket sendPacket, SocketChannel channel) {
 
-		@Override
-		public void handleRequest(RequestPacket requestPacket, SocketChannel channel) {
-			logger.info("handlerRequest {}", requestPacket, channel);
-			channel.sendResponseMessage(requestPacket, requestPacket.getPayload());
-		}
-		
-		@Override
-		public HandshakeResponseCode handleHandshake(Map properties) {
-			logger.info("handle Handshake {}", properties);
-	        return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
-		}
-	}
+        }
+
+        @Override
+        public void handleRequest(RequestPacket requestPacket, SocketChannel channel) {
+            logger.info("handlerRequest {}", requestPacket, channel);
+            channel.sendResponseMessage(requestPacket, requestPacket.getPayload());
+        }
+
+        @Override
+        public HandshakeResponseCode handleHandshake(Map properties) {
+            logger.info("handle Handshake {}", properties);
+            return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
+        }
+    }
 
 
-	class EventListener implements SocketChannelStateChangeEventListener {
+    class EventListener implements SocketChannelStateChangeEventListener {
 
-		private PinpointServerSocketStateCode code;
-		
-		@Override
-		public void eventPerformed(ChannelContext channelContext, PinpointServerSocketStateCode stateCode) {
-			this.code = stateCode;
-		}
+        private PinpointServerSocketStateCode code;
 
-		public PinpointServerSocketStateCode getCode() {
-			return code;
-		}
-		
-	}
-	
+        @Override
+        public void eventPerformed(ChannelContext channelContext, PinpointServerSocketStateCode stateCode) {
+            this.code = stateCode;
+        }
+
+        public PinpointServerSocketStateCode getCode() {
+            return code;
+        }
+
+    }
+
 }

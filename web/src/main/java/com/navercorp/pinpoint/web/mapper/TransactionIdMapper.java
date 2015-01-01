@@ -38,39 +38,39 @@ import org.springframework.stereotype.Component;
 @Component
 public class TransactionIdMapper implements RowMapper<List<TransactionId>> {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	
-	// @Autowired
-	// private AbstractRowKeyDistributor rowKeyDistributor;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Override
-	public List<TransactionId> mapRow(Result result, int rowNum) throws Exception {
-		if (result.isEmpty()) {
-			return Collections.emptyList();
-		}
-		KeyValue[] raw = result.raw();
-		List<TransactionId> traceIdList = new ArrayList<TransactionId>(raw.length);
-		for (KeyValue kv : raw) {
-			byte[] buffer = kv.getBuffer();
-			int qualifierOffset = kv.getQualifierOffset();
-			// increment by value of key 
-			TransactionId traceId = parseVarTransactionId(buffer, qualifierOffset);
-			traceIdList.add(traceId);
-			
-			logger.debug("found traceId {}", traceId);
-		}
-		return traceIdList;
-	}
-	
+    // @Autowired
+    // private AbstractRowKeyDistributor rowKeyDistributor;
+
+    @Override
+    public List<TransactionId> mapRow(Result result, int rowNum) throws Exception {
+        if (result.isEmpty()) {
+            return Collections.emptyList();
+        }
+        KeyValue[] raw = result.raw();
+        List<TransactionId> traceIdList = new ArrayList<TransactionId>(raw.length);
+        for (KeyValue kv : raw) {
+            byte[] buffer = kv.getBuffer();
+            int qualifierOffset = kv.getQualifierOffset();
+            // increment by value of key
+            TransactionId traceId = parseVarTransactionId(buffer, qualifierOffset);
+            traceIdList.add(traceId);
+
+            logger.debug("found traceId {}", traceId);
+        }
+        return traceIdList;
+    }
+
     public static TransactionId parseVarTransactionId(byte[] bytes, int offset) {
         if (bytes == null) {
             throw new NullPointerException("bytes must not be null");
         }
         final Buffer buffer = new OffsetFixedBuffer(bytes, offset);
         
-		// skip elapsed time (not used) hbase column prefix - only used for filtering.
+        // skip elapsed time (not used) hbase column prefix - only used for filtering.
         // Not sure if we can reduce the data size any further.
-		// buffer.readInt();
+        // buffer.readInt();
         
         String agentId = buffer.readPrefixedString();
         long agentStartTime = buffer.readSVarLong();

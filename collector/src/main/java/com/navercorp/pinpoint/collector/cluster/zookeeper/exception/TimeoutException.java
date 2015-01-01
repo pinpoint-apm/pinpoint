@@ -21,19 +21,19 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper.exception;
  */
 public class TimeoutException extends PinpointZookeeperException {
 
-	public TimeoutException() {
-	}
+    public TimeoutException() {
+    }
 
-	public TimeoutException(String message) {
-		super(message);
-	}
+    public TimeoutException(String message) {
+        super(message);
+    }
 
-	public TimeoutException(String message, Throwable cause) {
-		super(message, cause);
-	}
+    public TimeoutException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-	public TimeoutException(Throwable cause) {
-		super(cause);
-	}
+    public TimeoutException(Throwable cause) {
+        super(cause);
+    }
 
 }

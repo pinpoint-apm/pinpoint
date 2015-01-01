@@ -37,57 +37,57 @@ import com.navercorp.pinpoint.web.vo.scatter.Dot;
  */
 public class TraceIndexScatterMapper2 implements RowMapper<List<Dot>> {
 
-	private final int responseOffsetFrom;
-	private final int responseOffsetTo;
+    private final int responseOffsetFrom;
+    private final int responseOffsetTo;
 
-	public TraceIndexScatterMapper2(int responseOffsetFrom, int responseOffsetTo) {
-		this.responseOffsetFrom = responseOffsetFrom;
-		this.responseOffsetTo = responseOffsetTo;
-	}
+    public TraceIndexScatterMapper2(int responseOffsetFrom, int responseOffsetTo) {
+        this.responseOffsetFrom = responseOffsetFrom;
+        this.responseOffsetTo = responseOffsetTo;
+    }
 
-	@Override
-	public List<Dot> mapRow(Result result, int rowNum) throws Exception {
-		if (result.isEmpty()) {
-			return Collections.emptyList();
-		}
+    @Override
+    public List<Dot> mapRow(Result result, int rowNum) throws Exception {
+        if (result.isEmpty()) {
+            return Collections.emptyList();
+        }
 
-		KeyValue[] raw = result.raw();
-		List<Dot> list = new ArrayList<Dot>(raw.length);
-		for (KeyValue kv : raw) {
-			final Dot dot = createDot(kv);
-			if (dot != null) {
-				list.add(dot);
-			}
-		}
+        KeyValue[] raw = result.raw();
+        List<Dot> list = new ArrayList<Dot>(raw.length);
+        for (KeyValue kv : raw) {
+            final Dot dot = createDot(kv);
+            if (dot != null) {
+                list.add(dot);
+            }
+        }
 
-		return list;
-	}
+        return list;
+    }
 
-	private Dot createDot(KeyValue kv) {
-		final byte[] buffer = kv.getBuffer();
+    private Dot createDot(KeyValue kv) {
+        final byte[] buffer = kv.getBuffer();
 
-		final int valueOffset = kv.getValueOffset();
-		final Buffer valueBuffer = new OffsetFixedBuffer(buffer, valueOffset);
-		int elapsed = valueBuffer.readVarInt();
+        final int valueOffset = kv.getValueOffset();
+        final Buffer valueBuffer = new OffsetFixedBuffer(buffer, valueOffset);
+        int elapsed = valueBuffer.readVarInt();
 
-		if (elapsed < responseOffsetFrom || elapsed > responseOffsetTo) {
-			return null;
-		}
+        if (elapsed < responseOffsetFrom || elapsed > responseOffsetTo) {
+            return null;
+        }
 
-		int exceptionCode = valueBuffer.readSVarInt();
-		String agentId = valueBuffer.readPrefixedString();
+        int exceptionCode = valueBuffer.readSVarInt();
+        String agentId = valueBuffer.readPrefixedString();
 
-		long reverseAcceptedTime = BytesUtils.bytesToLong(buffer, kv.getRowOffset() + HBaseTables.APPLICATION_NAME_MAX_LEN + HBaseTables.APPLICATION_TRACE_INDEX_ROW_DISTRIBUTE_SIZE);
-		long acceptedTime = TimeUtils.recoveryTimeMillis(reverseAcceptedTime);
+        long reverseAcceptedTime = BytesUtils.bytesToLong(buffer, kv.getRowOffset() + HBaseTables.APPLICATION_NAME_MAX_LEN + HBaseTables.APPLICATION_TRACE_INDEX_ROW_DISTRIBUTE_SIZE);
+        long acceptedTime = TimeUtils.recoveryTimeMillis(reverseAcceptedTime);
 
-		final int qualifierOffset = kv.getQualifierOffset();
+        final int qualifierOffset = kv.getQualifierOffset();
 
-		// TransactionId transactionId = new TransactionId(buffer,
-		// qualifierOffset);
+        // TransactionId transactionId = new TransactionId(buffer,
+        // qualifierOffset);
 
-		// for temporary, used TransactionIdMapper
-		TransactionId transactionId = TransactionIdMapper.parseVarTransactionId(buffer, qualifierOffset);
+        // for temporary, used TransactionIdMapper
+        TransactionId transactionId = TransactionIdMapper.parseVarTransactionId(buffer, qualifierOffset);
 
-		return new Dot(transactionId, acceptedTime, elapsed, exceptionCode, agentId);
-	}
+        return new Dot(transactionId, acceptedTime, elapsed, exceptionCode, agentId);
+    }
 }

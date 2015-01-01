@@ -36,22 +36,22 @@ import org.slf4j.LoggerFactory;
  */
 public class CubridConnectionModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	public CubridConnectionModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-		super(byteCodeInstrumentor, agent);
-	}
+    public CubridConnectionModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+        super(byteCodeInstrumentor, agent);
+    }
 
-	public String getTargetClass() {
-		return "cubrid/jdbc/driver/CUBRIDConnection";
-	}
+    public String getTargetClass() {
+        return "cubrid/jdbc/driver/CUBRIDConnection";
+    }
 
-	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-		if (logger.isInfoEnabled()) {
-			logger.info("Modifing. {}", javassistClassName);
-		}
-		try {
-			InstrumentClass cubridConnection = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+    public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+        if (logger.isInfoEnabled()) {
+            logger.info("Modifing. {}", javassistClassName);
+        }
+        try {
+            InstrumentClass cubridConnection = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             cubridConnection.addTraceValue(DatabaseInfoTraceValue.class);
 
@@ -106,11 +106,11 @@ public class CubridConnectionModifier extends AbstractModifier {
             }
 
             return cubridConnection.toBytecode();
-		} catch (InstrumentException e) {
-			if (logger.isWarnEnabled()) {
-				logger.warn("{} modify fail. Cause:{}", this.getClass().getSimpleName(), e.getMessage(), e);
-			}
-			return null;
-		}
-	}
+        } catch (InstrumentException e) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("{} modify fail. Cause:{}", this.getClass().getSimpleName(), e.getMessage(), e);
+            }
+            return null;
+        }
+    }
 }

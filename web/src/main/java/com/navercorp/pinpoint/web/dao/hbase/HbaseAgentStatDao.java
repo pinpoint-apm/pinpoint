@@ -116,7 +116,7 @@ public class HbaseAgentStatDao implements AgentStatDao {
         scan.setStartRow(endKey);
         scan.setStopRow(startKey);
 
-        //		scan.addColumn(HBaseTables.AGENT_STAT_CF_STATISTICS, HBaseTables.AGENT_STAT_CF_STATISTICS_V1);
+        //        scan.addColumn(HBaseTables.AGENT_STAT_CF_STATISTICS, HBaseTables.AGENT_STAT_CF_STATISTICS_V1);
         scan.addFamily(HBaseTables.AGENT_STAT_CF_STATISTICS);
         scan.setId("AgentStatScan");
 
@@ -125,36 +125,36 @@ public class HbaseAgentStatDao implements AgentStatDao {
         return scan;
     }
 
-    //	public List<AgentStat> scanAgentStatList(String agentId, long start, long end, final int limit) {
-    //		if (logger.isDebugEnabled()) {
-    //			logger.debug("scanAgentStatList");
-    //		}
-    //		Scan scan = createScan(agentId, start, end);
-    //		
-    //		List<AgentStat> list = hbaseOperations2.find(HBaseTables.AGENT_STAT, scan, rowKeyDistributor, new ResultsExtractor<List<AgentStat>>() {
-    //			@Override
-    //			public List<AgentStat> extractData(ResultScanner results) throws Exception {
-    //				TDeserializer deserializer = new TDeserializer();
-    //				List<AgentStat> list = new ArrayList<AgentStat>();
-    //				for (Result result : results) {
-    //					if (result == null) {
-    //						continue;
-    //					}
-    //					
-    //					if (list.size() >= limit) {
-    //						break;
-    //					}
-    //					
-    //					for (KeyValue kv : result.raw()) {
-    //						AgentStat agentStat = new AgentStat();
-    //						deserializer.deserialize(agentStat, kv.getBuffer());
-    //						list.add(agentStat);
-    //					}
-    //				}
-    //				return list;
-    //			}
-    //		});
-    //		return list;
-    //	}
+    //    public List<AgentStat> scanAgentStatList(String agentId, long start, long end, final int limit) {
+    //        if (logger.isDebugEnabled()) {
+    //            logger.debug("scanAgentStatList");
+    //        }
+    //        Scan scan = createScan(agentId, start, end);
+    //
+    //        List<AgentStat> list = hbaseOperations2.find(HBaseTables.AGENT_STAT, scan, rowKeyDistributor, new ResultsExtractor<List<AgentStat>>() {
+    //            @Override
+    //            public List<AgentStat> extractData(ResultScanner results) throws Exception {
+    //                TDeserializer deserializer = new TDeserializer();
+    //                List<AgentStat> list = new ArrayList<AgentStat>();
+    //                for (Result result : results) {
+    //                    if (result == null) {
+    //                        continue;
+    //                    }
+    //
+    //                    if (list.size() >= limit) {
+    //                        break;
+    //                    }
+    //
+    //                    for (KeyValue kv : result.raw()) {
+    //                        AgentStat agentStat = new AgentStat();
+    //                        deserializer.deserialize(agentStat, kv.getBuffer());
+    //                        list.add(agentStat);
+    //                    }
+    //                }
+    //                return list;
+    //            }
+    //        });
+    //        return list;
+    //    }
 
 }

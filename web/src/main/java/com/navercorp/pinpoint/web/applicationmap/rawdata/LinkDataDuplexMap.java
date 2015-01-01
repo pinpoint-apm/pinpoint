@@ -29,10 +29,10 @@ public class LinkDataDuplexMap {
 
     private final LinkDataMap targetLinkDataMap;
 
-	public LinkDataDuplexMap() {
+    public LinkDataDuplexMap() {
         this.sourceLinkDataMap = new LinkDataMap();
         this.targetLinkDataMap = new LinkDataMap();
-	}
+    }
 
 
     public LinkDataMap getSourceLinkDataMap() {

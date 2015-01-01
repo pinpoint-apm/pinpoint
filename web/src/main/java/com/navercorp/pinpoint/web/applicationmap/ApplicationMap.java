@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ApplicationMap {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final NodeList nodeList;
     private final LinkList linkList;
@@ -44,7 +44,7 @@ public class ApplicationMap {
     private List<ApplicationScatterScanResult> applicationScatterScanResultList;
 
 
-	ApplicationMap(Range range, NodeList nodeList, LinkList linkList) {
+    ApplicationMap(Range range, NodeList nodeList, LinkList linkList) {
         if (range == null) {
             throw new NullPointerException("range must not be null");
         }
@@ -57,17 +57,17 @@ public class ApplicationMap {
         this.range = range;
         this.nodeList = nodeList;
         this.linkList = linkList;
-	}
+    }
 
     @JsonProperty("nodeDataArray")
     public Collection<Node> getNodes() {
-		return this.nodeList.getNodeList();
-	}
+        return this.nodeList.getNodeList();
+    }
 
     @JsonProperty("linkDataArray")
-	public Collection<Link> getLinks() {
-		return this.linkList.getLinkList();
-	}
+    public Collection<Link> getLinks() {
+        return this.linkList.getLinkList();
+    }
 
 
     public void setApplicationScatterScanResult(List<ApplicationScatterScanResult> applicationScatterScanResultList) {

@@ -40,21 +40,21 @@ import org.springframework.stereotype.Component;
 @Component
 public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
 
-	@Override
-	public List<Dot> mapRow(Result result, int rowNum) throws Exception {
+    @Override
+    public List<Dot> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
 
-		KeyValue[] raw = result.raw();
-		List<Dot> list = new ArrayList<Dot>(raw.length);
-		for (KeyValue kv : raw) {
+        KeyValue[] raw = result.raw();
+        List<Dot> list = new ArrayList<Dot>(raw.length);
+        for (KeyValue kv : raw) {
             final Dot dot = createDot(kv);
             list.add(dot);
-		}
+        }
 
-		return list;
-	}
+        return list;
+    }
 
     private Dot createDot(KeyValue kv) {
         final byte[] buffer = kv.getBuffer();
@@ -70,10 +70,10 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
 
         final int qualifierOffset = kv.getQualifierOffset();
 
-		// TransactionId transactionId = new TransactionId(buffer, qualifierOffset);
+        // TransactionId transactionId = new TransactionId(buffer, qualifierOffset);
 
         // for temporary, used TransactionIdMapper
-		TransactionId transactionId = TransactionIdMapper.parseVarTransactionId(buffer, qualifierOffset);
+        TransactionId transactionId = TransactionIdMapper.parseVarTransactionId(buffer, qualifierOffset);
         
         return new Dot(transactionId, acceptedTime, elapsed, exceptionCode, agentId);
     }
@@ -85,8 +85,8 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
         }
         final Buffer buffer = new OffsetFixedBuffer(bytes, offset);
 
-		buffer.readInt();
-		
+        buffer.readInt();
+
         String agentId = buffer.readPrefixedString();
         long agentStartTime = buffer.readSVarLong();
         long transactionSequence = buffer.readVarLong();

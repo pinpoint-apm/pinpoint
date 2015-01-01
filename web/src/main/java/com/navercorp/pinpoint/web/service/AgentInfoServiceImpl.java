@@ -36,66 +36,66 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class AgentInfoServiceImpl implements AgentInfoService {
-	
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	private ApplicationIndexDao applicationIndexDao;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	private AgentInfoDao agentInfoDao;
-	
-	/**
-	 * FIXME from/to present in the interface but these values are not currently used. They should be used when agent list snapshot is implemented
-	 */
-	@Override
-	public SortedMap<String, List<AgentInfoBo>> getApplicationAgentList(String applicationName, Range range) {
+    @Autowired
+    private ApplicationIndexDao applicationIndexDao;
+
+    @Autowired
+    private AgentInfoDao agentInfoDao;
+
+    /**
+     * FIXME from/to present in the interface but these values are not currently used. They should be used when agent list snapshot is implemented
+     */
+    @Override
+    public SortedMap<String, List<AgentInfoBo>> getApplicationAgentList(String applicationName, Range range) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
        final List<String> agentIdList = applicationIndexDao.selectAgentIds(applicationName);
         if (logger.isDebugEnabled()) {
-		    logger.debug("agentIdList={}", agentIdList);
+            logger.debug("agentIdList={}", agentIdList);
         }
-		
-		if (CollectionUtils.isEmpty(agentIdList)) {
-			logger.debug("agentIdList is empty. applicationName={}, {}", applicationName, range);
-			return new TreeMap<String, List<AgentInfoBo>>();
-		}
-		
-		// key = hostname
-		// value= list fo agentinfo
-		SortedMap<String, List<AgentInfoBo>> result = new TreeMap<String, List<AgentInfoBo>>();
 
-		for (String agentId : agentIdList) {
-			List<AgentInfoBo> agentInfoList = agentInfoDao.getAgentInfo(agentId, range);
+        if (CollectionUtils.isEmpty(agentIdList)) {
+            logger.debug("agentIdList is empty. applicationName={}, {}", applicationName, range);
+            return new TreeMap<String, List<AgentInfoBo>>();
+        }
 
-			if (agentInfoList.isEmpty()) {
-				logger.debug("agentinfolist is empty. agentid={}, {}", agentId, range);
-				continue;
-			}
+        // key = hostname
+        // value= list fo agentinfo
+        SortedMap<String, List<AgentInfoBo>> result = new TreeMap<String, List<AgentInfoBo>>();
 
-			// FIXME just using the first value for now. Might need to check and pick which one to use.
-			AgentInfoBo agentInfo = agentInfoList.get(0);
-			String hostname = agentInfo.getHostName();
+        for (String agentId : agentIdList) {
+            List<AgentInfoBo> agentInfoList = agentInfoDao.getAgentInfo(agentId, range);
 
-			if (result.containsKey(hostname)) {
-				result.get(hostname).add(agentInfo);
-			} else {
-				List<AgentInfoBo> list = new ArrayList<AgentInfoBo>();
-				list.add(agentInfo);
-				result.put(hostname, list);
-			}
-		}
+            if (agentInfoList.isEmpty()) {
+                logger.debug("agentinfolist is empty. agentid={}, {}", agentId, range);
+                continue;
+            }
 
-		for (List<AgentInfoBo> agentInfoBoList : result.values()) {
-			Collections.sort(agentInfoBoList, AgentInfoBo.AGENT_NAME_ASC_COMPARATOR);
-		}
+            // FIXME just using the first value for now. Might need to check and pick which one to use.
+            AgentInfoBo agentInfo = agentInfoList.get(0);
+            String hostname = agentInfo.getHostName();
 
-		logger.info("getApplicationAgentList={}", result);
-		
-		return result;
-	}
+            if (result.containsKey(hostname)) {
+                result.get(hostname).add(agentInfo);
+            } else {
+                List<AgentInfoBo> list = new ArrayList<AgentInfoBo>();
+                list.add(agentInfo);
+                result.put(hostname, list);
+            }
+        }
+
+        for (List<AgentInfoBo> agentInfoBoList : result.values()) {
+            Collections.sort(agentInfoBoList, AgentInfoBo.AGENT_NAME_ASC_COMPARATOR);
+        }
+
+        logger.info("getApplicationAgentList={}", result);
+
+        return result;
+    }
 
     public Set<AgentInfoBo> selectAgent(String applicationId, Range range) {
         if (applicationId == null) {

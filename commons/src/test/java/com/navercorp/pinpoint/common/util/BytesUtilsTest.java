@@ -124,15 +124,15 @@ public class BytesUtilsTest {
 
     }
     
-	@Test
-	public void testMerge() {
-		byte[] b1 = new byte[] { 1, 2 };
-		byte[] b2 = new byte[] { 3, 4 };
+    @Test
+    public void testMerge() {
+        byte[] b1 = new byte[] { 1, 2 };
+        byte[] b2 = new byte[] { 3, 4 };
 
-		byte[] b3 = BytesUtils.merge(b1, b2);
+        byte[] b3 = BytesUtils.merge(b1, b2);
 
-		Assert.assertTrue(Arrays.equals(new byte[] { 1, 2, 3, 4 }, b3));
-	}
+        Assert.assertTrue(Arrays.equals(new byte[] { 1, 2, 3, 4 }, b3));
+    }
 
     @Test
     public void testZigZag() throws Exception {

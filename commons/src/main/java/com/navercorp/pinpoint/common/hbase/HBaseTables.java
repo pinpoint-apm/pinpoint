@@ -24,10 +24,10 @@ import org.apache.hadoop.hbase.util.Bytes;
  * @author emeroad
  */
 public final class HBaseTables {
-	
-	public static final int APPLICATION_NAME_MAX_LEN = PinpointConstants.APPLICATION_NAME_MAX_LEN;
+
+    public static final int APPLICATION_NAME_MAX_LEN = PinpointConstants.APPLICATION_NAME_MAX_LEN;
     public static final int AGENT_NAME_MAX_LEN = PinpointConstants.AGENT_NAME_MAX_LEN;
-	
+
 
     public static final String APPLICATION_TRACE_INDEX = "ApplicationTraceIndex";
     public static final byte[] APPLICATION_TRACE_INDEX_CF_TRACE = Bytes.toBytes("I"); // applicationIndex
@@ -68,20 +68,20 @@ public final class HBaseTables {
     public static final String API_METADATA = "ApiMetaData";
     public static final byte[] API_METADATA_CF_API = Bytes.toBytes("Api");
 
-	public static final String MAP_STATISTICS_CALLER = "ApplicationMapStatisticsCaller";
-	public static final byte[] MAP_STATISTICS_CALLER_CF_COUNTER = Bytes.toBytes("C");
+    public static final String MAP_STATISTICS_CALLER = "ApplicationMapStatisticsCaller";
+    public static final byte[] MAP_STATISTICS_CALLER_CF_COUNTER = Bytes.toBytes("C");
 
-	public static final String MAP_STATISTICS_CALLEE = "ApplicationMapStatisticsCallee";
+    public static final String MAP_STATISTICS_CALLEE = "ApplicationMapStatisticsCallee";
     // 나중에 삭제할것. 관련 코드도같이 제거해도 됨.
-	public static final byte[] MAP_STATISTICS_CALLEE_CF_COUNTER = Bytes.toBytes("C");
+    public static final byte[] MAP_STATISTICS_CALLEE_CF_COUNTER = Bytes.toBytes("C");
     // 신버전의 column Name저장용.
     public static final byte[] MAP_STATISTICS_CALLEE_CF_VER2_COUNTER = Bytes.toBytes("D");
 
     public static final String MAP_STATISTICS_SELF = "ApplicationMapStatisticsSelf";
     public static final byte[] MAP_STATISTICS_SELF_CF_COUNTER = Bytes.toBytes("C");
 
-	public static final String HOST_APPLICATION_MAP = "HostApplicationMap";
-	public static final byte[] HOST_APPLICATION_MAP_CF_MAP = Bytes.toBytes("M");
+    public static final String HOST_APPLICATION_MAP = "HostApplicationMap";
+    public static final byte[] HOST_APPLICATION_MAP_CF_MAP = Bytes.toBytes("M");
 
     public static final String HOST_APPLICATION_MAP_VER2 = "HostApplicationMap_Ver2";
     public static final byte[] HOST_APPLICATION_MAP_VER2_CF_MAP = Bytes.toBytes("M");

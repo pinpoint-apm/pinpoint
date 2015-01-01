@@ -25,25 +25,25 @@ import java.util.logging.Logger;
  */
 public class LoggingInterceptor implements StaticAroundInterceptor, SimpleAroundInterceptor {
 
-	private final Logger logger;
+    private final Logger logger;
 
-	public LoggingInterceptor(String loggerName) {
-		this.logger = Logger.getLogger(loggerName);
-	}
+    public LoggingInterceptor(String loggerName) {
+        this.logger = Logger.getLogger(loggerName);
+    }
 
-	@Override
-	public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
-		if (logger.isLoggable(Level.FINE)) {
-			logger.fine("before " + defaultString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
-		}
-	}
+    @Override
+    public void before(Object target, String className, String methodName, String parameterDescription, Object[] args) {
+        if (logger.isLoggable(Level.FINE)) {
+            logger.fine("before " + defaultString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args));
+        }
+    }
 
-	@Override
-	public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
-		if (logger.isLoggable(Level.FINE)) {
-			logger.fine("after " + defaultString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result + " Throwable:" + throwable);
-		}
-	}
+    @Override
+    public void after(Object target, String className, String methodName, String parameterDescription, Object[] args, Object result, Throwable throwable) {
+        if (logger.isLoggable(Level.FINE)) {
+            logger.fine("after " + defaultString(target) + " " + className + "." + methodName + parameterDescription + " args:" + Arrays.toString(args) + " result:" + result + " Throwable:" + throwable);
+        }
+    }
 
     @Override
     public void before(Object target, Object[] args) {

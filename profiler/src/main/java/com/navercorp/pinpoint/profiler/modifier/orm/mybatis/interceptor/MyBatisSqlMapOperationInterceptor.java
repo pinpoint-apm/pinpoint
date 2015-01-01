@@ -24,9 +24,9 @@ import com.navercorp.pinpoint.profiler.modifier.orm.SqlMapOperationInterceptor;
  * @author netspider
  */
 public class MyBatisSqlMapOperationInterceptor extends SqlMapOperationInterceptor {
-	
-	public MyBatisSqlMapOperationInterceptor(ServiceType serviceType) {
-		super(serviceType, MyBatisSqlMapOperationInterceptor.class);
-	}
+
+    public MyBatisSqlMapOperationInterceptor(ServiceType serviceType) {
+        super(serviceType, MyBatisSqlMapOperationInterceptor.class);
+    }
 
 }

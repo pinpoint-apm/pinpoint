@@ -26,15 +26,15 @@ import java.util.List;
  */
 public class DefaultDatabaseInfo implements DatabaseInfo {
 
-	private ServiceType type = ServiceType.UNKNOWN_DB;
+    private ServiceType type = ServiceType.UNKNOWN_DB;
     private ServiceType executeQueryType = ServiceType.UNKNOWN_DB_EXECUTE_QUERY;
     private String databaseId;
-	private String realUrl; // URL before refinement
+    private String realUrl; // URL before refinement
     private String normalizedUrl;
     private List<String> host;
     private String multipleHost;
 
-	public DefaultDatabaseInfo(ServiceType type, ServiceType executeQueryType, String realUrl, String normalizedUrl, List<String> host, String databaseId) {
+    public DefaultDatabaseInfo(ServiceType type, ServiceType executeQueryType, String realUrl, String normalizedUrl, List<String> host, String databaseId) {
         if (type == null) {
             throw new NullPointerException("type must not be null");
         }
@@ -43,12 +43,12 @@ public class DefaultDatabaseInfo implements DatabaseInfo {
         }
         this.type = type;
         this.executeQueryType = executeQueryType;
-		this.realUrl = realUrl;
-		this.normalizedUrl = normalizedUrl;
-		this.host = host;
+        this.realUrl = realUrl;
+        this.normalizedUrl = normalizedUrl;
+        this.host = host;
         this.multipleHost = merge(host);
-		this.databaseId = databaseId;
-	}
+        this.databaseId = databaseId;
+    }
 
     private String merge(List<String> host) {
         if (host.isEmpty()) {
@@ -68,8 +68,8 @@ public class DefaultDatabaseInfo implements DatabaseInfo {
     @Override
     public List<String> getHost() {
         // With replication, this is not simple because there could be multiple hosts or ports.
-		return host;
-	}
+        return host;
+    }
 
     @Override
     public String getMultipleHost() {
@@ -78,23 +78,23 @@ public class DefaultDatabaseInfo implements DatabaseInfo {
 
     @Override
     public String getDatabaseId() {
-		return databaseId;
-	}
+        return databaseId;
+    }
 
-	@Override
+    @Override
     public String getRealUrl() {
-		return realUrl;
-	}
+        return realUrl;
+    }
 
-	@Override
+    @Override
     public String getUrl() {
-		return normalizedUrl;
-	}
+        return normalizedUrl;
+    }
 
-	@Override
+    @Override
     public ServiceType getType() {
-		return type;
-	}
+        return type;
+    }
 
     @Override
     public ServiceType getExecuteQueryType() {

@@ -47,7 +47,7 @@ public class LimitRowMapperResultsExtractor<T> implements ResultsExtractor<List<
         this.limit = limit;
     }
     
-	/**
+    /**
      * Create a new RowMapperResultSetExtractor.
      *
      * @param rowMapper the RowMapper which creates an object for each row
@@ -70,31 +70,31 @@ public class LimitRowMapperResultsExtractor<T> implements ResultsExtractor<List<
     }
 
     public List<T> extractData(ResultScanner results) throws Exception {
-		final List<T> rs = new ArrayList<T>();
-		int rowNum = 0;
+        final List<T> rs = new ArrayList<T>();
+        int rowNum = 0;
         Result lastResult = null;
-		
-		for (Result result : results) {
+
+        for (Result result : results) {
             final T t = this.rowMapper.mapRow(result, rowNum);
             lastResult = result;
-			if (t instanceof Collection) {
-				rowNum += ((Collection<?>) t).size();
-			} else if (t instanceof Map) {
-				rowNum += ((Map<?, ?>) t).size();
-			} else if (t == null) {
-				// empty
-			} else if (t.getClass().isArray()) {
-				rowNum += Array.getLength(t);
-			} else {
-				rowNum++;
-			}
-			rs.add(t);
-			if (rowNum >= limit) {
-				break;
-			}
-		}
+            if (t instanceof Collection) {
+                rowNum += ((Collection<?>) t).size();
+            } else if (t instanceof Map) {
+                rowNum += ((Map<?, ?>) t).size();
+            } else if (t == null) {
+                // empty
+            } else if (t.getClass().isArray()) {
+                rowNum += Array.getLength(t);
+            } else {
+                rowNum++;
+            }
+            rs.add(t);
+            if (rowNum >= limit) {
+                break;
+            }
+        }
 
         eventHandler.handleLastResult(lastResult);
-		return rs;
-	}
+        return rs;
+    }
 }

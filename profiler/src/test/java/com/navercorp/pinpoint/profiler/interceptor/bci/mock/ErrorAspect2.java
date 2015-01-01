@@ -26,14 +26,14 @@ import com.navercorp.pinpoint.profiler.interceptor.aspect.PointCut;
 @Aspect
 public abstract class ErrorAspect2 {
 
-	@PointCut
-	public int testInternalTypeMiss() {
-		__testVoid();
-		return 0;
-	}
+    @PointCut
+    public int testInternalTypeMiss() {
+        __testVoid();
+        return 0;
+    }
 
-	@JointPoint
-	abstract void __testVoid();
+    @JointPoint
+    abstract void __testVoid();
 
 
 

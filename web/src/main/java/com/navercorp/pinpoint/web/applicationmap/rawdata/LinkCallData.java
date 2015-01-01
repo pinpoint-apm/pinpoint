@@ -32,10 +32,10 @@ public class LinkCallData {
     private final String source;
     private final ServiceType sourceServiceType;
 
-	private final String target;
-	private final ServiceType targetServiceType;
+    private final String target;
+    private final ServiceType targetServiceType;
 
-	private final Map<Long, TimeHistogram> targetHistogramTimeMap;
+    private final Map<Long, TimeHistogram> targetHistogramTimeMap;
 
     public LinkCallData(LinkKey linkKey) {
         if (linkKey == null) {

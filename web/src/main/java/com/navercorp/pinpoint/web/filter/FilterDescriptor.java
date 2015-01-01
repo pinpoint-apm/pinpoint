@@ -25,200 +25,200 @@ import org.apache.commons.lang.StringUtils;
  */
 public class FilterDescriptor {
 
-	/**
-	 * from application name
-	 */
-	private String fa = null;
-	
-	/**
-	 * from service type
-	 */
-	private String fst = null;
-	
-	/**
-	 * to application name
-	 */
-	private String ta = null;
-	
-	/**
-	 * to service type
-	 */
-	private String tst = null;
-	
-	/**
-	 * response time from
-	 */
-	private Long rf = null;
-	
-	/**
-	 * response time to
-	 */
-	private String rt = null;
-	
-	/**
-	 * include exception
-	 */
-	private Boolean ie = null;
-	
-	/**
-	 * requested url
-	 */
-	private String url = null;
-	
-	/**
-	 * from agent name
-	 */
-	private String fan = null;
-	
-	/**
-	 * to agent name
-	 */
-	private String tan = null;
-	
-	public boolean isValid() {
-		return isValidFromToInfo() && isValidFromToResponseTime();
-	}
+    /**
+     * from application name
+     */
+    private String fa = null;
 
-	public boolean isValidFromToInfo() {
-		return !(StringUtils.isEmpty(fa) || StringUtils.isEmpty(fst) || StringUtils.isEmpty(ta) || StringUtils.isEmpty(tst));
-	}
+    /**
+     * from service type
+     */
+    private String fst = null;
 
-	public boolean isValidFromToResponseTime() {
-		return !((rf == null && !StringUtils.isEmpty(rt)) || (rf != null && StringUtils.isEmpty(rt)));
-	}
+    /**
+     * to application name
+     */
+    private String ta = null;
 
-	public boolean isSetUrl() {
-		return !StringUtils.isEmpty(url);
-	}
+    /**
+     * to service type
+     */
+    private String tst = null;
 
-	public String getFromApplicationName() {
-		return fa;
-	}
+    /**
+     * response time from
+     */
+    private Long rf = null;
 
-	public String getFromServiceType() {
-		return fst;
-	}
+    /**
+     * response time to
+     */
+    private String rt = null;
 
-	public String getToApplicationName() {
-		return ta;
-	}
+    /**
+     * include exception
+     */
+    private Boolean ie = null;
 
-	public String getToServiceType() {
-		return tst;
-	}
+    /**
+     * requested url
+     */
+    private String url = null;
 
-	public Long getResponseFrom() {
-		return rf;
-	}
+    /**
+     * from agent name
+     */
+    private String fan = null;
 
-	public Long getResponseTo() {
-		if (rt == null) {
-			return null;
-		} else if ("max".equals(rt)) {
-			return Long.MAX_VALUE;
-		} else {
-			return Long.valueOf(rt);
-		}
-	}
+    /**
+     * to agent name
+     */
+    private String tan = null;
 
-	public Boolean getIncludeException() {
-		return ie;
-	}
+    public boolean isValid() {
+        return isValidFromToInfo() && isValidFromToResponseTime();
+    }
 
-	public String getUrlPattern() {
-		return url;
-	}
+    public boolean isValidFromToInfo() {
+        return !(StringUtils.isEmpty(fa) || StringUtils.isEmpty(fst) || StringUtils.isEmpty(ta) || StringUtils.isEmpty(tst));
+    }
 
-	public String getFa() {
-		return fa;
-	}
+    public boolean isValidFromToResponseTime() {
+        return !((rf == null && !StringUtils.isEmpty(rt)) || (rf != null && StringUtils.isEmpty(rt)));
+    }
 
-	public void setFa(String fa) {
-		this.fa = fa;
-	}
+    public boolean isSetUrl() {
+        return !StringUtils.isEmpty(url);
+    }
 
-	public String getFst() {
-		return fst;
-	}
+    public String getFromApplicationName() {
+        return fa;
+    }
 
-	public void setFst(String fst) {
-		this.fst = fst;
-	}
+    public String getFromServiceType() {
+        return fst;
+    }
 
-	public String getTa() {
-		return ta;
-	}
+    public String getToApplicationName() {
+        return ta;
+    }
 
-	public void setTa(String ta) {
-		this.ta = ta;
-	}
+    public String getToServiceType() {
+        return tst;
+    }
 
-	public String getTst() {
-		return tst;
-	}
+    public Long getResponseFrom() {
+        return rf;
+    }
 
-	public void setTst(String tst) {
-		this.tst = tst;
-	}
+    public Long getResponseTo() {
+        if (rt == null) {
+            return null;
+        } else if ("max".equals(rt)) {
+            return Long.MAX_VALUE;
+        } else {
+            return Long.valueOf(rt);
+        }
+    }
 
-	public Long getRf() {
-		return rf;
-	}
+    public Boolean getIncludeException() {
+        return ie;
+    }
 
-	public void setRf(Long rf) {
-		this.rf = rf;
-	}
+    public String getUrlPattern() {
+        return url;
+    }
 
-	public String getRt() {
-		return rt;
-	}
+    public String getFa() {
+        return fa;
+    }
 
-	public void setRt(String rt) {
-		this.rt = rt;
-	}
+    public void setFa(String fa) {
+        this.fa = fa;
+    }
 
-	public Boolean getIe() {
-		return ie;
-	}
+    public String getFst() {
+        return fst;
+    }
 
-	public void setIe(Boolean ie) {
-		this.ie = ie;
-	}
+    public void setFst(String fst) {
+        this.fst = fst;
+    }
 
-	public String getUrl() {
-		return url;
-	}
+    public String getTa() {
+        return ta;
+    }
 
-	public void setUrl(String url) {
-		this.url = url;
-	}
+    public void setTa(String ta) {
+        this.ta = ta;
+    }
 
-	public String getFan() {
-		return fan;
-	}
-	
-	public String getFromAgentName() {
-		return fan;
-	}
+    public String getTst() {
+        return tst;
+    }
 
-	public void setFan(String fan) {
-		this.fan = fan;
-	}
+    public void setTst(String tst) {
+        this.tst = tst;
+    }
 
-	public String getTan() {
-		return tan;
-	}
-	
-	public String getToAgentName() {
-		return tan;
-	}
+    public Long getRf() {
+        return rf;
+    }
 
-	public void setTan(String tan) {
-		this.tan = tan;
-	}
-	
-	@Override
-	public String toString() {
-		return "FilterDescriptor [fa=" + fa + ", fst=" + fst + ", ta=" + ta + ", tst=" + tst + ", rf=" + rf + ", rt=" + rt + ", ie=" + ie + ", url=" + url + ", fan=" + fan + ", tan=" + tan + "]";
-	}
+    public void setRf(Long rf) {
+        this.rf = rf;
+    }
+
+    public String getRt() {
+        return rt;
+    }
+
+    public void setRt(String rt) {
+        this.rt = rt;
+    }
+
+    public Boolean getIe() {
+        return ie;
+    }
+
+    public void setIe(Boolean ie) {
+        this.ie = ie;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getFan() {
+        return fan;
+    }
+
+    public String getFromAgentName() {
+        return fan;
+    }
+
+    public void setFan(String fan) {
+        this.fan = fan;
+    }
+
+    public String getTan() {
+        return tan;
+    }
+
+    public String getToAgentName() {
+        return tan;
+    }
+
+    public void setTan(String tan) {
+        this.tan = tan;
+    }
+
+    @Override
+    public String toString() {
+        return "FilterDescriptor [fa=" + fa + ", fst=" + fst + ", ta=" + ta + ", tst=" + tst + ", rf=" + rf + ", rt=" + rt + ", ie=" + ie + ", url=" + url + ", fan=" + fan + ", tan=" + tan + "]";
+    }
 }

@@ -24,15 +24,15 @@ import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
 
 public class ApplicationMapStatisticsUtilsTest {
 
-	@Test
-	public void makeRowKey() {
-		String applicationName = "TESTAPP";
-		short serviceType = 123;
-		long time = System.currentTimeMillis();
+    @Test
+    public void makeRowKey() {
+        String applicationName = "TESTAPP";
+        short serviceType = 123;
+        long time = System.currentTimeMillis();
 
-		byte[] bytes = ApplicationMapStatisticsUtils.makeRowKey(applicationName, serviceType, time);
+        byte[] bytes = ApplicationMapStatisticsUtils.makeRowKey(applicationName, serviceType, time);
 
-		Assert.assertEquals(applicationName, ApplicationMapStatisticsUtils.getApplicationNameFromRowKey(bytes));
-		Assert.assertEquals(serviceType, ApplicationMapStatisticsUtils.getApplicationTypeFromRowKey(bytes));
-	}
+        Assert.assertEquals(applicationName, ApplicationMapStatisticsUtils.getApplicationNameFromRowKey(bytes));
+        Assert.assertEquals(serviceType, ApplicationMapStatisticsUtils.getApplicationTypeFromRowKey(bytes));
+    }
 }

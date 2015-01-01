@@ -40,15 +40,15 @@ import org.springframework.stereotype.Repository;
 @Deprecated
 public class HbaseAgentIdApplicationIndexDao implements AgentIdApplicationIndexDao {
 
-	@Autowired
-	private HbaseOperations2 hbaseTemplate;
+    @Autowired
+    private HbaseOperations2 hbaseTemplate;
 
-	@Autowired
-	@Qualifier("applicationNameMapper")
-	private RowMapper<String> applicationNameMapper;
+    @Autowired
+    @Qualifier("applicationNameMapper")
+    private RowMapper<String> applicationNameMapper;
 
-	@Override
-	public void insert(String agentId, String applicationName) {
+    @Override
+    public void insert(String agentId, String applicationName) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
@@ -57,23 +57,23 @@ public class HbaseAgentIdApplicationIndexDao implements AgentIdApplicationIndexD
         }
 
         byte[] agentIdByte = Bytes.toBytes(agentId);
-		byte[] appNameByte = Bytes.toBytes(applicationName);
+        byte[] appNameByte = Bytes.toBytes(applicationName);
 
-		Put put = new Put(agentIdByte);
-		put.add(AGENTID_APPLICATION_INDEX_CF_APPLICATION, appNameByte, appNameByte);
+        Put put = new Put(agentIdByte);
+        put.add(AGENTID_APPLICATION_INDEX_CF_APPLICATION, appNameByte, appNameByte);
 
-		hbaseTemplate.put(AGENTID_APPLICATION_INDEX, put);
-	}
+        hbaseTemplate.put(AGENTID_APPLICATION_INDEX, put);
+    }
 
-	@Override
-	public String selectApplicationName(String agentId) {
+    @Override
+    public String selectApplicationName(String agentId) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
         byte[] rowKey = Bytes.toBytes(agentId);
-		Get get = new Get(rowKey);
-		get.addFamily(AGENTID_APPLICATION_INDEX_CF_APPLICATION);
+        Get get = new Get(rowKey);
+        get.addFamily(AGENTID_APPLICATION_INDEX_CF_APPLICATION);
 
-		return hbaseTemplate.get(AGENTID_APPLICATION_INDEX, get, applicationNameMapper);
-	}
+        return hbaseTemplate.get(AGENTID_APPLICATION_INDEX, get, applicationNameMapper);
+    }
 }

@@ -41,45 +41,45 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class HbaseAgentInfoDao implements AgentInfoDao {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	private HbaseOperations2 hbaseTemplate;
-	
-	@Autowired
-	@Qualifier("agentInfoBoMapper")
-	private ThriftBoMapper<AgentInfoBo, TAgentInfo> agentInfoBoMapper;
+    @Autowired
+    private HbaseOperations2 hbaseTemplate;
+
+    @Autowired
+    @Qualifier("agentInfoBoMapper")
+    private ThriftBoMapper<AgentInfoBo, TAgentInfo> agentInfoBoMapper;
     
     @Autowired
     @Qualifier("serverMetaDataBoMapper")
     private ThriftBoMapper<ServerMetaDataBo, TServerMetaData> serverMetaDataBoMapper;
 
-	@Override
-	public void insert(TAgentInfo agentInfo) {
+    @Override
+    public void insert(TAgentInfo agentInfo) {
         if (agentInfo == null) {
             throw new NullPointerException("agentInfo must not be null");
         }
 
         if (logger.isDebugEnabled()) {
-			logger.debug("insert agent info. {}", agentInfo);
-		}
+            logger.debug("insert agent info. {}", agentInfo);
+        }
 
-		byte[] agentId = Bytes.toBytes(agentInfo.getAgentId());
-		long reverseKey = TimeUtils.reverseTimeMillis(agentInfo.getStartTimestamp());
-		byte[] rowKey = RowKeyUtils.concatFixedByteAndLong(agentId, HBaseTables.AGENT_NAME_MAX_LEN, reverseKey);
-		Put put = new Put(rowKey);
+        byte[] agentId = Bytes.toBytes(agentInfo.getAgentId());
+        long reverseKey = TimeUtils.reverseTimeMillis(agentInfo.getStartTimestamp());
+        byte[] rowKey = RowKeyUtils.concatFixedByteAndLong(agentId, HBaseTables.AGENT_NAME_MAX_LEN, reverseKey);
+        Put put = new Put(rowKey);
 
-		// should add additional agent informations. for now added only starttime for sqlMetaData
-		AgentInfoBo agentInfoBo = this.agentInfoBoMapper.map(agentInfo);
-		byte[] agentInfoBoValue = agentInfoBo.writeValue();
-		put.add(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_IDENTIFIER, agentInfoBoValue);
-		
-		if (agentInfo.isSetServerMetaData()) {
-		    ServerMetaDataBo serverMetaDataBo = this.serverMetaDataBoMapper.map(agentInfo.getServerMetaData());
-		    byte[] serverMetaDataBoValue = serverMetaDataBo.writeValue();
-		    put.add(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_SERVER_META_DATA, serverMetaDataBoValue);
-		}
-		
-		hbaseTemplate.put(HBaseTables.AGENTINFO, put);
-	}
+        // should add additional agent informations. for now added only starttime for sqlMetaData
+        AgentInfoBo agentInfoBo = this.agentInfoBoMapper.map(agentInfo);
+        byte[] agentInfoBoValue = agentInfoBo.writeValue();
+        put.add(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_IDENTIFIER, agentInfoBoValue);
+
+        if (agentInfo.isSetServerMetaData()) {
+            ServerMetaDataBo serverMetaDataBo = this.serverMetaDataBoMapper.map(agentInfo.getServerMetaData());
+            byte[] serverMetaDataBoValue = serverMetaDataBo.writeValue();
+            put.add(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_SERVER_META_DATA, serverMetaDataBoValue);
+        }
+
+        hbaseTemplate.put(HBaseTables.AGENTINFO, put);
+    }
 }

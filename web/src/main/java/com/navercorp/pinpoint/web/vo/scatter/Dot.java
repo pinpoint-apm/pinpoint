@@ -40,7 +40,7 @@ public class Dot {
      * @param elapsedTime
      * @param exceptionCode 0 : success, 1 : error
      */
-	public Dot(TransactionId transactionId, long acceptedTime, int elapsedTime, int exceptionCode, String agentId) {
+    public Dot(TransactionId transactionId, long acceptedTime, int elapsedTime, int exceptionCode, String agentId) {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }
@@ -54,13 +54,13 @@ public class Dot {
         this.agentId = agentId;
     }
 
-	public String getTransactionId() {
-		return transactionId.getFormatString();
-	}
+    public String getTransactionId() {
+        return transactionId.getFormatString();
+    }
 
-	public int getExceptionCode() {
-		return exceptionCode;
-	}
+    public int getExceptionCode() {
+        return exceptionCode;
+    }
 
     /**
      * Simple stateCode used in the UI. May need to be fleshed out with state transitions in the future. 
@@ -76,13 +76,13 @@ public class Dot {
         }
     }
 
-	public int getElapsedTime() {
-		return elapsedTime;
-	}
+    public int getElapsedTime() {
+        return elapsedTime;
+    }
 
-	public long getAcceptedTime() {
-		return acceptedTime;
-	}
+    public long getAcceptedTime() {
+        return acceptedTime;
+    }
 
     public String getAgentId() {
         return agentId;

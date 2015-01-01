@@ -31,20 +31,20 @@ import net.spy.memcached.ops.Operation;
  */
 public class FutureSetOperationInterceptor implements SimpleAroundInterceptor, TargetClassLoader {
 
-	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private MetaObject<Object> setOperation = new MetaObject<Object>("__setOperation", Operation.class);
     
 
     @Override
-	public void before(Object target, Object[] args) {
-		if (isDebug) {
-			logger.beforeInterceptor(target, args);
-		}
+    public void before(Object target, Object[] args) {
+        if (isDebug) {
+            logger.beforeInterceptor(target, args);
+        }
 
-		setOperation.invoke(target, (Operation) args[0]);
-	}
+        setOperation.invoke(target, (Operation) args[0]);
+    }
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {

@@ -28,84 +28,84 @@ import org.springframework.beans.factory.annotation.Value;
  */
 public class WebConfig {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Value("#{pinpointWebProps['cluster.enable'] ?: false}")
-	private boolean clusterEnable;
+    @Value("#{pinpointWebProps['cluster.enable'] ?: false}")
+    private boolean clusterEnable;
 
-	@Value("#{pinpointWebProps['cluster.web.tcp.port'] ?: 0}")
-	private int clusterTcpPort;
+    @Value("#{pinpointWebProps['cluster.web.tcp.port'] ?: 0}")
+    private int clusterTcpPort;
 
-	@Value("#{pinpointWebProps['cluster.zookeeper.address'] ?: ''}")
-	private String clusterZookeeperAddress;
+    @Value("#{pinpointWebProps['cluster.zookeeper.address'] ?: ''}")
+    private String clusterZookeeperAddress;
 
-	@Value("#{pinpointWebProps['cluster.zookeeper.sessiontimeout'] ?: -1}")
-	private int clusterZookeeperSessionTimeout;
+    @Value("#{pinpointWebProps['cluster.zookeeper.sessiontimeout'] ?: -1}")
+    private int clusterZookeeperSessionTimeout;
 
-	@Value("#{pinpointWebProps['cluster.zookeeper.retry.interval'] ?: 60000}")
-	private int clusterZookeeperRetryInterval;
+    @Value("#{pinpointWebProps['cluster.zookeeper.retry.interval'] ?: 60000}")
+    private int clusterZookeeperRetryInterval;
 
-	@PostConstruct
-	public void validation() {
-		if (isClusterEnable()) {
-			assertPort(clusterTcpPort);
-			if(StringUtils.isEmpty(clusterZookeeperAddress)) {
-				throw new IllegalArgumentException("clusterZookeeperAddress may not be empty =" + clusterZookeeperAddress);
-			}
-			assertPositiveNumber(clusterZookeeperSessionTimeout);
-			assertPositiveNumber(clusterZookeeperRetryInterval);
-		}
+    @PostConstruct
+    public void validation() {
+        if (isClusterEnable()) {
+            assertPort(clusterTcpPort);
+            if(StringUtils.isEmpty(clusterZookeeperAddress)) {
+                throw new IllegalArgumentException("clusterZookeeperAddress may not be empty =" + clusterZookeeperAddress);
+            }
+            assertPositiveNumber(clusterZookeeperSessionTimeout);
+            assertPositiveNumber(clusterZookeeperRetryInterval);
+        }
 
-		logger.info("{}", toString());
-	}
+        logger.info("{}", toString());
+    }
 
-	private boolean assertPort(int port) {
-		if (port > 0 && 65535 > port) {
-			return true;
-		}
+    private boolean assertPort(int port) {
+        if (port > 0 && 65535 > port) {
+            return true;
+        }
 
-		throw new IllegalArgumentException("Invalid Port =" + port);
-	}
+        throw new IllegalArgumentException("Invalid Port =" + port);
+    }
 
-	private boolean assertPositiveNumber(int number) {
-		if (number >= 0) {
-			return true;
-		}
+    private boolean assertPositiveNumber(int number) {
+        if (number >= 0) {
+            return true;
+        }
 
-		throw new IllegalArgumentException("Invalid Positive Number =" + number);
-	}
+        throw new IllegalArgumentException("Invalid Positive Number =" + number);
+    }
 
-	public boolean isClusterEnable() {
-		return clusterEnable;
-	}
+    public boolean isClusterEnable() {
+        return clusterEnable;
+    }
 
-	public int getClusterTcpPort() {
-		return clusterTcpPort;
-	}
+    public int getClusterTcpPort() {
+        return clusterTcpPort;
+    }
 
-	public String getClusterZookeeperAddress() {
-		return clusterZookeeperAddress;
-	}
+    public String getClusterZookeeperAddress() {
+        return clusterZookeeperAddress;
+    }
 
-	public int getClusterZookeeperSessionTimeout() {
-		return clusterZookeeperSessionTimeout;
-	}
+    public int getClusterZookeeperSessionTimeout() {
+        return clusterZookeeperSessionTimeout;
+    }
 
-	@Override
-	public String toString() {
-		return "WebConfig [clusterEnable=" + clusterEnable
-				+ ", clusterTcpPort=" + clusterTcpPort
-				+ ", clusterZookeeperAddress=" + clusterZookeeperAddress
-				+ ", clusterZookeeperSessionTimeout="
-				+ clusterZookeeperSessionTimeout + "]";
-	}
+    @Override
+    public String toString() {
+        return "WebConfig [clusterEnable=" + clusterEnable
+                + ", clusterTcpPort=" + clusterTcpPort
+                + ", clusterZookeeperAddress=" + clusterZookeeperAddress
+                + ", clusterZookeeperSessionTimeout="
+                + clusterZookeeperSessionTimeout + "]";
+    }
 
-	public int getClusterZookeeperRetryInterval() {
-		return clusterZookeeperRetryInterval;
-	}
+    public int getClusterZookeeperRetryInterval() {
+        return clusterZookeeperRetryInterval;
+    }
 
-	public void setClusterZookeeperRetryInterval(int clusterZookeeperRetryInterval) {
-		this.clusterZookeeperRetryInterval = clusterZookeeperRetryInterval;
-	}
+    public void setClusterZookeeperRetryInterval(int clusterZookeeperRetryInterval) {
+        this.clusterZookeeperRetryInterval = clusterZookeeperRetryInterval;
+    }
 
 }

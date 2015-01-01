@@ -55,77 +55,77 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class BusinessTransactionController {
 
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	private SpanService spanService;
+    @Autowired
+    private SpanService spanService;
 
-	@Autowired
-	private TransactionInfoService transactionInfoService;
+    @Autowired
+    private TransactionInfoService transactionInfoService;
 
-	@Autowired
-	private FilteredMapService filteredMapService;
+    @Autowired
+    private FilteredMapService filteredMapService;
 
     @Autowired
     private FilterBuilder filterBuilder;
 
     /**
-	 * executed URLs in applicationname query within from ~ to timeframe
-	 *
-	 * @param model
-	 * @param applicationName
-	 * @param from
-	 * @param to
-	 * @return
-	 */
+     * executed URLs in applicationname query within from ~ to timeframe
+     *
+     * @param model
+     * @param applicationName
+     * @param from
+     * @param to
+     * @return
+     */
     @Deprecated
-	@RequestMapping(value = "/transactionList", method = RequestMethod.GET)
+    @RequestMapping(value = "/transactionList", method = RequestMethod.GET)
     @ResponseBody
-	public Model getBusinessTransactionsData(Model model,
-											@RequestParam("application") String applicationName,
-											@RequestParam("from") long from,
-											@RequestParam("to") long to,
-											@RequestParam(value = "filter", required = false) String filterText,
-											@RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
+    public Model getBusinessTransactionsData(Model model,
+                                            @RequestParam("application") String applicationName,
+                                            @RequestParam("from") long from,
+                                            @RequestParam("to") long to,
+                                            @RequestParam(value = "filter", required = false) String filterText,
+                                            @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
         limit = LimitUtils.checkRange(limit);
-		Range range = new Range(from, to);
-		// TODO more refactoring needed: partially separated out server map lookup logic.
-		LimitedScanResult<List<TransactionId>> traceIdList = filteredMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
+        Range range = new Range(from, to);
+        // TODO more refactoring needed: partially separated out server map lookup logic.
+        LimitedScanResult<List<TransactionId>> traceIdList = filteredMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
 
-		Filter filter = filterBuilder.build(filterText);
-		BusinessTransactions selectBusinessTransactions = transactionInfoService.selectBusinessTransactions(traceIdList.getScanData(), applicationName, range, filter);
+        Filter filter = filterBuilder.build(filterText);
+        BusinessTransactions selectBusinessTransactions = transactionInfoService.selectBusinessTransactions(traceIdList.getScanData(), applicationName, range, filter);
 
-		model.addAttribute("lastFetchedTimestamp", traceIdList.getLimitedTime());
-		model.addAttribute("rpcList", selectBusinessTransactions.getBusinessTransaction());
-		model.addAttribute("requestList", selectBusinessTransactions.getBusinessTransaction());
-		model.addAttribute("scatterList", selectBusinessTransactions.getBusinessTransaction());
-		model.addAttribute("applicationName", applicationName);
-		model.addAttribute("from", new Date(from));
-		model.addAttribute("to", new Date(to));
-		model.addAttribute("urlCount", selectBusinessTransactions.getURLCount());
-		model.addAttribute("totalCount", selectBusinessTransactions.getTotalCallCount());
-		model.addAttribute("filterText", filterText);
-		model.addAttribute("filter", filter);
+        model.addAttribute("lastFetchedTimestamp", traceIdList.getLimitedTime());
+        model.addAttribute("rpcList", selectBusinessTransactions.getBusinessTransaction());
+        model.addAttribute("requestList", selectBusinessTransactions.getBusinessTransaction());
+        model.addAttribute("scatterList", selectBusinessTransactions.getBusinessTransaction());
+        model.addAttribute("applicationName", applicationName);
+        model.addAttribute("from", new Date(from));
+        model.addAttribute("to", new Date(to));
+        model.addAttribute("urlCount", selectBusinessTransactions.getURLCount());
+        model.addAttribute("totalCount", selectBusinessTransactions.getTotalCallCount());
+        model.addAttribute("filterText", filterText);
+        model.addAttribute("filter", filter);
         // Deprecated jsp -> need json dump
-		return model;
-	}
+        return model;
+    }
 
     @Deprecated
-	@RequestMapping(value = "/lastTransactionList", method = RequestMethod.GET)
+    @RequestMapping(value = "/lastTransactionList", method = RequestMethod.GET)
     @ResponseBody
-	public Model getLastBusinessTransactionsData(Model model, HttpServletResponse response,
-											@RequestParam("application") String applicationName,
-											@RequestParam("period") long period,
-											@RequestParam(value = "filter", required = false) String filterText,
-											@RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
+    public Model getLastBusinessTransactionsData(Model model, HttpServletResponse response,
+                                            @RequestParam("application") String applicationName,
+                                            @RequestParam("period") long period,
+                                            @RequestParam(value = "filter", required = false) String filterText,
+                                            @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
         limit = LimitUtils.checkRange(limit);
         long to = TimeUtils.getDelayLastTime();
-		long from = to - period;
-		return getBusinessTransactionsData(model, applicationName, from, to, filterText, limit);
-	}
+        long from = to - period;
+        return getBusinessTransactionsData(model, applicationName, from, to, filterText, limit);
+    }
 
     /**
-		 * info lookup for a selected transaction
+         * info lookup for a selected transaction
      *
      * @param traceIdParam
      * @param focusTimestamp

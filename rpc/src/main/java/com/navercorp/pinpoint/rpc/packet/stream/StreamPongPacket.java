@@ -26,58 +26,58 @@ import com.navercorp.pinpoint.rpc.packet.PacketType;
  */
 public class StreamPongPacket extends BasicStreamPacket {
 
-	private final static short PACKET_TYPE = PacketType.APPLICATION_STREAM_PONG;
+    private final static short PACKET_TYPE = PacketType.APPLICATION_STREAM_PONG;
 
-	private final int requestId;
-	
-	public StreamPongPacket(int streamChannelId, int requestId) {
-		super(streamChannelId);
-		this.requestId = requestId;
-	}
+    private final int requestId;
 
-	@Override
-	public short getPacketType() {
-		return PACKET_TYPE;
-	}
+    public StreamPongPacket(int streamChannelId, int requestId) {
+        super(streamChannelId);
+        this.requestId = requestId;
+    }
 
-	@Override
-	public ChannelBuffer toBuffer() {
-		ChannelBuffer header = ChannelBuffers.buffer(2 + 4 + 4);
-		header.writeShort(getPacketType());
-		header.writeInt(getStreamChannelId());
-		header.writeInt(requestId);
+    @Override
+    public short getPacketType() {
+        return PACKET_TYPE;
+    }
 
-		return header;
-	}
+    @Override
+    public ChannelBuffer toBuffer() {
+        ChannelBuffer header = ChannelBuffers.buffer(2 + 4 + 4);
+        header.writeShort(getPacketType());
+        header.writeInt(getStreamChannelId());
+        header.writeInt(requestId);
 
-	public static StreamPongPacket readBuffer(short packetType, ChannelBuffer buffer) {
-		assert packetType == PACKET_TYPE;
+        return header;
+    }
 
-		if (buffer.readableBytes() < 4) {
-			buffer.resetReaderIndex();
-			return null;
-		}
+    public static StreamPongPacket readBuffer(short packetType, ChannelBuffer buffer) {
+        assert packetType == PACKET_TYPE;
 
-		final int streamChannelId = buffer.readInt();
-		final int requestId = buffer.readInt();
+        if (buffer.readableBytes() < 4) {
+            buffer.resetReaderIndex();
+            return null;
+        }
 
-		final StreamPongPacket packet = new StreamPongPacket(streamChannelId, requestId);
-		return packet;
-	}
+        final int streamChannelId = buffer.readInt();
+        final int requestId = buffer.readInt();
 
-	public int getRequestId() {
-		return requestId;
-	}
+        final StreamPongPacket packet = new StreamPongPacket(streamChannelId, requestId);
+        return packet;
+    }
 
-	@Override
-	public String toString() {
-		final StringBuilder sb = new StringBuilder();
-		sb.append(this.getClass().getSimpleName());
-		sb.append("{channelId=").append(getStreamChannelId());
-		sb.append(", ");
-		sb.append("requestId=").append(getRequestId());
-		sb.append('}');
-		return sb.toString();
-	}
-	
+    public int getRequestId() {
+        return requestId;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append(this.getClass().getSimpleName());
+        sb.append("{channelId=").append(getStreamChannelId());
+        sb.append(", ");
+        sb.append("requestId=").append(getRequestId());
+        sb.append('}');
+        return sb.toString();
+    }
+
 }

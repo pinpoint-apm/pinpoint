@@ -39,10 +39,10 @@ import java.util.List;
 @Component
 public class HostApplicationMapperVer2 implements RowMapper<List<AcceptApplication>> {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Override
-	public List<AcceptApplication> mapRow(Result result, int rowNum) throws Exception {
+    @Override
+    public List<AcceptApplication> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyList();
         }
@@ -53,8 +53,8 @@ public class HostApplicationMapperVer2 implements RowMapper<List<AcceptApplicati
             AcceptApplication acceptedApplication = createAcceptedApplication(kv.getQualifier());
             acceptApplicationList.add(acceptedApplication);
         }
-		return acceptApplicationList;
-	}
+        return acceptApplicationList;
+    }
 
 //    private void readRowKey(byte[] rowKey) {
 //        final Buffer rowKeyBuffer= new FixedBuffer(rowKey);

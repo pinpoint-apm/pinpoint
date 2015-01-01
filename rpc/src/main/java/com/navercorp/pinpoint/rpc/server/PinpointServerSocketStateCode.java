@@ -24,85 +24,85 @@ import java.util.Set;
  */
 public enum PinpointServerSocketStateCode {
 
-	// NONE : No event
-	// RUN  : can send message only to server
-	// RUN_DUPLEX_COMMUNICATION : can communicate each other by full-duplex
-	// BEING_SHUTDOWN :  received a close packet from a peer first and releasing resources
-	// SHUTDOWN : has been closed
-	// UNEXPECTED_SHUTDOWN : has not received a close packet from a peer but a peer has been shutdown
-	
-	NONE(), 
-	RUN(NONE), //Simplex Communication
-	RUN_DUPLEX_COMMUNICATION(NONE, RUN), 
-	BEING_SHUTDOWN(RUN_DUPLEX_COMMUNICATION, RUN),
-	SHUTDOWN(RUN_DUPLEX_COMMUNICATION, RUN, BEING_SHUTDOWN),
-	UNEXPECTED_SHUTDOWN(RUN_DUPLEX_COMMUNICATION, RUN),
-	
+    // NONE : No event
+    // RUN  : can send message only to server
+    // RUN_DUPLEX_COMMUNICATION : can communicate each other by full-duplex
+    // BEING_SHUTDOWN :  received a close packet from a peer first and releasing resources
+    // SHUTDOWN : has been closed
+    // UNEXPECTED_SHUTDOWN : has not received a close packet from a peer but a peer has been shutdown
 
-	// need  messages to close a connection from server to agent
-	// for example, checked all of needed things followed by HELLO, if a same agent name exists, have to notify that to agent or not?
-	ERROR_UNKOWN(RUN_DUPLEX_COMMUNICATION, RUN),
-	ERROR_ILLEGAL_STATE_CHANGE(NONE, RUN_DUPLEX_COMMUNICATION, RUN, BEING_SHUTDOWN);
+    NONE(),
+    RUN(NONE), //Simplex Communication
+    RUN_DUPLEX_COMMUNICATION(NONE, RUN),
+    BEING_SHUTDOWN(RUN_DUPLEX_COMMUNICATION, RUN),
+    SHUTDOWN(RUN_DUPLEX_COMMUNICATION, RUN, BEING_SHUTDOWN),
+    UNEXPECTED_SHUTDOWN(RUN_DUPLEX_COMMUNICATION, RUN),
 
-	private final Set<PinpointServerSocketStateCode> validBeforeStateSet;
 
-	private PinpointServerSocketStateCode(PinpointServerSocketStateCode... validBeforeStates) {
-		this.validBeforeStateSet = new HashSet<PinpointServerSocketStateCode>();
+    // need  messages to close a connection from server to agent
+    // for example, checked all of needed things followed by HELLO, if a same agent name exists, have to notify that to agent or not?
+    ERROR_UNKOWN(RUN_DUPLEX_COMMUNICATION, RUN),
+    ERROR_ILLEGAL_STATE_CHANGE(NONE, RUN_DUPLEX_COMMUNICATION, RUN, BEING_SHUTDOWN);
 
-		if (validBeforeStates != null) {
-			for (PinpointServerSocketStateCode eachStateCode : validBeforeStates) {
-				getValidBeforeStateSet().add(eachStateCode);
-			}
-		}
-	}
+    private final Set<PinpointServerSocketStateCode> validBeforeStateSet;
 
-	public boolean canChangeState(PinpointServerSocketStateCode nextState) {
-		Set<PinpointServerSocketStateCode> validBeforeStateSet = nextState.getValidBeforeStateSet();
+    private PinpointServerSocketStateCode(PinpointServerSocketStateCode... validBeforeStates) {
+        this.validBeforeStateSet = new HashSet<PinpointServerSocketStateCode>();
 
-		if (validBeforeStateSet.contains(this)) {
-			return true;
-		}
+        if (validBeforeStates != null) {
+            for (PinpointServerSocketStateCode eachStateCode : validBeforeStates) {
+                getValidBeforeStateSet().add(eachStateCode);
+            }
+        }
+    }
 
-		return false;
-	}
+    public boolean canChangeState(PinpointServerSocketStateCode nextState) {
+        Set<PinpointServerSocketStateCode> validBeforeStateSet = nextState.getValidBeforeStateSet();
 
-	public Set<PinpointServerSocketStateCode> getValidBeforeStateSet() {
-		return validBeforeStateSet;
-	}
+        if (validBeforeStateSet.contains(this)) {
+            return true;
+        }
 
-	public static boolean isRun(PinpointServerSocketStateCode code) {
-		if (code == RUN_DUPLEX_COMMUNICATION || code == RUN) {
-			return true;
-		}
+        return false;
+    }
 
-		return false;
-	}
+    public Set<PinpointServerSocketStateCode> getValidBeforeStateSet() {
+        return validBeforeStateSet;
+    }
 
-	public static boolean isRunDuplexCommunication(PinpointServerSocketStateCode code) {
-		if (code == RUN_DUPLEX_COMMUNICATION) {
-			return true;
-		}
+    public static boolean isRun(PinpointServerSocketStateCode code) {
+        if (code == RUN_DUPLEX_COMMUNICATION || code == RUN) {
+            return true;
+        }
 
-		return false;
-	}
-	
-	public static boolean isFinished(PinpointServerSocketStateCode code) {
-		if (code == SHUTDOWN || code == UNEXPECTED_SHUTDOWN || code == ERROR_UNKOWN || code == ERROR_ILLEGAL_STATE_CHANGE) {
-			return true;
-		}
-		return false;
-	}
-	
-	public static PinpointServerSocketStateCode getStateCode(String name) {
-		PinpointServerSocketStateCode[] allStateCodes = PinpointServerSocketStateCode.values();
-		
-		for (PinpointServerSocketStateCode code : allStateCodes) {
-			if (code.name().equalsIgnoreCase(name)) {
-				return code;
-			}
-		}
-		
-		return null;
-	}
+        return false;
+    }
+
+    public static boolean isRunDuplexCommunication(PinpointServerSocketStateCode code) {
+        if (code == RUN_DUPLEX_COMMUNICATION) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static boolean isFinished(PinpointServerSocketStateCode code) {
+        if (code == SHUTDOWN || code == UNEXPECTED_SHUTDOWN || code == ERROR_UNKOWN || code == ERROR_ILLEGAL_STATE_CHANGE) {
+            return true;
+        }
+        return false;
+    }
+
+    public static PinpointServerSocketStateCode getStateCode(String name) {
+        PinpointServerSocketStateCode[] allStateCodes = PinpointServerSocketStateCode.values();
+
+        for (PinpointServerSocketStateCode code : allStateCodes) {
+            if (code.name().equalsIgnoreCase(name)) {
+                return code;
+            }
+        }
+
+        return null;
+    }
 
 }

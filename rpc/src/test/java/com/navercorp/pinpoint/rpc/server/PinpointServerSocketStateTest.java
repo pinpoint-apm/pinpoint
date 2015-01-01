@@ -27,92 +27,92 @@ import com.navercorp.pinpoint.rpc.server.PinpointServerSocketStateCode;
  */
 public class PinpointServerSocketStateTest {
 
-	// basic type of connection's lifecycle between peers.
-	// RUN -> RUN_DUPLEX_COMMUNICATION ->  BEING_SHUTDOWN -> connection closed
-	@Test
-	public void changeStateTest1() {
-		PinpointServerSocketState state = new PinpointServerSocketState();
+    // basic type of connection's lifecycle between peers.
+    // RUN -> RUN_DUPLEX_COMMUNICATION ->  BEING_SHUTDOWN -> connection closed
+    @Test
+    public void changeStateTest1() {
+        PinpointServerSocketState state = new PinpointServerSocketState();
 
-		state.changeStateRun();
-		Assert.assertEquals(PinpointServerSocketStateCode.RUN, state.getCurrentState());
+        state.changeStateRun();
+        Assert.assertEquals(PinpointServerSocketStateCode.RUN, state.getCurrentState());
 
-		state.changeStateRunDuplexCommunication();
-		Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION, state.getCurrentState());
+        state.changeStateRunDuplexCommunication();
+        Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION, state.getCurrentState());
 
-		state.changeStateBeingShutdown();
-		Assert.assertEquals(PinpointServerSocketStateCode.BEING_SHUTDOWN, state.getCurrentState());
+        state.changeStateBeingShutdown();
+        Assert.assertEquals(PinpointServerSocketStateCode.BEING_SHUTDOWN, state.getCurrentState());
 
-		state.changeStateShutdown();
-		Assert.assertEquals(PinpointServerSocketStateCode.SHUTDOWN, state.getCurrentState());
-	}
+        state.changeStateShutdown();
+        Assert.assertEquals(PinpointServerSocketStateCode.SHUTDOWN, state.getCurrentState());
+    }
 
-	// basic type of connection's lifecycle between peers.
-	// RUN_DUPLEX_COMMUNICATION -> RUN_DUPLEX_COMMUNICATION -> BEING_SHUTDOWN -> connection closed
-	@Test
-	public void changeStateTest2() {
-		PinpointServerSocketState state = new PinpointServerSocketState();
+    // basic type of connection's lifecycle between peers.
+    // RUN_DUPLEX_COMMUNICATION -> RUN_DUPLEX_COMMUNICATION -> BEING_SHUTDOWN -> connection closed
+    @Test
+    public void changeStateTest2() {
+        PinpointServerSocketState state = new PinpointServerSocketState();
 
-		state.changeStateRunDuplexCommunication();
-		Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION, state.getCurrentState());
+        state.changeStateRunDuplexCommunication();
+        Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION, state.getCurrentState());
 
-		state.changeStateBeingShutdown();
-		Assert.assertEquals(PinpointServerSocketStateCode.BEING_SHUTDOWN, state.getCurrentState());
+        state.changeStateBeingShutdown();
+        Assert.assertEquals(PinpointServerSocketStateCode.BEING_SHUTDOWN, state.getCurrentState());
 
-		state.changeStateShutdown();
-		Assert.assertEquals(PinpointServerSocketStateCode.SHUTDOWN, state.getCurrentState());
-	}
+        state.changeStateShutdown();
+        Assert.assertEquals(PinpointServerSocketStateCode.SHUTDOWN, state.getCurrentState());
+    }
 
-	@Test
-	public void changeStateTest3() {
-		PinpointServerSocketState state = new PinpointServerSocketState();
+    @Test
+    public void changeStateTest3() {
+        PinpointServerSocketState state = new PinpointServerSocketState();
 
-		state.changeStateRun();
-		Assert.assertEquals(PinpointServerSocketStateCode.RUN, state.getCurrentState());
+        state.changeStateRun();
+        Assert.assertEquals(PinpointServerSocketStateCode.RUN, state.getCurrentState());
 
-		state.changeStateUnexpectedShutdown();
-		Assert.assertEquals(PinpointServerSocketStateCode.UNEXPECTED_SHUTDOWN, state.getCurrentState());
-	}
+        state.changeStateUnexpectedShutdown();
+        Assert.assertEquals(PinpointServerSocketStateCode.UNEXPECTED_SHUTDOWN, state.getCurrentState());
+    }
 
-	@Test
-	public void changeStateTest4() {
-		PinpointServerSocketState state = new PinpointServerSocketState();
+    @Test
+    public void changeStateTest4() {
+        PinpointServerSocketState state = new PinpointServerSocketState();
 
-		state.changeStateRun();
-		Assert.assertEquals(PinpointServerSocketStateCode.RUN, state.getCurrentState());
+        state.changeStateRun();
+        Assert.assertEquals(PinpointServerSocketStateCode.RUN, state.getCurrentState());
 
-		state.changeStateShutdown();
-		Assert.assertEquals(PinpointServerSocketStateCode.SHUTDOWN, state.getCurrentState());
-	}
+        state.changeStateShutdown();
+        Assert.assertEquals(PinpointServerSocketStateCode.SHUTDOWN, state.getCurrentState());
+    }
 
-	@Test
-	public void changeStateTest5() {
-		PinpointServerSocketState state = new PinpointServerSocketState();
+    @Test
+    public void changeStateTest5() {
+        PinpointServerSocketState state = new PinpointServerSocketState();
 
-		state.changeStateRunDuplexCommunication();
-		Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION, state.getCurrentState());
+        state.changeStateRunDuplexCommunication();
+        Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION, state.getCurrentState());
 
-		state.changeStateShutdown();
-		Assert.assertEquals(PinpointServerSocketStateCode.SHUTDOWN, state.getCurrentState());
-	}
+        state.changeStateShutdown();
+        Assert.assertEquals(PinpointServerSocketStateCode.SHUTDOWN, state.getCurrentState());
+    }
 
-	@Test(expected = IllegalStateException.class)
-	public void invalidChangeStateTest1() {
-		PinpointServerSocketState state = new PinpointServerSocketState();
+    @Test(expected = IllegalStateException.class)
+    public void invalidChangeStateTest1() {
+        PinpointServerSocketState state = new PinpointServerSocketState();
 
-		state.changeStateBeingShutdown();
-	}
+        state.changeStateBeingShutdown();
+    }
 
-	@Test(expected = IllegalStateException.class)
-	public void invalidChangeStateTest2() {
-		PinpointServerSocketState state = new PinpointServerSocketState();
+    @Test(expected = IllegalStateException.class)
+    public void invalidChangeStateTest2() {
+        PinpointServerSocketState state = new PinpointServerSocketState();
 
-		state.changeStateRunDuplexCommunication();
-		Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION, state.getCurrentState());
+        state.changeStateRunDuplexCommunication();
+        Assert.assertEquals(PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION, state.getCurrentState());
 
-		state.changeStateBeingShutdown();
-		Assert.assertEquals(PinpointServerSocketStateCode.BEING_SHUTDOWN, state.getCurrentState());
+        state.changeStateBeingShutdown();
+        Assert.assertEquals(PinpointServerSocketStateCode.BEING_SHUTDOWN, state.getCurrentState());
 
-		state.changeStateUnexpectedShutdown();
-	}
+        state.changeStateUnexpectedShutdown();
+    }
 
 }

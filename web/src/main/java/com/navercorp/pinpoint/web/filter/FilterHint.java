@@ -28,35 +28,35 @@ import java.util.List;
 // FIXME don't know how to implement deserializer like this.
 public class FilterHint extends HashMap<String, List<Object>> {
 
-	private static final long serialVersionUID = -8765645836014210889L;
+    private static final long serialVersionUID = -8765645836014210889L;
 
-	public static final String EMPTY_JSON = "{}";
+    public static final String EMPTY_JSON = "{}";
 
-	public boolean containApplicationHint(String applicationName) {
-		List<Object> list = get(applicationName);
+    public boolean containApplicationHint(String applicationName) {
+        List<Object> list = get(applicationName);
 
-		if (list == null) {
-			return false;
-		} else {
-			return !list.isEmpty();
-		}
-	}
+        if (list == null) {
+            return false;
+        } else {
+            return !list.isEmpty();
+        }
+    }
 
-	public boolean containApplicationEndpoint(String applicationName, String endPoint, int serviceTypeCode) {
-		if (!containApplicationHint(applicationName)) {
-			return false;
-		}
+    public boolean containApplicationEndpoint(String applicationName, String endPoint, int serviceTypeCode) {
+        if (!containApplicationHint(applicationName)) {
+            return false;
+        }
 
-		List<Object> list = get(applicationName);
+        List<Object> list = get(applicationName);
 
-		for (int i = 0; i < list.size(); i += 2) {
-			if (endPoint.equals(list.get(i))) {
-				if (serviceTypeCode == (Integer) list.get(i + 1)) {
-					return true;
-				}
-			}
-		}
+        for (int i = 0; i < list.size(); i += 2) {
+            if (endPoint.equals(list.get(i))) {
+                if (serviceTypeCode == (Integer) list.get(i + 1)) {
+                    return true;
+                }
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 }

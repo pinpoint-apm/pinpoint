@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.thrift.dto.TJvmGc;
  */
 public interface GarbageCollector {
 
-	int getTypeCode();
+    int getTypeCode();
 
-	TJvmGc collect();
+    TJvmGc collect();
 
 }

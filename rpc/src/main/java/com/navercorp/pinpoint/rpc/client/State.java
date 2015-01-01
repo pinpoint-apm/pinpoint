@@ -26,11 +26,11 @@ import org.slf4j.LoggerFactory;
  * @author koo.taejin
  */
 public class State {
-	
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // operations on profiler should be light as much possible
-	
+
     // 0 : no handshake, 1: running
     public static final int INIT_RECONNECT = -1;
     public static final int INIT = 0;
@@ -49,8 +49,8 @@ public class State {
     }
 
     public boolean isRun() {
-    	int code = state.get();
-    	return isRun(code);
+        int code = state.get();
+        return isRun(code);
     }
     
     public boolean isRun(int code) {
@@ -62,7 +62,7 @@ public class State {
     }
 
     public boolean changeRun() {
-    	logger.debug("State Will Be Changed {}.", getString(RUN));
+        logger.debug("State Will Be Changed {}.", getString(RUN));
         final int current = state.get();
         if (current == INIT) {
             return this.state.compareAndSet(INIT, RUN);
@@ -73,16 +73,16 @@ public class State {
     }
 
     public boolean changeRunDuplexCommunication() {
-    	logger.debug("State Will Be Changed {}.", getString(RUN_DUPLEX_COMMUNICATION));
+        logger.debug("State Will Be Changed {}.", getString(RUN_DUPLEX_COMMUNICATION));
         final int current = state.get();
         if (current == INIT) {
             return this.state.compareAndSet(INIT, RUN_DUPLEX_COMMUNICATION);
         } else if(current == INIT_RECONNECT) {
             return this.state.compareAndSet(INIT_RECONNECT, RUN_DUPLEX_COMMUNICATION);
         } else if (current == RUN) {
-        	return this.state.compareAndSet(RUN, RUN_DUPLEX_COMMUNICATION);
+            return this.state.compareAndSet(RUN, RUN_DUPLEX_COMMUNICATION);
         } else if (current == RUN_DUPLEX_COMMUNICATION) {
-        	return true;
+            return true;
         }
         throw new IllegalStateException("InvalidState current:"  + getString(current) + " change:" + getString(RUN_DUPLEX_COMMUNICATION));
     }
@@ -104,13 +104,13 @@ public class State {
     }
 
     public boolean changeClosed(int before) {
-    	logger.debug("State Will Be Changed {} -> {}.", getString(before), getString(CLOSED));
+        logger.debug("State Will Be Changed {} -> {}.", getString(before), getString(CLOSED));
         return this.state.compareAndSet(before, CLOSED);
     }
 
     public boolean changeClosed() {
-    	logger.debug("State Will Be Changed {}.", getString(CLOSED));
-    	return this.state.compareAndSet(RUN, CLOSED);
+        logger.debug("State Will Be Changed {}.", getString(CLOSED));
+        return this.state.compareAndSet(RUN, CLOSED);
     }
 
     public void setClosed() {
@@ -118,7 +118,7 @@ public class State {
     }
 
     public void setState(int state) {
-    	logger.debug("State Will Be Changed {}.", getString(state));
+        logger.debug("State Will Be Changed {}.", getString(state));
         this.state.set(state);
     }
 

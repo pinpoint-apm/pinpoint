@@ -49,34 +49,34 @@ public class FilteredMapController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Autowired
-	private FilteredMapService filteredMapService;
+    @Autowired
+    private FilteredMapService filteredMapService;
 
     @Autowired
     private FilterBuilder filterBuilder;
 
-	/**
+    /**
    * filtered server map data query within from ~ to timeframe
-	 *
-	 * @param applicationName
-	 * @param serviceTypeCode
-	 * @param from
-	 * @param to
-	 * @param filterText
-	 * @param limit
-	 * @return
-	 */
-	@RequestMapping(value = "/getFilteredServerMapData", method = RequestMethod.GET)
+     *
+     * @param applicationName
+     * @param serviceTypeCode
+     * @param from
+     * @param to
+     * @param filterText
+     * @param limit
+     * @return
+     */
+    @RequestMapping(value = "/getFilteredServerMapData", method = RequestMethod.GET)
     @ResponseBody
-	public FilterMapWrap getFilteredServerMapData(
-											@RequestParam("applicationName") String applicationName,
-											@RequestParam("serviceTypeCode") short serviceTypeCode,
-											@RequestParam("from") long from,
-											@RequestParam("to") long to,
+    public FilterMapWrap getFilteredServerMapData(
+                                            @RequestParam("applicationName") String applicationName,
+                                            @RequestParam("serviceTypeCode") short serviceTypeCode,
+                                            @RequestParam("from") long from,
+                                            @RequestParam("to") long to,
                                             @RequestParam("originTo") long originTo,
-											@RequestParam(value = "filter", required = false) String filterText,
-											@RequestParam(value = "hint", required = false) String filterHint,
-											@RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
+                                            @RequestParam(value = "filter", required = false) String filterText,
+                                            @RequestParam(value = "hint", required = false) String filterHint,
+                                            @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit) {
         limit = LimitUtils.checkRange(limit);
         final Filter filter = filterBuilder.build(filterText, filterHint);
         final Range range = new Range(from, to);
@@ -97,35 +97,35 @@ public class FilteredMapController {
         FilterMapWrap mapWrap = new FilterMapWrap(map);
         mapWrap.setLastFetchedTimestamp(lastScanTime);
         return mapWrap;
-	}
+    }
 
-	/**
+    /**
    * filtered server map data query for the last "Period" up to now
    *
-	 *
-	 * @param applicationName
-	 * @param serviceTypeCode
-	 * @param filterText
-	 * @param limit
-	 * @return
-	 */
-	@RequestMapping(value = "/getLastFilteredServerMapData", method = RequestMethod.GET)
+     *
+     * @param applicationName
+     * @param serviceTypeCode
+     * @param filterText
+     * @param limit
+     * @return
+     */
+    @RequestMapping(value = "/getLastFilteredServerMapData", method = RequestMethod.GET)
     @ResponseBody
-	public FilterMapWrap getLastFilteredServerMapData(
-			@RequestParam("applicationName") String applicationName,
-			@RequestParam("serviceTypeCode") short serviceTypeCode,
-			@RequestParam("period") long period,
-			@RequestParam(value = "filter", required = false) String filterText,
-			@RequestParam(value = "hint", required = false) String filterHint,
-			@RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
+    public FilterMapWrap getLastFilteredServerMapData(
+            @RequestParam("applicationName") String applicationName,
+            @RequestParam("serviceTypeCode") short serviceTypeCode,
+            @RequestParam("period") long period,
+            @RequestParam(value = "filter", required = false) String filterText,
+            @RequestParam(value = "hint", required = false) String filterHint,
+            @RequestParam(value = "limit", required = false, defaultValue = "1000000") int limit) {
         limit = LimitUtils.checkRange(limit);
 
-		long to = TimeUtils.getDelayLastTime();
-		long from = to - period;
+        long to = TimeUtils.getDelayLastTime();
+        long from = to - period;
     // TODO: since realtime query is enabled for now, calling parameters are fixed as "..., to, to, ..."
     // may need additional @RequestParam("originTo")
-		return getFilteredServerMapData(applicationName, serviceTypeCode, from, to, to, filterText, filterHint, limit);
-	}
+        return getFilteredServerMapData(applicationName, serviceTypeCode, from, to, to, filterText, filterHint, limit);
+    }
 
 
 }

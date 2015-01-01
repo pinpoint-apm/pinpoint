@@ -51,397 +51,397 @@ import com.navercorp.pinpoint.rpc.util.MapUtils;
  */
 public class ZookeeperLatestJobWorker implements Runnable {
 
-	private static final Charset charset = Charset.forName("UTF-8");
+    private static final Charset charset = Charset.forName("UTF-8");
 
-	private static final String PINPOINT_CLUSTER_PATH = "/pinpoint-cluster";
-	private static final String PINPOINT_COLLECTOR_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/collector";
+    private static final String PINPOINT_CLUSTER_PATH = "/pinpoint-cluster";
+    private static final String PINPOINT_COLLECTOR_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/collector";
 
-	private static final String PATH_SEPRATOR = "/";
-	private static final String PROFILER_SEPERATOR = "\r\n";
+    private static final String PATH_SEPRATOR = "/";
+    private static final String PROFILER_SEPERATOR = "\r\n";
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private final Object lock = new Object();
+    private final Object lock = new Object();
 
-	private final WorkerStateContext workerState;
-	private final Thread workerThread;
+    private final WorkerStateContext workerState;
+    private final Thread workerThread;
 
-	private final String collectorUniqPath;
-	
-	private final ZookeeperClient zookeeperClient;
+    private final String collectorUniqPath;
 
-	private final ConcurrentHashMap<ChannelContext, Job> latestJobRepository = new ConcurrentHashMap<ChannelContext, Job>();
+    private final ZookeeperClient zookeeperClient;
 
-	// Storage for managing ChannelContexts received by Worker
-	private final CopyOnWriteArrayList<ChannelContext> channelContextRepository = new CopyOnWriteArrayList<ChannelContext>();
+    private final ConcurrentHashMap<ChannelContext, Job> latestJobRepository = new ConcurrentHashMap<ChannelContext, Job>();
 
-	private final BlockingQueue<Job> leakJobQueue = new LinkedBlockingQueue<Job>();
+    // Storage for managing ChannelContexts received by Worker
+    private final CopyOnWriteArrayList<ChannelContext> channelContextRepository = new CopyOnWriteArrayList<ChannelContext>();
 
-	public ZookeeperLatestJobWorker(ZookeeperClient zookeeperClient, String serverIdentifier) {
-		this.zookeeperClient = zookeeperClient;
+    private final BlockingQueue<Job> leakJobQueue = new LinkedBlockingQueue<Job>();
 
-		this.workerState = new WorkerStateContext();
+    public ZookeeperLatestJobWorker(ZookeeperClient zookeeperClient, String serverIdentifier) {
+        this.zookeeperClient = zookeeperClient;
 
-		this.collectorUniqPath = bindingPathAndZnode(PINPOINT_COLLECTOR_CLUSTER_PATH, serverIdentifier);
-		
-		final ThreadFactory threadFactory = new PinpointThreadFactory(this.getClass().getSimpleName(), true);
-		this.workerThread = threadFactory.newThread(this);
-	}
+        this.workerState = new WorkerStateContext();
 
-	public void start() {
-		switch (this.workerState.getCurrentState()) {
-		case NEW:
-			if (this.workerState.changeStateInitializing()) {
-				logger.info("{} initialization started.", this.getClass().getSimpleName());
-				workerState.changeStateStarted();
+        this.collectorUniqPath = bindingPathAndZnode(PINPOINT_COLLECTOR_CLUSTER_PATH, serverIdentifier);
 
-				this.workerThread.start();
-				logger.info("{} initialization completed.", this.getClass().getSimpleName());
+        final ThreadFactory threadFactory = new PinpointThreadFactory(this.getClass().getSimpleName(), true);
+        this.workerThread = threadFactory.newThread(this);
+    }
 
-				break;
-			}
-		case INITIALIZING:
-			logger.info("{} already initializing.", this.getClass().getSimpleName());
-			break;
-		case STARTED:
-			logger.info("{} already started.", this.getClass().getSimpleName());
-			break;
-		case DESTROYING:
-			throw new IllegalStateException("Already destroying.");
-		case STOPPED:
-			throw new IllegalStateException("Already stopped.");
-		case ILLEGAL_STATE:
-			throw new IllegalStateException("Invalid State.");
-		}
-	}
+    public void start() {
+        switch (this.workerState.getCurrentState()) {
+        case NEW:
+            if (this.workerState.changeStateInitializing()) {
+                logger.info("{} initialization started.", this.getClass().getSimpleName());
+                workerState.changeStateStarted();
 
-	public void stop() {
-		if (!(this.workerState.changeStateDestroying())) {
-			WorkerState state = this.workerState.getCurrentState();
+                this.workerThread.start();
+                logger.info("{} initialization completed.", this.getClass().getSimpleName());
 
-			logger.info("{} already {}.", this.getClass().getSimpleName(), state.toString());
-			return;
-		}
+                break;
+            }
+        case INITIALIZING:
+            logger.info("{} already initializing.", this.getClass().getSimpleName());
+            break;
+        case STARTED:
+            logger.info("{} already started.", this.getClass().getSimpleName());
+            break;
+        case DESTROYING:
+            throw new IllegalStateException("Already destroying.");
+        case STOPPED:
+            throw new IllegalStateException("Already stopped.");
+        case ILLEGAL_STATE:
+            throw new IllegalStateException("Invalid State.");
+        }
+    }
 
-		logger.info("{} destorying started.", this.getClass().getSimpleName());
-		boolean interrupted = false;
-		while (this.workerThread.isAlive()) {
-			this.workerThread.interrupt();
-			try {
-				this.workerThread.join(100L);
-			} catch (InterruptedException e) {
-				interrupted = true;
-			}
-		}
+    public void stop() {
+        if (!(this.workerState.changeStateDestroying())) {
+            WorkerState state = this.workerState.getCurrentState();
 
-		this.workerState.changeStateStoped();
-		logger.info("{} destorying completed.", this.getClass().getSimpleName());
-	}
+            logger.info("{} already {}.", this.getClass().getSimpleName(), state.toString());
+            return;
+        }
 
-	@Override
-	public void run() {
+        logger.info("{} destorying started.", this.getClass().getSimpleName());
+        boolean interrupted = false;
+        while (this.workerThread.isAlive()) {
+            this.workerThread.interrupt();
+            try {
+                this.workerThread.join(100L);
+            } catch (InterruptedException e) {
+                interrupted = true;
+            }
+        }
 
-		// Things to consider
-	    // spinlock possible when events are not deleted
-	    // may lead to ChannelContext leak when events are left unresolved
-		while (workerState.isStarted()) {
-			boolean eventCreated = await(60000, 200);
-			if (!workerState.isStarted()) {
-				break;
-			}
+        this.workerState.changeStateStoped();
+        logger.info("{} destorying completed.", this.getClass().getSimpleName());
+    }
 
-			// handle events
-			// check and handle ChannelContext leak if events are not triggered
-			if (eventCreated) {
-				// to avoid ConcurrentModificationException
-				Iterator<ChannelContext> keyIterator = getLatestJobRepositoryKeyIterator();
+    @Override
+    public void run() {
 
-				while (keyIterator.hasNext()) {
-					ChannelContext channelContext = keyIterator.next();
-					Job job = getJob(channelContext);
-					if (job == null) {
-						continue;
-					}
-					
-					logger.info("Worker execute job({}).", job);
-					
-					if (job instanceof UpdateJob) {
-						handleUpdate((UpdateJob) job);
-					} else if (job instanceof DeleteJob) {
-						handleDelete((DeleteJob) job);
-					}
-				}
-			} else {
-			    // take care of leaked jobs - jobs may leak due to timing mismatch while deleting jobs
-				logger.debug("LeakDetector Start.");
+        // Things to consider
+        // spinlock possible when events are not deleted
+        // may lead to ChannelContext leak when events are left unresolved
+        while (workerState.isStarted()) {
+            boolean eventCreated = await(60000, 200);
+            if (!workerState.isStarted()) {
+                break;
+            }
 
-				while (true) {
-					Job job = leakJobQueue.poll();
-					if (job == null) {
-						break;
-					}
+            // handle events
+            // check and handle ChannelContext leak if events are not triggered
+            if (eventCreated) {
+                // to avoid ConcurrentModificationException
+                Iterator<ChannelContext> keyIterator = getLatestJobRepositoryKeyIterator();
 
-					if (job instanceof UpdateJob) {
-						putRetryJob(new UpdateJob(job.getChannelContext(), 1, ((UpdateJob) job).getContents()));
-					}
-				}
+                while (keyIterator.hasNext()) {
+                    ChannelContext channelContext = keyIterator.next();
+                    Job job = getJob(channelContext);
+                    if (job == null) {
+                        continue;
+                    }
 
-				for (ChannelContext channelContext : channelContextRepository) {
-					if (PinpointServerSocketStateCode.isFinished(channelContext.getCurrentStateCode())) {
-						logger.info("LeakDetector Find Leak ChannelContext={}.", channelContext);
-						putJob(new DeleteJob(channelContext));
-					}
-				}
+                    logger.info("Worker execute job({}).", job);
 
-			}
-		}
+                    if (job instanceof UpdateJob) {
+                        handleUpdate((UpdateJob) job);
+                    } else if (job instanceof DeleteJob) {
+                        handleDelete((DeleteJob) job);
+                    }
+                }
+            } else {
+                // take care of leaked jobs - jobs may leak due to timing mismatch while deleting jobs
+                logger.debug("LeakDetector Start.");
 
-		logger.info("{} stopped", this.getClass().getSimpleName());
-	}
+                while (true) {
+                    Job job = leakJobQueue.poll();
+                    if (job == null) {
+                        break;
+                    }
 
-	public boolean handleUpdate(UpdateJob job) {
-		ChannelContext channelContext = job.getChannelContext();
+                    if (job instanceof UpdateJob) {
+                        putRetryJob(new UpdateJob(job.getChannelContext(), 1, ((UpdateJob) job).getContents()));
+                    }
+                }
 
-		PinpointServerSocketStateCode code = channelContext.getCurrentStateCode();
-		if (PinpointServerSocketStateCode.isFinished(code)) {
-			putJob(new DeleteJob(channelContext));
-			return false;
-		}
+                for (ChannelContext channelContext : channelContextRepository) {
+                    if (PinpointServerSocketStateCode.isFinished(channelContext.getCurrentStateCode())) {
+                        logger.info("LeakDetector Find Leak ChannelContext={}.", channelContext);
+                        putJob(new DeleteJob(channelContext));
+                    }
+                }
 
-		try {
-			String addContents = createProfilerContents(channelContext);
+            }
+        }
 
-			if (zookeeperClient.exists(collectorUniqPath)) {
-				byte[] contents = zookeeperClient.getData(collectorUniqPath);
-				
-				String data = addIfAbsentContents(new String(contents, charset), addContents);
-				zookeeperClient.setData(collectorUniqPath, data.getBytes(charset));
-			} else {
-				zookeeperClient.createPath(collectorUniqPath);
-				
-				// should return error even if NODE exists if the data is important
-				zookeeperClient.createNode(collectorUniqPath, addContents.getBytes(charset));
-			}
-			return true;
-		} catch (Exception e) {
-			logger.warn(e.getMessage(), e);
-			if (e instanceof TimeoutException) {
-				putRetryJob(job);
-			}
-		}
+        logger.info("{} stopped", this.getClass().getSimpleName());
+    }
 
-		return false;
-	}
+    public boolean handleUpdate(UpdateJob job) {
+        ChannelContext channelContext = job.getChannelContext();
 
-	public boolean handleDelete(Job job) {
-		ChannelContext channelContext = job.getChannelContext();
+        PinpointServerSocketStateCode code = channelContext.getCurrentStateCode();
+        if (PinpointServerSocketStateCode.isFinished(code)) {
+            putJob(new DeleteJob(channelContext));
+            return false;
+        }
 
-		try {
-			if (zookeeperClient.exists(collectorUniqPath)) {
-				byte[] contents = zookeeperClient.getData(collectorUniqPath);
-				
-				String removeContents = createProfilerContents(channelContext);
-				String data = removeIfExistContents(new String(contents, charset), removeContents);
-				
-				zookeeperClient.setData(collectorUniqPath, data.getBytes(charset));
-			}
-			channelContextRepository.remove(channelContext);
-			return true;
-		} catch (Exception e) {
-			logger.warn(e.getMessage(), e);
-			if (e instanceof TimeoutException) {
-				putRetryJob(job);
-			}
-		}
+        try {
+            String addContents = createProfilerContents(channelContext);
 
-		return false;
-	}
+            if (zookeeperClient.exists(collectorUniqPath)) {
+                byte[] contents = zookeeperClient.getData(collectorUniqPath);
 
-	public byte[] getClusterData() {
-		try {
-			return zookeeperClient.getData(collectorUniqPath);
-		} catch (Exception e) {
-			logger.warn(e.getMessage(), e);
-		}
+                String data = addIfAbsentContents(new String(contents, charset), addContents);
+                zookeeperClient.setData(collectorUniqPath, data.getBytes(charset));
+            } else {
+                zookeeperClient.createPath(collectorUniqPath);
 
-		return null;
-	}
+                // should return error even if NODE exists if the data is important
+                zookeeperClient.createNode(collectorUniqPath, addContents.getBytes(charset));
+            }
+            return true;
+        } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+            if (e instanceof TimeoutException) {
+                putRetryJob(job);
+            }
+        }
 
-	public List<ChannelContext> getRegisteredChannelContextList() {
-		return new ArrayList<ChannelContext>(channelContextRepository);
-	}
-	
-	/**
-	 * Waits for events to trigger for a given time.
-	 * 
-	 * @param waitTimeMillis total time to wait for events to trigger in milliseconds
-	 * @param waitUnitTimeMillis time to wait for each wait attempt in milliseconds
-	 * @return true if event triggered, false otherwise
-	 */
-	private boolean await(long waitTimeMillis, long waitUnitTimeMillis) {
-		synchronized (lock) {
-			long waitTime = waitTimeMillis;
-			long waitUnitTime = waitUnitTimeMillis;
-			if (waitTimeMillis < 1000) {
-				waitTime = 1000;
-			}
-			if (waitUnitTimeMillis < 100) {
-				waitUnitTime = 100;
-			}
+        return false;
+    }
 
-			long startTimeMillis = System.currentTimeMillis();
+    public boolean handleDelete(Job job) {
+        ChannelContext channelContext = job.getChannelContext();
 
-			while (latestJobRepository.size() == 0 && !isOverWaitTime(waitTime, startTimeMillis) && workerState.isStarted()) {
-				try {
-					lock.wait(waitUnitTime);
-				} catch (InterruptedException ignore) {
+        try {
+            if (zookeeperClient.exists(collectorUniqPath)) {
+                byte[] contents = zookeeperClient.getData(collectorUniqPath);
+
+                String removeContents = createProfilerContents(channelContext);
+                String data = removeIfExistContents(new String(contents, charset), removeContents);
+
+                zookeeperClient.setData(collectorUniqPath, data.getBytes(charset));
+            }
+            channelContextRepository.remove(channelContext);
+            return true;
+        } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+            if (e instanceof TimeoutException) {
+                putRetryJob(job);
+            }
+        }
+
+        return false;
+    }
+
+    public byte[] getClusterData() {
+        try {
+            return zookeeperClient.getData(collectorUniqPath);
+        } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+        }
+
+        return null;
+    }
+
+    public List<ChannelContext> getRegisteredChannelContextList() {
+        return new ArrayList<ChannelContext>(channelContextRepository);
+    }
+
+    /**
+     * Waits for events to trigger for a given time.
+     *
+     * @param waitTimeMillis total time to wait for events to trigger in milliseconds
+     * @param waitUnitTimeMillis time to wait for each wait attempt in milliseconds
+     * @return true if event triggered, false otherwise
+     */
+    private boolean await(long waitTimeMillis, long waitUnitTimeMillis) {
+        synchronized (lock) {
+            long waitTime = waitTimeMillis;
+            long waitUnitTime = waitUnitTimeMillis;
+            if (waitTimeMillis < 1000) {
+                waitTime = 1000;
+            }
+            if (waitUnitTimeMillis < 100) {
+                waitUnitTime = 100;
+            }
+
+            long startTimeMillis = System.currentTimeMillis();
+
+            while (latestJobRepository.size() == 0 && !isOverWaitTime(waitTime, startTimeMillis) && workerState.isStarted()) {
+                try {
+                    lock.wait(waitUnitTime);
+                } catch (InterruptedException ignore) {
 //                    Thread.currentThread().interrupt();
 //                    TODO check Interrupted state
-				}
-			}
+                }
+            }
 
-			if (isOverWaitTime(waitTime, startTimeMillis)) {
-				return false;
-			}
+            if (isOverWaitTime(waitTime, startTimeMillis)) {
+                return false;
+            }
 
-			return true;
-		}
-	}
+            return true;
+        }
+    }
 
-	private boolean isOverWaitTime(long waitTimeMillis, long startTimeMillis) {
-		return waitTimeMillis < (System.currentTimeMillis() - startTimeMillis);
-	}
+    private boolean isOverWaitTime(long waitTimeMillis, long startTimeMillis) {
+        return waitTimeMillis < (System.currentTimeMillis() - startTimeMillis);
+    }
 
-	private Iterator<ChannelContext> getLatestJobRepositoryKeyIterator() {
-		synchronized (lock) {
-			return latestJobRepository.keySet().iterator();
-		}
-	}
+    private Iterator<ChannelContext> getLatestJobRepositoryKeyIterator() {
+        synchronized (lock) {
+            return latestJobRepository.keySet().iterator();
+        }
+    }
 
-	// must be invoked within a Runnable only
-	private Job getJob(ChannelContext channelContext) {
-		synchronized (lock) {
-			Job job = latestJobRepository.remove(channelContext);
-			return job;
-		}
-	}
+    // must be invoked within a Runnable only
+    private Job getJob(ChannelContext channelContext) {
+        synchronized (lock) {
+            Job job = latestJobRepository.remove(channelContext);
+            return job;
+        }
+    }
 
-	public void putJob(Job job) {
-		ChannelContext channelContext = job.getChannelContext();
-		if (!checkRequiredProperties(channelContext)) {
-			return;
-		}
-		
-		synchronized (lock) {
-			channelContextRepository.addIfAbsent(channelContext);
-			latestJobRepository.put(channelContext, job);
-			lock.notifyAll();
-		}
-	}
-	
-	private void putRetryJob(Job job) {
-		job.incrementCurrentRetryCount();
+    public void putJob(Job job) {
+        ChannelContext channelContext = job.getChannelContext();
+        if (!checkRequiredProperties(channelContext)) {
+            return;
+        }
 
-		if (job.getMaxRetryCount() < job.getCurrentRetryCount()) {
-			if (logger.isInfoEnabled()) {
-				logger.warn("Leak Job Queue Register Job={}.", job);
-			}
-			leakJobQueue.add(job);
-			return;
-		}
-		
-		ChannelContext channelContext = job.getChannelContext();
+        synchronized (lock) {
+            channelContextRepository.addIfAbsent(channelContext);
+            latestJobRepository.put(channelContext, job);
+            lock.notifyAll();
+        }
+    }
 
-		synchronized (lock) {
-			latestJobRepository.putIfAbsent(channelContext, job);
-			lock.notifyAll();
-		}
-	}
+    private void putRetryJob(Job job) {
+        job.incrementCurrentRetryCount();
 
-	private String bindingPathAndZnode(String path, String znodeName) {
-		StringBuilder fullPath = new StringBuilder();
+        if (job.getMaxRetryCount() < job.getCurrentRetryCount()) {
+            if (logger.isInfoEnabled()) {
+                logger.warn("Leak Job Queue Register Job={}.", job);
+            }
+            leakJobQueue.add(job);
+            return;
+        }
 
-		fullPath.append(path);
-		if (!path.endsWith(PATH_SEPRATOR)) {
-			fullPath.append(PATH_SEPRATOR);
-		}
-		fullPath.append(znodeName);
+        ChannelContext channelContext = job.getChannelContext();
 
-		return fullPath.toString();
-	}
+        synchronized (lock) {
+            latestJobRepository.putIfAbsent(channelContext, job);
+            lock.notifyAll();
+        }
+    }
 
-	private boolean checkRequiredProperties(ChannelContext channelContext) {
-		Map<Object, Object> agentProperties = channelContext.getChannelProperties();
-		final String applicationName = MapUtils.getString(agentProperties, AgentHandshakePropertyType.APPLICATION_NAME.getName());
-		final String agentId = MapUtils.getString(agentProperties, AgentHandshakePropertyType.AGENT_ID.getName());
-		final Long startTimeStampe = MapUtils.getLong(agentProperties, AgentHandshakePropertyType.START_TIMESTAMP.getName());
-		
-		if (StringUtils.isBlank(applicationName) || StringUtils.isBlank(agentId) || startTimeStampe == null || startTimeStampe <= 0) {
-			logger.warn("ApplicationName({}) and AgnetId({}) and startTimeStampe({}) may not be null.", applicationName, agentId);
-			return false;
-		}
-		
-		return true;
-	}
-	
-	private String createProfilerContents(ChannelContext channelContext) {
-		StringBuilder profilerContents = new StringBuilder();
-		
-		Map<Object, Object> agentProperties = channelContext.getChannelProperties();
-		final String applicationName = MapUtils.getString(agentProperties, AgentHandshakePropertyType.APPLICATION_NAME.getName());
-		final String agentId = MapUtils.getString(agentProperties, AgentHandshakePropertyType.AGENT_ID.getName());
-		final Long startTimeStampe = MapUtils.getLong(agentProperties, AgentHandshakePropertyType.START_TIMESTAMP.getName());
-		
-		if (StringUtils.isBlank(applicationName) || StringUtils.isBlank(agentId) || startTimeStampe == null || startTimeStampe <= 0) {
-			logger.warn("ApplicationName({}) and AgnetId({}) and startTimeStampe({}) may not be null.", applicationName, agentId);
-			return StringUtils.EMPTY;
-		}
-		
-		profilerContents.append(applicationName);
-		profilerContents.append(":");
-		profilerContents.append(agentId);
-		profilerContents.append(":");
-		profilerContents.append(startTimeStampe);
-		
-		return profilerContents.toString();
-	}
+    private String bindingPathAndZnode(String path, String znodeName) {
+        StringBuilder fullPath = new StringBuilder();
 
-	private String addIfAbsentContents(String contents, String addContents) {
-		String[] allContents = contents.split(PROFILER_SEPERATOR);
-		
-		for (String eachContent : allContents) {
-			if (StringUtils.equals(eachContent.trim(), addContents.trim())) {
-				return contents;
-			}
-		}
-		
-		return contents + PROFILER_SEPERATOR + addContents;
-	}
-	
-	private String removeIfExistContents(String contents, String removeContents) {
-		StringBuilder newContents = new StringBuilder(contents.length());
-		
-		String[] allContents = contents.split(PROFILER_SEPERATOR);
+        fullPath.append(path);
+        if (!path.endsWith(PATH_SEPRATOR)) {
+            fullPath.append(PATH_SEPRATOR);
+        }
+        fullPath.append(znodeName);
 
-		Iterator<String> stringIterator = Arrays.asList(allContents).iterator();
-		
-		while (stringIterator.hasNext()) {
-			String eachContent = stringIterator.next();
-			
-			if (StringUtils.isBlank(eachContent)) {
-				continue;
-			}
-			
-			if (!StringUtils.equals(eachContent.trim(), removeContents.trim())) {
-				newContents.append(eachContent);
+        return fullPath.toString();
+    }
 
-				if (stringIterator.hasNext()) {
-					newContents.append(PROFILER_SEPERATOR);
-				}
-			}
-		}
+    private boolean checkRequiredProperties(ChannelContext channelContext) {
+        Map<Object, Object> agentProperties = channelContext.getChannelProperties();
+        final String applicationName = MapUtils.getString(agentProperties, AgentHandshakePropertyType.APPLICATION_NAME.getName());
+        final String agentId = MapUtils.getString(agentProperties, AgentHandshakePropertyType.AGENT_ID.getName());
+        final Long startTimeStampe = MapUtils.getLong(agentProperties, AgentHandshakePropertyType.START_TIMESTAMP.getName());
 
-		return newContents.toString();
-	}
-	
+        if (StringUtils.isBlank(applicationName) || StringUtils.isBlank(agentId) || startTimeStampe == null || startTimeStampe <= 0) {
+            logger.warn("ApplicationName({}) and AgnetId({}) and startTimeStampe({}) may not be null.", applicationName, agentId);
+            return false;
+        }
+
+        return true;
+    }
+
+    private String createProfilerContents(ChannelContext channelContext) {
+        StringBuilder profilerContents = new StringBuilder();
+
+        Map<Object, Object> agentProperties = channelContext.getChannelProperties();
+        final String applicationName = MapUtils.getString(agentProperties, AgentHandshakePropertyType.APPLICATION_NAME.getName());
+        final String agentId = MapUtils.getString(agentProperties, AgentHandshakePropertyType.AGENT_ID.getName());
+        final Long startTimeStampe = MapUtils.getLong(agentProperties, AgentHandshakePropertyType.START_TIMESTAMP.getName());
+
+        if (StringUtils.isBlank(applicationName) || StringUtils.isBlank(agentId) || startTimeStampe == null || startTimeStampe <= 0) {
+            logger.warn("ApplicationName({}) and AgnetId({}) and startTimeStampe({}) may not be null.", applicationName, agentId);
+            return StringUtils.EMPTY;
+        }
+
+        profilerContents.append(applicationName);
+        profilerContents.append(":");
+        profilerContents.append(agentId);
+        profilerContents.append(":");
+        profilerContents.append(startTimeStampe);
+
+        return profilerContents.toString();
+    }
+
+    private String addIfAbsentContents(String contents, String addContents) {
+        String[] allContents = contents.split(PROFILER_SEPERATOR);
+
+        for (String eachContent : allContents) {
+            if (StringUtils.equals(eachContent.trim(), addContents.trim())) {
+                return contents;
+            }
+        }
+
+        return contents + PROFILER_SEPERATOR + addContents;
+    }
+
+    private String removeIfExistContents(String contents, String removeContents) {
+        StringBuilder newContents = new StringBuilder(contents.length());
+
+        String[] allContents = contents.split(PROFILER_SEPERATOR);
+
+        Iterator<String> stringIterator = Arrays.asList(allContents).iterator();
+
+        while (stringIterator.hasNext()) {
+            String eachContent = stringIterator.next();
+
+            if (StringUtils.isBlank(eachContent)) {
+                continue;
+            }
+
+            if (!StringUtils.equals(eachContent.trim(), removeContents.trim())) {
+                newContents.append(eachContent);
+
+                if (stringIterator.hasNext()) {
+                    newContents.append(PROFILER_SEPERATOR);
+                }
+            }
+        }
+
+        return newContents.toString();
+    }
+
 }

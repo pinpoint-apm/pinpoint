@@ -18,12 +18,12 @@ package com.navercorp.pinpoint.collector.cluster;
 
 public interface TargetClusterPoint extends ClusterPoint {
 
-	String getApplicationName();
+    String getApplicationName();
 
-	String getAgentId();
+    String getAgentId();
 
-	long getStartTimeStamp();
+    long getStartTimeStamp();
 
-	String gerVersion();
-	
+    String gerVersion();
+
 }

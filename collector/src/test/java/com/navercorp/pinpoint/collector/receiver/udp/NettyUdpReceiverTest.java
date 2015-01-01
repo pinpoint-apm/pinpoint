@@ -59,8 +59,8 @@ public class NettyUdpReceiverTest {
                     latch.await();
                 } catch (InterruptedException e) {
                 }
-				logger.debug("server-shutdown");
-				udpServer.shutdown();
+                logger.debug("server-shutdown");
+                udpServer.shutdown();
             }
         });
         thread.start();
@@ -96,7 +96,7 @@ public class NettyUdpReceiverTest {
             so.send(datagramPacket);
             Thread.sleep(10);
         }
-		so.close();
+        so.close();
     }
 
     private ConnectionlessBootstrap createUdpServer() {

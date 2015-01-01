@@ -31,11 +31,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class StatisticsHandler {
 
-	@Autowired
-	private MapStatisticsCalleeDao mapStatisticsCalleeDao;
+    @Autowired
+    private MapStatisticsCalleeDao mapStatisticsCalleeDao;
 
-	@Autowired
-	private MapStatisticsCallerDao mapStatisticsCallerDao;
+    @Autowired
+    private MapStatisticsCallerDao mapStatisticsCallerDao;
 
     @Autowired
     private MapResponseTimeDao mapResponseTimeDao;
@@ -54,9 +54,9 @@ public class StatisticsHandler {
      * @param elapsed
      * @param isError
      */
-	public void updateCaller(String callerApplicationName, short callerServiceType, String callerAgentId, String calleeApplicationName, short calleeServiceType, String calleeHost, int elapsed, boolean isError) {
-		mapStatisticsCallerDao.update(callerApplicationName, callerServiceType, callerAgentId, calleeApplicationName, calleeServiceType, calleeHost, elapsed, isError);
-	}
+    public void updateCaller(String callerApplicationName, short callerServiceType, String callerAgentId, String calleeApplicationName, short calleeServiceType, String calleeHost, int elapsed, boolean isError) {
+        mapStatisticsCallerDao.update(callerApplicationName, callerServiceType, callerAgentId, calleeApplicationName, calleeServiceType, calleeHost, elapsed, isError);
+    }
 
     /**
      * Calling MySQL from Tomcat generates the following message for the callee(MySQL) :<br/>
@@ -72,9 +72,9 @@ public class StatisticsHandler {
      * @param elapsed
      * @param isError
      */
-	public void updateCallee(String calleeApplicationName, short calleeServiceType, String callerApplicationName, short callerServiceType, String callerHost, int elapsed, boolean isError) {
-		mapStatisticsCalleeDao.update(calleeApplicationName, calleeServiceType, callerApplicationName, callerServiceType, callerHost, elapsed, isError);
-	}
+    public void updateCallee(String calleeApplicationName, short calleeServiceType, String callerApplicationName, short callerServiceType, String callerHost, int elapsed, boolean isError) {
+        mapStatisticsCalleeDao.update(calleeApplicationName, calleeServiceType, callerApplicationName, callerServiceType, callerHost, elapsed, isError);
+    }
 
     public void updateResponseTime(String applicationName, short serviceType, String agentId, int elapsed, boolean isError) {
         mapResponseTimeDao.received(applicationName, serviceType, agentId, elapsed, isError);

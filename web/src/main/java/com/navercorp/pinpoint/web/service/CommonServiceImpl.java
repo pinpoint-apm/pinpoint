@@ -30,11 +30,11 @@ import com.navercorp.pinpoint.web.vo.Application;
 @Service
 public class CommonServiceImpl implements CommonService {
 
-	@Autowired
-	private ApplicationIndexDao applicationIndexDao;
+    @Autowired
+    private ApplicationIndexDao applicationIndexDao;
 
-	@Override
-	public List<Application> selectAllApplicationNames() {
-		return applicationIndexDao.selectAllApplicationNames();
-	}
+    @Override
+    public List<Application> selectAllApplicationNames() {
+        return applicationIndexDao.selectAllApplicationNames();
+    }
 }

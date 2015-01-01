@@ -38,7 +38,7 @@ public final class Range {
         this.from = from;
         this.to = to;
         if (check) {
-        	validate();
+            validate();
         }
     }
 

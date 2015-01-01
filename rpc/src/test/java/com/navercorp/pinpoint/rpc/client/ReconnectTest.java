@@ -60,13 +60,13 @@ public class ReconnectTest {
         try {
             PinpointSocket socket = pinpointSocketFactory.connect("localhost", 10234);
             socket.addPinpointSocketReconnectEventListener(new PinpointSocketReconnectEventListener() {
-				
-				@Override
-				public void reconnectPerformed(PinpointSocket socket) {
-					reconnectPerformed.set(true);
-				}
-				
-			});
+
+                @Override
+                public void reconnectPerformed(PinpointSocket socket) {
+                    reconnectPerformed.set(true);
+                }
+
+            });
             
             serverSocket.close();
             logger.info("server.close()---------------------------");

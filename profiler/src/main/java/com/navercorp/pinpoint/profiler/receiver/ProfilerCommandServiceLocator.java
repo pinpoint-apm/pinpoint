@@ -23,12 +23,12 @@ import org.apache.thrift.TBase;
  */
 public interface ProfilerCommandServiceLocator {
 
-	ProfilerCommandService getService(TBase tBase);
+    ProfilerCommandService getService(TBase tBase);
 
-	ProfilerSimpleCommandService getSimpleService(TBase tBase);
+    ProfilerSimpleCommandService getSimpleService(TBase tBase);
 
-	ProfilerRequestCommandService getRequestService(TBase tBase);
-	
-	ProfilerStreamCommandService getStreamService(TBase tBase);
+    ProfilerRequestCommandService getRequestService(TBase tBase);
+
+    ProfilerStreamCommandService getStreamService(TBase tBase);
 
 }

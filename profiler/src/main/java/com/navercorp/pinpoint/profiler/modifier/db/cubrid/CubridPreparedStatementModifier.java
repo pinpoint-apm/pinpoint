@@ -45,23 +45,23 @@ import org.slf4j.LoggerFactory;
  */
 public class CubridPreparedStatementModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
-	public CubridPreparedStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-		super(byteCodeInstrumentor, agent);
-	}
+    public CubridPreparedStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+        super(byteCodeInstrumentor, agent);
+    }
 
-	public String getTargetClass() {
-		return "cubrid/jdbc/driver/CUBRIDPreparedStatement";
-	}
+    public String getTargetClass() {
+        return "cubrid/jdbc/driver/CUBRIDPreparedStatement";
+    }
 
-	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-		if (logger.isInfoEnabled()) {
-			logger.info("Modifing. {}", javassistClassName);
-		}
-		try {
-			InstrumentClass preparedStatementClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+    public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+        if (logger.isInfoEnabled()) {
+            logger.info("Modifing. {}", javassistClassName);
+        }
+        try {
+            InstrumentClass preparedStatementClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
             Interceptor executeInterceptor = new PreparedStatementExecuteQueryInterceptor();
             preparedStatementClass.addScopeInterceptor("execute", null, executeInterceptor, CubridScope.SCOPE_NAME);
@@ -76,37 +76,37 @@ public class CubridPreparedStatementModifier extends AbstractModifier {
             preparedStatementClass.addTraceValue(ParsingResultTraceValue.class);
             preparedStatementClass.addTraceValue(BindValueTraceValue.class, "new java.util.HashMap();");
 
-			bindVariableIntercept(preparedStatementClass, classLoader, protectedDomain);
+            bindVariableIntercept(preparedStatementClass, classLoader, protectedDomain);
 
-			return preparedStatementClass.toBytecode();
-		} catch (InstrumentException e) {
-			if (logger.isWarnEnabled()) {
-				logger.warn("{} modify fail. Cause:{}", this.getClass().getSimpleName(), e.getMessage(), e);
-			}
-			return null;
-		}
-	}
+            return preparedStatementClass.toBytecode();
+        } catch (InstrumentException e) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("{} modify fail. Cause:{}", this.getClass().getSimpleName(), e.getMessage(), e);
+            }
+            return null;
+        }
+    }
 
-	private void bindVariableIntercept(InstrumentClass preparedStatement, ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
-		List<Method> bindMethod = PreparedStatementUtils.findBindVariableSetMethod();
+    private void bindVariableIntercept(InstrumentClass preparedStatement, ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
+        List<Method> bindMethod = PreparedStatementUtils.findBindVariableSetMethod();
         final Scope scope = byteCodeInstrumentor.getScope(CubridScope.SCOPE_NAME);
         Interceptor interceptor = new ScopeDelegateStaticInterceptor(new PreparedStatementBindVariableInterceptor(), scope);
-		int interceptorId = -1;
-		for (Method method : bindMethod) {
-			String methodName = method.getName();
-			String[] parameterType = JavaAssistUtils.getParameterType(method.getParameterTypes());
-			try {
-				if (interceptorId == -1) {
-					interceptorId = preparedStatement.addInterceptor(methodName, parameterType, interceptor);
-				} else {
-					preparedStatement.reuseInterceptor(methodName, parameterType, interceptorId);
-				}
-			} catch (NotFoundInstrumentException e) {
-				// Cannot find bind variable setter method. This is not an error. Just some log will be enough.
+        int interceptorId = -1;
+        for (Method method : bindMethod) {
+            String methodName = method.getName();
+            String[] parameterType = JavaAssistUtils.getParameterType(method.getParameterTypes());
+            try {
+                if (interceptorId == -1) {
+                    interceptorId = preparedStatement.addInterceptor(methodName, parameterType, interceptor);
+                } else {
+                    preparedStatement.reuseInterceptor(methodName, parameterType, interceptorId);
+                }
+            } catch (NotFoundInstrumentException e) {
+                // Cannot find bind variable setter method. This is not an error. Just some log will be enough.
                 if (logger.isDebugEnabled()) {
                     logger.debug("bindVariable api not found. method:{} param:{} Cause:{}", methodName, Arrays.toString(parameterType), e.getMessage());
                 }
-			}
-		}
-	}
+            }
+        }
+    }
 }

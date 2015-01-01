@@ -26,8 +26,8 @@ import com.navercorp.pinpoint.profiler.context.DefaultTraceContext;
 public class MockTraceContextFactory {
     public TraceContext create() {
         DefaultTraceContext traceContext = new DefaultTraceContext() ;
-		ProfilerConfig profilerConfig = new ProfilerConfig();
-		traceContext.setProfilerConfig(profilerConfig);
-		return traceContext;
+        ProfilerConfig profilerConfig = new ProfilerConfig();
+        traceContext.setProfilerConfig(profilerConfig);
+        return traceContext;
     }
 }

@@ -44,9 +44,9 @@ public class ApiInterceptor extends SpanEventSimpleAroundInterceptor implements 
     }
 
     @Override
-	public void doInBeforeTrace(RecordableTrace trace, final Object target, Object[] args) {
-		trace.markBeforeTime();
-	}
+    public void doInBeforeTrace(RecordableTrace trace, final Object target, Object[] args) {
+        trace.markBeforeTime();
+    }
 
     @Override
     public void doInAfterTrace(RecordableTrace trace, Object target, Object[] args, Object result, Throwable throwable) {

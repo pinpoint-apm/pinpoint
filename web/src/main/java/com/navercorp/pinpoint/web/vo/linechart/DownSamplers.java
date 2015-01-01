@@ -33,14 +33,14 @@ import org.apache.commons.collections.CollectionUtils;
  */
 public class DownSamplers {
 
-	public static final DownSampler MIN = new Min();
-	public static final DownSampler MAX = new Max();
-	public static final DownSampler AVG = new Avg();
+    public static final DownSampler MIN = new Min();
+    public static final DownSampler MAX = new Max();
+    public static final DownSampler AVG = new Avg();
 
-	private DownSamplers() {
-	}
-	
-	static class Min implements DownSampler {
+    private DownSamplers() {
+    }
+
+    static class Min implements DownSampler {
 
         @Override
         public long sampleLong(Collection<Long> values) {
@@ -58,9 +58,9 @@ public class DownSamplers {
             return Collections.min(values);
         }
 
-	}
+    }
 
-	static class Max implements DownSampler {
+    static class Max implements DownSampler {
 
         @Override
         public long sampleLong(Collection<Long> values) {
@@ -77,9 +77,9 @@ public class DownSamplers {
             }
             return Collections.max(values);
         }
-	}
+    }
 
-	static class Avg implements DownSampler {
+    static class Avg implements DownSampler {
 
         @Override
         public long sampleLong(Collection<Long> values) {
@@ -104,6 +104,6 @@ public class DownSamplers {
             }
             return total / values.size();
         }
-	}
+    }
 
 }

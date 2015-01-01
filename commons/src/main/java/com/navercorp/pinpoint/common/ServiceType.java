@@ -36,8 +36,8 @@ public enum ServiceType {
 
 
     // Undefined Service Code
-	UNDEFINED((short) -1, "UNDEFINED", TERMINAL, !RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
-	
+    UNDEFINED((short) -1, "UNDEFINED", TERMINAL, !RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
+
     // Callee node that agent hasn't been installed
     UNKNOWN((short) 1, "UNKNOWN", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
 
@@ -111,8 +111,8 @@ public enum ServiceType {
     HTTP_CLIENT((short) 9050, "HTTP_CLIENT", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
     HTTP_CLIENT_INTERNAL((short) 9051, "HTTP_CLIENT", !TERMINAL, !RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
     JDK_HTTPURLCONNECTOR((short) 9055, "JDK_HTTPCONNECTOR", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
-	NPC_CLIENT((short) 9060, "NPC_CLIENT", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
-	NIMM_CLIENT((short) 9070, "NIMM_CLIENT", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA);
+    NPC_CLIENT((short) 9060, "NPC_CLIENT", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
+    NIMM_CLIENT((short) 9070, "NIMM_CLIENT", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA);
 
     public static final short WAS_START_INDEX = 1000;
     public static final short WAS_END_INDEX = 2000;
@@ -146,7 +146,7 @@ public enum ServiceType {
     }
 
     public boolean isInternalMethod() {
-    	return this == INTERNAL_METHOD;
+        return this == INTERNAL_METHOD;
     }
 
     public boolean isRpcClient() {
@@ -162,14 +162,14 @@ public enum ServiceType {
         return recordStatistics;
     }
 
-	public boolean isUnknown() {
-		return this == ServiceType.UNKNOWN; // || this == ServiceType.UNKNOWN_CLOUD;
-	}
+    public boolean isUnknown() {
+        return this == ServiceType.UNKNOWN; // || this == ServiceType.UNKNOWN_CLOUD;
+    }
     
 
     // return true when the service type is USER or can not be identified
     public boolean isUser() {
-    	return this == ServiceType.USER;
+        return this == ServiceType.USER;
     }
 
     public short getCode() {
@@ -192,9 +192,9 @@ public enum ServiceType {
         return histogramSchema;
     }
 
-	public boolean isWas() {
-		return isWas(this.code);
-	}
+    public boolean isWas() {
+        return isWas(this.code);
+    }
 
     public static boolean isWas(final short code) {
         return code >= WAS_START_INDEX && code < WAS_END_INDEX;
@@ -209,7 +209,7 @@ public enum ServiceType {
         ServiceType serviceType = CODE_LOOKUP_TABLE.get(code);
         if (serviceType == null) {
             return UNDEFINED;
-        	//return UNKNOWN;
+            //return UNKNOWN;
         }
         return serviceType;
     }

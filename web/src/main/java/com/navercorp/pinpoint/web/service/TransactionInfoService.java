@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
  *
  */
 public interface TransactionInfoService {
-	RecordSet createRecordSet(List<SpanAlign> spanAligns, long focusTimestamp);
+    RecordSet createRecordSet(List<SpanAlign> spanAligns, long focusTimestamp);
 
-	BusinessTransactions selectBusinessTransactions(List<TransactionId> traceIds, String applicationName, Range range, Filter filter);
+    BusinessTransactions selectBusinessTransactions(List<TransactionId> traceIds, String applicationName, Range range, Filter filter);
 }

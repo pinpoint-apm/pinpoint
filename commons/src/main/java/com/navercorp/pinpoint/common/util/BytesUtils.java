@@ -364,24 +364,24 @@ public final class BytesUtils {
         return (n >>> 1) ^ -(n & 1);
     }
 
-	public static byte[] concat(final byte[]... arrays) {
-		int totalLength = 0;
+    public static byte[] concat(final byte[]... arrays) {
+        int totalLength = 0;
 
         final int length = arrays.length;
         for (int i = 0; i < length; i++) {
-			totalLength += arrays[i].length;
-		}
+            totalLength += arrays[i].length;
+        }
 
-		byte[] result = new byte[totalLength];
+        byte[] result = new byte[totalLength];
 
-		int currentIndex = 0;
-		for (int i = 0; i < length; i++) {
-			System.arraycopy(arrays[i], 0, result, currentIndex, arrays[i].length);
-			currentIndex += arrays[i].length;
-		}
+        int currentIndex = 0;
+        for (int i = 0; i < length; i++) {
+            System.arraycopy(arrays[i], 0, result, currentIndex, arrays[i].length);
+            currentIndex += arrays[i].length;
+        }
 
-		return result;
-	}
+        return result;
+    }
 
     public static String safeTrim(final String string) {
         if (string == null) {

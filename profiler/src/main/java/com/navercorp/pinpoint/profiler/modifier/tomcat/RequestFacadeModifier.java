@@ -32,29 +32,29 @@ import java.security.ProtectionDomain;
  */
 public class RequestFacadeModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	public RequestFacadeModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-		super(byteCodeInstrumentor, agent);
-	}
+    public RequestFacadeModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+        super(byteCodeInstrumentor, agent);
+    }
 
-	public String getTargetClass() {
-		return "org/apache/catalina/connector/RequestFacade";
-	}
+    public String getTargetClass() {
+        return "org/apache/catalina/connector/RequestFacade";
+    }
 
-	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
-		if (logger.isInfoEnabled()) {
-			logger.info("Modifing. {}", javassistClassName);
-		}
+    public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+        if (logger.isInfoEnabled()) {
+            logger.info("Modifing. {}", javassistClassName);
+        }
 
 
-		try {
-			InstrumentClass requestFacade = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
-			requestFacade.weaving("com.navercorp.pinpoint.profiler.modifier.tomcat.aspect.RequestFacadeAspect");
-			return requestFacade.toBytecode();
-		} catch (InstrumentException e) {
-			logger.warn("modify fail. Cause:" + e.getMessage(), e);
-			return null;
-		}
-	}
+        try {
+            InstrumentClass requestFacade = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+            requestFacade.weaving("com.navercorp.pinpoint.profiler.modifier.tomcat.aspect.RequestFacadeAspect");
+            return requestFacade.toBytecode();
+        } catch (InstrumentException e) {
+            logger.warn("modify fail. Cause:" + e.getMessage(), e);
+            return null;
+        }
+    }
 }

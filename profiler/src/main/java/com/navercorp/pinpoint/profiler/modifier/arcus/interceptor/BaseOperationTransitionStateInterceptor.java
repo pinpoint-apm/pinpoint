@@ -44,101 +44,101 @@ import net.spy.memcached.protocol.BaseOperationImpl;
 @Deprecated
 public class BaseOperationTransitionStateInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
-	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-	private static final Charset UTF8 = Charset.forName("UTF-8");
+    private static final Charset UTF8 = Charset.forName("UTF-8");
 
-	private MetaObject getAsyncTrace = new MetaObject("__getAsyncTrace");
-	private MetaObject getServiceCode = new MetaObject("__getServiceCode");
+    private MetaObject getAsyncTrace = new MetaObject("__getAsyncTrace");
+    private MetaObject getServiceCode = new MetaObject("__getServiceCode");
 
     private MethodDescriptor methodDescriptor;
     private TraceContext traceContext;
 
     @Override
-	public void before(Object target, Object[] args) {
-		if (isDebug) {
-			logger.beforeInterceptor(target, args);
-		}
+    public void before(Object target, Object[] args) {
+        if (isDebug) {
+            logger.beforeInterceptor(target, args);
+        }
 
-		AsyncTrace asyncTrace = (AsyncTrace) getAsyncTrace.invoke(target);
-		if (asyncTrace == null) {
+        AsyncTrace asyncTrace = (AsyncTrace) getAsyncTrace.invoke(target);
+        if (asyncTrace == null) {
             if (isDebug) {
-			    logger.debug("asyncTrace not found");
+                logger.debug("asyncTrace not found");
             }
-			return;
-		}
+            return;
+        }
         // TODO Don't we have to check null? Don't fix now because this interceptor is deprecated.
-		OperationState newState = (OperationState) args[0];
+        OperationState newState = (OperationState) args[0];
 
-		BaseOperationImpl baseOperation = (BaseOperationImpl) target;
-		if (newState == OperationState.READING) {
-			if (isDebug) {
-				logger.debug("event:{} asyncTrace:{}", newState, asyncTrace);
-			}
-			if (asyncTrace.getState() != AsyncTrace.STATE_INIT) {
-				return;
-			}
-			MemcachedNode handlingNode = baseOperation.getHandlingNode();
-			SocketAddress socketAddress = handlingNode.getSocketAddress();
-			if (socketAddress instanceof InetSocketAddress) {
-				InetSocketAddress address = (InetSocketAddress) socketAddress;
-				asyncTrace.recordEndPoint(address.getHostName() + ":" + address.getPort());
-			}
+        BaseOperationImpl baseOperation = (BaseOperationImpl) target;
+        if (newState == OperationState.READING) {
+            if (isDebug) {
+                logger.debug("event:{} asyncTrace:{}", newState, asyncTrace);
+            }
+            if (asyncTrace.getState() != AsyncTrace.STATE_INIT) {
+                return;
+            }
+            MemcachedNode handlingNode = baseOperation.getHandlingNode();
+            SocketAddress socketAddress = handlingNode.getSocketAddress();
+            if (socketAddress instanceof InetSocketAddress) {
+                InetSocketAddress address = (InetSocketAddress) socketAddress;
+                asyncTrace.recordEndPoint(address.getHostName() + ":" + address.getPort());
+            }
 
-			String serviceCode = (String) getServiceCode.invoke(target);
+            String serviceCode = (String) getServiceCode.invoke(target);
 
-			if (serviceCode == null) {
-				serviceCode = "UNKNOWN";
-			}
-			
-			ServiceType svcType = ServiceType.ARCUS;
-			
-			if(serviceCode.equals(ServiceType.MEMCACHED.getDesc())) {
-				svcType = ServiceType.MEMCACHED;
-			}
+            if (serviceCode == null) {
+                serviceCode = "UNKNOWN";
+            }
+
+            ServiceType svcType = ServiceType.ARCUS;
+
+            if(serviceCode.equals(ServiceType.MEMCACHED.getDesc())) {
+                svcType = ServiceType.MEMCACHED;
+            }
 
             asyncTrace.recordServiceType(svcType);
-//			asyncTrace.recordRpcName(baseOperation.getClass().getSimpleName());
+//            asyncTrace.recordRpcName(baseOperation.getClass().getSimpleName());
             asyncTrace.recordApi(methodDescriptor);
 
             asyncTrace.recordDestinationId(serviceCode);
 
-			String cmd = getCommand(baseOperation);
-//			asyncTrace.recordAttribute(AnnotationKey.ARCUS_COMMAND, cmd);
+            String cmd = getCommand(baseOperation);
+//            asyncTrace.recordAttribute(AnnotationKey.ARCUS_COMMAND, cmd);
 
-			// TimeObject timeObject = (TimeObject)
-			// asyncTrace.getFrameObject();
-			// timeObject.markSendTime();
+            // TimeObject timeObject = (TimeObject)
+            // asyncTrace.getFrameObject();
+            // timeObject.markSendTime();
 
-			// long createTime = asyncTrace.getBeforeTime();
-			asyncTrace.markAfterTime();
-//			asyncTrace.traceBlockEnd();
-		} else if (newState == OperationState.COMPLETE || isArcusTimeout(newState)) {
-			if (isDebug) {
+            // long createTime = asyncTrace.getBeforeTime();
+            asyncTrace.markAfterTime();
+//            asyncTrace.traceBlockEnd();
+        } else if (newState == OperationState.COMPLETE || isArcusTimeout(newState)) {
+            if (isDebug) {
                 logger.debug("event:{} asyncTrace:{}", newState, asyncTrace);
-			}
-			boolean fire = asyncTrace.fire();
-			if (!fire) {
-				return;
-			}
-			Exception exception = baseOperation.getException();
+            }
+            boolean fire = asyncTrace.fire();
+            if (!fire) {
+                return;
+            }
+            Exception exception = baseOperation.getException();
             asyncTrace.recordException(exception);
 
-			if (!baseOperation.isCancelled()) {
-				TimeObject timeObject = (TimeObject) asyncTrace.getAttachObject();
-				// asyncTrace.record(Annotation.ClientRecv, timeObject.getSendTime());
-				asyncTrace.markAfterTime();
-				asyncTrace.traceBlockEnd();
-			} else {
-				asyncTrace.recordAttribute(AnnotationKey.EXCEPTION, "cancelled by user");
-				TimeObject timeObject = (TimeObject) asyncTrace.getAttachObject();
-				// asyncTrace.record(Annotation.ClientRecv, timeObject.getCancelTime());
-				asyncTrace.markAfterTime();
-				asyncTrace.traceBlockEnd();
-			}
-		}
-	}
+            if (!baseOperation.isCancelled()) {
+                TimeObject timeObject = (TimeObject) asyncTrace.getAttachObject();
+                // asyncTrace.record(Annotation.ClientRecv, timeObject.getSendTime());
+                asyncTrace.markAfterTime();
+                asyncTrace.traceBlockEnd();
+            } else {
+                asyncTrace.recordAttribute(AnnotationKey.EXCEPTION, "cancelled by user");
+                TimeObject timeObject = (TimeObject) asyncTrace.getAttachObject();
+                // asyncTrace.record(Annotation.ClientRecv, timeObject.getCancelTime());
+                asyncTrace.markAfterTime();
+                asyncTrace.traceBlockEnd();
+            }
+        }
+    }
 
     private boolean isArcusTimeout(OperationState newState) {
         if (newState == null) {
@@ -150,15 +150,15 @@ public class BaseOperationTransitionStateInterceptor implements SimpleAroundInte
     }
 
     private String getCommand(BaseOperationImpl baseOperation) {
-		ByteBuffer buffer = baseOperation.getBuffer();
-		if (buffer == null) {
-			return "UNKNOWN";
-		}
-		// System.out.println(buffer.array().length + " po:" + buffer.position()
-		// + " limit:" + buffer.limit() + " remaining"
-		// + buffer.remaining() + " aoffset:" + buffer.arrayOffset());
-		return new String(buffer.array(), UTF8);
-	}
+        ByteBuffer buffer = baseOperation.getBuffer();
+        if (buffer == null) {
+            return "UNKNOWN";
+        }
+        // System.out.println(buffer.array().length + " po:" + buffer.position()
+        // + " limit:" + buffer.limit() + " remaining"
+        // + buffer.remaining() + " aoffset:" + buffer.arrayOffset());
+        return new String(buffer.array(), UTF8);
+    }
 
     @Override
     public void setMethodDescriptor(MethodDescriptor descriptor) {

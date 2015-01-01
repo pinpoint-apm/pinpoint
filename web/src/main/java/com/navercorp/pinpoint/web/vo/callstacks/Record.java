@@ -25,62 +25,62 @@ import com.navercorp.pinpoint.common.ServiceType;
  * @author emeroad
  */
 public class Record {
-	private final int tab;
-	private final int id;
-	private final int parentId;
-	private final boolean method;
+    private final int tab;
+    private final int id;
+    private final int parentId;
+    private final boolean method;
 
-	private final String title;
+    private final String title;
     private String simpleClassName = "";
     private String fullApiDescription = "";
 
-	private final String arguments;
-	private final long begin;
-	private final long elapsed;
+    private final String arguments;
+    private final long begin;
+    private final long elapsed;
     private final long gap;
-	private final String agent;
-	private final String applicationName;
+    private final String agent;
+    private final String applicationName;
     private final ServiceType serviceType;
     private final String destinationId;
-	private final boolean excludeFromTimeline;
+    private final boolean excludeFromTimeline;
 
     private boolean focused;
     private boolean hasChild;
     private boolean hasException;
 
-	public Record(int tab, int id, int parentId, boolean method, String title, String arguments, long begin, long elapsed, long gap, String agent, String applicationName, ServiceType serviceType, String destinationId, boolean hasChild, boolean hasException) {
-		this.tab = tab;
-		this.id = id;
-		this.parentId = parentId;
-		this.method = method;
+    public Record(int tab, int id, int parentId, boolean method, String title, String arguments, long begin, long elapsed, long gap, String agent, String applicationName, ServiceType serviceType, String destinationId, boolean hasChild, boolean hasException) {
+        this.tab = tab;
+        this.id = id;
+        this.parentId = parentId;
+        this.method = method;
 
-		this.title = title;
-		this.arguments = arguments;
-		this.begin = begin;
-		this.elapsed = elapsed;
+        this.title = title;
+        this.arguments = arguments;
+        this.begin = begin;
+        this.elapsed = elapsed;
         this.gap = gap;
-		this.agent = agent;
+        this.agent = agent;
 
-		this.applicationName = applicationName;
+        this.applicationName = applicationName;
         this.serviceType = serviceType;
         this.destinationId = destinationId;
 
-		this.excludeFromTimeline = serviceType == null || serviceType.isInternalMethod();
-		this.hasChild = hasChild;
-		this.hasException = hasException;
-	}
+        this.excludeFromTimeline = serviceType == null || serviceType.isInternalMethod();
+        this.hasChild = hasChild;
+        this.hasException = hasException;
+    }
 
-	public int getId() {
-		return id;
-	}
+    public int getId() {
+        return id;
+    }
 
-	public int getParentId() {
-		return parentId;
-	}
+    public int getParentId() {
+        return parentId;
+    }
 
-	public int getTab() {
-		return tab;
-	}
+    public int getTab() {
+        return tab;
+    }
     public String getTabspace() {
         if(tab == 0) {
             return "";
@@ -92,37 +92,37 @@ public class Record {
         return sb.toString();
     }
 
-	public boolean isMethod() {
-		return method;
-	}
+    public boolean isMethod() {
+        return method;
+    }
 
-	public String getTitle() {
+    public String getTitle() {
         return title;
-	}
+    }
 
-	public String getArguments() {
+    public String getArguments() {
         return arguments;
-	}
+    }
 
-	public long getBegin() {
-		return begin;
-	}
+    public long getBegin() {
+        return begin;
+    }
 
-	public long getElapsed() {
-		return elapsed;
-	}
+    public long getElapsed() {
+        return elapsed;
+    }
 
     public long getGap() {
         return gap;
     }
 
     public String getAgent() {
-		return agent;
-	}
+        return agent;
+    }
 
-	public String getApplicationName() {
-		return applicationName;
-	}
+    public String getApplicationName() {
+        return applicationName;
+    }
 
     public String getApiType() {
         if (destinationId == null) {
@@ -141,8 +141,8 @@ public class Record {
     }
 
     public boolean isExcludeFromTimeline() {
-		return excludeFromTimeline;
-	}
+        return excludeFromTimeline;
+    }
 
     public String getSimpleClassName() {
         return simpleClassName;
@@ -169,11 +169,11 @@ public class Record {
     }
 
     public boolean getHasChild() {
-    	return hasChild;
+        return hasChild;
     }
     
     public boolean getHasException() {
-    	return hasException;
+        return hasException;
     }
 
 

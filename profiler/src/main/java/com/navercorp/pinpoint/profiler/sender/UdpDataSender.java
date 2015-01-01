@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  */
 public class UdpDataSender extends AbstractDataSender implements DataSender {
 
-	protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     protected final boolean isTrace = logger.isTraceEnabled();
     protected final boolean isDebug = logger.isDebugEnabled();
 
@@ -49,10 +49,10 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
     // Caution. not thread safe
     protected DatagramPacket reusePacket = new DatagramPacket(new byte[1], 1);
 
-	protected final DatagramSocket udpSocket;
+    protected final DatagramSocket udpSocket;
 
     // Caution. not thread safe
-	private final HeaderTBaseSerializer serializer = new HeaderTBaseSerializerFactory(false, HeaderTBaseSerializerFactory.DEFAULT_UDP_STREAM_MAX_SIZE).createSerializer();
+    private final HeaderTBaseSerializer serializer = new HeaderTBaseSerializerFactory(false, HeaderTBaseSerializerFactory.DEFAULT_UDP_STREAM_MAX_SIZE).createSerializer();
 
     private AsyncQueueingExecutor<Object> executor;
 
@@ -60,7 +60,7 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
         this(host, port, threadName, queueSize, SOCKET_TIMEOUT, SEND_BUFFER_SIZE);
     }
 
-	public UdpDataSender(String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize) {
+    public UdpDataSender(String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize) {
         if (host == null ) {
             throw new NullPointerException("host must not be null");
         }
@@ -79,15 +79,15 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
 
         // TODO If fail to create socket, stop agent start
         logger.info("UdpDataSender initialized. host={}, port={}", host, port);
-		this.udpSocket = createSocket(host, port, timeout, sendBufferSize);
+        this.udpSocket = createSocket(host, port, timeout, sendBufferSize);
 
-		this.executor = createAsyncQueueingExecutor(queueSize, threadName);
-	}
-	
+        this.executor = createAsyncQueueingExecutor(queueSize, threadName);
+    }
+
     @Override
-	public boolean send(TBase<?, ?> data) {
-		return executor.execute(data);
-	}
+    public boolean send(TBase<?, ?> data) {
+        return executor.execute(data);
+    }
 
     @Override
     public void stop() {
@@ -95,10 +95,10 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
     }
 
     public boolean isNetworkAvailable() {
-    	NetworkAvailabilityCheckPacket dto = new NetworkAvailabilityCheckPacket();
+        NetworkAvailabilityCheckPacket dto = new NetworkAvailabilityCheckPacket();
         try {
             byte[] interBufferData = serialize(serializer, dto);
-        	int interBufferSize = serializer.getInterBufferSize();
+            int interBufferSize = serializer.getInterBufferSize();
             reusePacket.setData(interBufferData, 0, interBufferSize);
             udpSocket.send(reusePacket);
             
@@ -106,15 +106,15 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
                 logger.trace("Data sent. {}", dto);
             }
             
-			byte[] receiveData = new byte[NetworkAvailabilityCheckPacket.DATA_OK.length];
-			DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-			udpSocket.receive(receivePacket);
-			
-			if (isTrace) {
-				logger.trace("Data received. {}", Arrays.toString(receivePacket.getData()));
-			}
-			
-			return Arrays.equals(NetworkAvailabilityCheckPacket.DATA_OK , receiveData);
+            byte[] receiveData = new byte[NetworkAvailabilityCheckPacket.DATA_OK.length];
+            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+            udpSocket.receive(receivePacket);
+
+            if (isTrace) {
+                logger.trace("Data received. {}", Arrays.toString(receivePacket.getData()));
+            }
+
+            return Arrays.equals(NetworkAvailabilityCheckPacket.DATA_OK , receiveData);
         } catch (IOException e) {
             logger.warn("packet send error {}", dto, e);
             return false;
@@ -122,10 +122,10 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
     }
 
     private DatagramSocket createSocket(String host, int port, int timeout, int sendBufferSize) {
-		try {
+        try {
             DatagramSocket datagramSocket = new DatagramSocket();
 
-			datagramSocket.setSoTimeout(timeout);
+            datagramSocket.setSoTimeout(timeout);
             datagramSocket.setSendBufferSize(sendBufferSize);
             if (logger.isWarnEnabled()) {
                 final int checkSendBufferSize = datagramSocket.getSendBufferSize();
@@ -134,17 +134,17 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
                 }
             }
 
-			InetSocketAddress serverAddress = new InetSocketAddress(host, port);
-			datagramSocket.connect(serverAddress);
-			return datagramSocket;
-		} catch (SocketException e) {
-			throw new IllegalStateException("DatagramSocket create fail. Cause" + e.getMessage(), e);
-		}
-	}
+            InetSocketAddress serverAddress = new InetSocketAddress(host, port);
+            datagramSocket.connect(serverAddress);
+            return datagramSocket;
+        } catch (SocketException e) {
+            throw new IllegalStateException("DatagramSocket create fail. Cause" + e.getMessage(), e);
+        }
+    }
 
-	protected void sendPacket(Object message) {
-		if (message instanceof TBase) {
-			final TBase dto = (TBase) message;
+    protected void sendPacket(Object message) {
+        if (message instanceof TBase) {
+            final TBase dto = (TBase) message;
             // do not copy bytes because it's single threaded
             final byte[] internalBufferData = serialize(this.serializer, dto);
             if (internalBufferData == null) {
@@ -169,11 +169,11 @@ public class UdpDataSender extends AbstractDataSender implements DataSender {
             } catch (IOException e) {
                 logger.warn("packet send error. size:{}, {}", internalBufferSize, dto, e);
             }
-		} else {
-			logger.warn("sendPacket fail. invalid type:{}", message != null ? message.getClass() : null);
-			return;
-		}
-	}
+        } else {
+            logger.warn("sendPacket fail. invalid type:{}", message != null ? message.getClass() : null);
+            return;
+        }
+    }
 
     // for test
     protected boolean isLimit(int interBufferSize) {

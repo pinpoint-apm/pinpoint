@@ -25,29 +25,29 @@ import com.sun.management.OperatingSystemMXBean;
  */
 public class EnhancedCpuLoadMetricSet extends AbstractCpuLoadMetricSet {
 
-	@Override
-	protected Gauge<Double> getJvmCpuLoadGauge(final OperatingSystemMXBean operatingSystemMXBean) {
-		return new Gauge<Double>() {
-			@Override
-			public Double getValue() {
-				return operatingSystemMXBean.getProcessCpuLoad();
-			}
-		};
-	}
+    @Override
+    protected Gauge<Double> getJvmCpuLoadGauge(final OperatingSystemMXBean operatingSystemMXBean) {
+        return new Gauge<Double>() {
+            @Override
+            public Double getValue() {
+                return operatingSystemMXBean.getProcessCpuLoad();
+            }
+        };
+    }
 
-	@Override
-	protected Gauge<Double> getSystemCpuLoadGauge(final OperatingSystemMXBean operatingSystemMXBean) {
-		return new Gauge<Double>() {
-			@Override
-			public Double getValue() {
-				return operatingSystemMXBean.getSystemCpuLoad();
-			}
-		};
-	}
+    @Override
+    protected Gauge<Double> getSystemCpuLoadGauge(final OperatingSystemMXBean operatingSystemMXBean) {
+        return new Gauge<Double>() {
+            @Override
+            public Double getValue() {
+                return operatingSystemMXBean.getSystemCpuLoad();
+            }
+        };
+    }
 
-	@Override
-	public String toString() {
-		return "CpuLoadMetricSet for Java 1.7+";
-	}
-	
+    @Override
+    public String toString() {
+        return "CpuLoadMetricSet for Java 1.7+";
+    }
+
 }
