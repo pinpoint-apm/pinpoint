@@ -18,13 +18,10 @@ package com.navercorp.pinpoint.common.util;
 
 import com.navercorp.pinpoint.common.HistogramSchema;
 import com.navercorp.pinpoint.common.HistogramSlot;
+import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.ServiceType;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
-
-import org.apache.hadoop.hbase.util.Bytes;
-
 
 /**
  * <pre>
@@ -46,18 +43,18 @@ public class ApplicationMapStatisticsUtils {
             // throw new NullPointerException("destHost must not be null");
             destHost = "";
         }
-        byte[] serviceTypeBytes = Bytes.toBytes(serviceType);
-        byte[] slotNumberBytes = Bytes.toBytes(slotNumber);
-        byte[] applicationNameBytes = Bytes.toBytes(applicationName);
-        byte[] applicationNameLenBytes = Bytes.toBytes((short) applicationNameBytes.length);
-        byte[] destHostBytes = Bytes.toBytes(destHost);
-
-        return BytesUtils.concat(serviceTypeBytes, slotNumberBytes, applicationNameLenBytes, applicationNameBytes, destHostBytes);
+        // approximate size of destHost
+        final Buffer buffer = new AutomaticBuffer(BytesUtils.SHORT_BYTE_LENGTH + PinpointConstants.APPLICATION_NAME_MAX_LEN + destHost.length() + BytesUtils.SHORT_BYTE_LENGTH);
+        buffer.put(serviceType);
+        buffer.put(slotNumber);
+        buffer.put2PrefixedString(applicationName);
+        buffer.put(BytesUtils.toBytes(destHost));
+        return buffer.getBuffer();
     }
 
     public static short getSlotNumber(short serviceType, int elapsed, boolean isError) {
         if (isError) {
-            return HBaseTables.STATISTICS_CQ_ERROR_SLOT_NUMBER;
+            return HistogramSchema.ERROR_SLOT_TIME;
         } else {
             return findResponseHistogramSlotNo(serviceType, elapsed);
         }
@@ -66,12 +63,16 @@ public class ApplicationMapStatisticsUtils {
 
     public static byte[] makeColumnName(String agentId, short columnSlotNumber) {
         if (agentId == null) {
+            // null check ??
             agentId = "";
         }
-        final byte[] slotNumber = Bytes.toBytes(columnSlotNumber);
-        final byte[] agentIdBytes = Bytes.toBytes(agentId);
+        final Buffer buffer = new AutomaticBuffer(agentId.length() + BytesUtils.SHORT_BYTE_LENGTH);
+        buffer.put(columnSlotNumber);
 
-        return BytesUtils.concat(slotNumber, agentIdBytes);
+        final byte[] agentIdBytes = BytesUtils.toBytes(agentId);
+        buffer.put(agentIdBytes);
+
+        return buffer.getBuffer();
     }
 
 

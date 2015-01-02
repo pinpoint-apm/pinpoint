@@ -21,9 +21,6 @@ import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 
-import org.apache.hadoop.hbase.util.Bytes;
-
-
 /**
  * @author emeroad
  */
@@ -82,7 +79,7 @@ public class SqlMetaDataBo {
     }
 
     public void readRowKey(byte[] rowKey) {
-        this.agentId = Bytes.toString(rowKey, 0, PinpointConstants.AGENT_NAME_MAX_LEN).trim();
+        this.agentId = BytesUtils.toString(rowKey, 0, PinpointConstants.AGENT_NAME_MAX_LEN).trim();
         this.startTime = TimeUtils.recoveryTimeMillis(readTime(rowKey));
         this.hashCode = readKeyCode(rowKey);
     }

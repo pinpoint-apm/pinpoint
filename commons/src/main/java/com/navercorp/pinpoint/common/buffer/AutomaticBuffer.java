@@ -92,7 +92,7 @@ public class AutomaticBuffer extends FixedBuffer {
             super.put((short)NULL);
         } else {
             if (bytes.length > Short.MAX_VALUE) {
-                throw new IllegalArgumentException("too large bytes length:" + bytes.length);
+                throw new IndexOutOfBoundsException("too large bytes length:" + bytes.length);
             }
             checkExpand(bytes.length + BytesUtils.SHORT_BYTE_LENGTH);
             super.put((short)bytes.length);

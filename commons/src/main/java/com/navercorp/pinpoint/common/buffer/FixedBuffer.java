@@ -34,7 +34,7 @@ public class FixedBuffer implements Buffer {
 
     public FixedBuffer(final int bufferSize) {
         if (bufferSize < 0) {
-            throw new IllegalArgumentException("negative bufferSize:" + bufferSize);
+            throw new IndexOutOfBoundsException("negative bufferSize:" + bufferSize);
         }
         this.buffer = new byte[bufferSize];
         this.offset = 0;
@@ -54,7 +54,7 @@ public class FixedBuffer implements Buffer {
             bytes = EMPTY;
         }
         if (bytes.length > totalLength) {
-            throw new IllegalArgumentException("bytes too big:" + bytes.length + " totalLength:" + totalLength);
+            throw new IndexOutOfBoundsException("bytes too big:" + bytes.length + " totalLength:" + totalLength);
         }
         put(bytes);
         final int padSize = totalLength - bytes.length;
@@ -86,7 +86,7 @@ public class FixedBuffer implements Buffer {
             put((short)NULL);
         } else {
             if (bytes.length > Short.MAX_VALUE) {
-                throw new IllegalArgumentException("too large bytes length:" + bytes.length);
+                throw new IndexOutOfBoundsException("too large bytes length:" + bytes.length);
             }
             put((short)bytes.length);
             put(bytes);
@@ -123,7 +123,7 @@ public class FixedBuffer implements Buffer {
             return;
         }
         if (bytes.length > Short.MAX_VALUE) {
-            throw new IllegalArgumentException("too large String size:" + bytes.length);
+            throw new IndexOutOfBoundsException("too large String size:" + bytes.length);
         }
         put2PrefixedBytes(bytes);
     }

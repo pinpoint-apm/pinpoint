@@ -35,12 +35,12 @@ public class OffsetFixedBufferTest {
         try {
             new OffsetFixedBuffer(new byte[10], 11);
             Assert.fail();
-        } catch (Exception e) {
+        } catch (IndexOutOfBoundsException ignore) {
         }
         try {
             new OffsetFixedBuffer(new byte[10], -1);
             Assert.fail();
-        } catch (Exception e) {
+        } catch (IndexOutOfBoundsException ignore) {
         }
     }
 
