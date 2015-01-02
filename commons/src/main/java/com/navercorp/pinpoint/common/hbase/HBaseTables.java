@@ -17,17 +17,16 @@
 package com.navercorp.pinpoint.common.hbase;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
-
 import org.apache.hadoop.hbase.util.Bytes;
 
 /**
  * @author emeroad
  */
 public final class HBaseTables {
-	
-	public static final int APPLICATION_NAME_MAX_LEN = PinpointConstants.APPLICATION_NAME_MAX_LEN;
+
+    public static final int APPLICATION_NAME_MAX_LEN = PinpointConstants.APPLICATION_NAME_MAX_LEN;
     public static final int AGENT_NAME_MAX_LEN = PinpointConstants.AGENT_NAME_MAX_LEN;
-	
+
 
     public static final String APPLICATION_TRACE_INDEX = "ApplicationTraceIndex";
     public static final byte[] APPLICATION_TRACE_INDEX_CF_TRACE = Bytes.toBytes("I"); // applicationIndex
@@ -39,7 +38,7 @@ public final class HBaseTables {
     public static final byte[] AGENT_STAT_CF_STATISTICS_MEMORY_GC = Bytes.toBytes("Gc"); // qualifier for Heap Memory/Gc statistics
     public static final byte[] AGENT_STAT_CF_STATISTICS_CPU_LOAD = Bytes.toBytes("Cpu"); // qualifier for CPU load statistics
     public static final int AGENT_STAT_ROW_DISTRIBUTE_SIZE = 1; // agent statistics hash size
-    
+
     public static final String TRACES = "Traces";
     public static final byte[] TRACES_CF_SPAN = Bytes.toBytes("S");  //Span
     public static final byte[] TRACES_CF_ANNOTATION = Bytes.toBytes("A");  //Annotation
@@ -68,24 +67,21 @@ public final class HBaseTables {
     public static final String API_METADATA = "ApiMetaData";
     public static final byte[] API_METADATA_CF_API = Bytes.toBytes("Api");
 
-	public static final String MAP_STATISTICS_CALLER = "ApplicationMapStatisticsCaller";
-	public static final byte[] MAP_STATISTICS_CALLER_CF_COUNTER = Bytes.toBytes("C");
+    public static final String MAP_STATISTICS_CALLER = "ApplicationMapStatisticsCaller";
+    public static final byte[] MAP_STATISTICS_CALLER_CF_COUNTER = Bytes.toBytes("C");
 
-	public static final String MAP_STATISTICS_CALLEE = "ApplicationMapStatisticsCallee";
-	// to be removed - use ver2 instead. remove relevant code as well.
-	public static final byte[] MAP_STATISTICS_CALLEE_CF_COUNTER = Bytes.toBytes("C");
+    public static final String MAP_STATISTICS_CALLEE = "ApplicationMapStatisticsCallee";
+    // to be removed - use ver2 instead. remove relevant code as well.
+    public static final byte[] MAP_STATISTICS_CALLEE_CF_COUNTER = Bytes.toBytes("C");
     public static final byte[] MAP_STATISTICS_CALLEE_CF_VER2_COUNTER = Bytes.toBytes("D");
 
     public static final String MAP_STATISTICS_SELF = "ApplicationMapStatisticsSelf";
     public static final byte[] MAP_STATISTICS_SELF_CF_COUNTER = Bytes.toBytes("C");
 
-	public static final String HOST_APPLICATION_MAP = "HostApplicationMap";
-	public static final byte[] HOST_APPLICATION_MAP_CF_MAP = Bytes.toBytes("M");
+    public static final String HOST_APPLICATION_MAP = "HostApplicationMap";
+    public static final byte[] HOST_APPLICATION_MAP_CF_MAP = Bytes.toBytes("M");
 
     public static final String HOST_APPLICATION_MAP_VER2 = "HostApplicationMap_Ver2";
     public static final byte[] HOST_APPLICATION_MAP_VER2_CF_MAP = Bytes.toBytes("M");
 
-
-    public static final short STATISTICS_CQ_ERROR_SLOT_NUMBER = -1;
-    public static final byte[] STATISTICS_CQ_ERROR_SLOT = Bytes.toBytes(STATISTICS_CQ_ERROR_SLOT_NUMBER);
 }

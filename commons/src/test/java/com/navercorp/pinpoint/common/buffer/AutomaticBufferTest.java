@@ -16,9 +16,6 @@
 
 package com.navercorp.pinpoint.common.buffer;
 
-import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
 import org.apache.commons.lang3.StringUtils;
@@ -77,14 +74,15 @@ public class AutomaticBufferTest {
         Buffer buffer1_1 = new AutomaticBuffer(32);
         try {
             buffer1_1.putPadBytes(new byte[11], 10);
-        } catch (Exception e) {
+            Assert.fail("error");
+        } catch (IndexOutOfBoundsException ignore) {
         }
 
         Buffer buffer1_2 = new AutomaticBuffer(32);
         try {
             buffer1_2.putPadBytes(new byte[20], 10);
-            junit.framework.Assert.fail("error");
-        } catch (Exception e) {
+            Assert.fail("error");
+        } catch (IndexOutOfBoundsException ignore) {
         }
 
         Buffer buffer2 = new AutomaticBuffer(32);
@@ -109,9 +107,9 @@ public class AutomaticBufferTest {
         byte[] result = buffer.getBuffer();
         String decodedString = new String(result);
         String trimString = decodedString.trim();
-        junit.framework.Assert.assertEquals(result.length, TOTAL_LENGTH);
+        Assert.assertEquals(result.length, TOTAL_LENGTH);
 
-        junit.framework.Assert.assertEquals("check data", test, trimString);
+        Assert.assertEquals("check data", test, trimString);
 
         String padString = new String(result, TOTAL_LENGTH - TEST_SIZE, PAD_SIZE, "UTF-8");
         byte[] padBytes = new byte[TOTAL_LENGTH - TEST_SIZE];
@@ -125,14 +123,15 @@ public class AutomaticBufferTest {
         Buffer buffer1_1 = new AutomaticBuffer(32);
         try {
             buffer1_1.putPadString(StringUtils.repeat('a', 11), 10);
-        } catch (Exception e) {
+            Assert.fail("error");
+        } catch (IndexOutOfBoundsException ignore) {
         }
 
         Buffer buffer1_2 = new AutomaticBuffer(32);
         try {
             buffer1_2.putPadString(StringUtils.repeat('a', 20), 10);
-            junit.framework.Assert.fail("error");
-        } catch (Exception e) {
+            Assert.fail("error");
+        } catch (Exception ignore) {
         }
 
         Buffer buffer2 = new AutomaticBuffer(32);
@@ -159,7 +158,7 @@ public class AutomaticBufferTest {
             byte[] bytes4 = new byte[Short.MAX_VALUE+1];
             checkPut2PrefixedBytes(bytes4);
             Assert.fail("too large bytes");
-        } catch (Exception e) {
+        } catch (IndexOutOfBoundsException ignore) {
         }
     }
 

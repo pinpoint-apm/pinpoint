@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import java.util.Arrays;
-
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
@@ -27,7 +25,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.common.util.BytesUtils;
+import java.util.Arrays;
 
 
 public class BytesUtilsTest {
@@ -35,17 +33,17 @@ public class BytesUtilsTest {
 
 
     @Test
-    public void testStringLongLongToBytes() throws Exception {
+    public void testStringLongLongToBytes() {
         BytesUtils.stringLongLongToBytes("123", 3, 1, 2);
         try {
             BytesUtils.stringLongLongToBytes("123", 2, 1, 2);
-            Assert.fail();
-        } catch (Exception e) {
+            Assert.fail("fail");
+        } catch (IndexOutOfBoundsException ignore) {
         }
     }
 
     @Test
-    public void testStringLongLongToBytes2() throws Exception {
+    public void testStringLongLongToBytes2() {
         byte[] bytes = BytesUtils.stringLongLongToBytes("123", 10, 1, 2);
         String s = BytesUtils.toStringAndRightTrim(bytes, 0, 10);
         Assert.assertEquals("123", s);
@@ -56,7 +54,7 @@ public class BytesUtilsTest {
     }
 
     @Test
-    public void testRightTrim() throws Exception {
+    public void testRightTrim() {
         String trim = BytesUtils.trimRight("test  ");
         Assert.assertEquals("test", trim);
 
@@ -86,18 +84,18 @@ public class BytesUtilsTest {
 
 
     @Test
-    public void testAddStringLong() throws Exception {
+    public void testAddStringLong() {
         byte[] testAgents = BytesUtils.add("testAgent", 11L);
         byte[] buf = Bytes.add(Bytes.toBytes("testAgent"), Bytes.toBytes(11L));
         Assert.assertArrayEquals(testAgents, buf);
     }
 
     @Test
-    public void testAddStringLong_NullError() throws Exception {
+    public void testAddStringLong_NullError() {
         try {
-            BytesUtils.add((String)null, 11L);
+            BytesUtils.add((String) null, 11L);
             Assert.fail();
-        } catch (Exception e) {
+        } catch (NullPointerException ignore) {
         }
     }
 
@@ -110,32 +108,32 @@ public class BytesUtilsTest {
         try {
             BytesUtils.toFixedLengthBytes("test", 2);
             Assert.fail();
-        } catch (Exception e) {
+        } catch (IndexOutOfBoundsException ignore) {
         }
 
         try {
             BytesUtils.toFixedLengthBytes("test", -1);
             Assert.fail();
-        } catch (Exception e) {
+        } catch (IndexOutOfBoundsException ignore) {
         }
 
         byte[] testValue2 = BytesUtils.toFixedLengthBytes(null, 10);
         Assert.assertEquals(testValue2.length, 10);
 
     }
-    
-	@Test
-	public void testMerge() {
-		byte[] b1 = new byte[] { 1, 2 };
-		byte[] b2 = new byte[] { 3, 4 };
-
-		byte[] b3 = BytesUtils.merge(b1, b2);
-
-		Assert.assertTrue(Arrays.equals(new byte[] { 1, 2, 3, 4 }, b3));
-	}
 
     @Test
-    public void testZigZag() throws Exception {
+    public void testMerge() {
+        byte[] b1 = new byte[]{1, 2};
+        byte[] b2 = new byte[]{3, 4};
+
+        byte[] b3 = BytesUtils.merge(b1, b2);
+
+        Assert.assertTrue(Arrays.equals(new byte[]{1, 2, 3, 4}, b3));
+    }
+
+    @Test
+    public void testZigZag() {
         testEncodingDecodingZigZag(0);
         testEncodingDecodingZigZag(1);
         testEncodingDecodingZigZag(2);
@@ -167,5 +165,21 @@ public class BytesUtilsTest {
         return tMemoryBuffer;
     }
 
+    @Test
+    public void testWriteBytes1() {
+        byte[] buffer = new byte[10];
+        byte[] write = new byte[]{1, 2, 3, 4};
 
+        Assert.assertEquals(BytesUtils.writeBytes(buffer, 0, write), write.length);
+        Assert.assertArrayEquals(Arrays.copyOf(buffer, write.length), write);
+    }
+
+    @Test
+    public void testWriteBytes2() {
+        byte[] buffer = new byte[10];
+        byte[] write = new byte[]{1, 2, 3, 4};
+        int startOffset = 1;
+        Assert.assertEquals(BytesUtils.writeBytes(buffer, startOffset, write), write.length + startOffset);
+        Assert.assertArrayEquals(Arrays.copyOfRange(buffer, startOffset, write.length + startOffset), write);
+    }
 }

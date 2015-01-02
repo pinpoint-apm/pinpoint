@@ -17,8 +17,6 @@
 package com.navercorp.pinpoint.common.util;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
-import com.navercorp.pinpoint.common.util.SpanUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 
 import junit.framework.Assert;
@@ -65,8 +63,8 @@ public class SpanUtilsTest {
         long time = System.currentTimeMillis();
         try {
             check(agentId, time);
-            Assert.fail();
-        } catch (Exception e) {
+            Assert.fail("error");
+        } catch (IndexOutOfBoundsException ignore) {
         }
     }
 

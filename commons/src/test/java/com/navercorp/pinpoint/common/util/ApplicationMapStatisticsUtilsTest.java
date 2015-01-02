@@ -16,23 +16,52 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import junit.framework.Assert;
-
+import com.navercorp.pinpoint.common.ServiceType;
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.junit.Assert;
 import org.junit.Test;
-
-import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
 
 public class ApplicationMapStatisticsUtilsTest {
 
-	@Test
-	public void makeRowKey() {
-		String applicationName = "TESTAPP";
-		short serviceType = 123;
-		long time = System.currentTimeMillis();
+    @Test
+    public void makeRowKey() {
+        String applicationName = "TESTAPP";
+        short serviceType = 123;
+        long time = System.currentTimeMillis();
 
-		byte[] bytes = ApplicationMapStatisticsUtils.makeRowKey(applicationName, serviceType, time);
+        byte[] bytes = ApplicationMapStatisticsUtils.makeRowKey(applicationName, serviceType, time);
 
-		Assert.assertEquals(applicationName, ApplicationMapStatisticsUtils.getApplicationNameFromRowKey(bytes));
-		Assert.assertEquals(serviceType, ApplicationMapStatisticsUtils.getApplicationTypeFromRowKey(bytes));
-	}
+        Assert.assertEquals(applicationName, ApplicationMapStatisticsUtils.getApplicationNameFromRowKey(bytes));
+        Assert.assertEquals(serviceType, ApplicationMapStatisticsUtils.getApplicationTypeFromRowKey(bytes));
+    }
+
+    @Test
+    public void testMakeColumnName() throws Exception {
+        final byte[] columnNameBytes = ApplicationMapStatisticsUtils.makeColumnName("test", (short) 10);
+        short slotNumber = Bytes.toShort(columnNameBytes);
+        Assert.assertEquals(slotNumber, 10);
+
+        String columnName = Bytes.toString(columnNameBytes, Bytes.SIZEOF_SHORT, columnNameBytes.length - Bytes.SIZEOF_SHORT);
+        Assert.assertEquals(columnName, "test");
+
+    }
+
+    @Test
+    public void testMakeColumnName2() {
+//        short serviceType, String applicationName, String destHost, short slotNumber
+        final short slotNumber = 10;
+        final byte[] columnNameBytes = ApplicationMapStatisticsUtils.makeColumnName(ServiceType.TOMCAT.getCode(), "applicationName", "dest", slotNumber);
+        Buffer buffer = new FixedBuffer(columnNameBytes);
+        Assert.assertEquals(ServiceType.TOMCAT.getCode(), buffer.readShort());
+        Assert.assertEquals(10, buffer.readShort());
+        Assert.assertEquals("applicationName", buffer.read2PrefixedString());
+
+        int offset = buffer.getOffset();
+        byte[] interBuffer = buffer.getInternalBuffer();
+        Assert.assertEquals(BytesUtils.toString(interBuffer, offset, interBuffer.length - offset), "dest");
+
+    }
 }
+

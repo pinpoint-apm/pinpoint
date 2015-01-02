@@ -28,10 +28,10 @@ public class OffsetAutomaticBuffer extends AutomaticBuffer {
             throw new NullPointerException("buffer must not be null");
         }
         if (offset < 0) {
-            throw new IllegalArgumentException("negative offset:" + offset);
+            throw new IndexOutOfBoundsException("negative offset:" + offset);
         }
         if (offset > buffer.length) {
-            throw new IllegalArgumentException("offset:" + offset + " > buffer.length:" + buffer.length);
+            throw new IndexOutOfBoundsException("offset:" + offset + " > buffer.length:" + buffer.length);
         }
         this.buffer = buffer;
         this.offset = offset;
