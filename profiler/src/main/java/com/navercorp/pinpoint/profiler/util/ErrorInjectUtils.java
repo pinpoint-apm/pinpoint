@@ -33,7 +33,7 @@ public final class ErrorInjectUtils {
         try {
             Thread.sleep(i);
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();;
+            Thread.currentThread().interrupt();
         }
     }
 

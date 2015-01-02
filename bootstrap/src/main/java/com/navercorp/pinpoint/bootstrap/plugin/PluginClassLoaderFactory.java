@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin;
 
-import com.navercorp.pinpoint.bootstrap.PinpointURLClassLoader;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.URL;

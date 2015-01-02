@@ -141,6 +141,6 @@ public class MapStatisticsCallerDataCollector extends DataCollector {
 
     public enum DataCategory {
         SLOW_COUNT, ERROR_COUNT, TOTAL_COUNT,
-        SLOW_RATE, ERROR_RATE;
+        SLOW_RATE, ERROR_RATE
     }
 }

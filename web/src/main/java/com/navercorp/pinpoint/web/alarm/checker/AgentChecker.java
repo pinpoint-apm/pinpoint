@@ -65,7 +65,7 @@ public abstract class AgentChecker extends AlarmChecker {
         }
         
         return messages;
-    };
+    }
     
     @Override
     public String getEmailMessage() {
@@ -77,7 +77,7 @@ public abstract class AgentChecker extends AlarmChecker {
         }
         
         return message.toString();
-    };
+    }
     
     protected abstract Map<String, Long> getAgentValues();
     

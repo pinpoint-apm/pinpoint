@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.profiler.modifier.orm.mybatis;
 
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Hyun Jeong

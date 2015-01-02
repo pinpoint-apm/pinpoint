@@ -362,7 +362,7 @@ public class ZookeeperClusterManager implements ClusterManager, Watcher {
 		public String toString() {
 			StringBuilder toString = new StringBuilder();
 			toString.append(this.getClass().getSimpleName());
-			toString.append(", Znode=" + getZnodePath());
+			toString.append(", Znode=").append(getZnodePath());
 
 			return toString.toString();
 		}

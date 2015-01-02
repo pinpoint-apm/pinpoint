@@ -82,11 +82,11 @@ public abstract class AlarmChecker {
         List<String> messages = new LinkedList<String>();
         messages.add(String.format("[PINPOINT Alarm - %s] %s is %s%s (Threshold : %s%s)", rule.getApplicationId(), rule.getCheckerName(), getDetectedValue(), unit, rule.getThreshold(), unit));
         return messages;
-    };
+    }
     
     public String getEmailMessage() {
         return String.format("%s value is %s%s during the past 5 mins.(Threshold : %s%s)<br>", rule.getCheckerName(), getDetectedValue(), unit, rule.getThreshold(), unit);
-    };
+    }
     
     protected abstract long getDetectedValue();
 

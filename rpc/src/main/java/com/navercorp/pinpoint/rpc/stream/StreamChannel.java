@@ -194,8 +194,8 @@ public abstract class StreamChannel {
 
         sb.append("].");
 
-
-        return super.toString();
+        // TODO fix -> super.toString();
+        return sb.toString();
     }
 
 }

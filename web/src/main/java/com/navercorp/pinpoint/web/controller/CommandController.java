@@ -197,11 +197,11 @@ public class CommandController {
 		StringBuilder sb = new StringBuilder("\"" + threadDump.getThreadName() + "\"" + " Id=" + threadDump.getThreadId() + " "
 		        + threadDump.getThreadState().name());
 		if (!StringUtils.isBlank(threadDump.getLockName())) {
-			sb.append(" on " + threadDump.getLockName());
+			sb.append(" on ").append(threadDump.getLockName());
 		}
 
 		if (!StringUtils.isBlank(threadDump.getLockOwnerName())) {
-			sb.append(" owned by \"" + threadDump.getLockOwnerName() + "\" Id=" + threadDump.getLockOwnerId());
+			sb.append(" owned by \"").append(threadDump.getLockOwnerName()).append("\" Id=").append(threadDump.getLockOwnerId());
 		}
 
 		if (threadDump.isSuspended()) {
@@ -214,22 +214,22 @@ public class CommandController {
 
 		for (int i = 0; i < threadDump.getStackTraceSize(); i++) {
 			String ste = threadDump.getStackTrace().get(i);
-			sb.append("\tat " + ste.toString());
+			sb.append("\tat ").append(ste);
 			sb.append('\n');
 
 			if (i == 0 && !StringUtils.isBlank(threadDump.getLockName())) {
 				TThreadState ts = threadDump.getThreadState();
 				switch (ts) {
 				case BLOCKED:
-					sb.append("\t-  blocked on " + threadDump.getLockName());
+					sb.append("\t-  blocked on ").append(threadDump.getLockName());
 					sb.append('\n');
 					break;
 				case WAITING:
-					sb.append("\t-  waiting on " + threadDump.getLockName());
+					sb.append("\t-  waiting on ").append(threadDump.getLockName());
 					sb.append('\n');
 					break;
 				case TIMED_WAITING:
-					sb.append("\t-  waiting on " + threadDump.getLockName());
+					sb.append("\t-  waiting on ").append(threadDump.getLockName());
 					sb.append('\n');
 					break;
 				default:
@@ -239,7 +239,7 @@ public class CommandController {
 			if (threadDump.getLockedMonitors() != null) {
 				for (TMonitorInfo mi : threadDump.getLockedMonitors()) {
 					if (mi.getStackDepth() == i) {
-						sb.append("\t-  locked " + mi.getStackFrame());
+						sb.append("\t-  locked ").append(mi.getStackFrame());
 						sb.append('\n');
 					}
 				}
@@ -249,10 +249,10 @@ public class CommandController {
 		List<String> locks = threadDump.getLockedSynchronizers();
 		if (locks != null) {
 			if (locks.size() > 0) {
-				sb.append("\n\tNumber of locked synchronizers = " + locks.size());
+				sb.append("\n\tNumber of locked synchronizers = ").append(locks.size());
 				sb.append('\n');
 				for (String li : locks) {
-					sb.append("\t- " + li);
+					sb.append("\t- ").append(li);
 					sb.append('\n');
 				}
 			}

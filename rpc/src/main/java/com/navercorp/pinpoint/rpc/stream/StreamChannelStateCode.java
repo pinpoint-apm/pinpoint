@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,12 +25,12 @@ import java.util.Set;
  */
 public enum StreamChannelStateCode {
 
-	NEW, 
-	OPEN(NEW), 
-	OPEN_AWAIT(OPEN), 
-	OPEN_ARRIVED(OPEN), 
-	RUN(OPEN_AWAIT, OPEN_ARRIVED), 
-	CLOSED(OPEN_AWAIT, OPEN_ARRIVED, RUN), 
+	NEW,
+	OPEN(NEW),
+	OPEN_AWAIT(OPEN),
+	OPEN_ARRIVED(OPEN),
+	RUN(OPEN_AWAIT, OPEN_ARRIVED),
+	CLOSED(OPEN_AWAIT, OPEN_ARRIVED, RUN),
 	ILLEGAL_STATE(NEW, OPEN, OPEN_AWAIT, OPEN_ARRIVED, RUN, CLOSED);
 
 	private final Set<StreamChannelStateCode> validBeforeStateSet;
@@ -38,9 +39,7 @@ public enum StreamChannelStateCode {
 		this.validBeforeStateSet = new HashSet<StreamChannelStateCode>();
 
 		if (validBeforeStates != null) {
-			for (StreamChannelStateCode eachStateCode : validBeforeStates) {
-				validBeforeStateSet.add(eachStateCode);
-			}
+            Collections.addAll(validBeforeStateSet, validBeforeStates);
 		}
 	}
 
