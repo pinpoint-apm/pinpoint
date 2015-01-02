@@ -164,7 +164,7 @@ public class JavaAssistClassTest {
         loader.addModifier(testModifier);
         loader.initialize();
 
-        Class testObjectClazz = loader.loadClass(javassistClassName);
+        Class<?> testObjectClazz = loader.loadClass(javassistClassName);
         final String methodName = "callA";
         logger.info("class:{}", testObjectClazz.toString());
         final Object testObject = testObjectClazz.newInstance();
@@ -243,7 +243,7 @@ public class JavaAssistClassTest {
 
 
 
-        Class testObjectClazz = loader.loadClass(javassistClassName);
+        Class<?> testObjectClazz = loader.loadClass(javassistClassName);
         final String methodName = "callA";
         logger.info("class:{}", testObjectClazz.toString());
         final Object testObject = testObjectClazz.newInstance();
@@ -314,7 +314,7 @@ public class JavaAssistClassTest {
 
 
 
-        Class testObjectClazz = loader.loadClass("com.navercorp.pinpoint.profiler.interceptor.bci.TestObjectContextClassLoader");
+        Class<?> testObjectClazz = loader.loadClass("com.navercorp.pinpoint.profiler.interceptor.bci.TestObjectContextClassLoader");
         final String methodName = "callA";
         logger.info("class:{}", testObjectClazz.toString());
         final Object testObject = testObjectClazz.newInstance();
@@ -335,8 +335,6 @@ public class JavaAssistClassTest {
 
     @Test
     public void testAddAfterInterceptor() throws Exception {
-        // TODO add test case for aClass.addInterceptorCallByContextClassLoader
-
 
         final TestClassLoader loader = getTestClassLoader();
         final String testClassObject = "com.navercorp.pinpoint.profiler.interceptor.bci.TestObject2";
@@ -372,7 +370,7 @@ public class JavaAssistClassTest {
 
 
 
-        Class testObjectClazz = loader.loadClass(testClassObject);
+        Class<?> testObjectClazz = loader.loadClass(testClassObject);
         final String methodName = "callA";
         logger.info("class:{}", testObjectClazz.toString());
         final Object testObject = testObjectClazz.newInstance();
@@ -442,13 +440,13 @@ public class JavaAssistClassTest {
 
         Object testObject = loader.loadClass(testClassObject).newInstance();
 
-        Method test = testObject.getClass().getMethod("test", null);
+        Method test = testObject.getClass().getMethod("test");
         test.invoke(testObject);
 
         Method testString = testObject.getClass().getMethod("test", new Class[]{String.class});
         testString.invoke(testObject, "method");
 
-        Constructor<?> constructor = testObject.getClass().getConstructor(null);
+        Constructor<?> constructor = testObject.getClass().getConstructor();
         Object o = constructor.newInstance();
 
     }
