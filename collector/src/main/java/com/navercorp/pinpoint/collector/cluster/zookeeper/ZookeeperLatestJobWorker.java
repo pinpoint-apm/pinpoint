@@ -134,7 +134,7 @@ public class ZookeeperLatestJobWorker implements Runnable {
 			}
 		}
 
-		this.workerState.changeStateStoped();
+		this.workerState.changeStateStopped();
 		logger.info("{} destorying completed.", this.getClass().getSimpleName());
 	}
 

@@ -415,7 +415,7 @@ public final class BytesUtils {
             return null;
         }
         if (offset < 0) {
-            throw new IllegalArgumentException("negative offset:" + offset);
+            throw new IndexOutOfBoundsException("negative offset:" + offset);
         }
         if (length == 0) {
             return "";
