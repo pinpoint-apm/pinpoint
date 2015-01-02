@@ -683,6 +683,7 @@
                         <exclude>**/*Helper</exclude>
                         <exclude>**/*$*</exclude>
                     </excludes>
+                    <argLine>-Dfile.encoding=${encoding}</argLine>
                 </configuration>
             </plugin>
             <plugin>
