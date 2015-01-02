@@ -20,8 +20,8 @@ package com.navercorp.pinpoint.bootstrap.config;
  * @author emeroad
  */
 public class SkipFilter<T> implements Filter<T> {
-	@Override
-	public boolean filter(T value) {
-		return false;
+    @Overri    e
+	public boolean filter(T val       e) {
+		re    urn false;
 	}
 }

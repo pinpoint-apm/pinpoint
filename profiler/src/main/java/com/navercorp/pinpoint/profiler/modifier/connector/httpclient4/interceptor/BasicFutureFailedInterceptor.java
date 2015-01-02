@@ -37,16 +37,16 @@ import com.navercorp.pinpoint.common.ServiceType;
  * original code of method
  * <code>
  * <pre>
- * 	public boolean failed(final Exception exception) {
- * 		synchronized (this) {
- * 			if (this.completed) {
- * 				return false;
+ *     public boolean failed(final Exception exception) {
+       * 		synchronized (th          s) {
+ * 			if (thi             .complet                   d) {
+ * 				return          false;
  * 			}
- * 			this.completed = true;
- * 			this.ex = exception;
- * 			notifyAll();
+ *          			this.c              pleted = true;
+ * 			this.e           = exception;
+ * 			notifyAll              ;
  * 		}
- * 		if (this.callback != null) {
+ *    		if (this.callback != null) {
  * 			this.callback.failed(exception);
  * 		}
  * 		return true;
@@ -57,45 +57,45 @@ import com.navercorp.pinpoint.common.ServiceType;
  * @author netspider
  * 
  */
-public class BasicFutureFailedInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
+public class BasicFutureFailedInterceptor implement     SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
 
-	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
+	private final PLogger logger =     LoggerFactory.getLogger(this.getClass());
+    private final boolean isDebu     = logg    r.isDebugEnabled();
 
-	private TraceContext traceContext;
+	private TraceContext trace       ontext;
     private MethodDescriptor descriptor;
 
 	@Override
-	public void before(Object target, Object[] args) {
-		if (isDebug) {
-            logger.beforeInterceptor(target, args);
+	public void       before(Object target, Object[] args) {
+		if        isDebug) {
+                                 logger.beforeIn       erceptor(target, ar       s);
         }
 
-		Trace trace = traceContext.currentTraceObject();
+		Trace trace = traceContext.currentTra        Object(    ;
 		if (trace == null) {
 			return;
 		}
 
 		trace.traceBlockBegin();
-		trace.markBeforeTime();
-		trace.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
+		trace.markBef       reTime();
+          	trace.recordServiceType(Service             ype.HTTP_CLIENT_INTERNAL);
 	}
 
 	@Override
-	public void after(Object target, Object[] args, Object result, Throwable throwable) {
-		if (isDebug) {
-			logger.afterInterceptor(target, args);
+	       ublic void after          O                       ect target, Object[] a          gs, Object result, Throwabl           throwable) {
+		       f (isDe          ug) {
+			logger.             fterIn    erceptor(target, args);
 		}
 
-		Trace trace = traceContext.currentTraceObject();
-		if (trace == null) {
+		Trace trace = traceCont       xt.currentTraceObject();
+		if        trace =     null) {
 			return;
 		}
 
 		try {
-			trace.recordApi(descriptor);
-			trace.recordException(throwable);
-			trace.markAfterTime();
+			trace.recordApi(descript       r);
+			trace.recordExcept       on(throwable);
+			trace.markAf    erTime();
 		} finally {
 			trace.traceBlockEnd();
 		}

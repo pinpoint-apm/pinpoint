@@ -20,33 +20,33 @@ package com.navercorp.pinpoint.profiler.modifier.orm.ibatis.filter;
  * @author Hyun Jeong
  */
 public final class IbatisInterfaceApi {
-	
-	private IbatisInterfaceApi() {}
 
-	private static final String[] sqlMapExecutorApis = {
-		"insert",
-		"delete",
-		"update",
-		"queryForList",
-		"queryForMap",
-		"queryForObject",
+	private IbatisInterfaceApi(     {}
+
+	private static final String[] sqlMapExecutor       pis =       {
+		"       nsert       ,
+		"delete       ,
+		"updat       ",
+		"queryFo       List",
+		"queryForMa       ",
+		"queryForOb    ec    ",
 		"queryForPaginatedList",
 		"queryForRowHandler"
 	};
-//	private static final String[] sqlMapTransactionManagerApis = {
-//		"startTransaction",
-//		"endTransaction",
-//		"commitTransaction",
+//	pr       vate static final       String[] sqlMap       ransactionManagerA       is = {
+//		"st       rtTransaction",
+//       	"endTransaction",
+//    	"    ommitTransaction",
 //		"getDataSource",
-//		"getUserConnection",
+//		"getUserConnecti       n",
 //		"getCurrentConnection",
 //	};
-//	static final String[] sqlMapSessionApis = ArrayUtils.addAll(
-//		ArrayUtils.addAll(sqlMapExecutorApis, sqlMapTransactionManagerApis), 
+//	static final String[] sqlM       pS             ssionApis = ArrayUtils.addAll(
+//		ArrayUtils.addAll(sqlMapEx    cutorApis, sqlMapTransactionManagerApis),
 //		"close"		
-//	);
-	static final String[] sqlMapSessionApis = sqlMapExecutorApis;
-//	static final String[] sqlMapClientApis = ArrayUtils.addAll(
+//       );
+	static final        tring[] sqlMapSessionApis         sqlMapExecutorApis;
+//	static final String[] sqlMapClientA    is = ArrayUtils.addAll(
 //		sqlMapExecutorApis,
 //		sqlMapTransactionManagerApis
 //	);

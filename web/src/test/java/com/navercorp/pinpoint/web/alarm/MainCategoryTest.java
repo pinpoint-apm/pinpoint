@@ -22,13 +22,12 @@ import org.junit.Test;
 
 public class MainCategoryTest {
 
-//	@Test
-//	public void getValueTest() {
-//		MainCategory category = MainCategory.getValue(1);
-//		Assert.assertEquals(MainCategory.REQUEST_SENDED, category);
+//    @Test    //	public void getValueTest(        {
+//		MainCategory category = MainCategory.get       alue(1);
+//		Assert.assertEquals(MainCategory.REQUEST_SEN             ED, category);
 //		
-//		category = MainCategory.getValue(2);
-//		Assert.assertEquals(MainCategory.REQUEST_RECEIVED, category);
+//		category         MainCategory.getValue(2);
+//		Assert.assertEquals(MainCate       ory.REQUEST_RECEIVED, category);
 //	}
 	
 }

@@ -24,16 +24,16 @@ import java.util.Set;
  * @author Hyun Jeong
  */
 public class SqlMapSessionMethodFilter extends IbatisMethodFilter {
-	
-	private static final Set<String> WHITE_LIST_API = createWhiteListApi();
 
-	private static Set<String> createWhiteListApi() {
-		return new HashSet<String>(Arrays.asList(IbatisInterfaceApi.sqlMapSessionApis));
+	private static final Set<String> WHITE_LIST_API = createWhiteListAp    ();
+
+	private static Set<String> createWhiteLis       Api() {
+		return new HashSet<String>(Arrays.asList(IbatisInterfaceApi.sqlMap          ession    pis));
 	}
 	
 	@Override
-	protected boolean shouldTrackMethod(String methodName) {
-		return WHITE_LIST_API.contains(methodName);
+	protected boolean shouldTrackM       thod(String methodName) {
+		return WHIT    _LIST_API.contains(methodName);
 	}
 
 }

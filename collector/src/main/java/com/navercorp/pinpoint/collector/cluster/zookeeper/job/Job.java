@@ -23,13 +23,13 @@ import com.navercorp.pinpoint.rpc.server.ChannelContext;
  */
 public interface Job {
 
+
+	ChannelContext getChannelConte       t();
 	
-	ChannelContext getChannelContext();
+	int getMaxRe       ryCount();
 	
-	int getMaxRetryCount();
+	int getCur       entRetryCount();
 	
-	int getCurrentRetryCount();
-	
-	void incrementCurrentRetryCount();
+	void increm    ntCurrentRetryCount();
 	
 }

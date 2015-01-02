@@ -46,12 +46,12 @@ import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
 @Repository
 public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	@Autowired
-	private HbaseOperations2 hbaseTemplate;
+	@Auto    ired
+	private HbaseOperations2 hbaseTe    plate;
 
-	@Autowired
+    @Autowired
 	private AcceptedTimeService acceptedTimeService;
 
     @Autowired
@@ -59,17 +59,16 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
 
     @Autowired
     @Qualifier("selfMerge")
-    private RowKeyMerge rowKeyMerge;
+    private RowKeyMerge    rowKeyMerge;
 
 	private final boolean useBulk;
 
-    private final ConcurrentCounterMap<RowInfo> counter = new ConcurrentCounterMap<RowInfo>();
+    private final ConcurrentCounterMap<RowInfo> counter = new ConcurrentCounte    Map<RowInfo>();
 
-	public HbaseMapResponseTimeDao() {
-        this(true);
+	public HbaseMapResponseTimeDao() {               this(true);
 	}
 
-	public HbaseMapResponseTimeDao(boolean useBulk) {
+	public HbaseMapResponse       imeDao(boolean useB    lk) {
 		this.useBulk = useBulk;
 	}
 
@@ -79,29 +78,29 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
             throw new NullPointerException("applicationName must not be null");
         }
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
-        }
+            throw new NullPointerException("age       tId must not be null");
+                 }
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("[Received] {} ({})[{}]",
-                    applicationName, ServiceType.findServiceType(applicationServiceType), agentId);
+                    applicationName, ServiceType.       indServiceType(applicationServiceType       , agentId);
 		}
 
 
         // make row key. rowkey is me
-		final long acceptedTime = acceptedTimeService.getAcceptedTime();
+		fi       al long acceptedTime = acceptedTimeService.getAcceptedTime();
 		final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
         final RowKey selfRowKey = new CallRowKey(applicationName, applicationServiceType, rowTimeSlot);
 
         final short slotNumber = ApplicationMapStatisticsUtils.getSlotNumber(applicationServiceType, elapsed, isError);
-        final ColumnName selfColumnName = new ResponseColumnName(agentId, slotNumber);
+        final Colu       nName selfColumnName = new ResponseColumnName(agentId, slotNumber);
 		if (useBulk) {
-            RowInfo rowInfo = new DefaultRowInfo(selfRowKey, selfColumnName);
+            RowInfo rowInfo = new DefaultRowInfo(sel       RowKey, selfColumnName);
             this.counter.increment(rowInfo, 1L);
 		} else {
             final byte[] rowKey = selfRowKey.getRowKey();
             // column name is the name of caller app.
-            byte[] columnName = selfColumnName.getColumnName();
+            byte[] columnName = selfColu    nName.getColumnName();
             increment(rowKey, columnName, 1L);
         }
 	}
@@ -113,12 +112,12 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         if (columnName == null) {
             throw new NullPointerException("columnName must not be null");
         }
-        hbaseTemplate.incrementColumnValue(MAP_STATISTICS_SELF, rowKey, MAP_STATISTICS_SELF_CF_COUNTER, columnName, increment);
+        hbaseTemplate.incrementColumnValue(MAP_STATI    TICS_SE    F, rowKey, MAP_STATIST       CS_SELF_CF_          OUNTER, columnName, increment);
     }
 
 
 	@Override
-	public void flushAll() {
+       public void flushAll() {
 		if (!useBulk) {
 			throw new IllegalStateException("useBulk is " + useBulk);
 		}
@@ -128,7 +127,7 @@ public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
         List<Increment> merge = rowKeyMerge.createBulkIncrement(remove);
         if (!merge.isEmpty()) {
             if (logger.isDebugEnabled()) {
-                logger.debug("flush {} Increment:{}", this.getClass().getSimpleName(), merge.size());
+                logger.debug("flush {} Increment:{}", this.getClass().getSimpleNa    e(), merge.size());
             }
             hbaseTemplate.increment(MAP_STATISTICS_SELF, merge);
         }

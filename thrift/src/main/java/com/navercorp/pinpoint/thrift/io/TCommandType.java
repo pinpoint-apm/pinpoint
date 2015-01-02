@@ -32,56 +32,56 @@ public enum TCommandType {
     // Using reflection would make code cleaner.
     // But it also makes it hard to handle exception, constructor and will show relatively low performance.
 
-	RESULT((short) 320, TResult.class) {
-		@Override
-		public TBase newObject() {
-			return new TResult();
+    RESULT((short) 320, TResult.class)       {
+		@       verride
+		public TBase          newObject() {
+	             	return new TResult();
 		}
 	}, 
-	TRANSFER((short) 700, TCommandTransfer.class) {
+	TRANSFER((sh       rt) 7       0, TCommandTransfer.cl          ss) {
 		@Override
-		public TBase newObject() {
-			return new TCommandTransfer();
+		publ             c TBase newObject() {
+			return new T       omman       Transfer();
 		}
 	}, 
-	ECHO((short) 710, TCommandEcho.class) {
+	          CHO((short) 710, TCo             mandEcho.class) {
 		@Override
-		public TBase newObject() {
-			return new TCommandEcho();
+		public TBase newOb       ect()       {
+			return new TComma          dEcho();
 		}
 	}, 
-	THREAD_DUMP((short) 720, TCommandThreadDump.class) {
+	THREAD_             UMP((short) 720, TCommandThreadDump.class) {
 		@Override
-		public TBase newObject() {
-			return new TCommandThreadDump();
+		public        Base        ewObject() {
+			return          new TCommandThreadDump();
 		}
 	},
-	THREAD_DUMP_RESPONSE((short) 721, TCommandThreadDumpResponse.class) {
+             THREAD_DUMP_RESPONSE((s    ort) 721, TCommandThreadDumpResponse.clas    ) {
 		@Override
-		public TBase newObject() {
+		public TB    se newObject() {
 			return new TCommandThreadDumpResponse();
-		}
+	       }
 	};
 
-	private final short type;
-	private final Class<? extends TBase> clazz;
-	private final Header header;
+	priva       e final short t       pe;
+	private final Class<? ex        nds TBase> clazz;
+	privat        final H          ader header;
 
-	private TCommandType(short type, Class<? extends TBase> clazz) {
-		this.type = type;
-		this.clazz = clazz;
-		this.header = createHeader(type);
+	private TC       mmandType        hort type, Class<? extends TBase> clazz) {
+	       this.type = type;
+		this.clazz =          clazz;
+		this.header = crea       eHeader(ty          e);
 	}
 
-	protected short getType() {
+	protected short getTyp       () {
 		return type;
 	}
 	
-	protected Class getClazz() {
+	protected Class get       lazz() {
 		return clazz;
-	}
+       }
 
-	protected boolean isInstanceOf(Object value) {
+	protected boo       ean isInst    nceOf(Object value) {
 		return this.clazz.isInstance(value);
 	}
 	

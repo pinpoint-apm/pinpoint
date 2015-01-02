@@ -59,13 +59,13 @@ public class AgentInformationFactory {
     }
 
     private void validateId(String id, String idName, int maxlen) {
-		if (id == null) {
-			throw new NullPointerException("id must not be null");
+       	if (id == nu          l) {
+			throw new NullPointerException("id must                    ot be null");
 		}
 		
-		// TODO AgengId should be validated before bootclass.
+		// TODO AgengId shoul        be validated before bootclass.
 		// or agent should stop when validataion is failed here. 
-        final byte[] bytes = BytesUtils.toBytes(id);
+        final        yte[] bytes = BytesUtils.toBytes(id);
 		if (bytes.length > maxlen) {
             logger.warn("{} is too long(1~24). value={}", idName, id);
         }

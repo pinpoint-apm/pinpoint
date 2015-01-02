@@ -34,48 +34,47 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
 public class JobLaunchSupport implements InitializingBean {
-	
-	private final Logger logger = LoggerFactory.getLogger(getClass());
-	
-	@Autowired
-	private JobLocator locator;
-	@Autowired
-	private JobLauncher launcher;
-	
-	private String batchServerIp;
 
-	public void setBatchServerIp(String batchServerIp) {
-		this.batchServerIp = batchServerIp;
+	private final Logger logger = LoggerFactory.getLogger(getClas       ());
+	
+    @Autowired
+	private JobLo    ator loc    tor;
+	@Autowired
+	private J       bLauncher launcher;
+	
+	priv    te String batchServerIp;
+
+	public void setBatchSer       erIp(String batchServerIp) {
+		        is.batchServerIp = batchServerIp;
 	}
 
-	public JobExecution run(String jobName, JobParameters params) {
-		if(!decisionBatchServer()) {
-			return null;
+	public JobExecution ru       (String jobName, JobPara          eters                          arams) {
+		if(!decisionBa          chServer()) {
+			return nul       ;
 		}
 		try {
-			Job	job = locator.getJob(jobName);
-			return launcher.run(job, params);
+			Jo          	job = locator.getJob(jobName             ;
+			return launcher.run(job, params       ;
 		} catch (Exception e) {
-			throw new IllegalStateException(e);
+			throw                       ew IllegalStateException(e);
 		}
 	}
 
-	private boolean decisionBatchServer() {
-		Enumeration<NetworkInterface> interfaces;
-		
+	private        oolean decisionBatchServe          () {
+		Enumeration<NetworkInterface> int          rfaces;
 		try {
-			interfaces = NetworkInterface.getNetworkInterfaces();
-		} catch (SocketException e) {
-			logger.error("not found network nterface", e);
-			return false;
+			interfaces = Networ          Interface.getNetworkInterfaces();
+		} catch (S          cketException e) {
+			logger.error("not found network                    terface", e);
+			retur              false;
 		}
 
-		while (interfaces.hasMoreElements()) {
-			NetworkInterface network = interfaces.nextElement();
-			Enumeration<InetAddress> inets = network.getInetAddresses();
+		while (interface                         .hasMoreElements())
+			NetworkInterface network = interface                                                                                   nextElement();
+			Enumeration<InetAddress> in       ts = network.getInetAddresses();
 			
-			while (inets.hasMoreElements()) {
-				InetAddress next = inets.nextElement();
+			while (inets.has       oreElements()) {
+				InetAddress next = inets.nextElement(    ;
 				
 				if (next instanceof Inet4Address) {
 					if (next.getHostAddress().equals(batchServerIp)) {

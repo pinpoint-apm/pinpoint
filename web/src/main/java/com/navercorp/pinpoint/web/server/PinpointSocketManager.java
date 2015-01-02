@@ -48,59 +48,59 @@ import com.navercorp.pinpoint.web.config.WebConfig;
  */
 public class PinpointSocketManager {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
-	private final Charset charset = Charset.forName("UTF-8");
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName()    ;
+	private final Charset charset = Charset.forName("UTF-    ");
 
-	// local ip
-	// @Value("#{pinpointWebProps['web.tcpListenI']}")
-	private String representationLocalIp;
-	private List<String> localIpList;
+	//     ocal ip
+	// @Value("#{pinpointWebProps['web.tcpL    stenI']}")
+	private String represen    ationLocalIp;
+	private List<Stri    g> localIpList;
 
-	private WebConfig config;
+	privat     WebConfig config;
 
-	private final PinpointServerSocket pinpointServerSocket;
+	private final PinpointServerSocket    pinpointServerSocket;
 
-	private ClusterManager clusterManager;
+	private Clust    rManager clusterManager;
 
-	public PinpointSocketManager(WebConfig config) {
+	public PinpointSock       tManager(WebConfi        config) {
 		this.config = config;
-		this.pinpointServerSocket = new PinpointServerSocket();
+		this.pinpointS        verSocket =     ew PinpointServerSocket();
 	}
 
 	@PostConstruct
-	public void start() throws KeeperException, IOException, InterruptedException {
-		logger.info("{} enable {}.", this.getClass().getSimpleName(), config.isClusterEnable());
-		if (config.isClusterEnable()) {
-			this.representationLocalIp = getRepresentationLocalV4Ip();
+	public void start() throws Ke       perException, IOException, InterruptedException {
+		logger.info("{} enable {}.", thi       .getClass().getSimpleName()           config.isClusterEnable());
+		if (config.isClusterEn          ble()) {
+			this.representationLocalIp = g          tRepresentationLocalV4Ip();
 			this.localIpList = NetUtils.getLocalV4IpList();
 
-			logger.info("Representation_Ip = {}, Ip_List = {}", representationLocalIp, localIpList);
+		                   logger.info("Representation_Ip = {}, Ip_List = {}", representationLocalIp, localI          List);
 			
-			// TODO might be better to make it configurable whether to keep the process alive or to kill
-			if (representationLocalIp.equals(NetUtils.LOOPBACK_ADDRESS_V4) || localIpList.size() == 0) {
-				throw new SocketException("Can't find Local Ip.");
+			// TODO might be better to make it configurable whether to keep the proc             ss alive or to kill
+			if (representationL                            calIp.equals(NetUtils.LOOPBACK_ADDRESS_V4) || localIpList.si          e() == 0) {
+				throw new SocketException("Can't fin              Local Ip.");
 			}
 			
 			String nodeName = representationLocalIp + ":" + config.getClusterTcpPort();
-			if (!NetUtils.validationIpPortV4FormatAddress(nodeName)) {
-				throw new SocketException("Unexpected LocalAddress. LocalAddress format must be ip:port (" + nodeName + ").");
+                   		if (!NetUtils.validationIpPortV4FormatAddress(nodeName)) {
+				throw n          w SocketException("Unexpected LocalAddress. LocalAddress format must be ip:po          t (" + nodeName + ").");
 			}
 
 			this.pinpointServerSocket.setMessageListener(new PinpointSocketManagerHandler());
-			this.pinpointServerSocket.bind(representationLocalIp, config.getClusterTcpPort());
+			this.pinpointServerSocket.bind(representationLocal          p, config.getClusterTcpPort());
 
-			this.clusterManager = new ZookeeperClusterManager(config.getClusterZookeeperAddress(), config.getClusterZookeeperSessionTimeout(), config.getClusterZookeeperRetryInterval());
+			this.clusterManager = new ZookeeperClusterManager(config.getCluster          ookeeperAddress(), config.getClusterZookeeperSessionTimeout(), config.getClusterZookee             erRetryI    terval());
 
-			// TODO need modification - storing ip list using \r\n as delimiter since json list is not supported natively
-			this.clusterManager.registerWebCluster(nodeName, convertIpListToBytes(localIpList, "\r\n"));
+			//        ODO need modification - sto          ing ip list using \r\n              s delimiter sin                            e json list is not s             pported natively
+			t                      is.clusterManager.registerWebCluster(nodeName, conv       rtIpListToBytes(localIpList, "\r\n"));
 		}
 	}
 
 	@PreDestroy
-	public void stop() {
+	pu          lic void stop() {
 		if (config.isClusterEnable()) {
 			if (clusterManager != null) {
-				clusterManager.close();
+				clusterManager.clos       ();
 			}
 			
 			if (pinpointServerSocket != null) {
@@ -109,58 +109,56 @@ public class PinpointSocketManager {
 		}
 	}
 
-	public List<ChannelContext> getCollectorChannelContext() {
-		return pinpointServerSocket.getDuplexCommunicationChannelContext();
+	publi              List<ChannelContext> getCollectorChannelContext() {
+		r       turn pinpointServerSocket.ge          DuplexCommunicationChannelContext();
 	}
 	
-	public ChannelContext getCollectorChannelContext(String applicationName, String agentId, long startTimeStamp) {
-		List<String> agentNameList = clusterManager.getRegisteredAgentList(applicationName, agentId, startTimeStamp);
+	public ChannelConte          t getC       llectorChannelContext(String appli          ationName, String agentId, long startTimeStamp) {
+		List<String> agentNameList = c          usterM                   nager.getRegisteredAgentList(ap             licationName, agentId, startTimeStamp);
 		
-		// having duplicate AgentName registered is an exceptional case
-		if (agentNameList.size() == 0) {
-			logger.warn("{}/{} couldn't find agent.", applicationName, agentId);
-			return null;
-		} else if (agentNameList.size() > 1) {
-			logger.warn("{}/{} found duplicate agent {}.", applicationName, agentId, agentNameList);
+		// having duplicate             AgentName registered is an exceptional case
+		if (a          entNameList.size() == 0) {
+			logger.warn("{}/{} couldn't find           gent.", applicationName,              gentId);
+			re                                     urn null;
+		} else if (agentNameList.size(        > 1) {
+			logger.warn("{}/{} fo             nd duplicate agent {}.", applicationName           age                   tId, agentNameList);
 			return null;
 		}
 		
-		String agentName = agentNameList.get(0);
+		St       ing agentName = agentNameList.get(0);
 		
-		List<ChannelContext> channelContextList = getCollectorChannelContext();
+		Lis       <ChannelContext> cha          nelContextList                     getCollectorChannelContext        ;
 		
 		for (ChannelContext channelContext : channelContextList) {
-			String id = (String) channelContext.getChannelProperties().get("id");
-			if (agentName.startsWith(id)) {
-				return channelContext;
+			Strin        id = (String) channelContext.getChannelProper             ies().get("id");
+			if (agentName.startsW       th(id)) {
+				return chann          lContext;
 			}
 		}
 		
-		return null;
+		retu          n null;
 	}
 	
-	private String getRepresentationLocalV4Ip() {
-		String ip = NetUtils.getLocalV4Ip();
+	private S                   ring getRepresen             ationLocalV4Ip() {
+		Str                            ng ip = NetUtils.getLocalV4Ip();
 		
-		if (!ip.equals(NetUtils.LOOPBACK_ADDRESS_V4)) {
+	          if (!ip.equals(NetUtils.LOOPBACK_ADDRESS_V4)) {
 			return ip;
 		}
 		
-		// local ip addresses with all LOOPBACK addresses removed
-		List<String> ipList = NetUtils.getLocalV4IpList();
-		if (ipList.size() > 0) {
-			return ipList.get(0);
+		//        ocal        p addresses with all LOOPBACK addresses removed
+		List<String> ipL          st = NetUtils.getLocalV4IpList();
+		if (ipList.size() > 0) {             			r       turn ipList.get(0);
 		}
 		
 		return NetUtils.LOOPBACK_ADDRESS_V4;
 	}
 
-	private byte[] convertIpListToBytes(List<String> ipList, String delimeter) {
-		StringBuilder stringBuilder = new StringBuilder();
+	priv          te byte[] convertIpListToBytes(List<String> ipList, String delimet             r) {       		StringBuilder stringBuilder = new StringBuilder();
 		
-		Iterator<String> ipIterator = ipList.iterator();
+		          terator<String> ipIterator = ipList.i          erator();
 		while (ipIterator.hasNext()) {
-			String eachIp = ipIterator.next();
+			String          eachIp = ipIterator.next();
 			stringBuilder.append(eachIp);
 			
 			if (ipIterator.hasNext()) {

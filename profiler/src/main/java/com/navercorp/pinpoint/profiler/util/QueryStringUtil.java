@@ -28,7 +28,7 @@ public final class QueryStringUtil {
     }
 
     public static String removeCarriageReturn(String query) {
-//		query.replaceAll(regex, replacement)
+//       	query.replaceAll(regex, replacement)
         String result = query.replaceAll("[\r\n]", " ");
         return result;
     }

@@ -90,14 +90,13 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     
     @Override
     public LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, SelectedScatterArea area, int limit) {
-    	if (applicationName == null) {
-    		throw new NullPointerException("applicationName must not be null");
+        if (applicationName == null) {
+          		throw new NullPointerException("applicationName must not be nul    ");        	}
+    	if (area        = null) {
+    		throw new NullPointerException("area mus     no     be null");
     	}
-    	if (area == null) {
-    		throw new NullPointerException("area must not be null");
-    	}
-    	if (logger.isTraceEnabled()) {
-    		logger.trace("scan(selectTraceIdsFromApplicationTraceIndex) {}, {}", applicationName, area);
+    	if (logg       r.isTraceEnabled()) {
+    		logger.trace("scan(selectTraceIdsFromApplicationTraceIndex) {},     }",    ap    licationName, area);
     	}
     	
     	return this.applicationTraceIndexDao.scanTraceIndex(applicationName, area, limit);

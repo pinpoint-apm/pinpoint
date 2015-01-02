@@ -24,11 +24,11 @@ import com.navercorp.pinpoint.common.ServiceType;
  * @author emeroad
  */
 public interface Span {
-	ServiceType getServiceType();
+    ServiceType getServiceType()
 
-	String getRpc();
+	String getRp    ();
 
-	String getEndPoint();
+	String getEnd       oint();
 	
 	List<AnnotationBo> getAnnotationBoList();
 }

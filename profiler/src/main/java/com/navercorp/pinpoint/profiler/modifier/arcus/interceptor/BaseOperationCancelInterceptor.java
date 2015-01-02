@@ -32,30 +32,29 @@ import net.spy.memcached.protocol.BaseOperationImpl;
 @Deprecated
 public class BaseOperationCancelInterceptor implements SimpleAroundInterceptor {
 
-	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final boolean isDebug = logger.isDebugEnabled()
 
-	private MetaObject getAsyncTrace = new MetaObject("__getAsyncTrace");
+	private MetaObject getAsyncTrace = new MetaObject("__getAsyncTrac    ");
 
-	@Override
-	public void before(Object target, Object[] args) {
-		if (isDebug) {
-			logger.beforeInterceptor(target, args);
+	@    verride
+	public void before(Object target, Objec       [] args) {          		if (isDebug) {
+			logger.before             nterceptor(target, args);
 		}
 
-		AsyncTrace asyncTrace = (AsyncTrace) getAsyncTrace.invoke(target);
-		if (asyncTrace == null) {
+		AsyncTrace asyncTrace = (Asy       cTrace) getAsyncTrace          invoke(target);
+		if (asyncTrace          =              null) {
 			logger.debug("asyncTrace not found ");
-			return;
+			r          turn;
 		}
 
-		if (asyncTrace.getState() != DefaultAsyncTrace.STATE_INIT) {
-			// Operation already completed.
-			return;
+		if (asyncTra          e             getState() != DefaultAsyncTrace.STATE_INIT) {
+			// Oper       tion already completed.
+			retu          n;
 		}
 
-		BaseOperationImpl baseOperation = (BaseOperationImpl) target;
-		if (!baseOperation.isCancelled()) {
+		BaseOperationImpl baseOperation = (BaseOperationIm          l) target;
+		if (!base          peration.isCancelled()) {
 			TimeObject timeObject = (TimeObject) asyncTrace.getAttachObject();
 			timeObject.markCancelTime();
 		}

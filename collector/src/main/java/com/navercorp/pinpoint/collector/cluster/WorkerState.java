@@ -18,12 +18,12 @@ package com.navercorp.pinpoint.collector.cluster;
 
 
 public enum WorkerState {
-	
-	NEW, 
-	INITIALIZING,
-	STARTED,
-	DESTROYING,
-	STOPPED,
+
+	    EW,
+	INITI    LIZING
+	STARTED
+	DEST    OYING,
+	STO    PED,
 	ILLEGAL_STATE
 	
 }

@@ -51,256 +51,249 @@ import com.navercorp.pinpoint.rpc.util.MapUtils;
  */
 public class ZookeeperLatestJobWorker implements Runnable {
 
-	private static final Charset charset = Charset.forName("UTF-8");
+    private static final Charset charset = Charset.forName("UTF-8")
 
-	private static final String PINPOINT_CLUSTER_PATH = "/pinpoint-cluster";
-	private static final String PINPOINT_COLLECTOR_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/collector";
+	private static final String PINPOINT_CLUSTER_PATH = "/pinpoint-clus    er";
+	private static final String PINPOINT_COLLECTOR_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/coll    ctor";
 
-	private static final String PATH_SEPRATOR = "/";
-	private static final String PROFILER_SEPERATOR = "\r\n";
+	private static final String PATH_SEPR    TOR = "/";
+	private static final String PROFILER_SEPERA    OR = "\r\n";
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(t    is.getClass());
 
-	private final Object lock = new Object();
+	private final Object l    ck = new Object();
 
-	private final WorkerStateContext workerState;
-	private final Thread workerThread;
+	private final WorkerSt    teContext workerState;
+	private f    nal Thread workerThread;
 
-	private final String collectorUniqPath;
+	private fi       al String collectorUniqPath;
 	
-	private final ZookeeperClient zookeeperClient;
+	private fina     ZookeeperClient zookeeperClient;
 
-	private final ConcurrentHashMap<ChannelContext, Job> latestJobRepository = new ConcurrentHashMap<ChannelContext, Job>();
+	private final ConcurrentHashMap<ChannelContext, Job> latestJobRepository = new Conc    rrentHashMap<ChannelContext, Job>();
 
-	// Storage for managing ChannelContexts received by Worker
-	private final CopyOnWriteArrayList<ChannelContext> channelContextRepository = new CopyOnWriteArrayList<ChannelContext>();
+	// Storage for ma    aging ChannelContexts received by Worker
+	private final CopyOnWriteArrayList<ChannelContext> channelContextRepository =     ew CopyOnWriteArrayList<ChannelContext>();
 
-	private final BlockingQueue<Job> leakJobQueue = new LinkedBlockingQueue<Job>();
+	private final BlockingQueue<Job>     eakJobQueue = new LinkedBlockingQueue<Job>();
 
-	public ZookeeperLatestJobWorker(ZookeeperClient zookeeperClient, String serverIdentifier) {
-		this.zookeeperClient = zookeeperClient;
+	public ZookeeperLatestJobWorker(Zookeeper       lient zookeeperClient, String server       dentifier) {
+		this.zookeeperClient = zoo       eeperClient;
 
 		this.workerState = new WorkerStateContext();
 
-		this.collectorUniqPath = bindingPathAndZnode(PINPOINT_COLLECTOR_CLUSTER_PATH, serverIdentifier);
+		this.collectorUniqPath = bin             ingPathAndZnode(PINPOINT_COLLECTOR_CLUSTER_PATH, serverIdentifier);
 		
-		final ThreadFactory threadFactory = new PinpointThreadFactory(this.getClass().getSimpleName(), true);
-		this.workerThread = threadFactory.newThread(this);
+		final ThreadFactory t       readFactory = new PinpointThreadFactory(this.g        Class().getSimpleNa       e(), true);
+		this.workerThread = threadF       ctory          newThread(this);
 	}
 
-	public void start() {
-		switch (this.workerState.getCurrentState()) {
+	public void start() {             		switch (this.workerState.getCurrentState()) {
 		case NEW:
-			if (this.workerState.changeStateInitializing()) {
-				logger.info("{} initialization started.", this.getClass().getSimpleName());
-				workerState.changeStateStarted();
+			if (             his.workerState.changeStat             Initializing()) {
+             			logger.info("{} initialization started.", this.getClass().getSimple                            ame());
+	          		workerState.changeStateStarted();
 
-				this.workerThread.start();
-				logger.info("{} initialization completed.", this.getClass().getSimpleName());
+				this.workerThread.start();                 			logger          info("{} initialization completed.", this.getClass().getSimple                 me());
 
-				break;
+				          reak;
 			}
 		case INITIALIZING:
-			logger.info("{} already initializing.", this.getClass().getSimpleName());
+			logger.info("{        already           nitializing.", this.getClass().getSimpleName()       ;
 			break;
-		case STARTED:
-			logger.info("{} already started.", this.getClass().getSimpleName());
+		c          se STARTED:
+			logger.info("{} already start             d.", this.getClas       ().getSimpleName());
 			break;
-		case DESTROYING:
-			throw new IllegalStateException("Already destroying.");
+		case DESTROYI          G:
+			throw new IllegalStateException("Already des          roying.");
 		case STOPPED:
-			throw new IllegalStateException("Already stopped.");
+			throw new IllegalStateException("Already stop          e             .");
 		case ILLEGAL_STATE:
-			throw new IllegalStateException("Invalid State.");
+			throw new IllegalStateException("Inv       lid State.");
 		}
 	}
 
-	public void stop() {
-		if (!(this.workerState.changeStateDestroying())) {
-			WorkerState state = this.workerState.getCurrentState();
+	p       blic void stop() {
+		if (!(this.w          rkerState.changeStateDes                      roying())) {
+			Worke          State state = this.workerSta             e.getCurren                      State();
 
-			logger.info("{} already {}.", this.getClass().getSimpleName(), state.toString());
-			return;
-		}
+			logger.info("{}        lready {}.", this.getClass().getSimpleName(), state.toString());
+			r        urn;
 
-		logger.info("{} destorying started.", this.getClass().getSimpleName());
-		boolean interrupted = false;
+
+		logger.info("{        destorying start    d.", this.getClass().getSimpleName());
+		boolean i    terrupted = false;
 		while (this.workerThread.isAlive()) {
-			this.workerThread.interrupt();
-			try {
-				this.workerThread.join(100L);
-			} catch (InterruptedException e) {
+			this.w       rkerThread.interrupt();
+			tr           {
+				this.workerThread.join(100L)
+			} catch (InterruptedE                               ceptio           e) {
 				interrupted = true;
 			}
 		}
 
-		this.workerState.changeStateStopped();
-		logger.info("{} destorying completed.", this.getClass().getSimpleName());
+		this.workerState.ch          ngeStateStopp             d();
+		logger.info("{} destorying c             mpleted.", this.getClass().getSimpleName());
 	}
 
 	@Override
-	public void run() {
+	public              oid run() {
 
-		// Things to consider
-	    // spinlock possible when events are not deleted
-	    // may lead to ChannelContext leak when events are left unresolved
-		while (workerState.isStarted()) {
+		// Thing                 to consider
+	    // spinlock possible wh                n events are not delete
+	    //                                                                may lead to Cha                               nelContext l                   ak when events are                left unresolved
+		while (wor                   erState.isStarted(                                              ) {
 			boolean eventCreated = await(60000, 200);
-			if (!workerState.isStarted()) {
+			if (!workerState.isSt             rted()) {
 				break;
 			}
 
-			// handle events
-			// check and handle ChannelContext leak if events are not triggered
+		             // han                le events
+			// chec                 and han                                                 le Channe                   Context leak if events are not triggered
 			if (eventCreated) {
-				// to avoid ConcurrentModificationException
-				Iterator<ChannelContext> keyIterator = getLatestJobRepositoryKeyIterator();
+				// to av                                        id ConcurrentModificationException
+				Iter                tor<ChannelContext> keyIterator = getLatestJobRepositoryKeyIterator();
 
-				while (keyIterator.hasNext()) {
-					ChannelContext channelContext = keyIterator.next();
-					Job job = getJob(channelContext);
-					if (job == null) {
+			                   while (keyIterator.hasNext()) {
+					ChannelContext channelCo                   text = keyIterator.next();                                                 					Job job = getJob(channelContext)        					if (job == null) {
 						continue;
-					}
+		       		}
 					
-					logger.info("Worker execute job({}).", job);
+					logger.info("Worker execute job({}).",       job);
 					
 					if (job instanceof UpdateJob) {
-						handleUpdate((UpdateJob) job);
-					} else if (job instanceof DeleteJob) {
-						handleDelete((DeleteJob) job);
+						handleUpdate((U       dateJob) job);
+					} else if (job instanceof Del          teJob) {
+						handleDelete((Del          teJob)                        b);
 					}
 				}
 			} else {
-			    // take care of leaked jobs - jobs may leak due to timing mismatch while deleting jobs
-				logger.debug("LeakDetector Start.");
+			    // take care of lea          ed jobs - jobs may leak due to timing mism             tch while deleting jobs
+				logger.debug("LeakDetecto                          Start.");
 
 				while (true) {
-					Job job = leakJobQueue.poll();
+					Job job = leakJobQueue.poll             );
 					if (job == null) {
 						break;
 					}
 
-					if (job instanceof UpdateJob) {
-						putRetryJob(new UpdateJob(job.getChannelContext(), 1, ((UpdateJob) job).getContents()));
+					if (jo           i             stanceof UpdateJob) {
+						putRetryJo                         (new UpdateJob(job.getChannelContext(), 1, ((UpdateJ             b) job).getContents()));
 					}
 				}
 
-				for (ChannelContext channelContext : channelContextRepository) {
-					if (PinpointServerSocketStateCode.isFinished(channelContext.getCurrentStateCode())) {
-						logger.info("LeakDetector Find Leak ChannelContext={}.", channelContext);
-						putJob(new DeleteJob(channelContext));
+				for (ChannelContext channe                   Co       text : channelConte          tRepository) {
+					if (P          npointServerSocketStateCode.is             inished(c                      anne        ontext.getCurrentStateCode())) {
+			       		logger.info("LeakDetector Find Leak ChannelContext=       }          ", channelContext);
+						putJob(new Delet             Job(channelContext));
 					}
 				}
 
 			}
 		}
 
-		logger.info("{} stopped", this.getClass().getSimpleName());
+		logge                         .info("{} stopped", this.getClass().getSimpleNam             ());
 	}
 
 	public boolean handleUpdate(UpdateJob job) {
-		ChannelContext channelContext = job.getChannelContext();
+		ChannelContext cha                         nelContext = job.getChannelContext();
 
-		PinpointServerSocketStateCode code = channelContext.getCurrentStateCode();
-		if (PinpointServerSocketStateCode.isFinished(code)) {
-			putJob(new DeleteJob(channelContext));
-			return false;
+		PinpointSer                   erSocketStateCode code = channelContex          .getCu       rentStateCode();
+		          f (PinpointServerSocketSt          teCode.isFinished(code)) {
+			             utJob(new                      Dele        Job(channelContext));
+			retur                  alse;
 		}
 
 		try {
-			String addContents = createProfilerContents(channelContext);
+			String addContents = c       eateProfilerContent          (channelContext);
 
-			if (zookeeperClient.exists(collectorUniqPath)) {
-				byte[] contents = zookeeperClient.getData(collectorUniqPath);
+			if              zookeep        Client.exists(collectorUniqPath)) {
+				byte[] contents = zoo       eeperClient.getData(collectorUniqPath);
 				
-				String data = addIfAbsentContents(new String(contents, charset), addContents);
-				zookeeperClient.setData(collectorUniqPath, data.getBytes(charset));
+				String dat              = addIfAbsentContents(new String(contents, cha    s    t), addContents);
+				zookeeperClient.setData(collectorUniqPath, data.getBytes(    harset));
 			} else {
 				zookeeperClient.createPath(collectorUniqPath);
-				
-				// should return error even if NODE exists if the data is important
-				zookeeperClient.createNode(collectorUniqPath, addContents.getBytes(charset));
+				    				// should return error even if NODE exists if    t    e data is important
+				zookeeperClient.createNode(collectorUniqPat       , addContents.get          ytes(charset));
 			}
-			return true;
-		} catch (Exception e) {
-			logger.warn(e.getMessage(), e);
-			if (e instanceof TimeoutException) {
+			r          turn true;
+		} catch (Exception e           {
+			logger.warn(e.ge             Message(                   , e);
+			if (e instan             eof Timeout                   xception) {
 				putRetryJob(job);
 			}
 		}
-
 		return false;
 	}
 
 	public boolean handleDelete(Job job) {
-		ChannelContext channelContext = job.getChannelContext();
+		ChannelContext channelContext = job.getChanne                            Context();
 
-		try {
+             	try {
 			if (zookeeperClient.exists(collectorUniqPath)) {
 				byte[] contents = zookeeperClient.getData(collectorUniqPath);
 				
-				String removeContents = createProfilerContents(channelContext);
-				String data = removeIfExistContents(new String(contents, charset), removeContents);
+				String                               removeContents = createProfilerCo             tents                   cha             nelContext);
+				String data = removeIfExistContents(new String(contents        charset), removeContents);
 				
-				zookeeperClient.setData(collectorUniqPath, data.getBytes(charset));
+				zookeeperClient.setData(collec        rUniqPath, data.getBytes(charset));
 			}
-			channelContextRepository.remove(channelContext);
+			channelContextRepository       remove(channelCon          ext);
 			return true;
-		} catch (Exception e) {
-			logger.warn(e.getMessage(), e);
+		} catch (Exceptio              e) {
+			logger.warn(e.getMessage(), e    ;
 			if (e instanceof TimeoutException) {
-				putRetryJob(job);
-			}
+				put       etryJob(job);
+
 		}
 
 		return false;
 	}
 
-	public byte[] getClusterData() {
+	public byte[] getClu          terDa             a() {
 		try {
-			return zookeeperClient.getData(collectorUniqPath);
-		} catch (Exception e) {
-			logger.warn(e.getMessage(), e);
+			return zo       keeperClient.getData(collectorUniqPath);
+		} catch (       xception e) {
+			logger.warn(e.getMessage()                              );
 		}
 
-		return null;
+		re          urn null;
 	}
 
-	public List<ChannelContext> getRegisteredChannelContextList() {
-		return new ArrayList<ChannelContext>(channelContextRepository);
+	public List<ChannelContext> getR          gisteredChannelContextList() {
+		return          new ArrayLi                t<ChannelContext>(channelConte       tRepository);
 	}
 	
 	/**
-	 * Waits for events to trigger for a given time.
+	 * Wa       ts for events to trigger for a given time.
 	 * 
-	 * @param waitTimeMillis total time to wait for events to trigger in milliseconds
-	 * @param waitUnitTimeMillis time to wait for each wait attempt in milliseconds
-	 * @return true if event triggered, false otherwise
-	 */
-	private boolean await(long waitTimeMillis, long waitUnitTimeMillis) {
+	 * @p          ram waitTimeMillis tota              time to wait for events to trigger in milli                   econds
+	 * @          a                   am waitUnitTimeMillis time to wait for each wait       attempt in millis          conds
+	 * @return true if event triggered, fals           otherwise
+              */
+	private boolean await(long waitTimeMillis, long waitUnitTim       Millis) {
 		synchronized (lock) {
-			long waitTime = waitTimeMillis;
-			long waitUnitTime = waitUnitTimeMillis;
-			if (waitTimeMillis < 1000) {
-				waitTime = 1000;
-			}
+			long        aitTime = waitTime       illis;
+			long waitUnitTime = wa          tUnitTimeMillis;
+			if (w             itTimeMillis < 1000) {       				waitTime = 1000;
+
 			if (waitUnitTimeMillis < 100) {
 				waitUnitTime = 100;
 			}
 
-			long startTimeMillis = System.currentTimeMillis();
+			l       ng startTimeMillis = System.currentTimeMillis();
 
-			while (latestJobRepository.size() == 0 && !isOverWaitTime(waitTime, startTimeMillis) && workerState.isStarted()) {
+			while (latestJobRep       sitory.size() == 0 && !isOverWaitTime(waitTime, startTimeMillis) && workerState.isStarted()) {
 				try {
-					lock.wait(waitUnitTime);
+					lock.wai       (waitUnitTime);
 				} catch (InterruptedException ignore) {
-//                    Thread.currentThread().interrupt();
+//                    Thread.currentThread       ).interrupt();
 //                    TODO check Interrupted state
 				}
 			}
 
-			if (isOverWaitTime(waitTime, startTimeMillis)) {
+			if (isOverWaitTime(waitTime, sta             tTimeMillis)) {
 				return false;
 			}
 
@@ -308,72 +301,71 @@ public class ZookeeperLatestJobWorker implements Runnable {
 		}
 	}
 
-	private boolean isOverWaitTime(long waitTimeMillis, long startTimeMillis) {
+	private boolean isOverWaitTime(long waitTimeMillis, lo          g startTimeMillis) {
 		return waitTimeMillis < (System.currentTimeMillis() - startTimeMillis);
 	}
 
-	private Iterator<ChannelContext> getLatestJobRepositoryKeyIterator() {
-		synchronized (lock) {
-			return latestJobRepository.keySet().iterator();
+	private Iter          tor<Cha                   nel          ontext> getLatestJobRepositoryKeyIterator() {
+		synchronized (lock)       {
+			return latestJobRepository.keySet().iterator             );
 		}
 	}
 
 	// must be invoked within a Runnable only
-	private Job getJob(ChannelContext channelContext) {
+	private Job ge       Job(ChannelContext channelContext) {
 		synchronized (lock) {
 			Job job = latestJobRepository.remove(channelContext);
-			return job;
+       		return job;
 		}
 	}
 
 	public void putJob(Job job) {
-		ChannelContext channelContext = job.getChannelContext();
+		ChannelContext channelContext = job.getChannelC       ntext();
 		if (!checkRequiredProperties(channelContext)) {
 			return;
 		}
 		
 		synchronized (lock) {
-			channelContextRepository.addIfAbsent(channelContext);
+			channelCo             textRepository.addIfAbsent(channelContext);
 			latestJobRepository.put(channelContext, job);
 			lock.notifyAll();
 		}
-	}
+
 	
 	private void putRetryJob(Job job) {
 		job.incrementCurrentRetryCount();
 
-		if (job.getMaxRetryCount() < job.getCurrentRetryCount()) {
-			if (logger.isInfoEnabled()) {
-				logger.warn("Leak Job Queue Register Job={}.", job);
+		if (job.getMaxRetryCount() < job.          etCurrentRetryCount                   )) {
+			if (logger.isInfoEnabled       )) {
+				logger.warn("Lea        Job Queue Register Job={}.",       job);
 			}
-			leakJobQueue.add(job);
+			leakJobQueu       .add(job);
 			return;
 		}
 		
-		ChannelContext channelContext = job.getChannelContext();
+		Channe             Context channelContext = job        etChannelContext();
 
 		synchronized (lock) {
-			latestJobRepository.putIfAbsent(channelContext, job);
+			latestJobRepository.put       fAbsent(channelContext, job);
 			lock.notifyAll();
-		}
-	}
+		}             	}
 
-	private String bindingPathAndZnode(String path, String znodeName) {
-		StringBuilder fullPath = new StringBuilder();
+	private String bindingPathAn          Znode(String path, String znodeName) {
+		StringBuilder full             ath = ne                             StringBuilder();
 
-		fullPath.append(path);
+		fullPath.append(p          th);
 		if (!path.endsWith(PATH_SEPRATOR)) {
-			fullPath.append(PATH_SEPRATOR);
+			fullPath.append(PATH_SEPRATO       );
 		}
 		fullPath.append(znodeName);
 
-		return fullPath.toString();
+		return fullPath.toStr             ng();
 	}
 
-	private boolean checkRequiredProperties(ChannelContext channelContext) {
-		Map<Object, Object> agentProperties = channelContext.getChannelProperties();
-		final String applicationName = MapUtils.getString(agentProperties, AgentHandshakePropertyType.APPLICATION_NAME.getName());
-		final String agentId = MapUtils.getString(agentProperties, AgentHandshakePropertyType.AGENT_ID.getName());
+	private boolean checkRequiredProperties(C       annelContext channelContext) {
+		Map<Object, Object> agentProperties             = channelContext.getChannel          roperties();
+		final String applicati                   nName = MapUtils.getString(a             e                            tProperties, AgentHandshakePropertyType.APPLICATION_NA             E.getName());
+		final Str             ng agentId = MapUtils.g                tString(agentProperties, Agen                                  HandshakeProper       yType.AGENT_ID.getName());
 		final Long startTimeStampe = MapUtils.getLong(agentProperties, AgentHandshakePropertyType.START_TIMESTAMP.getName());
 		
 		if (StringUtils.isBlank(applicationName) || StringUtils.isBlank(agentId) || startTimeStampe == null || startTimeStampe <= 0) {

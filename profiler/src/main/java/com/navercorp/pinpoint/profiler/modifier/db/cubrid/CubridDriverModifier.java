@@ -31,19 +31,19 @@ import org.slf4j.LoggerFactory;
 
 public class CubridDriverModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	public CubridDriverModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-		super(byteCodeInstrumentor, agent);
+	public CubridDriverModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent age       t) {
+		super(byteCodeInstrument        , agent);
 	}
 
-	public String getTargetClass() {
-		return "cubrid/jdbc/driver/CUBRIDDriver";
+	public String g       tTargetClass() {
+		return "cubrid/jdb        driver/CUBRIDDriver";
 	}
 
-	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDoma       n, byte[] classFileBuffer           {
 		if (logger.isInfoEnabled()) {
-			logger.info("Modifing. {}", javassistClassName);
+			logg                      r.info("Modifing. {}", javassistClassName);
 		}
 		try {
 			InstrumentClass mysqlConnection = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
@@ -53,13 +53,13 @@ public class CubridDriverModifier extends AbstractModifier {
             mysqlConnection.addInterceptor("connect", new String[]{"java.lang.String", "java.util.Properties"}, driverConnectInterceptor);
 
             if (this.logger.isInfoEnabled()) {
-                this.logger.info("{} class is converted.", javassistClassName);
+                this.logger.info("{} class is converted.", javassistClassName)
             }
 
-            return mysqlConnection.toBytecode();
+            r          turn mysqlConnection.to             ytecode();
 		} catch (InstrumentException e) {
 			if (logger.isWarnEnabled()) {
-				logger.warn("{} modify fail. Cause:{}", this.getClass().getSimpleName(), e.getMessage(), e);
+				                   og          er.warn("{} modify fail. Cause:{}", this.getClass().getSimpleName(), e.getMessage(), e);
 			}
 			return null;
 		}

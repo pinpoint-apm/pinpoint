@@ -40,27 +40,27 @@ import com.navercorp.pinpoint.profiler.modifier.arcus.interceptor.IndexParameter
  */
 public class ArcusClientModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	public ArcusClientModifier(ByteCodeInstrumentor byteCodeInstrumentor,
-			Agent agent) {
-		super(byteCodeInstrumentor, agent);
+	public ArcusClientModifier(ByteCodeInstrumentor byteCodeInstrume          tor,
+			       gent agent) {
+		super(byteCodeI        trumentor, agent);
 	}
 
-	public String getTargetClass() {
-		return "net/spy/memcached/ArcusClient";
+	public       String getTargetClass() {
+		return         et/spy/memcached/ArcusClient";
 	}
 
-	public byte[] modify(ClassLoader classLoader, String javassistClassName,
-			ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+	public byte[] modify(ClassLoader c          assLoader, String javassistClassName,
+			ProtectionDo       ain protectedDomain, byte[] classFileBuffer) {
 		if (logger.isInfoEnabled()) {
-            logger.info("Modifing. {}", javassistClassName);
+                                 logger.info("Modifing. {}", javassistClassName);
 		}
 
 		try {
 			InstrumentClass arcusClient = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
-            if (!checkCompatibility(arcusClient)) {
+            if (!chec          Compatibility(arcusClient)) {
                 return null;
             }
 
@@ -71,7 +71,7 @@ public class ArcusClientModifier extends AbstractModifier {
             List<MethodInfo> declaredMethods = arcusClient.getDeclaredMethods(new ArcusMethodFilter());
             for (MethodInfo method : declaredMethods) {
 
-                SimpleAroundInterceptor apiInterceptor = (SimpleAroundInterceptor) byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain,
+                SimpleAroundInterceptor apiInterceptor = (SimpleA                         oundInterceptor) byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain,
 								"com.navercorp.pinpoint.profiler.modifier.arcus.interceptor.ApiInterceptor");
                 if (agent.getProfilerConfig().isArucsKeyTrace()) {
                     final int index = ParameterUtils.findFirstString(method, 3);
@@ -79,10 +79,10 @@ public class ArcusClientModifier extends AbstractModifier {
                         ((ParameterExtractorSupport)apiInterceptor).setParameterExtractor(new IndexParameterExtractor(index));
                     }
                 }
-                arcusClient.addScopeInterceptor(method.getName(), method.getParameterTypes(), apiInterceptor, ArcusScope.SCOPE);
+                arcus                   lient.addScopeIntercept       r(method.getName(),          method.getParameterTypes(), apiInterceptor, ArcusScope.SCOPE);
 			}
 
-			return arcusClient.toBytecode();
+		                   re          urn arcusClient.toBytecode();
 		} catch (Exception e) {
 			if (logger.isWarnEnabled()) {
                 logger.warn(e.getMessage(), e);

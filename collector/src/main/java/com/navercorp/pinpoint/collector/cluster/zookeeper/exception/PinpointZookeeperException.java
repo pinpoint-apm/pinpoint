@@ -20,19 +20,19 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper.exception;
  * @author koo.taejin
  */
 public class PinpointZookeeperException extends Exception {
-	
-	public PinpointZookeeperException() {
+
+	public PinpointZookeeperExceptio        ) {
 	}
 
-	public PinpointZookeeperException(String message) {
-		super(message);
+	public PinpointZookeeperException(String       message) {
+        super(message);
 	}
 
-	public PinpointZookeeperException(String message, Throwable cause) {
+	public PinpointZookeeperException(String mess       ge, Throwable caus         {
 		super(message, cause);
 	}
 
-	public PinpointZookeeperException(Throwable cause) {
+	public PinpointZo       keeperExc    ption(Throwable cause) {
 		super(cause);
 	}
 

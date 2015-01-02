@@ -40,16 +40,16 @@ public class HeaderTBaseSerializerTest {
 
     @Test
     public void testSerialize1() throws Exception {
-    	HeaderTBaseSerializer serializer = new HeaderTBaseSerializerFactory(false).createSerializer();
-    	HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializerFactory().createDeserializer();
-    	
+        HeaderTBaseSerializer serializer = new HeaderTBaseSerializerFactory(false).createSerializer();
+       	HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializerFactory().createDeserializer()
+
     	test(serializer, deserializer);
     }
     
     @Test
-    public void testSerialize2() throws Exception {
-    	HeaderTBaseSerializer serializer = new HeaderTBaseSerializerFactory().createSerializer();
-    	HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializerFactory().createDeserializer();
+    public void testSerialize2() throws Exce    tion {
+    	HeaderTBaseSerializer serializer = new HeaderTBaseSerializerFactory().createSer    alizer();
+    	HeaderTBaseDeserializer deserializer = new HeaderTBaseDeserializerFactory().createDe    er    alizer();
     	
     	test(serializer, deserializer);
     }

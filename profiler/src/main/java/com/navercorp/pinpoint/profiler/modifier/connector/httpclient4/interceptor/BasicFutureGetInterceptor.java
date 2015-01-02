@@ -37,26 +37,24 @@ import com.navercorp.pinpoint.common.ServiceType;
  * 
  * <code>
  * <pre>
- * 	public synchronized T get() throws InterruptedException, ExecutionException {
- * 		while (!this.completed) {
- * 			wait();
- * 		}
- * 		return getResult();
+ *     public synchronized T get() throws InterruptedException, ExecutionException {
+       * 		while (!this.complet          d) {              * 			wait();
+ *
+ * 		    eturn getResult();
  * 	}
  * 
- * 	public synchronized T get(final long timeout, final TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
- * 		Args.notNull(unit, "Time unit");
- * 		final long msecs = unit.toMillis(timeout);
- * 		final long startTime = (msecs <= 0) ? 0 : System.currentTimeMillis();
- * 		long waitTime = msecs;
- * 		if (this.completed) {
- * 			return getResult();
- * 		} else if (waitTime <= 0) {
- * 			throw new TimeoutException();
+ * 	public synchronized T get(final long timeout, final TimeUnit unit) throws InterruptedException, Execut       onException, TimeoutException {        * 		Args.notNull(unit, "Time unit");
+ *        	final long msecs = unit.toMillis(timeout);
+ * 		final long startTim        = (msecs <= 0) ? 0 :       System.currentTimeMi          lis();
+ * 		long       waitTime = msecs;
+ * 		if           this.completed) {
+ * 			re       urn get          esult()
+ * 		} el             e if (waitTime <                 0) {
+ * 			             hro                 new TimeoutException();
  * 		} else {
- * 			for (;;) {
- * 				wait(waitTime);
- * 				if (this.completed) {
+ * 			for (;;)                {
+ * 				wait                   waitTime);
+ * 				if                                              (this.completed) {
  * 					return getResult();
  * 				} else {
  * 					waitTime = msecs - (System.currentTimeMillis() - startTime);
@@ -73,37 +71,37 @@ import com.navercorp.pinpoint.common.ServiceType;
  * @author netspider
  * 
  */
-public class BasicFutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
+public class BasicFutureGetInterceptor implem    nts SimpleAroundInterceptor, ByteC    deMethodDescriptorSupport, TraceConte    tSuppor    , TargetClassLoader {
 
-    protected final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    protected final boolean isDebug = logger.isDebugEnabled();
+    protected final PLogg       r logger =          PLoggerFactory.getLogger(this.get             lass());
+    protected final boolean isDebu        = logger.isDebu          E             abled();
 
-	protected TraceContext traceContext;
+	protecte        TraceContext trace       ontext;
 	protected MethodDescriptor descriptor;
 
-	@Override
-	public void before(Object target, Object[] args) {
+	@Ove        ide
+	pu    lic void before(Object target, Object[] args) {
 		if (isDebug) {
-			logger.beforeInterceptor(target, args);
+			logger.beforeIn       erceptor(t          rget, args);
 		}
 
-		Trace trace = traceContext.currentTraceObject();
-		if (trace == null) {
-			return;
+		Trace trace               traceContext.currentTraceObject();
+		if (t       ace == null) {
+	          	                       turn;
 		}
 
-		trace.traceBlockBegin();
-		trace.markBeforeTime();
-		trace.recordServiceType(ServiceType.HTTP_CLIENT_INTERNAL);
+		trace.tra          eBlockBegin();
+		trace.mark          eforeTime();
+		t       ace.rec          rdServiceType(Se             viceTy    e.HTTP_CLIENT_INTERNAL);
 	}
 
 	@Override
-	public void after(Object target, Object[] args, Object result, Throwable throwable) {
+	public void a       ter(Object target, Object[] a        s, Obje    t result, Throwable throwable) {
 		if (isDebug) {
-			logger.afterInterceptor(target, args);
+			logger.       fterInterceptor(target, a       gs);
 		}
 
-		Trace trace = traceContext.currentTraceObject();
+		Trace trace = trac    Context.currentTraceObject();
 		if (trace == null) {
 			return;
 		}

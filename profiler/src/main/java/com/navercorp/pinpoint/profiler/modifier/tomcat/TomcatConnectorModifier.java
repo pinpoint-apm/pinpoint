@@ -50,17 +50,17 @@ public class TomcatConnectorModifier extends AbstractModifier {
         }
         
         try {
-			// Get protocol and port by intercepting initialize()
+          		// Get protocol and port by intercepting init          alize()
 			Interceptor interceptor = byteCodeInstrumentor.newInterceptor(classLoader, protectedDomain,
-                    "com.navercorp.pinpoint.profiler.modifier.tomcat.interceptor.ConnectorInitializeInterceptor", null, null);
-			InstrumentClass connector = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+                    "com.navercorp.pinpoint.profiler.modifier.tomcat.interceptor.ConnectorInitializeIntercept          r", null, null);
+			InstrumentClass connector = byteCodeInstrumentor.getClass(classLoader, javassistCla          sName           classFileBuffer);
 
 			// Tomcat 6
-			if (connector.hasDeclaredMethod("initialize", null)) {
-				connector.addInterceptor("initialize", null, interceptor);
-			}
+			if (connec             or.hasDeclaredMethod("initialize", null)) {
+				co                   n          ctor.addInterceptor("initialize", null, interceptor);
+	             	}
 			// Tomcat 7
-			else if (connector.hasDeclaredMethod("initInternal", null)) {
+			else if (connector.hasDeclaredM          thod("initInternal", null)) {
 				connector.addInterceptor("initInternal", null, interceptor);
 			}
 

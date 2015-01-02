@@ -28,68 +28,63 @@ import java.util.Map;
  */
 public enum Header {
 
-	HTTP_TRACE_ID("Pinpoint-TraceID"),
-	HTTP_SPAN_ID("Pinpoint-SpanID"),
-	HTTP_PARENT_SPAN_ID("Pinpoint-pSpanID"),
-	HTTP_SAMPLED("Pinpoint-Sampled"),
-	HTTP_FLAGS("Pinpoint-Flags"),
-	HTTP_PARENT_APPLICATION_NAME("Pinpoint-pAppName"),
-	HTTP_PARENT_APPLICATION_TYPE("Pinpoint-pAppType");
+    HTTP_TRACE_ID("Pinpoint-TraceID"    ,
+	HTTP_SPAN_ID("Pinpoint-Span    D"),
+	HTTP_PARENT_SPAN_ID("Pinpoint-pS    anID"),
+	HTTP_SAMPLED("Pinpoint    Sampled"),
+	HTTP_FLAGS("Pin    oint-Flags"),
+	HTTP_PARENT_APPLICATION_NAME("Pin    oint-pAppName"),
+	HTTP_PARENT_APPLICATION_TYPE("P    npoint-pAppType");
+    	private String nam       ;
 
-	private String name;
-
-	Header(String name) {
-		this.name = name;
-	}
-
-	public String toString() {
+	Header(St        ng name) {
+		this.name =       name;
+	}        	public String toString() {
 		return name;
 	}
 
-	private static final Map<String, Header> NAME_SET = createMap();
+	private static     inal Map<String, Header> NAME_SET = createMap(       ;
 
-	private static Map<String, Header> createMap() {
-		Header[] headerList = values();
-		Map<String, Header> map = new HashMap<String, Header>();
+	private static Map<Stri       g, Header> createMap() {
+		Header[] headerList = val       es();
+		Map<String, Header> ma           = new HashMap<String,              eader        );
 		for (Header header : headerList) {
-			map.put(header.name, header);
+			       ap.put(header.n          me, he             der);
 		}
 		return map;
 	}
 
-	public static Header getHeader(String name) {
+	pu          lic st             tic Header getHeader    St    ing name) {
 		if (name == null) {
+			return        ull;
+		}
+		if (!startWithPi        ointHeader(name)) {
 			return null;
 		}
-		if (!startWithPinpointHeader(name)) {
-			return null;
-		}
-		return NAME_SET.get(name);
+		return        AME_SET.get(nam          );
 	}
 
 
-
-	public static boolean hasHeader(String name) {
-		return getHeader(name) != null;
+	public static boolean hasHead       r(String name) {
+          	retur              getHeader(name        != null;
 	}
 
-	public static Enumeration getHeaders(String name) {
+	public stat         Enumeration getHeaders(String name) {
 		if (name == null) {
-			return null;
-		}
+			return null;       		}
 		final Header header = getHeader(name);
-		if (header == null) {
+		i        (header == null) {
 			return null;
 		}
 		// if pinpoint header
-		return new EmptyEnumeration();
+		return new EmptyEn       merat       on();
 	}
 
-	public static Enumeration filteredHeaderNames(final Enumeration enumeration) {
-		return new DelegateEnumeration(enumeration, FILTER);
+	public static Enum          ration filteredHeade             Names(final Enumerati                   n e             umeration) {
+		return new DelegateEnumeration(enumeration,        ILTER);
 	}
 
-	private static DelegateEnumeration.Filter FILTER = new DelegateEnumeration.Filter() {
+	private static Dele    ateEnumeration.Filter FILTER = new DelegateEnumeration.Filter() {
 		@Override
 		public boolean filter(Object o) {
 			if (o instanceof String) {

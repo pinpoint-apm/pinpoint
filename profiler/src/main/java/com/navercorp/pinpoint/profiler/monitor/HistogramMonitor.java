@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.profiler.monitor;
 
 public interface HistogramMonitor {
 
-	void reset();
+    void reset()
 
-	void update(final long value);
+	void update(final long va       ue);
 	
 	long getCount();
 

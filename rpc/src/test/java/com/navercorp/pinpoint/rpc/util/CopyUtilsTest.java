@@ -27,49 +27,49 @@ import com.navercorp.pinpoint.rpc.util.CopyUtils;
 
 public class CopyUtilsTest {
 
-	@Test
-	public void copyUtilsTest() {
-		Map original = createSimpleMap("key", 2);
+    @Te    t
+	public void copyUtilsTes       () {
+		Map original = createSimpleMap(       key", 2);
 
-		Map copied = CopyUtils.mediumCopyMap(original);
-		Assert.assertEquals(2, copied.get("key"));
-		Assert.assertEquals(2, original.get("key"));
+		Map copied = CopyUtils.mediumC       pyMap(original);
+		Assert.assertEquals       2, copied.get("key"));
+		Assert.assertEqu       ls(2, original.get(       key"));
 
-		original.put("key", 4);
-		copied.put("key", 3);
-		copied.put("new", "new");
+		origin       l.put("key", 4);
+		cop       ed.put("key", 3);
+		copied.put("new",        new");
 
-		Assert.assertEquals(3, copied.get("key"));
-		Assert.assertEquals("new", copied.get("new"));
-		Assert.assertEquals(4, original.get("key"));
+		Assert.assertEquals(3, copied.ge       ("key"));
+		Assert.assertEquals("new", c        ied    get("new"));
+		Assert.assert       quals(4, original.get("key"));
 	}
 
-	@Test
+	@T       st
 	public void copyUtilsTest2() {
-		Map original = createSimpleMap("key", 2);
+		Map origina        = createSimpleMap("key", 2       ;
 
-		Map innerMap = createSimpleMap("innerKey", "inner");
-		original.put("map", innerMap);
+		Map innerMap = createSimpleMap("innerKe       ", "inner");
+		original.put("map", inn       rMap);
 
 		Map copied = CopyUtils.mediumCopyMap(original);
 
-		Assert.assertEquals(2, copied.get("key"));
-		Assert.assertEquals("inner", ((Map) copied.get("map")).get("innerKey"));
-		Assert.assertEquals(2, original.get("key"));
-		Assert.assertEquals("inner", ((Map) original.get("map")).get("innerKey"));
+		Assert.       ssertEquals(2, copied.get("key"));
+		Ass       rt.assertEquals("inner", ((Map) copied.get("map")).get("innerKey"));
+		       ssert.assertEquals(       , original.get("k             y"));
+		Assert.assertEqua       s("inner", ((Map) original.get("map")).ge       ("innerKey"));
 
-		original.put("key", 3);
+		original.put(             key", 3);
 		copied.put("key", 4);
-		
+
 		innerMap.put("innerKey", "key");
-		Map copiedInnerMap = (Map) copied.get("map");
+		Map copiedInnerMap = (Map) cop       ed.get("map");
 		copiedInnerMap.put("test", "test");
 		
-		Assert.assertEquals(4, copied.get("key"));
-		Assert.assertEquals("inner", ((Map) copied.get("map")).get("innerKey"));
-		Assert.assertEquals("test", ((Map) copied.get("map")).get("test"));
+		Asser       .assertEquals(4, copied.get("key"));
+		A       sert.assertEquals("inner", ((Map) copied.get("map")).get("innerKey")       ;
+		Assert.assertEquals("test", ((Map) copied.get("map")).get("t        t"));
 		Assert.assertEquals(3, original.get("key"));
-		Assert.assertEquals("key", ((Map) original.get("map")).get("innerKey"));
+       	Assert.assertEquals       "key", ((Map) ori       inal.ge    ("map")).get("innerKey"));
 		Assert.assertFalse(((Map) original.get("map")).containsKey("test"));
 	}
 

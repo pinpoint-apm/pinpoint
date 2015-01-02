@@ -32,27 +32,27 @@ import java.security.ProtectionDomain;
  */
 public class RequestFacadeModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	public RequestFacadeModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-		super(byteCodeInstrumentor, agent);
+	public RequestFacadeModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent age       t) {
+		super(byteCodeInstrument        , agent);
 	}
 
-	public String getTargetClass() {
-		return "org/apache/catalina/connector/RequestFacade";
+	public String g       tTargetClass() {
+		return "org/apache/catalina/co        ector/RequestFacade";
 	}
 
-	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDoma       n, byte[] classFileBuffer           {
 		if (logger.isInfoEnabled()) {
-			logger.info("Modifing. {}", javassistClassName);
+			logg             r          info("Modifing. {}", javassistClassName);
 		}
 
 
 		try {
-			InstrumentClass requestFacade = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
-			requestFacade.weaving("com.navercorp.pinpoint.profiler.modifier.tomcat.aspect.RequestFacadeAspect");
-			return requestFacade.toBytecode();
-		} catch (InstrumentException e) {
+			InstrumentClass requestFacade = byteCodeInstrum          ntor.getClass(classLoader, javassistClassName, classFileBuffer);
+			requestFacade.weaving("com          navercorp.pinpoint.profiler.       odifier.tomcat.aspect.Request          acadeAspect");
+			return requestFacade.toBytecode          );
+		}          catch (InstrumentException e) {
 			logger.warn("modify fail. Cause:" + e.getMessage(), e);
 			return null;
 		}

@@ -22,26 +22,26 @@ import java.util.Enumeration;
  * @author emeroad
  */
 public class EmptyEnumeration<E> implements Enumeration<E> {
-	private static final NullNextElementAction NULL_NEXT_ELEMENT_ACTION = new NullNextElementAction();
+    private static final NullNextElementAction NULL_NEXT_ELEMENT_ACTION = new NullNextElementAction()
 
-	private final NextElementAction<E> nextElementAction;
+	private final NextElementAction<E> nextElementAct    on;
 
-	@SuppressWarnings("unchecked")
-	public EmptyEnumeration() {
-		this(NULL_NEXT_ELEMENT_ACTION);
+	@SuppressWarnings("unc    ecked")
+	public EmptyEnum       ration() {
+		this(NULL_NEXT        LEMENT_ACTION);
 	}
 
-	public EmptyEnumeration(NextElementAction<E> nextElementAction) {
-		this.nextElementAction = nextElementAction;
+	public EmptyEnumeration(NextElementAction<       > nextElementAction) {
+		this.nextEleme        Action      nextElementAction;
+	}
+
+	@Overri       e
+	public        oolean     asMoreElements() {
+		r       turn false;
 	}
 
 	@Override
-	public boolean hasMoreElements() {
-		return false;
-	}
-
-	@Override
-	public E nextElement() {
+	public      nextElement() {
 		return nextElementAction.nextElement();
 	}
 }

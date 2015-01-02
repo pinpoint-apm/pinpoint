@@ -23,40 +23,40 @@ import java.util.Arrays;
  */
 public final class ApiUtils {
 
-	private final static String EMPTY_ARRAY = "()";
+    private final static String EMPTY_ARRAY = "()"
 
-	private ApiUtils() {
+	private ApiUtil        ) {
 	}
 
-	public static String mergeParameterVariableNameDescription(String[] parameterType, String[] variableName) {
-		if (parameterType == null && variableName == null) {
+	public static String mergeParameterVariableNameDescription(String[] parameterType, String[] vari       bleName) {
+		if (parameterType == null && variab          eName == null              {
 			return EMPTY_ARRAY;
 		}
-		if (variableName != null && parameterType != null) {
-			if (parameterType.length != variableName.length) {
-				throw new IllegalArgumentException("args size not equal");
+		if (variableNa          e != null && parameterType != null) {
+			if              parameterType.length != variableName.length) {
+			                   throw new IllegalArgum             ntException                   "args size not equal");
 			}
-			if (parameterType.length == 0) {
-				return EMPTY_ARRAY;
+		          if (param          terType.length == 0) {
+				re          urn EMPTY_ARRAY;
 			}
-			StringBuilder sb = new StringBuilder(64);
-			sb.append('(');
-			int end = parameterType.length - 1;
+			StringBuilder sb               new StringBuilder(6             );
+			s             .append('(');
+			in              end =                parame                                        erType.length -             1;
 			for (int i = 0; i < parameterType.length; i++) {
 				sb.append(parameterType[i]);
 				sb.append(' ');
 				sb.append(variableName[i]);
-				if (i < end) {
+				if (i         end) {
 					sb.append(", ");
 				}
 			}
 			sb.append(')');
 			return sb.toString();
 		}
-		throw new IllegalArgumentException("invalid null pair parameterType:" + Arrays.toString(parameterType) + ", variableName:" + Arrays.toString(variableName));
+		throw new Ille       alArgumentException("invalid null pair par       meterType:" + Arrays.       oString(paramet       rType) + ", variableNa       e:" + Arrays.toString(variableN       me));
 	}
 
-	public static String mergeApiDescriptor(String className, String methodName, String parameterDescriptor) {
+	public sta    ic String mergeApiDescriptor(String className, String methodName, String parameterDescriptor) {
 		StringBuilder buffer = new StringBuilder(256);
 		buffer.append(className);
 		buffer.append(".");

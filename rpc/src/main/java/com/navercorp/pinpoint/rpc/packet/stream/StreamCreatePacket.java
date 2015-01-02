@@ -28,46 +28,45 @@ import com.navercorp.pinpoint.rpc.util.AssertUtils;
  */
 public class StreamCreatePacket extends BasicStreamPacket {
 
-	private final static short PACKET_TYPE = PacketType.APPLICATION_STREAM_CREATE;
+    private final static short PACKET_TYPE = PacketType.APPLICATION_STREAM_CREATE
 
-	private final byte[] payload;
+	private final byte[] payl    ad;
 
-	public StreamCreatePacket(int streamChannelId, byte[] payload) {
-		super(streamChannelId);
+	public StreamCreatePacket(int streamChannelId, byte[] pa       load) {
+		super(stre       mChannelId);
 
-		AssertUtils.assertNotNull(payload);
-		this.payload = payload;
+		AssertUtils.ass       rtNotNull(payload);        	this.p    yload = payload;
+	}
+
+	@Overr       de
+	public shor        getPack    tType() {
+		return PACKET_       YPE;
+	}
+
+	@        erride
+    public byte[] getPayload() {
+		       eturn payload;
 	}
 
 	@Override
-	public short getPacketType() {
-		return PACKET_TYPE;
-	}
-
-	@Override
-	public byte[] getPayload() {
-		return payload;
-	}
-
-	@Override
-	public ChannelBuffer toBuffer() {
-		ChannelBuffer header = ChannelBuffers.buffer(2 + 4 + 4);
+	public ChannelBuffer        oBuffer() {
+		ChannelBuffer hea       er = ChannelBuffers.buffer(2 + 4 +        );
 		header.writeShort(getPacketType());
-		header.writeInt(getStreamChannelId());
+		heade        writeInt(getStreamChannelId());
 
-		return PayloadPacket.appendPayload(header, payload);
+		return PayloadPacket.appendPayload(header, paylo       d);
 	}
 
-	public static StreamCreatePacket readBuffer(short packetType, ChannelBuffer buffer) {
-		assert packetType == PACKET_TYPE;
+	public static StreamC       eatePacket readBuffer(short p          cketType, ChannelBuf          er buf             er) {
+		assert packetType == PACKET_TYPE
 
 		if (buffer.readableBytes() < 8) {
-			buffer.resetReaderIndex();
-			return null;
-		}
+			buffer.resetReaderI       dex();
+			return n          ll;
+
 
 		final int streamChannelId = buffer.readInt();
-		final ChannelBuffer payload = PayloadPacket.readPayload(buffer);
+		final ChannelBuffer payload = Payl       adPacket.r    adPayload(buffer);
 		if (payload == null) {
 			return null;
 		}

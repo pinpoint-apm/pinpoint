@@ -25,55 +25,53 @@ import com.navercorp.pinpoint.rpc.stream.StreamChannelStateCode;
 
 public class StreamChannelStateTest {
 
-	@Test
-	public void functionTest1() {
-		StreamChannelState state = new StreamChannelState();
-		Assert.assertEquals(StreamChannelStateCode.NEW, state.getCurrentState());
+    @Te    t
+	public void functionTest       () {
+		StreamChannelState state = new StreamChan       elState();
+		Assert.assertEquals(StreamChannelStateCode.NEW, state.ge          CurrentState());
 	
-		state.changeStateOpen();
-		Assert.assertEquals(StreamChannelStateCode.OPEN, state.getCurrentState());
+       	state.changeStateOpen();
+		Assert.assertEquals(StreamChannelStateCode.       PEN, state.getCurrentStat       ());
 
 		state.changeStateOpenAwait();
-		Assert.assertEquals(StreamChannelStateCode.OPEN_AWAIT, state.getCurrentState());
+		Assert.assertEquals(StreamChannelSta             eCode.OPEN_AWAIT        state.getCurrentState());
 		
 		state.changeStateRun();
-		Assert.assertEquals(StreamChannelStateCode.RUN, state.getCurrentState());
+		Assert.asse             tEquals(StreamChan       elStateCode.RUN, state.getCurrentState());
 		
-		state.changeStateClose();
-		Assert.assertEquals(StreamChannelStateCode.CLOSED, state.getCurrentState());
-	}
+		state.changeStateClose()
+	    Assert.assertEquals(StreamC       annelStateCode.CLOSED, state.getCurrentState());       	}
 	
 	@Test
 	public void functionTest2() {
-		StreamChannelState state = new StreamChannelState();
+		StreamChannelState state          = new StreamChannelState()
 		Assert.assertEquals(StreamChannelStateCode.NEW, state.getCurrentState());
 	
-		state.changeStateOpenArrived();
-		Assert.assertEquals(StreamChannelStateCode.OPEN_ARRIVED, state.getCurrentState());
+       	state.changeStateO       enArrived();
+		Assert.assertEquals(StreamChannelStateCode.OPEN_ARRIVE             , state.getCurrent       tate());
 
 		state.changeStateRun();
-		Assert.assertEquals(StreamChannelStateCode.RUN, state.getCurrentState());
+		Assert.assertEquals(StreamChannelS        teC    de.RUN, state.getCurrentSta       e());
 		
 		state.changeStateClose();
-		Assert.assertEquals(StreamChannelStateCode.CLOSED, state.getCurrentState());
+		Assert.as       ertEquals(StreamChannelStateCode.CLOSED, state.getCurrentState());
 	}
-
 	@Test
-	public void functionTest3() {
-		StreamChannelState state = new StreamChannelState();
-		Assert.assertEquals(StreamChannelStateCode.NEW, state.getCurrentState());
-	
+	public void functionTest3(        {
+		StreamChannelState       state = new StreamChannelState();
+		Assert.assertEquals(StreamChannelStateCode.          EW     state.getCurrentState());
+
 		boolean result = state.changeStateRun();
-		Assert.assertFalse(result);
-		Assert.assertEquals(StreamChannelStateCode.ILLEGAL_STATE, state.getCurrentState());
+		As       ert.assertFalse(result);
+		Assert.assertEquals(StreamChannelStateCode          ILLEGAL_STATE, stat       .getCurrentState());
 	}
 	
 	@Test
 	public void functionTest4() {
-		StreamChannelState state = new StreamChannelState();
-		Assert.assertEquals(StreamChannelStateCode.NEW, state.getCurrentState());
+		Stre             mChannelState state = new StreamC       annelState();
+		Assert.       ssertEquals(StreamChannelStateCode.NEW, state.getCurrentState());
 	
-		state.changeStateOpen();
+		state.cha    geStateOpen();
 		Assert.assertEquals(StreamChannelStateCode.OPEN, state.getCurrentState());
 		
 		boolean result = state.changeStateRun();

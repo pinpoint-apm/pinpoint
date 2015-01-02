@@ -24,22 +24,22 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
 
 public class HeaderTBaseDeserializerFactoryTest {
 
-	@Test
+    @Te    t
 	public void optionTest1() {
 
-        HeaderTBaseSerializerFactory factory = new HeaderTBaseSerializerFactory();
-    	Assert.assertTrue(factory.isSafetyGuranteed());
+        HeaderTBaseSerializerFactory factory = new HeaderTBaseSerializerFactory()
+    	Assert.assertTrue(factory.isSafetyGuran          ee    ());
 	}
 	
 	@Test
 	public void optionTest2() {
-        HeaderTBaseSerializerFactory factory = new HeaderTBaseSerializerFactory(true, 1);
-    	Assert.assertTrue(factory.isSafetyGuranteed());
+        HeaderTBaseSerializerFactory factory = new HeaderTBaseSerializerF    ctory(true, 1);
+    	Assert.assertTrue(factor          .i    SafetyGuranteed());
 	}
 	
 	@Test
 	public void optionTest() {
-        HeaderTBaseSerializerFactory factory = new HeaderTBaseSerializerFactory(false, 1);
-    	Assert.assertFalse(factory.isSafetyGuranteed());
+        HeaderTBaseSerializerFactory factory = new HeaderTB    seSerializerFactory(false, 1);
+    	Assert.ass    rtFalse(factory.isSafetyGuranteed());
 	}
 }

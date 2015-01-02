@@ -28,13 +28,13 @@ import com.navercorp.pinpoint.web.vo.Application;
  */
 @Component
 public class ApplicationNameMapper implements RowMapper<Application> {
-	@Override
+    @Overri    e
 	public Application mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return null;
-        }
-		String applicationName = Bytes.toString(result.getRow());
-		short serviceType = Bytes.toShort(result.value());
-		return new Application(applicationName, serviceType);
+              }
+		String applicationName = Bytes.toString(result       getRow());
+		short serviceType = Bytes.toShort       result.value());
+		return new Application(applica    ionName, serviceType);
 	}
 }

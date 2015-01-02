@@ -26,35 +26,33 @@ import com.navercorp.pinpoint.rpc.packet.PacketType;
  */
 public class StreamCreateSuccessPacket extends BasicStreamPacket {
 
-	private final static short PACKET_TYPE = PacketType.APPLICATION_STREAM_CREATE_SUCCESS;
+    private final static short PACKET_TYPE = PacketType.APPLICATION_STREAM_CREATE_SUCCESS
 
-	public StreamCreateSuccessPacket(int streamChannelId) {
-		super(streamChannelId);
+	public StreamCreateSuccessPacket(int streamChannel       d) {
+		super(stream        annelId    ;
 	}
 
 	@Override
-	public short getPacketType() {
-		return PACKET_TYPE;
+	public sho       t getPacketType         {
+		re    urn PACKET_TYPE;
 	}
 
-	@Override
-	public ChannelBuffer toBuffer() {
-		ChannelBuffer header = ChannelBuffers.buffer(2 + 4);
-		header.writeShort(getPacketType());
-		header.writeInt(getStreamChannelId());
+	@Override       	public ChannelBuffer toBuffer() {
+		ChannelBuff       r header = ChannelBuffers.buffe       (2 + 4);
+		header.writeShort(getPac       etType());        	header.writeInt(getStreamChannelId());
 
 		return header;
 	}
 
-	public static StreamCreateSuccessPacket readBuffer(short packetType, ChannelBuffer buffer) {
-		assert packetType == PACKET_TYPE;
+	public static StreamCreateS       ccessPacket readBuffer(short p       cketType, ChannelBuffer buffe          ) {
+		assert packetT          pe ==              ACKET_TYPE;
 
-		if (buffer.readableBytes() < 4) {
+		if (buffer.readableBytes()       < 4) {
 			buffer.resetReaderIndex();
 			return null;
 		}
 
-		final int streamChannelId = buffer.readInt();
+		final int streamChannelI        = buffer.    eadInt();
 
 		final StreamCreateSuccessPacket packet = new StreamCreateSuccessPacket(streamChannelId);
 		return packet;

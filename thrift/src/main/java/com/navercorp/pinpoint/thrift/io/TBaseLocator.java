@@ -30,11 +30,11 @@ public interface TBaseLocator {
 
     Header headerLookup(TBase<?, ?> dto) throws TException;
 
-	boolean isSupport(short type);
+    boolean isSupport(short type)
 
-	boolean isSupport(Class<? extends TBase> clazz);
+	boolean isSupport(Class<? extends TBase> cl       zz);
 	
-	Header getChunkHeader();
+	Header getChu       kHeader();
 	
 	boolean isChunkHeader(short type);
 }

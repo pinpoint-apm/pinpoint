@@ -29,17 +29,17 @@ import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 @Service
 public class AdminServiceImpl implements AdminService {
 
-	@Autowired
-	ApplicationIndexDao applicationIndexDao;
+    @Autowir    d
+	ApplicationIndexDao applicationIndex    ao;
 
-	@Override
-	public void removeApplicationName(String applicationName) {
-		applicationIndexDao.deleteApplicationName(applicationName);
+	@    verride
+	public void removeApplicationName(String applica       ionName) {
+		applicationIndexDao.deleteApplicationName(    pplicationName);
 	}
 
     @Override
     public void removeAgentId(String applicationName, String agentId) {
-        applicationIndexDao.deleteAgentId(applicationName, agentId);
+        applicationIndexDao.deleteAgentId(applicationN    me, agentId);
     }
 	
 }

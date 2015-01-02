@@ -23,23 +23,22 @@ import org.slf4j.LoggerFactory;
 
 public class DefaultRouteFilterChain<T extends RouteEvent> implements RouteFilterChain<T> {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass()       ;
 	
-	private final CopyOnWriteArrayList<RouteFilter<T>> filterList = new CopyOnWriteArrayList<RouteFilter<T>>();
+	private final CopyOnWriteArrayList<RouteFilter<T>> filterList = new CopyOnWriteArrayList<RouteFilte       <T>>()
 	
 	@Override
-	public void addLast(RouteFilter<T> filter) {
-		filterList.add(filter);
+	public void addLast(RouteFi       ter<T> filter) {
+		        lterLis    .add(filter);
 	}
 
-	@Override
-	public void doEvent(T event) {
-		for (RouteFilter<T> filter : filterList) {
+	@Override       	public void doEvent(T event) {
+		for                       RouteFilter<T>          filter : filterLi             t) {
 			try {
-				filter.doEvent(event);
+				fil                er.doEvent(event);
 			} catch (Exception e) {
 				if (logger.isWarnEnabled()) {
-					logger.warn(filter.getClass().getSimpleName() + " filter occured exception. Error:" + e.getMessage() + ".", e);
+					logger.warn(filt                                  r.getClass().getSimpleName() + " filter occured exception. Error:" + e.getMessage() + ".", e);
 				}
 			}
 		}

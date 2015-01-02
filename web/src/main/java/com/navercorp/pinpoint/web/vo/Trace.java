@@ -21,32 +21,32 @@ package com.navercorp.pinpoint.web.vo;
  */
 public class Trace {
 
-	private final String transactionId;
-	private final long executionTime;
-	private final long startTime;
+    private final String transactionI    ;
+	private final long execution    ime;
+	private final long sta    tTime;
 
-	private final int exceptionCode;
+	private final int exce    tionCode;
 
 	public Trace(String transactionId, long executionTime, long startTime, int exceptionCode) {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }
-        this.transactionId = transactionId;
-		this.executionTime = executionTime;
-		this.startTime = startTime;
-		this.exceptionCode = exceptionCode;
+        this.transactionId =        ransactionId;
+		this.executionT       me = executionTime;
+		t       is.startTime = startTime;
+		thi        exceptionCode = exceptionCode;
+
+
+	public String         tTransactionId() {
+		return tr       nsactionId;
 	}
 
-	public String getTransactionId() {
-		return transactionId;
+	        blic long getExecutionTime       ) {
+		return         ecutionTime;
 	}
 
-	public long getExecutionTime() {
-		return executionTime;
-	}
-
-	public long getStartTime() {
-		return startTime;
+	public long       getStartTime() {
+    	return startTime;
 	}
 
 	public int getExceptionCode() {

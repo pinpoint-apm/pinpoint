@@ -36,35 +36,34 @@ import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
 @Deprecated
 public class InternalHttpAsyncClientModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	public InternalHttpAsyncClientModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-		super(byteCodeInstrumentor, agent);
+	public InternalHttpAsyncClientModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent age       t) {
+		super(byteCodeInstrument        , agent    ;
 	}
 
 	@Override
-	public String getTargetClass() {
-		return "org/apache/http/impl/nio/client/InternalHttpAsyncClient";
+	public Strin        getTargetClass() {
+		return "org/apache/http/impl/nio/client        nternal    ttpAsyncClient";
 	}
 
 	@Override
-	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protect       dDomain, byte[] classFile          uffer) {
 		if (logger.isInfoEnabled()) {
-			logger.info("Modifing. {} @ {}", javassistClassName, classLoader);
+			logger.info("Mod                       ing. {} @ {}", javassistClassName, classLoader);
 		}
 
 		try {
-			InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+			InstrumentClass aClass = byteCodeIn          trumentor.getClass(classLoader, javassistClassName, classFileBuffer);
 
-			Interceptor internalExecuteInterceptor = byteCodeInstrumentor.newInterceptor(classLoader,
+			Intercept                r inte                nalExecuteInterceptor = byteCodeInstrumentor.newInterceptor(classLoader,
 					protectedDomain,
-					"com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor.AsyncInternalClientExecuteInterceptor");
+					"com.n                   vercorp.pinpoint.profiler.modifier.co                nector.httpclient4.interceptor.AsyncInternalCli                ntExecuteInterceptor");
 			
-			String[] internalExecuteParams = new String[] { 
-					"org.apache.http.nio.protocol.HttpAsyncRequestProducer", 
-					"org.apache.http.nio.protocol.HttpAsyncResponseConsumer", 
-					"org.apache.http.protocol.HttpContext", 
-					"org.apache.http.concurrent.FutureCallback"
+			String[] internal                xecuteParams = new String[] {                 					"org.apache.http.nio.protoco                         .HttpAsyncRequestProducer",
+					"org.apache.http.nio.protocol.HttpAsy                   cResponseConsume       ",
+					"org.apache.http.pro          ocol.HttpContext",
+					"org.apache.http.concurre          t.Futu          eCallback"
 					};
 			aClass.addInterceptor("execute", internalExecuteParams, internalExecuteInterceptor);
 			

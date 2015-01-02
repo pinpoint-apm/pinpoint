@@ -35,7 +35,7 @@ import net.spy.memcached.ops.Operation;
  */
 public class FutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport, TargetClassLoader {
 
-	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private MetaObject<Object> getOperation = new MetaObject<Object>("__getOperation");
@@ -44,15 +44,15 @@ public class FutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMe
     private MethodDescriptor methodDescriptor;
     private TraceContext traceContext;
 
-    @Override
-	public void before(Object target, Object[] args) {
-		if (isDebug) {
-			logger.beforeInterceptor(target, args);
+    @Overri    e
+	public void before(Object target, Object[] ar       s) {
+		if           isDebug) {
+			logger.beforeInterc             ptor(target, args);
 		}
 
-		final Trace trace = traceContext.currentTraceObject();
-		if (trace == null) {
-            return;
+		final Trace trace = tr       ceContext.currentTraceObject();
+		if                   (trace == null)       {
+            retur    ;
 		}
 		
 		trace.traceBlockBegin();
@@ -60,9 +60,9 @@ public class FutureGetInterceptor implements SimpleAroundInterceptor, ByteCodeMe
 	}
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    public void after(Ob       ect target           Object[] args, Object result, Throwable throwable)             {
 		if (isDebug) {
-			logger.afterInterceptor(target, args, result, throwable);
+			logger.afterInterceptor(tar       et, args, result                  hrowable);
 		}
 
 		final Trace trace = traceContext.currentTraceObject();

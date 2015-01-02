@@ -33,9 +33,9 @@ public class ServerInstance {
     private final String hostName;
 
     private final String name;
-	private final ServiceType serviceType;
+    private final ServiceType serviceType;
 
-    private final ServerType serverType;
+    private final ServerType serverType
 
 	private final AgentInfoBo agentInfo;
 
@@ -44,18 +44,18 @@ public class ServerInstance {
     // it's difficult to do that since it is new'ed within logic
     private static final MatcherGroup MATCHER_GROUP = new MatcherGroup();
 
-    private ServerMatcher match;
+    private ServerMatcher ma    ch;
 
 	public ServerInstance(AgentInfoBo agentInfo) {
         if (agentInfo == null) {
             throw new NullPointerException("agentInfo must not be null");
         }
         this.hostName = agentInfo.getHostName();
-        this.name = agentInfo.getAgentId();
-		this.serviceType = agentInfo.getServiceType();
+        this.name = agentInfo.getAg       ntId();
+		this.serviceType = agentInfo.get       erviceType();
 		this.agentInfo = agentInfo;
         this.serverType = ServerType.Physical;
-        this.match = MATCHER_GROUP.match(hostName);
+        this.match = MATCHER_GR        P.match(hostName);
 	}
 
 	public ServerInstance(String hostName, String physicalName, ServiceType serviceType) {
@@ -69,11 +69,11 @@ public class ServerInstance {
             throw new NullPointerException("serviceType must not be null");
         }
         this.hostName = hostName;
-        this.name = physicalName;
-		this.serviceType = serviceType;
+              this.name = physicalName;
+	       this.serviceType = serviceType;
 		this.agentInfo = null;
         this.serverType = ServerType.Logical;
-        this.match = MATCHER_GROUP.match(hostName);
+        this.    atch = MATCHER_GROUP.match(hostName);
 	}
 
     @JsonIgnore
@@ -93,11 +93,11 @@ public class ServerInstance {
 
     @JsonIgnore
     public ServerType getServerType() {
-        return serverType;
+        return serverTy    e;
     }
 
-    @JsonProperty("agentInfo")
-	public AgentInfoBo getAgentInfo() {
+    @JsonProperty("agen       Info")
+	publi     AgentInfoBo getAgentInfo() {
 		return agentInfo;
 	}
 

@@ -46,91 +46,88 @@ public class MetricMonitorRegistryTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
-	MetricMonitorRegistry registry = new MetricMonitorRegistry();
+    MetricMonitorRegistry registry = new MetricMonitorRegistry()
 
-	@Test
-	public void counter() {
-		CounterMonitor counter = registry.newCounterMonitor(new MonitorName("test.counter"));
+	    Test
+	public void cou       ter() {
+		CounterMonitor counter = registry.newCounterMonitor(new MonitorName("tes       .counter"));
 
-		assertEquals(0, counter.getCount());
+		assertEquals(0,        ounter.getC       unt());
 		counter.incr();
-		assertEquals(1, counter.getCount());
-		counter.incr(10);
-		assertEquals(11, counter.getCount());
-		counter.decr();
-		assertEquals(10, counter.getCount());
-		counter.decr(10);
-		assertEquals(0, counter.getCount());
+		asse       tEquals(1, co       nter.getCount());
+		counter.incr(       0);
+		asser       Equals(11, counter.getCount());
+	       counter.decr(       ;
+		assertEquals(10, counter.get        unt    ));
+		counter.decr(10);       		assertEquals(0, counter.getCoun             ());
 	}
 
 	@Test
 	public void eventRate() {
-		EventRateMonitor eventRate = registry
-				.newEventRateMonitor(new MonitorName("test.eventrate"));
+		Even       RateMonitor eventRate = registry
+	       		.newEventRat       Monitor(new MonitorName("test.even       rate"));
 
-		assertEquals(0, eventRate.getCount());
-		eventRate.event();
-		assertEquals(1, eventRate.getCount());
-		eventRate.events(100);
-		assertEquals(101, eventRate.getCount());
+		assert       quals(0, eventRate.getCount());
+		ev        tRa    e.event();
+		assertEqua       s(1, eventRate.getCount());
+		eve             tRate.events(100);
+		assertEquals(101, eventRate.       etCount());
 	}
 
-	@Test
-	public void histogram() {
-		HistogramMonitor histogram = registry
-				.newHistogramMonitor(new MonitorName("test.histogram"));
+       @Test
+	public voi        histogram() {
+		H       stogramMonitor histogram = registry       				.newHistogramMonitor(new MonitorName("test.histogram"));
+       		histogram.update(1);
+		histogr       m.update(10);
+		histogram.update(       00);
+		assertEquals(3, histogra       .getCount());
 
-		histogram.update(1);
-		histogram.update(10);
-		histogram.update(100);
-		assertEquals(3, histogram.getCount());
-
-		Histogram h = ((MetricHistogramMonitor) histogram).getDelegate();
+		Histogram h = ((Metr        His    ogramMonitor) his       ogram).getDelegate();
 		Snapshot snapshot = h.getSnapshot();
-		assertEquals(100, snapshot.getMax());
-		assertEquals(1, snapshot.getMin());
-		assertTrue(10.0 == snapshot.getMedian());
+       	assertEquals(100, snapshot.getMax());
+		assertEquals       1, snapshot.getMin());
+		assertTrue(10.0 == snapshot.getMedi       n());
 	}
 
 	@Test
 	public void jvm() {
-		registry.registerJvmMemoryMonitor(new MonitorName("jvm.memory"));
-		registry.registerJvmGcMonitor(new MonitorName("jvm.gc"));
-		registry.registerJvmAttributeMonitor(new MonitorName("jvm.vm"));
-		registry.registerJvmThreadStatesMonitor(new MonitorName("jvm.thread"));
+		registry.registerJvmMemoryMo       itor(new MonitorName("       vm.memory"));
+		re       istry.registerJvmG       Monitor(new MonitorNam             ("jvm.gc"));
+		registry.registerJvmAttributeMoni          or(new MonitorName("jvm.vm             ));
+	          registry.registerJvmThreadStatesMonit             r(new Mon          torName("jvm.thread"));
 
-		boolean hasMemory = false;
-		boolean hasGc = false;
-		boolean hasVm = false;
-		boolean hasThread = false;
+		boolea              hasM          mory = false;
+		boolean hasGc = false
+		boolea                             hasVm =        alse;
+		boolea        hasThread = f       lse;
 		
-		for (String each : registry.getRegistry().getNames()) {
+		for (Str        g each : registry.getRegistry().       etNames()) {
 			if (each.startsWith("jvm.gc")) {
-				hasGc = true;
-			} else if (each.startsWith("jvm.memory")) {
-				hasMemory = true;
-			} else if (each.startsWith("jvm.vm")) {
+				hasGc = tru          ;
+    		} else if (each.st       rtsWith("jvm.memory")) {
+				hasMemo             y = true;
+			} else if (each.starts       ith("jvm.vm")) {
 				hasVm = true;
-			} else if (each.startsWith("jvm.thread")) {
-				hasThread = true;
+		       } else if (each.startsWith("jvm.thread")) {
+				          asThread = true;
 			}
 		}
 		
 		assertTrue(hasMemory);
-		assertTrue(hasGc);
+		assertTrue(hasGc                   ;
 		assertTrue(hasVm);
 		assertTrue(hasThread);
 	}
 
-	String toMetricName(String name) {
-		return name.toLowerCase().replace("non_", "non-").replace("_", ".");
+	String toMetricNam          (String name) {
+		return name.toLowerCase()          replace("non_", "non-").replace("_", ".");
 	}
 	
-	@Test
-	public void mapper() {
-		TAgentStat agentStat = new TAgentStat();
+	@Te          t
+	public void             mapper() {
+		TAgentStat agentStat = new TAgentSta                ();
 		
-		MetricRegistry r = registry.getRegistry();
+		MetricRegistry r = regis       ry.getRegistry();
 		Map<String, Gauge> map = r.getGauges();
 //		for (Entry<String, Gauge> each : map.entrySet()) {
 //			logger.debug(each.getKey() + " : " + each.getValue().getValue().getClass());

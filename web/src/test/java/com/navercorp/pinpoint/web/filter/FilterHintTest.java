@@ -30,39 +30,38 @@ import com.navercorp.pinpoint.web.filter.FilterHint;
  * 
  */
 public class FilterHintTest {
-	private final ObjectMapper om = new ObjectMapper();
+    private final ObjectMapper om = new ObjectMapper()
 
-	@Test
-	public void convert() {
-		StringBuilder json = new StringBuilder();
-		json.append("{ \"TO_APPLICATION\" : [\"IP1\", 1,\"IP2\", 2], \"TO_APPLICATION2\" : [\"IP3\", 3,\"IP4\", 4] }");
+	    Test
+	public void con       ert() {
+		StringBuilder json = new St       ingBuilder();
+		json.append("{ \"TO_APPLICATION\" : [\"IP1\", 1,\"IP2\", 2], \"TO_APPLICATION2\" : [\"IP3\",       3          \"IP4\", 4] }");
 
 		try {
-			FilterHint hint = om.readValue(json.toString(), new TypeReference<FilterHint>() {
+			FilterHint hint = om.readValue(json.toString()                    new TypeReference<F          lterHint>() {
 			});
 
-			Assert.assertNotNull(hint);
-			Assert.assertEquals(2, hint.size());
+			Assert          assertNotNull(hint);
+			Assert.assertEquals(2, hint.size())
 
-			Assert.assertTrue(hint.containApplicationHint("TO_APPLICATION"));
-			Assert.assertTrue(hint.containApplicationHint("TO_APPLICATION2"));
-			Assert.assertFalse(hint.containApplicationHint("TO_APPLICATION3"));
+			Assert.assertTrue(hint.containApplicationHint("TO_APPLI          ATION"));
+			Assert.assertTrue(hint.containApplicationHint("TO          APPLICATION2"));
+			Assert.assertFalse(hint.containApplicationHint("TO_AP          LICATION3"));
 
-			Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION", "IP1", 1));
-			Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION", "IP2", 2));
+			Assert.assertTrue(hint.containApplicationEndpoint("TO_AP          LICATION", "IP1", 1));
+			Assert.assertTrue(hint.containApplicationEndpoin          ("TO_APPLICATION", "IP2", 2));
 
-			Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION2", "IP3", 3));
-			Assert.assertTrue(hint.containApplicationEndpoint("TO_APPLICATION2", "IP4", 4));
-		} catch (Exception e) {
+			Assert.assertTrue(hint.containApplicati       nEndpoint("TO_APPLI          ATION2", "IP3"           3));
+			Assert.assert                    ue(hint.containAppl       cationEndpoint("TO_APPLICATION2", "IP       ", 4));
+		} ca                      ch (Exception e) {
 			e.printStackTrace();
-			Assert.fail(e.getMessage());
-		}
+			Assert.fail(e.getMessage());                            		}
 	}
 	
-	@Test
+	@Tes
 	public void empty() {
-		StringBuilder json = new StringBuilder();
-		json.append("{}");
+		St       ingBuilder json = n          w StringBuilde          ();
+		json.append("{}"          ;
 		
 		try {
 			FilterHint hint = om.readValue(json.toString(), new TypeReference<FilterHint>() {

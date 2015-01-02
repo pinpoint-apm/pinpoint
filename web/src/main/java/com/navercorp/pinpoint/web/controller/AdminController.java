@@ -34,34 +34,33 @@ import com.navercorp.pinpoint.web.service.AdminService;
 @RequestMapping("/admin")
 public class AdminController {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	@Autowired
-	private AdminService adminService;
+	@Auto    ired
+	private AdminService adminS    rvice;
 
-	@RequestMapping(value = "/removeApplicationName", method = RequestMethod.GET)
-	@ResponseBody
-	public String removeApplicationName(@RequestParam("applicationName") String applicationName) {
-		logger.info("remove application name. {}", applicationName);
+	@RequestMapping(value = "/removeApplicationName", method = Request    ethod.GET)
+    @ResponseBody
+	public String removeApplicationName(@RequestParam("applicationName") String a       plicationName) {
+		logger.info("remove application name.       {          ", applicationName);
 		try {
-			adminService.removeApplicationName(applicationName);
+			adminService.r          moveAp       licationName(applic       tionName);
 			return "OK";
 		} catch (Exception e) {
-		    logger.error("error while removing applicationName", e);
-			return e.getMessage();
+		             logger.error("                rror while removing applicationName", e);
+			return e.getMessage    );
 		}
 	}
-	
-	@RequestMapping(value = "/removeAgentId", method = RequestMethod.GET)
+	    	@RequestMapping(value = "    removeAgentId", method = RequestMethod.GET)
 	@ResponseBody
-	public String removeAgentId(
-	        @RequestParam(value = "applicationName", required = true) String applicationName,
+	public String removeAgentId
+	        @RequestParam(value = "applicationName", required = true) Strin     applicationName,
 	        @RequestParam(value = "agentId", required = true) String agentId) {
-	    logger.info("remove agent id - ApplicationName: [{}], Agent ID: [{}]", applicationName, agentId);
+	       logger.    nfo("remove agent id - ApplicationName: [{}], Agent ID: [{}    ", applicationName     agentId);
 	    try {
-	        adminService.removeAgentId(applicationName, agentId);
+	           adminService.removeAgentId(applicationName, agent    d);
 	        return "OK";
-	    } catch (Exception e) {
+	       }    catch (Exception e) {
 	        logger.error("error while removing agentId", e);
 	        return e.getMessage();
 	    }

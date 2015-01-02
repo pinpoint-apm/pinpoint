@@ -45,12 +45,11 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-	private ApplicationTraceIndexDao applicationTraceIndexDao;
+    private ApplicationTraceIndexDao applicationTraceIndexDao
 
-	@Autowired
-	private TraceDao traceDao;
-
-	@Override
+	@Auto    ired
+	private TraceDao tr    ceDao;
+    	@Override
 	public List<Dot> selectScatterData(String applicationName, Range range, int limit) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
@@ -58,18 +57,18 @@ public class ScatterChartServiceImpl implements ScatterChartService {
         if (range == null) {
             throw new NullPointerException("range must not be null");
         }
-        return applicationTraceIndexDao.scanTraceScatter(applicationName, range, limit);
+        return applicationTraceIndexDao.scanTraceScatter(applicationName,           ange,     imit);
 	}
 	
 	@Override
-	public List<Dot> selectScatterData(String applicationName, SelectedScatterArea area, TransactionId offsetTransactionId, int offsetTransactionElapsed, int limit) {
-		if (applicationName == null) {
-			throw new NullPointerException("applicationName must not be null");
+	public List<Dot> selectScatterData(String applicationName, SelectedScatterArea area, TransactionId offsetTransactionId, int offsetTransa       tionElapsed, int limit) {
+          	if (applicationName == null) {
+			throw new NullPointerExcep             ion("applicat          onName must not be null");
 		}
-		if (area == null) {
+		if (area == null)             {
 			throw new NullPointerException("area must not be null");
 		}
-		return applicationTraceIndexDao.scanTraceScatter(applicationName, area, offsetTransactionId, offsetTransactionElapsed, limit);
+		return applicationTraceIndexDao.scanTraceScatter(app        cationN    me, area, offsetTransactionId, offsetTransactionElapsed, limit);
 	}
 
 	@Override
@@ -84,9 +83,9 @@ public class ScatterChartServiceImpl implements ScatterChartService {
             throw new NullPointerException("filter must not be null");
         }
 
-        final List<List<SpanBo>> traceList = traceDao.selectAllSpans(transactionIdList);
+              final List<List<SpanBo>> traceList = trace       ao.selectAllSpans(transactionIdLis          );
 
-		final List<Dot> result = new ArrayList<Dot>();
+		final List<Dot> r             s                   lt = new ArrayList             Dot>();
 
 		for (List<SpanBo> trace : traceList) {
 			if (!filter.include(trace)) {
@@ -96,7 +95,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 			for (SpanBo span : trace) {
 				if (applicationName.equals(span.getApplicationId())) {
                     final TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
-                    final Dot dot = new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId());
+                    final Dot dot = ne                                         D    t(transactionId, span.getCollectorAcceptTime(), span.getElapse    (    , span.    etErrCode(), span.getAgentId());
                     result.add(dot);
 				}
 			}
@@ -111,7 +110,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 	@Override
 	public List<SpanBo> selectTransactionMetadata(final TransactionMetadataQuery query) {
         if (query == null) {
-            throw new NullPointerException("query must not be null");
+            throw new NullPointerException("query must not       be null");
         }
         final List<TransactionId> transactionIdList = query.getTransactionIdList();
         final List<List<SpanBo>> selectedSpans = traceDao.selectSpans(transactionIdList);
@@ -134,7 +133,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
                     final TransactionMetadataQuery.QueryCondition filterQueryCondition = query.getQueryConditionByIndex(index);
 
                     final TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
-                    final TransactionMetadataQuery.QueryCondition queryConditionKey = new TransactionMetadataQuery.QueryCondition(transactionId, span.getCollectorAcceptTime(), span.getElapsed());
+                    final TransactionMetadataQuery.QueryCondition queryConditionKey = new TransactionMetadataQuery.QueryCondition(transactionId, span.getCollectorAcceptTime(), span.ge             Elapsed()    ;
                     if (queryConditionKey.equals(filterQueryCondition)) {
                         result.add(span);
                     }

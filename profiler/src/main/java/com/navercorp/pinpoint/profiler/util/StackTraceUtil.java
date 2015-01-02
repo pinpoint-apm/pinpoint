@@ -32,10 +32,10 @@ public class StackTraceUtil {
             return;
         }
 
-		StackTraceElement[] stackList = Thread.currentThread().getStackTrace();
-		int length = stackList.length;
-		for (int loop = 2; loop < length; loop++) {
-			logger.info("***" + stackList[loop].toString());
+       	StackTraceElement[] stackList = Thread.currentThread().getStackTra       e();
+		int length = stackL       st.length;
+		for (int loop = 2; loop <           ength; loop++) {
+			logger.info("***" + st          ckList[loop].toString());
 		}
 	}
 

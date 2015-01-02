@@ -31,23 +31,23 @@ import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 
 public class AgentInfoSenderListener implements FutureListener<ResponseMessage> {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	private final AtomicBoolean isSuccessful;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass()    ;
+	private final AtomicBoolean isSucces       ful;
 	
-	public AgentInfoSenderListener(AtomicBoolean isSuccessful) {
-	    this.isSuccessful = isSuccessful;
+	public AgentInfoSenderListener(AtomicBoolean isSu    cessful) {
+	    this.isSuccessful =        sSucces    ful;
 	}
 
 	@Override
-	public void onComplete(Future<ResponseMessage> future) {
+	public void onComplete(Future<Res       o          seMessage> future) {
 		try {
-			if (future != null && future.isSuccess()) {
-				TBase<?, ?> tbase = deserialize(future);
-				if (tbase instanceof TResult) {
-					TResult result = (TResult) tbase;
-					if (result.isSuccess()) {
-						logger.debug("result success");
-						this.isSuccessful.set(true);
+			if (f             ture != null && future.isSuccess             )) {
+				TBase<?, ?> tb                se = deserialize(future                ;
+				if (tbase                   instanceof TResult)                   {
+					TResult r                                                    sult = (TResult) tbase;
+					if (result.isS                                           ccess()) {
+						logger                            debug("r          sult success");
+						this.isSuccessful.set(true)
 						return;
 					} else {
 						logger.warn("request fail. Caused:{}", result.getMessage());
@@ -64,7 +64,7 @@ public class AgentInfoSenderListener implements FutureListener<ResponseMessage> 
 	private TBase<?, ?> deserialize(Future<ResponseMessage> future) {
         final ResponseMessage responseMessage = future.getResult();
 
-        // TODO Should we change this to thread local cache? This object's life cycle is different because it could be created many times.
+        // TODO Should we change this to thread local cache? This object's l    fe cycle is different because it could be created many times.
         // Should we cache this?
         byte[] message = responseMessage.getMessage();
         return SerializationUtils.deserialize(message, HeaderTBaseDeserializerFactory.DEFAULT_FACTORY, null);

@@ -98,7 +98,7 @@ public class NetworkAvailabilityChecker implements PinpointTools {
         }
     }
 
-	private static void write(StringBuilder buffer, String protcol, String collectorStatIp, int collectorStatPort, boolean udpSenderResult) {
+    private static void write(StringBuilder buffer, String protcol, String collectorStatIp, int collectorStatPort, boolean udpSenderResult) {
         buffer.append(protcol);
         buffer.append(collectorStatIp);
         buffer.append(":");
@@ -106,7 +106,7 @@ public class NetworkAvailabilityChecker implements PinpointTools {
         buffer.append("=");
         buffer.append((udpSenderResult) ? "OK" : "FAILED");
         buffer.append("\n");
-    }
+
 
 	private static void closeDataSender(DataSender dataSender) {
         if (dataSender != null) {

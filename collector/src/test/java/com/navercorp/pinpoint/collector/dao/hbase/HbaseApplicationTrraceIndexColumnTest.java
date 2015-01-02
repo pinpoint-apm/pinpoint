@@ -31,39 +31,36 @@ import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
  */
 public class HbaseApplicationTrraceIndexColumnTest {
 
-	@Test
-	public void indexedColumnName() {
-		final int elapsed = 1234;
-		final String agentId = "agentId";
-		final long agentStartTime = 1234567890L;
-		final long transactionSequence = 1234567890L;
+    @Te    t
+	public void indexedColumnNam       () {
+		final int elap       ed = 1234;
+		final String age       tId = "agentId";
+		final long agentS       artTime = 1234567890L;
+		final long transa       tionSequence = 1234567890L;
 
-		// final Buffer buffer= new AutomaticBuffer(32);
+		// final Buff       r buffer= new AutomaticBuffer(32)
 		// buffer.putPrefixedString(agentId);
-		// buffer.putSVar(transactionId.getAgentStartTime());
-		// buffer.putVar(transactionId.getTransactionSequence());
-		// return buffer.getBuffer();
+		// buf       er.putSVar(transactionId.getAgentStartTime());
+		// b       ffer.putVar(transactionId.       etTransactionSequence());
+		// return buffer.getBu       fer();
 
-		final Buffer originalBuffer = new AutomaticBuffer(16);
-		originalBuffer.putVar(elapsed);
-		originalBuffer.putPrefixedString(agentId);
-		originalBuffer.putSVar(agentStartTime);
+		final Buffer orig       nalBuffer = new AutomaticBuffer(16);
+	       originalBuffer.putVar(elapsed);
+		o       iginalBuffer.putPrefixedString(agentId);       		originalBuffer.putSVar(agentStartTime)
 		originalBuffer.putVar(transactionSequence);
 
-		byte[] source = originalBuffer.getBuffer();
+		byt       [] source = originalBuffer.getBuffer();
 
-		final Buffer fetched = new OffsetFixedBuffer(source, 0);
+		fina        Buffer fetched = new OffsetFixedBuffer(source, 0);
 
-		Assert.assertEquals(elapsed, fetched.readVarInt());
-		Assert.assertEquals(agentId, fetched.readPrefixedString());
-		Assert.assertEquals(agentStartTime, fetched.readSVarLong());
-		Assert.assertEquals(transactionSequence, fetched.readVarLong());
+		       ssert.assertEquals(elapsed, fetched.readVarInt());
+		Ass       rt.assertEquals(agentId, fetched.readPrefixedString());
+		As        rt.    ssertEquals(agentStartTime, fe       ched.readSVarLong());       		Assert.assertEquals(transactionSequence,        etched.readVarLong());
 	}
 
 	@Test
-	public void indexColumnName2() {
-		final int elapsed = 1234;
-		final byte[] bytes = "thisisbytes".getBytes();
+	public void       indexColumnName2() {       		final int elapsed = 1234;
+		f    nal byte[] bytes = "thisisbytes".getBytes();
 
 		final Buffer columnName = new AutomaticBuffer(16);
 		columnName.put(elapsed);

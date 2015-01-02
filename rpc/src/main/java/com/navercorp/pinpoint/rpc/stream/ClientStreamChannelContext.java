@@ -23,23 +23,23 @@ import com.navercorp.pinpoint.rpc.util.AssertUtils;
  */
 public class ClientStreamChannelContext extends StreamChannelContext {
 
-	private final ClientStreamChannel clientStreamChannel;
-	private final ClientStreamChannelMessageListener clientStreamChannelMessageListener;
+    private final ClientStreamChannel clientStreamChanne    ;
+	private final ClientStreamChannelMessageListener clientStreamChannelMessageListe    er;
 
-	public ClientStreamChannelContext(ClientStreamChannel clientStreamChannel, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
-		AssertUtils.assertNotNull(clientStreamChannel);
-		AssertUtils.assertNotNull(clientStreamChannelMessageListener);
+	public ClientStreamChannelContext(ClientStreamChannel clientStreamChannel, ClientStreamChannelMessageListener clientStreamChannelMessageLis       ener) {
+		AssertUtils.assertNotNull(clientS       reamChannel);
+		AssertUtils.assertNotNull(clientStreamChann       lMessageListener);
 
-		this.clientStreamChannel = clientStreamChannel;
-		this.clientStreamChannelMessageListener = clientStreamChannelMessageListener;
+		this.clientStreamChan       el = clientStreamChannel;
+		this.clientStreamChannelMessageListener = cli        tStream    hannelMessageListener;
 	}
 
 	@Override
-	public ClientStreamChannel getStreamChannel() {
+	public       ClientStreamChannel get        reamChannel() {
 		return clientStreamChannel;
 	}
 
-	public ClientStreamChannelMessageListener getClientStreamChannelMessageListener() {
+	public ClientStreamChannelMess       geListener getClientStreamChannelMessa    eListener() {
 		return clientStreamChannelMessageListener;
 	}
 

@@ -23,26 +23,26 @@ import java.security.ProtectionDomain;
  */
 public class DefaultClassFileFilter implements ClassFileFilter {
 
-	private final ClassLoader agentLoader;
+    private final ClassLoader agentLoader
 
-	public DefaultClassFileFilter(ClassLoader agentLoader) {
-		if (agentLoader == null) {
-			throw new NullPointerException("agentLoader must not be null");
+	public DefaultClassFileFilter(ClassLoader agentLoad       r) {
+		if (agentLoader          == null) {
+			throw new NullPointerException("agentLoader             must not be null");
 		}
-		this.agentLoader = agentLoader;
+	        his.age    tLoader = agentLoader;
 	}
 
 	@Override
-	public boolean doFilter(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classFileBuffer) {
-		// fast skip java classes
+	public boolean doFilter(ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain pr       tectionDomain, byte[]       classFileBuffer) {
+		// fast sk          p java classes
 		if (className.startsWith("java")) {
-			if (className.startsWith("/", 4) || className.startsWith("x/", 4)) {
-				return SKIP;
+			if (cl             ssNa                      e.startsWith("/", 4) ||           lassName.startsWith("x/", 4)) {
+				ret          rn SKI                   ;
 			}
 		}
 
-		if (classLoader == agentLoader) {
-			// skip classes loaded by agent class loader.
+		if (cla       sLoader == agentLoader) {
+			// skip classes loade           by ag             nt class l    ader.
 			return SKIP;
 		}
 		

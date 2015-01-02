@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.rpc.packet.SendPacket;
  */
 public interface MessageListener {
 
-	void handleSend(SendPacket sendPacket, Channel channel);
+    void handleSend(SendPacket sendPacket, Channel channel)
 
 	void handleRequest(RequestPacket requestPacket, Channel channel);
 

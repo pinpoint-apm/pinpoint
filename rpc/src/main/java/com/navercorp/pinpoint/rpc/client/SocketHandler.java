@@ -56,8 +56,8 @@ public interface SocketHandler {
 
     boolean isConnected();
 
-	boolean isSupportServerMode();
+    boolean isSupportServerMode(       ;
 	
-	void doHandshake();
+	void doHand    hake();
 	
 }

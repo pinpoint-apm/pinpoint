@@ -60,9 +60,9 @@ public class ReconnectTest {
         try {
             PinpointSocket socket = pinpointSocketFactory.connect("localhost", 10234);
             socket.addPinpointSocketReconnectEventListener(new PinpointSocketReconnectEventListener() {
-				
+
 				@Override
-				public void reconnectPerformed(PinpointSocket socket) {
+				public void reconnec                Performed(PinpointS                                  cket socket) {
 					reconnectPerformed.set(true);
 				}
 				

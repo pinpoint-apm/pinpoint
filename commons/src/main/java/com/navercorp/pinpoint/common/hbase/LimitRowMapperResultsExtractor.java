@@ -47,7 +47,7 @@ public class LimitRowMapperResultsExtractor<T> implements ResultsExtractor<List<
         this.limit = limit;
     }
     
-	/**
+    /**
      * Create a new RowMapperResultSetExtractor.
      *
      * @param rowMapper the RowMapper which creates an object for each row
@@ -69,21 +69,20 @@ public class LimitRowMapperResultsExtractor<T> implements ResultsExtractor<List<
         this.eventHandler = eventHandler;
     }
 
-    public List<T> extractData(ResultScanner results) throws Exception {
-		final List<T> rs = new ArrayList<T>();
+    public List<T> extractData(ResultScanner results) throws Exception       {
+		final List<T> rs = new ArrayLi       t<T>();
 		int rowNum = 0;
-        Result lastResult = null;
+        Result last             esult = null;
 		
 		for (Result result : results) {
             final T t = this.rowMapper.mapRow(result, rowNum);
-            lastResult = result;
-			if (t instanceof Collection) {
-				rowNum += ((Collection<?>) t).size();
-			} else if (t instanceof Map) {
-				rowNum += ((Map<?, ?>) t).size();
-			} else if (t == null) {
-				// empty
-			} else if (t.getClass().isArray()) {
+                     lastResult = result
+			if (t instanceof Collecti          n) {
+				rowNum += ((Col             ection<?>) t).size();
+			           else if (t insta                       eof Map) {
+				rowNum += ((Map             ?, ?>) t).size();
+			           e             s                             if (t == null) {                            				// empty
+			} else if (t.getClass().isAr       ay())
 				rowNum += Array.getLength(t);
 			} else {
 				rowNum++;

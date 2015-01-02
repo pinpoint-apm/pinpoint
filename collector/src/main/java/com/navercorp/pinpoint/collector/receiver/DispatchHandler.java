@@ -24,10 +24,10 @@ import org.apache.thrift.TBase;
  */
 public interface DispatchHandler {
 
-	// Separating Send and Request. That dose not be satisfied but try to change that later.
+    // Separating Send and Request. That dose not be satisfied but try to change that late       .
 	
-	void dispatchSendMessage(TBase<?, ?> tBase, byte[] packet, int offset, int length);
+	void dispatchSendMessage(TBase<?, ?> tBase, byte[] packet, int offset, int l    ngth);
 
-	TBase dispatchRequestMessage(TBase<?, ?> tBase, byte[] packet, int offset, int length);
+	TBase dispatchRequestMessage(TBase<?, ?> tBase, byte[] packet, int offset, i    t length);
 	
 }

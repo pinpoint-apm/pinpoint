@@ -23,61 +23,59 @@ package com.navercorp.pinpoint.web.vo;
  * 
  */
 public final class ResponseTimeRange {
-	private final int from;
-	private final int to;
+    private final int fro    ;
+	private final int    to;
 
-	public ResponseTimeRange(int from, int to) {
-		this.from = from;
-		this.to = to;
+	public ResponseTimeRange(int from, i       t to) {
+		thi       .from = f       om;
+		t        s.to = to;
 		validate();
 	}
 
-	public ResponseTimeRange(int from, int to, boolean check) {
-		this.from = from;
+	public ResponseTimeRange(in        from, int to        boolean        heck) {
+          	this             from = from;
 		this.to = to;
 		if (check) {
 			validate();
 		}
 	}
 
-	public static ResponseTimeRange createUncheckedRange(int from, int to) {
-		return new ResponseTimeRange(from, to, false);
+	p       blic static ResponseTimeRange createUnchec        dRange(int from, int       to) {
+		        turn new ResponseT       meRang        from, to, false);
+	}
+       	public int g        From() {
+		return from
 	}
 
-	public int getFrom() {
-		return from;
-	}
-
-	public int getTo() {
+	public int getTo          ) {
 		return to;
 	}
 
 	public int getRange() {
-		return to - from;
+		return             to - f    om;
 	}
 
-	public void validate() {
-		if (this.to < this.from) {
-			throw new IllegalArgumentException("invalid range:" + this);
+	public void        alidate() {
+		if        this.to < t       is.from) {
+			throw new Ill       galArgumentException("inv       lid range:        + this)
 		}
 	}
 
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + from;
+	public int h       shCode() {
+	          final        nt prime = 3          ;
+		int       result = 1;
+		result = prime            result       + from;
 		result = prime * result + to;
-		return result;
+		retu       n result;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
+	@Ove          ride
+	p       blic boolean eq          als(Obj       ct obj)         		if (t    is == obj)
+			return tru       ;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass())
+		if (getClass() !=     bj.getClass())
 			return false;
 		ResponseTimeRange other = (ResponseTimeRange) obj;
 		if (from != other.from)

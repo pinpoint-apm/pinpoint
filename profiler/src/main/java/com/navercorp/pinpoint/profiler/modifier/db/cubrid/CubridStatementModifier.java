@@ -36,19 +36,19 @@ import org.slf4j.LoggerFactory;
  */
 public class CubridStatementModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	public CubridStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-		super(byteCodeInstrumentor, agent);
+	public CubridStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent age       t) {
+		super(byteCodeInstrument        , agent);
 	}
 
-	public String getTargetClass() {
-		return "cubrid/jdbc/driver/CUBRIDStatement";
+	public String g       tTargetClass() {
+		return "cubrid/jdbc/d        ver/CUBRIDStatement";
 	}
 
-	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDoma       n, byte[] classFileBuffer           {
 		if (logger.isInfoEnabled()) {
-			logger.info("Modifing. {}", javassistClassName);
+			logg                      r.info("Modifing. {}", javassistClassName);
 		}
 		try {
 			InstrumentClass statementClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
@@ -59,20 +59,20 @@ public class CubridStatementModifier extends AbstractModifier {
             Interceptor executeUpdateInterceptor1 = new StatementExecuteUpdateInterceptor();
             statementClass.addScopeInterceptor("executeUpdate", new String[]{"java.lang.String"}, executeUpdateInterceptor1, CubridScope.SCOPE_NAME);
 
-            Interceptor executeUpdateInterceptor2 = new StatementExecuteUpdateInterceptor();
+            Interceptor exe          uteUpdateInterceptor2 = new StatementExecuteUpdateInterceptor();
 			statementClass.addScopeInterceptor("executeUpdate", new String[]{"java.lang.String", "int"}, executeUpdateInterceptor2, CubridScope.SCOPE_NAME);
 
             Interceptor executeInterceptor1 = new StatementExecuteUpdateInterceptor();
             statementClass.addScopeInterceptor("execute", new String[]{"java.lang.String"}, executeInterceptor1, CubridScope.SCOPE_NAME);
 
-            Interceptor executeInterceptor2 = new StatementExecuteUpdateInterceptor();
-			statementClass.addScopeInterceptor("execute", new String[]{"java.lang.String", "int"}, executeInterceptor2, CubridScope.SCOPE_NAME);
+                      nterceptor executeInterceptor2 = new StatementExecuteUpdateInterceptor();
+			statementClass.addScopeInterceptor("execute", new String[]{"java.lang.String", "int"}, executeInterceptor2, CubridScope.SCO          E_NAME);
 
-            statementClass.addTraceValue(DatabaseInfoTraceValue.class);
+            stateme       tClass.addTraceValue(Database          nfoTraceValue.class);
 
-			return statementClass.toBytecode();
+             		return statementClass.toBytecode();
 		} catch (InstrumentException e) {
-			if (logger.isWarnEnabled()) {
+			if (log                   er          isWarnEnabled()) {
 				logger.warn("{} modify fail. Cause:{}", this.getClass().getSimpleName(), e.getMessage(), e);
 			}
 			return null;

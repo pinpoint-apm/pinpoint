@@ -32,21 +32,19 @@ import net.spy.memcached.MemcachedClient;
  */
 public class SetCacheManagerInterceptor implements SimpleAroundInterceptor, TargetClassLoader {
 
-	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final boolean isDebug = logger.isDebugEnabled()
 
-	private MetaObject<String> getServiceCode = new MetaObject<String>("__getServiceCode");
-	private MetaObject<String> setServiceCode = new MetaObject<String>("__setServiceCode", String.class);
-
-	@Override
-	public void before(Object target, Object[] args) {
+	private MetaObject<String> getServiceCode = new MetaObject<String>("__getServiceCo    e");
+	private MetaObject<String> setServiceCode = new MetaObject<String>("__setServiceCode", String.    lass);
+    	@Override
+	public void before(Object target, Ob       ect[] args           {
 		if (isDebug) {
-			logger.beforeInterceptor(target, args);
+			logger.bef                   reInterceptor(target, args);
 		}
-		
-		CacheManager cm = (CacheManager) args[0];
+		CacheManager cm = (CacheManager) args[             ];
 		String serviceCode = getServiceCode.invoke(cm);
-		
+
 		setServiceCode.invoke((MemcachedClient) target, serviceCode);
 	}
 

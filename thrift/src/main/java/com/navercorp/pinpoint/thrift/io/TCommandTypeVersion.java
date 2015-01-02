@@ -26,62 +26,60 @@ import org.apache.thrift.TBase;
  */
 public enum TCommandTypeVersion {
 
-	// Match with agent version
-	V_1_0_2_SNAPSHOT("1.0.2-SNAPSHOT", TCommandType.RESULT, TCommandType.THREAD_DUMP),
-	V_1_0_2("1.0.2", V_1_0_2_SNAPSHOT),
-	V_1_0_3_SNAPSHOT("1.0.3-SNAPSHOT", V_1_0_2, TCommandType.ECHO, TCommandType.TRANSFER, TCommandType.THREAD_DUMP_RESPONSE),
-	V_1_0_3("1.0.3", V_1_0_3_SNAPSHOT),
-	V_1_0_4_SNAPSHOT("1.0.4-SNAPSHOT", V_1_0_3),
-	
+    // Match with agent versi    n
+	V_1_0_2_SNAPSHOT("1.0.2-SNAPSHOT", TCommandType.RESULT, TCommandType.THREAD_D    MP),
+	V_1_0_2("1.0.2", V_1_0_2_SN    PSHOT),
+	V_1_0_3_SNAPSHOT("1.0.3-SNAPSHOT", V_1_0_2, TCommandType.ECHO, TCommandType.TRANSFER, TCommandType.THREAD_DUMP    RESPONSE),
+	V_1_0_3("1.0.3", V_1_    _3_SNAPSHOT),
+	V_1_0_4_SNAPSHOT("1.0.4-SNA       SHOT", V_1_0_3),
+
 	UNKNOWN("UNKNOWN");
 
-	private final String versionName;
-	private final List<TCommandType> supportCommandList = new ArrayList<TCommandType>();
+	private    final String versionName;
+	private final List<TCommandType> supportCommandList = ne     ArrayList<TCommandType>();
 
-	private TCommandTypeVersion(String versionName, TCommandTypeVersion version, TCommandType... supportCommandArray) {
+	private TCommandTypeVersion(String versionName, TCommandTypeVersion version, TComma       dType... supportCommandArra             ) {
 		this.versionName = versionName;
 		
-		for (TCommandType supportCommand : version.getSupportCommandList()) {
-			supportCommandList.add(supportCommand);
+		for (TCommandType s          pportCommand : version.getSupport             ommandList()) {
+			supportCommandList.add(supportCom          and);
 		}
 
-		for (TCommandType supportCommand : supportCommandArray) {
+		for (TCommandType support             ommand : supportCommandArray) {
 			getSupportCommandList().add(supportCommand);
+		}       	}
+
+	private TCommandTypeVer       ion(String versionName, TCommandType... supportComman          Array) {
+		this.versionName = versionN             me;
+
+		for (TCommandType supportCommand : suppor       CommandArray) {
+			get          upportCommandList().add(supportCommand);
 		}
-	}
+       }
 
-	private TCommandTypeVersion(String versionName, TCommandType... supportCommandArray) {
-		this.versionName = versionName;
-
-		for (TCommandType supportCommand : supportCommandArray) {
-			getSupportCommandList().add(supportCommand);
-		}
-	}
-
-	public List<TCommandType> getSupportCommandList() {
-		return supportCommandList;
+	public List<TC          mmandTy                   e> getSupportCommandList() {
+		return suppor          CommandList;
 	}
 	
-	public boolean isSupportCommand(TBase command) {
-		if (command == null) {
-			return false;
+	p             b                   ic boolean isSupportCommand(TBase command)             {
+		                      f (c        mand == null) {
+			return fals       ;
 		}
 		
-		for (TCommandType eachCommand : supportCommandList) {
-			if (eachCommand == null) {
-				continue;
+		for           TCommandType eachCommand : supportCommandList) {
+			if (eac       Command == null) {          				continue;
 			}
 
-			if (eachCommand.getClazz() == command.getClass()) {
+			if (eachCommand.getClazz() ==                    ommand.getClass()) {
 				return true;
 			}
 		}
 
-		return false;
+		return fals          ;
 	}
 
 	public String getVersionName() {
-		return versionName;
+		ret             rn versionN                            me
 	}
 	
 	public static TCommandTypeVersion getVersion(String version) {

@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.web.vo.LinkKey;
 public class LinkDataMap {
     private final Map<LinkKey, LinkData> linkDataMap = new HashMap<LinkKey, LinkData>();
 
-	public LinkDataMap() {
+    public LinkDataMap()    {
 	}
 
     public LinkDataMap(LinkDataMap copyLinkDataMap) {
@@ -41,12 +41,12 @@ public class LinkDataMap {
     public void addLinkData(Application sourceApplication, String sourceAgentId, Application destinationApplication, String destinationAgentId, long timestamp, short slotTime, long count) {
         final LinkData linkData = getLinkData(sourceApplication, destinationApplication);
         linkData.addLinkData(sourceAgentId, sourceApplication.getServiceTypeCode(), destinationAgentId, destinationApplication.getServiceTypeCode(), timestamp, slotTime, count);
-    }
+       }
 
 
-	@Override
-	public String toString() {
-		return "LinkDataMap [" + linkDataMap + "]";
+	@    verride
+	public String t       String() {
+		return "LinkDataMap [" + l    nkDataMap + "]";
 	}
 
     public void addLinkDataMap(LinkDataMap linkDataMap) {

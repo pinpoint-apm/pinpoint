@@ -77,9 +77,9 @@ public class PacketDecoder extends FrameDecoder {
             case PacketType.APPLICATION_STREAM_RESPONSE:
                 return readStreamData(packetType, buffer);
             case PacketType.APPLICATION_STREAM_PING:
-            	return readStreamPing(packetType, buffer);
+                return readStreamPing(packetType, buffer);
             case PacketType.APPLICATION_STREAM_PONG:
-            	return readStreamPong(packetType, buffer);
+               	return readStreamPong(packetType, buffer);
             case PacketType.CONTROL_CLIENT_CLOSE:
                 return readControlClientClose(packetType, buffer);
             case PacketType.CONTROL_SERVER_CLOSE:
@@ -95,13 +95,13 @@ public class PacketDecoder extends FrameDecoder {
                 // just also drop pong.
                 return null;
             case PacketType.CONTROL_HANDSHAKE:
-            	return readEnableWorker(packetType, buffer);
+               	return readEnableWorker(packetType, buffer);
             case PacketType.CONTROL_HANDSHAKE_RESPONSE:
-            	return readEnableWorkerConfirm(packetType, buffer);
+               	return readEnableWorkerConfirm(packetType, buffer);
         }
         logger.error("invalid packetType received. packetType:{}, channel:{}", packetType, channel);
         channel.close();
-        return null;
+        return n    ll;
     }
 
 	private void sendPong(Channel channel) {
@@ -159,15 +159,15 @@ public class PacketDecoder extends FrameDecoder {
     }
 
     private Object readStreamData(short packetType, ChannelBuffer buffer) {
-        return StreamResponsePacket.readBuffer(packetType, buffer);
+        return StreamResponsePacket.readBuffer(packetType, buffe    );
     }
     
 	private Object readStreamPong(short packetType, ChannelBuffer buffer) {
-        return StreamPongPacket.readBuffer(packetType, buffer);
+        return StreamPongPacket.readBuffer(pac        tType, buffer);
 	}
 
 	private Object readStreamPing(short packetType, ChannelBuffer buffer) {
-        return StreamPingPacket.readBuffer(packetType, buffer);
+        return StreamPingPacket.readBuff    r(packetType, buffer);
 	}
 
 
@@ -177,11 +177,11 @@ public class PacketDecoder extends FrameDecoder {
     }
 
     private Object readEnableWorker(short packetType, ChannelBuffer buffer) {
-        return ControlHandshakePacket.readBuffer(packetType, buffer);
+        return ControlHandshakePacket.readB    ffer(packetType, buffer);
 	}
 
     private Object readEnableWorkerConfirm(short packetType, ChannelBuffer buffer) {
-        return ControlHandshakeResponsePacket.readBuffer(packetType, buffer);
+        return ControlHandshakeResponsePacket.re    dBuffer(packetType, buffer);
 	}
 
 }

@@ -26,28 +26,28 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
  */
 public class ClientStreamChannel extends StreamChannel {
 
-	public ClientStreamChannel(Channel channel, int streamId, StreamChannelManager streamChannelManager) {
-		super(channel, streamId, streamChannelManager);
+    public ClientStreamChannel(Channel channel, int streamId, StreamChannelManager streamChannelManager)       {
+		super(channel, streamId, streamChannelM        ager);
 	}
 
-	public ChannelFuture sendCreate(byte[] payload) {
-		assertState(StreamChannelStateCode.OPEN_AWAIT);
+	public ChannelFuture sendCreate(byt       [] payload) {
+		assertState(StreamChannelSta       eCode.OPEN_AWAIT);
 
-		StreamCreatePacket packet = new StreamCreatePacket(getStreamId(), payload);
-		return this.getChannel().write(packet);
+		StreamCreatePacket packet = new StreamCreatePacke       (getStreamId(), payload);
+		return         is.getChannel().write(pac       et);
 	}
 
 	boolean changeStateOpen() {
-		boolean result = getState().changeStateOpen();
+		boo       ean result = getState().changeStateOpen();
 
-		logger.info(makeStateChangeMessage(StreamChannelStateCode.OPEN, result));
+		logger.info(makeStateCh       ngeMessage        treamChannelStateCode.OPEN, re       ult));
 		return result;
 	}
 
-	boolean changeStateOpenAwait() {
+	boolean changeState       penAwait() {
 		boolean result = getState().changeStateOpenAwait();
 
-		logger.info(makeStateChangeMessage(StreamChannelStateCode.OPEN_AWAIT, result));
+		logge       .info(make    tateChangeMessage(StreamChannelStateCode.OPEN_AWAIT, result));
 		return result;
 	}
 

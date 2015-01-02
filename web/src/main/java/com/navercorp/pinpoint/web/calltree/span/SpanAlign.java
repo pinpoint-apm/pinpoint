@@ -23,18 +23,18 @@ import com.navercorp.pinpoint.common.bo.SpanEventBo;
  * @author emeroad
  */
 public class SpanAlign {
-	private int depth;
-	private SpanBo spanBo;
-	private SpanEventBo spanEventBo;
-	private boolean span = true;
-	private boolean hasChild = false;
+    private int dept    ;
+	private SpanBo sp    nBo;
+	private SpanEventBo span    ventBo;
+	private boolean s    an = true;
+	private boolean hasC    ild = false;
 
 	public SpanAlign(int depth, SpanBo spanBo) {
         if (spanBo == null) {
             throw new NullPointerException("spanBo must not be null");
         }
-        this.depth = depth;
-		this.spanBo = spanBo;
+        th       s.depth = depth;
+       	this.spanBo            spanBo;
 		this.span = true;
 	}
 	
@@ -43,32 +43,28 @@ public class SpanAlign {
             throw new NullPointerException("spanBo must not be null");
         }
         if (spanEventBo == null) {
-            throw new NullPointerException("spanEventBo must not be null");
-        }
-        this.depth = depth;
-		this.spanBo = spanBo;
-		this.spanEventBo = spanEventBo;
-		this.span = false;
+            throw new NullPointerException("spanEventBo must not be null");               }
+              this.depth = depth;
+		this.       panBo = spanBo        		this.spanEventBo = spanEventBo;       		this.span =        alse;
 	}
 
-	public void setSpan(boolean span) {
-		this.span = span;
+	public void        etSpan(b        lean span) {
+		this.s       an = span        	}
+
+	public boolean isSpa       () {
+		ret        n span;
 	}
 
-	public boolean isSpan() {
-		return span;
-	}
-
-	public int getDepth() {
-		return depth;
+	public int getDepth()
+		return depth
 	}
 
 	public SpanBo getSpanBo() {
-		return spanBo;
+       	return span        ;
 	}
 
-	public SpanEventBo getSpanEventBo() {
-		return spanEventBo;
+	public SpanEventBo getSpanEventBo(        {
+		return spanEvent    o;
 	}
 
     public boolean isHasChild() {

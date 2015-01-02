@@ -44,49 +44,46 @@ import net.spy.memcached.protocol.BaseOperationImpl;
 @Deprecated
 public class BaseOperationTransitionStateInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
-	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final boolean isDebug = logger.isDebugEnabled()
 
-	private static final Charset UTF8 = Charset.forName("UTF-8");
+	private static final Charset UTF8 = Charset.forName("UTF-    ");
 
-	private MetaObject getAsyncTrace = new MetaObject("__getAsyncTrace");
+	private MetaObject getAsyncTrace = new MetaObject("__getAsync    race");
 	private MetaObject getServiceCode = new MetaObject("__getServiceCode");
 
     private MethodDescriptor methodDescriptor;
     private TraceContext traceContext;
 
-    @Override
-	public void before(Object target, Object[] args) {
+       @Override
+	public void before(Object target, Ob       ect[] args           {
 		if (isDebug) {
-			logger.beforeInterceptor(target, args);
+			logger.bef             reInterceptor(target, args);
 		}
 
-		AsyncTrace asyncTrace = (AsyncTrace) getAsyncTrace.invoke(target);
-		if (asyncTrace == null) {
+		AsyncTrace asyncTrace = (       syncTrace) getAsyncTrace.invoke(target);
+		if (a          yncTrace == null) {
             if (isDebug) {
-			    logger.debug("asyncTrace not found");
+		                    logger.debug("asyncTrace not found");
             }
 			return;
 		}
-        // TODO Don't we have to check null? Don't fix now because this interceptor is deprecated.
-		OperationState newState = (OperationState) args[0];
+        // TODO Don't we ha       e to check null? Don't fix now because this inte       ceptor is deprecated.
+		OperationState newState = (Operat       onState) args[0];
 
-		BaseOperationImpl baseOperation = (BaseOperationImpl) target;
-		if (newState == OperationState.READING) {
-			if (isDebug) {
-				logger.debug("event:{} asyncTrace:{}", newState, asyncTrace);
+		BaseOperationImp           baseOpe             ation = (BaseOperationImpl) target;
+		if (newState ==                   OperationState.READING) {
+			if (isDebug) {                               				logger.debug("event:{} asyncTrace:{}", newState           asyncTrace);
 			}
-			if (asyncTrace.getState() != AsyncTrace.STATE_INIT) {
+			if (asyncTrace.getState() != Async          race.STATE_INIT) {
 				return;
 			}
-			MemcachedNode handlingNode = baseOperation.getHandlingNode();
-			SocketAddress socketAddress = handlingNode.getSocketAddress();
-			if (socketAddress instanceof InetSocketAddress) {
-				InetSocketAddress address = (InetSocketAddress) socketAddress;
-				asyncTrace.recordEndPoint(address.getHostName() + ":" + address.getPort());
+			Memc             chedNode handlingNode = baseOperation.getHandlingNode(             ;
+			SocketAddress socketAddress = handlingNode.getSocketAddress();                   			if (socketAddress instanceof InetSocketAddress) {          				InetSocketAddres              address = (Inet                            ocketAddress) socketAddre                   s;
+				asyncTrace.recordEndPoint(address.getHo             tName() + ":" + address.          etPort());
 			}
 
-			String serviceCode = (String) getServiceCode.invoke(target);
+			String serviceCode = (String)          getServiceCode.invoke(target);
 
 			if (serviceCode == null) {
 				serviceCode = "UNKNOWN";
@@ -94,36 +91,35 @@ public class BaseOperationTransitionStateInterceptor implements SimpleAroundInte
 			
 			ServiceType svcType = ServiceType.ARCUS;
 			
-			if(serviceCode.equals(ServiceType.MEMCACHED.getDesc())) {
-				svcType = ServiceType.MEMCACHED;
+			if(serviceCode.equals          ServiceType.MEMCACHED.getDesc())) {          				svcType = ServiceType.MEMCACHED;
 			}
 
-            asyncTrace.recordServiceType(svcType);
-//			asyncTrace.recordRpcName(baseOperation.getClass().getSimpleName());
-            asyncTrace.recordApi(methodDescriptor);
+            a          yncTrace.recordServiceType(svcTyp          );
+//			asyncTrace.record          pcName(baseOperation.get          lass().getSimpleName());
+            async          race.recordApi(methodDe          criptor);
 
-            asyncTrace.recordDestinationId(serviceCode);
+                  asyncTrace.recordDestinationId(serviceCode);
 
-			String cmd = getCommand(baseOperation);
+			String cmd = getCommand          baseOperation);
 //			asyncTrace.recordAttribute(AnnotationKey.ARCUS_COMMAND, cmd);
 
-			// TimeObject timeObject = (TimeObject)
+		                   // TimeObject timeObjec           = (Ti                               eObject)
 			// asyncTrace.getFrameObject();
 			// timeObject.markSendTime();
 
-			// long createTime = asyncTrace.getBeforeTime();
+			// long crea          eTime = asyncTrace.getBeforeT             me();
 			asyncTrace.markAfterTime();
-//			asyncTrace.traceBlockEnd();
-		} else if (newState == OperationState.COMPLETE || isArcusTimeout(newState)) {
-			if (isDebug) {
-                logger.debug("event:{} asyncTrace:{}", newState, asyncTrace);
+//			asyncTrace.trace             lockEnd();
+		} else if (newState == OperationState.COMPLETE ||             isArcusTimeout(newS             ate)) {
+			if (isDe          ug              {
+                logger.debug("event:{} asyncTrace:{}", newStat             , asyncTrace);
 			}
 			boolean fire = asyncTrace.fire();
-			if (!fire) {
+	             	if (!fire) {
 				return;
 			}
-			Exception exception = baseOperation.getException();
-            asyncTrace.recordException(exception);
+			Exception exception = baseOper             tion.getException()
+            asyncT                   ace.recordException(exception);
 
 			if (!baseOperation.isCancelled()) {
 				TimeObject timeObject = (TimeObject) asyncTrace.getAttachObject();
@@ -131,11 +127,11 @@ public class BaseOperationTransitionStateInterceptor implements SimpleAroundInte
 				asyncTrace.markAfterTime();
 				asyncTrace.traceBlockEnd();
 			} else {
-				asyncTrace.recordAttribute(AnnotationKey.EXCEPTION, "cancelled by user");
-				TimeObject timeObject = (TimeObject) asyncTrace.getAttachObject();
-				// asyncTrace.record(Annotation.ClientRecv, timeObject.getCancelTime());
-				asyncTrace.markAfterTime();
-				asyncTrace.traceBlockEnd();
+	       		asyncTrace.recordAttribute(AnnotationKey       EXCEPTION, "cance          led by user             );
+				TimeObject timeObject = (TimeObject) asyncTrace.getAttachOb       ect();
+				// asyncTrace.record(Annotation       ClientRecv, timeObject.getCancelTime());
+				asyncTrace.ma       kAfterTime();
+				asyncTrace.traceBl    ckEnd();
 			}
 		}
 	}

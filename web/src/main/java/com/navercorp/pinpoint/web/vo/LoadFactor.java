@@ -32,32 +32,31 @@ import org.slf4j.LoggerFactory;
 @Deprecated
 public class LoadFactor {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	public static final Integer SLOT_VERY_SLOW = Integer.MAX_VALUE - 1;
-	public static final Integer SLOT_ERROR = (int)Integer.MAX_VALUE;
+	public static final Integer SLOT_VERY_SLOW = Integer.MAX_VALUE    - 1;
+	public static final Integer SLOT_ERROR = (int)Integer.MAX_V    LUE
 
-//	/**
-//	 * <pre>
-//	 * key = responseTimeslot
-//	 * value = count
+//	/**    //	 * <pre>
+//	 * key = r    sponseTimeslot
+/    	 * value    = c    unt
 //	 * </pre>
 //	 */
-//	private final SortedMap<Integer, Long> histogramSummary = new TreeMap<Integer, Long>();;
+//	private final SortedMap<Integer, Long> histogramSummary = ne         reeMap    Integer, Long>();;
 
 	/**
-	 * <pre>
-	 * index = responseTimeslot index,
-	 * value = key=timestamp, value=value
+	 * <pr    >
+	 * index = responseTimeslot inde    ,
+	 * v    l    e = key=timestamp, value=value
 	 * </pre>
 	 */
-	private final List<Map<Long, Long>> timeseriesValueList = new ArrayList<Map<Long, Long>>();
-	private final Map<Integer, Integer> timeseriesSlotIndex = new TreeMap<Integer, Integer>();
+	private final List<Map<Long, Long>> times    riesValueList = new ArrayList<Map<Long, Long>>();
+	private final Map<Integer, Integer> timeseriesSlotIndex = new TreeMap<    nteger, Integer>();
 
-    private final Range range;
+    pri    ate final Range range;
 
 	private long successCount = 0;
-	private long failedCount = 0;
+	private long     ailedCount = 0;
 
     private final TimeWindow timeWindow;
 
@@ -65,32 +64,30 @@ public class LoadFactor {
         if (range == null) {
             throw new NullPointerException("range must not be null");
         }
-        this.range = range;
-        this.timeWindow = new TimeWindow(range);
+        this.r        g     = range;
+        this.timeWindow = new Tim    W    ndow(ran    e    ;
 	}
 
 	/**
-	 * initialize timeseries with default value. 
+	 * initialize timeseries with default val       e.
 	 * 
 	 * @return
 	 */
 	private Map<Long, Long> makeEmptyTimeseriesValueMap() {
-		Map<Long, Long> map = new TreeMap<Long, Long>();
-        for (Long time : timeWindow) {
+		Map<Long, Long> map = new TreeMap<Long,       Long>()                   for (Long time : timeWindow) {
             map.put(time, 0L);
-        }
+           }
 		return map;
 	}
 
 	/**
-	 * Empty slots in the view is shown as 0 if the histogram slot is set.
-	 * If not, value cannot be shown as the key is unknown.
+	 * Empty slots in th         iew is shown a          if the histogram slot is set.
+	 * If not, value cannot be show        as the key is unknown.
 	 * 
-	 * @param schema
+	 * @para           schema
 	 */
-	public void setDefaultHistogramSlotList(HistogramSchema schema) {
-		if (successCount > 0 || failedCount > 0) {
-			throw new IllegalStateException("Can't set slot list while containing the data.");
+	public void setDefaultHistogramSlotList(HistogramSchema schema              {
+		if (successCount         0 || failedCount > 0) {       			throw new IllegalStateEx       eption("Can't set slot list while conta       ning the data.");
 		}
 
 //		histogramSummary.clear();
@@ -104,45 +101,44 @@ public class LoadFactor {
         timeseriesValueList.add(makeEmptyTimeseriesValueMap());
 
         timeseriesSlotIndex.put((int)schema.getNormalSlot().getSlotTime(), timeseriesSlotIndex.size());
-        timeseriesValueList.add(makeEmptyTimeseriesValueMap());
+        timeseriesValueList.add(makeEmptyTimeseriesValueMap()       ;
 
-        timeseriesSlotIndex.put((int)schema.getSlowSlot().getSlotTime(), timeseriesSlotIndex.size());
-        timeseriesValueList.add(makeEmptyTimeseriesValueMap());
+        timeseriesSlotIndex.put((int)schema.getSlowSlot().get       lotTime(), timeseriesSlotIndex.size());
+        timeseriesVal       eList.add(makeEmptyTimeseriesValueMap());
 
-		timeseriesSlotIndex.put(SLOT_VERY_SLOW, timeseriesSlotIndex.size());
+		timese       iesSlotIndex.put(SLOT_VERY_SLOW, timeseriesSlotInde        size());
 		timeseriesSlotIndex.put(SLOT_ERROR, timeseriesSlotIndex.size());
 
-		timeseriesValueList.add(makeEmptyTimeseriesValueMap());
+		timeseriesValueList.add(makeEmptyTimeseriesValueMap()       ;
 		timeseriesValueList.add(makeEmptyTimeseriesValueMap());
 	}
 
-	public void addSample(long timestamp, int responseTimeslot, long callCount, boolean isFailed) {
-        if (logger.isDebugEnabled()) {
-		    logger.debug("Add sample. timeslot={}, responseTimeslot={}, callCount={}, failed={}", timestamp, responseTimeslot, callCount, isFailed);
+	public void addSample(long timestamp, int responseTimeslot, long callCount, boolea        isFailed) {
+        if (logger.isDebugEnabled(       ) {
+		    l          gger.debug("Add sam       le.           imeslot={}, response             imeslot={}, callCount={}           failed={}", timestamp,        esponseTimeslot, callCount, isF          iled);
         }
 
-		timestamp = timeWindow.refineTimestamp(timestamp);
+		timestam              = timeWind       w.refineTimestamp(timestamp);
 
 		if (isFailed) {
 			failedCount += callCount;
 		} else {
 			successCount += callCount;
 		}
-
-		if (responseTimeslot == -1) {
-			responseTimeslot = SLOT_ERROR;
-		} else if (responseTimeslot == 0) {
-			responseTimeslot = SLOT_VERY_SLOW;
+       		if (responseTimeslot == -1) {
+			response             imes       ot = SLOT_ERROR;
+		}        lse if (responseTimeslot == 0) {
+			responseTimeslot = SLO       _VERY_SLOW;
 		}
 
 		// add summary
-//		long value = histogramSummary.containsKey(responseTimeslot) ? histogramSummary.get(responseTimeslot) + callCount : callCount;
-//		histogramSummary.put(responseTimeslot, value);
+//		long value = histogr       mSummary.containsKey(responseTimeslot) ? histogramSummary       get(r             sponseTimeslot) + callCount : callCount;
+//		histo          ramSummary.put(responseTimeslot, value);
 
-		/**
+		          **
 		 * <pre>
 		 * timeseriesValueList : 
-		 * list[respoinse_slot_no + 0] = value<timestamp, call count> 
+	           * list[respoinse_slot_no + 0] = value<timestamp, call count>
 		 * list[respoinse_slot_no + 1] = value<timestamp, call count> 
 		 * list[respoinse_slot_no + N] = value<timestamp, call count>
 		 * </pre>
@@ -152,20 +148,18 @@ public class LoadFactor {
 
 			// the same time should exist in different slots.
 			// FIXME change responseTimeSlot's data type to short
-            Integer slotNumber = timeseriesSlotIndex.get(responseTimeslot);
-            if (i == slotNumber) {
-                long v = map.containsKey(timestamp) ? map.get(timestamp) + callCount : callCount;
-                map.put(timestamp, v);
-            } else {
-                if (!map.containsKey(timestamp)) {
-                    map.put(timestamp, 0L);
-                }
-            }
+            Integer sl    tN    mber = timeseriesSlotIndex.get(responseTimeslot);                   if (i == s        tNumber) {
+                lo       g v = map.contai        Key(timestamp) ? map.get(tim       stamp) + callCo        t : callCount;
+                map.put(timestamp, v);                   } else {
+                      if (!map.containsKey(timestamp)) {
+                          map.pu    (    imestamp, 0L);
+                      }
+                  }
         }
 	}
 
-//	public Map<Integer, Long> getHistogramSummary() {
-//		return histogramSummary;
+//	pu       lic Map<Intege         Long>     etHistogramSummary() {
+/       		return histogramSummary;
 //	}
 
 	public long getSuccessCount() {
@@ -176,7 +170,7 @@ public class LoadFactor {
 		return failedCount;
 	}
 
-	public Map<Integer, Integer> getTimeseriesSlotIndex() {
+	public Map<Integer, Integer> getTimeseriesSlotIn    ex() {
 		return timeseriesSlotIndex;
 	}
 

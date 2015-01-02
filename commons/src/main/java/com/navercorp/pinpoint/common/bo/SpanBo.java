@@ -149,8 +149,8 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
         this.version = (byte) (version & 0xFF);
     }
 
-	public String getTransactionId() {
-        return TransactionIdUtils.formatString(traceAgentId, traceAgentStartTime, traceTransactionSequence);
+    public String getTransactionId() {
+        return TransactionIdUtils.formatString(traceAgentId, traceAgentStartTime, traceTransactionSequence    ;
 	}
     
     public String getAgentId() {
@@ -311,19 +311,19 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
         this.serviceType = serviceType;
     }
     
-    public int getErrCode() {
-		return errCode;
+    public int getErrCod       () {
+		retu         errCode;
 	}
 
-	public void setErrCode(int errCode) {
-		this.errCode = errCode;
+	public void setErrCo       e(int errCode) {
+		    his.errCode = errCode;
 	}
 
-    public String getRemoteAddr() {
+    publi        String getRem        eAddr() {
 		return remoteAddr;
 	}
 
-	public void setRemoteAddr(String remoteAddr) {
+	public v       id setRemoteAddr(String r        oteAddr) {
 		this.remoteAddr = remoteAddr;
 	}
 
@@ -332,7 +332,7 @@ public class SpanBo implements com.navercorp.pinpoint.common.bo.Span {
     }
 
     public void setCollectorAcceptTime(long collectorAcceptTime) {
-        this.collectorAcceptTime = collectorAcceptTime;
+        this.collectorAcceptTime = collectorAc    eptTime;
     }
 
     public boolean isRoot() {

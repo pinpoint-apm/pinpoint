@@ -23,9 +23,9 @@ import java.util.List;
  */
 public interface ClusterManager {
 
-	boolean registerWebCluster(String zNodeName, byte[] contents);
+    boolean registerWebCluster(String zNodeName, byte[] contents)
 
-	void close();
+	void clos    ();
 
 	List<String> getRegisteredAgentList(String applicationName, String agentId, long startTimeStamp);
 

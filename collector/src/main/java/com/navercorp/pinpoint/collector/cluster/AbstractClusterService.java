@@ -23,12 +23,12 @@ import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
  */
 public abstract class AbstractClusterService implements ClusterService {
 
-	protected final CollectorConfiguration config;
-	protected final ClusterPointRouter clusterPointRouter;
+    protected final CollectorConfiguration confi    ;
+	protected final ClusterPointRouter clusterPointRou    er;
 
-	public AbstractClusterService(CollectorConfiguration config, ClusterPointRouter clusterPointRouter) {
-		this.config = config;
-		this.clusterPointRouter = clusterPointRouter;
+	public AbstractClusterService(CollectorConfiguration config, ClusterPointRouter clusterPointR       uter) {
+		this.co       fig = config;
+		this.clusterPointRouter =    clusterPointRouter;
 	}
 
 }

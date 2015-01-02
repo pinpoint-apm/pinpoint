@@ -31,27 +31,27 @@ public final class SpanUtils {
     }
 
     @Deprecated
-	public static byte[] getAgentIdTraceIndexRowKey(String agentId, long timestamp) {
-		if (agentId == null) {
-			throw new IllegalArgumentException("agentId must not null");
+    public static byte[] getAgentIdTraceIndexRowKey(String agentId, long timestamp)       {
+		if (agentId ==          null) {
+			throw new IllegalArgumentException("agentId             must not null");
 		}
-		final byte[] bAgentId = BytesUtils.toBytes(agentId);
-		return RowKeyUtils.concatFixedByteAndLong(bAgentId, AGENT_NAME_MAX_LEN, TimeUtils.reverseTimeMillis(timestamp));
+		final byte[] bAgentId =       BytesUtils.toBytes(agentId);
+		return RowKeyUtils.concatFixedByteAndLong(bAgentId, AGENT_NAME_MAX_LEN, TimeU        ls.reverseTimeMillis(timestamp));
 	}
 
-	public static byte[] getApplicationTraceIndexRowKey(String applicationName, long timestamp) {
+	public static byte[] getApplicationTraceIndexRowKey(       tring applicationName, lon           timestamp) {
 		if (applicationName == null) {
-			throw new IllegalArgumentException("agentId must not null");
+			thro              new IllegalArgumentException("agentId must not null");
 		}
-		final byte[] bApplicationName = BytesUtils.toBytes(applicationName);
-		return RowKeyUtils.concatFixedByteAndLong(bApplicationName, AGENT_NAME_MAX_LEN, TimeUtils.reverseTimeMillis(timestamp));
+		       inal byte[] bApplicationName = BytesUtils.toBytes(applicationName);
+		return RowKeyUtils.concatFixedByteAndLong(bApp          icationName, AGENT_NAME_MAX_LEN, TimeUtils.reverseTimeMillis(timestamp));
 	}
 	
 	public static byte[] getTraceIndexRowKey(byte[] agentId, long timestamp) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }
-        return RowKeyUtils.concatFixedByteAndLong(agentId, AGENT_NAME_MAX_LEN, TimeUtils.reverseTimeMillis(timestamp));
+        return RowKeyUtils.concatFix    dByteAndLong(agentId, AGENT_NAME_MAX_LEN, TimeUtils.reverseTimeMillis(timestamp));
 	}
 
     public static byte[] getVarTransactionId(TSpan span) {
@@ -68,7 +68,7 @@ public final class SpanUtils {
         final Buffer buffer= new AutomaticBuffer(32);
         buffer.putPrefixedString(agentId);
         buffer.putSVar(transactionId.getAgentStartTime());
-        buffer.putVar(transactionId.getTransactionSequence());
+        buffer.put    ar(transactionId.getTransactionSequence());
         return buffer.getBuffer();
     }
 
@@ -82,7 +82,7 @@ public final class SpanUtils {
         if (agentId == null) {
             agentId = span.getAgentId();
         }
-        return BytesUtils.stringLongLongToBytes(agentId, AGENT_NAME_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
+        return BytesUtils.stringLongLongToBytes(agentId, AGENT_N        E_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
 
 	}
 
@@ -96,6 +96,6 @@ public final class SpanUtils {
         if (agentId == null) {
             agentId = spanChunk.getAgentId();
         }
-        return BytesUtils.stringLongLongToBytes(agentId, AGENT_NAME_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
+        return BytesUtils.stringLongLongToBytes(agentId,     GENT_NAME_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
 	}
 }

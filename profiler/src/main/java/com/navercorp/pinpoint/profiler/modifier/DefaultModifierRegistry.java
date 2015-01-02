@@ -196,47 +196,46 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         }
     }
 
-	public void addTomcatModifier() {
-		StandardHostValveInvokeModifier standardHostValveInvokeModifier = new StandardHostValveInvokeModifier(byteCodeInstrumentor, agent);
-		addModifier(standardHostValveInvokeModifier);
+    public void addTomcatModifier()       {
+		StandardHostValveInvokeModifier standardHostValveInvokeModifier = new StandardHostValveInvokeModifier(byteCodeInstrumentor,       agent);
+		addModifier(standardHostValveInv       keModifier);
 
-		HttpServletModifier httpServletModifier = new HttpServletModifier(byteCodeInstrumentor, agent);
-		addModifier(httpServletModifier);
+		HttpServletModifier httpServletModifier = new HttpServletModifier(byteCodeI       strumentor, agent);
+		addModif       er(httpServletModifier);
 
-		SpringFrameworkServletModifier springServletModifier = new SpringFrameworkServletModifier(byteCodeInstrumentor, agent);
-		addModifier(springServletModifier);
+		SpringFrameworkServletModifier springServletModifier = new SpringFrameworkServletModifi       r(byteCodeInstrumentor, agent);
+       	addModifier(springServletModifier);
 
-		AbstractModifier tomcatStandardServiceModifier = new StandardServiceModifier(byteCodeInstrumentor, agent);
+		AbstractModifier tomcatStandardServiceModifier = new StandardS       rviceModifier(byteCodeInstrumentor, agen       );
 		addModifier(tomcatStandardServiceModifier);
 
-		AbstractModifier tomcatConnectorModifier = new TomcatConnectorModifier(byteCodeInstrumentor, agent);
+		AbstractModifier tomcatConnectorModifier = n       w TomcatConnectorModifier(byteCodeInstrume       tor, agent);
 		addModifier(tomcatConnectorModifier);
         
-		AbstractModifier tomcatWebappLoaderModifier = new WebappLoaderModifier(byteCodeInstrumentor, agent);
-        addModifier(tomcatWebappLoaderModifier);
+		AbstractModifier tomcatWebappLoaderModifier = new WebappLoaderModifier(byteCodeIns       rumentor, agent);
+        addModifier(tomcatWe       appLoaderModifier);
 
 		if (profilerConfig.isTomcatHidePinpointHeader()) {
-		    AbstractModifier requestFacadeModifier = new RequestFacadeModifier(byteCodeInstrumentor, agent);
-			addModifier(requestFacadeModifier);
+		    AbstractModifier          requestFacadeModifier = new R             questFacadeModifier(byteCode       nstrumentor, agent);
+			addModifier(requestF    ca       eModifier);
 		}
 	}
 
-	public void addJdbcModifier() {
-		// TODO Can we check if JDBC driver exists here?
+	public void a          d             dbcModifier() {
+		// TODO Can we chec           if JDBC dr             ver exists here?
 	    
-		if (!profilerConfig.isJdbcProfile()) {
+		if (!profil          rConfig.is             dbcProfile()) {
 			return;
 		}
 
-		if (profilerConfig.isJdbcProfileMySql()) {
-			addMySqlDriver();
+		if (          rofilerConfi             .isJdbcProfileMySql()) {
+			addMySqlD          iver();
+		}
+             		if (profilerConfig.isJdbcProfileJt          s()) {
+			             ddJtdsDriver();
 		}
 
-		if (profilerConfig.isJdbcProfileJtds()) {
-			addJtdsDriver();
-		}
-
-		if (profilerConfig.isJdbcProfileOracle()) {
+		if (p       ofilerConfig.isJdbcProfileOracle()) {
 			addOracleDriver();
 		}
 		if (profilerConfig.isJdbcProfileCubrid()) {
@@ -262,13 +261,13 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         AbstractModifier mysqlConnectionModifier = new MySQLConnectionModifier(byteCodeInstrumentor, agent);
         addModifier(mysqlConnectionModifier);
 
-        AbstractModifier mysqlStatementModifier = new MySQLStatementModifier(byteCodeInstrumentor, agent);
+        AbstractModifier mysqlStatementModifier = new MySQLStatementModifier(byte       odeInstrumentor, agent);
         addModifier(mysqlStatementModifier);
 
-        AbstractModifier mysqlPreparedStatementModifier = new MySQLPreparedStatementModifier(byteCodeInstrumentor, agent);
-        addModifier(mysqlPreparedStatementModifier);
+        AbstractModifier mysqlPreparedStatementModifier = new MySQL       reparedStatementModifier(byteCodeInstrumentor, agent);
+        addModifier(mysqlPreparedStatementMod       fier);
 
-		MySQLPreparedStatementJDBC4Modifier myqlPreparedStatementJDBC4Modifier = new MySQLPreparedStatementJDBC4Modifier(byteCodeInstrumentor, agent);
+		MySQLPreparedStatementJDBC4Modifier myqlPreparedStatementJDBC4Modifier = new M       SQLPreparedStatementJDBC4Modifie        byteCodeInstrumentor, agent);
 		addModifier(myqlPreparedStatementJDBC4Modifier);
 
 //      TODO Need to create result set fetch counter
@@ -289,7 +288,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         AbstractModifier mssqlStatementModifier = new JtdsStatementModifier(byteCodeInstrumentor, agent);
         addModifier(mssqlStatementModifier);
 
-        AbstractModifier mssqlPreparedStatementModifier = new JtdsPreparedStatementModifier(byteCodeInstrumentor, agent);
+        AbstractModifier mssqlPreparedStatementMo    ifier = new JtdsPreparedStatementModifier(byteCodeInstrumentor, agent);
         addModifier(mssqlPreparedStatementModifier);
 
         AbstractModifier mssqlResultSetModifier = new JtdsResultSetModifier(byteCodeInstrumentor, agent);
@@ -309,28 +308,28 @@ public class DefaultModifierRegistry implements ModifierRegistry {
         AbstractModifier oraclePreparedStatementModifier = new OraclePreparedStatementWrapperModifier(byteCodeInstrumentor, agent);
         addModifier(oraclePreparedStatementModifier);
 
-        AbstractModifier oracleStatement = new OracleStatementWrapperModifier(byteCodeInstrumentor, agent);
-        addModifier(oracleStatement);
+        AbstractModifier oracleStat    ment = new OracleStatementWrap       erModifier(byteCodeInstrumentor, agent);
+        addModifi       r(oracleStatement);
         //
-        // Modifier oracleResultSetModifier = new OracleResultSetModifier(byteCodeInstrumentor, agent);
+        // Modifier oracleResultSetM       difier = new OracleResultSetModifier(byteCodeInstrumentor, agen       );
         // addModifier(oracleResultSetModifier);
     }
 
-	private void addCubridDriver() {
-		// TODO Cubrid doesn't have connection impl too. Check it out.
-		addModifier(new CubridConnectionModifier(byteCodeInstrumentor, agent));
-		addModifier(new CubridDriverModifier(byteCodeInstrumentor, agent));
+	privat        void addCubridDriver() {
+		// TODO Cubrid doesn't have connection impl to       . Check it out.
+		addModifier(new CubridConnectionModifier(byteCodeI       strumentor, agent));
+		addModifier(new CubridDriverModifier(byteCod        nstrumentor, agent));
 		addModifier(new CubridStatementModifier(byteCodeInstrumentor, agent));
 		addModifier(new CubridPreparedStatementModifier(byteCodeInstrumentor, agent));
 		addModifier(new CubridResultSetModifier(byteCodeInstrumentor, agent));
 //		addModifier(new CubridUStatementModifier(byteCodeInstrumentor, agent));
 	}
 
-	private void addDbcpDriver() {
+	pri       ate void addDbcpDriver() {
 
         // TODO Cubrid doesn't have connection impl too. Check it out.
-        AbstractModifier dbcpBasicDataSourceModifier = new DBCPBasicDataSourceModifier(byteCodeInstrumentor, agent);
-        addModifier(dbcpBasicDataSourceModifier);
+        A       stractModifier dbcpBasicDataSourceModifi               = new DBCPBasicDataSourceModifier(    y    eCodeInstrumentor, agent);
+              addModifi       r(dbcpBasicDataS          urceModifier);
 
         if (profilerConfig.isJdbcProfileDbcpConnectionClose()) {
 		    AbstractModifier dbcpPoolModifier = new DBCPPoolGuardConnectionWrapperModifier(byteCodeInstrumentor, agent);
@@ -342,7 +341,7 @@ public class DefaultModifierRegistry implements ModifierRegistry {
 	 * Support ORM(iBatis, myBatis, etc.)
 	 */
 	public void addOrmModifier() {
-		addIBatisSupport();
+		addIBatisSuppo        ();
 		addMyBatisSupport();
 	}
 	

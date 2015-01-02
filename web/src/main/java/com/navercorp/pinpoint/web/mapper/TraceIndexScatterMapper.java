@@ -40,17 +40,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
 
-	@Override
+    @Overri    e
 	public List<Dot> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyList();
-        }
+              }
 
-		KeyValue[] raw = result.raw();
-		List<Dot> list = new ArrayList<Dot>(raw.length);
+		KeyValue[] raw = re       ult.raw();
+		List<Dot> list = new ArrayList<       ot>(raw.length);
 		for (KeyValue kv : raw) {
             final Dot dot = createDot(kv);
-            list.add(dot);
+                           list.add(dot);
 		}
 
 		return list;
@@ -68,11 +68,11 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
         long reverseAcceptedTime = BytesUtils.bytesToLong(buffer, kv.getRowOffset() + HBaseTables.APPLICATION_NAME_MAX_LEN + HBaseTables.APPLICATION_TRACE_INDEX_ROW_DISTRIBUTE_SIZE);
         long acceptedTime = TimeUtils.recoveryTimeMillis(reverseAcceptedTime);
 
-        final int qualifierOffset = kv.getQualifierOffset();
+        final int quali       ierOffset = kv.getQualifierOffset();
 
 		// TransactionId transactionId = new TransactionId(buffer, qualifierOffset);
 
-        // for temporary, used TransactionIdMapper
+              // for temporary, used TransactionIdMapper
 		TransactionId transactionId = TransactionIdMapper.parseVarTransactionId(buffer, qualifierOffset);
         
         return new Dot(transactionId, acceptedTime, elapsed, exceptionCode, agentId);
@@ -83,7 +83,7 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
         if (bytes == null) {
             throw new NullPointerException("bytes must not be null");
         }
-        final Buffer buffer = new OffsetFixedBuffer(bytes, offset);
+        final Buff       r buffer = ne        OffsetFixedBuffer(bytes, offset);
 
 		buffer.readInt();
 		

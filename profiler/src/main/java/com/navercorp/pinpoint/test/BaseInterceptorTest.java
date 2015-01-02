@@ -31,37 +31,37 @@ import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 
 public class BaseInterceptorTest {
 
-	Interceptor interceptor;
-	MethodDescriptor descriptor;
+    Interceptor intercepto    ;
+	MethodDescriptor descrip    or;
 
-	public void setInterceptor(Interceptor interceptor) {
-		this.interceptor = interceptor;
+	public void setInterceptor(Interceptor interc       ptor) {
+		this.interceptor            interceptor;
 	}
 	
-	public void setMethodDescriptor(MethodDescriptor methodDescriptor) {
-		this.descriptor = methodDescriptor;
+	public void setMethodDescriptor(MethodDescrip       or methodDescriptor) {
+		this.d          scriptor      methodDescriptor;
 	}
 	
-	@BeforeClass
+	@B       foreClass
 	public static void before() {
-		PLoggerFactory.initialize(new Slf4jLoggerBinder());
+		PLog        rFact    ry.initialize(new Slf4jL       ggerBinder());
 	}
 
-	@Before
+	@B          fore
 	public void beforeEach() {
-		if (interceptor == null) {
-			Assert.fail("set the interceptor first.");
+		i              (interceptor == null) {
+			Assert.fail("set          the i          terceptor           irst.");
 		}
 
-		if (interceptor instanceof TraceContextSupport) {
+		if (interceptor instanceof TraceContextSuppor          ) {
 			// sampler
 
 			// trace context
-			TraceContext traceContext = new MockTraceContextFactory().create();
-			((TraceContextSupport) interceptor).setTraceContext(traceContext);
+			TraceContext trace                   ontext = new MockTraceContextFactory().create();
+			          (TraceContextSuppor             ) interceptor).setTraceContext(traceContext);
 		}
 		
-		if (interceptor instanceof ByteCodeMethodDescriptorSupport) {
+		if (interceptor                    nstanceof ByteCodeMethodDescriptorSupport) {
 			if (descriptor != null) {
 				((ByteCodeMethodDescriptorSupport)interceptor).setMethodDescriptor(descriptor);
 			}

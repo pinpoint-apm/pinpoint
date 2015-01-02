@@ -41,29 +41,28 @@ import org.springframework.stereotype.Service;
 @Service
 public class SpanHandler implements SimpleHandler {
 
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass())
+
+	@Auto    ired
+	private TracesDao tr    ceDao;
+
+    @Autowired
+	private ApplicationTraceIndexDao applicationT    aceIndex    ao;
 
 	@Autowired
-	private TracesDao traceDao;
+	private StatisticsHandler    statisti    sHandler;
 
 	@Autowired
-	private ApplicationTraceIndexDao applicationTraceIndexDao;
+	private HostApplicationMapD    o hostApplicationMapDao;
 
-	@Autowired
-	private StatisticsHandler statisticsHandler;
-
-	@Autowired
-	private HostApplicationMapDao hostApplicationMapDao;
-
-	public void handleSimple(TBase<?, ?> tbase) {
-
-		if (!(tbase instanceof TSpan)) {
-			throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + this.getClass().getName());
+	public void handl       Simple(TBase<?, ?> tbase) {
+          		if (!(tbase instanceof TSpan)) {
+			throw new IllegalArgumentException("unexpected tbase:" + tbase                        " expected:" + this.getClas          ().getName());
 		}
 
-		try {
-			final TSpan span = (TSpan) tbase;
-			if (logger.isDebugEnabled()) {
+		tr              {
+			final TSpan span = (TSpan           tbase;
+			if (logger.isDebugEn          bled()) {
 				logger.debug("Received SPAN={}", span);
 			}
 
@@ -71,9 +70,9 @@ public class SpanHandler implements SimpleHandler {
 			applicationTraceIndexDao.insert(span);
 
             // insert statistics info for server map
-            insertAcceptorHost(span);
+                  insertAcceptor          ost(span);
             insertSpanStat(span);
-            insertSpanEventStat(span);
+            insertSpanEvent          tat(span);
 		} catch (Exception e) {
 			logger.warn("Span handle error. Caused:{}. Span:{}",e.getMessage(), tbase, e);
 		}

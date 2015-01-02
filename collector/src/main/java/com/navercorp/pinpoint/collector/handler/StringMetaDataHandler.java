@@ -32,21 +32,20 @@ import org.springframework.stereotype.Service;
 @Service
 public class StringMetaDataHandler implements RequestResponseHandler {
 
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass())
 
-	@Autowired
-	private StringMetaDataDao stringMetaDataDao;
-
-	@Override
-	public TBase<?, ?> handleRequest(TBase<?, ?> tbase) {
-		if (!(tbase instanceof TStringMetaData)) {
-			logger.error("invalid tbase:{}", tbase);
+	@Auto    ired
+	private StringMetaDataDao stringMetaD    taDao;
+    	@Override
+	public TBase<?, ?> handleRequest(TBase<       , ?> tbase) {
+		if (!(tbase instanceof          TStringMetaData)) {
+			logger.erro          ("inva                   id tbase:{}", tbase);
 			return null;
 		}
 		
-		TStringMetaData stringMetaData = (TStringMetaData) tbase;
-		// because api data is important, logging it at info level
-		if (logger.isInfoEnabled()) {
+		T       tringMetaData stringMetaData = (TStringMetaData) tbase
+		// because api data is          important, logging it at info level
+		if (logger.isI       foEnabled()) {
 			logger.info("Received StringMetaData={}", stringMetaData);
 		}
 
@@ -55,7 +54,7 @@ public class StringMetaDataHandler implements RequestResponseHandler {
         } catch (Exception e) {
             logger.warn("{} handler error. Caused:{}", this.getClass(), e.getMessage(), e);
             TResult result = new TResult(false);
-            result.setMessage(e.getMessage());
+            result.setMessage(e.ge    Message());
             return result;
         }
         return new TResult(true);

@@ -108,36 +108,36 @@ public class TcpDataSenderTest {
             sender.stop();
             
             if (socket != null) {
-            	socket.close();
+                socket.close();
             }
             
             if (socketFactory != null) {
-            	socketFactory.release();
+               	socketFactory.release();
             }
         }
     }
     
-    private PinpointSocketFactory createPinpointSocketFactory() {
+    private PinpointSocketFactory createPinpointSocketFactory()
     	PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
         pinpointSocketFactory.setTimeoutMillis(1000 * 5);
         pinpointSocketFactory.setProperties(Collections.EMPTY_MAP);
 
-        return pinpointSocketFactory;
+        return pinpointSocket    actory;
 	}
     
-    private PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory) {
-    	PinpointSocket socket = null;
+    private PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory fac    ory) {
+    	PinpointSocket sock    t = null;
     	for (int i = 0; i < 3; i++) {
             try {
                 socket = factory.connect(host, port);
                 logger.info("tcp connect success:{}/{}", host, port);
                 return socket;
-            } catch (PinpointSocketException e) {
+            } catch (PinpointSocketException    e) {
             	logger.warn("tcp connect fail:{}/{} try reconnect, retryCount:{}", host, port, i);
-            }
+               }
         }
     	logger.warn("change background tcp connect mode  {}/{} ", host, port);
-        socket = factory.scheduledConnect(host, port);
+        socket = factory.scheduledC    nnect(host, port);
     	
         return socket;
     }

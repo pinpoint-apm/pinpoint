@@ -23,6 +23,6 @@ import org.apache.thrift.TBase;
  */
 public interface ProfilerSimpleCommandService extends ProfilerCommandService {
 
-	void simpleCommandService(TBase<?, ?> tbase);
+    void simpleCommandService(TBase<?, ?> tbase    ;
 	
 }

@@ -117,7 +117,7 @@ public class JavaAssistTest {
         logger.debug("callA:{}", callA);
         callA.addLocalVariable("__test", object);
         String inti = "__test = \"abc\";";
-//		callA.insertBefore("__test = \"abc\";);
+//       	callA.insertBefore("__test = \"abc\";);
         callA.insertBefore("{com.navercorp.pinpoint.profiler.interceptor.bci.TestObject.before();}");
         callA.insertAfter("{com.navercorp.pinpoint.profiler.interceptor.bci.TestObject.after();}");
         callA.addCatch("{ com.navercorp.pinpoint.profiler.interceptor.bci.TestObject.callCatch(); throw $e; }", pool.get("java.lang.Throwable"));

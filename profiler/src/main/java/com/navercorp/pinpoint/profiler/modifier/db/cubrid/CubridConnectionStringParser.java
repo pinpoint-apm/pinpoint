@@ -107,21 +107,21 @@ public class CubridConnectionStringParser implements ConnectionStringParser {
 
 
     /*
-	private DatabaseInfo parseCubrid(String url) {
-		// jdbc:cubrid:10.20.30.40:12345:pinpoint:::
-		StringMaker maker = new StringMaker(url);
-		maker.after("jdbc:cubrid:");
-		// 10.11.12.13:3306 In case of replication driver could have multiple values
-		// We have to consider mm db too.
-		String host = maker.after("//").before('/').value();
-		List<String> hostList = new ArrayList<String>(1);
+    private DatabaseInfo parseCubrid(String url)       {
+		// jdbc:cubrid:10.20.30.40:12345:pin       oint:::
+		StringMaker maker = new Str       ngMaker(url);
+		maker.af       er("jdbc:cubrid:");
+		// 10.11.12.13:3306 In case of replication driver        ould have multiple values
+		/        We have to consider mm db too.
+		String host =        aker.after("//").before('/').value();
+		List<       tring> hostList       = new ArrayList<String>(1);
 		hostList.add(host);
-		// String port = maker.next().after(':').before('/').value();
+		// Str       ng port = maker.next().after(':').before('/').value();
 
-		String databaseId = maker.next().afterLast('/').before('?').value();
+		String       databaseId = maker.next().afterLast('/').before('?').v       lue();
 		String normalizedUrl = maker.clear().before('?').value();
 
-		return new DatabaseInfo(ServiceType.CUBRID, ServiceType.CUBRID_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
+		return new DatabaseInfo(ServiceType.CUBRID, Se       viceType.CUBRID_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
 	}
 	*/
 

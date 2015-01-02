@@ -45,34 +45,34 @@ import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.interceptor.IbatisSql
  */
 public final class SqlMapClientTemplateModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	private static final ServiceType serviceType = ServiceType.SPRING_ORM_IBATIS;
-	private static final String SCOPE = IbatisScope.SCOPE;
-	private static final MethodFilter sqlMapClientMethodFilter = new SqlMapClientMethodFilter();
+	private static final ServiceType serviceType = ServiceType.SPRING_ORM_IB    TIS;
+	private static final String SCOPE = IbatisScop    .SCOPE;
+	private static final MethodFilter sqlMapClientMethodFilter = new SqlMapClientMetho    Filter();
 
-	public static final String TARGET_CLASS_NAME = "org/springframework/orm/ibatis/SqlMapClientTemplate";
+	public static final String TARGET_CLASS_NAME = "org/springframework/orm/ibatis/SqlMapCli    ntTemplate";
 
-	public SqlMapClientTemplateModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-		super(byteCodeInstrumentor, agent);
+	public SqlMapClientTemplateModifier(ByteCodeInstrumentor byteCodeInstrumento       , Agent agent) {
+		super(byteCo        Instrum    ntor, agent);
 	}
 
 	@Override
-	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedD       main, byte[] classFileBuffer)
 		if (this.logger.isInfoEnabled()) {
-			this.logger.info("Modifying. {}", javassistClassName);
+			this.lo                      ger.info("Modifying. {}", javassistClassName);
 		}
 		try {
-			InstrumentClass sqlMapClientTemplate = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
-			List<MethodInfo> declaredMethods = sqlMapClientTemplate.getDeclaredMethods(sqlMapClientMethodFilter);
+			InstrumentClass sqlMapClientTemplate = byteCodeInst          umentor.getClass(classLoader, javassistClassName, classFileBuffer);
+			List<MethodInfo> declare                   Methods = sqlMapClientTemplate.g             tDeclaredMethods(sqlMapClientMethodFilter);
 			
-			for (MethodInfo method : declaredMethods) {
+			for (MethodInfo method : declaredMeth             ds) {
 				Interceptor sqlMapClientTemplateInterceptor = new IbatisSqlMapOperationInterceptor(serviceType);
-				sqlMapClientTemplate.addScopeInterceptor(method.getName(), method.getParameterTypes(), sqlMapClientTemplateInterceptor, SCOPE);
+				sqlMapCl                            entTemplate.addScopeInterc       ptor(method.getName          ), method.getParameterTypes(), sqlMapClientTemplateInterceptor, SCOPE);
 			}
 			
-			return sqlMapClientTemplate.toBytecode();
-		} catch (Throwable e) {
+          		retu             n sqlM    pClientTemplate.toBytecode();
+       	} catch (Throwable e     {
 			this.logger.warn("{} modifier error. Cause:{}", javassistClassName, e.getMessage(), e);
 			return null;
 		}

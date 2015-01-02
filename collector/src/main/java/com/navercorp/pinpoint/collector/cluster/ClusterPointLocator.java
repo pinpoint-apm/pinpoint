@@ -20,6 +20,6 @@ import java.util.List;
 
 public interface ClusterPointLocator<T extends ClusterPoint> {
 
-	List<T> getClusterPointList();
+    List<T> getClusterPointList(    ;
 	
 }

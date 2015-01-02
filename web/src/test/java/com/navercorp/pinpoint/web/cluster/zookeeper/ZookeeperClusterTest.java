@@ -45,28 +45,27 @@ import com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterManager;
 
 public class ZookeeperClusterTest {
 
-	private static final int DEFAULT_ACCEPTOR_PORT = 9995;
-	private static final int DEFAULT_ZOOKEEPER_PORT = 22213;
+    private static final int DEFAULT_ACCEPTOR_PORT = 999    ;
+	private static final int DEFAULT_ZOOKEEPER_PORT = 22    13;
 
-	private static final String DEFAULT_IP = NetUtils.getLocalV4Ip();
+	private static final String DEFAULT_IP = NetUtils.getLocal    4Ip();
 
-	private static final String COLLECTOR_NODE_PATH = "/pinpoint-cluster/collector";
-	private static final String COLLECTOR_TEST_NODE_PATH = "/pinpoint-cluster/collector/test";
+	private static final String COLLECTOR_NODE_PATH = "/pinpoint-cluster/    ollector";
+	private static final String COLLECTOR_TEST_NODE_PATH = "/pinpoint-cluster/co       lector/test";
 	
-	private static final String CLUSTER_NODE_PATH = "/pinpoint-cluster/web/" + DEFAULT_IP + ":" + DEFAULT_ACCEPTOR_PORT;
+	private static final String CLUSTER_NODE_PATH = "/pinpoint-cluster/web/" + DEFAULT_IP + ":" + DEF    ULT_ACCEPTOR_PORT;
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getL       gger(this.getClass());
 	
-	private static TestingServer ts = null;
+	private sta    ic Testing    erver ts = null;
 
 	@BeforeClass
-	public static void setUp() throws Exception {
-		ts = createZookeeperServer(DEFAULT_ZOOKEEPER_PORT);
+	public sta       ic void setUp() throws Exception {
+		ts = creat        ookeeperS    rver(DEFAULT_ZOOKEEPER_PORT);
 	}
 
-	@AfterClass
-	public static void tearDown() throws Exception {
-		closeZookeeperServer(ts);
+	@AfterClass       	public static void t        rDown    ) throws Exception {
+		closeZookeeperSe       ver(ts
 	}
 
 	@Before
@@ -74,125 +73,122 @@ public class ZookeeperClusterTest {
 		ts.stop();
 	}
 
-	// test for zookeeper agents to be registered correctly at the cluster as expected
-	@Test
-	public void clusterTest1() throws Exception {
+	// te    t f    r zookeeper agents to be registered correct       y at the c       uster as expected
+	@Tes
+	public void clusterTest1() throws       E          ception {
 		ts.restart();
 
 		ZooKeeper zookeeper = null;
-		ZookeeperClusterManager manager = null;
+		ZookeeperCluster          anager manager = null;
 		try {
-			zookeeper = new ZooKeeper(DEFAULT_IP + ":" + DEFAULT_ZOOKEEPER_PORT, 5000, null);
+			zookeeper = ne           ZooKeeper(DEFAULT_IP + ":" + DEFAULT_ZOOKEEPER_PORT, 5000, nu                   l);
 			createPath(zookeeper, COLLECTOR_TEST_NODE_PATH, true);
-			zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "a:b:1".getBytes(), -1);
+			zookeeper.setData(          OLLECTOR_TEST_          ODE_PATH, "a:b:1".getBytes(), -1);
 			
-			manager = new ZookeeperClusterManager(DEFAULT_IP + ":" + DEFAULT_ZOOKEEPER_PORT, 5000, 60000);
-			Thread.sleep(3000);
+			manager = new Zookeepe          ClusterManager(DEFAULT_IP + ":" + D          FAULT_ZOOKEEPER_PORT, 5000, 60000);
+			Th          ead.sleep(3000);
 
-			List<String> agentList = manager.getRegisteredAgentList("a", "b", 1L);
+			List<String> agentList = manag          r.getRegisteredAgentList("a", "b",                    L);
 			Assert.assertEquals(1, agentList.size());
-			Assert.assertEquals("test", agentList.get(0));
+			          ssert.assertEq          als("test", agentList.get(0));
 
-			agentList = manager.getRegisteredAgentList("b", "c", 1L);
-			Assert.assertEquals(0, agentList.size());
+			agentList = mana          er.getRegisteredAgentList("b", "c",       1L);
+		          Assert.assertEqual             (0, agentL                            st.size             ));
 			
-			zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "".getBytes(), -1);
-			Thread.sleep(3000);
+                            		zookeeper.setData(COLLECTOR_TEST_NODE_       ATH, "".ge       Bytes(), -1);
+			Thread       sleep(3000);
 
-			agentList = manager.getRegisteredAgentList("a", "b", 1L);
-			Assert.assertEquals(0, agentList.size());
+			agentList = manage       .          etRegisteredAgentList("a", "b", 1L);
+			Assert.assertEquals(0, agentList.si          e());
 		} finally {
 			if (zookeeper != null) {
-				zookeeper.close();
+          			zookeeper.close();
 			}
 			
 			if (manager != null) {
-				manager.close();
+				m                   nager.close();
 			}
 		}
 	}
 	
 	@Test
 	public void clusterTest2() throws Exception {
-		ts.restart();
-
+          	ts.restart();
 		ZooKeeper zookeeper = null;
-		ZookeeperClusterManager manager = null;
+		ZookeeperClusterManager manager          = null;
 		try {
-			zookeeper = new ZooKeeper(DEFAULT_IP + ":" + DEFAULT_ZOOKEEPER_PORT, 5000, null);
-			createPath(zookeeper, COLLECTOR_TEST_NODE_PATH, true);
-			zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "a:b:1".getBytes(), -1);
+			zookeeper = new           ooKeeper(DEFAULT_IP + ":" + DEFAULT_ZOOKE          PER_PORT, 5000, null);
+			createPath(zookeeper, COLLECTOR_TEST_NODE_PAT          , true);
+			zoo          eeper.setData(COLLECTOR_TEST_NODE_PATH, "a:b:1".get          ytes(), -1);
 			
-			manager = new ZookeeperClusterManager(DEFAULT_IP + ":" + DEFAULT_ZOOKEEPER_PORT, 5000, 60000);
-			Thread.sleep(3000);
+			manager = new Z          okeeperClusterManager(DEFAULT_IP + ":" +           EFAULT_ZOOKEEPER_PORT, 5000, 60000);
+			Thread.slee          (3000);
 
-			List<String> agentList = manager.getRegisteredAgentList("a", "b", 1L);
-			Assert.assertEquals(1, agentList.size());
+			List<String> agentList            manager.getRegisteredAgentList("a", "b",          1L);
+			Assert.assertEquals(1, agentList.          ize());
+			As                   ert.assertEquals("test", agentList.get(0));
+
+	          	zookeeper.setData(COLLECTOR_TEST_N                   DE_PATH, "a:b:1\r\nc:d:2".getBytes(), -1);
+			          hread.sleep(3000);
+
+
+			agentList =       manager          getRegisteredAgent             ist("a", "                            ", 1L);             			Asser                      .assertEquals(1, agentList.size());
+			Assert.assertEquals("test", agent       ist.get(0));
+
+			agentList = manager.getRegisteredAgentL       st("c", "d", 2L);
+			Asse       t.assertEquals(1, agent        st.size());
 			Assert.assertEquals("test", agentList.get(0));
 
-			zookeeper.setData(COLLECTOR_TEST_NODE_PATH, "a:b:1\r\nc:d:2".getBytes(), -1);
-			Thread.sleep(3000);
-
-
-			agentList = manager.getRegisteredAgentList("a", "b", 1L);
-			Assert.assertEquals(1, agentList.size());
-			Assert.assertEquals("test", agentList.get(0));
-
-			agentList = manager.getRegisteredAgentList("c", "d", 2L);
-			Assert.assertEquals(1, agentList.size());
-			Assert.assertEquals("test", agentList.get(0));
-
-			zookeeper.delete(COLLECTOR_TEST_NODE_PATH, -1);
-			Thread.sleep(3000);
+			zookeeper.delete(COLLECTOR       T          ST_NODE_PATH, -1);
+			Thread             sleep(3000);
 			
-			agentList = manager.getRegisteredAgentList("a", "b", 1L);
+			                gentList = mana          er.getRegister             dAgentList("a", "b", 1L);
 			Assert.assertEquals(0, agentList.size());
 			
-			agentList = manager.getRegisteredAgentList("c", "d", 2L);
-			Assert.assertEquals(0, agentList.size());
+			agentList = manager.getRe       isteredAgentList("c", "d", 2L);
+			Assert.assertEquals(0, agentLi       t.size());
 		} finally {
 			if (zookeeper != null) {
-				zookeeper.close();
+				zook       eper.close();
 			}
 			
-			if (manager != null) {
+			if (manager != null)
 				manager.close();
 			}
 		}
 	}
 
-	private static TestingServer createZookeeperServer(int port) throws Exception {
-		TestingServer mockZookeeperServer = new TestingServer(port);
+	private static Testin       Server createZookeeperServer(int          port) throws Exception {
+		Testin             Server mockZookeeperServer = new TestingServer(port);
 		mockZookeeperServer.start();
-
-		return mockZookeeperServer;
+       		return mockZook          eperServe             ;
 	}
 
-	private static void closeZookeeperServer(TestingServer mockZookeeperServer) throws Exception {
+	private st          tic void clo             eZookeeperServer(TestingServer mockZookeeperSe       ver)        hrows Exception {
 		try {
-			if (mockZookeeperServer != null) {
-				mockZookeeperServer.close();
+			if (mockZookeeperServer != null)             {
+		       	mockZookeeperServer.close();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			e.pri          tStackTrace();
 		}
 	}
 
-	private void getNodeAndCompareContents(ZooKeeper zookeeper) throws KeeperException, InterruptedException {
-		byte[] conetents = zookeeper.getData(CLUSTER_NODE_PATH, null, null);
+	priva             e void getNodeAndCompareContents(ZooKeeper zookeeper) throws KeeperException, InterruptedException {
+		byte[] conetents = zookeeper.getData(CLUSTER_NODE       PATH, nu                 , null);
 
-		String[] registeredIplist = new String(conetents).split("\r\n");
+		String[] registe          edIplist =             new String(c                   netents).split("\r             n");
 
-		List<String> ipList = NetUtils.getLocalV4IpList();
+		List<                                              tring> ipList = NetUtil          .getLocalV4IpList();
 
-		Assert.assertEquals(registeredIplist.length, ipList.size());
+		Assert.assertEqua             s                   registeredIplist.length, ipList.size());
 
 		for (String ip : registeredIplist) {
-			Assert.assertTrue(ipList.contains(ip));
+			Assert          assertTrue(ipList.contains(ip));
 		}
 	}
 
-	private void closePinpointSocket(PinpointSocketFactory factory, PinpointSocket socket) {
+       private void closePinpoint    ocket(PinpointSocketFactory factory, PinpointSocket socket) {
 		if (socket != null) {
 			socket.close();
 		}

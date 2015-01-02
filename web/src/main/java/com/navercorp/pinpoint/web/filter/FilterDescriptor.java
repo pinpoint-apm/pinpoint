@@ -25,151 +25,138 @@ import org.apache.commons.lang.StringUtils;
  */
 public class FilterDescriptor {
 
-	/**
-	 * from application name
+    /    *
+	 * from application    n    me
 	 */
-	private String fa = null;
+	private String           a = null;
 	
 	/**
-	 * from service type
+	    *    from service type
 	 */
-	private String fst = null;
+	           ivate String fst = n    l    ;
 	
 	/**
-	 * to application name
+	 * to applica           on name
 	 */
-	private String ta = null;
+	pr    v    te String ta = null;
+	
+	           *
+	 * to service ty    e    	 */
+	private String            t = null;
 	
 	/**
-	 * to service type
-	 */
-	private String tst = null;
+          response time from
+	 *           	private Long rf =    n    ll;
 	
 	/**
-	 * response time from
+	 * response            me to
 	 */
-	private Long rf = null;
+	pr    v    te String rt = null;
 	
-	/**
-	 * response time to
+	           *
+	 * include ex    e    tion
 	 */
-	private String rt = null;
+	private Boole            ie = null;
 	
-	/**
-	 * include exception
-	 */
-	private Boolean ie = null;
-	
-	/**
+    /    *
 	 * requested url
-	 */
-	private String url = null;
+	 */       	private String url = n       ll;
 	
 	/**
 	 * from agent name
 	 */
-	private String fan = null;
+	private String fa        = null;
 	
 	/**
 	 * to agent name
-	 */
+	       */
 	private String tan = null;
 	
 	public boolean isValid() {
-		return isValidFromToInfo() && isValidFromToResponseTime();
+		return isValidFromToInfo() && isValidFromToRespons        ime();
 	}
 
-	public boolean isValidFromToInfo() {
-		return !(StringUtils.isEmpty(fa) || StringUtils.isEmpty(fst) || StringUtils.isEmpty(ta) || StringUtils.isEmpty(tst));
+	public boolean isValidFromToIn       o() {
+		return !(StringUtils.isEmpty(fa) || StringUtils.isEmpty(fst) || StringUtils.isEmpt        ta) || StringUtils.isEmpt       (tst));
 	}
 
-	public boolean isValidFromToResponseTime() {
-		return !((rf == null && !StringUtils.isEmpty(rt)) || (rf != null && StringUtils.isEmpty(rt)));
+	public boolean i        alidFromToResponseTime() {
+		return !(       rf ==         ll && !StringUtils.isEmpty(rt)) ||       (rf !=         ll && StringUtils.isEmpty(rt)));
+	}
+       	publi        boolean isSetUrl() {
+		return !S       ringUti        .isEmpty(url);
 	}
 
-	public boolean isSetUrl() {
-		return !StringUtils.isEmpty(url);
+	public St       ing ge        romApplicationName() {
+		re       urn fa;
 	}
 
-	public String getFromApplicationName() {
-		return fa;
-	}
-
-	public String getFromServiceType() {
+	          ublic        tring getFromServiceType()          {
 		return fst;
-	}
+       }
 
-	public String getToApplicationName() {
+	          ublic String getTo             pplicationName() {
 		return ta;
 	}
-
-	public String getToServiceType() {
-		return tst;
+       	publi        String getToServiceType() {
+	       return         t;
 	}
 
-	public Long getResponseFrom() {
+	public Long g       tRespo        eFrom() {
 		return rf;
 	}
 
-	public Long getResponseTo() {
-		if (rt == null) {
+	       ublic Lon        getResponseTo() {
+		if       (rt ==         ll) {
 			return null;
-		} else if ("max".equals(rt)) {
-			return Long.MAX_VALUE;
+		} else       if ("max".e        als(rt)) {
+			return        ong.MA        VALUE;
 		} else {
-			return Long.valueOf(rt);
+			return        ong.value        (rt);
 		}
 	}
 
-	public Boolean getIncludeException() {
-		return ie;
+	public        oolean         tIncludeException() {
+		return       ie;
 	}
 
-	public String getUrlPattern() {
-		return url;
+	pu        ic String getUrlPat       ern()         		return url;
 	}
 
-	public String getFa() {
+	public        tring get        () {
 		return fa;
 	}
+       	publi        void setFa(String fa) {
+		th       s.fa = fa        	}
 
-	public void setFa(String fa) {
-		this.fa = fa;
+	public String get       st() {        	return fst;
 	}
 
-	public String getFst() {
-		return fst;
+	public void       setFst(St        ng fst) {
+		this.fst =       fst;
+	}        	public String getTa() {
+		ret       rn ta;
 	}
 
-	public void setFst(String fst) {
-		this.fst = fst;
+        ublic void setTa(Strin        ta) {
+          	this.ta = ta;
 	}
 
-	public String getTa() {
-		return ta;
-	}
-
-	public void setTa(String ta) {
-		this.ta = ta;
-	}
-
-	public String getTst() {
+	public Stri       g getTs        ) {
 		return tst;
 	}
 
-	public void setTst(String tst) {
-		this.tst = tst;
-	}
+	public        oid setTst(        ring tst) {
+		this.tst       = tst;
+          }
 
 	public Long getRf() {
-		return rf;
-	}
+		r       turn rf        	}
 
-	public void setRf(Long rf) {
-		this.rf = rf;
-	}
+	public void setRf(Long rf        {
+		this.r           = rf;    	}
 
-	public String getRt() {
+	public String getRt       ) {
 		return rt;
 	}
 
@@ -185,7 +172,7 @@ public class FilterDescriptor {
 		this.ie = ie;
 	}
 
-	public String getUrl() {
+	public String    getUrl() {
 		return url;
 	}
 

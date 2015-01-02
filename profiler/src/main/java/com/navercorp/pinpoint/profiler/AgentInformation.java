@@ -100,16 +100,16 @@ public class AgentInformation {
     }
     
     public Map<String, Object> toMap() {
-    	Map<String, Object> map = new HashMap<String, Object>();
-    	
-    	map.put(AgentHandshakePropertyType.AGENT_ID.getName(), this.agentId);
-    	map.put(AgentHandshakePropertyType.APPLICATION_NAME.getName(), this.applicationName);
-    	map.put(AgentHandshakePropertyType.HOSTNAME.getName(), this.machineName);
-    	map.put(AgentHandshakePropertyType.IP.getName(), this.hostIp);
-    	map.put(AgentHandshakePropertyType.PID.getName(), this.pid);
-    	map.put(AgentHandshakePropertyType.SERVICE_TYPE.getName(), this.serverType);
-    	map.put(AgentHandshakePropertyType.START_TIMESTAMP.getName(), this.startTime);
-    	map.put(AgentHandshakePropertyType.VERSION.getName(), this.version);
+        Map<String, Object> map = new HashMap<String, Object>();
+
+    	map.put(AgentHandshakePropertyType.AGENT_ID.getName(), this.agent    d);
+    	map.put(AgentHandshakePropertyType.APPLICATION_NAME.getName(), this.applicatio    Name);
+    	map.put(AgentHandshakePropertyType.HOSTNAME.getName(), this.mac    ineName);
+    	map.put(AgentHandshakePropertyType.IP.getName(),     his.hostIp);
+    	map.put(AgentHandshakePropertyType.PID.getNa    e(), this.pid);
+    	map.put(AgentHandshakePropertyType.SERVICE_TYPE.getName()     this.serverType);
+    	map.put(AgentHandshakePropertyType.START_TIMESTAMP.getNa    e(), this.startTime);
+    	map.put(AgentHandshakePropertyType.VERSION.    et    ame(), this.version);
     	
     	return map;
     }

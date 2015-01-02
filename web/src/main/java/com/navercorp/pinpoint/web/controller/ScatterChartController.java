@@ -54,12 +54,12 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class ScatterChartController {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	@Autowired
-	private ScatterChartService scatter;
+	@Auto    ired
+	private ScatterChartService s    atter;
 
-	@Autowired
+    @Autowired
 	private FilteredMapService flow;
 
     @Autowired
@@ -69,50 +69,50 @@ public class ScatterChartController {
     private static final String PREFIX_TIME = "T";
     private static final String PREFIX_RESPONSE_TIME = "R";
 
-    @Deprecated
-	@RequestMapping(value = "/scatterpopup", method = RequestMethod.GET)
-	public String scatterPopup(Model model,
-								@RequestParam("application") String applicationName,
-								@RequestParam("from") long from,
+       @Deprecated
+	@RequestMapping(value = "/scatterpopup", method = R    questMethod.GET)
+	public String scatt                         rPopup(Model model,
+								@Request                         aram("applicatio                         ") String ap                         licationName,
+						                         	@RequestParam("from") long f                         om,
 								@RequestParam("to") long to,
-								@RequestParam("period") long period,
-								@RequestParam("usePeriod") boolean usePeriod,
-								@RequestParam(value = "filter", required = false) String filterText) {
-		model.addAttribute("applicationName", applicationName);
-		model.addAttribute("from", from);
-		model.addAttribute("to", to);
-		model.addAttribute("period", period);
+								@Requ       stParam("period") long period,
+								@RequestPara       ("usePeriod") boolean usePeri       d,
+								@RequestParam(       alue = "filter", required = false        String filterText) {
+		model.addAttrib       te("applicationName", applicationName       ;
+		model.addAttri        t        "from", from);
+		model.    ddAttribute(    to", to);
+    	model.addAtt    ibute("period", period);
 		model.addAttribute("usePeriod", usePeriod);
-		model.addAttribute("filter", filterText);
-		return "scatterPopup";
+		model.addAttribute("filter", filte                       ext);
+		return    "scatter    o    up";
 	}
 
 	/**
 	 *
 	 * @param applicationName
 	 * @param from
-	 * @param to
+	 * @pa    am to
 	 * @param limit
-	 *            max number of data return. if the requested data exceed this limit, we need additional calls to
+	 *                                    max number of data return. if th                          requested data                          xceed this l                         mit, we need addi                         ional calls to
 	 * 						fetch the rest of the data
-	 * @return
+                          * @return
 	 */
-	@RequestMapping(value = "/getScatterData", method = RequestMethod.GET)
+	@RequestMapping(value = "/getScatterData"                          method = RequestMethod.GET)
 	public ModelAndView getScatterData(
-								@RequestParam("application") String applicationName,
-								@RequestParam("from") long from,
-								@RequestParam("to") long to,
+								@RequestParam("application") String        pplicationName,
+								@Reque       tParam("from") long from,
+				             			@RequestParam("to") long to,
 								@RequestParam("limit") int limit,
 								@RequestParam(value = "filter", required = false) String filterText,
 								@RequestParam(value = "_callback", required = false) String jsonpCallback,
-								@RequestParam(value = "v", required = false, defaultValue = "2") int version) {
+								@RequestParam(       alue = "v", required = false, defaultValue = "2") int version) {
         limit = LimitUtils.checkRange(limit);
 
 		StopWatch watch = new StopWatch();
 		watch.start("selectScatterData");
 
-				// TODO range check verification exception occurs. "from" is bigger than "to"
-        final Range range = Range.createUncheckedRange(from, to);
+				// TODO range check verification e             ception o       curs. "from" is bigger than "to"
+        final Range range = Range.createUncheckedRange(from     to);
         logger.debug("fetch scatter data. {}, LIMIT={}, FILTER={}", range, limit, filterText);
 
         ModelAndView mv;
@@ -124,7 +124,7 @@ public class ScatterChartController {
 
 		watch.stop();
 
-		logger.info("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());
+		logger.info("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis()             ;
 
         return mv;
 	}
@@ -168,14 +168,14 @@ public class ScatterChartController {
         return createModelAndView(resultRange, jsonpCallback, scatterData);
     }
 
-    private ModelAndView createModelAndView(Range range, String jsonpCallback, List<Dot> scatterData) {
-        ModelAndView mv = new ModelAndView();
+    private ModelAndView createModelAndView(    ange range, String jsonpCallback, List<Dot        scatterData) {
+            odelAndView m     = new M    d    lAndView();
         mv.addObject("resultFrom", range.getFrom());
-        mv.addObject("resultTo", range.getTo());
-        mv.addObject("scatterIndex", ScatterIndex.MATA_DATA);
-        mv.addObject("scatter", scatterData);
-        if (jsonpCallback == null) {
-            mv.setViewName("jsonView");
+           mv.addObject("resultTo", range.getTo(                            );
+        mv.addObject("scatterIn                            ex", ScatterIndex.                            ATA_DATA);
+                                   mv.addObject("scatter", scatterData);
+        i                             (jsonpCallback == null) {
+            mv.setViewName("j                            onView");
         } else {
             mv.setViewName("jsonpView");
         }
@@ -183,24 +183,24 @@ public class ScatterChartController {
     }
 
     /**
-	 * scatter chart data query for "NOW" button
+	 * scatter chart data query for "NOW" butto
 	 *
-	 * @param applicationName
+	 * @param appli       ationName
 	 * @param limit
 	 * @return
 	 */
-	@RequestMapping(value = "/getLastScatterData", method = RequestMethod.GET)
-	public ModelAndView getLastScatterData(
-									@RequestParam("application") String applicationName,
-									@RequestParam("period") long period,
+	@RequestMapping(value         "/getLastScatterData", method = RequestMethod.GET)
+	public ModelAndView getLastScatterD        a
+									@RequestParam("application") String         plicationName
+									@Requ    stParam("period"     long pe    i    d,
 									@RequestParam("limit") int limit,
-									@RequestParam(value = "filter", required = false) String filterText,
+									@RequestParam(value    = "filter", required = false) String filterText,
 									@RequestParam(value = "_callback", required = false) String jsonpCallback,
-									@RequestParam(value = "v", required = false, defaultValue = "1") int version) {
+									@RequestParam(value = "v", required = false, defaultValue = "1") int           ersion) {
         limit = LimitUtils.checkRange(limit);
 
-        long to = TimeUtils.getDelayLastTime();
-		long from = to - period;
+                 long to = TimeUtils.getDelayLa             tTime();
+		long from = t     - period;
 
 		// TODO versioning is temporary. to sync template change and server dev
 		return getScatterData(applicationName, from, to, limit, filterText, jsonpCallback, version);
@@ -226,31 +226,31 @@ public class ScatterChartController {
 		return "transactionmetadata";
 	}
 
-    private TransactionMetadataQuery parseSelectTransaction(HttpServletRequest request) {
+    private TransactionMetad       taQuery parseSelectTransaction(HttpServletRequest request) {
         final TransactionMetadataQuery query = new TransactionMetadataQuery();
         int index = 0;
         while (true) {
             final String traceId = request.getParameter(PREFIX_TRANSACTION_ID + index);
             final String time = request.getParameter(PREFIX_TIME + index);
-            final String responseTime = request.getParameter(PREFIX_RESPONSE_TIME + index);
+            final String     esponseTime = request.getParameter(PREFIX_RESPONSE_TIME + index);
 
-            if (traceId == null || time == null || responseTime == null) {
-                break;
-            }
+               if (traceId == null || time == null                         || responseTime == null) {
+                                        break;
+                                    }
 
-            query.addQueryCondition(traceId, Long.parseLong(time), Integer.parseInt(responseTime));
+                                    query.addQueryConditi                         n(traceId, Long.parseLong(t                         me), Integer.pars                         Int(responseTime));
             index++;
         }
-        logger.debug("query:{}", query);
+        logger.debug("qu                         ry:{}", query);
         return query;
     }
 
     /**
-		 * trasaction list query for selected points in scatter chart
+		 * trasaction list                          uery for selected points in scatter chart
      *
      * <pre>
-     * TEST URL = http://localhost:7080/transactionmetadata2.pinpoint?application=FRONT-WEB&from=1394432299032&to=1394433498269&responseFrom=100&responseTo=200&responseOffset=100&limit=10
-     * </pre>
+     * TEST URL = http://localhost:7080/                         ransactionmetadata2.pinpoint?application=FRONT-WEB&from       1394432299032&to=1394433498269&res       onseFrom=100&responseTo=200&re       ponseOffset=100&limit=10
+             </pre>
      *
      * @param model
      * @param request
@@ -258,44 +258,41 @@ public class ScatterChartController {
      * @return
      */
 	@RequestMapping(value = "/transactionmetadata2", method = RequestMethod.GET)
-	public String getTransaction(Model model,
-								@RequestParam("application") String applicationName,
-								@RequestParam("from") long from,
-								@RequestParam("to") long to,
-								@RequestParam("responseFrom") int responseFrom,
+	public String getT       ansaction(Model model,          								@RequestParam("appl          cation") String applicat          onName,
+								@RequestPara          ("from") long from,
+								             RequestParam("to") long to,
+								@Reques             Param("responseFrom") int responseFrom,
 								@RequestParam("responseTo") int responseTo,
-								@RequestParam("limit") int limit,
-								@RequestParam(value = "offsetTime", required = false, defaultValue = "-1") long offsetTime,
-								@RequestParam(value = "offsetTransactionId", required = false) String offsetTransactionId,
-								@RequestParam(value = "offsetTransactionElapsed", required = false, defaultValue = "-1") int offsetTransactionElapsed,
-								@RequestParam(value = "filter", required = false) String filterText) {
+								@RequestParam(             limit") int limit,
+								@RequestParam(value = "offsetTime", required = false, defaultValue = "-1") long offsetTime,             								@RequestParam(value = "offsetTransactionId", required = false) String offset             ransactionId,
+								@RequestParam(value =                   "offsetTransacti          nElapsed", required = false, defaultValue = "-1") int              ffsetTransactionElapsed,
+								@RequestParam(value = "filter", req             ired = false) String filterText) {
 
 		limit = LimitUtils.checkRange(limit);
 
-		StopWatch watch = new StopWatch();
+		StopWatch              atch = new StopWatch();
 		watch.start("selectScatterData");
 
-		final SelectedScatterArea area = SelectedScatterArea.createUncheckedArea(from, to, responseFrom, responseTo);
-        logger.debug("fetch scatter data. {}, LIMIT={}, FILTER={}", area, limit, filterText);
+		final SelectedScatterArea ar             a = SelectedScatterArea.createUnc                          ckedArea(from, to, responseFrom, responseTo);
+        logger.debug("fetch scatter data. {}, LIMIT={}, FILTER={}", area, limit, filterT          xt);
 
 		if (filterText == null) {
 
-			// query data above "limit" first
+			// query data above "limit"           irst
 			TransactionId offsetId = null;
-			List<SpanBo> extraMetadata = null;
+			List<SpanBo> extraMeta          ata = null;
 			if (offsetTransactionId != null) {
-				offsetId = new TransactionId(offsetTransactionId);
+				offset          d = new TransactionId(offsetTransactionId);
 
-				SelectedScatterArea extraArea = SelectedScatterArea.createUncheckedArea(offsetTime, offsetTime, responseFrom, responseTo);
-				List<Dot> extraAreaDotList = scatter.selectScatterData(applicationName, extraArea, offsetId, offsetTransactionElapsed, limit);
-				extraMetadata = scatter.selectTransactionMetadata(parseSelectTransaction(extraAreaDotList));
-				model.addAttribute("extraMetadata", extraMetadata);
+				SelectedScatterArea ext          aArea = SelectedScatterArea.createUncheckedArea(offsetTime, offsetTime, responseFrom, responseTo);
+				List<Dot> extraAreaDotList = scatter.selectScatterData(applicationName,        xtraArea, offsetId,        ffsetTransactionElapsed, limit);
+				extraMetadata = scatter.selectTransa       tionMetadata(parseSelectTr        saction(extraAreaDotList));
+				model.addAttribute("extraMetadata", extraM       tadata);
 			}
 
 			// query data up to limit
-			if (extraMetadata == null || extraMetadata.size() < limit) {
-				int newlimit = limit - ((extraMetadata == null) ? 0 : extraMetadata.size());
-				List<Dot> selectedDotList = scatter.selectScatterData(applicationName, area, null, -1, newlimit);
+			if (extraMeta       ata == null || ext          aMetada             a.size() < limit) {          				int newlimit = limit - ((extraMetadata == null) ? 0 : extraMetadata.size());
+				Li             t<Dot> selectedDotList = s       atter.sel    ctScatterData(applicationName, area, null, -1, newlimit);
 				List<SpanBo> metadata = scatter.selectTransactionMetadata(parseSelectTransaction(selectedDotList));
 				model.addAttribute("metadata", metadata);
 			}

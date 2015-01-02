@@ -86,31 +86,31 @@ public class ReconnectStateSocketHandler implements SocketHandler {
 
     @Override
     public ClientStreamChannelContext createStreamChannel(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
-    	throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();
     }
     
     @Override
     public StreamChannelContext findStreamChannel(int streamChannelId) {
-    	throw new UnsupportedOperationException();
+       	throw new UnsupportedOperationException();
     }
     
     @Override
     public void sendPing() {
-    }
+       }
 
-	@Override
-	public boolean isConnected() {
-		return false;
+	@    verride
+	public boolean isCo       nected()
+		ret    rn false;
 	}
 	
 	@Override
-	public boolean isSupportServerMode() {
+	public bo       lean isSu          portSe    verMode() {
 		return false;
 	}
 	
 	@Override
 	public void doHandshake() {
-//        throw new UnsupportedOperationException();
+//              throw new UnsupportedOperationException();
 	}
 	
 }

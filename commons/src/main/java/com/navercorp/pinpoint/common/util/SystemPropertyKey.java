@@ -20,21 +20,20 @@ package com.navercorp.pinpoint.common.util;
  * @author hyungil.jeong
  */
 public enum SystemPropertyKey {
-	
-	JAVA_VERSION("java.version"),
-	JAVA_RUNTIME_VERSION("java.runtime.version"),
-	JAVA_RUNTIME_NAME("java.runtime.name"),
-	JAVA_SPECIFICATION_VERSION("java.specification.version"),
-	JAVA_CLASS_VERSION("java.class.version"),
-	JAVA_VM_NAME("java.vm.name"),
-	JAVA_VM_VERSION("java.vm.version"),
-	JAVA_VM_INFO("java.vm.info"),
-	JAVA_VM_SPECIFICATION_VERSION("java.vm.specification.version");
+
+	JAVA_VERSION("java.versi    n"),
+	JAVA_RUNTIME_VERSION("java.runtime.ve    sion"),
+	JAVA_RUNTIME_NAME("java.runt    me.name"),
+	JAVA_SPECIFICATION_VERSION("java.specificat    on.version"),
+	JAVA_CLASS_VERSION("java    class.version"),
+	JAVA_VM_N    ME("java.vm.name"),
+	JAVA_VM_VERS    ON("java.vm.version"),
+	JAV    _VM_INFO("java.vm.info"),
+	JAVA_VM_SPECIFICATION_VERSION("jav       .vm.specification.vers       on");
 	
 	private final String key;
-	
-	private SystemPropertyKey(String key) {
-		this.key = key;
+	       	private Sy          temPropertyKey(String       key) {
+		thi    .key = key;
 	}
 	
 	public String getKey() {

@@ -24,18 +24,18 @@ import com.navercorp.pinpoint.rpc.util.IDGenerator;
 
 public class IDGeneratorTest {
 
-	@Test
-	public void generatorTest() {
-		IDGenerator generator = new IDGenerator();
+    @Te    t
+	public void generatorTes       () {
+		IDGenerator generator = new IDG             nerator();
 		
-		Assert.assertEquals(1, generator.generate());
-		Assert.assertEquals(2, generator.generate());
-		Assert.assertEquals(3, generator.generate());
+		Assert.assertEquals(1,       generator.generate());
+		Assert.assertEqu       ls(2, generator.generate());
+		Assert.ass             rtEquals(3, generator.gener             te());
 		
-		generator = new IDGenerator(2, 3);
+		generator = new IDGenerato       (2, 3);
 		
-		Assert.assertEquals(2, generator.generate());
-		Assert.assertEquals(5, generator.generate());
+		Assert.assertEquals(2, gener       tor.generate());
+		Assert.assertEquals(5,       generator.generate());
 		Assert.assertEquals(8, generator.generate());
 	}
 	

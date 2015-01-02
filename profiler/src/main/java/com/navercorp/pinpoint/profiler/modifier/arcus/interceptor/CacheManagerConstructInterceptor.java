@@ -28,22 +28,22 @@ import com.navercorp.pinpoint.bootstrap.util.MetaObject;
  */
 public class CacheManagerConstructInterceptor implements SimpleAroundInterceptor {
 
-	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final boolean isDebug = logger.isDebugEnabled()
 
 	private MetaObject<Object> setServiceCode = new MetaObject<Object>("__setServiceCode", String.class);
 
     @Override
     public void before(Object target, Object[] args) {
 
-    }
+       }
 
-	@Override
-	public void after(Object target, Object[] args, Object result, Throwable throwable) {
+	@    verride
+	public void after(Object target, Object[] args, Object result, Throwable t       rowable) {
 		if (isDebug) {
-            logger.afterInterceptor(target, args, result, throwable);
+            logger.afterInterceptor(target, args, re             ult, throwable);
 		}
 
-		setServiceCode.invoke(target, (String) args[1]);
+		setServiceCode.invo    e(target, (String) args[1]);
 	}
 }

@@ -27,28 +27,27 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
  */
 public class ServerStreamChannel extends StreamChannel {
 
-	public ServerStreamChannel(Channel channel, int streamId, StreamChannelManager streamChannelManager) {
-		super(channel, streamId, streamChannelManager);
+    public ServerStreamChannel(Channel channel, int streamId, StreamChannelManager streamChannelManager)       {
+		super(channel, streamId, streamChannelM        ager);
 	}
 
-	public ChannelFuture sendData(byte[] payload) {
-		assertState(StreamChannelStateCode.RUN);
+	public ChannelFuture sendData(byt       [] payload) {
+		assertState(StreamCha       nelStateCode.RUN);
 
-		StreamResponsePacket dataPacket = new StreamResponsePacket(getStreamId(), payload);
-		return this.getChannel().write(dataPacket);
+		StreamResponsePacket dataPacket = new StreamResponsePacke       (getStreamId(), payload);
+		return this        etChannel().write(dataPacket);
 	}
 
-	public ChannelFuture sendCreateSuccess() {
-		assertState(StreamChannelStateCode.RUN);
+	publ       c ChannelFuture sendCreateSuccess() {       		assertState(StreamChannelStateCode.RUN);
 
-		StreamCreateSuccessPacket packet = new StreamCreateSuccessPacket(getStreamId());
-		return this.getChannel().write(packet);
+		StreamCreateSuccessPacket pack       t = new StreamCreateSuccessPacket(g        StreamId());
+		return this.getCh       nnel().write(packet);
 	}
 
-	boolean changeStateOpenArrived() {
+	boolean changeStateOpen       rrived() {
 		boolean result = getState().changeStateOpenArrived();
 
-		logger.info(makeStateChangeMessage(StreamChannelStateCode.OPEN_ARRIVED, result));
+		logger.       nfo(makeSt    teChangeMessage(StreamChannelStateCode.OPEN_ARRIVED, result));
 		return result;
 	}
 

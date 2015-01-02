@@ -116,7 +116,7 @@ public class HbaseAgentStatDao implements AgentStatDao {
         scan.setStartRow(endKey);
         scan.setStopRow(startKey);
 
-        //		scan.addColumn(HBaseTables.AGENT_STAT_CF_STATISTICS, HBaseTables.AGENT_STAT_CF_STATISTICS_V1);
+        //       	scan.addColumn(HBaseTables.AGENT_STAT_CF_STATISTICS, HBaseTables.AGENT_STAT_CF_STATISTICS_V1);
         scan.addFamily(HBaseTables.AGENT_STAT_CF_STATISTICS);
         scan.setId("AgentStatScan");
 
@@ -125,23 +125,22 @@ public class HbaseAgentStatDao implements AgentStatDao {
         return scan;
     }
 
-    //	public List<AgentStat> scanAgentStatList(String agentId, long start, long end, final int limit) {
-    //		if (logger.isDebugEnabled()) {
-    //			logger.debug("scanAgentStatList");
+       //	public List<AgentStat> scanAgentStatList(String agentId, long start, long end, final int limit)       {
+    //		if (logger.isDebugEnab          ed()) {
+    //			logger.debug("sca       Age       tStatList");
     //		}
-    //		Scan scan = createScan(agentId, start, end);
+    //		Scan scan = cre       te       can(agentId, start, end);
     //		
-    //		List<AgentStat> list = hbaseOperations2.find(HBaseTables.AGENT_STAT, scan, rowKeyDistributor, new ResultsExtractor<List<AgentStat>>() {
+    //		List<AgentStat> list = hbaseOperations2.find(HBaseTables.AGENT_STAT, scan, rowKeyDistributor,           ew Result          Extractor<List<AgentStat>>() {
     //			@Override
-    //			public List<AgentStat> extractData(ResultScanner results) throws Exception {
-    //				TDeserializer deserializer = new TDeserializer();
-    //				List<AgentStat> list = new ArrayList<AgentStat>();
-    //				for (Result result : results) {
-    //					if (result == null) {
-    //						continue;
-    //					}
-    //					
-    //					if (list.size() >= limit) {
+    //			public List<Agent             tat> extractData(ResultScanner results) throws              xception {
+    //				TDeserializer deserializer               new TDeserializer();
+    //	                		List<AgentStat>                   lis                                               = new ArrayList<A                                                                 ntStat>();
+    //				for                    Result result : results) {
+    /                   					if (result == null) {
+    //						continu                   ;
+    //					}                                            //
+           /					if (list    size() >= limit) {
     //						break;
     //					}
     //					

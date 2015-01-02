@@ -21,14 +21,14 @@ package com.navercorp.pinpoint.rpc.stream;
  */
 public class ServerStreamChannelContext extends StreamChannelContext {
 
-	private ServerStreamChannel streamChannel;
+    private ServerStreamChannel streamChanne       ;
 	
-	public ServerStreamChannelContext(ServerStreamChannel streamChannel) {
-		this.streamChannel = streamChannel;
+	public ServerStreamChannelContext(ServerStreamChannel streamCh       nnel) {
+		this.streamChannel =         reamCha    nel;
 	}
 
 	@Override
-	public ServerStreamChannel getStreamChannel() {
+	public ServerStreamChann       l getStreamChanne    () {
 		return streamChannel;
 	}
 

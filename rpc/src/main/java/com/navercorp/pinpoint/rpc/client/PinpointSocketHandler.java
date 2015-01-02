@@ -106,7 +106,7 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
     private final ChannelFutureListener handShakeFailFutureListener = new WriteFailFutureListener(this.logger, "HandShakePacket write fail.", "HandShakePacket write success.");
 
     public PinpointSocketHandler(PinpointSocketFactory pinpointSocketFactory) {
-    	this(pinpointSocketFactory, DEFAULT_PING_DELAY, DEFAULT_ENABLE_WORKER_PACKET_DELAY, DEFAULT_TIMEOUTMILLIS);
+        this(pinpointSocketFactory, DEFAULT_PING_DELAY, DEFAULT_ENABLE_WORKER_PACKET_DELAY, DEFAULT_TIMEOUTMILLIS);
     }
 
     public PinpointSocketHandler(PinpointSocketFactory pinpointSocketFactory, long pingDelay, long enableWorkerPacketDelay, long timeoutMillis) {
@@ -462,8 +462,8 @@ public class PinpointSocketHandler extends SimpleChannelHandler implements Socke
                 case PacketType.APPLICATION_STREAM_RESPONSE:
                 case PacketType.APPLICATION_STREAM_PING:
                 case PacketType.APPLICATION_STREAM_PONG:
-                	SocketHandlerContext context = getChannelContext(channel);
-                	context.getStreamChannelManager().messageReceived((StreamPacket) message);
+                   	SocketHandlerContext context = getChannelContext(channel);
+                   	context.getStreamChannelManager().messageReceived((StreamPacket) message);
                     return;
                 case PacketType.CONTROL_SERVER_CLOSE:
                     messageReceivedServerClosed(e.getChannel());

@@ -22,74 +22,71 @@ import java.util.Enumeration;
  * @author emeroad
  */
 public class DelegateEnumeration<E> implements Enumeration<E> {
-	private static final Object NULL_OBJECT = new Object();
+    private static final Object NULL_OBJECT = new Object()
 
-	private final Enumeration<E> delegate;
-	private final Filter<E> filter;
+	private final Enumeration<E> dele    ate;
+	private final Filter<E>     ilter;
 
-	private boolean hasMoreElements;
-	private E nextElement;
-	private Exception nextException;
+	private boolean hasMo    eElements;
+	private      nextElement;
+	private Exception    nextException;
 
 
-	private static final Filter SKIP_FILTER = new Filter() {
+	private static final Filter SKIP_FIL       ER =        ew Filter() {
 		@Override
-		public boolean filter(Object o) {
-			return false;
+		p          blic bo             lean filter(Object o) {
+			r    turn false;
 		}
 	};
 
-	@SuppressWarnings("unchecked")
-	public DelegateEnumeration(Enumeration<E> delegate) {
+	@SuppressWarnings("unchecked"
+	public DelegateEnumera        on(Enumeration<E> delegate) {
 		this(delegate, SKIP_FILTER);
 	}
 
-	public DelegateEnumeration(Enumeration<E> delegate, Filter<E> filter) {
-		this.delegate = delegate;
-		this.filter = filter;
+	pub       ic DelegateEnumeratio       (Enumeration<E> d        egate,     ilter<E> filter) {
+		this.delega       e =       delegate;
+		this.fi        er = fi    ter;
 	}
 
 	@Override
-	public boolean hasMoreElements() {
+	p       bli        boolean hasMoreElements          ) {
 		next();
-		return hasMoreElements;
+		return hasMoreEleme          ts;
 	}
 
 	@Override
-	public E nextElement() {
+	          ublic E nextElement() {
 		next();
-		if (nextException != null) {
-			Exception exception = this.nextException;
-			this.nextException = null;
-			this.<RuntimeException>throwException(exception);
+		if (nex             Exception != null) {
+			Exce       tion exception = thi       .nextExcep        on;
+			this.nextException         null;
+			this.<RuntimeExcept          on>thr             wException(ex        ption);
 		}
-		final E result = getNextElement();
+		final E result    = getNextElement();
 		this.nextElement = null;
 		return result;
 	}
 
-	private E getNextElement() {
-		if (nextElement == NULL_OBJECT) {
+	private E        etNextElement()
+    	if (nextElement ==       NULL_OBJECT) {
 			return null;
 		}
-		return nextElement;
+		return nex          E             ement;
 	}
-
 	@SuppressWarnings("unchecked")
-	private <T extends Exception> void throwException(Exception exception) throws T {
+	private <T extends           xception                       void throwException(Exceptio           exception) throw              T {
 		throw (T) exception;
 	}
 
-
-	private void next() {
-		if (nextElement != null || nextException != null) {
+	private void                                ext() {
+		if (nextEleme             t                   != null || nextException != nu          l) {
 			return;
 		}
-
-		while (true) {
-			final boolean hasMoreElements = delegate.hasMoreElements();
-			E nextElement;
-			try {
+             		while (true) {
+			final b          ol             an hasMoreElements = de                               egate.hasMoreElements();
+			E ne       tElement;
+			try    {
 				nextElement = delegate.nextElement();
 			} catch (Exception e) {
 				this.hasMoreElements = hasMoreElements;

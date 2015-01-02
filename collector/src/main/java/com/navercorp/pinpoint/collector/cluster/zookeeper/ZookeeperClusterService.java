@@ -46,149 +46,146 @@ import com.navercorp.pinpoint.rpc.server.SocketChannelStateChangeEventListener;
  */
 public class ZookeeperClusterService extends AbstractClusterService {
 
-	private static final String PINPOINT_CLUSTER_PATH = "/pinpoint-cluster";
-	private static final String PINPOINT_WEB_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/web";
-	private static final String PINPOINT_PROFILER_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/profiler";
+    private static final String PINPOINT_CLUSTER_PATH = "/pinpoint-cluster    ;
+	private static final String PINPOINT_WEB_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/    eb";
+	private static final String PINPOINT_PROFILER_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/pro    iler";
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.ge    Class());
 
-	// represented as pid@hostname (identifiers may overlap for services hosted on localhost if pids are identical)
-	// shouldn't be too big of a problem, but will change to MAC or IP if it becomes problematic.
-	private final String serverIdentifier = CollectorUtils.getServerIdentifier();
+	// represented as pid@hostname (identifiers may overlap for services hosted on localhost if pids     re identical)
+	// shouldn't be too big of a problem, but will change to MAC or IP if it bec    mes problematic.
+	private final String serverIdentifier = CollectorUtils.get    erverIdentifier();
 
-	private final WebCluster webCluster;
+	private final       WebCluster webCluster;
 	
-	private final WorkerStateContext serviceState;
+	private final Work    rStateContext serviceState;
 
-	private ZookeeperClient client;
+	    rivate ZookeeperClient client;
 
-	// WebClusterManager checks Zookeeper for the Web data, and manages collector -> web connections. 
-	private ZookeeperWebClusterManager webClusterManager;
+	// WebClusterManager checks Zookeeper for the Web data, and man    ges collector -> web connections.
+	private Zookeep       rWebClusterManager webClusterManager;
 	
 	// ProfilerClusterManager detects/manages profiler -> collector connections, and saves their information in Zookeeper.
-    private ZookeeperProfilerClusterManager profilerClusterManager;
+    private ZookeeperPro    ilerClusterManager profilerClusterManager;
 
-	public ZookeeperClusterService(CollectorConfiguration config, ClusterPointRouter clusterPointRouter) {
-		super(config, clusterPointRouter);
+	public ZookeeperClusterService(CollectorConfiguration c       nfig, ClusterPointRouter clust       rPointRouter) {
+		super(config, clusterPo       ntRouter);
 		this.serviceState = new WorkerStateContext();
-		this.webCluster = new WebCluster(serverIdentifier, clusterPointRouter, clusterPointRouter);
+		this.webCluster = new WebC        ster(serverI    entifie    , clusterPointRouter, clusterPointRouter);
 	}
 
 	@PostConstruct
 	@Override
-	public void setUp() throws KeeperException, IOException, InterruptedException {
-		if (!config.isClusterEnable()) {
-			logger.info("pinpoint-collector cluster disable.");
+	pu       lic void setUp() throws Keep          rException, IOException, InterruptedException          {                   		if (!config.isClusterEnable()) {
+		          log             er.info("pinpoint-collector cluster disabl                .");
 			return;
 		}
 		
-		switch (this.serviceState.getCurrentState()) {
+		switch (this.serviceState.getCurrentStat                   ()) {
 			case NEW:
-				if (this.serviceState.changeStateInitializing()) {
-					logger.info("{} initialization started.", this.getClass().getSimpleName());
+				if (this.serviceState.chan                eStateInitializing()) {
+					logger.info("{} initialization started.", this.getClass().getSimple                               ame());
 	
 					ClusterManagerWatcher watcher = new ClusterManagerWatcher();
-					this.client = new ZookeeperClient(config.getClusterAddress(), config.getClusterSessionTimeout(), watcher);
+					this.client = new ZookeeperClient(config.getCl                sterAddress(), config.getC                               usterSessionTimeout(), watcher);
 					
-					this.profilerClusterManager = new ZookeeperProfilerClusterManager(client, serverIdentifier, clusterPointRouter.getTargetClusterPointRepository());
-					this.profilerClusterManager.start();
-					
-					this.webClusterManager = new ZookeeperWebClusterManager(client, PINPOINT_WEB_CLUSTER_PATH, serverIdentifier, webCluster);
-					this.webClusterManager.start();
+					this.profilerClusterManager = new ZookeeperProfilerCluster                anager(client, server                   dentifier, clusterPointRoute                .getTargetClusterPointRepository());
+					this.profilerClusterManag                   r.start();
+					                   					this.webClusterManager = new ZookeeperWebClusterManager(client, PINPOINT_WEB_CLUSTER_PATH, serverIdenti                   ier, webCluster);
+					this.webClusterMa                      ager.start                                                             );
 	
 					this.serviceState.changeStateStarted();
-					logger.info("{} initialization completed.", this.getClass().getSimpleName());
+					logger.i                      fo("{}             initialization completed.", this.getClass().getSimpleName())
 	
-					if (client.isConnected()) {
-						WatcherEvent watcherEvent = new WatcherEvent(EventType.None.getIntValue(), KeeperState.SyncConnected.getIntValue(), "");
-						WatchedEvent event = new WatchedEvent(watcherEvent);
+					i              (client.isConnected()) {
+						WatcherEvent wa          cherEve             t = new WatcherEvent(EventType.None.getIntVa          ue(), KeeperS             ate.SyncConnected.getIntValue(), "");
+				             	Watched    vent ev    nt = new WatchedEvent(       atcherEvent);
 	
-						watcher.process(event);
+						watche          .process(event);
 					}
 				}
 				break;
-			case INITIALIZING:
-				logger.info("{} already initializing.", this.getClass().getSimpleName());
-				break;
+			c          s              INITIALIZING:
+				logger.info("{} already ini          ializing.", this.getClass().getSimpleName());
+				                   reak;
 			case STARTED:
-				logger.info("{} already started.", this.getClass().getSimpleName());
+				logger.info("{} already started.", this.get          l             ss().getSimpleName());
 				break;
 			case DESTROYING:
-				throw new IllegalStateException("Already destroying.");
+				throw new       IllegalStateException("Already destroy          ng.");
 			case STOPPED:
-				throw new IllegalStateException("Already stopped.");
-			case ILLEGAL_STATE:
-				throw new IllegalStateException("Invalid State.");
+             			throw new IllegalStateExcepti          n("Already stopped.                   );
+			case I          LEGAL_STA             E:
+				throw new Ill          galStateExcep                   ion("Invalid State.");
 		}
 	}
-
-	@PreDestroy
+       	@PreDestroy
 	@Override
 	public void tearDown() {
-		if (!config.isClusterEnable()) {
-			logger.info("pinpoint-collector cluster disable.");
+		if (!config.isClu          terEna    le()) {
+			logger.info("p       npoint-collector cluster dis          ble.");
 			return;
 		}
 
 		if (!(this.serviceState.changeStateDestroying())) {
-			WorkerState state = this.serviceState.getCurrentState();
+		       WorkerState state = this.s          rviceState.getCurrentState();
 			
-			logger.info("{} already {}.", this.getClass().getSimpleName(), state.toString());
+			logger.info("{} already {}."        this.getClass().getSimple          ame(), state.toString());
 			return;
 		}
 
-		logger.info("{} destroying started.", this.getClass().getSimpleName());
+		logger.info       "{} destroying starte        ", this.getClass().getSimpleName());
 
-		if (this.profilerClusterManager != null) {
+		if (this.profilerClus       erManager != null) {
 			profilerClusterManager.stop();
 		}
 
-		if (this.webClusterManager != null) {
-			webClusterManager.stop();
+		       f (th       s.webClusterManager != null) {
+			web          lusterManager.stop();
 		}
 		
-		if (client != null) {
+		if (client !=                    ull) {
 			client.close();
-		}
+          	}
 
 		if (webCluster != null) {
-			webCluster.close();
+	          	webCluster.close();
 		}
 		
 		this.serviceState.changeStateStopped();
-		logger.info("{} destroying completed.", this.getClass().getSimpleName());
-	}
+		logger.info("{} dest          oying completed.", this.getClass().getSimpleName());
+             }
 	
 	@Override
-	public boolean isEnable() {
-		return config.isClusterEnable();
+	public boolea                                isEnable() {
+		retu          n config.isClusterEnable();
 	}
 	
-	public SocketChannelStateChangeEventListener getChannelStateChangeEventListener() {
+	public SocketCha          nelStateChangeEventListener getChannelStateChangeEventListener() {
+		return              rofilerClusterManager;
+	}
+	
+	public ZookeeperPr                   filerClusterManager getProfilerClusterMana          er() {
 		return profilerClusterManager;
 	}
 	
-	public ZookeeperProfilerClusterManager getProfilerClusterManager() {
-		return profilerClusterManager;
-	}
-	
-	public ZookeeperWebClusterManager getWebClusterManager() {
-		return webClusterManager;
+	public Zook             eperWebClusterManager getWebClusterManager() {
+	                return webClusterManager;
 	}
 
 	class ClusterManagerWatcher implements ZookeeperEventWatcher {
 
-		private final AtomicBoolean connected = new AtomicBoolean(false);
+	                private final AtomicBoolean connected = new AtomicBoole                   n(false);
 
 		@Override
 		public void process(WatchedEvent event) {
-			logger.debug("Process Zookeeper Event({})", event);
+			logger.deb                               g("Process Zookeeper Event({})", event);
 			
-			KeeperState state = event.getState();
-			EventType eventType = event.getType();
+			Keepe             State state = event.getState();
+			EventType eve                tType = event.getType                );
 
-			// ephemeral node is removed on disconnect event (leave node management exclusively to zookeeper) 
-			if (ZookeeperUtils.isDisconnectedEvent(state, eventType)) {
+			// ephemeral node is removed                   on disconnect event (leave node manag                                  ment exclusively to zookeeper)
+			if (Zo                                                       keeperUtils.is          isconnectedEvent(             tate, eventType)) {
 				connected.compareAndSet(true, false);
 				return;
 			}

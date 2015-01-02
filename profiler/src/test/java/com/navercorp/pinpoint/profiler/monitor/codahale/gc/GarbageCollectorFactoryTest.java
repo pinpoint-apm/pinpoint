@@ -28,7 +28,7 @@ public class GarbageCollectorFactoryTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	@Test
+    @Te    t
 	public void test() {
         GarbageCollector collector = new AgentStatCollectorFactory().getGarbageCollector();
 

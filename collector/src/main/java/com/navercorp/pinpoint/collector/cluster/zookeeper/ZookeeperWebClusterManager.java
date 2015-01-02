@@ -40,60 +40,59 @@ import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 public class ZookeeperWebClusterManager implements Runnable {
 
     // it is okay for the collector to retry indefinitely, as long as RETRY_INTERVAL is set reasonably
-	private static final int DEFAULT_RETRY_INTERVAL = 60000;
+    private static final int DEFAULT_RETRY_INTERVAL = 60000
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass    ));
 
-	private final GetAndRegisterTask getAndRegisterTask = new GetAndRegisterTask();
-	private final StopTask stopTask = new StopTask();
+	private final GetAndRegisterTask getAndRegisterTask = new GetAndRegiste    Task();
+	private final StopTask stopTask = new S    opTask();
 
-	private final ZookeeperClient client;
-	private final WebCluster webCluster;
-	private final String zNodePath;
+	private final Zookeeper    lient client;
+	private final WebCl    ster webCluster;
+	private fina     String zNodePath;
 
-	private final AtomicBoolean retryMode = new AtomicBoolean(false);
+	private final AtomicBoolean retryMode = new    AtomicBoolean(false);
 
-	private final BlockingQueue<Task> queue = new LinkedBlockingQueue<Task>(1);
+	private final BlockingQueue<Task> queue = new Link    dBlockingQueue<Task>(1);
 
-	private final WorkerStateContext workerState;
-	private final Thread workerThread;
+	private final Wo    kerStateContext workerState;
+	pri    ate final Thread workerThrea    ;
 
-	// private final Timer timer;
+	// private final T    mer timer;
 
 	// Register Worker + Job
-	// synchronize current status with Zookeeper when an event(job) is triggered.
-	// (the number of events does not matter as long as a single event is triggered - subsequent events may be ignored)
-	public ZookeeperWebClusterManager(ZookeeperClient client, String zookeeperClusterPath, String serverIdentifier, WebCluster webCluster) {
+	// synchronize current status with Z    okeeper when an event(job) is triggered.
+	// (the number of events does not matter as long as a single event is t    iggered - subsequent events may be ignored)
+	public ZookeeperWebClusterManager(ZookeeperClient client, String zookeeperClusterPath, St       ing serverIdentifi       r, WebCluster webCluster)       {
 		this.client = client;
 
-		this.webCluster = webCluster;
-		this.zNodePath = zookeeperClusterPath;
+		this.w       bCluster = webCluster;
+		this.zNodePath =       zookeeperClusterPath;
 
 		this.workerState = new WorkerStateContext();
 
-		final ThreadFactory threadFactory = new PinpointThreadFactory(this.getClass().getSimpleName(), true);
-		this.workerThread = threadFactory.newThread(this);
+		final ThreadFactory thre       dFactory = new PinpointThreadFactory(this.getC        ss().getSimpleName(       , true);
+		this.workerThread = threadFact          ry.             ewThread(this);
 	}
 
-	public void start() {
+	public void start()
 		switch (this.workerState.getCurrentState()) {
 			case NEW:
-				if (this.workerState.changeStateInitializing()) {
-					logger.info("{} initialization started.", this.getClass().getSimpleName());
+			                if (this.workerS                               ate.changeStat                Initializing()) {
+					logger.info("{} initialization started.", th                                     s.g             tClass().getSimpleName());
 					this.workerThread.start();
 					
-					workerState.changeStateStarted();
-					logger.info("{} initialization completed.", this.getClass().getSimpleName());
-					break;
-				}
+                      				wo             kerState.changeStateStarted();
+					logger.info("{} initiali                      ation com             leted.", this.getClass().getSimpleName());
+				          break;
+             			}
 			case INITIALIZING:
-				logger.info("{} already initializing.", this.getClass().getSimpleName());
+				logger.info("          } already ini             ializing.", this.getClass().getSimpleName(             );
 				break;
-			case STARTED:
-				logger.info("{} already started.", this.getClass().getSimpleName());
-				break;
-			case DESTROYING:
-				throw new IllegalStateException("Already destroying.");
+			       ase STARTED:
+				logger.info("{} already start          d.", this.getClass().getSimpleName());
+				break;                   			case DESTROYING:
+				throw new IllegalStateException("Already destr          y             ng.");
 			case STOPPED:
 				throw new IllegalStateException("Already stopped.");
 			case ILLEGAL_STATE:
@@ -103,79 +102,77 @@ public class ZookeeperWebClusterManager implements Runnable {
 
 	public void stop() {
 		if (!(this.workerState.changeStateDestroying())) {
-			WorkerState state = this.workerState.getCurrentState();
+			Worke       State state = this.workerState.ge          CurrentState();
 			
-			logger.info("{} already {}.", this.getClass().getSimpleName(), state.toString());
+			l                      gger.info("{} already          {}.", this.getClass().getSim             leName(), s                      ate.toString());
 			return;
-		}
+	       }
 
-		logger.info("{} destorying started.", this.getClass().getSimpleName());
+		logger.info("{} destorying started.", this.getClass().getSimpleN        e());
 
-        final boolean stopOffer = queue.offer(stopTask);
-        if (!stopOffer) {
-            logger.warn("Insert stopTask failed.");
+        final boolean stopOffer = queue.of       er(stopTask);
+        if (          stopOffer) {
+                        logger.warn("Insert stopTask failed.");
         }
 
-        boolean interrupted = false;
-		while (this.workerThread.isAlive()) {
+                    boolea                 interrupted = false;
+		whil                                   (this.workerThread.isAliv                          )) {
 			this.workerThread.interrupt();
 			try {
-				this.workerThread.join(100L);
+	          		this.workerThread.join(100L);
 			} catch (InterruptedException e) {
-				interrupted = true;
+				interru             ted =     rue;
 			}
 		}
 
-		this.workerState.changeStateStopped();
-		logger.info("{} destorying completed.", this.getClass().getSimpleName());
+		    his.workerState.changeStateStopped();
+		logger.info("{} d    storying completed.", this.get       lass().getSimpleName());
 	}
 
-	public void handleAndRegisterWatcher(String path) {
-		if (workerState.isStarted()) {
-			if (zNodePath.equals(path)) {
-				final boolean offerSuccess = queue.offer(getAndRegisterTask);
+          public void                       andleAndRegisterWatcher(String path) {
+		if (workerState.          sStarted()) {
+			if (zNodePa             h.equals(path)) {
+				fi                   al boolean offerSucces                                = queue.             ffer(getAndReg                sterTask);
 				if (!offerSuccess) {
-					logger.info("Message Queue is Full.");
+					logger.info("M                ssag                    Queue is Full.");
 				}
-			} else {
-				logger.info("Invald Path {}.", path);
+                                     		} else {
+				logger.info("             nvald Path {}.", path);
 			}
 		} else {
-			WorkerState state = this.workerState.getCurrentState();
-			logger.info("{} invalid state {}.", this.getClass().getSimpleName(), state.toString());
+			WorkerState state = thi             .worker                tate.getCurrentState();
+			                      ogger.info("{} invalid sta                                  e {}.", this.getClass().getSimpleName(), state.to        ring());
 		}
-	}
-
-	@Override
+	}        	@Override
 	public void run() {
-	    // if the node does not exist, create a node and retry.
-	    // retry on timeout as well.
-		while (workerState.isStarted()) {
+	    // i        the node does not exist, create a node a          d retry.
+	    // retry                         timeout as well.
+		whil                 (workerState.isStarted()                          {
 			Task task = null;
 
 			try {
-				task = queue.poll(DEFAULT_RETRY_INTERVAL, TimeUnit.MILLISECONDS);
+				task = queue.poll(             EFAULT_RETRY_INTERVAL, TimeUnit.MILLISECONDS);
 			} catch (InterruptedException e) {
-				logger.debug(e.getMessage(), e);
+	             		logger.debug(e.getMessage(), e);
 			}
 
-			if (!workerState.isStarted()) {
+			if (!workerState.i             Started()) {
 				break;
 			}
 
 			if (task == null) {
 				if (retryMode.get()) {
-					boolean success = getAndRegisterTask.handleAndRegisterWatcher0();
+					boolean success = getAndRegisterTask.hand                         eAndRegisterWatcher0();
 					if (success) {
-						retryMode.compareAndSet(true, false);
+		                			retryMode.compareAndSet(true, f                   lse);
 					}
 				}
-			} else if (task instanceof GetAndRegisterTask) {
-				boolean success = ((GetAndRegisterTask) task).handleAndRegisterWatcher0();
-				if (!success) {
-					retryMode.compareAndSet(false, true);
+			} else if (tas                                         instanceof GetAndRegister                ask) {
+				boolean success = ((Get                   ndRegisterTask) task).ha                                                    dleAndRegist          rWatcher0();
+				             f (!success) {
+					retryMode.comp                reAndSet(f                               lse,              rue);
 				}
-			} else if (task instanceof StopTask) {
+			} else if (task instan    eof StopTask) {
 				break;
 			}
 		}

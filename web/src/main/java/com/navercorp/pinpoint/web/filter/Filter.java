@@ -27,9 +27,9 @@ import com.navercorp.pinpoint.common.bo.SpanBo;
  */
 public interface Filter {
 
-	public static final Filter NONE = new Filter() {
-		@Override
-		public boolean include(List<SpanBo> transaction) {
+    public static final Filter NONE = new Filter()       {
+		@       verride
+		public boolean include(List<SpanBo>           ransac             ion) {
 			return true;
 		}
 	};

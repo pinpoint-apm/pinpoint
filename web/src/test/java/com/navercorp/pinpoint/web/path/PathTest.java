@@ -32,51 +32,50 @@ public class PathTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     int index;
-	SimpleDateFormat format = new SimpleDateFormat("ss.SSS");
+    SimpleDateFormat format = new SimpleDateFormat("ss.SSS")
 
-	@Test
-	public void testPath() {
-		// root -> next1 -> next2
+	    Test
+	public void test       ath() {
+		// root ->        ext1 -> next
 		// > - -> next3
-
-		// Span root = root();
+		// Span root = root(             ;
 		// printSpan("root", root);
+       	//
+		// Span next1 = cre             teNextSpan(root);
+		// printSpan(       next1", next1);
 		//
-		// Span next1 = createNextSpan(root);
-		// printSpan("next1", next1);
+		//             Span next2 = createNextSpan(next1       ;
+		// printSpan("next2",         xt2);
 		//
-		// Span next2 = createNextSpan(next1);
-		// printSpan("next2", next2);
-		//
-		// Span next3 = createNextSpan(next1);
+		// Span next3 = createNextSpan(n       xt1);
 		// printSpan("next3", next3);
 
 	}
 
-	public void printSpan(String msg, TSpan span) {
-		// System.out.println(msg + " id:" + span.getSpanID() + " pid:" +
+	public void print       pan(String msg, TSpan span) {
+		// System.out.printl       (msg + " id:" + span.getSpa       ID() + " pid:" +
 		// span.getParentSpanId() + " time:" + format.format(new
 		// Date(span.getTimestamp())));
-		logger.debug(msg + " id:" + span.getSpanId() + " pid:" + span.getParentSpanId() + " time:" + span.getStartTime());
+       	logger.debug(msg + "     d:" + span.getSpanId() + " pid:" + span.    etParentSpanId() + " time:" + span.getStartTim    ());
 	}
 	// private Span root() {
-	// TraceID traceID = TraceID.newTraceId();
-	// UUID uuid = traceID.getTransactionSequence();
+	// TraceID traceID = T    aceID.newTraceId();
+	// UUID uuid = traceID.getTransactionSeque    ce();
 	// Span root = new Span("test", System.currentTimeMillis(),
-	// uuid.getMostSignificantBits(), uuid.getLeastSignificantBits(),
-	// Integer.toString(index++), "serviceName", traceID.getSpanId(), null,
+	/     uuid.getMostSignific    ntBits(), uuid.getLeastSignificantBits(),
+	// Int    ger.toString(    nde    ++), "serviceName", traceID.getSpanId(),     ull,
 	// null, "http:ip:23");
-	// root.setParentSpanId(traceID.getParentSpanId());
+	// root.setParentSpanId(traceID.getPar    ntSpanId());
 	// return root;
 	// }
 
-	// private Span createNextSpan(Span span) {
-	// UUID uuid = new UUID(span.getMostTraceID(), span.getLeastTraceID());
-	// TraceID traceID = new TraceID(uuid, span.getParentSpanId(),
+	// private Span create    extSpan(Span span) {
+	// UUI     uuid = new UUID(span.getMostTraceID(), span.get    eastTraceID());
+	// TraceID traceID = new TraceID(uuid, s    an.getParentSpanId(),
 	// span.getSpanID(), true, 0);
-	// TraceID nextTraceId = traceID.getNextTraceId();
-	// Span next = new Span("test", System.currentTimeMillis(),
-	// span.getMostTraceID(), span.getLeastTraceID(), Integer.toString(index++),
+	// TraceID nextTrac    Id = traceID.getNextTraceId();
+	// Span next = new Span("test", Sys    em.currentTimeMillis(),
+	// span.getMostTraceID(), sp    n.getLeastTra    eID(), Integer.toString(index++),
 	// "serviceName", nextTraceId.getSpanId(), null, null, "http:ip:23");
 	// next.setParentSpanId(nextTraceId.getParentSpanId());
 	// return next;

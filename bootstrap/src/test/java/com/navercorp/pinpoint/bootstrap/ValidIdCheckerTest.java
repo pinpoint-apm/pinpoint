@@ -29,26 +29,24 @@ import org.junit.Test;
  */
 public class ValidIdCheckerTest {
 
-	private final Pattern p = Pattern.compile("[^a-zA-Z0-9._(\\-)]");
+    private final Pattern p = Pattern.compile("[^a-zA-Z0-9._(\\-)]")
 
-	@Test
-	public void checkValidId() {
-		Assert.assertFalse(p.matcher("PINPOINT123").find());
-		Assert.assertFalse(p.matcher("P1NPOINT").find());
-		Assert.assertFalse(p.matcher("1PNPOINT").find());
-		Assert.assertFalse(p.matcher("P1NPOINT.DEV").find());
-		Assert.assertFalse(p.matcher("P1NPOINT..DEV").find());
-		Assert.assertFalse(p.matcher("P1N.POINT.DEV").find());
-		Assert.assertFalse(p.matcher("P1NPOINT-DEV").find());
-		Assert.assertFalse(p.matcher("P1NPOINT_DEV").find());
-		Assert.assertFalse(p.matcher("P1N_POINT_DEV").find());
+	    Test
+	public void checkVal       dId() {
+		Assert.assertFalse(p.matcher("PINPOINT       23").find());
+		Assert.assertFalse(p.matcher(       P1NPOINT").find());
+		Assert.assertFalse(p.ma       cher("1PNPOINT").find());
+		Assert.assertFalse(p.       atcher("P1NPOINT.DEV").find());
+		Assert.assertFal       e(p.matcher("P1NPOINT..DEV").find());
+		Assert.ass       rtFalse(p.matcher("P1N.POINT.DEV").find());
+		Ass       rt.assertFalse(p.matcher("P1NPOINT-DEV").find());       		Assert.assertFalse(p.matcher("P1NPOINT_DEV").fin        ));    		Assert.assertFalse(p.match       r("P1N_POINT_DEV").find());
 	}
 
 	@Test
 	public void checkInvalidId() {
-		Assert.assertTrue(p.matcher("P1NPOINT가").find()); //include Korean character for test
-		Assert.assertTrue(p.matcher("P1NPOINT ").find());
-		Assert.assertTrue(p.matcher("P1NPOINT+").find());
+		Assert.a       sertTrue(p.matcher("P1NPOINT가").find()); //in       lude Korean character for test
+		Assert.asser       True(p.matcher("P1NPOINT ").find());
+		Assert    assertTrue(p.matcher("P1NPOINT+").find());
 		Assert.assertTrue(p.matcher("PINPO+INT").find());
 	}
 }

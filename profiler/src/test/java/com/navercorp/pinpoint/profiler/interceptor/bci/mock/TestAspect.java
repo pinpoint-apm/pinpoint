@@ -29,61 +29,58 @@ import java.util.Map;
 @Aspect
 public abstract class TestAspect extends Original {
 
-	@PointCut
-	public void testVoid() {
-		touchBefore();
-		__testVoid();
-		touchAfter();
+    @PointC    t
+	public void testVoi       () {
+		tou       hBefore()
+		__test        id();
+		t    uchAfter();
 	}
 
-	@JointPoint
-	abstract void __testVoid();
+	@JointPoin
+	abstr    ct void __testVoid()
 
 
-	@PointCut
+	@Point       ut
 	public int testInt() {
-		touchBefore();
-		final int result = __testInt();
-		touchAfter();
-		return result;
+       	touchBef       re();
+		fi        l int res    lt = __testInt();
+		touch    fter();    		return result;
 	}
 
-	@JointPoint
-	abstract int __testInt();
+	@Joi       tPoint
+	ab       tract int __testInt();
 
-
-	@PointCut
-	public String testString() {
-		touchBefore();
-		String s = __testString();
-		touchAfter();
-		return s;
+	@Point       ut
+	p        lic Strin     testString() {
+		touchBefore(    ;
+		Str    ng s = __testString();
+		to       chAfter();       		return s;
 	}
 
-	@JointPoint
-	abstract String __testString();
+	@Joi       tPoint
+	a       stract St       ing __test        ring();
 
 	@PointCut
-	public int testUtilMethod() {
+	public       int testUt        Method(     {
 		touchBefore();
-		int result = __testInt();
+		int       result = _        estInt(    ;
 		utilMethod();
-		touchAfter();
-		return result;
-	}
+		touchAfter()
+		return        esult;
+    }
 
-	private String utilMethod() {
+	private String utilMetho       () {
 		return "Util";
-	}
+
 
 	@PointCut
-	public void testNoTouch() {
+	p        lic void     estNoTouch() {
 		 __testVoid();
-	}
+    }
 
-	@PointCut
-	public void testInternalMethod() {
-		__testVoid();
+	@Po    ntCut
+	public void testInternalMethod()
+		__tes    Void();
 	}
 
 	@PointCut

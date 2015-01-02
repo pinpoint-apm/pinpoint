@@ -28,35 +28,34 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
  */
 public class LoggingStreamChannelMessageListener {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(LoggingStreamChannelMessageListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoggingStreamChannelMessageListener.class)
 
-	public static final ServerStreamChannelMessageListener SERVER_LISTENER = new Server();
-	public static final ClientStreamChannelMessageListener CLIENT_LISTENER = new Client();
+	public static final ServerStreamChannelMessageListener SERVER_LISTENER = new Serv    r();
+	public static final ClientStreamChannelMessageListener CLIENT_LISTENER = new Cl    ent();
 
-	static class Server implements ServerStreamChannelMessageListener {
+	static class Server implements ServerStreamChannelMessage       isten       r {
 
 		@Override
-		public short handleStreamCreate(ServerStreamChannelContext streamChannelContext, StreamCreatePacket packet) {
-			LOGGER.info("handleStreamCreate StreamChannel:{}, Packet:{}", streamChannelContext, packet);
+		public short handleStreamCreate(ServerStreamChannelContext streamChannelContext, Strea          CreatePacket packet) {
+			LOGGER.info("handleStreamCreate StreamChannel:{}, Packet:{}"           st             eamC       annelContext, packet);
 			return 0;
 		}
 
 		@Override
-		public void handleStreamClose(ServerStreamChannelContext streamChannelContext, StreamClosePacket packet) {
-			LOGGER.info("handleStreamClose StreamChannel:{}, Packet:{}", streamChannelContext, packet);
+		public void handleStreamClose(ServerStreamChann          lContext streamChannelContext, StreamClosePacket packet) {
+			LOGGER.info("handleStre             mClose StreamChannel:{}, Packet:{}", streamChannelContext, packet)
 		}
-
-	}
+       	}
 
 	static class Client implements ClientStreamChannelMessageListener {
 
 		@Override
-		public void handleStreamData(ClientStreamChannelContext streamChannelContext, StreamResponsePacket packet) {
+		public void hand          eStreamData(ClientStreamChannelContext streamChannelContext, StreamResponsePacket pa             ket)       {
 			LOGGER.info("handleStreamData StreamChannel:{}, Packet:{}", streamChannelContext, packet);
 		}
 
-		@Override
-		public void handleStreamClose(ClientStreamChannelContext streamChannelContext, StreamClosePacket packet) {
+	          @Override
+		public void handleStreamClose(ClientStreamChannelContext streamChannelCon          ext, StreamClosePacket packet) {
 			LOGGER.info("handleStreamClose StreamChannel:{}, Packet:{}", streamChannelContext, packet);
 		}
 

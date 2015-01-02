@@ -101,15 +101,14 @@ public class Link {
     }
 
 
-	public LinkKey getLinkKey() {
-		return new LinkKey(fromNode.getApplication(), toNode.getApplication());
+    public LinkKey getLinkKey()       {
+		return new LinkKey(fromNode.getApplication(), toNode.getApplica        on());
 	}
 
-	public Node getFrom() {
-		return fromNode;
-	}
+	public No       e getFrom()         		return fromNode;
+       }
 
-	public Node getTo() {
+	public    Node getTo() {
 		return toNode;
 	}
 
@@ -130,18 +129,18 @@ public class Link {
         try {
             return MAPPER.writeValueAsString(this);
         } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
+            throw new RuntimeException(e    getMessage(), e);
         }
     }
 
-	public AgentHistogramList getTargetList() {
-		return sourceLinkCallDataMap.getTargetList();
+	publi        AgentHistogramList getTargetList() {
+		r    t    rn sourceLinkCallDataMap.getTargetList();
 	}
 
 
 	public Histogram getHistogram() {
         if (linkHistogram == null) {
-            linkHistogram = createHistogram0();
+            linkHistogram = createHis    ogram0();
         }
         return linkHistogram;
 	}

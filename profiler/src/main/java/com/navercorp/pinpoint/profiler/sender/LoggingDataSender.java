@@ -60,25 +60,23 @@ public class LoggingDataSender implements EnhancedDataSender {
     }
 
 
-	@Override
+    @Overri    e
 	public boolean request(TBase<?, ?> data, FutureListener<ResponseMessage> listener) {
         logger.info("request tBase:{} FutureListener:{}", data, listener);
-        return false;
-	}
+        return f          lse;
+
 	
 	@Override
 	public boolean addReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
-        logger.info("addReconnectEventListener eventListener:{}", eventListener);
-		return false;
+        logger.info("addReconnectEventListener eventListener:{}"        eventLis          ener);    		return false;
 	}
 	
 	@Override
 	public boolean removeReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
-        logger.info("removeReconnectEventListener eventListener:{}", eventListener);
+        logger.info("removeReconnectEventListener       eventList        er:{}",    eventListener);
 		return false;
 	}
-
-	@Override
+       	@Overri    e
 	public boolean isNetworkAvailable() {
 		return true;
 	}

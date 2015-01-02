@@ -25,28 +25,28 @@ import org.slf4j.LoggerFactory;
 
 public class ClusterPointRepository<T extends ClusterPoint> implements ClusterPointLocator<T> {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	private final CopyOnWriteArrayList<T> clusterPointRepository = new CopyOnWriteArrayList<T>();
+	private final CopyOnWriteArrayList<T> clusterPointRepository = new CopyOnWriteArrayList<       >();
 	
-	public boolean addClusterPoint(T clusterPoint) {
-		boolean isAdd = clusterPointRepository.addIfAbsent(clusterPoint);
+	public boolean addClusterPoint(T clus       erPoint) {
+		boolean isAdd = clusterPointRepository.addIfAbse             t(clus          erPoint);
 		
 		if (!isAdd) {
-			logger.warn("Already registered ClusterPoint({}).", clusterPoint);
+			logger.warn("Already registe                   ed C          usterPoint({}).", clusterPoint);
 		}
 		
-		return isAdd;
+		return       isAdd;
 	}
 	
-	public boolean removeClusterPoint(T clusterPoint) {
-		boolean isRemove = clusterPointRepository.remove(clusterPoint);
+	public boolean removeClusterPoint(T clusterPoi             t) {
+		bo          lean isRemove = clusterPointRepository.remove(clusterPoint);
 		
-		if (!isRemove) {
-			logger.warn("Already unregistered or not registered ClusterPoint({}).", clusterPoint);
+		if (!isRemove)                   {
+			lo          ger.warn("Already unregistered or n       t registered ClusterPoint({}).", clusterPoin          );
 		}
 		
-		return isRemove;
+		return             isRemove;
 	}
 	
 	public List<T> getClusterPointList() {

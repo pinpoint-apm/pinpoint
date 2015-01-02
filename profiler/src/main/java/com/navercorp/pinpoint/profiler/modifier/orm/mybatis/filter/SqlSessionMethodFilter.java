@@ -28,24 +28,23 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
  */
 public class SqlSessionMethodFilter implements MethodFilter {
 
-	private static final boolean TRACK = false;
-	private static final boolean DO_NOT_TRACK = true;
+    private static final boolean TRACK = fals    ;
+	private static final boolean DO_NOT_TRACK =        rue;
 	
-	private static final Set<String> WHITE_LIST_API = createWhiteListApi();
+	private static final Set<String> WHITE_LIST_API = createWhit       ListApi();
 	
-	private static Set<String> createWhiteListApi() {
-		return new HashSet<String>(Arrays.asList(
-				"selectOne",
-				"selectList",
-				"selectMap",
-				"select",
-				"insert",
+	private static Set<String> creat       WhiteListApi() {
+		return new HashSet             Stri             g>(Ar             ays.             s             i             t
+	             		"             elect             ne",
+				"se             ec             List",
+				"s             lectMa             ",
+				              elect",    				"insert",
 				"update",
 				"delete"
-//				"commit",
+/       				"commit",
 //				"rollback",
-//				"flushStatements",
-//				"close",
+//				"flushSt          tements             ,
+//				"close       ,
 //				"getConfiguration",
 //				"getMapper",
 //				"getConnection"

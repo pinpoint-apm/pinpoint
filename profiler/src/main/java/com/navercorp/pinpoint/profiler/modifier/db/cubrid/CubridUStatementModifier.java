@@ -34,27 +34,27 @@ import org.slf4j.LoggerFactory;
  */
 public class CubridUStatementModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	public CubridUStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-		super(byteCodeInstrumentor, agent);
+	public CubridUStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent age       t) {
+		super(byteCodeInstrument        , agent);
 	}
 
-	public String getTargetClass() {
-		return "cubrid/jdbc/jci/UStatement";
+	public String g       tTargetClass() {
+		return "cubri        jdbc/jci/UStatement";
 	}
 
-	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDoma       n, byte[] classFileBuffer           {
 		if (logger.isInfoEnabled()) {
-			logger.info("Modifing. {}", javassistClassName);
+			logg                       .info("Modifing. {}", javassistClassName);
 		}
 
 		try {
-			InstrumentClass ustatementClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+			InstrumentClass ustatementClass = byteCodeInstrume          tor.getClass(classLoader, java       sistClassName, classFileBuffe          );
 
-			return ustatementClass.toBytecode();
+			return ustatemen             Class.toBytecode();
 		} catch (InstrumentException e) {
-			if (logger.isWarnEnabled()) {
+			if (logger.isWarnEnabled(                   )
 				logger.warn("{} modify fail. Cause:{}", this.getClass().getSimpleName(), e.getMessage(), e);
 			}
 			return null;

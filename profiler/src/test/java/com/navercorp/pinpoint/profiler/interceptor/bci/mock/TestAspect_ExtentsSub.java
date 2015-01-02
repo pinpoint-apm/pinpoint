@@ -26,11 +26,11 @@ import com.navercorp.pinpoint.profiler.interceptor.aspect.PointCut;
 @Aspect
 public abstract class TestAspect_ExtentsSub extends OriginalSub {
 
-	@PointCut
-	public void testVoid() {
-		touchBefore();
-		__testVoid();
-		touchAfter();
+    @PointC    t
+	public void testVoi       () {
+		tou       hBefore()
+		__test        id();
+		t    uchAfter();
 	}
 
 	@JointPoint

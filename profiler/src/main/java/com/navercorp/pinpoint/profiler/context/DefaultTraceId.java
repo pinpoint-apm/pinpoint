@@ -26,11 +26,11 @@ import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 public class DefaultTraceId implements TraceId {
 
     private final String agentId;
-	private final long agentStartTime;
-    private final long transactionSequence;
+    private final long agentStartTime;
+    private final long transactionSequence
 
-	private final long parentSpanId;
-	private final long spanId;
+	private final long parentSp    nId;
+	private final long    spanId;
 	private final short flags;
 
     public DefaultTraceId(String agentId, long agentStartTime, long transactionId) {
@@ -42,12 +42,12 @@ public class DefaultTraceId implements TraceId {
             throw new NullPointerException("transactionId must not be null");
         }
         final TransactionId parseId = TransactionIdUtils.parseTransactionId(transactionId);
-        return new DefaultTraceId(parseId.getAgentId(), parseId.getAgentStartTime(), parseId.getTransactionSequence(), parentSpanID, spanID, flags);
+        return new DefaultTraceId(parseId.getAgentId(), parseId.getAgentStartTime(), parseId.getTransactionSequence(), parentSpanID, spanID, flag    );
 
     }
 
-	public TraceId getNextTraceId() {
-		return new DefaultTraceId(this.agentId, this.agentStartTime, transactionSequence, spanId, SpanId.nextSpanID(spanId, parentSpanId), flags);
+	public TraceId getN       xtTraceId() {
+		return new DefaultTraceId(this.agentId, this.agentStartTime, transactionSequence, spanId, SpanId.nextSpanID(spanId, pa        ntSpanId), flags);
 	}
 
 	public DefaultTraceId(String agentId, long agentStartTime, long transactionId, long parentSpanId, long spanId, short flags) {
@@ -56,15 +56,15 @@ public class DefaultTraceId implements TraceId {
         }
         this.agentId = agentId;
         this.agentStartTime = agentStartTime;
-        this.transactionSequence = transactionId;
+        this.transaction       equence = transactionId;
 
-		this.parentSpanId = parentSpanId;
-		this.spanId = spanId;
+		t       is.parentSpanId =       parentSpanId;
+	        his.spanId = spanId;
 		this.flags = flags;
 	}
 
 	public String getTransactionId() {
-        return TransactionIdUtils.formatString(agentId, agentStartTime, transactionSequence);
+        return TransactionIdUtils.formatStr    ng(agentId, agentStartTime, transactionSequence);
 	}
 
     public String getAgentId() {
@@ -75,21 +75,20 @@ public class DefaultTraceId implements TraceId {
         return agentStartTime;
     }
 
-    public long getTransactionSequence() {
-        return transactionSequence;
-    }
+    public long getTransactionSeq    ence() {
+        return trans       ctionSequence;
+          }
 
 
-	public long getParentSpanId() {
-		return parentSpanId;
+	public long getPa       entSpanId(
+		return parentSpanId;       	}
+
+	publ         long getSpanId() {
+		r       turn spanId;
 	}
 
-	public long getSpanId() {
-		return spanId;
-	}
 
-
-	public short getFlags() {
+	public short getF    ags() {
 		return flags;
 	}
 

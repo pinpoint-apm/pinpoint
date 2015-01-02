@@ -24,16 +24,16 @@ import com.navercorp.pinpoint.bootstrap.instrument.ByteCodeInstrumentor;
  */
 public class SqlSessionTemplateModifier extends MyBatisClientModifier {
 
-	public static final String TARGET_CLASS_NAME = "org/mybatis/spring/SqlSessionTemplate";
+    public static final String TARGET_CLASS_NAME = "org/mybatis/spring/SqlSessionTemplate";
 
-	public SqlSessionTemplateModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-		super(byteCodeInstrumentor, agent, SqlSessionTemplateModifier.class);
-	}
+    public SqlSessionTemplateModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+        super(byteCodeInstrumentor, agent, SqlSessionTemplateModifier.class);
+    }
 
-	@Override
-	public String getTargetClass() {
-		return TARGET_CLASS_NAME;
-	}
+    @Override
+    public String getTargetClass() {
+        return TARGET_CLASS_NAME;
+    }
 
 
 

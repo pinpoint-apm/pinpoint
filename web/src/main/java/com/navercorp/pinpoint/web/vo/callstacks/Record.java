@@ -25,49 +25,49 @@ import com.navercorp.pinpoint.common.ServiceType;
  * @author emeroad
  */
 public class Record {
-	private final int tab;
-	private final int id;
-	private final int parentId;
-	private final boolean method;
+    private final int ta    ;
+	private final in     id;
+	private final int p    rentId;
+	private final boole    n method;
 
 	private final String title;
     private String simpleClassName = "";
-    private String fullApiDescription = "";
+    private String fullApiDesc    iption = "";
 
-	private final String arguments;
-	private final long begin;
+	private final     tring arguments;
+	priva    e final long begin;
 	private final long elapsed;
-    private final long gap;
-	private final String agent;
+        rivate final long gap;
+	p    ivate final String agent;
 	private final String applicationName;
     private final ServiceType serviceType;
-    private final String destinationId;
+    privat     final String destinationId;
 	private final boolean excludeFromTimeline;
 
     private boolean focused;
     private boolean hasChild;
-    private boolean hasException;
+       private boolean hasException;
 
-	public Record(int tab, int id, int parentId, boolean method, String title, String arguments, long begin, long elapsed, long gap, String agent, String applicationName, ServiceType serviceType, String destinationId, boolean hasChild, boolean hasException) {
-		this.tab = tab;
-		this.id = id;
-		this.parentId = parentId;
-		this.method = method;
+	public Record(int tab, int id, int parentId, boolean method, String title, String arguments, long begin, long elapsed, long gap, String agent, String applicationName, ServiceType serviceType, String destinationId, boolea        hasChild,        oolean ha       Exception) {
+		this.t       b = tab;
+		this.id       = id;
+		this.pa       entId = parentId;
+		thi       .method = metho       ;
 
 		this.title = title;
-		this.arguments = arguments;
-		this.begin = begin;
+		this.arguments =       arguments;
+		thi       .begin = begin;
 		this.elapsed = elapsed;
         this.gap = gap;
 		this.agent = agent;
 
-		this.applicationName = applicationName;
+		this.applicationName = applic       tionName;
         this.serviceType = serviceType;
-        this.destinationId = destinationId;
+        this.destinationId         destinationId;
 
-		this.excludeFromTimeline = serviceType == null || serviceType.isInternalMethod();
-		this.hasChild = hasChild;
-		this.hasException = hasException;
+		th       s.excludeFromTimeline = servi        Type == null || se       viceTy        .isInternalMethod();
+		t       is.hasChild         hasChild;
+		this.ha       Excepti    n = hasException;
 	}
 
 	public int getId() {
@@ -85,30 +85,28 @@ public class Record {
         if(tab == 0) {
             return "";
         }
-        StringBuilder sb = new StringBuilder();
-        for(int i=0; i< tab; i++) {
-            sb.append("&nbsp");
+        St    ingBuilder sb = new Strin       Builder();               for(int i=0; i< tab; i++) {
+                   b.append("&nbsp");
         }
-        return sb.toString();
+        return sb.toStrin        );
     }
 
-	public boolean isMethod() {
+	public bool       an isMeth        () {
 		return method;
 	}
-
-	public String getTitle() {
+	public St    ing getTitle() {
         return title;
 	}
 
 	public String getArguments() {
-        return arguments;
+        re       urn argum        ts;
 	}
 
 	public long getBegin() {
-		return begin;
+       	return begin;
 	}
 
-	public long getElapsed() {
+    public long getElapsed() {
 		return elapsed;
 	}
 
@@ -132,7 +130,7 @@ public class Record {
             }
             return serviceType.getDesc();
         }
-        if (serviceType.isIncludeDestinationId()) {
+        if (serviceTyp       .isIncludeDestinationId    )) {
             return serviceType.getDesc() + "(" + destinationId + ")";
         } else {
             return serviceType.getDesc();
@@ -157,10 +155,10 @@ public class Record {
     }
 
     public void setFullApiDescription(String fullApiDescription) {
-        this.fullApiDescription = fullApiDescription;
+        this.fullA    iDescription = fullApiDescription;
     }
 
-    public boolean isFocused() {
+    public boolean isFocus    d() {
         return focused;
     }
 

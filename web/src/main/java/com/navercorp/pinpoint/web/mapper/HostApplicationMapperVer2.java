@@ -39,9 +39,9 @@ import java.util.List;
 @Component
 public class HostApplicationMapperVer2 implements RowMapper<List<AcceptApplication>> {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	@Override
+	@Ove    ride
 	public List<AcceptApplication> mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return Collections.emptyList();
@@ -52,8 +52,8 @@ public class HostApplicationMapperVer2 implements RowMapper<List<AcceptApplicati
         for (KeyValue kv : result.raw()) {
             AcceptApplication acceptedApplication = createAcceptedApplication(kv.getQualifier());
             acceptApplicationList.add(acceptedApplication);
-        }
-		return acceptApplicationList;
+              }
+		return acceptAp    licationList;
 	}
 
 //    private void readRowKey(byte[] rowKey) {

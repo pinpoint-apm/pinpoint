@@ -21,33 +21,33 @@ package com.navercorp.pinpoint.collector.cluster.route;
  */
 public enum RouteStatus {
 
-	OK(0, "OK"),
+    OK(0, "OK")
 
-	BAD_REQUEST(400, "Bad Request"),
+	BAD_REQUEST(400, "Bad Reques    "),
 
-	NOT_FOUND(404, " Target Route Agent Not Found."),
+	NOT_FOUND(404, " Target Route Agent Not Fo    nd."),
 
-	NOT_ACCEPTABLE(406, "Target Route Agent Not Acceptable."),
+	NOT_ACCEPTABLE(406, "Target Route Agent Not Acc       ptable."),
 	
 	NOT_ACCEPTABLE_UNKNOWN(450, "Target Route Agent Not Acceptable."),
     NOT_ACCEPTABLE_COMMAND(451, "Target Route Agent Not Acceptable command."),
-    NOT_ACCEPTABLE_AGENT_TYPE(452, "Target Route Agent Not Acceptable agent type.."),
+    NOT_ACCEPTABLE_AGENT_TYPE(452, "Target Route Agent Not Acceptabl        agent type.."),
 	
-	AGENT_TIMEOUT(504, "Target Route Agent Timeout"),
+	AGENT_TIMEOUT(504, "Target       Route Agent Timeout"),
 	
-	CLOSED(606, "Target Route Agent Closed.");
+	CLOSED(606, "T    rget Route Agent Closed    ");
 
 	private final int value;
 
-	private final String reasonPhrase;
+	    rivate final String reasonPhrase;
 
-	private RouteStatus(int value, String reasonPhrase) {
-		this.value = value;
-		this.reasonPhrase = reasonPhrase;
+	private RouteSt       tus(int value,        tring reasonPhrase) {
+		this.        lue = value;
+		this.r       asonPhras        = reasonPhrase;
 	}
 
-	public int getValue() {
-		return value;
+	public int       getValue() {
+		r          turn v    lue;
 	}
 
 	public String getReasonPhrase() {
@@ -60,7 +60,7 @@ public enum RouteStatus {
         sb.append(this.getClass().getSimpleName());
         sb.append("{");
         sb.append("code=").append(getValue()).append(",");
-        sb.append("message=").append(getReasonPhrase());
+        sb.append("messa    e=").append(getReasonPhrase());
         sb.append('}');
         return sb.toString();
 	}

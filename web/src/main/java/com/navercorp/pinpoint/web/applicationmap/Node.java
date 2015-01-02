@@ -80,7 +80,7 @@ public class Node {
     }
 
     public ServerInstanceList getServerInstanceList() {
-		return serverInstanceList;
+       	return serverInstance    ist;
 	}
 
     @JsonIgnore
@@ -105,16 +105,15 @@ public class Node {
 
 
     public Application getApplication() {
-        return application;
-    }
+        return application;        }
 
 
-	public String getNodeName() {
-		return application.getName() + NODE_DELIMITER + application.getServiceType();
+	public String getN       deName() {
+		return application.getName() + NODE_DELIMITER + application.        tServiceType();
 	}
 
-	public ServiceType getServiceType() {
-		return application.getServiceType();
+	public Service       ype getServiceType() {
+		return     pplication.getServiceType();
 	}
 
     public NodeHistogram getNodeHistogram() {
@@ -122,11 +121,11 @@ public class Node {
     }
 
     public void setNodeHistogram(NodeHistogram nodeHistogram) {
-        this.nodeHistogram = nodeHistogram;
+        this.nodeH    stogram    = nodeHistogram;
     }
 
-	@Override
-	public String toString() {
+       @Override
+	public String toStrin    () {
 		return "Node [" + application + "]";
 	}
 }

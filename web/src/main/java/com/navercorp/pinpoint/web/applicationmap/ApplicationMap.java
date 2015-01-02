@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ApplicationMap {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final NodeList nodeList;
     private final LinkList linkList;
@@ -42,7 +42,6 @@ public class ApplicationMap {
     private final Range range;
 
     private List<ApplicationScatterScanResult> applicationScatterScanResultList;
-
 
 	ApplicationMap(Range range, NodeList nodeList, LinkList linkList) {
         if (range == null) {
@@ -56,17 +55,17 @@ public class ApplicationMap {
         }
         this.range = range;
         this.nodeList = nodeList;
-        this.linkList = linkList;
+        this.linkList = link    ist;
 	}
 
     @JsonProperty("nodeDataArray")
-    public Collection<Node> getNodes() {
-		return this.nodeList.getNodeList();
+    public Collection<Node> getN       des() {
+		return this.nodeList.    etNodeList();
 	}
 
-    @JsonProperty("linkDataArray")
-	public Collection<Link> getLinks() {
-		return this.linkList.getLinkList();
+    @JsonProperty    "linkDataArray")
+	public Collectio       <Link> getLinks() {
+		return th    s.linkList.getLinkList();
 	}
 
 

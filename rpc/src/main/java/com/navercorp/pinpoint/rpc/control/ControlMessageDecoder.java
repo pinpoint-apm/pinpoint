@@ -28,65 +28,65 @@ import java.util.Map;
  */
 public class ControlMessageDecoder {
 
-	private Charset charset;
+    private Charset charset
 
-	public ControlMessageDecoder() {
-		this.charset = Charset.forName("UTF-8");
+	public ControlMessageDecode       () {
+		this.charset = Charset.forNam        "UTF-8");
 	}
 
-	public Object decode(byte[] in) throws ProtocolException {
-		return decode(ByteBuffer.wrap(in));
+	public Object decode(byte[] in) throws Pr       tocolException {
+		return decod             (ByteBuffer.wrap(in));
 	}
 		
-	public Object decode(ByteBuffer in) throws ProtocolException {
+	public Object decode(ByteBu       fer in) throws Pr       tocolExcept       on {
 		byte type = in.get();
 		switch (type) {
-		case ControlMessageProtocolConstant.TYPE_CHARACTER_NULL:
-			return null;
-		case ControlMessageProtocolConstant.TYPE_CHARACTER_BOOL_TRUE:
-			return Boolean.TRUE;
-		case ControlMessageProtocolConstant.TYPE_CHARACTER_BOOL_FALSE:
+		cas           Contr       lMessageProtocolConstant.TYPE_CHARACTER_NULL:
+			return n          ll;
+		case Con       rolMessageProtocolConstant.TYPE_CHARACTER_BOOL_TRUE:
+			re          urn Boolean.TRU       ;
+		case ControlMessageProtocolConstant.TYPE_CHARAC          ER_BOOL_FALSE
 			return Boolean.FALSE;
-		case ControlMessageProtocolConstant.TYPE_CHARACTER_INT:
+		case ControlMessageProto          olConstant.TYP       _CHARACTER_INT:
 			return in.getInt();
-		case ControlMessageProtocolConstant.TYPE_CHARACTER_LONG:
+		case ControlM          ssageProtocolConstant.TYPE_CHARACTER_LO       G:
 			return in.getLong();
-		case ControlMessageProtocolConstant.TYPE_CHARACTER_DOUBLE:
-			return Double.longBitsToDouble(in.getLong());
-		case ControlMessageProtocolConstant.TYPE_CHARACTER_STRING:
-			return decodeString(in);
-		case ControlMessageProtocolConstant.CONTROL_CHARACTER_LIST_START:
-			List<Object> answerList = new ArrayList<Object>();
+		case ControlMessageProtoc          lConstant.TYPE_CHA       ACTER_DOUBLE:
+			return Double.longBitsToDouble(in.getLong())
+		case ControlMessageProtocolConstant.TYPE_          HARACTER_STRING:
+			ret             rn decodeString(in)
+		case ControlMessage          rotocolConst       nt.CONTROL_CHARACTER_LIST_START:
+			List<Object> answerList            new ArrayList<Object>();
 			while (!isListFinished(in)) {
-				answerList.add(decode(in));
+			          answerList.add(decode(             n));
 			}
-			in.get(); // Skip the terminator
-			return answerList;
-		case ControlMessageProtocolConstant.CONTROL_CHARACTER_MAP_START:
+			in.             et(); // Skip the              erminator
+			retur                    answerList;
+		case Co          trolMessage       roto          olConstant.CONTROL_CHARACTER_MAP_START:
 			Map<Object, Object> answerMap = new LinkedHashMap<Object, Object>();
-			while (!isMapFinished(in)) {
-				Object key = decode(in);
-				Object value = decode(in);
-				answerMap.put(key, value);
+             		while (!isMapFinished(in)) {
+				Object       key = decode(in);
+				Object va       ue = decode(in);
+				answerMap.put(k       y, value);
 			}
-			in.get(); // Skip the terminator
-			return answerMap;
+			       n.get(); // Skip the terminator
+			ret        n answerMap;
 		default:
-			throw new ProtocolException("invalid type character: " + (char) type + " (" + "0x" + Integer.toHexString(type) + ")");
+			throw new Protoco       Exception("invalid type character: " + (char) type + " (" + "0x" + Integer.toHexStrin        type) + ")");
 		}
 	}
 
-	private Object decodeString(ByteBuffer in) {
+	private Object decodeS       ring(ByteBuffer in) {
 		int length = readStringLength(in);
 
-		byte[] bytesToEncode = new byte[length];
+		byte[] bytesToEncode = n         byte[length];
 		in.get(bytesToEncode);
 
-		return new String(bytesToEncode, charset);
+		       eturn new S       ring(bytesT       Encode, ch          rset);
 	}
 
-	private boolean isMapFinished(ByteBuffer in) {
-		return in.get(in.position()) == ControlMessageProtocolConstant.CONTROL_CHARACTER_MAP_END;
+	          rivate boolean isMapFini          hed(ByteBuffer i                      ) {
+             	return     n.get(in.position()) == ControlMessageProtocolConstant.CONTROL_CHARACTER_MAP_END;
 	}
 
 	private boolean isListFinished(ByteBuffer in) {

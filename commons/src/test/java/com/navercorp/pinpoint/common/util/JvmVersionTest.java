@@ -28,82 +28,80 @@ import com.navercorp.pinpoint.common.util.JvmVersion;
  */
 public class JvmVersionTest {
 
-	@Test
-	public void testOnOrAfter() {
-		// JDK 5
-		assertTrue(JAVA_5.onOrAfter(JAVA_5));
-		assertFalse(JAVA_5.onOrAfter(JAVA_6));
-		assertFalse(JAVA_5.onOrAfter(JAVA_7));
-		assertFalse(JAVA_5.onOrAfter(JAVA_8));
-		assertFalse(JAVA_5.onOrAfter(UNSUPPORTED));
+    @Te    t
+	public void testOnOrAfte       () {       		// JDK 5
+		assertTrue(JAVA_5.on       rAfter(JAVA_5));
+		assertFalse(JAV       _5.onOrAfter(JAVA_6));
+		assertFal       e(JAVA_5.onOrAfter(JAVA_7));
+		ass       rtFalse(JAVA_5.onOrAfter(JAVA_8));
+		as       ertF       lse(JAVA_5.onOrAfter(UNSUPPORTED)       ;
 		// JDK 6
-		assertTrue(JAVA_6.onOrAfter(JAVA_5));
-		assertTrue(JAVA_6.onOrAfter(JAVA_6));
-		assertFalse(JAVA_6.onOrAfter(JAVA_7));
-		assertFalse(JAVA_6.onOrAfter(JAVA_8));
-		assertFalse(JAVA_6.onOrAfter(UNSUPPORTED));
+		assertTrue(JAVA_6.       nOrAfter(JAVA_5));
+		assertTrue(JA       A_6.onOrAfter(JAVA_6));
+		assertFa       se(JAVA_6.onOrAfter(JAVA_7));
+		assertF       lse(       AVA_6.onOrAfter(JAVA_8));
+		asser       False(JAVA_6.onOrAfter(UNSUPPORTE       ));
 		// JDK 7
-		assertTrue(JAVA_7.onOrAfter(JAVA_5));
-		assertTrue(JAVA_7.onOrAfter(JAVA_6));
-		assertTrue(JAVA_7.onOrAfter(JAVA_7));
-		assertFalse(JAVA_7.onOrAfter(JAVA_8));
-		assertFalse(JAVA_7.onOrAfter(UNSUPPORTED));
+		assertTrue(JAVA_       .onOrAfter(JAVA_5));
+		assertTrue(       AVA_7.onOrAfter(JAVA_6));
+		assertTrue(       AVA_       .onOrAfter(JAVA_7));
+		assertFals       (JAVA_7.onOrAfter(JAVA_8));
+		ass       rtFalse(JAVA_7.onOrAfter(UNSUPPOR       ED));
 		// JDK 8
-		assertTrue(JAVA_8.onOrAfter(JAVA_5));
-		assertTrue(JAVA_8.onOrAfter(JAVA_6));
-		assertTrue(JAVA_8.onOrAfter(JAVA_7));
-		assertTrue(JAVA_8.onOrAfter(JAVA_8));
-		assertFalse(JAVA_8.onOrAfter(UNSUPPORTED));
+		assertTrue(JAV       _8.onOrAfter(JAVA_5));
+		assertTrue(JAV       _8.onOrAft       r(JAVA_6));
+		assertTrue(JAVA_8.onOrAft       r(JAVA_7));
+		assertTrue(JAVA_8.onOrAft       r(JAVA_8));
+		assertFalse(JAVA_8.onOrAf       er(UNSUPPORTED));
 		// Unsupported
-		assertFalse(UNSUPPORTED.onOrAfter(JAVA_5));
-		assertFalse(UNSUPPORTED.onOrAfter(JAVA_6));
-		assertFalse(UNSUPPORTED.onOrAfter(JAVA_7));
-		assertFalse(UNSUPPORTED.onOrAfter(JAVA_8));
-		assertFalse(UNSUPPORTED.onOrAfter(UNSUPPORTED));
+		as       ertFalse(UNSUPPORTED.onOrAfter(JAVA_5));
+		a          se    tFalse(UNSUPPORTED.onOrAfter(JAVA_6));       		as       ertFalse(UNSUPPORTED.onOrAfter(JAVA_7));
+		assertFals       (UNSUPPORTED.onOrAfter(       AVA_       ));
+		assertFalse(UNSUPPORTED.onOrAfter(UNSUPPORTED))
 	}
 	
 	@Test
-	public void testGetFromDoubleVersion() {
+	public vo       d te       tGetFromDoubleVersion() {
 		// JDK 5
-		final JvmVersion java_5 = JvmVersion.getFromVersion(1.5);
+		final JvmVersi       n java_5 = JvmVersion.g       tFro       Version(1.5);
 		assertSame(java_5, JAVA_5);
-		// JDK 6
-		final JvmVersion java_6 = JvmVersion.getFromVersion(1.6);
+		// JDK
+		final JvmVersion jav       _6 = JvmVe       sion.getFromVersion(1.6);
 		assertSame(java_6, JAVA_6);
-		// JDK 7
-		final JvmVersion java_7 = JvmVersion.getFromVersion(1.7);
-		assertSame(java_7, JAVA_7);
+		// JD        7
+		final JvmVersion java_7 = JvmVers          on    getFromVersion(1.7);
+		assertSame(java       7, J       VA_7);
 		// JDK 8
-		final JvmVersion java_8 = JvmVersion.getFromVersion(1.8);
-		assertSame(java_8, JAVA_8);
+		final JvmVersion java_8 = JvmVersio       .getFromVersion(1.8);
+	       asse       tSame(java_8, JAVA_8);
 		// Unsupported
-		final JvmVersion java_unsupported = JvmVersion.getFromVersion(0.9);
-		assertSame(java_unsupported, UNSUPPORTED);
+		final JvmVers       on java_unsupported = J       mVer       ion.getFromVersion(0.9);
+		assertSame(java_unsupported,       UNSUPPORTED);
 	}
 	
-	@Test
-	public void testGetFromStringVersion() {
+	@Te       t
+	p       blic void testGetFromStringVersion() {
 		// JDK 5
-		final JvmVersion java_5 = JvmVersion.getFromVersion("1.5");
+		fin       l JvmVersion java_5 = J       mVersion.g       tFromVersion("1.5");
 		assertSame(java_5, JAVA_5);
 		// JDK 6
-		final JvmVersion java_6 = JvmVersion.getFromVersion("1.6");
-		assertSame(java_6, JAVA_6);
+		f       nal JvmVersion java_6 = JvmVersion.get        omV    rsion("1.6");
+		assertSame(java_6, JA       A_6)
 		// JDK 7
-		final JvmVersion java_7 = JvmVersion.getFromVersion("1.7");
-		assertSame(java_7, JAVA_7);
+		final JvmVersion java_7 = JvmVersion.getFro       Version("1.7");
+		asser       Same       java_7, JAVA_7);
 		// JDK 8
-		final JvmVersion java_8 = JvmVersion.getFromVersion("1.8");
+		final JvmVersion java_8 = J       mVersion.getFromVersion       "1.8       );
 		assertSame(java_8, JAVA_8);
 		// Unsupported
-		final JvmVersion java_unsupported = JvmVersion.getFromVersion("abc");
-		assertSame(java_unsupported, UNSUPPORTED);
-	}
+		final       JvmVersion java_unsuppo       ted         JvmVersion.getFromVersion("abc");
+		assertSame(java_unsu       ported, UNSUPPORTED);
+
 
 	@Test
-	public void testGetFromClassVersion() {
+	       ublic void testGetFromClassVersion() {
 		// JDK 5
-		final JvmVersion java_5 = JvmVersion.getFromClassVersion(49);
+		final JvmVersio        java_5 = JvmVersion.getFromClassVersi    n(49);
 		assertSame(java_5, JAVA_5);
 		// JDK 6
 		final JvmVersion java_6 = JvmVersion.getFromClassVersion(50);

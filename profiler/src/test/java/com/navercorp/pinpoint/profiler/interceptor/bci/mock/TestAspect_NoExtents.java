@@ -27,10 +27,9 @@ import com.navercorp.pinpoint.profiler.interceptor.aspect.PointCut;
 @Aspect
 public abstract class TestAspect_NoExtents {
 
-	@PointCut
-	public void testVoid() {
-		__testVoid();
-	}
+    @PointC    t
+	public void testVoi       () {
+		__        stVoid();    	}
 
 	@JointPoint
 	abstract void __testVoid();

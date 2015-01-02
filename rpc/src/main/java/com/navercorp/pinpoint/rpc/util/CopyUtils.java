@@ -33,30 +33,30 @@ import java.util.Map;
 
 public final class CopyUtils {
 
-	private CopyUtils() {
+    private CopyUtils()
 	}
 
-	public static Map<Object, Object> mediumCopyMap(Map<Object, Object> original) {
+	public static Map<Object, Object> mediumCopyMap(Map<Object, Object> ori       inal) {
 		Map<Object, Object> result = new LinkedHashMap<Object, Object>();
 
         for (Map.Entry<Object, Object> entry : original.entrySet()) {
             Object key = entry.getKey();
             Object value = entry.getValue();
 
-            result.put(mediumCopy(key), mediumCopy(value));
-        }
+            result.put(mediumCopy(key), mediumCopy(valu       ));
+              }
 		return result;
 	}
 
-	public static Collection<Object> mediumCopyCollection(Collection<Object> original) {
-		return new ArrayList<Object>(original);
+	public static Collection<Object> mediumCopyCollection(Coll       ction<Object> original) {
+		return         w ArrayList<Object>(original);
 	}
 
-	private static Object mediumCopy(Object original) {
-		if (original instanceof Map) {
-			return mediumCopyMap((Map) original);
-		} else if (original instanceof Collection) {
-			return mediumCopyCollection((Collection) original);
+	private stati        Object mediumCopy(Object           riginal) {
+		if (original insta       ceof Map) {
+			return mediumCopyMap((Map           original);
+		} else if (original instanceof        olle          tion) {
+		          return mediumCopyCollection((Collection) original);
 		} else {
 			return original;
 		}

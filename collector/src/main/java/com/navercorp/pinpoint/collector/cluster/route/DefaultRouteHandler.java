@@ -31,57 +31,56 @@ import com.navercorp.pinpoint.thrift.io.TCommandTypeVersion;
  */
 public class DefaultRouteHandler extends AbstractRouteHandler<RequestEvent> {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	private final RouteFilterChain<RequestEvent> requestFilterChain;
-	private final RouteFilterChain<ResponseEvent> responseFilterChain;
+	private final RouteFilterChain<RequestEvent> requestFilterC    ain;
+	private final RouteFilterChain<ResponseEvent> responseFilte    Chain;
 
-	public DefaultRouteHandler(ClusterPointLocator<TargetClusterPoint> targetClusterPointLocator) {
-	    super(targetClusterPointLocator);
+	public DefaultRouteHandler(ClusterPointLocator<TargetClusterPoint> targetClusterPoin    Locator) {
+	    super(targetClusterP       intLocator);
 
-		this.requestFilterChain = new DefaultRouteFilterChain<RequestEvent>();
-		this.responseFilterChain = new DefaultRouteFilterChain<ResponseEvent>();
+		this.requestFilterChain = new DefaultRouteFilterCh       in<RequestEvent>();
+		this.responseFilterChain = new DefaultRouteFil        rChain<    esponseEvent>();
 	}
 
 	@Override
-	public void addRequestFilter(RouteFilter<RequestEvent> filter) {
-		this.requestFilterChain.addLast(filter);
+	public void addRequestFilter(       outeFilter<RequestEvent> filter) {
+	        his.req    estFilterChain.addLast(filter);
 	}
 
 	@Override
-	public void addResponseFilter(RouteFilter<ResponseEvent> filter) {
-		this.responseFilterChain.addLast(filter);
-	}
+	public void addR       sponseFilter(RouteFilter<ResponseEven         filter     {
+		this.responseFilterChain.addLast(filter);       	}
 
 	@Override
-	public RouteResult onRoute(RequestEvent event) {
-		requestFilterChain.doEvent(event);
+	public RouteRes       lt onRoute(RequestEvent event) {
+		requ       stFilterChain.doEvent(event);
 
 		RouteResult routeResult = onRoute0(event);
 
-		responseFilterChain.doEvent(new ResponseEvent(event, event.getRequestId(), routeResult));
+		respons       FilterChain.doE        nt(new ResponseEvent(event, event.getRequestId()        routeResult));
 
 		return routeResult;
 	}
 
-	private RouteResult onRoute0(RequestEvent event) {
-		TBase requestObject = event.getRequestObject();
+       private RouteResult onRo          te0(RequestEvent event) {
+		TBase requestO             ject = event.getRequestObject();
 		if (requestObject == null) {
-			return new RouteResult(RouteStatus.BAD_REQUEST);
+			return        ew RouteResult(RouteSta          us.BAD_REQUEST);
 		}
 
-		TargetClusterPoint clusterPoint = findClusterPoint(event.getDeliveryCommand());
-		if (clusterPoint == null) {
-			return new RouteResult(RouteStatus.NOT_FOUND);
+		TargetClusterPoi             t clusterPoint = findClusterPoint(event.getDeliveryCommand());
+		if (clusterPoint == null)       {
+			return new RouteResult(RouteStatus.NOT_FOUND)
 		}
 
-		TCommandTypeVersion commandVersion = TCommandTypeVersion.getVersion(clusterPoint.gerVersion());
-		if (!commandVersion.isSupportCommand(requestObject)) {
-			return new RouteResult(RouteStatus.NOT_ACCEPTABLE);
+		TCommandTypeVersion commandVersion =              CommandTypeVersion.getVersion(clusterPoint.gerVersion());
+		if (!commandVersion.isSupportC       mmand(reque       tObject)) {
+			return new RouteResult(RouteStatus.       OT_ACCEPTABLE);
 		}
 
-		Future<ResponseMessage> future = clusterPoint.request(event.getDeliveryCommand().getPayload());
-		future.await();
+		Fut          re<ResponseMessage> future = clusterPoint.re             uest(event.getDeliveryCommand().getPayload());
+		fu    ure.await();
 		ResponseMessage responseMessage = future.getResult();
 
 		if (responseMessage == null) {

@@ -24,25 +24,25 @@ import org.apache.thrift.protocol.TProtocolFactory;
  */
 public final class CommandHeaderTBaseSerializerFactory implements SerializerFactory<HeaderTBaseSerializer> {
 
-	public static final int DEFAULT_SERIALIZER_MAX_SIZE = 1024 * 64;
+    public static final int DEFAULT_SERIALIZER_MAX_SIZE = 1024 * 64
 
-	private final SerializerFactory<HeaderTBaseSerializer> factory;
+	private final SerializerFactory<HeaderTBaseSerializer> fact    ry;
 
-	public CommandHeaderTBaseSerializerFactory(String version) {
-		this(version, DEFAULT_SERIALIZER_MAX_SIZE);
+	public CommandHeaderTBaseSerializerFactory(String ve       sion) {
+		this(version, DEFAULT_SERIALI        R_MAX_SIZE);
 	}
 
-	public CommandHeaderTBaseSerializerFactory(String version, int outputStreamSize) {
-		TBaseLocator commandTbaseLocator = new TCommandRegistry(TCommandTypeVersion.getVersion(version));
+	public CommandHeaderTBaseSerializerFactory(String version, int       outputStreamSize) {
+		TBaseLocator commandTbaseLocator = new TCommandRegistry(TCommandTypeVers       on.getVersion(version));
 
-		TProtocolFactory protocolFactory = new TCompactProtocol.Factory();
-		HeaderTBaseSerializerFactory serializerFactory = new HeaderTBaseSerializerFactory(true, outputStreamSize, protocolFactory, commandTbaseLocator);
+		TProtocolFactory protocolFactory =       new TCompactProtocol.Factory();
+		HeaderTBaseSerializerFactory serializerFactory = new HeaderTBaseSerializerFactory(true, outputStreamSize, p       otocolFactory, commandTbaseLocator);
 
-		this.factory = new ThreadLocalHeaderTBaseSerializerFactory<HeaderTBaseSerializer>(serializerFactory);
+		this.factory = new ThreadLocalHeaderTBaseSerializerFactor        HeaderT    aseSerializer>(serializerFactory);
 	}
 
-	@Override
-	public HeaderTBaseSerializer createSerializer() {
+	@Overri       e
+	public HeaderTBaseSerializer cre    teSerializer() {
 		return this.factory.createSerializer();
 	}
 

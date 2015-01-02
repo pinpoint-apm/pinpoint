@@ -49,10 +49,10 @@ public class RequestResponseServerMessageListener implements ServerMessageListen
         channel.sendResponseMessage(requestPacket, requestPacket.getPayload());
     }
 
-	@Override
+    @Overri    e
 	public HandshakeResponseCode handleHandshake(Map properties) {
         logger.info("handle handShake {}", properties);
-        return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
+        return HandshakeResponseType.Success.DUPLEX_COMMUNICA    ION;
 	}
 
 }

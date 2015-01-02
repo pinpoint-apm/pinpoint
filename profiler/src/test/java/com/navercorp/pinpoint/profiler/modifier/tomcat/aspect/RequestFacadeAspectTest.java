@@ -30,52 +30,50 @@ import java.util.Hashtable;
 
 
 public class RequestFacadeAspectTest {
-	public static class RequestFacadeAspectMock extends RequestFacadeAspect {
-		@Override
-		String __getHeader(String name) {
-			return "header";
+    public static class RequestFacadeAspectMock extends RequestFacadeAspect       {
+		@       verride
+		String __getHeader(          tring name              {
+	       	return "header";
 		}
 
 		@Override
-		Enumeration __getHeaders(String name) {
-			Hashtable<String, String> hashtable = new Hashtable<String, String>();
-			hashtable.put("a", "aa");
-			hashtable.put("b", "bb");
+          	Enumeration __getHeaders(String name) {
+			Hashtable<String, St          ing> hashtable = ne           Hashtable<String,           tring>();
+			hashtable             put(       a", "aa");
+			hashtable.put(          b", "bb");
 			return hashtable.elements();
 		}
 
 		@Override
-		Enumeration __getHeaderNames() {
-			Hashtable<String, String>  hashtable = new Hashtable<String, String> ();
-			hashtable.put("b", "bb");
-			hashtable.put("c", "cc");
-			hashtable.put("d", Header.HTTP_SPAN_ID.toString());
+		Enum          ration __getHeaderN          mes() {
+			Hashtabl          <String, String>  hashtable = new Hashtable<S          ring, String> ();
+			h             sh    able.put("b", "bb");
+		       hashtable.put("c", "cc");
+			hashtable.put("d", Header       HTTP_SPAN_ID.toString());
 			return hashtable.elements();
-		}
+	       }
 	}
 
 	@Test
-	public void getHeader() {
-		RequestFacadeAspect mock = new RequestFacadeAspectMock();
-
-		String isNull = mock.getHeader(Header.HTTP_SPAN_ID.toString());
-		Assert.assertNull(isNull);
+	public vo       d getHeader() {
+		RequestFacadeAspe       t mock = new RequestFacadeAspectMo    k    );
+    		String isNull = mock.g       tHeader(Header.HTTP_SPAN_ID.toString());
+		Assert.ass       rtNull(isNull);
 
 		String header = mock.getHeader("test");
-		Assert.assertEquals(header, "header");
+		Asser       .assertEquals(header, "header");
 	}
 
 
-	@Test
-	public void getHeaders() {
-		RequestFacadeAspect mock = new RequestFacadeAspectMock();
-		Enumeration isNull = mock.getHeaders(Header.HTTP_SPAN_ID.toString());
+       @Test
+	public void getHeaders() {       		RequestFacadeAspect mock = new RequestF       cadeAspectMock();
+		Enumeration isNull = mock.getHea    er    (He    der.HTTP_SPAN_ID.toString())
 
 		ArrayList list = Collections.list(isNull);
-		Assert.assertEquals(list.size(), 0);
+		Asse       t.assertEquals(list.size(), 0);
 
-		Enumeration header = mock.getHeaders("test");
-		Assert.assertEquals(Collections.list(header).size(), 2);
+		Enume       ation header = mock.getHeaders("test")
+		Assert.assertEquals(Collectio    s.list(header).size(), 2);
 	}
 
 

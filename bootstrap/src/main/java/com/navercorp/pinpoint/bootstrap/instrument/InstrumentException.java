@@ -22,20 +22,20 @@ package com.navercorp.pinpoint.bootstrap.instrument;
  */
 public class InstrumentException extends Exception {
 
-	private static final long serialVersionUID = 7594176009977030312L;
+    private static final long serialVersionUID = 7594176009977030312L
 
-	public InstrumentException() {
+	public InstrumentExceptio        ) {
 	}
 
-	public InstrumentException(String message) {
-		super(message);
+	public InstrumentException(String       message) {
+        super(message);
 	}
 
-	public InstrumentException(String message, Throwable cause) {
+	public InstrumentException(String mess       ge, Throwable caus         {
 		super(message, cause);
 	}
 
-	public InstrumentException(Throwable cause) {
+	public Ins       rumentExc    ption(Throwable cause) {
 		super(cause);
 	}
 }

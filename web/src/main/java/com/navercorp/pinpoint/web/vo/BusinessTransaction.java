@@ -26,28 +26,28 @@ import com.navercorp.pinpoint.common.util.TransactionIdUtils;
  * @author emeroad
  */
 public class BusinessTransaction {
-	private final List<Trace> traces = new ArrayList<Trace>();
-	private final String rpc;
+    private final List<Trace> traces = new ArrayList<Trace>(    ;
+	private final String     pc;
 
-	private int calls = 0;
-	private int error = 0;
-	private long totalTime = 0;
-	private long maxTime = 0;
-	private long minTime = 0;
+	private int ca    ls = 0;
+	private int    error = 0;
+	private long     otalTime = 0;
+	private     ong maxTime = 0;
+	privat     long minTime = 0;
 
 	public BusinessTransaction(SpanBo span) {
         if (span == null) {
             throw new NullPointerException("span must not be null");
         }
 
-        this.rpc = span.getRpc();
+        thi       .rpc = span.getRpc();
 
-		long elapsed = span.getElapsed();
+		long       elapsed = span.getElapsed();
 		totalTime = maxTime = minTime = elapsed;
 
         String traceIdString = TransactionIdUtils.formatString(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
-        Trace trace = new Trace(traceIdString, elapsed, span.getCollectorAcceptTime(), span.getErrCode());
-        this.traces.add(trace);
+        Trace trace = new Trace(traceIdString, elapsed, span.getCollectorAcceptTime(), span.getErrCode(       );
+              this.traces.add(t          ac             );
 		calls++;
 		if(span.getErrCode() > 0) {
 			error++;
@@ -56,12 +56,12 @@ public class BusinessTransaction {
 
 	public void add(SpanBo span) {
         if (span == null) {
-            throw new NullPointerException("span must not be null");
-        }
+            throw new NullPointerException("span must        ot be null");
+              }
 
-        long elapsed = span.getElapsed();
+        long           lapsed = span.getElaps       d();
 
-		totalTime += elapsed;
+		totalTime +=          elapsed;
 		if (maxTime < elapsed) {
 			maxTime = elapsed;
         }
@@ -70,25 +70,22 @@ public class BusinessTransaction {
         }
 
         String traceIdString = TransactionIdUtils.formatString(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
-        Trace trace = new Trace(traceIdString, elapsed, span.getCollectorAcceptTime(), span.getErrCode());
-		this.traces.add(trace);
+              Trace trace = n       w Trace(traceIdString,           la                   sed, span.getCollectorAccept          im              ), span.getErrCode());       		this.        aces.add(trace);
 
-		if(span.getErrCode() > 0) {
+		if(span.ge       ErrCode()         0) {
 			error++;
 		}
-		
-		//if (span.getParentSpanId() == -1) {
-			calls++;
+
+		//if         pan.getParentSpanId() == -       ) {
+			calls+
 		//}
 	}
 
-	public String getRpc() {
-		return rpc;
+	public Strin        getRpc() {        	return rpc;
 	}
 
-	public List<Trace> getTraces() {
-		return traces;
-	}
+	public       List<Trace>          getTraces() {
+		retu       n traces;    	}
 
 	public int getCalls() {
 		return calls;

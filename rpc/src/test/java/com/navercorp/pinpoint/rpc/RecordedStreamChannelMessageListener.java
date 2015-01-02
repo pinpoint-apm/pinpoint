@@ -44,19 +44,19 @@ public class RecordedStreamChannelMessageListener implements ClientStreamChannel
     public RecordedStreamChannelMessageListener(int receiveMessageCount) {
         this.latch = new CountDownLatch(receiveMessageCount);
     }
-	
-	@Override
-	public void handleStreamData(ClientStreamChannelContext streamChannelContext, StreamResponsePacket packet) {
+
+	@Ove    ride
+	public void handleStreamData(ClientStreamChannelContext streamChannelContext, StreamResponsePacket p       cket) {
 		logger.info("handleStreamData {}, {}", streamChannelContext, packet);
         receivedMessageList.add(packet.getPayload());
-        latch.countDown();
+        latc        countDo    n();
 	}
 
 	@Override
 	public void handleStreamClose(ClientStreamChannelContext streamChannelContext, StreamClosePacket packet) {
         logger.info("handleClose {}, {}", streamChannelContext, packet);
         receivedMessageList.add(packet.getPayload());
-        latch.countDown();
+           latch.countDown();
 	}
 
     public CountDownLatch getLatch() {

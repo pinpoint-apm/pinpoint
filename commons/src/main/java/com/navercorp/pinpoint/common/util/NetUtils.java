@@ -34,105 +34,103 @@ import java.util.List;
  */
 public final class NetUtils {
 
-	public static final String LOOPBACK_ADDRESS_V4 = "127.0.0.1";
+    public static final String LOOPBACK_ADDRESS_V4 = "127.0.0.1       ;
 	
-	private NetUtils() {
+	private NetU        ls() {
 	}
 
-	public static List<InetSocketAddress> toInetSocketAddressLIst(List<String> addressList) {
-		List<InetSocketAddress> inetSocketAddressList = new ArrayList<InetSocketAddress>();
+	public static List<InetSocketAddress> toInetSocketAddressLIst(List<String>        ddressList) {
+		List<InetSocketAddress> inetSocketAddressList = new ArrayList<In       tSocketAddress>();
 
-		for (String address : addressList) {
-			InetSocketAddress inetSocketAddress = toInetSocketAddress(address);
-			if (inetSocketAddress != null) {
-				inetSocketAddressList.add(inetSocketAddress);
+		for (Strin           address : addressList) {
+			InetSocketAddress inetSocketAddr          ss = toInetSocketAddress(a             dress);
+			if (inetSocketAddress != n                      ll) {
+				inetSocket        dressList.add(inetSocketAddress);
 			}
 		}
 
-		return inetSocketAddressList;
+		return inetSocketAddr       s          List;
 	}
 
-	public static InetSocketAddress toInetSocketAddress(String address) {
+	public static InetSocketAdd          ess toInetSocketAddress(String address) {
 		try {
-			URI uri = new URI("pinpoint://" + address);
+			       RI uri = new URI("pinpoint://" + address);
 
-			return new InetSocketAddress(uri.getHost(), uri.getPort());
-		} catch (URISyntaxException ignore) {
-            // skip
+			return             new Ine        ocketAddress(uri.getHost(), uri.get       o          t());
+		} catch (URISyntaxException ignore) {                      // skip
 		}
 
-		return null;
+		return null
 	}
 
-	public static String getLocalV4Ip() {
-		try {
-			InetAddress localHost = InetAddress.getLocalHost();
-			String localIp = localHost.getHostAddress();
+	public static String getLocalV4             p() {
+	                try {
+			InetAddress localHost = InetAddress.getLoc             lHost();
+			String lo              lIp = localHost.getHostAddress();
 			if (validationIpV4FormatAddress(localIp)) {
-				return localIp;
+				re    urn localIp;
 			}
 		} catch (UnknownHostException ignore) {
-            // skip
-		}
+            // ski
+    	}
 		return LOOPBACK_ADDRESS_V4;
 	}
 	
 	/**
-	 * Returns a list of ip addreses on this machine that is accessible from a remote source.
-	 * If no network interfaces can be found on this machine, returns an empty List.
+	         Returns a list of ip addreses on this mac             ine that is accessible from a remote sour       e
+	 * If no network interfaces can be found on t       is machine, returns an empty List.
 	 */
-	public static List<String> getLocalV4IpList() {
-		List<String> result = new ArrayList<String>();
+	public st             tic List<String> get          ocalV4IpList() {
+		List<                   tring> result = new ArrayList          String>();
 		
-		Enumeration<NetworkInterface> interfaces = null;
-		try {
-			interfaces = NetworkInterface.getNetworkInterfaces();
-		} catch (SocketException ignore) {
+		Enumeration<NetworkInterface>           nterfaces = null;
+             	                   ry {
+			interfaces = NetworkInterface.getNetworkInterfa          es();
+		} catch (SocketExceptio              ignore) {
             // skip
 		}
 
-		if (interfaces == null) {
+		             f (interfaces == null) {
 			return Collections.EMPTY_LIST;
 		}
-		
-		while (interfaces.hasMoreElements()) {
-			NetworkInterface current = interfaces.nextElement();
+
+		while (interfaces.hasMoreElements())                {
+			NetworkInterface curre                                           t = interfaces.nextElement();
 			if (isSkipIp(current)) {
-				continue;
+				con       i          ue;
 			}
 
 			Enumeration<InetAddress> addresses = current.getInetAddresses();
-			while (addresses.hasMoreElements()) {
-				InetAddress address = addresses.nextElement();
-				if (address.isLoopbackAddress() || !(address instanceof Inet4Address)) {
-					continue;
+			while (ad             ress                   s.h       sMoreElements()) {
+				InetAddress address =             addres          es.nextElement();
+				if (address.isLoopbackAddress() || !(address in       t          nceof Inet4Address)) {
+					conti          ue;
 				}
 				
-				if (validationIpV4FormatAddress(address.getHostAddress())) {
-					result.add(address.getHostAddress());
-				}
-			}
-		}
+				if (validationIpV4FormatAddress(addr             ss.ge                   HostAddress())) {
+					result.add(ad                   ress.getHostAddress());
+
+			}                   		}
 
 		return result;
 	}
 	
-	private static boolean isSkipIp(NetworkInterface networkInterface) {
-		try {
-			if (!networkInterface.isUp() || networkInterface.isLoopback() || networkInterface.isVirtual()) {
-				return true;
+	private static boolean isSkip          p(NetworkInterface networkInter             ace)
+		       ry {
+			if (!networkInterface.isUp() || net             orkInter          ace.isLoopback() || networkInterface.isVirtual()) {
+				return t       u          ;
 			}
 			return false;
-		} catch (Exception ignore) {
-            // skip
-		}
+		} catch (Except          on ignore) {
+            //             skip
+                   	}
 		return true;
 	}
 	
 
-	public static boolean validationIpPortV4FormatAddress(String address) {
+	public st             tic boolean validationIpPortV4Form                tAd                                     ress(String address) {
 		try {
-			int splitIndex = address.indexOf(':');
+			int splitIndex = ad             ress.ind    xOf(':');
 
 			if (splitIndex == -1 || splitIndex + 1 >= address.length()) {
 				return false;

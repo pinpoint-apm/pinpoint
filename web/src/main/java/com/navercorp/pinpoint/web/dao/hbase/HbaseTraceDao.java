@@ -39,20 +39,20 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class HbaseTraceDao implements TraceDao {
 
-	@Autowired
+    @Autowir    d
 	private HbaseOperations2 template2;
 
     @Autowired
     @Qualifier("traceDistributor")
-    private AbstractRowKeyDistributor rowKeyDistributor;
+    private AbstractRowKeyDistributor rowKeyDistribu    or;
+
+	@A    towired
+	@Qualifier("s    anMapper")
+	private RowMapper<List<SpanBo>     spanMap    er;
 
 	@Autowired
-	@Qualifier("spanMapper")
-	private RowMapper<List<SpanBo>> spanMapper;
-
-	@Autowired
-	@Qualifier("spanAnnotationMapper")
-	private RowMapper<List<SpanBo>> spanAnnotationMapper;
+	@Qualifier("sp    nAnnotationMapper")
+	private RowMapper<List<SpanBo>>    spanAnn    tationMapper;
 
 	@Override
 	public List<SpanBo> selectSpan(TransactionId transactionId) {
@@ -60,8 +60,8 @@ public class HbaseTraceDao implements TraceDao {
             throw new NullPointerException("transactionId must not be null");
         }
 
-        byte[] traceIdBytes = rowKeyDistributor.getDistributedKey(transactionId.getBytes());
-		return template2.get(HBaseTables.TRACES, traceIdBytes, HBaseTables.TRACES_CF_SPAN, spanMapper);
+        byte[] traceIdBytes = rowKeyDistributor.getDistributedK       y(transactionId.getBytes());
+		return template2.get(HBaseTables.TRACES, traceIdBytes, HBase        bles.TRACES_CF_SPAN, spanMapper);
 	}
 
 	public List<SpanBo> selectSpanAndAnnotation(TransactionId transactionId) {
@@ -69,12 +69,11 @@ public class HbaseTraceDao implements TraceDao {
             throw new NullPointerException("transactionId must not be null");
         }
 
-        final byte[] traceIdBytes = rowKeyDistributor.getDistributedKey(transactionId.getBytes());
-		Get get = new Get(traceIdBytes);
-		get.addFamily(HBaseTables.TRACES_CF_SPAN);
-		get.addFamily(HBaseTables.TRACES_CF_ANNOTATION);
-		get.addFamily(HBaseTables.TRACES_CF_TERMINALSPAN);
-		return template2.get(HBaseTables.TRACES, get, spanAnnotationMapper);
+        final byte[] traceIdBytes = rowKeyDistributor.get       istributedKey(transactionId.       etBytes());
+		Get get = new Get(traceI       Bytes);
+		get.addFamily(HBaseTables.TRACES_C       _SPAN);
+		get.addFamily(HBaseTables.TRACES_CF_       NNOTATION);
+		get.addFamily(HBaseTables.TRACES_CF_TERMINALSPAN);    	    return     emplate2.get(HBaseTables.TRACES, get, spanAnnotationMapper);
 	}
 
 
@@ -83,12 +82,11 @@ public class HbaseTraceDao implements TraceDao {
         if (transactionIdList == null) {
             throw new NullPointerException("transactionIdList must not be null");
         }
-
-        final List<Get> getList = new ArrayList<Get>(transactionIdList.size());
-		for (TransactionId traceId : transactionIdList) {
-			final byte[] traceIdBytes = rowKeyDistributor.getDistributedKey(traceId.getBytes());
+               final List<Get> getList = new ArrayLi          t<Get>(transactionIdList.size());
+		for (TransactionId traceId : transactionId          ist) {
+			final byte[] traceIdBy          es = rowKeyDistributor.getDistribute          Key(traceId             getBytes());
 			final Get get = new Get(traceIdBytes);
-			get.addFamily(HBaseTables.TRACES_CF_SPAN);
+	        get.add    amily(HBaseTables.TRACES_CF_SPAN);
 			getList.add(get);
 		}
 		return template2.get(HBaseTables.TRACES, getList, spanMapper);
@@ -97,14 +95,14 @@ public class HbaseTraceDao implements TraceDao {
 	@Override
 	public List<List<SpanBo>> selectAllSpans(Collection<TransactionId> transactionIdList) {
         if (transactionIdList == null) {
-            throw new NullPointerException("transactionIdList must not be null");
+            throw new Null       ointerException("transactionIdList must not be null");
         }
 
         final List<Get> gets = new ArrayList<Get>(transactionIdList.size());
 		for (TransactionId transactionId : transactionIdList) {
-            final byte[] transactionIdBytes = this.rowKeyDistributor.getDistributedKey(transactionId.getBytes());
-            final Get get = new Get(transactionIdBytes);
-			get.addFamily(HBaseTables.TRACES_CF_SPAN);
+            final byt          [] transactionIdBytes = this.rowKeyD          stributor.getDistributedKey(transactionId.ge          Bytes())
+            final Get get = new Get(transactionIdByt        );
+			g    t.addFamily(HBaseTables.TRACES_CF_SPAN);
 			get.addFamily(HBaseTables.TRACES_CF_TERMINALSPAN);
 			gets.add(get);
 		}
@@ -114,10 +112,9 @@ public class HbaseTraceDao implements TraceDao {
 	@Override
 	public List<SpanBo> selectSpans(TransactionId transactionId) {
         if (transactionId == null) {
-            throw new NullPointerException("transactionId must not be null");
+            throw new NullPointerException("tran       actionId must not be null");
         }
-
-        final byte[] transactionIdBytes = this.rowKeyDistributor.getDistributedKey(transactionId.getBytes());
+        final byte[] transactionIdBytes = thi       .rowKeyDistributor.getDistributedKey(transactionId.get    ytes());
         Get get = new Get(transactionIdBytes);
 		get.addFamily(HBaseTables.TRACES_CF_SPAN);
 		get.addFamily(HBaseTables.TRACES_CF_TERMINALSPAN);

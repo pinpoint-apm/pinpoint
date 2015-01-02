@@ -49,33 +49,30 @@ import org.slf4j.LoggerFactory;
 
 public class FutureGetInterceptorTest extends BaseInterceptorTest {
 
-	private final Logger logger = LoggerFactory.getLogger(FutureGetInterceptorTest.class);
+    private final Logger logger = LoggerFactory.getLogger(FutureGetInterceptorTest.class)
 
-	FutureGetInterceptor interceptor = new FutureGetInterceptor();
+	FutureGetInterceptor interceptor = new FutureGetIntercepto    ();
 
-	@Before
-	public void beforeEach() {
-		setInterceptor(interceptor);
-		super.beforeEach();
+    @Before
+	public void bef       reEach() {
+		setIntercep       or(interceptor)        		s    per.beforeEach();
 	}
 
-	@Test
-	public void testSuccessful() {
-		Long timeout = 1000L;
+	@Test       	public void test       uccessful() {
+		Long timeout = 100             L;
 		TimeUnit unit = TimeUnit.MILLISECONDS;
 		
-		MockOperationFuture future = mock(MockOperationFuture.class);
-		MockOperation operation = mock(MockOperation.class);
+		MockO       erationFuture future = mock(MockOperationFuture.                      lass);
+		MockOperation operation = mock(M          ckOperation.class);
 		
 		try {
-			when(operation.getException()).thenReturn(null);
+			when(ope          ation.getException()).thenReturn(null);
 			when(operation.isCancelled()).thenReturn(false);
-			when(future.__getOperation()).thenReturn(operation);
+			when(futu          e.__getOperation()).thenReturn(operation);
 
-            MemcachedNode node = getMockMemcachedNode();
+                              MemcachedNode node = getMockMemcachedN          de();
 			when(operation.getHandlingNode()).thenReturn(node);
-			
-			interceptor.before(future, new Object[] { timeout, unit });
+			       			interceptor.befo          e(future, new O          ject[] { timeout, unit });
 			interceptor.after(future, new Object[] { timeout, unit }, null, null);
 		} catch (Exception e) {
 			fail(e.getMessage());
@@ -86,57 +83,57 @@ public class FutureGetInterceptorTest extends BaseInterceptorTest {
         java.nio.channels.SocketChannel socketChannel = java.nio.channels.SocketChannel.open();
         BlockingQueue<Operation> readQueue = new LinkedBlockingQueue<Operation>();
         BlockingQueue<Operation> writeQueue = new LinkedBlockingQueue<Operation> ();
-        BlockingQueue<Operation> inputQueue = new LinkedBlockingQueue<Operation> ();
+        BlockingQueue<Operation> inputQueue = new LinkedBlockingQueue<Operat    on> ();
 
-        return new AsciiMemcachedNodeImpl(new InetSocketAddress(11211), socketChannel, 128, readQueue, writeQueue, inputQueue, 1000L);
+        return new AsciiM       mcachedNodeImpl(n       w InetSocketAddress(11211), socket             hannel, 128, readQueue, writeQueue, inputQueue, 1000L)
     }
 
     @Test
-	public void testTimeoutException() {
+	public void testTimeoutExcept                      on() {
 		Long timeout = 1000L;
 		TimeUnit unit = TimeUnit.MILLISECONDS;
 		
-		MockOperationFuture future = mock(MockOperationFuture.class);
-		MockOperation operation = mock(MockOperation.class);
+		MockOperati          nFuture future = mock(MockOperationFuture.class          ;
+		MockOperation operation = mock(MockOp          ration.class);
 		
 		try {
-			OperationException exception = new OperationException(OperationErrorType.GENERAL, "timed out");
-			when(operation.getException()).thenReturn(exception);
+			OperationExceptio                    exception = new OperationExcepti          n(OperationErrorType.GENERAL, "timed out");
+	                   	when(operation.getException()).thenReturn(excep          ion);
 			when(operation.isCancelled()).thenReturn(true);
-			when(future.__getOperation()).thenReturn(operation);
+			when       future.__getOperati          n()).thenReturn                operation);
 			
-			MemcachedNode node = getMockMemcachedNode();
-			when(operation.getHandlingNode()).thenReturn(node);
-			
-			interceptor.before(future, new Object[] { timeout, unit });
-			interceptor.after(future, new Object[] { timeout, unit }, null, null);
-		} catch (Exception e) {
-			fail(e.getMessage());
-		}
+			MemcachedNode node = getMoc       MemcachedNode();
+			when(operation.getHandlingNode()).thenRetu             n(node);
+
+			interceptor.be                   ore(future, new Object[]            timeout, uni                    });
+			interceptor.after(          uture,                new Object[] { timeout, unit }, null,        ull);
+		} catch (Exception e)
+			fail(e.ge                   Message());
+	             }
 	}
 	
-	class MockOperationFuture extends OperationFuture {
-		public MockOperationFuture(CountDownLatch l, AtomicReference oref,
+	class MockOperatio          Future             extends OperationFuture {
+		public           ockOpe             ationFuture(CountDownLatch l, AtomicR          ferenc              oref,
 				long opTimeout) {
-			super(l, oref, opTimeout);
+			sup          r(l, o             ef, opTimeout);
 		}
 		
-		public String __getServiceCode() {
-			return "MEMCACHED";
+		publ          c Stri             g __getServiceCode() {
+			return "ME                      CACHED";
 		}
 		
-		public Operation __getOperation() {
+		p          blic Op             ration __getOperation             ) {
 			return null;
 		}
-	}
-	
-	class MockOperation implements Operation {
 
-		public String __getServiceCode() {
+	
+	cla             s MockOperation implements Operation {
+
+		public String __g             tServiceCode() {
 			return "MEMCACHED";
 		}
-		
-		public void cancel() {
+
+		public void cancel()                {
 		}
 
 		public ByteBuffer getBuffer() {

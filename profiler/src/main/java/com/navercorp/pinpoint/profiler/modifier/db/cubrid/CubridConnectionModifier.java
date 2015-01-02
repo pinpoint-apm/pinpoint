@@ -36,19 +36,19 @@ import org.slf4j.LoggerFactory;
  */
 public class CubridConnectionModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	public CubridConnectionModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-		super(byteCodeInstrumentor, agent);
+	public CubridConnectionModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent age       t) {
+		super(byteCodeInstrument        , agent);
 	}
 
-	public String getTargetClass() {
-		return "cubrid/jdbc/driver/CUBRIDConnection";
+	public String g       tTargetClass() {
+		return "cubrid/jdbc/dr        er/CUBRIDConnection";
 	}
 
-	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDoma       n, byte[] classFileBuffer           {
 		if (logger.isInfoEnabled()) {
-			logger.info("Modifing. {}", javassistClassName);
+			logg                      r.info("Modifing. {}", javassistClassName);
 		}
 		try {
 			InstrumentClass cubridConnection = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
@@ -102,13 +102,12 @@ public class CubridConnectionModifier extends AbstractModifier {
             }
 
             if (this.logger.isInfoEnabled()) {
-                this.logger.info("{} class is converted.", javassistClassName);
-            }
+                this.logger.info("{} class is converted.", javassistClassName);                   }
 
-            return cubridConnection.toBytecode();
+            re          urn cubridConnection.to             ytecode();
 		} catch (InstrumentException e) {
 			if (logger.isWarnEnabled()) {
-				logger.warn("{} modify fail. Cause:{}", this.getClass().getSimpleName(), e.getMessage(), e);
+				                   og          er.warn("{} modify fail. Cause:{}", this.getClass().getSimpleName(), e.getMessage(), e);
 			}
 			return null;
 		}

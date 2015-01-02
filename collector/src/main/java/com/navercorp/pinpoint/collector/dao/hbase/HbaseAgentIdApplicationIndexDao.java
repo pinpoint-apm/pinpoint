@@ -40,12 +40,12 @@ import org.springframework.stereotype.Repository;
 @Deprecated
 public class HbaseAgentIdApplicationIndexDao implements AgentIdApplicationIndexDao {
 
-	@Autowired
-	private HbaseOperations2 hbaseTemplate;
+    @Autowir    d
+	private HbaseOperations2 hbaseTempl    te;
 
-	@Autowired
-	@Qualifier("applicationNameMapper")
-	private RowMapper<String> applicationNameMapper;
+	@A    towired
+	@Qualifier("applicationN    meMapper")
+	private RowMapper<String> applicati    nNameMa    per;
 
 	@Override
 	public void insert(String agentId, String applicationName) {
@@ -56,24 +56,24 @@ public class HbaseAgentIdApplicationIndexDao implements AgentIdApplicationIndexD
             throw new NullPointerException("applicationName must not be null");
         }
 
-        byte[] agentIdByte = Bytes.toBytes(agentId);
-		byte[] appNameByte = Bytes.toBytes(applicationName);
+        byte[] agentIdByte = Byt       s.toBytes(agentId);
+		byte[] appNameByte = Bytes.       oBytes(applicationName);
 
-		Put put = new Put(agentIdByte);
-		put.add(AGENTID_APPLICATION_INDEX_CF_APPLICATION, appNameByte, appNameByte);
+	       Put put = new Put(agentIdByte);
+		put.add(AGENTID_APPLICATION_INDEX_CF_AP       LICATION, appNameByte, appNameByte);
 
-		hbaseTemplate.put(AGENTID_APPLICATION_INDEX, put);
+		hbaseT        plate.p    t(AGENTID_APPLICATION_INDEX, put);
 	}
 
 	@Override
 	public String selectApplicationName(String agentId) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
-        }
-        byte[] rowKey = Bytes.toBytes(agentId);
-		Get get = new Get(rowKey);
+              }
+        byte[] ro       Key = Bytes.toBytes(agentId);
+		Get get = new Get(row       ey);
 		get.addFamily(AGENTID_APPLICATION_INDEX_CF_APPLICATION);
 
-		return hbaseTemplate.get(AGENTID_APPLICATION_INDEX, get, applicationNameMapper);
+		return hb    seTemplate.get(AGENTID_APPLICATION_INDEX, get, applicationNameMapper);
 	}
 }

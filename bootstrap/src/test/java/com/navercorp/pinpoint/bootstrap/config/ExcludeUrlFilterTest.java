@@ -27,36 +27,35 @@ import static org.junit.Assert.*;
 
 public class ExcludeUrlFilterTest {
 
+    @Te    t
+	public void testFilter() throws Exception       {
+   		Filter<String> filter = new ExcludeUrlFilter("/monitor/l7check.html, test/l4che       k.html");
+
+		asse    t    ilt    r(filter);
+	}
+
+
 	@Test
-	public void testFilter() throws Exception {
-   		Filter<String> filter = new ExcludeUrlFilter("/monitor/l7check.html, test/l4check.html");
+	public void testFilter_InvalidExclu       eURL() throws Exception {
+		Filter<String> filter = new ExcludeUrlFilter("/monitor/l7check       html, test/l4chec        htm    , ,,");
 
 		assertFilter(filter);
 	}
 
-
 	@Test
-	public void testFilter_InvalidExcludeURL() throws Exception {
-		Filter<String> filter = new ExcludeUrlFilter("/monitor/l7check.html, test/l4check.html, ,,");
+	public void        estFilter_emptyExcludeURL() throws Exception {       		Filter<String> filter = new ExcludeUrlFilter("");
 
-		assertFilter(filter);
-	}
+		       ssert.assertFalse(filter.filter("/monitor/l7check.ht       l"));
+		Assert.assertFalse(filter.filte       ("test/l4check.html"));
 
-	@Test
-	public void testFilter_emptyExcludeURL() throws Exception {
-		Filter<String> filter = new ExcludeUrlFilter("");
-
-		Assert.assertFalse(filter.filter("/monitor/l7check.html"));
-		Assert.assertFalse(filter.filter("test/l4check.html"));
-
-		Assert.assertFalse(filter.filter("test/"));
-		Assert.assertFalse(filter.filter("test/l4check.htm"));
+		Assert.assertFalse(filt    r    filter("test/"));
+		Assert.assertFalse(filter.fi       ter("test/l4check.htm"));
 	}
 
 
-	private void assertFilter(Filter<String> filter) {
-		Assert.assertTrue(filter.filter("/monitor/l7check.html"));
-		Assert.assertTrue(filter.filter("test/l4check.html"));
+	private void assertFil       er(Filter<String> filter) {
+		Assert.assertTrue(fil       er.filter("/monitor/l7check.html"));
+		       ssert.assertTrue(filter.filter("test/l4check.html"    );
 
 		Assert.assertFalse(filter.filter("test/"));
 		Assert.assertFalse(filter.filter("test/l4check.htm"));

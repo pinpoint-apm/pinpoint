@@ -33,7 +33,7 @@ import org.apache.thrift.transport.TIOStreamTransport;
  */
 public class HeaderTBaseSerializer {
 
-	private static final String UTF8 = "UTF8";
+    private static final String UTF8 = "UTF8";
 
     private final ByteArrayOutputStream baos;
     private final TProtocol protocol;
@@ -43,11 +43,11 @@ public class HeaderTBaseSerializer {
      * Create a new HeaderTBaseSerializer. 
      */
     HeaderTBaseSerializer(ByteArrayOutputStream bos, TProtocolFactory protocolFactory, TBaseLocator locator) {
-    	this.baos = bos;
+       	this.baos = bos;
         TIOStreamTransport transport = new TIOStreamTransport(bos);
         this.protocol = protocolFactory.getProtocol(transport);
         this.locator = locator;
-    }
+       }
 	
     /**
      * Serialize the Thrift object into a byte array. The process is simple,
@@ -69,9 +69,9 @@ public class HeaderTBaseSerializer {
         return baos.size();
     }
 
-    private void writeHeader(Header header) throws TException {
-    	protocol.writeByte(header.getSignature());
-    	protocol.writeByte(header.getVersion());
+    private void writeHeader(Header header) throws TExcepti    n {
+    	protocol.writeByte(header.getSignat    re());
+    	protocol.writeByte(header.getV    rsion());
     	// fixed size regardless protocol
         short type = header.getType();
         protocol.writeByte(BytesUtils.writeShort1(type));

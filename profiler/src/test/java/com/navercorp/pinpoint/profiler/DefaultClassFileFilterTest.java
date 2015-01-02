@@ -29,26 +29,26 @@ import java.net.URLClassLoader;
 
 public class DefaultClassFileFilterTest {
 
-	@Test
-	public void testDoFilter_Package() throws Exception {
-		ClassFileFilter filter = new DefaultClassFileFilter(this.getClass().getClassLoader());
+    @Te    t
+	public void testDoFilter_Package() throws Except       on {
+		ClassFileFilter filter = new DefaultClassFileFilter(this.getClass().getClass       oader());
 
-		Assert.assertTrue(filter.doFilter(null, "java/test", null, null, null));
-		Assert.assertTrue(filter.doFilter(null, "javax/test", null, null, null));
-		Assert.assertTrue(filter.doFilter(null, "com/navercorp/pinpoint/", null, null, null));
+		Assert.assertTrue(filter.doFilter(null, "java/test", nu       l, null, null));
+		Assert.assertTrue(filter.doFilter(null, "javax/tes       ", null, null, null));
+		Assert.assertTrue(filter.doFilter(null, "com/navercorp/pin       oint/", null, null, null));
 
-		Assert.assertFalse(filter.doFilter(null, "test", null, null, null));
+		Assert.assertFalse(filter.doFilte    (    ull     "test", null, null, null));
 	}
 
 
 	@Test
-	public void testDoFilter_ClassLoader() throws Exception {
-		ClassFileFilter filter = new DefaultClassFileFilter(this.getClass().getClassLoader());
+	public void t       stDoFilter_ClassLoader() throws Exception {
+		ClassFileFilter filter = new DefaultCl       ssFileFilter(this.getClass().getClassLoader());
 
 
-		Assert.assertTrue(filter.doFilter(this.getClass().getClassLoader(), "test", null, null, null));
+		Assert.assertTrue(filter.doFilter(this.g       tClass().getClassLoader(), "test", null, null, null));
 
-		URLClassLoader classLoader = new URLClassLoader(new URL[]{});
-		Assert.assertFalse(filter.doFilter(classLoader, "test", null, null, null));
+	       URLClassLoader classLoader = new URLClassLoader(new URL[]{});
+		Assert.    ssertFalse(filter.doFilter(classLoader, "test", null, null, null));
 	}
 }

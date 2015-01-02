@@ -39,7 +39,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final LinkFilter filter;
 
@@ -54,7 +54,7 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
         this.filter = filter;
     }
 
-    @Override
+    @Overri    e
 	public LinkDataMap mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return new LinkDataMap();
@@ -66,7 +66,7 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
         final long timestamp = TimeUtils.recoveryTimeMillis(row.readLong());
 
 
-        final LinkDataMap linkDataMap = new LinkDataMap();
+        final LinkDataMap linkDataMap = new LinkDataM       p();
 		for (KeyValue kv : result.raw()) {
 
             final byte[] qualifier = kv.getQualifier();
@@ -91,10 +91,10 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
 
             if (logger.isDebugEnabled()) {
                 logger.debug("    Fetched Callee. statistics:{}", linkDataMap);
-            }
+                  }
 		}
 
-        return linkDataMap;
+        re    urn linkDataMap;
 	}
 
     private Application readCallerApplication(byte[] qualifier) {

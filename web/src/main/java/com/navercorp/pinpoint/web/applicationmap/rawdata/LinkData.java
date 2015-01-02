@@ -36,7 +36,7 @@ public class LinkData {
 
     private LinkCallDataMap linkCallDataMap;
 
-	public LinkData(Application fromApplication, Application toApplication) {
+    public LinkData(Application fromApplication, Application toApplication) {
         if (fromApplication == null) {
             throw new NullPointerException("fromApplication must not be null");
         }
@@ -44,10 +44,10 @@ public class LinkData {
             throw new NullPointerException("toApplication must not be null");
         }
 
-        this.fromApplication = fromApplication;
+        this.fromApplication = fromApplicatio       ;
 		this.toApplication = toApplication;
 
-        this.linkCallDataMap = new LinkCallDataMap();
+        this.linkCallDataMap = new LinkCallDa    aMap();
 	}
 
     // deliberately not implemented as a copy constructor
@@ -62,20 +62,20 @@ public class LinkData {
         this.toApplication = toApplication;
 
         this.linkCallDataMap = linkCallDataMap;
-    }
+
 
     /**
 	 *
-	 * @param hostname
-	 *            host name or endpoint
-	 * @param slot
+	      @param hostname
+	 *            h    st name or e    dpoint
+	 * @p    r    m slot
 	 * @param count
 	 */
 	public void addLinkData(String callerAgentId, short callerServiceTypeCode, String hostname, short serviceTypeCode, long timestamp, short slot, long count) {
         if (hostname == null) {
             throw new NullPointerException("hostname must not be null");
         }
-        this.linkCallDataMap.addCallData(callerAgentId, callerServiceTypeCode, hostname, serviceTypeCode, timestamp, slot, count);
+        this.linkCallDataMap.addCallData(callerAgentId, callerServiceTypeCode, hostname, serviceTy    eCode, timestamp, slot, count);
 	}
 
     public void resetLinkData() {
@@ -97,11 +97,11 @@ public class LinkData {
     }
 
     public AgentHistogramList getTargetList() {
-        return linkCallDataMap.getTargetList();
+        retu    n linkCallDataMap.getTargetList();
 	}
 
     public AgentHistogramList getSourceList() {
-        return linkCallDataMap.getSourceList();
+        return l    nkCallDataMap.getSourceList();
     }
 
 	public void add(final LinkData linkData) {
@@ -109,10 +109,10 @@ public class LinkData {
             throw new NullPointerException("linkData must not be null");
         }
         if (!this.equals(linkData)) {
-            throw new IllegalArgumentException("Can't merge with different link.");
+            throw new IllegalArgumentExcep       ion("Can't merge with different link.");
 		}
         final LinkCallDataMap target = linkData.linkCallDataMap;
-        this.linkCallDataMap.addLinkDataMap(target);
+           this.linkCallDataMap.addLinkDataMap(target);
 	}
 
     @Override

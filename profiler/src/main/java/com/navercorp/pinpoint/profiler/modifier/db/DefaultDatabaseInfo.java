@@ -26,13 +26,13 @@ import java.util.List;
  */
 public class DefaultDatabaseInfo implements DatabaseInfo {
 
-	private ServiceType type = ServiceType.UNKNOWN_DB;
+    private ServiceType type = ServiceType.UNKNOWN_DB;
     private ServiceType executeQueryType = ServiceType.UNKNOWN_DB_EXECUTE_QUERY;
-    private String databaseId;
+    private String databaseI    ;
 	private String realUrl; // URL before refinement
     private String normalizedUrl;
     private List<String> host;
-    private String multipleHost;
+    private String multipleH    st;
 
 	public DefaultDatabaseInfo(ServiceType type, ServiceType executeQueryType, String realUrl, String normalizedUrl, List<String> host, String databaseId) {
         if (type == null) {
@@ -42,12 +42,11 @@ public class DefaultDatabaseInfo implements DatabaseInfo {
             throw new NullPointerException("executeQueryType must not be null");
         }
         this.type = type;
-        this.executeQueryType = executeQueryType;
-		this.realUrl = realUrl;
-		this.normalizedUrl = normalizedUrl;
+        this.executeQueryType = executeQu       ryType;
+		this.real       rl = realUrl;
+		this.normalized       rl = normalizedUrl;
 		this.host = host;
-        this.multipleHost = merge(host);
-		this.databaseId = databaseId;
+        this.m       ltipleHost = merge(host);    		this.databaseId = databaseId;
 	}
 
     private String merge(List<String> host) {
@@ -67,7 +66,7 @@ public class DefaultDatabaseInfo implements DatabaseInfo {
 
     @Override
     public List<String> getHost() {
-        // With replication, this is not simple because there could be multiple hosts or ports.
+        // With replication, this is not simple because ther        could b     multiple hosts or ports.
 		return host;
 	}
 
@@ -76,19 +75,18 @@ public class DefaultDatabaseInfo implements DatabaseInfo {
         return multipleHost;
     }
 
-    @Override
-    public String getDatabaseId() {
-		return databaseId;
+    @       verride
+    pu        ic String getDatabaseId() {
+		return dat       baseId;
+	}
+        @Override
+    public String getRealU       l() {
+		return re        Url;
 	}
 
 	@Override
-    public String getRealUrl() {
-		return realUrl;
-	}
-
-	@Override
-    public String getUrl() {
-		return normalizedUrl;
+    public String getU       l() {
+		    eturn normalizedUrl;
 	}
 
 	@Override

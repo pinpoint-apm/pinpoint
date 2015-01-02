@@ -20,21 +20,21 @@ package com.navercorp.pinpoint.bootstrap.interceptor;
  * @author emeroad
  */
 public interface MethodDescriptor {
-	String getMethodName();
+    String getMethodName()
 
-	String getClassName();
+	String getClassNam    ();
 
-	String[] getParameterTypes();
+	String[] getParameterT    pes();
 
-	String[] getParameterVariableName();
+	String[] getParameterVaria    leName();
 
-	String getParameterDescriptor();
+	String getParameter    escriptor();
 
-	int getLineNumber();
+	int     etLineNumber();
 
-	String getFullName();
+	St    ing getFullName();
 
-	void setApiId(int apiId);
+	voi     setApiId(int     piId);
 
 	int getApiId();
 

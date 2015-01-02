@@ -40,16 +40,16 @@ import java.util.Map;
  */
 public class ClassUtils {
 
-	private static final Map<Class<?>, Class<?>> primitiveWrapperMap = new HashMap<Class<?>, Class<?>>();
-	static {
-		primitiveWrapperMap.put(Boolean.TYPE, Boolean.class);
-		primitiveWrapperMap.put(Byte.TYPE, Byte.class);
-		primitiveWrapperMap.put(Character.TYPE, Character.class);
-		primitiveWrapperMap.put(Short.TYPE, Short.class);
-		primitiveWrapperMap.put(Integer.TYPE, Integer.class);
-		primitiveWrapperMap.put(Long.TYPE, Long.class);
-		primitiveWrapperMap.put(Double.TYPE, Double.class);
-		primitiveWrapperMap.put(Float.TYPE, Float.class);
+    private static final Map<Class<?>, Class<?>> primitiveWrapperMap = new HashMap<Class<?>, Class<?>>(    ;
+	sta       ic {
+		primitiveWrapperMap.put(Boolean.TYPE, Bool       an.class);
+		primitiveWrapperMap.put(Byte.T       PE, Byte.class);
+		primitiveWrapperMap.put(Character.       YPE, Character.class);
+		primitiveWrapperMap.       ut(Short.TYPE, Short.class);
+		primitiveWrapperMa       .put(Integer.TYPE, Integer.class);
+		primit       veWrapperMap.put(Long.TYPE, Long.class);
+		prim       tiveWrapperMap.put(Double.TYPE, Double.class)
+		primitiveWrapperMap.put(Float.TYPE, Flo       t.class);
 		primitiveWrapperMap.put(Void.TYPE, Void.TYPE);
 	}
 	
@@ -94,10 +94,10 @@ public class ClassUtils {
      * sections 5.1.1, 5.1.2 and 5.1.4 for details.</p>
      *
      * @param classArray  the array of Classes to check, may be <code>null</code>
-     * @param toClassArray  the array of Classes to try to assign into, may be <code>null</code>
+     * @param toClassArray  the array of Classes to try to assign into, may be <code>null</code
      * @return <code>true</code> if assignment possible
-     */
-	public static boolean isAssignable(Class cls, Class toClass) {
+           */
+	public static boolean isAssigna       le(Class cls, Class toClass) {
 		return isAssignable(cls, toClass, true);
 	}
 	
@@ -131,72 +131,70 @@ public class ClassUtils {
      * @param classArray  the array of Classes to check, may be <code>null</code>
      * @param toClassArray  the array of Classes to try to assign into, may be <code>null</code>
      * @param autoboxing  whether to use implicit autoboxing/unboxing between primitives and wrappers
-     * @return <code>true</code> if assignment possible
+        * @return <code>true</code> if assignment possible
      * @since 2.5
      */
-	public static boolean isAssignable(Class<?> cls, Class<?> toClass, boolean autoboxing) {
-		if (toClass == null) {
-			return false;
+	publi        static boolean is          ssignab             e(Class<?> cls, Class<?> toClass, boolean autobo       ing) {
+		if (t          Class == null) {
+			return             false;
+	       }
+		// have t           check for null, as isAssignableFrom doesn't             		if (cls == null) {
+	             	return !(                oCl                               ss.isPrimitive());
 		}
-		// have to check for null, as isAssignableFrom doesn't
-		if (cls == null) {
-			return !(toClass.isPrimitive());
-		}
-		// autoboxing:
-		if (autoboxing) {
-			if (cls.isPrimitive() && !toClass.isPrimitive()) {
-				cls = primitiveToWrapper(cls);
-				if (cls == null) {
+		// autobo             ing:
+		if (autoboxing)             {
+			if (c                s.i                                  Primitive(           && !t             Class.isPrimitive(          ) {
+				cls = primitiveToWrappe             (cls)
+				if (cls == null)             {
 					return false;
 				}
 			}
 			if (toClass.isPrimitive() && !cls.isPrimitive()) {
-				cls = wrapperToPrimitive(cls);
+                   			cls = wrapperTo             rimitive(cls);
 				if (cls == null) {
 					return false;
-				}
+                   			}
 			}
 		}
-		if (cls.equals(toClass)) {
-			return true;
+		if (c             s.equ                   ls(toClass)) {
+			re             urn t                   ue;
 		}
-		if (cls.isPrimitive()) {
-			if (toClass.isPrimitive() == false) {
+		if (cls.i             Primitive()) {
+			if (toCla                   s.isPrimitive() == fals             ) {
 				return false;
 			}
 			if (Integer.TYPE.equals(cls)) {
-				return Long.TYPE.equals(toClass) || Float.TYPE.equals(toClass) || Double.TYPE.equals(toClass);
+				return Long.TYPE.equals(toClass) || Float.TYPE.equal                   (toClass) || Double             TYPE.equals(toClass);
 			}
 			if (Long.TYPE.equals(cls)) {
-				return Float.TYPE.equals(toClass) || Double.TYPE.equals(toClass);
+				return Float.TYPE.equals(toClass) || Double.TYPE.equals                   toClass);
 			}
-			if (Boolean.TYPE.equals(cls)) {
+			             f (Boolean.TYPE.equals(cls)) {
 				return false;
 			}
 			if (Double.TYPE.equals(cls)) {
 				return false;
 			}
-			if (Float.TYPE.equals(cls)) {
-				return Double.TYPE.equals(toClass);
+			if                   (Float.TYPE.equals(                   ls)) {
+				ret          rn Doub             e.TYPE.equals(toClass);
 			}
-			if (Character.TYPE.equals(cls)) {
+		    if (Character.TYPE.equals(cls)) {
 				return Integer.TYPE.equals(toClass) || Long.TYPE.equals(toClass) || Float.TYPE.equals(toClass) || Double.TYPE.equals(toClass);
 			}
 			if (Short.TYPE.equals(cls)) {
 				return Integer.TYPE.equals(toClass) || Long.TYPE.equals(toClass) || Float.TYPE.equals(toClass) || Double.TYPE.equals(toClass);
 			}
 			if (Byte.TYPE.equals(cls)) {
-				return Short.TYPE.equals(toClass) || Integer.TYPE.equals(toClass) || Long.TYPE.equals(toClass) || Float.TYPE.equals(toClass)
-						|| Double.TYPE.equals(toClass);
+				return Short.TYPE.equals(toClass) || Integer.TYPE.equals(toClass) || Long.TYPE.equals(toClass) || Float.TY    E.equals(toClass)
+						|| Double.TYPE.equals(toC       ass);
 			}
-			// should never get here
+			// should       never get here
 			return false;
-		}
-		return toClass.isAssignableFrom(cls);
-	}
+		}          		return toClass.isAssignableFrom(cls);
+             }
 
     /**
-     * <p>Converts the specified primitive Class object to its corresponding
+          <p>Converts the specified primitive Class object to its corresponding
      * wrapper Class object.</p>
      *
      * <p>NOTE: From v2.2, this method handles <code>Void.TYPE</code>,
@@ -206,9 +204,9 @@ public class ClassUtils {
      * @return the wrapper class for <code>cls</code> or <code>cls</code> if
      * <code>cls</code> is not a primitive. <code>null</code> if null input.
      * @since 2.1
-     */
-	public static Class primitiveToWrapper(Class cls) {
-		Class convertedClass = cls;
+         /
+	public static Class primitiveToWrapper(Class c       s) {
+		Class convertedClass = cl    ;
 		if (cls != null && cls.isPrimitive()) {
 			convertedClass = primitiveWrapperMap.get(cls);
 		}

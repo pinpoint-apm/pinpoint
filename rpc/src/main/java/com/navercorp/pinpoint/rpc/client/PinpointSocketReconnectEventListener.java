@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.rpc.client;
 
 public interface PinpointSocketReconnectEventListener {
 
-	/*
-		there is no event except "reconnect" currently.
-	    when additional events are needed, it will be useful to pass with Event
+           *
+		there is no event except "reconnect" cu    rently.
+	    when additional events are needed, it will be useful to pass        ith Event
 	*/
-	void reconnectPerformed(PinpointSocket socket);
+	void reconnectPerformed(Pinpoi    tSocket socket);
 	
 }

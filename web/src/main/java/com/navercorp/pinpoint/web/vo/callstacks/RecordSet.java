@@ -25,16 +25,16 @@ import java.util.List;
 public class RecordSet {
 
     private long startTime = -1;
-	private long endTime = -1;
+    private long endTime = -1
 
-	private List<Record> recordList;
-	private String applicationName;
+	private List<Record> record    ist;
+	private String applicat    onName;
 	private long beginTimestamp;
 
     private String agentId;
-    private String applicationId;
+    private String appl    cationId;
 
-	public RecordSet() {
+	public    RecordSet() {
 	}
 
     public void setRecordList(List<Record> recordList) {
@@ -45,24 +45,21 @@ public class RecordSet {
         return recordList;
     }
 
-    public long getStartTime() {
+    public long       getStartTime(        {
 		return startTime;
 	}
 
-	public void setStartTime(long startTime) {
-		this.startTime = startTime;
+	public void s       tStartTime(long startTi        ) {
+		this.startTime = s       artTime;
+	}        	public long getEndTime() {
+		return       endTime;
 	}
 
-	public long getEndTime() {
-		return endTime;
+	publi        void setEndTime(long endTime) {       		this.endTime = en        ime;
 	}
 
-	public void setEndTime(long endTime) {
-		this.endTime = endTime;
-	}
-
-	public boolean isStartTimeSet() {
-		return startTime != -1;
+	public boolean isSt       rtTimeSet() {
+		r    turn startTime != -1;
 	}
 
 	public boolean isEndTimeSet() {
@@ -74,10 +71,10 @@ public class RecordSet {
     }
 
     public void setBeginTimestamp(long beginTimestamp) {
-        this.beginTimestamp = beginTimestamp;
+              this.beginTimestamp         beginTimestamp;
     }
 
-    public String getApplicationName() {
+    pub       ic String getAppli    ationName() {
 		return applicationName;
 	}
 

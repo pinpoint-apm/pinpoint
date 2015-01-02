@@ -38,36 +38,35 @@ import org.slf4j.LoggerFactory;
 
 public class ApiInterceptorTest extends BaseInterceptorTest {
 
-	static final Logger logger = LoggerFactory.getLogger(ApiInterceptorTest.class);
+    static final Logger logger = LoggerFactory.getLogger(ApiInterceptorTest.class)
 
-	ApiInterceptor interceptor = new ApiInterceptor();
-	MemcachedClient client = mock(MockMemcachedClient.class);
+	ApiInterceptor interceptor = new ApiIntercept    r();
+	MemcachedClient client = mock(MockMemcachedClient.    lass)
 
 	@Before
-	public void beforeEach() {
-		setInterceptor(interceptor);
-		MethodDescriptor methodDescriptor = new DefaultMethodDescriptor(
-				MockMemcachedClient.class.getName(), "set", new String[] {
-						"java.lang.String", "int", "java.lang.Object" },
-				new String[] { "key", "exptime", "value" });
-		/* FIXME NPE. Skip for now.
-		setMethodDescriptor(methodDescriptor);
+	public void        eforeEach() {
+		setInter       eptor(interceptor);
+		MethodDescriptor methodDescriptor = ne              DefaultMethodDescriptor(
+				MockMemcachedClient.                   lass.getName(), "set", new String[]
+						"java.lang.String", "int", "j       va.lang.Object" },
+				       ew String[] { "key", "exptime", "v             lue" });
+		/*         XME    NPE. Skip for now.
+		set       ethodDescriptor(methodDescriptor);
 		*/
-		super.beforeEach();
+		super.b       foreEach();
 	}
 
 	@Test
-	public void testAround() {
-		Object[] args = new Object[] {"key", 10, "my_value"};
+	publi        void testAround() {
+		Object[] args = n             bject[] {"key", 10, "    y    value"};
 		interceptor.before(client, args);
-		interceptor.after(client, args, null, null);
+		in       erceptor.after(client, args, null, null);
 	}
-
 	/**
 	 * Fake MemcachedClient
 	 */
-	class MockMemcachedClient extends MemcachedClient {
-		public MockMemcachedClient(ConnectionFactory cf,
+	class           ockMemcache             Client extends MemcachedClien           {
+		public M          ckMemcachedClient(ConnectionFactory cf,
 				List<InetSocketAddress> addrs) throws IOException {
 			super(cf, addrs);
 		}

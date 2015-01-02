@@ -35,166 +35,161 @@ import java.util.List;
  */
 public class AspectWeaverClass {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	private static final MethodNameReplacer DEFAULT_METHOD_NAME_REPLACER = new DefaultMethodNameReplacer();
+	private static final MethodNameReplacer DEFAULT_METHOD_NAME_REPLACER = new DefaultMethodNameReplace    ();
 
-	private final MethodNameReplacer methodNameReplacer;
+	private final MethodNameReplacer methodNameRep    acer;
 
 
-	public AspectWeaverClass() {
-		methodNameReplacer = DEFAULT_METHOD_NAME_REPLACER;
+	public AspectWeav       rClass() {
+		methodNameReplacer = DEFAULT_METH        _NAME_REPLACER;
 	}
 
-	public void weaving(CtClass sourceClass, CtClass adviceClass) throws NotFoundException, CannotCompileException {
-		if (logger.isInfoEnabled()) {
-			logger.info("weaving sourceClass:{} advice:{}", sourceClass.getName(), adviceClass.getName());
+	public void weaving(CtClass sourceClass, CtClass adviceClass) throws NotFoundException, C       nnotCompileException {
+		          f (logger.isInfoEnabled()) {
+			logger.info("weaving sourceClass:{} advice:{}", sourceCl             ss.getName(), adviceClass.ge          Name());
 		}
 		if (!isAspectClass(adviceClass)) {
-			throw new RuntimeException("@Aspect not found. adviceClass:" + adviceClass);
+			throw new Runtime             xception("@Aspect not foun       . adviceClass:" + adviceClass);
 		}
-		// advice class hierarchy check,
-		final boolean isSubClass = adviceClass.subclassOf(sourceClass);
+		// advice class hiera       chy check,
+		f          nal boolean isSubClass = adviceClass.subclassOf(s          urceClass);
 		if (!isSubClass) {
-			final CtClass superClass = adviceClass.getSuperclass();
+			final CtClass             superClass = adviceClass.getSuperclass();
 			if (!superClass.getName().equals("java.lang.Object")) {
-				throw new CannotCompileException("invalid class hierarchy. " + sourceClass.getName() + " adviceSuperClass:" + superClass.getName());
+				throw new CannotCom                      ileException("invalid class hiera       chy. " + sourceClass.getName() + " adviceSuperClass:" + superClass.getName());
 			}
 		}
+       		copyUtilMethod(sourceClass, adviceClass);
 
-		copyUtilMethod(sourceClass, adviceClass);
-
-		final List<CtMethod> pointCutMethodList = findAnnotationMethod(adviceClass, PointCut.class);
+		final List<CtMethod> pointCutMethodList         findAnnotationMethod(adviceClass, PointCut.cl          ss);
 		final List<CtMethod> jointPointList = findAnnotationMethod(adviceClass, JointPoint.class);
 
-		for (CtMethod adviceMethod : pointCutMethodList) {
-			final CtMethod sourceMethod = sourceClass.getDeclaredMethod(adviceMethod.getName(), adviceMethod.getParameterTypes());
-			if (!sourceMethod.getSignature().equals(adviceMethod.getSignature())) {
-				throw new CannotCompileException("Signature miss match. method:" + adviceMethod.getName() + " source:" + sourceMethod.getSignature() + " advice:" + adviceMethod.getSignature());
+		for (CtMeth          d adviceMethod : pointCutMethodList) {
+			final CtMethod sourceMe             hod = sourceClass.getDeclaredMethod(adviceMethod.getName(), adviceMethod.getParameterTypes());
+			if (!sourceMethod.getSignature().equals(adviceMethod.getSignature())) {                   				throw new Canno             CompileException("Signature miss match. method:" + adviceMethod.getName() + " so                   rce:" + sourceMethod.getSignature() + " advice:" + adviceMethod.getSignat              e());
 			}
 			if (logger.isInfoEnabled()) {
-				logger.info("weaving method:{}{}", sourceMethod.getName(), sourceMethod.getSignature());
+				logger.info("weaving method:{}{}", sourceMethod.get       ame(), sourceMethod.getSignature());
 			}
-			weavingMethod(sourceClass, sourceMethod, adviceMethod, jointPointList, isSubClass);
+			weavingMethod(sou       ceClass, sourceMethod, adviceMethod,          jointPointList, isSubClass);
 		}
 
 
 	}
 
-	private void copyUtilMethod(CtClass sourceClass, CtClass adviceClass) throws CannotCompileException {
-		final List<CtMethod> utilMethodList = findUtilMethod(adviceClass);
+	private void copyUtilMethod(CtClass sourceCl          ss, CtClass adviceClass) thr             ws CannotCompileException {
+		final List<CtMethod> utilMethodList = findUtilMethod(advi       eClass);
 		for (CtMethod method : utilMethodList) {
-			final CtMethod copyMethod = CtNewMethod.copy(method, method.getName(), sourceClass, null);
+		       final CtMethod copyMethod = CtNewMethod.copy(method, m          thod.getName(), sourceClass, null);
 			sourceClass.addMethod(copyMethod);
 		}
-	}
 
-	private List<CtMethod> findUtilMethod(CtClass adviceClass) throws CannotCompileException {
+                   	private List<CtMethod> find          tilMethod(CtClass adviceClass)              hrows CannotCompileException {
 		List<CtMethod> utilMethodList = new ArrayList<CtMethod>();
-		for (CtMethod method : adviceClass.getDeclaredMethods()) {
-			if (method.hasAnnotation(PointCut.class) || method.hasAnnotation(JointPoint.class)) {
+		f                   r (CtMethod metho              : adviceClass.g        DeclaredMethods()) {
+			if (method.hasAnnotation(P       intCut.class) || method.hasAnnotation(Joint        int.class)) {
 				continue;
 			}
 			int modifiers = method.getModifiers();
 			if (!Modifier.isPrivate(modifiers)) {
-				throw new CannotCompileException("non private UtilMethod unsupported. method:" + method.getLongName());
+				throw new CannotCompileException("non private UtilMeth       d unsupported. method:" + method.getLongName());
 			}
-			utilMethodList.add(method);
+			utilM       thodList.add(method);
 		}
-		return utilMethodList;
+		ret       rn utilMethodList;
 	}
 
-	private boolean isAspectClass(CtClass aspectClass) {
+	private boolea        isAspectClass(CtClass aspectClass) {
 		return aspectClass.hasAnnotation(Aspect.class);
 	}
 
-	private void weavingMethod(CtClass sourceClass, CtMethod sourceMethod, CtMethod adviceMethod, List<CtMethod> jointPointList, boolean isSubClass) throws CannotCompileException {
-		final CtMethod copyMethod = copyMethod(sourceClass, sourceMethod);
-		sourceClass.addMethod(copyMethod);
+	private void weavingMe        od(CtClass sourceClass, CtMethod sourceMethod, CtMetho        adviceMethod, List<CtMethod>        ointPointList, boolean isSubClas       ) throws CannotCompileException {       		final CtMethod copyMethod = copyMethod       sourceClass, sourceMethod);
+		       ourceClass.addMethod(copyMethod);
 
 		sourceMethod.setBody(adviceMethod, null);
 
-		sourceMethod.instrument(new JointPointMethodEditor(sourceClass, sourceMethod, copyMethod, jointPointList, isSubClass));
+		sourceMethod.instrument(new JointPointMethodEditor(sourceClass,           ourceMethod, copyMetho             , jointPointList, isSubClass));
 	}
 
-	public class JointPointMethodEditor extends ExprEditor {
-		private final CtClass sourceClass;
-		private final CtMethod sourceMethod;
-		private final CtMethod replaceMethod;
+	public class JointPo                   ntMethodEditor extend           ExprEditor {
+		private fin          l CtClass sourceClass;
+		priv          te final CtMethod sourceMethod;          		private final CtMetho              rep       aceMethod;
 		private final List<CtMethod> jointPointList;
-		private final boolean isSubClass;
+		private f          nal boolean isSubClass;
 
-		public JointPointMethodEditor(CtClass sourceClass, CtMethod sourceMethod, CtMethod replaceMethod, List<CtMethod> jointPointList, boolean isSubClass) {
-			if (replaceMethod == null) {
+		public JointPointMethodEditor(CtClass sourceClass, CtMethod sourceMethod, CtMethod repla          eMethod, List<Ct             ethod> jointPointList, boolean isSubClass) {
+			if (replaceMet                od == null) {
 				throw new NullPointerException("replaceMethod must not be null");
 			}
 			this.sourceClass = sourceClass;
 			this.sourceMethod = sourceMethod;
-			this.replaceMethod = replaceMethod;
-			this.jointPointList = jointPointList;
+			this.rep                         aceMethod = replaceMethod;
+			this.             ointPointList = jointP                intList;
 			this.isSubClass = isSubClass;
 		}
 
 		@Override
-		public void edit(MethodCall methodCall) throws CannotCompileException {
+		public void edit(MethodCall methodCall) throws CannotCompi                         eException {
 
 
-			final boolean joinPointMethod = isJoinPointMethod(jointPointList, methodCall.getMethodName(), methodCall.getSignature());
-			if (joinPointMethod) {
-				if (!methodCall.getSignature().equals(replaceMethod.getSignature())) {
-					throw new CannotCompileException("Signature miss match. method:" + sourceMethod.getName() + " source:" + sourceMethod.getSignature() + " jointPoint:" + replaceMethod.getSignature());
+			f          na              boolean                 oinPointMethod = isJ                                  inPointMethod(jointPointL                   st, methodCall.getMethodName(), methodCa                   l.getSignature());
+			if (joinPoi                      tMethod) {
+				if (!methodCall.getSignature().equals(replaceMet                                  od.getSigna                   ure())) {
+					throw new CannotCompileEx                                                 eption("Signature miss match. method:" + sourceMethod.getName() + " source:" + sourceM          thod.getSignature() + " jointPoint             " + replaceMethod.getSignature());
 				}
-				final String invokeSource = invokeSourceMethod();
-				if (logger.isDebugEnabled()) {
-					logger.debug("JointPoint method {}{} -> invokeOriginal:{}", methodCall.getMethodName(), methodCall.getSignature(), invokeSource);
+				final String invokeSource = invokeSour                eM                                           thod();
+				if (logger.isDebugE          abled()) {
+					logger.debug("JointP          int method {}{} -> invokeOriginal:{}",             methodCall.get                   ethodName(), methodCall.getSignature(), invokeSource);
 				}
-				methodCall.replace(invokeSource);
-			} else {
+				methodCall.repla          e(invokeSource);
+			              else {
 				if (isSubClass) {
-					// validate super class method
+					/           validate super class met             od
 					try {
 						CtMethod method = methodCall.getMethod();
-						CtClass declaringClass = method.getDeclaringClass();
+						CtClass declaringClass = method.g       tDeclari       gClass();
 						if (sourceClass.subclassOf(declaringClass)) {
-							sourceClass.getMethod(methodCall.getMethodName(), methodCall.getSignature());
+							sourceClass.g       tMethod(methodCall.getMethodName(), methodCall.getSignature());
 						}
-					} catch (NotFoundException e) {
-						throw new CannotCompileException(e.getMessage(), e);
+					} catch        NotFoundEx       eption e) {
+						throw new CannotComp       leException(e.getMessage(), e);
 					}
 				}
-			}
+		       }
 		}
 
-		private boolean isJoinPointMethod(List<CtMethod> jointPointList, String methodName, String methodSignature) {
+		    r    vate boolean isJoinPointMethod(List<CtMethod> jointPointList, String methodNam       , String methodSig          ature) {
 			for (CtMethod method : jointPointList) {
-				if (method.getName().equals(methodName) && method.getSignature().equals(methodSignature)) {
+             			if (method.getNa          e().equals(methodName) && method.getSignature().equals(m             thodSignature)) {
 					return true;
 				}
 			}
-			return false;
+			return fal       e;
 		}
 
 
 		private String invokeSourceMethod() {
-			CodeBuilder builder = new CodeBuilder(32);
-			if (!isVoid(replaceMethod.getSignature())) {
-				builder.append("$_=");
+	          	CodeBuilder builder = new CodeBu             lder(32);
+			if (!i                      Void(replace        thod.getSignature())) {
+				builder.append       "$_=");
 			}
 
-			builder.format("%1$s($$);", methodNameReplacer.replaceMethodName(sourceMethod.getName()));
-			return builder.toString();
+			builder.format("%1$s($$        ", methodNameReplacer.replaceMethodName(sourceMethod.getName()));
+			return       builder.toString();
 		}
 
-		public boolean isVoid(String signature) {
-			return signature.endsWith("V");
+		public boo       ean isVoid(String signature) {
+			return signatu       e.endsWith("V");
 		}
 	}
 
-	private CtMethod copyMethod(CtClass sourceClass, CtMethod sourceMethod) throws CannotCompileException {
+	private CtMethod copyM          thod(CtClass source             lass, CtMethod sourceMethod) throws CannotCompileExcep                   ion {
 
 		// need id?
 
-		String copyMethodName = methodNameReplacer.replaceMethodName(sourceMethod.getName());
+		Stri          g copyMethodName = methodNameReplacer.replaceMethodName(sourceMethod.getName());
 
 		final CtMethod copy = CtNewMethod.copy(sourceMethod, copyMethodName, sourceClass, null);
 

@@ -44,7 +44,7 @@ public class HistogramSchema {
 
     // Should use the reference of FAST_SCHEMA, NORMAL created internally
     private HistogramSchema(int typeCode, short fast, String fastName, short normal, String normalName, short slow, String slowName, String verySlowName, String errorName) {
-    	this.typeCode = typeCode;
+        this.typeCode = typeCode;
         this.fastSlot = new HistogramSlot(fast, SlotType.FAST, fastName);
         this.normalSlot = new HistogramSlot(normal, SlotType.NORMAL, normalName);
         this.slowSlot = new HistogramSlot(slow, SlotType.SLOW, slowName);
@@ -116,23 +116,23 @@ public class HistogramSchema {
         return errorSlot;
     }
 
-    @Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + typeCode;
+    @Overri    e
+	public int hashCod       () {
+		final int        rime = 31;
+       	int result = 1;
+		result = pri       e * result         typeCo    e;
 		return result;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
+	@Overrid
+	public boo          ean eq       als(Object o          j) {
+		       f (this == obj)
+			return tru          ;
+		if        obj == null)
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		HistogramSchema other = (HistogramSchema) obj;
+		if (getCla       s() != obj.getClass())
+			r          turn fa       se;
+		Hi    togramSchema other = (HistogramSchema) obj;
 		if (typeCode != other.typeCode)
 			return false;
 		return true;

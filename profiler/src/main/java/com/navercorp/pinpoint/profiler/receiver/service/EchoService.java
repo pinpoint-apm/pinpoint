@@ -27,18 +27,18 @@ import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
  * @author koo.taejin
  */
 public class EchoService implements ProfilerRequestCommandService  {
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	@Override
-	public TBase<?, ?> requestCommandService(TBase tbase) {
-		logger.info("{} execute {}.", this, tbase);
+	@Ove    ride
+	public TBase<?, ?> requestCommandService(TBase        base) {
+		logger.info("{} execute {}.",             this, tbase);
 		
-		TCommandEcho param = (TCommandEcho) tbase;
+		TCommandEcho par       m = (TCom          andEch    ) tbase;
 		return param;
 	}
 	
 	@Override
-	public Class<? extends TBase> getCommandClazz() {
+	publi        Class<? extends TBase     getCommandClazz() {
 		return TCommandEcho.class;
 	}
 

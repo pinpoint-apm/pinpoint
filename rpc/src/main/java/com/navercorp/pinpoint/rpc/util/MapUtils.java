@@ -24,36 +24,36 @@ import java.util.Map;
  */
 public final class MapUtils {
 
-	private MapUtils() {
+    private MapUtils()
 	}
 
-	public static String getString(Map<Object, Object> map, String key) {
-		return getString(map, key, null);
+	public static String getString(Map<Object, Object> map, Strin        key) {
+		return getString(ma         key, null);
 	}
 
-	public static String getString(Map<Object, Object> map, String key, String defaultValue) {
-		if (map == null) {
+	public static String getString(Map<Object, Object> map, String key, St       ing defaultVal          e) {
+		if (map                   == null) {
 			return defaultValue;
 		}
 		
 		final Object value = map.get(key);
-        if (value instanceof String) {
-            return (String) value;
+        if (value instanceof St       ing) {
+                        return (String) value;
         }
 
 		return defaultValue;	
 	}
 	
-	public static Boolean getBoolean(Map<Object, Object> map, String key) {
+	       ublic static Boolean getBoolean          Map<Object, Object> map, String key) {
 		return getBoolean(map, key, false);
 	}
 	
-	public static Boolean getBoolean(Map<Object, Object> map, String key, Boolean defaultValue) {
+	public        tatic Boolean           etBoolean(Map<                   bject, Object> map, String key, Boolean defaultValue) {
 		if (map == null) {
 			return defaultValue;
 		}
 		
-		final Object value = map.get(key);
+		fi       al Object value          = map.get(key);
         if (value instanceof Boolean) {
             return (Boolean) value;
         }
@@ -73,7 +73,7 @@ public final class MapUtils {
 
         final Object value = map.get(key);
         if (value instanceof Integer) {
-            return (Integer) value;
+            return (Intege    ) value;
         }
 
         return defaultValue;

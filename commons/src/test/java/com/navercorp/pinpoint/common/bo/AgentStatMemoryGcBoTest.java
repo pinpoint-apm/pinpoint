@@ -28,31 +28,29 @@ import com.navercorp.pinpoint.thrift.dto.TJvmGcType;
  */
 public class AgentStatMemoryGcBoTest {
 
-	@Test
-	public void testByteArrayConversion() {
-		// Given
-		final AgentStatMemoryGcBo.Builder builder = new AgentStatMemoryGcBo.Builder("agentId", 0L, 1L);
-		builder.gcType(TJvmGcType.G1.name());
-		builder.jvmMemoryHeapUsed(Long.MIN_VALUE);
-		builder.jvmMemoryHeapMax(Long.MAX_VALUE);
-		builder.jvmMemoryNonHeapUsed(Long.MIN_VALUE);
-		builder.jvmMemoryNonHeapMax(Long.MAX_VALUE);
+    @Te    t
+	public void testByteArrayConversio       () {       		// Given
+		final AgentStatMemoryGcBo.Builder builder = new AgentStatMemoryGcBo.Builder("a       entId", 0L, 1L);
+		builder.gcType       TJvmGcType.G1.name());
+		builder.jvmMe       oryHeapUsed(Long.MIN_VALUE);
+		builde       .jvmMemoryHeapMax(Long.MAX_VALUE);
+		buil       er.jvmMemoryNonHeapUsed(Long.MIN_VALUE);       		builder.jvmMemoryNon       eapMax(Long.MAX_VALUE       ;
 		builder.jvmGcOldCount(1L);
-		builder.jvmGcOldTime(2L);
-		final AgentStatMemoryGcBo testBo = builder.build();
+		builder.jvmGcO       dTi       e(2L);
+		final AgentStatMemoryGcBo testBo =        uilder.build();
 		// When
 		final byte[] serializedBo = testBo.writeValue();
-		final AgentStatMemoryGcBo deserializedBo = new AgentStatMemoryGcBo.Builder(serializedBo).build();
+		final AgentSta       Mem       ryGcBo deserializedBo = new AgentStatMemoryGcBo.Builder(ser       alizedBo).build();
 		// Then
-		assertEquals(testBo.getAgentId(), deserializedBo.getAgentId());
-		assertEquals(testBo.getStartTimestamp(), deserializedBo.getStartTimestamp());
-		assertEquals(testBo.getTimestamp(), deserializedBo.getTimestamp());
-		assertEquals(testBo.getGcType(), deserializedBo.getGcType());
-		assertEquals(testBo.getJvmMemoryHeapUsed(), deserializedBo.getJvmMemoryHeapUsed());
-		assertEquals(testBo.getJvmMemoryHeapMax(), deserializedBo.getJvmMemoryHeapMax());
-		assertEquals(testBo.getJvmMemoryNonHeapUsed(), deserializedBo.getJvmMemoryNonHeapUsed());
-		assertEquals(testBo.getJvmMemoryNonHeapMax(), deserializedBo.getJvmMemoryNonHeapMax());
-		assertEquals(testBo.getJvmGcOldCount(), deserializedBo.getJvmGcOldCount());
+		assertEquals(testBo.getAgentId(), deserial       zedBo.getAgentId());
+		assertEquals(testBo.getStartTimestamp(),       deserializedBo.getStartTimestamp());
+		assertEquals(testB       .getTimestamp(), deserializedBo.getTimestamp());
+		assertEquals(testBo.getGcTyp       (), deserializedBo.getGcType());
+		assertEquals(testBo.getJvmMemoryHeapUsed()        deserializedBo.getJvmMemoryHeapUsed());
+		assertEquals(testBo.getJvmMemoryHeapMax(),       deserializedBo.getJvmMemoryHeapMax());
+		assertEquals(testBo.getJvmMemoryNonHeapUse       (), deserializedBo.getJvmMemoryNonHeapUsed());
+		assertEquals(testBo.ge       JvmMemoryNonHeapMax(), deserializedBo.getJvmMemoryNonHeapMax());
+		as    ertEquals(testBo.getJvmGcOldCount(), deserializedBo.getJvmGcOldCount());
 		assertEquals(testBo.getJvmGcOldTime(), deserializedBo.getJvmGcOldTime());
 	}
 

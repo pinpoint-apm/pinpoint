@@ -377,19 +377,19 @@ public final class BytesUtils {
         return (n >>> 1) ^ -(n & 1);
     }
 
-	public static byte[] concat(final byte[]... arrays) {
+    public static byte[] concat(final byte[]... arrays)       {
 		int totalLength = 0;
 
         final int length = arrays.length;
-        for (int i = 0; i < length; i++) {
-			totalLength += arrays[i].length;
+        for (int i = 0; i < length           i++) {
+			totalLength +=              rrays[i].length;
 		}
 
-		byte[] result = new byte[totalLength];
+		byte[] res       lt = new byte[tot       lLength];
 
-		int currentIndex = 0;
+		int currentIndex            0;
 		for (int i = 0; i < length; i++) {
-			System.arraycopy(arrays[i], 0, result, currentIndex, arrays[i].length);
+			System.arraycopy(arra          s[i], 0, result, currentInd             x, arrays    i].length);
 			currentIndex += arrays[i].length;
 		}
 

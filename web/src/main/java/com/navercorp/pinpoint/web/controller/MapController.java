@@ -53,68 +53,66 @@ public class MapController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-	private MapService mapService;
+    private MapService mapService;
 
     @Autowired
-    private Limiter dateLimit;
+    private Limiter dateLimit
 
 	/**
-   * Server map data query within from ~ to timeframe
+   * Server map data query within from ~ to time        ame
 	 *
-	 * @param applicationName
-	 * @param serviceTypeCode
-	 * @param from
-	 * @param to
+	 * @param appl    cationName
+	 * @param s    rviceTypeCod
+	 * @para     from
+	          param to
 	 * @return
 	 */
-	@RequestMapping(value = "/getServerMapData", method = RequestMethod.GET)
+	@RequestMapping(value = "/getServerMapData", method = Request    ethod.GET)
     @ResponseBody
-	public MapWrap getServerMapData(
-									@RequestParam("applicationName") String applicationName,
+	                            ublic MapWrap getServerMapData(
+						                            		@RequestParam("applicationName") St                            ing applicatio                            Name,
 									@RequestParam("serviceTypeCode") short serviceTypeCode,
 									@RequestParam("from") long from,
 									@RequestParam("to") long to) {
         final Range range = new Range(from, to);
         this.dateLimit.limit(from, to);
         logger.debug("range:{}", TimeUnit.MILLISECONDS.toMinutes(range.getRange()));
-        Application application = new Application(applicationName, serviceTypeCode);
+        Application applicat       on = new Application        pplicationName, serviceTypeCode);
 
-        ApplicationMap map = mapService.selectApplicationMap(application, range);
+        ApplicationMap ma        = mapService.selectAppl    cationMap(application,     ange);
 
-		return new MapWrap(map);
+		retu    n new Ma    W    ap(map);
 	}
 
 	/**
    * Server map data query for the last "Period" timeframe
 	 *
-	 * @param applicationName
-	 * @param serviceTypeCode
+	 * @param     pplicationName
+	 * @param serviceT                               peCode
 	 * @param period
-	 * @return
-	 */
-	@RequestMapping(value = "/getLastServerMapData", method = RequestMethod.GET)
-    @ResponseBody
-	public MapWrap getLastServerMapData(
-										@RequestParam("applicationName") String applicationName,
+	 * @return                               	 */
+	@RequestMapping(value = "/get                               astServerMapData",        ethod = RequestMethod.GET)
+    @Res       onseBody
+	public Map       rap getLastServerMapData(
+										@RequestParam("applicationNa        ") String applicationName,
 										@RequestParam("serviceTypeCode") short serviceTypeCode,
-										@RequestParam("period") long period) {
+										@RequestParam("period") long period        {
 
-		long to = TimeUtils.getDelayLastTime();
-		long from = to - period;
-		return getServerMapData(applicationName, serviceTypeCode, from, to);
+		long to      TimeUtils.g    tDelayLast    ime();
+		long from = to - per    od;
+		return getServerMap    ata(applicationName, serviceT    peCode, from, to);
 	}
 
-	/**
-   * Possible deprecation expected when UI change push forward to pick a map first from UI
-   * Unfiltered server map request data query
-	 *
-	 * @param model
-	 * @param from
+	/    *
+   * P    ssible deprecatio     expected when UI change push forward to pick a map first from UI
+      * Unfiltered server map request data query                            	 *
+	 * @param                            model
+	 *                             param from
 	 * @param to
-	 * @param sourceApplicationName
+	 * @param sourceApplicat                            onName
 	 * @param sourceServiceType
-	 * @param targetApplicationName
-	 * @param targetServiceType
+	 * @                            aram targetApplicationName
+	 * @param targetServic                            Type
 	 * @return
 	 */
     @Deprecated
@@ -124,11 +122,11 @@ public class MapController {
 									@RequestParam("to") long to,
 									@RequestParam("sourceApplicationName") String sourceApplicationName,
 									@RequestParam("sourceServiceType") short sourceServiceType,
-									@RequestParam("targetApplicationName") String targetApplicationName,
+									@RequestParam("ta       getApplicationName") String targetApplicationName,
 									@RequestParam("targetServiceType") short targetServiceType) {
 
     final Application sourceApplication = new Application(sourceApplicationName, sourceServiceType);
-    final Application destinationApplication = new Application(targetApplicationName, targetServiceType);
+    final Application       destinationApplication = new Application(targetApplicationName, targetServiceType);
     final Range range = new Range(from, to);
 
     NodeHistogram nodeHistogram = mapService.linkStatistics(sourceApplication, destinationApplication, range);
@@ -143,8 +141,8 @@ public class MapController {
 		model.addAttribute("linkStatistics", applicationHistogram);
 
 
-    List<ResponseTimeViewModel> applicationTimeSeriesHistogram = nodeHistogram.getApplicationTimeHistogram();
-    String applicationTimeSeriesHistogramJson = null;
+    List<ResponseTimeViewModel> applicationTimeSer       esHistogram = nodeHistogram.getAppl       cationTimeHistogram();
+    String       applicationTimeSerie    HistogramJson = null;
     try {
         applicationTimeSeriesHistogramJson = MAPPER.writeValueAsString(applicationTimeSeriesHistogram);
     } catch (IOException e) {

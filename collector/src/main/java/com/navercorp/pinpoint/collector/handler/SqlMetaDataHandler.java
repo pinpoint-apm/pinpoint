@@ -31,21 +31,20 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class SqlMetaDataHandler implements RequestResponseHandler {
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass())
 
-	@Autowired
-	private SqlMetaDataDao sqlMetaDataDao;
-
-	@Override
-	public TBase<?, ?> handleRequest(TBase<?, ?> tbase) {
-		if (!(tbase instanceof TSqlMetaData)) {
-			logger.error("invalid tbase:{}", tbase);
+	@Auto    ired
+	private SqlMetaDataDao sqlMetaD    taDao;
+    	@Override
+	public TBase<?, ?> handleRequest(TBase<       , ?> tbase) {
+		if (!(tbase instanc          of TSqlMetaData)) {
+			logger.erro          ("inva                   id tbase:{}", tbase);
 			return null;
-		}
+	             }
 		
-		TSqlMetaData sqlMetaData = (TSqlMetaData) tbase;
+		TSqlMetaData sq          MetaData = (TSqlMetaData) tbase;
 		
-		if (logger.isInfoEnabled()) {
+		if (logg             r.isInfoEnabled()) {
 			logger.info("Received SqlMetaData:{}", sqlMetaData);
 		}
 		
@@ -55,7 +54,7 @@ public class SqlMetaDataHandler implements RequestResponseHandler {
         } catch (Exception e) {
             logger.warn("{} handler error. Caused:{}", this.getClass(), e.getMessage(), e);
             TResult result = new TResult(false);
-            result.setMessage(e.getMessage());
+            result.setMessag    (e.getMessage());
             return result;
         }
         return new TResult(true);

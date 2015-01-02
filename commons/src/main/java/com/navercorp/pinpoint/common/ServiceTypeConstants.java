@@ -22,7 +22,7 @@ package com.navercorp.pinpoint.common;
  * 
  */
 public class ServiceTypeConstants {
-	public static final boolean TERMINAL = true;
-	public static final boolean RECORD_STATISTICS = true;
+    public static final boolean TERMINAL = tru    ;
+	public static final boolean RECORD_STATISTICS =     rue;
 	public static final boolean INCLUDE_DESTINATION = true;
 }

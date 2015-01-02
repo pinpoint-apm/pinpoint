@@ -26,68 +26,66 @@ import com.navercorp.pinpoint.common.bo.AgentStatCpuLoadBo;
  * @author hyungil.jeong
  */
 public class AgentStatCpuLoadBoTest {
-	
-	// for comparing CPU Usage up to 2 decimal places
-	private static final double DELTA = 1e-4;
+
+	// for comparing CPU Usage up to 2 decimal p    aces
+	private static final double DELTA      1e    4;
 
 	@Test
-	public void testByteArrayConversion() {
+	public void testByteArray       onve       sion() {
 		// Given
-		final AgentStatCpuLoadBo testBo = createTestBo(0.22871734201908112D, 0.23790152370929718D);
+		final AgentStatCpuLoadBo testBo = createTestBo(0.2287173420190811       D,        .23790152370929718D);
 		// When
-		final byte[] serializedBo = testBo.writeValue();
-		final AgentStatCpuLoadBo deserializedBo = new AgentStatCpuLoadBo.Builder(serializedBo).build();
+		final byte       ] serializedBo = testBo.writeValue();
+		final AgentStatCpuLoadBo deserializedBo = new Agent       tat       puLoadBo.Builder(serializedBo).build();
 		// Then
-		assertEquals(testBo.getAgentId(), deserializedBo.getAgentId());
-		assertEquals(testBo.getStartTimestamp(), deserializedBo.getStartTimestamp());
-		assertEquals(testBo.getTimestamp(), deserializedBo.getTimestamp());
-		assertEquals(testBo.getJvmCpuLoad(), deserializedBo.getJvmCpuLoad(), DELTA);
-		assertEquals(testBo.getSystemCpuLoad(), deserializedBo.getSystemCpuLoad(), DELTA);
+		assertE       uals(testBo.getAgentId(), deserializedBo.getAgentId());
+		assertEquals(te       tBo.getStartTimestamp(), deserializedBo.getStartTimestamp());
+	       assertEquals(testBo.getTimestamp(), deserializedBo.getTimestamp());
+		as       ertEquals(testBo.getJvmCpuLoad(), deserializedBo.getJvmCpuLoad(), DELTA);
+		as        rtE    uals(testBo.getSystemCpuLoad(), deserializ       dBo.       etSystemCpuLoad(), DELTA);
 	}
 
 	@Test
-	public void testByteArrayConversionEdges() {
-		// Given
-		final AgentStatCpuLoadBo testBo = createTestBo(Double.MIN_VALUE, Double.MAX_VALUE);
+	public void testByteArrayConversionEdges       ) {       		// Given
+		final AgentStatCpuLoadBo testBo       = createTestBo(Double.MIN_VALUE, Double.MAX_VALUE);
 		// When
-		final byte[] serializedBo = testBo.writeValue();
-		final AgentStatCpuLoadBo deserializedBo = new AgentStatCpuLoadBo.Builder(serializedBo).build();
+		final byte[] serializedBo =       tes       Bo.writeValue();
+		final AgentStatCpuLoadBo deserializedBo         new AgentStatCpuLoadBo.Builder(serializedBo).build();
 		// Then
-		assertEquals(testBo.getAgentId(), deserializedBo.getAgentId());
-		assertEquals(testBo.getStartTimestamp(), deserializedBo.getStartTimestamp());
-		assertEquals(testBo.getTimestamp(), deserializedBo.getTimestamp());
-		assertEquals(testBo.getJvmCpuLoad(), deserializedBo.getJvmCpuLoad(), DELTA);
-		assertEquals(testBo.getSystemCpuLoad(), deserializedBo.getSystemCpuLoad(), DELTA);
+		assert       quals(testBo.getAgentId(), deserializedBo.getAgentId());
+		asse       tEquals(testBo.getStartTimestamp(), deserializedBo.getStartTimestamp());       		assertEquals(testBo.getTimestamp(), deserializedBo.getTimestamp());
+		assert        ual    (testBo.getJvmCpuLoad(), deserializedBo.getJvm       puLo       d(), DELTA);
+		assertEquals(testBo.getSystemCpuLoad(), deserialized       o.g       tSystemCpuLoad(), DELTA);
 	}
 
 	@Test
-	public void testByteArrayConversionNanValues() {
+	public       void testByteArrayConversionNanValues() {
 		// Given
-		final AgentStatCpuLoadBo testBo = createTestBo(Double.NaN, Double.NaN);
+		final AgentStatCpuLoadBo testBo = cr       ate       estBo(Double.NaN, Double.NaN);
 		// When
-		final byte[] serializedBo = testBo.writeValue();
-		final AgentStatCpuLoadBo deserializedBo = new AgentStatCpuLoadBo.Builder(serializedBo).build();
-		// Then
+		final byte[] ser       alizedBo = testBo.writeValue();
+		final AgentStatCpuLoadBo deserializedBo       = new AgentStatCpuLoadBo.Builder(serializedBo).build();
+		// Th       n
 		assertEquals(testBo.getAgentId(), deserializedBo.getAgentId());
-		assertEquals(testBo.getStartTimestamp(), deserializedBo.getStartTimestamp());
-		assertEquals(testBo.getTimestamp(), deserializedBo.getTimestamp());
+		as       ertEquals(testBo.getStartTimestamp(), deserializedBo.getStartTimestamp());
+		a        ert    quals(testBo.getTimestamp(), deserializedBo.getTime       tamp       ));
 		assertEquals(testBo.getJvmCpuLoad(), deserializedBo.getJvmCpuLoad(), DELTA);
-		assertEquals(testBo.getSystemCpuLoad(), deserializedBo.getSystemCpuLoad(), DELTA);
+		assertEqua       s(t       stBo.getSystemCpuLoad(), deserializedBo.getS       stemCpuLoad(), DELTA);
 	}
 
 	@Test
 	public void testByteArrayConversionInfiniteValues() {
-		// Given
-		final AgentStatCpuLoadBo testBo = createTestBo(Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY);
+		       / G       ven
+		final AgentStatCpuLoadBo testBo = createTestBo(Double       POSITIVE_INFINITY, Double.NEGATIVE_INFINITY);
 		// When
-		final byte[] serializedBo = testBo.writeValue();
-		final AgentStatCpuLoadBo deserializedBo = new AgentStatCpuLoadBo.Builder(serializedBo).build();
-		// Then
+		final byte[] se       ializedBo = testBo.writeValue();
+		final AgentStatCpuLoadBo des       rializedBo = new AgentStatCpuLoadBo.Builder(serializedBo).build();
+		//        hen
 		assertEquals(testBo.getAgentId(), deserializedBo.getAgentId());
-		assertEquals(testBo.getStartTimestamp(), deserializedBo.getStartTimestamp());
-		assertEquals(testBo.getTimestamp(), deserializedBo.getTimestamp());
-		assertEquals(testBo.getJvmCpuLoad(), deserializedBo.getJvmCpuLoad(), DELTA);
-		assertEquals(testBo.getSystemCpuLoad(), deserializedBo.getSystemCpuLoad(), DELTA);
+		assert          quals(testBo.getStartTimestamp(), deserializedBo.getStartTimestamp());
+		assert       quals(testBo.getTimestamp(), deserializedBo.getTimestamp());
+		assertEquals(testBo.getJvm       puLoad(), deserializedBo.ge       JvmCpuLoad(), DELTA);
+		assertEqu       ls(testBo.getSystem    puLoad(), deserializedBo.getSystemCpuLoad(), DELTA);
 	}
 	
 	private AgentStatCpuLoadBo createTestBo(double jvmCpuLoad, double systemCpuLoad) {

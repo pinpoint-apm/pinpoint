@@ -23,6 +23,6 @@ import org.apache.thrift.TBase;
  */
 public interface ProfilerCommandService {
 
-	Class<? extends TBase> getCommandClazz();
+    Class<? extends TBase> getCommandClazz(    ;
 	
 }

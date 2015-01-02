@@ -25,22 +25,22 @@ import com.navercorp.pinpoint.common.bo.AgentInfoBo;
  */
 public class AgentStatus {
 
-	private final boolean exists;
-	private final long checkTime;
-	private final AgentInfoBo agentInfo;
+    private final boolean exist    ;
+	private final long check    ime;
+	private final AgentInfoBo age    tInfo;
 
-	public AgentStatus(AgentInfoBo agentInfoBo) {
-		this.exists = agentInfoBo != null;
-		this.agentInfo = agentInfoBo;
-		this.checkTime = System.currentTimeMillis();
+	public AgentStatus(AgentInfoBo age       tInfoBo) {
+		this.exists = age       tInfoBo != null;
+		this.a       entInfo = agentInfoBo;
+		this.checkTime         System.currentTimeMillis(       ;
 	}
 
-	public boolean isExists() {
-		return exists;
+	pub        c boolean isExists() {
+		return e       ists;
 	}
 
-	public AgentInfoBo getAgentInfo() {
-		return agentInfo;
+	pu        ic AgentInfoBo getAgentInf       () {
+		return    agentInfo;
 	}
 
 	public long getCheckTime() {

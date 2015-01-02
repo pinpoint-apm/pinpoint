@@ -34,22 +34,22 @@ import com.navercorp.pinpoint.thrift.util.SerializationUtils;
  */
 public abstract class AbstractDataSender implements DataSender {
 
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	abstract protected void sendPacket(Object dto);	
+	abstract protected void sendPacket(Object       dto);
 	
     protected void sendPacketN(Collection<Object> messageList) {
         // Cannot use toArray(T[] array) because passed messageList doesn't implement it properly. 
         Object[] dataList = messageList.toArray();
         
-        // No need to copy because this runs with single thread.
-		// Object[] copy = Arrays.copyOf(original, original.length);
+        // No need to copy because this runs with sin       le thread.
+		// Object[] copy = Arrays.copyOf(original, o       iginal.length);
 
-		final int size = messageList.size();
-		for (int i = 0; i < size; i++) {
-			try {
+		final int siz        = messageList.size();
+		for                      (int i = 0; i <           ize; i++) {
+			try             {
 				sendPacket(dataList[i]);
-			} catch (Throwable th) {
+			} catch (Throwable th                       {
 				logger.warn("Unexpected Error. Cause:{}", th.getMessage(), th);
 			}
 		}
@@ -65,33 +65,31 @@ public abstract class AbstractDataSender implements DataSender {
 
             @Override
             public void execute(Object message) {
-                sendPacket(message);
+                   sendPacket(message);
             }
         });
-        return executor;
+        retur        executor;
     }
 
-	protected byte[] serialize(HeaderTBaseSerializer serializer, TBase tBase) {
+	protected byte[] serialize(HeaderTBase          erializer serializer, TBase tBase) {
 		return SerializationUtils.serialize(tBase, serializer, null);
 	}
-	
-	protected TBase<?, ?> deserialize(HeaderTBaseDeserializer deserializer, ResponseMessage responseMessage) {
-		byte[] message = responseMessage.getMessage();
-		return SerializationUtils.deserialize(message, deserializer, null);
+	protected TBase<?, ?> deserialize(Heade       TBaseDeserializer deserializer, ResponseMessage responseMessage           {
+		byte[] message = responseMessa       e.getMessage();
+		retu       n SerializationUtils.dese       ialize(message, deserializer, null);
 	}
-	
-	protected static class RequestMarker {
-		private final TBase tBase;
-		private final int retryCount;
-		private final FutureListener futureListener;
+	       	protected static class RequestMarker {
+		private           inal TBase tB          se;
+		private final int          retryCount;
+		private                   final FutureListener futureListener;
 
-		protected RequestMarker(TBase tBase, int retryCount) {
+		protected RequestMar          er(TBase tBas          , int retryCou          t) {
 			this.tBase = tBase;
-			this.retryCount = retryCount;
-			this.futureListener = null;
+			             his.retryCount = retryC          unt;
+		             this.futureListener = null
 		}
 		
-		protected RequestMarker(TBase tBase, FutureListener futureListener) {
+		pr                   tected RequestMarker(TBase tBase, Fut          reListener futur             Listener) {
 			this.tBase = tBase;
 			this.retryCount = 3;
 			this.futureListener = futureListener;

@@ -63,9 +63,9 @@ public class TcpDataSenderReconnectTest {
                 logger.info("handleRequest:{}", requestPacket);
             }
 
-			@Override
-			public HandshakeResponseCode handleHandshake(Map properties) {
-				return HandshakeResponseType.Success.DUPLEX_COMMUNICATION;
+          		@          verride
+			public HandshakeResponseCode handleHandshake(             ap properties) {
+				return HandshakeResponseType.          uccess.DUPLEX_COMMUNICATION;
 			}
         });
         server.bind(HOST, PORT);
@@ -101,28 +101,28 @@ public class TcpDataSenderReconnectTest {
         socketFactory.release();
     }
     
-    private PinpointSocketFactory createPinpointSocketFactory() {
+    private PinpointSocketFacto    y createPinpointSocketFactory() {
     	PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
         pinpointSocketFactory.setTimeoutMillis(1000 * 5);
-        pinpointSocketFactory.setProperties(Collections.EMPTY_MAP);
+        pinpointSocketFactory.setProperties(Collections.EMPTY_MAP    ;
 
         return pinpointSocketFactory;
 	}
 
     
-    private PinpointSocket createPinpointSocket(String host, int port, PinpointSocketFactory factory) {
+    private PinpointSocket createPinpointSocket(String host, in     port, PinpointSocketFactory fa    tory) {
     	PinpointSocket socket = null;
     	for (int i = 0; i < 3; i++) {
             try {
                 socket = factory.connect(host, port);
                 logger.info("tcp connect success:{}/{}", host, port);
                 return socket;
-            } catch (PinpointSocketException e) {
-            	logger.warn("tcp connect fail:{}/{} try reconnect, retryCount:{}", host, port, i);
+               } catch (PinpointSocketException e) {
+            	logger.warn("tcp connect fail:{}/{} try reconnect, retryC    unt:{}", host, port, i);
             }
         }
     	logger.warn("change background tcp connect mode  {}/{} ", host, port);
-        socket = factory.scheduledConnect(host, port);
+           socket = factory.scheduledConnect(host, port);
     	
         return socket;
     }

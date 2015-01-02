@@ -45,18 +45,18 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
-	private int scanCacheSize = 40;
+    private Logger logger = LoggerFactory.getLogger(this.getClass()    ;
+	private int scanCacheSize =    40;
+
+	@A    towired
+	private HbaseOperations2 hbaseOp    rations2
 
 	@Autowired
-	private HbaseOperations2 hbaseOperations2;
-
-	@Autowired
-	@Qualifier("mapStatisticsCalleeMapper")
+	@Qualifier("mapStatist    csCalleeMapper")
 	private RowMapper<LinkDataMap> mapStatisticsCalleeMapper;
 
     @Autowired
-    private RangeFactory rangeFactory;
+    private RangeFa    tory ra    geFactory;
 
 	@Override
 	public LinkDataMap selectCallee(Application calleeApplication, Range range) {
@@ -66,11 +66,11 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
         if (range == null) {
             throw new NullPointerException("range must not be null");
         }
-        Scan scan = createScan(calleeApplication, range);
-		List<LinkDataMap> foundListList = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLER, scan, mapStatisticsCalleeMapper);
+        Scan scan = createScan(       alleeApplication, range);
+		List<LinkDataMap> foundListList = hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLER, sc       n, mapStatisticsCalleeMapp          r);
 
 		if (foundListList.isEmpty()) {
-			logger.debug("There's no caller data. {}, {}", calleeApplication, range);
+			logger.debug("There's no c             ller data. {}, {}", calleeAppli    ation, range);
 		}
 		
         return merge(foundListList);
@@ -80,7 +80,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
         final LinkDataMap result = new LinkDataMap();
 
         for (LinkDataMap foundList : foundListList) {
-            result.addLinkDataMap(foundList);
+            result.addLinkDataMap    foundList);
         }
 
         return result;
@@ -88,14 +88,14 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
 
     /**
-	 * statistics information used when a link between nodes is clicked at the server map
+	 * statistics inform    t    on used when a    link be    ween nodes    is clicked at the server    map
 	 * 
-	 * @return <pre>
+	 * @return <    re>
 	 * list [
 	 *     map {
-	 *         key = timestamp
-	 *         value = map {
-	 *             key = histogram slot
+	 *            key = timestamp
+	 *            va    ue = m    p
+	 *                       ey = histogram slot
 	 *             value = count
 	 *         }
 	 *     }
@@ -103,30 +103,29 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 	 * </pre>
 	 */
 	@Override
-	public List<LinkDataMap> selectCalleeStatistics(Application callerApplication, Application calleeApplication, Range range) {
-		if (logger.isDebugEnabled()) {
+	public List<Li       kDataMap> selectCalleeStat          stics(Application callerApplication, Application calleeApplication, Range range) {
+		if (l             gger.isDebugEnabled()) {
 			logger.debug("selectCalleeStatistics. {}, {}, {}", callerApplication, calleeApplication, range);
 		}
 		Scan scan = createScan(calleeApplication, range);
 
 
-        final LinkFilter filter = new DefaultLinkFilter(callerApplication, calleeApplication);
-        RowMapper<LinkDataMap> mapper = new MapStatisticsCalleeMapper(filter);
-		return hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CALLER, scan, mapper);
+        final LinkFilter filter = ne        DefaultLinkFilter(callerApplication, calleeApplication);
+        RowMappe        LinkDataMap> mapper = new MapStatisticsCalleeMapper(filter);
+		return hbaseOperations2.find(HBaseTables.MAP_STATISTICS_CA       LER, scan, mapper);
 	}
 
-	private Scan createScan(Application application, Range range) {
-        range = rangeFactory.createStatisticsRange(range);
+	p          ivate Scan createScan(Application application, R                   nge range) {
+        range = rangeFactory.createStatisticsRang       (range);
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("scan time:{} ", range.prettyToString());
 		}
 		
-		// start key is replaced by end key because timestamp has been reversed
-		byte[] startKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), range.getTo());
-		byte[] endKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), range.getFrom());
-
-		Scan scan = new Scan();
+		// start key is r       placed by end key because timestamp has been reversed
+		byte[] startKey = ApplicationMapStatisticsUtils.makeRowKey(application.g       tName(), applicatio       .getServiceTypeCode(), range.get       o());
+		byte[] endKey =       ApplicationMapStatis       icsUtils.makeRowKey(application.getName(), application.ge       ServiceTypeCode(), range.getFrom());
+       		Scan s    an = new Scan();
 		scan.setCaching(this.scanCacheSize);
 		scan.setStartRow(startKey);
 		scan.setStopRow(endKey);

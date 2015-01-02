@@ -38,23 +38,23 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class MainController {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	@Autowired
-	private CommonService commonService;
+	@Auto    ired
+	private CommonService commonS    rvice;
 
 	@RequestMapping(value = "/applications", method = RequestMethod.GET)
-    @ResponseBody
-	public ApplicationGroup getApplicationGroup() {
+    @R    sponseBody
+	public ApplicationGroup getApplic       tionGroup() {
 		List<Application> applicationList = commonService.selectAllApplicationNames();
         logger.debug("/applications {}", applicationList);
 
-        return new ApplicationGroup(applicationList);
+        return new ApplicationGro        (applicationList);
 	}
 
-	@RequestMapping(value = "/serverTime", method = RequestMethod.GET)
+	@RequestMapping(value = "/serverTime", method = RequestMet    od.GET)
     @ResponseBody
-	public ServerTime getServerTime() {
+	public       ServerTime getServer    ime() {
 		return new ServerTime();
 	}
 }

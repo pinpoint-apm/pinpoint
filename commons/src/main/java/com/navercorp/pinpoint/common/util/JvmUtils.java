@@ -24,32 +24,32 @@ import java.util.Map;
  * @author hyungil.jeong
  */
 public final class JvmUtils {
-	private static final RuntimeMXBean RUNTIME_MX_BEAN = ManagementFactory.getRuntimeMXBean();
-	private static final Map<String, String> SYSTEM_PROPERTIES = RUNTIME_MX_BEAN.getSystemProperties();
+    private static final RuntimeMXBean RUNTIME_MX_BEAN = ManagementFactory.getRuntimeMXBean(    ;
+	private static final Map<String, String> SYSTEM_PROPERTIES = RUNTIME_MX_BEAN.getSystemProperti       s();
 	
-	private static final JvmVersion JVM_VERSION = _getVersion();
+	private static final JvmVersion JVM_VERSION = _ge       Version();
 	
-	private JvmUtils() {
+	pri          ate JvmUtils() {
 	}
 	
-	public static JvmVersion getVersion() {
+	public static       JvmVersion getV          rsion() {
 		return JVM_VERSION;
 	}
 	
-	public static boolean supportsVersion(JvmVersion other) {
+	public static bo       lean supportsVersion(JvmVersion           ther) {
 		return JVM_VERSION.onOrAfter(other);
 	}
 	
-	public static String getSystemProperty(SystemPropertyKey systemPropertyKey) {
-		String key = systemPropertyKey.getKey();
-		if (SYSTEM_PROPERTIES.containsKey(key)) {
-			return SYSTEM_PROPERTIES.get(key);
+	public static String        etSystemProperty(SystemPropertyKey s       stemPropertyKey) {
+		String key = sys          emPropertyKey.getKey();
+		if             (SYS          EM_PROPERTIES.containsKey(key)) {
+			r       turn SYSTEM_PROPERTIES.get(key);
 		}
 		return "";
 	}
 	
-	private static JvmVersion _getVersion() {
-		String javaVersion = getSystemProperty(SystemPropertyKey.JAVA_SPECIFICATION_VERSION);
+	private static JvmVersion       _getVersion() {
+		String javaVersion = get    ystemProperty(SystemPropertyKey.JAVA_SPECIFICATION_VERSION);
 		return JvmVersion.getFromVersion(javaVersion);
 	}
 }

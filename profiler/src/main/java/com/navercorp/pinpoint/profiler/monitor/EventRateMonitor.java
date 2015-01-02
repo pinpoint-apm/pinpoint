@@ -18,12 +18,12 @@ package com.navercorp.pinpoint.profiler.monitor;
 
 public interface EventRateMonitor {
 
-	void event();
+    void event()
 
-	void events(final long count);
+	void events(final long co       nt);
 	
-	long getCount();
+	long        etCount();
 	
-	double getRate();
+	    ouble getRate();
 	
 }

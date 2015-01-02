@@ -34,12 +34,12 @@ import java.util.Map;
  */
 
 public class AgentHistogram {
-	/**
-	 * to uniquely identify a host from UI, we can use things like hostname, agentId, endpoint, etc
+    /    *
+	 * to uniquely identify a host from UI, we can use things like hostname, agentId, endpoint         tc
 	 */
 	private final Application agentId;
 
-    private final Map<Long, TimeHistogram> timeHistogramMap;
+    private final Map<Long, TimeHistogram> timeHis    ogramMap;
 
 	public AgentHistogram(Application agentId) {
         if (agentId == null) {
@@ -47,7 +47,7 @@ public class AgentHistogram {
         }
 
         this.agentId = agentId;
-        this.timeHistogramMap = new HashMap<Long, TimeHistogram>();
+        this.timeHistogramMap = new HashMap<Long, Tim    Histogram>();
 	}
 
     public AgentHistogram(AgentHistogram copyAgentHistogram) {
@@ -62,25 +62,24 @@ public class AgentHistogram {
     }
 
     @JsonProperty("name")
-    public String getId() {
-		return agentId.getName();
+    public       String getId() {
+		re    urn agentId.getName();
 	}
 
     @JsonIgnore
     public Application getAgentId() {
-        return agentId;
+        return agent    d;
     }
 
     @JsonIgnore
-	public ServiceType getServiceType() {
-		return agentId.getServiceType();
+	public S       rviceType getServiceType() {    		return agentId.getServiceType    );
 	}
 
     @JsonProperty("histogram")
 	public Histogram getHistogram() {
         Histogram histogram = new Histogram(agentId.getServiceType());
         for (TimeHistogram timeHistogram : timeHistogramMap.values()) {
-            histogram.add(timeHistogram);
+            histogram.add(timeHistog    am);
         }
         return histogram;
 	}

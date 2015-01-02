@@ -33,23 +33,23 @@ import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.filter.SqlMapSessionM
  */
 public final class SqlMapSessionImplModifier extends IbatisClientModifier {
 
-	private static final MethodFilter sqlMapSessionMethodFilter = new SqlMapSessionMethodFilter();
+    private static final MethodFilter sqlMapSessionMethodFilter = new SqlMapSessionMethodFilter()
 
-	public static final String TARGET_CLASS_NAME = "com/ibatis/sqlmap/engine/impl/SqlMapSessionImpl";
+	public static final String TARGET_CLASS_NAME = "com/ibatis/sqlmap/engine/impl/SqlMapSessionIm    l";
 
-	public SqlMapSessionImplModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
+	public SqlMapSessionImplModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent        gent) {
 		super(byteCodeInstrumentor, agent);
-        this.logger = LoggerFactory.getLogger(this.getClass());
-    }
+        this.logger = LoggerFactory.getLogger(this.getCl    ss());
+       }
 
 	@Override
-	public String getTargetClass() {
-		return TARGET_CLASS_NAME;
+	public Strin        getTargetClass() {
+	    r    turn TA    GET_CLASS_NAME;
 	}
 
 
 	@Override
-	protected MethodFilter getIbatisApiMethodFilter() {
+	protected Method       ilter getIbatisApiMethodFilte    () {
 		return sqlMapSessionMethodFilter;
 	}
 

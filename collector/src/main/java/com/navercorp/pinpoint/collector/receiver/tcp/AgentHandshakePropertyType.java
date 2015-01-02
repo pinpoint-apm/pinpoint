@@ -25,37 +25,36 @@ import com.navercorp.pinpoint.rpc.util.ClassUtils;
  */
 public enum AgentHandshakePropertyType {
 
-	SUPPORT_SERVER("supportServer", Boolean.class),
+    SUPPORT_SERVER("supportServer", Boolean.class)
 
-	HOSTNAME("hostName", String.class),
-	IP("ip", String.class),
-	AGENT_ID("agentId", String.class),
-	APPLICATION_NAME("applicationName", String.class),
-	SERVICE_TYPE("serviceType", Integer.class),
-	PID("pid", Integer.class),
-	VERSION("version", String.class),
-	START_TIMESTAMP("startTimestamp", Long.class);
-	
+	HOSTNAME("hostName", String.cl    ss),
+	IP("ip", String    class),
+	AGENT_ID("agentId", Str    ng.class),
+	APPLICATION_NAME("applicationName",     tring.class),
+	SERVICE_TYPE("serviceType"     Integer.class),
+	PID("p    d", Integer.class),
+	VERSION("v    rsion", String.class),
+	START_TIMESTAMP("sta       tTimestamp", Long.class);
 
-	private final String name; 
+	private final String nam       ;
 	private final Class clazzType;
 	
-	private AgentHandshakePropertyType(String name, Class clazzType) {
+	private AgentHandshakePro       ertyType(Stri       g name, Class clazzType        {
 		this.name = name;
-		this.clazzType = clazzType;
+	       this.cla          zType = clazzType;
 	}
 
-	public String getName() {
+	pu       lic String ge          Name() {
 		return name;
 	}
 	
 	public Class getClazzType() {
-		return clazzType;
+		r       turn clazzType;
 	}
 	
-	public static boolean hasAllType(Map<Object, Object> properties) {
-		for (AgentHandshakePropertyType type : AgentHandshakePropertyType.values()) {
-			Object value = properties.get(type.getName());
+	public static boolean hasAllType(Map<Object, Object           properties) {
+		for (AgentHandshakeProp                   rtyType type : Age             t                   andshakePro             ertyT                            pe.values()) {
+			Object value = properties.get(type.ge             Name(                               );
 			
 			if (type == SUPPORT_SERVER) {
 				continue;

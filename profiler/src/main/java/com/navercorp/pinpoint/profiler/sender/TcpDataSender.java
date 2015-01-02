@@ -70,8 +70,8 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
     private AsyncQueueingExecutor<Object> executor;
 
     public TcpDataSender(PinpointSocket socket) {
-    	this.socket = socket;
-    	this.timer = createTimer();
+        this.socket = socket;
+       	this.timer = createTimer()
     	writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", "host", -1);
         this.executor = createAsyncQueueingExecutor(1024 * 5, "Pinpoint-TcpDataExecutor");
     }
@@ -93,25 +93,25 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
     }
 
     @Override
-    public boolean request(TBase<?, ?> data, int retryCount) {
+    public boolean request(TBase<?, ?> data, int retryCoun    ) {
     	RequestMarker message = new RequestMarker(data, retryCount);
-        return executor.execute(message);
-    }
+        return executor.execute(messa    e);
+       }
 
 	@Override
-	public boolean request(TBase<?, ?> data, FutureListener<ResponseMessage> listener) {
+	public boolean request(TBase<?, ?> data, FutureListener<ResponseMessage     listener) {
     	RequestMarker message = new RequestMarker(data, listener);
-        return executor.execute(message);
+        return execut        .execut    (message);
 	}
 
 	@Override
-	public boolean addReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
-		return this.socket.addPinpointSocketReconnectEventListener(eventListener);
+	public boolean addReconnectEventListener(PinpointSocketReconnectE       entListener eventListener) {
+		return this.socket.addPinpointSocketRec        nectEve    tListener(eventListener);
 	}
 
 	@Override
-	public boolean removeReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
-		return this.socket.removePinpointSocketReconnectEventListener(eventListener);
+	public boolean removeReconnectEventListener(PinpointS       cketReconnectEventListener eventListener) {
+		return this.socket.removePi    pointSocketReconnectEventListener(eventListener);
 	}
 
     @Override
@@ -125,32 +125,32 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
     }
 
     @Override
-    protected void sendPacket(Object message) {
-        try {
+    protected vo    d sendPacket(Object message) {
+              try {
         	if (message instanceof TBase) {
         		byte[] copy = serialize(serializer, (TBase) message);
                 if (copy == null) {
-                    return;
+                    r    turn;
                 }
-                doSend(copy);
+                doSend(copy)
         	} else if (message instanceof RequestMarker) {
-        		RequestMarker requestMarker = (RequestMarker) message;
+              		RequestMarker requestMarker = (Reque       tMarker) message;
 
-        		TBase tBase = requestMarker.getTBase();
-        		int retryCount = requestMarker.getRetryCount();
+        		TBase tBase = requestM       rker.getTBase();
+        		int retryCount = requestMarker.getRetryCoun       ();
         		FutureListener futureListener = requestMarker.getFutureListener();
         		byte[] copy = serialize(serializer, tBase);
                 if (copy == null) {
                     return;
-                }
+                   }
                 
-                if (futureListener != null) {
+                if (futureListener !=     ull) {
                 	doRequest(copy, futureListener);
-                } else {
+                   } else {
                 	doRequest(copy, retryCount, tBase);
                 }
         	} else {
-                logger.error("sendPacket fail. invalid dto type:{}", message.getClass());
+                l    gger.error("sendPacket fail. invalid dto type:{}", message.getClass());
                 return;
         	}
         } catch (Exception e) {
@@ -163,10 +163,10 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
         write.setListener(writeFailFutureListener);
     }
 
-    private void doRequest(final byte[] requestPacket, final int retryCount, final Object targetClass) {
+       private void doRequest(final byte[] requestPacket, final int retryCount, final Object targetClass) {
     	FutureListener futureListner = (new FutureListener<ResponseMessage>() {
             @Override
-            public void onComplete(Future<ResponseMessage> future) {
+                   ublic void onComplete(Future    ResponseMessage> future) {
                 if (future.isSuccess()) {
             		// Should cache?
                 	HeaderTBaseDeserializer deserializer = HeaderTBaseDeserializerFactory.DEFAULT_FACTORY.createDeserializer();
@@ -187,7 +187,7 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
                     }
                 } else {
                     logger.warn("request fail. clazz:{} Caused:{}", targetClass, future.getCause().getMessage(), future.getCause());
-                    retryRequest(requestPacket, retryCount, targetClass.getClass().getSimpleName());
+                    retryRequ    st    requestPacket, retryCount, targetClass.getClass().getSimpleName());
                 }
             }
         });
@@ -196,7 +196,7 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
     }
 
     private void retryRequest(byte[] requestPacket, int retryCount, final String className) {
-        RetryMessage retryMessage = new RetryMessage(retryCount, requestPacket);
+        RetryMessage retryMess    ge = new RetryMessage(retryCount, requestPacket);
         retryQueue.add(retryMessage);
         if (fireTimeout()) {
         	timer.newTimeout(new TimerTask() {
@@ -228,11 +228,10 @@ public class TcpDataSender extends AbstractDataSender implements EnhancedDataSen
         } else {
             return false;
         }
-    }
+       }
 
-    private void fireComplete() {
-        logger.debug("fireComplete");
-        fireState.compareAndSet(true, false);
+        rivate void fireComplete() {
+              logger.debug("fireCom          lete");                     fireState.compareAn    Set(true, false);
     }
 
 	@Override

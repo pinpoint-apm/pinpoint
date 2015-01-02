@@ -21,30 +21,30 @@ import com.navercorp.pinpoint.profiler.monitor.HistogramMonitor;
 
 public class MetricHistogramMonitor implements HistogramMonitor {
 
-	private final Histogram delegate;
+    private final Histogram delegat       ;
 	
-	public MetricHistogramMonitor(Histogram delegate) {
-		if (delegate == null) {
-			throw new NullPointerException("Histogram delegate is null");
+	public MetricHistogramMonitor(Histogram del       gate) {
+		if (deleg          te == null) {
+			throw new NullPointerException("Histog             am delegate is null          );
 		}
-		this.delegate = delegate;
+		this.dele       ate = delegate;
 	}
 	
 	public void reset() {
-		throw new RuntimeException("Histogram reset is not supported in Codahale Metrics 3.x.");
+		throw new RuntimeException("Histogram         set is not supported in Codaha       e Metrics 3.x.");
 	}
 
-	public void update(long value) {
-		this.delegate.update(value);
+	p          blic void update(long       value) {
+		this.delegate.upd          te(value);
 	}
 	
-	public long getCount() {
-		return this.delegate.getCount();
+	public long        etCount() {
+		ret          rn this.delegate.getCou       t();
 	}
 	
 	public Histogram getDelegate() {
 		return this.delegate;
-	}
+    }
 	
 	public String toString() {
 		return "MetricValueDistributionMonitor(delegate=" + this.delegate + ")";

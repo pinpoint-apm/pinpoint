@@ -45,84 +45,80 @@ import com.navercorp.pinpoint.common.bo.SpanEventBo;
  */
 public class SqlSessionTemplateModifierTest extends MyBatisClientModifierTest {
 
-	private static final ExecutorType executorType = ExecutorType.SIMPLE;
+    private static final ExecutorType executorType = ExecutorType.SIMPL       ;
 	
-	private SqlSessionTemplate sqlSessionTemplate;
-	
-	@Mock
-	private SqlSessionFactory sqlSessionFactory;
+	private SqlSessionTemplate sqlSessionT       mp    ate;
 	
 	@Mock
-	private SqlSession sqlSession;
+	private SqlSessionFactory s       lS    ssionFactory;
+	
+	@Mock
+	priv       te Sql    ession sqlSession;
 	
 	@Override
-	protected SqlSession getSqlSession() {
-		return this.sqlSessionTemplate;
+	pro       ected SqlSession getSqlSess          on() {    		ret    rn this.sqlSessionTemplate;
 	}
 	
-	@Override
-	@Before
-	public void setUp() throws Exception {
+	@O       erride
+	@B       fore
+	public void set       p() throws Exc       ption {
 		super.setUp();
 		setUpSqlSessionFactory();
 		setUpSqlSession();
-		this.sqlSessionTemplate = new SqlSessionTemplate(this.sqlSessionFactory, executorType);
+		this.sq          SessionTemplate = new SqlSessionTemplate(this.sqlSess       onFactory, executorType);
 	}
 	
-	private void setUpSqlSessionFactory() throws Exception {
-		Configuration configuration = mock(Configuration.class);
-		TransactionFactory transactionFactory = mock(TransactionFactory.class);
-		DataSource dataSource = mock(DataSource.class);
-		Environment environment = new Environment("test", transactionFactory, dataSource);
-		when(this.sqlSessionFactory.getConfiguration()).thenReturn(configuration);
+	private void setUpSq       SessionFactory() throws Exception {
+		Configuration configuration =       mock(Configuration.class);
+		TransactionFac       ory transactionFactory = mock(TransactionFactory.class);
+		DataSource dataSour       e = mock(DataSource.class);
+		Environment environment = new Environmen       ("test", transactionFactory, dataSource);
+		when(this.sql          essionFactory.getConfiguration()).thenReturn(c       nfiguration);
 		when(configuration.getEnvironment()).thenReturn(environment);
-	}
-	
-	private void setUpSqlSession() throws Exception {
-		when(this.sqlSessionFactory.openSession(executorType)).thenReturn(this.sqlSession);
+
+	priv    te v    id setUpSqlSession() throws Exception
+		when(this.sqlSessionFactory.openSession(        ecutorType)).thenReturn(this.sqlSession);
 	}
 
-	@Override
-	@After
+	    Overrid
+	@    fter
 	public void cleanUp() throws Exception {
-		// Should not manually close SqlSessionTemplate
+		//       S          ould not manually close          SqlSessionTemplate
 	}
 
-	@Ignore // Changed to trace only query operations
+	@Ignore // Changed to trac        only query operations
 	@Override
-	@Test
-	public void commitShouldBeTraced() throws Exception {
+	@Tes
+	public void commitShouldBeTraced() throws Exception
 		try {
-			super.commitShouldBeTraced();
-			fail("SqlSessionTemplate cannot manually call commit.");
-		} catch (UnsupportedOperationException e) {
-			final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
-			assertThat(spanEvents.size(), is(1));
-			final SpanEventBo commitSpanEventBo = spanEvents.get(0);
-			assertThat(commitSpanEventBo.hasException(), is(true));
-			assertThat(commitSpanEventBo.getExceptionId(), not(NOT_CACHED));
+			super.commitShouldB          Traced();
+			fail("SqlSessionTemplate cannot manua          ly call commit.");
+		} catch (UnsupportedOperatio          Exception e) {
+			final List<SpanEventBo> spanEvents = get             urrentSpanEvents();
+			assertThat(spanEvents.s    ze(), i    (1)    ;
+			final SpanEventBo commitSpanEventBo = spanEvents       g          t(0);
+			assertThat(commi          SpanEventBo.hasException(), is(true));
+			assertThat       commitSpanEventBo.getExceptionId(), not          NOT_CACHED));
 		}
 	}
 
-	@Ignore // Changed to trace only query operations
+	@Ignore // Changed to trace onl           query operations
 	@Override
-	@Test
-	public void rollbackShouldBeTraced() throws Exception {
+	@          est
+	public void rollbackShouldBeTraced() throws Exc          ption {
 		try {
 			super.rollbackShouldBeTraced();
-			fail("SqlSessionTemplate cannot manually call rollback.");
-		} catch (UnsupportedOperationException e) {
-			final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
-			assertThat(spanEvents.size(), is(1));
-			final SpanEventBo rollbackSpanEventBo = spanEvents.get(0);
-			assertThat(rollbackSpanEventBo.hasException(), is(true));
-			assertThat(rollbackSpanEventBo.getExceptionId(), not(NOT_CACHED));
+          		fail("SqlSessionTemplate cannot manually call rollback.");             		} catch (UnsupportedOperationException e) {
+    		final    Lis    <SpanEventBo> spanEvents = getCurrentSpanEvents();       	          	assertThat(spanEvents       size(), is(1));
+			final SpanEventBo ro          lbackSpanEventBo = spanEvents.get(0);
+			assertThat(ro          lbackSpanEventBo.hasException()           is(true));
+			assertThat(rollbackSpanEventBo.get          xceptionId(), not(NOT_CACHED));
 		}
 	}
 
-	@Ignore // Changed to trace only query operations
+	@Ignore          // Changed to trace only query operations
 	@Override
-	@Test
+	@Te                t
 	public void closeShouldBeTraced() throws Exception {
 		try {
 			super.closeShouldBeTraced();

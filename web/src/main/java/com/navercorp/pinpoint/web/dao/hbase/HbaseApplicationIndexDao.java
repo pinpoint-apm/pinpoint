@@ -40,22 +40,22 @@ import com.navercorp.pinpoint.web.vo.Application;
 @Repository
 public class HbaseApplicationIndexDao implements ApplicationIndexDao {
 
-	@Autowired
-	private HbaseOperations2 hbaseOperations2;
+    @Autowir    d
+	private HbaseOperations2 hbaseOperatio    s2;
+
+	@A    towired
+	@Qualifier("applicationN    meMapper")
+	private RowMapper<Application> applicati    nNameMap    er;
 
 	@Autowired
-	@Qualifier("applicationNameMapper")
-	private RowMapper<Application> applicationNameMapper;
-
-	@Autowired
-	@Qualifier("agentIdMapper")
-	private RowMapper<List<String>> agentIdMapper;
+	@Qualif    er("agentIdMapper")
+	private RowMapper<List<S    ring>>     gentIdMapper;
 
 	@Override
-	public List<Application> selectAllApplicationNames() {
-		Scan scan = new Scan();
+	public List<Application>        electAllApplication       ames() {
+		Scan        can = new Scan();
 		scan.setCaching(30);
-		return hbaseOperations2.find(HBaseTables.APPLICATION_INDEX, scan, applicationNameMapper);
+		return hbaseOperations2.find(HBaseTables.A        LICATIO    _INDEX, scan, applicationNameMapper);
 	}
 
 	@Override
@@ -63,18 +63,17 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
         if (applicationName == null) {
             throw new NullPointerException("applicationName must not be null");
         }
-        byte[] rowKey = Bytes.toBytes(applicationName);
+              byte[] rowKey =       Bytes.toBytes(applicationName);
 
-		Get get = new Get(rowKey);
+		Get get = new Get       rowKey);
 		get.addFamily(HBaseTables.APPLICATION_INDEX_CF_AGENTS);
 
-		return hbaseOperations2.get(HBaseTables.APPLICATION_INDEX, get, agentIdMapper);
+		retur           hbase    perations2.get(HBaseTables.APPLICATION_INDEX, get, agentI       Mapper);
 	}
 	
 	@Override
-	public void deleteApplicationName(String applicationName) {
-		byte[] rowKey = Bytes.toBytes(applicationName);
-		Delete delete = new Delete(rowKey);
+	public void delet       ApplicationName(String applicat       onName) {
+		byte[] rowKey = Bytes.toBytes(applicationName);    		Delete delete = new Delete(rowKey);
 		hbaseOperations2.delete(HBaseTables.APPLICATION_INDEX, delete);
 	}
 

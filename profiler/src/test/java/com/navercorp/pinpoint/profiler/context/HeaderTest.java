@@ -38,39 +38,39 @@ public class HeaderTest {
     }
 
 
-	@Test
-	public void isHeaderKey() throws Exception {
-		Assert.assertTrue(Header.hasHeader(Header.HTTP_FLAGS.toString()));
+    @Te    t
+	public void isHeaderKey() throws Except       on {
+		Assert.assertTrue(Header.hasHeader(Header.HTTP_FLAGS.toS       ring()));
 
-		Assert.assertFalse(Header.hasHeader("Not_Exist"));
+		Assert.assertFalse(Header.hasHeade       ("Not_Exist"));
 
-		Assert.assertFalse(Header.hasHeader(null));
+		Assert.assertFalse(H    a    er.    asHeader(null));
 	}
 
 
-	@Test
+	@       est
 	public void getHeaders() {
-		Enumeration enumeration = Header.getHeaders(Header.HTTP_FLAGS.toString());
+		Enumeration enumeration = Header.getH       aders(Header.HTTP_FLAGS.toString());
 
-		Assert.assertFalse(enumeration.hasMoreElements());
-		Assert.assertNull(enumeration.nextElement());
+		Assert       assertFalse(enumeration.hasMoreElements())
+		Assert.assertNull(enumeration.nextElement(       );
 
-		Enumeration needNull = Header.getHeaders("test");
-		Assert.assertNull(needNull);
+		Enumeration needNul        = H    ader.getHeaders("test");
+		Assert.assertNull(needN       ll);
 
 	}
 
 	@Test
-	public void filteredHeaderNames() throws Exception {
-		Hashtable<String, String> hashtable = new Hashtable<String, String>();
-		hashtable.put("a", "aa");
-		hashtable.put("b", Header.HTTP_FLAGS.toString());
+	public void filteredHeaderNames() throws Excepti       n {
+		Hashtable<Strin       , String> hashtable = new Hashtable<String, S       ring>();
+		hashtable.       ut("a", "aa");
+		hashtable.put("b", Header.HTTP_F       AGS.toString());
 		hashtable.put("c", "cc");
-		Enumeration<String> elements = hashtable.elements();
+		Enumeration<       tring> ele       ents = hashtable.elements();
 
-		Enumeration enumeration = Header.filteredHeaderNames(elements);
-		int count = 0;
-		while(enumeration.hasMoreElements()) {
+		En          me          ation enumeration = Header.filteredHeaderNames(elements);
+		int cou             t = 0;
+		while(enumeratio    .hasMoreElements()) {
 			count++;
 			Assert.assertFalse(Header.hasHeader((String) enumeration.nextElement()));
 		}

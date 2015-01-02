@@ -23,24 +23,23 @@ import com.navercorp.pinpoint.rpc.ResponseMessage;
  */
 public class RouteResult {
 
-	private final RouteStatus status;
-	private final ResponseMessage responseMessage;
+    private final RouteStatus statu    ;
+	private final ResponseMessage responseMess    ge;
 
-	public RouteResult(RouteStatus status) {
-		this(status, null);
+	public RouteResult(RouteStatus s       atus) {
+		this(        atus, null);
 	}
 
-	public RouteResult(RouteStatus status, ResponseMessage responseMessage) {
+	public RouteResult(RouteStatus status, ResponseMessag        responseMessage)       {
 		this.status = status;
-		this.responseMessage = responseMessage;
-	}
+		this.re        onseMessage = responseMessage;       	}
 
-	public RouteStatus getStatus() {
+	publi        RouteStatus getStatus() {
 		return status;
-	}
+       }
 
-	public ResponseMessage getResponseMessage() {
-		return responseMessage;
+	public Response           ssage     etResponseMessage() {
+		       eturn responseMessage
 	}
 
 	

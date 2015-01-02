@@ -18,14 +18,13 @@ package com.navercorp.pinpoint.profiler.monitor;
 
 public interface CounterMonitor {
 
-	void incr();
+    void incr()
 
-	void incr(final long delta);
+	void incr(final long del    a);
 
-	void decr();
+	void     ecr();
 
-	void decr(final long delta);
-	
+	void decr(final l       ng delta);
 	void reset();
 	
 	long getCount();

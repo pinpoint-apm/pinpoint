@@ -22,14 +22,14 @@ import com.navercorp.pinpoint.profiler.util.ArrayUtils;
  * @author emeroad
  */
 public class BytesConverter implements Converter {
-	@Override
-	public String convert(Object[] args) {
-		if (args == null) {
-			return "null";
+    @Overri    e
+	public String convert(Object[] ar       s) {
+		if (args          == null)             {
+			return "null          ;
 		}
-		if (args.length == 2) {
-			byte[] bytes = (byte[]) args[1];
-			if (bytes == null) {
+		if (args.length ==          2) {
+			byte[]             bytes            (             yte[]) args[1];
+			if (bytes =                       null     {
 				return "null";
 			} else {
 				return ArrayUtils.dropToString(bytes);

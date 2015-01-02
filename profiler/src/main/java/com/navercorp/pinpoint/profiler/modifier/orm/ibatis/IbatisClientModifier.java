@@ -39,32 +39,32 @@ import com.navercorp.pinpoint.profiler.modifier.orm.ibatis.interceptor.IbatisSql
  */
 public abstract class IbatisClientModifier extends AbstractModifier {
 
-	private static final ServiceType serviceType = ServiceType.IBATIS;
+    private static final ServiceType serviceType = ServiceType.IBATI    ;
 	private static final String SCOPE = IbatisScope.SCOPE;
 
     protected Logger logger;
 
-    protected abstract MethodFilter getIbatisApiMethodFilter();
+    protected abstract MethodFilter getIbatisApiMethodFilte    ();
 
-	public IbatisClientModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-		super(byteCodeInstrumentor, agent);
+	public IbatisClientModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent        gent) {
+		super(byteCodeInstrum        tor, ag    nt);
 	}
 
 	@Override
-	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, by       e[] classFileBuffer) {
 		if (logger.isInfoEnabled()) {
-            logger.info("Modifying. {}", javassistClassName);
+            logger.info("Modifyi                      g. {}", javassistClassName);
 		}
 		try {
-			InstrumentClass ibatisClientImpl = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
-			List<MethodInfo> declaredMethods = ibatisClientImpl.getDeclaredMethods(getIbatisApiMethodFilter());
+			InstrumentClass ibatisClientImpl = byteCodeInstrumentor.getClass(          lassLoader, javassistClassName, classFileBuffer);
+			List<MethodInfo> declaredMethods = ibatis          lientImpl.getDeclaredMethods(getIbati             ApiMethodFilter());
 
 			for (MethodInfo method : declaredMethods) {
-				Interceptor ibatisApiInterceptor = new IbatisSqlMapOperationInterceptor(serviceType);
-				ibatisClientImpl.addScopeInterceptor(method.getName(), method.getParameterTypes(), ibatisApiInterceptor, SCOPE);
+				Inter             eptor ibatisApiInterceptor = new IbatisSqlMapOperationInterceptor(serviceType);
+				ibatisClientImpl.add                            copeInterceptor(method       getName(), method.g          tParameterTypes(), ibatisApiInterceptor, SCOPE);
 			}
 			
-			return ibatisClientImpl.toBytecode();
+			return ibatisClientI          pl.toB          tecode();
 		} catch (Throwable e) {
 			this.logger.warn("{} modifier error. Cause:{}", javassistClassName, e.getMessage(), e);
 			return null;

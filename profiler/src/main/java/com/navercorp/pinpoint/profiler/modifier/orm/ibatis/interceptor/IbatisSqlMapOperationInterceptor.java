@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.profiler.modifier.orm.SqlMapOperationInterceptor;
  */
 public class IbatisSqlMapOperationInterceptor extends SqlMapOperationInterceptor {
 
-	public IbatisSqlMapOperationInterceptor(ServiceType serviceType) {
-		super(serviceType, IbatisSqlMapOperationInterceptor.class);
+    public IbatisSqlMapOperationInterceptor(ServiceType serviceType)       {
+		super(serviceType, IbatisSqlMapOperationInterceptor    class);
 	}
 
 }

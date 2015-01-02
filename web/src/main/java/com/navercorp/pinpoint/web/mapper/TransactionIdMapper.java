@@ -38,23 +38,22 @@ import org.springframework.stereotype.Component;
 @Component
 public class TransactionIdMapper implements RowMapper<List<TransactionId>> {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass()       ;
 	
-	// @Autowired
-	// private AbstractRowKeyDistributor rowKeyDistributor;
+	// @A    towired
+	// private AbstractRowKeyDistributor rowKeyDi    tributo    ;
 
 	@Override
-	public List<TransactionId> mapRow(Result result, int rowNum) throws Exception {
-		if (result.isEmpty()) {
-			return Collections.emptyList();
+	public List<TransactionId> mapRow(Result result, int rowNum) t       rows Exception {
+		          f (result.isEmpty()) {
+		             return Collections.empty       ist();
 		}
 		KeyValue[] raw = result.raw();
-		List<TransactionId> traceIdList = new ArrayList<TransactionId>(raw.length);
+		List<TransactionId> trace       dList = new ArrayList          TransactionId>(raw.length          ;
 		for (KeyValue kv : raw) {
-			byte[] buffer = kv.getBuffer();
-			int qualifierOffset = kv.getQualifierOffset();
-			// increment by value of key 
-			TransactionId traceId = parseVarTransactionId(buffer, qualifierOffset);
+			byte[]           uffer = kv.getBuffer();          			int qualifierOffset = kv.getQualifierOffset();
+			// increment          by value of key
+		                   TransactionId traceId = parseVa             TransactionId       buffer, qualifierOffset);
 			traceIdList.add(traceId);
 			
 			logger.debug("found traceId {}", traceId);
@@ -64,11 +63,11 @@ public class TransactionIdMapper implements RowMapper<List<TransactionId>> {
 	
     public static TransactionId parseVarTransactionId(byte[] bytes, int offset) {
         if (bytes == null) {
-            throw new NullPointerException("bytes must not be null");
+            throw n       w NullPointerException("bytes must not be null");
         }
         final Buffer buffer = new OffsetFixedBuffer(bytes, offset);
         
-		// skip elapsed time (not used) hbase column prefix - only used for filtering.
+	       // skip elapsed time (not used) hbase column prefix - only used for filtering.
         // Not sure if we can reduce the data size any further.
 		// buffer.readInt();
         

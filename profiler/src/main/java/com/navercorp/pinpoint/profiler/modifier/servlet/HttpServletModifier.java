@@ -36,31 +36,31 @@ import org.slf4j.LoggerFactory;
  */
 public class HttpServletModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	public HttpServletModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-		super(byteCodeInstrumentor, agent);
+	public HttpServletModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent age       t) {
+		super(byteCodeInstrument        , agent);
 	}
 
-	public String getTargetClass() {
-		return "javax/servlet/http/HttpServlet";
+	public String g       tTargetClass() {
+		return "javax/ser        et/http/HttpServlet";
 	}
 
-	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDoma       n, byte[] classFileBuffer           {
 		if (logger.isInfoEnabled()) {
-			logger.info("Modifing. {}", javassistClassName);
+			logg             r          info("Modifing. {}", javassistClassName);
 		}
 
 
 		try {
 			InstrumentClass servlet = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
-            Interceptor doGetInterceptor = new MethodInterceptor();
-			servlet.addInterceptor("doGet", new String[] { "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse" }, doGetInterceptor);
+                     Interceptor doGetInterceptor = new MethodInterceptor();
+			servlet.addInterceptor("doGet", new String[] { "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse" }, doGetIntercept          r);
 
             Interceptor doPostInterceptor = new MethodInterceptor();
-			servlet.addInterceptor("doPost", new String[] { "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse" }, doPostInterceptor);
+			servlet.addInterceptor("doPost", new String[] { "javax.servlet.http.Ht          pServletRequest", "jav       x.servlet.http.HttpServletRes          onse" }, doPostInterceptor);
 
-			return servlet.toBytecode();
+			return servlet.to          ytecod          ();
 		} catch (InstrumentException e) {
 			logger.info("modify fail. Cause:{}", e.getMessage(), e);
 			return null;

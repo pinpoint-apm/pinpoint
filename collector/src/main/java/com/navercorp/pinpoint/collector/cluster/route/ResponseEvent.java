@@ -27,24 +27,24 @@ public class ResponseEvent extends DefaultRouteEvent {
 
     private final int requestId;
 
-	private final RouteResult routeResult;
+    private final RouteResult routeResult
 
-	public ResponseEvent(RouteEvent routeEvent, int requestId, RouteResult routeResult) {
-		this(routeEvent.getDeliveryCommand(), routeEvent.getSourceChannel(), requestId, routeResult);
+	public ResponseEvent(RouteEvent routeEvent, int requestId, RouteResult routeResu       t) {
+		this(routeEvent.getDeliveryCommand(), routeEvent.getSourceChannel(), requestId, ro        eResult);
 	}
 
-	public ResponseEvent(TCommandTransfer deliveryCommand, Channel sourceChannel, int requestId, RouteResult routeResult) {
-		super(deliveryCommand, sourceChannel);
+	public ResponseEvent(TCommandTransfer deliveryCommand, Channel sourceChannel, int requestId, RouteResu       t routeResult) {
+		super(deliveryC             mmand, sourceChannel       ;
 		
-		this.requestId = requestId;
+		this.requestId = req    estId;
 		this.routeResult = routeResult;
 	}
 
     public int getRequestId() {
         return requestId;
-    }
 
-    public RouteResult getRouteResult() {
+
+    public Ro          teResu    t getRouteResult() {
 		return routeResult;
 	}
 	
@@ -59,7 +59,7 @@ public class ResponseEvent extends DefaultRouteEvent {
         sb.append("startTimeStamp=").append(getDeliveryCommand().getStartTime());
         sb.append("requestId=").append(requestId);
         sb.append("routeResult=").append(routeResult);
-        sb.append('}');
+           sb.append('}');
         
         return sb.toString();
 	}

@@ -40,7 +40,7 @@ public class Dot {
      * @param elapsedTime
      * @param exceptionCode 0 : success, 1 : error
      */
-	public Dot(TransactionId transactionId, long acceptedTime, int elapsedTime, int exceptionCode, String agentId) {
+    public Dot(TransactionId transactionId, long acceptedTime, int elapsedTime, int exceptionCode, String agentId) {
         if (transactionId == null) {
             throw new NullPointerException("transactionId must not be null");
         }
@@ -52,14 +52,14 @@ public class Dot {
         this.elapsedTime = elapsedTime;
         this.exceptionCode = exceptionCode;
         this.agentId = agentId;
-    }
 
-	public String getTransactionId() {
-		return transactionId.getFormatString();
+
+	public String getTransactionI       () {
+		return transactionId.getForm        String();
 	}
 
-	public int getExceptionCode() {
-		return exceptionCode;
+	public int get       xceptionCode() {
+    	return exceptionCode;
 	}
 
     /**
@@ -72,15 +72,15 @@ public class Dot {
             // feels like a failure should be a value greater 1
             return Dot.SUCCESS_STATE;
         } else {
-            return Dot.FAILED_STATE;
+            return Dot.FAIL    D_STATE;
         }
     }
 
-	public int getElapsedTime() {
-		return elapsedTime;
+	       ublic int getEl        sedTime() {
+		return elapsedT       me;
 	}
 
-	public long getAcceptedTime() {
+	public     ong getAcceptedTime() {
 		return acceptedTime;
 	}
 

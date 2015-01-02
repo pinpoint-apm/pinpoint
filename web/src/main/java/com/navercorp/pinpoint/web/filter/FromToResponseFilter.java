@@ -29,163 +29,157 @@ import com.navercorp.pinpoint.common.bo.SpanEventBo;
  */
 public class FromToResponseFilter implements Filter {
 
-	private final List<ServiceType> fromServiceCode;
-	private final String fromApplicationName;
-	private final String fromAgentName;
+    private final List<ServiceType> fromServiceCod    ;
+	private final String fromApplication    ame;
+	private final String fromAg       ntName;
 	
-	private final List<ServiceType> toServiceCode;
-	private final String toApplicationName;
-	private final String toAgentName;
+	private final List<ServiceType>     oServiceCode;
+	private final String t    ApplicationName;
+	private final       String toAgentName;
 	
-	private final Long fromResponseTime;
-	private final Long toResponseTime;
-	private final Boolean includeFailed;
+	private fi    al Long fromResponseTime;
+	priva    e final Long toResponseTime;
+	priv       te final Boolean includeFail    d;
 	
 	private final FilterHint hint;
 
-	public FromToResponseFilter(FilterDescriptor filterDescriptor, FilterHint hint) {
+	public FromToResponseFilter(FilterDescri       tor filterDescriptor, Filte          Hint hint) {
 		if (filterDescriptor == null) {
-			throw new NullPointerException("filter descriptor must not be null");
+			throw new Nul             PointerException("filter descriptor must not be null");
+
+
+		String fromServiceType = filterDescriptor.getFromServiceType();       		String fromApplicationName = filterDescriptor.getFrom       pplicationName();
+		String fromAgentName = filterDescri       tor.getFromAgentName();
+		String toServiceType = filterDescript       r.getToServiceType();
+		String toApplicationName =        ilterDescriptor.getToApplicationName();
+		String toAgen       Name = filterDescriptor.getToAgentName();
+		Long fr       mResponseTime = filterDescriptor.getResponseFrom();
+		Long t       ResponseTime = filterDescripto          .getResponseTo();
+		Boolean includeFailed = filterDescriptor.getI             cludeException();
+
+		if (f          omApplicationName == null) {
+			throw new NullPointerException(             fromApplicationName must not be null");
+		}
+		if (toAppl       cationName == null) {
+			t          row new NullPointerException("toApplicationName must not be null");
 		}
 
-		String fromServiceType = filterDescriptor.getFromServiceType();
-		String fromApplicationName = filterDescriptor.getFromApplicationName();
-		String fromAgentName = filterDescriptor.getFromAgentName();
-		String toServiceType = filterDescriptor.getToServiceType();
-		String toApplicationName = filterDescriptor.getToApplicationName();
-		String toAgentName = filterDescriptor.getToAgentName();
-		Long fromResponseTime = filterDescriptor.getResponseFrom();
-		Long toResponseTime = filterDescriptor.getResponseTo();
-		Boolean includeFailed = filterDescriptor.getIncludeException();
-
-		if (fromApplicationName == null) {
-			throw new NullPointerException("fromApplicationName must not be null");
-		}
-		if (toApplicationName == null) {
-			throw new NullPointerException("toApplicationName must not be null");
-		}
-
-		this.fromServiceCode = ServiceType.findDesc(fromServiceType);
-		if (fromServiceCode == null) {
-			throw new IllegalArgumentException("fromServiceCode not found. fromServiceType:" + fromServiceType);
+		this.fromServiceCod              = ServiceType.findDesc(fromServiceType);       		if (fromServiceCode == null)
+			throw new IllegalArgumentException("fromServic       Code not found. fromServ          ceType:" + fromServiceType);
 		}
 		this.fromApplicationName = fromApplicationName;
-		this.fromAgentName = fromAgentName;
+		thi             .fromAgentName = fromAgentName;
 		
-		this.toServiceCode = ServiceType.findDesc(toServiceType);
-		if (toServiceCode == null) {
-			throw new IllegalArgumentException("toServiceCode not found. toServiceCode:" + toServiceType);
+		       his.toServiceCode = ServiceT       pe.findDesc(toServiceType);
+		if (toS       rviceCode == null) {
+			throw new       IllegalArgumentException("toSer          iceCode not fo          nd. toServiceCode:" + toServiceType);
 		}
-		this.toApplicationName = toApplicationName;
+		this.t             Application        me = toApplicationName;
 		this.toAgentName = toAgentName;
 
-		this.fromResponseTime = fromResponseTime;
+		this.from       esponseTime = from       esponseTime;
 		this.toResponseTime = toResponseTime;
-		this.includeFailed = includeFailed;
+          	this.includeFailed = includeFailed;
 	
 		if (hint == null) {
-			throw new NullPointerException("hint must not be null");
+			t             row new NullPointerExc          ption("hint mu             t not be nu          l"             ;
 		}
-		this.hint = hint;
+		this                      hint          = hint;
 	}
 
-	private boolean checkResponseCondition(long elapsed, boolean hasError) {
+	private boolean checkResponseCondition(long elapsed, boolean hasEr       or) {
 		boolean result = true;
-		if (fromResponseTime != null && toResponseTime != null) {
-			result &= (elapsed >= fromResponseTime) && (elapsed <= toResponseTime);
+		if (fromResponseTime !=           ull &&                   toResponseTim              != null) {
+			result &= (          lapsed >= fromResponseTime) && (elapsed <= to                   esponseTime);
 		}
-		if (includeFailed != null) {
-			if (includeFailed) {
-				result &= hasError;
+		if          (includeFailed != null) {
+			if (includeF                   iled)          {
+				    esult &= hasError;
 			} else {
-				result &= !hasError;
+				result &= !ha       Error;
 			}
 		}
 		return result;
 	}
 	
-	private boolean checkPinPointAgentName(String fromAgentName, String toAgentName) {
+	private boolean c                   eckPin                   ointAgentName(String from             gentName, String toAgentName) {
 		if (this.fromAgentName == null && this.toAgentName == null) {
 			return true;
 		}
 		
-		boolean result = true;
+		bool                an result = true;
 		
 		if (this.fromAgentName != null) {
-			result &= this.fromAgentName.equals(fromAgentName);
+			r                      sult &= this.fromAgentName.equals(fro                            AgentName);
 		}
 		
-		if (this.toAgentName != null) {
-			result &= this.toAgentName.equals(toAgentName);
+		if (this                   toAgentNa                   e != null) {
+			result &=             this.toAgentName.equals(toAgentName);
 		}
 		
 		return result;
 	}
 	
 	@Override
-	public boolean include(List<SpanBo> transaction) {
-		if (includeServiceType(fromServiceCode, ServiceType.USER)) {
+	public boolean include(List<SpanB                > transaction) {
+		if (includeServiceType(fromSe                viceCode, Servic                                                                Type.USER)                    {
 			/**
 			 * USER -> WAS
-			 */
+			 *
 			for (SpanBo span : transaction) {
-				if (span.isRoot() && includeServiceType(toServiceCode, span.getServiceType()) && toApplicationName.equals(span.getApplicationId())) {
+				if (span.isRoot() && includeServiceType(toS                      rviceCode, span.getServiceType()) && toApplicationName.equals                                                             span.ge                   Appli          ationId())) {
 					return checkResponseCondition(span.getElapsed(), span.getErrCode() > 0)
-							&& checkPinPointAgentName(null, span.getAgentId());
+						          && checkPinPointAgentName(null, span.getAgentId());
 				}
 			}
-		} else if (includeUnknown(toServiceCode)) {
+		} else if (includeUnknown(toService                   ode)) {
 			/**
 			 * WAS -> UNKNOWN
 			 */
-			for (SpanBo span : transaction) {
-				if (includeServiceType(fromServiceCode, span.getServiceType()) && fromApplicationName.equals(span.getApplicationId())) {
+		             for (SpanBo span : transacti                n) {
+				if (includeServiceType(fromServiceCode, sp                n.getServiceType                                                 )) && fromApplicati                   nName.equals(span.getApplication                                                                            d())) {
 					List<SpanEventBo> eventBoList = span.getSpanEventBoList();
-					if (eventBoList == null) {
+					if (                                                          ventBoList == null) {
 						continue;
 					}
-					
-					for (SpanEventBo event : eventBoList) {
-						// check only whether a client exists or not.
-						if (event.getServiceType().isRpcClient() && toApplicationName.equals(event.getDestinationId())) {
-							return checkResponseCondition(event.getEndElapsed(), event.hasException());
+					                                     					for (SpanEventBo event : eventBoList) {
+	                   				// check only whether a client exists or not.
+						if (ev                                                             nt.getService             ype().isRpcClient() && toApplicationName.equals(event.getDestinationId())) {
+							return checkResponseCond                         tion(event.getEndElapsed                ), event.hasException());
 						}
 					}
 				}
 			}
 		} else if (includeWas(toServiceCode)) {
 			/**
-			 * WAS -> WAS
-			 * if destination is a "WAS", the span of src and dest may exists. need to check if be circular or not.
-			 * find src first. span (from, to) may exist more than one. so (spanId == parentSpanID) should be checked.
+			 * WAS -> WA
+			 * i                    destination is a "WAS",                       he span of src and dest may exists. need t                                                                    check if be circular or not.
+			 * find src first. span (from, to) may exist more than one.                          o (spanId == parentSpanID) should be checked.
 			 */
 			if (hint.containApplicationHint(toApplicationName)) {
-				for (SpanBo srcSpan : transaction) {
+				for (SpanBo srcSpan :                                                                                                                      transactio             ) {
 					List<SpanEventBo> eventBoList = srcSpan.getSpanEventBoList();
 					if (eventBoList == null) {
-						continue;
+						con                inue;
 					}
-					for (SpanEventBo event : eventBoList) {
-						if (!event.getServiceType().isRpcClient()) {
+					for (SpanEventBo event : event                oList) {
+						i                                                  (!event.getService                   ype().isRpcClient()) {
 							continue;
 						}
 						
-						if (!hint.containApplicationEndpoint(toApplicationName, event.getDestinationId(), event.getServiceType().getCode())) {
+						if (!hint.containApplicationEndpoint(toApplic                      tionName, event.getDestinationId(), event.getServiceType().g                            tCode())) {
 							continue;
-						}
+				                                                                         	}
 
-						return checkResponseCondition(event.getEndElapsed(), event.hasException());
-						
-						// FIXME below code should be added for agent filter to work properly
-						// && checkPinPointAgentName(srcSpan.getAgentId(), destSpan.getAgentId());
+						return checkResponseCondition(event.       etEndElapsed(), event.hasException());
+						          						// FIXME below cod              sho                      ld          added for agent filter to work properly
+						// && checkPin       ointAgentName(srcSpan.getAgentId(), destSpan.          etAgentId());
 					}
-				}
-			} else {
+		         else {
 				/**
 				 * codes before hint has been added.
-				 * if problems happen because of hint, don't use hint at front end (UI) or use below code in order to work properly.
-				 */
-				for (SpanBo srcSpan : transaction) {
+				 * if problems happen because of hint,        on't use hint at front end (UI) or use below           ode in order to work properly.
+		             	 */                      			        or (Spa    Bo srcSpan : transaction        {
 					if (includeServiceType(fromServiceCode, srcSpan.getServiceType()) && fromApplicationName.equals(srcSpan.getApplicationId())) {
 						// find dest of src.
 						for (SpanBo destSpan : transaction) {
@@ -193,7 +187,7 @@ public class FromToResponseFilter implements Filter {
 								continue;
 							}
 
-							if (includeServiceType(toServiceCode, destSpan.getServiceType()) && toApplicationName.equals(destSpan.getApplicationId())) {
+							if (includeServiceType(toServiceCode, destSpan.getServiceType()) && toApplicationNa    e.equals(destSpan.getApplicationId())) {
 								return checkResponseCondition(destSpan.getElapsed(), destSpan.getErrCode() > 0) && checkPinPointAgentName(srcSpan.getAgentId(), destSpan.getAgentId());
 							}
 						}

@@ -27,45 +27,45 @@ import com.sun.management.OperatingSystemMXBean;
  */
 public final class DefaultCpuLoadMetricSet extends AbstractCpuLoadMetricSet {
 
-	private static final int UNSUPPORTED = -1;
-	private static final int UNINITIALIZED = -1;
-	private static final Double UNSUPPORTED_CPU_LOAD_METRIC = -1.0D;
+    private static final int UNSUPPORTED = -    ;
+	private static final int UNINITIALIZED      -1;
+	private static final Double UNSUPPORTED_CPU_LOAD_METRIC =    -1.0D;
 
-	private final RuntimeMXBean runtimeMXBean;
+	private final RuntimeMXBean runt    meMXBean;
 
-	public DefaultCpuLoadMetricSet() {
-		this.runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+	public DefaultCpuLoa       MetricSet() {
+		this.runtimeMXBean = ManagementFactory        etRunti    eMXBean();
 	}
 
 	@Override
-	protected Gauge<Double> getJvmCpuLoadGauge(final OperatingSystemMXBean operatingSystemMXBean) {
+	protected Gauge<Double> getJvmCpuLoadGauge(final OperatingSystemMX       ean operatingSystemMXBean           {
 		return new Gauge<Double>() {
 
-			private long lastCpuTimeNS = UNINITIALIZED;
-			private long lastUpTimeMS = UNINITIALIZED;
+		          private long lastCpuTimeNS = UNINITIA          IZE          ;
+			private long la                         tUpTimeMS = UNINITIALIZED;
 
 			@Override
-			public Double getValue() {
-				
-				final long cpuTimeNS = operatingSystemMXBean.getProcessCpuTime();
+			public             Double getValue() {
+
+				final long cpuTimeNS                         = operatingSystemMXBean.getProcess                         puTime();
 				if (cpuTimeNS == UNSUPPORTED) {
-					return UNSUPPORTED_CPU_LOAD_METRIC;
-				}
-				final long upTimeMS = runtimeMXBean.getUptime();
+					return UNSUPPO                TED_CPU_LOAD_METRIC;
+                			}
+				final long                up                                     imeMS = runtimeMXBean.getUptime()
 				
-				if (this.lastCpuTimeNS == UNINITIALIZED || this.lastUpTimeMS == UNINITIALIZED) {
-					this.lastCpuTimeNS = cpuTimeNS;
+				if (this.lastCpuTimeNS == UNINIT             ALIZED || this.lastUpTimeMS == UNINITIALIZED) {
+					this.las             CpuTimeNS = cpuTimeNS;
 					this.lastUpTimeMS = upTimeMS;
-					return 0.0D;
+		                         		return 0.0D;
 				}
 				
-				final long totalCpuTimeNS = cpuTimeNS - lastCpuTimeNS;
-				final long diffUpTimeMS = upTimeMS - lastUpTimeMS;
+		                   	final long totalCpuTimeNS = cpuTimeNS - lastCpuTimeNS;
+                         			final long di             fUpTimeMS = upTimeMS                                                las    UpTimeMS;
 				final int numProcessors = Runtime.getRuntime().availableProcessors();
-				final long totalUpTimeNS = (diffUpTimeMS * 1000000) * numProcessors;
+				final lo       g totalUpTimeNS = (diffU          Tim          MS * 1000000) * numP             ocessors;
 				
-				final double cpuLoad = totalUpTimeNS > 0 ? 
-						Math.min(100F, totalCpuTimeNS / (float)totalUpTimeNS) : UNSUPPORTED;
+				final do                      ble    cpuLoad = totalUpTimeNS         0 ?
+						Math.min(100F, totalCpuTimeNS /    (float)totalUpTimeNS) : UNSUPPORTED;
 				
 				this.lastCpuTimeNS = cpuTimeNS;
 				this.lastUpTimeMS = upTimeMS;

@@ -23,7 +23,7 @@ import org.apache.thrift.TBase;
  * @author koo.taejin
  */
 public interface SimpleHandler {
-	
+
     void handleSimple(TBase<?, ?> tbase);
     
 }

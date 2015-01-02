@@ -38,29 +38,29 @@ import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
  * public <T> Future<T> execute(
  *     final org.apache.http.nio.protocol.HttpAsyncRequestProducer requestProducer,
  *     final org.apache.http.nio.protocol.HttpAsyncResponseConsumer<T> responseConsumer,
- * 	   final org.apache.http.protocol.HttpContext context,
- * 	   final org.apache.http.concurrent.FutureCallback<T> callback) {
+ *        final org.apache.http.protocol.HttpContext context,
+    * 	   final org.apache.http.concurrent.FutureCallback<T> callback) {
+
+ * 	   final Status status = getStat    s();
+ * 	   Asserts.check(status == Status.ACTIVE, "Request cannot be executed; I/O reactor status: %s", stat    s);
  * 
- * 	   final Status status = getStatus();
- * 	   Asserts.check(status == Status.ACTIVE, "Request cannot be executed; I/O reactor status: %s", status);
+ * 	   final BasicFuture<T> future = new BasicFuture<T>    callback);
+ * 	   final HttpClientContext localcontext = HttpClientContext.adapt(context != null ? context : new BasicH    tpContext());
+ * 	   setupContext(l    calcontext);
  * 
- * 	   final BasicFuture<T> future = new BasicFuture<T>(callback);
- * 	   final HttpClientContext localcontext = HttpClientContext.adapt(context != null ? context : new BasicHttpContext());
- * 	   setupContext(localcontext);
- * 
- * 	   @SuppressWarnings("resource")
- * 	   final DefaultClientExchangeHandlerImpl<T> handler = new DefaultClientExchangeHandlerImpl<T>(
- * 	       this.log,
- * 	       requestProducer,
- * 	       responseConsumer,
- * 	       localcontext,
- * 	       future,
- * 	       this.connmgr,
- * 	       this.exec);
+ * 	   @Suppress    arnings("resource")
+ * 	   final DefaultClientExchangeHandlerImpl<T> handler = new DefaultClient    xchangeHandlerImp    <T>(
+ * 	       this.log
+ * 	       requestProduc    r,
+ * 	       respons    Consumer,
+ * 	          localcontext,
+ *    	       future,
+ * 	          this.c    nnmgr,
+ * 	       this.e    ec);
  * 
  * 	   try {
- * 	       handler.start();
- * 	   } catch (final Exception ex) {
+ * 	       h    ndler.start();
+ * 	   } cat    h (fi    al Exception ex) {
  * 	       handler.failed(ex);
  * 	   }
  * 	   return future;
@@ -86,30 +86,30 @@ import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
 public class AsyncInternalClientExecuteInterceptor extends AbstractHttpRequestExecute implements TargetClassLoader {
 
     public AsyncInternalClientExecuteInterceptor() {
-        super(AsyncInternalClientExecuteInterceptor.class);
+        super(A    yncInternalClientExecuteInterceptor.class);
     }
 
-    @Override
+    @O       erride
 	protected NameIntValuePair<String> getHost(Object[] args) {
-		if (!(args[0] instanceof org.apache.http.nio.protocol.HttpAsyncRequestProducer)) {
+		if (!(ar          s[0] i             stanceof org.apache.http.nio.protocol.HttpAsyncRequestProducer)) {
 			return null;
 		}
 
-		final org.apache.http.nio.protocol.HttpAsyncRequestProducer producer = (org.apache.http.nio.protocol.HttpAsyncRequestProducer) args[0];
-		final HttpHost httpHost = producer.getTarget();
+		final org.apache.http.nio.protocol.HttpA       yncRequestProducer producer = (org.apache.ht       p.nio.protocol.HttpAsyncRequestProducer) args[0];
+		final HttpHost httpHost         produce    .getTarget();
 
-		return new NameIntValuePair<String>(httpHost.getHostName(), httpHost.getPort());
+		return new NameIntValuePair<String>(httpHost.getHostName       ), httpHost.getPort());
 	}
 
 	@Override
-	protected org.apache.http.HttpRequest getHttpRequest(final Object[] args) {
+	protected org.apache.http.HttpRequest           etHttp             equest(final Object[] args) {
 		if (!(args[0] instanceof org.apache.http.nio.protocol.HttpAsyncRequestProducer)) {
-			return null;
-		}
-		final org.apache.http.nio.protocol.HttpAsyncRequestProducer producer = (org.apache.http.nio.protocol.HttpAsyncRequestProducer) args[0];
+			return null
+                   	}
+		final org.apache.http.nio.protocol.HttpAsyncRequestProducer producer = (org.apache.http.nio.protocol.HttpAsyncRequestPr                   ducer) args[0];
 		try {
-			/**
-			 * FIXME Implementations other than org.apache.http.nio.protocol.BasicAsyncRequestProducer.generateRequest() can cause some trouble.
+		       /**
+			 * FIXME Imp          ementa          ions other than org.apache.http.nio.protocol.BasicAsyncRequestProducer.generateRequest() can cause some trouble.
 			 */
 			return producer.generateRequest();
 		} catch (Exception e) {

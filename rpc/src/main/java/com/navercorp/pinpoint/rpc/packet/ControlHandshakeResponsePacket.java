@@ -27,52 +27,50 @@ public class ControlHandshakeResponsePacket extends ControlPacket {
     public static final String CODE = "code";
     public static final String SUB_CODE = "subCode";
     
-	public ControlHandshakeResponsePacket(byte[] payload) {
-		super(payload);
+    public ControlHandshakeResponsePacket(byte[] payload)       {
+		super(p        load);
 	}
 
-	public ControlHandshakeResponsePacket(int requestId, byte[] payload) {
+	public ControlHandshakeResponsePacket(int requestId, byt       [] payload)       {
 		super(payload);
-		setRequestId(requestId);
+        setRequ    stId(requestId);
 	}
 
-	@Override
+	@Overr       de
 	public short getPacketType() {
-		return PacketType.CONTROL_HANDSHAKE_RESPONSE;
-	}
+		retu         Packet    ype.CONTROL_HANDSHAKE_RESPONSE;
+       }
 
 	@Override
 	public ChannelBuffer toBuffer() {
 
-		ChannelBuffer header = ChannelBuffers.buffer(2 + 4 + 4);
-		header.writeShort(PacketType.CONTROL_HANDSHAKE_RESPONSE);
-		header.writeInt(getRequestId());
+		       hannelBuffer header = ChannelBuffers.buffer(2 + 4 + 4       ;
+		header.writeShort(PacketT       pe.CONTROL_HANDSHAKE_RESPONSE);
+		header.writeIn        getRequestId());
 
 		return PayloadPacket.appendPayload(header, payload);
 	}
 
-	public static ControlHandshakeResponsePacket readBuffer(short packetType, ChannelBuffer buffer) {
-		assert packetType == PacketType.CONTROL_HANDSHAKE_RESPONSE;
+	public static Con       rolHandshakeResponsePacket readBuffer(short packetType,        hannelBuffer buffer) {
+		asse          t packetType == Pack          tType.             ONTROL_HANDSHAKE_RESPONSE;
 
-		if (buffer.readableBytes() < 8) {
+		if (       uffer.readableBytes() < 8) {
 			buffer.resetReaderIndex();
-			return null;
+	       	return null;
 		}
-
-		final int messageId = buffer.readInt();
-		final ChannelBuffer payload = PayloadPacket.readPayload(buffer);
+          		fina              int messageId = buffer.readInt();
+		final ChannelBuffer payload = PayloadPacket.readPayload(buff       r);
 		if (payload == null) {
-			return null;
-		}
-		final ControlHandshakeResponsePacket helloPacket = new ControlHandshakeResponsePacket(payload.array());
-		helloPacket.setRequestId(messageId);
-		return helloPacket;
+			       eturn null;
+		}        	final     ontrolHandshakeResponseP       cket helloPacket = new ControlHandshakeRe       ponsePacket(payload.array());
+		helloPa       ket.setRequestId(messageId);
+		return helloP       cket;
 	}
 
-	@Override
-	public String toString() {
-		final StringBuilder sb = new StringBuilder();
-		sb.append(this.getClass().getSimpleName());
+	@       verride
+	public St          ing toString() {
+		f       nal           tringBuilder sb = new StringBuilder();
+		sb.a             pend(this       getClass().getSim    leName());
 		sb.append("{requestId=").append(getRequestId());
 		sb.append(", ");
 		if (payload == null) {

@@ -73,24 +73,21 @@ public class HttpUriRequestExecuteInterceptor extends AbstractHttpRequestExecute
      * @return
      */
     private NameIntValuePair<String> extractHost(final URI uri) {
-		if (uri == null) {
-			return null;
+       	if (uri == nu          l) {
+	       	return null;
 		}
-        NameIntValuePair<String> target = null;
-		if (uri.isAbsolute()) {
-			int port = uri.getPort(); // may be overridden later
+        NameIntValuePair<St       ing> target = null;          		if (uri.isAbsolute()) {
+			int port = uri.ge          Port(); // may be over          idden later
 			String host = uri.getHost();
-			if (host == null) { // normal parse failed; let's do it ourselves
-				// authority does not seem to care about the valid character-set
-				// for host names
-				host = uri.getAuthority();
-				if (host != null) {
-					// Strip off any leading user credentials
-					int at = host.indexOf('@');
-					if (at >= 0) {
-						if (host.length() > at + 1) {
-							host = host.substring(at + 1);
-						} else {
+			if (host ==              ull) { // normal parse failed; let's do it ourselves
+			             // author             ty does not seem t              care about                the valid character-set
+				//                 or host names
+			                host                   = uri.getAuthorit                      ();
+				if (host                                        != null) {
+                                                 				// Str                p off any                   leading user crede                   tials                      					i                                           t at = host.indexOf('@');
+		                         		if (at >= 0) {
+						i                                                                                                                                                                                                                             (host.length() > at + 1) {
+							host = h                                                                                                                                              st.substring(at + 1);                      				    	} else {
 							host = null; // @ on its own
 						}
 					}

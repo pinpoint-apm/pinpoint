@@ -30,10 +30,9 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 @Deprecated
 public class BaseOperationConstructInterceptor implements SimpleAroundInterceptor, TraceContextSupport {
 
-	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-
-//	private final MetaObject<Object> setAsyncTrace = new MetaObject<Object>("__setAsyncTrace", Object.class);
+    //	private final MetaObject<Object> setAsyncTrace = new MetaObject<Object>("__setAsyncTrace", Object.class);
 
     private TraceContext traceContext;
 
@@ -41,23 +40,23 @@ public class BaseOperationConstructInterceptor implements SimpleAroundIntercepto
     public void before(Object target, Object[] args) {
     }
 
-    @Override
-	public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    @Ove    ride
+	public void after(Object target, Object[] args, Object result, Throwable thro       able) {
 		if (isDebug) {
-            logger.afterInterceptor(target, args, result, throwable);
+            logger.afterInterceptor(target, args, resul             , throwable);
 		}
 
-		Trace trace = traceContext.currentTraceObject();
+		Trace trace = traceCont       xt.currentTraceO          j             ct();
 
 		if (trace == null) {
 			return;
 		}
 
-		// Assuming no events are missed, do not process timeout.
-//		AsyncTrace asyncTrace = trace.createAsyncTrace();
-//		asyncTrace.markBeforeTime();
+		// Ass       ming no events are missed, do not process timeo       t.
+//		AsyncTrace asyncTrace         trace.createAsyncTrace();
+//		asyncTrace.mark       eforeTime();
 //
-//		asyncTrace.setAttachObject(new TimeObject());
+//		asyncTrace.setAtt    chObject(new TimeObject());
 //
 //		setAsyncTrace.invoke(target, asyncTrace);
 	}

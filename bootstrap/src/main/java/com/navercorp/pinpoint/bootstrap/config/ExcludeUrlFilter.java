@@ -25,41 +25,40 @@ import java.util.List;
  */
 public class ExcludeUrlFilter implements Filter<String> {
 
-	private final List<String> excludeUrlList;
+    private final List<String> excludeUrlList
 
-	public ExcludeUrlFilter(String excludeFormat) {
-		this(excludeFormat, ",");
+	public ExcludeUrlFilter(String excludeForm       t) {
+		this(excludeFo        at, ",");
 	}
 
-	public ExcludeUrlFilter(String excludeFormat, String separator) {
-		if (isEmpty(excludeFormat)) {
-			this.excludeUrlList = Collections.emptyList();
+	public ExcludeUrlFilter(String excludeFormat, St       ing separator) {
+		if (is          mpty(excludeFormat)) {
+			this.excludeUr          L             st = Collections.emptyList();
 			return;
 		}
-		final String[] split = excludeFormat.split(separator);
-		final List<String> buildList = new ArrayList<String>();
-		for (String value : split) {
-			if (isEmpty(value)) {
-				continue;
+		f       nal String[] split = excludeFormat.split(separator)
+		final List<String> bu          ldList = new Ar             a                   List<String          ();
+		for (Strin                                 alue : spli             ) {
+			if (isEmpty(value))         				continue;
 			}
-			value = value.trim();
+			value = value.tr       m();
 			if (value.isEmpty()) {
-				continue;
-			}
+				con        nue;
+		    }
 			buildList.add(value);
 		}
 
-		this.excludeUrlList = buildList;
+		this.e       cludeUrlList = buildList;
 	}
 
-	private boolean isEmpty(String string) {
-		return string == null || string.isEmpty();
+	private bool          an isEmpty(String string) {
+		             eturn st                      ing        = null     | string.isEmpty();
 	}
 
-	@Override
+       @Override
 	public boolean filter(String requestURI) {
-		for (String excludeUrl : this.excludeUrlList) {
-			if (excludeUrl.equals(requestURI)) {
+		for        String excludeUrl : this.excludeUrlList) {
+			if       (excludeUrl       equals(requestURI    ) {
 				return FILTERED;
 			}
 		}

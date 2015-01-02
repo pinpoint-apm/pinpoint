@@ -54,18 +54,18 @@ public class AsyncClientExecuteInterceptor extends AbstractHttpRequestExecute im
     }
 
     @Override
-	protected NameIntValuePair<String> getHost(Object[] args) {
-		if (args[0] instanceof org.apache.http.HttpHost) {
-			final org.apache.http.HttpHost httpHost = (org.apache.http.HttpHost) args[0];
-			return new NameIntValuePair<String>(httpHost.getHostName(), httpHost.getPort());
+    protected NameIntValuePair<String> getHost(Object[] args)       {
+		if (args[0] instanceof org.apache.http.Htt          Host) {
+			final org.apache.http.HttpHost httpHost = (org.apache.http.H          tpHost) args[0];
+			return new NameIntValuePair<String>(httpHost.getHostNa       e(),          httpHo             t.getP    rt());
 		} else {
 			return null;
 		}
 	}
 
 	@Override
-	protected org.apache.http.HttpRequest getHttpRequest(final Object[] args) {
-		if (args[1] instanceof org.apache.http.HttpRequest) {
+	protected org.apach       .http.HttpRequest getHttpRequest(final Object[] a          gs) {
+		if (args[1] instanceof org.apac       e.ht          p.Http          equest) {
 			return (org.apache.http.HttpRequest) args[1];
 		} else {
 			return null;

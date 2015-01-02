@@ -22,50 +22,50 @@ import com.navercorp.pinpoint.rpc.server.ChannelContext;
 
 public class AbstractJob implements Job {
 
-	private final ChannelContext channelContext;
-	
-	private final int maxCount;
-	private final AtomicInteger currentCount;
+    private final ChannelContext channelContext;
 
-	public AbstractJob(ChannelContext channelContext) {
-		this(channelContext, 3);
-	}
+    private final int maxCount;
+    private final AtomicInteger currentCount;
 
-	public AbstractJob(ChannelContext channelContext, int maxCount) {
-		this.channelContext = channelContext;
-		
-		this.maxCount = maxCount;
-		this.currentCount = new AtomicInteger(0);
-	}
-	
-	@Override
-	public ChannelContext getChannelContext() {
-		return channelContext;
-	}
-	
-	@Override
-	public int getMaxRetryCount() {
-		return maxCount;
-	}
+    public AbstractJob(ChannelContext channelContext) {
+        this(channelContext, 3);
+    }
 
-	@Override
-	public int getCurrentRetryCount() {
-		return currentCount.get();
-	}
-	
-	@Override
-	public void incrementCurrentRetryCount() {
-		currentCount.incrementAndGet();
-	}
-	
-	@Override
-	public String toString() {
-		StringBuilder buffer = new StringBuilder();
-		buffer.append(this.getClass().getSimpleName());
-		buffer.append(", ChannelContext=").append(channelContext);
-		buffer.append(", Retry=").append(currentCount.get()).append("/").append(maxCount);
-		
-		return buffer.toString();
-	}
+    public AbstractJob(ChannelContext channelContext, int maxCount) {
+        this.channelContext = channelContext;
+
+        this.maxCount = maxCount;
+        this.currentCount = new AtomicInteger(0);
+    }
+
+    @Override
+    public ChannelContext getChannelContext() {
+        return channelContext;
+    }
+
+    @Override
+    public int getMaxRetryCount() {
+        return maxCount;
+    }
+
+    @Override
+    public int getCurrentRetryCount() {
+        return currentCount.get();
+    }
+
+    @Override
+    public void incrementCurrentRetryCount() {
+        currentCount.incrementAndGet();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder buffer = new StringBuilder();
+        buffer.append(this.getClass().getSimpleName());
+        buffer.append(", ChannelContext=").append(channelContext);
+        buffer.append(", Retry=").append(currentCount.get()).append("/").append(maxCount);
+
+        return buffer.toString();
+    }
 
 }

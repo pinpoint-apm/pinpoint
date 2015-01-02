@@ -36,50 +36,50 @@ import com.navercorp.pinpoint.profiler.modifier.AbstractModifier;
  */
 public class ClosableHttpAsyncClientModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	public ClosableHttpAsyncClientModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-		super(byteCodeInstrumentor, agent);
+	public ClosableHttpAsyncClientModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent age       t) {
+		super(byteCodeInstrument        , agent    ;
 	}
 
 	@Override
-	public String getTargetClass() {
-		return "org/apache/http/impl/nio/client/CloseableHttpAsyncClient";
+	public Strin        getTargetClass() {
+		return "org/apache/http/impl/nio/client/        oseable    ttpAsyncClient";
 	}
 
 	@Override
-	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protect       dDomain, byte[] classFile          uffer) {
 		if (logger.isInfoEnabled()) {
-			logger.info("Modifing. {} @ {}", javassistClassName, classLoader);
+			logger.info("Mod             f          ng. {} @ {}", javassistClassName, classLoader);
 		}
 
 
 		try {
-			InstrumentClass aClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+			InstrumentClass aClass = byteCodeIns                   rumentor.getClass(classLoader, javassistClassName, classFileBuffer);
  
 			/**
-			 * Below two methods are overloaded, but they don't call each other. No Scope required.
+	                   	 * Below two methods are overloaded, but they don't call each other. No                 cope r                quired.
 			 */
-			Interceptor executeInterceptor = byteCodeInstrumentor.newInterceptor(classLoader,
+			Interceptor executeInterceptor = byteCodeInstrumentor.newInterceptor(classLoader
 					protectedDomain,
-					"com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor.AsyncClientExecuteInterceptor");
+					"                om.navercorp.pinpo                nt.profiler.modifier.                onnector.httpclient4.intercept                r.AsyncClientExecuteInterceptor")
 			
 			String[] executeParams = new String[] { 
-					"org.apache.http.HttpHost", 
+					"                                              rg.apache.http.HttpHost",
 					"org.apache.http.HttpRequest", 
-					"org.apache.http.protocol.HttpContext", 
+					"or                .apach                .http.protocol.HttpContext",
 					"org.apache.http.concurrent.FutureCallback"
 					};
-			aClass.addInterceptor("execute", executeParams, executeInterceptor);
+			aClass.addInterc                   ptor("execute", executeParams, execut                Interceptor);
 			
 			/**
 			 * 
 			 */
-			Interceptor internalExecuteInterceptor = byteCodeInstrumentor.newInterceptor(classLoader,
+			Inter                eptor internalExecuteInterceptor = byteCodeInstr                mentor.newInterceptor(classLoader
 					protectedDomain,
-					"com.navercorp.pinpoint.profiler.modifier.connector.httpclient4.interceptor.AsyncInternalClientExecuteInterceptor");
+					"com.navercorp.pinpoint.profiler.modifier.c                   nnector.httpclie       t4.interceptor.AsyncInternalC          ientExecuteInterceptor");
 			
-			String[] internalExecuteParams = new String[] { 
+			String[] internal          xecute          arams = new String[] {
 					"org.apache.http.nio.protocol.HttpAsyncRequestProducer", 
 					"org.apache.http.nio.protocol.HttpAsyncResponseConsumer", 
 					"org.apache.http.concurrent.FutureCallback"

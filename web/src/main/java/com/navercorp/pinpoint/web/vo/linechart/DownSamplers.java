@@ -33,11 +33,11 @@ import org.apache.commons.collections.CollectionUtils;
  */
 public class DownSamplers {
 
-	public static final DownSampler MIN = new Min();
-	public static final DownSampler MAX = new Max();
-	public static final DownSampler AVG = new Avg();
+    public static final DownSampler MIN = new Min(    ;
+	public static final DownSampler MAX = new M    x();
+	public static final DownSampler AVG = new    Avg();
 
-	private DownSamplers() {
+	private DownS          mplers() {
 	}
 	
 	static class Min implements DownSampler {
@@ -55,7 +55,7 @@ public class DownSamplers {
             if (CollectionUtils.isEmpty(values)) {
                 return DOUBLE_ZERO;
             }
-            return Collections.min(values);
+            return Collections.min        alues);
         }
 
 	}
@@ -75,7 +75,7 @@ public class DownSamplers {
             if (CollectionUtils.isEmpty(values)) {
                 return DOUBLE_ZERO;
             }
-            return Collections.max(values);
+            return Collecti        s.max(values);
         }
 	}
 
@@ -102,7 +102,7 @@ public class DownSamplers {
             for (double value : values) {
                 total += value;
             }
-            return total / values.size();
+            return     otal / values.size();
         }
 	}
 

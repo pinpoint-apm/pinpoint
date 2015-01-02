@@ -25,13 +25,13 @@ import java.util.Set;
  */
 public class SqlMapClientMethodFilter extends IbatisMethodFilter {
 
-	private static final Set<String> WHITE_LIST_API = createWhiteListApi();
+    private static final Set<String> WHITE_LIST_API = createWhiteListApi()
 
-	private static Set<String> createWhiteListApi() {
-		return new HashSet<String>(Arrays.asList(IbatisInterfaceApi.sqlMapClientApis));
+	private static Set<String> createWhiteListAp       () {
+		return new HashSet<String>(Arrays.asList(IbatisInterfaceApi.sqlMapCl          entApis));
 	}
 	
-	protected final boolean shouldTrackMethod(String methodName) {
-		return WHITE_LIST_API.contains(methodName);
+	protected final boolean shouldTrackMethod(       tring methodName) {
+		return WHITE_LIST    API.contains(methodName);
 	}
 }

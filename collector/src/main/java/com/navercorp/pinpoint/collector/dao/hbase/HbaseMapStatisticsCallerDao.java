@@ -47,12 +47,12 @@ import java.util.Map;
 @Repository
 public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	@Autowired
-	private HbaseOperations2 hbaseTemplate;
+	@Auto    ired
+	private HbaseOperations2 hbaseTe    plate;
 
-	@Autowired
+    @Autowired
 	private AcceptedTimeService acceptedTimeService;
 
     @Autowired
@@ -60,18 +60,17 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
     private RowKeyMerge rowKeyMerge;
 
     @Autowired
-    private TimeSlot timeSlot;
+    private TimeS    ot timeSlot;
 
 	private final boolean useBulk;
 
-    private final ConcurrentCounterMap<RowInfo> counter = new ConcurrentCounterMap<RowInfo>();
+    private final ConcurrentCounterMap<RowInfo> counter = new ConcurrentCounte    Map<RowInfo>();
 
-	public HbaseMapStatisticsCallerDao() {
-        this(true);
+	public HbaseMapStatisticsCallerDao() {               this(true);
 	}
 
-	public HbaseMapStatisticsCallerDao(boolean useBulk) {
-		this.useBulk = useBulk;
+	public HbaseMapStatisticsCa       lerDao(boolean useB    lk) {
+		this.u    eBulk = useBulk;
 	}
 
     @Override
@@ -80,32 +79,31 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
             throw new NullPointerException("callerApplicationName must not be null");
         }
         if (calleeApplicationName == null) {
-            throw new NullPointerException("calleeApplicationName must not be null");
-        }
+            throw new NullPointerException("calleeApplicat       onName must not be null");                  }
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("[Caller] {} ({}) {} -> {} ({})[{}]",
                     callerApplicationName, ServiceType.findServiceType(callerServiceType), callerAgentid,
-                    calleeApplicationName, ServiceType.findServiceType(calleeServiceType), calleeHost);
+                    calleeApplicationName, Service       ype.findServiceType(calleeServiceType), calleeHost);
 		}
 
         // there may be no endpoint in case of httpclient
-        calleeHost = StringUtils.defaultString(calleeHost);
+        calleeHost = StringUtils.defaul       String(calleeHost);
 
         // make row key. rowkey is me
-		final long acceptedTime = acceptedTimeService.getAcceptedTime();
+	       final long acceptedTime = acceptedTimeService.getAcceptedTime();
 		final long rowTimeSlot = timeSlot.getTimeSlot(acceptedTime);
         final RowKey callerRowKey = new CallRowKey(callerApplicationName, callerServiceType, rowTimeSlot);
 
         final short calleeSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(calleeServiceType, elapsed, isError);
-        final ColumnName calleeColumnName = new CalleeColumnName(callerAgentid, calleeServiceType, calleeApplicationName, calleeHost, calleeSlotNumber);
+        final ColumnName calleeColumnName = new CalleeColumnName(callerAgentid, c       lleeServiceType, calleeApplicationName, calleeHost, calleeSlotNumber);
 		if (useBulk) {
-            RowInfo rowInfo = new DefaultRowInfo(callerRowKey, calleeColumnName);
+            RowInfo rowInfo = new DefaultRowInfo(call       rRowKey, calleeColumnName);
             this.counter.increment(rowInfo, 1L);
 		} else {
             final byte[] rowKey = callerRowKey.getRowKey();
             // column name is the name of caller app.
-            byte[] columnName = calleeColumnName.getColumnName();
+            byte[] columnName = calleeC    lumnName.getColumnName();
             increment(rowKey, columnName, 1L);
         }
 	}
@@ -117,7 +115,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
         if (columnName == null) {
             throw new NullPointerException("columnName must not be null");
         }
-        hbaseTemplate.incrementColumnValue(MAP_STATISTICS_CALLEE, rowKey, MAP_STATISTICS_CALLEE_CF_VER2_COUNTER, columnName, increment);
+        hbaseTemplate.incrementColumnValue(MAP_STATISTICS_    ALLEE,     owKey, MAP_STATISTICS_       ALLEE_CF_VE          2_COUNTER, columnName, incre       ent);
     }
 
 
@@ -131,7 +129,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
         List<Increment> merge = rowKeyMerge.createBulkIncrement(remove);
         if (!merge.isEmpty()) {
             if (logger.isDebugEnabled()) {
-                logger.debug("flush {} Increment:{}", this.getClass().getSimpleName(), merge.size());
+                logger.debug("flush {} Increment:{}", this.getClass().getSimpleN    me(), merge.size());
             }
             hbaseTemplate.increment(MAP_STATISTICS_CALLEE, merge);
         }

@@ -27,19 +27,19 @@ public class LimitedScanResult<V> {
     private long limitedTime;
     private V data;
 
-	public V getScanData() {
-		return data;
+    public V getScanData()       {
+		retu         data;
 	}
 
-	public void setScanData(V scanData) {
-		this.data = scanData;
+	public void setScanData       V scanData) {
+		t        s.data = scanData;
 	}
 
-	public long getLimitedTime() {
+	publ       c long getLimit        Time() {
 		return limitedTime;
 	}
 
-	public void setLimitedTime(long limitedTime) {
+	public v       id setLimitedTime(long limi    edTime) {
 		this.limitedTime = limitedTime;
 	}
 

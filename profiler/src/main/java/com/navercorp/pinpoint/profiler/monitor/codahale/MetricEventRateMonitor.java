@@ -21,33 +21,32 @@ import com.navercorp.pinpoint.profiler.monitor.EventRateMonitor;
 
 public class MetricEventRateMonitor implements EventRateMonitor {
 
-	final Meter delegate;
+    final Meter delegat       ;
 	
-	public MetricEventRateMonitor(Meter delegate) {
-		if (delegate == null) {
-			throw new NullPointerException("Meter delegate is null");
+	public MetricEventRateMonitor(Meter del       gate) {
+		if (deleg          te == null) {
+			throw new NullPointerException("Me             er delegate is null          );
 		}
-		this.delegate = delegate;
-	}
-	
+		this.dele       ate = delegate;
+
 	public void event() {
-		this.delegate.mark();
+		thi       .delegate.mark();
 	}
 
-	public void events(long count) {
-		this.delegate.mark(count);
+          public void events(lo       g count) {
+		this.delegate.m          rk(count);
 	}
 	
-	public long getCount() {
-		return this.delegate.getCount();
+	publi        long getCount() {
+		return thi          .delegate.getCount();
 	}
-	
-	public double getRate() {
-		return this.delegate.getMeanRate();
+
+	public double g          tRate() {
+		return this       delegate.getMeanRate();
 	}
 	
 	public Meter getDelegate() {
-		return this.delegate;
+	    return this.delegate;
 	}
 	
 	public String toString() {

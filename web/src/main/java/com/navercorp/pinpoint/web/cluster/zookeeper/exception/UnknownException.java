@@ -21,18 +21,17 @@ package com.navercorp.pinpoint.web.cluster.zookeeper.exception;
  */
 public class UnknownException extends PinpointZookeeperException {
 
-	public UnknownException() {
+    public UnknownException()
 	}
 
-	public UnknownException(String message) {
-		super(message);
+	public UnknownException(String me       sage) {
+		s        er(message);
 	}
 
-	public UnknownException(String message, Throwable cause) {
-		super(message, cause);
+	public UnknownException(String message        Throwable cause)         		super(message, cause);
 	}
 
-	public UnknownException(Throwable cause) {
+	public Unk       ownExcept    on(Throwable cause) {
 		super(cause);
 	}
 

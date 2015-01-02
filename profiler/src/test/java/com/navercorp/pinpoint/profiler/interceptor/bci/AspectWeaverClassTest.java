@@ -27,175 +27,170 @@ import java.lang.reflect.Method;
 
 public class AspectWeaverClassTest {
 
-	private final String ORIGINAL = "com.navercorp.pinpoint.profiler.interceptor.bci.mock.Original";
-	private final String ORIGINAL_SUB = "com.navercorp.pinpoint.profiler.interceptor.bci.mock.OriginalSub";
+    private final String ORIGINAL = "com.navercorp.pinpoint.profiler.interceptor.bci.mock.Original    ;
+	private final String ORIGINAL_SUB = "com.navercorp.pinpoint.profiler.interceptor.bci.mock.OriginalS    b";
 
-	private final String ASPECT = "com.navercorp.pinpoint.profiler.interceptor.bci.mock.TestAspect";
-	private final String ASPECT_NO_EXTENTS = "com.navercorp.pinpoint.profiler.interceptor.bci.mock.TestAspect_NoExtents";
-	private final String ASPECT_EXTENTS_SUB = "com.navercorp.pinpoint.profiler.interceptor.bci.mock.TestAspect_ExtentsSub";
+	private final String ASPECT = "com.navercorp.pinpoint.profiler.interceptor.bci.mock.Test    spect";
+	private final String ASPECT_NO_EXTENTS = "com.navercorp.pinpoint.profiler.interceptor.bci.mock.TestAspect_    oExtents";
+	private final String ASPECT_EXTENTS_SUB = "com.navercorp.pinpoint.profiler.interceptor.bci.mock.TestAspect    ExtentsSub";
 
-	private final String ERROR_ASPECT1 = "com.navercorp.pinpoint.profiler.interceptor.bci.mock.ErrorAspect";
-	private final String ERROR_ASPECT2 = "com.navercorp.pinpoint.profiler.interceptor.bci.mock.ErrorAspect2";
+	private final String ERROR_ASPECT1 = "com.navercorp.pinpoint.profiler.interceptor.bci.m    ck.ErrorAspect";
+	private final String ERROR_ASPECT2 = "com.navercorp.pinpoint.profiler.interceptor.bci.    ock.ErrorAspect2";
 
-	private final String ERROR_ASPECT_INVALID_EXTENTS= "com.navercorp.pinpoint.profiler.interceptor.bci.mock.ErrorAspect_InvalidExtents";
+	private final String ERROR_ASPECT_INVALID_EXTENTS= "com.navercorp.pinpoint.profiler.interceptor.bci.mock.ErrorA    pect_InvalidExtents";
 
-	public Object createAspect(String originalName, String aspectName)  {
+	public Object createAspect(String originalN       m          , String aspectName)  {
 		try {
-			ClassPool classPool = new ClassPool(true);
-			Loader loader = getLoader(classPool);
+			C          assPool classPool = new ClassPoo          (true);
+			Loader loader = getLoader(classP          ol);
 
-			CtClass ctOriginal = classPool.get(originalName);
-			CtClass ctAdvice = classPool.get(aspectName);
+			CtClass ctOriginal = classPool.          et(originalName);
+			CtClass ctAdvice = classP          ol.get(aspectName);
 
-			AspectWeaverClass weaver = new AspectWeaverClass();
+			AspectWe          verClass weaver = new AspectWeaverClass(          ;
 
-			weaver.weaving(ctOriginal, ctAdvice);
+			weaver.weaving(c       Original, ctAdvice)
 
-			Class aClass = loader.loadClass(originalName);
+			Class aClass = loader.loadClass(ori          inalName);
 			return aClass.newInstance();
 		} catch (Exception e) {
-			throw new RuntimeException(e.getMessage(), e);
+			throw new RuntimeException(    .getMessage(), e);
 		}
 	}
 
-    private Loader getLoader(ClassPool pool) {
-        return LoaderUtils.createLoader(pool);
+    priva       e Loader getLoader(ClassPool pool)
+           return LoaderUtils.createLoader(poo       );
     }
 
-	private Object createDefaultAspect() {
-		return createAspect(ORIGINAL, ASPECT);
+	private Object createDefaultAs       ect() {
+		return createAspect       ORIGINAL, ASPECT);
 	}
 
 	@Test
-	public void testVoid() throws Exception {
-
-		Object aspectObject = createDefaultAspect();
-
-		invoke(aspectObject, "testVoid");
-		assertBeforeTouchCount(aspectObject, 1);
-		assertAfterTouchCount(aspectObject, 1);
+	publi        void testVoid() throws Exception {
+    		O    jec     aspectObject = createDefaultAspect();
+       		invoke(aspectObject, "testVoid");
+		ass       rtBeforeTouchCount(aspectObject, 1);
+		assertAfterTouch       ount(aspectObject, 1);
 
 	}
 
 
 
 
-	@Test
-	public void testInt() throws Exception {
+	@       est
+	public void testInt() throws Ex       eption {
 
-		Object aspectObject = createDefaultAspect();
+		Object aspectObject = c    e    teD    faultAspect();
 
-		int returnValue = (Integer)invoke(aspectObject, "testInt");
-		Assert.assertEquals(1, returnValue);
+		int returnValue = (Intege       )invoke(aspectObject, "testInt");
+		Asser       .assertEquals(1, returnValue);
 
-		assertBeforeTouchCount(aspectObject, 1);
-		assertAfterTouchCount(aspectObject, 1);
+		assertBeforeTouchCount(aspe       tObject, 1);
+		assertAfterTouchCount(aspectO       ject, 1);
 	}
 
 
 	@Test
-	 public void testString() throws Exception {
+	 public void        estString() throws Exception {
 
-		Object aspectObject = createDefaultAspect();
+		O        ect    aspectObject = createDefaultAspect();
 
-		String returnValue = (String) invoke(aspectObject, "testString");
-		Assert.assertEquals(returnValue, "testString");
+		Strin        returnValue = (String) invoke(aspectObje       t, "testString");
+		Assert.assertEquals(returnValue, "testStri       g");
 
-		assertBeforeTouchCount(aspectObject, 1);
-		assertAfterTouchCount(aspectObject, 1);
+		assertBeforeTouchCount(as       ectObject, 1);
+		assertAfterTouchCou       t(aspectObject, 1);
 	}
 
 	@Test
-	public void testUtilMethod() throws Exception {
+	pub        c v    id testUtilMethod() throws Exception {
 
-		Object aspectObject = createDefaultAspect();
+		O       ject aspectObject = createDefaultAspect()
 
-		int returnValue = (Integer)invoke(aspectObject, "testUtilMethod");
-		Assert.assertEquals(1, returnValue);
+		int returnValue = (Integer)invoke(aspectObject, "       estUtilMethod");
+		Assert.assertEqua       s(1, returnValue);
 
-		assertBeforeTouchCount(aspectObject, 1);
-		assertAfterTouchCount(aspectObject, 1);
+		assertBeforeTo       chCount(aspectObject, 1);
+		assertA        erT    uchCount(aspectObject, 1);
 	}
 
 	@Test
-	public void testNoTouch() throws Exception {
+	public void       testNoTouch() throws Exception {
 
-		Object aspectObject = createDefaultAspect();
+		Objec        aspectObject = createDefaultAspect();
 
-		Object returnValue = invoke(aspectObject, "testNoTouch");
-		Assert.assertEquals(null, returnValue);
+		Object returnValue       = invoke(aspectObject, "testNoTouch"       ;
+		Assert.assertEquals(null, return       alue);
 
-		assertBeforeTouchCount(aspectObject, 0);
-		assertAfterTouchCount(aspectObject, 0);
+		assertBeforeTouchCount(as        ctO    ject, 0);
+		assertAfterTouchCount(aspectObject        0);
 	}
 
 	@Test
-	public void testInternalMethod() throws Exception {
+	public void testInternal       ethod() throws Exception {
 
-		Object aspectObject = createDefaultAspect();
+		Object        spectObject = createDefaultAspe    t();
 
-		Object returnValue = invoke(aspectObject, "testInternalMethod");
-		Assert.assertEquals(null, returnValue);
+		Object returnValue = invoke(aspectObject        "testInternalMethod");
+		Assert.a        ertEquals(null, returnValue);
 
-		assertBeforeTouchCount(aspectObject, 1);
-		assertAfterTouchCount(aspectObject, 1);
+    	assertBeforeTouchCount(aspectObject, 1);
+		assertAf       erTouchCount(aspectObject, 1);
 	}
 
-	@Test
-	public void testMethodCall() throws Exception {
+        Tes
+	public void testMethodCall() throws Exceptio        {
 
 		Object aspectObject = createDefaultAspect();
 
-		invoke(aspectObject, "testMethodCall");
+		invoke(       spectObject, "testMethodCall");
 
+	}
+
+	@Test(expect       d = Exception.class)
+	public void te        Sig    atureMiss() throws Exception {
+		createAspect(O       IGINAL, ERROR_ASPECT1);
 	}
 
 	@Test(expected = Exception.class)
-	public void testSignatureMiss() throws Exception {
-		createAspect(ORIGINAL, ERROR_ASPECT1);
-	}
-
-	@Test(expected = Exception.class)
-	public void testInternalTypeMiss() throws Exception {
-
-		createAspect(ORIGINAL, ERROR_ASPECT2);
+	pu       lic void testInternalTypeMiss() throws Exception {
+		createAspect(ORIGINAL, ERROR_ASPE        2);
 
 	}
 
 	@Test
-	public void testNo_extents() throws Exception {
+	public void te    tNo_extents() throws Exception {
 
-		Object aspectObject = createAspect(ORIGINAL, ASPECT_NO_EXTENTS);
+		Object aspectOb       ect = createAspect(ORIGINAL, ASPECT_NO_EXTENTS);
 
-		Object returnValue = invoke(aspectObject, "testVoid");
-		Assert.assertEquals(null, returnValue);
+		Object returnValue =       invoke(aspectObject, "testVoid");
+		Assert.assertE       uals(null, returnValue);
 
 	}
 
-	@Test
-	public void testExtents_Sub() throws Exception {
+	@Test    	pu    lic void testExtents_Sub() throws Exception {
 
-		Object aspectObject = createAspect(ORIGINAL_SUB, ASPECT_EXTENTS_SUB);
+		Object aspectObje       t          = createAspect(ORIGINAL_          UB, ASPECT_EXTENTS_SUB);
 
-		Object returnValue = invoke(aspectObject, "testVoid");
-		Assert.assertEquals(null, returnValue);
-
+		Object ret          rnValue = invoke(aspectO       ject, "testVoid");
+          	Assert.assertEquals(null, returnValue);
 	}
 
 	@Test(expected = Exception.class)
-	public void testInvalid_extents() throws Exception {
+	public void testInvalid_e       tents() throws Exception {
 
-		Object aspectObject = createAspect(ORIGINAL, ERROR_ASPECT_INVALID_EXTENTS);
+		Object aspectObject = createAsp       ct(ORIGINAL, ERROR_ASPECT_INVALID_E        ENTS);
 
 		Object returnValue = invoke(aspectObject, "testVoid");
-		Assert.assertEquals(null, returnValue);
+	       Assert.assertEquals(null, returnValue);
 
 	}
 
 
 
 
-	private Object invoke(Object o, String methodName, Object... args) {
+	private Obj       ct invoke(Object o, String methodNa    e, Object... args) {
 		try {
 			Class<?> clazz = o.getClass();
 			Method method = clazz.getMethod(methodName);

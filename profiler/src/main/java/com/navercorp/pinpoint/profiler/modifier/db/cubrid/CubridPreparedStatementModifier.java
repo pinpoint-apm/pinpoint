@@ -45,20 +45,19 @@ import org.slf4j.LoggerFactory;
  */
 public class CubridPreparedStatementModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-
-	public CubridPreparedStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-		super(byteCodeInstrumentor, agent);
+	public CubridPreparedStatementModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent age       t) {
+		super(byteCodeInstrument        , agent);
 	}
 
-	public String getTargetClass() {
-		return "cubrid/jdbc/driver/CUBRIDPreparedStatement";
+	public String g       tTargetClass() {
+		return "cubrid/jdbc/driver/CU        IDPreparedStatement";
 	}
 
-	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDoma       n, byte[] classFileBuffer           {
 		if (logger.isInfoEnabled()) {
-			logger.info("Modifing. {}", javassistClassName);
+			logg                      r.info("Modifing. {}", javassistClassName);
 		}
 		try {
 			InstrumentClass preparedStatementClass = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
@@ -74,35 +73,35 @@ public class CubridPreparedStatementModifier extends AbstractModifier {
 
             preparedStatementClass.addTraceValue(DatabaseInfoTraceValue.class);
             preparedStatementClass.addTraceValue(ParsingResultTraceValue.class);
-            preparedStatementClass.addTraceValue(BindValueTraceValue.class, "new java.util.HashMap();");
+            preparedStatementClass.addTr          ceValue(BindValueTraceValue.class, "new java.util.HashMap();");
 
-			bindVariableIntercept(preparedStatementClass, classLoader, protectedDomain);
+			bin          VariableIntercept(preparedStatementCl       ss, classLoader, protectedDom          in);
 
-			return preparedStatementClass.toBytecode();
+			return prepare             StatementClass.toBytecode();
 		} catch (InstrumentException e) {
-			if (logger.isWarnEnabled()) {
+			if (logger.isWar                   En             bled()) {
 				logger.warn("{} modify fail. Cause:{}", this.getClass().getSimpleName(), e.getMessage(), e);
 			}
 			return null;
 		}
 	}
 
-	private void bindVariableIntercept(InstrumentClass preparedStatement, ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
+	private void bind       ariableIntercept(InstrumentClass preparedStatement, ClassLoader classLoader, ProtectionDomain protectedDomain) throws InstrumentException {
 		List<Method> bindMethod = PreparedStatementUtils.findBindVariableSetMethod();
-        final Scope scope = byteCodeInstrumentor.getScope(CubridScope.SCOPE_NAME);
-        Interceptor interceptor = new ScopeDelegateStaticInterceptor(new PreparedStatementBindVariableInterceptor(), scope);
-		int interceptorId = -1;
-		for (Method method : bindMethod) {
+        final Scope scope = byteCodeInstrumentor.getScope(Cub       idScope.SCOPE_NAME)
+        Interceptor intercept          r = new ScopeDelegateStaticInte          ceptor(new PreparedStatementBindVariableInterceptor(), scope);
+		int interceptor                      d = -1;
+		for (Met                od method : bindMethod) {
 			String methodName = method.getName();
-			String[] parameterType = JavaAssistUtils.getParameterType(method.getParameterTypes());
+			String[]                              rameterType = JavaAssistUtils.getParameterType(method.getParameterT                      pes());
 			try {
-				if (interceptorId == -1) {
+				if (inte             ceptorId == -1) {
 					interceptorId = preparedStatement.addInterceptor(methodName, parameterType, interceptor);
 				} else {
 					preparedStatement.reuseInterceptor(methodName, parameterType, interceptorId);
 				}
 			} catch (NotFoundInstrumentException e) {
-				// Cannot find bind variable setter method. This is not an error. Just some log will be enough.
+				// Cannot find bind variable setter metho                   . This is not an error. Just some log will be enough.
                 if (logger.isDebugEnabled()) {
                     logger.debug("bindVariable api not found. method:{} param:{} Cause:{}", methodName, Arrays.toString(parameterType), e.getMessage());
                 }

@@ -43,15 +43,15 @@ public class TransactionIdUtilsTest {
         Assert.assertEquals(transactionId.getTransactionSequence(), 2L);
     }
 
-	@Test(expected = Exception.class)
-	public void testParseTransactionId_RpcHeaderDuplicateAdd_BugReproduce() {
-		// #27 http://yobi.navercorp.com/pinpoint/pinpoint/issue/27
-		String id1 = "test" + TransactionIdUtils.TRANSACTION_ID_DELIMITER + "1" + TransactionIdUtils.TRANSACTION_ID_DELIMITER + "2";
-		String id2 = "test" + TransactionIdUtils.TRANSACTION_ID_DELIMITER + "1" + TransactionIdUtils.TRANSACTION_ID_DELIMITER + "3";
-		TransactionId transactionId = TransactionIdUtils.parseTransactionId(id1 + ", " + id2);
-		Assert.assertEquals(transactionId.getAgentId(), "test");
-		Assert.assertEquals(transactionId.getAgentStartTime(), 1L);
-		Assert.assertEquals(transactionId.getTransactionSequence(), 2L);
+    @Test(expected = Exception.clas    )
+	public void testParseTransactionId_RpcHeaderDuplicateAdd_BugReproduc       () {
+		// #27 http://yobi.navercorp.com/pinpoint/pinpoi       t/issue/27
+		String id1 = "test" + TransactionIdUtils.TRANSACTION_ID_DELIMITER + "1" + TransactionIdUtils.TRANSACTION_ID       DELIMITER + "2";
+		String id2 = "test" + TransactionIdUtils.TRANSACTION_ID_DELIMITER + "1" + TransactionIdUtils.TRANSACT       ON_ID_DELIMITER + "3";
+		TransactionId transactionId = TransactionIdUtils.parseTra       sactionId(id1 + ", " + id2);
+		Assert.assertEquals(t       ansactionId.getAgentId(), "test");
+		Assert.assertEqual       (transactionId.getAgentStartTime(), 1L);
+		Assert.assertEqua    s(transactionId.getTransactionSequence(), 2L);
 	}
 
 

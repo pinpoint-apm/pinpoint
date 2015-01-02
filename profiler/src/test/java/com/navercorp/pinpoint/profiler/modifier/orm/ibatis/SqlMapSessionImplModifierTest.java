@@ -44,246 +44,242 @@ import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
  */
 public class SqlMapSessionImplModifierTest extends BasePinpointTest {
 
-	public class MockSqlMapExecutorDelegate extends SqlMapExecutorDelegate {
-		@Override
-		public SessionScope beginSessionScope() {
-			return mockSessionScope;
+    public class MockSqlMapExecutorDelegate extends SqlMapExecutorDelegate       {
+		@       verride
+		public SessionScope beginSe          sionScope() {
+			r                turn mockSessionScope;
 		}
 	}
 	
-	private SqlMapClientImpl sqlMapClient;
+	p    iva    e SqlMapClientImpl sqlMapClient;
 
 	@Mock
-	private MockSqlMapExecutorDelegate mockSqlMapExecutorDelegate;
-	@Mock
-	private SessionScope mockSessionScope;
+	private MockSqlMap    xec    torDelegate mockSqlMapExecutorDelega       e;
+	    Mock
+	private SessionScope mockSessi       nScope;
 	
 	@Before
-	public void setUp() throws Exception {
+	public void       setUp() throws Exception {
 		MockitoAnnotations.initMocks(this);
-		when(this.mockSqlMapExecutorDelegate.beginSessionScope()).thenReturn(this.mockSessionScope);
-		this.sqlMapClient = new SqlMapClientImpl(this.mockSqlMapExecutorDelegate);
+		when(this.mockSqlMapE       ecutorDelegate.beginSessionScope()).thenReturn(this.mockSessionScope);          		t    is.sqlMapClient = new SqlMapClientImpl       this.mockSqlMapExecut          rD    legate);
 	}
 	
 	@After
-	public void cleanUp() throws Exception {
-		this.sqlMapClient = null;
+	public void cleanUp() throws Exception       {
+		       his.sqlMapClient = null;
 	}
 	
 	@Test
-	public void exceptionsThrownShouldBeTraced() throws Exception {
+	public void ex       eptionsThrownShouldBeTraced() throws Exception {
 		// Given
 		final String exceptionInsertId = "insertShouldThrowNPE";
-		when(this.mockSqlMapExecutorDelegate.insert(mockSessionScope, exceptionInsertId, null)).thenThrow(new NullPointerException());
-		SqlMapSession sqlMapSession = new SqlMapSessionImpl(this.sqlMapClient);
-		// When
+		w       en(this.mockSqlMapExecutorDelegate.insert(mockSessionScope, excepti       nIn       e          tId, null)).thenThrow(new NullPoin          erException());
+		SqlMapSession sqlMapSession = new SqlMapS       ssionImpl(this.sqlMapClient);
+          	          / When
 		try {
-			sqlMapSession.insert(exceptionInsertId);
-			fail("sqlMapSession.insert() should throw NullPointerException");
-		} catch (NullPointerException e) {
+			sqlMapSession.insert(exceptionInsert          d);
+			fail("sqlMapSession.inse          t() should throw NullPointerException");
+		} catch (N          llPointerException e) {
 			// Then
-			final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
-			assertThat(spanEvents.size(), is(1));
-			final SpanEventBo exceptionSpanEventBo = spanEvents.get(0);
-			assertThat(exceptionSpanEventBo.hasException(), is(true));
-			assertThat(exceptionSpanEventBo.getExceptionId(), not(0));
+			final List<Spa          EventBo> spanEvents = getCurrentSpanEvents();
+			ass                    tThat(spanEvents.size(), is(1));
+			final SpanEventBo exceptio       Span       ventBo = spanEvents.get(0);
+			assertThat(exceptionSpanEventBo.hasE       cep       ion(), is(true));
+			as       ertThat(exceptionSpanEventBo.       etE       ceptionId(), not(0));
 		}
 	}
 	
 	@Test
-	public void nullParametersShouldNotBeTraced() throws Exception {
+	public void nullP       rametersShouldNotBeTraced() throw              Excepti       n {
 		// Given
-		SqlMapSession sqlMapSession = new SqlMapSessionImpl(this.sqlMapClient);
+		SqlMapSession sqlMapSession = new S       lMapSessionImpl(this.sqlMapClient);
 		// When
-		sqlMapSession.insert(null);
-		sqlMapSession.queryForList(null);
+		sqlMapSess       on.insert(null);
+		sqlMapSession.queryForList       null);
 		// Then
-		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
+		final List<SpanEventBo> spanEven       s = getCurrentSpanEvents();
 		assertThat(spanEvents.size(), is(2));
 		
-		// Check Method
-		final SpanEventBo insertSpanEventBo = spanEvents.get(0);
-		final SpanEventBo queryForListSpanEventBo = spanEvents.get(1);
-		assertThat(insertSpanEventBo.getApiId(), not(0));
-		assertThat(queryForListSpanEventBo.getApiId(), not(0));
-		assertThat(insertSpanEventBo.getApiId(), not(queryForListSpanEventBo.getApiId()));
+		// Ch             ck Method
+	       final SpanEventBo insertSpanEventBo = spanEvents       get(0);
+		final SpanEventBo queryForListSpanEventBo =           pa    Events.get(1);
+		assertThat(insertSpanEventBo.getApiId(), not(0))
+		a       sertThat(queryForListSpanEventBo.getApiId(), not(0));
+		assertThat(       nse       tSpanEventBo.getApiId(), not       queryForListSpanEventBo.getA       iId       )));
 		
 		// Check Parameter
-		assertNull(insertSpanEventBo.getAnnotationBoList());
-		assertNull(queryForListSpanEventBo.getAnnotationBoList());
+		assertNull(insertSpanEven       Bo.getAnnotationBoList());
+		asse             tNull(qu       ryForListSpanEventBo.getAnnotationBoList());
 	}
 	
-	@Test
-	public void sameApiCallsShouldHaveTheSameApiId() throws Exception {
+	@T       st
+	public void sameApiCallsShouldHaveTheSameApiId()        hrows Exception {
 		// Given
-		SqlMapSession sqlMapSession = new SqlMapSessionImpl(this.sqlMapClient);
+		SqlMapSession s       lMapSession = new SqlMapSessionImpl(this.sqlMa       Client);
 		// When
 		sqlMapSession.insert("insertA");
-		sqlMapSession.insert("insertB");
+		sqlMapSession.ins                   rt("insertB");
 		// Then
-		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
-		assertThat(spanEvents.size(), is(2));
-		
+		final List<SpanEventBo>        panE       ents = getCurrentSpanEvents();
+		assertThat(spanEvents.size(), is(2       );
+
 		// Check Method
-		final SpanEventBo insertASpanEventBo = spanEvents.get(0);
-		final SpanEventBo insertBSpanEventBo = spanEvents.get(1);
-		assertThat(insertASpanEventBo.getApiId(), not(0));
-		assertThat(insertBSpanEventBo.getApiId(), not(0));
-		assertThat(insertASpanEventBo.getApiId(), is(insertBSpanEventBo.getApiId()));
+		final S       anEventBo insertASpanEventBo = spanEvents.g       t(0       ;
+		final SpanEventBo insertBSpanEventBo = spanEvents.ge       (1);
+		assertThat(insertASpanEvent       o.getApiId(       , not(0));
+		assertThat(insertBSpanEventBo.getApiId(), not(0       );
+		assertThat(insertASpanEventBo.getApiId(), is(insertBSpa       EventBo.getApiId()));
 		
 	}
 	
 	@Test
-	public void insertShouldBeTraced() throws Exception {
+	public void ins       rtShouldBeTraced() throws Exception {
 		// Given
-		SqlMapSession sqlMapSession = new SqlMapSessionImpl(this.sqlMapClient);
+		Sq       MapSession sqlMapSession = new SqlMapSessionImpl(this.sqlMapClient);
 		// When
-		sqlMapSession.insert("insertId");
+		sqlMapSe       sion.insert("i       sertId");
 		sqlMapSession.insert("insertId", new Object());
 		// Then
-		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
-		assertThat(spanEvents.size(), is(2));
+		final List<SpanEventBo> s       anEvents = getCurrentSpanEvents();
+		assertThat(       panEvents.size(), is(2));
 
 		// Check Method
-		final SpanEventBo insertWith1ArgSpanEventBo = spanEvents.get(0);
-		final SpanEventBo insertWith2ArgSpanEventBo = spanEvents.get(1);
+		final SpanEventBo insertWith1ArgSpanE       entBo = spanEvents.get(0);
+		final SpanEventBo insertWith2ArgSpanEventBo = spanEvents.get(1)
 		assertThat(insertWith1ArgSpanEventBo.getApiId(), not(0));
-		assertThat(insertWith2ArgSpanEventBo.getApiId(), not(0));
-		assertThat(insertWith1ArgSpanEventBo.getApiId(), not(insertWith2ArgSpanEventBo.getApiId()));
+		assertThat(insertWith2ArgSpanEv       ntBo.getApiId(), not(0));
+		assertThat(insertWit       1ArgSpanEventBo.getApiId(), not(insertWith2ArgSpanEventBo.getApiId()));
 
-		// Check Parameter
-		final List<AnnotationBo> insertWith1ArgAnnotations = insertWith1ArgSpanEventBo.getAnnotationBoList();
-		assertThat(insertWith1ArgAnnotations.size(), is(1));
-		final AnnotationBo insertWith1ArgParameterAnnotation = insertWith1ArgAnnotations.get(0);
-		assertThat(insertWith1ArgParameterAnnotation.getKey(), is(AnnotationKey.CACHE_ARGS0.getCode()));
+		       / Check Parameter
+		final List<AnnotationBo> insertWith1ArgAnnotations = insertWith                   ArgSpanEventBo.getAnnotationBoList();
+		assertThat(       nser       With1ArgAnnotations.size(), is(1));
+		final AnnotationBo insertWith       Arg       arameterAnnotation = insertWi       h1ArgAnnotations.get(0);
+		assertThat(inser       Wit       1ArgParameterAnnotation.getKey(), is(AnnotationKey.CACHE       ARGS0.getCode()));
 		
-		final List<AnnotationBo> insertWith2ArgAnnotations = insertWith2ArgSpanEventBo.getAnnotationBoList();
-		assertThat(insertWith2ArgAnnotations.size(), is(1));
-		final AnnotationBo insertWith2ArgAnnotation = insertWith2ArgAnnotations.get(0);
-		assertThat(insertWith2ArgAnnotation.getKey(), is(AnnotationKey.CACHE_ARGS0.getCode()));
-		
+		final List       AnnotationB       > insertWith2ArgAnnotations = insertWith2ArgSpanEventBo.ge       AnnotationBoList();
+		assertThat(insertWith2ArgAnnotations       size(), is(1));
+		final AnnotationBo insertWith2Arg       nnotation = insertWith2ArgAnnotations.get(0);
+		ass       rtThat(insertWith2ArgAnnotation.getKey(), is(AnnotationKey.CACHE_ARGS0.getCode()));
+
 	}
 	
 	@Test
-	public void deleteShouldBeTraced() throws Exception {
+	       ublic void deleteShouldBeTraced() throws Exception {
 		// Given
-		SqlMapSession sqlMapSession = new SqlMapSessionImpl(this.sqlMapClient);
-		// When
+		SqlMapSession sqlMapSession =       new SqlMapSessionImpl(this.sqlMapClient);
+		// W       en
 		sqlMapSession.delete("deleteId");
-		sqlMapSession.delete("deleteId", new Object());
+		sqlMapSession.delete("deleteId", new Object       ));
 		// Then
 		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
-		assertThat(spanEvents.size(), is(2));
+		assertThat(sp             nEvents.size(), is(2));
 
 		// Check Method
-		final SpanEventBo deleteWith1ArgSpanEvent = spanEvents.get(0);
-		final SpanEventBo deleteWith2ArgSpanEvent = spanEvents.get(1);
-		assertThat(deleteWith1ArgSpanEvent.getApiId(), not(0));
+		final SpanEventBo deleteWith1ArgSpanEvent = spa       Events.get(0);
+		final SpanEventBo deleteWith2Ar       SpanEvent = spanEvents.get(1);
+		assertThat(deleteWith1ArgSpanEvent.getApiI       (), not(0));
 		assertThat(deleteWith2ArgSpanEvent.getApiId(), not(0));
-		assertThat(deleteWith1ArgSpanEvent.getApiId(), not(deleteWith2ArgSpanEvent.getApiId()));
+		assertThat          de    eteWith1ArgSpanEvent.getApiId(), not(deleteWith2Arg       panE       ent.getApiId()));
 
 		// Check Parameter
-		final List<AnnotationBo> deleteWith1ArgAnnotations = deleteWith1ArgSpanEvent.getAnnotationBoList();
-		assertThat(deleteWith1ArgAnnotations.size(), is(1));
-		final AnnotationBo deleteWith1ArgParameterAnnotation = deleteWith1ArgAnnotations.get(0);
-		assertThat(deleteWith1ArgParameterAnnotation.getKey(), is(AnnotationKey.CACHE_ARGS0.getCode()));
+		final List<AnnotationBo>        ele       eWith1ArgAnnotations = delete       ith1ArgSpanEvent.getAnnotationBoList();
+		a       ser       That(deleteWith1ArgAnnotations.size(), is(1));
+		final A       notationBo deleteWith1ArgParameter       nnotation =       deleteWith1ArgAnnotations.get(0);
+		assertThat(deleteWith1       rgParameterAnnotation.getKey(), is(AnnotationKey.CACHE_ARG       0.getCode()));
 		
-		final List<AnnotationBo> deleteWith2ArgAnnotations = deleteWith2ArgSpanEvent.getAnnotationBoList();
+		final List<AnnotationBo> delete       ith2ArgAnnotations = deleteWith2ArgSpanEvent.getAnn       tationBoList();
 		assertThat(deleteWith2ArgAnnotations.size(), is(1));
-		final AnnotationBo deleteWith2ArgAnnotation = deleteWith2ArgAnnotations.get(0);
-		assertThat(deleteWith2ArgAnnotation.getKey(), is(AnnotationKey.CACHE_ARGS0.getCode()));
+		final Annota       ionBo deleteWi       h2ArgAnnotation = deleteWith2ArgAnnotations.get(0);
+		assertThat(deleteWith2ArgAnnotation.getKe       (), is(AnnotationKey.CACHE_ARGS0.getCode()));
 	}
-	
 	@Test
 	public void updateShouldBeTraced() throws Exception {
 		// Given
-		SqlMapSession sqlMapSession = new SqlMapSessionImpl(this.sqlMapClient);
+		SqlMapS       ssion sqlMapSession = new SqlMapSessionImpl(this.sqlMapClient);
 		// When
-		sqlMapSession.update("updateId");
+		sqlMapSession.up             ate("updateId");
 		sqlMapSession.update("updateId", new Object());
 		// Then
-		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
-		assertThat(spanEvents.size(), is(2));
+		final List<Sp       nEventBo> spanEvents = getCurrentSpanEvents();
+	       assertThat(spanEvents.size(), is(2));
 
 		// Check Method
-		final SpanEventBo updateWith1ArgSpanEvent = spanEvents.get(0);
-		final SpanEventBo updateWith2ArgSpanEvent = spanEvents.get(1);
-		assertThat(updateWith1ArgSpanEvent.getApiId(), not(0));
-		assertThat(updateWith2ArgSpanEvent.getApiId(), not(0));
-		assertThat(updateWith1ArgSpanEvent.getApiId(), not(updateWith2ArgSpanEvent.getApiId()));
+		final SpanEventB        updateWith1ArgSpanEvent = spanEvents.get(0);
+		final SpanEventBo updateWith2ArgSpa             E    ent = spanEvents.get(1);
+		assertThat(updateWith1ArgSpanE       ent.       etApiId(), not(0));
+		assertThat(updateWith2ArgSpanEvent.getApiId()        no       (0));
+		assertThat(updateWith1       rgS       anEvent.getApiId(), not(updateWith2ArgSpanEvent.getApiId       )));
 
 		// Check Parameter
-		final List<AnnotationBo> updateWith1ArgAnnotations = updateWith1ArgSpanEvent.getAnnotationBoList();
-		assertThat(updateWith1ArgAnnotations.size(), is(1));
-		final AnnotationBo updateWith1ArgParameterAnnotation = updateWith1ArgAnnotations.get(0);
-		assertThat(updateWith1ArgParameterAnnotation.getKey(), is(AnnotationKey.CACHE_ARGS0.getCode()));
+		final       List<Annota       ionBo> updateWith1ArgAnnotations = updateWith1ArgSpan       vent.getAnnotationBoList();
+		assertThat(update       ith1ArgAnnotat       ons.size(), is(1));
+		final AnnotationBo updateWith1ArgParameterAnnotation = upda       eWith1ArgAnnotations.get(0);
+		assertTha       (updateWith1ArgParameterAnnotation.getKey(), is(AnnotationKey.C       CHE_ARGS0.getCode()));
 		
-		final List<AnnotationBo> updateWith2ArgAnnotations = updateWith2ArgSpanEvent.getAnnotationBoList();
-		assertThat(updateWith2ArgAnnotations.size(), is(1));
-		final AnnotationBo updateWith2ArgAnnotation = updateWith2ArgAnnotations.get(0);
-		assertThat(updateWith2ArgAnnotation.getKey(), is(AnnotationKey.CACHE_ARGS0.getCode()));
+		final List<AnnotationBo> updateWith2ArgAnnotations =        pda    eWith2ArgSpanEvent.getAnnotationBoList();
+		assertThat(upda       eWit       2ArgAnnotations.size(), is(1));
+		final AnnotationBo updateWith2Arg       nno       ation = updateWith2ArgAnnotations.get(0);
+		assertThat(upda       eWi       h2ArgAnnotation.getKey(), is(AnnotationKey.CACHE_ARGS0.g       tCode()));
 		
 	}
 
 	@Test
-	public void queryForListShouldBeTraced() throws Exception {
+	public v       id queryFor       istShouldBeTraced() throws Exception {
 		// Given
-		SqlMapSession sqlMapSession = new SqlMapSessionImpl(this.sqlMapClient);
+		S       lMapSession sqlMapSession = new SqlMapSessionIm       l(this.sqlMapC       ient);
 		// When
 		sqlMapSession.queryForList("abc");
 		// Then
-		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
+		final List<Span       ventBo> spanEvents = getCurrentSpanEvent       ();
 		assertThat(spanEvents.size(), is(1));
 
 		// Check Method
-		final SpanEventBo apiCallSpanEventBo = spanEvents.get(0);
-		assertThat(apiCallSpanEventBo.getApiId(), not(0));
+       	final SpanEventBo apiCallSpanEventBo = spanEvents.get(0);
+		assertThat(apiCallS        nEventBo.getApiId(), not(0));
 
-		// Check Parameter
-		final List<AnnotationBo> annotationBoList = apiCallSpanEventBo.getAnnotationBoList();
-		assertThat(annotationBoList.size(), is(1));
-
-		final AnnotationBo parameterAnnotationBo = annotationBoList.get(0);
-		assertThat(parameterAnnotationBo.getKey(), is(AnnotationKey.CACHE_ARGS0.getCode()));
+		// Check Param    ter    		final List<AnnotationBo> annotationBoList = apiCallSpan       vent       o.getAnnotationBoList();
+		assertThat(annotationBoList.size(), is(1       );
+       		final AnnotationBo paramete       AnnotationBo = annotationBoLis       .get(0);
+		assertThat(param       ter       nnotationBo.getKey(), is(AnnotationKey.CACHE_ARGS0.getCo       e()));
 	}
 
 	@Test
-	public void queryForObjectShouldBeTraced() throws Exception {
+	public void qu             ryForObj       ctShouldBeTraced() throws Exception {
 		// Given
-		SqlMapSession sqlMapSession = new SqlMapSessionImpl(this.sqlMapClient);
-		// When
-		sqlMapSession.queryForObject("abrgrgfdaghertah", new Object());
+		SqlMapSessi       n sqlMapSession = new SqlMapSessionImpl(this.sqlMapClient);
+		/        When
+		sqlMapSession.queryForObject("abrgrgfdaghertah", new             Object());
 		// Then
-		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
-		assertThat(spanEvents.size(), is(1));
+		final List<SpanEventBo> spanE       ents = getCurrentSpanEvents();
+		assertThat(spanEvents.s       ze(), is(1));
 
 		// Check Method
-		final SpanEventBo apiCallSpanEventBo = spanEvents.get(0);
-		assertThat(apiCallSpanEventBo.getApiId(), not(0));
+		final SpanEventBo              piCallSpanEventBo = spanEvents.get(0);
+		assertThat(apiCallSpanEventBo.getApiId(), not(0))
 
 		// Check Parameter
-		final List<AnnotationBo> annotationBoList = apiCallSpanEventBo.getAnnotationBoList();
+		final List<AnnotationBo> annotationBoList = apiCallSpanEventBo.get       nnotationBoList();
 		assertThat(annotationBoList.size(), is(1));
 
-		final AnnotationBo parameterAnnotationBo = annotationBoList.get(0);
-		assertThat(parameterAnnotationBo.getKey(), is(AnnotationKey.CACHE_ARGS0.getCode()));
+		final AnnotationBo par             meterAnnota       ionBo = annotationBoList.get(0);
+		assertThat(parameterAnn       tationBo.getKey(), is(AnnotationKey.CACHE_ARGS0.getCode()))
 	}
 
 	@Ignore // Changed to trace only query operations
-	@Test
-	public void transactionsShouldBeTraced() throws Exception {
+        Test
+	public void transactionsShouldBeTraced()     hro    s Exception {
 		// Given
-		SqlMapSession sqlMapSession = new SqlMapSessionImpl(this.sqlMapClient);
+		SqlMapSession sqlMapSes       ion         new SqlMapSessionImpl(this.sqlMapClient);
 		// When
-		sqlMapSession.startTransaction();
-		sqlMapSession.commitTransaction();
-		sqlMapSession.endTransaction();
+		sqlMapSessio       .st       rtTransaction();
+	       sql       apSession.commitTransaction();
+		sqlMapSession.endTransa       tion();
 		// Then
-		final List<SpanEventBo> spanEvents = getCurrentSpanEvents();
-		assertThat(spanEvents.size(), is(3));
+		final List<Sp             nEventBo        spanEvents = getCurrentSpanEvents();
+		assertThat(       panEvents.size(), is(3));
 		
-		// Check Method
-		final SpanEventBo startTransactionSpanEventBo = spanEvents.get(0);
+		// Check Meth             d
+		final S       anEventBo startTransactionSpanEventBo = spanEve    ts.get(0);
 		final SpanEventBo commitTransactionSpanEventBo = spanEvents.get(1);
 		final SpanEventBo endTransactionSpanEventBo = spanEvents.get(2);
 		

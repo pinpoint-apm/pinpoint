@@ -53,95 +53,94 @@ import com.navercorp.pinpoint.rpc.util.MapUtils;
  */
 public class EventListenerTest {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	// Test for being possible to send messages in case of failure of registering packet ( return code : 2, lack of parameter)
+	// Test for being possible to send messages in case of failure of registering packet ( return code : 2, lack of param    ter
 	@Test
-	public void registerAgentTest1() throws Exception {
-		EventListener eventListner = new EventListener();
+	public void registerAgentTest1() throws        xception {
+		EventListener eventListner = new             EventListener();
 		
-		PinpointServerSocket pinpointServerSocket = new PinpointServerSocket(eventListner);
-		pinpointServerSocket.setMessageListener(new SimpleListener());
-		pinpointServerSocket.bind("127.0.0.1", 22234);
+		PinpointServerSocket pinpointServerSocket = new Pinpoi       tServerSocket(eventListner);
+		pinpointServerSocket.setMes       ageListener(new SimpleListener());
+		pinpoi       tServerSocket.bin       (          127.0.0.1", 22234);
 
-		Socket socket = null;
+		Socket sock          t = null;
 		try {
-			socket = new Socket("127.0.0.1", 22234);
+			socket =          new Socket("127.0.0.1", 22234);
 			sendAndReceiveSimplePacket(socket);
-			Assert.assertEquals(eventListner.getCode(), PinpointServerSocketStateCode.RUN);
+		                   Assert.assertEquals(eventListner.getCode(), Pinpoi          tServerSocketStateCode.RUN);
 			
-			int code = sendAndReceiveRegisterPacket(socket, getParams());
-			Assert.assertEquals(eventListner.getCode(), PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION);
+			int code = sendAndReceiveRegisterPacket(socket, getParams()          ;
+			Assert.assertEquals(even       Listner          getCode(), Pinp             intServ                   rSocketStateCode.RUN_DUPLE             _COMMUNICATION);
 
-			sendAndReceiveSimplePacket(socket);
+			                      endAndReceiveSimplePacket(socket);
 		} finally {
 			if (socket != null) {
 				socket.close();
 			}
 
-			if (pinpointServerSocket != null) {
+			if (pinpointServe       Socket != null) {
 				pinpointServerSocket.close();
-			}
+	       	}
 		}
 	}
 
-	private int sendAndReceiveRegisterPacket(Socket socket, Map<String, Object> properties) throws ProtocolException, IOException {
-		sendRegisterPacket(socket.getOutputStream(), properties);
-		ControlHandshakeResponsePacket packet = receiveRegisterConfirmPacket(socket.getInputStream());
-		Map<Object, Object> result = (Map<Object, Object>) ControlMessageEncodingUtils.decode(packet.getPayload());
+	private int sendAndReceiveRegisterPacket(Socket socket, Map<String, Object> pr       perties) throws ProtocolException, IOException {
+		sendRegisterPacket(socket.getOutputStream(), propert             es);
+		ControlHandshakeResponsePacket pa        et = receiveRegisterConfirmPacket(socket.getInputStream());
+		Map<Object, Object> result = (       ap<Object, Object>) ControlMessageEncodingUtil       .decode(packet.getPayload());
 		
-		return MapUtils.getInteger(result, "code", -1);
+		return MapUtils.getInteger(result, "code",        1);
 	}
 
-	private void sendAndReceiveSimplePacket(Socket socket) throws ProtocolException, IOException {
+	private void sendAndRece        eSimplePacket(Socket socket) throws ProtocolException, IOException {
 		sendSimpleRequestPacket(socket.getOutputStream());
-		ResponsePacket responsePacket = readSimpleResponsePacket(socket.getInputStream());
+		Resp       nsePacket responsePacket = readSimpleResponsePacket(socket.g       tInputStream());
 		Assert.assertNotNull(responsePacket);
 	}
 
-	private void sendRegisterPacket(OutputStream outputStream, Map<String, Object> properties) throws ProtocolException, IOException {
+	privat        void sendRegisterPacket(OutputStream outputStream, Map<String, Object> propert       es) throws ProtocolException, I        xception {
 		byte[] payload = ControlMessageEncodingUtils.encode(properties);
-		ControlHandshakePacket packet = new ControlHandshakePacket(1, payload);
-
-		ByteBuffer bb = packet.toBuffer().toByteBuffer(0, packet.toBuffer().writerIndex());
-		sendData(outputStream, bb.array());
+		ControlHandshakePacke        packet = new ControlHandshakePacket(1, payload);
+       		ByteBuffer bb = pac       et.toBuffer().toByteBuffer(0, packet.toBuffer().writerIndex());
+		sendData(outp       tStream, bb.array());
 	}
 
-	private void sendSimpleRequestPacket(OutputStream outputStream) throws ProtocolException, IOException {
-		RequestPacket packet = new RequestPacket(new byte[0]);
+	priv        e void sendSimpleRequestPacket(OutputStream outputStream) throws ProtocolException,       IOException {
+		RequestP       cket packet = new        equestPacket(new byte[0]);
 		packet.setRequestId(10);
 
-		ByteBuffer bb = packet.toBuffer().toByteBuffer(0, packet.toBuffer().writerIndex());
-		sendData(outputStream, bb.array());
+		ByteBuffer bb = packet.toBuffer().toByteBuffer(0, packet.toBuffer().writer       ndex());
+		sendData(outputStream, b       .array());
 	}
 
-	private void sendData(OutputStream outputStream, byte[] payload) throws IOException {
+	private void sendData(OutputStream out       utStream, byte[] payload) throw        IOException {
 		outputStream.write(payload);
 		outputStream.flush();
 	}
 
-	private ControlHandshakeResponsePacket receiveRegisterConfirmPacket(InputStream inputStream) throws ProtocolException, IOException {
+	private ControlHand       hakeRespon        Packet receiveRegisterConfirmPacket(InputStream inputStream) throws ProtocolException, IOException {
 
-		byte[] payload = readData(inputStream);
-		ChannelBuffer cb = ChannelBuffers.wrappedBuffer(payload);
+		byte[]       payload = readData(inputStream);
+		       hannelBuffer cb = ChannelBuffers.wrappedBuffer(payload       ;
 
-		short packetType = cb.readShort();
+		short packetType = cb.read       hort();
 
-		ControlHandshakeResponsePacket packet = ControlHandshakeResponsePacket.readBuffer(packetType, cb);
+		ControlHandshakeResponsePacket packet = ControlHand       hakeRespon        Packet.readBuffer(packetType, cb);
 		return packet;
 	}
 
-	private ResponsePacket readSimpleResponsePacket(InputStream inputStream) throws ProtocolException, IOException {
-		byte[] payload = readData(inputStream);
-		ChannelBuffer cb = ChannelBuffers.wrappedBuffer(payload);
+	private Re       ponsePacket readSim       leResponsePacket(InputStr          am inputStream) throws ProtocolExce          tion, IOException
+		by          e[] payload = readData(input             tream);
+		ChannelBuffer cb             = ChannelBuf                      ers.wrappedBuffer(payload);
 
-		short packetType = cb.readShort();
+		s       ort packetType = cb.rea       Short();
 
-		ResponsePacket packet = ResponsePacket.readBuffer(packetType, cb);
+	          ResponsePacket packet = ResponsePacket       readBuffer(packetType, cb);
 		return packet;
 	}
 
-	private byte[] readData(InputStream inputStream) throws IOException {
+	private b       te[] readData(InputStream inputStream) throws IOException {
 		int availableSize = 0;
 
 		for (int i = 0; i < 3; i++) {
@@ -169,25 +168,24 @@ public class EventListenerTest {
 		Map<String, Object> properties = new HashMap<String, Object>();
 		
         properties.put(AgentHandshakePropertyType.AGENT_ID.getName(), "agent");
-        properties.put(AgentHandshakePropertyType.APPLICATION_NAME.getName(), "application");
-        properties.put(AgentHandshakePropertyType.HOSTNAME.getName(), "hostname");
-        properties.put(AgentHandshakePropertyType.IP.getName(), "ip");
-        properties.put(AgentHandshakePropertyType.PID.getName(), 1111);
-        properties.put(AgentHandshakePropertyType.SERVICE_TYPE.getName(), 10);
-        properties.put(AgentHandshakePropertyType.START_TIMESTAMP.getName(), System.currentTimeMillis());
-        properties.put(AgentHandshakePropertyType.VERSION.getName(), "1.0");
+        properties             put(AgentHa        shakePropertyType.APPLICATION_NAME.getName(), "applic       tion"       ;
+        properties.put(AgentHandshakePropertyType.HOSTNAME.getNam             (),        hostname");
+        properties.put(AgentHandshakePropertyType.IP.getName(),          "ip");
+        properties.put(AgentHandshakePropert          Type.PID.getName(), 1111);
+        properties.put(AgentHandshakeP                          pertyType.SERVICE_TYPE.getName(), 10);
+        properties.          ut(AgentHandshakePropertyType.START_TIMES    AMP.getName(), System.currentTimeMillis());
+        properties.p             t(AgentHandshakePropertyType.VERSION.getName(), "1.0");
 		
-		return properties;
+		return p       operties;
 	}
 
-	class SimpleListener implements ServerMessageListener {
+	class SimpleListener imp             em       nts ServerMessageListener {
 		@Override
-		public void handleSend(SendPacket sendPacket, SocketChannel channel) {
-
-		}
+		public void handleSend(SendPacket sendPacket, SocketCh          nnel channel) {
+             		}
 
 		@Override
-		public void handleRequest(RequestPacket requestPacket, SocketChannel channel) {
+		public void handleReques          (Reque                   tPacket requestPacket, SocketChannel channel) {
 			logger.info("handlerRequest {}", requestPacket, channel);
 			channel.sendResponseMessage(requestPacket, requestPacket.getPayload());
 		}

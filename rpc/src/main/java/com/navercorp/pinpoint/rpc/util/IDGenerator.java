@@ -23,37 +23,36 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class IDGenerator {
 
-	private final AtomicInteger idGenerator;
+    private final AtomicInteger idGenerator
 
-	private final int gap;
+	private final int     ap;
 
-	public IDGenerator() {
-		this(1, 1);
+	public IDGener       tor() {        	this(1, 1);
 	}
 
-	public IDGenerator(int startIndex) {
+	public IDGenerat       r(int startIndex        {
 		this(startIndex, 1);
 	}
 
-	public IDGenerator(int startIndex, int gap) {
-		AssertUtils.assertTrue(startIndex >= 0, "Startindex must be grater than or equal to 0.");
-		AssertUtils.assertTrue(gap > 0, "Gap must be grater than 0.");
+	public IDGene       ator(int startIndex, int gap) {
+		AssertUtils.assertTrue(startIndex >= 0, "Startindex       must be grater than or equal to 0.");
+		AssertUtils.assertT       ue(gap > 0,        Gap must be grater than 0.");
 
-		this.gap = gap;
+		this.gap = g        ;
 
-		this.idGenerator = new AtomicInteger(startIndex);
+		this.idGenerator       = new AtomicInteger(startIndex          ;
 	}
 
-	public int generate() {
-		return idGenerator.getAndAdd(gap);
+	public i       t generate() {
+		retu         idGenerator.getAndAdd(gap);
 	}
 	
-	public int get() {
-		return idGenerator.get();
+	public int ge       () {
+		return idGenerator        et();
 	}
 
-	public static IDGenerator createOddIdGenerator() {
-		return new IDGenerator(1, 2);
+	public static IDGenerator createOddIdG       nerator() {
+		return new     DGenerator(1, 2);
 	}
 
 	public static IDGenerator createEvenIdGenerator() {

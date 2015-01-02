@@ -24,61 +24,58 @@ package com.navercorp.pinpoint.web.vo;
  */
 public final class SelectedScatterArea {
 
-	private final Range timeRange;
-	private final ResponseTimeRange responseTimeRange;
+    private final Range timeRang    ;
+	private final ResponseTimeRange responseTimeRa    ge;
 
-	public SelectedScatterArea(long timeFrom, long timeTo, int responseTimeFrom, int responseTimeTo) {
-		this.timeRange = new Range(timeFrom, timeTo);
-		this.responseTimeRange = new ResponseTimeRange(responseTimeFrom, responseTimeTo);
+	public SelectedScatterArea(long timeFrom, long timeTo, int responseTimeFrom, int responseT       meTo) {
+		this.timeRange = new Range(time       rom, timeTo);
+		this.responseTimeRange = new ResponseTimeRange(responseTimeFr        , responseTimeTo);
 	}
 
-	public SelectedScatterArea(long timeFrom, long timeTo, int responseTimeFrom, int responseTimeTo, boolean check) {
-		this(timeFrom, timeTo, responseTimeFrom, responseTimeTo);
+	public SelectedScatterArea(long timeFrom, long timeTo, int responseTimeFrom, int respon       eTimeTo, boolean check) {
+		this(timeFrom, timeTo, re       ponseTim          From              responseTimeTo);
 		if (check) {
 			isValid();
 		}
 	}
 
-	public static SelectedScatterArea createUncheckedArea(long timeFrom, long timeTo, int responseTimeFrom, int responseTimeTo) {
-		return new SelectedScatterArea(timeFrom, timeTo, responseTimeFrom, responseTimeTo);
-	}
-
-	private void isValid() {
-		timeRange.validate();
+	public static SelectedScatterArea createUncheckedArea(long timeFro       , long timeTo, int responseTimeFrom, int responseTimeTo) {
+		return new Selecte        catterArea(timeFrom, t       meTo, responseTim       From, responseTimeTo);
+	}        	private void isValid() {
+	       timeRange.val        ate();
 		responseTimeRange.validate();
 	}
 
-	public Range getTimeRange() {
-		return timeRange;
+	pub       ic Range getTimeRange         {
+		re    urn timeRange;
 	}
 
-	public ResponseTimeRange getResponseTimeRange() {
+	p       blic ResponseTime       ange getRes       onseTimeRange() {
 		return responseTimeRange;
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
+	       final int prime = 31;
 		int result = 1;
-		result = prime * result + ((responseTimeRange == null) ? 0 : responseTimeRange.hashCode());
-		result = prime * result + ((timeRange == null) ? 0 : timeRange.hashCode());
+		result = prime * result + ((r       sponseTime        nge ==     ull) ? 0 : responseTimeRange.hash       ode());
+		re          ult =        rime * resul           + ((ti       eRange == null) ? 0 : timeRan          e.hashC       de());
 		return result;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
+	public boo       ean equals(Object obj) {
+		i           (this == obj)
+			return true;             		if        obj == null)
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		SelectedScatterArea other = (SelectedScatterArea) obj;
-		if (responseTimeRange == null) {
-			if (other.responseTimeRange != null)
+		if (getClass() != obj.getC          ass())
+       		return false;
+		Se          ectedScatterArea other             = (Se       ectedScatterArea) obj;
+		if (responseTimeR          nge ==        ull) {
+	        if (oth    r.responseTimeRange != n       ll)
 				return false;
 		} else if (!responseTimeRange.equals(other.responseTimeRange))
-			return false;
+			return fal    e;
 		if (timeRange == null) {
 			if (other.timeRange != null)
 				return false;

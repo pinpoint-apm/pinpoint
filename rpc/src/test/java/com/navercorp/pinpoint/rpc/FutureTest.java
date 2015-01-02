@@ -31,43 +31,42 @@ import com.navercorp.pinpoint.rpc.FutureListener;
  */
 public class FutureTest {
 
-	@Test
-	public void simpleTest1() {
-		DefaultFuture<String> future = new DefaultFuture<String>();
+    @Te    t
+	public void simpleTest       () {
+		DefaultFuture<String> future = new DefaultFuture<       tring>();
 
-		SimpleListener<String> listener1 = new SimpleListener<String>();
+		SimpleListener<String> listener1 = new SimpleLis       ener<String>();
 
-		future.setListener(listener1);
-//		future.addListener(listener2);
+		future.se       Listener(listener1);
+//		fu       ure.addListener(listener2);
 
-		Assert.assertFalse(listener1.isFinished());
-//		Assert.assertFalse(listener2.isFinished());
+		Assert.ass       rtFalse(listener1.isFinished());
+//		Ass       rt.assertFalse(listener       .isFinished());
 
-		future.setResult("Hello");
+		future.setResult("Hel       o");
 
-		Assert.assertTrue(listener1.isFinished());
-//		Assert.assertTrue(listener2.isFinished());
+		Assert.assertTrue(listener1.is        nis    ed());
+//		Assert.assertT       ue(listener2.isFinished());
 	}
 
 	@Test
-	public void simpleTest2() {
-		DefaultFuture<String> future = new DefaultFuture<String>();
+	public void simp       eTest2() {
+		DefaultFuture<String> future = new DefaultFutur       <String>();
 
-		SimpleListener<String> listener = new SimpleListener<String>();
+		SimpleLi       tener<String> listener = n       w SimpleListener<String>();
 
-		future.setResult("Hello");
+		future        etResult("Hello");
 
 		future.setListener(listener);
 
-		Assert.assertTrue(listener.isFinished());
+		Asser       .assertTrue(listener.isFinished());
 	}
 
-	static class SimpleListener<T> implements FutureListener<T> {
+	static class SimpleLis       ener<       > implements FutureListener<T> {
 
-		private final AtomicBoolean isFinished = new AtomicBoolean(false);
+		pr          vate final AtomicBoolean isFinis             ed = new AtomicBoolean(f          lse);
 
-		@Override
-		public void onComplete(Future<T> future) {
+		@Override          		public void onComplete(Future<T> future) {
 			isFinished.compareAndSet(false, true);
 		}
 

@@ -26,16 +26,16 @@ import com.navercorp.pinpoint.common.ServiceType;
  */
 public abstract class SqlMapOperationInterceptor extends SpanEventSimpleAroundInterceptor {
 
-	private final ServiceType serviceType;
+    private final ServiceType serviceType
 
 	public SqlMapOperationInterceptor(ServiceType serviceType, Class<? extends SpanEventSimpleAroundInterceptor> childClazz) {
-        super(childClazz);
-		this.serviceType = serviceType;
+        super(childCl       zz);
+		this.serviceType = s          rviceT    pe;
 	}
 	
 	@Override
-	public final void doInBeforeTrace(RecordableTrace trace, final Object target, Object[] args) {
-		trace.markBeforeTime();
+	public final void doInBeforeTrace(RecordableTrace trace, final Object t       rget, Object[] args        {
+		tra    e.markBeforeTime();
 	}
 
 	@Override
@@ -46,7 +46,7 @@ public abstract class SqlMapOperationInterceptor extends SpanEventSimpleAroundIn
             trace.recordApiCachedString(getMethodDescriptor(), (String)args[0], 0);
         } else {
             trace.recordApi(getMethodDescriptor());
-        }
+           }
         trace.markAfterTime();
 	}
 

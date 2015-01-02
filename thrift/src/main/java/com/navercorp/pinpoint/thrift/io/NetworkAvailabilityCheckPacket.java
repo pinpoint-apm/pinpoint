@@ -28,47 +28,47 @@ import java.io.UnsupportedEncodingException;
  */
 public class NetworkAvailabilityCheckPacket implements org.apache.thrift.TBase<NetworkAvailabilityCheckPacket, org.apache.thrift.TFieldIdEnum>, java.io.Serializable, Cloneable, Comparable<NetworkAvailabilityCheckPacket> {
 
-	private static final long serialVersionUID = -1170704876834222604L;
+    private static final long serialVersionUID = -1170704876834222604       ;
 	
-	public transient static final byte[] DATA_OK = getBytes("OK");
+	public transient static final byte[] DATA_OK = getBytes    "OK");
 
-	private static byte[] getBytes(String str) {
-		if (str == null) {
-			throw new NullPointerException("str must not be null");
+	private static byte[] getBytes(St       ing str) {
+		i           (str == null) {
+			throw new NullPointerExceptio                      ("str must not be null       );
 		}
 		try {
-			return str.getBytes("UTF8");
+			return str.getBytes(          UTF8");
 		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("encoding error. Caused:" + e.getMessage(), e);
-		}
+			throw new Ru             timeEx    eption("encoding error. Caused:" + e.getMessage(), e);
+        }
+	}
+
+	    Override
+	public void read(TProtocol tProtocol) throws T        ception    {
 	}
 
 	@Override
-	public void read(TProtocol tProtocol) throws TException {
+	public void write(T       rotocol         rotocol     throws TException {
 	}
 
 	@Override
-	public void write(TProtocol tProtocol) throws TException {
-	}
-
-	@Override
-	public TFieldIdEnum fieldForId(int i) {
+	public TFi       ldIdEnum         eldForI    (int i) {
 		return null;
 	}
 
 	@Override
-	public boolean isSet(TFieldIdEnum tFieldIdEnum) {
+	public boolea        isSet(T        eldIdEn    m tFieldIdEnum) {
 		return false;
 	}
 
 	@Override
-	public Object getFieldValue(TFieldIdEnum tFieldIdEnum) {
-		return null;
+	public Objec        getFiel    Value(TFieldIdEnum tFie       dIdEnum)
+		retu    n null;
 	}
 
-	@Override
-	public void setFieldValue(TFieldIdEnum tFieldIdEnum, Object o) {
-	}
+	@Overr        e
+	publ    c void setFieldValue(TFieldIdEnum tFieldIdEnum, Object       o) {
+    }
 
 	@Override
 	public TBase deepCopy() {

@@ -145,13 +145,13 @@ public class MockTraceContext implements TraceContext {
 
     }
 
-	@Override
-	public void recordAcceptResponseTime(String parentApplicationName, short parentApplicationType, int elapsedTime) {
-		
+    @Overri    e
+	public void recordAcceptResponseTime(String parentApplicationName, short parentApplicationType, int elapsedTi             e) {
+
 	}
 
 	@Override
-	public void recordUserAcceptResponseTime(int elapsedTime) {
+	public void recordUserAcceptResponseTim          (int elapsedTime) {
 		
 	}
 

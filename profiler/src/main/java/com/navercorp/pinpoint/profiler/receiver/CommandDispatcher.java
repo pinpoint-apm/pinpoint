@@ -147,5 +147,5 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
     private DeserializerFactory<HeaderTBaseDeserializer> wrappedThreadLocalDeserializerFactory(DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory) {
         return new ThreadLocalHeaderTBaseDeserializerFactory<HeaderTBaseDeserializer>(deserializerFactory);
     }
-	
+
 }

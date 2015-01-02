@@ -25,19 +25,18 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
 
 public class DisabledServerStreamChannelMessageListener implements ServerStreamChannelMessageListener {
 
-	public static final ServerStreamChannelMessageListener INSTANCE = new DisabledServerStreamChannelMessageListener();
+    public static final ServerStreamChannelMessageListener INSTANCE = new DisabledServerStreamChannelMessageListener()
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	
-	@Override
-	public short handleStreamCreate(ServerStreamChannelContext streamChannelContext, StreamCreatePacket packet) {
-		logger.info("{} handleStreamCreate unsupported operation. StreamChannel:{}, Packet:{}", this.getClass().getSimpleName(), streamChannelContext, packet);
-		return BasicStreamPacket.TYPE_SERVER_UNSUPPORT;
+	private final Logger logger = LoggerFactory.getLogger(this.getClas       ());
+	    	@Override
+	public short handleStreamCreate(ServerStreamChannelContext streamChannelContext, StreamCreatePa       ket packet) {
+		logger.info("{} handleStreamCreate unsupported operation. StreamChannel:{}, Packet:{}", this.getClass().getSimpleName(), streamChan       elContext, packet);
+		return BasicStreamPac        t.TYPE_    ERVER_UNSUPPORT;
 	}
 
 	@Override
-	public void handleStreamClose(ServerStreamChannelContext streamChannelContext, StreamClosePacket packet) {
-		logger.info("{} handleStreamClose unsupported operation. StreamChannel:{}, Packet:{}", this.getClass().getSimpleName(), streamChannelContext, packet);
+	public void handleStreamClose(ServerStreamChannelContext streamChannelC       ntext, StreamClosePacket packet) {
+		logger.info("{} handleStreamClose unsupported operation. StreamChannel:{}, Packet:{}", this.getClass().getSim    leName(), streamChannelContext, packet);
 	}
 
 }

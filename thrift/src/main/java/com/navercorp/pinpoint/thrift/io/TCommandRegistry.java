@@ -28,23 +28,23 @@ import org.apache.thrift.TException;
  */
 public class TCommandRegistry implements TBaseLocator {
 
-	private final ConcurrentHashMap<Short, TCommandType> commandTBaseRepository = new ConcurrentHashMap<Short, TCommandType>();
+    private final ConcurrentHashMap<Short, TCommandType> commandTBaseRepository = new ConcurrentHashMap<Short, TCommandType>()
 
-	public TCommandRegistry(TCommandTypeVersion version) {
-		this(version.getSupportCommandList());
+	public TCommandRegistry(TCommandTypeVersion versi       n) {
+		this(version.getSupportComm          ndList());
 	}
 	
-	public TCommandRegistry(List<TCommandType> supportCommandList) {
-		for (TCommandType type : supportCommandList) {
-			commandTBaseRepository.put(type.getType(), type);
+	public TCommandRegistry(List<TCommandType> s       pportCommandList) {
+		for (TCommandType ty          e : supportCommandList) {
+			commandTBaseRe             ositor    .put(type.getType(), type);
 		}
 	}
 
 	@Override
-	public TBase<?, ?> tBaseLookup(short type) throws TException {
-		TCommandType commandTBaseType = commandTBaseRepository.get(type);
-		if (commandTBaseType == null) {
-	        throw new TException("Unsupported type:" + type);
+	public TBase       ?, ?> tBaseLookup(short type) throws TException {
+		TCommandT       pe commandTBaseType = comma    dTBaseRepository.get(type);
+		if (commandTBaseType == n             ll) {
+	        throw new TExcep        on("Uns    pported type:" + type);
 		}
 
 		return commandTBaseType.newObject();
@@ -56,20 +56,19 @@ public class TCommandRegistry implements TBaseLocator {
             throw new IllegalArgumentException("tbase must not be null");
         }
 
-        // Should we preload commandTBaseList for performance? 
-        Collection<TCommandType> commandTBaseList = commandTBaseRepository.values();
+        // Should we preload commandTBaseList for performance?
+        Collection<TCommandType> commandTBaseList = commandTBase    epository.values();
 		
-        for (TCommandType commandTBase : commandTBaseList) {
+        for (TCommandT       pe commandTBase : commandTBaseList)
         	if (commandTBase.isInstanceOf(tbase)) {
-        		return commandTBase.getHeader();
-        	}
+        		return commandTBase.getHead          r();
+           	}
         }
         
-        throw new TException("Unsupported Type" + tbase.getClass());
+               hrow new TException("Unsupported Type" + tbase.getClass());
 	}
-	
 	@Override
-	public boolean isSupport(short type) {
+	public boolea           isSup                   ort(          hort t    pe) {
 		TCommandType commandTBaseType = commandTBaseRepository.get(type);
 
 		if (commandTBaseType != null) {
@@ -80,11 +79,11 @@ public class TCommandRegistry implements TBaseLocator {
 	}
 	
 	@Override
-	public boolean isSupport(Class<? extends TBase> clazz) {
-        // Should we preload commandTBaseList for performance? 
-        Collection<TCommandType> commandTBaseList = commandTBaseRepository.values();
+	public boolean isSupport(Class<? exten       s TBase> clazz) {
+        // Should we preload commandTBaseList f    r performance?
+        Collection<TCommandType> c       mmandTBaseList =    commandTBaseRepository.values();
 		
-        for (TCommandType commandTBase : commandTBaseList) {
+           for (TCommandType commandTBase : commandTBaseList) {
         	if (commandTBase.getClazz().equals(clazz)) {
         		return true;
         	}

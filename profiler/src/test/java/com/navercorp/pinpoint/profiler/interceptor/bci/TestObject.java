@@ -26,35 +26,35 @@ public class TestObject {
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     private int callA;
-	private boolean isthrow = false;
-	private int returnCode = 1;
+    private boolean isthrow = fals    ;
+	private int returnCode      1;
 
-	public void setIsthrow(boolean isthrow) {
-		this.isthrow = isthrow;
+	public void setIsthrow(boolean is       hrow) {
+		this.isth        w = isthrow;
 	}
 
-	public void setReturnCode(int returnCode) {
-		this.returnCode = returnCode;
+	public void setReturnCo       e(int returnCode) {
+		thi        returnCode = returnCode;
 	}
 
 	public int callA() {
-        logger.info("callA");
-        int i = callA++;
-		if (isthrow) {
-			throw new RuntimeException("ddd");
+        logger.info("c       llA");
+                 int i = callA++;
+		if (i             throw) {
+			throw new        untimeException("          dd"       ;
 		}
-		System.out.println("callA");
-		if(returnCode == 1) {
-			return 1;
-		} if (returnCode == 10){
+		System.out.p          intln             "callA");
+    	if(returnCode == 1) {
+			r       turn 1;
+		} if (returnCod        == 10){
 			return  -1;
-		}
+
 		return 0;
     }
 
-	public static void before() {
-		System.out.println("before");
-	}
+	pub       ic static void before() {
+		Sy       tem.out.println("before");
+
 	public static void after() {
 		System.out.println("after");
 	}

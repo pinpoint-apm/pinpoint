@@ -36,50 +36,49 @@ import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
 @Deprecated
 public class ApplicationTraceIndexResponseTimeFilter extends FilterBase {
 
-	private byte[] value = null;
-	private boolean filterRow = true;
+    private byte[] value = nul    ;
+	private boolean filterRow = t    ue;
 
-	private final int responseTimeFrom;
-	private final int responseTimeTo;
+	private final int responseT    meFrom;
+	private final int respo    seTimeTo;
 
-	public ApplicationTraceIndexResponseTimeFilter(int responseTimeFrom, int responseTimeTo) {
+	public ApplicationTraceIndexResponseTimeFilter(int responseTimeFrom, int res       onse       imeTo) {
 		super();
-		this.responseTimeFrom = responseTimeFrom;
-		this.responseTimeTo = responseTimeTo;
+		this.responseTi       eFrom = responseTimeFrom;
+		this.        sponseT    meTo = responseTime    o;
 	}
 
 	@Override
 	public void reset() {
-	    // reset flag when comparing with a new value
+	    /        reset flag when c        paring     ith a new value
 		this.filterRow = true;
 	}
 
-	@Override
-	public ReturnCode filterKeyValue(KeyValue kv) {
-		final byte[] buffer = kv.getBuffer();
+       @Override
+	public ReturnCode filte       KeyValue(KeyValue kv) {
+		final byte[] b       ffer = kv.getBuffer();
 
-		final int valueOffset = kv.getValueOffset();
-		final Buffer valueBuffer = new OffsetFixedBuffer(buffer, valueOffset);
-		int elapsed = valueBuffer.readVarInt();
+		final int valueOffset = kv.getValueOffse       ();
+		final Buffer valueBuffer = new       OffsetFixedBuffer(buffer, valueOffset);
+		int elapsed = v       lueBuffer.readVarInt();
 
-		if (elapsed < responseTimeFrom || elapsed > responseTimeTo) {
-		    // skip row if conditions are not met
-			filterRow = false;
-		}
+		if (elapse           < responseT             meFrom || elapsed > responseTimeTo) {
+		    // skip row if conditions are       not met
+			filterRow =        alse;
+	    }
 
-		// always return this value as the actual decision for filtering happens later
-		return ReturnCode.INCLUDE;
-	}
+		// always return this    value as the actual decision for filtering happens later
+		return ReturnC       de.INCLUDE;
 
-	@Override
+	@Over    ide
 	public boolean filterRow() {
-	    // the actual decision for filtering happens here depending on the flag
-		return filterRow;
+	    // the actual decision        or filtering happens here depending on t         flag
+	    return filterRow;
 	}
 
 	@Override
-	public void readFields(DataInput dataInput) throws IOException {
-		this.value = Bytes.readByteArray(dataInput);
+	public void readFields(Da       aInput dataInput) throws IOException {
+		    his.value = Bytes.readByteArray(dataInput);
 	}
 
 	@Override

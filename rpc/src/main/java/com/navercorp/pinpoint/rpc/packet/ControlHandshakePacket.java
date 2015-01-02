@@ -24,52 +24,51 @@ import org.jboss.netty.buffer.ChannelBuffers;
  */
 public class ControlHandshakePacket extends ControlPacket {
 
-	public ControlHandshakePacket(byte[] payload) {
-		super(payload);
+    public ControlHandshakePacket(byte[] payload)       {
+		super(p        load);
 	}
 
-	public ControlHandshakePacket(int requestId, byte[] payload) {
+	public ControlHandshakePacket(int requestId, byt       [] payload)       {
 		super(payload);
-		setRequestId(requestId);
+        setRequ    stId(requestId);
 	}
 
-	@Override
-	public short getPacketType() {
-		return PacketType.CONTROL_HANDSHAKE;
-	}
+	@Overr       de
+	public short getPacketType()
+		retu    n PacketType.CONTROL_HANDSHAKE;
+       }
 
 	@Override
 	public ChannelBuffer toBuffer() {
 
-		ChannelBuffer header = ChannelBuffers.buffer(2 + 4 + 4);
-		header.writeShort(PacketType.CONTROL_HANDSHAKE);
-		header.writeInt(getRequestId());
+		       hannelBuffer header = ChannelBuffers.buffer(        + 4 + 4);
+		header.writeShor       (PacketType.CONTROL_HANDSHAKE);
+		header.writeIn        getRequestId());
 
 		return PayloadPacket.appendPayload(header, payload);
 	}
 
-	public static ControlHandshakePacket readBuffer(short packetType, ChannelBuffer buffer) {
-		assert packetType == PacketType.CONTROL_HANDSHAKE;
+	public st       tic ControlHandshakePacket readBuffer(short pac       etType, ChannelBuffer buffer)          {
+		assert packetTyp           == Pa             ketType.CONTROL_HANDSHAKE;
 
-		if (buffer.readableBytes() < 8) {
+		if (       uffer.readableBytes() < 8) {
 			buffer.resetReaderIndex();
-			return null;
+	       	return null;
 		}
-
-		final int messageId = buffer.readInt();
-		final ChannelBuffer payload = PayloadPacket.readPayload(buffer);
-		if (payload == null) {
-			return null;
+          		fina              int messageId = buffer.readInt();
+		final ChannelBuffer payload = PayloadPacket.       eadPayload(buffer);
+		if (payloa        == null) {
+			        turn nu    l;
 		}
-		final ControlHandshakePacket helloPacket = new ControlHandshakePacket(payload.array());
-		helloPacket.setRequestId(messageId);
-		return helloPacket;
+		final ControlHa       dshakePacket helloPacket = new ControlHan       shakePacket(payload.array());
+		helloPa       ket.setRequestId(messageId);
+		return helloP       cket;
 	}
 
-	@Override
-	public String toString() {
-		final StringBuilder sb = new StringBuilder();
-		sb.append(this.getClass().getSimpleName());
+	@       verride
+	public St          ing toString() {
+		f       nal           tringBuilder sb = new StringBuilder();
+		sb.a             pend(this       getClass().getSim    leName());
 		sb.append("{requestId=").append(getRequestId());
 		sb.append(", ");
 		if (payload == null) {

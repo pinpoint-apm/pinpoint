@@ -67,7 +67,7 @@ public class TcpDispatchHandler extends AbstractDispatchHandler {
             return stringMetaDataHandler;
         }
         if (tBase instanceof TAgentInfo) {
-        	return agentInfoHandler;
+            return agentInfoHandler;
         }
         return null;
     }

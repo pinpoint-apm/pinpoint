@@ -36,17 +36,17 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class AgentInfoServiceImpl implements AgentInfoService {
-	
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	private final Logger logger = LoggerFactory.getLogger(this.getClass    ));
+
+	@A    towired
+	private ApplicationIndexDao applicatio    IndexDao
 
 	@Autowired
-	private ApplicationIndexDao applicationIndexDao;
-
-	@Autowired
-	private AgentInfoDao agentInfoDao;
+	private AgentInfo           o agentInfoDao;
 	
 	/**
-	 * FIXME from/to present in the interface but these values are not currently used. They should be used when agent list snapshot is implemented
+	 * FIXME from/to present in the interface but these values are not currently used. They should be used when agent li    t    snapsho     is implemented
 	 */
 	@Override
 	public SortedMap<String, List<AgentInfoBo>> getApplicationAgentList(String applicationName, Range range) {
@@ -54,35 +54,35 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             throw new NullPointerException("applicationName must not be null");
         }
        final List<String> agentIdList = applicationIndexDao.selectAgentIds(applicationName);
-        if (logger.isDebugEnabled()) {
-		    logger.debug("agentIdList={}", agentIdList);
-        }
+              if (logger.isDebugEnabled()) {
+		    logger.debug(             agentIdList={}", agentIdList);
+                 }
 		
 		if (CollectionUtils.isEmpty(agentIdList)) {
-			logger.debug("agentIdList is empty. applicationName={}, {}", applicationName, range);
-			return new TreeMap<String, List<AgentInfoBo>>();
+			logger.debug("agentIdLi          t is empty. applicationName={}, {}", appli                   ationNam       , range);
+			return new       TreeMap<String, List<AgentInfoBo>>();
 		}
 		
 		// key = hostname
-		// value= list fo agentinfo
-		SortedMap<String, List<AgentInfoBo>> result = new TreeMap<String, List<AgentInfoBo>>();
+		// value= list fo       agentinfo
+		SortedMap<String, Li          t<AgentInfoBo>> result = new TreeMap<String, List<AgentInfoBo>>();
 
-		for (String agentId : agentIdList) {
-			List<AgentInfoBo> agentInfoList = agentInfoDao.getAgentInfo(agentId, range);
+		f          r (String agentId : agen             IdList) {
+			List<AgentInfoBo> agentInfoList = agentInfoDao.get             g                   ntInfo(agentId, range);
 
 			if (agentInfoList.isEmpty()) {
-				logger.debug("agentinfolist is empty. agentid={}, {}", agentId, range);
+				logger.debug("agent          nfolist is empty. agentid={}, {}", agen          Id, range);
 				continue;
 			}
 
-			// FIXME just using the first value for now. Might need to check and pick which one to use.
-			AgentInfoBo agentInfo = agentInfoList.get(0);
-			String hostname = agentInfo.getHostName();
+			//          FIXME just using the first va             ue for now. Might need to ch          ck             and pick which one to use.
+			AgentInfoBo agen             Info = agent             nfoList.get(0);
+			                      tring hostname = agentInfo.getHostName();
 
-			if (result.containsKey(hostname)) {
-				result.get(hostname).add(agentInfo);
+			if (          esult.containsKey(hostname)) {
+				result.get(hostname).add(agentIn             o);
 			} else {
-				List<AgentInfoBo> list = new ArrayList<AgentInfoBo>();
+				List<AgentInfoBo> list =              ew Arra    List<AgentInfoBo>();
 				list.add(agentInfo);
 				result.put(hostname, list);
 			}

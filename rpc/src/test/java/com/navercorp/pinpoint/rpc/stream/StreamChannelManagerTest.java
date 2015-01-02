@@ -44,262 +44,254 @@ import com.navercorp.pinpoint.rpc.stream.StreamChannelContext;
 
 public class StreamChannelManagerTest {
 
-	// Client to Server Stream
-	@Test
-	public void streamSuccessTest1() throws IOException, InterruptedException {
-		SimpleStreamBO bo = new SimpleStreamBO();
+    // Client to Server Stre    m
+	    Test
+	public void streamSuccessTest1() throws IOException, InterruptedExc       ption {
+		SimpleStreamBO bo = new Simp       eStreamBO();
 
-		PinpointServerSocket ss = createServerSocket(new TestSeverMessageListener(), new ServerListener(bo));
-		ss.bind("localhost", 10234);
+		PinpointServerSocket ss = createServerSocket(new TestSeverMessageListener(), new        erverListener(bo));
+		ss.       ind("localhost", 10234);
 
-		PinpointSocketFactory pinpointSocketFactory = createSocketFactory();
+		PinpointSocketFactory pinpointSocket       a          tory = createSocketFactory();
 		try {
-			PinpointSocket socket = pinpointSocketFactory.connect("127.0.0.1", 10234);
+			PinpointSocket socket = pinp          intSocketFactory.connect("127.0.0.1", 10234);
 
-			RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
+			RecordedStreamChannelMessageListener client          istener = new RecordedStreamChannelMessageListener(4);
 
-			ClientStreamChannelContext clientContext = socket.createStreamChannel(new byte[0], clientListener);
+			ClientStreamChannelContext clientCo          text = socket          createStreamChannel(new byte[0]              clientListe                   er);
 
-			int sendCount = 4;
+			i          t sendCount = 4;
 
 			for (int i = 0; i < sendCount; i++) {
-				sendRandomBytes(bo);
+				sendRan          omBytes(bo);
 			}
 
-			Thread.sleep(100);
+			Thread.sleep(          00);
 
-			Assert.assertEquals(sendCount, clientListener.getReceivedMessage().size());
+			       ssert.a          sertEquals(sendCount, clie          tList             ner.getReceivedMessage(    .si    e());
 
 			clientContext.getStreamChannel().close();
 			socket.close();
-		} finally {
-			pinpointSocketFactory.release();
+		        finally {
+			pinpointSocketFactory.re       ease();
 			ss.close();
 		}
 	}
 
 	// Client to Server Stream
 	@Test
-	public void streamSuccessTest2() throws IOException, InterruptedException {
+	public void streamSuccessTest2       ) throws IOException, Int       rruptedException {
 		SimpleStreamBO bo = new SimpleStreamBO();
 
-		PinpointServerSocket ss = createServerSocket(new TestSeverMessageListener(), new ServerListener(bo));
+       	          inpointServerSocket ss = createServerSocket(new TestSeverMessageListe          er(), new ServerListener(bo));
 		ss.bind("localhost", 10234);
 
-		PinpointSocketFactory pinpointSocketFactory = createSocketFactory();
+		PinpointSocketFactory pinpo          ntSocketFactory = createSocketFactory();
 		try {
-			PinpointSocket socket = pinpointSocketFactory.connect("127.0.0.1", 10234);
+			PinpointSocket socket = pinpointSocketFact          ry.connect("127.0.0.1", 10234);
 
-			RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
-			ClientStreamChannelContext clientContext = socket.createStreamChannel(new byte[0], clientListener);
+			RecordedStreamChannelMessageListener clientListener = new          RecordedStreamChannelMessageListener(4);
+			ClientStreamChannelContext clientContext = socket.cr                   ateStre          mChannel(new byte[0], clientLis             ener);
 
-			RecordedStreamChannelMessageListener clientListener2 = new RecordedStreamChannelMessageListener(4);
-			ClientStreamChannelContext clientContext2 = socket.createStreamChannel(new byte[0], clientListener2);
+			R                   cordedStre          mChannelMessageListener clientListener2 = new RecordedStreamChannelMe          sageListener(4);
+			ClientStreamChannelContext clientContext2 = socket.          reateStreamChannel(new byte[0], clie          tListener2);
 
-			
 			int sendCount = 4;
-			for (int i = 0; i < sendCount; i++) {
+			for (             nt i = 0; i                     sendCount           i++) {
 				sendRandomBytes(bo);
 			}
 
 			Thread.sleep(100);
 
-			Assert.assertEquals(sendCount, clientListener.getReceivedMessage().size());
-			Assert.assertEquals(sendCount, clientListener2.getReceivedMessage().size());
+			Asse          t.assertEquals(sendCount, clientListener.getReceivedMessage().s                   ze());
+			Assert.assertEquals(s                   ndCo       nt, cli          ntListener2.getReceivedMes          age()             si    e());
 
 			clientContext.getStreamChannel().close();
 
-			Thread.sleep(100);
+			Thread.sleep(100)
 			
 			sendCount = 4;
 			for (int i = 0; i < sendCount; i++) {
-				sendRandomBytes(bo);
+				sendRandomB       tes(bo);
 			}
 
-			Thread.sleep(100);
+			Thread.       leep(100);
 
-			Assert.assertEquals(sendCount, clientListener.getReceivedMessage().size());
-			Assert.assertEquals(8, clientListener2.getReceivedMessage().size());
+			Assert.assertEquals(sen       Count, clientListener.getReceivedMessage().size());
+			Assert.assertEquals(8, clientListener2.getReceivedMe       s          ge().size());
 
 			
 			clientContext2.getStreamChannel().close();
 			
-			socket.close();
+          		socket.clos          ();
 		} finally {
 			pinpointSocketFactory.release();
 			ss.close();
-		}
+
 	}
 
 	@Test
-	public void streamSuccessTest3() throws IOException, InterruptedException {
-		PinpointServerSocket ss = createServerSocket(new TestSeverMessageListener(), null);
+	public void streamSuccess          est3() throws IOException, InterruptedE          ception {
+		PinpointServerSocket ss = createServerSocket(new TestSeverMessageListener(), null          ;
 		ss.bind("localhost", 10234);
 
 		SimpleStreamBO bo = new SimpleStreamBO();
 
-		PinpointSocketFactory pinpointSocketFactory = createSocketFactory(new TestListener(), new ServerListener(bo));
+		PinpointSocket          actory pinpoi          tSocketFactory = createSocketFa             tory(new Tes                   Listener()           new ServerListener(bo));
 
 		try {
-			PinpointSocket socket = pinpointSocketFactory.connect("127.0.0.1", 10234);
+			PinpointSocket socket = pinpoint          ocketFactory.connect("127.0.0.1", 1          234);
 
-			Thread.sleep(100);
+		       Thread.          leep(100);
 
-			List<ChannelContext> contextList = ss.getDuplexCommunicationChannelContext();
+			List<Channe          Conte                t> contextList = ss.getDuplexCommunication    hannelContext();
 			Assert.assertEquals(1, contextList.size());
 
-			ChannelContext context = contextList.get(0);
+			Chan       elContext context = contextList.get(0);
 
-			RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
+			RecordedStreamChannelMessageListene        clientListener = new Rec       rdedStreamChannelMessageListener(4);
 
-			ClientStreamChannelContext clientContext = context.createStreamChannel(new byte[0], clientListener);
+			ClientStreamChannelCont       x           clientContext = context.createStreamChannel(new byte[0], clientListe          er);
 
 			int sendCount = 4;
 
 			for (int i = 0; i < sendCount; i++) {
-				sendRandomBytes(bo);
+				sendRandomBytes(bo)
 			}
 
 			Thread.sleep(100);
 
-			Assert.assertEquals(sendCount, clientListener.getReceivedMessage().size());
-
-			clientContext.getStreamChannel().close();
-			socket.close();
+			Assert.assertEquals(sendCount, clientListener.getReceivedMess          ge().size());
+			clientContext.getStreamChannel(          .close();       			sock          t.close();
 		} finally {
-			pinpointSocketFactory.release();
+	          	pinp             in    SocketFactory.release();
 			ss.close();
 		}
 	}
 	
-	@Test(expected = PinpointSocketException.class)
-	public void streamClosedTest1() throws IOException, InterruptedException {
-		PinpointServerSocket ss = createServerSocket(new TestSeverMessageListener(), null);
+	@Test(expected = Pinpo       ntSocketException.class)
+	public void        treamClosedTest1() throws IOException, InterruptedException {
+		PinpointServerSocket ss = createS       rverSocket(new TestSeverM       ssageListener(), null);
 		ss.bind("localhost", 10234);
 
-		PinpointSocketFactory pinpointSocketFactory = createSocketFactory();
+		Pinpoin       SocketFactory pinpointSoc       e          Factory = createSocketFactory();
 		try {
-			PinpointSocket socket = pinpointSocketFactory.connect("127.0.0.1", 10234);
+			PinpointSo          ket socket = pinpointSocketFactory.connect("127.0.0.1", 10234);
 
-			RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
+			RecordedStreamChannelMess          geListener clientListener = new RecordedStreamChannelMessageListener(4);
 
-			ClientStreamChannelContext clientContext = socket.createStreamChannel(new byte[0], clientListener);
+			ClientStreamChan          elContext cli          ntContext = socket.createStreamChannel(new byte[0],                   clientListener);
 
-			Thread.sleep(100);
+			Thread.sl          ep(100);
 
-			clientContext.getStreamChannel().close();
-			socket.close();
-		} finally {
-			pinpointSocketFactory.release();
-			ss.close();
+			          lientContext.getStreamChannel().close();
+			socket.c       ose();
+          	} finally {
+		             pinpoin                   SocketFactory.release()
+			s                .close();
 		}
 	}
 
 	@Test
-	public void streamClosedTest2() throws IOException, InterruptedException {
-		SimpleStreamBO bo = new SimpleStreamBO();
+	p          blic void streamClosedTest2() t    rows IOException, InterruptedException {
+		Si    pleStreamBO bo = new SimpleStreamBO();
 
-		PinpointServerSocket ss = createServerSocket(new TestSeverMessageListener(), new ServerListener(bo));
-		ss.bind("localhost", 10234);
+		PinpointServerSocket ss = crea       eServerSocket(new TestSeverMessageListener(), new ServerListener(bo));
+		ss.bin       ("localhost", 10234);
 
-		PinpointSocketFactory pinpointSocketFactory = createSocketFactory();
+		       inpointSocketFactory pinpointSocketFac       ory = createSocketFactory();
 
 		PinpointSocket socket = null;
 		try {
-			socket = pinpointSocketFactory.connect("127.0.0.1", 10234);
+			socket = pinpointSocketFactory.con       ect("127.0.0.1", 10234);
 
-			RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
+			RecordedStreamChannelMessageListener clie       t                   istener            new RecordedStreamChannelMessageListener(4);
 
-			ClientStreamChannelContext clientContext = socket.createStreamChannel(new byte[0], clientListener);
-			Thread.sleep(100);
+			ClientStreamChannelCo          text clientContext = socket.createStre          mChannel(new byte[0], clientListener);
+          		Thread.sleep(100);
 
 			Assert.assertEquals(1, bo.getStreamChannelContextSize());
 			
-			clientContext.getStreamChannel().close();
+			cli          ntContext.getStreamChannel().close();
 			Thread.sleep(100);
 
-			Assert.assertEquals(0, bo.getStreamChannelContextSize());
+			Assert.assertEquals(0, bo.getSt                   eamChannelContextSize());
 
 		} finally {
-			if (socket != null) {
-				socket.close();
+			                   f (socket != null) {                   				socket          close();
 			}
+          			pinpointSocketFactory.release();       			ss.c          ose();
 
-			pinpointSocketFactory.release();
-			ss.close();
-		}
 	}
 	
-	// ServerSocket to Client Stream
+	// ServerSocket to           lient                Stream
 	
 	
 	// ServerStreamChannel first close.
-	@Test(expected = PinpointSocketException.class)
-	public void streamClosedTest3() throws IOException, InterruptedException {
-		PinpointServerSocket ss = createServerSocket(new TestSeverMessageListener(), null);
+	@Test(expected = PinpointSocketExcepti          n.class)
+	public void streamClosedTest3() throws IOException, Inte       ruptedException {
+		PinpointServerSocket ss = createServerSo       ket(new TestSeverMessageListene          (), null);
 		ss.bind("localhost", 10234);
 
-		SimpleStreamBO bo = new SimpleStreamBO();
+		Sim             leStreamBO bo = new SimpleStreamBO();
 
-		PinpointSocketFactory pinpointSocketFactory = createSocketFactory(new TestListener(), new ServerListener(bo));
+		Pin          ointSocketFactory pinpointSocketFactory = createSocketFactory(new TestListener(),             new ServerListe        r(bo));
 
-		PinpointSocket socket = pinpointSocketFactory.connect("127.0.0.1", 10234);
+		PinpointSocket socket = pinpointSocketFa       tory.connect("127.0.0.1", 10234);
 		try {
 			
 			Thread.sleep(100);
 
-			List<ChannelContext> contextList = ss.getDuplexCommunicationChannelContext();
+	       	List<ChannelContext> con        xtList = ss.getDuplexCommunicationChannelContext();
 			Assert.assertEquals(1, contextList.size());
 
 			ChannelContext context = contextList.get(0);
 
-			RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
+			R       cordedStreamChannelMessageListener clientListener = new RecordedStream       hannelMessageListener(4);
 
-			ClientStreamChannelContext clientContext = context.createStreamChannel(new byte[0], clientListener);
+			ClientStreamChannelConte       t clientContext = context.createStreamChannel(new byte[0], clientListener);
 
 			
-			StreamChannelContext aaa = socket.findStreamChannel(2);
+			StreamCha       nelContext aaa = socket.f        dStreamChannel(2);
 			
-			aaa.getStreamChannel().close();
-			
+			aaa.getStreamChannel().close()
 			sendRandomBytes(bo);
 
-			Thread.sleep(100);
+			Thread.sleep(10       );
 
 
 			clientContext.getStreamChannel().close();
-		} finally {
-			socket.close();
+       	} finally {
+			socket.        ose();
 			pinpointSocketFactory.release();
 			ss.close();
 		}
 	}
 	
-
-	private PinpointServerSocket createServerSocket(ServerMessageListener severMessageListener,
+       	private PinpointServerSocket       createServerSocket(ServerMessageListen          r sever             essa       eListener,
 			ServerStreamChannelMessageListener serverStreamChannelMessageListener) {
-		PinpointServerSocket serverSocket = new PinpointServerSocket();
+		PinpointServerSo          ket serverSocket = new PinpointServerSocket();
 
-		if (severMessageListener != null) {
+	          if              seve       MessageListener != null) {
 			serverSocket.setMessageListener(severMessageListener);
 		}
 
-		if (serverStreamChannelMessageListener != null) {
-			serverSocket.setServerStreamChannelMessageListener(serverStreamChannelMessageListener);
+		if (server          treamChannelMessageListener != null) {
+			serverSock             t.setServerStreamChan       elMessageListener(serverStreamChannelMessageListener);
 		}
 
-		return serverSocket;
+		return server       ocket;
 	}
 
-	private PinpointSocketFactory createSocketFactory() {
-		PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
+	private P          npointSocketFactory createSocketFactory() {
+		PinpointSocketFactory pinpointSocket             actory = new PinpointSocketFactory();
 		return pinpointSocketFactory;
 	}
 
-	private PinpointSocketFactory createSocketFactory(MessageListener messageListener, ServerStreamChannelMessageListener serverStreamChannelMessageListener) {
-		PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
-		pinpointSocketFactory.setMessageListener(messageListener);
-		pinpointSocketFactory.setServerStreamChannelMessageListener(serverStreamChannelMessageListener);
+          private PinpointSocketFactory createSo             ketFactory(MessageListener messageListener, ServerStreamChannelMessageListene           serverStreamChannelMessageListener) {
+		             inpointSocketFactory pinpoin          SocketFactory = new PinpointSocketFactory();
+		pinpointSocketFactory.             etMessageListener(messageListener)
+		pinpointSocketFactory.s          tServerStreamChannelMessageListener(ser          erStreamChannelMessageListener);
 
 		return pinpointSocketFactory;
 	}

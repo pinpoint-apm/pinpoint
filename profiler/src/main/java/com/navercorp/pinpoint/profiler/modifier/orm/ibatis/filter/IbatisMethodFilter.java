@@ -26,36 +26,35 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodInfo;
  */
 public abstract class IbatisMethodFilter implements MethodFilter {
 
-	private static final boolean TRACK = false;
-	private static final boolean DO_NOT_TRACK = true;
+    private static final boolean TRACK = fals    ;
+	private static final boolean DO_NOT_TRACK = t    ue;
 
-	protected abstract boolean shouldTrackMethod(String methodName);
-
-	@Override
-	public boolean filter(MethodInfo ctMethod) {
-		final int modifiers = ctMethod.getModifiers();
-		if (!Modifier.isPublic(modifiers) || Modifier.isStatic(modifiers) || Modifier.isAbstract(modifiers) || Modifier.isNative(modifiers)) {
-			return DO_NOT_TRACK;
+	protected abstract boolean shouldTrackMethod(String metho    Name);
+    	@Override
+	public boolean filter(MethodIn       o ctMethod) {
+		final int modifiers = ctMe       hod.getModifiers();
+		if (!Modifier.isPublic(modifiers) || Modifier.isStatic(modifiers) || Modifier.isAbstract(modifiers) || Modif          er.isNative(mo             ifiers)) {
+			return DO_NOT_TRAC
 		}
 		return filterApiForTracking(ctMethod);
 	}
 
-	private boolean filterApiForTracking(MethodInfo ctMethod) {
-		if (!shouldTrackMethod(ctMethod.getName())) {
-			return DO_NOT_TRACK;
+	privat        boolean filterApiForTracking(MethodInfo           tMethod) {
+		i              (!shouldTrackMethod(ctMethod.getName())) {
+			r       turn DO_NOT_TRACK;
 		}
 
-		final int parameterIndexToMatch = 0; // 0-based index
-		String[] parameterTypes = ctMethod.getParameterTypes();
-		if (parameterTypes != null && parameterTypes.length > 0) {
-		    return parameterTypeMatches(parameterTypes, parameterIndexToMatch, String.class);
+		final int parameterIndexT       Match = 0; // 0-based index
+		String[] parameterTypes         ctMethod.getParameterTypes();
+		if (parameterTypes != null && parameterTypes.len       th >       0) {
+		    re             urn parameterTypeMatches(parameterTypes, parameterIndexToMatch, String.class);
 		} else {
 		    return TRACK;
 		}
 	}
 
-	private boolean parameterTypeMatches(final String[] parameterTypes, final int parameterIndex, final Class<?> parameterType) {
-		if (parameterTypes == null || parameterTypes.length <= parameterIndex) {
+	pri       ate boolean parameterTypeMatches(final String[] parameterTypes, fina           int parameter             ndex, final Class<?> parameterType) {
+		if (parameterTypes == n          ll || p             rameterTypes.l    ngth <= parameterIndex) {
 			return DO_NOT_TRACK;
 		}
 		if (parameterType.getName().equals(parameterTypes[parameterIndex])) {

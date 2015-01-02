@@ -51,187 +51,179 @@ import com.navercorp.pinpoint.rpc.util.MapUtils;
  */
 public class ControlPacketServerTest {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	// Test for being possible to send messages in case of failure of registering packet ( return code : 2, lack of parameter)
+	// Test for being possible to send messages in case of failure of registering packet ( return code : 2, lack of param    ter
 	@Test
-	public void registerAgentTest1() throws Exception {
-		PinpointServerSocket pinpointServerSocket = new PinpointServerSocket();
-		pinpointServerSocket.setMessageListener(new SimpleListener());
-		pinpointServerSocket.bind("127.0.0.1", 22234);
+	public void registerAgentTest1() throws        xception {
+		PinpointServerSocket pinpointServerSocket = new Pinpoi       tServerSocket();
+		pinpointServerSocket.setMessageListener       new SimpleListener());
+		pinpointServerSock       t.bind("127.0.0.1       ,          22234);
 
 		Socket socket = null;
-		try {
-			socket = new Socket("127.0.0.1", 22234);
+	                   try {
+			socket = new So                   ket("127.0.0.1", 22234);
 			
-			sendAndReceiveSimplePacket(socket);
+			send          ndReceiveSimplePacket(so          ket);
 			
-			int code= sendAndReceiveRegisterPacket(socket);
-			Assert.assertEquals(2, code);
+			int code= sendAn       Receive          egisterPacket(s             cket);
+                   		Assert.assertEquals(2, c             de);
 
-			sendAndReceiveSimplePacket(socket);
+			sendAndRecei                      eSimplePacket(socket);
 		} finally {
 			if (socket != null) {
 				socket.close();
 			}
 
-			if (pinpointServerSocket != null) {
-				pinpointServerSocket.close();
+			if (p    npo    ntServerSocket != null) {
+				pinpointServerSocke       .close();
 			}
 		}
 	}
 
-	// Test for being possible to send messages in case of success of registering packet ( return code : 0)
+	// Test for being possible to send messages       in case of success of registering packet ( return code : 0
 	@Test
-	public void registerAgentTest2() throws Exception {
-		PinpointServerSocket pinpointServerSocket = new PinpointServerSocket();
-		pinpointServerSocket.setMessageListener(new SimpleListener());
-		pinpointServerSocket.bind("127.0.0.1", 22234);
-
-		Socket socket = null;
+	public void registerAgentTest2() t       rows Exception {
+       	          inpointServerSocket pinpointServerS          cket = new PinpointServerSocke          ();
+		pinpointServerSocket.setMessageListener(new Simp          eListener());
+		pinpoint          erverSocket.bind("127.0.0.1",       22234);
+		Socket socke              = null
 		try {
-			socket = new Socket("127.0.0.1", 22234);
+			socket = new S             cket("127.0.0.1", 222                      4);
 
 			sendAndReceiveSimplePacket(socket);
 
-			int code= sendAndReceiveRegisterPacket(socket, getParams());
+			int code= sendAndReceiveRegisterPacket(socket,     etP    rams());
 			Assert.assertEquals(0, code);
 
-			sendAndReceiveSimplePacket(socket);
+			sen       AndReceiveSimplePacket(socket);
 		} finally {
-			if (socket != null) {
+			if (socket != null        {
 				socket.close();
 			}
 
-			if (pinpointServerSocket != null) {
+			if (pinpointServerSocket !        null) {
+				pinpointServerSocket.close();
+       		}
+		}
+	}
+
+	// w       e           failure of registering and retryi          g to register, confirm to return same code          ( return code : 2
+	@Tes
+	public void registerAgentTest3(           throws Exception {
+		P                   npointServerSocket pinpo       ntServe          Socket = new Pi             pointSe                   verSocket();
+		pinpointSer             erSocket.setMessageLi                      tener(new SimpleListener());
+		pinpointServerSocket.bind("127.0.0.1    , 22234);
+
+		Socket socket = null;
+		try {
+			socket = new Socket("127.0.0.1", 2223    );
+    		int code = sendAndReceiveRegisterPacket(socket)
+			Assert.assertEquals(2, code);
+			
+			code = sendAndReceiveRegis       erPacket(socket);
+			Assert.assertEquals(2, code);
+			
+			       endAndReceiveSimplePacket(socket);
+		} fina       ly {
+			if (socke                  = null) {
+				socket.close();
+			}
+			if (pinpointServerSocket !           null) {
 				pinpointServerSocket.close();
 			}
 		}
 	}
-
-	// when failure of registering and retrying to register, confirm to return same code ( return code : 2
-	@Test
-	public void registerAgentTest3() throws Exception {
-		PinpointServerSocket pinpointServerSocket = new PinpointServerSocket();
-		pinpointServerSocket.setMessageListener(new SimpleListener());
-		pinpointServerSocket.bind("127.0.0.1", 22234);
-
-		Socket socket = null;
-		try {
-			socket = new Socket("127.0.0.1", 22234);
-			int code = sendAndReceiveRegisterPacket(socket);
-			Assert.assertEquals(2, code);
-			
-			code = sendAndReceiveRegisterPacket(socket);
-			Assert.assertEquals(2, code);
-			
-			sendAndReceiveSimplePacket(socket);
-		} finally {
-			if (socket != null) {
-				socket.close();
-			}
-
-			if (pinpointServerSocket != null) {
-				pinpointServerSocket.close();
-			}
-		}
-	}
-
-	// after success of registering, when success message are sent repeatedly.
-	// test 1) confirm to return success code, 2) confirm to return already success code.
-	@Test
-	public void registerAgentTest4() throws Exception {
-		PinpointServerSocket pinpointServerSocket = new PinpointServerSocket();
-		pinpointServerSocket.setMessageListener(new SimpleListener());
-		pinpointServerSocket.bind("127.0.0.1", 22234);
+          	// after success of reg          stering, when success message           re sent repeatedly.
+	// test 1) confirm to return s          ccess code, 2) confirm t           return already success code.       	@Test
+          public void reg             sterAge                   tTest4() throws Exception
+		PinpointServerSock                         t pinpointServerSocket = new PinpointServerSocket();
+		pinpointServerSocket.setMessageL       stener(new SimpleListener());
+		pinpointServerSocket.bind("127.        0.1", 22234);
 
 		Socket socket = null;
 		try {
 			socket = new Socket("127.0.0.1", 22234);
-			sendAndReceiveSimplePacket(socket);
+			sendAndReceiveS       mplePacket(socket);
 
-			int code = sendAndReceiveRegisterPacket(socket, getParams());
+			int code = sendAndReceiveRegi       terPacket(socket, getParams());
 			Assert.assertEquals(0, code);
 
-			sendAndReceiveSimplePacket(socket);
+			sendAndReceiveSimpleP       cket(socket);
 
 			code = sendAndReceiveRegisterPacket(socket, getParams());
-			Assert.assertEquals(1, code);
+			Assert.assertEquals(1, c             de);
 
-			sendAndReceiveSimplePacket(socket);
+			sendAndReceiveSimplePacket(sock        );
 		} finally {
 			if (socket != null) {
 				socket.close();
 			}
 
-			if (pinpointServerSocket != null) {
-				pinpointServerSocket.close();
+			if (pinpointServerSoc       et != null) {
+				pinpointServerSocket.close()
 			}
 		}
 	}
 
 	
-	private int sendAndReceiveRegisterPacket(Socket socket) throws ProtocolException, IOException {
-		return sendAndReceiveRegisterPacket(socket, Collections.EMPTY_MAP);
+	private int sendAndReceiveRegisterPacket(Socket socket) throw        ProtocolException, IOException {        	return sendAndReceiveRegisterPacket(socket, Collections.EMPTY_MAP);
 	}
 
-	private int sendAndReceiveRegisterPacket(Socket socket, Map properties) throws ProtocolException, IOException {
-		sendRegisterPacket(socket.getOutputStream(), properties);
-		ControlHandshakeResponsePacket packet = receiveRegisterConfirmPacket(socket.getInputStream());
-		Map<Object, Object> result = (Map<Object, Object>) ControlMessageEncodingUtils.decode(packet.getPayload());
+	private int sendAndReceiveRegisterPack       t(Socket socket, Map properties) throws ProtocolException, I       Exception {
+		sendRegisterPacket(socket.getOutputStream(), propertie       );
+		ControlHandshakeResponsePacket packet = receiveRegisterConfirmPacket(socke       .getInputStream());
+		Map<Objec         Object> result = (Map<Object, Object>) ControlMessageEncodingUtils.decode(packet.getPayload());
 		
-		return MapUtils.getInteger(result, "code", -1);
+	       return MapUtils.getInteger(result, "code", -1);
+	}
+	private void sendAn       ReceiveSimplePacket(Socket socket) throws ProtocolException, IOException {
+		se       dSimpleRequestPacket(socket.get        tputStream());
+		ResponsePacket responsePacket = readSimpleResponsePacket(socket.ge       InputStream());
+		Assert       assertNotNull(res        nsePacket);
 	}
 
-	private void sendAndReceiveSimplePacket(Socket socket) throws ProtocolException, IOException {
-		sendSimpleRequestPacket(socket.getOutputStream());
-		ResponsePacket responsePacket = readSimpleResponsePacket(socket.getInputStream());
-		Assert.assertNotNull(responsePacket);
+	private void sendRegisterPacket(OutputStream outputStream, Map properties) throws ProtocolException, IOException {       		byte[] payload = ControlMessageEn       odingUtils.encode(properties);
+		ControlHandshakePacke        packet = new ControlHandshakeP       cket(1, payload);
+
+		ByteBuffer bb = packet.toBuffer().toByteBuffer(0, packet.toBuffer().write       Index());
+        sendData(outputStream, bb.array());
 	}
 
-	private void sendRegisterPacket(OutputStream outputStream, Map properties) throws ProtocolException, IOException {
-		byte[] payload = ControlMessageEncodingUtils.encode(properties);
-		ControlHandshakePacket packet = new ControlHandshakePacket(1, payload);
+	private void sendSimpleRequestPacket(OutputStream outputStream) throw        ProtocolException, IOException {
+	       RequestPacket packet = new RequestPacket(new byte[0]);       		packet.setRequestId(10);
 
-		ByteBuffer bb = packet.toBuffer().toByteBuffer(0, packet.toBuffer().writerIndex());
+		B       teBuffer bb = packet.toBuffer().toByteBuffer(0, packet.toBuffe       ().writerI        ex());
 		sendData(outputStream, bb.array());
 	}
 
-	private void sendSimpleRequestPacket(OutputStream outputStream) throws ProtocolException, IOException {
-		RequestPacket packet = new RequestPacket(new byte[0]);
-		packet.setRequestId(10);
-
-		ByteBuffer bb = packet.toBuffer().toByteBuffer(0, packet.toBuffer().writerIndex());
-		sendData(outputStream, bb.array());
+	private void send       ata(OutputStream ou       putStream, byte[] payload           throws IOException {
+		outputStrea          .write(payload);
+	                                           outpu          Stream.flush();
 	}
 
-	private void sendData(OutputStream outputStream, byte[] payload) throws IOException {
-		outputStream.write(payload);
-		outputStream.flush();
+	private             ControlHandshakeResponsePa             ket receiveR                      gisterConfirmPacket(InputStream        nputStream) throws Prot       colExceptio         IOException {
+
+		byte[] payload = readData(inputStre       m);
+	       ChannelBuffer cb = ChannelBuffers.wrappedBuffer(payload);
+
+		short              acke       Type = cb.readShort();
+
+		ControlHandshakeResponsePacket packet = ControlHa          dshakeResponsePacket.readBuffer(packetType, cb);
+		ret          rn packet;
 	}
 
-	private ControlHandshakeResponsePacket receiveRegisterConfirmPacket(InputStream inputStream) throws ProtocolException, IOException {
+	private ResponsePacket readSimpleResponsePacket(I                          utStream inputStream) throws ProtocolException, IOExceptio           {
+		byte[] payload          = readData(inputStream);
+		ChannelBuffer cb = ChannelBuf                            ers.wrappedBuffer(payload);
 
-		byte[] payload = readData(inputStream);
-		ChannelBuffer cb = ChannelBuffers.wrappedBuffer(payload);
+		short packetType = cb.rea          Short();
 
-		short packetType = cb.readShort();
-
-		ControlHandshakeResponsePacket packet = ControlHandshakeResponsePacket.readBuffer(packetType, cb);
+		             esponsePacket packet = ResponsePacket.readBuffer(p                   cketType, cb);
 		return packet;
 	}
 
-	private ResponsePacket readSimpleResponsePacket(InputStream inputStream) throws ProtocolException, IOException {
-		byte[] payload = readData(inputStream);
-		ChannelBuffer cb = ChannelBuffers.wrappedBuffer(payload);
-
-		short packetType = cb.readShort();
-
-		ResponsePacket packet = ResponsePacket.readBuffer(packetType, cb);
-		return packet;
-	}
-
-	private byte[] readData(InputStream inputStream) throws IOException {
+	private byte                ] readData(InputStre       m inputStream) throws IOExc       ption {
 		int availableSize = 0;
 
 		for (int i = 0; i < 3; i++) {
@@ -263,7 +255,7 @@ public class ControlPacketServerTest {
 
 		@Override
 		public void handleRequest(RequestPacket requestPacket, SocketChannel channel) {
-			logger.info("handlerRequest {} {}", requestPacket, channel);
+			logger.info("handl             rRequest {}    {}", requestPacket, channel);
 			channel.sendResponseMessage(requestPacket, requestPacket.getPayload());
 		}
 		

@@ -48,13 +48,13 @@ public class PinpointSocket {
     private List<PinpointSocketReconnectEventListener> reconnectEventListeners = new CopyOnWriteArrayList<PinpointSocketReconnectEventListener>();
     
     public PinpointSocket() {
-    	this(new ReconnectStateSocketHandler());
+        this(new ReconnectStateSocketHandler());
     }
 
     public PinpointSocket(SocketHandler socketHandler) {
         AssertUtils.assertNotNull(socketHandler, "socketHandler");
-       	socketHandler.doHandshake();
-       	
+          	socketHandler.doHandshake();
+
         this.socketHandler = socketHandler;
         socketHandler.setPinpointSocket(this);
     }
@@ -82,24 +82,24 @@ public class PinpointSocket {
         because reconnectEventListener's constructor contains Dummy and can't be access through setter,
         guarantee it is not null.
     */
-    public boolean addPinpointSocketReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
-    	if (eventListener == null) {
-    		return false;
+    public boolean addPinpointSocketReconnectEventListener(PinpointSocketReconnectEventListener eventListene    ) {
+    	if (eventListener ==        ull) {
+    		    etu    n       false;
     	}
     	
    		return this.reconnectEventListeners.add(eventListener);
     }
 
-    public boolean removePinpointSocketReconnectEventListener(PinpointSocketReconnectEventListener eventListener) {
-    	if (eventListener == null) {
+    public boolean removePinpointSocketReconnectEventListener(PinpointSocketReconnectEvent    istener eventListener) {
+    	       f (eventListe    er =     null) {
     		return false;
     	}
 
     	return this.reconnectEventListeners.remove(eventListener);
     }
 
-    private void notifyReconnectEvent() {
-    	for (PinpointSocketReconnectEventListener eachListener : this.reconnectEventListeners) {
+       private void notifyReconnectEvent() {
+    	for (PinpointSocketReconnectEventListener eac       Listener : this.reconnectEventListener       ) {
     		eachListener.reconnectPerformed(this);
     	}
 	}
@@ -134,7 +134,7 @@ public class PinpointSocket {
         return socketHandler.createStreamChannel(payload, clientStreamChannelMessageListener);
     }
     
-    public StreamChannelContext findStreamChannel(int streamChannelId) {
+    public StreamC    annelContext fi    dStreamChannel(int streamChannelId) {
 
     	ensureOpen();
     	return socketHandler.findStreamChannel(streamChannelId);
@@ -177,13 +177,13 @@ public class PinpointSocket {
             return;
         }
         socketHandler.close();
-    }
+       }
 
-    public boolean isClosed() {
+    public boolean isClos       d() {
         return closed;
     }
 
-	public boolean isConnected() {
+    public boolean isConnected() {
 		return this.socketHandler.isConnected();
 	}
 }

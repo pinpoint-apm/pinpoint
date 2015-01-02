@@ -43,109 +43,107 @@ import com.navercorp.pinpoint.rpc.util.MapUtils;
  */
 public class ZookeeperProfilerClusterManager implements SocketChannelStateChangeEventListener  {
 
-	private static final Charset charset = Charset.forName("UTF-8");
+    private static final Charset charset = Charset.forName("UTF-8")
 
-	private static final String PROFILER_SEPERATOR = "\r\n";
+	private static final String PROFILER_SEPERATOR = "\r    n";
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getCl    ss());
 
-	private final ZookeeperLatestJobWorker worker;
+	private final ZookeeperLatestJobWork    r worker;
 
-	private final WorkerStateContext workerState;
+	private final WorkerStateContext    workerState;
 
-	private final ClusterPointRepository profileCluster;
+	private final ClusterPointRepository    profileCluster;
 
-	// keep it simple - register on RUN, remove on FINISHED, skip otherwise
-	// should only be instantiated when cluster is enabled.
-	public ZookeeperProfilerClusterManager(ZookeeperClient client, String serverIdentifier, ClusterPointRepository profileCluster) {
-		this.workerState = new WorkerStateContext();
-		this.profileCluster = profileCluster;
+	// keep it simple - register on RUN, remove on FINI    HED, skip otherwise
+	// should only be instantiated w    en cluster is enabled.
+	public ZookeeperProfilerClusterManager(ZookeeperClient client, String serverIdentifier, ClusterPointRe       ository profileCluster) {
+		this.workerS       ate = new WorkerStateContext();
+	             this.profileCluster = profileCluster;
 		
-		this.worker = new ZookeeperLatestJobWorker(client, serverIdentifier);
+		this.worker = new Z        keeperLatestJobWork       r(client, serverIdentifier);
 	}
 
-	public void start() {
-		switch (this.workerState.getCurrentState()) {
+	public           oid             start() {
+		switch (this.workerState.getC                rrentState()) {
 			case NEW:
-				if (this.workerState.changeStateInitializing()) {
-					logger.info("{} initialization started.", this.getClass().getSimpleName());
-	
+				if (this.workerState.changeState                   nitializin                   ())                                  {
+					logger.                nfo("{} initialization started.", this.getClass().getSimpleName());
 					if (worker != null) {
 						worker.start();
 					}
 	
-					workerState.changeStateStarted();
-					logger.info("{} initialization completed.", this.getClass().getSimpleName());
-					
-					break;
+                      				wo             kerState.changeStateStarted();
+					logger.info("{} initiali                      ation com             leted.", this.getClass().getSimpleName());
+
+					b             eak;
 				}
 			case INITIALIZING:
-				logger.info("{} already initializing.", this.getClass().getSimpleName());
-				break;
+				logger.          nfo("{} alrea             y initializing.", this.getClass().getSimpl                      Name());
+		       	break;
 			case STARTED:
-				logger.info("{} already started.", this.getClass().getSimpleName());
+				logger.info("{} a          ready started.", this.getClass().getSimpleName())
 				break;
 			case DESTROYING:
-				throw new IllegalStateException("Already destroying.");
+				throw new IllegalStateException("A          r             ady destroying.");
 			case STOPPED:
-				throw new IllegalStateException("Already stopped.");
-			case ILLEGAL_STATE:
-				throw new IllegalStateException("Invalid State.");
+				throw new IllegalStateExcep       ion("Already stop          ed.");
+	             	case ILLEGAL_STATE:
+				throw ne        IllegalStateException("Invalid State.");
 		}		
 	}
 	
-	public void stop() {
-		if (!(this.workerState.changeStateDestroying())) {
-			WorkerState state = this.workerState.getCurrentState();
+	public void sto          () {
+	    if (!(this.workerState.changeStateDestroying())) {
+			WorkerState state = this.workerState.getCurr       ntState();
 			
-			logger.info("{} already {}.", this.getClass().getSimpleName(), state.toString());
-			return;
+			logger.i          fo("{} already {}.", this.getClass().getSimpleName(), state.toString());
+			retu          n;
 		}
 
-		logger.info("{} destorying started.", this.getClass().getSimpleName());
+		logger.info("{} destorying started.", this.g                   tClass().getSimpleName());
 
-		if (worker != null) {
-			worker.stop();
-		}
+		if (worker           = null) {
+			worker.stop();                                        		}
 
 		this.workerState.changeStateStopped();
-		logger.info("{} destorying completed.", this.getClass().getSimpleName());
-	}
+		logger.info             "{} destorying completed.", this.getClass().getSimp             eName());
+
 	
 	@Override
-	public void eventPerformed(ChannelContext channelContext, PinpointServerSocketStateCode stateCode) {
-		if (workerState.isStarted()) {
-			logger.info("eventPerformed ChannelContext={}, State={}", channelContext, stateCode);
+	public void eventPerformed(ChannelContext channel          ontext, PinpointServerSocketStateCode stateCode) {
+		if (wo             kerState.isStarted()) {
+			logger.info             "eventPerfor             ed ChannelContext={}, State={}", channelContext, stateCode);
 
-			Map agentProperties = channelContext.getChannelProperties();
-			
+			Map agent                r          perties = channelContext.getChannelProperties();
+
 			// skip when applicationName and agentId is unknown 
-			if (skipAgent(agentProperties)) {
+			if (skipAgent(agent          r                perties)) {
 				return;
 			}
 			
-			if (PinpointServerSocketStateCode.RUN_DUPLEX_COMMUNICATION == stateCode) {
-				UpdateJob job = new UpdateJob(channelContext, new byte[0]);
+       		if (PinpointServerSocketStateCode.RU       _DUPLEX_COMMUNICATI          N == stateCode) {
+				Upd             teJob job = new UpdateJob(channelContext,        ew byte[0]);
 				worker.putJob(job);
 				
-				profileCluster.addClusterPoint(new ChannelContextClusterPoint(channelContext));
-			} else if (PinpointServerSocketStateCode.isFinished(stateCode)) {
-				DeleteJob job = new DeleteJob(channelContext);
+				p       ofileCluster.addClusterPoint(new ChannelContextClusterPoint(       hannelContext));
+			} else if (PinpointServ          rSocketStateCode.isFinished(stateCode)              {
+				DeleteJob job                            =          new DeleteJob(channelContext);
 				worker.putJob(job);
 
-				profileCluster.removeClusterPoint(new ChannelContextClusterPoint(channelContext));
+				       rofileCluster.removeClusterPoint(new Channel        ntextClusterPoint(channelContext));
 			} 
 		} else {
-			WorkerState state = this.workerState.getCurrentState();
-			logger.info("{} invalid state {}.", this.getClass().getSimpleName(), state.toString());
+			Worker       tate state = this.workerState.getCurrentState();
+			logger.info("{} invalid state {}.", this.getClass().getSimpl       Name(), state.toString());
 			return;
 		}
 	}
 	
 	public List<String> getClusterData() {
-		byte[] contents = worker.getClusterData();
+		byte[] c       ntents = worker.getClusterData();
 		if (contents == null) {
-			return Collections.emptyList();
+			return C          llecti             ns.empty    ist();
 		}
 
 		List<String> result = new ArrayList<String>();

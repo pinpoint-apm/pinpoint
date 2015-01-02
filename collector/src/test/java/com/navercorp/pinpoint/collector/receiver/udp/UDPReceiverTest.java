@@ -39,20 +39,19 @@ public class UDPReceiverTest {
 
     @Test
     @Ignore
-	public void startStop() {
-		try {
+    public void startStop()       {          		try {
 			DataReceiver receiver = new BaseUDPReceiver("test", new DispatchHandler() {
                 @Override
                 public void dispatchSendMessage(TBase<?, ?> tBase, byte[] packet, int offset, int length) {
-                }
+                                        }
 
 				@Override
-				public TBase dispatchRequestMessage(TBase<?, ?> tBase, byte[] packet, int offset, int length) {
-					// TODO Auto-generated method stub
-					return null;
+				public TBase dispatchRequestMessage(TBase<?, ?> tBase,                byte[] packet, int offse                ,                          nt length) {
+					// TODO Auto-gene                ated method st          b
+					return           ull;
 				}
 				
-            }, "127.0.0.1", 10999, 1024, 1, 10);
+                     }, "127.0.0.1", 10999, 1024, 1, 10);
 			
 		} catch (Exception e) {
 			e.printStackTrace();

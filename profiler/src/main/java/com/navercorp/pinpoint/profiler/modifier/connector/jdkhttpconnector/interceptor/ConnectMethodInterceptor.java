@@ -39,16 +39,15 @@ import com.navercorp.pinpoint.common.ServiceType;
  */
 public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCodeMethodDescriptorSupport, TraceContextSupport {
 
-	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-	private final boolean isDebug = logger.isDebugEnabled();
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass()    ;
+	private final boolean isDebug = logger.isDebugEnable    ();
 
 	private MethodDescriptor descriptor;
     private TraceContext traceContext;
 
-    @Override
-	public void before(Object target, Object[] args) {
-		if (isDebug) {
-			logger.beforeInterceptor(target, args);
+    @    verride
+	public void before(Object target, Objec       [] args) {          		if (isDebug) {
+			logger.before       nterceptor(target, args);
 		}
         Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
@@ -59,36 +58,35 @@ public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCo
 
         final boolean sampling = trace.canSampled();
         if (!sampling) {
-            request.setRequestProperty(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
-            return;
-        }
+            request.setRequestProperty(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);                   return;
+              }
 
 
-		trace.traceBlockBegin();
+		trace.t       aceBlockBegin();
 		trace.markBeforeTime();
 
-		TraceId nextId = trace.getTraceId().getNextTraceId();
+		Tra       eId nextId = trace.getTraceId().getNextTr       ceId();
 		trace.recordNextSpanId(nextId.getSpanId());
 
 
-		request.setRequestProperty(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
-		request.setRequestProperty(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
-		request.setRequestProperty(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
+		request.setRequestPropert       (Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
+		request.setRequestProperty(       eader.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
+		request.setRequestProperty(Header.H       TP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
 
-		request.setRequestProperty(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
-		request.setRequestProperty(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
-		request.setRequestProperty(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
+		request.setR       questProperty(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
+		request.setRequestProper       y(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
+		request.setRequestProperty(Header.       TTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
 
-		trace.recordServiceType(ServiceType.JDK_HTTPURLCONNECTOR);
+		trace.recordServiceType(ServiceType.JDK_HTTPUR       CONNECTOR);
 
-        final URL url = request.getURL();
+        final U       L url = request.getURL();
         final String host = url.getHost();
 		final int port = url.getPort();
 
 		// TODO How to represent protocol?
-        String endpoint = getEndpoint(host, port);
-        
-        // Don't record end point because it's same with destination id.
+        String endpoin        = getEndpoint(host, port);
+
+        // Don't record end point because it's same wi    h destination id.
 		trace.recordDestinationId(endpoint);
 		trace.recordAttribute(AnnotationKey.HTTP_URL, url.toString());
 	}
@@ -97,15 +95,13 @@ public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCo
         if (port < 0) {
             return host;
         }
-        StringBuilder sb = new StringBuilder(32);
-        sb.append(host);
+        StringBuilder sb = new StringBuilder(32);            sb.append(host);
         sb.append(':');
         sb.append(port);
-        return sb.toString();
+        r       turn sb.to          tring();
     }
-
     @Override
-	public void after(Object target, Object[] args, Object result, Throwable throwable) {
+	public void afte             (Object target, Object[] args, Object resul       , Throwable thro          a       le) {
 		if (isDebug) {
 			// do not log result
 			logger.afterInterceptor(target, args);
@@ -117,11 +113,11 @@ public class ConnectMethodInterceptor implements SimpleAroundInterceptor, ByteCo
 		}
 
         try {
-            trace.recordApi(descriptor);
-            trace.recordException(throwable);
+                     trace.recordApi(descriptor);
+            trace.recordExcepti       n(throwable);
 
-            trace.markAfterTime();
-        } finally {
+                  trace.markAfterTime();
+           } finally {
             trace.traceBlockEnd();
         }
 	}

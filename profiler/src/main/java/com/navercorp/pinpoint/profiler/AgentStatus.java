@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler;
 
 public enum AgentStatus {
-	INITIALIZING,
-	RUNNING,
+    INITIALIZIN    ,
+	RUN    ING,
 	STOPPED
 }

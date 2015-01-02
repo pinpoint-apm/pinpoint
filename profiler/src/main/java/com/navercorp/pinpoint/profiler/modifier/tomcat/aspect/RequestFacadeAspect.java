@@ -30,34 +30,33 @@ import java.util.Enumeration;
 @Aspect
 public abstract class RequestFacadeAspect {
 
-	@PointCut
-	public String getHeader(String name) {
-		if (Header.hasHeader(name)) {
-			return null;
-		}
-		return __getHeader(name);
+    @PointC    t
+	public String getHeader(String na       e) {
+		if (Header.hasHead          r(name             ) {
+			return null;        	}
+		retu    n __getHeader(name);
 	}
 
 	@JointPoint
-	abstract String __getHeader(String name);
+	ab    tract S    ring __getHeader(String name);
 
 
-	@PointCut
+	@PointCu
 	public Enumeration getHeaders(String name) {
-		final Enumeration headers = Header.getHeaders(name);
-		if (headers != null) {
+	       final Enumeration           eaders =              eader.getHeaders(nam        ;
+		if (h    aders != null) {
 			return headers;
 		}
-		return __getHeaders(name);
+		retur     __getH    aders(name);
 	}
 
 	@JointPoint
-	abstract Enumeration __getHeaders(String name);
+	abst       act Enumeration __getHeaders(String name);
 
 
-	@PointCut
-	public Enumeration getHeaderNames() {
-		final Enumeration enumeration = __getHeaderNames();
+	@       ointCut
+	public Enumeration getHeaderNames(        {
+		final    Enumeration enumeration = __getHeaderNames();
 		return Header.filteredHeaderNames(enumeration);
 	}
 

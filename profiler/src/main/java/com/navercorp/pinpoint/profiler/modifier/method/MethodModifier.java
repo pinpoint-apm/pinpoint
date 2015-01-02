@@ -39,35 +39,35 @@ import org.slf4j.LoggerFactory;
  */
 public class MethodModifier extends AbstractModifier {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	public MethodModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent agent) {
-		super(byteCodeInstrumentor, agent);
+	public MethodModifier(ByteCodeInstrumentor byteCodeInstrumentor, Agent age       t) {
+		super(byteCodeInstrument        , agent);
 	}
 
-	public String getTargetClass() {
+	public String g       tTarget        ass() {
 		return "*";
 	}
 
-	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDomain, byte[] classFileBuffer) {
+	public byte[] modify(ClassLoader classLoader, String javassistClassName, ProtectionDomain protectedDoma       n, byte[] classFileBuffer           {
 		if (logger.isInfoEnabled()) {
-			logger.info("Modifing. {}", javassistClassName);
+			logg                       .info("Modifing. {}", javassistClassName);
 		}
 
 		try {
-			InstrumentClass clazz = byteCodeInstrumentor.getClass(classLoader, javassistClassName, classFileBuffer);
+			InstrumentClass clazz = byteCodeInstrume          tor.getClass(classLoader,             java                   sistClassName, classFileBuffer);
 
 			if (!clazz.isInterceptable()) {
-				return null;
+			          return null;
 			}
 
-			List<MethodInfo> methodList = clazz.getDeclaredMethods(EmptyMethodFilter.FILTER);
+			List<Metho             Info> methodList = clazz.getDeclaredMethods(EmptyMethodFilter.FILTER);
 			for (MethodInfo method : methodList) {
 				final Interceptor interceptor = new MethodInterceptor();
                 if (logger.isTraceEnabled()) {
-                    logger.trace("### c={}, m={}, params={}", javassistClassName, method.getName(), Arrays.toString(method.getParameterTypes()));
-                }
-				clazz.addInterceptor(method.getName(), method.getParameterTypes(), interceptor);
+                    logger.trace("###              ={}, m={}, params={}", javassistClassName, method.getName(), Arrays.toSt                   ing(method.getPar       meterTypes()));
+                         }
+				clazz.addInterceptor(method.getN          me(),           ethod.getParameterTypes(), interceptor);
 			}
 
 			return clazz.toBytecode();

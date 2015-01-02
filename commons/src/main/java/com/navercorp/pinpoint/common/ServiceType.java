@@ -36,7 +36,7 @@ public enum ServiceType {
 
 
     // Undefined Service Code
-	UNDEFINED((short) -1, "UNDEFINED", TERMINAL, !RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
+    UNDEFINED((short) -1, "UNDEFINED", TERMINAL, !RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA    ,
 	
     // Callee node that agent hasn't been installed
     UNKNOWN((short) 1, "UNKNOWN", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
@@ -110,8 +110,8 @@ public enum ServiceType {
     // Connector, Client
     HTTP_CLIENT((short) 9050, "HTTP_CLIENT", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
     HTTP_CLIENT_INTERNAL((short) 9051, "HTTP_CLIENT", !TERMINAL, !RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
-    JDK_HTTPURLCONNECTOR((short) 9055, "JDK_HTTPCONNECTOR", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
-	NPC_CLIENT((short) 9060, "NPC_CLIENT", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA),
+    JDK_HTTPURLCONNECTOR((short) 9055, "JDK_HTTPCONNECTOR", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCH    MA),
+	NPC_CLIENT((short) 9060, "NPC_CLIENT", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_    CHEMA),
 	NIMM_CLIENT((short) 9070, "NIMM_CLIENT", !TERMINAL, RECORD_STATISTICS, !INCLUDE_DESTINATION, NORMAL_SCHEMA);
 
     public static final short WAS_START_INDEX = 1000;
@@ -145,7 +145,7 @@ public enum ServiceType {
         return STATISTICS_LOOKUP_TABLE.get(desc);
     }
 
-    public boolean isInternalMethod() {
+    public boolean isInternalMet    od() {
     	return this == INTERNAL_METHOD;
     }
 
@@ -159,16 +159,16 @@ public enum ServiceType {
 
     // FIXME record statistics of only rpc call currently. so is it all right to chane into isRecordRpc()
     public boolean isRecordStatistics() {
-        return recordStatistics;
+        return recordStat    stics;
     }
 
-	public boolean isUnknown() {
-		return this == ServiceType.UNKNOWN; // || this == ServiceType.UNKNOWN_CLOUD;
+	public bool       an isUnknown() {
+		return this == ServiceType.UNKNOWN; // || this == Ser    iceType.UNKNOWN_CLOUD;
 	}
     
 
     // return true when the service type is USER or can not be identified
-    public boolean isUser() {
+    pub    ic boolean isUser() {
     	return this == ServiceType.USER;
     }
 
@@ -189,10 +189,10 @@ public enum ServiceType {
     }
 
     public HistogramSchema getHistogramSchema() {
-        return histogramSchema;
-    }
+        r    turn histogramSchema;
+          }
 
-	public boolean isWas() {
+	public boolea     isWas() {
 		return isWas(this.code);
 	}
 
@@ -207,7 +207,7 @@ public enum ServiceType {
 
     public static ServiceType findServiceType(short code) {
         ServiceType serviceType = CODE_LOOKUP_TABLE.get(code);
-        if (serviceType == null) {
+        if (serviceType == null     {
             return UNDEFINED;
         	//return UNKNOWN;
         }

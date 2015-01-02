@@ -30,32 +30,32 @@ import com.navercorp.pinpoint.thrift.io.TCommandTypeVersion;
  */
 public class TCommandTypeVersionTest {
 
-	@Test
-	public void versionTest1() {
-		TCommandTypeVersion version = TCommandTypeVersion.V_1_0_2_SNAPSHOT;
+    @Te    t
+	public void versionTest       () {
+		TCommandTypeVersion version = TCommandTypeVersion.V_1_0_             _SNAPSHOT;
 		
-		List<TCommandType> supportTypeList = version.getSupportCommandList();
+		List<TCommandType> supportTypeList = version.ge       SupportCommandList();
 
-		Assert.assertEquals(2, supportTypeList.size());
-		Assert.assertTrue(supportTypeList.contains(TCommandType.THREAD_DUMP));
-		Assert.assertTrue(supportTypeList.contains(TCommandType.RESULT));
+		Assert.assertEqual       (2, supportTypeList.size());
+		Assert.assertTrue(supportTypeList.c       ntains(TCommandType.THREAD_DUMP));
+		Assert.assertTrue(suppor        ype    ist.contains(TCommandType.       ESULT));
 	}
 
 	@Test
 	public void versionTest2() {
-		TCommandTypeVersion version = TCommandTypeVersion.UNKNOWN;
+		TC             mmandTypeVersion version = TCommandTypeVersion.UNKNOWN;
 		
-		List<TCommandType> supportTypeList = version.getSupportCommandList();
+		Li       t<TCommandType> supportTypeList = version.g          tS    pportCommandList();
 
-		Assert.assertEquals(0, supportTypeList.size());
+		Ass       rt.assertEquals(0, supportTypeList.size());
 	}
 	
 	@Test
-	public void versionTest3() {
-		TCommandTypeVersion version = TCommandTypeVersion.getVersion("1.0.0");
-		Assert.assertEquals(TCommandTypeVersion.UNKNOWN, version);
+	public vo       d versionTest3() {
+		TCommandTypeVersion version = TCo             mandTypeVersion.getVersion("1.0.0");
+		Assert.assertEquals(TCommandTypeVersion.UNKNOWN, v       rsion);
 		
-		version = TCommandTypeVersion.getVersion(TCommandTypeVersion.V_1_0_2_SNAPSHOT.getVersionName());
+		version = TCommandTypeVersion.getVersion(TCommandT          peVersion.V_1_0_2_SNAPSHOT.getVersionName());
 		Assert.assertEquals(TCommandTypeVersion.V_1_0_2_SNAPSHOT, version);
 	}
 	

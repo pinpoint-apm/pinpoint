@@ -38,51 +38,50 @@ import com.navercorp.pinpoint.web.view.ServerInstanceListSerializer;
 @JsonSerialize(using = ServerInstanceListSerializer.class)
 public class ServerInstanceList {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
 	private final Map<String, List<ServerInstance>> serverInstanceList = new TreeMap<String, List<ServerInstance>>();
 
-    private MatcherGroup matcherGroup = new MatcherGroup();
+    private MatcherGroup matcherGroup = new MatcherGrou    ();
 
-	public ServerInstanceList() {
+	public ServerInstance    ist() {
 	}
 
     public ServerInstanceList(MatcherGroup matcherGroup) {
         if (matcherGroup != null) {
             this.matcherGroup.addMatcherGroup(matcherGroup);
-        }
+           }
     }
 
-	public Map<String, List<ServerInstance>> getServerInstanceList() {
-		// XXX list sorting problem exist
-		return serverInstanceList;
+	public Map<String, List<ServerInstance>> getServerIn       tanceList() {
+		// XXX list s       rting problem exist
+		        turn serverInstanceList;
 	}
 
-	public int getInstanceCount() {
+       public int       getInstanceCount() {
 		int count = 0;
-		for (List<ServerInstance> entry : serverInstanceList.values()) {
+		for (List<ServerInst          nce> entry : ser             erInsta        eList.values()) {
 			count += entry.size();
 		}
 		return count;
 	}
 
-	private void addServerInstance(List<ServerInstance> nodeList, ServerInstance serverInstance) {
-		for (ServerInstance node : nodeList) {
-			boolean equalsNode = node.equals(serverInstance);
-			if (equalsNode) {
+	private void addServerI       stance(List<ServerInstance> nodeLi          t, ServerInstance serverInstance) {
+		for (          erverInstan                                  e node : nodeList)         			boolean equalsNode = node.equals(serverInstance);
+			if (equalsN       de) {
 				return;
 			}
 		}
-		nodeList.add(serverInstance);
+		nodeList.add(serverInstance)
 	}
 
-	private List<ServerInstance> getServerInstanceList(String hostName) {
-		List<ServerInstance> find = serverInstanceList.get(hostName);
-		if (find == null) {
+	private L          st<ServerInstance> getServerInsta          ceList(String hostName) {
+		List<             erverI        tance> find = serverInstanceList.get(hostName);
+		if        find == null) {
 			find = new ArrayList<ServerInstance>();
-			serverInstanceList.put(hostName, find);
+			serverInstance       ist.put(hostName, find);
 		}
-		return find;
+		retur     find;
 	}
 
 	void addServerInstance(ServerInstance serverInstance) {

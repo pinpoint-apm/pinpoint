@@ -34,42 +34,42 @@ import com.navercorp.pinpoint.thrift.dto.TResult;
 @Service("agentInfoHandler")
 public class AgentInfoHandler implements SimpleHandler, RequestResponseHandler {
 
-	private final Logger logger = LoggerFactory.getLogger(AgentInfoHandler.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(AgentInfoHandler.class.getName())
 
-	@Autowired
-	private AgentInfoDao agentInfoDao;
+	@Auto    ired
+	private AgentInfoDao agentI    foDao;
 
-	@Autowired
-	private ApplicationIndexDao applicationIndexDao;
+    @Autowired
+	private ApplicationIndexDao applica    ionIndexDao;
 
-	public void handleSimple(TBase<?, ?> tbase) {
-		handleRequest(tbase);
+	public void handleSimple(TBa       e<?, ?> tbase) {
+          	handl    Request(tbase);
 	}
 	
 	@Override
-	public TBase<?, ?> handleRequest(TBase<?, ?> tbase) {
-		if (!(tbase instanceof TAgentInfo)) {
+	public TBase<?, ?>       handleRequest(TBase<?, ?> tbase)
+		if (!(tbase instanceof TAgentI          fo)) {
 			logger.warn("invalid tbase:{}", tbase);
-			// it happens to return null  not only at this BO(Business Object) but also at other BOs.
+			// it happens to return null  n          t only                       t this BO(Business Object) but also a           other BOs.
 
 			return null;
 		}
 
 		try {
-			TAgentInfo agentInfo = (TAgentInfo) tbase;
+		          TAgentI          fo agentInfo = (TAgentInfo           tbase;
 
-			logger.debug("Received AgentInfo={}", agentInfo);
+			logger.debug("Received Agen          Info={}", agentInfo);
 
-			// agent info
-			agentInfoDao.insert(agentInfo);
+			// age                   t info
+			agent          nfoDao.insert(agentInfo);
 
-			// for querying agentid using applicationname
+			// for quer          ing agentid using applicationname
 			applicationIndexDao.insert(agentInfo);
 			
-			return new TResult(true);
+			r       turn new TResult(tr          e);
 
 			// for querying applicationname using agentid
-//			agentIdApplicationIndexDao.insert(agentInfo.getAgentId(), agentInfo.getApplicationName());
+//			age          tIdApplicationIndexDao.insert(          gentInfo.getAgentId(), agent          nfo.getA             plicationName());
 		} catch (Exception e) {
 			logger.warn("AgentInfo handle error. Caused:{}", e.getMessage(), e);
 			TResult result = new TResult(false);

@@ -38,67 +38,66 @@ import org.springframework.stereotype.Component;
 @Component
 public class DefaultFilterBuilder implements FilterBuilder {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	@Autowired
-	private ObjectMapper jsonObjectMapper;
-
-	@Override
-	public Filter build(String filterText) {
-		if (StringUtils.isEmpty(filterText)) {
+	@Auto    ired
+	private ObjectMapper jsonObject    apper;
+    	@Override
+	public Filter build(String       filterText) {
+		if (StringUtils.is          mpty(filterTe                       )) {
 			return Filter.NONE;
 		}
 
 		try {
-			filterText = URLDecoder.decode(filterText, "UTF-8");
-			logger.debug("build filter from string. {}", filterText);
-		} catch (Exception e) {
-			throw new IllegalArgumentException(filterText);
+			fi          terText = URLDecoder.decode(filterText, "UTF-8");
+	       	logger.debug("buil           filter from string. {}", filterText);
+		              catch (Exception e) {
+			throw         w Illeg    lArgumentException(filterText);
 		}
-		return makeFilterFromJson(filterText);
+		return makeFilterFr       mJson(filterText);
 	}
 
 	@Override
-	public Filter build(String filterText, String filterHint) {
-		if (StringUtils.isEmpty(filterText)) {
-			return Filter.NONE;
+          public Filter                       uild(String filterText, String filterHint) {
+	          if (StringUtils.isEmpty(filterText)) {
+			return Fi       ter.NONE;
 		}
 
-		try {
+		tr           {
 			filterText = URLDecoder.decode(filterText, "UTF-8");
-			logger.debug("build filter from string. {}", filterText);
+			logge             .debug("build filter from string.                       }", filterText);
 		} catch (Exception e) {
-			throw new IllegalArgumentException("invalid filter text. " + filterText);
+	             	throw new IllegalArgumentException("invalid filter te          t. " + filterText             ;
 		}
 
 		if (!StringUtils.isEmpty(filterHint)) {
 			try {
-				filterHint = URLDecoder.decode(filterHint, "UTF-8");
-				logger.debug("build filter hint from string. {}", filterHint);
-			} catch (Exception e) {
-				throw new IllegalArgumentException("invalid filter hint. " + filterHint);
+				fil                          rHint = URLDecoder.decode(filt             rHint, "UTF-8");
+				logger.debug("build filt         hint from string. {}", filterHint);
+			} catch (Excepti       n e) {
+				throw new IllegalArgumentException("invalid filter        int. " + filterHint);
 			}
 		} else {
 			filterHint = FilterHint.EMPTY_JSON; 
-		}
+	       }
 
-		return makeFilterFromJson(filterText, filterHint);
+		return makeFilterFromJson(filterT          xt, filterHint);
 	}
 
-	private Filter makeFilterFromJson(String jsonFilterText) {
-		return makeFilterFromJson(jsonFilterText, FilterHint.EMPTY_JSON);
+	private Filter makeFilterFromJs             n(String jsonFilterText) {
+		ret       r           makeFilterFromJson(jsonFilterText, FilterHint.EMPTY_JSON);
 	}
 
-	private Filter makeFilterFromJson(String jsonFilterText, String jsonFilterHint) {
+	private Filter makeFilterFromJson(String jsonFi                   terText, String jsonFilterHint) {
 		if (StringUtils.isEmpty(jsonFilterText)) {
-			throw new IllegalArgumentException("json string is empty");
+			throw                            new IllegalArgumentException(             json string is empty                );
 		}
 		FilterChain chain = new FilterChain();
 		try {
-			List<FilterDescriptor> list = jsonObjectMapper.readValue(jsonFilterText, new TypeReference<List<FilterDescriptor>>() {
+			                         ist<FilterDescriptor> list = jsonObj             ctMapper.readValue(jsonFilterText, new TypeReference<             ist<FilterDescriptor                >() {
 			});
 
-			FilterHint hint = jsonObjectMapper.readValue(jsonFilterHint, new TypeReference<FilterHint>() {
+			FilterHint hint = jsonO                            jectMapper.          eadValue(jsonFilterHint, new TypeReferen             e<FilterHint>    ) {
 			});
 			
 			for (FilterDescriptor descriptor : list) {

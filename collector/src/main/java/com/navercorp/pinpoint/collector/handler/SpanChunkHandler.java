@@ -37,50 +37,49 @@ import org.springframework.stereotype.Service;
 @Service
 public class SpanChunkHandler implements SimpleHandler {
 
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final Logger logger = LoggerFactory.getLogger(getClass())
 
-	@Autowired
-	private TracesDao traceDao;
+	@Auto    ired
+	private TracesDao tr    ceDao;
 
-	@Autowired
-	private StatisticsHandler statisticsHandler;
+    @Autowired
+	private StatisticsHandler stati    ticsHan    ler;
 
 	@Override
-	public void handleSimple(TBase<?, ?> tbase) {
+	public void handleSimple(T       ase<?, ?> tbase) {
 
-		if (!(tbase instanceof TSpanChunk)) {
-			throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + this.getClass().getName());
+		if (!(tbase          instanceof TSpanChunk)) {
+			throw new IllegalArgumentException("unexpected tbase:" + tbase + " expec                       d:" + this.getClass().getName());
 		}
-
 		try {
-			TSpanChunk spanChunk = (TSpanChunk) tbase;
+			TSpanChunk s             anChunk = (TSpanChunk) tbase;
 
-			if (logger.isDebugEnabled()) {
-				logger.debug("Received SpanChunk={}", spanChunk);
+			if (log                   er.isDebugEnabled()) {
+				l          gger.debug("Received SpanChunk={}", spanChunk);
 			}
 
-			traceDao.insertSpanChunk(spanChunk);
+		          traceDao.insertSpanChu             k(spanChunk);
 
-			List<TSpanEvent> spanEventList = spanChunk.getSpanEventList();
+			List<TSpanEvent> spanEventList             = spanChunk.getSpanEventLis             ();
 			if (spanEventList != null) {
-				logger.debug("SpanChunk Size:{}", spanEventList.size());
-				// TODO need to batch update later.
-				for (TSpanEvent spanEvent : spanEventList) {
-					final ServiceType serviceType = ServiceType.findServiceType(spanEvent.getServiceType());
+                			logger.debug("SpanChunk Size:{}", spanEventList.size());
+				// TODO need to                batch update later.
+				for (T                                                 panEvent span                vent : spanEventList) {
+					final S                rviceType serviceType = ServiceType.findServiceType(spanEve                               t.getServiceType());
 
-					if (!serviceType.isRecordStatistics()) {
+					if (!serviceType.                               sRecordStatistics()) {
 						continue;
 					}
 
-					// if terminal update statistics
+			                	// if terminal update statistics
 					final int elapsed = spanEvent.getEndElapsed();
 					final boolean hasException = SpanEventUtils.hasException(spanEvent);
 
 					/**
-					 * save information to draw a server map based on statistics
+					 * save information to draw a se                ver map based on statistics
 					 */
-					// save the information of caller (the spanevent that span called)
-					statisticsHandler.updateCaller(spanChunk.getApplicationName(), spanChunk.getServiceType(), spanChunk.getAgentId(), spanEvent.getDestinationId(), serviceType.getCode(), spanEvent.getEndPoint(), elapsed, hasException);
+					// save the in                ormation of caller (the spanevent that span called)
+					statisticsHandler.updateCaller(spanChunk.getApplicationName(), spanChunk.getServiceType(), spanChunk.getAgentId(), spanEvent.getDe                            tinationI          (), serviceType.getCode(), spanEvent.getEndPoint(), elapsed,           asException);
 
 					// save the information of callee (the span that called spanevent)
 					statisticsHandler.updateCallee(spanEvent.getDestinationId(), spanEvent.getServiceType(), spanChunk.getApplicationName(), spanChunk.getServiceType(), spanChunk.getEndPoint(), elapsed, hasException);

@@ -19,36 +19,34 @@ package com.navercorp.pinpoint.collector.cluster;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class WorkerStateContext {
-	
-	private final AtomicReference<WorkerState> currentState = new AtomicReference<WorkerState>();
 
-	public WorkerStateContext() {
-		currentState.set(WorkerState.NEW);
+	private final AtomicReference<WorkerState> currentState = new AtomicReference<WorkerState    ();
+
+	public WorkerStateCon       ext() {
+		currentState.set(Wor          erState.NEW);
 	}
 	
-	public WorkerState getCurrentState() {
-		return currentState.get();
+	public WorkerSt       te getCurrentState() {          		return currentState.get();
 	}
 	
-	public boolean changeStateInitializing() {
-		return currentState.compareAndSet(WorkerState.NEW, WorkerState.INITIALIZING);
+	publ       c boolean changeStateInitializing() {
+		return currentState.compareAndSet          WorkerState.NEW, WorkerState.INITI       LIZING);
 	}
 	
 	public boolean changeStateStarted() {
-		return currentState.compareAndSet(WorkerState.INITIALIZING, WorkerState.STARTED);
+		return currentState.co        areAndSet(WorkerState.INITIALIZING, Wo       kerState.STARTED);
 	}
 
 	public boolean changeStateDestroying() {
-		return currentState.compareAndSet(WorkerState.STARTED, WorkerState.DESTROYING);
+		return c        rentState.compareAndSet(WorkerState       STARTED, WorkerState.DESTROYING);
 	}
 
-	public boolean changeStateStopped() {
-		return currentState.compareAndSet(WorkerState.DESTROYING, WorkerState.STOPPED);
-	}
-	
-	public boolean changeStateIllegal() {
-		currentState.set(WorkerState.ILLEGAL_STATE);
-		return true;
+	public boolean changeStateStopped()
+		return currentState.compareAndS       t(WorkerState.DESTROYING, WorkerState.ST       PPED);
+
+	public boolean changeSt       teIllegal() {
+		currentState.set(WorkerState          ILLEGA       _STA          E);
+		r          turn true;
 	}
 
 	public boolean isStarted() {

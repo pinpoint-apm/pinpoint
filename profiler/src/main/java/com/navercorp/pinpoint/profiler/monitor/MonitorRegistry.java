@@ -19,10 +19,10 @@ package com.navercorp.pinpoint.profiler.monitor;
 
 public interface MonitorRegistry {
 
-	HistogramMonitor newHistogramMonitor(final MonitorName monitorName);
+    HistogramMonitor newHistogramMonitor(final MonitorName monitorName)
 
-	EventRateMonitor newEventRateMonitor(final MonitorName monitorName);
+	EventRateMonitor newEventRateMonitor(final MonitorName monitorNa    e);
 
-	CounterMonitor newCounterMonitor(final MonitorName monitorName);
+	CounterMonitor newCounterMonitor(final MonitorName monit    rName);
 	
 }

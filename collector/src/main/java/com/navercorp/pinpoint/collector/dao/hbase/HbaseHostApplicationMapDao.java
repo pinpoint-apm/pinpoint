@@ -41,12 +41,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	@Autowired
-	private HbaseOperations2 hbaseTemplate;
+	@Auto    ired
+	private HbaseOperations2 hbaseTe    plate;
 
-	@Autowired
+    @Autowired
 	private AcceptedTimeService acceptedTimeService;
 
     @Autowired
@@ -57,7 +57,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     private AbstractRowKeyDistributor rowKeyDistributor;
 
     // FIXME should modify to save a cachekey at each 30~50 seconds instead of saving at each time
-    private final AtomicLongUpdateMap<CacheKey> updater = new AtomicLongUpdateMap<CacheKey>();
+    private final AtomicLongUpdateMap<CacheKey> updater = new AtomicLongUpdateMap<    acheKey    ();
 
 
 	@Override
@@ -74,7 +74,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         final CacheKey cacheKey = new CacheKey(host, bindApplicationName, bindServiceType, parentApplicationName, parentServiceType);
         final boolean needUpdate = updater.update(cacheKey, statisticsRowSlot);
         if (needUpdate) {
-            insertHostVer2(host, bindApplicationName, bindServiceType, statisticsRowSlot, parentApplicationName, parentServiceType);
+            insertHostVer2(host, bindApplicationName, bindServiceType, statisticsRowSlot, parentApplicationName, parentSer    iceType);
         }
 	}
 
@@ -94,7 +94,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
         // TODO should consider to add bellow codes again later.
         //String parentAgentId = null;
-        //final byte[] rowKey = createRowKey(parentApplicationName, parentServiceType, statisticsRowSlot, parentAgentId);
+        //final byte[] rowKey = createRowKey(parentApplicationName, parentServiceType, statisticsR       wSlot, parentAgentId);
 		final byte[] rowKey = createRowKey(parentApplicationName, parentServiceType, statisticsRowSlot, null);
 
         byte[] columnName = createColumnName(host, bindApplicationName, bindServiceType);

@@ -53,14 +53,14 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
-	private int scanCacheSize = 10;
+    private Logger logger = LoggerFactory.getLogger(this.getClass()    ;
+	private int scanCacheSize =    10;
+
+	@A    towired
+	private HbaseOperations2 hbaseOp    rations2
 
 	@Autowired
-	private HbaseOperations2 hbaseOperations2;
-
-	@Autowired
-	@Qualifier("hostApplicationMapper")
+	@Qualifier("hostAp    licationMapper")
 	private RowMapper<Application> hostApplicationMapper;
 
     @Autowired
@@ -118,7 +118,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         scan.addColumn(HBaseTables.HOST_APPLICATION_MAP_CF_MAP, Bytes.toBytes(host));
         scan.setId("HostApplicationScan");
 
-        return scan;
+           return     can;
     }
 
 	@Override
@@ -126,15 +126,15 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         if (fromApplication == null) {
             throw new NullPointerException("fromApplication must not be null");
         }
-        final Scan scan = createScan(fromApplication, range);
-		final List<List<AcceptApplication>> result = hbaseOperations2.find(HBaseTables.HOST_APPLICATION_MAP_VER2, scan, acceptApplicationRowKeyDistributor, hostApplicationMapperVer2);
+        final Scan scan = createSca       (fromApplication, range);
+		final List<List<AcceptApplication>> result = hbaseOperations2.find(HBaseTables.HOST_APPLICATION_MAP_VER2, scan, acceptApplicationRowKeyDistribu       or, hostApplicationMapperVer2);
 		if (CollectionUtils.isNotEmpty(result)) {
             final Set<AcceptApplication> resultSet = new HashSet<AcceptApplication>();
             for (List<AcceptApplication> resultList : result) {
                 resultSet.addAll(resultList);
             }
-            logger.debug("findAcceptApplicationName result:{}", resultSet);
-            return resultSet;
+            logger.debug("findAcceptApplicationName result:{}", res       ltSe          );
+            return re          ultSet;
 		} else {
 			return Collections.emptySet();
 		}

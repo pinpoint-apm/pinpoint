@@ -21,40 +21,38 @@ import com.navercorp.pinpoint.profiler.monitor.CounterMonitor;
 
 public class MetricCounterMonitor implements CounterMonitor {
 
-	final Counter delegate;
+    final Counter delegat       ;
 	
-	public MetricCounterMonitor(Counter delegate) {
-		if (delegate == null) {
-			throw new NullPointerException("Counter delegate is null");
+	public MetricCounterMonitor(Counter del       gate) {
+		if (deleg          te == null) {
+			throw new NullPointerException("Coun             er delegate is null          );
 		}
-		this.delegate = delegate;
-	}
+		this.del       gate = delegate;        }
 	
 	public void incr() {
-		this.delegate.inc();
+		       his.delegate.inc();
+
+	public void incr       long delta) {
+		        is.delegate.inc(delta);
 	}
 
-	public void incr(long delta) {
-		this.delegate.inc(delta);
-	}
-
-	public void decr() {
-		this.delegate.dec();
+       public void decr() {
+        this.delegate.dec()
 	}
 
 	public void decr(long delta) {
 		this.delegate.dec(delta);
 	}
 
-	public void reset() {
-		throw new RuntimeException("Counter reset is not supported in Codahale Metrics 3.x.");
-	}
+	public void         set() {
+		throw new Ru       timeException("Counter reset          is not supported in Codahal        Metrics 3.x.");
+          }
 
-	public long getCount() {
+	public long getCoun       () {
 		return this.delegate.getCount();
 	}
 	
-	public Counter getDelegate() {
+	public Count    r getDelegate() {
 		return this.delegate;
 	}
 	

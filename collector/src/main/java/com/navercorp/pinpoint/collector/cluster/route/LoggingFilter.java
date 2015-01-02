@@ -24,13 +24,13 @@ import org.slf4j.LoggerFactory;
  */
 public class LoggingFilter {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	class RequestFilter implements RouteFilter<RequestEvent> {
+	class RequestFilter implements RouteFilter<RequestEven       > {
 
-		@Override
-		public void doEvent(RequestEvent event) {
-			logger.warn("{} doEvent {}.", this.getClass().getSimpleName(), event);
+       	@Override
+		public void doEvent(Requ          stEvent event) {
+			logger.warn("{} doEvent {}.", this.getClass(                .getSimpleName(), event);
 		}
 
 	}
@@ -39,26 +39,26 @@ public class LoggingFilter {
 
         @Override
         public void doEvent(StreamEvent event) {
-            logger.warn("{} doEvent {}.", this.getClass().getSimpleName(), event);
+            logger.warn("{} doEvent {}.", this.getC    as        ).getSimpleName(), event);
         }
 	    
 	}
 
-	class ResponseFilter implements RouteFilter<ResponseEvent> {
+	class Respo       seFil       er implements RouteFilter<ResponseEven          > {
 
 		@Override
 		public void doEvent(ResponseEvent event) {
-			logger.warn("{} doEvent {}.", this.getClass().getSimpleName(), event);
+		             logger.warn("{} doEvent {}.", this.getC       ass().getSimpleName(),           vent);
 		}
 
 	}
 
-	public RequestFilter getRequestFilter() {
-		return new RequestFilter();
+	public RequestFilter getRequest    ilter() {
+		return new RequestFilt        ();
 	}
 	
-	public StreamCreateFilter getStreamCreateFilter() {
-	    return new StreamCreateFilter();
+	public StreamCreateFilter getSt       eamCreateFilter() {
+	       return new StreamCreateFilter();
 	}
 
 	public ResponseFilter getResponseFilter() {

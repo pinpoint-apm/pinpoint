@@ -30,20 +30,20 @@ import com.navercorp.pinpoint.web.vo.scatter.Dot;
  */
 public interface ApplicationTraceIndexDao {
 
-	LimitedScanResult<List<TransactionId>> scanTraceIndex(String applicationName, Range range, int limit);
+    LimitedScanResult<List<TransactionId>> scanTraceIndex(String applicationName, Range range, int limit)
 
-	LimitedScanResult<List<TransactionId>> scanTraceIndex(String applicationName, SelectedScatterArea range, int limit);
+	LimitedScanResult<List<TransactionId>> scanTraceIndex(String applicationName, SelectedScatterArea range, int lim    t);
 
-	List<Dot> scanTraceScatter(String applicationName, Range range, int limit);
+	List<Dot> scanTraceScatter(String applicationName, Range range, int     i        t);
 
 	/**
 	 *
-	 * select transactions in a selection range(box) in the scatter chart.
+	 * select transactions in a selection range(box) in t    e    scatter chart.
 	 * 
-	 * @param applicationName
+	 *    @param appli    ationName
 	 * @param area
-	 * @param offsetTransactionId
-	 * @param offsetTransactionElapsed
+	    * @param offsetTransactionId
+	 *    @param offset    ransacti    n    lapsed
 	 * @param limit
 	 * @return
 	 */

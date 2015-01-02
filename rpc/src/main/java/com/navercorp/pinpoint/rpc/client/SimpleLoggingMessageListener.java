@@ -26,19 +26,19 @@ import com.navercorp.pinpoint.rpc.packet.SendPacket;
 
 public class SimpleLoggingMessageListener implements MessageListener {
     
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public static final SimpleLoggingMessageListener LISTENER = new SimpleLoggingMessageListener();
+    public static final SimpleLoggingMessageListener LISTENER = new SimpleLoggingMessageListener()
 
-	@Override
+	@Ove    ride
 	public void handleSend(SendPacket sendPacket, Channel channel) {
-        logger.info("handlerSend {} {}", sendPacket, channel);
-	}
+        logger.info("handlerSend {} {}", sendPacket, c        nnel);
+    }
 
 	@Override
-	public void handleRequest(RequestPacket requestPacket, Channel channel) {
+	public void handleRequest(RequestPacket requestPacket, C       annel channel) {
 		channel.write(new ResponsePacket(requestPacket.getRequestId(), new byte[0]));
-        logger.info("handlerRequest {} {}", requestPacket, channel);
+        logger.info("handlerRequest {} {}", r    questPacket, channel);
 	}
 
 }

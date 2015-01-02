@@ -32,52 +32,52 @@ import com.navercorp.pinpoint.rpc.util.MapUtils;
  */
 public class ChannelContextClusterPoint implements TargetClusterPoint {
 
-	private final ChannelContext channelContext;
-	private final SocketChannel socketChannel;
+    private final ChannelContext channelContex    ;
+	private final SocketChannel socketChan    el;
 
-	private final String applicationName;
-	private final String agentId;
-	private final long startTimeStamp;
+	private final String applicat    onName;
+	private final Stri    g agentId;
+	private final long st    rtTimeStamp;
 
-	private final String version;
+	private final    String version;
 
-	public ChannelContextClusterPoint(ChannelContext channelContext) {
-		AssertUtils.assertNotNull(channelContext, "ChannelContext may not be null.");
-		this.channelContext = channelContext;
+	public ChannelContextClusterPoint(ChannelConte       t channelContext) {
+		AssertUtils.assertNotNull(channelContext, "ChannelC       ntext may not be null.");
+		this.c       annelContext = channelContext;
 
-		this.socketChannel = channelContext.getSocketChannel();
-		AssertUtils.assertNotNull(socketChannel, "SocketChannel may not be null.");
+		this.socketChanne        = channelContext.getSocketChannel();
+		AssertUtils.assertNotNull(socket       hannel, "SocketChannel may not be null.");
 
-		Map<Object, Object> properties = channelContext.getChannelProperties();
-		this.version = MapUtils.getString(properties, AgentHandshakePropertyType.VERSION.getName());
-		AssertUtils.assertTrue(!StringUtils.isBlank(version), "Version may not be null or empty.");
+		Map<Object, Object> p       operties = channelContext.getChannelProperties();
+		this.version = MapUtils.getString(pr       perties, AgentHandshakePropertyType.VERSION.getName());
+		AssertUtils.assertTrue(!String       tils.isBlank(version), "Version may not be null or empty.");
 
-		this.applicationName = MapUtils.getString(properties, AgentHandshakePropertyType.APPLICATION_NAME.getName());
-		AssertUtils.assertTrue(!StringUtils.isBlank(applicationName), "ApplicationName may not be null or empty.");
+		this.applicationName = MapUtils.getString       properties, AgentHandshakePropertyType.APPLICATION_NAME.getName());
+		AssertUtils.assertTrue(!StringUtil       .isBlank(applicationName), "ApplicationName may not be null or empty.");
 
-		this.agentId = MapUtils.getString(properties, AgentHandshakePropertyType.AGENT_ID.getName());
-		AssertUtils.assertTrue(!StringUtils.isBlank(agentId), "AgentId may not be null or empty.");
+		this.agentId         MapUtils.getString(properties, AgentHandshakePropertyType.AGENT_ID.getName());
+		Assert       tils.assertTrue(!StringUtils.isBlank(agentId), "AgentId may not be null or empty.");
 
-		this.startTimeStamp = MapUtils.getLong(properties, AgentHandshakePropertyType.START_TIMESTAMP.getName());
-		AssertUtils.assertTrue(startTimeStamp > 0, "StartTimeStamp is must greater than zero.");
+		this.startTim       Stamp = MapUtils.getLong(properties, AgentHandshakePropertyType.START_TIMESTAMP.getN        e());
+	    AssertUtils.assertTrue(startT       meStamp > 0, "StartTimeStamp        s must     reater than zero.");
 	}
 
-	@Override
+	@Overrid
 	public void send(byte[] data) {
-		socketChannel.sendMessage(data);
+		socket        annel.s    ndMessage(data);
 	}
 
 	@Override
-	public Future request(byte[] data) {
-		return socketChannel.sendRequestMessage(data);
+	p       blic Future request        yte[] d    ta) {
+		return socketChann       l.sendReque        Message(data);
 	}
 
 	@Override
-	public String getApplicationName() {
-		return applicationName;
+	       ublic String getAp        ication    ame() {
+		return applicati       nName;
 	}
 
-	@Override
+    @Override
 	public String getAgentId() {
 		return agentId;
 	}
@@ -107,13 +107,13 @@ public class ChannelContextClusterPoint implements TargetClusterPoint {
         
         result = prime * result + ((applicationName == null) ? 0 : applicationName.hashCode());
         result = prime * result + ((agentId == null) ? 0 : agentId.hashCode());
-        result = prime * result + (int) (startTimeStamp ^ (startTimeStamp >>> 32));
-        result = prime * result + ((version == null) ? 0 : version.hashCode());
+        r    sult =     rime * result + (int) (startTimeS       amp ^ (startTi          eStamp             >>> 32));
+        result = prime * result + ((          ersion              = null) ? 0 : version.hashCode());
         return result;
     }
     
 	@Override
-	public boolean equals(Object obj) {
+	pub          ic boo             ean equa    s(Object obj) {
 		if (this == obj) {
 			return true;
 		}

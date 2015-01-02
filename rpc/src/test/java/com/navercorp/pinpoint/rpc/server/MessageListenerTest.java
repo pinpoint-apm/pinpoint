@@ -46,35 +46,35 @@ import com.navercorp.pinpoint.rpc.server.SimpleLoggingServerMessageListener;
 
 public class MessageListenerTest {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass())
 
-	@Test
-	public void serverMessageListenerTest1() throws InterruptedException {
-		PinpointServerSocket ss = new PinpointServerSocket();
-		ss.bind("127.0.0.1", 10234);
-		ss.setMessageListener(new SimpleListener());
+	    Test
+	public void serverMessageListenerTest1() throws InterruptedExc       ption {
+		PinpointServerSocket ss = new PinpointS       rverSocket();
+		ss.bind(       127.0.0.1", 10234);
+		ss.setMessageListen       r(new SimpleListener());
 
-		PinpointSocketFactory socketFactory1 = createPinpointSocketFactory();
-		socketFactory1.setMessageListener(new EchoMessageListener());
+		PinpointSocketFactory socketFactory1         createPinpointSocketFactory();
+		socketFactory1.setMessag       Listener(new EchoMessageListener());
 
-		PinpointSocketFactory socketFactory2 = createPinpointSocketFactory();
+		PinpointSocketFactory sock       tF          ctory2 = createPinpointSocketFactory();
 
 		try {
 
-			PinpointSocket socket = socketFactory1.connect("127.0.0.1", 10234);
-			PinpointSocket socket2 = socketFactory2.connect("127.0.0.1", 10234);
+			Pinpoint          ocket socket = socketFactory1.connect("127.0.0.1", 10234);
+			P          npointSocket           ocket2 = socketFactory2.connect("127.0.0.1", 10234);
 
 			Thread.sleep(500);
 
-			List<ChannelContext> channelContextList = ss.getDuplexCommunicationChannelContext();
-			if (channelContextList.size() != 2) {
+	          	List<ChannelContext> channelCo             textLi                   t = ss          getDuplexC       mmunica          ionChannelContext()
+			if (channelCont                                tL    st.size() != 2) {
 				Assert.fail();
 			}
 
 			socket.close();
-			socket2.close();
+			soc       et2.close();
 		} finally {
-			socketFactory1.release();
+			socketFactory1.rele       se();
 			socketFactory2.release();
 			
 			ss.close();
@@ -82,84 +82,81 @@ public class MessageListenerTest {
 	}
 
 	@Test
-	public void serverMessageListenerTest2() throws InterruptedException {
-		PinpointServerSocket ss = new PinpointServerSocket();
-		ss.bind("127.0.0.1", 10234);
-        ss.setMessageListener(new SimpleListener());
+	public v       id serverMessageListenerTest2() throws InterruptedException {
+		P       npointServerSocket ss = new PinpointServerSocket();
+		ss.bind("1       7.0.0.1", 10234);
+        ss.setMessageListener(new       Si          pleListener());
 
-		EchoMessageListener echoMessageListener = new EchoMessageListener();
+		EchoMessageListener echoMessageListener =          new EchoMessa          eListener();
 
-		PinpointSocketFactory socketFactory = createPinpointSocketFactory();
-		socketFactory.setMessageListener(echoMessageListener);
+		PinpointSocketFactory socketFactory = createPinpointSocketFact          ry();
+		socketFactory.setMessag             Listen                   r(echoMessageListener);
 
 		try {
 
-			PinpointSocket socket = socketFactory.connect("127.0.0.1", 10234);
-			Thread.sleep(500);
+			PinpointSock                   t socket = socketFactory.connect("127.0.0.1", 10234);
+		          Thread.sleep                   500);
 
 			List<ChannelContext> channelContextList = ss.getDuplexCommunicationChannelContext();
-			if (channelContextList.size() != 1) {
+			                   f (channelContextList.size() != 1) {
 				Assert.fail();
 			}
 
-			ChannelContext channelContext = channelContextList.get(0);
+			ChannelContext channelContext =           hannelCon          extList.get(0);
 			
-			channelContext.getSocketChannel().sendMessage("simple".getBytes());
-			Thread.sleep(100);
+			channelContext.g          tSocketChannel().sendMessage("simple".getBytes());
+			Threa          .sleep(100);
 			
-			Assert.assertEquals("simple", new String(echoMessageListener.getSendPacketRepository().get(0).getPayload()));
+			Assert.assertEquals("simple", new String(echoMessageListener.getSendPacketRepository().                   et(0       .getPay          oad()));
 			
-			Future<ResponseMessage> future = channelContext.getSocketChannel().sendRequestMessage("request".getBytes());
+			Fu          ure<R             sp    nseMessage> future = channelContext.getSocketChannel().sendRequestMe       sage("request".getBytes());
 			future.await();
-			ResponseMessage message = future.getResult();
-			Assert.assertEquals("request", new String(message.getMessage()));
-			Assert.assertEquals("request", new String(echoMessageListener.getRequestPacketRepository().get(0).getPayload()));
+		       ResponseMessage message = future.getResult();
+			Assert.assertEquals("request"        new String(message.getMessage()));
+			Assert.assertEquals("reque       t", new String(echoMessageListener.getRequestPacketRepository().g       t(0).getPayload()));
 			
 			socket.close();
-		} finally {
+		} fina             ly {
 			socketFactory.release();
 			ss.close();
 		}
 	}
 
-	@Test
-	public void serverMessageListenerTest3() throws InterruptedException {
-		PinpointServerSocket ss = new PinpointServerSocket();
+	@Test       	public void serverMessageListenerTest3() throws InterruptedExcep       ion {
+		PinpointServerSocket ss = new PinpointServer                      ocket();
 		ss.bind("127.0.0.1", 10234);
-        ss.setMessageListener(new SimpleListener());
+        ss.setMessage          istener(new SimpleListener());
 
-		PinpointSocketFactory socketFactory1 = createPinpointSocketFactory();
-		EchoMessageListener echoMessageListener1 = new EchoMessageListener();
-		socketFactory1.setMessageListener(echoMessageListener1);
+		PinpointSocketFactory socket                   actory1            createPinpointSocketFactory();
+		EchoMessageListener echoMessageListener1 = n          w EchoMessageListener();
+		sock             tFacto                   y1.setMessageListener(echoMessageListener1);
 		
-		PinpointSocketFactory socketFactory2 = createPinpointSocketFactory();
-		EchoMessageListener echoMessageListener2 = new EchoMessageListener();
-		socketFactory2.setMessageListener(echoMessageListener2);
+	          PinpointSocketFactory socketFactory2 = createPinpointSocketFactory();
+		EchoMessageListener echoMessag          Listener2 = new EchoMessageListener();
+		socketFactor          2.setMessageListener(echoMessageListener2);
 		
 		try {
 
-			PinpointSocket socket = socketFactory1.connect("127.0.0.1", 10234);
-			PinpointSocket socket2 = socketFactory2.connect("127.0.0.1", 10234);
+			PinpointSocket socket = socketFactory1.connect          "127.0.0.          ", 10234);          			PinpointSocket socket2 = socketFactory2.connect("127.0.0.1", 10234)
 			
 			Thread.sleep(500);
 
-			List<ChannelContext> channelContextList = ss.getDuplexCommunicationChannelContext();
-			if (channelContextList.size() != 2) {
+			List<ChannelContext> channelContextList                     ss.          etDuplexCo       municat          onChannelContext();          			if (channelConte                                       ist.size() != 2) {
 				Assert.fail();
 			}
 
-			ChannelContext channelContext = channelContextList.get(0);
-			Future<ResponseMessage> future = channelContext.getSocketChannel().sendRequestMessage("socket1".getBytes());
-			ChannelContext channelContext2 = channelContextList.get(1);
-			Future<ResponseMessage> future2 = channelContext2.getSocketChannel().sendRequestMessage("socket2".getBytes());
+			ChannelContext channe       Context = channelContextList.get(0);
+			Future<Re       ponseMessage> future = channelContext.getSocketChannel().sendRequestMessage("s       cket1".getBytes());
+	       	ChannelContext channelContext2 = channelContextList.get(1);
+			Future       ResponseMessage> future2 = channelContext2.getSocketChann       l                   ).sendRequestMessage("socket2".getBytes());
 
-			future.await();
-			future2.await();
+			future.                   wait();
+          		future2.await();
 			Assert.assertEquals("socket1", new String(future.getResult().getMessage()));
 			Assert.assertEquals("socket2", new String(future2.getResult().getMessage()));
 			
-			socket.close();
-			socket2.close();
+          		socket.close();
+			socket2.clo          e();
 		} finally {
 			socketFactory1.release();
 			socketFactory2.release();
@@ -169,64 +166,62 @@ public class MessageListenerTest {
 	}
 	
 	@Test
-	public void serverMessageListenerTest4() throws InterruptedException {
-		PinpointServerSocket ss = new PinpointServerSocket();
-		ss.bind("127.0.0.1", 10234);
-        ss.setMessageListener(new SimpleListener());
+	public void serverMessageListenerTest4() throws InterruptedE          ception {
+		PinpointServerSoc          et ss = n       w Pinpo          ntServerSocket();
+          	ss.b             nd    "127.0.0.1", 10234);
+        ss.setMessageListener(new SimpleListene       ());
 
 		Map params = getParams();
-		PinpointSocketFactory socketFactory = createPinpointSocketFactory(params);
-		socketFactory.setMessageListener(new EchoMessageListener());
+		PinpointSocke       Factory socketFactory = createPinpointSocketFactory(params);
+		socketFactory.s       tMessageListener(new EchoMessageListener());
 
 		try {
 			
-			PinpointSocket socket = socketFactory.connect("127.0.0.1", 10234);
+			Pin       ointSocket socket = socketFactory.connect("127.0.0.1", 10234);
 			
-			Thread.sleep(500);
+	       	          hread.sleep(500);
 
-			ChannelContext channelContext = getChannelContext("application", "agent", (Long) params.get(AgentHandshakePropertyType.START_TIMESTAMP.getName()), ss.getDuplexCommunicationChannelContext());
-			Assert.assertNotNull(channelContext);
+			ChannelContext channelContext = getChannelContext("application          , "agent", (Long) params.get(AgentHandshakePropertyType.START          TIMESTAMP.get          ame()), ss.getDuplexCommunicationChannelContext());
+			Assert.assertNotNull(ch          nnelContext);
 
-			channelContext = getChannelContext("application", "agent", (Long) params.get(AgentHandshakePropertyType.START_TIMESTAMP.getName()) + 1, ss.getDuplexCommunicationChannelContext());
-			Assert.assertNull(channelContext);
+			channelContex              = get                   hannel       ontext(          application", "age          t", (             ong) params.get(AgentHandshakePropertyType.START_TIMESTAMP.getN    me(    ) + 1, ss.getDuplexCommunicationChannelContext());
+			Assert.assertN       ll(channelContext);
 
 			socket.close();
 		} finally {
-			socketFactory.release();
+			so             ketFactory.release();
 			ss.close();
 		}
 	}
 
-	@Test
-	public void serverMessageListenerTest5() throws InterruptedException {
-		PinpointServerSocket ss = new PinpointServerSocket();
+	       Test
+	public void server       essageListenerTest5() throws Interr       ptedException {
+		PinpointServerSocket ss = new PinpointServerSo       ket();
 		ss.bind("127.0.0.1", 10234);
-        ss.setMessageListener(new SimpleListener());
+              ss.setMessageListener(new SimpleListener());
 
-		PinpointSocketFactory socketFactory = createPinpointSocketFactory();
-		socketFactory.setMessageListener(SimpleLoggingMessageListener.LISTENER);
-		try {
-			// SimpleLoggingMessageListener.LISTENER as default listener can't connect by duplex mode.
-			PinpointSocket socket = socketFactory.connect("127.0.0.1", 10234);
+		Pinpo                      ntSocketFactory socketFactory = createPinpointSocketFactory();
+		socketFactory.setMe          sageListener(SimpleLoggingMessageListener.LISTENER);
+		try {          			// SimpleLo          gingMessageListener.LISTENER as default listener can't connect by duplex mode.          			PinpointSocket socket = sock             tFacto                            y.connect("127.0.0.1", 10234);
 
 			Thread.sleep(500);
 
-			List<ChannelContext> channelContextList = ss.getDuplexCommunicationChannelContext();
-			if (channelContextList.size() != 1) {
+	          	List<ChannelContext> channelContextList = ss.getDuplex             ommuni                   ationC       annelCo          text();
+			if (cha          nelCo                textList.size() != 1) {
 				Assert.fail();
 			}
 
-			socket.close();
+			sock       t.close();
 		} finally {
-			socketFactory.release();
+			socketFactory.re        ase();
 			ss.close();
 		}
 	}
 
-	// confirm how many times retry when packet has not been received.
+	// confirm how many times retry when        acket has not been received.
 	@Test
-	public void serverMessageListenerTest6() throws InterruptedException {
-		DuplexCheckListener serverListener = new DuplexCheckListener();
+	public void serverMessageListener       est6() throws InterruptedException {
+		D       plexCheckListener serverL        tener = new DuplexCheck       istener();
 		
 		PinpointServerSocket ss = new PinpointServerSocket();
 		ss.bind("127.0.0.1", 10234);
@@ -247,50 +242,48 @@ public class MessageListenerTest {
 				Assert.fail();
 			}
 			
-			System.out.println(serverListener.getReceiveEnableWorkerPacketCount());
-			if (serverListener.getReceiveEnableWorkerPacketCount() < 8) {
+			System.out.pr       ntln(serverLis        ner.getReceiveEnableWorkerPacketCount());
+			if (ser       erListener.getReceiveEnableWorkerPacketCount() < 8) {
 				Assert.fail();
 			}
-
-			socket.close();
+       			socket.close();
 		} finally {
 			socketFactory.release();
 			ss.close();
 		}
 	}
 	
-	private PinpointSocketFactory createPinpointSocketFactory() {
-		return createPinpointSocketFactory(getParams());
+	pr       vate        inpointSocketFactory createPinpointSocketFactory() {
+		retur           createPinpointSocketFactory(ge                   Params());
 	}
 
-	private PinpointSocketFactory createPinpointSocketFactory(Map param) {
-		PinpointSocketFactory pinpointSocketFactory = new PinpointSocketFactory();
-		pinpointSocketFactory.setProperties(param);
+	private PinpointSocketFactory createPinpointSocketFactory(Map             para       ) {
+		PinpointSocketFactory pinpointSocketFactory = new PinpointSocke          Factory();
+		pinpointSocketFactory.se                   Properties(param);
 
-		return pinpointSocketFactory;
+		return pinp          intSocketFactory;
 	}
 
-	private Map getParams() {
+	privat           Map getParams() {
 		Map properties = new HashMap();
 
-        properties.put(AgentHandshakePropertyType.AGENT_ID.getName(), "agent");
-        properties.put(AgentHandshakePropertyType.APPLICATION_NAME.getName(), "application");
-        properties.put(AgentHandshakePropertyType.HOSTNAME.getName(), "hostname");
-        properties.put(AgentHandshakePropertyType.IP.getName(), "ip");
-        properties.put(AgentHandshakePropertyType.PID.getName(), 1111);
+        properties.put(AgentHand             hakePropertyType.AGENT_ID.getName(), "agent");                  properties.put             AgentHandshakePropertyType.APPLICATION_NAME.getName(          , "application");
+                       properties.put(AgentHandshakePropertyType.HOSTNAME.getName(), "ho             tname");
+        properties.put(AgentHandshakePropertyType.IP.getName(), "             p"       ;
+        properties.put(AgentHandshakePropertyType.PID.ge          Name(), 1111);
         properties.put(AgentHandshakePropertyType.SERVICE_TYPE.getName(), 10);
-        properties.put(AgentHandshakePropertyType.START_TIMESTAMP.getName(), System.currentTimeMillis());
+        pro             erties.put(AgentHandshakePropertyType.START          TIMESTAMP.getName(), System.currentTim                      Millis());
         properties.put(AgentHandshakePropertyType.VERSION.getName(), "1.0");
         
 		return properties;
 	}
 
-	class EchoMessageListener implements MessageListener {
-		private final List<SendPacket> sendPacketRepository = new ArrayList<SendPacket>();
-		private final List<RequestPacket> requestPacketRepository = new ArrayList<RequestPacket>();
+	class EchoMessageListene     implements MessageListener {
+		       rivate final    Lis    <S    ndPacket> sendPacketRepo       itory = new     rra    Li    t<SendPacket>();
+		private fi       al List<Requ    stP    ck    t> requestPacketRepository = new ArrayList<RequestPacket>();
 
 		@Override
-		public void handleSend(SendPacket sendPacket, Channel channel) {
+		p    blic void handleSend(SendPacket sendPacket, Channel channel) {
 			sendPacketRepository.add(sendPacket);
 			
 			byte[] payload = sendPacket.getPayload();
@@ -318,15 +311,14 @@ public class MessageListenerTest {
 	
 	class DuplexCheckListener extends SimpleLoggingServerMessageListener {
 		
-		private final AtomicInteger receiveEnableWorkerPacketCount = new AtomicInteger();
-		
+		private fina     At    mic    nteger receiveEnableWorkerPacketCount =       new AtomicIn    eger    );
 		@Override
-		public HandshakeResponseCode handleHandshake(Map properties) {
-			receiveEnableWorkerPacketCount.incrementAndGet();
+		public HandshakeRespon       eCode handleHandshake(Map propert    es) {
+			r       ceiveEnableWorkerPacketCount.incrementAndGet();
             return HandshakeResponseType.Error.UNKNOWN_ERROR;
 		}
 
-		public int getReceiveEnableWorkerPacketCount() {
+		public int getReceive       nableWorkerP    cketC       unt() {
 			return receiveEnableWorkerPacketCount.get();
 		}
 		
@@ -337,7 +329,7 @@ public class MessageListenerTest {
     		return null;
     	}
     	
-    	if (agentId == null) {
+    	if (agentI     =        null) {
     		return null;
     	}
     	

@@ -32,28 +32,28 @@ import org.mockito.Mock;
  */
 public class DefaultSqlSessionModifierTest extends MyBatisClientModifierTest {
 
+    @Mo    k
+	private Configuration configura    ion
 	@Mock
-	private Configuration configuration;
-	@Mock
-	private Executor executor;
+	private Executo        execu    or;
 	
 	@Override
-	protected SqlSession getSqlSession() {
-		return new DefaultSqlSession(this.configuration, this.executor);
+	protected SqlSessi       n getSqlSession() {
+		return new DefaultSqlSession(this.conf        uration     th    s.executor);
 	}
 
 	@Override
 	@Test
-	public void selectMapShouldBeTraced() throws Exception {
-		ObjectFactory objectFactory = mock(ObjectFactory.class);
-		when(this.configuration.getObjectFactory()).thenReturn(objectFactory);
+	public void select       apShouldBeTraced() throws Exception {
+		ObjectFactor        objectFactory = mock(ObjectFactory.class);
+		when(this.configurat       on.getObjectFactory()).thenR        urn(obj    ctF    ctory);
 		super.selectMapShouldBeTraced();
 	}
 
 	@Override
-	@Test
-	public void getConnectionShouldBeTraced() throws Exception {
-		Transaction mockTransaction = mock(Transaction.class);
+       @Test
+	public void getConnectionShouldBeTraced() t       rows Exception {
+		Transaction mockTransaction = mock(Transac    ion.class);
 		when(this.executor.getTransaction()).thenReturn(mockTransaction);
 	}
 }
