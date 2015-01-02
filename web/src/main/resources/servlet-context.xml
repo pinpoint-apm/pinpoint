@@ -28,12 +28,12 @@
 	</context:component-scan>
 
     <bean id="jsonView" class="org.springframework.web.servlet.view.json.MappingJackson2JsonView">
-        <!-- 별도 필터에서 하고 있음.-->
+		<!-- another filter caches -->
         <property name="disableCaching" value="false"/>
     </bean>
 
     <bean id="jsonpView" class="com.navercorp.pinpoint.web.util.MappingJackson2JsonpView">
-        <!-- 별도 필터에서 하고 있음.-->
+		<!-- another filter caches -->
         <property name="disableCaching" value="false"/>
     </bean>
 

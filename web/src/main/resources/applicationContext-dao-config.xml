@@ -32,27 +32,27 @@
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="dataSource"/>
 
-        <!-- mybatis 기본설정 -->
+        <!-- mybatis basic config -->
         <property name="configLocation" value="classpath:/mybatis-config.xml"/>
 
         <!-- typeAliases -->
         <property name="typeAliasesPackage" value="com.navercorp.pinpoint.web.alarm.vo" />
 
-		<!-- mapper 의 위치를 설정한다.-->
+        <!-- setting the location of mapper -->
         <property name="mapperLocations" value="classpath:/mapper/*Mapper.xml"/>
  
-        <!-- statement 선언의 오류를 좀 더 빠르게 파악하기 위해서 true로 설정 -->
+        <!-- set "true" in order to catch the errors of declaration of statement more quickly -->
         <property name="failFast" value="true"/>
 
         <property name="plugins">
             <list>
-                <!-- mybatis 3.2 에서 호환성이 깨진 부분이 있어 패치 버전을 끼워 넣음-->
+                <!-- use the patch version because of mybatis 3.2's incompatibility-->
                 <bean class="com.navercorp.pinpoint.web.dao.ibatis.BindingLogPlugin32"/>
             </list>
         </property>
     </bean>
 
-	<!-- interface mapper 설정시 사용 
+	<!-- in case of using interface mapper
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
 		<property name="basePackage" value="com.navercorp.pinpoint.web.mapper.mysql" />
 		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" /> 
@@ -62,7 +62,7 @@
         <constructor-arg index="0" ref="sqlSessionFactory"></constructor-arg>
     </bean>
 
-    <!-- batch용 executorType 설정 -->
+    <!-- setting of executorType for batch -->
     <bean id="batchSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
         <constructor-arg index="0" ref="sqlSessionFactory"/>
         <constructor-arg index="1" value="BATCH"/>

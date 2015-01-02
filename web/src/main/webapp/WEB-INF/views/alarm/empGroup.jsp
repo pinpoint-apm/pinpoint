@@ -53,12 +53,12 @@
 
 </head>
 <body>
-<!-- 화면 이름 -->
+<!-- screen name -->
 <center>
-	<h1>사용자 그룹 설정</h1>
+	<h1>Setting for user group</h1>
 </center>
 
-<!-- 사원 그룹 검색 -->
+<!-- Search for user group -->
 <center>
 	<form action="./getMember.pinpoint">
 		<select name="groupName">
@@ -66,30 +66,30 @@
 				<option value="${groupName}">${groupName}</option>
 			</c:forEach>
 		</select>
-		<button value="검색">검색</button>
+		<button value="Search">Search</button>
 	</form>
 	</br>
 </center>
 
-<!-- 사원 리스트 출력 -->
+<!-- employee list -->
 <center>
 	<form name="empGroupForm" method="post" onsubmit="return onSubmitForm();">
 		<table id="empGroup" frame="void" border="1">
-			<!-- 사원 추가 -->
+			<!-- Add employee -->
 			<tr bordercolor="white">
 					<td align="left" colspan="3">
-						<button type="button" onclick='append_member_input()'>행추가</button>
-						<button type="button" onclick='remove_member_input()'>행삭제</button>
+						<button type="button" onclick='append_member_input()'>add</button>
+						<button type="button" onclick='remove_member_input()'>delete</button>
 					</td>
 			</tr>
 			<tr bordercolor="white">
 			</tr>
 						
-			<!-- 사원 정보 리스트 출력 -->
+			<!-- employee information list -->
 			<tr>
-				<th>삭제</th>
-				<th>그룹 이름</th>
-				<th>사용자 아이디</th>
+				<th>Delete</th>
+				<th>Group Name</th>
+				<th>Employee Id</th>
 			</tr>
 			<c:forEach var="emp" items="${groupMember}" varStatus="empIndex">
 					<tr>
@@ -98,16 +98,16 @@
 						<td><input type="text" name="emps[${empIndex.index}].empId" value="${emp.empId}"/></td>
 					</tr>
 			</c:forEach>
-			<!-- 사원 정보 등록 & 수정 -->
+			<!-- register/modify employee information  -->
 			
 			
 			<tr bordercolor="white">
 			</tr>
 			<tr bordercolor="white">
 				<td align="right" colspan="3">
-					<button onclick="document.pressed=this.value" value="insert">신규등록</button>
-					<button onclick="document.pressed=this.value" value="update">저장</button>
-					<button onclick="document.pressed=this.value" value="delete">그룹삭제</button>
+					<button onclick="document.pressed=this.value" value="insert">new</button>
+					<button onclick="document.pressed=this.value" value="update">save</button>
+					<button onclick="document.pressed=this.value" value="delete">delete group</button>
 				</td>
 			</tr>
 		</table>

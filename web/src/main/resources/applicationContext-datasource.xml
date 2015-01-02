@@ -25,7 +25,7 @@
         <property name="minEvictableIdleTimeMillis" value="-1"/>
         <property name="validationQuery" value="SELECT 1"/>
 
-        <!-- preparedStatement cache 사용여부 -->
+        <!-- use cache or not for preparedStatement-->
         <property name="poolPreparedStatements" value="true"/>
 		<property name="maxOpenPreparedStatements" value="50"/>
 	</bean>
